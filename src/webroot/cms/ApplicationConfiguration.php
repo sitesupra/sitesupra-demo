@@ -39,6 +39,12 @@ class ApplicationConfiguration extends ComponentConfiguration
 	 * @var string
 	 */
 	public $classname;
+	
+	/**
+	 * When the application must be disabled entirely
+	 * @var boolean
+	 */
+	public $disable = false;
 
 	/**
 	 * Configure
@@ -52,7 +58,12 @@ class ApplicationConfiguration extends ComponentConfiguration
 		}
 
 		$config = CmsApplicationConfiguration::getInstance();
-		$config->addConfiguration($this);
+		
+		if ($this->disable) {
+			$config->removeConfiguration($this);
+		} else {
+			$config->addConfiguration($this);
+		}
 
 		ObjectRepository::setApplicationConfiguration($this->id, $this);
 	}
@@ -67,7 +78,7 @@ class ApplicationConfiguration extends ComponentConfiguration
 			'title' => $this->title,
 			'icon' => $this->icon,
 			//TODO: hardcoded CMS URL
-			'path' => '/cms/' . $this->url,
+			'path' => '/' . SUPRA_CMS_URL . '/' . $this->url . '/',
 		);
 		
 		if ($this->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {

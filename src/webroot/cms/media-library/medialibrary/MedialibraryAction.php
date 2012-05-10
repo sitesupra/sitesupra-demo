@@ -85,11 +85,15 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 			
 			$title = $rootNode->getFileName();
-			$titles = null;
+			$titles = $description = $descriptions = null;
 			
 			if ($rootNode instanceof Entity\File) {
 				$title = $rootNode->getTitle($localeId);
 				$titles = $rootNode->getTitleArray();
+				
+				$description = $rootNode->getDescription($localeId);
+				$descriptions = $rootNode->getDescriptionArray();
+				
 				$extension = mb_strtolower($rootNode->getExtension());
 				
 				$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
@@ -109,7 +113,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				// TODO: hardcoded 30x30
 				if ($this->fileStorage->fileExists($rootNode)) {
 					$sizeName = $this->fileStorage->createResizedImage($rootNode, 30, 30, true);
-					$item['thumbnail'] = $this->fileStorage->getWebPath($rootNode, $sizeName);
+					if ($rootNode->isPublic()) {
+						$item['thumbnail'] = $this->fileStorage->getWebPath($rootNode, $sizeName);
+					} else {
+						$item['thumbnail'] = $this->getPrivateImageWebPath($rootNode, $sizeName);
+					}
 				}
 			}
 
@@ -120,6 +128,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$item['type'] = $this->getEntityType($rootNode);
 			$item['children_count'] = $rootNode->getNumberChildren();
 			$item['private'] = ! $rootNode->isPublic();
+			$item['defaultDescription'] = $description;
+			$item['description'] = $descriptions;
 
 			$output[] = $item;
 		}
@@ -421,6 +431,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 			
 			// adding file as folders child if parent folder is set
+			$folder = null;
 			if ( ! $this->emptyRequestParameter('folder')) {	
 
 				$folder = $this->getFolder('folder');
@@ -430,6 +441,40 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$fileEntity->setPublic($publicStatus);
 				
 				$folder->addChild($fileEntity);
+			}
+			
+			if ($fileEntity instanceof Entity\Image) {
+				try {
+					$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
+				} catch (\Supra\FileStorage\Exception\InsufficientSystemResources $e) {
+					
+					$this->entityManager->flush();
+					$this->entityManager->remove($fileEntity);
+					$this->entityManager->flush();
+					
+					$fileEntity = new Entity\File();
+					
+					$this->entityManager->persist($fileEntity);
+					
+					$fileEntity->setFileName($file['name']);
+					$fileEntity->setSize($file['size']);
+					$fileEntity->setMimeType($file['type']);
+					
+					$fileData = new Entity\MetaData($localeId);
+					$fileData->setMaster($fileEntity);
+					$fileData->setTitle($humanName);
+					
+					if ( ! is_null($folder)) {
+						$publicStatus = $folder->isPublic();
+						$fileEntity->setPublic($publicStatus);
+				
+						$folder->addChild($fileEntity);
+					}
+					
+					$message = "Amount of memory required for image [{$humanName}] resizing exceeds available, it will be uploaded as File";
+					$this->getResponse()
+							->addWarningMessage($message);
+				}
 			}
 			
 			try {
@@ -518,8 +563,27 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		if ($file instanceof Entity\Image && $this->fileStorage->fileExists($file)) {
 			$thumbSize = $this->fileStorage->createResizedImage($file, 30, 30, true);
 			$previewSize = $this->fileStorage->createResizedImage($file, 200, 200);
-			$output['thumbnail'] = $this->fileStorage->getWebPath($file, $thumbSize);
-			$output['preview'] = $this->fileStorage->getWebPath($file, $previewSize);
+			
+			if ($file->isPublic()) {
+				$output['preview'] = $this->fileStorage->getWebPath($file, $previewSize);
+				$output['thumbnail'] = $this->fileStorage->getWebPath($file, $thumbSize);
+			} else {
+				$output['thumbnail'] = $this->getPrivateImageWebPath($file, $thumbSize);
+				$output['file_web_path'] = $output['preview'] =  $this->getPrivateImageWebPath($file);
+				
+				foreach ($output['sizes'] as $sizeName => &$size) {
+					$sizePath = null;
+
+					if ($sizeName == 'original') {
+						$sizePath = $output['file_web_path'];
+					}
+					else {
+						$sizePath = $this->getPrivateImageWebPath($file, $sizeName);
+					}
+
+					$size['external_path'] = $sizePath;
+				}
+			}
 		}
 		
 		$extension = mb_strtolower($file->getExtension());
@@ -577,6 +641,28 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 		
 		return null;
+	}
+	
+	private function getPrivateImageWebPath(Entity\Image $image, $sizeName = null)
+	{
+		$path = '/' . SUPRA_CMS_URL . '/media-library/download/' . rawurlencode($image->getFileName());
+		$query = array(
+			'inline' => 'inline',
+			'id' => $image->getId(),
+		);
+		
+		if ( ! is_null($sizeName)) {
+		
+			$imageSize = $image->findImageSize($sizeName);
+			
+			if ($imageSize instanceof Entity\ImageSize) {
+				$query['size'] = $imageSize->getFolderName();
+			}
+		}
+		
+		$queryOutput = http_build_query($query);	
+		
+		return $path . '?' . $queryOutput . '&';
 	}
 	
 }

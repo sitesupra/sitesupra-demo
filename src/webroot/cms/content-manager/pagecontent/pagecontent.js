@@ -19,7 +19,7 @@ Supra('dd-drag', function (Y) {
 	];
 
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action,
 		Root = Manager.getAction('Root');
 	
@@ -127,7 +127,7 @@ Supra('dd-drag', function (Y) {
 			Y.Get.script(args, {
 				'onSuccess': function () {
 					//Create classes
-					SU('supra.iframe-handler', 'supra.iframe-contents', 'supra.plugin-layout', Y.bind(function () {
+					Supra('supra.iframe-handler', 'supra.iframe-contents', 'supra.plugin-layout', Y.bind(function () {
 						this.dependancies_loaded = true;
 						this.ready();
 					}, this));
@@ -431,13 +431,17 @@ Supra('dd-drag', function (Y) {
 		 * @private
 		 */
 		render: function () {
+			var highlight = false;
+			
 			this.on('dragstart', function (e) {
+				highlight = this.getContent().get('highlight');
 				this.getContent().fire('block:dragstart', e);
 			}, this);
 			this.on('dragend', function () {
-				this.getContent().set('highlight', false);
+				this.getContent().set('highlight', highlight);
 			}, this);
 			this.on('dragend:hit', function (e) {
+				this.getContent().set('highlight', false);
 				return this.getContent().fire('block:dragend', e);
 			}, this);
 			

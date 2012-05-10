@@ -122,12 +122,12 @@ Supra(function (Y) {
 		onIframeReady: function () {
 			var pagecontent = Manager.getAction('PageContent'),
 				iframe_handler = pagecontent.iframe_handler,
-				layoutTopContainer = SU.Manager.getAction('LayoutTopContainer'),
-				layoutLeftContainer = SU.Manager.getAction('LayoutLeftContainer'),
-				layoutRightContainer = SU.Manager.getAction('LayoutRightContainer');
+				layoutTopContainer = Supra.Manager.getAction('LayoutTopContainer'),
+				layoutLeftContainer = Supra.Manager.getAction('LayoutLeftContainer'),
+				layoutRightContainer = Supra.Manager.getAction('LayoutRightContainer');
 				
 			//iFrame position sync with other actions
-			iframe_handler.plug(SU.PluginLayout, {
+			iframe_handler.plug(Supra.PluginLayout, {
 				'offset': [0, 0, 0, 0]	//Default offset from page viewport
 			});
 			
@@ -283,7 +283,7 @@ Supra(function (Y) {
 					}
 					
 					//Update localization list
-					Manager.getAction('PageHeader').setAvailableLocalizations(data.localizations);
+					Manager.getAction('PageHeader').setAvailableLocalizations(data.localizations, data.global);
 					
 					//Update edit button label to "Edit page" or "Edit template"
 					var label = Supra.Intl.get([this.getType(), 'edit']);
@@ -310,7 +310,7 @@ Supra(function (Y) {
 					if (message_unlock) message_unlock.remove();
 					
 					//Update localization list
-					Manager.getAction('PageHeader').setAvailableLocalizations(data.localizations);
+					Manager.getAction('PageHeader').setAvailableLocalizations(data.localizations, data.global);
 					
 				} else {
 					//Remove loading style
@@ -661,23 +661,22 @@ Supra(function (Y) {
 		},
 		
 		/**
-		 * Duplicate global page
+		 * Create page localization
 		 *
 		 * @param {Number} page_id Page ID
-		 * @param {String} locale Current locale
+		 * @param {Object} newData Object containing locale for the new page and path, title
 		 * @param {String} source_locale Locale from which page will be copied
 		 * @param {Function} callback Callback function, optional
 		 * @param {Object} context Callback function context, optional
 		 */
-		duplicateGlobalPage: function (page_id, locale, source_locale, callback, context) {
-			var uri = this.getDataPath('duplicate-global');
+		createPageLocalization: function (page_id, newData, source_locale, callback, context) {
+			var uri = this.getDataPath('create-localization');
 			
-			var post_data = {
+			var post_data = Supra.mix({
 				'page_id': page_id,
-				'locale': locale,
 				'source_locale': source_locale,
 				'action': 'duplicate'
-			};
+			}, newData);
 			
 			Supra.io(uri, {
 				'data': post_data,

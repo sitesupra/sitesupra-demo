@@ -4,7 +4,7 @@
 		"id": <?php echo rand(); ?>,
 		"icon": "<?php echo $_POST['icon']; ?>",
 		"title": "<?php echo $_POST['title']; ?>",
-		"parent": <?php echo $_POST['parent']; ?>,
+		"parent_id": <?php echo $_POST['parent_id']; ?>,
 		"layout": "<?php echo $_POST['layout']; ?>",
 		"published": false,
 		"scheduled": false,

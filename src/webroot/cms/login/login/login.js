@@ -1,9 +1,9 @@
-SU('supra.input', 'cookie', function (Y) {
+Supra('supra.input', 'cookie', function (Y) {
 
 	var COOKIE_CHANGE_CHECK_INTERVAL = 3000;
 
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Loader = Manager.Loader,
 		Action = Manager.Action;
 	

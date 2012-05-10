@@ -1,8 +1,8 @@
 //Invoke strict mode
 "use strict";
 
-SU(function (Y) {
-
+Supra(function (Y) {
+	
 	/**
 	 * Animations
 	 * @type {Object}
@@ -27,7 +27,7 @@ SU(function (Y) {
 	};
 
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action,
 		Loader = Manager.Loader;
 	
@@ -336,13 +336,13 @@ SU(function (Y) {
 			if (!config) return;
 			
 			var action_id = config.action;
-			var action = SU.Manager.getAction(action_id);
+			var action = Supra.Manager.getAction(action_id);
 			var type = (config.type ? config.type : 'toggle');
 			
 			if (event.target.get('down') || (type != 'toggle' && type != 'tab')) {
 				//Hide previous action
 				if (this.active_action !== null && this.active_action != action_id) {
-					var old_action = SU.Manager.getAction(this.active_action);
+					var old_action = Supra.Manager.getAction(this.active_action);
 					old_action.hide();
 				}
 				if (type == 'toggle' || type == 'tab') {
@@ -357,8 +357,10 @@ SU(function (Y) {
 						action[config.actionFunction](config.id);
 					} else {
 						//Call after action is executed
-						action.once('execute', function () {
-							action[config.actionFunction](config.id);
+						action.once('executedChange', function (e) {
+							if (e.newVal != e.prevVal && e.newVal) {
+								action[config.actionFunction](config.id);
+							}
 						});
 						action.execute();
 					}

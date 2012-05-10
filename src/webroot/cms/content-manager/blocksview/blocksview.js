@@ -1,10 +1,10 @@
 //Invoke strict mode
 "use strict";
 
-SU(function (Y) {
+Supra(function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	var Loader = Manager.Loader;
 	
@@ -210,9 +210,11 @@ SU(function (Y) {
 				this.type = 'palceholders';
 			}
 			
-			//On not first run, then call execute
+			//On first run execute doesn't need to be called
 			if (prev_type) {
 				this.execute();
+			} else {
+				this.renderData();
 			}
 		},
 		
@@ -221,15 +223,6 @@ SU(function (Y) {
 		 */
 		execute: function () {
 			this.show();
-			
-			/*
-			//Show buttons
-			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
-			Manager.getAction('PageButtons').setActiveAction(this.NAME);
-			
-			//Show content
-			Manager.getAction('LayoutRightContainer').setActiveAction(this.NAME);
-			*/
 			
 			//Get all blocks for selected type and display icons
 			this.renderData();

@@ -1,0 +1,109 @@
+<div class="customize">
+	<!-- For PluginLayoutSidebar plugin we need sidebar-header and sidebar-content elements -->
+
+	<!-- Header -->
+	<div class="sidebar-header">
+		<!-- Back -->
+		<button class="button-back hidden"><p></p></button>
+		
+		<!-- Icon -->
+		<img src="" alt="" />
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>
+		
+		<!-- Title -->
+		<h2></h2>
+	</div>
+
+	<!-- Content, "scrollable" class will set actions "scrollable" attribute to true -->
+	<div class="sidebar-content has-header">
+		
+		<!-- Fonts -->
+		
+		<form id="fontsForm" class="yui3-form-fill hidden">
+			<div class="slideshow">
+				<div id="fontsMain" data-title="{# design.sidebar.fonts #}" data-icon="/cms/design/images/sidebar/fonts.png">
+					
+					<p class="label">{# design.sidebar.header #}</p>
+					
+					<a class="button-section" tabIndex="0" data-target="fontsHeading" data-family-source="headingFont" data-color-source="headingColor">
+						<span><span></span></span>
+					</a>
+					
+					<p class="label">{# design.sidebar.body #}</p>
+					
+					<a class="button-section" tabIndex="0" data-target="fontsBody" data-family-source="bodyFont" data-color-source="bodyColor">
+						<span><span></span></span>
+					</a>
+					
+				</div>
+				<div id="fontsHeading" class="hidden" data-title="{# design.sidebar.header #}">
+					
+					<label for="headingColor">{# design.sidebar.color #}</label>
+					<input suType="Color" name="headingColor" id="headingColor" />
+					
+					<label for="headingFont">{# design.sidebar.fonts #}</label>
+					<select suType="Fonts" name="headingFont" id="headingFont" suBackgroundColor="#FFFFFF" suStyle="no-labels" suIconStyle="normal"></select>
+					
+				</div>
+				<div id="fontsBody" class="hidden" data-title="{# design.sidebar.body #}">
+					
+					<label for="bodyColor">{# design.sidebar.color #}</label>
+					<input suType="Color" name="bodyColor" id="bodyColor" />
+					
+					<label for="bodyFont">{# design.sidebar.fonts #}</label>
+					<select suType="Fonts" name="bodyFont" id="bodyFont" suBackgroundColor="#FFFFFF" suStyle="no-labels" suIconStyle="normal"></select>
+					
+				</div>
+			</div>
+		</form>
+		
+		<!-- Background -->
+		
+		<form id="backgroundForm" class="yui3-form-fill hidden">
+			<div class="slideshow">
+				<div id="backgroundMain" data-title="{# design.sidebar.background #}" data-icon="/cms/design/images/sidebar/background.png">
+					
+					<label for="backgroundColor">{# design.sidebar.color #}</label>
+					<input suType="Color" name="backgroundColor" id="backgroundColor" />
+					
+					<label for="backgroundPattern">{# design.sidebar.pattern #}</label>
+					<select suType="Pattern" name="backgroundPattern" id="backgroundPattern" suBackgroundColor="#61C061" suIconStyle="fill"></select>
+					
+				</div>
+			</div>
+		</form>
+		
+		<!-- Buttons -->
+		
+		<form id="buttonsForm" class="yui3-form-fill hidden">
+			<div class="slideshow">
+				<div id="buttonsMain" data-title="{# design.sidebar.buttons #}" data-icon="/cms/design/images/sidebar/buttons.png">
+					
+					<label for="buttonColor">{# design.sidebar.color #}</label>
+					<input suType="Color" name="buttonColor" id="buttonColor" />
+					
+					<label for="buttonStyle">{# design.sidebar.style #}</label>
+					<select suType="Pattern" name="buttonStyle" id="buttonStyle" suBackgroundColor="#61C061" suStyle="no-labels" suIconStyle="button"></select>
+					
+				</div>
+			</div>
+		</form>
+		
+		<!-- Menu -->
+		
+		<form id="menuForm" class="yui3-form-fill hidden">
+			<div class="slideshow">
+				<div id="menuMain" data-title="{# design.sidebar.menu #}" data-icon="/cms/design/images/sidebar/menu.png">
+					
+					<label for="menu">{# design.sidebar.menu #}</label>
+					<select suType="Pattern" name="menu" id="menu" suIconStyle="center"></select>
+					
+				</div>
+			</div>
+		</form>
+		
+	</div>
+	
+</div>

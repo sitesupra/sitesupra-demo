@@ -1,17 +1,17 @@
 //Invoke strict mode
 "use strict";
 
-SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
+Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 
 	//Shortcuts
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
 	//Default properties if none is set in configuration
 	var DEFAULT_PROPERTIES = [{
 			'id': 'title',
 			'type': 'String',
-			'label': SU.Intl.get(['gallerymanager', 'label_title']),
+			'label': Supra.Intl.get(['gallerymanager', 'label_title']),
 			'value': ''
 	}];
 	
@@ -116,7 +116,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 */
 		createSettingsForm: function () {
 			//Get form placeholder
-			var content = Manager.getAction('PageContentSettings').one();
+			var content = Manager.getAction('PageContentSettings').get('contentInnerNode');
 			if (!content) return;
 			
 			//Properties form
@@ -126,35 +126,16 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			
 			var form = new Supra.Form(form_config);
 				form.render(content);
-				form.get('boundingBox').addClass('yui3-form-properties');
-				form.get('boundingBox').addClass('yui3-form-vertical');
 				form.hide();
-			
-			//Form heading
-			var heading = Y.Node.create('<h2>Gallery image properties</h2>');
-			form.get('contentBox').insert(heading, 'before');
-			
-			//Buttons
-			var buttons = Y.Node.create('<div class="yui3-form-buttons"></div>');
-			form.get('contentBox').insert(buttons, 'before');
-			
-			//Save button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'done']), 'style': 'mid-blue'});
-				btn.render(buttons).on('click', this.settingsFormApply, this);
-			
-			//Close button
-			/*
-			var btn = new Supra.Button({'label': 'Close', 'style': 'mid'});
-				btn.render(buttons).on('click', this.settingsFormCancel, this);
-			*/
-			
+						
 			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['buttons', 'delete']), 'style': 'mid-red'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'small-red'});
 				btn.render(form.get('contentBox'));
-				btn.addClass('yui3-button-delete');
+				btn.addClass('su-button-delete');
 				btn.on('click', this.removeSelectedImage, this);
 			
 			this.settings_form = form;
+			
 			return form;
 		},
 		
@@ -229,7 +210,7 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			Y.one('#galleryManagerList').on('click', function (evt) {
 				var target = evt.target.closest('LI');
 				if (target) {
-					this.showImageSettings(target.getData('imageId'));
+					this.showImageSettings(target);
 				}
 			}, this);
 		},
@@ -290,33 +271,55 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		},
 		
 		/**
-		 * Show image settings/properties form
-		 * 
-		 * @param {Object} data Image data
+		 * Show image settings bar
 		 */
-		showImageSettings: function (image_id) {
-			//If form exists and is already opened, save all values
+		showImageSettings: function (target) {
+			
 			if (this.settings_form && this.settings_form.get('visible')) {
 				this.settingsFormApply(true);
 			}
 			
-			var data = this.data,
-				image_data = null;
+			if (target.test('.gallery')) return false;
 			
-			for(var i=0,ii=data.images.length; i<ii; i++) {
-				if (data.images[i].image.id == image_id) {
-					image_data = data.images[i];
-					break;
+			var data = this.getImageDataFromNode(target);
+			
+			if (!data) {
+				Y.log('Missing image data for image ' + target.getAttribute('src'), 'debug');
+				return false;
+			}
+			
+			//Make sure PageContentSettings is rendered
+			var form = this.settings_form || this.createSettingsForm(),
+				action = Manager.getAction('PageContentSettings');
+			
+			if (!form) {
+				if (action.get('loaded')) {
+					if (!action.get('created')) {
+						action.renderAction();
+						this.showImageSettings(target);
+					}
+				} else {
+					action.once('loaded', function () {
+						this.showImageSettings(target);
+					}, this);
+					action.load();
 				}
+				return false;
 			}
 			
-			if (image_data) {
-				Manager.getAction('PageContentSettings').execute(this.settings_form || this.createSettingsForm());
-				this.selected_image_data = image_data;
+			action.execute(form, {
+				'doneCallback': Y.bind(this.settingsFormApply, this),
 				
-				this.settings_form.resetValues()
-							  .setValues(image_data, 'id');
-			}
+				'title': Supra.Intl.get(['htmleditor', 'image_properties']),
+				'scrollable': true
+			});
+			
+			this.selected_image_data = data;
+
+			this.settings_form.resetValues()
+							  .setValues(data, 'id');
+			
+			return true;
 		},
 		
 		/**
@@ -410,6 +413,9 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 				return oa > ob;
 			});
 			
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			
 			if (this.callback) {
 				this.callback(data, true);
 			}
@@ -423,21 +429,15 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 		 * @private
 		 */
 		cancelChanges: function () {
+			
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			
 			if (this.callback) {
 				this.callback(this.data, false);
 			}
 			
 			this.hide();
-		},
-		
-		/**
-		 * Hide
-		 */
-		hide: function () {
-			Action.Base.prototype.hide.apply(this, arguments);
-			
-			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 		},
 		
 		/**
@@ -456,7 +456,23 @@ SU('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
 			this.callback = callback;
 			this.renderData();
 			this.show();
+		},
+		
+		getImageDataFromNode: function (node) {
+			var data = this.data,
+				image_data = null,
+				image_id = node.getData('imageId');
+			
+			for (var i=0,ii=data.images.length; i<ii; i++) {
+				if (data.images[i].image.id == image_id) {
+					image_data = data.images[i];
+					break;
+				}
+			}
+
+			return image_data;
 		}
+		
 	});
 	
 });

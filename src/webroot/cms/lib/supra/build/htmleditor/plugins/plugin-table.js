@@ -293,7 +293,12 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				cell_html = '';
 			}
 			
-			var td = document.createElement(tr.childNodes.length ? tr.childNodes[0].tagName : 'TD');
+			//Find tag name
+			var children = Y.Node(tr).get('children'),
+				tag = children.size() ? children.item(0).get('tagName') : 'TD';
+			
+			//Create new cell
+			var td = document.createElement(tag);
 				td.innerHTML = cell_html;
 			
 			var cell = this.getCellAtIndex(tr, index);

@@ -60,7 +60,7 @@ class TemplateAction extends PageManagerAction
 		$this->isPostRequest();
 		$input = $this->getRequestInput();
 
-		$rootTemplate = $input->isEmpty('parent', false);
+		$rootTemplate = $input->isEmpty('parent_id', false);
 		$hasLayout = ( ! $input->isEmpty('layout'));
 
 		if ($rootTemplate && ! $hasLayout) {
@@ -115,10 +115,10 @@ class TemplateAction extends PageManagerAction
 		// Find parent page
 		if ( ! $rootTemplate) {
 
-			$parentLocalization = $this->getPageLocalizationByRequestKey('parent');
+			$parentLocalization = $this->getPageLocalizationByRequestKey('parent_id');
 
 			if ( ! $parentLocalization instanceof Entity\TemplateLocalization) {
-				$parentId = $input->get('parent', null);
+				$parentId = $input->get('parent_id', null);
 				throw new CmsException(null, "Could not found template parent by ID $parentId");
 			}
 
@@ -232,18 +232,22 @@ class TemplateAction extends PageManagerAction
 		$this->checkApplicationAllAccessPermission();
 
 		$this->isPostRequest();
-		$this->duplicate();
+		$localization = $this->getPageLocalization();
+		$master = $localization->getMaster();
+		$this->duplicate($localization);
+		
+		$this->writeAuditLog('%item% duplicated', $master);
 	}
 
 	/**
-	 * Duplicate global localization
+	 * Create template localization
 	 */
-	public function duplicateGlobalAction()
+	public function createLocalizationAction()
 	{
 		$this->checkApplicationAllAccessPermission();
 
 		$this->isPostRequest();
-		$this->duplicateGlobal();
+		$this->createLocalization();
 	}
 
 }

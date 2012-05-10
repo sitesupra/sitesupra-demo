@@ -1,8 +1,6 @@
 //Invoke strict mode
 "use strict";
 
-
-
 /**
  * Actions: LayoutLeftContainer, LayoutRightContainer, LayoutTopContainer
  * 

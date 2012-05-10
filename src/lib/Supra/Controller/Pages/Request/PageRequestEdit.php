@@ -55,7 +55,7 @@ class PageRequestEdit extends PageRequest
 	 * @param string $media
 	 * @return PageRequestEdit
 	 */
-	public static function factory(Entity\Abstraction\Localization $localization, $media = Entity\Layout::MEDIA_SCREEN)
+	public static function factory(Entity\Abstraction\Localization $localization, $media = Entity\TemplateLayout::MEDIA_SCREEN)
 	{
 		$locale = $localization->getLocale();
 		$instance = null;
@@ -93,6 +93,8 @@ class PageRequestEdit extends PageRequest
 			// Set creation time if empty
 			if ( ! $draftData->isPublishTimeSet()) {
 				$draftData->setCreationTime();
+				
+				$draftEm->flush();
 			}
 			
 			// Pages also need to be checked for path duplicates
@@ -152,7 +154,7 @@ class PageRequestEdit extends PageRequest
 		if ($draftData instanceof PageLocalization) {
 			$draftData->initializeProxyAssociations();
 		}
-
+		
 		// Merge the data element
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
@@ -163,7 +165,7 @@ class PageRequestEdit extends PageRequest
 		if ($publicData instanceof Entity\PageLocalization) {
 			$newRedirect = $publicData->getRedirect();
 		}
-
+		
 		// 1. Get all blocks to be copied
 		$draftBlocks = $this->getBlocksInPage($draftEm, $draftData);
 
@@ -174,7 +176,7 @@ class PageRequestEdit extends PageRequest
 		$draftBlockIdList = Entity\Abstraction\Entity::collectIds($draftBlocks);
 		$existentBlockIdList = Entity\Abstraction\Entity::collectIds($existentBlocks);
 		$removedBlockIdList = array_diff($existentBlockIdList, $draftBlockIdList);
-
+		
 		if ( ! empty($removedBlockIdList)) {
 			//$this->removeBlocks($publicEm, $removedBlockIdList);
 			foreach($removedBlockIdList as $removedBlockId) {
@@ -189,7 +191,7 @@ class PageRequestEdit extends PageRequest
 		
 		$placeHolderIds = array();
 		$placeHolderNames = array();
-
+		
 		// 4. Merge all placeholders, don't delete not used, let's keep them
 		foreach ($draftBlocks as $block) {
 			$placeHolder = $block->getPlaceHolder();
@@ -346,7 +348,10 @@ class PageRequestEdit extends PageRequest
 				$metadata->initialize();
 			}
 			
-			$publicEm->merge($property);
+			// Skip shared properties
+			if ( ! $property instanceof Entity\SharedBlockProperty) {
+				$publicEm->merge($property);
+			}
 		}
 		
 		$draftEm->flush();
@@ -517,56 +522,40 @@ class PageRequestEdit extends PageRequest
 	}
 	
 	/**
-	 * Move page and all localizations to trash
+	 * Delete page (AbstractPage and all related Localizations)
 	 */
 	public function delete()
 	{
-		// Remove any published version first
+		// 1. remove any published version first
 		$this->unPublish();
 		
-		$em = $this->getDoctrineEntityManager();
-		$connection = $em->getConnection();
-		$eventManager = $em->getEventManager();
+		// 2. fire pageDeleteEvent which will cause EntityAuditListener to
+		// catch all entity deletions and store them under single revision
+		$draftEm = $this->getDoctrineEntityManager();
+		$eventManager = $draftEm->getEventManager();
 		
-		$pageLocalization = $this->getPageLocalization();
-		$pageId = $pageLocalization->getMaster()
+		$localization = $this->getPageLocalization();
+		$masterId = $localization->getMaster()
 				->getId();
+		
+		$pageEventArgs = new PageEventArgs();
+		$pageEventArgs->setProperty('master', $localization->getMaster());
+		$eventManager->dispatchEvent(AuditEvents::pagePreDeleteEvent, $pageEventArgs);
 	
-		// prepare audit listener for page delete
-		$pageDeleteEventArgs = new PageDeleteEventArgs();
-		$pageDeleteEventArgs->setPageId($pageId);
-		$eventManager->dispatchEvent(AuditEvents::pagePreDeleteEvent, $pageDeleteEventArgs);
-		
-		$connection->beginTransaction();
-		try{
+		// 3. remove master from draft.
+		// all related entites will be removed by cascade removal
+		$removePage = function() use ($draftEm, $masterId) {
 			
-			$pageId = $pageLocalization->getMaster()
-					->getId();
+			$master = $draftEm->find(AbstractPage::CN(), $masterId);
 			
-			$page = $em->find(AbstractPage::CN(), $pageId);
-		
-			$localizations = $page->getLocalizations();
-			foreach($localizations as $localization) {
-				if ($localization instanceof PageLocalization) {
-					$pathEntity = $localization->getPathEntity();
-					$em->remove($pathEntity);
-					
-					$localization->resetPath();
-				}
+			if ( ! is_null($master)) {
+				$draftEm->remove($master);
 			}
-			$em->flush();
-
-			$em->remove($page);
- 			$em->flush();
-			
-		} catch (\Exception $e) {
-			$connection->rollBack();
-			throw $e;
-		}
-
-		$connection->commit();
+		};
 		
-		// reset audit listener state
+		$draftEm->transactional($removePage);
+		
+		// 4. return EntityAuditListener in normal state
 		$eventManager->dispatchEvent(AuditEvents::pagePostDeleteEvent);
 	}
 	
@@ -679,22 +668,6 @@ class PageRequestEdit extends PageRequest
 			$referencedElement = $entity->getReferencedElement();
 			
 			$newReferencedElement = clone $referencedElement;
-//			if ($newReferencedElement instanceof LinkReferencedElement
-//					&& $newReferencedElement->getResource() == LinkReferencedElement::RESOURCE_PAGE) {
-//				
-//				$page = $referencedElement->getPage();
-//				if ($page instanceof PageLocalization) {
-//					$master = $page->getMaster();
-//					$correctLocalization = $em->getRepository(PageLocalization::CN())->findOneBy(array('master' => $master->getId(), 'locale' => $targetLocale));
-//					if ($correctLocalization instanceof PageLocalization) {
-//						$newReferencedElement->setPageId($correctLocalization->getId());
-//					} else {
-//						$newReferencedElement->setPageId(null);
-//						$newReferencedElement->setResource(LinkReferencedElement::RESOURCE_LINK);
-//						$newReferencedElement->setHref('#');
-//					}
-//				}
-//			}
 			$em->persist($newReferencedElement);
 			
 			$newEntity->setReferencedElement($newReferencedElement);
@@ -703,6 +676,20 @@ class PageRequestEdit extends PageRequest
 			$eventArgs = new LifecycleEventArgs($newEntity, $em);
 			$em->getEventManager()
 					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
+		}
+		
+		if ($newEntity instanceof Entity\Abstraction\Block) {
+			
+			$originalRelation = $em->getRepository(Entity\BlockRelation::CN())
+					->findOneBy(array('blockId' => $entity->getId()));
+		
+			if (is_null($originalRelation)) {
+				$originalRelation = new Entity\BlockRelation($entity->getId());
+				$em->persist($originalRelation);
+			}
+			
+			$relation = new Entity\BlockRelation($newEntity->getId(), $originalRelation->getGroupId());
+			$em->persist($relation);
 		}
 		
 		$em->persist($newEntity);

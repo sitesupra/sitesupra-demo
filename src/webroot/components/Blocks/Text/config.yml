@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    controllerClass: Project\Blocks\Text\TextController
+    class: Project\Blocks\Text\TextController
     title: Text
     groupId: system
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -13,4 +13,21 @@
           - Supra\FileStorage
           - Supra\Controller\Pages
         lifetime: 60 seconds
-        
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: usePageTitle
+          editable: Supra\Editable\Checkbox
+          label: Use page title
+          default: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: title
+          editable: Supra\Editable\InlineString
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: content
+          editable: Supra\Editable\Html
+          label: Content
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: image
+          editable: Supra\Editable\Image
+          label: Picture

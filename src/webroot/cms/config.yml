@@ -1,5 +1,9 @@
+- Supra\Configuration\ConstantConfiguration:
+    name: SUPRA_CMS_URL
+    value: cms
+
 - Supra\Router\Configuration\RouterConfiguration:
-    url: /cms
+    url: { const: SUPRA_CMS_URL }
     priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
@@ -7,7 +11,7 @@
     objectRepositoryCaller: Supra\Cms\CmsController
 
 - Supra\Router\Configuration\RouterConfiguration:
-    url: /cms
+    url: { const: SUPRA_CMS_URL }
     priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
@@ -21,7 +25,7 @@
         class: Supra\Controller\Pages\ThemePreviewPreFilterController
 
 - Supra\Router\Configuration\RouterConfiguration:
-    url: /cms
+    url: { const: SUPRA_CMS_URL }
     controller:
       Supra\Controller\Configuration\ControllerConfiguration:
         class: Supra\Cms\CmsController
@@ -44,8 +48,6 @@
     title: Backoffice Users
     url: internal-user-manager
     icon: /cms/lib/supra/img/apps/backoffice_users
-#   For development only
-#    allowGroupEditing: true
     authorizationAccessPolicy:
       Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy:
         applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
@@ -101,29 +103,29 @@
     icon: /cms/content-manager/sitemap/images/apps/news.png
     newChildrenFirst: true
 
-#FIXME: move configuration to project-specific location
-- Supra\BannerMachine\Configuration\ProviderConfiguration:
-    id: banner-machine-one
-    redirectorPath: /banner-machine-one
-    types: 
-      - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
-          id: square
-          name: Square (215 x 246)
-          width: 215
-          height: 246
-          ratioDelta: 0.1
-      - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
-          id: wide
-          name: Wide (952 x 130)
-          width: 952
-          height: 130
-          ratioDelta: 0.1
+# Implement this configuration to project-specific location if needed
+#- Supra\BannerMachine\Configuration\ProviderConfiguration:
+#    id: banner-machine-one
+#    redirectorPath: /banner-machine-one
+#    types: 
+#      - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
+#          id: square
+#          name: Square (215 x 246)
+#          width: 215
+#          height: 246
+#          ratioDelta: 0.1
+#      - Supra\BannerMachine\Configuration\BannerType\DefaultSizeTypeConfiguration:
+#          id: wide
+#          name: Wide (952 x 130)
+#          width: 952
+#          height: 130
+#          ratioDelta: 0.1
 
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     title: Broken block
     groupId: system
     hidden: true
-    controllerClass: Supra\Controller\Pages\BrokenBlockController
+    class: Supra\Controller\Pages\BrokenBlockController
 
 - Supra\Event\EventConfiguration:
     listener: Supra\Authentication\Listener\BruteForceAuthenticationAttackProtector

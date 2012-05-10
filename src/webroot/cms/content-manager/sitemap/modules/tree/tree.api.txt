@@ -158,10 +158,10 @@ Supra.SiteMap.TreeNode
 		data
 			Page data
 			
-		dragable
-			Node is dragable
+		draggable
+			Node is draggable
 		
-		dropable
+		droppable
 			Node is drop target
 		
 		dndMarker
@@ -169,7 +169,7 @@ Supra.SiteMap.TreeNode
 		
 		dndLocked
 			Node is locked, it can't be dragged or dropped
-			even if 'dragable' and 'dropable' are true
+			even if 'draggable' and 'droppable' are true
 		
 		
 	Methods:

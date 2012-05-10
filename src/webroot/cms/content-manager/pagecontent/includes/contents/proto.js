@@ -4,13 +4,9 @@
 YUI.add('supra.page-content-proto', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		PageContent = Manager.PageContent,
 		getClassName = Y.bind(Y.ClassNameManager.getClassName, Y.ClassNameManager);
-	
-	//Templates
-	var HTML_CLICK = '<span>' + SU.Intl.get(['page', 'click_to_edit']) + '</span>';
-	var HTML_CLICK_DRAG = '<span>' + SU.Intl.get(['page', 'click_to_edit_drag_to_move']) + '</span>';
 	
 	/**
 	 * Content block
@@ -32,7 +28,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_OVERLAY = getClassName('content', 'overlay'),						// yui3-content-overlay
 		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
 		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
-		CLASSNAME_DRAGABLE = getClassName('content', 'dragable'),					// yui3-content-dragable
+		CLASSNAME_DRAGGABLE = getClassName('content', 'draggable'),					// yui3-content-draggable
 		CLASSNAME_EDITING = 'editing';												// editing
 	
 	ContentProto.ATTRS = {
@@ -80,11 +76,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * Is block dragable
+		 * Is block draggable
 		 */
-		'dragable': {
+		'draggable': {
 			value: false,
-			setter: '_setDragable'
+			setter: '_setDraggable'
 		},
 		
 		/**
@@ -305,19 +301,28 @@ YUI.add('supra.page-content-proto', function (Y) {
 				
 				//Send request
 				this.get('super').sendBlockDelete(child, function (data, status) {
-					var node = block.getNode();
-					
-					//Destroy block
-					block.destroy();
-					if (node) node.remove();
-					
-					//Remove from child list
-					delete(this.children[id]);
-					
-					//Remove from order list
-					var index = Y.Array.indexOf(this.children_order, String(id));
-					if (index != -1) {
-						this.children_order.splice(index, 1);
+					if (status) {
+
+						//Discard all changes
+						child.unresolved_changes = false;
+
+						var node = block.getNode();
+
+						//Destroy block
+						block.destroy();
+						if (node) node.remove();
+
+						//Remove from child list
+						delete(this.children[id]);
+
+						//Remove from order list
+						var index = Y.Array.indexOf(this.children_order, String(id));
+						if (index != -1) {
+							this.children_order.splice(index, 1);
+						}
+					} else {
+						// Reopen the properties sidebar if fails
+						block.properties.showPropertiesForm();
 					}
 					
 				}, this);
@@ -343,7 +348,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			if (!use_only || body.one(html_id)) {
 				if (classname in PageContent) {
-					var block = this.children[data.id] = new PageContent[classname](SU.mix(attrs || {}, {
+					var block = this.children[data.id] = new PageContent[classname](Supra.mix(attrs || {}, {
 						'doc': doc,
 						'win': win,
 						'body': body,
@@ -496,7 +501,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
 					this.createChild(data.contents[i], {
-						'dragable': !data.contents[i].closed && !this.isClosed() && permission_order,
+						'draggable': !data.contents[i].closed && !this.isClosed() && permission_order,
 						'editable': !data.contents[i].closed && permission_edit
 					}, true);
 				}
@@ -516,11 +521,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.set('editable', false);
 			}
 			
-			if (this.get('dragable')) {
+			if (this.get('draggable')) {
 				if (!this.isClosed() && permission_order) {
-					this.set('dragable', true);
+					this.set('draggable', true);
 				} else {
-					this.set('dragable', false);
+					this.set('draggable', false);
 				}
 			}
 		},
@@ -552,32 +557,30 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @private
 		 */
 		renderOverlay: function () {
-			var div = new Y.Node(this.get('doc').createElement('DIV')),
-				html = HTML_CLICK;
+			var div = new Y.Node(this.get('doc').createElement('DIV'));
 			
 			this.overlay = div;
 			
-			if (this.get('dragable')) {
-				this.overlay.addClass(CLASSNAME_DRAGABLE);
-				html = HTML_CLICK_DRAG;
+			if (this.get('draggable')) {
+				this.overlay.addClass(CLASSNAME_DRAGGABLE);
 			}
 			
 			this.overlay.addClass(CLASSNAME_OVERLAY);
-			this.overlay.set('innerHTML', html);
+			this.overlay.set('innerHTML', '<span></span>');
 			this.getNode().insert(div, 'before');
 		},
 		
 		/**
-		 * dragable attribute setter
+		 * draggable attribute setter
 		 * 
 		 * @param {Boolean} value
 		 * @private
 		 */
-		_setDragable: function (value) {
+		_setDraggable: function (value) {
 			var node = this.overlay;
 			
 			if (node) {
-				node.setClass(CLASSNAME_DRAGABLE, value);
+				node.setClass(CLASSNAME_DRAGGABLE, value);
 			}
 			
 			return !!value;

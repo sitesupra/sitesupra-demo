@@ -20,17 +20,27 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				<div class="item">\
 					<div class="edit">\
 						<button type="button">Open</button>\
-						<button type="button"></button>\
+						<button type="button" class="button-edit"></button>\
+					</div>\
+					<div class="translate">\
+						<button type="button">Translate</button>\
 					</div>\
 					<img src="{{ preview }}" onerror="this.src=\'/cms/lib/supra/img/sitemap/preview/blank.jpg\';" alt="" />\
 					<div class="highlight"></div>\
 					{% if ! localized %}\
-						<div class="status-not-localized">{{ "sitemap.status_not_created"|intl }}</div>\
+						<div class="status-not-localized">{{ "sitemap.status_not_created"|intl }}</div>\\n\
+					\
+					{# NB! is/not active actually means published/unpublished #}\
+					\
+					{% elseif type == "page" and !active %}\\n\
+						<div class="status-special status-not-published">{{ "sitemap.status_not_published"|intl }}</div>\
+					{% elseif type == "page" and ! published %}\\n\
+						<div class="status-special status-draft">{{ "sitemap.status_draft"|intl }}</div>\
 					{% endif %}\
 				</div>\
 				<label>{{ label|escape }}</label>\
 				<div class="arrow"></div>\
-				<div class="children"></div>\
+				<div class="children"><div class="new-item-fake-preview"><div></div></div></div>\
 			');
 	
 	TreeNode.ATTRS = {
@@ -56,16 +66,16 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'value': null
 		},
 		
-		'dragable': {
+		'draggable': {
 			'value': false,
-			'setter': '_setDragable'
+			'setter': '_setDraggable'
 		},
-		'dropable': {
+		'droppable': {
 			'value': false,
-			'setter': '_setDropable'
+			'setter': '_setDroppable'
 		},
 		//Places where items can be dropped
-		'dropablePlaces': {
+		'droppablePlaces': {
 			'value': {'inside': true, 'before': true, 'after': true}
 		},
 		//All children drag and drop is locked, used when draging this node
@@ -135,7 +145,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'setter': '_setAttributeClass'
 		},
 		'state': {
-			'value': 'draft'
+			'value': 'draft',
+			'setter': '_setStateAttributeClass'
 		},
 		
 		'children': {
@@ -172,7 +183,15 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		'visibilityRoot': {
 			'value': true,
 			'setter': '_setVisibilityRoot'
+		},
+		
+		'published': {
+			'value': false
+		},
+		'active': {
+			'value': false
 		}
+		
 	};
 	
 	Y.extend(TreeNode, Y.Widget, {
@@ -264,6 +283,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				buttons = contentBox.all('button');
 				this._widgets['buttonEdit'] = new Supra.Button({'srcNode': buttons.item(1), 'style': 'sitemap-gray'});
 				this._widgets['buttonOpen'] = new Supra.Button({'srcNode': buttons.item(0), 'style': 'sitemap-blue'});
+				this._widgets['buttonTranslate'] = new Supra.Button({'srcNode': buttons.item(2), 'style': 'sitemap-blue'});
 				
 			//Move child container
 				childrenBox = contentBox.one('div.children');
@@ -305,6 +325,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			
 			//"Open" button
 			this._widgets.buttonOpen.on('click', this._onSelectClick, this);
+			
+			//"Translate" button
+			this._widgets.buttonTranslate.on('click', this._onSelectClick, this);
 			
 			//"Edit" button
 			this._widgets.buttonEdit.on('click', this.edit, this);
@@ -360,9 +383,6 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				widgets[i].destroy();
 			}
 			
-			//Remove element
-			this.get('boundingBox').remove(true);
-			
 			//Clean up references
 			this._children = null;
 			this._widgets = null;
@@ -401,26 +421,17 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 */
 		'_onToggleClick': function (e) {
 			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
+				
+				var view = this.get('tree').get('view');
+				
 				//Prevent overflow check, otherwise it will be done
 				//on toggle and on center, while we need only on center
-				this.get('tree').get('view').set('disabled', true);
+				view.set('disabled', true);
 				
 				//Toggle item
 				this.toggle();
 				
-				Y.later(16, this, function () {
-					this.get('tree').get('view').set('disabled', false);
-					
-					//Only if has children
-					if (this.size()) {
-						
-						if (this.get('expanded')) {
-							this.get('tree').get('view').center(this);
-						} else {
-							this.get('tree').get('view').center(this.get('parent'));
-						}
-					}
-				});
+				view.set('disabled', false);
 			}
 		},
 		
@@ -519,10 +530,10 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			dnd.target.set('node', this.get('itemBox'));
 			dnd.target.set('treeNode', this);
 			
-			if (!this.get('dragable')) {
+			if (!this.get('draggable')) {
 				dnd.set('lock', true);
 			}
-			if (!this.get('dropable')) {
+			if (!this.get('droppable')) {
 				dnd.target.set('lock', true);
 			}
 			
@@ -548,7 +559,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @private
 		 */
 		'_dndLockChildren': function () {
-			if (this.get('dragable')) {
+			if (this.get('draggable')) {
 				this.children().forEach(function (child) {
 					child.set('dndLocked', true);
 				});
@@ -601,7 +612,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 						node = Y.Node.getDOMNode(dropNode),
 						siblingsAllowed = (!target.get('root') || this.get('tree').get('mode') != 'pages'),
 						padding = 10,
-						dropablePlaces = target.get('dropablePlaces'),
+						droppablePlaces = target.get('droppablePlaces'),
 						
 						dragMouse = e.drag.mouseXY,
 						dropRegion = e.drop.region;
@@ -611,14 +622,14 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					}
 					
 					if (siblingsAllowed) {
-						if (dropablePlaces.before && dragMouse[0] < (dropRegion.left + padding)) {
+						if (droppablePlaces.before && dragMouse[0] < (dropRegion.left + padding)) {
 							place = 'before';
-						} else if (dropablePlaces.after && dragMouse[0] > (dropRegion.right - padding)) {
+						} else if (droppablePlaces.after && dragMouse[0] > (dropRegion.right - padding)) {
 							place = 'after';
 						}
 					}
 					
-					if (place == 'inside'  && !dropablePlaces.inside) {
+					if (place == 'inside'  && !droppablePlaces.inside) {
 						return this.hideDropMarker(e);
 					}
 					
@@ -646,7 +657,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 */
 		'_dndEnd': function (e) {
 			//Unlock children to allow them being draged
-			if (this.get('dragable')) {
+			if (this.get('draggable')) {
 				this.children().forEach(function (child) {
 					child.set('dndLocked', false);
 				});
@@ -676,6 +687,32 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			this._dndTarget = null;
 			this._dndTargetPlace = null;
 			this._dndTargetNode = null;
+		},
+		
+		/**
+		 * Draw line from new item to its parent
+		 * 
+		 * @private
+		 */
+		'_drawNewItemMakerLine': function (visible) {
+			var target	= this.get('boundingBox'),
+				node	= this.get('childrenBox').get('children').filter('.new-item-fake-preview').item(0),
+				line	= node.one('div'),
+				
+				tpos	= target.getX(),
+				npos	= node.getX(),
+				
+				diff	= npos - tpos - 59;
+			
+			if (!npos || diff <= 0 || !visible) {
+				line.setStyle('display', 'none');
+			} else {
+				line.setStyles({
+					'left': -diff + 'px',
+					'width': diff + 'px',
+					'display': 'block'
+				});
+			}
 		},
 		
 		
@@ -962,40 +999,6 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			return this._widgets[id] || null;
 		},
 		
-		/**
-		 * Show or hide layers above given depth
-		 * 
-		 * @param {Number} depth Depth
-		 * @private
-		 */
-		/*
-		'setVisibleLayerDepth': function (depth) {
-			var node_depth = this.get('depth');
-			
-			if (depth > node_depth) {
-				//Hide children layers
-				this.set('childLayerVisible', false);
-				
-				if (depth >= node_depth + 1) {
-					var children = this.children(),
-						i = 0,
-						ii = children.length;
-					
-					for(; i<ii; i++) {
-						if (children[i].get('expanded')) {
-							children[i].setVisibleLayerDepth(depth);
-						}
-					}
-				}
-			} else {
-				//Show children layers
-				if (!this.get('childLayerVisible')) {
-					this.set('childLayerVisible', true);
-				}
-			}
-		},
-		*/
-		
 		
 		/**
 		 * ------------------------------ ATTRIBUTES ------------------------------
@@ -1005,7 +1008,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		/**
 		 * Label attribute setter
 		 * 
-		 * @param {String} dragable New label value
+		 * @param {String} draggable New label value
 		 * @return Label attribute value
 		 * @type {String}
 		 * @private
@@ -1021,7 +1024,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		/**
 		 * Preview attribute setter
 		 * 
-		 * @param {String} dragable New preview value
+		 * @param {String} draggable New preview value
 		 * @return Preview attribute value
 		 * @type {String}
 		 * @private
@@ -1039,39 +1042,39 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		},
 		
 		/**
-		 * Dragable attribute setter
+		 * Draggable attribute setter
 		 * 
-		 * @param {Boolean} dragable New dragable value
-		 * @return Dragable attribute value
+		 * @param {Boolean} draggable New draggable value
+		 * @return Draggable attribute value
 		 * @type {Boolean}
 		 * @private
 		 */
-		'_setDragable': function (dragable) {
-			//Root nodes can't be dragged
-			if (this.get('root')) {
+		'_setDraggable': function (draggable) {
+			//Page root node can't be dragged
+			if (this.get('root') && this.get('tree').get('mode') == 'pages') {
 				return false;
 			}
 			if (this._dnd && !this.get('dndLocked')) {
-				this._dnd.set('lock', !dragable);
+				this._dnd.set('lock', !draggable);
 			}
 			
-			return !!dragable;
+			return !!draggable;
 		},
 		
 		/**
-		 * Dropable attribute setter
+		 * Droppable attribute setter
 		 * 
-		 * @param {Boolean} dropable New dropable value
-		 * @return Dropable attribute value
+		 * @param {Boolean} droppable New droppable value
+		 * @return Droppable attribute value
 		 * @type {Boolean}
 		 * @private
 		 */
-		'_setDropable': function (dropable) {
+		'_setDroppable': function (droppable) {
 			if (this._dnd && this._dnd.target && !this.get('dndLocked')) {
-				this._dnd.target.set('lock', !dropable);
+				this._dnd.target.set('lock', !droppable);
 			}
 			
-			return !!dropable;
+			return !!droppable;
 		},
 		
 		/**
@@ -1090,10 +1093,10 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			});
 			
 			if (this._dnd) {
-				if (this.get('dragable') || locked) {
+				if (this.get('draggable') || locked) {
 					this._dnd.set('lock', locked);
 				}
-				if (this.get('dropable') || locked) {
+				if (this.get('droppable') || locked) {
 					if (this._dnd.target) {
 						this._dnd.target.set('lock', locked);
 					}
@@ -1128,6 +1131,14 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				}
 
 				node.removeClass('marker-before').removeClass('marker-after').addClass('marker-inside');
+				
+				// Draw line
+				if (this.get('expandable')) {
+					this._drawNewItemMakerLine(true);
+				} else {
+					this._drawNewItemMakerLine(false)
+				}
+				
 			} else if (marker == 'before') {
 				node.removeClass('marker-inside').removeClass('marker-after').addClass('marker-before');
 			} else if (marker == 'after') {
@@ -1205,6 +1216,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			if (!this.get('expandable')) return false;
 			
 			if (expanded != this.get('expanded')) {
+				var result = null;
+				
 				if (expanded) {
 					var data = this.get('data'),
 						tree = this.get('tree'),
@@ -1226,10 +1239,11 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 							tree.set('visibilityRootNode', this.get('parent'));
 						}
 						
-						return this._setExpandedExpand();
+						result = this._setExpandedExpand();
 					} else {
-						return false;
+						result = false;
 					}
+					
 				} else {
 					//Update visibility root node
 					var tree = this.get('tree'),
@@ -1244,8 +1258,24 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 					}
 					
 					//Collapse
-					return this._setExpandedCollapse();
+					result = this._setExpandedCollapse();
 				}
+				
+				//on second level nodes expand hide all other roots
+				if( ! this.get('root') && this.get('parent').get('root')) {
+					//second level nodes
+					var rootNodes = this.get('parent').get('parent').children();
+	
+					for (var i in rootNodes) {
+						if (rootNodes[i] !== this) {
+							rootNodes[i].get('boundingBox').setClass('visibility-root', expanded);
+						}
+					}
+				}
+						
+				Y.later(16, this, this._afterToggle);
+				
+				return result;
 			}
 			
 			return !!expanded;
@@ -1345,6 +1375,11 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				this.children().forEach(function (item) {
 					if (item._dnd) {
 						item._dnd.target.addToGroup('default');
+						
+						//Unlock
+						if (Y.DD.DDM.activeDrag) {
+							item._dnd.target.set('lock', false);
+						}
 					}
 				}, this);
 				
@@ -1353,6 +1388,28 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				
 				//Update arrows
 				this.get('view').checkOverflow();
+				
+				//Fire event
+				this.fire('expanded');
+			}
+		},
+		
+		/**
+		 * After toggle center the sitemap
+		 * 
+		 * @private
+		 */
+		'_afterToggle': function() {
+			this.get('tree').get('view').set('disabled', false);
+			
+			//Only if has children
+			if (this.size()) {
+
+				if (this.get('expanded')) {
+					this.get('tree').get('view').center(this);
+				} else {
+					this.get('tree').get('view').center(this.get('parent'));
+				}
 			}
 		},
 		
@@ -1381,6 +1438,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				
 				//Update arrows
 				this.get('view').checkOverflow();
+				
+				//Fire event
+				this.fire('collapsed');
 			}
 		},
 		
@@ -1420,6 +1480,31 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		/**
+		 * On state attribute change add or remove classname
+		 * 
+		 * @param {String} value New attribute value
+		 * @return New attribute value
+		 * @type {String}
+		 * @private
+		 */
+		'_setStateAttributeClass': function (value) {
+			//Do anything only if already rendered
+			if (!this.get('rendered')) return value;
+			var prevValue = this.get('state');
+			
+			if (value != prevValue) {
+				if (prevValue) {
+					this.get('boundingBox').removeClass(prevValue);
+				}
+				if (value) {
+					this.get('boundingBox').addClass(value);
+				}
+			}
+			
+			return value;
 		},
 		
 		/**

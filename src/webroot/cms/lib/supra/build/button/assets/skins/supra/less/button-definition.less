@@ -97,3 +97,9 @@ button::-moz-focus-inner {
 		color: #CCC;
 	}
 }
+.ie .su-button-disabled {
+	p {
+		//IE applies "shadow", which can't be removed. Compensate for it
+		opacity: 0.25;
+	}
+}

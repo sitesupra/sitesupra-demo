@@ -42,7 +42,8 @@
 			<select name="template"></select>
 			
 			<label for="layout">{# sitemap.new_template_label_layout #}</label>
-			<input type="text" name="layout" value="" />
+			<select name="layout" id="layout" value="" suType="Select">
+			</select>
 			
 			<div class="middle">
 				<button type="button">{# sitemap.create_page #}</button><br />
@@ -61,18 +62,15 @@
 			
 			<select name="locale"></select>
 			
-			<div class="middle">
-				<button type="button">Create with text</button>
-			</div>
+			<label for="title">{# sitemap.new_page_label_title #}</label>
+			<input type="text" name="title" value="" />
 			
-			<p class="txt hr"><span>OR</span></p>
-			
-			<p class="txt"><b>Create a blank page without any repopulated text</b></p>
+			<label for="path">{# sitemap.new_page_label_path #}</label>
+			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s]*$" suType="Path" value="" suPath="http://videinfra.com/" />
 			
 			<div class="middle">
-				<button type="button">Create blank</button>
+				<button type="button">Create</button>
 			</div>
-			
 		</form>
 	</div>
 	

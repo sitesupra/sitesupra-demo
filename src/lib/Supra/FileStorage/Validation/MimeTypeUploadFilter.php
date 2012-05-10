@@ -13,7 +13,7 @@ class MimeTypeUploadFilter implements FileValidationInterface
 	 * Validates file mimetype
 	 * @param File $file 
 	 */
-	public function validateFile(File $file)
+	public function validateFile(File $file, $sourceFilePath = null)
 	{
 		$result = $this->checkList($file->getMimeType());
 		

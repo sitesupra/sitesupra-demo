@@ -1,7 +1,7 @@
 Supra('supra.datatable', function (Y) {
 
 	//Create data table inside existing node
-	var datatable = new SU.DataTable({
+	var datatable = new Supra.DataTable({
 		'srcNode': Y.one('#myDataTablePlaceHolder'),
 		'requestURI': '/sample/data.json'
 	});

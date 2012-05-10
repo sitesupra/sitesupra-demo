@@ -87,6 +87,10 @@ Supra('supra.input', function (Y) {
 		 */
 		updateUI: function (data) {
 			
+			if (!data.canUpdate) {
+				
+			}
+			
 			if ('avatar' in data) {
 				this.one('div.info img').setAttribute('src', data.avatar + '?r=' + (+new Date()));
 			}
@@ -103,9 +107,14 @@ Supra('supra.input', function (Y) {
 		 * On change update user data with form values
 		 */
 		onDataChange: function () {
-			var values = this.form.getValuesObject('name'),
-				data = Manager.getAction('User').getData();
+			var data = Manager.getAction('User').getData();
+				
+			if (!this.isAllowedToUpdate(data)) {
+				this.form.setValuesObject(data, 'name');
+				return;
+			}
 
+			var values = this.form.getValuesObject('name');
 			//Update only name and email
 			data.name = values.name;
 			data.email = values.email;
@@ -190,7 +199,30 @@ Supra('supra.input', function (Y) {
 			
 			//Update UI with user data
 			this.setUserData(user.getData());
+		},
+		
+		/**
+		 * Perform check, if it is allowed to update user data
+		 * if silent is false - warning message will appear
+		 */
+		isAllowedToUpdate: function (data, silent) {
+			if (!data.canUpdate) {
+				if (!silent) {
+					var message = Supra.Intl.get(['userdetails', 'cannot_update']);
+						message = Y.substitute(message, data);
+
+					Manager.executeAction('Confirmation', {
+						'message': message,
+						'buttons': [{
+							'id': 'ok'
+						}]
+					});
+				}
+				return false;
+			}
+			return true;
 		}
+		
 	});
 	
 });

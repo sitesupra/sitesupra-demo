@@ -31,7 +31,7 @@ class FileSizeUploadFilter implements FileValidationInterface
 	 * Validates file size
 	 * @param Entity\File $file 
 	 */
-	public function validateFile(Entity\File $file)
+	public function validateFile(Entity\File $file, $sourceFilePath = null)
 	{
 		$size = $file->getSize();
 		

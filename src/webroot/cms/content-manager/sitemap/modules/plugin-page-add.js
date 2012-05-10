@@ -82,8 +82,17 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 */
 		'_templatesLoading': false,
 		
+		/**
+		 * Fetched layouts
+		 * 
+		 * @type {Array}
+		 * @private
+		 */
+		
+		'_layouts': null,
 		
 		
+	
 		/**
 		 * ------------------------------ PRIVATE ------------------------------
 		 */
@@ -131,7 +140,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				'srcNode': container,
 				'autoClose': false,
 				'arrowVisible': true,
-				'zIndex': 1,
+				'zIndex': 2,
 				'visible': false
 			});
 			
@@ -191,7 +200,12 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				//On return key create page
 				if (inputs[id].isInstanceOf('input-string'))	{
 					inputs[id].get('inputNode').on('keydown', function (e) {
-						if (e.keyCode == 13) this.createPage();
+						if (e.keyCode == 13) {
+							var input = Y.Widget.getByNode(e.target);
+							this._onPagePropertyChange({"target": input});				
+							
+							this.createPage();
+						}
 					}, this);
 				}
 			}
@@ -233,6 +247,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 							node.set('highlighted', false);
 						} else if (node.isInstanceOf('DataGridRow')) {
 							node.get('parent').get('parent').set('highlighted', false);
+							var datagrid = node.get('parent');
 						}
 						
 						//Remove node and data
@@ -240,6 +255,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						node.get('tree').remove(node);
 						node.destroy();
 						this._node = null;
+						
+						if (datagrid) {
+							datagrid.handleChange();
+						}
 						
 						view.set('disabled', false);
 						
@@ -326,7 +345,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			//Change node style
 			node.set('highlighted', true);
-			node.set('dragable', false);
+			node.set('draggable', false);
 			node.getWidget('buttonEdit').set('disabled', true);
 			node.getWidget('buttonOpen').set('disabled', true);
 			
@@ -353,13 +372,19 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		'__showOverRow': function () {
 			var node = this._node,
 				widgets = this._widgets,
-				panel = widgets.panel;
+				panel = widgets.panel,
+				datagrid = this._node.get('parent');
 			
 			//Change node style
 			this._node.get('parent').get('parent').set('highlighted', true);
 			
 			//Panel position and style
 			var target = node.getNode();
+			
+			datagrid.handleChange();
+			if (datagrid.scrollable) {	
+				datagrid.scrollable.scrollInView(node);
+			}
 			
 			if (target === panel.get('alignTarget')) {
 				panel.show();
@@ -462,6 +487,29 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					'complete': this._loadTemplatesComplete
 				}
 			});
+			
+			this._loadLayouts();
+		},
+		
+		'_loadLayouts': function () {
+			var layoutsPath = Supra.Manager.Page.getDataPath('layouts');
+					
+			// Fetching all layouts from database
+			Supra.io(layoutsPath, {
+				'method': 'get',
+				'context': this,
+				'on': {
+					'success': function (data) {
+						var fetchedDataCount = data.length;
+
+						if(fetchedDataCount != 0) {
+							this._layouts = data;
+							var select_layout_title = Supra.Intl.get(['settings', 'select_layout']);
+							this._layouts.unshift({id:'', title: select_layout_title});
+						}
+					}
+				}
+			});
 		},
 		
 		/**
@@ -554,11 +602,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				path_regex = null,
 				index = 0,
 				is_tree_node = node.isInstanceOf('TreeNode'),
-				is_row_node = node.isInstanceOf('DataGridRow');
+				is_row_node = node.isInstanceOf('DataGridRow'),
+				layoutInput = form.getInput('layout');
+				
+			layoutInput.set('showEmptyValue', false);
 			
 			if (this.get('host').get('mode') == 'pages') {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_page_label_title']));
-				form.getInput('layout').set('visible', false);
+				layoutInput.set('visible', false);
 				form.getInput('template').set('visible', true);
 				
 				if (node.get('root')) {
@@ -577,16 +628,32 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				
 				//Only for root template user can set layout
 				if (node.get('root')) {
-					form.getInput('layout').set('visible', true);
+						if(this._layouts.lenght == 0) {
+							// throwing an error message
+							Supra.Manager.executeAction('Confirmation', {
+								'message': Supra.Intl.get(['error', 'no_layouts']),
+								'buttons': [{
+									'id': 'ok', 
+									'label': 'Ok'
+								}]
+							});
+
+							// removing layout node
+							form.getInput('layout').hide();
+						} else {
+							layoutInput.set('values', this._layouts);
+							layoutInput.set('visible', true);
+						}
+						
 				} else {
-					form.getInput('layout').set('visible', false);
+					layoutInput.set('visible', false);
 				}
 			}
 			
 			if (data.type == 'group') {
 				form.getInput('path').set('visible', false);
 				form.getInput('template').set('visible', false);
-				form.getInput('layout').set('visible', false);
+				layoutInput.set('visible', false);
 			}
 			
 			//Find unique title and path which doesn't exist for any of the siblings
@@ -630,6 +697,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 */
 		'createPage': function () {
 			var node   = this._node,
+				treeNode = null,
 				data   = node.get('data'),
 				form   = this._widgets.form,
 				mode   = this.get('host').get('mode'),
@@ -641,14 +709,16 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			if (node.isInstanceOf('TreeNode')) {
 				is_tree_node = true;
+				treeNode = node;
 			} else if (node.isInstanceOf('DataGridRow')) {
 				is_row_node = true;
+				treeNode = node.get('parent').get('parent');
 			}
 			
 			out.locale = this.get('host').get('locale');
 			out.title = data.title = form.getInput('title').get('value');
 			out.type = data.type;
-			out.parent = 0;
+			out.parent_id = 0;
 			
 			next = node.next();
 			
@@ -658,10 +728,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			if (is_tree_node) {
 				if (!node.get('root')) {
-					out.parent = node.get('parent').get('data').id;
+					out.parent_id = node.get('parent').get('data').id;
 				}
 			} else if (is_row_node) {
-				out.parent = node.get('parent').get('parent').get('data').id;
+				out.parent_id = node.get('parent').get('parent').get('data').id;
 			}
 			
 			if (data.type != 'group') {
@@ -712,9 +782,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						'children_count': 0
 					}, data);
 					
+					//Make sure children is not loaded dynamically, since this is new page
+					if (data.type == 'page' || data.type == 'group') {
+						node.get('tree').get('data').setIsLoaded(data.id, true);
+					}
+					
 					//Success
-					node.getWidget('buttonOpen').set('disabled', false);
-					node.getWidget('buttonEdit').set('disabled', false);
+					treeNode.getWidget('buttonOpen').set('disabled', false);
+					treeNode.getWidget('buttonEdit').set('disabled', false);
 					
 					//Load permissions
 					Supra.Permission.request([{'id': data.id, 'type': 'page'}], function (permissions) {
@@ -722,7 +797,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 							if (permissions.page[data.id].edit_page) {
 								node.set('editable', true);
 								node.set('publishable', true);
-								node.set('dragable', !('isDraggable' in data) || data.isDraggable);
+								node.set('draggable', !('isDraggable' in data) || data.isDraggable);
 								
 								if (data.type != 'group') {
 									node.set('selectable', true);
@@ -792,6 +867,6 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
-	delete(this.fn); this.fn = function () {};
+	delete(this.fn);this.fn = function () {};
 	
 }, YUI.version, {'requires': ['supra.input']});

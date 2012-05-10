@@ -1,10 +1,10 @@
 //Invoke strict mode
 "use strict";
 
-SU('anim', 'transition', function (Y) {
+Supra('anim', 'transition', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	//Create Action class
@@ -170,7 +170,7 @@ SU('anim', 'transition', function (Y) {
 				'tree': tree,
 				'view': view,
 				'data': data,
-				'dragable': true,
+				'draggable': true,
 				'groups': ['restore-' + type],
 				'type': type
 			});

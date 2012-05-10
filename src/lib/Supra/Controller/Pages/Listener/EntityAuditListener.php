@@ -19,7 +19,6 @@ use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Event\PagePublishEventArgs;
-use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 use Doctrine\ORM\PersistentCollection;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Listener\AuditCreateSchemaListener;
@@ -238,7 +237,9 @@ class EntityAuditListener implements EventSubscriber
 
 		$visitedIds = array();
 		foreach ($this->uow->getScheduledEntityDeletions() AS $entity) {
-			if ( ! in_array($entity->getId(), $visitedIds)) {
+			
+			$entityId = $entity->getId() . $entity::CN();
+			if ( ! in_array($entityId, $visitedIds)) {
 				
 				$revisionType = self::REVISION_TYPE_DELETE;
 				if ($this->_pageDeleteState) {
@@ -246,7 +247,7 @@ class EntityAuditListener implements EventSubscriber
 				}
 	
 				$this->insertAuditRecord($entity, $revisionType);
-				$visitedIds[] = $entity->getId();
+				array_push($visitedIds, $entityId );
 			}
 		}
 	}
@@ -258,6 +259,10 @@ class EntityAuditListener implements EventSubscriber
 	private function insertAuditRecord($entity, $revisionType)
 	{
 		if ( ! $entity instanceof AuditedEntityInterface) {
+			return;
+		}
+		
+		if ($entity instanceof Entity\SharedBlockProperty) {
 			return;
 		}
 		
@@ -415,10 +420,11 @@ class EntityAuditListener implements EventSubscriber
 	/**
 	 * Prepare Audit listener for draft page delete event
 	 */
-	public function pagePreDeleteEvent(PageDeleteEventArgs $eventArgs) 
+	public function pagePreDeleteEvent(PageEventArgs $eventArgs) 
 	{
 		$this->_pageDeleteState = true;
-		$pageId = $eventArgs->getPageId();
+		$page = $eventArgs->getProperty('master');
+		$pageId = $page->getId();
 		
 		$revisionData = new PageRevisionData();
 		$revisionData->setUser($this->getCurrentUserId());
@@ -525,7 +531,7 @@ class EntityAuditListener implements EventSubscriber
 	/**
 	 * @param PageEventArgs $eventArgs
 	 */
-	public function pagePostRestoreEvent(PageEventArgs $eventArgs) 
+	public function pagePostRestoreEvent() 
 	{
 		$this->_pageRestoreState = false;
 	}
@@ -679,6 +685,11 @@ class EntityAuditListener implements EventSubscriber
 		
 		$blockPropertySet = $request->getBlockPropertySet();
 		foreach($blockPropertySet as $property) {
+			
+			if ($property instanceof Entity\SharedBlockProperty) {
+				continue;
+			}
+			
 			$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
 
 			$metaData = $property->getMetadata();

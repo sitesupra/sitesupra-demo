@@ -10,7 +10,7 @@ ob_start();
 // Check the PHP version installed. Supra7 requires 5.3.3 version as minimum
 const SUPRA_REQUIRED_PHP_VERSION = '5.3.3';
 if (version_compare(phpversion(),  SUPRA_REQUIRED_PHP_VERSION, 'lt')) {
-	die('Fatal error: PHP version ' .  SUPRA_REQUIRED_PHP_VERSION . ' or higher is required, version ' . phpversion() . ' found.');
+	die('Fatal error: PHP version ' .  SUPRA_REQUIRED_PHP_VERSION . ' or higher is required, version ' . phpversion() . ' found.' . PHP_EOL);
 }
 
 define('SUPRA_ERROR_MESSAGE', '500 INTERNAL SERVER ERROR');
@@ -26,8 +26,6 @@ define('SUPRA_CONF_PATH', SUPRA_PATH . 'conf' . DIRECTORY_SEPARATOR);
 define('SUPRA_COMPONENT_PATH', SUPRA_WEBROOT_PATH . 'components' . DIRECTORY_SEPARATOR);
 define('SUPRA_DATA_PATH', SUPRA_PATH . 'data' . DIRECTORY_SEPARATOR);
 define('SUPRA_TEMPLATE_PATH', SUPRA_PATH . 'template' . DIRECTORY_SEPARATOR);
-define('SUPRA_THEMES_PATH', SUPRA_TEMPLATE_PATH . 'themes' . DIRECTORY_SEPARATOR);
-define('SUPRA_THEMES_CONF_PATH', SUPRA_CONF_PATH . 'themes' . DIRECTORY_SEPARATOR);
 define('SUPRA_TMP_PATH', SUPRA_PATH . 'tmp' . DIRECTORY_SEPARATOR);
 
 // This is not required for currently used libraries

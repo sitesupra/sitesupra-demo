@@ -12,7 +12,7 @@ if (typeof Supra === "undefined") {
 	/**
 	 * Create YUI instance for internal use
 	 */
-	var Y = YUI(), yui_base_set = false;
+	var Y = YUI();
 	
 	/**
 	 * Global Supra namespace
@@ -61,6 +61,7 @@ if (typeof Supra === "undefined") {
 				
 				// additional parameters for base
 				base = arguments[i];
+				Supra.yui_base_set = false;
 				
 				if ('modules' in base) {
 					base = {'groups': {'supra': base}};
@@ -68,8 +69,9 @@ if (typeof Supra === "undefined") {
 			}
 		}
 		
-		if (!yui_base_set) {
+		if (!Supra.yui_base_set) {
 			base = (base ? Y.mix(base, Supra.YUI_BASE, false, null, 0, true) : Supra.YUI_BASE);
+			Supra.yui_base_set = true;
 		}
 		
 		//Re-use same YUI instance
@@ -131,6 +133,9 @@ if (typeof Supra === "undefined") {
 			}
 		}
 	};
+	
+	//YUI() base configuration has been applied
+	Supra.yui_base_set = false;
 	
 	/**
 	 * Mix objects or arrays together
@@ -196,6 +201,45 @@ if (typeof Supra === "undefined") {
 	
 		// Return the modified object
 		return target;
+	};
+	
+	/**
+	 * Throttle function call
+	 * 
+	 * @param {Function} fn
+	 * @param {Number} ms
+	 * @param {Object} context
+	 * @private
+	 */
+	Supra.throttle = function (fn, ms, context) {
+		var ms = ms || 50;
+		var last_time = 0;
+		var timeout = null;
+		var args = [];
+		
+		if (ms === -1) {
+			return (function() {
+				fn.apply(context, arguments);
+			});
+		}
+		
+		function call () {
+			fn.apply(context || window, args);
+			last_time = +new Date();
+			clearTimeout(timeout);
+			timeout = null;
+		}
+		
+		return function () {
+			//Save arguments
+			args = [].slice.call(arguments, 0);
+			
+			if ((+new Date()) - last_time > ms) {
+				call();
+			} else if (!timeout) {
+				timeout = setTimeout(call, ms);
+			}
+		};
 	};
 	
 })();

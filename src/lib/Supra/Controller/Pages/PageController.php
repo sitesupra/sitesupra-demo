@@ -211,14 +211,19 @@ class PageController extends ControllerAbstraction
 	}
 
 	/**
-	 * @param Entity\Layout $layout
+	 * @param Entity\ThemeLayout $layout
 	 * @param array $blocks array of block responses
 	 */
-	protected function processLayout(Entity\Layout $layout, array $placeResponses)
+	protected function processLayout(Entity\ThemeLayout $layout, array $placeResponses)
 	{
 		$layoutProcessor = $this->getLayoutProcessor();
-		$layoutSrc = $layout->getFile();
+		
+		$layoutProcessor->setTheme($layout->getTheme());
+		
+		$layoutSrc = $layout->getFilename();
+		
 		$response = $this->getResponse();
+		
 		$layoutProcessor->setRequest($this->request);
 		$layoutProcessor->setResponse($response);
 
@@ -272,8 +277,7 @@ class PageController extends ControllerAbstraction
 				use ($self, $localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests, $request) {
 
 					$blockClass = $block->getComponentClass();
-					$blockCollection = BlockControllerCollection::getInstance();
-					$configuration = $blockCollection->getBlockConfiguration($blockClass);
+					$configuration = ObjectRepository::getComponentConfiguration($blockClass);
 					$blockCache = $configuration->cache;
 
 					if ($blockCache instanceof Configuration\BlockControllerCacheConfiguration) {
@@ -446,12 +450,10 @@ class PageController extends ControllerAbstraction
 			return false;
 		}
 
-		$resources = $responseCache->getResponseResourceFiles();
+		$changed = $responseCache->hasResourceChanged();
 
-		foreach ($resources as $file => $mtime) {
-			if (filemtime($file) != $mtime) {
-				return false;
-			}
+		if ($changed) {
+			return false;
 		}
 
 		$this->blockContentCache[$blockId] = $responseCache;
@@ -654,7 +656,7 @@ class PageController extends ControllerAbstraction
 
 					// Don't cache failed blocks 
 					unset($this->blockCacheRequests[$blockId]);
-					
+
 					// Add exception to blockEndExecute event.
 					$eventArgs->exception = $blockController->hadException();
 				}

@@ -244,7 +244,11 @@ YUI.add("supra.footer", function (Y) {
 				this.removeButton(id);
 			}
 			
-			buttons[id] = new Supra.Button(definition);
+			//Create button, but without ID to prevent ID attribute collision
+			var config = Supra.mix({}, definition);
+			
+			delete(config.id);
+			buttons[id] = new Supra.Button(config);
 			
 			if (definition.srcNode) {
 				buttons[id].render();
@@ -375,4 +379,4 @@ YUI.add("supra.footer", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-});
+}, YUI.version);

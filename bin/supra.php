@@ -7,6 +7,9 @@ $helperSet = null;
 
 // This is supposed to be overriden as necessarry by config/cli.php
 $cliCommandClasses = array(
+	'Supra\Upgrade\Command\DatabaseUpgradeCommand',
+	'Supra\Upgrade\Command\ScriptUpgradeCommand',
+	'Supra\Upgrade\Command\UpgradeCommand',
 	'Supra\Tests\Controller\Pages\Fixture\PageFixtureCommand',
 	'Supra\Tests\Authorization\Fixture\AuthorizationFixtureCommand',
 	'Supra\Database\Console\SchemaUpdateCommand',
@@ -16,12 +19,14 @@ $cliCommandClasses = array(
 	'Supra\Search\Command\WipeCommand',
 	'Supra\Search\Command\WipeQueuesCommand',
 	'Supra\Search\Command\QueueAllPageLocalizationsCommand',
-	'Supra\Controller\Pages\Command\LayoutRereadCommand',
-	'Supra\Controller\Pages\Command\LayoutAddCommand',
+	'Supra\Controller\Pages\Command\ThemeAddCommand',
+	'Supra\Controller\Pages\Command\ThemeRemoveCommand',
+	'Supra\Controller\Pages\Command\ThemeSetActiveCommand',
+	//'Supra\Controller\Pages\Command\UpgradeTemplateLayoutsCommand',
 	'Supra\Controller\Pages\Command\ProcessScheduledPagesCommand',
 	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
 	'Supra\Seo\Command\GenerateSitemapCommand',
-	'Supra\Controller\Pages\Command\UpgradeLinkReferencedElements',
+	//'Supra\Controller\Pages\Command\UpgradeLinkReferencedElements',
 	'Supra\Remote\Command\RemoteCommand',
 	'Supra\User\Command\CreateUserCommand',
 );

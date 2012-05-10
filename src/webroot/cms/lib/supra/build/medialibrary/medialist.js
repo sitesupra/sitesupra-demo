@@ -762,6 +762,33 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			//Update UI private state for this and all sub-folders
 			this.updatePrivateStateUI(id, force);
+			
+			this.reloadFolderContent(id);
+		},
+		
+		reloadFolderContent: function (id) {
+			var data_object = this.get('dataObject'),
+				item = data_object.getData(id);
+			
+			this.removeChildrenSlides(item.children);
+			
+			delete(item.children);
+			this.open(item.id);
+		},
+		
+		removeChildrenSlides: function (children) {
+			var slide = null,
+				slideshow = this.slideshow;
+			
+			for(var i=0,ii=children.length; i<ii; i++) {
+				slide = slideshow.getSlide('slide_' + children[i].id);
+				if (slide) {
+					slideshow.removeSlide('slide_' + children[i].id);
+					if (children[i].children) {
+						this.removeChildrenSlides(children[i].children);
+					}
+				}
+			}
 		},
 		
 		/**
@@ -771,18 +798,23 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @param {Number} id Folder ID
 		 */
 		updatePrivateStateUI: function (id /* Folder ID */, state /* State */) {
-			var node = this.getItemNode(id);
+			var node = this.getItemNode(id),
+				dataObject = this.get('dataObject'),
+				slide = null;
+				
 			if (!node) return this;
 			
 			node.setClass('type-folder-private', state);
 			
 			//Update all children
-			var children = this.get('dataObject').getChildrenData(id);
+			var children = dataObject.getChildrenData(id);
 			for(var i=0,ii=children.length; i<ii; i++) {
 				//Update children data
 				children[i]['private'] = state;
 				
-				//Update children UI
+				dataObject.removeData(children[i].id);
+				
+				// clear properties, to force medialibrary reload item data (thumbnails, previews)
 				if (children[i].type == Data.TYPE_FOLDER) {
 					this.updatePrivateStateUI(children[i].id, state);
 				}

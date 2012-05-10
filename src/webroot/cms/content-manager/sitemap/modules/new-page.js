@@ -209,18 +209,20 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		'_bindDnD': function (apps) {
 			var data = [{
 				'type': 'page',
-				'dragable': true,
-				'dropable': true,
+				'draggable': true,
+				'droppable': true,
 				'new_children_first': false,
 				'state': 'temporary',
-				'children': []
+				'children': [],
+				'children_count': 0
 			}, {
 				'type': 'group',
-				'dragable': true,
-				'dropable': true,
+				'draggable': true,
+				'droppable': true,
 				'new_children_first': false,
 				'state': 'temporary',
-				'children': []
+				'children': [],
+				'children_count': 0
 			}];
 			
 			var i = 0,
@@ -230,11 +232,12 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				data.push({
 					'type': apps[i].type,
 					'application_id': (apps[i].type == 'application' ? apps[i].id : null),
-					'dragable': apps[i].isDraggable,
-					'dropable': apps[i].isDropTarget,
+					'draggable': apps[i].isDraggable,
+					'droppable': apps[i].isDropTarget,
 					'new_children_first': apps[i].new_children_first,
 					'state': 'temporary',
-					'children': []
+					'children': [],
+					'children_count': 0
 				});
 			}
 			
@@ -257,7 +260,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 					'tree': tree,
 					'view': view,
 					'data': data[i],
-					'dragable': true,
+					'draggable': true,
 					'groups': ['new-' + type],
 					'type': type
 				});

@@ -167,12 +167,12 @@ class FileStorage
 	 * Validates against filters
 	 * @param Entity\File $file
 	 */
-	private function validateFileUpload(Entity\File $file)
+	public function validateFileUpload(Entity\File $file, $sourceFilePath = null)
 	{
 		// file validation
 		foreach ($this->fileUploadFilters as $filter) {
 			/* @var $filter Validation\FileValidationInterface */
-			$filter->validateFile($file);
+			$filter->validateFile($file, $sourceFilePath);
 		}
 	}
 	
@@ -184,7 +184,7 @@ class FileStorage
 	 */
 	public function storeFileData(Entity\File $file, $sourceFilePath)
 	{
-		$this->validateFileUpload($file);
+		$this->validateFileUpload($file, $sourceFilePath);
 
 		$this->createBothFoldersInFileSystem($file);
 
@@ -455,10 +455,22 @@ class FileStorage
 				$fileDir = $file->getPath(DIRECTORY_SEPARATOR, false)
 						. DIRECTORY_SEPARATOR
 						. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR;
+				
 				foreach ($sizes as $size) {
+					
+					$sizeDir = $fileDir .  DIRECTORY_SEPARATOR
+							. $size->getFolderName() . DIRECTORY_SEPARATOR;
+					
+					$externalPath = $this->getExternalPath() . $sizeDir;
+					$this->createFolderInFileSystem($externalPath);
+					
+					$internalPath = $this->getInternalPath() . $sizeDir;
+					$this->createFolderInFileSystem($internalPath);
+						
 					$fileList[] = $fileDir . DIRECTORY_SEPARATOR
 							. $size->getFolderName() . DIRECTORY_SEPARATOR
 							. $file->getFileName();
+				
 				}
 			}
 		}
@@ -477,7 +489,7 @@ class FileStorage
 			}
 			$file->setPublic(false);
 		}
-
+		
 		$file->setModificationTime();
 	}
 
@@ -904,25 +916,8 @@ class FileStorage
 			
 			return $path;
 		}
-		else {
-
-			//TODO: hardcoded now
-			$path = '/cms/media-library/download/' . rawurlencode($file->getFileName());
-
-			$query = array(
-				'inline' => 'inline',
-				'id' => $file->getId(),
-			);
-
-			if ($size instanceof Entity\ImageSize) {
-				$query['size'] = $size->getFolderName();
-			}
-			
-			$queryOutput = http_build_query($query);
-			$output = $path . '?' . $queryOutput . '&';
-			
-			return $output;
-		}
+		
+		return null;
 	}
 
 	/**
@@ -957,7 +952,8 @@ class FileStorage
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
 		
-		$this->validateFileUpload($fileEntity);
+		// This must be call before removing the old file
+		$this->validateFileUpload($fileEntity, $file['tmp_name']);
 		
 		$this->removeFileInFileSystem($originalFile);
 

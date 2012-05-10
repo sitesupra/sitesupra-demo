@@ -7,13 +7,13 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	 * Default gallery image properties
 	 */
 	var DEFAULT_IMAGE_PROPERTIES = [
-		{'id': 'title', 'type': 'String', 'label': SU.Intl.get(['htmleditor', 'label_title']), 'value': ''}
+		{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'label_title']), 'value': ''}
 	];
 	
 	/*
 	 * Shortcuts
 	 */
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		PageContent = Manager.PageContent;
 	
 	
@@ -47,13 +47,15 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			var slideshow = this.properties.get('slideshow'),
 				container = slideshow.getSlide('propertySlideMain').one('.su-slide-content');
 			*/
-			var container = Y.Node.create('<div class="su-button-group"></div>')
+		   
+			var container = Y.Node.create('<div class="su-button-group"></div>');
+			this.buttonsContainer = container;
 			
 			this.properties.get('buttonDelete').get('boundingBox').insert(container, 'before');
 			
 			//Manage image button
 			var button = new Supra.Button({
-				'label': SU.Intl.get(['htmleditor', 'manage_images'])
+				'label': Supra.Intl.get(['htmleditor', 'manage_images'])
 			});
 			
 			button.render(container);
@@ -64,7 +66,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Add image button
 			var button = new Supra.Button({
-				'label': SU.Intl.get(['htmleditor', 'add_images'])
+				'label': Supra.Intl.get(['htmleditor', 'add_images'])
 			});
 			
 			button.render(container);
@@ -91,6 +93,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				'srcNode': srcNode,
 				'doc': doc
 			});
+		},
+		
+		bindUI: function () {
+			ContentGallery.superclass.bindUI.apply(this, arguments);
+			this.once('properties:show', this.checkAreImagesShared, this);
 		},
 		
 		/**
@@ -124,7 +131,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				
 				//folder was without images
 				if ( ! folderHasImages) {
-					SU.Manager.executeAction('Confirmation', {
+					Supra.Manager.executeAction('Confirmation', {
 					    'message': '{#medialibrary.validation_error.empty_folder_drop#}',
 					    'useMask': true,
 					    'buttons': [
@@ -152,7 +159,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			gallery_data.images = gallery_data.images || [];
 			
 			//Show gallery
-			SU.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (data, changed) {
+			Supra.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (data, changed) {
 				if (changed) {
 					this.unresolved_changes = true;
 					
@@ -204,8 +211,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				images = (values && Y.Lang.isArray(values.images)) ? values.images : [],
 				properties = this.getImageProperties(),
 				property = null,
-				image  = {'image': image_data, 'id': image_data.id};
-			
+				image  = {'image': image_data, 'id': image_data.id},
+				locale = Supra.data.get('locale');
+				
 			//Check if image doesn't exist in data already
 			for(var i=0,ii=images.length; i<ii; i++) {
 				if (images[i].image.id == image_data.id) return;
@@ -215,6 +223,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				property = properties[i].id;
 				image[property] = image_data[property] || properties[i].value || '';
 			}
+			
+			image.title = image_data.title[locale] || image_data.defaultTitle;
+			image.description = image_data.description[Supra.data.get('locale')] || image_data.defaultDescription;
 			
 			images.push(image);
 			
@@ -244,6 +255,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @type {Object}
 		 */
 		processData: function (data) {
+			
+			if (this.properties.isPropertyShared('images')) {
+				return data.images = [];
+			}
+			
 			var images = [],
 				image = {},
 				properties = this.getImageProperties(),
@@ -279,8 +295,28 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					editable.set('loading', false);
 				}
 			);
-		}
+		},
 		
+		/**
+		 * Check
+		 */
+		checkAreImagesShared: function()
+		{
+			if (this.properties.isPropertyShared('images')) {
+				if (this.buttonsContainer) {
+					this.buttonsContainer.hide();
+				}
+				
+				var notice = Y.Node.create('<p class="description"></p>'),
+					template = SU.Intl.get(['form', 'shared_gallery_notice']),
+					info = this.properties.getSharedPropertyInfo('images');
+				
+				template = Supra.Template.compile(template);
+				notice.append(template(info));
+				
+				this.properties.get('buttonDelete').get('boundingBox').insert(notice, 'before');
+			}
+		}
 	});
 	
 	PageContent.Gallery = ContentGallery;

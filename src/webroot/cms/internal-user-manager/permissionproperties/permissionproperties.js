@@ -3,15 +3,15 @@
 
 
 //Add module definitions
-SU.addModule('website.input-dial', {
+Supra.addModule('website.input-dial', {
 	path: 'modules/input-dial.js',
 	requires: ['supra.input-proto']
 });
-SU.addModule('website.tree-node-permissions', {
+Supra.addModule('website.tree-node-permissions', {
 	path: 'modules/tree-node.js',
-	requires: ['supra.tree-node-dragable']
+	requires: ['supra.tree-node-draggable']
 });
-SU.addModule('website.permission-list', {
+Supra.addModule('website.permission-list', {
 	path: 'modules/permission-list.js',
 	requires: ['dd', 'supra.input']
 });
@@ -19,7 +19,7 @@ SU.addModule('website.permission-list', {
 /**
  * Main manager action, initiates all other actions
  */
-Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-node-permissions', 'website.permission-list', 'supra.slideshow-multiview', 'website.input-dial', function (Y) {
+Supra('supra.input', 'supra.languagebar', 'supra.tree-draggable', 'website.tree-node-permissions', 'website.permission-list', 'supra.slideshow-multiview', 'website.input-dial', function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -246,7 +246,7 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			if (!this.tree) {
 				//Create tree
 				var container = this.slideshow.getSlide('treeSlide');
-				var tree = new Supra.TreeDragable({
+				var tree = new Supra.TreeDraggable({
 					'requestUri': uri,
 					'defaultChildType': Supra.TreeNodePermissions,
 					
@@ -301,10 +301,10 @@ Supra('supra.input', 'supra.languagebar', 'supra.tree-dragable', 'website.tree-n
 			}];
 			
 			//Create language bar
-			this.languagebar = new SU.LanguageBar({
+			this.languagebar = new Supra.LanguageBar({
 				'locale': '',
-				'contexts': all.concat(SU.data.get('contexts')),
-				'localeLabel': SU.Intl.get(['userpermissions', 'permissions_for'])
+				'contexts': all.concat(Supra.data.get('contexts')),
+				'localeLabel': Supra.Intl.get(['userpermissions', 'permissions_for'])
 			});
 			
 			this.languagebar.after('localeChange', function (evt) {

@@ -33,9 +33,9 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 			'value': null
 		},
 		
-		'dragable': {
+		'draggable': {
 			'value': true,
-			'setter': '_setDragable'
+			'setter': '_setDraggable'
 		},
 		
 		'type': {
@@ -142,7 +142,7 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 			
 			dnd.set('treeNode', this);
 			
-			if (!this.get('dragable')) {
+			if (!this.get('draggable')) {
 				dnd.set('lock', true);
 			}
 			
@@ -184,7 +184,8 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 			var target = this._dndTarget;
 			if (!target) return;
 			
-			var tree = this.get('tree');
+			var tree = this.get('tree'),
+				added = true;
 			
 			//Drop was canceled
 			if (this._dndTargetPlace === null) return;
@@ -195,8 +196,8 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 				
 				//Add TreeNodeList row
 				var datagrid = target.getWidget('datagrid'),
-					data = Supra.mix({'tree': tree, 'id': Y.guid()}, target.NEW_CHILD_PROPERTIES || {}, this.get('data')),
-					row = datagrid.insert(data, target.get('data').new_children_first ? 0 : null),
+					data = Supra.mix({'tree': tree}, target.NEW_CHILD_PROPERTIES || {}, this.get('data')),
+					row = datagrid.insert(Supra.mix({'id': Y.guid()}, data), target.get('data').new_children_first ? 0 : null),
 					params = {
 						'data': row.get('data'),
 						'node': row
@@ -204,22 +205,53 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 				
 			} else {
 				//Add page
-				var data = Supra.mix({}, target.NEW_CHILD_PROPERTIES || {}, this.get('data'));
-				var node = tree.insert(data, target, this._dndTargetPlace),
+				var data = Supra.mix({}, target.NEW_CHILD_PROPERTIES || {}, this.get('data')),
+					node = null,
+					params = null;
+				
+				//If target is expandable, then wait till it's expanded before adding new item
+				if (this._dndTargetPlace == 'inside' && target.expand && target.get('expandable') && !target.get('expanded')) {
+					
+					//After expand add node
+					target.once('expanded', function () {
+						
+						var node = tree.insert(data, target, 'inside'),
+							params = {
+								'data': node.get('data'),
+								'node': node
+							};
+						
+						if (!data.id) {
+							tree.fire('page:add', params);
+						} else {
+							tree.fire('page:restore', params);
+						}
+						
+					}, this);
+					
+					target.expand();
+					
+					added = false;
+					
+				} else {
+					node = tree.insert(data, target, this._dndTargetPlace);
 					params = {
 						'data': node.get('data'),
 						'node': node
 					};
-				
-				if (node.get('parent').expand) node.get('parent').expand();
+					
+					if (node.get('parent').expand) node.get('parent').expand();
+				}
 			}
 			
 			//Only new items doesn't have ID, if page is restored from recycle bin
-			//then there will be ID 
-			if (!data.id) {
-				tree.fire('page:add', params);
-			} else {
-				tree.fire('page:restore', params);
+			//then there will be ID
+			if (added) { 
+				if (!data.id) {
+					tree.fire('page:add', params);
+				} else {
+					tree.fire('page:restore', params);
+				}
 			}
 			
 			//Hide marker and cleanup data
@@ -254,23 +286,23 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 		
 		
 		/**
-		 * Dragable attribute setter
+		 * Draggable attribute setter
 		 * 
-		 * @param {Boolean} dragable New dragable value
-		 * @return Dragable attribute value
+		 * @param {Boolean} draggable New draggable value
+		 * @return Draggable attribute value
 		 * @type {Boolean}
 		 * @private
 		 */
-		'_setDragable': function (dragable) {
+		'_setDraggable': function (draggable) {
 			//Root nodes can't be dragged
 			if (this.get('root')) {
 				return false;
 			}
 			if (this._dnd) {
-				this._dnd.set('lock', !dragable);
+				this._dnd.set('lock', !draggable);
 			}
 			
-			return !!dragable;
+			return !!draggable;
 		}
 	});
 	

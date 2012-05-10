@@ -7,6 +7,22 @@
 		color: #323144;
 		.text-shadow ();
 	}
+	
+	.yui3-form-fill {
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		
+		//No margin, will add padding
+		margin: 0;
+		
+		.su-slide-content {
+			//Restore margin as padding
+			padding: 0 10px;
+		}
+	}
 }
 
 .yui3-input {
@@ -23,7 +39,8 @@
 	.yui3-input-path-hidden,
 	.yui3-input-file-upload-hidden,
 	.yui3-input-link-hidden,
-	.yui3-input-image-hidden {
+	.yui3-input-image-hidden,
+	.yui3-input-color-hidden {
 		display: none;
 	}
 	
@@ -371,6 +388,9 @@
 /* Select list */
 @import "less/select-list.less";
 
+/* color */
+@import "less/color.less";
+
 /* Slider */
 .yui3-input-slider .less,
 .yui3-input-slider .more {
@@ -494,7 +514,8 @@
 	.yui3-input-file-upload label,
 	.yui3-input-slider label,
 	.yui3-input-link label,
-	.yui3-input-image label {
+	.yui3-input-image label,
+	.yui3-input-color label {
 		display: block;
 	}
 	.yui3-input-string input,

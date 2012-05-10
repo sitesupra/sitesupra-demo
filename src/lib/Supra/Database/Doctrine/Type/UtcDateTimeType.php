@@ -39,6 +39,9 @@ class UtcDateTimeType extends DateTimeType
 			return null;
 		}
 
+		// Don't change the timezone for the original value
+		$value = clone $value;
+
 		$timezone = $this->getUtcDateTimeZone();
 		$value->setTimezone($timezone);
 

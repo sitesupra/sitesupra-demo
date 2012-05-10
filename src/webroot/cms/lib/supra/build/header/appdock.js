@@ -193,8 +193,8 @@ YUI.add('supra.header.appdock', function(Y) {
 				this.set('nodeDock', node_dock);
 				this.get('contentBox').append(node_dock);
 				
-				node_dock.append('<div class="yui3-app-dock-stats">\n\
-							<div class="stat-content"></div>\n\
+				node_dock.append('<div class="yui3-app-dock-stats">\
+						<div class="stat-content"></div>\
 					</div>');
 				
 			} else {
@@ -249,7 +249,7 @@ YUI.add('supra.header.appdock', function(Y) {
 		loadStats: function (callback) {
 			var node_dock_stats = this.get('nodeDock').one('.yui3-app-dock-stats'),
 				classname = getClassName(AppDock.NAME, 'dock', 'loading'),
-				uri = '/cms/dashboard/stats/list.json';
+				uri = Supra.Manager.Loader.getDynamicPath() + '/dashboard/stats/list.json';
 			
 			node_dock_stats.addClass(classname);
 			

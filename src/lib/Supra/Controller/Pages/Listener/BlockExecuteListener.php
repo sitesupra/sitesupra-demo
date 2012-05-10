@@ -299,7 +299,7 @@ class BlockExecuteListener implements EventSubscriber
 
 				$exception = $this->blockExceptions[$oid];
 
-				$blockStats['exception'] = 'Had ' . (string) $exception;
+				$blockStats['exception'] = $exception;
 			}
 
 			$responseData[] = $blockStats;

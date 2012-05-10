@@ -31,7 +31,7 @@ YUI().add('website.sitemap-tree-node-app-news', function (Y) {
 			
 			//Prevent adding new children directly inside News application
 			this.on('child:add', function (e) {
-				e.node.set('dropablePlaces', {'inside': true, 'before': false, 'after': false});
+				e.node.set('droppablePlaces', {'inside': true, 'before': false, 'after': false});
 			}, this);
 		},
 		
@@ -46,7 +46,7 @@ YUI().add('website.sitemap-tree-node-app-news', function (Y) {
 			
 			//Prevent adding new children directly inside News application
 			this.children().forEach(function (node) {
-				node.set('dropablePlaces', {'inside': true, 'before': false, 'after': false});
+				node.set('droppablePlaces', {'inside': true, 'before': false, 'after': false});
 			});
 		},
 		

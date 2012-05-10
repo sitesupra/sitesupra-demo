@@ -12,6 +12,7 @@ use Supra\User\Entity\User;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Cms\ContentManager\Pagecontent\PagecontentAction;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 class PagehistoryAction extends PageManagerAction
 {
@@ -72,7 +73,12 @@ class PagehistoryAction extends PageManagerAction
 		foreach ($historyRevisions as $revision) {
 			
 			$userId = $revision->getUser();
-				
+			
+			if (is_null($userId)) {
+				// skip record, if user is not set
+				continue;
+			}
+			
 			$userName = '#' . $userId;
 			$user = $userProvider->findUserById($userId);
 			if ($user instanceof User) {
@@ -160,10 +166,18 @@ class PagehistoryAction extends PageManagerAction
 								$action = self::ACTION_MOVE;
 							} else {
 								$blockName = $this->getRevisionedEntityBlockName($revision);
+								if (is_null($blockName)) {
+									continue;
+								}
+								
 								$title = "{$blockName} block settings";
 							}
 						} else {
 							$blockName = $this->getRevisionedEntityBlockName($revision);
+							if (is_null($blockName)) {
+								continue;
+							}
+							
 							$title = "{$blockName} block";
 						}
 						break;
@@ -204,7 +218,6 @@ class PagehistoryAction extends PageManagerAction
 		$blockName = null;
 		
 		$entityManager = ObjectRepository::getEntityManager('#audit');
-		$blockCollection = \Supra\Controller\Pages\BlockControllerCollection::getInstance();
 		
 		$params = array(
 			'id' => $revision->getElementId(),
@@ -231,8 +244,19 @@ class PagehistoryAction extends PageManagerAction
 			$block = null;
 			switch($entityName) {
 				case Entity\BlockPropertyMetadata::CN():
-					$block = $entity->getBlockProperty()
-						->getBlock();
+					$entityOriginalData = $entityManager->getUnitOfWork()
+						->getOriginalEntityData($entity);
+					
+					$blockPropertyId = $entityOriginalData['blockProperty_id'];
+					$blockProperty = $entityManager->getRepository(Entity\BlockProperty::CN())
+							->findOneBy(array('id' => $blockPropertyId));
+					
+					if (is_null($blockProperty)) {
+						return null;
+					}
+					
+					$block = $blockProperty->getBlock();
+					
 					break;
 				
 				case Entity\BlockProperty::CN():
@@ -246,10 +270,11 @@ class PagehistoryAction extends PageManagerAction
 			}
 			
 			if ( ! is_null($block)) {
-				$componentName = $block->getComponentName();
-				$blockConfiguration = $blockCollection->getBlockConfiguration($componentName);
-				if ($blockConfiguration instanceof \Supra\Controller\Pages\Configuration\BlockControllerConfiguration) {
-					$blockName = $blockConfiguration->title;
+				$componentClass = $block->getComponentClass();
+				$componentConfiguration = ObjectRepository::getComponentConfiguration($componentClass);
+				
+				if ($componentConfiguration instanceof BlockControllerConfiguration) {
+					$blockName = $componentConfiguration->title;
 				}
 			}
 		}

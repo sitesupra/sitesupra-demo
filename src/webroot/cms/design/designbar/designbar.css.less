@@ -1,0 +1,82 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+.design-bar {
+	position: absolute;
+	z-index: 2;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 175px;
+	border-top: 1px solid rgba(142, 143, 152, 0.2);
+	
+	.su-scrollable {
+		.su-scrollable-scrollbar {
+			background: none;
+		}
+	}
+	
+	ul {
+		list-style: none;
+		overflow: hidden;
+		
+		li {
+			float: left;
+			text-align: center;
+			width: 218px;
+			padding-top: 20px;
+			
+			a {
+				display: inline-block;
+			}
+			img {
+				.box-shadow (0, 2px, 4px, rgba(0, 9, 18, 0.75));
+				vertical-align: top;
+			}
+			
+			&:first-child {
+				margin-left: 57px;
+			}
+			&:last-child {
+				margin-right: 57px;
+			}
+			
+			&.loading {
+				position: relative;
+			}
+			&.loading img {
+				opacity: 0.25;
+			}
+			.loading-icon {
+				margin-top: -10px;
+			}
+		}
+	}
+	
+	&.disabled ul li a {
+		cursor: default;
+	}
+	
+	.arrow {
+		background-image: url(../images/bar/side-arrows.png);
+		height: 150px;
+		width: 58px;
+		left: 0;
+		top: 0;
+		margin: 0;
+		
+		&:hover {
+			background-position: 0 -150px;
+		}
+		
+		&.next {
+			background-position: 0 -300px;
+			left: auto;
+			right: 0;
+			
+			&:hover {
+				background-position: 0 -450px;
+			}
+		}
+	}
+}

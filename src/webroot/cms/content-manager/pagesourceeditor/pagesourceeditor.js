@@ -1,10 +1,10 @@
 //Invoke strict mode
 "use strict";
 
-SU(function (Y) {
+Supra(function (Y) {
 
 	//Shortcuts
-	var Manager = SU.Manager;
+	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
 	//Add as child, when EditorToolbar will be hidden PageSourceEditor will be hidden also (page editing is closed)
@@ -79,7 +79,7 @@ SU(function (Y) {
 			Y.Get.script(args, {
 				'onSuccess': function () {
 					//Create classes
-					SU('supra.source-editor', Y.bind(function () {
+					Supra('supra.source-editor', Y.bind(function () {
 						this.ready();
 					}, this));
 				},

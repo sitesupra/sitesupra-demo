@@ -13,7 +13,7 @@
  * 			]
  * 		});
  */
-SU('supra.input', function (Y) {
+Supra('supra.input', function (Y) {
 	
 	var DEFAULT_CONFIG = {
 		'message': '',
@@ -24,7 +24,7 @@ SU('supra.input', function (Y) {
 	};
 	
 	//Shortcut
-	var Action = SU.Manager.Action;
+	var Action = Supra.Manager.Action;
 	
 	//Create Action class
 	new Action(Action.PluginPanel, Action.PluginFooter, {
@@ -122,13 +122,13 @@ SU('supra.input', function (Y) {
 					button.focus();
 				}
 				if ('click' in buttons[i]) {
-					button.on('click', buttons[i].click, buttons[i].context || null);
+					button.on('click', buttons[i].click, buttons[i].context || null, buttons[i].args);
 				}
 			}
 		},
 		
 		execute: function (config) {
-			this.config = config = SU.mix({}, DEFAULT_CONFIG, config || {});
+			this.config = config = Supra.mix({}, DEFAULT_CONFIG, config || {});
 			
 			this.renderMessage(config);
 			this.renderButtons(config);

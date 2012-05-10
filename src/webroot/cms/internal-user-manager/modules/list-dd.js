@@ -157,8 +157,8 @@ YUI.add('website.list-dd', function (Y) {
 				
 				var node = e.target.get('node'),
 					drag_id = node.getAttribute('data-id'),
-					drop_id = this.drop_target.ancestor().getAttribute('data-group');
-				
+					drop_id = this.drop_target.ancestor('.userlist-group').getAttribute('data-group');
+					
 				if (!drag_id || !this.drop_target.compareTo(node.ancestor())) {
 					this.fire('drop', {
 						'drag_id': drag_id,
@@ -173,7 +173,7 @@ YUI.add('website.list-dd', function (Y) {
 			
 			//Make sure node is not actually moved
 			e.preventDefault();
-		},
+		}
 		
 	});
 	

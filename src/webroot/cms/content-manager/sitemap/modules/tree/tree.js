@@ -362,10 +362,10 @@ YUI().add('website.sitemap-tree', function (Y) {
 						//Enable dragging
 						data = node.get('data');
 						if (!('isDraggable' in data) || data.isDraggable) {
-							node.set('dragable', true);
+							node.set('draggable', true);
 						}
 						if (!('isDropTarget' in data) || data.isDropTarget) {
-							node.set('dropable', true);
+							node.set('droppable', true);
 						}
 					}
 					if (pages[id].supervise_page) {
@@ -415,8 +415,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'preview': data.preview || preview,
 				'type': data.type,
 				
-				'dragable': editable && (!('isDraggable' in data) || data.isDraggable),
-				'dropable': editable,
+				'draggable': editable && (!('isDraggable' in data) || data.isDraggable),
+				'droppable': editable,
 				
 				'expandable': (data.children_count || (data.children && data.children.length)),
 				'selectable': editable && data.type != 'temporary' && data.type != 'group',
@@ -432,6 +432,10 @@ YUI().add('website.sitemap-tree', function (Y) {
 				'depth': 0,
 				'root': (item.depth == 0),
 				'index': 0,
+				
+				// templates by default are active, published
+				'active': (this.get('mode') == 'templates' ? true : data.active),
+				'published': (this.get('mode') == 'templates' ? true : data.published),
 				
 				'parent': this
 			}, item));
@@ -663,8 +667,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 					'identifier': node._id,
 					'data': node,
 					
-					'dragable': true,
-					'dropable': true,
+					'draggable': true,
+					'droppable': true,
 					
 					'editable': true,
 					'publishable': true,
@@ -688,6 +692,10 @@ YUI().add('website.sitemap-tree', function (Y) {
 				child = reference.item(-1);
 				
 				if (child) {
+					if (child === node) {
+						return;
+					}
+					
 					reference = child;
 					where = 'after';
 				} else {
@@ -755,6 +763,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 			} else {
 				old_parent.fire('child:remove', {'node': node, 'data': node.get('data')});
 				new_parent.fire('child:add', {'node': node, 'data': node.get('data')});
+				
+				new_parent.expand();
 			}
 			
 			//Style tree
@@ -867,6 +877,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 * @param {Number} time in milliseconds to wait
 		 */
 		'expand': function(node, when) {
+			if (!node) return;
+			
 			when = when || 0;
 			this.stopExpand();
 			this._expandTimer = Y.later(when, this, function(node) {

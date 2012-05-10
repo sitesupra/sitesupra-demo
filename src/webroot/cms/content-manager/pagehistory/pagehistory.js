@@ -1,10 +1,10 @@
 //Invoke strict mode
 "use strict";
 
-SU('anim', function (Y) {
+Supra('anim', function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action,
 		Loader = Manager.Loader,
 		YDate = Y.DataType.Date;
@@ -144,6 +144,14 @@ SU('anim', function (Y) {
 		 * @param {String} version_id
 		 */
 		restoreVersion: function (version_id) {
+			var iframe = Manager.getAction('PageContent').iframe_handler;
+			
+			//Make sure there are no leftovers from previous JS by reloading iframe
+			iframe.get('doc').location = "about:blank";
+			
+			//Disable page preview
+			iframe.set('loading', true);
+			
 			//Disable elements
 			this.set('loading', true);
 			this.get('controlButton').set('disabled', true);
@@ -331,7 +339,7 @@ SU('anim', function (Y) {
 			}
 			else if (raw.getTime() >= month.getTime())
 			{
-				out.group = YDate.reformat(raw, 'raw', '%Y-%m-99');
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-00');
 				out.group_title = Supra.Intl.get(['history', 'this_month']);
 				out.group_datetime = raw.getDate();
 			}

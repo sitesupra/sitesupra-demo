@@ -4,7 +4,7 @@
 YUI.add('supra.page-content-properties', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	var ACTION_TEMPLATE = '\
@@ -24,6 +24,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 	function Properties () {
 		Properties.superclass.constructor.apply(this, arguments);
 		this._original_values = null;
+		this._shared_properties = {};
 	}
 	
 	Properties.NAME = 'page-content-properties';
@@ -168,7 +169,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					if (host_properties.srcNode) {
 						host_properties.contentBox = host_properties.srcNode;
 						host_properties.boundingBox = host_properties.srcNode;
-						form_config.inputs.push(SU.mix({}, host_properties, properties[i]));
+						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
 					} else {
 						//If there is no inline node, fail silently
 					}
@@ -225,7 +226,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			//Delete button
-			var btn = new Supra.Button({'label': SU.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
+			var btn = new Supra.Button({'label': Supra.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
 				btn.render(slide).on('click', this.deleteContent, this);
 			
 			this.set('buttonDelete', btn);
@@ -297,6 +298,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				i = 0,
 				ii = properties.length,
 				inputs = form.getInputs(),
+				inputs_definition = form.inputs_definition,
 				
 				host = this.get('host'),
 				host_node = host.getNode(),
@@ -311,8 +313,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 			}
 			
-			if (property && id in inputs) {
-				var srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + property.id);
+			if (property) {
+				var srcNode = null;
+				
+				//Destroy old input
+				if (id in inputs) {
+					inputs[id].destroy();
+				}
+				
+				//Check if input node exists
+				srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + property.id);
+				if (!srcNode) {
+					//Save into plain values
+					form.get('plainValues')[id] = value;
+					
+					delete(inputs[id]);
+					return null;
+				}
 				
 				//Get input config
 				config = Supra.mix({
@@ -326,12 +343,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 					'value': value ? value : property.value
 				});
 				
-				//Destroy old input
-				inputs[id].destroy();
-				
 				//Create new input 
 				inputs[id] = form.factoryField(config);
 				inputs[id].render();
+				
+				//Set config, because inputs without definitions will break form
+				inputs_definition[id] = config;
 				
 				//Restore value
 				inputs[id].set('value', value);
@@ -404,15 +421,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		deleteContent: function () {
 			Supra.Manager.executeAction('Confirmation', {
-				'message': SU.Intl.get(['page', 'delete_block_confirmation']),
+				'message': Supra.Intl.get(['page', 'delete_block_confirmation']),
 				'useMask': true,
 				'buttons': [
 					{'id': 'delete', 'label': Supra.Intl.get(['buttons', 'yes']), 'context': this, 'click': function () {
 						var host = this.get('host');
 						var parent = host.get('parent');
-						
-						//Discard all changes
-						host.unresolved_changes = false;
 						
 						//Close form
 						this.hidePropertiesForm();
@@ -463,6 +477,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'scrollable': false,
 				'title': this.getTitle()
 			});
+			
+			this.get('host').fire('properties:show');
 		},
 		
 		/**
@@ -480,11 +496,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		_setData: function (data) {
-			var form = this.get('form'),
-				data = Supra.mix({}, data);
+			var data = Supra.mix({}, data),
+				values = [],
+				shared_properties = {};
+				
+			for (var name in data.properties) {
+				if (data.properties[name].shared) {
+					shared_properties[name] = data.properties[name];
+				}
+				
+				values[name] = data.properties[name].value;
+			}
 			
-			this._original_values = data.properties;
-			this.setValues(data.properties);
+			this._shared_properties = Supra.mix(shared_properties, this._shared_properties);
+			this._original_values = values;
+			
+			this.setValues(values);
+			
 			return data;
 		},
 		
@@ -496,8 +524,19 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		_getData: function (data) {
-			var data = data || {};
-			data.properties = this.getValues();
+			var data = data || {},
+				properties = {},
+				values = null;
+				
+			values = this.getValues();
+			for (var name in values) {
+				properties[name] = {
+					value: values[name],
+					shared: this.isPropertyShared(name)
+				}
+			}
+			
+			data.properties = properties;
 			return data;
 		},
 		
@@ -553,6 +592,26 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 				
 				form.setValuesObject(values, 'id');
+
+				var input = null,
+					template = SU.Intl.get(['form', 'shared_property_description']),
+					list = this._shared_properties,
+					inputs = form.inputs,
+					info;
+
+				template = Supra.Template.compile(template);
+
+				for (var name in list) {
+					
+					if (inputs[name]) {
+						input = inputs[name];
+
+						info = this.getSharedPropertyInfo(name);
+
+						input.set('disabled', true);
+						input.set('description', template(info));
+					}
+				}
 			}
 		},
 		
@@ -570,7 +629,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		getSaveValues: function () {
 			var form = this.get('form');
 			if (form) {
-				return form.getValues('id', true);
+				var values = form.getValues('id', true);
+				
+				for (var name in values) {
+					if (this.isPropertyShared(name)) delete values[name];
+				}
+
+				return values;
 			} else {
 				return {};
 			}
@@ -585,13 +650,50 @@ YUI.add('supra.page-content-properties', function (Y) {
 		getNonInlineSaveValues: function (values) {
 			var values = values ? values : this.getSaveValues(),
 				properties = this.get('properties'),
-				out = {};
-			
+				out = {},
+				value = null;
+				
 			for(var i=0,ii=properties.length; i<ii; i++) {
-				if (!properties[i].inline) out[properties[i].id] = values[properties[i].id];
+				if (!properties[i].inline) {
+
+					value = values[properties[i].id];
+					
+					// replace empty arrays with nulls
+					if (typeof(value) == 'object' && value.length === 0) {
+						value = null;
+					}
+
+					out[properties[i].id] = value;		
+				}
 			}
-			
+					
 			return out;
+		},
+		
+		isPropertyShared: function (name) {
+			for (name in this._shared_properties) {
+				return true;
+			}
+			return false;
+		},
+
+		getSharedPropertyInfo: function (name) {
+			var list = this._shared_properties;
+
+			if ( ! (name in list)) {
+				return {};
+			}
+
+			var localeTitle = list[name].locale,
+				locale = Supra.data.getLocale(list[name].locale);
+
+			if (locale && locale.title) {
+				localeTitle = locale.title;
+			}
+
+			var info = Supra.mix({'localeTitle': localeTitle}, list[name]);
+
+			return info;
 		}
 		
 	});

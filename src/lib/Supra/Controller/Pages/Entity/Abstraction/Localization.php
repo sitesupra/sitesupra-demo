@@ -13,6 +13,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\GroupLocalization;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\AuditLog\TitleTrackingItemInterface;
+use Supra\Controller\Pages\Exception\RuntimeException;
 
 /**
  * @Entity
@@ -242,6 +243,16 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$this->master = $master;
 		$master->setLocalization($this);
 //		}
+	}
+	
+	public function overrideMaster(AbstractPage $master)
+	{
+		if (is_null($this->master) 
+				|| $this->master->getId() !== $master->getId()) {
+			throw new RuntimeException("You can override master only with the same id");
+		}
+		
+		$this->master = $master;
 	}
 
 	/**
@@ -647,7 +658,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	/**
 	 * @return array
 	 */
-	protected function getAuthizationAncestorsDirect()
+	protected function getAuthorizationAncestorsDirect()
 	{
 		// This is overriden because page localizations themselves are not nested set element, so
 		// we take master page, fetch all of its ancestors and then fetch page localizations from those.

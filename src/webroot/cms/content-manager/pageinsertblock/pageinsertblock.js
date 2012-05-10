@@ -1,10 +1,10 @@
 //Invoke strict mode
 "use strict";
 
-SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
+Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action,
 		Loader = Manager.Loader;
 	
@@ -59,7 +59,7 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 		slideshow: null,
 		
 		/**
-		 * Elements which are dragable
+		 * Elements which are draggable
 		 * @type {Array}
 		 */
 		drags: [],
@@ -196,7 +196,7 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 				
 				//Add to DD list 
 				this.dnd.push(
-					SU.Manager.PageContent.registerDD({
+					Supra.Manager.PageContent.registerDD({
 						'type': 'block',
 						'data': data,
 						'id': id,
@@ -230,7 +230,7 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 			
 			this.slideshow.render();
 			
-			this.get('controlButton').on('click', this.hide, this);
+			this.get('controlButton').on('click', this.close, this);
 			this.get('backButton').on('click', this.slideshow.scrollBack, this.slideshow);
 			
 			//Attach event listeners
@@ -255,7 +255,7 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 				
 				//Drag and drop
 				if (this.dnd_tmp) this.dnd_tmp.destroy();
-				this.dnd_tmp = SU.Manager.PageContent.registerDD({
+				this.dnd_tmp = Supra.Manager.PageContent.registerDD({
 					'type': 'block',
 					'data': this.data[id],
 					'id': id,
@@ -265,6 +265,17 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 			}
 			
 			this.slideshow.set('slide', id);
+		},
+		
+		/**
+		 * Handle close button click
+		 * 
+		 * @private 
+		 */
+		close: function () {
+			//Enable block editing
+			Supra.Manager.PageContent.getContent().set('highlight', false);
+			this.hide();
 		},
 		
 		/**
@@ -286,6 +297,9 @@ SU('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 			this.show();
 			this.renderData();
 			this.slideshow.syncUI();
+			
+			//Blocks not editable while this action is visible
+			Supra.Manager.PageContent.getContent().set('highlight', true);
 		}
 	});
 	

@@ -1,0 +1,102 @@
+{
+	"status": 1,
+	"data": {
+		"id": 2,
+		
+		"author": "Sequence",
+		"purchases": 24,
+		"avatar": "/cms/design/images/overview/author-avatar-1.png",
+		
+		"title": "DynamiX",
+		"category": "Premium Wordpress Theme",
+		
+		"description": "<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam cursus. Morbi ut mi. Nullam enim leo, egestas id, condimentum at, laoreet mattis, massa. Sed eleifend nonummy diam. Praesent mauris ante, elementum et, bibendum at, posuere sit amet.</p><ul><li>Duis tincidunt lectus quis</li><li>Dui viverra vestibulum.</li><li>Suspendisse vulputate aliquam dui.</li><li>Nulla elementum dui ut augue.</li><li>Aiquam vehicula.</li><li>Mi at mauris.</li></ul><p>Maecenas placerat, nisl at consequat rhoncus, sem nunc gravida justo, quis eleifend arcu velit quis lacus. Morbi magna magna, tincidunt a, mattis non, imperdiet vitae, tellus.</p>",
+		
+		"images": [
+			{
+				"image": "/cms/design/images/overview/preview-1.jpg",
+				"title": "Main Page"
+			},
+			{
+				"image": "/cms/design/images/overview/preview-1.jpg",
+				"title": "Text Page"
+			},
+			{
+				"image": "/cms/design/images/overview/preview-1.jpg",
+				"title": "Contact Page"
+			},
+			{
+				"image": "/cms/design/images/overview/preview-1.jpg",
+				"title": "About Us"
+			},
+			{
+				"image": "/cms/design/images/overview/preview-1.jpg",
+				"title": "Portfolio"
+			}
+		],
+		
+		"url": "/cms/design/images/preview/template/template.html",
+		
+		"fonts": {
+			"heading": [
+				{"title": "Arial",				"family": "Helvetica, Arial"},
+				{"title": "Alice",				"family": "Alice",				"apis": "Alice"},
+				{"title": "Copse",				"family": "Copse",				"apis": "Copse"},
+				{"title": "Noticia Text",		"family": "'Noticia Text'",		"apis": "Noticia+Text:400,400italic,700"},
+				{"title": "UnifrakturMaguntia",	"family": "UnifrakturMaguntia",	"apis": "UnifrakturMaguntia"}
+			],
+			"body": [
+				{"title": "Arial",				"family": "Helvetica, Arial"},
+				{"title": "Open Sans",			"family": "Open Sans",			"apis": "Open+Sans:400italic,400,700"},
+				{"title": "PT Sans",			"family": "'PT Sans'",			"apis": "PT+Sans:400,700,400italic"},
+				{"title": "Ubuntu",				"family": "Ubuntu",				"apis": "Ubuntu:400,700,400italic"}
+			]
+		},
+		
+		"backgrounds": [
+			{"id": "none", "title": "None", "icon": ""},
+			{"id": "tiles", "title": "Tiles", "icon": "/cms/design/images/customize/patterns/tiles.png"},
+			{"id": "floor", "title": "Dark floor", "icon": "/cms/design/images/customize/patterns/floor.png"},
+			{"id": "blossom", "title": "Onion blossom", "icon": "/cms/design/images/customize/patterns/blossom.png"}
+		],
+		
+		"menus": [
+			{"id": "menu-orange", "title": "Orange", "icon": "/cms/design/images/customize/menu/orange.jpg"},
+			{"id": "menu-white", "title": "White regular", "icon": "/cms/design/images/customize/menu/white.jpg"},
+			{"id": "menu-dark-gray-fence", "title": "Dark gray fence", "icon": "/cms/design/images/customize/menu/dark-gray-fence.jpg"},
+			{"id": "menu-dark-gray", "title": "Dark gray", "icon": "/cms/design/images/customize/menu/dark-gray.jpg"},
+			{"id": "menu-white-shadow", "title": "White with shadow", "icon": "/cms/design/images/customize/menu/white-shadow.jpg"}
+		],
+		
+		"buttons": [
+			{
+				"id": "button-rounded",
+				"title": "",
+				"icon": "/cms/design/images/customize/buttons/rounded.png"
+			},
+			{
+				"id": "button-glass",
+				"title": "",
+				"icon": "/cms/design/images/customize/buttons/glass.png"
+			},
+			{
+				"id": "button-square",
+				"title": "",
+				"icon": "/cms/design/images/customize/buttons/square.png"
+			}
+		],
+		
+		"customize": {
+			"backgroundColor": "#F6F6F6",
+			"backgroundPattern": "none",
+			"menu": "menu-white",
+			"buttonColor": "#FFAE00",
+			"buttonStyle": "button-rounded",
+			
+			"bodyColor": "#3C3C3C",
+			"bodyFont": "Arial",
+			"headingColor": "#3C3C3C",
+			"headingFont": "Arial"
+		}
+	}
+}

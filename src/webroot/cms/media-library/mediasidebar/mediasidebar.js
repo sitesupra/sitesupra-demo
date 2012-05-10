@@ -1,10 +1,10 @@
 //Invoke strict mode
 "use strict";
 
-SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload', function (Y) {
+Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action,
 		Loader = Manager.Loader;
 	
@@ -70,6 +70,10 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 * @private
 		 */
 		render: function () {
+			//Toolbar buttons
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			
 			//Create media list
 			this.renderMediaList();
 			
@@ -213,8 +217,8 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		 */
 		getData: function (id /* File, image or folder ID */) {
 			var data = this.medialist.get('dataObject').getData(id);
-			if (data && data.type == SU.MediaLibraryData.TYPE_FOLDER) {
-				data = SU.mix({}, data);
+			if (data && data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
+				data = Supra.mix({}, data);
 				data.children = this.medialist.get('dataObject').getChildrenData(id);
 			}
 			return data;
@@ -226,9 +230,18 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
 			
+			//Show previous buttons
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			
 			//Disable upload (otherwise all media library instances
 			//will be affected by HTML5 drag and drop)
 			this.medialist.upload.set('disabled', true);
+			
+			//Retore editor toolbar
+			if (this.options.retoreEditorToolbar) {
+				Manager.getAction('EditorToolbar').execute();
+			}
 		},
 		
 		/**
@@ -267,7 +280,8 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			//Set options
 			this.options = Supra.mix({
 				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES,
-				'dndEnabled': true
+				'dndEnabled': true,
+				'hideToolbar': false
 			}, options || {}, true);
 			
 			//Scroll to folder / item
@@ -286,6 +300,19 @@ SU('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload',
 			
 			//Update slideshow
 			this.medialist.slideshow.syncUI();
+			
+			//Hide toolbar
+			if (this.options.hideToolbar) {
+				//Hide editor toolbar
+				if (Manager.getAction('EditorToolbar').get('visible')) {
+					this.options.retoreEditorToolbar = true;
+					Manager.getAction('EditorToolbar').hide();
+				}
+				
+				//Hide buttons
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			}
 		}
 	});
 	

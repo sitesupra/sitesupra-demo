@@ -47,14 +47,14 @@ YUI.add("supra.datagrid-row", function (Y) {
 		 */
 		get: function (key, strict) {
 			var data = this.data;
-			if (key in data) {
-				return data[key];
+			if (key == 'parent' && !strict) {
+				return this.host;
 			} else if (key == 'id' && !strict) {
 				return this.getID();
 			} else if (key == 'data' && !strict) {
 				return data;
-			} else if (key == 'parent' && !strict) {
-				return this.host;
+			} else if (key in data) {
+				return data[key];
 			} else {
 				return null;
 			}

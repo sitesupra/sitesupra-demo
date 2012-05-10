@@ -832,7 +832,6 @@ YUI.add("supra.form", function (Y) {
 			
 			return disabled;
 		}
-		
 	});
 	
 	Supra.Form = Form;

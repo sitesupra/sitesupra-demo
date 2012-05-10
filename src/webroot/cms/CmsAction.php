@@ -281,7 +281,7 @@ abstract class CmsAction extends SimpleController
 		} else {
 			$value = $request->getQueryValue($key);
 		}
-
+		
 		return $value;
 	}
 

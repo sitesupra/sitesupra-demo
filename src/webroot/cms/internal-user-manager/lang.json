@@ -47,7 +47,9 @@
 			"delete_message": "Are you sure you want to delete selected user?",
 			"reset_message": "Are you sure you want to reset password for selected user?",
 			
-			"reset_success": "New password has been sent to {email}"
+			"reset_success": "New password has been sent to {email}",
+			
+			"cannot_update": "It is allowed to edit only permissions for this user"
 		},
 		
 		"userpermissions": {

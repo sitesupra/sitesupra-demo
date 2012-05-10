@@ -269,10 +269,17 @@ Supra('supra.panel', 'transition', function (Y) {
 				
 				if (data) {
 					var userdata = Manager.getAction('User').getData();
+					
+					if(!Manager.getAction('UserDetails').isAllowedToUpdate(userdata)) {
+						
+						this.hide();
+						return;
+					}
+					
 					userdata.avatar = data.sizes['48x48'].external_path;
 					userdata.avatar_id = id;
-					
 					Manager.getAction('UserDetails').updateUI(userdata);
+
 				}
 				
 				this.hide();

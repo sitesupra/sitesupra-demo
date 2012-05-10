@@ -113,16 +113,20 @@ abstract class PageManagerAction extends CmsAction
 	}
 
 	/**
+	 * @param Localization $pageLocalization
 	 * @return PageRequestEdit
 	 */
-	protected function getPageRequest()
+	protected function getPageRequest(Localization $pageLocalization = null)
 	{
 		$controller = $this->getPageController();
 		$media = $this->getMedia();
 		$user = $this->getUser();
-		$requestPageLocalization = $this->getPageLocalization();
+		
+		if (is_null($pageLocalization)) {
+			$pageLocalization = $this->getPageLocalization();
+		}
 
-		$request = PageRequestEdit::factory($requestPageLocalization, $media);
+		$request = PageRequestEdit::factory($pageLocalization, $media);
 		$response = $controller->createResponse($request);
 
 		$controller->prepare($request, $response);
@@ -224,6 +228,12 @@ abstract class PageManagerAction extends CmsAction
 	private function searchLocalizationByRequestKey($key)
 	{
 		$pageId = $this->getRequestParameter($key);
+		
+		// Fix for news application filter folders
+		if (strpos($pageId, '_') !== false) {
+			$pageId = strstr($pageId, '_', true);
+		}
+		
 		$localization = $this->entityManager->find(
 				Entity\Abstraction\Localization::CN(), $pageId);
 
@@ -341,7 +351,7 @@ abstract class PageManagerAction extends CmsAction
 			$parentDataId = $parentData->getId();
 		}
 
-		$data['parent'] = $parentDataId;
+		$data['parent_id'] = $parentDataId;
 
 		$this->getResponse()->setResponseData($data);
 	}
@@ -374,6 +384,9 @@ abstract class PageManagerAction extends CmsAction
 			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group.png' : 'blank.jpg'),
 			'global' => $page->getGlobal(),
 			'localized' => $localizationExists,
+			'editable' => $localizationExists,
+			'isDraggable' => $localizationExists,
+			'isDropTarget' => $localizationExists,
 		);
 		
 		// Template ID
@@ -447,6 +460,8 @@ abstract class PageManagerAction extends CmsAction
 		$localizationId = $data->getId();
 		$publicEm = ObjectRepository::getEntityManager('#public');
 		$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
+		
+		$array['active'] = true;
 		if ($publicLocalization instanceof Localization) {
 			$array['unpublished_draft'] = false;
 			
@@ -455,8 +470,14 @@ abstract class PageManagerAction extends CmsAction
 			if ($draftRevision == $publicRevision) {
 				$array['published'] = true;
 			}
+				
+			if ($publicLocalization instanceof Entity\PageLocalization) {
+				$array['active'] = $publicLocalization->isActive();
+			}
+		} else {
+			$array['active'] = false;
 		}
-		
+				
 		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
 		$array['path'] = $pathPart;
 		// Additional base path received from application
@@ -646,10 +667,18 @@ abstract class PageManagerAction extends CmsAction
 
 				throw new CmsException(null, "It is impossible to restore root template as a child");
 			}
+		} else {
+			throw new CmsException(null, "Cannot find page [{$pageId}]");
 		}
-		
+				
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
+		
+		$pageLocalization = $page->getLocalization($localeId);
+		
+		if (is_null($pageLocalization)) {
+			throw new CmsException(null, 'This page has no localization for current locale');
+		}
 
 		$request = new HistoryPageRequestEdit($localeId, $media);
 		$request->setDoctrineEntityManager($auditEm);
@@ -660,35 +689,37 @@ abstract class PageManagerAction extends CmsAction
 		$draftEm = $this->entityManager;
 		$draftEventManager = $draftEm->getEventManager();
 		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
+		
+		$parent = $this->getPageByRequestKey('parent_id');
+		$reference = $this->getPageByRequestKey('reference_id');
 
-		$restorePage = function() use ($request) {
-				$page = $request->restorePage();
-			};
+		$restorePage = function() use ($request, $parent, $reference, $draftEm) {
+			
+			$page = $request->restorePage();
+				
+			$page = $draftEm->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
+		
+			try {
+				if (is_null($reference)) {
+					if (is_null($parent)) {
+						throw new CmsException('sitemap.error.parent_page_not_found');
+					}
+					$parent->addChild($page);
+				}
+				else {
+					$page->moveAsPrevSiblingOf($reference);
+				}
+			}
+			catch (DuplicatePagePathException $uniqueException) {
+				throw new CmsException('sitemap.error.duplicate_path');
+			}
+				
+		};
 
 		$this->entityManager
 				->transactional($restorePage);
 
-		$page = $this->entityManager
-				->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
-
-		$parent = $this->getPageByRequestKey('parent_id');
-		$reference = $this->getPageByRequestKey('reference_id');
-		try {
-			if (is_null($reference)) {
-				if (is_null($parent)) {
-					throw new CmsException('sitemap.error.parent_page_not_found');
-				}
-				$parent->addChild($page);
-			}
-			else {
-				$page->moveAsPrevSiblingOf($reference);
-			}
-		}
-		catch (DuplicatePagePathException $uniqueException) {
-			throw new CmsException('sitemap.error.duplicate_path');
-		}
-		
-		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent, $pageEventArgs);
+		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent);
 		
 		$this->getResponse()
 				->setResponseData(true);
@@ -706,6 +737,7 @@ abstract class PageManagerAction extends CmsAction
 		$localizationId = $localization->getId();
 
 		$entityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		$draftEntityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 		
 //		$pageLocalization = $auditEm->find(Entity\Abstraction\Localization::CN(),
 //				array('id' => $localizationId, 'revision' => $revisionId));
@@ -807,6 +839,12 @@ abstract class PageManagerAction extends CmsAction
 
 		$this->entityManager
 				->transactional($restoreLocalization);
+		
+		$pageEventArgs = new PageEventArgs();
+		$pageEventArgs->setEntityManager($draftEntityManager);
+				
+		$draftEntityManager->getEventManager()
+				->dispatchEvent(AuditEvents::localizationPostRestoreEvent, $pageEventArgs);
 		
 	}
 
@@ -934,15 +972,18 @@ abstract class PageManagerAction extends CmsAction
 	}
 	
 	/**
-	 * 
+	 * Duplicate the page
 	 */
-	protected function duplicate()
+	protected function duplicate(Localization $pageLocalization)
 	{
-		$pageLocalization = $this->getPageLocalizationByRequestKey('page_id');
-		$request = $this->getPageRequest();
+		$request = $this->getPageRequest($pageLocalization);
 		$em = $this->entityManager;
-
+		
 		$page = $pageLocalization->getMaster();
+		
+		if ($page instanceof Page && $page->isRoot()) {
+			throw new CmsException(null, 'Not allowed to duplicate the root page');
+		}
 
 		$clonePage = function() use ($request, $em, $page) {
 			/* @var $request PageRequestEdit */
@@ -968,11 +1009,7 @@ abstract class PageManagerAction extends CmsAction
 				->getNestedSetRepository()
 				->add($newPage);
 			
-			if ($page->hasParent()) {
-				$newPage->moveAsNextSiblingOf($page);
-			} else {
-				$newPage->moveAsFirstChildOf($page);
-			}
+			$newPage->moveAsNextSiblingOf($page);
 
 			$eventArgs = new PageEventArgs();
 			$eventArgs->setEntityManager($em);
@@ -986,22 +1023,41 @@ abstract class PageManagerAction extends CmsAction
 					->dispatchEvent(AuditEvents::pagePostDuplicateEvent, $eventArgs);
 			}
 			
-			
+			return $newPage;			
 		};
 		
-		$em->transactional($clonePage);
+		$newPage = $em->transactional($clonePage);
+		
+		$newLocalizations = $newPage->getLocalizations();
+		foreach($newLocalizations as $newLocalization) {
+			if ($newLocalization instanceof Entity\TemplateLocalization) {
+				$this->pageData = $newLocalization;
+				$this->publish();
+			}	
+		}
+		
+		$currentLocale = $this->getLocale()
+				->getId();
+		
+		$response = $this->convertPageToArray($newPage, $currentLocale);
 		
 		$this->getResponse()
-				->setResponseData(true);
+				->setResponseData($response);
 	}
 	
-	protected function duplicateGlobal()
+	protected function createLocalization()
 	{
+		$input = $this->getRequestInput();
 		$localeId = $this->getRequestParameter('locale');
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$localeManager->exists($localeId);
 		
-		$master = $this->getPageByRequestKey('page_id');
+		$master = $this->getPage();
+		
+		if (is_null($master)) {
+			$pageId = $this->getRequestParameter('page_id');
+			throw new CmsException('sitemap.error.page_not_found', "Page $pageId not found");
+		}
 		
 		$sourceLocaleId = $this->getRequestParameter('source_locale');
 		$localeManager->exists($sourceLocaleId);
@@ -1027,14 +1083,27 @@ abstract class PageManagerAction extends CmsAction
 		$em->getEventManager()
 				->dispatchEvent(AuditEvents::pagePreDuplicateEvent);
 		
-		$cloneLocalization = function() use ($request, $em, $existingLocalization, $localeId) {
+		$cloneLocalization = function() use ($request, $em, $existingLocalization, $localeId, $input) {
 			
 			// 1. duplicate localization
 			$localization = $request->recursiveClone($existingLocalization, null, true, $localeId);
 			// 2. set new locale for localization itself
 			$localization->setLocale($localeId);
+
+			if ($localization instanceof Entity\PageLocalization) {
+				$localization->resetCreationTime();
+			}
+
+			if ($input->has('title')) {
+				$localization->setTitle($input->get('title'));
+			}
 			
 			if ($localization instanceof Entity\PageLocalization) {
+				
+				if ($input->has('path')) {
+					$localization->setPathPart($input->get('path'));
+				}
+				
 				// 3. set new locale for path entity also
 				$path = $localization->getPathEntity();
 				$path->setLocale($localeId);
@@ -1105,6 +1174,81 @@ abstract class PageManagerAction extends CmsAction
 		
 		$eventManager = ObjectRepository::getEventManager($this);
 		$eventManager->fire(CmsPageEventArgs::postPageChange, $eventArgs);
+	}
+	
+	/**
+	 * Helper method for the main sitemap action
+	 * @param Entity\Abstraction\AbstractPage $page
+	 * @param string $locale
+	 * @return array
+	 */
+	protected function convertPageToArray(Entity\Abstraction\AbstractPage $page, $locale)
+	{
+		/* @var $localization Entity\Abstraction\Localization */
+		$localization = null;
+
+		// Must have group localization with ID equal with master because group localizations are not published currently
+		if ($page instanceof Entity\GroupPage) {
+			$localization = $page->createLocalization($locale);
+		} else {
+			$localization = $page->getLocalization($locale);
+		}
+
+		$array = array();
+		$localizationExists = true;
+
+		if (empty($localization)) {
+
+			$localeManager = ObjectRepository::getLocaleManager($this);
+			$localizationExists = false;
+
+			// try to get any localization if page is not localized and is global
+			if ($page->isGlobal()) {
+
+				// TODO: temporary (and ugly also) workaround to fetch oldest localization from all available
+				// this, i suppose, will be replaced with dialog window with localization selector
+				$localizations = $page->getLocalizations();
+				$localization = $localizations->first();
+
+				// Search for the first created localization by it's ID
+				foreach ($localizations as $_localization) {
+					/* @var $_localization Entity\Abstraction\Localization */
+					if (strcmp($_localization->getId(), $localization->getId()) < 0) {
+						$localeId = $_localization->getLocale();
+
+						if ($localeManager->exists($localeId, false)) {
+							$localization = $_localization;
+						}
+					}
+				}
+
+				// collecting available localizations
+				foreach ($localizations as $_localization) {
+					$localeId = $_localization->getLocale();
+
+					if ($localeManager->exists($localeId, false)) {
+						
+						$data = array('title' => $_localization->getTitle());
+						
+						if ($_localization instanceof Entity\PageLocalization) {
+							$data['path'] = $_localization->getPathPart();
+						}
+						
+						$array['localizations'][$_localization->getLocale()] = $data;
+					}
+				}
+			} else {
+				//FIXME: maybe need to throw exception here?
+				return null;
+			}
+		}
+
+		$nodeData = $this->loadNodeMainData($localization, $localizationExists);
+		if ( ! empty($nodeData)) {
+			$array = array_merge($nodeData, $array);
+		}
+		
+		return $array;
 	}
 	
 }

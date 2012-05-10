@@ -20,11 +20,18 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 	
 	Y.extend(Plugin, Y.Plugin.Base, {
 		/**
-		 * TreeNode which currently user has selected
+		 * TreeNode or DataGridRow which currently user has selected
 		 * @type {Object}
 		 * @private
 		 */
 		'_node': null,
+		
+		/**
+		 * TreeNode which currently user has selected or parent of DataGridRow
+		 * @type {Object}
+		 * @private
+		 */
+		'_treeNode': null,
 		
 		/**
 		 * Children widget list
@@ -38,9 +45,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 			/* Form container panel */
 			'panel': null,
 			/* Create page with text button */
-			'buttonCreateText': null,
-			/* Create blank page button */
-			'buttonCreateBlank': null
+			'buttonCreateText': null
 		},
 		
 		
@@ -76,7 +81,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				'srcNode': container,
 				'autoClose': true,
 				'arrowVisible': true,
-				'zIndex': 1,
+				'zIndex': 2,
 				'visible': false
 			});
 			
@@ -107,10 +112,8 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 			
 			//Buttons
 			widgets.buttonCreateText = new Supra.Button({'srcNode': buttons.item(0), 'style': 'small-blue'});
-			widgets.buttonCreateBlank = new Supra.Button({'srcNode': buttons.item(1), 'style': 'small-blue'});
 			
 			widgets.buttonCreateText.on('click', this.createPagePrepopulated, this);
-			widgets.buttonCreateBlank.on('click', this.createPageBlank, this);
 			
 			//Form
 			widgets.form = new Supra.Form({
@@ -126,10 +129,9 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 		'_bindEventListeners': function () {
 			//Inputs
 			var widgets = this._widgets,
-				inputs = widgets.form.getInputs(),
-				id = null;
+				inputs = widgets.form.getInputs();
 			
-			//@TODO ???
+			inputs['locale'].on('valueChange', this._fillLocaleData, this);
 		},
 		
 		/**
@@ -187,7 +189,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				space = winHeight - region.top - region.height;
 			
 			if (space < 300) {
-				return 'B';
+				return 'L';
 			} else {
 				return 'T';
 			}
@@ -205,7 +207,15 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				view = this.get('host').get('view');
 			
 			if ( ! data.localized) {
-				this._node = e.node;
+				this._node = node;
+				
+				if (node.isInstanceOf('TreeNode')) {
+					this._treeNode = node;
+				} else if (node.isInstanceOf('DataGridRow')) {
+					this._treeNode = node.get('parent').get('parent');
+				} else {
+					return;
+				}
 				
 				if (!this._widgets.panel) {
 					this._createPanel();
@@ -294,23 +304,23 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 			//Enable form
 			this._widgets.form.set('disabled', false);
 			this._widgets.buttonCreateText.set('disabled', false);
-			this._widgets.buttonCreateBlank.set('disabled', false);
 			this._widgets.panel.set('autoClose', true);
 				
 			if (status && data) {
 				var node = this._node,
 					node_data = node.get('data'),
-					tree = node.get('tree'),
-					params = {
-						'data': data,
-						'node': this._node
-					};
+					tree = this._treeNode.get('tree');
 				
 				//Update data
 				node.set('localized', true);
 				Supra.mix(node_data, data, {
 					'localized': true
 				})
+				
+				var params = {
+					'data': node_data,
+					'node': node
+				};
 				
 				//Hide panel
 				this.hide();
@@ -330,42 +340,45 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 		/**
 		 * Create page
 		 * 
-		 * @param {String} locale Page locale to copy from
+		 * @param {Object} newData Contains page locale to copy from and title, path
 		 */
-		'createPage': function (locale) {
-			var mode    = this._node.get('tree').get('mode'),
-				fn      = 'duplicateGlobalPage',
+		'createPage': function (sourceLocale, newData) {
+			var mode    = this._treeNode.get('tree').get('mode'),
+				fn      = 'createPageLocalization',
 				context = Supra.Manager.getAction('Page'),
 				data    = this._node.get('data');
 				
 			if (mode == 'templates') {
-				fn = 'duplicateGlobalTemplate';
+				fn = 'createTemplateLocalization';
 				context = Supra.Manager.getAction('Template');
 			}
 			
 			//Disable form
 			this._widgets.form.set('disabled', true);
 			this._widgets.buttonCreateText.set('disabled', true);
-			this._widgets.buttonCreateBlank.set('disabled', true);
 			this._widgets.panel.set('autoClose', false);
 			
+			newData['locale'] = this.get('host').get('locale');
+			
 			//Call duplicate request
-			context[fn](data.id, this.get('host').get('locale'), locale, this._onCreatePageComplete, this);
-		},
-		
-		/**
-		 * Create blank page
-		 */
-		'createPageBlank': function () {
-			this.createPage('');
+			context[fn](data.id, newData, sourceLocale, this._onCreatePageComplete, this);
 		},
 		
 		/**
 		 * Create page prepopulated with data from another locale
 		 */
 		'createPagePrepopulated': function () {
-			var locale  = this._widgets.form.getInput('locale').get('value');
-			this.createPage(locale);
+			var form = this._widgets.form,
+				sourceLocale = form.getInput('locale').get('value'),
+				title = form.getInput('title').get('value'),
+				path = form.getInput('path').get('value');
+				
+			var newData = {
+				'title': title,
+				'path': path
+			};
+			
+			this.createPage(sourceLocale, newData);
 		},
 		
 		/**
@@ -374,7 +387,9 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 		 * @param {Object} data Form values
 		 */
 		'setFormValues': function (data) {
-			var input = this._widgets.form.getInput('locale'),
+			var form = this._widgets.form,
+				input = form.getInput('locale'),
+				node = this._node,
 				values = [],
 				default_value = '',
 				
@@ -385,19 +400,23 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				languages = null,
 				k = 0, kk = 0;
 			
+			// Reset data
+			form.getInput('title').set('value', '');
+			form.getInput('title').set('originalValue', '');
+			form.getInput('path').set('value', '');
+			form.getInput('path').set('originalValue', '');
+			
 			//Find titles for locales
-			for(var i=0,ii=locales.length; i<ii; i++) {
-				for(l=0; l<ll; l++) {
-					languages = contexts[l].languages;
-					for(k=0,kk=languages.length; k<kk; k++) {
-						if (languages[k].id == locales[i]) {
-							values.push({
-								'id': languages[k].id,
-								'title': languages[k].title
-							});
-							if (!default_value) {
-								default_value = languages[k].id;
-							}
+			for(l=0; l<ll; l++) {
+				languages = contexts[l].languages;
+				for(k=0,kk=languages.length; k<kk; k++) {
+					if (languages[k].id in locales) {
+						values.push({
+							'id': languages[k].id,
+							'title': languages[k].title
+						});
+						if (!default_value) {
+							default_value = languages[k].id;
 						}
 					}
 				}
@@ -406,6 +425,51 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 			//data.localizations
 			input.set('values', values);
 			input.set('value', default_value);
+
+			//Toggle fields
+			if (this.get('host').get('mode') == 'pages') {
+				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_page_label_title']));
+				
+				if (node.get('root')) {
+					//Root page doesn't have a path
+					form.getInput('path').set('visible', false);
+				} else {
+					form.getInput('path').set('visible', true);
+				}
+			} else {
+				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_template_label_title']));
+				form.getInput('path').set('visible', false);
+			}
+		},
+		
+		/**
+		 * Fills in title/path from the chosen locale if the input values has not been changed by user
+		 * @param {Object} evt Event data, only newVal is used
+		 * @private
+		 */
+		'_fillLocaleData': function(evt) {
+			var form = this._widgets.form,
+				locale = evt.newVal,
+				node = this._node,
+				localizations = node.get('data').localizations,
+				titleInput = form.getInput('title'),
+				pathInput = form.getInput('path');
+			
+			if (locale in localizations) {
+				var title = localizations[locale].title,
+					path = localizations[locale].path,
+					originalTitle = titleInput.get('originalValue'),
+					originalPath = pathInput.get('originalValue');
+				
+				if ( ! originalTitle || (originalTitle == titleInput.get('value'))) {
+					titleInput.set('value', title);
+					titleInput.set('originalValue', title);
+				}
+				if ( ! originalPath || (originalPath == pathInput.get('value'))) {
+					pathInput.set('value', path);
+					pathInput.set('originalValue', path);
+				}
+			}
 		},
 		
 		/**

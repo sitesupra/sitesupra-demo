@@ -14,7 +14,7 @@ class DatabaseWriter extends AbstractWriter
 	/**
 	 * @var EntityManager
 	 */
-	protected $entityManger;
+	protected $entityManager;
 
 	/**
 	 * @var array
@@ -34,27 +34,27 @@ class DatabaseWriter extends AbstractWriter
 	/**
 	 * @return EntityManager
 	 */
-	public function getEntityManger()
+	public function getEntityManager()
 	{
 		if (empty($this->entityManager)) {
 			$this->entityManager = ObjectRepository::getEntityManager($this);
 		}
 
-		return $this->entityManger;
+		return $this->entityManager;
 	}
 
 	/**
-	 * @param EntityManager $entityManger 
+	 * @param EntityManager $entityManager 
 	 */
-	public function setEntityManger(EntityManager $entityManger)
+	public function setEntityManager(EntityManager $entityManager)
 	{
-		$this->entityManger = $entityManger;
+		$this->entityManager = $entityManager;
 	}
 
 	protected function write()
 	{
-		$em = $this->getEntityManger();
-		
+		$em = $this->getEntityManager();
+
 		$data = $this->data;
 
 		foreach ($data as $sectionName => $sectionData) {
@@ -99,8 +99,8 @@ class DatabaseWriter extends AbstractWriter
 	public function setParser(AbstractParser $parser)
 	{
 		if ($parser instanceof DatabaseParser) {
-			
-			$this->setEntityManger($parser->getEntityManager());
+
+			$this->setEntityManager($parser->getEntityManager());
 			$this->setLoadedIniItems($parser->getLoadedIniItems());
 		}
 	}

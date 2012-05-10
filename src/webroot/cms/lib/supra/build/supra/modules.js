@@ -15,6 +15,9 @@
 				groupId = 'supra';
 			}
 			Supra.YUI_BASE.groups[groupId].modules[id] = definition;
+			
+			//Reset configuration state
+			Supra.yui_base_set = false;
 		}
 	};
 	
@@ -44,6 +47,9 @@
 		path = path.replace(/\/$/, '') + '/';
 		config.root = path;
 		config.base = path;
+		
+		//Reset configuration state
+		Supra.yui_base_set = false;
 	};
 	
 	/**
@@ -286,6 +292,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-table',
+			'supra.htmleditor-plugin-fullscreen',
 			'supra.htmleditor-plugin-formats',
 			'supra.htmleditor-plugin-lists',
 			'supra.htmleditor-plugin-textstyle',
@@ -354,6 +361,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 			path: 'htmleditor/plugins/plugin-table.js',
 			requires: ['supra.htmleditor-base']
 		},
+		'supra.htmleditor-plugin-fullscreen': {
+			path: 'htmleditor/plugins/plugin-fullscreen.js',
+			requires: ['supra.manager', 'supra.htmleditor-base']
+		},
 		'supra.htmleditor-plugin-textstyle': {
 			path: 'htmleditor/plugins/plugin-textstyle.js',
 			requires: ['supra.htmleditor-base']
@@ -384,7 +395,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-source': {
 			path: 'htmleditor/plugins/plugin-source.js',
-			requires: ['supra.htmleditor-base']
+			requires: ['supra.manager', 'supra.htmleditor-base']
 		},
 	
 	/**
@@ -412,8 +423,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'datagrid/datagrid-loader.js',
 		requires: ['plugin', 'supra.datagrid']
 	},
-	'supra.datagrid-dragable': {
-		path: 'datagrid/datagrid-dragable.js',
+	'supra.datagrid-draggable': {
+		path: 'datagrid/datagrid-draggable.js',
 		requires: ['plugin', 'dd-delegate', 'dd-drag', 'dd-proxy', 'dd-drop', 'supra.datagrid']
 	},
 	'supra.datagrid-row': {
@@ -471,7 +482,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.scrollable': {
 		path: 'scrollable/scrollable.js',
-		requires: ['widget'],
+		requires: ['widget', 'anim'],
 		skinnable: true
 	},
 	
@@ -491,16 +502,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['supra.tree-node', 'supra.tree-plugin-expand-history', 'widget', 'widget-parent'],
 		skinnable: true
 	},
-	'supra.tree-dragable': {
-		path: 'tree/tree-dragable.js',
-		requires: ['supra.tree', 'supra.tree-node-dragable']
+	'supra.tree-draggable': {
+		path: 'tree/tree-draggable.js',
+		requires: ['supra.tree', 'supra.tree-node-draggable']
 	},
 	'supra.tree-node': {
 		path: 'tree/tree-node.js',
 		requires: ['widget', 'widget-child']
 	},
-	'supra.tree-node-dragable': {
-		path: 'tree/tree-node-dragable.js',
+	'supra.tree-node-draggable': {
+		path: 'tree/tree-node-draggable.js',
 		requires: ['dd', 'supra.tree-node']
 	},
 	'supra.tree-plugin-expand-history': {
@@ -567,6 +578,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/map.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-color': {
+		path: 'input/color.js',
+		requires: ['supra.input-proto', 'dd', 'supra.datatype-color']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -586,7 +601,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-slider',
 			'supra.input-link',
 			'supra.input-image',
-			'supra.input-map'
+			'supra.input-map',
+			'supra.input-color'
 		]
 	},
 	'supra.input': {
@@ -630,6 +646,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'calendar/calendar.js',
 		requires: ['widget', 'anim', 'datatype-date'],
 		skinnable: true
+	},
+	
+	/**
+	 * Color
+	 */
+	'supra.datatype-color': {
+		path: 'datatype/datatype-color.js'
 	},
 	
 	/**

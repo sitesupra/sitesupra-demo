@@ -2,24 +2,24 @@
 	"use strict";
 
 	//Add module definitions
-	SU.addModule('website.template-list', {
+	Supra.addModule('website.template-list', {
 		path: 'pagesettings/modules/template-list.js',
 		requires: ['widget', 'website.template-list-css', 'supra.template']
 	});
-	SU.addModule('website.template-list-css', {
+	Supra.addModule('website.template-list-css', {
 		path: 'pagesettings/modules/template-list.css',
 		type: 'css'
 	});
-	SU.addModule('website.input-keywords', {
+	Supra.addModule('website.input-keywords', {
 		path: 'pagesettings/modules/input-keywords.js',
 		requires: ['supra.input-proto']
 	});
 
 
-	SU('website.template-list', 'website.input-keywords', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
+	Supra('website.template-list', 'website.input-keywords', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
 
 		//Shortcut
-		var Manager = SU.Manager;
+		var Manager = Supra.Manager;
 		var Action = Manager.Action;
 		var Loader = Manager.Loader;
 
@@ -143,9 +143,9 @@
 
 					if (evt.newVal == SLIDE_ROOT) {
 						if (this.getType() != 'template') {
-							label = SU.Intl.get(['settings', 'title_page']);
+							label = Supra.Intl.get(['settings', 'title_page']);
 						} else {
-							label = SU.Intl.get(['settings', 'title_template']);
+							label = Supra.Intl.get(['settings', 'title_template']);
 						}
 					} else {
 						label = new_item.getAttribute('data-title');
@@ -308,7 +308,7 @@
 				if (!this.template_list) {
 					this.template_list = new Supra.TemplateList({
 						'srcNode': node.one('ul.template-list'),
-						'requestUri': this.getActionPath() + 'templates' + Loader.EXTENSION_DATA,
+						'requestUri': this.getDataPath('templates'),
 						'template': this.page_data.template.id
 					});
 
@@ -330,7 +330,7 @@
 				var node = this.one('div.button-created p');
 
 				if (this.page_data.created_date) {
-					var date = SU.Y.DataType.Date.reformat(this.page_data.created_date + ' ' + this.page_data.created_time, 'in_datetime', 'out_datetime_short');
+					var date = Supra.Y.DataType.Date.reformat(this.page_data.created_date + ' ' + this.page_data.created_time, 'in_datetime', 'out_datetime_short');
 					node.set('text', date);
 				} else {
 					node.set('text', Supra.Intl.get(['settings', 'advanced_unknown']));
@@ -434,23 +434,7 @@
 			 */
 			createForm: function () {
 
-				//Section buttons
-				var buttons = this.all('a[data-target]');
-
-				buttons.on('click', function (event) {
-					var node = event.target.closest('a');
-					if (!node.hasClass('disabled')) {
-						this.slideshow.set('slide', node.getAttribute('data-target'));
-					}
-				}, this);
-				buttons.on('keyup', function (event) {
-					if (event.keyCode == 13 || event.keyCode == 39) { //Return key or arrow right
-						var node = event.target.closest('a');
-						this.slideshow.set('slide', node.getAttribute('data-target'));
-					}
-				}, this);
-
-				//Normal buttons
+				//Buttons
 				var buttons = this.all('button');
 
 				//Back button
@@ -474,7 +458,7 @@
 				//Created button
 				this.button_created = new Supra.Button({'srcNode': buttons.filter('.button-created').item(0), 'style': 'small-gray'});
 				this.button_created.render().on('click', function () { this.slideshow.set('slide', 'slideCreated'); }, this);
-
+				
 				//Slideshow
 				var slideshow = this.slideshow = new Supra.Slideshow({
 					'srcNode': this.one('div.slideshow')
@@ -507,7 +491,15 @@
 					this.relative_redirect_select.buttons.first.on('click', function() { this.onRelativeRedirectClick(); }, this);
 					// Redirect -> Relative "Last child" button
 					this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
-
+				
+				this.global_checkbox = form.getInput('global');
+					this.global_checkbox.render();
+					this.global_checkbox.on('valueChange', function (evt) {
+						if (evt.newVal != evt.prevVal) {
+							var page = Manager.Page.getPageData();
+							Manager.getAction('PageHeader').setAvailableLocalizations(page.localizations, evt.newVal);
+						}
+					});
 			},
 
 			/**
@@ -883,11 +875,11 @@
 					label_title = '';
 
 				if (type != 'template') {
-					label_header = SU.Intl.get(['settings', 'title_page']);
-					label_title = SU.Intl.get(['settings', 'page_title']);
+					label_header = Supra.Intl.get(['settings', 'title_page']);
+					label_title = Supra.Intl.get(['settings', 'page_title']);
 				} else {
-					label_header = SU.Intl.get(['settings', 'title_template']);
-					label_title = SU.Intl.get(['settings', 'page_title_template']);
+					label_header = Supra.Intl.get(['settings', 'title_template']);
+					label_title = Supra.Intl.get(['settings', 'page_title_template']);
 				}
 
 				this.set('title', label_header)
@@ -905,7 +897,7 @@
 					if(values && values.length) {
 						form.getInput('layout').set('disabled', false);
 					} else {
-						var select_layout_title = SU.Intl.get(['settings', 'use_parent_layout']);
+						var select_layout_title = Supra.Intl.get(['settings', 'use_parent_layout']);
 						var layouts = this.page_data.layouts;
 
 						layouts.unshift({id:'', title: select_layout_title});

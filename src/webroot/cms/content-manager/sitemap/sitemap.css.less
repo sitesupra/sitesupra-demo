@@ -93,13 +93,13 @@
 	
 	background: url(images/tree-item-lines.png) -675px 0 no-repeat;
 	
-	&:first-child {
+	.new-item-fake-preview + & {
 		background-position: -185px 0;
 	}
 	&:last-child {
 		background-position: -1165px 0;
 	}
-	&:first-child:last-child {
+	.new-item-fake-preview + &:last-child {
 		background-position: -1655px 0;
 	}
 	
@@ -146,20 +146,41 @@
 					background: url(images/buttons-icon-edit.png) 50% 5px no-repeat;
 				}
 			}
+
+			.translate {
+				.border-radius (8px, 8px, 0, 0);
+				position: absolute;
+				left: 0;
+				top: 0;
+				right: 0;
+				padding: 7px 9px 4px 9px;
+				display: none;
+				background: rgba(0, 0, 0, 0.65);
+				cursor: default;
+				text-align: left;
+				
+				.su-button-sitemap-blue p {
+					padding: 0 0 0 20px;
+					width: 52px;
+					background: url(images/buttons-icon-open.png) 2px 5px no-repeat;
+				}
+			}
 			
 			.su-button-sitemap-blue,
 			.su-button-sitemap-gray {
 				display: none;
 			}
 			
-			.status-not-localized {
+			.status-not-localized, 
+			.status-special {
 				display: block;
 				position: absolute;
+				z-index: 1;
 				left: -2px;
 				top: 71px;
 				width: 104px;
 				height: 18px;
-				background: url(images/tree-item-status-unpublished.png) 0 0 no-repeat;
+				background: url(images/tree-item-status-not-localized.png) 0 0 no-repeat;
 				padding: 12px 0 0;
 				
 				color: #676876;
@@ -169,6 +190,16 @@
 				text-align: center;
 				text-transform: uppercase;
 				text-shadow: 0 1px 0 rgba(255,255,255,0.42);
+
+				&.status-not-published {
+					text-indent: -9999px;
+					background: url(images/tree-item-status-unpublished.png) 2px 0 no-repeat;
+				}
+
+				&.status-draft {
+					text-indent: -9999px;
+					background: url(images/tree-item-status-draft.png) 2px 0 no-repeat;
+				}
 			}
 			
 			.loading-icon {
@@ -266,6 +297,10 @@
 		& > .su-tree-node-content {
 			.item:hover .edit,
 			.item.hover .edit {
+				display: none;
+			}
+			.item:hover .translate,
+			.item.hover .translate {
 				display: block;
 			}
 			.su-button-sitemap-gray {
@@ -281,6 +316,19 @@
 			}
 		}
 	}
+
+	&.localized.editable {
+		& > .su-tree-node-content {
+			.item:hover .edit,
+			.item.hover .edit {
+				display: block;
+			}
+			.item:hover .translate,
+			.item.hover .translate {
+				display: none;
+			}
+		}
+	}
 	
 	&.localized {
 		& > .su-tree-node-content {
@@ -289,7 +337,7 @@
 			}
 		}
 	}
-	
+
 	/* Highlight */
 	&.highlighted > .su-tree-node-content {
 		.highlight {
@@ -301,44 +349,40 @@
 	}
 	
 	/* Drag and drop marker */
-	&.marker-before {
-		& > .su-tree-node-content .marker {
-			position: absolute;
-			width: 10px;
-			height: 10px;
-			background: red;
-			left: -5px;
-			top: 65px;
-		}
+	&.marker-before > .su-tree-node-content .marker {
+		.border-radius (8px);
+		.box-shadow (0px, 18px, 18px, #000);
+		position: absolute;
+		width: 4px;
+		height: 94px;
+		border: 3px solid #3A96EC;
+		background: #33303D;
+		left: -5px;
+		top: 22px;
 	}
-	&.marker-after {
-		& > .su-tree-node-content .marker {
-			position: absolute;
-			width: 10px;
-			height: 10px;
-			background: red;
-			right: -5px;
-			top: 65px;
-		}
+	&.marker-after > .su-tree-node-content .marker {
+		.border-radius (8px);
+		.box-shadow (0px, 18px, 18px, #000);
+		position: absolute;
+		width: 4px;
+		height: 94px;
+		border: 3px solid #3A96EC;
+		background: #33303D;
+		right: -5px;
+		top: 22px;
 	}
-	&.marker-inside {
-		& > .su-tree-node-content .marker {
-			position: absolute;
-			z-index: 1;
-			width: 100px;
-			height: 100px;
-			background: red;
-			left: 10px;
-			top: 22px;
-		}
+	&.marker-inside > .su-tree-node-content .marker {
+		position: absolute;
+		z-index: 1;
+		width: 100px;
+		height: 100px;
+		background: url(images/tree-item-marker.png) 0 0 no-repeat;
+		left: 10px;
+		top: 22px;
 	}
 	
 	&.root.marker-before,
-	&.root.marker-after {
-		& > .su-tree-node-content .marker {
-			top: 43px;
-		}
-	}
+	&.root.marker-after,
 	&.root.marker-inside {
 		& > .su-tree-node-content .marker {
 			top: 0;
@@ -398,13 +442,13 @@
 		height: auto;
 		background-position: -490px 0;
 		
-		&:first-child {
+		.new-item-fake-preview + & {
 			background-position: 0 0;
 		}
 		&:last-child {
 			background-position: -980px 0;
 		}
-		&:first-child:last-child {
+		.new-item-fake-preview + &:last-child {
 			background-position: -1470px 0;
 		}
 		
@@ -429,15 +473,22 @@
 		text-decoration: none;
 	}
 	
+	/* Text formatting */
+	.su-datagrid .row-title .ellipsis {
+		max-width: 365px;
+	}
+	
 	/* Drag and drop */
-	&.marker-inside > .su-tree-node-content .marker {
+	&.expanded-list.marker-inside > .su-tree-node-content .marker {
 		.border-radius (6px);
 		
-		z-index: 2;
+		z-index: 3;
 		right: 10px;
 		bottom: 0;
 		width: auto;
 		height: auto;
+		background: none;
+		border: 3px solid #3A96EC;
 	}
 }
 
@@ -445,6 +496,7 @@
 .su-tree-highlighted {
 	.su-tree-node .highlight {
 		position: absolute;
+		z-index: 2;
 		background: rgb(4, 0, 16);
 		opacity: 0.5;
 		border-radius: 8px;
@@ -454,10 +506,12 @@
 		height: 100px;
 	}
 	.su-tree-node > .su-tree-node-content {
-		.item:hover .edit {
+		.item:hover .edit,
+		.item:hover .translate {
 			display: none;
 		}
-		.item.hover .edit {
+		.item.hover .edit,
+		.item.hover .translate {
 			display: block;
 		}
 		label {
@@ -481,6 +535,28 @@
 	& > .visibility-root {
 		visibility: visible;
 	}
+}
+
+/* Fake new item preview */
+.su-tree .new-item-fake-preview {
+	width: 205px;
+	height: 183px;
+	position: absolute;
+	z-index: 1;
+	right: -146px;
+	top: 0;
+	background: url(images/tree-item-new-last.png) 0 0 no-repeat;
+	display: none;
+	
+	div {
+		position: absolute;
+		height: 13px;
+		top: -11px;
+		background: url(images/tree-item-line.gif) 0 0 no-repeat, url(images/tree-item-line.gif) 0 -13px repeat-x;
+	}
+}
+.su-tree-node.marker-inside > .children > .new-item-fake-preview {
+	display: block;
 }
 
 /**

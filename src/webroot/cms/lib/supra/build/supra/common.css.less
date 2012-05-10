@@ -24,6 +24,19 @@ body.loading .cms-header {
 /**
  * CSS3 loading icon
  */
+@-moz-keyframes spin {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(360deg); }
+}
+@-webkit-keyframes spin {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(360deg); }
+}
+@keyframes spin {
+	0% { transform:rotate(0deg); }
+	100% { transform:rotate(360deg); }
+}
+
 .loading-icon {
 	position: absolute;
 	left: 50%;
@@ -44,11 +57,16 @@ body.loading .cms-header {
 	border-bottom-color: rgba(255, 255, 255, 0.3);
 }
 
-@-moz-keyframes spin {
-	0% { -moz-transform:rotate(0deg); }
-	100% { -moz-transform:rotate(360deg); }
+/* Color themes */
+.ui-light-background {
+	border-color: #A8A9BD;
+	background: url(/cms/lib/supra/img/sidebar/left-bg.gif) 0 0 repeat;
 }
-@-webkit-keyframes spin {
-	0% { -webkit-transform:rotate(0deg); }
-	100% { -webkit-transform:rotate(360deg); }
+.ui-dark-background {
+	border-color: #1C1A2B;
+	background: url(/cms/lib/supra/img/sidebar/right-bg.gif) 0 0 repeat;
+}
+
+.ui-center-dark-background {
+	background: url(/cms/lib/supra/img/background-pattern-dark.jpg) 0 0 repeat;
 }

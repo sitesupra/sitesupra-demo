@@ -2,10 +2,10 @@
 "use strict";
 
 //Add module group
-SU.setModuleGroupPath('linkmanager', Supra.Manager.Loader.getActionFolder('LinkManager') + 'modules/');
+Supra.setModuleGroupPath('linkmanager', Supra.Manager.Loader.getActionFolder('LinkManager') + 'modules/');
 
 //Add module definitions
-SU.addModule('linkmanager.sitemap-linkmanager-node', {
+Supra.addModule('linkmanager.sitemap-linkmanager-node', {
 	//Link manager can be included from other managers, make sure 'website.' prefix doesn't break it
 	path: 'tree-node.js',
 	requires: ['supra.tree', 'supra.tree-node']
@@ -27,10 +27,10 @@ SU.addModule('linkmanager.sitemap-linkmanager-node', {
  *   hideToolbar - toolbar buttons will be hidden while link manager is open
  *   hideLinkControls - link controls will be hidden, default is false
  */
-SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'supra.medialibrary', function (Y) {
+Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'supra.medialibrary', function (Y) {
 	
 	//Shortcuts
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action,
 		Loader = Manager.Loader;
 	
@@ -248,7 +248,7 @@ SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'su
 				medialibrary_visible = selectable.files || selectable.images,
 				link_visible = selectable.pages || selectable.external,
 				
-				title = SU.Intl.get(['linkmanager', 'title']);
+				title = Supra.Intl.get(['linkmanager', 'title']);
 			
 			//Show or hide back button
 				if (!medialibrary_visible || !link_visible) {
@@ -269,7 +269,7 @@ SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'su
 				
 			//Update title
 				if (this.slideshow.history.length > 1) {
-					title += ' ' + SU.Intl.get(['linkmanager', slide_id == 'linkToPage' ? 'title_page' : 'title_file']);
+					title += ' ' + Supra.Intl.get(['linkmanager', slide_id == 'linkToPage' ? 'title_page' : 'title_file']);
 				}
 				
 				this.set('title', title);
@@ -364,7 +364,7 @@ SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'su
 					//Create tree
 						//Use sitemap data
 						this.locale = Supra.data.get('locale');
-						var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
+						var sitemap_data_path = Supra.Manager.Loader.getActionInfo('SiteMap').path_data +
 												'?locale=' + this.locale +
 												'&existing_only=1';
 						
@@ -375,7 +375,7 @@ SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'su
 							'groupNodesSelectable': this.options.selectable.group_pages,
 							'defaultChildType': Supra.LinkMapTreeNode
 						});
-						this.tree.plug(SU.Tree.ExpandHistoryPlugin);
+						this.tree.plug(Supra.Tree.ExpandHistoryPlugin);
 						this.tree.render();
 						this.tree.set('loading', true);
 						
@@ -574,7 +574,7 @@ SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'su
 		setData: function (data) {
 			this.initial_data = data;
 			
-			data = SU.mix({
+			data = Supra.mix({
 				'type': '',
 				'target': '',
 				'title': '',
@@ -623,7 +623,7 @@ SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'su
 				//Reload tree if needed
 				if (reloading_tree) {
 					this.locale = Supra.data.get('locale');
-					var sitemap_data_path = SU.Manager.Loader.getActionInfo('SiteMap').path_data +
+					var sitemap_data_path = Supra.Manager.Loader.getActionInfo('SiteMap').path_data +
 											'?locale=' + this.locale +
 											'&existing_only=1';
 					
@@ -732,7 +732,7 @@ SU('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'su
 		 * @private
 		 */
 		getData: function () {
-			var data = SU.mix(this.data || {}, this.form.getValues('name')),
+			var data = Supra.mix(this.data || {}, this.form.getValues('name')),
 				slide_id = this.slideshow.get('slide');
 			
 			if (slide_id == 'linkToPage') {

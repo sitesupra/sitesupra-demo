@@ -191,7 +191,7 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
         return $this;
     }
 
-    protected function getAuthizationAncestorsDirect()
+    protected function getAuthorizationAncestorsDirect()
     {
         return $this->getAncestors(0, false);
     }

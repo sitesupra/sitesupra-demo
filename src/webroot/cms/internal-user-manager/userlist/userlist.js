@@ -2,7 +2,7 @@
 "use strict";
 
 //Add module definitions
-SU.addModule('website.list-dd', {
+Supra.addModule('website.list-dd', {
 	path: 'modules/list-dd.js',
 	requires: ['dd', 'dd-delegate']
 });
@@ -82,7 +82,7 @@ Supra('website.list-dd', 'supra.list', function (Y) {
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [
 				{
 					'id': 'details',
-					'title': SU.Intl.get(['userlist', 'manage_groups']),
+					'title': Supra.Intl.get(['userlist', 'manage_groups']),
 					'icon': this.getActionPath() + 'images/icon-groups.png',
 					'action': 'UserList',
 					'actionFunction': 'toggleGroupMode',
@@ -211,7 +211,7 @@ Supra('website.list-dd', 'supra.list', function (Y) {
 		 */
 		bindDragAndDrop: function () {
 			
-			//New item dragable node
+			//New item draggable node
 			this.new_user = new Supra.ListNewItem({
 				'srcNode': this.one('.user-add'),
 				'title': Supra.Intl.get(['userlist', 'new']),
@@ -224,7 +224,7 @@ Supra('website.list-dd', 'supra.list', function (Y) {
 			this.plug(Supra.ListDD, {
 				'dropSelector': 'div.userlist-groups ul',
 				'dragContainerSelector': 'div.userlist-groups',
-				'dragSelector': 'li.dragable',
+				'dragSelector': 'li.draggable',
 				'proxyClass': 'userlist-proxy',
 				'targetClass': 'userlist-group-target'
 			});

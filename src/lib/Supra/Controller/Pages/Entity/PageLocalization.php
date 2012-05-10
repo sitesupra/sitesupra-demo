@@ -92,8 +92,8 @@ class PageLocalization extends Abstraction\Localization
 
 		$this->path = new PageLocalizationPath($this);
 		$this->path->setLocale($locale);
-		$this->setCreationTime();
-		$this->publishTimeSet = false;
+
+		$this->resetCreationTime();
 
 		$this->wasActive = $this->active;
 	}
@@ -168,11 +168,14 @@ class PageLocalization extends Abstraction\Localization
 	 * @param Path $path
 	 * @param boolean $active
 	 */
-	public function setPath(Path $path = null, $active = true, $limited = false)
+	public function setPath(Path $path = null, $active = true, $limited = false, $inSitemap = true)
 	{
+		\Log::debug('QQQ: ', $this->getId(), ' - ', $this->getPathEntity()->isVisibleInSitemap(), ' --> ' ,  $inSitemap);
+		
 		$this->getPathEntity()->setPath($path);
 		$this->getPathEntity()->setActive($active);
 		$this->getPathEntity()->setLimited($limited);
+		$this->getPathEntity()->setVisibleInSitemap($inSitemap);
 	}
 
 	/**
@@ -375,6 +378,15 @@ class PageLocalization extends Abstraction\Localization
 		$this->publishTimeSet = true;
 	}
 
+	/**
+	 * Resets the creation time to the current time and resets the publish flag
+	 */
+	public function resetCreationTime()
+	{
+		$this->setCreationTime();
+		$this->publishTimeSet = false;
+	}
+	
 	/**
 	 * Return if the creation time is already set for publishing
 	 * @return boolean

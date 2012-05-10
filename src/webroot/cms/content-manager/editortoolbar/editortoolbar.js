@@ -1,10 +1,10 @@
 //Invoke strict mode
 "use strict";
 
-SU('transition', 'supra.htmleditor', function (Y) {
+Supra('transition', 'supra.htmleditor', function (Y) {
 
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	//Create Action class

@@ -34,6 +34,12 @@ Supra(function (Y) {
 		 */
 		HAS_TEMPLATE: false,
 		
+		/**
+		 * Dependancies
+		 * @type {Array}
+		 */
+		DEPENDANCIES: ['Header', 'PageToolbar', 'PageButtons'],
+		
 		
 		
 		

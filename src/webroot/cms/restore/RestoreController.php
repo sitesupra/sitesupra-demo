@@ -28,11 +28,6 @@ class RestoreController extends InternalUserManagerAbstractAction
 	const MIN_PASSWORD_LENGTH = 4;
 	
 	/**
-	 * Login page path
-	 */
-	const LOGIN_PAGE = '/cms/login';
-	
-	/**
 	 * Overwriting JsonResponse to TwigResponse
 	 * @param Request\RequestInterface $request
 	 * @return TwigResponse 
@@ -196,7 +191,7 @@ class RestoreController extends InternalUserManagerAbstractAction
 		$userProvider->credentialChange($user, $password);
 		$userProvider->updateUser($user);
 		
-		$response->redirect(self::LOGIN_PAGE);
+		$response->redirect('/' . SUPRA_CMS_URL . '/login/');
 	}
 	
 	public function execute()

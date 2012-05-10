@@ -55,7 +55,12 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 		 */
 		'_widgets': null,
 		
-		
+		/**
+		 * Drop object for news datagrid panel
+		 * @type {Object}
+		 * @private
+		 */
+		'_panelDnd': null,
 		
 		
 		/**
@@ -91,6 +96,15 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			Node.superclass.syncUI.apply(this, arguments);
 		},
 		
+		/**
+		 * Clean up
+		 * @private
+		 */
+		'destructor': function () {
+			//Remove drag and drop
+			this._panelDnd.destroy();
+		},
+		
 		
 		/**
 		 * ------------------------------ PRIVATE ------------------------------
@@ -112,10 +126,18 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			widgets.panel = panel = new Supra.Panel({
 				'autoClose': false,
 				'arrowVisible': true,
-				'zIndex': 1
+				'zIndex': 2
 			});
 			panel.render(container);
 			panel.get('contentBox').setStyle('height', 312);
+			
+			//Up
+			this._panelDnd = new Y.DD.Drop({
+				'node': panel.get('contentBox'),
+				'groups': ['default', 'new-page', 'restore-page']
+			});
+			
+			this._panelDnd.set('treeNode', this);
 			
 			//Datagrid
 			widgets.datagrid = datagrid = new Supra.DataGrid({
@@ -133,7 +155,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				'requestTotalRecords': this.get('data').children_count,
 				
 				'dataColumns': [
-					{'id': 'id'}, {'id': 'master_id'}, {'id': 'icon'}, {'id': 'preview'}, {'id': 'template'}, {'id': 'global'}, {'id': 'localized'}, {'id': 'localization_count'}, {'id': 'full_path'}, {'id': 'type'}, {'id': 'unpublished_draft'}, {'id': 'published'}, {'id': 'path'}, {'id': 'basePath'}
+					{'id': 'id'}, {'id': 'master_id'}, {'id': 'icon'}, {'id': 'preview'}, {'id': 'template'}, {'id': 'global'}, {'id': 'localized'}, {'id': 'localization_count'}, {'id': 'full_path'}, {'id': 'type'}, {'id': 'unpublished_draft'}, {'id': 'published'}, {'id': 'path'}, {'id': 'basePath'}, {'id': 'localizations'}
 				],
 				'columns': [
 					{
@@ -144,11 +166,12 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 					{
 						'id': 'icon',
 						'title': '',
-						'formatter': function () { return '<img src="/cms/content-manager/sitemap/images/icon-news.png" alt="" />'; }
+						'formatter': function () { return '<img src="/cms/content-manager/sitemap/images/icon-news.png" height="22" width="20" alt="" />'; }
 					},
 					{
 						'id': 'title',
-						'title': 'Title'
+						'title': 'Title',
+						'formatter': 'ellipsis'
 					}
 				]
 			});
@@ -170,7 +193,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				
 				var params = {
 					'data': e.data,
-					'node': this
+					'node': e.row
 				};
 				
 				this.get('tree').fire('page:select', params);
@@ -215,11 +238,15 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 					this.get('boundingBox').addClass('expanded-list');
 					this.get('parent').syncChildrenPosition();
 					
-					this._widgets.panel.show();
+					this._widgets.panel.show();	
 					this._widgets.datagrid.handleChange();
 					
+					var view = this.get('tree').get('view');
+					view.set('disabled', false);
 					//Center panel
-					this.get('tree').get('view').center(this.get('parent'));
+					view.center(this.get('parent'),
+						this.get('tree').set('visibilityRootNode', this.get('parent'))
+					);	
 				} else {
 					return this._setExpandedCollapse();
 				}

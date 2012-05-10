@@ -85,6 +85,8 @@ class AuditManagerListener implements EventSubscriber
 				
 				$em->detach($entity);
 				$entity->setPathEntity($draftPath);
+			} else {
+				$entity->resetPath();
 			}
 		}
 		

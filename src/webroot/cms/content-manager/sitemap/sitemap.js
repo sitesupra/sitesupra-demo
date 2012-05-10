@@ -2,64 +2,64 @@
 "use strict";
 
 //Add module definitions
-SU.addModule('website.sitemap-tree', {
+Supra.addModule('website.sitemap-tree', {
 	path: 'sitemap/modules/tree/tree.js',
 	requires: ['widget']
 });
 
-SU.addModule('website.sitemap-tree-node', {
+Supra.addModule('website.sitemap-tree-node', {
 	path: 'sitemap/modules/tree/tree-node.js',
 	requires: ['website.sitemap-tree', 'supra.template', 'dd']
 });
-SU.addModule('website.sitemap-tree-node-fake', {
+Supra.addModule('website.sitemap-tree-node-fake', {
 	path: 'sitemap/modules/tree/tree-node-fake.js',
 	requires: ['website.sitemap-tree', 'supra.template', 'dd', 'website.sitemap-tree-node']
 });
-SU.addModule('website.sitemap-tree-node-list', {
+Supra.addModule('website.sitemap-tree-node-list', {
 	path: 'sitemap/modules/tree/tree-node-list.js',
 	requires: ['website.sitemap-tree-node-app', 'supra.datagrid', 'supra.datagrid-loader']
 });
-SU.addModule('website.sitemap-tree-node-app', {
+Supra.addModule('website.sitemap-tree-node-app', {
 	path: 'sitemap/modules/tree/tree-node-app.js',
 	requires: ['website.sitemap-tree-node']
 });
-SU.addModule('website.sitemap-tree-node-app-news', {
+Supra.addModule('website.sitemap-tree-node-app-news', {
 	path: 'sitemap/modules/tree/tree-node-app-news.js',
 	requires: ['website.sitemap-tree-node-app']
 });
 
-SU.addModule('website.sitemap-tree-view', {
+Supra.addModule('website.sitemap-tree-view', {
 	path: 'sitemap/modules/tree/tree-view.js',
 	requires: ['website.sitemap-tree', 'anim']
 });
-SU.addModule('website.sitemap-tree-data', {
+Supra.addModule('website.sitemap-tree-data', {
 	path: 'sitemap/modules/tree/tree-data.js',
 	requires: ['website.sitemap-tree']
 });
-SU.addModule('website.sitemap-tree-util', {
+Supra.addModule('website.sitemap-tree-util', {
 	path: 'sitemap/modules/tree/tree-util.js',
 	requires: ['website.sitemap-tree']
 });
 
-SU.addModule('website.sitemap-plugin-page-edit', {
+Supra.addModule('website.sitemap-plugin-page-edit', {
 	path: 'sitemap/modules/plugin-page-edit.js',
 	requires: ['supra.input']
 });
-SU.addModule('website.sitemap-plugin-page-add', {
+Supra.addModule('website.sitemap-plugin-page-add', {
 	path: 'sitemap/modules/plugin-page-add.js',
 	requires: ['supra.input']
 });
-SU.addModule('website.sitemap-plugin-page-global', {
+Supra.addModule('website.sitemap-plugin-page-global', {
 	path: 'sitemap/modules/plugin-page-global.js',
 	requires: ['supra.input']
 });
 
 
-SU.addModule('website.sitemap-new-page', {
+Supra.addModule('website.sitemap-new-page', {
 	path: 'sitemap/modules/new-page.js',
 	requires: ['supra.scrollable']
 });
-SU.addModule('website.sitemap-delete-page', {
+Supra.addModule('website.sitemap-delete-page', {
 	path: 'sitemap/modules/delete-page.js',
 	requires: ['widget', 'dd']
 });
@@ -75,7 +75,7 @@ Supra(
 function (Y) {
 	
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	//Create Action class
@@ -181,7 +181,7 @@ function (Y) {
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
 				'id': 'mode_pages',
 				'type': 'button',
-				'title': SU.Intl.get(['sitemap', 'pages']),
+				'title': Supra.Intl.get(['sitemap', 'pages']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
 				
 				'action': 'SiteMap',
@@ -189,7 +189,7 @@ function (Y) {
 			}, {
 				'id': 'mode_templates',
 				'type': 'button',
-				'title': SU.Intl.get(['sitemap', 'templates']),
+				'title': Supra.Intl.get(['sitemap', 'templates']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-templates.png',
 				
 				'action': 'SiteMap',
@@ -330,12 +330,19 @@ function (Y) {
 		handlePageMove: function (evt) {
 			var node = evt.node,
 				reference = node.next(),
-				
-				post_data = {
+				reference_type = 'before';
+			
+			if ( ! reference) {
+				reference = node.previous();
+				reference_type = 'after';
+			}
+			
+			var post_data = {
 					//New parent ID
 					'parent_id': node.get('root') ? 0 : node.get('parent').get('data').id,
 					//Item ID before which drag item was inserted
 					'reference_id': reference ? reference.get('data').id : '',
+					'reference_type': reference_type,
 					//Dragged item ID
 					'page_id': node.get('data').id,
 					

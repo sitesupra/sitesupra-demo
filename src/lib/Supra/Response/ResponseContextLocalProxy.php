@@ -105,6 +105,11 @@ class ResponseContextLocalProxy extends ResponseContext
 	 */
 	public function addResourceFile($file)
 	{
+		// Don't add if doesn't exist
+		if ( ! is_file($file)) {
+			return;
+		}
+		
 		$resources = array();
 		$context = $this->getLocalContext();
 		$offset = __CLASS__ . '$' . self::RESOURCE_FILE_OFFSET;
@@ -113,7 +118,6 @@ class ResponseContextLocalProxy extends ResponseContext
 			$resources = $context->offsetGet($offset);
 		}
 		
-		//TODO: what if such file does not exist?
 		$resources[$file] = filemtime($file);
 		
 		$context->offsetSet($offset, $resources);
@@ -129,6 +133,22 @@ class ResponseContextLocalProxy extends ResponseContext
 		$resources = $context->offsetGet($offset);
 		
 		return $resources;
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function hasResourceChanged()
+	{
+		$files = $this->getResourceFiles();
+		
+		foreach ($files as $file => $mtime) {
+			if ( ! is_file($file) || filemtime($file) != $mtime) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 }

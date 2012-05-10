@@ -19,6 +19,7 @@ use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Log\Log;
 use Supra\Editable;
 use Supra\Controller\Pages\Exception;
+
 /**
  * Block controller abstraction
  * @method PageRequest getRequest()
@@ -64,6 +65,7 @@ abstract class BlockController extends ControllerAbstraction
 	 * Loads property definition array
 	 * TODO: should be fetched automatically from simple configuration file (e.g. YAML)
 	 * @return array
+	 * @internal
 	 */
 	public static function getPropertyDefinition()
 	{
@@ -87,25 +89,28 @@ abstract class BlockController extends ControllerAbstraction
 				$this->setPage($page);
 			}
 
-			$blockControllerCollection = BlockControllerCollection::getInstance();
 			$blockClass = $this->getBlock()->getComponentName();
-			$configuration = $blockControllerCollection->getBlockConfiguration($blockClass);
-			
-			if ($configuration->unique) {
-				// check for uniqness
-				$blockOutputCount = $this->increaseBlockOutputCount();
+			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
 
-				if ($blockOutputCount > 1) {
-					$pageTitle = null;
-					
-					if ($request instanceof PageRequest) {
-						$pageTitle = $request->getPageLocalization()
-								->getTitle();
+			if ( ! empty($configuration)) {
+
+				if ($configuration->unique) {
+					// check for uniqness
+					$blockOutputCount = $this->increaseBlockOutputCount();
+
+					if ($blockOutputCount > 1) {
+						$pageTitle = null;
+
+						if ($request instanceof PageRequest) {
+							$pageTitle = $request->getPageLocalization()
+									->getTitle();
+						}
+
+						throw new Exception\RuntimeException("Only one unique block '{$configuration->title}' can exist on a page '$pageTitle'");
 					}
-					
-					throw new Exception\RuntimeException("Only one unique block '{$configuration->title}' can exist on a page '$pageTitle'");
 				}
 			}
+
 
 			$this->doPrepare();
 		} catch (\Exception $e) {
@@ -150,8 +155,8 @@ abstract class BlockController extends ControllerAbstraction
 
 			$className = get_class($this);
 			$file = Loader::getInstance()->findClassPath($className);
-			$this->getResponse()->addResponseResourceFile($file);
-			
+			$this->getResponse()->addResourceFile($file);
+
 			try {
 				$this->doExecute();
 			} catch (\Exception $e) {
@@ -231,19 +236,19 @@ abstract class BlockController extends ControllerAbstraction
 	public function getProperty($name)
 	{
 		$property = null;
-		
+
 		if ($name instanceof Entity\BlockProperty) {
 			$property = $name;
 		} else {
-		
-			// Find editable by name
-			$propertyDefinitions = $this->getPropertyDefinition();
 
-			if ( ! isset($propertyDefinitions[$name])) {
+			// Find editable by name
+			$propertyDefinition = $this->configuration->getProperty($name);
+
+			if ( ! isset($propertyDefinition)) {
 				throw new Exception\RuntimeException("Content '{$name}' is not defined for block ");
 			}
 
-			$editable = $propertyDefinitions[$name];
+			$editable = $propertyDefinition->editableInstance;
 
 			if ( ! $editable instanceof EditableInterface) {
 				throw new Exception\RuntimeException("Definition of property must be an instance of editable");
@@ -258,14 +263,12 @@ abstract class BlockController extends ControllerAbstraction
 				/* @var $property BlockProperty */
 				if ($propertyCheck->getName() === $name) {
 
-					$property = $propertyCheck;
-
-					if ($propertyCheck->getType() !== $expectedType) {
-						$property->setEditable($editable);
-						$property->setValue($editable->getDefaultValue());
+					if ($propertyCheck->getType() === $expectedType) {
+						$property = $propertyCheck;
+//						$property->setEditable($editable);
+//						$property->setValue($editable->getDefaultValue());
+						break;
 					}
-
-					break;
 				}
 			}
 
@@ -284,10 +287,10 @@ abstract class BlockController extends ControllerAbstraction
 				//FIXME: should do somehow easier than that
 				$property->setLocalization($this->getRequest()->getPageLocalization());
 			}
-	//		else {
-	//			//TODO: should we overwrite editable content parameters from the block controller config?
-	//			$property->setEditable($editable);
-	//		}
+			//		else {
+			//			//TODO: should we overwrite editable content parameters from the block controller config?
+			//			$property->setEditable($editable);
+			//		}
 		}
 
 		$editable = $property->getEditable();
@@ -450,10 +453,11 @@ abstract class BlockController extends ControllerAbstraction
 		}
 
 		$response = $this->getResponse();
-		$blockControllerCollection = BlockControllerCollection::getInstance();
-		$configuration = $blockControllerCollection->getBlockConfiguration($this->getBlock()->getComponentName());
 
 		if ($response instanceof TwigResponse) {
+			$blockClass = $this->getBlock()->getComponentName();
+			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
+
 			$response->cleanOutput();
 			$response->setLoaderContext(__CLASS__);
 			$response->assign('blockName', $configuration->title);
@@ -472,21 +476,21 @@ abstract class BlockController extends ControllerAbstraction
 		$blockClassName = get_class($this);
 		$offset = 'BLOCK_COUNTER_' . $blockClassName;
 		$response = $this->getResponse();
-		
+
 		if ( ! $response instanceof Response\HttpResponse) {
 			return null;
 		}
-		
+
 		$count = 0;
 		$context = $response->getContext();
-		
+
 		if (isset($context[$offset])) {
 			$count = max((int) $context[$offset], 0);
 		}
-		
-		$count++;
+
+		$count ++;
 		$context[$offset] = $count;
-		
+
 		return $count;
 	}
 

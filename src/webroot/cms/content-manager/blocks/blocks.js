@@ -1,10 +1,10 @@
 //Invoke strict mode
 "use strict";
 
-SU(function (Y) {
+Supra(function (Y) {
 
 	//Shortcut
-	var Manager = SU.Manager,
+	var Manager = Supra.Manager,
 		Action = Manager.Action;
 	
 	/**

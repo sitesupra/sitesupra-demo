@@ -150,6 +150,11 @@ YUI.add('supra.button', function (Y) {
 		 */
 		ICON_TEMPLATE: '<img src="" alt="" />',
 		
+		/**
+		 * Label template
+		 * @type {String}
+		 */
+		LABEL_TEMPLATE: '<p></p>',
 		
 		initializer: function () {
 			
@@ -172,10 +177,13 @@ YUI.add('supra.button', function (Y) {
 			var btn = this.get('nodeButton');
 			if (btn) {
 				if (!this.get('nodeLabel') || this.get('nodeLabel').get('tagName') != 'P') {
-					var p = Y.Node.create('<p>' + Supra.Intl.replace(this.get('label') || '') + '</p>');
+					var tpl = Y.Node.create(this.LABEL_TEMPLATE),
+						p = tpl.test('P') ? tpl : tpl.one('P');
+					
+					p.set('innerHTML', Supra.Intl.replace(this.get('label') || ''));
 					
 					btn.set('innerHTML', '');
-					btn.appendChild(p);
+					btn.appendChild(tpl);
 					
 					this.set('nodeLabel', p);
 				}
@@ -225,16 +233,6 @@ YUI.add('supra.button', function (Y) {
 			this.get('boundingBox').on('click', this._onDisabledPreventClick, this);
 			
 			this.on('click', this._onClick, this);
-			
-			//On focus, focus input
-			/*
-			this.on('focusedChange', function (event) {
-				if (event.newVal) {
-					var btn = this.get('nodeButton');
-					if (btn) btn.focus();
-				}
-			}, this);
-			*/
 		},
 		
 		_syncUIStyle: function (name, add) {

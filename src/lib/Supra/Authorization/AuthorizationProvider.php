@@ -652,7 +652,10 @@ class AuthorizationProvider
 			return true;
 		}
 
-		if ($object instanceof AuthorizedEntityInterface) {
+		// Never allow any NULL object access if not superuser
+		if (is_null($object)) {
+			return false;
+		} elseif ($object instanceof AuthorizedEntityInterface) {
 
 			$ancestorsAndObject = $object->getAuthorizationAncestors();
 			array_unshift($ancestorsAndObject, $object);

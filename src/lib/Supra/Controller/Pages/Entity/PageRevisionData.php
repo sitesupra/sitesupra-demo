@@ -11,6 +11,9 @@ use DateTime;
 /**
  * Revision data class
  * @Entity
+ * @Table(indexes={
+ * 		@index(name="id_type_reference", columns={"id", "type", "reference"})
+ * })
  */
 class PageRevisionData extends Abstraction\Entity implements Timestampable
 {

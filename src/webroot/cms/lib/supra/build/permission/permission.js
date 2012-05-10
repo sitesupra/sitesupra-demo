@@ -3,7 +3,7 @@
 
 YUI.add("supra.permission", function (Y) {
 	
-	var REQUEST_URI = "/cms/check-permissions";
+	var REQUEST_URI = "/check-permissions";
 	
 	Supra.Permission = {
 		
@@ -82,15 +82,15 @@ YUI.add("supra.permission", function (Y) {
 				if (key) {
 					if (obj && key in obj) {
 						return obj[key];
-					} else {
-						return default_value !== undefined ? default_value : null;
 					}
 				} else {
-					return obj;
+					if (obj) {
+						return obj;
+					}
 				}
-			} else {
-				return default_value !== undefined ? default_value : null;
 			}
+			
+			return default_value !== undefined ? default_value : null;
 		},
 		
 		/**
@@ -154,7 +154,7 @@ YUI.add("supra.permission", function (Y) {
 			this.done(permissions, diff, callback, context);
 
 			//Load permissions
-			Supra.io(REQUEST_URI, {'suppress_errors': true, 'method': 'post'}, diff);
+			Supra.io(Supra.Manager.Loader.getDynamicPath() + REQUEST_URI, {'suppress_errors': true, 'method': 'post'}, diff);
 		},
 		
 		/**
@@ -265,4 +265,4 @@ YUI.add("supra.permission", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-});
+}, YUI.version);

@@ -21,7 +21,6 @@ class BlockPropertySet extends AbstractSet
 		/* @var $blockProperty Entity\BlockProperty */
 		foreach ($this as $blockProperty) {
 			if ($blockProperty->getBlock()->equals($block)) {
-				$blockPropertyName = $blockProperty->getName();
 				$blockPropertySet->append($blockProperty);
 			}
 		}
@@ -61,11 +60,24 @@ class BlockPropertySet extends AbstractSet
 		/* @var $blockProperty Entity\BlockProperty */
 		foreach ($this as $blockProperty) {
 			if ($blockProperty->getLocalization()->equals($data)) {
-				$blockPropertyName = $blockProperty->getName();
 				$blockPropertySet->append($blockProperty);
 			}
 		}
 		
 		return $blockPropertySet;
+	}
+	
+	/**
+	 * Add overriden metadata for all properties with the ID provided
+	 * @param string $propertyId
+	 * @param Entity\BlockPropertyMetadata $propertyMetadata
+	 */
+	public function addOverridenMetadata($propertyId, Entity\BlockPropertyMetadata $propertyMetadata)
+	{
+		foreach ($this as $property) {
+			if ($property->getId() === $propertyId) {
+				$property->addOverridenMetadata($propertyMetadata);
+			}
+		}
 	}
 }

@@ -100,6 +100,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 				
 				var pin = node.one('.pin');
 				if (pin) this.set('pinNode', pin);
+				
+				node.setClass('active', this.get('value'));
 			}
 			
 			this.get('labelNodeA').on('click', this._animateValueOn, this);

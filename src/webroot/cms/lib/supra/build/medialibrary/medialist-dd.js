@@ -7,6 +7,12 @@
 YUI().add('supra.medialibrary-list-dd', function (Y) {
 	
 	/*
+	 * Constants
+	 */
+	var DRAG_API_SUPPORTED = typeof document.body.draggable === 'boolean',
+		IE_API_SUPPORTED = !!document.body.dragDrop;
+	
+	/*
 	 * Shortcuts
 	 */
 	var TYPE_FOLDER = Supra.MediaLibraryData.TYPE_FOLDER,
@@ -49,13 +55,34 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 			items.each(function (item, index, items) {
 				item.setAttribute('draggable', 'true');
 				item.on('dragstart', this.onDragStart, this);
+				
+				if (!DRAG_API_SUPPORTED && IE_API_SUPPORTED) {
+					item.on('selectstart', this.onDragStartIE, this);
+				}
 			}, this);
+		},
+		
+		/**
+		 * IE fallback if it doesn't support drag api, eq. IE9
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		onDragStartIE: function (e) {
+			var node = e.target.closest('li');
+			if (node) {
+				node.getDOMNode().dragDrop();
+				this.onDragStart(e);
+				
+				return false;
+			}
 		},
 		
 		/**
 		 * Handle drag start event
 		 * 
-		 * @param {Object} e
+		 * @param {Object} e Event facade object
+		 * @private
 		 */
 		onDragStart: function (e) {
 			var target = e.target.closest('LI, .image');
@@ -68,8 +95,10 @@ YUI().add('supra.medialibrary-list-dd', function (Y) {
 				item_id = target.getData('itemId'),
 				data = widget.get('dataObject').getData(item_id);
 			
-			e._event.dataTransfer.effectAllowed = 'copy';
-			e._event.dataTransfer.setData('text', String(item_id));	// Use text to transfer item ID
+			if (e._event.dataTransfer) {
+				e._event.dataTransfer.effectAllowed = 'copy';
+				e._event.dataTransfer.setData('text', String(item_id));	// Use text to transfer item ID
+			}
 			
 			//Load data
 			if (data.type == TYPE_FOLDER && !data.children) {
