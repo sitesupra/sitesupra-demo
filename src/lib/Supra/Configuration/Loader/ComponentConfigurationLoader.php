@@ -16,9 +16,11 @@ class ComponentConfigurationLoader
 {
 
 	const KEY_NAME_VERSION = '_version';
-	const KEY_NAME_NAMESPACE = '_namespace';
 	const KEY_NAME_USE = '_use';
 	const KEY_NAME_CLASS = '_class';
+	const KEY_NAME_ARRAY = '_array';
+	const KEY_NAME_ITEMS = '_items';
+	
 
 	/**
 	 * Lowest caching level, means no cache at all
@@ -47,19 +49,9 @@ class ComponentConfigurationLoader
 	protected $version = 1;
 
 	/**
-	 * @var string
-	 */
-	protected $namespace;
-
-	/**
 	 * @var array
 	 */
 	protected $uses = array();
-
-	/**
-	 * @var type 
-	 */
-	protected $hadUses = false;
 
 	/**
 	 * @var integer
@@ -180,28 +172,11 @@ class ComponentConfigurationLoader
 			} else if ($key === self::KEY_NAME_VERSION) {
 
 				$this->version = $value;
-			} else if ($key === self::KEY_NAME_NAMESPACE) {
-
-				if ($this->version < 2) {
-					throw new \Exception('Functionality of "_namespace" is not available in this version.');
-				}
-
-				if ($this->level !== 0) {
-					throw new \Exception('Namespace may only be defined only on top level.');
-				} else if ($this->hadUses) {
-					throw new \Exception('Namespace definition must be defined before any "_use".');
-				} else if ( ! empty($this->namespace)) {
-					throw new \Exception('Namespace is already defined as "' . $this->namespace . '".');
-				} else {
-					$this->namespace = $value;
-				}
 			} else if ($key === self::KEY_NAME_USE) {
 
 				if ($this->version < 2) {
 					throw new \Exception('Functionality of "_use" is not available in this version.');
 				}
-
-				$this->hadUses = true;
 
 				$parts = explode('\\', $value);
 
@@ -225,16 +200,25 @@ class ComponentConfigurationLoader
 			} else if (is_string($key) && is_array($value)) {
 				// try to setup config object
 
-				$this->hadUses = true;
-
 				$object = $this->processObject($key, $value);
 
 				if (is_object($object)) {
 					$return = $object;
 				}
 			}
-		}
+		} else if (is_array($item) && isset($item[self::KEY_NAME_CLASS])) {
 
+			$className = $item[self::KEY_NAME_CLASS];
+
+			unset($item[self::KEY_NAME_CLASS]);
+
+			$object = $this->processObject($className, $item);
+
+			if (is_object($object)) {
+				$return = $object;
+			}
+		} 
+		
 		if (is_array($return)) {
 			foreach ($return as &$subitem) {
 
@@ -273,30 +257,16 @@ class ComponentConfigurationLoader
 	{
 		try {
 
-			$found = false;
+			if ( ! Loader\Loader::classExists($className) && ! empty($this->uses)) {
 
-			if ( ! Loader\Loader::classExists($className)) {
+				$classNameParts = explode('\\', $className);
 
-				if ( ! empty($this->namespace)) {
+				$firstNamePart = array_shift($classNameParts);
 
-					$className = $this->namespace . '\\' . $className;
+				if (isset($this->uses[$firstNamePart])) {
 
-					if (Loader\Loader::classExists($className)) {
-						$found = true;
-					}
-				}
-
-				if ( ! $found && ! empty($this->uses)) {
-
-					$classNameParts = explode('\\', $className);
-
-					$firstNamePart = array_shift($classNameParts);
-
-					if (isset($this->uses[$firstNamePart])) {
-
-						array_unshift($classNameParts, $this->uses[$firstNamePart]);
-						$className = join('\\', $classNameParts);
-					}
+					array_unshift($classNameParts, $this->uses[$firstNamePart]);
+					$className = join('\\', $classNameParts);
 				}
 			}
 
