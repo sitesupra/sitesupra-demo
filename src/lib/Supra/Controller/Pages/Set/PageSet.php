@@ -5,7 +5,7 @@ namespace Supra\Controller\Pages\Set;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\Template;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
-use Supra\Controller\Pages\Entity\Layout;
+use Supra\Controller\Pages\Entity\ThemeLayout;
 
 /**
  * Set containing 
@@ -32,7 +32,7 @@ class PageSet extends AbstractSet
 	/**
 	 * Get layout for the page hierarchy (last one in the stack)
 	 * @param string $media
-	 * @return Layout
+	 * @return ThemeLayout
 	 */
 	public function getLayout($media)
 	{

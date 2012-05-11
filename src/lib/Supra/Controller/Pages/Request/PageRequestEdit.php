@@ -55,7 +55,7 @@ class PageRequestEdit extends PageRequest
 	 * @param string $media
 	 * @return PageRequestEdit
 	 */
-	public static function factory(Entity\Abstraction\Localization $localization, $media = Entity\Layout::MEDIA_SCREEN)
+	public static function factory(Entity\Abstraction\Localization $localization, $media = Entity\TemplateLayout::MEDIA_SCREEN)
 	{
 		$locale = $localization->getLocale();
 		$instance = null;
@@ -154,7 +154,7 @@ class PageRequestEdit extends PageRequest
 		if ($draftData instanceof PageLocalization) {
 			$draftData->initializeProxyAssociations();
 		}
-
+		
 		// Merge the data element
 		$publicData = $publicEm->merge($draftData);
 		$publicData->setMaster($publicPage);
@@ -165,7 +165,7 @@ class PageRequestEdit extends PageRequest
 		if ($publicData instanceof Entity\PageLocalization) {
 			$newRedirect = $publicData->getRedirect();
 		}
-
+		
 		// 1. Get all blocks to be copied
 		$draftBlocks = $this->getBlocksInPage($draftEm, $draftData);
 
@@ -176,7 +176,7 @@ class PageRequestEdit extends PageRequest
 		$draftBlockIdList = Entity\Abstraction\Entity::collectIds($draftBlocks);
 		$existentBlockIdList = Entity\Abstraction\Entity::collectIds($existentBlocks);
 		$removedBlockIdList = array_diff($existentBlockIdList, $draftBlockIdList);
-
+		
 		if ( ! empty($removedBlockIdList)) {
 			//$this->removeBlocks($publicEm, $removedBlockIdList);
 			foreach($removedBlockIdList as $removedBlockId) {
@@ -191,7 +191,7 @@ class PageRequestEdit extends PageRequest
 		
 		$placeHolderIds = array();
 		$placeHolderNames = array();
-
+		
 		// 4. Merge all placeholders, don't delete not used, let's keep them
 		foreach ($draftBlocks as $block) {
 			$placeHolder = $block->getPlaceHolder();
@@ -348,7 +348,10 @@ class PageRequestEdit extends PageRequest
 				$metadata->initialize();
 			}
 			
-			$publicEm->merge($property);
+			// Skip shared properties
+			if ( ! $property instanceof Entity\SharedBlockProperty) {
+				$publicEm->merge($property);
+			}
 		}
 		
 		$draftEm->flush();
@@ -665,22 +668,6 @@ class PageRequestEdit extends PageRequest
 			$referencedElement = $entity->getReferencedElement();
 			
 			$newReferencedElement = clone $referencedElement;
-//			if ($newReferencedElement instanceof LinkReferencedElement
-//					&& $newReferencedElement->getResource() == LinkReferencedElement::RESOURCE_PAGE) {
-//				
-//				$page = $referencedElement->getPage();
-//				if ($page instanceof PageLocalization) {
-//					$master = $page->getMaster();
-//					$correctLocalization = $em->getRepository(PageLocalization::CN())->findOneBy(array('master' => $master->getId(), 'locale' => $targetLocale));
-//					if ($correctLocalization instanceof PageLocalization) {
-//						$newReferencedElement->setPageId($correctLocalization->getId());
-//					} else {
-//						$newReferencedElement->setPageId(null);
-//						$newReferencedElement->setResource(LinkReferencedElement::RESOURCE_LINK);
-//						$newReferencedElement->setHref('#');
-//					}
-//				}
-//			}
 			$em->persist($newReferencedElement);
 			
 			$newEntity->setReferencedElement($newReferencedElement);
@@ -689,6 +676,20 @@ class PageRequestEdit extends PageRequest
 			$eventArgs = new LifecycleEventArgs($newEntity, $em);
 			$em->getEventManager()
 					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
+		}
+		
+		if ($newEntity instanceof Entity\Abstraction\Block) {
+			
+			$originalRelation = $em->getRepository(Entity\BlockRelation::CN())
+					->findOneBy(array('blockId' => $entity->getId()));
+		
+			if (is_null($originalRelation)) {
+				$originalRelation = new Entity\BlockRelation($entity->getId());
+				$em->persist($originalRelation);
+			}
+			
+			$relation = new Entity\BlockRelation($newEntity->getId(), $originalRelation->getGroupId());
+			$em->persist($relation);
 		}
 		
 		$em->persist($newEntity);

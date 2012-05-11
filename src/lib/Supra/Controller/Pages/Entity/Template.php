@@ -6,17 +6,21 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Set\PageSet;
+use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\ThemeLayout;
 
 /**
  * Page controller template class
  * @Entity(repositoryClass="Supra\Controller\Pages\Repository\TemplateRepository")
  * @method TemplateLocalization getLocalization(string $locale)
  */
+
 class Template extends Abstraction\AbstractPage
 {
 	/**
 	 * {@inheritdoc}
 	 */
+
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 
 	/**
@@ -45,12 +49,12 @@ class Template extends Abstraction\AbstractPage
 //			throw new Exception\RuntimeException("Template layout can be set to root template only");
 //		}
 		if ($this->lock('templateLayouts')) {
-			
+
 			$media = $templateLayout->getMedia();
-			
+
 			$this->templateLayouts->set($media, $templateLayout);
 			$templateLayout->setTemplate($this);
-			
+
 			$this->unlock('templateLayouts');
 		}
 	}
@@ -67,15 +71,15 @@ class Template extends Abstraction\AbstractPage
 	/**
 	 * Add layout for specific media
 	 * @param string $media
-	 * @param Layout $layout
+	 * @param ThemeLayout $layout
 	 * @return TemplateLayout
 	 */
-	public function addLayout($media, Layout $layout)
+	public function addLayout($media, ThemeLayout $layout)
 	{
 		$templateLayout = new TemplateLayout($media);
 		$templateLayout->setLayout($layout);
 		$templateLayout->setTemplate($this);
-		
+
 		return $templateLayout;
 	}
 
@@ -84,7 +88,7 @@ class Template extends Abstraction\AbstractPage
 	 * @param string $media
 	 * @return boolean
 	 */
-	public function hasLayout($media = Layout::MEDIA_SCREEN)
+	public function hasLayout($media = TemplateLayout::MEDIA_SCREEN)
 	{
 		$has = $this->templateLayouts->offsetExists($media);
 
@@ -94,9 +98,9 @@ class Template extends Abstraction\AbstractPage
 	/**
 	 * Get layout object by
 	 * @param string $media
-	 * @return Layout
+	 * @return ThemeLayout
 	 */
-	public function getLayout($media = Layout::MEDIA_SCREEN)
+	public function getLayout($media = TemplateLayout::MEDIA_SCREEN)
 	{
 		$templateLayouts = $this->getTemplateLayouts();
 
@@ -109,7 +113,7 @@ class Template extends Abstraction\AbstractPage
 
 		throw new Exception\RuntimeException("No layout found for template #{$this->getId()} media '{$media}'");
 	}
-
+	
 	/**
 	 * Get array of template hierarchy starting from the root
 	 * @return PageSet

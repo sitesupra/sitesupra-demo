@@ -139,9 +139,9 @@ Supra('supra.languagebar', function (Y) {
 				fn;
 
 			if (page.type == 'templates') {
-				fn = 'duplicateGlobalTemplate';
+				fn = 'createTemplateLocalization';
 			} else {
-				fn = 'duplicateGlobalPage';
+				fn = 'createPageLocalization';
 			}
 			
 			Manager.Page[fn](page.id, {locale: newLocale}, oldLocale, this._createLocalizationComplete, this);

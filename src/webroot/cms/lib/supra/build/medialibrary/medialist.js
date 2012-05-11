@@ -57,13 +57,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, list of properties needed to display file
 	 * @type {Array}
 	 */
-	List.FILE_PROPERTIES = ['title', 'filename', 'description', 'file_web_path', 'known_extension'];
+	List.FILE_PROPERTIES = ['filename', 'file_web_path', 'known_extension'];
 	
 	/**
 	 * Constant, list of properties needed to display image
 	 * @type {Array}
 	 */
-	List.IMAGE_PROPERTIES = ['title', 'filename', 'description', 'sizes', 'created'];
+	List.IMAGE_PROPERTIES = ['filename', 'sizes', 'created'];
 	
 	
 	
@@ -102,7 +102,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FOLDER_ITEM_FILE = Template.compile('\
 		<li class="type-file {% if knownExtension %}type-file-{{ knownExtension }}{% endif %} {% if broken %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a></a>\
-			<span>{{ defaultTitle|escape }}</span>\
+			<span>{{ filename|escape }}</span>\
 		</li>');
 	
 	/**
@@ -112,7 +112,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
 		<li class="type-image {% if broken or !thumbnail %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a>{% if !broken and thumbnail %}<img src="{{ thumbnail|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
-			<span>{{ defaultTitle|escape }}</span>\
+			<span>{{ filename|escape }}</span>\
 		</li>');
 	
 	/**
@@ -132,8 +132,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			</div>\
 			\
 			{% set current_locale = Supra.data.get("locale") %}\
-			<div class="preview-title">{% if title && title[current_locale] %}{{ title[current_locale]|default(filename)|escape }}{% endif %}</div>\
-			<div class="preview-description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</div>\
+			<div class="preview-title">{{ filename|escape }}</div>\
 			\
 			<div class="group">\
 				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
@@ -178,8 +177,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			</div>\
 			\
 			{% set current_locale = Supra.data.get("locale") %}\
-			<div class="preview-title">{% if title && title[current_locale] %}{{ title[current_locale]|default(filename)|escape }}{% endif %}</div>\
-			<div class="preview-description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</div>\
+			<div class="preview-title">{{ filename|escape }}</div>\
 			\
 			<div class="group">\
 				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\

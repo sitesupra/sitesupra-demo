@@ -9,6 +9,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Events;
 use Supra\Database\Upgrade\DatabaseUpgradeRunner;
 use Supra\Database\Upgrade\SqlUpgradeFile;
+use Supra\Database\Exception;
 
 /**
  * Schema update command
@@ -36,7 +37,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 						'Causes the generated SQL statements to be output.'
 					),
 					new InputOption(
-						'assert-updated', null, InputOption::VALUE_NONE,
+						'check', null, InputOption::VALUE_NONE,
 						'Causes exception if schema is not up to date.'
 					),
 				));
@@ -50,48 +51,20 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		$output->writeln('Updating database schemas...');
+		
 		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
-		$output->writeln('');
 		
         $force = (true === $input->getOption('force'));
         $dumpSql = (true === $input->getOption('dump-sql'));
-		$assertUpdated = (true === $input->getOption('assert-updated'));
+		$check = (true === $input->getOption('check'));
 		$updateRequired = false;
-		
-		$output->writeln('Updating database schema...');
-		
-		// Supra upgrade runner
-		$supraUpgradeRunner = new DatabaseUpgradeRunner();
-		$pendingUpgrades = $supraUpgradeRunner->getPendingUpgrades();
-		$output->write('General');
-		
-		if ( ! empty($pendingUpgrades)) {
-			
-			$updateRequired = true;
-			
-			$output->writeln("\t - " . count($pendingUpgrades) . " files");
-			
-			if ($force) {
-				$supraUpgradeRunner->executePendingUpgrades();
-			}
-			
-			if ($dumpSql) {
-				$output->writeln('');
-				foreach ($pendingUpgrades as $file) {
-					/* @var $file SqlUpgradeFile */
-					$output->writeln("\t\\. " . $file->getPathname());
-				}
-				$output->writeln('');
-			}
-		} else {
-			$output->writeln("\t - up to date");
-		}
-		
 		
 		// Doctrine schema update
 		foreach ($this->entityManagers as $entityManagerName => $em) {
 
 			$output->write($entityManagerName);
+			
 			$metadatas = $em->getMetadataFactory()->getAllMetadata();
 			$schemaTool = new SchemaTool($em);
 			$sqls = $schemaTool->getUpdateSchemaSql($metadatas, true);
@@ -116,14 +89,13 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			}
 
 		}
-		
 
 		if ($force) {
-			$output->writeln('Database schema updated successfully!');
+			$output->writeln('Database schemas updated successfully!');
 		}
 		
-		if ($updateRequired && $assertUpdated) {
-			throw new \RuntimeException("Schema is not up to date.");
+		if ($updateRequired && $check) {
+			throw new Exception\RuntimeException('Database schema(s) not up to date.');
 		}
 
 		if ($updateRequired && ! $force && ! $dumpSql) {
@@ -133,6 +105,8 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			$output->writeln(sprintf('    <info>%s --force</info> to execute the command', $this->getName()));
 			$output->writeln(sprintf('    <info>%s --dump-sql</info> to show the commands', $this->getName()));
 		}
+		
+		$output->writeln('Done updating database schemas.');
 	}
 	
 }

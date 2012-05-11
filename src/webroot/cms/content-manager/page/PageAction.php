@@ -26,12 +26,14 @@ use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
+use Supra\Controller\Pages\Entity\ThemeLayout;
 
 /**
  * 
  */
 class PageAction extends PageManagerAction
 {
+
 	/**
 	 * Overriden so PHP <= 5.3.2 doesn't treat pageAction() as a constructor
 	 */
@@ -58,7 +60,7 @@ class PageAction extends PageManagerAction
 
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
-		
+
 		$page = $pageData->getMaster();
 
 		// Can this really happen?
@@ -128,7 +130,7 @@ class PageAction extends PageManagerAction
 		$createdTime = null;
 		$isLimited = null;
 		$hasLimitedParent = null;
-		
+
 		//TODO: create some path for templates also (?)
 		if ($page instanceof Entity\Page) {
 
@@ -139,7 +141,7 @@ class PageAction extends PageManagerAction
 				$pathPrefix = $page->getParent()
 						->getPath();
 			}
-		
+
 			$template = $pageData->getTemplate();
 
 			if ($template instanceof Entity\Template) {
@@ -161,26 +163,26 @@ class PageAction extends PageManagerAction
 				$templateError = new \RuntimeException("No template entity was assigned or found");
 				//TODO: warn
 			}
-			
+
 			$scheduledDateTime = $pageData->getScheduleTime();
 			$redirectLink = $pageData->getRedirect();
 			$metaKeywords = $pageData->getMetaKeywords();
 			$metaDescription = $pageData->getMetaDescription();
 			$active = $pageData->isActive();
-			
+
 			if ($pageData instanceof Entity\PageLocalization) {
 				$isLimited = $pageData->isLimitedAccessPage();
-				
+
 				$hasLimitedParent = false;
 				$parent = $pageData->getParent();
 				while ( ! is_null($parent)) {
 					if ($parent instanceof Entity\PageLocalization) {
 						$hasLimitedParent = $parent->getPathEntity()
 								->isLimited();
-				
+
 						break;
 					}
-				
+
 					$parent = $parent->getParent();
 				}
 			}
@@ -223,7 +225,7 @@ class PageAction extends PageManagerAction
 				'page_id' => $localization->getId()
 			);
 		}
-		
+
 		$array = array(
 			'id' => $pageData->getId(),
 			'master_id' => $page->getId(),
@@ -257,7 +259,7 @@ class PageAction extends PageManagerAction
 
 		if ( ! is_null($templateError)) {
 			$this->log->warn("Page could not be shown in CMS because of exception:\n", $templateError);
-			
+
 			$array['internal_html'] = '<h1>Page template or layout not found</h1><p>Please make sure the template is assigned and the template is published in this locale and it has layout assigned.</p>';
 		}
 
@@ -267,15 +269,18 @@ class PageAction extends PageManagerAction
 		}
 
 		if ($page instanceof Entity\Template) {
-			$layout = null;
+
+			$layoutName = null;
 
 			if ($page->hasLayout($this->getMedia())) {
-				$layout = $page->getLayout($this->getMedia())
-						->getFile();
+
+				$layout = $page->getLayout($this->getMedia());
+
+				$layoutName = $layout->getName();
 			}
 
-			$array['layout'] = $layout;
-			
+			$array['layout'] = $layoutName;
+
 			// fetch all layouts
 			$array['layouts'] = $this->getLayouts();
 		}
@@ -339,10 +344,10 @@ class PageAction extends PageManagerAction
 				$propertyDefinition = $configuration->properties;
 
 				foreach ($propertyDefinition as $property) {
-					
+
 					/* @var $property BlockPropertyConfiguration */
 					$propertyName = $property->name;
-					
+
 					$blockProperty = $controller->getProperty($propertyName);
 
 					if ($page->isBlockPropertyEditable($blockProperty)) {
@@ -373,9 +378,9 @@ class PageAction extends PageManagerAction
 								$propertyData = $data[0];
 							}
 						}
-						
+
 						if ($editable instanceof Editable\Image) {
-							
+
 							if ($propertyValue) {
 								$fileStorage = ObjectRepository::getFileStorage($this);
 								$image = $fileStorage->getDoctrineEntityManager()
@@ -386,12 +391,24 @@ class PageAction extends PageManagerAction
 								}
 							}
 						}
-						
+
 						if ($editable instanceof Editable\Gallery) {
 							$propertyData = $data;
 						}
 
-						$blockData['properties'][$propertyName] = $propertyData;
+						$propertyInfo = array(
+							'value' => $propertyData,
+							'shared' => false,
+							'language' => null,
+						);
+
+						if ($blockProperty instanceof Entity\SharedBlockProperty) {
+							$propertyInfo['shared'] = true;
+							$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
+									->getLocale();
+						}
+
+						$blockData['properties'][$propertyName] = $propertyInfo;
 					}
 				}
 
@@ -402,7 +419,7 @@ class PageAction extends PageManagerAction
 		}
 
 		$this->getResponse()->setResponseData($array);
-		
+
 		// TODO: implement in CmsAction
 		$this->getResponse()
 				->addResponsePart('permissions', array(array('edit' => true, 'publish' => true)));
@@ -422,10 +439,10 @@ class PageAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 
 		$this->checkActionPermission($parent, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-		
+
 		$eventManager = $this->entityManager->getEventManager();
 		$eventManager->dispatchEvent(AuditEvents::pagePreCreateEvent);
-		
+
 		$page = null;
 		$pathPart = null;
 
@@ -440,7 +457,7 @@ class PageAction extends PageManagerAction
 		} else {
 			$page = new Entity\Page();
 		}
-		
+
 		$rootPage = empty($parent);
 
 		$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
@@ -496,7 +513,7 @@ class PageAction extends PageManagerAction
 				$pageData->setPathPart('');
 			}
 		}
-		
+
 		// Set parent node
 		if ( ! $rootPage) {
 			try {
@@ -507,29 +524,28 @@ class PageAction extends PageManagerAction
 					$this->entityManager->remove($pageData);
 					$this->entityManager->flush();
 				}
-				
+
 				throw $e;
 			}
 		}
-		
+
 		$this->entityManager->flush();
-		
+
 		$this->writeAuditLog('%item% created', $pageData);
-		
+
 		$request = PageRequestEdit::factory($pageData);
 		$request->setDoctrineEntityManager($this->entityManager);
 		$request->getPlaceHolderSet();
 		$request->createMissingPlaceHolders();
-		
+
 		$this->outputPage($pageData);
-		
+
 		// this will create page base copy (similar one, that is created on page publish action)
 		// which will be used as build base for page change-history displaying
 		$pageEventArgs = new PageEventArgs();
 		$pageEventArgs->setProperty('referenceId', $pageData->getId());
 		$pageEventArgs->setEntityManager($this->entityManager);
 		$eventManager->dispatchEvent(AuditEvents::pagePostCreateEvent, $pageEventArgs);
-		
 	}
 
 	/**
@@ -666,7 +682,7 @@ class PageAction extends PageManagerAction
 				PageRevisionData::TYPE_DUPLICATE,
 			),
 		);
-		
+
 		$qb = $em->createQueryBuilder();
 		$qb->select('r')
 				->from(PageRevisionData::CN(), 'r')
@@ -674,43 +690,41 @@ class PageAction extends PageManagerAction
 				->orderBy('r.creationTime', 'DESC')
 				->setMaxResults(1)
 				->setParameters($params)
-				;
-		try {	
+		;
+		try {
 			$lastPublishRevision = $qb->getQuery()
 					->getSingleResult();
 		} catch (\Doctrine\ORM\NoResultException $e) {
 			throw new CmsException(null, 'Cannot find last published page revision');
 		}
-		
+
 		$baseRevisionId = $lastPublishRevision->getId();
-			
+
 		// select all revisions from last published, till selected one
 		$qb = $em->createQueryBuilder();
-		
+
 		$params = array(
 			'id' => $revisionId,
 			'baseId' => $baseRevisionId,
-			'localizationId' => $localizationId, 
+			'localizationId' => $localizationId,
 		);
-		
+
 		$qb->select('r')
 				->from(PageRevisionData::CN(), 'r')
 				->where('r.id <= :id AND r.id > :baseId AND r.reference = :localizationId')
 				->orderBy('r.id', 'DESC')
 				->setParameters($params)
-				;
-		
+		;
+
 		$revisionList = $qb->getQuery()
 				->getResult();
-		
+
 		if ( ! empty($revisionList)) {
 			//throw new CmsException(null, "Nothing found for revision #{$revisionId}");
-		
-		
 			// loop through list of revisions, if there is localization present, we should use it as base localization
 			// as there are located last localization settings (template, schedule etc.)
 			$lastLocalizationRevision = null;
-			foreach($revisionList as $revision) {
+			foreach ($revisionList as $revision) {
 				/* @var $revision PageRevisionData */
 				$className = $revision->getElementName();
 
@@ -721,18 +735,18 @@ class PageAction extends PageManagerAction
 				}
 			}
 		}
-		
+
 		$localizationRevision = (isset($lastLocalizationRevision) ? $lastLocalizationRevision : $lastPublishRevision);
 
 		$localization = $em->getRepository(Entity\Abstraction\Localization::CN())
 				->findOneBy(array('id' => $localizationRevision->getReferenceId(), 'revision' => $localizationRevision->getId()));
-		
+
 		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
 			throw new CmsException(null, 'Page version not found');
 		}
-		
+
 		$master = $localization->getMaster();
-		
+
 		// workaround for wrong master page
 		$auditMasterPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
 				->findOneBy(array('id' => $master->getId(), 'revision' => $localization->getRevisionId()));
@@ -754,15 +768,17 @@ class PageAction extends PageManagerAction
 
 		$controller->prepare($request, $response);
 		$request->setDoctrineEntityManager($em);
-		
+
 		$e = null;
 		ObjectRepository::beginControllerContext($controller);
 		try {
 			$controller->execute($request);
-		} catch (\Exception $e) {}
-		
+		} catch (\Exception $e) {
+			
+		}
+
 		ObjectRepository::endControllerContext($controller);
-		
+
 		if ($e instanceof \Exception) {
 			throw $e;
 		}
@@ -784,17 +800,17 @@ class PageAction extends PageManagerAction
 		$localization = $this->getPageLocalization();
 		$master = $localization->getMaster();
 		$this->duplicate($localization);
-		
+
 		$this->writeAuditLog('%item% duplicated', $master);
 	}
 
 	/**
-	 * Duplicate global localization
+	 * Create localization
 	 */
-	public function duplicateGlobalAction()
+	public function createLocalizationAction()
 	{
 		$this->isPostRequest();
-		$this->duplicateGlobal();
+		$this->createLocalization();
 	}
 
 	/**
@@ -802,7 +818,7 @@ class PageAction extends PageManagerAction
 	 */
 	public function pathToIdAction()
 	{
- 		$input = $this->getRequestInput();
+		$input = $this->getRequestInput();
 		$controller = $this->getPageController();
 		$em = $controller->getEntityManager();
 		$localizationEntity = Entity\PageLocalization::CN();
@@ -859,7 +875,7 @@ class PageAction extends PageManagerAction
 			return;
 		}
 	}
-	
+
 	/**
 	 * Returns all layouts
 	 */
@@ -871,27 +887,19 @@ class PageAction extends PageManagerAction
 	protected function getLayouts()
 	{
 		$layouts = array();
-		
-		$em = ObjectRepository::getEntityManager($this);
-		$qb = $em->createQueryBuilder();
-		
-		$qb->select('l.file')
-				->from(Entity\Layout::CN(), 'l');
-		
-		$query = $qb->getQuery();
-		$results = $query->getResult();
 
-		foreach ($results as $layout) {
-			// FIXME: Remove later when  theme change feature will work
-			$title = str_replace('.html.twig', '', $layout['file']);
-			$title = ucfirst(str_replace('_', ' ', $title));
+		$themeProvider = ObjectRepository::getThemeProvider($this);
 
-			// Format for pagesettings.js [{id:'root.html.twig', title:'Root page'}]
+		$currentTheme = $themeProvider->getCurrentTheme();
+
+		$themeLayouts = $currentTheme->getLayouts();
+
+		foreach ($themeLayouts as $themeLayout) {
+			/* @var $themeLayout ThemeLayout */
+
 			$layouts[] = array(
-				'id' => $layout['file'],
-				// @TODO: Layout title fetching must be done so it works together 
-				// with the theme change feature well
-				'title' => $title,
+				'id' => $themeLayout->getName(),
+				'title' => $themeLayout->getTitle()
 			);
 		}
 

@@ -41,6 +41,7 @@ class SitemapBlock extends LinksBlock
 
 		//FIXME: Problem – what if parent is not visible?
 		//$localizationFinder->isVisibleInSitemap(true);
+
 //		$organizer = new LocalizationOrganizer();
 //		$organizer->organize($localizationFinder);
 //		
@@ -76,7 +77,7 @@ class SitemapBlock extends LinksBlock
 
 		foreach ($localizations as $localization) {
 			/* @var $localization Entity\PageLocalization */
-
+			//\Log::debug('LLL: ', $localization->getId(), ' - ', $localization->isVisibleInSitemap());
 			$lft = $localization->getMaster()->getLeftValue();
 			$rgt = $localization->getMaster()->getRightValue();
 
@@ -105,8 +106,6 @@ class SitemapBlock extends LinksBlock
 			if (empty($path)) {
 				continue;
 			}
-
-			$title = $localization->getTitle();
 
 			$visibleInSitemap = $path->isVisibleInSitemap() && $localization->isVisibleInSitemap();
 			$isActive = $path->isActive() && $localization->isActive();

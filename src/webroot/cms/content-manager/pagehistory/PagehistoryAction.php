@@ -166,10 +166,18 @@ class PagehistoryAction extends PageManagerAction
 								$action = self::ACTION_MOVE;
 							} else {
 								$blockName = $this->getRevisionedEntityBlockName($revision);
+								if (is_null($blockName)) {
+									continue;
+								}
+								
 								$title = "{$blockName} block settings";
 							}
 						} else {
 							$blockName = $this->getRevisionedEntityBlockName($revision);
+							if (is_null($blockName)) {
+								continue;
+							}
+							
 							$title = "{$blockName} block";
 						}
 						break;
@@ -240,9 +248,12 @@ class PagehistoryAction extends PageManagerAction
 						->getOriginalEntityData($entity);
 					
 					$blockPropertyId = $entityOriginalData['blockProperty_id'];
-					$revisionId = $entityOriginalData['revision'];
 					$blockProperty = $entityManager->getRepository(Entity\BlockProperty::CN())
-							->findOneBy(array('id' => $blockPropertyId, 'revision' => $revisionId));
+							->findOneBy(array('id' => $blockPropertyId));
+					
+					if (is_null($blockProperty)) {
+						return null;
+					}
 					
 					$block = $blockProperty->getBlock();
 					

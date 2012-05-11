@@ -2,14 +2,17 @@
 
 namespace Supra\Controller\Layout\Theme;
 
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Layout\Exception;
-use Supra\Controller\Layout\Theme\Theme;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-use Supra\Controller\Pages\Entity\ThemeParameterValue;
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
-use Supra\Request\HttpRequest;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\ThemeParameterSet;
+use Supra\Controller\Pages\Entity\ThemeParameter;
+use Supra\Controller\Pages\Entity\ThemeLayout;
+use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
+use Supra\Controller\Layout\Exception;
+use Supra\Controller\Pages\Entity\TemplateLayout;
+use Supra\Controller\Pages\Entity\Template;
 
 class DefaultThemeProvider extends ThemeProviderAbstraction
 {
@@ -22,17 +25,22 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	/**
 	 * @var EntityRepository
 	 */
-	protected $themeParameterRepository;
+	protected $themeRepository;
 
 	/**
-	 * @var array
-	 */
-	protected $parametersLoaded = array();
-
-	/**
-	 * @var ThemeInterface
+	 * @var Theme
 	 */
 	protected $currentTheme;
+
+	/**
+	 * @var string
+	 */
+	protected $rootDir;
+
+	/**
+	 * @var string
+	 */
+	protected $urlBase;
 
 	/**
 	 * @return EntityManager
@@ -49,7 +57,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	/**
 	 * @param EntityManager $entityManager 
 	 */
-	public function setEntityManager($entityManager)
+	public function setEntityManager(EntityManager $entityManager)
 	{
 		$this->entityManager = $entityManager;
 	}
@@ -57,27 +65,63 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	/**
 	 * @return EntityRepository
 	 */
-	public function getThemeParameterRepository()
+	public function getThemeRepository()
 	{
-		if (empty($this->themeParameterRepository)) {
+		if (empty($this->themeRepository)) {
 
-			$this->themeParameterRepository = $this->getEntityManager()
-					->getRepository(ThemeParameterValue::CN());
+			$this->themeRepository = $this->getEntityManager()
+					->getRepository(Theme::CN());
 		}
 
-		return $this->themeParameterRepository;
+		return $this->themeRepository;
 	}
 
 	/**
-	 * @param EntityRepository $themeParameterRepository 
+	 * @param type $themeRepository 
 	 */
-	public function setThemeParameterRepository($themeParameterRepository)
+	public function setThemeRepository(EntityRepository $themeRepository)
 	{
-		$this->themeParameterRepository = $themeParameterRepository;
+		$this->themeRepository = $themeRepository;
 	}
 
 	/**
-	 * @return ThemeInterface
+	 * @return string
+	 */
+	public function getRootDir()
+	{
+		if (empty($this->rootDir)) {
+			throw new Exception\RuntimeException('Theme provider does not have root directory configured.');
+		}
+
+		return $this->rootDir;
+	}
+
+	/**
+	 * @param string $rootDir 
+	 */
+	public function setRootDir($rootDir)
+	{
+		$this->rootDir = $rootDir;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUrlBase()
+	{
+		return $this->urlBase;
+	}
+
+	/**
+	 * @param string $urlBase 
+	 */
+	public function setUrlBase($urlBase)
+	{
+		$this->urlBase = $urlBase;
+	}
+
+	/**
+	 * @return Theme
 	 */
 	public function getActiveTheme()
 	{
@@ -85,148 +129,21 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 
 		$themeName = $iniLoader->getValue('system', 'active_theme', 'default');
 
-		//$iniLoader->setValue('system', 'active_theme', 'default');
-
-		return $this->getTheme($themeName);
+		return $this->getThemeByName($themeName);
 	}
 
 	/**
-	 * @param string $themeName
+	 * @param Theme $theme 
+	 */
+	public function setActiveTheme(Theme $theme)
+	{
+		$iniLoader = ObjectRepository::getIniConfigurationLoader($this);
+
+		$iniLoader->setValue('system', 'active_theme', $theme->getName());
+	}
+
+	/**
 	 * @return Theme
-	 */
-	public function getTheme($themeName)
-	{
-		$theme = parent::getTheme($themeName);
-		/* @var $theme Theme */
-
-		if (is_null($theme->getPreviewParameters())) {
-
-			$previewParameters = $this->loadParameterValues($theme, ThemeParameterValue::SET_NAME_PREVIEW);
-			$theme->setPreviewParameters($previewParameters);
-		}
-
-		if (is_null($theme->getActiveParameters())) {
-
-			$activeParameters = $this->loadParameterValues($theme, ThemeParameterValue::SET_NAME_ACTIVE);
-			$theme->setActiveParameters($activeParameters);
-		}
-
-		$this->storeThemeParameters($theme);
-		
-		$theme->generateCssFiles();		
-
-		return $theme;
-	}
-
-	/**
-	  s	 * @param Theme $theme
-	 * @param string $setName
-	 * @return array
-	 */
-	protected function loadParameterValues(Theme $theme, $setName)
-	{
-		$parameterConfigurations = $theme->getParameterConfigurations();
-
-		$parameters = $this->getThemeParameterValueEntities($theme->getName(), $setName);
-
-		foreach ($parameterConfigurations as $configuration) {
-			/* @val $configuration ThemeParameterConfiguration */
-
-			if ( ! isset($parameters[$configuration->name])) {
-
-				$parameter = $this->makeThemeParameterValueFromConfiguration($configuration);
-
-				$parameter->setSetName($setName);
-				$parameter->setThemeName($theme->getName());
-
-				$parameters[$configuration->name] = $parameter;
-			} else {
-
-				$parameter = $parameters[$configuration->name];
-
-				$parameter->setDefaultValue($configuration->defaultValue);
-			}
-			
-			$parameter->setConfiguration($configuration);
-		}
-
-		return $parameters;
-	}
-
-	/**
-	 * @param ThemeParameterConfiguration $configuration
-	 * @return ThemeParameterValue 
-	 */
-	protected function makeThemeParameterValueFromConfiguration(ThemeParameterConfiguration $configuration)
-	{
-		$parameter = new ThemeParameterValue();
-
-		$parameter->setName($configuration->name);
-		$parameter->setDefaultValue($configuration->defaultValue);
-
-		return $parameter;
-	}
-
-	/**
-	 * @param string $themeName
-	 * @param string $setName
-	 * @return array
-	 */
-	protected function getThemeParameterValueEntities($themeName, $setName)
-	{
-		$parameterRepository = $this->getThemeParameterRepository();
-
-		$criteria = array(
-			'themeName' => $themeName,
-			'setName' => $setName
-		);
-
-		$parameterValueEntities = $parameterRepository->findBy($criteria);
-
-		$parameters = array();
-
-		foreach ($parameterValueEntities as $entity) {
-			/* @var $entity ThemeParameterValue */
-
-			$parameters[$entity->getName()] = $entity;
-		}
-
-		return $parameters;
-	}
-
-	/**
-	 * @param ThemeInterface $theme
-	 * @throws Exception\RuntimeException 
-	 */
-	public function setActiveTheme(ThemeInterface $theme)
-	{
-		throw new Exception\RuntimeException('Theme change not implemented.');
-	}
-
-	/**
-	 * @param ThemeInterface $theme 
-	 */
-	public function storeThemeParameters(ThemeInterface $theme)
-	{
-		$em = $this->getEntityManager();
-
-		foreach ($theme->getPreviewParameters() as $parameter) {
-			/* @var $parameter ThemeParameterValue */
-			$em->persist($parameter);
-		}
-
-		foreach ($theme->getActiveParameters() as $parameter) {
-			/* @var $parameter ThemeParameterValue */
-			$em->persist($parameter);
-		}
-
-		$em->flush();
-
-		$theme->generateCssFiles();
-	}
-
-	/**
-	 * @return ThemeInterface
 	 */
 	public function getCurrentTheme()
 	{
@@ -238,11 +155,176 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	}
 
 	/**
-	 * @param ThemeInterface $theme 
+	 * @param Theme $theme 
 	 */
-	public function setCurrentTheme(ThemeInterface $theme)
+	public function setCurrentTheme(Theme $theme)
 	{
 		$this->currentTheme = $theme;
+	}
+
+	/**
+	 * @param Theme $theme 
+	 */
+	public function storeTheme(Theme $theme)
+	{
+		$em = $this->getEntityManager();
+
+		$em->persist($theme);
+
+		$parameterSets = $theme->getParameterSets();
+
+		if ( ! empty($parameterSets)) {
+
+			foreach ($parameterSets as $parameterSet) {
+				/* @var $parameterSet ThemeParameterSet */
+
+				$em->persist($parameterSet);
+				$values = $parameterSet->getValues();
+
+				foreach ($values as $value) {
+					/* @var $parameter ThemeParameterValue */
+					$em->persist($value);
+				}
+			}
+		}
+
+		$parameters = $theme->getParameters();
+
+		if ( ! empty($parameters)) {
+
+			foreach ($parameters as $parameter) {
+				$em->persist($parameter);
+			}
+		}
+
+		$layouts = $theme->getLayouts();
+
+		if ( ! empty($layouts)) {
+
+			foreach ($layouts as $layout) {
+				/* @var $layout ThemeLayout */
+
+				$em->persist($layout);
+
+				$placeholders = $layout->getPlaceholders();
+
+				foreach ($placeholders as $placeholder) {
+					/* @var $placeholder ThemeLayoutPlaceholder */
+
+					$em->persist($placeholder);
+				}
+			}
+		}
+
+		$em->flush();
+	}
+
+	/**
+	 * @param string $name
+	 * @return Theme
+	 * @throws Exception\RuntimeException 
+	 */
+	public function getThemeByName($name)
+	{
+		$repo = $this->getThemeRepository();
+
+		$theme = $repo->findOneBy(array('name' => $name));
+
+		if (empty($theme)) {
+			throw new Exception\RuntimeException('Theme named "' . $name . '" is not found.');
+		}
+
+		return $theme;
+	}
+
+	/**
+	 * @param string $name
+	 * @return Theme | null
+	 */
+	public function findThemeByName($name)
+	{
+		$repo = $this->getThemeRepository();
+
+		$theme = $repo->findOneBy(array('name' => $name));
+
+		return $theme;
+	}
+
+	/**
+	 * @param string $themeName
+	 * @return string
+	 */
+	public function getThemeConfigurationFilename($themeName)
+	{
+		return $this->getRootDir() . DIRECTORY_SEPARATOR . $themeName . DIRECTORY_SEPARATOR . 'theme.yml';
+	}
+
+	public function removeTheme(Theme $theme)
+	{
+		$em = $this->getEntityManager();
+
+		$parameterSets = $theme->getParameterSets();
+
+		if ( ! empty($parameterSets)) {
+
+			foreach ($parameterSets as $parameterSet) {
+				/* @var $parameterSet ThemeParameterSet */
+
+				$values = $parameterSet->getValues();
+
+				foreach ($values as $value) {
+					/* @var $parameter ThemeParameterValue */
+					$parameterSet->removeValue($value);
+				}
+
+				$theme->removeParameterSet($parameterSet);
+			}
+		}
+
+		$parameters = $theme->getParameters();
+
+		if ( ! empty($parameters)) {
+
+			foreach ($parameters as $parameter) {
+				$theme->removeParameter($parameter);
+			}
+		}
+
+		$layouts = $theme->getLayouts();
+
+		if ( ! empty($layouts)) {
+
+			foreach ($layouts as $layout) {
+				/* @var $layout ThemeLayout */
+
+				$placeholders = $layout->getPlaceholders();
+
+				foreach ($placeholders as $placeholder) {
+					/* @var $placeholder ThemeLayoutPlaceholder */
+
+					$layout->removePlaceholder($placeholder);
+				}
+
+				$theme->removeLayout($layout);
+			}
+		}
+
+		$em->remove($theme);
+		$em->flush();
+	}
+
+	public function getCurrentThemeLayoutForTemplate(Template $template, $media = TemplateLayout::MEDIA_SCREEN)
+	{
+		$currentTheme = $this->getCurrentTheme();
+
+		$templateLayouts = $template->getTemplateLayouts();
+
+		/* @var $templateLayout TemplateLayout */
+		$templateLayout = $templateLayouts->get($media);
+
+		$themeLayout = $currentTheme->getLayout($templateLayout->getLayoutName());
+
+		return $themeLayout;
 	}
 
 }

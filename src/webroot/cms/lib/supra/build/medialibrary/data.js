@@ -8,7 +8,7 @@
 YUI.add('supra.medialibrary-data', function (Y) {
 	
 	//Properties which always will be loaded
-	var REQUIRED_PROPERTIES = ['id', 'type', 'title' ,'private'];
+	var REQUIRED_PROPERTIES = ['id', 'type', 'filename' ,'private'];
 	
 	/**
 	 * Media list

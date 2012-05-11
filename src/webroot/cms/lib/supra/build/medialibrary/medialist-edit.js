@@ -104,7 +104,6 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 			if (obj.data.filename != value && value) {
 				original_title = obj.data.filename;
 				obj.data.filename = value;
-				obj.data.defaultTitle = value;
 				obj.node.one('span').set('innerHTML', Y.Escape.html(value));
 				
 				post_data = {
@@ -134,7 +133,6 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 						if (!status) {
 							//Revert title changes
 							obj.data.filename = original_title;
-							obj.data.defaultTitle = original_title;
 							obj.node.one('span').set('innerHTML', Y.Escape.html(original_title));
 						} else {
 							this.get('host').reloadFolder(obj.id);
@@ -172,14 +170,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					props = {},
 					locale = null;
 					
-				if (Y.Lang.isObject(data.data[name])) {
-					//Localized value
-					locale = this.getItemLocale();
-					props[name] = {};
-					props[name][locale] = item_data[name][locale] = data.data[name][locale] = value;
-				} else {
-					props[name] = item_data[name] = data.data[name] = value;
-				}
+				props[name] = item_data[name] = data.data[name] = value;
 				
 				data_object.saveData(id, props, Y.bind(function (status, responseData) {
 					if (!status) {
@@ -198,29 +189,17 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 					}
 				}, this));
 				
-				//Update title in folder list, unless title is localized and it doesn't matches default locale
-				if (name == 'title' && (!locale || locale == Supra.data.get('locale'))) {
+				//Update filename in folder list
+				if (name == 'filename') {
 					var host = this.get('host'),
 						parent_id = host.getItemData(id).parent,
 						li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + id + '"]');
 					
 					li.one('span').set('text', value);
-					data.data['defaultTitle'] = value;
 				}
 			} else if (!value) {
 				data.input.set('value', data.data[name]);
 			}
-		},
-		
-		/**
-		 * Returns currently selected locale
-		 * 
-		 * @return Locale
-		 * @type {String}
-		 * @private
-		 */
-		getItemLocale: function () {
-			return this.get('host').getPropertyWidgets().locale.get('value');
 		},
 		
 		/**
@@ -241,7 +220,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 			item_data[name] = value;
 			
 			//Revert 'title' which is shown in item list
-			if (name == 'title') {
+			if (name == 'filename') {
 				var host = this.get('host'),
 					parent_id = host.getItemData(id).parent,
 					li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + id + '"]');

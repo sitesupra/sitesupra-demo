@@ -201,16 +201,19 @@ class FileStorage
 	/**
 	 * Rename file in all file storages
 	 * @param Entity\File $file
-	 * @param string $filename new file name
+	 * @param string $fileName new file name
 	 * @throws Exception\UploadFilterException on not valid change
 	 */
-	public function renameFile(Entity\File $file, $filename)
+	public function renameFile(Entity\File $file, $fileName)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
 
 		$newFile = clone($file);
 		$entityManager->detach($newFile);
-		$newFile->setFileName($filename);
+		
+		$oldName = $file->getFileName();
+		
+		$newFile->setFileName($fileName);
 
 		$oldExtension = $file->getExtension();
 		$newExtension = $newFile->getExtension();
@@ -221,10 +224,14 @@ class FileStorage
 
 		$this->validateFileUpload($newFile);
 
-		$this->renameFileInFileSystem($file, $filename);
+		$this->renameFileInFileSystem($file, $fileName);
 
 		$entityManager->merge($newFile);
 		$entityManager->flush();
+		
+		// to track title changes in audit
+		$file->setFileName($oldName);
+		$file->setFileName($fileName);
 	}
 
 	/**
