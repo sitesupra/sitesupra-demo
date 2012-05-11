@@ -1,0 +1,42 @@
+{
+	"status": true,
+	"data": {
+		"cashier": {
+			
+			"title_receipts": "Standing receipts",
+			"title_subscriptions": "Subscriptions",
+			"title_history": "Payment history",
+			"title_cards": "Stored cards",
+			
+			"receipts": {
+			},
+			
+			"subscriptions": {
+				"standard_title": "<b>Our standard plan</b>",
+				"custom_title": "<b>Your custom options</b>",
+				
+				"billing_term": "Billing term",
+				"next_billing_date": "Next billing date",
+				"cancel": "Cancel plan",
+				
+				"confirmation": "Are you sure you want to cancel \"{{ title }}\" subscription?"
+			},
+			
+			"history": {
+				"payment_date": "Payment date",
+				"total": "Total",
+				"print": "Print receipt"
+			},
+			
+			"cards": {
+				"number": "Card number",
+				"expires": "Expires",
+				"delete": "Delete",
+				"add": "Add new card",
+				
+				"confirmation": "Are you sure you want to delete card {{ number }} ?"
+			}
+			
+		}
+	}
+}

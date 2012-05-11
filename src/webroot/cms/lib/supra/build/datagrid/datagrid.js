@@ -107,6 +107,13 @@ YUI.add("supra.datagrid", function (Y) {
 		'style': {
 			'value': 'grid',
 			'setter': '_setStyle'
+		},
+		
+		/**
+		 * Datagrid is scrollable
+		 */
+		'scrollable': {
+			'value': true
 		}
 	};
 	
@@ -132,7 +139,7 @@ YUI.add("supra.datagrid", function (Y) {
 			return node;
 		},
 		'nodeScrollable': function (srcNode) {
-			return srcNode.closest('.su-scrollable');
+			return this.get('scrollable') ? srcNode.closest('.su-scrollable') : null;
 		}
 	};
 	
@@ -259,9 +266,12 @@ YUI.add("supra.datagrid", function (Y) {
 		
 		'initializer': function () {
 			this.rows = [];
-			this.scrollable = new Supra.Scrollable({
-				'srcNode': this.get('contentBox')
-			});
+			
+			if (this.get('scrollable')) {
+				this.scrollable = new Supra.Scrollable({
+					'srcNode': this.get('contentBox')
+				});
+			}
 		},
 		
 		/**
@@ -277,7 +287,9 @@ YUI.add("supra.datagrid", function (Y) {
 			this.tableNode.append(this.tableBodyNode);
 			
 			//Create scrollable
-			this.scrollable.render();
+			if (this.scrollable) {
+				this.scrollable.render();
+			}
 			
 			//Create headings
 			var fields = [],
@@ -299,7 +311,7 @@ YUI.add("supra.datagrid", function (Y) {
 				}
 				
 				id = column.id.replace(/[^a-z0-9\-_]*/g, '');
-				node = Y.Node.create('<th class="col-' + id + '">' + (column.title || '') + '</th>');
+				node = Y.Node.create('<th ' + (column.width ? 'width="' + column.width + '" ' : '') + 'class="col-' + id + '">' + (column.title || '') + '</th>');
 				heading.append(node);
 			}
 			
@@ -549,7 +561,11 @@ YUI.add("supra.datagrid", function (Y) {
 		 * @type {Object}
 		 */
 		'getRowByNode': function (node) {
-			var rows = this.rows;
+			var node = node.test('TR') ? node : node.closest('TR'),
+				rows = this.rows;
+			
+			if (!node) return null;
+			
 			for(var i=0,ii=rows.length; i<ii; i++) {
 				if (rows[i].getNode().compareTo(node)) return rows[i];
 			}
@@ -856,7 +872,9 @@ YUI.add("supra.datagrid", function (Y) {
 			if (node) {
 				node.fire('contentResize');
 			} else {
-				this.scrollable.syncUI();
+				if (this.scrollable) {
+					this.scrollable.syncUI();
+				}
 			}
 			
 			return this;
@@ -951,8 +969,12 @@ YUI.add("supra.datagrid", function (Y) {
 		 * @private
 		 */
 		'_setStyle': function (style) {
-			style = style ? String(style) : 'grid';
+			var old_style = String(this.get('style') || 'grid');
+			this.get('boundingBox').removeClass(this.getClassName(old_style));
+			
+			style = String(style || 'grid');
 			this.get('boundingBox').addClass(this.getClassName(style));
+			
 			return style;
 		}
 	});

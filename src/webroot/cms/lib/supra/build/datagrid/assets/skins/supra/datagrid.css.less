@@ -15,6 +15,16 @@
 		width: 100%;
 		clear: both;
 	}
+	
+	.align-left {
+		text-align: left;
+	}
+	.align-right {
+		text-align: right;
+	}
+	.align-center {
+		text-align: center;
+	}
 }
 
 .su-datagrid-list {
@@ -130,5 +140,80 @@
 		&:last-child {
 			border-right: 0;
 		}
+	}
+}
+
+.su-datagrid-dark {
+	height: auto;
+	
+	.su-datagrid-content {
+		.border-radius(6px);
+		border: 1px solid #4E4A58;
+		margin: 19px 0 19px 10px;
+		width: auto;
+		height: auto;
+	}
+	
+	table {
+		margin: 0;
+	}
+	
+	thead {
+		display: table-header-group;
+		
+		th {
+			background: url(/cms/lib/supra/img/background-pattern-darker.jpg) 0 0 repeat;
+			color: #fff;
+			font-size: 12px;
+			font-weight: bold;
+			line-height: 24px;
+			padding: 7px 14px 5px;
+			
+			b {
+				font-size: 16px;
+			}
+			
+			&:first-child {
+				.border-radius(6px, 0, 0, 0);
+			}
+			&:last-child {
+				.border-radius(0, 6px, 0, 0);
+			}
+		}
+	}
+	
+	tbody {
+		td {
+			.box-shadow(0, -1px, 0, #262730 inset);
+			border-top: 1px solid #474853;
+			background: url(/cms/lib/supra/img/background-pattern-dark.jpg) 0 0 repeat;
+			padding: 8px 14px 6px;
+			
+			color: #fff;
+			font-size: 12px;
+			text-shadow: 0 1px 0 rgba(0, 0, 0, .75);
+		}
+		
+		tr:first-child {
+			td {
+				border-top: 0;
+			}
+		}
+		tr:last-child {
+			td {
+				.box-shadow (none);
+				padding-bottom: 13px;
+			}
+			td:first-child {
+				.border-radius(0, 0, 0, 6px);
+			}
+			td:last-child {
+				.border-radius(0, 0, 6px, 0);
+			}
+		}
+	}
+	
+	a {
+		color: #7AD2FF;
 	}
 }
