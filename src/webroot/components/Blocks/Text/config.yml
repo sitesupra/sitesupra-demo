@@ -19,7 +19,6 @@
           editable: Supra\Editable\Checkbox
           label: Use page title
           default: true
-          shared: true
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: title
           editable: Supra\Editable\InlineString

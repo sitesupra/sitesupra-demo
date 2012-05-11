@@ -344,12 +344,12 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 		 */
 		'createPage': function (sourceLocale, newData) {
 			var mode    = this._treeNode.get('tree').get('mode'),
-				fn      = 'duplicateGlobalPage',
+				fn      = 'createPageLocalization',
 				context = Supra.Manager.getAction('Page'),
 				data    = this._node.get('data');
 				
 			if (mode == 'templates') {
-				fn = 'duplicateGlobalTemplate';
+				fn = 'createTemplateLocalization';
 				context = Supra.Manager.getAction('Template');
 			}
 			

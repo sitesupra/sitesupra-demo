@@ -262,6 +262,10 @@ class EntityAuditListener implements EventSubscriber
 			return;
 		}
 		
+		if ($entity instanceof Entity\SharedBlockProperty) {
+			return;
+		}
+		
 		$class = $this->auditEm->getClassMetadata(get_class($entity));
 		
 		$originalEntityData = $this->uow->getOriginalEntityData($entity);
@@ -681,6 +685,11 @@ class EntityAuditListener implements EventSubscriber
 		
 		$blockPropertySet = $request->getBlockPropertySet();
 		foreach($blockPropertySet as $property) {
+			
+			if ($property instanceof Entity\SharedBlockProperty) {
+				continue;
+			}
+			
 			$this->insertAuditRecord($property, self::REVISION_TYPE_COPY);
 
 			$metaData = $property->getMetadata();

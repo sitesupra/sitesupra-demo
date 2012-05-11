@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Entity;
 
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Page controller template-layout class
@@ -13,7 +14,14 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	/**
 	 * {@inheritdoc}
 	 */
+
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
+
+	/**
+	 * 
+	 */
+	const MEDIA_SCREEN = 'screen';
+	const MEDIA_PRINT = 'print';
 
 	/**
 	 * @Column(type="string")
@@ -22,11 +30,22 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	protected $media;
 
 	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $layoutName;
+
+	/**
 	 * @ManyToOne(targetEntity="Layout", cascade={"persist"}, fetch="EAGER")
-	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=false)
+	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=true)
 	 * @var Layout
 	 */
-	protected $layout;
+	protected $layoutOld;
+
+	/**
+	 * @var ThemeLayout
+	 */
+	//protected $layout;
 
 	/**
 	 * @ManyToOne(targetEntity="Template", inversedBy="templateLayouts")
@@ -64,21 +83,45 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	}
 
 	/**
-	 * Set layout
-	 * @param Layout $layout
+	 * @return string
 	 */
-	public function setLayout(Layout $layout)
+	public function getLayoutName()
 	{
-		$this->layout = $layout;
+		return $this->layoutName;
 	}
 
 	/**
-	 * Get template layout
-	 * @return Layout
+	 * @param string $layoutName 
+	 */
+	public function setLayoutName($layoutName)
+	{
+		$this->layoutName = $layoutName;
+	}
+
+	/**
+	 * @param ThemeLayout $layout 
+	 */
+	public function setLayout(ThemeLayout $layout)
+	{
+		$this->layoutName = $layout->getName();
+		//$this->layout = $layout;
+	}
+
+	/**
+	 * @return ThemeLayout
 	 */
 	public function getLayout()
 	{
-		return $this->layout;
+		//if (empty($this->layout)) {
+
+			$template = $this->getTemplate();
+
+			$themeProvider = ObjectRepository::getThemeProvider($this);
+
+			return $themeProvider->getCurrentThemeLayoutForTemplate($template, $this->getMedia());
+		//}
+
+		//return $this->layout;
 	}
 
 	/**
@@ -99,6 +142,11 @@ class TemplateLayout extends Abstraction\Entity implements AuditedEntityInterfac
 	public function getTemplate()
 	{
 		return $this->template;
+	}
+
+	public function getOldLayout()
+	{
+		return $this->layoutOld;
 	}
 
 }

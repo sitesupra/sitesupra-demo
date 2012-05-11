@@ -240,14 +240,14 @@ class TemplateAction extends PageManagerAction
 	}
 
 	/**
-	 * Duplicate global localization
+	 * Create template localization
 	 */
-	public function duplicateGlobalAction()
+	public function createLocalizationAction()
 	{
 		$this->checkApplicationAllAccessPermission();
 
 		$this->isPostRequest();
-		$this->duplicateGlobal();
+		$this->createLocalization();
 	}
 
 }

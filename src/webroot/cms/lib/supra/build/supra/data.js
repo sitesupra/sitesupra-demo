@@ -19,6 +19,8 @@
 		
 		//Locale (LANGUAGE_CONTEXT)
 		'locale': '',
+
+		'contexts': [],
 		
 		//Catch JS errors
 		'catchNativeErrors': false,
@@ -83,6 +85,27 @@
 			}
 			
 			return ret;
+		},
+
+		/**
+		 * Get locale data by ID
+		 *
+		 * @param {String} key
+		 * @return locale data object
+		 * @type {Object}
+		 */
+		getLocale: function (localeId) {
+			var contexts = Supra.data.get('contexts'),
+				context;
+			
+			for(var i=0,ii=contexts.length; i<ii; i++) {
+				context = contexts[i];
+				for(var k=0,kk=context.languages.length; k<kk; k++) {
+					if (context.languages[k].id == localeId) {
+						return context.languages[k];
+					}
+				}
+			}
 		},
 		
 		/**

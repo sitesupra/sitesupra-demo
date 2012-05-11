@@ -3,7 +3,6 @@
 namespace Supra\Controller\Layout\Processor;
 
 use Supra\Response\ResponseInterface;
-use Supra\Controller\Pages\Entity\Layout;
 use Supra\Controller\Layout\Exception;
 use Supra\Request\RequestInterface;
 

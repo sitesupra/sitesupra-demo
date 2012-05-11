@@ -25,59 +25,56 @@ class FixtureHelper
 	private $log;
 	protected $headerTemplateBlocks = array();
 	protected $rootPage;
-	
 	protected $rootTemplate;
 	protected $childTemplate;
 	protected $childTemplateWithLayout;
-	
 	private $locales = array();
 	protected static $constants = array(
-			0 => array(
-					'title' => 'Home',
-					'pathPart' => '',
-			),
-			1 => array(
-					'title' => 'About',
-					'pathPart' => 'about',
-			),
-			2 => array(
-					'title' => 'Contacts',
-					'pathPart' => 'contacts',
-			),
-			3 => array(
-					'title' => 'News application',
-					'pathPart' => 'news',
-					'applicationId' => 'news'
-			),
-			4 => array(
-					'title' => 'Pages',
-					'pathPart' => '',
-					'group' => true
-			),
-			5 => array(
-					'title' => 'Subscribe',
-					'pathPart' => 'subscribe',
-			),
-			6 => array(
-					'title' => '%s Publication',
-					'pathPart' => 'publication-%d',
-			),
-			7 => array(
-					'title' => 'Search',
-					'pathPart' => 'search',
-					'search' => true
-			),
-			8 => array(
-					'title' => '404',
-					'pathPart' => '404',
-					'404' => true
-			),
-			9 => array(
-					'title' => 'Login',
-					'pathPart' => 'login',
-					'login' => true,
-			),
-		
+		0 => array(
+			'title' => 'Home',
+			'pathPart' => '',
+		),
+		1 => array(
+			'title' => 'About',
+			'pathPart' => 'about',
+		),
+		2 => array(
+			'title' => 'Contacts',
+			'pathPart' => 'contacts',
+		),
+		3 => array(
+			'title' => 'News application',
+			'pathPart' => 'news',
+			'applicationId' => 'news'
+		),
+		4 => array(
+			'title' => 'Pages',
+			'pathPart' => '',
+			'group' => true
+		),
+		5 => array(
+			'title' => 'Subscribe',
+			'pathPart' => 'subscribe',
+		),
+		6 => array(
+			'title' => '%s Publication',
+			'pathPart' => 'publication-%d',
+		),
+		7 => array(
+			'title' => 'Search',
+			'pathPart' => 'search',
+			'search' => true
+		),
+		8 => array(
+			'title' => '404',
+			'pathPart' => '404',
+			'404' => true
+		),
+		9 => array(
+			'title' => 'Login',
+			'pathPart' => 'login',
+			'login' => true,
+		),
 	);
 
 	public function __construct(\Doctrine\ORM\EntityManager $em)
@@ -115,9 +112,9 @@ class FixtureHelper
 		if (empty($paragraphs)) {
 
 			$possibilities = array(
-					0 => array(1 => 1, 2 => 1),
-					1 => array(1 => 0.3, 2 => 1),
-					2 => array(1 => 1, 2 => 0.5),
+				0 => array(1 => 1, 2 => 1),
+				1 => array(1 => 0.3, 2 => 1),
+				2 => array(1 => 1, 2 => 0.5),
 			);
 
 			$prevType = 0;
@@ -129,8 +126,7 @@ class FixtureHelper
 				//\Log::debug("Have chosen $chr");
 				if (\in_array($chr, array('e', 'y', 'u', 'i', 'o', 'a'))) {
 					$type = 1;
-				}
-				else {
+				} else {
 					$type = 2;
 				}
 				//\Log::debug("Type is $type");
@@ -153,8 +149,7 @@ class FixtureHelper
 				if ($type == $prevType) {
 					$pow ++;
 					//\Log::debug("Increasing power to $pow");
-				}
-				else {
+				} else {
 					$pow = 1;
 					//\Log::debug("Resetting power");
 				}
@@ -209,8 +204,7 @@ class FixtureHelper
 			$txt = '<p>'
 					. implode("</p>\n\n<p>", $paragraphs)
 					. '</p>';
-		}
-		else {
+		} else {
 			$txt = implode('', $paragraphs);
 		}
 
@@ -241,34 +235,34 @@ class FixtureHelper
 		$auditEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\BlockPropertyMetadata::CN())->execute();
-		
+
 		$auditEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\BlockProperty::CN())->execute();
-		
+
 		$auditEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\Block::CN())->execute();
-		
+
 		$auditEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\PlaceHolder::CN())->execute();
-		
+
 		$auditEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Abstraction\Localization::CN())->execute();
-		
+
 		$auditEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\TemplateLayout::CN())->execute();
-		
+
 		$auditEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
 		$draftEm->createQuery("DELETE FROM " . Entity\Abstraction\AbstractPage::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\LayoutPlaceHolder::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\Layout::CN())->execute();
-		
+
 		$publicEm->createQuery("DELETE FROM " . Entity\PageRevisionData::CN())->execute();
-		
+
 		$draftEm->createQuery("DELETE FROM " . Entity\PageLocalizationPath::CN())->execute();
 		$publicEm->createQuery("DELETE FROM " . Entity\PageLocalizationPath::CN())->execute();
 	}
@@ -283,14 +277,14 @@ class FixtureHelper
 		$rootPage = $page = $page2 = null;
 
 		$em = $this->entityManager;
-		
+
 		// disable audit logging
 		$em->getEventManager()->dispatchEvent(\Supra\Controller\Pages\Event\AuditEvents::pagePreCreateEvent);
-		
+
 		$em->beginTransaction();
 
 		try {
-			$this->createTemplate();
+			$this->createTemplates();
 
 			$rootPage = $this->createPage(0, null, $this->rootTemplate);
 			$this->rootPage = $rootPage;
@@ -306,6 +300,7 @@ class FixtureHelper
 			$publicationCount = 50;
 
 			for ($i = $publicationCount; $i > 0; $i -- ) {
+				
 				$length = count(self::$constants);
 				$template = self::$constants[6];
 				$template['title'] = sprintf($template['title'], $i . ($i == 1 ? 'st' : ($i == 2 ? 'nd' : ($i == 3 ? 'rd' : 'th'))));
@@ -322,11 +317,10 @@ class FixtureHelper
 
 			$search = $this->createPage(7, $rootPage, $this->childTemplate);
 			$page404 = $this->createPage(8, $rootPage, $this->rootTemplate);
-			
+
 			$loginPage = $this->createPage(9, $rootPage, $this->rootTemplate);
+		} catch (\Exception $e) {
 			
-		}
-		catch (\Exception $e) {
 			$em->rollback();
 
 			throw $e;
@@ -356,9 +350,19 @@ class FixtureHelper
 
 				$pageToPublish = $em->find(Entity\Abstraction\AbstractPage::CN(), $pageId);
 				/* @var $pageToPublish Entity\Abstraction\AbstractPage */
+				
+				$themeProvider = ObjectRepository::getThemeProvider($this);
+				$themeProvider->setEntityManager($em);
+				
+				$theme = $themeProvider->getThemeByName('default');
+				$themeLayouts = $theme->getLayouts();
+				foreach($themeLayouts as $themeLayout) {
+					$themeLayout->getPlaceholders();
+				}
 
 				/* @var $locale \Supra\Locale\Locale */
 				foreach ($this->locales as $locale) {
+					
 					$localeId = $locale->getId();
 
 //					$em->clear();
@@ -369,6 +373,8 @@ class FixtureHelper
 					$localization = $pageToPublish->getLocalization($localeId);
 					$request = \Supra\Controller\Pages\Request\PageRequestEdit::factory($localization);
 					$request->setDoctrineEntityManager($em);
+					
+					$em->flush();
 
 					// Will create missing placeholders and flush
 					$request->getPlaceHolderSet();
@@ -378,15 +384,15 @@ class FixtureHelper
 
 					try {
 						$request->publish($publicEm);
-					}
-					catch (\Exception $e) {
+					} catch (\Exception $e) {
+						
 						$this->log->error("Failed to publish page {$pageToPublish} in language {$localeId}");
 						throw $e;
 					}
 				}
 			}
-		}
-		catch (\Exception $e) {
+		} catch (\Exception $e) {
+			
 			$em->rollback();
 			$publicEm->rollback();
 
@@ -395,33 +401,34 @@ class FixtureHelper
 
 		$em->commit();
 		$publicEm->commit();
-		
+
 		// Need to clear because the last page had NULL path otherwise
 		$em->clear();
 		$publicEm->clear();
-		
+
 		// Not sure why this is needed...
 		$command = new \Supra\Controller\Pages\Command\PagePathRegenerationCommand();
 		$input = new \Symfony\Component\Console\Input\StringInput('');
 		$output = new \Supra\Console\Output\ArrayOutput();
-		
+
 		$command->run($input, $output);
-		
+
 		$cacheGroupManager = new \Supra\Cache\CacheGroupManager();
 		$cacheGroupManager->resetRevision(\Supra\Controller\Pages\PageController::CACHE_GROUP_NAME);
 	}
 
-	protected function createTemplate()
+	protected function createTemplates()
 	{
 		$template = new Entity\Template();
 		$this->rootTemplate = $template;
 		$this->entityManager->persist($template);
 
-		$layout = $this->createLayout('root.html.twig');
+		$layout = $this->getThemeLayout('root');
 		$template->addLayout('screen', $layout);
 
 		/* @var $locale \Supra\Locale\Locale */
 		foreach ($this->locales as $locale) {
+			
 			$localeId = $locale->getId();
 
 			$templateData = new Entity\TemplateLocalization($localeId);
@@ -435,6 +442,7 @@ class FixtureHelper
 						->get($name);
 
 				if (empty($templatePlaceHolder)) {
+					
 					$templatePlaceHolder = new Entity\TemplatePlaceHolder($name);
 					$this->entityManager->persist($templatePlaceHolder);
 					if ($name == 'header' || $name == 'footer') {
@@ -444,6 +452,7 @@ class FixtureHelper
 				}
 
 				if ($name == 'header') {
+					
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
 					$block->setComponentClass('Project\Blocks\Languages\LanguageSelectorBlock');
@@ -490,7 +499,7 @@ class FixtureHelper
 					//				$block->setLocked(true);
 					//
 	//				$blockProperty = new Entity\BlockProperty('content');
-	//				$blockProperty->setEditable(new \Supra\Editable\Html(''));
+					//				$blockProperty->setEditable(new \Supra\Editable\Html(''));
 					//				$this->entityManager->persist($blockProperty);
 					//				$blockProperty->setBlock($block);
 					//				$blockProperty->setLocalization($template->getLocalization($localeId));
@@ -498,6 +507,7 @@ class FixtureHelper
 				}
 
 				if ($name == 'footer') {
+					
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
 					$block->setComponentClass('Project\Blocks\Text\TextController');
@@ -514,6 +524,7 @@ class FixtureHelper
 				}
 
 				if ($name == 'sidebar') {
+					
 					$block = new Entity\TemplateBlock();
 					$this->entityManager->persist($block);
 					$block->setComponentClass('Project\Blocks\Text\TextController');
@@ -538,6 +549,7 @@ class FixtureHelper
 
 		/* @var $locale \Supra\Locale\Locale */
 		foreach ($this->locales as $locale) {
+			
 			$localeId = $locale->getId();
 
 			$childTemplateLocalization = new Entity\TemplateLocalization($localeId);
@@ -550,6 +562,7 @@ class FixtureHelper
 					->get('sidebar');
 
 			if (empty($templatePlaceHolder)) {
+				
 				$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
 				$this->entityManager->persist($templatePlaceHolder);
 				$templatePlaceHolder->setMaster($childTemplateLocalization);
@@ -559,6 +572,7 @@ class FixtureHelper
 					->get('main');
 
 			if (empty($templatePlaceHolder)) {
+				
 				$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
 				$this->entityManager->persist($templatePlaceHolder);
 				$templatePlaceHolder->setMaster($childTemplateLocalization);
@@ -583,17 +597,18 @@ class FixtureHelper
 		$this->entityManager->persist($childTemplate);
 		$childTemplate->moveAsLastChildOf($template);
 		$this->entityManager->flush();
-		
+
 		// With layout
 		$childTemplate = new Entity\Template();
 		$this->childTemplateWithLayout = $childTemplate;
 		$this->entityManager->persist($childTemplate);
-		
-		$layout = $this->createLayout('child.html.twig');
+
+		$layout = $this->getThemeLayout('child');
 		$childTemplate->addLayout('screen', $layout);
 
 		/* @var $locale \Supra\Locale\Locale */
 		foreach ($this->locales as $locale) {
+			
 			$localeId = $locale->getId();
 
 			$childTemplateLocalization = new Entity\TemplateLocalization($localeId);
@@ -606,6 +621,7 @@ class FixtureHelper
 					->get('sidebar');
 
 			if (empty($templatePlaceHolder)) {
+				
 				$templatePlaceHolder = new Entity\TemplatePlaceHolder('sidebar');
 				$this->entityManager->persist($templatePlaceHolder);
 				$templatePlaceHolder->setMaster($childTemplateLocalization);
@@ -615,27 +631,35 @@ class FixtureHelper
 					->get('main');
 
 			if (empty($templatePlaceHolder)) {
+				
 				$templatePlaceHolder = new Entity\TemplatePlaceHolder('main');
 				$this->entityManager->persist($templatePlaceHolder);
 				$templatePlaceHolder->setMaster($childTemplateLocalization);
 			}
-
 		}
 
 		$childTemplate->moveAsLastChildOf($template);
 		$this->entityManager->flush();
 	}
 
-	protected function createLayout($fileName)
+	protected function getThemeLayout($layoutName)
 	{
-		$layout = new Entity\Layout();
-		$this->entityManager->persist($layout);
-		$layout->setFile($fileName);
+		$themeProvider = ObjectRepository::getThemeProvider($this);
+		$themeProvider->setEntityManager($this->entityManager);
 
-		foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
-			$layoutPlaceHolder = new Entity\LayoutPlaceHolder($name);
-			$layoutPlaceHolder->setLayout($layout);
-		}
+		$theme = $themeProvider->getThemeByName('default');
+
+		$layout = $theme->getLayout($layoutName);
+
+		//$layout = new Entity\ThemeLayout();
+		//$this->entityManager->persist($layout);
+		//$layout->setFilename($fileName);
+		//foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
+		//	$layoutPlaceHolder = new Entity\ThemeLayoutPlaceholder();
+		//	$layoutPlaceHolder->setName($name);
+		//	$layoutPlaceHolder->setLayout($layout);
+		//}
+
 		return $layout;
 	}
 
@@ -646,20 +670,21 @@ class FixtureHelper
 
 		// Application
 		if ( ! empty($pageDefinition['applicationId'])) {
+			
 			$page = new Entity\ApplicationPage();
 			$page->setApplicationId($pageDefinition['applicationId']);
 			$this->entityManager->persist($page);
 
 			// Group
-		}
-		elseif ( ! empty($pageDefinition['group'])) {
+		} elseif ( ! empty($pageDefinition['group'])) {
+			
 			$page = new Entity\GroupPage();
 			$page->setTitle($pageDefinition['title']);
 			$this->entityManager->persist($page);
 
 			// Standard page
-		}
-		else {
+		} else {
+			
 			$page = new Entity\Page();
 			$this->entityManager->persist($page);
 		}
@@ -672,16 +697,18 @@ class FixtureHelper
 		// No localization for group page
 		if ( ! $page instanceof Entity\GroupPage) {
 			/* @var $locale \Supra\Locale\Locale */
+			
 			foreach ($this->locales as $locale) {
+				
 				$localeId = $locale->getId();
 				$pageData = null;
 
 				if ($page instanceof Entity\ApplicationPage) {
 					$pageData = new Entity\ApplicationLocalization($localeId);
-				}
-				else {
+				} else {
 					$pageData = new Entity\PageLocalization($localeId);
 				}
+				
 				$pageData->setTemplate($template);
 				$this->entityManager->persist($pageData);
 				$pageData->setTitle($pageDefinition['title']);
@@ -742,46 +769,46 @@ class FixtureHelper
 							$placeHolder->setMaster($pageData);
 						}
 
-						if ($pageDefinition['search']) {
-							
-								$block = new Entity\PageBlock();
-								$this->entityManager->persist($block);
-								$block->setComponentClass('Project\Blocks\Search\ProjectSearchController');
-								$block->setPlaceHolder($placeHolder);
-								$block->setPosition(100);
-								
-						} else	if ($pageDefinition['404']) {
-							
-								$block = new Entity\PageBlock();
-								$this->entityManager->persist($block);
-								$block->setComponentClass('Project\Blocks\Text\TextController');
-								$block->setPlaceHolder($placeHolder);
-								// reverse order
-								$block->setPosition(100);
+						if (isset($pageDefinition['search'])) {
 
-								$blockProperty = new Entity\BlockProperty('404 title');
-								$blockProperty->setEditable(new \Supra\Editable\InlineString('404 title'));
-								$this->entityManager->persist($blockProperty);
-								$blockProperty->setBlock($block);
-								$blockProperty->setLocalization($pageData);
-								$blockProperty->setValue('404 title');
+							$block = new Entity\PageBlock();
+							$this->entityManager->persist($block);
+							$block->setComponentClass('Project\Blocks\Search\ProjectSearchController');
+							$block->setPlaceHolder($placeHolder);
+							$block->setPosition(100);
+						} else if (isset($pageDefinition['404'])) {
 
-								$blockProperty = new Entity\BlockProperty('content');
-								$blockProperty->setEditable(new \Supra\Editable\Html('404 Content'));
-								$this->entityManager->persist($blockProperty);
-								$blockProperty->setBlock($block);
-								$blockProperty->setLocalization($pageData);
-								$blockProperty->setValue('<h1>Page not found</h1>');
-						} else if ($pageDefinition['login']) {
+							$block = new Entity\PageBlock();
+							$this->entityManager->persist($block);
+							$block->setComponentClass('Project\Blocks\Text\TextController');
+							$block->setPlaceHolder($placeHolder);
+							// reverse order
+							$block->setPosition(100);
+
+							$blockProperty = new Entity\BlockProperty('404 title');
+							$blockProperty->setEditable(new \Supra\Editable\InlineString('404 title'));
+							$this->entityManager->persist($blockProperty);
+							$blockProperty->setBlock($block);
+							$blockProperty->setLocalization($pageData);
+							$blockProperty->setValue('404 title');
+
+							$blockProperty = new Entity\BlockProperty('content');
+							$blockProperty->setEditable(new \Supra\Editable\Html('404 Content'));
+							$this->entityManager->persist($blockProperty);
+							$blockProperty->setBlock($block);
+							$blockProperty->setLocalization($pageData);
+							$blockProperty->setValue('<h1>Page not found</h1>');
+						} else if (isset($pageDefinition['login'])) {
+
 							$block = new Entity\PageBlock();
 							$this->entityManager->persist($block);
 							$block->setComponentClass('Project\Blocks\Login\LoginBlock');
 							$block->setPlaceHolder($placeHolder);
 							$block->setPosition(100);
-						}
-
-						else {
+						} else {
+							
 							foreach (range(1, 2) as $i) {
+								
 								$block = new Entity\PageBlock();
 								$this->entityManager->persist($block);
 								$block->setComponentClass('Project\Blocks\Text\TextController');

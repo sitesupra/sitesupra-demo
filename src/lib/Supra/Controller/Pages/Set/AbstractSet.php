@@ -74,5 +74,16 @@ abstract class AbstractSet extends ArrayObject
 		
 		return null;
 	}
+	
+	/**
+	 * Merges array into the object
+	 * @param mixed $array
+	 */
+	public function appendArray($array)
+	{
+		foreach ($array as $item) {
+			$this->append($item);
+		}
+	}
 
 }

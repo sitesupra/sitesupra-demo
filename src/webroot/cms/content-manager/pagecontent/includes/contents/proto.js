@@ -301,19 +301,28 @@ YUI.add('supra.page-content-proto', function (Y) {
 				
 				//Send request
 				this.get('super').sendBlockDelete(child, function (data, status) {
-					var node = block.getNode();
-					
-					//Destroy block
-					block.destroy();
-					if (node) node.remove();
-					
-					//Remove from child list
-					delete(this.children[id]);
-					
-					//Remove from order list
-					var index = Y.Array.indexOf(this.children_order, String(id));
-					if (index != -1) {
-						this.children_order.splice(index, 1);
+					if (status) {
+
+						//Discard all changes
+						child.unresolved_changes = false;
+
+						var node = block.getNode();
+
+						//Destroy block
+						block.destroy();
+						if (node) node.remove();
+
+						//Remove from child list
+						delete(this.children[id]);
+
+						//Remove from order list
+						var index = Y.Array.indexOf(this.children_order, String(id));
+						if (index != -1) {
+							this.children_order.splice(index, 1);
+						}
+					} else {
+						// Reopen the properties sidebar if fails
+						block.properties.showPropertiesForm();
 					}
 					
 				}, this);

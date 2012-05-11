@@ -3,10 +3,17 @@
 namespace Supra\Controller\Layout\Theme\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
-use Supra\Controller\Layout\Theme\Theme;
+use Supra\Controller\Pages\Entity\Theme;
 use Supra\Configuration\Exception;
+use Supra\Configuration\Loader\LoaderRequestingConfigurationInterface;
+use Supra\Configuration\Loader\ComponentConfigurationLoader;
+use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
+use Supra\Controller\Layout\Theme\ThemeProvider;
+use Supra\Controller\Pages\Entity\ThemeParameterSet;
+use Supra\Controller\Pages\Entity\ThemeParameter;
+use Doctrine\Common\Collections\ArrayCollection;
 
-class ThemeConfiguration implements ConfigurationInterface
+class ThemeConfiguration extends ThemeConfigurationAbstraction
 {
 
 	/**
@@ -17,17 +24,17 @@ class ThemeConfiguration implements ConfigurationInterface
 	/**
 	 * @var string
 	 */
-	public $title;
+	public $title = '';
 
 	/**
 	 * @var string
 	 */
-	public $description;
+	public $description = '';
 
 	/**
 	 * @var boolean
 	 */
-	public $enabled;
+	public $enabled = true;
 
 	/**
 	 * @var string
@@ -37,56 +44,155 @@ class ThemeConfiguration implements ConfigurationInterface
 	/**
 	 * @var array
 	 */
-	public $variants;
+	public $parameterSets;
 
 	/**
-	 * @var Theme
+	 * @var string
 	 */
-	protected $theme;
+	public $urlBase;
 
+	/**
+	 * @var array
+	 */
+	public $layouts;
+
+	/**
+	 * 
+	 */
 	public function configure()
 	{
-		$theme = new Theme();
+		$theme = $this->getTheme();
 
-		$theme->setName($this->name);
+		$theme->setTitle($this->title);
 		$theme->setDescription($this->description);
-		$theme->setEnabled($this->enabled);
+		$theme->setEnabled((boolean) $this->enabled);
 
-		$parameterConfigurations = array();
+		if ( ! empty($this->urlBase)) {
+			$theme->setUrlBase($this->urlBase);
+		}
 
+		$this->processParameters();
+
+		$this->processLayouts();
+
+		$this->processParameterSets();
+	}
+
+	protected function processParameters()
+	{
+		$theme = $this->getTheme();
+
+		$parametersBefore = $theme->getParameters();
+		$parameterNamesBefore = $parametersBefore->getKeys();
+
+		$parametersAfter = new ArrayCollection();
 		if ( ! empty($this->parameters)) {
 
 			foreach ($this->parameters as $parameterConfiguration) {
 				/* @var $parameterConfiguration ThemeParameterConfiguration */
 
-				$name = $parameterConfiguration->name;
-				$parameterConfigurations[$name] = $parameterConfiguration;
+				$parameter = $parameterConfiguration->getParameter();
+
+				$parametersAfter[$parameter->getName()] = $parameter;
 			}
 		}
 
-		$theme->setParameterConfigurations($parameterConfigurations);
+		$parameterNamesAfter = $parametersAfter->getKeys();
 
-		if ( ! empty($this->variants)) {
-
-			foreach ($this->variants as $variant) {
-				/* @var $variant ThemeVariantConfiguration */
-
-				foreach (array_keys($variant->parameterValues) as $name) {
-					if ( ! isset($parameterConfigurations[$name])) {
-						throw new Exception\RuntimeException('Parameter variant "' . $variant->name . '" of theme "' . $theme->getName() . '" refers to parameter "' . $name . '" that is not present in theme parameter configuration.');
-					}
-				}
-
-				$theme->addVariant($variant->name, $variant->parameterValues);
-			}
+		$namesToRemove = array_diff($parameterNamesBefore, $parameterNamesAfter);
+		foreach ($namesToRemove as $nameToRemove) {
+			$theme->removeParameter($parametersBefore[$nameToRemove]);
 		}
 
-		$this->theme = $theme;
+		$namesToAdd = array_diff($parameterNamesAfter, $parameterNamesBefore);
+		foreach ($namesToAdd as $nameToAdd) {
+			$theme->addParameter($parametersAfter[$nameToAdd]);
+		}
 	}
 
-	public function getTheme()
+	protected function processLayouts()
 	{
-		return $this->theme;
+		$theme = $this->getTheme();
+
+		$layoutsBefore = $theme->getLayouts();
+		$layoutNamesBefore = $layoutsBefore->getKeys();
+
+		$layoutsAfter = new ArrayCollection();
+		if ( ! empty($this->layouts)) {
+
+			foreach ($this->layouts as $layoutConfiguration) {
+				/* @var $layoutConfiguration ThemeLayoutConfiguration */
+
+				$layout = $layoutConfiguration->getLayout();
+
+				$layoutsAfter[$layout->getName()] = $layout;
+			}
+		}
+
+		$layoutNamesAfter = $layoutsAfter->getKeys();
+
+		$namesToRemove = array_diff($layoutNamesBefore, $layoutNamesAfter);
+		foreach ($namesToRemove as $nameToRemove) {
+			$theme->removeLayout($layoutsBefore[$nameToRemove]);
+		}
+
+		$namesToAdd = array_diff($layoutNamesAfter, $layoutNamesBefore);
+		foreach ($namesToAdd as $nameToAdd) {
+			$theme->addLayout($layoutsAfter[$nameToAdd]);
+		}
+	}
+
+	protected function processParameterSets()
+	{
+		$theme = $this->getTheme();
+
+		$parameterSetsBefore = $theme->getParameterSets();
+		$parameterSetNamesBefore = $parameterSetsBefore->getKeys();
+
+		$parameterSetsAfter = new ArrayCollection();
+		if ( ! empty($this->parameterSets)) {
+
+			foreach ($this->parameterSets as $parameterSetConfiguration) {
+				/* @var $parameterSetConfiguration ThemeParameterSetConfiguration */
+
+				$parameterSet = $parameterSetConfiguration->getParameterSet();
+
+				$parameterSetsAfter[$parameterSet->getName()] = $parameterSet;
+			}
+		}
+
+		$parameterSetNamesAfter = $parameterSetsAfter->getKeys();
+
+		$namesToRemove = array_diff($parameterSetNamesBefore, $parameterSetNamesAfter);
+		foreach ($namesToRemove as $nameToRemove) {
+			$theme->removeParameterSet($parameterSetsBefore[$nameToRemove]);
+		}
+
+		$namesToAdd = array_diff($parameterSetNamesAfter, $parameterSetNamesBefore);
+		foreach ($namesToAdd as $nameToAdd) {
+			$theme->addParameterSet($parameterSetsAfter[$nameToAdd]);
+		}
+
+		// Add undefined parameter values to sets, using default values fomr parameters.
+
+		$parameters = $theme->getParameters();
+
+		$parameterSets = $theme->getParameterSets();
+
+		foreach ($parameterSets as $parameterSet) {
+
+			foreach ($parameters as $parameter) {
+				/* @var $parameter ThemeParameter */
+
+				$parameterSetValues = $parameterSet->getValues();
+
+				if (empty($parameterSetValues[$parameter->getName()])) {
+
+					$value = $parameter->getThemeParameterValue();
+					$parameterSet->addValue($value);
+				}
+			}
+		}
 	}
 
 }

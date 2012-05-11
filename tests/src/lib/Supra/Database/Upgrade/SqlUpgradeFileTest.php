@@ -2,7 +2,7 @@
 
 namespace Supra\Tests\Database\Upgrade;
 
-use Supra\Database\Upgrade\SqlUpgradeFile;
+use Supra\Upgrade\Database\SqlUpgradeFile;
 
 class SqlUpgradeFileTest extends \PHPUnit_Framework_TestCase
 {
