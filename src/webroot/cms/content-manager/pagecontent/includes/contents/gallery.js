@@ -255,7 +255,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		processData: function (data) {
 			
 			if (this.properties.isPropertyShared('images')) {
-				return data.images = [];
+				data.images = [];
+				
+				return data; 
 			}
 			
 			var images = [],

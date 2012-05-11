@@ -631,6 +631,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			if (form) {
 				var values = form.getValues('id', true);
 				
+				console.log(values);
+				
 				for (var name in values) {
 					if (this.isPropertyShared(name)) delete values[name];
 				}
@@ -671,7 +673,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		isPropertyShared: function (name) {
-			for (name in this._shared_properties) {
+			if (name in this._shared_properties) {
 				return true;
 			}
 			return false;
