@@ -204,8 +204,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				images = (values && Y.Lang.isArray(values.images)) ? values.images : [],
 				properties = this.getImageProperties(),
 				property = null,
-				image  = {'image': image_data, 'id': image_data.id},
-				locale = Supra.data.get('locale');
+				image  = {'image': image_data, 'id': image_data.id};
 				
 			//Check if image doesn't exist in data already
 			for(var i=0,ii=images.length; i<ii; i++) {
@@ -217,8 +216,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				image[property] = image_data[property] || properties[i].value || '';
 			}
 			
-			image.title = image_data.title[locale] || image_data.defaultTitle;
-			image.description = image_data.description[Supra.data.get('locale')] || image_data.defaultDescription;
+			image.title = image_data.filename;
 			
 			images.push(image);
 			
