@@ -630,9 +630,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var form = this.get('form');
 			if (form) {
 				var values = form.getValues('id', true);
-				
-				console.log(values);
-				
+		
 				for (var name in values) {
 					if (this.isPropertyShared(name)) delete values[name];
 				}
