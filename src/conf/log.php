@@ -37,6 +37,12 @@ $defaultWriter->addFilter(new Filter\LevelFilter($logParams));
 
 Supra\ObjectRepository\ObjectRepository::setDefaultLogger($defaultWriter);
 
+// TML writer for audit entity load checking
+$tmpWriter = Loader::getClassInstance($loggerClass, ObjectRepository::INTERFACE_LOGGER);
+$tmpWriter->setName('AUDIT');
+$tmpWriter->setFormatter(new \Supra\Log\Formatter\SimpleFormatter(array('format' => ' *** %subject%')));
+Supra\ObjectRepository\ObjectRepository::setLogger('Supra\Controller\Pages\Listener\AuditManagerListener', $tmpWriter);
+
 /*
  * SQL statement logger
  */
