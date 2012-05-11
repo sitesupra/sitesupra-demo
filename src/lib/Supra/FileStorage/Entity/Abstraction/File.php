@@ -112,7 +112,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * @var string
 	 */
-	protected $originalTitle;
+	protected $originalFileName;
 
 	/**
 	 * Get left value
@@ -345,10 +345,9 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	public function setFileName($fileName)
 	{
 		$result = preg_replace('/\s+/i', ' ', $fileName);
-
-		// track only first title change
-		if (is_null($this->originalTitle) && ! is_null($this->fileName) && ($this->fileName != $fileName)) {
-			$this->originalTitle = $this->fileName;
+		
+		if ( ! is_null($this->fileName)) {
+			$this->originalFileName = $this->fileName;
 		}
 
 		$this->fileName = trim($result);
@@ -481,7 +480,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 */
 	public function getOriginalTitle()
 	{
-		return $this->originalTitle;
+		return $this->originalFileName;
 	}
 
 	/**
@@ -492,10 +491,4 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		return $this->getFileName();
 	}
-
-	public function setOriginalTitle($title)
-	{
-		$this->originalTitle = $title;
-	}
-
 }

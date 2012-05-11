@@ -95,22 +95,4 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 		
 		return $file;
 	}
-
-	/**
-	 * Write to audit log
-	 *
-	 * @param string $action
-	 * @param mixed $data
-	 * @param object $item
-	 * @param int $level 
-	 */
-	protected function writeAuditLog($message, $item = null, $level = AuditLogEvent::INFO) 
-	{
-		if ($item instanceof Page) {
-			$localeId = $this->getLocale()->getId();
-			$item = $item->getLocalization($localeId);
-		}
-			
-		parent::writeAuditLog($message, $item, $level);
-	}
 }

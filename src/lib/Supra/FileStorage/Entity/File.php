@@ -31,16 +31,10 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	 */
 	protected $fileSize;
 	
-	/**
-	 * @OneToMany(targetEntity="MetaData", mappedBy="master", cascade={"persist", "remove"}, indexBy="locale")
-	 * @var Collection
-	 */
-	protected $metaData;
 
 	public function __construct()
 	{
 		parent::__construct();
-		$this->metaData = new ArrayCollection();
 		$this->imageSizes = new ArrayCollection();
 	}
 
@@ -85,16 +79,6 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	}
 
 	/**
-	 * Set meta data
-	 *
-	 * @param MetaData $data 
-	 */
-	public function setMetaData($data)
-	{
-		$this->addUnique($this->metaData, $data, 'locale');
-	}
-
-	/**
 	 * Gets file extension
 	 * @return string
 	 */
@@ -106,99 +90,6 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	}
 
 	/**
-	 * Get meta-data for locale
-	 *
-	 * @param string $locale
-	 * @return MetaData
-	 */
-	public function getMetaData($locale)
-	{
-		if ($this->metaData->containsKey($locale)) {
-			return $this->metaData->get($locale);
-		} else {
-			return null;
-		}
-	}
-	
-	public function getMetaDataCollection() {
-		return $this->metaData;
-	}
-	
-	/**
-	 * Get localized title
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	public function getTitle($locale = null)
-	{
-		if (is_null($locale)) {
-			$locale = ObjectRepository::getLocaleManager($this)->getCurrent()->getId();
-		}
-		
-		$metaData = $this->getMetaData($locale);
-		
-		if ($metaData instanceof MetaData) {
-			return $metaData->getTitle();
-		} else {
-			return $this->getFileName();
-		}
-	}
-
-	/**
-	 * Get localized description
-	 *
-	 * @param string $locale
-	 * @return string
-	 */
-	public function getDescription($locale)
-	{
-		$metaData = $this->getMetaData($locale);
-		
-		if ($metaData instanceof MetaData) {
-			return $metaData->getDescription();
-		}
-	}
-	
-	/**
-	 * Get list of localized descriptions
-	 * 
-	 * @return array
-	 */
-	public function getDescriptionArray()
-	{
-		$description = array();
-		
-		$metaDataCollection = $this->getMetaDataCollection();
-		
-		foreach($metaDataCollection as $locale => $metaData) {
-			/* @var $metaData MetaData */
-			$description[$locale] = $metaData->getDescription();
-		}
-		
-		return $description;
-	}
-	
-	/**
-	 * Get list of localized descriptions
-	 * 
-	 * @return array
-	 */
-	public function getTitleArray()
-	{
-		$title = array();
-		
-		$metaDataCollection = $this->getMetaDataCollection();
-		
-		foreach($metaDataCollection as $locale => $metaData) {
-			/* @var $metaData MetaData */
-			$title[$locale] = $metaData->getTitle();
-		}
-		
-		return $title;
-	}
-	
-	/**
 	 * {@inheritdoc}
 	 * @param string $locale
 	 * @return array
@@ -209,10 +100,6 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 		
 		$info = $info + array(
 			// FIXME: returns different type depending on the input (string, array)
-			'defaultTitle' => $this->getTitle($locale),
-			'defaultDescription' => $this->getDescription($locale),
-			'title' => $this->getTitleArray(),
-			'description' => $this->getDescriptionArray(),
 			'size' => $this->getSize()
 		);
 		
