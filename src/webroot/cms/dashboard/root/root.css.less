@@ -1,0 +1,253 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+.dashboard {
+	
+	.apps,
+	.info {
+		position: absolute;
+		top: 25px;
+		bottom: 25px;
+	}
+	
+	.apps {
+		left: 50px;
+		right: 550px;
+	}
+	.info {
+		width: 440px;
+		right: 65px;
+	}
+}
+
+/**
+ * Favourite apps module
+ */
+.app-list {
+	list-style: none;
+	
+	li {
+		float: left;
+		width: 150px;
+		height: 140px;
+		padding-top: 10px;
+		cursor: pointer;
+		
+		span {
+			display: block;
+			height: 100px;
+			text-align: center;
+			
+			img {
+				display: inline-block;
+			}
+		}
+		label {
+			display: block;
+			color: #A9ACC1;
+			cursor: pointer;
+			font-size: 13px;
+			font-weight: bold;
+			text-align: center;
+			text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+		}
+		
+		&:hover {
+			label {
+				color: #fff;
+			}
+		}
+	}
+}
+
+.su-apps-favourites {
+	
+	h2 {
+		color: #9A9BA1;
+		font-size: 12px;
+		font-weight: bold;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, .75);
+		display: block;
+		padding: 7px 11px;
+	}
+	
+	.app-list-outter {
+		.border-radius (5px);
+		border: 2px dashed #4B4C5C;
+	}
+	
+	.app-list {
+		.border-radius (5px);
+		border: 2px dashed #2D2C38;
+		min-height: 50px;
+		position: relative;
+		top: -1px;
+		margin: -2px;
+		
+		li.empty {
+			width: auto;
+			float: none;
+			height: 50px;
+			padding: 0;
+			background: url(../images/apps/favourite-text.png) 50% 50% no-repeat;
+			cursor: default;
+		}
+	}
+}
+
+/**
+ * App list module
+ */
+.su-apps-list {
+	h2 {
+		color: #fff;
+		font-size: 18px;
+		font-weight: bold;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, .75);
+		display: block;
+		padding: 42px 10px 0;
+	}
+}
+
+/**
+ * Pagination module
+ */
+.su-paging {
+	text-align: center;
+	padding-top: 25px;
+	
+	a {
+		display: inline-block;
+		width: 30px;
+		height: 30px;
+		background: url(../images/apps/navigation.png) 0 0 no-repeat;
+		cursor: pointer;
+		
+		&.active,
+		&:hover {
+			background-position: 0 -30px;
+		}
+	}
+}
+
+/**
+ * Block module
+ */
+.su-block {
+	margin: 0 0 4px;
+}
+.su-block-heading {
+	.border-radius (6px, 6px, 0, 0);
+	border: 1px solid #4E4A58;
+	border-bottom: 0;
+	position: relative;
+	
+	h2 {
+		color: #fff;
+		font-size: 16px;
+		font-weight: bold;
+		line-height: 24px;
+		text-shadow: 0 1px 0 rgba(0, 0, 0, .75);
+		padding: 6px 18px;
+		
+		a {
+			color: #7DC9F2;
+			font-size: 12px;
+			font-weight: normal;
+			
+			display: block;
+			position: absolute;
+			right: 10px;
+			top: 0;
+			padding: 6px 35px 6px 6px;
+			background: url(../images/info/icon-new-window.png) 100% 11px no-repeat;
+		}
+	}
+}
+.su-block-content {
+	.border-radius (0, 0, 6px, 6px);
+	border: 1px solid #4E4A58;
+	border-top: 0;
+}
+
+/**
+ * Data list
+ */
+.data-list {
+	list-style: none;
+	padding: 2px 12px 7px 10px;
+	
+	li {
+		border-top: 1px solid #474853;
+		border-bottom: 1px solid #262730;
+		position: relative;
+		padding: 8px 100px 6px 9px;
+		
+		&:first-child {
+			border-top: 0;
+		}
+		&:last-child {
+			border-bottom: 0;
+		}
+		
+		.su-button, .right {
+			position: absolute;
+			right: 3px;
+			top: 8px;
+		}
+		
+		.su-button {
+			top: 2px;
+		}
+		
+		//Using & > p to prevent overwriting button styles
+		& > p {
+			color: #fff;
+			font-size: 12px;
+			text-shadow: 0 1px 0 rgba(0, 0, 0, .75);
+			
+			a {
+				color: #fff;
+				font-weight: bold;
+			}
+			
+			&.right {
+				text-align: right;
+				
+				b {
+					font-size: 14px;
+				}
+				span {
+					display: inline-block;
+					width: 27px;
+					text-align: left;
+					
+					&.up {
+						color: #4CB010;
+					}
+					&.down {
+						color: #EE0A2A;
+					}
+				}
+			}
+		}
+		
+	}
+}
+
+/**
+ * Inbox module
+ */
+.su-inbox {
+	
+	li {
+		&.new > p {
+			font-weight: bold;
+			color: #7AD2FF;
+			
+			a {
+				color: #7AD2FF;
+			}
+		}
+	}
+}

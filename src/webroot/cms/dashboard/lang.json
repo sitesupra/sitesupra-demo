@@ -1,0 +1,37 @@
+{
+	"status": true,
+	"data": {
+		"dashboard": {
+			
+			"favourite": {
+				"title": "Favourite apps"
+			},
+			
+			"list": {
+				"title": "All apps"
+			},
+			
+			"inbox": {
+				"title": "Inbox",
+				"new_mail": "You've got mail!",
+				"view_buy": "view Buy",
+				"buy_now": "Buy now"
+			},
+			
+			"visitors": {
+				"title": "Visitors"
+			},
+			
+			"referrers": {
+				"title": "Top referring sites",
+				"view_all": "View all"
+			},
+			
+			"keywords": {
+				"title": "Top keywords",
+				"view_all": "View all"
+			}
+			
+		}
+	}
+}
