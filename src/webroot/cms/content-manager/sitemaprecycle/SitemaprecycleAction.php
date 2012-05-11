@@ -55,7 +55,7 @@ class SitemaprecycleAction extends PageManagerAction
 		$trashRevisionsById = array();
 		if ( ! empty($trashRevisions)) {
 			// collecting ids
-			$revisionsId = array();
+			$revisionIds = array();
 			foreach ($trashRevisions as $revision) {
 				$revisionIds[] = $revision->getId();
 				$trashRevisionsById[$revision->getId()] = $revision;

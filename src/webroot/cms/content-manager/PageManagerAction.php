@@ -40,6 +40,7 @@ use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Listener\EntityRevisionSetterListener;
 use Supra\Controller\Pages\Event\CmsPageEventArgs;
+use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 
 /**
  * Controller containing common methods
@@ -693,17 +694,17 @@ abstract class PageManagerAction extends CmsAction
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference_id');
 
-		$restorePage = function() use ($request, $parent, $reference, $draftEm) {
-			
-			$page = $request->restorePage();
-				
+		$this->entityManager->beginTransaction();
+		try {
+			$request->restorePage();
 			$page = $draftEm->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
-		
 			try {
 				if (is_null($reference)) {
+					
 					if (is_null($parent)) {
 						throw new CmsException('sitemap.error.parent_page_not_found');
 					}
+
 					$parent->addChild($page);
 				}
 				else {
@@ -711,13 +712,31 @@ abstract class PageManagerAction extends CmsAction
 				}
 			}
 			catch (DuplicatePagePathException $uniqueException) {
-				throw new CmsException('sitemap.error.duplicate_path');
-			}
 				
-		};
-
-		$this->entityManager
-				->transactional($restorePage);
+				$this->getConfirmation('{#sitemap.confirmation.duplicate_path#}');
+		
+				$localizations = $page->getLocalizations();
+				foreach($localizations as $localization) {
+					$pathPart = $localization->getPathPart();
+					
+					// some bad solution
+					$localization->setPathPart( $pathPart . '-' . time() );
+				}
+				
+				if (is_null($reference)) {
+					$parent->addChild($page);
+				} else {
+					$page->moveAsPrevSiblingOf($reference);
+				}
+				
+			}
+			
+		} catch (\Exception $e) {
+			$this->entityManager->rollback();
+			throw $e;
+		}
+		
+		$this->entityManager->commit();
 
 		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent);
 		
@@ -725,7 +744,7 @@ abstract class PageManagerAction extends CmsAction
 				->setResponseData(true);
 
 	}
-
+	
 	/**
 	 * Restores history version of the page
 	 */
