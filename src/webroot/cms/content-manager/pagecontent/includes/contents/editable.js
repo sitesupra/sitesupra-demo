@@ -225,7 +225,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 			//If editing template, then set "__locked__" property value
 			if (page_data.type != 'page') {
 				data.properties = data.properties || {};
-				data.properties.__locked__ = data.locked;
+				data.properties.__locked__ = {
+					shared: false,
+					value: data.locked
+				}
 			}
 			
 			//Add properties plugin (creates form)
