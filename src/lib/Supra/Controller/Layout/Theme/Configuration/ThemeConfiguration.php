@@ -55,13 +55,26 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 * @var array
 	 */
 	public $layouts;
+	public $tags;
+	public $smallListImage;
+	public $largeListImage;
+	public $overviewImages;
 
 	/**
 	 * 
 	 */
 	public function configure()
 	{
+
+		$loaderMode = $this->getLoaderMode();
 		$theme = $this->getTheme();
+
+		if ($loaderMode == ThemeConfigurationLoader::MODE_FETCH_CONFIGURATION) {
+
+			$theme->setConfiguration($this);
+
+			return;
+		}
 
 		$theme->setTitle($this->title);
 		$theme->setDescription($this->description);

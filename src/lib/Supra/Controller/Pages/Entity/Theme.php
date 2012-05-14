@@ -6,6 +6,9 @@ use Supra\Database;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Controller\Layout\Theme\ThemeInterface;
 use Supra\Less\SupraLessC;
+use Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration;
+use Supra\Configuration\Parser\YamlParser;
+use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
 
 /**
  * @Entity
@@ -277,10 +280,10 @@ class Theme extends Database\Entity implements ThemeInterface
 	public function generateCssFiles()
 	{
 		foreach ($this->parameterSets as $parameterSet) {
-			
+
 
 			/* @var $parameterSet ThemeParameterSet */
-			
+
 			\Log::debug($parameterSet->getName());
 			$this->generateCssFileFromLess($parameterSet);
 		}
@@ -483,6 +486,35 @@ class Theme extends Database\Entity implements ThemeInterface
 	public function getLayout($layoutName)
 	{
 		return $this->layouts->get($layoutName);
+	}
+
+	/**
+	 * @return ThemeConfiguration
+	 */
+	public function getConfiguration()
+	{
+		if (empty($this->configuration)) {
+
+			$yamlParser = new YamlParser();
+			$configurationLoader = new ThemeConfigurationLoader();
+			$configurationLoader->setParser($yamlParser);
+			$configurationLoader->setTheme($this);
+			$configurationLoader->setMode(ThemeConfigurationLoader::MODE_FETCH_CONFIGURAION);
+			$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_NO_CACHE);
+
+			$configurationLoader->loadFile($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.yml');
+			
+		}
+
+		return $this->configuration;
+	}
+
+	/**
+	 * @param ThemeConfiguration $configuration 
+	 */
+	public function setConfiguration(ThemeConfiguration $configuration)
+	{
+		$this->configuration = $configuration;
 	}
 
 }

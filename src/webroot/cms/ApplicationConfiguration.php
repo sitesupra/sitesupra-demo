@@ -7,6 +7,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Loader\Loader;
 use Supra\Configuration\ComponentConfiguration;
+use Supra\Loader\Configuration\NamespaceConfiguration;
 
 /**
  * ApplicationConfiguration
@@ -45,6 +46,12 @@ class ApplicationConfiguration extends ComponentConfiguration
 	 * @var boolean
 	 */
 	public $disable = false;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	public $fancyActionClassLoader = false;
 
 	/**
 	 * Configure
@@ -66,6 +73,18 @@ class ApplicationConfiguration extends ComponentConfiguration
 		}
 
 		ObjectRepository::setApplicationConfiguration($this->id, $this);
+		
+		if(! empty($this->fancyActionClassLoader)) {
+			
+			$loader = Loader::getInstance();
+			
+			$namespaceConfiguration = new NamespaceConfiguration();
+			$namespaceConfiguration->class = 'Supra\Cms\CmsNamespaceLoaderStrategy';
+			$namespaceConfiguration->dir = dirname($loader->findClassPath($this->classname));
+			$namespaceConfiguration->namespace = $this->id;
+			$namespace = $namespaceConfiguration->configure();
+			$loader->registerNamespace($namespace);
+		}
 	}
 	
 	/**
