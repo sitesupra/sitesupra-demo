@@ -13,6 +13,7 @@ use Supra\Controller\Layout\Processor\ProcessorInterface;
 use Supra\Controller\Pages\Task\LayoutProcessorTask;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Sitemap
@@ -88,23 +89,11 @@ class TemplateAction extends PageManagerAction
 		if ($hasLayout) {
 			//TODO: validate
 			$layoutId = $input->get('layout');
-			$layoutProcessor = $this->getPageController()
-					->getLayoutProcessor();
+			
+			$themeProvider = ObjectRepository::getThemeProvider($this);
+			$activeTheme = $themeProvider->getCurrentTheme();
 
-			$layoutTask = new LayoutProcessorTask();
-			$layoutTask->setLayoutId($layoutId);
-			$layoutTask->setEntityManager($this->entityManager);
-			$layoutTask->setLayoutProcessor($layoutProcessor);
-
-			try {
-				$layoutTask->perform();
-			} catch (LayoutException\LayoutNotFoundException $e) {
-				throw new CmsException('template.error.layout_not_found', null, $e);
-			} catch (LayoutException\RuntimeException $e) {
-				throw new CmsException('template.error.layout_error', null, $e);
-			}
-
-			$layout = $layoutTask->getLayout();
+			$layout = $activeTheme->getLayout($layoutId);
 
 			$templateLayout = $template->addLayout($this->getMedia(), $layout);
 			$this->entityManager->persist($templateLayout);
