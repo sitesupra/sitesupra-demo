@@ -5,7 +5,8 @@
 			{
 				"id": "aaaaa",
 				"number": "xxxx xxxx xxxx 3355",
-				"expires": "04 / 2013"
+				"expires": "04 / 2013",
+				"type": "VISA"
 			}
 		],
 		"total": 1,

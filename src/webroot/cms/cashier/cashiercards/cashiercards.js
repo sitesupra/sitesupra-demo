@@ -32,6 +32,13 @@ function (Y) {
 		 */
 		PLACE_HOLDER: Supra.Manager.getAction('Cashier').getSlide(NAME),
 		
+		/**
+		 * Template as a string
+		 * @type {String}
+		 * @private
+		 */
+		template: '<div class="empty-message hidden"><div><p>' + Supra.Intl.get(['cashier', 'cards', 'empty']) + '</p></div></div>',
+		
 		
 		
 		/**
@@ -105,6 +112,38 @@ function (Y) {
 			
 			this.dataGrid.render(place_holder);
 			this.newCardButton.render(place_holder);
+			
+			this.dataGrid.on('row:remove', this.afterRowRemove, this);
+			this.dataGrid.on('load:success', this.afterDataGridLoad, this);
+		},
+		
+		/**
+		 * After row is removed hide data grid if there are no more rows
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		afterRowRemove: function (e) {
+			var datagrid = e.row.host,
+				rows = datagrid.getAllRows();
+			
+			if (!rows.length) {
+				datagrid.hide();
+				this.one('div.empty-message').removeClass('hidden');
+			}
+		},
+		
+		/**
+		 * After data grid data is loaded check if there are any records
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		afterDataGridLoad: function (e) {
+			if (!e.results.length) {
+				e.target.hide();
+				this.one('div.empty-message').removeClass('hidden');
+			}
 		},
 		
 		/**

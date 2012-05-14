@@ -32,6 +32,13 @@ function (Y) {
 		 */
 		PLACE_HOLDER: Supra.Manager.getAction('Cashier').getSlide(NAME),
 		
+		/**
+		 * Template as a string
+		 * @type {String}
+		 * @private
+		 */
+		template: '<div class="empty-message hidden"><div><p>' + Supra.Intl.get(['cashier', 'subscriptions', 'empty']) + '</p></div></div>',
+		
 		
 		
 		/**
@@ -64,12 +71,13 @@ function (Y) {
 				
 				'dataColumns': [
 					//ID shouldn't be in the list
-					{'id': 'id'}
+					{'id': 'id'},
+					{'id': 'group'}
 				],
 				
 				'columns': [{
 					'id': 'title',
-					'title': Supra.Intl.get(['cashier', 'subscriptions', 'custom_title']),
+					'title': '',
 					'width': '65%'
 				}, {
 					'id': 'billing_term',
@@ -117,8 +125,59 @@ function (Y) {
 			this.dataGridStandard.render(place_holder);
 			this.dataGridCustom.render(place_holder);
 			
+			this.dataGridStandard.on('row:remove', this.afterRowRemove, this);
+			this.dataGridCustom.on('row:remove', this.afterRowRemove, this);
+			
+			this.dataGridStandard.on('load:success', this.afterDataGridLoad, this);
+			this.dataGridCustom.on('load:success', this.afterDataGridLoad, this);
+			
 			this.dataGridStandard.tableBodyNode.delegate('click', this.cancelSubscriptionConfirmation, 'a', this);
 			this.dataGridCustom.tableBodyNode.delegate('click', this.cancelSubscriptionConfirmation, 'a', this);
+		},
+		
+		/**
+		 * After row is removed hide data grid if there are no more rows
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		afterRowRemove: function (e) {
+			var datagrid = e.row.host,
+				rows = datagrid.getAllRows();
+			
+			if (!rows.length) {
+				datagrid.hide();
+			}
+			
+			if (!this.dataGridStandard.get('visible') && !this.dataGridCustom.get('visible')) {
+				this.one('div.empty-message').removeClass('hidden');
+			}
+		},
+		
+		/**
+		 * After data grid data is loaded check if there are any records
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		afterDataGridLoad: function (e) {
+			//Update heading 
+			var datagrid = e.target,
+				data = e.results;
+			
+			if (!data.length) {
+				datagrid.hide();
+			}
+			
+			//Update table title column heading if item has 'group' property
+			if (data[0].group) {
+				e.target.get('tableHeadingNode').one('th.col-title').set('innerHTML', '<b>' + Y.Escape.html(data[0].group) + '</b>');
+			}
+			
+			//If both data grids are hidden then show message
+			if (!this.dataGridStandard.get('visible') && !this.dataGridCustom.get('visible')) {
+				this.one('div.empty-message').removeClass('hidden');
+			}
 		},
 		
 		/**

@@ -9,15 +9,49 @@
 			"title_cards": "Stored cards",
 			
 			"receipts": {
+				"receipt": "Your receipt",
+				"item": "Item",
+				"monthly_price": "Monthly price",
+				"custom_options": "Your custom options",
+				
+				"total": "Your total",
+				"save_money": "Save your money by paying for:",
+				
+				"1_month": "1 month",
+				"3_months": "3 months",
+				"6_months": "6 months",
+				"12_months": "12 months",
+				"24_months": "24 months",
+				
+				"you_save": "You save",
+				"you_pay": "You pay",
+				"buy": "BUY"
+			},
+			
+			"payments": {
+				"choosen": "You've choosen",
+				
+				"1_bill": "monthly",
+				"3_bill": "quarterly",
+				"6_bill": "each 6 months",
+				"12_bill": "yearly",
+				"24_bill": "each 2 years",
+				
+				"to_bill": "to bill {{ period }}",
+				"terms": "I allow to bill my card {{ period }} and agree to <a href=\"#\">terms of recurring billing</a>",
+				
+				"pay_stored_card": "Pay with stored card",
+				"pay": "Submit",
+				"or": "or",
+				"add_new_card": "add new card"
 			},
 			
 			"subscriptions": {
-				"standard_title": "<b>Our standard plan</b>",
-				"custom_title": "<b>Your custom options</b>",
-				
 				"billing_term": "Billing term",
 				"next_billing_date": "Next billing date",
 				"cancel": "Cancel plan",
+				
+				"empty": "You don't have any active subscriptions",
 				
 				"confirmation": "Are you sure you want to cancel \"{{ title }}\" subscription?"
 			},
@@ -33,6 +67,8 @@
 				"expires": "Expires",
 				"delete": "Delete",
 				"add": "Add new card",
+				
+				"empty": "You don't have any stored cards",
 				
 				"confirmation": "Are you sure you want to delete card {{ number }} ?"
 			}

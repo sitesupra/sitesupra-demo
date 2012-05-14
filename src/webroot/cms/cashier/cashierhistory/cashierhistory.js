@@ -59,7 +59,8 @@ function (Y) {
 				
 				'dataColumns': [
 					//ID shouldn't be in the list
-					{'id': 'id'}
+					{'id': 'id'},
+					{'id': 'url'}
 				],
 				
 				'columns': [{
@@ -73,7 +74,7 @@ function (Y) {
 					'id': 'print',
 					'title': '',
 					'formatter': function (column, value, data) {
-						return '<a>' + Supra.Intl.get(['cashier', 'history', 'print']) + '</a>';
+						return '<a href="' + Y.Escape.html(data.url) + '" target="_blank">' + Supra.Intl.get(['cashier', 'history', 'print']) + '</a>';
 					},
 					'align': 'right',
 					'width': '10%'

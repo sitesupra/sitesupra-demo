@@ -591,6 +591,8 @@ YUI.add("supra.datagrid", function (Y) {
 					var data = row.getData();
 					this.rows = rows.slice(0, i).concat(rows.slice(i+1));
 					
+					this.fire('row:remove', {'data': data, 'row': row});
+					
 					if (!keep) {
 						row.destroy();
 					}
@@ -620,6 +622,8 @@ YUI.add("supra.datagrid", function (Y) {
 			this.rows = [];
 			
 			if (!changing) this.endChange();
+			
+			this.fire('row:removeAll', {'rows': rows});
 		},
 		
 		/**
@@ -676,6 +680,9 @@ YUI.add("supra.datagrid", function (Y) {
 				
 				//Insert into DOM
 				this.tableBodyNode.append(row.getNode());
+				
+				//Trigger event
+				this.fire('row:add', {'data': row.getData(), 'row': row});
 				
 				//Trigger change
 				this.handleChange();
