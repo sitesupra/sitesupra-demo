@@ -100,6 +100,7 @@ class SitemaprecycleAction extends PageManagerAction
 					'title'		=> $pageLocalization->getTitle(),
 					'template'	=> $templateId,
 					'path'		=> $pathPart,
+					'localized' => true,
 					// TODO: hardcoded	
 					'published' => false,
 					'scheduled' => true,

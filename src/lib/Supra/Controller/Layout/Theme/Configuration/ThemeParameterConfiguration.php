@@ -21,12 +21,12 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 	/**
 	 * @var string
 	 */
-	public $defaultValue;
+	public $defaultValue = 'none';
 
 	/**
 	 * @var string
 	 */
-	public $type;
+	public $type = 'custom';
 
 	/**
 	 * @var string

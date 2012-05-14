@@ -191,6 +191,9 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 			if (this._dndTargetPlace === null) return;
 			
 			if (target.isInstanceOf('TreeNodeList') && this._dndTargetPlace == 'inside') {
+				
+				target.set('expandable', true);
+				
 				//Expand list
 				target.expand();
 				

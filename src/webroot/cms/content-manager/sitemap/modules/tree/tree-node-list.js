@@ -102,7 +102,11 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 		 */
 		'destructor': function () {
 			//Remove drag and drop
-			this._panelDnd.destroy();
+			// if application list is empty - panel won't be renderen, 
+			// and there will be nothing to destroy
+			if (this._panelDnd) {
+				this._panelDnd.destroy();
+			}
 		},
 		
 		
