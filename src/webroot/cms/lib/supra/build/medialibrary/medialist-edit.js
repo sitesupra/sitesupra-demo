@@ -107,7 +107,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 				obj.node.one('span').set('innerHTML', Y.Escape.html(value));
 				
 				post_data = {
-					'title': value
+					'filename': value
 				};
 				
 				if (obj.id == -1) {
