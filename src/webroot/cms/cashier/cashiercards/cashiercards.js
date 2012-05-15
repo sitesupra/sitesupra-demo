@@ -33,29 +33,27 @@ function (Y) {
 		PLACE_HOLDER: Supra.Manager.getAction('Cashier').getSlide(NAME),
 		
 		/**
-		 * Template as a string
-		 * @type {String}
+		 * Load template
+		 * @type {Boolean}
 		 * @private
 		 */
-		template: '<div class="empty-message hidden"><div><p>' + Supra.Intl.get(['cashier', 'cards', 'empty']) + '</p></div></div>',
+		HAS_TEMPLATE: true,
 		
 		
 		
 		/**
-		 * DataGrid
-		 * 
-		 * @type {Object}
-		 * @private
+		 * Widget list
 		 */
-		dataGrid: null,
-		
-		/**
-		 * "Add new card" button
-		 * 
-		 * @type {Object}
-		 * @private
-		 */
-		newCardButton: null,
+		widgets: {
+			//DataGrid
+			dataGrid: null,
+			//"Add new card" button
+			newCardButton: null,
+			//New card form
+			newCardForm: null,
+			//New card form footer
+			newCardFooter: null
+		},
 		
 		
 		
@@ -66,7 +64,7 @@ function (Y) {
 		 */
 		initialize: function () {
 			
-			this.dataGrid = new Supra.DataGrid({
+			this.widgets.dataGrid = new Supra.DataGrid({
 				//Url
 				'requestURI': this.getDataPath('dev/cards'),
 				
@@ -93,14 +91,14 @@ function (Y) {
 				}],
 				
 				'style': 'dark',
-				'scrollable': false
+				'scrollable': false,
+				
+				'srcNode': this.one('div.datagrid')
 			});
 			
-			this.newCardButton = new Supra.Button({
-				'style': 'small-blue',
-				'label': Supra.Intl.get(['cashier', 'cards', 'add'])
+			this.widgets.newCardButton = new Supra.Button({
+				'srcNode': this.one('button')
 			});
-			
 		},
 		
 		/**
@@ -108,14 +106,19 @@ function (Y) {
 		 * @private
 		 */
 		render: function () {
-			var place_holder = this.getPlaceHolder();
+			this.widgets.dataGrid.render();
+			this.widgets.dataGrid.on('row:remove', this.afterRowRemove, this);
+			this.widgets.dataGrid.on('load:success', this.afterDataGridLoad, this);
 			
-			this.dataGrid.render(place_holder);
-			this.newCardButton.render(place_holder);
-			
-			this.dataGrid.on('row:remove', this.afterRowRemove, this);
-			this.dataGrid.on('load:success', this.afterDataGridLoad, this);
+			this.widgets.newCardButton.render();
+			this.widgets.newCardButton.on('click', this.showNewCardForm, this);
 		},
+		
+		
+		/*
+		 * ----------------------------------- Card list -----------------------------------
+		 */
+		
 		
 		/**
 		 * After row is removed hide data grid if there are no more rows
@@ -173,7 +176,7 @@ function (Y) {
 		 * @private
 		 */
 		deleteCardConfirmation: function (e, td) {
-			var row = this.dataGrid.getRowByNode(td),
+			var row = this.widgets.dataGrid.getRowByNode(td),
 				message = '';
 			
 			if (!row) return;
@@ -212,7 +215,7 @@ function (Y) {
 				'context': this,
 				'on': {
 					'success': function () {
-						var row = this.dataGrid.item(id),
+						var row = this.widgets.dataGrid.item(id),
 							node = row.getNode();
 						
 						//Remove padding for nicer animation
@@ -227,12 +230,168 @@ function (Y) {
 							'opacity': 0,
 							'duration': 0.25
 						}, Y.bind(function () {
-							this.dataGrid.remove(id);
+							this.widgets.dataGrid.remove(id);
 						}, this));
 					}
 				}
 			})
 		},
+		
+		
+		/*
+		 * ----------------------------------- New card -----------------------------------
+		 */
+		
+		
+		/**
+		 * Render new card form
+		 * 
+		 * @private
+		 */
+		renderNewCardForm: function () {
+			if (this.widgets.newCardForm) return this.widgets.newCardForm;
+			
+			var node	= this.one('form.new-card'),
+				form	= this.widgets.newCardForm = new Supra.Form( {'srcNode': node} ),
+				footer	= this.widgets.newCardFooter = new Supra.Footer( {'srcNode': node.one('div.footer')} );
+			
+			node.removeClass('hidden');
+			
+			form.render();
+			form.hide();
+			form.on('submit', this.saveNewCard, this);
+			
+			footer.render();
+			
+			return form;
+		},
+		
+		/**
+		 * Show new card form
+		 * 
+		 * @private
+		 */
+		showNewCardForm: function () {
+			var form = this.renderNewCardForm();
+			
+			form.resetValues();
+			form.show();
+			
+			form.get('boundingBox')
+					.setStyles({'display': 'block', 'opacity': 0})
+					.transition({'opacity': 1, 'duration': 0.35});
+			
+			this.widgets.newCardButton.hide();
+		},
+		
+		/**
+		 * Hide new card form
+		 * 
+		 * @private
+		 */
+		hideNewCardForm: function () {
+			var form = this.widgets.newCardForm;
+			
+			form.get('boundingBox')
+					.transition({'opacity': 0, 'duration': 0.35}, Y.bind(function () {
+						form.hide();
+					}, this));
+			
+			this.widgets.newCardButton.show();
+		},
+		
+		/**
+		 * Save new card
+		 * 
+		 * @private
+		 */
+		saveNewCard: function () {
+			var form	= this.widgets.newCardForm,
+				inputs	= form.getInputs('name'),
+				values	= form.getSaveValues('name'),
+				data	= {};
+			
+			if (!values.name) return inputs.name.set('error', true);
+			inputs.name.set('error', false);
+			
+			if (!values.number) return inputs.number.set('error', true);
+			inputs.number.set('error', false);
+			
+			if (!values.valid_till_month) return inputs.valid_till_month.set('error', true);
+			inputs.valid_till_month.set('error', false);
+			
+			if (!values.valid_till_year) return inputs.valid_till_year.set('error', true);
+			inputs.valid_till_year.set('error', false);
+			
+			if (!values.cvc) return inputs.cvc.set('error', true);
+			inputs.cvc.set('error', false);
+			
+			this.disableNewCardUI();
+			
+			//Get post data
+			data.card = values;
+			
+			Supra.io(this.getDataPath('dev/create'), {
+				'method': 'post',
+				'data': data,
+				'context': this,
+				'on': {
+					'success': this.newCardSuccess,
+					'failure': this.newCardFailure
+				}
+			});
+		},
+		
+		/**
+		 * On sucessful creation
+		 * 
+		 * @param {Object} data Request response data
+		 * @param {Boolean} status Response status
+		 * @private
+		 */
+		newCardSuccess: function (data, status) {
+			this.enableNewCardUI();
+			
+			this.widgets.dataGrid.add(data);
+			this.hideNewCardForm();
+		},
+		
+		/**
+		 * On unsucessful creation revert UI changes
+		 * 
+		 * @param {Object} data Request response data
+		 * @param {Boolean} status Response status
+		 * @private
+		 */
+		newCardFailure: function (data, status) {
+			this.enableNewCardUI();
+		},
+		
+		/**
+		 * Disable new card UI
+		 * 
+		 * @private
+		 */
+		disableNewCardUI: function () {
+			this.widgets.newCardForm.set('disabled', true);
+			this.widgets.newCardFooter.getButton('save').set('loading', true);
+		},
+		
+		/**
+		 * Enable new card UI
+		 * 
+		 * @private
+		 */
+		enableNewCardUI: function () {
+			this.widgets.newCardForm.set('disabled', false);
+			this.widgets.newCardFooter.getButton('save').set('loading', false);
+		},
+		
+		
+		/*
+		 * ----------------------------------- API -----------------------------------
+		 */
+		
 		
 		/**
 		 * Hide

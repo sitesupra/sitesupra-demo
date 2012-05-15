@@ -1,0 +1,29 @@
+<div class="empty-message hidden"><div><p>{# cashier.cards.empty #}</p></div></div>
+
+<div class="datagrid"></div>
+
+<button type="button" suStyle="small-blue">{# cashier.cards.add #}</button>
+
+<form class="new-card hidden">
+	<h3>{# cashier.newcard.title #}</h3>
+	
+	<label for="cardName">{# cashier.newcard.name #}</label>
+	<input type="text" name="name" id="cardName" value="" />
+	
+	<label for="cardNumber">{# cashier.newcard.number #}</label>
+	<input type="text" name="number" id="cardNumber" value="" suValueMask="^[0-9\s]*$" />
+	
+	<label for="cardValidMonth">{# cashier.newcard.valid_till #}</label>
+	<input type="text" name="valid_till_month" id="cardValidMonth" value="" suValueMask="^[0-9]{0,2}$" />
+	
+	<label for="cardValidYear">/ 20</label>
+	<input type="text" name="valid_till_year" id="cardValidYear" value="" suValueMask="^[0-9]{0,2}$" />
+	
+	<label for="cardCVC">{# cashier.newcard.cvc #}</label>
+	<input type="text" name="cvc" id="cardCVC" value="" suValueMask="^[0-9]{0,5}$" />
+	
+	<div class="footer">
+		<button type="submit" class="save">{# cashier.newcard.send #}</button>
+	</div>
+	
+</form>
