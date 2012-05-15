@@ -19,7 +19,7 @@ class BlockPropertyFinder extends AbstractFinder
 	/**
 	 * @var array
 	 */
-	private $components = array();
+	protected $components = array();
 	
 	/**
 	 * @param PageFinder $pageFinder
@@ -51,6 +51,18 @@ class BlockPropertyFinder extends AbstractFinder
 		
 		$qb->select('bp, b, l3, e3, bpm, ph, lp3, re');
 		
+		$qb = $qb->prepareComponents($qb);
+		
+		return $qb;
+	}
+	
+	public function addFilterByComponent($component, $fields = null)
+	{
+		$this->components[$component] = (array) $fields;
+	}
+	
+	protected function prepareComponents($qb)
+	{
 		if ( ! empty($this->components)) {
 			$or = $qb->expr()->orX();
 			$i = 1;
@@ -75,8 +87,4 @@ class BlockPropertyFinder extends AbstractFinder
 		return $qb;
 	}
 	
-	public function addFilterByComponent($component, $fields = null)
-	{
-		$this->components[$component] = (array) $fields;
-	}
 }
