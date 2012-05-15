@@ -215,12 +215,6 @@ function (Y) {
 			//Language selector
 			this.languageSelector = this.renderLanguageBar();
 			
-			//New page list
-			this.newPage = this.renderNewPage();
-			
-			//Recycle bin
-			this.deletePage = this.renderRecycleBin();
-			
 			//Tree
 			this.tree = new this.Tree({
 				'srcNode': this.one('#tree'),
@@ -237,6 +231,12 @@ function (Y) {
 			
 			//Render
 			this.tree.render();
+			
+			//New page list
+			this.newPage = this.renderNewPage();
+			
+			//Recycle bin
+			this.deletePage = this.renderRecycleBin();
 			
 			//While tree is loading show icon
 			this.tree.on('loadingChange', this.handleLoading, this);
