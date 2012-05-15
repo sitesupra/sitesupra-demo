@@ -983,6 +983,14 @@ YUI.add("supra.datagrid", function (Y) {
 			this.get('boundingBox').addClass(this.getClassName(style));
 			
 			return style;
+		}, 
+		
+		/**
+		 * Destructor
+		 */
+		'destructor': function () {
+			this.scrollable.destroy();
+			this.set('scrollable', null);
 		}
 	});
 	

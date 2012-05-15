@@ -412,6 +412,10 @@ abstract class PageManagerAction extends CmsAction
 			$array['full_path'] = $data->getPath()
 					->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
 			
+			if (is_null($array['full_path'])) {
+				$array['full_path'] = '';
+			}
+			
 			$array['date'] = $data->getCreationTime()->format('Y-m-d');
 		}
 

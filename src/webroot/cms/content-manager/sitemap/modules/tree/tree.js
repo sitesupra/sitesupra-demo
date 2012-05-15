@@ -353,6 +353,17 @@ YUI().add('website.sitemap-tree', function (Y) {
 				//If children is not rendered yet, then there is no node
 				if (node && pages[id]) {
 					if (pages[id].edit_page) {
+						
+						if (node.isInstanceOf('TreeNodeList')) {
+							
+							data = node.get('data');
+							if (!('isDropTarget' in data) || data.isDropTarget) {
+								node.set('droppable', true);
+							}
+							
+							continue;
+						}
+						
 						node.set('editable', true);
 						
 						if (node.get('type') != 'temporary' && node.get('type') != 'group') {
@@ -392,6 +403,9 @@ YUI().add('website.sitemap-tree', function (Y) {
 			
 			if (data.childrenListStyle === 'scrollList') {
 				classname = Action.TreeNodeList;
+				
+				// virtual list arent editable
+				editable = false;
 			} else if (data.type == 'application') {
 				classname = Action.TreeNodeApp;
 				if (data.application_id) {
