@@ -105,9 +105,8 @@ class SitemaprecycleAction extends PageManagerAction
 					'published' => false,
 					'scheduled' => true,
 					'date'		=> $dateCreated,
-					'version'	=> 1,
+					'version'	=> $pageLocalization->getRevisionId(),
 					'icon'		=> 'page',
-					'preview'	=> '/cms/lib/supra/img/sitemap/preview/page-1.jpg',
 				);
 
 				$response[] = $pageInfo;
