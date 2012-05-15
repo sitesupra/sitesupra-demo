@@ -46,6 +46,15 @@
 				"add_new_card": "add new card"
 			},
 			
+			"newcard": {
+				"title": "Card info",
+				"name": "Name, Surname",
+				"number": "Card number",
+				"valid_till": "Valid till",
+				"cvc": "CVC2 / CVV2 / CID*",
+				"send": "Submit"
+			},
+			
 			"subscriptions": {
 				"billing_term": "Billing term",
 				"next_billing_date": "Next billing date",

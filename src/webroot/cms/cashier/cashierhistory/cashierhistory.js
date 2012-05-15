@@ -110,6 +110,13 @@ function (Y) {
 		},
 		
 		/**
+		 * Reload data
+		 */
+		reload: function () {
+			if (this.dataGrid) this.dataGrid.reset();
+		},
+		
+		/**
 		 * Hide
 		 */
 		hide: function () {

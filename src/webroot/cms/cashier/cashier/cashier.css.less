@@ -59,16 +59,6 @@
 		height: 441px;
 		position: relative;
 	}
-	
-	h2.title {
-		color: #68605B;
-		font-size: 20px;
-		font-weight: bold;
-		line-height: 24px;
-		text-align: center;
-		text-shadow: 0 1px 0 #FFFCEF;
-		margin: 0 0 3px;
-	}
 }
 
 /**
@@ -77,12 +67,9 @@
 .cashier .receipt,
 .cashier .payments {
 	
-	.loading-icon {
-		border-right-color: #D29C6E;
-		border-bottom-color: #D29C6E;
+	& > .loading-icon {
 		display: none;
 	}
-	
 	&.loading > div {
 		display: none;
 	}
@@ -133,10 +120,6 @@
 		padding: 10px 0 10px 11px;
 		
 		& > label {
-			color: #68605B;
-			font-size: 12px;
-			line-height: 15px;
-			
 			display: block;
 			float: left;
 			width: 235px;
@@ -162,18 +145,7 @@
 	
 	.su-scrollable {
 		height: 160px;
-		
-		& > .su-scrollable-scrollbar {
-			.su-scrollable-scrollbar-background {
-				background: #F1D5AC;
-				top: 8px;
-				bottom: 8px;
-			}
-			.su-scrollable-draggable {
-				background: #D29C6E;
-			}
-		}
-	}	
+	}
 	
 }
 
@@ -308,9 +280,6 @@
  */
 .cashier .payments {
 	padding: 0 15px 0 12px;
-	color: #68605B;
-	font-size: 12px;
-	line-height: 14px;
 	
 	.amount {
 		border-bottom: 1px dashed #DDD4BF;
@@ -346,32 +315,21 @@
 	
 	.terms {
 		padding: 11px 0 45px;
-		
-		.yui3-input-checkbox-standard {
-			label {
-				color: #68605B;
-				cursor: pointer;
-				font-size: 11px;
-				font-weight: normal;
-				line-height: 13px;
-				text-shadow: none;
-				padding: 0 0 0 25px;
-				width: 310px;
-				
-				a {
-					color: #68605B;
-				}
-			}
-		}
 	}
 	
-	.cards {
+	.cards,
+	.new-card {
 		h3 {
 			color: #272420;
 			font-size: 14px;
 			font-weight: bold;
 			line-height: 34px;
+			text-shadow: none;
+			padding: 0;
 		}
+	}
+	
+	.cards {
 		table {
 			margin-bottom: 20px;
 			width: 100%;
@@ -386,6 +344,34 @@
 		}
 	}
 	
+	.new-card {
+		h3 {
+			line-height: 22px;
+		}
+		
+		div#cardValidMonth,
+		div#cardValidYear {
+			display: inline-block;
+			width: 150px;
+			margin: 0;
+			padding: 0;
+			
+			input {
+				width: 29px;
+			}
+		}
+		div#cardValidYear {
+			label {
+				width: auto;
+				padding-right: 5px;
+			}
+		}
+		div#cardCVC {
+			input {
+				width: 47px;
+			}
+		}
+	}
 }
 
 .cashier .logo-mastercard,
@@ -412,3 +398,6 @@
 
 //Slider input
 @import "../modules/slider/slider.less";
+
+//Clipboard UI
+@import "../modules/ui-clipboard.less";

@@ -12,7 +12,7 @@ Supra.addModule('website.input-slider-cashier', {
 });
 
 Supra(
-
+	
 	'datatype-number-format',
 	'website.input-checkbox-standard',
 	'website.input-slider-cashier',
@@ -75,6 +75,15 @@ function (Y) {
 			
 			//Terms and conditions checkbox
 			termsInput: null,
+			
+			//Card list buttons
+			payButtons: [],
+			
+			//New card form
+			newCardForm: null,
+			
+			//New card footer
+			newCardFooter: null
 		},
 		
 		/**
@@ -272,11 +281,15 @@ function (Y) {
 			this.loadCardInformation();
 			
 			//Render widgets
-			this.widgets.termsInput = new Supra.Input.CheckboxStandard({
-				'srcNode': this.one('#cashierTerms')
-			});
-			
-			this.widgets.termsInput.render();
+			if (!this.widgets.termsInput) {
+				this.widgets.termsInput = new Supra.Input.CheckboxStandard({
+					'srcNode': this.one('#cashierTerms')
+				});
+				
+				this.widgets.termsInput.render();
+				
+				this.one('div.payments div.cards p a').on('click', this.showNewCardForm, this);
+			}
 		},
 		
 		/**
@@ -316,20 +329,264 @@ function (Y) {
 			container.removeClass('loading');
 		},
 		
+		/**
+		 * Render card list
+		 * 
+		 * @param {Array} cards Card data
+		 * @private
+		 */
 		renderCardList: function (cards) {
 			var cardsList	= this.one('div.payments div.cards tbody'),
-				cardsTempl	= Supra.Template('cashierCardsItem');
+				cardsTempl	= Supra.Template('cashierCardsItem'),
+				buttons		= this.widgets.payButtons;
 			
+			//Remove button widgets
+			for(var i=0,ii=buttons.length; i<ii; i++) buttons[i].destroy();
+			this.widgets.payButtons = [];
+			
+			//Empty content
 			cardsList.empty();
 			
+			//Render new content
 			for(var i=0,ii=cards.length; i<ii; i++) {
 				cardsList.append(cardsTempl(cards[i]));
 			}
 			
+			//Initialize button widgets
 			cardsList.all('button').each(function (button) {
 				button = new Supra.Button({'srcNode': button});
 				button.render();
+				button.on('click', this.pay, this);
+				
+				this.widgets.payButtons.push(button);
+			}, this);
+		},
+		
+		/**
+		 * Show new card form
+		 * 
+		 * @private
+		 */
+		showNewCardForm: function () {
+			this.renderNewCardForm();
+			
+			var cardsContainer	= this.one('div.payments div.cards'),
+				formContainer	= this.one('div.payments form.new-card');
+			
+			cardsContainer.transition({
+				'opacity': 0,
+				'duration': 0.25
+			}, Y.bind(function () {
+				cardsContainer.addClass('hidden');
+				formContainer.removeClass('hidden').setStyles({
+					'opacity': 0
+				}).transition({
+					'opacity': 1,
+					'duration': 0.25
+				})
+			}, this));
+		},
+		
+		/**
+		 * Start payment
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		pay: function (e) {
+			var button	= e.target,
+				data	= {},
+				terms	= this.widgets.termsInput;
+			
+			if (!terms.get('value')) {
+				terms.set('error', true);
+				return false;
+			} else {
+				terms.set('error', false);
+			}
+			
+			this.disablePaymentUI();
+			button.set('loading', true);
+			
+			//Get post data
+			data.card_id  = button.get('boundingBox').closest('tr').getAttribute('data-id');
+			data.products = Y.Array.map(this.getSelectedOptions(), function (item) {
+				return item.id;
 			});
+			
+			Supra.io(this.getDataPath('dev/pay'), {
+				'method': 'post',
+				'data': data,
+				'context': this,
+				'on': {
+					'success': this.paySuccess,
+					'failure': this.payFailure
+				}
+			});
+		},
+		
+		/**
+		 * Render new card form
+		 * 
+		 * @private
+		 */
+		renderNewCardForm: function () {
+			if (this.widgets.newCardForm) return;
+			
+			var form = this.widgets.newCardForm = new Supra.Form({
+				'srcNode': this.one('div.payments form.new-card')
+			});
+			
+			var footer = this.widgets.newCardFooter = new Supra.Footer({
+				'srcNode': this.one('div.payments form.new-card div.footer')
+			});
+			
+			footer.render();
+			form.render();
+			
+			form.on('submit', this.payWithNewCard, this);
+		},
+		
+		/**
+		 * Start payment with new card
+		 * 
+		 * @private
+		 */
+		payWithNewCard: function () {
+			var form	= this.widgets.newCardForm,
+				inputs	= form.getInputs('name'),
+				values	= form.getSaveValues('name'),
+				terms	= this.widgets.termsInput,
+				data	= {};
+			
+			if (!terms.get('value')) return terms.set('error', true);
+			terms.set('error', false);
+			
+			if (!values.name) return inputs.name.set('error', true);
+			inputs.name.set('error', false);
+			
+			if (!values.number) return inputs.number.set('error', true);
+			inputs.number.set('error', false);
+			
+			if (!values.valid_till_month) return inputs.valid_till_month.set('error', true);
+			inputs.valid_till_month.set('error', false);
+			
+			if (!values.valid_till_year) return inputs.valid_till_year.set('error', true);
+			inputs.valid_till_year.set('error', false);
+			
+			if (!values.cvc) return inputs.cvc.set('error', true);
+			inputs.cvc.set('error', false);
+			
+			this.disablePaymentUI();
+			this.widgets.newCardFooter.getButton('save').set('loading', true);
+			
+			//Get post data
+			data.card = values;
+			data.products = Y.Array.map(this.getSelectedOptions(), function (item) {
+				return item.id;
+			});
+			
+			Supra.io(this.getDataPath('dev/pay'), {
+				'method': 'post',
+				'data': data,
+				'context': this,
+				'on': {
+					'success': this.paySuccess,
+					'failure': this.payFailure
+				}
+			});
+		},
+		
+		/**
+		 * On sucessful payment ...
+		 * 
+		 * @param {Object} data Request response data
+		 * @param {Boolean} status Response status
+		 * @private
+		 */
+		paySuccess: function (data, status) {
+			this.enablePaymentUI();
+			this.widgets.termsInput.set('disabled', false);
+			
+			//Reload subscription and history lists
+			var action = Supra.Manager.getAction('CashierHistory');
+			if (action.get('loaded')) action.reload();
+			
+			var action = Supra.Manager.getAction('CashierSubscriptions');
+			if (action.get('loaded')) action.reload();
+			
+			var action = Supra.Manager.getAction('CashierCards');
+			if (action.get('loaded')) action.reload();
+			
+			//...
+			Supra.Manager.executeAction('Confirmation', {
+				'message': 'Payment done, what now?',
+				'buttons': [
+					{'id': 'ok', 'label': 'Ok'}
+				]
+			});
+		},
+		
+		/**
+		 * On unsucessful payment revert UI changes
+		 * 
+		 * @param {Object} data Request response data
+		 * @param {Boolean} status Response status
+		 * @private
+		 */
+		payFailure: function (data, status) {
+			this.enablePaymentUI();
+			this.widgets.termsInput.set('disabled', false);
+		},
+		
+		/**
+		 * Enable all controls on payment UI
+		 * 
+		 * @private
+		 */
+		enablePaymentUI: function () {
+			var buttons	= this.widgets.payButtons,
+				i		= 0,
+				ii		= buttons.length;
+			
+			for(; i<ii; i++) {
+				buttons[i].set('disabled', false).set('loading', false);
+			}
+			
+			this.widgets.termsInput.set('disabled', false);
+			
+			if (this.widgets.newCardForm) {
+				this.widgets.newCardForm.set('disabled', false);
+			}
+			if (this.widgets.newCardFooter) {
+				var button = this.widgets.newCardFooter.getButton('save');
+				button.set('disabled', false).set('loading', false);
+			}
+		},
+		
+		/**
+		 * Disable all controls on payment UI
+		 * 
+		 * @private
+		 */
+		disablePaymentUI: function () {
+			var buttons	= this.widgets.payButtons,
+				i		= 0,
+				ii		= buttons.length;
+			
+			for(; i<ii; i++) {
+				buttons[i].set('disabled', true);
+			}
+			
+			this.widgets.termsInput.set('disabled', true);
+			
+			if (this.widgets.newCardForm) {
+				this.widgets.newCardForm.set('disabled', true);
+			}
+			if (this.widgets.newCardFooter) {
+				var button = this.widgets.newCardFooter.getButton('save');
+				button.set('disabled', true);
+			}
 		},
 		
 		

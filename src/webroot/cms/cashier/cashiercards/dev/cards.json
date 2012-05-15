@@ -7,6 +7,12 @@
 				"number": "xxxx xxxx xxxx 3355",
 				"expires": "04 / 2013",
 				"type": "VISA"
+			},
+			{
+				"id": "bbbb",
+				"number": "xxxx xxxx xxxx 1122",
+				"expires": "04 / 2013",
+				"type": "VISA"
 			}
 		],
 		"total": 1,

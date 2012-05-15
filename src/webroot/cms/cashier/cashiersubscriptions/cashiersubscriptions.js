@@ -243,6 +243,14 @@ function (Y) {
 		},
 		
 		/**
+		 * Reload data
+		 */
+		reload: function () {
+			if (this.dataGridStandard) this.dataGridStandard.reset();
+			if (this.dataGridCustom) this.dataGridCustom.reset();
+		},
+		
+		/**
 		 * Hide
 		 */
 		hide: function () {

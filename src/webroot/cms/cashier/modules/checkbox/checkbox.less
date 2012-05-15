@@ -12,4 +12,37 @@
 	label:empty {
 		display: none;
 	}
+	
+	&.yui3-input-error {
+		background-position: 0 -45px;
+		
+		&.checked {
+			background-position: 0 -30px;
+		}
+	}
+}
+
+.ui-clipboard .yui3-input.yui3-input-checkbox-standard {
+	label {
+		color: #68605B;
+		cursor: pointer;
+		font-size: 11px;
+		font-weight: normal;
+		line-height: 13px;
+		text-shadow: none;
+		padding: 0 0 0 25px;
+		width: 310px;
+		
+		a {
+			color: #68605B;
+		}
+	}
+	
+	&.yui3-input-error label {
+		color: #FF3434;
+		
+		a {
+			color: #FF3434;
+		}
+	}
 }

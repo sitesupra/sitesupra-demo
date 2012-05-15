@@ -30,7 +30,7 @@
 	</div>
 	
 </div>
-<div class="clipboard" id="cashierClipboard">
+<div class="clipboard ui-clipboard" id="cashierClipboard">
 	<div class="clipboard-content" id="cashierClipboardReceipt">
 		
 		<h2 class="title">{# cashier.receipts.receipt #}</h2>
@@ -97,6 +97,30 @@
 				<p>{# cashier.payments.or #} <a>{# cashier.payments.add_new_card #}</a></p>
 			</div>
 			
+			<form class="new-card hidden">
+				<h3>{# cashier.newcard.title #}</h3>
+				
+				<label for="cardName">{# cashier.newcard.name #}</label>
+				<input type="text" name="name" id="cardName" value="" />
+				
+				<label for="cardNumber">{# cashier.newcard.number #}</label>
+				<input type="text" name="number" id="cardNumber" value="" suValueMask="^[0-9\s]*$" />
+				
+				<label for="cardValidMonth">{# cashier.newcard.valid_till #}</label>
+				<input type="text" name="valid_till_month" id="cardValidMonth" value="" suValueMask="^[0-9]{0,2}$" />
+				
+				<label for="cardValidYear">/ 20</label>
+				<input type="text" name="valid_till_year" id="cardValidYear" value="" suValueMask="^[0-9]{0,2}$" />
+				
+				<label for="cardCVC">{# cashier.newcard.cvc #}</label>
+				<input type="text" name="cvc" id="cardCVC" value="" suValueMask="^[0-9]{0,5}$" />
+				
+				<div class="footer">
+					<button type="submit" class="save">{# cashier.newcard.send #}</button>
+				</div>
+				
+			</form>
+			
 			<div class="loading-icon"></div>
 			
 			<span class="logo-mastercard"></span>
@@ -105,7 +129,7 @@
 		</div>
 		
 		<script type="text/html" id="cashierCardsItem">
-			<tr>
+			<tr data-id="{{ id|escape }}">
 				<td>{{ number|escape }}</td>
 				<td>{{ type|escape }}</td>
 				<td class="align-right"><button suStyle="small-blue">{# cashier.payments.pay #}</button></td>

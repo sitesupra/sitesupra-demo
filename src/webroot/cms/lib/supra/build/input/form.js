@@ -676,8 +676,17 @@ YUI.add("supra.form", function (Y) {
 		 * @return All inputs
 		 * @type {Object}
 		 */
-		getInputs: function () {
-			return this.inputs;
+		getInputs: function (key) {
+			if (!key || key == 'id') {
+				return this.inputs;
+			} else {
+				var obj = {},
+					inputs = this.inputs,
+					i = null;
+				
+				for(i in inputs) obj[inputs[i].getAttribute(key)] = inputs[i];
+				return obj;
+			}
 		},
 		
 		/**
