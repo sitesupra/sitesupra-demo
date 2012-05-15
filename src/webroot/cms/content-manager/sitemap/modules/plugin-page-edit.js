@@ -432,11 +432,11 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 			}
 			
 			// Hide delete for nodes with children
-			if (this._node.get('expandable')) {
-				this._widgets.buttonDelete.set('visible', false);
-			} else {
-				this._widgets.buttonDelete.set('visible', true);
-			}
+			//if (this._node.get('expandable')) {
+			//	this._widgets.buttonDelete.set('visible', false);
+			//} else {
+			this._widgets.buttonDelete.set('visible', true);
+			//}
 		},
 		
 		/**
