@@ -164,7 +164,7 @@ Supra('anim', function (Y) {
 					'locale': Supra.data.get('locale')
 				},
 				'on': {
-					'success': function () {
+					'complete': function () {
 						//Re-enable elements
 						this.set('loading', false);
 						this.get('controlButton').set('disabled', false);
