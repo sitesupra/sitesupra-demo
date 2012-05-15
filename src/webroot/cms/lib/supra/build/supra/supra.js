@@ -78,7 +78,6 @@ if (typeof Supra === "undefined") {
 		if (base) {
 			//If additional base properties are set, apply them
 			Y.applyConfig(base);
-			Y._setup();
 		}
 		
 		Y.use.apply(Y,args);
