@@ -733,6 +733,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				this._dndTarget.set('dndMarker', false);
 				this._dndTargetPlace = null;
 				this._dndTargetNode = null;
+				this._dndTarget = null;
 			}
 		},
 		

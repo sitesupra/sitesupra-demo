@@ -188,7 +188,8 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 		 */
 		'_onAlignTargetChange': function (e) {
 			if (e.newVal != e.prevVal && e.prevVal) {
-				e.prevVal.closest('.item').removeClass('hover');
+				var item = e.prevVal.closest('.item');
+				if (item) item.removeClass('hover');
 			}
 		},
 		
