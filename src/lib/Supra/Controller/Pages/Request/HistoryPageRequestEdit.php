@@ -651,7 +651,9 @@ class HistoryPageRequestEdit extends PageRequest
 			}
 
 			$draftLocalization = $draftEm->merge($localization);
-			$draftLocalization->resetPath();
+			if ($localization instanceof Entity\PageLocalization) {
+				$draftLocalization->resetPath();
+			}
 			
 			$this->setPageLocalization($localization);
 
