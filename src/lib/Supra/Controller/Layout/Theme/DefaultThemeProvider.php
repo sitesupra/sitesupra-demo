@@ -169,6 +169,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	{
 		$em = $this->getEntityManager();
 
+		$em->persist($theme->getActiveParameterSet());		
+		
 		$em->persist($theme);
 
 		$parameterSets = $theme->getParameterSets();
@@ -215,7 +217,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				}
 			}
 		}
-
+		
 		$em->flush();
 	}
 
