@@ -163,6 +163,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			}
 			
 			this.reloadContent();
+			
+			//Prevent default (which is insert folder thumbnail image) 
+			if (e.halt) e.halt();
+			
+			return false;
 		},
 		
 		/**
