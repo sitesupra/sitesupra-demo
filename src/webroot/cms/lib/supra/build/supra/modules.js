@@ -72,7 +72,7 @@
  * @type {Array}
  */
 Supra.useModules = [
-	'base', 'controller',
+	'base',
 	'node', 'node-focusmanager',
 	'widget', 'widget-child',
 	'event',
