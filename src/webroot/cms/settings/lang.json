@@ -1,0 +1,34 @@
+{
+	"status": true,
+	"data": {
+		
+		"settings": {
+			
+			"name": {
+				"title": "Site name",
+				"name": "Enter desired site name"
+			},
+			
+			"domain": {
+				"title": "Domain",
+				"domain": "Enter your domain name"
+			},
+			
+			"email": {
+				"title": "Email address to receive mail",
+				"email": "Enter your email address"
+			},
+			
+			"analytics": {
+				"title": "Google Analytics Code",
+				"type": "Type",
+				"api_key": "API&nbsp;key",
+				"source": "Source&nbsp;code"
+			},
+			
+			"done": "Done"
+			
+		}
+		
+	}
+}
