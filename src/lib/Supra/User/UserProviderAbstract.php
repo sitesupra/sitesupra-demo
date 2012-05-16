@@ -30,7 +30,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	 * Validation filters
 	 * @var array 
 	 */
-	private $validatioFilters = array();
+	private $validationFilters = array();
 
 	/**
 	 * Authentication adapter

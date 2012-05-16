@@ -68,6 +68,13 @@
 			color: #E7E7E7;
 			.text-shadow (0, 1px, 0, rgba(0, 0, 0, 0.75));
 		}
+		
+		/* Dark center color theme */
+		.ui-center-dark .yui3-input label,
+		.ui-center-dark .yui3-form p.label {
+			color: #FFF;
+			text-shadow: none;
+		}
 	
 	.yui3-input .description,
 	.yui3-form .description,
@@ -91,6 +98,11 @@
 	
 		.ui-dark .yui3-input .description,
 		.ui-dark .yui3-form .description {
+			color: #8C8CA1;
+		}
+		
+		.ui-center-dark .yui3-input .description,
+		.ui-center-dark .yui3-form .description {
 			color: #8C8CA1;
 		}
 
@@ -135,6 +147,15 @@
 			background: #090613;
 			box-shadow: 0 2px 5px rgba(0,0,0,.75) inset, 0 1px 0 rgba(52, 51, 66, 0.75);
 		}
+		
+		/* Dark center color theme */
+		.ui-center-dark .yui3-input input,
+		.ui-center-dark .yui3-input textarea,
+		.ui-center-dark .yui3-input iframe {
+			color: #58586C;
+			background: url(../img/background-pattern-darker.jpg) 0 0 repeat;
+			box-shadow: 0 1px 1px rgba(1,1,8,.6) inset, 0 1px 0 rgba(255, 255, 255, 0.15);
+		}
 	
 	.yui3-input textarea {
 		height: auto;
@@ -173,7 +194,11 @@
 		.ui-dark .yui3-input input:hover,
 		.ui-dark .yui3-input.yui3-input-focused input,
 		.ui-dark .yui3-input textarea:hover,
-		.ui-dark .yui3-input.yui3-input-focused textarea {
+		.ui-dark .yui3-input.yui3-input-focused textarea,
+		.ui-center-dark .yui3-input input:hover,
+		.ui-center-dark .yui3-input.yui3-input-focused input,
+		.ui-center-dark .yui3-input textarea:hover,
+		.ui-center-dark .yui3-input.yui3-input-focused textarea {
 			color: #fff;
 		}
 		
@@ -186,6 +211,10 @@
 		.ui-dark .yui3-input-disabled input:hover,
 		.ui-dark .yui3-input-disabled textarea:hover {
 			border-color: #6A6A7E;
+		}
+		.ui-center-dark .yui3-input-disabled input:hover,
+		.ui-center-dark .yui3-input-disabled textarea:hover {
+			//@TODO
 		}
 
 .yui3-input-form .fields-oneline {

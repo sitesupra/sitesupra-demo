@@ -1009,7 +1009,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		/**
 		 * Label attribute setter
 		 * 
-		 * @param {String} draggable New label value
+		 * @param {String} label New label value
 		 * @return Label attribute value
 		 * @type {String}
 		 * @private

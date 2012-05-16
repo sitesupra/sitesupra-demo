@@ -55,9 +55,25 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 * @var array
 	 */
 	public $layouts;
+
+	/**
+	 * @var array
+	 */
 	public $tags;
+
+	/**
+	 * @var string
+	 */
 	public $smallListImage;
+
+	/**
+	 * @var string
+	 */
 	public $largeListImage;
+
+	/**
+	 * @var array
+	 */
 	public $overviewImages;
 
 	/**

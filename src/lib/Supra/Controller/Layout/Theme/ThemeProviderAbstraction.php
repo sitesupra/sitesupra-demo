@@ -17,4 +17,9 @@ abstract class ThemeProviderAbstraction
 	 * @return ThemeLayout 
 	 */
 	abstract public function getCurrentThemeLayoutForTemplate(Template $template, $media = TemplateLayout::MEDIA_SCREEN);
+
+	/**
+	 * @return array
+	 */
+	abstract public function getAllThemes();
 }

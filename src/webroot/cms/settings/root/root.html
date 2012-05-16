@@ -1,0 +1,74 @@
+<div class="website-settings">
+	
+	<div class="nav-content ui-center-darker-background">
+		
+		<div class="nav-tabs" suStyle="tab" suType="radio">
+			<button suIcon="/cms/settings/images/groups/site-name.png" suGroupButtonId="tabContentName" suDown="true">{# settings.name.title #}</button>
+			<button suIcon="/cms/settings/images/groups/domain.png"    suGroupButtonId="tabContentDomain">{# settings.domain.title #}</button>
+			<button suIcon="/cms/settings/images/groups/email.png"     suGroupButtonId="tabContentEmail">{# settings.email.title #}</button>
+			<button suIcon="/cms/settings/images/groups/analytics.png" suGroupButtonId="tabContentAnalytics">{# settings.analytics.title #}</button>
+		</div>
+		
+	</div>
+	<div class="main-content ui-center-dark ui-center-dark-background">
+		
+		<div class="slideshow">
+			<div id="tabContentName">
+				
+				<form suStyle="vertical">
+					<label for="name">{# settings.name.name #}</label>
+					<input type="text" name="name" value="">
+					
+					<div class="footer">
+						<button type="submit" class="save">{# settings.done #}</button>
+					</div>
+				</form>
+				
+			</div>
+			<div id="tabContentDomain" class="hidden">
+				
+				<form suStyle="vertical">
+					<label for="domain">{# settings.domain.domain #}</label>
+					<input type="text" name="domain" value="">
+					
+					<div class="footer">
+						<button type="submit" class="save">{# settings.done #}</button>
+					</div>
+				</form>
+				
+			</div>
+			<div id="tabContentEmail" class="hidden">
+				
+				<form suStyle="vertical">
+					<label for="email">{# settings.email.email #}</label>
+					<input type="text" name="email" value="">
+					
+					<div class="footer">
+						<button type="submit" class="save">{# settings.done #}</button>
+					</div>
+				</form>
+				
+			</div>
+			<div id="tabContentAnalytics" class="hidden">
+				
+				<form suStyle="vertical">
+					<label for="type">{# settings.analytics.type #}</label>
+					<input type="checkbox" value="1" name="type" suType="Checkbox" suLabelA="{# settings.analytics.api_key #}" suLabelB="{# settings.analytics.source #}" />
+					
+					<label for="key">{# settings.analytics.api_key #}</label>
+					<input type="text" name="key" value="" />
+					
+					<label for="source">{# settings.analytics.source #}</label>
+					<textarea name="source" value=""></textarea>
+					
+					<div class="footer">
+						<button type="submit" class="save">{# settings.done #}</button>
+					</div>
+				</form>
+				
+			</div>
+		</div>
+		
+	</div>
+	
+</div>

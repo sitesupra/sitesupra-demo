@@ -327,4 +327,14 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		return $themeLayout;
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getAllThemes()
+	{
+		$allThemes = $this->getThemeRepository()->findAll();
+		
+		return $allThemes;
+	}
+
 }

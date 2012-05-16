@@ -1230,7 +1230,7 @@ class ObjectRepository
 			$themeProvider = new DefaultThemeProvider();
 			$themeProvider->setUrlBase('/');
 			$themeProvider->setRootDir(SUPRA_TEMPLATE_PATH);
-			
+
 			$writeableIniLoader = new WriteableIniConfigurationLoader('theme.ini');
 			self::setIniConfigurationLoader('Supra\Controller\Layout\Theme', $writeableIniLoader);
 
