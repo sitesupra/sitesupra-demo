@@ -135,9 +135,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			<div class="preview-title">{{ filename|escape }}</div>\
 			\
 			<div class="group">\
-				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
-				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
-				<div class="info hidden">\
+				<div class="info">\
 					{% if extension %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
@@ -180,9 +178,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			<div class="preview-title">{{ filename|escape }}</div>\
 			\
 			<div class="group">\
-				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
-				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
-				<div class="info hidden">\
+				<div class="info">\
 					{% if extension %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
@@ -556,18 +552,18 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		/**
 		 * 
 		 */
-		handleInfoToggleClick: function (event /* Event */) {
-			var node = event.target.closest('.group');
-			
-			node.one('div.info').toggleClass('hidden');
-			node.all('a.more, a.less').toggleClass('hidden');
-			
-			//Scrollbars
-			var content = node.closest('.su-scrollable-content');
-			content.fire('contentResize');
-			
-			event.halt();
-		},
+//		handleInfoToggleClick: function (event /* Event */) {
+//			var node = event.target.closest('.group');
+//			
+//			node.one('div.info').toggleClass('hidden');
+//			node.all('a.more, a.less').toggleClass('hidden');
+//			
+//			//Scrollbars
+//			var content = node.closest('.su-scrollable-content');
+//			content.fire('contentResize');
+//			
+//			event.halt();
+//		},
 		
 		/**
 		 * Add file
@@ -1180,8 +1176,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					
 					slide_content.empty().append(node);
 					
-					//More / less
-					node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
+//					//More / less
+//					node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
 					
 					this.fire('itemRender', {'node': node, 'data': data[0], 'type': data[0].type});
 				} else {

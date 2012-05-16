@@ -45,9 +45,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</span>\
 			\
 			<div class="group">\
-				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
-				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
-				<div class="info hidden">\
+				<div class="info">\
 					{% if extension %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
@@ -90,9 +88,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</span>\
 			\
 			<div class="group">\
-				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
-				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
-				<div class="info hidden">\
+				<div class="info">\
 					{% if extension %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
