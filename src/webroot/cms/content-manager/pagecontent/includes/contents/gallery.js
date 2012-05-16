@@ -35,6 +35,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 */
 		drop: null,
 		
+		/**
+		 * Gallery manage/add buttons
+		*/
+		buttons: {},
+		
 		
 		/**
 		 * When form is rendered add gallery button
@@ -54,23 +59,23 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			this.properties.get('buttonDelete').get('boundingBox').insert(container, 'before');
 			
 			//Manage image button
-			var button = new Supra.Button({
+			this.buttons.manageButton = new Supra.Button({
 				'label': Supra.Intl.get(['htmleditor', 'manage_images'])
 			});
 			
-			button.render(container);
-			button.on('click', this.openGalleryManager, this);
+			this.buttons.manageButton.render(container);
+			this.buttons.manageButton.on('click', this.openGalleryManager, this);
 			
 			//Separator
 			container.append(Y.Node.create('<br />'));
 			
 			//Add image button
-			var button = new Supra.Button({
+			this.buttons.addButton = new Supra.Button({
 				'label': Supra.Intl.get(['htmleditor', 'add_images'])
 			});
 			
-			button.render(container);
-			button.on('click', this.openMediaLibrary, this);
+			this.buttons.addButton.render(container);
+			this.buttons.addButton.on('click', this.openMediaLibrary, this);
 			
 			//Add image drag and drop support
 			this.bindDnD();
@@ -184,6 +189,10 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 */
 		openMediaLibrary: function () {
 			
+			var button = this.buttons.addButton;
+			
+			button.set('loading', true);
+			
 			Manager.getAction('MediaSidebar').execute({
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
@@ -191,6 +200,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				}, this),
 				'onclose': Y.bind(function () {
 					this.properties.showPropertiesForm();
+					button.set('loading', false);
 				}, this)
 			});
 			
