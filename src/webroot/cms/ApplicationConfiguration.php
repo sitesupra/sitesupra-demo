@@ -52,6 +52,11 @@ class ApplicationConfiguration extends ComponentConfiguration
 	 * @var boolean
 	 */
 	public $fancyActionClassLoader = false;
+	
+	/**
+	 * @var string
+	 */
+	public $urlBase = SUPRA_CMS_URL;
 
 	/**
 	 * Configure
@@ -97,7 +102,7 @@ class ApplicationConfiguration extends ComponentConfiguration
 			'title' => $this->title,
 			'icon' => $this->icon,
 			//TODO: hardcoded CMS URL
-			'path' => '/' . SUPRA_CMS_URL . '/' . $this->url . '/',
+			'path' => '/' . $this->urlBase . '/' . $this->url . '/',
 		);
 		
 		if ($this->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {

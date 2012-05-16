@@ -4,22 +4,17 @@ namespace Supra\Controller\Layout\Theme\Configuration\Parameter;
 
 use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
 
-class FontParameterConfiguration extends ThemeParameterConfiguration
+class BackgroundParameterConfiguration extends ThemeParameterConfiguration
 {
 
 	/**
 	 * @var array
 	 */
-	public $fonts;
-	
-	/**
-	 * @var string
-	 */
-	public $listName;
+	public $backgrounds;
 
 	public function makeDesignData(&$designData)
 	{
-		$designData['fonts'][$this->listName] = $this->fonts;
+		$designData['backgrounds'] = $this->backgrounds;
 	}
 
 }

@@ -499,7 +499,7 @@ class Theme extends Database\Entity implements ThemeInterface
 			$configurationLoader = new ThemeConfigurationLoader();
 			$configurationLoader->setParser($yamlParser);
 			$configurationLoader->setTheme($this);
-			$configurationLoader->setMode(ThemeConfigurationLoader::MODE_FETCH_CONFIGURAION);
+			$configurationLoader->setMode(ThemeConfigurationLoader::MODE_FETCH_CONFIGURATION);
 			$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_NO_CACHE);
 
 			$configurationLoader->loadFile($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.yml');

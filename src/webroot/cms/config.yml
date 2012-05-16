@@ -35,6 +35,10 @@
     _class: ControllerConfiguration
     class: Supra\Cms\CmsController
 
+
+
+
+
 - _class: Supra\Cms\ContentManager\ApplicationConfiguration
   id: Supra\Cms\ContentManager
   title: Pages
@@ -46,6 +50,12 @@
     _class: Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy
 #   @TODO: Could assign this value from application configuration "id" parameter somehow
     applicationNamespace: Supra\Cms\ContentManager
+
+  
+  
+  
+  
+  
   
 - _class: Supra\Cms\InternalUserManager\ApplicationConfiguration
 # Assigned to controller because inside this namespace is password restore controller
