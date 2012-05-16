@@ -71,7 +71,10 @@ function (Y) {
 			//Analytics tab form
 			'formAnalytics': null,
 			//Analytics tab footer
-			'footerAnalytics': null
+			'footerAnalytics': null,
+			
+			//Delete site button
+			'buttonDeleteSite': null
 		},
 		
 		
@@ -88,6 +91,9 @@ function (Y) {
 			this.widgets.slideshow = new Supra.Slideshow({
 				'srcNode': this.one('div.slideshow')
 			});
+			this.widgets.buttonDeleteSite = new Supra.Button({
+				'srcNode': this.one('button.delete-site')
+			});
 		},
 		
 		/**
@@ -103,6 +109,9 @@ function (Y) {
 			}, this);
 			
 			this.widgets.slideshow.render();
+			
+			this.widgets.buttonDeleteSite.render();
+			this.widgets.buttonDeleteSite.on('click', this.deleteSite, this);
 			
 			this.renderSiteNameContent();
 			this.renderDomainContent();
@@ -238,6 +247,78 @@ function (Y) {
 			
 			form.getInput('source').hide();
 		},
+		
+		
+		/**
+		 * Delete site
+		 */
+		deleteSite: function () {
+			Supra.Manager.executeAction('Confirmation', {
+				'message': Supra.Intl.get(['settings', 'delete_site_confirmation']),
+				'buttons': [
+					{'id': 'yes', 'style': 'small-red', 'click': this.deleteSiteConfirmed, 'context': this},
+					{'id': 'no'}
+				]
+			});
+		},
+		
+		/**
+		 * Actually delete site after confirmation
+		 * @private
+		 */
+		deleteSiteConfirmed: function () {
+			//Disable all widgets
+			this.setDisabled(true);
+			this.widgets.buttonDeleteSite.set('loading', true);
+			
+			//Send request
+			Supra.io(this.getDataPath('dev/delete'), {
+				'method': 'post',
+				'context': this,
+				'on': {
+					'complete': this.deleteSiteComplete
+				}
+			})
+		},
+		
+		/**
+		 * Handle delete site request response
+		 * 
+		 * @param {Object} data Response data
+		 * @param {Boolean} status Response status
+		 * @private
+		 */
+		deleteSiteComplete: function (data, status) {
+			if (status) {
+				
+				//@TODO
+				
+			} else {
+				this.setDisabled(false);
+				this.widgets.buttonDeleteSite.set('loading', false);
+			}
+		},
+		
+		/**
+		 * Disable or enable all widgets
+		 * 
+		 * @param {Boolean} disabled If true all widgets will be disabled, otherwise enabled
+		 */
+		setDisabled: function (disabled) {
+			//Enable all widgets
+			var widgets	= this.widgets,
+				widget	= null,
+				i		= null;
+			
+			for(var i in widgets) {
+				widget = widgets[i];
+				if ('disabled' in widget.getAttrs()) {
+					widget.set('disabled', disabled);
+				}
+			}
+		},
+		
+		
 		
 		/**
 		 * Execute action
