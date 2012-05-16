@@ -145,7 +145,8 @@ YUI.add('supra.input-proto', function (Y) {
 		},
 		
 		renderUI: function () {
-			var r = Input.superclass.renderUI.apply(this, arguments);
+			Input.superclass.renderUI.apply(this, arguments);
+			
 			var inp = this.get('inputNode');
 			var lbl = this.get('labelNode');
 			var descr = this.get('descriptionNode');
@@ -197,8 +198,6 @@ YUI.add('supra.input-proto', function (Y) {
 			
 			//Value
 			this.set('value', this.get('value'));
-			
-			return r;
 		},
 		
 		getAttribute: function (key) {

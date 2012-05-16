@@ -201,6 +201,14 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Button widget
+	 */
+	'supra.button-group': {
+		path: 'button-group/button-group.js',
+		requires: ['widget', 'widget-child']
+	},
+	
+	/**
 	 * Media Library widget
 	 */
 	'supra.medialibrary': {

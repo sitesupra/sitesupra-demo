@@ -1,0 +1,18 @@
+{
+	"status": 1,
+	"data": {
+		"name": {
+			"name": "Sample site"
+		},
+		"domain": {
+			"domain": "sample.tld"
+		},
+		"email": {
+			"email": "example@example.tpl"
+		},
+		"analytics": {
+			"key": "aabbccddeeffgghh",
+			"source": "<script type=\"text/javascript\">\n...\n</script>"
+		}
+	}
+}

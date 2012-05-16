@@ -139,6 +139,36 @@ YUI.add('supra.button', function (Y) {
 			}
 			
 			return style || 'small';
+		},
+		type: function (srcNode) {
+			var button = this.get('nodeButton'),
+				type = null;
+			
+			if (button) {
+				type = button.getAttribute('suType');
+			}
+			
+			return type || 'push';
+		},
+		icon: function (srcNode) {
+			var button = this.get('nodeButton'),
+				icon = null;
+			
+			if (button) {
+				icon = button.getAttribute('suIcon');
+			}
+			
+			return icon;
+		},
+		down: function (srcNode) {
+			var button = this.get('nodeButton'),
+				down = false;
+			
+			if (button) {
+				down = (button.getAttribute('suDown') === 'true');
+			}
+			
+			return down;
 		}
     };
 	
@@ -208,6 +238,10 @@ YUI.add('supra.button', function (Y) {
 				}
 			}
 			
+			if (this.get('down')) {
+				this.set('down', true);
+			}
+			
 			if (this.get('icon')) {
 				this.set('icon', this.get('icon'));
 			}
@@ -268,10 +302,12 @@ YUI.add('supra.button', function (Y) {
 		},
 		
 		_setStyle: function (new_style) {
+			var box = this.get('boundingBox');
+			if (!box) return new_style;
+			
 			var old_style = this.get('style');
 			if (new_style == old_style) return;
 			
-			var box = this.get('boundingBox');
 			if (box) {
 				if (old_style) box.removeClass(this.getClassName(old_style));
 				if (new_style) box.addClass(this.getClassName(new_style));
@@ -279,9 +315,10 @@ YUI.add('supra.button', function (Y) {
 		},
 		
 		_setDown: function (down) {
+			var box = this.get('boundingBox');
+			if (!box) return !!down;
 			if (down == this.get('down')) return !!down;
 			
-			var box = this.get('boundingBox');
 			if (box) {
 				box.setClass(this.getClassName('down'), down);
 				box.removeClass(this.getClassName('mouse-hover'));
@@ -316,8 +353,10 @@ YUI.add('supra.button', function (Y) {
 			var img = this.get('contentBox').one('img');
 			if (!img) {
 				if (!value) return value;
+				var button = this.get('nodeButton');
+				if (!button) return value;
+				
 				var node = Y.Node.create(this.ICON_TEMPLATE);
-				var button = this.get('contentBox').one('button');
 				button.prepend(node);
 				
 				img = node.test('img') ? node : node.one('img');

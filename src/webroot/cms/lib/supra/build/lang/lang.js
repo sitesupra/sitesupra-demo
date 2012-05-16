@@ -61,6 +61,25 @@ YUI().add("supra.lang", function (Y) {
 	};
 	
 	/**
+	 * Returns true if obj is widget instance
+	 * 
+	 * @param {Object} obj Object to check
+	 * 
+	 */
+	Y.Lang.isWidget = function (obj, classname) {
+		if (obj && Y.Lang.isObject(obj) && !Y.Lang.isPlainObject(obj) && obj.isInstanceOf) {
+			
+			if (classname) {
+				return obj.isInstanceOf(classname);
+			}
+			
+			return true;
+		}
+		
+		return false;
+	};
+	
+	/**
 	 * Compare if two objects has all the same properties
 	 * 
 	 * @param {Object} o1

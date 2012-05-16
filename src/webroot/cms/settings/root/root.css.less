@@ -1,0 +1,65 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+.website-settings {
+	
+	.nav-content,
+	.main-content {
+		position: absolute;
+		top: 27px;
+		bottom: 30px;
+		border: 1px solid #434451;
+	}
+	.nav-content {
+		left: 29px;
+		width: 291px;
+		.box-shadow (-2px, 0, 3px, rgba(28, 30, 45, .75) inset);
+		
+		.su-button-group {
+			padding: 21px 14px 0 18px;
+		}
+	}
+	.main-content {
+		right: 30px;
+		left: 321px;
+		border-left-color: #484755;
+		
+		.yui3-form-content {
+			width: 430px;
+			margin: 0 20px;
+		}
+	}
+}
+
+
+.su-button.su-button-tab {
+	display: block;
+	
+	div {
+		display: block;
+		padding: 8px 11px 7px;
+	}
+	button {
+		width: 100%;
+		text-align: left;
+		
+		p {
+			text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+			vertical-align: middle;
+		}
+		img {
+			margin-right: 10px;
+			vertical-align: middle;
+		}
+	}
+	
+	&.su-button-down div,
+	&.su-button-mouse-down div {
+		background: url(../images/button-tab.png) 0 0 no-repeat;
+		
+		p {
+			color: #181C2C;
+			text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
+		}
+	}
+}

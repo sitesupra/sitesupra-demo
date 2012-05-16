@@ -81,6 +81,19 @@ YUI.add("supra.input-checkbox", function (Y) {
 		}
 	};
 	
+	Input.HTML_PARSER = {
+		'labels': function (srcNode) {
+			var a = srcNode.getAttribute('suLabelA'),
+				b = srcNode.getAttribute('suLabelB');
+			
+			if (a && b) {
+				return [a, b];
+			} else {
+				return;
+			}
+		}
+	};
+	
 	Y.extend(Input, Supra.Input.Proto, {
 		
 		renderUI: function () {
