@@ -374,7 +374,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 									Action.stopEditing();
 
 									//Change path
-									Root.save(Root.ROUTE_PAGE.replace(':page_id', data.page_id));
+									Root.router.save(Root.ROUTE_PAGE.replace(':page_id', data.page_id));
 								}
 							} else {
 								//TODO: open the link in the new tab or show message with link to the page

@@ -91,7 +91,7 @@ Supra('supra.languagebar', function (Y) {
 						Supra.data.set('locale', evt.newVal);
 						
 						var pageId = page.localizations[evt.newVal].page_id;
-						Root.save(Root.ROUTE_PAGE.replace(':page_id', pageId));
+						Root.router.save(Root.ROUTE_PAGE.replace(':page_id', pageId));
 					} else {
 						//Warning about not exising translation, offer to translate
 						Manager.executeAction('Confirmation', {
@@ -159,7 +159,7 @@ Supra('supra.languagebar', function (Y) {
 				Supra.data.set('locale', data.locale);
 
 				var pageId = data.id;
-				Root.save(Root.ROUTE_PAGE.replace(':page_id', pageId));
+				Root.router.save(Root.ROUTE_PAGE.replace(':page_id', pageId));
 			}
 		},
 		
