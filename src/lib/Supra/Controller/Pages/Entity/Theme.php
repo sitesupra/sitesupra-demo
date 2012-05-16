@@ -156,6 +156,8 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function setRootDir($rootDir)
 	{
+		$rootDir = str_replace(SUPRA_PATH, '{SUPRA_PATH}', $rootDir);
+		
 		$this->rootDir = preg_replace('@/+@', '/', $rootDir);
 	}
 
@@ -164,7 +166,9 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function getRootDir()
 	{
-		return $this->rootDir;
+		$rootDir = str_replace('{SUPRA_PATH}', SUPRA_PATH, $this->rootDir);
+		
+		return $rootDir;
 	}
 
 	/**

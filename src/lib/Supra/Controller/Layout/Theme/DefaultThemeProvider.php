@@ -169,8 +169,12 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	{
 		$em = $this->getEntityManager();
 
-		$em->persist($theme->getActiveParameterSet());		
-		
+		$activeParameterSet = $theme->getActiveParameterSet();
+
+		if ( ! empty($activeParameterSet)) {
+			$em->persist($activeParameterSet);
+		}
+
 		$em->persist($theme);
 
 		$parameterSets = $theme->getParameterSets();
@@ -217,7 +221,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				}
 			}
 		}
-		
+
 		$em->flush();
 	}
 
@@ -335,7 +339,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	public function getAllThemes()
 	{
 		$allThemes = $this->getThemeRepository()->findAll();
-		
+
 		return $allThemes;
 	}
 
