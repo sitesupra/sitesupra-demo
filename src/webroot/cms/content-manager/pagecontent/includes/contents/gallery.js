@@ -35,6 +35,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 */
 		drop: null,
 		
+		/**
+		 * Gallery manage/add buttons
+		*/
+		buttons: {},
+		
 		
 		/**
 		 * When form is rendered add gallery button
@@ -54,23 +59,23 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			this.properties.get('buttonDelete').get('boundingBox').insert(container, 'before');
 			
 			//Manage image button
-			var button = new Supra.Button({
+			this.buttons.manageButton = new Supra.Button({
 				'label': Supra.Intl.get(['htmleditor', 'manage_images'])
 			});
 			
-			button.render(container);
-			button.on('click', this.openGalleryManager, this);
+			this.buttons.manageButton.render(container);
+			this.buttons.manageButton.on('click', this.openGalleryManager, this);
 			
 			//Separator
 			container.append(Y.Node.create('<br />'));
 			
 			//Add image button
-			var button = new Supra.Button({
+			this.buttons.addButton = new Supra.Button({
 				'label': Supra.Intl.get(['htmleditor', 'add_images'])
 			});
 			
-			button.render(container);
-			button.on('click', this.openMediaLibrary, this);
+			this.buttons.addButton.render(container);
+			this.buttons.addButton.on('click', this.openMediaLibrary, this);
 			
 			//Add image drag and drop support
 			this.bindDnD();
@@ -109,7 +114,8 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		onDrop: function (e) {
 			var item_id = e.drag_id,
 				item_data = Manager.MediaSidebar.getData(item_id),
-				image = null;
+				image = null,
+				dataObject = Manager.MediaSidebar.medialist.get('dataObject');
 			
 			if (item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
 				
@@ -118,32 +124,50 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				
 			} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
 				
-				var folderHasImages = false;
-				
-				//Add all images from folder
-				for(var i in item_data.children) {
-					image = item_data.children[i];
-					if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-						this.addImage(item_data.children[i]);
-						folderHasImages = true;
-					}
-				}
-				
-				//folder was without images
-				if ( ! folderHasImages) {
-					Supra.Manager.executeAction('Confirmation', {
-					    'message': '{#medialibrary.validation_error.empty_folder_drop#}',
-					    'useMask': true,
-					    'buttons': [
-					        {'id': 'delete', 'label': 'Ok'}
-					    ]
-					});
-				
+				if ( ! dataObject.hasData(item_data.id) 
+					|| (item_data.children && item_data.children.length != item_data.children_count)) {
+					dataObject.once('load:complete:' + item_data.id, function(event) {
+						if (event.data) {
+							this.onDrop(e);
+						}
+					}, this);
+					
 					return;
+					
+				} else {
+					
+					var folderHasImages = false;
+
+					//Add all images from folder
+					for(var i in item_data.children) {
+						image = item_data.children[i];
+						if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+							this.addImage(item_data.children[i]);
+							folderHasImages = true;
+						}
+					}
+
+					//folder was without images
+					if ( ! folderHasImages) {
+						Supra.Manager.executeAction('Confirmation', {
+							'message': '{#medialibrary.validation_error.empty_folder_drop#}',
+							'useMask': true,
+							'buttons': [
+								{'id': 'delete', 'label': 'Ok'}
+							]
+						});
+
+						return;
+					}
 				}
 			}
 			
 			this.reloadContent();
+			
+			//Prevent default (which is insert folder thumbnail image) 
+			if (e.halt) e.halt();
+			
+			return false;
 		},
 		
 		/**
@@ -179,6 +203,10 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 */
 		openMediaLibrary: function () {
 			
+			var button = this.buttons.addButton;
+			
+			button.set('loading', true);
+			
 			Manager.getAction('MediaSidebar').execute({
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
@@ -186,6 +214,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				}, this),
 				'onclose': Y.bind(function () {
 					this.properties.showPropertiesForm();
+					button.set('loading', false);
 				}, this)
 			});
 			

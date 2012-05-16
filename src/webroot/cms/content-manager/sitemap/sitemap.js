@@ -494,7 +494,7 @@ function (Y) {
 				if (silent !== true) {
 					//Update URI
 					var Root = Supra.Manager.Root;
-					Root.save(Root.ROUTE_SITEMAP);
+					Root.router.save(Root.ROUTE_SITEMAP);
 				}
 			}
 		},
@@ -517,7 +517,7 @@ function (Y) {
 				if (silent !== true) {
 					//Update URI
 					var Root = Supra.Manager.Root;
-					Root.save(Root.ROUTE_TEMPLATES);
+					Root.router.save(Root.ROUTE_TEMPLATES);
 				}
 			}
 		},
