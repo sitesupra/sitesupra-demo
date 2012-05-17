@@ -381,6 +381,7 @@ class Theme extends Database\Entity implements ThemeInterface
 
 				$value = $parameter->getThemeParameterValue();
 				$this->currentParameterSet->addValue($value);
+				$this->currentParameterSet->setTheme($this);
 			}
 			
 			$this->currentParameterSet->setName('auto-current');
