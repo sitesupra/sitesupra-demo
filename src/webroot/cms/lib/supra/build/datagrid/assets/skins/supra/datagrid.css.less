@@ -86,6 +86,20 @@
 		margin: 20px 0 20px 20px;
 	}
 	
+	.su-scrollable {
+		.su-scrollable-scrollbar .su-scrollable-scrollbar-background {
+			top: 20px;
+			bottom: 20px;
+		}
+		
+		.su-scrollable-content {
+			padding-left: 20px;
+		}
+		table {
+			margin-left: 0;
+		}
+	}
+	
 	thead {
 		display: table-header-group;
 		border-top: 1px solid #BBBCCB;
@@ -97,15 +111,6 @@
 		
 		tr:nth-child(odd) {
 			background: rgba(27, 26, 33, 0.15);
-		}
-		tr:hover {
-			.linear-gradient (#F2F3F7, 0%, #BBBCC8, 100%);
-			
-			td {
-				border-left-color: #E5E6ED;
-				border-right-color: #525267;
-				color: #040010;
-			}
 		}
 	}
 	
@@ -129,7 +134,6 @@
 		padding: 12px 13px;
 		
 		color: #fff;
-		cursor: pointer;
 		font-size: 12px;
 		line-height: 16px;
 		
@@ -143,6 +147,22 @@
 		}
 		&:last-child {
 			border-right: 0;
+		}
+	}
+	
+	&.su-datagrid-clickable {
+		td {
+			cursor: pointer;
+		}
+		
+		tbody tr:hover {
+			.linear-gradient (#F2F3F7, 0%, #BBBCC8, 100%);
+			
+			td {
+				border-left-color: #E5E6ED;
+				border-right-color: #525267;
+				color: #040010;
+			}
 		}
 	}
 }

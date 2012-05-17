@@ -110,6 +110,14 @@ YUI.add("supra.datagrid", function (Y) {
 		},
 		
 		/**
+		 * Rows are clickable
+		 */
+		'clickable': {
+			'value': true,
+			'setter': '_setClickable'
+		},
+		
+		/**
 		 * Datagrid is scrollable
 		 */
 		'scrollable': {
@@ -310,7 +318,7 @@ YUI.add("supra.datagrid", function (Y) {
 					fields.push(column.id);
 				}
 				
-				id = column.id.replace(/[^a-z0-9\-_]*/g, '');
+				id = column.id.replace(/[^a-z0-9\-_]*/ig, '');
 				node = Y.Node.create('<th ' + (column.width ? 'width="' + column.width + '" ' : '') + 'class="col-' + id + '">' + (column.title || '') + '</th>');
 				heading.append(node);
 			}
@@ -380,6 +388,7 @@ YUI.add("supra.datagrid", function (Y) {
 		 */
 		'syncUI': function () {
 			this.set('style', this.get('style'));
+			this.set('clickable', this.get('clickable'));
 		},
 		
 		
@@ -938,7 +947,7 @@ YUI.add("supra.datagrid", function (Y) {
 			
 			var columns = this.get('columns'),
 				data_columns = this.get('dataColumns'),
-				regex = /([^a-z0-9]id[^a-z0-9]|^id[^a-z0-9]|[^a-z0-9]id$)/;
+				regex = /([^a-z0-9]id[^a-z0-9]|^id[^a-z0-9]|[^a-z0-9]id$)/i;
 			
 			for(var i=0,ii=columns.length; i<ii; i++) {
 				if (columns[i].id == 'id' || columns[i].id.match(regex)) {
@@ -984,6 +993,19 @@ YUI.add("supra.datagrid", function (Y) {
 			
 			return style;
 		}, 
+		
+		/**
+		 * Clickable attribute setter
+		 * 
+		 * @param {String} clickable New clickable attribute value
+		 * @return New clickable attribute value
+		 * @type {String}
+		 * @private
+		 */
+		'_setClickable': function (clickable) {
+			this.get('boundingBox').setClass(this.getClassName('clickable'), clickable);
+			return clickable;
+		},
 		
 		/**
 		 * Destructor

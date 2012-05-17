@@ -43,6 +43,81 @@ Dt.reformat = function(data, from, to) {
     return null;
 };
 
+/**
+ * Returns formatted string with time difference
+ * 
+ * @param {String} date Date
+ * @param format {String} Optional. Date format
+ * @return Date in pretty format
+ * @type {String}
+ */
+Dt.since = function (date, format) {
+	var diff = 0;
+	
+	if (typeof date !== 'number') {
+		date = Dt.reformat(date, format || 'in_datetime', 'raw');
+		if (!date) return;
+		
+		diff = ~~(((+new Date()) - date.getTime()) / 1000);
+	} else {
+		diff = date;
+	}
+	 
+	var day_diff = ~~(diff / 86400);
+		cache = '',
+		name = '',
+		tpl = '',
+		data = {'n': 1};
+	
+	if (day_diff == 0) {
+		
+		if (diff == 1) {
+			data.n = 1;
+			name = 'second';
+		} else if (diff < 60) {
+			data.n = ~~diff;
+			name = 'seconds';
+		} else if (diff < 120) {
+			data.n = 1;
+			name = 'minute';
+		} else if (diff < 3600) {
+			data.n = ~~(diff / 60);
+			name = 'minutes';
+		} else if (diff < 7200) {
+			data.n = 1;
+			name = 'hour';
+		} else {
+			data.n = ~~(diff / 3600);
+			name = 'hours';
+		}
+		
+	} else if (day_diff == 1) {
+		data.n = 1;
+		name = 'day';
+	} else if (day_diff < 31) {
+		data.n = day_diff;
+		name = 'days';
+	} else if (day_diff < 62) {
+		data.n = 1;
+		name = 'month';
+	} else if (day_diff < 366) {
+		data.n = ~~(day_diff / 31);
+		name = 'months';
+	} else if (day_diff < 732) {
+		data.n = 1;
+		name = 'year';
+	} else {
+		data.n = ~~(day_diff / 366);
+		name = 'years';
+	}
+	
+	tpl = Supra.Intl.get(['date', name]) || ('{{ n }} ' + name);
+	tpl = (Supra.Intl.get(['date', 'ago']) || '{{ n }} ago').replace(/{{\s*n\s*}}/, tpl);
+	tpl = Supra.Template.compile(tpl, 'datatype.date.since.' + name);
+	
+	return tpl(data);
+};
+
 Dt.stringToFormat = function (str) {
 	switch(str) {
 		case 'in_date':
