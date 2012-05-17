@@ -30,6 +30,7 @@
 			},
 		
 			"level": {
+				"all": "All levels",
 				"10": "Debug",
 				"20": "Info",
 				"30": "Warn",

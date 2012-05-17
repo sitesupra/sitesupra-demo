@@ -75,6 +75,25 @@
   authorizationAccessPolicy:
     _class: Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy
     applicationNamespace: Supra\Cms\BannerManager
+    
+- _class: Supra\Cms\ApplicationConfiguration
+  id: Supra\Cms\AuditLog
+  title: Audit log
+  url: audit-log
+  icon: /cms/lib/supra/img/apps/audit
+  authorizationAccessPolicy:
+    _class: Supra\Cms\AuditLog\AuditLogAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\AuditLog
+
+- _class: Supra\Cms\ApplicationConfiguration
+  id: Supra\Cms\Settings
+  title: Settings
+  url: settings
+  icon: /cms/lib/supra/img/apps/settings
+  authorizationAccessPolicy:
+    _class: Supra\Cms\AuditLog\AuditLogAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\Settings
+
 
 - _class: Supra\Cms\MediaLibrary\ApplicationConfiguration
   id: Supra\Cms\MediaLibrary

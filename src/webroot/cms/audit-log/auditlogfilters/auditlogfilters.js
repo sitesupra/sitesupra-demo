@@ -107,7 +107,7 @@ function (Y) {
 		 * @private
 		 */
 		loadComponentInformation: function () {
-			Supra.io(this.getDataPath('dev/components'), this.setComponentInformation, this);
+			Supra.io(this.getDataPath('components'), this.setComponentInformation, this);
 		},
 		
 		/**

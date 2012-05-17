@@ -227,7 +227,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					$userProvider->signIn($user);
 
 					$auditLog = ObjectRepository::getAuditLogger($this);
-					$auditLog->info("User '{$user->getEmail()}' logged in", $user);
+					$auditLog->info($this, "User '{$user->getEmail()}' logged in", $user);
 					
 					$eventManager = ObjectRepository::getEventManager($this);
 					$eventManager->fire(Event\EventArgs::onAuthenticationSuccess, $eventArgs);

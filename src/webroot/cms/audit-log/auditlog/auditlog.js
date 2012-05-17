@@ -58,7 +58,7 @@ function (Y) {
 		initialize: function () {
 			this.widgets.datagrid = new Supra.DataGrid({
 				//Url
-				'requestURI': this.getDataPath('dev/load'),
+				'requestURI': this.getDataPath('load'),
 				
 				'idColumn': ['id'],
 				
