@@ -641,14 +641,15 @@ class HistoryPageRequestEdit extends PageRequest
 				->getNestedSetRepository()
 				->add($draftPage);
 
-		//$auditEm->getUnitOfWork()->clear();
-
 		$pageLocalizations = $auditEm->getRepository(Localization::CN())
 				->findBy(array('master' => $pageId, 'revision' => $this->revision));
 
 		foreach($pageLocalizations as $localization) {
 			
+			$auditEm->detach($localization);
+			
 			if ($localization instanceof Entity\PageLocalization) {
+				$localization->resetPath();
 				$localization->initializeProxyAssociations();
 			}
 
@@ -704,8 +705,6 @@ class HistoryPageRequestEdit extends PageRequest
 //				//$trashEm->remove($templateLayout);
 //			}
 //		}
-
-		$draftEm->flush();
 		
 		return $draftPage;
 	}
