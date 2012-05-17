@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function (Y) {
+Supra(function (Y) {
 	
 	//Toolbar buttons
 	var TOOLBAR_BUTTONS = [

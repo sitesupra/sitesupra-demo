@@ -176,7 +176,7 @@ YUI.add("supra.datagrid-row", function (Y) {
 			if (!this.node) return;
 			if (column_id in this.nodes) return this.nodes[column_id];
 			
-			var id = column_id.replace(/[^a-z0-9\-_]*/g, '');
+			var id = column_id.replace(/[^a-z0-9\-_]*/ig, '');
 			return this.nodes[column_id] = this.node.one('td.row-' + id);
 		},
 		
@@ -230,37 +230,34 @@ YUI.add("supra.datagrid-row", function (Y) {
 			
 			for(var i=0,ii=columns.length; i<ii; i++) {
 				column = columns[i];
+				column_id = column.id;
+				value = (column_id in data ? data[column_id] : '');
+				classname = 'row-' + column_id.replace(/[^a-z0-9\-_]*/ig, '');
 				
-				if (column.title !== null) {
-					column_id = column.id;
-					value = (column_id in data ? data[column_id] : '');
-					classname = 'row-' + column_id.replace(/[^a-z0-9\-_]*/g, '');
-					
-					if (value === undefined || value === null) {
-						value = '';
-					}
-					
-					//Format data if needed
-					if (column.formatter && isfunc(column.formatter)) {
-						value = column.formatter.call(this, column_id, value, data);
-					} else if (column.escape) {
-						//Formatter should handle escaping
-						value = escape(String(value));
-					}
-					
-					//Align text
-					if (column.align) {
-						align = ' align-' + column.align;
-					} else {
-						align = '';
-					}
-					
-					if (column.renderer && isfunc(column.renderer)) {
-						renderers.push({'renderer': column.renderer, 'classname': classname, 'column_id': column_id, 'value': value});
-					}
-					
-					html[html.length] = '<td ' + (column.width ? 'width="' + column.width + '" ' : '') + 'class="' + classname + align + '">' + value + '</td>';
+				if (value === undefined || value === null) {
+					value = '';
 				}
+				
+				//Format data if needed
+				if (column.formatter && isfunc(column.formatter)) {
+					value = column.formatter.call(this, column_id, value, data);
+				} else if (column.escape) {
+					//Formatter should handle escaping
+					value = escape(String(value));
+				}
+				
+				//Align text
+				if (column.align) {
+					align = ' align-' + column.align;
+				} else {
+					align = '';
+				}
+				
+				if (column.renderer && isfunc(column.renderer)) {
+					renderers.push({'renderer': column.renderer, 'classname': classname, 'column_id': column_id, 'value': value});
+				}
+				
+				html[html.length] = '<td ' + (column.width ? 'width="' + column.width + '" ' : '') + 'class="' + classname + align + '">' + value + '</td>';
 			}
 			
 			var tr = this.node = Y.Node.create('<tr>' + html.join('') + '</tr>');
