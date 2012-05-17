@@ -121,7 +121,7 @@ class SitemapAction extends PageManagerAction
 			$eventManager->fire(CmsPageEventArgs::postPagePublish, $eventArgs);
 		}
 
-		$this->writeAuditLog('Move', $page);
+		$this->writeAuditLog('%item% moved', $page);
 	}
 
 	/**
