@@ -69,7 +69,8 @@ function (Y) {
 				
 				'columns': [{
 					'id': 'component',
-					'title': Supra.Intl.get(['audit', 'columns', 'component'])
+					'title': Supra.Intl.get(['audit', 'columns', 'component']),
+					'formatter': this.formatColumnComponent
 				}, {
 					'id': 'level',
 					'title': Supra.Intl.get(['audit', 'columns', 'level']),
@@ -96,6 +97,22 @@ function (Y) {
 			this.widgets.datagrid.plug(Supra.DataGrid.LoaderPlugin, {
 				'recordHeight': 40
 			});
+		},
+		
+		/**
+		 * Format title column
+		 * 
+		 * @param {String} id Column ID
+		 * @param {String} value Column content
+		 * @param {Object} data Row data
+		 * @private
+		 */
+		formatColumnComponent: function (id, value, data) {
+			if (data.icon) {
+				return '<span class="icon"><img src="' + Y.Escape.html(data.icon) + '" alt="" /></span>' + Y.Escape.html(value); 
+			} else {
+				return '<span class="icon"></span>' + Y.Escape.html(value);
+			}
 		},
 		
 		/**
