@@ -615,42 +615,25 @@ abstract class PageManagerAction extends CmsAction
 		$this->isPostRequest();
 	
 		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		$draftEm = $this->entityManager;
 		
-		$localizationId = $this->getRequestParameter('page_id');
-		
-		// TODO: we could simply pass revision ID to serverside and skip this step
-		$qb = $auditEm->createQueryBuilder();
-		$qb->select('ap.id')
-				->from(Localization::CN(), 'l')
-				->join('l.master', 'ap')
-				->where('l.id = :id')
-				->setMaxResults(1);
-		$qb->setParameter('id', $localizationId);
-		$query = $qb->getQuery();
-		$result = $query->getResult(ColumnHydrator::HYDRATOR_ID);
-		
-		// throw an exception if we failed to get master for this page
-		if (empty($result)) {
-			throw new CmsException(null, 'Page not found in recycle bin');
-		}
-		
-		$pageId = array_pop($result);
-		// get revision by type and removed page id
-		$pageRevisionData = $auditEm->getRepository(PageRevisionData::CN())
-				->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'reference' => $pageId));
+		$revisionId = $this->getRequestParameter('revision_id');
+			
+		$pageRevisionData = $draftEm->getRepository(PageRevisionData::CN())
+				->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'id' => $revisionId));
 
 		if ( ! ($pageRevisionData instanceof PageRevisionData)) {
 			throw new CmsException(null, 'Page revision data not found');
 		}
-		
-		$revisionId = $pageRevisionData->getId();
-		
+
 		$page = $auditEm->getRepository(AbstractPage::CN())
-				->findOneBy(array('id' => $pageId, 'revision' => $revisionId));
+				->findOneBy(array('revision' => $revisionId));
 		
 		if ($page instanceof Entity\Page) {
 
-			$localizations = $page->getLocalizations();
+			$localizations = $auditEm->getRepository(Localization::CN())
+				->findBy(array('master' => $page->getId(), 'revision' => $revisionId));
+			
 			foreach ($localizations as $pageLocalization) {
 
 				$template = $pageLocalization->getTemplate();
@@ -691,7 +674,6 @@ abstract class PageManagerAction extends CmsAction
 
 		$request->setRevision($revisionId);
 		
-		$draftEm = $this->entityManager;
 		$draftEventManager = $draftEm->getEventManager();
 		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
 		
@@ -735,12 +717,15 @@ abstract class PageManagerAction extends CmsAction
 				
 			}
 			
+			$pageRevisionData->setType(PageRevisionData::TYPE_RESTORED);
+			$draftEm->flush();
+
 		} catch (\Exception $e) {
 			$this->entityManager->rollback();
 			throw $e;
 		}
 		
-		$this->entityManager->commit();
+		$draftEm->commit();
 
 		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent);
 		

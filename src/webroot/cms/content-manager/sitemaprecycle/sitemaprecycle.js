@@ -191,7 +191,8 @@ Supra('anim', 'transition', function (Y) {
 					'locale': this.getLocale(),
 					'parent_id': 0,
 					'reference_id': 0,
-					'page_id': data.id
+					'page_id': data.id,
+					'revision_id': data.revision
 				},
 				
 				next =   null;

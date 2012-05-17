@@ -11,7 +11,7 @@ class FontParameterConfiguration extends ThemeParameterConfiguration
 	 * @var array
 	 */
 	public $fonts;
-	
+
 	/**
 	 * @var string
 	 */

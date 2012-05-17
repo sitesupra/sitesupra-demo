@@ -9,6 +9,7 @@ use Supra\Less\SupraLessC;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration;
 use Supra\Configuration\Parser\YamlParser;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
+use Supra\Controller\Pages\Entity\ThemeParameter;
 
 /**
  * @Entity
@@ -77,7 +78,7 @@ class Theme extends Database\Entity implements ThemeInterface
 
 	/**
 	 * @OneToOne(targetEntity="ThemeParameterSet")
-	 * @JoinColumn(name="current_parameter_set_id", referencedColumnName="id")
+	 * @JoinColumn(name="active_parameter_set_id", referencedColumnName="id")
 	 * @var ThemeParameterSet
 	 */
 	protected $activeParameterSet;
@@ -155,6 +156,8 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function setRootDir($rootDir)
 	{
+		$rootDir = str_replace(SUPRA_PATH, '{SUPRA_PATH}', $rootDir);
+		
 		$this->rootDir = preg_replace('@/+@', '/', $rootDir);
 	}
 
@@ -163,7 +166,9 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function getRootDir()
 	{
-		return $this->rootDir;
+		$rootDir = str_replace('{SUPRA_PATH}', SUPRA_PATH, $this->rootDir);
+		
+		return $rootDir;
 	}
 
 	/**
@@ -368,7 +373,18 @@ class Theme extends Database\Entity implements ThemeInterface
 		}
 
 		if (empty($this->currentParameterSet)) {
+
 			$this->currentParameterSet = new ThemeParameterSet();
+
+			foreach ($this->getParameters() as $parameter) {
+				/* @var $parameter ThemeParameter */
+
+				$value = $parameter->getThemeParameterValue();
+				$this->currentParameterSet->addValue($value);
+				$this->currentParameterSet->setTheme($this);
+			}
+			
+			$this->currentParameterSet->setName('auto-current');
 		}
 
 		return $this->currentParameterSet;
@@ -503,7 +519,6 @@ class Theme extends Database\Entity implements ThemeInterface
 			$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_NO_CACHE);
 
 			$configurationLoader->loadFile($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.yml');
-			
 		}
 
 		return $this->configuration;

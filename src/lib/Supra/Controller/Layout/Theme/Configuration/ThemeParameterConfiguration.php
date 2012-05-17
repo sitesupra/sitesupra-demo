@@ -87,11 +87,16 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 	}
 
 	/**
-	 * @return array
+	 * 
 	 */
 	public function makeDesignData(&$designData)
 	{
 	
+	}
+	
+	public function makeCurrentParameterValues(&$currentValues)
+	{
+		$currentValues[$this->name] = $this->defaultValue;
 	}
 
 }
