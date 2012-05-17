@@ -30,7 +30,7 @@ class HistoryPageRequestEdit extends PageRequest
 	 * @var string
 	 */
 	protected $revision;
-	protected $revisionArray;
+	protected $revisionArray = array();
 	protected $hasRemoveRevision = false;
 	protected $removeRevisionIds = array();
 	
@@ -620,6 +620,10 @@ class HistoryPageRequestEdit extends PageRequest
 	 */
 	public function restorePage()
 	{
+		// Temporary entity storage, to prevent spl hash reusage
+		// fix in UoW doesn't helps, as loadPropertyMetadata() method uses UoW->clear();
+		$splObjectHashMemory = array();
+		
  		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
 
@@ -628,8 +632,6 @@ class HistoryPageRequestEdit extends PageRequest
 			
 		$pageId = $page->getId();
 
-		$auditEm->getUnitOfWork()->clear();
-		
 		$page = $auditEm->getRepository(AbstractPage::CN())
 				->findOneBy(array('id' => $pageId, 'revision' => $this->revision));
 
@@ -639,7 +641,7 @@ class HistoryPageRequestEdit extends PageRequest
 				->getNestedSetRepository()
 				->add($draftPage);
 
-		$auditEm->getUnitOfWork()->clear();
+		//$auditEm->getUnitOfWork()->clear();
 
 		$pageLocalizations = $auditEm->getRepository(Localization::CN())
 				->findBy(array('master' => $pageId, 'revision' => $this->revision));
@@ -651,6 +653,7 @@ class HistoryPageRequestEdit extends PageRequest
 			}
 
 			$draftLocalization = $draftEm->merge($localization);
+						
 			if ($localization instanceof Entity\PageLocalization) {
 				$draftLocalization->resetPath();
 			}
@@ -661,7 +664,6 @@ class HistoryPageRequestEdit extends PageRequest
 			foreach($placeHolders as $placeHolder) {
 				$draftEm->merge($placeHolder);
 			}
-			$draftEm->flush();
 			
 			$localizationId = $localization->getId();
 
@@ -686,7 +688,10 @@ class HistoryPageRequestEdit extends PageRequest
 				->setParameters(array($localizationId, $this->revision))
 				->getResult();
 			
+			$splObjectHashMemory[] = $properties;
+			
 			foreach ($properties as $property) {
+				$this->loadPropertyMetadata($property);
 				$draftEm->merge($property);
 			}
 		}
@@ -700,17 +705,6 @@ class HistoryPageRequestEdit extends PageRequest
 //			}
 //		}
 
-		$revisionData = $draftEm->find(PageRevisionData::CN(), $this->revision);
-		/* @var $revisionData PageRevisionData */
-		$revisionData->setType(PageRevisionData::TYPE_RESTORED);
-		$draftEm->flush();
-		
-		$pageEventArgs = new PageEventArgs();
-		$pageEventArgs->setEntityManager($draftEm);
-		$pageEventArgs->setProperty('referenceId', $pageId);
-		
-		$auditEm->getUnitOfWork()->clear();
-		
 		return $draftPage;
 	}
 	

@@ -615,6 +615,7 @@ abstract class PageManagerAction extends CmsAction
 		$this->isPostRequest();
 	
 		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		$draftEm = $this->entityManager;
 		
 		$localizationId = $this->getRequestParameter('page_id');
 		
@@ -636,7 +637,7 @@ abstract class PageManagerAction extends CmsAction
 		
 		$pageId = array_pop($result);
 		// get revision by type and removed page id
-		$pageRevisionData = $auditEm->getRepository(PageRevisionData::CN())
+		$pageRevisionData = $draftEm->getRepository(PageRevisionData::CN())
 				->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'reference' => $pageId));
 
 		if ( ! ($pageRevisionData instanceof PageRevisionData)) {
@@ -691,7 +692,6 @@ abstract class PageManagerAction extends CmsAction
 
 		$request->setRevision($revisionId);
 		
-		$draftEm = $this->entityManager;
 		$draftEventManager = $draftEm->getEventManager();
 		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
 		
@@ -735,12 +735,15 @@ abstract class PageManagerAction extends CmsAction
 				
 			}
 			
+			$pageRevisionData->setType(PageRevisionData::TYPE_RESTORED);
+			$draftEm->flush();
+
 		} catch (\Exception $e) {
 			$this->entityManager->rollback();
 			throw $e;
 		}
 		
-		$this->entityManager->commit();
+		$draftEm->commit();
 
 		$draftEventManager->dispatchEvent(AuditEvents::pagePostRestoreEvent);
 		
