@@ -1161,14 +1161,14 @@ abstract class PageManagerAction extends CmsAction
 	 * @param object $item
 	 * @param int $level 
 	 */
-	protected function writeAuditLog($action, $message, $item = null, $level = AuditLogEvent::INFO) 
+	protected function writeAuditLog($message, $item = null, $level = AuditLogEvent::INFO) 
 	{
 		if ($item instanceof AbstractPage) {
 			$localeId = $this->getLocale()->getId();
 			$item = $item->getLocalization($localeId);
 		}
 		
-		parent::writeAuditLog($action, $message, $item, $level);
+		parent::writeAuditLog($message, $item, $level);
 	}
 	
 	/**
