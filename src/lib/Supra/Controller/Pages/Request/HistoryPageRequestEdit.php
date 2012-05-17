@@ -705,6 +705,8 @@ class HistoryPageRequestEdit extends PageRequest
 //			}
 //		}
 
+		$draftEm->flush();
+		
 		return $draftPage;
 	}
 	
