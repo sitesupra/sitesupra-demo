@@ -1,0 +1,130 @@
+{
+	"status": true,
+	"data": {
+		"favourites": [
+			"a", "c", "j"
+		],
+		"applications": [
+			{
+				"id": "a",
+				"title": "Pages",
+				"icon": "/cms/dashboard/images/apps/icons/pages.png"
+			},
+			{
+				"id": "b",
+				"title": "Backend users",
+				"icon": "/cms/dashboard/images/apps/icons/users.png"
+			},
+			{
+				"id": "c",
+				"title": "Media Library",
+				"icon": "/cms/dashboard/images/apps/icons/media-library.png"
+			},
+			{
+				"id": "d",
+				"title": "Banners",
+				"icon": "/cms/dashboard/images/apps/icons/banners.png"
+			},
+			{
+				"id": "e",
+				"title": "Pages",
+				"icon": "/cms/dashboard/images/apps/icons/pages.png"
+			},
+			{
+				"id": "f",
+				"title": "Backend users",
+				"icon": "/cms/dashboard/images/apps/icons/users.png"
+			},
+			{
+				"id": "g",
+				"title": "Media Library",
+				"icon": "/cms/dashboard/images/apps/icons/media-library.png"
+			},
+			{
+				"id": "h",
+				"title": "Banners",
+				"icon": "/cms/dashboard/images/apps/icons/banners.png"
+			},
+			{
+				"id": "i",
+				"title": "Pages",
+				"icon": "/cms/dashboard/images/apps/icons/pages.png"
+			},
+			{
+				"id": "j",
+				"title": "Backend users",
+				"icon": "/cms/dashboard/images/apps/icons/users.png"
+			},
+			{
+				"id": "k",
+				"title": "Media Library",
+				"icon": "/cms/dashboard/images/apps/icons/media-library.png"
+			},
+			{
+				"id": "l",
+				"title": "Banners",
+				"icon": "/cms/dashboard/images/apps/icons/banners.png"
+			},
+			{
+				"id": "m",
+				"title": "Pages",
+				"icon": "/cms/dashboard/images/apps/icons/pages.png"
+			},
+			{
+				"id": "n",
+				"title": "Backend users",
+				"icon": "/cms/dashboard/images/apps/icons/users.png"
+			},
+			{
+				"id": "o",
+				"title": "Media Library",
+				"icon": "/cms/dashboard/images/apps/icons/media-library.png"
+			},
+			{
+				"id": "p",
+				"title": "Banners",
+				"icon": "/cms/dashboard/images/apps/icons/banners.png"
+			},
+			{
+				"id": "r",
+				"title": "Pages",
+				"icon": "/cms/dashboard/images/apps/icons/pages.png"
+			},
+			{
+				"id": "s",
+				"title": "Backend users",
+				"icon": "/cms/dashboard/images/apps/icons/users.png"
+			},
+			{
+				"id": "t",
+				"title": "Media Library",
+				"icon": "/cms/dashboard/images/apps/icons/media-library.png"
+			},
+			{
+				"id": "u",
+				"title": "Banners",
+				"icon": "/cms/dashboard/images/apps/icons/banners.png"
+			},
+			{
+				"id": "v",
+				"title": "Pages",
+				"icon": "/cms/dashboard/images/apps/icons/pages.png"
+			},
+			{
+				"id": "z",
+				"title": "Backend users",
+				"icon": "/cms/dashboard/images/apps/icons/users.png"
+			},
+			{
+				"id": "q",
+				"title": "Media Library",
+				"icon": "/cms/dashboard/images/apps/icons/media-library.png"
+			},
+			{
+				"id": "w",
+				"title": "Banners",
+				"icon": "/cms/dashboard/images/apps/icons/banners.png"
+			}
+		]
+	}
+}

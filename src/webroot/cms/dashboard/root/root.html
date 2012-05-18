@@ -4,6 +4,7 @@
 	<div class="apps">
 		
 		<!-- Favourite apps -->
+		<!--
 		<div class="su-apps-favourites">
 			<div class="su-apps-favourite-content">
 				
@@ -17,113 +18,23 @@
 				
 			</div>
 		</div>
+		-->
+	
+		<!-- All app list -->
+		<div class="dashboard-favourites" suTitle="{# dashboard.favourite.title #}"></div>
 		
 		<!-- All app list -->
-		<div class="su-apps-list">
-			<div class="su-apps-list-content">
-				
-				<h2>{# dashboard.list.title #}</h2>
-				
-				<ul class="app-list clearfix">
-					
-					<li>
-						<span><img src="images/apps/icons/pages.png" alt="" /></span>
-						<label>Pages</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/users.png" alt="" /></span>
-						<label>Backend users</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/media-library.png" alt="" /></span>
-						<label>Media library</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/banners.png" alt="" /></span>
-						<label>Banners</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/pages.png" alt="" /></span>
-						<label>Pages</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/users.png" alt="" /></span>
-						<label>Backend users</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/media-library.png" alt="" /></span>
-						<label>Media library</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/banners.png" alt="" /></span>
-						<label>Banners</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/pages.png" alt="" /></span>
-						<label>Pages</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/users.png" alt="" /></span>
-						<label>Backend users</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/media-library.png" alt="" /></span>
-						<label>Media library</label>
-					</li>
-					<li>
-						<span><img src="images/apps/icons/banners.png" alt="" /></span>
-						<label>Banners</label>
-					</li>
-					
-				</ul>
-				
-			</div>
-		</div>
-		
-		<div class="su-paging">
-			<div class="su-paging-content">
-				
-				<a></a>
-				<a></a>
-				<a></a>
-				<a class="active"></a>
-				
-			</div>
-		</div>
+		<div class="dashboard-apps" suTitle="{# dashboard.list.title #}"></div>
 		
 	</div>
 	<div class="info ui-dark">
 		
 		<!-- Mail -->
-		<div class="su-inbox su-block">
-			<div class="su-inbox-content">
-				
-				<div class="su-block-heading ui-center-darker-background">
-					<h2>{# dashboard.inbox.new_mail #}</h2>
-				</div>
-				<div class="su-block-content ui-center-dark-background">
-					
-					<ul class="data-list">
-						<li class="new">
-							<button>{# dashboard.inbox.buy_now #}</button>
-							<p>Gallery block is due in 3 days <a href="#">{# dashboard.inbox.view_buy #}</a></p>
-						</li>
-						<li class="new">
-							<button>{# dashboard.inbox.buy_now #}</button>
-							<p>Gallery block is due in 3 days <a href="#">{# dashboard.inbox.view_buy #}</a></p>
-						</li>
-						<li>
-							<p>Gallery block is due in 3 days <a href="#">{# dashboard.inbox.view_buy #}</a></p>
-						</li>
-					</ul>
-					
-				</div>
-				
-			</div>
-		</div>
+		<div class="dashboard-inbox" suTitle="{# dashboard.inbox.new_mail #}"></div>
 		
 		<!-- Visitors -->
-		<div class="su-visitors su-block">
+		<!--
+		<div class="dashboard-visitors su-block">
 			<div class="su-visitors-content">
 				
 				<div class="su-block-heading ui-center-darker-background">
@@ -137,79 +48,20 @@
 				
 			</div>
 		</div>
+		-->
 		
 		<!-- Referrers -->
-		<div class="su-referrers su-block">
-			<div class="su-referrers-content">
-				
-				<div class="su-block-heading ui-center-darker-background">
-					<h2>{# dashboard.referrers.title #} <a href="#">{# dashboard.referrers.view_all #}</a></h2>
-				</div>
-				<div class="su-block-content ui-center-dark-background">
-					
-					<ul class="data-list">
-						<li>
-							<p>www.delfi.lv</p>
-							<p class="right"><b>300</b> <span class="up">+10</span></p>
-						</li>
-						<li>
-							<p>rus.delfi.lv</p>
-							<p class="right"><b>240</b> <span class="up">+8</span></p>
-						</li>
-						<li>
-							<p>hub.lv</p>
-							<p class="right"><b>80</b> <span class="up">+2</span></p>
-						</li>
-						<li>
-							<p>facebook.com</p>
-							<p class="right"><b>78</b> <span class="up">+1</span></p>
-						</li>
-						<li>
-							<p>google.com</p>
-							<p class="right"><b>30</b> <span class="down">-10</span></p>
-						</li>
-					</ul>
-					
-				</div>
-				
-			</div>
+		<div class="dashboard-referrers"
+			 suTitle="{# dashboard.referrers.title #}"
+			 suLinkTitle="{# dashboard.referrers.view_all #}"
+			 suLinkTarget="#">
 		</div>
 		
 		<!-- Keywords -->
-		<div class="su-keywords su-block">
-			<div class="su-keywords-content">
-				
-				<div class="su-block-heading ui-center-darker-background">
-					<h2>{# dashboard.keywords.title #} <a href="#">{# dashboard.referrers.view_all #}</a></h2>
-				</div>
-				<div class="su-block-content ui-center-dark-background">
-
-					<ul class="data-list">
-						<li>
-							<p>biļetes</p>
-							<p class="right"><b>300</b> <span class="up">+10</span></p>
-						</li>
-						<li>
-							<p>aviobiletes</p>
-							<p class="right"><b>240</b> <span class="up">+8</span></p>
-						</li>
-						<li>
-							<p>finnair</p>
-							<p class="right"><b>80</b> <span class="up">+2</span></p>
-						</li>
-						<li>
-							<p>aviobiļetes uz asv</p>
-							<p class="right"><b>78</b> <span class="up">+1</span></p>
-						</li>
-						<li>
-							<p>turkish airlines</p>
-							<p class="right"><b>30</b> <span class="down">-10</span></p>
-						</li>
-					</ul>
-					
-				</div>
-				
-			</div>
+		<div class="dashboard-keywords"
+			 suTitle="{# dashboard.keywords.title #}"
+			 suLinkTitle="{# dashboard.referrers.view_all #}"
+			 suLinkTarget="#">
 		</div>
 		
 	</div>

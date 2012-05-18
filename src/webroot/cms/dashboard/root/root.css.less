@@ -12,55 +12,92 @@
 	
 	.apps {
 		left: 50px;
-		right: 550px;
+		right: 44%;
 	}
 	.info {
-		width: 440px;
+		width: 35%;
 		right: 65px;
 	}
 }
 
 /**
- * Favourite apps module
+ * App list
  */
 .app-list {
 	list-style: none;
+}
+
+.app-list li,
+li.app-list-proxy {
+	float: left;
+	width: 150px;
+	height: 140px;
+	padding-top: 10px;
+	cursor: pointer;
 	
-	li {
-		float: left;
-		width: 150px;
-		height: 140px;
-		padding-top: 10px;
+	span {
+		display: block;
+		height: 100px;
+		text-align: center;
+		
+		img {
+			display: inline-block;
+		}
+	}
+	label {
+		display: block;
+		color: #A9ACC1;
 		cursor: pointer;
-		
-		span {
-			display: block;
-			height: 100px;
-			text-align: center;
-			
-			img {
-				display: inline-block;
-			}
-		}
+		font-size: 13px;
+		font-weight: bold;
+		text-align: center;
+		text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+	}
+	
+	&:hover {
 		label {
-			display: block;
-			color: #A9ACC1;
-			cursor: pointer;
-			font-size: 13px;
-			font-weight: bold;
-			text-align: center;
-			text-shadow: 0 1px 0 rgba(0, 0, 0, .5);
+			color: #fff;
 		}
+	}
+}
+
+/**
+ * App list module
+ */
+.su-app-list,
+.su-app-favourites {
+	h2 {
+		color: #fff;
+		font-size: 18px;
+		font-weight: bold;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, .75);
+		display: block;
+		padding: 42px 10px 0;
+	}
+	
+	.app-list {
+		position: relative;
 		
-		&:hover {
-			label {
-				color: #fff;
+		li {
+			position: absolute;
+		
+			&.yui3-dd-dragging {
+				opacity: 0 !important;
 			}
 		}
 	}
 }
 
-.su-apps-favourites {
+li.app-list-proxy {
+	position: absolute;
+	list-style: none;
+	display: block;
+}
+
+/**
+ * Favourites app list
+ */
+.su-app-favourites {
 	
 	h2 {
 		color: #9A9BA1;
@@ -84,35 +121,29 @@
 		top: -1px;
 		margin: -2px;
 		
+		overflow: hidden; //for animated height
+		
 		li.empty {
+			position: static;
 			width: auto;
 			float: none;
 			height: 50px;
 			padding: 0;
 			background: url(../images/apps/favourite-text.png) 50% 50% no-repeat;
 			cursor: default;
+			display: none;
 		}
 	}
-}
-
-/**
- * App list module
- */
-.su-apps-list {
-	h2 {
-		color: #fff;
-		font-size: 18px;
-		font-weight: bold;
-		text-shadow: 0 -1px 0 rgba(0, 0, 0, .75);
+	
+	.app-list-empty .app-list li.empty {
 		display: block;
-		padding: 42px 10px 0;
 	}
 }
 
 /**
  * Pagination module
  */
-.su-paging {
+.su-pagination {
 	text-align: center;
 	padding-top: 25px;
 	
@@ -176,8 +207,11 @@
 .data-list {
 	list-style: none;
 	padding: 2px 12px 7px 10px;
+	position: relative;
 	
-	li {
+	min-height: 50px;
+	
+	li.item {
 		border-top: 1px solid #474853;
 		border-bottom: 1px solid #262730;
 		position: relative;
@@ -231,7 +265,10 @@
 				}
 			}
 		}
-		
+	}
+	
+	li.loading-icon {
+		margin-top: -19px;
 	}
 }
 
