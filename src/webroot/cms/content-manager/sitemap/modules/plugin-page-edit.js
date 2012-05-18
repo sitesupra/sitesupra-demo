@@ -271,7 +271,7 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 				Manager.Page.updatePage(post_data, function (response, success) {
 					if (success) {
 						//Update data
-						data[id] = value;
+						Supra.mix(data, response);
 					} else {
 						//Revert changes
 						if (this._nodeDataMapping[id]) {
