@@ -44,7 +44,10 @@ class SitesettingsAction extends CmsAction
 		$response = array();
 		foreach ($this->settingCollection as $section => $names) {
 			if (isset($settings[$section])) {
-				foreach($names as $name) {
+				foreach($names as $definition) {
+					
+					list($name, $type) = $definition;
+					
 					if (isset($settings[$section][$name])) {
 						$response[$section][$name] = $settings[$section][$name];
 					}
