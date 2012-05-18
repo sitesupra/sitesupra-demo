@@ -5,7 +5,7 @@ namespace Supra\Cms\AuditLog;
 use Supra\Controller\DistributedController;
 
 /**
- * Settings application controller
+ * Audit log application controller
  */
 class AuditLogController extends DistributedController
 {
