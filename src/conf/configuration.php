@@ -1,14 +1,19 @@
 <?php
 
 use Supra\Configuration\Loader\ComponentConfigurationLoader;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
 
 error_reporting(E_ALL | E_NOTICE);
 
 $iniLoader = new Supra\Configuration\Loader\IniConfigurationLoader('supra.ini');
-Supra\ObjectRepository\ObjectRepository::setDefaultIniConfigurationLoader($iniLoader);
+ObjectRepository::setDefaultIniConfigurationLoader($iniLoader);
 
-$writeableIniLoader = new Supra\Configuration\Loader\WriteableIniConfigurationLoader('theme.ini');
-Supra\ObjectRepository\ObjectRepository::setIniConfigurationLoader('Supra\Controller\Layout\Theme', $writeableIniLoader);
+$writeableIniLoader = new WriteableIniConfigurationLoader('theme.ini');
+ObjectRepository::setIniConfigurationLoader('Supra\Controller\Layout\Theme', $writeableIniLoader);
+
+$writeableIniLoader = new WriteableIniConfigurationLoader('supra.ini');
+ObjectRepository::setIniConfigurationLoader('Supra\Cms\Settings', $writeableIniLoader);
 
 require_once SUPRA_CONF_PATH . 'loader.php';
 require_once SUPRA_CONF_PATH . 'log.php';

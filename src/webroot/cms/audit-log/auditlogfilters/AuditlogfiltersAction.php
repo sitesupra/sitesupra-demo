@@ -8,12 +8,15 @@ use Supra\Response;
 use Supra\Cms\CmsAction;
 
 /**
- * Root action, returns initial HTML
- * @method TwigResponse getResponse()
+ *
  */
 class AuditlogfiltersAction extends CmsAction
 {
-
+	
+	/**
+	 * Basic method to get list of components (CMS applications)
+	 * which will be used as dropdown components filter
+	 */
 	public function componentsAction()
 	{
 		$components = array();

@@ -73,7 +73,7 @@ class AuditlogAction extends CmsAction
 		$query = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
 		// FIXME: IF(EXISTS(statement)) didn't work
 		$tableCount = $this->connection->fetchColumn($query, array($config['dbname'], $tableName));
-		if (empty($tableCount)) {
+		if (empty($tableCount) || $tableCount == 0) {
 			throw new CmsException(null, 'There is no audit table in database');
 		}
 		
