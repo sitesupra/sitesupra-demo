@@ -156,6 +156,9 @@ YUI.add("website.app-list", function (Y) {
 			
 			pagination.render(container);
 			
+			//Set initial column count
+			this.set("columns", this.getColumnCount());
+			
 			//Finalize
 			this.widgets = {
 				"slideshow": slideshow,
@@ -205,8 +208,7 @@ YUI.add("website.app-list", function (Y) {
 			});
 			
 			draggable.on('drag:start', this.onDragStart, this);
-			draggable.on('drag:drophit', this.onDragEnd, this);
-			draggable.on('drop:hit', this.onDrop, this);
+			target.on('drop:hit', this.onDrop, this);
 		},
  
 		/**
@@ -624,9 +626,11 @@ YUI.add("website.app-list", function (Y) {
 		 * Remove application form the list
 		 * 
 		 * @param {String} id Application ID
+		 * @param {Boolean} silent Don't trigger event
 		 */
-		removeApplication: function (id) {
+		removeApplication: function (id, silent) {
 			var applications = this.applications,
+				application = null,
 				info = this.applications_info,
 				//draggables = this.draggables,
 				data = this.data,
@@ -646,6 +650,7 @@ YUI.add("website.app-list", function (Y) {
 			
 			for (var i=0, ii=data.length; i<ii; i++) {
 				if (data[i].id == id) {
+					application = data[i];
 					data.splice(i, 1); break;
 				}
 			}
@@ -653,6 +658,12 @@ YUI.add("website.app-list", function (Y) {
 			if (removed) {
 				this.moveApplications();
 				this.draggable.syncTargets();
+				
+				if (silent !== true) {
+					this.fire("appremove", {
+						"application": application
+					});
+				}
 			}
 		},
 		
@@ -660,8 +671,18 @@ YUI.add("website.app-list", function (Y) {
 		 * Add application
 		 * 
 		 * @param {Object} data Application data
+		 * @param {Boolean} silent Don't trigger event
 		 */
-		addApplication: function (data) {
+		addApplication: function (data, silent) {
+			var find = Y.Array.find(this.data, function (item) {
+				if (item.id === data.id) return true;
+			});
+			
+			if (find) {
+				//Item already in the list
+				return;
+			}
+			
 			var index = this.data.length,
 				node = Y.Node.create(this.TEMPLATE_APPLICATION(data));
 			
@@ -673,6 +694,13 @@ YUI.add("website.app-list", function (Y) {
 			
 			this.moveApplications();
 			this.draggable.syncTargets();
+			
+			if (silent !== true) {
+				this.fire("appadd", {
+					"application": data,
+					"node": node
+				});
+			}
 		},
  
  

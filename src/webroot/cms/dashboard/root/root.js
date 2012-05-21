@@ -140,9 +140,11 @@ function (Y) {
 			this.widgets.apps.render();
 			this.widgets.favourites.render();
 			
-			this.loadInboxData();
-			this.loadStatisticsData();
-			this.loadApplicationData();
+			this.widgets.favourites.on("appadd", this.onFavourite, this);
+			this.widgets.favourites.on("appremove", this.onFavouriteRemove, this);
+			
+			this.widgets.favourites.on("appadd", this.removeAppFromApps, this);
+			this.widgets.apps.on("appadd", this.removeAppFromFavourites, this);
 		},
 		
 		/**
@@ -197,10 +199,86 @@ function (Y) {
 		},
 		
 		/**
+		 * When application is added to favourites inform server
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onFavourite: function (e) {
+			var app = e.application;
+			
+			Supra.io(this.getDataPath("dev/favourite"), {
+				"data": {
+					"id": app.id,
+					"favourite": 1
+				},
+				"method": "post",
+				"context": this,
+				"on": {
+					"failure": function () {
+						//Revert changes
+						this.widgets.favourites.removeApplication(app.id, true);
+						this.widgets.apps.addApplication(app, true);
+					}
+				}
+			});
+		},
+		
+		/**
+		 * When application is removed from favourites inform server
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onFavouriteRemove: function (e) {
+			var app = e.application;
+			
+			Supra.io(this.getDataPath("dev/favourite"), {
+				"data": {
+					"id": app.id,
+					"favourite": 0
+				},
+				"method": "post",
+				"context": this,
+				"on": {
+					"failure": function () {
+						//Revert changes
+						this.widgets.apps.removeApplication(app.id, true);
+						this.widgets.favourites.addApplication(app, true);
+					}
+				}
+			});
+		},
+		
+		/**
+		 * When application is addded to the app list remove it from favourites
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		removeAppFromFavourites: function (e) {
+			this.widgets.favourites.removeApplication(e.application.id);
+		},
+		
+		/**
+		 * When application is addded to the favourites remove it from app list
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		removeAppFromApps: function (e) {
+			this.widgets.apps.removeApplication(e.application.id);
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function () {
 			this.show();
+			
+			this.loadInboxData();
+			this.loadStatisticsData();
+			this.loadApplicationData();
 		}
 	});
 	
