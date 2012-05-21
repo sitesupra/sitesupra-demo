@@ -142,6 +142,7 @@ function (Y) {
 			
 			this.widgets.favourites.on("appadd", this.onFavourite, this);
 			this.widgets.favourites.on("appremove", this.onFavouriteRemove, this);
+			this.widgets.favourites.on("appmove", this.onFavouriteSort, this);
 			
 			this.widgets.favourites.on("appadd", this.removeAppFromApps, this);
 			this.widgets.apps.on("appadd", this.removeAppFromFavourites, this);
@@ -205,11 +206,13 @@ function (Y) {
 		 * @private
 		 */
 		onFavourite: function (e) {
-			var app = e.application;
+			var app = e.application,
+				ref = e.reference;
 			
 			Supra.io(this.getDataPath("dev/favourite"), {
 				"data": {
 					"id": app.id,
+					"before": ref ? ref.id : "",
 					"favourite": 1
 				},
 				"method": "post",
@@ -247,6 +250,26 @@ function (Y) {
 						this.widgets.favourites.addApplication(app, true);
 					}
 				}
+			});
+		},
+		
+		/**
+		 * When favourite application list is sorted inform server
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onFavouriteSort: function (e) {
+			var app = e.application,
+				ref = e.reference;
+			
+			Supra.io(this.getDataPath("dev/sort"), {
+				"data": {
+					"id": app.id,
+					"before": ref ? ref.id : ""
+				},
+				"method": "post",
+				"context": this
 			});
 		},
 		

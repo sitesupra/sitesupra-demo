@@ -140,8 +140,24 @@ YUI.add("website.app-favourites", function (Y) {
 		
 		/**
 		 * Column count changed due to resize
+		 * @type {Boolean}
+		 * @private
 		 */
 		"columnCountChanged": false,
+		
+		/**
+		 * Application ID which is beeing dragged
+		 * @type {String}
+		 * @private
+		 */
+		"appDragging": null,
+		
+		/**
+		 * Application ID before which dragged item is inserted
+		 * @type {String}
+		 * @private
+		 */
+		"appTarget": null,
 		
  
 		/**
@@ -190,7 +206,7 @@ YUI.add("website.app-favourites", function (Y) {
 			var draggable = this.draggable = new Y.DD.Delegate({
 				"container": this.list,
 				"nodes": "li",
-				"target": false,
+				"target": true,
 				"dragConfig": {
 					"haltDown": false
 				}
@@ -206,6 +222,9 @@ YUI.add("website.app-favourites", function (Y) {
 			});
 			
 			draggable.on('drag:start', this.onDragStart, this);
+			draggable.on('drag:over', Supra.throttle(this.onDragOver, 16, this));
+			draggable.on('drag:end', this.onDragEnd, this);
+			draggable.on('drop:hit', this.onDrop, this);
 			target.on('drop:hit', this.onDrop, this);
 		},
  
@@ -240,11 +259,55 @@ YUI.add("website.app-favourites", function (Y) {
 		 * @private
 		 */
 		onDragStart: function (e) {
+			//Node
+			var node = e.target.get("node"),
+				data = node.getData("app");
+			
+			if (data) {
+				this.appDragging = data;
+				this.appTarget = null;
+			}
+			
 			//Add classname to proxy element
 	        var proxy = e.target.get("dragNode");
 			proxy.addClass("app-list-proxy");
 			
 			Y.one('body').append(proxy);
+		},
+		
+		/**
+		 * Fires when draggable item is over another item
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onDragOver: function (e) {
+			var drag = e.drag.get("node"),
+				drop = e.drop.get("node");
+			
+			if (drag && drop) {
+				drag = drag.getData("app");
+				drop = drop.getData("app");
+				
+				if (drag && drop && drag.id !== drop.id) {
+					var drag_index = this.getApplicationIndex(drag.id),
+						drop_index = this.getApplicationIndex(drop.id);
+					
+					if (drag_index != drop_index) {
+						if (this.changeApplicationIndex(drag_index, drop_index)) {
+							//Save drop ID
+							if (drop_index + 1 < this.data.length) {
+								this.appTarget = this.data[drop_index + 1];
+							} else {
+								this.appTarget = "";
+							}
+							
+							//Animate items
+							this.moveApplications();
+						}
+					}
+				}
+			}
 		},
 		
 		/**
@@ -254,11 +317,14 @@ YUI.add("website.app-favourites", function (Y) {
 		 * @private
 		 */
 		onDragEnd: function (e) {
-			var node = e.target.get("node"),
-				id = node.getAttribute("data-id");
-			
-			if (id) {
-				this.removeApplication(id);
+			if (this.appTarget !== null) {
+				this.fire("appmove", {
+					"application": this.appDragging,
+					"reference": this.appTarget
+				});
+				
+				this.appDragging = null;
+				this.appTarget = null;
 			}
 		},
 		
@@ -269,11 +335,19 @@ YUI.add("website.app-favourites", function (Y) {
 		 * @private
 		 */
 		onDrop: function (e) {
-			var node = e.drag.get("node");
-			if (node) {
-				var data = node.getData("app");
+			var drag = e.drag.get("node"),
+				drop = e.drop.get("node");
+			
+			if (drag) {
+				var data = drag.getData("app"),
+					onto = drop.getData("app");
+				
 				if (data) {
-					this.addApplication(data);
+					if (onto) {
+						this.addApplication(data, null, this.getApplicationIndex(onto.id));
+					} else {
+						this.addApplication(data);
+					}
 				}
 			}
 		},
@@ -295,7 +369,7 @@ YUI.add("website.app-favourites", function (Y) {
 				info = [];
 			
 			applications = Y.Array.map(data, function (app, index) {
-				info[index] = {"ready": false, "index": index};
+				info[index] = {"ready": false, "index": index, "animating": false};
 				var node = Y.Node.create(this.TEMPLATE_APPLICATION(app));
 				node.setData("app", app);
 				return node;
@@ -333,19 +407,20 @@ YUI.add("website.app-favourites", function (Y) {
 					
 					//Only if index changed
 					if (info[i].index != itemIndex || columnCountChanged) {
-						this.appMove(applications[i], position);
+						this.appMove(applications[i], position, info[i]);
 					}
 				} else {
 					//If not already in DOM
 					if (info[i].added) {
-						this.appFadeIn(applications[i], list, position);
+						this.appFadeIn(applications[i], list, position, info[i]);
 					} else {
 						this.appPlace(applications[i], list, position);
 					}
 				}
 				
 				//Save info
-				info[i] = {"ready": true, "index": itemIndex};
+				info[i].ready = true;
+				info[i].index = itemIndex;
 			}
 		},
 		
@@ -431,6 +506,56 @@ YUI.add("website.app-favourites", function (Y) {
 			}
 		},
 		
+		/**
+		 * Get application index
+		 * 
+		 * @param {String} id Application id
+		 * @private
+		 */
+		getApplicationIndex: function (id) {
+			var data = this.data,
+				ii = data.length,
+				i = 0;
+			
+			for (; i<ii; i++) {
+				if (data[i].id === id) return i;
+			}
+			
+			return -1;
+		},
+		
+		/**
+		 * Move application from one place to another
+		 * 
+		 * @param {Number} from Index of item which will be moed
+		 * @param {Number} to Index to move to
+		 * @private
+		 */
+		changeApplicationIndex: function (from ,to) {
+			var data = this.data,
+				applications = this.applications,
+				applications_info = this.applications_info,
+				item = null;
+			
+			if (!applications_info[to].animating) {
+				item = data[from];
+				data.splice(from, 1);
+				data.splice(to, 0, item);
+				
+				item = applications[from];
+				applications.splice(from, 1);
+				applications.splice(to, 0, item);
+				
+				item = applications_info[from];
+				applications_info.splice(from, 1);
+				applications_info.splice(to, 0, item);
+				
+				return true;
+			}
+			
+			return false;
+		},
+		
 		
 		/**
 		 * ---------------------------- ANIMATIONS -------------------------
@@ -442,7 +567,7 @@ YUI.add("website.app-favourites", function (Y) {
 		 * 
 		 * @private
 		 */
-		appFadeIn: function (app, container, position) {
+		appFadeIn: function (app, container, position, info) {
 			container.append(app);
 			app.setStyles({
 				"left": position[0] + "px",
@@ -451,11 +576,20 @@ YUI.add("website.app-favourites", function (Y) {
 				"opacity": 0
 			});
 			
+			if (info) {
+				info.animating = true;
+			}
+			
 			app.transition({
 				"opacity": 1,
 				"transform": "scale(1)",
 				"duration": 0.35
-			});
+			}, Y.bind(function () {
+				if (info) {
+					this.resetDropCache(true);
+					info.animating = false;
+				}
+			}, this));
 		},
 		
 		/**
@@ -463,12 +597,21 @@ YUI.add("website.app-favourites", function (Y) {
 		 * 
 		 * @private
 		 */
-		appMove: function (app, position) {
+		appMove: function (app, position, info) {
+			if (info) {
+				info.animating = true;
+			}
+			
 			app.transition({
 				"left": position[0] + "px",
 				"top":  position[1] + "px",
 				"duration": 0.35
-			});
+			}, Y.bind(function () {
+				if (info) {
+					this.resetDropCache(true);
+					info.animating = false;
+				}
+			}, this));
 		},
 		
 		/**
@@ -482,6 +625,25 @@ YUI.add("website.app-favourites", function (Y) {
 				"left": position[0] + "px",
 				"top":  position[1] + "px"
 			});
+		},
+		
+		/**
+		 * Reset drag and drop cache
+		 * 
+		 * @param {Boolean} clean Clean all cache
+		 * @private
+		 */
+		resetDropCache: function (clean) {
+			if (Y.DD.DDM.activeDrag) {
+				if (clean === true) {
+					Y.DD.DDM._activateTargets();
+				} else {
+					//Shim
+		            Y.each(Y.DD.DDM.targets, function(v, k) {
+		                v.sizeShim();
+		            }, Y.DD.DDM);
+	            }
+			}
 		},
 		
  
@@ -545,25 +707,33 @@ YUI.add("website.app-favourites", function (Y) {
 		 * 
 		 * @param {Object} data Application data
 		 * @param {Boolean} silent Don't trigger event
+		 * @param {Number} index Target index
 		 */
-		addApplication: function (data, silent) {
-			var find = Y.Array.find(this.data, function (item) {
-				if (item.id === data.id) return true;
-			});
-			
-			if (find) {
+		addApplication: function (data, silent, insertIndex) {
+			if (this.getApplicationIndex(data.id) !== -1) {
 				//Item already in the list
 				return;
 			}
 			
 			var index = this.data.length,
-				node = Y.Node.create(this.TEMPLATE_APPLICATION(data));
+				node = Y.Node.create(this.TEMPLATE_APPLICATION(data)),
+				reference = null;
 			
 			node.setData("app", data);
 			
-			this.data.push(data);
-			this.applications.push(node);
-			this.applications_info.push({"ready": false, "index": index, "added": true});
+			if ((insertIndex && insertIndex !== -1) || insertIndex === 0) {
+				if (insertIndex < this.data.length) {
+					reference = this.data[insertIndex];
+				}
+				
+				this.data.splice(insertIndex, 0, data);
+				this.applications.splice(insertIndex, 0, node);
+				this.applications_info.splice(insertIndex, 0, {"ready": false, "index": insertIndex, "added": true, "animating": false});
+			} else {
+				this.data.push(data);
+				this.applications.push(node);
+				this.applications_info.push({"ready": false, "index": index, "added": true, "animating": false});
+			}
 			
 			this.list.ancestor().removeClass("app-list-empty")
 			
@@ -573,7 +743,9 @@ YUI.add("website.app-favourites", function (Y) {
 			if (silent !== true) {
 				this.fire("appadd", {
 					"application": data,
-					"node": node
+					"reference": reference,
+					"node": node,
+					"index": insertIndex
 				});
 			}
 		},
