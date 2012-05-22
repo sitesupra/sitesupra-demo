@@ -89,7 +89,7 @@ abstract class BlockController extends ControllerAbstraction
 				$this->setPage($page);
 			}
 
-			$blockClass = $this->getBlock()->getComponentName();
+			$blockClass = $this->getBlock()->getComponentClass();
 			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
 
 			if ( ! empty($configuration)) {
