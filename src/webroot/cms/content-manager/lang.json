@@ -272,6 +272,7 @@
 			},
 			
 			"select_language": "Select language",
+			"select_template": "Select template",
 			
 			"status_not_created": "NOT-CREATED",
 			"status_draft": "DRAFT",

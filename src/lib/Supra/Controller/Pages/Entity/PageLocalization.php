@@ -252,7 +252,7 @@ class PageLocalization extends Abstraction\Localization
 	public function setPathPart($pathPart)
 	{
 		// Remove all special characters
-		$pathPart = strtr($pathPart, array('/' => '', '\\' => '', '#' => '', '?' => ''));
+		$pathPart = strtr($pathPart, array('/' => '', '\\' => '', '#' => '', '?' => '', ' ' => '', '%' => ''));
 		$pathPart = trim($pathPart);
 
 		$this->pathPart = $pathPart;

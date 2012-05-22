@@ -19,7 +19,7 @@
 		<form class="yui3-form-vertical">
 			
 			<input type="text" name="title" suUseReplacement="true" value="{# sitemap.page_title #}" />
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s]*$" suType="Path" suUseReplacement="true" value="products" suPath="http://videinfra.com/" />
+			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" suUseReplacement="true" value="products" suPath="http://videinfra.com/" />
 			
 			<div class="middle">
 				<button type="button">{# sitemap.duplicate_page #}</button><br />
@@ -37,7 +37,7 @@
 			<input type="text" name="title" value="" />
 			
 			<label for="path">{# sitemap.new_page_label_path #}</label>
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s]*$" suType="Path" value="products" suPath="http://videinfra.com/" />
+			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="products" suPath="http://videinfra.com/" />
 			
 			<select name="template"></select>
 			
@@ -66,7 +66,7 @@
 			<input type="text" name="title" value="" />
 			
 			<label for="path">{# sitemap.new_page_label_path #}</label>
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s]*$" suType="Path" value="" suPath="http://videinfra.com/" />
+			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="" suPath="http://videinfra.com/" />
 			
 			<div class="middle">
 				<button type="button">Create</button>
