@@ -23,6 +23,14 @@ class PageEventArgs extends EventArgs
 	
 	
 	/**
+	 * @param \Doctrine\ORM\EntityManager $entityManager
+	 */
+	public function __construct($entityManager = null)
+	{
+		$this->entityManager = $entityManager;
+	}
+	
+	/**
 	 * @param string $name
 	 * @return mixed
 	 */

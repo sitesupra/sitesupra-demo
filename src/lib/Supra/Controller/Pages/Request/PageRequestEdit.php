@@ -608,7 +608,7 @@ class PageRequestEdit extends PageRequest
 	 * @param boolean $skipPathEvent
 	 * @return Entity
 	 */
-	public function recursiveClone($entity, $associationOwner = null, $skipPathEvent = false, $targetLocale = null) 
+	public function recursiveClone($entity, $associationOwner = null, $skipPathEvent = false) 
 	{
 		$em = $this->getDoctrineEntityManager();
 		$cloned = false;
@@ -640,10 +640,10 @@ class PageRequestEdit extends PageRequest
 				if (isset($entityData[$fieldName])) {
 					if ($entityData[$fieldName] instanceof Collection) {
 						foreach ($entityData[$fieldName] as $collectionItem) {
-							$this->recursiveClone($collectionItem, $newEntity, $skipPathEvent, $targetLocale);
+							$this->recursiveClone($collectionItem, $newEntity, $skipPathEvent);
 						}
 					} else {
-						$this->recursiveClone($entityData[$fieldName], $newEntity, $skipPathEvent, $targetLocale);
+						$this->recursiveClone($entityData[$fieldName], $newEntity, $skipPathEvent);
 					}
 				}
 			} else if ( ! is_null($associationOwner)) {

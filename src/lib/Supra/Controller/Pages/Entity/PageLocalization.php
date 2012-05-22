@@ -419,6 +419,8 @@ class PageLocalization extends Abstraction\Localization
 			
 			$this->path = new PageLocalizationPath($this);
 			$this->path->setLocale($this->locale);
+			
+			$this->resetCreationTime();
 		}
 	}
 
