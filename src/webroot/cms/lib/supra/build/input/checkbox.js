@@ -130,6 +130,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 			//Hide INPUT or SELECT element
 			this.get('inputNode').insert(this.get('backgroundNode'), 'before');
 			this.get('inputNode').addClass('hidden');
+			
+			this.on('valueChange', this._afterValueChange, this);
 		},
 		
 		/**

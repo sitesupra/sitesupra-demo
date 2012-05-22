@@ -252,7 +252,7 @@ class PageLocalization extends Abstraction\Localization
 	public function setPathPart($pathPart)
 	{
 		// Remove all special characters
-		$pathPart = strtr($pathPart, array('/' => '', '\\' => '', '#' => '', '?' => ''));
+		$pathPart = strtr($pathPart, array('/' => '', '\\' => '', '#' => '', '?' => '', ' ' => '', '%' => ''));
 		$pathPart = trim($pathPart);
 
 		$this->pathPart = $pathPart;
@@ -419,6 +419,8 @@ class PageLocalization extends Abstraction\Localization
 			
 			$this->path = new PageLocalizationPath($this);
 			$this->path->setLocale($this->locale);
+			
+			$this->resetCreationTime();
 		}
 	}
 
