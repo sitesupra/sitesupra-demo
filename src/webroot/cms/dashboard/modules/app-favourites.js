@@ -500,8 +500,8 @@ YUI.add("website.app-favourites", function (Y) {
 			if (height != this.listHeight) {
 				this.listHeight = height;
 				this.list.transition({
-					'height': height + 'px',
-					'duration': 0.35
+					"height": height + "px",
+					"duration": 0.35
 				});
 			}
 		},

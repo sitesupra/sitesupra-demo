@@ -1,0 +1,105 @@
+<div class="profile">
+	
+	<div class="block ui-center-dark ui-center-dark-background name">
+		
+		<form name="Name">			
+			<div class="inputs hidden">
+				
+				<label for="name"></label>
+				<input type="text" name="name" value="" />
+				
+				<button class="save" suStyle="small-blue" type="submit">{# profile.save #}</button>
+				<a class="cancel">{# profile.cancel #}</a>
+				
+			</div>
+			<div class="preview">
+				
+				<p class="label value" suBind="name">&nbsp;</p>
+				<a class="edit">{# profile.name.edit #}</a>
+				
+			</div>
+			
+		</form>
+		
+	</div>
+	
+	<h2>{# profile.password.title #}</h2>
+	
+	<div class="block ui-center-dark ui-center-dark-background password">
+		
+		<form name="Password">
+			
+			<div class="inputs hidden">
+				
+				<p class="label">{# profile.password.current_password #}</p>
+				<p class="label value" suBind="password">••••••••</p>
+				
+				<label for="new_password">{# profile.password.new_password #}</label>
+				<input type="password" name="new_password" value="" />
+				
+				<label for="confirm_new_password">{# profile.password.confirm_new_password #}</label>
+				<input type="password" name="confirm_new_password" value="" />
+				
+				<div class="footer">
+					<button class="save" suStyle="small-blue" type="submit">{# profile.save #}</button>
+					<a class="cancel">{# profile.cancel #}</a>
+				</div>
+				
+			</div>
+			<div class="preview">
+				
+				<p class="label">{# profile.password.current_password #}</p>
+				<p class="label value" suBind="password">••••••••</p>
+				<a class="edit">{# profile.password.edit #}</a>
+				
+			</div>
+			
+		</form>
+		
+	</div>
+	
+	<h2>{# profile.email.title #}</h2>
+	
+	<div class="block ui-center-dark ui-center-dark-background email">
+		
+		<form name="Email">
+			
+			<div class="inputs hidden">
+				
+				<label for="email">{# profile.email.email #}</label>
+				<input type="text" name="email" value="" />
+				
+				<button class="save" suStyle="small-blue" type="submit">{# profile.save #}</button>
+				<a class="cancel">{# profile.cancel #}</a>
+				
+			</div>
+			<div class="preview">
+				
+				<p class="label">{# profile.email.email #}</p>
+				<p class="label value" suBind="email">&nbsp;</p>
+				<a class="edit">{# profile.email.edit #}</a>
+				
+			</div>
+			
+		</form>
+		
+	</div>
+	
+	<h2>{# profile.sites.title #}</h2>
+	
+	<div class="block ui-center-dark ui-center-dark-background sites">
+		
+		<form>
+			
+		</form>
+		
+	</div>
+	
+	<h2>{# profile.remove.title #}</h2>
+	
+	<div class="block ui-center-dark ui-center-dark-background delete">
+		
+		<button suStyle="small-red">{# profile.remove.delete #}</button>
+		
+	</div>
+</div>

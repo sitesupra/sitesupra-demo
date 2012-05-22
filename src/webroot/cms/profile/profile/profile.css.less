@@ -1,0 +1,131 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+.profile {
+	
+	padding: 25px 30px 0 29px;
+	
+	h2 {
+		color: #fff;
+		font-size: 16px;
+		font-weight: bold;
+		line-height: 20px;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, .75);
+		
+		margin: 0 0 5px 14px;
+	}
+	
+	.block {
+		margin-bottom: 12px;
+		border: 1px solid #434451;
+		padding: 3px 0 6px;
+		
+		&.delete {
+			padding: 23px 16px;
+		}
+	}
+	.inputs {
+		overflow: hidden;
+	}
+	
+	.email,
+	.name {
+		
+		.yui3-input {
+			display: inline-block;
+		}
+		
+		.su-button {
+			margin-top: 10px;
+			vertical-align: top;
+		}
+		a.cancel {
+			margin-top: 10px;
+		}
+		
+	}
+	
+	p.label,
+	a.edit,
+	a.cancel {
+		vertical-align: top;
+		display: inline-block;
+	}
+	
+	p.label,
+	a.edit {
+		margin-top: 10px;
+	}
+	
+	p.label,
+	.yui3-form-default .yui3-input-string label {
+		width: 200px;
+		font-weight: normal;
+	}
+	
+	.preview {
+		position: relative;
+		
+		p.label {
+			margin-bottom: 12px;
+		}
+		p.value {
+			margin-bottom: 11px;
+		}
+	}
+	
+	p.value {
+		font-size: 14px;
+		font-weight: normal;
+		padding-right: 16px;
+		width: auto;
+	}
+	
+	.name {
+		p.value {
+			font-size: 20px;
+			font-weight: bold;
+			padding-top: 1px;
+			margin-bottom: 8px;
+		}
+	}
+	.sites {
+		padding-bottom: 12px;
+		
+		.yui3-input-checkbox  {
+			width: 400px;
+			
+			label {
+				width: 300px !important;
+				font-weight: normal;
+				font-size: 14px;
+			}
+		}
+	}
+	
+	a.edit,
+	a.cancel {
+		color: #00A9FF;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, .75);
+	}
+	a.cancel {
+		padding-top: 4px;
+	}
+	a.edit {
+		//Match p.label padding
+		padding-top: 7px;
+	}
+	
+	.yui3-form-default .yui3-input-string input {
+		width: 240px;
+	}
+	
+	.yui3-form .yui3-footer {
+		padding: 0 0 0 215px;
+	}
+	
+	.su-button.save {
+		margin-right: 10px;
+	}
+	
+}

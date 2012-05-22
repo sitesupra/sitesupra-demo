@@ -1,7 +1,11 @@
 //Invoke strict mode
 "use strict";
 
-Supra(function (Y) {
+Supra(
+	
+	'supra.slideshow',
+	
+function (Y) {
 	
 	//Toolbar buttons
 	var TOOLBAR_BUTTONS = [
