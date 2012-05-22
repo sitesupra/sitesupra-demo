@@ -536,9 +536,13 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		'_fillTemplates': function () {
 			var templates = this._templates,
 				form = this._widgets.form;
-			
+				
 			if (templates && form && this.get('host').get('mode') == 'pages' && form.getInput('template')) {
 				form.getInput('template').set('loading', false);
+				
+				var select_template_title = Supra.Intl.get(['sitemap', 'select_template']);
+				templates.unshift({id:'', title: select_template_title});
+				
 				form.getInput('template').set('values', templates);
 				form.getInput('template').set('value', this._getAncestorTemplate);
 			}
