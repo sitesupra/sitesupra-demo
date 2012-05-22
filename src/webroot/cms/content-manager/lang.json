@@ -139,6 +139,9 @@
 			},
 			
 			"image_properties": "Image properties",
+			"image_size": "Image size",
+			"size_custom": "Custom",
+			"size_original": "Original",
 			"image_title": "Image title",
 			"image_description": "Alt text",
 			"image_alignment": "Align",
