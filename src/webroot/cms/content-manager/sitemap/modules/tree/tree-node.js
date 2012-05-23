@@ -1007,14 +1007,26 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			var data = this.get('data'),
 				parent = this.get('parent');
 			
-			while(parent && !parent.get('data').full_path) {
-				parent = parent.get('parent');
+			//Not using this.get('fullPath') because it itterates through all ancestors
+			if (data.path) {
+				while(parent && !parent.get('data').full_path) {
+					parent = parent.get('parent');
+				}
+				
+				if (parent) {
+					data.full_path = parent.get('data').full_path + (data.path ? data.path + '/' : '');
+				} else {
+					data.full_path = '/' + (data.path ? data.path + '/' : '');
+				}
 			}
 			
-			if (parent) {
-				data.full_path = parent.get('data').full_path + (data.path ? data.path + '/' : '');
-			} else {
-				data.full_path = '/' + (data.path ? data.path + '/' : '');
+			//Update all children full paths
+			var children = this.children(),
+				i = 0,
+				ii = children.length;
+			
+			for (; i<ii; i++) {
+				children[i].updateFullPath();
 			}
 		},
 		

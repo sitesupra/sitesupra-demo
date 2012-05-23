@@ -272,6 +272,11 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 					if (success) {
 						//Update data
 						Supra.mix(data, response);
+						
+						if (id == 'path') {
+							//Need to update this and all children full_path's
+							node.updateFullPath();
+						}
 					} else {
 						//Revert changes
 						if (this._nodeDataMapping[id]) {
