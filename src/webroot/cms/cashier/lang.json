@@ -38,12 +38,7 @@
 				"24_bill": "each 2 years",
 				
 				"to_bill": "to bill {{ period }}",
-				"terms": "I allow to bill my card {{ period }} and agree to <a href=\"#\">terms of recurring billing</a>",
-				
-				"pay_stored_card": "Pay with stored card",
-				"pay": "Submit",
-				"or": "or",
-				"add_new_card": "add new card"
+				"recurring": "I allow to bill my card {{ period }} and agree to <a href=\"#\">terms of recurring billing</a>"
 			},
 			
 			"newcard": {
@@ -62,24 +57,13 @@
 				
 				"empty": "You don't have any active subscriptions",
 				
-				"confirmation": "Are you sure you want to cancel \"{{ title }}\" subscription?"
+				"confirmation": "Are you sure you want to cancel \"{% if group %}{{ group|escape }}{% else %}{{ title|escape }}{% endif %}\" subscription?"
 			},
 			
 			"history": {
 				"payment_date": "Payment date",
 				"total": "Total",
 				"print": "Print receipt"
-			},
-			
-			"cards": {
-				"number": "Card number",
-				"expires": "Expires",
-				"delete": "Delete",
-				"add": "Add new card",
-				
-				"empty": "You don't have any stored cards",
-				
-				"confirmation": "Are you sure you want to delete card {{ number }} ?"
 			}
 			
 		}

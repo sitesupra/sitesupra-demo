@@ -16,25 +16,18 @@ function (Y) {
 			'action': 'CashierReceipts',
 			'type': 'tab'
 	    },
-	    {
+	    /*{
 	        'id': 'CashierSubscriptions',
 			'title': Supra.Intl.get(['cashier', 'title_subscriptions']),
 			'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
 			'action': 'CashierSubscriptions',
 			'type': 'tab'
-	    },
+	    },*/
 	    {
 	        'id': 'CashierHistory',
 			'title': Supra.Intl.get(['cashier', 'title_history']),
 			'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
 			'action': 'CashierHistory',
-			'type': 'tab'
-	    },
-	    {
-	        'id': 'CashierCards',
-			'title': Supra.Intl.get(['cashier', 'title_cards']),
-			'icon': '/cms/lib/supra/img/toolbar/icon-history.png',
-			'action': 'CashierCards',
 			'type': 'tab'
 	    }
 	];
@@ -139,9 +132,8 @@ function (Y) {
 			this.slideshow.render(this.one());
 			
 			this.slideshow.addSlide('CashierReceipts');
-			this.slideshow.addSlide('CashierSubscriptions');
+			/* this.slideshow.addSlide('CashierSubscriptions'); */
 			this.slideshow.addSlide('CashierHistory');
-			this.slideshow.addSlide('CashierCards');
 			
 			//After resize update slideshow
 			this.one().after('contentResize', this.slideshow.syncUI, this.slideshow);

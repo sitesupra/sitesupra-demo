@@ -73,17 +73,14 @@ function (Y) {
 			//Buy button
 			buyButton: null,
 			
-			//Terms and conditions checkbox
-			termsInput: null,
-			
-			//Card list buttons
-			payButtons: [],
+			//Recurring payment checkbox
+			recurringInput: null,
 			
 			//New card form
-			newCardForm: null,
+			cardForm: null,
 			
 			//New card footer
-			newCardFooter: null
+			cardFooter: null
 		},
 		
 		/**
@@ -155,7 +152,7 @@ function (Y) {
 		 * @private
 		 */
 		loadReceiptData: function () {
-			Supra.io(this.getDataPath('dev/reciept'), this.renderReceiptData, this);
+			Supra.io(this.getDataPath('dev/current-payments-status'), this.renderReceiptData, this);
 		},
 		
 		/**
@@ -200,8 +197,10 @@ function (Y) {
 					groups.item(0).one('h3').set('text', subscriptions[i].group);
 				} else {
 					//Show group and add item
+					/*
 					groups.item(1).removeClass('hidden')
 					lists[1].append(node);
+					*/
 				}
 			}
 			
@@ -277,152 +276,33 @@ function (Y) {
 				'duration': 0.5
 			});
 			
-			//Load payment card information
-			this.loadCardInformation();
-			
-			//Render widgets
-			if (!this.widgets.termsInput) {
-				this.widgets.termsInput = new Supra.Input.CheckboxStandard({
-					'srcNode': this.one('#cashierTerms')
-				});
-				
-				this.widgets.termsInput.render();
-				
-				this.one('div.payments div.cards p a').on('click', this.showNewCardForm, this);
-			}
+			//Render form
+			this.renderCardForm();
+			this.setPaymentFormLabels();
 		},
 		
 		/**
-		 * Load payment card information
+		 * Set payment form labels
 		 * 
 		 * @private
 		 */
-		loadCardInformation: function () {
-			Supra.io(Manager.getAction('CashierCards').getDataPath('dev/cards'), this.renderPaymentForm, this);
-		},
-		
-		/**
-		 * Render payment form
-		 * 
-		 * @param {Object} data Payment card request response data
-		 * @private
-		 */
-		renderPaymentForm: function (data) {
-			var container	= this.one('div.payments'),
-				results		= this.results,
+		setPaymentFormLabels: function () {
+			var container		= this.one('div.payments'),
+				results			= this.results,
 				
-				total		= Supra.data.get(['currency', 'symbol']) + results.total,
-				bill		= Supra.Intl.get(['cashier', 'payments', 'to_bill']).replace('{{ period }}', Supra.Intl.get(['cashier', 'payments', results.period + '_bill'])),
-				terms		= Supra.Intl.get(['cashier', 'payments', 'terms']).replace('{{ period }}', Supra.Intl.get(['cashier', 'payments', results.period + '_bill'])),
+				total			= Supra.data.get(['currency', 'symbol']) + results.total,
+				bill			= Supra.Intl.get(['cashier', 'payments', 'to_bill']).replace('{{ period }}', Supra.Intl.get(['cashier', 'payments', results.period + '_bill'])),
+				recurring		= Supra.Intl.get(['cashier', 'payments', 'recurring']).replace('{{ period }}', Supra.Intl.get(['cashier', 'payments', results.period + '_bill'])),
 				
-				termsInput	= this.widgets.termsInput;
+				recurringInput	= this.widgets.recurringInput;
 			
-			termsInput.get('labelNode').set('innerHTML', terms);
+			recurringInput.get('labelNode').set('innerHTML', recurring);
 			
 			container.one('div.payment-total span b').set('text', total);
 			container.one('div.payment-total span small').set('text', bill);
 			
-			//Render card list
-			this.renderCardList(data.results);
-			
 			//Remove loading style
 			container.removeClass('loading');
-		},
-		
-		/**
-		 * Render card list
-		 * 
-		 * @param {Array} cards Card data
-		 * @private
-		 */
-		renderCardList: function (cards) {
-			var cardsList	= this.one('div.payments div.cards tbody'),
-				cardsTempl	= Supra.Template('cashierCardsItem'),
-				buttons		= this.widgets.payButtons;
-			
-			//Remove button widgets
-			for(var i=0,ii=buttons.length; i<ii; i++) buttons[i].destroy();
-			this.widgets.payButtons = [];
-			
-			//Empty content
-			cardsList.empty();
-			
-			//Render new content
-			for(var i=0,ii=cards.length; i<ii; i++) {
-				cardsList.append(cardsTempl(cards[i]));
-			}
-			
-			//Initialize button widgets
-			cardsList.all('button').each(function (button) {
-				button = new Supra.Button({'srcNode': button});
-				button.render();
-				button.on('click', this.pay, this);
-				
-				this.widgets.payButtons.push(button);
-			}, this);
-		},
-		
-		/**
-		 * Show new card form
-		 * 
-		 * @private
-		 */
-		showNewCardForm: function () {
-			this.renderNewCardForm();
-			
-			var cardsContainer	= this.one('div.payments div.cards'),
-				formContainer	= this.one('div.payments form.new-card');
-			
-			cardsContainer.transition({
-				'opacity': 0,
-				'duration': 0.25
-			}, Y.bind(function () {
-				cardsContainer.addClass('hidden');
-				formContainer.removeClass('hidden').setStyles({
-					'opacity': 0
-				}).transition({
-					'opacity': 1,
-					'duration': 0.25
-				})
-			}, this));
-		},
-		
-		/**
-		 * Start payment
-		 * 
-		 * @param {Object} e Event facade object
-		 * @private
-		 */
-		pay: function (e) {
-			var button	= e.target,
-				data	= {},
-				terms	= this.widgets.termsInput;
-			
-			if (!terms.get('value')) {
-				terms.set('error', true);
-				return false;
-			} else {
-				terms.set('error', false);
-			}
-			
-			this.disablePaymentUI();
-			button.set('loading', true);
-			
-			//Get post data
-			data.card_id  = button.get('boundingBox').closest('tr').getAttribute('data-id');
-			data.products = Y.Array.map(this.getSelectedOptions(), function (item) {
-				return item.id;
-			});
-			
-			Supra.io(this.getDataPath('dev/pay'), {
-				'method': 'post',
-				'data': data,
-				'context': this,
-				'on': {
-					'success': this.paySuccess,
-					'failure': this.payFailure
-				}
-			});
 		},
 		
 		/**
@@ -430,21 +310,26 @@ function (Y) {
 		 * 
 		 * @private
 		 */
-		renderNewCardForm: function () {
-			if (this.widgets.newCardForm) return;
+		renderCardForm: function () {
+			if (this.widgets.cardForm) return;
 			
-			var form = this.widgets.newCardForm = new Supra.Form({
+			var recurring = this.widgets.recurringInput = new Supra.Input.CheckboxStandard({
+				'srcNode': this.one('#cashierRecurring')
+			});
+			
+			var form = this.widgets.cardForm = new Supra.Form({
 				'srcNode': this.one('div.payments form.new-card')
 			});
 			
-			var footer = this.widgets.newCardFooter = new Supra.Footer({
+			var footer = this.widgets.cardFooter = new Supra.Footer({
 				'srcNode': this.one('div.payments form.new-card div.footer')
 			});
 			
+			recurring.render();
 			footer.render();
 			form.render();
 			
-			form.on('submit', this.payWithNewCard, this);
+			form.on('submit', this.pay, this);
 		},
 		
 		/**
@@ -452,15 +337,13 @@ function (Y) {
 		 * 
 		 * @private
 		 */
-		payWithNewCard: function () {
-			var form	= this.widgets.newCardForm,
-				inputs	= form.getInputs('name'),
-				values	= form.getSaveValues('name'),
-				terms	= this.widgets.termsInput,
-				data	= {};
-			
-			if (!terms.get('value')) return terms.set('error', true);
-			terms.set('error', false);
+		pay: function () {
+			var form		= this.widgets.cardForm,
+				inputs		= form.getInputs('name'),
+				values		= form.getSaveValues('name'),
+				recurring	= this.widgets.recurringInput,
+				data		= {},
+				uri			= '';
 			
 			if (!values.name) return inputs.name.set('error', true);
 			inputs.name.set('error', false);
@@ -478,15 +361,22 @@ function (Y) {
 			inputs.cvc.set('error', false);
 			
 			this.disablePaymentUI();
-			this.widgets.newCardFooter.getButton('save').set('loading', true);
+			this.widgets.cardFooter.getButton('save').set('loading', true);
 			
 			//Get post data
+			data.period = this.widgets.slider.get('value');
 			data.card = values;
 			data.products = Y.Array.map(this.getSelectedOptions(), function (item) {
 				return item.id;
 			});
 			
-			Supra.io(this.getDataPath('dev/pay'), {
+			if (recurring.get('value')) {
+				uri = this.getDataPath('dev/start-recurring-payment');
+			} else {
+				uri = this.getDataPath('dev/make-single-payment');
+			}
+			
+			Supra.io(uri, {
 				'method': 'post',
 				'data': data,
 				'context': this,
@@ -506,16 +396,12 @@ function (Y) {
 		 */
 		paySuccess: function (data, status) {
 			this.enablePaymentUI();
-			this.widgets.termsInput.set('disabled', false);
 			
 			//Reload subscription and history lists
 			var action = Supra.Manager.getAction('CashierHistory');
 			if (action.get('loaded')) action.reload();
 			
 			var action = Supra.Manager.getAction('CashierSubscriptions');
-			if (action.get('loaded')) action.reload();
-			
-			var action = Supra.Manager.getAction('CashierCards');
 			if (action.get('loaded')) action.reload();
 			
 			//...
@@ -536,7 +422,6 @@ function (Y) {
 		 */
 		payFailure: function (data, status) {
 			this.enablePaymentUI();
-			this.widgets.termsInput.set('disabled', false);
 		},
 		
 		/**
@@ -545,23 +430,11 @@ function (Y) {
 		 * @private
 		 */
 		enablePaymentUI: function () {
-			var buttons	= this.widgets.payButtons,
-				i		= 0,
-				ii		= buttons.length;
-			
-			for(; i<ii; i++) {
-				buttons[i].set('disabled', false).set('loading', false);
-			}
-			
-			this.widgets.termsInput.set('disabled', false);
-			
-			if (this.widgets.newCardForm) {
-				this.widgets.newCardForm.set('disabled', false);
-			}
-			if (this.widgets.newCardFooter) {
-				var button = this.widgets.newCardFooter.getButton('save');
-				button.set('disabled', false).set('loading', false);
-			}
+			this.widgets.recurringInput.set('disabled', false);
+			this.widgets.cardForm.set('disabled', false);
+			this.widgets.cardFooter.getButton('save')
+										.set('disabled', false)
+										.set('loading', false);
 		},
 		
 		/**
@@ -570,23 +443,10 @@ function (Y) {
 		 * @private
 		 */
 		disablePaymentUI: function () {
-			var buttons	= this.widgets.payButtons,
-				i		= 0,
-				ii		= buttons.length;
-			
-			for(; i<ii; i++) {
-				buttons[i].set('disabled', true);
-			}
-			
-			this.widgets.termsInput.set('disabled', true);
-			
-			if (this.widgets.newCardForm) {
-				this.widgets.newCardForm.set('disabled', true);
-			}
-			if (this.widgets.newCardFooter) {
-				var button = this.widgets.newCardFooter.getButton('save');
-				button.set('disabled', true);
-			}
+			this.widgets.recurringInput.set('disabled', true);
+			this.widgets.cardForm.set('disabled', true);
+			this.widgets.cardFooter.getButton('save')
+										.set('disabled', true);
 		},
 		
 		
@@ -680,6 +540,7 @@ function (Y) {
 			this.show();
 			
 			Supra.Manager.getAction('Cashier').setSlide(this.NAME);
+			Supra.Manager.executeAction('CashierSubscriptions');
 		}
 	});
 	
