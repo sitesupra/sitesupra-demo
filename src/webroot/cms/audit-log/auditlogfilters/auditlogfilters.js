@@ -85,8 +85,8 @@ function (Y) {
 			this.widgets.footer.render();
 			this.widgets.footer.getButton('reset').on('click', this.resetFilters, this);
 			
-			//Control "Done" button shouldn't be visible
-			this.get('controlButton').hide();
+			//Control "Done" button
+			this.get('controlButton').on('click', this.hide, this);
 			
 			//Back button
 			this.get('backButton').on('click', this.widgets.slideshow.scrollBack, this.widgets.slideshow);
