@@ -15,6 +15,45 @@
 		margin: 0 0 5px 14px;
 	}
 	
+	.name {
+		.info {
+			display: inline-block;
+			vertical-align: top;
+			width: 48px;
+			height: 48px;
+			overflow: hidden;
+			margin: 12px 0 8px 14px;
+			position: relative;
+			background: url(/cms/lib/supra/img/background-pattern-darker.jpg) 0 0 repeat;
+			cursor: pointer;
+			
+			em {
+				//em if off the .info to position avatar selection properly
+				display: block;
+				vertical-align: middle;
+				width: 48px;
+				height: 0;
+				position: absolute;
+				left: 140px;
+				top: 48px;
+				
+				img {
+					position: absolute;
+					left: -140px;
+					top: -48px;
+				}
+			}
+		}
+		.yui3-form {
+			display: inline-block;
+			vertical-align: top;
+			
+			.yui3-form-content {
+				padding-top: 4px;
+			}
+		}
+	}
+	
 	.block {
 		margin-bottom: 12px;
 		border: 1px solid #434451;
@@ -82,6 +121,9 @@
 	}
 	
 	.name {
+		.yui3-input label {
+			display: none;
+		}
 		p.value {
 			font-size: 20px;
 			font-weight: bold;

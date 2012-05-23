@@ -73,7 +73,7 @@ Supra('supra.panel', 'transition', function (Y) {
 		 */
 		render: function () {
 			
-			var details = Manager.getAction('UserDetails'),
+			var details = this.get('controller'),
 				target = details.one('div.info em');
 			
 			this.panel.set('autoClose', true);
@@ -138,7 +138,7 @@ Supra('supra.panel', 'transition', function (Y) {
 		 * @private
 		 */
 		loadData: function () {
-			var user_id = Manager.User.getData().user_id;
+			var user_id = this.getUserId();
 			
 			//Update uploader parameter
 			this.uploader.get('data').user_id = user_id;
@@ -188,7 +188,7 @@ Supra('supra.panel', 'transition', function (Y) {
 			var ml = Manager.getAction('MediaLibrary'),
 				target = this.one('li:last-child');
 			
-			this.user_id = Manager.User.getData().user_id;
+			this.user_id = this.getUserId();
 			
 			this.uploader = new Supra.Uploader({
 				'clickTarget': target,
@@ -234,11 +234,14 @@ Supra('supra.panel', 'transition', function (Y) {
 		onFileUploadEnd: function (event) {
 			var data = event.data;
 			if (data) {
-				var userdata = Manager.getAction('User').getData();
+				var userdata = this.getData();
 				userdata.avatar = data.sizes['48x48'].external_path;
 				userdata.avatar_id = data.id;
 				
-				Manager.getAction('UserDetails').updateUI(userdata);
+				var controller = this.get('controller');
+				if (controller.updateUI) {
+					controller.updateUI(userdata);
+				}
 			}
 			
 			this.hide();
@@ -268,18 +271,20 @@ Supra('supra.panel', 'transition', function (Y) {
 				}
 				
 				if (data) {
-					var userdata = Manager.getAction('User').getData();
+					var userdata = this.getData(),
+						controller = this.get('controller');
 					
-					if(!Manager.getAction('UserDetails').isAllowedToUpdate(userdata)) {
-						
+					if(controller.isAllowedToUpdate && !controller.isAllowedToUpdate(userdata)) {
 						this.hide();
 						return;
 					}
 					
 					userdata.avatar = data.sizes['48x48'].external_path;
 					userdata.avatar_id = id;
-					Manager.getAction('UserDetails').updateUI(userdata);
-
+					
+					if (controller.updateUI) {
+						controller.updateUI(userdata);
+					}
 				}
 				
 				this.hide();
@@ -287,10 +292,36 @@ Supra('supra.panel', 'transition', function (Y) {
 		},
 		
 		/**
+		 * Returns controller data
+		 * 
+		 * @return User data
+		 * @type {Object}
+		 * @private
+		 */
+		getData: function () {
+			return this.get('controller').getData();
+		},
+		
+		/**
+		 * Returns user id
+		 * 
+		 * @return User ID
+		 * @type {String}
+		 * @private
+		 */
+		getUserId: function () {
+			return this.getData().user_id || Supra.data.get(["user", "id"]);
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function () {
-			var user_id = Manager.User.getData().user_id;
+			if (!this.get('controller')) {
+				this.set('controller', Manager.getAction('UserDetails'));
+			}
+			
+			var user_id = this.getUserId();
 			
 			if (this.data && this.user_id == user_id) {
 				this.show();

@@ -138,6 +138,9 @@ function (Y) {
 			this.one().delegate("click", this.handleEdit, "a.edit", this);
 			this.one().delegate("click", this.handleCancel, "a.cancel", this);
 			
+			//Handle avatar click
+			this.one('div.info').on('click', this.handleAvatarClick, this);
+			
 			//Load profile data
 			this.loadData();
 		},
@@ -526,6 +529,13 @@ function (Y) {
 			}
 		},
 		
+		handleAvatarClick: function (event) {
+			var UserAvatar = Manager.getAction('UserAvatar');
+			UserAvatar.set('controller', this);
+			UserAvatar.execute();
+			event.halt();
+		},
+		
 		
 		/**
 		 * --------------------------- DELETE PROFILE -----------------------------
@@ -583,6 +593,12 @@ function (Y) {
 			}
 		},
 		
+		
+		/**
+		 * --------------------------- API -----------------------------
+		 */
+		
+		
 		/**
 		 * Disable or enable all widgets
 		 * 
@@ -610,6 +626,26 @@ function (Y) {
 		 */
 		getData: function () {
 			return this.data;
+		},
+		
+		/**
+		 * Update UI after avatar change
+		 * 
+		 * @param {Object} data Data
+		 */
+		updateUI: function (data) {
+			if ('avatar' in data) {
+				this.one('div.info img').setAttribute('src', data.avatar + '?r=' + (+new Date()));
+				
+				//Send save request
+				Supra.io(this.getDataPath("dev/save"), {
+					"data": {
+						"avatar": this.data.avatar,
+						"avatar_id": this.data.avatar_id
+					},
+					"method": "post"
+				});
+			}
 		},
 		
 		/**
