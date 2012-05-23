@@ -242,7 +242,7 @@ YUI.add("supra.form", function (Y) {
 		 */
 		addInput: function (config) {
 			if (this.get("rendered")) {
-				if (config.isInstanceOf && config.isInstanceOf(Supra.Input.Proto)) {
+				if (config.isInstanceOf && config.isInstanceOf("input")) {
 					//Add input to the list of form inputs
 					this.inputs[config.get('id')] = config;
 				} else {
