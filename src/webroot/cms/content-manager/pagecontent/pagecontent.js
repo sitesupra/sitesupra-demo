@@ -246,10 +246,16 @@ Supra('dd-drag', function (Y) {
 		onStopEditingRoute: function (req) {
 			if (this.editing) {
 				this.editing = false;
-				Manager.PageContent.iframe_handler.getContent().set('activeChild', null);
 				
-				//Disable highlights
-				this.getContent().set('highlight', true);
+				//In other version preview page is not editable
+				var content = Manager.PageContent.iframe_handler.getContent();
+				if (content) {
+					//Stop editing
+					content.set('activeChild', null);
+					
+					//Disable highlights
+					content.set('highlight', true);
+				}
 			}
 			
 			if (req) req.next();
