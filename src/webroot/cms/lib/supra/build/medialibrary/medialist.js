@@ -550,22 +550,6 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
-		 * 
-		 */
-//		handleInfoToggleClick: function (event /* Event */) {
-//			var node = event.target.closest('.group');
-//			
-//			node.one('div.info').toggleClass('hidden');
-//			node.all('a.more, a.less').toggleClass('hidden');
-//			
-//			//Scrollbars
-//			var content = node.closest('.su-scrollable-content');
-//			content.fire('contentResize');
-//			
-//			event.halt();
-//		},
-		
-		/**
 		 * Add file
 		 */
 		addFile: function (parent, data) {

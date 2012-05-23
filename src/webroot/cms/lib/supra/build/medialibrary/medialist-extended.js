@@ -201,13 +201,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		property_widgets: {},
 		
-		/**
-		 * Horizontal scrollable area
-		 * @type {Object}
-		 * @private
-		 */
-		scrollable: null,
-		
 		
 		/**
 		 * Add folder to the parent.
