@@ -437,6 +437,12 @@ Supra('anim', function (Y) {
 			//there wouldn't be any items with selected or loading styles
 			this.set('loading', false);
 			this.timeline.all('.loading, .active').removeClass('loading active');
+			
+			//Enable locale select
+			var header = Supra.Manager.getAction('PageHeader');
+			if (header.languagebar) {
+				header.languagebar.set('disabled', false);
+			}
 		},
 		
 		/**
@@ -451,6 +457,12 @@ Supra('anim', function (Y) {
 			//Load data
 			this.updateScrollbars();
 			this.reloadList();
+			
+			//Disable locale select
+			var header = Supra.Manager.getAction('PageHeader');
+			if (header.languagebar) {
+				header.languagebar.set('disabled', true);
+			}
 		}
 	});
 	
