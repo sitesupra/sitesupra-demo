@@ -307,4 +307,4 @@ YUI.add('website.input-slider-cashier', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto', 'slider']});
+}, YUI.version, {requires:['supra.input-proto', 'slider', 'transition']});

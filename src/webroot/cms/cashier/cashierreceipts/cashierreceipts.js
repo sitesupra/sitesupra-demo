@@ -8,7 +8,7 @@ Supra.addModule('website.input-checkbox-standard', {
 
 Supra.addModule('website.input-slider-cashier', {
 	path: 'slider/slider.js',
-	requires: ['supra.input-proto', 'slider']
+	requires: ['supra.input-proto', 'transition', 'slider']
 });
 
 Supra(
