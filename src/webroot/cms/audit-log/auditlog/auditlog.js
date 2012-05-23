@@ -41,7 +41,7 @@ function (Y) {
 		 * Dependancies
 		 * @type {Array}
 		 */
-		DEPENDANCIES: ['PageToolbar', 'PageButtons', 'AuditLogFilters'],
+		DEPENDANCIES: ['PageToolbar', 'PageButtons'],
 		
 		
 		
@@ -109,9 +109,9 @@ function (Y) {
 		 */
 		formatColumnComponent: function (id, value, data) {
 			if (data.icon) {
-				return '<span class="icon"><img src="' + Y.Escape.html(data.icon) + '" alt="" /></span>' + Y.Escape.html(value); 
+				return '<span class="icon"><img src="' + Y.Escape.html(data.icon) + '" alt="" /></span><span class="text">' + Y.Escape.html(value) + '</span>'; 
 			} else {
-				return '<span class="icon"></span>' + Y.Escape.html(value);
+				return '<span class="icon"></span><span class="text">' + Y.Escape.html(value) + '</span>';
 			}
 		},
 		
@@ -163,7 +163,13 @@ function (Y) {
 		 */
 		render: function () {
 			//Add buttons to toolbar
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
+				'id': 'auditlog_filters',
+				'type': 'toggle',
+				'title': Supra.Intl.get(['audit', 'filter', 'title']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-filters.png',
+				'action': 'AuditLogFilters'
+			}]);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 			
 			this.widgets.datagrid.render();
@@ -185,8 +191,6 @@ function (Y) {
 		execute: function () {
 			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);
-			
-			Supra.Manager.executeAction('AuditLogFilters');
 			
 			this.show();
 		}
