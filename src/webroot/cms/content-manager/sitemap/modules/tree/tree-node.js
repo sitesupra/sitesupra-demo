@@ -1000,6 +1000,24 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			return this._widgets[id] || null;
 		},
 		
+		/**
+		 * Update page full path
+		 */
+		'updateFullPath': function () {
+			var data = this.get('data'),
+				parent = this.get('parent');
+			
+			while(parent && !parent.get('data').full_path) {
+				parent = parent.get('parent');
+			}
+			
+			if (parent) {
+				data.full_path = parent.get('data').full_path + (data.path ? data.path + '/' : '');
+			} else {
+				data.full_path = '/' + (data.path ? data.path + '/' : '');
+			}
+		},
+		
 		
 		/**
 		 * ------------------------------ ATTRIBUTES ------------------------------

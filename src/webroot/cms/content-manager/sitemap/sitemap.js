@@ -338,17 +338,20 @@ function (Y) {
 			}
 			
 			var post_data = {
-					//New parent ID
-					'parent_id': node.get('root') ? 0 : node.get('parent').get('data').id,
-					//Item ID before which drag item was inserted
-					'reference_id': reference ? reference.get('data').id : '',
-					'reference_type': reference_type,
-					//Dragged item ID
-					'page_id': node.get('data').id,
-					
-					//Locale
-					'locale': this.languageSelector.get('value')
-				};
+				//New parent ID
+				'parent_id': node.get('root') ? 0 : node.get('parent').get('data').id,
+				//Item ID before which drag item was inserted
+				'reference_id': reference ? reference.get('data').id : '',
+				'reference_type': reference_type,
+				//Dragged item ID
+				'page_id': node.get('data').id,
+				
+				//Locale
+				'locale': this.languageSelector.get('value')
+			};
+			
+			//Update data full_path
+			node.updateFullPath();
 			
 			//Send request
 			Supra.io(this.getDataPath('move'), {
