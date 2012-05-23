@@ -267,6 +267,33 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->writeAuditLog('%item% deleted', $file);
 	}
 
+	public function moveAction() {
+		$this->isPostRequest();
+		$file = $this->getEntity();
+
+//		$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);		
+		$parentId = $this->getRequestParameter('parent_id');
+		
+		$target = null;
+		if(!empty($parentId)) {
+			$target = $this->entityManager->getRepository(Entity\Abstraction\File::CN())
+					->findOne($parentId);
+		}
+		
+		if (is_null($file)) {
+			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
+		}
+
+		// try to move
+		try {
+			$this->fileStorage->move($file, $target);
+		} catch (Exception\RuntimeException $e) {
+			throw new CmsException(null, $e->getMessage());
+		}
+
+		$this->writeAuditLog('%item% moved', $file);
+	}
+	
 	/**
 	 * File upload action
 	 */
