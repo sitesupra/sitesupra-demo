@@ -356,6 +356,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					'prevParent': previous_parent
 				});
 			}
+			
+			return moved;
 		},
 		
 		/**

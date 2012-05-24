@@ -126,7 +126,9 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 				}
 				
 				if (id && id != parent) {
-					this.get('host').moveFolder(id, parent);
+					if (this.get('host').moveFolder(id, parent)) {
+						this.get('host').open(parent);
+					}
 				}
 			}
 		},
