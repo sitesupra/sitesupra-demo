@@ -75,9 +75,9 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 			delegate.on('drop:hit', this.onDrop, this);
 			
 			this.get("host").on("itemRender", this.handleItemRender, this);
-			this.get("host").on("itemRender", this.handleChange, this);
-			this.get("host").on("folderMove", this.handleChange, this);
 			this.get("host").on("removeSlide", this.handleItemRemove, this);
+			this.get("host").on("itemRender", this.handleChange, this);
+			this.get("host").on("folderMoveComplete", this.handleChange, this);
 		},
 		
 		/**

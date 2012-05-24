@@ -303,8 +303,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 						//Trigger folder move
 						this.fire('folderMove', {
 							'id': id,
-							'newParent': parent,
-							'prevParent': previous_parent
+							'newParent': previous_parent,
+							'prevParent': parent
 						});
 					} else {
 						if (previous_parent && !data_object.getData(previous_parent).children.length) {
@@ -317,6 +317,13 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 						//Node no longer needed
 						node.destroy();
 					}
+					
+					//Trigger folder move
+					this.fire('folderMoveComplete', {
+						'id': id,
+						'newParent': success ? parent : previous_parent,
+						'prevParent': success ? previous_parent : parent
+					});
 				}
 			}, this);
 			
