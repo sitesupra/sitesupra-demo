@@ -154,6 +154,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					{% endif %}\
 				</div>\
 			</div>\
+			{% if allowInsert %}\
+			<div class="insert">\
+				<button data-id="insert" suStyle="small-blue" type="button">{{ "medialibrary.insert"|intl }}</button>\
+			</div>\
+			{% endif %}\
 		</div>');
 	
 	/**
@@ -203,6 +208,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					{% endif %}\
 				</div>\
 			</div>\
+			{% if allowInsert %}\
+			<div class="insert">\
+				<button data-id="insert" suStyle="small-blue" type="button">{{ "medialibrary.insert"|intl }}</button>\
+			</div>\
+			{% endif %}\
 		</div>');
 		
 	
@@ -292,6 +302,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @type {Boolean}
 		 */
 		'imagesSelectable': {
+			value: false
+		},
+		
+		/**
+		 * Show insert button
+		 */
+		'allowInsert': {
 			value: false
 		},
 		
@@ -1118,10 +1135,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				slideshow.removeSlide(id);
 				
 				//Fire event
+				var item = data_object.getData(data_id);
 				this.fire('removeSlide', {
 					'id': data_id,
 					'node': slide,
-					'type': data_object.getData(data_id).type
+					'type': item ? item.type : Data.TYPE_FOLDER
 				});
 			}
 			
@@ -1184,10 +1202,16 @@ YUI.add('supra.medialibrary-list', function (Y) {
 						template = this.get('templateImage');
 					}
 					
-					node = this.renderTemplate(data[0], template);
+					var template_data = {'allowInsert': this.get('allowInsert')};
+						template_data = Supra.mix(template_data, data[0]);
+					
+					node = this.renderTemplate(template_data, template);
 					node.setData('itemId', data[0].id);
 					
 					slide_content.empty().append(node);
+					
+					//Render buttons
+					node.all('button').each(this.renderItemButton, this);
 					
 //					//More / less
 //					node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
@@ -1246,6 +1270,35 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			slide_content.fire('contentResize');
 			
 			return this;
+		},
+		
+		/**
+		 * Render button inside template
+		 * 
+		 * @param {Object} node Button node
+		 * @private
+		 */
+		renderItemButton: function (node) {
+			var button = new Supra.Button({'srcNode': node});
+			
+			button.render();
+			button.on('click', this.renderItemButtonClick, this);
+		},
+		
+		/**
+		 * Handle button click
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		renderItemButtonClick: function (e) {
+			var node = e.target.get('contentBox'),
+				type = node.getAttribute('data-id'),
+				id = node.closest('div.image, div.file').getData('itemId');
+			
+			if (id && type) {
+				this.fire(type + 'Click', {'id': id, 'type': type + 'Click', 'target': e.target});
+			}
 		},
 		
 		/**

@@ -97,6 +97,9 @@ Media Library
 			imagesSelectable
 				Images can be selected
 			
+			allowInsert
+				Insert button will be visible for files and images
+			
 			displayType
 				Type of data which should be displayed
 			
