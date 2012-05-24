@@ -36,11 +36,20 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 		 * @private
 		 */
 		folderDragging: null,
+		
+		/**
+		 * Folder drop targets
+		 * @type {Object}
+		 * @private
+		 */
+		targets: null,
 	
 		/**
 		 * Add event listeners
 		 */
 		initializer: function () {
+			
+			this.targets = {};
 			
 			//div.su-multiview-slide-content, li.type-folder
 			var delegate = this.delegate = new Y.DD.Delegate({
@@ -60,9 +69,10 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 			delegate.on('drag:start', this.onDragStart, this);
 			delegate.on('drop:hit', this.onDrop, this);
 			
+			this.get("host").on("itemRender", this.handleItemRender, this);
 			this.get("host").on("itemRender", this.handleChange, this);
 			this.get("host").on("folderMove", this.handleChange, this);
-			
+			this.get("host").on("removeSlide", this.handleItemRemove, this);
 		},
 		
 		/**
@@ -101,6 +111,15 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 				var id = drag.getAttribute("data-id"),
 					parent = drop.getAttribute("data-id");
 				
+				if (parent === "") {
+					drop = drop.one("ul.folder, div.empty");
+					if (drag) {
+						parent = drop.getAttribute("data-id");
+					} else {
+						return;
+					}
+				}
+				
 				if (id && id != parent) {
 					this.get('host').moveFolder(id, parent);
 				}
@@ -114,6 +133,40 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 		 */
 		handleChange: function () {
 			this.delegate.syncTargets();
+		},
+		
+		/**
+		 * Handle item render
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		handleItemRender: function (e) {
+			//Add drop target to folder or empty folder
+			if (e.type == TYPE_FOLDER) {
+				var node = e.node.closest('.su-multiview-slide-content, .su-slide-content'),
+					drop = node.plug(Y.Plugin.Drop);
+				
+				drop.drop.on('drop:hit', this.onDrop, this);
+				
+				this.targets[e.id] = drop;
+			}
+		},
+		
+		/**
+		 * Handle item remove
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		handleItemRemove: function (e) {
+			//If folder or empty folder
+			if (e.type == TYPE_FOLDER) {
+				if (e.id in this.targets) {
+					this.targets[e.id].destroy();
+					delete(this.targets[e.id]);
+				}
+			}
 		}
 	
 	});
