@@ -193,6 +193,7 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 				'viewURI': this.getDataPath('view'),
 				'listURI': this.getDataPath('list'),
 				'saveURI': this.getDataPath('save'),
+				'moveURI': this.getDataPath('move'),
 				'deleteURI': this.getDataPath('delete'),
 				'insertURI': this.getDataPath('insert'),
 				'imageRotateURI': this.getDataPath('imagerotate'),

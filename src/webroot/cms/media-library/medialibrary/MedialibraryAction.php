@@ -277,7 +277,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$target = null;
 		if(!empty($parentId)) {
 			$target = $this->entityManager->getRepository(Entity\Abstraction\File::CN())
-					->findOne($parentId);
+					->findOneById($parentId);
 		}
 		
 		if (is_null($file)) {

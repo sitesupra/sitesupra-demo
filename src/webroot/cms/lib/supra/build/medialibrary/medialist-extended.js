@@ -261,6 +261,104 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
+		 * Move folder
+		 * 
+		 * @param {String} id Folder ID
+		 * @param {String} parent New parent folder ID
+		 */
+		moveFolder: function (id /* Folder ID */, parent /* New parent folder ID */) {
+			var data_object = this.get('dataObject'),
+				previous_parent = data_object.getData(id).parent,
+				moved = false,
+				node = this.getItemNode(id),
+				new_slide = null,
+				new_slide_content = null,
+				prev_slide = null,
+				prev_slide_content = null,
+				position = null,
+				was_empty = false;
+			
+			moved = data_object.moveFolder(id, parent, function (data, success) {
+				if (moved) {
+					//Failed to move folder, revert changes
+					if (!success) {
+						
+						data_object.moveFolder(id, previous_parent, true);
+						
+						//Place node back into previous position
+						Y.DOM.restoreInDOM(position);
+						node.setData('itemId', id); //data was lost for some reason
+						
+						//If folder was empty before insert then restore empty template
+						if (was_empty) {
+							var temp = this.renderTemplate({'id': parent}, this.get('templateEmpty'));
+							temp.setData('itemId', parent);
+							new_slide_content.empty().append(temp);
+						}
+						
+						//Update slide scrollbars
+						if (prev_slide_content) prev_slide_content.fire('contentResize');
+						if (new_slide_content) new_slide_content.fire('contentResize');
+						
+						//Trigger folder move
+						this.fire('folderMove', {
+							'id': id,
+							'newParent': parent,
+							'prevParent': previous_parent
+						});
+					} else {
+						if (previous_parent && !data_object.getData(previous_parent).children.length) {
+							//If previous parent is now empty render empty template
+							var temp = this.renderTemplate({'id': previous_parent}, this.get('templateEmpty'));
+							temp.setData('itemId', parent);
+							prev_slide_content.empty().append(temp);
+						}
+						
+						//Node no longer needed
+						node.destroy();
+					}
+				}
+			}, this);
+			
+			//Folder was moved in data
+			if (moved) {
+				new_slide = this.slideshow.getSlide('slide_' + (parent || 0));
+				new_slide_content = new_slide.one('.su-slide-content, .su-multiview-slide-content');
+				prev_slide_content = node.closest('.su-slide-content, .su-multiview-slide-content');
+				
+				//Remove item
+				position = Y.DOM.removeFromDOM(node);
+				
+				//Update previous slide scrollbars
+				prev_slide_content.fire('contentResize');
+				
+				if (new_slide) {
+					if (new_slide.one('div.empty')) {
+						//Currently folder is not rendered into slide, create empty folder
+						var temp = this.renderTemplate({'id': parent}, this.get('templateFolder'));
+						temp.setData('itemId', parent);
+						new_slide_content.empty().append(temp);
+						was_empty = true;
+					}
+					
+					new_slide.one('ul.folder').append(node);
+					new_slide.setData('itemId', parent);
+					node.setData('itemId', id); //data was lost for some reason
+					
+					//Update new slide scrollbars
+					new_slide_content.fire('contentResize');
+				}
+				
+				//Trigger folder move
+				this.fire('folderMove', {
+					'id': id,
+					'newParent': parent,
+					'prevParent': previous_parent
+				});
+			}
+		},
+		
+		/**
 		 * Deletes selected item.
 		 * Chainable
 		 */
@@ -325,6 +423,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			this.plug(List.Edit, {
 				'dataObject': this.get('dataObject')
 			});
+			
+			//Add plugin for folder drag and drop
+			this.plug(List.FolderDD, {});
 			
 			//Add plugin for editing images
 			this.plug(List.ImageEditor, {
@@ -655,5 +756,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	'supra.medialibrary-list',
 	'supra.slideshow-multiview',
 	'supra.medialibrary-list-edit',
-	'supra.medialibrary-image-editor'
+	'supra.medialibrary-image-editor',
+	'supra.medialibrary-list-folder-dd'
 ]});
