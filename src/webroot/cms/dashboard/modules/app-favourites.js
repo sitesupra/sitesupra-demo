@@ -202,6 +202,9 @@ YUI.add("website.app-favourites", function (Y) {
 			//On column count change move items
 			this.after("columnsChange", this.updateColumnsCount, this);
 			
+			//Click
+			this.list.delegate("click", this.handleAppClick, "li", this);
+			
 			//Drag and drop
 			var draggable = this.draggable = new Y.DD.Delegate({
 				"container": this.list,
@@ -554,6 +557,23 @@ YUI.add("website.app-favourites", function (Y) {
 			}
 			
 			return false;
+		},
+		
+		/**
+		 * Handle click on application
+		 */
+		handleAppClick: function (e) {
+			var node	= e.target.closest("li"),
+				id		= node.getAttribute("data-id"),
+				apps	= this.data,
+				i		= 0,
+				ii		= apps.length;
+			
+			for (; i<ii; i++) {
+				if (apps[i].id == id) {
+					document.location = apps[i].path;
+				}
+			}
 		},
 		
 		

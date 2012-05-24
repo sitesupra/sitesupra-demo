@@ -33,7 +33,6 @@ function (Y) {
 		PLACE_HOLDER: Supra.Manager.getAction('Cashier').getSlide(NAME),
 		
 		
-		
 		/**
 		 * DataGrid
 		 * 
@@ -53,7 +52,7 @@ function (Y) {
 			
 			this.dataGrid = new Supra.DataGrid({
 				//Url
-				'requestURI': this.getDataPath('dev/history'),
+				'requestURI': this.getDataPath('dev/payment-history'),
 				
 				'idColumn': ['id'],
 				

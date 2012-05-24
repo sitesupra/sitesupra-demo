@@ -85,6 +85,11 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		slide_anim: null,
 		
 		/**
+		 * Scroll animation
+		 */
+		scroll_anim_pos: 0,
+		
+		/**
 		 * Opened slide list
 		 * @type {Array}
 		 */
@@ -188,24 +193,37 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		},
 		
 		syncUI: function () {
-			
-			/*
-			var slideId = this.get('slide'),
-				index = Y.Array.indexOf(this.history, slideId),
-				position = 0;
-			
-			this.slide_width = null;
-			this.slide_width = this._getWidth();
-			
-			position = (index != -1 ? - index * this.slide_width : 0);
-			
-			this.get('contentBox').setStyle('left', position);
-			*/
-			
 			//Update scrollbar position
 			if (this.scrollable) {
 				this.scrollable.syncUI();
 			}
+		},
+		
+		/**
+		 * Update scroll position
+		 */
+		syncUIScrollPosition: function (index) {			var position = 0,
+				total = this.get('contentBox').get('offsetWidth');
+			
+			this.slide_width = null;
+			this.slide_width = this._getWidth();
+			
+			position = (index != -1 ? - index * this.slide_width : 0) + total - this.slide_width;
+			position = Math.min(position, 0);
+			
+			if (!this.get('noAnimations')) {
+				if (this.scroll_anim_pos != position) {
+					this.get('contentBox').transition({
+						'marginLeft': position + 'px',
+						'duration': 0.35
+					}, Y.bind(this.syncUI, this));
+				}
+			} else {
+				this.get('contentBox').setStyle('marginLeft', position + 'px');
+				this.syncUI();
+			}
+			
+			this.scroll_anim_pos = position;
 		},
 		
 		/**
@@ -214,7 +232,7 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 		 * @param {String} slideId
 		 * @private
 		 */
-		hideSlide: function (slideId) {
+		hideSlide: function (slideId, silent) {
 			if (slideId && slideId in this.slides) {
 				if (slideId in this.remove_on_hide) {
 					//Remove slide
@@ -224,8 +242,8 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 					this.slides[slideId].addClass('hidden');
 				}
 				
-				if (this.scrollable) {
-					this.scrollable.syncUI();
+				if (!silent) {
+					this.syncUIScrollPosition(0);
 				}
 			}
 		},
@@ -249,7 +267,7 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 			var callerIndex = (callerId ? Y.Array.indexOf(this.history, callerId) : -1);
 			if (callerIndex != -1) {
 				for(var i=this.history.length-1, ii=callerIndex; i>ii; i--) {
-					this.hideSlide(this.history[i]);
+					this.hideSlide(this.history[i], true);
 				}
 				this.history = this.history.splice(0, callerIndex + 1);
 				oldSlideId = callerId;
@@ -282,6 +300,10 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				
 				//Save value
 				this.set('slide', slideId, {silent: true});
+				
+				//Update scroll position
+				this.syncUIScrollPosition(index);
+				
 				return;
 			} else {
 				oldSlideId = null;
@@ -315,10 +337,10 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 					this.slides[slideId].one('.su-scrollable-content').fire('contentResize');
 					
 					//Scrollbars
-					if (this.scrollable) {
-						this.scrollable.syncUI();
-					}
+					this.syncUI();
 				}, this);
+				
+				this.syncUIScrollPosition(index);
 				
 			} else {
 				//Show new slide
@@ -337,12 +359,11 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				}
 				
 				//Scrollbars
-				if (this.scrollable) {
-					this.scrollable.syncUI();
-				}
+				this.syncUI();
 			}
 			
 			this.set('slide', slideId, {silent: true});
+			
 			return slideId;
 		},
 		

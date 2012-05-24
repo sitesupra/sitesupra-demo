@@ -20,7 +20,7 @@ YUI.add("website.app-list", function (Y) {
 	}
 	
 	AppList.NAME = "app-list";
-	AppList.CSS_PREFIX = 'su-' + AppList.NAME;
+	AppList.CSS_PREFIX = "su-" + AppList.NAME;
 	AppList.CLASS_NAME = Y.ClassNameManager.getClassName(AppList.NAME);
  
 	AppList.ATTRS = {
@@ -179,14 +179,17 @@ YUI.add("website.app-list", function (Y) {
 			AppList.superclass.bindUI.apply(this, arguments);
 			
 			//On resize update column count
-			Y.on('resize', Y.throttle(Y.bind(this.checkColumnsCount, this), 50), window);
-			Y.on('resize', Y.bind(this.widgets.slideshow.syncUI, this.widgets.slideshow), window);
+			Y.on("resize", Y.throttle(Y.bind(this.checkColumnsCount, this), 50), window);
+			Y.on("resize", Y.bind(this.widgets.slideshow.syncUI, this.widgets.slideshow), window);
 			
 			//On column count change move items
 			this.after("columnsChange", this.updateColumnsCount, this);
 			
 			//Change slide on navigation active index change
 			this.widgets.pagination.on("indexChange", this.handleNavigationIndexChange, this);
+			
+			//Click
+			this.widgets.slideshow.get("contentBox").delegate("click", this.handleAppClick, "li", this);
 			
 			//Drag and drop
 			var draggable = this.draggable = new Y.DD.Delegate({
@@ -207,8 +210,8 @@ YUI.add("website.app-list", function (Y) {
 				"node": this.widgets.slideshow.get("contentBox"),
 			});
 			
-			draggable.on('drag:start', this.onDragStart, this);
-			target.on('drop:hit', this.onDrop, this);
+			draggable.on("drag:start", this.onDragStart, this);
+			target.on("drop:hit", this.onDrop, this);
 		},
  
 		/**
@@ -246,9 +249,7 @@ YUI.add("website.app-list", function (Y) {
 	        var proxy = e.target.get("dragNode");
 			proxy.addClass("app-list-proxy");
 			
-			Y.one('body').append(proxy);
-			
-			e.target.set("xxx", "YYY");
+			Y.one("body").append(proxy);
 		},
 		
 		onDragEnd: function (e) {
@@ -522,6 +523,23 @@ YUI.add("website.app-list", function (Y) {
 		handleNavigationIndexChange: function (e) {
 			if (e.newVal != e.prevVal) {
 				this.widgets.slideshow.set("slide", "slide_" + e.newVal);
+			}
+		},
+		
+		/**
+		 * Handle click on application
+		 */
+		handleAppClick: function (e) {
+			var node	= e.target.closest("li"),
+				id		= node.getAttribute("data-id"),
+				apps	= this.data,
+				i		= 0,
+				ii		= apps.length;
+			
+			for (; i<ii; i++) {
+				if (apps[i].id == id) {
+					document.location = apps[i].path;
+				}
 			}
 		},
 		

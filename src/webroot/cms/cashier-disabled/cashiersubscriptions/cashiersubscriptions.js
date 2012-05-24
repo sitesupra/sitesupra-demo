@@ -30,7 +30,8 @@ function (Y) {
 		 * @type {Object}
 		 * @private
 		 */
-		PLACE_HOLDER: Supra.Manager.getAction('Cashier').getSlide(NAME),
+		/* PLACE_HOLDER: Supra.Manager.getAction('Cashier').getSlide(NAME), */
+		PLACE_HOLDER: Supra.Manager.getAction('CashierReceipts').one('div.subscriptions'),
 		
 		/**
 		 * Template as a string
@@ -55,8 +56,9 @@ function (Y) {
 		 * @type {Object}
 		 * @private
 		 */
+		/*
 		dataGridCustom: null,
-		
+		*/
 		
 		
 		
@@ -107,12 +109,13 @@ function (Y) {
 				}, definition)
 			);
 			
+			/*
 			this.dataGridCustom = new Supra.DataGrid(
 				Supra.mix({
 					'requestURI': this.getDataPath('dev/custom')
 				}, definition)
 			);
-			
+			*/
 		},
 		
 		/**
@@ -123,16 +126,16 @@ function (Y) {
 			var place_holder = this.getPlaceHolder();
 			
 			this.dataGridStandard.render(place_holder);
-			this.dataGridCustom.render(place_holder);
+			/* this.dataGridCustom.render(place_holder); */
 			
 			this.dataGridStandard.on('row:remove', this.afterRowRemove, this);
-			this.dataGridCustom.on('row:remove', this.afterRowRemove, this);
+			/* this.dataGridCustom.on('row:remove', this.afterRowRemove, this); */
 			
 			this.dataGridStandard.on('load:success', this.afterDataGridLoad, this);
-			this.dataGridCustom.on('load:success', this.afterDataGridLoad, this);
+			/* this.dataGridCustom.on('load:success', this.afterDataGridLoad, this); */
 			
 			this.dataGridStandard.tableBodyNode.delegate('click', this.cancelSubscriptionConfirmation, 'a', this);
-			this.dataGridCustom.tableBodyNode.delegate('click', this.cancelSubscriptionConfirmation, 'a', this);
+			/* this.dataGridCustom.tableBodyNode.delegate('click', this.cancelSubscriptionConfirmation, 'a', this); */
 		},
 		
 		/**
@@ -149,7 +152,12 @@ function (Y) {
 				datagrid.hide();
 			}
 			
+			/*
 			if (!this.dataGridStandard.get('visible') && !this.dataGridCustom.get('visible')) {
+				this.one('div.empty-message').removeClass('hidden');
+			}
+			*/
+			if (!this.dataGridStandard.get('visible')) {
 				this.one('div.empty-message').removeClass('hidden');
 			}
 		},
@@ -175,7 +183,12 @@ function (Y) {
 			}
 			
 			//If both data grids are hidden then show message
+			/*
 			if (!this.dataGridStandard.get('visible') && !this.dataGridCustom.get('visible')) {
+				this.one('div.empty-message').removeClass('hidden');
+			}
+			*/
+			if (!this.dataGridStandard.get('visible')) {
 				this.one('div.empty-message').removeClass('hidden');
 			}
 		},
@@ -184,7 +197,8 @@ function (Y) {
 		 * Confirm that user wants to cancel subscription
 		 */
 		cancelSubscriptionConfirmation: function (e) {
-			var row = this.dataGridStandard.getRowByNode(e.target) || this.dataGridCustom.getRowByNode(e.target),
+			/* var row = this.dataGridStandard.getRowByNode(e.target) || this.dataGridCustom.getRowByNode(e.target), */
+			var row = this.dataGridStandard.getRowByNode(e.target),
 				message = '';
 			
 			if (!row) return;
@@ -214,13 +228,14 @@ function (Y) {
 		 * Cancel subscription
 		 */
 		cancelSubscription: function (id) {
-			Supra.io(this.getDataPath('dev/cancel'), {
+			Supra.io(this.getDataPath('dev/cancel-recurring-payment'), {
 				'data': {'id': id},
 				'method': 'post',
 				'context': this,
 				'on': {
 					'success': function () {
-						var row = this.dataGridStandard.item(id) || this.dataGridCustom.item(id),
+						/* var row = this.dataGridStandard.item(id) || this.dataGridCustom.item(id), */
+						var row = this.dataGridStandard.item(id),
 							node = row.getNode();
 						
 						//Remove padding for nicer animation
@@ -235,7 +250,7 @@ function (Y) {
 							'duration': 0.25
 						}, Y.bind(function () {
 							this.dataGridStandard.remove(id);
-							this.dataGridCustom.remove(id);
+							/* this.dataGridCustom.remove(id); */
 						}, this));
 					}
 				}
@@ -247,7 +262,7 @@ function (Y) {
 		 */
 		reload: function () {
 			if (this.dataGridStandard) this.dataGridStandard.reset();
-			if (this.dataGridCustom) this.dataGridCustom.reset();
+			/* if (this.dataGridCustom) this.dataGridCustom.reset() ;*/
 		},
 		
 		/**
@@ -263,7 +278,7 @@ function (Y) {
 		execute: function () {
 			this.show();
 			
-			Supra.Manager.getAction('Cashier').setSlide(this.NAME);
+			/* Supra.Manager.getAction('Cashier').setSlide(this.NAME); */
 		}
 	});
 	

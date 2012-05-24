@@ -1,3 +1,6 @@
+<div class="subscriptions" id="cashierSubscriptions">
+	
+</div>
 <div class="total" id="cashierTotal">
 	
 	<div class="total-form">
@@ -83,21 +86,13 @@
 					</span>
 				</div>
 				
-				<div class="terms">
-					<label for="cashierTerms"></label>
-					<input type="checkbox" id="cashierTerms" name="terms" value="1" />
+				<div class="recurring">
+					<label for="cashierRecurring"></label>
+					<input type="checkbox" id="cashierRecurring" name="recurring" value="1" />
 				</div>
 			</div>
 			
-			<div class="cards">
-				<h3>{# cashier.payments.pay_stored_card #}</h3>
-				
-				<table><tbody></tbody></table>
-				
-				<p>{# cashier.payments.or #} <a>{# cashier.payments.add_new_card #}</a></p>
-			</div>
-			
-			<form class="new-card hidden">
+			<form class="new-card">
 				<h3>{# cashier.newcard.title #}</h3>
 				
 				<label for="cardName">{# cashier.newcard.name #}</label>
@@ -127,14 +122,6 @@
 			<span class="logo-visa"></span>
 			
 		</div>
-		
-		<script type="text/html" id="cashierCardsItem">
-			<tr data-id="{{ id|escape }}">
-				<td>{{ number|escape }}</td>
-				<td>{{ type|escape }}</td>
-				<td class="align-right"><button suStyle="small-blue">{# cashier.payments.pay #}</button></td>
-			</tr>
-		</script>
 		
 	</div>
 </div>
