@@ -27,7 +27,9 @@ class LocaleDetectorPreFilter extends Controller\ControllerAbstraction implement
 		}
 		
 		$current = $localeManager->getCurrent();
+		
 		if (empty($current)) {
+			\Log::debug('Did not found current locale. Stopping all requsts. Hint: check locale.php configuration for (new LocaleManager())->setCurrent()');
 			throw new Exception\StopRequestException();
 		}
 	}
