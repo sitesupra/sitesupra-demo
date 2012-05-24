@@ -261,6 +261,75 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
+		 * Move folder
+		 * 
+		 * @param {String} id Folder ID
+		 * @param {String} parent New parent folder ID
+		 */
+		moveFolder: function (id /* Folder ID */, parent /* New parent folder ID */) {
+			var data_object = this.get('dataObject'),
+				previous_parent = data_object.getData(id).parent,
+				moved = false,
+				node = this.getItemNode(id),
+				new_slide = null,
+				position = null;
+			
+			moved = data_object.moveFolder(id, parent, function (data, success) {
+				if (moved) {
+					if (!success) {
+						//Revert changes
+						data_object.moveFolder(id, previous_parent, true);
+						
+						//Place node back into previous position
+						Y.DOM.restoreInDOM(position);
+						node.setData('itemId', id); //data was lost for some reason
+						
+						//Update slide scrollbars
+						var old_slide = node.closest('.su-slide-content, .su-multiview-slide-content');
+						if (old_slide) old_slide.fire('contentResize');
+						if (new_slide) new_slide.one('.su-slide-content, .su-multiview-slide-content').fire('contentResize');
+						
+						//Trigger folder move
+						this.fire('folderMove', {
+							'id': id,
+							'newParent': parent,
+							'prevParent': previous_parent
+						});
+					} else {
+						//Node no longer needed
+						node.destroy();
+					}
+				}
+			}, this);
+			
+			//Folder was moved in data
+			if (moved) {
+				new_slide = this.slideshow.getSlide('slide_' + (parent || 0));
+				
+				//Update previous slide scrollbars
+				node.closest('.su-slide-content, .su-multiview-slide-content').fire('contentResize');
+				
+				//Remove item
+				position = Y.DOM.removeFromDOM(node);
+				
+				if (new_slide) {
+					new_slide.one('ul.folder').append(node);
+					node.setData('itemId', id); //data was lost for some reason
+					
+					//Update new slide scrollbars
+					new_slide.one('.su-slide-content, .su-multiview-slide-content').fire('contentResize');
+				}
+				
+				//Trigger folder move
+				this.fire('folderMove', {
+					'id': id,
+					'newParent': parent,
+					'prevParent': previous_parent
+				});
+			}
+		},
+		
+		/**
 		 * Deletes selected item.
 		 * Chainable
 		 */
@@ -325,6 +394,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			this.plug(List.Edit, {
 				'dataObject': this.get('dataObject')
 			});
+			
+			//Add plugin for folder drag and drop
+			this.plug(List.FolderDD, {});
 			
 			//Add plugin for editing images
 			this.plug(List.ImageEditor, {
@@ -655,5 +727,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	'supra.medialibrary-list',
 	'supra.slideshow-multiview',
 	'supra.medialibrary-list-edit',
-	'supra.medialibrary-image-editor'
+	'supra.medialibrary-image-editor',
+	'supra.medialibrary-list-folder-dd'
 ]});

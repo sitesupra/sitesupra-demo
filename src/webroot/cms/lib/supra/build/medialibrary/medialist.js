@@ -256,6 +256,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Request URI for folder move
+		 * @type {String}
+		 */
+		'moveURI': {
+			value: null
+		},
+		
+		/**
 		 * Root folder ID
 		 * @type {Number}
 		 */
@@ -423,6 +431,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					'listURI': this.get('listURI'),
 					'viewURI': this.get('viewURI'),
 					'saveURI': this.get('saveURI'),
+					'moveURI': this.get('moveURI'),
 					'insertURI': this.get('insertURI'),
 					'deleteURI': this.get('deleteURI')
 				});
@@ -461,7 +470,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				var target = event.target;
 					target = target.closest('li');
 				
-				var id = target.getData('itemId');
+				var id = target.getData('itemId') || target.getAttribute('data-id');
 				
 				//Style element
 				target.addClass('selected');

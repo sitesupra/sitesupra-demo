@@ -1,0 +1,127 @@
+//Invoke strict mode
+"use strict";
+
+/**
+ * Plugin to add folder drag and drop support to extended media list
+ */
+YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
+	
+	/*
+	 * Shortcuts
+	 */
+	var TYPE_FOLDER = Supra.MediaLibraryData.TYPE_FOLDER;
+	
+	/**
+	 * Add drag and drop support from media library to other actions
+	 */
+	function Plugin (config) {
+		Plugin.superclass.constructor.apply(this, arguments);
+	}
+	
+	Plugin.NAME = "medialist-folder-dd";
+	Plugin.NS = "folder_dd";
+	
+	Y.extend(Plugin, Y.Plugin.Base, {
+		
+		/**
+		 * Drag and drop delegate
+		 * @type {Object}
+		 * @private
+		 */
+		delegate: null,
+		
+		/**
+		 * Folder ID which is being dragged
+		 * @type {Object}
+		 * @private
+		 */
+		folderDragging: null,
+	
+		/**
+		 * Add event listeners
+		 */
+		initializer: function () {
+			
+			//div.su-multiview-slide-content, li.type-folder
+			var delegate = this.delegate = new Y.DD.Delegate({
+				"container": this.get("host").get("contentBox"),
+				"nodes": "li.type-folder",
+				"target": true,
+				"dragConfig": {
+					"haltDown": false
+				}
+			});
+			
+			delegate.dd.plug(Y.Plugin.DDProxy, {
+				"moveOnEnd": false,
+				"cloneNode": true
+			});
+			
+			delegate.on('drag:start', this.onDragStart, this);
+			delegate.on('drop:hit', this.onDrop, this);
+			
+			this.get("host").on("itemRender", this.handleChange, this);
+			this.get("host").on("folderMove", this.handleChange, this);
+			
+		},
+		
+		/**
+		 * On drag start style proxy node
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onDragStart: function (e) {
+			//Node
+			var node = e.target.get("node"),
+				id = node.getAttribute("data-id");
+			
+			if (id) {
+				this.folderDragging = id;
+			}
+			
+			//Add classname to proxy element
+	        var proxy = e.target.get("dragNode");
+			proxy.addClass("type-folder-proxy");
+			
+			proxy.closest(".su-slideshow-multiview-content").append(proxy);
+		},
+		
+		/**
+		 * On drop move folder
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onDrop: function (e) {
+			var drag = e.drag.get("node"),
+				drop = e.drop.get("node");
+			
+			if (drag && drag !== drop) {
+				var id = drag.getAttribute("data-id"),
+					parent = drop.getAttribute("data-id");
+				
+				if (id && id != parent) {
+					this.get('host').moveFolder(id, parent);
+				}
+			}
+		},
+		
+		/**
+		 * After items changed update drop targets
+		 * 
+		 * @private
+		 */
+		handleChange: function () {
+			this.delegate.syncTargets();
+		}
+	
+	});
+	
+	Supra.MediaLibraryList.FolderDD = Plugin;
+	
+	//Since this Widget has Supra namespace, it doesn"t need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {"requires": ["plugin", "dd", "supra.medialibrary-list"]});

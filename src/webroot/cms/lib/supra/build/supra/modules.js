@@ -243,7 +243,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.medialibrary',
 			'supra.slideshow-multiview',
 			'supra.medialibrary-list-edit',
-			'supra.medialibrary-image-editor'
+			'supra.medialibrary-image-editor',
+			'supra.medialibrary-list-folder-dd'
 		]
 	},
 	
@@ -251,6 +252,15 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'medialibrary/medialist-dd.js',
 		requires: [
 			'plugin',
+			'supra.medialibrary'
+		]
+	},
+	
+	'supra.medialibrary-list-folder-dd': {
+		path: 'medialibrary/medialist-extended-dd.js',
+		requires: [
+			'plugin',
+			'dd',
 			'supra.medialibrary'
 		]
 	},
