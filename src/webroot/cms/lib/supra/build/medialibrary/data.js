@@ -388,7 +388,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			//Check that parent is not actually child of folder
 			var top	= indexed[parent] ? indexed[parent].parent : null;
 			while(top && top !== id) {
-				top = indexed[top];
+				top = indexed[top].parent;
 			}
 			
 			if (top === id) {
