@@ -143,12 +143,13 @@ Supra(function (Y) {
 		 * @param {String} page_path
 		 * @private
 		 */
-		getPageIdFromPath: function (page_path, callback) {
+		getPageIdFromPath: function (page_path, callback, context) {
 			Supra.io(this.getDataPath('path-to-id'), {
 				'data': {
 					'page_path': page_path,
 					'locale': Supra.data.get('locale')
 				},
+				'context': context,
 				'on': {
 					'complete': callback
 				}
