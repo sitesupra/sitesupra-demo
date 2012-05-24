@@ -56,10 +56,15 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 				"container": this.get("host").get("contentBox"),
 				"nodes": "li.type-folder",
 				"target": true,
+				"invalid": "input, select, button, textarea",	//removed "A" from invalid list
 				"dragConfig": {
-					"haltDown": false
+					"haltDown": false,
+					"invalid": "input, select, button, textarea",	//removed "A" from invalid list
 				}
 			});
+			
+			//For HTML5 drag and drop we have to use A tag
+			delegate.dd.removeInvalid('a');
 			
 			delegate.dd.plug(Y.Plugin.DDProxy, {
 				"moveOnEnd": false,

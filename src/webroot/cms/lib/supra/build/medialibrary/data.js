@@ -378,7 +378,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			}
 			
 			//If already a child, then skip
-			if (item.parent === parent) {
+			if (item.parent == parent) {
 				if (callback) {
 					callback(null, true);
 				}
