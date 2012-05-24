@@ -330,7 +330,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			//Folder was moved in data
 			if (moved) {
 				new_slide = this.slideshow.getSlide('slide_' + (parent || 0));
-				new_slide_content = new_slide.one('.su-slide-content, .su-multiview-slide-content');
 				prev_slide_content = node.closest('.su-slide-content, .su-multiview-slide-content');
 				
 				//Remove item
@@ -340,6 +339,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				prev_slide_content.fire('contentResize');
 				
 				if (new_slide) {
+					new_slide_content = new_slide.one('.su-slide-content, .su-multiview-slide-content');
+					
 					if (new_slide.one('div.empty')) {
 						//Currently folder is not rendered into slide, create empty folder
 						var temp = this.renderTemplate({'id': parent}, this.get('templateFolder'));
