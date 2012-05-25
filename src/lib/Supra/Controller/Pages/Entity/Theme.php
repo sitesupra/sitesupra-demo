@@ -157,7 +157,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	public function setRootDir($rootDir)
 	{
 		$rootDir = str_replace(SUPRA_PATH, '{SUPRA_PATH}', $rootDir);
-		
+
 		$this->rootDir = preg_replace('@/+@', '/', $rootDir);
 	}
 
@@ -167,7 +167,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	public function getRootDir()
 	{
 		$rootDir = str_replace('{SUPRA_PATH}', SUPRA_PATH, $this->rootDir);
-		
+
 		return $rootDir;
 	}
 
@@ -299,6 +299,11 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	protected function generateCssFileFromLess(ThemeParameterSet $parameterSet)
 	{
+		if ( ! file_exists($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.less')) {
+
+			return;
+		}
+
 		$lessc = new SupraLessC($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.less');
 
 		$lessc->setRootDir($this->getRootDir());
@@ -383,7 +388,7 @@ class Theme extends Database\Entity implements ThemeInterface
 				$this->currentParameterSet->addValue($value);
 				$this->currentParameterSet->setTheme($this);
 			}
-			
+
 			$this->currentParameterSet->setName('auto-current');
 		}
 
