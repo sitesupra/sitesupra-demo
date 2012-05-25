@@ -30,8 +30,4 @@ class RootAction extends CmsAction
 		$this->getResponse()->outputTemplate('audit-log/root/index.html.twig');
 	}
 	
-	public function loadAction()
-	{
-		
-	}
 }

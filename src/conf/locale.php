@@ -23,13 +23,13 @@ $locale->addProperty('language', 'lv'); // as per ISO 639-1
 $localeManagerTemplate->add($locale);
 
 /* Russian | Russia */
-$locale = new Locale\Locale();
-$locale->setId('ru_RU');
-$locale->setTitle('Russian');
-$locale->setCountry('Russia');
-$locale->addProperty('flag', 'ru');
-$locale->addProperty('language', 'ru'); // as per ISO 639-1
-$localeManagerTemplate->add($locale);
+//$locale = new Locale\Locale();
+//$locale->setId('ru_RU');
+//$locale->setTitle('Russian');
+//$locale->setCountry('Russia');
+//$locale->addProperty('flag', 'ru');
+//$locale->addProperty('language', 'ru'); // as per ISO 639-1
+//$localeManagerTemplate->add($locale);
 
 $localeManagerTemplate->setCurrent('en_LV');
 
