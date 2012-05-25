@@ -350,7 +350,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						//On "Internal / External" hide show slide
 						this.form.getInput('linkManagerType').on('visibleChange', function (evt) {
 							if (evt.prevVal != evt.newVal) {
-								Y.one('#linkToPage').setClass('no-switch', !evt.newVal);
+								Y.one('#linkToPage').toggleClass('no-switch', !evt.newVal);
 							}
 						}, this);
 						
@@ -590,11 +590,11 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			//Show footer for existing link and hide for new link
 			var hide_footer = (this.mode == 'link' && !data.page_id && !data.file_id && !data.href);
 			
-			this.one('.sidebar-footer').setClass('hidden', hide_footer);
-			this.one('.sidebar-content').setClass('has-footer', !hide_footer);
+			this.one('.sidebar-footer').toggleClass('hidden', hide_footer);
+			this.one('.sidebar-content').toggleClass('has-footer', !hide_footer);
 			
 			//Hide link controls?
-			this.one('.sidebar-content').setClass('has-link-controls', !this.options.hideLinkControls);
+			this.one('.sidebar-content').toggleClass('has-link-controls', !this.options.hideLinkControls);
 			
 			//Since file title is different input 'title' is used to transfer data
 			//reverse it

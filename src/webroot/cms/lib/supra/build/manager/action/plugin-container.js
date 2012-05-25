@@ -23,7 +23,7 @@ YUI.add('supra.manager-action-plugin-container', function (Y) {
 			this.host.on('visibleChange', function (evt) {
 				var node = this.one();
 				if (node && evt.newVal != evt.prevVal) {
-					node.setClass('hidden', !evt.newVal);
+					node.toggleClass('hidden', !evt.newVal);
 					
 					if (evt.newVal) {
 						this.fire('show');

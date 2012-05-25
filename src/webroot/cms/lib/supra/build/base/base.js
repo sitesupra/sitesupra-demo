@@ -39,21 +39,6 @@ YUI.add('supra.base', function (Y) {
 		},
 		
 		/**
-		 * Add or remove classname
-		 * 
-		 * @param {String} classname CSS classname
-		 * @param {Boolean} add Will add class if true and remove if false
-		 */
-		setClass: function (classname, add) {
-			if (add) {
-				this.addClass(classname);
-			} else {
-				this.removeClass(classname);
-			}
-			return this;
-		},
-		
-		/**
 		 * Returns node or closest ancestor matching selector
 		 * 
 		 * @param {String} selector CSS selector

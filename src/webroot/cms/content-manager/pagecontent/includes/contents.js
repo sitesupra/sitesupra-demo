@@ -475,7 +475,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 */
 		_setHighlight: function (value) {
 			this.set('disabled', value);
-			this.get('body').setClass('yui3-highlight', value);
+			this.get('body').toggleClass('yui3-highlight', value);
 			
 			if (!value) {
 				for (var i in this.children) {
@@ -490,7 +490,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 * Disable editing
 		 */
 		_setDisabled: function (value) {
-			this.get('body').setClass('yui3-editable', !value);
+			this.get('body').toggleClass('yui3-editable', !value);
 			
 			if (value) {
 				this.set('activeChild', null);

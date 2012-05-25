@@ -1003,7 +1003,7 @@ YUI.add("supra.datagrid", function (Y) {
 		 * @private
 		 */
 		'_setClickable': function (clickable) {
-			this.get('boundingBox').setClass(this.getClassName('clickable'), clickable);
+			this.get('boundingBox').toggleClass(this.getClassName('clickable'), clickable);
 			return clickable;
 		},
 		

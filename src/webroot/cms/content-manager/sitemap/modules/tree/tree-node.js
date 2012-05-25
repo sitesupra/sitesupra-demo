@@ -1299,7 +1299,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 	
 					for (var i in rootNodes) {
 						if (rootNodes[i] !== this) {
-							rootNodes[i].get('boundingBox').setClass('visibility-root', expanded);
+							rootNodes[i].get('boundingBox').toggleClass('visibility-root', expanded);
 						}
 					}
 				}
@@ -1600,10 +1600,10 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			if (this.get('rendered')) {
 				
 				//Hide content node and show arrow
-				this.get('boundingBox').setClass('visibility-root', is_visibility_root);
+				this.get('boundingBox').toggleClass('visibility-root', is_visibility_root);
 				
 				//Hide siblings
-				this.get('boundingBox').get('parentNode').setClass('visibility-siblings', is_visibility_root);
+				this.get('boundingBox').get('parentNode').toggleClass('visibility-siblings', is_visibility_root);
 				
 				return !!is_visibility_root;
 			} else {

@@ -205,7 +205,8 @@ Supra(function (Y) {
 					for(var i=0,ii=button_config.length; i<ii; i++) {
 						type = button_config[i].type || 'toggle';
 						if ((type == 'toggle' || type == 'tab')) {
-							action = Manager.getAction(button_config[i].action);
+							action = button_config[i].action;
+							action = Y.Lang.isWidget(action) ? action : Manager.getAction(action);
 							action.hide();
 						}
 					}
@@ -335,8 +336,8 @@ Supra(function (Y) {
 			
 			if (!config) return;
 			
-			var action_id = config.action;
-			var action = Supra.Manager.getAction(action_id);
+			var action = Y.Lang.isWidget(config.action) ? config.action : Manager.getAction(config.action);
+			var action_id = action.NAME || action.constructor.NAME;
 			var type = (config.type ? config.type : 'toggle');
 			
 			if (event.target.get('down') || (type != 'toggle' && type != 'tab')) {
@@ -352,20 +353,27 @@ Supra(function (Y) {
 				}
 				
 				if (config.actionFunction) {
-					if (action.get('executed')) {
-						//Call function
-						action[config.actionFunction](config.id);
+					if (action.NAME) {
+						if (action.get('executed')) {
+							//Call function
+							action[config.actionFunction](config.id);
+						} else {
+							//Call after action is executed
+							action.once('executedChange', function (e) {
+								if (e.newVal != e.prevVal && e.newVal) {
+									action[config.actionFunction](config.id);
+								}
+							});
+							action.execute();
+						}
 					} else {
-						//Call after action is executed
-						action.once('executedChange', function (e) {
-							if (e.newVal != e.prevVal && e.newVal) {
-								action[config.actionFunction](config.id);
-							}
-						});
-						action.execute();
+						//Widget instance, not an action
+						action[config.actionFunction](config.id);
 					}
 				} else {
-					action.execute();
+					if (action.execute) {
+						action.execute();
+					}
 				}
 			} else {
 				//Click on button which already is 'down'
@@ -375,7 +383,9 @@ Supra(function (Y) {
 					event.target.set('down', true);
 				} else {
 					//Hide action
-					action.hide();
+					if (action.hide) {
+						action.hide();
+					}
 					if (this.active_action == action_id) this.active_action = null;
 				}
 			}
@@ -449,7 +459,9 @@ Supra(function (Y) {
 						this.buttons[id] = button;
 						
 						if (type == 'toggle') {
-							action = Manager.getAction(button_config[i].action);
+							action = button_config[i].action;
+							action = Y.Lang.isWidget(action) ? action : Manager.getAction(action);
+							
 							action.on('visibleChange', function (evt, button, action_id) {
 								if (evt.newVal != evt.prevVal) {
 									button.set('down', evt.newVal);
@@ -524,7 +536,7 @@ Supra(function (Y) {
 			
 			//Show / hide buttons when action is shown / hidden
 			this.on('visibleChange', function (evt) {
-				this.one().setClass('hidden', !evt.newVal);
+				this.one().toggleClass('hidden', !evt.newVal);
 				
 				if (!evt.newVal) {
 					//Hide all subactions

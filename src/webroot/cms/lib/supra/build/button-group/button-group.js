@@ -15,13 +15,18 @@ YUI.add('supra.button-group', function (Y) {
 	ButtonGroup.ATTRS = {
 		//Button behaviour
 		'type': {
-			'value': null,			//valid values are '', 'checkbox', 'radio'
+			'value': '',			//valid values are '', 'checkbox', 'radio', 'radio-checkbox'
 			'setter': '_setType'
 		},
 		//Force specific style for all buttons
 		'style': {
-			'value': null,
+			'value': '',
 			'setter': '_setStyle'
+		},
+		//Predefined buttons
+		'buttons': {
+			'value': null,
+			'writeOnce': 'initOnly'
 		},
 		//Automatically search for button when rendered
 		'autoDiscoverButtons': {
@@ -34,7 +39,8 @@ YUI.add('supra.button-group', function (Y) {
 		},
 		//Selection
 		'selection': {
-			'value': []
+			'value': [],
+			'setter': '_setSelection'
 		}
 	};
 	
@@ -68,16 +74,49 @@ YUI.add('supra.button-group', function (Y) {
 		
 		
 		/**
+		 * Set buttons on initializer
+		 * 
+		 * @private
+		 */
+		'initializer': function () {
+			this.index = {};
+			this.buttons = [];
+			this.add(this.get('buttons'));
+		},
+		
+		/**
 		 * Render UI
 		 * 
 		 * @private
 		 */
 		'renderUI': function () {
-			this.index = {};
-			this.buttons = [];
-			
 			if (this.get('autoDiscoverButtons')) {
 				this._createButtonsFromDOM();
+			}
+			
+			//Render buttons
+			var container = this.get('contentBox'),
+				buttons = this.buttons,
+				ii = buttons.length,
+				i = 0,
+				type = this.get('type'),
+				selection = this.get('selection'),
+				uid = null;
+			
+			for (; i<ii; i++) {
+				if (buttons[i].get('rendered')) {
+					container.append(buttons[i].get('boundingBox'));
+				} else {
+					buttons[i].render(container);
+				}
+				
+				uid = buttons[i].get('buttonId');
+				if ((type === 'radio' || type === 'checkbox' || type === 'radio-checkbox') && Y.Array.indexOf(selection, uid) !== -1) {
+					buttons[i].set('down', true);
+				}
+				
+				//Attach event listener
+				buttons[i].on('click', this._onButtonClick, this);
 			}
 		},
 		
@@ -112,12 +151,14 @@ YUI.add('supra.button-group', function (Y) {
 				ii		= buttons.length,
 				changed	= false;
 			
-			if (type == 'radio') {
+			if (type === 'radio' || type === 'radio-checkbox') {
 				
 				if (!button.get('down')) {
-					button.set('down', true);
+					if (type !== 'radio-checkbox') {
+						//One radio button must be selected
+						button.set('down', true);
+					}
 					changed = true;
-					e.halt();
 				} else {
 					for(; i<ii; i++) {
 						if (buttons[i] !== button) {
@@ -127,13 +168,19 @@ YUI.add('supra.button-group', function (Y) {
 							}
 						}
 					}
+					
+					if (type === 'radio-checkbox') {
+						//Radio checkbox button can have none selected
+						changed = true;
+					}
 				}
 				
+			} else if (type === 'checkbox') {
+				changed = true;
 			}
 			
-			this.fire('click', {
-				'target': button,
-				'type': 'click'
+			this.fire('buttonClick', {
+				'button': button
 			});
 			
 			if (changed) {
@@ -143,14 +190,14 @@ YUI.add('supra.button-group', function (Y) {
 		
 		/**
 		 * Returns hopefully unique ID for button
-		 * Searches 'id', 'suGroupButtonId' and 'class' node attributes and groupButtonId Supra.Button attribute
+		 * Searches 'id', 'suId' and 'suButtonId' and 'class' node attributes and buttonId Supra.Button attribute
 		 * 
 		 * @param {Object} button
 		 */
 		'getUID': function (button, create) {
 			if (typeof button === 'string') return button;
 			
-			var id = button.get('groupButtonId'),
+			var id = button.get('buttonId'),
 				node = null;
 			
 			if (!id) {
@@ -158,12 +205,12 @@ YUI.add('supra.button-group', function (Y) {
 				id = button.get('id');
 				
 				if (!id || id.indexOf('yui_') === 0) {
-					//check node for groupButtonId
+					//check node for buttonId
 					node = Y.Lang.isWidget(button, 'Button') ? button.get('nodeButton') : button;
-					id = node.get('groupButtonId');
+					id = node.get('buttonId');
 					
 					if (!id) {
-						id = node.getAttribute('suGroupButtonId');
+						id = node.getAttribute('suButtonId') || node.getAttribute('suId');
 						
 						if (!id) {
 							var classnames	= node.getAttribute('class').split(/\s+/g),
@@ -187,11 +234,33 @@ YUI.add('supra.button-group', function (Y) {
 				
 				id = id || (create ? Y.guid() : null);
 				if (id) {
-					button.set('groupButtonId', id);
+					button.set('buttonId', id);
 				}
 			}
 			
 			return id;
+		},
+		
+		/**
+		 * Update button "first" and "last" classnames
+		 * 
+		 * @private
+		 */
+		'updateClassNames': function () {
+			if (this.buttons.length) {
+				var classname_first	= Y.ClassNameManager.getClassName(Supra.Button.CSS_PREFIX, 'first', true),
+					classname_last 	= Y.ClassNameManager.getClassName(Supra.Button.CSS_PREFIX, 'last', true),
+					buttons			= this.buttons,
+					length			= buttons.length;
+				
+				buttons[0].addClass(classname_first);
+				buttons[length - 1].addClass(classname_last);
+				
+				if (length > 1) {
+					buttons[1].removeClass(classname_first);
+					buttons[length - 2].removeClass(classname_last);
+				}
+			}
 		},
 		
 		
@@ -203,7 +272,7 @@ YUI.add('supra.button-group', function (Y) {
 		/**
 		 * Returns button by index or id
 		 * 
-		 * @param {String} id Button id
+		 * @param {String} id Button id or button index
 		 * @return Button instance or null if button is not found
 		 * @type {Object}
 		 */
@@ -217,6 +286,16 @@ YUI.add('supra.button-group', function (Y) {
 			} else {
 				return null;
 			}
+		},
+		
+		/**
+		 * Returns all buttons
+		 * 
+		 * @return All buttons
+		 * @type {Array}
+		 */
+		'all': function () {
+			return this.buttons;
 		},
 		
 		/**
@@ -239,6 +318,10 @@ YUI.add('supra.button-group', function (Y) {
 		 * @type {Object}
 		 */
 		'add': function (button, index) {
+			var config = null,
+				type   = this.get('type'),
+				btype  = (type === 'checkbox' || type === 'radio' || type === 'radio-checkbox' ? 'toggle' : 'push');
+			
 			if (Y.Lang.isArray(button)) {
 				var i	= 0,
 					ii	= button.length;
@@ -251,17 +334,43 @@ YUI.add('supra.button-group', function (Y) {
 			}
 			
 			if (Y.Lang.isObject(button)) {
+				var rendered = this.get('rendered');
 				
 				if (Y.Lang.isWidget(button)) {
 					if (button.isInstanceOf('Node')) {
-						button = new Supra.Button({'srcNode': button});
-						button.render(this.get('contentBox'));
+						config = {'srcNode': button};
+						
+						if (!button.getAttribute('suType')) {
+							config.type = btype;
+						}
+						
+						button = new Supra.Button(config);
+						
+						if (rendered) {
+							button.render(this.get('contentBox'));
+						}
 					} else if (!button.isInstanceOf('Button')) {
 						return this;
 					}
 				} else {
+					//Clone to avoid overwriting properties
+					button = config = Supra.mix({}, button);
+					
+					//Set type
+					if (!button.type) {
+						button.type = btype;
+					}
+					
+					//Tre not to set ID on button node, will use buttonId instead 
+					if (button.id && !button.buttonId) {
+						button.buttonId = button.id;
+						delete(button.id);
+					}
+					
 					button = new Supra.Button(button);
-					button.render(this.get('contentBox'));
+					if (rendered) {
+						button.render(this.get('contentBox'));
+					}
 				}
 				
 				//Insert button into DOM
@@ -269,23 +378,25 @@ YUI.add('supra.button-group', function (Y) {
 					this_buttons	= this.buttons,
 					this_index		= this.index;
 				
-				if (Y.Lang.isWidget(index)) {
-					//Supra.Button was passed
-					insert_before = index.get('boundingBox')
-				} else if (typeof index === 'number') {
-					//by index
-					if (index >= 0 && index < this_buttons.length) {
-						insert_before = this_buttons[index].get('boundingBox');
+				if (rendered) {
+					if (Y.Lang.isWidget(index)) {
+						//Supra.Button was passed
+						insert_before = index.get('boundingBox')
+					} else if (typeof index === 'number') {
+						//by index
+						if (index >= 0 && index < this_buttons.length) {
+							insert_before = this_buttons[index].get('boundingBox');
+						}
+					} else if (typeof index === 'string' && this_index[index]) {
+						//by ID
+						insert_before = this_index[index].get('boundingBox');
 					}
-				} else if (typeof index === 'string' && this_index[index]) {
-					//by ID
-					insert_before = this_index[index].get('boundingBox');
-				}
-				
-				if (insert_before) {
-					insert_before.insert(button.get('boundingBox'), 'before');
-				} else {
-					this.get('contentBox').append(button.get('boundingBox'));
+					
+					if (insert_before) {
+						insert_before.insert(button.get('boundingBox'), 'before');
+					} else {
+						this.get('contentBox').append(button.get('boundingBox'));
+					}
 				}
 				
 				//Add to data
@@ -294,7 +405,7 @@ YUI.add('supra.button-group', function (Y) {
 				
 				if (this_index[uid]) {
 					//Already in index
-					index = this_indexOf(uid);
+					index = Y.Array.indexOf(this_index, uid);
 					if (index != -1) {
 						//Remove button
 						this_buttons.splice(index, 1);
@@ -311,46 +422,35 @@ YUI.add('supra.button-group', function (Y) {
 					this_buttons.push(button);
 				}
 				
+				//Update .su-button-first and .su-button-last classnames
+				this.updateClassNames();
+				
 				//Button type and style
 				var type	= this.get('type'),
-					btype	= (type == 'checkbox' || type == 'radio' ? 'toggle' : 'push'),
+					btype	= (type === 'checkbox' || type === 'radio' || type === 'radio-checkbox' ? 'toggle' : 'push'),
 					style	= this.get('style');
 				
-				button.set('type', btype);
+				if (type && (!config || !config.type)) {
+					//If group type is set and button type was not set
+					button.set('type', btype);
+				}
 				
 				if (style) {
 					button.set('style', style);
 				}
 				
-				button.on('click', this._onButtonClick, this);
+				if (rendered) {
+					button.on('click', this._onButtonClick, this);
+					
+					if ((type === 'radio' || type === 'checkbox' || type === 'radio-checkbox') && Y.Array.indexOf(this.get('selection'), uid) !== -1) {
+						button.set('down', true);
+					}
+				}
 				
 				this_index[uid] = button;
 			}
 			
 			return this;
-		},
-		
-		/**
-		 * Returns buttons index or -1 if button is not in the group
-		 * 
-		 * @param {Object} button Button or button ID
-		 * @return Index of the button in the group or -1 if button is not the group
-		 * @type {Number}
-		 */
-		'indexOf': function (button) {
-			var id = this.getUID(button);
-			
-			if (id) {
-				var buttons	= this.buttons,
-					i		= 0,
-					ii		= buttons.length;
-				
-				for(; i<ii; i++) {
-					if (buttons[i].get('groupButtonId') === id) return i;
-				}
-			}
-			
-			return -1;
 		},
 		
 		/**
@@ -379,7 +479,10 @@ YUI.add('supra.button-group', function (Y) {
 				button = this.index[id];
 				
 				index = this.indexOf(id);
-				if (index != -1) this.buttons.splice(index, 1);
+				if (index != -1) {
+					this.buttons.splice(index, 1);
+					this.updateClassNames();
+				}
 				delete(this.index[id]);
 				
 				button.detach('click', this._onButtonClick, this);
@@ -401,10 +504,86 @@ YUI.add('supra.button-group', function (Y) {
 				selection	= [];
 			
 			for(; i<ii; i++) {
-				if (buttons[i].get('down')) selection.push({'id': buttons[i].get('groupButtonId'), 'button': buttons[i]});
+				if (buttons[i].get('down')) selection.push({'id': buttons[i].get('buttonId'), 'button': buttons[i]});
 			}
 			
 			return selection;
+		},
+		
+		/* -- Array functions -- */
+		
+		/**
+		 * Returns buttons index or -1 if button is not in the group
+		 * 
+		 * @param {Object} button Button or button ID
+		 * @return Index of the button in the group or -1 if button is not the group
+		 * @type {Number}
+		 */
+		'indexOf': function (button) {
+			var id = this.getUID(button);
+			
+			if (id) {
+				var buttons	= this.buttons,
+					i		= 0,
+					ii		= buttons.length;
+				
+				for(; i<ii; i++) {
+					if (buttons[i].get('buttonId') === id) return i;
+				}
+			}
+			
+			return -1;
+		},
+		
+		/**
+		 * Executes the supplied function on each button and returns a new array
+		 * containing all the values returned by the supplied function.
+		 * 
+		 * @param {Function} fn The function to execute on each item
+		 * @param {Object} context Optional context object
+		 * @return Array with returned values
+		 * @type {Array}
+		 */
+		'map': function (fn, context) {
+			return Y.Array.map(this.buttons, fn, context);
+		},
+		
+		
+		/**
+		 * Executes the supplied function on each button and returns a new array
+		 * containing the items for which the supplied function returned a truthy value.
+		 * 
+		 * @param {Function} fn The function to execute on each item
+		 * @param {Object} context Optional context object
+		 * @return Array with buttons
+		 * @type {Array}
+		 */
+		'filter': function (fn, context) {
+			return Y.Array.filter(this.buttons, fn, context);
+		},
+		
+		/**
+		 * Executes the supplied function on each button, searching for the first button
+		 * that matches the supplied function.
+		 * 
+		 * @param {Function} fn The function to execute on each item
+		 * @param {Object} context Optional context object
+		 * @return Button for which function returned true
+		 * @type {Object}
+		 */
+		'find': function (fn, context) {
+			return Y.Array.find(this.buttons, fn, context);
+		},
+		
+		/**
+		 * Executes the supplied function on each button
+		 * 
+		 * @param {Function} fn The function to execute on each item
+		 * @param {Object} context Optional context object
+		 */
+		'each': function (fn, context) {
+			Y.Array.each(this.buttons, fn, context);
+			return this;
 		},
 		
 		
@@ -447,13 +626,48 @@ YUI.add('supra.button-group', function (Y) {
 		'_setDisabled': function (disabled) {
 			if (this.get('rendered')) {
 				
-				Y.Array.each(this.buttons, function (button) {
-					button.set('disabled', disabled);
-				});
+				if (!!this.get('disabled') !== !!disabled) {
+					Y.Array.each(this.buttons, function (button) {
+						button.set('disabled', disabled);
+					});
+				}
 				
 			}
 			
-			return disabled;
+			return !!disabled;
+		},
+		
+		/**
+		 * Selection attribute setter
+		 * 
+		 * @param {Array} selection Selection attribute value
+		 * @return Selection attribute value
+		 * @type {Array}
+		 * @private
+		 */
+		'_setSelection': function (selection) {
+			if (!Y.Lang.isArray(selection)) selection = [];
+			var type = this.get('type');
+			
+			if ((type === 'radio' || type === 'radio-checkbox') && selection.length > 1) {
+				selection = [selection[0]];
+			}
+			
+			if (this.get('rendered') && (type === 'radio' || type === 'checkbox' || type === 'radio-checkbox')) {
+				var buttons = this.buttons,
+					ii = buttons.length,
+					i = 0,
+					id = null;
+				
+				for (; i<ii; i++) {
+					id = buttons[i].get('buttonId');
+					if (Y.Array.indexOf(selection, id) !== -1) {
+						buttons[i].set('down', true);
+					}
+				}
+			}
+			
+			return selection;
 		},
 		
 		/**
@@ -467,14 +681,15 @@ YUI.add('supra.button-group', function (Y) {
 		 */
 		'_setType': function (type) {
 			var otype	= this.get('type'),
-				btype	= (type == 'checkbox' || type == 'radio' ? 'toggle' : 'push'),
+				btype	= (type === 'checkbox' || type === 'radio' || type === 'radio-checkbox' ? 'toggle' : 'push'),
 				changed	= false;
 			
-			if (otype != type) {
+			if (otype != type && ((type && !otype) || (!type && otype))) {
+				
 				Y.Array.each(this.buttons, function (button) {
 					button.set('type', btype);
 					
-					if (type == 'push' && button.get('down')) {
+					if (type === 'push' && button.get('down')) {
 						button.set('down');
 						changed = true;
 					}
@@ -482,13 +697,7 @@ YUI.add('supra.button-group', function (Y) {
 				
 				var selection = this.getSelection();
 				
-				/*if (type == 'radio' && !selection.length) {
-					if (this.buttons.length) {
-						this.buttons[0].set('down', true);
-						changed = true;
-					}
-				} else*/
-				if (type != 'checkbox' && type != 'radio' && selection.lengh) {
+				if (type !== 'checkbox' && type !== 'radio' && type !== 'radio-checkbox' && selection.lengh) {
 					var i		= 0,
 						ii		= selection.length,
 						button	= null;

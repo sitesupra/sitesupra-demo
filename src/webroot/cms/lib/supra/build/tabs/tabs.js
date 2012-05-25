@@ -195,7 +195,7 @@ YUI.add('supra.tabs', function(Y) {
 		_setVisible: function (visible) {
 			var box = this.get('boundingBox');
 			if (box) {
-				box.setClass('hidden', !visible);
+				box.toggleClass('hidden', !visible);
 			}
 			return visible;
 		},
@@ -227,7 +227,7 @@ YUI.add('supra.tabs', function(Y) {
 			var classname = this.getClassName('toggle');
 			if (value) {
 				container.addClass(classname);
-				this.get('nodeContentContainer').setClass('hidden', !this.get('activeTab'));
+				this.get('nodeContentContainer').toggleClass('hidden', !this.get('activeTab'));
 			} else {
 				container.removeClass(classname);
 				this.get('nodeContentContainer').removeClass('hidden');
@@ -252,7 +252,7 @@ YUI.add('supra.tabs', function(Y) {
 				this.tabs[value].container.addClass(this.getClassName('item', 'selected'));
 			}
 			
-			this.get('nodeContentContainer').setClass('hidden', !value);
+			this.get('nodeContentContainer').toggleClass('hidden', !value);
 			
 			this.fire('activeTabChange', {'prevValue': old, 'newValue': value});
 			
@@ -265,9 +265,9 @@ YUI.add('supra.tabs', function(Y) {
 			return null;
 		},
 		
-		setClass: function () {
+		toggleClass: function () {
 			var box = this.get('boundingBox');
-			if (box) return box.setClass.apply(box, arguments);
+			if (box) return box.toggleClass.apply(box, arguments);
 			return null;
 		},
 		

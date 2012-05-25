@@ -38,7 +38,7 @@ YUI.add('supra.tree-node', function(Y) {
 			var node = this.get('nodeToggle');
 			var visible = (data && 'children' in data && data.children.length);
 			
-			node.setClass('hidden', !visible);
+			node.toggleClass('hidden', !visible);
 		},
 		
 		toggle: function () {
@@ -231,7 +231,7 @@ YUI.add('supra.tree-node', function(Y) {
 			if (evt.prevVal != evt.newVal) {
 				var node = this.get('boundingBox').one('div.tree-node');
 				if (node) {
-					node.setClass('unselectable', !evt.newVal);
+					node.toggleClass('unselectable', !evt.newVal);
 				}
 			}
 		},
@@ -364,7 +364,7 @@ YUI.add('supra.tree-node', function(Y) {
 			if (!!value == this.get('isSelected')) return value;
 			
 			var classname = C('tree-node', 'selected');
-			this.get('boundingBox').one('div').setClass(classname, value);
+			this.get('boundingBox').one('div').toggleClass(classname, value);
 			
 			if (value) {
 				setTimeout(Y.bind(function () {
@@ -380,7 +380,7 @@ YUI.add('supra.tree-node', function(Y) {
 		
 		_setLoading: function (loading) {
 			var classname = C('tree-node', 'loading');
-			this.get('boundingBox').one('div').setClass(classname, loading);
+			this.get('boundingBox').one('div').toggleClass(classname, loading);
 			
 			return !!loading;
 		}

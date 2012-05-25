@@ -60,7 +60,9 @@ YUI.add('supra.manager-base', function (Y) {
 		 * @type {ActionBase Object}
 		 */
 		getAction: function (action_name) {
-			if (action_name in this.actions) {
+			if (typeof action_name === 'object' && action_name.isInstanceOf) {
+				return action_name;
+			} else if (action_name in this.actions) {
 				return this.actions[action_name];
 			} else if (!(action_name in this.temporaries)) {
 				this.temporaries[action_name] = new Supra.Manager.Action.Base(action_name);

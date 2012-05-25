@@ -323,7 +323,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @private
 		 */
 		_setOverlayVisible: function (value) {
-			this.overlay.setClass('hidden', !value);
+			this.overlay.toggleClass('hidden', !value);
 			return !!value;
 		},
 		
@@ -521,7 +521,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * Set loading state
 		 */
 		_setLoading: function (value) {
-			this.get('contentBox').setClass('yui3-page-iframe-loading', value);
+			this.get('contentBox').toggleClass('yui3-page-iframe-loading', value);
 		}
 		
 	});

@@ -94,7 +94,7 @@ Supra('anim', function (Y) {
 					'value': false,
 					'setter':
 						function (value) {
-							this.one('.timeline').setClass('disabled', value);
+							this.one('.timeline').toggleClass('disabled', value);
 							return !!value;
 						}
 				}

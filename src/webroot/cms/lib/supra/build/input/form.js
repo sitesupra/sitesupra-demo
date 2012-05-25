@@ -279,7 +279,7 @@ YUI.add("supra.form", function (Y) {
 			
 			//On visibility change show/hide form
 			this.on("visibleChange", function (event) {
-				this.get("boundingBox").setClass("hidden", !event.newVal);
+				this.get("boundingBox").toggleClass("hidden", !event.newVal);
 			}, this);
 			
 			//Find button with "form" attribute which could be in the footer

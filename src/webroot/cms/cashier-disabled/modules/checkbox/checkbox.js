@@ -75,7 +75,7 @@ YUI.add("website.input-checkbox-standard", function (Y) {
 			
 			//Update style
 			var node = this.get('boundingBox');
-			if (node) node.setClass('checked', value);
+			if (node) node.toggleClass('checked', value);
 			
 			//Trigger event
 			this.fire('change', {'value': value});

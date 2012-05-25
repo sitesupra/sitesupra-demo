@@ -699,9 +699,9 @@ YUI.add('supra.panel', function (Y) {
 		 * 
 		 * @param {String} classname
 		 */
-		setClass: function (classname, value) {
+		toggleClass: function (classname, value) {
 			var box = this.get('boundingBox');
-			if (box) box.setClass(classname, value);
+			if (box) box.toggleClass(classname, value);
 			return this;
 		},
 		

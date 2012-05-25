@@ -132,7 +132,7 @@ function (Y) {
 			this.on('visibleChange', function (evt) {
 				var node = this.one().ancestor();
 				if (node && evt.newVal != evt.prevVal) {
-					node.setClass('hidden', !evt.newVal);
+					node.toggleClass('hidden', !evt.newVal);
 					
 					if (evt.newVal) {
 						this.fire('show');

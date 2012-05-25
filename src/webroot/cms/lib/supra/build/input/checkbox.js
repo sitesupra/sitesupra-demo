@@ -114,7 +114,7 @@ YUI.add("supra.input-checkbox", function (Y) {
 				var pin = node.one('.pin');
 				if (pin) this.set('pinNode', pin);
 				
-				node.setClass('active', this.get('value'));
+				node.toggleClass('active', this.get('value'));
 			}
 			
 			this.get('labelNodeA').on('click', this._animateValueOn, this);
@@ -190,7 +190,7 @@ YUI.add("supra.input-checkbox", function (Y) {
 			
 			//Update style
 			var node = this.get('backgroundNode');
-			if (node) node.setClass('active', value);
+			if (node) node.toggleClass('active', value);
 			
 			return value;
 		},

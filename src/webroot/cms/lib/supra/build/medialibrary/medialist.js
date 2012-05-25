@@ -816,7 +816,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				
 			if (!node) return this;
 			
-			node.setClass('type-folder-private', state);
+			node.toggleClass('type-folder-private', state);
 			
 			//Update all children
 			var children = dataObject.getChildrenData(id);
@@ -1279,10 +1279,12 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @private
 		 */
 		renderItemButton: function (node) {
-			var button = new Supra.Button({'srcNode': node});
-			
-			button.render();
-			button.on('click', this.renderItemButtonClick, this);
+			if (node.getAttribute('data-id')) {
+				var button = new Supra.Button({'srcNode': node});
+				
+				button.render();
+				button.on('click', this.renderItemButtonClick, this);
+			}
 		},
 		
 		/**

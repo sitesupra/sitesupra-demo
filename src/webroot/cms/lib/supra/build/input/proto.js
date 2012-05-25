@@ -214,17 +214,12 @@ YUI.add('supra.input-proto', function (Y) {
 			return this;
 		},
 		
-		setClass: function (c, v) {
-			this.get('boundingBox').setClass(c, v);
-			return this;
-		},
-		
 		hasClass: function (c) {
 			return this.get('boundingBox').hasClass(c);
 		},
 		
-		toggleClass: function (c) {
-			this.get('boundingBox').toggleClass(c);
+		toggleClass: function (c, v) {
+			this.get('boundingBox').toggleClass(c, v);
 			return this;
 		},
 		
@@ -252,7 +247,7 @@ YUI.add('supra.input-proto', function (Y) {
 		 * @param {String} error Error message
 		 */
 		_setError: function (error) {
-			this.get('boundingBox').setClass('yui3-input-error', error);
+			this.get('boundingBox').toggleClass('yui3-input-error', error);
 			
 			if (typeof error == 'string' && error) {
 				this.showError(error);
@@ -278,7 +273,7 @@ YUI.add('supra.input-proto', function (Y) {
 				node.set('disabled', !!value);
 			}
 			
-			this.get('boundingBox').setClass('yui3-input-disabled', value);
+			this.get('boundingBox').toggleClass('yui3-input-disabled', value);
 			
 			return !!value;
 		},
@@ -367,7 +362,7 @@ YUI.add('supra.input-proto', function (Y) {
 				var descr_text = Supra.Intl.replace(descr) || '';
 				
 				node.set('text', descr_text)
-				    .setClass('hidden', !descr_text);
+				    .toggleClass('hidden', !descr_text);
 			}
 			
 			return descr;

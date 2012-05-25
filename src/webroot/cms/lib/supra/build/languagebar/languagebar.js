@@ -166,7 +166,7 @@ YUI.add("supra.languagebar", function (Y) {
 		 * @private
 		 */
 		_setDisabled: function (disabled) {
-			this.get('boundingBox').setClass(this.getClassName('disabled'), disabled);
+			this.get('boundingBox').toggleClass(this.getClassName('disabled'), disabled);
 			return disabled;
 		},
 		
@@ -286,7 +286,7 @@ YUI.add("supra.languagebar", function (Y) {
 			if (!Y.Lang.isString(label)) label = '';
 			var node = this.get('srcNode').one('.label');
 			if (node) {
-				node.setClass('hidden', !label);
+				node.toggleClass('hidden', !label);
 				
 				if (label) {
 					node.set('text', label);
