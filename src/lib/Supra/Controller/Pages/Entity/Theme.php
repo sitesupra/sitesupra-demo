@@ -423,7 +423,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	/**
 	 * @param ThemeParameterSet $activeParameterSet 
 	 */
-	public function setActiveParameterSet(ThemeParameterSet $activeParameterSet)
+	public function setActiveParameterSet(ThemeParameterSet $activeParameterSet = null)
 	{
 		$this->activeParameterSet = $activeParameterSet;
 	}
