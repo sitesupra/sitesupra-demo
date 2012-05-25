@@ -315,6 +315,48 @@ function (Y) {
 		 * @private
 		 */
 		triggerPageSelect: function (evt) {
+			
+			evt.data = Supra.mix({}, evt.data);
+			if(evt.data.redirect && evt.data.redirect_page_id != '') {
+				Supra.Manager.executeAction('Confirmation', {
+							'message': '{#page.follow_redirect#}',
+							'useMask': true,
+							'buttons': [{
+								'id': 'yes',
+								'label': Supra.Intl.get(['buttons', 'yes']),
+								'click': this._handleRedirectConfirmation,
+								'context': this,
+								'args': [true, evt]
+							},
+							{
+								'id': 'no',
+								'label': Supra.Intl.get(['buttons', 'no']),
+								'click': this._handleRedirectConfirmation,
+								'context': this,
+								'args': [false, evt]
+							}]
+						});
+			
+				return;
+			}
+			
+			this.fire('page:select', {
+				'data': evt.data,
+				'node': evt.node
+			});
+		},
+		
+		/**
+		 *
+		 */
+		_handleRedirectConfirmation: function(e, args) {
+			var follow = args[0],
+			evt = args[1];
+			
+			if(follow) {
+				evt.data.id = evt.data.redirect_page_id;
+			}
+			
 			this.fire('page:select', {
 				'data': evt.data,
 				'node': evt.node

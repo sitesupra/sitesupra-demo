@@ -369,6 +369,8 @@ abstract class PageManagerAction extends CmsAction
 		$locale = $data->getLocale();
 		$id = $data->getId();
 		
+		$publicEm = ObjectRepository::getEntityManager('#public');
+		
 		if ( ! $localizationExists) {
 			$id = $page->getId();
 		}
@@ -417,6 +419,64 @@ abstract class PageManagerAction extends CmsAction
 			}
 			
 			$array['date'] = $data->getCreationTime()->format('Y-m-d');
+
+			$redirect = false;
+			$redirectLocalizationId = null;
+
+			$linkElement = $data->getRedirect();
+
+			if ($linkElement instanceof ReferencedElement\LinkReferencedElement) {
+				$redirectPageId = $redirectLocalization = null;
+				$resource = $linkElement->getResource();
+				switch ($resource) {
+					case ReferencedElement\LinkReferencedElement::RESOURCE_PAGE:
+						$redirectPageId = $linkElement->getPageId();
+						if ( ! empty($redirectPageId)) {
+							$redirectPage = $publicEm->getRepository(AbstractPage::CN())
+									->findOneById($redirectPageId);
+
+							if ($redirectPage instanceof AbstractPage) {
+								$redirectLocalization = $redirectPage->getLocalization($data->getLocale());
+
+								if ($redirectLocalization instanceof Entity\PageLocalization) {
+									$redirectLocalizationId = $redirectLocalization->getId();
+									$redirect = true;
+								}
+							}
+						}
+						break;
+					case ReferencedElement\LinkReferencedElement::RESOURCE_RELATIVE_PAGE:
+						/* @var $pageLocalization Entity\PageLocalization */
+
+						$pageLocalizationChildren = $data->getChildren()->getValues();
+
+						if ($linkElement->getHref() == ReferencedElement\LinkReferencedElement::RELATIVE_FIRST
+								&& ! empty($pageLocalizationChildren)) {
+
+							$redirectLocalization = array_shift($pageLocalizationChildren);
+						} elseif ($linkElement->getHref() == ReferencedElement\LinkReferencedElement::RELATIVE_LAST
+								&& ! empty($pageLocalizationChildren)) {
+
+							$redirectLocalization = array_pop($pageLocalizationChildren);
+						} else {
+							break;
+						}
+
+						if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
+							break;
+						}
+
+						$redirect = true;
+						$redirectLocalizationId = $redirectLocalization->getId();
+
+						break;
+
+					default:
+						break;
+				}
+			}
+			$array['redirect'] = $redirect;
+			$array['redirect_page_id'] = $redirectLocalizationId;
 		}
 
 		// Node type
@@ -463,7 +523,7 @@ abstract class PageManagerAction extends CmsAction
 		$array['published'] = false;
 		
 		$localizationId = $data->getId();
-		$publicEm = ObjectRepository::getEntityManager('#public');
+		
 		$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
 		
 		$array['active'] = true;
