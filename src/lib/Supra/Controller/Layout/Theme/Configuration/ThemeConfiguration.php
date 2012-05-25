@@ -125,6 +125,8 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 				$parametersAfter[$parameter->getName()] = $parameter;
 			}
 		}
+		
+		$theme->setActiveParameterSet(null);
 
 		$parameterNamesAfter = $parametersAfter->getKeys();
 

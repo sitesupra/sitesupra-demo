@@ -378,6 +378,10 @@ YUI.add("website.app-favourites", function (Y) {
 				return node;
 			}, this);
 			
+			if (applications.length) {
+				this.list.ancestor().removeClass("app-list-empty");
+			}
+			
 			this.data = data;
 			this.applications = applications;
 			this.applications_info = info;
@@ -800,7 +804,7 @@ YUI.add("website.app-favourites", function (Y) {
 		 * @private
 		 */
 		_setData: function (data) {
-			if (this.widgets && this.list && data.length) {
+			if (this.list && data.length) {
 				this.fillApplicationList(data);
 			}
 			return data;

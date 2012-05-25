@@ -2,57 +2,9 @@
 "use strict";
 
 /**
- * Custom modules
+ * Main action, initiates all other actions
  */
-Supra.addModule("website.stats", {
-	path: "stats.js",
-	requires: [
-		"widget"
-	]
-});
-Supra.addModule("website.inbox", {
-	path: "inbox.js",
-	requires: [
-		"website.stats"
-	]
-});
-Supra.addModule("website.pagination", {
-	path: "pagination.js",
-	requires: [
-		"widget"
-	]
-});
-Supra.addModule("website.app-list", {
-	path: "app-list.js",
-	requires: [
-		"widget",
-		"website.pagination",
-		"transition",
-		"dd"
-	]
-});
-Supra.addModule("website.app-favourites", {
-	path: "app-favourites.js",
-	requires: [
-		"widget",
-		"website.pagination",
-		"transition",
-		"dd"
-	]
-});
-
-
-/**
- * Main manager action, initiates all other actions
- */
-Supra(
-	
-	"website.app-list",
-	"website.app-favourites",
-	"website.stats",
-	"website.inbox",
-	
-function (Y) {
+Supra(function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -60,248 +12,64 @@ function (Y) {
 	
 	
 	//Create Action class
-	new Action(Action.PluginMainContent, {
+	new Action({
 		
 		/**
 		 * Unique action name
 		 * @type {String}
 		 */
-		NAME: "Root",
+		NAME: 'Root',
 		
 		/**
 		 * Action doesn't have stylesheet
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_STYLESHEET: true,
+		HAS_STYLESHEET: false,
 		
 		/**
 		 * Action doesn't have template
 		 * @type {Boolean}
 		 * @private
 		 */
-		HAS_TEMPLATE: true,
+		HAS_TEMPLATE: false,
 		
 		/**
 		 * Dependancies
 		 * @type {Array}
 		 */
-		DEPENDANCIES: ["LayoutContainers"],
-		
-		
-		
-		widgets: {
-			"inbox": null,
-			"keywords": null,
-			"referring": null,
-			
-			"apps": null,
-			"favourites": null
-		},
-		
+		DEPENDANCIES: ['Header', 'PageToolbar', 'PageButtons'],
 		
 		
 		/**
-		 * @constructor
-		 */
-		initialize: function () {
-			this.widgets.inbox = new Supra.Inbox({
-				"srcNode": this.one("div.dashboard-inbox")
-			});
-			this.widgets.keywords = new Supra.Stats({
-				"srcNode": this.one("div.dashboard-keywords")
-			});
-			this.widgets.referring = new Supra.Stats({
-				"srcNode": this.one("div.dashboard-referrers")
-			});
-			
-			this.widgets.apps = new Supra.AppList({
-				"srcNode": this.one("div.dashboard-apps")
-			});
-			
-			this.widgets.favourites = new Supra.AppFavourites({
-				"srcNode": this.one("div.dashboard-favourites")
-			});
-		},
-		
-		/**
-		 * Render widgets
+		 * Bind Actions together
+		 * 
+		 * @private
 		 */
 		render: function () {
+			this.addChildAction('Applications');
 			
-			//Hide loading icon
-			Y.one("body").removeClass("loading");
+			//Show loading icon
+			Y.one('body').addClass('loading');
 			
-			//Stats widgets
-			this.widgets.inbox.render();
-			this.widgets.keywords.render();
-			this.widgets.referring.render();
-			
-			this.widgets.apps.render();
-			this.widgets.favourites.render();
-			
-			this.widgets.favourites.on("appadd", this.onFavourite, this);
-			this.widgets.favourites.on("appremove", this.onFavouriteRemove, this);
-			this.widgets.favourites.on("appmove", this.onFavouriteSort, this);
-			
-			this.widgets.favourites.on("appadd", this.removeAppFromApps, this);
-			this.widgets.apps.on("appadd", this.removeAppFromFavourites, this);
-		},
-		
-		/**
-		 * Load and set statistics data
-		 * 
-		 * @private
-		 */
-		loadStatisticsData: function () {
-			Supra.io(this.getDataPath("dev/stats"), function (data, status) {
-				if (status && data) {
-					this.widgets.keywords.set("data", data.keywords);
-					this.widgets.referring.set("data", data.sources);
-				}
+			//On page unload destroy everything
+			Y.on('beforeunload', function () {
+			    this.destroy();
 			}, this);
-		},
-		
-		/**
-		 * Load and set inbox data
-		 * 
-		 * @private
-		 */
-		loadInboxData: function () {
-			Supra.io(this.getDataPath("dev/inbox"), function (data, status) {
-				if (status && data) {
-					this.widgets.inbox.set("data", data);
-				}
-			}, this);
-		},
-		
-		/**
-		 * Load and set application list and favourites data 
-		 */
-		loadApplicationData: function () {
-			Supra.io(this.getDataPath("dev/applications"), function (data, status) {
-				if (status && data) {
-					var applications = [],
-						favourites = [];
-					
-					Y.Array.each(data.applications, function (app) {
-						//Only if not in favourites
-						if (Y.Array.indexOf(data.favourites, app.id) === -1) {
-							applications.push(app);
-						} else {
-							favourites.push(app);
-						}
-					});
-					
-					this.widgets.apps.set("data", applications);
-					this.widgets.favourites.set("data", favourites);
-				}
-			}, this);
-		},
-		
-		/**
-		 * When application is added to favourites inform server
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		onFavourite: function (e) {
-			var app = e.application,
-				ref = e.reference;
 			
-			Supra.io(this.getDataPath("dev/favourite"), {
-				"data": {
-					"id": app.id,
-					"before": ref ? ref.id : "",
-					"favourite": 1
-				},
-				"method": "post",
-				"context": this,
-				"on": {
-					"failure": function () {
-						//Revert changes
-						this.widgets.favourites.removeApplication(app.id, true);
-						this.widgets.apps.addApplication(app, true);
-					}
-				}
-			});
-		},
-		
-		/**
-		 * When application is removed from favourites inform server
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		onFavouriteRemove: function (e) {
-			var app = e.application;
+			Manager.loadActions(['Applications']);
 			
-			Supra.io(this.getDataPath("dev/favourite"), {
-				"data": {
-					"id": app.id,
-					"favourite": 0
-				},
-				"method": "post",
-				"context": this,
-				"on": {
-					"failure": function () {
-						//Revert changes
-						this.widgets.apps.removeApplication(app.id, true);
-						this.widgets.favourites.addApplication(app, true);
-					}
-				}
+			Manager.getAction('Applications').after('execute', function () {
+				//Hide loading icon
+				Y.one('body').removeClass('loading');
 			});
-		},
-		
-		/**
-		 * When favourite application list is sorted inform server
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		onFavouriteSort: function (e) {
-			var app = e.application,
-				ref = e.reference;
-			
-			Supra.io(this.getDataPath("dev/sort"), {
-				"data": {
-					"id": app.id,
-					"before": ref ? ref.id : ""
-				},
-				"method": "post",
-				"context": this
-			});
-		},
-		
-		/**
-		 * When application is addded to the app list remove it from favourites
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		removeAppFromFavourites: function (e) {
-			this.widgets.favourites.removeApplication(e.application.id);
-		},
-		
-		/**
-		 * When application is addded to the favourites remove it from app list
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		removeAppFromApps: function (e) {
-			this.widgets.apps.removeApplication(e.application.id);
 		},
 		
 		/**
 		 * Execute action
 		 */
 		execute: function () {
-			this.show();
-			
-			this.loadInboxData();
-			this.loadStatisticsData();
-			this.loadApplicationData();
+			Manager.executeAction('Applications');
 		}
 	});
 	

@@ -75,13 +75,13 @@ class User extends AbstractUser
 	 * @var string
 	 */
 	protected $salt;
-
-//	/**
-//	 * Added only to cascade removal
-//	 * @OneToMany(targetEntity="UserSession", mappedBy="user", cascade={"remove"})
-//	 * @var Collection
-//	 */
-//	protected $userSessions;
+	
+	/**
+	 * User settings collection
+	 * @OneToMany(targetEntity="Supra\User\Entity\UserPreference", mappedBy="user", cascade={"all"}, indexBy="name")
+	 * @var Collections\Collection
+	 */
+	protected $preferences;
 
 	/**
 	 * Users locale. Semi-synthetic, as setter/getter uses Locale class instances.
@@ -97,6 +97,8 @@ class User extends AbstractUser
 	{
 		parent::__construct();
 		$this->resetSalt();
+		
+		$this->preferences = new Collections\ArrayCollection();
 	}
 
 	/**
@@ -333,5 +335,32 @@ class User extends AbstractUser
 	{
 		return 'user';
 	}
-
+	
+	/**
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	public function setPreference($name, $value)
+	{
+		$em = ObjectRepository::getEntityManager($this);
+		
+		if ($this->preferences->offsetExists($name)) {
+			$preference = $this->preferences->offsetGet($name);
+			$preference->setValue($value);
+		} else {
+			$preference = new UserPreference($name, $value, $this);
+			$em->persist($preference);
+		}
+		
+		$this->preferences->set($name, $preference);
+		$em->flush();
+	}
+	
+	/**
+	 * @return Collections\Collection
+	 */
+	public function getPreferencesCollection()
+	{
+		return $this->preferences;
+	}
 }
