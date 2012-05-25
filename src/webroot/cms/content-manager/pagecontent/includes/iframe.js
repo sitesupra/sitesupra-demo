@@ -390,8 +390,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 				if (data.page_id != Supra.data.get(['page', 'id'])) {
 					if (data.redirect) {
 
-						console.log(this);
-
 						Supra.Manager.executeAction('Confirmation', {
 							'message': '{#page.follow_redirect#}',
 							'useMask': true,
