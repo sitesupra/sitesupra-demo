@@ -2,7 +2,7 @@
 {% block jsPathConfiguration %}
 	var APP_PATH = '/dashboard',
 		STATIC_PATH = '/cms',
-		DYNAMIC_PATH = '/supra';
+		DYNAMIC_PATH = '/{{ constant('SUPRA_CMS_URL') }}';
 
 	//Set current manager paths
 	Supra.Manager.Loader.setStaticPath(STATIC_PATH);
