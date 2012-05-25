@@ -80,6 +80,11 @@ class StatsAction extends DasboardAbstractAction
 			
 			$responseArray = $this->prepareStatsOutput($responseArray);
 			$cache->save(__class__, $responseArray, strtotime($refreshInterval));
+			
+			// debug info
+			$responseArray['cacheVersion'] = false;
+		} else {
+			$responseArray['cacheVersion'] = true;
 		}
 		
 		$response->setResponseData($responseArray);
