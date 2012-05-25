@@ -78,13 +78,18 @@ class ScriptUpgradeRunner extends UpgradeRunnerAbstraction
 			
 			$this->getOutput()->writeln('Done running upgrade script "' . $file->getShortPath() . '".');
 
-			$insert = array(
-				'filename' => $path,
-				'md5sum' => md5($file->getContents()),
-				'output' => $upgradeOutput
-			);
+			$markAsExecuted = $upgradeScript->markAsExecuted();
+			
+			if($markAsExecuted) {
+				
+				$insert = array(
+					'filename' => $path,
+					'md5sum' => md5($file->getContents()),
+					'output' => $upgradeOutput
+				);
 
-			$connection->insert(static::UPGRADE_HISTORY_TABLE, $insert);
+				$connection->insert(static::UPGRADE_HISTORY_TABLE, $insert);
+			}
 		} catch (\PDOException $e) {
 			
 			$connection->rollback();

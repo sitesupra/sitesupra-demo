@@ -53,10 +53,19 @@ abstract class UpgradeScriptAbstraction
 	}
 
 	/**
-	 * Determines wether this particular script needs to run now.
+	 * Determines whether this particular script needs to run now.
 	 * @return boolean 
 	 */
 	public function validate()
+	{
+		return true;
+	}
+
+	/**
+	 * Determines whether this particular script needs to be marked as executed.
+	 * @return boolean 
+	 */
+	public function markAsExecuted()
 	{
 		return true;
 	}
