@@ -104,7 +104,7 @@ class ApplicationsAction extends DasboardAbstractAction
 			}
 		}
 		
-		$this->currentUser->setPreference('favourite_apps', $favouriteApps);
+		$this->currentUser->setPreference('favourite_apps', array_values($favouriteApps));
 		
 	}
 	
@@ -150,7 +150,7 @@ class ApplicationsAction extends DasboardAbstractAction
 			array_push($favouriteApps, $appId);
 		}
 		
-		$this->currentUser->setPreference('favourite_apps', $favouriteApps);
+		$this->currentUser->setPreference('favourite_apps', array_values($favouriteApps));
 	}
 	
 }
