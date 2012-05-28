@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
  
-YUI.add("website.pagination", function (Y) {
+YUI.add("dashboard.pagination", function (Y) {
  
 	/**
 	 * Pagination navigation
@@ -124,6 +124,12 @@ YUI.add("website.pagination", function (Y) {
 				var index = this.get("index");
 				if (index >= total) {
 					this.set("index", total - 1);
+				}
+				
+				if (total > 1) {
+					this.set("visible", true);
+				} else {
+					this.set("visible", false);
 				}
 			}
 			

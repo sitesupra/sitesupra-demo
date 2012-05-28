@@ -46,8 +46,7 @@ Supra('supra.header', function (Y) {
 			
 			//Create application dock bar
 			this.app = new Supra.AppDock({
-				'data': Supra.data.get('application'),
-				'requestUri': this.getDataPath('applications')
+				'data': Supra.data.get('application')
 			});
 			
 			Supra.Manager.executeAction('LayoutContainers');

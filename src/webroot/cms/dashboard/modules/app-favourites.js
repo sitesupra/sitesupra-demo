@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
  
-YUI.add("website.app-favourites", function (Y) {
+YUI.add("dashboard.app-favourites", function (Y) {
  	
  	
  	var TEMPLATE_CONTAINER = Supra.Template.compile('\
@@ -429,6 +429,9 @@ YUI.add("website.app-favourites", function (Y) {
 				info[i].ready = true;
 				info[i].index = itemIndex;
 			}
+			
+			//Update DND
+			this.draggable.syncTargets();
 		},
 		
 		/**
@@ -509,7 +512,9 @@ YUI.add("website.app-favourites", function (Y) {
 				this.list.transition({
 					"height": height + "px",
 					"duration": 0.35
-				});
+				}, Y.bind(function () {
+					this.fire("resize");
+				}, this));
 			}
 		},
 		
