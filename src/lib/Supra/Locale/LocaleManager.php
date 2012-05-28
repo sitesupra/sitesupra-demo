@@ -27,6 +27,12 @@ class LocaleManager
 	 * @var Locale
 	 */
 	protected $current;
+	
+	/**
+	 * Weither to process inactive locales, or not
+	 * @var boolean
+	 */
+	protected $processInactive = false;
 
 	/**
 	 * Add locale data
@@ -136,6 +142,19 @@ class LocaleManager
 		return $this->locales;
 	}
 	
+	public function getActiveLocales()
+	{
+		$activeLocales = array();
+		
+		foreach ($this->locales as $id => $locale) {
+			if ($locale->isActive()) {
+				$activeLocales[$id] = $locale;
+			}
+		}
+		
+		return $activeLocales;
+	}
+	
 	/**
 	 * Detects current locale
 	 * @param RequestInterface $request
@@ -151,7 +170,7 @@ class LocaleManager
 			$localeId = $detector->detect($request, $response);
 			if ( ! empty($localeId)) {
 				$exists = $this->exists($localeId, false);
-				if ($exists) {
+				if ($exists && ($this->processInactive || $this->isActive($localeId))) {
 					\Log::debug("Locale '{$localeId}' detected by ".get_class($detector));
 					$this->setCurrent($localeId);
 					break;
@@ -167,6 +186,27 @@ class LocaleManager
 		foreach ($this->storage as $storage) {
 			$storage->store($request, $response, $localeId);
 		}
+	}
+	
+	/**
+	 * Check is locale specified by id active
+	 * @param type $localeId
+	 * @return boolean
+	 */
+	public function isActive($localeId)
+	{
+		$locale = $this->getLocale($localeId, false);
+		
+		if ($locale instanceof Locale) {
+			return $locale->isActive();
+		}
+		
+		return false;
+	}
+	
+	public function processInactiveLocales()
+	{
+		$this->processInactive = true;
 	}
 	
 }

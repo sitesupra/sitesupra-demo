@@ -858,72 +858,18 @@ class PageAction extends PageManagerAction
 		);
 
 		try {
-			$redirect = false;
-			$redirectLocalizationId = null;
-
 			$pageLocalization = $em->createQuery("SELECT l FROM $localizationEntity l JOIN l.path p
 					WHERE p.path = :path AND l.locale = :locale")
 					->setParameters($criteria)
 					->getSingleResult();
 
 			$pageId = $pageLocalization->getId();
-			$linkElement = $pageLocalization->getRedirect();
-			$redirectPageId = null;
-			$redirectLocalization = null;
 
-			if ($linkElement instanceof LinkReferencedElement) {
-				$resource = $linkElement->getResource();
-				switch ($resource) {
-					case LinkReferencedElement::RESOURCE_PAGE:
-						$redirectPageId = $linkElement->getPageId();
-						if ( ! empty($redirectPageId)) {
-							$redirectPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
-									->findOneById($redirectPageId);
-
-							if ($redirectPage instanceof Entity\Abstraction\AbstractPage) {
-								$redirectLocalization = $redirectPage->getLocalization($localeId);
-
-								if ($redirectLocalization instanceof Entity\PageLocalization) {
-									$redirectLocalizationId = $redirectLocalization->getId();
-									$redirect = true;
-								}
-							}
-						}
-						break;
-					case LinkReferencedElement::RESOURCE_RELATIVE_PAGE:
-						/* @var $pageLocalization Entity\PageLocalization */
-
-						$pageLocalizationChildren = $pageLocalization->getChildren()->getValues();
-
-						if ($linkElement->getHref() == LinkReferencedElement::RELATIVE_FIRST
-								&& ! empty($pageLocalizationChildren)) {
-
-							$redirectLocalization = array_shift($pageLocalizationChildren);
-						} elseif ($linkElement->getHref() == LinkReferencedElement::RELATIVE_LAST
-								&& ! empty($pageLocalizationChildren)) {
-
-							$redirectLocalization = array_pop($pageLocalizationChildren);
-							
-						} else {
-							break;
-						}
-						
-						if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
-							break;
-						} 
-						$redirect = true;
-						$redirectLocalizationId = $redirectLocalization->getId();
-
-						break;
-
-					default:
-						break;
-				}
-			}
+			$redirectData = $this->getRedirectData($pageLocalization);
 
 			$response = array(
-				'redirect' => $redirect,
-				'redirect_page_id' => $redirectLocalizationId,
+				'redirect' => $redirectData['redirect'],
+				'redirect_page_id' => $redirectData['redirect_page_id'],
 				'page_id' => $pageId,
 				'locale' => $localeId,
 			);
@@ -934,7 +880,7 @@ class PageAction extends PageManagerAction
 			return;
 		}
 	}
-
+	
 	/**
 	 * Returns all layouts
 	 */

@@ -314,8 +314,10 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				//Update data
 				node.set('localized', true);
 				Supra.mix(node_data, data, {
-					'localized': true
-				})
+					'localized': true,
+					'redirect': false,
+					'redirect_page_id': null
+				});
 				
 				var params = {
 					'data': node_data,

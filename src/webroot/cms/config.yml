@@ -11,8 +11,9 @@
   url: { const: SUPRA_CMS_URL }
   priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
   controller:
-    _class: ControllerConfiguration
+    _class: Supra\Locale\PreFilter\LocalePreFilterControllerConfiguration
     class: Supra\Locale\PreFilter\LocaleDetectorPreFilter
+    detectInactiveLocales: true
   objectRepositoryCaller: Supra\Cms\CmsController
 
 - _class: RouterConfiguration

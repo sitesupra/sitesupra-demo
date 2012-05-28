@@ -22,7 +22,7 @@ class LanguageSelectorBlock extends BlockController
 		
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$currentLocale = $localeManager->getCurrent();
-		$locales = $localeManager->getLocales();
+		$locales = $localeManager->getActiveLocales();
 		
 		$url = array();
 		
