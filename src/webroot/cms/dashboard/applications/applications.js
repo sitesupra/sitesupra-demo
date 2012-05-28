@@ -206,7 +206,7 @@ function (Y) {
 		 */
 		loadSitesData: function () {
 			Supra.io(this.getDataPath("dev/sites"), function (data, status) {
-				if (status && data) {
+				if (status && data && data.length > 1) {
 					this.widgets.sites = new Supra.Input.Select({
 						"srcNode": this.one("select"),
 						"values": data
