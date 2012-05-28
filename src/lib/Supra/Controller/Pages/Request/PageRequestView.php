@@ -54,16 +54,7 @@ class PageRequestView extends PageRequest
 			
 			$this->setPageLocalization($data);
 		}
-		
-		if ($data instanceof Entity\PageLocalization) {
-			$localeId = $data->getLocale();
-			
-			$localeManager = ObjectRepository::getLocaleManager($this);
-			if ( ! $localeManager->isActive($localeId)) {
-				return null;
-			}
-		}
-		
+	
 		return $data;
 	}
 	
@@ -103,6 +94,12 @@ class PageRequestView extends PageRequest
 		/* @var $pageData Entity\PageLocalization */
 		if ( ! $pageData->isActive()) {
 			throw new ResourceNotFoundException("Page found by path '$path' in pages controller but is inactive");
+		}
+		
+		$localeId = $pageData->getLocale();
+		$localeManager = ObjectRepository::getLocaleManager($this);
+		if ( ! $localeManager->isActive($localeId)) {
+			throw new ResourceNotFoundException("Page found by path '$path' in pages controller it belongs to inactive locale '$localeId'");
 		}
 		
 		return $pageData;

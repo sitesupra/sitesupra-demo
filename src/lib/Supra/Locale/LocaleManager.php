@@ -27,6 +27,12 @@ class LocaleManager
 	 * @var Locale
 	 */
 	protected $current;
+	
+	/**
+	 * Weither to process inactive locales, or not
+	 * @var boolean
+	 */
+	protected $processInactive = false;
 
 	/**
 	 * Add locale data
@@ -164,7 +170,7 @@ class LocaleManager
 			$localeId = $detector->detect($request, $response);
 			if ( ! empty($localeId)) {
 				$exists = $this->exists($localeId, false);
-				if ($exists && $this->isActive($localeId)) {
+				if ($exists && ($this->processInactive || $this->isActive($localeId))) {
 					\Log::debug("Locale '{$localeId}' detected by ".get_class($detector));
 					$this->setCurrent($localeId);
 					break;
@@ -196,6 +202,11 @@ class LocaleManager
 		}
 		
 		return false;
+	}
+	
+	public function processInactiveLocales()
+	{
+		$this->processInactive = true;
 	}
 	
 }
