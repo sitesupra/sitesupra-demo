@@ -12,7 +12,7 @@ class Info implements Configuration\ConfigurationInterface
 	const WITH_SCHEME = 2;
 
 	/**
-	 * Site ID for remote comunication
+	 * Site ID for remote communication
 	 * @var string
 	 */
 	public $id;
@@ -39,11 +39,11 @@ class Info implements Configuration\ConfigurationInterface
 	{
 		// fetching data from supra.ini
 		$conf = ObjectRepository::getIniConfigurationLoader('');
-		$this->id = $conf->getValue('system', 'id');
+		$this->id = $conf->getValue('system', 'id', null);
 		$this->hostName = $conf->getValue('system', 'host');
 		$this->name = $conf->getValue('system', 'name');
 
-		$version = '@build.number@';
+		$version = '1.0';
 
 		$versionPath = dirname(SUPRA_PATH) . DIRECTORY_SEPARATOR . 'VERSION';
 		if (file_exists($versionPath)) {
@@ -102,7 +102,7 @@ class Info implements Configuration\ConfigurationInterface
 	}
 
 	/**
-	 * Returns remote site user id 
+	 * Returns remote site id 
 	 * @return string
 	 */
 	public function getSiteId()
