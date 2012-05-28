@@ -89,6 +89,7 @@
 - _class: Supra\Cms\ApplicationConfiguration
   id: Supra\Cms\Dashboard
   title: Dashboard
+  hidden: true
   url: dashboard
   icon: /cms/lib/supra/img/apps/dashboard
   authorizationAccessPolicy:

@@ -34,25 +34,25 @@ class ApplicationConfiguration extends ComponentConfiguration
 	 * @var AuthorizationAccessPolicyAbstraction
 	 */
 	public $authorizationAccessPolicy;
-	
+
 	/**
 	 * Controller classname
 	 * @var string
 	 */
 	public $classname;
-	
+
 	/**
 	 * When the application must be disabled entirely
 	 * @var boolean
 	 */
 	public $disable = false;
-	
+
 	/**
 	 *
 	 * @var boolean
 	 */
-	public $fancyActionClassLoader = false;
-	
+	public $hidden = false;
+
 	/**
 	 * @var string
 	 */
@@ -70,7 +70,7 @@ class ApplicationConfiguration extends ComponentConfiguration
 		}
 
 		$config = CmsApplicationConfiguration::getInstance();
-		
+
 		if ($this->disable) {
 			$config->removeConfiguration($this);
 		} else {
@@ -78,20 +78,8 @@ class ApplicationConfiguration extends ComponentConfiguration
 		}
 
 		ObjectRepository::setApplicationConfiguration($this->id, $this);
-		
-		if(! empty($this->fancyActionClassLoader)) {
-			
-			$loader = Loader::getInstance();
-			
-			$namespaceConfiguration = new NamespaceConfiguration();
-			$namespaceConfiguration->class = 'Supra\Cms\CmsNamespaceLoaderStrategy';
-			$namespaceConfiguration->dir = dirname($loader->findClassPath($this->classname));
-			$namespaceConfiguration->namespace = $this->id;
-			$namespace = $namespaceConfiguration->configure();
-			$loader->registerNamespace($namespace);
-		}
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -104,14 +92,14 @@ class ApplicationConfiguration extends ComponentConfiguration
 			//TODO: hardcoded CMS URL
 			'path' => '/' . $this->urlBase . '/' . $this->url . '/',
 		);
-		
+
 		if ($this->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
 			$array['permissions'] = array($this->authorizationAccessPolicy->getPermissionForInternalUserManager());
 		}
-		
+
 		return $array;
 	}
-	
+
 	/**
 	 * To keep authorization component interface
 	 * @return string
