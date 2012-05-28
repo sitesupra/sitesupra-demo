@@ -50,7 +50,10 @@ class LocaleManager
 	public function exists($localeIdentifier, $throws = true)
 	{
 		if (array_key_exists($localeIdentifier, $this->locales)) {
-			return true;
+			
+			if($this->locales[$localeIdentifier]->isActive()) {
+				return true;
+			}
 		}
 		
 		if ($throws) {
