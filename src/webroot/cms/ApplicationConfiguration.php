@@ -51,6 +51,12 @@ class ApplicationConfiguration extends ComponentConfiguration
 	 *
 	 * @var boolean
 	 */
+	public $hidden = false;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
 	public $fancyActionClassLoader = false;
 	
 	/**
