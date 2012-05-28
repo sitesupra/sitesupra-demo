@@ -97,6 +97,11 @@ function (Y) {
 		
 		
 		
+		/**
+		 * All widgets
+		 * @type {Object}
+		 * @private
+		 */
 		widgets: {
 			"inbox": null,
 			"keywords": null,
@@ -109,6 +114,13 @@ function (Y) {
 			
 			"sites": null
 		},
+		
+		/**
+		 * Application data has been loaded
+		 * @type {Boolean}
+		 * @private
+		 */
+		loaded: false,
 		
 		
 		
@@ -167,14 +179,6 @@ function (Y) {
 			//Scrollable
 			this.widgets.scrollable.render();
 			this.widgets.favourites.on("resize", this.widgets.scrollable.syncUI, this.widgets.scrollable);
-			
-			//Load data
-			this.loadInboxData();
-			this.loadApplicationData();
-			
-			this.loadStatisticsData();
-			
-			this.loadSitesData();
 		},
 		
 		/**
@@ -197,6 +201,21 @@ function (Y) {
 			} else {
 				node.one("a.close").on("click", this.hide, this);
 			}
+		},
+		
+		/**
+		 * Load all data
+		 */
+		load: function () {
+			if (this.loaded) return;
+			this.loaded = true;
+			
+			this.loadInboxData();
+			this.loadApplicationData();
+			
+			this.loadStatisticsData();
+			
+			this.loadSitesData();
 		},
 		
 		/**
@@ -372,14 +391,19 @@ function (Y) {
 			//Dashboard application is opened, can't close it
 			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") return;
 			
-			var height = Y.one("body").get("winHeight");
-			
 			this.set("visible", false);
-			this.one().transition({
-				"top": - height + "px !important",
-				"bottom": height + "px",
-				"duration": 0.75
-			}, Y.bind(function () {
+			
+			var transition = {
+				"transform": "scale(0.5)",
+				"opacity": 0,
+				"duration": 0.35
+			};
+			
+			if (Y.UA.ie && Y.UA.ie < 10) {
+				transition.msTransform = transition.transform;
+			}
+			
+			this.one().transition(transition, Y.bind(function () {
 				this.one().addClass("hidden");
 			}, this));
 		},
@@ -388,23 +412,36 @@ function (Y) {
 		 * Animate dashboard into view
 		 */
 		show: function () {
-			var height = Y.one("body").get("winHeight");
-			
-			this.one().setStyle({
-				"top": - height + "px !important",
-				"bottom": height + "px"
-			});
 			this.one().removeClass("hidden");
 			
 			this.set("visible", true);
 			
-			this.one().transition({
-				"top": "0px !important",
-				"bottom": "0px",
-				"duration": 0.75
-			}, Y.bind(function () {
-				this.widgets.scrollable.syncUI();
-			}, this));
+			var styles = {
+					"opacity": 0,
+					"transform": "scale(0.5)"
+				},
+				transition = {
+					"opacity": 1,
+					"transform": "scale(1)"
+				};
+			
+			if (Y.UA.ie && Y.UA.ie < 10) {
+				styles = {
+					"opacity": 0
+				};
+				transition = {
+					"opacity": 1
+				};
+			}
+			
+			Y.later(150, this, function () {
+				this.one()
+					.setStyles(styles)
+					.transition(transition, Y.bind(function () {
+						this.load();
+						this.widgets.scrollable.syncUI();
+					}, this));
+			});
 		},
 		
 		/**
