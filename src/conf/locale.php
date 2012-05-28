@@ -29,7 +29,6 @@ $locale->setId('ru_RU');
 $locale->setTitle('Russian');
 $locale->setCountry('Russia');
 $locale->addProperty('flag', 'ru');
-$locale->setActive(false);
 $locale->addProperty('language', 'ru'); // as per ISO 639-1
 $localeManagerTemplate->add($locale);
 
