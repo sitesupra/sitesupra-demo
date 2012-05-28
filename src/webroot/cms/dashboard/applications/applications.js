@@ -4,53 +4,60 @@
 /**
  * Custom modules
  */
-Supra.addModule("website.stats", {
-	path: "stats.js",
-	requires: [
-		"widget"
-	]
-});
-Supra.addModule("website.inbox", {
-	path: "inbox.js",
-	requires: [
-		"website.stats"
-	]
-});
-Supra.addModule("website.pagination", {
-	path: "pagination.js",
-	requires: [
-		"widget"
-	]
-});
-Supra.addModule("website.app-list", {
-	path: "app-list.js",
-	requires: [
-		"widget",
-		"website.pagination",
-		"transition",
-		"dd"
-	]
-});
-Supra.addModule("website.app-favourites", {
-	path: "app-favourites.js",
-	requires: [
-		"widget",
-		"website.pagination",
-		"transition",
-		"dd"
-	]
-});
-
+(function () {
+	var STATIC_PATH = Supra.Manager.Loader.getStaticPath(),
+		APP_PATH = Supra.Manager.Loader.getActionBasePath("Applications");
+	
+	Supra.setModuleGroupPath('dashboard', STATIC_PATH + APP_PATH + '/modules');
+	
+	Supra.addModule("dashboard.stats", {
+		path: "stats.js",
+		requires: [
+			"widget"
+		]
+	});
+	Supra.addModule("dashboard.inbox", {
+		path: "inbox.js",
+		requires: [
+			"dashboard.stats"
+		]
+	});
+	Supra.addModule("dashboard.pagination", {
+		path: "pagination.js",
+		requires: [
+			"widget"
+		]
+	});
+	Supra.addModule("dashboard.app-list", {
+		path: "app-list.js",
+		requires: [
+			"widget",
+			"dashboard.pagination",
+			"transition",
+			"dd"
+		]
+	});
+	Supra.addModule("dashboard.app-favourites", {
+		path: "app-favourites.js",
+		requires: [
+			"widget",
+			"dashboard.pagination",
+			"transition",
+			"dd"
+		]
+	});
+})();
 
 /**
  * Main manager action, initiates all other actions
  */
 Supra(
 	
-	"website.app-list",
-	"website.app-favourites",
-	"website.stats",
-	"website.inbox",
+	"dashboard.app-list",
+	"dashboard.app-favourites",
+	"dashboard.stats",
+	"dashboard.inbox",
+	"transition",
 	
 function (Y) {
 
@@ -96,7 +103,11 @@ function (Y) {
 			"referring": null,
 			
 			"apps": null,
-			"favourites": null
+			"favourites": null,
+			
+			"scrollable": null,
+			
+			"sites": null
 		},
 		
 		
@@ -122,6 +133,10 @@ function (Y) {
 			this.widgets.favourites = new Supra.AppFavourites({
 				"srcNode": this.one("div.dashboard-favourites")
 			});
+			
+			this.widgets.scrollable = new Supra.Scrollable({
+				"srcNode": this.one("div.apps-scrollable")
+			});
 		},
 		
 		/**
@@ -146,6 +161,59 @@ function (Y) {
 			
 			this.widgets.favourites.on("appadd", this.removeAppFromApps, this);
 			this.widgets.apps.on("appadd", this.removeAppFromFavourites, this);
+			
+			this.renderHeader();
+			
+			//Scrollable
+			this.widgets.scrollable.render();
+			this.widgets.favourites.on("resize", this.widgets.scrollable.syncUI, this.widgets.scrollable);
+			
+			//Load data
+			this.loadInboxData();
+			this.loadApplicationData();
+			
+			this.loadStatisticsData();
+			
+			this.loadSitesData();
+		},
+		
+		/**
+		 * Render header
+		 */
+		renderHeader: function () {
+			var node = this.one("div.dashboard-header");
+			
+			node.one("div.user span").set("text", Supra.data.get(["user", "name"]));
+			
+			var avatar = Supra.data.get(["user", "avatar"]);
+			if (avatar) {
+				node.one("div.user img").setAttribute("src", Supra.data.get(["user", "avatar"]));
+			} else {
+				node.one("div.user img").addClass("hidden");
+			}
+			
+			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
+				node.one("a.close").addClass("hidden");
+			} else {
+				node.one("a.close").on("click", this.hide, this);
+			}
+		},
+		
+		/**
+		 * Load site list
+		 * 
+		 * @private
+		 */
+		loadSitesData: function () {
+			Supra.io(this.getDataPath("dev/sites"), function (data, status) {
+				if (status && data && data.length > 1) {
+					this.widgets.sites = new Supra.Input.Select({
+						"srcNode": this.one("select"),
+						"values": data
+					});
+					this.widgets.sites.render();
+				}
+			}, this);
 		},
 		
 		/**
@@ -185,16 +253,20 @@ function (Y) {
 						favourites = [];
 					
 					Y.Array.each(data.applications, function (app) {
+						var index = Y.Array.indexOf(data.favourites, app.id);
+						
 						//Only if not in favourites
-						if (Y.Array.indexOf(data.favourites, app.id) === -1) {
+						if (index === -1) {
 							applications.push(app);
 						} else {
-							favourites.push(app);
+							favourites[index] = app;
 						}
 					});
 					
 					this.widgets.apps.set("data", applications);
 					this.widgets.favourites.set("data", favourites);
+					
+					this.widgets.scrollable.syncUI();
 				}
 			}, this);
 		},
@@ -294,15 +366,52 @@ function (Y) {
 		},
 		
 		/**
+		 * Animate dashboard out of view
+		 */
+		hide: function () {
+			//Dashboard application is opened, can't close it
+			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") return;
+			
+			var height = Y.one("body").get("winHeight");
+			
+			this.set("visible", false);
+			this.one().transition({
+				"top": - height + "px !important",
+				"bottom": height + "px",
+				"duration": 0.75
+			}, Y.bind(function () {
+				this.one().addClass("hidden");
+			}, this));
+		},
+		
+		/**
+		 * Animate dashboard into view
+		 */
+		show: function () {
+			var height = Y.one("body").get("winHeight");
+			
+			this.one().setStyle({
+				"top": - height + "px !important",
+				"bottom": height + "px"
+			});
+			this.one().removeClass("hidden");
+			
+			this.set("visible", true);
+			
+			this.one().transition({
+				"top": "0px !important",
+				"bottom": "0px",
+				"duration": 0.75
+			}, Y.bind(function () {
+				this.widgets.scrollable.syncUI();
+			}, this));
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function () {
 			this.show();
-			
-			this.loadInboxData();
-			this.loadApplicationData();
-			
-			this.loadStatisticsData();
 		}
 	});
 	

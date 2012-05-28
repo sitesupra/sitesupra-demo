@@ -2,21 +2,103 @@
 @import "/cms/lib/supra/less/common.less";
 
 .dashboard {
+	top: -1200px !important;
+	bottom: 1200px;
+	overflow: hidden;
+	
+	z-index: 15;
+	background: url(/cms/lib/supra/img/background-center.jpg) 50% 0 no-repeat, url(/cms/lib/supra/img/background-pattern.jpg) 50% 0 repeat;
+	background-attachment: fixed;
 	
 	.apps,
 	.info {
 		position: absolute;
-		top: 25px;
+		top: 72px;
 		bottom: 25px;
 	}
 	
 	.apps {
 		left: 50px;
-		right: 44%;
+		right: 42%;
+		
+		.apps-scrollable {
+			padding-right: 50px !important;
+		}
 	}
 	.info {
 		width: 35%;
 		right: 65px;
+	}
+}
+
+/**
+ * Header
+ */
+.dashboard-header {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	height: 47px;
+	background: url(/cms/dashboard/images/header/background.png) 0 0 repeat-x;
+	
+	h2,
+	.user span {
+		color: #fff;
+		font-size: 12px;
+		font-weight: bold;
+		line-height: 16px;
+		padding: 17px 0 0 66px;
+	}
+	
+	h2 {
+		float: left;
+	}
+	
+	.yui3-input-select {
+		float: left;
+		margin: 13px 0 0 42px;
+		
+		.yui3-input-select-inner > p {
+			padding-right: 10px;
+		}
+		
+		label {
+			display: none;
+		}
+	}
+	
+	.user {
+		float: right;
+		padding-right: 80px;
+		
+		img {
+			display: inline-block;
+			vertical-align: top;
+			margin-top: 3px;
+			
+			.border-radius (5px);
+		}
+		span {
+			display: inline-block;
+			padding-left: 17px;
+			vertical-align: top;
+		}
+	}
+	
+	a.close {
+		position: absolute;
+		right: 0;
+		top: 0;
+		display: block;
+		cursor: pointer;
+		background: url(/cms/dashboard/images/header/icon-close.png) 21px 13px no-repeat;
+		height: 47px;
+		width: 63px;
+	}
+	
+	select {
+		display: none;
 	}
 }
 
@@ -90,6 +172,7 @@ li.app-list-proxy {
 
 li.app-list-proxy {
 	position: absolute;
+	z-index: 16;
 	list-style: none;
 	display: block;
 }
@@ -158,6 +241,10 @@ li.app-list-proxy {
 		&:hover {
 			background-position: 0 -30px;
 		}
+	}
+	
+	&.su-pagination-hidden {
+		visibility: hidden;
 	}
 }
 

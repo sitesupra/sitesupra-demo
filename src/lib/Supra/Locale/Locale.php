@@ -32,6 +32,12 @@ class Locale
 	protected $properties;
 
 	/**
+	 * True by default
+	 * @var boolean
+	 */
+	protected $active = true;
+	
+	/**
 	 * Return locale ID
 	 * @return string
 	 */
@@ -105,6 +111,24 @@ class Locale
 		if (isset($this->properties[$name])) {
 			return $this->properties[$name];
 		}
+	}
+	
+	/**
+	 * Set locale is active/inactive (either it's enabled or disabled)
+	 * @param boolean $active
+	 */
+	public function setActive($active) 
+	{
+		$this->active = $active;
+	}
+	
+	/**
+	 * Is locale active or not
+	 * @return boolean
+	 */
+	public function isActive()
+	{
+		return $this->active;
 	}
 
 }

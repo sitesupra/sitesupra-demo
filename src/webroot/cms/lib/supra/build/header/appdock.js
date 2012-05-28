@@ -45,22 +45,6 @@ YUI.add('supra.header.appdock', function(Y) {
 		},
 		
 		/**
-		 * All application data
-		 * @type {Array}
-		 */
-		'applications': {
-			'value': null
-		},
-		
-		/**
-		 * All application request URI
-		 * @type {String}
-		 */
-		'requestUri': {
-			'value': null
-		},
-		
-		/**
 		 * App node
 		 * @type {Object}
 		 */
@@ -170,116 +154,13 @@ YUI.add('supra.header.appdock', function(Y) {
 			if (event) event.halt();
 			
 			//Hide if it's already visible
-			var node_dock = this.get('nodeDock');
-			if (this.dock_visible) {
-				
-				//Hide using CSS3 animation and then hide container
-				this.get('boundingBox').removeClass(getClassName(AppDock.NAME, 'dock', 'visible'));
-				Y.later(500, this, function () {
-					node_dock.addClass('hidden');
-				});
-				
-				this.dock_visible = false;
-				return;
-			}
-			
-			//Dock panel
-			if (!node_dock) {
-				node_dock = Y.Node.create('<div class="' + getClassName(AppDock.NAME, 'dock') + '"><ul></ul></div>');
-				this.set('nodeDock', node_dock);
-				this.get('contentBox').append(node_dock);
-				
-				node_dock.append('<div class="yui3-app-dock-stats">\
-						<div class="stat-content"></div>\
-					</div>');
-				
+			var action = Supra.Manager.getAction("Applications");
+			if (action.get("visible")) {
+				action.hide();
 			} else {
-				node_dock.removeClass('hidden');
+				action.execute();
 			}
-			
-			this.dock_visible = true;
-			
-			//Show using CSS3 animation, delay is needed to make sure animation runs in FF
-			Y.later(50, this, function () {
-				this.get('boundingBox').addClass(getClassName(AppDock.NAME, 'dock', 'visible'));
-			});
-			
-			//Load applications
-			if (!this.get('applications')) {
-				this.loadApplications();
-			}
-			
-		},
-		
-		/**
-		 * Load application list
-		 * 
-		 * @param {Function} callback Callback function
-		 * @private
-		 */
-		loadApplications: function (callback) {
-			var node_dock = this.get('nodeDock'),
-				classname = getClassName(AppDock.NAME, 'dock', 'loading'),
-				uri = this.get('requestUri');
-			
-			node_dock.addClass(classname);
-			
-			Supra.io(uri, {
-				'context': this,
-				'on': {
-					'complete': function (data) {
-						node_dock.removeClass(classname);
-						this.renderApplications(data || []);
-						
-						if (data) {
-							this.set('applications', data);
-						}
-					}
-				}
-			});
-		},
-		
-		/**
-		 * Render application list
-		 * 
-		 * @param {Array} data Application list
-		 * @private
-		 */
-		renderApplications: function (data) {
-			var node_list = this.get('nodeDock').one('ul'),
-				node_item = null,
-				node_data = null,
-				current = Supra.data.get(['application', 'id'], '');
-			
-			node_list.empty();
-			
-			for(var i=0,ii=data.length; i<ii; i++) {
-				node_data = {
-					'path': data[i].path,
-					'icon': this.getAppIcon(data[i], '64'),
-					'title': data[i].title	
-				};
-				
-				node_item = Y.Node.create(Y.substitute(TEMPLATE_ITEM, node_data));
-				
-				if (data[i].id == current) {
-					node_item.on('click', this.toggleAppDockBar, this);
-				}
-				
-				node_list.append(node_item);
-			}
-			
-			node_data = {
-				'path': Supra.Manager.Loader.getDynamicPath() + '/logout/',
-				//TODO: localize
-				'title': 'Logout'
-			};
-			
-			node_item = Y.Node.create(Y.substitute(TEMPLATE_ITEM_LOGOUT, node_data));
-			node_item.addClass('logout');
-			node_list.append(node_item);
 		}
-		
 	});
 	
 	

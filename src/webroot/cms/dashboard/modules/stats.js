@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add("website.stats", function (Y) {
+YUI.add("dashboard.stats", function (Y) {
  
 	var TEMPLATE_HEADING = '\
 			<div class="su-block-heading ui-center-darker-background">\
