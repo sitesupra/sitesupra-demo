@@ -2,13 +2,15 @@
 @import "/cms/lib/supra/less/common.less";
 
 .dashboard {
-	top: -1200px !important;
-	bottom: 1200px;
+	top: 0 !important;
 	overflow: hidden;
 	
 	z-index: 15;
 	background: url(/cms/lib/supra/img/background-center.jpg) 50% 0 no-repeat, url(/cms/lib/supra/img/background-pattern.jpg) 50% 0 repeat;
 	background-attachment: fixed;
+	
+	.transform (scale(0.5));
+	opacity: 0; 
 	
 	.apps,
 	.info {
