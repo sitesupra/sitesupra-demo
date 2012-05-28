@@ -65,6 +65,16 @@ abstract class PageManagerAction extends CmsAction
 	 * @var PageController
 	 */
 	private $pageController;
+	
+	/**
+	 * Redirect page ids. For recursion checking
+	 * 
+	 * @var array 
+	 */
+	protected $redirectPageIds = array(
+		'data' => array(),
+		'iteration' => 0,
+	);
 
 	/**
 	 * Assign entity manager
@@ -495,8 +505,32 @@ abstract class PageManagerAction extends CmsAction
 		return $array;
 	}
 
+	/**
+	 * Returns redirect data. Has page localization redirect and redirect localization id
+	 * 
+	 * @param Entity\PageLocalization $pageLocalization
+	 * @param array $parentData
+	 * @return array
+	 */
 	protected function getRedirectData($pageLocalization, $parentData = array())
 	{
+		if($this->redirectPageIds['iteration'] >= 100) {
+			\Log::error('Too deep redirect recursion.');
+			return array();
+		}
+		
+		if ( ! $pageLocalization instanceof Entity\PageLocalization) {
+			return $parentData;
+		}
+		
+		$pageLocalizationId = $pageLocalization->getId();
+		if(in_array($pageLocalizationId, $this->redirectPageIds['data'])) {
+			\Log::error('Looks like page is linking to another page which already was in redirect chain.');
+			return array();
+		}
+		
+		$this->redirectPageIds['data'][] = $pageLocalizationId;
+		
 		$redirect = false;
 		$redirectLocalizationId = null;
 
@@ -506,6 +540,7 @@ abstract class PageManagerAction extends CmsAction
 		$linkElement = $pageLocalization->getRedirect();
 		
 		if ($linkElement instanceof ReferencedElement\LinkReferencedElement) {
+			$this->redirectPageIds['iteration']++;
 			$redirectPageId = $redirectLocalization = null;
 			$resource = $linkElement->getResource();
 			switch ($resource) {
