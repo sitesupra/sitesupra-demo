@@ -54,7 +54,16 @@ class PageRequestView extends PageRequest
 			
 			$this->setPageLocalization($data);
 		}
-
+		
+		if ($data instanceof Entity\PageLocalization) {
+			$localeId = $data->getLocale();
+			
+			$localeManager = ObjectRepository::getLocaleManager($this);
+			if ( ! $localeManager->isActive($localeId)) {
+				return null;
+			}
+		}
+		
 		return $data;
 	}
 	
