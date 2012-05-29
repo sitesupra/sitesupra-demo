@@ -600,20 +600,22 @@ class FileStorage
 			}
 
 			$newPath = $this->getFilesystemPath($entity);
-						
+			
+			if ( ! rename($oldPath, $newPath)) {
+				if ($entity instanceof Entity\Folder) {
+					$this->log()->error("Failed to move '{$oldPath}' to '{$newPath}' in filesystem");
+					$this->createFolderInFileSystem($newPath);
+				} else {
+					throw new Exception\RuntimeException('Failed to move in filesystem');
+				}
+			}
+			
 			// move file/folder from opposite storage in  file system
 			if ($entity instanceof Entity\Folder) {
-				
-				if ( ! file_exists($otherStorageOldPath)) {
-					$this->createFolderInFileSystem($otherStorageOldPath);
-				}
-				
 				if ( ! rename($otherStorageOldPath, $otherStorageNewPath)) {
-					throw new Exception\RuntimeException('Failed to move in filesystem');
-				}
-			} else {
-				if ( ! rename($oldPath, $newPath)) {
-					throw new Exception\RuntimeException('Failed to move in filesystem');
+					$this->log()->error("Failed to move folder from '{$otherStorageOldPath}' to '{$otherStorageNewPath}' in filesystem");
+					$this->createFolderInFileSystem($otherStorageNewPath);
+					//throw new Exception\RuntimeException('Failed to move in filesystem');
 				}
 			}
 			
