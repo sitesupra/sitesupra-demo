@@ -117,7 +117,7 @@ class BlocksAction extends PageManagerAction
 			$response['blocks'][] = array(
 				'id' => $conf->id,
 				'group' => $blockGroup,
-				'groups' => $conf->propertyGroups,
+				'property_groups' => $conf->propertyGroups,
 				'title' => $conf->title,
 				'description' => $conf->description,
 				'icon' => $conf->iconWebPath,
