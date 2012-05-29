@@ -27,7 +27,7 @@ class ApplicationsAction extends DasboardAbstractAction
 		$applications = array();
 
 		$config = \Supra\Cms\CmsApplicationConfiguration::getInstance();
-		$appConfigs = $config->getArray();
+		$appConfigs = $config->getArray(true);
 
 		$basePath = '/' . SUPRA_CMS_URL . '/';
 
@@ -51,9 +51,8 @@ class ApplicationsAction extends DasboardAbstractAction
 			$favourites = $userPreferences['favourite_apps'];
 		}
 		
-		$existingApps = $config->getArray(true);
 		foreach($favourites as $appName) {
-			if ( ! isset($existingApps[$appName])) {
+			if ( ! isset($appConfigs[$appName])) {
 				unset($favourites[$appName]);
 			}
 		}
