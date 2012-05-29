@@ -2,13 +2,9 @@
 "use strict";
 
 //Add module definitions
-Supra.addModule('website.input-pattern', {
-	path: 'input/pattern.js',
-	requires: ['supra.input-select-list']
-});
 Supra.addModule('website.input-fonts', {
 	path: 'input/fonts.js',
-	requires: ['website.input-pattern']
+	requires: ['supra.input-select-visual']
 });
 
 /**
@@ -16,7 +12,6 @@ Supra.addModule('website.input-fonts', {
  */
 Supra(
 	
-	'website.input-pattern',
 	'website.input-fonts',
 	'supra.datatype-color',
 
@@ -39,7 +34,7 @@ function (Y) {
 			},
 			"buttonStyle": {
 				"id": "buttonStyle",
-				"type": "Pattern",
+				"type": "SelectVisual",
 				
 				"property": "classname",
 				"target": "body"
@@ -55,7 +50,7 @@ function (Y) {
 			},
 			"backgroundPattern": {
 				"id": "backgroundPattern",
-				"type": "Pattern",
+				"type": "SelectVisual",
 				
 				"property": "backgroundImage",			//css property which will be changed
 				"target": ".su-customize-background"	//css classname which will be changed
@@ -64,7 +59,7 @@ function (Y) {
 		"menu": {
 			"menu": {
 				"id": "menu",
-				"type": "Pattern",
+				"type": "SelectVisual",
 				
 				"property": "classname",				//attribute which will be changed
 				"target": "body"						//css selector for element which will be changed
@@ -275,7 +270,7 @@ function (Y) {
 				
 				if (input.isInstanceOf('input-color')) {
 					input.on(['valueChange', 'colorChange'], this.updatePreview, this, definition, input);
-				} else if (input.isInstanceOf('input-pattern')) {
+				} else if (input.isInstanceOf('input-select-visual')) {
 					input.on('valueChange', this.updatePreview, this, definition, input);
 				}
 			}

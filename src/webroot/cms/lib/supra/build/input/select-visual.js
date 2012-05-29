@@ -170,10 +170,18 @@ YUI.add('supra.input-select-visual', function (Y) {
 		 * @private
 		 */
 		_setStyle: function (value) {
-			var prev = this.get('style');
+			var prev = this.get('style'),
+				classname = null;
+			
 			if (prev != value) {
-				if (prev) this.get('boundingBox').removeClass(this.getClassName(prev));
-				if (value) this.get('boundingBox').addClass(this.getClassName(value));
+				if (prev) { 
+					classname = Y.ClassNameManager.getClassName(Input.NAME, prev);
+					this.get('boundingBox').removeClass(classname);
+				}
+				if (value) {
+					classname = Y.ClassNameManager.getClassName(Input.NAME, value);
+					this.get('boundingBox').addClass(classname);
+				}
 			}
 			
 			return value;
@@ -188,10 +196,18 @@ YUI.add('supra.input-select-visual', function (Y) {
 		 * @private
 		 */
 		_setIconStyle: function (value) {
-			var prev = this.get('iconStyle');
+			var prev = this.get('iconStyle'),
+				classname = null;
+			
 			if (prev != value) {
-				if (prev) this.get('boundingBox').removeClass(this.getClassName(prev));
-				if (value) this.get('boundingBox').addClass(this.getClassName(value));
+				if (prev) { 
+					classname = Y.ClassNameManager.getClassName(Input.NAME, prev);
+					this.get('boundingBox').removeClass(classname);
+				}
+				if (value) {
+					classname = Y.ClassNameManager.getClassName(Input.NAME, value);
+					this.get('boundingBox').addClass(classname);
+				}
 			}
 			
 			return value;
