@@ -111,6 +111,22 @@ class ApplicationsAction extends DasboardAbstractAction
 				unset($favouriteApps[$key]);
 			}
 		}
+		
+		// perform cleanup to array
+		$existingApps = $config->getArray(true);
+		foreach($favouriteApps as $key => $appName) {
+			if ( ! isset($existingApps[$appName])) {
+				unset($existingApps[$key]);
+			}
+			
+			$duplicates = array_keys($favouriteApps, $appName);
+			if (count($duplicates) > 1) {
+				$count = count($duplicates);
+				for($i = 1; $i < $count; $i++) {
+					unset($favouriteApps[$duplicates[$i]]);
+				}
+			}
+		}
 
 		$this->currentUser->setPreference('favourite_apps', array_values($favouriteApps));
 		
