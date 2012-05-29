@@ -316,120 +316,129 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
 			$file = $_FILES['file'];
-
-			// checking for replace action
-			if ( ! $this->emptyRequestParameter('file_id')) {
-				$fileToReplace = $this->getFile('file_id');
-				$this->fileStorage->replaceFile($fileToReplace, $file);
-
-				$output = $this->imageAndFileOutput($fileToReplace);
-
-				$this->getResponse()->setResponseData($output);
-
-				return;
-			}
-
-			$fileEntity = null;
-			if ($this->fileStorage->isMimeTypeImage($file['type'])) {
-				$fileEntity = new Entity\Image();
-			} else {
-				$fileEntity = new Entity\File();
-			}
-			$this->entityManager->persist($fileEntity);
-
-			$fileEntity->setFileName($file['name']);
-			$fileEntity->setSize($file['size']);
-			$fileEntity->setMimeType($file['type']);
-
-			$humanName = $file['name'];
 			
-			// Could move to separate method, should be configurable
-			{
-				// Remove extension part
-				$extensionLength = strlen($fileEntity->getExtension());
+			$this->entityManager->beginTransaction();			
+			
+			try {
+				// checking for replace action
+				if ( ! $this->emptyRequestParameter('file_id')) {
+					$fileToReplace = $this->getFile('file_id');
+					$this->fileStorage->replaceFile($fileToReplace, $file);
 
-				if ($extensionLength != 0) {
-					$extensionLength++;
-					$humanName = substr($humanName, 0, -$extensionLength);
+					$output = $this->imageAndFileOutput($fileToReplace);
+
+					$this->getResponse()->setResponseData($output);
+
+					return;
 				}
 
-				// Replace dots, underscores, space characters with space
-				$humanNameSplit = preg_split('/[\s_\.]+/', $humanName);
+				$fileEntity = null;
+				if ($this->fileStorage->isMimeTypeImage($file['type'])) {
+					$fileEntity = new Entity\Image();
+				} else {
+					$fileEntity = new Entity\File();
+				}
+				$this->entityManager->persist($fileEntity);
 
-				foreach ($humanNameSplit as &$humanNamePart) {
-					$humanNamePart = mb_strtoupper(mb_substr($humanNamePart, 0, 1))
-							. mb_substr($humanNamePart, 1);
+				$fileEntity->setFileName($file['name']);
+				$fileEntity->setSize($file['size']);
+				$fileEntity->setMimeType($file['type']);
+
+				$humanName = $file['name'];
+
+				// Could move to separate method, should be configurable
+				{
+					// Remove extension part
+					$extensionLength = strlen($fileEntity->getExtension());
+
+					if ($extensionLength != 0) {
+						$extensionLength++;
+						$humanName = substr($humanName, 0, -$extensionLength);
+					}
+
+					// Replace dots, underscores, space characters with space
+					$humanNameSplit = preg_split('/[\s_\.]+/', $humanName);
+
+					foreach ($humanNameSplit as &$humanNamePart) {
+						$humanNamePart = mb_strtoupper(mb_substr($humanNamePart, 0, 1))
+								. mb_substr($humanNamePart, 1);
+					}
+
+					// Implode back
+					$humanName = implode(' ', $humanNameSplit);
 				}
 
-				// Implode back
-				$humanName = implode(' ', $humanNameSplit);
-			}
+				// additional jobs for images
+				if ($fileEntity instanceof Entity\Image) {
+					// store original size
+					$imageProcessor = new ImageProcessor\ImageResizer();
+					$imageInfo = $imageProcessor->getImageInfo($file['tmp_name']);
+					$fileEntity->setWidth($imageInfo['width']);
+					$fileEntity->setHeight($imageInfo['height']);
+				}
 
-			// additional jobs for images
-			if ($fileEntity instanceof Entity\Image) {
-				// store original size
-				$imageProcessor = new ImageProcessor\ImageResizer();
-				$imageInfo = $imageProcessor->getImageInfo($file['tmp_name']);
-				$fileEntity->setWidth($imageInfo['width']);
-				$fileEntity->setHeight($imageInfo['height']);
-			}
-			
-			// adding file as folders child if parent folder is set
-			$folder = null;
-			if ( ! $this->emptyRequestParameter('folder')) {	
+				// adding file as folders child if parent folder is set
+				$folder = null;
+				if ( ! $this->emptyRequestParameter('folder')) {	
 
-				$folder = $this->getFolder('folder');
-				
-				// get parent folder private/public status
-				$publicStatus = $folder->isPublic();
-				$fileEntity->setPublic($publicStatus);
-				
-				$folder->addChild($fileEntity);
-			}
-			
-			if ($fileEntity instanceof Entity\Image) {
+					$folder = $this->getFolder('folder');
+
+					// get parent folder private/public status
+					$publicStatus = $folder->isPublic();
+					$fileEntity->setPublic($publicStatus);
+
+					$folder->addChild($fileEntity);
+				}
+
+				if ($fileEntity instanceof Entity\Image) {
+					try {
+						$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
+					} catch (\Supra\FileStorage\Exception\InsufficientSystemResources $e) {
+
+						$this->entityManager->flush();
+						$this->entityManager->remove($fileEntity);
+						$this->entityManager->flush();
+
+						$fileEntity = new Entity\File();
+
+						$this->entityManager->persist($fileEntity);
+
+						$fileEntity->setFileName($file['name']);
+						$fileEntity->setSize($file['size']);
+						$fileEntity->setMimeType($file['type']);
+
+						if ( ! is_null($folder)) {
+							$publicStatus = $folder->isPublic();
+							$fileEntity->setPublic($publicStatus);
+
+							$folder->addChild($fileEntity);
+						}
+
+						$message = "Amount of memory required for image [{$humanName}] resizing exceeds available, it will be uploaded as File";
+						$this->getResponse()
+								->addWarningMessage($message);
+					}
+				}
+
 				try {
-					$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
-				} catch (\Supra\FileStorage\Exception\InsufficientSystemResources $e) {
-					
+					// trying to upload file
+					$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+				} catch (\Exception $e) {
 					$this->entityManager->flush();
 					$this->entityManager->remove($fileEntity);
 					$this->entityManager->flush();
-					
-					$fileEntity = new Entity\File();
-					
-					$this->entityManager->persist($fileEntity);
-					
-					$fileEntity->setFileName($file['name']);
-					$fileEntity->setSize($file['size']);
-					$fileEntity->setMimeType($file['type']);
-					
-					if ( ! is_null($folder)) {
-						$publicStatus = $folder->isPublic();
-						$fileEntity->setPublic($publicStatus);
-				
-						$folder->addChild($fileEntity);
-					}
-					
-					$message = "Amount of memory required for image [{$humanName}] resizing exceeds available, it will be uploaded as File";
-					$this->getResponse()
-							->addWarningMessage($message);
+
+					throw $e;
 				}
-			}
-			
-			try {
-				// trying to upload file
-				$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+
+				$this->entityManager->flush();
 			} catch (\Exception $e) {
-				$this->entityManager->flush();
-				$this->entityManager->remove($fileEntity);
-				$this->entityManager->flush();
-				
+				$this->entityManager->rollback();
 				throw $e;
 			}
-			
-			$this->entityManager->flush();
 
+			$this->entityManager->commit();
+			
 			// genrating output
 			$output = $this->imageAndFileOutput($fileEntity);
 
