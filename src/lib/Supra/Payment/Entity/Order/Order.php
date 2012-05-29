@@ -115,6 +115,10 @@ abstract class Order extends Database\Entity
 	{
 		$localeManager = ObjectRepository::getLocaleManager($this);
 
+		if(empty($this->localeId)) {
+			$this->localeId = $localeManager->getCurrent()->getId();
+		}
+		
 		$locale = $localeManager->getLocale($this->localeId);
 
 		return $locale;

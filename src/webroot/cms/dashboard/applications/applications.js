@@ -199,7 +199,10 @@ function (Y) {
 			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
 				node.one("a.close").addClass("hidden");
 			} else {
-				node.one("a.close").on("click", this.hide, this);
+				//node.one("a.close").on("click", this.hide, this);
+				node.one('a.close').on("click", function() {
+					document.location = Supra.Manager.Loader.getDynamicPath() + '/logout/'
+				});
 			}
 		},
 		
@@ -224,7 +227,7 @@ function (Y) {
 		 * @private
 		 */
 		loadSitesData: function () {
-			Supra.io(this.getDataPath("dev/sites"), function (data, status) {
+			Supra.io(this.getDataPath("../site/sites"), function (data, status) {
 				if (status && data && data.length > 1) {
 					this.widgets.sites = new Supra.Input.Select({
 						"srcNode": this.one("select"),
