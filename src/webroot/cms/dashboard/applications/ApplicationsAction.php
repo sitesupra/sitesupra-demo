@@ -51,14 +51,15 @@ class ApplicationsAction extends DasboardAbstractAction
 			$favourites = $userPreferences['favourite_apps'];
 		}
 		
+		$favoritesResponse = array();
 		foreach($favourites as $appName) {
-			if ( ! isset($appConfigs[$appName])) {
-				unset($favourites[$appName]);
+			if (isset($appConfigs[$appName])) {
+				array_push($favoritesResponse, $appName);
 			}
 		}
 
 		$response = array(
-			'favourites' => $favourites,
+			'favourites' => $favoritesResponse,
 			'applications' => $applications,
 		);
 
