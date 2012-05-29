@@ -11,6 +11,7 @@ use Supra\Remote\Client\RemoteCommandService;
 use Symfony\Component\Console\Input\ArrayInput;
 use Supra\Console\Output\ArrayOutput;
 use Supra\Console\Output\ArrayOutputWithData;
+use Supra\Log\Writer\WriterAbstraction;
 
 class RemoteUserProvider extends UserProviderAbstract
 {
@@ -18,7 +19,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	/**
 	 * @var RemoteCommandService
 	 */
-	private $service;
+	private $remoteCommandService;
 
 	/**
 	 * @var string
@@ -26,16 +27,41 @@ class RemoteUserProvider extends UserProviderAbstract
 	private $siteKey;
 
 	/**
+	 * @var WriterAbstraction
+	 */
+	protected $log;
+
+	/**
 	 * @var string
 	 */
 	private $remoteApiEndpointId;
 
-	const REMOTE_COMMAND_USER = 'su:portal:find_user';
-	const REMOTE_COMMAND_GROUP = 'su:portal:find_group';
+	const REMOTE_COMMAND_FIND_USER = 'su:portal:find_user';
+	const REMOTE_COMMAND_FIND_GROUP = 'su:portal:find_group';
+	const REMOTE_COMMAND_UPDATE_USER = 'su:portal:update_user';
+	const REMOTE_COMMAND_CREATE_USER = 'su:portal:create_user';
 
-	public function __construct()
+	/**
+	 * @return RemoteCommandService
+	 */
+	public function getRemoteCommandService()
 	{
-		$this->service = new RemoteCommandService();
+		if (empty($this->remoteCommandService)) {
+			$this->remoteCommandService = new RemoteCommandService();
+		}
+		return $this->remoteCommandService;
+	}
+
+	/**
+	 * @return WriterAbstraction
+	 */
+	protected function getLog()
+	{
+		if (empty($this->log)) {
+			$this->log = ObjectRepository::getLogger($this);
+		}
+
+		return $this->log;
 	}
 
 	/**
@@ -140,7 +166,20 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function updateUser(Entity\User $user)
 	{
-		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
+		$parameters = array(
+			'user' => $user->getId(),
+			'--name' => $user->getName(),
+			'--email' => $user->getEmail(),
+			'--password_hash' => $user->getPassword(),
+			'--avatar' => $user->getAvatar(),
+			'--has_personal_avatar' => $user->hasPersonalAvatar()
+		);
+
+		$commandResponse = $this->executeSupraPortalCommand(self::REMOTE_COMMAND_UPDATE_USER, $parameters);
+
+		if ( ! empty($commandResponse['error'])) {
+			throw new Exception\RuntimeException('SupraPortal: ' . $commandResponse['error']);
+		}
 	}
 
 	/**
@@ -152,73 +191,83 @@ class RemoteUserProvider extends UserProviderAbstract
 	}
 
 	/**
-	 * Request simulator, returns dummy data 
+	 * @param string $command
+	 * @param array $parameters
+	 * @return mixed 
+	 */
+	protected function executeSupraPortalCommand($command, $parameters)
+	{
+		$remoteApiEndpointId = $this->getRemoteApiEndpointId();
+
+		if (empty($remoteApiEndpointId)) {
+
+			$this->getLog()
+					->error('Remote api endpoint id is not configured. Add [' . RemoteCommandService::INI_SECTION_NAME . '] section to supra.ini and then assign remote api endpoint id to ' . __CLASS__);
+
+			throw new Exception\RuntiemException('Remote api endpoint id is not configured.');
+		}
+
+		$inputArray = array('command' => $command, 'site' => $this->getSiteKey()) + $parameters;
+
+		$output = new ArrayOutputWithData();
+		$input = new ArrayInput($inputArray);
+
+		$this->getRemoteCommandService()
+				->execute($this->getRemoteApiEndpointId(), $input, $output);
+
+		$response = $output->getData();
+
+		return $response;
+	}
+
+	/**
 	 * @param string $entityName
 	 * @param array $searchCriteria
 	 */
 	private function requestData($entityName, $searchCriteria = null)
 	{
-		$logger = ObjectRepository::getLogger($this);
-		$remoteApiEndpointId = $this->getRemoteApiEndpointId();
-		if (empty($remoteApiEndpointId)) {
-			$logger->error('Remote api endpoint id is not configured.
-				Add [' . RemoteCommandService::INI_SECTION_NAME . '] section to supra.ini and then assign
-					remote api endpoint id to ' . __CLASS__);
-
-			return;
-		}
-
-		$response = array('data' => null);
-
 		if ( ! is_array($searchCriteria)) {
 			$searchCriteria = array();
 		}
 
-		$output = new ArrayOutputWithData();
+		$response = null;
 
 		switch ($entityName) {
+
 			case Entity\User::CN():
 
-				$searchCriteria = array('command' => self::REMOTE_COMMAND_USER, '--site-key' => $this->getSiteKey()) + $searchCriteria;
-
-				$input = new ArrayInput($searchCriteria);
-
-				$this->service->execute($this->getRemoteApiEndpointId(), $input, $output);
-				$response = $output->getData();
-				if (empty($response['data'])) {
-					$message = 'Failed to find user. ';
-					if ( ! empty($response['error'])) {
-						$message .= $response['error'];
-					}
-					$logger->error($message, $searchCriteria);
-
-					return;
-				}
+				$command = self::REMOTE_COMMAND_FIND_USER;
 
 				break;
 
 			case Entity\Group::CN():
-				$searchCriteria = array('command' => self::REMOTE_COMMAND_GROUP, '--site-key' => $this->getSiteKey()) + $searchCriteria;
 
-				$input = new ArrayInput($searchCriteria);
-
-				$this->service->execute($this->getRemoteApiEndpointId(), $input, $output);
-				$response = $output->getData();
-				if (empty($response['data'])) {
-					$message = 'Failed to find group.';
-					if ( ! empty($response['error'])) {
-						$message .= $response['error'];
-					}
-
-					$logger->error($message, $searchCriteria);
-
-					return;
-				}
+				$command = self::REMOTE_COMMAND_FIND_GROUP;
 
 				break;
+
+			default:
+
+				throw new Exception\RuntimeException('Entities"' . $entityName . '" is not supproted.');
 		}
 
-		return $response['data'];
+		$commandResponse = $this->executeSupraPortalCommand($command, $searchCriteria);
+
+		if (empty($commandResponse['data'])) {
+
+			$errorMessage = 'Failed to find entity "' . $entityName . '". ';
+
+			if ( ! empty($commandResponse['error'])) {
+				$errorMessage .= $commandResponse['error'];
+			}
+
+			$this->getLog()
+					->error($errorMessage, $searchCriteria);
+		} else {
+			$response = $commandResponse['data'];
+		}
+
+		return $response;
 	}
 
 	/**
@@ -265,6 +314,21 @@ class RemoteUserProvider extends UserProviderAbstract
 	public function canCreate()
 	{
 		return true;
+	}
+
+	public function loadUserByUsername($username)
+	{
+		
+	}
+
+	public function refreshUser(UserInterface $user)
+	{
+		
+	}
+
+	public function supportsClass($class)
+	{
+		
 	}
 
 }
