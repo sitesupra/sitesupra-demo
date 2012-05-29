@@ -9,7 +9,6 @@ use Supra\Remote\Client\RemoteCommandService;
 use Symfony\Component\Console\Input\ArrayInput;
 use Supra\Console\Output\ArrayOutputWithData;
 use Supra\User\Entity as UserEntity;
-use SupraPortal\SiteUser\Entity as SiteUserEntity;
 
 class Controller extends SimpleController//\Supra\Controller\ControllerAbstraction
 {

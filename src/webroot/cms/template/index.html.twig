@@ -69,8 +69,9 @@
 				'user': {
 					'name': {{ action.user.name | json_encode | raw }},
 					'login': {{ action.user.login | json_encode | raw }},
-					'avatar': {{ action.user.avatar | json_encode | raw }},
-					'id': {{ action.user.id| json_encode | raw }}
+					'avatar_id': {{ action.user.avatar | json_encode | raw }},
+					'id': {{ action.user.id | json_encode | raw }},
+					'avatar': {{ action.currentUserArray.avatar | json_encode | raw }}
 				},
 				
 				{% block jsSupraDataSet %}{% endblock %}

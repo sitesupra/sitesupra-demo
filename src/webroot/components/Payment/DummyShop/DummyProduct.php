@@ -7,22 +7,17 @@ use Supra\Payment\Entity\Currency\Currency;
 use \DateTime;
 use Supra\Locale\Locale;
 
-class DummyProduct extends ProductAbstraction
+class DummyProduct implements ProductAbstraction
 {
-
-	function __construct($id)
-	{
-		$this->id = $id;
-	}
 
 	/**
 	 * @var string
 	 */
 	protected $id;
 
-	public function getId()
+	function __construct($id)
 	{
-		return $this->id;
+		$this->id = $id;
 	}
 
 	public function getProviderClass()
@@ -38,6 +33,11 @@ class DummyProduct extends ProductAbstraction
 	public function getDescription(Locale $locale = null)
 	{
 		return 'Trololo Product ' . $this->id;
+	}
+
+	public function getId()
+	{
+		return $this->id;
 	}
 
 }

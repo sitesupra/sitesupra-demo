@@ -266,7 +266,8 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			this.options = Supra.mix({
 				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES,
 				'dndEnabled': true,
-				'hideToolbar': false
+				'hideToolbar': false,
+				'item': null
 			}, options || {}, true);
 			
 			//Scroll to folder / item

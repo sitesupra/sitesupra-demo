@@ -6,14 +6,14 @@ use Supra\Payment\Entity\Currency\Currency;
 use \DateTime;
 use Supra\Locale\Locale;
 
-abstract class ProductAbstraction
+interface ProductAbstraction
 {
 
-	abstract public function getId();
+	public function getId();
 
-	abstract public function getProviderClass();
+	public function getProviderClass();
 
-	abstract public function getPrice($amount, Currency $currency, DateTime $when = null);
+	public function getPrice($amount, Currency $currency, DateTime $when = null);
 	
-	abstract public function getDescription(Locale $locale);
+	public function getDescription(Locale $locale);
 }

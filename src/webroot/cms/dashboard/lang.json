@@ -31,8 +31,9 @@
 			"keywords": {
 				"title": "Top keywords",
 				"view_all": "View all"
-			}
+			}, 
 			
+			"logout": "Logout"
 		}
 	}
 }

@@ -10,10 +10,12 @@ use Supra\Cms\Dashboard\DasboardAbstractAction;
 class StatsAction extends DasboardAbstractAction
 {
 
-	const STATS_PERIOD_DAYS = 2;
+	//const STATS_PERIOD_DAYS = 2;
+	const STATS_PERIODS = 2;
 	const STATS_INCLUDE_TODAY = false;
 	
 	const DAY_PERIOD = 86400;
+	const WEEK_PERIOD = 604800;
 		
 	
 	public function statsAction()
@@ -50,17 +52,19 @@ class StatsAction extends DasboardAbstractAction
 			$dataProvider->setProfileId($profileId);
 
 			$now = time();
+			$interval = self::WEEK_PERIOD;
 
-			$startTime  = (self::STATS_INCLUDE_TODAY ? $now : $now - self::DAY_PERIOD);
-
-			for ($i = 0; $i < self::STATS_PERIOD_DAYS; $i++) {
+			//$startTime  = (self::STATS_INCLUDE_TODAY ? $now : $now - self::DAY_PERIOD);
+			$startTime  = (self::STATS_INCLUDE_TODAY === true ? $now : $now - $interval);
+			
+			for ($i = 0; $i < self::STATS_PERIODS; $i++) {
 
 				$startDay = date('Y-m-d', $startTime);
-				$nextDay = date('Y-m-d', $startTime + self::DAY_PERIOD);
+				$endDay = date('Y-m-d', $startTime + $interval);
 
 				$period = array(
 					$startDay,
-					$nextDay,
+					$endDay,
 				);
 
 				$return = &$responseArray[$startDay];
@@ -75,7 +79,7 @@ class StatsAction extends DasboardAbstractAction
 				$return['keywords'] = $dataProvider->getTopKeywords($period, 10);
 				$return['sources'] = $dataProvider->getTopSources($period, 10);
 				
-				$startTime = $startTime - self::DAY_PERIOD;
+				$startTime = $startTime - $interval;
 			}
 			
 			$responseArray = $this->prepareStatsOutput($responseArray);
@@ -105,7 +109,10 @@ class StatsAction extends DasboardAbstractAction
 			foreach($dailyStats['keywords'] as &$keywordStats) {
 				
 				if (isset($keywords[$keywordStats['title']])) {
-					$keywordStats['change'] = $keywordStats['amount'] - $keywords[$keywordStats['title']];
+					
+					$amount = $keywordStats['amount'] - $keywords[$keywordStats['title']];
+					$keywordStats['change'] = ($amount !== 0 ? $amount : null);
+						
 				}
 				$keywords[$keywordStats['title']] = $keywordStats['amount'];
 			}
@@ -113,7 +120,8 @@ class StatsAction extends DasboardAbstractAction
 			foreach($dailyStats['sources'] as &$sourceStats) {
 				
 				if (isset($sources[$sourceStats['title']])) {
-					$sourceStats['change'] = $sourceStats['amount'] - $sources[$sourceStats['title']];
+					$amount = $sourceStats['amount'] - $sources[$sourceStats['title']];
+					$sourceStats['change'] = ($amount !== 0 ? $amount : null);
 				}
 				$sources[$sourceStats['title']] = $sourceStats['amount'];
 			}

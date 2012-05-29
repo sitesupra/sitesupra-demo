@@ -27,7 +27,7 @@ class ApplicationsAction extends DasboardAbstractAction
 		$applications = array();
 
 		$config = \Supra\Cms\CmsApplicationConfiguration::getInstance();
-		$appConfigs = $config->getArray();
+		$appConfigs = $config->getArray(true);
 
 		$basePath = '/' . SUPRA_CMS_URL . '/';
 
@@ -50,9 +50,16 @@ class ApplicationsAction extends DasboardAbstractAction
 
 			$favourites = $userPreferences['favourite_apps'];
 		}
+		
+		$favoritesResponse = array();
+		foreach($favourites as $appName) {
+			if (isset($appConfigs[$appName])) {
+				array_push($favoritesResponse, $appName);
+			}
+		}
 
 		$response = array(
-			'favourites' => $favourites,
+			'favourites' => $favoritesResponse,
 			'applications' => $applications,
 		);
 
@@ -109,6 +116,22 @@ class ApplicationsAction extends DasboardAbstractAction
 			$key = array_search($appId, $favouriteApps);
 			if ($key !== false) {
 				unset($favouriteApps[$key]);
+			}
+		}
+		
+		// perform cleanup to array
+		$existingApps = $config->getArray(true);
+		foreach($favouriteApps as $key => $appName) {
+			if ( ! isset($existingApps[$appName])) {
+				unset($existingApps[$key]);
+			}
+			
+			$duplicates = array_keys($favouriteApps, $appName);
+			if (count($duplicates) > 1) {
+				$count = count($duplicates);
+				for($i = 1; $i < $count; $i++) {
+					unset($favouriteApps[$duplicates[$i]]);
+				}
 			}
 		}
 

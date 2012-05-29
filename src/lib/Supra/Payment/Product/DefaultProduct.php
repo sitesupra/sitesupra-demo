@@ -5,7 +5,7 @@ namespace Supra\Payment\Product;
 use Supra\Payment\Entity\Currency\Currency;
 use \DateTime;
 
-abstract class DefaultProduct extends ProductAbstraction
+abstract class DefaultProduct implements ProductAbstraction
 {
 
 	/**
