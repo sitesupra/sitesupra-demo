@@ -19,6 +19,7 @@ $cliCommandClasses = array(
 	'Supra\Search\Command\WipeCommand',
 	'Supra\Search\Command\WipeQueuesCommand',
 	'Supra\Search\Command\QueueAllPageLocalizationsCommand',
+	'Supra\Controller\Pages\Command\GenerateBlockCommand',
 	'Supra\Controller\Pages\Command\ThemeAddCommand',
 	'Supra\Controller\Pages\Command\ThemeRemoveCommand',
 	'Supra\Controller\Pages\Command\ThemeSetActiveCommand',
