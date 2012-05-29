@@ -51,6 +51,13 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		PREVIEW_SIZE: '200x200',
 		
 		/**
+		 * Image to show when image is broken
+		 * @type {String}
+		 * @private
+		 */
+		PREVIEW_BROKEN: '/cms/content-manager/gallerymanager/images/icon-broken-large.png',
+		
+		/**
 		 * Gallery data
 		 * @type {Object}
 		 * @private
@@ -80,6 +87,13 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		settings_form: null,
 		
 		/**
+		 * Scrollable instance
+		 * @type {Object}
+		 * @private
+		 */
+		scrollable: null,
+		
+		/**
 		 * Selected image data
 		 * @type {Object}
 		 * @private
@@ -94,11 +108,11 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		inputs: {},
 		
 		/**
-		 * Settings form is changing values
+		 * UI input values are changing
 		 * @type {Boolean}
 		 * @private
 		 */
-		settings_form_changing: false,
+		ui_updating: false,
 		
 		
 		/**
@@ -149,8 +163,21 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				}
 			}]);
 			
+			//Scrollable
+			this.scrollable = new Supra.Scrollable({
+				'srcNode': this.one('div.scrollable')
+			});
+			
+			this.scrollable.render();
+			this.layout.on('sync', this.scrollable.syncUI, this.scrollable);
+			
 			//Bind inline editables
-			this.one('.list').delegate('click', this.createInlineEditable, 'p.inline', this);
+			var list = this.one('ul.list');
+			list.delegate('click', this.createInlineEditable, 'p.inline', this);
+			list.delegate('click', this.openMediaLibraryForReplace, 'li.gallery-item span.img', this);
+			
+			list.delegate('dragenter', this.listDragEnter, 'span.img b', this);
+			list.delegate('dragleave', this.listDragLeave, 'span.img b', this);
 			
 			this.bindDragDrop();
 		},
@@ -195,9 +222,20 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * @private
 		 */
 		getImageDataByNode: function (node) {
+			return this.getImageDataById(node.getData('imageId'));
+		},
+		
+		/**
+		 * Returns image data by ID
+		 * 
+		 * @param {String} image_id Image ID
+		 * @return Image data
+		 * @type {Object}
+		 * @private
+		 */
+		getImageDataById: function (image_id) {
 			var data = this.data,
-				image_data = null,
-				image_id = node.getData('imageId');
+				image_data = null;
 			
 			for (var i=0,ii=data.images.length; i<ii; i++) {
 				if (data.images[i].image.id == image_id) {
@@ -207,6 +245,18 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			}
 
 			return image_data;
+		},
+		
+		/**
+		 * Returns image node by ID
+		 * 
+		 * @param {String} id Image ID
+		 * @return Image node
+		 * @type {Object}
+		 * @private
+		 */
+		getImageNodeById: function (id) {
+			return this.one('li[data-id="' + id + '"]');
 		},
 		
 		
@@ -224,14 +274,25 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			if (!content) return;
 			
 			//Properties form
-			var form_config = {
-				'inputs': this.getImageProperties()
-			};
+			var properties = this.getImageProperties(),
+				form_config = {
+					'inputs': properties
+				};
 			
 			var form = new Supra.Form(form_config);
 				form.render(content);
 				form.hide();
-						
+			
+			//On input value change update inline inputs and labels
+			var ii = properties.length,
+				i = 0;
+			
+			for (; i<ii; i++) {
+				if (properties[i].type === 'String') {
+					form.getInput(properties[i].id).on('valueChange', this.afterSettingsFormInputChange, this);
+				}
+			}
+			
 			//Delete button
 			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'small-red'});
 				btn.render(form.get('contentBox'));
@@ -244,22 +305,28 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		},
 		
 		/**
+		 * After settings form input value changes update image list item UI
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		afterSettingsFormInputChange: function (e) {
+			//Don't do anything if all form values are being set
+			if (!this.ui_updating && this.selected_image_data) {
+				var input = e.target,
+					property = input.get('id'),
+					value = input.get('value');
+				
+				this.selected_image_data[property] = value;
+				this.updateInlineEditableUI(this.selected_image_data.id);
+			}
+		},
+		
+		/**
 		 * Remove selected image
 		 */
 		removeSelectedImage: function () {
-			var images = this.data.images,
-				selected = this.selected_image_data;
-			
-			for(var i=0,ii=images.length; i<ii; i++) {
-				if (images[i] === selected) {
-					this.one('.list li[data-id="' + selected.id + '"]').remove();
-					this.data.images.splice(i,1);
-					this.settingsFormCancel();
-					return this;
-				}
-			}
-			
-			Y.log('GalleryManager image which was supposed to be selected is not in image list');
+			this.removeImage(this.selected_image_data.id);
 		},
 		
 		/**
@@ -267,18 +334,23 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 */
 		showImageSettings: function (target) {
 			
-			if (this.settings_form && this.settings_form.get('visible')) {
-				this.settingsFormApply(true);
-			}
-			
 			if (target.test('.gallery')) return false;
 			
 			var data = this.getImageDataByNode(target);
+			
+			if (this.settings_form && this.settings_form.get('visible')) {
+				if (!this.selected_image_data || this.selected_image_data.id != data.id) {
+					//Save previous image data
+					this.settingsFormApply(true);
+				}
+			}
 			
 			if (!data) {
 				Y.log('Missing image data for image ' + target.getAttribute('src'), 'debug');
 				return false;
 			}
+			
+			this.ui_updating = true;
 			
 			//Make sure PageContentSettings is rendered
 			var form = this.settings_form || this.createSettingsForm(),
@@ -311,6 +383,8 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			this.settings_form.resetValues()
 							  .setValues(data, 'id');
 			
+			this.ui_updating = false;
+			
 			return true;
 		},
 		
@@ -318,53 +392,17 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * Hide properties form
 		 */
 		settingsFormApply: function (dont_hide) {
-			if (this.settings_form.get('visible')) {
+			if (this.settings_form && this.settings_form.get('visible')) {
 				var image_data = Supra.mix(this.selected_image_data, this.settings_form.getValuesObject('id')),
-					data = this.data,
-					inputs = this.inputs,
-					
-					properties = this.getImageProperties(),
-					node_item = null,
-					node_label = null,
-					label = null;
-				
-				this.settings_form_changing = true;
+					data = this.data;
 				
 				for (var i=0,ii=data.images.length; i<ii; i++) {
 					if (data.images[i].image.id == image_data.image.id) {
 						data.images[i] = image_data;
-						
-						inputs = inputs[image_data.image.id];
-						if (inputs) {
-							for (var key in inputs) {
-								inputs[key].set('value', image_data[key]);
-								inputs[key].fire('blur');
-							}
-						}
-						
-						//Set <p class="inline" /> text
-						node_item = this.one('ul.list li[data-id="' + image_data.image.id + '"]');
-						if (node_item) {
-							for (var p=0, pp=properties.length; p<pp; p++) {
-								if (properties[p].type == 'String') {
-									node_label = node_item.one('p.inline.' + properties[p].id);
-									if (node_label) {
-										if (image_data[properties[p].id]) {
-											node_label.removeClass('empty').set('text', image_data[properties[p].id]);
-										} else {
-											label = Supra.Intl.get(['gallerymanager', 'click_here']).replace('{label}', properties[p].label.toLowerCase()),
-											node_label.addClass('empty').set('text', label);
-										}
-									}
-								}
-							}
-						}
-						
+						this.updateInlineEditableUI(image_data.image.id);
 						break;
 					}
 				}
-				
-				this.settings_form_changing = false;
 				
 				if (dont_hide !== true) {
 					this.settingsFormCancel();
@@ -373,7 +411,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		},
 		
 		settingsFormCancel: function () {
-			if (this.settings_form.get('visible')) {
+			if (this.settings_form && this.settings_form.get('visible')) {
 				Manager.PageContentSettings.hide();
 				this.selected_image_data = null;
 			}
@@ -408,20 +446,12 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				moveOnEnd: false,
 				cloneNode: true
 			});
+			
+			del.dd.addInvalid('P'); // P is used in inline editables
 
 			del.on('drag:drag', fnDragDrag);
 			del.on('drag:start', fnDragStart);
 			del.on('drag:over', fnDropOver);
-			
-			//On list click check if actually item was clicked
-			Y.one('#galleryManagerList').on('click', function (evt) {
-				var ignore = evt.target.closest('p'),
-					target = evt.target.closest('LI');
-				
-				if (!ignore && target) {
-					this.showImageSettings(target);
-				}
-			}, this);
 			
 			//Drop from media library, add image or images
 			var srcNode = this.one();
@@ -444,57 +474,81 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			var item_id = e.drag_id,
 				item_data = Manager.MediaSidebar.getData(item_id),
 				image = null,
-				dataObject = Manager.MediaSidebar.medialist.get('dataObject');
+				dataObject = Manager.MediaSidebar.medialist.get('dataObject'),
+				replace_id = null;
 			
-			if (item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-				
-				//Add single image
-				if (item_data.sizes) {
-					this.addImage(item_data);
-				} else {
-					dataObject.once('load:complete:' + item_data.id, function(event) {
-						if (event.data) {
-							this.onImageDrop(e);
-						}
-					}, this);
+			if (e.drop.closest('b')) {
+				//Image was dropped on existing item
+				var node_li = e.drop.closest('li.gallery-item');
+				if (node_li) {
+					node_li.removeClass('gallery-item-over');
+					replace_id = node_li.getData('imageId');
 				}
-				
-			} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
-				
-				if ( ! dataObject.hasData(item_data.id) 
-					|| (item_data.children && item_data.children.length != item_data.children_count)) {
-					dataObject.once('load:complete:' + item_data.id, function(event) {
-						if (event.data) {
-							this.onImageDrop(e);
+			}
+			
+			if (item_data) {
+				if (item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+					
+					//Add single image
+					if (item_data.sizes) {
+						if (replace_id) {
+							this.replaceImage(replace_id, item_data);
+						} else {
+							this.addImage(item_data);
 						}
-					}, this);
-					
-					return;
-					
-				} else {
-					
-					var folderHasImages = false;
-
-					//Add all images from folder
-					for(var i in item_data.children) {
-						image = item_data.children[i];
-						if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-							this.addImage(item_data.children[i]);
-							folderHasImages = true;
-						}
+					} else {
+						dataObject.once('load:complete:' + item_data.id, function(event) {
+							if (event.data) {
+								this.onImageDrop(e);
+							}
+						}, this);
 					}
-
-					//folder was without images
-					if ( ! folderHasImages) {
-						Supra.Manager.executeAction('Confirmation', {
-							'message': '{#medialibrary.validation_error.empty_folder_drop#}',
-							'useMask': true,
-							'buttons': [
-								{'id': 'delete', 'label': 'Ok'}
-							]
-						});
-
+					
+				} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
+					
+					if ( ! dataObject.hasData(item_data.id) 
+						|| (item_data.children && item_data.children.length != item_data.children_count)) {
+						dataObject.once('load:complete:' + item_data.id, function(event) {
+							if (event.data) {
+								this.onImageDrop(e);
+							}
+						}, this);
+						
 						return;
+						
+					} else {
+						
+						var folderHasImages = false;
+	
+						//Add all images from folder
+						for(var i in item_data.children) {
+							image = item_data.children[i];
+							if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+								
+								if (replace_id) {
+									//Replace with first image, all other add to the list
+									this.replaceImage(replace_id, item_data.children[i]);
+									replace_id = null;
+								} else {
+									this.addImage(item_data.children[i]);
+								}
+								
+								folderHasImages = true;
+							}
+						}
+	
+						//folder was without images
+						if ( ! folderHasImages) {
+							Supra.Manager.executeAction('Confirmation', {
+								'message': '{#medialibrary.validation_error.empty_folder_drop#}',
+								'useMask': true,
+								'buttons': [
+									{'id': 'delete', 'label': 'Ok'}
+								]
+							});
+	
+							return;
+						}
 					}
 				}
 			}
@@ -560,6 +614,32 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		    }
 		},
 		
+		/**
+		 * Image or folder from media library dragged over an item
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private 
+		 */
+		listDragEnter: function (e) {
+			if (e.target.test('b')) {
+				var target = e.target.closest('LI');
+				target.addClass('gallery-item-over');
+			}
+		},
+		
+		/**
+		 * Image or folder from media library dragged out of item
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private 
+		 */
+		listDragLeave: function (e) {
+			if (e.target.test('b')) {
+				var target = e.target.closest('LI');
+				target.removeClass('gallery-item-over');
+			}
+		},
+		
 		
 		/*
 		 * ---------------------------------- INLINE EDITABLE ------------------------------------
@@ -573,7 +653,8 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 */
 		createInlineEditable: function (e) {
 			var node = e.target.closest('p'),
-				data = this.getImageDataByNode(node.closest('LI')),
+				node_li = node.closest('LI'),
+				data = this.getImageDataByNode(node_li),
 				image_id = node.getAttribute('data-image-id'),
 				property_id = node.getAttribute('data-property-id'),
 				property = this.getImageProperty(property_id),
@@ -588,6 +669,11 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			this.inputs[image_id] = this.inputs[image_id] || {};
 			this.inputs[image_id][property_id] = input;
 			
+			//On focus show sidebar
+			input.on('focus', function () {
+				this.showImageSettings(node_li);
+			}, this);
+			
 			//On blur set default label if value is empty
 			input.on('blur', function () {
 				var value = this.get('value');
@@ -601,14 +687,25 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			
 			//On change update data
 			input.on('change', function () {
-				if (!this.settings_form_changing) {
+				if (!this.ui_updating) {
 					var images = this.data.images,
 						i = 0,
-						ii = images.length;
+						ii = images.length,
+						value = null;
 					
 					for (; i<ii; i++) {
 						if (images[i].id == image_id) {
-							images[i][property_id] = input.get('value');
+							value = input.get('value');
+							images[i][property_id] = value;
+							
+							//Update settings form
+							if (this.settings_form && this.settings_form.get('visible')) {
+								this.ui_updating = true;
+								this.settings_form.getInput(property_id).set('value', value);
+								this.ui_updating = false;
+							}
+							
+							break;
 						}
 					}
 				}
@@ -623,7 +720,52 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				input.get('replacementNode').set('text', label).addClass('empty');
 			}
 			
-			e.halt();
+			this.showImageSettings(node_li);
+		},
+		
+		/**
+		 * Update labels, etc.
+		 * 
+		 * @param {String} image_id Image ID
+		 * @private
+		 */
+		updateInlineEditableUI: function (image_id, ignore_inputs, ignore_labels) {
+			var node = this.getImageNodeById(image_id),
+				node_label = null,
+				image_data = this.getImageDataById(image_id),
+				inputs = this.inputs[image_id],
+			
+				properties = this.getImageProperties(),
+				label = null;
+			
+			//Update inputs
+			if (!ignore_inputs && inputs) {
+				this.ui_updating = true;
+				
+				for (var key in inputs) {
+					inputs[key].set('value', image_data[key]);
+					inputs[key].fire('blur');
+				}
+				
+				this.ui_updating = false;
+			}
+			
+			//Update p.inline which hasn't been converted into inputs
+			if (!ignore_labels && node) {
+				for (var p=0, pp=properties.length; p<pp; p++) {
+					if (properties[p].type == 'String') {
+						node_label = node.one('p.inline.' + properties[p].id);
+						if (node_label) {
+							if (image_data[properties[p].id]) {
+								node_label.removeClass('empty').set('text', image_data[properties[p].id]);
+							} else {
+								label = Supra.Intl.get(['gallerymanager', 'click_here']).replace('{label}', properties[p].label.toLowerCase()),
+								node_label.addClass('empty').set('text', label);
+							}
+						}
+					}
+				}
+			}
 		},
 		
 		
@@ -640,10 +782,29 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			Manager.getAction('MediaSidebar').execute({
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
-				}, this),
-				'onclose': Y.bind(function () {
-					
 				}, this)
+			});
+			
+		},
+		
+		/**
+		 * Open media library sidebar for image replace
+		 * @private
+		 */
+		openMediaLibraryForReplace: function (e) {
+			var node = e.target.closest('LI'),
+				image_id = node.getAttribute('data-id'),
+				data = this.getImageDataByNode(node),
+				path = [];
+			
+			path = path.concat(data.image.path);
+			path.push(data.image.id);
+			
+			Manager.getAction('MediaSidebar').execute({
+				'onselect': Y.bind(function (event) {
+					this.replaceImage(image_id, event.image);
+				}, this),
+				'item': path
 			});
 			
 		},
@@ -655,13 +816,66 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		
 		
 		/**
+		 * Replace image
+		 * 
+		 * @param {String} id Image ID
+		 * @param {Object} image New image data
+		 * @private
+		 */
+		replaceImage: function (id, image) {
+			//Image image with which user is trying to replace already
+			//exists in the list, then skip
+			if (!this.addImage(image)) return false;
+			
+			var old_data = this.getImageDataById(id),
+				new_data = this.getImageDataById(image.id),
+				old_node = this.getImageNodeById(id),
+				new_node = this.getImageNodeById(image.id),
+				properties = this.getImageProperties();
+			
+			for (var i=0, ii=properties.length; i<ii; i++) {
+				new_data[properties[i].id] = old_data[properties[i].id];
+			}
+			
+			old_node.insert(new_node, 'before');
+			
+			this.removeImage(id);
+			this.updateInlineEditableUI(image.id);
+			
+			return true;
+		},
+		
+		/**
+		 * Remove image by ID
+		 * 
+		 * @param {String} image_id Image ID
+		 * @private
+		 */
+		removeImage: function (image_id) {
+			var images = this.data.images;
+			
+			for(var i=0,ii=images.length; i<ii; i++) {
+				if (images[i].id === image_id) {
+					this.one('ul.list li[data-id="' + image_id + '"]').remove();
+					this.data.images.splice(i,1);
+					this.settingsFormCancel();
+					this.scrollable.syncUI();
+					return true;
+				}
+			}
+			
+			Y.log('GalleryManager image which was supposed to be selected is not in image list');
+			return false;
+		},
+		
+		/**
 		 * Render image list
 		 * 
 		 * @param {Object} data Data
 		 * @private
 		 */
 		renderData: function () {
-			var list = this.one('.list'),
+			var list = this.one('ul.list'),
 				images = this.data.images,
 				preview_size = this.PREVIEW_SIZE,
 				src,
@@ -691,6 +905,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			}
 			
 			this.dragDelegate.syncTargets();
+			this.scrollable.syncUI();
 		},
 		
 		/**
@@ -702,15 +917,18 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		renderItem: function (data) {
 			var src = null,
 				preview_size = this.PREVIEW_SIZE,
-				list = this.one('.list'),
+				list = this.one('ul.list'),
 				item = null,
 				properties = this.getImageProperties(),
 				html = '',
+				html_img = '',
 				label = Supra.Intl.get(['gallerymanager', 'click_here']),
 				value = null;
 			
 			if (data.image.sizes && preview_size in data.image.sizes) {
 				src = data.image.sizes[preview_size].external_path;
+			} else {
+				src = this.PREVIEW_BROKEN;
 			}
 			
 			//HTML for inline editable inputs
@@ -725,15 +943,12 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				}
 			}
 			
-			if (src) {
-				item = Y.Node.create('<li class="yui3-dd-drop gallery-item" data-id="' + data.image.id + '"><span><img src="' + src + '" alt="" />' + html + '</li>');
-				item.setData('imageId', data.image.id);
-				list.append(item);
-			} else {
-				item = Y.Node.create('<li class="yui3-dd-drop gallery-item gallery-item-empty" data-id="' + data.image.id + '">' + html + '</li>');
-				item.setData('imageId', data.image.id);
-				list.append(item);
-			}
+			//HTML for image (center, handle error)
+			html_img = '<span class="img"><i></i><img src="' + src + '" alt="" onerror="this.src=\'' + this.PREVIEW_BROKEN + '\'" /><b>' + Supra.Intl.get(['gallerymanager', 'drop_replace']) + '</b></span>';
+			
+			item = Y.Node.create('<li class="yui3-dd-drop gallery-item" data-id="' + data.image.id + '">' + html_img + html + '</li>');
+			item.setData('imageId', data.image.id);
+			list.append(item);
 		},
 		
 		/**
@@ -750,7 +965,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			
 			//Check if image doesn't exist in data already
 			for(var i=0,ii=images.length; i<ii; i++) {
-				if (images[i].image.id == image_data.id) return;
+				if (images[i].image.id == image_data.id) return false;
 			}
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
@@ -764,6 +979,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			this.renderItem(image);
 			
 			this.dragDelegate.syncTargets();
+			this.scrollable.syncUI();
+			
+			return true;
 		},
 		
 		/**
