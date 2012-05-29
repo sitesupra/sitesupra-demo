@@ -50,6 +50,13 @@ class ApplicationsAction extends DasboardAbstractAction
 
 			$favourites = $userPreferences['favourite_apps'];
 		}
+		
+		$existingApps = $config->getArray(true);
+		foreach($favourites as $appName) {
+			if ( ! isset($existingApps[$appName])) {
+				unset($favourites[$appName]);
+			}
+		}
 
 		$response = array(
 			'favourites' => $favourites,
