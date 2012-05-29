@@ -40,7 +40,21 @@ class HistoryPageRequestEdit extends PageRequest
 	protected $pageLocalizations;
 	
 	/**
-	 * @param string $revision 
+	 * {@inheritdoc}
+	 */
+	protected function isLocalResource(Entity\Abstraction\Entity $entity)
+	{
+		$auditEntityManager = $this->getDoctrineEntityManager();
+		
+		if ($auditEntityManager->getUnitOfWork()->isInIdentityMap($entity)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @param string $revision
 	 */
 	public function setRevision($revision)
 	{
@@ -59,332 +73,332 @@ class HistoryPageRequestEdit extends PageRequest
 		$this->revisionArray = $revisions;
 	}
 	
-	public function getPageDraftLocalizations()
-	{
-		if (isset($this->pageLocalizations)) {
-			return $this->pageLocalizations;
-		}
-		
-		$pageId = $this->getPage()
-				->getId();
-		
-		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-		$this->pageLocalizations = $draftEm->getRepository(Localization::CN())
-				->findBy(array('master' => $pageId));
-		
-		return $this->pageLocalizations;
-	}
+//	private function getPageDraftLocalizations()
+//	{
+//		if (isset($this->pageLocalizations)) {
+//			return $this->pageLocalizations;
+//		}
+//		
+//		$pageId = $this->getPage()
+//				->getId();
+//		
+//		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+//		$this->pageLocalizations = $draftEm->getRepository(Localization::CN())
+//				->findBy(array('master' => $pageId));
+//		
+//		return $this->pageLocalizations;
+//	}
+//	
+//	private function getDraftLocalization($localeId)
+//	{
+//		$pageLocalizations = $this->getPageDraftLocalizations();
+//		foreach ($pageLocalizations as $pageLocalization) {
+//			/* @var $pageLocalization Localization */ 
+//			if ($pageLocalization->getLocale() == $localeId) {
+//				return $pageLocalization;
+//			}
+//		}
+//	}
 	
-	public function getDraftLocalization($localeId)
-	{
-		$pageLocalizations = $this->getPageDraftLocalizations();
-		foreach ($pageLocalizations as $pageLocalization) {
-			/* @var $pageLocalization Localization */ 
-			if ($pageLocalization->getLocale() == $localeId) {
-				return $pageLocalization;
-			}
-		}
-	}
+//	public function getPageSet()
+//	{
+//		if (isset($this->pageSet)) {
+//			return $this->pageSet;
+//		}
+//
+//		// Override nested set repository EM, page set will be loaded from draft
+//		$page = $this->getPage();
+//		$nestedSetRepository = $page->getNestedSetNode()
+//				->getRepository();
+//		
+//		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+//		$nestedSetRepository->setEntityManager($draftEm);
+//		
+//		$this->pageSet = $this->getPageLocalization()
+//				->getTemplateHierarchy();
+//		
+//		return $this->pageSet;
+//	}
 	
-	public function getPageSet()
-	{
-		if (isset($this->pageSet)) {
-			return $this->pageSet;
-		}
-
-		// Override nested set repository EM, page set will be loaded from draft
-		$page = $this->getPage();
-		$nestedSetRepository = $page->getNestedSetNode()
-				->getRepository();
-		
-		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-		$nestedSetRepository->setEntityManager($draftEm);
-		
-		$this->pageSet = $this->getPageLocalization()
-				->getTemplateHierarchy();
-		
-		return $this->pageSet;
-	}
+//	public function getPlaceHolderSet()
+//	{
+//		if (isset($this->placeHolderSet)) {
+//			return $this->placeHolderSet;
+//		}
+//
+//		$em = $this->getDoctrineEntityManager();
+//		$localization = $this->getPageLocalization();
+//		
+//		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
+//		
+//		$pageSetIds = $this->getPageSetIds();
+//		
+//		$layoutPlaceHolderNames = null;
+//		if ($localization instanceof Entity\TemplateLocalization) {
+//			$templateData = $em->getUnitOfWork()
+//					->getOriginalEntityData($localization);
+//			
+//			$templateLayout = $em->getRepository(Entity\TemplateLayout::CN())
+//					->findOneBy(array('template' => $templateData['master_id'], 'revision' => $this->revision));
+//			
+//			if (is_null($templateLayout)) {
+//				$layout = $localization->getTemplateHierarchy()
+//						->getLayout($this->getMedia());
+//			} else {
+//				$layout = $templateLayout->getLayout();
+//			}
+//			
+//			$layoutPlaceHolderNames = $layout->getPlaceHolderNames();			
+//			
+//		} else {
+//			$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
+//		}
+//		
+//		if (empty($pageSetIds) || empty($layoutPlaceHolderNames)) {
+//			return $this->placeHolderSet;
+//		}
+//		
+//		$localeId = $localization->getLocale();
+//		
+//		// Draft connection
+//		$entityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+//		
+//		$params = array(
+//			'placeholderNames' => $layoutPlaceHolderNames,
+//			'pageSetIds' => $pageSetIds,
+//			'locale' => $localeId,
+//		);
+//		
+//		$qb = $entityManager->createQueryBuilder();
+//		$qb->select('ph')
+//				->from(Entity\Abstraction\PlaceHolder::CN(), 'ph')
+//				->join('ph.localization', 'pl')
+//				->join('pl.master', 'p')
+//				->where('ph.type = 0 AND ph.name in (:placeholderNames)')
+//				->andWhere('p.id in (:pageSetIds)')
+//				->andWhere('pl.locale = :locale')
+//				->addOrderBy('p.level', 'ASC')
+//				->setParameters($params)
+//				;
+//		
+//		$templatePlaceHolders = $qb->getQuery()
+//				->getResult();
+//		
+//		$pagePlaceholders = $localization->getPlaceHolders()
+//				->getValues();
+//
+//		$placeHolders = array_merge($templatePlaceHolders, $pagePlaceholders);
+//		unset($templatePlaceHolders, $pagePlaceholders);
+//
+//		foreach($placeHolders as $placeHolder) {
+//			$this->placeHolderSet->append($placeHolder);
+//		}
+//
+//		return $this->placeHolderSet;
+//	}
 	
-	public function getPlaceHolderSet()
-	{
-		if (isset($this->placeHolderSet)) {
-			return $this->placeHolderSet;
-		}
-
-		$em = $this->getDoctrineEntityManager();
-		$localization = $this->getPageLocalization();
-		
-		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
-		
-		$pageSetIds = $this->getPageSetIds();
-		
-		$layoutPlaceHolderNames = null;
-		if ($localization instanceof Entity\TemplateLocalization) {
-			$templateData = $em->getUnitOfWork()
-					->getOriginalEntityData($localization);
-			
-			$templateLayout = $em->getRepository(Entity\TemplateLayout::CN())
-					->findOneBy(array('template' => $templateData['master_id'], 'revision' => $this->revision));
-			
-			if (is_null($templateLayout)) {
-				$layout = $localization->getTemplateHierarchy()
-						->getLayout($this->getMedia());
-			} else {
-				$layout = $templateLayout->getLayout();
-			}
-			
-			$layoutPlaceHolderNames = $layout->getPlaceHolderNames();			
-			
-		} else {
-			$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
-		}
-		
-		if (empty($pageSetIds) || empty($layoutPlaceHolderNames)) {
-			return $this->placeHolderSet;
-		}
-		
-		$localeId = $localization->getLocale();
-		
-		// Draft connection
-		$entityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-		
-		$params = array(
-			'placeholderNames' => $layoutPlaceHolderNames,
-			'pageSetIds' => $pageSetIds,
-			'locale' => $localeId,
-		);
-		
-		$qb = $entityManager->createQueryBuilder();
-		$qb->select('ph')
-				->from(Entity\Abstraction\PlaceHolder::CN(), 'ph')
-				->join('ph.localization', 'pl')
-				->join('pl.master', 'p')
-				->where('ph.type = 0 AND ph.name in (:placeholderNames)')
-				->andWhere('p.id in (:pageSetIds)')
-				->andWhere('pl.locale = :locale')
-				->addOrderBy('p.level', 'ASC')
-				->setParameters($params)
-				;
-		
-		$templatePlaceHolders = $qb->getQuery()
-				->getResult();
-		
-		$pagePlaceholders = $localization->getPlaceHolders()
-				->getValues();
-
-		$placeHolders = array_merge($templatePlaceHolders, $pagePlaceholders);
-		unset($templatePlaceHolders, $pagePlaceholders);
-
-		foreach($placeHolders as $placeHolder) {
-			$this->placeHolderSet->append($placeHolder);
-		}
-
-		return $this->placeHolderSet;
-	}
-	
-	/**
-	 * @return Set\BlockSet
-	 */
-	public function getBlockSet()
-	{
-		if (isset($this->blockSet)) {
-			return $this->blockSet;
-		}
-		
-		$this->blockSet = new Set\BlockSet();
-		
-		$auditEntityManager = $this->getDoctrineEntityManager();
-		
-		$placeHolderSet = $this->getPlaceHolderSet();
-
-		$finalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
-				->collectIds();
-
-		$parentPlaceHolderIds = $placeHolderSet->getParentPlaceHolders()
-				->collectIds();
-
-		if (empty($finalPlaceHolderIds) && empty($parentPlaceHolderIds)) {
-			return $this->blockSet;
-		}
-		
-		$params = array(
-			'placeHolders' => $finalPlaceHolderIds,
-			'revision' => $this->revision,
-		);
-		
-		$qb = $auditEntityManager->createQueryBuilder();
-		$qb->select('b')
-				->from(Entity\Abstraction\Block::CN(), 'b')
-				->join('b.placeHolder', 'ph')
-				->where('ph.id in (:placeHolders)')
-				->andWhere('b.revision = :revision')
-				->orderBy('b.position', 'ASC')
-				->setParameters($params)
-				;
-
-		$auditBlocks = $qb->getQuery()
-				->getResult();
-		
-		$draftEntityManager = ObjectRepository::getEntityManager('Supra\Cms');
-		$qb = $draftEntityManager->createQueryBuilder();
-		$qb->select('b')
-				->from(Entity\Abstraction\Block::CN(), 'b')
-				->join('b.placeHolder', 'ph')
-				->orderBy('b.position', 'ASC')
-				;
-		
-		$expr = $qb->expr();
-		$or = $expr->orX();
-		if ( ! empty($finalPlaceHolderIds)) {
-			$or->add($expr->in('ph.id', $finalPlaceHolderIds));
-		}
-
-		if ( ! empty($parentPlaceHolderIds)) {
-			$lockedBlocksCondition = $expr->andX(
-					$expr->in('ph.id', $parentPlaceHolderIds),
-					'b.locked = TRUE'
-			);
-			$or->add($lockedBlocksCondition);
-		}
-
-		$and = $expr->andX();
-		$and->add($or);
-		$qb->where($and)
-				->andWhere('ph.type = 0');
-		
-		$draftBlocks = $qb->getQuery()
-				->getResult();
-		
-		$missingBlocks = array_diff($draftBlocks, $auditBlocks);
-		if ( ! empty ($missingBlocks)) {
-			
-			$page = $this->getPage();
-			
-			foreach($missingBlocks as $key => $block) {
-				/* @var $block Entity\Abstraction\Block */
-				
-				$master = $block->getPlaceHolder()
-						->getMaster()
-						->getMaster();
-				
-				if ($page->equals($master)) {
-					unset($missingBlocks[$key]);
-				}
-			}
-			
-			$auditBlocks = array_merge($missingBlocks, $auditBlocks);
-		}
-		
-		$result = array();
-		foreach ($auditBlocks as $block) {
-			if ($block->inPlaceHolder($parentPlaceHolderIds)) {
-				$result[] = $block;
-			}
-			else if ($block->inPlaceHolder($finalPlaceHolderIds)) {
-				$result[] = $block;
-			}
-		}
-				
-		//FIXME!: speed up
-		$em = $this->getDoctrineEntityManager();
-		if ( ! empty($this->revisionArray)) {
-			$em->getUnitOfWork()->clear();
-			$qb = $em->createQueryBuilder();
-			
-			$revisionIds = DatabaseEntity::collectIds($this->revisionArray);
-
-			$qb->select('b.id, b.revision')
-					->from(Entity\Abstraction\Block::CN(), 'b')
-					->join('b.placeHolder', 'ph')
-					->where('b.revision in (:revisions)')
-					->andWhere('ph.id in (:placeHolders)')
-					->orderBy('b.revision', 'DESC')
-					->setParameters(array('revisions' => $revisionIds, 'placeHolders' => $finalPlaceHolderIds))
-					;
-
-			$blocks = $qb->getQuery()
-					->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
-
-			if ( ! empty($blocks)) {
-
-				$qb = $em->createQueryBuilder();
-				$expr = $qb->expr();
-				$or = $expr->orX();
-
-				$blockIds = array();
-				$count = 0;
-				foreach($blocks as $block) {
-					if ( ! in_array($block['id'], $blockIds)) {
-						$and = $expr->andX();
-						$and->add($expr->eq('b.id', '?' . (++$count)));
-						$qb->setParameter($count, $block['id']);
-						$and->add($expr->eq('b.revision', '?' . (++$count)));
-						$qb->setParameter($count, $block['revision']);
-
-						$or->add($and);
-
-						$blockIds[] = $block['id'];
-					}
-				}
-
-				$em->getUnitOfWork()->clear();
-
-				$qb->select('b')
-						->from(Entity\Abstraction\Block::CN(), 'b')
-						->where($or);
-				$blocks = $qb->getQuery()
-						->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
-				$exchangeableBlockIds = \Supra\Database\Entity::collectIds($blocks);
-
-				foreach($result as $key => $block) {
-
-					$id = $block->getId();
-					if (in_array($id, $exchangeableBlockIds)) {
-						$offset = array_search($id, $exchangeableBlockIds);
-						$result[$key] = $blocks[$offset];
-
-					}
-				}
-				
-				$resultIds = \Supra\Database\Entity::collectIds($result);
-				$blockIds = \Supra\Database\Entity::collectIds($blocks);
-				
-				$result = array_combine($resultIds, $result);
-				$blocks = array_combine($blockIds, $blocks);
-				
-				$result = array_merge($result, $blocks);
-			}
-
-			// FIXME: heavy workaround for block sorting
-			$blockSorting = array();
-			foreach($result as $block) {
-				$placeHolderId = $block->getPlaceHolder()->getId();
-
-				$blockPosition = $block->getPosition();
-
-				$blockSorting[$placeHolderId][$blockPosition] = $block;
-			}
-
-			foreach($blockSorting as $key => $placeHolder) {
-				ksort($placeHolder);
-				$blockSorting[$key] = $placeHolder;
-			}
-
-			$result = array();
-			foreach($blockSorting as $placeHolder) {
-				$result = array_merge($result, array_values($placeHolder));
-			}
-			
-		}
-		
-		$result = $this->checkForRemovedEntities($result);
-		
-		$this->blockSet->exchangeArray($result);
-		
-				
-		return $this->blockSet;
-	}
+//	/**
+//	 * @return Set\BlockSet
+//	 */
+//	public function getBlockSet()
+//	{
+//		if (isset($this->blockSet)) {
+//			return $this->blockSet;
+//		}
+//		
+//		$this->blockSet = new Set\BlockSet();
+//		
+//		$auditEntityManager = $this->getDoctrineEntityManager();
+//		
+//		$placeHolderSet = $this->getPlaceHolderSet();
+//
+//		$finalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
+//				->collectIds();
+//
+//		$parentPlaceHolderIds = $placeHolderSet->getParentPlaceHolders()
+//				->collectIds();
+//
+//		if (empty($finalPlaceHolderIds) && empty($parentPlaceHolderIds)) {
+//			return $this->blockSet;
+//		}
+//		
+//		$params = array(
+//			'placeHolders' => $finalPlaceHolderIds,
+//			'revision' => $this->revision,
+//		);
+//		
+//		$qb = $auditEntityManager->createQueryBuilder();
+//		$qb->select('b')
+//				->from(Entity\Abstraction\Block::CN(), 'b')
+//				->join('b.placeHolder', 'ph')
+//				->where('ph.id in (:placeHolders)')
+//				->andWhere('b.revision = :revision')
+//				->orderBy('b.position', 'ASC')
+//				->setParameters($params)
+//				;
+//
+//		$auditBlocks = $qb->getQuery()
+//				->getResult();
+//		
+//		$draftEntityManager = ObjectRepository::getEntityManager('Supra\Cms');
+//		$qb = $draftEntityManager->createQueryBuilder();
+//		$qb->select('b')
+//				->from(Entity\Abstraction\Block::CN(), 'b')
+//				->join('b.placeHolder', 'ph')
+//				->orderBy('b.position', 'ASC')
+//				;
+//		
+//		$expr = $qb->expr();
+//		$or = $expr->orX();
+//		if ( ! empty($finalPlaceHolderIds)) {
+//			$or->add($expr->in('ph.id', $finalPlaceHolderIds));
+//		}
+//
+//		if ( ! empty($parentPlaceHolderIds)) {
+//			$lockedBlocksCondition = $expr->andX(
+//					$expr->in('ph.id', $parentPlaceHolderIds),
+//					'b.locked = TRUE'
+//			);
+//			$or->add($lockedBlocksCondition);
+//		}
+//
+//		$and = $expr->andX();
+//		$and->add($or);
+//		$qb->where($and)
+//				->andWhere('ph.type = 0');
+//		
+//		$draftBlocks = $qb->getQuery()
+//				->getResult();
+//		
+//		$missingBlocks = array_diff($draftBlocks, $auditBlocks);
+//		if ( ! empty ($missingBlocks)) {
+//			
+//			$page = $this->getPage();
+//			
+//			foreach($missingBlocks as $key => $block) {
+//				/* @var $block Entity\Abstraction\Block */
+//				
+//				$master = $block->getPlaceHolder()
+//						->getMaster()
+//						->getMaster();
+//				
+//				if ($page->equals($master)) {
+//					unset($missingBlocks[$key]);
+//				}
+//			}
+//			
+//			$auditBlocks = array_merge($missingBlocks, $auditBlocks);
+//		}
+//		
+//		$result = array();
+//		foreach ($auditBlocks as $block) {
+//			if ($block->inPlaceHolder($parentPlaceHolderIds)) {
+//				$result[] = $block;
+//			}
+//			else if ($block->inPlaceHolder($finalPlaceHolderIds)) {
+//				$result[] = $block;
+//			}
+//		}
+//				
+//		//FIXME!: speed up
+//		$em = $this->getDoctrineEntityManager();
+//		if ( ! empty($this->revisionArray)) {
+//			$em->getUnitOfWork()->clear();
+//			$qb = $em->createQueryBuilder();
+//			
+//			$revisionIds = DatabaseEntity::collectIds($this->revisionArray);
+//
+//			$qb->select('b.id, b.revision')
+//					->from(Entity\Abstraction\Block::CN(), 'b')
+//					->join('b.placeHolder', 'ph')
+//					->where('b.revision in (:revisions)')
+//					->andWhere('ph.id in (:placeHolders)')
+//					->orderBy('b.revision', 'DESC')
+//					->setParameters(array('revisions' => $revisionIds, 'placeHolders' => $finalPlaceHolderIds))
+//					;
+//
+//			$blocks = $qb->getQuery()
+//					->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+//
+//			if ( ! empty($blocks)) {
+//
+//				$qb = $em->createQueryBuilder();
+//				$expr = $qb->expr();
+//				$or = $expr->orX();
+//
+//				$blockIds = array();
+//				$count = 0;
+//				foreach($blocks as $block) {
+//					if ( ! in_array($block['id'], $blockIds)) {
+//						$and = $expr->andX();
+//						$and->add($expr->eq('b.id', '?' . (++$count)));
+//						$qb->setParameter($count, $block['id']);
+//						$and->add($expr->eq('b.revision', '?' . (++$count)));
+//						$qb->setParameter($count, $block['revision']);
+//
+//						$or->add($and);
+//
+//						$blockIds[] = $block['id'];
+//					}
+//				}
+//
+//				$em->getUnitOfWork()->clear();
+//
+//				$qb->select('b')
+//						->from(Entity\Abstraction\Block::CN(), 'b')
+//						->where($or);
+//				$blocks = $qb->getQuery()
+//						->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
+//				$exchangeableBlockIds = \Supra\Database\Entity::collectIds($blocks);
+//
+//				foreach($result as $key => $block) {
+//
+//					$id = $block->getId();
+//					if (in_array($id, $exchangeableBlockIds)) {
+//						$offset = array_search($id, $exchangeableBlockIds);
+//						$result[$key] = $blocks[$offset];
+//
+//					}
+//				}
+//				
+//				$resultIds = \Supra\Database\Entity::collectIds($result);
+//				$blockIds = \Supra\Database\Entity::collectIds($blocks);
+//				
+//				$result = array_combine($resultIds, $result);
+//				$blocks = array_combine($blockIds, $blocks);
+//				
+//				$result = array_merge($result, $blocks);
+//			}
+//
+//			// FIXME: heavy workaround for block sorting
+//			$blockSorting = array();
+//			foreach($result as $block) {
+//				$placeHolderId = $block->getPlaceHolder()->getId();
+//
+//				$blockPosition = $block->getPosition();
+//
+//				$blockSorting[$placeHolderId][$blockPosition] = $block;
+//			}
+//
+//			foreach($blockSorting as $key => $placeHolder) {
+//				ksort($placeHolder);
+//				$blockSorting[$key] = $placeHolder;
+//			}
+//
+//			$result = array();
+//			foreach($blockSorting as $placeHolder) {
+//				$result = array_merge($result, array_values($placeHolder));
+//			}
+//			
+//		}
+//		
+//		$result = $this->checkForRemovedEntities($result);
+//		
+//		$this->blockSet->exchangeArray($result);
+//		
+//				
+//		return $this->blockSet;
+//	}
 	
 	/**
 	 * @return Set\BlockPropertySet

@@ -247,7 +247,7 @@ class EntityAuditListener implements EventSubscriber
 				}
 	
 				$this->insertAuditRecord($entity, $revisionType);
-				array_push($visitedIds, $entityId );
+				array_push($visitedIds, $entityId);
 			}
 		}
 	}
@@ -359,35 +359,45 @@ class EntityAuditListener implements EventSubscriber
 				continue;
 			}
 			
+			$param = $entityData[$field];
+			$type = $class->fieldMappings[$field]['type'];
+			
+			if ($param instanceof Entity\Abstraction\Entity) {
+				$param = $param->getId();
+				$type = \PDO::PARAM_STR;
+				
+				//TODO: might check "owning side" and "to_one" stuff... or not?
+			}
+			
 			$names[] = $columnName;
-			$params[] = $entityData[$field];
-			$types[] = $class->fieldMappings[$field]['type'];
+			$params[] = $param;
+			$types[] = $type;
 		}
 		
-		foreach ($class->associationMappings AS $field => $assoc) {
-			if ($class->isSingleValuedAssociation($field) && $assoc['isOwningSide']) {
-				$targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
-
-				// Has value
-				if ($entityData[$field] !== null) {
-					$relatedId = $this->uow->getEntityIdentifier($entityData[$field]); // Or simply $entityData[$field]->getId()
-
-					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-						$names[] = $sourceColumn;
-						$params[] = $relatedId[$targetClass->getFieldName($targetColumn)];
-						$types[] = $targetClass->getTypeOfColumn($targetColumn);
-					}
-				
-				// Null
-				} else {
-					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-						$names[] = $sourceColumn;
-						$params[] = null;
-						$types[] = \PDO::PARAM_STR;
-					}
-				}
-			}
-		}
+//		foreach ($class->auditAssociationMappings AS $field => $assoc) {
+//			if ($class->isSingleValuedAssociation($field) && $assoc['isOwningSide']) {
+//				$targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+//
+//				// Has value
+//				if ($entityData[$field] !== null) {
+//					$relatedId = $this->uow->getEntityIdentifier($entityData[$field]); // Or simply $entityData[$field]->getId()
+//
+//					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+//						$names[] = $sourceColumn;
+//						$params[] = $relatedId[$targetClass->getFieldName($targetColumn)];
+//						$types[] = $targetClass->getTypeOfColumn($targetColumn);
+//					}
+//				
+//				// Null
+//				} else {
+//					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+//						$names[] = $sourceColumn;
+//						$params[] = null;
+//						$types[] = \PDO::PARAM_STR;
+//					}
+//				}
+//			}
+//		}
 		
 		// Discriminator
 		if ($class->inheritanceType == ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE

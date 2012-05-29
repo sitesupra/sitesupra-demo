@@ -100,6 +100,16 @@ abstract class PageRequest extends HttpRequest
 		$this->media = $media;
 		$this->log = ObjectRepository::getLogger($this);
 	}
+	
+	/**
+	 * Will return true if the resource data should be acquired from the local
+	 * object not from the database. Used by history actions.
+	 * @param Entity\Abstraction\Entity $entity
+	 */
+	protected function isLocalResource(Entity\Abstraction\Entity $entity)
+	{
+		return false;
+	}
 
 	/**
 	 * Appends query result cache information in case of VIEW mode
@@ -289,35 +299,55 @@ abstract class PageRequest extends HttpRequest
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		
 		$em = $this->getDoctrineEntityManager();
-
-		// Nothing to search for
-		if (empty($pageSetIds) || empty($layoutPlaceHolderNames)) {
-
+		
+		if (empty($layoutPlaceHolderNames)) {
 			return $this->placeHolderSet;
 		}
+		
+		$currentPageIsLocalResource = false;
+		
+		if ($this->isLocalResource($localization)) {
+			// Ignoring the current page when selecting placeholders by DQL, will acquire from the object
+			array_pop($pageSetIds);
+			$currentPageIsLocalResource = true;
+		}
 
-		// Find template place holders
-		$qb = $em->createQueryBuilder();
+		// Nothing to search for
+		if ( ! empty($pageSetIds)) {
 
-		$qb->select('ph')
-				->from(Entity\Abstraction\PlaceHolder::CN(), 'ph')
-				->join('ph.localization', 'pl')
-				->join('pl.master', 'p')
-				->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
-				->andWhere($qb->expr()->in('p.id', $pageSetIds))
-				->andWhere('pl.locale = ?0')
-				->setParameter(0, $localeId)
-				// templates first (type: 0-templates, 1-pages)
-				->orderBy('ph.type', 'ASC')
-				->addOrderBy('p.level', 'ASC');
+			// Find template place holders
+			$qb = $em->createQueryBuilder();
 
-		$query = $qb->getQuery();
-		$this->prepareQueryResultCache($query);
-		$placeHolderArray = $query->getResult();
+			$qb->select('ph')
+					->from(Entity\Abstraction\PlaceHolder::CN(), 'ph')
+					->join('ph.localization', 'pl')
+					->join('pl.master', 'p')
+					->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
+					->andWhere($qb->expr()->in('p.id', $pageSetIds))
+					->andWhere('pl.locale = ?0')
+					->setParameter(0, $localeId)
+					// templates first (type: 0-templates, 1-pages)
+					->orderBy('ph.type', 'ASC')
+					->addOrderBy('p.level', 'ASC');
 
-		foreach ($placeHolderArray as $placeHolder) {
-			/* @var $place PlaceHolder */
-			$this->placeHolderSet->append($placeHolder);
+			$query = $qb->getQuery();
+			$this->prepareQueryResultCache($query);
+			$placeHolderArray = $query->getResult();
+
+			foreach ($placeHolderArray as $placeHolder) {
+				/* @var $place PlaceHolder */
+				$this->placeHolderSet->append($placeHolder);
+			}
+		}
+		
+		// Merge the local resource localization into the placeholder set
+		if ($currentPageIsLocalResource) {
+			$placeHolders = $localization->getPlaceHolders();
+
+			foreach ($placeHolders as $placeHolder) {
+				/* @var $place PlaceHolder */
+				$this->placeHolderSet->append($placeHolder);
+			}
 		}
 
 		// Create missing place holders automatically
@@ -340,49 +370,70 @@ abstract class PageRequest extends HttpRequest
 		$em = $this->getDoctrineEntityManager();
 		$this->blockSet = new Set\BlockSet();
 
+		$localFinalPlaceHolders = array();
+		
+		$finalPlaceHolderIds = array();
+		$parentPlaceHolderIds = array();
+		
 		$placeHolderSet = $this->getPlaceHolderSet();
 
-		$finalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
-				->collectIds();
+//		$finalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
+//				->collectIds();
 
+		// Filter out the locally managed placeholders (history)
+		foreach ($placeHolderSet->getFinalPlaceHolders() as $placeHolder) {
+			if ($this->isLocalResource($placeHolder)) {
+				$localFinalPlaceHolders[] = $placeHolder;
+			} else {
+				$finalPlaceHolderIds[] = $placeHolder->getId();
+			}
+		}
+		
 		$parentPlaceHolderIds = $placeHolderSet->getParentPlaceHolders()
 				->collectIds();
 
+		$blocks = array();
+		
 		// Just return empty array if no final/parent place holders have been found
-		if (empty($finalPlaceHolderIds) && empty($parentPlaceHolderIds)) {
-			return $this->blockSet;
+		if ( ! empty($finalPlaceHolderIds) || ! empty($parentPlaceHolderIds)) {
+			
+			// Here we find all 1) locked blocks from templates; 2) all blocks from final place holders
+			$qb = $em->createQueryBuilder();
+			$qb->select('b')
+					->from(Entity\Abstraction\Block::CN(), 'b')
+					->join('b.placeHolder', 'ph')
+					->orderBy('b.position', 'ASC');
+
+			$expr = $qb->expr();
+			$or = $expr->orX();
+
+			// final placeholder blocks
+			if ( ! empty($finalPlaceHolderIds)) {
+				$or->add($expr->in('ph.id', $finalPlaceHolderIds));
+			}
+
+			// locked block condition
+			if ( ! empty($parentPlaceHolderIds)) {
+				$lockedBlocksCondition = $expr->andX(
+						$expr->in('ph.id', $parentPlaceHolderIds), 'b.locked = TRUE'
+				);
+				$or->add($lockedBlocksCondition);
+			}
+
+			$qb->where($or);
+
+			// Execute block query
+			$query = $qb->getQuery();
+			$this->prepareQueryResultCache($query);
+			$blocks = $query->getResult();
 		}
-
-		// Here we find all 1) locked blocks from templates; 2) all blocks from final place holders
-		$qb = $em->createQueryBuilder();
-		$qb->select('b')
-				->from(Entity\Abstraction\Block::CN(), 'b')
-				->join('b.placeHolder', 'ph')
-				->orderBy('b.position', 'ASC');
-
-		$expr = $qb->expr();
-		$or = $expr->orX();
-
-		// final placeholder blocks
-		if ( ! empty($finalPlaceHolderIds)) {
-			$or->add($expr->in('ph.id', $finalPlaceHolderIds));
+		
+		// Add blocks from locally managed placeholders
+		foreach ($localFinalPlaceHolders as $placeHolder) {
+			/* @var $placeHolder Entity\Abstraction\PlaceHolder */
+			$blocks = array_merge($blocks, $placeHolder->getBlocks()->getValues());
 		}
-
-		// locked block condition
-		if ( ! empty($parentPlaceHolderIds)) {
-			$lockedBlocksCondition = $expr->andX(
-					$expr->in('ph.id', $parentPlaceHolderIds), 'b.locked = TRUE'
-			);
-			$or->add($lockedBlocksCondition);
-		}
-
-		$qb->where($or);
-
-		// Execute block query
-		$query = $qb->getQuery();
-		$this->prepareQueryResultCache($query);
-		$blocks = $query->getResult();
-
+		
 		\Log::debug("Block count found: " . count($blocks));
 
 		// Skip temporary blocks for VIEW mode

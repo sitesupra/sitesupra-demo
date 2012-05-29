@@ -128,8 +128,6 @@ class AuditManagerListener implements EventSubscriber
 		}
 	}
 
-	/* TEST */
-
 	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
 	{
 		$classMetadata = $eventArgs->getClassMetadata();
@@ -240,27 +238,25 @@ class AuditManagerListener implements EventSubscriber
 		foreach ($auditMappings as $field => $mapping) {
 
 			// Check if isn't loaded already
-			$this->loadOneToAnything($entityManager, $mapping, $className, $field, $targetMetadata, $entity, $class);
+			$this->loadOneToAnything($entityManager, $mapping, $className, $field, $entity, $classMetadata);
 		}
 
 		// Here we should have all ONE_TO_* associations ready from audit entity manager
 		//....
 		
-
-
-		// Finally reset the revision ID memory so the next request doesn't fail hard
 		if ($thisIsRootEntity) {
-			$this->debug("END. Resetting the revision, our job is done here, I hope");
-			$this->revision = null;
-
 			// Start the second phase when everything is done
 			$this->postLoadSecondPhase($entityManager, $entity);
+			
+			// Reset the revision ID memory so the next request doesn't fail
+			$this->debug("END. Resetting the revision, our job is done here, I hope");
+			$this->revision = null;
 		}
 
 		$this->depth --;
 	}
 
-	private function loadOneToAnything(\Doctrine\ORM\EntityManager $entityManager, $mapping, $className, $field, $targetMetadata, $entity, $class)
+	private function loadOneToAnything(\Doctrine\ORM\EntityManager $entityManager, $mapping, $className, $field, $entity, $classMetadata)
 	{
 		$value = null;
 		$targetEntityName = $mapping['targetEntity'];
@@ -291,15 +287,15 @@ class AuditManagerListener implements EventSubscriber
 
 					//TODO: remove later, will solve "owner side" problem later
 
-					$this->debug(sprintf("TODO 1-1 %-20s %-20s", $class, $targetEntityName));
+					$this->debug(sprintf("TODO 1-1 %-20s %-20s", $className, $targetEntityName));
 
 					break;
 
 				case ClassMetadata::ONE_TO_MANY:
 
-					$this->debug("LOAD $class 1_+ $targetEntityName association");
+					$this->debug("LOAD $className 1_+ $targetEntityName association");
 
-					$records = $this->loadOneToManyAuditted($entityManager, $entity, $mapping, $targetMetadata);
+					$records = $this->loadOneToManyAuditted($entityManager, $entity, $mapping, $targetMetadata, $classMetadata);
 
 					// Fill the other association side
 					$targetReflField = new \ReflectionProperty($targetEntityName, $mapping['mappedBy']);
@@ -335,7 +331,7 @@ class AuditManagerListener implements EventSubscriber
 	 * @param \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata
 	 * @return array
 	 */
-	private function loadOneToManyAuditted(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity, array $mapping, \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata)
+	private function loadOneToManyAuditted(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity, array $mapping, \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata, \Doctrine\ORM\Mapping\ClassMetadata $classMetadata)
 	{
 		// First of all we need to read 2 column data
 		$qb = $entityManager->createQueryBuilder();
@@ -358,9 +354,16 @@ class AuditManagerListener implements EventSubscriber
 
 		$this->debug("RESULTS ", count($records));
 		
+		$indexBy = null;
+		
+		// @indexBy annotation
+		if (isset($mapping['indexBy'])) {
+			$indexBy = 'e.' . $mapping['indexBy'];
+		}
+		
 		// Load real data now
 		$qb = $entityManager->createQueryBuilder();
-		$qb->from($targetMetadata->name, 'e')
+		$qb->from($targetMetadata->name, 'e', $indexBy)
 				->select('e');
 
 		foreach ($records as $i => $record) {
@@ -370,9 +373,16 @@ class AuditManagerListener implements EventSubscriber
 						'revision_' . $i => $record['revision'],
 					));
 		}
-
+		
+		// @OrderBy annotation
+		if (isset($mapping['orderBy'])) {
+			foreach ($mapping['orderBy'] as $sort => $order) {
+				$qb->addOrderBy('e.' . $sort, $order);
+			}
+		}
+		
 		$records = $qb->getQuery()->getResult();
-
+		
 		return $records;
 	}
 
@@ -387,7 +397,7 @@ class AuditManagerListener implements EventSubscriber
 		$className = $entity::CN();
 		$this->debug("ENTER $className");
 
-		$this->depth++;
+		$this->depth ++;
 
 		$classMetadata = $entityManager->getClassMetadata($className);
 
@@ -406,7 +416,7 @@ class AuditManagerListener implements EventSubscriber
 
 			$this->debug("ASSOC $field");
 
-			$this->depth++;
+			$this->depth ++;
 
 			$reflField = new \ReflectionProperty($className, $field);
 			$reflField->setAccessible(true);
@@ -416,24 +426,37 @@ class AuditManagerListener implements EventSubscriber
 			if (($mapping['type'] & ClassMetadata::TO_ONE) && $mapping['isOwningSide']) {
 
 				// Will load if the value is string
-				if (is_string($value)) {
+				if (is_null($value)) {
+					
+				} elseif (is_string($value)) {
 
 					$this->debug("WILL LOAD");
 
 					$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+					$loadedValue = $draftEm->find($mapping['targetEntity'], $value);
+					
+					if (empty($loadedValue)) {
+						
+						if ($mapping['targetEntity'] != Entity\LockData::CN()) {
+							throw new \RuntimeException("OOPS in $className -> {$mapping['targetEntity']}");
+						}
+					}
+					
+					$reflField->setValue($entity, $loadedValue);
+					
 				} else {
-					$this->debug("LOADED");
+					$this->debug("LOADED or null");
 				}
 
 			} else {
-				// For one_to_many just recurse deaper
+				// For one_to_many just recurse deeper
 				if ($mapping['type'] == ClassMetadata::ONE_TO_MANY) {
 
 					if ( ! is_null($value)) {
 
 						$this->debug("DEEP");
 
-						// Shouldn't we remember the visited places?
+						// TODO: Shouldn't we remember the visited places to avoid loops?
 						foreach ($value as $record) {
 							$this->postLoadSecondPhase($entityManager, $record);
 						}
@@ -452,92 +475,92 @@ class AuditManagerListener implements EventSubscriber
 		$this->depth--;
 	}
 
-	private function loadManyToOne(\Doctrine\ORM\EntityManager $entityManager, $mapping, $className, $field, $targetMetadata, $entity, $class)
-	{
-		$value = null;
-		$targetEntityName = $mapping['targetEntity'];
-		$targetEntityClass = new ReflectionClass($targetEntityName);
-
-		$this->debug(sprintf("2ND %-20s %-20s %-20s", $className, $field, $targetEntityName));
-
-		$this->depth ++;
-
-		$reflField = new \ReflectionProperty($className, $field);
-		$reflField->setAccessible(true);
-		$currentValue = $reflField->getValue($entity);
-
-		$pointsToAudit = $targetEntityClass->implementsInterface(AuditedEntityInterface::CN);
-
-		$targetMetadata = $entityManager->getClassMetadata($targetEntityName);
-		switch ($mapping['type']) {
-			case ClassMetadata::ONE_TO_ONE:
-
-				//TODO: remove later, will solve "owner side" problem later
-
-				$this->debug(sprintf("TODO 1-1 %-20s %-20s", $class, $targetEntityName));
-
-				break;
-
-			case ClassMetadata::ONE_TO_MANY:
-
-				$this->debug("TRAVERSE $class 1_+ $targetEntityName association");
-
-				if ( ! is_null($currentValue)) {
-					foreach ($currentValue as $record) {
-						
-					}
-				}
-
-				// Fill the other association side
-				$targetReflField = new \ReflectionProperty($targetEntityName, $mapping['mappedBy']);
-				$targetReflField->setAccessible(true);
-
-				foreach ($records as $record) {
-					$targetReflField->setValue($record, $entity);
-				}
-
-				// Create the collection
-				$value = new ArrayCollection($records);
-
-				break;
-			default:
-
-				$this->debug("SKIP till 2ND");
-
-				case ClassMetadata::MANY_TO_ONE:
-
-					if ($currentValue !== null && is_object($currentValue)) {
-
-						$this->debug("SKIP, not null anymore.. ", get_class($currentValue));
-						$this->depth --;
-
-						return;
-					}
-
-					$originalData = $entityManager->getUnitOfWork()
-						->getOriginalEntityData($entity);
-
-					$targetValue = null;
-					if ($mapping['isOwningSide']) {
-						$targetValue = $originalData[$field];
-						$value = $this->loadToOneEntity($entity, $targetEntityName, 'id', $targetMetadata, $targetValue);
-					}
-
-					$value = ( empty($value) ? null : $value);
-
-					break;
-
-				default:
-					throw new \Exception('Unknown mapping type', $mapping['type']);
-		}
-
-		// Set the stuff we have found.. if we have found it
-		if ( ! is_null($value)) {
-			$reflField->setValue($entity, $value);
-		}
-
-		$this->depth --;
-	}
+//	private function loadManyToOne(\Doctrine\ORM\EntityManager $entityManager, $mapping, $className, $field, $targetMetadata, $entity, $class)
+//	{
+//		$value = null;
+//		$targetEntityName = $mapping['targetEntity'];
+//		$targetEntityClass = new ReflectionClass($targetEntityName);
+//
+//		$this->debug(sprintf("2ND %-20s %-20s %-20s", $className, $field, $targetEntityName));
+//
+//		$this->depth ++;
+//
+//		$reflField = new \ReflectionProperty($className, $field);
+//		$reflField->setAccessible(true);
+//		$currentValue = $reflField->getValue($entity);
+//
+//		$pointsToAudit = $targetEntityClass->implementsInterface(AuditedEntityInterface::CN);
+//
+//		$targetMetadata = $entityManager->getClassMetadata($targetEntityName);
+//		switch ($mapping['type']) {
+//			case ClassMetadata::ONE_TO_ONE:
+//
+//				//TODO: remove later, will solve "owner side" problem later
+//
+//				$this->debug(sprintf("TODO 1-1 %-20s %-20s", $class, $targetEntityName));
+//
+//				break;
+//
+//			case ClassMetadata::ONE_TO_MANY:
+//
+//				$this->debug("TRAVERSE $class 1_+ $targetEntityName association");
+//
+//				if ( ! is_null($currentValue)) {
+//					foreach ($currentValue as $record) {
+//						
+//					}
+//				}
+//
+//				// Fill the other association side
+//				$targetReflField = new \ReflectionProperty($targetEntityName, $mapping['mappedBy']);
+//				$targetReflField->setAccessible(true);
+//
+//				foreach ($records as $record) {
+//					$targetReflField->setValue($record, $entity);
+//				}
+//
+//				// Create the collection
+//				$value = new ArrayCollection($records);
+//
+//				break;
+//			default:
+//
+//				$this->debug("SKIP till 2ND");
+//
+//				case ClassMetadata::MANY_TO_ONE:
+//
+//					if ($currentValue !== null && is_object($currentValue)) {
+//
+//						$this->debug("SKIP, not null anymore.. ", get_class($currentValue));
+//						$this->depth --;
+//
+//						return;
+//					}
+//
+//					$originalData = $entityManager->getUnitOfWork()
+//						->getOriginalEntityData($entity);
+//
+//					$targetValue = null;
+//					if ($mapping['isOwningSide']) {
+//						$targetValue = $originalData[$field];
+//						$value = $this->loadToOneEntity($entity, $targetEntityName, 'id', $targetMetadata, $targetValue);
+//					}
+//
+//					$value = ( empty($value) ? null : $value);
+//
+//					break;
+//
+//				default:
+//					throw new \Exception('Unknown mapping type', $mapping['type']);
+//		}
+//
+//		// Set the stuff we have found.. if we have found it
+//		if ( ! is_null($value)) {
+//			$reflField->setValue($entity, $value);
+//		}
+//
+//		$this->depth --;
+//	}
 
 //	private function loadToManyCollection($entity, $targetClassName, $targetColumn, $targetMetadata)
 //	{

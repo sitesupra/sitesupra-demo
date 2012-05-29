@@ -16,7 +16,7 @@ class AuditCreateSchemaListener implements EventSubscriber
 	const AUDIT_SUFFIX = '_audit';
 	const REVISION_COLUMN_NAME = 'revision';
 	const REVISION_TYPE_COLUMN_NAME = 'revision_type';
-	
+	const REVISION_TYPE_FIELD_NAME = 'revisionType';
 	
 	public function getSubscribedEvents()
 	{
@@ -105,6 +105,23 @@ class AuditCreateSchemaListener implements EventSubscriber
 		// queries on joined inheritance tables will cause huge result set
 		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
 			$classMetadata->setIdentifier(array('id', 'revision'));
+			
+			if (empty($classMetadata->parentClasses)) {
+				// Add the revision_type column
+				$classMetadata->mapField(
+					array(
+						'fieldName' => self::REVISION_TYPE_FIELD_NAME,
+						'type' => 'smallint',
+						'length' => 1,
+						'precision' => 0,
+						'scale' => 0,
+						'nullable' => true,
+						'unique' => false,
+						'id' => false,
+						'columnName' => self::REVISION_TYPE_COLUMN_NAME,
+					)
+				);
+			}
 		}
 		
 		$versionedDraftEntities = TableDraftSuffixAppender::getVersionedEntities();

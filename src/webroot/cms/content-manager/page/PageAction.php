@@ -758,14 +758,16 @@ class PageAction extends PageManagerAction
 			throw new CmsException(null, 'Page version not found');
 		}
 
-		return;
+//		return;
+		
+		//TODO: what's next?
 
 		$master = $localization->getMaster();
 
-		// workaround for wrong master page
-		$auditMasterPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
-				->findOneBy(array('id' => $master->getId(), 'revision' => $localization->getRevisionId()));
-		$localization->overrideMaster($auditMasterPage);
+//		// workaround for wrong master page
+//		$auditMasterPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
+//				->findOneBy(array('id' => $master->getId(), 'revision' => $localization->getRevisionId()));
+//		$localization->overrideMaster($auditMasterPage);
 
 		$controller = $this->getPageController();
 
@@ -775,9 +777,9 @@ class PageAction extends PageManagerAction
 		$request = new HistoryPageRequestEdit($localeId, $media);
 		$request->setPageLocalization($localization);
 
-		$revisionId = $localization->getRevisionId();
-		$request->setRevision($baseRevisionId);
-		$request->setRevisionArray($revisionList);
+//		$revisionId = $localization->getRevisionId();
+//		$request->setRevision($baseRevisionId);
+//		$request->setRevisionArray($revisionList);
 
 		$response = $controller->createResponse($request);
 

@@ -171,7 +171,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	{
 		$placeHolder = $this->getPlaceHolder();
 		$placeHolderId = $placeHolder->getId();
-		$in = in_array($placeHolderId, $placeHolderIds);
+		$in = in_array($placeHolderId, $placeHolderIds, true);
 
 		return $in;
 	}
