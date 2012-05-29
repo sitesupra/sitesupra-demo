@@ -26,6 +26,7 @@ use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
 use Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransaction;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Response\TwigResponse;
+use Supra\Controller\FrontController;
 
 class PaymentProvider extends PaymentProviderAbstraction
 {
@@ -280,7 +281,6 @@ class PaymentProvider extends PaymentProviderAbstraction
 			$this->paymentEntityProvider = $provider;
 		}
 
-
 		return $this->paymentEntityProvider;
 	}
 
@@ -355,6 +355,38 @@ class PaymentProvider extends PaymentProviderAbstraction
 		);
 
 		$this->redirectToProxy($proxyActionUrlQueryData, $response);
+	}
+
+	/**
+	 * @param Order\ShopOrder $order
+	 * @param array $paymentCredentials
+	 * @param ResponseInterface $response 
+	 */
+	public function processShopOrderDirect(Order\ShopOrder $order, $paymentCredentials)
+	{
+		$response = new \Supra\Response\HttpResponse();
+		
+		parent::processShopOrder($order, $response);
+		
+		$proxyActionQueryData = array(
+			self::REQUEST_KEY_ORDER_ID => $order->getId(),
+			Action\ProxyAction::REQUEST_KEY_RETURN_FROM_FORM => true
+		);		
+		
+		$request = new \Supra\Request\HttpRequest();
+		$request->setPost($paymentCredentials);
+		$request->setQuery($proxyActionQueryData);
+		
+		$lastRouter = new \Supra\Payment\PaymentProviderUriRouter();
+		$lastRouter->setPaymentProvider($this);
+		
+		$request->setLastRouter($lastRouter);
+
+		$proxyActionController = FrontController::getInstance()->runController(Action\ProxyAction::CN(), $request);
+		
+		$response = $proxyActionController->getResponse();
+		
+		return $response;
 	}
 
 	/**

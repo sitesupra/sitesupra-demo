@@ -25,18 +25,7 @@
     formDataPath: /dummy-shop/transact-data-form
     is3dAccount: true
     gatewayCollects: true
-
-#- Project\Payment\Transact\Configuration:
-#    id: transact_two
-#    url: /payment/transact_two
-#    returnHost: http://supra7.krists.vig
-#    callbackHost: http://krists.videinfra.com
-#    iniSectionName: transact_configuration_two
-#    collection: Project\Payment\DummyStore
-#    formDataPath: /dummy-shop/transact-data-form
-#    is3dAccount: true
-#    gatewayCollects: false
-                     
+                    
                      
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\Payment\Transact\TransactDataForm

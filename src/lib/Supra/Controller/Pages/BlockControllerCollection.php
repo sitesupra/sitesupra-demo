@@ -7,6 +7,7 @@ use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Controller\Pages\Configuration\BlockControllerGroupConfiguration;
 use Supra\Loader\Loader;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\BrokenBlockController;
 
 /**
  * Singleton storing collection if block configuration and block groups
@@ -100,7 +101,7 @@ class BlockControllerCollection
 		$configuration = ObjectRepository::getComponentConfiguration($blockId);
 
 		if ( ! Loader::classExists($configuration->class)) {
-			$configuration = ObjectRepository::getComponentConfiguration(BrokenBlockController::BLOCK_NAME);
+			$configuration = $this->configuration['blocks'][BrokenBlockController::BLOCK_NAME];
 		}
 		
 		$controllerClass = $configuration->class;

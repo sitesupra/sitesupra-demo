@@ -23,6 +23,37 @@ use Project\Payment\Transact\Exception;
 class ProxyAction extends ProxyActionAbstraction
 {
 
+	/**
+	 * @throws Exception\RuntimeException 
+	 */
+	public function execute()
+	{
+		$response = $this->getResponse();
+		if ( ! ($response instanceof HttpResponse)) {
+			throw new Exception\RuntimeException('Do not know how to handle "' . get_class($response) . '" type of response.');
+		}
+
+		$request = $this->getRequest();
+		if ( ! ($request instanceof HttpRequest)) {
+			throw new Exception\RuntimeException('Do not know how to handle "' . get_class($request) . '" type of request.');
+		}
+
+		$orderId = $request->getParameter(PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID, null);
+
+		$order = $this->fetchOrder($orderId);
+		$this->setOrder($order);
+
+		if ($order instanceof Order\ShopOrder) {
+
+			$this->executeShopOrderProxyAction();
+		} else if ($order instanceof Order\RecurringOrder) {
+
+			$this->executeRecurringOrderProxyAction();
+		} else {
+			throw new Exception\RuntimeException('Could not determine order type.');
+		}
+	}
+
 	const REQUEST_KEY_RETURN_FROM_FORM = 'returnFromForm';
 
 	/**
@@ -56,34 +87,6 @@ class ProxyAction extends ProxyActionAbstraction
 	protected function getPaymentProvider()
 	{
 		return parent::getPaymentProvider();
-	}
-
-	public function execute()
-	{
-		$response = $this->getResponse();
-		if ( ! ($response instanceof HttpResponse)) {
-			throw new Exception\RuntimeException('Do not know how to handle "' . get_class($response) . '" type of response.');
-		}
-
-		$request = $this->getRequest();
-		if ( ! ($request instanceof HttpRequest)) {
-			throw new Exception\RuntimeException('Do not know how to handle "' . get_class($request) . '" type of request.');
-		}
-
-		$orderId = $request->getParameter(PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID, null);
-
-		$order = $this->fetchOrder($orderId);
-		$this->setOrder($order);
-
-		if ($order instanceof Order\ShopOrder) {
-
-			$this->executeShopOrderProxyAction();
-		} else if ($order instanceof Order\RecurringOrder) {
-
-			$this->executeRecurringOrderProxyAction();
-		} else {
-			throw new Exception\RuntimeException('Could not determine order type.');
-		}
 	}
 
 	public function executeShopOrderProxyAction()
@@ -164,6 +167,10 @@ class ProxyAction extends ProxyActionAbstraction
 			$response->redirect($redirectUrl);
 		} else {
 
+			if(! empty($initializationResult['RedirectOnsite'])) {
+				$this->throwPaymentStartErrorException($order, 'Gateway collection mode disabled, but RedirectOnsite received.');
+			}
+			
 			// ... otherwise perform charge.
 
 			$chargeResult = $this->chargeTransaction($formData);

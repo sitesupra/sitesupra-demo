@@ -70,5 +70,9 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 
 		return $order;
 	}
+	
+	public function execute() {
+		
+	}
 
 }

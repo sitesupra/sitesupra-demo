@@ -15,6 +15,7 @@ use Supra\Payment\Transaction\TransactionType;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Response\ResponseInterface;
 use Supra\Response\TwigResponse;
+use Supra\Response\HttpResponse;
 use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 use Supra\Payment\PaymentEntityProvider;
@@ -204,7 +205,7 @@ abstract class PaymentProviderAbstraction
 	{
 		$proxyUrl = $this->getProxyActionUrl($queryData);
 
-		if ($response instanceof TwigResponse) {
+		if ($response instanceof HttpResponse) {
 			$response->redirect($proxyUrl);
 			$response->flush();
 		} else {

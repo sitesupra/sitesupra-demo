@@ -85,7 +85,7 @@ abstract class ControllerAbstraction implements ControllerInterface
 		if ($request instanceof Request\HttpRequest) {
 			return new Response\HttpResponse();
 		}
-		
+
 		return new Response\EmptyResponse();
 	}
 
