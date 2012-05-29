@@ -580,6 +580,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/select-list.js',
 		requires: ['supra.input-proto', 'supra.button']
 	},
+	'supra.input-select-visual': {
+		path: 'input/select-visual.js',
+		requires: ['supra.input-select-list']
+	},
 	'supra.input-slider': {
 		path: 'input/slider.js',
 		requires: ['supra.input-proto', 'slider']
@@ -620,6 +624,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-file-upload',
 			'supra.input-select',
 			'supra.input-select-list',
+			'supra.input-select-visual',
 			'supra.input-slider',
 			'supra.input-link',
 			'supra.input-image',

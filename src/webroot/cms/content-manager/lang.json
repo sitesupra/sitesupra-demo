@@ -381,7 +381,15 @@
 		
 		"gallerymanager": {
 			"title": "Manage gallery images",
-			"label_title": "Title"
+			"label_title": "Title",
+			
+			"insert": "Insert",
+			"manage": "Manage",
+			"design": "Design",
+			"animation": "Animation",
+			"settings": "Settings",
+			
+			"click_here": "Click here to enter {label}"
 		},
 		
 		"linkmanager": {

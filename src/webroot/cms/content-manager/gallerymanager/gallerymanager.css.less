@@ -79,4 +79,53 @@
 		width: 200px !important;
 		height: 200px !important;
 	}
+	
+	//Inline editable
+	p.inline {
+		color: #323144;
+		cursor: pointer;
+		line-height: 26px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 192px;
+		height: 26px;
+		overflow: hidden;
+		padding-left: 8px;
+		
+		&:hover {
+			text-decoration: underline;
+		}
+		&.empty {
+			color: #A8A9BD;
+		}
+	}
+	
+	.yui3-input {
+		padding-right: 0;
+		
+		&.input-label-replacement,
+		.input-label-replacement {
+			span.replacement {
+				text-shadow: none;
+				width: 192px;
+				max-width: 192px;
+				padding-left: 8px;
+				
+				&.empty {
+					color: #A8A9BD;
+				}
+			}
+			
+			input,
+			textarea {
+				color: #323144;
+				font-size: 12px;
+				text-shadow: none;
+			}
+		}
+	}
+	
+	img + p {
+		padding-top: 5px;
+	}
 }
