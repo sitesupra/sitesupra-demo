@@ -26,12 +26,13 @@
  * List
  */
 .yui3-gallery-manager .list {
-	padding: 10px 0 0 10px;
+	padding: 0 0 0 10px;
 	overflow: hidden;
+	min-height: 100%;
 	
 	& > li {
 		padding: 5px;
-		margin: 0 10px 10px 0; 
+		margin: 10px 10px 0 0; 
 		background: #fff;
 		float: left;
 		min-width: 200px;
@@ -39,6 +40,29 @@
 		
 		.box-shadow (0 1px 3px rgba(0,0,0,.25));
 	}
+	
+	& > li.gallery-marker {
+		.box-shadow (none);
+		width: 206px;
+		height: 266px;
+		border: 2px dashed #A9AAC3;
+		display: none;
+		background: none;
+		padding: 0;
+		
+		div {
+			position: relative;
+			top: -1px;
+			margin: -2px;
+			border: 2px dashed #7C7D90;
+			width: 206px;
+			height: 266px;
+		}
+	}
+	&.gallery-over > li.gallery-marker {
+		display: block;
+	}
+	
 	& > li.empty {
 		cursor: move;
 		width: 200px;

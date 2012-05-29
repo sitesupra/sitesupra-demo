@@ -114,6 +114,20 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 */
 		ui_updating: false,
 		
+		/**
+		 * List node
+		 * @type {Object}
+		 * @private
+		 */
+		list: null,
+		
+		/**
+		 * List item for marking drop place
+		 * @type {Object}
+		 * @private
+		 */
+		listItemDropMarker: null,
+		
 		
 		/**
 		 * Initialize
@@ -172,12 +186,17 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			this.layout.on('sync', this.scrollable.syncUI, this.scrollable);
 			
 			//Bind inline editables
-			var list = this.one('ul.list');
+			var list = this.list = this.one('ul.list');
 			list.delegate('click', this.createInlineEditable, 'p.inline', this);
 			list.delegate('click', this.openMediaLibraryForReplace, 'li.gallery-item span.img', this);
 			
-			list.delegate('dragenter', this.listDragEnter, 'span.img b', this);
-			list.delegate('dragleave', this.listDragLeave, 'span.img b', this);
+			list.on('dragenter', this.listDragEnter, this);
+			list.on('dragleave', this.listDragLeave, this);
+			list.delegate('dragenter', this.listItemDragEnter, 'span.img b', this);
+			list.delegate('dragleave', this.listItemDragLeave, 'span.img b', this);
+			
+			var marker = this.listItemDropMarker = Y.Node.create('<li class="gallery-marker"><div></div></li>');
+			list.append(marker);
 			
 			this.bindDragDrop();
 		},
@@ -486,6 +505,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				}
 			}
 			
+			//Unmark list
+			this.list.removeClass('gallery-over');
+			
 			if (item_data) {
 				if (item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
 					
@@ -620,7 +642,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * @param {Event} e Event facade object
 		 * @private 
 		 */
-		listDragEnter: function (e) {
+		listItemDragEnter: function (e) {
 			if (e.target.test('b')) {
 				var target = e.target.closest('LI');
 				target.addClass('gallery-item-over');
@@ -633,10 +655,52 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * @param {Event} e Event facade object
 		 * @private 
 		 */
-		listDragLeave: function (e) {
+		listItemDragLeave: function (e) {
 			if (e.target.test('b')) {
 				var target = e.target.closest('LI');
 				target.removeClass('gallery-item-over');
+			}
+		},
+		
+		
+		/**
+		 * Drag mouse over position
+		 * @type {String}
+		 * @private
+		 */
+		listDragOver: null,
+		
+		/**
+		 * Image or folder from media library dragged over an item
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private 
+		 */
+		listDragEnter: function (e) {
+			if (e.target.closest('span.img')) {
+				this.listDragOver = 'item';
+				this.list.removeClass('gallery-over');
+			} else if (e.target.closest('ul.list')) {
+				this.listDragOver = 'list';
+				this.list.addClass('gallery-over').append(this.listItemDropMarker);
+			} else {
+				this.listDragOver = 'none';
+			}
+		},
+		
+		/**
+		 * Image or folder from media library dragged out of item
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private 
+		 */
+		listDragLeave: function (e) {
+			if (this.listDragOver) {
+				//Left some element
+				this.listDragOver = null;
+			} else {
+				//Actually left list
+				this.list.removeClass('gallery-over');
 			}
 		},
 		
@@ -856,7 +920,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			
 			for(var i=0,ii=images.length; i<ii; i++) {
 				if (images[i].id === image_id) {
-					this.one('ul.list li[data-id="' + image_id + '"]').remove();
+					this.list.one('li[data-id="' + image_id + '"]').remove();
 					this.data.images.splice(i,1);
 					this.settingsFormCancel();
 					this.scrollable.syncUI();
@@ -875,7 +939,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * @private
 		 */
 		renderData: function () {
-			var list = this.one('ul.list'),
+			var list = this.list,
 				images = this.data.images,
 				preview_size = this.PREVIEW_SIZE,
 				src,
@@ -883,6 +947,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			
 			//Remove old data
 			list.all('LI').remove();
+			list.append(this.listItemDropMarker);
 			
 			//Remove old inputs
 			var inputs = this.inputs,
@@ -917,7 +982,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		renderItem: function (data) {
 			var src = null,
 				preview_size = this.PREVIEW_SIZE,
-				list = this.one('ul.list'),
+				list = this.list,
 				item = null,
 				properties = this.getImageProperties(),
 				html = '',
@@ -1007,7 +1072,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				var oa = order[a.image.id],
 					ob = order[b.image.id];
 				
-				return oa > ob;
+				return oa > ob ? 1 : -1;
 			});
 			
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
