@@ -25,8 +25,8 @@ class UserpermissionsAction extends InternalUserManagerAbstractAction
 		
 		/* @var $appConfig ApplicationConfiguration */
 		foreach ($appConfigs as $appConfig) {
-			
-			if($appConfig->id != $internalUserManagerAppConfig->id) {
+
+			if (($appConfig->id != $internalUserManagerAppConfig->id) && ( ! $appConfig->hidden)) {
 				$response[] = $appConfig->getApplicationDataForInternalUserManager();
 			}
 		}

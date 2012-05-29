@@ -36,6 +36,11 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 	 * @var string
 	 */
 	public $default;
+	
+	/**
+	 * @var string
+	 */
+	public $group;
 
 	/**
 	 * @var boolean
