@@ -34,6 +34,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//If there is no folder or trying to drop on un-editable element
 			if (!gallery_id || !this.htmleditor.isEditable(target)) return;
+			if (!Manager.MediaSidebar) return true;
 			
 			var htmleditor = this.htmleditor,
 				folder_data = Manager.MediaSidebar.getData(gallery_id, true);

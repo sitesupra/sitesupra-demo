@@ -221,6 +221,13 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		onDrop: function (e) {
+			if (!Manager.MediaSidebar) {
+				//If media sidebar is not loaded, then user didn't droped image from there
+				//Prevent default (which is insert folder thumbnail image) 
+				if (e.halt) e.halt();
+				return false;
+			}
+			
 			var item_id = e.drag_id,
 				item_data = Manager.MediaSidebar.getData(item_id),
 				image = null,
