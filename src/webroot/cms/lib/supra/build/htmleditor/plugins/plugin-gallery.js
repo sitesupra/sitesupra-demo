@@ -3,13 +3,6 @@
  */
 YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	
-	/**
-	 * Default gallery image properties
-	 */
-	var DEFAULT_IMAGE_PROPERTIES = [
-		{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'label_title']), 'value': ''}
-	];
-	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
 		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],

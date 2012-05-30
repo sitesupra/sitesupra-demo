@@ -7,14 +7,6 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
-	//Default properties if none is set in configuration
-	var DEFAULT_PROPERTIES = [{
-			'id': 'title',
-			'type': 'String',
-			'label': Supra.Intl.get(['gallerymanager', 'label_title']),
-			'value': ''
-	}];
-	
 	//Add as child, when EditorToolbar will be hidden GalleryManager will be hidden also (page editing is closed)
 	Manager.getAction('EditorToolbar').addChildAction('GalleryManager');
 	
@@ -57,6 +49,8 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 */
 		PREVIEW_BROKEN: '/cms/content-manager/gallerymanager/images/icon-broken-large.png',
 		
+		
+		
 		/**
 		 * Gallery data
 		 * @type {Object}
@@ -70,6 +64,16 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * @private
 		 */
 		callback: null,
+		
+		/**
+		 * Image property list
+		 * 
+		 * @type {Array}
+		 * @private
+		 */
+		image_properties: null,
+		
+		
 		
 		/**
 		 * Last drag X position
@@ -202,17 +206,6 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		},
 		
 		/**
-		 * Returns image properties, these are not any specific image
-		 * property values, but only properties
-		 * 
-		 * @return Image properties
-		 * @private
-		 */
-		getImageProperties: function () {
-			return Supra.data.get(['gallerymanager', 'properties'], DEFAULT_PROPERTIES);
-		},
-		
-		/**
 		 * Returns image property by ID or null
 		 * 
 		 * @param {String} id Property ID
@@ -221,7 +214,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * @private
 		 */
 		getImageProperty: function (id) {
-			var properties = this.getImageProperties(),
+			var properties = this.image_properties,
 				i = 0,
 				ii = properties.length;
 			
@@ -293,7 +286,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			if (!content) return;
 			
 			//Properties form
-			var properties = this.getImageProperties(),
+			var properties = this.image_properties,
 				form_config = {
 					'inputs': properties
 				};
@@ -806,7 +799,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				image_data = this.getImageDataById(image_id),
 				inputs = this.inputs[image_id],
 			
-				properties = this.getImageProperties(),
+				properties = this.image_properties,
 				label = null;
 			
 			//Update inputs
@@ -902,7 +895,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				new_data = this.getImageDataById(image.id),
 				old_node = this.getImageNodeById(id),
 				new_node = this.getImageNodeById(image.id),
-				properties = this.getImageProperties();
+				properties = this.image_properties;
 			
 			for (var i=0, ii=properties.length; i<ii; i++) {
 				new_data[properties[i].id] = old_data[properties[i].id];
@@ -991,7 +984,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				preview_size = this.PREVIEW_SIZE,
 				list = this.list,
 				item = null,
-				properties = this.getImageProperties(),
+				properties = this.image_properties,
 				html = '',
 				html_img = '',
 				label = Supra.Intl.get(['gallerymanager', 'click_here']),
@@ -1031,7 +1024,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 */
 		addImage: function (image_data) {
 			var images = this.data.images,
-				properties = this.getImageProperties(),
+				properties = this.image_properties,
 				property = null,
 				image  = {'image': image_data, 'id': image_data.id};
 			
@@ -1112,17 +1105,25 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		/**
 		 * Execute action
 		 * 
-		 * @param {Object} data Gallery data
-		 * @param {Function} callback Callback function
+		 * @param {Object} options Gallery options: data, callback, context, block
 		 */
-		execute: function (data, callback) {
+		execute: function (options) {
+			options = Supra.mix({
+				'data': {},
+				'callback': null,
+				'context': null,
+				'properties': []
+			}, options);
+			
 			if (!Manager.getAction('PageToolbar').inHistory(this.NAME)) {
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 			
-			this.data = data;
-			this.callback = callback;
+			this.data = options.data;
+			this.callback = options.callback ? (options.context ? Y.bind(options.callback, options.context) : options.callback) : null;
+			this.image_properties = options.properties || [];
+			
 			this.renderData();
 			this.show();
 		}

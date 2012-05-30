@@ -3,13 +3,6 @@
 
 YUI.add('supra.page-content-gallery', function (Y) {
 	
-	/**
-	 * Default gallery image properties
-	 */
-	var DEFAULT_IMAGE_PROPERTIES = [
-		{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'label_title']), 'value': ''}
-	];
-	
 	/*
 	 * Shortcuts
 	 */
@@ -366,18 +359,20 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			gallery_data.images = gallery_data.images || [];
 			
 			//Show gallery
-			Supra.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (data, changed) {
-				if (changed) {
-					this.unresolved_changes = true;
-					
-					//Update data
-					this.properties.setValues(data);
-					this.reloadContent();
+			Supra.Manager.executeAction('GalleryManager', {
+				'data': gallery_data,
+				'properties': this.getImageProperties(),
+				'context': this,
+				'callback': function (data, changed) {
+					if (changed) {
+						this.unresolved_changes = true;
+						
+						//Update data
+						this.properties.setValues(data);
+						this.reloadContent();
+					}
 				}
-				
-				//Show settings form
-				//this.properties.showPropertiesForm();
-			}, this));
+			});
 		},
 		
 		/**
@@ -452,7 +447,18 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		getImageProperties: function () {
-			return Supra.data.get(['gallerymanager', 'properties'], DEFAULT_IMAGE_PROPERTIES);
+			var block = this.getBlockInfo(),
+				properties = block.properties,
+				i = 0,
+				ii = properties.length;
+			
+			for (; i<ii; i++) {
+				if (properties[i].type === 'Gallery') {
+					return properties[i].properties || [];
+				}
+			}
+			
+			return properties;
 		},
 		
 		/**
