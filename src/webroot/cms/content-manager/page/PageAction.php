@@ -394,7 +394,8 @@ class PageAction extends PageManagerAction
 						}
 
 						if ($editable instanceof Editable\Gallery) {
-							$propertyData = $data;
+							ksort($data);
+							$propertyData = array_values($data);
 						}
 
 						$propertyInfo = array(

@@ -506,6 +506,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		dropImage: function (target, image_id) {
 			//If dropped on un-editable element
 			if (!this.htmleditor.isEditable(target)) return true;
+			if (!Manager.MediaSidebar) return true;
 			
 			var htmleditor = this.htmleditor,
 				image_data = Manager.MediaSidebar.getData(image_id);

@@ -23,35 +23,41 @@
 		display: none;
 	}
 	
-	&.su-panel-hidden {
+	&.su-panel-hidden,
+	&.su-tooltip-hidden {
 		display: none !important;
 	}
 	
-	.su-panel-arrow {
+	.su-panel-arrow,
+	.su-tooltip-arrow {
 		position: absolute;
 	}
-	&.su-panel-arrow-top .su-panel-arrow {
+	&.su-panel-arrow-top .su-panel-arrow,
+	&.su-tooltip-arrow-top .su-tooltip-arrow {
 		background: url(arrow-top.png) 0 0 no-repeat;
 		width: 36px;
 		height: 23px;
 		top: -17px;
 		margin-left: -19px;
 	}
-	&.su-panel-arrow-bottom .su-panel-arrow {
+	&.su-panel-arrow-bottom .su-panel-arrow,
+	&.su-tooltip-arrow-bottom .su-tooltip-arrow {
 		background: url(arrow-bottom.png) 0 0 no-repeat;
 		width: 36px;
 		height: 23px;
 		bottom: -17px;
 		margin-left: -19px;
 	}
-	&.su-panel-arrow-left .su-panel-arrow {
+	&.su-panel-arrow-left .su-panel-arrow,
+	&.su-tooltip-arrow-left .su-tooltip-arrow {
 		background: url(arrow-left.png) 0 0 no-repeat;
 		width: 23px;
 		height: 36px;
 		left: -17px !important;
 		margin-top: -19px;
 	}
-	&.su-panel-arrow-right .su-panel-arrow {
+	&.su-panel-arrow-right .su-panel-arrow,
+	&.su-tooltip-arrow-right .su-tooltip-arrow {
 		background: url(arrow-right.png) 0 0 no-repeat;
 		width: 23px;
 		height: 36px;
@@ -68,7 +74,8 @@
 
 }
 
-.su-panel-mask {
+.su-panel-mask,
+.su-tooltip-mask {
 	position: fixed;
 	left: 0;
 	top: 0;
@@ -83,7 +90,7 @@
 /**
  * Tooltip
  */
-.yui3-tooltip {
+.su-tooltip {
 	.box-shadow (0, 1px, 3px, rgba(0, 0, 0, 0.25));
 	background: #000;
 	opacity: 0.8;

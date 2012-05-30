@@ -108,12 +108,16 @@ Supra(function (Y) {
 				'properties': null,		//Properties class instance
 				'scrollable': false,
 				'title': null,
-				'icon': '/cms/lib/supra/img/sidebar/icons/settings.png'
+				'icon': '/cms/lib/supra/img/sidebar/icons/settings.png',
+				
+				'first_init': false
 			}, options || {});
 			
-			//Show buttons
-			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
-			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			if (!options.first_init) {
+				//Show buttons
+				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			}
 			
 			//Set form
 			if (form) {

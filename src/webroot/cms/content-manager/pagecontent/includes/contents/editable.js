@@ -428,11 +428,11 @@ YUI.add('supra.page-content-editable', function (Y) {
 				'context': this,
 				'on': {
 					'success': function(data) {
-						 this._reloadContentSetHTML(data);
-
+						this._reloadContentSetHTML(data);
+						
 						if (Y.Lang.isFunction(callback)) {
-							 callback(this);
-						 }
+							callback(this);
+						}
 					}
 				}
 			})
@@ -457,8 +457,14 @@ YUI.add('supra.page-content-editable', function (Y) {
 					this.set('active_inline_property', null);
 				}
 				
+				//Clean up
+				this._triggerjQueryEvent('cleanup', this.getNode().getDOMNode());
+				
 				//Replace HTML
 				this.getNode().set('innerHTML', data.internal_html);
+				
+				//Trigger refresh
+				this._triggerjQueryEvent('refresh', this.getNode().getDOMNode());
 				
 				//Recreate inline inputs
 				var properties_handler	= this.properties,
@@ -491,6 +497,26 @@ YUI.add('supra.page-content-editable', function (Y) {
 				//Update overlay position
 				//Use timeout to make sure everything is styled before doing sync
 				setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+			}
+		},
+		
+		_triggerjQueryEvent: function (event_name, node) {
+			//Call cleanup before proceeding
+			var win = this.get('win'),
+				jQuery = win.jQuery;
+			
+			if (jQuery && jQuery.refresh) {
+				var fn = event_name,
+					jquery_element = jQuery(node);
+				
+				if (event_name == 'refresh') {
+					fn = 'init';
+				}
+				
+				if (jQuery.refresh[fn]) {
+					console.log('CMS triggered', event_name);
+					jQuery.refresh[fn](jquery_element);
+				}
 			}
 		},
 		

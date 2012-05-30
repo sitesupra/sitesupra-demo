@@ -3,13 +3,6 @@
  */
 YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	
-	/**
-	 * Default gallery image properties
-	 */
-	var DEFAULT_IMAGE_PROPERTIES = [
-		{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'label_title']), 'value': ''}
-	];
-	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
 		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
@@ -34,6 +27,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//If there is no folder or trying to drop on un-editable element
 			if (!gallery_id || !this.htmleditor.isEditable(target)) return;
+			if (!Manager.MediaSidebar) return true;
 			
 			var htmleditor = this.htmleditor,
 				folder_data = Manager.MediaSidebar.getData(gallery_id, true);

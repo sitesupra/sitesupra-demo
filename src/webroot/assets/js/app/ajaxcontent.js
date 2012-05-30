@@ -78,9 +78,7 @@ $.app.AjaxContent = $.app.module({
 	 * @private
 	 */
 	'beforeReload': function () {
-		this.element.find('[data-id]').each(function () {
-			$.app.destroy($(this));
-		});
+		$.app.cleanup(this.element);
 	},
 	
 	/**

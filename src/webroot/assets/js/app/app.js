@@ -1,3 +1,5 @@
+"use strict";
+
 (function ($) {
 	
 $.app = {
@@ -55,7 +57,28 @@ $.app = {
 			if (instance) instances.push(instance);
 		}
 		
+		//Trigger $.refresh plugin
+		if ($.refresh && typeof $.refresh.trigger === 'function') {
+			$.refresh.trigger('refresh', element);
+		}
+		
 		return instances;
+	},
+	
+	/**
+	 * Destroy element and children element modules
+	 * 
+	 * @param {Object} element jQuery element, which children modules will be cleaned up
+	 */
+	'cleanup': function (element) {
+		element.find('[data-id]').each(function () {
+			$.app.destroy($(this));
+		});
+		
+		//Trigger $.refresh plugin
+		if ($.refresh && typeof $.refresh.trigger === 'function') {
+			$.refresh.trigger('cleanup', element);
+		}
 	},
 	
 	/**

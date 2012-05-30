@@ -67,7 +67,7 @@ function (Y) {
 	
 	
 	//Create Action class
-	new Action(Action.PluginMainContent, {
+	new Action({
 		
 		/**
 		 * Unique action name
@@ -397,7 +397,7 @@ function (Y) {
 			this.set("visible", false);
 			
 			var transition = {
-				"transform": "scale(0.5)",
+				"transform": "scale(2)",
 				"opacity": 0,
 				"duration": 0.35
 			};
@@ -421,7 +421,7 @@ function (Y) {
 			
 			var styles = {
 					"opacity": 0,
-					"transform": "scale(0.5)"
+					"transform": "scale(2)"
 				},
 				transition = {
 					"opacity": 1,

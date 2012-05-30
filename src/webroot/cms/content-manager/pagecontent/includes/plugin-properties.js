@@ -86,6 +86,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		'inlineChanged': {
 			'value': false
+		},
+		
+		/*
+		 * PageContentSettings action config
+		 */
+		'pageContentSettingsConfig': {
+			'value': null
 		}
 	};
 	
@@ -118,7 +125,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Create right bar container action if it doesn't exist
 			var action = Manager.getAction('PageContentSettings');
 			this.set('action', action);
-			action.execute();
+			action.execute(null, {'first_init': true});
 			action.hide();
 			
 			//Bind to editing-start and editing-end events
@@ -659,7 +666,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					value = values[properties[i].id];
 					
 					// replace empty arrays with nulls
-					if (typeof(value) == 'object' && value.length === 0) {
+					if (value !== null && typeof(value) == 'object' && value.length === 0) {
 						value = null;
 					}
 

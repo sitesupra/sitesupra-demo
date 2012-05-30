@@ -9,6 +9,7 @@ use Supra\Response;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Configuration\Exception\ConfigurationMissing;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
+use Supra\Controller\Pages\BlockPropertyGroupCollection;
 
 class BlocksAction extends PageManagerAction
 {
@@ -116,6 +117,7 @@ class BlocksAction extends PageManagerAction
 			$response['blocks'][] = array(
 				'id' => $conf->id,
 				'group' => $blockGroup,
+				'property_groups' => $conf->propertyGroups,
 				'title' => $conf->title,
 				'description' => $conf->description,
 				'icon' => $conf->iconWebPath,
