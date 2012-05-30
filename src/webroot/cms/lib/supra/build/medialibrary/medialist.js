@@ -489,6 +489,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				
 				var id = target.getData('itemId') || target.getAttribute('data-id');
 				
+				//Blur focused input if item is not selected
+				if (!target.hasClass('selected')) {
+					if (Y.Node(document.activeElement).test('input, textarea')) {
+						document.activeElement.blur();
+					}
+				}
+				
 				//Style element
 				target.addClass('selected');
 				target.siblings().removeClass('selected');
