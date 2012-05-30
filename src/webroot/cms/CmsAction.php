@@ -22,6 +22,7 @@ use Supra\Cms\Exception\StopExecutionException;
 use Supra\Validator\FilteredInput;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\Cms\CheckPermissions\CheckPermissionsController;
+use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 
 /**
  * Description of CmsAction
@@ -171,7 +172,7 @@ abstract class CmsAction extends SimpleController
 		// Used to get currently signed in user
 		//TODO: think about something better...
 		$response->assign('action', $this);
-
+		
 		return $response;
 	}
 
@@ -504,6 +505,38 @@ abstract class CmsAction extends SimpleController
 			$this->getResponse()
 					->setResponsePermissions($result);
 		}
+	}
+	
+	public function getCurrentUserArray()
+	{
+		$response = array(
+			'id' => $this->user->getId(),
+			'name' => $this->user->getName(),
+			'login' => $this->user->getLogin(),
+			'avatar' => null,
+		);
+		
+		if ($this->user->hasPersonalAvatar()) {
+			
+			$fileStorage = ObjectRepository::getFileStorage($this);
+			$path = $fileStorage->getExternalPath();
+			$path = '/' . str_replace(array(SUPRA_WEBROOT_PATH, "\\"), array('', '/'), $path);
+			
+			$response['avatar'] = $path . '_avatars' . DIRECTORY_SEPARATOR . $this->user->getId() 
+					. '_32x32';
+			
+		} else {
+			$sampleAvatarId = $this->user->getAvatar();
+			if ( ! is_null($sampleAvatarId)) {
+				foreach (UseravatarAction::$sampleAvatars as $sampleAvatar) {
+					if ($sampleAvatarId == $sampleAvatar['id']) {
+						$response['avatar'] = $sampleAvatar['sizes']['32x32']['external_path'];
+					}
+				}
+			}
+		}
+		
+		return $response;
 	}
 
 }

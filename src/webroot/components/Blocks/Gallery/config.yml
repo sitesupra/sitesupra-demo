@@ -34,3 +34,13 @@
           editable: Supra\Editable\String
           label: Nonshared title
           shared: false
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: design
+          editable: Supra\Editable\SelectVisual
+          label: Design
+          shared: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: animation
+          editable: Supra\Editable\SelectVisual
+          label: Animation
+          shared: true

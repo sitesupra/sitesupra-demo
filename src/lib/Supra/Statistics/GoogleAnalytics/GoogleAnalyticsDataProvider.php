@@ -471,7 +471,7 @@ class GoogleAnalyticsDataProvider {
 		
 		$metrics = array('ga:visits');
 		$dimensions = array('ga:source');
-		$sort = array('ga:visits');
+		$sort = array('-ga:visits');
 		
 		list($from, $till) = $period;
 			
@@ -506,7 +506,7 @@ class GoogleAnalyticsDataProvider {
 		
 		$metrics = array('ga:visits');
 		$dimensions = array('ga:keyword');
-		$sort = array('ga:visits');
+		$sort = array('-ga:visits');
 		
 		list($from, $till) = $period;
 			
