@@ -12,6 +12,7 @@ use Supra\ObjectRepository\ObjectRepository;
  */
 abstract class ControllerAbstraction implements ControllerInterface
 {
+
 	/**
 	 * @var WriterAbstraction
 	 */
@@ -93,4 +94,17 @@ abstract class ControllerAbstraction implements ControllerInterface
 	{
 		return get_called_class();
 	}
+
+	/**
+	 * @return WriterAbstraction
+	 */
+	public function getLog()
+	{
+		if (empty($this->log)) {
+			$this->log = ObjectRepository::getLogger($this);
+		}
+
+		return $this->log;
+	}
+
 }
