@@ -660,6 +660,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				
 			} else {
 				Y.log('Failed to upload "' + evt.file_name + '"', 'debug');
+				if (node) node.remove();
 			}		
 		},
 		
