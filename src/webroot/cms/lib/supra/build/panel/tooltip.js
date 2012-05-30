@@ -15,6 +15,7 @@ YUI.add('supra.tooltip', function (Y) {
 	}
 	
 	Tooltip.NAME = 'tooltip';
+	Tooltip.CSS_PREFIX = 'su-' + Tooltip.NAME;
 	Tooltip.CLASS_NAME = Y.ClassNameManager.getClassName(Tooltip.NAME);
 	
 	/*
@@ -62,7 +63,9 @@ YUI.add('supra.tooltip', function (Y) {
 		 * @private
 		 */
 		_setTextMessage: function (message) {
-			this.set('htmlMessage', Y.Escape.html(message || ''));
+			if (message !== null && message !== undefined) {
+				this.set('htmlMessage', Y.Escape.html(message || ''));
+			}
 			return message;
 		},
 		
