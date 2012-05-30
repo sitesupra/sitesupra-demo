@@ -204,10 +204,12 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			
 			if($private == 0) {
 				$this->fileStorage->setPublic($file);
+				$this->writeAuditLog('%item% was set as public', $file);
 			}
 
 			if($private == 1) {
 				$this->fileStorage->setPrivate($file);
+				$this->writeAuditLog('%item% was set as private', $file);
 			}
 
 			$this->entityManager->flush();

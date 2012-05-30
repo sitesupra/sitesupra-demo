@@ -556,6 +556,12 @@ YUI.add('supra.panel', function (Y) {
 		syncUI: function () {
 			Panel.superclass.syncUI.apply(this, arguments);
 			this._syncArrowPosition();
+			
+			//Update position
+			var position = this.get('alignPosition');
+			if (position) {
+				this._setAlignPosition(position);
+			}
 		},
 		
 		/**
@@ -613,7 +619,6 @@ YUI.add('supra.panel', function (Y) {
 			bounding_box.setStyle('opacity', 0);
 			
 			this.show();
-			this.syncUI();
 			
 			var from = {opacity: 0},
 				to   = {opacity: 1},

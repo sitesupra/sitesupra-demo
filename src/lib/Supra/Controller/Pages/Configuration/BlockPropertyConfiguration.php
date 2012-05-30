@@ -5,7 +5,7 @@ namespace Supra\Controller\Pages\Configuration;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Loader\Loader;
 use Supra\Editable\EditableInterface;
-
+use Supra\Editable;
 /**
  * Block Property Configuration
  */
@@ -38,6 +38,12 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 	public $default;
 	
 	/**
+	 * For Select and SelectVisual editables
+	 * @var array
+	 */
+	public $values = array();
+	
+	/**
 	 * @var string
 	 */
 	public $group;
@@ -58,7 +64,15 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		$this->editableInstance = Loader::getClassInstance($this->editable, 'Supra\Editable\EditableInterface');
 		$this->editableInstance->setLabel($this->label);
 		$this->editableInstance->setDefaultValue($this->default);
-
+		
+		// setting predefined values for select boxes
+		if($this->editableInstance instanceof Editable\Select 
+				|| $this->editableInstance instanceof Editable\SelectVisual) {
+			if(method_exists($this->editableInstance, 'setValues')) {
+				$this->editableInstance->setValues($this->values);
+			}
+		}
+		
 		//FIXME: not nice. Editable might inform about its additionals maybe?
 		foreach ($this->additionalParameters as $name => $value) {
 

@@ -29,16 +29,24 @@ class ApplicationsAction extends DasboardAbstractAction
 		$config = \Supra\Cms\CmsApplicationConfiguration::getInstance();
 		$appConfigs = $config->getArray(true);
 
-		$basePath = '/' . SUPRA_CMS_URL . '/';
+		$defaultUrlBase = '/' . SUPRA_CMS_URL . '/';
 
 		foreach ($appConfigs as $config) {
 			/* @var $config ApplicationConfiguration */
+			
+			if(empty($config->urlBase)) {
+				$urlBase = $defaultUrlBase;
+			}
+			else {
+				$urlBase = $config->urlBase;
+			}
+			
 			if ( ! $config->hidden) {
 				$applications[] = array(
 					'title' => $config->title,
 					'id' => $config->class,
 					'icon' => $config->icon . self::ICON_64,
-					'path' => $basePath . $config->url,
+					'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $config->url)
 				);
 			}
 		}
