@@ -13,24 +13,6 @@
 		
 		.box-sizing (border-box);
 	}
-	
-	/**
-	 * Heading
-	 */
-	.yui3-gallery-manager-controls {
-		height: 37px;
-		padding: 7px 0 0 10px;
-		background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
-		border-bottom: 1px solid #B3B3C3;
-		
-		.su-button p {
-			display: inline-block;
-			min-width: 60px;
-		}
-		label {
-			width: auto;
-		}
-	}
 }
 
 /**
@@ -44,12 +26,13 @@
  * List
  */
 .yui3-gallery-manager .list {
-	padding: 10px 0 0 10px;
+	padding: 0 0 0 10px;
 	overflow: hidden;
+	min-height: 100%;
 	
 	& > li {
 		padding: 5px;
-		margin: 0 10px 10px 0; 
+		margin: 10px 10px 0 0; 
 		background: #fff;
 		float: left;
 		min-width: 200px;
@@ -57,10 +40,29 @@
 		
 		.box-shadow (0 1px 3px rgba(0,0,0,.25));
 	}
-	img {
-		display: block;
-		cursor: move;
+	
+	& > li.gallery-marker {
+		.box-shadow (none);
+		width: 206px;
+		height: 266px;
+		border: 2px dashed #A9AAC3;
+		display: none;
+		background: none;
+		padding: 0;
+		
+		div {
+			position: relative;
+			top: -1px;
+			margin: -2px;
+			border: 2px dashed #7C7D90;
+			width: 206px;
+			height: 266px;
+		}
 	}
+	&.gallery-over > li.gallery-marker {
+		display: block;
+	}
+	
 	& > li.empty {
 		cursor: move;
 		width: 200px;
@@ -78,5 +80,95 @@
 		opacity: 0.5;
 		width: 200px !important;
 		height: 200px !important;
+	}
+	
+	span.img {
+		display: block;
+		cursor: move;
+		min-height: 100px;
+		text-align: center;
+		background: #F6F6F6;
+		position: relative;
+		
+		b {
+			display: block;
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			background: #f6f6f6;
+			opacity: 0;
+			
+			font-style: italic;
+			font-weight: normal;
+			line-height: 200px;
+			text-align: center;
+		}
+		i {
+			display: inline-block;
+			width: 0px;
+			height: 200px;
+			overflow: hidden;
+			vertical-align: middle;
+		}
+		img {
+			display: inline-block;
+			vertical-align: middle;
+			cursor: move;
+		}
+	}
+	
+	& > li.gallery-item-over span.img b {
+		opacity: 0.75;
+	}
+	
+	//Inline editable
+	p.inline {
+		color: #323144;
+		cursor: pointer;
+		line-height: 26px;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 192px;
+		height: 26px;
+		overflow: hidden;
+		padding-left: 8px;
+		
+		&:hover {
+			text-decoration: underline;
+		}
+		&.empty {
+			color: #A8A9BD;
+		}
+	}
+	
+	.yui3-input {
+		padding-right: 0;
+		
+		&.input-label-replacement,
+		.input-label-replacement {
+			span.replacement {
+				text-shadow: none;
+				width: 192px;
+				max-width: 192px;
+				padding-left: 8px;
+				
+				&.empty {
+					color: #A8A9BD;
+				}
+			}
+			
+			input,
+			textarea {
+				color: #323144;
+				font-size: 12px;
+				text-shadow: none;
+			}
+		}
+	}
+	
+	span + p {
+		padding-top: 8px;
 	}
 }

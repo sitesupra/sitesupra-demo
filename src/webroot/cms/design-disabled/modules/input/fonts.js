@@ -14,7 +14,7 @@ YUI.add('website.input-fonts', function (Y) {
 	Input.NAME = 'input-fonts';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	
-	Y.extend(Input, Supra.Input.Pattern, {
+	Y.extend(Input, Supra.Input.SelectVisual, {
 		
 		/**
 		 * Returns button label template

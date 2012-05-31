@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
  
-YUI.add("website.app-list", function (Y) {
+YUI.add("dashboard.app-list", function (Y) {
  	
  	
  	var TEMPLATE_APPLICATION = Supra.Template.compile('\
@@ -460,7 +460,7 @@ YUI.add("website.app-list", function (Y) {
 			var count = this.data.length,
 				perSlide = this.getItemCountPerSlide() || 1; // 1 to prevent division by zero
 			
-			return Math.ceil(count / perSlide);
+			return Math.max(1, Math.ceil(count / perSlide));
 		},
 		
 		/**
@@ -751,7 +751,7 @@ YUI.add("website.app-list", function (Y) {
 		 * @private
 		 */
 		_setData: function (data) {
-			if (this.widgets && this.widgets.slideshow && data.length) {
+			if (this.widgets && this.widgets.slideshow && data) {
 				this.fillApplicationList(data);
 			}
 			return data;
@@ -764,4 +764,4 @@ YUI.add("website.app-list", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
  
-}, YUI.version, {requires:["widget", "supra.slideshow", "website.pagination", "transition", "dd"]});
+}, YUI.version, {requires:["widget", "supra.slideshow", "dashboard.pagination", "transition", "dd"]});

@@ -11,10 +11,9 @@ use Supra\Response\ResponseContext;
 class HttpResponse implements ResponseInterface
 {
 	// Reserved array key for status header
+
 	const STATUS_HEADER_NAME = '';
-
 	const PROTOCOL = 'HTTP';
-
 	const STATUS_OK = 200;
 	const STATUS_NO_CONTENT = 204;
 	const STATUS_MOVED_PERMANENTLY = 301;
@@ -22,7 +21,7 @@ class HttpResponse implements ResponseInterface
 	const STATUS_SEE_OTHER = 303;
 	const STATUS_NOT_MODIFIED = 304;
 	const STATUS_TEMPORARY_REDIRECT = 307;
-	
+
 	// Redirect types
 	const REDIRECT_PERMAMENT = 301;
 	const REDIRECT_TEMPORARY = 302;
@@ -128,7 +127,7 @@ class HttpResponse implements ResponseInterface
 	{
 		
 	}
-	
+
 	/**
 	 * Skippig new fields added by extending
 	 * @return array
@@ -136,12 +135,12 @@ class HttpResponse implements ResponseInterface
 	public function __sleep()
 	{
 		$fields = get_class_vars(__CLASS__);
-		
+
 		//  $messages is STATIC and confuses serialze();
 		unset($fields['messages']);
-		
+
 		$fieldNames = array_keys($fields);
-		
+
 		return $fieldNames;
 	}
 
@@ -239,10 +238,10 @@ class HttpResponse implements ResponseInterface
 	{
 		$this->redirect = true;
 		$this->header('Location', $location);
-		
+
 		// Calculate status depending on HTTP version and redirect type
 		$status = null;
-		
+
 		if ($this->protocolVersion == '1.1') {
 			if ($type == self::REDIRECT_PERMAMENT) {
 				$status = self::STATUS_MOVED_PERMANENTLY;
@@ -256,7 +255,7 @@ class HttpResponse implements ResponseInterface
 				$status = self::STATUS_FOUND;
 			}
 		}
-		
+
 		$this->setCode($status);
 	}
 
@@ -450,10 +449,10 @@ class HttpResponse implements ResponseInterface
 		if (empty($this->context)) {
 			$this->context = new ResponseContext();
 		}
-		
+
 		return $this->context;
 	}
-	
+
 	/**
 	 * Add resource file used for generating the response
 	 * @param string $file
@@ -465,10 +464,10 @@ class HttpResponse implements ResponseInterface
 		if ( ! $this->context instanceof ResponseContextLocalProxy) {
 			return;
 		}
-		
+
 		$this->context->addResourceFile($file);
 	}
-	
+
 	/**
 	 * Get resource file list used for generating the response
 	 * @return array
@@ -480,12 +479,12 @@ class HttpResponse implements ResponseInterface
 		if ( ! $this->context instanceof ResponseContextLocalProxy) {
 			return array();
 		}
-		
+
 		$resources = $this->context->getResourceFiles();
-		
+
 		return $resources;
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -494,7 +493,25 @@ class HttpResponse implements ResponseInterface
 		if ( ! $this->context instanceof ResponseContextLocalProxy) {
 			return false;
 		}
-		
+
 		return $this->context->hasResourceChanged();
 	}
+
+	/**
+	 * @param string $name
+	 * @param mixed$defaultValue 
+	 * @return string | null
+	 */
+	public function getHeader($name, $defaultValue = null)
+	{
+
+		$headerValue = $defaultValue;
+
+		if ( ! empty($this->headers[$name])) {
+			$headerValue = $this->headers[$name];
+		}
+
+		return $headerValue;
+	}
+
 }

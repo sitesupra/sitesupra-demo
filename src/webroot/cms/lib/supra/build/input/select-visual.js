@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add('website.input-pattern', function (Y) {
+YUI.add('supra.input-select-visual', function (Y) {
 	
 	/**
 	 * Vertical button list for selecting value
@@ -11,7 +11,7 @@ YUI.add('website.input-pattern', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
-	Input.NAME = 'input-pattern';
+	Input.NAME = 'input-select-visual';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	
 	Input.ATTRS = {
@@ -170,10 +170,18 @@ YUI.add('website.input-pattern', function (Y) {
 		 * @private
 		 */
 		_setStyle: function (value) {
-			var prev = this.get('style');
+			var prev = this.get('style'),
+				classname = null;
+			
 			if (prev != value) {
-				if (prev) this.get('boundingBox').removeClass(this.getClassName(prev));
-				if (value) this.get('boundingBox').addClass(this.getClassName(value));
+				if (prev) { 
+					classname = Y.ClassNameManager.getClassName(Input.NAME, prev);
+					this.get('boundingBox').removeClass(classname);
+				}
+				if (value) {
+					classname = Y.ClassNameManager.getClassName(Input.NAME, value);
+					this.get('boundingBox').addClass(classname);
+				}
 			}
 			
 			return value;
@@ -188,10 +196,18 @@ YUI.add('website.input-pattern', function (Y) {
 		 * @private
 		 */
 		_setIconStyle: function (value) {
-			var prev = this.get('iconStyle');
+			var prev = this.get('iconStyle'),
+				classname = null;
+			
 			if (prev != value) {
-				if (prev) this.get('boundingBox').removeClass(this.getClassName(prev));
-				if (value) this.get('boundingBox').addClass(this.getClassName(value));
+				if (prev) { 
+					classname = Y.ClassNameManager.getClassName(Input.NAME, prev);
+					this.get('boundingBox').removeClass(classname);
+				}
+				if (value) {
+					classname = Y.ClassNameManager.getClassName(Input.NAME, value);
+					this.get('boundingBox').addClass(classname);
+				}
 			}
 			
 			return value;
@@ -199,7 +215,7 @@ YUI.add('website.input-pattern', function (Y) {
 		
 	});
 	
-	Supra.Input.Pattern = Input;
+	Supra.Input.SelectVisual = Input;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

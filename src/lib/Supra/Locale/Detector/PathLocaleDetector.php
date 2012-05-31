@@ -35,7 +35,7 @@ class PathLocaleDetector extends DetectorAbstraction
 		if (!empty($list) && !empty($list[0])) {
 			$localeId = $list[0];
 			
-			if ($localeManager->exists($localeId, false)) {
+			if ($localeManager->exists($localeId, false) && $localeManager->isActive($localeId)) {
 				$path->setBasePath(new \Supra\Uri\Path($localeId));
 				return $localeId;
 			}

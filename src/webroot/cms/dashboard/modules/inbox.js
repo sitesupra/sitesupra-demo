@@ -1,7 +1,7 @@
 //Invoke strict mode
 "use strict";
 
-YUI.add("website.inbox", function (Y) {
+YUI.add("dashboard.inbox", function (Y) {
  
 	var TEMPLATE_HEADING = '\
 			<div class="su-block-heading ui-center-darker-background">\
@@ -78,7 +78,21 @@ YUI.add("website.inbox", function (Y) {
 		 */
 		renderData: function (data) {
 			data = Inbox.superclass.renderData.apply(this, arguments);
+			
 			if (!this.nodes.body) return data;
+			
+			//Title
+			var has_new_messages = false;
+			if (data) {
+				for (var i=0, ii=data.length; i<ii; i++) {
+					if (data[i]["new"]) {
+						has_new_messages = true;
+						break;
+					}
+				}
+			}
+			
+			this.set("title", has_new_messages ? Supra.Intl.get(["dashboard", "inbox", "new_mail"]) : Supra.Intl.get(["dashboard", "inbox", "title"]));
 			
 			//Render buttons
 			var container = this.nodes.body.one("ul"),
@@ -86,7 +100,7 @@ YUI.add("website.inbox", function (Y) {
 				button = null,
 				list = [];
 			
-			for(var i=0,ii=buttons.size(); i<ii; i++) {
+			for (var i=0, ii=buttons.size(); i<ii; i++) {
 				button = new Supra.Button({
 					"srcNode": buttons.item(i),
 					"style": "small-blue"
@@ -107,4 +121,4 @@ YUI.add("website.inbox", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
  
-}, YUI.version, {requires:["website.stats"]});
+}, YUI.version, {requires:["dashboard.stats"]});

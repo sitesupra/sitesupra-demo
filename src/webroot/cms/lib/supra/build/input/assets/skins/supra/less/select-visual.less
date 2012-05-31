@@ -1,6 +1,5 @@
-//This file is included from customizesidebar/customizesidebar.css.less
-
-.yui3-input-pattern {
+//@TODO This theme is for .ui-dark , need theme for .ui-light and others 
+.yui3-input-select-visual {
 	
 	.su-button {
 		position: relative;
@@ -8,7 +7,7 @@
 		&, .su-button-content, button {
 			.border-radius (3px);
 			
-			background: url(../modules/input/pattern-background.png) 0 0 no-repeat;
+			background: url(input-select-visual-background.png) 0 0 no-repeat;
 			height: 73px;
 			display: block;
 			width: 100%;
@@ -93,21 +92,24 @@
 	.su-button + .su-button {
 		margin-top: 11px;
 	}
+	
+	&.yui3-input-select-visual-hidden {
+		display: none;
+	}
 }
 
-.yui3-form-vertical .yui3-input-pattern label {
+.yui3-form-vertical .yui3-input-select-visual label {
 	padding-bottom: 8px;
 }
 
 /*
  * No label style
  */
-.yui3-input-pattern-no-labels,
-.yui3-input-fonts-no-labels {
+.yui3-input-select-visual-no-labels {
 	
 	.su-button {
 		&, .su-button-content, button {
-			background-image: url(../modules/input/pattern-background-lbl.png);
+			background-image: url(input-select-visual-background-lbl.png);
 			height: 49px;
 		}
 		
@@ -161,15 +163,15 @@
 /**
  * Background styles
  */
-.yui3-input-pattern-normal .su-button .su-button-bg div {
+.yui3-input-select-visual-normal .su-button .su-button-bg div {
 	background-position: 0 0;
 	background-repeat: no-repeat;
 }
-.yui3-input-pattern-fill .su-button .su-button-bg div {
+.yui3-input-select-visual-fill .su-button .su-button-bg div {
 	background-position: 0 0;
 	background-repeat: repeat;
 }
-.yui3-input-pattern-center .su-button .su-button-bg {
+.yui3-input-select-visual-center .su-button .su-button-bg {
 	.border-radius (3px);
 	.box-shadow (0, 1px, 2px, rgba(0,0,0,0.75) inset);
 	
@@ -178,7 +180,7 @@
 		background-repeat: no-repeat;
 	}
 }
-.yui3-input-pattern-button .su-button .su-button-bg {
+.yui3-input-select-visual-button .su-button .su-button-bg {
 	.border-radius (3px);
 	.box-shadow (0, 1px, 2px, rgba(0,0,0,0.75) inset);
 	
@@ -188,32 +190,7 @@
 	}
 }
 
-.yui3-input-pattern-no-labels.yui3-input-pattern-button .su-button .su-button-bg div {
+.yui3-input-select-visual-no-labels.yui3-input-select-visual-button .su-button .su-button-bg div {
 	background-position: 50% -31px, 0 0, 100% -62px;
 	background-repeat: no-repeat;
-}
-
-/**
- * Fonts input
- */
-.yui3-input-fonts .su-button {
-	.su-button-bg p {
-		display: block;
-		position: static;
-		padding: 0 7px;
-		
-		font-size: 14px;
-		line-height: 32px;
-		text-align: left;
-		text-shadow: none;
-		white-space: nowrap;
-	}
-	
-	&,
-	&.su-button-mouse-hover,
-	&.su-button-down {
-		.su-button-bg p {
-			color: #007CCB;
-		}
-	}
 }

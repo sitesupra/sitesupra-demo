@@ -317,7 +317,7 @@ function (Y) {
 		triggerPageSelect: function (evt) {
 			
 			evt.data = Supra.mix({}, evt.data);
-			if(evt.data.redirect && evt.data.redirect_page_id != '') {
+			if(evt.data.redirect && evt.data.localized && evt.data.redirect_page_id != '') {
 				Supra.Manager.executeAction('Confirmation', {
 							'message': '{#page.follow_redirect#}',
 							'useMask': true,

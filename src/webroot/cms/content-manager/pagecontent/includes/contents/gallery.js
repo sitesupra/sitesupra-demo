@@ -3,19 +3,12 @@
 
 YUI.add('supra.page-content-gallery', function (Y) {
 	
-	/**
-	 * Default gallery image properties
-	 */
-	var DEFAULT_IMAGE_PROPERTIES = [
-		{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'label_title']), 'value': ''}
-	];
-	
 	/*
 	 * Shortcuts
 	 */
 	var Manager = Supra.Manager,
+		Page = Manager.Page,
 		PageContent = Manager.PageContent;
-	
 	
 	/**
 	 * Content block which has editable properties
@@ -30,6 +23,17 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	Y.extend(ContentGallery, PageContent.Editable, {
 		
 		/**
+		 * Inputs which will be visible on design selection
+		 */
+		INPUTS_DESIGN: ['design'],
+		
+		/**
+		 * Inputs which will be visible on animation selection
+		 */
+		INPUTS_ANIMATION: ['animation'],
+		
+		
+		/**
 		 * Data drag and drop object, PluginDropTarget instance
 		 * @type {Object}
 		 */
@@ -41,18 +45,102 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		buttons: {},
 		
 		
+		renderUISettings: function () {
+			//Add toolbar buttons
+			var toolbar = Manager.PageToolbar,
+				buttons = Manager.PageButtons;
+			
+			if (!toolbar.hasActionButtons(ContentGallery.NAME)) {
+				toolbar.addActionButtons(ContentGallery.NAME, [
+					{
+						'id': 'gallery_block_manage',
+						'type': 'button',
+						'title': Supra.Intl.get(['gallerymanager', 'manage']),
+						'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
+						'action': this,
+						'actionFunction': 'openGalleryManager'
+					},
+					{
+						'id': 'gallery_block_design',
+						'type': 'button',
+						'title': Supra.Intl.get(['gallerymanager', 'design']),
+						'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
+						'action': this,
+						'actionFunction': 'openDesignSettings'
+					},
+					{
+						'id': 'gallery_block_animation',
+						'type': 'button',
+						'title': Supra.Intl.get(['gallerymanager', 'animation']),
+						'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
+						'action': this,
+						'actionFunction': 'openAnimationSettings'
+					},
+					{
+						'id': 'gallery_block_settings',
+						'type': 'button',
+						'title': Supra.Intl.get(['gallerymanager', 'settings']),
+						'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
+						'action': this,
+						'actionFunction': 'openSettings'
+					}
+				]);
+				
+				//Add "Done" button
+				buttons.addActionButtons(ContentGallery.NAME, [
+					{
+						'id': 'done',
+						'context': this,
+						'callback': Y.bind(function () {
+							var active_content = Manager.PageContent.getContent().get('activeChild');
+							if (active_content) {
+								active_content.fire('block:save');
+								return;
+							}
+							
+							Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+						}, this)
+					}
+				]);
+			}
+			
+			//Initialize
+			var properties = this.getProperties(),
+				page_data = Page.getPageData(),
+				data = this.get('data');
+			
+			//If editing template, then set "__locked__" property value
+			if (page_data.type != 'page') {
+				data.properties = data.properties || {};
+				data.properties.__locked__ = {
+					shared: false,
+					value: data.locked
+				}
+			}
+			
+			//Add properties plugin (creates form)
+			this.plug(PageContent.PluginProperties, {
+				'data': data,
+				//Settings form will be opened using toolbar button
+				'showOnEdit': false
+			});
+			
+			//Find all inline and HTML properties, initialize
+			this.findInlineInputs();
+			
+			//Handle block save / cancel
+			this.on('block:save', this.savePropertyChanges, this);
+			this.on('block:cancel', this.cancelPropertyChanges, this);
+			
+			//Render buttons
+			this.renderUISettingsButtons();
+		},
+		
 		/**
 		 * When form is rendered add gallery button
 		 * @private
 		 */
-		renderUISettings: function () {
-			ContentGallery.superclass.renderUISettings.apply(this, arguments);
-			
-			/*
-			var slideshow = this.properties.get('slideshow'),
-				container = slideshow.getSlide('propertySlideMain').one('.su-slide-content');
-			*/
-		   
+		renderUISettingsButtons: function () {
 			var container = Y.Node.create('<div class="su-button-group"></div>');
 			this.buttonsContainer = container;
 			
@@ -105,6 +193,20 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			this.once('properties:show', this.checkAreImagesShared, this);
 		},
 		
+		onEditingStart: function () {
+			ContentGallery.superclass.onEditingStart.apply(this, arguments);
+			
+			Manager.PageToolbar.setActiveAction(ContentGallery.NAME);
+			Manager.PageButtons.setActiveAction(ContentGallery.NAME);
+		},
+		
+		onEditingEnd: function () {
+			ContentGallery.superclass.onEditingEnd.apply(this, arguments);
+			
+			Manager.PageToolbar.unsetActiveAction(ContentGallery.NAME);
+			Manager.PageButtons.unsetActiveAction(ContentGallery.NAME);
+		},
+		
 		/**
 		 * On image or folder drop add images to the gallery
 		 * 
@@ -112,6 +214,13 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		onDrop: function (e) {
+			if (!Manager.MediaSidebar) {
+				//If media sidebar is not loaded, then user didn't droped image from there
+				//Prevent default (which is insert folder thumbnail image) 
+				if (e.halt) e.halt();
+				return false;
+			}
+			
 			var item_id = e.drag_id,
 				item_data = Manager.MediaSidebar.getData(item_id),
 				image = null,
@@ -171,6 +280,73 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		},
 		
 		/**
+		 * Open settings form
+		 * @private
+		 */
+		openSettings: function () {
+			this.properties.showPropertiesForm();
+			this.setFormGroup('');
+		},
+		
+		/**
+		 * Open design settings form
+		 * @private
+		 */
+		openDesignSettings: function () {
+			this.properties.showPropertiesForm();
+			this.setFormGroup('design');
+		},
+		
+		/**
+		 * Open animation settings form
+		 * @private
+		 */
+		openAnimationSettings: function () {
+			this.properties.showPropertiesForm();
+			this.setFormGroup('animation');
+		},
+		
+		/**
+		 * Show inputs and buttons for general settings, design or animation
+		 * 
+		 * @param {String} group Empty for general or "design" or "animation"
+		 * @private
+		 */
+		setFormGroup: function (group) {
+			var form = this.properties.get("form"),
+				inputs = form.getInputs(),
+				key = null,
+				
+				design = this.INPUTS_DESIGN,
+				animation = this.INPUTS_ANIMATION,
+				for_design = false,
+				for_animation = false;
+			
+			for(key in inputs) {
+				for_design = (Y.Array.indexOf(design, key) != -1);
+				for_animation = (Y.Array.indexOf(animation, key) != -1);
+				
+				if ((group == 'design' && for_design) || (group == 'animation' && for_animation) || (!group && !for_design && !for_animation)) {
+					inputs[key].show();
+				} else {
+					inputs[key].hide();
+				}
+			}
+			
+			if (group != 'design' && group != 'animation') {
+				//General settings
+				this.properties.get('buttonDelete').show();
+				this.buttons.manageButton.show();
+				this.buttons.addButton.show();
+			} else {
+				//Design or animation
+				this.properties.get('buttonDelete').hide();
+				this.buttons.manageButton.hide();
+				this.buttons.addButton.hide();
+			}
+		},
+		
+		/**
 		 * Open gallery manager and update data when it closes
 		 * @private
 		 */
@@ -183,18 +359,20 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			gallery_data.images = gallery_data.images || [];
 			
 			//Show gallery
-			Supra.Manager.executeAction('GalleryManager', gallery_data, Y.bind(function (data, changed) {
-				if (changed) {
-					this.unresolved_changes = true;
-					
-					//Update data
-					this.properties.setValues(data);
-					this.reloadContent();
+			Supra.Manager.executeAction('GalleryManager', {
+				'data': gallery_data,
+				'properties': this.getImageProperties(),
+				'context': this,
+				'callback': function (data, changed) {
+					if (changed) {
+						this.unresolved_changes = true;
+						
+						//Update data
+						this.properties.setValues(data);
+						this.reloadContent();
+					}
 				}
-				
-				//Show settings form
-				this.properties.showPropertiesForm();
-			}, this));
+			});
 		},
 		
 		/**
@@ -269,7 +447,18 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		getImageProperties: function () {
-			return Supra.data.get(['gallerymanager', 'properties'], DEFAULT_IMAGE_PROPERTIES);
+			var block = this.getBlockInfo(),
+				properties = block.properties,
+				i = 0,
+				ii = properties.length;
+			
+			for (; i<ii; i++) {
+				if (properties[i].type === 'Gallery') {
+					return properties[i].properties || [];
+				}
+			}
+			
+			return properties;
 		},
 		
 		/**

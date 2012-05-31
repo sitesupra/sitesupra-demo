@@ -10,6 +10,7 @@ $locale->setId('en_LV');
 $locale->setTitle('English');
 $locale->setCountry('Latvia');
 $locale->addProperty('flag', 'gb');
+$locale->setActive(false);
 $locale->addProperty('language', 'en'); // as per ISO 639-1
 $localeManagerTemplate->add($locale);
 
@@ -31,7 +32,7 @@ $locale->addProperty('flag', 'ru');
 $locale->addProperty('language', 'ru'); // as per ISO 639-1
 $localeManagerTemplate->add($locale);
 
-$localeManagerTemplate->setCurrent('en_LV');
+$localeManagerTemplate->setCurrent('lv_LV');
 
 {
 	$localeManager = clone($localeManagerTemplate);
@@ -49,6 +50,8 @@ $localeManagerTemplate->setCurrent('en_LV');
 	$cmsLocaleManager->addDetector(new Locale\Detector\CookieDetector());
 
 	$cmsLocaleManager->addStorage(new Locale\Storage\CookieStorage());
+	
+	$cmsLocaleManager->processInactiveLocales();
 
 	ObjectRepository::setLocaleManager('Supra\Cms\CmsController', $cmsLocaleManager);
 }

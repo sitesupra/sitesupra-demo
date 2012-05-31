@@ -183,14 +183,14 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	public function createController()
 	{
 		$blockController = null;
-		$component = $this->getComponentClass();
+		$componentClass = $this->getComponentClass();
 
-		if ( ! Loader\Loader::classExists($component)) {
-			$this->log()->warn("Block component $component was not found for block $this");
+		if ( ! Loader\Loader::classExists($componentClass)) {
+			$this->log()->warn("Block component $componentClass was not found for block $this");
 		}
 
 		$blockControllerCollection = BlockControllerCollection::getInstance();
-		$blockController = $blockControllerCollection->getBlockController($component);
+		$blockController = $blockControllerCollection->getBlockController($componentClass);
 		$blockController->setBlock($this);
 
 		return $blockController;

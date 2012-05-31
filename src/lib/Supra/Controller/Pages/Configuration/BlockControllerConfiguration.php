@@ -73,10 +73,14 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	public $cache;
 	
 	/**
-	 * TODO: should have possibility to declare in YML
 	 * @var array of block properties
 	 */
 	public $properties = array();
+	
+	/**
+	 * @var array of block property groups
+	 */
+	public $propertyGroups = array();
 	
 	/**
 	 * Adds block configuration to block controller collection
@@ -84,7 +88,7 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	public function configure()
 	{
 		if (empty($this->class)) {
-			\Log::warn("Configuration property BlockControllerConfiguration::controllerClass deplrecated; use class instead.");
+			\Log::warn("Configuration property BlockControllerConfiguration::controllerClass deprecated; use class instead.");
 			$this->class = $this->controllerClass;
 		}
 		

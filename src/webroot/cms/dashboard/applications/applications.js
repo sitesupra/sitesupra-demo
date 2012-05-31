@@ -4,53 +4,60 @@
 /**
  * Custom modules
  */
-Supra.addModule("website.stats", {
-	path: "stats.js",
-	requires: [
-		"widget"
-	]
-});
-Supra.addModule("website.inbox", {
-	path: "inbox.js",
-	requires: [
-		"website.stats"
-	]
-});
-Supra.addModule("website.pagination", {
-	path: "pagination.js",
-	requires: [
-		"widget"
-	]
-});
-Supra.addModule("website.app-list", {
-	path: "app-list.js",
-	requires: [
-		"widget",
-		"website.pagination",
-		"transition",
-		"dd"
-	]
-});
-Supra.addModule("website.app-favourites", {
-	path: "app-favourites.js",
-	requires: [
-		"widget",
-		"website.pagination",
-		"transition",
-		"dd"
-	]
-});
-
+(function () {
+	var STATIC_PATH = Supra.Manager.Loader.getStaticPath(),
+		APP_PATH = Supra.Manager.Loader.getActionBasePath("Applications");
+	
+	Supra.setModuleGroupPath('dashboard', STATIC_PATH + APP_PATH + '/modules');
+	
+	Supra.addModule("dashboard.stats", {
+		path: "stats.js",
+		requires: [
+			"widget"
+		]
+	});
+	Supra.addModule("dashboard.inbox", {
+		path: "inbox.js",
+		requires: [
+			"dashboard.stats"
+		]
+	});
+	Supra.addModule("dashboard.pagination", {
+		path: "pagination.js",
+		requires: [
+			"widget"
+		]
+	});
+	Supra.addModule("dashboard.app-list", {
+		path: "app-list.js",
+		requires: [
+			"widget",
+			"dashboard.pagination",
+			"transition",
+			"dd"
+		]
+	});
+	Supra.addModule("dashboard.app-favourites", {
+		path: "app-favourites.js",
+		requires: [
+			"widget",
+			"dashboard.pagination",
+			"transition",
+			"dd"
+		]
+	});
+})();
 
 /**
  * Main manager action, initiates all other actions
  */
 Supra(
 	
-	"website.app-list",
-	"website.app-favourites",
-	"website.stats",
-	"website.inbox",
+	"dashboard.app-list",
+	"dashboard.app-favourites",
+	"dashboard.stats",
+	"dashboard.inbox",
+	"transition",
 	
 function (Y) {
 
@@ -60,7 +67,7 @@ function (Y) {
 	
 	
 	//Create Action class
-	new Action(Action.PluginMainContent, {
+	new Action({
 		
 		/**
 		 * Unique action name
@@ -90,14 +97,30 @@ function (Y) {
 		
 		
 		
+		/**
+		 * All widgets
+		 * @type {Object}
+		 * @private
+		 */
 		widgets: {
 			"inbox": null,
 			"keywords": null,
 			"referring": null,
 			
 			"apps": null,
-			"favourites": null
+			"favourites": null,
+			
+			"scrollable": null,
+			
+			"sites": null
 		},
+		
+		/**
+		 * Application data has been loaded
+		 * @type {Boolean}
+		 * @private
+		 */
+		loaded: false,
 		
 		
 		
@@ -121,6 +144,10 @@ function (Y) {
 			
 			this.widgets.favourites = new Supra.AppFavourites({
 				"srcNode": this.one("div.dashboard-favourites")
+			});
+			
+			this.widgets.scrollable = new Supra.Scrollable({
+				"srcNode": this.one("div.apps-scrollable")
 			});
 		},
 		
@@ -146,6 +173,69 @@ function (Y) {
 			
 			this.widgets.favourites.on("appadd", this.removeAppFromApps, this);
 			this.widgets.apps.on("appadd", this.removeAppFromFavourites, this);
+			
+			this.renderHeader();
+			
+			//Scrollable
+			this.widgets.scrollable.render();
+			this.widgets.favourites.on("resize", this.widgets.scrollable.syncUI, this.widgets.scrollable);
+		},
+		
+		/**
+		 * Render header
+		 */
+		renderHeader: function () {
+			var node = this.one("div.dashboard-header");
+			
+			node.one("div.user span").set("text", Supra.data.get(["user", "name"]));
+			
+			var avatar = Supra.data.get(["user", "avatar"]);
+			if (avatar) {
+				node.one("div.user img").setAttribute("src", Supra.data.get(["user", "avatar"]));
+			} else {
+				node.one("div.user img").addClass("hidden");
+			}
+			
+			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
+				node.one("a.close").addClass("hidden");
+			} else {
+				//node.one("a.close").on("click", this.hide, this);
+				node.one('a.close').on("click", function() {
+					document.location = Supra.Manager.Loader.getDynamicPath() + '/logout/'
+				});
+			}
+		},
+		
+		/**
+		 * Load all data
+		 */
+		load: function () {
+			if (this.loaded) return;
+			this.loaded = true;
+			
+			this.loadInboxData();
+			this.loadApplicationData();
+			
+			this.loadStatisticsData();
+			
+			this.loadSitesData();
+		},
+		
+		/**
+		 * Load site list
+		 * 
+		 * @private
+		 */
+		loadSitesData: function () {
+			Supra.io(this.getDataPath("../site/sites"), function (data, status) {
+				if (status && data && data.length > 1) {
+					this.widgets.sites = new Supra.Input.Select({
+						"srcNode": this.one("select"),
+						"values": data
+					});
+					this.widgets.sites.render();
+				}
+			}, this);
 		},
 		
 		/**
@@ -185,16 +275,20 @@ function (Y) {
 						favourites = [];
 					
 					Y.Array.each(data.applications, function (app) {
+						var index = Y.Array.indexOf(data.favourites, app.id);
+						
 						//Only if not in favourites
-						if (Y.Array.indexOf(data.favourites, app.id) === -1) {
+						if (index === -1) {
 							applications.push(app);
 						} else {
-							favourites.push(app);
+							favourites[index] = app;
 						}
 					});
 					
 					this.widgets.apps.set("data", applications);
 					this.widgets.favourites.set("data", favourites);
+					
+					this.widgets.scrollable.syncUI();
 				}
 			}, this);
 		},
@@ -294,15 +388,70 @@ function (Y) {
 		},
 		
 		/**
+		 * Animate dashboard out of view
+		 */
+		hide: function () {
+			//Dashboard application is opened, can't close it
+			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") return;
+			
+			this.set("visible", false);
+			
+			var transition = {
+				"transform": "scale(2)",
+				"opacity": 0,
+				"duration": 0.35
+			};
+			
+			if (Y.UA.ie && Y.UA.ie < 10) {
+				transition.msTransform = transition.transform;
+			}
+			
+			this.one().transition(transition, Y.bind(function () {
+				this.one().addClass("hidden");
+			}, this));
+		},
+		
+		/**
+		 * Animate dashboard into view
+		 */
+		show: function () {
+			this.one().removeClass("hidden");
+			
+			this.set("visible", true);
+			
+			var styles = {
+					"opacity": 0,
+					"transform": "scale(2)"
+				},
+				transition = {
+					"opacity": 1,
+					"transform": "scale(1)"
+				};
+			
+			if (Y.UA.ie && Y.UA.ie < 10) {
+				styles = {
+					"opacity": 0
+				};
+				transition = {
+					"opacity": 1
+				};
+			}
+			
+			Y.later(150, this, function () {
+				this.one()
+					.setStyles(styles)
+					.transition(transition, Y.bind(function () {
+						this.load();
+						this.widgets.scrollable.syncUI();
+					}, this));
+			});
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function () {
 			this.show();
-			
-			this.loadInboxData();
-			this.loadApplicationData();
-			
-			this.loadStatisticsData();
 		}
 	});
 	
