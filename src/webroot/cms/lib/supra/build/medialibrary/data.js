@@ -8,7 +8,7 @@
 YUI.add('supra.medialibrary-data', function (Y) {
 	
 	//Properties which always will be loaded
-	var REQUIRED_PROPERTIES = ['id', 'type', 'title' ,'private'];
+	var REQUIRED_PROPERTIES = ['id', 'type', 'filename' ,'private'];
 	
 	/**
 	 * Media list
@@ -30,6 +30,9 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			
 			//Request URI for folder, file and image list
 			'listURI': {value: ''},
+			
+			//Requets URI for folder move
+			'moveURI': {value: ''},
 			
 			//Request params
 			'requestParams': {value: {}}
@@ -76,7 +79,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Add data to the parent.
 		 * Chainable
 		 * 
-		 * @param {Number} parent Parent folder ID
+		 * @param {String} parent Parent folder ID
 		 * @param {Object} data File or folder data
 		 * @param {Boolean} new_data Data was not laoded from server
 		 */
@@ -128,7 +131,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		/**
 		 * Returns all parent folder IDs for item
 		 * 
-		 * @param {Number} id File or folder ID
+		 * @param {String} id File or folder ID
 		 * @return List of folder IDs
 		 * @type {Array}
 		 */
@@ -148,7 +151,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		/**
 		 * Returns data by ID or null if not found
 		 * 
-		 * @param {Number} id File or folder ID
+		 * @param {String} id File or folder ID
 		 * @return Folder or file data
 		 * @type {Object} 
 		 */
@@ -160,7 +163,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		/**
 		 * Returns list of all children
 		 * 
-		 * @param {Number} id File or folder ID
+		 * @param {String} id File or folder ID
 		 * @return List of children data
 		 * @type {Array}
 		 */
@@ -188,7 +191,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * If key is an array, then file or folder must have data for all specified keys loaded
 		 * If key is an object, then also values must match 
 		 * 
-		 * @param {Number} id File or folder ID
+		 * @param {String} id File or folder ID
 		 * @param {String} key Optional. Data key, array of keys or object of keys and values
 		 * @return True if item has all data, otherwise false
 		 * @type {Boolean}
@@ -220,7 +223,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Remove cached file or folder data or all data
 		 * Chainable.
 		 * 
-		 * @param {Number} id File or folder ID
+		 * @param {String} id File or folder ID
 		 * @param {Boolean} all If true then removes also from parents children list
 		 */
 		removeData: function (id /* File or folder ID */, all /* Remove all data */) {
@@ -301,7 +304,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		/**
 		 * Returns if folder is private
 		 * 
-		 * @param {Number} id Folder ID
+		 * @param {String} id Folder ID
 		 * @return True if folder is private, otherwise false
 		 * @type {Boolean}
 		 */
@@ -314,7 +317,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Set folder private/public
 		 * Chainable
 		 * 
-		 * @param {Number} id Folder ID
+		 * @param {String} id Folder ID
 		 * @param {Boolean} state Folder private state
 		 * @param {Fucntion} callback Callback function
 		 */
@@ -345,6 +348,104 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			}
 			
 			return this;
+		},
+		
+		/**
+		 * Move folder
+		 * 
+		 * @param {String} id Folder ID
+		 * @param {String} parent New parent ID
+		 * @param {Boolean} noRequest Don't sent move request, optional
+		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback function context
+		 */
+		moveFolder: function (id /* Folder ID */, parent /* New parent ID */, noRequest /* Don't send move request */, callback /* Callback function */, context /* Callback context */) {
+			var data	= this.data,
+				indexed	= this.dataIndexed,
+				ii		= data.length,
+				i		= 0,
+				item	= this.getData(id),
+				prev	= item.parent;
+			
+			//Fix arguments
+			if (typeof noRequest === 'function') {
+				if (typeof callback === 'object') {
+					context = callback;
+				}
+				
+				callback = noRequest;
+				noRequest = false;
+			}
+			
+			//If already a child, then skip
+			if (item.parent == parent) {
+				if (callback) {
+					callback(null, true);
+				}
+				return false;
+			}
+			
+			//Check that parent is not actually child of folder
+			var top	= indexed[parent] ? indexed[parent].parent : null;
+			while(top && top !== id) {
+				top = indexed[top].parent;
+			}
+			
+			if (top === id) {
+				//Parent is a child of folder which is moved, not valid operation
+				if (callback) {
+					callback(null, false);
+				}
+				return false;
+			}
+			
+			//Remove item from root data 
+			for(; i<ii; i++) {
+				if (data[i].id == id) {
+					data.splice(i, 1);
+					break;
+				}
+			}
+			
+			//Add item to the root data?
+			if (!parent) {
+				data.push(item);
+			}
+			
+			//Remove from previous parent children list
+			if (prev && indexed[prev].children) {
+				var index = Y.Array.indexOf(indexed[prev].children, id);
+				if (index != -1) {
+					indexed[prev].children.splice(index, 1);
+					indexed[prev].children_count -= 1;
+				}
+			}
+			
+			//Add to parent data if children are loaded
+			if (parent && indexed[parent].children) {
+				indexed[parent].children.push(id);
+				indexed[parent].children_count += 1;
+			}
+			
+			//Update parent
+			item.parent = parent;
+			
+			//Request
+			var uri = this.get('moveURI');
+			
+			Supra.io(uri, {
+				'data': {
+					'id': id,
+					'parent_id': parent
+				},
+				'method': 'post',
+				'context': context || this,
+				'on': {
+					'complete': callback
+				}
+			});
+			
+			return true;
 		},
 		
 		/**
@@ -386,7 +487,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Load image, file or folder data
 		 * Chainable
 		 * 
-		 * @param {Number} id File or folder ID
+		 * @param {String} id File or folder ID
 		 * @param {Array} data Optional list of properties
 		 * @param {String} type Request type
 		 * @param {Number} offset Data offset
@@ -432,7 +533,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Save data
 		 * Chainable
 		 * 
-		 * @param {Number} id File or folder ID
+		 * @param {String} id File or folder ID
 		 * @param {Object} data Data
 		 * @param {Function} callback Callback function
 		 * @param {Object} context Callback context. Optional
@@ -476,7 +577,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		/**
 		 * After data save
 		 * 
-		 * @param {Number} id
+		 * @param {String} id
 		 * @param {Object} data
 		 * @private
 		 */
@@ -505,7 +606,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Delete data
 		 * Chainable
 		 * 
-		 * @param {Number} id File or folder ID
+		 * @param {String} id File or folder ID
 		 * @param {Function} callback Callback function
 		 */
 		saveDeleteData: function (id /* File or folder ID */, callback /* Callback function */) {
@@ -531,7 +632,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 		 * Handle data load complete
 		 * 
 		 * @param {Object} data File or folder data
-		 * @param {Number} id Folder ID
+		 * @param {String} id Folder ID
 		 * @param {String} type Request type
 		 * @private
 		 */

@@ -57,13 +57,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, list of properties needed to display file
 	 * @type {Array}
 	 */
-	List.FILE_PROPERTIES = ['title', 'filename', 'description', 'file_web_path', 'known_extension'];
+	List.FILE_PROPERTIES = ['filename', 'file_web_path', 'known_extension'];
 	
 	/**
 	 * Constant, list of properties needed to display image
 	 * @type {Array}
 	 */
-	List.IMAGE_PROPERTIES = ['title', 'filename', 'description', 'sizes', 'created'];
+	List.IMAGE_PROPERTIES = ['filename', 'sizes', 'created'];
 	
 	
 	
@@ -102,7 +102,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FOLDER_ITEM_FILE = Template.compile('\
 		<li class="type-file {% if knownExtension %}type-file-{{ knownExtension }}{% endif %} {% if broken %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a></a>\
-			<span>{{ defaultTitle|escape }}</span>\
+			<span>{{ filename|escape }}</span>\
 		</li>');
 	
 	/**
@@ -112,7 +112,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
 		<li class="type-image {% if broken or !thumbnail %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a>{% if !broken and thumbnail %}<img src="{{ thumbnail|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
-			<span>{{ defaultTitle|escape }}</span>\
+			<span>{{ filename|escape }}</span>\
 		</li>');
 	
 	/**
@@ -132,13 +132,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			</div>\
 			\
 			{% set current_locale = Supra.data.get("locale") %}\
-			<div class="preview-title">{% if title && title[current_locale] %}{{ title[current_locale]|default(filename)|escape }}{% endif %}</div>\
-			<div class="preview-description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</div>\
+			<div class="preview-title">{{ filename|escape }}</div>\
 			\
 			<div class="group">\
-				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
-				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
-				<div class="info hidden">\
+				<div class="info">\
 					{% if extension %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
@@ -157,6 +154,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					{% endif %}\
 				</div>\
 			</div>\
+			{% if allowInsert %}\
+			<div class="insert">\
+				<button data-id="insert" suStyle="small-blue" type="button">{{ "medialibrary.insert"|intl }}</button>\
+			</div>\
+			{% endif %}\
 		</div>');
 	
 	/**
@@ -178,13 +180,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			</div>\
 			\
 			{% set current_locale = Supra.data.get("locale") %}\
-			<div class="preview-title">{% if title && title[current_locale] %}{{ title[current_locale]|default(filename)|escape }}{% endif %}</div>\
-			<div class="preview-description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</div>\
+			<div class="preview-title">{{ filename|escape }}</div>\
 			\
 			<div class="group">\
-				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
-				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
-				<div class="info hidden">\
+				<div class="info">\
 					{% if extension %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
@@ -209,6 +208,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					{% endif %}\
 				</div>\
 			</div>\
+			{% if allowInsert %}\
+			<div class="insert">\
+				<button data-id="insert" suStyle="small-blue" type="button">{{ "medialibrary.insert"|intl }}</button>\
+			</div>\
+			{% endif %}\
 		</div>');
 		
 	
@@ -262,6 +266,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Request URI for folder move
+		 * @type {String}
+		 */
+		'moveURI': {
+			value: null
+		},
+		
+		/**
 		 * Root folder ID
 		 * @type {Number}
 		 */
@@ -290,6 +302,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @type {Boolean}
 		 */
 		'imagesSelectable': {
+			value: false
+		},
+		
+		/**
+		 * Show insert button
+		 */
+		'allowInsert': {
 			value: false
 		},
 		
@@ -429,6 +448,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					'listURI': this.get('listURI'),
 					'viewURI': this.get('viewURI'),
 					'saveURI': this.get('saveURI'),
+					'moveURI': this.get('moveURI'),
 					'insertURI': this.get('insertURI'),
 					'deleteURI': this.get('deleteURI')
 				});
@@ -467,7 +487,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				var target = event.target;
 					target = target.closest('li');
 				
-				var id = target.getData('itemId');
+				var id = target.getData('itemId') || target.getAttribute('data-id');
 				
 				//Style element
 				target.addClass('selected');
@@ -553,22 +573,6 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 */
 		syncUI: function () {
 			
-		},
-		
-		/**
-		 * 
-		 */
-		handleInfoToggleClick: function (event /* Event */) {
-			var node = event.target.closest('.group');
-			
-			node.one('div.info').toggleClass('hidden');
-			node.all('a.more, a.less').toggleClass('hidden');
-			
-			//Scrollbars
-			var content = node.closest('.su-scrollable-content');
-			content.fire('contentResize');
-			
-			event.halt();
 		},
 		
 		/**
@@ -778,7 +782,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		
 		removeChildrenSlides: function (children) {
 			var slide = null,
-				slideshow = this.slideshow;
+				slideshow = this.slideshow,
+				node = null;
 			
 			for(var i=0,ii=children.length; i<ii; i++) {
 				slide = slideshow.getSlide('slide_' + children[i].id);
@@ -787,6 +792,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					if (children[i].children) {
 						this.removeChildrenSlides(children[i].children);
 					}
+						
+					//Fire event
+					this.fire('removeSlide', {
+						'id': children[i].id,
+						'node': slide,
+						'type': children[i].type
+					});
 				}
 			}
 		},
@@ -804,7 +816,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				
 			if (!node) return this;
 			
-			node.setClass('type-folder-private', state);
+			node.toggleClass('type-folder-private', state);
 			
 			//Update all children
 			var children = dataObject.getChildrenData(id);
@@ -1105,21 +1117,34 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			var data_object = this.get('dataObject'),
 				slideshow = this.slideshow,
 				slides = slideshow.slides,
+				slide = null,
 				history = null;
 			
 			history = Y.Array.map(slideshow.history, function (id) {
 				return id.replace('slide_', '');
 			});
 			
-			//Reset data
-			data_object.destroy();
-			
 			//Reset slideshow
 			slideshow.history = [];
 			slideshow.set('slide', null);
+			
+			var data_id = null;
 			for(var id in slides) {
+				data_id = id.replace('slide_', '');
+				slide = slides[id];
 				slideshow.removeSlide(id);
+				
+				//Fire event
+				var item = data_object.getData(data_id);
+				this.fire('removeSlide', {
+					'id': data_id,
+					'node': slide,
+					'type': item ? item.type : Data.TYPE_FOLDER
+				});
 			}
+			
+			//Reset data
+			data_object.destroy();
 			
 			return history;
 		},
@@ -1177,15 +1202,21 @@ YUI.add('supra.medialibrary-list', function (Y) {
 						template = this.get('templateImage');
 					}
 					
-					node = this.renderTemplate(data[0], template);
+					var template_data = {'allowInsert': this.get('allowInsert')};
+						template_data = Supra.mix(template_data, data[0]);
+					
+					node = this.renderTemplate(template_data, template);
 					node.setData('itemId', data[0].id);
 					
 					slide_content.empty().append(node);
 					
-					//More / less
-					node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
+					//Render buttons
+					node.all('button').each(this.renderItemButton, this);
 					
-					this.fire('itemRender', {'node': node, 'data': data[0], 'type': data[0].type});
+//					//More / less
+//					node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
+					
+					this.fire('itemRender', {'node': node, 'id': id, 'data': data[0], 'type': data[0].type});
 				} else {
 					//Folder
 					if (append) {
@@ -1227,18 +1258,49 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					if (!append) slide_content.empty();
 					slide_content.append(node);
 					
-					this.fire('itemRender', {'node': node, 'data': data, 'type': Data.TYPE_FOLDER});
+					this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': Data.TYPE_FOLDER});
 				}
 			} else {
 				//Empty
 				node = this.renderTemplate({'id': id}, this.get('templateEmpty'));
 				slide_content.empty().append(node);
-				this.fire('itemRender', {'node': node, 'data': data, 'type': null});
+				this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': Data.TYPE_FOLDER});
 			}
 			
 			slide_content.fire('contentResize');
 			
 			return this;
+		},
+		
+		/**
+		 * Render button inside template
+		 * 
+		 * @param {Object} node Button node
+		 * @private
+		 */
+		renderItemButton: function (node) {
+			if (node.getAttribute('data-id')) {
+				var button = new Supra.Button({'srcNode': node});
+				
+				button.render();
+				button.on('click', this.renderItemButtonClick, this);
+			}
+		},
+		
+		/**
+		 * Handle button click
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		renderItemButtonClick: function (e) {
+			var node = e.target.get('contentBox'),
+				type = node.getAttribute('data-id'),
+				id = node.closest('div.image, div.file').getData('itemId');
+			
+			if (id && type) {
+				this.fire(type + 'Click', {'id': id, 'type': type + 'Click', 'target': e.target});
+			}
 		},
 		
 		/**

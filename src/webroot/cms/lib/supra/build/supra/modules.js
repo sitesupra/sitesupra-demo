@@ -72,7 +72,7 @@
  * @type {Array}
  */
 Supra.useModules = [
-	'base', 'controller',
+	'base',
 	'node', 'node-focusmanager',
 	'widget', 'widget-child',
 	'event',
@@ -201,6 +201,14 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Button widget
+	 */
+	'supra.button-group': {
+		path: 'button-group/button-group.js',
+		requires: ['widget', 'widget-child']
+	},
+	
+	/**
 	 * Media Library widget
 	 */
 	'supra.medialibrary': {
@@ -235,7 +243,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.medialibrary',
 			'supra.slideshow-multiview',
 			'supra.medialibrary-list-edit',
-			'supra.medialibrary-image-editor'
+			'supra.medialibrary-image-editor',
+			'supra.medialibrary-list-folder-dd'
 		]
 	},
 	
@@ -243,6 +252,15 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'medialibrary/medialist-dd.js',
 		requires: [
 			'plugin',
+			'supra.medialibrary'
+		]
+	},
+	
+	'supra.medialibrary-list-folder-dd': {
+		path: 'medialibrary/medialist-extended-dd.js',
+		requires: [
+			'plugin',
+			'dd',
 			'supra.medialibrary'
 		]
 	},
@@ -582,6 +600,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/color.js',
 		requires: ['supra.input-proto', 'dd', 'supra.datatype-color']
 	},
+	'supra.input-date': {
+		path: 'input/date.js',
+		requires: ['supra.input-proto', 'supra.calendar']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -602,7 +624,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-link',
 			'supra.input-image',
 			'supra.input-map',
-			'supra.input-color'
+			'supra.input-color',
+			'supra.input-date'
 		]
 	},
 	'supra.input': {

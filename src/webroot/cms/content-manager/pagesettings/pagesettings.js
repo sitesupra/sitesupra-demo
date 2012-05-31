@@ -642,7 +642,7 @@
 							this.redirect_title.one('a.title').set('text', data.title || data.href);
 						}
 
-						this.redirect_title.setClass('hidden', !data || !data.href);
+						this.redirect_title.toggleClass('hidden', !data || !data.href);
 
 						// Trying to set correct titles for redirect selects buttons 
 						// or reset them to defaults if redirect is empty
@@ -837,7 +837,7 @@
 
 				for(var i=inputs.length - 1; i>=0; i--) {
 					if (typeof inputs[i][1] == 'string') {
-						this.one(inputs[i][1]).setClass('hidden', inputs[i][0] == type);
+						this.one(inputs[i][1]).toggleClass('hidden', inputs[i][0] == type);
 					} else {
 						if (inputs[i][0] == type) {
 							inputs[i][1].hide();

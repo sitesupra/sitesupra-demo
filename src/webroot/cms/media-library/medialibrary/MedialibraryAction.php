@@ -84,16 +84,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				}
 			}
 			
-			$title = $rootNode->getFileName();
-			$titles = $description = $descriptions = null;
-			
 			if ($rootNode instanceof Entity\File) {
-				$title = $rootNode->getTitle($localeId);
-				$titles = $rootNode->getTitleArray();
-				
-				$description = $rootNode->getDescription($localeId);
-				$descriptions = $rootNode->getDescriptionArray();
-				
+	
 				$extension = mb_strtolower($rootNode->getExtension());
 				
 				$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
@@ -122,14 +114,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 
 			$item['id'] = $rootNode->getId();
-			$item['defaultTitle'] = $title;
-			$item['title'] = $titles;
 			$item['filename'] = $rootNode->getFileName();
 			$item['type'] = $this->getEntityType($rootNode);
 			$item['children_count'] = $rootNode->getNumberChildren();
 			$item['private'] = ! $rootNode->isPublic();
-			$item['defaultDescription'] = $description;
-			$item['description'] = $descriptions;
 
 			$output[] = $item;
 		}
@@ -167,9 +155,9 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	{
 		$this->isPostRequest();
 		
-		if ( ! $this->hasRequestParameter('title')) {
+		if ( ! $this->hasRequestParameter('filename')) {
 			$this->getResponse()
-					->setErrorMessage('Title was not sent');
+					->setErrorMessage('Folder title was not sent');
 			
 			return;
 		}
@@ -177,7 +165,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$dir = new Entity\Folder();
 		$this->entityManager->persist($dir);
 		
-		$dirName = $this->getRequestParameter('title');
+		$dirName = $this->getRequestParameter('filename');
 		$dir->setFileName($dirName);
 
 		// Adding child folder if parent exists
@@ -207,14 +195,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
-		$title = $this->getRequestParameter('title');
-		$file = $this->getEntity();
-		$localeId = $this->getLocale()->getId();
 		
-		$localeManager = ObjectRepository::getLocaleManager($this);
-
-		$originalTitle = $file->getTitle();
-		$file->setOriginalTitle($originalTitle);
+		$file = $this->getEntity();
 		
 		// set private
 		if ($this->hasRequestParameter('private')) {
@@ -233,92 +215,32 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			return;
 		}
 		
-		// find out with what we are working now with file or folder
-		if ($file instanceof Entity\Folder) {
+		// renaming
+		if ($this->hasRequestParameter('filename')) {
 			
-			if ( ! $this->hasRequestParameter('title')) {
-				$this->getResponse()
-						->setErrorMessage('Title is no provided');
-
-				return;
-			}
+			$fileName = $this->getRequestParameter('filename');
 			
-			// if is set folders new title we rename folder
-			$this->fileStorage->renameFolder($file, $title);
-
-		} else if ($file instanceof Entity\File) {
-
-			if ($this->hasRequestParameter('filename')) {
-				$fileName = $this->getRequestParameter('filename');
-
-				// trying to rename file. Catching all FileStorage and Validation exceptions
-				// and passing them to MediaLibrary UI
+			if ($file instanceof Entity\Folder) {
+				$this->fileStorage->renameFolder($file, $fileName);
+			} 
+			else {
 				$this->fileStorage->renameFile($file, $fileName);
 			}
 			
-			if ($this->hasRequestParameter('title')) {
-				$title = $this->getRequestParameter('title');
-				
-				if (is_array($title)) {
-					$localeId = key($title);
-					$title = array_shift($title);
-					
-					if ( ! $localeManager->exists($localeId)) {
-						throw new CmsException(null, "Specified locale {$localeId} not found");
-					}
-				}
-				
-				$metaData = $file->getMetaData($localeId);
-				
-				if (is_null($metaData)) {
-					$metaData = new Entity\MetaData($localeId);
-					$metaData->setMaster($file);
-					$file->setMetaData($metaData);
-				}
-				
-				$metaData->setTitle($title);
-				
-				
-				
-			}
-			
-			if ($this->hasRequestParameter('description')) {
-				$description = $this->getRequestParameter('description');
-				
-				if (is_array($description)) {
-					$localeId = key($description);
-					$description = array_shift($description);
-					
-					if ( ! $localeManager->exists($localeId)) {
-						throw new CmsException(null, "Specified locale {$localeId} not found");
-					}
-				}
-				
-				$metaData = $file->getMetaData($localeId);
-				
-				if (is_null($metaData)) {
-					$metaData = new Entity\MetaData($localeId);
-					$metaData->setMaster($file);
-					$file->setMetaData($metaData);
-				}
-				
-				$metaData->setDescription($description);
-			}
-			
-			
-			$this->entityManager->flush();
-			
 		}
 
-		$fileId = $file->getId();
 		$this->writeAuditLog('%item% saved', $file);
 		
 		$response = array();
-		if ($file instanceof Entity\File) {
+		
+		// when changing image private attribute, previews and thumbs will change their paths
+		// so we will output new image info
+		if ($file instanceof Entity\Image) {
 			$response = $this->imageAndFileOutput($file);
 		}
 		
-		$this->getResponse()->setResponseData($response);
+		$this->getResponse()
+				->setResponseData($response);
 	}
 
 	/**
@@ -345,6 +267,33 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->writeAuditLog('%item% deleted', $file);
 	}
 
+	public function moveAction() {
+		$this->isPostRequest();
+		$file = $this->getEntity();
+
+//		$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);		
+		$parentId = $this->getRequestParameter('parent_id');
+		
+		$target = null;
+		if(!empty($parentId)) {
+			$target = $this->entityManager->getRepository(Entity\Abstraction\File::CN())
+					->findOneById($parentId);
+		}
+		
+		if (is_null($file)) {
+			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
+		}
+
+		// try to move
+		try {
+			$this->fileStorage->move($file, $target);
+		} catch (Exception\RuntimeException $e) {
+			throw new CmsException(null, $e->getMessage());
+		}
+
+		$this->writeAuditLog('%item% moved', $file);
+	}
+	
 	/**
 	 * File upload action
 	 */
@@ -416,11 +365,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$humanName = implode(' ', $humanNameSplit);
 			}
 
-			// file metadata
-			$fileData = new Entity\MetaData($localeId);
-			$fileData->setMaster($fileEntity);
-			$fileData->setTitle($humanName);
-			
 			// additional jobs for images
 			if ($fileEntity instanceof Entity\Image) {
 				// store original size
@@ -459,10 +403,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					$fileEntity->setFileName($file['name']);
 					$fileEntity->setSize($file['size']);
 					$fileEntity->setMimeType($file['type']);
-					
-					$fileData = new Entity\MetaData($localeId);
-					$fileData->setMaster($fileEntity);
-					$fileData->setTitle($humanName);
 					
 					if ( ! is_null($folder)) {
 						$publicStatus = $folder->isPublic();

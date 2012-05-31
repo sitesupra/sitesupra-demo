@@ -1,0 +1,59 @@
+{
+	"status": 1,
+	"data": {
+		"keywords": [
+			{
+				"title": "biļetes",
+				"amount": 300,
+				"change": 10
+			},
+			{
+				"title": "aviobiletes",
+				"amount": 240,
+				"change": 8
+			},
+			{
+				"title": "finnair",
+				"amount": 80,
+				"change": 2
+			},
+			{
+				"title": "aviobiļetes uz asv",
+				"amount": 78,
+				"change": 1
+			},
+			{
+				"title": "turkish airlines",
+				"amount": 30,
+				"change": -10
+			}
+		],
+		"sources": [
+			{
+				"title": "www.delfi.lv",
+				"amount": 300,
+				"change": 10
+			},
+			{
+				"title": "rus.delfi.lv",
+				"amount": 240,
+				"change": 8
+			},
+			{
+				"title": "hub.lv",
+				"amount": 80,
+				"change": 2
+			},
+			{
+				"title": "facebook.com",
+				"amount": 78,
+				"change": 1
+			},
+			{
+				"title": "google.com",
+				"amount": 30,
+				"change": -10
+			}
+		]
+	}
+}

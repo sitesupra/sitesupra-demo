@@ -304,7 +304,7 @@ YUI.add('supra.tree', function(Y) {
 			var node = this.get('boundingBox'),
 				classname = C('tree', 'loading');
 			
-			node.setClass(classname, value);
+			node.toggleClass(classname, value);
 			
 			return !!value;
 		}

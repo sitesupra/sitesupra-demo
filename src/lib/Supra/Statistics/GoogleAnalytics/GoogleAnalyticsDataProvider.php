@@ -462,6 +462,13 @@ class GoogleAnalyticsDataProvider {
 	
 	public function getTopSources(array $period, $limit = 50)
 	{
+		/*
+		return array(
+			array('title' => 'www.google.lv', 'amount' => rand(55, 300)),
+			array('title' => 'www.ss.lv', 'amount' => rand(10, 50)),
+		);
+		 */
+		
 		$metrics = array('ga:visits');
 		$dimensions = array('ga:source');
 		$sort = array('ga:visits');
@@ -477,7 +484,10 @@ class GoogleAnalyticsDataProvider {
 				$source = $entry->getSource();
 				$visitCount = $entry->getVisits();
 				
-				$list[$source] = $visitCount;
+				$list[] = array(
+					'title' => $source,
+					'amount' => $visitCount,
+				);
 				
 			}
 		}
@@ -487,6 +497,13 @@ class GoogleAnalyticsDataProvider {
 	
 	public function getTopKeywords(array $period, $limit = 50)
 	{
+		/*
+		return array(
+			array('title' => 'supra7', 'amount' => rand(55, 300)),
+			array('title' => 'cms', 'amount' => rand(10, 50)),
+		);
+		 */
+		
 		$metrics = array('ga:visits');
 		$dimensions = array('ga:keyword');
 		$sort = array('ga:visits');
@@ -502,7 +519,10 @@ class GoogleAnalyticsDataProvider {
 				$keyword = $entry->getKeyword();
 				$visitCount = $entry->getVisits();
 				
-				$list[$keyword] = $visitCount;
+				$list[] = array(
+					'title' => $keyword,
+					'amount' => $visitCount,
+				);
 				
 			}
 		}

@@ -78,6 +78,15 @@ YUI.add("supra.languagebar", function (Y) {
 		'localeLabel': {
 			value: '',
 			setter: '_setLocaleLabel'
+		},
+		
+		/**
+		 * Disabled state
+		 * @type {Boolean}
+		 */
+		'disabled': {
+			value: false,
+			setter: '_setDisabled'
 		}
 	};
 	
@@ -105,6 +114,8 @@ YUI.add("supra.languagebar", function (Y) {
 		 * @private
 		 */
 		toggleDropdown: function () {
+			if (this.get('disabled')) return;
+			
 			//Create panel
 			if (!this.panel) {
 				this.panel = new Supra.Tooltip({
@@ -146,6 +157,17 @@ YUI.add("supra.languagebar", function (Y) {
 				content.append(this.renderUIList(contexts));
 			
 			this.set('locale', this.get('locale'));
+		},
+		
+		/**
+		 * Set disabled state
+		 * 
+		 * @param {Boolean} disabled Disabled state
+		 * @private
+		 */
+		_setDisabled: function (disabled) {
+			this.get('boundingBox').toggleClass(this.getClassName('disabled'), disabled);
+			return disabled;
 		},
 		
 		/**
@@ -264,7 +286,7 @@ YUI.add("supra.languagebar", function (Y) {
 			if (!Y.Lang.isString(label)) label = '';
 			var node = this.get('srcNode').one('.label');
 			if (node) {
-				node.setClass('hidden', !label);
+				node.toggleClass('hidden', !label);
 				
 				if (label) {
 					node.set('text', label);

@@ -210,8 +210,9 @@ class FrontController
 					$appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction
 			) {
 
-				$authenticationNamespace = ObjectRepository::getSessionManager($controller)
-						->getAuthenticationSpace();
+				$sessionManager = ObjectRepository::getSessionManager($controller);
+				
+				$authenticationNamespace = $sessionManager->getAuthenticationSpace();
 
 				if ($authenticationNamespace instanceof AuthenticationSessionNamespace) {
 

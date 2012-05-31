@@ -1,0 +1,71 @@
+{
+	"status": true,
+	"data": {
+		"cashier": {
+			
+			"title_receipts": "Standing receipts",
+			"title_subscriptions": "Subscriptions",
+			"title_history": "Payment history",
+			"title_cards": "Stored cards",
+			
+			"receipts": {
+				"receipt": "Your receipt",
+				"item": "Item",
+				"monthly_price": "Monthly price",
+				"custom_options": "Your custom options",
+				
+				"total": "Your total",
+				"save_money": "Save your money by paying for:",
+				
+				"1_month": "1 month",
+				"3_months": "3 months",
+				"6_months": "6 months",
+				"12_months": "12 months",
+				"24_months": "24 months",
+				
+				"you_save": "You save",
+				"you_pay": "You pay",
+				"buy": "BUY"
+			},
+			
+			"payments": {
+				"choosen": "You've choosen",
+				
+				"1_bill": "monthly",
+				"3_bill": "quarterly",
+				"6_bill": "each 6 months",
+				"12_bill": "yearly",
+				"24_bill": "each 2 years",
+				
+				"to_bill": "to bill {{ period }}",
+				"recurring": "I allow to bill my card {{ period }} and agree to <a href=\"#\">terms of recurring billing</a>"
+			},
+			
+			"newcard": {
+				"title": "Card info",
+				"name": "Name, Surname",
+				"number": "Card number",
+				"valid_till": "Valid till",
+				"cvc": "CVC2 / CVV2 / CID*",
+				"send": "Submit"
+			},
+			
+			"subscriptions": {
+				"billing_term": "Billing term",
+				"next_billing_date": "Next billing date",
+				"cancel": "Cancel plan",
+				
+				"empty": "You don't have any active subscriptions",
+				
+				"confirmation": "Are you sure you want to cancel \"{% if group %}{{ group|escape }}{% else %}{{ title|escape }}{% endif %}\" subscription?"
+			},
+			
+			"history": {
+				"payment_date": "Payment date",
+				"total": "Total",
+				"print": "Print receipt"
+			}
+			
+		}
+	}
+}

@@ -12,14 +12,24 @@ abstract class ThemeProviderAbstraction
 	 * @return Theme
 	 */
 	abstract public function getCurrentTheme();
-	
-	/**
-	 * @return Theme
-	 */
-	abstract public function getActiveTheme();	
 
 	/**
 	 * @return ThemeLayout 
 	 */
 	abstract public function getCurrentThemeLayoutForTemplate(Template $template, $media = TemplateLayout::MEDIA_SCREEN);
+
+	/**
+	 * @return array
+	 */
+	abstract public function getAllThemes();
+
+	/**
+	 * @return Theme 
+	 */
+	abstract public function getThemeByName($themeName);
+	
+	/**
+	 * @param Theme 
+	 */
+	abstract public function storeTheme(Theme $theme);
 }

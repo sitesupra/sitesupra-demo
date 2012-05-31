@@ -52,10 +52,6 @@ YUI.add('supra.header.appdock', function(Y) {
 			'value': null
 		},
 		
-		'stats': {
-			'value': null
-		},
-		
 		/**
 		 * All application request URI
 		 * @type {String}
@@ -213,9 +209,6 @@ YUI.add('supra.header.appdock', function(Y) {
 				this.loadApplications();
 			}
 			
-			if (!this.get('stats')) {
-				this.loadStats();
-			}
 		},
 		
 		/**
@@ -244,42 +237,6 @@ YUI.add('supra.header.appdock', function(Y) {
 					}
 				}
 			});
-		},
-		
-		loadStats: function (callback) {
-			var node_dock_stats = this.get('nodeDock').one('.yui3-app-dock-stats'),
-				classname = getClassName(AppDock.NAME, 'dock', 'loading'),
-				uri = Supra.Manager.Loader.getDynamicPath() + '/dashboard/stats/list.json';
-			
-			node_dock_stats.addClass(classname);
-			
-			Supra.io(uri, {
-				'context': this,
-				'on': {
-					'complete': function (data) {
-						node_dock_stats.removeClass(classname);
-						this.renderStats(data || []);
-						if (data) {
-							this.set('stats', data);
-						}
-					}
-				}
-			});
-		},
-		
-		renderStats: function (data) {
-			var node_layer = this.get('nodeDock')
-				.one('.yui3-app-dock-stats')
-				.one('.stat-content');
-				
-			node_layer.empty();
-			
-			for (var date in data) {
-				node_layer.append('<p>' + date + '| Visitors: ' + data[date].visitors + '\
-							 Pageviews: ' + data[date].pageviews + '\
-							 Visits: ' + data[date].visits + '</p>');
-			}
-
 		},
 		
 		/**

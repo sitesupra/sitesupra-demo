@@ -1,0 +1,45 @@
+{
+	"status": true,
+	"data": {
+		"discounts": {
+			"1": 0,
+			"3": 0.05,
+			"6": 0.1,
+			"12": 0.15,
+			"24": 0.2
+		},
+		"subscriptions": [
+			{
+				"id": "a",
+				"group": "Our standard plan",
+				"title": "It includes unlimited space, traffic, standard design options and blocks",
+				"price": 20
+			},
+			{
+				"id": "b",
+				"title": "Ovum commercial design from Greg Lancaster",
+				"price": 3
+			},
+			{
+				"id": "c",
+				"title": "Extended gallery module from SiteSupra",
+				"price": 1.4
+			},
+			{
+				"id": "d",
+				"title": "500 newsletters per month",
+				"price": 3
+			},
+			{
+				"id": "e",
+				"title": "Form builder block",
+				"price": 3
+			},
+			{
+				"id": "f",
+				"title": "Extended slideshow block",
+				"price": 2
+			}
+		]
+	}
+}

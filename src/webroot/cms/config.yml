@@ -1,90 +1,132 @@
-- Supra\Configuration\ConstantConfiguration:
-    name: SUPRA_CMS_URL
-    value: cms
+- _version: 2
 
-- Supra\Router\Configuration\RouterConfiguration:
-    url: { const: SUPRA_CMS_URL }
-    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Supra\Locale\PreFilter\LocaleDetectorPreFilter
-    objectRepositoryCaller: Supra\Cms\CmsController
+- _use: Supra\Router\Configuration\RouterConfiguration
+- _use: Supra\Controller\Configuration\ControllerConfiguration
 
-- Supra\Router\Configuration\RouterConfiguration:
-    url: { const: SUPRA_CMS_URL }
-    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Supra\Cms\AuthenticationPreFilterController
+- _class: Supra\Configuration\ConstantConfiguration
+  name: SUPRA_CMS_URL
+  value: cms
 
-- Supra\Router\Configuration\RouterConfiguration:
-    url: /
-    priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Supra\Controller\Pages\ThemePreviewPreFilterController
+- _class: RouterConfiguration
+  url: { const: SUPRA_CMS_URL }
+  priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+  controller:
+    _class: ControllerConfiguration
+    class: Supra\Locale\PreFilter\LocaleDetectorPreFilter
+  objectRepositoryCaller: Supra\Cms\CmsController
 
-- Supra\Router\Configuration\RouterConfiguration:
-    url: { const: SUPRA_CMS_URL }
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Supra\Cms\CmsController
+- _class: RouterConfiguration
+  url: { const: SUPRA_CMS_URL }
+  priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+  controller:
+    _class: ControllerConfiguration
+    class: Supra\Cms\AuthenticationPreFilterController
 
-- Supra\Cms\ContentManager\ApplicationConfiguration:
-    id: Supra\Cms\ContentManager
-    title: Pages
-    icon: /cms/lib/supra/img/apps/pages
-    url: content-manager
-    allowLimitedPageOption: true
-    galleryBlockId: Project\Blocks\Gallery\GalleryBlock
-    authorizationAccessPolicy:
-      Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy:
-#       @TODO: Could assign this value from application configuration "id" parameter somehow
-        applicationNamespace: Supra\Cms\ContentManager
+- _class: RouterConfiguration
+  url: /
+  priority: { const: Supra\Router\RouterAbstraction::PRIORITY_TOP }
+  controller:
+    _class: ControllerConfiguration
+    class: Supra\Controller\Pages\ThemePreviewPreFilterController
+
+- _class: RouterConfiguration
+  url: { const: SUPRA_CMS_URL }
+  controller:
+    _class: ControllerConfiguration
+    class: Supra\Cms\CmsController
+
+
+
+
+
+- _class: Supra\Cms\ContentManager\ApplicationConfiguration
+  id: Supra\Cms\ContentManager
+  title: Pages
+  icon: /cms/lib/supra/img/apps/pages
+  url: content-manager
+  allowLimitedPageOption: true
+  galleryBlockId: Project\Blocks\Gallery\GalleryBlock
+  authorizationAccessPolicy:
+    _class: Supra\Cms\ContentManager\ContentManagerAuthorizationAccessPolicy
+#   @TODO: Could assign this value from application configuration "id" parameter somehow
+    applicationNamespace: Supra\Cms\ContentManager
+
   
-- Supra\Cms\InternalUserManager\ApplicationConfiguration:
-#   Assigned to controller because inside this namespace is password restore controller
-    id: Supra\Cms\InternalUserManager\InternalUserManagerController
-    title: Backoffice Users
-    url: internal-user-manager
-    icon: /cms/lib/supra/img/apps/backoffice_users
-    authorizationAccessPolicy:
-      Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy:
-        applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
+  
+  
+  
+  
+  
+- _class: Supra\Cms\InternalUserManager\ApplicationConfiguration
+# Assigned to controller because inside this namespace is password restore controller
+  id: Supra\Cms\InternalUserManager\InternalUserManagerController
+  title: Backoffice Users
+  url: internal-user-manager
+  icon: /cms/lib/supra/img/apps/backoffice_users
+  authorizationAccessPolicy:
+    _class: Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
 
-- Supra\Cms\ApplicationConfiguration:
-    id: Supra\Cms\BannerManager
-    title: Banners
-    url: banner-manager
-    icon: /cms/lib/supra/img/apps/banners
-    authorizationAccessPolicy:
-      Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy:
-        applicationNamespace: Supra\Cms\BannerManager
-
-- Supra\Cms\MediaLibrary\ApplicationConfiguration:
-    id: Supra\Cms\MediaLibrary
-    title: Media Library
-    url: media-library
-    icon: /cms/lib/supra/img/apps/media_library
+- _class: Supra\Cms\ApplicationConfiguration
+  id: Supra\Cms\BannerManager
+  title: Banners
+  url: banner-manager
+  icon: /cms/lib/supra/img/apps/banners
+  authorizationAccessPolicy:
+    _class: Supra\Cms\BannerManager\BannerManagerAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\BannerManager
     
-##  possible values: "full", "partial" and "none"
-##   - "none" will disable any existence check
-##   - "partial" will force to check only when tab with file info is displayed
-##   - "full" will force to check file existence also when complete list of files is displayed
-##  default is "none"
-    checkFileExistence: full
-    knownFileExtensions: 
-      - pdf
-      - xls
-      - xlsx
-      - doc
-      - docx
-      - swf
-      - ppt
-      - pptx
-    authorizationAccessPolicy:
-      Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy:
-        applicationNamespace: Supra\Cms\MediaLibrary
+- _class: Supra\Cms\ApplicationConfiguration
+  id: Supra\Cms\AuditLog
+  title: Audit log
+  url: audit-log
+  icon: /cms/lib/supra/img/apps/audit
+  authorizationAccessPolicy:
+    _class: Supra\Cms\AuditLog\AuditLogAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\AuditLog
+    
+- _class: Supra\Cms\ApplicationConfiguration
+  id: Supra\Cms\Dashboard
+  title: Dashboard
+  url: dashboard
+  icon: /cms/lib/supra/img/apps/dashboard
+  authorizationAccessPolicy:
+    _class: Supra\Cms\Dashboard\DashboardAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\Dashboard
+
+#- _class: Supra\Cms\ApplicationConfiguration
+#  id: Supra\Cms\Settings
+#  title: Settings
+#  url: settings
+#  icon: /cms/lib/supra/img/apps/settings
+#  authorizationAccessPolicy:
+#    _class: Supra\Cms\Settings\SettingsAuthorizationAccessPolicy
+#    applicationNamespace: Supra\Cms\Settings
+
+- _class: Supra\Cms\MediaLibrary\ApplicationConfiguration
+  id: Supra\Cms\MediaLibrary
+  title: Media Library
+  url: media-library
+  icon: /cms/lib/supra/img/apps/media_library
+    
+##possible values: "full", "partial" and "none"
+## - "none" will disable any existence check
+## - "partial" will force to check only when tab with file info is displayed
+## - "full" will force to check file existence also when complete list of files is displayed
+##default is "none"
+  checkFileExistence: full
+  knownFileExtensions: 
+    - pdf
+    - xls
+    - xlsx
+    - doc
+    - docx
+    - swf
+    - ppt
+    - pptx
+  authorizationAccessPolicy:
+    _class: Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\MediaLibrary
 
 #- Supra\Cms\CrudManager\ApplicationConfiguration:
 #    id: Supra\Cms\CrudManager
@@ -96,12 +138,12 @@
 #      Supra\Cms\CrudManager\CrudManagerAuthorizationAccessPolicy:
 #        applicationNamespace: Supra\Cms\CrudManager
 
-- Supra\Controller\Pages\Configuration\PageApplicationConfiguration:
-    id: news
-    className: Supra\Controller\Pages\News\NewsApplication
-    title: News
-    icon: /cms/content-manager/sitemap/images/apps/news.png
-    newChildrenFirst: true
+- _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
+  id: news
+  className: Supra\Controller\Pages\News\NewsApplication
+  title: News
+  icon: /cms/content-manager/sitemap/images/apps/news.png
+  newChildrenFirst: true
 
 # Implement this configuration to project-specific location if needed
 #- Supra\BannerMachine\Configuration\ProviderConfiguration:
@@ -121,11 +163,11 @@
 #          height: 130
 #          ratioDelta: 0.1
 
-- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    title: Broken block
-    groupId: system
-    hidden: true
-    class: Supra\Controller\Pages\BrokenBlockController
+- _class: Supra\Controller\Pages\Configuration\BlockControllerConfiguration
+  title: Broken block
+  groupId: system
+  hidden: true
+  class: Supra\Controller\Pages\BrokenBlockController
 
-- Supra\Event\EventConfiguration:
-    listener: Supra\Authentication\Listener\BruteForceAuthenticationAttackProtector
+- _class: Supra\Event\EventConfiguration
+  listener: Supra\Authentication\Listener\BruteForceAuthenticationAttackProtector

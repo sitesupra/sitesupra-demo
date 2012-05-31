@@ -323,7 +323,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @private
 		 */
 		_setOverlayVisible: function (value) {
-			this.overlay.setClass('hidden', !value);
+			this.overlay.toggleClass('hidden', !value);
 			return !!value;
 		},
 		
@@ -335,57 +335,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 */
 		_handleContentElementBehaviour: function (body) {
 			//Links
-			Y.delegate('click', function (e) {
-				//External links should be opened in new window
-				//Internal links should be opened as page
-				//Javascript,hash and mail links should be ignored
-				var target = e.target,
-					href = null,
-					local_links = new RegExp('^mailto:|^javascript:|' + document.location.pathname + '#', 'i');
-				
-				if (target.test('.editing a')) {
-					//If clicked on link inside content which is beeing edited, then don't do anything
-					e.preventDefault();
-					return;
-				}
-				if (!target.test('a')) {
-					target = target.ancestor('a');
-				}
-				if (target && (href = target.get('href')) && !local_links.test(href)) {
-					
-					var regExp = new RegExp('^' + document.location.protocol 
-						+ '//' 
-						+ document.location.host.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
-						+ '($|/)', 'i');
-					
-					if (!regExp.test(href)) {
-						//External link
-						window.open(href);
-					} else if (!Action.isEditing()) {
-						//If is editing, then don't change page
-						
-						Manager.Page.getPageIdFromPath(href, function (data, status) {
-							if (status && data && data.page_id) {
-								if (data.page_id != Supra.data.get(['page', 'id'])) {
-									
-									Supra.data.set('locale', data.locale);
-									
-									//Stop editing
-									Action.stopEditing();
-
-									//Change path
-									Root.save(Root.ROUTE_PAGE.replace(':page_id', data.page_id));
-								}
-							} else {
-								//TODO: open the link in the new tab or show message with link to the page
-								window.open(href);
-							}
-						});
-					}
-				}
-				
-				e.preventDefault();
-			}, body, 'a');
+			Y.delegate('click', this._handleContentLinkClick, body, 'a', this);
 			
 			//Forms
 			Y.delegate('submit', function (e) {
@@ -393,6 +343,109 @@ YUI.add('supra.iframe-handler', function (Y) {
 			}, body, 'form');
 		},
 		
+		/**
+		 * Handles page link click in cms
+		 */
+		_handleContentLinkClick: function (e) {
+			//External links should be opened in new window
+			//Internal links should be opened as page
+			//Javascript,hash and mail links should be ignored
+			var target = e.target,
+				href = null,
+				local_links = new RegExp('^mailto:|^javascript:|' + document.location.pathname + '#', 'i');
+
+			if (target.test('.editing a')) {
+				//If clicked on link inside content which is beeing edited, then don't do anything
+				e.preventDefault();
+				return;
+			}
+			if (!target.test('a')) {
+				target = target.ancestor('a');
+			}
+			if (target && (href = target.get('href')) && !local_links.test(href)) {
+
+				var regExp = new RegExp('^' + document.location.protocol 
+					+ '//' 
+					+ document.location.host.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
+					+ '($|/)', 'i');
+
+				if (!regExp.test(href)) {
+					//External link
+					window.open(href);
+				} else if (!Action.isEditing()) {
+					//If is editing, then don't change page
+
+					Manager.Page.getPageIdFromPath(href, this._handleRedirect, this);
+				}
+			}
+
+			e.preventDefault();
+		},
+		
+		/**
+		 * Redirects to another page localization
+		 */
+		_handleRedirect: function (data, status) {
+			if (status && data && data.page_id) {
+				if (data.page_id != Supra.data.get(['page', 'id'])) {
+					if (data.redirect) {
+
+						Supra.Manager.executeAction('Confirmation', {
+							'message': '{#page.follow_redirect#}',
+							'useMask': true,
+							'buttons': [{
+								'id': 'yes',
+								'label': Supra.Intl.get(['buttons', 'yes']),
+								'click': this._handleRedirectConfirmation,
+								'context': this,
+								'args': [true, data]
+							},
+							{
+								'id': 'no',
+								'label': Supra.Intl.get(['buttons', 'no']),
+								'click': this._handleRedirectConfirmation,
+								'context': this,
+								'args': [false, data]
+							}]
+						});
+
+						return;
+					}
+
+					Supra.data.set('locale', data.locale);
+
+					//Stop editing
+					Action.stopEditing();
+
+					//Change path
+					Root.router.save(Root.ROUTE_PAGE.replace(':page_id', data.page_id));
+				}
+			} else {
+				//TODO: open the link in the new tab or show message with link to the page
+				window.open(href);
+			}
+		},
+		
+		/**
+		 * If page has redirect will ask you follow redirect or not
+		 */
+		_handleRedirectConfirmation: function (e, args) {
+			var follow = args[0],
+			data = args[1],
+			redirect_page_id = data.page_id;
+			
+			Supra.data.set('locale', data.locale);
+									
+			//Stop editing
+			Action.stopEditing();
+			
+			if(follow) {
+				redirect_page_id = data.redirect_page_id;
+			}
+			
+			//Change path
+			Root.router.save(Root.ROUTE_PAGE.replace(':page_id', redirect_page_id));
+		},
 		/**
 		 * Wait till stylesheets are loaded
 		 * 
@@ -466,7 +519,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * Set loading state
 		 */
 		_setLoading: function (value) {
-			this.get('contentBox').setClass('yui3-page-iframe-loading', value);
+			this.get('contentBox').toggleClass('yui3-page-iframe-loading', value);
 		}
 		
 	});
@@ -477,6 +530,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
-	delete(this.fn); this.fn = function () {};
+	delete(this.fn);this.fn = function () {};
 	
 }, YUI.version, {'requires': ['widget']});

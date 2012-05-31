@@ -29,7 +29,7 @@ class ThemeParameterSet extends Database\Entity
 	protected $name;
 
 	/**
-	 * @Column(type="string")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $title;
@@ -38,7 +38,7 @@ class ThemeParameterSet extends Database\Entity
 	 * @Column(type="boolean")
 	 * @var boolean
 	 */
-	protected $locked;
+	protected $locked = false;
 
 	/**
 	 * @OneToMany(targetEntity="ThemeParameterValue", mappedBy="set", cascade={"all"}, orphanRemoval=true, indexBy="parameterName")

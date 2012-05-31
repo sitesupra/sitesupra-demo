@@ -12,6 +12,9 @@ YUI.add('supra.button', function (Y) {
 	Button.CSS_PREFIX = 'su-' + Button.NAME;
 	
 	Button.ATTRS = {
+		buttonId: {
+			value: null
+		},
 		nodeWrapper: {
 			value: null
 		},
@@ -109,10 +112,8 @@ YUI.add('supra.button', function (Y) {
 			var btn = this.get('nodeButton');
 			if (btn) {
 				var disabled = btn.get('disabled') ? true : false;
-				this.set('disabled', disabled);
 				return disabled;
 			}
-			return false;
 		},
 		label: function (srcNode) {
 			var label = this.get('nodeLabel'),
@@ -139,6 +140,36 @@ YUI.add('supra.button', function (Y) {
 			}
 			
 			return style || 'small';
+		},
+		type: function (srcNode) {
+			var button = this.get('nodeButton'),
+				type = null;
+			
+			if (button) {
+				type = button.getAttribute('suType');
+			}
+			
+			return type || 'push';
+		},
+		icon: function (srcNode) {
+			var button = this.get('nodeButton'),
+				icon = null;
+			
+			if (button) {
+				icon = button.getAttribute('suIcon');
+			}
+			
+			return icon;
+		},
+		down: function (srcNode) {
+			var button = this.get('nodeButton'),
+				down = false;
+			
+			if (button) {
+				down = (button.getAttribute('suDown') === 'true');
+			}
+			
+			return down;
 		}
     };
 	
@@ -208,6 +239,14 @@ YUI.add('supra.button', function (Y) {
 				}
 			}
 			
+			if (this.get('down')) {
+				this.set('down', true);
+			}
+			
+			if (this.get('disabled')) {
+				this.set('disabled', true);
+			}
+			
 			if (this.get('icon')) {
 				this.set('icon', this.get('icon'));
 			}
@@ -242,14 +281,12 @@ YUI.add('supra.button', function (Y) {
 				if (style) box.addClass(this.getClassName(style));
 			}
 		},
-		
 		_setDisabled: function (disabled) {
 			var btn = this.get('nodeButton');
 			if (btn) {
 				btn.set('disabled', disabled);
 			}
 		},
-		
 		_setLoading: function (loading) {
 			var box = this.get('boundingBox');
 			
@@ -260,7 +297,7 @@ YUI.add('supra.button', function (Y) {
 					this.set('nodeLoading', node);
 				}
 				
-				box.setClass(this.getClassName('loading'), loading);
+				box.toggleClass(this.getClassName('loading'), loading);
 			}
 			
 			this.set('disabled', loading);
@@ -268,10 +305,12 @@ YUI.add('supra.button', function (Y) {
 		},
 		
 		_setStyle: function (new_style) {
+			var box = this.get('boundingBox');
+			if (!box) return new_style;
+			
 			var old_style = this.get('style');
 			if (new_style == old_style) return;
 			
-			var box = this.get('boundingBox');
 			if (box) {
 				if (old_style) box.removeClass(this.getClassName(old_style));
 				if (new_style) box.addClass(this.getClassName(new_style));
@@ -279,11 +318,12 @@ YUI.add('supra.button', function (Y) {
 		},
 		
 		_setDown: function (down) {
+			var box = this.get('boundingBox');
+			if (!box) return !!down;
 			if (down == this.get('down')) return !!down;
 			
-			var box = this.get('boundingBox');
 			if (box) {
-				box.setClass(this.getClassName('down'), down);
+				box.toggleClass(this.getClassName('down'), down);
 				box.removeClass(this.getClassName('mouse-hover'));
 			} 
 			
@@ -308,7 +348,7 @@ YUI.add('supra.button', function (Y) {
 		
 		_setVisible: function (visible) {
 			var box = this.get('boundingBox');
-			if (box) box.setClass('hidden', !visible);
+			if (box) box.toggleClass('hidden', !visible);
 			return visible;
 		},
 		
@@ -316,8 +356,10 @@ YUI.add('supra.button', function (Y) {
 			var img = this.get('contentBox').one('img');
 			if (!img) {
 				if (!value) return value;
+				var button = this.get('nodeButton');
+				if (!button) return value;
+				
 				var node = Y.Node.create(this.ICON_TEMPLATE);
-				var button = this.get('contentBox').one('button');
 				button.prepend(node);
 				
 				img = node.test('img') ? node : node.one('img');
@@ -346,7 +388,7 @@ YUI.add('supra.button', function (Y) {
 			var box = this.get('boundingBox');
 			if (box) {
 				box.removeClass(this.getClassName('mouse-down'));
-				box.setClass(this.getClassName('down'), this.get('down'));
+				box.toggleClass(this.getClassName('down'), this.get('down'));
 				
 				if (this.get('down')) {
 					box.removeClass(this.getClassName('mouse-hover'));
@@ -393,9 +435,9 @@ YUI.add('supra.button', function (Y) {
 			return this;
 		},
 		
-		setClass: function () {
+		toggleClass: function () {
 			var box = this.get('boundingBox');
-			if (box) box.setClass.apply(box, arguments);
+			if (box) box.toggleClass.apply(box, arguments);
 			return this;
 		},
 		

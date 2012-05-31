@@ -3,16 +3,16 @@
 $q = $_SERVER['QUERY_STRING'];
 $apc = function_exists('apc_store');
 
-if (!empty($_GET['flush']) && $apc) {
-    apc_clear_cache('user');
+if ( ! empty($_GET['flush']) && $apc) {
+	apc_clear_cache('user');
 }
 
 $files = explode('&', $q);
 $files = array_unique($files);
 
-if (!sizeOf($files)) {
+if ( ! sizeOf($files)) {
 //    echo('<strong>Error:</strong> No files found.');
-    exit;
+	exit;
 }
 
 if (count($files) > 100) {
@@ -35,17 +35,16 @@ foreach ($files as $file) {
 	if ( ! preg_match('/\.' . $ext . '$/', $file)) {
 		die();
 	}
-	
+
 	if (strpos($file, '..') !== false) {
 		die();
 	}
-	
-	$expectedStart = '/cms/';
 
+	//$expectedStart = '/cms/';
 	// Only files from webroot/cms folder allowed
-	if (strpos($file, $expectedStart) !== 0) {
-		die();
-	}
+	//if (strpos($file, $expectedStart) !== 0) {
+	//	die();
+	//}
 }
 
 $eTag = getEtag($files);
@@ -57,25 +56,26 @@ if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $eTag === $_SERVER['HTTP_IF_NONE_MA
 
 $out = $cache ? getCache($eTag) : '';
 
-if (!$out) {
-    $out = writeFiles($files, $eTag);
+if ( ! $out) {
+	$out = writeFiles($files, $eTag);
 }
 
-function getCache($eTag) {
-    global $apc, $cacheDir;
+function getCache($eTag)
+{
+	global $apc, $cacheDir;
 	$out = '';
-    if ($apc) {
-        $out = apc_fetch('combo-'.$eTag);
-    }
-    if (!$out) {
-        if (is_file($cacheDir . '/yui/' . substr($eTag, 0, 2) .'/'.$eTag)) {
-            $out = @file_get_contents($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/'.$eTag);
-            if ($apc) {
-                apc_store('combo-'.$eTag, $out, 1800);
-            }
-        }
-    }
-    return $out;
+	if ($apc) {
+		$out = apc_fetch('combo-' . $eTag);
+	}
+	if ( ! $out) {
+		if (is_file($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/' . $eTag)) {
+			$out = @file_get_contents($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/' . $eTag);
+			if ($apc) {
+				apc_store('combo-' . $eTag, $out, 1800);
+			}
+		}
+	}
+	return $out;
 }
 
 function getEtag($files)
@@ -91,25 +91,26 @@ function getEtag($files)
 	return md5(implode(',', $cacheSource));
 }
 
-function writeFiles($files, $eTag) {
-    global $pre, $build, $apc, $cache, $version, $css, $ext, $checkFileModificationTime, $cacheDir;
-    $outFile = '';
-    $out = '';
-    foreach ($files as $file) {
+function writeFiles($files, $eTag)
+{
+	global $pre, $build, $apc, $cache, $version, $css, $ext, $checkFileModificationTime, $cacheDir;
+	$outFile = '';
+	$out = '';
+	foreach ($files as $file) {
 		$outFile = getFileContent($file);
 
 		$out .= $outFile . "\n";
-    }
-	
-	if ($cache) {
-	    if ($apc) {
-	        apc_store('combo-'.$eTag, $out, 1800);
-	    }
-	    @mkdir($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/', 0777, true);
-	    @file_put_contents($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/'.$eTag, $out);
 	}
-	
-    return $out;
+
+	if ($cache) {
+		if ($apc) {
+			apc_store('combo-' . $eTag, $out, 1800);
+		}
+		@mkdir($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/', 0777, true);
+		@file_put_contents($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/' . $eTag, $out);
+	}
+
+	return $out;
 }
 
 function getFileMtime($file)
@@ -117,48 +118,61 @@ function getFileMtime($file)
 	global $css, $pre, $lessCss;
 	
 	$cacheSource = array();
+
+	$thisPre = $pre;
+
+	if (strpos($file, '/cms-local/') === 0) {
+		$thisPre = realpath('../../../../../../../src/webroot');
+	} 
 	
-	$files = array($pre . $file);
-	
+	$files = array($thisPre . $file);
+
 	// Try searching for .less file
 	if ($css) {
-		$lessFile = $pre . $file . '.less';
-		
+		$lessFile = $thisPre . $file . '.less';
+
 		if ($lessCss && file_exists($lessFile)) {
-			$lessPhp = $pre . '/cms/lib/supra/lessphp/SupraLessC.php';
+			$lessPhp = $thisPre . '/cms/lib/supra/lessphp/SupraLessC.php';
 			require_once $lessPhp;
 			$less = new SupraLessCFileList($lessFile);
-			$less->setRootDir($pre);
+			$less->setRootDir($thisPre);
 			$less->parse();
 			$files = $less->getFileList();
 		}
 	}
-	
+
 	foreach ($files as $file) {
-		
+
 		if ( ! file_exists($file)) {
 			error404();
 		}
-		
+
 		$cacheSource[] = $file;
 		$cacheSource[] = filemtime($file);
 	}
-	
+
 	return $cacheSource;
 }
 
 function getFileContent($file)
 {
 	global $css, $pre, $lessCss;
-	
+
 	$outFile = null;
 	
+	$thisPre = $pre;
+	
+	if (strpos($file, '/cms-local/') === 0) {
+		$thisPre = realpath('../../../../../../../src/webroot');
+	} else {
+		$thisPre = $pre;
+	}
 	// Try searching for .less file
 	if ($css) {
-		$lessFile = $pre . $file . '.less';
-		
+		$lessFile = $thisPre . $file . '.less';
+
 		if ($lessCss && file_exists($lessFile)) {
-			$lessPhp = $pre . '/cms/lib/supra/lessphp/SupraLessC.php';
+			$lessPhp = $thisPre . '/cms/lib/supra/lessphp/SupraLessC.php';
 			require_once $lessPhp;
 			$less = new SupraLessC($lessFile);
 			$less->setRootDir($pre);
@@ -167,12 +181,12 @@ function getFileContent($file)
 	}
 
 	if (is_null($outFile)) {
-		
-		if ( ! file_exists($pre . $file)) {
+
+		if ( ! file_exists($thisPre . $file)) {
 			error404();
 		}
-		
-		$outFile = file_get_contents($pre . $file);
+
+		$outFile = file_get_contents($thisPre . $file);
 	}
 
 	if ($css) {
@@ -200,4 +214,4 @@ if ($css) {
 //header('Expires: '.date('r', time() + (60 * 60 * 24 * 365 * 10)));
 //header('Age: 0');
 echo($out);
-exit;
+//exit;

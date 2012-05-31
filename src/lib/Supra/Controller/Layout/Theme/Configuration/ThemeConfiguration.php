@@ -57,11 +57,40 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	public $layouts;
 
 	/**
+	 * @var array
+	 */
+	public $tags;
+
+	/**
+	 * @var string
+	 */
+	public $smallListImage;
+
+	/**
+	 * @var string
+	 */
+	public $largeListImage;
+
+	/**
+	 * @var array
+	 */
+	public $overviewImages;
+
+	/**
 	 * 
 	 */
 	public function configure()
 	{
+
+		$loaderMode = $this->getLoaderMode();
 		$theme = $this->getTheme();
+
+		if ($loaderMode == ThemeConfigurationLoader::MODE_FETCH_CONFIGURATION) {
+
+			$theme->setConfiguration($this);
+
+			return;
+		}
 
 		$theme->setTitle($this->title);
 		$theme->setDescription($this->description);
@@ -96,6 +125,8 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 				$parametersAfter[$parameter->getName()] = $parameter;
 			}
 		}
+		
+		$theme->setActiveParameterSet(null);
 
 		$parameterNamesAfter = $parametersAfter->getKeys();
 

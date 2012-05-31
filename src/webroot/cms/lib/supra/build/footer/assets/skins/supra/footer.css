@@ -28,3 +28,12 @@
 .yui3-footer-hidden {
 	display: none;
 }
+
+.ui-dark .yui3-form .yui3-footer,
+.ui-center-dark .yui3-form .yui3-footer {
+	border: 0;
+}
+.ui-dark .yui3-form .yui3-footer-content,
+.ui-center-dark .yui3-form .yui3-footer-content {
+	padding-top: 0;
+}

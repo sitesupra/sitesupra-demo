@@ -169,6 +169,12 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	{
 		$em = $this->getEntityManager();
 
+		$activeParameterSet = $theme->getActiveParameterSet();
+
+		if ( ! empty($activeParameterSet)) {
+			$em->persist($activeParameterSet);
+		}
+
 		$em->persist($theme);
 
 		$parameterSets = $theme->getParameterSets();
@@ -325,6 +331,16 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		$themeLayout = $currentTheme->getLayout($templateLayout->getLayoutName());
 
 		return $themeLayout;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAllThemes()
+	{
+		$allThemes = $this->getThemeRepository()->findAll();
+
+		return $allThemes;
 	}
 
 }

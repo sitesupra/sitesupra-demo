@@ -536,9 +536,13 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		'_fillTemplates': function () {
 			var templates = this._templates,
 				form = this._widgets.form;
-			
+				
 			if (templates && form && this.get('host').get('mode') == 'pages' && form.getInput('template')) {
 				form.getInput('template').set('loading', false);
+				
+				var select_template_title = Supra.Intl.get(['sitemap', 'select_template']);
+				templates.unshift({id:'', title: select_template_title});
+				
 				form.getInput('template').set('values', templates);
 				form.getInput('template').set('value', this._getAncestorTemplate);
 			}
@@ -574,7 +578,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 			}
 			
-			if (this._templates && this._templates.length) {
+			if (!template && this._templates && this._templates.length) {
 				return this._templates[0].id;
 			}
 			
@@ -683,9 +687,9 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				input = form.getInput('template');
 				input.set('value', this._getAncestorTemplate());
 				
-				if (is_row_node) {
-					input.set('visible', false);
-				}
+				//if (is_row_node) {
+				//	input.set('visible', false);
+				//}
 			} else {
 				input = form.getInput('layout');
 				input.set('value', ''); //@TODO Set layout from parent

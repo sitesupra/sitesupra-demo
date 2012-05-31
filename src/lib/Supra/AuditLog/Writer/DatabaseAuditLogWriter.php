@@ -13,6 +13,8 @@ use Supra\User\Entity\User as UserEntity;
 class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 {
 
+	const AUDIT_TABLE = 'su_AuditLog';
+	
 	private $connectionOptions;
 	private $dbConnection;
 
@@ -23,6 +25,8 @@ class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 
 	public function write($level, $component, $message = '', $user = null, $data = array())
 	{
+		$tableName = self::AUDIT_TABLE;
+		
 		$message = (string) $message;
 
 		if (empty($this->dbConnection)) {
@@ -36,9 +40,18 @@ class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 			if ($componentConfig instanceof ComponentConfiguration
 					&& ! empty($componentConfig->title)
 			) {
-				$component = $componentConfig->title;
+				$component = $componentConfig->class;
 			} else {
-				$component = get_class($component);
+				
+				// workaround for user logout/login
+				if (($component instanceof \Supra\Cms\AuthenticationPreFilterController)
+						|| ($component instanceof \Supra\Cms\Logout\LogoutController)) {
+					
+					$component = 'Supra\Cms\InternalUserManager\InternalUserManagerController';
+					
+				} else {
+					$component = get_class($component);
+				}
 			}
 		} else {
 			$component = (string) $component;
@@ -59,8 +72,8 @@ class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 			$data = null;
 		}
 
-		$query = 'INSERT INTO su_AuditLog (level, component, message, user, data) 
-			VALUES (:level, :component, :message, :user, :data)';
+		$query = "INSERT INTO {$tableName} (level, component, message, user, data) 
+			VALUES (:level, :component, :message, :user, :data)";
 
 		$params = array('level' => $level,
 			'component' => $component,

@@ -7,6 +7,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Loader\Loader;
 use Supra\Configuration\ComponentConfiguration;
+use Supra\Loader\Configuration\NamespaceConfiguration;
 
 /**
  * ApplicationConfiguration
@@ -45,6 +46,17 @@ class ApplicationConfiguration extends ComponentConfiguration
 	 * @var boolean
 	 */
 	public $disable = false;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	public $fancyActionClassLoader = false;
+	
+	/**
+	 * @var string
+	 */
+	public $urlBase = SUPRA_CMS_URL;
 
 	/**
 	 * Configure
@@ -66,6 +78,18 @@ class ApplicationConfiguration extends ComponentConfiguration
 		}
 
 		ObjectRepository::setApplicationConfiguration($this->id, $this);
+		
+		if(! empty($this->fancyActionClassLoader)) {
+			
+			$loader = Loader::getInstance();
+			
+			$namespaceConfiguration = new NamespaceConfiguration();
+			$namespaceConfiguration->class = 'Supra\Cms\CmsNamespaceLoaderStrategy';
+			$namespaceConfiguration->dir = dirname($loader->findClassPath($this->classname));
+			$namespaceConfiguration->namespace = $this->id;
+			$namespace = $namespaceConfiguration->configure();
+			$loader->registerNamespace($namespace);
+		}
 	}
 	
 	/**
@@ -78,7 +102,7 @@ class ApplicationConfiguration extends ComponentConfiguration
 			'title' => $this->title,
 			'icon' => $this->icon,
 			//TODO: hardcoded CMS URL
-			'path' => '/' . SUPRA_CMS_URL . '/' . $this->url . '/',
+			'path' => '/' . $this->urlBase . '/' . $this->url . '/',
 		);
 		
 		if ($this->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {

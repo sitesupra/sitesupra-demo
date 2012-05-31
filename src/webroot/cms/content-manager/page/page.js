@@ -67,7 +67,7 @@ Supra(function (Y) {
 		 */
 		execute: function (data) {
 			//Load page data if sitemap will not open
-			if (Manager.Root.getPath() != Manager.Root.ROUTE_SITEMAP) {
+			if (Manager.Root.router.getPath() != Manager.Root.ROUTE_SITEMAP) {
 				this.loadPage(data ? data.id : '');
 			}
 			
@@ -143,12 +143,13 @@ Supra(function (Y) {
 		 * @param {String} page_path
 		 * @private
 		 */
-		getPageIdFromPath: function (page_path, callback) {
+		getPageIdFromPath: function (page_path, callback, context) {
 			Supra.io(this.getDataPath('path-to-id'), {
 				'data': {
 					'page_path': page_path,
 					'locale': Supra.data.get('locale')
 				},
+				'context': context,
 				'on': {
 					'complete': callback
 				}

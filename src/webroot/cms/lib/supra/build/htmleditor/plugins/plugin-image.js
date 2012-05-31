@@ -61,6 +61,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 						{'id': 'border', 'title': Supra.Intl.get(['htmleditor', 'style_border']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-border.png'},
 						{'id': 'lightbox', 'title': Supra.Intl.get(['htmleditor', 'style_lightbox']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-lightbox.png'}
 					]},
+					
+					{'id': 'size_type', 'type': 'Checkbox', 'label': Supra.Intl.get(['htmleditor', 'image_size']), 'labels': [Supra.Intl.get(['htmleditor', 'size_custom']), Supra.Intl.get(['htmleditor', 'size_original'])], 'value': true},
+				
 					{'id': 'size_width', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_width']), 'value': '', 'valueMask': /^\d+$/},
 					{'id': 'size_height', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_height']), 'value': '', 'valueMask': /^\d+$/}
 				],
@@ -207,6 +210,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				image.setAttribute('height', height);
 				
 				this.silent = true;
+				this.settings_form.getInput('size_type').set('value', true);
 				this.settings_form.getInput('size_height').set('value', height);
 				this.settings_form.getInput('size_width').set('value', width);
 				this.silent = false;
@@ -226,6 +230,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				image.setAttribute('height', height);
 				
 				this.silent = true;
+				this.settings_form.getInput('size_type').set('value', true);
 				this.settings_form.getInput('size_height').set('value', height);
 				this.settings_form.getInput('size_width').set('value', width);
 				this.silent = false;
@@ -268,6 +273,32 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				if (this.getImageProperty('style') == 'lightbox') {
 					this.setImageProperty('style', 'lightbox', image);
 				}
+			} else if (id == 'size_type') {
+				
+				var heightInput = this.settings_form.getInput('size_height'),
+					widthInput = this.settings_form.getInput('size_width'),
+					imageData = this.htmleditor.getData(this.selected_image_id);
+				
+				if (!value) {
+					var size = imageData.image.sizes.original;
+					
+					// temporary store prev size/height
+					this.custom_size = {
+						width: imageData.size_width,
+						height: imageData.size_height
+					};
+					
+					heightInput.set('value', size.height);
+					widthInput.set('value', size.width);
+				} else {
+					if (this.custom_size) {
+						heightInput.set('value', this.custom_size.height);
+						widthInput.set('value', this.custom_size.width);
+					}
+				}
+				
+				heightInput.set('visible', !!value);
+				widthInput.set('visible', !!value);
 			}
 		},
 		
@@ -353,6 +384,21 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			this.selected_image = target;
 			this.selected_image.addClass('yui3-image-selected');
 			this.selected_image_id = this.selected_image.getAttribute('id');
+			
+			// if current image size/height matches original size/heigh
+			// set "Image size" checkbox to "Original"
+			var originalSize = data.image.sizes.original;
+			if (originalSize.height == data.size_height
+				&& originalSize.width == data.size_width) {
+				
+				var heightInput = this.settings_form.getInput('size_height'),
+					widthInput = this.settings_form.getInput('size_width');
+					
+				heightInput.set('visible', false);
+				widthInput.set('visible', false);
+				
+				data.size_type = false;
+			}
 			
 			this.silent = true;
 			this.settings_form.resetValues()
@@ -806,4 +852,4 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.htmleditor-base']});
+}, YUI.version, {'requires': ['supra.htmleditor-base', 'supra.input-proto']});

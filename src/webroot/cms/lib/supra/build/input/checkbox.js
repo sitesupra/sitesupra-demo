@@ -81,6 +81,19 @@ YUI.add("supra.input-checkbox", function (Y) {
 		}
 	};
 	
+	Input.HTML_PARSER = {
+		'labels': function (srcNode) {
+			var a = srcNode.getAttribute('suLabelA'),
+				b = srcNode.getAttribute('suLabelB');
+			
+			if (a && b) {
+				return [a, b];
+			} else {
+				return;
+			}
+		}
+	};
+	
 	Y.extend(Input, Supra.Input.Proto, {
 		
 		renderUI: function () {
@@ -101,7 +114,7 @@ YUI.add("supra.input-checkbox", function (Y) {
 				var pin = node.one('.pin');
 				if (pin) this.set('pinNode', pin);
 				
-				node.setClass('active', this.get('value'));
+				node.toggleClass('active', this.get('value'));
 			}
 			
 			this.get('labelNodeA').on('click', this._animateValueOn, this);
@@ -117,6 +130,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 			//Hide INPUT or SELECT element
 			this.get('inputNode').insert(this.get('backgroundNode'), 'before');
 			this.get('inputNode').addClass('hidden');
+			
+			this.on('valueChange', this._afterValueChange, this);
 		},
 		
 		/**
@@ -175,7 +190,7 @@ YUI.add("supra.input-checkbox", function (Y) {
 			
 			//Update style
 			var node = this.get('backgroundNode');
-			if (node) node.setClass('active', value);
+			if (node) node.toggleClass('active', value);
 			
 			return value;
 		},

@@ -4,7 +4,11 @@
 /**
  * Main manager action, initiates all other actions
  */
-Supra(function (Y) {
+Supra(
+	
+	'router',
+
+function (Y) {
 
 	//Shortcut
 	var Manager = Supra.Manager;
@@ -137,16 +141,33 @@ Supra(function (Y) {
 		ROUTE_PAGE_CONT_R: 	/^\/h\/page\/([^\/]+)\/edit\/([^\/]+)$/,
 		
 		
+		/**
+		 * Router instance
+		 */
+		router: null,
+		
 		
 		/**
-		 * Y.Controller routers
+		 * Y.Router routers
 		 */
 		initialize: function () {
+			
+			this.router = new Y.Router({
+				'root': Manager.Loader.getDynamicPath() + Manager.Loader.getActionBasePath(this.NAME)
+			});
+			
+			this.router.save = function (path) {
+				//Overwrite routing save to make sure paths are not written twice
+				if (this.getPath() != path) {
+					return Y.Router.prototype.save.apply(this, arguments);
+				}
+			};
+			
 			//Routes
-			this.route('/', 'routePage');
-			this.route(this.ROUTE_SITEMAP,   'routeSitemap');
-			this.route(this.ROUTE_TEMPLATES, 'routeTemplates');
-			this.route(this.ROUTE_PAGE, 'routePage');
+			this.router.route('/', 					this.bind(this.routePage, this));
+			this.router.route(this.ROUTE_SITEMAP,   this.bind(this.routeSitemap, this));
+			this.router.route(this.ROUTE_TEMPLATES, this.bind(this.routeTemplates, this));
+			this.router.route(this.ROUTE_PAGE, 		this.bind(this.routePage, this));
 		},
 		
 		
@@ -201,9 +222,9 @@ Supra(function (Y) {
 		routeSiteMapSave: function () {
 			var page_data = Supra.Manager.Page.getPageData();
 			if (page_data && page_data.type == 'template') {
-				this.save(this.ROUTE_TEMPLATES);
+				this.router.save(this.ROUTE_TEMPLATES);
 			} else {
-				this.save(this.ROUTE_SITEMAP);
+				this.router.save(this.ROUTE_SITEMAP);
 			}
 		},
 		
@@ -231,7 +252,7 @@ Supra(function (Y) {
 			//Load page after execute
 			this.on('render', function () {
 				//Search in path "/r/page/:page_id"
-				var page_id = this.getPath().match(this.ROUTE_PAGE_R);
+				var page_id = this.router.getPath().match(this.ROUTE_PAGE_R);
 				if (page_id) {
 					//Extracted from path
 					page_id = {'id': page_id[1]};
@@ -242,9 +263,9 @@ Supra(function (Y) {
 				}
 				
 				//If there is no page ID or /h/sitemap is in path, then open SiteMap
-				if (!page_id || this.getPath() == this.ROUTE_SITEMAP || this.getPath() == this.ROUTE_TEMPLATES) {
+				if (!page_id || this.router.getPath() == this.ROUTE_SITEMAP || this.router.getPath() == this.ROUTE_TEMPLATES) {
 					var mode = 'pages';
-					if (this.getPath() == this.ROUTE_TEMPLATES) {
+					if (this.router.getPath() == this.ROUTE_TEMPLATES) {
 						mode = 'templates';
 					}
 					
@@ -270,7 +291,7 @@ Supra(function (Y) {
 				//Only if page is localized
 				if (evt.data.localized) {
 					//Change path
-					this.save(this.ROUTE_PAGE.replace(':page_id', evt.data.id));
+					this.router.save(this.ROUTE_PAGE.replace(':page_id', evt.data.id));
 				}
 			}, this);
 		},

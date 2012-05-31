@@ -21,6 +21,7 @@ YUI.add('supra.manager-action-base', function (Y) {
      */
 	function ActionBase (name) {
 		ActionBase.superclass.constructor.apply(this, []);
+		
 		this.init.apply(this, []);
 		
 		this.set('NAME', name);
@@ -126,7 +127,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 		}
 	};
 	
-	Y.extend(ActionBase, Y.Controller, {
+	Y.extend(ActionBase, Y.Base, {
 		/**
 		 * Action name
 		 * @type {String}
@@ -176,17 +177,6 @@ YUI.add('supra.manager-action-base', function (Y) {
 		children: {},
 		
 		
-		
-		/**
-		 * Overwrite routing save to make sure paths are not written twice
-		 *
-		 * @param {String} path Path
-		 */
-		save: function (path) {
-			if (this.getPath() != path) {
-				return Y.Controller.prototype.save.apply(this, arguments);
-			}
-		},
 		
 		/**
 		 * Add children action

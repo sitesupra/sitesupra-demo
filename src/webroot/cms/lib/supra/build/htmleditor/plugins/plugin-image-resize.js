@@ -205,8 +205,16 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 			
 			if (form && form.get('visible')) {
 				plugin.silent = true;
-				form.getInput('size_width').set('value', this.last_image_w);
-				form.getInput('size_height').set('value', this.last_image_h);
+				
+				var widthInput = form.getInput('size_width'),
+					heightInput = form.getInput('size_height');
+				
+				form.getInput('size_type').set('value', true);
+				widthInput.set('value', this.last_image_w);
+				widthInput.set('visible', true);
+				
+				heightInput.set('value', this.last_image_h);
+				heightInput.set('visible', true);
 				plugin.silent = false;
 			}
 		},

@@ -103,7 +103,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 							
 							//Change path only if /page/.../edit is opened
 							if (document.location.pathname.indexOf(uri) != -1) {
-								Root.save(uri);
+								Root.router.save(uri);
 							}
 						}
 					}
@@ -114,18 +114,18 @@ YUI.add('supra.iframe-contents', function (Y) {
 						var uri = Root.ROUTE_PAGE_CONT.replace(':page_id', Manager.Page.getPageData().id)
 													  .replace(':block_id', evt.newVal.get('data').id);
 						
-						Root.save(uri);
+						Root.router.save(uri);
 					}
 				}
 			});
 			
 			//Routing
-			Root.route(Root.ROUTE_PAGE_EDIT, Y.bind(this.routeMain, this));
-			Root.route(Root.ROUTE_PAGE_CONT, Y.bind(this.routeBlock, this));
+			Root.router.route(Root.ROUTE_PAGE_EDIT, Y.bind(this.routeMain, this));
+			Root.router.route(Root.ROUTE_PAGE_CONT, Y.bind(this.routeBlock, this));
 			
 			//Restore state
 			this.get('iframe').on('ready', function () {
-				var match = Root.getPath().match(Root.ROUTE_PAGE_CONT_R);
+				var match = Root.router.getPath().match(Root.ROUTE_PAGE_CONT_R);
 				if (match) {
 					var block = this.getChildById(match[1]);
 					if (block) {
@@ -475,7 +475,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 */
 		_setHighlight: function (value) {
 			this.set('disabled', value);
-			this.get('body').setClass('yui3-highlight', value);
+			this.get('body').toggleClass('yui3-highlight', value);
 			
 			if (!value) {
 				for (var i in this.children) {
@@ -490,7 +490,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 * Disable editing
 		 */
 		_setDisabled: function (value) {
-			this.get('body').setClass('yui3-editable', !value);
+			this.get('body').toggleClass('yui3-editable', !value);
 			
 			if (value) {
 				this.set('activeChild', null);

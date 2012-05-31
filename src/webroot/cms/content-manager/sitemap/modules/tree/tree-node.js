@@ -733,6 +733,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				this._dndTarget.set('dndMarker', false);
 				this._dndTargetPlace = null;
 				this._dndTargetNode = null;
+				this._dndTarget = null;
 			}
 		},
 		
@@ -999,6 +1000,36 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			return this._widgets[id] || null;
 		},
 		
+		/**
+		 * Update page full path
+		 */
+		'updateFullPath': function () {
+			var data = this.get('data'),
+				parent = this.get('parent');
+			
+			//Not using this.get('fullPath') because it itterates through all ancestors
+			if (data.path) {
+				while(parent && !parent.get('data').full_path) {
+					parent = parent.get('parent');
+				}
+				
+				if (parent) {
+					data.full_path = parent.get('data').full_path + (data.path ? data.path + '/' : '');
+				} else {
+					data.full_path = '/' + (data.path ? data.path + '/' : '');
+				}
+			}
+			
+			//Update all children full paths
+			var children = this.children(),
+				i = 0,
+				ii = children.length;
+			
+			for (; i<ii; i++) {
+				children[i].updateFullPath();
+			}
+		},
+		
 		
 		/**
 		 * ------------------------------ ATTRIBUTES ------------------------------
@@ -1008,7 +1039,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		/**
 		 * Label attribute setter
 		 * 
-		 * @param {String} draggable New label value
+		 * @param {String} label New label value
 		 * @return Label attribute value
 		 * @type {String}
 		 * @private
@@ -1268,7 +1299,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 	
 					for (var i in rootNodes) {
 						if (rootNodes[i] !== this) {
-							rootNodes[i].get('boundingBox').setClass('visibility-root', expanded);
+							rootNodes[i].get('boundingBox').toggleClass('visibility-root', expanded);
 						}
 					}
 				}
@@ -1569,10 +1600,10 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			if (this.get('rendered')) {
 				
 				//Hide content node and show arrow
-				this.get('boundingBox').setClass('visibility-root', is_visibility_root);
+				this.get('boundingBox').toggleClass('visibility-root', is_visibility_root);
 				
 				//Hide siblings
-				this.get('boundingBox').get('parentNode').setClass('visibility-siblings', is_visibility_root);
+				this.get('boundingBox').get('parentNode').toggleClass('visibility-siblings', is_visibility_root);
 				
 				return !!is_visibility_root;
 			} else {

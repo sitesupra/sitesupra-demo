@@ -74,9 +74,11 @@ Supra('supra.input', function (Y) {
 			
 			//On avatar click open avatar list
 			this.one('div.info em').on('click', function (event) {
-				Manager.executeAction('UserAvatar');
+				var UserAvatar = Manager.getAction('UserAvatar');
+				UserAvatar.set('controller', this);
+				UserAvatar.execute();
 				event.halt();
-			});
+			}, this);
 		},
 		
 		/**
@@ -199,6 +201,18 @@ Supra('supra.input', function (Y) {
 			
 			//Update UI with user data
 			this.setUserData(user.getData());
+		},
+		
+		/**
+		 * Returns user data
+		 * This method exists to minimalize number of other actions UserAvatar
+		 * is communicating with
+		 * 
+		 * @return User data
+		 * @type {Object}
+		 */
+		getData: function () {
+			return Manager.getAction('User').getData();
 		},
 		
 		/**

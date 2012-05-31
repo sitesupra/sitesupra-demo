@@ -188,7 +188,8 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 		 */
 		'_onAlignTargetChange': function (e) {
 			if (e.newVal != e.prevVal && e.prevVal) {
-				e.prevVal.closest('.item').removeClass('hover');
+				var item = e.prevVal.closest('.item');
+				if (item) item.removeClass('hover');
 			}
 		},
 		
@@ -270,7 +271,12 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 				Manager.Page.updatePage(post_data, function (response, success) {
 					if (success) {
 						//Update data
-						data[id] = value;
+						Supra.mix(data, response);
+						
+						if (id == 'path') {
+							//Need to update this and all children full_path's
+							node.updateFullPath();
+						}
 					} else {
 						//Revert changes
 						if (this._nodeDataMapping[id]) {
@@ -432,11 +438,11 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 			}
 			
 			// Hide delete for nodes with children
-			if (this._node.get('expandable')) {
-				this._widgets.buttonDelete.set('visible', false);
-			} else {
-				this._widgets.buttonDelete.set('visible', true);
-			}
+			//if (this._node.get('expandable')) {
+			//	this._widgets.buttonDelete.set('visible', false);
+			//} else {
+			this._widgets.buttonDelete.set('visible', true);
+			//}
 		},
 		
 		/**

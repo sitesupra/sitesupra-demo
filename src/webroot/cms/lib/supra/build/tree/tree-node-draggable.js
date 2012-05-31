@@ -356,7 +356,7 @@ YUI.add('supra.tree-node-draggable', function(Y) {
 				var node = this.get('boundingBox').one(this.get('draggableSelector'));
 				if (!node) return !val;
 				
-				node.setClass('isdraggable', val);
+				node.toggleClass('isdraggable', val);
 			}
 			
 			return !!val;

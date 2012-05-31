@@ -514,7 +514,7 @@ YUI.add("supra.input-select", function (Y) {
 					this.set('nodeLoading', node);
 				}
 				
-				box.setClass(this.getClassName('loading'), loading);
+				box.toggleClass(this.getClassName('loading'), loading);
 			}
 			
 			this.set('disabled', loading);

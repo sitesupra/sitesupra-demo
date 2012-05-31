@@ -34,6 +34,11 @@ class ThemeParameterSetConfiguration extends ThemeConfigurationAbstraction
 	 * @var ThemeParameterSet;
 	 */
 	protected $parameterSet;
+	
+	/**
+	 * @var boolean
+	 */
+	public $enabled;
 
 	/**
 	 * @return ThemeParameterSet

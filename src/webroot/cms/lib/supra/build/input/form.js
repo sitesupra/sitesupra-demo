@@ -242,7 +242,7 @@ YUI.add("supra.form", function (Y) {
 		 */
 		addInput: function (config) {
 			if (this.get("rendered")) {
-				if (config.isInstanceOf && config.isInstanceOf(Supra.Input.Proto)) {
+				if (config.isInstanceOf && config.isInstanceOf("input")) {
 					//Add input to the list of form inputs
 					this.inputs[config.get('id')] = config;
 				} else {
@@ -279,7 +279,7 @@ YUI.add("supra.form", function (Y) {
 			
 			//On visibility change show/hide form
 			this.on("visibleChange", function (event) {
-				this.get("boundingBox").setClass("hidden", !event.newVal);
+				this.get("boundingBox").toggleClass("hidden", !event.newVal);
 			}, this);
 			
 			//Find button with "form" attribute which could be in the footer
@@ -676,8 +676,17 @@ YUI.add("supra.form", function (Y) {
 		 * @return All inputs
 		 * @type {Object}
 		 */
-		getInputs: function () {
-			return this.inputs;
+		getInputs: function (key) {
+			if (!key || key == 'id') {
+				return this.inputs;
+			} else {
+				var obj = {},
+					inputs = this.inputs,
+					i = null;
+				
+				for(i in inputs) obj[inputs[i].getAttribute(key)] = inputs[i];
+				return obj;
+			}
 		},
 		
 		/**

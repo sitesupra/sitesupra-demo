@@ -477,7 +477,7 @@ YUI.add("supra.input-color", function (Y) {
 			
 			if (dark != this.mapCursorDark) {
 				this.mapCursorDark = dark;
-				node.setClass("light", !dark);
+				node.toggleClass("light", !dark);
 			}
 			
 			node.setStyles({
@@ -564,7 +564,7 @@ YUI.add("supra.input-color", function (Y) {
 			});
 			
 			if (dark != this.mapHandleDark) {
-				node.setClass("light", !dark);
+				node.toggleClass("light", !dark);
 				this.mapHandleDark = dark;
 			}
 			

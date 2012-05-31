@@ -45,11 +45,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</span>\
 			\
 			<div class="group">\
-				<button type="button" class="localize">{{ "medialibrary.localize"|intl }}</button>\
-				<br />\
-				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
-				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
-				<div class="info hidden">\
+				<div class="info">\
 					{% if extension %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
@@ -70,31 +66,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				\
 				<div class="input-group"><button type="button" class="download">{{ "medialibrary.download"|intl }}</button></div>\
 				<div class="input-group"><button type="button" class="replace">{{ "buttons.replace"|intl }}</button></div>\
-			</div>\
-			\
-			<div class="group hidden">\
-				<div class="inp-locale">\
-					<select name="locale">\
-						{% set contexts = Supra.data.get("contexts") %}\
-						{% set current_locale = null %}\
-						{% for context in contexts %}\
-							{% for locale in context.languages %}\
-								{% if !current_locale %}\
-									{% set current_locale = locale.id %}\
-								{% endif %}\
-								<option value="{{ locale.id }}">{{ locale.title|e }}</option>\
-							{% endfor %}\
-						{% endfor %}\
-					</select>\
-				</div>\
-				<div class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
-					<input type="text" name="title" value="{% if title && title[current_locale] %}{{ title[current_locale]|default("")|escape }}{% endif %}" />\
-				</div>\
-				<div class="inp-description" title="{{ "medialibrary.label_description"|intl }}">\
-					<textarea name="description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</textarea>\
-				</div>\
-				\
-				<button type="button" class="done">{{ "buttons.done"|intl }}</button>\
 			</div>\
 		</div>');
 	
@@ -117,11 +88,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</span>\
 			\
 			<div class="group">\
-				<button type="button" class="localize">{{ "medialibrary.localize"|intl }}</button>\
-				<br />\
-				<a class="more">{{ "medialibrary.more_info"|intl }}</a>\
-				<a class="less hidden">{{ "medialibrary.less_info"|intl }}</a>\
-				<div class="info hidden">\
+				<div class="info">\
 					{% if extension %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.kind"|intl }}</span>\
@@ -150,31 +117,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				<div class="input-group"><button type="button" class="replace">{{ "buttons.replace"|intl }}</button></div>\
 				<div class="input-group"><button type="button" class="edit">{{ "medialibrary.edit"|intl }}</button></div>\
 			</div>\
-			\
-			<div class="group hidden">\
-				<div class="inp-locale">\
-					<select name="locale">\
-						{% set contexts = Supra.data.get("contexts") %}\
-						{% set current_locale = null %}\
-						{% for context in contexts %}\
-							{% for locale in context.languages %}\
-								{% if !current_locale %}\
-									{% set current_locale = locale.id %}\
-								{% endif %}\
-								<option value="{{ locale.id }}">{{ locale.title|e }}</option>\
-							{% endfor %}\
-						{% endfor %}\
-					</select>\
-				</div>\
-				<div class="inp-title" title="{{ "medialibrary.label_title"|intl }}">\
-					<input type="text" name="title" value="{% if title && title[current_locale] %}{{ title[current_locale]|default("")|escape }}{% endif %}" />\
-				</div>\
-				<div class="inp-description" title="{{ "medialibrary.label_description"|intl }}">\
-					<textarea name="description">{% if description && description[current_locale] %}{{ description[current_locale]|default("")|escape }}{% endif %}</textarea>\
-				</div>\
-				\
-				<button type="button" class="done">{{ "buttons.done"|intl }}</button>\
-			</div>\
 		</div>');
 	
 	/**
@@ -194,7 +136,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	Extended.TEMPLATE_FOLDER_ITEM_IMAGE = Template.compile('\
 		<li class="type-image {% if broken or !thumbnail %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a>{% if !broken and thumbnail %}<img src="{{ thumbnail|escape }}?r={{ Math.random() }}" alt="" />{% endif %}</a>\
-			<span>{{ defaultTitle|escape }}</span>\
+			<span>{{ filename|escape }}</span>\
 		</li>');
 		
 	
@@ -214,7 +156,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @type {String}
 		 */
 		'sortBy': {
-			value: 'defaultTitle'
+			value: 'filename'
 		},
 		
 		/**
@@ -258,13 +200,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @private
 		 */
 		property_widgets: {},
-		
-		/**
-		 * Horizontal scrollable area
-		 * @type {Object}
-		 * @private
-		 */
-		scrollable: null,
 		
 		
 		/**
@@ -323,6 +258,114 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			}
 			
 			return this;
+		},
+		
+		/**
+		 * Move folder
+		 * 
+		 * @param {String} id Folder ID
+		 * @param {String} parent New parent folder ID
+		 */
+		moveFolder: function (id /* Folder ID */, parent /* New parent folder ID */) {
+			var data_object = this.get('dataObject'),
+				previous_parent = data_object.getData(id).parent,
+				moved = false,
+				node = this.getItemNode(id),
+				new_slide = null,
+				new_slide_content = null,
+				prev_slide = null,
+				prev_slide_content = null,
+				position = null,
+				was_empty = false;
+			
+			moved = data_object.moveFolder(id, parent, function (data, success) {
+				if (moved) {
+					//Failed to move folder, revert changes
+					if (!success) {
+						
+						data_object.moveFolder(id, previous_parent, true);
+						
+						//Place node back into previous position
+						Y.DOM.restoreInDOM(position);
+						node.setData('itemId', id); //data was lost for some reason
+						
+						//If folder was empty before insert then restore empty template
+						if (was_empty) {
+							var temp = this.renderTemplate({'id': parent}, this.get('templateEmpty'));
+							temp.setData('itemId', parent);
+							new_slide_content.empty().append(temp);
+						}
+						
+						//Update slide scrollbars
+						if (prev_slide_content) prev_slide_content.fire('contentResize');
+						if (new_slide_content) new_slide_content.fire('contentResize');
+						
+						//Trigger folder move
+						this.fire('folderMove', {
+							'id': id,
+							'newParent': previous_parent,
+							'prevParent': parent
+						});
+					} else {
+						if (previous_parent && !data_object.getData(previous_parent).children.length) {
+							//If previous parent is now empty render empty template
+							var temp = this.renderTemplate({'id': previous_parent}, this.get('templateEmpty'));
+							temp.setData('itemId', parent);
+							prev_slide_content.empty().append(temp);
+						}
+						
+						//Node no longer needed
+						node.destroy();
+					}
+					
+					//Trigger folder move
+					this.fire('folderMoveComplete', {
+						'id': id,
+						'newParent': success ? parent : previous_parent,
+						'prevParent': success ? previous_parent : parent
+					});
+				}
+			}, this);
+			
+			//Folder was moved in data
+			if (moved) {
+				new_slide = this.slideshow.getSlide('slide_' + (parent || 0));
+				prev_slide_content = node.closest('.su-slide-content, .su-multiview-slide-content');
+				
+				//Remove item
+				position = Y.DOM.removeFromDOM(node);
+				
+				//Update previous slide scrollbars
+				prev_slide_content.fire('contentResize');
+				
+				if (new_slide) {
+					new_slide_content = new_slide.one('.su-slide-content, .su-multiview-slide-content');
+					
+					if (new_slide.one('div.empty')) {
+						//Currently folder is not rendered into slide, create empty folder
+						var temp = this.renderTemplate({'id': parent}, this.get('templateFolder'));
+						temp.setData('itemId', parent);
+						new_slide_content.empty().append(temp);
+						was_empty = true;
+					}
+					
+					new_slide.one('ul.folder').append(node);
+					new_slide.setData('itemId', parent);
+					node.setData('itemId', id); //data was lost for some reason
+					
+					//Update new slide scrollbars
+					new_slide_content.fire('contentResize');
+				}
+				
+				//Trigger folder move
+				this.fire('folderMove', {
+					'id': id,
+					'newParent': parent,
+					'prevParent': previous_parent
+				});
+			}
+			
+			return moved;
 		},
 		
 		/**
@@ -390,6 +433,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			this.plug(List.Edit, {
 				'dataObject': this.get('dataObject')
 			});
+			
+			//Add plugin for folder drag and drop
+			this.plug(List.FolderDD, {});
 			
 			//Add plugin for editing images
 			this.plug(List.ImageEditor, {
@@ -527,37 +573,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
-		 * Handle localize button click
-		 * 
-		 * @param {Event} event Event
-		 * @private
-		 */
-		handleLocalizeClick: function (event /* Event */) {
-			var node = event.target.get('boundingBox').closest('.su-scrollable-content');
-			
-			node.all('div.group').toggleClass('hidden');
-			
-			//Scrollbars
-			node.fire('contentResize');
-		},
-		
-		/**
-		 * Handle locale change
-		 * 
-		 * @param {Event} event Event
-		 */
-		handleLocaleChange: function (event /* Event */) {
-			var item = this.getSelectedItem(),
-				widgets = this.getPropertyWidgets(),
-				
-				title = Y.Lang.isObject(item.title) ? item.title[event.value] || '' : '',
-				description = Y.Lang.isObject(item.description) ? item.description[event.value] || '' : '';
-			
-			widgets.title.set('value', title || '');
-			widgets.description.set('value', description || '');
-		},
-		
-		/**
 		 * Handle download click
 		 * 
 		 * @param {Event} event Event
@@ -682,26 +697,16 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				
 				//Create buttons
 				var buttons = node.all('button'),
-					btn_localize = new Supra.Button({ 'srcNode': buttons.filter('.localize').item(0) }),
 					btn_download = new Supra.Button({ 'srcNode': buttons.filter('.download').item(0) }),
-					btn_replace  = new Supra.Button({ 'srcNode': buttons.filter('.replace').item(0) }),
-					btn_done     = new Supra.Button({ 'srcNode': buttons.filter('.done').item(0) });
+					btn_replace  = new Supra.Button({ 'srcNode': buttons.filter('.replace').item(0) });
 				
-				btn_localize.render();
 				btn_download.render();
 				btn_replace.render();
-				btn_done.render();
 				
-				inp.btn_localize = btn_localize;
 				inp.btn_download = btn_download;
 				inp.btn_replace = btn_replace;
-				inp.btn_done = btn_done;
 				
 				btn_download.on('click', this.handleDownloadClick, this);
-				
-				//Localization
-				btn_localize.on('click', this.handleLocalizeClick, this);
-				btn_done.on('click', this.handleLocalizeClick, this);
 				
 				//Replace button
 				if (FILE_API_SUPPORTED) {
@@ -728,17 +733,11 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					var obj = new Supra.Input[props.type](props);
 					obj.render();
 					
-					if (name != 'locale') {
-						//Locale is not used for actual data, but only to switch locales
-						obj.on('change', this.edit.onItemPropertyChange, this.edit, {'data': event.data, 'input': obj});
-					}
+					obj.on('change', this.edit.onItemPropertyChange, this.edit, {'data': event.data, 'input': obj});
 					
 					inp[item.get('name')] = obj;
 				}, this);
-				
-				//Handle locale change
-				inp.locale.after('change', this.handleLocaleChange, this);
-				
+								
 				//Save input instances to destroy them when re-rendered
 				this.property_widgets = inp;
 			}
@@ -767,5 +766,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	'supra.medialibrary-list',
 	'supra.slideshow-multiview',
 	'supra.medialibrary-list-edit',
-	'supra.medialibrary-image-editor'
+	'supra.medialibrary-image-editor',
+	'supra.medialibrary-list-folder-dd'
 ]});

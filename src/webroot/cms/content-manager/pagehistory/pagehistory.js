@@ -63,6 +63,13 @@ Supra('anim', function (Y) {
 		 */
 		loading: false,
 		
+		/**
+		 * Data locale
+		 * @type {String}
+		 * @private
+		 */
+		locale: null,
+		
 		
 		
 		
@@ -87,7 +94,7 @@ Supra('anim', function (Y) {
 					'value': false,
 					'setter':
 						function (value) {
-							this.one('.timeline').setClass('disabled', value);
+							this.one('.timeline').toggleClass('disabled', value);
 							return !!value;
 						}
 				}
@@ -164,7 +171,7 @@ Supra('anim', function (Y) {
 					'locale': Supra.data.get('locale')
 				},
 				'on': {
-					'success': function () {
+					'complete': function () {
 						//Re-enable elements
 						this.set('loading', false);
 						this.get('controlButton').set('disabled', false);
@@ -203,6 +210,7 @@ Supra('anim', function (Y) {
 		 * Reload data
 		 */
 		reloadList: function () {
+			this.locale = Supra.data.get('locale');
 			
 			Supra.io(this.getDataPath('load'), {
 				'data': {
@@ -425,7 +433,7 @@ Supra('anim', function (Y) {
 		 */
 		hide: function () {
 			//Restore original content
-			if (this.current_version) {
+			if (this.current_version && Supra.data.get('locale') == this.locale) {
 				this.restoreVersion(this.current_version);
 				this.current_version = null;
 			}

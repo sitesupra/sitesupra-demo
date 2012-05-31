@@ -65,7 +65,8 @@
 	& > .su-scrollable-scrollbar {
 		.su-scrollable-scrollbar-background {
 			background: #2B2838;
-			top: 0;
+			top: 8px;
+			bottom: 8px;
 		}
 	}
 }
@@ -97,6 +98,7 @@
 		}
 		
 		.su-scrollable-draggable {
+			.transition (width 0.15s, left 0.15s);
 			min-height: 0;
 			min-width: 50px;
 			width: auto;

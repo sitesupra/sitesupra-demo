@@ -12,7 +12,7 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 	 * @var string
 	 */
 	public $name;
-	
+
 	/**
 	 * @var string
 	 */
@@ -21,12 +21,12 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 	/**
 	 * @var string
 	 */
-	public $defaultValue;
+	public $defaultValue = 'none';
 
 	/**
 	 * @var string
 	 */
-	public $type;
+	public $type = 'custom';
 
 	/**
 	 * @var string
@@ -37,6 +37,16 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 	 * @var boolean
 	 */
 	public $locked = false;
+
+	/**
+	 * @var boolean
+	 */
+	public $enabled = true;
+
+	/**
+	 * @var boolean
+	 */
+	public $visible = true;
 
 	/**
 	 * @var ThemeParameter
@@ -74,6 +84,19 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 		$parameter->setType($this->type);
 
 		$this->parameter = $parameter;
+	}
+
+	/**
+	 * 
+	 */
+	public function makeDesignData(&$designData)
+	{
+	
+	}
+	
+	public function makeCurrentParameterValues(&$currentValues)
+	{
+		$currentValues[$this->name] = $this->defaultValue;
 	}
 
 }

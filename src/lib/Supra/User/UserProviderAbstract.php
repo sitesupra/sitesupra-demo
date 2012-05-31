@@ -30,7 +30,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	 * Validation filters
 	 * @var array 
 	 */
-	private $validatioFilters = array();
+	private $validationFilters = array();
 
 	/**
 	 * Authentication adapter
@@ -373,5 +373,20 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		return true;
 	}
-
+	
+	/**
+	 * Return an array (key => value) with user settings
+	 * TODO: handle SiteUser preferences for SupraPortal
+	 */
+	public function getUserPreferences(Entity\User $user)
+	{
+		$preferences = array();
+		
+		$collection = $user->getPreferencesCollection();
+		foreach($collection as $userPreference) {
+			$preferences[$userPreference->getName()] = $userPreference->getValue();
+		}
+		
+		return $preferences;
+	}
 }

@@ -171,9 +171,14 @@ Supra(function (Y) {
 						
 						//Icon
 						icon = (block_definition ? block_definition.icon : '');
-						if (!icon && is_placeholder) {
-							//Default placeholder icon
-							icon = '/cms/lib/supra/img/blocks/list.png';
+						if (!icon) {
+							if (is_placeholder) {
+								//Default placeholder icon
+								icon = '/cms/lib/supra/img/blocks/icons-items/list_32x32.png';
+							} else {
+								//Default block icon
+								icon = '/cms/lib/supra/img/blocks/icons-items/default_32x32.png';
+							}
 						}
 						
 						template_data.push({

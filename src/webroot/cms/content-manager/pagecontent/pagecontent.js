@@ -90,9 +90,9 @@ Supra('dd-drag', function (Y) {
 			Manager.loadAction('PageContentSettings');
 			Manager.getAction('PageContentSettings').on('loaded', this.loadModules, this);
 			
-			//Y.Controller route
-			Root.route(Root.ROUTE_PAGE, 		Y.bind(this.onStopEditingRoute, this));
-			Root.route(Root.ROUTE_PAGE_EDIT,	Y.bind(this.onStartEditingRoute, this));
+			//Y.Router route
+			Root.router.route(Root.ROUTE_PAGE, 		Y.bind(this.onStopEditingRoute, this));
+			Root.router.route(Root.ROUTE_PAGE_EDIT,	Y.bind(this.onStartEditingRoute, this));
 			
 			//If user tries to navigate away show prompt if there are unsaved changes
 			window.onbeforeunload = Y.bind(function (evt) {
@@ -161,12 +161,12 @@ Supra('dd-drag', function (Y) {
 			if (!this.editing) {
 				var uri = Root.ROUTE_PAGE_EDIT.replace(':page_id', Manager.Page.getPageData().id);
 				
-				if (Root.getPath().indexOf(uri) === 0) {
+				if (Root.router.getPath().indexOf(uri) === 0) {
 					//If already target URI, then start editing
 					this.onStartEditingRoute();
 				} else {
 					//Navigate to target URI
-					Root.save(uri);
+					Root.router.save(uri);
 				}
 			}
 		},
@@ -235,9 +235,9 @@ Supra('dd-drag', function (Y) {
 		stopEditing: function () {
 			if (this.editing) {
 				//Route only if on /12/edit page
-				if (this.getPath().match(Root.ROUTE_PAGE_EDIT_R)) {
+				if (Root.router.getPath().match(Root.ROUTE_PAGE_EDIT_R)) {
 					var uri = Root.ROUTE_PAGE.replace(':page_id', Manager.Page.getPageData().id);
-					Root.save(uri);
+					Root.router.save(uri);
 				} else {
 					this.onStopEditingRoute();
 				}
@@ -246,10 +246,16 @@ Supra('dd-drag', function (Y) {
 		onStopEditingRoute: function (req) {
 			if (this.editing) {
 				this.editing = false;
-				Manager.PageContent.iframe_handler.getContent().set('activeChild', null);
 				
-				//Disable highlights
-				this.getContent().set('highlight', true);
+				//In other version preview page is not editable
+				var content = Manager.PageContent.iframe_handler.getContent();
+				if (content) {
+					//Stop editing
+					content.set('activeChild', null);
+					
+					//Disable highlights
+					content.set('highlight', true);
+				}
 			}
 			
 			if (req) req.next();
@@ -313,7 +319,7 @@ Supra('dd-drag', function (Y) {
 				
 				//If editing was called before content was ready or there is a route path
 				//then call it now
-				if (this.edit_on_ready || Root.getPath().match(Root.ROUTE_PAGE_EDIT_R) || Root.getPath().match(Root.ROUTE_PAGE_CONT_R)) {
+				if (this.edit_on_ready || Root.router.getPath().match(Root.ROUTE_PAGE_EDIT_R) || Root.router.getPath().match(Root.ROUTE_PAGE_CONT_R)) {
 					this.iframe_handler.once('ready', function () {
 						this.edit_on_ready = false;
 						this.onStartEditingRoute();

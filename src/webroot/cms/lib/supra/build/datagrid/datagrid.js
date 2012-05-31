@@ -107,6 +107,21 @@ YUI.add("supra.datagrid", function (Y) {
 		'style': {
 			'value': 'grid',
 			'setter': '_setStyle'
+		},
+		
+		/**
+		 * Rows are clickable
+		 */
+		'clickable': {
+			'value': true,
+			'setter': '_setClickable'
+		},
+		
+		/**
+		 * Datagrid is scrollable
+		 */
+		'scrollable': {
+			'value': true
 		}
 	};
 	
@@ -132,7 +147,7 @@ YUI.add("supra.datagrid", function (Y) {
 			return node;
 		},
 		'nodeScrollable': function (srcNode) {
-			return srcNode.closest('.su-scrollable');
+			return this.get('scrollable') ? srcNode.closest('.su-scrollable') : null;
 		}
 	};
 	
@@ -259,9 +274,12 @@ YUI.add("supra.datagrid", function (Y) {
 		
 		'initializer': function () {
 			this.rows = [];
-			this.scrollable = new Supra.Scrollable({
-				'srcNode': this.get('contentBox')
-			});
+			
+			if (this.get('scrollable')) {
+				this.scrollable = new Supra.Scrollable({
+					'srcNode': this.get('contentBox')
+				});
+			}
 		},
 		
 		/**
@@ -277,7 +295,9 @@ YUI.add("supra.datagrid", function (Y) {
 			this.tableNode.append(this.tableBodyNode);
 			
 			//Create scrollable
-			this.scrollable.render();
+			if (this.scrollable) {
+				this.scrollable.render();
+			}
 			
 			//Create headings
 			var fields = [],
@@ -298,8 +318,8 @@ YUI.add("supra.datagrid", function (Y) {
 					fields.push(column.id);
 				}
 				
-				id = column.id.replace(/[^a-z0-9\-_]*/g, '');
-				node = Y.Node.create('<th class="col-' + id + '">' + (column.title || '') + '</th>');
+				id = column.id.replace(/[^a-z0-9\-_]*/ig, '');
+				node = Y.Node.create('<th ' + (column.width ? 'width="' + column.width + '" ' : '') + 'class="col-' + id + '">' + (column.title || '') + '</th>');
 				heading.append(node);
 			}
 			
@@ -368,6 +388,7 @@ YUI.add("supra.datagrid", function (Y) {
 		 */
 		'syncUI': function () {
 			this.set('style', this.get('style'));
+			this.set('clickable', this.get('clickable'));
 		},
 		
 		
@@ -549,7 +570,11 @@ YUI.add("supra.datagrid", function (Y) {
 		 * @type {Object}
 		 */
 		'getRowByNode': function (node) {
-			var rows = this.rows;
+			var node = node.test('TR') ? node : node.closest('TR'),
+				rows = this.rows;
+			
+			if (!node) return null;
+			
 			for(var i=0,ii=rows.length; i<ii; i++) {
 				if (rows[i].getNode().compareTo(node)) return rows[i];
 			}
@@ -574,6 +599,8 @@ YUI.add("supra.datagrid", function (Y) {
 				if (rows[i] === row) {
 					var data = row.getData();
 					this.rows = rows.slice(0, i).concat(rows.slice(i+1));
+					
+					this.fire('row:remove', {'data': data, 'row': row});
 					
 					if (!keep) {
 						row.destroy();
@@ -604,6 +631,8 @@ YUI.add("supra.datagrid", function (Y) {
 			this.rows = [];
 			
 			if (!changing) this.endChange();
+			
+			this.fire('row:removeAll', {'rows': rows});
 		},
 		
 		/**
@@ -660,6 +689,9 @@ YUI.add("supra.datagrid", function (Y) {
 				
 				//Insert into DOM
 				this.tableBodyNode.append(row.getNode());
+				
+				//Trigger event
+				this.fire('row:add', {'data': row.getData(), 'row': row});
 				
 				//Trigger change
 				this.handleChange();
@@ -856,7 +888,9 @@ YUI.add("supra.datagrid", function (Y) {
 			if (node) {
 				node.fire('contentResize');
 			} else {
-				this.scrollable.syncUI();
+				if (this.scrollable) {
+					this.scrollable.syncUI();
+				}
 			}
 			
 			return this;
@@ -913,7 +947,7 @@ YUI.add("supra.datagrid", function (Y) {
 			
 			var columns = this.get('columns'),
 				data_columns = this.get('dataColumns'),
-				regex = /([^a-z0-9]id[^a-z0-9]|^id[^a-z0-9]|[^a-z0-9]id$)/;
+				regex = /([^a-z0-9]id[^a-z0-9]|^id[^a-z0-9]|[^a-z0-9]id$)/i;
 			
 			for(var i=0,ii=columns.length; i<ii; i++) {
 				if (columns[i].id == 'id' || columns[i].id.match(regex)) {
@@ -951,9 +985,34 @@ YUI.add("supra.datagrid", function (Y) {
 		 * @private
 		 */
 		'_setStyle': function (style) {
-			style = style ? String(style) : 'grid';
+			var old_style = String(this.get('style') || 'grid');
+			this.get('boundingBox').removeClass(this.getClassName(old_style));
+			
+			style = String(style || 'grid');
 			this.get('boundingBox').addClass(this.getClassName(style));
+			
 			return style;
+		}, 
+		
+		/**
+		 * Clickable attribute setter
+		 * 
+		 * @param {String} clickable New clickable attribute value
+		 * @return New clickable attribute value
+		 * @type {String}
+		 * @private
+		 */
+		'_setClickable': function (clickable) {
+			this.get('boundingBox').toggleClass(this.getClassName('clickable'), clickable);
+			return clickable;
+		},
+		
+		/**
+		 * Destructor
+		 */
+		'destructor': function () {
+			this.scrollable.destroy();
+			this.set('scrollable', null);
 		}
 	});
 	

@@ -215,12 +215,6 @@ function (Y) {
 			//Language selector
 			this.languageSelector = this.renderLanguageBar();
 			
-			//New page list
-			this.newPage = this.renderNewPage();
-			
-			//Recycle bin
-			this.deletePage = this.renderRecycleBin();
-			
 			//Tree
 			this.tree = new this.Tree({
 				'srcNode': this.one('#tree'),
@@ -237,6 +231,12 @@ function (Y) {
 			
 			//Render
 			this.tree.render();
+			
+			//New page list
+			this.newPage = this.renderNewPage();
+			
+			//Recycle bin
+			this.deletePage = this.renderRecycleBin();
 			
 			//While tree is loading show icon
 			this.tree.on('loadingChange', this.handleLoading, this);
@@ -315,6 +315,48 @@ function (Y) {
 		 * @private
 		 */
 		triggerPageSelect: function (evt) {
+			
+			evt.data = Supra.mix({}, evt.data);
+			if(evt.data.redirect && evt.data.redirect_page_id != '') {
+				Supra.Manager.executeAction('Confirmation', {
+							'message': '{#page.follow_redirect#}',
+							'useMask': true,
+							'buttons': [{
+								'id': 'yes',
+								'label': Supra.Intl.get(['buttons', 'yes']),
+								'click': this._handleRedirectConfirmation,
+								'context': this,
+								'args': [true, evt]
+							},
+							{
+								'id': 'no',
+								'label': Supra.Intl.get(['buttons', 'no']),
+								'click': this._handleRedirectConfirmation,
+								'context': this,
+								'args': [false, evt]
+							}]
+						});
+			
+				return;
+			}
+			
+			this.fire('page:select', {
+				'data': evt.data,
+				'node': evt.node
+			});
+		},
+		
+		/**
+		 *
+		 */
+		_handleRedirectConfirmation: function(e, args) {
+			var follow = args[0],
+			evt = args[1];
+			
+			if(follow) {
+				evt.data.id = evt.data.redirect_page_id;
+			}
+			
 			this.fire('page:select', {
 				'data': evt.data,
 				'node': evt.node
@@ -338,17 +380,20 @@ function (Y) {
 			}
 			
 			var post_data = {
-					//New parent ID
-					'parent_id': node.get('root') ? 0 : node.get('parent').get('data').id,
-					//Item ID before which drag item was inserted
-					'reference_id': reference ? reference.get('data').id : '',
-					'reference_type': reference_type,
-					//Dragged item ID
-					'page_id': node.get('data').id,
-					
-					//Locale
-					'locale': this.languageSelector.get('value')
-				};
+				//New parent ID
+				'parent_id': node.get('root') ? 0 : node.get('parent').get('data').id,
+				//Item ID before which drag item was inserted
+				'reference_id': reference ? reference.get('data').id : '',
+				'reference_type': reference_type,
+				//Dragged item ID
+				'page_id': node.get('data').id,
+				
+				//Locale
+				'locale': this.languageSelector.get('value')
+			};
+			
+			//Update data full_path
+			node.updateFullPath();
 			
 			//Send request
 			Supra.io(this.getDataPath('move'), {
@@ -494,7 +539,7 @@ function (Y) {
 				if (silent !== true) {
 					//Update URI
 					var Root = Supra.Manager.Root;
-					Root.save(Root.ROUTE_SITEMAP);
+					Root.router.save(Root.ROUTE_SITEMAP);
 				}
 			}
 		},
@@ -517,7 +562,7 @@ function (Y) {
 				if (silent !== true) {
 					//Update URI
 					var Root = Supra.Manager.Root;
-					Root.save(Root.ROUTE_TEMPLATES);
+					Root.router.save(Root.ROUTE_TEMPLATES);
 				}
 			}
 		},

@@ -23,8 +23,11 @@ class FileStorage
 
 	const VALIDATION_EXTENSION_RENAME_MESSAGE_KEY = 'medialibrary.validation_error.extension_rename';
 	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
-	
+
 	const MISSING_IMAGE_PATH = '/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/broken-image.png';
+
+	const FILE_INFO_EXTERNAL = 1;
+	const FILE_INFO_INTERNAL = 2;
 
 	/**
 	 * File Storage internal path
@@ -146,7 +149,7 @@ class FileStorage
 	{
 		$this->fileUploadFilters[] = $filter;
 	}
-	
+
 	/**
 	 * Add folder upload filter
 	 * @param Validation\FolderValidationInterface $filter
@@ -155,13 +158,6 @@ class FileStorage
 	{
 		$this->folderUploadFilters[] = $filter;
 	}
-
-	// TODO: LIST (children by folder id)
-	// TODO: getDoctrineRepository()
-	// TODO: getFile($fileId)
-	// TODO: getFolder($fileId)
-	// TODO: getFileHandle(File $file)
-	// TODO: setDbConnection
 
 	/**
 	 * Validates against filters
@@ -175,7 +171,7 @@ class FileStorage
 			$filter->validateFile($file, $sourceFilePath);
 		}
 	}
-	
+
 	/**
 	 * Store file data
 	 *
@@ -192,8 +188,7 @@ class FileStorage
 
 		if ( ! copy($sourceFilePath, $filePath)) {
 			throw new Exception\RuntimeException('Failed to copy file form "' . $sourceFilePath . '" to "' . $filePath . '"');
-		}
-		else {
+		} else {
 			chmod($filePath, $this->fileAccessMode);
 		}
 	}
@@ -201,16 +196,19 @@ class FileStorage
 	/**
 	 * Rename file in all file storages
 	 * @param Entity\File $file
-	 * @param string $filename new file name
+	 * @param string $fileName new file name
 	 * @throws Exception\UploadFilterException on not valid change
 	 */
-	public function renameFile(Entity\File $file, $filename)
+	public function renameFile(Entity\File $file, $fileName)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
 
 		$newFile = clone($file);
 		$entityManager->detach($newFile);
-		$newFile->setFileName($filename);
+
+		$oldName = $file->getFileName();
+
+		$newFile->setFileName($fileName);
 
 		$oldExtension = $file->getExtension();
 		$newExtension = $newFile->getExtension();
@@ -221,10 +219,14 @@ class FileStorage
 
 		$this->validateFileUpload($newFile);
 
-		$this->renameFileInFileSystem($file, $filename);
+		$this->renameFileInFileSystem($file, $fileName);
 
 		$entityManager->merge($newFile);
 		$entityManager->flush();
+
+		// to track title changes in audit
+		$file->setFileName($oldName);
+		$file->setFileName($fileName);
 	}
 
 	/**
@@ -254,8 +256,7 @@ class FileStorage
 						}
 					}
 				}
-			}
-			else {
+			} else {
 				throw new Exception\RuntimeException('File renaming failed');
 			}
 		}
@@ -323,8 +324,7 @@ class FileStorage
 				if ( ! $result) {
 					throw new Exception\RuntimeException("Failed to rename folder from '$oldFullPath' to '$newFullPath'");
 				}
-			}
-			else {
+			} else {
 				$this->log()->warn("Folder '$oldFullPath' missing in filesystem on rename");
 				$this->createFolderInFileSystem($basePath, $newFolder);
 			}
@@ -384,8 +384,7 @@ class FileStorage
 
 			if (mkdir($fullPath, $this->folderAccessMode, true)) {
 				return true;
-			}
-			else {
+			} else {
 				throw new Exception\RuntimeException('Could not create folder in ' . $fullPath);
 			}
 		}
@@ -413,11 +412,9 @@ class FileStorage
 
 		if ($file instanceof Entity\File) {
 			$this->setPublicForFile($file, $public);
-		}
-		else if ($file instanceof Entity\Folder) {
+		} else if ($file instanceof Entity\Folder) {
 			$this->setPublicForFolder($file, $public);
-		}
-		else {
+		} else {
 			throw new Exception\RuntimeException('Wrong entity passed');
 		}
 	}
@@ -455,22 +452,21 @@ class FileStorage
 				$fileDir = $file->getPath(DIRECTORY_SEPARATOR, false)
 						. DIRECTORY_SEPARATOR
 						. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR;
-				
+
 				foreach ($sizes as $size) {
-					
-					$sizeDir = $fileDir .  DIRECTORY_SEPARATOR
+
+					$sizeDir = $fileDir . DIRECTORY_SEPARATOR
 							. $size->getFolderName() . DIRECTORY_SEPARATOR;
-					
+
 					$externalPath = $this->getExternalPath() . $sizeDir;
 					$this->createFolderInFileSystem($externalPath);
-					
+
 					$internalPath = $this->getInternalPath() . $sizeDir;
 					$this->createFolderInFileSystem($internalPath);
-						
+
 					$fileList[] = $fileDir . DIRECTORY_SEPARATOR
 							. $size->getFolderName() . DIRECTORY_SEPARATOR
 							. $file->getFileName();
-				
 				}
 			}
 		}
@@ -482,14 +478,13 @@ class FileStorage
 				$this->moveFileToExternalStorage($filePath, $folder);
 			}
 			$file->setPublic(true);
-		}
-		else {
+		} else {
 			foreach ($fileList as $filePath) {
 				$this->moveFileToInternalStorage($filePath, $folder);
 			}
 			$file->setPublic(false);
 		}
-		
+
 		$file->setModificationTime();
 	}
 
@@ -528,7 +523,7 @@ class FileStorage
 		if ( ! rename($oldPath, $newPath)) {
 //			throw new Exception\RuntimeException('Failed to move file to the public storage');
 			$filename = basename($newPath);
-			$this->log()->warn('Failed to move file ('. $filename .') to the public storage');
+			$this->log()->warn('Failed to move file (' . $filename . ') to the public storage');
 		}
 	}
 
@@ -547,8 +542,84 @@ class FileStorage
 		if ( ! rename($oldPath, $newPath)) {
 			// throw new Exception\RuntimeException('Failed to move file to the private storage');
 			$filename = basename($newPath);
-			$this->log()->warn('Failed to move file ('. $filename .') to the private storage');
+			$this->log()->warn('Failed to move file (' . $filename . ') to the private storage');
 		}
+	}
+
+	/**
+	 * Move file or folder
+	 * 
+	 * @param Entity\Abstraction\File $entity
+	 * @param Entity\Abstraction\File $target or null
+	 * 
+	 * @throws Exception\RuntimeException
+	 */
+	public function move(Entity\Abstraction\File $entity, $target = null)
+	{
+		$entityManager = $this->getDoctrineEntityManager();
+		$entityManager->beginTransaction();
+
+		try {
+			// move entity in database
+			$entityManager->persist($entity);
+
+			$otherStorageOldPath = null;
+			if ($entity instanceof Entity\Folder) {
+				if ($entity->isPublic()) {
+					$otherStorageOldPath = $this->getFilesystemPath($entity, true, self::FILE_INFO_INTERNAL);
+				} else {
+					$otherStorageOldPath = $this->getFilesystemPath($entity, true, self::FILE_INFO_EXTERNAL);
+				}
+			}
+
+			$oldPath = $this->getFilesystemPath($entity);
+
+			if ($target instanceof Entity\Folder) {
+				$entity->moveAsLastChildOf($target);
+			} else {
+				$rootLevelFolder = $entityManager->getRepository(Entity\Abstraction\File::CN())
+						->findOneBy(array('level' => 0));
+
+				if ( ! $rootLevelFolder instanceof Entity\Abstraction\File) {
+					throw new Exception\RuntimeException('Failed to find root level file');
+				}
+
+				$entity->moveAsNextSiblingOf($rootLevelFolder);
+			}
+
+			$entityManager->flush();
+
+
+			$otherStorageNewPath = null;
+			if ($entity instanceof Entity\Folder) {
+				if ($entity->isPublic()) {
+					$otherStorageNewPath = $this->getFilesystemPath($entity, true, self::FILE_INFO_INTERNAL);
+				} else {
+					$otherStorageNewPath = $this->getFilesystemPath($entity, true, self::FILE_INFO_EXTERNAL);
+				}
+			}
+
+			$newPath = $this->getFilesystemPath($entity);
+
+			// move file/folder in file system
+			if ( ! rename($oldPath, $newPath)) {
+				throw new Exception\RuntimeException('Failed to move in filesystem');
+			}
+
+			// move file/folder from opposite storage in  file system
+			if ($entity instanceof Entity\Folder) {
+				if ( ! rename($otherStorageOldPath, $otherStorageNewPath)) {
+					throw new Exception\RuntimeException('Failed to move in filesystem');
+				}
+			}
+			$entityManager->commit();
+		} catch (\Exception $e) {
+			$entityManager->rollback();
+			throw $e;
+		}
+
+		// return entity back
+		return $entity;
 	}
 
 	/**
@@ -572,10 +643,10 @@ class FileStorage
 		}
 
 		$sizeName = $this->getImageSizeName($targetWidth, $targetHeight, $cropped);
-		
+
 		if ( ! $this->fileExists($file)) {
 			$this->log()->warn("Image '{$file->getFileName()}' is missing in the filesystem, tried to resize to {$sizeName}");
-			
+
 			return $sizeName;
 		}
 
@@ -806,8 +877,7 @@ class FileStorage
 
 		if ($isImage === 0) {
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
@@ -816,18 +886,23 @@ class FileStorage
 	 * Get full file path or its directory (with trailing slash)
 	 * @param Entity\Abstraction\File $file
 	 * @param boolean $dirOnly 
+	 * @param integer $forcePath Forces external or internal path. Use FILE_INFO_EXTERNAL and FILE_INFO_INTERNAL constants
 	 * @return string
 	 */
-	public function getFilesystemPath(Entity\Abstraction\File $file, $includeFilename = true)
+	public function getFilesystemPath(Entity\Abstraction\File $file, $includeFilename = true, $forcePath = null)
 	{
 		if ( ! $file instanceof Entity\Abstraction\File) {
 			throw new Exception\RuntimeException('File or folder entity expected');
 		}
+
 		$path = $this->getInternalPath();
 
-		if ($file->isPublic()) {
-			$path = $this->getExternalPath();
+		if ($forcePath != self::FILE_INFO_INTERNAL) {
+			if ($file->isPublic() || $forcePath == self::FILE_INFO_EXTERNAL) {
+				$path = $this->getExternalPath();
+			}
 		}
+
 		$path .= $file->getPath(DIRECTORY_SEPARATOR, false);
 		$path .= DIRECTORY_SEPARATOR;
 
@@ -865,8 +940,7 @@ class FileStorage
 			$path .= self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
 					. $size->getFolderName() . DIRECTORY_SEPARATOR
 					. $file->getFileName();
-		}
-		else {
+		} else {
 			$path .= $file->getFileName();
 		}
 		return $path;
@@ -883,7 +957,7 @@ class FileStorage
 		if ( ! $file instanceof Entity\File) {
 			throw new Exception\RuntimeException('File or folder entity expected');
 		}
-		
+
 		if ($file instanceof Entity\Image && isset($size)) {
 			if ( ! $size instanceof Entity\ImageSize) {
 				$size = $file->findImageSize($size);
@@ -896,11 +970,11 @@ class FileStorage
 			$path = '/';
 			// get file storage dir in webroot and fix backslash on windows
 			$path .= str_replace(array(SUPRA_WEBROOT_PATH, "\\"), array('', '/'), $this->getExternalPath());
-			
+
 			// get file dir
 			$pathNodes = $file->getAncestors(0, false);
 			$pathNodes = array_reverse($pathNodes);
-			
+
 			foreach ($pathNodes as $pathNode) {
 				/* @var $pathNode Entity\Folder */
 				$path .= rawurlencode($pathNode->getFileName()) . '/';
@@ -913,10 +987,10 @@ class FileStorage
 
 			// Encode the filename URL part
 			$path .= rawurlencode($file->getFileName());
-			
+
 			return $path;
 		}
-		
+
 		return null;
 	}
 
@@ -943,7 +1017,7 @@ class FileStorage
 		if ($oldFileIsImage !== $newFileIsImage) {
 			throw new Exception\UploadFilterException(self::VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY, 'New file should be image too');
 		}
-		
+
 		$originalFile = clone($fileEntity);
 		$entityManager->detach($originalFile);
 
@@ -951,10 +1025,10 @@ class FileStorage
 		$fileEntity->setFileName($file['name']);
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
-		
+
 		// This must be call before removing the old file
 		$this->validateFileUpload($fileEntity, $file['tmp_name']);
-		
+
 		$this->removeFileInFileSystem($originalFile);
 
 		$this->storeFileData($fileEntity, $file['tmp_name']);
@@ -969,7 +1043,7 @@ class FileStorage
 			// reprocess sizes
 			$this->recreateImageSizes($fileEntity);
 		}
-		
+
 		$fileEntity->setModificationTime();
 
 		$entityManager->flush();
@@ -1030,11 +1104,9 @@ class FileStorage
 				throw new Exception\RuntimeException('You can remove only empty folders');
 			}
 			$this->removeFolder($entity);
-		}
-		elseif ($entity instanceof Entity\File) {
+		} elseif ($entity instanceof Entity\File) {
 			$this->removeFile($entity);
-		}
-		else {
+		} else {
 			throw new Exception\LogicException('Not recognized file type passed: ' . get_class($entity));
 		}
 	}
@@ -1096,7 +1168,7 @@ class FileStorage
 			$info['file_web_path'] = $filePath;
 
 			if ($file instanceof Entity\Image) {
-				
+
 				//CMS need to know, if image still exists in file storage
 				$fileExists = $this->fileExists($file);
 				$info['exists'] = $fileExists;
@@ -1111,8 +1183,7 @@ class FileStorage
 					// TODO: original size is also as size, such skipping is ugly
 					if ($sizeName == 'original') {
 						$sizePath = $filePath;
-					}
-					else {
+					} else {
 						$sizePath = $this->getWebPath($file, $sizeName);
 					}
 
@@ -1135,7 +1206,7 @@ class FileStorage
 		return $info;
 	}
 
-		/**
+	/**
 	 * Retuns folder access mode like "0750"
 	 * @return string 
 	 */
@@ -1152,7 +1223,7 @@ class FileStorage
 	{
 		return $this->fileAccessMode;
 	}
-	
+
 	/**
 	 * Checks if the file exists
 	 * @param Entity\File $file
@@ -1162,37 +1233,38 @@ class FileStorage
 	{
 		$path = $this->getFilesystemPath($file);
 		$fileExists = file_exists($path);
-		
+
 		return $fileExists;
 	}
-	
+
 	public function calculateImageSizeFromHeight($originalWidth, $originalHeight, $expectedHeight)
 	{
 		$newWidth = null;
-		if($originalWidth > $originalHeight) {
-			$newWidth = round(($originalHeight/$originalWidth) * $expectedHeight);
-		} else{
-			$newWidth = round(($originalWidth/$originalHeight) * $expectedHeight);
+		if ($originalWidth > $originalHeight) {
+			$newWidth = round(($originalHeight / $originalWidth) * $expectedHeight);
+		} else {
+			$newWidth = round(($originalWidth / $originalHeight) * $expectedHeight);
 		}
-		
+
 		return array(
 			'height' => $expectedHeight,
 			'width' => $newWidth,
 		);
 	}
-	
+
 	public function calculateImageSizeFromWidth($originalWidth, $originalHeight, $expectedWidth)
 	{
 		$newHeight = null;
-		if($originalWidth > $originalHeight) {
-			$newHeight = round(($originalWidth/$originalHeight) * $expectedWidth);
-		} else{
-			$newHeight = round(($originalHeight/$originalWidth) * $expectedWidth);
+		if ($originalWidth > $originalHeight) {
+			$newHeight = round(($originalWidth / $originalHeight) * $expectedWidth);
+		} else {
+			$newHeight = round(($originalHeight / $originalWidth) * $expectedWidth);
 		}
-		
+
 		return array(
 			'height' => $newHeight,
 			'width' => $expectedWidth,
 		);
 	}
+
 }

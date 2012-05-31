@@ -157,6 +157,10 @@ YUI.add("supra.datagrid-row", function (Y) {
 					if (value !== null && value !== undefined) {
 						td.set('innerHTML', value);
 					}
+					
+					if (columns[i].renderer && isfunc(columns[i].renderer)) {
+						columns[i].renderer.call(this, column_id, value, this.data, td);
+					}
 				}
 			}
 		},
@@ -172,7 +176,7 @@ YUI.add("supra.datagrid-row", function (Y) {
 			if (!this.node) return;
 			if (column_id in this.nodes) return this.nodes[column_id];
 			
-			var id = column_id.replace(/[^a-z0-9\-_]*/g, '');
+			var id = column_id.replace(/[^a-z0-9\-_]*/ig, '');
 			return this.nodes[column_id] = this.node.one('td.row-' + id);
 		},
 		
@@ -219,32 +223,57 @@ YUI.add("supra.datagrid-row", function (Y) {
 				data = this.data,
 				column = null,
 				column_id = null,
-				value = null;
+				classname = null,
+				align = null,
+				value = null,
+				renderers = [];
 			
 			for(var i=0,ii=columns.length; i<ii; i++) {
 				column = columns[i];
-				if (column.title !== null) {
-					column_id = column.id;
-					value = (column_id in data ? data[column_id] : '');
-					
-					if (value === undefined || value === null) {
-						value = '';
-					}
-					
-					//Format data if needed
-					if (column.formatter && isfunc(column.formatter)) {
-						value = column.formatter.call(this, column_id, value, data);
-					} else if (column.escape) {
-						//Formatter should handle escaping
-						value = escape(String(value));
-					}
-					
-					html[html.length] = '<td class="row-' + column_id.replace(/[^a-z0-9\-_]*/g, '') + '">' + value + '</td>';
+				column_id = column.id;
+				value = (column_id in data ? data[column_id] : '');
+				classname = 'row-' + column_id.replace(/[^a-z0-9\-_]*/ig, '');
+				
+				if (value === undefined || value === null) {
+					value = '';
 				}
+				
+				//Format data if needed
+				if (column.formatter && isfunc(column.formatter)) {
+					value = column.formatter.call(this, column_id, value, data);
+				} else if (column.escape) {
+					//Formatter should handle escaping
+					value = escape(String(value));
+				}
+				
+				//Align text
+				if (column.align) {
+					align = ' align-' + column.align;
+				} else {
+					align = '';
+				}
+				
+				if (column.renderer && isfunc(column.renderer)) {
+					renderers.push({'renderer': column.renderer, 'classname': classname, 'column_id': column_id, 'value': value});
+				}
+				
+				html[html.length] = '<td ' + (column.width ? 'width="' + column.width + '" ' : '') + 'class="' + classname + align + '">' + value + '</td>';
 			}
 			
-			this.node = Y.Node.create('<tr>' + html.join('') + '</tr>');
+			var tr = this.node = Y.Node.create('<tr>' + html.join('') + '</tr>');
 			this.node.setData('rowID', this.getID());
+			
+			//Renderers
+			var td = null,
+				renderer = null;
+			
+			for(var i=0,ii=renderers.length; i<ii; i++) {
+				renderer = renderers[i];
+				td = tr.one('td.' + renderer.classname);
+				if (td) {
+					renderer.renderer.call(this, renderer.column_id, renderer.value, data, td);
+				}
+			}
 			
 			return this.node;
 		},

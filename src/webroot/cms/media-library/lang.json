@@ -44,9 +44,10 @@
 			"label_description": "Description",
 			"label_filename": "Filename",
 			
-			"localize": "Localize",
 			"download": "Download",
 			"edit": "Edit",
+			
+			"insert": "Insert",
 			
 			"more_info": "More info",
 			"less_info": "Less info",

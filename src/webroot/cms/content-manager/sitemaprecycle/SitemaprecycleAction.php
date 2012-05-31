@@ -55,7 +55,7 @@ class SitemaprecycleAction extends PageManagerAction
 		$trashRevisionsById = array();
 		if ( ! empty($trashRevisions)) {
 			// collecting ids
-			$revisionsId = array();
+			$revisionIds = array();
 			foreach ($trashRevisions as $revision) {
 				$revisionIds[] = $revision->getId();
 				$trashRevisionsById[$revision->getId()] = $revision;
@@ -100,13 +100,13 @@ class SitemaprecycleAction extends PageManagerAction
 					'title'		=> $pageLocalization->getTitle(),
 					'template'	=> $templateId,
 					'path'		=> $pathPart,
+					'revision'	=> $pageLocalization->getRevisionId(),
+					'localized' => true,
 					// TODO: hardcoded	
 					'published' => false,
 					'scheduled' => true,
 					'date'		=> $dateCreated,
-					'version'	=> 1,
 					'icon'		=> 'page',
-					'preview'	=> '/cms/lib/supra/img/sitemap/preview/page-1.jpg',
 				);
 
 				$response[] = $pageInfo;

@@ -67,7 +67,7 @@
 			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language. Copy from the current language?",
 			
 			"unsaved_changed": "There are unsaved changes. Are you sure you want to leave this page?",
-			
+			"follow_redirect": "Page has redirect. Do you want to follow redirect?",
 			"error": {
 				"page_locked": "Page is locked by another user"
 			}
@@ -139,6 +139,9 @@
 			},
 			
 			"image_properties": "Image properties",
+			"image_size": "Image size",
+			"size_custom": "Custom",
+			"size_original": "Original",
 			"image_title": "Image title",
 			"image_description": "Alt text",
 			"image_alignment": "Align",
@@ -272,6 +275,7 @@
 			},
 			
 			"select_language": "Select language",
+			"select_template": "Select template",
 			
 			"status_not_created": "NOT-CREATED",
 			"status_draft": "DRAFT",
@@ -327,6 +331,10 @@
 				"page_not_found": "The page does not exist anymore",
 				"parent_page_not_found": "The parent page does not exist anymore",
 				"duplicate_path": "Page with the same path already exists"
+			},
+			
+			"confirmation": {
+				"duplicate_path": "'Page with the same path already exists. Do you want server to regenerate path automatically?"
 			}
 		},
 		

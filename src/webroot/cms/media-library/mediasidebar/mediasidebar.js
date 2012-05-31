@@ -99,6 +99,9 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 				//Display only images + folders
 				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES,
 				
+				//Show "Insert" button
+				'allowInsert': true,
+				
 				//Because of drag and drop we need to load sizes and descriptions
 				//when loading all images in the folder, not only when opening image
 				'loadItemProperties': ['sizes', 'description'],
@@ -125,17 +128,10 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 				} else {
 					this.get('backButton').show();
 				}
-				
-				//Get current slide data and show "Insert" if image is selected
-				if (evt.newVal) {
-					var item_data = this.getData(evt.newVal.replace('slide_', ''));
-					if (item_data && item_data.type != Supra.MediaLibraryData.TYPE_FOLDER) {
-						this.get('controlButton').set('label', '{# buttons.insert #}');
-					} else {
-						this.get('controlButton').set('label', '{# buttons.close #}');
-					}
-				}
 			}, this);
+			
+			//On insert button click insert image
+			list.on('insertClick', this.insert, this);
 		},
 		
 		/**
@@ -144,19 +140,8 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 		 * @private
 		 */
 		renderHeader: function () {
-			
 			this.get('backButton').on('click', this.medialist.openPrevious, this.medialist);
-			
-			this.get('controlButton').on('click', function () {
-				var slide = this.medialist.slideshow.get('slide'),
-					item_data = this.getData(slide.replace('slide_', ''));
-				
-				if (item_data && item_data.type != Supra.MediaLibraryData.TYPE_FOLDER) {
-					this.insert();
-				} else {
-					this.close();
-				}
-			}, this);
+			this.get('controlButton').on('click', this.close, this);
 			
 		},
 		

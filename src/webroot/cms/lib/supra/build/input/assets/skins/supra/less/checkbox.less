@@ -131,3 +131,44 @@
 		color: #646478;
 	}	
 }
+
+/**
+ * Dark center theme
+ */
+.ui-center-dark .yui3-input-checkbox-bg {
+	&,
+	span.pin {
+		background-image: url(checkbox-center-dark.png);
+	}
+	
+	/**
+	 * Pin icon
+	 */
+	span.pin {
+		background-position: 0 -70px;
+		width: 67px;
+		height: 53px;
+		margin: -5px 0 0 -37px;
+	}
+	&.active span.pin {
+		background-position: 0 -17px;
+		margin: -5px 0 0 -9px;
+	}
+	
+	/**
+	 * Labels
+	 */
+	.label-a,
+	.label-b {
+		color: #9191A2;
+	}
+	.label-b {
+		color: #fff;
+	}
+	&.active .label-a {
+		color: #fff;
+	}
+	&.active .label-b {
+		color: #9191A2;
+	}	
+}

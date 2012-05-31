@@ -234,6 +234,9 @@ Supra.SiteMap.TreeNode
 			Update children container position, should be used if expand/collapse
 			behaviour is overwritten
 	
+		updateFullPath()
+			Update page full path, should be used after page parent changes
+		
 	Events:
 		render:start
 		render:complete
