@@ -8,7 +8,6 @@ use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
 use Supra\ObjectRepository\ObjectRepository;
-
 use Supra\Controller\Pages\Set;
 use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\PageController;
@@ -44,7 +43,7 @@ class HistoryPageRequestEdit extends PageRequest
 	 */
 	protected function isLocalResource(Entity\Abstraction\Entity $entity)
 	{
-		$auditEntityManager = $this->getDoctrineEntityManager();
+		$auditEntityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
 		
 		if ($auditEntityManager->getUnitOfWork()->isInIdentityMap($entity)) {
 			return true;
@@ -400,50 +399,50 @@ class HistoryPageRequestEdit extends PageRequest
 //		return $this->blockSet;
 //	}
 	
-	/**
-	 * @return Set\BlockPropertySet
-	 */
-	public function getBlockPropertySet()
-	{
-		if (isset($this->blockPropertySet)) {
-			return $this->blockPropertySet;
-		}
-		
-		$this->blockPropertySet = new Set\BlockPropertySet();
-	
-		$auditProperties = $this->getAuditBaseRevisionProperties();
-		if ( ! empty($auditProperties)) {
-			$auditPropertyIds = DatabaseEntity::collectIds($auditProperties);
-			$auditProperties = array_combine($auditPropertyIds, $auditProperties);
-		}
-		
-		$versionedProperties = $this->getAuditProperties();
-		if ( ! empty($versionedProperties)) {
-			$versionedPropertyIds = DatabaseEntity::collectIds($versionedProperties);
-			$versionedProperties = array_combine($versionedPropertyIds, $versionedProperties);
-
-			$auditProperties = array_merge($auditProperties, $versionedProperties);
-		}
-		
-		// clear audit property array from properties, that were removed
-		$auditProperties = $this->checkForRemovedEntities($auditProperties);
-		foreach($auditProperties as $auditProperty) {
-			$this->loadPropertyMetadata($auditProperty);
-		}
-				
-		$draftProperties = $this->getDraftProperties();
-		if ( ! empty($draftProperties)) {
-			$draftPropertyIds = DatabaseEntity::collectIds($draftProperties);
-			$draftProperties = array_combine($draftPropertyIds, $draftProperties);
-			
-			$auditProperties = array_merge($draftProperties, $auditProperties);
-		}
-		
-		$this->blockPropertySet
-				->exchangeArray($auditProperties);
-		
-		return $this->blockPropertySet;
-	}
+//	/**
+//	 * @return Set\BlockPropertySet
+//	 */
+//	public function getBlockPropertySet()
+//	{
+//		if (isset($this->blockPropertySet)) {
+//			return $this->blockPropertySet;
+//		}
+//		
+//		$this->blockPropertySet = new Set\BlockPropertySet();
+//	
+//		$auditProperties = $this->getAuditBaseRevisionProperties();
+//		if ( ! empty($auditProperties)) {
+//			$auditPropertyIds = DatabaseEntity::collectIds($auditProperties);
+//			$auditProperties = array_combine($auditPropertyIds, $auditProperties);
+//		}
+//		
+//		$versionedProperties = $this->getAuditProperties();
+//		if ( ! empty($versionedProperties)) {
+//			$versionedPropertyIds = DatabaseEntity::collectIds($versionedProperties);
+//			$versionedProperties = array_combine($versionedPropertyIds, $versionedProperties);
+//
+//			$auditProperties = array_merge($auditProperties, $versionedProperties);
+//		}
+//		
+//		// clear audit property array from properties, that were removed
+//		$auditProperties = $this->checkForRemovedEntities($auditProperties);
+//		foreach($auditProperties as $auditProperty) {
+//			$this->loadPropertyMetadata($auditProperty);
+//		}
+//				
+//		$draftProperties = $this->getDraftProperties();
+//		if ( ! empty($draftProperties)) {
+//			$draftPropertyIds = DatabaseEntity::collectIds($draftProperties);
+//			$draftProperties = array_combine($draftPropertyIds, $draftProperties);
+//			
+//			$auditProperties = array_merge($draftProperties, $auditProperties);
+//		}
+//		
+//		$this->blockPropertySet
+//				->exchangeArray($auditProperties);
+//		
+//		return $this->blockPropertySet;
+//	}
 	
 	/**
 	 * Does the history localization version restoration
@@ -934,7 +933,7 @@ class HistoryPageRequestEdit extends PageRequest
 	
 	protected function loadPropertyMetadata(Entity\BlockProperty $property) 
 	{
-		$em = $this->getDoctrineEntityManager();	
+		$em = $this->getDoctrineEntityManager();
 		
 		$metadataEntity = Entity\BlockPropertyMetadata::CN();
 		

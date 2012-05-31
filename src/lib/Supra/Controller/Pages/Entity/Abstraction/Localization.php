@@ -173,6 +173,14 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	}
 
 	/**
+	 * @return \Doctrine\Common\Collections\Collection
+	 */
+	public function getBlockProperties()
+	{
+		return $this->blockProperties;
+	}
+
+	/**
 	 * @return Collection
 	 */
 	public function getPlaceHolders()

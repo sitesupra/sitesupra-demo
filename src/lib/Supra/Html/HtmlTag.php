@@ -3,7 +3,7 @@
 namespace Supra\Html;
 
 /**
- * Description of HtmlTag
+ * Html tag object
  */
 class HtmlTag extends HtmlTagStart
 {

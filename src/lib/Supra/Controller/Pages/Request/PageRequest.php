@@ -377,8 +377,8 @@ abstract class PageRequest extends HttpRequest
 		
 		$placeHolderSet = $this->getPlaceHolderSet();
 
-//		$finalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
-//				->collectIds();
+		$allFinalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
+				->collectIds();
 
 		// Filter out the locally managed placeholders (history)
 		foreach ($placeHolderSet->getFinalPlaceHolders() as $placeHolder) {
@@ -431,7 +431,8 @@ abstract class PageRequest extends HttpRequest
 		// Add blocks from locally managed placeholders
 		foreach ($localFinalPlaceHolders as $placeHolder) {
 			/* @var $placeHolder Entity\Abstraction\PlaceHolder */
-			$blocks = array_merge($blocks, $placeHolder->getBlocks()->getValues());
+			$additionalBlocks = $placeHolder->getBlocks()->getValues();
+			$blocks = array_merge($blocks, $additionalBlocks);
 		}
 		
 		\Log::debug("Block count found: " . count($blocks));
@@ -459,7 +460,7 @@ abstract class PageRequest extends HttpRequest
 		// Collect all blocks from final placeholders
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $block) {
-			if ($block->inPlaceHolder($finalPlaceHolderIds)) {
+			if ($block->inPlaceHolder($allFinalPlaceHolderIds)) {
 				$this->blockSet[] = $block;
 			}
 		}
@@ -497,6 +498,8 @@ abstract class PageRequest extends HttpRequest
 		$blockSet = $this->getBlockSet();
 		
 		$sharedPropertyFinder = new SharedPropertyFinder($em);
+		
+		$localResourceLocalizations = array();
 
 		// Loop generates condition for property getter
 		foreach ($blockSet as $block) {
@@ -517,34 +520,48 @@ abstract class PageRequest extends HttpRequest
 			} else {
 				$data = $this->getPageLocalization();
 			}
-
+			
 			$dataId = $data->getId();
+			
+			if ( ! $this->isLocalResource($data)) {
 
-			$and = $expr->andX();
-			$and->add($expr->eq('bp.block', '?' . ( ++ $cnt)));
-			$qb->setParameter($cnt, $blockId);
-			$and->add($expr->eq('bp.localization', '?' . ( ++ $cnt)));
-			$qb->setParameter($cnt, $dataId);
+				$and = $expr->andX();
+				$and->add($expr->eq('bp.block', '?' . ( ++ $cnt)));
+				$qb->setParameter($cnt, $blockId);
+				$and->add($expr->eq('bp.localization', '?' . ( ++ $cnt)));
+				$qb->setParameter($cnt, $dataId);
 
-			$or->add($and);
+				$or->add($and);
+			} else {
+				// In reality there can be only one local resource localization
+				$localResourceLocalizations[$dataId] = $data;
+			}
 
 			$sharedPropertyFinder->addBlock($block, $data);
 		}
 		
-		// Stop if no blocks required to load the properties
-		if ($cnt == 0) {
-			return $this->blockPropertySet;
+		$result = array();
+		
+		// Load only if any condition is added to the query
+		if ($cnt != 0) {
+			$qb->select('bp')
+					->from(BlockProperty::CN(), 'bp')
+					->where($or);
+			$query = $qb->getQuery();
+
+			\Log::debug("Running query to find block properties");
+
+			$this->prepareQueryResultCache($query);
+			$result = $query->getResult();
 		}
-
-		$qb->select('bp')
-				->from(BlockProperty::CN(), 'bp')
-				->where($or);
-		$query = $qb->getQuery();
-
-		\Log::debug("Running query to find block properties");
-
-		$this->prepareQueryResultCache($query);
-		$result = $query->getResult();
+		
+		// Now merge local resource block properties
+		foreach ($localResourceLocalizations as $localization) {
+			/* @var $localization Entity\Abstraction\Localization */
+			$localProperties = $localization->getBlockProperties()
+					->getValues();
+			$result = array_merge($result, $localProperties);
+		}
 		
 		$this->blockPropertySet->exchangeArray($result);
 		

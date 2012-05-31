@@ -139,7 +139,7 @@ class EntityRevisionSetterListener implements EventSubscriber
 			}
 		}
 		
-			foreach ($this->uow->getScheduledEntityInsertions() as $entity) {
+		foreach ($this->uow->getScheduledEntityInsertions() as $entity) {
 
 			if ( ! ($entity instanceof AuditedEntityInterface)) {
 				continue;

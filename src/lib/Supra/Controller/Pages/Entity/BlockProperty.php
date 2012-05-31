@@ -270,9 +270,18 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 		$this->metadata = $collection;
 	}
 	
+	/**
+	 * @return Entity
+	 */
 	public function getOwner()
 	{
-		return $this->block;
+		// If the owner block belongs to the owner localization, return block,
+		// localization otherwise.
+		if ($this->localization->equals($this->block->getPlaceHolder()->getMaster())) {
+			return $this->block;
+		}
+		
+		return $this->localization;
 	}
 
 }

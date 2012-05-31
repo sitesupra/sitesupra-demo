@@ -212,7 +212,7 @@ class EntityAuditListener implements EventSubscriber
 		foreach($changeSet as $fieldName => $fieldValue) {
 			if ($fieldValue instanceof PersistentCollection
 					|| ($entity instanceof Localization && $fieldName == 'lock')
-					|| $fieldName == 'revision'
+//					|| $fieldName == 'revision'
 					|| ($fieldValue[0] instanceof \DateTime && $fieldValue[0] == $fieldValue[1]))
 			{
 				unset($changeSet[$fieldName]);
@@ -242,6 +242,8 @@ class EntityAuditListener implements EventSubscriber
 			if ( ! in_array($entityId, $visitedIds)) {
 				
 				$revisionType = self::REVISION_TYPE_DELETE;
+				
+				// Questionable
 				if ($this->_pageDeleteState) {
 					$revisionType = self::REVISION_TYPE_COPY;
 				}
@@ -353,15 +355,22 @@ class EntityAuditListener implements EventSubscriber
 		foreach ($classFields as $columnName => $field) {
 
 			if ($class->inheritanceType != ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE 
-					&&	$class->isInheritedField($field)
+					&& $class->isInheritedField($field)
 					&& ! $class->isIdentifier($field)
 					&& $columnName != AuditCreateSchemaListener::REVISION_COLUMN_NAME) {
+				continue;
+			}
+			
+			// The field is already added
+			if ($columnName == AuditCreateSchemaListener::REVISION_TYPE_COLUMN_NAME) {
 				continue;
 			}
 			
 			$param = $entityData[$field];
 			$type = $class->fieldMappings[$field]['type'];
 			
+			// In audit schema to_one fields are string fields and objects are 
+			// waken up on object load. Now need to convert back to string.
 			if ($param instanceof Entity\Abstraction\Entity) {
 				$param = $param->getId();
 				$type = \PDO::PARAM_STR;

@@ -20,6 +20,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Supra\Controller\Pages\PageController;
 use Doctrine\ORM\PersistentCollection;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 /**
  * Makes sure no manual changes are performed
@@ -200,11 +201,12 @@ class AuditManagerListener implements EventSubscriber
 		// Let's fill the revision in case it is not set yet. Let's assume this is a root entity
 		if (empty($this->revision)) {
 
-			//TODO: might be removed, for strict testing only for now
-			if ( ! $entity instanceof PageLocalization) {
-				$this->debug("OOPS $className");
-				throw new \RuntimeException("Strict dev validation failed");
-			}
+			// Also might need to load objects different from localization
+//			//TODO: might be removed, for strict testing only for now
+//			if ( ! $entity instanceof PageLocalization) {
+//				$this->debug("OOPS $className");
+//				throw new \RuntimeException("Strict dev validation failed");
+//			}
 
 			if ($entity instanceof AuditedEntityInterface) {
 
@@ -270,9 +272,9 @@ class AuditManagerListener implements EventSubscriber
 		$reflField->setAccessible(true);
 		$currentValue = $reflField->getValue($entity);
 
-		if ($currentValue !== null && is_object($currentValue)) {
+		if (is_object($currentValue)) {
 
-			$this->debug("SKIP, not null anymore.. ", get_class($currentValue));
+			$this->debug("SKIP, object already.. ", get_class($currentValue));
 			$this->depth --;
 
 			return;
@@ -283,21 +285,31 @@ class AuditManagerListener implements EventSubscriber
 
 			$targetMetadata = $entityManager->getClassMetadata($targetEntityName);
 			switch ($mapping['type']) {
+				
+				// Case for asociation block property metadata -> referenced element
+				// TODO: check if no other links outside the audit scope!!!
 				case ClassMetadata::ONE_TO_ONE:
 
-					//TODO: remove later, will solve "owner side" problem later
-
-					$this->debug(sprintf("TODO 1-1 %-20s %-20s", $className, $targetEntityName));
-
+					if ($mapping['isOwningSide']) {
+						$this->debug(sprintf("1-1 %-20s %-20s", $className, $targetEntityName));
+						
+						// No value, needs to be string
+						if (is_null($currentValue)) {
+							break;
+						}
+						
+						$value = $this->loadOneToOneAuditted($entityManager, $currentValue, $targetMetadata);
+					}
+					
 					break;
 
 				case ClassMetadata::ONE_TO_MANY:
 
 					$this->debug("LOAD $className 1_+ $targetEntityName association");
 
-					$records = $this->loadOneToManyAuditted($entityManager, $entity, $mapping, $targetMetadata, $classMetadata);
+					$records = $this->loadOneToManyAuditted($entityManager, $entity, $mapping, $targetMetadata);
 
-					// Fill the other association side
+					// Fill the other association side (the owning side)
 					$targetReflField = new \ReflectionProperty($targetEntityName, $mapping['mappedBy']);
 					$targetReflField->setAccessible(true);
 
@@ -326,12 +338,65 @@ class AuditManagerListener implements EventSubscriber
 
 	/**
 	 * @param \Doctrine\ORM\EntityManager $entityManager
+	 * @param string $currentValue
+	 * @param \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata
+	 * @return Entity\Abstraction\Entity
+	 */
+	private function loadOneToOneAuditted(\Doctrine\ORM\EntityManager $entityManager, $currentValue, \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata)
+	{
+		if (is_null($currentValue)) {
+			$this->debug("NULL in field");
+			
+			return null;
+		}
+		
+		// First of all we need to read 2 column data
+		$qb = $entityManager->createQueryBuilder();
+		$qb->from($targetMetadata->name, 'e')
+				->select('MAX(e.revision) AS revision')
+				->where('e.revision <= :revision')
+				->setParameter('revision', $this->revision)
+				->andWhere('e.id = :id')
+				->setParameter('id', $currentValue);
+
+		$revision = $qb->getQuery()
+				->getOneOrNullResult(ColumnHydrator::HYDRATOR_ID);
+
+		if (is_null($revision)) {
+			$this->debug("NO RESULT");
+
+			return null;
+		}
+
+		$this->debug("REVISION ", $revision);
+		
+		// Load real data now
+		$qb = $entityManager->createQueryBuilder();
+		$qb->from($targetMetadata->name, 'e')
+				->select('e')
+				->where('e.revisionType != :revisionType')
+				->setParameter('revisionType', EntityAuditListener::REVISION_TYPE_DELETE)
+				->andWhere('e.revision = :revision')
+				->setParameter('revision', $revision)
+				;
+
+		$record = $qb->getQuery()->getOneOrNullResult();
+		
+		if (is_null($record)) {
+			$this->debug("NOT FOUNT, seems to be DELETE revision");
+		}
+		
+		return $record;
+	}
+	
+	/**
+	 * @param \Doctrine\ORM\EntityManager $entityManager
 	 * @param \Supra\Database\Entity $entity
 	 * @param array $mapping
 	 * @param \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata
 	 * @return array
 	 */
-	private function loadOneToManyAuditted(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity, array $mapping, \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata, \Doctrine\ORM\Mapping\ClassMetadata $classMetadata)
+	private function loadOneToManyAuditted(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity, array $mapping, \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata)
 	{
 		// First of all we need to read 2 column data
 		$qb = $entityManager->createQueryBuilder();
@@ -364,11 +429,16 @@ class AuditManagerListener implements EventSubscriber
 		// Load real data now
 		$qb = $entityManager->createQueryBuilder();
 		$qb->from($targetMetadata->name, 'e', $indexBy)
-				->select('e');
+				->select('e')
+				->where('e.revisionType != :revisionType')
+				->setParameter('revisionType', EntityAuditListener::REVISION_TYPE_DELETE);
 
+		$or = $qb->expr()->orX();
+		$qb->andWhere($or);
+		
 		foreach ($records as $i => $record) {
-			$qb->orWhere("e.id = :id_$i AND e.revision = :revision_$i")
-					->setParameters(array(
+			$or->add("e.id = :id_$i AND e.revision = :revision_$i");
+			$qb->setParameters(array(
 						'id_' . $i => $record['id'],
 						'revision_' . $i => $record['revision'],
 					));

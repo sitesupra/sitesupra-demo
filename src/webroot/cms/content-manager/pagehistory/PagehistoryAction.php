@@ -13,6 +13,7 @@ use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Cms\ContentManager\Pagecontent\PagecontentAction;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 class PagehistoryAction extends PageManagerAction
 {
@@ -216,6 +217,7 @@ class PagehistoryAction extends PageManagerAction
 	private function getRevisionedEntityBlockName(PageRevisionData $revision) 
 	{
 		$blockName = null;
+		$entity = null;
 		
 		$entityManager = ObjectRepository::getEntityManager('#audit');
 		
@@ -298,10 +300,9 @@ class PagehistoryAction extends PageManagerAction
 				->setMaxResults(1)
 				->setParameter('type', PageRevisionData::TYPE_HISTORY)
 				->setParameter('localization', $localizationId);
-				;
 		
 		$lastPublishRevisionId = $qb->getQuery()
-				->getOneOrNullResult(\Doctrine\ORM\AbstractQuery::HYDRATE_SCALAR);
+				->getOneOrNullResult(ColumnHydrator::HYDRATOR_ID);
 
 		$params = array(
 			'skipTypes' => array(
@@ -321,8 +322,6 @@ class PagehistoryAction extends PageManagerAction
 		
 		if ( ! empty($lastPublishRevisionId)) {
 			
-			$lastPublishRevisionId = array_shift($lastPublishRevisionId);
-			
 			$qb->andWhere('(r.id >= :lastPublishId) OR (r.id <= :lastPublishId AND r.type = :type)')
 					->setParameter('lastPublishId', $lastPublishRevisionId)
 					->setParameter('type', PageRevisionData::TYPE_HISTORY);
@@ -331,6 +330,6 @@ class PagehistoryAction extends PageManagerAction
 		$revisions = $qb->getQuery()
 				->getResult();
 		
-		return $revisions;	
+		return $revisions;
 	}
 }

@@ -668,7 +668,8 @@ class PageAction extends PageManagerAction
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 
-		$em = ObjectRepository::getEntityManager('#audit');
+		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
 
 //		// find last published page revision
 //		$params = array(
@@ -683,7 +684,7 @@ class PageAction extends PageManagerAction
 //			),
 //		);
 //
-//		$qb = $em->createQueryBuilder();
+//		$qb = $auditEm->createQueryBuilder();
 //		$qb->select('r')
 //				->from(PageRevisionData::CN(), 'r')
 //				->where('r.id <= :id AND r.type in (:types) AND r.reference = :localizationId')
@@ -701,7 +702,7 @@ class PageAction extends PageManagerAction
 //		$baseRevisionId = $lastPublishRevision->getId();
 //
 //		// select all revisions from last published, till selected one
-//		$qb = $em->createQueryBuilder();
+//		$qb = $auditEm->createQueryBuilder();
 //
 //		$params = array(
 //			'id' => $revisionId,
@@ -737,11 +738,11 @@ class PageAction extends PageManagerAction
 //
 //		$localizationRevision = (isset($lastLocalizationRevision) ? $lastLocalizationRevision : $lastPublishRevision);
 
-		$qb = $em->createQueryBuilder()
+		$qb = $auditEm->createQueryBuilder()
 				->from(Entity\Abstraction\Localization::CN(), 'l')
 				->select('l');
 
-		$localization = $em->getRepository(Entity\Abstraction\Localization::CN())
+		$localization = $auditEm->getRepository(Entity\Abstraction\Localization::CN())
 				->find(array('id' => $localizationId, 'revision' => $revisionId));
 
 //		$qb->where('l.revision = :revisionId AND l.id = :id')
@@ -751,7 +752,7 @@ class PageAction extends PageManagerAction
 //		$localization = $qb->getQuery()
 //				->getSingleResult();
 
-//		$localization = $em->getRepository(Entity\Abstraction\Localization::CN())
+//		$localization = $auditEm->getRepository(Entity\Abstraction\Localization::CN())
 //				->findOneBy(array('id' => $localizationRevision->getReferenceId(), 'revision' => $localizationRevision->getId()));
 
 		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
@@ -765,7 +766,7 @@ class PageAction extends PageManagerAction
 		$master = $localization->getMaster();
 
 //		// workaround for wrong master page
-//		$auditMasterPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
+//		$auditMasterPage = $auditEm->getRepository(Entity\Abstraction\AbstractPage::CN())
 //				->findOneBy(array('id' => $master->getId(), 'revision' => $localization->getRevisionId()));
 //		$localization->overrideMaster($auditMasterPage);
 
@@ -784,7 +785,7 @@ class PageAction extends PageManagerAction
 		$response = $controller->createResponse($request);
 
 		$controller->prepare($request, $response);
-		$request->setDoctrineEntityManager($em);
+		$request->setDoctrineEntityManager($draftEm);
 
 		$e = null;
 		ObjectRepository::beginControllerContext($controller);
