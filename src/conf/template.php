@@ -7,4 +7,7 @@ $twig = new Supra\Template\Parser\Twig\Twig($loader, array(
 //	'strict_variables' => true,
 		));
 
+$extension = new \Supra\Template\Parser\Twig\Extension\FormExtension();
+$twig->addExtension($extension);
+
 Supra\ObjectRepository\ObjectRepository::setDefaultTemplateParser($twig);

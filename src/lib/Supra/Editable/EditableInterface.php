@@ -26,12 +26,12 @@ interface EditableInterface
 	/**
 	 * @param string $groupLabel
 	 */
-	public function setGroupLabel($groupLabel);
+	public function setGroupId($groupId);
 	
 	/**
 	 * @return string
 	 */
-	public function getGroupLabel();
+	public function getGroupId();
 	
 	/**
 	 * @return mixed
