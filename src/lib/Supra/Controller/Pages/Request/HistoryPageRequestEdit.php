@@ -578,55 +578,55 @@ class HistoryPageRequestEdit extends PageRequest
 	
 	}
 	
-	private function getAuditMetadataByProperty($properties) 
-	{
-		
-		if ( ! ($properties instanceof Set\BlockPropertySet) || $properties->count() == 0) {
-			return null;
-		}
-		
-		$entityManager = $this->getDoctrineEntityManager();
-		
-		$qb = $entityManager->createQueryBuilder();
-		$expr = $qb->expr();
-		$or = $expr->orX();
-	
-		$count = 0;
-		foreach($properties as $property) {
-			$id = $property->getId();
-			$revision = $property->getRevisionId();
-			
-			$and = $expr->andX();
-			$and->add($expr->eq('m.blockProperty', '?' . (++$count)));
-			$qb->setParameter($count, $id);
-			$and->add($expr->eq('m.revision', '?' . (++$count)));
-			$qb->setParameter($count, $revision);
-			$or->add($and);
-		}
-		
-		$qb->select('m')
-				->from(Entity\BlockPropertyMetadata::CN(), 'm')
-				->where($or);
-		
-		$metaData = $qb->getQuery()
-						->getResult();
-			
-		return $metaData;
-	}
-	
-	private function getAuditReferencedElement($id, $revision)
-	{
-		$entityManager = $this->getDoctrineEntityManager();
-		
-		$entityName = Entity\ReferencedElement\ReferencedElementAbstract::CN();
-		$dql = "SELECT e FROM {$entityName} e WHERE e.id = :id AND e.revision = :revision";
-		
-		$element = $entityManager->createQuery($dql)
-				->setParameters(array('id' => $id, 'revision' => $revision))
-				->getOneOrNullResult();
-				
-		return $element;
-	}
+//	private function getAuditMetadataByProperty($properties) 
+//	{
+//		
+//		if ( ! ($properties instanceof Set\BlockPropertySet) || $properties->count() == 0) {
+//			return null;
+//		}
+//		
+//		$entityManager = $this->getDoctrineEntityManager();
+//		
+//		$qb = $entityManager->createQueryBuilder();
+//		$expr = $qb->expr();
+//		$or = $expr->orX();
+//	
+//		$count = 0;
+//		foreach($properties as $property) {
+//			$id = $property->getId();
+//			$revision = $property->getRevisionId();
+//			
+//			$and = $expr->andX();
+//			$and->add($expr->eq('m.blockProperty', '?' . (++$count)));
+//			$qb->setParameter($count, $id);
+//			$and->add($expr->eq('m.revision', '?' . (++$count)));
+//			$qb->setParameter($count, $revision);
+//			$or->add($and);
+//		}
+//		
+//		$qb->select('m')
+//				->from(Entity\BlockPropertyMetadata::CN(), 'm')
+//				->where($or);
+//		
+//		$metaData = $qb->getQuery()
+//						->getResult();
+//			
+//		return $metaData;
+//	}
+//	
+//	private function getAuditReferencedElement($id, $revision)
+//	{
+//		$entityManager = $this->getDoctrineEntityManager();
+//		
+//		$entityName = Entity\ReferencedElement\ReferencedElementAbstract::CN();
+//		$dql = "SELECT e FROM {$entityName} e WHERE e.id = :id AND e.revision = :revision";
+//		
+//		$element = $entityManager->createQuery($dql)
+//				->setParameters(array('id' => $id, 'revision' => $revision))
+//				->getOneOrNullResult();
+//				
+//		return $element;
+//	}
 	
 	/**
 	 * Does the full trash page version restoration (incl. available localizations)
@@ -738,20 +738,20 @@ class HistoryPageRequestEdit extends PageRequest
 		return $blocks;
 	}
 	
-	private function checkForRemovedEntities(array $entities)
-	{
-		if ($this->hasRemoveRevision) {
-			foreach ($entities as $key => $entity) {
-				/* @var $entity Entity\Abstraction\Entity */
-				$revisionId = $entity->getRevisionId();
-				if (in_array($revisionId, $this->removeRevisionIds)) {
-					unset($entities[$key]);
-				}
-			}
-		}
-		
-		return $entities;
-	}
+//	private function checkForRemovedEntities(array $entities)
+//	{
+//		if ($this->hasRemoveRevision) {
+//			foreach ($entities as $key => $entity) {
+//				/* @var $entity Entity\Abstraction\Entity */
+//				$revisionId = $entity->getRevisionId();
+//				if (in_array($revisionId, $this->removeRevisionIds)) {
+//					unset($entities[$key]);
+//				}
+//			}
+//		}
+//		
+//		return $entities;
+//	}
 	
 	private function getPageBlockProperties(EntityManager $em)
 	{
@@ -770,165 +770,165 @@ class HistoryPageRequestEdit extends PageRequest
 		return $result;
 	}
 	
-	protected function getAuditBaseRevisionProperties()
-	{
-		$properties = array();
-		
-		$blockSet = $this->getBlockSet();
-		
-		$blockIds = array();
-		foreach($blockSet as $block) {
-			/* @var $block Entity\Abstraction\Block */
-			if ( ! $block->getLocked()) {
-				$blockIds[] = $block->getId();
-			}
-		}
-		
-		if ( ! empty($blockIds)) {
-			$localization = $this->getPageLocalization();
-			
-			$em = $this->getDoctrineEntityManager();			
-			$qb = $em->createQueryBuilder();
-			
-			$qb->select('bp')
-				->from(Entity\BlockProperty::CN(), 'bp')
-				->where($qb->expr()->in('bp.block', $blockIds))
-				->andWhere('bp.revision = :revision AND bp.localization = :localization');
-				;
-				
-			$query = $qb->getQuery();
-			$properties = $query->execute(array(
-				'revision' => $this->revision,
-				'localization' => $localization->getId(),
-			));
-		}
+//	private function getAuditBaseRevisionProperties()
+//	{
+//		$properties = array();
+//		
+//		$blockSet = $this->getBlockSet();
+//		
+//		$blockIds = array();
+//		foreach($blockSet as $block) {
+//			/* @var $block Entity\Abstraction\Block */
+//			if ( ! $block->getLocked()) {
+//				$blockIds[] = $block->getId();
+//			}
+//		}
+//		
+//		if ( ! empty($blockIds)) {
+//			$localization = $this->getPageLocalization();
+//			
+//			$em = $this->getDoctrineEntityManager();			
+//			$qb = $em->createQueryBuilder();
+//			
+//			$qb->select('bp')
+//				->from(Entity\BlockProperty::CN(), 'bp')
+//				->where($qb->expr()->in('bp.block', $blockIds))
+//				->andWhere('bp.revision = :revision AND bp.localization = :localization');
+//				;
+//				
+//			$query = $qb->getQuery();
+//			$properties = $query->execute(array(
+//				'revision' => $this->revision,
+//				'localization' => $localization->getId(),
+//			));
+//		}
+//	
+//		return $properties;
+//	}
 	
-		return $properties;
-	}
+//	private function getAuditProperties()
+//	{
+//		if (empty($this->revisionArray)) {
+//			return array();
+//		}
+//		
+//		$properties = array();
+//		
+//		$blockSet = $this->getBlockSet();
+//		$blockIds = array();
+//		foreach($blockSet as $block) {
+//			if ( ! $block->getLocked()) {
+//				$blockIds[] = $block->getId();
+//			}
+//		}
+//		
+//		if ( ! empty($blockIds)) {
+//			
+//			$revisionIds = DatabaseEntity::collectIds($this->revisionArray);
+//		
+//			$em = $this->getDoctrineEntityManager();
+//			$qb = $em->createQueryBuilder();
+//
+//			$qb->select('bp.id, bp.revision')
+//					->from(Entity\BlockProperty::CN(), 'bp')
+//					->where('bp.revision in (:revisions) AND bp.block in (:blocks)')
+//					->orderBy('bp.revision', 'DESC')
+//					->setParameters(array('revisions' => $revisionIds, 'blocks' => $blockIds))
+//					;
+//
+//			$propertyRevisions = $qb->getQuery()
+//					->setHint(Query::HINT_INCLUDE_META_COLUMNS, true)
+//					->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
+//
+//			if ( ! empty($propertyRevisions)) {
+//
+//				$qb = $em->createQueryBuilder();
+//				$expr = $qb->expr(); $or = $expr->orX(); $i = 0;
+//
+//				$usedRevisions = array();
+//
+//				foreach($propertyRevisions as $propertyRevision) {
+//					if ( ! in_array($propertyRevision['id'], $usedRevisions)) {
+//						$and = $expr->andX();
+//						$and->add($expr->eq('bp.id', '?' . (++$i)));
+//						$qb->setParameter($i, $propertyRevision['id']);
+//						$and->add($expr->eq('bp.revision', '?' . (++$i)));
+//						$qb->setParameter($i, $propertyRevision['revision']);
+//						$or->add($and);
+//
+//						//have found latest revision for this property, skip all others
+//						array_push($usedRevisions, $propertyRevision['id']);
+//					}
+//				}
+//
+//				$em->getUnitOfWork()->clear();
+//				$qb->select('bp')
+//						->from(Entity\BlockProperty::CN(), 'bp')
+//						->where($or);
+//
+//				$properties = $qb->getQuery()
+//						->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
+//
+//			}
+//		}
+//		
+//		return $properties;
+//	}
 	
-	protected function getAuditProperties()
-	{
-		if (empty($this->revisionArray)) {
-			return array();
-		}
-		
-		$properties = array();
-		
-		$blockSet = $this->getBlockSet();
-		$blockIds = array();
-		foreach($blockSet as $block) {
-			if ( ! $block->getLocked()) {
-				$blockIds[] = $block->getId();
-			}
-		}
-		
-		if ( ! empty($blockIds)) {
-			
-			$revisionIds = DatabaseEntity::collectIds($this->revisionArray);
-		
-			$em = $this->getDoctrineEntityManager();
-			$qb = $em->createQueryBuilder();
-
-			$qb->select('bp.id, bp.revision')
-					->from(Entity\BlockProperty::CN(), 'bp')
-					->where('bp.revision in (:revisions) AND bp.block in (:blocks)')
-					->orderBy('bp.revision', 'DESC')
-					->setParameters(array('revisions' => $revisionIds, 'blocks' => $blockIds))
-					;
-
-			$propertyRevisions = $qb->getQuery()
-					->setHint(Query::HINT_INCLUDE_META_COLUMNS, true)
-					->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
-
-			if ( ! empty($propertyRevisions)) {
-
-				$qb = $em->createQueryBuilder();
-				$expr = $qb->expr(); $or = $expr->orX(); $i = 0;
-
-				$usedRevisions = array();
-
-				foreach($propertyRevisions as $propertyRevision) {
-					if ( ! in_array($propertyRevision['id'], $usedRevisions)) {
-						$and = $expr->andX();
-						$and->add($expr->eq('bp.id', '?' . (++$i)));
-						$qb->setParameter($i, $propertyRevision['id']);
-						$and->add($expr->eq('bp.revision', '?' . (++$i)));
-						$qb->setParameter($i, $propertyRevision['revision']);
-						$or->add($and);
-
-						//have found latest revision for this property, skip all others
-						array_push($usedRevisions, $propertyRevision['id']);
-					}
-				}
-
-				$em->getUnitOfWork()->clear();
-				$qb->select('bp')
-						->from(Entity\BlockProperty::CN(), 'bp')
-						->where($or);
-
-				$properties = $qb->getQuery()
-						->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
-
-			}
-		}
-		
-		return $properties;
-	}
+//	private function getDraftProperties()
+//	{
+//		$properties = array();
+//		
+//		$blockSet = $this->getBlockSet();
+//	
+//		$currentLocale = $this->getLocale();
+//		
+//		$em = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+//		$qb = $em->createQueryBuilder();
+//		$expr = $qb->expr(); $or = $expr->orX(); $i = 0;
+//		
+//		foreach ($blockSet as $block) {
+//			
+//			/* @var $block Entity\Abstraction\Block */
+//			if ($block->getLocked()) {
+//				$master = $block->getPlaceHolder()
+//						->getMaster()
+//						->getMaster();
+//			
+//				$localization = $master->getLocalization($currentLocale);
+//				if (empty($localization)) {
+//					\Log::warn("The data record has not been found for page {$master} locale {$currentLocale}, will not fill block parameters");
+//					$blockSet->removeInvalidBlock($block, "Page data for locale not found");
+//					continue;
+//				}
+//
+//				$blockId = $block->getId();
+//				$localizationId = $localization->getId();
+//
+//				$and = $expr->andX();
+//				$and->add($expr->eq('bp.block', '?' . (++$i)));
+//				$qb->setParameter($i, $blockId);
+//				$and->add($expr->eq('bp.localization', '?' . (++$i)));
+//				$qb->setParameter($i, $localizationId);
+//
+//				$or->add($and);
+//			}
+//		}
+//
+//		if ($i > 0) {
+//			$qb->select('bp')
+//					->from(Entity\BlockProperty::CN(), 'bp')
+//					->where($or);
+//
+//			$query = $qb->getQuery();
+//			$properties = $query->getResult();
+//		}
+//		
+//		return $properties;
+//
+//	}
 	
-	protected function getDraftProperties()
-	{
-		$properties = array();
-		
-		$blockSet = $this->getBlockSet();
-	
-		$currentLocale = $this->getLocale();
-		
-		$em = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-		$qb = $em->createQueryBuilder();
-		$expr = $qb->expr(); $or = $expr->orX(); $i = 0;
-		
-		foreach ($blockSet as $block) {
-			
-			/* @var $block Entity\Abstraction\Block */
-			if ($block->getLocked()) {
-				$master = $block->getPlaceHolder()
-						->getMaster()
-						->getMaster();
-			
-				$localization = $master->getLocalization($currentLocale);
-				if (empty($localization)) {
-					\Log::warn("The data record has not been found for page {$master} locale {$currentLocale}, will not fill block parameters");
-					$blockSet->removeInvalidBlock($block, "Page data for locale not found");
-					continue;
-				}
-
-				$blockId = $block->getId();
-				$localizationId = $localization->getId();
-
-				$and = $expr->andX();
-				$and->add($expr->eq('bp.block', '?' . (++$i)));
-				$qb->setParameter($i, $blockId);
-				$and->add($expr->eq('bp.localization', '?' . (++$i)));
-				$qb->setParameter($i, $localizationId);
-
-				$or->add($and);
-			}
-		}
-
-		if ($i > 0) {
-			$qb->select('bp')
-					->from(Entity\BlockProperty::CN(), 'bp')
-					->where($or);
-
-			$query = $qb->getQuery();
-			$properties = $query->getResult();
-		}
-		
-		return $properties;
-
-	}
-	
-	protected function loadPropertyMetadata(Entity\BlockProperty $property) 
+	private function loadPropertyMetadata(Entity\BlockProperty $property) 
 	{
 		$em = $this->getDoctrineEntityManager();
 		

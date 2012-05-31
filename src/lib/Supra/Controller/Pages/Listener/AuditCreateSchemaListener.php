@@ -61,19 +61,25 @@ class AuditCreateSchemaListener implements EventSubscriber
 			
 			foreach ($entityTable->getColumns() AS $column) {
 				
+				// All fields are not mandatory in the audit
+				$notNull = false;
+				
 				/* @var $column Column */
 				if ($column->getName() == self::REVISION_COLUMN_NAME) {
 					continue;
 				}
 				
+				if ($column->getName() == self::REVISION_TYPE_COLUMN_NAME) {
+					$notNull = true;
+				}
+				
 				$revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
 					$column->toArray(),
-					array('notnull' => false, 'autoincrement' => false)
+					array('notnull' => $notNull, 'autoincrement' => false)
 				));
 			}
 			
 			$revisionTable->addColumn(self::REVISION_COLUMN_NAME, 'string', array('length' => 20));
-			$revisionTable->addColumn(self::REVISION_TYPE_COLUMN_NAME, 'smallint', array('length' => 1));
 			
 			$pkColumns = $entityTable->getPrimaryKey()
 					->getColumns();
@@ -112,12 +118,7 @@ class AuditCreateSchemaListener implements EventSubscriber
 					array(
 						'fieldName' => self::REVISION_TYPE_FIELD_NAME,
 						'type' => 'smallint',
-						'length' => 1,
-						'precision' => 0,
-						'scale' => 0,
-						'nullable' => true,
-						'unique' => false,
-						'id' => false,
+						'nullable' => false,
 						'columnName' => self::REVISION_TYPE_COLUMN_NAME,
 					)
 				);

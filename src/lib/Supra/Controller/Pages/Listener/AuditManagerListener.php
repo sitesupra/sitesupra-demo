@@ -353,11 +353,14 @@ class AuditManagerListener implements EventSubscriber
 		// First of all we need to read 2 column data
 		$qb = $entityManager->createQueryBuilder();
 		$qb->from($targetMetadata->name, 'e')
-				->select('MAX(e.revision) AS revision')
-				->where('e.revision <= :revision')
-				->setParameter('revision', $this->revision)
+				// By ID
 				->andWhere('e.id = :id')
-				->setParameter('id', $currentValue);
+				->setParameter('id', $currentValue)
+				// Get max revision till the mentioned revision
+				->select('MAX(e.revision) AS revision')
+				->andWhere('e.revision <= :revision')
+				->setParameter('revision', $this->revision)
+				;
 
 		$revision = $qb->getQuery()
 				->getOneOrNullResult(ColumnHydrator::HYDRATOR_ID);
@@ -374,10 +377,15 @@ class AuditManagerListener implements EventSubscriber
 		$qb = $entityManager->createQueryBuilder();
 		$qb->from($targetMetadata->name, 'e')
 				->select('e')
-				->where('e.revisionType != :revisionType')
-				->setParameter('revisionType', EntityAuditListener::REVISION_TYPE_DELETE)
+				// By ID
+				->andWhere('e.id = :id')
+				->setParameter('id', $currentValue)
+				// By revision
 				->andWhere('e.revision = :revision')
 				->setParameter('revision', $revision)
+				// Skip if "removal" revision
+				->andWhere('e.revisionType != :revisionType')
+				->setParameter('revisionType', EntityAuditListener::REVISION_TYPE_DELETE)
 				;
 
 		$record = $qb->getQuery()->getOneOrNullResult();

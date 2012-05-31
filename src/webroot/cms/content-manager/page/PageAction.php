@@ -758,7 +758,7 @@ class PageAction extends PageManagerAction
 //				->findOneBy(array('id' => $localizationRevision->getReferenceId(), 'revision' => $localizationRevision->getId()));
 
 		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
-			throw new CmsException(null, 'Page version not found');
+			throw new CmsException(null, 'The restore point is broken and cannot be used anymore.');
 		}
 
 //		return;
