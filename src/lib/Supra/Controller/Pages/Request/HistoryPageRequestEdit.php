@@ -70,7 +70,6 @@ class HistoryPageRequestEdit extends PageRequest
 				->dispatchEvent(AuditEvents::localizationPreRestoreEvent);
 		
 		$auditLocalization = $this->getPageLocalization();
-		$auditEm->detach($auditLocalization);
 		
 		$localization = $draftEntityManager->merge($auditLocalization);
 	
@@ -78,6 +77,11 @@ class HistoryPageRequestEdit extends PageRequest
 		// FIXME: I think also parent template placeholders are merged here. Isn't that a problem?
 		$auditPlaceHolders = $auditLocalization->getPlaceHolders();
 		foreach ($auditPlaceHolders as $placeHolder) {
+			
+			if ( ! $this->isLocalResource($placeHolder)) {
+				continue;
+			}
+			
 			$draftEntityManager->merge($placeHolder);
 		}
 		
@@ -100,6 +104,11 @@ class HistoryPageRequestEdit extends PageRequest
 		// merge blocks
 		// FIXME: I think also parent template blocks are merged here. Isn't that a problem?
 		foreach ($auditBlocks as $auditBlock) {
+			
+			if ( ! $this->isLocalResource($auditBlock)) {
+				continue;
+			}
+			
 			$draftEntityManager->merge($auditBlock);
 		}
 		
@@ -153,6 +162,11 @@ class HistoryPageRequestEdit extends PageRequest
 		}
 		
 		foreach ($auditProperties as $auditProperty) {
+			
+			if ( ! $this->isLocalResource($auditProperty)) {
+				continue;
+			}
+			
 			$draftEntityManager->merge($auditProperty);
 			
 			$metaData = $auditProperty->getMetadata();

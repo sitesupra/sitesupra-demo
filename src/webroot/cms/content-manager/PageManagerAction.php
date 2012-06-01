@@ -915,8 +915,8 @@ abstract class PageManagerAction extends CmsAction
 		$media = $this->getMedia();
 
 		$request = new HistoryPageRequestEdit($localeId, $media);
-		$request->setDoctrineEntityManager($draftEntityManager);
 		$request->setPageLocalization($localization);
+		$request->setDoctrineEntityManager($draftEntityManager);
 
 		// Call main localization restore routine
 		$restoreLocalization = function() use ($request) {

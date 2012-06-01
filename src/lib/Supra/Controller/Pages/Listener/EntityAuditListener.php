@@ -298,12 +298,10 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	private function saveRevisionEntityData(ClassMetadata $class, $entityData, $revisionType)
 	{
-		// manually add revision_type column/value to query
-		$names = array(AuditCreateSchemaListener::REVISION_TYPE_COLUMN_NAME);
-		$params = array($revisionType);
-		$types = array(\PDO::PARAM_INT);
+		$names = $params = $types = array();
 		
 		$classFields = $class->fieldNames;
+		
 		// two special cases for revision id:
 		//   - if we are creating full COPY of page (publish/trash), 
 		//	   then we should use single revision id for all auditing entities
@@ -361,17 +359,24 @@ class EntityAuditListener implements EventSubscriber
 				continue;
 			}
 			
-			// The field is already added
-			if ($columnName == AuditCreateSchemaListener::REVISION_TYPE_COLUMN_NAME) {
-				continue;
+			$param = null;
+			$type = null;
+			
+			if (isset($entityData[$field])) {
+				$param = $entityData[$field];
 			}
 			
-			$param = $entityData[$field];
-			$type = $class->fieldMappings[$field]['type'];
+			if (isset($class->fieldMappings[$field]['type'])) {
+				$type = $class->fieldMappings[$field]['type'];
+			}
 			
+			if ($columnName == AuditCreateSchemaListener::REVISION_TYPE_COLUMN_NAME) {
+				$param = $revisionType;
+				$type = \PDO::PARAM_INT;
+			}
 			// In audit schema to_one fields are string fields and objects are 
 			// waken up on object load. Now need to convert back to string.
-			if ($param instanceof Entity\Abstraction\Entity) {
+			elseif ($param instanceof Entity\Abstraction\Entity) {
 				$param = $param->getId();
 				$type = \PDO::PARAM_STR;
 				
