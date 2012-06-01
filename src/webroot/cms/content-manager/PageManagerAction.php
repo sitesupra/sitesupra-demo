@@ -41,6 +41,7 @@ use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Listener\EntityRevisionSetterListener;
 use Supra\Controller\Pages\Event\CmsPageEventArgs;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
+use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
 
 /**
  * Controller containing common methods
@@ -287,6 +288,41 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 
+		return $localization;
+	}
+	
+	/**
+	 * @param string $localizationId
+	 * @param string $revisionId
+	 * @return Localization
+	 */
+	protected function findLocalizationInAudit($localizationId, $revisionId)
+	{
+		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+
+		$auditEventManager = $auditEm->getEventManager();
+		$setAuditRevisionEventArgs = new SetAuditRevisionEventArgs($revisionId);
+		$auditEventManager->dispatchEvent(AuditEvents::setAuditRevision, $setAuditRevisionEventArgs);
+		
+		// localization revision search
+		$localizationCn = Localization::CN();
+		$localizationRevisionId = $auditEm->createQuery("SELECT MAX(l.revision) FROM $localizationCn l 
+				WHERE l.revision <= :revision AND l.id = :id")
+				->setParameters(array(
+					'id' => $localizationId,
+					'revision' => $revisionId,
+				))
+				->getSingleScalarResult();
+		
+		// read localization
+		$localization = $auditEm->getRepository($localizationCn)
+				->find(array('id' => $localizationId, 'revision' => $localizationRevisionId));
+
+		// Oops...
+		if ( ! ($localization instanceof Localization)) {
+			throw new CmsException(null, 'The restore point is broken and cannot be used anymore.');
+		}
+		
 		return $localization;
 	}
 
@@ -742,6 +778,9 @@ abstract class PageManagerAction extends CmsAction
 				->setResponseData(true);
 	}
 
+	/**
+	 * Restoration of page in trash
+	 */
 	protected function restorePageVersion()
 	{
 		$this->isPostRequest();
@@ -861,109 +900,25 @@ abstract class PageManagerAction extends CmsAction
 	}
 
 	/**
-	 * Restores history version of the page
+	 * Restores history version of the page localization
 	 */
 	protected function restoreLocalizationVersion()
 	{
+		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 
-		$localization = $this->getPageLocalization();
-		$localizationId = $localization->getId();
-
-		$entityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
-		$draftEntityManager = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-
-//		$pageLocalization = $auditEm->find(Entity\Abstraction\Localization::CN(),
-//				array('id' => $localizationId, 'revision' => $revisionId));
-//		
-//		if ( ! ($pageLocalization instanceof Entity\Abstraction\Localization)) {
-//			throw new CmsException(null, 'Page version not found');
-//		}
-		// find last published page revision
-		$params = array(
-			'id' => $revisionId,
-			'localizationId' => $localizationId,
-			'types' => array(
-				PageRevisionData::TYPE_HISTORY,
-				PageRevisionData::TYPE_HISTORY_RESTORE,
-				PageRevisionData::TYPE_CREATE,
-				PageRevisionData::TYPE_DUPLICATE,
-			),
-		);
-
-		$qb = $entityManager->createQueryBuilder();
-		$qb->select('r')
-				->from(PageRevisionData::CN(), 'r')
-				->where('r.id <= :id AND r.type IN (:types) AND r.reference = :localizationId')
-				->orderBy('r.creationTime', 'DESC')
-				->setMaxResults(1)
-				->setParameters($params)
-		;
-		try {
-			$lastPublishRevision = $qb->getQuery()
-					->getSingleResult();
-		} catch (\Doctrine\ORM\NoResultException $e) {
-			throw new CmsException(null, 'Cannot find last published page revision');
-		}
-
-		$baseRevisionId = $lastPublishRevision->getId();
-
-		// select all revisions from last published, till selected one
-		$qb = $entityManager->createQueryBuilder();
-
-		$params = array(
-			'id' => $revisionId,
-			'baseId' => $baseRevisionId,
-			'localizationId' => $localizationId,
-		);
-
-		$qb->select('r')
-				->from(PageRevisionData::CN(), 'r')
-				->where('r.id <= :id AND r.id > :baseId AND r.reference = :localizationId')
-				->orderBy('r.id', 'DESC')
-				->setParameters($params)
-		;
-
-		$revisionList = $qb->getQuery()
-				->getResult();
-
-		if ( ! empty($revisionList)) {
-			//throw new CmsException(null, "Nothing found for revision #{$revisionId}");
-			// loop through list of revisions, if there is localization present, we should use it as base localization
-			// as there are located last localization settings (template, schedule etc.)
-			$lastLocalizationRevision = null;
-			foreach ($revisionList as $revision) {
-				/* @var $revision PageRevisionData */
-				$className = $revision->getElementName();
-
-				if ($className == Entity\PageLocalization::CN() || $className == Entity\TemplateLocalization::CN()) {
-					$lastLocalizationRevision = $revision;
-
-					break;
-				}
-			}
-		}
-
-		$localizationRevision = (isset($lastLocalizationRevision) ? $lastLocalizationRevision : $lastPublishRevision);
-
-		$localization = $entityManager->getRepository(Entity\Abstraction\Localization::CN())
-				->findOneBy(array('id' => $localizationRevision->getReferenceId(), 'revision' => $localizationRevision->getId()));
-
-		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
-			throw new CmsException(null, 'Page version not found');
-		}
+		$localization = $this->findLocalizationInAudit($localizationId, $revisionId);
+		
+		$draftEntityManager = $this->entityManager;
 
 		$localeId = $this->getLocale()->getId();
 		$media = $this->getMedia();
 
 		$request = new HistoryPageRequestEdit($localeId, $media);
-		$request->setDoctrineEntityManager($entityManager);
+		$request->setDoctrineEntityManager($draftEntityManager);
 		$request->setPageLocalization($localization);
-		$request->setRevisionArray($revisionList);
 
-		$revisionId = $localization->getRevisionId();
-		$request->setRevision($baseRevisionId);
-
+		// Call main localization restore routine
 		$restoreLocalization = function() use ($request) {
 					$request->restoreLocalization();
 				};
@@ -971,9 +926,10 @@ abstract class PageManagerAction extends CmsAction
 		$this->entityManager
 				->transactional($restoreLocalization);
 
-		$pageEventArgs = new PageEventArgs();
-		$pageEventArgs->setEntityManager($draftEntityManager);
-
+		// Trigger appropriate event. Will create full restore point.
+		$pageEventArgs = new PageEventArgs($draftEntityManager);
+		$pageEventArgs->setProperty('referenceId', $localizationId);
+		
 		$draftEntityManager->getEventManager()
 				->dispatchEvent(AuditEvents::localizationPostRestoreEvent, $pageEventArgs);
 	}

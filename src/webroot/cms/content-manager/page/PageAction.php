@@ -28,7 +28,6 @@ use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 use Supra\Controller\Pages\Entity\ThemeLayout;
 use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
-use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
 
 /**
  * 
@@ -671,31 +670,7 @@ class PageAction extends PageManagerAction
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 
-		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
-		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-
-		$auditEventManager = $auditEm->getEventManager();
-		$setAuditRevisionEventArgs = new SetAuditRevisionEventArgs($revisionId);
-		$auditEventManager->dispatchEvent(AuditEvents::setAuditRevision, $setAuditRevisionEventArgs);
-		
-		// localization revision search
-		$localizationCn = Entity\Abstraction\Localization::CN();
-		$localizationRevisionId = $auditEm->createQuery("SELECT MAX(l.revision) FROM $localizationCn l 
-				WHERE l.revision <= :revision AND l.id = :id")
-				->setParameters(array(
-					'id' => $localizationId,
-					'revision' => $revisionId,
-				))
-				->getSingleScalarResult();
-		
-		// read localization
-		$localization = $auditEm->getRepository($localizationCn)
-				->find(array('id' => $localizationId, 'revision' => $localizationRevisionId));
-
-		// Oops...
-		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
-			throw new CmsException(null, 'The restore point is broken and cannot be used anymore.');
-		}
+		$localization = $this->findLocalizationInAudit($localizationId, $revisionId);
 
 		$controller = $this->getPageController();
 
@@ -704,7 +679,7 @@ class PageAction extends PageManagerAction
 
 		$request = new HistoryPageRequestEdit($localeId, $media);
 		$request->setPageLocalization($localization);
-		$request->setDoctrineEntityManager($draftEm);
+		$request->setDoctrineEntityManager($this->entityManager);
 
 		$response = $controller->createResponse($request);
 

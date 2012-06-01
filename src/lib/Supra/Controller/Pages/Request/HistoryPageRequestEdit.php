@@ -30,8 +30,6 @@ class HistoryPageRequestEdit extends PageRequest
 	 */
 	private $revision;
 	private $revisionArray = array();
-	private $hasRemoveRevision = false;
-	private $removeRevisionIds = array();
 	
 	/**
 	 * {@inheritdoc}
@@ -57,13 +55,6 @@ class HistoryPageRequestEdit extends PageRequest
 	
 	public function setRevisionArray($revisions)
 	{		
-		foreach($revisions as $key => $revision) {
-			if ($revision->getType() == PageRevisionData::TYPE_REMOVED) {
-				$this->hasRemoveRevision = true;
-				$this->removeRevisionIds[] = $revision->getId();
-			}
-		}
-		
 		$this->revisionArray = $revisions;
 	}
 	
@@ -84,6 +75,7 @@ class HistoryPageRequestEdit extends PageRequest
 		$localization = $draftEntityManager->merge($auditLocalization);
 	
 		// merge placeholders
+		// FIXME: I think also parent template placeholders are merged here. Isn't that a problem?
 		$auditPlaceHolders = $auditLocalization->getPlaceHolders();
 		foreach ($auditPlaceHolders as $placeHolder) {
 			$draftEntityManager->merge($placeHolder);
@@ -97,7 +89,7 @@ class HistoryPageRequestEdit extends PageRequest
 		$auditBlockIds = Entity\Abstraction\Entity::collectIds($auditBlocks);
 		$blockToRemove = array_diff($existingDraftBlockIds, $auditBlockIds);
 		
-		foreach($blockToRemove as $blockToRemoveId) {
+		foreach ($blockToRemove as $blockToRemoveId) {
 			foreach($existingDraftBlocks as $existingDraftBlock) {
 				if ($existingDraftBlock->getId() == $blockToRemoveId) {
 					$draftEntityManager->remove($existingDraftBlock);
@@ -106,23 +98,24 @@ class HistoryPageRequestEdit extends PageRequest
 		}
 		
 		// merge blocks
-		foreach($auditBlocks as $auditBlock) {
+		// FIXME: I think also parent template blocks are merged here. Isn't that a problem?
+		foreach ($auditBlocks as $auditBlock) {
 			$draftEntityManager->merge($auditBlock);
 		}
 		
-		// remove all existing draft metadata
+		// remove all existing draft metadata and related elements
 		$qb = $draftEntityManager->createQueryBuilder();
 		$qb->select('m')
 				->from(Entity\BlockPropertyMetadata::CN(), 'm')
 				->join('m.blockProperty', 'bp')
 				->where('bp.localization = :localizationId')
 				->setParameter('localizationId', $localization->getId())
-						;
+				;
 
 		$existingDraftMetadata = $qb->getQuery()
 				->getResult();
 		
-		foreach($existingDraftMetadata as $existingDraftMetadataItem) {
+		foreach ($existingDraftMetadata as $existingDraftMetadataItem) {
 			$draftEntityManager->remove($existingDraftMetadataItem);
 			
 			$existingDraftReferencedElement = $existingDraftMetadataItem->getReferencedElement();
@@ -133,8 +126,6 @@ class HistoryPageRequestEdit extends PageRequest
 		
 		$draftEntityManager->flush();
 		
-		$auditEntityManager = ObjectRepository::getEntityManager('#audit');
-		
 		// block properties
 		$draftProperties = $this->getPageBlockProperties($draftEntityManager);
 		$draftPropertyIds = Entity\Abstraction\Entity::collectIds($draftProperties);
@@ -144,9 +135,9 @@ class HistoryPageRequestEdit extends PageRequest
 		$auditPropertyIds = Entity\Abstraction\Entity::collectIds($auditProperties);
 		
 		$propertyToRemove = array_diff($draftPropertyIds, $auditPropertyIds);
-		foreach($propertyToRemove as $propertyToRemoveId) {
-			foreach($draftProperties as $draftProperty) {
-				if ($draftProperty->getId() == $propertyToRemoveId) {
+		foreach ($propertyToRemove as $propertyToRemoveId) {
+			foreach ($draftProperties as $draftProperty) {
+				if ($draftProperty->getId() === $propertyToRemoveId) {
 					$draftEntityManager->remove($draftProperty);
 					break;
 				}
@@ -165,15 +156,17 @@ class HistoryPageRequestEdit extends PageRequest
 			$draftEntityManager->merge($auditProperty);
 			
 			$metaData = $auditProperty->getMetadata();
-			foreach($metaData as $metaDataItem) {
+			foreach ($metaData as $metaDataItem) {
 				
 				$referencedElement = $metaDataItem->getReferencedElement();
 				$draftEntityManager->merge($referencedElement);
-
 			}
 		}
 			
 		/*
+		
+		$auditEntityManager = ObjectRepository::getEntityManager('#audit');
+		
 		if ( ! empty($auditProperties)) {
 			
 			$auditMetaData = $this->getAuditMetadataByProperty($auditProperties);
