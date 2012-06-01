@@ -56,8 +56,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 			// adding to form builder
 			$formBuilder->add($field->name, $field->type);
 //			$formBuilder->addValidator($validator);
-			
-			new \Symfony\Component\Validator\Validator();
+//			new \Symfony\Component\Validator\Validator();
 
 			// adding to form block property list
 			$propertyTypes = array(self::FORM_GROUP_ID_ERROR => 'error message', self::FORM_GROUP_ID_LABELS => 'label');
