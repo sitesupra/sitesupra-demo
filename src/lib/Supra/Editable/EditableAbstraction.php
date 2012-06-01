@@ -41,10 +41,10 @@ abstract class EditableAbstraction implements EditableInterface
 	/**
 	 * @param string $label
 	 */
-	public function __construct($label = null, $groupLabel = null)
+	public function __construct($label = null, $groupId = null)
 	{
 		$this->setLabel($label);
-		$this->setGroupLabel($groupLabel);
+		$this->setGroupId($groupId);
 	}
 
 	/**
@@ -123,21 +123,38 @@ abstract class EditableAbstraction implements EditableInterface
 	}
 
 	/**
+	 * @TODO: Remove later. Kept only for backward compatibility. Use getGroupId instead.
 	 * @return string
 	 */
 	public function getGroupLabel()
+	{
+		return $this->getGroupId();
+	}
+
+	/**
+	 * @TODO: Remove later. Kept only for backward compatibility. Use setGroupId instead.
+	 * @param string $groupLabel
+	 */
+	public function setGroupLabel($groupLabel)
+	{
+		$this->setGroupId($groupLabel);
+	}
+
+		/**
+	 * @return string BlockPropertyGroupConfiguration id
+	 */
+	public function getGroupId()
 	{
 		return $this->group;
 	}
 
 	/**
-	 * @param string $groupLabel
+	 * @param string $groupId BlockPropertyGroupConfiguration id
 	 */
-	public function setGroupLabel($groupLabel)
+	public function setGroupId($groupId)
 	{
-		$this->group = $groupLabel;
+		$this->group = $groupId;
 	}
-
 	/**
 	 * @return mixed 
 	 */

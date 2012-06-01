@@ -1,0 +1,25 @@
+- Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration:
+    class: Project\Blocks\Form\FormBlock
+    title: Form Block
+    groupId: features
+    description: Description
+    cmsClassname: Editable
+#    cache:
+#      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+#        enabled: true
+#        global: false
+#        groups:
+#          - Supra\FileStorage
+#          - Supra\Controller\Pages
+    fields:
+      - Supra\Controller\Pages\Configuration\FormFieldConfiguration:
+          name: name
+          type: text
+          label: Name
+          value: 
+#          validation:
+#            - ValidationConf:
+#						  type: 1
+#						  type: 1
+#						  type: 1
+#              

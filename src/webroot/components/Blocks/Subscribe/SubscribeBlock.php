@@ -360,80 +360,80 @@ class SubscribeBlock extends BlockController
 
 		//Error messages
 		$stringValue = new \Supra\Editable\LabelString("Wrong email format");
-//		$stringValue->setGroupLabel('Error case message');
+//		$stringValue->getGroupId('Error case message');
 		$stringValue->setDefaultValue('Wrong email address');
 		$contents['wrong_email_address'] = $stringValue;
 		
 		$stringValue = new \Supra\Editable\LabelString("Empty subscriber name");
-//		$stringValue->setGroupLabel('Error case message');		
+//		$stringValue->getGroupId('Error case message');		
 		$stringValue->setDefaultValue('Empty subscriber name');
 		$contents['empty_subscriber_name'] = $stringValue;
 		
 		$stringValue = new \Supra\Editable\LabelString("Subscriber already activated");
-//		$stringValue->setGroupLabel('Error case message');
+//		$stringValue->getGroupId('Error case message');
 		$stringValue->setDefaultValue('Subscriber already activated');
 		$contents['subscriber_alredy_active'] = $stringValue;
 		
 		$stringValue = new \Supra\Editable\LabelString("Error on sending email message");
-//		$stringValue->setGroupLabel('Error case message');		
+//		$stringValue->getGroupId('Error case message');		
 		$stringValue->setDefaultValue("Can't send email");
 		$contents['cant_send_mail'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\LabelString("Wrong confirmation URL");
-//		$stringValue->setGroupLabel('Error case message');		
+//		$stringValue->getGroupId('Error case message');		
 		$stringValue->setDefaultValue("Your confirm link is wrong or expired");
 		$contents['wrong_confirm_url'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\LabelString("Subscriber not found");
-//		$stringValue->setGroupLabel('Error case message');		
+//		$stringValue->getGroupId('Error case message');		
 		$stringValue->setDefaultValue("Subscriber with current email not found.");
 		$contents['subscriber_not_found'] = $stringValue;
 		
 		//Labels
 		$stringValue = new \Supra\Editable\LabelString("Name");
-//		$stringValue->setGroupLabel('Labels');		
+//		$stringValue->getGroupId('Labels');		
 		$stringValue->setDefaultValue("Name:");
 		$contents['Name'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\LabelString("Email address");
-//		$stringValue->setGroupLabel('Error case message');		
+//		$stringValue->getGroupId('Error case message');		
 		$stringValue->setDefaultValue("Email address:");
 		$contents['EmailAddress'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\LabelString("Submit button");
-//		$stringValue->setGroupLabel('Error case message');		
+//		$stringValue->getGroupId('Error case message');		
 		$stringValue->setDefaultValue("Submit");
 		$contents['Submit'] = $stringValue;		
 		
 		//Titles
 		$stringValue = new \Supra\Editable\String("Subscribe Action");
-//		$stringValue->setGroupLabel('Titles');		
+//		$stringValue->getGroupId('Titles');		
 		$stringValue->setDefaultValue("Subscribe Action");
 		$contents['SubscribeAction'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\LabelString("Subscribtion confirmation email send on ");
-//		$stringValue->setGroupLabel('Titles');		
+//		$stringValue->getGroupId('Titles');		
 		$stringValue->setDefaultValue("Subscribtion confirmation email send on ");
 		$contents['SubscribtionConfirmationEmailSendOn'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\String("Unsubscribe Action");
-//		$stringValue->setGroupLabel('Titles');		
+//		$stringValue->getGroupId('Titles');		
 		$stringValue->setDefaultValue("Unsubscribe Action");
 		$contents['UnsubscribeAction'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\LabelString("Unsubscribe confirmation email send on");
-//		$stringValue->setGroupLabel('Titles');		
+//		$stringValue->getGroupId('Titles');		
 		$stringValue->setDefaultValue("Unsubscribe confirmation email send on");
 		$contents['UnsubscribeConfirmationEmailSendOn'] = $stringValue;
 
 		
 		$stringValue = new \Supra\Editable\LabelString("Subscribtion confirmed");
-//		$stringValue->setGroupLabel('Titles');		
+//		$stringValue->getGroupId('Titles');		
 		$stringValue->setDefaultValue("Your subscription confirmed.");
 		$contents['subscribtion_confirmed'] = $stringValue;
 
 		$stringValue = new \Supra\Editable\LabelString("Unsubscribe confirmed");
-//		$stringValue->setGroupLabel('Titles');		
+//		$stringValue->getGroupId('Titles');		
 		$stringValue->setDefaultValue("You succesfully unsubscribed.");
 		$contents['unsubscribe_success'] = $stringValue;
 		
