@@ -75,6 +75,9 @@ function (Y) {
 		 * Render action widgets, attach event listeners
 		 */
 		render: function () {
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			
 			this.widgets.slideshow.render();
 			this.widgets.slideshow.on('slideChange', this.onSlideChange, this);
 			
@@ -195,9 +198,22 @@ function (Y) {
 		},
 		
 		/**
+		 * Hide
+		 */
+		hide: function () {
+			Action.Base.prototype.hide.apply(this, arguments);
+			
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+		},
+		
+		/**
 		 * Execute action
 		 */
 		execute: function () {
+			Manager.getAction('PageToolbar').setActiveAction(this.NAME);
+			Manager.getAction('PageButtons').setActiveAction(this.NAME);
+			
 			this.show();
 		}
 	});
