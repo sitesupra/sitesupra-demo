@@ -55,7 +55,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 			/* @var $field FormFieldConfiguration */
 			// adding to form builder
 			$formBuilder->add($field->name, $field->type);
-			$formBuilder->addValidator($validator);
+//			$formBuilder->addValidator($validator);
 			
 			new \Symfony\Component\Validator\Validator();
 
