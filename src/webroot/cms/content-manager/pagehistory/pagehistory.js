@@ -259,7 +259,7 @@ Supra('anim', function (Y) {
 				
 				if (!out[date.group]) {
 					out[date.group] = {
-						'sort': date.group,
+						'sort': date.group_sort,
 						'title': date.group_title,
 						'latest': date.latest,
 						'groups': {}
@@ -337,6 +337,7 @@ Supra('anim', function (Y) {
 				out.group_title = Supra.Intl.get(['history', 'today']);
 				out.group_datetime = YDate.reformat(raw, 'raw', '%H:00');
 				out.latest = true;
+				out.group_sort = [3, null];
 			}
 			else if (raw.getTime() >= y_day.getTime())
 			{
@@ -344,18 +345,21 @@ Supra('anim', function (Y) {
 				out.group_title = Supra.Intl.get(['history', 'yesterday']);
 				out.group_datetime = YDate.reformat(raw, 'raw', '%H:00');
 				out.latest = true;
+				out.group_sort = [2, null];
 			}
 			else if (raw.getTime() >= month.getTime())
 			{
 				out.group = YDate.reformat(raw, 'raw', '%Y-%m-00');
 				out.group_title = Supra.Intl.get(['history', 'this_month']);
 				out.group_datetime = raw.getDate();
+				out.group_sort = [1, null];
 			}
 			else
 			{
-				out.group = YDate.reformat(raw, 'raw', '%Y-%m-99');
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-00');
 				out.group_title = month_names[raw.getMonth()];
 				out.group_datetime = raw.getDate();
+				out.group_sort = [0, YDate.reformat(raw, 'raw', '%Y-%m')];
 			}
 			
 			return out;
