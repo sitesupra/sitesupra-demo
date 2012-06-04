@@ -514,7 +514,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 				}
 				
 				if (jQuery.refresh[fn]) {
-					console.log('CMS triggered', event_name);
 					jQuery.refresh[fn](jquery_element);
 				}
 			}

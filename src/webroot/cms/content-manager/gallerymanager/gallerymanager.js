@@ -288,7 +288,8 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			//Properties form
 			var properties = this.image_properties,
 				form_config = {
-					'inputs': properties
+					'inputs': properties,
+					'style': 'vertical'
 				};
 			
 			var form = new Supra.Form(form_config);
@@ -314,6 +315,18 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			this.settings_form = form;
 			
 			return form;
+		},
+		
+		/**
+		 * Destroy settings form
+		 */
+		destroySettingsForm: function () {
+			if (this.settings_form) {
+				var bounding = this.settings_form.get('boundingBox');
+				this.settings_form.destroy();
+				this.settings_form = null;
+				bounding.remove(true);
+			}
 		},
 		
 		/**
@@ -1082,6 +1095,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				this.callback(data, true);
 			}
 			
+			this.destroySettingsForm();
 			this.hide();
 		},
 		
