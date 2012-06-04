@@ -15,6 +15,11 @@ use Supra\Database\Entity;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Event\PageEventArgs;
+use Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract;
+use Supra\Controller\Pages\Entity\BlockProperty;
+use Supra\Controller\Pages\Entity\Abstraction\Block;
+use Supra\Controller\Pages\Entity\BlockPropertyMetadata;
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 
 class EntityRevisionSetterListener implements EventSubscriber
 {
@@ -231,33 +236,92 @@ class EntityRevisionSetterListener implements EventSubscriber
 	
 	private function createRevisionData($entity, $type = PageRevisionData::TYPE_CHANGE)
 	{
-		if ( ! is_null($this->revision)) {
-			return $this->revision;
+		$blockName = null;
+		
+		// Need to search block title even if revision is created because
+		// referenced element might be in the changeset before metadata.
+		if (is_null($this->revision) || $this->revision->getElementTitle() === null) {
+			$blockName = $this->findBlockName($entity);
 		}
 		
-		$em = ObjectRepository::getEntityManager('#public');
-		
-		$revision = new PageRevisionData();
-		
-		$revision->setElementName($entity::CN());
-		$revision->setElementId($entity->getId());
-		
-		$revision->setType($type);
-		$revision->setReferenceId($this->referenceId);
-		$revision->setAdditionalInfo($this->revisionInfo);
-		
-		$userId = null;
-		if ($this->user instanceof \Supra\User\Entity\User) {
-			$userId = $this->user->getId();
+		if (is_null($this->revision)) {
+			
+			$em = ObjectRepository::getEntityManager('#public');
+
+			$revision = new PageRevisionData();
+
+			$revision->setElementName($entity::CN());
+			$revision->setElementId($entity->getId());
+
+			$revision->setType($type);
+			$revision->setReferenceId($this->referenceId);
+			$revision->setAdditionalInfo($this->revisionInfo);
+
+			$userId = null;
+			if ($this->user instanceof \Supra\User\Entity\User) {
+				$userId = $this->user->getId();
+			}
+			$revision->setUser($userId);
+
+			$em->persist($revision);
+			$em->flush();
+
+			$this->revision = $revision;
 		}
-		$revision->setUser($userId);
 		
-		$em->persist($revision);
-		$em->flush();
+		if ( ! is_null($blockName)) {
+			$this->revision->setElementTitle($blockName);
+			
+			$em = ObjectRepository::getEntityManager('#public');
+			$em->flush();
+		}
+
+		return $this->revision;
+	}
+	
+	/**
+	 * Finds block title by element changed.
+	 * Doesn't work for metadata referenced elements, but currently they are
+	 * saved togather with metadata elements.
+	 * @param mixed $entity
+	 * @return string
+	 */
+	private function findBlockName($entity)
+	{
+		$block = null;
 		
-		$this->revision = $revision;
+		switch (true) {
+			case ($entity instanceof BlockPropertyMetadata):
+				$block = $entity->getBlockProperty()
+						->getBlock();
+				break;
+			
+			case ($entity instanceof BlockProperty):
+				$block = $entity->getBlock();
+				break;
+			
+			case ($entity instanceof Block):
+				$block = $entity;
+				break;
+		}
 		
-		return $revision;
+		if (is_null($block)) {
+			return;
+		}
+		
+		$blockName = null;
+		$entity = null;
+		
+		if ( ! is_null($block)) {
+			$componentClass = $block->getComponentClass();
+			$componentConfiguration = ObjectRepository::getComponentConfiguration($componentClass);
+
+			if ($componentConfiguration instanceof BlockControllerConfiguration) {
+				$blockName = $componentConfiguration->title;
+			}
+		}
+		
+		return $blockName;
 	}
 	
 	/**

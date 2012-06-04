@@ -70,7 +70,7 @@ class PageLocalization extends Abstraction\Localization
 
 	/**
 	 * Redirect information if any
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement", cascade={"all"})
+	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement", cascade={"all"})
 	 * @var ReferencedElement\LinkReferencedElement
 	 */
 	protected $redirect;

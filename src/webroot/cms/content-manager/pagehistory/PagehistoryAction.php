@@ -80,7 +80,8 @@ class PagehistoryAction extends PageManagerAction
 				continue;
 			}
 			
-			$userName = '#' . $userId;
+			// 8 characters is enough if user was not found
+			$userName = '#' . substr($userId, 0 ,8);
 			$user = $userProvider->findUserById($userId);
 			if ($user instanceof User) {
 				$userName = $user->getName();
@@ -216,72 +217,7 @@ class PagehistoryAction extends PageManagerAction
 	 */
 	private function getRevisionedEntityBlockName(PageRevisionData $revision) 
 	{
-		$blockName = null;
-		$entity = null;
-		
-		$entityManager = ObjectRepository::getEntityManager('#audit');
-		
-		$params = array(
-			'id' => $revision->getElementId(),
-			'revision' => $revision->getId(),
-		);
-
-		$entityName = $revision->getElementName();
-		if (in_array($entityName, array(Entity\ReferencedElement\LinkReferencedElement::CN(), Entity\ReferencedElement\ImageReferencedElement::CN()))) {
-			$entity = $entityManager->getRepository(Entity\BlockPropertyMetadata::CN())
-					->findOneBy(array('referencedElement' => $revision->getElementId()));
-			
-			if (is_null($entity)) {
-				return null;
-			}
-			
-			$entityName = Entity\BlockPropertyMetadata::CN();
-		} else {
-			$entity = $entityManager->getRepository($entityName)
-					->findOneBy($params);
-		}
-		
-		if ( ! is_null($entity)) {
-			
-			$block = null;
-			switch($entityName) {
-				case Entity\BlockPropertyMetadata::CN():
-					$entityOriginalData = $entityManager->getUnitOfWork()
-						->getOriginalEntityData($entity);
-					
-					$blockPropertyId = $entityOriginalData['blockProperty_id'];
-					$blockProperty = $entityManager->getRepository(Entity\BlockProperty::CN())
-							->findOneBy(array('id' => $blockPropertyId));
-					
-					if (is_null($blockProperty)) {
-						return null;
-					}
-					
-					$block = $blockProperty->getBlock();
-					
-					break;
-				
-				case Entity\BlockProperty::CN():
-					$block = $entity->getBlock();
-					break;
-				
-				case Entity\PageBlock::CN():
-				case Entity\TemplateBlock::CN():
-					$block = $entity;
-					break;
-			}
-			
-			if ( ! is_null($block)) {
-				$componentClass = $block->getComponentClass();
-				$componentConfiguration = ObjectRepository::getComponentConfiguration($componentClass);
-				
-				if ($componentConfiguration instanceof BlockControllerConfiguration) {
-					$blockName = $componentConfiguration->title;
-				}
-			}
-		}
-		
-		return $blockName;
+		return $revision->getElementTitle();
 	}
 	
 	/**
