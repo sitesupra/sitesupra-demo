@@ -1,13 +1,23 @@
 <?php
 
-namespace Supra\Template\Parser\Twig\Extension;
+namespace Supra\Controller\Pages\Twig;
 
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\Exception\FormException;
-use Symfony\Component\Form\Util\FormUtil;
+use Supra\Controller\Pages\BlockController;
+use Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration;
+use Supra\Controller\Pages\Configuration\FormFieldConfiguration;
 
-class FormExtension extends \Twig_Extension
+class FormExtension
 {
+
+	protected $blockController;
+
+	public function __construct(BlockController $blockController)
+	{
+		$this->blockController = $blockController;
+	}
+
 	/**
 	 * POST method
 	 */
@@ -34,46 +44,13 @@ class FormExtension extends \Twig_Extension
 	const ENCTYPE_TEXT_PLAIN = 'text/plain';
 
 	/**
-	 * Twig environment
-	 * @var \Twig_Environment 
-	 */
-	protected $environment;
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function initRuntime(\Twig_Environment $environment)
-	{
-		$this->environment = $environment;
-	}
-
-	public function getFunctions()
-	{
-		return array(
-			'form_tag' => new \Twig_Function_Method($this, 'renderFormTag', array('is_safe' => array('html'))),
-			'form_errors' => new \Twig_Function_Method($this, 'renderErrors', array('is_safe' => array('html'))),
-			'form_error' => new \Twig_Function_Method($this, 'renderError', array('is_safe' => array('html'))),
-			'form_label' => new \Twig_Function_Method($this, 'renderLabel', array('is_safe' => array('html'))),
-			'form_field' => new \Twig_Function_Method($this, 'renderField', array('is_safe' => array('html'))),
-			'form_row' => new \Twig_Function_Method($this, 'renderRow', array('is_safe' => array('html'))),
-			'form_submit' => new \Twig_Function_Method($this, 'renderSubmit', array('is_safe' => array('html'))),
-			'form_end_tag' => new \Twig_Function_Method($this, 'renderFormEndTag', array('is_safe' => array('html'))),
-		);
-	}
-
-	public function getName()
-	{
-		return 'supra_form';
-	}
-
-	/**
 	 * Generates form begginning tag
 	 * @param FormView $view
 	 * @param array $options
 	 * @param array $attributes
 	 * @return \Supra\Html\HtmlTagStart 
 	 */
-	public function renderFormTag(FormView $view, array $options = array(), array $attributes = array())
+	public function begin(FormView $view, array $options = array(), array $attributes = array())
 	{
 
 		$tag = new \Supra\Html\HtmlTagStart('form');
@@ -119,35 +96,79 @@ class FormExtension extends \Twig_Extension
 
 		$this->setTagAttributes($tag, $tagAttributes);
 
-		return $tag;
+//		return $tag;
+		return new \Twig_Markup($tag->toHtml());
 	}
 
-	public function renderErrors(FormView $view, array $options = array(), array $attributes = array())
+	public function errors(FormView $view, array $options = array(), array $attributes = array())
 	{
 		return __METHOD__;
 	}
 
-	public function renderError(FormView $view, array $options = array(), array $attributes = array())
+	public function error(FormView $view, array $options = array(), array $attributes = array())
 	{
-		return __METHOD__;
+
+		// proccess only fields, not entire form errors
+		if ( ! $view->hasParent()) {
+			return;
+		}
+
+		$vars = $view->getVars();
+
+		if (empty($vars['errors'])) {
+			return;
+		}
+
+		$output = null;
+
+		foreach ($vars['errors'] as $error) {
+			/* @var $error \Symfony\Component\Form\FormError */
+			$tag = new \Supra\Html\HtmlTag('span');
+			$tag->forceTwoPartTag(true);
+			$tag->setAttribute('class', 'error');
+			$errorProperty = $this->blockController->getPropertyValue(
+					FormBlockControllerConfiguration::generateEditableName(
+							FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $vars['name'])
+					. "_{$error->getMessage()}"
+			);
+
+			$message = $error->getMessage();
+			if ( ! empty($errorProperty)) {
+				$message = strtr($errorProperty, $error->getMessageParameters());
+			}
+
+			$tag->setContent($message);
+
+			$output .= $tag->toHtml();
+		}
+
+		return new \Twig_Markup($output);
 	}
 
-	public function renderLabel(FormView $view, array $options = array(), array $attributes = array())
+	public function label(FormView $view, array $options = array(), array $attributes = array())
 	{
 		$vars = $view->getVars();
+
+		$label = $this->blockController->getPropertyValue(
+				FormBlockControllerConfiguration::generateEditableName(
+						FormBlockControllerConfiguration::FORM_GROUP_ID_LABELS, $vars['name']
+				)
+		);
+
 		$tag = new \Supra\Html\HtmlTag('label');
 		$names = $this->getFormViewParentNames($view);
 
 		$tag->setAttribute('for', join('_', $names));
 		$tag->forceTwoPartTag(true);
-		$tag->setContent($vars['label']);
+		$tag->setContent($label ? $label : $vars['label']);
 
-		return $tag;
+		return new \Twig_Markup($tag->toHtml());
 	}
 
-	public function renderField(FormView $view, array $options = array(), array $attributes = array())
+	public function field(FormView $view, array $options = array(), array $attributes = array())
 	{
 		$vars = $view->getVars();
+
 		// process types and guess field type
 		// @TODO
 //		foreach ($vars['types'] as $key => $value) {
@@ -173,20 +194,20 @@ class FormExtension extends \Twig_Extension
 		$tag->setAttribute('type', 'text');
 		$tag->setAttribute('name', $name);
 		$tag->setAttribute('id', join('_', $names));
-		
+
 		if ( ! empty($vars['value'])) {
 			$tag->setAttribute('value', $vars['value']);
 		}
 
-		return $tag;
+		return new \Twig_Markup($tag->toHtml());
 	}
 
-	public function renderRow(FormView $view, array $options = array(), array $attributes = array())
+	public function row(FormView $view, array $options = array(), array $attributes = array())
 	{
 		return __METHOD__;
 	}
 
-	public function renderSubmit(array $options = array(), array $attributes = array())
+	public function submit(array $options = array(), array $attributes = array())
 	{
 		$defaultOptions = array(
 			'tag' => 'input',
@@ -217,12 +238,12 @@ class FormExtension extends \Twig_Extension
 
 		unset($options['tag']);
 
-		return $this->setTagAttributes($htmlTag, $options + $attributes);
+		return new \Twig_Markup($this->setTagAttributes($htmlTag, $options + $attributes)->toHtml());
 	}
 
-	public function renderFormEndTag()
+	public function end()
 	{
-		return '</form>';
+		return new \Twig_Markup('</form>');
 	}
 
 	/**
@@ -272,6 +293,24 @@ class FormExtension extends \Twig_Extension
 		}
 
 		return $tag;
+	}
+
+	/**
+	 * Returns configuration field
+	 * 
+	 * @param string $fieldName
+	 * @return FormFieldConfiguration
+	 */
+	protected function getConfigurationField($fieldName)
+	{
+		$conf = $this->blockController->getConfiguration();
+		foreach ($conf->fields as $field) {
+			if ($fieldName == $field->name) {
+				return $field;
+			}
+		}
+
+		return null;
 	}
 
 }

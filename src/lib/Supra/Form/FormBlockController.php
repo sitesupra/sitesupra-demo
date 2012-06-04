@@ -20,13 +20,9 @@ abstract class FormBlockController extends BlockController
 		$request = new Request($_GET, $_POST, array(), $_COOKIE, $_FILES, $_SERVER);
 
 		$form = $this->getCleanForm();
-		
-		
 
 		if ($request->isMethod('POST')) {
-
 			$form->bindRequest($request);
-
 			$this->bindedForm = $form;
 
 			if ($form->isValid()) {
@@ -85,41 +81,36 @@ abstract class FormBlockController extends BlockController
 				}
 			}
 
-			$constraints = array();
-
-			foreach ($field->validation as $validation) {
-				/* @var $validation \Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration */
-				$constraints[] = $validation->constraint;
-			}
-
-			/**
-			 * The option "validation_constraint" was deprecated in 2.1 and will be removed in Symfony 2.3. 
-			 * You should use the option "constraints" instead, where you can pass one or more constraints for a form.
-			 * 
-			 * $builder->add('name', 'text', array(
-			 *    'constraints' => array(
-			 *        new NotBlank(),
-			 *        new MinLength(3),
-			 *    ),
-			 * ));
-			 * 
-			 * @FIXME
-			 * @TODO
-			 * 
-			 * Currently using 2.0 version
-			 * 
-			 * @see https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md
-			 */
-			if ( ! empty($constraints)) {
-				$collectionConstraint = new \Symfony\Component\Validator\Constraints\Collection($constraints);
-				$options['validation_constraint'] = $collectionConstraint;
-			}
-
-			$formBuilder->add($field->name, $field->type, $options);
+			$formBuilder->add($field->name, $field->type);
 		}
 
 		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 10);
-//		$validator = new Form\Extension\Core\EventListener\ValidationListener();
+
+		/**
+		 * The option "validation_constraint" was deprecated in 2.1 and will be removed in Symfony 2.3. 
+		 * You should use the option "constraints" instead, where you can pass one or more constraints for a form.
+		 * 
+		 * $builder->add('name', 'text', array(
+		 *    'constraints' => array(
+		 *        new NotBlank(),
+		 *        new MinLength(3),
+		 *    ),
+		 * ));
+		 * 
+		 * @FIXME
+		 * @TODO
+		 * 
+		 * Currently using 2.0 version
+		 * 
+		 * @see https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md
+		 */
+		if ( ! empty($conf->constraints)) {
+			$collectionConstraint = new \Symfony\Component\Validator\Constraints\Collection($conf->constraints);
+			$formBuilder->setAttribute('validation_constraint', $collectionConstraint);
+		}
+
+		$formBuilder->setAttribute('error_mapping', array());
+
 		return $formBuilder->getForm();
 	}
 
@@ -136,7 +127,7 @@ abstract class FormBlockController extends BlockController
 
 		$validatorFactory = new \Symfony\Component\Validator\ConstraintValidatorFactory();
 		$validator = new \Symfony\Component\Validator\Validator($metadataFactory, $validatorFactory);
-		
+
 		$factory = new Form\FormFactory(array(
 					new Form\Extension\Validator\ValidatorExtension($validator),
 					new Form\Extension\Core\CoreExtension(),
@@ -147,10 +138,10 @@ abstract class FormBlockController extends BlockController
 
 		$id = $this->getBlock()->getId();
 		$formBuilder = new \Symfony\Component\Form\FormBuilder($id, $factory, $dispatcher);
-		
-//		$validatorListener = new Form\Extension\Validator\EventListener\DelegatingValidationListener($validator);
-//		$formBuilder->addEventSubscriber($validatorListener);
-		
+
+		$validatorListener = new Form\Extension\Validator\EventListener\DelegatingValidationListener($validator);
+		$formBuilder->addEventSubscriber($validatorListener);
+
 		return $formBuilder;
 	}
 

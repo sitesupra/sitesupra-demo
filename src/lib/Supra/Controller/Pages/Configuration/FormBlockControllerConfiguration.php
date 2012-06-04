@@ -7,6 +7,7 @@ use Supra\Loader\Loader;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Configuration\ComponentConfiguration;
 use Symfony\Component\Form;
+use \ReflectionClass;
 
 class FormBlockControllerConfiguration extends BlockControllerConfiguration
 {
@@ -18,6 +19,14 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 	const BLOCK_PROPERTY_FORM_PREFIX = 'form_field_';
 
+	/**
+	 * @var array 
+	 */
+	public $constraints;
+
+	/**
+	 * @var array 
+	 */
 	public $fields;
 
 	/**
@@ -48,26 +57,60 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 			}
 		}
 
+		$constraints = array();
+
 		foreach ($this->fields as $field) {
 			/* @var $field FormFieldConfiguration */
-			// adding to form block property list
-			$propertyTypes = array(self::FORM_GROUP_ID_ERROR => 'error message', self::FORM_GROUP_ID_LABELS => 'label');
-			foreach ($propertyTypes as $propertyGroup => $fieldType) {
-				$property = new BlockPropertyConfiguration();
 
-				$editable = new \Supra\Editable\String("Form field \"{$field->label}\" ({$field->name}) {$fieldType}");
+			$messages = array();
 
-				//@TODO: Change when validation will be added
-				if ($propertyGroup != self::FORM_GROUP_ID_ERROR) {
-					$editable->setDefaultValue($field->label);
+			foreach ($field->validation as $validation) {
+				/* @var $validation \Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration */
+
+				$constraint = $validation->constraint;
+				$reflection = new ReflectionClass($constraint);
+				$properties = $reflection->getDefaultProperties();
+
+				foreach ($properties as $key => $value) {
+					if (strpos($key, 'message') !== false) {
+						$className = strtolower(array_pop(explode('\\', $reflection->getName())));
+
+						$propertyName = "constraint_{$className}_{$key}";
+						$messages[$propertyName] = $value;
+
+						$constraint->$key = $propertyName;
+					}
 				}
 
-//				$editable->setGroupId($propertyGroup);
+				$constraints[$field->name][] = $constraint;
+			}
 
-				$editableName = static::generateEditableName($propertyGroup, $field);
+			// adding labels to form block property list
+			$property = new BlockPropertyConfiguration();
+			$editable = new \Supra\Editable\String("Field \"{$field->name}\" label");
+
+			$editable->setDefaultValue($field->label);
+			$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
+
+			$editableName = static::generateEditableName(self::FORM_GROUP_ID_LABELS, $field);
+			$this->properties[] = $property->fillFromEditable($editable, $editableName);
+
+			// adding errors to form block property list
+			$i = 1;
+			foreach ($messages as $key => $value) {
+				$property = new BlockPropertyConfiguration();
+				$editable = new \Supra\Editable\String("Field \"{$field->name}\" error #{$i}");
+				$editable->setDefaultValue($value);
+
+				$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
+
+				$editableName = static::generateEditableName(self::FORM_GROUP_ID_ERROR, $field) . '_' . $key;
 				$this->properties[] = $property->fillFromEditable($editable, $editableName);
+				$i++;
 			}
 		}
+
+		$this->constraints = $constraints;
 
 		parent::configure();
 	}
@@ -76,16 +119,21 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 	 * Generates editable name
 	 * 
 	 * @param string $propertyGroup
-	 * @param FormFieldConfiguration $field
+	 * @param FormFieldConfiguration or string $field 
 	 * @throws \RuntimeException if $propertyGroup is not on of FORM_GROUP_ID constants
 	 * @return string 
 	 */
-	public static function generateEditableName($propertyGroup, FormFieldConfiguration $field)
+	public static function generateEditableName($propertyGroup, $field)
 	{
 		if ( ! in_array($propertyGroup, array(self::FORM_GROUP_ID_ERROR, self::FORM_GROUP_ID_LABELS))) {
 			throw new \RuntimeException('');
 		}
-		return self::BLOCK_PROPERTY_FORM_PREFIX . $propertyGroup . '_' . $field->name;
+
+		if ($field instanceof FormFieldConfiguration) {
+			return self::BLOCK_PROPERTY_FORM_PREFIX . $propertyGroup . '_' . $field->name;
+		} else {
+			return self::BLOCK_PROPERTY_FORM_PREFIX . $propertyGroup . '_' . (string) $field;
+		}
 	}
 
 }

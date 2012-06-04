@@ -16,11 +16,16 @@
           name: name
           type: text
           label: Name
-#          value: 
+#         http://symfony.com/doc/current/reference/constraints.html
           validation:
             - Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration:
                 constraint: Symfony\Component\Validator\Constraints\Email
                 options:
-                  message: The email "{{ value }}" is not a valid email.
                   checkMX: true
+            - Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration:
+                constraint: Symfony\Component\Validator\Constraints\NotBlank
+            - Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration:
+                constraint: Symfony\Component\Validator\Constraints\MinLength
+                options:
+                  limit: 3
                 
