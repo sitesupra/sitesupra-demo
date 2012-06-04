@@ -52,6 +52,8 @@ class ProxyAction extends ProxyActionAbstraction
 		} else {
 			throw new Exception\RuntimeException('Could not determine order type.');
 		}
+		
+		$this->fireProxyEvent();
 	}
 
 	const REQUEST_KEY_RETURN_FROM_FORM = 'returnFromForm';
@@ -141,10 +143,10 @@ class ProxyAction extends ProxyActionAbstraction
 		// Mark order payment as started.
 		$order->setStatus(OrderStatus::PAYMENT_STARTED);
 		$orderProvider->store($order);
-
+		
 		// Intialize Transact transaction with supplied post data.
 		$initializationResult = $this->initializeTransaction($formData);
-
+		
 		$orderProvider->store($order);
 
 		// If transaction initalization had errors, throw exception.
@@ -191,7 +193,7 @@ class ProxyAction extends ProxyActionAbstraction
 				// If charge result has key "Status", it means card was not 
 				// 3D-enabled and we have transaction result right away.
 
-				switch ($chargeResult['Status']) {
+				switch (strtolower($chargeResult['Status'])) {
 
 					case 'success': {
 							$this->onSuccess();
@@ -265,7 +267,7 @@ class ProxyAction extends ProxyActionAbstraction
 
 
 		if ( ! empty($errorMessages)) {
-
+			
 			$order = $this->getOrder();
 
 			$session = $paymentProvider->getSessionForOrder($order);
@@ -343,7 +345,7 @@ class ProxyAction extends ProxyActionAbstraction
 			// 3D-enabled and we have transaction result right away.
 			if ( ! empty($chargeResult['Status'])) {
 
-				switch ($chargeResult['Status']) {
+				switch (strtolower($chargeResult['Status'])) {
 
 					case 'success': {
 							$this->onSuccess();
