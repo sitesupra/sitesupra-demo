@@ -1,0 +1,11 @@
+{% block beforeForm %}{% endblock %}
+
+{% block form %}
+	{{ form_tag(form) }}
+		{{ form_label(form.name) }}
+		{{ form_field(form.name) }}
+		{{ form_submit() }}
+	{{ form_end_tag() }}
+{% endblock %}
+
+{% block afterForm%}{% endblock %}

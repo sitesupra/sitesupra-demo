@@ -134,7 +134,15 @@ class FormExtension extends \Twig_Extension
 
 	public function renderLabel(FormView $view, array $options = array(), array $attributes = array())
 	{
-		return __METHOD__;
+		$vars = $view->getVars();
+		$tag = new \Supra\Html\HtmlTag('label');
+		$names = $this->getFormViewParentNames($view);
+
+		$tag->setAttribute('for', join('_', $names));
+		$tag->forceTwoPartTag(true);
+		$tag->setContent($vars['label']);
+
+		return $tag;
 	}
 
 	public function renderField(FormView $view, array $options = array(), array $attributes = array())
@@ -157,13 +165,18 @@ class FormExtension extends \Twig_Extension
 				$firstName = true;
 				continue;
 			}
-			
+
 			$name .= "[$namePart]";
 		}
+
 		$tag = new \Supra\Html\HtmlTag('input');
 		$tag->setAttribute('type', 'text');
 		$tag->setAttribute('name', $name);
-		$tag->setAttribute('value', $vars['label']);
+		$tag->setAttribute('id', join('_', $names));
+		
+		if ( ! empty($vars['value'])) {
+			$tag->setAttribute('value', $vars['value']);
+		}
 
 		return $tag;
 	}

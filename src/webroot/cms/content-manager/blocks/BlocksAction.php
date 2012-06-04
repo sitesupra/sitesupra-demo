@@ -10,6 +10,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Configuration\Exception\ConfigurationMissing;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 use Supra\Controller\Pages\BlockPropertyGroupCollection;
+use Supra\Editable;
 
 class BlocksAction extends PageManagerAction
 {
@@ -96,23 +97,7 @@ class BlocksAction extends PageManagerAction
 			$controller = $blockCollection->getBlockController($conf->class);
 			$propertyDefinition = $conf->properties;
 
-			$properties = array();
-
-			foreach ($propertyDefinition as $property) {
-				/* @var $property BlockPropertyConfiguration */
-				$editable = $property->editableInstance;
-				
-				$properties[] = array(
-					'id' => $property->name,
-					'type' => $editable->getEditorType(),
-					'inline' => $editable->isInlineEditable(),
-					'label' => $editable->getLabel(),
-					'value' => $editable->getDefaultValue(),
-					'group' => $editable->getGroupId(),
-				) 
-				+ $editable->getAdditionalParameters();
-				
-			}
+			$properties = $this->gatherPropertyArray($propertyDefinition);
 
 			$response['blocks'][] = array(
 				'id' => $conf->id,
@@ -134,6 +119,37 @@ class BlocksAction extends PageManagerAction
 		array_multisort($titles, $response['blocks']);
 
 		$this->getResponse()->setResponseData($response);
+	}
+	
+	protected function gatherPropertyArray($properties)
+	{
+		
+		$response = array();
+		
+		if (is_array($properties)) {
+			foreach ($properties as $property) {
+
+				$editable = $property->editableInstance;
+
+				$propertyData = array(
+					'id' =>		$property->name,
+					'type' =>	$editable->getEditorType(),
+					'inline' => $editable->isInlineEditable(),
+					'label' =>	$editable->getLabel(),
+					'value' =>	$editable->getDefaultValue(),
+					'group' =>	$editable->getGroupId(),
+				)
+				+ $editable->getAdditionalParameters();
+
+				if ($editable instanceof Editable\Gallery) {
+					$propertyData['properties'] = $this->gatherPropertyArray($property->properties);
+				}
+
+				$response[] = $propertyData;
+			}
+		}
+		
+		return $response;
 	}
 
 }

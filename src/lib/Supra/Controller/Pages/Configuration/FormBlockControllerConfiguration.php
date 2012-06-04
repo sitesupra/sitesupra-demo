@@ -27,9 +27,6 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 	public function configure()
 	{
-		$formBuilder = $this->getFormBuilder($this->class);
-
-
 		if ( ! empty($this->fields)) {
 			// groups 
 			$groups = array(
@@ -53,55 +50,42 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 		foreach ($this->fields as $field) {
 			/* @var $field FormFieldConfiguration */
-			// adding to form builder
-			$formBuilder->add($field->name, $field->type);
-//			$formBuilder->addValidator($validator);
-//			new \Symfony\Component\Validator\Validator();
-
 			// adding to form block property list
 			$propertyTypes = array(self::FORM_GROUP_ID_ERROR => 'error message', self::FORM_GROUP_ID_LABELS => 'label');
 			foreach ($propertyTypes as $propertyGroup => $fieldType) {
 				$property = new BlockPropertyConfiguration();
 
 				$editable = new \Supra\Editable\String("Form field \"{$field->label}\" ({$field->name}) {$fieldType}");
-				
+
 				//@TODO: Change when validation will be added
 				if ($propertyGroup != self::FORM_GROUP_ID_ERROR) {
 					$editable->setDefaultValue($field->label);
 				}
-				
-				$editable->setGroupId($propertyGroup);
 
-				$editableName = self::BLOCK_PROPERTY_FORM_PREFIX . $propertyGroup . '_' . $field->name;
+//				$editable->setGroupId($propertyGroup);
+
+				$editableName = static::generateEditableName($propertyGroup, $field);
 				$this->properties[] = $property->fillFromEditable($editable, $editableName);
 			}
 		}
-
-		$this->form = $formBuilder->getForm();
 
 		parent::configure();
 	}
 
 	/**
-	 * Temporary solution
-	 * @TODO
-	 * @return \Symfony\Component\Form\FormBuilder 
+	 * Generates editable name
+	 * 
+	 * @param string $propertyGroup
+	 * @param FormFieldConfiguration $field
+	 * @throws \RuntimeException if $propertyGroup is not on of FORM_GROUP_ID constants
+	 * @return string 
 	 */
-	protected function getFormBuilder($id)
+	public static function generateEditableName($propertyGroup, FormFieldConfiguration $field)
 	{
-		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
-
-		$factory = new Form\FormFactory(array(
-					new Form\Extension\Core\CoreExtension(),
-					new Form\Extension\Csrf\CsrfExtension($csrfProvider)
-				));
-
-		$dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
-
-		$id = $this->prepareClassId($id);
-		$formBuilder = new \Symfony\Component\Form\FormBuilder($id, $factory, $dispatcher);
-
-		return $formBuilder;
+		if ( ! in_array($propertyGroup, array(self::FORM_GROUP_ID_ERROR, self::FORM_GROUP_ID_LABELS))) {
+			throw new \RuntimeException('');
+		}
+		return self::BLOCK_PROPERTY_FORM_PREFIX . $propertyGroup . '_' . $field->name;
 	}
 
 }

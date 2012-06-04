@@ -316,7 +316,6 @@ class PageRequestEdit extends PageRequest
 		//TODO: remove reference elements as well!
 		$propertyIdList = $draftProperties->collectIds();
 		
-		
 		// 12. Remove old redirect if exists and doesn't match with new one
 		// NOTE: remove() on publicEm should be called before publicEm::unitOfWork will be clear()'ed (code below)
 		// or removing will fail ("detached entity could not be removed")
@@ -327,10 +326,39 @@ class PageRequestEdit extends PageRequest
 		}
 		
 		if ( ! empty($propertyIdList)) {
+			
 			$qb = $publicEm->createQueryBuilder();
-			$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
-					->where($qb->expr()->in('r.blockProperty', $propertyIdList))
+			$metaData = $qb->select('m')
+					->from(Entity\BlockPropertyMetadata::CN(), 'm')
+					->where($qb->expr()->in('m.blockProperty', $propertyIdList))
 					->getQuery()->execute();
+			$metaDataIds = Entity\Abstraction\Entity::collectIds($metaData);
+			
+			if ( ! empty($metaDataIds)) {
+				$qb = $publicEm->createQueryBuilder();
+				$subProperties = $qb->select('p')
+						->from(Entity\BlockProperty::CN(), 'p')
+						->where($qb->expr()->in('p.masterMetadata', $metaDataIds))
+						->getQuery()->execute();
+				$subPropertyIds = Entity\Abstraction\Entity::collectIds($subProperties);
+
+				if ( ! empty($subPropertyIds)) {
+					$qb = $publicEm->createQueryBuilder();
+					$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
+							->where($qb->expr()->in('m.blockProperty', $subPropertyIds))
+							->getQuery()->execute();
+
+					$qb = $publicEm->createQueryBuilder();
+					$qb->delete(Entity\BlockProperty::CN(), 'p')
+							->where($qb->expr()->in('p.id', $subPropertyIds))
+							->getQuery()->execute();
+				}
+
+				$qb = $publicEm->createQueryBuilder();
+				$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
+						->where($qb->expr()->in('r.blockProperty', $propertyIdList))
+						->getQuery()->execute();
+			}
 			
 			// Force to clear UoW, or #11 step will fail, 
 			// as properties are still marked as existing inside EM
@@ -339,6 +367,7 @@ class PageRequestEdit extends PageRequest
 		}
 		
 		// 11. Merge all properties from 5
+		$ownedProperties = array();
 		foreach ($draftProperties as $property) {
 			
 			// Initialize the property metadata so it is copied as well
@@ -348,15 +377,36 @@ class PageRequestEdit extends PageRequest
 				$metadata->initialize();
 			}
 			
+			foreach($metadata as $metadataItem) {
+				$subProperties = $metadataItem->getMetadataProperties();
+				if ($subProperties instanceof \Doctrine\ORM\PersistentCollection) {
+					$subProperties->initialize();
+				}
+			}
+			
 			// Skip shared properties
 			if ( ! $property instanceof Entity\SharedBlockProperty) {
+				// for now also skip sub-properties, they'll be merged later
+				$owner = $property->getMasterMetadata();
+				if ( ! is_null($owner)) {
+					$ownedProperties[] = $property;
+					continue;
+				}
+				
 				$publicEm->merge($property);
 			}
+		}
+			
+		$publicEm->flush();
+
+		// sub-properties
+		foreach($ownedProperties as $property) {
+			$publicEm->merge($property);
 		}
 		
 		$draftEm->flush();
 		$publicEm->flush();
-		
+				
 		$pageEventArgs = new PageEventArgs();
 		$pageEventArgs->setEntityManager($draftEm);
 		// fixtures are using this
