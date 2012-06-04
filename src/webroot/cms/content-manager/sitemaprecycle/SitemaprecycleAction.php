@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\PageRevisionData;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 /**
  * Sitemap
@@ -68,12 +69,22 @@ class SitemaprecycleAction extends PageManagerAction
 				'locale' => $localeId,
 				'revision' => $revisionIds
 			);
+			
+			$dql = 'SELECT l.master FROM page:Abstraction\Localization l
+				WHERE l.locale = :locale
+				AND l.revision IN (:revision)';
+			
+			$masterIds = $auditEm->createQuery($dql)
+					->execute($searchCriteria, ColumnHydrator::HYDRATOR_ID);
+			
+			$masters = $auditEm->createQuery("SELECT m FROM page:Abstraction\AbstractPage m WHERE m.id IN (:id)")
+					->execute(array('id' => $masterIds));
 
-			$pageLocalizationRepository = $auditEm->getRepository($entity);
-			$pageLocalizations = $pageLocalizationRepository->findBy($searchCriteria);
+			foreach ($masters as $master) {
 
-			foreach ($pageLocalizations as $pageLocalization) {
-
+				/* @var $master Entity\Abstraction\AbstractPage */
+				$pageLocalization = $master->getLocalization($localeId);
+				
 				$pageInfo = array();
 				$pathPart = null;
 				$templateId = null;

@@ -67,6 +67,19 @@ class EntityManagerConfiguration implements ConfigurationInterface
 		'configuration' => 'Supra/Configuration/Entity',
 		'facebook' => 'Supra/Social/Facebook/Entity',
 	);
+	
+	public $entityNamespaces = array(
+		'page' => 'Supra\Controller\Pages\Entity',
+		'file' => 'Supra\FileStorage\Entity',
+		'user' => 'Supra\User\Entity',
+		'cron' => 'Supra\Console\Cron\Entity',
+		'search' => 'Supra\Search\Entity',
+		'banner' => 'Supra\BannerMachine\Entity',
+		'payment' => 'Supra\Payment\Entity',
+		'mail' => 'Supra\Mailer\MassMail\Entity',
+		'configuration' => 'Supra\Configuration\Entity',
+		'facebook' => 'Supra\Social\Facebook\Entity',
+	);
 
 	/**
 	 * @var array
@@ -197,33 +210,17 @@ class EntityManagerConfiguration implements ConfigurationInterface
 			$folder = $type['folder'];
 			$paths = $type['paths'];
 			
-			foreach ($paths as $ns => $path) {
-				if (is_integer($ns)) {
-					$ns = $i ++;
-				}
-				
-				if (array_key_exists($ns, $entityPaths)) {
-					throw new \Supra\Configuration\Exception\InvalidConfiguration("Entity namespace $ns was already used");
-				}
-				
-				$entityPaths[$ns] = $folder . $path;
+			foreach ($paths as $path) {
+				$entityPaths[] = $folder . $path;
 			}
 		}
 
 		return $entityPaths;
 	}
 	
-	protected function getEntityNamespaces($entityPaths)
+	protected function getEntityNamespaces()
 	{
-		$entityNamespaces = array();
-		
-		foreach ($entityPaths as $ns => $path) {
-			if (is_string($ns)) {
-				$entityNamespaces[$ns] = $path;
-			}
-		}
-
-		return $entityNamespaces;
+		return $this->entityNamespaces;
 	}
 	
 	protected function configureProxy(Configuration $config)

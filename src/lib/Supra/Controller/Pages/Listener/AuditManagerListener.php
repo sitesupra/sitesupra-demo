@@ -611,7 +611,7 @@ class AuditManagerListener implements EventSubscriber
 					
 					if (empty($loadedValue)) {
 						
-						if ($targetEntity != Entity\LockData::CN()) {
+						if ($targetEntity != Entity\LockData::CN() && $targetEntity != Entity\PageLocalizationPath::CN()) {
 							$this->debug("$className #{$entity->getId()}, rev. {$entity->getRevisionId()} => {$targetEntity}");
 							throw new \RuntimeException("OOPS in $className -> {$targetEntity}");
 						}
