@@ -137,7 +137,7 @@ class BlocksAction extends PageManagerAction
 					'inline' => $editable->isInlineEditable(),
 					'label' =>	$editable->getLabel(),
 					'value' =>	$editable->getDefaultValue(),
-					'group' =>	$editable->getGroupLabel(),
+					'group' =>	$editable->getGroupId(),
 				)
 				+ $editable->getAdditionalParameters();
 

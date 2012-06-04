@@ -13,12 +13,13 @@ use Supra\Configuration\ComponentConfiguration;
  */
 class BlockControllerConfiguration extends ComponentConfiguration
 {
+
 	/**
 	 * Group id 
 	 * @var string
 	 */
 	public $groupId = null;
-	
+
 	/**
 	 * @var string
 	 */
@@ -35,7 +36,7 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	 * @var string
 	 */
 	public $iconWebPath = '/cms/lib/supra/img/blocks/icons-items/default.png';
-	
+
 	/**
 	 * CMS classname for the block
 	 * @var string
@@ -53,35 +54,35 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	 * @var boolean
 	 */
 	public $hidden = false;
-	
+
 	/**
 	 * Can only one block exist on a page
 	 * @var boolean
 	 */
 	public $unique = false;
-	
+
 	/**
 	 * Block HTML description
 	 * @var string
 	 */
 	public $html;
-	
+
 	/**
 	 * Cache implementation
 	 * @var BlockControllerCacheConfiguration
 	 */
 	public $cache;
-	
+
 	/**
 	 * @var array of block properties
 	 */
 	public $properties = array();
-	
+
 	/**
 	 * @var array of block property groups
 	 */
 	public $propertyGroups = array();
-	
+
 	/**
 	 * Adds block configuration to block controller collection
 	 */
@@ -91,41 +92,61 @@ class BlockControllerConfiguration extends ComponentConfiguration
 			\Log::warn("Configuration property BlockControllerConfiguration::controllerClass deprecated; use class instead.");
 			$this->class = $this->controllerClass;
 		}
-		
+
 		if (empty($this->id)) {
-			$id = str_replace('\\', '_', $this->class);
+			$id = $this->prepareClassId($this->class);
 			$this->id = $id;
 		}
-		
+
 		if ( ! empty($this->icon)) {
 			$this->iconWebPath = $this->getIconWebPath();
 		}
-		
-		if (empty($this->properties)) {
-			$class = $this->class;
-			
-			// TODO: might be removed later
-			if (Loader::classExists($class)) {
-				if (method_exists($class, 'getPropertyDefinition')) {
-					$editables = (array) $class::getPropertyDefinition();
-					
-					foreach ($editables as $name => $editable) {
-						/* @var $editable \Supra\Editable\EditableInterface */
-						$this->properties[] = $property = new BlockPropertyConfiguration();
-						$property->name = $name;
-						$property->editableInstance = $editable;
-						$property->editable = get_class($editable);
-						$property->label = $editable->getLabel();
-						$property->default = $editable->getDefaultValue();
-					}
-				}
-			}
-		}
+
+		$this->processProperties();
+		$this->processPropertyGroups();
 
 		BlockControllerCollection::getInstance()
 				->addBlockConfiguration($this);
-		
+
 		parent::configure();
+	}
+
+	protected function processPropertyGroups()
+	{
+		if (is_array($this->propertyGroups) && ! empty($this->propertyGroups)) {
+			$propertyGroups = array();
+
+
+			foreach ($this->propertyGroups as $group) {
+				/* @var $group BlockPropertyGroupConfiguration */
+				if (isset($propertyGroups[$group->id])) {
+					\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
+					continue;
+				}
+
+				$propertyGroups[$group->id] = $group;
+			}
+
+			$this->propertyGroups = array_values($propertyGroups);
+		}
+	}
+
+	protected function processProperties()
+	{
+		$class = $this->class;
+
+		// TODO: might be removed later
+		if (Loader::classExists($class)) {
+			if (method_exists($class, 'getPropertyDefinition')) {
+				$editables = (array) $class::getPropertyDefinition();
+
+				foreach ($editables as $name => $editable) {
+					/* @var $editable \Supra\Editable\EditableInterface */
+					$this->properties[] = $property = new BlockPropertyConfiguration();
+					$property->fillFromEditable($editable, $name);
+				}
+			}
+		}
 	}
 
 	/**
@@ -142,20 +163,20 @@ class BlockControllerConfiguration extends ComponentConfiguration
 //		if ( ! file_exists($iconPath)) {
 //			$iconPath = null;
 //		} else
-		
+
 		if (strpos($iconPath, SUPRA_WEBROOT_PATH) !== 0) {
 			$iconPath = null;
 		} else {
 			$iconPath = substr($iconPath, strlen(SUPRA_WEBROOT_PATH) - 1);
 		}
-		
+
 		if (DIRECTORY_SEPARATOR === '\\') {
 			$iconPath = str_replace(DIRECTORY_SEPARATOR, '/', $iconPath);
 		}
 
 		return $iconPath;
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @return BlockPropertyConfiguration
@@ -169,26 +190,10 @@ class BlockControllerConfiguration extends ComponentConfiguration
 			}
 		}
 	}
-	
-	/**
-	 * Get subproperty definition
-	 * 
-	 * @param string $parentName
-	 * @param string $name
-	 * @return BlockPropertyConfiguration
-	 */
-//	public function getSubProperty($parentName, $name)
-//	{
-//		$parentProperty = $this->getProperty($parentName);
-//		
-//		if ( ! is_null($parentProperty)) {
-//			foreach($parentProperty->properties as $property) {
-//				/* @var $property BlockPropertyConfiguration */
-//				if ($property->name === $name) {
-//					return $property;
-//				}
-//			}
-//		}
-//	}
-	
+
+	protected function prepareClassId($className)
+	{
+		return trim(str_replace('\\', '_', $className));
+	}
+
 }

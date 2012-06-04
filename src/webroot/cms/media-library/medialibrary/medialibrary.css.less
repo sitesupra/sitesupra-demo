@@ -48,4 +48,29 @@
 		background: url(/cms/lib/supra/img/sidebar/left-bg.gif) 0 0 repeat;
 	}
 	
+	/*
+	 * Scrollbar style
+	 */
+	.su-scrollable-x > .su-scrollable-scrollbar {
+		.box-shadow (0, 1px, 0, #B3B3C3 inset);
+		border-top: 1px solid #7F7E92;
+		
+		.su-scrollable-scrollbar-background {
+			.border-radius (none);
+			background: url(images/scrollbar-handle.gif) 0 -39px no-repeat, url(images/scrollbar-handle.gif) 100% -65px no-repeat, url(images/scrollbar-handle.gif) 0 -52px repeat-x;
+			height: 13px;
+			left: 8px;
+			right: 8px;
+			bottom: 4px;
+		}
+		
+		.su-scrollable-draggable {
+			.border-radius (5px);
+			.box-shadow (0, 1px, 0, rgba(87, 88, 109, 0.5));
+			background: url(images/scrollbar-handle.gif) 0 0 no-repeat, url(images/scrollbar-handle.gif) 100% -26px no-repeat, url(images/scrollbar-handle.gif) 0 -13px repeat-x;
+			height: 13px;
+			top: -1px;
+		}
+	}
+	
 }
