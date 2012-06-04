@@ -5,6 +5,7 @@ namespace Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Entity\Abstraction\Entity;
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
+use Doctrine\Common\Collections;
 
 /**
  * BlockPropertyMetadata
@@ -37,6 +38,14 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	protected $overridenReferencedElement;
 	
 	/**
+	 * Metadata's blockProperty collection (subproperties)
+	 * 
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="masterMetadata", cascade={"all"}) 
+	 * @var Collection
+	 */
+	protected $metadataProperties;
+	
+	/**
 	 * Binds
 	 * @param string $name
 	 * @param BlockProperty $blockProperty
@@ -48,6 +57,7 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 		$this->name = $name;
 		$this->blockProperty = $blockProperty;
 		$this->referencedElement = $referencedElement;
+		$this->metadataProperties = new Collections\ArrayCollection();
 	}
 	
 	/**
@@ -94,5 +104,14 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	{
 		$this->overridenReferencedElement = $referencedElement;
 	}
-
+	
+	/**
+	 * Return subproperty collection
+	 * @return Collection
+	 */
+	public function getMetadataProperties()
+	{
+		return $this->metadataProperties;
+	}
+	
 }

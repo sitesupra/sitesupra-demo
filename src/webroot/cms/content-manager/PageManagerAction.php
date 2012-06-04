@@ -657,10 +657,9 @@ abstract class PageManagerAction extends CmsAction
 	 * @param ReferencedElement\ReferencedElementAbstract $element
 	 * @return array
 	 */
-	protected function convertReferencedElementToArray(ReferencedElement\ReferencedElementAbstract $element)
+	protected function convertReferencedElementToArray(ReferencedElement\ReferencedElementAbstract $element, $includeMeta = true)
 	{
 		$data = $element->toArray();
-		$localeId = $this->getLocale()->getId();
 		$fs = ObjectRepository::getFileStorage($this);
 		$em = $fs->getDoctrineEntityManager();
 
@@ -674,7 +673,7 @@ abstract class PageManagerAction extends CmsAction
 					$file = $em->find(File::CN(), $fileId);
 
 					if ($file instanceof File) {
-						$fileInfo = $fs->getFileInfo($file, $localeId);
+						$fileInfo = $fs->getFileInfo($file);
 						$data['file_path'] = $fileInfo['path'];
 					}
 				}
@@ -692,10 +691,14 @@ abstract class PageManagerAction extends CmsAction
 				$image = $em->find(Image::CN(), $imageId);
 
 				if ($image instanceof Image) {
-					$info = $fs->getFileInfo($image, $localeId);
+					$info = $fs->getFileInfo($image);
 					$data['image'] = $info;
 				}
 			}
+			
+			if ( ! $includeMeta ) {
+				unset($data['title'], $data['description']);
+			} 
 		}
 
 		return $data;
@@ -1310,6 +1313,11 @@ abstract class PageManagerAction extends CmsAction
 												array_push($replacedProperties, $property->getId());
 
 												if ($property->getId() !== $targetProperty->getId()) {
+													$qb = $em->createQueryBuilder();
+													$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
+															->where('m.blockProperty = ?0')
+															->getQuery()->execute(array($targetProperty->getId()));
+												
 													$qb = $em->createQueryBuilder();
 													$qb->delete(Entity\BlockProperty::CN(), 'p')
 															->where('p.id = ?0')

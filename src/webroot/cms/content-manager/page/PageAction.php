@@ -345,72 +345,15 @@ class PageAction extends PageManagerAction
 				$propertyDefinition = $configuration->properties;
 
 				foreach ($propertyDefinition as $property) {
-
+					
 					/* @var $property BlockPropertyConfiguration */
 					$propertyName = $property->name;
-
 					$blockProperty = $controller->getProperty($propertyName);
 
 					if ($page->isBlockPropertyEditable($blockProperty)) {
-
-						$editable = $blockProperty->getEditable();
-
-						$propertyValue = $editable->getContentForEdit();
-						$metadataCollection = $blockProperty->getMetadata();
-						$data = array();
-
-						/* @var $metadata Entity\BlockPropertyMetadata */
-						foreach ($metadataCollection as $name => $metadata) {
-							$referencedElement = $metadata->getReferencedElement();
-							$data[$name] = $this->convertReferencedElementToArray($referencedElement);
-						}
-
-						$propertyData = $propertyValue;
-
-						if ($editable instanceof Editable\Html) {
-							$propertyData = array(
-								'html' => $propertyValue,
-								'data' => $data
-							);
-						}
-
-						if ($editable instanceof Editable\Link) {
-							if (isset($data[0])) {
-								$propertyData = $data[0];
-							}
-						}
-
-						if ($editable instanceof Editable\Image) {
-
-							if ($propertyValue) {
-								$fileStorage = ObjectRepository::getFileStorage($this);
-								$image = $fileStorage->getDoctrineEntityManager()
-										->find(\Supra\FileStorage\Entity\Image::CN(), $propertyValue);
-
-								if ($image instanceof \Supra\FileStorage\Entity\Image) {
-									$propertyData = $fileStorage->getFileInfo($image, $localeId);
-								}
-							}
-						}
-
-						if ($editable instanceof Editable\Gallery) {
-							ksort($data);
-							$propertyData = array_values($data);
-						}
-
-						$propertyInfo = array(
-							'value' => $propertyData,
-							'shared' => false,
-							'language' => null,
-						);
-
-						if ($blockProperty instanceof Entity\SharedBlockProperty) {
-							$propertyInfo['shared'] = true;
-							$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
-									->getLocale();
-						}
-
-						$blockData['properties'][$propertyName] = $propertyInfo;
+						
+						$propertyData = $this->gatherPropertyData($controller, $property);
+						$blockData['properties'][$propertyName] = $propertyData;
 					}
 				}
 
@@ -426,7 +369,7 @@ class PageAction extends PageManagerAction
 		$this->getResponse()
 				->addResponsePart('permissions', array(array('edit' => true, 'publish' => true)));
 	}
-
+	
 	/**
 	 * Creates a new page
 	 * @TODO: create action for templates as well
@@ -910,6 +853,100 @@ class PageAction extends PageManagerAction
 		}
 
 		return $layouts;
+	}
+	
+	/**
+	 * @param BlockController $blockController
+	 * @param BlockPropertyConfiguration $property
+	 * @param string $parentName
+	 * @return array
+	 */
+	protected function gatherPropertyData($blockController, $property)
+	{
+		$propertyName = $property->name;
+		
+		$blockProperty = $blockController->getProperty($propertyName);
+		
+		$editable = $blockProperty->getEditable();
+		$propertyValue = $editable->getContentForEdit();
+		$metadataCollection = $blockProperty->getMetadata();
+		$data = array();
+
+		/* @var $metadata Entity\BlockPropertyMetadata */
+		foreach ($metadataCollection as $name => $metadata) {
+						
+			$data[$name] = array();
+	
+			$referencedElement = $metadata->getReferencedElement();
+			$data[$name] = $this->convertReferencedElementToArray($referencedElement, ( ! $editable instanceof Editable\Gallery));				
+		}
+			
+		$propertyData = $propertyValue;
+
+		if ($editable instanceof Editable\Html) {
+			$propertyData = array(
+				'html' => $propertyValue,
+				'data' => $data
+			);
+		}
+
+		if ($editable instanceof Editable\Link) {
+			if (isset($data[0])) {
+				$propertyData = $data[0];
+			}
+		}
+
+		if ($editable instanceof Editable\Image) {
+			if ($propertyValue) {
+				$fileStorage = ObjectRepository::getFileStorage($this);
+				$image = $fileStorage->getDoctrineEntityManager()
+						->find(\Supra\FileStorage\Entity\Image::CN(), $propertyValue);
+
+				if ($image instanceof \Supra\FileStorage\Entity\Image) {
+					$propertyData = $fileStorage->getFileInfo($image);
+				}
+			}
+		}
+
+		if ($editable instanceof Editable\Gallery) {
+			
+			$galleryController = $editable->getDummyBlockController();
+			$galleryController->setRequest($this->getPageRequest());
+			
+			foreach($metadataCollection as $name => $metadata) {
+				
+				$subProperties = array();
+				$galleryController->setParentMetadata($metadata);
+				
+				foreach($property->properties as $subPropertyDefinition) {
+					$subProperties[$subPropertyDefinition->name] = $this->gatherPropertyData($galleryController, $subPropertyDefinition);
+				}
+				
+				$data[$name] = $data[$name] + $subProperties;
+			}
+			
+			ksort($data);
+			$propertyData = array_values($data);
+		}
+
+		$propertyInfo = array(
+			'value' => $propertyData,
+			'shared' => false,
+			'language' => null,
+		);
+		
+		if ($blockProperty instanceof Entity\SharedBlockProperty) {
+			$propertyInfo['shared'] = true;
+			$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
+					->getLocale();
+		}
+		
+		// FIXME: teach JS to understand `shared` sub-properties
+		if ($blockController instanceof \Supra\Controller\Pages\GalleryBlockController) {
+			$propertyInfo = $propertyData;
+		}
+
+		return $propertyInfo;
 	}
 
 }
