@@ -16,10 +16,11 @@
           name: name
           type: text
           label: Name
-          value: 
-#          validation:
-#            - ValidationConf:
-#						  type: 1
-#						  type: 1
-#						  type: 1
-#              
+#          value: 
+          validation:
+            - Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration:
+                constraint: Symfony\Component\Validator\Constraints\Email
+                options:
+                  message: The email "{{ value }}" is not a valid email.
+                  checkMX: true
+                
