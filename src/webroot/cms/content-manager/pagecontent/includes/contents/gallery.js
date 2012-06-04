@@ -198,6 +198,22 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			Manager.PageToolbar.setActiveAction(ContentGallery.NAME);
 			Manager.PageButtons.setActiveAction(ContentGallery.NAME);
+			
+			//Not all blocks has "design" and "animation" properties
+			var button_design = Manager.PageToolbar.getActionButton('gallery_block_design'),
+				button_animation = Manager.PageToolbar.getActionButton('gallery_block_animation');
+			
+			if (this.properties.get('form').getInput('design')) {
+				button_design.show();
+			} else {
+				button_design.hide();
+			}
+			
+			if (this.properties.get('form').getInput('animation')) {
+				button_animation.show();
+			} else {
+				button_animation.hide();
+			}
 		},
 		
 		onEditingEnd: function () {
@@ -284,8 +300,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		openSettings: function () {
-			this.properties.showPropertiesForm();
-			this.setFormGroup('');
+			//Since toolbar is created by single instance of gallery
+			//keyword "this" may have incorrect reference
+			var self = Manager.PageContent.getContent().get('activeChild');
+			
+			self.properties.showPropertiesForm();
+			self.setFormGroup('');
 		},
 		
 		/**
@@ -293,8 +313,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		openDesignSettings: function () {
-			this.properties.showPropertiesForm();
-			this.setFormGroup('design');
+			//Since toolbar is created by single instance of gallery
+			//keyword "this" may have incorrect reference
+			var self = Manager.PageContent.getContent().get('activeChild');
+			
+			self.properties.showPropertiesForm();
+			self.setFormGroup('design');
 		},
 		
 		/**
@@ -302,8 +326,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		openAnimationSettings: function () {
-			this.properties.showPropertiesForm();
-			this.setFormGroup('animation');
+			//Since toolbar is created by single instance of gallery
+			//keyword "this" may have incorrect reference
+			var self = Manager.PageContent.getContent().get('activeChild');
+			
+			self.properties.showPropertiesForm();
+			self.setFormGroup('animation');
 		},
 		
 		/**
@@ -351,18 +379,21 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		openGalleryManager: function () {
+			//Since toolbar is created by single instance of gallery
+			//keyword "this" may have incorrect reference
+			var self = Manager.PageContent.getContent().get('activeChild');
 			
-			this.properties.hidePropertiesForm();
+			self.properties.hidePropertiesForm();
 			
 			//Data
-			var gallery_data = this.properties.getValues();
+			var gallery_data = self.properties.getValues();
 			gallery_data.images = gallery_data.images || [];
 			
 			//Show gallery
 			Supra.Manager.executeAction('GalleryManager', {
 				'data': gallery_data,
-				'properties': this.getImageProperties(),
-				'context': this,
+				'properties': self.getImageProperties(),
+				'context': self,
 				'callback': function (data, changed) {
 					if (changed) {
 						this.unresolved_changes = true;

@@ -26,7 +26,7 @@ abstract class ProxyActionAbstraction extends ActionAbstraction
 		throw new Exception\RuntimeException('Not implemented yet.');
 	}
 
-	private function fireProxyEvent()
+	protected function fireProxyEvent()
 	{
 		$eventManager = ObjectRepository::getEventManager($this);
 
