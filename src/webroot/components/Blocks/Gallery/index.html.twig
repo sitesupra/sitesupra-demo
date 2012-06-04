@@ -5,7 +5,8 @@
 	<li>
 		{{ supraBlock.imageHtmlTag( image.imageId, 100, 100, true ) | raw }}
 		<h3>{{ image.title }}</h3>
-		<p>{{ image.alternativeText }}</p>
+		<p>{{ image.description }}</p>
+		<a href="{{ image.link.getUrl }}">{{ image.link.getUrl }}</a>
 	</li>
 {% endfor %}
 </ul>

@@ -54,6 +54,11 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 	public $shared;
 	
 	/**
+	 * @var array
+	 */
+	public $properties = array();
+	
+	/**
 	 * Hash table for editable additional properties
 	 * @var array
 	 */

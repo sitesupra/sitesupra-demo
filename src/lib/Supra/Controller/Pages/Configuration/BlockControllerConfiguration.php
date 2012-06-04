@@ -170,4 +170,25 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		}
 	}
 	
+	/**
+	 * Get subproperty definition
+	 * 
+	 * @param string $parentName
+	 * @param string $name
+	 * @return BlockPropertyConfiguration
+	 */
+//	public function getSubProperty($parentName, $name)
+//	{
+//		$parentProperty = $this->getProperty($parentName);
+//		
+//		if ( ! is_null($parentProperty)) {
+//			foreach($parentProperty->properties as $property) {
+//				/* @var $property BlockPropertyConfiguration */
+//				if ($property->name === $name) {
+//					return $property;
+//				}
+//			}
+//		}
+//	}
+	
 }

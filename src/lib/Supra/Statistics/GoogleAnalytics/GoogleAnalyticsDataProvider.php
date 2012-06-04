@@ -130,7 +130,7 @@ class GoogleAnalyticsDataProvider {
 		preg_match("/Auth=([a-z0-9_\-]+)/i", $response, $matches);
 
 		if (empty($matches)) {
-			//throw new RuntimeException('Failed to authenticate at Google Services');
+			throw new RuntimeException('Failed to authenticate at Google Services');
 		}
 		
 		$this->authToken = $matches[1];

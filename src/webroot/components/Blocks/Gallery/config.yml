@@ -19,28 +19,17 @@
           editable: Supra\Editable\Gallery
           label: Images
           shared: true
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: title
-          editable: Supra\Editable\String
-          label: Title
-          shared: true
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: checkboxgg
-          editable: Supra\Editable\Checkbox
-          label: Checkbox
-          shared: true
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: title_nonshared
-          editable: Supra\Editable\String
-          label: Nonshared title
-          shared: false
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: design
-          editable: Supra\Editable\SelectVisual
-          label: Design
-          shared: true
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: animation
-          editable: Supra\Editable\SelectVisual
-          label: Animation
-          shared: true
+          # each image item sub-properties
+          properties:
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: title
+                 editable: Supra\Editable\String
+                 label: Title
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: description
+                 editable: Supra\Editable\Textarea
+                 label: Description
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: link
+                 editable: Supra\Editable\Link
+                 label: Link
