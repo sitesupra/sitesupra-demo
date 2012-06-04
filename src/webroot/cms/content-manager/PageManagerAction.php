@@ -518,7 +518,7 @@ abstract class PageManagerAction extends CmsAction
 			\Log::error('Too deep redirect recursion.');
 			return array();
 		}
-		
+				
 		if ( ! $pageLocalization instanceof Entity\PageLocalization) {
 			return $parentData;
 		}
@@ -617,6 +617,9 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 
+		$this->redirectPageIds['data'] = array();
+		$this->redirectPageIds['iteration'] = 0;
+		
 		if ( ! empty($data)) {
 			return $data;
 		} else {
