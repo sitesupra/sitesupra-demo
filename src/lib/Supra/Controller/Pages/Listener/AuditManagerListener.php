@@ -476,18 +476,19 @@ class AuditManagerListener implements EventSubscriber
 
 					$this->debug("WILL LOAD");
 					$targetEntity = $mapping['targetEntity'];
-
-					$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-					$loadedValue = $draftEm->find($targetEntity, $value);
+					$loadedValue = null;
 					
-					if (empty($loadedValue)) {
-						
-						if ($targetEntity != Entity\LockData::CN() && $targetEntity != Entity\PageLocalizationPath::CN()) {
+					// Don't load path, lock entities
+					if ($targetEntity != Entity\LockData::CN() && $targetEntity != Entity\PageLocalizationPath::CN()) {
+						$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
+						$loadedValue = $draftEm->find($targetEntity, $value);
+
+						if (empty($loadedValue)) {
 							$this->debug("$className #{$entity->getId()}, rev. {$entity->getRevisionId()} => {$targetEntity}");
 							throw new \RuntimeException("Wasn't able to load the page from the history because some linked resources are not available anymore.");
 						}
 					}
-					
+
 					$reflField->setValue($entity, $loadedValue);
 					
 				} else {

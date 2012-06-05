@@ -14,6 +14,8 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\PageRevisionData;
+use Supra\Controller\Pages\Entity\PageLocalizationPath;
+use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Uri\Path;
@@ -24,13 +26,6 @@ use Supra\Database\Entity as DatabaseEntity;
  */
 class HistoryPageRequestEdit extends PageRequest
 {
-	/**
-	 * Contains revision id string
-	 * @var string
-	 */
-	private $revision;
-	private $revisionArray = array();
-	
 	/**
 	 * {@inheritdoc}
 	 */
@@ -43,19 +38,6 @@ class HistoryPageRequestEdit extends PageRequest
 		}
 		
 		return false;
-	}
-	
-	/**
-	 * @param string $revision
-	 */
-	public function setRevision($revision)
-	{
-		$this->revision = $revision;
-	}
-	
-	public function setRevisionArray($revisions)
-	{		
-		$this->revisionArray = $revisions;
 	}
 	
 	/**
@@ -72,6 +54,15 @@ class HistoryPageRequestEdit extends PageRequest
 		$auditLocalization = $this->getPageLocalization();
 		
 		$localization = $draftEntityManager->merge($auditLocalization);
+		
+		// Need to load the path entity if it exists so further creation knows to insert or update it.
+		if ($localization instanceof PageLocalization) {
+			$pathEntity = $draftEntityManager->find(PageLocalizationPath::CN(), $localization->getId());
+			
+			if ( ! is_null($pathEntity)) {
+				$localization->setPathEntity($pathEntity);
+			}
+		}
 	
 		// merge placeholders
 		// FIXME: I think also parent template placeholders are merged here. Isn't that a problem?
@@ -321,97 +312,6 @@ class HistoryPageRequestEdit extends PageRequest
 				->getResult();
 		
 		return $result;
-	}
-	
-	private function loadPropertyMetadata(Entity\BlockProperty $property) 
-	{
-		$em = $this->getDoctrineEntityManager();
-		
-		$metadataEntity = Entity\BlockPropertyMetadata::CN();
-		
-		$name = $property->getName();
-		
-		$revisionIds = DatabaseEntity::collectIds($this->revisionArray);
-		array_push($revisionIds, $this->revision);
-				
-		$qb = $em->createQueryBuilder();
-		$qb->from($metadataEntity, 'm')
-				->select('m')
-				->where('m.blockProperty = :property AND m.revision IN (:revisions)')
-				->orderBy('m.revision', 'DESC')
-				;
-	
-		$query = $qb->getQuery()
-				->setHint(Query::HINT_INCLUDE_META_COLUMNS, true);
-		
-		$elementRevisions = $query->execute(array(
-				'property' => $property->getId(),
-				'revisions' => $revisionIds,
-			), \Doctrine\ORM\AbstractQuery::HYDRATE_ARRAY);
-		
-		$metaCollection = new \Doctrine\Common\Collections\ArrayCollection();
-		
-		if ( ! empty($elementRevisions)) {
-
-			$qb = $em->createQueryBuilder();
-			$expr = $qb->expr(); $or = $expr->orX(); $i = 0;
-
-			$usedRevisions = array();
-
-			foreach($elementRevisions as $elementRevision) {
-				if ( ! in_array($elementRevision['referencedElement_id'], $usedRevisions)) {
-					$and = $expr->andX();
-					$and->add($expr->eq('re.id', '?' . (++$i)));
-					$qb->setParameter($i, $elementRevision['referencedElement_id']);
-					$and->add($expr->gte('re.revision', '?' . (++$i)));
-					$qb->setParameter($i, $elementRevision['revision']);
-					$or->add($and);
-
-					//have found latest revision for this property, skip all others
-					array_push($usedRevisions, $elementRevision['referencedElement_id']);
-				}
-			}
-
-			$em->getUnitOfWork()->clear();
-			$qb->select('re')
-					->from(Entity\ReferencedElement\ReferencedElementAbstract::CN(), 're')
-					->where($or)
-					->orderBy('re.revision', 'DESC')
-					;
-
-			$referencedElements = $qb->getQuery()
-					->getResult(\Doctrine\ORM\AbstractQuery::HYDRATE_OBJECT);
-			
-			if ( ! empty($referencedElements)) {
-				
-				$elementIds = array();
-				foreach ($referencedElements as $key => $element) {
-					if (in_array($element->getId(), $elementIds) || ! in_array($element->getRevisionId(), $revisionIds)) {
-						unset($referencedElements[$key]);
-						continue;
-					}
-					
-					array_push($elementIds, $element->getId());					
-				}
-			}
-			
-			foreach($referencedElements as $key => $element) {
-				
-				$metadataName = null;
-				foreach($elementRevisions as $elementInfo) {
-					if ($elementInfo['referencedElement_id'] == $element->getId()) {
-						$metadataName = $elementInfo['name'];
-					}
-				}
-				
-				if ( ! is_null($metadataName)) {
-					$meta = new Entity\BlockPropertyMetadata($metadataName, $property, $element);
-					$metaCollection->set($metadataName, $meta);
-				}
-			}
-		}
-		
-		$property->overrideMetadataCollection($metaCollection);
 	}
 	
 }

@@ -842,8 +842,6 @@ abstract class PageManagerAction extends CmsAction
 		$request->setDoctrineEntityManager($draftEm);
 		$request->setPageLocalization($pageLocalization);
 
-		$request->setRevision($revisionId);
-
 		$draftEventManager = $draftEm->getEventManager();
 		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
 
