@@ -118,12 +118,6 @@ class AuditManagerListener implements EventSubscriber
 
 		foreach ($associationMappings as $field => $mapping) {
 
-//			$targetClassName = $mapping['targetEntity'];
-//
-//			$targetReflection = new ReflectionClass($targetClassName);
-//
-//			if ($targetReflection->implementsInterface(AuditedEntityInterface::CN)) {
-			
 			// Kill ALL associations
 			unset($classMetadata->associationMappings[$field]);
 
@@ -218,11 +212,6 @@ class AuditManagerListener implements EventSubscriber
 			$this->loadOneToAnything($entityManager, $mapping, $className, $field, $entity, $classMetadata);
 		}
 
-//		// The middle phase incase we don't have localization as root node
-//		if ($thisIsRootEntity && ( ! $entity instanceof Entity\Abstraction\AbstractPage && ! $entity instanceof Entity\Abstraction\Localization)) {
-//			$this->loadAuditRelatedToOne($entityManager, $entity);
-//		}
-		
 		if ($thisIsRootEntity) {
 			// Start the second phase when everything is done
 			$this->postLoadSecondPhase($entityManager, $entity);
@@ -442,124 +431,6 @@ class AuditManagerListener implements EventSubscriber
 		return $records;
 	}
 	
-//	private function loadAuditRelatedToOne(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity)
-//	{
-//		$className = $entity::CN();
-//		$this->debug("ENTER $className");
-//
-//		$this->depth ++;
-//
-//		$classMetadata = $entityManager->getClassMetadata($className);
-//
-//		// Let's find all association mappings we have backed up before
-//		$auditMappings = $classMetadata->auditAssociationMappings;
-//
-//		if ( ! $classMetadata->isInheritanceTypeNone()) {
-//			$rootEntity = $classMetadata->rootEntityName;
-//			$rootMetaData = $entityManager->getClassMetadata($rootEntity);
-//
-//			$auditMappings = array_merge($auditMappings, $rootMetaData->auditAssociationMappings);
-//		}
-//
-//
-//		foreach ($auditMappings as $field => $mapping) {
-//
-//			$this->debug("ASSOC $field");
-//
-//			$this->depth ++;
-//
-//			$reflField = new \ReflectionProperty($className, $field);
-//			$reflField->setAccessible(true);
-//			$value = $reflField->getValue($entity);
-//			
-//			$targetEntity = $mapping['targetEntity'];
-//
-//			// Here we need to do anything only if "to_one" association is found, owning side
-//			if (($mapping['type'] & ClassMetadata::TO_ONE) && $mapping['isOwningSide']) {
-//
-////				if ($className)
-//				
-//				$pair = array($className, $targetEntity);
-//				
-//				$allowedPairs = array(
-//					array(BlockProperty::CN(), Entity\Abstraction\Localization::CN()),
-//					
-//					array(Entity\PageBlock::CN(), Entity\Abstraction\PlaceHolder::CN()),
-//					array(Entity\TemplateBlock::CN(), Entity\Abstraction\PlaceHolder::CN()),
-//					
-//					array(Entity\PagePlaceHolder::CN(), Entity\Abstraction\Localization::CN()),
-//					array(Entity\TemplatePlaceHolder::CN(), Entity\Abstraction\Localization::CN()),
-//					
-//					array(Entity\BlockPropertyMetadata::CN(), BlockProperty::CN()),
-//				);
-//				
-//				$notAllowedPairs = array(
-//					array(BlockProperty::CN(), Block::CN()),
-//					
-//					array(PageLocalization::CN(), Entity\Abstraction\AbstractPage::CN()),
-//					array(Entity\TemplateLocalization::CN(), Entity\Abstraction\AbstractPage::CN()),
-//					array(Entity\ApplicationLocalization::CN(), Entity\Abstraction\AbstractPage::CN()),
-//				);
-//				
-//				if ( ! in_array($pair, $allowedPairs)) {
-//					if ( ! in_array($pair, $notAllowedPairs)) {
-//						$this->debug("UNDOC!!! Pair $className --> $targetEntity");
-//					}
-//					
-//					continue;
-//				}
-//				
-//				// Will load if the value is string
-//				if (is_null($value)) {
-//					
-//				} elseif (is_string($value)) {
-//
-//					$this->debug("WILL LOAD");
-//
-//					$targetMetadata = $entityManager->getClassMetadata($targetEntity);
-//					$loadedValue = $this->loadOneToOneAuditted($entityManager, $value, $targetMetadata);
-//					
-//					if (empty($loadedValue)) {
-//						
-//						if ($targetEntity != Entity\LockData::CN()) {
-//							$this->debug("$className #{$entity->getId()}, rev. {$entity->getRevisionId()} => {$targetEntity}");
-//							throw new \RuntimeException("OOPS in $className -> {$targetEntity}");
-//						}
-//					}
-//					
-//					$reflField->setValue($entity, $loadedValue);
-//					
-//				} else {
-//					$this->debug("LOADED or null");
-//				}
-//
-//			} else {
-//				// For one_to_many just recurse deeper
-//				if ($mapping['type'] == ClassMetadata::ONE_TO_MANY) {
-//
-//					if ( ! is_null($value)) {
-//
-//						$this->debug("DEEP");
-//
-//						// TODO: Shouldn't we remember the visited places to avoid loops?
-//						foreach ($value as $record) {
-//							$this->loadAuditRelatedToOne($entityManager, $record);
-//						}
-//
-//					} else {
-//						$this->debug("NULL");
-//					}
-//
-//				}
-//
-//			}
-//
-//			$this->depth--;
-//		}
-//
-//		$this->depth--;
-//	}
-
 	/**
 	 * Start the second phase, reading the missing information from the draft entity manager
 	 * @param \Doctrine\ORM\EntityManager $entityManager

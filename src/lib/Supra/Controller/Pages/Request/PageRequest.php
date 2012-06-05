@@ -281,12 +281,18 @@ abstract class PageRequest extends HttpRequest
 	}
 
 	/**
+	 * TODO: maybe should return null for history request?
 	 * @return array
 	 */
 	public function getLayoutPlaceHolderNames()
 	{
-		return $this->getLayout()
-						->getPlaceHolderNames();
+		$layout = $this->getLayout();
+		
+		if (is_null($layout)) {
+			return null;
+		}
+		
+		return $layout->getPlaceHolderNames();
 	}
 
 	/**
@@ -307,7 +313,8 @@ abstract class PageRequest extends HttpRequest
 		
 		$em = $this->getDoctrineEntityManager();
 		
-		if (empty($layoutPlaceHolderNames)) {
+		// Skip only if empty array is received
+		if (is_array($layoutPlaceHolderNames) && empty($layoutPlaceHolderNames)) {
 			return $this->placeHolderSet;
 		}
 		
@@ -329,13 +336,16 @@ abstract class PageRequest extends HttpRequest
 					->from(Entity\Abstraction\PlaceHolder::CN(), 'ph')
 					->join('ph.localization', 'pl')
 					->join('pl.master', 'p')
-					->where($qb->expr()->in('ph.name', $layoutPlaceHolderNames))
 					->andWhere($qb->expr()->in('p.id', $pageSetIds))
 					->andWhere('pl.locale = ?0')
 					->setParameter(0, $localeId)
 					// templates first (type: 0-templates, 1-pages)
 					->orderBy('ph.type', 'ASC')
 					->addOrderBy('p.level', 'ASC');
+			
+			if ( ! empty($layoutPlaceHolderNames)) {
+				$qb->andWhere($qb->expr()->in('ph.name', $layoutPlaceHolderNames));
+			}
 
 			$query = $qb->getQuery();
 			$this->prepareQueryResultCache($query);

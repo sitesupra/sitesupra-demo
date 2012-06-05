@@ -224,6 +224,11 @@ abstract class PageManagerAction extends CmsAction
 	private function searchPageByRequestKey($key)
 	{
 		$pageId = $this->getRequestParameter($key);
+		
+		if (empty($pageId)) {
+			return null;
+		}
+		
 		$page = $this->entityManager->find(
 				Entity\Abstraction\AbstractPage::CN(), $pageId);
 
@@ -242,6 +247,10 @@ abstract class PageManagerAction extends CmsAction
 		// Fix for news application filter folders
 		if (strpos($pageId, '_') !== false) {
 			$pageId = strstr($pageId, '_', true);
+		}
+		
+		if (empty($pageId)) {
+			return null;
 		}
 
 		$localization = $this->entityManager->find(
@@ -839,7 +848,11 @@ abstract class PageManagerAction extends CmsAction
 		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
 
 		$parent = $this->getPageByRequestKey('parent_id');
-		$reference = $this->getPageByRequestKey('reference_id');
+		$reference = $this->getPageByRequestKey('reference');
+		
+		if (is_null($parent) && $page instanceof Page) {
+			throw new CmsException('sitemap.error.parent_page_not_found');
+		}
 
 		$draftEm->beginTransaction();
 		try {
@@ -851,15 +864,10 @@ abstract class PageManagerAction extends CmsAction
 			/* @var $page AbstractPage */
 			
 			try {
-				if (is_null($reference)) {
-
-					if (is_null($parent)) {
-						throw new CmsException('sitemap.error.parent_page_not_found');
-					}
-
-					$parent->addChild($page);
-				} else {
+				if ( ! is_null($reference)) {
 					$page->moveAsPrevSiblingOf($reference);
+				} elseif ( ! is_null($parent)) {
+					$parent->addChild($page);
 				}
 			} catch (DuplicatePagePathException $uniqueException) {
 
@@ -873,10 +881,10 @@ abstract class PageManagerAction extends CmsAction
 					$localization->setPathPart($pathPart . '-' . time());
 				}
 
-				if (is_null($reference)) {
-					$parent->addChild($page);
-				} else {
+				if ( ! is_null($reference)) {
 					$page->moveAsPrevSiblingOf($reference);
+				} elseif ( ! is_null($parent)) {
+					$parent->addChild($page);
 				}
 			}
 
