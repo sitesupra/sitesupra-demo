@@ -171,7 +171,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$this->setLocale($locale);
 		$this->placeHolders = new ArrayCollection();
 	}
-
+	
 	/**
 	 * @return \Doctrine\Common\Collections\Collection
 	 */

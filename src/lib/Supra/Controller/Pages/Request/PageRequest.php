@@ -134,6 +134,13 @@ abstract class PageRequest extends HttpRequest
 	public function setPageLocalization(Entity\Abstraction\Localization $pageData)
 	{
 		$this->pageData = $pageData;
+		
+		// Unset cache
+		$this->blockPropertySet = null;
+		$this->blockSet = null;
+		$this->layout = null;
+		$this->pageSet = null;
+		$this->placeHolderSet = null;
 	}
 
 	public function resetPageLocalization()

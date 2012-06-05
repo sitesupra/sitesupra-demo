@@ -795,44 +795,29 @@ abstract class PageManagerAction extends CmsAction
 		$draftEm = $this->entityManager;
 
 		$revisionId = $this->getRequestParameter('revision_id');
-
+		$localizationId = $this->getRequestParameter('page_id');
+		
+		// We need it so later we can mark it as restored
 		$pageRevisionData = $draftEm->getRepository(PageRevisionData::CN())
 				->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'id' => $revisionId));
-
+		
 		if ( ! ($pageRevisionData instanceof PageRevisionData)) {
 			throw new CmsException(null, 'Page revision data not found');
 		}
+		
+		$masterId = $auditEm->createQuery("SELECT l.master FROM page:Abstraction\Localization l
+				WHERE l.id = :id AND l.revision = :revision")
+				->execute(
+						array('id' => $localizationId, 'revision' => $revisionId), 
+						ColumnHydrator::HYDRATOR_ID);
 
+
+		// TODO: exception handling
 		$page = $auditEm->getRepository(AbstractPage::CN())
-				->findOneBy(array('revision' => $revisionId));
-
-		if ($page instanceof Entity\Page) {
-
-			$localizations = $auditEm->getRepository(Localization::CN())
-					->findBy(array('master' => $page->getId(), 'revision' => $revisionId));
-
-			foreach ($localizations as $pageLocalization) {
-
-				$template = $pageLocalization->getTemplate();
-
-				if ( ! ($template instanceof Entity\Template)) {
-					$localeName = $this->getLocale()
-							->getId();
-					throw new CmsException(null, "It is impossible to restore page as its \"{$localeName}\" version template was deleted");
-				}
-			}
-		} else if ($page instanceof Entity\Template) {
-
-			$parentId = $this->getRequestParameter('parent_id');
-			$referenceId = $this->getRequestParameter('reference_id');
-
-			if ( ! $page->hasParent()
-					&& ( ! empty($parentId) || ! empty($referenceId))) {
-
-				throw new CmsException(null, "It is impossible to restore root template as a child");
-			}
-		} else {
-			throw new CmsException(null, "Cannot find page [{$pageId}]");
+				->findOneBy(array('id' => $masterId, 'revision' => $revisionId));
+		
+		if (empty($page)) {
+			throw new CmsException(null, "Cannot find the page");
 		}
 
 		$localeId = $this->getLocale()->getId();
@@ -845,7 +830,7 @@ abstract class PageManagerAction extends CmsAction
 		}
 
 		$request = new HistoryPageRequestEdit($localeId, $media);
-		$request->setDoctrineEntityManager($auditEm);
+		$request->setDoctrineEntityManager($draftEm);
 		$request->setPageLocalization($pageLocalization);
 
 		$request->setRevision($revisionId);
@@ -856,10 +841,15 @@ abstract class PageManagerAction extends CmsAction
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference_id');
 
-		$this->entityManager->beginTransaction();
+		$draftEm->beginTransaction();
 		try {
 			$request->restorePage();
-			$page = $draftEm->find(Entity\Abstraction\AbstractPage::CN(), $page->getId());
+			
+			// Read from the draft now
+			$page = $draftEm->find(AbstractPage::CN(), $page->getId());
+			
+			/* @var $page AbstractPage */
+			
 			try {
 				if (is_null($reference)) {
 
@@ -892,8 +882,12 @@ abstract class PageManagerAction extends CmsAction
 
 			$pageRevisionData->setType(PageRevisionData::TYPE_RESTORED);
 			$draftEm->flush();
+			
+			$localization = $page->getLocalization($localeId);
+			$this->pageData = $localization;
+			
 		} catch (\Exception $e) {
-			$this->entityManager->rollback();
+			$draftEm->rollback();
 			throw $e;
 		}
 

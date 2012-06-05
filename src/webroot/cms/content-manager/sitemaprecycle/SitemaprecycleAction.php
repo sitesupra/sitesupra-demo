@@ -61,7 +61,7 @@ class SitemaprecycleAction extends PageManagerAction
 		$qb = $auditEm->createQueryBuilder()
 				->from($entity, 'l')
 				->from(PageRevisionData::CN(), 'r')
-				->select('l.id, l.title, l.revision, r.creationTime')
+				->select('l.id, l.title, l.revision, l.master, r.creationTime')
 				->andWhere('r.type = :type')
 				->andWhere('l.locale = :locale')
 				->andWhere('l.revision = r.id')
@@ -88,7 +88,9 @@ class SitemaprecycleAction extends PageManagerAction
 			$timeTrashed = $localizationData['creationTime']->format('Y-m-d');
 
 			$pageInfo = array(
+				// Sending master ID not localization ID
 				'id' => $localizationData['id'],
+				'master' => $localizationData['master'],
 				'title' => $localizationData['title'],
 				'template' => $templateId,
 				'path' => $pathPart,

@@ -225,29 +225,27 @@ class HistoryPageRequestEdit extends PageRequest
 			
 		$pageId = $page->getId();
 
-		$page = $auditEm->getRepository(AbstractPage::CN())
-				->findOneBy(array('id' => $pageId, 'revision' => $this->revision));
-
 		$draftPage = $draftEm->merge($page);
+		/* @var $draftPage AbstractPage */
 
 		$draftEm->getRepository(AbstractPage::CN())
 				->getNestedSetRepository()
 				->add($draftPage);
 
-		$pageLocalizations = $auditEm->getRepository(Localization::CN())
-				->findBy(array('master' => $pageId, 'revision' => $this->revision));
+		$pageLocalizations = $page->getLocalizations();
 
-		foreach($pageLocalizations as $localization) {
+		foreach ($pageLocalizations as $localization) {
 			
-			$auditEm->detach($localization);
-			
-			if ($localization instanceof Entity\PageLocalization) {
-				$localization->resetPath();
-				$localization->initializeProxyAssociations();
-			}
+//			$auditEm->detach($localization);
+//			
+//			if ($localization instanceof Entity\PageLocalization) {
+//				$localization->resetPath();
+//				$localization->initializeProxyAssociations();
+//			}
 
 			$draftLocalization = $draftEm->merge($localization);
-						
+			$draftPage->setLocalization($draftLocalization);
+			
 			if ($localization instanceof Entity\PageLocalization) {
 				$draftLocalization->resetPath();
 			}
@@ -255,37 +253,27 @@ class HistoryPageRequestEdit extends PageRequest
 			$this->setPageLocalization($localization);
 
 			$placeHolders = $localization->getPlaceHolders();
-			foreach($placeHolders as $placeHolder) {
+			foreach ($placeHolders as $placeHolder) {
+				/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 				$draftEm->merge($placeHolder);
+				
+				$blocks = $placeHolder->getBlocks();
+				
+				foreach ($blocks as $block) {
+					$draftEm->merge($block);
+				}
 			}
 			
-			$localizationId = $localization->getId();
-
-			// page blocks from audit
-			$blockEntity = Entity\Abstraction\Block::CN();
-			$dql = "SELECT b FROM $blockEntity b 
-					JOIN b.placeHolder ph
-					WHERE ph.localization = ?0 and b.revision = ?1";
-			$blocks = $auditEm->createQuery($dql)
-					->setParameters(array($localizationId, $this->revision))
-					->getResult();
-			
-			foreach ($blocks as $block) {
-				$draftEm->merge($block);
-			}
-
 			// block properties from audit
-			$propertyEntity = Entity\BlockProperty::CN();
-			$dql = "SELECT bp FROM $propertyEntity bp 
-					WHERE bp.localization = ?0 and bp.revision = ?1";
-			$properties = $auditEm->createQuery($dql)
-				->setParameters(array($localizationId, $this->revision))
-				->getResult();
-			
-			$splObjectHashMemory[] = $properties;
+			$properties = $this->getBlockPropertySet();
 			
 			foreach ($properties as $property) {
-				$this->loadPropertyMetadata($property);
+				/* @var $property Entity\BlockProperty */
+				if ( ! $this->isLocalResource($property)) {
+					continue;
+				}
+				
+//				$this->loadPropertyMetadata($property);
 				$draftEm->merge($property);
 			}
 		}
