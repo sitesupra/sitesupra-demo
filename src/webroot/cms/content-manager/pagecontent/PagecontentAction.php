@@ -119,12 +119,10 @@ class PagecontentAction extends PageManagerAction
 		}
 		
 		// Load received property values and data from the POST
-		$properties = $input->getChild('properties', true);
-
-		while ($properties->valid()) {
-			$this->handleProperty($properties, $blockController);
-		}
+		$input = $input->getChild('properties', true);
 		
+		$this->handlePropertyValues($blockController, $input);
+	
 		$this->entityManager->flush();
 		
 		$controllerClass = $this->getPageControllerClass();
@@ -311,175 +309,169 @@ class PagecontentAction extends PageManagerAction
 		$this->savePostTrigger();
 	}
 	
-	protected function handleProperty($input, $blockController, $parentName = null)
+	/**
+	 *
+	 * @param Supra\Controller\Pages\BlockController $blockController
+	 * @param Supra\Request\RequestData  $input
+	 * @return BlockProperty
+	 */
+	protected function handlePropertyValues($blockController, $input)
 	{
-		$propertyName = $input->key();
+		$blockConfiguration = $blockController->getConfiguration();
+		$propertyDefinitions = $blockConfiguration->properties;
 		
-		$property = $propertyDefinition = null;
-		try {
-			$property = $blockController->getProperty($propertyName);
+		foreach ($propertyDefinitions as $propertyDefinition) {
+
+			$propertyName = $propertyDefinition->name;
 			
-		} catch (\Supra\Controller\Pages\Exception\RuntimeException $e) {
-			if ( ! is_null($parentName)) {
-				if ($input->hasNext()) {
-					$input->getNext();
-				} else if ($input->hasNextChild()) {
-					$input->getNextChild();
-				}
-				return;
-			}
-			
-			throw $e;
-		}
-		
-		$propertyDefinition = $blockController->getConfiguration()
-				->getProperty($propertyName, $parentName);
-
-
-		if ( ! $property instanceof Entity\SharedBlockProperty) {
-			$this->entityManager->persist($property);
-			/* @var $property Entity\BlockProperty */
-		}
-
-		$editable = $property->getEditable();
-
-		$value = null;
-		$valueData = array();
-
-		// Specific result received from CMS for HTML
-		if ($editable instanceof Editable\Html) {
-			$propertyPost = $input->getNextChild();
-			$value = $propertyPost->get('html');
+			if ($input->has($propertyName) || $input->hasChild($propertyName)) {
 				
-			if ($propertyPost->hasChild('data')) {
-				$valueData = $propertyPost['data'];
-			}
-			
-		} elseif ($editable instanceof Editable\Link) {
-			if ($input->hasNextChild()) {
-				$propertyPost = $input->getNextChild()
-							->getArrayCopy();
-
-				$propertyPost['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
-				$valueData[0] = $propertyPost;
-			} else {
-				// Scalar sent if need to empty the link
-				$checkValue = $input->getNext();
-					
-				if ( ! empty($checkValue)) {
-					throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
-				}
-			}
-		} elseif ($editable instanceof Editable\Gallery) {
-			if ($input->hasNextChild()) {
+				$property = $blockController->getProperty($propertyName);
 				
-				$imageList = $input->getNextChild();
-
-				while ($imageList->valid()) {
-					$subInput = $imageList->getNextChild();
-					$imageData = $subInput->getArrayCopy();
-
-					// Mark the data with image type
-					$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
-					$imageData['_subPropertyInput'] = $subInput;
-
-					$valueData[] = $imageData;
-					
+				if ( ! $property instanceof Entity\SharedBlockProperty) {
+					$this->entityManager->persist($property);
+					/* @var $property Entity\BlockProperty */
 				}
-			} else {
-				// Scalar sent if need to empty the gallery
-				$checkValue = $input->getNext();
-					
-				if ( ! empty($checkValue)) {
-					throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
-				}
-			}
-		} else {
-			$propertyPost = $input->getNext();
-			$value = $propertyPost;
-		}
-
-		$property->setValue($value);
-
-		$metadataCollection = $property->getMetadata();
-		
-		foreach ($valueData as $elementName => &$elementData) {
-			if ( ! isset($elementData['href'])) {
-				$elementData['href'] = null;
-			}
 				
-			$elementFound = false;
-			if ( ! empty($metadataCollection)) {
-				foreach($metadataCollection as $metadataItem) {
-						
-					/* @var $metadataItem Entity\BlockPropertyMetadata */
-					
-					$name = $metadataItem->getName();
-					if ($name == $elementName) {
-						$element = $metadataItem->getReferencedElement();
-						$element->fillArray($elementData);
-							
-						$elementFound = true;
-						break;
+				$editable = $property->getEditable();
+
+				$value = null;
+				$valueData = array();
+
+				// Specific result received from CMS for HTML
+				if ($editable instanceof Editable\Html) {
+					$propertyPost = $input->getChild($propertyName);
+					$value = $propertyPost->get('html');
+
+					if ($propertyPost->hasChild('data')) {
+						$valueData = $propertyPost['data'];
 					}
-				}
-			}
+
+				} elseif ($editable instanceof Editable\Link) {
+					if ($input->hasChild($propertyName)) {
 						
-			if ( ! $elementFound) {
-				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
-				$metadataItem = new Entity\BlockPropertyMetadata($elementName, $property, $element);
-				$property->addMetadata($metadataItem);
-			}
-		}
-		unset($elementData);
-		
-		if ($editable instanceof Editable\Gallery) {
-			
-			$metadataCollection = $property->getMetadata();
-			
-			$galleryController = $editable->getDummyBlockController();
-			$galleryController->setRequest($this->getPageRequest());
-			
-			foreach ($valueData as $elementName => $elementData) {
-				
-				foreach ($metadataCollection as $name => $metadataItem) {
-					
-					if ($name === $elementName) {
-						
-						$subInput = $elementData['_subPropertyInput'];
-						$galleryController->setParentMetadata($metadataItem);
-						
-						while($subInput->valid()) {
-							$this->handleProperty($subInput, $galleryController, $propertyName);
+						$propertyPost = $input->getChild($propertyName)
+									->getArrayCopy();
+
+						$propertyPost['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
+						$valueData[0] = $propertyPost;
+					} else {
+						// Scalar sent if need to empty the link
+						$checkValue = $input->get($propertyName);
+
+						if ( ! empty($checkValue)) {
+							throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
 						}
-						break;
+					}
+				} elseif ($editable instanceof Editable\Gallery) {
+					if ($input->hasChild($propertyName)) {
+
+						$imageList = $input->getChild($propertyName);
+
+						while ($imageList->valid()) {
+							$subInput = $imageList->getNextChild();
+							$imageData = $subInput->getArrayCopy();
+
+							// Mark the data with image type
+							$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
+							$imageData['_subPropertyInput'] = $subInput;
+
+							$valueData[] = $imageData;
+
+						}
+					} else {
+						// Scalar sent if need to empty the gallery
+						$checkValue = $input->get($propertyName);
+
+						if ( ! empty($checkValue)) {
+							throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
+						}
+					}
+				} else {
+					$propertyPost = $input->get($propertyName);
+					$value = $propertyPost;
+				}
+
+				$property->setValue($value);
+
+				$metadataCollection = $property->getMetadata();
+
+				foreach ($valueData as $elementName => &$elementData) {
+					if ( ! isset($elementData['href'])) {
+						$elementData['href'] = null;
+					}
+
+					$elementFound = false;
+					if ( ! empty($metadataCollection)) {
+						foreach($metadataCollection as $metadataItem) {
+
+							/* @var $metadataItem Entity\BlockPropertyMetadata */
+
+							$name = $metadataItem->getName();
+							if ($name == $elementName) {
+								$element = $metadataItem->getReferencedElement();
+								$element->fillArray($elementData);
+
+								$elementFound = true;
+								break;
+							}
+						}
+					}
+
+					if ( ! $elementFound) {
+						$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
+						$metadataItem = new Entity\BlockPropertyMetadata($elementName, $property, $element);
+						$property->addMetadata($metadataItem);
+					}
+				}
+				unset($elementData);
+
+				if ($editable instanceof Editable\Gallery) {
+
+					$metadataCollection = $property->getMetadata();
+
+					$galleryController = $editable->getDummyBlockController();
+					$galleryController->setRequest($this->getPageRequest());
+
+					foreach ($valueData as $elementName => $elementData) {
+
+						foreach ($metadataCollection as $name => $metadataItem) {
+
+							if ($name === $elementName) {
+
+								$subInput = $elementData['_subPropertyInput'];
+								$galleryController->setParentMetadata($metadataItem);
+								
+								$this->handlePropertyValues($galleryController, $subInput);
+								
+								break;
+							}
+						}
+					}
+				}
+
+				// Delete removed metadata
+				foreach ($metadataCollection as $metadataName => $metadataValue) {
+					/* @var $metadataValue Entity\BlockPropertyMetadata */
+					if ( ! array_key_exists($metadataName, $valueData)) {
+
+						$blockProperties = $metadataValue->getMetadataProperties();
+						foreach($blockProperties as $metaProperty) {
+
+							$qb = $this->entityManager->createQueryBuilder();
+							$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
+									->where('m.blockProperty = ?0')
+									->getQuery()->execute(array($metaProperty->getId()));
+
+							$this->entityManager->remove($metaProperty);
+						}
+						$this->entityManager->flush();
+
+						$metadataCollection->remove($metadataName);
+						$this->entityManager->remove($metadataValue);
 					}
 				}
 			}
 		}
-			
-		// Delete removed metadata
-		foreach ($metadataCollection as $metadataName => $metadataValue) {
-			/* @var $metadataValue Entity\BlockPropertyMetadata */
-			if ( ! array_key_exists($metadataName, $valueData)) {
-
-				$blockProperties = $metadataValue->getMetadataProperties();
-				foreach($blockProperties as $metaProperty) {
-					
-					$qb = $this->entityManager->createQueryBuilder();
-					$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
-							->where('m.blockProperty = ?0')
-							->getQuery()->execute(array($metaProperty->getId()));
-					
-					$this->entityManager->remove($metaProperty);
-				}
-				$this->entityManager->flush();
-
-				$metadataCollection->remove($metadataName);
-				$this->entityManager->remove($metadataValue);
-			}
-		}
-					
-		return $property;
 	}
 }
