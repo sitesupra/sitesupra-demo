@@ -267,7 +267,6 @@ YUI.add("supra.datagrid", function (Y) {
 			 * @private
 			 */
 			'toString': function () {
-				console.log(Y.QueryString.stringify(this.data));
 				return Y.QueryString.stringify(this.data);
 			}
 		},
