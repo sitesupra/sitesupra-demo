@@ -484,7 +484,7 @@ class AuditManagerListener implements EventSubscriber
 						
 						if ($targetEntity != Entity\LockData::CN() && $targetEntity != Entity\PageLocalizationPath::CN()) {
 							$this->debug("$className #{$entity->getId()}, rev. {$entity->getRevisionId()} => {$targetEntity}");
-							throw new \RuntimeException("OOPS in $className -> {$targetEntity}");
+							throw new \RuntimeException("Wasn't able to load the page from the history because some linked resources are not available anymore.");
 						}
 					}
 					
