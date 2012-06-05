@@ -20,6 +20,11 @@ class TwigSupraBlockGlobal
 	 * @var BlockController
 	 */
 	protected $blockController;
+	
+	/**
+	 * @var BlockController
+	 */
+	protected $form;
 
 	/**
 	 * @param BlockController $blockController
@@ -27,6 +32,10 @@ class TwigSupraBlockGlobal
 	public function __construct(BlockController $blockController)
 	{
 		$this->blockController = $blockController;
+		
+		if($blockController instanceof \Supra\Form\FormBlockController) {
+			$this->form = new FormExtension($blockController);
+		}
 	}
 
 	/**
@@ -125,6 +134,11 @@ class TwigSupraBlockGlobal
 		$img->setAttribute('height', $height);
 
 		return $img;
+	}
+	
+	public function getForm()
+	{
+		return $this->form;
 	}
 
 }

@@ -12,7 +12,11 @@ class FormBlock extends FormBlockController
 	protected function failure()
 	{
 		$response = $this->getResponse();
-		/* @var $response \Supra\Response\TwigResponse */
+		
+		$form = $this->getBindedForm();
+		$formView = $form->createView();
+
+		$response->assign('form', $formView);
 		$response->outputTemplate('failure.html.twig');
 	}
 
@@ -21,17 +25,17 @@ class FormBlock extends FormBlockController
 		$response = $this->getResponse();
 		/* @var $response \Supra\Response\TwigResponse */
 
-		$form = $this->getForm();
+		$form = $this->getCleanForm();
 		$formView = $form->createView();
 
 		$response->assign('form', $formView);
-		$response->assign('hash', spl_object_hash($this));
 		$response->outputTemplate('render.html.twig');
+		$response->assign('hash', spl_object_hash($this));
 	}
 
 	protected function success()
 	{
-		$form = $this->getForm();
+		$form = $this->getBindedForm();
 		$data = $form->getClientData();
 
 		$response = $this->getResponse();
@@ -39,13 +43,14 @@ class FormBlock extends FormBlockController
 		$response->outputTemplate('success.html.twig');
 	}
 
-	protected function validate(array $data = array())
+	public function validate(Form\Event\DataEvent $event)
 	{
-		if($data['name'] == 'fail') {
-			return false;
-		}
+		$form = $event->getForm();
+		$data = $event->getData();
 		
-		return true;
+		if($data['name'] == 'fail') {
+			$name = $form->get('name');
+			$name->addError(new Form\FormError('Name can not be "fail"'));
+		}
 	}
-
 }

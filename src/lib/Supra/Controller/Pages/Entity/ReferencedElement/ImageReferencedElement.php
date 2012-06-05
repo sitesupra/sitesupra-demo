@@ -224,6 +224,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 			'title' => $this->title,
 			'description' => $this->alternativeText,
 			'size_name' => $this->sizeName,
+			'imageId' => $this->imageId,
 		);
 		
 		return $array;

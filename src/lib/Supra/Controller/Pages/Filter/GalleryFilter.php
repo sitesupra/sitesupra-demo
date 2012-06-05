@@ -25,12 +25,29 @@ class GalleryFilter implements FilterInterface
 		$metadata = $this->property->getMetadata();
 		$images = array();
 		
+		$dummyGalleryController = new \Supra\Controller\Pages\GalleryBlockController();
+		
 		foreach ($metadata as $metadataItem) {
 			/* @var $metadataItem BlockPropertyMetadata */
 			$referencedElement = $metadataItem->getReferencedElement();
 			
 			if ($referencedElement instanceof ImageReferencedElement) {
-				$images[] = $referencedElement;
+
+				$dummyGalleryController->setParentMetadata($metadataItem);
+				$properties = $metadataItem->getMetadataProperties();
+				
+				$propertyValues = array();
+				foreach($properties as $property) {
+					$propertyName = $property->getName();
+					try {
+						$propertyValues[$propertyName] = $dummyGalleryController->getPropertyValue($propertyName);
+					} catch (\Supra\Controller\Pages\Exception\RuntimeException $e) {
+						
+						continue;
+					}
+				}
+				
+				$images[] = $propertyValues + $referencedElement->toArray();
 			}
 		}
 		

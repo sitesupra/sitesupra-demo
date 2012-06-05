@@ -15,7 +15,6 @@ use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
  * Block property class.
  * @Entity
  * @HasLifecycleCallbacks
- * @Table(uniqueConstraints={@UniqueConstraint(name="unique_idx", columns={"localization_id", "block_id", "type", "name"})}))
  */
 class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntityInterface
 {
@@ -60,6 +59,12 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	protected $metadata;
 	
 	protected $overridenMetadata = null;
+	
+	/**
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\BlockPropertyMetadata", inversedBy="metadataProperties", cascade={"persist", "merge"})
+	 * @var BlockPropertyMetadata
+	 */
+	protected $masterMetadata;
 	
 	/**
 	 * @Column(type="object")
@@ -271,10 +276,16 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	}
 	
 	/**
+	 * Return owner of current block property.
+	 * Could be Localization, Block or BlockPropertyMetadata entity.
 	 * @return Entity
 	 */
 	public function getOwner()
 	{
+		if ( ! is_null($this->masterMetadata)) {
+			return $this->masterMetadata;
+		}
+		
 		// If the owner block belongs to the owner localization, return block,
 		// localization otherwise.
 		if ($this->localization->equals($this->block->getPlaceHolder()->getMaster())) {
@@ -283,5 +294,22 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 		
 		return $this->localization;
 	}
-
+	
+	/**
+	 * Set metadata entity, that owns current BlockProperty
+	 * @param BlockPropertyMetadata $metadata
+	 */
+	public function setMasterMetadata($metadata)
+	{
+		$this->masterMetadata = $metadata;
+	}
+	
+	/**
+	 * Get block property master(owner) metadata entity
+	 * @return BlockPropertyMetadata
+	 */
+	public function getMasterMetadata()
+	{
+		return $this->masterMetadata;
+	}
 }

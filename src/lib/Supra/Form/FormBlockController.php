@@ -5,6 +5,7 @@ namespace Supra\Form;
 use Supra\Controller\Pages\BlockController;
 use Symfony\Component\Form;
 use Symfony\Component\HttpFoundation\Request;
+use Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration;
 
 abstract class FormBlockController extends BlockController
 {
@@ -12,30 +13,19 @@ abstract class FormBlockController extends BlockController
 	/**
 	 * @var Form\Form
 	 */
-	protected $form;
-
-	/**
-	 * @return Form\Form
-	 */
-	public function getForm()
-	{
-		return $this->form;
-	}
+	protected $bindedForm;
 
 	protected function doExecute()
 	{
 		$request = new Request($_GET, $_POST, array(), $_COOKIE, $_FILES, $_SERVER);
 
-		$conf = $this->getConfiguration();
-		$this->form = $conf->form;
+		$form = $this->getCleanForm();
 
 		if ($request->isMethod('POST')) {
+			$form->bindRequest($request);
+			$this->bindedForm = $form;
 
-			$this->form->bindRequest($request);
-
-			if ($this->form->isValid()
-					&& $this->validate($this->form->getClientData())) {
-				
+			if ($form->isValid()) {
 				$this->success();
 				return;
 			} else {
@@ -57,9 +47,102 @@ abstract class FormBlockController extends BlockController
 	 * Custom validation
 	 * @return boolean 
 	 */
-	protected function validate(array $data = array())
+	public function validate(Form\Event\DataEvent $event)
 	{
 		return true;
+	}
+
+	public function getBindedForm()
+	{
+		return $this->bindedForm;
+	}
+
+	/**
+	 * @return \Symfony\Component\Form\Form
+	 */
+	protected function getCleanForm()
+	{
+		$formBuilder = $this->prepareFormBuilder();
+		$conf = $this->getConfiguration();
+
+		foreach ($conf->fields as $field) {
+			/* @var $field FormFieldConfiguration */
+			$options = array();
+
+			if ($field->label) {
+				$propertyGroup = FormBlockControllerConfiguration::FORM_GROUP_ID_LABELS;
+				$propertyName = FormBlockControllerConfiguration::generateEditableName($propertyGroup, $field);
+				$blockPropertyValue = $this->getPropertyValue($propertyName);
+
+				if ( ! empty($blockPropertyValue)) {
+					$options['label'] = $blockPropertyValue;
+				} else {
+					$options['label'] = $field->label;
+				}
+			}
+
+			$formBuilder->add($field->name, $field->type);
+		}
+
+		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 10);
+
+		/**
+		 * The option "validation_constraint" was deprecated in 2.1 and will be removed in Symfony 2.3. 
+		 * You should use the option "constraints" instead, where you can pass one or more constraints for a form.
+		 * 
+		 * $builder->add('name', 'text', array(
+		 *    'constraints' => array(
+		 *        new NotBlank(),
+		 *        new MinLength(3),
+		 *    ),
+		 * ));
+		 * 
+		 * @FIXME
+		 * @TODO
+		 * 
+		 * Currently using 2.0 version
+		 * 
+		 * @see https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md
+		 */
+		if ( ! empty($conf->constraints)) {
+			$collectionConstraint = new \Symfony\Component\Validator\Constraints\Collection($conf->constraints);
+			$formBuilder->setAttribute('validation_constraint', $collectionConstraint);
+		}
+
+		$formBuilder->setAttribute('error_mapping', array());
+
+		return $formBuilder->getForm();
+	}
+
+	/**
+	 * @return \Symfony\Component\Form\FormBuilder 
+	 */
+	protected function prepareFormBuilder()
+	{
+		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
+
+		$reader = new \Doctrine\Common\Annotations\AnnotationReader();
+		$loader = new \Symfony\Component\Validator\Mapping\Loader\AnnotationLoader($reader);
+		$metadataFactory = new \Symfony\Component\Validator\Mapping\ClassMetadataFactory($loader);
+
+		$validatorFactory = new \Symfony\Component\Validator\ConstraintValidatorFactory();
+		$validator = new \Symfony\Component\Validator\Validator($metadataFactory, $validatorFactory);
+
+		$factory = new Form\FormFactory(array(
+					new Form\Extension\Validator\ValidatorExtension($validator),
+					new Form\Extension\Core\CoreExtension(),
+					new Form\Extension\Csrf\CsrfExtension($csrfProvider)
+				));
+
+		$dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
+
+		$id = $this->getBlock()->getId();
+		$formBuilder = new \Symfony\Component\Form\FormBuilder($id, $factory, $dispatcher);
+
+		$validatorListener = new Form\Extension\Validator\EventListener\DelegatingValidationListener($validator);
+		$formBuilder->addEventSubscriber($validatorListener);
+
+		return $formBuilder;
 	}
 
 }

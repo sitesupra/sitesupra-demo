@@ -47,6 +47,11 @@ class FormFieldConfiguration implements ConfigurationInterface
 	 * @var string 
 	 */
 	public $value;
+	
+	/**
+	 * @var array 
+	 */
+	public $validation;
 
 	/**
 	 * @return FormFieldConfiguration 

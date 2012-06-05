@@ -1,0 +1,12 @@
+{% block beforeForm %}{% endblock %}
+
+{% block form %}
+	{{ supraBlock.form.begin(form) }}
+		{{ supraBlock.form.label(form.name) }}
+		{{ supraBlock.form.field(form.name) }}
+		{{ supraBlock.form.error(form.name) }}
+		{{ supraBlock.form.submit }}
+	{{ supraBlock.form.end }}
+{% endblock %}
+
+{% block afterForm%}{% endblock %}

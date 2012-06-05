@@ -7,6 +7,7 @@ use Supra\Loader\Loader;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Configuration\ComponentConfiguration;
 use Symfony\Component\Form;
+use \ReflectionClass;
 
 class FormBlockControllerConfiguration extends BlockControllerConfiguration
 {
@@ -18,6 +19,14 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 	const BLOCK_PROPERTY_FORM_PREFIX = 'form_field_';
 
+	/**
+	 * @var array 
+	 */
+	public $constraints;
+
+	/**
+	 * @var array 
+	 */
 	public $fields;
 
 	/**
@@ -27,9 +36,6 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 	public function configure()
 	{
-		$formBuilder = $this->getFormBuilder($this->class);
-
-
 		if ( ! empty($this->fields)) {
 			// groups 
 			$groups = array(
@@ -51,57 +57,83 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 			}
 		}
 
+		$constraints = array();
+
 		foreach ($this->fields as $field) {
 			/* @var $field FormFieldConfiguration */
-			// adding to form builder
-			$formBuilder->add($field->name, $field->type);
-//			$formBuilder->addValidator($validator);
-//			new \Symfony\Component\Validator\Validator();
 
-			// adding to form block property list
-			$propertyTypes = array(self::FORM_GROUP_ID_ERROR => 'error message', self::FORM_GROUP_ID_LABELS => 'label');
-			foreach ($propertyTypes as $propertyGroup => $fieldType) {
-				$property = new BlockPropertyConfiguration();
+			$messages = array();
 
-				$editable = new \Supra\Editable\String("Form field \"{$field->label}\" ({$field->name}) {$fieldType}");
-				
-				//@TODO: Change when validation will be added
-				if ($propertyGroup != self::FORM_GROUP_ID_ERROR) {
-					$editable->setDefaultValue($field->label);
+			foreach ($field->validation as $validation) {
+				/* @var $validation \Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration */
+
+				$constraint = $validation->constraint;
+				$reflection = new ReflectionClass($constraint);
+				$properties = $reflection->getDefaultProperties();
+
+				foreach ($properties as $key => $value) {
+					if (strpos($key, 'message') !== false) {
+						$className = strtolower(array_pop(explode('\\', $reflection->getName())));
+
+						$propertyName = "constraint_{$className}_{$key}";
+						$messages[$propertyName] = $value;
+
+						$constraint->$key = $propertyName;
+					}
 				}
-				
-				$editable->setGroupId($propertyGroup);
 
-				$editableName = self::BLOCK_PROPERTY_FORM_PREFIX . $propertyGroup . '_' . $field->name;
+				$constraints[$field->name][] = $constraint;
+			}
+
+			// adding labels to form block property list
+			$property = new BlockPropertyConfiguration();
+			$editable = new \Supra\Editable\String("Field \"{$field->name}\" label");
+
+			$editable->setDefaultValue($field->label);
+			$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
+
+			$editableName = static::generateEditableName(self::FORM_GROUP_ID_LABELS, $field);
+			$this->properties[] = $property->fillFromEditable($editable, $editableName);
+
+			// adding errors to form block property list
+			$i = 1;
+			foreach ($messages as $key => $value) {
+				$property = new BlockPropertyConfiguration();
+				$editable = new \Supra\Editable\String("Field \"{$field->name}\" error #{$i}");
+				$editable->setDefaultValue($value);
+
+				$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
+
+				$editableName = static::generateEditableName(self::FORM_GROUP_ID_ERROR, $field) . '_' . $key;
 				$this->properties[] = $property->fillFromEditable($editable, $editableName);
+				$i++;
 			}
 		}
 
-		$this->form = $formBuilder->getForm();
+		$this->constraints = $constraints;
 
 		parent::configure();
 	}
 
 	/**
-	 * Temporary solution
-	 * @TODO
-	 * @return \Symfony\Component\Form\FormBuilder 
+	 * Generates editable name
+	 * 
+	 * @param string $propertyGroup
+	 * @param FormFieldConfiguration or string $field 
+	 * @throws \RuntimeException if $propertyGroup is not on of FORM_GROUP_ID constants
+	 * @return string 
 	 */
-	protected function getFormBuilder($id)
+	public static function generateEditableName($propertyGroup, $field)
 	{
-		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
+		if ( ! in_array($propertyGroup, array(self::FORM_GROUP_ID_ERROR, self::FORM_GROUP_ID_LABELS))) {
+			throw new \RuntimeException('');
+		}
 
-		$factory = new Form\FormFactory(array(
-					new Form\Extension\Core\CoreExtension(),
-					new Form\Extension\Csrf\CsrfExtension($csrfProvider)
-				));
-
-		$dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
-
-		$id = $this->prepareClassId($id);
-		$formBuilder = new \Symfony\Component\Form\FormBuilder($id, $factory, $dispatcher);
-
-		return $formBuilder;
+		if ($field instanceof FormFieldConfiguration) {
+			return self::BLOCK_PROPERTY_FORM_PREFIX . $propertyGroup . '_' . $field->name;
+		} else {
+			return self::BLOCK_PROPERTY_FORM_PREFIX . $propertyGroup . '_' . (string) $field;
+		}
 	}
 
 }
