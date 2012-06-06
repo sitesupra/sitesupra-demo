@@ -126,16 +126,16 @@ class FormExtension
 			$tag = new \Supra\Html\HtmlTag('span');
 			$tag->forceTwoPartTag(true);
 			$tag->setAttribute('class', 'error');
-			$errorProperty = $this->blockController->getPropertyValue(
-					FormBlockControllerConfiguration::generateEditableName(
-							FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $vars['name'])
-					. "_{$error->getMessage()}"
-			);
+//			$errorProperty = $this->blockController->getPropertyValue(
+//					FormBlockControllerConfiguration::generateEditableName(
+//							FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $vars['name'])
+//					. "_{$error->getMessage()}"
+//			);
 
 			$message = $error->getMessage();
-			if ( ! empty($errorProperty)) {
-				$message = strtr($errorProperty, $error->getMessageParameters());
-			}
+//			if ( ! empty($errorProperty)) {
+//				$message = strtr($errorProperty, $error->getMessageParameters());
+//			}
 
 			$tag->setContent($message);
 

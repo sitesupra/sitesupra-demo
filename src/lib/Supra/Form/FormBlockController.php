@@ -6,6 +6,9 @@ use Supra\Controller\Pages\BlockController;
 use Symfony\Component\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration;
+use Symfony\Component\Validator\Mapping\Loader\AnnotationLoader;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Symfony\Component\Validator;
 
 abstract class FormBlockController extends BlockController
 {
@@ -62,8 +65,9 @@ abstract class FormBlockController extends BlockController
 	 */
 	protected function getCleanForm()
 	{
-		$formBuilder = $this->prepareFormBuilder();
 		$conf = $this->getConfiguration();
+		$formClass = new $conf->form;
+		$formBuilder = $this->prepareFormBuilder($formClass);
 
 		foreach ($conf->fields as $field) {
 			/* @var $field FormFieldConfiguration */
@@ -84,63 +88,44 @@ abstract class FormBlockController extends BlockController
 			$formBuilder->add($field->name, $field->type);
 		}
 
+		// Custom validation
 		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 10);
-
-		/**
-		 * The option "validation_constraint" was deprecated in 2.1 and will be removed in Symfony 2.3. 
-		 * You should use the option "constraints" instead, where you can pass one or more constraints for a form.
-		 * 
-		 * $builder->add('name', 'text', array(
-		 *    'constraints' => array(
-		 *        new NotBlank(),
-		 *        new MinLength(3),
-		 *    ),
-		 * ));
-		 * 
-		 * @FIXME
-		 * @TODO
-		 * 
-		 * Currently using 2.0 version
-		 * 
-		 * @see https://github.com/symfony/symfony/blob/master/UPGRADE-2.1.md
-		 */
-		if ( ! empty($conf->constraints)) {
-			$collectionConstraint = new \Symfony\Component\Validator\Constraints\Collection($conf->constraints);
-			$formBuilder->setAttribute('validation_constraint', $collectionConstraint);
-		}
-
-		$formBuilder->setAttribute('error_mapping', array());
 
 		return $formBuilder->getForm();
 	}
 
 	/**
-	 * @return \Symfony\Component\Form\FormBuilder 
+	 *
+	 * @param AbstractForm $class
+	 * @return Form\FormBuilder 
 	 */
-	protected function prepareFormBuilder()
+	protected function prepareFormBuilder($class)
 	{
-		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
+//		@TODO: Add CSRF later
+//		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
 
-		$reader = new \Doctrine\Common\Annotations\AnnotationReader();
-		$loader = new \Symfony\Component\Validator\Mapping\Loader\AnnotationLoader($reader);
-		$metadataFactory = new \Symfony\Component\Validator\Mapping\ClassMetadataFactory($loader);
+		$path = SUPRA_LIBRARY_PATH . 'Symfony' . DIRECTORY_SEPARATOR . 'Component'
+				. DIRECTORY_SEPARATOR . 'Form' . DIRECTORY_SEPARATOR . 'Resources'
+				. DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'validation.xml';
 
-		$validatorFactory = new \Symfony\Component\Validator\ConstraintValidatorFactory();
-		$validator = new \Symfony\Component\Validator\Validator($metadataFactory, $validatorFactory);
-
-		$factory = new Form\FormFactory(array(
-					new Form\Extension\Validator\ValidatorExtension($validator),
-					new Form\Extension\Core\CoreExtension(),
-					new Form\Extension\Csrf\CsrfExtension($csrfProvider)
+		$loaderChain = new Validator\Mapping\Loader\LoaderChain(array(
+					new AnnotationLoader(new AnnotationReader()),
+					new \Symfony\Component\Validator\Mapping\Loader\XmlFileLoader($path),
 				));
 
-		$dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
+		$metadataFactory = new Validator\Mapping\ClassMetadataFactory($loaderChain);
+		$validatorFactory = new Validator\ConstraintValidatorFactory();
+
+		$validator = new Validator\Validator($metadataFactory, $validatorFactory);
+
+		$factory = new Form\FormFactory(array(
+					new Form\Extension\Core\CoreExtension(),
+					new Form\Extension\Validator\ValidatorExtension($validator),
+//					new Form\Extension\Csrf\CsrfExtension($csrfProvider)
+				));
 
 		$id = $this->getBlock()->getId();
-		$formBuilder = new \Symfony\Component\Form\FormBuilder($id, $factory, $dispatcher);
-
-		$validatorListener = new Form\Extension\Validator\EventListener\DelegatingValidationListener($validator);
-		$formBuilder->addEventSubscriber($validatorListener);
+		$formBuilder = $factory->createNamedBuilder('form', $id, $class);
 
 		return $formBuilder;
 	}

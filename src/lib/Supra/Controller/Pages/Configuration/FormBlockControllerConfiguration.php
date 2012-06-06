@@ -36,6 +36,11 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 	public function configure()
 	{
+//		$reader = new \Doctrine\Common\Annotations\AnnotationReader();
+//		$reflection = new ReflectionClass($this->form);
+//		$anotations = $reader->getClassAnnotations($reflection);
+//		$anotations = $reader->getPropertyAnnotations($reflection->getProperty('name'));
+		
 		if ( ! empty($this->fields)) {
 			// groups 
 			$groups = array(
@@ -64,33 +69,33 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 			$messages = array();
 
-			foreach ($field->validation as $validation) {
-				/* @var $validation \Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration */
-
-				$constraint = $validation->constraint;
-				$reflection = new ReflectionClass($constraint);
-				$properties = $reflection->getDefaultProperties();
-
-				foreach ($properties as $key => $value) {
-					if (strpos($key, 'message') !== false) {
-						$className = strtolower(array_pop(explode('\\', $reflection->getName())));
-
-						$propertyName = "constraint_{$className}_{$key}";
-						$messages[$propertyName] = $value;
-
-						$constraint->$key = $propertyName;
-					}
-				}
-
-				$constraints[$field->name][] = $constraint;
-			}
+//			foreach ($field->validation as $validation) {
+//				/* @var $validation \Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration */
+//
+//				$constraint = $validation->constraint;
+//				$reflection = new ReflectionClass($constraint);
+//				$properties = $reflection->getDefaultProperties();
+//
+//				foreach ($properties as $key => $value) {
+//					if (strpos($key, 'message') !== false) {
+//						$className = strtolower(array_pop(explode('\\', $reflection->getName())));
+//
+//						$propertyName = "constraint_{$className}_{$key}";
+//						$messages[$propertyName] = $value;
+//
+//						$constraint->$key = $propertyName;
+//					}
+//				}
+//
+//				$constraints[$field->name][] = $constraint;
+//			}
 
 			// adding labels to form block property list
 			$property = new BlockPropertyConfiguration();
 			$editable = new \Supra\Editable\String("Field \"{$field->name}\" label");
 
 			$editable->setDefaultValue($field->label);
-			$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
+//			$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
 
 			$editableName = static::generateEditableName(self::FORM_GROUP_ID_LABELS, $field);
 			$this->properties[] = $property->fillFromEditable($editable, $editableName);
@@ -102,7 +107,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 				$editable = new \Supra\Editable\String("Field \"{$field->name}\" error #{$i}");
 				$editable->setDefaultValue($value);
 
-				$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
+//				$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
 
 				$editableName = static::generateEditableName(self::FORM_GROUP_ID_ERROR, $field) . '_' . $key;
 				$this->properties[] = $property->fillFromEditable($editable, $editableName);

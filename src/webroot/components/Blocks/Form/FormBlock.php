@@ -47,10 +47,5 @@ class FormBlock extends FormBlockController
 	{
 		$form = $event->getForm();
 		$data = $event->getData();
-		
-		if($data['name'] == 'fail') {
-			$name = $form->get('name');
-			$name->addError(new Form\FormError('Name can not be "fail"'));
-		}
 	}
 }
