@@ -4,9 +4,9 @@
 {% for image in supraBlock.property('images') %}
 	<li>
 		{{ supraBlock.imageHtmlTag( image.imageId, 100, 100, true ) | raw }}
-		<h3>{{ image.title }}</h3>
-		<p>{{ image.description }}</p>
-		<a href="{{ image.link.getUrl }}">{{ image.link.getUrl }}</a>
+		<h3>{{ image.property.title }}</h3>
+		<p>{{ image.property.description }}</p>
+		<a href="{{ image.property.link.getUrl }}">{{ image.property.link.getUrl }}</a>
 	</li>
 {% endfor %}
 </ul>
