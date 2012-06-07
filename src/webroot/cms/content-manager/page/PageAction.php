@@ -226,6 +226,18 @@ class PageAction extends PageManagerAction
 				'page_id' => $localization->getId()
 			);
 		}
+		
+		$lock = false;
+		$lockData = $pageData->getLock();
+		
+		if ( ! is_null($lockData)) {
+			$userId = $lockData->getUserId();
+			if ($this->getUser()->getId() === $userId) {
+				$lock = array(
+					'userlogin' => $this->getUser()->getLogin(),
+				);
+			}
+		}
 
 		$array = array(
 			'id' => $pageData->getId(),
@@ -256,6 +268,7 @@ class PageAction extends PageManagerAction
 			'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),
 			'include_in_search' => $pageData->isIncludedInSearch(),
 			'published' => $isPublished,
+			'lock' => $lock
 		);
 
 		if ( ! is_null($templateError)) {
