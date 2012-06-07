@@ -99,7 +99,7 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		}
 
 		if ( ! empty($this->icon)) {
-			$this->iconWebPath = $this->getIconWebPath();
+			$this->iconWebPath = $this->getIconWebPath($this->icon);
 		}
 
 		$this->processProperties();
@@ -124,6 +124,9 @@ class BlockControllerConfiguration extends ComponentConfiguration
 						\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
 						continue;
 					}
+					if ( ! empty($group->icon)) {
+						$group->icon = $this->getIconWebPath($group->icon);
+					}
 
 					$propertyGroups[$group->id] = $group;
 				} else {
@@ -139,6 +142,10 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	{
 		$class = $this->class;
 
+		if ($class == 'Project\Blocks\Gallery\GalleryBlock') {
+			1 + 1;
+		}
+
 		// TODO: might be removed later
 		if (Loader::classExists($class)) {
 			if (method_exists($class, 'getPropertyDefinition')) {
@@ -151,17 +158,45 @@ class BlockControllerConfiguration extends ComponentConfiguration
 				}
 			}
 		}
+
+		// generating new icon path for SelectVisual
+		if (is_array($this->properties)) {
+
+			foreach ($this->properties as $property) {
+				if ( ! $property->editableInstance instanceof \Supra\Editable\SelectVisual) {
+					continue;
+				}
+
+				$values = array();
+
+				foreach ($property->values as $value) {
+					if (empty($value['icon'])) {
+						continue;
+					}
+
+					$value['icon'] = $this->getIconWebPath($value['icon']);
+
+					$values[] = $value;
+				}
+
+				$property->editableInstance->setValues($values);
+			}
+		}
 	}
 
 	/**
 	 * Return icon webpath
 	 * @return string
 	 */
-	private function getIconWebPath()
+	private function getIconWebPath($icon = null)
 	{
+		if (strpos($icon, '/') === 0 || empty($icon)) {
+			return $icon;
+		}
+
 		$file = Loader::getInstance()->findClassPath($this->class);
 		$dir = dirname($file);
-		$iconPath = $dir . '/' . $this->icon;
+		$iconPath = $dir . '/' . $icon;
 
 //		// Disabled for performance
 //		if ( ! file_exists($iconPath)) {
