@@ -39,6 +39,21 @@ YUI.add('supra.input-select-visual', function (Y) {
 		'iconStyle': {
 			value: 'center',
 			setter: '_setIconStyle'
+		},
+		
+		/**
+		 * Loading state
+		 */
+		'loading': {
+			value: false,
+			setter: '_setLoading'
+		},
+		
+		/**
+		 * Loading icon
+		 */
+		'nodeLoading': {
+			value: null
 		}
 	};
 	
@@ -47,10 +62,14 @@ YUI.add('supra.input-select-visual', function (Y) {
 			return srcNode.getAttribute('suBackgroundColor') || 'transparent';
 		},
 		'style': function (srcNode) {
-			return srcNode.getAttribute('suStyle') || '';
+			if (srcNode.getAttribute('suStyle')) {
+				return srcNode.getAttribute('suStyle') || '';
+			}
 		},
 		'iconStyle': function (srcNode) {
-			return srcNode.getAttribute('suIconStyle') || '';
+			if (srcNode.getAttribute('suIconStyle')) {
+				return srcNode.getAttribute('suIconStyle') || '';
+			}
 		}
 	};
 	
@@ -59,8 +78,19 @@ YUI.add('supra.input-select-visual', function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
+			//Classnames, etc.
 			var boundingBox = this.get("boundingBox");
 			boundingBox.removeClass(Supra.Input.SelectList.CLASS_NAME);
+			
+			if (this.get('style')) {
+				classname = Y.ClassNameManager.getClassName(Input.NAME, this.get('style'));
+				boundingBox.addClass(classname);
+			}
+			
+			if (this.get('iconStyle')) {
+				classname = Y.ClassNameManager.getClassName(Input.NAME, this.get('iconStyle'));
+				boundingBox.addClass(classname);
+			}
 		},
 		
 		renderButton: function (input, definition, first, last, button_width) {
@@ -211,7 +241,32 @@ YUI.add('supra.input-select-visual', function (Y) {
 			}
 			
 			return value;
-		}
+		},
+		
+		/**
+		 * Loading attribute setter
+		 * 
+		 * @param {Boolean} loading Loading attribute value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setLoading: function (loading) {
+			var box = this.get('contentBox');
+			
+			if (box) {
+				if (loading && !this.get('nodeLoading')) {
+					var node = Y.Node.create('<span class="loading-icon"></span>');
+					box.append(node);
+					this.set('nodeLoading', node);
+				}
+				
+				box.toggleClass(this.getClassName('loading'), loading);
+			}
+			
+			this.set('disabled', loading);
+			return loading;
+		},
 		
 	});
 	

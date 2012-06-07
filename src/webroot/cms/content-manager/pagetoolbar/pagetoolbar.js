@@ -361,14 +361,14 @@ Supra(function (Y) {
 							//Call after action is executed
 							action.once('executedChange', function (e) {
 								if (e.newVal != e.prevVal && e.newVal) {
-									action[config.actionFunction](config.id);
+									action[config.actionFunction](config.id, config);
 								}
 							});
 							action.execute();
 						}
 					} else {
 						//Widget instance, not an action
-						action[config.actionFunction](config.id);
+						action[config.actionFunction](config.id, config);
 					}
 				} else {
 					if (action.execute) {
@@ -415,13 +415,23 @@ Supra(function (Y) {
 			}
 			
 			for(var group_id in button_groups) {
-				attr_buttons[group_id] = button_groups[group_id];
+				//In rendering phase attr_buttons is passed to renderButton()
+				if (attr_buttons[group_id] && attr_buttons[group_id] !== button_groups[group_id]) {
+					attr_buttons[group_id] = attr_buttons[group_id].concat(button_groups[group_id]);
+				} else {
+					attr_buttons[group_id] = button_groups[group_id];
+				}
+				
 				button_config = button_groups[group_id];
 				
 				//Create group container
-				subcontainer = Y.Node.create('<div class="yui3-editor-toolbar-group"></div>');
-				container.append(subcontainer);
-				this.groups[group_id] = subcontainer;
+				if (this.groups[group_id]) {
+					subcontainer = this.groups[group_id];
+				} else {
+					subcontainer = Y.Node.create('<div class="yui3-editor-toolbar-group"></div>');
+					container.append(subcontainer);
+					this.groups[group_id] = subcontainer;
+				}
 				
 				if (empty) {
 					empty = false;

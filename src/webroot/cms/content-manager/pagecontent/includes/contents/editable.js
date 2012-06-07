@@ -500,21 +500,25 @@ YUI.add('supra.page-content-editable', function (Y) {
 			}
 		},
 		
-		_triggerjQueryEvent: function (event_name, node) {
+		_triggerjQueryEvent: function (event_name, node, data) {
 			//Call cleanup before proceeding
 			var win = this.get('win'),
 				jQuery = win.jQuery;
 			
 			if (jQuery && jQuery.refresh) {
 				var fn = event_name,
-					jquery_element = jQuery(node);
+					jquery_element = jQuery(node),
+					args = [jquery_element];
 				
 				if (event_name == 'refresh') {
 					fn = 'init';
+				} else if (event_name == 'update') {
+					fn = 'trigger';
+					args = [event_name, jquery_element, data];
 				}
 				
 				if (jQuery.refresh[fn]) {
-					jQuery.refresh[fn](jquery_element);
+					return jQuery.refresh[fn].apply(jQuery.refresh, args);
 				}
 			}
 		},

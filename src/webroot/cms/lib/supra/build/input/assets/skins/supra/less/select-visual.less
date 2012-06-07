@@ -102,6 +102,26 @@
 	padding-bottom: 8px;
 }
 
+.yui3-input-select-visual-content {
+	& > .loading-icon {
+		display: none;
+	}
+	&.yui3-input-select-visual-loading {
+		position: relative;
+		
+		.su-button {
+			opacity: 0.5;
+		}
+		.su-button-down {
+			opacity: 0.25;
+		}
+		
+		& > .loading-icon {
+			display: block;
+		}
+	}
+}
+
 /*
  * No label style
  */

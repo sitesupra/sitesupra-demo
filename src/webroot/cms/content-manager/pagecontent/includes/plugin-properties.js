@@ -93,6 +93,14 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		'pageContentSettingsConfig': {
 			'value': null
+		},
+		
+		/**
+		 * Toolbar group to which "top" grouped input buttons should
+		 * be added to
+		 */
+		'toolbarGroupId': {
+			'value': null
 		}
 	};
 	
@@ -101,6 +109,21 @@ YUI.add('supra.page-content-properties', function (Y) {
 		_node_content: null,
 		
 		_original_values: null,
+		
+		/**
+		 * Groups which has type "top" has separate nodes where inputs are placed
+		 * @type {Object}
+		 * @private
+		 */
+		_group_nodes: null,
+		
+		/**
+		 * Toolbar button IDs for groups
+		 * @type {Array}
+		 * @private
+		 */
+		_group_toolbar_buttons: null,
+		
 		
 		destructor: function () {
 			var form = this.get('form');
@@ -121,6 +144,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			if (!block) return;
 			this.set('properties', block.properties);
+			this.set('property_groups', block.property_groups);
 			
 			//Create right bar container action if it doesn't exist
 			var action = Manager.getAction('PageContentSettings');
@@ -134,8 +158,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 				setTimeout(Y.bind(this.showPropertiesForm, this), 50);
 			}
 			
+			this.get('host').on('editing-start', this.showGroupToolbarButtons, this);
+			
 			//Hide form when editing ends
 			this.get('host').on('editing-end', this.hidePropertiesForm, this);
+			this.get('host').on('editing-end', this.hideGroupToolbarButtons, this);
 			
 			//Properties form
 			this.initializeProperties();
@@ -152,8 +179,19 @@ YUI.add('supra.page-content-properties', function (Y) {
 		initializeProperties: function () {
 			var form_config = {'autoDiscoverInputs': false, 'inputs': [], 'style': 'vertical'},
 				properties = this.get('properties'),
+				
+				property_groups = this.get('property_groups'),
+				property_group = null,
+				group_nodes = {},
+				group = null,
+				
 				host = this.get('host'),
 				host_node = host.getNode();
+			
+			//Initialize properties
+			this._group_toolbar_buttons = [];
+			this._group_nodes = group_nodes;
+			
 			
 			var host_properties = {
 				'doc': host.get('doc'),
@@ -161,13 +199,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'toolbar': Supra.Manager.EditorToolbar.getToolbar()
 			};
 			
-			//Slideshow is used for grouping properties
+			//Slideshow is used for grouping properties with type "sidebar"
 			var slideshow = this.initializeSlideshow(),
-				slide_main = null,
-				slide_id = 'propertySlideMain',
-				slide = slide_main = slideshow.getSlide(slide_id).one('.su-slide-content');
+				group_node = null,
+				default_group_node = null;
 			
-			//Properties
+			//Create default group
+			default_group_node = this.createGroup('default', form_config);
+			
+			//Process properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
 				if (properties[i].inline) {
 					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
@@ -182,39 +222,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 					}
 				} else {
 					//Grouping
-					if (properties[i].group) {
-						//Get slide or create it
-						slide_id = properties[i].group.replace(/[^a-z0-9\-\_]/ig, '');
-						slide = slideshow.getSlide(slide_id);
-						
-						if (slide) {
-							slide = slide.one('.su-slide-content');
-						}
-					} else {
-						slide_id = 'propertySlideMain';
-						slide = slide_main;
-					}
+					group = properties[i].group || 'default';
+					group_node = group_nodes[group];
 					
-					//Create slide and add button to inputs
-					if (!slide && properties[i].group) {
-						slide = slideshow.addSlide({
-							'id': slide_id
-						});
-						
-						form_config.inputs.push({
-							'id': slide_id + '_button',
-							'label': properties[i].group,
-							'type': 'Button',
-							'slideshow': slideshow,
-							'slideId': slide_id,
-							'containerNode': slide_main
-						});
-						
-						slide = slide.one('.su-slide-content');
+					if (!group_node) {
+						//createGroup adds node to the group_nodes
+						group_node = this.createGroup(group, form_config);
 					}
 					
 					//Set input container node to that slide
-					properties[i].containerNode = slide;
+					properties[i].containerNode = group_nodes[group];
 					form_config.inputs.push(properties[i]);
 				}
 			}
@@ -232,9 +249,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 				inputs[id].on('change', this.onPropertyChange, this);
 			}
 			
-			//Delete button
+			//Delete block button
 			var btn = new Supra.Button({'label': Supra.Intl.get(['page', 'delete_block']), 'style': 'small-red'});
-				btn.render(slide).on('click', this.deleteContent, this);
+				btn.render(default_group_node).on('click', this.deleteContent, this);
 			
 			this.set('buttonDelete', btn);
 			
@@ -375,11 +392,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var normalChanged = this.get('normalChanged'),
 				inlineChanged = this.get('inlineChanged');
 			
-			if (normalChanged && inlineChanged) return;
-			
+			//Trigger event
 			var input = evt.target,
 				id = input.get('id'),
 				properties = this.get('properties');
+			
+			Y.later(60, this, this.onPropertyChangeTriggerjQueryChange, [input]);
+			
+			//Update attributes
+			if (normalChanged && inlineChanged) return;
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
 				if (properties[i].id == id) {
@@ -394,6 +415,24 @@ YUI.add('supra.page-content-properties', function (Y) {
 					}
 					break;
 				}
+			}
+		},
+		
+		onPropertyChangeTriggerjQueryChange: function (input) {
+			var host = this.get('host'),
+				id = input.get('id'),
+				value = input.get('value'),
+				result = null;
+			
+			result = host._triggerjQueryEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value});
+			
+			if (result === false) {
+				//Some property was recognized, but preview can't be updated without refresh
+				
+				input.set('loading', true);
+				host.reloadContentHTML(function () {
+					input.set('loading', false);
+				});
 			}
 		},
 		
@@ -474,7 +513,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		/**
 		 * Show properties form
 		 */
-		showPropertiesForm: function () {
+		showPropertiesForm: function (group_id) {
 			//Show form
 			this.get('action').execute(this.get('form'), {
 				'doneCallback': Y.bind(this.savePropertyChanges, this),
@@ -484,6 +523,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 				'scrollable': false,
 				'title': this.getTitle()
 			});
+			
+			//Show only specific group
+			this.showGroup(group_id || 'default');
 			
 			this.get('host').fire('properties:show');
 		},
@@ -701,6 +743,187 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var info = Supra.mix({'localeTitle': localeTitle}, list[name]);
 
 			return info;
+		},
+		
+		
+		/**
+		 * ------------------------------ GROUPS --------------------------------
+		 */
+		
+		
+		/**
+		 * Returns group definition
+		 * 
+		 * @param {String} group_id Group ID
+		 * @return Group definition or null
+		 * @type {Object}
+		 */
+		getGroupDefinition: function (group_id) {
+			var groups = this.get('property_groups'),
+				i = 0,
+				ii = groups.length;
+			
+			for (; i<ii; i++) {
+				if (groups[i].id === group_id) return groups[i];
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns group content node
+		 * 
+		 * @param {String} group_id Group ID
+		 * @return Group content node or null
+		 * @type {Object}
+		 */
+		getGroupContentNode: function (group_id) {
+			return this._group_nodes[group_id || 'default'] || null;
+		},
+		
+		/**
+		 * Create group
+		 * 
+		 * @param {Object} definition Group definition
+		 * @param {Object} form_config Form configuration to which add button to
+		 */
+		createGroup: function (definition, form_config) {
+			//Backward compatibility
+			if (typeof definition === 'string') {
+				var groups = this.get('property_groups'),
+					group = this.getGroupDefinition(definition);
+				
+				if (!group) {
+					definition = {
+						'id': definition,
+						'type': definition === 'default' ? 'top' : 'sidebar',
+						'icon': null,
+						'label': definition
+					};
+					
+					groups.push(definition);
+				} else {
+					definition = group;
+				}
+			}
+			
+			if (!this._group_nodes[definition.id]) {
+				var slideshow = this.get('slideshow'),
+					slide_main = slideshow.getSlide('propertySlideMain').one('.su-slide-content'),
+					
+					slide_id = null,
+					slide = null,
+					
+					node = null;
+				
+				if (definition.type === 'top') {
+					//Create as node in main slide
+					node = Y.Node.create('<div class="' + (definition.id !== 'default' ? 'hidden' : '') + '"></div>').appendTo(slide_main);
+					
+					if (definition.id !== 'default') {
+						//Create toolbar button
+						var toolbar = Manager.getAction('PageToolbar'),
+							button_id = this.get('host').getId() + '_' + definition.id.replace(/[^a-z0-9\-\_]/ig, ''),
+							toolbar_group_id = this.get('toolbarGroupId') || toolbar.active_group;
+						
+						toolbar.addActionButtons(toolbar_group_id, [{
+							'id': button_id,
+							'type': 'button',
+							'title': definition.label,
+							'icon': definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
+							'action': this,
+							'actionFunction': 'toolbarButtonClickOpenGroup',
+							'propertyGroup': definition.id // For use in toolbarButtonClickOpenGroup
+						}]);
+					}
+					
+					this._group_toolbar_buttons.push(button_id);
+					this._group_nodes[definition.id] = node;
+					return node;
+				} else {
+					//Create as slide
+					slide_id = definition.id.replace(/[^a-z0-9\-\_]/ig, '');
+					
+					slide = slideshow.addSlide({
+						'id': slide_id
+					});
+					
+					if (form_config && definition.id !== 'default') {
+						form_config.inputs.push({
+							'id': slide_id + '_button',
+							'label': definition.label,
+							'type': 'Button',
+							'slideshow': slideshow,
+							'slideId': slide_id,
+							'containerNode': slide_main
+						});
+					}
+					
+					slide = slide.one('.su-slide-content');
+					
+					this._group_nodes[definition.id] = slide;
+					return slide;
+				}
+				
+			}
+		},
+		
+		/**
+		 * On toolbar button click open property form and show inputs for
+		 * that group only
+		 */
+		toolbarButtonClickOpenGroup: function (button_id, button_config) {
+			this.showPropertiesForm(button_config.propertyGroup);
+		},
+		
+		/**
+		 * Show specific group
+		 * 
+		 * @param {String} group_id Group ID, default is "default"
+		 */
+		showGroup: function (group_id) {
+			//Default value
+			if (!group_id || !(group_id in this._group_nodes)) group_id = 'default';
+			
+			for (var key in this._group_nodes) {
+				this._group_nodes[key].toggleClass('hidden', key !== group_id);
+			}
+		},
+		
+		/**
+		 * Show toolbar buttons associated with this property form
+		 * 
+		 * @private
+		 */
+		showGroupToolbarButtons: function () {
+			var toolbar = Manager.getAction('PageToolbar'),
+				buttons = this._group_toolbar_buttons,
+				button = null,
+				i = 0,
+				ii = buttons.length;
+			
+			for (; i<ii; i++) {
+				button = toolbar.getActionButton(buttons[i]);
+				if (button) button.show();
+			}
+		},
+		
+		/**
+		 * Hide toolbar buttons associated with this property form
+		 * 
+		 * @private
+		 */
+		hideGroupToolbarButtons: function () {
+			var toolbar = Manager.getAction('PageToolbar'),
+				buttons = this._group_toolbar_buttons,
+				button = null,
+				i = 0,
+				ii = buttons.length;
+			
+			for (; i<ii; i++) {
+				button = toolbar.getActionButton(buttons[i]);
+				if (button) button.hide();
+			}
 		}
 		
 	});
