@@ -116,14 +116,23 @@ Supra('anim', function (Y) {
 			
 			var target = e.target.closest('p'),
 				version_id = target.getAttribute('data-id'),
-				prev_target = null;
-			
+				prev_target = null,
+				controlButton = this.get('controlButton');
+				
 			if (this.current_version != version_id) {
 				prev_target = this.timeline.all('.active');
 				if (prev_target) prev_target.removeClass('active');
 				
-				target.addClass('loading');
 				target.addClass('active');
+
+				if (version_id == this.revision_id) {
+					this.current_version = null;
+					controlButton.set('label', '{#buttons.close#}');
+					return;
+				}
+				
+				
+				target.addClass('loading');
 				
 				this.set('loading', true);
 				this.get('controlButton').set('disabled', true);
@@ -131,7 +140,15 @@ Supra('anim', function (Y) {
 				Manager.getAction('PageContent').getIframeHandler().showVersionPreview(version_id, function (data, status) {
 					target.removeClass('loading');
 					this.set('loading', false);
-					this.get('controlButton').set('disabled', false);
+						
+					if (status) {
+						controlButton.set('label', '{#buttons.restore#}');
+					}
+					
+					controlButton.set('disabled', false);
+						
+					
+					//this.get('controlButton').set('disabled', false);
 					
 					if (!status) {
 						//Handle error, @TODO
@@ -233,11 +250,13 @@ Supra('anim', function (Y) {
 			
 			this.get('contentNode').removeClass('loading');
 			
-			var revision_id = Manager.Page.getPageData().revision_id;
+			this.revision_id = Manager.Page.getPageData().revision_id;
 			
-			this.timeline.set('innerHTML', Supra.Template('timeline', {'revision_id': revision_id, 'data': data}));
+			this.timeline.set('innerHTML', Supra.Template('timeline', {'revision_id': this.revision_id, 'data': data}));
 			
 			this.updateScrollbars();
+			
+			this.get('controlButton').set('label', '{#buttons.close#}');
 		},
 		
 		
@@ -459,6 +478,7 @@ Supra('anim', function (Y) {
 			
 			//Unset version
 			this.current_version = null;
+			this.revision_id = null;
 			
 			//Load data
 			this.updateScrollbars();
