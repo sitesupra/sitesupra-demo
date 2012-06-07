@@ -12,8 +12,8 @@ use Supra\Controller\Pages\BlockPropertyGroupCollection;
  */
 class BlockPropertyGroupConfiguration implements ConfigurationInterface
 {
-	const TYPE_TOP = 1,
-	TYPE_SIDEBAR = 2;
+	const TYPE_TOP = 'top',
+	TYPE_SIDEBAR = 'sidebar';
 
 	/**
 	 * @var string
@@ -53,11 +53,8 @@ class BlockPropertyGroupConfiguration implements ConfigurationInterface
 		$type = mb_strtolower(trim($this->type));
 		
 		switch ($type) {
-			case 'top':
-				$this->type = self::TYPE_TOP;
-				break;
-			case 'sidebar':
-				$this->type = self::TYPE_SIDEBAR;
+			case self::TYPE_TOP:
+			case self::TYPE_SIDEBAR:
 				break;
 			default:
 				\Log::warn('Property group type is not "top" or "sidebar", will use default type "sidebar". ', $this);

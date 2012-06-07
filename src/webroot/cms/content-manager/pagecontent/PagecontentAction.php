@@ -102,7 +102,7 @@ class PagecontentAction extends PageManagerAction
 			throw new CmsException(null, "Block doesn't exist anymore");
 		}
 		
-		$pageData = $block->getPlaceHolder()->getMaster();
+		$pageData = $request->getPageLocalization();;
 		$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 		
 		// Receive block property definition
@@ -315,7 +315,7 @@ class PagecontentAction extends PageManagerAction
 	 * @param Supra\Request\RequestData  $input
 	 * @return BlockProperty
 	 */
-	protected function handlePropertyValues($blockController, $input)
+	protected function handlePropertyValues(\Supra\Controller\Pages\BlockController $blockController, $input)
 	{
 		$blockConfiguration = $blockController->getConfiguration();
 		$propertyDefinitions = $blockConfiguration->properties;

@@ -59,7 +59,7 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 	 * @var array
 	 */
 	public $properties = array();
-	
+
 	/**
 	 * Hash table for editable additional properties
 	 * @var array
@@ -90,6 +90,10 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 			} else {
 				\Log::warn("No additional parameter setter found for editable {$this->editable} with name {$name}");
 			}
+		}
+
+		if ( ! empty($this->group)) {
+			$this->editableInstance->setGroupId($this->group);
 		}
 	}
 

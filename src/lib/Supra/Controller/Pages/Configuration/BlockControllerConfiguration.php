@@ -116,15 +116,19 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		if (is_array($this->propertyGroups) && ! empty($this->propertyGroups)) {
 			$propertyGroups = array();
 
-
 			foreach ($this->propertyGroups as $group) {
 				/* @var $group BlockPropertyGroupConfiguration */
-				if (isset($propertyGroups[$group->id])) {
-					\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
-					continue;
-				}
+				if ($group instanceof BlockPropertyGroupConfiguration) {
 
-				$propertyGroups[$group->id] = $group;
+					if (isset($propertyGroups[$group->id])) {
+						\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
+						continue;
+					}
+
+					$propertyGroups[$group->id] = $group;
+				} else {
+					\Log::warn('Group should be instance of BlockPropertyGroupConfiguration ', $group);
+				}
 			}
 
 			$this->propertyGroups = array_values($propertyGroups);
