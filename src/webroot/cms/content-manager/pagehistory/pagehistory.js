@@ -78,7 +78,15 @@ Supra('anim', function (Y) {
 		 */
 		render: function () {
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
+				'id': 'page_history_restore',
+				'label': '{# buttons.restore #}',
+				'style': 'mid-blue',
+				'context': this,
+				'callback': function () {
+					this.restoreVersion(this.current_version);
+				}
+			}]);
 			
 			//Control button
 			this.get('controlButton').on('click', this.hide, this);
@@ -117,7 +125,8 @@ Supra('anim', function (Y) {
 			var target = e.target.closest('p'),
 				version_id = target.getAttribute('data-id'),
 				prev_target = null,
-				controlButton = this.get('controlButton');
+				controlButton = this.get('controlButton'),
+				restoreButton = this.getRestoreButton();
 				
 			if (this.current_version != version_id) {
 				prev_target = this.timeline.all('.active');
@@ -127,7 +136,7 @@ Supra('anim', function (Y) {
 
 				if (version_id == this.revision_id) {
 					this.current_version = null;
-					controlButton.set('label', '{#buttons.close#}');
+					restoreButton.hide();
 					return;
 				}
 				
@@ -135,20 +144,20 @@ Supra('anim', function (Y) {
 				target.addClass('loading');
 				
 				this.set('loading', true);
-				this.get('controlButton').set('disabled', true);
+				
+				controlButton.set('disabled', true);
+				restoreButton.set('disabled', true);
 				
 				Manager.getAction('PageContent').getIframeHandler().showVersionPreview(version_id, function (data, status) {
 					target.removeClass('loading');
 					this.set('loading', false);
 						
 					if (status) {
-						controlButton.set('label', '{#buttons.restore#}');
+						restoreButton.show();
 					}
 					
 					controlButton.set('disabled', false);
-						
-					
-					//this.get('controlButton').set('disabled', false);
+					restoreButton.set('disabled', false);
 					
 					if (!status) {
 						//Handle error, @TODO
@@ -179,6 +188,7 @@ Supra('anim', function (Y) {
 			//Disable elements
 			this.set('loading', true);
 			this.get('controlButton').set('disabled', true);
+			this.getRestoreButton().set('disabled', true);
 			
 			Supra.io(this.getDataPath('restore'), {
 				'method': 'post',
@@ -192,9 +202,13 @@ Supra('anim', function (Y) {
 						//Re-enable elements
 						this.set('loading', false);
 						this.get('controlButton').set('disabled', false);
+						this.getRestoreButton().set('disabled', false);
 						
 						//Reload page
 						this.reloadPage();
+						
+						//Hide
+						this.hide();
 					}
 				}
 			}, this);
@@ -228,6 +242,8 @@ Supra('anim', function (Y) {
 		 */
 		reloadList: function () {
 			this.locale = Supra.data.get('locale');
+			
+			this.get('contentNode').addClass('loading');
 			
 			Supra.io(this.getDataPath('load'), {
 				'data': {
@@ -445,6 +461,13 @@ Supra('anim', function (Y) {
 		},
 		
 		/**
+		 * Returns "Restore" button
+		 */
+		getRestoreButton: function () {
+			return Manager.PageButtons.getActionButtons(this.NAME)[0];
+		},
+		
+		/**
 		 * Update scrollbars
 		 */
 		updateScrollbars: function () {
@@ -457,8 +480,8 @@ Supra('anim', function (Y) {
 		hide: function () {
 			//Restore original content
 			if (this.current_version && Supra.data.get('locale') == this.locale) {
-				this.restoreVersion(this.current_version);
-				this.current_version = null;
+				this.reloadPage();
+				this.getRestoreButton().hide();
 			}
 			
 			//Hide sidebar
@@ -475,6 +498,7 @@ Supra('anim', function (Y) {
 		 */
 		execute: function () {
 			this.show();
+			this.getRestoreButton().hide();
 			
 			//Unset version
 			this.current_version = null;

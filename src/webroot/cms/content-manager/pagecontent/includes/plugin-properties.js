@@ -143,8 +143,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 				block = Supra.mix({}, Manager.Blocks.getBlock(type), true);
 			
 			if (!block) return;
-			this.set('properties', block.properties);
-			this.set('property_groups', block.property_groups);
+			this.set('properties', [].concat(block.properties));
+			this.set('property_groups', [].concat(block.property_groups));
 			
 			//Create right bar container action if it doesn't exist
 			var action = Manager.getAction('PageContentSettings');

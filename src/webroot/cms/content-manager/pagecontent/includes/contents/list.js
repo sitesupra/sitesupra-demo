@@ -92,7 +92,7 @@ YUI.add('supra.page-content-list', function (Y) {
 				'closed': false,
 				'locked': false,
 				'type': data.type,
-				'data': data,
+				'properties': data.properties,
 				'value': data.html
 			}, {
 				'draggable': !this.isClosed(),
