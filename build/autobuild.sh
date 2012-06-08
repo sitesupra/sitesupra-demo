@@ -21,6 +21,11 @@ rsync -r --delete \
 # Replace INI file
 cp src/conf/supra.$1.ini src/conf/supra.ini
 
+if [ -f "tests/src/conf/supra.$1.ini" ]
+then
+	cp tests/src/conf/supra.$1.ini tests/src/conf/supra.ini
+fi
+
 # Old versioning logics
 #cp src/conf/supra.ini src/conf/supra.ini.tmp
 #sed "s/@build\.number@/${BUILD_NUMBER}/" src/conf/supra.ini.tmp > src/conf/supra.ini
