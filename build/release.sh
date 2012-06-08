@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Create release directory
 mkdir ${WORKSPACE}/release || echo "Folder already exists"
 cd ${WORKSPACE}/release
