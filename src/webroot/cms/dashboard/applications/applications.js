@@ -419,32 +419,43 @@ function (Y) {
 			
 			this.set("visible", true);
 			
-			var styles = {
-					"opacity": 0,
-					"transform": "scale(2)"
-				},
-				transition = {
-					"opacity": 1,
-					"transform": "scale(1)"
-				};
+			var styles = {"opacity": 1},
+				transition = null;
 			
-			if (Y.UA.opera || (Y.UA.ie && Y.UA.ie < 10)) {
-				styles = {
-					"opacity": 0,
-					"transform": "scale(1, 1)"
-				};
-				transition = {
-					"opacity": 1
-				};
+			//Animation turned off ?
+			if (this.get('animation') !== false) {
+				
+				if (Y.UA.opera || (Y.UA.ie && Y.UA.ie < 10)) {
+					//Fallback for non-supporting browsers
+					styles = { "opacity": 0 };
+					transition = { "opacity": 1 };
+				} else {
+					//Transformation transitions supported
+					styles = {
+						"opacity": 0,
+						"transform": "scale(2)"
+					};
+					transition = {
+						"opacity": 1,
+						"transform": "scale(1)"
+					};
+				}
+				
 			}
 			
 			Y.later(150, this, function () {
-				this.one()
-					.setStyles(styles)
-					.transition(transition, Y.bind(function () {
+				var node = this.one();
+				node.setStyles(styles);
+				
+				if (transition) {
+					node.transition(transition, Y.bind(function () {
 						this.load();
 						this.widgets.scrollable.syncUI();
 					}, this));
+				} else {
+					this.load();
+					this.widgets.scrollable.syncUI();
+				}
 			});
 		},
 		
