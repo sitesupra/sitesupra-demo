@@ -13,7 +13,7 @@ then
 	_TARGET_DIR=$TARGET_DIR
 fi
 
-cd _TARGET_DIR
+cd $_TARGET_DIR
 
 # Sync contents
 rsync -r --delete \

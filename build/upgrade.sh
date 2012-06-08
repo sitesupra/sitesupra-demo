@@ -13,7 +13,7 @@ then
 	_TARGET_DIR=$TARGET_DIR
 fi
 
-cd _TARGET_DIR
+cd $_TARGET_DIR
 
 if [ $1 = "force" ]
 then
