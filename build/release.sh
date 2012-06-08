@@ -36,4 +36,4 @@ rm ./src/conf/supra*.ini
 # Register version number
 echo ${project_version}.${BUILD_NUMBER} > ./VERSION
 
-zip -r ${WORKSPACE}/${JOB_NAME}.web.${project_version}.${BUILD_NUMBER}.zip *
+zip -r ${WORKSPACE}/${JOB_NAME/%-release}.web.${project_version}.${BUILD_NUMBER}.zip *
