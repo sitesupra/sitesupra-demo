@@ -6,14 +6,7 @@ then
 	exit 1
 fi
 
-_TARGET_DIR=/var/www/vhosts/${JOB_NAME}/
-
-if [ -z $TARGET_DIR ]
-then
-	_TARGET_DIR=$TARGET_DIR
-fi
-
-cd $_TARGET_DIR
+cd /var/www/vhosts/${JOB_NAME}/
 
 # Sync contents
 rsync -r \
