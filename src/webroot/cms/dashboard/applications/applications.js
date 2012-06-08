@@ -428,9 +428,10 @@ function (Y) {
 					"transform": "scale(1)"
 				};
 			
-			if (Y.UA.ie && Y.UA.ie < 10) {
+			if (Y.UA.opera || (Y.UA.ie && Y.UA.ie < 10)) {
 				styles = {
-					"opacity": 0
+					"opacity": 0,
+					"transform": "scale(1, 1)"
 				};
 				transition = {
 					"opacity": 1
