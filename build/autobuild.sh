@@ -16,7 +16,7 @@ fi
 cd $_TARGET_DIR
 
 # Sync contents
-rsync -r --delete \
+rsync -r \
   --links \
   --safe-links \
   --exclude=.git* \
