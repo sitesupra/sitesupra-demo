@@ -47,6 +47,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/*
+		 * Property groups
+		 */
+		'property_groups': {
+			'value': null
+		},
+		
+		/*
 		 * Supra.Form instance
 		 */
 		'form': {
@@ -143,8 +150,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 				block = Supra.mix({}, Manager.Blocks.getBlock(type), true);
 			
 			if (!block) return;
-			this.set('properties', [].concat(block.properties));
-			this.set('property_groups', [].concat(block.property_groups));
+			this.set('properties', [].concat(block.properties || []));
+			this.set('property_groups', [].concat(block.property_groups || []));
 			
 			//Create right bar container action if it doesn't exist
 			var action = Manager.getAction('PageContentSettings');
@@ -539,57 +546,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/**
-		 * Property data setter
-		 * 
-		 * @param {Object} data
-		 * @private
-		 */
-		_setData: function (data) {
-			var data = Supra.mix({}, data),
-				values = [],
-				shared_properties = {};
-				
-			for (var name in data.properties) {
-				if (data.properties[name].shared) {
-					shared_properties[name] = data.properties[name];
-				}
-				
-				values[name] = data.properties[name].value;
-			}
-			
-			this._shared_properties = Supra.mix(shared_properties, this._shared_properties);
-			this._original_values = values;
-			
-			this.setValues(values);
-			
-			return data;
-		},
-		
-		/**
-		 * Property data getter
-		 * 
-		 * @return Property data
-		 * @type {Object]
-		 * @private
-		 */
-		_getData: function (data) {
-			var data = data || {},
-				properties = {},
-				values = null;
-				
-			values = this.getValues();
-			for (var name in values) {
-				properties[name] = {
-					value: values[name],
-					shared: this.isPropertyShared(name)
-				}
-			}
-			
-			data.properties = properties;
-			return data;
-		},
-		
-		/**
 		 * Returns all property values
 		 * 
 		 * @return Values
@@ -924,6 +880,63 @@ YUI.add('supra.page-content-properties', function (Y) {
 				button = toolbar.getActionButton(buttons[i]);
 				if (button) button.hide();
 			}
+		},
+		
+		
+		/*
+		 * ----------------------------- ATTRIBUTES -------------------------------
+		 */
+		
+		
+		/**
+		 * Property data setter
+		 * 
+		 * @param {Object} data
+		 * @private
+		 */
+		_setData: function (data) {
+			var data = Supra.mix({}, data),
+				values = [],
+				shared_properties = {};
+				
+			for (var name in data.properties) {
+				if (data.properties[name].shared) {
+					shared_properties[name] = data.properties[name];
+				}
+				
+				values[name] = data.properties[name].value;
+			}
+			
+			this._shared_properties = Supra.mix(shared_properties, this._shared_properties);
+			this._original_values = values;
+			
+			this.setValues(values);
+			
+			return data;
+		},
+		
+		/**
+		 * Property data getter
+		 * 
+		 * @return Property data
+		 * @type {Object]
+		 * @private
+		 */
+		_getData: function (data) {
+			var data = data || {},
+				properties = {},
+				values = null;
+				
+			values = this.getValues();
+			for (var name in values) {
+				properties[name] = {
+					value: values[name],
+					shared: this.isPropertyShared(name)
+				}
+			}
+			
+			data.properties = properties;
+			return data;
 		}
 		
 	});
