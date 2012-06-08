@@ -1,5 +1,7 @@
 # Change current working directory
 
+set -e
+
 if [ -z $1 ]
 then
 	echo "Build profile must be defined"

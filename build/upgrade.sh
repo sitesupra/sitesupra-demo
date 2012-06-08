@@ -1,5 +1,7 @@
 # Upgrades database and runs upgrade scripts (or checks if anything must be run) 
 
+set -e
+
 if [ -z $1 ]
 then
 	echo "Upgrade type (check or force) must be specified"
