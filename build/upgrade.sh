@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Upgrades database and runs upgrade scripts (or checks if anything must be run) 
 
 set -e

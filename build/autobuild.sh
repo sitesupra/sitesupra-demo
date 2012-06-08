@@ -1,4 +1,4 @@
-# Change current working directory
+#!/bin/bash
 
 set -e
 
@@ -8,10 +8,11 @@ then
 	exit 1
 fi
 
+# Change current working directory
 cd /var/www/vhosts/${JOB_NAME}/
 
 # Sync contents
-rsync -r \
+rsync -r --delete \
   --links \
   --safe-links \
   --exclude=.git* \
