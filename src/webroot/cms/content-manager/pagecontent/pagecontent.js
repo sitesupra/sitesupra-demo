@@ -161,7 +161,7 @@ Supra('dd-drag', function (Y) {
 			if (!this.editing) {
 				var uri = Root.ROUTE_PAGE_EDIT.replace(':page_id', Manager.Page.getPageData().id);
 				
-				if (Root.router.getPath().indexOf(uri) === 0) {
+				if (Root.getRoutePath().indexOf(uri) === 0) {
 					//If already target URI, then start editing
 					this.onStartEditingRoute();
 				} else {
@@ -235,7 +235,7 @@ Supra('dd-drag', function (Y) {
 		stopEditing: function () {
 			if (this.editing) {
 				//Route only if on /12/edit page
-				if (Root.router.getPath().match(Root.ROUTE_PAGE_EDIT_R)) {
+				if (Root.getRoutePath().match(Root.ROUTE_PAGE_EDIT_R)) {
 					var uri = Root.ROUTE_PAGE.replace(':page_id', Manager.Page.getPageData().id);
 					Root.router.save(uri);
 				} else {
@@ -319,7 +319,7 @@ Supra('dd-drag', function (Y) {
 				
 				//If editing was called before content was ready or there is a route path
 				//then call it now
-				if (this.edit_on_ready || Root.router.getPath().match(Root.ROUTE_PAGE_EDIT_R) || Root.router.getPath().match(Root.ROUTE_PAGE_CONT_R)) {
+				if (this.edit_on_ready || Root.getRoutePath().match(Root.ROUTE_PAGE_EDIT_R) || Root.getRoutePath().match(Root.ROUTE_PAGE_CONT_R)) {
 					this.iframe_handler.once('ready', function () {
 						this.edit_on_ready = false;
 						this.onStartEditingRoute();
