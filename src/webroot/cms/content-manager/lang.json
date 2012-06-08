@@ -62,7 +62,7 @@
 			"click_to_edit": "Click to edit",
 			"click_to_edit_drag_to_move": "Click to edit<br />Drag &amp; drop to move",
 			
-			"locked_message": "Page was locked by {{ username }} on {{ datetime }}",
+			"locked_message": "Page was locked by {{ username|escape }} on {{ datetime|escape }}",
 			"unlock": "Unlock",
 			
 			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language. Copy from the current language?",
@@ -76,7 +76,7 @@
 		
 		"template": {
 			"edit": "Edit template",
-			"locked_message": "Template was locked by {{ username }} on {{ datetime }}",
+			"locked_message": "Template was locked by {{ username|escape }} on {{ datetime|escape }}",
 			"unlock": "Unlock",
 			"error": {
 				"layout_not_found": "Layout file not found",

@@ -17,7 +17,7 @@ Supra('supra.input', function (Y) {
 	
 	var DEFAULT_CONFIG = {
 		'message': '',
-		'escape': true,
+		'escape': false,
 		'useMask': true,
 		'align': 'center',
 		'buttons': []
