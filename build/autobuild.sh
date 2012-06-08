@@ -1,0 +1,29 @@
+# Change current working directory
+
+if [ -z $1 ]
+then
+	echo "Build profile must be defined"
+	exit 1
+fi
+
+cd /var/www/vhosts/${JOB_NAME}/
+
+# Sync contents
+rsync -r --delete \
+  --links \
+  --safe-links \
+  --exclude=.git* \
+  --exclude=/src/files/* \
+  --exclude=/src/webroot/files/* \
+  --exclude=/src/log/* \
+  ${WORKSPACE}/ ./
+
+# Replace INI file
+cp src/conf/supra.$1.ini src/conf/supra.ini
+
+# Old versioning logics
+#cp src/conf/supra.ini src/conf/supra.ini.tmp
+#sed "s/@build\.number@/${BUILD_NUMBER}/" src/conf/supra.ini.tmp > src/conf/supra.ini
+
+# Version file
+echo ${BUILD_ID} > ./VERSION
