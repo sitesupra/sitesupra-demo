@@ -99,6 +99,9 @@ YUI.add('supra.page-content-list', function (Y) {
 				'editable': true
 			});
 			
+			//Disable highlight, we will be editing this block
+			this.get('super').set('highlight', false);
+			
 			//When new item is created focus on it
 			this.get('super').set('activeChild', block);
 		},
