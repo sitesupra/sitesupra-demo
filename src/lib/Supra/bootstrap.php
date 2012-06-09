@@ -75,6 +75,9 @@ require_once SUPRA_LIBRARY_PATH . 'Swift/swift_init.php';
 $solariumLoader = new \Supra\Loader\Strategy\PearLoaderStrategy('Solarium', SUPRA_LIBRARY_PATH . 'Solarium', false);
 $loader->registerNamespace($solariumLoader);
 
+// Form constraint autoloader
+\Doctrine\Common\Annotations\AnnotationRegistry::registerLoader(array($loader, 'silentAutoload'));
+
 // Set the initial timezone to the logger
 Supra\Log\LogEvent::setDefaultTimezone(date_default_timezone_get());
 

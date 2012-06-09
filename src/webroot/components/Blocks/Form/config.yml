@@ -12,21 +12,3 @@
 #          - Supra\FileStorage
 #          - Supra\Controller\Pages
     form: Project\Blocks\Form\Entity\Form
-    fields:
-      - Supra\Controller\Pages\Configuration\FormFieldConfiguration:
-          name: name
-          type: text
-          label: Name
-#         http://symfony.com/doc/current/reference/constraints.html
-#          validation:
-#            - Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration:
-#                constraint: Symfony\Component\Validator\Constraints\Email
-#                options:
-#                  checkMX: true
-#            - Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration:
-#                constraint: Symfony\Component\Validator\Constraints\NotBlank
-#            - Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration:
-#                constraint: Symfony\Component\Validator\Constraints\MinLength
-#                options:
-#                  limit: 3
-                

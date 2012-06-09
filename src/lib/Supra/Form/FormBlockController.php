@@ -40,10 +40,19 @@ abstract class FormBlockController extends BlockController
 		$this->render();
 	}
 
+	/**
+	 * Render form action
+	 */
 	abstract protected function render();
 
+	/**
+	 * On form success action
+	 */
 	abstract protected function success();
 
+	/**
+	 * On form failure action
+	 */
 	abstract protected function failure();
 
 	/**
@@ -55,6 +64,9 @@ abstract class FormBlockController extends BlockController
 		return true;
 	}
 
+	/**
+	 * @return \Symfony\Component\Form\Form
+	 */
 	public function getBindedForm()
 	{
 		return $this->bindedForm;
@@ -70,22 +82,18 @@ abstract class FormBlockController extends BlockController
 		$formBuilder = $this->prepareFormBuilder($formClass);
 
 		foreach ($conf->fields as $field) {
-			/* @var $field FormFieldConfiguration */
+			/* @var $field FormField */
 			$options = array();
 
-			if ($field->label) {
-				$propertyGroup = FormBlockControllerConfiguration::FORM_GROUP_ID_LABELS;
-				$propertyName = FormBlockControllerConfiguration::generateEditableName($propertyGroup, $field);
-				$blockPropertyValue = $this->getPropertyValue($propertyName);
+			$propertyGroup = FormBlockControllerConfiguration::FORM_GROUP_ID_LABELS;
+			$propertyName = FormBlockControllerConfiguration::generateEditableName($propertyGroup, $field);
+			$blockPropertyValue = $this->getPropertyValue($propertyName);
 
-				if ( ! empty($blockPropertyValue)) {
-					$options['label'] = $blockPropertyValue;
-				} else {
-					$options['label'] = $field->label;
-				}
+			if ( ! empty($blockPropertyValue)) {
+				$options['label'] = $blockPropertyValue;
 			}
 
-			$formBuilder->add($field->name, $field->type);
+			$formBuilder->add($field->getName(), $field->getType(), $options);
 		}
 
 		// Custom validation
@@ -96,7 +104,43 @@ abstract class FormBlockController extends BlockController
 
 	/**
 	 *
-	 * @param AbstractForm $class
+	 * @param string $label Block property label
+	 * @param string $formFieldName
+	 * @param string $message Block property message.
+	 * @param string $messageId error message id
+	 * 
+	 * @example 
+	 * 
+	 * self::createCustomErrorProperty(
+	 * 				'Form field "Name" custom validation', 
+	 * 				'name', 
+	 * 				'Custom text "{{ custom }}" will be replaced',
+	 * 			'custom_error_message'
+	 * 	);
+	 * 
+	 * So that will be handled properly with 
+	 * 
+	 * $error = new Form\FormError('custom_error_message', array(
+	 * 		'{{ custom }}' => 'blah blah blah',
+	 * 	));
+	 * 
+	 * $form->get('name')->addError($error);
+	 * 
+	 * @return array 
+	 */
+	protected static function createCustomErrorProperty($label, $formFieldName, $message, $messageId)
+	{
+		$propertyName = FormBlockControllerConfiguration::generateEditableName(
+						FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $formFieldName)
+				. "_{$messageId}";
+
+		$error = new \Supra\Editable\String($label);
+		$error->setDefaultValue($message);
+
+		return array($propertyName => $error);
+	}
+
+	/**
 	 * @return Form\FormBuilder 
 	 */
 	protected function prepareFormBuilder($class)

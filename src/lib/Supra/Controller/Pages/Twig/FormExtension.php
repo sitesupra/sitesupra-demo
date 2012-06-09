@@ -126,16 +126,16 @@ class FormExtension
 			$tag = new \Supra\Html\HtmlTag('span');
 			$tag->forceTwoPartTag(true);
 			$tag->setAttribute('class', 'error');
-//			$errorProperty = $this->blockController->getPropertyValue(
-//					FormBlockControllerConfiguration::generateEditableName(
-//							FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $vars['name'])
-//					. "_{$error->getMessage()}"
-//			);
+			$errorProperty = $this->blockController->getPropertyValue(
+					FormBlockControllerConfiguration::generateEditableName(
+							FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $vars['name'])
+					. "_{$error->getMessage()}"
+			);
 
 			$message = $error->getMessage();
-//			if ( ! empty($errorProperty)) {
-//				$message = strtr($errorProperty, $error->getMessageParameters());
-//			}
+			if ( ! empty($errorProperty)) {
+				$message = strtr($errorProperty, $error->getMessageParameters());
+			}
 
 			$tag->setContent($message);
 
@@ -204,7 +204,11 @@ class FormExtension
 
 	public function row(FormView $view, array $options = array(), array $attributes = array())
 	{
-		return __METHOD__;
+		$labelTag = $this->label($view, $options, $attributes);
+		$fieldTag = $this->field($view, $options, $attributes);
+//		$errorTag = $this->error($view, $options, $attributes);
+		
+		return new \Twig_Markup($labelTag->__toString() . $fieldTag->__toString());
 	}
 
 	public function submit(array $options = array(), array $attributes = array())

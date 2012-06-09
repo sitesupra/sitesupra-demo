@@ -142,10 +142,6 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	{
 		$class = $this->class;
 
-		if ($class == 'Project\Blocks\Gallery\GalleryBlock') {
-			1 + 1;
-		}
-
 		// TODO: might be removed later
 		if (Loader::classExists($class)) {
 			if (method_exists($class, 'getPropertyDefinition')) {

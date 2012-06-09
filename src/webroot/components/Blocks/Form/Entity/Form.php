@@ -3,17 +3,27 @@
 namespace Project\Blocks\Form\Entity;
 
 use Symfony\Component\Validator\Mapping\ClassMetadata;
-use Symfony\Component\Validator\Constraints as Assert;
+use Supra\Form\Constraints;
+use Supra\Form\FormField;
 
 class Form
 {
 
 	/**
-	 * @Assert\NotBlank
-	 * @Assert\MinLength(3)
-	 * @Assert\Email(checkMX="true")
+	 * @FormField(type="text")
+	 * 
+	 * @Constraints\NotBlank
+	 * @Constraints\MinLength(3)
+	 * @Constraints\Email(checkMX="true")
 	 */
 	public $name;
+
+	/**
+	 * @FormField(type="text")
+	 * 
+	 * @Constraints\Email(checkMX="true")
+	 */
+	public $lastName;
 
 	public function getName()
 	{
@@ -24,5 +34,5 @@ class Form
 	{
 		$this->name = $name;
 	}
-	
+
 }
