@@ -57,7 +57,7 @@ class Application extends SymfonyConsoleApplication
 		/* @var $repo CronJobRepository */
 		$repo->addJob($input, $period);
 	}
-	
+
 	/**
 	 * Command line application commands can be passed as classnames.
 	 * This allows skipping non-existent classes.
@@ -67,14 +67,30 @@ class Application extends SymfonyConsoleApplication
 	{
 		$classes = (array) $classes;
 		$commands = array();
-		
+
 		foreach ($classes as $class) {
 			if (Loader::classExists($class)) {
 				$commands[] = new $class();
 			}
 		}
-		
+
 		$this->addCommands($commands);
 	}
-	
+
+	/**
+	 *
+	 * @param array $classes 
+	 */
+	public function setCommandClasses($classes)
+	{
+		$classes = (array) $classes;
+		$commands = array();
+
+		foreach ($classes as $class) {
+			if (Loader::classExists($class)) {
+				$commands[] = new $class();
+			}
+		}
+	}
+
 }
