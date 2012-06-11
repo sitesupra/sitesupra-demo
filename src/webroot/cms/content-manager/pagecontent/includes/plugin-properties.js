@@ -895,8 +895,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 				toolbar_group_id = this.get('toolbarGroupId');
 			
 			if (toolbar_group_id == 'EditorToolbar') {
-				console.log('createGroupButton/TOOLBAR', button_id, definition.id, definition);
-				
 				command = definition.id + '_' + String((+new Date()) + Math.random());
 				
 				toolbar = Manager.getAction('EditorToolbar').getToolbar();
@@ -914,14 +912,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 				
 				toolbar.on('command', function (event) {
 					if (event.command === command) {
-						console.log("COMMAND");
 						this.toolbarButtonClickOpenGroup(button_id, {'propertyGroup': definition.id});
 					}
 				}, this);
 				
 			} else {
-				console.log('createGroupButton/' + toolbar_group_id, button_id, definition.id, definition);
-				
 				toolbar = Manager.getAction('PageToolbar');
 				toolbar.addActionButtons(toolbar_group_id, [{
 					'id': button_id,
