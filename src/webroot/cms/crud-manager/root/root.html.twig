@@ -33,7 +33,7 @@
 {% block jsPathConfiguration %}
 	var APP_PATH = '/crud-manager',
 		STATIC_PATH = '/cms',
-		DYNAMIC_PATH = '/cms';
+		DYNAMIC_PATH = '/{{ constant('SUPRA_CMS_URL') }}';
 
 	//Set current manager paths
 	Supra.Manager.Loader.setStaticPath(STATIC_PATH);

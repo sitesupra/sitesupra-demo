@@ -113,6 +113,12 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 */
 		'onLoadComplete': function () {
 			this.loading = true;
+			
+			//Remove loading style
+			this.get('host').get('boundingBox').addClass('su-datagrid-loading');
+			
+			//Sync
+			this.get('host').handleChange();
 		},
 		
 		/**
@@ -142,8 +148,8 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 */
 		'load': function () {
 			//
-			if (this.loading) {
-				console.log('TRIED TO INITIATE LOADING WHILE PREVIOUS IS NOT COMPLETE');
+			if (this.loader.loading) {
+				//console.log('TRIED TO INITIATE LOADING WHILE PREVIOUS IS NOT COMPLETE');
 				return;
 			}
 			
@@ -223,26 +229,17 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		 * Update UI to reflect loaded items
 		 */
 		'syncTotal': function () {
-			var total = this.total,
-				loaded = this.loaded,
-				host = this.get('host'),
-				height = host.tableBodyNode.get('offsetHeight'),
-				content_height = 0;
-			
 			if (!this.tableSpacerNode) {
-				this.tableSpacerNode = Y.Node.create('<div class="su-datagrid-spacer"></div>');
-				host.get('contentBox').append(this.tableSpacerNode);
+				this.tableSpacerNode = Y.Node.create('<div class="su-datagrid-spacer"><div><p></p></div></div>');
+				this.tableSpacerNode.one('p').set('text', Supra.Intl.get(['datagrid', 'please_wait']) || '...');
+				this.get('host').get('contentBox').append(this.tableSpacerNode);
 			}
-			
-			content_height = Math.max(0, total - loaded) * (height / loaded);
-			
-			this.tableSpacerNode.setStyle('height', content_height + 'px');
 			
 			//Recheck scroll position
 			this.checkRecordsInView();
 			
 			//Sync
-			host.handleChange();
+			this.get('host').handleChange();
 		},
 		
 		/**

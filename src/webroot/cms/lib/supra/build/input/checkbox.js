@@ -123,6 +123,9 @@ YUI.add("supra.input-checkbox", function (Y) {
 			
 			this.set('labels', this.get('labels'));
 			
+			//Fix overflow
+			this.get('contentBox').addClass('clearfix');
+			
 			//On key press change selected value
 			this.get('backgroundNode').on('click', this._animateValueToggle, this);
 			this.get('backgroundNode').on('keyup', this._onKeyUp, this);

@@ -26,6 +26,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 	//CSS classes
 	var CLASSNAME = getClassName('content'),										// yui3-content
 		CLASSNAME_OVERLAY = getClassName('content', 'overlay'),						// yui3-content-overlay
+		CLASSNAME_OVERLAY_CLOSED = getClassName('content', 'overlay', 'closed'),	// yui3-content-overlay-closed
 		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
 		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
 		CLASSNAME_DRAGGABLE = getClassName('content', 'draggable'),					// yui3-content-draggable
@@ -566,6 +567,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			this.overlay.addClass(CLASSNAME_OVERLAY);
+			
+			if (this.isParentClosed()) {
+				this.overlay.addClass(CLASSNAME_OVERLAY_CLOSED);
+			}
+			
 			this.overlay.set('innerHTML', '<span></span>');
 			this.getNode().insert(div, 'before');
 		},

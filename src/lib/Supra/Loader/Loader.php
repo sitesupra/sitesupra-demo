@@ -147,6 +147,34 @@ class Loader
 
 		return false;
 	}
+	
+	/**
+	 * Autoload method, try loading class by it's name
+	 * Checks for file existence, does not load class and does not provide warning messages if it does not exist  
+	 * 
+	 * @param string $className
+	 * @return boolean
+	 */
+	public function silentAutoload($className)
+	{
+		if ( ! $this->strategiesOrdered) {
+			$this->orderStrategies();
+		}
+
+		$classPath = $this->findClassPath($className);
+
+		if ( ! is_null($classPath)) {
+
+			$included = false;
+			if (file_exists($classPath)) {
+				$included = include_once $classPath;
+			}
+
+			return (bool) $included;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Registers the autoloader

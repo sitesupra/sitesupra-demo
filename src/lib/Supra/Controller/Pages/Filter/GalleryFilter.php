@@ -47,7 +47,12 @@ class GalleryFilter implements FilterInterface
 					}
 				}
 				
-				$images[] = $propertyValues + $referencedElement->toArray();
+				// This might go for removal in future...
+				$image = $referencedElement->toArray() + $propertyValues;
+				
+				// Subarray with properties
+				$image['property'] = $propertyValues;
+				$images[] = $image;
 			}
 		}
 		

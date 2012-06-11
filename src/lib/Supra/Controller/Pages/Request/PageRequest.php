@@ -319,7 +319,7 @@ abstract class PageRequest extends HttpRequest
 			/* @var $place PlaceHolder */
 			$this->placeHolderSet->append($placeHolder);
 		}
-
+		
 		// Create missing place holders automatically
 		$this->createMissingPlaceHolders();
 
@@ -412,6 +412,10 @@ abstract class PageRequest extends HttpRequest
 				$this->blockSet[] = $block;
 			}
 		}
+		
+		// Ordering the blocks by position in the layout
+		$placeHolderNames = $this->getLayoutPlaceHolderNames();
+		$this->blockSet->orderByPlaceHolderNameArray($placeHolderNames);
 
 		return $this->blockSet;
 	}

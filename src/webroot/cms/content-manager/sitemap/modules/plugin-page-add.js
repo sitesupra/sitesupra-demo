@@ -630,28 +630,9 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				form.getInput('path').set('visible', false);
 				form.getInput('template').set('visible', false);
 				
-				//Only for root template user can set layout
-				if (node.get('root')) {
-						if(this._layouts.lenght == 0) {
-							// throwing an error message
-							Supra.Manager.executeAction('Confirmation', {
-								'message': Supra.Intl.get(['error', 'no_layouts']),
-								'buttons': [{
-									'id': 'ok', 
-									'label': 'Ok'
-								}]
-							});
-
-							// removing layout node
-							form.getInput('layout').hide();
-						} else {
-							layoutInput.set('values', this._layouts);
-							layoutInput.set('visible', true);
-						}
-						
-				} else {
-					layoutInput.set('visible', false);
-				}
+				//Layouts
+				this.fillLayoutList(layoutInput, node);
+				
 			}
 			
 			if (data.type == 'group') {
@@ -693,6 +674,41 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			} else {
 				input = form.getInput('layout');
 				input.set('value', ''); //@TODO Set layout from parent
+			}
+		},
+		
+		/**
+		 * Fill layout list
+		 * 
+		 * @param {Object} input Layout input
+		 * @param {Object} node Tree node
+		 * @private
+		 */
+		'fillLayoutList': function (input, node) {
+			var layouts = this._layouts;
+			
+			if(layouts.lenght == 0) {
+				// throwing an error message
+				Supra.Manager.executeAction('Confirmation', {
+					'message': Supra.Intl.get(['error', 'no_layouts']),
+					'buttons': [{
+						'id': 'ok', 
+						'label': 'Ok'
+					}]
+				});
+
+				// Hide layout node
+				input.set('visible', false);
+			} else {
+				if (node.get('root')) {
+					layouts[0] = {id: '', title: Supra.Intl.get(['settings', 'select_layout'])};
+				} else {
+					layouts[0] = {id: '', title: Supra.Intl.get(['settings', 'use_parent_layout'])};
+				}
+				
+				input.set('values', layouts);
+				input.set('value', '');
+				input.set('visible', true);
 			}
 		},
 		

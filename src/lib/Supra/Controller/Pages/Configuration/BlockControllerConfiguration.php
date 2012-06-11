@@ -99,7 +99,7 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		}
 
 		if ( ! empty($this->icon)) {
-			$this->iconWebPath = $this->getIconWebPath();
+			$this->iconWebPath = $this->getIconWebPath($this->icon);
 		}
 
 		$this->processProperties();
@@ -113,22 +113,27 @@ class BlockControllerConfiguration extends ComponentConfiguration
 
 	protected function processPropertyGroups()
 	{
-		if (is_array($this->propertyGroups) && ! empty($this->propertyGroups)) {
-			$propertyGroups = array();
+		$propertyGroups = array();
 
+		foreach ($this->propertyGroups as $group) {
+			/* @var $group BlockPropertyGroupConfiguration */
+			if ($group instanceof BlockPropertyGroupConfiguration) {
 
-			foreach ($this->propertyGroups as $group) {
-				/* @var $group BlockPropertyGroupConfiguration */
 				if (isset($propertyGroups[$group->id])) {
 					\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
 					continue;
 				}
+				if ( ! empty($group->icon)) {
+					$group->icon = $this->getIconWebPath($group->icon);
+				}
 
 				$propertyGroups[$group->id] = $group;
+			} else {
+				\Log::warn('Group should be instance of BlockPropertyGroupConfiguration ', $group);
 			}
-
-			$this->propertyGroups = array_values($propertyGroups);
 		}
+
+		$this->propertyGroups = array_values($propertyGroups);
 	}
 
 	protected function processProperties()
@@ -147,17 +152,45 @@ class BlockControllerConfiguration extends ComponentConfiguration
 				}
 			}
 		}
+
+		// generating new icon path for SelectVisual
+		if (is_array($this->properties)) {
+
+			foreach ($this->properties as $property) {
+				if ( ! $property->editableInstance instanceof \Supra\Editable\SelectVisual) {
+					continue;
+				}
+
+				$values = array();
+
+				foreach ($property->values as $value) {
+					if (empty($value['icon'])) {
+						continue;
+					}
+
+					$value['icon'] = $this->getIconWebPath($value['icon']);
+
+					$values[] = $value;
+				}
+
+				$property->editableInstance->setValues($values);
+			}
+		}
 	}
 
 	/**
 	 * Return icon webpath
 	 * @return string
 	 */
-	private function getIconWebPath()
+	private function getIconWebPath($icon = null)
 	{
+		if (strpos($icon, '/') === 0 || empty($icon)) {
+			return $icon;
+		}
+
 		$file = Loader::getInstance()->findClassPath($this->class);
 		$dir = dirname($file);
-		$iconPath = $dir . '/' . $this->icon;
+		$iconPath = $dir . '/' . $icon;
 
 //		// Disabled for performance
 //		if ( ! file_exists($iconPath)) {

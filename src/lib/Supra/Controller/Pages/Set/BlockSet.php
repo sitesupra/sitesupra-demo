@@ -44,4 +44,36 @@ class BlockSet extends AbstractSet
 		return $blockSet;
 	}
 	
+	/**
+	 * Will order the blocks by the placeholder position, leave the order for
+	 * blocks inside the same placeholder.
+	 * @param array $placeHolderNames
+	 */
+	public function orderByPlaceHolderNameArray(array $placeHolderNames = null)
+	{
+		if (is_null($placeHolderNames)) {
+			return;
+		}
+		
+		$blockArray = iterator_to_array($this);
+		
+		$sortFunction = function(Entity\Abstraction\Block $block1, Entity\Abstraction\Block $block2) use ($placeHolderNames, $blockArray) {
+			$name1 = $block1->getPlaceHolder()->getName();
+			$name2 = $block2->getPlaceHolder()->getName();
+			
+			$position1 = array_search($name1, $placeHolderNames, true);
+			$position2 = array_search($name2, $placeHolderNames, true);
+			
+			// If in the same placeholder, leave the order as is
+			if ($position1 === $position2) {
+				$position1 = array_search($block1, $blockArray, true);
+				$position2 = array_search($block2, $blockArray, true);
+			}
+
+			return $position1 - $position2;
+		};
+			
+		$this->uasort($sortFunction);
+	}
+	
 }

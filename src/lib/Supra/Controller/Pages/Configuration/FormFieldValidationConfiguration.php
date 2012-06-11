@@ -31,7 +31,6 @@ class FormFieldValidationConfiguration implements ConfigurationInterface
 		$className = $this->constraint;
 		$this->constraint = new $className($this->options);
 		
-		//TODO: message generation to block broperty
 	}
 
 }

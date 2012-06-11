@@ -397,8 +397,17 @@ abstract class PageManagerAction extends CmsAction
 			'localized' => $localizationExists,
 			'editable' => $localizationExists,
 			'isDraggable' => $localizationExists,
-			'isDropTarget' => $localizationExists,
+			'isDropTarget' => true,
 		);
+		
+		// Allow dropping before/after not created localizations
+		if ( ! $localizationExists) {
+			$array['droppablePlaces'] = array(
+				'before' => true,
+				'after' => true,
+				'inside' => false,
+			);
+		}
 
 		// Template ID
 		if ($data instanceof Entity\PageLocalization) {

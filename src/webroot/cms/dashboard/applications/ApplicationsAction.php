@@ -33,22 +33,24 @@ class ApplicationsAction extends DasboardAbstractAction
 
 		foreach ($appConfigs as $config) {
 			/* @var $config ApplicationConfiguration */
-			
-			if(empty($config->urlBase)) {
+
+			if (empty($config->urlBase)) {
 				$urlBase = $defaultUrlBase;
-			}
-			else {
+			} else {
 				$urlBase = $config->urlBase;
 			}
-			
-			if ( ! $config->hidden) {
-				$applications[] = array(
-					'title' => $config->title,
-					'id' => $config->class,
-					'icon' => $config->icon . self::ICON_64,
-					'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $config->url)
-				);
+
+			if ($config->hidden) {
+				unset($appConfigs[$config->class]);
+				continue;
 			}
+			
+			$applications[] = array(
+				'title' => $config->title,
+				'id' => $config->class,
+				'icon' => $config->icon . self::ICON_64,
+				'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $config->url)
+			);
 		}
 
 		$favourites = array();
@@ -58,9 +60,9 @@ class ApplicationsAction extends DasboardAbstractAction
 
 			$favourites = $userPreferences['favourite_apps'];
 		}
-		
+
 		$favoritesResponse = array();
-		foreach($favourites as $appName) {
+		foreach ($favourites as $appName) {
 			if (isset($appConfigs[$appName])) {
 				array_push($favoritesResponse, $appName);
 			}
@@ -112,9 +114,7 @@ class ApplicationsAction extends DasboardAbstractAction
 				$key = array_search($beforeId, $favouriteApps);
 				if ($key !== false) {
 					$favouriteApps = array_merge(
-							array_slice($favouriteApps, 0, $key), 
-							array($appId), 
-							array_slice($favouriteApps, $key)
+							array_slice($favouriteApps, 0, $key), array($appId), array_slice($favouriteApps, $key)
 					);
 				}
 			} else {
@@ -126,25 +126,24 @@ class ApplicationsAction extends DasboardAbstractAction
 				unset($favouriteApps[$key]);
 			}
 		}
-		
+
 		// perform cleanup to array
 		$existingApps = $config->getArray(true);
-		foreach($favouriteApps as $key => $appName) {
+		foreach ($favouriteApps as $key => $appName) {
 			if ( ! isset($existingApps[$appName])) {
 				unset($existingApps[$key]);
 			}
-			
+
 			$duplicates = array_keys($favouriteApps, $appName);
 			if (count($duplicates) > 1) {
 				$count = count($duplicates);
-				for($i = 1; $i < $count; $i++) {
+				for ($i = 1; $i < $count; $i ++ ) {
 					unset($favouriteApps[$duplicates[$i]]);
 				}
 			}
 		}
 
 		$this->currentUser->setPreference('favourite_apps', array_values($favouriteApps));
-		
 	}
 
 	/**
@@ -180,9 +179,7 @@ class ApplicationsAction extends DasboardAbstractAction
 			$key = array_search($beforeId, $favouriteApps);
 			if ($key !== false) {
 				$favouriteApps = array_merge(
-					array_slice($favouriteApps, 0, $key), 
-					array($appId), 
-					array_slice($favouriteApps, $key)
+						array_slice($favouriteApps, 0, $key), array($appId), array_slice($favouriteApps, $key)
 				);
 			}
 		} else {

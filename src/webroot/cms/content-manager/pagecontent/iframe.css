@@ -102,6 +102,9 @@
 	
 	background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 0 0 no-repeat;
 }
+.yui3-editable .yui3-content-overlay-closed span {
+	background-image: url(/cms/lib/supra/img/htmleditor/editable-closed-background.gif)
+}
 .yui3-editable .yui3-content-overlay:hover span,
 .yui3-editable .yui3-content-overlay-hover span {
 	display: block;

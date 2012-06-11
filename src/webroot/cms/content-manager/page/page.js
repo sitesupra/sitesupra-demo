@@ -67,7 +67,7 @@ Supra(function (Y) {
 		 */
 		execute: function (data) {
 			//Load page data if sitemap will not open
-			if (Manager.Root.router.getPath() != Manager.Root.ROUTE_SITEMAP) {
+			if (Manager.Root.getRoutePath() != Manager.Root.ROUTE_SITEMAP) {
 				this.loadPage(data ? data.id : '');
 			}
 			

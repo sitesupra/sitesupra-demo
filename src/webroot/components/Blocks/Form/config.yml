@@ -11,16 +11,4 @@
 #        groups:
 #          - Supra\FileStorage
 #          - Supra\Controller\Pages
-    fields:
-      - Supra\Controller\Pages\Configuration\FormFieldConfiguration:
-          name: name
-          type: text
-          label: Name
-#          value: 
-          validation:
-            - Supra\Controller\Pages\Configuration\FormFieldValidationConfiguration:
-                constraint: Symfony\Component\Validator\Constraints\Email
-                options:
-                  message: The email "{{ value }}" is not a valid email.
-                  checkMX: true
-                
+    form: Project\Blocks\Form\Entity\Form
