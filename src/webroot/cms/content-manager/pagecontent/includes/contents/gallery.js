@@ -48,13 +48,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 						'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
 						'action': this,
 						'actionFunction': 'openGalleryManager'
-					}, {
-						'id': 'gallery_block_settings',
-						'type': 'button',
-						'title': Supra.Intl.get(['gallerymanager', 'settings']),
-						'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
-						'action': this,
-						'actionFunction': 'openSettings'
 					}
 				]);
 				

@@ -850,19 +850,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 					//HTMLEditor toolbar is not visible (it already has a button)
 					if (definition.id !== 'default' || (this.hasTopGroups() && !this.hasInlineInputs())) {
 						//Create toolbar button
-						var toolbar = Manager.getAction('PageToolbar'),
-							button_id = this.get('host').getId() + '_' + definition.id.replace(/[^a-z0-9\-\_]/ig, ''),
-							toolbar_group_id = this.get('toolbarGroupId');
+						var button_id = this.get('host').getId() + '_' + definition.id.replace(/[^a-z0-9\-\_]/ig, '');
 						
-						toolbar.addActionButtons(toolbar_group_id, [{
-							'id': button_id,
-							'type': 'button',
-							'title': definition.label,
-							'icon': definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
-							'action': this,
-							'actionFunction': 'toolbarButtonClickOpenGroup',
-							'propertyGroup': definition.id // For use in toolbarButtonClickOpenGroup
-						}]);
+						this.createGroupButton(button_id, definition);
 					}
 					
 					this._group_toolbar_buttons.push(button_id);
@@ -897,6 +887,56 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/**
+		 * Create group button in HTMLEditor toolbar or PageToolbar
+		 */
+		createGroupButton: function (button_id, definition) {
+			var command = null,
+				toolbar = null,
+				toolbar_group_id = this.get('toolbarGroupId');
+			
+			if (toolbar_group_id == 'EditorToolbar') {
+				console.log('createGroupButton/TOOLBAR', button_id, definition.id, definition);
+				
+				command = definition.id + '_' + String((+new Date()) + Math.random());
+				
+				toolbar = Manager.getAction('EditorToolbar').getToolbar();
+				toolbar.addButton("main", {
+					"id": button_id,
+					"type": "button",
+					"buttonType": "button",
+					"icon": definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
+					"title": definition.label,
+					"command": command
+				}, {
+					"first": true,
+					"last": true
+				});
+				
+				toolbar.on('command', function (event) {
+					if (event.command === command) {
+						console.log("COMMAND");
+						this.toolbarButtonClickOpenGroup(button_id, {'propertyGroup': definition.id});
+					}
+				}, this);
+				
+			} else {
+				console.log('createGroupButton/' + toolbar_group_id, button_id, definition.id, definition);
+				
+				toolbar = Manager.getAction('PageToolbar');
+				toolbar.addActionButtons(toolbar_group_id, [{
+					'id': button_id,
+					'type': 'button',
+					'title': definition.label,
+					'icon': definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
+					'action': this,
+					'actionFunction': 'toolbarButtonClickOpenGroup',
+					'propertyGroup': definition.id // For use in toolbarButtonClickOpenGroup
+				}]);
+				
+			}
+		},
+		
+		/**
 		 * On toolbar button click open property form and show inputs for
 		 * that group only
 		 */
@@ -924,15 +964,26 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		showGroupToolbarButtons: function () {
-			var toolbar = Manager.getAction('PageToolbar'),
+			var toolbar = null,
 				buttons = this._group_toolbar_buttons,
 				button = null,
 				i = 0,
 				ii = buttons.length;
 			
-			for (; i<ii; i++) {
-				button = toolbar.getActionButton(buttons[i]);
-				if (button) button.show();
+			if (this.get('toolbarGroupId') == 'EditorToolbar') {
+				toolbar = Manager.getAction('EditorToolbar').getToolbar();
+				
+				for (; i<ii; i++) {
+					button = toolbar.getButton(buttons[i]);
+					if (button) button.show();
+				}
+			} else {
+				toolbar = Manager.getAction('PageToolbar');
+				
+				for (; i<ii; i++) {
+					button = toolbar.getActionButton(buttons[i]);
+					if (button) button.show();
+				}
 			}
 		},
 		
@@ -942,15 +993,26 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		hideGroupToolbarButtons: function () {
-			var toolbar = Manager.getAction('PageToolbar'),
+			var toolbar = null,
 				buttons = this._group_toolbar_buttons,
 				button = null,
 				i = 0,
 				ii = buttons.length;
 			
-			for (; i<ii; i++) {
-				button = toolbar.getActionButton(buttons[i]);
-				if (button) button.hide();
+			if (this.get('toolbarGroupId') == 'EditorToolbar') {
+				toolbar = Manager.getAction('EditorToolbar').getToolbar();
+				
+				for (; i<ii; i++) {
+					button = toolbar.getButton(buttons[i]);
+					if (button) button.hide();
+				}
+			} else {
+				toolbar = Manager.getAction('PageToolbar');
+				
+				for (; i<ii; i++) {
+					button = toolbar.getActionButton(buttons[i]);
+					if (button) button.hide();
+				}
 			}
 		},
 		
