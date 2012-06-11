@@ -454,6 +454,11 @@ abstract class PageManagerAction extends CmsAction
 			$array['new_children_first'] = $conf->newChildrenFirst;
 			$array['isDraggable'] = $conf->isDraggable;
 			$array['isDropTarget'] = $conf->isDropTarget;
+			
+			// empty news application contain virtual children
+			if ( ! isset($array['children_count'])) {
+				$array['children_count'] = 1;
+			}
 		}
 		$array['type'] = $type;
 
