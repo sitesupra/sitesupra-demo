@@ -83,9 +83,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			var toolbar = this.get('toolbar');
 			if (toolbar) {
 				this.events.push(
-					toolbar.on('command', Y.bind(function (event) {
+					toolbar.on('command', function (event) {
 						this.exec(event.command);
-					}, this))
+					}, this)
 				);
 			}
 		},
@@ -98,13 +98,15 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		},
 		
 		render: function () {
+			this.events = [];
+			this.data = {};
+			this.commands = {};
+			this.selection = null;
+			
 			this.renderUI();
 			this.bindUI();
 			this.syncUI();
 			
-			this.data = {};
-			this.commands = {};
-			this.selection = null;
 			this.initPlugins();
 			
 			this._changed = Y.throttle(Y.bind(this._changed, this), 1000);

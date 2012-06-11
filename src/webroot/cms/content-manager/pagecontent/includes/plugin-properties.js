@@ -905,9 +905,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 					"icon": definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
 					"title": definition.label,
 					"command": command
-				}, {
-					"first": true,
-					"last": true
 				});
 				
 				toolbar.on('command', function (event) {
