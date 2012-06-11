@@ -251,6 +251,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 					}
 				}, this);
 				
+			} else if (this.properties.hasTopGroups()) {
+				
+				// No need to do anything
+				
 			} else {
 				
 				//If there are no inline html properties, then 
