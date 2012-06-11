@@ -44,6 +44,10 @@
 			"shared_gallery_notice": "The image list cannot be edited here. It can be edited in the page {{ localeTitle }} localization."
 		},
 		
+		"datagrid": {
+			"please_wait": "Please wait"
+		},
+		
 		"page": {
 			"edit": "Edit page",
 			"publish": "Publish",
