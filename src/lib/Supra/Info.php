@@ -21,13 +21,13 @@ class Info implements Configuration\ConfigurationInterface
 	 * Project name
 	 * @var string
 	 */
-	public $name = 'SiteSupra';
+	public $name = 'Project';
 
 	/**
 	 * Project version
 	 * @var string 
 	 */
-	public $version = '7.0.0';
+	public $version = '1.0';
 
 	/**
 	 * Hostname
