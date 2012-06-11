@@ -256,10 +256,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 					} else {
 						//If there is no inline node, fail silently
 					}
+				} else if (properties[i].group) {
+					//Create groups
+					if (!group_nodes[properties[i].group]) {
+						this.createGroup(properties[i].group, form_config);
+					}
 				}
 			}
 			
-			//Create default group (must be called only after inline properties are checked)
+			//Create default group
 			default_group_node = this.createGroup('default', form_config);
 			
 			//Process non-inline properties
