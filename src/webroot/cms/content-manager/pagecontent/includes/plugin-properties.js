@@ -187,8 +187,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var form_config = {'autoDiscoverInputs': false, 'inputs': [], 'style': 'vertical'},
 				properties = this.get('properties'),
 				
-				property_groups = this.get('property_groups'),
-				property_group = null,
 				group_nodes = {},
 				group = null,
 				
