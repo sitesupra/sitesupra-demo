@@ -161,6 +161,13 @@ YUI.add("supra.datagrid", function (Y) {
 		'reference_point': null,
 		
 		/**
+		 * Saved scroll offset before change
+		 * @type {Number}
+		 * @private
+		 */
+		'scroll_offset': null,
+		
+		/**
 		 * Table node
 		 * @type {Y.Node}
 		 * @private
@@ -861,7 +868,13 @@ YUI.add("supra.datagrid", function (Y) {
 		 */
 		'beginChange': function () {
 			if (this.reference_point) return this;
+			
+			if (this.scrollable) {
+				this.scroll_offset = this.scrollable.get('contentBox').get('scrollTop');
+			}
+			
 			this.reference_point = Y.DOM.removeFromDOM(this.tableNode);
+			
 			return this;
 		},
 		
@@ -873,6 +886,11 @@ YUI.add("supra.datagrid", function (Y) {
 			
 			Y.DOM.restoreInDOM(this.reference_point);
 			this.reference_point = null;
+			
+			//Restore scroll position
+			if (this.scrollable) {
+				this.scrollable.get('contentBox').set('scrollTop', this.scroll_offset);
+			}
 			
 			//Trigger change
 			this.handleChange();

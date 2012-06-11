@@ -107,7 +107,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * be added to
 		 */
 		'toolbarGroupId': {
-			'value': null
+			'value': null,
+			'getter': '_getToolbarGroupId'
 		}
 	};
 	
@@ -130,6 +131,22 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		_group_toolbar_buttons: null,
+		
+		/**
+		 * Inline properties were found
+		 * @type {Boolean}
+		 * @private
+		 */
+		_has_inline_properties: false,
+		
+		/**
+		 * There are groups with type "top"
+		 * @type {Boolean}
+		 * @private
+		 */
+		_has_top_groups: null,
+		
+		
 		
 		
 		destructor: function () {
@@ -159,10 +176,25 @@ YUI.add('supra.page-content-properties', function (Y) {
 			action.execute(null, {'first_init': true});
 			action.hide();
 			
+			//Create empty GroupToolbar group in toolbar in case it will be needed
+			this.createGroupToolbar();
+			
 			//Bind to editing-start and editing-end events
 			if (this.get('showOnEdit')) {
-				this.get('host').on('editing-start', this.showPropertiesForm, this);
-				setTimeout(Y.bind(this.showPropertiesForm, this), 50);
+				if (this.hasTopGroups()) {
+					//Show / hide toolbar buttons
+					this.get('host').on('editing-start', this.showGroupToolbar, this);
+					this.get('host').on('editing-end',   this.hideGroupToolbar, this);
+					
+					setTimeout(Y.bind(this.showGroupToolbar, this), 50);
+					
+					//Set correct attribute value
+					this.set('showOnEdit', false);
+				} else {
+					//Show form immediatelly
+					this.get('host').on('editing-start', this.showPropertiesForm, this);
+					setTimeout(Y.bind(this.showPropertiesForm, this), 50);
+				}
 			}
 			
 			this.get('host').on('editing-start', this.showGroupToolbarButtons, this);
@@ -187,8 +219,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var form_config = {'autoDiscoverInputs': false, 'inputs': [], 'style': 'vertical'},
 				properties = this.get('properties'),
 				
-				property_groups = this.get('property_groups'),
-				property_group = null,
 				group_nodes = {},
 				group = null,
 				
@@ -198,7 +228,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Initialize properties
 			this._group_toolbar_buttons = [];
 			this._group_nodes = group_nodes;
-			
+			this._has_inline_properties = false;
 			
 			var host_properties = {
 				'doc': host.get('doc'),
@@ -211,10 +241,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				group_node = null,
 				default_group_node = null;
 			
-			//Create default group
-			default_group_node = this.createGroup('default', form_config);
-			
-			//Process properties
+			//Find inline properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
 				if (properties[i].inline) {
 					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
@@ -224,10 +251,20 @@ YUI.add('supra.page-content-properties', function (Y) {
 						host_properties.contentBox = host_properties.srcNode;
 						host_properties.boundingBox = host_properties.srcNode;
 						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
+						
+						this._has_inline_properties = true;
 					} else {
 						//If there is no inline node, fail silently
 					}
-				} else {
+				}
+			}
+			
+			//Create default group (must be called only after inline properties are checked)
+			default_group_node = this.createGroup('default', form_config);
+			
+			//Process non-inline properties
+			for(var i=0, ii=properties.length; i<ii; i++) {
+				if (!properties[i].inline) {
 					//Grouping
 					group = properties[i].group || 'default';
 					group_node = group_nodes[group];
@@ -727,6 +764,30 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/**
+		 * Returns true if there are top groups, otherwise false
+		 * 
+		 * @return True if there are top groups
+		 * @type {Boolean}
+		 */
+		hasTopGroups: function () {
+			if (this._has_top_groups === true || this._has_top_groups === false) return this._has_top_groups;
+			
+			var groups = this.get('property_groups'),
+				i = 0,
+				ii = groups.length;
+			
+			for (; i<ii; i++) {
+				if (groups[i].type === 'top') {
+					this._has_top_groups = true;
+					return true;
+				}
+			}
+			
+			this._has_top_groups = false;
+			return false;
+		},
+		
+		/**
 		 * Returns group content node
 		 * 
 		 * @param {String} group_id Group ID
@@ -750,12 +811,21 @@ YUI.add('supra.page-content-properties', function (Y) {
 					group = this.getGroupDefinition(definition);
 				
 				if (!group) {
-					definition = {
-						'id': definition,
-						'type': definition === 'default' ? 'top' : 'sidebar',
-						'icon': null,
-						'label': definition
-					};
+					if (definition === 'default') {
+						definition = {
+							'id': definition,
+							'type': 'top',
+							'icon': '/cms/lib/supra/img/htmleditor/icon-settings.png',
+							'label': Supra.Intl.get(['htmleditor', 'settings'])
+						};
+					} else {
+						definition = {
+							'id': definition,
+							'type': 'sidebar',
+							'icon': null,
+							'label': definition
+						};
+					}
 					
 					groups.push(definition);
 				} else {
@@ -776,21 +846,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 					//Create as node in main slide
 					node = Y.Node.create('<div class="' + (definition.id !== 'default' ? 'hidden' : '') + '"></div>').appendTo(slide_main);
 					
-					if (definition.id !== 'default') {
+					//For default group create button only if there are other groups and
+					//HTMLEditor toolbar is not visible (it already has a button)
+					if (definition.id !== 'default' || (this.hasTopGroups() && !this.hasInlineInputs())) {
 						//Create toolbar button
-						var toolbar = Manager.getAction('PageToolbar'),
-							button_id = this.get('host').getId() + '_' + definition.id.replace(/[^a-z0-9\-\_]/ig, ''),
-							toolbar_group_id = this.get('toolbarGroupId') || toolbar.active_group;
+						var button_id = this.get('host').getId() + '_' + definition.id.replace(/[^a-z0-9\-\_]/ig, '');
 						
-						toolbar.addActionButtons(toolbar_group_id, [{
-							'id': button_id,
-							'type': 'button',
-							'title': definition.label,
-							'icon': definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
-							'action': this,
-							'actionFunction': 'toolbarButtonClickOpenGroup',
-							'propertyGroup': definition.id // For use in toolbarButtonClickOpenGroup
-						}]);
+						this.createGroupButton(button_id, definition);
 					}
 					
 					this._group_toolbar_buttons.push(button_id);
@@ -825,6 +887,51 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/**
+		 * Create group button in HTMLEditor toolbar or PageToolbar
+		 */
+		createGroupButton: function (button_id, definition) {
+			var command = null,
+				toolbar = null,
+				toolbar_group_id = this.get('toolbarGroupId');
+			
+			if (toolbar_group_id == 'EditorToolbar') {
+				command = definition.id + '_' + String((+new Date()) + Math.random());
+				
+				toolbar = Manager.getAction('EditorToolbar').getToolbar();
+				toolbar.addButton("main", {
+					"id": button_id,
+					"type": "button",
+					"buttonType": "button",
+					"icon": definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
+					"title": definition.label,
+					"command": command
+				}, {
+					"first": true,
+					"last": true
+				});
+				
+				toolbar.on('command', function (event) {
+					if (event.command === command) {
+						this.toolbarButtonClickOpenGroup(button_id, {'propertyGroup': definition.id});
+					}
+				}, this);
+				
+			} else {
+				toolbar = Manager.getAction('PageToolbar');
+				toolbar.addActionButtons(toolbar_group_id, [{
+					'id': button_id,
+					'type': 'button',
+					'title': definition.label,
+					'icon': definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
+					'action': this,
+					'actionFunction': 'toolbarButtonClickOpenGroup',
+					'propertyGroup': definition.id // For use in toolbarButtonClickOpenGroup
+				}]);
+				
+			}
+		},
+		
+		/**
 		 * On toolbar button click open property form and show inputs for
 		 * that group only
 		 */
@@ -852,15 +959,26 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		showGroupToolbarButtons: function () {
-			var toolbar = Manager.getAction('PageToolbar'),
+			var toolbar = null,
 				buttons = this._group_toolbar_buttons,
 				button = null,
 				i = 0,
 				ii = buttons.length;
 			
-			for (; i<ii; i++) {
-				button = toolbar.getActionButton(buttons[i]);
-				if (button) button.show();
+			if (this.get('toolbarGroupId') == 'EditorToolbar') {
+				toolbar = Manager.getAction('EditorToolbar').getToolbar();
+				
+				for (; i<ii; i++) {
+					button = toolbar.getButton(buttons[i]);
+					if (button) button.show();
+				}
+			} else {
+				toolbar = Manager.getAction('PageToolbar');
+				
+				for (; i<ii; i++) {
+					button = toolbar.getActionButton(buttons[i]);
+					if (button) button.show();
+				}
 			}
 		},
 		
@@ -870,16 +988,80 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		hideGroupToolbarButtons: function () {
-			var toolbar = Manager.getAction('PageToolbar'),
+			var toolbar = null,
 				buttons = this._group_toolbar_buttons,
 				button = null,
 				i = 0,
 				ii = buttons.length;
 			
-			for (; i<ii; i++) {
-				button = toolbar.getActionButton(buttons[i]);
-				if (button) button.hide();
+			if (this.get('toolbarGroupId') == 'EditorToolbar') {
+				toolbar = Manager.getAction('EditorToolbar').getToolbar();
+				
+				for (; i<ii; i++) {
+					button = toolbar.getButton(buttons[i]);
+					if (button) button.hide();
+				}
+			} else {
+				toolbar = Manager.getAction('PageToolbar');
+				
+				for (; i<ii; i++) {
+					button = toolbar.getActionButton(buttons[i]);
+					if (button) button.hide();
+				}
 			}
+		},
+		
+		/**
+		 * Show block toolbar
+		 * 
+		 * @private
+		 */
+		showGroupToolbar: function () {
+			Manager.PageToolbar.setActiveAction('BlockToolbar');
+			Manager.PageButtons.setActiveAction('BlockToolbar');
+		},
+		
+		/**
+		 * Hide block toolbar
+		 * 
+		 * @private
+		 */
+		hideGroupToolbar: function () {
+			Manager.PageToolbar.unsetActiveAction('BlockToolbar');
+			Manager.PageButtons.unsetActiveAction('BlockToolbar');
+		},
+		
+		/**
+		 * Create block toolbar
+		 * 
+		 * @private
+		 */
+		createGroupToolbar: function () {
+			var NAME = 'BlockToolbar';
+			
+			if (!Manager.PageToolbar.hasActionButtons(NAME)) {
+				Manager.PageToolbar.addActionButtons(NAME, []);
+				Manager.PageButtons.addActionButtons(NAME, [{
+					'id': 'done',
+					'callback': Y.bind(function () {
+						var active_content = Manager.PageContent.getContent().get('activeChild');
+						if (active_content) {
+							active_content.fire('block:save');
+							return;
+						}
+					}, this)
+				}]);
+			}
+		},
+		
+		/**
+		 * Returns true if there are inline inputs, otherwise false
+		 * 
+		 * @return True if there are inline inputs
+		 * @type {Boolean}
+		 */
+		hasInlineInputs: function () {
+			return this._has_inline_properties;
 		},
 		
 		
@@ -937,6 +1119,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			data.properties = properties;
 			return data;
+		},
+		
+		/**
+		 * Toolbar group ID attribute getter
+		 * 
+		 * @return 
+		 */
+		_getToolbarGroupId: function (value) {
+			if (!value) {
+				if (this.hasInlineInputs()) {
+					value = 'EditorToolbar';
+				} else {
+					value = 'BlockToolbar';
+				}
+			}
+			
+			return value;
 		}
 		
 	});

@@ -12,8 +12,8 @@ use Supra\Controller\Pages\BlockPropertyGroupCollection;
  */
 class BlockPropertyGroupConfiguration implements ConfigurationInterface
 {
-	const TYPE_TOP = 'top',
-	TYPE_SIDEBAR = 'sidebar';
+	const TYPE_TOP = 'top';
+	const TYPE_SIDEBAR = 'sidebar';
 
 	/**
 	 * @var string
@@ -23,7 +23,7 @@ class BlockPropertyGroupConfiguration implements ConfigurationInterface
 	/**
 	 * @var string
 	 */
-	public $type;
+	public $type = self::TYPE_SIDEBAR;
 
 	/**
 	 * @var string
@@ -39,27 +39,22 @@ class BlockPropertyGroupConfiguration implements ConfigurationInterface
 	{
 		$this->id = strtr(trim($this->id), array(' ' => '_', '\\' => '_', '/' => '_'));
 		
-		if(empty($this->id)) {
+		if (empty($this->id)) {
 			\Log::warn('Property group has empty id. Skipping group. ', $this);
 			return;
 		}
 		
 		$this->label = trim($this->label);
-		if(empty($this->label)) {
+		if (empty($this->label)) {
 			\Log::warn('Property group has empty label. Skipping group. ', $this);
 			return;
 		}
 		
 		$type = mb_strtolower(trim($this->type));
 		
-		switch ($type) {
-			case self::TYPE_TOP:
-			case self::TYPE_SIDEBAR:
-				break;
-			default:
-				\Log::warn('Property group type is not "top" or "sidebar", will use default type "sidebar". ', $this);
-				$this->type = self::TYPE_SIDEBAR;
-				break;
+		if ($type != self::TYPE_TOP && $type != self::TYPE_SIDEBAR) {
+			\Log::warn('Property group type is not "top" or "sidebar", will use default type "sidebar". ', $this);
+			$this->type = self::TYPE_SIDEBAR;
 		}
 		
 		return $this;

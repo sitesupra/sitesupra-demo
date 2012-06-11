@@ -23,17 +23,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 	Y.extend(ContentGallery, PageContent.Editable, {
 		
 		/**
-		 * Inputs which will be visible on design selection
-		 */
-		INPUTS_DESIGN: ['design'],
-		
-		/**
-		 * Inputs which will be visible on animation selection
-		 */
-		INPUTS_ANIMATION: ['animation'],
-		
-		
-		/**
 		 * Data drag and drop object, PluginDropTarget instance
 		 * @type {Object}
 		 */
@@ -43,11 +32,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * Gallery manage/add buttons
 		*/
 		buttons: {},
-		
-		/**
-		 * Selected group
-		 */
-		group: null,
 		
 		
 		renderUISettings: function () {
@@ -64,13 +48,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 						'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
 						'action': this,
 						'actionFunction': 'openGalleryManager'
-					}, {
-						'id': 'gallery_block_settings',
-						'type': 'button',
-						'title': Supra.Intl.get(['gallerymanager', 'settings']),
-						'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
-						'action': this,
-						'actionFunction': 'openSettings'
 					}
 				]);
 				

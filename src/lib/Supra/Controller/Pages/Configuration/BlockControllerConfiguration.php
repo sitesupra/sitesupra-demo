@@ -113,29 +113,27 @@ class BlockControllerConfiguration extends ComponentConfiguration
 
 	protected function processPropertyGroups()
 	{
-		if (is_array($this->propertyGroups) && ! empty($this->propertyGroups)) {
-			$propertyGroups = array();
+		$propertyGroups = array();
 
-			foreach ($this->propertyGroups as $group) {
-				/* @var $group BlockPropertyGroupConfiguration */
-				if ($group instanceof BlockPropertyGroupConfiguration) {
+		foreach ($this->propertyGroups as $group) {
+			/* @var $group BlockPropertyGroupConfiguration */
+			if ($group instanceof BlockPropertyGroupConfiguration) {
 
-					if (isset($propertyGroups[$group->id])) {
-						\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
-						continue;
-					}
-					if ( ! empty($group->icon)) {
-						$group->icon = $this->getIconWebPath($group->icon);
-					}
-
-					$propertyGroups[$group->id] = $group;
-				} else {
-					\Log::warn('Group should be instance of BlockPropertyGroupConfiguration ', $group);
+				if (isset($propertyGroups[$group->id])) {
+					\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
+					continue;
 				}
-			}
+				if ( ! empty($group->icon)) {
+					$group->icon = $this->getIconWebPath($group->icon);
+				}
 
-			$this->propertyGroups = array_values($propertyGroups);
+				$propertyGroups[$group->id] = $group;
+			} else {
+				\Log::warn('Group should be instance of BlockPropertyGroupConfiguration ', $group);
+			}
 		}
+
+		$this->propertyGroups = array_values($propertyGroups);
 	}
 
 	protected function processProperties()

@@ -159,7 +159,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				'requestTotalRecords': this.get('data').children_count,
 				
 				'dataColumns': [
-					{'id': 'id'}, {'id': 'master_id'}, {'id': 'icon'}, {'id': 'preview'}, {'id': 'template'}, {'id': 'global'}, {'id': 'localized'}, {'id': 'localization_count'}, {'id': 'full_path'}, {'id': 'type'}, {'id': 'unpublished_draft'}, {'id': 'published'}, {'id': 'path'}, {'id': 'basePath'}, {'id': 'localizations'}
+					{'id': 'id'}, {'id': 'master_id'}, {'id': 'icon'}, {'id': 'preview'}, {'id': 'template'}, {'id': 'global'}, {'id': 'localized'}, {'id': 'active'}, {'id': 'localization_count'}, {'id': 'full_path'}, {'id': 'type'}, {'id': 'scheduled'}, {'id': 'unpublished_draft'}, {'id': 'published'}, {'id': 'path'}, {'id': 'basePath'}, {'id': 'localizations'}
 				],
 				'columns': [
 					{
@@ -176,6 +176,20 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 						'id': 'title',
 						'title': 'Title',
 						'formatter': 'ellipsis'
+					},
+					{
+						'id': 'status',
+						'title': '',
+						'formatter': function (col_id, value, data) {
+							if (!data.localized) {
+								return '<div class="status-icon"><div class="status-not-localized">' + Supra.Intl.get(['sitemap', 'status_not_created']) + '</div></div>';
+							} else if (data.type == 'page' && data.scheduled) {
+								return '<div class="status-icon"><div class="status-scheduled">' + Supra.Intl.get(['sitemap', 'status_scheduled']) + '</div></div>';
+							} else if (data.type == 'page' && !data.published) {
+								return '<div class="status-icon"><div class="status-draft">' + Supra.Intl.get(['sitemap', 'status_draft']) + '</div></div>';
+							}
+							return '';
+						}
 					}
 				]
 			});

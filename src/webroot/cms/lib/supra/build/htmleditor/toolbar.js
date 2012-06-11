@@ -137,11 +137,12 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 			if (!data || !group_id) return;
 			if (typeof group_id == 'string' && !(group_id in this.groupNodes)) return;
 			
-			var cont = typeof group_id == 'string' ? this.groupNodes(group_id) : group_id,
+			var cont = typeof group_id == 'string' ? this.groupNodes[group_id].one('div') : group_id,
 				label,
 				title,
 				node,
 				node_source,
+				node_previous,
 				first = options && 'first' in options ? options.first : true,
 				last = options && 'last' in options ? options.last : true;
 			
@@ -158,7 +159,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					break;
 				case 'button':
 				default:
-					title = Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
+					title = data.title || Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
 					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group"});
 					node.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 					node.render(cont);
