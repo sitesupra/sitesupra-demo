@@ -6,7 +6,6 @@ use Supra\Validator\Type\AbstractType;
 use Supra\Cms\Exception\CmsException;
 use Supra\Cms\Dashboard\DasboardAbstractAction;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
-use Supra\Cms\ContentManager\ApplicationConfiguration;
 
 class ApplicationsAction extends DasboardAbstractAction
 {
@@ -197,7 +196,7 @@ class ApplicationsAction extends DasboardAbstractAction
 	 * @param type $applicationConfiguration
 	 * @return integer
 	 */
-	private function applicationIsVisible($user, ApplicationConfiguration $appConfig)
+	private function applicationIsVisible($user, $appConfig)
 	{
 		if ($appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
 			return $appConfig->authorizationAccessPolicy->isApplicationAdminAccessGranted($user);
