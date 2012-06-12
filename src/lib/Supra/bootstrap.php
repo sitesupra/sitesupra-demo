@@ -97,5 +97,5 @@ try {
 } catch (\Exception $e) {
 	\Log::fatal("Application configuration load failed: " . (string) $e);
 	header('Content-Type: text/plain');
-	die(SUPRA_ERROR_MESSAGE);
+	die(SUPRA_ERROR_MESSAGE . PHP_EOL);
 }
