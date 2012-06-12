@@ -460,18 +460,18 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		checkAreImagesShared: function()
 		{
 			if (this.properties.isPropertyShared('images')) {
-				if (this.buttonsContainer) {
-					this.buttonsContainer.hide();
+				if (this.buttons.addButton) {
+					this.buttons.addButton.hide();
 				}
 				
-				var notice = Y.Node.create('<p class="description"></p>'),
-					template = SU.Intl.get(['form', 'shared_gallery_notice']),
-					info = this.properties.getSharedPropertyInfo('images');
-				
-				template = Supra.Template.compile(template);
-				notice.append(template(info));
-				
-				this.properties.get('buttonDelete').get('boundingBox').insert(notice, 'before');
+//				var notice = Y.Node.create('<p class="description"></p>'),
+//					template = SU.Intl.get(['form', 'shared_gallery_notice']),
+//					info = this.properties.getSharedPropertyInfo('images');
+//				
+//				template = Supra.Template.compile(template);
+//				notice.append(template(info));
+//				
+//				this.properties.get('buttonDelete').get('boundingBox').insert(notice, 'before');
 			}
 		}
 	});
