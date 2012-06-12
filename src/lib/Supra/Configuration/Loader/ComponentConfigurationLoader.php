@@ -95,6 +95,17 @@ class ComponentConfigurationLoader
 	}
 
 	/**
+	 * Reset on clone
+	 */
+	public function __clone()
+	{
+		$this->configurationFile = null;
+		$this->itemNumber = -1;
+		$this->level = 0;
+		$this->uses = array();
+	}
+
+	/**
 	 * @return ParserInterface
 	 */
 	public function getParser()

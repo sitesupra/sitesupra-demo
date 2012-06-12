@@ -26,6 +26,8 @@ class IncludeLoaderConfiguration extends IncludeConfiguration
 	 */
 	protected function parseFile($file)
 	{
-		$this->loader->loadFile($file);
+		// TODO: the classname might be configurable
+		$loader = clone($this->loader);
+		$loader->loadFile($file);
 	}
 }
