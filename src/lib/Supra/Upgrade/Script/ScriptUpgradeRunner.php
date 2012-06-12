@@ -73,12 +73,26 @@ class ScriptUpgradeRunner extends UpgradeRunnerAbstraction
 			$upgradeScript = $file->getUpgradeScriptInstance();
 			
 			$this->getOutput()->writeln('Running upgrade script "' . $file->getShortPath() .'".');
+			$markAsExecuted = false;
+			$upgradeOutput = null;
 
-			$upgradeOutput = $upgradeScript->upgrade();
-			
-			$this->getOutput()->writeln('Done running upgrade script "' . $file->getShortPath() . '".');
-
-			$markAsExecuted = $upgradeScript->markAsExecuted();
+			try {
+				$upgradeOutput = $upgradeScript->upgrade();
+				$this->getOutput()->writeln('Done running upgrade script "' . $file->getShortPath() . '".');
+				$markAsExecuted = $upgradeScript->markAsExecuted();
+			} catch (\Exception $upgradeFailure) {
+				if ( ! $upgradeScript instanceof SkippableOnError) {
+					throw $upgradeFailure;
+				}
+				
+				$output = $this->getOutput();
+				
+				$output->writeln("<info>Exception was raised while doing the upgrade '{$file->getShortPath()}'. Will try repeating next time.</info>");
+				$output->writeln('<error>' . $upgradeFailure->getMessage() . '</error>');
+				\Log::warn("Exception was raised while doing the upgrade '{$file->getShortPath()}'. Will try repeating next time. Exception: " . (string) $upgradeFailure);
+				
+				$markAsExecuted = false;
+			}
 			
 			if($markAsExecuted) {
 				
