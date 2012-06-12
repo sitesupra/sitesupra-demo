@@ -51,11 +51,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 		inline_inputs_count: 0,
 		
 		/**
-		 * Active inline input
-		 */
-		active_inline_input: null,
-		
-		/**
 		 * Inline HTML inputs
 		 * @type {Object}
 		 * @private
@@ -544,7 +539,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		beforeDestroy: function () {
 			delete(this.inline_inputs);
-			delete(this.active_inline_input);
 			delete(this.html_inputs);
 			
 			ContentEditable.superclass.beforeDestroy.apply(this, arguments);
