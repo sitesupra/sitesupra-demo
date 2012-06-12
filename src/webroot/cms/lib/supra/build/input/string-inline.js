@@ -13,7 +13,8 @@ YUI.add("supra.input-inline-string", function (Y) {
         '"': '&quot;',
         "'": '&#x27;',
         '/': '&#x2F;',
-        '`': '&#x60;'
+        '`': '&#x60;',
+        ' ': '&nbsp;'
     }
 	
 	var HTML_CHARS_INVERSE = {};

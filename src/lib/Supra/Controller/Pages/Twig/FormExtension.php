@@ -204,7 +204,11 @@ class FormExtension
 
 	public function row(FormView $view, array $options = array(), array $attributes = array())
 	{
-		return __METHOD__;
+		$labelTag = $this->label($view, $options, $attributes);
+		$fieldTag = $this->field($view, $options, $attributes);
+//		$errorTag = $this->error($view, $options, $attributes);
+		
+		return new \Twig_Markup($labelTag->__toString() . $fieldTag->__toString());
 	}
 
 	public function submit(array $options = array(), array $attributes = array())

@@ -9,6 +9,7 @@
 			"done": "Done",
 			"back": "Back",
 			"close": "Close",
+			"restore": "Restore",
 			"save": "Save",
 			"cancel": "Cancel",
 			"delete": "Delete",
@@ -43,6 +44,10 @@
 			"shared_gallery_notice": "The image list cannot be edited here. It can be edited in the page {{ localeTitle }} localization."
 		},
 		
+		"datagrid": {
+			"please_wait": "Please wait"
+		},
+		
 		"page": {
 			"edit": "Edit page",
 			"publish": "Publish",
@@ -61,7 +66,7 @@
 			"click_to_edit": "Click to edit",
 			"click_to_edit_drag_to_move": "Click to edit<br />Drag &amp; drop to move",
 			
-			"locked_message": "Page was locked by {{ username }} on {{ datetime }}",
+			"locked_message": "Page was locked by {{ username|escape }} on {{ datetime|escape }}",
 			"unlock": "Unlock",
 			
 			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language. Copy from the current language?",
@@ -75,7 +80,7 @@
 		
 		"template": {
 			"edit": "Edit template",
-			"locked_message": "Template was locked by {{ username }} on {{ datetime }}",
+			"locked_message": "Template was locked by {{ username|escape }} on {{ datetime|escape }}",
 			"unlock": "Unlock",
 			"error": {
 				"layout_not_found": "Layout file not found",
@@ -277,9 +282,10 @@
 			"select_language": "Select language",
 			"select_template": "Select template",
 			
-			"status_not_created": "NOT-CREATED",
+			"status_not_created": "NOT-translated",
 			"status_draft": "DRAFT",
-			"status_not_published": "NOT-PUBLISHED",
+			"status_not_published": "NOT-published",
+			"status_scheduled": "SCHEDULED",
 			
 			"new_page": "New page",
 			"new_template": "New template",
@@ -387,7 +393,6 @@
 			"manage": "Manage",
 			"design": "Design",
 			"animation": "Animation",
-			"settings": "Settings",
 			
 			"click_here": "Click here to enter {label}",
 			"drop_replace": "Drop here to replace image"

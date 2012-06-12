@@ -12,8 +12,31 @@
 	}
 	
 	.su-datagrid-spacer {
-		width: 100%;
+		.border-radius (5px);
+		border: 2px dashed #4B4C5C;
+		margin: 0 0 20px;
+		display: none;
 		clear: both;
+		
+		div {
+			.border-radius (5px);
+			border: 2px dashed #2D2C38;
+			position: relative;
+			top: -1px;
+			margin: -2px;
+		}
+		p {
+			color: #1E1B27;
+			font-size: 14px;
+			font-style: italic;
+			font-weight: bold;
+			line-height: 50px;
+			text-align: center;
+			text-shadow: 0 1px 0 #5A566B;
+		}
+	}
+	&.su-datagrid-loading .su-datagrid-spacer {
+		display: block;
 	}
 	
 	.align-left {

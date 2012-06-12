@@ -156,9 +156,13 @@ function (Y) {
 				'root': Manager.Loader.getDynamicPath() + Manager.Loader.getActionBasePath(this.NAME)
 			});
 			
+			//Overwrite routing save to make sure paths are not written twice
 			this.router.save = function (path) {
-				//Overwrite routing save to make sure paths are not written twice
-				if (this.getPath() != path) {
+				//Get route path without trailing slash
+				var router_path = this.getPath();
+				if (router_path.substr(-1, 1) == '/') router_path = router_path.substr(0, router_path.length - 1);
+				
+				if (router_path != path) {
 					return Y.Router.prototype.save.apply(this, arguments);
 				}
 			};
@@ -228,6 +232,19 @@ function (Y) {
 			}
 		},
 		
+		/**
+		 * Returns route path without trailins slash
+		 */
+		getRoutePath: function () {
+			var path = this.router.getPath();
+			
+			//Trim trailing slash
+			if (path.substr(-1, 1) == '/') {
+				path = path.substr(0, path.length-1);
+			}
+			
+			return path;
+		},
 		
 		
 		
@@ -252,7 +269,7 @@ function (Y) {
 			//Load page after execute
 			this.on('render', function () {
 				//Search in path "/r/page/:page_id"
-				var page_id = this.router.getPath().match(this.ROUTE_PAGE_R);
+				var page_id = this.getRoutePath().match(this.ROUTE_PAGE_R);
 				if (page_id) {
 					//Extracted from path
 					page_id = {'id': page_id[1]};
@@ -263,9 +280,11 @@ function (Y) {
 				}
 				
 				//If there is no page ID or /h/sitemap is in path, then open SiteMap
-				if (!page_id || this.router.getPath() == this.ROUTE_SITEMAP || this.router.getPath() == this.ROUTE_TEMPLATES) {
+				var router_path = this.getRoutePath();
+				
+				if (!page_id || router_path == this.ROUTE_SITEMAP || router_path == this.ROUTE_TEMPLATES) {
 					var mode = 'pages';
-					if (this.router.getPath() == this.ROUTE_TEMPLATES) {
+					if (router_path == this.ROUTE_TEMPLATES) {
 						mode = 'templates';
 					}
 					

@@ -18,6 +18,11 @@ class GalleryBlockController extends BlockController
 	 * @var BlockPropertyMetadata
 	 */
 	protected $metadata;
+	
+	/**
+	 * @var BlockPropertyConfiguration
+	 */
+	protected $propertyConfiguration;
 		
 
 	public function getProperty($name)
@@ -101,69 +106,27 @@ class GalleryBlockController extends BlockController
 		// original gallery controller
 		$controller = $controllerCollection->getBlockController($block->getComponentClass());
 		$this->configuration = $controller->getConfiguration();
+		
+		$parentProperty = $this->metadata->getBlockProperty();
+		$this->propertyConfiguration = $this->configuration->getProperty($parentProperty->getName());
+		
 		$this->request = $controller->getRequest();
 		
 	}
 	
-	protected function configureContentFilters(Entity\BlockProperty $property, EditableInterface $editable)
-	{
-		$propertyId = $property->getId();
-
-		if (array_key_exists($propertyId, $this->configuredBlockProperties)) {
-			return;
-		}
-
-		// Html content additional filters
-		if ($editable instanceof Editable\Html) {
-			// Editable action
-			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-				$filter = new Filter\EditableHtml();
-				$filter->property = $property;
-				$editable->addFilter($filter);
-				// View
-			} else {
-				$filter = new Filter\ParsedHtmlFilter();
-				ObjectRepository::setCallerParent($filter, $this);
-				$filter->property = $property;
-				$editable->addFilter($filter);
-			}
-		}
-
-		if ($editable instanceof Editable\Link) {
-			$filter = new Filter\LinkFilter();
-			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
-
-		if ($editable instanceof Editable\InlineString) {
-			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-				$filter = new Filter\EditableString();
-				ObjectRepository::setCallerParent($filter, $this);
-				$filter->property = $property;
-				$editable->addFilter($filter);
-			}
-		}
-
-		if ($editable instanceof Editable\Textarea) {
-			$filter = new Filter\EditableTextarea();
-			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
-
-		if ($editable instanceof Editable\Gallery) {
-			$filter = new Filter\GalleryFilter();
-			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
-
-		$this->configuredBlockProperties[$propertyId] = true;
-	}
-	
+	/**
+	 * @param type $request
+	 */
 	public function setRequest($request)
 	{
 		$this->request = $request;
+	}
+	
+	/**
+	 * @return BlockPropertyConfiguration
+	 */
+	public function getConfiguration()
+	{
+		return $this->propertyConfiguration;
 	}
 }

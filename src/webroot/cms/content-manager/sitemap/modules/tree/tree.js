@@ -378,6 +378,9 @@ YUI().add('website.sitemap-tree', function (Y) {
 						if (!('isDropTarget' in data) || data.isDropTarget) {
 							node.set('droppable', true);
 						}
+						if ('droppablePlaces' in data) {
+							node.set('droppablePlaces', data.droppablePlaces);
+						}
 					}
 					if (pages[id].supervise_page) {
 						node.set('publishable', true);
@@ -431,6 +434,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				
 				'draggable': editable && (!('isDraggable' in data) || data.isDraggable),
 				'droppable': editable,
+				'droppablePlaces': data.droppablePlaces,
 				
 				'expandable': (data.children_count || (data.children && data.children.length)),
 				'selectable': editable && data.type != 'temporary' && data.type != 'group',

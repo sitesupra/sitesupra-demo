@@ -442,8 +442,17 @@ abstract class PageManagerAction extends CmsAction
 			'localized' => $localizationExists,
 			'editable' => $localizationExists,
 			'isDraggable' => $localizationExists,
-			'isDropTarget' => $localizationExists,
+			'isDropTarget' => true,
 		);
+		
+		// Allow dropping before/after not created localizations
+		if ( ! $localizationExists) {
+			$array['droppablePlaces'] = array(
+				'before' => true,
+				'after' => true,
+				'inside' => false,
+			);
+		}
 
 		// Template ID
 		if ($data instanceof Entity\PageLocalization) {
@@ -490,6 +499,11 @@ abstract class PageManagerAction extends CmsAction
 			$array['new_children_first'] = $conf->newChildrenFirst;
 			$array['isDraggable'] = $conf->isDraggable;
 			$array['isDropTarget'] = $conf->isDropTarget;
+			
+			// empty news application contain virtual children
+			if ( ! isset($array['children_count'])) {
+				$array['children_count'] = 1;
+			}
 		}
 		$array['type'] = $type;
 

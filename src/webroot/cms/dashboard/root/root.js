@@ -59,6 +59,9 @@ Supra(function (Y) {
 			
 			Manager.loadActions(['Applications']);
 			
+			//Since this is dashboard app we don't need animation
+			Manager.getAction('Applications').set('animation', false);
+			
 			Manager.getAction('Applications').after('execute', function () {
 				//Hide loading icon
 				Y.one('body').removeClass('loading');

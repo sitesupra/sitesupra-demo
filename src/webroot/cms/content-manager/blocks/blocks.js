@@ -80,6 +80,16 @@ Supra(function (Y) {
 						for(var i=0,ii=data.blocks.length; i<ii; i++) {
 							var block = data.blocks[i];
 							this.data[block.id] = block;
+							
+							//When user will be editing template, then will need possibility to lock blocks;
+							//add 'locked' property to property list;
+							//input will be hidden and disabled if current page is not template (see plugin-properties.js)
+							block.properties = block.properties || [];
+							block.properties.push({
+								'id': '__locked__',
+								'type': 'Checkbox',
+								'label': 'Global block'
+							});
 						}
 						
 						if (Y.Lang.isFunction(this.callback)) {
@@ -131,17 +141,23 @@ Supra(function (Y) {
 		getBlock: function (id) {
 			var data = (id in this.data ? this.data[id] : null);
 			
-			//When user will be editing template, then will need possibility to lock blocks;
-			//add 'locked' property to property list;
-			//input will be hidden and disabled if current page is not template (see plugin-properties.js)
-			data = data || {'classname': '', 'type': id, 'properties': [], 'title': ''};
-			data.properties = data.properties || [];
-			
-			data.properties.push({
-				'id': '__locked__',
-				'type': 'Checkbox',
-				'label': 'Global block'
-			});
+			if (!data) {
+				data = {
+					'classname': '',
+					'type': id,
+					'properties': [
+						//When user will be editing template, then will need possibility to lock blocks;
+						//add 'locked' property to property list;
+						//input will be hidden and disabled if current page is not template (see plugin-properties.js)
+						{
+							'id': '__locked__',
+							'type': 'Checkbox',
+							'label': 'Global block'
+						}
+					],
+					'title': ''
+				};
+			}
 			
 			return data;
 		},

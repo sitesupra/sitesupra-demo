@@ -51,11 +51,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 		inline_inputs_count: 0,
 		
 		/**
-		 * Active inline input
-		 */
-		active_inline_input: null,
-		
-		/**
 		 * Inline HTML inputs
 		 * @type {Object}
 		 * @private
@@ -250,6 +245,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 						toolbar.getButton('settings').set('down', false);
 					}
 				}, this);
+				
+			} else if (this.properties.hasTopGroups()) {
+				
+				// No need to do anything
 				
 			} else {
 				
@@ -500,21 +499,25 @@ YUI.add('supra.page-content-editable', function (Y) {
 			}
 		},
 		
-		_triggerjQueryEvent: function (event_name, node) {
+		_triggerjQueryEvent: function (event_name, node, data) {
 			//Call cleanup before proceeding
 			var win = this.get('win'),
 				jQuery = win.jQuery;
 			
 			if (jQuery && jQuery.refresh) {
 				var fn = event_name,
-					jquery_element = jQuery(node);
+					jquery_element = jQuery(node),
+					args = [jquery_element];
 				
 				if (event_name == 'refresh') {
 					fn = 'init';
+				} else if (event_name == 'update') {
+					fn = 'trigger';
+					args = [event_name, jquery_element, data];
 				}
 				
 				if (jQuery.refresh[fn]) {
-					jQuery.refresh[fn](jquery_element);
+					return jQuery.refresh[fn].apply(jQuery.refresh, args);
 				}
 			}
 		},
@@ -536,7 +539,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		beforeDestroy: function () {
 			delete(this.inline_inputs);
-			delete(this.active_inline_input);
 			delete(this.html_inputs);
 			
 			ContentEditable.superclass.beforeDestroy.apply(this, arguments);

@@ -1,5 +1,19 @@
 @import "/cms/lib/supra/less/common.less";
 
+.yui3-page-history .sidebar-content {
+	.loading-icon {
+		display: none;
+	}
+	&.loading {
+		.loading-icon {
+			display: block;
+		}
+		.timeline {
+			display: none;
+		}
+	}
+}
+
 .timeline {
 	position: relative;
 	margin: 15px 0 15px 20px;

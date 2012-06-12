@@ -92,12 +92,15 @@ YUI.add('supra.page-content-list', function (Y) {
 				'closed': false,
 				'locked': false,
 				'type': data.type,
-				'data': data,
+				'properties': data.properties,
 				'value': data.html
 			}, {
 				'draggable': !this.isClosed(),
 				'editable': true
 			});
+			
+			//Disable highlight, we will be editing this block
+			this.get('super').set('highlight', false);
 			
 			//When new item is created focus on it
 			this.get('super').set('activeChild', block);

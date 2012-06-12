@@ -9,6 +9,18 @@ use Symfony\Component\Form;
 class FormBlock extends FormBlockController
 {
 
+	public static function getPropertyDefinition()
+	{
+		$properties = self::createCustomErrorProperty(
+				'Form field "Name" custom validation', 
+				'name', 
+				'Custom text "{{ custom }}" will be replaced',
+				'custom_error_message'
+		);
+		
+		return $properties;
+	}
+
 	protected function failure()
 	{
 		$response = $this->getResponse();
@@ -47,10 +59,14 @@ class FormBlock extends FormBlockController
 	{
 		$form = $event->getForm();
 		$data = $event->getData();
+		/* @var $data Entity\Form */
 		
-		if($data['name'] == 'fail') {
-			$name = $form->get('name');
-			$name->addError(new Form\FormError('Name can not be "fail"'));
+		if($data->getName() == 'customfail') {
+			$error = new Form\FormError('custom_error_message', array(
+				'{{ custom }}' => 'blah blah blah',
+			));
+			
+			$form->get('name')->addError($error);
 		}
 	}
 }

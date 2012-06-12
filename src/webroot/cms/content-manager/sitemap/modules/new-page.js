@@ -234,6 +234,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 					'application_id': (apps[i].type == 'application' ? apps[i].id : null),
 					'draggable': apps[i].isDraggable,
 					'droppable': apps[i].isDropTarget,
+					'droppablePlaces': apps[i].droppablePlaces,
 					'new_children_first': apps[i].new_children_first,
 					'state': 'temporary',
 					'children': [],

@@ -475,8 +475,41 @@
 	
 	/* Text formatting */
 	.su-datagrid .row-title .ellipsis {
-		max-width: 365px;
+		max-width: 265px;
 	}
+	
+	/* Status icons */
+	.su-datagrid .status-icon {
+			text-align: right;
+			padding: 7px 0 0;
+			
+			div {
+				display: inline-block;
+				height: 20px;
+				padding: 0 7px 0 25px;
+				font-size: 9px;
+				line-height: 20px;
+				background: url(/cms/content-manager/sitemap/images/tree-node-list-page-icons.png) 0 0 no-repeat,
+							url(/cms/content-manager/sitemap/images/tree-node-list-page-icons.png) 100% -40px no-repeat,
+							url(/cms/content-manager/sitemap/images/tree-node-list-page-icons.png) 0 -20px repeat-x;
+			}
+			
+			.status-not-localized {
+				color: #A82828;
+				text-shadow: 0 1px 0 #FEBCA7;
+			}
+			.status-scheduled {
+				color: #72727A;
+				text-shadow: 0 1px 0 rgba(255, 255, 255, 0.53);
+				background-position: 0 -120px, 100% -160px, 0 -140px;
+			}
+			.status-draft {
+				color: #AA6200;
+				text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+				background-position: 0 -60px, 100% -100px, 0 -80px;
+			}
+		}
+		
 	
 	/* Drag and drop */
 	&.expanded-list.marker-inside > .su-tree-node-content .marker {

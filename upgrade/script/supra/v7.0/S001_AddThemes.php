@@ -8,8 +8,9 @@ use Supra\Controller\Pages\Entity\Layout;
 use Supra\Controller\Pages\Entity\Theme;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
+use Supra\Upgrade\Script\SkippableOnError;
 
-class S001_AddThemes extends UpgradeScriptAbstraction
+class S001_AddThemes extends UpgradeScriptAbstraction implements SkippableOnError
 {
 
 	const THEME_NAME_DEFAULT = 'default';
