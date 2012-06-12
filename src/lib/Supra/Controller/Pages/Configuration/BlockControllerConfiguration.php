@@ -82,6 +82,11 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	 * @var array of block property groups
 	 */
 	public $propertyGroups = array();
+	
+	/**
+	 * @var boolean
+	 */
+	public $enableBlockRequest = false;
 
 	/**
 	 * Adds block configuration to block controller collection

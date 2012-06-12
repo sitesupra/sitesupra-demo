@@ -1,0 +1,5 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\AjaxContentBlock\AjaxContentBlock
+    title: AjaxContentBlock
+    groupId: system
+    enableBlockRequest: true

@@ -194,4 +194,4 @@ class ThemeLayout extends Database\Entity
 		return $this->getPlaceholders()->getKeys();
 	}
 
-	}
+}

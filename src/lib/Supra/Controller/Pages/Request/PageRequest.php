@@ -247,6 +247,16 @@ abstract class PageRequest extends HttpRequest
 		return $this->getPageSet()
 						->getRootTemplate();
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getBlockRequestId()
+	{
+		$blockId = $this->getQueryValue('block_id', null);
+		
+		return $blockId;
+	}
 
 	/**
 	 * @return Entity\ThemeLayout
@@ -327,7 +337,7 @@ abstract class PageRequest extends HttpRequest
 
 		return $this->placeHolderSet;
 	}
-
+	
 	/**
 	 * @return Set\BlockSet
 	 */
@@ -377,6 +387,12 @@ abstract class PageRequest extends HttpRequest
 		}
 
 		$qb->where($or);
+		
+		$blockId = $this->getQueryValue('block_id', null);
+		if ( ! is_null($blockId)) {
+			$qb->andWhere('b.id = :blockId')
+					->setParameter('blockId', $blockId);
+		}
 
 		// Execute block query
 		$query = $qb->getQuery();

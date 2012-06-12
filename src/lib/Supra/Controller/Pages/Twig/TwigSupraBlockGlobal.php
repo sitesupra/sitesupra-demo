@@ -22,7 +22,7 @@ class TwigSupraBlockGlobal
 	protected $blockController;
 	
 	/**
-	 * @var BlockController
+	 * @var FormExtension
 	 */
 	protected $form;
 
@@ -136,9 +136,17 @@ class TwigSupraBlockGlobal
 		return $img;
 	}
 	
+	/**
+	 * @return FormExtension
+	 */
 	public function getForm()
 	{
 		return $this->form;
+	}
+	
+	public function getBlock()
+	{
+		return $this->blockController->getBlock();
 	}
 
 }
