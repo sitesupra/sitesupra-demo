@@ -5,6 +5,8 @@ namespace Supra\Cms\Dashboard\Applications;
 use Supra\Validator\Type\AbstractType;
 use Supra\Cms\Exception\CmsException;
 use Supra\Cms\Dashboard\DasboardAbstractAction;
+use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
+use Supra\Cms\ContentManager\ApplicationConfiguration;
 
 class ApplicationsAction extends DasboardAbstractAction
 {
@@ -32,6 +34,11 @@ class ApplicationsAction extends DasboardAbstractAction
 		$defaultUrlBase = '/' . SUPRA_CMS_URL . '/';
 
 		foreach ($appConfigs as $config) {
+			
+			if ( ! $this->applicationIsVisible($this->currentUser, $config)) {
+				continue;
+			}
+			
 			/* @var $config ApplicationConfiguration */
 
 			if (empty($config->urlBase)) {
@@ -89,15 +96,12 @@ class ApplicationsAction extends DasboardAbstractAction
 		$config = \Supra\Cms\CmsApplicationConfiguration::getInstance();
 		$appConfig = $config->getConfiguration($appId);
 
-		if (empty($appConfig)) {
+		if (empty($appConfig) || ! $this->applicationIsVisible($this->currentUser, $appConfig)) {
 			throw new CmsException(null, 'Wrong application id');
 		}
-
+		
 		$input = $this->getRequestInput();
 		$isFavourite = $input->getValid('favourite', AbstractType::BOOLEAN);
-
-		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
-		/* @var $userPreferences Collection */
 
 		$favouriteApps = array();
 		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
@@ -143,7 +147,7 @@ class ApplicationsAction extends DasboardAbstractAction
 			}
 		}
 
-		$this->currentUser->setPreference('favourite_apps', array_values($favouriteApps));
+		$this->userProvider->setUserPreference($this->currentUser, 'favourite_apps',  array_values($favouriteApps));
 	}
 
 	/**
@@ -186,7 +190,21 @@ class ApplicationsAction extends DasboardAbstractAction
 			array_push($favouriteApps, $appId);
 		}
 
-		$this->currentUser->setPreference('favourite_apps', array_values($favouriteApps));
+		$this->userProvider->setUserPreference($this->currentUser, 'favourite_apps',  array_values($favouriteApps));
 	}
 
+	/**
+	 * @param type $applicationConfiguration
+	 * @return integer
+	 */
+	private function applicationIsVisible($user, ApplicationConfiguration $appConfig)
+	{
+		if ($appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
+			return $appConfig->authorizationAccessPolicy->isApplicationAdminAccessGranted($user);
+		}
+		else {
+			return true;
+		}
+	}	
+	
 }

@@ -251,8 +251,9 @@ class InternalUserManagerAbstractAction extends CmsAction
 
 		foreach ($appConfigs as $appConfig) {
 			/* @var $appConfig ApplicationConfiguration  */
-
-			$permissions[$appConfig->id] = $appConfig->authorizationAccessPolicy->getAccessPolicy($user);
+			if ( ! is_null($appConfig->authorizationAccessPolicy)) {
+				$permissions[$appConfig->id] = $appConfig->authorizationAccessPolicy->getAccessPolicy($user);
+			}
 		}
 
 		return $permissions;
