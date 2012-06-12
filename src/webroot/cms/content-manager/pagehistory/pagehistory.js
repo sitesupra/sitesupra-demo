@@ -133,14 +133,6 @@ Supra('anim', function (Y) {
 				if (prev_target) prev_target.removeClass('active');
 				
 				target.addClass('active');
-
-				if (version_id == this.revision_id) {
-					this.current_version = null;
-					restoreButton.hide();
-					return;
-				}
-				
-				
 				target.addClass('loading');
 				
 				this.set('loading', true);
