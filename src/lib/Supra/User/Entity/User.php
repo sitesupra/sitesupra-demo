@@ -77,11 +77,11 @@ class User extends AbstractUser
 	protected $salt;
 	
 	/**
-	 * User settings collection
-	 * @OneToMany(targetEntity="Supra\User\Entity\UserPreference", mappedBy="user", cascade={"all"}, indexBy="name")
-	 * @var Collections\Collection
+	 * User settings collection group
+	 * @OneToOne(targetEntity="Supra\User\Entity\UserPreferencesGroup", cascade={"all"})
+	 * @var UserPreferencesGroup
 	 */
-	protected $preferences;
+	protected $preferencesGroup;
 
 	/**
 	 * Users locale. Semi-synthetic, as setter/getter uses Locale class instances.
@@ -98,7 +98,7 @@ class User extends AbstractUser
 		parent::__construct();
 		$this->resetSalt();
 		
-		$this->preferences = new Collections\ArrayCollection();
+		$this->preferencesGroup = new UserPreferencesGroup();
 	}
 
 	/**
@@ -337,30 +337,27 @@ class User extends AbstractUser
 	}
 	
 	/**
-	 * @param string $name
-	 * @param mixed $value
-	 */
-	public function setPreference($name, $value)
-	{
-		$em = ObjectRepository::getEntityManager($this);
-		
-		if ($this->preferences->offsetExists($name)) {
-			$preference = $this->preferences->offsetGet($name);
-			$preference->setValue($value);
-		} else {
-			$preference = new UserPreference($name, $value, $this);
-			$em->persist($preference);
-		}
-		
-		$this->preferences->set($name, $preference);
-		$em->flush();
-	}
-	
-	/**
 	 * @return Collections\Collection
 	 */
 	public function getPreferencesCollection()
 	{
-		return $this->preferences;
+		return $this->preferencesGroup
+				->getPreferencesCollection();
+	}
+	
+	/**
+	 * @return UserPreferencesGroup
+	 */
+	public function getPreferencesGroup()
+	{
+		return $this->preferencesGroup;
+	}
+	
+	/**
+	 * @param UserPreferencesGroup $group
+	 */
+	public function setPreferencesGroup ($group)
+	{
+		$this->preferencesGroup = $group;
 	}
 }
