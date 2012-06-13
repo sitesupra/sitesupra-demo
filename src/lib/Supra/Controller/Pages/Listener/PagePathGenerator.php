@@ -309,8 +309,10 @@ class PagePathGenerator implements EventSubscriber
 			$pathMetaData = $this->em->getClassMetadata($pathEntity->CN());
 			$localizationMetaData = $this->em->getClassMetadata($pageData->CN());
 
-			if ($this->unitOfWork->getEntityState($pathEntity) === UnitOfWork::STATE_NEW) {
+			if ($this->unitOfWork->getEntityState($pathEntity, UnitOfWork::STATE_NEW) === UnitOfWork::STATE_NEW) {
 				$this->em->persist($pathEntity);
+//			} elseif ($this->unitOfWork->getEntityState($pathEntity) === UnitOfWork::STATE_DETACHED) {
+//				$pathEntity = $this->em->merge($pathEntity);
 			}
 
 			/*

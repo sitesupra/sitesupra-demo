@@ -13,6 +13,7 @@ use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Cms\ContentManager\Pagecontent\PagecontentAction;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 
 class PagehistoryAction extends PageManagerAction
 {
@@ -79,7 +80,8 @@ class PagehistoryAction extends PageManagerAction
 				continue;
 			}
 			
-			$userName = '#' . $userId;
+			// 8 characters is enough if user was not found
+			$userName = '#' . substr($userId, 0 ,8);
 			$user = $userProvider->findUserById($userId);
 			if ($user instanceof User) {
 				$userName = $user->getName();
@@ -215,71 +217,7 @@ class PagehistoryAction extends PageManagerAction
 	 */
 	private function getRevisionedEntityBlockName(PageRevisionData $revision) 
 	{
-		$blockName = null;
-		
-		$entityManager = ObjectRepository::getEntityManager('#audit');
-		
-		$params = array(
-			'id' => $revision->getElementId(),
-			'revision' => $revision->getId(),
-		);
-
-		$entityName = $revision->getElementName();
-		if (in_array($entityName, array(Entity\ReferencedElement\LinkReferencedElement::CN(), Entity\ReferencedElement\ImageReferencedElement::CN()))) {
-			$entity = $entityManager->getRepository(Entity\BlockPropertyMetadata::CN())
-					->findOneBy(array('referencedElement' => $revision->getElementId()));
-			
-			if (is_null($entity)) {
-				return null;
-			}
-			
-			$entityName = Entity\BlockPropertyMetadata::CN();
-		} else {
-			$entity = $entityManager->getRepository($entityName)
-					->findOneBy($params);
-		}
-		
-		if ( ! is_null($entity)) {
-			
-			$block = null;
-			switch($entityName) {
-				case Entity\BlockPropertyMetadata::CN():
-					$entityOriginalData = $entityManager->getUnitOfWork()
-						->getOriginalEntityData($entity);
-					
-					$blockPropertyId = $entityOriginalData['blockProperty_id'];
-					$blockProperty = $entityManager->getRepository(Entity\BlockProperty::CN())
-							->findOneBy(array('id' => $blockPropertyId));
-					
-					if (is_null($blockProperty)) {
-						return null;
-					}
-					
-					$block = $blockProperty->getBlock();
-					
-					break;
-				
-				case Entity\BlockProperty::CN():
-					$block = $entity->getBlock();
-					break;
-				
-				case Entity\PageBlock::CN():
-				case Entity\TemplateBlock::CN():
-					$block = $entity;
-					break;
-			}
-			
-			if ( ! is_null($block)) {
-				$componentClass = $block->getComponentClass();
-				$componentConfiguration = ObjectRepository::getComponentConfiguration($componentClass);
-				
-				if ($componentConfiguration instanceof BlockControllerConfiguration) {
-					$blockName = $componentConfiguration->title;
-				}
-			}
-		}
-		
-		return $blockName;
+		return $revision->getElementTitle();
 	}
 	
 	/**
@@ -298,10 +236,9 @@ class PagehistoryAction extends PageManagerAction
 				->setMaxResults(1)
 				->setParameter('type', PageRevisionData::TYPE_HISTORY)
 				->setParameter('localization', $localizationId);
-				;
 		
 		$lastPublishRevisionId = $qb->getQuery()
-				->getOneOrNullResult(\Doctrine\ORM\AbstractQuery::HYDRATE_SCALAR);
+				->getOneOrNullResult(ColumnHydrator::HYDRATOR_ID);
 
 		$params = array(
 			'skipTypes' => array(
@@ -321,8 +258,6 @@ class PagehistoryAction extends PageManagerAction
 		
 		if ( ! empty($lastPublishRevisionId)) {
 			
-			$lastPublishRevisionId = array_shift($lastPublishRevisionId);
-			
 			$qb->andWhere('(r.id >= :lastPublishId) OR (r.id <= :lastPublishId AND r.type = :type)')
 					->setParameter('lastPublishId', $lastPublishRevisionId)
 					->setParameter('type', PageRevisionData::TYPE_HISTORY);
@@ -331,6 +266,6 @@ class PagehistoryAction extends PageManagerAction
 		$revisions = $qb->getQuery()
 				->getResult();
 		
-		return $revisions;	
+		return $revisions;
 	}
 }

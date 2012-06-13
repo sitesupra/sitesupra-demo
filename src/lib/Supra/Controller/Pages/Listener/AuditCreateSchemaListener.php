@@ -16,7 +16,7 @@ class AuditCreateSchemaListener implements EventSubscriber
 	const AUDIT_SUFFIX = '_audit';
 	const REVISION_COLUMN_NAME = 'revision';
 	const REVISION_TYPE_COLUMN_NAME = 'revision_type';
-	
+	const REVISION_TYPE_FIELD_NAME = 'revisionType';
 	
 	public function getSubscribedEvents()
 	{
@@ -53,7 +53,7 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$entityTable = $eventArgs->getClassTable();
 		$tableName = $entityTable->getName();
 
-		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME)) {
+		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
 			
 			// Recreate the table inside the schema
 			$schema->dropTable($tableName);
@@ -61,19 +61,25 @@ class AuditCreateSchemaListener implements EventSubscriber
 			
 			foreach ($entityTable->getColumns() AS $column) {
 				
+				// All fields are not mandatory in the audit
+				$notNull = false;
+				
 				/* @var $column Column */
 				if ($column->getName() == self::REVISION_COLUMN_NAME) {
 					continue;
 				}
 				
+				if ($column->getName() == self::REVISION_TYPE_COLUMN_NAME) {
+					$notNull = true;
+				}
+				
 				$revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
 					$column->toArray(),
-					array('notnull' => false, 'autoincrement' => false)
+					array('notnull' => $notNull, 'autoincrement' => false)
 				));
 			}
 			
 			$revisionTable->addColumn(self::REVISION_COLUMN_NAME, 'string', array('length' => 20));
-			$revisionTable->addColumn(self::REVISION_TYPE_COLUMN_NAME, 'smallint', array('length' => 1));
 			
 			$pkColumns = $entityTable->getPrimaryKey()
 					->getColumns();
@@ -100,15 +106,35 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$className = $classMetadata->name;
 		$name = &$classMetadata->table['name'];
 		$class = new ReflectionClass($className);
-		
-		if ($className == \Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract::CN()
-				|| $className == \Supra\Controller\Pages\Entity\Abstraction\AbstractPage::CN()) {
+				
+		// composite id is required for audited entities, otherwise LEFT JOIN 
+		// queries on joined inheritance tables will cause huge result set
+		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
 			$classMetadata->setIdentifier(array('id', 'revision'));
+			
+			if (empty($classMetadata->parentClasses)) {
+				// Add the revision_type column
+				$classMetadata->mapField(
+					array(
+						'fieldName' => self::REVISION_TYPE_FIELD_NAME,
+						'type' => 'smallint',
+						'nullable' => false,
+						'columnName' => self::REVISION_TYPE_COLUMN_NAME,
+					)
+				);
+			}
 		}
 		
-		if ($class->implementsInterface(AuditedEntityInterface::INTERFACE_NAME) && strpos($name, self::AUDIT_SUFFIX) === false) {
-			$name = $name . self::AUDIT_SUFFIX;
-		} else if ($className == \Supra\Controller\Pages\Entity\PageLocalizationPath::CN()) {
+		$versionedDraftEntities = TableDraftSuffixAppender::getVersionedEntities();
+		
+		// if entity is audited, then it should be loaded from "*_audit" tables
+		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
+			if (strpos($name, self::AUDIT_SUFFIX) === false) {
+				$name = $name . self::AUDIT_SUFFIX;
+			}
+		} 
+		// all other versioned entities should be loaded from "*_draft" tables
+		else if (in_array($className, $versionedDraftEntities) && strpos($name, TableDraftSuffixAppender::TABLE_SUFFIX) === false) {
 			$name = $name . TableDraftSuffixAppender::TABLE_SUFFIX;
 		}
 	}

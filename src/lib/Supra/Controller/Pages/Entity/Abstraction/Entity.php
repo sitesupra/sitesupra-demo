@@ -43,6 +43,12 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	protected $revision = '';
 	
 	/**
+	 * Used only for audit schema entities
+	 * @var int
+	 */
+	protected $revisionType = '';
+	
+	/**
 	 * @var array
 	 */
 	private $_authorizationAncestorsCache = array();

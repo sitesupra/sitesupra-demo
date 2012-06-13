@@ -57,6 +57,7 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	 * @var Collections\Collection
 	 */
 	protected $metadata;
+	
 	protected $overridenMetadata = null;
 	
 	/**
@@ -275,10 +276,9 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	}
 	
 	/**
-	 * Return owner of current block property
-	 * Could be Block or BlockPropertyMetadata entity
-	 * 
-	 * @return Abstraction\Entity
+	 * Return owner of current block property.
+	 * Could be Localization, Block or BlockPropertyMetadata entity.
+	 * @return Entity
 	 */
 	public function getOwner()
 	{
@@ -286,7 +286,13 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 			return $this->masterMetadata;
 		}
 		
-		return $this->block;
+		// If the owner block belongs to the owner localization, return block,
+		// localization otherwise.
+		if ($this->localization->equals($this->block->getPlaceHolder()->getMaster())) {
+			return $this->block;
+		}
+		
+		return $this->localization;
 	}
 	
 	/**

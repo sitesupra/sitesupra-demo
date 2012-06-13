@@ -52,11 +52,6 @@ class GroupLocalization extends Abstraction\Localization
 		$this->persistent = false;
 	}
 	
-	public function getTemplateHierarchy()
-	{
-		throw new Exception\RuntimeException("Template hierarchy cannot be called for a group page");
-	}
-	
 	public function getPathPart()
 	{
 		return null;

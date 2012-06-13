@@ -34,7 +34,8 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	protected $name;
 
 	/**
-	 * @OneToMany(targetEntity="Block", mappedBy="placeHolder", cascade={"persist", "remove"})
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", mappedBy="placeHolder", cascade={"persist", "remove"})
+	 * @OrderBy({"position" = "ASC"})
 	 * @var Collection
 	 */
 	protected $blocks;

@@ -3,6 +3,9 @@ namespace Supra\Controller\Pages\Event;
 
 final class AuditEvents
 {
+	// set audit revision to work with
+    const setAuditRevision = 'setAuditRevision';
+	
     const pagePublishEvent = 'pagePublishEvent';
 	
 	const pagePreDeleteEvent = 'pagePreDeleteEvent';

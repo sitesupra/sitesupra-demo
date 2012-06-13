@@ -95,7 +95,7 @@ class EntityAuditListener implements EventSubscriber
 	 * @var PageRevisionData
 	 */
 	private $revision;
-
+	
 	
 	/**
 	 * @return array
@@ -106,7 +106,7 @@ class EntityAuditListener implements EventSubscriber
 			Events::onFlush,
 			Events::postUpdate,
 			Events::postPersist,
-			
+
 			AuditEvents::pagePublishEvent,
 			
 			AuditEvents::pagePreDeleteEvent,
@@ -212,7 +212,7 @@ class EntityAuditListener implements EventSubscriber
 		foreach($changeSet as $fieldName => $fieldValue) {
 			if ($fieldValue instanceof PersistentCollection
 					|| ($entity instanceof Localization && $fieldName == 'lock')
-					|| $fieldName == 'revision'
+//					|| $fieldName == 'revision'
 					|| ($fieldValue[0] instanceof \DateTime && $fieldValue[0] == $fieldValue[1]))
 			{
 				unset($changeSet[$fieldName]);
@@ -242,12 +242,14 @@ class EntityAuditListener implements EventSubscriber
 			if ( ! in_array($entityId, $visitedIds)) {
 				
 				$revisionType = self::REVISION_TYPE_DELETE;
+				
+				// Questionable
 				if ($this->_pageDeleteState) {
 					$revisionType = self::REVISION_TYPE_COPY;
 				}
 	
 				$this->insertAuditRecord($entity, $revisionType);
-				array_push($visitedIds, $entityId );
+				array_push($visitedIds, $entityId);
 			}
 		}
 	}
@@ -296,12 +298,10 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	private function saveRevisionEntityData(ClassMetadata $class, $entityData, $revisionType)
 	{
-		// manually add revision_type column/value to query
-		$names = array(AuditCreateSchemaListener::REVISION_TYPE_COLUMN_NAME);
-		$params = array($revisionType);
-		$types = array(\PDO::PARAM_INT);
+		$names = $params = $types = array();
 		
 		$classFields = $class->fieldNames;
+		
 		// two special cases for revision id:
 		//   - if we are creating full COPY of page (publish/trash), 
 		//	   then we should use single revision id for all auditing entities
@@ -353,41 +353,65 @@ class EntityAuditListener implements EventSubscriber
 		foreach ($classFields as $columnName => $field) {
 
 			if ($class->inheritanceType != ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE 
-					&&	$class->isInheritedField($field)
+					&& $class->isInheritedField($field)
 					&& ! $class->isIdentifier($field)
 					&& $columnName != AuditCreateSchemaListener::REVISION_COLUMN_NAME) {
 				continue;
 			}
 			
+			$param = null;
+			$type = null;
+			
+			if (isset($entityData[$field])) {
+				$param = $entityData[$field];
+			}
+			
+			if (isset($class->fieldMappings[$field]['type'])) {
+				$type = $class->fieldMappings[$field]['type'];
+			}
+			
+			if ($columnName == AuditCreateSchemaListener::REVISION_TYPE_COLUMN_NAME) {
+				$param = $revisionType;
+				$type = \PDO::PARAM_INT;
+			}
+			// In audit schema to_one fields are string fields and objects are 
+			// waken up on object load. Now need to convert back to string.
+			elseif ($param instanceof Entity\Abstraction\Entity) {
+				$param = $param->getId();
+				$type = \PDO::PARAM_STR;
+				
+				//TODO: might check "owning side" and "to_one" stuff... or not?
+			}
+			
 			$names[] = $columnName;
-			$params[] = $entityData[$field];
-			$types[] = $class->fieldMappings[$field]['type'];
+			$params[] = $param;
+			$types[] = $type;
 		}
 		
-		foreach ($class->associationMappings AS $field => $assoc) {
-			if ($class->isSingleValuedAssociation($field) && $assoc['isOwningSide']) {
-				$targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
-
-				// Has value
-				if ($entityData[$field] !== null) {
-					$relatedId = $this->uow->getEntityIdentifier($entityData[$field]); // Or simply $entityData[$field]->getId()
-
-					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-						$names[] = $sourceColumn;
-						$params[] = $relatedId[$targetClass->getFieldName($targetColumn)];
-						$types[] = $targetClass->getTypeOfColumn($targetColumn);
-					}
-				
-				// Null
-				} else {
-					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-						$names[] = $sourceColumn;
-						$params[] = null;
-						$types[] = \PDO::PARAM_STR;
-					}
-				}
-			}
-		}
+//		foreach ($class->auditAssociationMappings AS $field => $assoc) {
+//			if ($class->isSingleValuedAssociation($field) && $assoc['isOwningSide']) {
+//				$targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+//
+//				// Has value
+//				if ($entityData[$field] !== null) {
+//					$relatedId = $this->uow->getEntityIdentifier($entityData[$field]); // Or simply $entityData[$field]->getId()
+//
+//					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+//						$names[] = $sourceColumn;
+//						$params[] = $relatedId[$targetClass->getFieldName($targetColumn)];
+//						$types[] = $targetClass->getTypeOfColumn($targetColumn);
+//					}
+//				
+//				// Null
+//				} else {
+//					foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+//						$names[] = $sourceColumn;
+//						$params[] = null;
+//						$types[] = \PDO::PARAM_STR;
+//					}
+//				}
+//			}
+//		}
 		
 		// Discriminator
 		if ($class->inheritanceType == ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE
@@ -529,11 +553,11 @@ class EntityAuditListener implements EventSubscriber
 	}
 	
 	/**
-	 *
+	 * @param PageEventArgs $eventArgs
 	 */
 	public function pagePostRestoreEvent() 
 	{
-		$this->_pageRestoreState = false;			
+		$this->_pageRestoreState = false;
 	}
 	
 	/**
@@ -700,24 +724,6 @@ class EntityAuditListener implements EventSubscriber
 					$this->insertAuditRecord($metaDataItem, self::REVISION_TYPE_COPY);
 				}
 			}
-		}
-	}
-	
-	private function createPageFullCopy()
-	{
-		$page = $this->em->find(Entity\Abstraction\AbstractPage::CN(), $this->referenceId);
-		
-		/* @var $page Entity\Abstraction\AbstractPage */
-		if (is_null($page)) {
-			throw new RuntimeException("Failed to find page by reference #{$this->referenceId}");
-		}
-		
-		$pageLocalizations = $this->em->getRepository(Localization::CN())
-				->findBy(array('master' => $page->getId()));
-		
-		foreach($pageLocalizations as $localization) {
-			$this->referenceId = $localization->getId();
-			$this->createPageCopy(true);
 		}
 	}
 	

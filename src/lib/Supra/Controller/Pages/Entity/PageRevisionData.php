@@ -71,6 +71,13 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	protected $elementName;
 	
 	/**
+	 * Used to store block title
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $elementTitle;
+	
+	/**
 	 * @Column(type="supraId20", nullable=true)
 	 * @var string
 	 */
@@ -81,7 +88,6 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	 * @var sting
 	 */
 	protected $additionalInfo;
-	
 	
 	/**
 	 * Returns revision author
@@ -219,4 +225,21 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	{
 		return $this->additionalInfo;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getElementTitle()
+	{
+		return $this->elementTitle;
+	}
+
+	/**
+	 * @param string $elementTitle
+	 */
+	public function setElementTitle($elementTitle)
+	{
+		$this->elementTitle = $elementTitle;
+	}
+
 }
