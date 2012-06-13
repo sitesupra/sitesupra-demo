@@ -600,14 +600,17 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 			self::CHANGE_FREQUENCY_ALWAYS,
 			self::CHANGE_FREQUENCY_NEVER,
 		);
+		
+		if (empty($changeFrequency)) {
+			$changeFrequency = self::CHANGE_FREQUENCY_WEEKLY;
+		}
 
 		if ( ! in_array($changeFrequency, $frequencies)) {
 			$logger = ObjectRepository::getLogger($this);
-			$logger->warn("Invalid frequency value '$changeFrequency' provided.");
-			
+			$logger->error('Wrong frequency provided. Will use default');
 			return false;
 		}
-
+				
 		$this->changeFrequency = $changeFrequency;
 	}
 
