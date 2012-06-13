@@ -413,6 +413,14 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		$em = ObjectRepository::getEntityManager($this);
 		
 		$userPreferencesGroup = $user->getPreferencesGroup();
+		
+		if (is_null($userPreferencesGroup)) {
+			$userPreferencesGroup = new Entity\UserPreferencesGroup();
+			$em->persist($userPreferencesGroup);
+			
+			$user->setPreferencesGroup($userPreferencesGroup);
+		}
+		
 		$collection = $userPreferencesGroup->getPreferencesCollection();
 		
 		if ($collection->offsetExists($name)) {
