@@ -94,7 +94,7 @@ class BlocksAction extends PageManagerAction
 				$blockGroup = $response['groups'][$defaultGroupKey]['id'];
 			}
 
-			$controller = $blockCollection->getBlockController($conf->class);
+			$controller = $blockCollection->createBlockController($conf->class);
 			$propertyDefinition = $conf->properties;
 
 			$properties = $this->gatherPropertyArray($propertyDefinition);

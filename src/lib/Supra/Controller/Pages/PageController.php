@@ -652,7 +652,7 @@ class PageController extends ControllerAbstraction
 			try {
 
 				if ( ! is_null($eventAction)) {
-					$eventArgs = new BlockEventsArgs($this);
+					$eventArgs = new BlockEventsArgs($blockController);
 					$eventArgs->block = $block;
 					// Assigned by reference because "null" can change to object after closure execution
 					$eventArgs->blockController = &$blockController;
@@ -680,6 +680,11 @@ class PageController extends ControllerAbstraction
 				}
 
 				if ( ! is_null($eventAction)) {
+					
+					if ( ! is_null($blockController)) {
+						$eventArgs->setCaller($blockController);
+					}
+					
 					$blockTimeEnd = microtime(true);
 					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
 					$eventArgs->duration = $blockExecutionTime;

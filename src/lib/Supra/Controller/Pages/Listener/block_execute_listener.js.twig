@@ -21,7 +21,7 @@ if(typeof console != 'undefined' ) {
 		{% if blockStats.exception %}
 			console.log('    %cRaised exception "' + {{ blockStats.exception.getMessage() | json_encode | raw }} + '"', 'color:red;');
 		{% endif %}
-		
+
 		console.log(' ');
 		//console.groupEnd();
 		

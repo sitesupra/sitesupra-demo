@@ -96,7 +96,7 @@ class BlockControllerCollection
 	 * @param string $blockId
 	 * @return BlockController 
 	 */
-	public function getBlockController($blockId)
+	public function createBlockController($blockId)
 	{
 		$configuration = ObjectRepository::getComponentConfiguration($blockId);
 
