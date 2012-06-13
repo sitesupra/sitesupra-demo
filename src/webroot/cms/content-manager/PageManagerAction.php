@@ -42,6 +42,7 @@ use Supra\Controller\Pages\Listener\EntityRevisionSetterListener;
 use Supra\Controller\Pages\Event\CmsPageEventArgs;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
+use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
 
 /**
  * Controller containing common methods
@@ -834,10 +835,15 @@ abstract class PageManagerAction extends CmsAction
 						array('id' => $localizationId, 'revision' => $revisionId), 
 						ColumnHydrator::HYDRATOR_ID);
 
-
-		// TODO: exception handling
-		$page = $auditEm->getRepository(AbstractPage::CN())
-				->findOneBy(array('id' => $masterId, 'revision' => $revisionId));
+		$page = null;
+		
+		try {
+			$page = $auditEm->getRepository(AbstractPage::CN())
+					->findOneBy(array('id' => $masterId, 'revision' => $revisionId));
+		} catch (MissingResourceOnRestore $missingResource) {
+			$missingResourceName = $missingResource->getMissingResourceName();
+			throw new CmsException(null, "Wasn't able to load the page from the history because linked resource {$missingResourceName} is not available anymore.");
+		}
 		
 		if (empty($page)) {
 			throw new CmsException(null, "Cannot find the page");

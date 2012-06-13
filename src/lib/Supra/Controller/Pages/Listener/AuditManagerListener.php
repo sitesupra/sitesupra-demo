@@ -23,6 +23,7 @@ use Doctrine\ORM\PersistentCollection;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
+use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
 
 /**
  * Makes sure no manual changes are performed
@@ -494,7 +495,8 @@ class AuditManagerListener implements EventSubscriber
 
 						if (empty($loadedValue)) {
 							$this->debug("$className #{$entity->getId()}, rev. {$entity->getRevisionId()} => {$targetEntity}");
-							throw new \RuntimeException("Wasn't able to load the page from the history because some linked resources are not available anymore.");
+							
+							throw new MissingResourceOnRestore($targetEntity, $value);
 						}
 					}
 
