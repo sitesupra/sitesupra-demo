@@ -55,7 +55,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 
 	/**
 	 * The parent entity which stores hierarchy information, AbstractPage implementation
-	 * @ManyToOne(targetEntity="AbstractPage", cascade={"persist"}, inversedBy="localizations")
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\AbstractPage", cascade={"persist"}, inversedBy="localizations")
 	 * @JoinColumn(name="master_id", referencedColumnName="id", nullable=true)
 	 * @var AbstractPage
 	 */
@@ -78,7 +78,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	/**
 	 * Object's place holders. Doctrine requires this to be defined because
 	 * owning side references to this class with inversedBy parameter
-	 * @OneToMany(targetEntity="PlaceHolder", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\Abstraction\PlaceHolder", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
 	 * @var Collection
 	 */
 	protected $placeHolders;
@@ -170,6 +170,14 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		parent::__construct();
 		$this->setLocale($locale);
 		$this->placeHolders = new ArrayCollection();
+	}
+	
+	/**
+	 * @return \Doctrine\Common\Collections\Collection
+	 */
+	public function getBlockProperties()
+	{
+		return $this->blockProperties;
 	}
 
 	/**
@@ -399,13 +407,6 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	}
 
 	/**
-	 * Get page and it's template hierarchy starting with the root template
-	 * @return PageSet
-	 * @throws Exception\RuntimeException
-	 */
-	abstract public function getTemplateHierarchy();
-
-	/**
 	 * Returns page lock object
 	 * @return LockData
 	 */
@@ -601,9 +602,14 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 			self::CHANGE_FREQUENCY_NEVER,
 		);
 
+		if (empty($changeFrequency)) {
+			$changeFrequency = self::CHANGE_FREQUENCY_WEEKLY;
+		}
+		
 		if ( ! in_array($changeFrequency, $frequencies)) {
 			$logger = ObjectRepository::getLogger($this);
-			$logger->error('Wrong frequency provided. Will use default');
+			$logger->warn("Invalid frequency value '$changeFrequency' provided.");
+			
 			return false;
 		}
 

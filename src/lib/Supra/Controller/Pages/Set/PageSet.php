@@ -49,10 +49,6 @@ class PageSet extends AbstractSet
 			$trace[] = $abstractPage->__toString();
 		}
 		
-		if (is_null($layout)) {
-			throw new Exception\LayoutNotFound("No layout was found for page set " . implode(', ', $trace));
-		}
-		
 		return $layout;
 	}
 }

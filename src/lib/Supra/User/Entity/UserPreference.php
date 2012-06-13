@@ -25,10 +25,10 @@ class UserPreference extends Entity
 	protected $value;
 	
 	/**
-	 * @ManyToOne(targetEntity="Supra\User\Entity\User", inversedBy="preferences")
-	 * @var User
+	 * @ManyToOne(targetEntity="Supra\User\Entity\UserPreferencesGroup", inversedBy="preferences")
+	 * @var UserPreferencesGroup
 	 */
-	protected $user;
+	protected $group;
 	
 	
 	/**
@@ -36,21 +36,21 @@ class UserPreference extends Entity
 	 * @param mixed $value
 	 * @param User $user
 	 */
-	public function __construct($name, $value, User $user)
+	public function __construct($name, $value, UserPreferencesGroup $group)
 	{
 		parent::__construct();
 		
 		$this->name = $name;
 		$this->value = $value;
-		$this->user = $user;
+		$this->group = $group;
 	}
 	
 	/**
-	 * @return User
+	 * @return UserPreferencesGroup
 	 */
-	public function getUser()
+	public function getGroup()
 	{
-		return $this->user;
+		return $this->group;
 	}
 	
 	/**
@@ -80,8 +80,8 @@ class UserPreference extends Entity
 	/**
 	 * @param User $user
 	 */
-	public function setUser(User $user) 
+	public function setGroup(UserPreferencesGroup $group) 
 	{
-		$this->user = $user;
+		$this->group = $group;
 	}
 }

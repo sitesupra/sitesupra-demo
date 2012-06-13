@@ -100,6 +100,8 @@ class PageController extends ControllerAbstraction
 	{
 		$request = $this->getRequest();
 		$response = $this->getResponse();
+		
+		$localization = null;
 
 		// Check redirect for public calls
 		if ($request instanceof Request\PageRequestView) {
@@ -177,6 +179,11 @@ class PageController extends ControllerAbstraction
 
 		// Continue processing
 		$layout = $request->getLayout();
+		
+		if (is_null($layout)) {
+			throw new Exception\LayoutNotFound("No layout found for page {$localization}");
+		}
+		
 		$page = $request->getPage();
 
 		$this->findBlockCache();

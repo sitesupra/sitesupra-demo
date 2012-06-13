@@ -11,7 +11,6 @@ use Doctrine\Common\Cache\ArrayCache;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventManager;
-use Supra\NestedSet\Listener\NestedSetListener;
 use Supra\Database\Doctrine\Listener\TableNamePrefixer;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Listener;
@@ -56,16 +55,29 @@ class EntityManagerConfiguration implements ConfigurationInterface
 	 * @var array
 	 */
 	public $entityLibraryPaths = array(
-		'Supra/Controller/Pages/Entity/',
-		'Supra/FileStorage/Entity/',
-		'Supra/User/Entity/',
-		'Supra/Console/Cron/Entity/',
-		'Supra/Search/Entity',
-		'Supra/BannerMachine/Entity',
-		'Supra/Payment/Entity',
-		'Supra/Mailer/MassMail/Entity',
-		'Supra/Configuration/Entity',
-		'Supra/Social/Facebook/Entity',
+		'page' => 'Supra/Controller/Pages/Entity/',
+		'file' => 'Supra/FileStorage/Entity/',
+		'user' => 'Supra/User/Entity/',
+		'cron' => 'Supra/Console/Cron/Entity/',
+		'search' => 'Supra/Search/Entity',
+		'banner' => 'Supra/BannerMachine/Entity',
+		'payment' => 'Supra/Payment/Entity',
+		'mail' => 'Supra/Mailer/MassMail/Entity',
+		'configuration' => 'Supra/Configuration/Entity',
+		'facebook' => 'Supra/Social/Facebook/Entity',
+	);
+	
+	public $entityNamespaces = array(
+		'page' => 'Supra\Controller\Pages\Entity',
+		'file' => 'Supra\FileStorage\Entity',
+		'user' => 'Supra\User\Entity',
+		'cron' => 'Supra\Console\Cron\Entity',
+		'search' => 'Supra\Search\Entity',
+		'banner' => 'Supra\BannerMachine\Entity',
+		'payment' => 'Supra\Payment\Entity',
+		'mail' => 'Supra\Mailer\MassMail\Entity',
+		'configuration' => 'Supra\Configuration\Entity',
+		'facebook' => 'Supra\Social\Facebook\Entity',
 	);
 
 	/**
@@ -177,27 +189,39 @@ class EntityManagerConfiguration implements ConfigurationInterface
 
 		$driverImpl = $config->newDefaultAnnotationDriver($entityPaths);
 		$config->setMetadataDriverImpl($driverImpl);
+		
+		$entityNamespaces = $this->getEntityNamespaces($entityPaths);
+		$config->setEntityNamespaces($entityNamespaces);
 	}
 
 	protected function getEntityPaths()
 	{
 		$entityPaths = array();
-
-		foreach ($this->entityLibraryPaths as $path) {
-			$entityPaths[] = SUPRA_LIBRARY_PATH . $path;
-		}
-
-		foreach ($this->entityComponentPaths as $path) {
-			$entityPaths[] = SUPRA_COMPONENT_PATH . $path;
-		}
-
-		foreach ($this->entityPaths as $path) {
-			$entityPaths[] = $path;
+		$i = 0;
+		
+		$pathTypes = array(
+			array('folder' => SUPRA_LIBRARY_PATH, 'paths' => $this->entityLibraryPaths),
+			array('folder' => SUPRA_COMPONENT_PATH, 'paths' => $this->entityComponentPaths),
+			array('folder' => '', 'paths' => $this->entityPaths),
+		);
+		
+		foreach ($pathTypes as $type) {
+			$folder = $type['folder'];
+			$paths = $type['paths'];
+			
+			foreach ($paths as $path) {
+				$entityPaths[] = $folder . $path;
+			}
 		}
 
 		return $entityPaths;
 	}
-
+	
+	protected function getEntityNamespaces()
+	{
+		return $this->entityNamespaces;
+	}
+	
 	protected function configureProxy(Configuration $config)
 	{
 		// Proxy configuration
@@ -243,9 +267,6 @@ class EntityManagerConfiguration implements ConfigurationInterface
 
 		// Maps revision property for appropriate entities
 		$eventManager->addEventSubscriber(new Listener\EntityRevisionFieldMapperListener());
-
-		// Nested set entities (pages and files) depends on this listener
-		$eventManager->addEventSubscriber(new NestedSetListener());
 
 		// Drops file storage cache group when files are being changed
 		$eventManager->addEventSubscriber(new FileGroupCacheDropListener());

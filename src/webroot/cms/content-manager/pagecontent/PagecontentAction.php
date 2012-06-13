@@ -134,6 +134,7 @@ class PagecontentAction extends PageManagerAction
 		ObjectRepository::beginControllerContext($controllerClass);
 		ObjectRepository::beginControllerContext($blockController);
 		$e = null;
+		$outputString = null;
 
 		try {
 			$block->prepareController($blockController, $request);

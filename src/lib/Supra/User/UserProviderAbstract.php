@@ -13,6 +13,7 @@ use Supra\Session\SessionManager;
 use Doctrine\ORM\EntityManager;
 use Supra\User\Event\UserCreateEventArgs;
 use Supra\Authentication\Event\EventArgs;
+use Supra\User\Entity\UserPreference;
 
 abstract class UserProviderAbstract implements UserProviderInterface
 {
@@ -382,11 +383,55 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		$preferences = array();
 		
-		$collection = $user->getPreferencesCollection();
+		$preferencesGroup = $user->getPreferencesGroup();
+		
+		if (is_null($preferencesGroup)) {
+			$preferencesGroup = new Entity\UserPreferencesGroup();
+			
+			$em = ObjectRepository::getEntityManager($this);
+			$em->persist($preferencesGroup);
+			
+			$user->setPreferencesGroup($preferencesGroup);
+		}
+		
+		$collection = $preferencesGroup->getPreferencesCollection();
+		
 		foreach($collection as $userPreference) {
 			$preferences[$userPreference->getName()] = $userPreference->getValue();
 		}
 		
 		return $preferences;
+	}
+	
+	/**
+	 * @param Entity\User $user
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	public function setUserPreference(Entity\User $user, $name, $value)
+	{
+		$em = ObjectRepository::getEntityManager($this);
+		
+		$userPreferencesGroup = $user->getPreferencesGroup();
+		
+		if (is_null($userPreferencesGroup)) {
+			$userPreferencesGroup = new Entity\UserPreferencesGroup();
+			$em->persist($userPreferencesGroup);
+			
+			$user->setPreferencesGroup($userPreferencesGroup);
+		}
+		
+		$collection = $userPreferencesGroup->getPreferencesCollection();
+		
+		if ($collection->offsetExists($name)) {
+			$preference = $collection->offsetGet($name);
+			$preference->setValue($value);
+		} else {
+			$preference = new UserPreference($name, $value, $userPreferencesGroup);
+			$em->persist($preference);
+		}
+		
+		$collection->set($name, $preference);
+		$em->flush();
 	}
 }

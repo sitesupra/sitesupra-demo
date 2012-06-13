@@ -40,6 +40,9 @@ class RemoteUserProvider extends UserProviderAbstract
 	const REMOTE_COMMAND_FIND_GROUP = 'su:portal:find_group';
 	const REMOTE_COMMAND_UPDATE_USER = 'su:portal:update_user';
 	const REMOTE_COMMAND_CREATE_USER = 'su:portal:create_user';
+	
+	const REMOTE_COMMAND_FIND_USER_PREFERENCES = 'su:portal:find_user_preferences';
+	const REMOTE_COMMAND_SET_USER_PREFERENCE = 'su:portal:set_user_preference';
 
 	/**
 	 * @return RemoteCommandService
@@ -329,6 +332,54 @@ class RemoteUserProvider extends UserProviderAbstract
 	public function supportsClass($class)
 	{
 		
+	}
+	
+	/**
+	 * Return an array (key => value) with user settings
+	 * TODO: handle SiteUser preferences for SupraPortal
+	 */
+	public function getUserPreferences(Entity\User $user)
+	{
+		$params = array(
+			'user' => $user->getId(),
+		);
+		
+		$response = $this->executeSupraPortalCommand(self::REMOTE_COMMAND_FIND_USER_PREFERENCES, $params);
+		
+		if (empty($response['data'])) {
+
+			$errorMessage = "Failed to load preferences for user {$user->getId()} ";
+
+			if ( ! empty($response['error'])) {
+				$errorMessage .= $response['error'];
+			}
+
+			$this->getLog()
+					->error($errorMessage, $params);
+		} else {
+			return $response['data'];
+		}
+		
+	}
+	
+	/**
+	 * @param Entity\User $user
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	public function setUserPreference(Entity\User $user, $name, $value)
+	{
+		$params = array(
+			'user' => $user->getId(),
+			'--name' => $name,
+			'--value' => $value,
+		);
+
+		$response = $this->executeSupraPortalCommand(self::REMOTE_COMMAND_SET_USER_PREFERENCE, $params);
+
+		if ( ! empty($response['error'])) {
+			throw new Exception\RuntimeException('SupraPortal: ' . $response['error']);
+		}
 	}
 
 }

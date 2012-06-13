@@ -27,6 +27,11 @@ class TableDraftSuffixAppender extends VersionedTableMetadataListener implements
 		'Supra\Controller\Pages\Entity\PageLocalizationPath',
 	);
 	
+	public static function getVersionedEntities()
+	{
+		return array_merge(parent::$versionedEntities, self::$versionedEntities);
+	}
+	
 	/**
 	 * {@inheritdoc}
 	 * @return array
