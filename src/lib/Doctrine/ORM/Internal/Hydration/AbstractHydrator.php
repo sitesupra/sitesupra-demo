@@ -53,6 +53,8 @@ abstract class AbstractHydrator
 
     /** @var Statement The statement that provides the data to hydrate. */
     protected $_stmt;
+	
+	protected $_history = array();
 
     /** @var array The query hints. */
     protected $_hints;
@@ -82,6 +84,8 @@ abstract class AbstractHydrator
         $this->_stmt  = $stmt;
         $this->_rsm   = $resultSetMapping;
         $this->_hints = $hints;
+		
+		$this->_history[] = array($stmt, $resultSetMapping, $hints);
 
         $this->prepare();
 
@@ -100,6 +104,8 @@ abstract class AbstractHydrator
         $this->_stmt  = $stmt;
         $this->_rsm   = $resultSetMapping;
         $this->_hints = $hints;
+		
+		$this->_history[] = array($stmt, $resultSetMapping, $hints);
 
         $this->prepare();
 
@@ -149,7 +155,8 @@ abstract class AbstractHydrator
         $this->_rsm = null;
 
         $this->_stmt->closeCursor();
-        $this->_stmt = null;
+		array_pop($this->_history);
+		list($this->_stmt, $this->_rsm, $this->_hints) = end($this->_history);
     }
 
     /**

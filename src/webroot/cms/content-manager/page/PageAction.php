@@ -626,89 +626,7 @@ class PageAction extends PageManagerAction
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 
-		$em = ObjectRepository::getEntityManager('#audit');
-
-		// find last published page revision
-		$params = array(
-			'id' => $revisionId,
-			'localizationId' => $localizationId,
-			// page full copies
-			'types' => array(
-				PageRevisionData::TYPE_HISTORY,
-				PageRevisionData::TYPE_CREATE,
-				PageRevisionData::TYPE_HISTORY_RESTORE,
-				PageRevisionData::TYPE_DUPLICATE,
-			),
-		);
-
-		$qb = $em->createQueryBuilder();
-		$qb->select('r')
-				->from(PageRevisionData::CN(), 'r')
-				->where('r.id <= :id AND r.type in (:types) AND r.reference = :localizationId')
-				->orderBy('r.creationTime', 'DESC')
-				->setMaxResults(1)
-				->setParameters($params)
-		;
-		try {
-			$lastPublishRevision = $qb->getQuery()
-					->getSingleResult();
-		} catch (\Doctrine\ORM\NoResultException $e) {
-			throw new CmsException(null, 'Cannot find last published page revision');
-		}
-
-		$baseRevisionId = $lastPublishRevision->getId();
-
-		// select all revisions from last published, till selected one
-		$qb = $em->createQueryBuilder();
-
-		$params = array(
-			'id' => $revisionId,
-			'baseId' => $baseRevisionId,
-			'localizationId' => $localizationId,
-		);
-
-		$qb->select('r')
-				->from(PageRevisionData::CN(), 'r')
-				->where('r.id <= :id AND r.id > :baseId AND r.reference = :localizationId')
-				->orderBy('r.id', 'DESC')
-				->setParameters($params)
-		;
-
-		$revisionList = $qb->getQuery()
-				->getResult();
-
-		if ( ! empty($revisionList)) {
-			//throw new CmsException(null, "Nothing found for revision #{$revisionId}");
-			// loop through list of revisions, if there is localization present, we should use it as base localization
-			// as there are located last localization settings (template, schedule etc.)
-			$lastLocalizationRevision = null;
-			foreach ($revisionList as $revision) {
-				/* @var $revision PageRevisionData */
-				$className = $revision->getElementName();
-
-				if ($className == Entity\PageLocalization::CN() || $className == Entity\TemplateLocalization::CN()) {
-					$lastLocalizationRevision = $revision;
-
-					break;
-				}
-			}
-		}
-
-		$localizationRevision = (isset($lastLocalizationRevision) ? $lastLocalizationRevision : $lastPublishRevision);
-
-		$localization = $em->getRepository(Entity\Abstraction\Localization::CN())
-				->findOneBy(array('id' => $localizationRevision->getReferenceId(), 'revision' => $localizationRevision->getId()));
-
-		if ( ! ($localization instanceof Entity\Abstraction\Localization)) {
-			throw new CmsException(null, 'Page version not found');
-		}
-
-		$master = $localization->getMaster();
-
-		// workaround for wrong master page
-		$auditMasterPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
-				->findOneBy(array('id' => $master->getId(), 'revision' => $localization->getRevisionId()));
-		$localization->overrideMaster($auditMasterPage);
+		$localization = $this->findLocalizationInAudit($localizationId, $revisionId);
 
 		$controller = $this->getPageController();
 
@@ -717,15 +635,11 @@ class PageAction extends PageManagerAction
 
 		$request = new HistoryPageRequestEdit($localeId, $media);
 		$request->setPageLocalization($localization);
-
-		$revisionId = $localization->getRevisionId();
-		$request->setRevision($baseRevisionId);
-		$request->setRevisionArray($revisionList);
+		$request->setDoctrineEntityManager($this->entityManager);
 
 		$response = $controller->createResponse($request);
 
 		$controller->prepare($request, $response);
-		$request->setDoctrineEntityManager($em);
 
 		$e = null;
 		ObjectRepository::beginControllerContext($controller);

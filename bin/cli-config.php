@@ -23,7 +23,7 @@ define('SUPRA_PATH', $rootDir . DIRECTORY_SEPARATOR . 'src/');
 // We need test connection because of fixtures now.
 $testBootstrap = $rootDir . '/tests/bootstrap.php';
 
-if (file_exists($testBootstrap)) {
+if (file_exists($testBootstrap) && file_exists($rootDir . '/tests/src/conf/supra.ini')) {
 	require_once $testBootstrap;
 } else {
 	require_once $rootDir . '/src/lib/Supra/bootstrap.php';

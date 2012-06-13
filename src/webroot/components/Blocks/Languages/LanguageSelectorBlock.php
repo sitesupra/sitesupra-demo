@@ -36,12 +36,13 @@ class LanguageSelectorBlock extends BlockController
 			
 			foreach ($pageAncestors as $_page) {
 				/* @var $_page Entity\Abstraction\AbstractPage */
-				if ($request instanceof HistoryPageRequestEdit) {
-					// Fetch available draft localizations
-					$pageLocalization = $request->getDraftLocalization($localeId);
-				} else {
+				//TODO: fix this somehow inside the entity not the request object with some override
+//				if ($request instanceof HistoryPageRequestEdit) {
+//					// Fetch available draft localizations
+//					$pageLocalization = $request->getDraftLocalization($localeId);
+//				} else {
 					$pageLocalization = $_page->getLocalization($localeId);
-				}
+//				}
 				
 				if ($pageLocalization instanceof Entity\PageLocalization) {
 					$url[$localeId] = $pageLocalization->getPath()

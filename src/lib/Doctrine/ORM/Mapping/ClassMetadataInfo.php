@@ -666,6 +666,9 @@ class ClassMetadataInfo implements ClassMetadata
             'table',
             'rootEntityName',
             'idGenerator', //TODO: Does not really need to be serialized. Could be moved to runtime.
+
+			// Supra7 needs this!
+            'auditAssociationMappings',
         );
 
         // The rest of the metadata is only serialized if necessary.

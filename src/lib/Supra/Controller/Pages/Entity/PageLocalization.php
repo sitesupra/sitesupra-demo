@@ -70,7 +70,7 @@ class PageLocalization extends Abstraction\Localization
 
 	/**
 	 * Redirect information if any
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement", cascade={"all"})
+	 * @OneToOne(targetEntity="Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement", cascade={"all"})
 	 * @var ReferencedElement\LinkReferencedElement
 	 */
 	protected $redirect;
@@ -139,27 +139,6 @@ class PageLocalization extends Abstraction\Localization
 	public function getTemplate()
 	{
 		return $this->template;
-	}
-
-	/**
-	 * Get page and it's template hierarchy starting with the root template
-	 * @return PageSet
-	 * @throws Exception\RuntimeException
-	 */
-	public function getTemplateHierarchy()
-	{
-		$template = $this->getTemplate();
-		$page = $this->getPage();
-
-		if (empty($template)) {
-			//TODO: 404 page or specific error?
-			throw new Exception\RuntimeException("No template assigned to the page {$page->getId()}");
-		}
-
-		$pageSet = $template->getTemplateHierarchy();
-		$pageSet[] = $page;
-
-		return $pageSet;
 	}
 
 	/**

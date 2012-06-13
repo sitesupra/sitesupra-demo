@@ -7,5 +7,10 @@ namespace Supra\Controller\Pages\Entity\Abstraction;
  */
 interface AuditedEntityInterface
 {
-	const INTERFACE_NAME = __CLASS__;
+	const CN = __CLASS__;
+
+	/**
+	 * @return string
+	 */
+	public function getRevisionId();
 }
