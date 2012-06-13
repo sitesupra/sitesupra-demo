@@ -608,6 +608,9 @@ Supra(function (Y) {
 		 */
 		onDeleteComplete: function (data, status) {
 			if (status) {
+				// unset current page id
+				Supra.Manager.Page.setPageData({id: null});
+				
 				//Reset toolbar state
 				Supra.Manager.PageToolbar.setActiveAction('Root');
 				Supra.Manager.PageButtons.setActiveAction('Root');
