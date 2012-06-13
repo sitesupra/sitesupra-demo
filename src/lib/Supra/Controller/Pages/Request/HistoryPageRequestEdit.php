@@ -209,7 +209,7 @@ class HistoryPageRequestEdit extends PageRequest
 		$splObjectHashMemory = array();
 		
  		$draftEm = ObjectRepository::getEntityManager(PageController::SCHEMA_DRAFT);
-		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
+//		$auditEm = ObjectRepository::getEntityManager(PageController::SCHEMA_AUDIT);
 
 		$page = $this->getPageLocalization()
 				->getMaster();

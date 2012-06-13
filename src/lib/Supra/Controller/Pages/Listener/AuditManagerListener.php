@@ -168,7 +168,7 @@ class AuditManagerListener implements EventSubscriber
 		$className = $entity::CN();
 		$thisIsRootEntity = false;
 
-		$this->debug("ENTER $className");
+		$this->debug("LOAD ENTER $className");
 
 		// Let's fill the revision in case it is not set yet. Let's assume this is a root entity
 		if ($this->firstObjectLoadState) {
@@ -214,7 +214,8 @@ class AuditManagerListener implements EventSubscriber
 
 		if ($thisIsRootEntity) {
 			// Start the second phase when everything is done
-			$this->postLoadSecondPhase($entityManager, $entity);
+			$visited = array();
+			$this->postLoadSecondPhase($entityManager, $entity, $visited);
 			
 			// Reset the revision ID memory so the next request doesn't fail
 			$this->debug("END. Resetting the revision, our job is done here, I hope");
@@ -436,10 +437,18 @@ class AuditManagerListener implements EventSubscriber
 	 * @param \Doctrine\ORM\EntityManager $entityManager
 	 * @param \Supra\Database\Entity $entity
 	 */
-	private function postLoadSecondPhase(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity)
+	private function postLoadSecondPhase(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity, &$visited = array())
 	{
+		if (in_array($entity, $visited, true)) {
+			$this->debug("VISITED");
+			
+			return;
+		}
+		
+		$visited[] = $entity;
+		
 		$className = $entity::CN();
-		$this->debug("ENTER $className");
+		$this->debug("2ND ENTER $className");
 
 		$this->depth ++;
 
@@ -503,9 +512,8 @@ class AuditManagerListener implements EventSubscriber
 
 						$this->debug("DEEP");
 
-						// TODO: Shouldn't we remember the visited places to avoid loops?
 						foreach ($value as $record) {
-							$this->postLoadSecondPhase($entityManager, $record);
+							$this->postLoadSecondPhase($entityManager, $record, $visited);
 						}
 
 					} else {
