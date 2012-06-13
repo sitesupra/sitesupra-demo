@@ -11,7 +11,6 @@ use Doctrine\Common\Cache\ArrayCache;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventManager;
-use Supra\NestedSet\Listener\NestedSetListener;
 use Supra\Database\Doctrine\Listener\TableNamePrefixer;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Listener;
@@ -268,9 +267,6 @@ class EntityManagerConfiguration implements ConfigurationInterface
 
 		// Maps revision property for appropriate entities
 		$eventManager->addEventSubscriber(new Listener\EntityRevisionFieldMapperListener());
-
-		// Nested set entities (pages and files) depends on this listener
-		$eventManager->addEventSubscriber(new NestedSetListener());
 
 		// Drops file storage cache group when files are being changed
 		$eventManager->addEventSubscriber(new FileGroupCacheDropListener());

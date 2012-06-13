@@ -115,21 +115,6 @@ class Template extends Abstraction\AbstractPage
 	}
 	
 	/**
-	 * Get array of template hierarchy starting from the root
-	 * @return PageSet
-	 */
-	public function getTemplateHierarchy()
-	{
-		/* @var $templates Template[] */
-		$templates = $this->getAncestors(0, true);
-		$templates = array_reverse($templates);
-
-		$pageSet = new PageSet($templates);
-
-		return $pageSet;
-	}
-
-	/**
 	 * {@inheritdoc}
 	 * @return string
 	 */

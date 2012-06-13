@@ -142,27 +142,6 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * Get page and it's template hierarchy starting with the root template
-	 * @return PageSet
-	 * @throws Exception\RuntimeException
-	 */
-	public function getTemplateHierarchy()
-	{
-		$template = $this->getTemplate();
-		$page = $this->getPage();
-
-		if (empty($template)) {
-			//TODO: 404 page or specific error?
-			throw new Exception\RuntimeException("No template assigned to the page {$page->getId()}");
-		}
-
-		$pageSet = $template->getTemplateHierarchy();
-		$pageSet[] = $page;
-
-		return $pageSet;
-	}
-
-	/**
 	 * Set page path
 	 * Should be called from the PagePathGenerator only!
 	 * @param Path $path

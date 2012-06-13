@@ -239,12 +239,53 @@ abstract class PageRequest extends HttpRequest
 		if (isset($this->pageSet)) {
 			return $this->pageSet;
 		}
-
-		// Fetch page/template hierarchy list
-		$this->pageSet = $this->getPageLocalization()
-				->getTemplateHierarchy();
+		
+		$localization = $this->getPageLocalization();
+		
+		if ($localization instanceof Entity\TemplateLocalization) {
+			$template = $localization->getMaster();
+			$this->pageSet = $this->getTemplateTemplateHierarchy($template);
+		} elseif ($localization instanceof Entity\PageLocalization) {
+			$this->pageSet = $this->getPageTemplateHierarchy($localization);
+		} else {
+			throw new Exception\RuntimeException("Template hierarchy cannot be called for a localization of type " . $localization::CN());
+		}
 
 		return $this->pageSet;
+	}
+	
+	/**
+	 * @param Entity\PageLocalization $localization
+	 * @return Set\PageSet
+	 */
+	protected function getPageTemplateHierarchy(Entity\PageLocalization $localization)
+	{
+		$template = $localization->getTemplate();
+		$page = $localization->getPage();
+
+		if (empty($template)) {
+			throw new Exception\RuntimeException("No template assigned to the page {$localization->getId()}");
+		}
+
+		$pageSet = $this->getTemplateTemplateHierarchy($template);
+		$pageSet[] = $page;
+
+		return $pageSet;
+	}
+	
+	/**
+	 * @param Entity\Template $template
+	 * @return Set\PageSet
+	 */
+	protected function getTemplateTemplateHierarchy(Entity\Template $template)
+	{
+		/* @var $templates Template[] */
+		$templates = $template->getAncestors(0, true);
+		$templates = array_reverse($templates);
+
+		$pageSet = new Set\PageSet($templates);
+		
+		return $pageSet;
 	}
 
 	/**

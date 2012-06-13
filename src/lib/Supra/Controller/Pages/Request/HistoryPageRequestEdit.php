@@ -299,7 +299,6 @@ class HistoryPageRequestEdit extends PageRequest
 	
 	private function getPageBlockProperties(EntityManager $em)
 	{
-		
 		$localizationId = $this->getPageLocalization()->getId();
 		
 		$qb = $em->createQueryBuilder();
@@ -312,6 +311,21 @@ class HistoryPageRequestEdit extends PageRequest
 				->getResult();
 		
 		return $result;
+	}
+	
+	/**
+	 * Overriden method, will return one item page set if the passed template is currently being restored.
+	 * @param Entity\Template $template
+	 * @return Set\PageSet
+	 */
+	protected function getTemplateTemplateHierarchy(Entity\Template $template)
+	{
+		if ($this->isLocalResource($template)) {
+			// Maybe it's enough to assume it is root template in the beginning?
+			return new Set\PageSet(array($template));
+		} else {
+			return parent::getTemplateTemplateHierarchy($template);
+		}
 	}
 	
 }

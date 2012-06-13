@@ -33,23 +33,4 @@ class TemplateLocalization extends Abstraction\Localization
 		$this->setMaster($template);
 	}
 	
-	/**
-	 * Get page and it's template hierarchy starting with the root template
-	 * @return PageSet
-	 * @throws Exception\RuntimeException
-	 */
-	public function getTemplateHierarchy()
-	{
-		$template = $this->getTemplate();
-
-		if (empty($template)) {
-			//TODO: 404 page or specific error?
-			throw new Exception\RuntimeException("Template is empty");
-		}
-
-		$templateSet = $template->getTemplateHierarchy();
-
-		return $templateSet;
-	}
-
 }

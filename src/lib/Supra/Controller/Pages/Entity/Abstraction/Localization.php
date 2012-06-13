@@ -407,13 +407,6 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	}
 
 	/**
-	 * Get page and it's template hierarchy starting with the root template
-	 * @return PageSet
-	 * @throws Exception\RuntimeException
-	 */
-	abstract public function getTemplateHierarchy();
-
-	/**
 	 * Returns page lock object
 	 * @return LockData
 	 */
