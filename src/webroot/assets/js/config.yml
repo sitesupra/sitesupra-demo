@@ -1,0 +1,25 @@
+- _version: 2
+
+- _use: HtmlInjection
+
+- _class: HtmlInjection
+  id: assets.js.jquery
+  snippet: js
+  files:
+    - jquery-1.7.2.min.js
+
+- _class: HtmlInjection
+  id: assets.js.app.app
+  snippet: js
+  files:
+    - app/app.js
+  depends:
+    - assets.js.jquery
+
+- _class: HtmlInjection
+  id: assets.js.app.ajaxcontent
+  snippet: js
+  files:
+    - app/ajaxcontent.js
+  depends:
+    - assets.js.app.app
