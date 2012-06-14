@@ -702,8 +702,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			} else {
 				if (node.get('root')) {
 					layouts[0] = {id: '', title: Supra.Intl.get(['settings', 'select_layout'])};
+					input.set('showEmptyValue', false);
 				} else {
 					layouts[0] = {id: '', title: Supra.Intl.get(['settings', 'use_parent_layout'])};
+					input.set('showEmptyValue', true);
 				}
 				
 				input.set('values', layouts);
@@ -766,13 +768,15 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					out.path = data.path = (node.get('root') ? '' : form.getInput('path').get('value'));
 					out.template = data.template = form.getInput('template').get('value');
 				} else {
-					//Only for root templates can be set layout
-					if (node.get('root')) {
-						out.layout = data.layout = form.getInput('layout').get('value');
-					} else {
-						//Inherit from parent
-						out.layout = node.get('parent').get('data').layout;
-					}
+					out.layout = data.layout = form.getInput('layout').get('value');
+//					
+//					//Only for root templates can be set layout
+//					if (node.get('root')) {
+//						out.layout = data.layout = form.getInput('layout').get('value');
+//					} else {
+//						//Inherit from parent
+//						out.layout = node.get('parent').get('data').layout;
+//					}
 				}
 			}
 			
