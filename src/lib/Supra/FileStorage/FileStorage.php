@@ -16,16 +16,13 @@ use Supra\Log\Writer\WriterAbstraction;
  */
 class FileStorage
 {
-	const CACHE_GROUP_NAME = 'Supra\FileStorage';
 
+	const CACHE_GROUP_NAME = 'Supra\FileStorage';
 	const RESERVED_DIR_SIZE = "_size";
 	const RESERVED_DIR_VERSION = "_ver";
-
 	const VALIDATION_EXTENSION_RENAME_MESSAGE_KEY = 'medialibrary.validation_error.extension_rename';
 	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
-
 	const MISSING_IMAGE_PATH = '/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/broken-image.png';
-
 	const FILE_INFO_EXTERNAL = 1;
 	const FILE_INFO_INTERNAL = 2;
 
@@ -40,6 +37,12 @@ class FileStorage
 	 * @var string
 	 */
 	protected $externalPath = null;
+
+	/**
+	 * Url base for files residing in external path
+	 * @var string
+	 */
+	protected $externalUrlBase = null;
 
 	/**
 	 * Upload file filters array for processing
@@ -103,6 +106,14 @@ class FileStorage
 	}
 
 	/**
+	 * @param string $internalPath 
+	 */
+	public function setInternalPathAbsolute($internalPath)
+	{
+		$this->internalPath = rtrim($internalPath, '\/') . DIRECTORY_SEPARATOR;
+	}
+
+	/**
 	 * Get file storage external directory path
 	 *
 	 * @return string
@@ -110,6 +121,14 @@ class FileStorage
 	public function getExternalPath()
 	{
 		return $this->externalPath;
+	}
+
+	/**
+	 * @param string $externalPath 
+	 */
+	public function setExternalPathAbsolute($externalPath)
+	{
+		$this->externalPath = rtrim($externalPath, '\/') . DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -121,6 +140,15 @@ class FileStorage
 	{
 		$externalPath = rtrim($externalPath, '\/') . DIRECTORY_SEPARATOR;
 		$this->externalPath = SUPRA_WEBROOT_PATH . $externalPath;
+	}
+
+	/**
+	 * Sets external (public) file url base.
+	 * @param string $urlBase 
+	 */
+	public function setExternalUrlBase($urlBase)
+	{
+		$this->externalUrlBase = $urlBase;
 	}
 
 	/**
@@ -600,7 +628,7 @@ class FileStorage
 			}
 
 			$newPath = $this->getFilesystemPath($entity);
-			
+
 			if ( ! rename($oldPath, $newPath)) {
 				if ($entity instanceof Entity\Folder) {
 					$this->log()->error("Failed to move '{$oldPath}' to '{$newPath}' in filesystem");
@@ -609,7 +637,7 @@ class FileStorage
 					throw new Exception\RuntimeException('Failed to move in filesystem');
 				}
 			}
-			
+
 			// move file/folder from opposite storage in  file system
 			if ($entity instanceof Entity\Folder) {
 				if ( ! rename($otherStorageOldPath, $otherStorageNewPath)) {
@@ -618,7 +646,7 @@ class FileStorage
 					//throw new Exception\RuntimeException('Failed to move in filesystem');
 				}
 			}
-			
+
 			$entityManager->commit();
 		} catch (\Exception $e) {
 			$entityManager->rollback();
@@ -974,9 +1002,16 @@ class FileStorage
 		}
 
 		if ($file->isPublic()) {
-			$path = '/';
-			// get file storage dir in webroot and fix backslash on windows
-			$path .= str_replace(array(SUPRA_WEBROOT_PATH, "\\"), array('', '/'), $this->getExternalPath());
+
+			// Get file storage url base in webroot
+			if ( ! empty($this->externalUrlBase)) {
+				$path = $this->externalUrlBase . DIRECTORY_SEPARATOR;
+			} else {
+				$path = '/' . str_replace(SUPRA_WEBROOT_PATH, '', $this->getExternalPath());
+			}
+			
+			// Fix backslash on Windows
+			$path = str_replace(array('//', "\\"), '/', $path);
 
 			// get file dir
 			$pathNodes = $file->getAncestors(0, false);
