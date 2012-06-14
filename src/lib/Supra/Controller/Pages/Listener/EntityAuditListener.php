@@ -164,7 +164,18 @@ class EntityAuditListener implements EventSubscriber
 		$this->conn = $this->em->getConnection();
 		$this->platform = $this->conn->getDatabasePlatform();
 		
-		// TODO: temporary, should make another solution
+		
+		if ( ! $this->user instanceof \Supra\User\Entity\User) {
+			$this->loadCurrentUserInfo();
+		}
+	}
+	
+	/**
+	 * Try to get info about current user
+	 * TODO: make another solution
+	 */
+	protected function loadCurrentUserInfo()
+	{
 		$userProvider = ObjectRepository::getUserProvider($this, false);
 		if ($userProvider instanceof \Supra\User\UserProviderAbstract) {
 			$this->user = $userProvider->getSignedInUser();
@@ -446,6 +457,8 @@ class EntityAuditListener implements EventSubscriber
 	 */
 	public function pagePreDeleteEvent(PageEventArgs $eventArgs) 
 	{
+		$this->loadCurrentUserInfo();
+		
 		$this->_pageDeleteState = true;
 		$page = $eventArgs->getProperty('master');
 		$pageId = $page->getId();

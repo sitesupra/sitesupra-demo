@@ -377,6 +377,13 @@
 			"restore_message": "Are you sure?"
 		},
 		
+		"timeline": {
+			"today": "Today",
+			"yesterday": "Yesterday",
+			"this_month": "This month",
+			"by": "by"
+		},
+		
 		"blocks": {
 			"title": "Blocks on the page",
 			"button": "Page blocks"

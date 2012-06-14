@@ -52,6 +52,8 @@ class SitemaprecycleAction extends PageManagerAction
 		$localeId = $this->getLocale()->getId();
 
 		$auditEm = ObjectRepository::getEntityManager('#audit');
+		
+		$userProvider = ObjectRepository::getUserProvider($this);
 
 		$searchCriteria = array(
 			'locale' => $localeId,
@@ -61,7 +63,7 @@ class SitemaprecycleAction extends PageManagerAction
 		$qb = $auditEm->createQueryBuilder()
 				->from($entity, 'l')
 				->from(PageRevisionData::CN(), 'r')
-				->select('l.id, l.title, l.revision, l.master, r.creationTime')
+				->select('l.id, l.title, l.revision, l.master, r.creationTime, r.user')
 				->andWhere('r.type = :type')
 				->andWhere('l.locale = :locale')
 				->andWhere('l.revision = r.id')
@@ -84,25 +86,33 @@ class SitemaprecycleAction extends PageManagerAction
 				$pathPart = $localizationData['pathPart'];
 				$templateId = $localizationData['template'];
 			}
+			
+			$userId = $localizationData['user'];
+			// 8 characters is enough if user was not found
+			$userName = '#' . substr($userId, 0 ,8);
+			if ( ! is_null($userId)) {
+				$user = $userProvider->findUserById($userId);
+				if ($user instanceof \Supra\User\Entity\User) {
+					$userName = $user->getName();
+				}
+			}
 
-			$timeTrashed = $localizationData['creationTime']->format('Y-m-d');
-
+			$timeTrashed = $localizationData['creationTime']->format('c');
+			
 			$pageInfo = array(
-				// Sending master ID not localization ID
 				'id' => $localizationData['id'],
-				'master' => $localizationData['master'],
-				'title' => $localizationData['title'],
-				'template' => $templateId,
-				'path' => $pathPart,
-				'revision' => $localizationData['revision'],
 				'date' => $timeTrashed,
+				'title' => $localizationData['title'],
+				'revision' => $localizationData['revision'],
+				'author' => $userName,
+				'path' => $pathPart,
+				'template' => $templateId,
 				// TODO: do we need this?
-				'icon' => 'page',
 				'localized' => true,
 				'published' => false,
 				'scheduled' => false,
 			);
-
+			
 			$response[] = $pageInfo;
 		}
 
