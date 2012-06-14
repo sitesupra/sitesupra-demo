@@ -177,7 +177,8 @@
 			"title_page": "Page settings",
 			"title_template": "Template settings",
 			
-			"button": "Page settings",
+			"button_page": "Page settings",
+			"button_template": "Template settings",
 			
 			"page_title": "Page title",
 			"page_title_template": "Template title",
@@ -204,6 +205,7 @@
 			"pages_will_inherit_these_values": "New pages will inherit these template values on creation",
 			
 			"delete_page": "Delete page",
+			"delete_template": "Delete template",
 			
 			"meta": "SEO",
 			"meta_title": "SEO",
@@ -262,8 +264,8 @@
 			
 			"created_title": "Page created on",
 			
-			"delete_message": "Are you sure you want to delete selected page?",
-			"delete_message_all": "Do you really want to delete this page from all languages?"
+			"delete_message": "Are you sure you want to delete selected {label}?",
+			"delete_message_all": "Do you really want to delete this {label} from all languages?"
 		},
 		
 		"sitemap": {

@@ -59,9 +59,9 @@ function (Y) {
 			},
 			{
 				'id': 'settings',
-				'title': Supra.Intl.get(['settings', 'button']),
+				'title': Supra.Intl.get(['settings', 'button_page']),
 				'icon': '/cms/lib/supra/img/toolbar/icon-settings.png',
-				'action': 'PageSettings'
+				'action': 'PageSettings',
 			}
 		]
 	};
