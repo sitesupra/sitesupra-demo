@@ -256,11 +256,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 					} else {
 						//If there is no inline node, fail silently
 					}
-				} else if (properties[i].group) {
-					//Create groups
-					if (!group_nodes[properties[i].group]) {
-						this.createGroup(properties[i].group, form_config);
-					}
 				}
 			}
 			
@@ -282,6 +277,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 					//Set input container node to that slide
 					properties[i].containerNode = group_nodes[group];
 					form_config.inputs.push(properties[i]);
+				} else if (properties[i].group) {
+					//Create groups
+					if (!group_nodes[properties[i].group]) {
+						this.createGroup(properties[i].group, form_config);
+					}
 				}
 			}
 			
@@ -878,7 +878,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 							'type': 'Button',
 							'slideshow': slideshow,
 							'slideId': slide_id,
-							'containerNode': slide_main
+							'containerNode': this.getGroupContentNode('default')
 						});
 					}
 					
@@ -951,7 +951,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			if (!group_id || !(group_id in this._group_nodes)) group_id = 'default';
 			
 			for (var key in this._group_nodes) {
-				this._group_nodes[key].toggleClass('hidden', key !== group_id);
+				if (!this._group_nodes[key].hasClass('su-slide-content')) {
+					//Toggle only "top" toolbar button groups
+					this._group_nodes[key].toggleClass('hidden', key !== group_id);
+				}
 			}
 		},
 		
