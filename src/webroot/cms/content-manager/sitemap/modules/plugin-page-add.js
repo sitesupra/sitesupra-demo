@@ -560,7 +560,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			var node = this._node,
 				parent = node.get('parent'),
 				tree = node.get('tree'),
-				template = '';
+				template = '',
+				parentData = null;
 			
 			if (node.isInstanceOf('DataGridRow')) {
 				parent = node = node.get('parent').get('parent');
@@ -572,7 +573,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			} else {
 				while(!template && parent !== tree) {
 					if (parent.get('type') != 'group') {
-						template = parent.get('data').template;
+						
+						parentData = parent.get('data');
+						template = parentData.template;
+						if (parent.get('type') == 'application') {
+							if (parentData.child_template) {
+								template = parentData.child_template;
+							}
+						}
 					}
 					parent = parent.get('parent');
 				}

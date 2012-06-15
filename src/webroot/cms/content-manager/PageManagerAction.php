@@ -500,6 +500,17 @@ abstract class PageManagerAction extends CmsAction
 			$array['new_children_first'] = $conf->newChildrenFirst;
 			$array['isDraggable'] = $conf->isDraggable;
 			$array['isDropTarget'] = $conf->isDropTarget;
+			$array['child_template'] = null;
+			
+			if ( ! empty($conf->childTemplates)) {
+				foreach($conf->childTemplates as $childTemplateDefinition) {
+					
+					$path = $data->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+					if ($path == $childTemplateDefinition['url']) {
+						$array['child_template'] = $childTemplateDefinition['template'];
+					}
+				}
+			}
 			
 			// empty news application contain virtual children
 			if ( ! isset($array['children_count'])) {
