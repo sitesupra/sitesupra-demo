@@ -278,7 +278,7 @@ Supra('anim', 'transition', function (Y) {
 			if (data.length) {
 				var parsedData = this.parseData(data);
 								
-				this.timeline.set('innerHTML', Supra.Template('timeline', {'data': parsedData})).show();
+				this.timeline.set('innerHTML', Supra.Template('recycle-timeline', {'data': parsedData})).show();
 				container.one('.empty').hide();
 				
 				// create tree nodes

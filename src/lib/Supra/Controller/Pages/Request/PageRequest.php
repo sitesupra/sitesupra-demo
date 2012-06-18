@@ -693,6 +693,10 @@ abstract class PageRequest extends HttpRequest
 				$query = $qb->getQuery();
 				$this->prepareQueryResultCache($query);
 				$localizations = $query->getResult();
+				
+				if (empty($localizations)) {
+					$localizations = array();
+				}
 
 				$localizationIds = array();
 
@@ -703,7 +707,9 @@ abstract class PageRequest extends HttpRequest
 					$localizationIds[] = $entityData['master_id'];
 				}
 
-				$localizations = array_combine($localizationIds, $localizations);
+				if ( ! empty($localizationIds) && ! empty($localizations)) {
+					$localizations = array_combine($localizationIds, $localizations);
+				}
 
 				foreach ($referencedElements as $element) {
 					if ($element instanceof Entity\ReferencedElement\LinkReferencedElement) {

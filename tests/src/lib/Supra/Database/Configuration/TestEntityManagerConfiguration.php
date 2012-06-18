@@ -7,6 +7,7 @@ use Doctrine\Common\EventManager;
 use Supra\Controller\Pages\Listener;
 use Doctrine\ORM\Events;
 use Supra\Tests\Search\DiscriminatorAppender;
+use Supra\NestedSet\Listener\NestedSetListener;
 
 /**
  * Entity Manager Configuration for test connection
@@ -24,6 +25,9 @@ class TestEntityManagerConfiguration extends \Supra\Database\Configuration\Entit
 	protected function configureEventManager(EventManager $eventManager)
 	{
 		parent::configureEventManager($eventManager);
+		
+		// Nested set entities (pages and files) depends on this listener
+		$eventManager->addEventSubscriber(new NestedSetListener());
 		
 		$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
 		$eventManager->addEventSubscriber(new Listener\ImageSizeCreatorListener());
