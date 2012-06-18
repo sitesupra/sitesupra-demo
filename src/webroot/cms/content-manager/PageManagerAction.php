@@ -67,16 +67,6 @@ abstract class PageManagerAction extends CmsAction
 	 * @var PageController
 	 */
 	private $pageController;
-	
-	/**
-	 * Redirect page ids. For recursion checking
-	 * 
-	 * @var array 
-	 */
-	protected $redirectPageIds = array(
-		'data' => array(),
-		'iteration' => 0,
-	);
 
 	/**
 	 * Assign entity manager
@@ -225,11 +215,11 @@ abstract class PageManagerAction extends CmsAction
 	private function searchPageByRequestKey($key)
 	{
 		$pageId = $this->getRequestParameter($key);
-		
+
 		if (empty($pageId)) {
 			return null;
 		}
-		
+
 		$page = $this->entityManager->find(
 				Entity\Abstraction\AbstractPage::CN(), $pageId);
 
@@ -249,7 +239,7 @@ abstract class PageManagerAction extends CmsAction
 		if (strpos($pageId, '_') !== false) {
 			$pageId = strstr($pageId, '_', true);
 		}
-		
+
 		if (empty($pageId)) {
 			return null;
 		}
@@ -300,7 +290,7 @@ abstract class PageManagerAction extends CmsAction
 
 		return $localization;
 	}
-	
+
 	/**
 	 * @param string $localizationId
 	 * @param string $revisionId
@@ -313,7 +303,7 @@ abstract class PageManagerAction extends CmsAction
 		$auditEventManager = $auditEm->getEventManager();
 		$setAuditRevisionEventArgs = new SetAuditRevisionEventArgs($revisionId);
 		$auditEventManager->dispatchEvent(AuditEvents::setAuditRevision, $setAuditRevisionEventArgs);
-		
+
 		// localization revision search
 		$localizationCn = Localization::CN();
 		$localizationRevisionId = $auditEm->createQuery("SELECT MAX(l.revision) FROM $localizationCn l 
@@ -323,7 +313,7 @@ abstract class PageManagerAction extends CmsAction
 					'revision' => $revisionId,
 				))
 				->getSingleScalarResult();
-		
+
 		// read localization
 		$localization = $auditEm->getRepository($localizationCn)
 				->find(array('id' => $localizationId, 'revision' => $localizationRevisionId));
@@ -332,7 +322,7 @@ abstract class PageManagerAction extends CmsAction
 		if ( ! ($localization instanceof Localization)) {
 			throw new CmsException(null, 'The restore point is broken and cannot be used anymore.');
 		}
-		
+
 		return $localization;
 	}
 
@@ -445,7 +435,7 @@ abstract class PageManagerAction extends CmsAction
 			'isDraggable' => $localizationExists,
 			'isDropTarget' => true,
 		);
-		
+
 		// Allow dropping before/after not created localizations
 		if ( ! $localizationExists) {
 			$array['droppablePlaces'] = array(
@@ -483,10 +473,10 @@ abstract class PageManagerAction extends CmsAction
 
 			$array['date'] = $data->getCreationTime()->format('Y-m-d');
 
-			$redirect = $this->getRedirectData($data);
-			
+			$redirect = $this->getPageController()->getRedirectData($data);
+
 			$array['redirect'] = $redirect['redirect'] ? $redirect['redirect'] : false;
-			$array['redirect_page_id'] =  $redirect['redirect_page_id'] ? $redirect['redirect_page_id'] : '';
+			$array['redirect_page_id'] = $redirect['redirect_page_id'] ? $redirect['redirect_page_id'] : '';
 		}
 
 		// Node type
@@ -501,17 +491,17 @@ abstract class PageManagerAction extends CmsAction
 			$array['isDraggable'] = $conf->isDraggable;
 			$array['isDropTarget'] = $conf->isDropTarget;
 			$array['child_template'] = null;
-			
+
 			if ( ! empty($conf->childTemplates)) {
-				foreach($conf->childTemplates as $childTemplateDefinition) {
-					
+				foreach ($conf->childTemplates as $childTemplateDefinition) {
+
 					$path = $data->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
 					if ($path == $childTemplateDefinition['url']) {
 						$array['child_template'] = $childTemplateDefinition['template'];
 					}
 				}
 			}
-			
+
 			// empty news application contain virtual children
 			if ( ! isset($array['children_count'])) {
 				$array['children_count'] = 1;
@@ -574,128 +564,6 @@ abstract class PageManagerAction extends CmsAction
 		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
 
 		return $array;
-	}
-
-	/**
-	 * Returns redirect data. Has page localization redirect and redirect localization id
-	 * 
-	 * @param Entity\PageLocalization $pageLocalization
-	 * @param array $parentData
-	 * @return array
-	 */
-	protected function getRedirectData($pageLocalization, $parentData = array())
-	{
-		if($this->redirectPageIds['iteration'] >= 100) {
-			\Log::error('Too deep redirect recursion.');
-			return array();
-		}
-				
-		if ( ! $pageLocalization instanceof Entity\PageLocalization) {
-			return $parentData;
-		}
-		
-		$pageLocalizationId = $pageLocalization->getId();
-		if(in_array($pageLocalizationId, $this->redirectPageIds['data'])) {
-			\Log::error('Looks like page is linking to another page which already was in redirect chain.');
-			return array();
-		}
-		
-		$this->redirectPageIds['data'][] = $pageLocalizationId;
-		
-		$redirect = false;
-		$redirectLocalizationId = null;
-
-		$data = array();
-
-		$em = ObjectRepository::getEntityManager($this);
-		$linkElement = $pageLocalization->getRedirect();
-		
-		if ($linkElement instanceof ReferencedElement\LinkReferencedElement) {
-			$this->redirectPageIds['iteration']++;
-			$redirectPageId = $redirectLocalization = null;
-			$resource = $linkElement->getResource();
-			switch ($resource) {
-				case ReferencedElement\LinkReferencedElement::RESOURCE_PAGE:
-					$redirectPageId = $linkElement->getPageId();
-					if ( ! empty($redirectPageId)) {
-						$redirectPage = $em->getRepository(AbstractPage::CN())
-								->findOneById($redirectPageId);
-
-						if ($redirectPage instanceof AbstractPage) {
-
-							$redirectLocalization = $redirectPage->getLocalization($pageLocalization->getLocale());
-
-							if ($redirectLocalization instanceof Entity\PageLocalization) {
-								$redirectLocalizationId = $redirectLocalization->getId();
-								$redirect = true;
-
-								$data = array(
-									'redirect' => $redirect,
-									'redirect_page_id' => $redirectLocalizationId,
-								);
-								
-								$childLinkElement = $redirectLocalization->getRedirect();
-								if ($childLinkElement instanceof ReferencedElement\LinkReferencedElement) {
-									return $this->getRedirectData($redirectLocalization, $data);
-								}
-							}
-						}
-					}
-					break;
-				case ReferencedElement\LinkReferencedElement::RESOURCE_RELATIVE_PAGE:
-					/* @var $pageLocalization Entity\PageLocalization */
-
-					$pageLocalizationChildrenCollection = $pageLocalization->getChildren();
-					if ( ! $pageLocalizationChildrenCollection instanceof \Doctrine\Common\Collections\Collection) {
-						break;
-					}
-					
-					$pageLocalizationChildren = $pageLocalizationChildrenCollection->getValues();
-
-					if ($linkElement->getHref() == ReferencedElement\LinkReferencedElement::RELATIVE_FIRST
-							&& ! empty($pageLocalizationChildren)) {
-
-						$redirectLocalization = array_shift($pageLocalizationChildren);
-					} elseif ($linkElement->getHref() == ReferencedElement\LinkReferencedElement::RELATIVE_LAST
-							&& ! empty($pageLocalizationChildren)) {
-
-						$redirectLocalization = array_pop($pageLocalizationChildren);
-					} else {
-						break;
-					}
-
-					if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
-						break;
-					}
-
-					$redirect = true;
-					$redirectLocalizationId = $redirectLocalization->getId();
-
-					$data = array(
-						'redirect' => $redirect,
-						'redirect_page_id' => $redirectLocalizationId,
-					);
-
-					$childLinkElement = $redirectLocalization->getRedirect();
-					if ($childLinkElement instanceof ReferencedElement\LinkReferencedElement) {
-						return $this->getRedirectData($redirectLocalization, $data);
-					}
-					
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		$this->redirectPageIds['data'] = array();
-		$this->redirectPageIds['iteration'] = 0;
-		
-		if ( ! empty($data)) {
-			return $data;
-		} else {
-			return $parentData;
-		}
 	}
 
 	/**
@@ -766,10 +634,10 @@ abstract class PageManagerAction extends CmsAction
 					$data['image'] = $info;
 				}
 			}
-			
-			if ( ! $includeMeta ) {
+
+			if ( ! $includeMeta) {
 				unset($data['title'], $data['description']);
-			} 
+			}
 		}
 
 		return $data;
@@ -831,15 +699,15 @@ abstract class PageManagerAction extends CmsAction
 
 		$revisionId = $this->getRequestParameter('revision_id');
 		$localizationId = $this->getRequestParameter('page_id');
-		
+
 		// We need it so later we can mark it as restored
 		$pageRevisionData = $draftEm->getRepository(PageRevisionData::CN())
 				->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'id' => $revisionId));
-		
+
 		if ( ! ($pageRevisionData instanceof PageRevisionData)) {
 			throw new CmsException(null, 'Page revision data not found');
 		}
-		
+
 		$masterId = $auditEm->createQuery("SELECT l.master FROM page:Abstraction\Localization l
 				WHERE l.id = :id AND l.revision = :revision")
 				->execute(
@@ -847,7 +715,7 @@ abstract class PageManagerAction extends CmsAction
 						ColumnHydrator::HYDRATOR_ID);
 
 		$page = null;
-		
+
 		try {
 			$page = $auditEm->getRepository(AbstractPage::CN())
 					->findOneBy(array('id' => $masterId, 'revision' => $revisionId));
@@ -855,7 +723,7 @@ abstract class PageManagerAction extends CmsAction
 			$missingResourceName = $missingResource->getMissingResourceName();
 			throw new CmsException(null, "Wasn't able to load the page from the history because linked resource {$missingResourceName} is not available anymore.");
 		}
-		
+
 		if (empty($page)) {
 			throw new CmsException(null, "Cannot find the page");
 		}
@@ -878,7 +746,7 @@ abstract class PageManagerAction extends CmsAction
 
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference');
-		
+
 		if (is_null($parent) && $page instanceof Page) {
 			throw new CmsException('sitemap.error.parent_page_not_found');
 		}
@@ -886,12 +754,12 @@ abstract class PageManagerAction extends CmsAction
 		$draftEm->beginTransaction();
 		try {
 			$request->restorePage();
-			
+
 			// Read from the draft now
 			$page = $draftEm->find(AbstractPage::CN(), $page->getId());
-			
+
 			/* @var $page AbstractPage */
-			
+
 			try {
 				if ( ! is_null($reference)) {
 					$page->moveAsPrevSiblingOf($reference);
@@ -919,7 +787,7 @@ abstract class PageManagerAction extends CmsAction
 
 			$pageRevisionData->setType(PageRevisionData::TYPE_RESTORED);
 			$draftEm->flush();
-			
+
 			$localization = $page->getLocalization($localeId);
 			$this->pageData = $localization;
 			
@@ -945,7 +813,7 @@ abstract class PageManagerAction extends CmsAction
 		$revisionId = $this->getRequestParameter('version_id');
 
 		$localization = $this->findLocalizationInAudit($localizationId, $revisionId);
-		
+
 		$draftEntityManager = $this->entityManager;
 
 		$localeId = $this->getLocale()->getId();
@@ -966,7 +834,7 @@ abstract class PageManagerAction extends CmsAction
 		// Trigger appropriate event. Will create full restore point.
 		$pageEventArgs = new PageEventArgs($draftEntityManager);
 		$pageEventArgs->setProperty('referenceId', $localizationId);
-		
+
 		$draftEntityManager->getEventManager()
 				->dispatchEvent(AuditEvents::localizationPostRestoreEvent, $pageEventArgs);
 	}
@@ -1304,7 +1172,7 @@ abstract class PageManagerAction extends CmsAction
 													$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
 															->where('m.blockProperty = ?0')
 															->getQuery()->execute(array($targetProperty->getId()));
-												
+
 													$qb = $em->createQueryBuilder();
 													$qb->delete(Entity\BlockProperty::CN(), 'p')
 															->where('p.id = ?0')
