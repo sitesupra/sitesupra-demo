@@ -47,10 +47,6 @@ class PageApplicationConfiguration implements ConfigurationInterface
 	 */
 	public $isDropTarget = true;
 	
-	/**
-	 * @var array
-	 */
-	public $childTemplates = array();
 
 	public function configure()
 	{

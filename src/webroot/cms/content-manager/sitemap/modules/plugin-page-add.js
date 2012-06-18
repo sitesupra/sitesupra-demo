@@ -543,8 +543,9 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				var select_template_title = Supra.Intl.get(['sitemap', 'select_template']);
 				templates.unshift({id:'', title: select_template_title});
 				
+				form.getInput('template').set('showEmptyValue', false);
+				
 				form.getInput('template').set('values', templates);
-				form.getInput('template').set('value', this._getAncestorTemplate);
 			}
 		},
 		
@@ -560,6 +561,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			var node = this._node,
 				parent = node.get('parent'),
 				tree = node.get('tree'),
+				dataObject = tree.get('data'),
 				template = '',
 				parentData = null;
 			
@@ -573,13 +575,32 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			} else {
 				while(!template && parent !== tree) {
 					if (parent.get('type') != 'group') {
-						
-						parentData = parent.get('data');
-						template = parentData.template;
-						if (parent.get('type') == 'application') {
-							if (parentData.child_template) {
-								template = parentData.child_template;
+												
+						// if we have reached list node of Page Application
+						// then we will try to get template of first child of list
+						if (parent.get('type') == 'list' 
+							&& parent.get('parent').get('type') == 'application') 
+						{
+							parentData = parent.get('data');
+							if (parentData.children_count) {
+								
+								if (dataObject.isLoading(parentData.id) || ! dataObject.isLoaded(parentData.id)) {
+									tree.once('load:success:' + parentData.id, this._setAncestorTemplate, this);
+								}
+								if (dataObject.isLoading(parentData.id)) {
+									return false;
+								}
+								if (!dataObject.isLoaded(parentData.id)) {
+									dataObject.load(parentData.id);
+									return false;
+								}
+								
+								var children = parent.get('data').children;
+								template = children[0].template;
 							}
+							
+						} else {
+							template = parent.get('data').template;
 						}
 					}
 					parent = parent.get('parent');
@@ -673,16 +694,21 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				input = form.getInput('path');
 				input.set('value', path);
 				
-				input = form.getInput('template');
-				input.set('value', this._getAncestorTemplate());
+				//input = form.getInput('template');
+				//input.set('value', this._getAncestorTemplate());
+				this._setAncestorTemplate();
 				
-				//if (is_row_node) {
-				//	input.set('visible', false);
-				//}
 			} else {
 				input = form.getInput('layout');
 				input.set('value', ''); //@TODO Set layout from parent
 			}
+		},
+		
+		_setAncestorTemplate: function() {
+			var form = this._widgets.form,
+				input = form.getInput('template');
+			
+			input.set('value', this._getAncestorTemplate());
 		},
 		
 		/**
