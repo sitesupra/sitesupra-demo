@@ -80,15 +80,15 @@ class InternalUserManagerAbstractAction extends CmsAction
 		}
 
 		$id = $input->get($key);
-		
-		switch($className) {
+
+		switch ($className) {
 			case Entity\Group::CN():
 				$entity = $this->userProvider->findGroupById($id);
 				break;
 			case Entity\User::CN():
 				$entity = $this->userProvider->findUserById($id);
 				break;
-			
+
 			case Entity\AbstractUser::CN():
 				$entity = $this->userProvider->findUserById($id);
 				if (is_null($entity)) {
@@ -98,7 +98,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 			default:
 				throw new \Supra\User\Exception\RuntimeException('Incorrect entity was requested');
 		}
-		
+
 		if ( ! $entity instanceof $className) {
 			throw new CmsException('internalusermanager.validation_error.user_not_exists');
 		}
@@ -172,7 +172,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 
 		$userProvider = ObjectRepository::getUserProvider($this);
 		$hash = $userProvider->generatePasswordRecoveryHash($user, $time);
-		
+
 		$authAdapter = $userProvider->getAuthAdapter();
 
 		$userLogin = null;
@@ -186,7 +186,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 		}
 
 		$systemInfo = ObjectRepository::getSystemInfo($this);
-		$host = $systemInfo->getHostName(\Supra\Info::WITH_SCHEME);
+		$host = $systemInfo->getWebserverHostAndPort(\Supra\Info::WITH_SCHEME);
 
 		// TODO: hardcoded CMS path
 		$url = $host . '/' . SUPRA_CMS_URL . '/restore/';
@@ -211,9 +211,9 @@ class InternalUserManagerAbstractAction extends CmsAction
 		$message->setSubject($subject)
 				->setTo($userMail)
 				->setBody("mail-template/{$template}.twig", $mailVars);
+				
 		$mailer->send($message);
 	}
-
 
 //// Moved to UserProviderAbstract
 //	/**
@@ -272,17 +272,17 @@ class InternalUserManagerAbstractAction extends CmsAction
 		);
 
 		if ($user instanceof Entity\User) {
-			
+
 			$response['email'] = $user->getEmail();
 			$response['group'] = $this->groupToDummyId($user->getGroup());
-			
+
 			if ( ! $user->hasPersonalAvatar()) {
 				$response['avatar_id'] = $user->getAvatar();
 			}
-			
+
 			$response['avatar'] = $this->getAvatarExternalPath($user);
 		} else {
-			
+
 			$response['email'] = 'N/A';
 			$response['group'] = $this->groupToDummyId($user);
 			$response['group_id'] = $this->groupToDummyId($user);
@@ -358,7 +358,7 @@ class InternalUserManagerAbstractAction extends CmsAction
 		if (DIRECTORY_SEPARATOR != '/') {
 			$path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
 		}
-		
+
 		return $path;
 	}
 
