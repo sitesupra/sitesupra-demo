@@ -1,3 +1,8 @@
+{# Preload #}
+{% for image in supraBlock.property('images') %}
+	{{ supraBlock.preloadImage( image.imageId, 100, 100, true ) }}
+{% endfor %}
+
 <h2>Gallery</h2>
 
 <ul>
