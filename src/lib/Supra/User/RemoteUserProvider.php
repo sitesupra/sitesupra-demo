@@ -30,7 +30,7 @@ class RemoteUserProvider extends UserProviderAbstract
 	 * @var WriterAbstraction
 	 */
 	protected $log;
-
+	
 	/**
 	 * @var string
 	 */
@@ -124,12 +124,9 @@ class RemoteUserProvider extends UserProviderAbstract
 		return $this->findUserByCriteria(array('field' => 'group', 'value' => $group->getId()));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public function createUser()
 	{
-		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
+		return new Entity\User();
 	}
 
 	/**
@@ -145,7 +142,20 @@ class RemoteUserProvider extends UserProviderAbstract
 	 */
 	public function doInsertUser(Entity\User $user)
 	{
-		throw new \Exception('Not implemented. Need to rewrite SupraPortal User provider');
+		$parameters = array(
+			'--name' => $user->getName(),
+			'--email' => $user->getEmail(),
+			'--group' => $user->getGroup()
+				->getId(),
+			'--avatar' => $user->getAvatar(),
+			'--has_personal_avatar' => $user->hasPersonalAvatar()
+		);
+
+		$response = $this->executeSupraPortalCommand(self::REMOTE_COMMAND_CREATE_USER, $parameters);
+
+		if ( ! empty($response['error'])) {
+			throw new Exception\RuntimeException('SupraPortal: ' . $response['error']);
+		}
 	}
 
 	/**
@@ -336,7 +346,6 @@ class RemoteUserProvider extends UserProviderAbstract
 	
 	/**
 	 * Return an array (key => value) with user settings
-	 * TODO: handle SiteUser preferences for SupraPortal
 	 */
 	public function getUserPreferences(Entity\User $user)
 	{
