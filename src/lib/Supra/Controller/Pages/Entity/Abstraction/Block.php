@@ -190,7 +190,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		}
 
 		$blockControllerCollection = BlockControllerCollection::getInstance();
-		$blockController = $blockControllerCollection->getBlockController($componentClass);
+		$blockController = $blockControllerCollection->createBlockController($componentClass);
 		$blockController->setBlock($this);
 
 		return $blockController;

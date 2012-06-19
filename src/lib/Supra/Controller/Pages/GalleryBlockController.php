@@ -104,7 +104,7 @@ class GalleryBlockController extends BlockController
 		$controllerCollection = BlockControllerCollection::getInstance();
 		
 		// original gallery controller
-		$controller = $controllerCollection->getBlockController($block->getComponentClass());
+		$controller = $controllerCollection->createBlockController($block->getComponentClass());
 		$this->configuration = $controller->getConfiguration();
 		
 		$parentProperty = $this->metadata->getBlockProperty();

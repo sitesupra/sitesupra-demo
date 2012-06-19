@@ -15,8 +15,12 @@ class EventArgs
 	 * Must pass the caller object, classname, namespace so called events can be filtered
 	 * @param mixed $caller
 	 */
-	public function __construct($caller = ObjectRepository::DEFAULT_KEY)
+	public function __construct($caller = null)
 	{
+		if (is_null($caller)) {
+			$caller = ObjectRepository::DEFAULT_KEY;
+		}
+		
 		$this->caller = $caller;
 	}
 
@@ -26,6 +30,15 @@ class EventArgs
 	public function getCaller()
 	{
 		return $this->caller;
+	}
+
+	/**
+	 * Set different caller
+	 * @param mixed $caller
+	 */
+	public function setCaller($caller)
+	{
+		$this->caller = $caller;
 	}
 
 	/**

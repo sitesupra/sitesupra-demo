@@ -37,4 +37,8 @@ class BlockEventsArgs extends EventArgs
 	 */
 	public $exception;
 
+	/**
+	 * @var boolean
+	 */
+	public $blockRequest = false;
 }
