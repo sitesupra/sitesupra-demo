@@ -5,7 +5,8 @@ Supra('anim', 'transition', function (Y) {
 	
 	//Shortcuts
 	var Manager = Supra.Manager,
-		Action = Manager.Action;
+		Action = Manager.Action,
+		YDate = Y.DataType.Date;
 	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {
@@ -44,8 +45,12 @@ Supra('anim', 'transition', function (Y) {
 		 * Tree node list
 		 * @type {Array}
 		 */
-		'treenodes': [],
+		treenodes: [],
 		
+		/**
+		 * Timeline node
+		 */
+		timeline: null,
 		
 		
 		/**
@@ -74,85 +79,11 @@ Supra('anim', 'transition', function (Y) {
 			//When page is restore, send request
 			Manager.SiteMap.tree.on('page:restore', this.onPageRestore, this);
 			
-			//When page is restore, send request
 			Manager.SiteMap.tree.on('page:delete', this.load, this);
-		},
-		
-		/**
-		 * Render list items
-		 * 
-		 * @param {Object} data List data
-		 * @param {Boolean} status Response status
-		 * @private
-		 */
-		'renderItems': function (data, status) {
-			var container = this.one('.recycle-list'),
-				treenodes = this.treenodes,
-				html = null,
-				node = null,
-				last_title = '';
 			
-			if (data.length) {
-				//Set date titles
-				for(var i=0,ii=data.length; i<ii; i++) {
-					data[i].date_title = this.dateToTitle(data[i].date);
-					data[i].date_diff = (last_title != data[i].date_title);
-					last_title = data[i].date_title;
-				}
-				
-				html = Supra.Template('recycleItemList', {'items': data});
-				
-				container.set('innerHTML', html);
-				
-				for(var i=0,ii=treenodes.length; i<ii; i++) {
-					treenodes[i].destroy();
-				}
-				this.treenodes = treenodes = [];
-				
-				for(var i=0,ii=data.length; i<ii; i++) {
-					node = container.one('li[data-id="' + data[i].id + '"] p.title');
-					
-					//Attributes
-					data[i].state = data[i].state || (data[i].published ? 'published' : 'draft');
-					
-					//Data
-					data[i].full_path = data[i].full_path || '';
-					
-					this.bindItem(node, data[i]);
-				}
-			} else {
-				//No items
-				html = Supra.Template('recycleItemEmpty', {});
-				container.set('innerHTML', html);
-			}
-			
-			//Hide loading icon
-			this.one().removeClass('loading');
-		},
-		
-		/**
-		 * Returns title from date
-		 * 
-		 * @param {String} date Date string or date object
-		 * @return Date title
-		 * @type {String}
-		 */
-		'dateToTitle': function (date) {
-			var date = Date.parse(date),
-				diff = Math.ceil(((new Date()).getTime() - date) / 86400000),
-				title = '';
-			
-			if (diff <= 1) {
-				title = Supra.Intl.get(['sitemap', 'today']);
-			} else if (diff == 2) {
-				title = Supra.Intl.get(['sitemap', 'yesterday']);
-			} else if (diff <= 7) {
-				title = Supra.Intl.get(['sitemap', 'last_week']);
-			} else {
-				title = Supra.Intl.get(['sitemap', 'older']);
-			}
-			
-			return title;
+			//Timeline list
+			this.timeline = this.one('div.timeline');
+			this.timeline.delegate('click', this.toggleSection, 'p.title', this);
 		},
 		
 		/**
@@ -216,7 +147,7 @@ Supra('anim', 'transition', function (Y) {
 			}
 			
 			//Loading icon
-			this.one().addClass('loading');
+			this.get('contentNode').addClass('loading');
 			
 			Supra.io(this.getDataPath('restore'), {
 				'data': out,
@@ -228,9 +159,8 @@ Supra('anim', 'transition', function (Y) {
 							this.restoreSuccess(node, data);
 						} else {
 							this.restoreFailure(node, data);
+							this.get('contentNode').removeClass('loading');
 						}
-						
-						this.one().removeClass('loading');
 					}
 				}
 			});
@@ -246,7 +176,7 @@ Supra('anim', 'transition', function (Y) {
 		 */
 		'restoreSuccess': function (node, data) {
 			var id = data.id,
-				element = this.one('.recycle-list li.item[data-id="' + data.id + '"]');
+				element = this.get('contentNode').one('.timeline p[data-id="' + data.id + '"]');
 			
 			//Remove element
 			if (element) {
@@ -257,10 +187,8 @@ Supra('anim', 'transition', function (Y) {
 			var tree = node.get('tree');
 			tree.loadPagePermissions(data);
 			
-			//If last item was removed then hide recycle bin
-			if (!this.one('.recycle-list li.item')) {
-				this.hide();
-			}
+			//reload list
+			this.load();
 		},
 		
 		/**
@@ -328,17 +256,236 @@ Supra('anim', 'transition', function (Y) {
 		/**
 		 * Load recycle bin data
 		 */
-		'load': function (mode, locale) {
+		load: function (mode, locale) {
 			//Loading style
-			this.one().addClass('loading');
+			this.get('contentNode').addClass('loading');
 			
 			Supra.io(this.getLoadRequestURI(mode), {
 				'data': {
 					'locale': this.getLocale(locale)
 				},
 				'context': this,
-				'on': {'complete': this.renderItems}
+				'on': {'success': this.renderData}
 			});
+		},
+		
+		renderData: function (data) {
+			var container = this.get('contentNode'),
+				html = null;
+			
+			container.removeClass('loading');
+			
+			if (data.length) {
+				var parsedData = this.parseData(data);
+								
+				this.timeline.set('innerHTML', Supra.Template('recycle-timeline', {'data': parsedData})).show();
+				container.one('.empty').hide();
+				
+				// create tree nodes
+				this.createNodes(data);
+			} else {
+				//No items
+				html = Supra.Template('recycleItemEmpty', {});
+				container.one('.empty').set('innerHTML', html).show();
+				this.timeline.hide();
+			}
+				
+			this.updateScrollbars();
+		},
+		
+		createNodes: function (data) {
+			var node = null,
+				container = this.get('contentNode'),
+				treenodes = this.treenodes;
+			
+			for(var i=0,ii = treenodes.length; i<ii; i++) {
+				treenodes[i].destroy();
+			}
+			this.treenodes = treenodes = [];
+			
+			for(i = 0, ii = data.length; i<ii; i++) {
+				node = container.one('.timeline p[data-id="' + data[i].id + '"]');
+				this.bindItem(node, data[i]);
+			}
+		},
+		
+		/**
+		 * Parse data and change format
+		 */
+		parseData: function (data) {
+			var i = 0,
+				ii = data.length,
+				out = {},
+				groups = null,
+				date = null;
+		
+			for(; i<ii; i++) {
+				date = this.parseDate(data[i].date);
+				
+				if (!out[date.group]) {
+					out[date.group] = {
+						'sort': date.group_sort,
+						'title': date.group_title,
+						'latest': date.latest,
+						'groups': {}
+					}
+				}
+				if (!out[date.group].groups[date.group_datetime]) {
+					out[date.group].groups[date.group_datetime] = {
+						'sort': date.group_datetime,
+						'datetime': date.group_datetime,
+						'pages': []
+					};
+				}
+				
+				out[date.group].groups[date.group_datetime].pages.push({
+					'id': data[i].id,
+					'title': data[i].title,
+					'action': data[i].action,
+					'datetime': date.datetime,
+					'author': data[i].author
+				});
+			}
+			
+			//Convert objects to arrays
+			data = [];
+			
+			for(var i in out) {
+				groups = [];
+				for(var k in out[i].groups) {
+					groups.push(out[i].groups[k]);
+				}
+				
+				groups = groups.sort(function (a, b) {
+					return a.sort < b.sort ? 1 : -1;
+				});
+				
+				out[i].groups = groups;
+				data.push(out[i]);
+			}
+			
+			data.sort(function (a, b) {
+				return a.sort < b.sort ? 1 : -1;
+			});
+			
+			return data;
+		},
+		
+		/**
+		 * Parse date
+		 */
+		parseDate: function (date) {
+			var today = new Date(),
+				y_day = null,
+				month = null,
+				raw = YDate.reformat(date, 'in_datetime_short', 'raw'),
+				month_names = Y.Intl.get('datatype-date-format').B,
+				out = {
+					'raw': raw,
+					'latest': false,
+					'group': '',
+					'group_title': '',
+					'group_datetime': '',
+					'datetime': YDate.reformat(raw, 'raw', 'out_time_short')
+				};
+			
+			today.setHours(0, 0, 0, 0);
+			
+			y_day = new Date(today.getTime() - 24*60*60*1000);
+			
+			month = new Date(today.getTime());
+			month.setDate(1);
+			
+			if (raw.getTime() >= today.getTime())
+			{
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-%d');
+				out.group_title = Supra.Intl.get(['timeline', 'today']);
+				out.group_datetime = YDate.reformat(raw, 'raw', '%H:00');
+				out.latest = true;
+				out.group_sort = [3, null];
+			}
+			else if (raw.getTime() >= y_day.getTime())
+			{
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-%d');
+				out.group_title = Supra.Intl.get(['timeline', 'yesterday']);
+				out.group_datetime = YDate.reformat(raw, 'raw', '%H:00');
+				out.latest = true;
+				out.group_sort = [2, null];
+			}
+			else if (raw.getTime() >= month.getTime())
+			{
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-00');
+				out.group_title = Supra.Intl.get(['timeline', 'this_month']);
+				out.group_datetime = raw.getDate();
+				out.group_sort = [1, null];
+			}
+			else
+			{
+				out.group = YDate.reformat(raw, 'raw', '%Y-%m-00');
+				out.group_title = month_names[raw.getMonth()];
+				out.group_datetime = raw.getDate();
+				out.group_sort = [0, YDate.reformat(raw, 'raw', '%Y-%m')];
+			}
+			
+			return out;
+		},
+		
+		/**
+		 * Update scrollbars
+		 */
+		updateScrollbars: function () {
+			this.one('.su-scrollable').fire('contentResize');
+		},
+		
+		toggleSection: function (e) {
+			var item = (e.target ? e.target.closest('.item') : e),
+				section = item.one('.section'),
+				height = 0,
+				anim = null;
+			
+			if (item.hasClass('expanded')) {
+				//Collapse
+				anim = new Y.Anim({
+					'node': section,
+					'from': {'height': section.get('offsetHeight'), 'opacity': 1},
+					'to':   {'height': 0, 'opacity': 0},
+					'duration': 0.25,
+					'easing': 'easeOut'
+				});
+				
+				anim.on('end', Y.bind(function () {
+					anim.destroy();
+					item.removeClass('expanded');
+					section.setStyles({'height': null});
+					this.updateScrollbars();
+				}, this));
+				
+				anim.run();
+			} else {
+				//Find content height
+				section.setStyles({'display': 'block', 'position': 'absolute', 'left': '-9000px'});
+				height = section.get('offsetHeight');
+				
+				//Animate
+				section.setStyles({'display': null, 'position': null, 'left': null, 'height': '0px'});
+				item.addClass('expanded');
+				
+				anim = new Y.Anim({
+					'node': section,
+					'from': {'height': 0, 'opacity': 0},
+					'to':   {'height': height, 'opacity': 1},
+					'duration': 0.25,
+					'easing': 'easeOut'
+				});
+				
+				anim.on('end', Y.bind(function () {
+					anim.destroy();
+					section.setStyles({'height': null});
+					this.updateScrollbars();
+				}, this));
+				
+				anim.run();
+			}
 		},
 		
 		/**

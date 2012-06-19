@@ -381,8 +381,9 @@
 					var message_id = 'delete_message';
 				}
 
+				var current_type = (this.page_data.type == 'template' ? 'template' : 'page');
 				Manager.executeAction('Confirmation', {
-					'message': Supra.Intl.get(['settings', message_id]),
+					'message': Supra.Intl.get(['settings', message_id]).replace('{label}', current_type),
 					'useMask': true,
 					'buttons': [
 						{
@@ -880,6 +881,12 @@
 				} else {
 					label_header = Supra.Intl.get(['settings', 'title_template']);
 					label_title = Supra.Intl.get(['settings', 'page_title_template']);
+				}
+				
+				if (type != 'template') {
+					this.button_delete.set('label', Supra.Intl.get(['settings', 'delete_page']));
+				} else {
+					this.button_delete.set('label', Supra.Intl.get(['settings', 'delete_template']));
 				}
 
 				this.set('title', label_header)

@@ -8,7 +8,9 @@ use Twig_Markup;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\Locale;
 use Supra\FileStorage\Entity\Image;
+use Supra\FileStorage\Entity\ImageSize;
 use Supra\Html\HtmlTag;
+use Supra\Form\FormBlockController;
 
 /**
  * Supra page controller twig helper
@@ -25,6 +27,16 @@ class TwigSupraBlockGlobal
 	 * @var FormExtension
 	 */
 	protected $form;
+	
+	/**
+	 * @var array
+	 */
+	private $preloadImageData = array();
+	
+	/**
+	 * @var array
+	 */
+	private $preloadedImages = array();
 
 	/**
 	 * @param BlockController $blockController
@@ -33,7 +45,7 @@ class TwigSupraBlockGlobal
 	{
 		$this->blockController = $blockController;
 		
-		if($blockController instanceof \Supra\Form\FormBlockController) {
+		if ($blockController instanceof FormBlockController) {
 			$this->form = new FormExtension($blockController);
 		}
 	}
@@ -53,7 +65,84 @@ class TwigSupraBlockGlobal
 
 		return $value;
 	}
-
+	
+	/**
+	 * Mark image for preload
+	 * @param string $imageId
+	 * @param integer $width
+	 * @param integer $height
+	 * @param boolean $cropped
+	 */
+	public function preloadImage($imageId, $width = null, $height = null, $cropped = false)
+	{
+		$this->preloadImageData[$width][$height][$cropped][$imageId] = true;
+	}
+	
+	/**
+	 * Does the preload
+	 * @param integer $width
+	 * @param integer $height
+	 * @param boolean $cropped
+	 */
+	private function doPreloadImages($width, $height, $cropped)
+	{
+		$fileStorage = ObjectRepository::getFileStorage($this);
+		$em = $fileStorage->getDoctrineEntityManager();
+		
+		$imageIds = array_keys($this->preloadImageData[$width][$height][$cropped]);
+		
+		if (empty($imageIds)) {
+			return;
+		}
+		
+		// Find images
+		$qb = $em->createQueryBuilder()
+				->select('i')
+				->from(Image::CN(), 'i', 'i.id')
+				->andWhere('i.id IN (?0)')
+				->setParameters(array($imageIds));
+		$images = $qb->getQuery()->getResult();
+		
+		$qb = $em->createQueryBuilder()
+				->select('s')
+				->from(ImageSize::CN(), 's')
+				->andWhere('s.master IN (?0) AND s.targetWidth = ?1 AND s.targetHeight = ?2 AND s.cropMode = ?3')
+				->setParameters(array($imageIds, $width, $height, $cropped));
+		
+		$sizes = $qb->getQuery()->getResult();
+		
+		foreach ($sizes as $key => $size) {
+			$sizes[$size->getMaster()->getId()] = $size;
+		}
+		
+		foreach ($images as $imageId => $image) {
+			
+			$imageSize = null;
+			
+			if (empty($sizes[$imageId])) {
+				$sizeName = $fileStorage->createResizedImage($image, $width, $height, $cropped);
+				$imageSize = $image->getImageSize($sizeName);
+			} else {
+				$imageSize = $sizes[$imageId];
+			}
+			
+			$width = $imageSize->getWidth();
+			$height = $imageSize->getHeight();
+			
+			$img = new HtmlTag('img');
+			
+			$webPath = $fileStorage->getWebPath($image, $imageSize);
+			$img->setAttribute('src', $webPath);
+			$img->setAttribute('width', $width);
+			$img->setAttribute('height', $height);
+			
+			$this->preloadedImages[$width][$height][$cropped][$imageId] = $img;
+		}
+		
+		// Clear data
+		$this->preloadImageData[$width][$height][$cropped] = array();
+	}
+	
 	/**
 	 * @param string $imageId
 	 * @param integer $width
@@ -66,74 +155,24 @@ class TwigSupraBlockGlobal
 		if (empty($imageId)) {
 			return;
 		}
-
-		$img = new HtmlTag('img');
-
-		$fileStorage = ObjectRepository::getFileStorage($this);
-		$image = $fileStorage->getDoctrineEntityManager()
-				->find(Image::CN(), $imageId);
-
-		if ( ! $image instanceof Image) {
-			return;
+		
+		// For now..
+		if (is_null($width)) {
+			$width = 10000;
 		}
-
-		$exists = $fileStorage->fileExists($image);
-
-		if ( ! $exists) {
-			return;
+		
+		if (is_null($height)) {
+			$height = 10000;
 		}
-
-		$sizeName = null;
-
-
-		// Needs original version
-		if ( ! is_null($width) || ! is_null($height)) {
-
-			// calculating sizes if only image height or width provided
-			$calculationError = false;
-
-			if (is_null($width) ^ is_null($height)) {
-
-				$originalWidth = $image->getWidth();
-				$originalHeight = $image->getHeight();
-
-				$sizes = array();
-
-				if (is_null($width)) {
-					$sizes = $fileStorage->calculateImageSizeFromHeight($originalWidth, $originalHeight, $height);
-				} elseif (is_null($height)) {
-					$sizes = $fileStorage->calculateImageSizeFromWidth($originalWidth, $originalHeight, $width);
-				}
-
-				if (is_null($sizes['height']) || is_null($sizes['width'])) {
-					$calculationError = true;
-				}
-				
-				$width = $sizes['width'];
-				$height = $sizes['height'];
-				
-			}
-
-			if ( ! $calculationError) {
-				$sizeName = $fileStorage->createResizedImage($image, $width, $height, $cropped);
-				$imageSize = $image->getImageSize($sizeName);
-				$width = $imageSize->getWidth();
-				$height = $imageSize->getHeight();
-			} else {
-				$width = $image->getWidth();
-				$height = $image->getHeight();
-			}
-		} else {
-			$width = $image->getWidth();
-			$height = $image->getHeight();
+		
+		if (isset($this->preloadedImages[$width][$height][$cropped][$imageId])) {
+			return $this->preloadedImages[$width][$height][$cropped][$imageId];
 		}
-
-		$webPath = $fileStorage->getWebPath($image, $sizeName);
-		$img->setAttribute('src', $webPath);
-		$img->setAttribute('width', $width);
-		$img->setAttribute('height', $height);
-
-		return $img;
+		
+		$this->preloadImage($imageId, $width, $height, $cropped);
+		$this->doPreloadImages($width, $height, $cropped);
+		
+		return $this->preloadedImages[$width][$height][$cropped][$imageId];
 	}
 	
 	/**

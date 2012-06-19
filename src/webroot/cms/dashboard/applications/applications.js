@@ -196,14 +196,14 @@ function (Y) {
 				node.one("div.user img").addClass("hidden");
 			}
 			
-			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
-				node.one("a.close").addClass("hidden");
-			} else {
+//			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
+//				node.one("a.close").addClass("hidden");
+//			} else {
 				//node.one("a.close").on("click", this.hide, this);
 				node.one('a.close').on("click", function() {
 					document.location = Supra.Manager.Loader.getDynamicPath() + '/logout/'
 				});
-			}
+//			}
 		},
 		
 		/**

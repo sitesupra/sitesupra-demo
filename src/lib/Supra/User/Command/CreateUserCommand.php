@@ -27,6 +27,7 @@ use Supra\Controller\Pages\Event\CmsUserCreateEventArgs;
  */
 class CreateUserCommand extends Command
 {
+
 	protected function configure()
 	{
 		$this->setName('su:user:create_user')
@@ -89,9 +90,8 @@ class CreateUserCommand extends Command
 		$userProvider->credentialChange($user);
 		//$userProvider->updateUser($user);
 		$userProvider->insertUser($user);
-		
+
 		$output->writeln('Added user "' . $name . '" to "' . $groupName . '" group');
-		
 	}
 
 	private function ensureAdminsGroupExist()
@@ -118,10 +118,12 @@ class CreateUserCommand extends Command
 	{
 		foreach (CmsApplicationConfiguration::getInstance()->getArray(true) as $appId => $appConfig) {
 
-			if (in_array($appId, $allowedApplicationIds)) {
-				$appConfig->authorizationAccessPolicy->grantApplicationAllAccessPermission($group);
-			} else {
-				$appConfig->authorizationAccessPolicy->revokeApplicationAllAccessPermission($group);
+			if ( ! empty($appConfig->authorizationAccessPolicy)) {
+				if (in_array($appId, $allowedApplicationIds)) {
+					$appConfig->authorizationAccessPolicy->grantApplicationAllAccessPermission($group);
+				} else {
+					$appConfig->authorizationAccessPolicy->revokeApplicationAllAccessPermission($group);
+				}
 			}
 		}
 	}

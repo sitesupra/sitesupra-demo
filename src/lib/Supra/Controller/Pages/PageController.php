@@ -22,7 +22,7 @@ use Supra\Controller\Pages\Event\BlockEvents;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Cache\CacheGroupManager;
 use Supra\Controller\Exception\AuthorizationRequiredException;
-
+use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 /**
  * Page controller
  * @method PageRequest getRequest()
@@ -100,7 +100,7 @@ class PageController extends ControllerAbstraction
 	{
 		$request = $this->getRequest();
 		$response = $this->getResponse();
-		
+
 		$localization = null;
 
 		// Check redirect for public calls
@@ -129,27 +129,34 @@ class PageController extends ControllerAbstraction
 				}
 
 				$redirect = $localization->getRedirect();
-				if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
-					//TODO: any validation? skipping? loop check?
+                //TODO: 404 on redirect loop? Currently shows page without redirect
+				if ($redirect instanceof LinkReferencedElement) {
 
 					ObjectRepository::setCallerParent($redirect, $this);
 
-					$location = $redirect->getUrl($this);
-					if ( ! is_null($location)) {
+					$redirectData = $this->getRedirectData($localization);
+					$redirectLoop = empty($redirectData) ? true : false;
+					$resource = $redirect->getResource();
 
-						$resource = $redirect->getResource();
+					if (($resource == LinkReferencedElement::RESOURCE_LINK) || ! $redirectLoop) {
+						
+						$location = '/';
 
 						// If redirect is external URL, add scheme for links like "www.example.org"
-						if ($resource == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_LINK) {
-
+						if ($resource == LinkReferencedElement::RESOURCE_LINK) {
+							$location = $redirect->getUrl($this);
 							$scheme = parse_url($location, PHP_URL_SCHEME);
 							$firstChar = substr($location, 0, 1);
 
 							if (empty($scheme) && $firstChar != '/') {
 								$location = 'http://' . $location;
 							}
+						} elseif ( ! empty($redirectData['redirect_page_path'])) {
+							$location = $redirectData['redirect_page_path'];
+						} else {
+							$location = $redirect->getUrl($this);
 						}
-
+						
 						$response->redirect($location);
 
 						return;
@@ -179,11 +186,11 @@ class PageController extends ControllerAbstraction
 
 		// Continue processing
 		$layout = $request->getLayout();
-		
+
 		if (is_null($layout)) {
 			throw new Exception\LayoutNotFound("No layout found for page {$localization}");
 		}
-		
+
 		$page = $request->getPage();
 
 		$this->findBlockCache();
@@ -235,19 +242,162 @@ class PageController extends ControllerAbstraction
 	}
 
 	/**
+	 * Returns redirect data. Redirect localization id, path
+	 * 
+	 * @param Entity\PageLocalization $pageLocalization
+	 * @return array
+	 */
+	public function getRedirectData(Entity\PageLocalization $pageLocalization)
+	{
+		$redirectPageIds = $data = $parentData = array();
+
+		$linkElement = $pageLocalization->getRedirect();
+		$em = $this->getEntityManager();
+
+		$redirect = false;
+		$redirectLocalizationId = null;
+		
+		if ( ! $linkElement instanceof LinkReferencedElement) {
+			return array();
+		}
+
+		do {
+			$pageLocalizationId = $pageLocalization->getId();
+			
+			// check if localization id is not in loop
+			if (in_array($pageLocalizationId, $redirectPageIds)) {
+
+				$message = "Looks like page (#id: {$pageLocalizationId}, #title: \"{$pageLocalization->getTitle()}\") " .
+						'is linking to another page which already was in redirect chain.';
+
+				\Log::error($message);
+
+				//			$this->writeAuditLog($message);
+				return array();
+			}
+
+
+			$redirectPageIds[] = $pageLocalizationId;
+
+			$redirectPageId = $redirectLocalization = null;
+			$resource = $linkElement->getResource();
+			
+			$data = array();
+			
+			switch ($resource) {
+				// parse fixed redirect
+				case LinkReferencedElement::RESOURCE_PAGE:
+					// searching for redirect page
+					$redirectPageId = $linkElement->getPageId();
+					if (empty($redirectPageId)) {
+						break;
+					}
+					
+					$redirectPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
+							->findOneById($redirectPageId);
+
+					if ( ! $redirectPage instanceof Entity\Abstraction\AbstractPage) {
+						break;
+					}
+					
+					// redirect localization
+					$redirectLocalization = $redirectPage->getLocalization($pageLocalization->getLocale());
+
+					if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
+						break;
+					}
+
+					$redirect = true;
+					$redirectLocalizationId = $redirectLocalization->getId();
+					$path = '/' . $redirectLocalization->getLocale()
+							. $redirectLocalization->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+
+					$data = array(
+						'redirect' => $redirect,
+						'redirect_page_id' => $redirectLocalizationId,
+						'redirect_page_path' => $path,
+					);
+
+					// checking if redirect localization has another redirect
+					$childLinkElement = $redirectLocalization->getRedirect();
+					$linkElement = $childLinkElement;
+					$pageLocalization = $redirectLocalization;
+					$parentData = $data;
+					
+					break;
+				// parse relative redirect
+				case LinkReferencedElement::RESOURCE_RELATIVE_PAGE:
+					/* @var $pageLocalization Entity\PageLocalization */
+
+					// getting children
+					$pageLocalizationChildrenCollection = $pageLocalization->getChildren();
+					if ( ! $pageLocalizationChildrenCollection instanceof \Doctrine\Common\Collections\Collection) {
+						break;
+					}
+
+					$pageLocalizationChildren = $pageLocalizationChildrenCollection->getValues();
+
+					// selecting first or last children
+					if ($linkElement->getHref() == LinkReferencedElement::RELATIVE_FIRST
+							&& ! empty($pageLocalizationChildren)) {
+
+						$redirectLocalization = array_shift($pageLocalizationChildren);
+					} elseif ($linkElement->getHref() == LinkReferencedElement::RELATIVE_LAST
+							&& ! empty($pageLocalizationChildren)) {
+
+						$redirectLocalization = array_pop($pageLocalizationChildren);
+					} else {
+						break;
+					}
+
+					if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
+						break;
+					}
+
+					$redirect = true;
+					$redirectLocalizationId = $redirectLocalization->getId();
+					$path = $redirectLocalization->getLocale() . '/' .  $redirectLocalization->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+					
+					$data = array(
+						'redirect' => $redirect,
+						'redirect_page_id' => $redirectLocalizationId,
+						'redirect_page_path' => $path,
+					);
+
+					// checking if redirect localization has another redirect
+					$childLinkElement = $redirectLocalization->getRedirect();
+					$linkElement = $childLinkElement;
+					$pageLocalization = $redirectLocalization;
+					$parentData = $data;
+
+					break;
+
+				default:
+					break;
+			}
+		} while ($linkElement instanceof LinkReferencedElement);
+
+		if ( ! empty($data)) {
+			return $data;
+		} else {
+			return $parentData;
+		}
+	}
+
+	/**
 	 * @param Entity\ThemeLayout $layout
 	 * @param array $blocks array of block responses
 	 */
 	protected function processLayout(Entity\ThemeLayout $layout, array $placeResponses)
 	{
 		$layoutProcessor = $this->getLayoutProcessor();
-		
+
 		$layoutProcessor->setTheme($layout->getTheme());
-		
+
 		$layoutSrc = $layout->getFilename();
-		
+
 		$response = $this->getResponse();
-		
+
 		$layoutProcessor->setRequest($this->request);
 		$layoutProcessor->setResponse($response);
 

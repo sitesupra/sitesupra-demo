@@ -736,7 +736,7 @@ class PageAction extends PageManagerAction
 
 			$pageId = $pageLocalization->getId();
 
-			$redirectData = $this->getRedirectData($pageLocalization);
+			$redirectData = $this->getPageController()->getRedirectData($pageLocalization);
 
 			$response = array(
 				'redirect' => $redirectData['redirect'],

@@ -46,6 +46,7 @@ class PageApplicationConfiguration implements ConfigurationInterface
 	 * @var boolean 
 	 */
 	public $isDropTarget = true;
+	
 
 	public function configure()
 	{

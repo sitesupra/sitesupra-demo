@@ -158,7 +158,7 @@ YUI.add('supra.slideshow', function (Y) {
 					this.history.push(this.get('slide'));
 				}
 				
-				this.slides = newSlides;
+				Supra.mix(this.slides, newSlides);
 			}
 			
 			this.anim = new Y.Anim({

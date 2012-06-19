@@ -89,7 +89,7 @@ function (Y) {
 			this.widgets.footer.getButton('reset').on('click', this.resetFilters, this);
 			
 			//Control "Done" button
-			this.get('controlButton').on('click', this.hide, this);
+			this.get('controlButton').on('click', this.onDone, this);
 			
 			//Back button
 			this.get('backButton').on('click', this.widgets.slideshow.scrollBack, this.widgets.slideshow);
@@ -172,6 +172,21 @@ function (Y) {
 		 */
 		onBackButton: function () {
 			this.widgets.slideshow.scrollBack();
+		},
+		
+		/**
+		 * On "Done" button click hide filters, or, if some sub-slide opened - slide back
+		 *
+		 * @private
+		 */
+		onDone: function () {
+			var slideshow = this.widgets.slideshow;
+			
+			if (slideshow.isRootSlide()) {
+				this.hide();
+			} else {
+				slideshow.scrollBack();
+			}
 		},
 		
 		/*

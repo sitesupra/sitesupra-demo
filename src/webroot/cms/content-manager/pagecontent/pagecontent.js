@@ -210,6 +210,13 @@ Supra('dd-drag', function (Y) {
 						button.show();
 					}
 					
+					var settingsButton = Manager.getAction('PageToolbar').getActionButton('settings');
+					if (data.type == 'page') {
+						settingsButton.set('label', Supra.Intl.get(['settings', 'button_page']));
+					} else {
+						settingsButton.set('label', Supra.Intl.get(['settings', 'button_template']));
+					}
+					
 					if (this.getContent()) {
 						//Enable highlights
 						this.getContent().set('highlight', false);
