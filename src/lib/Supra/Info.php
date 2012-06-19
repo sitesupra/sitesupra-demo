@@ -49,7 +49,7 @@ class Info implements Configuration\ConfigurationInterface
 		$this->id = $conf->getValue('system', 'id', null);
 		$this->hostName = $conf->getValue('system', 'host');
 		$this->name = $conf->getValue('system', 'name');
-		$this->webserverPort = $conf->getValue('system', 'webserver_port');
+		$this->webserverPort = $conf->getValue('system', 'webserver_port', '80');
 
 		$version = '1.0';
 
