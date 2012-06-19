@@ -8,7 +8,9 @@ use Twig_Markup;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\Locale;
 use Supra\FileStorage\Entity\Image;
+use Supra\FileStorage\Entity\ImageSize;
 use Supra\Html\HtmlTag;
+use Supra\Form\FormBlockController;
 
 /**
  * Supra page controller twig helper
@@ -43,7 +45,7 @@ class TwigSupraBlockGlobal
 	{
 		$this->blockController = $blockController;
 		
-		if($blockController instanceof \Supra\Form\FormBlockController) {
+		if ($blockController instanceof FormBlockController) {
 			$this->form = new FormExtension($blockController);
 		}
 	}
@@ -89,6 +91,11 @@ class TwigSupraBlockGlobal
 		
 		$imageIds = array_keys($this->preloadImageData[$width][$height][$cropped]);
 		
+		if (empty($imageIds)) {
+			return;
+		}
+		
+		// Find images
 		$qb = $em->createQueryBuilder()
 				->select('i')
 				->from(Image::CN(), 'i', 'i.id')
@@ -98,7 +105,7 @@ class TwigSupraBlockGlobal
 		
 		$qb = $em->createQueryBuilder()
 				->select('s')
-				->from(\Supra\FileStorage\Entity\ImageSize::CN(), 's')
+				->from(ImageSize::CN(), 's')
 				->andWhere('s.master IN (?0) AND s.targetWidth = ?1 AND s.targetHeight = ?2 AND s.cropMode = ?3')
 				->setParameters(array($imageIds, $width, $height, $cropped));
 		
@@ -131,6 +138,9 @@ class TwigSupraBlockGlobal
 			
 			$this->preloadedImages[$width][$height][$cropped][$imageId] = $img;
 		}
+		
+		// Clear data
+		$this->preloadImageData[$width][$height][$cropped] = array();
 	}
 	
 	/**
@@ -146,6 +156,7 @@ class TwigSupraBlockGlobal
 			return;
 		}
 		
+		// For now..
 		if (is_null($width)) {
 			$width = 10000;
 		}
