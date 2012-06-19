@@ -102,22 +102,17 @@ class BlockControllerCollection
 
 		if ( ! Loader::classExists($configuration->class)) {
 			$configuration = $this->configuration['blocks'][BrokenBlockController::BLOCK_NAME];
+			
+			if (is_null($configuration)) {
+				throw new Exception\ConfigurationException("The broken block controller is not configured.");
+			}
 		}
 		
-		$controllerClass = $configuration->class;
-		$controller = null;
-
-		try {
-			/* @var $controller BlockController */
-			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
-			$controller->setConfiguration($configuration);
-		} catch (\Exception $e) {
-			$controllerClass = 'Supra\Controller\Pages\NotInitializedBlockController';
-			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
-			/* @var $controller BlockController */
-			$controller->exception = $e;
-			$controller->setConfiguration($configuration);
+		if ( ! $configuration instanceof BlockControllerConfiguration) {
+			throw new Exception\ConfigurationException("Configuration for block ID '$blockId' name must be block controller configuration");
 		}
+		
+		$controller = $configuration->createBlockController();
 		
 		return $controller;
 	}

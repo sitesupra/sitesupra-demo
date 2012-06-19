@@ -1,25 +1,28 @@
-- _version: 2
-
-- _use: HtmlInjection
+- _use: Supra\Controller\Pages\Plugin\HtmlInjection
 
 - _class: HtmlInjection
   id: assets.js.jquery
-  snippet: js
-  files:
-    - jquery-1.7.2.min.js
+  html:
+    js: |
+       <script src="/assets/js/jquery-1.7.2.min.js"></script>
 
 - _class: HtmlInjection
   id: assets.js.app.app
-  snippet: js
-  files:
-    - app/app.js
+  html:
+    js: |
+       <script src="/assets/js/app/app.js"></script>
   depends:
     - assets.js.jquery
 
 - _class: HtmlInjection
   id: assets.js.app.ajaxcontent
-  snippet: js
-  files:
-    - app/ajaxcontent.js
+  html:
+    js: |
+      <script src="/assets/js/app/ajaxcontent.js"></script>
+      <script>
+       $(function () {
+         $.app.parse($('body'));
+       });
+      </script>
   depends:
     - assets.js.app.app
