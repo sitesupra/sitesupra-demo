@@ -326,9 +326,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				if ( ! $this->emptyRequestParameter('file_id')) {
 					$fileToReplace = $this->getFile('file_id');
 					$this->fileStorage->replaceFile($fileToReplace, $file);
-
+					
+					// Commit the changes
+					$this->entityManager->commit();
+					
 					$output = $this->imageAndFileOutput($fileToReplace);
-
 					$this->getResponse()->setResponseData($output);
 
 					return;
