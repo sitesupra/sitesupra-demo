@@ -8,6 +8,7 @@ use Supra\Locale\Locale;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 use Doctrine\Common\Collections;
 use DateTime;
+
 /**
  * User object
  * @Entity
@@ -75,7 +76,7 @@ class User extends AbstractUser
 	 * @var string
 	 */
 	protected $salt;
-	
+
 	/**
 	 * User settings collection group
 	 * @OneToOne(targetEntity="Supra\User\Entity\UserPreferencesGroup", cascade={"all"})
@@ -97,7 +98,7 @@ class User extends AbstractUser
 	{
 		parent::__construct();
 		$this->resetSalt();
-		
+
 		$this->preferencesGroup = new UserPreferencesGroup();
 	}
 
@@ -312,6 +313,13 @@ class User extends AbstractUser
 		$this->personalAvatar = $personalAvatar;
 	}
 
+	public function eatSibling(User $sibling)
+	{
+		$userData = get_object_vars($sibling);
+		
+		$this->fillFromArray($userData);
+	}
+
 	public function fillFromArray(array $userData)
 	{
 		$this->id = $userData['id'];
@@ -335,16 +343,16 @@ class User extends AbstractUser
 	{
 		return 'user';
 	}
-	
+
 	/**
 	 * @return Collections\Collection
 	 */
 	public function getPreferencesCollection()
 	{
 		return $this->preferencesGroup
-				->getPreferencesCollection();
+						->getPreferencesCollection();
 	}
-	
+
 	/**
 	 * @return UserPreferencesGroup
 	 */
@@ -352,12 +360,13 @@ class User extends AbstractUser
 	{
 		return $this->preferencesGroup;
 	}
-	
+
 	/**
 	 * @param UserPreferencesGroup $group
 	 */
-	public function setPreferencesGroup ($group)
+	public function setPreferencesGroup($group)
 	{
 		$this->preferencesGroup = $group;
 	}
+
 }
