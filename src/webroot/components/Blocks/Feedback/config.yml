@@ -8,6 +8,6 @@
   cmsClassname: Editable
   icon: icon.png
   plugins:
-    - _class: Supra\Controller\Pages\Plugin\BlockFormRequestPlugin
+#    - _class: Supra\Controller\Pages\Plugin\BlockFormRequestPlugin
     - _class: BlockControllerPluginLoad
       id: assets.js.jquery
