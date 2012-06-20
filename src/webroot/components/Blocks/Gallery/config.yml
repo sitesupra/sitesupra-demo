@@ -15,6 +15,17 @@
           - Supra\Controller\Pages
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: design
+          editable: Supra\Editable\SelectVisual
+          label: Design
+          values:
+            - id: vertical
+              title: Vertical
+              icon: icons/vertical.png
+            - id: horizontal
+              title: Horizontal
+              icon: icons/horizontal.png
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: images
           editable: Supra\Editable\Gallery
           label: Images

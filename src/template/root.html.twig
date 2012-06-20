@@ -16,6 +16,8 @@
 	{% if supra.cmsRequest %}
 		<link href="/assets/css/editor.css" rel="stylesheet" type="text/css" />
 	{% endif %}
+		
+	{{ supra.responseContext.getLayoutSnippetContents('css') | raw }}
 </head>
 <body>
 	<div id="header" title="Header">

@@ -5,7 +5,7 @@
 
 <h2>Gallery</h2>
 
-<ul>
+<ul class="gallery {% if supraBlock.property('design') %}design-{{ supraBlock.property('design') }}{% endif %}"> 
 {% for image in supraBlock.property('images') %}
 	<li>
 		{{ supraBlock.imageHtmlTag( image.imageId, 100, 100, true ) | raw }}
