@@ -13,8 +13,14 @@ class AjaxContentBlock extends BlockController
 	
 	public function doExecute()
 	{
+		$request = $this->getRequest();
+		$blockRequest = $request->isBlockRequest();
 		$response = $this->getResponse();
-		// Local file is used
-		$response->outputTemplate('index.html.twig');
+		
+		if ($blockRequest) {
+			$response->outputTemplate('load.html.twig');
+		} else {
+			$response->outputTemplate('index.html.twig');
+		}
 	}
 }
