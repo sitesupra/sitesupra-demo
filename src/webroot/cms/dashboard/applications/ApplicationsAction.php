@@ -9,6 +9,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 
 class ApplicationsAction extends DasboardAbstractAction
 {
+
 	const ICON_64 = '_64x64.png';
 
 	/**
@@ -32,13 +33,28 @@ class ApplicationsAction extends DasboardAbstractAction
 
 		$defaultUrlBase = '/' . SUPRA_CMS_URL . '/';
 
+		$favourites = array();
+		$favoritesResponse = array();
+
+		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
+		if (
+				isset($userPreferences['favourite_apps']) &&
+				is_array($userPreferences['favourite_apps'])
+		) {
+
+			$favourites = $userPreferences['favourite_apps'];
+		}
+
 		foreach ($appConfigs as $config) {
-			
+			/* @var $config ApplicationConfiguration */
+
 			if ( ! $this->applicationIsVisible($this->currentUser, $config)) {
 				continue;
 			}
-			
-			/* @var $config ApplicationConfiguration */
+
+			if ($config->hidden) {
+				continue;
+			}
 
 			if (empty($config->urlBase)) {
 				$urlBase = $defaultUrlBase;
@@ -46,30 +62,17 @@ class ApplicationsAction extends DasboardAbstractAction
 				$urlBase = $config->urlBase;
 			}
 
-			if ($config->hidden) {
-				unset($appConfigs[$config->class]);
-				continue;
-			}
-			
 			$applications[] = array(
 				'title' => $config->title,
 				'id' => $config->class,
 				'icon' => $config->icon . self::ICON_64,
 				'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $config->url)
 			);
-		}
 
-		$favourites = array();
-		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
-		if (isset($userPreferences['favourite_apps'])
-				&& is_array($userPreferences['favourite_apps'])) {
-
-			$favourites = $userPreferences['favourite_apps'];
-		}
-
-		$favoritesResponse = array();
-		foreach ($favourites as $appName) {
-			if (isset($appConfigs[$appName])) {
+			if (
+					isset($userPreferences['favourite_apps']) &&
+					is_array($userPreferences['favourite_apps'])
+			) {
 				array_push($favoritesResponse, $appName);
 			}
 		}
@@ -98,7 +101,7 @@ class ApplicationsAction extends DasboardAbstractAction
 		if (empty($appConfig) || ! $this->applicationIsVisible($this->currentUser, $appConfig)) {
 			throw new CmsException(null, 'Wrong application id');
 		}
-		
+
 		$input = $this->getRequestInput();
 		$isFavourite = $input->getValid('favourite', AbstractType::BOOLEAN);
 
@@ -146,7 +149,7 @@ class ApplicationsAction extends DasboardAbstractAction
 			}
 		}
 
-		$this->userProvider->setUserPreference($this->currentUser, 'favourite_apps',  array_values($favouriteApps));
+		$this->userProvider->setUserPreference($this->currentUser, 'favourite_apps', array_values($favouriteApps));
 	}
 
 	/**
@@ -189,7 +192,7 @@ class ApplicationsAction extends DasboardAbstractAction
 			array_push($favouriteApps, $appId);
 		}
 
-		$this->userProvider->setUserPreference($this->currentUser, 'favourite_apps',  array_values($favouriteApps));
+		$this->userProvider->setUserPreference($this->currentUser, 'favourite_apps', array_values($favouriteApps));
 	}
 
 	/**
@@ -200,10 +203,9 @@ class ApplicationsAction extends DasboardAbstractAction
 	{
 		if ($appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction) {
 			return $appConfig->authorizationAccessPolicy->isApplicationAdminAccessGranted($user);
-		}
-		else {
+		} else {
 			return true;
 		}
-	}	
-	
+	}
+
 }
