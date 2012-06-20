@@ -115,7 +115,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	protected $originalFileName;
 
 	/**
-	 * @OneToOne(targetEntity="\Supra\FileStorage\Entity\FilePath", cascade={"remove", "persist", "merge"})
+	 * @OneToOne(targetEntity="\Supra\FileStorage\Entity\FilePath", cascade={"remove", "persist", "merge"}, fetch="EAGER")
 	 * @var \Supra\FileStorage\Entity\FilePath
 	 */
 	protected $path;
