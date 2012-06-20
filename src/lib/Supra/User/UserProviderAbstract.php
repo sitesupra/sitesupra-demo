@@ -331,8 +331,20 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	 */
 	final public function insertUser(Entity\User $user)
 	{
-		$this->doInsertUser($user);
+		$em = $this->getEntityManager();
+		
+		$em->beginTransaction();
+		try {
+			$this->doInsertUser($user);
+			
+		} catch (\Exception $e) {
 
+			$em->rollback();
+			throw $e;
+		}
+		
+		$em->commit();
+		
 		$eventManager = ObjectRepository::getEventManager($this);
 
 		$eventArgs = new UserCreateEventArgs($this);
