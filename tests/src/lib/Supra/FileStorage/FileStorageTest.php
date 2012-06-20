@@ -732,6 +732,8 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 
 		$query = $em->createQuery("delete from Supra\FileStorage\Entity\ImageSize");
 		$query->execute();
+		$query = $em->createQuery("delete from Supra\FileStorage\Entity\FilePath");
+		$query->execute();	
 		$query = $em->createQuery("delete from Supra\FileStorage\Entity\Abstraction\File");
 		$query->execute();
 
@@ -878,6 +880,20 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		$path .= DIRECTORY_SEPARATOR . 'chuck.jpg';
 		
 		self::assertTrue(file_exists($path), "Can not find file chuck.jpg in \"{$path}\" after move");
+	}
+	
+	public function testFilePathGeneration()
+	{
+		$this->testCreateMultiLevelFolderAndUploadFile();
+
+		$em = ObjectRepository::getEntityManager($this->fileStorage);
+		$fileRepo = $em->getRepository(FileStorage\Entity\Abstraction\File::CN());
+		$chuck = $fileRepo->findOneBy(array('fileName' => 'chuck.jpg'));
+		
+		/* @var  $filePath \Supra\FileStorage\Entity\FilePath  */
+		$this->fileStorage->getWebPath($chuck);
+		
+		self::assertTrue($this->fileStorage->getWebPath($chuck) === '/files/one/two/three/chuck.jpg');
 	}
 
 	public function testCleanUp()

@@ -39,12 +39,6 @@ class FileStorage
 	protected $externalPath = null;
 
 	/**
-	 * Url base for files residing in external path
-	 * @var string
-	 */
-	protected $externalUrlBase = null;
-
-	/**
 	 * Upload file filters array for processing
 	 * @var array
 	 */
@@ -140,15 +134,6 @@ class FileStorage
 	{
 		$externalPath = rtrim($externalPath, '\/') . DIRECTORY_SEPARATOR;
 		$this->externalPath = SUPRA_WEBROOT_PATH . $externalPath;
-	}
-
-	/**
-	 * Sets external (public) file url base.
-	 * @param string $urlBase 
-	 */
-	public function setExternalUrlBase($urlBase)
-	{
-		$this->externalUrlBase = $urlBase;
 	}
 
 	/**
@@ -307,9 +292,6 @@ class FileStorage
 		$newFolder = clone($folder);
 		$entityManager->detach($newFolder);
 		$newFolder->setFileName($newTitle);
-
-		// old folder name for rollback if validation fails
-		$oldFolderName = $folder->getFileName();
 
 		// validating folder before renaming
 		foreach ($this->folderUploadFilters as $filter) {
@@ -939,7 +921,7 @@ class FileStorage
 		}
 
 		$path .= $file->getPath(DIRECTORY_SEPARATOR, false);
-		$path .= DIRECTORY_SEPARATOR;
+		$path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
 		if ($includeFilename) {
 			$path .= $file->getFileName();
@@ -1003,25 +985,11 @@ class FileStorage
 
 		if ($file->isPublic()) {
 
-			// Get file storage url base in webroot
-			if ( ! empty($this->externalUrlBase)) {
-				$path = $this->externalUrlBase . DIRECTORY_SEPARATOR;
-			} else {
-				$path = '/' . str_replace(SUPRA_WEBROOT_PATH, '', $this->getExternalPath());
-			}
+			$pathParts = explode('/', $file->getPathEntity()->getWebPath());
+			array_pop($pathParts);
 			
-			// Fix backslash on Windows
-			$path = str_replace(array('//', "\\"), '/', $path);
-
-			// get file dir
-			$pathNodes = $file->getAncestors(0, false);
-			$pathNodes = array_reverse($pathNodes);
-
-			foreach ($pathNodes as $pathNode) {
-				/* @var $pathNode Entity\Folder */
-				$path .= rawurlencode($pathNode->getFileName()) . '/';
-			}
-
+			// Get file storage url base in webroot
+			$path = '/' . trim(implode('/', $pathParts), '/\\') . '/';
 			if ($size instanceof Entity\ImageSize) {
 				$path .= self::RESERVED_DIR_SIZE . '/'
 						. $size->getFolderName() . '/';

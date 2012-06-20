@@ -119,4 +119,5 @@ interface UserProviderInterface
 
 	public function canUpdate();
 	public function canCreate();
+	//public function canDelete();
 }

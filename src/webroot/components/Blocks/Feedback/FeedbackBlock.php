@@ -159,7 +159,6 @@ class FeedbackBlock extends BlockController
 		$response->assign('blockId', $blockId);
 		
 		$context = $response->getContext();
-		$context->addJsUrlToLayoutSnippet('js', "http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js");
 		
 		if ($this->getRequest() instanceof PageRequestView) {
 			$context->addJsUrlToLayoutSnippet('js', "/components/Blocks/Feedback/feedback.js");

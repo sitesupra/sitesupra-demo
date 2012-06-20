@@ -10,6 +10,7 @@ use Supra\Authorization\AuthorizationProvider;
 use Supra\FileStorage\Entity\SlashFolder;
 use Supra\Database\Doctrine\Listener\Timestampable;
 use Supra\AuditLog\TitleTrackingItemInterface;
+use Supra\FileStorage\Entity\FilePath;
 
 /**
  * File abstraction
@@ -30,7 +31,6 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  * @method int getNumberDescendants()
  * @method boolean hasParent()
  * @method NestedSet\Node\NodeAbstraction getParent()
- * @method string getPath(string $separator, boolean $includeNode)
  * @method array getAncestors(int $levelLimit, boolean $includeNode)
  * @method array getDescendants(int $levelLimit, boolean $includeNode)
  * @method NestedSet\Node\NodeAbstraction getFirstChild()
@@ -113,6 +113,60 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	 * @var string
 	 */
 	protected $originalFileName;
+
+	/**
+	 * @OneToOne(targetEntity="\Supra\FileStorage\Entity\FilePath", cascade={"remove", "persist", "merge"})
+	 * @var \Supra\FileStorage\Entity\FilePath
+	 */
+	protected $path;
+
+	/**
+	 * @return FilePath 
+	 */
+	public function getPathEntity()
+	{
+		if (is_null($this->path)) {
+			$this->path = new \Supra\FileStorage\Entity\FilePath();
+			$this->path->setId($this->getId());
+		}
+
+		return $this->path;
+	}
+
+	/**
+	 * @param FilePath $pathEntity
+	 */
+	public function setPathEntity(FilePath $pathEntity)
+	{
+		$this->path = $pathEntity;
+	}
+
+	/**
+	 * Returns path 
+	 * @param string $separator
+	 * @param boolean $includeNode
+	 * @return string
+	 */
+	public function getPath($separator = '/', $includeNode = true)
+	{
+		$filePath = $this->getPathEntity();
+
+		if ( ! $filePath instanceof FilePath) {
+			\Log::warn("File: {$this->getFileName()} ({$this->getId()}) has empty path. Run regenerate command.");
+			return null;
+		}
+
+		$path = $filePath->getSystemPath();
+		$pathParts = explode(DIRECTORY_SEPARATOR, $path);
+
+		if ( ! $includeNode) {
+			array_pop($pathParts);
+		}
+
+		$path = implode($separator, $pathParts);
+
+		return $path;
+	}
 
 	/**
 	 * Get left value
@@ -345,7 +399,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	public function setFileName($fileName)
 	{
 		$result = preg_replace('/\s+/i', ' ', $fileName);
-		
+
 		if ( ! is_null($this->fileName)) {
 			$this->originalFileName = $this->fileName;
 		}
@@ -491,4 +545,5 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		return $this->getFileName();
 	}
+
 }

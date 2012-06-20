@@ -24,7 +24,7 @@ class TwigSupraBlockGlobal
 	protected $blockController;
 	
 	/**
-	 * @var BlockController
+	 * @var FormExtension
 	 */
 	protected $form;
 	
@@ -175,9 +175,17 @@ class TwigSupraBlockGlobal
 		return $this->preloadedImages[$width][$height][$cropped][$imageId];
 	}
 	
+	/**
+	 * @return FormExtension
+	 */
 	public function getForm()
 	{
 		return $this->form;
+	}
+	
+	public function getBlock()
+	{
+		return $this->blockController->getBlock();
 	}
 
 }

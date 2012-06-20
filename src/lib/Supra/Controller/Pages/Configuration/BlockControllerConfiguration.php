@@ -6,6 +6,8 @@ use Supra\Controller\Pages\BlockControllerCollection;
 use Supra\Loader\Loader;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Configuration\ComponentConfiguration;
+use Supra\Controller\Pages\BlockController;
+use Supra\Controller\Pages\Configuration\BlockControllerPlugin;
 
 /**
  * Block configuration class
@@ -82,6 +84,12 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	 * @var array of block property groups
 	 */
 	public $propertyGroups = array();
+	
+	/**
+	 * Array of plugins
+	 * @var array
+	 */
+	public $plugins = array();
 
 	/**
 	 * Adds block configuration to block controller collection
@@ -227,6 +235,31 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	protected function prepareClassId($className)
 	{
 		return trim(str_replace('\\', '_', $className));
+	}
+	
+	public function createBlockController()
+	{
+		$controllerClass = $this->class;
+		$controller = null;
+
+		try {
+			/* @var $controller BlockController */
+			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
+			$controller->setConfiguration($this);
+		} catch (\Exception $e) {
+			$controllerClass = 'Supra\Controller\Pages\NotInitializedBlockController';
+			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
+			/* @var $controller BlockController */
+			$controller->exception = $e;
+			$controller->setConfiguration($this);
+		}
+		
+		foreach ($this->plugins as $plugin) {
+			/* @var $plugin BlockControllerPlugin */
+			$plugin->bind($controller);
+		}
+		
+		return $controller;
 	}
 
 }

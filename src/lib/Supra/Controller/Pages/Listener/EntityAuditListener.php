@@ -692,7 +692,7 @@ class EntityAuditListener implements EventSubscriber
 		
 		// page itself
 		if ( ! $skipMaster) {
-		$page = $localization->getMaster();
+			$page = $localization->getMaster();
 			$this->insertAuditRecord($page, self::REVISION_TYPE_COPY);
 
 			// template layouts
