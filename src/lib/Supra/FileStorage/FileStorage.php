@@ -39,6 +39,12 @@ class FileStorage
 	protected $externalPath = null;
 
 	/**
+	 * Url base for files residing in external path
+	 * @var string
+	 */
+	protected $externalUrlBase = null;
+
+	/**
 	 * Upload file filters array for processing
 	 * @var array
 	 */
@@ -77,6 +83,15 @@ class FileStorage
 	 * @var integer chmod
 	 */
 	private $fileAccessMode = 0640;
+
+	/**
+	 * Sets external (public) file url base.
+	 * @param string $urlBase 
+	 */
+	public function setExternalUrlBase($urlBase)
+	{
+		$this->externalUrlBase = $urlBase;
+	}
 
 	/**
 	 * Get file storage internal directory path
@@ -985,9 +1000,16 @@ class FileStorage
 
 		if ($file->isPublic()) {
 
-			$pathParts = explode('/', $file->getPathEntity()->getWebPath());
-			array_pop($pathParts);
+			$path = $file->getPathEntity()->getWebPath();
 			
+			// Get file storage url base in webroot
+			if ( ! empty($this->externalUrlBase)) {
+				$path = $this->externalUrlBase . $path;
+			}
+
+			$pathParts = explode('/', $path);
+			array_pop($pathParts);
+
 			// Get file storage url base in webroot
 			$path = '/' . trim(implode('/', $pathParts), '/\\') . '/';
 			if ($size instanceof Entity\ImageSize) {
