@@ -94,6 +94,15 @@ class FileStorage
 	}
 
 	/**
+	 * Gets external (public) file url base.
+	 * @param string $urlBase 
+	 */
+	public function getExternalUrlBase()
+	{
+		return $this->externalUrlBase;
+	}
+
+	/**
 	 * Get file storage internal directory path
 	 *
 	 * @return string
@@ -1001,11 +1010,6 @@ class FileStorage
 		if ($file->isPublic()) {
 
 			$path = $file->getPathEntity()->getWebPath();
-			
-			// Get file storage url base in webroot
-			if ( ! empty($this->externalUrlBase)) {
-				$path = $this->externalUrlBase . $path;
-			}
 
 			$pathParts = explode('/', $path);
 			array_pop($pathParts);

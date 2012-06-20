@@ -86,7 +86,7 @@ class FilePathGenerator implements EventSubscriber
 					$this->regeneratePath($descendant);
 				}
 			}
-			
+
 			$this->regeneratePath($entity);
 		}
 	}
@@ -100,7 +100,7 @@ class FilePathGenerator implements EventSubscriber
 
 		$entity->setPathEntity($filePath);
 		$filePath->setId($entity->getId());
-		
+
 		$entityMetadata = $this->em->getClassMetadata($entity->CN());
 		$filePathMetadata = $this->em->getClassMetadata($filePath->CN());
 
@@ -131,9 +131,14 @@ class FilePathGenerator implements EventSubscriber
 
 		if ($file->isPublic()) {
 
-			// Get file storage url base in webroot
-			$path = '/' . str_replace(SUPRA_WEBROOT_PATH, '', $fileStorage->getExternalPath());
+			$externalUrlBase = $fileStorage->getExternalUrlBase();
 
+			if ( ! empty($externalUrlBase)) {
+				$path = $externalUrlBase . DIRECTORY_SEPARATOR;
+			} else {
+				$path = '/' . str_replace(SUPRA_WEBROOT_PATH, '', $fileStorage->getExternalPath());
+			}
+			
 			// Fix backslash on Windows
 			$path = str_replace(array('//', "\\"), '/', $path);
 
