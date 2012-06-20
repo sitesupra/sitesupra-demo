@@ -121,6 +121,12 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 			}, this);
 			
+			this.get('host').on('localeChange', function (e) {
+				if(e.newVal != e.prevVal && this.get('host').get('mode') == 'pages') {
+					this._loadTemplates(e.newVal);
+				}
+			}, this);
+			
 			if (this.get('host').get('mode') == 'pages') {
 				this._loadTemplates();
 			}
@@ -467,7 +473,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 * 
 		 * @private
 		 */
-		'_loadTemplates': function () {
+		'_loadTemplates': function (locale) {
+			
 			if (this._templatesLoading) return false;
 			var uri = Manager.getAction('PageSettings').getDataPath('templates');
 			
@@ -480,7 +487,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			Supra.io(uri, {
 				'data': {
-					'locale': this.get('host').get('locale')
+					'locale': (locale ? locale : this.get('host').get('locale'))
 				},
 				'context': this,
 				'on': {
@@ -601,7 +608,13 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 								}
 								
 								var children = parent.get('data').children;
-								template = children[0].template;
+								
+								for(var i in children) {
+									if (children[i].localized) {
+										template = children[0].template;
+										break;
+									}
+								}
 							}
 							
 						} else {
