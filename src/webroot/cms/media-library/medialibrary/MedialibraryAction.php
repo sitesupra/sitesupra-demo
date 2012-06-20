@@ -103,13 +103,17 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			if ($rootNode instanceof Entity\Image) {
 				// create preview
 				// TODO: hardcoded 30x30
-				if ($this->fileStorage->fileExists($rootNode)) {
-					$sizeName = $this->fileStorage->createResizedImage($rootNode, 30, 30, true);
-					if ($rootNode->isPublic()) {
-						$item['thumbnail'] = $this->fileStorage->getWebPath($rootNode, $sizeName);
-					} else {
-						$item['thumbnail'] = $this->getPrivateImageWebPath($rootNode, $sizeName);
+				try {
+					if ($this->fileStorage->fileExists($rootNode)) {
+						$sizeName = $this->fileStorage->createResizedImage($rootNode, 30, 30, true);
+						if ($rootNode->isPublic()) {
+							$item['thumbnail'] = $this->fileStorage->getWebPath($rootNode, $sizeName);
+						} else {
+							$item['thumbnail'] = $this->getPrivateImageWebPath($rootNode, $sizeName);
+						}
 					}
+				} catch (\Exception $e) {
+					$item['broken'] = true;
 				}
 			}
 
@@ -432,7 +436,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 					throw $e;
 				}
-
+			
 				$this->entityManager->flush();
 			} catch (\Exception $e) {
 				$this->entityManager->rollback();
@@ -511,30 +515,34 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$output = $this->fileStorage->getFileInfo($file, $localeId);
 
 		// Create thumbnail&preview
-		if ($file instanceof Entity\Image && $this->fileStorage->fileExists($file)) {
-			$thumbSize = $this->fileStorage->createResizedImage($file, 30, 30, true);
-			$previewSize = $this->fileStorage->createResizedImage($file, 200, 200);
-			
-			if ($file->isPublic()) {
-				$output['preview'] = $this->fileStorage->getWebPath($file, $previewSize);
-				$output['thumbnail'] = $this->fileStorage->getWebPath($file, $thumbSize);
-			} else {
-				$output['thumbnail'] = $this->getPrivateImageWebPath($file, $thumbSize);
-				$output['file_web_path'] = $output['preview'] =  $this->getPrivateImageWebPath($file);
-				
-				foreach ($output['sizes'] as $sizeName => &$size) {
-					$sizePath = null;
+		try {
+			if ($file instanceof Entity\Image && $this->fileStorage->fileExists($file)) {
+				$thumbSize = $this->fileStorage->createResizedImage($file, 30, 30, true);
+				$previewSize = $this->fileStorage->createResizedImage($file, 200, 200);
 
-					if ($sizeName == 'original') {
-						$sizePath = $output['file_web_path'];
-					}
-					else {
-						$sizePath = $this->getPrivateImageWebPath($file, $sizeName);
-					}
+				if ($file->isPublic()) {
+					$output['preview'] = $this->fileStorage->getWebPath($file, $previewSize);
+					$output['thumbnail'] = $this->fileStorage->getWebPath($file, $thumbSize);
+				} else {
+					$output['thumbnail'] = $this->getPrivateImageWebPath($file, $thumbSize);
+					$output['file_web_path'] = $output['preview'] = $this->getPrivateImageWebPath($file);
 
-					$size['external_path'] = $sizePath;
+					foreach ($output['sizes'] as $sizeName => &$size) {
+						$sizePath = null;
+
+						if ($sizeName == 'original') {
+							$sizePath = $output['file_web_path'];
+						} else {
+							$sizePath = $this->getPrivateImageWebPath($file, $sizeName);
+						}
+
+						$size['external_path'] = $sizePath;
+					}
 				}
 			}
+		} catch (\Exception $e) {
+			$output['broken'] = true;
+			return $output;
 		}
 		
 		$extension = mb_strtolower($file->getExtension());

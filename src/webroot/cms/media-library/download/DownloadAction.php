@@ -55,7 +55,6 @@ class DownloadAction extends MediaLibraryAbstractAction
 			$size = $this->getRequestParameter('size');
 			$sizeDir = FileStorage::RESERVED_DIR_SIZE;
 			
-			// /home/dmitryp/work/supra7/src/files/lalala/dasdasdads/Screenshot-4.png
 			$fileDir = dirname($this->fileStorage->getFilesystemPath($file));
 			
 			$path = $fileDir . DIRECTORY_SEPARATOR . 

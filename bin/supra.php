@@ -30,6 +30,7 @@ $cliCommandClasses = array(
 	//'Supra\Controller\Pages\Command\UpgradeLinkReferencedElements',
 	'Supra\Remote\Command\RemoteCommand',
 	'Supra\User\Command\CreateUserCommand',
+	'Supra\FileStorage\Command\RegenerateFilePathCommand',
 );
 
 require_once __DIR__ . '/cli-config.php';

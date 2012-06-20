@@ -6,6 +6,7 @@ use Supra\Controller\Pages\PageController;
 use Doctrine\Common\EventManager;
 use Supra\Controller\Pages\Listener;
 use Supra\NestedSet\Listener\NestedSetListener;
+use Supra\FileStorage\Listener\FilePathGenerator;
 
 /**
  * 
@@ -41,6 +42,8 @@ class DraftEntityManagerConfiguration extends EntityManagerConfiguration
 		
 		// Now public entity manager will receive the page move events as well
 		$eventManager->addEventSubscriber(new Listener\PageMovePublicEventPush());
+		
+		$eventManager->addEventSubscriber(new FilePathGenerator());
 	}
 
 }
