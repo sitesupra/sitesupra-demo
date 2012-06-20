@@ -5,31 +5,67 @@ namespace Supra\User\Listener;
 use Supra\User\Event\UserCreateEventArgs;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Mailer\Message\TwigMessage;
+use Supra\User\Entity\User;
 
 class UserCreateListener
 {
+	/**
+	 * This method is triggered after CMS user is created in system
+	 * @param UserCreateEventArgs $eventArgs
+	 */
 	public function postUserCreate(UserCreateEventArgs $eventArgs)
 	{
+		$userProviderInterface = ObjectRepository::INTERFACE_USER_PROVIDER; 
+		$this->userProvider = ObjectRepository::getObject($this, $userProviderInterface, null); 
+		if (is_null($this->userProvider)) {
+			$this->userProvider = $eventArgs->getUserProvider();
+			
+			if (is_null($this->userProvider)) {
+				throw new \Supra\Event\Exception\RuntimeException('CmsUserCreate listener has no user provider assigned');
+			}
+		}
+		
 		$user = $eventArgs->getUser();
 		
+		$this->generateAndSendNewUserEmail($user);
+	}
+	
+	/**
+	 * This method is triggered after PORTAL user is created in system
+	 * using remote command
+	 * @param UserCreateEventArgs $eventArgs
+	 */
+	public function portalUserPostCreate(UserCreateEventArgs $eventArgs)
+	{
+		$userProviderInterface = ObjectRepository::INTERFACE_USER_PROVIDER; 
+		$this->userProvider = ObjectRepository::getObject($this, $userProviderInterface, null); 
+		if (is_null($this->userProvider)) {
+			$this->userProvider = $eventArgs->getUserProvider();
+			
+			if (is_null($this->userProvider)) {
+				throw new \Supra\Event\Exception\RuntimeException('CmsUserCreate listener has no user provider assigned');
+			}
+		}
+		
+		$user = $eventArgs->getUser();
+		
+		$this->generateAndSendNewUserEmail($user);
+	}
+	
+	/**
+	 * Prepare password change link and send notification email with it
+	 * @param UserCreateEventArgs $eventArgs
+	 */
+	protected function generateAndSendNewUserEmail(User $user)
+	{
 		$subject = 'New user account created';
 
 		$time = time();
 		$userMail = $user->getEmail();
 		
-		$userProviderInterface = ObjectRepository::INTERFACE_USER_PROVIDER; 
-		$userProvider = ObjectRepository::getObject($this, $userProviderInterface, null); 
-		if (is_null($userProvider)) {
-			$userProvider = $eventArgs->getUserProvider();
-			
-			if (is_null($userProvider)) {
-				throw new \Supra\Event\Exception\RuntimeException('CmsUserCreate listener has no user provider assigned');
-			}
-		}
+		$hash = $this->userProvider->generatePasswordRecoveryHash($user, $time);
 		
-		$hash = $userProvider->generatePasswordRecoveryHash($user, $time);
-		
-		$authAdapter = $userProvider->getAuthAdapter();
+		$authAdapter = $this->userProvider->getAuthAdapter();
 
 		$userLogin = null;
 
