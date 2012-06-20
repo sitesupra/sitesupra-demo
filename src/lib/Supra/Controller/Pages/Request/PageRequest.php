@@ -315,6 +315,17 @@ abstract class PageRequest extends HttpRequest
 		
 		return $blockId;
 	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isBlockRequest()
+	{
+		$blockId = $this->getBlockRequestId();
+		$isBlockRequest = ! empty($blockId);
+		
+		return $isBlockRequest;
+	}
 
 	/**
 	 * @return Entity\ThemeLayout

@@ -1,0 +1,23 @@
+{% if voted %}
+	<h2>Results</h2>
+	<ul>
+		<li>A – {{ data.a + 0 }}</li>
+		<li>B – {{ data.b + 0 }}</li>
+		<li>C – {{ data.c + 0 }}</li>
+	</ul>
+	
+	<hr />
+	
+	<a onclick="$.app.trigger('{{ supraBlock.block.id }}', [{'reset': true}])" href="javascript://">I haven't voted yet!</a>
+{% else %}
+	<h2>Poll</h2>
+	<ul>
+		<li><input type="radio" onclick="$.app.trigger('{{ supraBlock.block.id }}', [ {'vote': 'a' }])" />A</li>
+		<li><input type="radio" onclick="$.app.trigger('{{ supraBlock.block.id }}', [ {'vote': 'b' }])" />B</li>
+		<li><input type="radio" onclick="$.app.trigger('{{ supraBlock.block.id }}', [ {'vote': 'c' }])" />C</li>
+	</ul>
+	
+	<hr />
+	
+	<a onclick="$.app.trigger('{{ supraBlock.block.id }}', [{'show': true}])" href="javascript://">Just show me the results</a>
+{% endif %}
