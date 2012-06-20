@@ -558,6 +558,11 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 * @private
 		 */
 		'_getAncestorTemplate': function () {
+			
+			if (!this._node) {
+				return false;
+			}
+			
 			var node = this._node,
 				parent = node.get('parent'),
 				tree = node.get('tree'),
@@ -887,6 +892,12 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						node.get('parent').get('parent').set('highlighted', false);
 						this.get('host').get('view').set('disabled', false);
 					}
+					
+					var dataObject = treeNode.get('tree').get('data'),
+						parentData = dataObject.item(data.parent_id + (is_row_node ? '_list' : ''));
+
+					parentData.children_count++;
+					parentData.children.unshift(node.get('data'));
 					
 					this._node = null;
 					this.hide();

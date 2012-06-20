@@ -1,7 +1,12 @@
-- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    title: Feedback form
-    groupId: system
-    class: Project\Blocks\Feedback\FeedbackBlock
-    description: Feedback form
-    cmsClassname: Editable
-    icon: icon.png
+- _use: Supra\Controller\Pages\Plugin\BlockControllerPluginLoad
+
+- _class: Supra\Controller\Pages\Configuration\BlockControllerConfiguration
+  title: Feedback form
+  groupId: system
+  class: Project\Blocks\Feedback\FeedbackBlock
+  description: Feedback form
+  cmsClassname: Editable
+  icon: icon.png
+  plugins:
+    - _class: BlockControllerPluginLoad
+      id: assets.js.jquery

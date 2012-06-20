@@ -13,25 +13,30 @@ use Supra\ObjectRepository\ObjectRepository;
 
 class UserpermissionsAction extends InternalUserManagerAbstractAction
 {
+
 	public function applicationsAction()
 	{
 		/* @var $internalUserManagerAppConfig ApplicationConfiguration */
 		$internalUserManagerAppConfig = ObjectRepository::getApplicationConfiguration($this);
-		
+
 		$config = CmsApplicationConfiguration::getInstance();
 		$appConfigs = $config->getArray();
 
 		$response = array();
-		
+
 		/* @var $appConfig ApplicationConfiguration */
 		foreach ($appConfigs as $appConfig) {
 
-			if (($appConfig->id != $internalUserManagerAppConfig->id) && ( ! $appConfig->hidden)) {
-				$response[] = $appConfig->getApplicationDataForInternalUserManager();
+			if ( ! empty($appConfig->authorizationAccessPolicy)) {
+
+				if (($appConfig->id != $internalUserManagerAppConfig->id) && ( ! $appConfig->hidden)) {
+					$response[] = $appConfig->getApplicationDataForInternalUserManager();
+				}
 			}
 		}
-		
-		$this->getResponse()->setResponseData($response);		
+
+		$this->getResponse()->setResponseData($response);
 	}
+
 }
 

@@ -8,6 +8,7 @@ use Supra\ObjectRepository\ObjectRepository;
 
 class Info implements Configuration\ConfigurationInterface
 {
+
 	const NO_SCHEME = 1;
 	const WITH_SCHEME = 2;
 
@@ -35,6 +36,12 @@ class Info implements Configuration\ConfigurationInterface
 	 */
 	public $hostName;
 
+	/**
+	 * Webserver port
+	 * @var string
+	 */
+	public $webserevrPort;
+
 	public function configure()
 	{
 		// fetching data from supra.ini
@@ -42,6 +49,7 @@ class Info implements Configuration\ConfigurationInterface
 		$this->id = $conf->getValue('system', 'id', null);
 		$this->hostName = $conf->getValue('system', 'host');
 		$this->name = $conf->getValue('system', 'name');
+		$this->webserverPort = $conf->getValue('system', 'webserver_port', '80');
 
 		$version = '1.0';
 
@@ -84,7 +92,7 @@ class Info implements Configuration\ConfigurationInterface
 			// Glue the URL
 			$string = (isset($url['user']) ? $url['user'] . (isset($url['pass']) ? ':' . $url['pass'] : '') . '@' : '')
 					. $url['host']
-					. (isset($url['port']) ? ':' . $url['host'] : '');
+					. (isset($url['port']) ? ':' . $url['port'] : '');
 		} else {
 			throw new InvalidConfiguration("Invalid system hostname value");
 		}
@@ -94,6 +102,37 @@ class Info implements Configuration\ConfigurationInterface
 		}
 
 		return $string;
+	}
+
+	/**
+	 * @param boolean $empty_on_default
+	 * @return string
+	 */
+	public function getWebserverPort($empty_on_default = true)
+	{
+		$webserverPort = $empty_on_default ? '' : '80';
+
+		if ( ! empty($this->webserverPort)) {
+
+			if ($this->webserverPort != 80) {
+				$webserverPort = $this->webserverPort;
+			}
+		}
+
+		return $webserverPort;
+	}
+
+	public function getWebserverHostAndPort($format = self::NO_SCHEME)
+	{
+		$hostAndPort = $this->getHostName($format);
+
+		$port = $this->getWebserverPort();
+
+		if ( ! empty($port)) {
+			$hostAndPort = $hostAndPort . ':' . $port;
+		}
+
+		return $hostAndPort;
 	}
 
 	public function getSystemId()

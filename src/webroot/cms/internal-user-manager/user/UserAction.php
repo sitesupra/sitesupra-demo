@@ -59,6 +59,8 @@ class UserAction extends InternalUserManagerAbstractAction
 		$response['permissions'] = $this->getApplicationPermissionsResponseArray($user);
 
 		$response['canUpdate'] = $this->userProvider->canUpdate();
+		$response['canDelete'] = $this->userProvider->canDelete();
+		$response['canCreate'] = $this->userProvider->canCreate();
 
 		$this->getResponse()->setResponseData($response);
 	}

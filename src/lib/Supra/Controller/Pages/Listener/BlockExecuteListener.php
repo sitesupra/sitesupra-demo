@@ -231,6 +231,7 @@ class BlockExecuteListener implements EventSubscriber
 			$name = $this->blockClassNames[$oid];
 
 			$blockStats = array(
+				'blockId' => $oid,
 				'totals' => null,
 				'actions' => array(),
 				'cache' => null,
@@ -278,9 +279,9 @@ class BlockExecuteListener implements EventSubscriber
 			}
 
 			if ($totalQueries > 0) {
-				$blockStats['totals'] = vsprintf('%-50s %4dms %3d queries (%4dms)', array($name, $overallTime, $totalQueries, $totalQueryTime));
+				$blockStats['totals'] = vsprintf('%-50s %4dms %3d queries (%4dms)    [%20s]', array($name, $overallTime, $totalQueries, $totalQueryTime, $oid));
 			} else {
-				$blockStats['totals'] = vsprintf('%-50s %4dms', array($name, $overallTime));
+				$blockStats['totals'] = vsprintf('%-50s %4dms                         [%20s]', array($name, $overallTime, $oid));
 			}
 
 			if ( ! empty($this->blockCacheTypes[$oid])) {

@@ -1032,7 +1032,8 @@ class FileStorage
 		$entityManager->detach($originalFile);
 
 		// setting new data
-		$fileEntity->setFileName($file['name']);
+		// The name is not changed by Bug #6756
+//		$fileEntity->setFileName($file['name']);
 		$fileEntity->setSize($file['size']);
 		$fileEntity->setMimeType($file['type']);
 

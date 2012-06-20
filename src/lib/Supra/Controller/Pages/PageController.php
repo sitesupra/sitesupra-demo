@@ -211,8 +211,6 @@ class PageController extends ControllerAbstraction
 		$this->executeBlockControllers();
 		\Log::debug("Blocks executed for {$page}");
 
-		$placeResponses = $this->getPlaceResponses($request);
-
 		$eventArgs = new Event\PostPrepareContentEventArgs($this);
 		$eventArgs->request = $this->getRequest();
 		$eventArgs->response = $this->getResponse();
@@ -220,7 +218,26 @@ class PageController extends ControllerAbstraction
 		$eventManager = ObjectRepository::getEventManager($this);
 		$eventManager->fire(self::EVENT_POST_PREPARE_CONTENT, $eventArgs);
 
-		$this->processLayout($layout, $placeResponses);
+		$blockId = $request->getBlockRequestId();
+		
+		if (is_null($blockId)) {
+			$placeResponses = $this->getPlaceResponses($request);
+			$this->processLayout($layout, $placeResponses);
+		} else {
+			
+			$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController)
+				use ($blockId, $response) {
+					if ($block->getId() === $blockId) {
+						$response->output($blockController->getResponse());
+					}
+				};
+			
+			$this->iterateBlocks($collectResponses, Listener\BlockExecuteListener::ACTION_RESPONSE_COLLECT);
+			
+			$response->flush();
+		}
+		
+		
 		\Log::debug("Layout {$layout} processed and output to response for {$page}");
 	}
 
@@ -792,11 +809,12 @@ class PageController extends ControllerAbstraction
 			try {
 
 				if ( ! is_null($eventAction)) {
-					$eventArgs = new BlockEventsArgs($this);
+					$eventArgs = new BlockEventsArgs($blockController);
 					$eventArgs->block = $block;
 					// Assigned by reference because "null" can change to object after closure execution
 					$eventArgs->blockController = &$blockController;
 					$eventArgs->actionType = $eventAction;
+					$eventArgs->blockRequest = ($this->getRequest()->getBlockRequestId() !== null);
 
 					$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
 
@@ -819,6 +837,11 @@ class PageController extends ControllerAbstraction
 				}
 
 				if ( ! is_null($eventAction)) {
+					
+					if ( ! is_null($blockController)) {
+						$eventArgs->setCaller($blockController);
+					}
+					
 					$blockTimeEnd = microtime(true);
 					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
 					$eventArgs->duration = $blockExecutionTime;

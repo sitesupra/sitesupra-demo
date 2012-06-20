@@ -146,6 +146,20 @@ class ComponentConfigurationLoader
 
 			$this->storeData($data);
 		}
+		
+		$this->version = 1;
+		
+		// When version is defined using _version: 2
+		if (isset($data[self::KEY_NAME_VERSION])) {
+			$this->version = $data[self::KEY_NAME_VERSION];
+			unset($data[self::KEY_NAME_VERSION]);
+		}
+		
+		// When version is defined using - _version: 2
+		if (isset($data[0][self::KEY_NAME_VERSION])) {
+			$this->version = $data[0][self::KEY_NAME_VERSION];
+			unset($data[0]);
+		}
 
 		foreach ($data as $item) {
 			$this->processItem($item);
@@ -163,8 +177,20 @@ class ComponentConfigurationLoader
 		$this->itemNumber ++;
 
 		$return = $item;
+		
+		// Configuration Object description
+		if (is_array($item) && isset($item[self::KEY_NAME_CLASS])) {
 
-		if (is_array($item) && (count($item) == 1)) {
+			$className = $item[self::KEY_NAME_CLASS];
+
+			unset($item[self::KEY_NAME_CLASS]);
+
+			$object = $this->processObject($className, $item);
+
+			if (is_object($object)) {
+				$return = $object;
+			}
+		} elseif (is_array($item) && (count($item) == 1)) {
 
 			$value = end($item);
 			$key = key($item);
@@ -180,14 +206,7 @@ class ComponentConfigurationLoader
 				} else {
 					throw new \Exception("Constant $value not found");
 				}
-			} else if ($key === self::KEY_NAME_VERSION) {
-
-				$this->version = $value;
 			} else if ($key === self::KEY_NAME_USE) {
-
-				if ($this->version < 2) {
-					throw new \Exception('Functionality of "_use" is not available in this version.');
-				}
 
 				$parts = explode('\\', $value);
 
@@ -203,11 +222,6 @@ class ComponentConfigurationLoader
 						$this->uses[$name] = $value;
 					}
 				}
-			} else if ($key === self::KEY_NAME_CLASS) {
-
-				if ($this->version < 2) {
-					throw new \Exception('Functionality of "_class" is not available in this version.');
-				}
 			} else if (is_string($key) && is_array($value)) {
 				// try to setup config object
 
@@ -217,19 +231,8 @@ class ComponentConfigurationLoader
 					$return = $object;
 				}
 			}
-		} else if (is_array($item) && isset($item[self::KEY_NAME_CLASS])) {
-
-			$className = $item[self::KEY_NAME_CLASS];
-
-			unset($item[self::KEY_NAME_CLASS]);
-
-			$object = $this->processObject($className, $item);
-
-			if (is_object($object)) {
-				$return = $object;
-			}
 		}
-
+		
 		if (is_array($return)) {
 			foreach ($return as &$subitem) {
 
