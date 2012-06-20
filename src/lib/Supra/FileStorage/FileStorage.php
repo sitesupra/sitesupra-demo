@@ -913,6 +913,55 @@ class FileStorage
 			return false;
 		}
 	}
+	
+	/**
+	 * @param array $file Array format of $_FILES['file']
+	 */
+	public function isSupportedImageFormat(array $file)
+	{
+		if ( ! $this->isMimeTypeImage($file['type'])) {
+			return false;
+		}
+
+		$imageInfo = getimagesize($file['tmp_name']);
+
+		if(empty($imageInfo)) {
+			return false;
+		}
+		
+		switch ($imageInfo[2]) {
+
+			case IMAGETYPE_GIF:
+				if (imagetypes() & IMG_GIF) {
+					return true;
+				}
+				break;
+
+			case IMAGETYPE_JPEG:
+				if (imagetypes() & IMG_JPG) {
+					return true;
+				}
+				break;
+
+			case IMAGETYPE_PNG:
+				if (imagetypes() & IMG_PNG) {
+					return true;
+				}
+				break;
+
+			case IMAGETYPE_WBMP:
+				if (imagetypes() & IMG_WBMP) {
+					return true;
+				}
+				break;
+
+			default:
+				return false;
+				break;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Get full file path or its directory (with trailing slash)
