@@ -332,19 +332,18 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	final public function insertUser(Entity\User $user)
 	{
 		$em = $this->getEntityManager();
-		
+
 		$em->beginTransaction();
 		try {
 			$this->doInsertUser($user);
-			
 		} catch (\Exception $e) {
 
 			$em->rollback();
 			throw $e;
 		}
-		
+
 		$em->commit();
-		
+
 		$eventManager = ObjectRepository::getEventManager($this);
 
 		$eventArgs = new UserCreateEventArgs($this);
@@ -386,7 +385,12 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		return true;
 	}
-	
+
+	public function canDelete()
+	{
+		return true;
+	}
+
 	/**
 	 * Return an array (key => value) with user settings
 	 * TODO: handle SiteUser preferences for SupraPortal
@@ -394,27 +398,27 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	public function getUserPreferences(Entity\User $user)
 	{
 		$preferences = array();
-		
+
 		$preferencesGroup = $user->getPreferencesGroup();
-		
+
 		if (is_null($preferencesGroup)) {
 			$preferencesGroup = new Entity\UserPreferencesGroup();
-			
+
 			$em = ObjectRepository::getEntityManager($this);
 			$em->persist($preferencesGroup);
-			
+
 			$user->setPreferencesGroup($preferencesGroup);
 		}
-		
+
 		$collection = $preferencesGroup->getPreferencesCollection();
-		
-		foreach($collection as $userPreference) {
+
+		foreach ($collection as $userPreference) {
 			$preferences[$userPreference->getName()] = $userPreference->getValue();
 		}
-		
+
 		return $preferences;
 	}
-	
+
 	/**
 	 * @param Entity\User $user
 	 * @param string $name
@@ -423,18 +427,18 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	public function setUserPreference(Entity\User $user, $name, $value)
 	{
 		$em = ObjectRepository::getEntityManager($this);
-		
+
 		$userPreferencesGroup = $user->getPreferencesGroup();
-		
+
 		if (is_null($userPreferencesGroup)) {
 			$userPreferencesGroup = new Entity\UserPreferencesGroup();
 			$em->persist($userPreferencesGroup);
-			
+
 			$user->setPreferencesGroup($userPreferencesGroup);
 		}
-		
+
 		$collection = $userPreferencesGroup->getPreferencesCollection();
-		
+
 		if ($collection->offsetExists($name)) {
 			$preference = $collection->offsetGet($name);
 			$preference->setValue($value);
@@ -442,8 +446,9 @@ abstract class UserProviderAbstract implements UserProviderInterface
 			$preference = new UserPreference($name, $value, $userPreferencesGroup);
 			$em->persist($preference);
 		}
-		
+
 		$collection->set($name, $preference);
 		$em->flush();
 	}
+
 }
