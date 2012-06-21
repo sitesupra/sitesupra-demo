@@ -37,7 +37,7 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		this.validation = $.extend(true, {}, this.validation);
 		
 		this.url    = this.options.url    || element.attr('action');
-		this.method = this.options.method || element.attr('method');
+		this.method = this.options.method || this.getForm().attr('method');
 		
 		this.element.on('submit', this.proxy(this.submit));
 		this.element.delegate('input, select, textarea', 'blur', this.proxy(this.validateEventTarget));
@@ -310,13 +310,27 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 	},
 	
 	/**
+	 * Returns form
+	 * 
+	 * @return Form element
+	 * @type {Object}
+	 */
+	'getForm': function () {
+		if (this.element.is('form')) {
+			return this.element;
+		} else {
+			return this.element.find('form');
+		}
+	},
+	
+	/**
 	 * Returns all form values
 	 * 
 	 * @return All form values
 	 * @type {Object}
 	 */
 	'serialize': function () {
-		var arr	= this.element.serializeArray(),
+		var arr	= this.getForm().serializeArray(),
 			i	= 0,
 			ii	= arr.length,
 			obj	= {};
@@ -338,7 +352,7 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		} else {
 			inputs.removeAttr('disabled');
 		}
-	},
+	}
 	
 });
 

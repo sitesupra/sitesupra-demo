@@ -26,3 +26,11 @@
       </script>
   depends:
     - assets.js.app.app
+
+- _class: HtmlInjection
+  id: assets.js.app.ajaxform
+  html:
+    js: |
+      <script src="/assets/js/app/ajaxform.js"></script>
+  depends:
+    - assets.js.app.ajaxcontent

@@ -12,5 +12,5 @@
 #          - Supra\FileStorage
 #          - Supra\Controller\Pages
     form: Project\Blocks\Form\Entity\Form
-#    plugins:
-#      - _class: Supra\Controller\Pages\Plugin\BlockFormRequestPlugin
+    plugins:
+      - _class: Supra\Controller\Pages\Plugin\BlockFormRequestPlugin

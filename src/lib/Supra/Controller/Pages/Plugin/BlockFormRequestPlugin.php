@@ -11,7 +11,7 @@ use Supra\Controller\Pages\BlockController;
 /**
  * Binds the events
  */
-class BlockRequestPlugin extends BlockControllerPlugin
+class BlockFormRequestPlugin extends BlockControllerPlugin
 {
 	public function bind(BlockController $blockController)
 	{
@@ -20,7 +20,7 @@ class BlockRequestPlugin extends BlockControllerPlugin
 		$eventManager->listen(BlockEvents::blockEndExecuteEvent, array($this, 'blockEndExecuteEvent'), $blockController);
 		
 		// Dependency
-		$dependency = ObjectRepository::getObject('assets.js.app.ajaxcontent', BlockControllerPlugin::CN);
+		$dependency = ObjectRepository::getObject('assets.js.app.ajaxform', BlockControllerPlugin::CN);
 		$dependency->bind($blockController);
 	}
 	
@@ -28,13 +28,12 @@ class BlockRequestPlugin extends BlockControllerPlugin
 	{
 		if ($eventArgs->actionType == BlockExecuteListener::ACTION_CONTROLLER_EXECUTE && ! $eventArgs->blockRequest) {
 			$eventArgs->blockController->getResponse()->output(
-					'<div data-attach="$.app.AjaxContent" data-id="'
+					'<div data-attach="$.app.AjaxForm" data-id="'
 					. $eventArgs->block->getId()
 					. '" data-url="?block_id='
 					. $eventArgs->block->getId() . '">');
 			
 			$blockController = $eventArgs->blockController;
-//			$response = $blockController
 		}
 	}
 	
