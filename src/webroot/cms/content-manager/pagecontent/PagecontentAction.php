@@ -456,16 +456,11 @@ class PagecontentAction extends PageManagerAction
 					/* @var $metadataValue Entity\BlockPropertyMetadata */
 					if ( ! array_key_exists($metadataName, $valueData)) {
 
-						$blockProperties = $metadataValue->getMetadataProperties();
-						foreach($blockProperties as $metaProperty) {
+						$qb = $this->entityManager->createQueryBuilder();
+						$qb->delete(Entity\BlockProperty::CN(), 'p')
+								->where('p.masterMetadataId = ?0')
+								->getQuery()->execute(array($metadataValue->getId()));
 
-							$qb = $this->entityManager->createQueryBuilder();
-							$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
-									->where('m.blockProperty = ?0')
-									->getQuery()->execute(array($metaProperty->getId()));
-
-							$this->entityManager->remove($metaProperty);
-						}
 						$this->entityManager->flush();
 
 						$metadataCollection->remove($metadataName);

@@ -126,15 +126,15 @@ class TwigSupraBlockGlobal
 				$imageSize = $sizes[$imageId];
 			}
 			
-			$width = $imageSize->getWidth();
-			$height = $imageSize->getHeight();
+			$realWidth = $imageSize->getWidth();
+			$realHeight = $imageSize->getHeight();
 			
 			$img = new HtmlTag('img');
 			
 			$webPath = $fileStorage->getWebPath($image, $imageSize);
 			$img->setAttribute('src', $webPath);
-			$img->setAttribute('width', $width);
-			$img->setAttribute('height', $height);
+			$img->setAttribute('width', $realWidth);
+			$img->setAttribute('height', $realHeight);
 			
 			$this->preloadedImages[$width][$height][$cropped][$imageId] = $img;
 		}
@@ -166,13 +166,17 @@ class TwigSupraBlockGlobal
 		}
 		
 		if (isset($this->preloadedImages[$width][$height][$cropped][$imageId])) {
-			return $this->preloadedImages[$width][$height][$cropped][$imageId];
+			$tag = $this->preloadedImages[$width][$height][$cropped][$imageId];
+			
+			return $tag;
 		}
 		
 		$this->preloadImage($imageId, $width, $height, $cropped);
 		$this->doPreloadImages($width, $height, $cropped);
 		
-		return $this->preloadedImages[$width][$height][$cropped][$imageId];
+		$tag = $this->preloadedImages[$width][$height][$cropped][$imageId];
+		
+		return $tag;
 	}
 	
 	/**

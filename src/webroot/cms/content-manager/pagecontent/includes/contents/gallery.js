@@ -100,39 +100,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			this.on('block:cancel', this.cancelPropertyChanges, this);
 			
 			//Render buttons
-			this.renderUISettingsButtons();
-		},
-		
-		/**
-		 * When form is rendered add gallery button
-		 * @private
-		 */
-		renderUISettingsButtons: function () {
-			var container = Y.Node.create('<div class="su-button-group"></div>');
-			this.buttonsContainer = container;
-			
-			this.properties.get('buttonDelete').get('boundingBox').insert(container, 'before');
-			
-			//Manage image button
-			this.buttons.manageButton = new Supra.Button({
-				'label': Supra.Intl.get(['htmleditor', 'manage_images'])
-			});
-			
-			this.buttons.manageButton.render(container);
-			this.buttons.manageButton.on('click', this.openGalleryManager, this);
-			
-			//Separator
-			container.append(Y.Node.create('<br />'));
-			
-			//Add image button
-			this.buttons.addButton = new Supra.Button({
-				'label': Supra.Intl.get(['htmleditor', 'add_images'])
-			});
-			
-			this.buttons.addButton.render(container);
-			this.buttons.addButton.on('click', this.openMediaLibrary, this);
-			
-			//Add image drag and drop support
 			this.bindDnD();
 		},
 		
@@ -157,7 +124,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		
 		bindUI: function () {
 			ContentGallery.superclass.bindUI.apply(this, arguments);
-			this.once('properties:show', this.checkAreImagesShared, this);
 		},
 		
 		onEditingStart: function () {
@@ -320,10 +286,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 */
 		openMediaLibrary: function () {
 			
-			var button = this.buttons.addButton;
-			
-			button.set('loading', true);
-			
 			Manager.getAction('MediaSidebar').execute({
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
@@ -452,27 +414,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					editable.set('loading', false);
 				}
 			);
-		},
-		
-		/**
-		 * Check
-		 */
-		checkAreImagesShared: function()
-		{
-			if (this.properties.isPropertyShared('images')) {
-				if (this.buttons.addButton) {
-					this.buttons.addButton.hide();
-				}
-				
-//				var notice = Y.Node.create('<p class="description"></p>'),
-//					template = SU.Intl.get(['form', 'shared_gallery_notice']),
-//					info = this.properties.getSharedPropertyInfo('images');
-//				
-//				template = Supra.Template.compile(template);
-//				notice.append(template(info));
-//				
-//				this.properties.get('buttonDelete').get('boundingBox').insert(notice, 'before');
-			}
 		}
 	});
 	

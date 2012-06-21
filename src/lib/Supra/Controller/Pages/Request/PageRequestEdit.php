@@ -335,30 +335,42 @@ class PageRequestEdit extends PageRequest
 			$metaDataIds = Entity\Abstraction\Entity::collectIds($metaData);
 			
 			if ( ! empty($metaDataIds)) {
+				
 				$qb = $publicEm->createQueryBuilder();
-				$subProperties = $qb->select('p')
-						->from(Entity\BlockProperty::CN(), 'p')
-						->where($qb->expr()->in('p.masterMetadata', $metaDataIds))
+				$subProperties = $qb->select('bp')
+						->from(Entity\BlockProperty::CN(), 'bp')
+						->where($qb->expr()->in('bp.masterMetadataId', $metaDataIds))
 						->getQuery()->execute();
-				$subPropertyIds = Entity\Abstraction\Entity::collectIds($subProperties);
-
-				if ( ! empty($subPropertyIds)) {
-					$qb = $publicEm->createQueryBuilder();
-					$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
-							->where($qb->expr()->in('m.blockProperty', $subPropertyIds))
-							->getQuery()->execute();
-
-					$qb = $publicEm->createQueryBuilder();
-					$qb->delete(Entity\BlockProperty::CN(), 'p')
-							->where($qb->expr()->in('p.id', $subPropertyIds))
-							->getQuery()->execute();
+				
+				foreach ($subProperties as $subProperty) {
+					$publicEm->remove($subProperty);
 				}
-
-				$qb = $publicEm->createQueryBuilder();
-				$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
-						->where($qb->expr()->in('r.blockProperty', $propertyIdList))
-						->getQuery()->execute();
+				
+//				$qb = $publicEm->createQueryBuilder();
+//				$subProperties = $qb->select('p')
+//						->from(Entity\BlockProperty::CN(), 'p')
+//						->where($qb->expr()->in('p.masterMetadata', $metaDataIds))
+//						->getQuery()->execute();
+//				$subPropertyIds = Entity\Abstraction\Entity::collectIds($subProperties);
+//
+//				if ( ! empty($subPropertyIds)) {
+//					$qb = $publicEm->createQueryBuilder();
+//					$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
+//							->where($qb->expr()->in('m.blockProperty', $subPropertyIds))
+//							->getQuery()->execute();
+//
+//					$qb = $publicEm->createQueryBuilder();
+//					$qb->delete(Entity\BlockProperty::CN(), 'p')
+//							->where($qb->expr()->in('p.id', $subPropertyIds))
+//							->getQuery()->execute();
+//				}
+//
 			}
+			
+			$qb = $publicEm->createQueryBuilder();
+			$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
+					->where($qb->expr()->in('r.blockProperty', $propertyIdList))
+					->getQuery()->execute();
 			
 			// Force to clear UoW, or #11 step will fail, 
 			// as properties are still marked as existing inside EM
@@ -377,12 +389,12 @@ class PageRequestEdit extends PageRequest
 				$metadata->initialize();
 			}
 			
-			foreach($metadata as $metadataItem) {
-				$subProperties = $metadataItem->getMetadataProperties();
-				if ($subProperties instanceof \Doctrine\ORM\PersistentCollection) {
-					$subProperties->initialize();
-				}
-			}
+			//foreach($metadata as $metadataItem) {
+			//	$subProperties = $metadataItem->getMetadataProperties();
+			//	if ($subProperties instanceof \Doctrine\ORM\PersistentCollection) {
+			//		$subProperties->initialize();
+			//	}
+			//}
 			
 			// Skip shared properties
 			if ( ! $property instanceof Entity\SharedBlockProperty) {

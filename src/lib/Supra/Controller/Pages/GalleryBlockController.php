@@ -23,7 +23,7 @@ class GalleryBlockController extends BlockController
 	 * @var BlockPropertyConfiguration
 	 */
 	protected $propertyConfiguration;
-		
+
 
 	public function getProperty($name)
 	{
@@ -51,9 +51,9 @@ class GalleryBlockController extends BlockController
 		$property = null;
 		$expectedType = get_class($editable);
 		
-		$existentPropertyCollection = $this->metadata->getMetadataProperties();
-
-		foreach ($existentPropertyCollection as $propertyCheck) {
+		$existentProperties = $this->getMetadataProperties();
+		
+		foreach ($existentProperties as $propertyCheck) {
 			/* @var $propertyCheck BlockProperty */
 			/* @var $property BlockProperty */
 			if ($propertyCheck->getName() === $name) {
@@ -77,7 +77,7 @@ class GalleryBlockController extends BlockController
 			
 			$property->setMasterMetadata($this->metadata);
 			
-			$existentPropertyCollection->add($property);
+			//$existentPropertyCollection->add($property);
 		}
 
 		$editable = $property->getEditable();
@@ -110,7 +110,10 @@ class GalleryBlockController extends BlockController
 		$parentProperty = $this->metadata->getBlockProperty();
 		$this->propertyConfiguration = $this->configuration->getProperty($parentProperty->getName());
 		
-		$this->request = $controller->getRequest();
+		$request = $controller->getRequest();
+		if ( ! is_null($request)) {
+			$this->request = $request;
+		}
 		
 	}
 	
@@ -128,5 +131,16 @@ class GalleryBlockController extends BlockController
 	public function getConfiguration()
 	{
 		return $this->propertyConfiguration;
+	}
+	
+	public function getMetadataProperties()
+	{
+		$em = $this->getRequest()
+				->getDoctrineEntityManager();
+		
+		$existentProperties = $em->getRepository(Entity\BlockProperty::CN())
+					->findBy(array('masterMetadataId' => $this->metadata->getId()));
+		
+		return $existentProperties;
 	}
 }

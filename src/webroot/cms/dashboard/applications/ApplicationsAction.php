@@ -33,7 +33,7 @@ class ApplicationsAction extends DasboardAbstractAction
 
 		$defaultUrlBase = '/' . SUPRA_CMS_URL . '/';
 
-		$favourites = array();
+		$favorites = array();
 		$favoritesResponse = array();
 
 		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
@@ -42,17 +42,15 @@ class ApplicationsAction extends DasboardAbstractAction
 				is_array($userPreferences['favourite_apps'])
 		) {
 
-			$favourites = $userPreferences['favourite_apps'];
+			$favorites = $userPreferences['favourite_apps'];
 		}
 
 		foreach ($appConfigs as $config) {
 			/* @var $config ApplicationConfiguration */
 
-			if ( ! $this->applicationIsVisible($this->currentUser, $config)) {
-				continue;
-			}
-
-			if ($config->hidden) {
+			if ($config->hidden 
+					|| ! $this->applicationIsVisible($this->currentUser, $config)) {
+				
 				continue;
 			}
 
@@ -62,24 +60,24 @@ class ApplicationsAction extends DasboardAbstractAction
 				$urlBase = $config->urlBase;
 			}
 
-			$applications[] = array(
+			$applications[$config->id] = array(
 				'title' => $config->title,
 				'id' => $config->class,
 				'icon' => $config->icon . self::ICON_64,
 				'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $config->url)
 			);
-
-			if (
-					isset($userPreferences['favourite_apps']) &&
-					is_array($userPreferences['favourite_apps'])
-			) {
-				array_push($favoritesResponse, $appName);
+			
+		}
+		
+		foreach($favorites as $favoriteApp) {
+			if (isset($applications[$favoriteApp])) {
+				array_push($favoritesResponse, $favoriteApp);
 			}
 		}
-
+				
 		$response = array(
 			'favourites' => $favoritesResponse,
-			'applications' => $applications,
+			'applications' => array_values($applications),
 		);
 
 		$this->getResponse()

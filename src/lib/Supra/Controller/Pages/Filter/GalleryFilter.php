@@ -16,6 +16,11 @@ class GalleryFilter implements FilterInterface
 	 * @var BlockProperty
 	 */
 	public $property;
+	
+	/**
+	 * @var PageRequest
+	 */
+	public $request;
 
 	/**
 	 * @param string $content irrelevant here
@@ -32,9 +37,10 @@ class GalleryFilter implements FilterInterface
 			$referencedElement = $metadataItem->getReferencedElement();
 			
 			if ($referencedElement instanceof ImageReferencedElement) {
-
+				
 				$dummyGalleryController->setParentMetadata($metadataItem);
-				$properties = $metadataItem->getMetadataProperties();
+				$dummyGalleryController->setRequest($this->request);
+				$properties = $dummyGalleryController->getMetadataProperties();
 				
 				$propertyValues = array();
 				foreach($properties as $property) {

@@ -924,52 +924,22 @@ class FileStorage
 	}
 	
 	/**
-	 * @param array $file Array format of $_FILES['file']
+	 * Is current image format supported by image processor
+	 * @param string $filename Path to file
 	 */
-	public function isSupportedImageFormat(array $file)
+	public function isSupportedImageFormat($filename)
 	{
-		if ( ! $this->isMimeTypeImage($file['type'])) {
+		$imageInfo = getimagesize($filename);
+		
+		if ( ! $this->isMimeTypeImage($imageInfo['mime'])) {
 			return false;
 		}
-
-		$imageInfo = getimagesize($file['tmp_name']);
 
 		if(empty($imageInfo)) {
 			return false;
 		}
 		
-		switch ($imageInfo[2]) {
-
-			case IMAGETYPE_GIF:
-				if (imagetypes() & IMG_GIF) {
-					return true;
-				}
-				break;
-
-			case IMAGETYPE_JPEG:
-				if (imagetypes() & IMG_JPG) {
-					return true;
-				}
-				break;
-
-			case IMAGETYPE_PNG:
-				if (imagetypes() & IMG_PNG) {
-					return true;
-				}
-				break;
-
-			case IMAGETYPE_WBMP:
-				if (imagetypes() & IMG_WBMP) {
-					return true;
-				}
-				break;
-
-			default:
-				return false;
-				break;
-		}
-
-		return false;
+		return ImageProcessor\ImageProcessor::isSupportedImageType($imageInfo[2]);
 	}
 
 	/**

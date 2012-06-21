@@ -60,11 +60,26 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	
 	protected $overridenMetadata = null;
 	
+//	/**
+//	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\BlockPropertyMetadata", inversedBy="metadataProperties", cascade={"persist", "merge"})
+//	 * @var BlockPropertyMetadata
+//	 */
+//	protected $masterMetadata;
+	
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\BlockPropertyMetadata", inversedBy="metadataProperties", cascade={"persist", "merge"})
+	 * Master metadata object
+	 * 
 	 * @var BlockPropertyMetadata
 	 */
 	protected $masterMetadata;
+	
+	/**
+	 * Master metadata Id
+	 * 
+	 * @Column(type="supraId20", nullable=true)
+	 * @var string
+	 */
+	protected $masterMetadataId;
 	
 	/**
 	 * @Column(type="object")
@@ -296,20 +311,37 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	}
 	
 	/**
-	 * Set metadata entity, that owns current BlockProperty
+	 * Set metadata entity, that owns this BlockProperty
+	 * 
 	 * @param BlockPropertyMetadata $metadata
 	 */
 	public function setMasterMetadata($metadata)
 	{
 		$this->masterMetadata = $metadata;
+		$this->masterMetadataId = $metadata->getId();
 	}
 	
 	/**
 	 * Get block property master(owner) metadata entity
+	 *
 	 * @return BlockPropertyMetadata
 	 */
 	public function getMasterMetadata()
 	{
 		return $this->masterMetadata;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getMasterMetadataId()
+	{
+		return $this->masterMetadataId;
+	}
+	
+	public function resetMasterMetadata()
+	{
+		$this->masterMetadata =
+				$this->masterMetadataId = null;
 	}
 }
