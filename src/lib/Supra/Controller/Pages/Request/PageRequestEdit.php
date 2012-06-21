@@ -365,11 +365,12 @@ class PageRequestEdit extends PageRequest
 //							->getQuery()->execute();
 //				}
 //
-				$qb = $publicEm->createQueryBuilder();
-				$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
-						->where($qb->expr()->in('r.blockProperty', $propertyIdList))
-						->getQuery()->execute();
 			}
+			
+			$qb = $publicEm->createQueryBuilder();
+			$qb->delete(Entity\BlockPropertyMetadata::CN(), 'r')
+					->where($qb->expr()->in('r.blockProperty', $propertyIdList))
+					->getQuery()->execute();
 			
 			// Force to clear UoW, or #11 step will fail, 
 			// as properties are still marked as existing inside EM
