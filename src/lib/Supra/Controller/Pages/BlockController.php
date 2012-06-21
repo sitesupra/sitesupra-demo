@@ -357,6 +357,7 @@ abstract class BlockController extends ControllerAbstraction
 			$filter = new Filter\GalleryFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
+			$filter->request = $this->request;
 			$editable->addFilter($filter);
 		}
 

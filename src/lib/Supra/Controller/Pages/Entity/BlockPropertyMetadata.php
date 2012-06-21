@@ -37,13 +37,13 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	 */
 	protected $overridenReferencedElement;
 	
-	/**
-	 * Metadata's blockProperty collection (subproperties)
-	 * 
-	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="masterMetadata", cascade={"all"}) 
-	 * @var Collection
-	 */
-	protected $metadataProperties;
+//	/**
+//	 * Metadata's blockProperty collection (subproperties)
+//	 * 
+//	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="masterMetadata", cascade={"all"}) 
+//	 * @var Collection
+//	 */
+//	protected $metadataProperties;
 	
 	/**
 	 * Binds
@@ -57,7 +57,7 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 		$this->name = $name;
 		$this->blockProperty = $blockProperty;
 		$this->referencedElement = $referencedElement;
-		$this->metadataProperties = new Collections\ArrayCollection();
+//		$this->metadataProperties = new Collections\ArrayCollection();
 	}
 	
 	/**
@@ -105,13 +105,17 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 		$this->overridenReferencedElement = $referencedElement;
 	}
 	
-	/**
-	 * Return subproperty collection
-	 * @return Collection
-	 */
-	public function getMetadataProperties()
-	{
-		return $this->metadataProperties;
-	}
+//	/**
+//	 * Return subproperty collection
+//	 * @return Collection
+//	 */
+//	public function getMetadataProperties()
+//	{
+//		if (empty($this->metadataProperties)) {
+//			return new Collections\ArrayCollection();
+//		}
+//		
+//		return $this->metadataProperties;
+//	}
 	
 }
