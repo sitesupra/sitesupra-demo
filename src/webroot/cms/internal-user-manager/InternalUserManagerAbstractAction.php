@@ -349,9 +349,9 @@ class InternalUserManagerAbstractAction extends CmsAction
 	{
 		$path = $this->getAvatarsPath();
 
-		if (strpos($path, SUPRA_WEBROOT_PATH) !== 0) {
-			throw new \Supra\Configuration\Exception\InvalidConfiguration("File storage external path $path isn't inside webroot " . SUPRA_WEBROOT_PATH);
-		}
+		//if (strpos($path, SUPRA_WEBROOT_PATH) !== 0) {
+		//	throw new \Supra\Configuration\Exception\InvalidConfiguration("File storage external path $path isn't inside webroot " . SUPRA_WEBROOT_PATH);
+		//}
 
 		$path = substr($path, strlen(SUPRA_WEBROOT_PATH) - 1);
 
