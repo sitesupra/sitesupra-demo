@@ -554,8 +554,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 					
 				} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
 					
-					if ( ! dataObject.hasData(item_data.id) 
-						|| (item_data.children && item_data.children.length != item_data.children_count)) {
+					if ( ! dataObject.hasData(item_data.id) || (item_data.children_count && ! item_data.children.length)) {
 						dataObject.once('load:complete:' + item_data.id, function(event) {
 							if (event.data) {
 								this.onImageDrop(e);
