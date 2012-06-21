@@ -316,7 +316,7 @@ class User extends AbstractUser
 	public function eatSibling(User $sibling)
 	{
 		$userData = get_object_vars($sibling);
-		
+
 		$this->fillFromArray($userData);
 	}
 
@@ -367,6 +367,22 @@ class User extends AbstractUser
 	public function setPreferencesGroup($group)
 	{
 		$this->preferencesGroup = $group;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGravatarUrl($size = 48)
+	{
+		$defaultImageset = 'identicon'; // [ 404 | mm | identicon | monsterid | wavatar ]
+		//$size = 48; // Size in pixels
+		$maxAllowedDecencyRating = 'g'; // [ g | pg | r | x ]
+
+		$url = 'http://www.gravatar.com/avatar/';
+		$url .= md5(strtolower(trim($this->getEmail())));
+		$url .= "?s=$size&d=$defaultImageset&r=$maxAllowedDecencyRating";
+
+		return $url;
 	}
 
 }

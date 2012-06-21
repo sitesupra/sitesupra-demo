@@ -513,10 +513,10 @@ abstract class CmsAction extends SimpleController
 			'id' => $this->user->getId(),
 			'name' => $this->user->getName(),
 			'login' => $this->user->getLogin(),
-			'avatar' => null,
+			'avatar' => $this->user->getGravatarUrl(32)
 		);
 		
-		if ($this->user->hasPersonalAvatar()) {
+		/*if ($this->user->hasPersonalAvatar()) {
 			
 			$fileStorage = ObjectRepository::getFileStorage($this);
 			$path = $fileStorage->getExternalPath();
@@ -534,7 +534,7 @@ abstract class CmsAction extends SimpleController
 					}
 				}
 			}
-		}
+		}*/
 		
 		return $response;
 	}

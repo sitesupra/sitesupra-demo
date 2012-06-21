@@ -288,9 +288,11 @@ class InternalUserManagerAbstractAction extends CmsAction
 			$response['group_id'] = $this->groupToDummyId($user);
 		}
 
-		if (empty($response['avatar'])) {
-			$response['avatar'] = '/cms/lib/supra/img/avatar-default-48x48.png';
-		}
+		//if (empty($response['avatar'])) {
+		//	$response['avatar'] = '/cms/lib/supra/img/avatar-default-48x48.png';
+		//}
+		
+		$response['avatar'] = $user->getGravatarUrl();
 
 		return $response;
 	}

@@ -73,12 +73,12 @@ Supra('supra.input', function (Y) {
 			this.form.on('change', this.onDataChange, this);
 			
 			//On avatar click open avatar list
-			this.one('div.info em').on('click', function (event) {
+			/*this.one('div.info em').on('click', function (event) {
 				var UserAvatar = Manager.getAction('UserAvatar');
 				UserAvatar.set('controller', this);
 				UserAvatar.execute();
 				event.halt();
-			}, this);
+			}, this);*/
 		},
 		
 		/**
@@ -94,7 +94,7 @@ Supra('supra.input', function (Y) {
 			}
 			
 			if ('avatar' in data) {
-				this.one('div.info img').setAttribute('src', data.avatar + '?r=' + (+new Date()));
+				this.one('div.info img').setAttribute('src', data.avatar + (data.avatar.indexOf('?') != -1 ? '&' : '?') + 'rrr=' + (+new Date()));
 			}
 			if ('name' in data) {
 				this.one('div.info a').set('text', data.name || Supra.Intl.get(['userdetails', 'default_name']));

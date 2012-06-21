@@ -71,7 +71,8 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			
 			$result[] = array(
 				'id' => $user->getId(),
-				'avatar' => $this->getAvatarExternalPath($user, '48x48'),
+				//'avatar' => $this->getAvatarExternalPath($user, '48x48'),
+				'avatar' => $user->getGravatarUrl(),
 				'name' => $user->getName(),
 				'group' => $this->groupToDummyId($user->getGroup())
 			);
