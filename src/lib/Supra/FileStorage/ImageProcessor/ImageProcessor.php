@@ -3,13 +3,15 @@
 namespace Supra\FileStorage\ImageProcessor;
 
 use Supra\FileStorage\Exception\ImageProcessorException;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * Abstract image processor class
  *
  */
-abstract class ImageProcessor 
+abstract class ImageProcessor
 {
+
 	/**
 	 * Source file name (path)
 	 *
@@ -30,7 +32,7 @@ abstract class ImageProcessor
 	 * @var string
 	 */
 	protected $targetFilename;
-	
+
 	/**
 	 * Get full image info (dimesions, mime-type etc)
 	 *
@@ -39,20 +41,20 @@ abstract class ImageProcessor
 	 */
 	public function getImageInfo($filename)
 	{
-		if ( ! file_exists($filename)|| ! is_readable($filename)) {
+		if ( ! file_exists($filename) || ! is_readable($filename)) {
 			throw new ImageProcessorException('File ' . $filename . ' not found');
 		}
-		
+
 		$imageInfo = getimagesize($filename);
 
 		if (empty($imageInfo[0]) && empty($imageInfo[1])) {
 			throw new ImageProcessorException('Could not get image size information');
-		} else {		
+		} else {
 			$imageInfo['height'] = &$imageInfo['1'];
 			$imageInfo['width'] = &$imageInfo['0'];
 		}
-		
-	    return $imageInfo;
+
+		return $imageInfo;
 	}
 
 	/**
@@ -106,59 +108,101 @@ abstract class ImageProcessor
 	protected function createImageFromFile($filename)
 	{
 		$image = null;
-		
+
 		try {
-			
+
 			$imageInfo = $this->getImageInfo($filename);
 			if (empty($imageInfo)) {
 				throw new ImageProcessorException('Could not retrieve image info');
 			}
-			
+
+			if ( ! self::isSupportedImageType($imageInfo[2])) {
+				throw new ImageProcessorException($imageInfo['mime'] . ' images are not supported');
+			}
+
 			switch ($imageInfo[2]) {
-				
-        		case IMAGETYPE_GIF:
+
+				case IMAGETYPE_GIF:
 					if (imagetypes() & IMG_GIF) {
-						$image = imageCreateFromGIF($filename) ;
-					} else {
-						throw new ImageProcessorException('GIF images are not supported');
+						$image = imageCreateFromGIF($filename);
 					}
 					break;
-					
+
 				case IMAGETYPE_JPEG:
 					if (imagetypes() & IMG_JPG) {
-						$image = imageCreateFromJPEG($filename) ;
-					} else {
-						throw new ImageProcessorException('JPEG images are not supported');
+						$image = imageCreateFromJPEG($filename);
 					}
 					break;
-					
+
 				case IMAGETYPE_PNG:
 					if (imagetypes() & IMG_PNG) {
-						$image = imageCreateFromPNG($filename) ;
-					} else {
-						throw new ImageProcessorException('PNG images are not supported');
+						$image = imageCreateFromPNG($filename);
 					}
 					break;
-					
+
 				case IMAGETYPE_WBMP:
 					if (imagetypes() & IMG_WBMP) {
-						$image = imageCreateFromWBMP($filename) ;
-					} else {
-						throw new ImageProcessorException('WBMP images are not supported');
+						$image = imageCreateFromWBMP($filename);
 					}
 					break;
-					
+
 				default:
 					throw new ImageProcessorException($imageInfo['mime'] . ' images are not supported');
 					break;
-        	}
-	    
-	    } catch(Exception $e) {
-	    	$error = $e->getMessage();
-	    	Log::info('Image Loading Error: ' . $error);
-	    }
+			}
+		} catch (Exception $e) {
+			$error = $e->getMessage();
+			Log::info('Image Loading Error: ' . $error);
+
+			return $image;
+		}
+
+		if ( ! is_resource($image)) {
+			$baseName = pathinfo($filename, PATHINFO_BASENAME);
+			throw new ImageProcessorException("Failed to create image {$baseName} from {$imageInfo['mime']} format.");
+		}
 		
-	    return $image;
+		return $image;
+	}
+
+	/**
+	 * @param integer $imageType One of IMAGETYPE_* constants
+	 * @return boolean
+	 */
+	public static function isSupportedImageType($imageType)
+	{
+		switch ($imageType) {
+
+			case IMAGETYPE_GIF:
+				if (imagetypes() & IMG_GIF) {
+					return true;
+				}
+				break;
+
+			case IMAGETYPE_JPEG:
+				if (imagetypes() & IMG_JPG) {
+					return true;
+				}
+				break;
+
+			case IMAGETYPE_PNG:
+				if (imagetypes() & IMG_PNG) {
+					return true;
+				}
+				break;
+
+			case IMAGETYPE_WBMP:
+				if (imagetypes() & IMG_WBMP) {
+					return true;
+				}
+				break;
+
+			default:
+				return false;
+				break;
+		}
+		
+		return false;
 	}
 
 	/**
@@ -169,7 +213,7 @@ abstract class ImageProcessor
 	 * @param int $mimeType
 	 * @param int $jpegQuality
 	 */
-	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality = 100, $mimeName = null) 
+	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality = 100, $mimeName = null)
 	{
 		switch ($mimeType) {
 			case IMAGETYPE_GIF:
@@ -205,9 +249,9 @@ abstract class ImageProcessor
 				break;
 
 			default:
-				throw new ImageProcessorException(($mimeName ?: $mimeType) . ' images are not supported');
+				throw new ImageProcessorException(($mimeName ? : $mimeType) . ' images are not supported');
 				break;
-		}	
+		}
 	}
 
 	/**
@@ -257,7 +301,7 @@ abstract class ImageProcessor
 	 * @param int $quality
 	 * @return ImageProcessor 
 	 */
-	public function setOutputQuality($quality) 
+	public function setOutputQuality($quality)
 	{
 		$this->targetQuality = $quality;
 		return $this;
@@ -328,12 +372,11 @@ abstract class ImageProcessor
 			// Restore transparency blending
 			imagesavealpha($destImage, true);
 		}
-	}	
+	}
 
 	/**
 	 * Process
 	 * 
 	 */
 	abstract public function process();
-	
 }
