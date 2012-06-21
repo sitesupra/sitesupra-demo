@@ -578,7 +578,18 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 									this.replaceImage(replace_id, item_data.children[i]);
 									replace_id = null;
 								} else {
-									this.addImage(item_data.children[i]);
+									if ( ! image.sizes) {
+										dataObject.once('load:complete:' + image.id, function(event) {
+											if (event.data && event.data.length) {
+												image = event.data.shift();
+												this.addImage(image);
+											}
+										}, this);
+										
+										dataObject.loadData(image.id, [], 'view');
+									} else {
+										this.addImage(image);
+									}
 								}
 								
 								folderHasImages = true;
