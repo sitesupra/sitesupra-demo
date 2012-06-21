@@ -341,7 +341,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				}
 
 				$fileEntity = null;
-				if ($this->fileStorage->isSupportedImageFormat($file)) {
+				if ($this->fileStorage->isSupportedImageFormat($file['tmp_name'])) {
 					$fileEntity = new Entity\Image();
 				} else {
 					$fileEntity = new Entity\File();

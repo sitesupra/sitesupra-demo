@@ -81,7 +81,7 @@ abstract class UpgradeScriptAbstraction
 	 * @param array $options
 	 * @param OutputInterface $output 
 	 */
-	protected function runCommand($commandName, $arguments, $options = array(), OutputInterface $output = null)
+	protected function runCommand($commandName, array $arguments = array(), array $options = array(), OutputInterface $output = null)
 	{
 		$application = $this->getApplication();
 
