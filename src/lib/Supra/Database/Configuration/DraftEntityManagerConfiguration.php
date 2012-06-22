@@ -5,13 +5,11 @@ namespace Supra\Database\Configuration;
 use Supra\Controller\Pages\PageController;
 use Doctrine\Common\EventManager;
 use Supra\Controller\Pages\Listener;
-use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\FileStorage\Listener\FilePathGenerator;
 
 /**
  * 
  */
-class DraftEntityManagerConfiguration extends EntityManagerConfiguration
+class DraftEntityManagerConfiguration extends StandardEntityManagerConfiguration
 {
 	public function configure()
 	{
@@ -25,11 +23,6 @@ class DraftEntityManagerConfiguration extends EntityManagerConfiguration
 	{
 		parent::configureEventManager($eventManager);
 		
-		$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
-		
-		// Nested set entities (pages and files) depends on this listener
-		$eventManager->addEventSubscriber(new NestedSetListener());
-		
 		$eventManager->addEventSubscriber(new Listener\ImageSizeCreatorListener());
 		$eventManager->addEventSubscriber(new Listener\TableDraftSuffixAppender());
 
@@ -42,8 +35,6 @@ class DraftEntityManagerConfiguration extends EntityManagerConfiguration
 		
 		// Now public entity manager will receive the page move events as well
 		$eventManager->addEventSubscriber(new Listener\PageMovePublicEventPush());
-		
-		$eventManager->addEventSubscriber(new FilePathGenerator());
 	}
 
 }

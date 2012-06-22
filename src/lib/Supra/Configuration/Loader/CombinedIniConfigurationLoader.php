@@ -32,7 +32,7 @@ class CombinedIniConfigurationLoader extends IniConfigurationLoader
 	/**
 	 * @param array $iniLoaders 
 	 */
-	public function __construct($iniLoaders)
+	public function __construct(array $iniLoaders = array())
 	{
 		$this->data = array();
 
@@ -42,7 +42,7 @@ class CombinedIniConfigurationLoader extends IniConfigurationLoader
 			$this->data = array_merge($this->data, $iniLoader->getData());
 		}
 	}
-
+	
 	/**
 	 * @return array
 	 */
