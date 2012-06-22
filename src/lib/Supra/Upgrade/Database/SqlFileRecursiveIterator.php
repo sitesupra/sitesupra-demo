@@ -24,7 +24,9 @@ class SqlFileRecursiveIterator extends UpgradeFileRecursiveIteratorAbstraction
 	 */
 	public function accept()
 	{
-		$filename = $this->current()->getFilename();
+		$file = $this->current();
+		/* @var $file \SplFileInfo */
+		$filename = $file->getFilename();
 		$accept = preg_match('/\.sql$/i', $filename);
 
 		return $accept;
