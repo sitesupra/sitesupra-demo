@@ -909,8 +909,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					var dataObject = treeNode.get('tree').get('data'),
 						parentData = dataObject.item(data.parent_id + (is_row_node ? '_list' : ''));
 
-					parentData.children_count++;
-					parentData.children.unshift(node.get('data'));
+					if (parentData) {
+						parentData.children_count++;
+						parentData.children.unshift(node.get('data'));
+					}
 					
 					this._node = null;
 					this.hide();
