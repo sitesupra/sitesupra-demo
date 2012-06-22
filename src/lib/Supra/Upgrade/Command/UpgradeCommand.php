@@ -24,7 +24,12 @@ class UpgradeCommand extends Command
 	 * @var OutputInterface
 	 */
 	protected $output;
-
+	
+	/**
+	 * @var boolean
+	 */
+	private $interactive = false;
+	
 	/**
 	 * @return InputInterface
 	 */
@@ -89,46 +94,102 @@ class UpgradeCommand extends Command
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-		if(! ($input->getOption('force') || $input->getOption('check') || $input->getOption('list')) ){
-			throw new Exception\RuntimeException('One of "--force", "--check" or "--list" options must be specified.');
+		$options = array(
+			'--force' => $input->getOption('force'),
+			'--check' => $input->getOption('check'),
+			'--list' => $input->getOption('list')
+		);
+		
+		if ( ! ($options['--force'] || $options['--check'] || $options['--list'])) {
+			$this->interactive = true;
+			$options['--check'] = true;
+			$options['--list'] = true;
 		}
-			
 		
 		$this->setInput($input);
 		$this->setOutput($output);
 
 		$output->writeln('Running all upgrades...');
 
-		$this->runCommand('su:upgrade:database');
-		$this->runCommand('su:upgrade:script');
+		$resultDatabase = $this->runCommand('su:upgrade:database', $options);
+		$resultScript = $this->runCommand('su:upgrade:script', $options);
+		
+		if ( ! $resultDatabase) {
+			$force = $this->offerUpgrade('<question>Database is not up to date. Do you want to update now? [y/N]</question> ');
+			
+			if ($force) {
+				$resultDatabase = $this->runCommand('su:upgrade:database', array('--force' => true));
+			} else {
+				$output->writeln('Skipping database upgrade.');
+			}
+		}
+		
+		if ( ! $resultScript) {
+			$force = $this->offerUpgrade('<question>There are pending upgrade scripts to be run. Do you want to upgrade now? [y/N]</question> ');
+			
+			if ($force) {
+				$resultDatabase = $this->runCommand('su:upgrade:script', array('--force' => true));
+			} else {
+				$output->writeln('Skipping upgrade scripts.');
+			}
+		}
 
 		$output->writeln('Done running all upgrades.');
+	}
+	
+	protected function offerUpgrade($message)
+	{
+		$dialog = $this->getHelper('dialog');
+		$output = $this->getOutput();
+		
+		$answer = null;
+			
+		while ( ! in_array($answer, array('Y', 'N', ''), true)) {
+			$answer = $dialog->ask($output, $message);
+			$answer = strtoupper($answer);
+		}
+
+		if ($answer === 'Y') {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
 	 * @param string $commandName
 	 * @return integer
 	 */
-	protected function runCommand($commandName)
+	protected function runCommand($commandName, array $options, $askForcemessage = null)
 	{
 		$application = $this->getApplication();
 
 		$input = $this->getInput();
 
 		$array = array($commandName);
-
-		$array['--force'] = $input->getOption('force');
-		$array['--check'] = $input->getOption('check');
-		$array['--list'] = $input->getOption('list');
+		
+		$array = $array + $options;
 
 		$commandInput = new ArrayInput($array);
 
 		$output = $this->getOutput();
 
 		$application->setAutoExit(false);
-		$result = $application->run($commandInput, $output);
+		
+		try {
+			$application->run($commandInput, $output);
+		} catch (\Exception $e) {
+			
+			if ( ! $this->interactive) {
+				throw $e;
+			}
+			
+			$this->getApplication()->renderException($e, $output);
 
-		return $result;
+			return false;
+		}
+
+		return true;
 	}
 
 }

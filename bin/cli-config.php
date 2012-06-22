@@ -5,6 +5,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\DialogHelper;
 
 // When used with symbolic links
 $rootDir = dirname(dirname(__DIR__));
@@ -70,7 +71,8 @@ if ( ! empty($_SERVER['argv'][1])) {
 $em = ObjectRepository::getEntityManager($namespace);
 
 $helpers = array(
-		'db' => new ConnectionHelper($em->getConnection()),
-		'em' => new EntityManagerHelper($em)
+	'db' => new ConnectionHelper($em->getConnection()),
+	'em' => new EntityManagerHelper($em),
+	'dialog' => new DialogHelper(),
 );
 $helperSet = new HelperSet($helpers);
