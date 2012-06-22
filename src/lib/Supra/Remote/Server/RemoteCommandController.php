@@ -133,8 +133,7 @@ class RemoteCommandController extends ControllerAbstraction
 
 		$remoteCommandResponse = new RemoteCommandResponse();
 
-		\Log::debug('Arguments: ' . $input->getArguments());
-		\Log::debug('Options  : ' . $input->getOptions());
+		\Log::debug('Input: ', $input);
 
 		try {
 
