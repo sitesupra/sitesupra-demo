@@ -6,20 +6,8 @@ use Supra\NestedSet\ArrayRepository;
 
 /**
  * Nested set node for array repository
+ * @method ArrayNode setRepository(ArrayRepository $repository)
  */
 class ArrayNode extends NodeAbstraction
 {
-	/**
-	 * @var ArrayRepository
-	 */
-	protected $repository;
-
-	/**
-	 * @param ArrayRepository $repository
-	 * @return ArrayNode
-	 */
-	public function setRepository(ArrayRepository $repository)
-	{
-		return parent::setRepository($repository);
-	}
 }

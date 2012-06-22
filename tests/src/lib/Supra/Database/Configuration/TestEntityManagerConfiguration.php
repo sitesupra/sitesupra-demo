@@ -4,15 +4,15 @@ namespace Supra\Tests\Database\Configuration;
 
 use Doctrine\ORM\Configuration;
 use Doctrine\Common\EventManager;
-use Supra\Controller\Pages\Listener;
+use Supra\Controller\Pages\Listener\ImageSizeCreatorListener;
 use Doctrine\ORM\Events;
 use Supra\Tests\Search\DiscriminatorAppender;
-use Supra\NestedSet\Listener\NestedSetListener;
+use Supra\Database\Configuration\StandardEntityManagerConfiguration;
 
 /**
  * Entity Manager Configuration for test connection
  */
-class TestEntityManagerConfiguration extends \Supra\Database\Configuration\EntityManagerConfiguration
+class TestEntityManagerConfiguration extends StandardEntityManagerConfiguration
 {
 	protected function configureProxy(Configuration $config)
 	{
@@ -26,11 +26,7 @@ class TestEntityManagerConfiguration extends \Supra\Database\Configuration\Entit
 	{
 		parent::configureEventManager($eventManager);
 		
-		// Nested set entities (pages and files) depends on this listener
-		$eventManager->addEventSubscriber(new NestedSetListener());
-		
-		$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
-		$eventManager->addEventSubscriber(new Listener\ImageSizeCreatorListener());
+		$eventManager->addEventSubscriber(new ImageSizeCreatorListener());
 		
 		$eventManager->addEventListener(array(Events::loadClassMetadata), new DiscriminatorAppender());
 	}

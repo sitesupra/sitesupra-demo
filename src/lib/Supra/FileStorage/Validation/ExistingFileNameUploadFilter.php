@@ -22,6 +22,8 @@ class ExistingFileNameUploadFilter extends FileFolderSharedValidation
 		$creatingFilename = $entity->getFileName();
 
 		foreach ($siblings as $record) {
+			/* @var $record File */
+			
 			if ( ! $record->equals($entity)) {
 				$recordName = $record->getFileName();
 				

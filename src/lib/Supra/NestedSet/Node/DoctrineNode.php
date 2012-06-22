@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManager;
 
 /**
  * Doctrine database nested set node object
+ * @method DoctrineNode setRepository(DoctrineRepository $repository)
  */
 class DoctrineNode extends NodeAbstraction
 {
@@ -18,6 +19,7 @@ class DoctrineNode extends NodeAbstraction
 	private $sourceRepository;
 	
 	/**
+	 * Created here just to mark the type.
 	 * @var DoctrineRepository
 	 */
 	protected $repository;
@@ -51,15 +53,6 @@ class DoctrineNode extends NodeAbstraction
 			$nestedSetRepository->add($node);
 		}
 		$nestedSetRepository->register($node);
-	}
-
-	/**
-	 * @param DoctrineRepository $repository
-	 * @return DoctrineNode
-	 */
-	public function setRepository(DoctrineRepository $repository)
-	{
-		return parent::setRepository($repository);
 	}
 
 	/**

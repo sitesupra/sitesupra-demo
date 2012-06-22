@@ -4,14 +4,12 @@ namespace Supra\Database\Configuration;
 
 use Supra\Controller\Pages\PageController;
 use Doctrine\Common\EventManager;
-use Supra\Controller\Pages\Listener;
-use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\FileStorage\Listener\FilePathGenerator;
+use Supra\Controller\Pages\Listener\PageGroupCacheDropListener;
 
 /**
  * 
  */
-class PublicEntityManagerConfiguration extends EntityManagerConfiguration
+class PublicEntityManagerConfiguration extends StandardEntityManagerConfiguration
 {
 	public function configure()
 	{
@@ -25,14 +23,7 @@ class PublicEntityManagerConfiguration extends EntityManagerConfiguration
 	{
 		parent::configureEventManager($eventManager);
 		
-		$eventManager->addEventSubscriber(new Listener\PagePathGenerator());
-		
-		// Nested set entities (pages and files) depends on this listener
-		$eventManager->addEventSubscriber(new NestedSetListener());
-		
-		$eventManager->addEventSubscriber(new Listener\PageGroupCacheDropListener());
-		
-		$eventManager->addEventSubscriber(new FilePathGenerator());
+		$eventManager->addEventSubscriber(new PageGroupCacheDropListener());
 	}
 
 }

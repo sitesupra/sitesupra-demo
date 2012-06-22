@@ -42,8 +42,12 @@ class PlaceHolderSet extends AbstractSet
 	 * Use only append to fill this object, must start with top elements
 	 * @param Entity\Abstraction\PlaceHolder $placeHolder
 	 */
-	public function append(Entity\Abstraction\PlaceHolder $placeHolder)
+	public function append($placeHolder)
 	{
+		if ( ! $placeHolder instanceof Entity\Abstraction\PlaceHolder) {
+			throw new Exception\LogicException(__METHOD__ . " accepts PlaceHolder arguments only");
+		}
+		
 		if (isset($this->localization)) {
 			
 			$placeHolderName = $placeHolder->getName();

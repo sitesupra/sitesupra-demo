@@ -1301,7 +1301,7 @@ abstract class PageManagerAction extends CmsAction
 			$localizationExists = false;
 
 			// try to get any localization if page is not localized and is global
-			if ($page->isGlobal()) {
+			if ($page->isGlobal() || ( ! $page->isGlobal() && $page->isRoot())) {
 
 				// TODO: temporary (and ugly also) workaround to fetch oldest localization from all available
 				// this, i suppose, will be replaced with dialog window with localization selector

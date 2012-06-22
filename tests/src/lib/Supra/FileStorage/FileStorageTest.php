@@ -732,9 +732,9 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 
 		$query = $em->createQuery("delete from Supra\FileStorage\Entity\ImageSize");
 		$query->execute();
-		$query = $em->createQuery("delete from Supra\FileStorage\Entity\FilePath");
-		$query->execute();	
 		$query = $em->createQuery("delete from Supra\FileStorage\Entity\Abstraction\File");
+		$query->execute();
+		$query = $em->createQuery("delete from Supra\FileStorage\Entity\FilePath");
 		$query->execute();
 
 		if (self::DELETE_FILES || $delete) {
