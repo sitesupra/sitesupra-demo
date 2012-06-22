@@ -39,10 +39,19 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		this.url    = this.options.url    || element.attr('action');
 		this.method = this.options.method || this.getForm().attr('method');
 		
-		this.element.on('submit', this.proxy(this.submit));
+		this.onChange();
 		this.element.delegate('input, select, textarea', 'blur', this.proxy(this.validateEventTarget));
 	},
 	
+	/**
+	 * On reload bind form submit action
+	 *
+	 * @private
+	 */
+	'onChange': function () {
+		this.getForm().on('submit', this.proxy(this.submit));
+	},
+
 	/**
 	 * Submit form
 	 */
@@ -57,6 +66,17 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		return false;
 	},
 	
+	/**
+	 * On reload bind form submit action
+	 *
+	 * @private
+	 */
+	'onReload': function (html) {
+		_super.onReload.apply(this, arguments);
+
+		this.onChange();
+	},
+
 	/* ------------------------ Validation ---------------------- */
 	
 	/**

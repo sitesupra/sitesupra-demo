@@ -6,29 +6,6 @@
 		<li data-count="{{ data.c + 0 }}">C – {{ data.c + 0 }}</li>
 	</ul>
 	
-	{% set js %}
-	<script type="text/javascript">
-		$.fn.pollVisualization = function () {
-			var max = 0;
-			var li = $(this).find('li');
-			li.each( function() {
-				var cnt = parseInt($(this).data('count'));
-				if (cnt > max) max = cnt;
-			});
-			if (max == 0) max = 1;
-			li.each( function() {
-				var cnt = parseInt($(this).data('count'));
-				var div = $('<div></div>').height('10px')
-					.css('background-color', 'blue')
-					.width((100 / max * cnt + 1) + 'px');
-				$(this).append(div);
-			});
-		};
-	</script>
-	{% endset %}
-	
-	{{ supra.responseContext.addToLayoutSnippet('js', js) }}
-	
 	<hr />
 	
 	<a onclick="$.app.trigger('{{ supraBlock.block.id }}', [{'reset': true}])" href="javascript://">I haven't voted yet!</a>
@@ -44,3 +21,27 @@
 	
 	<a onclick="$.app.trigger('{{ supraBlock.block.id }}', [{'show': true}])" href="javascript://">Just show me the results</a>
 {% endif %}
+
+{# TODO: maybe this might be done simpler? #}
+{% set js %}
+<script type="text/javascript">
+	$.fn.pollVisualization = function () {
+		var max = 0;
+		var li = $(this).find('li');
+		li.each( function() {
+			var cnt = parseInt($(this).data('count'));
+			if (cnt > max) max = cnt;
+		});
+		if (max == 0) max = 1;
+		li.each( function() {
+			var cnt = parseInt($(this).data('count'));
+			var div = $('<div></div>').height('10px')
+				.css('background-color', 'blue')
+				.width((100 / max * cnt + 1) + 'px');
+			$(this).append(div);
+		});
+	};
+</script>
+{% endset %}
+
+{{ supra.responseContext.addToLayoutSnippet('js', js) }}
