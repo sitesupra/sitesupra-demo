@@ -39,10 +39,19 @@ class CombinedIniConfigurationLoader extends IniConfigurationLoader
 		foreach ($iniLoaders as $iniLoader) {
 			/* @var $iniLoader IniConfigurationLoader */
 
-			$this->data = array_merge($this->data, $iniLoader->getData());
+			$loaderData = $iniLoader->getData();
+
+			foreach ($loaderData as $sectionName => $sectionData) {
+
+				if (empty($this->data[$sectionName])) {
+					$this->data[$sectionName] = array();
+				}
+
+				$this->data[$sectionName] = array_merge($this->data[$sectionName], $sectionData);
+			}
 		}
 	}
-	
+
 	/**
 	 * @return array
 	 */
