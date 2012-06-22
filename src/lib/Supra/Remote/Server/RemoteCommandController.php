@@ -133,6 +133,9 @@ class RemoteCommandController extends ControllerAbstraction
 
 		$remoteCommandResponse = new RemoteCommandResponse();
 
+		\Log::debug('Arguments: ' . $input->getArguments());
+		\Log::debug('Options  : ' . $input->getOptions());
+
 		try {
 
 			$application = \Supra\Console\Application::getInstance();
@@ -145,7 +148,7 @@ class RemoteCommandController extends ControllerAbstraction
 			$remoteCommandResponse->setProxyOutput($output);
 			$remoteCommandResponse->setSuccess(true);
 		} catch (\Exception $e) {
-			
+
 			$remoteCommandResponse->setError($e);
 			$remoteCommandResponse->setSuccess(false);
 		}
