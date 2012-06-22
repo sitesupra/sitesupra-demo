@@ -429,7 +429,7 @@ abstract class PageManagerAction extends CmsAction
 					($data instanceof Entity\GroupLocalization ? 'group' :
 							($page->getLevel() === 0 ? 'home' : 'page')),
 			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group.png' : 'blank.jpg'),
-			'global' => $page->getGlobal(),
+			'global' => ( ! $page->isRoot() ? $page->getGlobal() : true ),
 			'localized' => $localizationExists,
 			'editable' => $localizationExists,
 			'isDraggable' => $localizationExists,
@@ -1042,12 +1042,33 @@ abstract class PageManagerAction extends CmsAction
 		if ($targetLocale == $sourceLocale) {
 			throw new CmsException(null, 'Page duplicate will do nothing as source locale and target locale are identical');
 		}
-
+		
 		$sourceLocalization = $master->getLocalization($sourceLocale);
 		if (is_null($sourceLocalization)) {
 			throw new CmsException(null, "No source localization [{$sourceLocale}] was found");
 		}
 
+		// dissalow to create more than one instance of root page
+		if ($master instanceof Page && $master->isRoot()) {
+			
+			$pathEntityName = Entity\PageLocalizationPath::CN();
+			
+			$dql = "SELECT p FROM $pathEntityName p
+				WHERE p.path = :path
+				AND p.locale = :locale";
+		
+			$query = $this->entityManager
+					->createQuery($dql)
+					->setParameters(array('path' => '', 'locale' => $targetLocale));
+
+			$path = $query->getOneOrNullResult();
+			if ($path instanceof Entity\PageLocalizationPath) {
+				throw new CmsException(null, 'It is not allowed to create multiple root pages');
+			}
+		}
+		
+		
+		
 		if ($sourceLocalization instanceof Entity\PageLocalization) {
 
 			$template = $sourceLocalization->getTemplate();

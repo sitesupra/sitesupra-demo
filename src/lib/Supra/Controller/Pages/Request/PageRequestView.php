@@ -99,7 +99,7 @@ class PageRequestView extends PageRequest
 		$localeId = $pageData->getLocale();
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		if ( ! $localeManager->isActive($localeId)) {
-			throw new ResourceNotFoundException("Page found by path '$path' in pages controller it belongs to inactive locale '$localeId'");
+			throw new ResourceNotFoundException("Page found by path '$path' in pages controller belongs to inactive locale '$localeId'");
 		}
 		
 		return $pageData;
