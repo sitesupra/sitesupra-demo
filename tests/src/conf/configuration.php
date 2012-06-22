@@ -1,31 +1,33 @@
 <?php
 
+$iniLoaders = array();
+
 $mainIniParser = new Supra\Configuration\Loader\IniConfigurationLoader('supra.ini');
-$mainData = $mainIniParser->getData();
+$iniLoaders[] = $mainIniParser;
 
 $testsIniParser = new Supra\Configuration\Loader\IniConfigurationLoader('supra.ini', SUPRA_TESTS_CONF_PATH);
-$testsData = $testsIniParser->getData();
+$iniLoaders[] = $testsIniParser;
 
 $home = getenv('HOME');
 $localData = array();
 
 if ( ! empty($home) && file_exists($home . '/supra.ini')) {
 	$localIniParser = new Supra\Configuration\Loader\IniConfigurationLoader('supra.ini', $home);
-	$localData = $localIniParser->getData();
-	
+	$iniLoaders[] = $localIniParser;
 }
 
-foreach (array($testsData, $localData) as $data) {
-	foreach ($data as $section => $vars) {
-		if (isset($mainData[$section])) {
-			$mainData[$section] = array_merge($mainData[$section], $vars);
-		} else {
-			$mainData[$section] = $vars;
-		}
-	}
-}
+$ini = new \Supra\Configuration\Loader\CombinedIniConfigurationLoader($iniLoaders);
 
-$ini = new \Supra\Configuration\Loader\ArrayIniConfigurationLoader($mainData);
+//foreach (array($testsData, $localData) as $data) {
+//	foreach ($data as $section => $vars) {
+//		if (isset($mainData[$section])) {
+//			$mainData[$section] = array_merge($mainData[$section], $vars);
+//		} else {
+//			$mainData[$section] = $vars;
+//		}
+//	}
+//}
+
 \Supra\ObjectRepository\ObjectRepository::setIniConfigurationLoader('Supra\Tests', $ini);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'database.php';
