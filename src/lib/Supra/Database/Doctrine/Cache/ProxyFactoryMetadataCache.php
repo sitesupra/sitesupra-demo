@@ -13,6 +13,48 @@ use Doctrine\ORM\Mapping\ClassMetadata;
  */
 class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
 {
+
+	/**
+	 * @var boolean
+	 */
+	protected $writeOnlyMode = false;
+
+	/**
+	 * @return boolean
+	 */
+	public function getWriteOnlyMode()
+	{
+		return $this->writeOnlyMode;
+	}
+
+	/**
+	 * @param boolean $writeOnlymode
+	 */
+	public function setWriteOnlyMode($writeOnlymode)
+	{
+		$this->writeOnlyMode = $writeOnlymode;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function doContains($id)
+	{
+		return false;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function doFetch($id)
+	{
+		if ( ! $this->writeOnlyMode) {
+			return parent::doFetch($id);
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */
@@ -24,7 +66,8 @@ class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
 			$proxyFactory = $em->getProxyFactory();
 			$proxyFactory->generateProxyClasses(array($classMetadata));
 		}
-		
+
 		return parent::doSave($id, $classMetadata, $lifeTime);
 	}
+
 }

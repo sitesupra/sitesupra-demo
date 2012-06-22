@@ -260,7 +260,7 @@ class SitemapAction extends PageManagerAction
 			$queryBuilder->leftJoin('e.localizations', 'l_', 'WITH', 'l_.locale = :locale')
 					->setParameter('locale', $localeId)
 					->leftJoin('e.localizations', 'l')
-					->andWhere('l_.id IS NOT NULL OR e.global = true');
+					->andWhere('l_.id IS NOT NULL OR e.global = true OR (e.level = 0 AND e.global = false)');
 		}
 		
 		$filterFolders = array();

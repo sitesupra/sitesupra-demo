@@ -19,7 +19,7 @@ use Supra\Search\SearchService;
 use Supra\Controller\Pages\Search\PageLocalizationKeywordsRequest;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
-use Supra\Controller\Pages\Exception\RuntimeException;
+use Supra\Controller\Pages\Exception;
 
 /**
  * Page settings actions
@@ -48,6 +48,11 @@ class PagesettingsAction extends PageManagerAction
 
 		if ($input->has('global')) {
 			$global = $input->getValid('global', AbstractType::BOOLEAN);
+			
+			if ($page->isRoot() && ! $global) {
+				throw new Exception\LogicException('It is not allowed to disable translation of root page');
+			}
+			
 			$page->setGlobal($global);
 		}
 
@@ -100,7 +105,7 @@ class PagesettingsAction extends PageManagerAction
 					$parentTemplateLayout = $parentTemplate->getTemplateLayouts()->get($media);
 
 					if ( ! $parentTemplateLayout instanceof Entity\TemplateLayout) {
-						throw new RuntimeException('Parent layout should be instance of ' . Entity\TemplateLayout::CN() . ' class');
+						throw new Exception\RuntimeException('Parent layout should be instance of ' . Entity\TemplateLayout::CN() . ' class');
 					}
 
 					$parentThemeLayoutName = $parentTemplateLayout->getLayoutName();
@@ -125,7 +130,7 @@ class PagesettingsAction extends PageManagerAction
 					$themeLayout = $theme->getLayout($themeLayoutName);
 
 					if (empty($themeLayout)) {
-						throw new RuntimeException('Can\'t find layout with name ' . $themeLayoutName);
+						throw new Exception\RuntimeException('Can\'t find layout with name ' . $themeLayoutName);
 					}
 
 					// Remove current layout if any

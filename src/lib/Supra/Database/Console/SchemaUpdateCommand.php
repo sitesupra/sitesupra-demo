@@ -10,6 +10,10 @@ use Doctrine\ORM\Events;
 use Supra\Database\Upgrade\DatabaseUpgradeRunner;
 use Supra\Database\Upgrade\SqlUpgradeFile;
 use Supra\Database\Exception;
+use Doctrine\ORM\Mapping\ClassMetadataFactory;
+use Doctrine\Common\Cache\MemcacheCache;
+use Supra\Database\Doctrine\Cache\ProxyFactoryMetadataCache;
+use \Memcache;
 
 /**
  * Schema update command
@@ -17,7 +21,7 @@ use Supra\Database\Exception;
  */
 class SchemaUpdateCommand extends SchemaAbstractCommand
 {
-	
+
 	/**
 	 * Configure
 	 * 
@@ -29,16 +33,16 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 				->setHelp('Updates ORM schema.')
 				->setDefinition(array(
 					new InputOption(
-						'force', null, InputOption::VALUE_NONE,
-						'Causes the generated SQL statements to be physically executed against your database.'
+							'force', null, InputOption::VALUE_NONE,
+							'Causes the generated SQL statements to be physically executed against your database.'
 					),
 					new InputOption(
-						'dump-sql', null, InputOption::VALUE_NONE,
-						'Causes the generated SQL statements to be output.'
+							'dump-sql', null, InputOption::VALUE_NONE,
+							'Causes the generated SQL statements to be output.'
 					),
 					new InputOption(
-						'check', null, InputOption::VALUE_NONE,
-						'Causes exception if schema is not up to date.'
+							'check', null, InputOption::VALUE_NONE,
+							'Causes exception if schema is not up to date.'
 					),
 				));
 	}
@@ -52,31 +56,38 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
 		$output->writeln('Updating database schemas...');
-		
+
 		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
-		
-        $force = (true === $input->getOption('force'));
-        $dumpSql = (true === $input->getOption('dump-sql'));
+
+		$force = (true === $input->getOption('force'));
+		$dumpSql = (true === $input->getOption('dump-sql'));
 		$check = (true === $input->getOption('check'));
 		$updateRequired = false;
-		
+
 		// Doctrine schema update
 		foreach ($this->entityManagers as $entityManagerName => $em) {
 
 			$output->write($entityManagerName);
-			
-			$metadatas = $em->getMetadataFactory()->getAllMetadata();
+
+			/* @var $metadataFactory ClassMetadataFactory */
+			$metadataFactory = $em->getMetadataFactory();
+
+			/* @var $cache ProxyFactoryMetadataCache */
+			$cache = $metadataFactory->getCacheDriver();
+			$cache->setWriteOnlyMode(true);
+
+			$metadatas = $metadataFactory->getAllMetadata();
 			$schemaTool = new SchemaTool($em);
 			$sqls = $schemaTool->getUpdateSchemaSql($metadatas, true);
 
 			if ( ! empty($sqls)) {
 				$updateRequired = true;
 				$output->writeln("\t - " . count($sqls) . ' queries');
-				
+
 				if ($force) {
 					$schemaTool->updateSchema($metadatas, true);
 				}
-				
+
 				if ($dumpSql) {
 					$output->writeln('');
 					foreach ($sqls as $sql) {
@@ -87,13 +98,14 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			} else {
 				$output->writeln("\t - up to date");
 			}
-
+			
+			$cache->setWriteOnlyMode(false);
 		}
 
 		if ($force) {
 			$output->writeln('Database schemas updated successfully!');
 		}
-		
+
 		if ($updateRequired && $check) {
 			throw new Exception\RuntimeException('Database schema(s) not up to date.');
 		}
@@ -105,8 +117,8 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			$output->writeln(sprintf('    <info>%s --force</info> to execute the command', $this->getName()));
 			$output->writeln(sprintf('    <info>%s --dump-sql</info> to show the commands', $this->getName()));
 		}
-		
+
 		$output->writeln('Done updating database schemas.');
 	}
-	
+
 }
