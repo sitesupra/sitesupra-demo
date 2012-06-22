@@ -94,7 +94,7 @@ Supra('supra.input', function (Y) {
 			}
 			
 			if ('avatar' in data) {
-				this.one('div.info img').setAttribute('src', data.avatar + (data.avatar.indexOf('?') != -1 ? '&' : '?') + 'rrr=' + (+new Date()));
+				this.one('div.info img').setAttribute('src', data.avatar);
 			}
 			if ('name' in data) {
 				this.one('div.info a').set('text', data.name || Supra.Intl.get(['userdetails', 'default_name']));
