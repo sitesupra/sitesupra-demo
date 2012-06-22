@@ -2,6 +2,7 @@
 
 namespace Supra\Cms\BannerManager;
 
+use Supra\User\Entity\AbstractUser;
 use Supra\Authorization\AccessPolicy\AuthorizationAllOrNoneAccessPolicy;
 
 class BannerManagerAuthorizationAccessPolicy extends AuthorizationAllOrNoneAccessPolicy
@@ -9,14 +10,13 @@ class BannerManagerAuthorizationAccessPolicy extends AuthorizationAllOrNoneAcces
 
 	protected function setApplicationAccessValue(AbstractUser $user, $applicationAccessValue)
 	{
-		if($applicationAccessValue == self::APPLICATION_ACCESS_NONE_VALUE) {
-			
+		if ($applicationAccessValue == self::APPLICATION_ACCESS_NONE_VALUE) {
+
 			$this->revokeApplicationAllAccessPermission($user);
 			$this->revokeApplicationSomeAccessPermission($user);
 			$this->revokeApplicationExecuteAccessPermission($user);
-		}
-		else {
-			
+		} else {
+
 			parent::setApplicationAccessValue($user, $applicationAccessValue);
 		}
 	}
