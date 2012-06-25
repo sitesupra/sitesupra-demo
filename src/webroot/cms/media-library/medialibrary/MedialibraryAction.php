@@ -353,6 +353,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 					// Commit the changes
 					$this->entityManager->commit();
+					
+					$this->writeAuditLog('%item% replaced', $fileToReplace);
 
 					$output = $this->imageAndFileOutput($fileToReplace);
 					$this->getResponse()->setResponseData($output);
