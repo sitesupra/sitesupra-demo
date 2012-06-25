@@ -102,60 +102,42 @@ abstract class ImageProcessor
 	/**
 	 * Create GD resource image from file
 	 * 
-	 * @param string $file
-	 * @return boolean
+	 * @param string $filename
+	 * @return resource
+	 * @throws ImageProcessorException
 	 */
 	protected function createImageFromFile($filename)
 	{
 		$image = null;
 
-		try {
+		$imageInfo = $this->getImageInfo($filename);
+		$mimeType = $imageInfo[2];
+		$mimeName = $imageInfo['mime'];
 
-			$imageInfo = $this->getImageInfo($filename);
-			if (empty($imageInfo)) {
-				throw new ImageProcessorException('Could not retrieve image info');
-			}
+		if ( ! self::isSupportedImageType($mimeType)) {
+			throw new ImageProcessorException($mimeName . ' images are not supported');
+		}
 
-			if ( ! self::isSupportedImageType($imageInfo[2])) {
-				throw new ImageProcessorException($imageInfo['mime'] . ' images are not supported');
-			}
+		switch ($mimeType) {
 
-			switch ($imageInfo[2]) {
+			case IMAGETYPE_GIF:
+				$image = imageCreateFromGIF($filename);
+				break;
 
-				case IMAGETYPE_GIF:
-					if (imagetypes() & IMG_GIF) {
-						$image = imageCreateFromGIF($filename);
-					}
-					break;
+			case IMAGETYPE_JPEG:
+				$image = imageCreateFromJPEG($filename);
+				break;
 
-				case IMAGETYPE_JPEG:
-					if (imagetypes() & IMG_JPG) {
-						$image = imageCreateFromJPEG($filename);
-					}
-					break;
-
-				case IMAGETYPE_PNG:
-					if (imagetypes() & IMG_PNG) {
-						$image = imageCreateFromPNG($filename);
-					}
-					break;
-
-				default:
-					throw new ImageProcessorException($imageInfo['mime'] . ' images are not supported');
-					break;
-			}
-		} catch (Exception $e) {
-			$error = $e->getMessage();
-			Log::info('Image Loading Error: ' . $error);
-
-			return $image;
+			case IMAGETYPE_PNG:
+				$image = imageCreateFromPNG($filename);
+				break;
 		}
 
 		if ( ! is_resource($image)) {
 			$baseName = pathinfo($filename, PATHINFO_BASENAME);
-			throw new ImageProcessorException("Failed to create image {$baseName} from {$imageInfo['mime']} format.");
+			throw new ImageProcessorException("Failed to create image {$baseName} from {$mimeName} format.");
 		}
-		
+
 		return $image;
 	}
 
@@ -200,45 +182,23 @@ abstract class ImageProcessor
 	 * @param string $filename
 	 * @param int $mimeType
 	 * @param int $jpegQuality
+	 * @param string $mimeName
 	 */
-	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality = 100, $mimeName = null)
+	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality, $mimeName)
 	{
+		if ( ! self::isSupportedImageType($mimeType)) {
+			throw new ImageProcessorException("$mimeName ($mimeType) images are not supported");
+		}
+		
 		switch ($mimeType) {
 			case IMAGETYPE_GIF:
-				if (imagetypes() & IMG_GIF) {
-					return imagegif($image, $filename);
-				} else {
-					throw new ImageProcessorException('GIF images are not supported');
-				}
-				break;
+				return imagegif($image, $filename);
 
 			case IMAGETYPE_JPEG:
-				if (imagetypes() & IMG_JPG) {
-					return imagejpeg($image, $filename, $this->evaluateQuality(100, $jpegQuality));
-				} else {
-					throw new ImageProcessorException('JPEG images are not supported');
-				}
-				break;
+				return imagejpeg($image, $filename, $this->evaluateQuality(100, $jpegQuality));
 
 			case IMAGETYPE_PNG:
-				if (imagetypes() & IMG_PNG) {
-					return imagepng($image, $filename, 9 - $this->evaluateQuality(9, $jpegQuality));
-				} else {
-					throw new ImageProcessorException('PNG images are not supported');
-				}
-				break;
-
-			case IMAGETYPE_WBMP:
-				if (imagetypes() & IMG_WBMP) {
-					return imagewbmp($image, $filename);
-				} else {
-					throw new ImageProcessorException('WBMP images are not supported');
-				}
-				break;
-
-			default:
-				throw new ImageProcessorException(($mimeName ? : $mimeType) . ' images are not supported');
-				break;
+				return imagepng($image, $filename, 9 - $this->evaluateQuality(9, $jpegQuality));
 		}
 	}
 
