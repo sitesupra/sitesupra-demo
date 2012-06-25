@@ -65,8 +65,21 @@ class FilePathGenerator implements EventSubscriber
 				continue;
 			}
 
-			$this->regeneratePath($entity);
+			$this->regeneratePathForEntity($entity);
 		}
+	}
+
+	protected function regeneratePathForEntity($entity)
+	{
+		$descendants = $entity->getDescendants();
+
+		if ( ! empty($descendants)) {
+			foreach ($descendants as $descendant) {
+				$this->regeneratePath($descendant);
+			}
+		}
+
+		$this->regeneratePath($entity);
 	}
 
 	/**
@@ -80,14 +93,7 @@ class FilePathGenerator implements EventSubscriber
 		$entity = $eventArgs->getEntity();
 
 		if ($entity instanceof Entity\Abstraction\File) {
-			$descendants = $entity->getDescendants();
-			if ( ! empty($descendants)) {
-				foreach ($descendants as $descendant) {
-					$this->regeneratePath($descendant);
-				}
-			}
-
-			$this->regeneratePath($entity);
+			$this->regeneratePathForEntity($entity);
 		}
 	}
 
@@ -95,7 +101,7 @@ class FilePathGenerator implements EventSubscriber
 	{
 		$filePath = $entity->getPathEntity();
 
-		$filePath->setSystemPath($this->getSystemPath($entity));
+		$filePath->setSystemPath(self::getSystemPath($entity));
 		$filePath->setWebPath($this->getWebPath($entity));
 
 		$entity->setPathEntity($filePath);
@@ -138,7 +144,7 @@ class FilePathGenerator implements EventSubscriber
 			} else {
 				$path = '/' . str_replace(SUPRA_WEBROOT_PATH, '', $fileStorage->getExternalPath());
 			}
-			
+
 			// Fix backslash on Windows
 			$path = str_replace(array('//', "\\"), '/', $path);
 
@@ -158,7 +164,7 @@ class FilePathGenerator implements EventSubscriber
 		}
 	}
 
-	protected function getSystemPath(Entity\Abstraction\File $file)
+	public static function getSystemPath(Entity\Abstraction\File $file)
 	{
 		$pathNodes = $file->getAncestors(0, true);
 		$items = array();
