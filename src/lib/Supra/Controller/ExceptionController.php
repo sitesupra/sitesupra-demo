@@ -50,8 +50,11 @@ class ExceptionController extends ControllerAbstraction
 				$response->setCode(403);
 				$response->output("403 FORBIDDEN\n");
 			} else {
+				
+				$exceptionIdentifier = md5($this->exception);
+				
 				$response->setCode(500);
-				$response->output(SUPRA_ERROR_MESSAGE . "\n");
+				$response->output(SUPRA_ERROR_MESSAGE . ' #' . $exceptionIdentifier . "\n");
 			}
 		}
 		

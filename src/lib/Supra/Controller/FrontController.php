@@ -121,12 +121,14 @@ class FrontController
 		$request = $this->getRequestObject();
 
 		try {
+
 			$request->readEnvironment();
 			$this->findMatchingRouters($request);
 		} catch (\Exception $exception) {
 
 			// Log the exception raised
-			$this->log->error($exception);
+			$exceptionIdentifier = md5($exception);
+			$this->log->error('#' . $exceptionIdentifier, ' ', $exception);
 
 			//TODO: should be configurable somehow
 			$exceptionController = $this->initializeController(ExceptionController::CN());
@@ -211,7 +213,7 @@ class FrontController
 			) {
 
 				$sessionManager = ObjectRepository::getSessionManager($controller);
-				
+
 				$authenticationNamespace = $sessionManager->getAuthenticationSpace();
 
 				if ($authenticationNamespace instanceof AuthenticationSessionNamespace) {

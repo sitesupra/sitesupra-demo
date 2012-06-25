@@ -34,6 +34,7 @@ abstract class CmsAction extends SimpleController
 	/**
 	 * Request array context used for JS to provide confirmation answers
 	 */
+
 	const CONFIRMATION_ANSWER_CONTEXT = '_confirmation';
 
 	/**
@@ -73,7 +74,7 @@ abstract class CmsAction extends SimpleController
 		// Handle localized exceptions
 		try {
 			$request = $this->getRequest();
-
+			
 			$response = $this->getResponse();
 			$localeId = $this->getLocale()->getId();
 
@@ -130,15 +131,19 @@ abstract class CmsAction extends SimpleController
 		} catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();
+
+			$eIdentifier = md5(serialize($e));
+
+			// This will be caught by FrontController and most probably HTTP response code 500 will be sent.
 			if ( ! $response instanceof JsonResponse) {
 				throw $e;
 			}
 
 			//TODO: Remove later. Should not be shown to user
-			$response->setErrorMessage($e->getMessage());
+			$response->setErrorMessage('Error occured!' . "<br />" . 'Error reference ID: #' . $eIdentifier);
 
 			// Write the issue inside the log
-			$this->log->error($e, "\nRequest:\n", $debugRequest);
+			$this->log->error('#' . $eIdentifier . ' ' . $e, "\nRequest:\n", $debugRequest);
 		}
 	}
 
@@ -172,7 +177,7 @@ abstract class CmsAction extends SimpleController
 		// Used to get currently signed in user
 		//TODO: think about something better...
 		$response->assign('action', $this);
-		
+
 		return $response;
 	}
 
@@ -282,7 +287,7 @@ abstract class CmsAction extends SimpleController
 		} else {
 			$value = $request->getQueryValue($key);
 		}
-		
+
 		return $value;
 	}
 
@@ -339,8 +344,8 @@ abstract class CmsAction extends SimpleController
 		}
 
 		if ($ap->isPermissionGranted($user, $object, $permissionName)) {
-			
-			if($permissionName == \Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE) {
+
+			if ($permissionName == \Supra\Controller\Pages\Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE) {
 
 				if ($object instanceof Entity\PageLocalization) {
 
@@ -351,10 +356,10 @@ abstract class CmsAction extends SimpleController
 					}
 				}
 			}
-			
+
 			return true;
 		}
-		
+
 		throw new EntityAccessDeniedException($user, $object, $permissionName);
 	}
 
@@ -487,7 +492,7 @@ abstract class CmsAction extends SimpleController
 				$applicationNamespaceAlias = $entityToQuery[CheckPermissionsController::REQUEST_KEY_TYPE];
 
 				$applicationNamespace = $ap->getApplicationNamespaceFromAlias($applicationNamespaceAlias);
-				
+
 				$appConfig = ObjectRepository::getApplicationConfiguration($applicationNamespace);
 
 				$policy = $appConfig->authorizationAccessPolicy;
@@ -506,7 +511,7 @@ abstract class CmsAction extends SimpleController
 					->setResponsePermissions($result);
 		}
 	}
-	
+
 	public function getCurrentUserArray()
 	{
 		$response = array(
@@ -515,27 +520,27 @@ abstract class CmsAction extends SimpleController
 			'login' => $this->user->getLogin(),
 			'avatar' => $this->user->getGravatarUrl(32)
 		);
-		
-		/*if ($this->user->hasPersonalAvatar()) {
-			
-			$fileStorage = ObjectRepository::getFileStorage($this);
-			$path = $fileStorage->getExternalPath();
-			$path = '/' . str_replace(array(SUPRA_WEBROOT_PATH, "\\"), array('', '/'), $path);
-			
-			$response['avatar'] = $path . '_avatars' . DIRECTORY_SEPARATOR . $this->user->getId() 
-					. '_32x32';
-			
-		} else {
-			$sampleAvatarId = $this->user->getAvatar();
-			if ( ! is_null($sampleAvatarId)) {
-				foreach (UseravatarAction::$sampleAvatars as $sampleAvatar) {
-					if ($sampleAvatarId == $sampleAvatar['id']) {
-						$response['avatar'] = $sampleAvatar['sizes']['32x32']['external_path'];
-					}
-				}
-			}
-		}*/
-		
+
+		/* if ($this->user->hasPersonalAvatar()) {
+
+		  $fileStorage = ObjectRepository::getFileStorage($this);
+		  $path = $fileStorage->getExternalPath();
+		  $path = '/' . str_replace(array(SUPRA_WEBROOT_PATH, "\\"), array('', '/'), $path);
+
+		  $response['avatar'] = $path . '_avatars' . DIRECTORY_SEPARATOR . $this->user->getId()
+		  . '_32x32';
+
+		  } else {
+		  $sampleAvatarId = $this->user->getAvatar();
+		  if ( ! is_null($sampleAvatarId)) {
+		  foreach (UseravatarAction::$sampleAvatars as $sampleAvatar) {
+		  if ($sampleAvatarId == $sampleAvatar['id']) {
+		  $response['avatar'] = $sampleAvatar['sizes']['32x32']['external_path'];
+		  }
+		  }
+		  }
+		  } */
+
 		return $response;
 	}
 
