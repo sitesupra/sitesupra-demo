@@ -344,10 +344,12 @@ class FileStorage
 		foreach (array($externalPath, $internalPath) as $basePath) {
 
 			$oldFullPath = $basePath . $folder->getPath(DIRECTORY_SEPARATOR, true);
-			$newFullPath = $basePath . $newFolder->getPath(DIRECTORY_SEPARATOR, true);
+			// TODO: Dirty hack...
+			$newFullPath = $basePath . Listener\FilePathGenerator::getSystemPath($newFolder);
 
 			// Should not happen
 			if ($oldFullPath === $newFullPath) {
+				\Log::warn('Old path equals new path while renaming in file system');
 				continue;
 			}
 
