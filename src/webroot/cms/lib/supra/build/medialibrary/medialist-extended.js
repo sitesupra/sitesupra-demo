@@ -41,7 +41,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</div>\
 			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
-				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.\s]*$" suUseReplacement="true" />\
+				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' suUseReplacement="true" />\
 			</span>\
 			\
 			<div class="group">\
@@ -84,7 +84,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</div>\
 			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
-				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask="^[a-zA-Z0-9\\-\\_\\.\s]*$" suUseReplacement="true" />\
+				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' suUseReplacement="true" />\
 			</span>\
 			\
 			<div class="group">\
