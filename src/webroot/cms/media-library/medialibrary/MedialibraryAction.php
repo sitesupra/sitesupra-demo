@@ -21,10 +21,14 @@ use Supra\ObjectRepository\ObjectRepository;
 class MedialibraryAction extends MediaLibraryAbstractAction
 {
 	// types for MediaLibrary UI
+
 	const TYPE_FOLDER = 1;
 	const TYPE_IMAGE = 2;
 	const TYPE_FILE = 3;
-	
+
+	//
+	const MAX_FILE_BASENAME_LENGTH = 100;
+
 	/**
 	 * Get internal file entity type constant
 	 * @param Entity\Abstraction\File $entity
@@ -33,7 +37,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	private function getEntityType(Entity\Abstraction\File $entity)
 	{
 		$type = null;
-		
+
 		if ($entity instanceof Entity\Folder) {
 			$type = self::TYPE_FOLDER;
 		} elseif ($entity instanceof Entity\Image) {
@@ -41,10 +45,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		} elseif ($entity instanceof Entity\File) {
 			$type = self::TYPE_FILE;
 		}
-		
+
 		return $type;
 	}
-	
+
 	/**
 	 * Used for list folder item
 	 */
@@ -70,29 +74,29 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		foreach ($rootNodes as $rootNode) {
 			/* @var $rootNode Entity\Abstraction\File */
 			$item = array();
-			
-			if( ! $this->emptyRequestParameter('type')) {
-				
+
+			if ( ! $this->emptyRequestParameter('type')) {
+
 				$itemType = $this->getEntityType($rootNode);
 				$requestedType = $this->getRequestParameter('type');
-				
-				if( ! ( 
-						($itemType == $requestedType) || 
+
+				if ( ! (
+						($itemType == $requestedType) ||
 						($itemType == Folder::TYPE_ID)
-				) ) {
+						)) {
 					continue;
 				}
 			}
-			
+
 			if ($rootNode instanceof Entity\File) {
-	
+
 				$extension = mb_strtolower($rootNode->getExtension());
-				
+
 				$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
 				if (in_array($extension, $knownExtensions)) {
 					$item['knownExtension'] = $extension;
 				}
-					
+
 				$checkExistance = $this->getApplicationConfigValue('checkFileExistence');
 				if ($checkExistance == ApplicationConfiguration::CHECK_FULL) {
 					$item['broken'] = ( ! $this->isAvailable($rootNode));
@@ -158,28 +162,28 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function insertAction()
 	{
 		$this->isPostRequest();
-		
+
 		if ( ! $this->hasRequestParameter('filename')) {
 			$this->getResponse()
 					->setErrorMessage('Folder title was not sent');
-			
+
 			return;
 		}
-		
+
 		$dir = new Entity\Folder();
 		$this->entityManager->persist($dir);
-		
+
 		$dirName = $this->getRequestParameter('filename');
 		$dir->setFileName($dirName);
 
 		// Adding child folder if parent exists
 		if ( ! $this->emptyRequestParameter('parent')) {
 			$folder = $this->getFolder('parent');
-			
+
 			// get parent folder private/public status
 			$publicStatus = $folder->isPublic();
 			$dir->setPublic($publicStatus);
-			
+
 			$folder->addChild($dir);
 		}
 
@@ -199,19 +203,19 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
-		
+
 		$file = $this->getEntity();
-		
+
 		// set private
 		if ($this->hasRequestParameter('private')) {
 			$private = $this->getRequestParameter('private');
-			
-			if($private == 0) {
+
+			if ($private == 0) {
 				$this->fileStorage->setPublic($file);
 				$this->writeAuditLog('%item% was set as public', $file);
 			}
 
-			if($private == 1) {
+			if ($private == 1) {
 				$this->fileStorage->setPrivate($file);
 				$this->writeAuditLog('%item% was set as private', $file);
 			}
@@ -220,31 +224,47 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$this->getResponse()->setResponseData(null);
 			return;
 		}
-		
+
 		// renaming
 		if ($this->hasRequestParameter('filename')) {
-			
+
 			$fileName = $this->getRequestParameter('filename');
-			
+
+			$originalFileInfo = pathinfo($file->getFileName());
+
+			$newFileInfo = pathinfo($fileName);
+
+			if (mb_strlen($newFileInfo['basename'], 'utf-8') > 100) {
+
+				if ($file instanceof Entity\Folder) {
+					throw new CmsException(null, 'Folder name is too long! Maximum length is ' . self::MAX_FILE_BASENAME_LENGTH . ' characters!');
+				} else {
+					throw new CmsException(null, 'File name is too long! Maximum length is ' . self::MAX_FILE_BASENAME_LENGTH . ' characters!');
+				}
+			}
+
 			if ($file instanceof Entity\Folder) {
 				$this->fileStorage->renameFolder($file, $fileName);
-			} 
-			else {
+			} else {
+
+				if ($originalFileInfo['extension'] != $newFileInfo['extension']) {
+					throw new CmsException(null, 'File extension may not be changed!');
+				}
+
 				$this->fileStorage->renameFile($file, $fileName);
 			}
-			
 		}
 
 		$this->writeAuditLog('%item% saved', $file);
-		
+
 		$response = array();
-		
+
 		// when changing image private attribute, previews and thumbs will change their paths
 		// so we will output new image info
 		if ($file instanceof Entity\Image) {
 			$response = $this->imageAndFileOutput($file);
 		}
-		
+
 		$this->getResponse()
 				->setResponseData($response);
 	}
@@ -257,7 +277,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->isPostRequest();
 		$file = $this->getEntity();
 
-		$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);		
+		$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);
 
 		if (is_null($file)) {
 			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
@@ -269,23 +289,24 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		} catch (Exception\NotEmptyException $e) {
 			throw new CmsException('medialibrary.file_remove.can_not_delete_not_empty_directory', $e->getMessage());
 		}
-		
+
 		$this->writeAuditLog('%item% deleted', $file);
 	}
 
-	public function moveAction() {
+	public function moveAction()
+	{
 		$this->isPostRequest();
 		$file = $this->getEntity();
 
 //		$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);		
 		$parentId = $this->getRequestParameter('parent_id');
-		
+
 		$target = null;
-		if(!empty($parentId)) {
+		if ( ! empty($parentId)) {
 			$target = $this->entityManager->getRepository(Entity\Abstraction\File::CN())
 					->findOneById($parentId);
 		}
-		
+
 		if (is_null($file)) {
 			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
 		}
@@ -299,41 +320,40 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		$this->writeAuditLog('%item% moved', $file);
 	}
-	
+
 	/**
 	 * File upload action
 	 */
 	public function uploadAction()
 	{
 		$this->isPostRequest();
-		
+
 		$uploadPermissionCheckFolder = null;
 
 		if ( ! $this->emptyRequestParameter('folder')) {
 			$uploadPermissionCheckFolder = $this->getFolder('folder');
-		}
-		else {
+		} else {
 			$uploadPermissionCheckFolder = new Entity\SlashFolder();
 		}
 		$this->checkActionPermission($uploadPermissionCheckFolder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
-		
+
 		$localeId = $this->getLocale()->getId();
-		
+
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
 			$file = $_FILES['file'];
-			
-			$this->entityManager->beginTransaction();			
-			
+
+			$this->entityManager->beginTransaction();
+
 			try {
 				// checking for replace action
 				if ( ! $this->emptyRequestParameter('file_id')) {
 					$fileToReplace = $this->getFile('file_id');
 					$this->fileStorage->replaceFile($fileToReplace, $file);
-					
+
 					// Commit the changes
 					$this->entityManager->commit();
-					
+
 					$output = $this->imageAndFileOutput($fileToReplace);
 					$this->getResponse()->setResponseData($output);
 
@@ -354,27 +374,26 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 				$humanName = $file['name'];
 
-				// Could move to separate method, should be configurable
-				{
-					// Remove extension part
-					$extensionLength = strlen($fileEntity->getExtension());
+				// Could move to separate method, should be configurable {
+				// Remove extension part
+				$extensionLength = strlen($fileEntity->getExtension());
 
-					if ($extensionLength != 0) {
-						$extensionLength++;
-						$humanName = substr($humanName, 0, -$extensionLength);
-					}
-
-					// Replace dots, underscores, space characters with space
-					$humanNameSplit = preg_split('/[\s_\.]+/', $humanName);
-
-					foreach ($humanNameSplit as &$humanNamePart) {
-						$humanNamePart = mb_strtoupper(mb_substr($humanNamePart, 0, 1))
-								. mb_substr($humanNamePart, 1);
-					}
-
-					// Implode back
-					$humanName = implode(' ', $humanNameSplit);
+				if ($extensionLength != 0) {
+					$extensionLength ++;
+					$humanName = substr($humanName, 0, -$extensionLength);
 				}
+
+				// Replace dots, underscores, space characters with space
+				$humanNameSplit = preg_split('/[\s_\.]+/', $humanName);
+
+				foreach ($humanNameSplit as &$humanNamePart) {
+					$humanNamePart = mb_strtoupper(mb_substr($humanNamePart, 0, 1))
+							. mb_substr($humanNamePart, 1);
+				}
+
+				// Implode back
+				$humanName = implode(' ', $humanNameSplit);
+
 
 				// additional jobs for images
 				if ($fileEntity instanceof Entity\Image) {
@@ -387,7 +406,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 				// adding file as folders child if parent folder is set
 				$folder = null;
-				if ( ! $this->emptyRequestParameter('folder')) {	
+				if ( ! $this->emptyRequestParameter('folder')) {
 
 					$folder = $this->getFolder('folder');
 
@@ -438,7 +457,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 					throw $e;
 				}
-			
+
 				$this->entityManager->flush();
 			} catch (\Exception $e) {
 				$this->entityManager->rollback();
@@ -446,21 +465,21 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			}
 
 			$this->entityManager->commit();
-			
+
 			// genrating output
 			$output = $this->imageAndFileOutput($fileEntity);
 
 			$this->writeAuditLog('%item% uploaded', $fileEntity);
 			$this->getResponse()->setResponseData($output);
 		} else {
-			
+
 			$message = 'Error uploading the file';
-			
+
 			//TODO: Separate messages to UI and to logger
 			if ( ! empty($_FILES['file']['error']) && isset($this->fileStorage->fileUploadErrorMessages[$_FILES['file']['error']])) {
 				$message = $this->fileStorage->fileUploadErrorMessages[$_FILES['file']['error']];
 			}
-			
+
 			$this->getResponse()->setErrorMessage($message);
 		}
 	}
@@ -546,23 +565,23 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$output['broken'] = true;
 			return $output;
 		}
-		
+
 		$extension = mb_strtolower($file->getExtension());
 		$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
 		if (in_array($extension, $knownExtensions)) {
 			$output['known_extension'] = $extension;
 		}
-		
+
 		$checkExistance = $this->getApplicationConfigValue('checkFileExistence');
-		if ($checkExistance == ApplicationConfiguration::CHECK_FULL 
+		if ($checkExistance == ApplicationConfiguration::CHECK_FULL
 				|| $checkExistance == ApplicationConfiguration::CHECK_PARTIAL) {
-				
+
 			$output['broken'] = ( ! $this->isAvailable($file));
 		}
-		
+
 		return $output;
 	}
-	
+
 	/**
 	 * Check weither $file exists and is readable
 	 * @param Entity\File $file
@@ -576,10 +595,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		if (is_readable($filePath)) {
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Helper method to fetch config value from ApplicationConfig class
 	 * for media library
@@ -590,20 +609,20 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	private function getApplicationConfigValue($key, $default = null)
 	{
 		$appConfig = ObjectRepository::getApplicationConfiguration($this);
-		
+
 		if ($appConfig instanceof ApplicationConfiguration) {
 			if (property_exists($appConfig, $key)) {
 				return $appConfig->$key;
 			}
 		}
-		
+
 		if ( ! is_null($default)) {
 			return $default;
 		}
-		
+
 		return null;
 	}
-	
+
 	private function getPrivateImageWebPath(Entity\Image $image, $sizeName = null)
 	{
 		$path = '/' . SUPRA_CMS_URL . '/media-library/download/' . rawurlencode($image->getFileName());
@@ -611,19 +630,19 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			'inline' => 'inline',
 			'id' => $image->getId(),
 		);
-		
+
 		if ( ! is_null($sizeName)) {
-		
+
 			$imageSize = $image->findImageSize($sizeName);
-			
+
 			if ($imageSize instanceof Entity\ImageSize) {
 				$query['size'] = $imageSize->getFolderName();
 			}
 		}
-		
-		$queryOutput = http_build_query($query);	
-		
+
+		$queryOutput = http_build_query($query);
+
 		return $path . '?' . $queryOutput . '&';
 	}
-	
+
 }
