@@ -140,12 +140,6 @@ abstract class ImageProcessor
 					}
 					break;
 
-				case IMAGETYPE_WBMP:
-					if (imagetypes() & IMG_WBMP) {
-						$image = imageCreateFromWBMP($filename);
-					}
-					break;
-
 				default:
 					throw new ImageProcessorException($imageInfo['mime'] . ' images are not supported');
 					break;
@@ -187,12 +181,6 @@ abstract class ImageProcessor
 
 			case IMAGETYPE_PNG:
 				if (imagetypes() & IMG_PNG) {
-					return true;
-				}
-				break;
-
-			case IMAGETYPE_WBMP:
-				if (imagetypes() & IMG_WBMP) {
 					return true;
 				}
 				break;
