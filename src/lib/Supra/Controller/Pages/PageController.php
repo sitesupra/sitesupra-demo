@@ -373,6 +373,7 @@ class PageController extends ControllerAbstraction
 					break;
 
 				default:
+					unset($linkElement);
 					break;
 			}
 		} while ($linkElement instanceof LinkReferencedElement);
