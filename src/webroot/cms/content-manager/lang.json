@@ -40,8 +40,8 @@
 			"style": "Style",
 			"set_image": "Set image",
 			"set_link": "Set link",
-			"shared_property_description": "The value cannot be edited here. It can be edited in the page {{ localeTitle }} localization.",
-			"shared_gallery_notice": "The image list cannot be edited here. It can be edited in the page {{ localeTitle }} localization."
+			"shared_property_description": "The value for this block has been taken from {{ localeTitle }} localization. Go there to manage it.",
+			"shared_gallery_notice": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them."
 		},
 		
 		"datagrid": {
@@ -61,7 +61,7 @@
 			
 			"delete_block": "Delete block",
 			"delete_block_confirmation": "Are you sure you want to delete selected block",
-			"delete_block_shared_confirmation": "The block may contain data what is shared among other page localizations. By deleting the block you may lose the data. Do you wish to proceed?",
+			"delete_block_shared_confirmation": "The block may contain data that is shared among other page localizations. By deleting the block you may lose this data. Do you wish to proceed?",
 			
 			"click_to_edit": "Click to edit",
 			"click_to_edit_drag_to_move": "Click to edit<br />Drag &amp; drop to move",
