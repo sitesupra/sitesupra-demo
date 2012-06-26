@@ -2,7 +2,7 @@
 
 namespace Supra\Uri;
 
-class PathConvertor
+class PathConverter
 {
 
 	/**
