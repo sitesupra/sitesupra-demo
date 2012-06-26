@@ -50,8 +50,8 @@ abstract class ImageProcessor
 		if (empty($imageInfo[0]) && empty($imageInfo[1])) {
 			throw new ImageProcessorException('Could not get image size information');
 		} else {
-			$imageInfo['height'] = &$imageInfo['1'];
-			$imageInfo['width'] = &$imageInfo['0'];
+			$imageInfo['height'] = &$imageInfo[1];
+			$imageInfo['width'] = &$imageInfo[0];
 		}
 
 		return $imageInfo;

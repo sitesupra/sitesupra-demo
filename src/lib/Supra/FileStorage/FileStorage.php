@@ -312,21 +312,30 @@ class FileStorage
 	public function renameFolder(Entity\Folder $folder, $newTitle)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
+		$entityManager->beginTransaction();
+		$oldFolder = clone($folder);
+		$entityManager->detach($oldFolder);
+		
+		try {
+			$folder->setFileName($newTitle);
 
-		$newFolder = clone($folder);
-		$entityManager->detach($newFolder);
-		$newFolder->setFileName($newTitle);
+			// validating folder before renaming
+			foreach ($this->folderUploadFilters as $filter) {
+				$filter->validateFolder($folder);
+			}
 
-		// validating folder before renaming
-		foreach ($this->folderUploadFilters as $filter) {
-			$filter->validateFolder($newFolder);
+			$entityManager->flush();
+			
+			// rename folder in both file storages
+			$this->renameFolderInFileSystem($oldFolder, $folder);
+		} catch (\Exception $e) {
+			$entityManager->detach($folder);
+			$entityManager->rollback();
+			
+			throw $e;
 		}
-
-		// rename folder in both file storages
-		$this->renameFolderInFileSystem($folder, $newFolder);
-
-		$entityManager->merge($newFolder);
-		$entityManager->flush();
+		
+		$entityManager->commit();
 	}
 
 	/**
@@ -344,12 +353,10 @@ class FileStorage
 		foreach (array($externalPath, $internalPath) as $basePath) {
 
 			$oldFullPath = $basePath . $folder->getPath(DIRECTORY_SEPARATOR, true);
-			// TODO: Dirty hack...
-			$newFullPath = $basePath . Listener\FilePathGenerator::getSystemPath($newFolder);
+			$newFullPath = $basePath . $newFolder->getPath(DIRECTORY_SEPARATOR, true);
 
 			// Should not happen
 			if ($oldFullPath === $newFullPath) {
-				\Log::warn('Old path equals new path while renaming in file system');
 				continue;
 			}
 
