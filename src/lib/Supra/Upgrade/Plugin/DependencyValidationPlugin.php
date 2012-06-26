@@ -50,7 +50,6 @@ class DependencyValidationPlugin implements UpgradePluginInterface
 		// checking dependencies
 		foreach ($this->dependencies as $dependency) {
 			if ( ! in_array($dependency, $entities)) {
-				\Log::warn("Failed to find dependent entity \"$dependency\" entity manager");
 				return false;
 			}
 		}

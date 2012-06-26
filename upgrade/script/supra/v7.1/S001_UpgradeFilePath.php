@@ -21,16 +21,9 @@ class S001_UpgradeFilePath extends UpgradeScriptAbstraction
 		$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
 
 		$validator = new DependencyValidationPlugin($em, $dependencies);
-
-		try {
-			$validator->execute();
-		} catch (RuntimeException $e) {
-			\Log::warn($e->getMessage());
-			
-			return false;
-		}
-
-		return true;
+		$result = $validator->execute();
+		
+		return $result;
 	}
 
 }

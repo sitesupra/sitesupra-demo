@@ -9,8 +9,9 @@ use Supra\Controller\Pages\Entity\Theme;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Supra\Upgrade\Script\SkippableOnError;
+use Supra\Upgrade\Plugin\DependencyValidationPlugin;
 
-class S001_AddThemes extends UpgradeScriptAbstraction implements SkippableOnError
+class S001_AddThemes extends UpgradeScriptAbstraction
 {
 
 	const THEME_NAME_DEFAULT = 'default';
@@ -25,6 +26,23 @@ class S001_AddThemes extends UpgradeScriptAbstraction implements SkippableOnErro
 	 * @var ThemeProviderAbstraction
 	 */
 	protected $themeProvider;
+	
+	/**
+	 * @return boolean
+	 */
+	public function validate()
+	{
+		$dependencies = array(
+			Theme::CN()
+		);
+
+		$em = ObjectRepository::getEntityManager($this);
+
+		$validator = new DependencyValidationPlugin($em, $dependencies);
+		$result = $validator->execute();
+		
+		return $result;
+	}
 
 	/**
 	 * @return EntityManager

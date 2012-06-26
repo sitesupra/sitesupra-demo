@@ -1,16 +1,30 @@
 <?php
 
 use Supra\Upgrade\Script\UpgradeScriptAbstraction;
-use PDO;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Upgrade\Script\SkippableOnError;
+use Supra\Upgrade\Plugin\DependencyValidationPlugin;
 
-class S000_UpgradeLinks extends UpgradeScriptAbstraction implements SkippableOnError
+class S000_UpgradeLinks extends UpgradeScriptAbstraction
 {
+	
+	public function validate()
+	{
+		$dependencies = array(
+			LinkReferencedElement::CN()
+		);
+
+		$em = ObjectRepository::getEntityManager($this);
+
+		$validator = new DependencyValidationPlugin($em, $dependencies);
+		$result = $validator->execute();
+		
+		return $result;
+	}
 	
 	public function upgrade()
 	{
