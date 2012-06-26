@@ -121,13 +121,13 @@ class FrontController
 		$request = $this->getRequestObject();
 
 		try {
-
+			
 			$request->readEnvironment();
 			$this->findMatchingRouters($request);
 		} catch (\Exception $exception) {
 
 			// Log the exception raised
-			$exceptionIdentifier = md5($exception);
+			$exceptionIdentifier = md5((string) $exception);
 			$this->log->error('#' . $exceptionIdentifier, ' ', $exception);
 
 			//TODO: should be configurable somehow

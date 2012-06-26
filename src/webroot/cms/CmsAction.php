@@ -132,7 +132,7 @@ abstract class CmsAction extends SimpleController
 			// No support for not Json actions
 			$response = $this->getResponse();
 
-			$eIdentifier = md5(serialize($e));
+			$eIdentifier = md5((string) $e);
 
 			// This will be caught by FrontController and most probably HTTP response code 500 will be sent.
 			if ( ! $response instanceof JsonResponse) {
