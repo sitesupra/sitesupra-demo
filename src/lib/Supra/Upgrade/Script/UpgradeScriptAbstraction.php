@@ -69,9 +69,9 @@ abstract class UpgradeScriptAbstraction
 	{
 		return true;
 	}
-
+	
 	/**
-	 * 
+	 * Upgrade execution command
 	 */
 	abstract public function upgrade();
 
