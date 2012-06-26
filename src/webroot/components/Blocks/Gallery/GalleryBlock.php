@@ -6,7 +6,7 @@ use Supra\Controller\Pages\BlockController;
 use Supra\Request;
 use Supra\Response;
 use Supra\Editable;
-use Supra\Uri\PathConvertor;
+use Supra\Uri\PathConverter;
 
 class GalleryBlock extends BlockController
 {
