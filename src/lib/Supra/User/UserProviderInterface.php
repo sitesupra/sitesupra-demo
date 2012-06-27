@@ -117,7 +117,25 @@ interface UserProviderInterface
 	 */
 	public function credentialChange(Entity\User $user, AuthenticationPassword $password = null);
 
+	/**
+	 * @return boolean
+	 */
 	public function canUpdate();
+	
+	/**
+	 * @return boolean
+	 */
 	public function canCreate();
+
+	/**
+	 * @return boolean
+	 */
 	public function canDelete();
+	
+	/**
+	 * Generates hash for password recovery
+	 * @param Entity\User $user 
+	 * @return string
+	 */
+	public function generatePasswordRecoveryHash(Entity\User $user, $time);
 }

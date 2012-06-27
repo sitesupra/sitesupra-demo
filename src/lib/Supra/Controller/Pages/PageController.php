@@ -290,6 +290,7 @@ class PageController extends ControllerAbstraction
 					// searching for redirect page
 					$redirectPageId = $linkElement->getPageId();
 					if (empty($redirectPageId)) {
+						unset($linkElement);
 						break;
 					}
 					
@@ -297,6 +298,7 @@ class PageController extends ControllerAbstraction
 							->findOneById($redirectPageId);
 
 					if ( ! $redirectPage instanceof Entity\Abstraction\AbstractPage) {
+						unset($linkElement);
 						break;
 					}
 					
@@ -304,6 +306,7 @@ class PageController extends ControllerAbstraction
 					$redirectLocalization = $redirectPage->getLocalization($pageLocalization->getLocale());
 
 					if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
+						unset($linkElement);
 						break;
 					}
 
@@ -319,8 +322,7 @@ class PageController extends ControllerAbstraction
 					);
 
 					// checking if redirect localization has another redirect
-					$childLinkElement = $redirectLocalization->getRedirect();
-					$linkElement = $childLinkElement;
+					$linkElement = $redirectLocalization->getRedirect();
 					$pageLocalization = $redirectLocalization;
 					$parentData = $data;
 					
@@ -332,6 +334,7 @@ class PageController extends ControllerAbstraction
 					// getting children
 					$pageLocalizationChildrenCollection = $pageLocalization->getChildren();
 					if ( ! $pageLocalizationChildrenCollection instanceof \Doctrine\Common\Collections\Collection) {
+						unset($linkElement);
 						break;
 					}
 
@@ -347,16 +350,18 @@ class PageController extends ControllerAbstraction
 
 						$redirectLocalization = array_pop($pageLocalizationChildren);
 					} else {
+						unset($linkElement);
 						break;
 					}
 
 					if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
+						unset($linkElement);
 						break;
 					}
 
 					$redirect = true;
 					$redirectLocalizationId = $redirectLocalization->getId();
-					$path = $redirectLocalization->getLocale() . '/' .  $redirectLocalization->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+					$path = '/' . $redirectLocalization->getLocale() . $redirectLocalization->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
 					
 					$data = array(
 						'redirect' => $redirect,
@@ -365,8 +370,7 @@ class PageController extends ControllerAbstraction
 					);
 
 					// checking if redirect localization has another redirect
-					$childLinkElement = $redirectLocalization->getRedirect();
-					$linkElement = $childLinkElement;
+					$linkElement = $redirectLocalization->getRedirect();
 					$pageLocalization = $redirectLocalization;
 					$parentData = $data;
 
