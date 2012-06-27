@@ -5,20 +5,21 @@ namespace Supra\User\Entity;
 use Supra\Database\Entity;
 use Supra\User\Exception;
 use Doctrine\Common\Collections;
+
 /**
- * Single user preferences group
+ * Single user preferences collection
  * @Entity
  */
-class UserPreferencesGroup extends Entity
+class UserPreferencesCollection extends Entity
 {
+
 	/**
 	 * User settings collection
-	 * @OneToMany(targetEntity="Supra\User\Entity\UserPreference", mappedBy="group", cascade={"all"}, indexBy="name")
+	 * @OneToMany(targetEntity="Supra\User\Entity\UserPreference", mappedBy="collection", cascade={"all"}, indexBy="name")
 	 * @var Collections\Collection
 	 */
 	protected $preferences;
-	
-	
+
 	/**
 	 * 
 	 */
@@ -27,21 +28,21 @@ class UserPreferencesGroup extends Entity
 		parent::__construct();
 		$this->preferences = new Collections\ArrayCollection();
 	}
-	
+
 	/**
 	 * @return Collections\Collection
 	 */
-	public function getPreferencesCollection()
+	public function getPreferences()
 	{
 		return $this->preferences;
 	}
-	
+
 	/**
-	 * @param Collections\Collection $collection
+	 * @param Collections\Collection $preferences
 	 */
-	public function setPreferencesCollection($collection)
+	public function setPreferences($preferences)
 	{
-		$this->preferences = $collection;
+		$this->preferences = $preferences;
 	}
-	
+
 }

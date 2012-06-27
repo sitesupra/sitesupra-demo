@@ -399,21 +399,22 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		$preferences = array();
 
-		$preferencesGroup = $user->getPreferencesGroup();
+		$collection = $user->getPreferencesCollection();
 
-		if (is_null($preferencesGroup)) {
-			$preferencesGroup = new Entity\UserPreferencesGroup();
+		if (is_null($collection)) {
+			$collection = new Entity\UserPreferencesCollection();
 
 			$em = ObjectRepository::getEntityManager($this);
-			$em->persist($preferencesGroup);
+			$em->persist($collection);
 
-			$user->setPreferencesGroup($preferencesGroup);
+			$user->setPreferencesCollection($collection);
 		}
 
-		$collection = $preferencesGroup->getPreferencesCollection();
+		$preferences = $collection->getPreferences();
 
-		foreach ($collection as $userPreference) {
-			$preferences[$userPreference->getName()] = $userPreference->getValue();
+		foreach ($preferences as $preference) {
+
+			$preferences[$preference->getName()] = $preference->getValue();
 		}
 
 		return $preferences;
@@ -428,26 +429,31 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	{
 		$em = ObjectRepository::getEntityManager($this);
 
-		$userPreferencesGroup = $user->getPreferencesGroup();
+		$collection = $user->getPreferencesCollection();
 
-		if (is_null($userPreferencesGroup)) {
-			$userPreferencesGroup = new Entity\UserPreferencesGroup();
-			$em->persist($userPreferencesGroup);
+		if (is_null($collection)) {
 
-			$user->setPreferencesGroup($userPreferencesGroup);
+			$collection = new Entity\UserPreferencesCollection();
+
+			$em->persist($collection);
+
+			$user->setPreferencesCollection($collection);
 		}
 
-		$collection = $userPreferencesGroup->getPreferencesCollection();
+		$preferences = $collection->getPreferences();
 
-		if ($collection->offsetExists($name)) {
-			$preference = $collection->offsetGet($name);
+		if ($preferences->offsetExists($name)) {
+
+			$preference = $preferences->offsetGet($name);
 			$preference->setValue($value);
 		} else {
-			$preference = new UserPreference($name, $value, $userPreferencesGroup);
+
+			$preference = new UserPreference($name, $value, $collection);
 			$em->persist($preference);
 		}
 
-		$collection->set($name, $preference);
+		$preferences->set($name, $preference);
+
 		$em->flush();
 	}
 

@@ -17,50 +17,49 @@ class UserPreference extends Entity
 	 * @var string
 	 */
 	protected $name;
-	
+
 	/**
 	 * @Column(type="array", nullable=true)
 	 * @var string
 	 */
 	protected $value;
-	
+
 	/**
-	 * @ManyToOne(targetEntity="Supra\User\Entity\UserPreferencesGroup", inversedBy="preferences")
-	 * @var UserPreferencesGroup
+	 * @ManyToOne(targetEntity="Supra\User\Entity\UserPreferencesCollection", inversedBy="preferences")
+	 * @var UserPreferencesCollection
 	 */
-	protected $group;
-	
-	
+	protected $collection;
+
 	/**
 	 * @param string $name
 	 * @param mixed $value
 	 * @param User $user
 	 */
-	public function __construct($name, $value, UserPreferencesGroup $group)
+	public function __construct($name, $value, UserPreferencesCollection $collection)
 	{
 		parent::__construct();
-		
+
 		$this->name = $name;
 		$this->value = $value;
-		$this->group = $group;
+		$this->collection = $collection;
 	}
-	
+
 	/**
-	 * @return UserPreferencesGroup
+	 * @return UserPreferencesCollection
 	 */
-	public function getGroup()
+	public function getCollection()
 	{
-		return $this->group;
+		return $this->collection;
 	}
-	
+
 	/**
 	 * @return string
 	 */
-	public function getName() 
+	public function getName()
 	{
 		return $this->name;
 	}
-	
+
 	/**
 	 * @return mixed
 	 */
@@ -68,20 +67,21 @@ class UserPreference extends Entity
 	{
 		return $this->value;
 	}
-	
+
 	/**
 	 * @param mixed $value
 	 */
-	public function setValue($value) 
+	public function setValue($value)
 	{
 		$this->value = $value;
 	}
-	
+
 	/**
 	 * @param User $user
 	 */
-	public function setGroup(UserPreferencesGroup $group) 
+	public function setCollection(UserPreferencesCollection $collection)
 	{
-		$this->group = $group;
+		$this->collection = $collection;
 	}
+
 }

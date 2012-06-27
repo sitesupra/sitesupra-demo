@@ -78,11 +78,12 @@ class User extends AbstractUser
 	protected $salt;
 
 	/**
-	 * User settings collection group
-	 * @OneToOne(targetEntity="Supra\User\Entity\UserPreferencesGroup", cascade={"all"})
-	 * @var UserPreferencesGroup
+	 * User settings collection
+	 * @OneToOne(targetEntity="Supra\User\Entity\UserPreferencesCollection", cascade={"all"})
+	 * @JoinColumn(name="preferences_collection_id", referencedColumnName="id", nullable=true)
+	 * @var UserPreferencesCollection
 	 */
-	protected $preferencesGroup;
+	protected $preferencesCollection;
 
 	/**
 	 * Users locale. Semi-synthetic, as setter/getter uses Locale class instances.
@@ -99,7 +100,7 @@ class User extends AbstractUser
 		parent::__construct();
 		$this->resetSalt();
 
-		$this->preferencesGroup = new UserPreferencesGroup();
+		$this->preferencesCollection = new UserPreferencesCollection();
 	}
 
 	/**
@@ -345,28 +346,19 @@ class User extends AbstractUser
 	}
 
 	/**
-	 * @return Collections\Collection
+	 * @return UserPreferencesCollection
 	 */
 	public function getPreferencesCollection()
 	{
-		return $this->preferencesGroup
-						->getPreferencesCollection();
+		return $this->preferencesCollection;
 	}
 
 	/**
-	 * @return UserPreferencesGroup
+	 * @param UserPreferencesCollection $preferencesCollection
 	 */
-	public function getPreferencesGroup()
+	public function setPreferencesCollection($preferencesCollection)
 	{
-		return $this->preferencesGroup;
-	}
-
-	/**
-	 * @param UserPreferencesGroup $group
-	 */
-	public function setPreferencesGroup($group)
-	{
-		$this->preferencesGroup = $group;
+		$this->preferencesCollection = $preferencesCollection;
 	}
 
 	/**
