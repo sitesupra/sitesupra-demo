@@ -8,6 +8,7 @@ use Supra\Configuration\ConfigurationInterface;
 use Supra\Configuration\ComponentConfiguration;
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Configuration\BlockControllerPlugin;
+use Supra\Uri\PathConverter;
 
 /**
  * Block configuration class
@@ -197,25 +198,8 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		}
 
 		$file = Loader::getInstance()->findClassPath($this->class);
-		$dir = dirname($file);
-		$iconPath = $dir . '/' . $icon;
-
-//		// Disabled for performance
-//		if ( ! file_exists($iconPath)) {
-//			$iconPath = null;
-//		} else
-
-		if (strpos($iconPath, SUPRA_WEBROOT_PATH) !== 0) {
-			$iconPath = null;
-		} else {
-			$iconPath = substr($iconPath, strlen(SUPRA_WEBROOT_PATH) - 1);
-		}
-
-		if (DIRECTORY_SEPARATOR === '\\') {
-			$iconPath = str_replace(DIRECTORY_SEPARATOR, '/', $iconPath);
-		}
-
-		return $iconPath;
+		
+		return PathConverter::getWebPath($file, $icon);
 	}
 
 	/**
