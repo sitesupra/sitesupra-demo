@@ -303,7 +303,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	}
 
 	/**
-	 * Generates hash for password recovery
+	 * @{inheritdoc}
 	 * @param Entity\User $user 
 	 * @return string
 	 */
