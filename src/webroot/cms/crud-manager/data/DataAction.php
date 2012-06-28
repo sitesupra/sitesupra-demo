@@ -67,7 +67,6 @@ class DataAction extends CrudManagerAbstractAction
 		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
-		/* @var $repo Gjensidige\Branches\Repository\BranchesCrudRepository */
 
 		$entityParts = explode('\\', $configuration->entity);
 		$managerId = mb_strtolower(end($entityParts));
