@@ -142,6 +142,10 @@ class LocaleManager
 		return $this->locales;
 	}
 	
+	/**
+	 * Get list of active locale objects
+	 * @return array
+	 */
 	public function getActiveLocales()
 	{
 		$activeLocales = array();
