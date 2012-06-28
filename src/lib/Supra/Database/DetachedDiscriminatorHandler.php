@@ -38,9 +38,13 @@ class DetachedDiscriminatorHandler
 	{
 		$reflection = $eventArgs->getClassMetadata()
 				->getReflectionClass();
+		
+		if (empty($reflection)) {
+			return;
+		}
 
 		$reader = $this->getAnnotationReader();
-
+		
 		$annotation = $reader->getClassAnnotation($reflection, DetachedDiscriminatorValue::CN());
 		if ( ! empty($annotation)) {
 			$this->handleDetachedDisciminatorValue($eventArgs, $annotation);

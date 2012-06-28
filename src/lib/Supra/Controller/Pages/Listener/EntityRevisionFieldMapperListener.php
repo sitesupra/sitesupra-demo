@@ -32,6 +32,11 @@ class EntityRevisionFieldMapperListener implements EventSubscriber
 	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
 	{
 		$metadata = $eventArgs->getClassMetadata();
+		
+		if ( ! class_exists($metadata->name)) {
+			return;
+		}
+		
 		$class = new ReflectionClass($metadata->name);
 		
 		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
