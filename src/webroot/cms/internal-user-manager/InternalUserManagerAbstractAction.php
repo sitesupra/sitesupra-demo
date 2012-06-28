@@ -275,11 +275,6 @@ class InternalUserManagerAbstractAction extends CmsAction
 
 			$response['email'] = $user->getEmail();
 			$response['group'] = $this->groupToDummyId($user->getGroup());
-
-			if ( ! $user->hasPersonalAvatar()) {
-				$response['avatar_id'] = $user->getAvatar();
-			}
-
 			$response['avatar'] = $this->getAvatarExternalPath($user);
 		} else {
 
@@ -288,11 +283,10 @@ class InternalUserManagerAbstractAction extends CmsAction
 			$response['group_id'] = $this->groupToDummyId($user);
 		}
 
-		//if (empty($response['avatar'])) {
-		//	$response['avatar'] = '/cms/lib/supra/img/avatar-default-48x48.png';
-		//}
+		if (empty($response['avatar'])) {
+			$response['avatar'] = '/cms/lib/supra/img/avatar-default-48x48.png';
+		}
 		
-		$response['avatar'] = $user->getGravatarUrl();
 
 		return $response;
 	}
