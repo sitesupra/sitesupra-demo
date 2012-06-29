@@ -82,6 +82,12 @@ class ImageInfo
 	protected $bits;
 
 	/**
+	 * Error while processing 
+	 * @var string
+	 */
+	protected $error;
+
+	/**
 	 * Builds info from image entity or full path
 	 * @param Entity\Image or string $image 
 	 */
@@ -103,13 +109,15 @@ class ImageInfo
 	public function process($filePath)
 	{
 		if ( ! is_string($filePath) && ! file_exists($filePath) && ! is_readable($filePath)) {
-			throw new Exception\RuntimeException('Failed to get image path');
+			$this->error = 'Failed to get image path';
+			return;
 		}
 
 		$imageInfo = getimagesize($filePath);
 
 		if ($imageInfo === false) {
-			throw new Exception\RuntimeException('Failed to get image information from path "' . $filePath . '"');
+			$this->error = 'Failed to get image information from path "' . $filePath . '"';
+			return;
 		}
 
 		$this->width = $imageInfo[0];
@@ -253,6 +261,24 @@ class ImageInfo
 	public function getBits()
 	{
 		return $this->bits;
+	}
+
+	/**
+	 * Has error while processed image
+	 * @return boolean 
+	 */
+	public function hasError()
+	{
+		return ! empty($this->error);
+	}
+
+	/**
+	 * Returns error message
+	 * @return string
+	 */
+	public function getError()
+	{
+		return $this->error;
 	}
 
 }

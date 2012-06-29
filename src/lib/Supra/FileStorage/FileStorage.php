@@ -938,13 +938,11 @@ class FileStorage
 	 */
 	public function isSupportedImageFormat($filename)
 	{
-		try {
-			$info = new ImageInfo($filename);
-		} catch (\Exception $e) {
-			\Log::error($e->getMessage());
+		$info = new ImageInfo($filename);
+		if ($info->hasError()) {
+			\Log::error($info->getError());
 			return false;
 		}
-
 
 		if ( ! $this->isMimeTypeImage($info->getMime())) {
 			return false;

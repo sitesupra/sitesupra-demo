@@ -37,7 +37,10 @@ class ImageSizeUploadFilter implements FileValidationInterface
 		}
 
 		$info = new ImageInfo($sourceFilePath);
-
+		if($info->hasError()) {
+			throw new Exception\RuntimeException($info->getError());
+		}
+		
 		// Assumes memory_limit is in MB
 		$memoryLeft = (int) ini_get('memory_limit') * 1024 * 1024 - memory_get_usage(); // Should use real usage or not?
 		// Read data from image info, default bitsPerChannel to 8, channel count to 4

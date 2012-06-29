@@ -42,10 +42,10 @@ abstract class ImageProcessor
 	 */
 	public function getImageInfo($filename)
 	{
-		try {
-			$info = new ImageInfo($filename);
-		} catch (\Exception $e) {
-			throw new ImageProcessorException('File ' . $filename . ' not found or is not readable.', null, $e);
+		$info = new ImageInfo($filename);
+
+		if ($info->hasError()) {
+			throw new ImageProcessorException('File ' . $filename . ' not found or is not readable. ' . $info->getError());
 		}
 
 		return $info;
