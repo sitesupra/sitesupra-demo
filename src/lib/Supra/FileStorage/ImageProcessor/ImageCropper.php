@@ -124,38 +124,38 @@ class ImageCropper extends ImageProcessor
 		$imageInfo = $this->getImageInfo($this->sourceFilename);
 
 		// check if left and top are in range
-		if (($this->left < 0) || ($this->left >= $imageInfo['width'])) {
+		if (($this->left < 0) || ($this->left >= $imageInfo->getWidth())) {
 			throw new ImageProcessorException('Left offset is out of borders');
 		}
-		if (($this->top < 0 ) || ($this->top >= $imageInfo['height'])) {
+		if (($this->top < 0 ) || ($this->top >= $imageInfo->getHeight())) {
 			throw new ImageProcessorException('Top offset is out of borders');
 		}
 
 		// invert right and bottom if required
 		if ($this->right < 0) {
-			$this->right = $imageInfo['width'] + $this->right - 1;
+			$this->right = $imageInfo->getWidth() + $this->right - 1;
 		}
 		if ($this->bottom < 0) {
-			$this->bottom = $imageInfo['height'] + $this->bottom - 1;
+			$this->bottom = $imageInfo->getHeight() + $this->bottom - 1;
 		}
 
 		// check if right and bottom are in range
-		if (($this->right < 0) || ($this->right >= $imageInfo['width'])) {
+		if (($this->right < 0) || ($this->right >= $imageInfo->getWidth())) {
 			throw new ImageProcessorException('Right offset is out of borders');
 		}
-		if (($this->bottom < 0) || ($this->bottom >= $imageInfo['height'])) {
+		if (($this->bottom < 0) || ($this->bottom >= $imageInfo->getHeight())) {
 			throw new ImageProcessorException('Bottom offset is out borders');
 		}
 
 		//convert right/bottom to width/height or check width/height
 		if ($this->right !== null) {
 			$this->width = $this->right - $this->left + 1;
-		} else if ($this->width > ($imageInfo['width'] - $this->left)) {
+		} else if ($this->width > ($imageInfo->getWidth() - $this->left)) {
 			throw new ImageProcessorException('Crop width exceeds maximum (out of borders)');
 		}
 		if ($this->bottom !== null) {
 			$this->height = $this->bottom - $this->top + 1;
-		} else if ($this->height > ($imageInfo['height'] - $this->top)) {
+		} else if ($this->height > ($imageInfo->getHeight() - $this->top)) {
 			throw new ImageProcessorException('Crop height exceeds maximum (out of borders)');
 		}
 
@@ -163,8 +163,8 @@ class ImageCropper extends ImageProcessor
 		$croppedImage = imagecreatetruecolor($this->width, $this->height);
 		
 		// check if transparecy requires special treatment
-		if ($imageInfo[2] == IMAGETYPE_PNG) {
-			$this->preserveTransparency($image, $croppedImage, $imageInfo[2]);
+		if ($imageInfo->getType() == IMAGETYPE_PNG) {
+			$this->preserveTransparency($image, $croppedImage, $imageInfo->getType());
 		}
 
 		//copy cropped
@@ -175,7 +175,7 @@ class ImageCropper extends ImageProcessor
 
 		// save to file
 		$this->saveImageToFile($croppedImage, $this->targetFilename, 
-				$imageInfo[2], $this->targetQuality, $imageInfo['mime']);
+				$imageInfo->getType(), $this->targetQuality, $imageInfo->getMime());
 		
 	}
 

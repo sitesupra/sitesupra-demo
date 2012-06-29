@@ -4,6 +4,7 @@ namespace Supra\FileStorage\ImageProcessor;
 
 use Supra\FileStorage\Exception\ImageProcessorException;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\FileStorage\ImageInfo;
 
 /**
  * Abstract image processor class
@@ -37,24 +38,17 @@ abstract class ImageProcessor
 	 * Get full image info (dimesions, mime-type etc)
 	 *
 	 * @param string $filename
-	 * @return array
+	 * @return ImageInfo
 	 */
 	public function getImageInfo($filename)
 	{
-		if ( ! file_exists($filename) || ! is_readable($filename)) {
-			throw new ImageProcessorException('File ' . $filename . ' not found');
+		try {
+			$info = new ImageInfo($filename);
+		} catch (\Exception $e) {
+			throw new ImageProcessorException('File ' . $filename . ' not found or is not readable.', null, $e);
 		}
 
-		$imageInfo = getimagesize($filename);
-
-		if (empty($imageInfo[0]) && empty($imageInfo[1])) {
-			throw new ImageProcessorException('Could not get image size information');
-		} else {
-			$imageInfo['height'] = &$imageInfo[1];
-			$imageInfo['width'] = &$imageInfo[0];
-		}
-
-		return $imageInfo;
+		return $info;
 	}
 
 	/**
@@ -65,10 +59,7 @@ abstract class ImageProcessor
 	 */
 	public function getImageWidth($filename)
 	{
-		$imageInfo = $this->getImageInfo($filename);
-		if (is_array($imageInfo) && isset($imageInfo['width'])) {
-			return $imageInfo['width'];
-		}
+		return $this->getImageInfo($filename)->getWidth();
 	}
 
 	/**
@@ -79,10 +70,7 @@ abstract class ImageProcessor
 	 */
 	public function getImageHeight($filename)
 	{
-		$imageInfo = $this->getImageInfo($filename);
-		if (is_array($imageInfo) && isset($imageInfo['height'])) {
-			return $imageInfo['height'];
-		}
+		return $this->getImageInfo($filename)->getHeight();
 	}
 
 	/**
@@ -93,10 +81,7 @@ abstract class ImageProcessor
 	 */
 	public function getImageMime($filename)
 	{
-		$imageInfo = $this->getImageInfo($filename);
-		if (is_array($imageInfo) && isset($imageInfo['mime'])) {
-			return $imageInfo['mime'];
-		}
+		return $this->getImageInfo($filename)->getMime();
 	}
 
 	/**
@@ -111,8 +96,8 @@ abstract class ImageProcessor
 		$image = null;
 
 		$imageInfo = $this->getImageInfo($filename);
-		$mimeType = $imageInfo[2];
-		$mimeName = $imageInfo['mime'];
+		$mimeType = $imageInfo->getType();
+		$mimeName = $imageInfo->getMime();
 
 		if ( ! self::isSupportedImageType($mimeType)) {
 			throw new ImageProcessorException($mimeName . ' images are not supported');
@@ -171,7 +156,7 @@ abstract class ImageProcessor
 				return false;
 				break;
 		}
-		
+
 		return false;
 	}
 
@@ -189,7 +174,7 @@ abstract class ImageProcessor
 		if ( ! self::isSupportedImageType($mimeType)) {
 			throw new ImageProcessorException("$mimeName ($mimeType) images are not supported");
 		}
-		
+
 		switch ($mimeType) {
 			case IMAGETYPE_GIF:
 				return imagegif($image, $filename);

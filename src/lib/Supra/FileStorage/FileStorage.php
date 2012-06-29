@@ -315,7 +315,7 @@ class FileStorage
 		$entityManager->beginTransaction();
 		$oldFolder = clone($folder);
 		$entityManager->detach($oldFolder);
-		
+
 		try {
 			$folder->setFileName($newTitle);
 
@@ -325,16 +325,16 @@ class FileStorage
 			}
 
 			$entityManager->flush();
-			
+
 			// rename folder in both file storages
 			$this->renameFolderInFileSystem($oldFolder, $folder);
 		} catch (\Exception $e) {
 			$entityManager->detach($folder);
 			$entityManager->rollback();
-			
+
 			throw $e;
 		}
-		
+
 		$entityManager->commit();
 	}
 
@@ -931,24 +931,26 @@ class FileStorage
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Is current image format supported by image processor
 	 * @param string $filename Path to file
 	 */
 	public function isSupportedImageFormat($filename)
 	{
-		$imageInfo = getimagesize($filename);
-		
-		if ( ! $this->isMimeTypeImage($imageInfo['mime'])) {
+		try {
+			$info = new ImageInfo($filename);
+		} catch (\Exception $e) {
+			\Log::error($e->getMessage());
 			return false;
 		}
 
-		if(empty($imageInfo)) {
+
+		if ( ! $this->isMimeTypeImage($info->getMime())) {
 			return false;
 		}
-		
-		return ImageProcessor\ImageProcessor::isSupportedImageType($imageInfo[2]);
+
+		return ImageProcessor\ImageProcessor::isSupportedImageType($info->getType());
 	}
 
 	/**
@@ -1102,9 +1104,9 @@ class FileStorage
 		if ($fileEntity instanceof Entity\Image) {
 			// store original size
 			$imageProcessor = new ImageProcessor\ImageResizer();
-			$imageInfo = $imageProcessor->getImageInfo($this->getFilesystemPath($fileEntity));
-			$fileEntity->setWidth($imageInfo['width']);
-			$fileEntity->setHeight($imageInfo['height']);
+			$imageInfo = $imageProcessor->getImageInfo($fileEntity);
+			$fileEntity->setWidth($imageInfo->getWidth());
+			$fileEntity->setHeight($imageInfo->getHeight());
 			// reprocess sizes
 			$this->recreateImageSizes($fileEntity);
 		}

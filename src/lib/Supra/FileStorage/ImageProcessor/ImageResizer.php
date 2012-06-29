@@ -93,8 +93,8 @@ class ImageResizer extends ImageProcessor
 
 		// check if image is not smaller than target size
 		$needsResize = false;
-		if (($imageInfo['width'] > $this->targetWidth)
-			|| ($imageInfo['height'] > $this->targetHeight)
+		if (($imageInfo->getWidth() > $this->targetWidth)
+			|| ($imageInfo->getHeight() > $this->targetHeight)
 		) {
 			$needsResize = true;
 		}
@@ -106,7 +106,7 @@ class ImageResizer extends ImageProcessor
 			$sourceImage = $this->createImageFromFile($this->sourceFilename);
 
 			$dimensions = 
-					$this->calculateDimensions($imageInfo['width'], $imageInfo['height']);
+					$this->calculateDimensions($imageInfo->getWidth(), $imageInfo->getHeight());
 			
 			$sourceLeft = $dimensions['sourceLeft'];
 			$sourceTop = $dimensions['sourceTop'];
@@ -118,8 +118,8 @@ class ImageResizer extends ImageProcessor
 			// create image resource for new image
 			$resizedImage = imagecreatetruecolor($destWidth, $destHeight);
 			// check if transparecy requires special treatment
-			if ($imageInfo[2] == IMAGETYPE_PNG) {
-				$this->preserveTransparency($sourceImage, $resizedImage, $imageInfo[2]);
+			if ($imageInfo->getType() == IMAGETYPE_PNG) {
+				$this->preserveTransparency($sourceImage, $resizedImage, $imageInfo->getType());
 			}
 			
 			// copy and resize
@@ -131,7 +131,7 @@ class ImageResizer extends ImageProcessor
 
 			// save to file
 			$this->saveImageToFile($resizedImage, $this->targetFilename, 
-					$imageInfo[2], $this->targetQuality, $imageInfo['mime']);
+					$imageInfo->getType(), $this->targetQuality, $imageInfo->getMime());
 
 		} elseif ($this->sourceFilename != $this->targetFilename) {
 			// copy original
@@ -239,8 +239,8 @@ class ImageResizer extends ImageProcessor
 
 		$imageInfo = $this->getImageInfo($this->sourceFilename);
 
-		$wRatio = $imageInfo['width'] / $this->targetWidth;
-		$hRatio = $imageInfo['height'] / $this->targetHeight;
+		$wRatio = $imageInfo->getWidth() / $this->targetWidth;
+		$hRatio = $imageInfo->getHeight() / $this->targetHeight;
 		$maxRatio = max($wRatio, $hRatio);
 		$minRatio = min($wRatio, $hRatio);
 
@@ -252,8 +252,8 @@ class ImageResizer extends ImageProcessor
 		);
 		
 		if ( ! $cropMode) {
-			$dimensions['width'] = round($imageInfo['width'] / $maxRatio);
-			$dimensions['height'] = round($imageInfo['height'] / $maxRatio);
+			$dimensions['width'] = round($imageInfo->getWidth() / $maxRatio);
+			$dimensions['height'] = round($imageInfo->getHeight() / $maxRatio);
 		}
 
 		return $dimensions;

@@ -402,8 +402,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					// store original size
 					$imageProcessor = new ImageProcessor\ImageResizer();
 					$imageInfo = $imageProcessor->getImageInfo($file['tmp_name']);
-					$fileEntity->setWidth($imageInfo['width']);
-					$fileEntity->setHeight($imageInfo['height']);
+					$fileEntity->setWidth($imageInfo->getWidth());
+					$fileEntity->setHeight($imageInfo->getHeight());
 				}
 
 				// adding file as folders child if parent folder is set

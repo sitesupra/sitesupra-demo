@@ -247,15 +247,12 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 	public function testGetImageInfo() 
 	{
 		$info = $this->object->getImageInfo($this->imagePath);
-		$this->assertInternalType('array', $info);
-		$this->assertArrayHasKey('mime', $info);
-		$this->assertArrayHasKey('width', $info);
-		$this->assertArrayHasKey('height', $info);
+		$this->assertInstanceOf('Supra\FileStorage\ImageInfo', $info);
+		$this->assertNotEmpty($info->getSize());
 	}
 
 	/**
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
-	 * @expectedExceptionMessage  not found
 	 */
 	public function testGetImageInfoNotFound() 
 	{
@@ -264,7 +261,6 @@ class ImageResizerTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
-	 * @expectedExceptionMessage  size information
 	 */
 	public function testGetImageInfoNotImage() 
 	{

@@ -58,7 +58,7 @@ class ImageRotator extends ImageProcessor
 			$rotatedImage = imagerotate($image, $angle, $bgd_color);
 
 			$this->saveImageToFile($rotatedImage, $this->targetFilename, 
-					$imageInfo[2], $this->targetQuality, $imageInfo['mime']);
+					$imageInfo->getType(), $this->targetQuality, $imageInfo->getMime());
 		} elseif ($this->sourceFilename != $this->targetFilename) {
 			copy($this->sourceFilename, $this->targetFilename);
 		}

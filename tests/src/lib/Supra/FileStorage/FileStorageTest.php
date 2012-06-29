@@ -14,34 +14,23 @@ require_once 'PHPUnit/Extensions/OutputTestCase.php';
 /**
  * Test class for File Storage
  */
-class FileStorageTest extends \PHPUnit_Framework_TestCase
+class FileStorageTest extends FileStorageTestAbstraction
 {
-	const DELETE_FILES = true;
-	
-	/**
-	 * @var FileStorage\FileStorage
-	 */
-	private $fileStorage;
-	
-	public function setUp()
-	{
-		$this->fileStorage = ObjectRepository::getFileStorage($this);
-	}
-	
+
 	public function testNestedSet()
 	{
 		$rand = rand();
-		
+
 		$fileA = $this->createFile($rand);
-		
+
 		$lft = $fileA->getLeftValue();
 		$rgt = $fileA->getRightValue();
 		$lvl = $fileA->getLevel();
-		
+
 		$this->fileStorage->remove($fileA);
-		
+
 		$fileA = $this->createFile($rand);
-		
+
 		self::assertEquals($lft, $fileA->getLeftValue());
 		self::assertEquals($rgt, $fileA->getRightValue());
 		self::assertEquals($lvl, $fileA->getLevel());
@@ -63,7 +52,7 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . 'chuck.jpg';
 
 		$mimeType = $this->fileStorage->getMimeType($uploadFile);
-		
+
 		$file = null;
 		if ($this->fileStorage->isMimeTypeImage($mimeType)) {
 			$file = new \Supra\FileStorage\Entity\Image;
@@ -81,10 +70,10 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		if ($file instanceof \Supra\FileStorage\Entity\Image) {
 			$imageProcessor = new ImageResizer();
 			$imageInfo = $imageProcessor->getImageInfo($uploadFile);
-			$file->setWidth($imageInfo['width']);
-			$file->setHeight($imageInfo['height']);
+			$file->setWidth($imageInfo->getWidth());
+			$file->setHeight($imageInfo->getHeight());
 		}
-		
+
 		$dir->addChild($file);
 
 		$this->fileStorage->storeFileData($file, $uploadFile);
@@ -199,7 +188,7 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 
 		$this->fail('Test overwrited folder. FileStorage\Exception\RuntimeException should be thrown');
 	}
-	
+
 	public function testCreateInvalidFolderWithSymbol()
 	{
 		$this->cleanUp();
@@ -301,30 +290,6 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		$this->fail('Created file should exist in file storage');
 	}
 
-	private function createFolder($name)
-	{
-
-		$dir = new \Supra\FileStorage\Entity\Folder();
-
-		$em = ObjectRepository::getEntityManager($this->fileStorage);
-
-		$dir->setFileName($name);
-
-		$em->persist($dir);
-		$em->flush();
-
-		$this->fileStorage->createFolder($dir);
-
-		$internalPath = is_dir($this->fileStorage->getInternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
-		$externalPath = is_dir($this->fileStorage->getExternalPath() . $dir->getPath(DIRECTORY_SEPARATOR, true));
-
-		if ($internalPath && $externalPath) {
-			return $dir;
-		} else {
-			return null;
-		}
-	}
-
 	public function testCreateFile()
 	{
 		$this->cleanUp();
@@ -412,34 +377,6 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		} else {
 			$this->fail('File extension should be the same and rename should throw Exception\UploadFilterException');
 		}
-	}
-
-	/**
-	 * @return \Supra\FileStorage\Entity\File
-	 */
-	private function createFile($nameSuffix = '')
-	{
-		$uploadFile = __DIR__ . DIRECTORY_SEPARATOR . "chuck.jpg";
-
-		$em = ObjectRepository::getEntityManager($this->fileStorage);
-
-		$file = new \Supra\FileStorage\Entity\File();
-		$em->persist($file);
-
-		$fileName = str_replace('.', $nameSuffix . '.', baseName($uploadFile));
-		$fileSize = fileSize($uploadFile);
-		$file->setFileName($fileName);
-		$file->setSize($fileSize);
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$mimeType = finfo_file($finfo, $uploadFile);
-		finfo_close($finfo);
-		$file->setMimeType($mimeType);
-
-		$this->fileStorage->storeFileData($file, $uploadFile);
-
-		$em->flush();
-
-		return $file;
 	}
 
 	public function testCreateMultiLevelFolder()
@@ -701,50 +638,6 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		self::assertFileExists($filePath, 'Created file doesn\'t exist in file storage');
 	}
 
-	private function deleteFilesAndFolders()
-	{
-		$this->removeFolders($this->fileStorage->getExternalPath());
-		$this->removeFolders($this->fileStorage->getInternalPath());
-	}
-
-	private function removeFolders($dir)
-	{
-		if (is_dir($dir)) {
-			$objects = scandir($dir);
-
-			foreach ($objects as $object) {
-				if ($object[0] != ".") {
-					$filename = $dir . DIRECTORY_SEPARATOR . $object;
-					if (is_dir($filename)) {
-						$this->removeFolders($filename);
-						rmdir($filename);
-					} else {
-						unlink($filename);
-					}
-				}
-			}
-		}
-	}
-
-	private function cleanUp($delete = false)
-	{
-		$em = ObjectRepository::getEntityManager($this->fileStorage);
-
-		$query = $em->createQuery("delete from Supra\FileStorage\Entity\ImageSize");
-		$query->execute();
-		$query = $em->createQuery("delete from Supra\FileStorage\Entity\Abstraction\File");
-		$query->execute();
-		$query = $em->createQuery("delete from Supra\FileStorage\Entity\FilePath");
-		$query->execute();
-
-		if (self::DELETE_FILES || $delete) {
-			$this->deleteFilesAndFolders();
-		}
-
-		// Detach all entities
-		$em->clear();
-	}
-
 	public function testReplaceFile()
 	{
 
@@ -771,7 +664,7 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		$mimeType = finfo_file($finfo, $uploadFile);
 		finfo_close($finfo);
 		$file->setMimeType($mimeType);
-		
+
 		//FIXME: New file/image entity creation must be in some FileStorage method
 		$file->setWidth(1);
 		$file->setHeight(1);
@@ -846,42 +739,44 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		$all = $allRepo->findAll();
 		self::assertEquals(5, count($all));
 	}
-	
-	public function testMoveDirectoryToOtherDirectory() {
+
+	public function testMoveDirectoryToOtherDirectory()
+	{
 		$this->testCreateMultiLevelFolderAndUploadFile();
-		
+
 		$em = ObjectRepository::getEntityManager($this->fileStorage);
-		$fileRepo =$em->getRepository(FileStorage\Entity\Abstraction\File::CN());
+		$fileRepo = $em->getRepository(FileStorage\Entity\Abstraction\File::CN());
 		$one = $fileRepo->findOneBy(array('fileName' => 'one'));
 		$three = $fileRepo->findOneBy(array('fileName' => 'three'));
 		/* @var $one FileStorage\Entity\Folder */
 		/* @var $three FileStorage\Entity\Folder */
-		
+
 		$entity = $this->fileStorage->move($three, $one);
-		
+
 		$path = $this->fileStorage->getFilesystemPath($entity, true);
 		$path .= DIRECTORY_SEPARATOR . 'chuck.jpg';
-		
+
 		self::assertTrue(file_exists($path), "Can not find file chuck.jpg in \"{$path}\" after move");
 	}
-	
-	public function testMoveDirectoryToRoot() {
+
+	public function testMoveDirectoryToRoot()
+	{
 		$this->testCreateMultiLevelFolderAndUploadFile();
-		
+
 		$em = ObjectRepository::getEntityManager($this->fileStorage);
-		$fileRepo =$em->getRepository(FileStorage\Entity\Abstraction\File::CN());
+		$fileRepo = $em->getRepository(FileStorage\Entity\Abstraction\File::CN());
 		$three = $fileRepo->findOneBy(array('fileName' => 'three'));
 		/* @var $one FileStorage\Entity\Folder */
 		/* @var $three FileStorage\Entity\Folder */
-		
+
 		$entity = $this->fileStorage->move($three, '');
-		
+
 		$path = $this->fileStorage->getFilesystemPath($entity, true);
 		$path .= DIRECTORY_SEPARATOR . 'chuck.jpg';
-		
+
 		self::assertTrue(file_exists($path), "Can not find file chuck.jpg in \"{$path}\" after move");
 	}
-	
+
 	public function testFilePathGeneration()
 	{
 		$this->testCreateMultiLevelFolderAndUploadFile();
@@ -889,10 +784,10 @@ class FileStorageTest extends \PHPUnit_Framework_TestCase
 		$em = ObjectRepository::getEntityManager($this->fileStorage);
 		$fileRepo = $em->getRepository(FileStorage\Entity\Abstraction\File::CN());
 		$chuck = $fileRepo->findOneBy(array('fileName' => 'chuck.jpg'));
-		
+
 		/* @var  $filePath \Supra\FileStorage\Entity\FilePath  */
 		$this->fileStorage->getWebPath($chuck);
-		
+
 		self::assertTrue($this->fileStorage->getWebPath($chuck) === '/files/one/two/three/chuck.jpg');
 	}
 
