@@ -476,6 +476,8 @@ class PageAction extends PageManagerAction
 		if ( ! $rootPage) {
 			try {
 				$page->moveAsLastChildOf($parent);
+			} catch (DuplicatePagePathException $e) {
+				throw new CmsException(null, $e->getMessage());
 			} catch (\Exception $e) {
 				if ($this->entityManager->isOpen()) {
 					$this->entityManager->remove($page);
