@@ -412,12 +412,14 @@ abstract class UserProviderAbstract implements UserProviderInterface
 
 		$preferences = $collection->getPreferences();
 
+		$preferencesOut = array();
+		
 		foreach ($preferences as $preference) {
 
-			$preferences[$preference->getName()] = $preference->getValue();
+			$preferencesOut[$preference->getName()] = $preference->getValue();
 		}
 
-		return $preferences;
+		return $preferencesOut;
 	}
 
 	/**
