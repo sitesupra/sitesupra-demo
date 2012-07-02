@@ -96,6 +96,27 @@ function (Y) {
 			
 			//Load component list
 			this.loadComponentInformation();
+			
+			var inputFrom = this.widgets.form.getInput('start_date'),
+				inputTo = this.widgets.form.getInput('end_date');
+				
+			inputFrom.on('valueChange', function (e) {
+				if (inputFrom.widgets.calendar) {
+					var minDate = inputFrom.widgets.calendar.get('rawDate');
+
+					inputTo.set('minDate', minDate);
+					if (inputTo.get('value') && inputTo.get('value') < e.newVal) {
+						inputTo.set('value', null);
+					}
+					
+					if (inputTo.widgets.calendar) {
+						inputTo.widgets.calendar.syncUI();
+					}
+					
+					inputTo.syncUI();
+				}
+			}, inputTo);
+			
 		},
 		
 		
