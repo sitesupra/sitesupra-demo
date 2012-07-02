@@ -196,6 +196,10 @@ function (Y) {
 				node.one("div.user img").addClass("hidden");
 			}
 			
+			if (Supra.data.get(['application', 'id']) === 'Supra\\Cms\\Dashboard') {
+				Supra.Y.one('div.yui3-app-content').addClass('hidden');
+			}
+			
 //			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
 //				node.one("a.close").addClass("hidden");
 //			} else {
