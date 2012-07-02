@@ -442,7 +442,7 @@
 				this.get('backButton').on('click', this.onBackButton, this);
 
 				//Control button
-				this.get('controlButton').on('click', this.saveSettingsChanges, this);
+				this.get('controlButton').on('click', this.onDoneButton, this);
 
 				//Delete button
 				this.button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'small-red'});
@@ -588,6 +588,23 @@
 
 				//Scroll
 				this.slideshow.scrollBack();
+			},
+			
+			/**
+			 * In case of Schedule slide, done will act as Back button
+			 */
+			onDoneButton: function () {
+				
+				if (this.slideshow) {
+					var slideId = this.slideshow.get('slide');
+					
+					if (slideId == 'slideSchedule') {
+						this.onBackButton();
+						return;
+					}
+				}
+				
+				this.saveSettingsChanges();
 			},
 
 			/**
