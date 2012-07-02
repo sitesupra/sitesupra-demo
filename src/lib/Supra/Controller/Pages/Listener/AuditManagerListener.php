@@ -13,7 +13,8 @@ use Supra\Controller\Pages\Entity\Template;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
 use Supra\Controller\Pages\Entity;
-use \ReflectionClass;
+use ReflectionClass;
+use ReflectionProperty;
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -24,6 +25,8 @@ use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
 use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
+use Doctrine\ORM\EntityManager;
+use Supra\Controller\Pages\Entity\PageRevisionData;
 
 /**
  * Makes sure no manual changes are performed
@@ -34,6 +37,11 @@ class AuditManagerListener implements EventSubscriber
 	 * @var string
 	 */
 	private $revision;
+	
+	/**
+	 * @var string
+	 */
+	private $baseRevision;
 	
 	/**
 	 * Used to determine when second loading phase from the draft manager can be started
@@ -184,6 +192,9 @@ class AuditManagerListener implements EventSubscriber
 				
 				$thisIsRootEntity = true;
 				$this->firstObjectLoadState = false;
+				
+				$this->baseRevision = $this->findBaseRevision($entityManager, $entity, $this->revision);
+				
 			} else {
 
 				$this->debug("SKIP $className (not audited)");
@@ -226,8 +237,43 @@ class AuditManagerListener implements EventSubscriber
 
 		$this->depth --;
 	}
+	
+	private function findBaseRevision(EntityManager $entityManager, AuditedEntityInterface $entity, $revision)
+	{
+		$className = $entity::CN();
+		$id = $entity->getId();
+		
+		$types = array(
+			PageRevisionData::TYPE_HISTORY,
+			PageRevisionData::TYPE_HISTORY_RESTORE,
+			PageRevisionData::TYPE_CREATE,
+			PageRevisionData::TYPE_DUPLICATE,
+		);
+		
+		$qb = $entityManager->createQueryBuilder();
+		$qb->from($className, 'e')
+				->select('e.revision')
+				// Join with revision data
+				->from(PageRevisionData::CN(), 'r')
+				->andWhere('e.revision = r')
+				// By ID
+				->andWhere('e.id = :id')
+				->setParameter('id', $id)
+				// Get max revision till the mentioned revision
+				->select('MAX(e.revision) AS revision')
+				->andWhere('e.revision <= :revision')
+				->setParameter('revision', $revision)
+				->andWhere('r.type IN (:types)')
+				->setParameter('types', $types)
+				;
+		
+		$baseRevision = $qb->getQuery()
+				->getOneOrNullResult(ColumnHydrator::HYDRATOR_ID);
+		
+		return $baseRevision;
+	}
 
-	private function loadOneToAnything(\Doctrine\ORM\EntityManager $entityManager, $mapping, $className, $field, $entity, $classMetadata)
+	private function loadOneToAnything(EntityManager $entityManager, $mapping, $className, $field, $entity, $classMetadata)
 	{
 		$value = null;
 		$targetEntityName = $mapping['targetEntity'];
@@ -237,7 +283,7 @@ class AuditManagerListener implements EventSubscriber
 
 		$this->depth ++;
 
-		$reflField = new \ReflectionProperty($className, $field);
+		$reflField = new ReflectionProperty($className, $field);
 		$reflField->setAccessible(true);
 		$currentValue = $reflField->getValue($entity);
 
@@ -279,7 +325,7 @@ class AuditManagerListener implements EventSubscriber
 					$records = $this->loadOneToManyAuditted($entityManager, $entity, $mapping, $targetMetadata);
 
 					// Fill the other association side (the owning side)
-					$targetReflField = new \ReflectionProperty($targetEntityName, $mapping['mappedBy']);
+					$targetReflField = new ReflectionProperty($targetEntityName, $mapping['mappedBy']);
 					$targetReflField->setAccessible(true);
 
 					foreach ($records as $record) {
@@ -306,12 +352,12 @@ class AuditManagerListener implements EventSubscriber
 	}
 
 	/**
-	 * @param \Doctrine\ORM\EntityManager $entityManager
+	 * @param EntityManager $entityManager
 	 * @param string $currentValue
-	 * @param \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata
+	 * @param ClassMetadata $targetMetadata
 	 * @return Entity\Abstraction\Entity
 	 */
-	private function loadOneToOneAuditted(\Doctrine\ORM\EntityManager $entityManager, $currentValue, \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata)
+	private function loadOneToOneAuditted(EntityManager $entityManager, $currentValue, ClassMetadata $targetMetadata)
 	{
 		if (is_null($currentValue)) {
 			$this->debug("NULL in field");
@@ -330,6 +376,11 @@ class AuditManagerListener implements EventSubscriber
 				->andWhere('e.revision <= :revision')
 				->setParameter('revision', $this->revision)
 				;
+		
+		if ( ! is_null($this->baseRevision)) {
+			$qb->andWhere('e.revision >= :baseRevision')
+					->setParameter('baseRevision', $this->baseRevision);
+		}
 
 		$revision = $qb->getQuery()
 				->getOneOrNullResult(ColumnHydrator::HYDRATOR_ID);
@@ -367,13 +418,13 @@ class AuditManagerListener implements EventSubscriber
 	}
 	
 	/**
-	 * @param \Doctrine\ORM\EntityManager $entityManager
+	 * @param EntityManager $entityManager
 	 * @param \Supra\Database\Entity $entity
 	 * @param array $mapping
-	 * @param \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata
+	 * @param ClassMetadata $targetMetadata
 	 * @return array
 	 */
-	private function loadOneToManyAuditted(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity, array $mapping, \Doctrine\ORM\Mapping\ClassMetadata $targetMetadata)
+	private function loadOneToManyAuditted(EntityManager $entityManager, \Supra\Database\Entity $entity, array $mapping, ClassMetadata $targetMetadata)
 	{
 		// First of all we need to read 2 column data
 		$qb = $entityManager->createQueryBuilder();
@@ -385,6 +436,11 @@ class AuditManagerListener implements EventSubscriber
 				->andWhere("e.{$mapping['mappedBy']} = :parentId")
 				->setParameter('parentId', $entity->getId());
 
+		if ( ! is_null($this->baseRevision)) {
+			$qb->andWhere('e.revision >= :baseRevision')
+					->setParameter('baseRevision', $this->baseRevision);
+		}
+				
 		$records = $qb->getQuery()
 				->getResult(\Doctrine\ORM\Query::HYDRATE_ARRAY);
 
@@ -435,10 +491,10 @@ class AuditManagerListener implements EventSubscriber
 	
 	/**
 	 * Start the second phase, reading the missing information from the draft entity manager
-	 * @param \Doctrine\ORM\EntityManager $entityManager
+	 * @param EntityManager $entityManager
 	 * @param \Supra\Database\Entity $entity
 	 */
-	private function postLoadSecondPhase(\Doctrine\ORM\EntityManager $entityManager, \Supra\Database\Entity $entity, &$visited = array())
+	private function postLoadSecondPhase(EntityManager $entityManager, \Supra\Database\Entity $entity, &$visited = array())
 	{
 		if (in_array($entity, $visited, true)) {
 			$this->debug("VISITED");
@@ -472,7 +528,7 @@ class AuditManagerListener implements EventSubscriber
 
 			$this->depth ++;
 
-			$reflField = new \ReflectionProperty($className, $field);
+			$reflField = new ReflectionProperty($className, $field);
 			$reflField->setAccessible(true);
 			$value = $reflField->getValue($entity);
 
