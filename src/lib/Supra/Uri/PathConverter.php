@@ -2,7 +2,7 @@
 
 namespace Supra\Uri;
 
-use \Supra\Loader\Loader;
+use Supra\Loader\Loader;
 
 class PathConverter
 {
@@ -10,18 +10,14 @@ class PathConverter
 	/**
 	 * Returns concatenated object path and provided $path if it is accessable from web 
 	 * 
-	 * @param object|string $context
+	 * @param object|string $context object or classname
 	 * @param string $path
 	 * @return string 
 	 */
 	public static function getWebPath($context, $path)
 	{
-		$classPath = $context;
-
-		// getting classPath from object
-		if ( ! is_string($context)) {
-			$classPath = static::getClassPath($context);
-		}
+		// getting classPath from object, classname
+		$classPath = static::getClassPath($context);
 
 		// expand all symbolic links and resolve references
 		$webroot = realpath(SUPRA_WEBROOT_PATH);
@@ -51,22 +47,23 @@ class PathConverter
 
 		return "{$classPath}/{$path}";
 	}
+	
+	
 
 	/**
 	 * Returns object's system path
 	 * 
-	 * @param object $context
+	 * @param mixed $className
 	 * @return string
 	 */
-	protected static function getClassPath($context)
+	protected static function getClassPath($className)
 	{
-		if ( ! is_object($context)) {
-			throw new Exception\RuntimeException('Context should be an object');
+		if (is_object($className)) {
+			$className = get_class($className);
 		}
 
 		$loader = Loader::getInstance();
 
-		$className = get_class($context);
 		$classPath = $loader->findClassPath($className);
 
 		if (empty($classPath)) {
