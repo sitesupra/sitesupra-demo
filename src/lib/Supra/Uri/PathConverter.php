@@ -2,6 +2,8 @@
 
 namespace Supra\Uri;
 
+use \Supra\Loader\Loader;
+
 class PathConverter
 {
 
@@ -62,7 +64,7 @@ class PathConverter
 			throw new Exception\RuntimeException('Context should be an object');
 		}
 
-		$loader = \Supra\Loader\Loader::getInstance();
+		$loader = Loader::getInstance();
 
 		$className = get_class($context);
 		$classPath = $loader->findClassPath($className);
