@@ -387,6 +387,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			// if current image size/height matches original size/heigh
 			// set "Image size" checkbox to "Original"
+			
+			data.size_type = true;
+			
 			var originalSize = data.image.sizes.original;
 			if (originalSize.height == data.size_height
 				&& originalSize.width == data.size_width) {
@@ -400,7 +403,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				data.size_type = false;
 			}
 			
-			this.silent = true;
+			this.silent = true;			
 			this.settings_form.resetValues()
 							  .setValues(data, 'id');
 			this.silent = false;

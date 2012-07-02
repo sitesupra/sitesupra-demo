@@ -203,7 +203,7 @@ YUI().add('supra.htmleditor-plugin-image-resize', function (Y) {
 			var plugin = this.htmleditor.getPlugin('image'),
 				form = plugin.settings_form;
 			
-			if (form && form.get('visible')) {
+			if (form) {
 				plugin.silent = true;
 				
 				var widthInput = form.getInput('size_width'),
