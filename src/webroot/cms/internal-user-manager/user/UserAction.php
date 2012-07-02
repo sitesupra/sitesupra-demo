@@ -156,6 +156,12 @@ class UserAction extends InternalUserManagerAbstractAction
 
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
 		$email = $input->getValid('email', 'email');
+
+		$existingUser = $this->userProvider->findUserByEmail($email);
+		if ( ! empty($existingUser)) {
+			throw new CmsException(null, 'User with this email is already registered!');
+		}
+
 		$name = $input->get('name');
 		$dummyGroupId = $input->get('group');
 
@@ -172,40 +178,6 @@ class UserAction extends InternalUserManagerAbstractAction
 		$user->setName($name);
 		$user->setEmail($email);
 		$user->setGroup($group);
-
-		if ( ! $input->isEmpty('avatar_id', false)) {
-			$avatar = $input->get('avatar_id');
-
-			if (in_array($avatar, UseravatarAction::getPredefinedAvatarIds())) {
-				$user->setAvatar($avatar);
-				$user->setPersonalAvatar(false);
-			} else {
-				$user->setPersonalAvatar(true);
-
-				$basePath = $this->getAvatarsPath();
-				$userId = $user->getId();
-
-				// Moving from the temporary path
-				if ($userId != $avatar) {
-					$result = false;
-					foreach (UseravatarAction::$avatarSizes as $sizeId => $size) {
-
-						$tmpPath = $this->generateAvatarPath($basePath, $avatar, $sizeId);
-						$path = $this->generateAvatarPath($basePath, $userId, $sizeId);
-						$result = rename($tmpPath, $path);
-
-						if ( ! $result) {
-							break;
-						}
-					}
-
-					// No success
-					if ( ! $result) {
-						$user->setPersonalAvatar(false);
-					}
-				}
-			}
-		}
 
 		try {
 			$this->userProvider->validate($user);
