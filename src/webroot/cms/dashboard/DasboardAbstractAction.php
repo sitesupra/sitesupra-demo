@@ -6,6 +6,7 @@ use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
 use Supra\User\Entity\User;
+use Supra\User\UserProviderAbstract;
 
 class DasboardAbstractAction extends CmsAction
 {
