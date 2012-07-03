@@ -3,12 +3,7 @@
 $q = $_SERVER['QUERY_STRING'];
 $apc = function_exists('apc_store');
 
-if ( ! empty($_GET['flush']) && $apc) {
-	apc_clear_cache('user');
-}
-
 $files = explode('&', $q);
-$files = array_unique($files);
 
 if ( ! sizeOf($files)) {
 //    echo('<strong>Error:</strong> No files found.');
@@ -20,19 +15,24 @@ if (count($files) > 100) {
 	die();
 }
 
+// Cache settings for production
+if ( ! isset($cache)) {
+	$cache = true;
+	$checkFileModificationTime = false;
+	$checkFileModificationTimeForIncludedLessCss = false;
+}
+
 $css = strpos($files[0], '.css') !== false ? true : false;
 $ext = ($css ? 'css' : 'js');
-$cache = false;
+$extLength = ($css ? 3 : 2);
 $lessCss = true;
-$pre = realpath('../../../../');
-$preLength = strlen($pre);
-$checkFileModificationTime = true;
-$cacheDir = dirname($pre) . '/tmp';
+$pre =      __DIR__ . '/../../../../';
+$cacheDir = __DIR__ . '/../../../../../tmp';
 //$version = '3.5.0';
 
 foreach ($files as $file) {
 	// Only CSS/JS allowed
-	if ( ! preg_match('/\.' . $ext . '$/', $file)) {
+	if (substr($file, - $extLength - 1) !== '.' . $ext) {
 		die();
 	}
 
@@ -80,12 +80,18 @@ function getCache($eTag)
 
 function getEtag($files)
 {
-	global $css, $pre, $checkFileModificationTime;
+	global $css, $checkFileModificationTime;
 	$cacheSource = array();
-	$cacheSource[] = filemtime(__FILE__);
+	
+	if ($checkFileModificationTime) {
+		$cacheSource[] = filemtime(__FILE__);
+	}
+	
 	foreach ($files as $file) {
 		if ($checkFileModificationTime) {
 			$cacheSource = array_merge($cacheSource, getFileMtime($file));
+		} else {
+			$cacheSource[] = $file;
 		}
 	}
 	return md5(implode(',', $cacheSource));
@@ -93,7 +99,7 @@ function getEtag($files)
 
 function writeFiles($files, $eTag)
 {
-	global $pre, $build, $apc, $cache, $version, $css, $ext, $checkFileModificationTime, $cacheDir;
+	global $build, $apc, $cache, $version, $css, $ext, $cacheDir;
 	$outFile = '';
 	$out = '';
 	foreach ($files as $file) {
@@ -115,7 +121,7 @@ function writeFiles($files, $eTag)
 
 function getFileMtime($file)
 {
-	global $css, $pre, $lessCss;
+	global $css, $pre, $lessCss, $checkFileModificationTimeForIncludedLessCss;
 	
 	$cacheSource = array();
 
@@ -132,12 +138,17 @@ function getFileMtime($file)
 		$lessFile = $thisPre . $file . '.less';
 
 		if ($lessCss && file_exists($lessFile)) {
-			$lessPhp = $thisPre . '/cms/lib/supra/lessphp/SupraLessC.php';
-			require_once $lessPhp;
-			$less = new SupraLessCFileList($lessFile);
-			$less->setRootDir($thisPre);
-			$less->parse();
-			$files = $less->getFileList();
+			
+			if ($checkFileModificationTimeForIncludedLessCss) {
+				$lessPhp = $thisPre . '/cms/lib/supra/lessphp/SupraLessC.php';
+				require_once $lessPhp;
+				$less = new SupraLessCFileList($lessFile);
+				$less->setRootDir($thisPre);
+				$less->parse();
+				$files = $less->getFileList();
+			} else {
+				$files = array($lessFile);
+			}
 		}
 	}
 
