@@ -200,7 +200,7 @@ class BlockControllerConfiguration extends ComponentConfiguration
 			$context = $this->class;
 		}
 		
-		$path = PathConverter::getWebPath($context, $icon);
+		$path = PathConverter::getWebPath($icon, $context);
 
 		return $path;
 	}

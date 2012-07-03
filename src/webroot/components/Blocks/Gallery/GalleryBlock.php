@@ -16,7 +16,7 @@ class GalleryBlock extends BlockController
 		$response = $this->getResponse();
 		$context = $response->getContext();
 
-		$context->addCssLinkToLayoutSnippet('css', PathConverter::getWebPath($this, 'css/style.css'));
+		$context->addCssLinkToLayoutSnippet('css', PathConverter::getWebPath('css/style.css', $this));
 		$response->outputTemplate('index.html.twig');
 	}
 

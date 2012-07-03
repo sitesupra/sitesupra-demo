@@ -10,45 +10,47 @@ class PathConverter
 	/**
 	 * Returns concatenated object path and provided $path if it is accessable from web 
 	 * 
-	 * @param object|string $context object or classname
 	 * @param string $path
+	 * @param object|string $context object or classname
 	 * @return string 
 	 */
-	public static function getWebPath($context, $path)
+	public static function getWebPath($path, $context = null)
 	{
-		// getting classPath from object, classname
-		$classPath = static::getClassPath($context);
+		$classPath = '';
+		
+		if ( ! is_null($context)) {
+			// getting classPath from object, classname
+			$classPath = static::getClassPath($context);
+			if ( ! is_dir($classPath)) {
+				$classPath = dirname($classPath);
+			}
+			
+		}
 
-		// expand all symbolic links and resolve references
-		$webroot = realpath(SUPRA_WEBROOT_PATH);
+		$webroot = SUPRA_WEBROOT_PATH;
 		$webrootCharactersCount = strlen($webroot);
 		
+		$path = trim($path, '/' . DIRECTORY_SEPARATOR);
+		$path = $classPath . DIRECTORY_SEPARATOR . $path;
+		
 		// checking for webroot 
-		if (strpos($classPath, $webroot) !== 0) {
-			throw new Exception\RuntimeException('File is not located in web path');
-		}
-
-		if ( ! is_dir($classPath)) {
-			$classPath = dirname($classPath);
+		if (strpos($path, $webroot) !== 0) {
+			throw new Exception\RuntimeException("File '$path' doesn't seem to be located in web path");
 		}
 		
-		$classPath = substr($classPath, $webrootCharactersCount);
-		$classPath = str_replace('\\', '/', $classPath);
+		$path = substr($path, $webrootCharactersCount);
+		$path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
+		$path = trim($path, '/');
 
-		$path = str_replace('\\', '/', $path);
 		$pathParts = explode('/', $path);
-		$path = null;
+		$path = '';
 
-		foreach ($pathParts as $pathPart) {
-			$path .= rawurlencode($pathPart) . '/';
+		foreach ($pathParts as &$pathPart) {
+			$path .= '/' . rawurlencode($pathPart);
 		}
 
-		$path = trim($path, '\\/');
-
-		return "{$classPath}/{$path}";
+		return $path;
 	}
-	
-	
 
 	/**
 	 * Returns object's system path
