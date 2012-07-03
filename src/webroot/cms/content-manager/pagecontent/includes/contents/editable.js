@@ -404,6 +404,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 				page_data = Page.getPageData(),
 				data = null;
 			
+			if ( ! this.properties) {
+				throw new Error("Properties not found for object " + this.constructor.name);
+			}
+			
 			data = {
 				'page_id': page_data.id,
 				'block_id': this.getId(),
