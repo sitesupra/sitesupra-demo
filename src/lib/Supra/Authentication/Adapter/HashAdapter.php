@@ -45,7 +45,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 	/**
 	 * @return Algorithm\CryptAlgorithm
 	 */
-	protected function getAlgorythm()
+	protected function getAlgorithm()
 	{
 		if (is_null($this->algorithm)) {
 			$this->algorithm = Loader::getClassInstance($this->algorithmClass,
@@ -66,7 +66,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 		$salt = $user->getSalt();
 		$userPassword = $user->getPassword();
 		
-		$valid = $this->getAlgorythm()
+		$valid = $this->getAlgorithm()
 				->validate($password, $userPassword, $salt);
 		
 		if ( ! $valid) {
@@ -91,7 +91,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 			}
 			
 			$salt = $user->resetSalt();
-			$passHash = $this->getAlgorythm()->crypt($password, $salt);
+			$passHash = $this->getAlgorithm()->crypt($password, $salt);
 			$user->setPassword($passHash);
 		}
 	}
