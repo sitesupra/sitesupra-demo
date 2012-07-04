@@ -574,10 +574,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			});
 			
 			//Show only specific group
-			this.showGroup(group_id || 'default');
-			//this.get('form').show();
-			
+			this.showGroup(group_id || 'default');			
 			this.get('host').fire('properties:show');
+			
+			this.get('form').show();
 		},
 		
 		/**
@@ -622,9 +622,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		setValues: function (values) {
-			
-			console.log('setVALUES');
-			
+	
 			var form = this.get('form');
 			
 			if (form) {
