@@ -6,7 +6,7 @@ use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception;
 
 /**
- * Uses blowfish hashing algorythm
+ * Uses blowfish hashing algorithm
  */
 class BlowfishAlgorithm implements CryptAlgorithm
 {

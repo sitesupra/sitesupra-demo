@@ -17,7 +17,9 @@ use DateTime;
  */
 class PageRevisionData extends Abstraction\Entity implements Timestampable
 {
+	// Publish
 	const TYPE_HISTORY = 1;
+	
 	const TYPE_HISTORY_RESTORE = 101;
 	
 	const TYPE_TRASH = 2;

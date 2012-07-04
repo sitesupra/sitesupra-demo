@@ -304,7 +304,7 @@ abstract class PageManagerAction extends CmsAction
 		$setAuditRevisionEventArgs = new SetAuditRevisionEventArgs($revisionId);
 		$auditEventManager->dispatchEvent(AuditEvents::setAuditRevision, $setAuditRevisionEventArgs);
 
-		// localization revision search
+		// localization revision search, for cases when the item change didn't bubble up (it was bug)
 		$localizationCn = Localization::CN();
 		$localizationRevisionId = $auditEm->createQuery("SELECT MAX(l.revision) FROM $localizationCn l 
 				WHERE l.revision <= :revision AND l.id = :id")

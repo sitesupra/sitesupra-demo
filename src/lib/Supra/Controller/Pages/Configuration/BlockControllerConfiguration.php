@@ -193,13 +193,16 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	 */
 	private function getIconWebPath($icon = null)
 	{
-		if (strpos($icon, '/') === 0 || empty($icon)) {
-			return $icon;
-		}
-
-		$file = Loader::getInstance()->findClassPath($this->class);
+		$context = '';
 		
-		return PathConverter::getWebPath($file, $icon);
+		// Relative path
+		if ( ! empty($icon) && strpos($icon, '/') !== 0) {
+			$context = $this->class;
+		}
+		
+		$path = PathConverter::getWebPath($icon, $context);
+
+		return $path;
 	}
 
 	/**

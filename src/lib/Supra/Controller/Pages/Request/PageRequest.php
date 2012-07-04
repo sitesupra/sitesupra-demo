@@ -533,20 +533,25 @@ abstract class PageRequest extends HttpRequest
 		}
 
 		/*
-		 * Collect locked blocks from not final placesholders
-		 * these are positioned as first blocks in the placeholder
+		 * Collect locked blocks first, these are positioned as first blocks in
+		 * the placeholder. First are from the top template.
 		 */
 		/* @var $block Entity\Abstraction\Block */
-		foreach ($blocks as $block) {
-			if ($block->inPlaceHolder($parentPlaceHolderIds)) {
-				$this->blockSet[] = $block;
+		$placeHolderIds = $placeHolderSet->collectIds();
+		$placeHolderIds = array_unique($placeHolderIds);
+		
+		foreach ($placeHolderIds as $placeHolderId) {
+			foreach ($blocks as $block) {
+				if ($block->getLocked() && $block->getPlaceHolder()->getId() === $placeHolderId) {
+					$this->blockSet[] = $block;
+				}
 			}
 		}
 
-		// Collect all blocks from final placeholders
+		// Collect all unlocked blocks
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $block) {
-			if ($block->inPlaceHolder($allFinalPlaceHolderIds)) {
+			if ( ! $block->getLocked()) {
 				$this->blockSet[] = $block;
 			}
 		}
