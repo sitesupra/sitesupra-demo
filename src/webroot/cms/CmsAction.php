@@ -395,9 +395,9 @@ abstract class CmsAction extends SimpleController
 		if (is_object($item)) {
 			$itemString = null;
 			if ($item instanceof Entity\PageLocalization) {
-				$itemString = 'page ';
+				$itemString = "page ({$item->getLocale()}) ";
 			} else if ($item instanceof Entity\TemplateLocalization) {
-				$itemString = 'template ';
+				$itemString = "template ({$item->getLocale()}) ";
 			} else if ($item instanceof FileEntity\Image) {
 				$itemString = 'image ';
 			} else if ($item instanceof FileEntity\Folder) {
