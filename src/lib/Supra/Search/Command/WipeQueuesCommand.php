@@ -6,6 +6,7 @@ use Symfony\Component\Console;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
 use Supra\Controller\Pages\PageController;
+use Supra\Search\Solarium\Configuration;
 
 /**
  * AuthorizationFixtureCommand
@@ -26,6 +27,15 @@ class WipeQueuesCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
+		try {
+			ObjectRepository::getSolariumClient($this);
+		} catch (\Exception $e) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			$output->writeln($message);
+			\Log::debug($message . PHP_EOL . $e->__toString());
+			return;
+		}
+		
 		$schemaNames = array(PageController::SCHEMA_PUBLIC);
 		
 		foreach ($schemaNames as $schemaName) {

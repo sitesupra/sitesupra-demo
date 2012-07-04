@@ -10,6 +10,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Request\SearchRequestAbstraction;
 use Supra\Log\Writer\WriterAbstraction;
 use \Solarium_Result_Select;
+use Supra\Search\Solarium\Configuration;
 
 class SearchService
 {
@@ -48,7 +49,15 @@ class SearchService
 	 */
 	public function processRequest(Request\SearchRequestInterface $request)
 	{
-		$solariumClient = ObjectRepository::getSolariumClient($this);
+		try {
+		    $solariumClient = ObjectRepository::getSolariumClient($this);
+		} catch (\Exception $e) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			\Log::debug($message . PHP_EOL . $e->__toString());
+			
+			return new Result\DefaultSearchResultSet();
+		}
+		
 		$selectQuery = $solariumClient->createSelect();
 
 		$request->addSimpleFilter('systemId', $this->getSystemId());

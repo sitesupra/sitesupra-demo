@@ -11,7 +11,8 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\IndexerService;
 use Supra\Search\SearchService;
-use Supra\Controller\Pages\Search\PageLocalizationFindRequest; 
+use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
+use Supra\Search\Solarium\Configuration;
 
 class CmsPageLocalizationIndexerQueueListener
 {
@@ -22,6 +23,14 @@ class CmsPageLocalizationIndexerQueueListener
 	 */
 	public function postPagePublish(CmsPagePublishEventArgs $eventArgs)
 	{
+		try {
+			ObjectRepository::getSolariumClient($this);
+		} catch (\Exception $e) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			\Log::debug($message . PHP_EOL . $e->__toString());
+			return;
+		}
+
 		$localization = $eventArgs->localization;
 
 		// Index only pages, not templates
@@ -37,6 +46,14 @@ class CmsPageLocalizationIndexerQueueListener
 	 */
 	public function postPageDelete(CmsPageDeleteEventArgs $eventArgs)
 	{
+		try {
+			ObjectRepository::getSolariumClient($this);
+		} catch (\Exception $e) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			\Log::debug($message . PHP_EOL . $e->__toString());
+			return;
+		}
+
 		$localization = $eventArgs->localization;
 
 		// We care only about pages, not templates.
@@ -47,18 +64,18 @@ class CmsPageLocalizationIndexerQueueListener
 			$findRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 			$findRequest->setPageLocalizationId($localization->getId());
 
-			$searchService = new SearchService();  
+			$searchService = new SearchService();
 
 			$resultSet = $searchService->processRequest($findRequest);
-			
+
 			$items = $resultSet->getItems();
 
 			foreach ($items as $item) {
-				
+
 				if($item instanceof PageLocalizationSearchResultItem) {
-				
+
 					if ($item->getPageLocalizationId() == $localization->getId()) {
-						
+
 						$indexerService = new IndexerService();
 
 						$indexerService->removeFromIndex($item->getUniqueId());

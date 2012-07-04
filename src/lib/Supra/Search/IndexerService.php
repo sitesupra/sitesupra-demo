@@ -7,6 +7,7 @@ use Solarium_Exception;
 use Solarium_Document_ReadWrite;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Search\Solarium\Configuration;
 
 class IndexerService
 {
@@ -42,9 +43,15 @@ class IndexerService
 	public function processItem(IndexerQueueItem $queueItem)
 	{
 		$solariumClient = $this->getSolariumClient($this);
+		
+		if ( ! $solariumClient instanceof \Solarium_Client) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			\Log::debug($message);
+			return 0;
+		}
 
 		$documents = array();
-		
+
 		try {
 
 			$documents = $queueItem->getIndexedDocuments();
@@ -80,7 +87,7 @@ class IndexerService
 		} catch (Exception\RuntimeException $e) {
 			$queueItem->setStatus(IndexerQueueItemStatus::FAILED);
 		}
-		
+
 		return count($documents);
 	}
 
@@ -93,7 +100,7 @@ class IndexerService
 //		$indexedQueueItems = array();
 
 		$documentCount = 0;
-		
+
 		while ($queue->getItemCountForStatus(IndexerQueueItemStatus::FRESH) !== 0) {
 
 			$queueItem = $queue->getNextItemForIndexing();
@@ -109,14 +116,20 @@ class IndexerService
 		//	$indexedQueueItem->setStatus(IndexerQueueItemStatus::FRESH);
 		//	$queue->store($indexedQueueItem);
 		//}
-		
+
 		return $documentCount;
 	}
 
 	public function getSolariumClient()
 	{
 		if (is_null($this->solariumClient)) {
-			$this->solariumClient = ObjectRepository::getSolariumClient($this);
+			try {
+				$this->solariumClient = ObjectRepository::getSolariumClient($this);
+			} catch (\Exception $e) {
+				$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+				\Log::debug($message . PHP_EOL . $e->__toString());
+				return;
+			}
 		}
 
 		return $this->solariumClient;
@@ -129,7 +142,13 @@ class IndexerService
 	public function getDocumentCount()
 	{
 		$solariumClient = $this->getSolariumClient($this);
-
+		
+		if ( ! $solariumClient instanceof \Solarium_Client) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			\Log::debug($message);
+			return 0;
+		}
+		
 		$query = $solariumClient->createSelect();
 		$query->setQuery('systemId:' . $this->getSystemId());
 		$query->setRows(0);
@@ -145,7 +164,13 @@ class IndexerService
 	public function removeFromIndex($uniqueId)
 	{
 		$solariumClient = $this->getSolariumClient($this);
-
+		
+		if ( ! $solariumClient instanceof \Solarium_Client) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			\Log::debug($message);
+			return;
+		}
+		
 		$query = $solariumClient->createUpdate();
 
 		$query->addDeleteById($uniqueId);
