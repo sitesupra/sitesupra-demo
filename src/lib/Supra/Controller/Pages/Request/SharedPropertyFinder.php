@@ -277,6 +277,7 @@ class SharedPropertyFinder
 				/* @var $property BlockProperty */
 				
 				if ($this->propertyMatch($property, $sharedProperty)) {
+					$sharedProperty->setReplacedBlockProperty($property);
 					$set->offsetSet($key, $sharedProperty);
 					unset($sharedBlockProperties[$key]);
 					
@@ -412,7 +413,7 @@ class SharedPropertyFinder
 					$block = $this->blocks[$blockId];
 					$localization = $this->localizations[$localizationId];
 					
-					$sharedProperties[] = new SharedBlockProperty($blockProperty, $block, $localization, $groupId);
+					$sharedProperties[] = new SharedBlockProperty($blockProperty, $block, $localization, $groupId, $propertyId);
 					
 					continue 2;
 				}

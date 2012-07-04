@@ -833,9 +833,10 @@ class PageAction extends PageManagerAction
 
 				if ($image instanceof \Supra\FileStorage\Entity\Image) {
 					$propertyData = $fileStorage->getFileInfo($image);
-				}
+				}	
 			}
 		}
+
 
 		if ($editable instanceof Editable\Gallery) {
 			
@@ -851,7 +852,8 @@ class PageAction extends PageManagerAction
 					$subProperties[$subPropertyDefinition->name] = $this->gatherPropertyData($galleryController, $subPropertyDefinition);
 				}
 				
-				$data[$name] = $data[$name] + $subProperties;
+				$data[$name] = $data[$name]
+					+ array('properties' => $subProperties);
 			}
 			
 			ksort($data);
@@ -859,22 +861,22 @@ class PageAction extends PageManagerAction
 		}
 
 		$propertyInfo = array(
+			'__shared__' => false,
 			'value' => $propertyData,
-			'shared' => false,
 			'language' => null,
 		);
 		
 		if ($blockProperty instanceof Entity\SharedBlockProperty) {
-			$propertyInfo['shared'] = true;
+			$propertyInfo['__shared__'] = true;
 			$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
 					->getLocale();
 		}
 		
-		// FIXME: teach JS to understand `shared` sub-properties
+		//TODO: sub-properties are not prepared to be non-/shared
 		if ($blockController instanceof \Supra\Controller\Pages\GalleryBlockController) {
 			$propertyInfo = $propertyData;
 		}
-
+		
 		return $propertyInfo;
 	}
 

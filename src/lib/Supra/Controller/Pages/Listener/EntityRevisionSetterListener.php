@@ -174,6 +174,12 @@ class EntityRevisionSetterListener implements EventSubscriber
 		}
 		
 		$oldRevisionId = $entity->getRevisionId();
+		
+		//
+		if ($oldRevisionId === $newRevisionId) {
+			return;
+		} 
+		
 		$entity->setRevisionId($newRevisionId);
 		
 		$this->visitedEntities[] = spl_object_hash($entity);

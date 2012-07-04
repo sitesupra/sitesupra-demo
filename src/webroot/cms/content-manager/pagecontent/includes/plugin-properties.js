@@ -575,6 +575,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			//Show only specific group
 			this.showGroup(group_id || 'default');
+			//this.get('form').show();
 			
 			this.get('host').fire('properties:show');
 		},
@@ -621,6 +622,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		setValues: function (values) {
+			
+			console.log('setVALUES');
+			
 			var form = this.get('form');
 			
 			if (form) {
@@ -679,7 +683,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				var values = form.getValues('id', true);
 		
 				for (var name in values) {
-					if (this.isPropertyShared(name)) delete values[name];
+					if (this.isPropertyShared(name) && name !== 'images') delete values[name];
 				}
 
 				return values;
@@ -1087,7 +1091,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				shared_properties = {};
 				
 			for (var name in data.properties) {
-				if (data.properties[name].shared) {
+				if (data.properties[name].__shared__) {
 					shared_properties[name] = data.properties[name];
 				}
 				

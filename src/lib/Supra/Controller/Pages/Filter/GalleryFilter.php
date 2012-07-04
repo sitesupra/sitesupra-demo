@@ -7,6 +7,9 @@ use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Entity\BlockPropertyMetadata;
 use Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
 
+use Supra\Controller\Pages\GalleryBlockController;
+use Supra\Controller\Pages\Exception\RuntimeException;
+
 /**
  * Collects gallery information
  */
@@ -30,24 +33,30 @@ class GalleryFilter implements FilterInterface
 		$metadata = $this->property->getMetadata();
 		$images = array();
 		
-		$dummyGalleryController = new \Supra\Controller\Pages\GalleryBlockController();
+		// dummy controller to fetch subproperties
+		$galleryController = new GalleryBlockController();
+		$pageData = $this->request->getPageLocalization();
+		
+		$this->request->setPageLocalization($pageData);
+		
+		$galleryController->setRequest($this->request);
 		
 		foreach ($metadata as $metadataItem) {
 			/* @var $metadataItem BlockPropertyMetadata */
 			$referencedElement = $metadataItem->getReferencedElement();
 			
 			if ($referencedElement instanceof ImageReferencedElement) {
+
+				$galleryController->setParentMetadata($metadataItem);
 				
-				$dummyGalleryController->setParentMetadata($metadataItem);
-				$dummyGalleryController->setRequest($this->request);
-				$properties = $dummyGalleryController->getMetadataProperties();
+				$properties = $galleryController->getMetadataProperties();
 				
 				$propertyValues = array();
 				foreach($properties as $property) {
 					$propertyName = $property->getName();
 					try {
-						$propertyValues[$propertyName] = $dummyGalleryController->getPropertyValue($propertyName);
-					} catch (\Supra\Controller\Pages\Exception\RuntimeException $e) {
+						$propertyValues[$propertyName] = $galleryController->getPropertyValue($propertyName);
+					} catch (RuntimeException $e) {
 						
 						continue;
 					}

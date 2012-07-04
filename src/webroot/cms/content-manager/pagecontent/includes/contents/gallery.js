@@ -230,14 +230,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		openGalleryManager: function (force) {
 			//Since toolbar is created by single instance of gallery
 			//keyword "this" may have incorrect reference
-			var self = Manager.PageContent.getContent().get('activeChild');
+			var self = Manager.PageContent.getContent().get('activeChild'),
+				shared = self.properties.isPropertyShared('images');
 			
 			// if gallery is based on shared properties, then we will output a notice about that
-			
-			var shared = self.properties.isPropertyShared('images');
-			
 			if (force !== true && shared) {
-				
 				Supra.Manager.executeAction('Confirmation', {
 					'message': "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 					'useMask': true,
@@ -293,7 +290,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				}, this),
 				'onclose': Y.bind(function () {
 					this.properties.showPropertiesForm();
-					button.set('loading', false);
+					//button.set('loading', false);
 				}, this)
 			});
 			

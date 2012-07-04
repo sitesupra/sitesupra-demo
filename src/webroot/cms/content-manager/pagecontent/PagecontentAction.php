@@ -371,11 +371,13 @@ class PagecontentAction extends PageManagerAction
 
 						while ($imageList->valid()) {
 							$subInput = $imageList->getNextChild();
+							$propertyInput = $subInput->getChild('properties');
+
 							$imageData = $subInput->getArrayCopy();
 
 							// Mark the data with image type
 							$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
-							$imageData['_subPropertyInput'] = $subInput;
+							$imageData['_subPropertyInput'] = $propertyInput;
 
 							$valueData[] = $imageData;
 
@@ -407,7 +409,6 @@ class PagecontentAction extends PageManagerAction
 						foreach($metadataCollection as $metadataItem) {
 
 							/* @var $metadataItem Entity\BlockPropertyMetadata */
-
 							$name = $metadataItem->getName();
 							if ($name == $elementName) {
 								$element = $metadataItem->getReferencedElement();

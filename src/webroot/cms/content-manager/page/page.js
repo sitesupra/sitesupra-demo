@@ -421,7 +421,7 @@ Supra(function (Y) {
 			if (message_unlock) message_unlock.remove();
 			
 			//Remove lock information from page
-			if (Manager.Page.data.lock) {
+			if (Manager.Page.data && Manager.Page.data.lock) {
 				delete(Manager.Page.data.lock);
 			}
 			
