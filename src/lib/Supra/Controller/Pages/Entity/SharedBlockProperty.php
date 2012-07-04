@@ -18,6 +18,12 @@ class SharedBlockProperty extends BlockProperty
 	 */
 	private $originalLocalization;
 	
+	/**
+	 * @var BlockProperty
+	 */
+	private $replacedBlockProperty;
+	
+	
 	public function __construct(BlockProperty $blockProperty, Abstraction\Block $block, Abstraction\Localization $localization, $groupId)
 	{
 		// FIXME: maybe some better way to copy the data?
@@ -43,5 +49,21 @@ class SharedBlockProperty extends BlockProperty
 	public function getOriginalLocalization()
 	{
 		return $this->originalLocalization;
+	}
+	
+	/**
+	 * @return BlockProperty
+	 */
+	public function getReplacedBlockProperty()
+	{
+		return $this->replacedBlockProperty;
+	}
+	
+	/**
+	 * @param BlockProperty $blockProperty
+	 */
+	public function setReplacedBlockProperty($blockProperty)
+	{
+		$this->replacedBlockProperty = $blockProperty;
 	}
 }

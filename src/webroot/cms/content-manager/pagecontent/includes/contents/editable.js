@@ -400,6 +400,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 * Load html from server
 		 */
 		reloadContentHTML: function (callback) {
+			if ( ! this.properties) {
+				return;
+			}
+			
 			var uri = PageContent.getDataPath('contenthtml'),
 				page_data = Page.getPageData(),
 				data = null;

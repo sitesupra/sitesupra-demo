@@ -612,6 +612,9 @@
 			 */
 			setFormValues: function () {
 				var page_data = this.page_data;
+				
+				this.form.resetValues();
+				
 				this.form.setValues(page_data, 'id');
 
 				if (this.getType() == 'page') {
@@ -636,7 +639,7 @@
 				} else {
 					this.one('a[data-target="slideSchedule"]').removeClass('disabled');
 				}
-
+				
 			},
 
 			/**

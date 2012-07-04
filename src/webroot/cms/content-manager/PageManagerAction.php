@@ -623,9 +623,13 @@ abstract class PageManagerAction extends CmsAction
 					$data['image'] = $info;
 				}
 			}
-
+			
+			// in some cases (gallery) there is no needed additional info
 			if ( ! $includeMeta) {
-				unset($data['title'], $data['description']);
+				return array(
+					'id' => $imageId,
+					'image' => $data['image'],
+				);
 			}
 		}
 
@@ -1173,24 +1177,50 @@ abstract class PageManagerAction extends CmsAction
 										foreach ($properties as $property) {
 											if ( ! in_array($property->getId(), $replacedProperties) && $targetProperty->getName() == $property->getName()
 													&& $targetProperty->getType() == $property->getType()) {
-
+												
 												$property->setBlock($targetBlock);
 												array_push($replacedProperties, $property->getId());
 
 												if ($property->getId() !== $targetProperty->getId()) {
-													$qb = $em->createQueryBuilder();
-													$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
-															->where('m.blockProperty = ?0')
-															->getQuery()->execute(array($targetProperty->getId()));
+//													$qb = $em->createQueryBuilder();
+//													$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
+//															->where('m.blockProperty = ?0')
+//															->getQuery()->execute(array($targetProperty->getId()));
 
 													$qb = $em->createQueryBuilder();
 													$qb->delete(Entity\BlockProperty::CN(), 'p')
-															->where('p.id = ?0')
+															->where('p.id = ?0 AND p.masterMetadataId IS NULL')
 															->getQuery()->execute(array($targetProperty->getId()));
 												}
 											}
 										}
 									}
+									
+//									foreach($properties as $property) {
+//										$masterMetadataId = $property->getMasterMetadataId();
+//										if ( ! is_null($masterMetadataId)) {
+//											$originalMetadataEntity = $em->find(Entity\BlockPropertyMetadata::CN(), $masterMetadataId);
+//
+//											if ( ! is_null($originalMetadataEntity)) {
+//												$originalMetaName = $originalMetadataEntity->getName();
+//												$originalMetaProperty = $originalMetadataEntity->getBlockProperty();
+//												
+//												$block = $property->getBlock();
+//												
+//												$targetProperty = $em->getRepository(Entity\BlockProperty::CN())
+//														->findOneBy(array('name' => $originalMetaProperty->getName(), 'block' => $block));
+//												
+//												if ( ! is_null($targetProperty)) {
+//													$metaCollection = $targetProperty->getMetadata();
+//													
+//													$metaItem = $metaCollection->get($originalMetaName);
+//													if ( ! is_null($metaItem)) {
+//														$property->setMasterMetadata($metaItem);
+//													}
+//												}
+//											}
+//										}
+//									}
 								}
 							}
 						}

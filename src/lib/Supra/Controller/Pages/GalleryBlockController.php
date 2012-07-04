@@ -68,16 +68,22 @@ class GalleryBlockController extends BlockController
 		/*
 		 * Must create new property here
 		 */
+		$propertySet = $this->getRequest()
+				->getBlockPropertySet();
+		
+		$localization = $this->getRequest()
+				->getPageLocalization();
+		
 		if (empty($property)) {
 			$property = new Entity\BlockProperty($name);
 			$property->setEditable($editable);
 			$property->setValue($editable->getDefaultValue());
-			$property->setBlock($parentProperty->getBlock());
-			$property->setLocalization($parentProperty->getLocalization());
+			$property->setBlock($this->getMetadataBlock());
+			$property->setLocalization($localization);
 			
 			$property->setMasterMetadata($this->metadata);
 			
-			//$existentPropertyCollection->add($property);
+			$propertySet->append($property);
 		}
 
 		$editable = $property->getEditable();
@@ -86,35 +92,12 @@ class GalleryBlockController extends BlockController
 		$this->configureContentFilters($property, $editable);
 		
 		return $property;
-	
 	}
 	
 	public function setParentMetadata($metadata)
 	{
 		$this->metadata = $metadata;
-		
-		// self preparing
-		$this->page = $this->metadata->getBlockProperty()
-				->getLocalization()
-				->getMaster();
-		
-		$block = $this->metadata->getBlockProperty()
-				->getBlock();
-		
-		$controllerCollection = BlockControllerCollection::getInstance();
-		
-		// original gallery controller
-		$controller = $controllerCollection->createBlockController($block->getComponentClass());
-		$this->configuration = $controller->getConfiguration();
-		
-		$parentProperty = $this->metadata->getBlockProperty();
-		$this->propertyConfiguration = $this->configuration->getProperty($parentProperty->getName());
-		
-		$request = $controller->getRequest();
-		if ( ! is_null($request)) {
-			$this->request = $request;
-		}
-		
+		$this->prepareController();
 	}
 	
 	/**
@@ -133,14 +116,73 @@ class GalleryBlockController extends BlockController
 		return $this->propertyConfiguration;
 	}
 	
+	/**
+	 *
+	 */
+	protected function getMetadataBlock()
+	{
+		$propertySet = $this->getRequest()
+				->getBlockPropertySet();
+		
+		$propertyId = $this->metadata->getBlockProperty()
+				->getId();
+		
+		$property = null;
+		foreach ($propertySet as $blockProperty) {
+			if ($blockProperty->getId() === $propertyId) {
+				$property = $blockProperty;
+				break;
+			}
+		}
+		
+		if (is_null($property)) {
+			throw new Exception\RuntimeException('No property found in property set!');
+		}
+		
+		if ($property instanceof Entity\SharedBlockProperty) {
+			$property = $property->getReplacedBlockProperty();
+		}
+		
+		$block = $property->getBlock();
+	
+		return $block;
+	}
+	
+	/**
+	 * 
+	 */
+	protected function prepareController()
+	{
+		// get block, to load block configuration
+		$block = $this->getMetadataBlock();
+		
+		// get property name, to load configuration on it
+		$propertyName = $this->metadata->getBlockProperty()
+				->getName();
+		
+		$controllerCollection = BlockControllerCollection::getInstance();
+		$controller = $controllerCollection->createBlockController($block->getComponentClass());
+
+		// block configuration
+		$this->configuration = $controller->getConfiguration();
+		
+		// property configuration
+		$this->propertyConfiguration = $this->configuration->getProperty($propertyName);
+	}
+	
+	/**
+	 *
+	 * @return BlockPropertySet
+	 */
 	public function getMetadataProperties()
 	{
-		$em = $this->getRequest()
-				->getDoctrineEntityManager();
+		$propertySet = $this->getRequest()
+				->getBlockPropertySet(true);
 		
-		$existentProperties = $em->getRepository(Entity\BlockProperty::CN())
-					->findBy(array('masterMetadataId' => $this->metadata->getId()));
-		
-		return $existentProperties;
+		$subPropertySet = $propertySet->getMetadataProperties($this->metadata);
+
+		return $subPropertySet;
 	}
+	
+
 }

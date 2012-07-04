@@ -80,4 +80,25 @@ class BlockPropertySet extends AbstractSet
 			}
 		}
 	}
+	
+	/**
+	 * Gets only properties (subproperties) referencing to the specified metadata
+	 * @param Entity\BlockPropertyMetadata $metadata
+	 * @return BlockPropertySet
+	 */
+	public function getMetadataProperties(Entity\BlockPropertyMetadata $metadata) {
+		
+		$blockPropertySet = new BlockPropertySet();
+		
+		$metadataId = $metadata->getId();
+		
+		/* @var $blockProperty Entity\BlockProperty */
+		foreach($this as $blockProperty) {
+			if ($blockProperty->getMasterMetadataId() === $metadataId) {
+				$blockPropertySet->append($blockProperty);
+			}
+		}
+		
+		return $blockPropertySet;
+	}
 }
