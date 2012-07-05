@@ -9,11 +9,8 @@ use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Set;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
-use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Doctrine\ORM\Query;
-use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
-use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 
 /**
  * Page controller request
@@ -32,7 +29,7 @@ abstract class PageRequest extends HttpRequest
 	protected $allowFlushing = false;
 
 	/**
-	 * @var \Doctrine\ORM\EntityManager
+	 * @var EntityManager
 	 */
 	private $doctrineEntityManager;
 
@@ -149,15 +146,15 @@ abstract class PageRequest extends HttpRequest
 	}
 
 	/**
-	 * @param \Doctrine\ORM\EntityManager $em
+	 * @param EntityManager $em
 	 */
-	public function setDoctrineEntityManager(\Doctrine\ORM\EntityManager $em)
+	public function setDoctrineEntityManager(EntityManager $em)
 	{
 		$this->doctrineEntityManager = $em;
 	}
 
 	/**
-	 * @return \Doctrine\ORM\EntityManager
+	 * @return EntityManager
 	 */
 	public function getDoctrineEntityManager()
 	{
@@ -452,7 +449,6 @@ abstract class PageRequest extends HttpRequest
 		$localFinalPlaceHolders = array();
 		
 		$finalPlaceHolderIds = array();
-		$parentPlaceHolderIds = array();
 		
 		$placeHolderSet = $this->getPlaceHolderSet();
 
@@ -534,16 +530,18 @@ abstract class PageRequest extends HttpRequest
 
 		/*
 		 * Collect locked blocks first, these are positioned as first blocks in
-		 * the placeholder. First are from the top template.
+		 * the placeholder if placeholder is not locked.
+		 * First locked blocs are taken from the top template.
 		 */
-		/* @var $block Entity\Abstraction\Block */
-		$placeHolderIds = $placeHolderSet->collectIds();
-		$placeHolderIds = array_unique($placeHolderIds);
-		
-		foreach ($placeHolderIds as $placeHolderId) {
-			foreach ($blocks as $block) {
-				if ($block->getLocked() && $block->getPlaceHolder()->getId() === $placeHolderId) {
-					$this->blockSet[] = $block;
+		foreach ($placeHolderSet as $placeHolder) {
+			foreach ($blocks as $key => $block) {
+			/* @var $block Entity\Abstraction\Block */
+
+				if ($block->getLocked() && $block->getPlaceHolder()->equals($placeHolder)) {
+					if ( ! $placeHolder->getLocked()) {
+						$this->blockSet[] = $block;
+						unset($blocks[$key]);
+					}
 				}
 			}
 		}
@@ -551,9 +549,7 @@ abstract class PageRequest extends HttpRequest
 		// Collect all unlocked blocks
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $block) {
-			if ( ! $block->getLocked()) {
-				$this->blockSet[] = $block;
-			}
+			$this->blockSet[] = $block;
 		}
 		
 		// Ordering the blocks by position in the layout
