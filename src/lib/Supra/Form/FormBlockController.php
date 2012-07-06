@@ -9,35 +9,57 @@ use Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration;
 use Symfony\Component\Validator\Mapping\Loader\AnnotationLoader;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Validator;
+use Supra\Loader\Loader;
 
 abstract class FormBlockController extends BlockController
 {
-
 	/**
 	 * @var Form\Form
 	 */
 	protected $bindedForm;
 
+	/**
+	 * @var Form\FormView
+	 */
+	protected $formView;
+
 	protected function doExecute()
 	{
-		$request = new Request($_GET, $_POST, array(), $_COOKIE, $_FILES, $_SERVER);
+		$request = $this->getRequest();
+		/* @var $request \Supra\Controller\Pages\Request\PageRequest */
 
-		$form = $this->getCleanForm();
+		$this->bindedForm = $this->getCleanForm();
+		$name = $this->getBlock()->getId();
 
-		if ($request->isMethod('POST')) {
-			$form->bindRequest($request);
-			$this->bindedForm = $form;
+		if ($request->getPost()->hasChild($name)) {
 
-			if ($form->isValid()) {
+			// TODO: make it somehow better...
+			$symfonyRequest = new Request(
+					$request->getQuery()->getArrayCopy(),
+					$request->getPost()->getArrayCopy(),
+					array(),
+					$request->getCookies(),
+					$request->getPostFiles()->getArrayCopy(),
+					$request->getServer());
+			
+			$this->bindedForm->bindRequest($symfonyRequest);
+			
+			$view = $this->getFormView();
+			$this->getResponse()->assign('form', $view);
+
+			if ($this->bindedForm->isValid()) {
 				$this->success();
 				return;
 			} else {
 				$this->failure();
 				return;
 			}
-		}
+		} else {
 
-		$this->render();
+			$view = $this->getFormView();
+			$this->getResponse()->assign('form', $view);
+			$this->render();
+		}
 	}
 
 	/**
@@ -61,24 +83,33 @@ abstract class FormBlockController extends BlockController
 	 */
 	public function validate(Form\Event\DataEvent $event)
 	{
-		return true;
+		
 	}
 
 	/**
-	 * @return \Symfony\Component\Form\Form
+	 * @return Form\Form
 	 */
 	public function getBindedForm()
 	{
 		return $this->bindedForm;
 	}
 
+	public function getFormView()
+	{
+		if (is_null($this->formView)) {
+			$this->formView = $this->bindedForm->createView();
+		}
+
+		return $this->formView;
+	}
+
 	/**
-	 * @return \Symfony\Component\Form\Form
+	 * @return Form\Form
 	 */
 	protected function getCleanForm()
 	{
 		$conf = $this->getConfiguration();
-		$formClass = new $conf->form;
+		$formClass = Loader::getClassInstance($conf->form);
 		$formBuilder = $this->prepareFormBuilder($formClass);
 
 		foreach ($conf->fields as $field) {

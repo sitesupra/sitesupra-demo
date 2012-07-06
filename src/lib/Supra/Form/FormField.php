@@ -26,7 +26,7 @@ class FormField
 	 * Allowed field types
 	 * @var array 
 	 */
-	private $types = array(
+	private static $types = array(
 		'text',
 		'textarea',
 		'password',
@@ -43,10 +43,10 @@ class FormField
 
 	public function __construct(array $arguments = array())
 	{
-		if ( ! is_string($arguments['type']) || ! in_array($arguments['type'], $this->types)) {
+		if ( ! is_string($arguments['type']) || ! in_array($arguments['type'], self::$types, true)) {
 			throw new Exception\RuntimeException(
 					"Form type \"{$arguments['type']}\" is not allowed. " .
-					"Use one of \"" . join('", "', $this->types) . '" annotation types. '
+					"Use one of \"" . join('", "', self::$types) . '" annotation types. '
 					. 'Example @FormField(type="text")'
 			);
 		}
