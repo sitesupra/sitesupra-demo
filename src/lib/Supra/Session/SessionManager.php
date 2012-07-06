@@ -9,6 +9,7 @@ class SessionManager
 {
 	const DEFAULT_NAMESPACE_CLASS = 'Supra\Session\SessionNamespace';
 	const DEFAULT_NAMESPACE_NAME = 'defaultNamespace';
+	const DEFAULT_AUTHENTICATION_NAMESPACE_CLASS = 'Supra\Authentication\AuthenticationSessionNamespace';
 	
 	/**
 	 * @var HandlerAbstraction
@@ -20,6 +21,11 @@ class SessionManager
 	 * @var mixed
 	 */
 	private $sessionData = array();
+	
+	/**
+	 * @var string
+	 */
+	private $authenticationNamespaceClass = self::DEFAULT_AUTHENTICATION_NAMESPACE_CLASS;
 	
 	/**
 	 * @param HandlerAbstraction $handler
@@ -94,7 +100,17 @@ class SessionManager
 	 */
 	public function getAuthenticationSpace()
 	{
-		return $this->getSpace('Supra\Authentication\AuthenticationSessionNamespace');
+		return $this->getSpace($this->authenticationNamespaceClass);
+	}
+	
+	/**
+	 * Set authentication session namespace
+	 * 
+	 * @param string $className
+	 */
+	public function setAuthenticationNamespace($namespace)
+	{
+		$this->authenticationNamespaceClass = $namespace;
 	}
 	
 	/**
