@@ -60,7 +60,7 @@ class SessionManagerConfiguration implements ConfigurationInterface
 		$sessionManager->setExpirationTime($this->sessionExpirationTime);
 		
 		if ( ! empty($this->authenticationNamespaceClass)) {
-			$sessionManager->setAuthenticationNamespace($this->authenticationNamespaceClass);
+			$sessionManager->setAuthenticationNamespaceClass($this->authenticationNamespaceClass);
 		}
 
 		foreach ($this->namespaces as $namespace) {

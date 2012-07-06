@@ -108,9 +108,9 @@ class SessionManager
 	 * 
 	 * @param string $className
 	 */
-	public function setAuthenticationNamespace($namespace)
+	public function setAuthenticationNamespaceClass($namespaceClass)
 	{
-		$this->authenticationNamespaceClass = $namespace;
+		$this->authenticationNamespaceClass = $namespaceClass;
 	}
 	
 	/**
