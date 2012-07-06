@@ -819,6 +819,7 @@ class PageController extends ControllerAbstraction
 					// Assigned by reference because "null" can change to object after closure execution
 					$eventArgs->blockController = &$blockController;
 					$eventArgs->actionType = $eventAction;
+					$eventArgs->request = $this->request;
 					$eventArgs->blockRequest = ($this->getRequest()->getBlockRequestId() !== null);
 
 					$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);

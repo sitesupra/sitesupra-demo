@@ -41,4 +41,9 @@ class BlockEventsArgs extends EventArgs
 	 * @var boolean
 	 */
 	public $blockRequest = false;
+	
+	/**
+	 * @var Supra\Controller\Pages\Request\PageRequest
+	 */
+	public $request;
 }

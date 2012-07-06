@@ -58,6 +58,10 @@ class SessionManagerConfiguration implements ConfigurationInterface
 
 		$sessionManager = new SessionManager($handler);
 		$sessionManager->setExpirationTime($this->sessionExpirationTime);
+		
+		if ( ! empty($this->authenticationNamespaceClass)) {
+			$sessionManager->setAuthenticationNamespaceClass($this->authenticationNamespaceClass);
+		}
 
 		foreach ($this->namespaces as $namespace) {
 			ObjectRepository::setSessionManager($namespace, $sessionManager);

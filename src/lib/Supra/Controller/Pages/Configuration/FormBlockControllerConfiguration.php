@@ -2,14 +2,11 @@
 
 namespace Supra\Controller\Pages\Configuration;
 
-use Supra\Controller\Pages\BlockControllerCollection;
-use Supra\Loader\Loader;
-use Supra\Configuration\ConfigurationInterface;
-use Supra\Configuration\ComponentConfiguration;
-use Symfony\Component\Form;
-use \ReflectionClass;
+use ReflectionClass;
 use Supra\Form\FormField;
 use Symfony\Component\Validator\Constraint;
+use Supra\Editable\String;
+use Symfony\Component\Form\Form;
 
 class FormBlockControllerConfiguration extends BlockControllerConfiguration
 {
@@ -32,7 +29,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 	public $fields;
 
 	/**
-	 * @var \Symfony\Component\Form\Form
+	 * @var Form
 	 */
 	public $form;
 
@@ -55,7 +52,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 				$group->type = 'sidebar';
 				$group->label = $value;
 
-				$group = $group->configure();
+				$group->configure();
 
 				if ($group instanceof BlockPropertyGroupConfiguration) {
 					$this->propertyGroups[$group->id] = $group;
@@ -87,7 +84,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 			$fieldLabel = ucfirst(mb_strtolower(join(' ', $labelParts)));
 
 			$blockProperty = new BlockPropertyConfiguration();
-			$editable = new \Supra\Editable\String("Field \"{$fieldLabel}\" label");
+			$editable = new String("Field \"{$fieldLabel}\" label");
 
 			$editable->setDefaultValue($fieldLabel);
 
@@ -102,7 +99,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 			$i = 1;
 			foreach ($messages as $key => $value) {
 				$blockProperty = new BlockPropertyConfiguration();
-				$editable = new \Supra\Editable\String("Field \"$fieldLabel\" error #{$i}");
+				$editable = new String("Field \"$fieldLabel\" error #{$i}");
 				$editable->setDefaultValue($value);
 
 //				$editable->setGroupId(self::FORM_GROUP_ID_LABELS);
@@ -152,7 +149,6 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 		// gathering property annotations
 		foreach ($reflection->getProperties() as $property) {
 			/* @var $property ReflectionProperty */
-			$formField = false;
 
 			$propertyAnnotations = $reader->getPropertyAnnotations($property);
 

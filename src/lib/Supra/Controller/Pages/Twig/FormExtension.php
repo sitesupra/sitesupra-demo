@@ -7,13 +7,17 @@ use Symfony\Component\Form\Exception\FormException;
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration;
 use Supra\Controller\Pages\Configuration\FormFieldConfiguration;
+use Supra\Form\FormBlockController;
+use Symfony\Component\Form\Form;
 
 class FormExtension
 {
-
+	/**
+	 * @var FormBlockController
+	 */
 	protected $blockController;
 
-	public function __construct(BlockController $blockController)
+	public function __construct(FormBlockController $blockController)
 	{
 		$this->blockController = $blockController;
 	}
@@ -52,7 +56,6 @@ class FormExtension
 	 */
 	public function begin(FormView $view, array $options = array(), array $attributes = array())
 	{
-
 		$tag = new \Supra\Html\HtmlTagStart('form');
 
 		// defaults
@@ -96,13 +99,19 @@ class FormExtension
 
 		$this->setTagAttributes($tag, $tagAttributes);
 
-//		return $tag;
 		return new \Twig_Markup($tag->toHtml());
 	}
 
 	public function errors(FormView $view, array $options = array(), array $attributes = array())
 	{
-		return __METHOD__;
+		$errors = $view->get('errors', array());
+		$html = '';
+		
+		foreach ($errors as $error) {
+			$html .= $this->getErrorString($error);
+		}
+		
+		return $html;
 	}
 
 	public function error(FormView $view, array $options = array(), array $attributes = array())
@@ -122,27 +131,37 @@ class FormExtension
 		$output = null;
 
 		foreach ($vars['errors'] as $error) {
-			/* @var $error \Symfony\Component\Form\FormError */
-			$tag = new \Supra\Html\HtmlTag('span');
-			$tag->forceTwoPartTag(true);
-			$tag->setAttribute('class', 'error');
-			$errorProperty = $this->blockController->getPropertyValue(
-					FormBlockControllerConfiguration::generateEditableName(
-							FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $vars['name'])
-					. "_{$error->getMessage()}"
-			);
-
-			$message = $error->getMessage();
-			if ( ! empty($errorProperty)) {
-				$message = strtr($errorProperty, $error->getMessageParameters());
-			}
-
-			$tag->setContent($message);
-
-			$output .= $tag->toHtml();
+			$output .= $this->getErrorString($error, $vars['name']);
 		}
 
 		return new \Twig_Markup($output);
+	}
+
+	private function getErrorString($error, $name)
+	{
+		/* @var $error \Symfony\Component\Form\FormError */
+		$tag = new \Supra\Html\HtmlTag('span');
+		$tag->forceTwoPartTag(true);
+		$tag->setAttribute('class', 'error');
+
+		$propertyName = FormBlockControllerConfiguration::generateEditableName(
+						FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $name)
+				. "_{$error->getMessage()}";
+
+		$errorProperty = null;
+
+		if ($this->blockController->hasProperty($propertyName)) {
+			$errorProperty = $this->blockController->getPropertyValue($propertyName);
+		}
+
+		$message = $error->getMessage();
+		if ( ! empty($errorProperty)) {
+			$message = strtr($errorProperty, $error->getMessageParameters());
+		}
+
+		$tag->setContent($message);
+
+		return $tag->toHtml();
 	}
 
 	public function label(FormView $view, array $options = array(), array $attributes = array())
@@ -158,7 +177,7 @@ class FormExtension
 		$tag = new \Supra\Html\HtmlTag('label');
 		$names = $this->getFormViewParentNames($view);
 
-		$tag->setAttribute('for', join('_', $names));
+		$tag->setAttribute('for', 'id_' . implode('_', $names));
 		$tag->forceTwoPartTag(true);
 		$tag->setContent($label ? $label : $vars['label']);
 
@@ -193,7 +212,7 @@ class FormExtension
 		$tag = new \Supra\Html\HtmlTag('input');
 		$tag->setAttribute('type', 'text');
 		$tag->setAttribute('name', $name);
-		$tag->setAttribute('id', join('_', $names));
+		$tag->setAttribute('id', 'id_' . implode('_', $names));
 
 		if ( ! empty($vars['value'])) {
 			$tag->setAttribute('value', $vars['value']);
@@ -206,9 +225,11 @@ class FormExtension
 	{
 		$labelTag = $this->label($view, $options, $attributes);
 		$fieldTag = $this->field($view, $options, $attributes);
-//		$errorTag = $this->error($view, $options, $attributes);
+		$errorTag = $this->error($view, $options, $attributes);
 		
-		return new \Twig_Markup($labelTag->__toString() . $fieldTag->__toString());
+		return new \Twig_Markup($labelTag->__toString() 
+				. $fieldTag->__toString()
+				. $errorTag->__toString());
 	}
 
 	public function submit(array $options = array(), array $attributes = array())

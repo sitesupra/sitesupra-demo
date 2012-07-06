@@ -230,6 +230,23 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
+	 * Checks if property exists
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function hasProperty($name)
+	{
+		// Find editable by name
+		$propertyDefinition = $this->configuration->getProperty($name);
+
+		if ( ! isset($propertyDefinition)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * @param string $name
 	 * @return Entity\BlockProperty
 	 */

@@ -43,7 +43,7 @@ class HttpRequest implements RequestInterface
 
 	/*
 	 * POST uploads data
-	 * @var PostFileData
+	 * @var PostFilesData
 	 */
 	protected $files;
 
