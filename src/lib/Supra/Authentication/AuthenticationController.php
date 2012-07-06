@@ -53,7 +53,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * @var array
 	 */
 	public $publicUrlList = array();
-	
+
 	/**
 	 * Defines, will be user redirected on login success 
 	 * @var boolean
@@ -67,7 +67,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	public function getPublicUrlList()
 	{
 		$list = $this->prepareUrlList($this->publicUrlList);
-		
+
 		return $list;
 	}
 
@@ -76,16 +76,17 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * @param array $list
 	 * @return array 
 	 */
-	public function prepareUrlList($list) {
-		
+	public function prepareUrlList($list)
+	{
+
 		$trimFunction = function ($value) {
 					return trim($value, '/');
 				};
 		$list = array_map($trimFunction, $list);
-		
+
 		return $list;
 	}
-	
+
 	/**
 	 * Returns login field name
 	 * @return string
@@ -170,7 +171,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		// TODO: maybe should fetch session manager by user provider
 		//$sessionManager = ObjectRepository::getSessionManager($userProvider);
 		$sessionManager = ObjectRepository::getSessionManager($this);
-		
+
 		// TODO: cerate special namespace for this
 		$session = $sessionManager->getDefaultSessionNamespace();
 		/* @var $session SessionNamespace */
@@ -208,7 +209,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 				// Authenticating user
 				$user = null;
-				
+
 				$eventArgs = new Event\EventArgs($this);
 				$eventArgs->request = $request;
 
@@ -218,7 +219,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					if ($password->isEmpty()) {
 						throw new Exception\WrongPasswordException("Empty passwords are not allowed");
 					}
-					
+
 					$eventManager = ObjectRepository::getEventManager($this);
 					$eventManager->fire(Event\EventArgs::preAuthenticate, $eventArgs);
 
@@ -228,10 +229,10 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					$auditLog = ObjectRepository::getAuditLogger($this);
 					$auditLog->info($this, "User '{$user->getEmail()}' logged in", $user);
-					
+
 					$eventManager = ObjectRepository::getEventManager($this);
 					$eventManager->fire(Event\EventArgs::onAuthenticationSuccess, $eventArgs);
-					
+
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
 						$this->response->output('1');
@@ -246,20 +247,30 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					throw new StopRequestException("Login success");
 				} catch (Exception\AuthenticationFailure $exc) {
-					
+
 					$eventManager = ObjectRepository::getEventManager($this);
 					$eventManager->fire(Event\EventArgs::onAuthenticationFailure, $eventArgs);
-					
+
 					//TODO: pass the failure message somehow
 					// Login not successfull
-					$message = 'Incorrect login name or password';
-					
+					if ($exc instanceof Exception\WrongPasswordException) {
+						$message = 'Incorrect login name or password';
+					}
+
+					if ($exc instanceof Exception\UserNotFoundException) {
+						$message = 'Incorrect login name or password';
+					}
+
 					if ($exc instanceof Exception\AuthenticationBanException) {
 						$message = 'Too many authentication failures';
 					}
 
 					//TODO: i18n
 					if ($exc instanceof Exception\ExistingSessionLimitation) {
+
+						$message = $exc->getMessage();
+					} else if ($exc instanceof Exception\AuthenticationFailure) {
+
 						$message = $exc->getMessage();
 					}
 
@@ -284,7 +295,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 				}
 			}
 		}
-		
+
 		// Allow accessign public URL
 		if ($isPublicUrl) {
 			return;
@@ -335,10 +346,10 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	protected function isPublicUrl(Path $path)
 	{
 		$publicUrlList = $this->getPublicUrlList();
-		
+
 		foreach ($publicUrlList as $publicUrl) {
 			$publicUrlPath = new Path($publicUrl);
-			
+
 			if ($path->equals($publicUrlPath)) {
 				return true;
 			}
@@ -382,14 +393,14 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 		return $uri;
 	}
-	
+
 	/**
 	 *
 	 * @param boolean $skip 
 	 */
-	public function setSkipRedirect($skip) 
+	public function setSkipRedirect($skip)
 	{
 		$this->skipRedirect = $skip;
 	}
-	
+
 }
