@@ -55,6 +55,10 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		// checking database collation
+		$wrongCollations = $this->getWrongCollations();
+		$this->outputWrongCollations($output, $wrongCollations);
+
 		$output->writeln('Updating database schemas...');
 
 		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
@@ -98,7 +102,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			} else {
 				$output->writeln("\t - up to date");
 			}
-			
+
 			$cache->setWriteOnlyMode(false);
 		}
 
@@ -119,6 +123,72 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		}
 
 		$output->writeln('Done updating database schemas.');
+	}
+
+	/**
+	 * Outputs information about database/tables collation to console
+	 * @param OutputInterface $output
+	 * @param type $wrongCollations 
+	 */
+	protected function outputWrongCollations(OutputInterface $output, $wrongCollations = array())
+	{
+		$utf8Recommended = 'Highly recommended to use utf8 collation.';
+		if ( ! empty($wrongCollations['database'])) {
+			$output->writeln("<comment>Database has {$wrongCollations['database']} collation set as default. {$utf8Recommended}</comment>");
+		}
+
+		if ( ! empty($wrongCollations['tables'])) {
+			$tables = $collations = array();
+
+			foreach ($wrongCollations['tables'] as $row) {
+				$tables[] = $row['table_name'];
+				$collations[$row['table_collation']] = $row['table_collation'];
+			}
+
+			$tables = join(', ', $tables);
+			$collations = join(', ', $collations);
+
+			$output->writeln("<comment>Database tables:</comment>\n{$tables}\n<comment>has one of following collations:</comment>\n{$collations}\n<comment>{$utf8Recommended}</comment>");
+		}
+	}
+
+	/**
+	 * Returns information about database and table wrong collations
+	 * 
+	 * @return array 
+	 */
+	protected function getWrongCollations()
+	{
+		$output = array();
+		$connection = $this->getHelper('db')->getConnection();
+		/* @var $connection Doctrine\DBAL\Connection */
+		$params = $connection->getParams();
+
+		$statement = $connection->prepare('select table_name, table_collation from information_schema.tables where table_schema = :schema and table_collation NOT LIKE :collation');
+		/* @var $statement Doctrine\DBAL\Statement */
+		$status = $statement->bindValue(':schema', $params['dbname']);
+		$status = $statement->bindValue(':collation', 'utf8%');
+		$statement->execute();
+
+		$tables = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+		if ( ! empty($tables)) {
+			$output['tables'] = $tables;
+		}
+
+		$tables = $statement->fetchAll(\PDO::FETCH_ASSOC);
+		$statement = $connection->prepare('SELECT default_collation_name FROM information_schema.schemata where schema_name = :schema and default_collation_name NOT LIKE :collation');
+		$status = $statement->bindValue(':schema', $params['dbname']);
+		$status = $statement->bindValue(':collation', 'utf8%');
+		$statement->execute();
+
+		$database = $statement->fetch(\PDO::FETCH_COLUMN);
+
+		if ( ! empty($database)) {
+			$output['database'] = $database;
+		}
+
+		return $output;
 	}
 
 }

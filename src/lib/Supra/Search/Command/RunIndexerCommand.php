@@ -7,8 +7,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\IndexerService;
 use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
 use Supra\Controller\Pages\PageController;
-use \Supra\Search\IndexerQueueItemStatus;
-
+use Supra\Search\IndexerQueueItemStatus;
+use Supra\Search\Solarium\Configuration;
 
 /**
  * AuthorizationFixtureCommand
@@ -28,6 +28,15 @@ class RunIndexerCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
+		try {
+			ObjectRepository::getSolariumClient($this);
+		} catch (\Exception $e) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			$output->writeln($message);
+			\Log::debug($message . PHP_EOL . $e->__toString());
+			return;
+		}
+		
 		$indexerService = new IndexerService();
 		$schemaNames = array(PageController::SCHEMA_PUBLIC);
 

@@ -740,9 +740,10 @@ abstract class PageManagerAction extends CmsAction
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference');
 
-		if (is_null($parent) && $page instanceof Page) {
-			throw new CmsException('sitemap.error.parent_page_not_found');
-		}
+		// Did not allowed to restore root page. Ask Aigars for details
+//		if (is_null($parent) && $page instanceof Page) {
+//			throw new CmsException('sitemap.error.parent_page_not_found');
+//		}
 
 		$draftEm->beginTransaction();
 		try {
@@ -1265,7 +1266,7 @@ abstract class PageManagerAction extends CmsAction
 		$this->getResponse()
 				->setResponseData(array('id' => $targetLocalization->getId()));
 
-		$this->writeAuditLog("%item% [{$targetLocale}] created from [{$sourceLocale}] locale", $targetLocalization);
+		$this->writeAuditLog("%item% created from ({$sourceLocale}) locale", $targetLocalization);
 
 		if ($targetLocalization instanceof Entity\TemplateLocalization) {
 			$this->pageData = $targetLocalization;
