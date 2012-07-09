@@ -39,7 +39,7 @@ class FormField
 	/**
 	 * @var array
 	 */
-	protected $constraints;
+	protected $constraints = array();
 
 	public function __construct(array $arguments = array())
 	{
