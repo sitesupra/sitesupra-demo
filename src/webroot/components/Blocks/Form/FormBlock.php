@@ -24,25 +24,13 @@ class FormBlock extends FormBlockController
 	protected function failure()
 	{
 		$response = $this->getResponse();
-		
-		$form = $this->getBindedForm();
-		$formView = $form->createView();
-
-		$response->assign('form', $formView);
 		$response->outputTemplate('failure.html.twig');
 	}
 
 	protected function render()
 	{
 		$response = $this->getResponse();
-		/* @var $response \Supra\Response\TwigResponse */
-
-		$form = $this->getCleanForm();
-		$formView = $form->createView();
-
-		$response->assign('form', $formView);
 		$response->outputTemplate('render.html.twig');
-		$response->assign('hash', spl_object_hash($this));
 	}
 
 	protected function success()
