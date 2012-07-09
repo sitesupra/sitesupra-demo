@@ -3,10 +3,7 @@
 namespace Supra\Controller\Pages\Twig;
 
 use Supra\Controller\Pages\BlockController;
-use Supra\Response\TwigResponse;
-use Twig_Markup;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Locale\Locale;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\ImageSize;
 use Supra\Html\HtmlTag;

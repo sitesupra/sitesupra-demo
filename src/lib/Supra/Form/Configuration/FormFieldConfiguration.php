@@ -1,11 +1,8 @@
 <?php
 
-namespace Supra\Controller\Pages\Configuration;
+namespace Supra\Form\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
-use Supra\Loader\Loader;
-use Supra\Editable\EditableInterface;
-use Supra\Editable;
 
 class FormFieldConfiguration implements ConfigurationInterface
 {
@@ -23,22 +20,8 @@ class FormFieldConfiguration implements ConfigurationInterface
 	public $type;
 
 	/**
-	 * Allowed field types
-	 * @var array 
-	 */
-	private $types = array(
-		'text',
-		'textarea',
-		'password',
-		'checkbox',
-		'file',
-		'radio',
-		'hidden',
-	);
-
-	/**
 	 * Field label
-	 * @var string 
+	 * @var string
 	 */
 	public $label;
 

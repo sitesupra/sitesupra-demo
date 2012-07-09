@@ -41,6 +41,8 @@ class FormField
 	 */
 	protected $constraints = array();
 
+	protected $errorInfo;
+
 	public function __construct(array $arguments = array())
 	{
 		if ( ! is_string($arguments['type']) || ! in_array($arguments['type'], self::$types, true)) {
@@ -94,16 +96,26 @@ class FormField
 	 */
 	public function addConstraints(array $constraints)
 	{
-		// validation
-		foreach ($constraints as $constraint) {
-			if ( ! $constraint instanceof Constraint) {
-				throw new Exception\RuntimeException('Passed consraint is not instance of Supra\Form\Constraints\Abstraction\Constraint. ', $constraint);
-			}
-		}
+//		// validation
+//		foreach ($constraints as $constraint) {
+//			if ( ! $constraint instanceof Constraint) {
+//				throw new Exception\RuntimeException('Passed constraint is not instance of Supra\Form\Constraints\Abstraction\Constraint. ', $constraint);
+//			}
+//		}
 		
 		$this->constraints = $constraints;
 	}
-	
+
+	public function setErrorInfo($errorInfo)
+	{
+		$this->errorInfo = $errorInfo;
+	}
+
+	public function getErrorinfo()
+	{
+		return $this->errorInfo;
+	}
+
 	/**
 	 * @return string 
 	 */

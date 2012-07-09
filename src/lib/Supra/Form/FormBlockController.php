@@ -5,11 +5,12 @@ namespace Supra\Form;
 use Supra\Controller\Pages\BlockController;
 use Symfony\Component\Form;
 use Symfony\Component\HttpFoundation\Request;
-use Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration;
+use Supra\Form\Configuration\FormBlockControllerConfiguration;
 use Symfony\Component\Validator\Mapping\Loader\AnnotationLoader;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Validator;
 use Supra\Loader\Loader;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 abstract class FormBlockController extends BlockController
 {
@@ -28,7 +29,7 @@ abstract class FormBlockController extends BlockController
 		$request = $this->getRequest();
 		/* @var $request \Supra\Controller\Pages\Request\PageRequest */
 
-		$this->bindedForm = $this->getCleanForm();
+		$this->bindedForm = $this->createForm();
 		$name = $this->getBlock()->getId();
 
 		if ($request->getPost()->hasChild($name)) {
@@ -106,12 +107,12 @@ abstract class FormBlockController extends BlockController
 	/**
 	 * @return Form\Form
 	 */
-	protected function getCleanForm()
+	protected function createForm()
 	{
 		$conf = $this->getConfiguration();
-		$formClass = Loader::getClassInstance($conf->form);
-		$formBuilder = $this->prepareFormBuilder($formClass);
-
+		$dataObject = Loader::getClassInstance($conf->form);
+		$formBuilder = $this->prepareFormBuilder($dataObject);
+		
 		foreach ($conf->fields as $field) {
 			/* @var $field FormField */
 			$options = array();
@@ -127,7 +128,12 @@ abstract class FormBlockController extends BlockController
 			$formBuilder->add($field->getName(), $field->getType(), $options);
 		}
 
-		// Custom validation
+		// Custom events
+		if ($this instanceof EventSubscriberInterface) {
+			$formBuilder->addEventSubscriber($this);
+		}
+
+		// Old stuff...
 		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 10);
 
 		return $formBuilder->getForm();
@@ -172,9 +178,10 @@ abstract class FormBlockController extends BlockController
 	}
 
 	/**
+	 * @param object $dataObject
 	 * @return Form\FormBuilder 
 	 */
-	protected function prepareFormBuilder($class)
+	protected function prepareFormBuilder($dataObject)
 	{
 //		@TODO: Add CSRF later
 //		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
@@ -200,7 +207,7 @@ abstract class FormBlockController extends BlockController
 				));
 
 		$id = $this->getBlock()->getId();
-		$formBuilder = $factory->createNamedBuilder('form', $id, $class);
+		$formBuilder = $factory->createNamedBuilder('form', $id, $dataObject);
 
 		return $formBuilder;
 	}

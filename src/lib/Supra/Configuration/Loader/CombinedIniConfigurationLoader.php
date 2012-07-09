@@ -2,16 +2,8 @@
 
 namespace Supra\Configuration\Loader;
 
-use Supra\Log\Writer\WriterAbstraction;
-use Supra\Configuration\Parser\DatabaseParser;
-use Supra\Configuration\Writer\DatabaseWriter;
-use Supra\Configuration\Parser\AbstractParser;
-use Supra\Configuration\Writer\AbstractWriter;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\FrontController;
-use Supra\Configuration\WriteableIniConfigurationLoaderEventListener;
-use Supra\Controller\Event\FrontControllerShutdownEventArgs;
-use Supra\Configuration\Loader;
+use Supra\Configuration\Parser;
+use Supra\Configuration\Exception;
 
 class CombinedIniConfigurationLoader extends IniConfigurationLoader
 {

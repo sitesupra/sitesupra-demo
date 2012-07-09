@@ -5,8 +5,8 @@ namespace Supra\Controller\Pages\Twig;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\Exception\FormException;
 use Supra\Controller\Pages\BlockController;
-use Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration;
-use Supra\Controller\Pages\Configuration\FormFieldConfiguration;
+use Supra\Form\Configuration\FormBlockControllerConfiguration;
+use Supra\Form\Configuration\FormFieldConfiguration;
 use Supra\Form\FormBlockController;
 use Symfony\Component\Form\Form;
 
