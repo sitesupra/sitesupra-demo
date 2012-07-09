@@ -193,11 +193,13 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	 */
 	private function getIconWebPath($icon = null)
 	{
-		$context = '';
+		$context = null;
 		
 		// Relative path
 		if ( ! empty($icon) && strpos($icon, '/') !== 0) {
 			$context = $this->class;
+		} else {
+			$icon = SUPRA_WEBROOT_PATH . $icon;
 		}
 		
 		$path = PathConverter::getWebPath($icon, $context);
