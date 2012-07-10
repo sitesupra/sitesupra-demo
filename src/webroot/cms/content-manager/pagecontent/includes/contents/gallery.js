@@ -213,17 +213,6 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		},
 		
 		/**
-		 * Open settings form
-		 * @private
-		 */
-		openSettings: function () {
-			//Since toolbar is created by single instance of gallery
-			//keyword "this" may have incorrect reference
-			var self = Manager.PageContent.getContent().get('activeChild');
-			self.properties.showPropertiesForm();
-		},
-		
-		/**
 		 * Open gallery manager and update data when it closes
 		 * @private
 		 */

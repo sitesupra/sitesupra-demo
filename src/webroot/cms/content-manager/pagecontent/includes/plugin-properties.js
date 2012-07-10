@@ -940,7 +940,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * that group only
 		 */
 		toolbarButtonClickOpenGroup: function (button_id, button_config) {
-			this.showPropertiesForm(button_config.propertyGroup);
+			//Since toolbar is created by single instance of properties
+			//keyword "this" will have reference to the one which created,
+			//not the one whic is currently active
+			
+			var self = Manager.PageContent.getContent().get('activeChild');
+			self.properties.showPropertiesForm(button_config.propertyGroup);
 		},
 		
 		/**
