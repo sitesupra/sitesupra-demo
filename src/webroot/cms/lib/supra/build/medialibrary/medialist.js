@@ -128,7 +128,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	List.TEMPLATE_FILE = Template.compile('\
 		<div class="file">\
 			<div class="preview">\
-				<img src="/cms/lib/supra/img/medialibrary/icon-{% if broken %}broken{% else %}file{% if known_extension %}-{{ known_extension }}{% endif %}{% endif %}-large.png" alt="" />\
+				<img src="/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/file{% if known_extension %}-{{ known_extension }}{% endif %}-large.png" {% if known_extension %}class="known-extension"{% endif %} alt="" />\
 			</div>\
 			\
 			{% set current_locale = Supra.data.get("locale") %}\
