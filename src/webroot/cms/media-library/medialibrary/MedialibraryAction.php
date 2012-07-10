@@ -94,7 +94,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 				$knownExtensions = $this->getApplicationConfigValue('knownFileExtensions', array());
 				if (in_array($extension, $knownExtensions)) {
-					$item['knownExtension'] = $extension;
+					$item['known_extension'] = $extension;
 				}
 
 				$checkExistance = $this->getApplicationConfigValue('checkFileExistence');

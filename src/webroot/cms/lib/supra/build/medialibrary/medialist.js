@@ -100,7 +100,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {String}
 	 */
 	List.TEMPLATE_FOLDER_ITEM_FILE = Template.compile('\
-		<li class="type-file {% if knownExtension %}type-file-{{ knownExtension }}{% endif %} {% if broken %}type-broken{% endif %}" data-id="{{ id }}">\
+		<li class="type-file {% if known_extension %}type-file-{{ known_extension }}{% endif %} {% if broken %}type-broken{% endif %}" data-id="{{ id }}">\
 			<a></a>\
 			<span>{{ filename|escape }}</span>\
 		</li>');

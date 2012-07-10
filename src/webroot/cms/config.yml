@@ -124,8 +124,6 @@
     - doc
     - docx
     - swf
-    - ppt
-    - pptx
   authorizationAccessPolicy:
     _class: Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy
     applicationNamespace: Supra\Cms\MediaLibrary
