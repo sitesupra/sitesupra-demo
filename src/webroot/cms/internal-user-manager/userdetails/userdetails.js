@@ -51,8 +51,16 @@ Supra('supra.input', function (Y) {
 					'message': Supra.Intl.get(['userdetails', 'reset_message']),
 					'useMask': true,
 					'buttons': [
-						{'id': 'yes', 'style': 'small-blue', 'click': this.resetPassword, 'context': this},
-						{'id': 'no'}
+					{
+						'id': 'yes', 
+						'style': 'small-blue', 
+						'click': this.resetPassword, 
+						'context': this
+					},
+
+					{
+						'id': 'no'
+					}
 					]
 				});
 			}, user);
@@ -63,8 +71,16 @@ Supra('supra.input', function (Y) {
 					'message': Supra.Intl.get(['userdetails', 'delete_message']),
 					'useMask': true,
 					'buttons': [
-						{'id': 'yes', 'style': 'small-red', 'click': this.deleteUser, 'context': this},
-						{'id': 'no'}
+					{
+						'id': 'yes', 
+						'style': 'small-red', 
+						'click': this.deleteUser, 
+						'context': this
+					},
+
+					{
+						'id': 'no'
+					}
 					]
 				});
 			}, user);
@@ -72,8 +88,8 @@ Supra('supra.input', function (Y) {
 			//On form values change update data
 			this.form.on('change', this.onDataChange, this);
 			
-			//On avatar click open avatar list
-			/*this.one('div.info em').on('click', function (event) {
+		//On avatar click open avatar list
+		/*this.one('div.info em').on('click', function (event) {
 				var UserAvatar = Manager.getAction('UserAvatar');
 				UserAvatar.set('controller', this);
 				UserAvatar.execute();
@@ -89,9 +105,9 @@ Supra('supra.input', function (Y) {
 		 */
 		updateUI: function (data) {
 			
-			if (!data.canUpdate) {
-				
-			}
+			this.form.set('disabled', !data.canUpdate);
+			this.footer.getButton('reset').set('visible', data.canUpdate);
+			this.footer.getButton('delete').set('visible', data.canDelete);
 			
 			if ('avatar' in data) {
 				this.one('div.info img').setAttribute('src', data.avatar);
@@ -153,9 +169,9 @@ Supra('supra.input', function (Y) {
 			/* @TODO Add correct validation */
 			
 			var data = Manager.getAction('User').getData(),
-				error = false,
-				input_name = this.form.getInput('name'),
-				input_email = this.form.getInput('email');
+			error = false,
+			input_name = this.form.getInput('name'),
+			input_email = this.form.getInput('email');
 			
 			if (!data.name) {
 				input_name.set('error', true);
@@ -220,10 +236,11 @@ Supra('supra.input', function (Y) {
 		 * if silent is false - warning message will appear
 		 */
 		isAllowedToUpdate: function (data, silent) {
+			
 			if (!data.canUpdate) {
 				if (!silent) {
 					var message = Supra.Intl.get(['userdetails', 'cannot_update']);
-						message = Y.substitute(message, data);
+					message = Y.substitute(message, data);
 
 					Manager.executeAction('Confirmation', {
 						'message': message,
@@ -235,7 +252,34 @@ Supra('supra.input', function (Y) {
 				return false;
 			}
 			return true;
-		}
+		},
+		
+		
+		/**
+		 * Perform check, if it is allowed to update user data
+		 * if silent is false - warning message will appear
+		 */
+		isAllowedToDelete: function (data, silent) {
+			
+			if (!data.canDelete) {
+				
+				if (!silent) {
+					var message = Supra.Intl.get(['userdetails', 'cannot_delete']);
+
+					message = Y.substitute(message, data);
+
+					Manager.executeAction('Confirmation', {
+						'message': message,
+						'buttons': [{
+							'id': 'ok'
+						}]
+					});
+				}
+				return false;
+			}
+			
+			return true;
+		}		
 		
 	});
 	

@@ -24,6 +24,10 @@
 	.yui3-footer .su-button:first-child {
 		margin-left: 0;
 	}
+	.yui3-footer .su-button-hidden:first-child + .su-button,
+	.yui3-footer .su-button-hidden:first-child + .su-button-hidden + .su-button {
+		margin-left: 0;
+	}
 
 .yui3-footer-hidden {
 	display: none;
