@@ -37,7 +37,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	Extended.TEMPLATE_FILE = Template.compile('\
 		<div class="file">\
 			<div class="preview">\
-				<img src="/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/file{% if known_extension %}-{{ known_extension }}{% endif %}-large.png" {% if known_extension %}class="known-extension"{% endif %} alt="" />\
+				<img src="/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/{%if broken %}broken{% else %}file{% if known_extension %}-{{ known_extension }}{% endif %}{% endif %}-large.png" {% if known_extension %}class="known-extension"{% endif %} alt="" />\
 			</div>\
 			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
@@ -77,7 +77,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		<div class="image">\
 			<div class="preview">\
 				{% if broken %}\
-					<img src="/cms/lib/supra/img/medialibrary/icon-broken-large.png" alt="" />\
+					<img src="/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/broken-large.png" class="known-extension" alt="" />\
 				{% else %}\
 					<img src="{{ preview|escape }}?r={{ Math.random() }}" alt="" />\
 				{% endif %}\

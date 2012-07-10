@@ -303,7 +303,7 @@ Supra(function (Y) {
 					this.data.image.height = data.image.sizes.original.height;
 				} else {
 					//Flash
-					this.data.image.external_path = '/cms/lib/supra/img/medialibrary/icon-file-swf-large.png';
+					this.data.image.external_path = '/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/file-swf-large.png';
 					this.data.image.width = -1;
 					this.data.image.height = -1;
 				}
@@ -383,7 +383,11 @@ Supra(function (Y) {
 			
 			if (image.id) {
 				img.setAttribute('src', image.external_path);
-				img.setAttribute('height', image.height);
+				
+				if (image.sizes) {
+					img.setAttribute('height', image.height);
+				}
+				
 				container.removeClass('hidden');
 				
 				if (image.width > image.height) {
