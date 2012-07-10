@@ -283,7 +283,7 @@ Supra('supra.slideshow', function (Y) {
 		 */
 		deleteUser: function () {
 			
-			if(!Manager.getAction('UserDetails').isAllowedToUpdate(this.data)) {
+			if( ! Manager.getAction('UserDetails').isAllowedToDelete(this.data)) {
 				return;
 			}
 			

@@ -71,6 +71,11 @@ class UserAction extends InternalUserManagerAbstractAction
 	public function deleteAction()
 	{
 		$this->isPostRequest();
+
+		if ( ! $this->userProvider->canDelete()) {
+			throw new CmsException('This provider does not delete!');
+		}
+
 		$input = $this->getRequestInput();
 
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
@@ -117,6 +122,11 @@ class UserAction extends InternalUserManagerAbstractAction
 	public function resetAction()
 	{
 		$this->isPostRequest();
+
+		if ( ! $this->userProvider->canUpdate()) {
+			throw new CmsException('This provider does not update!');
+		}
+
 		$input = $this->getRequestInput();
 
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "		
