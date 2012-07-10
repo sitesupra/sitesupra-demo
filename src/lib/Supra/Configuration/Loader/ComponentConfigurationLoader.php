@@ -128,6 +128,8 @@ class ComponentConfigurationLoader
 	public function loadFile($configurationFile)
 	{
 		$this->configurationFile = $configurationFile;
+		
+		$this->uses = array();
 
 		if (is_null($this->parser)) {
 			throw new Exception\RuntimeException("Parser not assigned to configuration loader");
