@@ -15,14 +15,14 @@ class FileCache extends CacheProvider
 	 * @param boolean $createFolder
 	 * @return string
 	 */
-	private function getFileName($id, $createFolder = false)
+	private function getFilename($id, $createFolder = false)
 	{
 		$hash = md5($id);
 
 		$folder = SUPRA_TMP_PATH . substr($hash, 0, 2) . '/' . substr($hash, 2, 2);
 
 		if ($createFolder && ! is_dir($folder)) {
-			mkdir($folder, 0755, true);
+			mkdir($folder, SITESUPRA_FOLDER_PERMISSION_MODE, true);
 		}
 
 		return $folder . '/' . substr($hash, 4) . '.cache';
@@ -34,7 +34,7 @@ class FileCache extends CacheProvider
 	 */
 	protected function doContains($id)
 	{
-		return file_exists($this->getFileName($id));
+		return file_exists($this->getFilename($id));
 	}
 
 	/**
@@ -43,7 +43,8 @@ class FileCache extends CacheProvider
 	 */
 	protected function doDelete($id)
 	{
-		return unlink($this->getFileName($id));
+		$filename = $this->getFilename($id);
+		return unlink($filename);
 	}
 
 	/**
@@ -52,7 +53,8 @@ class FileCache extends CacheProvider
 	 */
 	protected function doFetch($id)
 	{
-		$result = @file_get_contents($this->getFileName($id));
+		$filename = $this->getFilename($id);
+		$result = @file_get_contents($filename);
 
 		if ( ! $result) {
 			return false;
@@ -63,6 +65,7 @@ class FileCache extends CacheProvider
 		unset($result);
 
 		if ($expiration > 0 && $expiration < time()) {
+			unlink($filename);
 			return false;
 		}
 
@@ -109,8 +112,10 @@ class FileCache extends CacheProvider
 		
 		// 10 characters are for expiration time
 		$expiration = str_pad($expiration, 10, '0', STR_PAD_LEFT);
-		
-		$result = file_put_contents($this->getFileName($id, true), $expiration . $data);
+
+		$filename = $this->getFilename($id, true);
+		$result = file_put_contents($filename, $expiration . $data);
+		chmod($filename, SITESUPRA_FILE_PERMISSION_MODE);
 		
 		return (bool) $result;
 	}

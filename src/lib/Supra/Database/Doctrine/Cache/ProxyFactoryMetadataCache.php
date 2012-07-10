@@ -4,8 +4,8 @@ namespace Supra\Database\Doctrine\Cache;
 
 use Supra\Cache\CacheNamespaceWrapper;
 use Supra\ObjectRepository\ObjectRepository;
-use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Supra\Loader\Loader;
 
 /**
  * This metadata cache implementation will regenerate proxy classes when entity
@@ -65,6 +65,15 @@ class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
 			$em = ObjectRepository::getEntityManager($namespace);
 			$proxyFactory = $em->getProxyFactory();
 			$proxyFactory->generateProxyClasses(array($classMetadata));
+
+			// Overkill, but the only way to do this using the given API
+			if ( ! $classMetadata->isMappedSuperclass) {
+				$className = $classMetadata->name;
+				$proxyObject = $proxyFactory->getProxy($className, -1);
+				$proxyClassName = get_class($proxyObject);
+				$path = Loader::getInstance()->findClassPath($proxyClassName);
+				chmod($path, SITESUPRA_FILE_PERMISSION_MODE);
+			}
 		}
 
 		return parent::doSave($id, $classMetadata, $lifeTime);

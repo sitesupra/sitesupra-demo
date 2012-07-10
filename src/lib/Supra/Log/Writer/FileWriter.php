@@ -2,6 +2,8 @@
 
 namespace Supra\Log\Writer;
 
+use Supra\Log\LogEvent;
+
 /**
  * Stream log writer
  */
@@ -27,13 +29,32 @@ class FileWriter extends StreamWriter
 		// parent constructor
 		parent::__construct($parameters);
 		
-		$fileName = $this->getFileName(); 
+		$fileName = $this->getFileName();
 		
 		// build full url
-		$this->parameters['url'] = rtrim($this->parameters['folder'], '/\\') 
-				. DIRECTORY_SEPARATOR 
+		$url = rtrim($this->parameters['folder'], '/\\')
+				. DIRECTORY_SEPARATOR
 				// minor sanitizing
 				. str_replace(DIRECTORY_SEPARATOR, '', $fileName);
+
+		$this->parameters['url'] = $url;
+	}
+
+	/**
+	 * Overriden so we can chmod the file
+	 * @param LogEvent $event
+	 * @return resource
+	 */
+	protected function getStream(LogEvent $event)
+	{
+		$filename = $this->parameters['url'];
+
+		if ( ! file_exists($filename)) {
+			touch($filename);
+			chmod($filename, SITESUPRA_FILE_PERMISSION_MODE);
+		}
+
+		return parent::getStream($event);
 	}
 	
 	/**

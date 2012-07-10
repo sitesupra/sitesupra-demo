@@ -84,4 +84,17 @@ class Twig extends Twig_Environment implements TemplateParser
 		
 		return $filename;
 	}
+
+	/**
+	 * Overriden just to set file permission mode
+	 * @param string $file
+	 * @param string $content
+	 */
+	protected function writeCacheFile($file, $content)
+	{
+		parent::writeCacheFile($file, $content);
+
+		chmod($file, SITESUPRA_FILE_PERMISSION_MODE);
+	}
+
 }

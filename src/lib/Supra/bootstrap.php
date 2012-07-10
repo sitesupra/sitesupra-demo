@@ -99,3 +99,12 @@ try {
 	header('Content-Type: text/plain');
 	die(SUPRA_ERROR_MESSAGE . PHP_EOL);
 }
+
+// Default permission modes for new files and folders
+if ( ! defined('SITESUPRA_FOLDER_PERMISSION_MODE')) {
+	define('SITESUPRA_FOLDER_PERMISSION_MODE', 0755);
+}
+
+if ( ! defined('SITESUPRA_FILE_PERMISSION_MODE')) {
+	define('SITESUPRA_FILE_PERMISSION_MODE', 0644);
+}
