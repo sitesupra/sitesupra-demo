@@ -1,4 +1,4 @@
-- Supra\Controller\Pages\Configuration\FormBlockControllerConfiguration:
+- Supra\Form\Configuration\FormBlockControllerConfiguration:
     class: Project\Blocks\Form\FormBlock
     title: Form Block
     groupId: features

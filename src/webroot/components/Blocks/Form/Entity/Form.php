@@ -2,8 +2,7 @@
 
 namespace Project\Blocks\Form\Entity;
 
-use Symfony\Component\Validator\Mapping\ClassMetadata;
-use Supra\Form\Constraints;
+use Symfony\Component\Validator\Constraints;
 use Supra\Form\FormField;
 
 class Form
