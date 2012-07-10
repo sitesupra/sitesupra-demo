@@ -49,7 +49,8 @@
 			
 			"reset_success": "New password has been sent to {email}",
 			
-			"cannot_update": "It is allowed to edit only permissions for this user"
+			"cannot_update": "It is allowed to edit only permissions for this user",
+			"cannot_deltete": "It is not allowed to delete this user"
 		},
 		
 		"userpermissions": {

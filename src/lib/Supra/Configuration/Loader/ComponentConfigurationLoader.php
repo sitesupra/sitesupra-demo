@@ -198,26 +198,26 @@ class ComponentConfigurationLoader
 			if ($key === 'const') {
 
 				if ( ! is_string($value)) {
-					throw new \Exception("Constant name value not a string - " . var_export($value, 1) . var_export($item, 1));
+					throw new \Exception("Constant name value not a string - " . var_export($value, 1) . var_export($item, 1) . ' in file "' . $this->configurationFile . '"');
 				}
 
 				if (defined($value)) {
 					$return = constant($value);
 				} else {
-					throw new \Exception("Constant $value not found");
+					throw new \Exception("Constant $value not found in file \"" . $this->configurationFile . '".');
 				}
 			} else if ($key === self::KEY_NAME_USE) {
 
 				$parts = explode('\\', $value);
 
 				if (empty($parts)) {
-					throw new \Exception('Could not process namespace "' . $value . '" for "_use".');
+					throw new \Exception('Could not process namespace "' . $value . '" for "_use" in file in file "' . $this->configurationFile . '".');
 				} else {
 
 					$name = array_pop($parts);
 
 					if (isset($this->uses[$name])) {
-						throw new \Exception('Conflicting namespaces for same short name: "' . $this->uses[$name] . '" and "' . $value . '".');
+						throw new \Exception('Conflicting namespaces for same short name: "' . $this->uses[$name] . '" and "' . $value . '" in file "' . $this->configurationFile . '".');
 					} else {
 						$this->uses[$name] = $value;
 					}
