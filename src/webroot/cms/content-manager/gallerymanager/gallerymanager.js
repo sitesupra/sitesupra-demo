@@ -1081,10 +1081,10 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			for (var i=0, ii=properties.length; i<ii; i++) {
 				if (properties[i].type == 'String') {
 					if (propertyData[properties[i].id] && propertyData[properties[i].id]) {
-						html += '<p class="inline ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + Y.Escape.html(propertyData[properties[i].id]) + '<p>';
+						html += '<p title="" class="inline ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + Y.Escape.html(propertyData[properties[i].id]) + '<p>';
 					} else {
 						value = label.replace('{label}', properties[i].label.toLowerCase());
-						html += '<p class="inline empty ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + value + '<p>';
+						html += '<p title="" class="inline empty ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + value + '<p>';
 					}
 				}
 			}
