@@ -4,6 +4,7 @@ namespace Supra\Configuration\Loader;
 
 use Supra\Configuration\Parser\IniParser;
 use Supra\Configuration\Exception;
+use Supra\Configuration\Parser;
 
 /**
  * INI Configuratio file loader class (used for supra.ini)
