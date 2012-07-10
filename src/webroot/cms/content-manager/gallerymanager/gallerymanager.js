@@ -369,7 +369,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			var data = this.getImageDataByNode(target);
 			
 			if (this.settings_form && this.settings_form.get('visible')) {
-				if (!this.selected_image_data || this.selected_image_data.id != data.id) {
+				if (this.selected_image_data && this.selected_image_data.id != data.id) {
 					//Save previous image data
 					this.settingsFormApply(true);
 				}
@@ -432,8 +432,11 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		settingsFormApply: function (dont_hide) {
 			if (this.settings_form && this.settings_form.get('visible')) {
 				var image_data_from_form = this.settings_form.getValuesObject('id');
+				
 				// Fix image path (#6624)
-				image_data_from_form.image.path = this.selected_image_data.image.path;
+				if (image_data_from_form.image) {
+					image_data_from_form.image.path = this.selected_image_data.image.path;
+				}
 				
 				var image_data = Supra.mix(this.selected_image_data, image_data_from_form),
 					data = this.data;
