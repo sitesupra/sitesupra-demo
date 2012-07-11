@@ -297,6 +297,7 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 		 */
 		'_deletePage': function (node) {
 			var data = node.get('data'),
+				is_page = node.isInstanceOf('TreeNode') ? true : false,
 				
 				page_id = data.id,
 				locale = this.get('host').get('locale'),
@@ -321,6 +322,12 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 			
 			//Send request
 			target[target_fn](page_id, locale, function (data, success) {
+				
+				if (!is_page) {
+					//Enable Data Grid
+					node.host.set('disabled', false);
+				}
+				
 				if (success) {
 					//Hide panel
 					if (this._node === node) {
@@ -337,10 +344,13 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 					
 				} else {
 					//Restore all interactions with node
-					node.set('loading', false);
-					node.set('dndLocked', false);
-					node.getWidget('buttonEdit').set('disabled', false);
-					node.getWidget('buttonOpen').set('disabled', false);
+					if (is_page) {
+						node.set('loading', false);
+						node.set('dndLocked', false);
+						
+						node.getWidget('buttonEdit').set('disabled', false);
+						node.getWidget('buttonOpen').set('disabled', false);
+					}
 				}
 				
 				//Restore previous widget state
@@ -358,10 +368,16 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 				this._widgets.buttonDuplicate.set('disabled', true);
 			} else {
 				//Prevent all interactions with node
-				node.set('loading', true);
-				node.set('dndLocked', true);
-				node.getWidget('buttonEdit').set('disabled', true);
-				node.getWidget('buttonOpen').set('disabled', true);
+				if (is_page) {
+					node.set('loading', true);
+					node.set('dndLocked', true);
+					
+					node.getWidget('buttonEdit').set('disabled', true);
+					node.getWidget('buttonOpen').set('disabled', true);
+				} else {
+					//Disable Data Grid
+					node.host.set('disabled', true);
+				}
 			}
 		},
 		
@@ -449,7 +465,7 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 		 * Delete selected page
 		 */
 		'deletePage': function (node) {
-			var node = (node && node.isInstanceOf && node.isInstanceOf('TreeNode') ? node : this._node),
+			var node = (node && node.isInstanceOf && (node.isInstanceOf('TreeNode') || node.isInstanceOf('DataGridRow')) ? node : this._node),
 				data = node.get('data'),
 				message_id = '';
 			

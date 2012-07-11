@@ -412,6 +412,11 @@ function (Y) {
 			
 			this.one().transition(transition, Y.bind(function () {
 				this.one().addClass("hidden");
+				
+				// Enable page header
+				if (Supra.Manager.PageHeader) {
+					Supra.Manager.PageHeader.languagebar.set("disabled", false);
+				}
 			}, this));
 		},
 		
@@ -461,6 +466,11 @@ function (Y) {
 					this.widgets.scrollable.syncUI();
 				}
 			});
+			
+			// Disable page header
+			if (Supra.Manager.PageHeader) {
+				Supra.Manager.PageHeader.languagebar.set("disabled", true);
+			}
 		},
 		
 		/**

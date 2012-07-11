@@ -252,6 +252,12 @@
 			.box-shadow (0, 1px, 3px, rgba(0, 0, 0, 0.75));
 			background-color: #fff;
 			border: 3px solid #fff;
+
+			&.known-extension {
+				border: none;
+				background-color: transparent;
+				.box-shadow();
+			}
 		}
 		&.hover img {
 			border-color: #e0e0e0;

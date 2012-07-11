@@ -461,12 +461,16 @@
 		}
 	}
 	
-	.su-datagrid td {
-		cursor: pointer;
+	.su-datagrid {
+		td {
+			cursor: pointer;
+		}
+		tr:hover .row-title {
+			text-decoration: underline;
+		}
 	}
-	.su-datagrid tr:hover .row-title {
-		text-decoration: underline;
-	}
+	.su-datagrid-disabled td,
+	.su-datagrid-disabled tr:hover .row-title,
 	&.highlighted .su-datagrid td,
 	&.highlighted .su-datagrid tr:hover .row-title {
 		cursor: default;
@@ -479,6 +483,9 @@
 	}
 	
 	/* Status icons */
+	.su-datagrid .row-status {
+		padding-right: 4px;
+	}
 	.su-datagrid .status-icon {
 			text-align: right;
 			padding: 7px 0 0;
@@ -509,7 +516,29 @@
 				background-position: 0 -60px, 100% -100px, 0 -80px;
 			}
 		}
+	
+	/* Delete icon */
+	.su-datagrid .row-delete {
+		width: 20px;
+	}
+	.su-datagrid .delete-icon {
+		display: inline-block;
+		vertical-align: top;
+		margin-top: 6px;
+		width: 20px;
+		height: 20px;
+		cursor: pointer;
+		background: url(/cms/content-manager/sitemap/images/tree-node-list-page-icons.png) 0 -180px no-repeat;
 		
+		&:hover {
+			background-position: 0 -200px;
+		}
+	}
+	.su-datagrid.su-datagrid-disabled .delete-icon,
+	&.highlighted .su-datagrid .delete-icon {
+		cursor: default;
+		background-position: 0 -180px;
+	}
 	
 	/* Drag and drop */
 	&.expanded-list.marker-inside > .su-tree-node-content .marker {

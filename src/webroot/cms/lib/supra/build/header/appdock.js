@@ -13,7 +13,7 @@ YUI.add('supra.header.appdock', function(Y) {
 	var ICON_BLANK = '/cms/lib/supra/img/px.gif';
 	
 	//Templates
-	var TEMPLATE_CURRENT = '<img src="{icon}" alt="" />';
+	var TEMPLATE_CURRENT = '<img src="{icon}" alt="" /><span>{title}</span>';
 	var TEMPLATE_ITEM = '<li><a href="{path}"><img src="{icon}" alt="" /><span>{title}</span></a></li>';
 	var TEMPLATE_ITEM_LOGOUT = '<li class="logout"><a href="{path}"><div></div><span>{title}</span></a></li>';
 	
@@ -104,6 +104,7 @@ YUI.add('supra.header.appdock', function(Y) {
 			AppDock.superclass.bindUI.apply(this, arguments);
 			
 			this.get('nodeApp').on('click', this.toggleAppDockBar, this);
+			this.after('dataChange', this.syncUI, this);
 		},
 		
 		/**
@@ -120,14 +121,18 @@ YUI.add('supra.header.appdock', function(Y) {
 			if (!node_img) {
 				var node_data = {
 					'icon': this.getAppIcon(data_app, '32'),
-					'title': data_app.title
+					'title': data_app ? data_app.title : ''
 				};
 				node_img = Y.Node.create(Y.substitute(TEMPLATE_CURRENT, node_data));
 				node_app.append(node_img);
+				node_title = node_app.one('span');
 			} else {
 				node_img.setAttribute('src', this.getAppIcon(data_app, '32'));
-				node_title.set('text', data_app.title); 
+				node_title.set('text', data_app ? data_app.title : ''); 
 			}
+			
+			// Hide title element if it's empty
+			node_title.toggleClass("hidden", !data_app || !data_app.title);
 		},
 		
 		/**

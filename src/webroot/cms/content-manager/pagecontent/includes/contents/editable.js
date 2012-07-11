@@ -182,6 +182,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 			
 			this.unresolved_changes = true;
 			this.properties.set('data', this.get('data'));
+			
+			//Change header title
+			Manager.getAction('PageHeader').setTitle("block", this.getBlockTitle());
 		},
 		
 		onEditingEnd: function () {
@@ -201,6 +204,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 				var toolbar = Manager.EditorToolbar.getToolbar();
 				toolbar.getButton('settings').set('down', false);
 			}
+			
+			//Revert header title change
+			Manager.getAction('PageHeader').unsetTitle("block", this.getBlockTitle());
 		},
 		
 		renderUISettings: function () {
@@ -465,13 +471,13 @@ YUI.add('supra.page-content-editable', function (Y) {
 				}
 				
 				//Clean up
-				this._triggerjQueryEvent('cleanup', this.getNode().getDOMNode());
+				this.fireContentEvent('cleanup', this.getNode().getDOMNode());
 				
 				//Replace HTML
 				this.getNode().set('innerHTML', data.internal_html);
 				
 				//Trigger refresh
-				this._triggerjQueryEvent('refresh', this.getNode().getDOMNode());
+				this.fireContentEvent('refresh', this.getNode().getDOMNode());
 				
 				//Recreate inline inputs
 				var properties_handler	= this.properties,
@@ -504,29 +510,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 				//Update overlay position
 				//Use timeout to make sure everything is styled before doing sync
 				setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
-			}
-		},
-		
-		_triggerjQueryEvent: function (event_name, node, data) {
-			//Call cleanup before proceeding
-			var win = this.get('win'),
-				jQuery = win.jQuery;
-			
-			if (jQuery && jQuery.refresh) {
-				var fn = event_name,
-					jquery_element = jQuery(node),
-					args = [jquery_element];
-				
-				if (event_name == 'refresh') {
-					fn = 'init';
-				} else if (event_name == 'update') {
-					fn = 'trigger';
-					args = [event_name, jquery_element, data];
-				}
-				
-				if (jQuery.refresh[fn]) {
-					return jQuery.refresh[fn].apply(jQuery.refresh, args);
-				}
 			}
 		},
 		

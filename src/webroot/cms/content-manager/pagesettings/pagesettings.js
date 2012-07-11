@@ -786,8 +786,9 @@
 
 							//Update title in page content
 							this.updatePageContentData(page_data);
-
-							//Change page version title
+							
+							//Change page title and version title
+							Manager.getAction('PageHeader').setTitle('page', page_data.title);
 							Manager.getAction('PageHeader').setVersionTitle('autosaved');
 						}
 					}

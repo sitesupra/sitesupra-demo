@@ -107,7 +107,7 @@
 
 - _class: Supra\Cms\MediaLibrary\ApplicationConfiguration
   id: Supra\Cms\MediaLibrary
-  title: Media Library
+  title: Files
   url: media-library
   icon: /cms/lib/supra/img/apps/media_library
     
@@ -124,8 +124,6 @@
     - doc
     - docx
     - swf
-    - ppt
-    - pptx
   authorizationAccessPolicy:
     _class: Supra\Cms\MediaLibrary\MediaLibraryAuthorizationAccessPolicy
     applicationNamespace: Supra\Cms\MediaLibrary

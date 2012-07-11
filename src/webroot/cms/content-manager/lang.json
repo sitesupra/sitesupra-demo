@@ -399,11 +399,12 @@
 			"label_title": "Title",
 			
 			"insert": "Insert",
-			"manage": "Manage",
+			"manage": "Manage image",
 			"design": "Design",
 			"animation": "Animation",
 			
 			"click_here": "Click here to enter {label}",
+			"click_here_edit": "Click here to edit",
 			"drop_replace": "Drop here to replace image"
 		},
 		
