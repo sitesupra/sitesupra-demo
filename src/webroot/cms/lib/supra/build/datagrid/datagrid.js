@@ -110,6 +110,14 @@ YUI.add("supra.datagrid", function (Y) {
 		},
 		
 		/**
+		 * Loading style
+		 */
+		'loading': {
+			'value': false,
+			'setter': '_setLoading'
+		},
+		
+		/**
 		 * Rows are clickable
 		 */
 		'clickable': {
@@ -412,6 +420,8 @@ YUI.add("supra.datagrid", function (Y) {
 		 * @param {Event} e Event
 		 */
 		'_handleRowClick': function (e) {
+			if (this.get('disabled')) return;
+			
 			var target = e.target.closest('TR'),
 				row_id = target ? target.getData('rowID') : null;
 			
@@ -419,7 +429,7 @@ YUI.add("supra.datagrid", function (Y) {
 				var row = this.getRowByID(row_id),
 					data = row.getData();
 				
-				this.fire('row:click', {'data': data, 'row': row});
+				this.fire('row:click', {'data': data, 'row': row, 'element': e.target});
 			}
 		},
 		
@@ -448,7 +458,7 @@ YUI.add("supra.datagrid", function (Y) {
 			this.fire('load:success', {'results': results});
 			
 			//Remove loading style
-			this.get('boundingBox').removeClass('su-datagrid-loading');
+			this.set('loading', false);
 			
 			this.endChange();
 		},
@@ -463,7 +473,7 @@ YUI.add("supra.datagrid", function (Y) {
 			//Y.log(e, 'error');
 			
 			//Remove loading style
-			this.get('boundingBox').removeClass('su-datagrid-loading');
+			this.set('loading', false);
 			
 			//Don't need old data
 			this.removeAllRows();
@@ -496,7 +506,7 @@ YUI.add("supra.datagrid", function (Y) {
 			this.fire('load');
 			
 			//Style
-			this.get('boundingBox').addClass('su-datagrid-loading');
+			this.set('loading', true);
 			
 			this.get('dataSource').sendRequest({
 				'request': this.requestParams.toString(),
@@ -1011,6 +1021,19 @@ YUI.add("supra.datagrid", function (Y) {
 			
 			return style;
 		}, 
+		
+		/**
+		 * Set loading attribute
+		 * 
+		 * @param {String} loading New loading value
+		 * @return New loading attribute value
+		 * @type {String}
+		 * @private
+		 */
+		'_setLoading': function (loading) {
+			this.get('boundingBox').toggleClass('su-datagrid-loading', loading);
+			return !!loading;
+		},
 		
 		/**
 		 * Clickable attribute setter

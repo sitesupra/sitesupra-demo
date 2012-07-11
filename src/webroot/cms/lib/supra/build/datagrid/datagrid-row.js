@@ -17,6 +17,7 @@ YUI.add("supra.datagrid-row", function (Y) {
 	var escape = Y.Escape.html;
 	
 	DataGridRow.prototype = {
+		
 		/* DataGrid instance */
 		host: null,
 		

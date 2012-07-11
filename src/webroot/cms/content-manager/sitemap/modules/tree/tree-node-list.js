@@ -190,6 +190,13 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 							}
 							return '';
 						}
+					},
+					{
+						'id': 'delete',
+						'title': '',
+						'formatter': function (col_id, value, data) {
+							return '<a class="delete-icon"></div>';
+						}
 					}
 				]
 			});
@@ -205,13 +212,18 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			datagrid.render(panel.get('contentBox'));
 			
 			//Bind event listeners
-			datagrid.on('row:click', function (e) {
+			datagrid.on('row:click', function (event) {
 				//Don't do anything while highlighted
 				if (this.get('highlighted')) return;
 				
+				//On delete click...
+				if (event.element.test('a.delete-icon')) {
+					return Action.tree.page_edit.deletePage(event.row);
+				}
+				
 				var params = {
-					'data': e.data,
-					'node': e.row
+					'data': event.data,
+					'node': event.row
 				};
 				
 				this.get('tree').fire('page:select', params);
