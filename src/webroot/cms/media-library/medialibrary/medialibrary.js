@@ -407,6 +407,9 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
+			//Remove from header
+			Manager.getAction('Header').unsetActiveApplication(this.NAME);
+			
 			//If editor toolbar was visible before, then show it now
 			if (this.editor_toolbar_visible) {
 				Manager.getAction('EditorToolbar').execute();
@@ -425,6 +428,9 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
+			
+			//Add to header, because this is full screen application
+			Manager.getAction('Header').setActiveApplication(this.NAME);
 			
 			//Hide editor toolbar if it's visible
 			if (Manager.getAction('EditorToolbar').get('visible')) {

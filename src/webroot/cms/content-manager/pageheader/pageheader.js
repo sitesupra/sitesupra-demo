@@ -58,6 +58,13 @@ Supra('supra.languagebar', function (Y) {
 		 */
 		has_changes: false,
 		
+		/**
+		 * Title stack
+		 * @type {Array}
+		 * @private
+		 */
+		titlesIds: [],
+		titlesTitles: [],
 		
 		/**
 		 * Set configuration/properties, bind listeners, etc.
@@ -187,7 +194,7 @@ Supra('supra.languagebar', function (Y) {
 				
 				//User saved without making any modifications
 				//If page was previously published, then it stays published
-				var page_data = Supra.Manager.Page.getPageData();
+				var page_data = Manager.Page.getPageData();
 				if (!this.has_changes && page_data && page_data.published) {
 					title = 'published';
 				}
@@ -245,6 +252,45 @@ Supra('supra.languagebar', function (Y) {
 		},
 		
 		/**
+		 * Set title
+		 * 
+		 * @param {String} id Title group ID
+		 * @param {String} title Title text
+		 */
+		setTitle: function (id, title) {
+			var titlesIds = this.titlesIds,
+				titlesTitles = this.titlesTitles,
+				index = Y.Array.indexOf(titlesIds, id);
+			
+			if (index != -1) {
+				titlesIds.splice(index);
+				titlesTitles.splice(index);
+			}
+			
+			titlesIds.push(id);
+			titlesTitles.push(title);
+			
+			this.one('.page-title').set('text', title)
+								   .setAttribute('title', title);
+		},
+		
+		/**
+		 * Unset title
+		 * 
+		 * @param {String} id Title group ID
+		 * @param {String} title Title text
+		 */
+		unsetTitle: function (id, title) {
+			var titlesIds = this.titlesIds,
+				titlesTitles = this.titlesTitles,
+				index = Y.Array.indexOf(titlesIds, id);
+			
+			if (index > 0 && (title === null || title === undefined || titlesTitles[index] == title)) {
+				this.setTitle(titlesIds[index - 1], titlesTitles[index - 1]);
+			}
+		},
+		
+		/**
 		 * Execute action, update data
 		 * 
 		 * @param {Boolean} ignore_locale_change Don't update locale
@@ -257,14 +303,13 @@ Supra('supra.languagebar', function (Y) {
 			}
 			
 			//If SiteMap is visible, then don't show header
-			if (Supra.Manager.getAction('SiteMap').get('visible')) return;
+			if (Manager.getAction('SiteMap').get('visible')) return;
 			
 			this.show();
 			
 			var page = Manager.Page.getPageData();
-			this.one('.page-title').set('text', page ? page.title : '')
-								   .setAttribute('title', page ? page.title : '');
 			
+			this.setTitle("page", page ? page.title : '');
 			this.setVersionTitle(page && page.published ? 'published' : 'draft');
 			this.has_changes = false;
 		}
