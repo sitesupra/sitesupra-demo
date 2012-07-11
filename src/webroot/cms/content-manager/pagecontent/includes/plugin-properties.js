@@ -446,7 +446,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				id = input.get('id'),
 				properties = this.get('properties');
 			
-			Y.later(60, this, this.onPropertyChangeTriggerjQueryChange, [input]);
+			Y.later(60, this, this.onPropertyChangeTriggerContentChange, [input]);
 			
 			//Update attributes
 			if (normalChanged && inlineChanged) return;
@@ -467,13 +467,20 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 		},
 		
-		onPropertyChangeTriggerjQueryChange: function (input) {
+		/**
+		 * When property value changes trigger content event
+		 * If event is stoped then reload block content 
+		 * 
+		 * @param {Object} input Input object
+		 * @private
+		 */
+		onPropertyChangeTriggerContentChange: function (input) {
 			var host = this.get('host'),
 				id = input.get('id'),
 				value = input.get('value'),
 				result = null;
 			
-			result = host._triggerjQueryEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value});
+			result = host.fireContentEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value});
 			
 			if (result === false) {
 				//Some property was recognized, but preview can't be updated without refresh
