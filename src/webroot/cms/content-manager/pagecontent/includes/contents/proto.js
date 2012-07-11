@@ -408,6 +408,37 @@ YUI.add('supra.page-content-proto', function (Y) {
 			return blocks;
 		},
 		
+		/**
+		 * Trigger event in content
+		 * If jQuery.refresh is available it is used, if not then jQuery event is triggered
+		 */
+		fireContentEvent: function (event_name, node, data) {
+			//Call cleanup before proceeding
+			var win = this.get('win'),
+				jQuery = win.jQuery;
+			
+			if (jQuery && jQuery.refresh) {
+				var fn = event_name,
+					jquery_element = jQuery(node),
+					args = [jquery_element];
+				
+				if (event_name == 'refresh') {
+					fn = 'init';
+				} else if (event_name == 'update') {
+					fn = 'trigger';
+					args = [event_name, jquery_element, data];
+				}
+				
+				if (jQuery.refresh[fn]) {
+					return jQuery.refresh[fn].apply(jQuery.refresh, args);
+				}
+			} else if (jQuery) {
+				var event_object = jQuery.Event(event_name);
+				jQuery(node).trigger(event_object, data);
+				
+				return !event_object.isDefaultPrevented();
+			}
+		},
 		
 		/**
 		 * Process data and remove all unneeded before it's sent to server

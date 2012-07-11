@@ -712,4 +712,9 @@ YUI.add('supra.template-compiler', function (Y) {
 	
 	Supra.TemplateCompiler = C;
 	
+	/*
+	 * @TODO Support for:
+	 * 		{% for i in 1..10 %}
+	 */
+	
 }, YUI.version);
