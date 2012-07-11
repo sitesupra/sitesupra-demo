@@ -580,7 +580,12 @@ YUI.add("dashboard.app-favourites", function (Y) {
 			
 			for (; i<ii; i++) {
 				if (apps[i].id == id) {
-					document.location = apps[i].path;
+					if (e.button == 2) {
+						//Middle mouse button, open in new tab
+						window.open(apps[i].path);
+					} else {
+						document.location = apps[i].path;
+					}
 				}
 			}
 		},

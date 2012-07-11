@@ -182,6 +182,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 			
 			this.unresolved_changes = true;
 			this.properties.set('data', this.get('data'));
+			
+			//Change header title
+			Manager.getAction('PageHeader').setTitle("block", this.getBlockTitle());
 		},
 		
 		onEditingEnd: function () {
@@ -201,6 +204,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 				var toolbar = Manager.EditorToolbar.getToolbar();
 				toolbar.getButton('settings').set('down', false);
 			}
+			
+			//Revert header title change
+			Manager.getAction('PageHeader').unsetTitle("block", this.getBlockTitle());
 		},
 		
 		renderUISettings: function () {

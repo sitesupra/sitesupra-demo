@@ -414,7 +414,9 @@ function (Y) {
 				this.one().addClass("hidden");
 				
 				// Enable page header
-				Supra.Manager.PageHeader.languagebar.set("disabled", false);
+				if (Supra.Manager.PageHeader) {
+					Supra.Manager.PageHeader.languagebar.set("disabled", false);
+				}
 			}, this));
 		},
 		
@@ -466,7 +468,9 @@ function (Y) {
 			});
 			
 			// Disable page header
-			Supra.Manager.PageHeader.languagebar.set("disabled", true);
+			if (Supra.Manager.PageHeader) {
+				Supra.Manager.PageHeader.languagebar.set("disabled", true);
+			}
 		},
 		
 		/**
