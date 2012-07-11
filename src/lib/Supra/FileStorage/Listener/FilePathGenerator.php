@@ -58,7 +58,8 @@ class FilePathGenerator implements EventSubscriber
 		$this->unitOfWork = $this->em->getUnitOfWork();
 
 		$inserts = $this->unitOfWork->getScheduledEntityInsertions();
-		$entities = $inserts + $this->unitOfWork->getScheduledEntityUpdates();
+		$updates = $this->unitOfWork->getScheduledEntityUpdates();
+		$entities = $inserts + $updates;
 
 		foreach ($entities as $entity) {
 			if ( ! $entity instanceof Entity\Abstraction\File) {
