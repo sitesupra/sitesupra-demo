@@ -10,7 +10,7 @@ class FilePath extends Abstraction\Entity
 {
 
 	/**
-	 * @Column(type="string", name="system_path", nullable=false)
+	 * @Column(type="string", name="system_path", nullable=true)
 	 * @var integer
 	 */
 	protected $systemPath;

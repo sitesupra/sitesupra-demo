@@ -365,12 +365,15 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	public function __clone()
 	{
 		if ( ! empty($this->id)) {
+
+			$this->regenerateId();
+
 			if ( ! empty($this->nestedSetNode)) {
 				$this->nestedSetNode = clone($this->nestedSetNode);
 				$this->nestedSetNode->belongsTo($this);
 			}
 			
-			$this->path = clone($this->path);
+			$this->path = null;
 		}
 	}
 
