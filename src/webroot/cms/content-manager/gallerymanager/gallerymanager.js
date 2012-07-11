@@ -197,7 +197,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			//Bind inline editables
 			var list = this.list = this.one('ul.list');
 			list.delegate('click', this.createInlineEditable, 'p.inline', this);
-			list.delegate('click', this.openMediaLibraryForReplace, 'li.gallery-item span.img', this);
+			list.delegate('click', this.handleImageClick, 'li.gallery-item span.img', this);
 			
 			list.on('dragenter', this.listDragEnter, this);
 			list.on('dragleave', this.listDragLeave, this);
@@ -311,6 +311,14 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				}
 			}
 			
+			//Manage button
+			var btn = this.widgets.manageButton = new Supra.Button({'label': Supra.Intl.get(['gallerymanager', 'manage']), 'style': 'small'});
+				btn.render(form.get('contentBox'));
+				btn.on('click', this.openMediaLibraryForReplace, this);
+				
+			//Button separator
+			form.get('contentBox').append('<br />');
+				
 			//Delete button
 			var btn = this.widgets.deleteButton = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'small-red'});
 				btn.render(form.get('contentBox'));
@@ -365,6 +373,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		showImageSettings: function (target) {
 
 			if (target.test('.gallery')) return false;
+			target = target.closest('li');
 			
 			var data = this.getImageDataByNode(target);
 			
@@ -916,10 +925,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 */
 		openMediaLibraryForReplace: function (e) {
 			if (this.shared) return;
-
-			var node = e.target.closest('LI'),
-				image_id = node.getAttribute('data-id'),
-				data = this.getImageDataByNode(node),
+			
+			var image_id = this.selected_image_data.id,
+				data = this.selected_image_data,
 				path = [];
 			
 			path = path.concat(data.image.path);
@@ -939,6 +947,17 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * ---------------------------------- IMAGE LIST ------------------------------------
 		 */
 		
+		
+		/**
+		 * On image click show settings form
+		 * 
+		 * @param {Event} event Event facade object
+		 * @private
+		 */
+		handleImageClick: function (event) {
+			var node = event.target.closest('li');
+			this.showImageSettings(node);
+		},
 		
 		/**
 		 * Replace image
@@ -1062,10 +1081,10 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			for (var i=0, ii=properties.length; i<ii; i++) {
 				if (properties[i].type == 'String') {
 					if (propertyData[properties[i].id] && propertyData[properties[i].id]) {
-						html += '<p class="inline ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + Y.Escape.html(propertyData[properties[i].id]) + '<p>';
+						html += '<p title="" class="inline ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + Y.Escape.html(propertyData[properties[i].id]) + '<p>';
 					} else {
 						value = label.replace('{label}', properties[i].label.toLowerCase());
-						html += '<p class="inline empty ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + value + '<p>';
+						html += '<p title="" class="inline empty ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + value + '<p>';
 					}
 				}
 			}
@@ -1073,7 +1092,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			//HTML for image (center, handle error)
 			html_img = '<span class="img"><i></i><img src="' + src + '" alt="" onerror="this.src=\'' + this.PREVIEW_BROKEN + '\'" /><b>' + Supra.Intl.get(['gallerymanager', 'drop_replace']) + '</b></span>';
 			
-			item = Y.Node.create('<li class="yui3-dd-drop gallery-item" data-id="' + data.image.id + '">' + html_img + html + '</li>');
+			item = Y.Node.create('<li class="yui3-dd-drop gallery-item" data-id="' + data.image.id + '" title="' + Supra.Intl.get(['gallerymanager', 'click_here_edit']) + '">' + html_img + html + '</li>');
 			item.setData('imageId', data.image.id);
 			list.append(item);
 		},
