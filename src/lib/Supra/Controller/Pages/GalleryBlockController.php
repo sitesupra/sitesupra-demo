@@ -139,9 +139,9 @@ class GalleryBlockController extends BlockController
 			throw new Exception\RuntimeException('No property found in property set!');
 		}
 		
-		if ($property instanceof Entity\SharedBlockProperty) {
-			$property = $property->getReplacedBlockProperty();
-		}
+//		if ($property instanceof Entity\SharedBlockProperty) {
+//			$originalProperty = $property->getReplacedBlockProperty();
+//		}
 		
 		$block = $property->getBlock();
 	
