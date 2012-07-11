@@ -24,8 +24,8 @@
     collection: Project\Payment\DummyStore
     formDataPath: /dummy-shop/transact-data-form
     is3dAccount: true
-    gatewayCollects: true
-                    
+    gatewayCollects: false
+
                      
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\Payment\Transact\TransactDataForm
