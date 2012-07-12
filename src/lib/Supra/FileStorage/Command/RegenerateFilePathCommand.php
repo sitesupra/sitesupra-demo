@@ -65,11 +65,12 @@ class RegenerateFilePathCommand extends Command
 			}
 		}
 
-		$output->writeln("Done. Processed $i files");
+		$output->writeln("Done generating. Flushing to database...");
 
 		$em->flush();
-
 		$em->commit();
+
+		$output->writeln("Done. Processed $i files");
 	}
 
 }
