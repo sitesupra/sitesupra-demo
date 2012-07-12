@@ -287,7 +287,6 @@ class FilteredInput extends \ArrayIterator
 	 */
 	public function getValidOrNull($index, $type, $additionalParameters = null)
 	{
-		$valid = null;
 		
 		if ( ! $this->has($index)) {
 			return null;
@@ -296,7 +295,6 @@ class FilteredInput extends \ArrayIterator
 		$value = $this->get($index);
 		
 		$validator = Type\AbstractType::getType($type);
-		$valid = null;
 		
 		$valid = $validator->isValid($value, $additionalParameters);
 		
@@ -336,8 +334,6 @@ class FilteredInput extends \ArrayIterator
 		$value = $this->get($index);
 		
 		$validator = Type\AbstractType::getType($type);
-		$valid = null;
-		
 		$valid = $validator->isValid($value, $additionalParameters);
 		
 		return $valid;

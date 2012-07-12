@@ -25,6 +25,8 @@ class ResponseContext extends FilteredInput
 	public function setValue($key, $value)
 	{
 		$this[$key] = $value;
+
+		return $this;
 	}
 
 	/**
@@ -40,6 +42,8 @@ class ResponseContext extends FilteredInput
 
 		return $this[$key];
 	}
+
+	
 
 	/**
 	 * @return array
@@ -62,6 +66,8 @@ class ResponseContext extends FilteredInput
 		} else {
 			$this->layoutSnippetResponses[$key] .= $snippet;
 		}
+
+		return $this;
 	}
 
 	/**
@@ -85,6 +91,8 @@ class ResponseContext extends FilteredInput
 		$scriptTag->setAttribute('type', $type);
 
 		$this->addToLayoutSnippet($key, $scriptTag->toHtml());
+
+		return $this;
 	}
 
 	public function addJsUrlToLayoutSnippet($key, $url, $type = 'text/javascript')
@@ -94,6 +102,8 @@ class ResponseContext extends FilteredInput
 		$scriptTag->setAttribute('type', $type);
 
 		$this->addToLayoutSnippet($key, $scriptTag->toHtml());
+
+		return $this;
 	}
 
 	public function addCssLinkToLayoutSnippet($key, $url)
@@ -105,6 +115,8 @@ class ResponseContext extends FilteredInput
 		$linkTag->setAttribute('href', $url);
 		
 		$this->addToLayoutSnippet($key, $linkTag->toHtml());
+
+		return $this;
 	}
 	
 	/**
