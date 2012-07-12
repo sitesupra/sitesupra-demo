@@ -318,7 +318,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph',
 			'supra.htmleditor-plugin-paragraph-string',
-			'supra.htmleditor-plugin-source'
+			'supra.htmleditor-plugin-source',
+			'supra.htmleditor-plugin-fonts'
 		],
 		skinnable: true
 	},
@@ -414,6 +415,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		'supra.htmleditor-plugin-source': {
 			path: 'htmleditor/plugins/plugin-source.js',
 			requires: ['supra.manager', 'supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-fonts': {
+			path: 'htmleditor/plugins/plugin-fonts.js',
+			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts']
 		},
 	
 	/**
@@ -603,6 +608,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.input-color': {
 		path: 'input/color.js',
 		requires: ['supra.input-proto', 'dd', 'supra.datatype-color']
+	},
+	'supra.input-fonts': {
+		path: 'input/fonts.js',
+		requires: ['supra.input-select-visual']
 	},
 	'supra.input-date': {
 		path: 'input/date.js',

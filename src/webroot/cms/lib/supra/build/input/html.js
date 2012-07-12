@@ -385,7 +385,8 @@ YUI.add("supra.input-html", function (Y) {
 				
 				return {
 					'html': this.htmleditor.getHTML(),
-					'data': this.htmleditor.getAllData()
+					'data': this.htmleditor.getAllData(),
+					'fonts': this.htmleditor.getUsedFonts()
 				};
 			} else {
 				return value;
@@ -405,7 +406,8 @@ YUI.add("supra.input-html", function (Y) {
 			if (this.htmleditor) {
 				return {
 					'html': this.htmleditor.getProcessedHTML(),
-					'data': this.htmleditor.getProcessedData()
+					'data': this.htmleditor.getProcessedData(),
+					'fonts': this.htmleditor.getUsedFonts()
 				};
 			} else {
 				return value;

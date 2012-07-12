@@ -49,9 +49,6 @@ Supra(function (Y) {
 		// Form instance
 		form: null,
 		
-		// Done button callback
-		callback: null,
-		
 		// Editor toolbar was visible
 		open_toolbar_on_hide: false,
 		
@@ -71,9 +68,7 @@ Supra(function (Y) {
 			
 			//"Done" button
 			this.get('controlButton').on('click', function () {
-				if (Y.Lang.isFunction(this.callback)) {
-					this.callback();
-				}
+				this.callback(true);
 			}, this);
 		},
 		
@@ -91,18 +86,43 @@ Supra(function (Y) {
 					Manager.EditorToolbar.execute();
 				}
 				
+				this.callback();
 				this.form.hide();
 				this.form = null;
-				this.callback = null;
+				this.options = null;
 				this.open_toolbar_on_hide = false;
 			}
 			
 		},
 		
+		/**
+		 * Trigger callbacks
+		 * 
+		 * @param {Boolean} done Trigger also done callback
+		 */
+		callback: function (done) {
+			if (this.options) {
+				var doneCallback = this.options.doneCallback,
+					hideCallback = this.options.hideCallback;
+				
+				if (done && Y.Lang.isFunction(doneCallback)) {
+					doneCallback();
+				}
+				if (Y.Lang.isFunction(hideCallback)) {
+					hideCallback();
+				}
+			}
+		},
+		
 		// Execute action
 		execute: function (form, options) {
+			if (this.form && this.form !== form) {
+				this.callback();
+				this.form.hide();
+			}
 			var options = this.options = Supra.mix({
 				'doneCallback': null,
+				'hideCallback': null,
 				'hideEditorToolbar': false,
 				
 				'properties': null,		//Properties class instance
@@ -121,9 +141,7 @@ Supra(function (Y) {
 			
 			//Set form
 			if (form) {
-				if (this.form) this.form.hide();
 				this.form = form;
-				this.callback = options.doneCallback;
 				this.show();
 				form.show();
 				

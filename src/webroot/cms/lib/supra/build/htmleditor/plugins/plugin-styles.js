@@ -1,5 +1,5 @@
 /**
- * Style dropdown
+ * Style sidebar
  */
 YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
@@ -25,8 +25,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			'title': '{# htmleditor.group_list #}',
 			'tags': (tmp = ['UL', 'OL', 'LI']),
 			'tagsObject': toObject(tmp)
-		},
-		{
+		}
+		/*{
 			'id': 'table',
 			'title': '{# htmleditor.group_table #}',
 			'tags': (tmp = ['TABLE', 'TR', 'TD', 'TH']),
@@ -37,16 +37,19 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			'title': '{# htmleditor.group_image #}',
 			'tags': (tmp = ['IMG']),
 			'tagsObject': toObject(tmp)
-		}
+		}*/
 	];
 	
+	//Shortcuts
+	var Manager = Supra.Manager;
+	
 	var TEMPLATE_STYLES = Supra.Template.compile('\
-			<div class="yui3-input-select-item {% if main %}current{% endif %} style-main {{ tag }}" data-tag="{{ tag }}" data-id="">\
+			<div class="style-item {% if main %}current{% endif %} style-main {{ tag }}" data-tag="{{ tag }}" data-id="">\
 				{% set title = "htmleditor.tags." + tag %}\
 				{{ title|intl }}\
 			</div>\
 			{% for key, match in matches %}\
-				<div class="yui3-input-select-item {% if classname == match.classname %}current{% endif %} style-class" data-tag="{{ tag }}" data-id="{{ match.classname }}" style="{{ match.style }}">\
+				<div class="style-item {% if classname == match.classname %}current{% endif %} style-class" data-tag="{{ tag }}" data-id="{{ match.classname }}" style="{{ match.style }}">\
 					{{ match.attributes.title }}\
 				</div>\
 			{% endfor %}\
@@ -72,22 +75,10 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		selectors: {},
 		
 		/**
-		 * Toolbar types dropdown element
+		 * Sidebar styles element
 		 * @type {Object}
 		 */
-		dropdownTypes: null,
-		
-		/**
-		 * Toolbar types dropdown option elements
-		 * @type {Object}
-		 */
-		dropdownTypesNodes: null,
-		
-		/**
-		 * Toolbar styles dropdown element
-		 * @type {Object}
-		 */
-		dropdownStyles: null,
+		sidebarElement: null,
 		
 		/**
 		 * Nodes which styles are being changed
@@ -273,7 +264,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			if (links) {
 				for(var i=0,ii=links.size(); i<ii; i++) {
 					link = links.item(i).getDOMNode();
-					if (link.sheet) {
+					if (link.sheet && link.sheet.cssRules) {
 						rules = link.sheet.cssRules;
 						for(var k=0,kk=rules.length; k<kk; k++) {
 						    if (rules[k].selectorText && rules[k].cssText.indexOf('#su-style-dropdown') != -1) {
@@ -310,8 +301,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		/**
 		 * Update style dropdown values
 		 */
-		updateStylesDropdown: function () {
-			var group = this.dropdownTypes.get('value'),
+		updateStylesList: function () {
+			var group = "text", //this.dropdownTypes.get('value'),
 				groups = GROUPS,
 				tags = null,
 				tagsArr = null,
@@ -380,20 +371,22 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				return (a_i == b_i ? 0 : (a_i > b_i ? 1 : -1));
 			});
 			
-			this.renderStylesDropdown(matches);
+			this.renderStylesList(matches);
 		},
 		
 		/**
-		 * Fill style dropdown
+		 * Render style list
 		 * 
 		 * @param {Array} matches Tags and matching selectors
 		 */
-		renderStylesDropdown: function (matches) {
+		renderStylesList: function (matches) {
 			var tag = null,
 				i = 0,
 				ii = matches.length,
 				html = '',
-				node = this.dropdownStyles.get('contentNode');
+				node = this.sidebarElement;
+			
+			if (!node) return;
 			
 			for(; i<ii; i++) {
 				html += TEMPLATE_STYLES(matches[i]);
@@ -460,6 +453,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			*/
 			
 			// Show / hide groups
+			/*
 			var nodes = this.dropdownTypesNodes,
 				prevValue = this.dropdownTypes.get('value'),
 				value = null;
@@ -476,19 +470,19 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 			
 			this.dropdownTypes.set('value', value);
+			*/
 			
-			//Close dropdowns
-			if (this.dropdownTypes.get('opened')) this.dropdownTypes.set('opened', false);
-			if (this.dropdownStyles.get('opened')) this.dropdownStyles.set('opened', false);
+			this.updateStylesList();
 		},
 		
 		/**
-		 * When editing allowed changes update dropdown state 
+		 * When editing allowed changes update sidebar visibility 
 		 * @param {Object} event
 		 */
 		handleEditingAllowChange: function (event) {
-			this.dropdownTypes.set('disabled', !event.allowed);
-			this.dropdownStyles.set('disabled', !event.allowed);
+			if (!event.allowed) {
+				this.hideStylesSidebar();
+			}
 		},
 		
 		/**
@@ -538,12 +532,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		},
 		
 		highlightElementByEvent: function (e) {
-			var item		= e.target.closest('.yui3-input-select-item'),
+			var item		= e.target.closest('.style-item'),
 				tag			= item.getAttribute('data-tag');
 			
 			//While dropdown is closing it's possible to hover one of the items
 			//but in this case we don't want to highlight anything
-			if (e.type == 'mouseenter' && this.dropdownStyles.get('opened')) {
+			if (e.type == 'mouseenter' && this.settings_form && this.settings_form.get('visible')) {
 				this.highlightElementByTag(tag);
 			} else if (e.type == 'mouseleave') {
 				this.highlightElementByTag(null);
@@ -608,7 +602,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		updateStyle: function (e) {
 			if (this.htmleditor.get('disabled')) return;
 			
-			var item		= e.target.closest('.yui3-input-select-item'),
+			var item		= e.target.closest('.style-item'),
 				tag			= item.getAttribute('data-tag'),
 				classname	= item.getAttribute('data-id'),
 				
@@ -667,37 +661,111 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					node.addClass(classname);
 				}
 			}
+		},
+		
+		
+		/* -------------------------------------- Sidebar ---------------------------------------- */
+		
+		
+		/**
+		 * Create styles sidebar
+		 */
+		createStylesSidebar: function () {
+			//Get form placeholder
+			var content = Manager.getAction('PageContentSettings').get('contentInnerNode');
+			if (!content) return;
 			
-			//Close dropdown
-			this.dropdownStyles.set('opened', false);
+			//Properties form
+			var form_config = {
+				'inputs': [],
+				'style': 'vertical'
+			};
+			
+			var form = new Supra.Form(form_config);
+				form.render(content);
+				form.hide();
+			
+			var node = this.sidebarElement = Y.Node.create('<div class="style-list"></div>');
+			form.get('contentBox').append(node);
+			
+			//When user selects a value, update content
+			this.listeners.push(
+				node.delegate('click', this.updateStyle, '.style-item', this)
+			);
+			this.listeners.push(
+				node.delegate('mouseenter', this.highlightElementByEvent, '.style-item', this)
+			);
+			this.listeners.push(
+				node.delegate('mouseleave', this.highlightElementByEvent, '.style-item', this)
+			);
+			
+			this.settings_form = form;
+			return form;
+		},
+		
+		/**
+		 * Show styles sidebar
+		 */
+		showStylesSidebar: function () {
+			//Make sure PageContentSettings is rendered
+			var form = this.settings_form || this.createStylesSidebar(),
+				action = Manager.getAction('PageContentSettings');
+			
+			if (!form) {
+				if (action.get('loaded')) {
+					if (!action.get('created')) {
+						action.renderAction();
+						this.showStylesSidebar(target);
+					}
+				} else {
+					action.once('loaded', function () {
+						this.showStylesSidebar(target);
+					}, this);
+					action.load();
+				}
+				return false;
+			}
+			
+			var node = this.node = Y.Node.create('<div></div>');
+			form.get('contentBox').append(node);
+			
+			action.execute(form, {
+				'doneCallback': Y.bind(this.hideStylesSidebar, this),
+				'hideCallback': Y.bind(this.onStyleSidebarHide, this),
+				
+				'title': Supra.Intl.get(['htmleditor', 'styles']),
+				'scrollable': true
+			});
+			
+			//Render list
+			this.updateStylesList();
+			
+			//Style toolbar button
+			this.htmleditor.get('toolbar').getButton('style').set('down', true);
+		},
+		
+		/**
+		 * Hide styles sidebar
+		 */
+		hideStylesSidebar: function () {
+			if (this.settings_form && this.settings_form.get('visible')) {
+				Manager.PageContentSettings.hide();
+			}
+		},
+		
+		/**
+		 * When styles sidebar is hidden update toolbar button to reflect that
+		 * 
+		 * @private
+		 */
+		onStyleSidebarHide: function () {
+			//Unstyle toolbar button
+			this.htmleditor.get('toolbar').getButton('style').set('down', false);
 		},
 		
 		
 		/* -------------------------------------- Plugin ---------------------------------------- */
 		
-		/**
-		 * Returns type dropdown nodes
-		 * 
-		 * @return Dropdown nodes
-		 * @type {Object}
-		 */
-		getTypeDropdownNodes: function () {
-			var dropdownTypes = this.dropdownTypes,
-				dropdownStyles = this.dropdownStyles,
-				content = dropdownTypes.get('contentNode'),
-				nodes = null;
-			
-			if (!dropdownTypes.get('values').length) {
-				dropdownTypes.set('values', GROUPS);
-				dropdownStyles.set('values', [{
-					'id': '',
-					'title': Supra.Intl.get(['htmleditor', 'style'])
-				}]);
-			}
-			
-			
-			return dropdownTypes.getValueNodes();
-		},
 		
 		/**
 		 * Initialize plugin for editor,
@@ -713,30 +781,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.excludeList = {};
 			this.targetNodes = [];
 			this.selectors = this.collectStyleSelectors();
-			this.dropdownTypes = toolbar.getControl('type');
-			this.dropdownStyles = toolbar.getControl('style');
-			this.dropdownTypesNodes = this.getTypeDropdownNodes();
 			this.listeners = [];
 			
-			//When style dropdown is shown update style list
-			this.listeners.push(
-				this.dropdownStyles.on('openedChange', function (e) {
-					if (!this.htmleditor.get('disabled') && e.prevVal != e.newVal && e.newVal) {
-						this.updateStylesDropdown();
-					}
-				}, this)
-			);
-			
-			//When user selects a value, update content
-			this.listeners.push(
-				this.dropdownStyles.get('contentNode').delegate('click', this.updateStyle, '.yui3-input-select-item', this)
-			);
-			this.listeners.push(
-				this.dropdownStyles.get('contentNode').delegate('mouseenter', this.highlightElementByEvent, '.yui3-input-select-item', this)
-			);
-			this.listeners.push(
-				this.dropdownStyles.get('contentNode').delegate('mouseleave', this.highlightElementByEvent, '.yui3-input-select-item', this)
-			);
+			htmleditor.addCommand('style', Y.bind(this.showStylesSidebar, this));
 			
 			//When un-editable node is selected disable toolbar button
 			this.listeners.push(
@@ -756,9 +803,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.excludeList = null;
 			this.targetNodes = null;
 			this.selectors = null;
-			this.dropdownTypes = null;
-			this.dropdownStyles = null;
-			this.dropdownTypesNodes = null;
+			this.sidebarElement = null;
+			this.settings_form.destroy();
 			
 			for(var i=0,ii=this.listeners.length; i<ii; i++) {
 				this.listeners[i].detach();

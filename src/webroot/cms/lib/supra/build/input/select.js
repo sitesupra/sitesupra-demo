@@ -624,19 +624,48 @@ YUI.add("supra.input-select", function (Y) {
 			
 			for(var i=0,ii=values.length; i<ii; i++) {
 				if (values[i].id == value) {
-					
-					//Check if title is localized
-					title = values[i].title;
-					if (title.indexOf('{#') != -1) {
-						title = Supra.Intl.replace(title);
-					}
-					
-					this.get('textNode').set('text', title);
+					this.setText(values[i].title);
 					break;
 				}
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Set dropdown text
+		 * Can be used when value is not in the list or for custom text
+		 * 
+		 * @param {String} title Text
+		 */
+		setText: function (title) {
+			var node = this.get('textNode');
+			if (!node) return this;
+			
+			//Check if title is localized
+			title = String(title || '');
+			if (title.indexOf('{#') != -1) {
+				title = Supra.Intl.replace(title);
+			}
+			
+			node.set('text', title);
+			return this;
+		},
+		
+		/**
+		 * Returns true if list has options with given id
+		 * 
+		 * @param {String} id Option ID
+		 * @return True if has option with given id, otherwise false
+		 * @type {Boolean}
+		 */
+		hasValue: function (id) {
+			var values = this.get('values'),
+				i = 0,
+				ii = values.length;
+			
+			 for (; i<ii; i++) if (values[i].id == id) return true;
+			 return false
 		},
 		
 		/**
