@@ -207,7 +207,7 @@ YUI.add("dashboard.app-list", function (Y) {
 			});
 			
 			var target = this.target = new Y.DD.Drop({
-				"node": this.widgets.slideshow.get("contentBox"),
+				"node": this.widgets.slideshow.get("contentBox")
 			});
 			
 			draggable.on("drag:start", this.onDragStart, this);

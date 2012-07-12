@@ -246,11 +246,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			if ($file instanceof Entity\Folder) {
 				$this->fileStorage->renameFolder($file, $fileName);
 			} else {
-
-				if ($originalFileInfo['extension'] != $newFileInfo['extension']) {
-					throw new CmsException(null, 'File extension may not be changed!');
-				}
-
 				$this->fileStorage->renameFile($file, $fileName);
 			}
 		}

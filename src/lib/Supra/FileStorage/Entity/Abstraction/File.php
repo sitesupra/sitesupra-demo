@@ -366,14 +366,17 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		if ( ! empty($this->id)) {
 
-			$this->regenerateId();
+			// Don't regenerate path. The "clone" functionality is used for
+			// keeping track of OLD and NEW objects when modifying.
+//			$this->regenerateId();
 
-			if ( ! empty($this->nestedSetNode)) {
-				$this->nestedSetNode = clone($this->nestedSetNode);
-				$this->nestedSetNode->belongsTo($this);
-			}
-			
-			$this->path = null;
+			// Don't need to clone nested set node as well
+//			if ( ! empty($this->nestedSetNode)) {
+//				$this->nestedSetNode = clone($this->nestedSetNode);
+//				$this->nestedSetNode->belongsTo($this);
+//			}
+
+			$this->path = clone($this->path);
 		}
 	}
 

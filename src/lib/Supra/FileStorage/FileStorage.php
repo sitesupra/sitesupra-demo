@@ -250,7 +250,7 @@ class FileStorage
 		$oldExtension = $file->getExtension();
 		$newExtension = $newFile->getExtension();
 
-		if ($oldExtension != $newExtension) {
+		if (strcasecmp($oldExtension, $newExtension) !== 0) {
 			throw new Exception\UploadFilterException(self::VALIDATION_EXTENSION_RENAME_MESSAGE_KEY, 'You can\'t change file extension');
 		}
 
@@ -258,12 +258,13 @@ class FileStorage
 
 		$this->renameFileInFileSystem($file, $fileName);
 
-		$entityManager->merge($newFile);
+		$file->setFileName($fileName);
+//		$entityManager->merge($newFile);
 		$entityManager->flush();
 
-		// to track title changes in audit
-		$file->setFileName($oldName);
-		$file->setFileName($fileName);
+//		// to track title changes in audit
+//		$file->setFileName($oldName);
+//		$file->setFileName($fileName);
 	}
 
 	/**
