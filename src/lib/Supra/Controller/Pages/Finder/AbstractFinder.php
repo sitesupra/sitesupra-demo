@@ -41,7 +41,11 @@ abstract class AbstractFinder
 	{
 		$this->customConditions[] = $customCondition;
 	}
-	
+
+	/**
+	 * @return QueryBuilder
+	 * @throws \LogicException
+	 */
 	final public function getQueryBuilder()
 	{
 		$qb = $this->doGetQueryBuilder();

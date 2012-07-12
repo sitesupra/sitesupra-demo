@@ -394,7 +394,7 @@ class SharedPropertyFinder
 		
 		$shares = &$this->sharedPropertyData;
 		
-		foreach ($shares as $key => $share) {
+		foreach ($shares as $share) {
 			foreach ($originalPropertyData as $row) {
 				
 				// Property object wasn't found (weird) or was removed from the list
