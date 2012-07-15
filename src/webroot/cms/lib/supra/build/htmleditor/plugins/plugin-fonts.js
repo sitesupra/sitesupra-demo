@@ -195,21 +195,24 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			
 			if (command == "fontsize") {
 				//Get <font /> element
-				node = editor.getSelectedElement();
 				
-				//Remove "size" attribute, since we will be using classname
-				node.removeAttribute("size");
-				node.className = "";
-				
-				//We want to make sure classname if is actually needed
-				realSize = parseInt(Y.Node(node).getStyle("font-size"), 10);
-				
-				if (data && data != realSize) {
-					//Fontsize set as classname
-					node.className = "font-" + data;
-				} else if (node.tagName == "FONT" && !node.getAttribute("face") && !node.getAttribute("color")) {
-					//Remove node
-					editor.unwrapNode(node);
+				if(node) {
+					node = editor.getSelectedElement();
+
+					//Remove "size" attribute, since we will be using classname
+					node.removeAttribute("size");
+					node.className = "";
+
+					//We want to make sure classname if is actually needed
+					realSize = parseInt(Y.Node(node).getStyle("font-size"), 10);
+
+					if (data && data != realSize) {
+						//Fontsize set as classname
+						node.className = "font-" + data;
+					} else if (node.tagName == "FONT" && !node.getAttribute("face") && !node.getAttribute("color")) {
+						//Remove node
+						editor.unwrapNode(node);
+					}
 				}
 			}
 			

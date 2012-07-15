@@ -266,10 +266,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					link = links.item(i).getDOMNode();
 					if (link.sheet && link.sheet.cssRules) {
 						rules = link.sheet.cssRules;
-						for(var k=0,kk=rules.length; k<kk; k++) {
-						    if (rules[k].selectorText && rules[k].cssText.indexOf('#su-style-dropdown') != -1) {
-						        result.push(rules[k].cssText);
-						    }
+						if(rules) {
+							for(var k=0,kk=rules.length; k<kk; k++) {
+								if (rules[k].selectorText && rules[k].cssText.indexOf('#su-style-dropdown') != -1) {
+									result.push(rules[k].cssText);
+								}
+							}
 						}
 					}
 				}
@@ -804,7 +806,10 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.targetNodes = null;
 			this.selectors = null;
 			this.sidebarElement = null;
-			this.settings_form.destroy();
+			
+			if(this.settings_form) {
+				this.settings_form.destroy();
+			}
 			
 			for(var i=0,ii=this.listeners.length; i<ii; i++) {
 				this.listeners[i].detach();
