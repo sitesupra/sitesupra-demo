@@ -78,10 +78,10 @@ class ArrayRepository extends RepositoryAbstraction
 		/* @var $node Node\NodeInterface */
 		foreach ($this->array as $node) {
 			if ($node->getLeftValue() >= $offset) {
-				$node->moveLeftValue(- $size);
+				$this->moveNode($node, - $size, 0, 0);
 			}
 			if ($node->getRightValue() >= $offset) {
-				$node->moveRightValue(- $size);
+				$this->moveNode($node, 0, - $size, 0);
 			}
 		}
 	}
