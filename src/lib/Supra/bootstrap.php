@@ -92,14 +92,6 @@ class_alias('Supra\Log\Log', 'Log');
 mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
-try {
-	require_once SUPRA_CONF_PATH . 'configuration.php';
-} catch (\Exception $e) {
-	\Log::fatal("Application configuration load failed: " . (string) $e);
-	header('Content-Type: text/plain');
-	die(SUPRA_ERROR_MESSAGE . PHP_EOL);
-}
-
 // Default permission modes for new files and folders
 if ( ! defined('SITESUPRA_FOLDER_PERMISSION_MODE')) {
 	define('SITESUPRA_FOLDER_PERMISSION_MODE', 0755);
@@ -108,3 +100,12 @@ if ( ! defined('SITESUPRA_FOLDER_PERMISSION_MODE')) {
 if ( ! defined('SITESUPRA_FILE_PERMISSION_MODE')) {
 	define('SITESUPRA_FILE_PERMISSION_MODE', 0644);
 }
+
+try {
+	require_once SUPRA_CONF_PATH . 'configuration.php';
+} catch (\Exception $e) {
+	\Log::fatal("Application configuration load failed: " . (string) $e);
+	header('Content-Type: text/plain');
+	die(SUPRA_ERROR_MESSAGE . PHP_EOL);
+}
+

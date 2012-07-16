@@ -75,13 +75,13 @@ class FileStorage
 	 * Folder access mode
 	 * @var integer chmod
 	 */
-	private $folderAccessMode = SITESUPRA_FOLDER_PERMISSION_MODE;
+	private $folderAccessMode = \SITESUPRA_FOLDER_PERMISSION_MODE;
 
 	/**
 	 * File access mode
 	 * @var integer chmod
 	 */
-	private $fileAccessMode = SITESUPRA_FILE_PERMISSION_MODE;
+	private $fileAccessMode = \SITESUPRA_FILE_PERMISSION_MODE;
 
 	/**
 	 * Sets external (public) file url base.
