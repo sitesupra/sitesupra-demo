@@ -62,6 +62,8 @@ class ImageRotator extends ImageProcessor
 		} elseif ($this->sourceFilename != $this->targetFilename) {
 			copy($this->sourceFilename, $this->targetFilename);
 		}
+
+		chmod($this->targetFilename, SITESUPRA_FILE_PERMISSION_MODE);
 	}
 
 	/**
