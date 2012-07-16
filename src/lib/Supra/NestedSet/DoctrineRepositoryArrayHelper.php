@@ -75,29 +75,40 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 	 */
 	protected function moveNode(Node\NodeInterface $item, $moveLeft, $moveRight, $moveLevel)
 	{
-		$newLeft = $item->getLeftValue() + (int) $moveLeft;
-		$newRight = $item->getRightValue() + (int) $moveRight;
-		$newLevel = $item->getLevel() + (int) $moveLevel;
+//		$newLeft = $item->getLeftValue() + (int) $moveLeft;
+//		$newRight = $item->getRightValue() + (int) $moveRight;
+//		$newLevel = $item->getLevel() + (int) $moveLevel;
+//
+		// Call original local move method for items not in the database yet
+		parent::moveNode($item, $moveLeft, $moveRight, $moveLevel);
 
+		// In case of entity update, make the new nested set values to be ignored
 		$insert = $this->entityManager->getUnitOfWork()->isScheduledForInsert($item);
-		
-		if ($insert) {
-			// Call original local move method for items not in the database yet
-			parent::moveNode($item, $moveLeft, $moveRight, $moveLevel);
-		} else {
-			// Refresh so additional UPDATE-s are not executed on the server
-			$this->entityManager->refresh($item);
+		if ( ! $insert) {
+			$oid = spl_object_hash($item);
+			$this->entityManager->getUnitOfWork()->setOriginalEntityProperty($oid, 'level', $item->getLevel());
+			$this->entityManager->getUnitOfWork()->setOriginalEntityProperty($oid, 'right', $item->getRightValue());
+			$this->entityManager->getUnitOfWork()->setOriginalEntityProperty($oid, 'left', $item->getLeftValue());
 		}
 
-		// Double check the values, should not happen
-		if ($item->getLeftValue() != $newLeft) {
-			$item->setLeftValue($newLeft);
-		}
-		if ($item->getRightValue() != $newRight) {
-			$item->setRightValue($newRight);
-		}
-		if ($item->getLevel() != $newLevel) {
-			$item->setLevel($newLevel);
-		}
+//
+//		if ($insert) {
+//			// Call original local move method for items not in the database yet
+//			parent::moveNode($item, $moveLeft, $moveRight, $moveLevel);
+//		} else {
+//			// Refresh so additional UPDATE-s are not executed on the server
+//			$this->entityManager->refresh($item);
+//		}
+
+//		// Double check the values, should not happen
+//		if ($item->getLeftValue() != $newLeft) {
+//			$item->setLeftValue($newLeft);
+//		}
+//		if ($item->getRightValue() != $newRight) {
+//			$item->setRightValue($newRight);
+//		}
+//		if ($item->getLevel() != $newLevel) {
+//			$item->setLevel($newLevel);
+//		}
 	}
 }
