@@ -12,6 +12,7 @@
 namespace Symfony\Component\Form\Tests\Util;
 
 use Symfony\Component\Form\Util\PropertyPath;
+use Symfony\Component\Form\Util\FormUtil;
 
 class PropertyPathCollectionTest_Car
 {
@@ -72,9 +73,23 @@ class PropertyPathCollectionTest_CarOnlyRemover
     public function getAxes() {}
 }
 
+class PropertyPathCollectionTest_CarNoAdderAndRemover
+{
+    public function getAxes() {}
+}
+
+class PropertyPathCollectionTest_CarNoAdderAndRemoverWithProperty
+{
+    protected $axes = array();
+
+    public function getAxes() {}
+}
+
 class PropertyPathCollectionTest_CompositeCar
 {
     public function getStructure() {}
+
+    public function setStructure($structure) {}
 }
 
 class PropertyPathCollectionTest_CarStructure
@@ -89,6 +104,64 @@ class PropertyPathCollectionTest_CarStructure
 abstract class PropertyPathCollectionTest extends \PHPUnit_Framework_TestCase
 {
     abstract protected function getCollection(array $array);
+
+    public function testGetValueReadsArrayAccess()
+    {
+        $object = $this->getCollection(array('firstName' => 'Bernhard'));
+
+        $path = new PropertyPath('[firstName]');
+
+        $this->assertEquals('Bernhard', $path->getValue($object));
+    }
+
+    public function testGetValueReadsNestedArrayAccess()
+    {
+        $object = $this->getCollection(array('person' => array('firstName' => 'Bernhard')));
+
+        $path = new PropertyPath('[person][firstName]');
+
+        $this->assertEquals('Bernhard', $path->getValue($object));
+    }
+
+    /**
+     * @expectedException Symfony\Component\Form\Exception\InvalidPropertyException
+     */
+    public function testGetValueThrowsExceptionIfArrayAccessExpected()
+    {
+        $path = new PropertyPath('[firstName]');
+
+        $path->getValue(new \stdClass());
+    }
+
+    public function testSetValueUpdatesArrayAccess()
+    {
+        $object = $this->getCollection(array());
+
+        $path = new PropertyPath('[firstName]');
+        $path->setValue($object, 'Bernhard');
+
+        $this->assertEquals('Bernhard', $object['firstName']);
+    }
+
+    public function testSetValueUpdatesNestedArrayAccess()
+    {
+        $object = $this->getCollection(array());
+
+        $path = new PropertyPath('[person][firstName]');
+        $path->setValue($object, 'Bernhard');
+
+        $this->assertEquals('Bernhard', $object['person']['firstName']);
+    }
+
+    /**
+     * @expectedException Symfony\Component\Form\Exception\InvalidPropertyException
+     */
+    public function testSetValueThrowsExceptionIfArrayAccessExpected()
+    {
+        $path = new PropertyPath('[firstName]');
+
+        $path->setValue(new \stdClass(), 'Bernhard');
+    }
 
     public function testSetValueCallsAdderAndRemoverForCollections()
     {
@@ -194,5 +267,62 @@ abstract class PropertyPathCollectionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($axesBefore));
 
         $path->setValue($car, $axesAfter);
+    }
+
+    /**
+     * @dataProvider noAdderRemoverData
+     */
+    public function testNoAdderAndRemoverThrowsSensibleError($car, $path, $message)
+    {
+        $axes = $this->getCollection(array(0 => 'first', 1 => 'second', 2 => 'third'));
+
+        try {
+            $path->setValue($car, $axes);
+            $this->fail('An expected exception was not thrown!');
+        } catch (\Symfony\Component\Form\Exception\FormException $e) {
+            $this->assertEquals($message, $e->getMessage());
+        }
+    }
+
+    public function noAdderRemoverData()
+    {
+        $data = array();
+
+        $car = $this->getMock(__CLASS__ . '_CarNoAdderAndRemover');
+        $propertyPath = new PropertyPath('axes');
+        $expectedMessage = sprintf(
+            'Neither element "axes" nor method "setAxes()" exists in class '
+                .'"%s", nor could adders and removers be found based on the '
+                .'guessed singulars: %s (provide a singular by suffixing the '
+                .'property path with "|{singular}" to override the guesser)',
+            get_class($car),
+            implode(', ', (array) $singulars = FormUtil::singularify('Axes'))
+        );
+        $data[] = array($car, $propertyPath, $expectedMessage);
+
+        $propertyPath = new PropertyPath('axes|boo');
+        $expectedMessage = sprintf(
+            'Neither element "axes" nor method "setAxes()" exists in class '
+                .'"%s", nor could adders and removers be found based on the '
+                .'passed singular: %s',
+            get_class($car),
+            'boo'
+        );
+        $data[] = array($car, $propertyPath, $expectedMessage);
+
+        $car = $this->getMock(__CLASS__ . '_CarNoAdderAndRemoverWithProperty');
+        $propertyPath = new PropertyPath('axes');
+        $expectedMessage = sprintf(
+            'Property "axes" is not public in class "%s", nor could adders and '
+                .'removers be found based on the guessed singulars: %s '
+                .'(provide a singular by suffixing the property path with '
+                .'"|{singular}" to override the guesser). Maybe you should '
+                .'create the method "setAxes()"?',
+            get_class($car),
+            implode(', ', (array) $singulars = FormUtil::singularify('Axes'))
+        );
+        $data[] = array($car, $propertyPath, $expectedMessage);
+
+        return $data;
     }
 }

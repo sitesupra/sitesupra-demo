@@ -17,7 +17,7 @@ namespace Symfony\Component\ClassLoader;
  * It is able to load classes that use either:
  *
  *  * The technical interoperability standards for PHP 5.3 namespaces and
- *    class names (http://groups.google.com/group/php-standards/web/psr-0-final-proposal);
+ *    class names (https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md);
  *
  *  * The PEAR naming convention for classes (http://pear.php.net/).
  *
@@ -42,7 +42,7 @@ namespace Symfony\Component\ClassLoader;
  *     ));
  *
  *
- *     // to enable searching the include path (eg. for PEAR packages)
+ *     // to enable searching the include path (e.g. for PEAR packages)
  *     $loader->useIncludePath(true);
  *
  *     // activate the autoloader
@@ -141,7 +141,17 @@ class UniversalClassLoader
     }
 
     /**
-     * Registers the directory to use as a fallback for class prefixes.
+     * Registers a directory to use as a fallback for namespaces.
+     *
+     * @param string $dir A directory
+     */
+    public function registerNamespaceFallback($dir)
+    {
+        $this->namespaceFallbacks[] = $dir;
+    }
+
+    /**
+     * Registers directories to use as a fallback for class prefixes.
      *
      * @param array $dirs An array of directories
      *
@@ -150,6 +160,16 @@ class UniversalClassLoader
     public function registerPrefixFallbacks(array $dirs)
     {
         $this->prefixFallbacks = $dirs;
+    }
+
+    /**
+     * Registers a directory to use as a fallback for class prefixes.
+     *
+     * @param string $dir A directory
+     */
+    public function registerPrefixFallback($dir)
+    {
+        $this->prefixFallbacks[] = $dir;
     }
 
     /**
@@ -196,8 +216,8 @@ class UniversalClassLoader
     /**
      * Registers a set of classes using the PEAR naming convention.
      *
-     * @param string       $prefix  The classes prefix
-     * @param array|string $paths   The location(s) of the classes
+     * @param string       $prefix The classes prefix
+     * @param array|string $paths  The location(s) of the classes
      *
      * @api
      */

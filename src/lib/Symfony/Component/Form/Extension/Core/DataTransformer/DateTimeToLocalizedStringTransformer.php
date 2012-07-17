@@ -17,7 +17,7 @@ use Symfony\Component\Form\Exception\UnexpectedTypeException;
 /**
  * Transforms between a normalized time and a localized time string
  *
- * @author Bernhard Schussek <bernhard.schussek@symfony.com>
+ * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Florian Eckerstorfer <florian@eckerstorfer.org>
  */
 class DateTimeToLocalizedStringTransformer extends BaseDateTimeTransformer
@@ -157,6 +157,9 @@ class DateTimeToLocalizedStringTransformer extends BaseDateTimeTransformer
         $calendar = $this->calendar;
         $pattern = $this->pattern;
 
-        return new \IntlDateFormatter(\Locale::getDefault(), $dateFormat, $timeFormat, $timezone, $calendar, $pattern);
+        $intlDateFormatter = new \IntlDateFormatter(\Locale::getDefault(), $dateFormat, $timeFormat, $timezone, $calendar, $pattern);
+        $intlDateFormatter->setLenient(false);
+
+        return $intlDateFormatter;
     }
 }

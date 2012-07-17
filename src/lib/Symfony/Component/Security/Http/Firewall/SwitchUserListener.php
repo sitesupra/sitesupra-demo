@@ -19,7 +19,6 @@ use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Role\SwitchUserRole;
@@ -87,9 +86,7 @@ class SwitchUserListener implements ListenerInterface
             try {
                 $this->securityContext->setToken($this->attemptSwitchUser($request));
             } catch (AuthenticationException $e) {
-                if (null !== $this->logger) {
-                    $this->logger->warn(sprintf('Switch User failed: "%s"', $e->getMessage()));
-                }
+                throw new \LogicException(sprintf('Switch User failed: "%s"', $e->getMessage()));
             }
         }
 
@@ -109,8 +106,14 @@ class SwitchUserListener implements ListenerInterface
     private function attemptSwitchUser(Request $request)
     {
         $token = $this->securityContext->getToken();
-        if (false !== $this->getOriginalToken($token)) {
-            throw new \LogicException(sprintf('You are already switched to "%s" user.', $token->getUsername()));
+        $originalToken = $this->getOriginalToken($token);
+
+        if (false !== $originalToken) {
+            if ($token->getUsername() === $request->get($this->usernameParameter)) {
+                return $token;
+            } else {
+                throw new \LogicException(sprintf('You are already switched to "%s" user.', $token->getUsername()));
+            }
         }
 
         if (false === $this->accessDecisionManager->decide($token, array($this->role))) {
@@ -149,7 +152,7 @@ class SwitchUserListener implements ListenerInterface
     private function attemptExitUser(Request $request)
     {
         if (false === $original = $this->getOriginalToken($this->securityContext->getToken())) {
-            throw new AuthenticationCredentialsNotFoundException(sprintf('Could not find original Token object.'));
+            throw new AuthenticationCredentialsNotFoundException('Could not find original Token object.');
         }
 
         if (null !== $this->dispatcher) {

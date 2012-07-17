@@ -61,7 +61,7 @@ class Response
      *
      * @var array
      */
-    static public $statusTexts = array(
+    public static $statusTexts = array(
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',            // RFC2518
@@ -158,7 +158,7 @@ class Response
      *
      * @return Response
      */
-    static public function create($content = '', $status = 200, $headers = array())
+    public static function create($content = '', $status = 200, $headers = array())
     {
         return new static($content, $status, $headers);
     }
@@ -206,7 +206,7 @@ class Response
         $headers = $this->headers;
 
         if ($this->isInformational() || in_array($this->statusCode, array(204, 304))) {
-            $this->setContent('');
+            $this->setContent(null);
         }
 
         // Content-type based on the Request
@@ -234,7 +234,7 @@ class Response
         if ('HEAD' === $request->getMethod()) {
             // cf. RFC2616 14.13
             $length = $headers->get('Content-Length');
-            $this->setContent('');
+            $this->setContent(null);
             if ($length) {
                 $headers->set('Content-Length', $length);
             }
@@ -299,6 +299,15 @@ class Response
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
+        } elseif ('cli' !== PHP_SAPI) {
+            // ob_get_level() never returns 0 on some Windows configurations, so if
+            // the level is the same two times in a row, the loop should be stopped.
+            $previous = null;
+            while (($level = ob_get_level()) > 0 && $level !== $previous) {
+                $previous = $level;
+                ob_end_flush();
+            }
+            flush();
         }
 
         return $this;
@@ -706,7 +715,7 @@ class Response
      * When the responses TTL is <= 0, the response may not be served from cache without first
      * revalidating with the origin.
      *
-     * @return integer The TTL in seconds
+     * @return integer|null The TTL in seconds
      *
      * @api
      */
@@ -1100,7 +1109,7 @@ class Response
      */
     public function isRedirect($location = null)
     {
-        return in_array($this->statusCode, array(201, 301, 302, 303, 307)) && (null === $location ?: $location == $this->headers->get('Location'));
+        return in_array($this->statusCode, array(201, 301, 302, 303, 307, 308)) && (null === $location ?: $location == $this->headers->get('Location'));
     }
 
     /**

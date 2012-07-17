@@ -41,7 +41,7 @@ interface OutputInterface
      *
      * @api
      */
-    function write($messages, $newline = false, $type = 0);
+    public function write($messages, $newline = false, $type = 0);
 
     /**
      * Writes a message to the output and adds a newline at the end.
@@ -51,7 +51,7 @@ interface OutputInterface
      *
      * @api
      */
-    function writeln($messages, $type = 0);
+    public function writeln($messages, $type = 0);
 
     /**
      * Sets the verbosity of the output.
@@ -60,23 +60,25 @@ interface OutputInterface
      *
      * @api
      */
-    function setVerbosity($level);
+    public function setVerbosity($level);
 
     /**
      * Gets the current verbosity of the output.
      *
      * @return integer The current level of verbosity
+     *
+     * @api
      */
-    function getVerbosity();
+    public function getVerbosity();
 
     /**
      * Sets the decorated flag.
      *
-     * @param Boolean $decorated Whether to decorated the messages or not
+     * @param Boolean $decorated Whether to decorate the messages or not
      *
      * @api
      */
-    function setDecorated($decorated);
+    public function setDecorated($decorated);
 
     /**
      * Gets the decorated flag.
@@ -85,7 +87,7 @@ interface OutputInterface
      *
      * @api
      */
-    function isDecorated();
+    public function isDecorated();
 
     /**
      * Sets output formatter.
@@ -94,7 +96,7 @@ interface OutputInterface
      *
      * @api
      */
-    function setFormatter(OutputFormatterInterface $formatter);
+    public function setFormatter(OutputFormatterInterface $formatter);
 
     /**
      * Returns current output formatter instance.
@@ -103,5 +105,5 @@ interface OutputInterface
      *
      * @api
      */
-    function getFormatter();
+    public function getFormatter();
 }
