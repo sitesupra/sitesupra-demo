@@ -3,7 +3,6 @@
 namespace Supra\FileStorage;
 
 use Supra\FileStorage\Validation;
-use Supra\FileStorage\Helpers;
 use Supra\FileStorage\Entity;
 use Supra\FileStorage\Exception;
 use Supra\ObjectRepository\ObjectRepository;
@@ -76,13 +75,13 @@ class FileStorage
 	 * Folder access mode
 	 * @var integer chmod
 	 */
-	private $folderAccessMode = 0750;
+	private $folderAccessMode = \SITESUPRA_FOLDER_PERMISSION_MODE;
 
 	/**
 	 * File access mode
 	 * @var integer chmod
 	 */
-	private $fileAccessMode = 0640;
+	private $fileAccessMode = \SITESUPRA_FILE_PERMISSION_MODE;
 
 	/**
 	 * Sets external (public) file url base.

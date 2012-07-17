@@ -3,7 +3,6 @@
 namespace Supra\FileStorage\ImageProcessor;
 
 use Supra\FileStorage\Exception\ImageProcessorException;
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\ImageInfo;
 
 /**

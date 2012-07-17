@@ -256,8 +256,12 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				if (node) {
 					range.selectNode(node);
 				} else {
-					var c = Y.Node.getDOMNode(this.get('srcNode')).lastChild;
-					if (c) range.setStartAfter(c);
+					var srcNode = Y.Node.getDOMNode(this.get('srcNode'));
+					
+					if(srcNode) {
+						var c = srcNode.lastChild;
+						if (c) range.setStartAfter(c);
+					}
 				}
 				
 				sel.removeAllRanges();

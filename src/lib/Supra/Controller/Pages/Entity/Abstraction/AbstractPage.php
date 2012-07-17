@@ -5,10 +5,7 @@ namespace Supra\Controller\Pages\Entity\Abstraction;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Entity\BlockProperty;
-use Supra\Controller\Pages\Set\PageSet;
 use Supra\NestedSet;
-use Supra\Controller\Pages\Exception;
-use Supra\Authorization\AuthorizedEntityInterface;
 
 /**
  * Page abstraction

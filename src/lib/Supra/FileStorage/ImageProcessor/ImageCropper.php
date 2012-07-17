@@ -176,7 +176,8 @@ class ImageCropper extends ImageProcessor
 		// save to file
 		$this->saveImageToFile($croppedImage, $this->targetFilename, 
 				$imageInfo->getType(), $this->targetQuality, $imageInfo->getMime());
-		
+
+		chmod($this->targetFilename, SITESUPRA_FILE_PERMISSION_MODE);
 	}
 
 	/**

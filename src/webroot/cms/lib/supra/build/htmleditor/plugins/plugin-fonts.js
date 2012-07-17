@@ -203,7 +203,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			
 			if (command == "fontsize") {
 				//Get <font /> element
-				node = editor.getSelectedElement();
 				
 				//Remove "size" attribute, since we will be using classname
 				node.removeAttribute("size");
