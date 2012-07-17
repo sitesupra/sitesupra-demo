@@ -215,22 +215,75 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 					}
 				}
 				
-			} else if (doc.selection) {
-				//IE < 9
-				var range = doc.selection.createRange();
-				var end_container,
-					start_container = end_container = range.parentElement();
-					start_offset = 0,
-					end_offset = range.text.length;
 			}
 			
-			return {
+			return this._normalizeSelection({
 				start: start_container,
 				start_offset: start_offset,
 				end: end_container,
 				end_offset: end_offset,
 				collapsed: (start_container == end_container && start_offset == end_offset)
-			};
+			});
+		},
+		
+		/**
+		 * Normalize selection value
+		 * 
+		 * @param {Object} selection Selection object
+		 * @return Normalized selection value
+		 * @private
+		 */
+		_normalizeSelection: function (selection) {
+			var tmp_start = null,
+				tmp_start_offset = null,
+				tmp_end = null,
+				tmp_end_offset = null;
+			
+			if (selection.start !== selection.end) {
+				if (selection.start.nodeType == 3) {
+					//Text node
+					if (selection.start_offset == 0) {
+						tmp_start = selection.start.parentNode;
+						tmp_start_offset = this._getChildIndex(selection.start);
+					} else if (selection.start_offset == selection.start.length) {
+						tmp_start = selection.start.nextSibling;
+						tmp_start_offset = 0;
+						if (!tmp_start) {
+							tmp_start = selection.start.parentNode;
+							tmp_start_offset = tmp_start.childNodes.length;
+						}
+					}
+				}
+				if (selection.end.nodeType == 3) {
+					//Text node
+					if (selection.end_offset == 0) {
+						tmp_end = selection.end.previousSibling;
+						tmp_end_offset = tmp_end ? this._getNodeLength(tmp_end) : 0;
+						if (!tmp_end) {
+							tmp_end = selection.end.parentNode;
+							tmp_end_offset = tmp_end ? this._getNodeLength(tmp_end) : 0;
+						}
+					} else if (selection.end_offset == selection.end.length) {
+						tmp_end = selection.end.parentNode;
+						tmp_end_offset = this._getChildIndex(selection.end) + 1;
+					}
+				}
+				
+				if (tmp_end === tmp_start) {
+					selection.end = tmp_end;
+					selection.end_offset = tmp_end_offset;
+					selection.start = tmp_start;
+					selection.start_offset = tmp_start_offset;
+				} else if (tmp_end == selection.start) {
+					selection.end = tmp_end;
+					selection.end_offset = tmp_end_offset;
+				} else if (tmp_start == selection.end) {
+					selection.start = tmp_start;
+					selection.start_offset = tmp_start_offset;
+				}
+			}
+			
+			return selection;
 		},
 		
 		/**
@@ -331,21 +384,6 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				this._resetSelection();
 				
 				return node;
-			} else if (doc.selection) {
-				//IE < 9
-				var sel = doc.selection;
-				var str = (str ? str : doc.selection.createRange().htmlText);
-				var range = sel.createRange();
-				
-				if (wrapTagName) {
-					range.pasteHTML('<' + wrapTagName + '>' + str + '</' + wrapTagName + '>');
-				} else {
-					range.pasteHTML(str);
-				}
-				
-				this._resetSelection();
-				
-				return null;
 			}
 		},
 		

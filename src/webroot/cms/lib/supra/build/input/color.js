@@ -750,7 +750,7 @@ YUI.add("supra.input-color", function (Y) {
 		_setValue: function (value) {
 			var fixed = (value || "#000000").toUpperCase();
 			
-			this.rgb = Color.convert.HEXtoRGB(fixed) || {'red': 0, 'green': 0, 'blue': 0};
+			this.rgb = Color.parse(fixed) || {'red': 0, 'green': 0, 'blue': 0};
 			this.hsb = Color.convert.RGBtoHSB(this.rgb);
 			this.hex = Color.convert.RGBtoHEX(this.rgb);
 			

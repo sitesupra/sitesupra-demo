@@ -101,7 +101,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 					face = element.getAttribute("face");
 				} else {
 					//Try finding font from the list, which matches selected font
-					face = Y.Node(element).getStyle("font-family") || "";
+					face = Y.Node(element).getStyle("fontFamily") || "";
 					var fonts = this.fonts,
 						i = 0,
 						ii = fonts.length;
@@ -116,7 +116,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			}
 			
 			if (element) {
-				var size = parseInt(Y.Node(element).getStyle("font-size"), 10) || 0;
+				var size = parseInt(Y.Node(element).getStyle("fontSize"), 10) || "";
 				if (this.fontSizeInput.hasValue(size)) {
 					this.fontSizeInput.set("value", size);
 				} else {
@@ -174,7 +174,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				testNode = (node.tagName == "FONT" ? node.parentNode : node);
 				
 				//If node font family is the same as new font, then don't set "face"
-				fontname = Y.Node(testNode).getStyle("font-family");
+				fontname = Y.Node(testNode).getStyle("fontFamily");
 				if (fontname && fontname.indexOf(data.replace(/,.*/, "")) !== -1) {
 					if (node.tagName == "FONT") {
 						node.removeAttribute("face");
@@ -188,15 +188,23 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				}
 			} else if (command == "forecolor") {
 				
+				node = editor.getSelectedElement();
+				
 				if (!data) {
-					node = editor.getSelectedElement();
 					if (node.tagName == "FONT") {
+						node.style.color = "";
 						node.removeAttribute("color");
 						
 						if (this.cleanUpNode(node)) {
 							editor._changed();
 							editor.refresh(true);
 						}
+						return;
+					}
+				} else {
+					if (node && node.tagName == "FONT") {
+						//Update FONT element if we can
+						node.setAttribute("color", data);
 						return;
 					}
 				}
@@ -231,7 +239,20 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			}
 			
 			//Insert <font> for color, fontsize, fontname or <span> for background color
-			editor.get("doc").execCommand(command, null, data);
+			if (command == "backcolor") {
+				var selection = editor.getSelection();
+				if (selection.start === selection.end && selection.start_offset !== selection.end_offset) {
+					node = this.htmleditor.replaceSelection(null, "FONT");
+					if (node) {
+						editor.selectNode(node);
+						node.style.backgroundColor = data;
+					}
+				} else {
+					editor.get("doc").execCommand(command, null, data);
+				}
+			} else {
+				editor.get("doc").execCommand(command, null, data);
+			}
 			
 			// If all text inside DIV, P, ... was selected, then selection didn't changed
 			// (according to text), but new wrapper element was added, so need to reset
@@ -247,7 +268,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 					node.className = "";
 					
 					//We want to make sure classname if is actually needed
-					realSize = parseInt(Y.Node(node).getStyle("font-size"), 10);
+					realSize = parseInt(Y.Node(node).getStyle("fontSize"), 10);
 					
 					if (data && data != realSize) {
 						//Fontsize set as classname
@@ -256,11 +277,11 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 						node.className = "";
 					}
 				}
-			} else if (command == "backcolor") {
+			} else if (command == "backcolor" || command == "forecolor") {
 				//Get <span /> element
 				node = editor.getSelectedElement();
 				
-				if (node && node.tagName == "SPAN" && node.style.backgroundColor) {
+				if (node && node.tagName == "SPAN" && (node.style.backgroundColor || node.style.color || node.getAttribute("color"))) {
 					//Replace SPAN with FONT
 					var tempNode = editor.get("doc").createElement("FONT");
 					node.parentNode.insertBefore(tempNode, node);
@@ -269,9 +290,17 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 						tempNode.appendChild(node.firstChild);
 					}
 					
-					tempNode.style.backgroundColor = node.style.backgroundColor;
-					node.parentNode.removeChild(node);
+					if (command == "backcolor") {
+						tempNode.style.backgroundColor = node.style.backgroundColor;
+					} else if (command == "forecolor") {
+						if (node.style.color) {
+							tempNode.setAttribute("color", node.style.color); // Gecko
+						} else if (node.getAttribute("color")) {
+							tempNode.setAttribute("color", node.getAttribute("color")); // WebKit
+						}
+					}
 					
+					node.parentNode.removeChild(node);
 					editor.selectNode(tempNode);
 				}
 			}
@@ -493,6 +522,10 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			
 			//Color toolbar button
 			this.htmleditor.get("toolbar").getButton(this.colorType + "color").set("down", true);
+			this.htmleditor.get("toolbar").getButton((this.colorType == "fore" ? "back" : "fore") + "color").set("down", false);
+			
+			//Update selected text/back color, because color picker could be showing for wrong one
+			this.handleNodeChange({});
 		},
 		
 		/**
