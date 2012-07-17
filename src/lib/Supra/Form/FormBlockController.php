@@ -31,7 +31,7 @@ abstract class FormBlockController extends BlockController
 
 		$this->bindedForm = $this->createForm();
 		$name = $this->getBlock()->getId();
-
+		
 		if ($request->getPost()->hasChild($name)) {
 
 			// TODO: make it somehow better...
@@ -125,6 +125,20 @@ abstract class FormBlockController extends BlockController
 				$options['label'] = $blockPropertyValue;
 			}
 
+			if ($field->getType() === FormField::TYPE_CHOICE) {
+				
+				$choiceList = $field->getArgument('choice_list');
+				if ( ! is_null($choiceList)) {
+					
+					if ( ! class_exists($choiceList)) {
+						throw new Exception\RuntimeException('Wrong class specified as choice list argument');
+					}
+					
+					$choiceList = new $choiceList;
+					$options['choice_list'] = $choiceList;
+				}
+			}
+			
 			$formBuilder->add($field->getName(), $field->getType(), $options);
 		}
 

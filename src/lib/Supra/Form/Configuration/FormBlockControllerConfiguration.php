@@ -36,7 +36,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 	 */
 	public $form;
 
-	private $originalMessages = array();
+//	private $originalMessages = array();
 
 	public function configure()
 	{

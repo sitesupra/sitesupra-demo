@@ -10,6 +10,16 @@ use Supra\Form\Constraints\Abstraction\Constraint;
 class FormField
 {
 
+	const TYPE_TEXT = 'text';
+	const TYPE_TEXTAREA = 'textarea';
+	const TYPE_PASSWORD = 'password';
+	const TYPE_CHECKBOX = 'checkbox';
+	const TYPE_FILE = 'file';
+	const TYPE_RADIO = 'radio';
+	const TYPE_HIDDEN = 'hidden';
+	// select box
+	const TYPE_CHOICE = 'choice';
+	
 	/**
 	 * One of $types
 	 * @var string 
@@ -27,13 +37,14 @@ class FormField
 	 * @var array 
 	 */
 	private static $types = array(
-		'text',
-		'textarea',
-		'password',
-		'checkbox',
-		'file',
-		'radio',
-		'hidden',
+		self::TYPE_TEXT,
+		self::TYPE_TEXTAREA,
+		self::TYPE_PASSWORD,
+		self::TYPE_CHECKBOX,
+		self::TYPE_FILE,
+		self::TYPE_RADIO,
+		self::TYPE_HIDDEN,
+		self::TYPE_CHOICE,
 	);
 	
 	/**
@@ -41,8 +52,16 @@ class FormField
 	 */
 	protected $constraints = array();
 
+	/**
+	 * @var array
+	 */
+	protected $arguments = array();
+	
 	protected $errorInfo;
-
+	
+	/*
+	 * 
+	 */
 	public function __construct(array $arguments = array())
 	{
 		if ( ! is_string($arguments['type']) || ! in_array($arguments['type'], self::$types, true)) {
@@ -54,6 +73,7 @@ class FormField
 		}
 
 		$this->type = $arguments['type'];
+		$this->arguments  = $arguments;
 	}
 
 	/**
@@ -132,6 +152,30 @@ class FormField
 		$this->name = $name;
 	}
 
+	/**
+	 * Get field arguments array
+	 * 
+	 * @return array
+	 */
+	public function getArguments()
+	{
+		return $this->arguments;
+	}
+	
+	/**
+	 * Get field argument
+	 * 
+	 * @param string $name
+	 * @return string
+	 */
+	public function getArgument($name)
+	{
+		if (isset($this->arguments[$name])) {
+			return $this->arguments[$name];
+		}
+		
+		return null;
+	}
 
 
 }
