@@ -250,6 +250,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					$eventManager = ObjectRepository::getEventManager($this);
 					$eventManager->fire(Event\EventArgs::onAuthenticationFailure, $eventArgs);
+					$message = null;
 
 					//TODO: pass the failure message somehow
 					// Login not successfull
@@ -266,12 +267,13 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					}
 
 					//TODO: i18n
-					if ($exc instanceof Exception\ExistingSessionLimitation) {
+					if (is_null($message)) {
+						if ($exc instanceof Exception\ExistingSessionLimitation) {
+							$message = $exc->getMessage();
+						} else if ($exc instanceof Exception\AuthenticationFailure) {
 
-						$message = $exc->getMessage();
-					} else if ($exc instanceof Exception\AuthenticationFailure) {
-
-						$message = $exc->getMessage();
+							$message = $exc->getMessage();
+						}
 					}
 
 					if ($xmlHttpRequest) {
