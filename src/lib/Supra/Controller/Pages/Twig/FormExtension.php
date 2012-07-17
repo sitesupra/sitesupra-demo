@@ -9,6 +9,7 @@ use Supra\Form\Configuration\FormBlockControllerConfiguration;
 use Supra\Form\Configuration\FormFieldConfiguration;
 use Supra\Form\FormBlockController;
 use Symfony\Component\Form\Form;
+use Supra\Form\FormField;
 
 class FormExtension
 {
@@ -188,13 +189,6 @@ class FormExtension
 	{
 		$vars = $view->getVars();
 
-		// process types and guess field type
-		// @TODO
-//		foreach ($vars['types'] as $key => $value) {
-//			
-//		}
-		// now will generate only input type text fields
-
 		$names = $this->getFormViewParentNames($view);
 		$name = null;
 
@@ -208,9 +202,30 @@ class FormExtension
 
 			$name .= "[$namePart]";
 		}
+		
+		//FIXME: is this a correct way to detect field type?
+		$fieldType = array_pop($vars['types']);
 
-		$tag = new \Supra\Html\HtmlTag('input');
-		$tag->setAttribute('type', 'text');
+		$tag = $this->createTagFromFieldType($fieldType);
+		
+		if ($fieldType === FormField::TYPE_CHOICE) {
+		
+			$choices = $view->get('choices');
+			
+			$optionHtml = '';
+			/* @var $choiceView ChoiceView */
+			foreach($choices as $choiceView) {
+				
+				$option = new \Supra\Html\HtmlTag('option');
+				$option->setAttribute('value', $choiceView->getValue());
+				$option->setContent($choiceView->getLabel());
+				
+				$optionHtml .= $option->toHtml();
+			}
+			
+			$tag->setContent($optionHtml);
+		}
+		
 		$tag->setAttribute('name', $name);
 		$tag->setAttribute('id', 'id_' . implode('_', $names));
 
@@ -336,6 +351,39 @@ class FormExtension
 		}
 
 		return null;
+	}
+	
+	/**
+	 * @param type $fieldType 
+	 */
+	private function createTagFromFieldType($fieldType)
+	{
+		$tagName = null;
+		
+		switch ($fieldType) {
+			case FormField::TYPE_CHOICE:
+				$tagName = 'select';
+				break;
+				
+			case FormField::TYPE_TEXTAREA:
+				$tagName = 'textarea';
+				break;
+			
+			default: 
+				$tagName = 'input';
+		}
+		
+		$tag = new \Supra\Html\HtmlTag($tagName);
+		
+		if ($tagName == 'input') {
+			$tag->setAttribute('type', $fieldType);
+		}
+		
+		if ($tagName !== 'input') {
+			$tag->forceTwoPartTag(true);		
+		}
+		
+		return $tag;
 	}
 
 }

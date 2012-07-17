@@ -258,6 +258,9 @@ class HttpRequest implements RequestInterface
 		$this->files = new PostFilesData($files);
 	}
 
+	/**
+	 * @return PostFilesData
+	 */
 	public function getPostFiles()
 	{
 		return $this->files;
