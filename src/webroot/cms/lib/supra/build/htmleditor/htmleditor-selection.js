@@ -78,7 +78,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		 * @type {Boolean}
 		 */
 		selectionIsCollapsed: function () {
-			return !this.selection || this.selection.collapsed;
+			return this.selection.collapsed;
 		},
 		
 		/**
@@ -114,9 +114,6 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 			if (!selection) return null;
 			
 			var node = selection.end || selection.start;
-			if (selection.end_offset === 0 && (!selection.collapsed)) {
-				node = selection.start || selection.end;
-			}
 			
 			//Find HTMLElement
 			while(node && node !== container) {
@@ -419,20 +416,6 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				}
 			}
 			return null;
-		},
-		
-		/**
-		 * Remove node from dom without removing its content
-		 * 
-		 * @param {Object} node Node to remove
-		 */
-		unwrapNode: function (node) {
-			if (node && node.nodeType == 1 && node.parentNode) {
-				while(node.firstChild) {
-					node.parentNode.insertBefore(node.firstChild, node);
-				}
-				node.parentNode.removeChild(node);
-			}
 		},
 		
 		/**

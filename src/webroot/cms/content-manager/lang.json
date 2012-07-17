@@ -143,11 +143,6 @@
 				"IMG": "Image"
 			},
 			
-			"styles": "Styles",
-			"fonts": "Fonts",
-			"textcolor": "Text color",
-			"backcolor": "Background color",
-			
 			"image_properties": "Image properties",
 			"image_size": "Image size",
 			"size_custom": "Custom",

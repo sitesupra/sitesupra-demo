@@ -23,21 +23,6 @@ YUI().add('supra.htmleditor-data', function (Y) {
 		},
 		
 		/**
-		 * Returns list of all used Google API fonts
-		 * 
-		 * @return Fonts list
-		 * @type {Array}
-		 */
-		getUsedFonts: function () {
-			var plugin = this.getPlugin('fonts');
-			if (plugin) {
-				return plugin.getUsedFonts();
-			} else {
-				return [];
-			}
-		},
-		
-		/**
 		 * Returns all data processed for saving
 		 * 
 		 * @return Data
