@@ -214,11 +214,13 @@ abstract class FormBlockController extends BlockController
 
 		$validator = new Validator\Validator($metadataFactory, $validatorFactory);
 
-		$factory = new Form\FormFactory(array(
+		$formRegistry = new Form\FormRegistry(array(
 					new Form\Extension\Core\CoreExtension(),
 					new Form\Extension\Validator\ValidatorExtension($validator),
 //					new Form\Extension\Csrf\CsrfExtension($csrfProvider)
 				));
+
+		$factory = new Form\FormFactory($formRegistry);
 
 		$id = $this->getBlock()->getId();
 		$formBuilder = $factory->createNamedBuilder('form', $id, $dataObject);
