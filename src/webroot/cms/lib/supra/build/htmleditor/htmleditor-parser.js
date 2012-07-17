@@ -203,8 +203,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove empty UL and OL tags
 				html = html.replace(/<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi, '');
 				
-				//Remove style attribute, except font-family and font-size
-				html = html.replace(/\s+style="[^"]*"/gi, '');
+				//Remove style attribute, except background-color
+				html = html.replace(/\s+style="([^"]*)"/gi, function (all, styles) {
+					styles = styles.match(/background-color:[^;]+/);
+					if (styles.length) {
+						return ' style="' + styles[0] + '"';
+					}
+					return '';
+				});
 				
 				//Remove empty class attributes
 				html = html.replace(/class="\s*"/g, '');

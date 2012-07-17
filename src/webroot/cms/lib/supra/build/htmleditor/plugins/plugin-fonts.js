@@ -28,7 +28,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		// Font list
 		fonts: null,
 		
-		// Select color type, "text" or "back"
+		// Select color type, "fore" or "back"
 		colorType: null,
 		
 		
@@ -82,7 +82,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			
 			if (this.color_settings_form && this.color_settings_form.get("visible")) {
 				
-				//@TODO
+				var color = "";
+				if (element) {
+					if (this.colorType == "fore") {
+						//Text color
+						color = element.tagName === "FONT" ? element.getAttribute("color") : "";
+					} else {
+						//Background color
+						color = element.style.backgroundColor || "";
+					}
+				}
+				
+				this.colorInput.set("value", color);
 				
 			} else if (this.font_settings_form && this.font_settings_form.get("visible")) {
 				var face = null;
@@ -147,12 +158,14 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				node,
 				testNode,
 				fontname,
-				realSize,
-				res; // execCommand result
+				realSize;
 			
 			if (editor.selectionIsCollapsed()) {
 				//Increase selection to all element if there isn't any
-				editor.selectNode(editor.getSelectedElement());
+				node = editor.getSelectedElement();
+				if (!node) return;
+				
+				editor.selectNode(node);
 				editor._resetSelection();
 			}
 			
@@ -190,12 +203,35 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				
 			} else if (command == "backcolor") {
 				
-				//@TODO
+				node = editor.getSelectedElement();
+				
+				if (!data) {
+					if (node && node.style.backgroundColor) {
+						if (node.tagName == "SPAN") {
+							this.htmleditor.unwrapNode(node);
+						} else {
+							node.style.backgroundColor = "";
+						}
+						
+						this.cleanUp();
+						
+						editor._changed();
+						editor.refresh(true);
+						
+						return;
+					}
+				} else {
+					if (node && node.tagName == "FONT") {
+						//Update FONT element if we can
+						node.style.backgroundColor = data;
+						return;
+					}
+				}
 				
 			}
 			
-			//Insert <font> for fontsize, fontname
-			res = this.htmleditor.get("doc").execCommand(command, null, data);
+			//Insert <font> for color, fontsize, fontname or <span> for background color
+			editor.get("doc").execCommand(command, null, data);
 			
 			// If all text inside DIV, P, ... was selected, then selection didn't changed
 			// (according to text), but new wrapper element was added, so need to reset
@@ -203,19 +239,40 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			
 			if (command == "fontsize") {
 				//Get <font /> element
+				node = editor.getSelectedElement();
 				
-				//Remove "size" attribute, since we will be using classname
-				node.removeAttribute("size");
-				node.className = "";
-				
-				//We want to make sure classname if is actually needed
-				realSize = parseInt(Y.Node(node).getStyle("font-size"), 10);
-				
-				if (data && data != realSize) {
-					//Fontsize set as classname
-					node.className = "font-" + data;
-				} else {
+				if (node) {
+					//Remove "size" attribute, since we will be using classname
+					node.removeAttribute("size");
 					node.className = "";
+					
+					//We want to make sure classname if is actually needed
+					realSize = parseInt(Y.Node(node).getStyle("font-size"), 10);
+					
+					if (data && data != realSize) {
+						//Fontsize set as classname
+						node.className = "font-" + data;
+					} else {
+						node.className = "";
+					}
+				}
+			} else if (command == "backcolor") {
+				//Get <span /> element
+				node = editor.getSelectedElement();
+				
+				if (node && node.tagName == "SPAN" && node.style.backgroundColor) {
+					//Replace SPAN with FONT
+					var tempNode = editor.get("doc").createElement("FONT");
+					node.parentNode.insertBefore(tempNode, node);
+					
+					while(node.firstChild) {
+						tempNode.appendChild(node.firstChild);
+					}
+					
+					tempNode.style.backgroundColor = node.style.backgroundColor;
+					node.parentNode.removeChild(node);
+					
+					editor.selectNode(tempNode);
 				}
 			}
 			
@@ -224,7 +281,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			
 			editor._changed();
 			editor.refresh(true);
-			return res;
 		},
 		
 		/**
@@ -234,9 +290,11 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @return True if node was removed, otherwise false
 		 */
 		cleanUpNode: function (node) {
+			node = node.getDOMNode ? node.getDOMNode() : node;
 			node.removeAttribute("size");
-			if (!node.getAttribute("face") && !node.className && !node.getAttribute("color")) {
-				editor.unwrapNode(node);
+			
+			if (!node.getAttribute("face") && !node.className && !node.getAttribute("color") && !node.style.backgroundColor) {
+				this.htmleditor.unwrapNode(node);
 				return true;
 			}
 			return false;
@@ -246,10 +304,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * Remove all <font> nodes which don't have any style
 		 */
 		cleanUp: function () {
-			var editor = this.htmleditor,
-				nodes = this.htmleditor.get("srcNode").all("font");
-			
-			nodes.each(this.cleanUpNode);
+			var nodes = this.htmleditor.get("srcNode").all("font");
+			nodes.each(Y.bind(this.cleanUpNode, this));
 		},
 		
 		/**
@@ -461,6 +517,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		hideSidebar: function () {
 			if (this.font_settings_form && this.font_settings_form.get("visible")) {
 				Manager.PageContentSettings.hide();
+			} else if (this.color_settings_form && this.color_settings_form.get("visible")) {
+				Manager.PageContentSettings.hide();
 			}
 		},
 		
@@ -472,7 +530,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		onSidebarHide: function () {
 			//Unstyle toolbar button
 			this.htmleditor.get("toolbar").getButton("fonts").set("down", false);
-			this.htmleditor.get("toolbar").getButton("textcolor").set("down", false);
+			this.htmleditor.get("toolbar").getButton("forecolor").set("down", false);
 			this.htmleditor.get("toolbar").getButton("backcolor").set("down", false);
 		},
 		
@@ -490,6 +548,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		init: function (htmleditor) {
 			var toolbar = htmleditor.get("toolbar");
 			
+			this.silentUpdating = true;
 			this.listeners = [];
 			
 			htmleditor.addCommand("fonts", Y.bind(this.showFontSidebar, this));
@@ -526,6 +585,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			this.listeners.push(
 				htmleditor.on("nodeChange", this.handleNodeChange, this)
 			);
+			
+			this.silentUpdating = false;
 		},
 		
 		/**
