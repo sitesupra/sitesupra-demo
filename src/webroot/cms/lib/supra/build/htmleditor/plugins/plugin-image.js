@@ -809,8 +809,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * @type {String}
 		 */
 		untagHTML: function (html, data) {
-			var htmleditor = this.htmleditor,
-				NAME = this.NAME,
+			var NAME = this.NAME,
 				self = this;
 			
 			html = html.replace(/{supra\.image id="([^"]+)"}/ig, function (tag, id) {
@@ -818,13 +817,35 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				var src = self.getImageURLBySize(data[id].image);
 				if (src) {
-					var style = ( ! data[id].image.exists ? '' : (data[id].size_width && data[id].size_height ? 'width="' + data[id].size_width + 'px" height="' + data[id].size_height + '"' : ''));
+
+					// Fix width/height if image proportions have been changed
+					if (data[id].size_width && data[id].size_height) {
+						var original = self.getImageDataBySize(data[id].image, 'original');
+
+						if (original) {
+							var original_height = original.height,
+								original_width = original.width,
+								min_ratio = Math.min(data[id].size_width / original_width, data[id].size_height / original_height),
+								new_width = Math.round(min_ratio * original_width),
+								new_height = Math.round(min_ratio * original_height);
+
+
+							if (Math.abs(new_width - data[id].size_width) > 1) {
+								data[id].size_width = new_width;
+							}
+							if (Math.abs(new_height - data[id].size_height) > 1) {
+								data[id].size_height = new_height;
+							}
+						}
+					}
+
+					var style = ( ! data[id].image.exists ? '' : (data[id].size_width && data[id].size_height ? 'width="' + data[id].size_width + '" height="' + data[id].size_height + '"' : ''));
 					var classname = (data[id].align ? 'align-' + data[id].align : '') + ' ' + data[id].style;
 					var html = '<img ' + style + ' id="' + id + '" class="' + classname + '" src="' + ( ! data[id].image.exists ? data[id].image.missing_path : src ) + '" title="' + Y.Escape.html(data[id].title) + '" alt="' + Y.Escape.html(data[id].description) + '" />';
 					
-					if (data.type == 'lightbox') {
+					if (data[id].type == 'lightbox') {
 						//For lightbox add link around image
-						return '<a class="lightbox" href="' + this.getImageURLBySize(data.image, 'original') + '" rel="lightbox"></a>' + html + '</a>';
+						return '<a class="lightbox" href="' + self.getImageURLBySize(data[id].image, 'original') + '" rel="lightbox"></a>' + html + '</a>';
 					}
 					
 					return html;
