@@ -166,7 +166,10 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 					if (node.tagName == "FONT") {
 						node.removeAttribute("face");
 						
-						if (this.cleanUpNode(node)) {
+						if (!node.className && !node.getAttribute("color")) {
+							//Font and classname not set, remove node
+							editor.unwrapNode(node);
+							
 							editor._changed();
 							editor.refresh(true);
 						}
@@ -175,18 +178,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				}
 			} else if (command == "forecolor") {
 				
-				if (!data) {
-					node = editor.getSelectedElement();
-					if (node.tagName == "FONT") {
-						node.removeAttribute("color");
-						
-						if (this.cleanUpNode(node)) {
-							editor._changed();
-							editor.refresh(true);
-						}
-						return;
-					}
-				}
+				//@TODO
 				
 			} else if (command == "backcolor") {
 				
@@ -214,32 +206,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				if (data && data != realSize) {
 					//Fontsize set as classname
 					node.className = "font-" + data;
-				} else {
-					node.className = "";
+				} else if (node.tagName == "FONT" && !node.getAttribute("face") && !node.getAttribute("color")) {
+					//Remove node
+					editor.unwrapNode(node);
 				}
 			}
 			
-			//Remove <font> which don't have font size and font family and color 
+			//Remove <font> which don't have font size or font family
 			this.cleanUp();
 			
 			editor._changed();
 			editor.refresh(true);
 			return res;
-		},
-		
-		/**
-		 * Remove node if doesn't have any styles
-		 * 
-		 * @param {Object} node Node
-		 * @return True if node was removed, otherwise false
-		 */
-		cleanUpNode: function (node) {
-			node.removeAttribute("size");
-			if (!node.getAttribute("face") && !node.className && !node.getAttribute("color")) {
-				editor.unwrapNode(node);
-				return true;
-			}
-			return false;
 		},
 		
 		/**
@@ -249,7 +227,12 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			var editor = this.htmleditor,
 				nodes = this.htmleditor.get("srcNode").all("font");
 			
-			nodes.each(this.cleanUpNode);
+			nodes.each(function (node) {
+				node.removeAttribute("size");
+				if (!node.getAttribute("face") && !node.className) {
+					editor.unwrapNode(node);
+				}
+			});
 		},
 		
 		/**
@@ -386,8 +369,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				"inputs": [{
 					"id": "color",
 					"type": "Color",
-					"label": "",
-					"allowUnset": true
+					"label": ""
 				}],
 				"style": "vertical"
 			};
@@ -451,7 +433,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * Show text color sidebar
 		 */
 		showTextColorSidebar: function () {
-			this.colorType = "fore";
+			this.colorType = "text";
 			this.showColorSidebar();
 		},
 		
