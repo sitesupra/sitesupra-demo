@@ -134,4 +134,7 @@ abstract class IndexerQueueItem extends Entity implements Timestampable
 	 * @return IndexedDocument
 	 */
 	abstract public function getIndexedDocuments();
+	
+	
+	abstract public function writeIndexedDocuments($documentWriter);
 }
