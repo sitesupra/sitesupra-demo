@@ -115,7 +115,7 @@ abstract class FormBlockController extends BlockController
 		
 		foreach ($conf->fields as $field) {
 			/* @var $field FormField */
-			$options = array();
+			$options = $field->getArguments();
 
 			$propertyGroup = FormBlockControllerConfiguration::FORM_GROUP_ID_LABELS;
 			$propertyName = FormBlockControllerConfiguration::generateEditableName($propertyGroup, $field);
@@ -139,7 +139,7 @@ abstract class FormBlockController extends BlockController
 				}
 			}
 			
-			$formBuilder->add($field->getName(), $field->getType(), $options);
+			$formBuilder->add($field->getName(), null, $options);
 		}
 
 		// Custom events

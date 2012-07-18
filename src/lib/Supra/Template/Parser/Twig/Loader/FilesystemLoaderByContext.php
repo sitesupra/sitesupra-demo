@@ -14,7 +14,7 @@ class FilesystemLoaderByContext extends Twig_Loader_Filesystem
 	 * @param mixed $context
 	 * @throws \InvalidArgumentException
 	 */
-	public function __construct($context = null)
+	public function __construct($context = null, $loader = null)
 	{
 		if (is_null($context)) {
 			return;
@@ -36,6 +36,14 @@ class FilesystemLoaderByContext extends Twig_Loader_Filesystem
 		
 		$classPath = dirname($classPath);
 		$this->setTemplatePath($classPath);
+
+		// Add paths from the parent loader as well
+		if ($loader instanceof Twig_Loader_Filesystem) {
+			$paths = $loader->getPaths();
+			foreach ($paths as $path) {
+				$this->addPath($path);
+			}
+		}
 	}
 	
 	/**

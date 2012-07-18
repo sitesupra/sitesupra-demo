@@ -73,6 +73,7 @@ class FormField
 		}
 
 		$this->type = $arguments['type'];
+		unset($arguments['type']);
 		$this->arguments  = $arguments;
 	}
 

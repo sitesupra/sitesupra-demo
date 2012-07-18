@@ -2,17 +2,8 @@
 
 {% block form %}
 	{{ supraBlock.form.begin(form) }}
-		<div>
-			{{ supraBlock.form.label(form.name) }}
-			{{ supraBlock.form.field(form.name) }}
-			{{ supraBlock.form.error(form.name) }}
-		</div>
-
-		<div>
-			{{ supraBlock.form.label(form.lastName) }}
-			{{ supraBlock.form.field(form.lastName) }}
-			{{ supraBlock.form.error(form.lastName) }}
-		</div>
+		{{ form_errors(form) }}
+		{{ form_rest(form) }}
 
 		{{ supraBlock.form.submit }}
 	{{ supraBlock.form.end }}
