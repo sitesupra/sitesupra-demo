@@ -223,7 +223,7 @@ abstract class FormBlockController extends BlockController
 		$factory = new Form\FormFactory($formRegistry);
 
 		$id = $this->getBlock()->getId();
-		$formBuilder = $factory->createNamedBuilder('form', $id, $dataObject);
+		$formBuilder = $factory->createNamedBuilder($id, 'form', $dataObject);
 
 		return $formBuilder;
 	}
