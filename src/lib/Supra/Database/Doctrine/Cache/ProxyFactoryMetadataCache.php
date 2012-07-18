@@ -5,7 +5,6 @@ namespace Supra\Database\Doctrine\Cache;
 use Supra\Cache\CacheNamespaceWrapper;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Supra\Loader\Loader;
 
 /**
  * This metadata cache implementation will regenerate proxy classes when entity
@@ -40,7 +39,11 @@ class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
 	 */
 	protected function doContains($id)
 	{
-		return false;
+		if ($this->writeOnlyMode) {
+			return false;
+		} else {
+			return parent::doContains($id);
+		}
 	}
 
 	/**

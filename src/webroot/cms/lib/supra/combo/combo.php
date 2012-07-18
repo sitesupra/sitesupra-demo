@@ -28,7 +28,7 @@ $extLength = ($css ? 3 : 2);
 $lessCss = true;
 $pre =      __DIR__ . '/../../../../';
 $cacheDir = __DIR__ . '/../../../../../tmp';
-//$version = '3.5.0';
+$version = __FILE__ . '/' . @file_get_contents(__DIR__ . '/../../../../../../VERSION');
 
 foreach ($files as $file) {
 	// Only CSS/JS allowed
@@ -80,8 +80,8 @@ function getCache($eTag)
 
 function getEtag($files)
 {
-	global $css, $checkFileModificationTime;
-	$cacheSource = array();
+	global $css, $checkFileModificationTime, $version;
+	$cacheSource = array($version);
 	
 	if ($checkFileModificationTime) {
 		$cacheSource[] = filemtime(__FILE__);
@@ -114,6 +114,8 @@ function writeFiles($files, $eTag)
 		}
 		@mkdir($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/', 0777, true);
 		@file_put_contents($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/' . $eTag, $out);
+		@chmod($cacheDir . '/yui/' . substr($eTag, 0, 2), 0777);
+		@chmod($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/' . $eTag, 0666);
 	}
 
 	return $out;

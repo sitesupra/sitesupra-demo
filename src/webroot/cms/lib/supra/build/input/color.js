@@ -6,9 +6,6 @@ YUI.add("supra.input-color", function (Y) {
 	var Color = Y.DataType.Color;
 	
 	var TEMPLATE = Supra.Template.compile('\
-						{% if allowUnset %}\
-							<div class="unset"><a></a><label>{{ labelUnset|escape }}</label></div>\
-						{% endif %}\
 						<div class="input-content">\
 							<div class="map"><div class="handle"></div><div class="cursor hidden"></div></div>\
 							<div class="bar"><div class="handle"></div></div>\
@@ -82,18 +79,6 @@ YUI.add("supra.input-color", function (Y) {
 		//Blue input
 		"nodeInputBlue": {
 			"value": null
-		},
-		//Node to unset color
-		"nodeUnset": {
-			"value": null
-		},
-		//Allow to unset color
-		"allowUnset": {
-			"value": false
-		},
-		//Unset button text
-		"labelUnset": {
-			"value": "No color"
 		}
 	};
 	
@@ -183,10 +168,7 @@ YUI.add("supra.input-color", function (Y) {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			var contentBox = this.get("contentBox"),
-				template = Y.Node.create(TEMPLATE({
-					"allowUnset": this.get("allowUnset"),
-					"labelUnset": this.get("labelUnset")
-				}));
+				template = Y.Node.create(TEMPLATE({}));
 			
 			//Attributes
 			this.set("nodePreview", template.one(".preview"));
@@ -200,16 +182,12 @@ YUI.add("supra.input-color", function (Y) {
 			this.set("nodeInputGreen", template.one("input[name=\"green\"]"));
 			this.set("nodeInputBlue", template.one("input[name=\"blue\"]"));
 			
-			if (this.get("allowUnset")) {
-				this.set("nodeUnset", template.one("div.unset a"));
-			}
-			
 			//Render template
 			if (contentBox.test('input')) {
 				contentBox.addClass('hidden');
-				this.get('boundingBox').append(template.get("children"));
+				this.get('boundingBox').append(template);
 			} else {
-				contentBox.append(template.get("children"));
+				contentBox.append(template);
 			}
 			
 			//Value
@@ -239,10 +217,6 @@ YUI.add("supra.input-color", function (Y) {
 			this.get("nodeInputRed").on("blur", this._onBlurRGB, this);
 			this.get("nodeInputGreen").on("blur", this._onBlurRGB, this);
 			this.get("nodeInputBlue").on("blur", this._onBlurRGB, this);
-			
-			if (this.get("allowUnset")) {
-				this.get("nodeUnset").on("mousedown", this._onUnset, this);
-			}
 			
 			this.syncUI();
 		},
@@ -317,7 +291,6 @@ YUI.add("supra.input-color", function (Y) {
 		 */
 		syncUIPreview: function () {
 			if (this.get("nodePreview") && !this.uiFrozen) {
-				this.get("nodePreview").removeClass("preview-unset");
 				this.get("nodePreview").setStyle("backgroundColor", this.hex);
 			}
 		},
@@ -383,14 +356,6 @@ YUI.add("supra.input-color", function (Y) {
 				this.setRGB(red, green, blue);
 				this.set("value", this.hex);
 			}
-		},
-		
-		/**
-		 * On unset update color
-		 */
-		_onUnset: function () {
-			this.setRGB(255, 255, 255);
-			this.set("value", "");
 		},
 		
 		
@@ -748,36 +713,19 @@ YUI.add("supra.input-color", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			var fixed = (value || "#000000").toUpperCase();
+			value = (value || "#000000").toUpperCase();
 			
-			this.rgb = Color.parse(fixed) || {'red': 0, 'green': 0, 'blue': 0};
+			this.rgb = Color.convert.HEXtoRGB(value) || {'red': 0, 'green': 0, 'blue': 0};
 			this.hsb = Color.convert.RGBtoHSB(this.rgb);
 			this.hex = Color.convert.RGBtoHEX(this.rgb);
 			
-			if (this.get("allowUnset") && !value) {
-				fixed = "";
-			} else {
-				fixed = this.hex;
-			}
-			
 			//Super
-			Input.superclass._setValue.apply(this, [fixed]);
+			Input.superclass._setValue.apply(this, [this.hex]);
 			
 			//Update UI
 			this.syncUI();
 			
-			var nodeUnset = this.get("nodeUnset"),
-				nodePreview = null;
-			
-			if (this.get("allowUnset") && !value) {
-				nodePreview = this.get("nodePreview");
-				if (nodeUnset) nodeUnset.addClass("active");
-				if (nodePreview) nodePreview.addClass("preview-unset");
-			} else {
-				if (nodeUnset) nodeUnset.removeClass("active");
-			}
-			
-			return fixed;
+			return this.hex;
 		}
 		
 	});
