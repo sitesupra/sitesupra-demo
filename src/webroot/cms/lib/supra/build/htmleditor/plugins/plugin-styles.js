@@ -264,12 +264,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			if (links) {
 				for(var i=0,ii=links.size(); i<ii; i++) {
 					link = links.item(i).getDOMNode();
-					if (link.sheet) {
-						try {
-							rules = link.sheet.cssRules;
-						} catch (err) {
-							rules = null; //Possibly "Insecure operation"
-						}
+					if (link.sheet && link.sheet.cssRules) {
+						rules = link.sheet.cssRules;
 						if(rules) {
 							for(var k=0,kk=rules.length; k<kk; k++) {
 								if (rules[k].selectorText && rules[k].cssText.indexOf('#su-style-dropdown') != -1) {

@@ -9,7 +9,7 @@ YUI.add('supra.datatype-color', function(Y) {
 	var Color = Y.namespace("DataType.Color");
 	
 	//Regular expressions
-	var REGEX_RGB = Color.REGEX_RGB = /^rgb(a)?\((\d+)\s?,\s?(\d+)\s?,\s?(\d+)/i,
+	var REGEX_RGB = Color.REGEX_RGB = /^rgb(a)?\((\d+)\s?,\s?(\d+)\s?,\s?(\d+)/,
 		REGEX_HEX = Color.REGEX_HEX = /^#[0-9ABCDEF]{3}([0-9ABCDEF]{3})?/i,
 		REGEX_HEX_LONG_TO_RGB = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i,
 		REGEX_HEX_SHORT_TO_RGB = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -32,8 +32,8 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (match = value.match(REGEX_RGB)) {
 				return {
 					'red': parseInt(match[2], 10),
-					'green': parseInt(match[3], 10),
-					'blue': parseInt(match[4], 10)
+					'green': parseInt(match[2], 10),
+					'blue': parseInt(match[2], 10)
 				};
 			} else if (REGEX_HEX.test(value)) {
 				return Color.convert.HEXtoRGB(value);

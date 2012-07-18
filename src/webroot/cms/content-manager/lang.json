@@ -145,7 +145,7 @@
 			
 			"styles": "Styles",
 			"fonts": "Fonts",
-			"forecolor": "Text color",
+			"textcolor": "Text color",
 			"backcolor": "Background color",
 			
 			"image_properties": "Image properties",
