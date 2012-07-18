@@ -1,28 +1,28 @@
-YUI().add('supra.htmleditor-plugin-image', function (Y) {
+YUI().add("supra.htmleditor-plugin-image", function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
 		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
 		
 		/* Default image size */
-		size: '200x200',
+		size: "200x200",
 		
 		/* Allow none, border, lightbox styles */
 		styles: true
 	};
 	
 	var defaultProps = {
-		'type': null,
-		'title': '',
-		'description': '',
-		'align': 'middle',
-		'style': '',
-		'image': {}
+		"type": null,
+		"title": "",
+		"description": "",
+		"align": "middle",
+		"style": "",
+		"image": {}
 	};
 	
 	var Manager = Supra.Manager;
 	
-	Supra.HTMLEditor.addPlugin('image', defaultConfiguration, {
+	Supra.HTMLEditor.addPlugin("image", defaultConfiguration, {
 		
 		settings_form: null,
 		selected_image: null,
@@ -37,37 +37,42 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		drop: null,
 		
+		/**
+		 * List of image styles
+		 * @type {Array}
+		 * @private
+		 */
+		image_styles: null,
+		
+		/**
+		 * Manage image
+		 * @type {Object}
+		 * @private
+		 */
+		resizer: null,
+		
 		
 		/**
 		 * Generate settings form
 		 */
 		createSettingsForm: function () {
 			//Get form placeholder
-			var content = Manager.getAction('PageContentSettings').get('contentInnerNode');
+			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
 			if (!content) return;
 			
 			//Properties form
 			var form_config = {
-				'inputs': [
-					{'id': 'title', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_title']), 'value': ''},
-					{'id': 'description', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_description']), 'value': ''},
-					{'id': 'align', 'style': 'minimal', 'type': 'SelectList', 'label': Supra.Intl.get(['htmleditor', 'image_alignment']), 'value': 'right', 'values': [
-						{'id': 'left', 'title': Supra.Intl.get(['htmleditor', 'alignment_left']), 'icon': '/cms/lib/supra/img/htmleditor/align-left.png'},
-						{'id': 'middle', 'title': Supra.Intl.get(['htmleditor', 'alignment_center']), 'icon': '/cms/lib/supra/img/htmleditor/align-center.png'},
-						{'id': 'right', 'title': Supra.Intl.get(['htmleditor', 'alignment_right']), 'icon': '/cms/lib/supra/img/htmleditor/align-right.png'}
+				"inputs": [
+					{"id": "title", "type": "String", "label": Supra.Intl.get(["htmleditor", "image_title"]), "value": ""},
+					{"id": "description", "type": "String", "label": Supra.Intl.get(["htmleditor", "image_description"]), "value": ""},
+					{"id": "align", "style": "minimal", "type": "SelectList", "label": Supra.Intl.get(["htmleditor", "image_alignment"]), "value": "right", "values": [
+						{"id": "left", "title": Supra.Intl.get(["htmleditor", "alignment_left"]), "icon": "/cms/lib/supra/img/htmleditor/align-left.png"},
+						{"id": "middle", "title": Supra.Intl.get(["htmleditor", "alignment_center"]), "icon": "/cms/lib/supra/img/htmleditor/align-center.png"},
+						{"id": "right", "title": Supra.Intl.get(["htmleditor", "alignment_right"]), "icon": "/cms/lib/supra/img/htmleditor/align-right.png"}
 					]},
-					{'id': 'style', 'style': 'minimal', 'type': 'SelectList', 'title': Supra.Intl.get(['htmleditor', 'image_style']), 'value': 'default', 'values': [
-						{'id': '', 'title': Supra.Intl.get(['htmleditor', 'style_normal']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-normal.png'},
-						{'id': 'border', 'title': Supra.Intl.get(['htmleditor', 'style_border']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-border.png'},
-						{'id': 'lightbox', 'title': Supra.Intl.get(['htmleditor', 'style_lightbox']), 'icon': '/cms/lib/supra/img/htmleditor/image-style-lightbox.png'}
-					]},
-					
-					{'id': 'size_type', 'type': 'Checkbox', 'label': Supra.Intl.get(['htmleditor', 'image_size']), 'labels': [Supra.Intl.get(['htmleditor', 'size_custom']), Supra.Intl.get(['htmleditor', 'size_original'])], 'value': true},
-				
-					{'id': 'size_width', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_width']), 'value': '', 'valueMask': /^\d+$/},
-					{'id': 'size_height', 'type': 'String', 'label': Supra.Intl.get(['htmleditor', 'image_height']), 'value': '', 'valueMask': /^\d+$/}
+					{"id": "style", "style": "minimal", "type": "SelectVisual", "label": Supra.Intl.get(["htmleditor", "image_style"]), "value": "default", "values": []}
 				],
-				'style': 'vertical'
+				"style": "vertical"
 			};
 			
 			var form = new Supra.Form(form_config);
@@ -76,37 +81,43 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			//On title, description, etc. change update image data
 			for(var i=0,ii=form_config.inputs.length; i<ii; i++) {
-				form.getInput(form_config.inputs[i].id).on('change', this.onPropertyChange, this);
+				form.getInput(form_config.inputs[i].id).on("change", this.onPropertyChange, this);
 			}
 			
 			//If in configuration styles are disabled, then hide buttons
 			if (this.configuration.styles) {
-				form.getInput('style').set('visible', true);
+				form.getInput("style").set("visible", true);
 			} else {
-				form.getInput('style').set('visible', false);
+				form.getInput("style").set("visible", false);
 			}
 			
-			//Add 'Delete' and 'Replace buttons'
+			//Fill style list
+			this.fillStylesList(form);
+			
+			//Add "Delete", "Edit" and "Replace buttons"
 			//Replace button
-			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'image_replace']), 'style': 'small-gray'});
-				btn.render(form.get('contentBox'));
-				btn.addClass('button-section');
-				btn.on('click', function () {
-					//Open Media library on 'Replace'
-					if (this.selected_image) {
-						//Open settings form and open MediaSidebar
-						this.hideSettingsForm();
-						Manager.getAction('MediaSidebar').execute({
-							onselect: Y.bind(this.insertImage, this)
-						});
-					}
-				}, this);
+			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "image_replace"]), "style": "small-gray"});
+				btn.render(form.get("contentBox"));
+				btn.addClass("button-section");
+				btn.on("click", this.replaceSelectedImage, this);
+				
+				//Move into correct place
+				form.get("contentBox").prepend(btn.get("boundingBox"));
+			
+			//Edit button
+			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "image_edit"]), "style": "small-gray"});
+				btn.render(form.get("contentBox"));
+				btn.addClass("button-section");
+				btn.on("click", this.editImage, this);
+				
+				//Move into correct place
+				form.get("contentBox").prepend(btn.get("boundingBox"));
 			
 			//Delete button
-			var btn = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'image_delete']), 'style': 'small-red'});
-				btn.render(form.get('contentBox'));
-				btn.addClass('su-button-delete');
-				btn.on('click', this.removeSelectedImage, this);
+			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "image_delete"]), "style": "small-red"});
+				btn.render(form.get("contentBox"));
+				btn.addClass("su-button-delete");
+				btn.on("click", this.removeSelectedImage, this);
 			
 			this.settings_form = form;
 			return form;
@@ -116,7 +127,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * Returns true if form is visible, otherwise false
 		 */
 		hideSettingsForm: function () {
-			if (this.settings_form && this.settings_form.get('visible')) {
+			if (this.settings_form && this.settings_form.get("visible")) {
 				Manager.PageContentSettings.hide();
 			}
 		},
@@ -126,7 +137,9 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		settingsFormApply: function () {
 			if (this.selected_image) {
-				this.selected_image.removeClass('yui3-image-selected');
+				var ancestor = this.getImageWrapperNode(this.selected_image);
+				ancestor.removeClass("supra-image-selected");
+				
 				this.selected_image = null;
 				this.selected_image_id = null;
 				this.original_data = null;
@@ -134,13 +147,64 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				this.hideSettingsForm();
 				this.hideMediaSidebar();
 				
-				//Property changed, update editor 'changed' state
+				//Property changed, update editor "changed" state
 				this.htmleditor._changed();
 			}
 		},
 		
 		/**
+		 * Fill styles list
+		 */
+		fillStylesList: function (form) {
+			var plugin = this.htmleditor.getPlugin("styles"),
+				styles = plugin.selectors["IMG"],
+				input  = form.getInput("style"),
+				values = [{
+							"id": "",
+							"title": Supra.Intl.get(["htmleditor", "image_style_none"]),
+							"icon": ""
+						 }];
+			
+			if (styles && styles.length) {
+				
+				for (var i=0, ii=styles.length; i<ii; i++) {
+					values.push({
+						"id": styles[i].classname,
+						"title": styles[i].attributes.title || styles[i].classname,
+						"icon": styles[i].attributes.icon || ""
+					});
+				}
+				
+				input.set("values", values)
+				input.show();
+			} else {
+				input.hide();
+			}
+			
+			//Save to reuse when changing style
+			this.image_styles = styles;
+		},
+		
+		/**
+		 * Replace selected image with another one from media library
+		 * 
+		 * @private
+		 */
+		replaceSelectedImage: function () {
+			//Open Media library on "Replace"
+			if (this.selected_image) {
+				//Open settings form and open MediaSidebar
+				this.hideSettingsForm();
+				Manager.getAction("MediaSidebar").execute({
+					onselect: Y.bind(this.insertImage, this)
+				});
+			}
+		},
+		
+		/**
 		 * Remove selected image
+		 * 
+		 * @private
 		 */
 		removeSelectedImage: function () {
 			if (this.selected_image) {
@@ -164,7 +228,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			if (this.silent || !this.selected_image) return;
 			
 			var target = event.target,
-				id = target.get('id'),
+				id = target.get("id"),
 				imageId = this.selected_image_id,
 				data = this.htmleditor.getData(imageId),
 				value = (event.value !== undefined ? event.value : target.getValue());
@@ -187,15 +251,21 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		setImageProperty: function (id, value, image) {
 			if (!image) image = this.selected_image;
 			
-			if (id == 'title') {
-				image.setAttribute('title', value);
-			} else if (id == 'description') {
-				image.setAttribute('alt', value);
-			} else if (id == 'align') {
-				image.setAttribute('align', value);
-				image.removeClass('align-left').removeClass('align-right').removeClass('align-middle');
-				if (value) image.addClass('align-' + value);
-			} else if (id == 'size_width') {
+			var ancestor = this.getImageWrapperNode(image);
+			
+			if (id == "title") {
+				image.setAttribute("title", value);
+			} else if (id == "description") {
+				image.setAttribute("alt", value);
+			} else if (id == "align") {
+				ancestor.removeClass("align-left").removeClass("align-right").removeClass("align-middle");
+				image.removeClass("align-left").removeClass("align-right").removeClass("align-middle");
+				
+				if (value) {
+					ancestor.addClass("align-" + value);
+					image.addClass("align-" + value);
+				}
+			} else if (id == "size_width") {
 				
 				value = parseInt(value) || 0;
 				var data = this.htmleditor.getData(this.selected_image_id),
@@ -206,16 +276,10 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				data.size_width = width;
 				data.size_height = height;
-				image.setAttribute('width', width);
-				image.setAttribute('height', height);
+				image.setAttribute("width", width);
+				image.setAttribute("height", height);
 				
-				this.silent = true;
-				this.settings_form.getInput('size_type').set('value', true);
-				this.settings_form.getInput('size_height').set('value', height);
-				this.settings_form.getInput('size_width').set('value', width);
-				this.silent = false;
-				
-			} else if (id == 'size_height') {
+			} else if (id == "size_height") {
 				
 				value = parseInt(value) || 0;
 				var data = this.htmleditor.getData(this.selected_image_id),
@@ -226,80 +290,106 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				
 				data.size_width = width;
 				data.size_height = height;
-				image.setAttribute('width', width);
-				image.setAttribute('height', height);
+				image.setAttribute("width", width);
+				image.setAttribute("height", height);
 				
-				this.silent = true;
-				this.settings_form.getInput('size_type').set('value', true);
-				this.settings_form.getInput('size_height').set('value', height);
-				this.settings_form.getInput('size_width').set('value', width);
-				this.silent = false;
+			} else if (id == "style") {
+				var styles = this.image_styles,
+					s = 0,
+					ss = styles.length;
 				
-			} else if (id == 'style') {
-				image.removeClass('border').removeClass('lightbox');
-				if (value) image.addClass(value);
-				
-				var ancestor = image.ancestor();
-				if (!ancestor) {
-					Y.log('Missing ancestor for selected image. Image not in DOM anymore?', 'debug');
-					return;
-				}
-				
-				//Update link
-				if (value == 'lightbox') {
-					//Get all image data (including all sizes and paths)
-					var data = this.htmleditor.getData(this.selected_image_id);
-					
-					if (ancestor.test('a')) {
-						//If parent is link then update href and rel attributes
-						ancestor.setAttribute('href', this.getImageURLBySize(data.image, 'original'));
-						ancestor.setAttribute('rel', 'lightbox');
-						ancestor.addClass('lightbox');
-					} else {
-						//Create link
-						var link = Y.Node.create('<a class="lightbox" href="' + this.getImageURLBySize(data.image, 'original') + '" rel="lightbox"></a>');
-						image.insert(link, 'before');
-						link.append(image);
+				if (styles && styles.length) {
+					for (; s<ss; s++) {
+						if (styles[s].classname) {
+							ancestor.removeClass(styles[s].classname);
+							image.removeClass(styles[s].classname);
+						}
 					}
-				} else if (ancestor.test('a.lightbox')) {
-					//Remove link
-					ancestor.insert(image, 'before');
-					ancestor.remove();
 				}
-			} else if (id == 'image') {
-				image.setAttribute('src', this.getImageURLBySize(value));
+				
+				if (value) {
+					ancestor.addClass(value);
+					image.addClass(value);
+				}
+			} else if (id == "image") {
+				image.setAttribute("src", this.getImageURLBySize(value));
 				
 				//If lightbox then also update link
-				if (this.getImageProperty('style') == 'lightbox') {
-					this.setImageProperty('style', 'lightbox', image);
+				if (this.getImageProperty("style") == "lightbox") {
+					this.setImageProperty("style", "lightbox", image);
 				}
-			} else if (id == 'size_type') {
-				
-				var heightInput = this.settings_form.getInput('size_height'),
-					widthInput = this.settings_form.getInput('size_width'),
-					imageData = this.htmleditor.getData(this.selected_image_id);
-				
-				if (!value) {
-					var size = imageData.image.sizes.original;
-					
-					// temporary store prev size/height
-					this.custom_size = {
-						width: imageData.size_width,
-						height: imageData.size_height
-					};
-					
-					heightInput.set('value', size.height);
-					widthInput.set('value', size.width);
-				} else {
-					if (this.custom_size) {
-						heightInput.set('value', this.custom_size.height);
-						widthInput.set('value', this.custom_size.width);
+			} else if (id == "crop_width") {
+				ancestor.style.width = value + "px";
+			} else if (id == "crop_height") {
+				ancestor.style.height = value + "px";
+			} else if (id == "crop_left") {
+				image.style.marginLeft = - value + "px";
+			} else if (id == "crop_top") {
+				image.style.marginTop = - value + "px";
+			}
+		},
+		
+		/**
+		 * Returns image wrapper node
+		 * If node doesn't exist then creates it
+		 * 
+		 * @param {HTMLElement} image Image element
+		 * @return Image wrapper node
+		 */
+		getImageWrapperNode: function (image) {
+			var ancestor = image.ancestor();
+			
+			if (ancestor) {
+				if (!ancestor.test("span.supra-image")) {
+					ancestor = ancestor.ancestor();
+					if (ancestor && !ancestor.test("span.supra-image")) {
+						ancestor = null;
 					}
 				}
-				
-				heightInput.set('visible', !!value);
-				widthInput.set('visible', !!value);
 			}
+			
+			if (!ancestor) {
+				//Wrap image in <span class="supra-image">
+				ancestor = Y.Node(this.htmleditor.get("doc").createElement("SPAN"));
+				ancestor.addClass("supra-image");
+				
+				var className = image.hasClass("align-left") ? "align-left" : (
+								image.hasClass("align-right") ? "align-right" : (
+								image.hasClass("align-middle") ? "align-middle" : 
+								""));
+				
+				if (className) {
+					ancestor.addClass(className);
+				}
+				
+				var crop_left   = image.getAttribute("data-crop-left"),
+					crop_top    = image.getAttribute("data-crop-top"),
+					crop_width  = image.getAttribute("data-crop-width") || image.width,
+					crop_height = image.getAttribute("data-crop-height") || image.height,
+					data_width  = image.getAttribute("data-width") || image.width,
+					data_height = image.getAttribute("data-height") || image.height;
+				
+				image.setStyles({
+					"margin-left": crop_left ? -crop_left + "px" : "0px",
+					"margin-top": crop_top ? -crop_top + "px" : "0px"
+				});
+				ancestor.setStyles({
+					"width": crop_width ? crop_width + "px" : "auto",
+					"height": crop_height ? crop_height + "px" : "auto"
+				});
+				
+				//Set image to original
+				var data = this.getImageDataFromNode(image),
+					url  = this.getImageURLBySize(data.image, "original");
+				
+				image.setAttribute("src", url);
+				image.removeAttribute("align");
+				
+				image.insert(ancestor, "before");
+				ancestor.append(image);
+			}
+			
+			return ancestor;
 		},
 		
 		/**
@@ -324,17 +414,17 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		getImageDataFromNode: function (node) {
 			var data = this.htmleditor.getData(node);
-			if (!data && node.test('img')) {
+			if (!data && node.test("img")) {
 				//Parse node and try to fill all properties
 				/*
 				data = Supra.mix({}, defaultProps, {
-					'title': node.getAttribute('title') || '',
-					'description': node.getAttribute('alt') || '',
-					'align': node.getAttribute('align') || 'left',
-					'size_width': node.getAttribute('width') || node.offsetWidth || 0,
-					'size_height': node.getAttribute('height') || node.offsetHeight || 0,
-					'style': node.hasClass('lightbox') ? 'lightbox' : (node.hasClass('border') ? 'border' : ''),
-					'image': '' //We don't know ID
+					"title": node.getAttribute("title") || "",
+					"description": node.getAttribute("alt") || "",
+					"align": node.getAttribute("align") || "left",
+					"size_width": node.getAttribute("width") || node.offsetWidth || 0,
+					"size_height": node.getAttribute("height") || node.offsetHeight || 0,
+					"style": node.hasClass("lightbox") ? "lightbox" : (node.hasClass("border") ? "border" : ""),
+					"image": "" //We don't know ID
 				});
 				this.htmleditor.setData(node, data);
 				*/
@@ -346,26 +436,28 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * Show image settings bar
 		 */
 		showImageSettings: function (target) {
-			if (target.test('.gallery')) return false;
+			if (target.test(".gallery")) return false;
 			
-			var data = this.getImageDataFromNode(target);
+			var data = this.getImageDataFromNode(target),
+				ancestor = this.getImageWrapperNode(target); // creates wrapper if it doesn't exist
+			
 			if (!data) {
-				Y.log('Missing image data for image ' + target.getAttribute('src'), 'debug');
+				Y.log("Missing image data for image " + target.getAttribute("src"), "debug");
 				return false;
 			}
 			
 			//Make sure PageContentSettings is rendered
 			var form = this.settings_form || this.createSettingsForm(),
-				action = Manager.getAction('PageContentSettings');
+				action = Manager.getAction("PageContentSettings");
 			
 			if (!form) {
-				if (action.get('loaded')) {
-					if (!action.get('created')) {
+				if (action.get("loaded")) {
+					if (!action.get("created")) {
 						action.renderAction();
 						this.showImageSettings(target);
 					}
 				} else {
-					action.once('loaded', function () {
+					action.once("loaded", function () {
 						this.showImageSettings(target);
 					}, this);
 					action.load();
@@ -374,38 +466,22 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			}
 			
 			action.execute(form, {
-				'doneCallback': Y.bind(this.settingsFormApply, this),
+				"doneCallback": Y.bind(this.settingsFormApply, this),
 				
-				'title': Supra.Intl.get(['htmleditor', 'image_properties']),
-				'scrollable': true
+				"title": Supra.Intl.get(["htmleditor", "image_properties"]),
+				"scrollable": true
 			});
 			
 			//
 			this.selected_image = target;
-			this.selected_image.addClass('yui3-image-selected');
-			this.selected_image_id = this.selected_image.getAttribute('id');
+			this.selected_image_id = this.selected_image.getAttribute("id");
 			
-			// if current image size/height matches original size/heigh
-			// set "Image size" checkbox to "Original"
-			
-			data.size_type = true;
-			
-			var originalSize = data.image.sizes.original;
-			if (originalSize.height == data.size_height
-				&& originalSize.width == data.size_width) {
-				
-				var heightInput = this.settings_form.getInput('size_height'),
-					widthInput = this.settings_form.getInput('size_width');
-					
-				heightInput.set('visible', false);
-				widthInput.set('visible', false);
-				
-				data.size_type = false;
-			}
+			var ancestor = this.getImageWrapperNode(this.selected_image);
+				ancestor.addClass("supra-image-selected");
 			
 			this.silent = true;			
 			this.settings_form.resetValues()
-							  .setValues(data, 'id');
+							  .setValues(data, "id");
 			this.silent = false;
 			
 			//Clone data because data properties will change and orginal properties should stay intact
@@ -418,11 +494,11 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * Show/hide media library bar
 		 */
 		toggleMediaSidebar: function () {
-			var button = this.htmleditor.get('toolbar').getButton('insertimage');
-			if (button.get('down')) {
-				Manager.executeAction('MediaSidebar', {
-					'onselect': Y.bind(this.insertImage, this),
-					'hideToolbar': true
+			var button = this.htmleditor.get("toolbar").getButton("insertimage");
+			if (button.get("down")) {
+				Manager.executeAction("MediaSidebar", {
+					"onselect": Y.bind(this.insertImage, this),
+					"hideToolbar": true
 				});
 			} else {
 				this.hideMediaSidebar();
@@ -433,8 +509,85 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * Hide media library bar
 		 */
 		hideMediaSidebar: function () {
-			Manager.getAction('MediaSidebar').hide();
+			Manager.getAction("MediaSidebar").hide();
 		},
+		
+		
+		/* ------------------------------- Manage image --------------------------- */
+		
+		
+		/**
+		 * Open image management
+		 * 
+		 * @private
+		 */
+		editImage: function () {
+			var image = this.selected_image,
+				data  = this.original_data,
+				size = null,
+				resizer = this.resizer;
+			
+			if (image) {
+				//Close settings form
+				this.settingsFormApply();
+				
+				size = this.getImageDataBySize(data.image, "original");
+				
+				if (!resizer) {
+					this.resizer = resizer = new Supra.ImageResizer();
+					resizer.on("resize", this.onEditImageResize, this);
+				}
+				
+				resizer.set("maxImageHeight", size.height);
+				resizer.set("maxImageWidth", size.width);
+				resizer.set("image", image);
+			}
+		},
+		
+		/**
+		 * Handle image resize
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onEditImageResize: function (event) {
+			//Preserve image data
+			var image = event.image,
+				imageId = image.getAttribute("id"),
+				data  = this.getImageDataFromNode(image);
+			
+			if (!data) {
+				//Can't find image data, where this image appeared from?
+				return;
+			}
+			
+			data.crop_top = event.cropTop;
+			data.crop_left = event.cropLeft;
+			data.crop_width = event.cropWidth;
+			data.crop_height = event.cropHeight;
+			data.size_width = event.imageWidth;
+			data.size_height = event.imageHeight;
+			
+			this.htmleditor.setData(imageId, data);
+			
+			//Property changed, update editor 'changed' state
+			this.htmleditor._changed();
+		},
+		
+		/**
+		 * Stop image management
+		 * 
+		 * @private
+		 */
+		stopEditImage: function () {
+			if (this.resizer && this.resizer.get("image")) {
+				this.resizer.set("image", null);
+			}
+		},
+		
+		
+		/* ------------------------------- Image insert/drop -------------------------- */
+		
 		
 		/**
 		 * Insert image into HTMLEditor content
@@ -444,56 +597,64 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		insertImage: function (event) {
 			var htmleditor = this.htmleditor;
 			
-			var locale = Supra.data.get('locale');
+			var locale = Supra.data.get("locale");
 			
-			if (!htmleditor.get('disabled') && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
+			if (!htmleditor.get("disabled") && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
 				var image_data = event.image;
 				
-			if (this.selected_image) {
+				if (this.selected_image) {
 					//If image in content is already selected, then replace
 					var imageId = this.selected_image_id,
 						imageData = this.htmleditor.getData(imageId);
 
 					var data = Supra.mix({}, defaultProps, {
-						'type': this.NAME,
-						'title': (image_data.title && image_data.title[locale]) ? image_data.title[locale] : '',
-						'description': (image_data.description && image_data.description[locale]) ? image_data.description[locale] : '',
-						'align': imageData.align,
-						'style': imageData.style,
-						'image': image_data,	//Original image data
-						'size_width': imageData.size_width,
-						'size_height': imageData.size_height
+						"type": this.NAME,
+						"title": (image_data.title && image_data.title[locale]) ? image_data.title[locale] : "",
+						"description": (image_data.description && image_data.description[locale]) ? image_data.description[locale] : "",
+						"align": imageData.align,
+						"style": imageData.style,
+						"image": image_data,	//Original image data
+						"size_width": imageData.size_width,
+						"size_height": imageData.size_height,
+						"crop_left": imageData.crop_left,
+						"crop_top": imageData.crop_top,
+						"crop_width": imageData.crop_width,
+						"crop_height": imageData.crop_height
 					});
 					
 					//Preserve image data
 					this.htmleditor.setData(imageId, data);
 					
 					//Update image attributes
-					this.setImageProperty('image', data.image);
-					this.setImageProperty('title', data.title);
-					this.setImageProperty('description', data.description);
+					this.setImageProperty("image", data.image);
+					this.setImageProperty("title", data.title);
+					this.setImageProperty("description", data.description);
 					
 					//Update form input values
-					this.settings_form.getInput('title').setValue(data.title);
-					this.settings_form.getInput('description').setValue(data.description);
+					this.settings_form.getInput("title").setValue(data.title);
+					this.settings_form.getInput("description").setValue(data.description);
 				} else {
 					//Find image by size and set initial image properties
 					var size_data = this.getImageDataBySize(image_data),
 						src = this.getImageURLBySize(image_data);
 					
 					var data = Supra.mix({}, defaultProps, {
-						'type': this.NAME,
-						'title': (image_data.title && image_data.title[locale]) ? image_data.title[locale] : '',
-						'description': (image_data.description && image_data.description[locale]) ? image_data.description[locale] : '',
-						'image': image_data,	//Original image data
-						'size_width': size_data.width,
-						'size_height': size_data.height
+						"type": this.NAME,
+						"title": (image_data.title && image_data.title[locale]) ? image_data.title[locale] : "",
+						"description": (image_data.description && image_data.description[locale]) ? image_data.description[locale] : "",
+						"image": image_data,	//Original image data
+						"size_width": size_data.width,
+						"size_height": size_data.height,
+						"crop_left": 0,
+						"crop_top": 0,
+						"crop_width": size_data.width,
+						"crop_height": size_data.height
 					});
 					
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<img id="' + uid + '" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
+					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="left: -' + data.crop_left + 'px; top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
 					htmleditor.setData(uid, data);
 				}
 				
@@ -521,7 +682,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			
 			if (!image_data.sizes) {
 				//Data not loaded yet, wait till it finishes
-				Manager.MediaSidebar.medialist.get('dataObject').once('load:complete:' + image_id, function () {
+				Manager.MediaSidebar.medialist.get("dataObject").once("load:complete:" + image_id, function () {
 					this.dropImage(target, image_id);
 				}, this);
 				
@@ -533,23 +694,27 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				src = this.getImageURLBySize(image_data),
 				img = null;
 			
-			var locale = Supra.data.get('locale');
+			var locale = Supra.data.get("locale");
 			
 			//Set additional image properties
 			var data = Supra.mix({}, defaultProps, {
-				'type': this.NAME,
-				'title': (image_data.title && image_data.title[locale]) ? image_data.title[locale] : '',
-				'description': (image_data.description && image_data.description[locale]) ? image_data.description[locale] : '',
-				'image': image_data,	//Original image data
-				'size_width': size_data.width,
-				'size_height': size_data.height
+				"type": this.NAME,
+				"title": (image_data.title && image_data.title[locale]) ? image_data.title[locale] : "",
+				"description": (image_data.description && image_data.description[locale]) ? image_data.description[locale] : "",
+				"image": image_data,	//Original image data
+				"size_width": size_data.width,
+				"size_height": size_data.height,
+				"crop_left": 0,
+				"crop_top": 0,
+				"crop_width": size_data.width,
+				"crop_height": size_data.height
 			});
 			
-			img = Y.Node.create('<img id="' + uid + '" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" class="align-' + data.align + '" />');
+			img = Y.Node.create('<span class="supra-image align-' + data.align + '" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="left: -' + data.crop_left + 'px; top: -' + data.crop_top + 'px;" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" class="align-' + data.align + '" />');
 			
 			//If droping on inline element then insert image before it, otherwise append to element
-			if (target.test('em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img')) {
-				target.insert(img, 'before');
+			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
+				target.insert(img, "before");
 			} else {
 				target.prepend(img);
 			}
@@ -568,7 +733,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 */
 		getImageURLBySize: function (data, size) {
 			// Always return original if not specified size
-			var size = size ? size : 'original';
+			var size = size ? size : "original";
 			
 			if (data && data.sizes && size in data.sizes) {
 				return data.sizes[size].external_path;
@@ -599,7 +764,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		disableImageObjectResizing: function () {
 			if (!Y.UA.ie || Y.UA.ie > 9) {
 				try {
-					this.htmleditor.get('doc').execCommand("enableObjectResizing", false, false);
+					this.htmleditor.get("doc").execCommand("enableObjectResizing", false, false);
 				} catch (err) {}
 			}
 		},
@@ -610,7 +775,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * @private
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement('img');
+			var element = this.htmleditor.getSelectedElement("img");
 			if (element) {
 				if (!this.showImageSettings(Y.Node(element))) {
 					this.settingsFormApply();
@@ -628,63 +793,64 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * @constructor
 		 */
 		init: function (htmleditor, configuration) {
-			var mediasidebar = Manager.getAction('MediaSidebar'),
-				toolbar = htmleditor.get('toolbar'),
-				button = toolbar ? toolbar.getButton('insertimage') : null;
+			var mediasidebar = Manager.getAction("MediaSidebar"),
+				toolbar = htmleditor.get("toolbar"),
+				button = toolbar ? toolbar.getButton("insertimage") : null;
 			
 			// Add command
-			htmleditor.addCommand('insertimage', Y.bind(this.toggleMediaSidebar, this));
+			htmleditor.addCommand("insertimage", Y.bind(this.toggleMediaSidebar, this));
 			
 			// When clicking on image show image settings
-			htmleditor.on('nodeChange', this.onNodeChange, this);
+			htmleditor.on("nodeChange", this.onNodeChange, this);
 			
 			if (button) {
 				//When media library is shown/hidden make button selected/unselected
-				mediasidebar.after('visibleChange', function (evt) {
-					button.set('down', evt.newVal);
+				mediasidebar.after("visibleChange", function (evt) {
+					button.set("down", evt.newVal);
 				});
 				
 				//When un-editable node is selected disable mediasidebar toolbar button
-				htmleditor.on('editingAllowedChange', function (event) {
-					button.set('disabled', !event.allowed);
+				htmleditor.on("editingAllowedChange", function (event) {
+					button.set("disabled", !event.allowed);
 				});
 			}
 			
 			//When media library is hidden show settings form if image is selected
-			mediasidebar.on('hide', function () {
+			mediasidebar.on("hide", function () {
 				if (this.selected_image) {
-					Manager.executeAction('PageContentSettings', this.settings_form, {
-						'doneCallback': Y.bind(this.settingsFormApply, this)
+					Manager.executeAction("PageContentSettings", this.settings_form, {
+						"doneCallback": Y.bind(this.settingsFormApply, this)
 					});
 				}
 			}, this);
 			
 			//Hide media library when editor is closed
-			htmleditor.on('disable', this.hideMediaSidebar, this);
-			htmleditor.on('disable', this.settingsFormApply, this);
+			htmleditor.on("disable", this.hideMediaSidebar, this);
+			htmleditor.on("disable", this.settingsFormApply, this);
+			htmleditor.on("disable", this.stopEditImage, this);
 			
 			//Disable image object resizing
 			this.disableImageObjectResizing();
-			htmleditor.on('enable', this.disableImageObjectResizing, this);
+			htmleditor.on("enable", this.disableImageObjectResizing, this);
 			
 			//If image is rotated, croped or replaced in MediaLibrary update image source
-			Manager.getAction('MediaLibrary').on(['rotate', 'crop', 'replace'], this.updateImageSource, this);
+			Manager.getAction("MediaLibrary").on(["rotate", "crop", "replace"], this.updateImageSource, this);
 			
 			this.bindUIDnD(htmleditor);
 		},
 		
 		bindUIDnD: function (htmleditor) {
-			var srcNode = htmleditor.get('srcNode'),
-				doc = htmleditor.get('doc');
+			var srcNode = htmleditor.get("srcNode"),
+				doc = htmleditor.get("doc");
 			
 			//On drop insert image
-			srcNode.on('dataDrop', this.onDrop, this);
+			srcNode.on("dataDrop", this.onDrop, this);
 			
 			//Enable drag & drop
 			if (Manager.PageContent) {
 				this.drop = new Manager.PageContent.PluginDropTarget({
-					'srcNode': srcNode,
-					'doc': doc
+					"srcNode": srcNode,
+					"doc": doc
 				});
 			}
 		},
@@ -694,7 +860,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * MediaLibrary must be initialized 
 		 */
 		updateImageSource: function (e) {
-			var image_id = (typeof e == 'object' ? e.file_id : e),
+			var image_id = (typeof e == "object" ? e.file_id : e),
 				all_data = this.htmleditor.getAllData(),
 				item_data = null,
 				item_id = null,
@@ -710,7 +876,7 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 			}
 			
 			if (item_data) {
-				data_object = Manager.getAction('MediaLibrary').medialist.get('dataObject');
+				data_object = Manager.getAction("MediaLibrary").medialist.get("dataObject");
 				image_data = data_object.getData(image_id);
 				
 				if (image_data) {
@@ -720,11 +886,11 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 					
 					//Change source
 					var path = this.getImageURLBySize(image_data);
-					var container = htmleditor.get('srcNode');
-					var node = container.one('#' + item_id);
+					var container = htmleditor.get("srcNode");
+					var node = container.one("#" + item_id);
 					
 					if (node) {
-						node.setAttribute('src', path);
+						node.setAttribute("src", path);
 					}
 				}
 			}
@@ -755,10 +921,10 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * Remove all styles and data about node
 		 */
 		cleanUp: function (target, data) {
-			if (target.test('img') && data && data.type == this.NAME) {
+			if (target.test("img") && data && data.type == this.NAME) {
 				this.htmleditor.removeData(target);
-				this.setImageProperty('style', '', target);
-				this.setImageProperty('align', '', target);
+				this.setImageProperty("style", "", target);
+				this.setImageProperty("align", "", target);
 			}
 		},
 		
@@ -776,21 +942,21 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 		 * 
 		 * @param {String} html
 		 * @return Processed HTML
-		 * @type {HTML}
+		 * @type {String}
 		 */
 		tagHTML: function (html) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME;
 			
-			html = html.replace(/(<a[^>]*>)?\s*<img [^>]*id="([^"]+)"[^>]*>\s*(<\/a[^>]*>)?/ig, function (html, link_open, id, link_close) {
+			html = html.replace(/(<a[^>]*>)?\s*(<span[^>]*>)?\s*<img [^>]*id="([^"]+)"[^>]*>\s*(<\/span[^>]*>)?\s*(<\/a[^>]*>)?/ig, function (html, link_open, wrap_open, id, wrap_close, link_close) {
 				if (!id) return html;
 				var data = htmleditor.getData(id);
 				
 				if (data && data.type == NAME) {
-					if (data.style == 'lightbox') {
-						return '{supra.' + NAME + ' id="' + id + '"}';
+					if (data.style == "lightbox") {
+						return "{supra." + NAME + " id=\"" + id + "\"}";
 					} else {
-						return (link_open || '') + '{supra.' + NAME + ' id="' + id + '"}' + (link_close || '');
+						return (link_open || "") + "{supra." + NAME + " id=\"" + id + "\"}" + (link_close || "");
 					}
 				} else {
 					return html;
@@ -814,23 +980,30 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 				self = this;
 			
 			html = html.replace(/{supra\.image id="([^"]+)"}/ig, function (tag, id) {
-				if (!id || !data[id] || data[id].type != NAME) return '';
+				if (!id || !data[id] || data[id].type != NAME) return "";
 				
-				var src = self.getImageURLBySize(data[id].image);
+				var item = data[id],
+					src = self.getImageURLBySize(item.image);
+				
 				if (src) {
-					var style = ( ! data[id].image.exists ? '' : (data[id].size_width && data[id].size_height ? 'width="' + data[id].size_width + 'px" height="' + data[id].size_height + '"' : ''));
-					var classname = (data[id].align ? 'align-' + data[id].align : '') + ' ' + data[id].style;
-					var html = '<img ' + style + ' id="' + id + '" class="' + classname + '" src="' + ( ! data[id].image.exists ? data[id].image.missing_path : src ) + '" title="' + Y.Escape.html(data[id].title) + '" alt="' + Y.Escape.html(data[id].description) + '" />';
+					//@TODO Remove these when server is supporting croping
+					item.image.crop_left = item.image.crop_left || 0;
+					item.image.crop_width = item.image.crop_width || (item.image.size_width - item.image.crop_left);
+					item.image.crop_height = item.image.crop_height || (item.image.size_height - item.image.crop_top);
 					
-					if (data.type == 'lightbox') {
+					var style = ( ! item.image.exists ? "" : (item.size_width && item.size_height ? "width=\"" + item.size_width + "px\" height=\"" + item.size_height + "\"" : ""));
+					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
+					var html = '<span class="supra-image align-' + item.align + '" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="left: -' + item.crop_left + 'px; top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
+					
+					if (item.type == "lightbox") {
 						//For lightbox add link around image
-						return '<a class="lightbox" href="' + this.getImageURLBySize(data.image, 'original') + '" rel="lightbox"></a>' + html + '</a>';
+						return '<a class="lightbox" href="' + this.getImageURLBySize(item.image, "original") + '" rel="lightbox"></a>' + html + '</a>';
 					}
 					
 					return html;
 				}
 				
-				return '';
+				return "";
 			});
 			
 			return html;
@@ -856,4 +1029,4 @@ YUI().add('supra.htmleditor-plugin-image', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.htmleditor-base', 'supra.input-proto']});
+}, YUI.version, {"requires": ["supra.htmleditor-base", "supra.input-proto"]});

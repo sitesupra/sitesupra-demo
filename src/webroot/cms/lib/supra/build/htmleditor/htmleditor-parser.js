@@ -206,7 +206,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove style attribute, except background-color
 				html = html.replace(/\s+style="([^"]*)"/gi, function (all, styles) {
 					styles = styles.match(/background-color:[^;]+/);
-					if (styles.length) {
+					if (styles && styles.length) {
 						return ' style="' + styles[0] + '"';
 					}
 					return '';

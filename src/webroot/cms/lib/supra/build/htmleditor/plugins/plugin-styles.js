@@ -148,12 +148,14 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @type {Object}
 		 */
 		parseSelectorAttributes: function (match) {
-			var attr = match[5],
+			var attr = match[4],
 				data,
 				ret = {},
 				trim = /^("|')|("|')$/g;
 			
 			if (attr) {
+				//Convert [...][...] into ...,...
+				attr = attr.replace(/\]\s*\[/g, ',').replace('[', '').replace(']', '');
 				attr = attr.split(',');
 				for(var i=0,ii=attr.length; i<ii; i++) {
 					data = attr[i].split('=');
@@ -182,13 +184,16 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				match,
 				list = [],
 				tmp = null,
-				regex_normal = /(.+\s)?([a-z0-9]+)?\.([a-z0-9\-\_]+)\s?(\[([^\]]+)\])?\s?\{([^\}]*)\}/i,
-				regex_reverse = /(.+\s)?([a-z0-9]+)?(\[([^\]]+)\])?\.([a-z0-9\-\_]+)\s?\{([^\}]*)\}/i;
+				//               PREFIX    TAG      .   CLASSNAME      [attrs][attr]       { styles }
+				regex_normal = /(.+\s)?([a-z0-9]+)?\.([a-z0-9\-\_]+)\s?((\[[^\]]+\])+)?\s?\{([^\}]*)\}/i,
+				//               PREFIX    TAG        [attr][attr]   .   CLASSNAME         { styles }
+				regex_reverse = /(.+\s)?([a-z0-9]+)?((\[[^\]]+\])+)?\.([a-z0-9\-\_]+)\s?\{([^\}]*)\}/i;
 			
 			for(; i < imax; i++) {
 				selector = result[i].replace('#su-style-dropdown ', '');
 				
 				//Format is .selector tag.classname[attribute]{css}
+				//match is: 0 - all selector, 1 - prefix, 2 - tag, 3 - classname, 4 - attributes, 5 - styles
 				match = selector.match(regex_normal);
 				
 				//Need to support also: .selector tag[attribute].classname{css}

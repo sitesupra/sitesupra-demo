@@ -305,24 +305,125 @@
 }
 
 /**
- * = Image resize handle
+ * = Image resize
  */
-.yui3-image-resize-handle {
-	display: none;
+.supra-image,
+.supra-image .supra-image-inner,
+.supra-image .supra-image-size {
+	position: relative !important;
+	display: inline-block !important;
+	overflow: hidden !important;
+	visibility: visible !important;
+	vertical-align: baseline !important;
+	position: relative !important;
+	/* Not !important to allow overwrite */
+	background: none;
+	border: 0;        
+	width: auto;
+	height: auto;
+}
+.supra-image .supra-image-inner,
+.supra-image .supra-image-size {
+	float: none !important;
+	background: none !important;
+	border: 0 !important;
+	outline: none !important;
+	border-radius: 0 !important;
+	-moz-border-radius: 0 !important;
+	-webkit-border-radius: 0 !important;
+	-ms-border-radius: 0 !important;
+	-o-border-radius: 0 !important;
+	box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	-webkit-box-shadow: none !important;
+	-ms-box-shadow: none !important;
+	-o-box-shadow: none !important;
+}
+.supra-image img {
+	position: relative !important;
+	display: inline-block !important;
+	left: 0;
+	top: 0;
+	
+	/* Remove all styles, they should be applied to .supra-image in editor.css */
+	margin: 0;
+	float: none !important;
+	border: 0 !important;
+	outline: none !important;
+	border-radius: 0 !important;
+	-moz-border-radius: 0 !important;
+	-webkit-border-radius: 0 !important;
+	-ms-border-radius: 0 !important;
+	-o-border-radius: 0 !important;
+	box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	-webkit-box-shadow: none !important;
+	-ms-box-shadow: none !important;
+	-o-box-shadow: none !important;
+}
+
+.supra-image.supra-image-selected {
+	/* Any style when image is selected? */
+}
+.supra-image.supra-image-editing {
+	overflow: visible !important;
+}
+.supra-image.supra-image-editing .supra-image-size {
+	position: absolute !important;
+	z-index: 1 !important;
+	width: 100px;
+	text-align: center !important;
+	font: 12px/18px Arial, Helvetica, sans-serif !important;
+	font-weight: normal !important;
+	font-style: normal !important;
+	color: #fff !important;
+	text-shadow: 0 1px 1px #000;
+	top: 6px !important;
+	left: 50% !important;
+	margin: 0 0 0 -50px !important;
+}
+.supra-image.supra-image-editing .supra-image-resize {
+	display: block;
 	position: absolute;
-	width: 37px;
-	height: 37px;
-	background: url(/cms/lib/supra/img/htmleditor/resize-handle.png) 0 0 repeat;
-	cursor: move;
-	cursor: se-resize;
-	z-index: 10001;
-	margin: -15px 0 0 -19px;
+	z-index: 1;
+	left: 1px;
+	top: 1px;
+	right: 1px;
+	bottom: 1px;
+	border: 2px solid #000;
+	cursor: move !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
 }
-.yui3-image-resize-handle:hover {
-	background-position: 0 -37px;
+.supra-image.supra-image-editing .supra-image-resize-nw {
+	cursor: nw-resize !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw-active.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
 }
-.yui3-image-resize-handle:active {
-	background-position: 0 -74px;
+.supra-image.supra-image-editing .supra-image-resize-ne {
+	cursor: ne-resize !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne-active.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-sw {
+	cursor: sw-resize !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw-active.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-se {
+	cursor: se-resize !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se-active.gif) 100% 100% no-repeat;
 }
 
 /**
