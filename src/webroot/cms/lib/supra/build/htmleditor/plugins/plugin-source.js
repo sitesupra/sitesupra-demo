@@ -17,10 +17,6 @@ YUI().add('supra.htmleditor-plugin-source', function (Y) {
 			this.htmleditor.resetSelection();
 			this.htmleditor.fire('nodeChange', {});
 			
-			if (Manager.getAction('PageContentSettings')) {
-				Manager.PageContentSettings.hide();
-			}
-			
 			Manager.executeAction('PageSourceEditor', {
 				'html': this.htmleditor.getHTML(),
 				'callback': Y.bind(this.updateSource, this)
