@@ -64,13 +64,13 @@ class FormField
 	 */
 	public function __construct(array $arguments = array())
 	{
-		if ( ! is_string($arguments['type']) || ! in_array($arguments['type'], self::$types, true)) {
-			throw new Exception\RuntimeException(
-					"Form type \"{$arguments['type']}\" is not allowed. " .
-					"Use one of \"" . join('", "', self::$types) . '" annotation types. '
-					. 'Example @FormField(type="text")'
-			);
-		}
+//		if ( ! is_string($arguments['type']) || ! in_array($arguments['type'], self::$types, true)) {
+//			throw new Exception\RuntimeException(
+//					"Form type \"{$arguments['type']}\" is not allowed. " .
+//					"Use one of \"" . join('", "', self::$types) . '" annotation types. '
+//					. 'Example @FormField(type="text")'
+//			);
+//		}
 
 		$this->type = $arguments['type'];
 		unset($arguments['type']);

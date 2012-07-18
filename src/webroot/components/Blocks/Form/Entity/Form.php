@@ -13,16 +13,46 @@ class Form
 	 * 
 	 * @Constraints\NotBlank
 	 * @Constraints\MinLength(3)
-	 * @Constraints\Email(checkMX="true")
 	 */
 	public $name;
 
 	/**
-	 * @FormField(type="text")
-	 * 
-	 * @Constraints\Email(checkMX="true")
+	 * @FormField(type="text", required=false)
+	 *
+	 * @Constraints\MinLength(3)
 	 */
-	public $lastName;
+	public $nickname;
+
+	/**
+	 * @FormField(type="email")
+	 *
+	 * @Constraints\NotBlank
+	 * @Constraints\Email
+	 */
+	public $email;
+
+	/**
+	 * @FormField(type="text", required=false)
+	 * 
+	 * @Constraints\Email
+	 */
+	public $secondaryEmail;
+
+	/**
+	 * @FormField(type="password")
+	 */
+	public $password;
+
+	/**
+	 * @FormField(type="password")
+	 */
+	public $repeatPassword;
+
+	/**
+	 * @FormField(type="textarea", required=false)
+	 */
+	public $additionalNotes;
+	
 
 	public function getName()
 	{

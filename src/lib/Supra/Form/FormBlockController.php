@@ -139,7 +139,7 @@ abstract class FormBlockController extends BlockController
 				}
 			}
 			
-			$formBuilder->add($field->getName(), null, $options);
+			$formBuilder->add($field->getName(), $field->getType(), $options);
 		}
 
 		// Custom events
