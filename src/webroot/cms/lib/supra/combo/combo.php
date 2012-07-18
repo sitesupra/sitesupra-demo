@@ -28,7 +28,7 @@ $extLength = ($css ? 3 : 2);
 $lessCss = true;
 $pre =      __DIR__ . '/../../../../';
 $cacheDir = __DIR__ . '/../../../../../tmp';
-$version = '3.5.0';
+$version = __FILE__ . '/' . @file_get_contents(__DIR__ . '/../../../../../../VERSION');
 
 foreach ($files as $file) {
 	// Only CSS/JS allowed
