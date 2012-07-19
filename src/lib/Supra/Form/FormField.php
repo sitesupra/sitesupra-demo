@@ -26,7 +26,7 @@ class FormField
 	
 	/**
 	 * Field name
-	 * @var string 
+	 * @var string
 	 */
 	protected $name;
 

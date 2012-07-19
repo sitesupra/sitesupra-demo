@@ -6,7 +6,6 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\Exception\FormException;
 use Supra\Controller\Pages\BlockController;
 use Supra\Form\Configuration\FormBlockControllerConfiguration;
-use Supra\Form\Configuration\FormFieldConfiguration;
 use Supra\Form\FormBlockController;
 use Symfony\Component\Form\Form;
 use Supra\Form\FormField;
@@ -342,7 +341,7 @@ class FormExtension
 	 * Returns configuration field
 	 * 
 	 * @param string $fieldName
-	 * @return FormFieldConfiguration
+	 * @return FormField
 	 */
 	protected function getConfigurationField($fieldName)
 	{

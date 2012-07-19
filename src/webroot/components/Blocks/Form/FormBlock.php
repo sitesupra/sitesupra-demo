@@ -56,5 +56,7 @@ class FormBlock extends FormBlockController
 			
 			$form->get('name')->addError($error);
 		}
+
+		parent::validate($event);
 	}
 }

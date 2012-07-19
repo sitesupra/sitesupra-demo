@@ -69,7 +69,7 @@
 {% spaceless %}
     <select {{ block('widget_attributes') }}{% if multiple %} multiple="multiple"{% endif %}>
         {% if empty_value is not none %}
-            <option value="">{{ empty_value }}</option>
+            <option value="">{{ empty_value|trans({}, translation_domain) }}</option>
         {% endif %}
         {% if preferred_choices|length > 0 %}
             {% set options = preferred_choices %}
@@ -88,13 +88,13 @@
 {% spaceless %}
     {% for index, choice in options %}
         {% if _form_is_choice_group(choice) %}
-            <optgroup label="{{ index }}">
+            <optgroup label="{{ index|trans({}, translation_domain) }}">
                 {% for nested_choice in choice %}
-                    <option value="{{ nested_choice.value }}"{% if _form_is_choice_selected(form, nested_choice) %} selected="selected"{% endif %}>{{ nested_choice.label }}</option>
+                    <option value="{{ nested_choice.value }}"{% if _form_is_choice_selected(form, nested_choice) %} selected="selected"{% endif %}>{{ nested_choice.label|trans({}, translation_domain) }}</option>
                 {% endfor %}
             </optgroup>
         {% else %}
-            <option value="{{ choice.value }}"{% if _form_is_choice_selected(form, choice) %} selected="selected"{% endif %}>{{ choice.label }}</option>
+            <option value="{{ choice.value }}"{% if _form_is_choice_selected(form, choice) %} selected="selected"{% endif %}>{{ choice.label|trans({}, translation_domain) }}</option>
         {% endif %}
     {% endfor %}
 {% endspaceless %}
@@ -231,7 +231,7 @@
     {% if label is empty %}
         {% set label = name|humanize %}
     {% endif %}
-    <label{% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>{{ label }}</label>
+    <label{% for attrname, attrvalue in label_attr %} {{ attrname }}="{{ attrvalue }}"{% endfor %}>{{ label|trans({}, translation_domain) }}</label>
 {% endspaceless %}
 {% endblock form_label %}
 
@@ -276,8 +276,8 @@
         {% for error in errors %}
             <li>{{
                 error.messagePluralization is null
-                    ? error.messageTemplate
-                    : error.messageTemplate
+                    ? error.messageTemplate|trans(error.messageParameters, 'validators')
+                    : error.messageTemplate|transchoice(error.messagePluralization, error.messageParameters, 'validators')
             }}</li>
         {% endfor %}
     </ul>
@@ -308,7 +308,7 @@
 {% block widget_attributes %}
 {% spaceless %}
     id="{{ id }}" name="{{ full_name }}"{% if read_only %} readonly="readonly"{% endif %}{% if disabled %} disabled="disabled"{% endif %}{% if required %} required="required"{% endif %}{% if max_length %} maxlength="{{ max_length }}"{% endif %}{% if pattern %} pattern="{{ pattern }}"{% endif %}
-    {% for attrname, attrvalue in attr %}{% if attrname in ['placeholder', 'title'] %}{{ attrname }}="{{ attrvalue }}" {% else %}{{ attrname }}="{{ attrvalue }}" {% endif %}{% endfor %}
+    {% for attrname, attrvalue in attr %}{% if attrname in ['placeholder', 'title'] %}{{ attrname }}="{{ attrvalue|trans({}, translation_domain) }}" {% else %}{{ attrname }}="{{ attrvalue }}" {% endif %}{% endfor %}
 {% endspaceless %}
 {% endblock widget_attributes %}
 

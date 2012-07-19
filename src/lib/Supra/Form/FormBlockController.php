@@ -81,11 +81,44 @@ abstract class FormBlockController extends BlockController
 
 	/**
 	 * Custom validation
-	 * @return boolean 
+	 * @param \Symfony\Component\Form\Event\DataEvent $event
 	 */
 	public function validate(Form\Event\DataEvent $event)
 	{
 		
+	}
+
+	/**
+	 * @param \Symfony\Component\Form\Event\DataEvent $event
+	 */
+	public function errorMessageTranslationListener(Form\Event\DataEvent $event)
+	{
+		$form = $event->getForm();
+		$this->translateErrorMessages($form);
+	}
+
+	/**
+	 * @param \Symfony\Component\Form\FormInterface $form
+	 */
+	private function translateErrorMessages(Form\FormInterface $form)
+	{
+		$errors = $form->getErrors();
+
+		foreach ($errors as $error) {
+			/* @var $error Form\FormError */
+			$message = $error->getMessageTemplate();
+			
+			$propertyName = FormBlockControllerConfiguration::generateEditableName(FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $form->getName())
+					. '_' . $message;
+
+			$messageLocalized = $this->getPropertyValue($propertyName);
+
+			$error->__construct($messageLocalized, $error->getMessageParameters(), $error->getMessagePluralization());
+		}
+
+		foreach ($form->all() as $element) {
+			$this->translateErrorMessages($element);
+		}
 	}
 
 	/**
@@ -148,8 +181,8 @@ abstract class FormBlockController extends BlockController
 			$formBuilder->addEventSubscriber($this);
 		}
 
-		// Old stuff...
-		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 10);
+		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 0);
+		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'errorMessageTranslationListener'), 0);
 
 		return $formBuilder->getForm();
 	}

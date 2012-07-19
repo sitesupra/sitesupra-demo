@@ -52,8 +52,12 @@ class Form
 	 * @FormField(type="textarea", required=false)
 	 */
 	public $additionalNotes;
-	
 
+//	/**
+//	 * @FormField(type="submit")
+//	 */
+//	public $submit;
+	
 	public function getName()
 	{
 		return $this->name;
