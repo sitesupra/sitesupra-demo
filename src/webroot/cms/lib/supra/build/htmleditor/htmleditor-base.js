@@ -251,6 +251,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					this.get('srcNode').focus();
 				}
 				
+				//Prevent object resizing
+				this.disableObjectResizing();
+				
 				//Update selection, etc.
 				this.refresh(true);
 				

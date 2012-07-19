@@ -685,6 +685,8 @@ YUI().add("supra.imageresizer", function (Y) {
 				"height": "auto"
 			});
 			
+			image.setAttribute("unselectable", "on");
+			containerNode.setAttribute("contentEditable", "false");
 			containerNode.addClass("supra-image-editing");
 			
 			this.imageWidth = image.get("width");
@@ -731,6 +733,8 @@ YUI().add("supra.imageresizer", function (Y) {
 				sizeLabelNode = this.get("sizeLabelNode"),
 				containerNode = imageContainerNode.ancestor();
 			
+			image.removeAttribute("unselectable");
+			containerNode.removeAttribute("contentEditable");
 			containerNode.append(image);
 			containerNode.removeClass("supra-image-editing");
 			containerNode.setStyles({

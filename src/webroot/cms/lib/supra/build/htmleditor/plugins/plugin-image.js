@@ -353,13 +353,13 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				ancestor = Y.Node(this.htmleditor.get("doc").createElement("SPAN"));
 				ancestor.addClass("supra-image");
 				
-				var className = image.hasClass("align-left") ? "align-left" : (
-								image.hasClass("align-right") ? "align-right" : (
-								image.hasClass("align-middle") ? "align-middle" : 
-								""));
+				var data = this.getImageDataFromNode(image);
 				
-				if (className) {
-					ancestor.addClass(className);
+				if (data.style) {
+					ancestor.addClass(data.style);
+				}
+				if (data.align) {
+					ancestor.addClass("align-" + data.align);
 				}
 				
 				var crop_left   = image.getAttribute("data-crop-left"),
@@ -759,17 +759,6 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		},
 		
 		/**
-		 * Disable image resizing using handles, FF
-		 */
-		disableImageObjectResizing: function () {
-			if (!Y.UA.ie || Y.UA.ie > 9) {
-				try {
-					this.htmleditor.get("doc").execCommand("enableObjectResizing", false, false);
-				} catch (err) {}
-			}
-		},
-		
-		/**
 		 * On node change check if selected node is image and show settings
 		 * 
 		 * @private
@@ -819,7 +808,10 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			mediasidebar.on("hide", function () {
 				if (this.selected_image) {
 					Manager.executeAction("PageContentSettings", this.settings_form, {
-						"doneCallback": Y.bind(this.settingsFormApply, this)
+						"doneCallback": Y.bind(this.settingsFormApply, this),
+						
+						"title": Supra.Intl.get(["htmleditor", "image_properties"]),
+						"scrollable": true
 					});
 				}
 			}, this);
@@ -828,10 +820,6 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			htmleditor.on("disable", this.hideMediaSidebar, this);
 			htmleditor.on("disable", this.settingsFormApply, this);
 			htmleditor.on("disable", this.stopEditImage, this);
-			
-			//Disable image object resizing
-			this.disableImageObjectResizing();
-			htmleditor.on("enable", this.disableImageObjectResizing, this);
 			
 			//If image is rotated, croped or replaced in MediaLibrary update image source
 			Manager.getAction("MediaLibrary").on(["rotate", "crop", "replace"], this.updateImageSource, this);
@@ -993,7 +981,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					
 					var style = ( ! item.image.exists ? "" : (item.size_width && item.size_height ? "width=\"" + item.size_width + "px\" height=\"" + item.size_height + "\"" : ""));
 					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
-					var html = '<span class="supra-image align-' + item.align + '" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="left: -' + item.crop_left + 'px; top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
+					var html = '<span class="supra-image align-' + classname + '" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="left: -' + item.crop_left + 'px; top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
 					
 					if (item.type == "lightbox") {
 						//For lightbox add link around image

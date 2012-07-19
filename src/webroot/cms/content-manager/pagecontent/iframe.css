@@ -322,6 +322,9 @@
 	width: auto;
 	height: auto;
 }
+.supra-image .supra-image-inner {
+	vertical-align: bottom !important; /* Fixes gap between image and container */
+}
 .supra-image .supra-image-inner,
 .supra-image .supra-image-size {
 	float: none !important;

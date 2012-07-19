@@ -603,16 +603,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		},
 		
 		/**
-		 * Disable table handles, FF
-		 */
-		disableInlineTableEditing: function () {
-			window.htmleditor = this.htmleditor;
-			try {
-				this.htmleditor.get('doc').execCommand("enableInlineTableEditing", false, false);
-			} catch (err) {}
-		},
-		
-		/**
 		 * On node change check if settings form needs to be hidden
 		 */
 		onNodeChange: function () {
@@ -666,12 +656,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			
 			//When image looses focus hide settings form
 			htmleditor.on('nodeChange', this.onNodeChange, this);
-			
-			//Disable inline table insert row/column, delete row/column
-			this.disableInlineTableEditing();
-			
-			//On editing allowed change disable controls
-			htmleditor.on('editingAllowedChange', this.disableInlineTableEditing, this);
 		},
 		
 		getButton: function () {
