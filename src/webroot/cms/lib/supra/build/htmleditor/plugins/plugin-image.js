@@ -362,13 +362,15 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					ancestor.addClass("align-" + data.align);
 				}
 				
-				var crop_left   = image.getAttribute("data-crop-left"),
-					crop_top    = image.getAttribute("data-crop-top"),
-					crop_width  = image.getAttribute("data-crop-width") || image.width,
-					crop_height = image.getAttribute("data-crop-height") || image.height,
-					data_width  = image.getAttribute("data-width") || image.width,
-					data_height = image.getAttribute("data-height") || image.height;
+				var crop_left   = data.crop_left   || image.getAttribute("data-crop-left"),
+					crop_top    = data.crop_top    || image.getAttribute("data-crop-top"),
+					crop_width  = data.crop_width  || image.getAttribute("data-crop-width")  || image.width,
+					crop_height = data.crop_height || image.getAttribute("data-crop-height") || image.height,
+					data_width  = data.size_width  || image.getAttribute("data-width")       || image.width,
+					data_height = data.size_height || image.getAttribute("data-height")      || image.height;
 				
+				image.setAttribute("width", data_width);
+				image.setAttribute("height", data_height);
 				image.setStyles({
 					"margin-left": crop_left ? -crop_left + "px" : "0px",
 					"margin-top": crop_top ? -crop_top + "px" : "0px"

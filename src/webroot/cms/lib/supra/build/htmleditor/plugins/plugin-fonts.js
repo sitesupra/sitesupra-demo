@@ -191,7 +191,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				node = editor.getSelectedElement();
 				
 				if (!data) {
-					if (node.tagName == "FONT") {
+					if (node && node.tagName == "FONT") {
 						node.style.color = "";
 						node.removeAttribute("color");
 						
