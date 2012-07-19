@@ -84,6 +84,14 @@ YUI.add('supra.iframe-handler', function (Y) {
 		'loading': {
 			value: false,
 			setter: '_setLoading'
+		},
+		
+		/**
+		 * Stylesheet parser, Supra.IframeStylesheetParser
+		 */
+		'stylesheetParser': {
+			value: null,
+			getter: '_getStylesheetParser'
 		}
 	};
 	
@@ -102,6 +110,13 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @type {Object}
 		 */
 		overlay: null,
+		
+		/**
+		 * Stylesheet parser
+		 * @type {Object}
+		 */
+		stylesheetParser: null,
+		
 		
 		/**
 		 * Add script to the page content
@@ -173,6 +188,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			//Trigger ready event
 			this.fire('ready', {'iframe': this, 'body': body});
+			this.get("nodeIframe").fire('ready');
 		},
 		
 		/**
@@ -348,6 +364,24 @@ YUI.add('supra.iframe-handler', function (Y) {
 		_setOverlayVisible: function (value) {
 			this.overlay.toggleClass('hidden', !value);
 			return !!value;
+		},
+		
+		/**
+		 * stylesheetParser attribute getter
+		 * 
+		 * @param {Object} value
+		 */
+		_getStylesheetParser: function (value) {
+			if (this.stylesheetParser) return this.stylesheetParser;
+			
+			var parser = new Supra.IframeStylesheetParser({
+				"iframe": this.get("nodeIframe"),
+				"doc": this.get("doc"),
+				"win": this.get("win")
+			});
+			
+			this.stylesheetParser = parser;
+			return parser;
 		},
 		
 		/**

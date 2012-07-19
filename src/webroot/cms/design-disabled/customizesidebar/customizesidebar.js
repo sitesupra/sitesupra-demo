@@ -268,10 +268,8 @@ function (Y) {
 				input = inputs[id];
 				definition = properties[id];
 				
-				if (input.isInstanceOf('input-color')) {
-					input.on(['valueChange', 'colorChange'], this.updatePreview, this, definition, input);
-				} else if (input.isInstanceOf('input-select-visual')) {
-					input.on('valueChange', this.updatePreview, this, definition, input);
+				if (input.isInstanceOf('input-color') || input.isInstanceOf('input-select-visual')) {
+					input.on(['valueChange', 'input'], this.updatePreview, this, definition, input);
 				}
 			}
 			

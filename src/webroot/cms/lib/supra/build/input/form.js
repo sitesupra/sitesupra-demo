@@ -64,6 +64,18 @@ YUI.add("supra.form", function (Y) {
 		"disabled": {
 			value: false,
 			setter: "_setDisabled"
+		},
+		/**
+		 * Parent widget, could be empty
+		 */
+		"parent": {
+			value: null
+		},
+		/**
+		 * Root parent widget, usually same as parent attribute
+		 */
+		"root": {
+			value: null
 		}
 	};
 	Form.HTML_PARSER = {
@@ -201,7 +213,7 @@ YUI.add("supra.form", function (Y) {
 			//Convert arguments into
 			//[{}, INPUT_DEFINITION, argument1, argument2, ...]
 			var args = [].slice.call(arguments,0);
-				args = [{}, INPUT_DEFINITION].concat(args);
+				args = [{"parent": this, "root": this.get("root") || this}, INPUT_DEFINITION].concat(args);
 			
 			//Mix them together
 			return Supra.mix.apply(Supra, args);

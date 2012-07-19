@@ -717,6 +717,20 @@ YUI.add('supra.page-content-proto', function (Y) {
 		_getChanged: function () {
 			//Not editable, so nothing can change
 			return false;
+		},
+		
+		
+		/* ------------------------------------ CONTENT MANIPULATION -------------------------------------- */
+		
+		
+		/**
+		 * Returns stylesheet parser,
+		 * Supra.IframeStylesheetParser instance
+		 * 
+		 * @type {Object}
+		 */
+		getStylesheetParser: function () {
+			return this.get("super").get("iframe").get("stylesheetParser");
 		}
 		
 	});

@@ -324,7 +324,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 		skinnable: true
 	},
 		'supra.htmleditor-base': {
-			path: 'htmleditor/htmleditor-base.js'
+			path: 'htmleditor/htmleditor-base.js',
+			requires: ['supra.iframe-stylesheet-parser']
 		},
 		'supra.htmleditor-parser': {
 			path: 'htmleditor/htmleditor-parser.js',
@@ -420,7 +421,15 @@ Supra.YUI_BASE.groups.supra.modules = {
 			path: 'htmleditor/plugins/plugin-align.js',
 			requires: ['supra.manager', 'supra.htmleditor-base']
 		},
-		
+	
+	/**
+	 * Stylesheet parser
+	 */
+	'supra.iframe-stylesheet-parser': {
+		path: 'iframe/stylesheet-parser.js',
+		requires: ['base']
+	},
+	
 	/**
 	 * Image resize 
 	 */

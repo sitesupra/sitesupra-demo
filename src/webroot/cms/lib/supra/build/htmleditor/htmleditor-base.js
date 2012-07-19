@@ -44,6 +44,26 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 */
 		'standalone': {
 			value: false
+		},
+		/**
+		 * Parent widget, usually input
+		 */
+		'parent': {
+			value: null
+		},
+		/**
+		 * Root parent input, could be form or block
+		 */
+		'root': {
+			value: null
+		},
+		
+		/**
+		 * Stylesheet parser,
+		 * Supra.IframeStylesheetParser instance
+		 */
+		'stylesheetParser': {
+			value: null
 		}
 	};
 	
@@ -55,6 +75,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 	Y.extend(HTMLEditor, Y.Base, {
 		
 		events: [],
+		
 		
 		syncUI: function () {
 			
@@ -103,6 +124,20 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			this.commands = {};
 			this.selection = null;
 			
+			if (!this.get("stylesheetParser")) {
+				var root = this.get("root");
+				if (root && root.getStylesheetParser) {
+					//Root is block, we can take borrow from it
+					this.set("stylesheetParser", root.getStylesheetParser());
+				} else {
+					//Create new parser
+					this.set("stylesheetParser", new Supra.IframeStylesheetParser({
+						"win": this.get("win"),
+						"doc": this.get("doc")
+					}));
+				}
+			}
+			
 			this.renderUI();
 			this.bindUI();
 			this.syncUI();
@@ -122,7 +157,6 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			var events = this.events;
 			for(var i=0,ii=events.length; i<ii; i++) events[i].detach();
 			this.events = [];
-			
 			this.destroyPlugins();
 		},
 		

@@ -41,7 +41,7 @@ YUI.add("supra.input-color", function (Y) {
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
 		"value": {
-			"value": "#000000"
+			"value": ""
 		},
 		// Map node
 		"nodeMap": {
@@ -102,6 +102,13 @@ YUI.add("supra.input-color", function (Y) {
 	Y.extend(Input, Supra.Input.Proto, {
 		INPUT_TEMPLATE: "<input type=\"hidden\" value=\"\" />",
 		LABEL_TEMPLATE: "<label></label>",
+		
+		/**
+		 * Value is unset
+		 * @type {Boolean}
+		 * @private
+		 */
+		unset: false,
 		
 		/**
 		 * Value as HEX
@@ -207,17 +214,22 @@ YUI.add("supra.input-color", function (Y) {
 			//Render template
 			if (contentBox.test('input')) {
 				contentBox.addClass('hidden');
-				this.get('boundingBox').append(template.get("children"));
+				this.get('boundingBox').append(template.size ? template.get("children") : template);
 			} else {
-				contentBox.append(template.get("children"));
+				contentBox.append(template.size ? template.get("children") : template);
 			}
 			
 			//Value
-			var value = (this.get('value') || "#000000").toUpperCase();
+			var value = this.get('value'),
+				fixed = (value || "#000000").toUpperCase();
 			
-			this.hex = value;
-			this.rgb = Color.convert.HEXtoRGB(value);
+			this.hex = fixed;
+			this.rgb = Color.convert.HEXtoRGB(fixed);
 			this.hsb = Color.convert.RGBtoHSB(this.rgb);
+			
+			if (this.get("allowUnset") && !value) {
+				this.unset = true;
+			}
 		},
 		
 		bindUI: function () {
@@ -243,6 +255,9 @@ YUI.add("supra.input-color", function (Y) {
 			if (this.get("allowUnset")) {
 				this.get("nodeUnset").on("mousedown", this._onUnset, this);
 			}
+			
+			//Handle value attribute change
+			this.on('valueChange', this._afterValueChange, this);
 			
 			this.syncUI();
 		},
@@ -317,8 +332,17 @@ YUI.add("supra.input-color", function (Y) {
 		 */
 		syncUIPreview: function () {
 			if (this.get("nodePreview") && !this.uiFrozen) {
-				this.get("nodePreview").removeClass("preview-unset");
-				this.get("nodePreview").setStyle("backgroundColor", this.hex);
+				var nodeUnset = this.get("nodeUnset");
+				
+				if (this.unset) {
+					if (nodeUnset) nodeUnset.addClass("active");
+					this.get("nodePreview").addClass("preview-unset");
+					this.get("nodePreview").setStyle("backgroundColor", this.hex);
+				} else {
+					if (nodeUnset) nodeUnset.removeClass("active");
+					this.get("nodePreview").removeClass("preview-unset");
+					this.get("nodePreview").setStyle("backgroundColor", this.hex);
+				}
 			}
 		},
 		
@@ -407,6 +431,7 @@ YUI.add("supra.input-color", function (Y) {
 		 */
 		_downBarCursor: function (e) {
 			this.barCursorDown = true;
+			this.unset = false;
 			e.halt();
 			
 			var doc = Y.Node(document);
@@ -468,7 +493,7 @@ YUI.add("supra.input-color", function (Y) {
 				"top": y
 			});
 			
-			this.fire("colorChange", {"newVal": this.hex});
+			this.fire("input", {"newVal": this.hex});
 		},
 		
 		
@@ -529,6 +554,7 @@ YUI.add("supra.input-color", function (Y) {
 		 */
 		_downMapCursor: function (e) {
 			this.mapCursorDown = true;
+			this.unset = false;
 			e.halt();
 			
 			var doc = Y.Node(document);
@@ -603,7 +629,7 @@ YUI.add("supra.input-color", function (Y) {
 				this.mapHandleDark = dark;
 			}
 			
-			this.fire("colorChange", {"newVal": this.hex});
+			this.fire("input", {"newVal": this.hex});
 		},
 		
 		
@@ -756,8 +782,10 @@ YUI.add("supra.input-color", function (Y) {
 			
 			if (this.get("allowUnset") && !value) {
 				fixed = "";
+				this.unset = true;
 			} else {
 				fixed = this.hex;
+				this.unset = false;
 			}
 			
 			//Super
@@ -766,18 +794,17 @@ YUI.add("supra.input-color", function (Y) {
 			//Update UI
 			this.syncUI();
 			
-			var nodeUnset = this.get("nodeUnset"),
-				nodePreview = null;
-			
-			if (this.get("allowUnset") && !value) {
-				nodePreview = this.get("nodePreview");
-				if (nodeUnset) nodeUnset.addClass("active");
-				if (nodePreview) nodePreview.addClass("preview-unset");
-			} else {
-				if (nodeUnset) nodeUnset.removeClass("active");
-			}
-			
 			return fixed;
+		},
+		
+		/**
+		 * After value change trigger event
+		 * @param {Object} evt
+		 */
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+			}
 		}
 		
 	});

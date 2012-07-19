@@ -156,8 +156,9 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 * Fill styles list
 		 */
 		fillStylesList: function (form) {
-			var plugin = this.htmleditor.getPlugin("styles"),
-				styles = plugin.selectors["IMG"],
+			var container = this.htmleditor.get("srcNode"),
+				styles = this.htmleditor.get("stylesheetParser").getSelectorsByNodeMatch(container)["IMG"],
+				
 				input  = form.getInput("style"),
 				values = [{
 							"id": "",

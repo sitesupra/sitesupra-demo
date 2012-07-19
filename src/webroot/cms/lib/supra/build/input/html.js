@@ -133,7 +133,9 @@ YUI.add("supra.input-html", function (Y) {
 					'iframeNode': this.get('nodeIframe'),
 					'toolbar': toolbar,
 					'mode': Supra.HTMLEditor.MODE_RICH,
-					'standalone': true
+					'standalone': true,
+					'parent': this,
+					'root': this.get('root') || this
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);

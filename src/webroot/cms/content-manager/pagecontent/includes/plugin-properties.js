@@ -146,6 +146,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		_has_top_groups: null,
 		
+		/**
+		 * Form values are being updated
+		 * @type {Boolean}
+		 * @private
+		 */
+		_updating_values: false,
+		
 		
 		
 		
@@ -216,7 +223,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Initialize properties form
 		 */
 		initializeProperties: function () {
-			var form_config = {'autoDiscoverInputs': false, 'inputs': [], 'style': 'vertical'},
+			var form_config = {
+					'autoDiscoverInputs': false, // form is generated dynamically, no inputs to search for
+					'inputs': [],
+					'style': 'vertical',
+					'parent': this, // direct parent is this
+					'root': this.get('host') // root parent is block
+				},
 				properties = this.get('properties'),
 				
 				group_nodes = {},
@@ -296,6 +309,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var inputs = form.getInputs();
 			for(var id in inputs) {
 				inputs[id].on('change', this.onPropertyChange, this);
+				inputs[id].on('input', this.onImmediatePropertyChange, this);
 			}
 			
 			//Delete block button
@@ -342,7 +356,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			slideshow.render(form.get('contentBox'));
 			
+			this._updating_values = true;
 			form.setValues(data, 'id');
+			this._updating_values = false;
 			
 			this.set('form', form);
 			return form;
@@ -438,6 +454,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @param {Object} evt
 		 */
 		onPropertyChange: function (evt) {
+			// If settings initial values, then we should trigger events
+			if (this._updating_values) return;
+			
 			var normalChanged = this.get('normalChanged'),
 				inlineChanged = this.get('inlineChanged');
 			
@@ -446,7 +465,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				id = input.get('id'),
 				properties = this.get('properties');
 			
-			Y.later(60, this, this.onPropertyChangeTriggerContentChange, [input]);
+			Y.later(60, this, this.onPropertyChangeTriggerContentChange, [input, null, false]);
 			
 			//Update attributes
 			if (normalChanged && inlineChanged) return;
@@ -468,21 +487,36 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/**
+		 * On immediate propert change (change still in progress) trigger event
+		 * 
+		 * @param {Object} evt
+		 */
+		onImmediatePropertyChange: function (evt) {
+			// If settings initial values, then we should trigger events
+			if (this._updating_values) return;
+			
+			//Trigger event
+			this.onPropertyChangeTriggerContentChange(evt.target, evt.newVal, true);
+		},
+		
+		/**
 		 * When property value changes trigger content event
 		 * If event is stoped then reload block content 
 		 * 
 		 * @param {Object} input Input object
+		 * @param {Object} value Input value, if not specified then uses input value
+		 * @param {Boolean} dirty If true then content is not reloaded if event is stoped
 		 * @private
 		 */
-		onPropertyChangeTriggerContentChange: function (input) {
+		onPropertyChangeTriggerContentChange: function (input, value, dirty) {
 			var host = this.get('host'),
 				id = input.get('id'),
-				value = input.get('value'),
+				value = (value === null || value === undefined ? input.get('value') : value),
 				result = null;
 			
 			result = host.fireContentEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value});
 			
-			if (result === false) {
+			if (!dirty && result === false) {
 				//Some property was recognized, but preview can't be updated without refresh
 				
 				input.set('loading', true);
@@ -647,7 +681,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 					locked_input.set('disabled', true).set('visible', false);
 				}
 				
+				this._updating_values = true;
 				form.setValuesObject(values, 'id');
+				this._updating_values = false;
 
 				var input = null,
 					template = SU.Intl.get(['form', 'shared_property_description']),

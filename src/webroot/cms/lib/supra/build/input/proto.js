@@ -58,6 +58,15 @@ YUI.add('supra.input-proto', function (Y) {
 		'style': {
 			value: null,
 			setter: '_setStyle'
+		},
+		
+		// Parent widget, usually Supra.Form instance
+		'parent': {
+			value: null
+		},
+		// Root parent widget, usually Supra.Form instance
+		'root': {
+			value: null
 		}
 	};
 	

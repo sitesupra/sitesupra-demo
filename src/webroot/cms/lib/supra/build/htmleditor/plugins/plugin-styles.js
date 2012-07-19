@@ -117,129 +117,16 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 		},
 		
-		/**
-		 * Returns group ID by tag
-		 * 
-		 * @param {String} tag Tag name
-		 * @return Group ID
-		 * @type {String}
-		 */
-		getGroupByTag: function (tag) {
-			var groups = GROUPS,
-				i = 0,
-				ii = groups.length;
-			
-			for(; i<ii; i++) {
-				if (groups[i].tagsObject[tag]) return groups[i].id;
-			}
-			
-			return null;
-		},
-		
 		
 		/* -------------------------------------- CSS parsing ------------------------------------------ */
 		
 		
 		/**
-		 * Parse and return CSS selector attribute values
-		 * 
-		 * @param {Array} match Selector match
-		 * @return Object with attribute names and values
-		 * @type {Object}
-		 */
-		parseSelectorAttributes: function (match) {
-			var attr = match[4],
-				data,
-				ret = {},
-				trim = /^("|')|("|')$/g;
-			
-			if (attr) {
-				//Convert [...][...] into ...,...
-				attr = attr.replace(/\]\s*\[/g, ',').replace('[', '').replace(']', '');
-				attr = attr.split(',');
-				for(var i=0,ii=attr.length; i<ii; i++) {
-					data = attr[i].split('=');
-					ret[data[0]] = data.length > 1 ? data[1].replace(trim, '') : '';
-				}
-			}
-			
-			if (!ret.title) {
-				ret.title = (match[2] ? match[2] : '') + match[3];
-			}
-			
-			return ret;
-		},
-		
-		/**
-		 * Parses style selectors and extract dropdown values
-		 * 
-		 * @param {Array} result List of selectors
-		 * @return List of dropdown values
-		 * @type {Object}
-		 */
-		parseStyleSelectors: function (result) {
-			var i = 0,
-				imax = result.length,
-				selector,
-				match,
-				list = [],
-				tmp = null,
-				//               PREFIX    TAG      .   CLASSNAME      [attrs][attr]       { styles }
-				regex_normal = /(.+\s)?([a-z0-9]+)?\.([a-z0-9\-\_]+)\s?((\[[^\]]+\])+)?\s?\{([^\}]*)\}/i,
-				//               PREFIX    TAG        [attr][attr]   .   CLASSNAME         { styles }
-				regex_reverse = /(.+\s)?([a-z0-9]+)?((\[[^\]]+\])+)?\.([a-z0-9\-\_]+)\s?\{([^\}]*)\}/i;
-			
-			for(; i < imax; i++) {
-				selector = result[i].replace('#su-style-dropdown ', '');
-				
-				//Format is .selector tag.classname[attribute]{css}
-				//match is: 0 - all selector, 1 - prefix, 2 - tag, 3 - classname, 4 - attributes, 5 - styles
-				match = selector.match(regex_normal);
-				
-				//Need to support also: .selector tag[attribute].classname{css}
-				if (match && !match[1] && !match[2] && !match[4] && !match[5]) {
-					match = selector.match(regex_reverse);
-					
-					//Fix incorrect indexes
-					tmp = match[4]; match[4] = match[5]; match[5] = tmp;
-					tmp = match[3]; match[3] = match[4]; match[4] = tmp;
-				}
-				
-				if (match) {
-					tmp = match[2] ? match[2].toUpperCase() : '';
-					list.push({
-						'path': match[1] ? match[1].replace(/^\s+|\s+$/g, '') : null,
-					    'tag': tmp,
-					    'group': this.getGroupByTag(tmp),
-					    'classname': match[3],
-					    'attributes': this.parseSelectorAttributes(match),
-					    'style': match[6]
-					});
-				}
-			}
-			
-			return list;
-		},
-		
-		/**
 		 * Filter out selectors, which doesn't match current container
-		 * 
-		 * @param {Array} selectors List of selectors
 		 */
-		filterSelectors: function (selectors) {
-			var container = this.htmleditor.get('srcNode');
-			var result = {},
-				i = 0,
-				imax = selectors.length,
-				selector;
-				
-			for(; i < imax; i++) {
-				selector = selectors[i];
-				if (!selector.path || container.test(selector.path) || container.test(selector.path + ' *')) {
-					if (!result[selector.tag]) result[selector.tag] = [];
-					result[selector.tag].push(selector);
-				}
-			}
+		getSelectors: function () {
+			var container = this.htmleditor.get('srcNode'),
+				result = this.htmleditor.get("stylesheetParser").getSelectorsByNodeMatch(container);
 			
 			//Text noeds can changed be changed between P, H1, H2, H3 and H4
 			//add these to the selector list to allow them changing even if there are
@@ -251,59 +138,6 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			if (!result['H4']) result['H4'] = [];
 			
 			return result;
-		},
-		
-		/**
-		 * Traverse stylesheets and extract styles for "Style" dropdown box
-		 * 
-		 * @return List of selectors
-		 * @type {Object}
-		 */
-		collectStyleSelectors: function () {
-			var result = [],
-				rules,
-				doc = new Y.Node(this.htmleditor.get('doc')),
-				links = doc.all('link[rel="stylesheet"]'),
-				link = null;
-			
-			if (links) {
-				for(var i=0,ii=links.size(); i<ii; i++) {
-					link = links.item(i).getDOMNode();
-					if (link.sheet) {
-						try {
-							rules = link.sheet.cssRules;
-						} catch (err) {
-							rules = null; //Possibly "Insecure operation"
-						}
-						if(rules) {
-							for(var k=0,kk=rules.length; k<kk; k++) {
-								if (rules[k].selectorText && rules[k].cssText.indexOf('#su-style-dropdown') != -1) {
-									result.push(rules[k].cssText);
-								}
-							}
-						}
-					}
-				}
-			}
-			
-			var style = doc.all('style[type="text/css"]'),
-				regex = /#su\-style\-dropdown [^}]*}/g,
-				css,
-				match;
-			
-			if (style) {
-				for(var i=0,ii=style.size(); i<ii; i++) {
-					css = style.item(i).get('innerHTML');
-					match = css.match(regex);
-					
-					if (match) {
-						result = result.concat(match);
-					}
-				}
-			}
-			
-			result = this.parseStyleSelectors(result);
-			return this.filterSelectors(result);
 		},
 		
 		
@@ -791,7 +625,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.pluginFormats = htmleditor.getPlugin('formats');
 			this.excludeList = {};
 			this.targetNodes = [];
-			this.selectors = this.collectStyleSelectors();
+			this.selectors = this.getSelectors();
 			this.listeners = [];
 			
 			htmleditor.addCommand('style', Y.bind(this.showStylesSidebar, this));

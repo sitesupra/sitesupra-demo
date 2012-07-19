@@ -75,7 +75,9 @@ YUI.add("supra.input-inline-html", function (Y) {
 					'srcNode': src,
 					'iframeNode': this.get('nodeIframe'),
 					'toolbar': toolbar,
-					'mode': Supra.HTMLEditor.MODE_RICH
+					'mode': Supra.HTMLEditor.MODE_RICH,
+					'parent': this,
+					'root': this.get('root') || this
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
