@@ -6,12 +6,13 @@ use Supra\Controller\Pages\BlockController;
 use Symfony\Component\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Form\Configuration\FormBlockControllerConfiguration;
-use Symfony\Component\Validator\Mapping\Loader\AnnotationLoader;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Validator;
 use Supra\Loader\Loader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @method FormBlockControllerConfiguration getConfiguration()
+ */
 abstract class FormBlockController extends BlockController
 {
 	/**
@@ -110,10 +111,10 @@ abstract class FormBlockController extends BlockController
 	protected function createForm()
 	{
 		$conf = $this->getConfiguration();
-		$dataObject = Loader::getClassInstance($conf->form);
+		$dataObject = Loader::getClassInstance($conf->dataClass);
 		$formBuilder = $this->prepareFormBuilder($dataObject);
 		
-		foreach ($conf->fields as $field) {
+		foreach ($conf->getFields() as $field) {
 			/* @var $field FormField */
 			$options = $field->getArguments();
 
@@ -200,12 +201,13 @@ abstract class FormBlockController extends BlockController
 //		@TODO: Add CSRF later
 //		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
 
-		$path = SUPRA_LIBRARY_PATH . 'Symfony' . DIRECTORY_SEPARATOR . 'Component'
-				. DIRECTORY_SEPARATOR . 'Form' . DIRECTORY_SEPARATOR . 'Resources'
-				. DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'validation.xml';
+		$path = SUPRA_LIBRARY_PATH . 'Symfony/Component/Form/Resources/config/validation.xml';
+
+		$configuration = $this->getConfiguration();
+		$annotationLoader = $configuration->getAnnotationLoader();
 
 		$loaderChain = new Validator\Mapping\Loader\LoaderChain(array(
-					new AnnotationLoader(new AnnotationReader()),
+					$annotationLoader,
 					new \Symfony\Component\Validator\Mapping\Loader\XmlFileLoader($path),
 				));
 

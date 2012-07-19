@@ -2,50 +2,63 @@
 
 namespace Supra\Form\Configuration;
 
-use ReflectionClass;
 use Supra\Form\FormField;
 use Symfony\Component\Validator\Constraint;
 use Supra\Editable\String;
-use Symfony\Component\Form\Form;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
+use Supra\Form\FormAnnotationLoader;
 
 class FormBlockControllerConfiguration extends BlockControllerConfiguration
 {
 	const FORM_GROUP_ID_ERROR = 'form_errors';
 	const FORM_GROUP_LABEL_ERROR = 'Form error messages';
-
 	const FORM_GROUP_ID_LABELS = 'form_labels';
 	const FORM_GROUP_LABEL_LABELS = 'Form field lables';
-
 	const BLOCK_PROPERTY_FORM_PREFIX = 'form_field_';
 
 	/**
-	 * @var array 
+	 * @var string
 	 */
-	public $constraints;
+	public $dataClass;
 
 	/**
-	 * @var array 
+	 * @var array
 	 */
-	public $fields;
+	private $fields;
 
 	/**
-	 * @var Form
+	 * @var FormAnnotationLoader
 	 */
-	public $form;
+	private $annotationLoader;
 
-//	private $originalMessages = array();
+	/**
+	 * @return array
+	 */
+	public function getFields()
+	{
+		return $this->fields;
+	}
+
+	/**
+	 * @return FormAnnotationLoader
+	 */
+	public function getAnnotationLoader()
+	{
+		return $this->annotationLoader;
+	}
 
 	public function configure()
 	{
+		$this->annotationLoader = new FormAnnotationLoader();
+
 		// processing annotations
 		$this->fields = $formFields = $this->processAnnotations();
 
 		// configuring field groups: labels and errors
 		if ( ! empty($formFields)) {
-			// groups 
+			// groups
 			$groups = array(
 				self::FORM_GROUP_ID_ERROR => self::FORM_GROUP_LABEL_ERROR,
 				self::FORM_GROUP_ID_LABELS => self::FORM_GROUP_LABEL_LABELS,
@@ -69,19 +82,7 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 		foreach ($formFields as $field) {
 			/* @var $field FormField */
 
-//			$messages = array();
-//
-//			/**
-//			 * mapping messages
-//			 */
-//			foreach ($field->getConstraints() as $constraint) {
-//				/* @var $constraint Constraint */
-//				foreach ($constraint->propertyMessages as $property => $originalMessage) {
-//					$messages[$constraint->$property] = $originalMessage;
-//				}
-//			}
-
-			$fieldErrorInfo = $field->getErrorinfo();
+			$fieldErrorInfo = $field->getErrorInfo();
 
 			/**
 			 * adding labels to form block property list
@@ -131,11 +132,11 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 	/**
 	 * Generates editable name
-	 * 
+	 *
 	 * @param string $propertyGroup
-	 * @param FormFieldConfiguration or string $field 
+	 * @param FormFieldConfiguration or string $field
 	 * @throws \RuntimeException if $propertyGroup is not on of FORM_GROUP_ID constants
-	 * @return string 
+	 * @return string
 	 */
 	public static function generateEditableName($propertyGroup, $field)
 	{
@@ -156,31 +157,25 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 	 */
 	public function processAnnotations()
 	{
-		// creating reflection
-		$reader = new \Doctrine\Common\Annotations\AnnotationReader();
-		$reflection = new ReflectionClass($this->form);
-
-		$annotations = array();
+		$propertyAnnotations = $this->annotationLoader->getPropertyAnnotations($this->dataClass);
+		$fields = array();
 
 		// gathering property annotations
-		foreach ($reflection->getProperties() as $property) {
-			/* @var $property ReflectionProperty */
+		foreach ($propertyAnnotations as $name => $annotations) {
 
-			$name = $property->getName();
-			$propertyAnnotations = $reader->getPropertyAnnotations($property);
 			$errorInfo = array();
 			$constraints = array();
 
 			// gathering FormFields and unsetting not Constraint Annotations
-			foreach ($propertyAnnotations as $annotation) {
+			foreach ($annotations as $annotation) {
 				if ($annotation instanceof FormField) {
 					$annotation->setName($name);
-					$annotations[$name] = $annotation;
+					$fields[$name] = $annotation;
 					continue;
 				}
 
 				if ($annotation instanceof Constraint) {
-					
+
 					$constraints[] = $annotation;
 					// Now we have Constraint object
 					$messageProperties = get_object_vars($annotation);
@@ -191,27 +186,26 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 
 						if (stripos($messageKey, 'message') === strlen($messageKey) - 7) {
 							$errorIdentifier = "constraint_{$className}_{$messageKey}";
+							$annotation->$messageKey = $errorIdentifier;
 							$errorInfo[$errorIdentifier] = array(
 								'constraint' => $annotation,
 								'message' => $messageValue,
 							);
-							$annotation->$messageKey = $errorIdentifier;
 						}
 					}
 				}
 			}
 
 			// Not a field, skip
-			if ( ! isset($annotations[$name])) {
+			if ( ! isset($fields[$name])) {
 				continue;
 			}
 
-			$formField = $annotations[$name];
-			$formField->addConstraints($constraints);
+			$formField = $fields[$name];
 			$formField->setErrorInfo($errorInfo);
 		}
 
-		return $annotations;
+		return $fields;
 	}
 
 }

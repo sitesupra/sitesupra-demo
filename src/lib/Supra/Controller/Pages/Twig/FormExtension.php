@@ -11,6 +11,9 @@ use Supra\Form\FormBlockController;
 use Symfony\Component\Form\Form;
 use Supra\Form\FormField;
 
+/**
+ * TODO: remove!
+ */
 class FormExtension
 {
 	/**
