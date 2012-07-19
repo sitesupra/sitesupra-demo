@@ -232,7 +232,11 @@ class FormExtension
 		$tag->setAttribute('id', 'id_' . implode('_', $names));
 
 		if ( ! empty($vars['value'])) {
-			$tag->setAttribute('value', $vars['value']);
+			if ($fieldType === FormField::TYPE_TEXTAREA) {
+				$tag->setContent($vars['value']);
+			} else {		
+				$tag->setAttribute('value', $vars['value']);
+			}
 		}
 
 		return new \Twig_Markup($tag->toHtml());

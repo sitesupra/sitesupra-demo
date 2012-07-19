@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManager;
  */
 class DoctrineRepositoryArrayHelper extends ArrayRepository
 {
+
 	/**
 	 * @var EntityManager
 	 */
@@ -20,6 +21,22 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 	public function __construct(EntityManager $em)
 	{
 		$this->entityManager = $em;
+
+		$em->getEventManager()
+				->addEventListener(array(\Doctrine\ORM\Events::onClear), $this);
+	}
+
+	/**
+	 * 
+	 */
+	public function onClear(\Doctrine\Common\EventArgs $args)
+	{
+		foreach ($this->array as $entity) {
+
+			if ( ! $this->entityManager->contains($entity)) {
+				$entity->free();
+			}
+		}
 	}
 
 	/**
@@ -55,7 +72,7 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 		if (is_null($node)) {
 			$this->array = array();
 		} elseif (in_array($node, $this->array, true)) {
-			$key = array_search($node,	$this->array, true);
+			$key = array_search($node, $this->array, true);
 			unset($this->array[$key]);
 		}
 	}
@@ -79,10 +96,10 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 //		$newRight = $item->getRightValue() + (int) $moveRight;
 //		$newLevel = $item->getLevel() + (int) $moveLevel;
 //
-		// Call original local move method for items not in the database yet
+// Call original local move method for items not in the database yet
 		parent::moveNode($item, $moveLeft, $moveRight, $moveLevel);
 
-		// In case of entity update, make the new nested set values to be ignored
+// In case of entity update, make the new nested set values to be ignored
 		$insert = $this->entityManager->getUnitOfWork()->isScheduledForInsert($item);
 		if ( ! $insert) {
 			$oid = spl_object_hash($item);
@@ -99,7 +116,6 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 //			// Refresh so additional UPDATE-s are not executed on the server
 //			$this->entityManager->refresh($item);
 //		}
-
 //		// Double check the values, should not happen
 //		if ($item->getLeftValue() != $newLeft) {
 //			$item->setLeftValue($newLeft);
@@ -111,4 +127,5 @@ class DoctrineRepositoryArrayHelper extends ArrayRepository
 //			$item->setLevel($newLevel);
 //		}
 	}
+
 }
