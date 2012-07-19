@@ -58,7 +58,10 @@ class DummyIndexerQueueItem extends IndexerQueueItem
 
 	public function writeIndexedDocuments($documentWriter)
 	{
-		// What to do here?
+		$documents = $this->getIndexedDocuments();
+		foreach ($documents as $document) {
+			$documentWriter($document);
+		}
 	}
 
 }
