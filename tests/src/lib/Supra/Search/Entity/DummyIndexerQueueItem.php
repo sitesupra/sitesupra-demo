@@ -3,10 +3,8 @@
 namespace Supra\Tests\Search\Entity;
 
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
-use Supra\Search\IndexerService;
 use Supra\Tests\Search\DummyItem;
 use Supra\Search\IndexedDocument;
-use \DateTime;
 
 /**
  * @Entity
@@ -56,6 +54,11 @@ class DummyIndexerQueueItem extends IndexerQueueItem
 		$document->text_general = $this->actualObject->text;
 		
 		return array($document);
+	}
+
+	public function writeIndexedDocuments($documentWriter)
+	{
+		// What to do here?
 	}
 
 }
