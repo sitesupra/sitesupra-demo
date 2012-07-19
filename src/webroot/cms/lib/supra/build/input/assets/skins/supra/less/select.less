@@ -236,6 +236,17 @@
 			display: inline-block;
 			color: #39394F;
 			text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+			
+			.icon-crop {
+				display: inline-block;
+				height: 23px;
+				overflow: hidden;
+				
+				img {
+					display: inline-block;
+					vertical-align: top;
+				}
+			}
 		}
 		
 		.yui3-input-select-dropdown {
@@ -281,6 +292,13 @@
 			& > p {
 				color: #fff;
 				text-shadow: 0 1px 0 rgba(0, 15, 53, 0.4);
+				
+				.icon-crop {
+					img {
+						position: relative;
+						margin-top: -23px;
+					}
+				}
 			}
 		}
 	}

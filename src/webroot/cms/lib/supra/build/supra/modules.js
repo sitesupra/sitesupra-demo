@@ -318,7 +318,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-paragraph',
 			'supra.htmleditor-plugin-paragraph-string',
 			'supra.htmleditor-plugin-source',
-			'supra.htmleditor-plugin-fonts'
+			'supra.htmleditor-plugin-fonts',
+			'supra.htmleditor-plugin-align'
 		],
 		skinnable: true
 	},
@@ -414,6 +415,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		'supra.htmleditor-plugin-fonts': {
 			path: 'htmleditor/plugins/plugin-fonts.js',
 			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts']
+		},
+		'supra.htmleditor-plugin-align': {
+			path: 'htmleditor/plugins/plugin-align.js',
+			requires: ['supra.manager', 'supra.htmleditor-base']
 		},
 		
 	/**

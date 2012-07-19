@@ -32,6 +32,13 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 						{"id": "underline", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-underline.png", "command": "underline"},
 						{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/cms/lib/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
 					{"type": "separator"},
+						{"id": "align", "type": "dropdown", "command": "align", "style": "icons-text", "values": [
+							{"id": "left", "title": "Left", "icon": "/cms/lib/supra/img/htmleditor/align-left.png"},
+							{"id": "center", "title": "Center", "icon": "/cms/lib/supra/img/htmleditor/align-center.png"},
+							{"id": "right", "title": "Right", "icon": "/cms/lib/supra/img/htmleditor/align-right.png"},
+							{"id": "justify", "title": "Justify", "icon": "/cms/lib/supra/img/htmleditor/align-justify.png"}
+						]},
+					{"type": "separator"},
 						{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul"},
 						{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol"},
 					{"type": "separator"},
@@ -154,7 +161,12 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				case 'dropdown':
 					node = Y.Node.create('<select></select>');
 					cont.append(node);
-					node = new Supra.Input.Select({'srcNode': node, 'scrollable': false});
+					node = new Supra.Input.Select({
+						'srcNode': node,
+						'scrollable': false,
+						'values': data.values,
+						'textRenderer': data.style == 'icons-text' ? function (item) { return '<span class="icon-crop"><img src="' + item.icon + '" /></span>'; } : null
+					});
 					node.render();
 					break;
 				case 'button':
