@@ -51,6 +51,13 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 */
 		resizer: null,
 		
+		/**
+		 * Click event
+		 * @type {Object}
+		 * @private
+		 */
+		clickEvent: null,
+		
 		
 		/**
 		 * Generate settings form
@@ -104,15 +111,6 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				//Move into correct place
 				form.get("contentBox").prepend(btn.get("boundingBox"));
 			
-			//Edit button
-			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "image_edit"]), "style": "small-gray"});
-				btn.render(form.get("contentBox"));
-				btn.addClass("button-section");
-				btn.on("click", this.editImage, this);
-				
-				//Move into correct place
-				form.get("contentBox").prepend(btn.get("boundingBox"));
-			
 			//Delete button
 			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "image_delete"]), "style": "small-red"});
 				btn.render(form.get("contentBox"));
@@ -137,6 +135,12 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 */
 		settingsFormApply: function () {
 			if (this.selected_image) {
+				
+				if (this.resizer) {
+					//Stop editing image
+					this.resizer.set("image", null);
+				}
+				
 				var ancestor = this.getImageWrapperNode(this.selected_image);
 				ancestor.removeClass("supra-image-selected");
 				
@@ -490,6 +494,9 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			//Clone data because data properties will change and orginal properties should stay intact
 			this.original_data = Supra.mix({}, data);
 			
+			//Start editing image immediatelly
+			this.editImage();
+			
 			return true;
 		},
 		
@@ -531,13 +538,10 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				resizer = this.resizer;
 			
 			if (image) {
-				//Close settings form
-				this.settingsFormApply();
-				
 				size = this.getImageDataBySize(data.image, "original");
 				
 				if (!resizer) {
-					this.resizer = resizer = new Supra.ImageResizer();
+					this.resizer = resizer = new Supra.ImageResizer({"autoClose": false});
 					resizer.on("resize", this.onEditImageResize, this);
 				}
 				
@@ -772,7 +776,16 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				if (!this.showImageSettings(Y.Node(element))) {
 					this.settingsFormApply();
 				}
-			} else {
+			}
+		},
+		
+		/**
+		 * If clicking outside image then hide settings form
+		 * 
+		 * @private
+		 */
+		documentClick: function (e) {
+			if (e.target && !e.target.closest("span.supra-image")) {
 				this.settingsFormApply();
 			}
 		},
@@ -791,6 +804,9 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			
 			// Add command
 			htmleditor.addCommand("insertimage", Y.bind(this.toggleMediaSidebar, this));
+			
+			// When clicking outside image hide image settings
+			this.clickEvent = Y.Node(htmleditor.get("doc")).on("mousedown", this.documentClick, this)
 			
 			// When clicking on image show image settings
 			htmleditor.on("nodeChange", this.onNodeChange, this);
@@ -924,7 +940,8 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 * Called when editor instance is destroyed
 		 */
 		destroy: function () {
-			
+			if (this.clickEvent) this.clickEvent.detach();
+			this.clickEvent = null;
 		},
 		
 		/**

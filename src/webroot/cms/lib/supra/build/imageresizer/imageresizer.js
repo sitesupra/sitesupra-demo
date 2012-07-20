@@ -81,6 +81,10 @@ YUI().add("supra.imageresizer", function (Y) {
 			setter: "_setCursorAttr"
 		},
 		
+		// Stop editing when clicked outside
+		"autoClose": {
+			value: true
+		},
 		// Mode: 0 - image, 1 - background
 		"mode": {
 			value: ImageResizer.MODE_IMAGE
@@ -379,6 +383,7 @@ YUI().add("supra.imageresizer", function (Y) {
 			
 			slider.render(contentBox);
 			slider.on("valueChange", this.zoomChange, this);
+			slider.on("slideEnd", this.fixZoom, this);
 			
 			boundingBox.addClass("su-imageresizer");
 		},
@@ -411,38 +416,31 @@ YUI().add("supra.imageresizer", function (Y) {
 			
 			var image = this.get("image"),
 				zoom = e.newVal,
-				size = this.zoomToSize(zoom);
-				
-			this.imageWidth = size[0];
-			this.imageHeight = size[1];
+				size = this.zoomToSize(zoom),
+				ratio = null;
+			
+			this.imageWidth = ~~size[0];
+			this.imageHeight = ~~size[1];
 			
 			if (this.get("mode") == ImageResizer.MODE_IMAGE) {
-				image.setStyles({
-					"width": size[0] + "px",
-					"height": size[1] + "px"
-				});
-				image.setAttribute("width", size[0]);
-				image.setAttribute("height", size[1]);
+				ratio = (this.get("maxImageWidth") / this.get("maxImageHeight"));
 				
 				//Check crop
-				if (this.cropLeft + this.cropWidth > this.imageWidth) {
-					this.cropLeft = this.imageWidth - this.cropWidth;
-					if (this.cropLeft < 0) {
-						this.cropLeft = 0;
-						this.cropWidth = this.imageWidth;
-						this.get("imageContainerNode").setStyle("width", this.cropWidth + "px");
-					}
-					image.setStyle("marginLeft", - this.cropLeft + "px");
-				}
 				if (this.cropTop + this.cropHeight > this.imageHeight) {
-					this.cropTop = this.imageHeight - this.cropHeight;
-					if (this.cropTop < 0) {
-						this.cropTop = 0;
-						this.cropHeight = this.imageHeight;
-						this.get("imageContainerNode").setStyle("height", this.cropHeight + "px");
-					}
-					image.setStyle("marginTop", - this.cropTop + "px");
+					this.imageHeight = this.cropTop + this.cropHeight;
+					this.imageWidth = ~~(this.imageHeight * ratio);
 				}
+				if (this.cropLeft + this.cropWidth > this.imageWidth) {
+					this.imageWidth = this.cropLeft + this.cropWidth;
+					this.imageHeight = ~~(this.imageWidth / ratio);
+				}
+				
+				image.setStyles({
+					"width": this.imageWidth + "px",
+					"height": this.imageHeight + "px"
+				});
+				image.setAttribute("width", this.imageWidth);
+				image.setAttribute("height", this.imageHeight);
 			} else {
 				this.cropWidth = this.imageWidth - this.cropLeft;
 				this.cropHeight = this.imageHeight - this.cropTop;
@@ -454,6 +452,15 @@ YUI().add("supra.imageresizer", function (Y) {
 			
 			//Update image size label
 			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
+		},
+		
+		/**
+		 * Fix zoom when finished dragging slider
+		 * 
+		 * @private
+		 */
+		fixZoom: function () {
+			this.zoomSlider.set("value", this.sizeToZoom(this.imageWidth, this.imageHeight));
 		},
 		
 		/**
@@ -509,6 +516,11 @@ YUI().add("supra.imageresizer", function (Y) {
 		 * @private
 		 */
 		dragStart: function (e) {
+			if (this.resizeActive || this.moveActive) {
+				//If user released mouse outside browser
+				this.dragEnd(e);
+			}
+			
 			if (this.get("cursor") < 4) {
 				this.resizeActive = true;
 			} else {
@@ -677,7 +689,7 @@ YUI().add("supra.imageresizer", function (Y) {
 		 */
 		documentClick: function (e) {
 			var image = this.get("image");
-			if (image && e.target && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
+			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
 				this.set("image", null);
 			}
 		},
