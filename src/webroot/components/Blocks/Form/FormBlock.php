@@ -3,8 +3,8 @@
 namespace Project\Blocks\Form;
 
 use Supra\Form\FormBlockController;
-use Supra\Editable;
 use Symfony\Component\Form;
+use Symfony\Component\Validator\Constraint;
 
 class FormBlock extends FormBlockController
 {
@@ -19,6 +19,15 @@ class FormBlock extends FormBlockController
 		);
 		
 		return $properties;
+	}
+
+	protected function getFormValidationGroups()
+	{
+		if ( ! empty($_POST['developer_submit'])) {
+			return array(Constraint::DEFAULT_GROUP, 'developer');
+		} else {
+			return array(Constraint::DEFAULT_GROUP);
+		}
 	}
 
 	protected function failure()
@@ -43,7 +52,7 @@ class FormBlock extends FormBlockController
 		$response->outputTemplate('success.html.twig');
 	}
 
-	public function validate(Form\Event\DataEvent $event)
+	public function validate(Form\FormEvent $event)
 	{
 		$form = $event->getForm();
 		$data = $event->getData();

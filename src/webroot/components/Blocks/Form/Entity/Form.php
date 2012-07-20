@@ -12,14 +12,14 @@ class Form
 	 * @FormField(type="text")
 	 * 
 	 * @Constraints\NotBlank
-	 * @Constraints\MinLength(3)
+	 * @Constraints\Length(min=3, groups={"developer"})
 	 */
 	public $name;
 
 	/**
 	 * @FormField(type="text", required=false)
 	 *
-	 * @Constraints\MinLength(3)
+	 * @Constraints\Length(min=3)
 	 */
 	public $nickname;
 

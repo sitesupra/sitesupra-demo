@@ -81,17 +81,17 @@ abstract class FormBlockController extends BlockController
 
 	/**
 	 * Custom validation
-	 * @param \Symfony\Component\Form\Event\DataEvent $event
+	 * @param \Symfony\Component\Form\FormEvent $event
 	 */
-	public function validate(Form\Event\DataEvent $event)
+	public function validate(Form\FormEvent $event)
 	{
 		
 	}
 
 	/**
-	 * @param \Symfony\Component\Form\Event\DataEvent $event
+	 * @param \Symfony\Component\Form\FormEvent $event
 	 */
-	public function errorMessageTranslationListener(Form\Event\DataEvent $event)
+	public function errorMessageTranslationListener(Form\FormEvent $event)
 	{
 		$form = $event->getForm();
 		$this->translateErrorMessages($form);
@@ -181,7 +181,10 @@ abstract class FormBlockController extends BlockController
 			$formBuilder->addEventSubscriber($this);
 		}
 
+		// Custom validation
 		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 0);
+
+		// Error message translation using block properties
 		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'errorMessageTranslationListener'), 0);
 
 		return $formBuilder->getForm();
@@ -226,6 +229,26 @@ abstract class FormBlockController extends BlockController
 	}
 
 	/**
+	 * Validation groups can be provided
+	 * @return array
+	 */
+	protected function getFormValidationGroups()
+	{
+		return array(Validator\Constraint::DEFAULT_GROUP);
+	}
+
+	/**
+	 * Form builder options can be overriden
+	 * @return array
+	 */
+	protected function getFormBuilderOptions()
+	{
+		return array(
+			'validation_groups' => $this->getFormValidationGroups()
+		);
+	}
+
+	/**
 	 * @param object $dataObject
 	 * @return Form\FormBuilder 
 	 */
@@ -234,17 +257,11 @@ abstract class FormBlockController extends BlockController
 //		@TODO: Add CSRF later
 //		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
 
-		$path = SUPRA_LIBRARY_PATH . 'Symfony/Component/Form/Resources/config/validation.xml';
-
 		$configuration = $this->getConfiguration();
 		$annotationLoader = $configuration->getAnnotationLoader();
 
-		$loaderChain = new Validator\Mapping\Loader\LoaderChain(array(
-					$annotationLoader,
-					new \Symfony\Component\Validator\Mapping\Loader\XmlFileLoader($path),
-				));
-
-		$metadataFactory = new Validator\Mapping\ClassMetadataFactory($loaderChain);
+		$cache = new FormClassMetadataCache();
+		$metadataFactory = new Validator\Mapping\ClassMetadataFactory($annotationLoader, $cache);
 		$validatorFactory = new Validator\ConstraintValidatorFactory();
 
 		$validator = new Validator\Validator($metadataFactory, $validatorFactory);
@@ -258,7 +275,8 @@ abstract class FormBlockController extends BlockController
 		$factory = new Form\FormFactory($formRegistry);
 
 		$id = $this->getBlock()->getId();
-		$formBuilder = $factory->createNamedBuilder($id, 'form', $dataObject);
+		$options = $this->getFormBuilderOptions();
+		$formBuilder = $factory->createNamedBuilder($id, 'form', $dataObject, $options);
 
 		return $formBuilder;
 	}
