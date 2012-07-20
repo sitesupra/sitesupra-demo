@@ -180,6 +180,10 @@ YUI.add('supra.input-proto', function (Y) {
 				lbl.setAttribute('for', id);
 				lbl.set('text', this.get('label') || '');
 				
+				if (!this.get('label')) {
+					lbl.addClass('hidden');
+				}
+				
 				if (cont.compareTo(inp)) {
 					inp.insert(lbl, 'before');
 				} else {
@@ -340,7 +344,12 @@ YUI.add('supra.input-proto', function (Y) {
 			var node = this.get('labelNode');
 			if (node) {
 				lbl = Supra.Intl.replace(lbl);
-				node.set('text', lbl);
+				if (lbl) {
+					node.set('text', lbl);
+					node.removeClass('hidden');
+				} else {
+					node.addClass('hidden');
+				}
 			}
 			
 			return lbl;

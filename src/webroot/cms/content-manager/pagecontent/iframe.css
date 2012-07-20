@@ -371,7 +371,9 @@
 .supra-image.supra-image-editing {
 	overflow: visible !important;
 }
-.supra-image.supra-image-editing .supra-image-size {
+
+.supra-image.supra-image-editing .supra-image-size,
+.supra-background-editing .supra-image-size {
 	position: absolute !important;
 	z-index: 1 !important;
 	width: 100px;
@@ -385,7 +387,9 @@
 	left: 50% !important;
 	margin: 0 0 0 -50px !important;
 }
-.supra-image.supra-image-editing .supra-image-resize {
+
+.supra-image.supra-image-editing .supra-image-resize,
+.supra-background-editing .supra-image-resize {
 	display: block;
 	position: absolute;
 	z-index: 1;
@@ -427,6 +431,11 @@
 				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-se-active.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-move,
+.supra-background-editing .supra-image-resize-move {
+	background: rgba(0,0,0,0);
+	z-index: 102;
 }
 
 /**

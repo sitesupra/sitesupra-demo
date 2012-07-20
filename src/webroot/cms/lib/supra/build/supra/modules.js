@@ -635,6 +635,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/date.js',
 		requires: ['supra.input-proto', 'supra.calendar']
 	},
+	'supra.input-block-background': {
+		path: 'input/block-background.js',
+		requires: ['supra.input-proto']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -657,7 +661,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-image',
 			'supra.input-map',
 			'supra.input-color',
-			'supra.input-date'
+			'supra.input-date',
+			'supra.input-block-background'
 		]
 	},
 	'supra.input': {

@@ -276,7 +276,23 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			this.set('value', value !== null ? value : (values.length ? values[0].id : ''));
 			return this;
-		}
+		},
+		
+		/**
+		 * Returns true if list has options with given id
+		 * 
+		 * @param {String} id Option ID
+		 * @return True if has option with given id, otherwise false
+		 * @type {Boolean}
+		 */
+		hasValue: function (id) {
+			var values = this.get("values"),
+				i = 0,
+				ii = values.length;
+			
+			 for (; i<ii; i++) if (values[i].id == id) return true;
+			 return false
+		},
 		
 	});
 	

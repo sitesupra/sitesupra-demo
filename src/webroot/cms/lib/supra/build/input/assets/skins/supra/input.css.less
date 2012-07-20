@@ -27,6 +27,10 @@
 
 .yui3-input {
 	padding: 0 5px 0 0;
+	
+	.yui3-input {
+		padding: 0;
+	}
 }
 	.yui3-input-hidden,
 	.yui3-input-string-hidden,
@@ -40,7 +44,8 @@
 	.yui3-input-file-upload-hidden,
 	.yui3-input-link-hidden,
 	.yui3-input-image-hidden,
-	.yui3-input-color-hidden {
+	.yui3-input-color-hidden,
+	.yui3-input-block-background {
 		display: none;
 	}
 	
@@ -455,6 +460,9 @@
 /* Date */
 @import "less/date.less";
 
+/* Block background */
+@import "less/block-background.less";
+
 /* Map */
 .yui3-input-map label {
 	padding-bottom: 7px;
@@ -472,6 +480,10 @@
 		
 		label {
 			width: 160px;
+		}
+		
+		&:first-child {
+			margin-top: 0;
 		}
 	}
 	
@@ -553,7 +565,8 @@
 	.yui3-input-slider label,
 	.yui3-input-link label,
 	.yui3-input-image label,
-	.yui3-input-color label {
+	.yui3-input-color label,
+	.yui3-input-block-background label {
 		display: block;
 	}
 	.yui3-input-string input,

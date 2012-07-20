@@ -512,9 +512,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var host = this.get('host'),
 				id = input.get('id'),
 				value = (value === null || value === undefined ? input.get('value') : value),
+				values = input.get('values') || null, // all values
 				result = null;
 			
-			result = host.fireContentEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value});
+			result = host.fireContentEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value, 'propertyValueList': values});
 			
 			if (!dirty && result === false) {
 				//Some property was recognized, but preview can't be updated without refresh
@@ -624,9 +625,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		/**
 		 * Hide properties form
 		 */
-		hidePropertiesForm: function () {
+		hidePropertiesForm: function (options) {
 			this.get('form').hide();
-			this.get('action').hide();
+			this.get('action').hide(options);
 		},
 		
 		/**

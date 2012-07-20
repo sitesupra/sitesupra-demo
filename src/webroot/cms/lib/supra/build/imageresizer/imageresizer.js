@@ -14,6 +14,9 @@ YUI().add("supra.imageresizer", function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	ImageResizer.MODE_IMAGE = 0;
+	ImageResizer.MODE_BACKGROUND = 1;
+	
 	ImageResizer.NAME = "imageresizer";
 	ImageResizer.CSS_PREFIX = "su-" + ImageResizer.NAME;
 	ImageResizer.CLASS_NAME = Y.ClassNameManager.getClassName(ImageResizer.NAME);
@@ -76,6 +79,11 @@ YUI().add("supra.imageresizer", function (Y) {
 		"cursor": {
 			value: 4,
 			setter: "_setCursorAttr"
+		},
+		
+		// Mode: 0 - image, 1 - background
+		"mode": {
+			value: ImageResizer.MODE_IMAGE
 		}
 	};
 	
@@ -287,6 +295,8 @@ YUI().add("supra.imageresizer", function (Y) {
 		 * Set mouse cursor 
 		 */
 		setMouseCursor: function (e) {
+			//Resize is available only if resizing image
+			//If currently resizing, then don't change cursor
 			if (!this.resizeActive && !this.moveActive) {
 				var x = e._event.layerX,
 					y = e._event.layerY,
@@ -333,7 +343,7 @@ YUI().add("supra.imageresizer", function (Y) {
 				case 3:
 					return "supra-image-resize-sw";
 				default:
-					return "";
+					return this.get("mode") == ImageResizer.MODE_IMAGE ? "" : "supra-image-resize-move";
 			}
 		},
 		
@@ -406,31 +416,40 @@ YUI().add("supra.imageresizer", function (Y) {
 			this.imageWidth = size[0];
 			this.imageHeight = size[1];
 			
-			image.setStyles({
-				"width": size[0] + "px",
-				"height": size[1] + "px"
-			});
-			image.setAttribute("width", size[0]);
-			image.setAttribute("height", size[1]);
-			
-			//Check crop
-			if (this.cropLeft + this.cropWidth > this.imageWidth) {
-				this.cropLeft = this.imageWidth - this.cropWidth;
-				if (this.cropLeft < 0) {
-					this.cropLeft = 0;
-					this.cropWidth = this.imageWidth;
-					this.get("imageContainerNode").setStyle("width", this.cropWidth + "px");
+			if (this.get("mode") == ImageResizer.MODE_IMAGE) {
+				image.setStyles({
+					"width": size[0] + "px",
+					"height": size[1] + "px"
+				});
+				image.setAttribute("width", size[0]);
+				image.setAttribute("height", size[1]);
+				
+				//Check crop
+				if (this.cropLeft + this.cropWidth > this.imageWidth) {
+					this.cropLeft = this.imageWidth - this.cropWidth;
+					if (this.cropLeft < 0) {
+						this.cropLeft = 0;
+						this.cropWidth = this.imageWidth;
+						this.get("imageContainerNode").setStyle("width", this.cropWidth + "px");
+					}
+					image.setStyle("marginLeft", - this.cropLeft + "px");
 				}
-				image.setStyle("marginLeft", - this.cropLeft + "px");
-			}
-			if (this.cropTop + this.cropHeight > this.imageHeight) {
-				this.cropTop = this.imageHeight - this.cropHeight;
-				if (this.cropTop < 0) {
-					this.cropTop = 0;
-					this.cropHeight = this.imageHeight;
-					this.get("imageContainerNode").setStyle("height", this.cropHeight + "px");
+				if (this.cropTop + this.cropHeight > this.imageHeight) {
+					this.cropTop = this.imageHeight - this.cropHeight;
+					if (this.cropTop < 0) {
+						this.cropTop = 0;
+						this.cropHeight = this.imageHeight;
+						this.get("imageContainerNode").setStyle("height", this.cropHeight + "px");
+					}
+					image.setStyle("marginTop", - this.cropTop + "px");
 				}
-				image.setStyle("marginTop", - this.cropTop + "px");
+			} else {
+				this.cropWidth = this.imageWidth - this.cropLeft;
+				this.cropHeight = this.imageHeight - this.cropTop;
+				
+				image.setStyles({
+					"backgroundSize": this.imageWidth + "px " + this.imageHeight + "px"
+				});
 			}
 			
 			//Update image size label
@@ -521,7 +540,8 @@ YUI().add("supra.imageresizer", function (Y) {
 				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
 				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
-				sizeY  = this.dragStartH + deltaY;
+				sizeY  = this.dragStartH + deltaY,
+				mode   = this.get("mode");
 			
 			if (this.resizeActive) { // resize
 				var node = this.get("imageContainerNode"),
@@ -533,6 +553,8 @@ YUI().add("supra.imageresizer", function (Y) {
 					cropLeft = this.dragCropLeft,
 					imageHeight = this.imageHeight,
 					imageWidth = this.imageWidth;
+				
+				if (!node) return;
 				
 				if (sizeX < minW) sizeX = minW;
 				if (maxW && sizeX > maxW) sizeX = maxW;
@@ -574,20 +596,38 @@ YUI().add("supra.imageresizer", function (Y) {
 					imageHeight = this.imageHeight,
 					imageWidth = this.imageWidth;
 				
+				if (!node) return;
+				
 				if (sizeX < 0) sizeX = 0;
-				if (sizeX + cropWidth > imageWidth) {
-					sizeX = imageWidth - cropWidth;
-				}
 				if (sizeY < 0) sizeY = 0;
-				if (sizeY + cropHeight > imageHeight) {
-					sizeY = imageHeight - cropHeight;
+				
+				if (mode == ImageResizer.MODE_IMAGE) {
+					// Image
+					if (sizeX + cropWidth > imageWidth) {
+						sizeX = imageWidth - cropWidth;
+					}
+					if (sizeY + cropHeight > imageHeight) {
+						sizeY = imageHeight - cropHeight;
+					}
+				} else {
+					// Background
+					if (sizeX > imageWidth) {
+						sizeX = imageWidth;
+					}
+					if (sizeY > imageHeight) {
+						sizeY = imageHeight;
+					}
 				}
 				
 				if (sizeX != this.dragCropLeft || sizeY != this.dragCropTop) {
 					this.dragCropLeft = sizeX;
 					this.dragCropTop  = sizeY;
 					
-					node.setStyle("margin", - sizeY + "px 0 0 -" + sizeX + "px");
+					if (mode == ImageResizer.MODE_IMAGE) {
+						node.setStyle("margin", - sizeY + "px 0 0 -" + sizeX + "px");
+					} else {
+						node.setStyle("backgroundPosition", - sizeX + "px -" + sizeY + "px");
+					}
 				}
 			}
 		},
@@ -637,7 +677,7 @@ YUI().add("supra.imageresizer", function (Y) {
 		 */
 		documentClick: function (e) {
 			var image = this.get("image");
-			if (image && e.target && !e.target.closest("span.supra-image")) {
+			if (image && e.target && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
 				this.set("image", null);
 			}
 		},
@@ -767,6 +807,110 @@ YUI().add("supra.imageresizer", function (Y) {
 		},
 		
 		
+		/* --------------------------------- Background --------------------------------- */
+		
+		
+		/**
+		 * Set up needed elements for background resizing
+		 * 
+		 * @param {Y.Node} image Node which background is resized
+		 * @private
+		 */
+		setUpBackground: function (image) {
+			var doc = this.get("doc"),
+				resizeHandleNode = Y.Node(doc.createElement("SPAN")), // create in correct document
+				sizeLabelNode = Y.Node(doc.createElement("SPAN")),
+				containerNode = image;
+			
+			resizeHandleNode.addClass("supra-image-resize");
+			resizeHandleNode.addClass("supra-image-resize-move");
+			image.append(resizeHandleNode);
+			resizeHandleNode.on("mousedown", this.dragStart, this);
+			this.set("resizeHandleNode", resizeHandleNode);
+			
+			sizeLabelNode.addClass("supra-image-size");
+			image.append(sizeLabelNode);
+			this.set("sizeLabelNode", sizeLabelNode);
+			image.addClass("supra-background-editing");
+			
+			this.imageWidth = this.cropWidth = this.get("maxImageWidth");
+			this.imageHeight = this.cropHeight = this.get("maxImageHeight");
+			this.cropLeft = 0;
+			this.cropTop = 0;
+			
+			var backgroundSize = image.getStyle("backgroundSize").match(/(\d+)px\s+(\d+)px/);
+			if (backgroundSize) {
+				this.cropWidth = this.imageWidth = parseInt(backgroundSize[1], 10) || this.cropWidth;
+				this.cropHeight = this.imageHeight = parseInt(backgroundSize[2], 10) || this.cropHeight;
+			}
+			
+			var backgroundPosition = image.getStyle("backgroundPosition").match(/(\-?\d+)px\s+(\-?\d+)px/);
+			if (backgroundPosition) {
+				this.cropLeft = - parseInt(backgroundPosition[1], 10) || 0;
+				this.cropTop = - parseInt(backgroundPosition[2], 10) || 0;
+				this.cropWidth -= this.cropLeft;
+				this.cropHeight -= this.cropTop;
+			}
+			
+			//Set size label
+			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
+			
+			//Calculate min image width and height for zoom
+			var maxImageWidth = this.get("maxImageWidth"),
+				maxImageHeight = this.get("maxImageHeight"),
+				minImageWidth = this.get("minCropWidth"),
+				minImageHeight = this.get("minCropHeight"),
+				ratio = maxImageWidth / maxImageHeight;
+			
+			if (minImageWidth / ratio < minImageHeight) {
+				minImageWidth = Math.ceil(minImageHeight * ratio);
+			}
+			if (minImageHeight * ratio < minImageWidth) {
+				minImageHeight = Math.ceil(minImageWidth / ratio);
+			}
+			
+			this.minImageWidth = minImageWidth;
+			this.minImageHeight = minImageHeight;
+			
+			this.setUpPanel();
+		},
+		
+		/**
+		 * Remove all created elements and events
+		 * 
+		 * @param {Y.Node} image Node which background was resized
+		 * @private
+		 */
+		tearDownBackground: function (image) {
+			if (!image) return;
+			
+			var resizeHandleNode = this.get("resizeHandleNode"),
+				sizeLabelNode = this.get("sizeLabelNode");
+			
+			image.removeClass("supra-background-editing");
+			
+			resizeHandleNode.remove(true);
+			this.set("resizeHandleNode", null);
+			
+			sizeLabelNode.remove(true);
+			this.set("sizeLabelNode", null);
+			
+			this.fire("resize", {
+				"image": image,
+				"cropLeft": this.cropLeft,
+				"cropTop": this.cropTop,
+				"cropWidth": this.cropWidth,
+				"cropHeight": this.cropHeight,
+				"imageWidth": this.imageWidth,
+				"imageHeight": this.imageHeight
+			});
+			
+			if (this.zoomPanel) {
+				this.zoomPanel.hide();
+			}
+		},
+		
+		
 		/* --------------------------------- Attributes --------------------------------- */
 		
 		
@@ -782,7 +926,12 @@ YUI().add("supra.imageresizer", function (Y) {
 				doc = image ? image.getDOMNode().ownerDocument : null;
 			
 			if (this.get("image")) {
-				this.tearDownImage(this.get("image"));
+				
+				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
+					this.tearDownImage(this.get("image"));
+				} else {
+					this.tearDownBackground(this.get("image"));
+				}
 			}
 			
 			if (this.eventClick) {
@@ -792,7 +941,12 @@ YUI().add("supra.imageresizer", function (Y) {
 			
 			if (image) {
 				this.set("doc", doc);
-				this.setUpImage(image);
+				
+				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
+					this.setUpImage(image);
+				} else {
+					this.setUpBackground(image);
+				}
 				
 				this.eventClick = Y.Node(doc).on("mousedown", this.documentClick, this);
 			}

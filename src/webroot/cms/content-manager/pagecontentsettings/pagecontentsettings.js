@@ -72,17 +72,27 @@ Supra(function (Y) {
 			}, this);
 		},
 		
-		// Hide
-		hide: function () {
+		/**
+		 * Hide sidebar
+		 * 
+		 * @param {Boolean} keep_toolbar_buttons Don't hide toolbar buttons
+		 */
+		hide: function (options) {
+			if (!this.get("visible")) return;
 			Action.Base.prototype.hide.apply(this, arguments);
 			
+			var keepToolbarButtons = (options && options.keepToolbarButtons === true);
+			
 			//Hide buttons
-			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			//Sometimes we don't want to hide buttons if sidebar is hidden only temporary
+			if (!keepToolbarButtons) {
+				Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+				Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+			}
 			
 			//Hide form
 			if (this.form) {
-				if (this.open_toolbar_on_hide) {
+				if (!keepToolbarButtons && this.open_toolbar_on_hide) {
 					Manager.EditorToolbar.execute();
 				}
 				
@@ -152,7 +162,7 @@ Supra(function (Y) {
 						toolbar_currenly_visible = Manager.EditorToolbar.get('visible');
 					
 					//Store if editor toolbar should be shown when properties form is closed
-					this.open_toolbar_on_hide = has_html_inputs && toolbar_currenly_visible;
+					this.open_toolbar_on_hide = has_html_inputs; // && toolbar_currenly_visible;
 					
 					if (toolbar_currenly_visible) {
 						Manager.EditorToolbar.hide();
