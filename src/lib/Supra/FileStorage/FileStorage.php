@@ -673,6 +673,92 @@ class FileStorage
 	}
 
 	/**
+	 * @param \Supra\FileStorage\Entity\Image $file
+	 * @param integer $width
+	 * @param integer $height
+	 * @param integer $cropLeft
+	 * @param integer $cropTop
+	 * @param integer $cropWidth
+	 * @param integer $cropHeight
+	 * @param integer $quality
+	 * @param integer $force
+	 * @throws Exception\RuntimeException
+	 */
+	public function createImageVariant(Entity\Image $file, $width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight, $quality = 95, $force = false)
+	{
+		$resizedVariantName = $this->createResizedImage($file, $width, $height);
+
+		if ( ! ($cropLeft || $cropTop || $cropWidth || $cropHeight)) {
+			return $resizedVariantName;
+		}
+
+		$cropLeft = intval($cropLeft);
+		$cropTop = intval($cropTop);
+		$cropWidth = intval($cropWidth);
+		$cropHeight = intval($cropHeight);
+
+		if ( ! (
+				($cropLeft >= 0) ||
+				($cropLeft < $width) ||
+				($cropWidth >= 1) ||
+				($cropLeft + $cropWidth <= $width) ||
+				($cropTop >= 0) ||
+				($cropTop < $height) ||
+				($cropHeight >= 1) ||
+				($cropTop + $cropHeight <= $height)
+				)
+		) {
+			throw new Exception\RuntimeException('Crop parametrs are invalid');
+		}
+
+		$croppedVariantName = $this->getImageSizeNameForCrop($width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight);
+
+		$variant = $file->getImageSize($croppedVariantName);
+
+		$variant->setQuality($quality);
+		$variant->setTargetWidth($width);
+		$variant->setTargetHeight($height);
+		$variant->setCropTop($cropTop);
+		$variant->setCropLeft($cropLeft);
+		$variant->setCropWidth($cropWidth);
+		$variant->setCropHeight($cropHeight);
+
+		$resizedVariantFilename = $this->getImagePath($file, $resizedVariantName);
+
+		$cropper = new ImageProcessor\ImageCropper();
+
+		$cropper->setSourceFile($resizedVariantFilename);
+		$cropper->setOutputQuality($quality);
+		$cropper->setTop($cropTop);
+		$cropper->setLeft($cropLeft);
+		$cropper->setBottom($cropTop + $cropHeight);
+		$cropper->setRight($cropLeft + $cropWidth);
+
+		$variantFileDir = $this->getFilesystemDir($file)
+				. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
+				. $variant->getFolderName();
+
+		if ( ! file_exists($variantFileDir)) {
+			$mkdirResult = mkdir($variantFileDir, $this->folderAccessMode, true);
+			if (empty($mkdirResult)) {
+				throw new Exception\RuntimeException(
+						'Could not create directory for image variant');
+			}
+		}
+
+		$croppedVariantFilename = $variantFileDir . DIRECTORY_SEPARATOR . $file->getFileName();
+		$cropper->setOutputFile($croppedVariantFilename);
+		$cropper->process();
+
+		$entityManager = $this->getDoctrineEntityManager();
+
+		$entityManager->persist($variant);
+		$entityManager->flush();
+
+		return $croppedVariantName;
+	}
+
+	/**
 	 * Create resized version for the image
 	 * @param Entity\Image $file
 	 * @param integer $targetWidth
@@ -753,6 +839,33 @@ class FileStorage
 		$entityManager->flush();
 
 		return $sizeName;
+	}
+
+	/**
+	 * @param integer $width
+	 * @param integer $height
+	 * @param integer $cropLeft
+	 * @param integer $cropTop
+	 * @param integer $cropWidth
+	 * @param integer $cropHeight
+	 * @return string
+	 */
+	public function getImageSizeNameForCrop($width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight)
+	{
+		$sizeNameParts = array($width, 'x', $height);
+
+		if ($cropLeft || $cropTop || $cropWidth || $cropHeight) {
+			$sizeNameParts[] = 't';
+			$sizeNameParts[] = intval($cropTop);
+			$sizeNameParts[] = 'l';
+			$sizeNameParts[] = intval($cropTop);
+			$sizeNameParts[] = 'w';
+			$sizeNameParts[] = intval($cropWidth);
+			$sizeNameParts[] = 'h';
+			$sizeNameParts[] = intval($cropHeight);
+		}
+
+		return join('', $sizeNameParts);
 	}
 
 	/**

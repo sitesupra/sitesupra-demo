@@ -140,10 +140,10 @@ class ImageCropper extends ImageProcessor
 		}
 
 		// check if right and bottom are in range
-		if (($this->right < 0) || ($this->right >= $imageInfo->getWidth())) {
+		if (($this->right < 0) || ($this->right > $imageInfo->getWidth())) {
 			throw new ImageProcessorException('Right offset is out of borders');
 		}
-		if (($this->bottom < 0) || ($this->bottom >= $imageInfo->getHeight())) {
+		if (($this->bottom < 0) || ($this->bottom > $imageInfo->getHeight())) {
 			throw new ImageProcessorException('Bottom offset is out borders');
 		}
 

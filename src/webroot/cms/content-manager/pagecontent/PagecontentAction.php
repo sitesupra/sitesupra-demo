@@ -21,9 +21,10 @@ use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
  */
 class PagecontentAction extends PageManagerAction
 {
+
 	const ACTION_BLOCK_MOVE = 'blockMove';
 	const ACTION_BLOCK_PROPERTY_EDIT = 'blockPropertyEdit';
-	
+
 	/**
 	 * Insert block action
 	 */
@@ -31,31 +32,31 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$this->checkLock();
-		
+
 		$data = $this->getPageLocalization();
 		$page = $data->getMaster();
 		$request = $this->getPageRequest();
-		
+
 		$placeHolderName = $this->getRequestParameter('placeholder_id');
 		$blockType = $this->getRequestParameter('type');
-		
+
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $request->getPageLocalization()
 				->getPlaceHolders()
 				->get($placeHolderName);
-		
+
 		// Generate block according the page type provided
 		$block = Entity\Abstraction\Block::factory($page);
-		
+
 		$block->setComponentName($blockType);
 		$block->setPlaceHolder($placeHolder);
 		$block->setPosition($placeHolder->getMaxBlockPosition() + 1);
-		
+
 		$this->entityManager->persist($block);
 		$this->entityManager->flush();
 
 		$this->savePostTrigger();
-		
+
 		$controller = $block->createController();
 		$block->prepareController($controller, $request);
 		$block->executeController($controller);
@@ -68,7 +69,6 @@ class PagecontentAction extends PageManagerAction
 			// If you can insert it, you can edit it
 			'closed' => false,
 			'locked' => $locked,
-			
 			// TODO: generate
 			'properties' => array(
 				'html' => array(
@@ -78,10 +78,10 @@ class PagecontentAction extends PageManagerAction
 			),
 			'html' => $response->__toString(),
 		);
-		
+
 		$this->getResponse()->setResponseData($array);
 	}
-	
+
 	/**
 	 * Content save action.
 	 * Responds with block inner HTML content.
@@ -92,52 +92,51 @@ class PagecontentAction extends PageManagerAction
 		$this->checkLock();
 		$request = $this->getPageRequest();
 		$input = $this->getRequestInput();
-		
+
 		$blockId = $input->get('block_id');
-		
+
 		$block = $this->entityManager->find(Entity\Abstraction\Block::CN(), $blockId);
 		/* @var $block Entity\Abstraction\Block */
-		
+
 		if (empty($block)) {
 			throw new CmsException(null, "Block doesn't exist anymore");
 		}
-		
-		$pageData = $request->getPageLocalization();;
+
+		$pageData = $request->getPageLocalization();
+
 		$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-		
+
 		// Receive block property definition
 		$blockController = $block->createController();
 		/* @var $blockController \Supra\Controller\Pages\BlockController */
-		
+
 		$block->prepareController($blockController, $request);
-		
+
 		if ($block instanceof Entity\TemplateBlock) {
 			if ($input->has('locked')) {
 				$locked = $input->getValid('locked', 'boolean');
 				$block->setLocked($locked);
 			}
 		}
-		
+
 		// Load received property values and data from the POST
-		$input = $input->getChild('properties', true);
-		
-		$this->handlePropertyValues($blockController, $input);
-	
+		$inputProperties = $input->getChild('properties', true);
+
+		$this->handlePropertyValues($blockController, $inputProperties);
+
 		$this->entityManager->flush();
-		
+
 		$controllerClass = $this->getPageControllerClass();
 
 		// Regenerate the request object
-		$request = $this->getPageRequest();
+		$controllerRequest = $this->getPageRequest();
 
 		// Need to be inside page and block controller scopes
 		ObjectRepository::beginControllerContext($controllerClass);
 		ObjectRepository::beginControllerContext($blockController);
-		$e = null;
-		$outputString = null;
 
 		try {
-			$block->prepareController($blockController, $request);
+			$block->prepareController($blockController, $controllerRequest);
 
 			$blockController->prepareTwigEnvironment();
 			$block->executeController($blockController);
@@ -145,22 +144,27 @@ class PagecontentAction extends PageManagerAction
 			$response = $blockController->getResponse();
 			/* @var $response HttpResponse */
 			$outputString = $response->getOutputString();
-		} catch (\Exception $e) {};
-		
+
+			$e = null;
+		} catch (\Exception $e) {
+			$outputString = null;
+		};
+
 		ObjectRepository::endControllerContext($blockController);
 		ObjectRepository::endControllerContext($controllerClass);
-		
+
 		if ($e instanceof \Exception) {
 			throw $e;
 		}
-		
+
 		$this->savePostTrigger();
-		
+
 		// Block HTML in response
 		$this->getResponse()->setResponseData(
-				array('internal_html' => $outputString));
+				array('internal_html' => $outputString)
+		);
 	}
-	
+
 	/**
 	 * Removes the block
 	 */
@@ -168,7 +172,7 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$this->checkLock();
-		
+
 		$blockId = $this->getRequestParameter('block_id');
 
 		$block = $this->entityManager->find(Entity\Abstraction\Block::CN(), $blockId);
@@ -178,12 +182,12 @@ class PagecontentAction extends PageManagerAction
 		}
 
 		$this->checkBlockSharedProperties($block);
-		
+
 		$this->entityManager->remove($block);
 		$this->entityManager->flush();
-		
+
 		$this->savePostTrigger();
-		
+
 		// OK response
 		$this->getResponse()->setResponseData(true);
 	}
@@ -216,7 +220,7 @@ class PagecontentAction extends PageManagerAction
 			$this->getConfirmation("{#page.delete_block_shared_confirmation#}");
 		}
 	}
-	
+
 	/**
 	 * Action called on block order action
 	 */
@@ -224,33 +228,33 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$this->checkLock();
-			
+
 		$placeHolderName = $this->getRequestParameter('place_holder_id');
 		$blockOrder = $this->getRequestParameter('order');
 		$blockPositionById = array_flip($blockOrder);
-		
+
 		if (count($blockOrder) != count($blockPositionById)) {
 			\Log::warn("Block order array received contains duplicate block IDs: ", $blockOrder);
 		}
-		
+
 		$pageRequest = $this->getPageRequest();
-		
+
 		$data = $this->getPageLocalization();
 		$page = $data->getMaster();
-		
+
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $data->getPlaceHolders()
 				->offsetGet($placeHolderName);
-		
+
 		$blocks = $pageRequest->getBlockSet()
 				->getPlaceHolderBlockSet($placeHolder);
-				
+
 		$eventManager = $this->entityManager->getEventManager();
 
 		$eventArgs = new PageEventArgs();
 		$eventArgs->setRevisionInfo(self::ACTION_BLOCK_MOVE);
 		$eventManager->dispatchEvent(AuditEvents::pageContentEditEvent, $eventArgs);
-		
+
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $block) {
 			$id = $block->getId();
@@ -261,14 +265,14 @@ class PagecontentAction extends PageManagerAction
 				$block->setPosition($blockPositionById[$id]);
 			}
 		}
-		
+
 		$this->entityManager->flush();
-		
+
 		$this->savePostTrigger();
-		
+
 		$this->getResponse()->setResponseData(true);
 	}
-	
+
 	/**
 	 * Alias to save method.
 	 */
@@ -276,7 +280,7 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->saveAction();
 	}
-	
+
 	/**
 	 * Saves placeholder settings (locked parameter)
 	 */
@@ -286,30 +290,30 @@ class PagecontentAction extends PageManagerAction
 		$this->checkLock();
 		$input = $this->getRequestInput();
 		$request = $this->getPageRequest();
-		
+
 		$placeHolderName = $input->get('place_holder_id');
-		
+
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $request->getPageLocalization()
 				->getPlaceHolders()
 				->get($placeHolderName);
-		
+
 		if (empty($placeHolder)) {
 			throw new CmsException(null, "The placeholder by name '$placeHolderName' doesn't exist anymore");
 		}
-		
+
 		if ( ! $placeHolder instanceof Entity\TemplatePlaceHolder) {
 			throw new CmsException(null, "Not possible to change locked status for page placeholder");
 		}
-		
+
 		$locked = $input->getValid('locked', 'boolean');
 		$placeHolder->setLocked($locked);
-		
+
 		$this->entityManager->flush();
-		
+
 		$this->savePostTrigger();
 	}
-	
+
 	/**
 	 *
 	 * @param Supra\Controller\Pages\BlockController $blockController
@@ -320,20 +324,20 @@ class PagecontentAction extends PageManagerAction
 	{
 		$blockConfiguration = $blockController->getConfiguration();
 		$propertyDefinitions = $blockConfiguration->properties;
-		
+
 		foreach ($propertyDefinitions as $propertyDefinition) {
 
 			$propertyName = $propertyDefinition->name;
-			
+
 			if ($input->has($propertyName) || $input->hasChild($propertyName)) {
-				
+
 				$property = $blockController->getProperty($propertyName);
-				
+
 				if ( ! $property instanceof Entity\SharedBlockProperty) {
 					$this->entityManager->persist($property);
 					/* @var $property Entity\BlockProperty */
 				}
-				
+
 				$editable = $property->getEditable();
 
 				$value = null;
@@ -347,12 +351,11 @@ class PagecontentAction extends PageManagerAction
 					if ($propertyPost->hasChild('data')) {
 						$valueData = $propertyPost['data'];
 					}
-
 				} elseif ($editable instanceof Editable\Link) {
 					if ($input->hasChild($propertyName)) {
-						
+
 						$propertyPost = $input->getChild($propertyName)
-									->getArrayCopy();
+								->getArrayCopy();
 
 						$propertyPost['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
 						$valueData[0] = $propertyPost;
@@ -380,7 +383,6 @@ class PagecontentAction extends PageManagerAction
 							$imageData['_subPropertyInput'] = $propertyInput;
 
 							$valueData[] = $imageData;
-
 						}
 					} else {
 						// Scalar sent if need to empty the gallery
@@ -406,7 +408,7 @@ class PagecontentAction extends PageManagerAction
 
 					$elementFound = false;
 					if ( ! empty($metadataCollection)) {
-						foreach($metadataCollection as $metadataItem) {
+						foreach ($metadataCollection as $metadataItem) {
 
 							/* @var $metadataItem Entity\BlockPropertyMetadata */
 							$name = $metadataItem->getName();
@@ -443,9 +445,9 @@ class PagecontentAction extends PageManagerAction
 
 								$subInput = $elementData['_subPropertyInput'];
 								$galleryController->setParentMetadata($metadataItem);
-								
+
 								$this->handlePropertyValues($galleryController, $subInput);
-								
+
 								break;
 							}
 						}
@@ -471,4 +473,5 @@ class PagecontentAction extends PageManagerAction
 			}
 		}
 	}
+
 }
