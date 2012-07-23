@@ -92,6 +92,11 @@ class_alias('Supra\Log\Log', 'Log');
 mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');
 
+// Can control new file/folder default permissions there
+if (file_exists(SUPRA_CONF_PATH . 'chmod.php')) {
+	require_once SUPRA_CONF_PATH . 'chmod.php';
+}
+
 // Default permission modes for new files and folders
 if ( ! defined('SITESUPRA_FOLDER_PERMISSION_MODE')) {
 	define('SITESUPRA_FOLDER_PERMISSION_MODE', 0755);
