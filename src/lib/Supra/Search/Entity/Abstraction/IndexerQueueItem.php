@@ -2,11 +2,9 @@
 
 namespace Supra\Search\Entity\Abstraction;
 
-use Supra\Search\IndexerService;
 use DateTime;
 use Supra\Database\Doctrine\Listener\Timestampable;
 use Supra\Search\IndexerQueueItemStatus;
-use Supra\Search\Exception\IndexerRuntimeException;
 use Supra\Search\IndexedDocument;
 
 /**
@@ -134,4 +132,7 @@ abstract class IndexerQueueItem extends Entity implements Timestampable
 	 * @return IndexedDocument
 	 */
 	abstract public function getIndexedDocuments();
+	
+	
+	abstract public function writeIndexedDocuments($documentWriter);
 }
