@@ -31,6 +31,7 @@ $cliCommandClasses = array(
 	'Supra\Remote\Command\RemoteCommand',
 	'Supra\User\Command\CreateUserCommand',
 	'Supra\FileStorage\Command\RegenerateFilePathCommand',
+	'Supra\NestedSet\Command\ValidateNestedSetCommand',
 );
 
 require_once __DIR__ . '/cli-config.php';
