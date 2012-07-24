@@ -157,59 +157,70 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 	 */
 	public function processAnnotations()
 	{
-		$propertyAnnotations = $this->annotationLoader->getPropertyAnnotations($this->dataClass);
+		$classRefl = new \ReflectionClass($this->dataClass);
 		$fields = array();
 
-		// gathering property annotations
-		foreach ($propertyAnnotations as $name => $annotations) {
+		while ( ! empty($classRefl)) {
+			$propertyAnnotations = $this->annotationLoader->getPropertyAnnotations($classRefl->name);
 
-			$errorInfo = array();
-			$formField = null;
+			// gathering property annotations
+			foreach ($propertyAnnotations as $name => $annotations) {
 
-			// gathering FormFields 
-			foreach ($annotations as $annotation) {
-				if ($annotation instanceof FormField) {
-					$annotation->setName($name);
-					$formField = $annotation;
-					break;
+				// Don't overwrite already created fields
+				if (isset($fields[$name])) {
+					continue;
 				}
-			}
 
-			// Not marked as field
-			if (is_null($formField)) {
-				continue;
-			}
-			
-			// gathering Constraint annotations
-			foreach ($annotations as $annotation) {
-				if ($annotation instanceof Constraint) {
+				$errorInfo = array();
+				$formField = null;
 
-					// Now we have Constraint object
-					$messageProperties = get_object_vars($annotation);
+				// gathering FormFields
+				foreach ($annotations as $annotation) {
+					if ($annotation instanceof FormField) {
+						$annotation->setName($name);
+						$formField = $annotation;
+						break;
+					}
+				}
 
-					foreach ($messageProperties as $messageKey => $messageValue) {
+				// Not marked as field
+				if (is_null($formField)) {
+					continue;
+				}
 
-						$className = strtolower(array_pop(explode('\\', get_class($annotation))));
+				// gathering Constraint annotations
+				foreach ($annotations as $annotation) {
+					if ($annotation instanceof Constraint) {
 
-						if (stripos($messageKey, 'message') === strlen($messageKey) - 7) {
+						// Now we have Constraint object
+						$messageProperties = get_object_vars($annotation);
 
-							// For the block unique error identifier
-							$errorIdentifier = self::generateEditableName(self::FORM_GROUP_ID_ERROR, $formField)
-									. "_constraint_{$className}_{$messageKey}";
-							
-							$annotation->$messageKey = $errorIdentifier;
-							$errorInfo[$errorIdentifier] = array(
-								'constraint' => $annotation,
-								'message' => $messageValue,
-							);
+						foreach ($messageProperties as $messageKey => $messageValue) {
+
+							$className = strtolower(array_pop(explode('\\', get_class($annotation))));
+
+							if (stripos($messageKey, 'message') === strlen($messageKey) - 7) {
+
+								// For the block unique error identifier
+								$errorIdentifier = self::generateEditableName(self::FORM_GROUP_ID_ERROR, $formField)
+										. "_constraint_{$className}_{$messageKey}";
+
+								$annotation->$messageKey = $errorIdentifier;
+								$errorInfo[$errorIdentifier] = array(
+									'constraint' => $annotation,
+									'message' => $messageValue,
+								);
+							}
 						}
 					}
 				}
+
+				$formField->setErrorInfo($errorInfo);
+
+				$fields[$name] = $formField;
 			}
 
-			$formField->setErrorInfo($errorInfo);
-
-			$fields[$name] = $formField;
+			$classRefl = $classRefl->getParentClass();
 		}
 
 		return $fields;
