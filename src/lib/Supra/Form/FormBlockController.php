@@ -107,11 +107,17 @@ abstract class FormBlockController extends BlockController
 		foreach ($errors as $error) {
 			/* @var $error Form\FormError */
 			$message = $error->getMessageTemplate();
+			$messageLocalized = null;
 			
 			$propertyName = FormBlockControllerConfiguration::generateEditableName(FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $form->getName())
 					. '_' . $message;
 
-			$messageLocalized = $this->getPropertyValue($propertyName);
+			if ($this->hasProperty($propertyName)) {
+				$messageLocalized = $this->getPropertyValue($propertyName);
+			} else {
+				$this->log->warn("Error message '$message' not localized");
+				$messageLocalized = $message;
+			}
 
 			$error->__construct($messageLocalized, $error->getMessageParameters(), $error->getMessagePluralization());
 		}

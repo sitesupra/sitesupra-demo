@@ -70,9 +70,9 @@ class FormAnnotationLoader extends AnnotationLoader
 			$this->cache[$className]['properties'] = array();
 
 			foreach ($reflClass->getProperties() as $property) {
-				if ($property->getDeclaringClass()->name == $className) {
+//				if ($property->getDeclaringClass()->name == $className) {
 					$this->cache[$className]['properties'][$property->name] = $this->reader->getPropertyAnnotations($property);
-				}
+//				}
 			}
 		}
 
