@@ -145,12 +145,23 @@ abstract class FormBlockController extends BlockController
 	}
 
 	/**
+	 * Data object can be filled with initial values in this stage
+	 * @param mixed $data
+	 * @return mixed
+	 */
+	protected function initializeData($data)
+	{
+		return $data;
+	}
+
+	/**
 	 * @return Form\Form
 	 */
 	protected function createForm()
 	{
 		$conf = $this->getConfiguration();
 		$dataObject = Loader::getClassInstance($conf->dataClass);
+		$dataObject = $this->initializeData($dataObject);
 		$formBuilder = $this->prepareFormBuilder($dataObject);
 		
 		foreach ($conf->getFields() as $field) {
