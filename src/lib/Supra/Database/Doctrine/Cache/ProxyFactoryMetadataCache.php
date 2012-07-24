@@ -73,7 +73,7 @@ class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
 			if ( ! $classMetadata->isMappedSuperclass) {
 				$className = $classMetadata->name;
 				$proxyFilename = $proxyFactory->getProxyFileName($className);
-				chmod($proxyFilename, SITESUPRA_FILE_PERMISSION_MODE);
+				@chmod($proxyFilename, SITESUPRA_FILE_PERMISSION_MODE);
 			}
 		}
 
