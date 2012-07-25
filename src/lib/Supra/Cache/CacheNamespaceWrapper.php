@@ -4,7 +4,6 @@ namespace Supra\Cache;
 
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Common\Cache\Cache;
-use Supra\ObjectRepository\ObjectRepository;
 
 class CacheNamespaceWrapper extends CacheProvider
 {

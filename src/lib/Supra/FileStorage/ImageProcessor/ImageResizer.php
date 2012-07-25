@@ -138,7 +138,7 @@ class ImageResizer extends ImageProcessor
 			copy($this->sourceFilename, $this->targetFilename);
 		}
 
-		chmod($this->targetFilename, SITESUPRA_FILE_PERMISSION_MODE);
+		@chmod($this->targetFilename, SITESUPRA_FILE_PERMISSION_MODE);
 	}
 
 	/**

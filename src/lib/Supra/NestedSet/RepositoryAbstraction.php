@@ -3,6 +3,8 @@
 namespace Supra\NestedSet;
 
 use Supra\NestedSet\Node\NodeInterface;
+use Supra\NestedSet\SelectOrder\SelectOrderAbstraction;
+use Supra\NestedSet\SearchCondition\SearchConditionAbstraction;
 
 /**
  * Nested set repository abstraction

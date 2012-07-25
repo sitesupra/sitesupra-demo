@@ -983,8 +983,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 * @type {String}
 		 */
 		untagHTML: function (html, data) {
-			var htmleditor = this.htmleditor,
-				NAME = this.NAME,
+			var NAME = this.NAME,
 				self = this;
 			
 			html = html.replace(/{supra\.image id="([^"]+)"}/ig, function (tag, id) {
@@ -999,13 +998,34 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					item.image.crop_width = item.image.crop_width || (item.image.size_width - item.image.crop_left);
 					item.image.crop_height = item.image.crop_height || (item.image.size_height - item.image.crop_top);
 					
-					var style = ( ! item.image.exists ? "" : (item.size_width && item.size_height ? "width=\"" + item.size_width + "px\" height=\"" + item.size_height + "\"" : ""));
+					// Fix width/height if image proportions have been changed
+					if (item.size_width && item.size_height) {
+						var original = self.getImageDataBySize(item.image, 'original');
+
+						if (original) {
+							var original_height = original.height,
+								original_width = original.width,
+								min_ratio = Math.min(item.size_width / original_width, item.size_height / original_height),
+								new_width = Math.round(min_ratio * original_width),
+								new_height = Math.round(min_ratio * original_height);
+
+
+							if (Math.abs(new_width - item.size_width) > 1) {
+								item.size_width = new_width;
+							}
+							if (Math.abs(new_height - item.size_height) > 1) {
+								item.size_height = new_height;
+							}
+						}
+					}
+
+					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));					
 					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
 					var html = '<span class="supra-image align-' + classname + '" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="left: -' + item.crop_left + 'px; top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
-					
-					if (item.type == "lightbox") {
+
+					if (item.type == 'lightbox') {
 						//For lightbox add link around image
-						return '<a class="lightbox" href="' + this.getImageURLBySize(item.image, "original") + '" rel="lightbox"></a>' + html + '</a>';
+						return '<a class="lightbox" href="' + self.getImageURLBySize(item.image, "original") + '" rel="lightbox"></a>' + html + '</a>';
 					}
 					
 					return html;

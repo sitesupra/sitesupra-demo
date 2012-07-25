@@ -6,15 +6,11 @@ use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
 use Supra\Controller\Pages\Entity;
-use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Editable;
 use Supra\Cms\Exception\CmsException;
-use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\Cms\Exception\ObjectLockedException;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\PageController;
-use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Authorization\Exception\AuthorizationException;
 use Supra\Response\ResponseContext;
 use Doctrine\ORM\NoResultException;
@@ -22,12 +18,10 @@ use Supra\Controller\Pages\Exception\LayoutNotFound;
 use Supra\Controller\Pages\BrokenBlockController;
 use Supra\Uri\Path;
 use Supra\Locale\Locale;
-use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 use Supra\Controller\Pages\Entity\ThemeLayout;
-use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
 /**
  * 

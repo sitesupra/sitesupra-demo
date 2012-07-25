@@ -288,9 +288,9 @@ class LogEvent
 		$offset++;
 
 		if (function_exists('debug_backtrace')) {
-
+			
 			$backtrace = debug_backtrace(false);
-
+			
 			/*
 			 * full backtrace class::method call summary
 			$backtraceSummary = array();
@@ -360,9 +360,9 @@ class LogEvent
 			//$params['backtrace'] = $backtraceSummary;
 
 		} else {
-			$params['file'] = '';
-			$params['line'] = 0;
 			$params = array(
+				'line' => 0,
+				'file' => '',
 				'class' => null,
 				'method' => null,
 				'type' => null,
