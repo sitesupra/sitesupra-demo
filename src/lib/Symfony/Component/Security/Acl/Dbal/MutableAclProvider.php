@@ -241,7 +241,7 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
                 if (null === $propertyChanges['parentAcl'][1]) {
                     $sets[] = 'parent_object_identity_id = NULL';
                 } else {
-                    $sets[] = 'parent_object_identity_id = '.$this->connection->quote($propertyChanges['parentAcl'][1]->getId());
+                    $sets[] = 'parent_object_identity_id = '.intval($propertyChanges['parentAcl'][1]->getId());
                 }
 
                 $this->regenerateAncestorRelations($acl);
@@ -343,9 +343,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteAccessControlEntriesSql($oidPK)
     {
         return sprintf(
-              'DELETE FROM %s WHERE object_identity_id = %s',
+              'DELETE FROM %s WHERE object_identity_id = %d',
             $this->options['entry_table_name'],
-            $this->connection->quote($oidPK)
+            $oidPK
         );
     }
 
@@ -358,9 +358,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteAccessControlEntrySql($acePK)
     {
         return sprintf(
-            'DELETE FROM %s WHERE id = %s',
+            'DELETE FROM %s WHERE id = %d',
             $this->options['entry_table_name'],
-            $this->connection->quote($acePK)
+            $acePK
         );
     }
 
@@ -373,9 +373,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteObjectIdentitySql($pk)
     {
         return sprintf(
-            'DELETE FROM %s WHERE id = %s',
+            'DELETE FROM %s WHERE id = %d',
             $this->options['oid_table_name'],
-            $this->connection->quote($pk)
+            $pk
         );
     }
 
@@ -388,9 +388,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteObjectIdentityRelationsSql($pk)
     {
         return sprintf(
-            'DELETE FROM %s WHERE object_identity_id = %s',
+            'DELETE FROM %s WHERE object_identity_id = %d',
             $this->options['oid_ancestors_table_name'],
-            $this->connection->quote($pk)
+            $pk
         );
     }
 
@@ -424,17 +424,17 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
                 audit_success,
                 audit_failure
             )
-            VALUES (%s, %s, %s, %d, %s, %d, %s, %s, %s, %s)
+            VALUES (%d, %s, %s, %d, %d, %d, %s, %s, %s, %s)
 QUERY;
 
         return sprintf(
             $query,
             $this->options['entry_table_name'],
-            $this->connection->quote($classId),
-            null === $objectIdentityId? 'NULL' : $this->connection->quote($objectIdentityId),
+            $classId,
+            null === $objectIdentityId? 'NULL' : intval($objectIdentityId),
             null === $field? 'NULL' : $this->connection->quote($field),
             $aceOrder,
-            $this->connection->quote($securityIdentityId),
+            $securityIdentityId,
             $mask,
             $this->connection->getDatabasePlatform()->convertBooleans($granting),
             $this->connection->quote($strategy),
@@ -468,10 +468,10 @@ QUERY;
     protected function getInsertObjectIdentityRelationSql($objectIdentityId, $ancestorId)
     {
         return sprintf(
-            'INSERT INTO %s (object_identity_id, ancestor_id) VALUES (%s, %s)',
+            'INSERT INTO %s (object_identity_id, ancestor_id) VALUES (%d, %d)',
             $this->options['oid_ancestors_table_name'],
-            $this->connection->quote($objectIdentityId),
-            $this->connection->quote($ancestorId)
+            $objectIdentityId,
+            $ancestorId
         );
     }
 
@@ -487,13 +487,13 @@ QUERY;
     {
         $query = <<<QUERY
               INSERT INTO %s (class_id, object_identifier, entries_inheriting)
-              VALUES (%s, %s, %s)
+              VALUES (%d, %s, %s)
 QUERY;
 
         return sprintf(
             $query,
             $this->options['oid_table_name'],
-            $this->connection->quote($classId),
+            $classId,
             $this->connection->quote($identifier),
             $this->connection->getDatabasePlatform()->convertBooleans($entriesInheriting)
         );
@@ -538,12 +538,12 @@ QUERY;
     protected function getSelectAccessControlEntryIdSql($classId, $oid, $field, $order)
     {
         return sprintf(
-            'SELECT id FROM %s WHERE class_id = %s AND %s AND %s AND ace_order = %d',
+            'SELECT id FROM %s WHERE class_id = %d AND %s AND %s AND ace_order = %d',
             $this->options['entry_table_name'],
-            $this->connection->quote($classId),
+            $classId,
             null === $oid ?
                 $this->connection->getDatabasePlatform()->getIsNullExpression('object_identity_id')
-                : 'object_identity_id = '.$this->connection->quote($oid),
+                : 'object_identity_id = '.intval($oid),
             null === $field ?
                 $this->connection->getDatabasePlatform()->getIsNullExpression('field_name')
                 : 'field_name = '.$this->connection->quote($field),
@@ -609,10 +609,10 @@ QUERY;
         }
 
         return sprintf(
-            'UPDATE %s SET %s WHERE id = %s',
+            'UPDATE %s SET %s WHERE id = %d',
             $this->options['oid_table_name'],
             implode(', ', $changes),
-            $this->connection->quote($pk)
+            $pk
         );
     }
 
@@ -631,10 +631,10 @@ QUERY;
         }
 
         return sprintf(
-            'UPDATE %s SET %s WHERE id = %s',
+            'UPDATE %s SET %s WHERE id = %d',
             $this->options['entry_table_name'],
             implode(', ', $sets),
-            $this->connection->quote($pk)
+            $pk
         );
     }
 
@@ -775,7 +775,7 @@ QUERY;
 
                     $aceIdProperty = new \ReflectionProperty('Symfony\Component\Security\Acl\Domain\Entry', 'id');
                     $aceIdProperty->setAccessible(true);
-                    $aceIdProperty->setValue($ace, $aceId);
+                    $aceIdProperty->setValue($ace, intval($aceId));
                 } else {
                     $currentIds[$ace->getId()] = true;
                 }
@@ -832,7 +832,7 @@ QUERY;
 
                 $aceIdProperty = new \ReflectionProperty($ace, 'id');
                 $aceIdProperty->setAccessible(true);
-                $aceIdProperty->setValue($ace, $aceId);
+                $aceIdProperty->setValue($ace, intval($aceId));
             } else {
                 $currentIds[$ace->getId()] = true;
             }
