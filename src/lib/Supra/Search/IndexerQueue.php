@@ -36,7 +36,19 @@ abstract class IndexerQueue
 
 	public function store(IndexerQueueItem $item)
 	{
-		$this->em->persist($item);
+		if ($this->em->contains($item)) {
+			$this->em->persist($item);
+		} else {
+
+			$itemFromEm = $this->em->find(get_class($item), $item->getId());
+
+			if (empty($itemFromEm)) {
+				$this->em->persist($item);
+			} else {
+				$itemFromEm->setStatus($item->getStatus());
+			}
+		}
+
 		$this->em->flush();
 	}
 
@@ -55,7 +67,7 @@ abstract class IndexerQueue
 		$dqb = $this->em->createQueryBuilder();
 
 		$this->buildStatusQuery($dqb);
-		
+
 		$query = $dqb->getQuery();
 
 		$queryResult = $query->getScalarResult();
@@ -69,7 +81,7 @@ abstract class IndexerQueue
 
 		return $result;
 	}
-	
+
 	/**
 	 * @param QueryBuilder $dqb 
 	 */
@@ -80,6 +92,10 @@ abstract class IndexerQueue
 				->where($dqb->expr()->eq('iq.status', ':status'));
 	}
 
+	/**
+	 * @param integer $status
+	 * @return integer
+	 */
 	public function getItemCountForStatus($status)
 	{
 		$dqb = $this->em->createQueryBuilder();
@@ -96,7 +112,6 @@ abstract class IndexerQueue
 	}
 
 	/**
-	 *
 	 * @param QueryBuil $dqb 
 	 */
 	protected function buildNextItemForStatusQuery($dqb)
@@ -179,13 +194,13 @@ abstract class IndexerQueue
 	protected function buildRemoveAllQuery($dqb)
 	{
 		$dqb->delete()
-					->from($this->itemClass, 'iq');
+				->from($this->itemClass, 'iq');
 	}
 
 	public function removeAll()
 	{
 		$dqb = $this->em->createQueryBuilder();
-		
+
 		$this->buildRemoveAllQuery($dqb);
 
 		$dqb->getQuery()->execute();

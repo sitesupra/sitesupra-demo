@@ -45,6 +45,7 @@ class IndexerService
 		$solariumClient = $this->getSolariumClient($this);
 		
 		if ( ! $solariumClient instanceof \Solarium_Client) {
+			
 			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
 			\Log::debug($message);
 			return 0;
@@ -53,15 +54,14 @@ class IndexerService
 		$documents = array();
 
 		try {
+			
+			$systemId = $this->getSystemId();
+			
+			$solariumDocumentWriter = function ($document) use ($solariumClient, $systemId) {
+				
+				$updateQuery = $solariumClient->createUpdate();
 
-			$documents = $queueItem->getIndexedDocuments();
-
-			$updateQuery = $solariumClient->createUpdate();
-
-			foreach ($documents as $document) {
-				/* @var $document IndexedDocument */
-
-				$document->systemId = $this->getSystemId();
+				$document->systemId = $systemId;
 				$document->uniqueId = $document->systemId . '-'
 						. $document->class . '-'
 						. $document->getLocalId();
@@ -71,23 +71,25 @@ class IndexerService
 				$document->validate();
 
 				$updateQuery->addDocument($document);
-			}
+				
+				$updateQuery->addCommit();
 
-			$updateQuery->addCommit();
+				$result = $solariumClient->update($updateQuery);
 
-			$result = $solariumClient->update($updateQuery);
-
-			if ($result->getStatus() !== 0) {
-				throw new Exception\RuntimeException('Got bad status in update result: ' . $result->getStatus());
-			}
-
+				if ($result->getStatus() !== 0) {
+					throw new Exception\RuntimeException('Got bad status in update result: ' . $result->getStatus());
+				}
+			};
+			
+			$queueItem->writeIndexedDocuments($solariumDocumentWriter);
+			
 			$queueItem->setStatus(IndexerQueueItemStatus::INDEXED);
 		} catch (Exception\BadSchemaException $e) {
 			throw $e;
 		} catch (Exception\RuntimeException $e) {
 			$queueItem->setStatus(IndexerQueueItemStatus::FAILED);
 		}
-
+		
 		return count($documents);
 	}
 

@@ -130,7 +130,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * @var string
 	 */
 	protected $pagePriority = '0.5';
-	
+
 	/**
 	 * Used for page localization only but moved to the abstract class so it can
 	 * be fetched in DQL when join happens from BlockProperty side
@@ -139,7 +139,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * @TODO: remove field from audit scheme maybe?
 	 */
 	protected $path;
-	
+
 	/**
 	 * Moved to abstraction so it can be used inside queries
 	 * @Column(type="datetime", nullable=true)
@@ -171,7 +171,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$this->setLocale($locale);
 		$this->placeHolders = new ArrayCollection();
 	}
-	
+
 	/**
 	 * @return \Doctrine\Common\Collections\Collection
 	 */
@@ -252,14 +252,14 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$master->setLocalization($this);
 //		}
 	}
-	
+
 	public function overrideMaster(AbstractPage $master)
 	{
-		if (is_null($this->master) 
+		if (is_null($this->master)
 				|| $this->master->getId() !== $master->getId()) {
 			throw new RuntimeException("You can override master only with the same id");
 		}
-		
+
 		$this->master = $master;
 	}
 
@@ -304,7 +304,49 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		return $this->getChildrenHelper($type, 0);
 	}
-	
+
+	/**
+	 * @param string $type 
+	 * @return ArrayCollection
+	 */
+	public function getAllChildrenIds($type = __CLASS__)
+	{
+		$master = $this->getMaster();
+
+		if (empty($master)) {
+			return array();
+		}
+
+		$nsn = $master->getNestedSetNode();
+
+		$nsr = $nsn->getRepository();
+		/* @var $nsr \Supra\NestedSet\DoctrineRepository */
+
+		$sc = $nsr->createSearchCondition();
+		$sc->leftGreaterThan($master->getLeftValue());
+		$sc->leftLessThan($master->getRightValue());
+		$sc->levelGreaterThan($master->getLevel());
+
+		$oc = $nsr->createSelectOrderRule();
+		$oc->byLeftAscending();
+
+		$qb = $nsr->createSearchQueryBuilder($sc, $oc);
+		/* @var $qb \Doctrine\ORM\QueryBuilder */
+
+		// This loads all current locale localizations and masters with one query
+		$qb->from($type, 'l');
+		$qb->andWhere('l.master = e')
+				->andWhere('l.locale = :locale')
+				->setParameter('locale', $this->locale);
+
+		$qb->select('l.id');
+
+		$query = $qb->getQuery();
+		$result = $query->getResult();
+		
+		return $result;
+	}
+
 	/**
 	 * @param string $type
 	 * @return ArrayCollection 
@@ -335,7 +377,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$sc->leftGreaterThan($master->getLeftValue());
 		$sc->leftLessThan($master->getRightValue());
 		$sc->levelGreaterThan($master->getLevel());
-		
+
 		if ($maxDepth) {
 			$sc->levelLessThanOrEqualsTo($master->getLevel() + $maxDepth);
 		}
@@ -605,11 +647,11 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		if (empty($changeFrequency)) {
 			$changeFrequency = self::CHANGE_FREQUENCY_WEEKLY;
 		}
-		
+
 		if ( ! in_array($changeFrequency, $frequencies)) {
 			$logger = ObjectRepository::getLogger($this);
 			$logger->warn("Invalid frequency value '$changeFrequency' provided.");
-			
+
 			return false;
 		}
 
@@ -660,7 +702,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	{
 		return $this->originalTitle;
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -672,7 +714,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 
 		$master = $this->getMaster();
 		$masterAncestors = $master->getAncestors();
-		
+
 		$ancestors[] = $master;
 
 		foreach ($masterAncestors as $masterAncestor) {
