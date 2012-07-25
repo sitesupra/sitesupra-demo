@@ -1,0 +1,13 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\Blocks\Logotype\LogotypeBlock
+    title: Logotype Block
+    groupId: features
+    description: Description
+    cmsClassname: Editable
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages

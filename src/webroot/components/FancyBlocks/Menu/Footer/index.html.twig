@@ -1,0 +1,25 @@
+{% macro menu_block(title, links) %}
+<li>
+	<div class="text">
+		<h2>{{ title }}</h2>
+		{% if links %}
+		<ul>
+			{% for data in links %}
+				{% set item = data.localization %}
+				{% set active = supra.isActive(item.path, true) %}
+
+				<li{% if active %} class="active"{% endif %} ><a href="/{{ supra.locale.id }}{{ item.path }}">{{ item.title }}</a></li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+	</div>
+</li>
+{% endmacro %}
+
+<ul>
+	{{ _self.menu_block(title1, items1) }}
+	{{ _self.menu_block(title2, items2) }}
+	{{ _self.menu_block(title3, items3) }}
+</ul>
+
+

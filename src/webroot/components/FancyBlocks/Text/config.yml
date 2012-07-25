@@ -1,0 +1,123 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\Blocks\Text\TextController
+    title: Text
+    groupId: system
+    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+        lifetime: 60 seconds
+    propertyGroups:
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: layout
+          type: top
+          label: Layout
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: design
+          type: top
+          label: Design
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: content
+          editable: Supra\Editable\Html
+          label: Content
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: content_2
+          editable: Supra\Editable\Html
+          label: Content 2
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: content_3
+          editable: Supra\Editable\Html
+          label: Content 3
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: content_4
+          editable: Supra\Editable\Html
+          label: Content 4
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: background_image
+          group: design
+          editable: Supra\Editable\BlockBackground
+          label: Background image
+          properties:
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: image
+                editable: Supra\Editable\Image
+                label: Image (nonono)
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: classname
+                editable: Supra\Editable\String
+                label: Pattern (nonono)
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: background_color
+          group: design
+          editable: Supra\Editable\Color
+          label: Background color
+          additionalParameters:
+            allowUnset: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: border_style
+          group: design
+          editable: Supra\Editable\SelectVisual
+          label: Border style
+          values:
+            - id: border-none
+              title: None
+              icon: icons/border-none.png
+            - id: border-thin
+              title: Thin line
+              icon: icons/border-thin-line.png
+            - id: border-medium
+              title: Medium line
+              icon: icons/border-medium-line.png
+            - id: border-thick
+              title: Thick line
+              icon: icons/border-thick-line.png
+            - id: border-rounded
+              title: Rounded corners
+              icon: icons/border-rounded.png
+            - id: border-dashed
+              title: Dashed line
+              icon: icons/border-dashed.png
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: border_color
+          group: design
+          editable: Supra\Editable\Color
+          label: Border color
+          additionalParameters:
+            allowUnset: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: layout
+          group: layout
+          editable: Supra\Editable\SelectVisual
+          label: Layout
+          values:
+            - id: column_1
+              title: 1 column
+              icon: icons/columns-1.png
+            - id: column_2
+              title: 2 columns
+              icon: icons/columns-2.png
+            - id: column_3
+              title: 3 columns
+              icon: icons/columns-3.png
+            - id: column_4
+              title: 4 columns
+              icon: icons/columns-4.png
+            - id: column_1_2_h
+              title: 1+2 columns
+              icon: icons/columns-1-2-h.png
+            - id: column_2_1_h
+              title: 2+1 columns
+              icon: icons/columns-2-1-h.png
+            - id: column_2_1_v
+              title: 2+1 columns
+              icon: icons/columns-2-1-v.png
+            - id: column_1_2_v
+              title: 1+2 columns
+              icon: icons/columns-1-2-v.png

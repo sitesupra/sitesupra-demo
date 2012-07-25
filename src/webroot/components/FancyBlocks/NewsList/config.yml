@@ -1,0 +1,11 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    title: News List
+    groupId: system
+    icon: news_menu.png
+    class: Project\Blocks\NewsList\NewsListBlock
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: newsApplication
+          editable: Supra\Editable\Link
+          label: News Application
+          shared: false

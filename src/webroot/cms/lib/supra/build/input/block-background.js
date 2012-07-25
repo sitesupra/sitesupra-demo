@@ -269,7 +269,7 @@ YUI.add("supra.input-block-background", function (Y) {
 			//Open MediaSidebar
 			var mediasidebar = Supra.Manager.getAction("MediaSidebar"),
 				form = this.getParentWidget("form"),
-				path = this.image ? [].concat(this.image.image.path).concat(this.image.image.id) : 0;
+				path = this.image ? [].concat(this.image.path).concat(this.image.id) : 0;
 			
 			mediasidebar.execute({
 				"onselect": Y.bind(this.insertImage, this),
@@ -488,6 +488,9 @@ YUI.add("supra.input-block-background", function (Y) {
 		 */
 		_getSaveValue: function () {
 			var value = this.get("value");
+			
+			console.log(value);
+			
 			if (value.image && value.image.image) {
 				//We want to send only image ID
 				value.image.image = value.image.image.id;

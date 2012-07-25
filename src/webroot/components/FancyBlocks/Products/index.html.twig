@@ -1,0 +1,56 @@
+{% set navigation = supraBlock.property('navigation')|default('scrollbar') %}
+{% set design = supraBlock.property('design')|default('box') %}
+{% set products = supraBlock.property('images') %}
+
+{% if products|length %}
+
+	<div class="block">
+		
+		<div class="products-slider style-{{ design }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
+			<ul>
+				{% for index, product in products %}
+					{% if index and index % 4 == 0 %}
+						<li class="clear"></li>
+					{% endif %}
+					
+					<li class="grid_4">
+						
+						{% if design == "box" %}
+							
+							{% if product.link %}<a class="outer" href="{{product.link.url}}" target="{{product.link.target}}">{% else %}<span class="outer">{% endif %}
+								
+								<h2>{{ product.title }}</h2>
+								<p>{{ product.description }}</p>
+								
+								<span class="img">{{ supraBlock.imageHtmlTag( product.imageId, 220, 125, true ) | raw }}</span>
+								
+							{% if product.link %}</a>{% else %}</span>{% endif %}
+							
+						{% else %}
+						
+							<span class="img">{{ supraBlock.imageHtmlTag( product.imageId, 220, 125, true ) | raw }}</span>
+						
+							<h2>{{ product.title }}</h2>
+							<p>{{ product.description }}</p>
+							{% if product.link %}
+								{% if product.link.title %}
+									{% set title = product.link.title %}
+								{% elseif product.link.page %}
+									{% set title = product.link.page.title %}
+								{% else %}
+									{% set title = product.link.url %}
+								{% endif %}
+								<a class="link" href="{{product.link.url}}" target="{{product.link.target}}">{{title}}</a>
+							{% endif %}
+							
+						{% endif %}
+					</li>
+				{% endfor %}
+				
+				<li class="clear"></li>
+			</ul>
+		</div>
+		
+	</div>
+	
+{% endif %}

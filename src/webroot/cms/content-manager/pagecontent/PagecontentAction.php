@@ -320,7 +320,7 @@ class PagecontentAction extends PageManagerAction
 	 * @param Supra\Request\RequestData  $input
 	 * @return BlockProperty
 	 */
-	protected function handlePropertyValues(\Supra\Controller\Pages\BlockController $blockController, $input)
+	protected function handlePropertyValues(\Supra\Controller\Pages\BlockController $blockController, \Supra\Request\RequestData $input)
 	{
 		$blockConfiguration = $blockController->getConfiguration();
 		$propertyDefinitions = $blockConfiguration->properties;
@@ -341,48 +341,52 @@ class PagecontentAction extends PageManagerAction
 				$editable = $property->getEditable();
 
 				$value = null;
-				$valueData = array();
+				$referencedElementsData = array();
 
 				// Specific result received from CMS for HTML
 				if ($editable instanceof Editable\Html) {
-					$propertyPost = $input->getChild($propertyName);
-					$value = $propertyPost->get('html');
 
-					if ($propertyPost->hasChild('data')) {
-						$valueData = $propertyPost['data'];
+					$propertyData = $input->getChild($propertyName);
+					$value = $propertyData->get('html');
+
+					if ($propertyData->hasChild('data')) {
+						$referencedElementsData = $propertyData['data'];
 					}
 				} elseif ($editable instanceof Editable\Link) {
+
 					if ($input->hasChild($propertyName)) {
 
-						$propertyPost = $input->getChild($propertyName)
+						$referencedLinkData = $input->getChild($propertyName)
 								->getArrayCopy();
 
-						$propertyPost['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
-						$valueData[0] = $propertyPost;
+						$referencedLinkData['type'] = Entity\ReferencedElement\LinkReferencedElement::TYPE_ID;
+						$referencedElementsData[0] = $referencedLinkData;
 					} else {
 						// Scalar sent if need to empty the link
 						$checkValue = $input->get($propertyName);
 
 						if ( ! empty($checkValue)) {
-							throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
+							throw new \InvalidArgumentException("Empty value need to be sent to unset the link, $checkValue received");
 						}
 					}
 				} elseif ($editable instanceof Editable\Gallery) {
+
 					if ($input->hasChild($propertyName)) {
 
 						$imageList = $input->getChild($propertyName);
 
 						while ($imageList->valid()) {
+
 							$subInput = $imageList->getNextChild();
 							$propertyInput = $subInput->getChild('properties');
 
-							$imageData = $subInput->getArrayCopy();
+							$referencedImageData = $subInput->getArrayCopy();
 
 							// Mark the data with image type
-							$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
-							$imageData['_subPropertyInput'] = $propertyInput;
+							$referencedImageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
+							$referencedImageData['_subPropertyInput'] = $propertyInput;
 
-							$valueData[] = $imageData;
+							$referencedElementsData[] = $referencedImageData;
 						}
 					} else {
 						// Scalar sent if need to empty the gallery
@@ -392,43 +396,72 @@ class PagecontentAction extends PageManagerAction
 							throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
 						}
 					}
+				} elseif ($editable instanceof Editable\BlockBackground) {
+
+					$blockBackgroundData = $input->getChild($propertyName);
+
+					if ($blockBackgroundData->get('classname', false)) {
+
+						$value = $blockBackgroundData->get('classname');
+
+						if ($property->getMetadata()->containsKey('image')) {
+							$property->getMetadata()->remove('image');
+						}
+					} else {
+						$imageData = $blockBackgroundData->getChild('image')->getArrayCopy();
+
+						$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
+						$referencedElementsData['image'] = $imageData;
+
+						$this->entityManager->flush();
+
+						$value = null;
+					}
 				} else {
-					$propertyPost = $input->get($propertyName);
-					$value = $propertyPost;
+					$propertyData = $input->get($propertyName);
+					$value = $propertyData;
 				}
 
 				$property->setValue($value);
 
 				$metadataCollection = $property->getMetadata();
 
-				foreach ($valueData as $elementName => &$elementData) {
-					if ( ! isset($elementData['href'])) {
-						$elementData['href'] = null;
+				foreach ($referencedElementsData as $referencedElementName => &$referencedElementData) {
+
+					if ( ! isset($referencedElementData['href'])) {
+						$referencedElementData['href'] = null;
 					}
 
-					$elementFound = false;
+					$referencedElementFound = false;
+
 					if ( ! empty($metadataCollection)) {
+
 						foreach ($metadataCollection as $metadataItem) {
-
 							/* @var $metadataItem Entity\BlockPropertyMetadata */
-							$name = $metadataItem->getName();
-							if ($name == $elementName) {
-								$element = $metadataItem->getReferencedElement();
-								$element->fillArray($elementData);
 
-								$elementFound = true;
+							$metadataItemName = $metadataItem->getName();
+
+							if ($metadataItemName == $referencedElementName) {
+
+								$referencedElement = $metadataItem->getReferencedElement();
+								$referencedElement->fillArray($referencedElementData);
+
+								$referencedElementFound = true;
+
 								break;
 							}
 						}
 					}
 
-					if ( ! $elementFound) {
-						$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($elementData);
-						$metadataItem = new Entity\BlockPropertyMetadata($elementName, $property, $element);
+					if ( ! $referencedElementFound) {
+
+						$referencedElement = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($referencedElementData);
+
+						$metadataItem = new Entity\BlockPropertyMetadata($referencedElementName, $property, $referencedElement);
+
 						$property->addMetadata($metadataItem);
 					}
 				}
-				unset($elementData);
 
 				if ($editable instanceof Editable\Gallery) {
 
@@ -437,13 +470,13 @@ class PagecontentAction extends PageManagerAction
 					$galleryController = $editable->getDummyBlockController();
 					$galleryController->setRequest($this->getPageRequest());
 
-					foreach ($valueData as $elementName => $elementData) {
+					foreach ($referencedElementsData as $referencedElementName => $referencedElementData) {
 
-						foreach ($metadataCollection as $name => $metadataItem) {
+						foreach ($metadataCollection as $metadataItemName => $metadataItem) {
 
-							if ($name === $elementName) {
+							if ($metadataItemName === $referencedElementName) {
 
-								$subInput = $elementData['_subPropertyInput'];
+								$subInput = $referencedElementData['_subPropertyInput'];
 								$galleryController->setParentMetadata($metadataItem);
 
 								$this->handlePropertyValues($galleryController, $subInput);
@@ -457,7 +490,8 @@ class PagecontentAction extends PageManagerAction
 				// Delete removed metadata
 				foreach ($metadataCollection as $metadataName => $metadataValue) {
 					/* @var $metadataValue Entity\BlockPropertyMetadata */
-					if ( ! array_key_exists($metadataName, $valueData)) {
+
+					if ( ! array_key_exists($metadataName, $referencedElementsData)) {
 
 						$qb = $this->entityManager->createQueryBuilder();
 						$qb->delete(Entity\BlockProperty::CN(), 'p')

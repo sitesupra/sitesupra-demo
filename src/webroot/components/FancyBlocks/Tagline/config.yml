@@ -1,0 +1,25 @@
+
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\Blocks\Tagline\TaglineBlock
+    title: Tagline Block
+    groupId: features
+    description: Description
+    cmsClassname: Editable
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+    propertyGroups:
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: test
+          type: top
+          label: Test
+    properties:
+     - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: test
+          group: test
+          editable: Supra\Editable\String
+          label: Test

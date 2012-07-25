@@ -1,0 +1,24 @@
+<ul class="sidemenu desktop table">
+	{% for menu_item in menu_items %}
+		{% if(menu_item.items) %} 
+			<li class="active" >
+				<a href="{{ menu_item.path }}">{{ menu_item.title }}</a>
+				<ul>
+				{% for sub_menu_item in menu_item.items %}
+					{% if sub_menu_item.active %}
+						<li class="active"><a href="{{ sub_menu_item.path }}">{{ sub_menu_item.title }}</a></li>
+					{% else %}
+						<li><a href="{{ sub_menu_item.path }}">{{ sub_menu_item.title }}</a></li>
+					{% endif %}
+				{% endfor %}
+				</ul>
+			</li>
+		{% else %}
+			{% if menu_item.active %}
+				<li class="active"><a href="{{ menu_item.path }}">{{ menu_item.title }}</a></li>			
+			{% else %}
+				<li><a href="{{ menu_item.path }}">{{ menu_item.title }}</a></li>			
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+</ul>

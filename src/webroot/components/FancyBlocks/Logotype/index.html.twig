@@ -1,0 +1,17 @@
+{% spaceless %}
+<div class="logo"><i></i>
+	{% set rootPage = supra.isActive('/',true) %}
+	{% if not rootPage %}
+		<a href="/">
+	{% endif %}
+		{% set imageid = supraBlock.property('logotype') %}
+		{% if imageid %}
+			{{ supraBlock.imageHtmlTag(imageid) | raw }}
+		{% else %}
+			<img src="/assets/img/logo.png" alt=""></a>
+		{% endif %}
+	{% if not rootPage %}
+		</a>
+	{% endif %}
+	</div>
+{% endspaceless %}

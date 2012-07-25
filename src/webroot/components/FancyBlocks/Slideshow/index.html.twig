@@ -1,0 +1,39 @@
+{% set animation = supraBlock.property('animation') %}
+{% set design = supraBlock.property('design') %}
+{% set images = supraBlock.property('images') %}
+
+{% if images|length %}
+	
+	<div class="block">
+		<div class="promo-slider" data-refresh-event="promo" data-style="{{ design|default('arrows') }}" data-animation="{{ animation|default('horizontal') }}">
+			<ul>
+				{% for image in images %}
+				<li>
+					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 358, true ) | raw %}
+					<img src="{{ tag.getAttribute('src')|escape }}" alt="" />
+					
+					<div>
+						{% set property = image.property %}
+
+						{% if property.title %}<h2>{{ property.title }}</h2>{% endif %}
+						{% if property.description %}<p>{{ property.description }}</p>{% endif %}
+						
+						{% if property.link %}
+							{% if property.link.title %}
+								{% set title = property.link.title %}
+							{% elseif property.link.page %}
+								{% set title = property.link.page.title %}
+							{% else %}
+								{% set title = property.link.url %}
+							{% endif %}
+							<div class="more"><a href="{{property.link.url}}" target="{{property.link.target}}"><span><span>{{title}}</span></span></a></div>
+						{% endif %}
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+			<div class="shadow"></div>
+		</div>
+	</div>
+	
+{% endif %}

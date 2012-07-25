@@ -5,11 +5,11 @@ namespace Supra\Editable;
 /**
  * String editable content
  */
-class BlockBackground extends EditableAbstraction
-{
+class BlockBackground extends EditableAbstraction {
+
 	const EDITOR_TYPE = 'BlockBackground';
 	const EDITOR_INLINE_EDITABLE = false;
-	
+
 	/**
 	 * Return editor type
 	 * @return string
@@ -18,7 +18,7 @@ class BlockBackground extends EditableAbstraction
 	{
 		return static::EDITOR_TYPE;
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @return boolean
@@ -27,5 +27,16 @@ class BlockBackground extends EditableAbstraction
 	{
 		return static::EDITOR_INLINE_EDITABLE;
 	}
+
+	public function getContent()
+	{
+		return parent::getContent();
+	}
+
+	public function getContentForEdit()
+	{
+		return parent::getContentForEdit();
+	}
+
 	
 }
