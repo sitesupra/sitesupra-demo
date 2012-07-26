@@ -3,6 +3,7 @@
 namespace Supra\Form;
 
 use Symfony\Component\Form\AbstractExtension;
+use Supra\Form\Configuration\FormBlockControllerConfiguration;
 
 /**
  * FormSupraExtension
@@ -23,5 +24,13 @@ class FormSupraExtension extends AbstractExtension
 	{
 		return new FormTypeGuesser($this->blockConfiguration);
 	}
+
+	protected function loadTypes()
+	{
+		return array(
+			new Type\FileIdType(),
+		);
+	}
+
 
 }
