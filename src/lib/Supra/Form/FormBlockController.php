@@ -190,7 +190,7 @@ abstract class FormBlockController extends BlockController
 				}
 			}
 			
-			$formBuilder->add($field->getName(), $field->getType(), $options);
+			$formBuilder->add($field->getName(), null, $options);
 		}
 
 		// Custom events
@@ -284,10 +284,11 @@ abstract class FormBlockController extends BlockController
 		$validator = new Validator\Validator($metadataFactory, $validatorFactory);
 
 		$formRegistry = new Form\FormRegistry(array(
-					new Form\Extension\Core\CoreExtension(),
-					new Form\Extension\Validator\ValidatorExtension($validator),
-//					new Form\Extension\Csrf\CsrfExtension($csrfProvider)
-				));
+				new Form\Extension\Core\CoreExtension(),
+				new Form\Extension\Validator\ValidatorExtension($validator),
+				new FormSupraExtension($configuration),
+//				new Form\Extension\Csrf\CsrfExtension($csrfProvider)
+		));
 
 		$factory = new Form\FormFactory($formRegistry);
 
