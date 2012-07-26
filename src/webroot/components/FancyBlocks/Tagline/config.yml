@@ -1,6 +1,6 @@
 
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Tagline\TaglineBlock
+    class: Project\FancyBlocks\Tagline\TaglineBlock
     title: Tagline Block
     groupId: features
     description: Description

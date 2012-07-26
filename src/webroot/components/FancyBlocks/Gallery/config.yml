@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Gallery\GalleryBlock
+    class: Project\FancyBlocks\Gallery\GalleryBlock
     title: Gallery Block
     groupId: system
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.

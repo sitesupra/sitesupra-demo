@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Logotype\LogotypeBlock
+    class: Project\FancyBlocks\Logotype\LogotypeBlock
     title: Logotype Block
     groupId: features
     description: Description

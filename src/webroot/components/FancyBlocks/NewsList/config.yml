@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     title: News List
-    groupId: system
+    groupId: features
     icon: news_menu.png
-    class: Project\Blocks\NewsList\NewsListBlock
+    class: Project\FancyBlocks\NewsList\NewsListBlock
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: newsApplication

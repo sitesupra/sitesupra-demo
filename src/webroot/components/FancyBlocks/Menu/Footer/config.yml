@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Menu\Footer\FooterMenuBlock
+    class: Project\FancyBlocks\Menu\Footer\FooterMenuBlock
     title: Footer Menu Block
     groupId: features
     description: Description

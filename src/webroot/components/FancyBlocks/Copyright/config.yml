@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Copyright\CopyrightBlock
+    class: Project\FancyBlocks\Copyright\CopyrightBlock
     title: Copyright Block
     groupId: features
     description: Description

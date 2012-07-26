@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Promo\PromoBlock
+    class: Project\FancyBlocks\Promo\PromoBlock
     title: Promo Block
     groupId: features
     description: Description

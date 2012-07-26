@@ -1,5 +1,5 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Social\SocialBlock
+    class: Project\FancyBlocks\Social\SocialBlock
     title: Social Block
     groupId: features
     description: Description

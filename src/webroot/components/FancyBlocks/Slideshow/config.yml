@@ -1,6 +1,6 @@
 
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Slideshow\SlideshowBlock
+    class: Project\FancyBlocks\Slideshow\SlideshowBlock
     title: Slideshow Block
     groupId: features
     description: Description

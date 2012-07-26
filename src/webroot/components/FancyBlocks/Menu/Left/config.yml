@@ -1,10 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Menu\Left\LeftMenuBlock
+    class: Project\FancyBlocks\Menu\Left\LeftMenuBlock
     title: Left Menu Block
     groupId: features
     description: Sweet Left Menu Block
     cmsClassname: Editable
-    icon: left_menu.png
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
          name: rootLink

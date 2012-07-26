@@ -408,12 +408,16 @@ class PagecontentAction extends PageManagerAction
 							$property->getMetadata()->remove('image');
 						}
 					} else {
-						$imageData = $blockBackgroundData->getChild('image')->getArrayCopy();
 
-						$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
-						$referencedElementsData['image'] = $imageData;
+						if ($blockBackgroundData->hasChild('image')) {
+							
+							$imageData = $blockBackgroundData->getChild('image')->getArrayCopy();
 
-						$this->entityManager->flush();
+							$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
+							$referencedElementsData['image'] = $imageData;
+
+							$this->entityManager->flush();
+						}
 
 						$value = null;
 					}

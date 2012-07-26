@@ -69,12 +69,15 @@ class NewsListBlock extends BlockController
 		$response->assign('threePublications', $threePublicationsData);
 		$response->assign('publications', $publicationsData);
 
+		/* @var $theme \Supra\Controller\Pages\Entity\Theme */
+		$theme = $this->getRequest()->getLayout()->getTheme();
+
 		$response->getContext()
-				->addCssLinkToLayoutSnippet('css', '/assets/css/page-news.css');
+				->addCssLinkToLayoutSnippet('css', $theme->getUrlBase() . '/assets/css/page-news.css');
 
 		if ($request instanceof PageRequestView) {
 			$response->getContext()
-					->addJsUrlToLayoutSnippet('js', '/assets/js/page-news.js');
+					->addJsUrlToLayoutSnippet('js', $theme->getUrlBase() . '/assets/js/page-news.js');
 		}
 
 		$response->outputTemplate('news.html.twig');

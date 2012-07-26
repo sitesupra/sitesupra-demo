@@ -1,10 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Products\ProductsBlock
+    class: Project\FancyBlocks\Products\ProductsBlock
     title: Products block
-    groupId: system
+    groupId: features
     description: Products gallery #1
     cmsClassname: Gallery
-    icon: icon.png
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
         enabled: true

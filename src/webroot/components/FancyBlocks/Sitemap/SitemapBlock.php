@@ -55,8 +55,11 @@ class SitemapBlock extends LinksBlock
 		$localizations = $localizationFinder->getResult();
 		$map = $this->addRealLevels($localizations);
 
+		/* @var $theme Entity\Theme */
+		$theme = $this->getRequest()->getLayout()->getTheme();
+		
 		$response->getContext()
-				->addCssLinkToLayoutSnippet('css', '/assets/css/page-sitemap.css');
+				->addCssLinkToLayoutSnippet('css', $theme->getUrlBase() . '/assets/css/page-sitemap.css');
 
 		$response->assign('map', $map);
 		$response->outputTemplate('sitemap.html.twig');
