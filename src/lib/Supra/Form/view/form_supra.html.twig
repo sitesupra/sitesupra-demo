@@ -19,3 +19,12 @@
 		{% endif %}
 	{% endif %}
 {% endblock %}
+
+{# don't show file widget if disabled #}
+{% block file_widget %}
+	{% if disabled %}
+		{# no output #}
+	{% else %}
+		{{ block('form_widget') }}
+	{% endif %}
+{% endblock %}
