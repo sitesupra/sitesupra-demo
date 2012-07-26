@@ -270,6 +270,10 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		$em = $this->getEntityManager();
 
 		$parameterSets = $theme->getParameterSets();
+		
+		$theme->setActiveParameterSet(null);		
+		$em->persist($theme);
+		$em->flush();
 
 		if ( ! empty($parameterSets)) {
 
@@ -284,7 +288,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				}
 
 				$theme->removeParameterSet($parameterSet);
-			}
+			}	
 		}
 
 		$parameters = $theme->getParameters();
