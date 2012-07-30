@@ -11,15 +11,7 @@ use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\PageController;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
-use Supra\Controller\Pages\BlockControllerCollection;
-use Supra\Controller\Pages\Entity\Abstraction\Block as PageBlockAbstraction;
-use Supra\Controller\Pages\Set\BlockPropertySet as PageBlockPropertySet;
-use Supra\Controller\Pages\Entity\BlockProperty;
-use Supra\Controller\Pages\Entity\Page;
-use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
-use Supra\Controller\Pages\Search\PageLocalizationSearchResultSet;
-use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
 
 /**
@@ -90,8 +82,6 @@ class SearchController extends BlockController
 				$response->assign('resultCount', '0');
 				$response->outputTemplate($configuration->noResultsTemplateFilename);
 			} else {
-
-				$em = ObjectRepository::getEntityManager($this);
 
 				$totalPages = ceil($results->getTotalResultCount() / $configuration->resultsPerPage);
 				$response->assign('resultsPerPage', $configuration->resultsPerPage);
