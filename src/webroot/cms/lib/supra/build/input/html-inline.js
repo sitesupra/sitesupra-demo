@@ -10,9 +10,19 @@ YUI.add("supra.input-inline-html", function (Y) {
 	
 	Input.NAME = "input-html-inline";
 	Input.ATTRS = {
-		'doc': null,
-		'win': null,
-		'toolbar': null
+		'doc': {
+			value: null
+		},
+		'win': {
+			value: null
+		},
+		'toolbar': {
+			value: null
+		},
+		'inline': {
+			value: true,
+			readOnly: true
+		}
 	};
 	
 	Input.HTML_PARSER = {};

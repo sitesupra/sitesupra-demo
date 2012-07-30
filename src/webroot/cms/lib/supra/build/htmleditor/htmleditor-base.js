@@ -410,7 +410,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				fireNodeEvent = true;
 			}
 			
-			this._resetSelection(newSel);
+			this.resetSelectionCache(newSel);
 			
 			if (fireSelectionEvent) {
 				event.selection = newSel;

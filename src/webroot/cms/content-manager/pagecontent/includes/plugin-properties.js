@@ -509,6 +509,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		onPropertyChangeTriggerContentChange: function (input, value, dirty) {
+			//We don't want to trigger for inline inputs for performance reasons
+			//because inline input value changes very offten
+			if (input.get('inline')) return;
+			
 			var host = this.get('host'),
 				id = input.get('id'),
 				value = (value === null || value === undefined ? input.get('value') : value),

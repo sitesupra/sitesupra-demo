@@ -62,7 +62,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				sel.removeAllRanges();
 				sel.addRange(range);
 				
-				this._resetSelection(selection);
+				this.resetSelectionCache(selection);
 			}
 		},
 		
@@ -269,15 +269,15 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 					}
 				}
 				
-				if (tmp_end === tmp_start) {
+				if (tmp_end && tmp_end === tmp_start) {
 					selection.end = tmp_end;
 					selection.end_offset = tmp_end_offset;
 					selection.start = tmp_start;
 					selection.start_offset = tmp_start_offset;
-				} else if (tmp_end == selection.start) {
+				} else if (tmp_end && tmp_end == selection.start) {
 					selection.end = tmp_end;
 					selection.end_offset = tmp_end_offset;
-				} else if (tmp_start == selection.end) {
+				} else if (tmp_start && tmp_start == selection.end) {
 					selection.start = tmp_start;
 					selection.start_offset = tmp_start_offset;
 				}
@@ -321,7 +321,19 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				range.select();
 			}
 			
-			this._resetSelection();
+			this.resetSelectionCache({
+				"collapsed": !!(node.nodeType == 1 ? node.childNodes.length : node.length),
+				"start": node,
+				"start_offset": 0,
+				"end": node,
+				"end_offset": (node.nodeType == 1 ? node.childNodes.length : node.length)
+			});
+			
+			if (node.nodeType == 1) {
+				this.selectedElement = node;
+			} else {
+				this.selectedElement = null;
+			}
 		},
 		
 		/**
@@ -381,7 +393,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				sel.removeAllRanges();
 				sel.addRange(range);
 				
-				this._resetSelection();
+				this.resetSelectionCache();
 				
 				return node;
 			}
@@ -473,7 +485,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		 * 
 		 * @param {Object} selection Optional. Selection object
 		 */
-		_resetSelection: function (selection) {
+		resetSelectionCache: function (selection) {
 			this.selectedElement = null;
 			this.selection = selection || this.getSelection();
 			this.path = null;

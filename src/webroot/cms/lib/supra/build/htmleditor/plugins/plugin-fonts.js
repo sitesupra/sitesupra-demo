@@ -84,12 +84,28 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				
 				var color = "";
 				if (element) {
-					if (this.colorType == "fore") {
-						//Text color
-						color = element.tagName === "FONT" ? element.getAttribute("color") : "";
-					} else {
-						//Background color
-						color = element.style.backgroundColor || "";
+					
+					//Traverse up the tree
+					var tmpElement = element,
+						srcElement = this.htmleditor.get("srcNode").getDOMNode();
+					
+					while (tmpElement && tmpElement.style) {
+						
+						if (this.colorType == "fore") {
+							//Text color
+							color = tmpElement.tagName === "FONT" ? tmpElement.getAttribute("color") : "";
+						} else {
+							//Background color
+							color = tmpElement.style.backgroundColor || "";
+						}
+						
+						if (color) {
+							//Color found, stop traverse
+							tmpElement = null;
+						} else {
+							tmpElement = tmpElement.parentNode;
+							if (tmpElement === srcElement) tmpElement = null;
+						}
 					}
 				}
 				
@@ -166,7 +182,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				if (!node) return;
 				
 				editor.selectNode(node);
-				editor._resetSelection();
 			}
 			
 			if (command == "fontname") {
@@ -188,7 +203,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				}
 			} else if (command == "forecolor") {
 				
-				node = editor.getSelectedElement();
+				node = editor.getSelectedElement("FONT");
 				
 				if (!data) {
 					if (node && node.tagName == "FONT") {
@@ -214,10 +229,24 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				node = editor.getSelectedElement();
 				
 				if (!data) {
+					var tmpNode = node,
+						srcNode = this.htmleditor.get("srcNode").getDOMNode();
+					
+					//Find closest element with background color
+					while(tmpNode && tmpNode !== srcNode) {
+						if (tmpNode && tmpNode.style.backgroundColor) {
+							node = tmpNode;
+							tmpNode = null;
+						} else {
+							tmpNode = tmpNode.parentNode;
+						}
+					}
+					
 					if (node && node.style.backgroundColor) {
 						if (node.tagName == "SPAN") {
 							this.htmleditor.unwrapNode(node);
 						} else {
+							//FONT element without any styles will be removed in cleanUp
 							node.style.backgroundColor = "";
 						}
 						
@@ -238,13 +267,15 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				
 			}
 			
-			//Insert <font> for color, fontsize, fontname or <span> for background color
+			//Inserts <font> for color, fontsize, fontname andbackground color
+			var targetNode = null;
+			
 			if (command == "backcolor") {
-				var selection = editor.getSelection();
+				var selection = editor.selection;
 				if (selection.start === selection.end && selection.start_offset !== selection.end_offset) {
 					node = this.htmleditor.replaceSelection(null, "FONT");
 					if (node) {
-						editor.selectNode(node);
+						targetNode = node;
 						node.style.backgroundColor = data;
 					}
 				} else {
@@ -254,9 +285,14 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				editor.get("doc").execCommand(command, null, data);
 			}
 			
-			// If all text inside DIV, P, ... was selected, then selection didn't changed
-			// (according to text), but new wrapper element was added, so need to reset
-			editor._resetSelection();
+			if (targetNode) {
+				editor.selectNode(targetNode);
+				editor.refresh(true);
+			} else {
+				// If all text inside DIV, P, ... was selected, then selection didn't changed
+				// (according to text), but new wrapper element was added, so need to reset
+				editor.resetSelectionCache();
+			}
 			
 			if (command == "fontsize") {
 				//Get <font /> element
