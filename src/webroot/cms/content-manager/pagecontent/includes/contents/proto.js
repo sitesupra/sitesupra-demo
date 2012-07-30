@@ -30,6 +30,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
 		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
 		CLASSNAME_DRAGGABLE = getClassName('content', 'draggable'),					// yui3-content-draggable
+		CLASSNAME_MARKER = getClassName('content', 'marker'),						// yui3-content-marker
 		CLASSNAME_EDITING = 'editing';												// editing
 	
 	ContentProto.ATTRS = {
@@ -136,12 +137,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @type {Array}
 		 */
 		children_order: [],
-		
-		/**
-		 * Children order list (children IDs)
-		 * @type {Array}
-		 */
-		order: [],
 		
 		/**
 		 * Block node
@@ -336,8 +331,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @param {Object} data
 		 * @param {Object} attrs
 		 * @param {Boolean} use_only If DOM elements for content is not found, don't create them
+		 * @param {Number} index Index where child should be inserted into, default at the end of the list
 		 */
-		createChild: function (data, attrs, use_only) {
+		createChild: function (data, attrs, use_only, index) {
 			var win = this.get('win');
 			var doc = this.get('doc');
 			var body = this.get('body');
@@ -357,10 +353,22 @@ YUI.add('supra.page-content-proto', function (Y) {
 						'parent': this,
 						'super': this.get('super')
 					}));
+					
 					block.render();
 					
 					//Add to order list
-					this.children_order.push(String(data.id));
+					if (typeof index === 'number') {
+						//Move DOM node
+						var next = this.children_order[index];
+						if (next) {
+							next = this.children[next];
+							next.getNode().insert(block.getNode(), 'before');
+						}
+						
+						this.children_order.splice(index, 0, String(data.id));
+					} else {
+						this.children_order.push(String(data.id));
+					}
 				} else {
 					Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
 				}
@@ -706,6 +714,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 				if (this.get('highlightOverlay')) {
 					this.set('highlightOverlay', false);
 				}
+				
+				this.blockDropCache = null;
 			}
 			
 			return !!value;
@@ -717,6 +727,151 @@ YUI.add('supra.page-content-proto', function (Y) {
 		_getChanged: function () {
 			//Not editable, so nothing can change
 			return false;
+		},
+		
+		
+		/* ------------------------------------ BLOCK DROP -------------------------------------- */
+		
+		
+		/**
+		 * Children position cache
+		 * @type {Array}
+		 */
+		blockDropCache: null,
+		
+		/**
+		 * Drop target ID, block ID
+		 * @type {Number}
+		 */
+		blockDropPositionId: null,
+		
+		/**
+		 * Drop before target?
+		 * @type {Boolean}
+		 */
+		blockDropPositionBefore: false,
+		
+		/**
+		 * Drop marker node
+		 * @type {Object}
+		 */
+		blockDropPositionMarker: null,
+		
+		/**
+		 * Mark drop position
+		 * If event object is not passed, then removes marker
+		 * 
+		 * @param {Object} e Event facade object, optional
+		 */
+		markDropPosition: function (e) {
+			if (!e) {
+				return this._markDropPosition(null, false, null);
+			}
+			
+			var position = this.getDropPosition(e);
+			this._markDropPosition(position);
+		},
+		
+		/**
+		 * Returns drop position by event
+		 * If event object is not passed, then returns last known position
+		 * 
+		 * @param {Object} e Event facade object, optional
+		 */
+		getDropPosition: function (e) {
+			if (!e) {
+				return {
+					"id": this.blockDropPositionId,
+					"before": this.blockDropPositionBefore,
+					"region": null
+				};
+			}
+			
+			var cache = this.blockDropCache,
+				region = null,
+				id = null,
+				xy = e.position,
+				positionId = null,
+				positionBefore = false,
+				positionRegion = null;
+			
+			if (!this.blockDropCache) {
+				var children = this.children;
+				
+				cache = this.blockDropCache = {}
+				
+				for (id in children) {
+					region = children[id].getNode().get("region");
+					cache[id] = region;
+				}
+				
+				this.blockDropPositionId = null;
+				this.blockDropPositionBefore = false;
+			}
+			
+			for (id in cache) {
+				region = cache[id];
+				if (region.left <= xy[0] && region.right >= xy[0] && region.top <= xy[1] && region.bottom >= xy[1]) {
+					positionId = id;
+					positionBefore = (region.height / 2 > xy[1] - region.top);
+					positionRegion = region;
+				}
+			}
+			
+			return {
+				"id": positionId,
+				"before": positionBefore,
+				"region": positionRegion
+			};
+		},
+		
+		/**
+		 * Show marker at specific position
+		 * 
+		 * @param {String} positionId Children ID or null to remove marker
+		 * @param {Boolean} positionBefore Insert marker before child
+		 * @param {Object} positionRegion Children block node region
+		 * @private
+		 */
+		_markDropPosition: function (position) {
+			var positionId = position ? position.id : null,
+				positionBefore = position ? position.before : false,
+				positionRegion = position ? position.region : null;
+			
+			if (this.blockDropPositionId != positionId || this.blockDropPositionBefore != positionBefore) {
+				var node = this.blockDropPositionMarker;
+				
+				if (positionId) {
+					if (!node) {
+						node = this.blockDropPositionMarker = Y.Node(this.get("doc").createElement("DIV")); // create using correct document object
+						node.addClass(CLASSNAME_MARKER);
+						this.get("body").append(node);
+						
+						node.setStyles({
+							"left": positionRegion.left + 5 + "px",
+							"top": (positionBefore ? positionRegion.top : positionRegion.bottom) + "px",
+							"width": positionRegion.width - 10 + "px"
+						});
+					} else {
+						node.transition ({
+							"easing": "ease-out",
+							"duration": 0.15,
+							"left": positionRegion.left + 5 + "px",
+							"top": (positionBefore ? positionRegion.top : positionRegion.bottom) + "px",
+							"width": positionRegion.width - 10 + "px"
+						});
+					}
+					
+				} else {
+					if (node) {
+						node.remove(true);
+						node = this.blockDropPositionMarker = null;
+					}
+				}
+				
+				this.blockDropPositionId = positionId;
+				this.blockDropPositionBefore = positionBefore;
+			}
 		},
 		
 		

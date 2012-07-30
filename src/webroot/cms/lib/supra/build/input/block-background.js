@@ -489,8 +489,6 @@ YUI.add("supra.input-block-background", function (Y) {
 		_getSaveValue: function () {
 			var value = this.get("value");
 			
-			console.log(value);
-			
 			if (value.image && value.image.image) {
 				//We want to send only image ID
 				value.image.image = value.image.image.id;

@@ -142,13 +142,18 @@ YUI.add('supra.iframe-contents', function (Y) {
 			//Bind block D&D
 			this.on('block:dragend', function (e) {
 				if (e.block) {
-					var region = Y.DOM._getRegion(e.position[1], e.position[0]+88, e.position[1]+88, e.position[0]);
-					for(var i in this.children) {
-						var node = this.children[i].getNode(),
-							intersect = node.intersect(region);
+					var region = Y.DOM._getRegion(e.position[1], e.position[0]+88, e.position[1]+88, e.position[0]),
+						children = this.children;
+					
+					for(var i in children) {
+						//Check if it was dropped on this list
+						var position = children[i].getDropPosition();
 						
-						if (intersect.inRegion && this.children[i].isChildTypeAllowed(e.block.id)) {
-							return this.children[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block});
+						children[i].markDropPosition(null);
+						
+						if (position.id) {
+							//Was dropped on block
+							return children[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block, insertReference: position.id, insertBefore: position.before});
 						}
 					}
 				}
@@ -158,11 +163,27 @@ YUI.add('supra.iframe-contents', function (Y) {
 				//Only if dragging block
 				if (e.block) {
 					this.set('highlight', true);
-					var type = e.block.id;
 					
-					for(var i in this.children) {
-						if (this.children[i].isChildTypeAllowed(type)) {
-							this.children[i].set('highlight', true);
+					var type = e.block.id,
+						children = this.children;
+					
+					for(var i in children) {
+						if (children[i].isChildTypeAllowed(type)) {
+							children[i].set('highlight', true);
+						}
+					}
+				}
+			}, this);
+			
+			this.on('block:dragmove', function (e) {
+				//Only if dragging block
+				if (e.block) {
+					var type = e.block.id,
+						children = this.children;
+					
+					for(var i in children) {
+						if (children[i].isChildTypeAllowed(type)) {
+							children[i].markDropPosition(e);
 						}
 					}
 				}

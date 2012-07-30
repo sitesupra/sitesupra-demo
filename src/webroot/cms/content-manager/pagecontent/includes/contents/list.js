@@ -69,11 +69,32 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			//On new block drop create it and start editing
 			this.on('dragend:hit', function (e) {
+				var reference = e.insertReference,
+					before = e.insertBefore,
+					index = null;
+				
+				if (!before && reference) {
+					//Find next block
+					index = Y.Array.indexOf(this.children_order, reference);
+					if (index != -1) {
+						//Before next block
+						index += 1;
+						reference = this.children_order[index + 1] || null;
+						before = true;
+					} else {
+						//At the end
+						index = null;
+						reference = null;
+					}
+				}
 				
 				this.get('super').getBlockInsertData({
 					'type': e.block.id,
-					'placeholder_id': this.getId()
-				}, this.createChildFromData, this);
+					'placeholder_id': this.getId(),
+					'reference_id': reference
+				}, function (data) {
+					this.createChildFromData(data, index);
+				}, this);
 				
 				return false;
 			}, this);
@@ -85,8 +106,9 @@ YUI.add('supra.page-content-list', function (Y) {
 		 * Create block from data
 		 * 
 		 * @param {Object} data Block data
+		 * @param {Number} index Index where block should be inserted, default at the end
 		 */
-		createChildFromData: function (data) {
+		createChildFromData: function (data, index) {
 			var block = this.createChild({
 				'id': data.id,
 				'closed': false,
@@ -97,7 +119,7 @@ YUI.add('supra.page-content-list', function (Y) {
 			}, {
 				'draggable': !this.isClosed(),
 				'editable': true
-			});
+			}, false, index);
 			
 			//Disable highlight, we will be editing this block
 			this.get('super').set('highlight', false);

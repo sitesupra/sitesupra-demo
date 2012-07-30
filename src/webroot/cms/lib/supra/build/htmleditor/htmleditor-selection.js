@@ -56,11 +56,15 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				var sel = win.getSelection();
 				var range = sel.rangeCount ? sel.getRangeAt(0) : doc.createRange();
 				
-				range.setStart(selection.start, selection.start_offset);
-				range.setEnd(selection.end, selection.end_offset);
-				
-				sel.removeAllRanges();
-				sel.addRange(range);
+				try {
+					//Preventing error when DOM node doesn't exist
+					range.setStart(selection.start, selection.start_offset);
+					range.setEnd(selection.end, selection.end_offset);
+					
+					sel.removeAllRanges();
+					sel.addRange(range);
+				} catch (err) {
+				}
 				
 				this.resetSelectionCache(selection);
 			}
@@ -302,13 +306,25 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				var range = (sel.rangeCount ? sel.getRangeAt(0) : doc.createRange());
 				
 				if (node) {
-					range.selectNode(node);
+					try {
+						//Preventing error when DOM node doesn't exist
+						range.selectNode(node);
+					} catch (err) {
+						return;
+					}
 				} else {
 					var srcNode = Y.Node.getDOMNode(this.get('srcNode'));
 					
 					if(srcNode) {
 						var c = srcNode.lastChild;
-						if (c) range.setStartAfter(c);
+						if (c) {
+							try {
+								//Preventing error when DOM node doesn't exist
+								range.setStartAfter(c);
+							} catch (err) {
+								return;
+							}
+						}
 					}
 				}
 				

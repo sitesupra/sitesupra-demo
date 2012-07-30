@@ -12,6 +12,7 @@
 }
 
 .yui3-content,
+.yui3-content-marker,
 .yui3-box-reset,
 .yui3-dd-proxy {
 	padding: 0 !important;
@@ -26,6 +27,20 @@
 	right: auto !important;
 	top: auto !important;
 	bottom: auto !important;
+}
+
+/**
+ * Drop position marker
+ */
+.yui3-content-marker {
+	display: block;
+	position: absolute;
+	z-index: 9999;
+	border: 2px solid #009DF8 !important;
+	margin: -3px 0 0 -2px !important;
+	
+	-o-border-radius: 5px;
+	border-radius: 5px; 
 }
 
 /**
