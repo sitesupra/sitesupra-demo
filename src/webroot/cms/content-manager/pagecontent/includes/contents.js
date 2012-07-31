@@ -375,6 +375,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 */
 		_onBlockOrderChange: function (e) {
 			this.sendBlockOrder(e.block, e.order);
+			this.resizeOverlays();
 		},
 		
 		/**
@@ -416,6 +417,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 */
 		_onBlockListChange: function (e) {
 			this.sendBlockListChange(e.block, e.order);
+			this.resizeOverlays();
 		},
 		
 		/**
