@@ -450,6 +450,13 @@ YUI.add("supra.input-block-background", function (Y) {
 				}
 			}
 			
+			/*
+			 * value == {
+			 * 	   classname: "",
+			 *     image: ""
+			 * }
+			 * 
+			 */
 			this._original_value = value;
 			return value;
 		},
@@ -480,19 +487,46 @@ YUI.add("supra.input-block-background", function (Y) {
 				value.image = "";
 			}
 			
+			/*
+			 * value == {
+			 * 	   "classname": "",
+			 *     "image": {
+			 * 	       "image": { ... image data ... },
+			 *         "crop_height": Number, "crop_width": Number, "crop_left": Number, "crop_top": Number,
+			 *         "size_width": Number, "size_height": Number
+			 *     }
+			 * }
+			 */
 			return value;
 		},
 		
 		/**
-		 * Returns 
+		 * Returns value for saving
+		 * 
+		 * @return {Object}
+		 * @private
 		 */
 		_getSaveValue: function () {
 			var value = this.get("value");
 			
 			if (value.image && value.image.image) {
 				//We want to send only image ID
-				value.image.image = value.image.image.id;
+				//We clone image info to be sure that we don't overwrite info
+				value.image = Supra.mix({}, value.image, {
+					"image": value.image.image.id
+				});
 			}
+			
+			/*
+			 * value == {
+			 * 	   "classname": "",
+			 *     "image": {
+			 * 	       "image": "...id...",
+			 *         "crop_height": Number, "crop_width": Number, "crop_left": Number, "crop_top": Number,
+			 *         "size_width": Number, "size_height": Number
+			 *     }
+			 * }
+			 */
 			return value;
 		},
 		
