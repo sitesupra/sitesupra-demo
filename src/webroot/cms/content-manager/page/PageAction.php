@@ -833,9 +833,9 @@ class PageAction extends PageManagerAction
 
 		if ($editable instanceof Editable\BlockBackground) {
 
-			$image = null;
 			$classname = null;
-
+			$imageData = null;
+				
 			if ($blockProperty->getMetadata()->containsKey('image')) {
 
 				$imageReferencedElement = $blockProperty->getMetadata()->get('image')->getReferencedElement();
@@ -847,7 +847,10 @@ class PageAction extends PageManagerAction
 				$image = $fileStorage->getDoctrineEntityManager()
 						->find(\Supra\FileStorage\Entity\Image::CN(), $imageId);
 
-				$imageData = $fileStorage->getFileInfo($image);
+				if(!empty($image)) {
+					$imageData = $imageReferencedElement->toArray();
+					$imageData['image'] = $fileStorage->getFileInfo($image);
+				}
 			} else {
 				$classname = $blockProperty->getValue();
 			}
