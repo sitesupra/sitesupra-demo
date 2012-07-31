@@ -15,7 +15,8 @@ Supra('dd-drag', function (Y) {
 		'{pagecontent}includes/plugin-properties.js',
 		'{pagecontent}includes/plugin-droptarget.js',
 		'{pagecontent}includes/iframe.js',
-		'{pagecontent}includes/contents.js'
+		'{pagecontent}includes/contents.js',
+		'{pagecontent}includes/plugin-ordering.js'
 	];
 
 	//Shortcut

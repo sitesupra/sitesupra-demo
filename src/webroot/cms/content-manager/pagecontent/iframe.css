@@ -196,6 +196,18 @@
 	border-radius: 5px;
 }
 
+/* While reordering make sure we can drop on list */
+.yui3-editable .yui3-content-reorder {
+	min-height: 50px;
+}
+.yui3-editable .yui3-content-reorder:empty {
+	border: 2px solid #009DF8 !important;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	opacity: 0.5;
+}
+
 /**
  * Drag & drop
  */
