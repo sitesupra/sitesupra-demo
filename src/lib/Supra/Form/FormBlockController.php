@@ -44,22 +44,16 @@ abstract class FormBlockController extends BlockController
 					$request->getPostFiles()->getArrayCopy(),
 					$request->getServer());
 			
-			$this->bindedForm->bindRequest($symfonyRequest);
-			
+			$this->bindedForm->bind($symfonyRequest);
 			$view = $this->getFormView();
-			$this->getResponse()->assign('form', $view);
-
+			
 			if ($this->bindedForm->isValid()) {
 				$this->success();
-				return;
 			} else {
 				$this->failure();
-				return;
 			}
 		} else {
-
 			$view = $this->getFormView();
-			$this->getResponse()->assign('form', $view);
 			$this->render();
 		}
 	}
@@ -138,10 +132,16 @@ abstract class FormBlockController extends BlockController
 	public function getFormView()
 	{
 		if (is_null($this->formView)) {
-			$this->formView = $this->bindedForm->createView();
+			$this->createFormView();
 		}
 
 		return $this->formView;
+	}
+
+	protected function createFormView()
+	{
+		$this->formView = $this->bindedForm->createView();
+		$this->getResponse()->assign('form', $this->formView);
 	}
 
 	/**

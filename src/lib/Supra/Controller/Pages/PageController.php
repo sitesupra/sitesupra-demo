@@ -750,11 +750,11 @@ class PageController extends ControllerAbstraction
 							$blockName = $blockController::BLOCK_NAME;
 						}
 
-						$prefixCountent = '<div id="content_' . $blockName . '_' . $blockId
+						$prefixContent = '<div id="content_' . $blockName . '_' . $blockId
 								. '" class="yui3-content yui3-content-' . $blockName
 								. ' yui3-content-' . $blockName . '-' . $blockId . '">';
 
-						$placeResponse->output($prefixCountent);
+						$placeResponse->output($prefixContent);
 					}
 
 					$placeResponse->output($response);

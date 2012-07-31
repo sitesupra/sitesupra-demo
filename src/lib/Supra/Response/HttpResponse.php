@@ -136,7 +136,7 @@ class HttpResponse implements ResponseInterface
 	{
 		$fields = get_class_vars(__CLASS__);
 
-		//  $messages is STATIC and confuses serialze();
+		//  $messages is STATIC and confuses serialize();
 		unset($fields['messages']);
 
 		$fieldNames = array_keys($fields);
