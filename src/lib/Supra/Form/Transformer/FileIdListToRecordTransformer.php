@@ -4,7 +4,6 @@ namespace Supra\Form\Transformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
 use Supra\FileStorage\Entity\File;
-use Supra\ObjectRepository\ObjectRepository;
 
 /**
  */

@@ -29,6 +29,7 @@ class FormSupraExtension extends AbstractExtension
 	{
 		return array(
 			new Type\FileIdType(),
+			new Type\SubmitType(),
 		);
 	}
 

@@ -28,3 +28,11 @@
 		{{ block('form_widget') }}
 	{% endif %}
 {% endblock %}
+
+{% block submit_widget %}
+{% spaceless %}
+    {% set type = type|default('submit') %}
+    {% set value = label %}
+    {{ block('form_widget_simple') }}
+{% endspaceless %}
+{% endblock %}

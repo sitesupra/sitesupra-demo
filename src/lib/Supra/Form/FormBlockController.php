@@ -48,7 +48,8 @@ abstract class FormBlockController extends BlockController
 			$view = $this->getFormView();
 			
 			if ($this->bindedForm->isValid()) {
-				$this->success();
+				$data = $this->bindedForm->getData();
+				$this->success($data);
 			} else {
 				$this->failure();
 			}
@@ -65,8 +66,9 @@ abstract class FormBlockController extends BlockController
 
 	/**
 	 * On form success action
+	 * @param mixed $data
 	 */
-	abstract protected function success();
+	abstract protected function success($data);
 
 	/**
 	 * On form failure action
