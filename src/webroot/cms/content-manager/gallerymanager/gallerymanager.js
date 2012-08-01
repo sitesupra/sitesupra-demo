@@ -172,7 +172,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				'id': 'gallery_manager_insert',
 				'type': 'button',
 				'title': Supra.Intl.get(['gallerymanager', 'insert']),
-				'icon': '/cms/lib/supra/img/htmleditor/icon-image.png',
+				'icon': '/cms/lib/supra/img/toolbar/icon-image.png',
 				'action': this,
 				'actionFunction': 'openMediaLibrary'
 			}]);
