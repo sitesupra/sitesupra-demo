@@ -40,31 +40,81 @@ class PagecontentAction extends PageManagerAction
 		$placeHolderName = $this->getRequestParameter('placeholder_id');
 		$blockType = $this->getRequestParameter('type');
 
+		$insertBeforeBlockId = $this->getRequestInput()->get('reference_id', null);
+
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $request->getPageLocalization()
 				->getPlaceHolders()
 				->get($placeHolderName);
 
+		//foreach ($placeHolder->getBlocks() as $someBlock) {
+		//	\Log::debug('0 BLOCK ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
+		//}
+
 		// Generate block according the page type provided
-		$block = Entity\Abstraction\Block::factory($page);
+		$newBlock = Entity\Abstraction\Block::factory($page);
 
-		$block->setComponentName($blockType);
-		$block->setPlaceHolder($placeHolder);
-		$block->setPosition($placeHolder->getMaxBlockPosition() + 1);
+		$newBlock->setComponentName($blockType);
 
-		$this->entityManager->persist($block);
+		// This is also a fall-through case if no valid positionin block is found.
+		$newBlock->setPosition($placeHolder->getMaxBlockPosition() + 1);
+
+		if ( ! empty($insertBeforeBlockId)) {
+
+			$insertBeforeBlock = null;
+
+			// Find block before which the new block will be inserted
+			foreach ($placeHolder->getBlocks() as $key => $someBlock) {
+				/* @var $someBlock Supra\Controller\Pages\Entity\Abstraction\Block */
+
+				//\Log::debug('CHECKING BLOCK: ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
+
+				if ($someBlock->getId() == $insertBeforeBlockId) {
+
+					$insertBeforeBlock = $someBlock;
+					break;
+				}
+			}
+
+			if ( ! empty($insertBeforeBlock)) {
+
+				//\Log::debug('INSERT BEFORE BLOCK: ' . $insertBeforeBlock->getId() . ', POSITION: ' . $insertBeforeBlock->getPosition());
+
+				foreach ($placeHolder->getBlocks() as $someBlock) {
+
+					if ($someBlock->getPosition() >= $insertBeforeBlock->getPosition()) {
+
+						$someBlock->setPosition($someBlock->getPosition() + 1);
+
+						//\Log::debug('MOVED BLOCK: ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
+					}
+				}
+
+				$newBlock->setPosition($insertBeforeBlock->getPosition() - 1);
+			}
+		}
+
+		//\Log::debug('NEW BLOCK: ' . $newBlock->getId() . ', POSITION: ' . $newBlock->getPosition());
+
+		$newBlock->setPlaceHolder($placeHolder);
+
+		//foreach ($placeHolder->getBlocks() as $someBlock) {
+		//	\Log::debug('1 BLOCK ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
+		//}
+
+		$this->entityManager->persist($newBlock);
 		$this->entityManager->flush();
 
 		$this->savePostTrigger();
 
-		$controller = $block->createController();
-		$block->prepareController($controller, $request);
-		$block->executeController($controller);
+		$controller = $newBlock->createController();
+		$newBlock->prepareController($controller, $request);
+		$newBlock->executeController($controller);
 		$response = $controller->getResponse();
-		$locked = $block->getLocked();
+		$locked = $newBlock->getLocked();
 
 		$array = array(
-			'id' => $block->getId(),
+			'id' => $newBlock->getId(),
 			'type' => $blockType,
 			// If you can insert it, you can edit it
 			'closed' => false,
@@ -315,6 +365,93 @@ class PagecontentAction extends PageManagerAction
 	}
 
 	/**
+	 * 
+	 */
+	public function moveblocksAction()
+	{
+		$this->isPostRequest();
+		$this->checkLock();
+
+		$request = $this->getPageRequest();
+
+		$newPlaceholderName = $this->getRequestInput()->get('place_holder_id');
+
+		$newOrderedBlockIds = $this->getRequestInput()->getChild('order')->getArrayCopy();
+
+		$movedBlockId = $this->getRequestInput()->get('block_id');
+
+		/* @var $targetPlaceholder Entity\Abstraction\PlaceHolder */
+		$targetPlaceholder = $request->getPageLocalization()
+				->getPlaceHolders()
+				->get($newPlaceholderName);
+
+		/* @var $block Entity\Abstraction\Block */
+
+		$movedBlock = $this->entityManager->find(Entity\Abstraction\Block::CN(), $movedBlockId);
+		/* @var $sourcePlaceholder Entity\Abstraction\PlaceHolder */
+		$sourcePlaceholder = $movedBlock->getPlaceHolder();
+
+		//foreach ($sourcePlaceholder->getBlocks() as $someBlock) {
+		//	\Log::debug('0 source placeholder BLOCK: ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
+		//}
+
+		//foreach ($targetPlaceholder->getBlocks() as $someBlock) {
+		//	\Log::debug('0 target placeholder BLOCK: ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
+		//}
+
+		$keyToRemove = null;
+		foreach ($sourcePlaceholder->getBlocks() as $key => $someBlock) {
+
+			if ($someBlock->getId() == $movedBlockId) {
+				$keyToRemove = $key;
+				break;
+			}
+		}
+
+		if ($keyToRemove) {
+
+			$sourcePlaceholder->getBlocks()->remove($keyToRemove);
+
+			foreach ($sourcePlaceholder->getBlocks() as $someBlock) {
+
+				if ($someBlock->getPosition() >= $movedBlock->getPosition()) {
+					$someBlock->setPosition($someBlock->getPosition() - 1);
+				}
+			}
+		}
+
+		$targetBlocks = array();
+		foreach ($targetPlaceholder->getBlocks() as $someBlock) {
+
+			$targetBlocks[$someBlock->getId()] = $someBlock;
+		}
+
+		foreach ($newOrderedBlockIds as $position => $someBlockId) {
+
+			if (isset($targetBlocks[$someBlockId])) {
+
+				$targetBlocks[$someBlockId]->setPosition($position);
+			} else {
+
+				$movedBlock->setPlaceHolder($targetPlaceholder);
+				$movedBlock->setPosition($position);
+			}
+		}
+
+		//foreach ($sourcePlaceholder->getBlocks() as $someBlock) {
+		//	\Log::debug('1 source placeholder BLOCK: ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
+		//}
+
+		//foreach ($targetPlaceholder->getBlocks() as $someBlock) {
+		//	\Log::debug('1 target placeholder BLOCK: ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
+		//}
+
+		$this->entityManager->persist($sourcePlaceholder);
+		$this->entityManager->persist($targetPlaceholder);
+		$this->entityManager->flush();
+	}
+
+	/**
 	 *
 	 * @param Supra\Controller\Pages\BlockController $blockController
 	 * @param Supra\Request\RequestData  $input
@@ -410,7 +547,7 @@ class PagecontentAction extends PageManagerAction
 					} else {
 
 						if ($blockBackgroundData->hasChild('image')) {
-							
+
 							$imageData = $blockBackgroundData->getChild('image')->getArrayCopy();
 
 							$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;

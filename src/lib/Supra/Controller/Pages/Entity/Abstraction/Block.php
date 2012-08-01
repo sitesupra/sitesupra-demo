@@ -89,9 +89,8 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	 */
 	public function setPlaceHolder(PlaceHolder $placeHolder)
 	{
-		if ($this->writeOnce($this->placeHolder, $placeHolder)) {
-			$this->placeHolder->addBlock($this);
-		}
+		$this->placeHolder = $placeHolder;
+		$this->placeHolder->addBlock($this);
 	}
 
 	/**
