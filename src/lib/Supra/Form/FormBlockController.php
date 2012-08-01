@@ -11,7 +11,7 @@ use Supra\Loader\Loader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @method FormBlockControllerConfiguration getConfiguration()
+ * @method \Supra\Form\Configuration\FormBlockControllerConfiguration getConfiguration()
  */
 abstract class FormBlockController extends BlockController
 {
@@ -165,6 +165,7 @@ abstract class FormBlockController extends BlockController
 		$dataObject = Loader::getClassInstance($conf->dataClass);
 		$dataObject = $this->initializeData($dataObject);
 		$formBuilder = $this->prepareFormBuilder($dataObject);
+		$groups = (array) $formBuilder->getOption('validation_groups');
 		
 		foreach ($conf->getFields() as $field) {
 			/* @var $field FormField */
@@ -190,6 +191,11 @@ abstract class FormBlockController extends BlockController
 					$choiceList = new $choiceList;
 					$options['choice_list'] = $choiceList;
 				}
+			}
+
+			// Skip the field
+			if ( ! $field->inGroups($groups)) {
+				continue;
 			}
 			
 			$formBuilder->add($field->getName(), null, $options);

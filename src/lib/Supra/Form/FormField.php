@@ -33,6 +33,11 @@ class FormField
 	/**
 	 * @var array
 	 */
+	protected $groups = array();
+
+	/**
+	 * @var array
+	 */
 	protected $arguments = array();
 
 	/**
@@ -49,6 +54,10 @@ class FormField
 		if (isset($arguments['type'])) {
 			$this->type = $arguments['type'];
 			unset($arguments['type']);
+		}
+		if (isset($arguments['groups'])) {
+			$this->groups = $arguments['groups'];
+			unset($arguments['groups']);
 		}
 		$this->arguments  = $arguments;
 	}
@@ -124,6 +133,28 @@ class FormField
 		}
 		
 		return null;
+	}
+
+	/**
+	 * @param array $groups
+	 * @return boolean
+	 */
+	public function inGroups($groups)
+	{
+		if (empty($this->groups)) {
+			return true;
+		}
+
+		if (empty($groups)) {
+			return true;
+		}
+
+		// Skip field if groups have no common values
+		if (array_intersect($this->groups, $groups) == array()) {
+			return false;
+		}
+
+		return true;
 	}
 
 }
