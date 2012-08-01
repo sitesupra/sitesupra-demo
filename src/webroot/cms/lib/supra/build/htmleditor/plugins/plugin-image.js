@@ -135,11 +135,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 */
 		settingsFormApply: function () {
 			if (this.selected_image) {
-				
-				if (this.resizer) {
-					//Stop editing image
-					this.resizer.set("image", null);
-				}
+				this.stopEditImage();
 				
 				var ancestor = this.getImageWrapperNode(this.selected_image);
 				ancestor.removeClass("supra-image-selected");
@@ -199,6 +195,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			//Open Media library on "Replace"
 			if (this.selected_image) {
 				//Open settings form and open MediaSidebar
+				this.stopEditImage();
 				this.hideSettingsForm();
 				Manager.getAction("MediaSidebar").execute({
 					onselect: Y.bind(this.insertImage, this)
@@ -213,7 +210,17 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 */
 		removeSelectedImage: function () {
 			if (this.selected_image) {
-				this.selected_image.remove();
+				this.stopEditImage();
+				
+				var image = this.selected_image,
+					container = image.ancestor();
+				
+				if (container.test(".supra-image")) {
+					container.remove();
+				} else {
+					image.remove();
+				}
+				
 				this.selected_image = null;
 				this.selected_image_id = null;
 				this.original_data = null;
@@ -324,13 +331,13 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					this.setImageProperty("style", "lightbox", image);
 				}
 			} else if (id == "crop_width") {
-				ancestor.style.width = value + "px";
+				ancestor.setStyle("width", value + "px");
 			} else if (id == "crop_height") {
-				ancestor.style.height = value + "px";
+				ancestor.setStyle("height", value + "px");
 			} else if (id == "crop_left") {
-				image.style.marginLeft = - value + "px";
+				image.setStyle("marginLeft", - value + "px");
 			} else if (id == "crop_top") {
-				image.style.marginTop = - value + "px";
+				image.setStyle("marginTop", - value + "px");
 			}
 		},
 		
@@ -607,13 +614,14 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			var locale = Supra.data.get("locale");
 			
 			if (!htmleditor.get("disabled") && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
-				var image_data = event.image;
+				var image_data = event.image,
+					size_data = this.getImageDataBySize(image_data);
 				
 				if (this.selected_image) {
 					//If image in content is already selected, then replace
 					var imageId = this.selected_image_id,
 						imageData = this.htmleditor.getData(imageId);
-
+					
 					var data = Supra.mix({}, defaultProps, {
 						"type": this.NAME,
 						"title": (image_data.title && image_data.title[locale]) ? image_data.title[locale] : "",
@@ -621,12 +629,12 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 						"align": imageData.align,
 						"style": imageData.style,
 						"image": image_data,	//Original image data
-						"size_width": imageData.size_width,
-						"size_height": imageData.size_height,
-						"crop_left": imageData.crop_left,
-						"crop_top": imageData.crop_top,
-						"crop_width": imageData.crop_width,
-						"crop_height": imageData.crop_height
+						"size_width": size_data.width,
+						"size_height": size_data.height,
+						"crop_left": 0,
+						"crop_top": 0,
+						"crop_width": Math.min(size_data.width, imageData.crop_width || 9999),
+						"crop_height": Math.min(size_data.height, imageData.crop_height || 9999)
 					});
 					
 					//Preserve image data
@@ -636,14 +644,21 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					this.setImageProperty("image", data.image);
 					this.setImageProperty("title", data.title);
 					this.setImageProperty("description", data.description);
+					this.setImageProperty("size_width", data.size_width);
+					this.setImageProperty("size_height", data.size_height);
+					this.setImageProperty("crop_left", data.crop_left);
+					this.setImageProperty("crop_top", data.crop_top);
+					this.setImageProperty("crop_width", data.crop_width);
+					this.setImageProperty("crop_height", data.crop_height);
 					
 					//Update form input values
 					this.settings_form.getInput("title").setValue(data.title);
 					this.settings_form.getInput("description").setValue(data.description);
+					
+					this.editImage();
 				} else {
 					//Find image by size and set initial image properties
-					var size_data = this.getImageDataBySize(image_data),
-						src = this.getImageURLBySize(image_data);
+					var src = this.getImageURLBySize(image_data);
 					
 					var data = Supra.mix({}, defaultProps, {
 						"type": this.NAME,
