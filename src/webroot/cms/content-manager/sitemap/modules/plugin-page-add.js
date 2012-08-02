@@ -739,7 +739,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		'fillLayoutList': function (input, node) {
 			var layouts = this._layouts;
 			
-			if(layouts.lenght == 0) {
+			if(layouts.length == 0) {
 				// throwing an error message
 				Supra.Manager.executeAction('Confirmation', {
 					'message': Supra.Intl.get(['error', 'no_layouts']),

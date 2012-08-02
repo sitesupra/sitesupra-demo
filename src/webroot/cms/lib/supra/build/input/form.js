@@ -436,6 +436,46 @@ YUI.add("supra.form", function (Y) {
 		},
 		
 		/**
+		 * Add classname to the form bounding box
+		 * 
+		 * @param {String} c Classname 
+		 */
+		addClass: function (c) {
+			this.get('boundingBox').addClass(c);
+			return this;
+		},
+		
+		/**
+		 * Remove classname from the form bounding box
+		 * 
+		 * @param {String} c Classname 
+		 */
+		removeClass: function (c) {
+			this.get('boundingBox').removeClass(c);
+			return this;
+		},
+		
+		/**
+		 * Returns true if forms bounding box has this classname, otherwise false
+		 * 
+		 * @param {String} c Classname 
+		 */
+		hasClass: function (c) {
+			return this.get('boundingBox').hasClass(c);
+		},
+		
+		/**
+		 * Add/remove classname from the form bounding box
+		 * 
+		 * @param {String} c Classname
+		 * @param {Boolean} v Add or remove, if true classname will be added, otherwise removed
+		 */
+		toggleClass: function (c, v) {
+			this.get('boundingBox').toggleClass(c, v);
+			return this;
+		},
+		
+		/**
 		 * Destructor
 		 * 
 		 * @private
