@@ -60,8 +60,6 @@ class TextController extends BlockController
 		$classname = null;
 		$imageData = null;
 
-		\Log::debug('LLL: ', $property->getMetadata()->getKeys());
-
 		if ( ! empty($value)) {
 			$classname = $value;
 		} else if ($property->getMetadata()->containsKey('image')) {

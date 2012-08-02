@@ -256,7 +256,7 @@ abstract class CmsAction extends SimpleController
 	}
 
 	/**
-	 * @return RequestData
+	 * @return Request\RequestData
 	 */
 	protected function getRequestInput()
 	{
