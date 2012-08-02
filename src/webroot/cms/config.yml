@@ -145,6 +145,13 @@
   icon: /cms/content-manager/sitemap/images/apps/news.png
   newChildrenFirst: true
 
+- _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
+  id: glossary
+  className: Supra\Controller\Pages\Glossary\GlossaryApplication
+  title: Glossary
+  icon: /cms/content-manager/sitemap/images/apps/forum.png
+  newChildrenFirst: true
+
 # Implement this configuration to project-specific location if needed
 #- Supra\BannerMachine\Configuration\ProviderConfiguration:
 #    id: banner-machine-one
