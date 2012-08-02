@@ -580,8 +580,6 @@ YUI.add('supra.iframe-contents', function (Y) {
 			this.set('disabled', value === true);
 			this.get('body').toggleClass('yui3-highlight', value === true);
 			
-			console.log('insertHighlight', value);
-			
 			var children = this.children,
 				i = null;
 			
