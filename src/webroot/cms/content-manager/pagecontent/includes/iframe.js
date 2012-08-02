@@ -554,9 +554,9 @@ YUI.add('supra.iframe-handler', function (Y) {
 				links.push(Y.Node.getDOMNode(elements.item(i)));
 			}
 			
-			//Add stylesheets to iframe
+			//Add stylesheets to iframe, load using combo
 			if (!Supra.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
-				link = this.addStyleSheet(Action.getActionPath() + "iframe.css");
+				link = this.addStyleSheet(Y.config.comboBase + Action.getActionPath() + "iframe.css");
 				if (link) {
 					links.push(link);
 				}

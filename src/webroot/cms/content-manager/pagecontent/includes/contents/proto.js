@@ -916,6 +916,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				
 				if (region.left <= xy[0] && region.right >= xy[0] && region.top <= xy[1] && region.bottom >= xy[1]) {
 					positionId = this.getId();
+					positionRegion = region;
 				}
 			}
 			
@@ -943,27 +944,28 @@ YUI.add('supra.page-content-proto', function (Y) {
 				var node = this.blockDropPositionMarker;
 				
 				//We don't mark list, only children blocks
-				if (positionId && positionId != this.getId()) {
+				if (positionId) {
 					if (!node) {
 						node = this.blockDropPositionMarker = Y.Node(this.get("doc").createElement("DIV")); // create using correct document object
 						node.addClass(CLASSNAME_MARKER);
 						this.get("body").append(node);
-						
-						node.setStyles({
-							"left": positionRegion.left + 5 + "px",
-							"top": (positionBefore ? positionRegion.top : positionRegion.bottom) + "px",
-							"width": positionRegion.width - 10 + "px"
-						});
-					} else {
-						node.transition ({
-							"easing": "ease-out",
-							"duration": 0.15,
-							"left": positionRegion.left + 5 + "px",
-							"top": (positionBefore ? positionRegion.top : positionRegion.bottom) + "px",
-							"width": positionRegion.width - 10 + "px"
-						});
 					}
 					
+					if (positionId != this.getId()) {
+						//Block
+						node.setStyles({
+							"left": positionRegion.left + "px",
+							"top": (positionBefore ? positionRegion.top + 1 : positionRegion.bottom + 1) + "px",
+							"width": positionRegion.width + "px"
+						});
+					} else {
+						//List
+						node.setStyles({
+							"left": positionRegion.left + 2 + "px",
+							"top": positionRegion.bottom + "px",
+							"width": positionRegion.width - 4 + "px"
+						});
+					}
 				} else {
 					if (node) {
 						node.remove(true);

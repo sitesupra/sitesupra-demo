@@ -448,10 +448,12 @@ Supra('dd-drag', function (Y) {
 						//delay to allow draged item to reset it's position if needed
 						Y.later(15, this, function () {
 							Manager.PageInsertBlock.hide();
+							this.getContent().set('insertHighlight', false);
 						});
 					}
 				}
 				
+				this.getContent().set('insertHighlight', true);
 				this.fire('dragend');
 				
 				//Because of Editor toolbar, container top position changes and 
@@ -482,7 +484,7 @@ Supra('dd-drag', function (Y) {
 				return this.getContent().fire('block:dragend', e);
 			}, this);
 			this.on('dragend', function () {
-				this.getContent().set('highlight', false);
+				
 			}, this);
 			
 			//Add toolbar buttons

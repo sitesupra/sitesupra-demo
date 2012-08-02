@@ -8,11 +8,7 @@ YUI.add('supra.page-content-list', function (Y) {
 		PageContent = Manager.PageContent;
 	
 	//CSS classes
-	var CLASSNAME_REORDER = Y.ClassNameManager.getClassName('content', 'reorder'),		//yui3-content-reorder
-		CLASSNAME_DRAGING = Y.ClassNameManager.getClassName('content', 'draging'),		//yui3-content-draging
-		CLASSNAME_PROXY = Y.ClassNameManager.getClassName('content', 'proxy'),			//yui3-content-proxy
-		CLASSNAME_DRAGGABLE = Y.ClassNameManager.getClassName('content', 'draggable'),	//yui3-content-draggable
-		CLASSNAME_OVERLAY = Y.ClassNameManager.getClassName('content', 'overlay');		//yui3-content-overlay
+	var CLASSNAME_OVERLAY = Y.ClassNameManager.getClassName('content', 'overlay');		//yui3-content-overlay
 	
 	/**
 	 * Content block which is a container for other blocks
@@ -135,6 +131,7 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			//Disable highlight, we will be editing this block
 			this.get('super').set('highlight', false);
+			this.get('super').set('insertHighlight', false);
 			
 			//When new item is created focus on it
 			this.get('super').set('activeChild', block);

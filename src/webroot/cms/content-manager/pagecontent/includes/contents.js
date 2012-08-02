@@ -10,7 +10,10 @@ YUI.add('supra.iframe-contents', function (Y) {
 	var Manager = Supra.Manager,
 		Action = Manager.PageContent,
 		Root = Manager.getAction('Root');
-	
+		
+	//Classname to add to blocks while inserting new block
+	var CLASSNAME_INSERT = Y.ClassNameManager.getClassName('content', 'insert');		//yui3-content-insert
+		
 	/*
 	 * Editable content
 	 */
@@ -50,6 +53,10 @@ YUI.add('supra.iframe-contents', function (Y) {
 		'highlight': {
 			value: false,
 			setter: '_setHighlight'
+		},
+		'insertHighlight': {
+			value: false,
+			setter: '_setInsertHighlight'
 		}
 	};
 	
@@ -167,16 +174,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			this.on('block:dragstart', function (e) {
 				//Only if dragging block
 				if (e.block) {
-					this.set('highlight', true);
-					
-					var type = e.block.id,
-						children = this.children;
-					
-					for(var i in children) {
-						if (children[i].isChildTypeAllowed(type)) {
-							children[i].set('highlight', true);
-						}
-					}
+					this.set('insertHighlight', e.block.id);
 				}
 			}, this);
 			
@@ -571,6 +569,33 @@ YUI.add('supra.iframe-contents', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		/**
+		 * insertHighlight attribute setter
+		 * 
+		 * @param {Boolean} value
+		 */
+		_setInsertHighlight: function (value) {
+			this.set('disabled', value === true);
+			this.get('body').toggleClass('yui3-highlight', value === true);
+			
+			console.log('insertHighlight', value);
+			
+			var children = this.children,
+				i = null;
+			
+			if (value && value !== true) {
+				for(i in children) {
+					if (children[i].isChildTypeAllowed(value)) {
+						children[i].getNode().addClass(CLASSNAME_INSERT);
+					}
+				}
+			} else {
+				for(i in children) {
+					children[i].getNode().removeClass(CLASSNAME_INSERT);
+				}
+			}		
 		},
 		
 		/**
