@@ -381,7 +381,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 						var next = this.children_order[index];
 						if (next) {
 							next = this.children[next];
-							next.getNode().insert(block.getNode(), 'before');
+							next.overlay.insert(block.overlay, 'before');
+							next.overlay.insert(block.getNode(), 'before');
 						}
 						
 						this.children_order.splice(index, 0, String(data.id));
