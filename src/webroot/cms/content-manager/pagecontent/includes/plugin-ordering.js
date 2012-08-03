@@ -400,11 +400,11 @@ YUI.add("supra.page-content-ordering", function (Y) {
 						direction = y < (allBlockRegion.top + allBlockRegion.height / 2) ? -1 : 1;
 						swapBlockIndex = i;
 						
-						if (i == blockIndex + 1 && direction == 1) {
-							newBlockIndex = i;
+						if (direction == 1) {
+							newBlockIndex = blockIndex < i ? i : i + 1;
 							break;
-						} else if (i == blockIndex - 1 && direction == -1) {
-							newBlockIndex = i;
+						} else if (direction == -1) {
+							newBlockIndex = blockIndex < i ? i - 1 : i;
 							break;
 						}
 					}
