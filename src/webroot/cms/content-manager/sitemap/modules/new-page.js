@@ -138,7 +138,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			var boundingBox = this.get('boundingBox'),
 				anim = this._anim,
 				count = this._application_count,
-				height = Math.min(75 + 80 * count, 470);
+				height = Math.min(80 + 80 * count, 470);
 			
 			if (value) {
 				//Slide down

@@ -35,6 +35,28 @@ YUI().add('website.sitemap-tree-node-app', function (Y) {
 			
 			//Application specific classname
 			this.get('boundingBox').addClass(this.getClassName(this.get('data').application_id));
+		},
+		
+		/**
+		 * Instead of expanding children show list popup
+		 * if there is any
+		 * 
+		 * @private
+		 */
+		'_setExpandedExpand': function () {
+			var returnValue = TreeNodeApp.superclass._setExpandedExpand.apply(this, arguments);
+			
+			var children = this.children(),
+				i = 0,
+				size = children.length;
+			
+			for(; i<size; i++) {
+				if (children[i].isInstanceOf('TreeNodeList')) {
+					children[i].expand(); break;
+				}
+			}
+			
+			return returnValue;
 		}
 	});
 	
