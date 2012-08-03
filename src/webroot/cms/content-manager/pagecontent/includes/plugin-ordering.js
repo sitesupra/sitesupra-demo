@@ -344,16 +344,13 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				swapBlock = null,  // block before/after which to insert
 				
 				direction = 0,
-				x = e.target.actXY[0],
-				y = e.target.actXY[1];
+				x = e.target.mouseXY[0],
+				y = e.target.mouseXY[1];
 			
 			//Find list in which to drop by measuring in which list item center is inside
-			var centerX = x + blockRegion.width / 2,
-				centerY = y + blockRegion.height / 2;
-			
 			for (; i<ii; i++) {
 				listRegion = listRegions[i].region;
-				if (centerX >= listRegion.left && centerX < listRegion.right && centerY >= listRegion.top && centerY < listRegion.bottom) {
+				if (x >= listRegion.left && x < listRegion.right && y >= listRegion.top && y < listRegion.bottom) {
 					currentList = listRegions[i].id;
 					break;
 				}
@@ -380,13 +377,12 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				allBlockRegion = allBlockRegions[i].region;
 				
 				//Check if regions intersect
-				if ((y <= allBlockRegion.top && (y + blockRegion.height) > allBlockRegion.top) ||
-					(y >= allBlockRegion.top && y < allBlockRegion.bottom)) {
+				if (y >= allBlockRegion.top && y < allBlockRegion.bottom) {
 					
 					if (targetList != currentList) {
 						//List changed
 						
-						direction = (y + blockRegion.height / 2) < (allBlockRegion.top + allBlockRegion.height / 2) ? -1 : 1;
+						direction = y < (allBlockRegion.top + allBlockRegion.height / 2) ? -1 : 1;
 						swapBlockIndex = i;
 						
 						if (direction == 1) {
@@ -401,7 +397,7 @@ YUI.add("supra.page-content-ordering", function (Y) {
 					} else {
 						//List didn't changed
 						
-						direction = ((y + blockRegion.height / 2) < (allBlockRegion.top + allBlockRegion.height / 2)) ? -1 : 1;
+						direction = y < (allBlockRegion.top + allBlockRegion.height / 2) ? -1 : 1;
 						swapBlockIndex = i;
 						
 						if (i == blockIndex + 1 && direction == 1) {
