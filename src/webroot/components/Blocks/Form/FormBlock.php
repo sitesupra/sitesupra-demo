@@ -42,11 +42,8 @@ class FormBlock extends FormBlockController
 		$response->outputTemplate('render.html.twig');
 	}
 
-	protected function success()
+	protected function success($data)
 	{
-		$form = $this->getBindedForm();
-		$data = $form->getClientData();
-
 		$response = $this->getResponse();
 		/* @var $response \Supra\Response\TwigResponse */
 		$response->outputTemplate('success.html.twig');
