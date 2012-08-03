@@ -662,8 +662,6 @@ YUI.add("supra.input-select", function (Y) {
 			}
 			
 			this.get('innerNode').destroy(true);
-			
-			Input.superclass.destructor.apply(this, arguments);
 		}
 		
 	});
