@@ -18,7 +18,7 @@ if(typeof console != 'undefined' ) {
 			{% endfor %}
 		{% endif %}
 
-		{% if blockStats.exception %}
+		{% if blockStats.exception is defined %}
 			console.log('    %cRaised exception "' + {{ blockStats.exception.getMessage() | json_encode | raw }} + '"', 'color:red;');
 		{% endif %}
 

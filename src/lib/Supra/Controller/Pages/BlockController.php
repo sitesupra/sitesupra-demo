@@ -23,7 +23,7 @@ use Supra\Controller\Pages\Exception;
 /**
  * Block controller abstraction
  * @method PageRequest getRequest()
- * @method Response\TwigResponse getResponse()
+ * @method \Supra\Response\TwigResponse getResponse()
  */
 abstract class BlockController extends ControllerAbstraction
 {
@@ -382,7 +382,8 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
-	 * Get property value, use default if not found
+	 * Get property value, uses default if not found, throws exception if
+	 * property not declared
 	 * @param string $name
 	 * @return mixed
 	 */

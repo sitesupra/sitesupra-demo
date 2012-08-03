@@ -5,7 +5,6 @@ namespace Supra\NestedSet;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\QueryBuilder;
-use Node\NodeInterface;
 
 /**
  * 

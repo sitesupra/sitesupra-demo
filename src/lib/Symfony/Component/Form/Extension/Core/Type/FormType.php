@@ -12,65 +12,40 @@
 namespace Symfony\Component\Form\Extension\Core\Type;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Util\PropertyPath;
 use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\Extension\Core\EventListener\BindRequestListener;
 use Symfony\Component\Form\Extension\Core\EventListener\TrimListener;
-use Symfony\Component\Form\Extension\Core\EventListener\ValidationListener;
 use Symfony\Component\Form\Extension\Core\DataMapper\PropertyPathMapper;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Form\Exception\FormException;
 use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class FormType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilder $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if (null === $options['property_path']) {
-            $options['property_path'] = $builder->getName();
-        }
-
-        if (false === $options['property_path'] || '' === $options['property_path']) {
-            $options['property_path'] = null;
-        } else {
-            $options['property_path'] = new PropertyPath($options['property_path']);
-        }
-
-        if (!is_array($options['attr'])) {
-            throw new FormException('The "attr" option must be an "array".');
-        }
-
-        if (!is_array($options['label_attr'])) {
-            throw new FormException('The "label_attr" option must be an "array".');
-        }
-
         $builder
             ->setRequired($options['required'])
             ->setDisabled($options['disabled'])
             ->setErrorBubbling($options['error_bubbling'])
             ->setEmptyData($options['empty_data'])
-            ->setAttribute('read_only', $options['read_only'])
-            ->setAttribute('by_reference', $options['by_reference'])
-            ->setAttribute('property_path', $options['property_path'])
-            ->setAttribute('error_mapping', $options['error_mapping'])
-            ->setAttribute('max_length', $options['max_length'])
-            ->setAttribute('pattern', $options['pattern'])
-            ->setAttribute('label', $options['label'] ?: $this->humanize($builder->getName()))
-            ->setAttribute('attr', $options['attr'])
-            ->setAttribute('label_attr', $options['label_attr'])
-            ->setAttribute('invalid_message', $options['invalid_message'])
-            ->setAttribute('invalid_message_parameters', $options['invalid_message_parameters'])
-            ->setAttribute('translation_domain', $options['translation_domain'])
-            ->setAttribute('virtual', $options['virtual'])
-            ->setAttribute('single_control', $options['single_control'])
-            ->setData($options['data'])
-            ->setDataMapper(new PropertyPathMapper($options['data_class']))
-            ->addEventSubscriber(new ValidationListener())
+            // BC compatibility, when "property_path" could be false
+            ->setPropertyPath(is_string($options['property_path']) ? $options['property_path'] : null)
+            ->setMapped($options['mapped'])
+            ->setByReference($options['by_reference'])
+            ->setVirtual($options['virtual'])
+            ->setCompound($options['compound'])
+            ->setData(isset($options['data']) ? $options['data'] : null)
+            ->setDataLocked(isset($options['data']))
+            ->setDataMapper($options['compound'] ? new PropertyPathMapper() : null)
+            ->addEventSubscriber(new BindRequestListener())
         ;
 
         if ($options['trim']) {
@@ -81,29 +56,40 @@ class FormType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildView(FormView $view, FormInterface $form)
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
         $name = $form->getName();
-        $readOnly = $form->getAttribute('read_only');
+        $blockName = $options['block_name'] ?: $form->getName();
+        $readOnly = $options['read_only'];
+        $translationDomain = $options['translation_domain'];
 
-        if ($view->hasParent()) {
+        if ($view->parent) {
             if ('' === $name) {
                 throw new FormException('Form node with empty name can be used only as root form node.');
             }
 
-            if ('' !== ($parentFullName = $view->getParent()->get('full_name'))) {
-                $id = sprintf('%s_%s', $view->getParent()->get('id'), $name);
+            if ('' !== ($parentFullName = $view->parent->vars['full_name'])) {
+                $id = sprintf('%s_%s', $view->parent->vars['id'], $name);
                 $fullName = sprintf('%s[%s]', $parentFullName, $name);
+                $fullBlockName = sprintf('%s_%s', $view->parent->vars['full_block_name'], $blockName);
             } else {
                 $id = $name;
                 $fullName = $name;
+                $fullBlockName = '_' . $blockName;
             }
 
-            // Complex fields are read-only if themselves or their parent is.
-            $readOnly = $readOnly || $view->getParent()->get('read_only');
+            // Complex fields are read-only if they themselves or their parents are.
+            if (!$readOnly) {
+                $readOnly = $view->parent->vars['read_only'];
+            }
+
+            if (!$translationDomain) {
+                $translationDomain = $view->parent->vars['translation_domain'];
+            }
         } else {
             $id = $name;
             $fullName = $name;
+            $fullBlockName = '_' . $blockName;
 
             // Strip leading underscores and digits. These are allowed in
             // form names, but not in HTML4 ID attributes.
@@ -112,62 +98,64 @@ class FormType extends AbstractType
         }
 
         $types = array();
-        foreach ($form->getTypes() as $type) {
-            $types[] = $type->getName();
+        for ($type = $form->getConfig()->getType(); null !== $type; $type = $type->getParent()) {
+            array_unshift($types, $type->getName());
         }
 
-        $view
-            ->set('form', $view)
-            ->set('id', $id)
-            ->set('name', $name)
-            ->set('full_name', $fullName)
-            ->set('read_only', $readOnly)
-            ->set('errors', $form->getErrors())
-            ->set('value', $form->getClientData())
-            ->set('disabled', $form->isDisabled())
-            ->set('required', $form->isRequired())
-            ->set('max_length', $form->getAttribute('max_length'))
-            ->set('pattern', $form->getAttribute('pattern'))
-            ->set('size', null)
-            ->set('label', $form->getAttribute('label'))
-            ->set('multipart', false)
-            ->set('attr', $form->getAttribute('attr'))
-            ->set('label_attr', $form->getAttribute('label_attr'))
-            ->set('single_control', $form->getAttribute('single_control'))
-            ->set('types', $types)
-            ->set('translation_domain', $form->getAttribute('translation_domain'))
-        ;
+        if (!$translationDomain) {
+            $translationDomain = 'messages';
+        }
+
+        $view->vars = array_replace($view->vars, array(
+            'form'               => $view,
+            'id'                 => $id,
+            'name'               => $name,
+            'full_name'          => $fullName,
+            'full_block_name'    => $fullBlockName,
+            'read_only'          => $readOnly,
+            'errors'             => $form->getErrors(),
+            'valid'              => $form->isBound() ? $form->isValid() : true,
+            'value'              => $form->getViewData(),
+            'disabled'           => $form->isDisabled(),
+            'required'           => $form->isRequired(),
+            'max_length'         => $options['max_length'],
+            'pattern'            => $options['pattern'],
+            'size'               => null,
+            'label'              => $options['label'],
+            'multipart'          => false,
+            'attr'               => $options['attr'],
+            'label_attr'         => $options['label_attr'],
+            'compound'           => $form->getConfig()->getCompound(),
+            'types'              => $types,
+            'translation_domain' => $translationDomain,
+        ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildViewBottomUp(FormView $view, FormInterface $form)
+    public function finishView(FormView $view, FormInterface $form, array $options)
     {
         $multipart = false;
 
-        foreach ($view->getChildren() as $child) {
-            if ($child->get('multipart')) {
+        foreach ($view->children as $child) {
+            if ($child->vars['multipart']) {
                 $multipart = true;
                 break;
             }
         }
 
-        $view->set('multipart', $multipart);
+        $view->vars['multipart'] = $multipart;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefaultOptions()
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         // Derive "data_class" option from passed "data" object
         $dataClass = function (Options $options) {
-            if (is_object($options['data'])) {
-                return get_class($options['data']);
-            }
-
-            return null;
+            return isset($options['data']) && is_object($options['data']) ? get_class($options['data']) : null;
         };
 
         // Derive "empty_data" closure from "data_class" option
@@ -176,66 +164,64 @@ class FormType extends AbstractType
 
             if (null !== $class) {
                 return function (FormInterface $form) use ($class) {
-                    if ($form->isEmpty() && !$form->isRequired()) {
-                        return null;
-                    }
-
-                    return new $class();
+                    return $form->isEmpty() && !$form->isRequired() ? null : new $class();
                 };
             }
 
             return function (FormInterface $form) {
-                if ($form->hasChildren()) {
-                    return array();
-                }
-
-                return '';
+                return $form->getConfig()->getCompound() ? array() : '';
             };
         };
 
         // For any form that is not represented by a single HTML control,
         // errors should bubble up by default
         $errorBubbling = function (Options $options) {
-            return !$options['single_control'];
+            return $options['compound'];
         };
 
-        return array(
-            'data'              => null,
-            'data_class'        => $dataClass,
-            'empty_data'        => $emptyData,
-            'trim'              => true,
-            'required'          => true,
-            'read_only'         => false,
-            'disabled'          => false,
-            'max_length'        => null,
-            'pattern'           => null,
-            'property_path'     => null,
-            'by_reference'      => true,
-            'error_bubbling'    => $errorBubbling,
-            'error_mapping'     => array(),
-            'label'             => null,
-            'attr'              => array(),
-            'label_attr'        => array(),
-            'virtual'           => false,
-            'single_control'    => false,
-            'invalid_message'   => 'This value is not valid.',
-            'invalid_message_parameters' => array(),
-            'translation_domain' => 'messages',
-        );
+        // BC clause: former property_path=false now equals mapped=false
+        $mapped = function (Options $options) {
+            return false !== $options['property_path'];
+        };
+
+        // If data is given, the form is locked to that data
+        // (independent of its value)
+        $resolver->setOptional(array(
+            'data',
+        ));
+
+        $resolver->setDefaults(array(
+            'block_name'         => null,
+            'data_class'         => $dataClass,
+            'empty_data'         => $emptyData,
+            'trim'               => true,
+            'required'           => true,
+            'read_only'          => false,
+            'disabled'           => false,
+            'max_length'         => null,
+            'pattern'            => null,
+            'property_path'      => null,
+            'mapped'             => $mapped,
+            'by_reference'       => true,
+            'error_bubbling'     => $errorBubbling,
+            'label'              => null,
+            'attr'               => array(),
+            'label_attr'         => array(),
+            'virtual'            => false,
+            'compound'           => true,
+            'translation_domain' => null,
+        ));
+
+        $resolver->setAllowedTypes(array(
+            'attr'       => 'array',
+            'label_attr' => 'array',
+        ));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createBuilder($name, FormFactoryInterface $factory, array $options)
-    {
-        return new FormBuilder($name, $factory, new EventDispatcher(), $options['data_class']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getParent(array $options)
+    public function getParent()
     {
         return null;
     }
@@ -246,10 +232,5 @@ class FormType extends AbstractType
     public function getName()
     {
         return 'form';
-    }
-
-    private function humanize($text)
-    {
-        return ucfirst(trim(strtolower(preg_replace('/[_\s]+/', ' ', $text))));
     }
 }

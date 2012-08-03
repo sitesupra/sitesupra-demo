@@ -538,13 +538,13 @@ class OptionsResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->resolver->isRequired('foo'));
     }
 
-    public function testFiltersTransformFinalOptions()
+    public function testNormalizersTransformFinalOptions()
     {
         $this->resolver->setDefaults(array(
             'foo' => 'bar',
             'bam' => 'baz',
         ));
-        $this->resolver->setFilters(array(
+        $this->resolver->setNormalizers(array(
             'foo' => function (Options $options, $value) {
                 return $options['bam'] . '[' . $value . ']';
             },
@@ -611,5 +611,26 @@ class OptionsResolverTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($options, $this->resolver->resolve($options));
+    }
+
+    public function testClone()
+    {
+        $this->resolver->setDefaults(array('one' => '1'));
+
+        $clone = clone $this->resolver;
+
+        // Changes after cloning don't affect each other
+        $this->resolver->setDefaults(array('two' => '2'));
+        $clone->setDefaults(array('three' => '3'));
+
+        $this->assertEquals(array(
+            'one' => '1',
+            'two' => '2',
+        ), $this->resolver->resolve());
+
+        $this->assertEquals(array(
+            'one' => '1',
+            'three' => '3',
+        ), $clone->resolve());
     }
 }

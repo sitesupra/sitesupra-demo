@@ -17,7 +17,7 @@ use Symfony\Component\Form\Exception\UnexpectedTypeException;
 /**
  * Transforms between a date string and a DateTime object
  *
- * @author Bernhard Schussek <bernhard.schussek@symfony.com>
+ * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Florian Eckerstorfer <florian@eckerstorfer.org>
  */
 class DateTimeToStringTransformer extends BaseDateTimeTransformer
@@ -48,7 +48,7 @@ class DateTimeToStringTransformer extends BaseDateTimeTransformer
      *
      * @param DateTime $value A DateTime object
      *
-     * @return string           A value as produced by PHP's date() function
+     * @return string A value as produced by PHP's date() function
      *
      * @throws UnexpectedTypeException if the given value is not a \DateTime instance
      * @throws TransformationFailedException if the output timezone is not supported
@@ -96,6 +96,10 @@ class DateTimeToStringTransformer extends BaseDateTimeTransformer
 
         try {
             $dateTime = new \DateTime($value, new \DateTimeZone($this->outputTimezone));
+            $lastErrors = \DateTime::getLastErrors();
+            if (0 < $lastErrors['warning_count'] || 0 < $lastErrors['error_count']) {
+                throw new \UnexpectedValueException(implode(', ', array_merge(array_values($lastErrors['warnings']), array_values($lastErrors['errors']))));
+            }
 
             // Force value to be in same format as given to transform
             if ($value !== $dateTime->format($this->format)) {

@@ -18,7 +18,7 @@ namespace Symfony\Component\Form\Guess;
  * Thus an instance with confidence HIGH_CONFIDENCE is more likely to be
  * correct than an instance with confidence LOW_CONFIDENCE.
  *
- * @author Bernhard Schussek <bernhard.schussek@symfony.com>
+ * @author Bernhard Schussek <bschussek@gmail.com>
  */
 abstract class Guess
 {
@@ -75,9 +75,9 @@ abstract class Guess
      *
      * @param array $guesses A list of guesses
      *
-     * @return Guess  The guess with the highest confidence
+     * @return Guess The guess with the highest confidence
      */
-    static public function getBestGuess(array $guesses)
+    public static function getBestGuess(array $guesses)
     {
         usort($guesses, function ($a, $b) {
             return $b->getConfidence() - $a->getConfidence();
@@ -103,8 +103,8 @@ abstract class Guess
     /**
      * Returns the confidence that the guessed value is correct
      *
-     * @return integer  One of the constants VERY_HIGH_CONFIDENCE,
-     *                  HIGH_CONFIDENCE, MEDIUM_CONFIDENCE and LOW_CONFIDENCE
+     * @return integer One of the constants VERY_HIGH_CONFIDENCE,
+     *                 HIGH_CONFIDENCE, MEDIUM_CONFIDENCE and LOW_CONFIDENCE
      */
     public function getConfidence()
     {

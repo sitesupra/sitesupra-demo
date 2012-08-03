@@ -13,45 +13,19 @@ namespace Symfony\Component\Form\Tests\Fixtures;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class FooType extends AbstractType
 {
-    public function buildForm(FormBuilder $builder, array $options)
-    {
-        $builder->setAttribute('foo', 'x');
-        $builder->setAttribute('data_option', $options['data']);
-    }
-
     public function getName()
     {
         return 'foo';
     }
 
-    public function createBuilder($name, FormFactoryInterface $factory, array $options)
-    {
-        return new FormBuilder($name, $factory, new EventDispatcher());
-    }
-
-    public function getDefaultOptions()
-    {
-        return array(
-            'data' => null,
-            'required' => false,
-            'max_length' => null,
-            'a_or_b' => 'a',
-        );
-    }
-
-    public function getAllowedOptionValues()
-    {
-        return array(
-            'a_or_b' => array('a', 'b'),
-        );
-    }
-
-    public function getParent(array $options)
+    public function getParent()
     {
         return null;
     }
