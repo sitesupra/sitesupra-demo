@@ -741,8 +741,8 @@ YUI().add("supra.imageresizer", function (Y) {
 			containerNode.setAttribute("contentEditable", "false");
 			containerNode.addClass("supra-image-editing");
 			
-			this.imageWidth = image.get("width");
-			this.imageHeight = image.get("height");
+			this.imageWidth = image.get("offsetWidth");
+			this.imageHeight = image.get("offsetHeight");
 			this.cropWidth = width;
 			this.cropHeight = height;
 			this.cropLeft = - parseInt(image.getStyle("marginLeft"), 10) || 0;

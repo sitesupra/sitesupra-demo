@@ -480,8 +480,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			}
 			
 			action.execute(form, {
-				"doneCallback": Y.bind(this.settingsFormApply, this),
-				
+				"hideCallback": Y.bind(this.settingsFormApply, this),
 				"title": Supra.Intl.get(["htmleditor", "image_properties"]),
 				"scrollable": true
 			});
@@ -540,9 +539,11 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 */
 		editImage: function () {
 			var image = this.selected_image,
+				ancestor = null,
 				data  = this.original_data,
 				size = null,
-				resizer = this.resizer;
+				resizer = this.resizer,
+				max_crop_width = 0;
 			
 			if (image) {
 				size = this.getImageDataBySize(data.image, "original");
@@ -552,6 +553,12 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					resizer.on("resize", this.onEditImageResize, this);
 				}
 				
+				//Find content width
+				ancestor = image.ancestor();
+				if (ancestor.test(".supra-image")) ancestor = ancestor.ancestor();
+				max_crop_width = Math.min(size.width, ancestor.get("offsetWidth"));
+				
+				resizer.set("maxCropWidth", max_crop_width);
 				resizer.set("maxImageHeight", size.height);
 				resizer.set("maxImageWidth", size.width);
 				resizer.set("image", image);
@@ -676,7 +683,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="left: -' + data.crop_left + 'px; top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
+					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
 					htmleditor.setData(uid, data);
 				}
 				
@@ -732,7 +739,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				"crop_height": size_data.height
 			});
 			
-			img = Y.Node.create('<span class="supra-image align-' + data.align + '" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="left: -' + data.crop_left + 'px; top: -' + data.crop_top + 'px;" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" class="align-' + data.align + '" />');
+			img = Y.Node.create('<span class="supra-image align-' + data.align + '" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" class="align-' + data.align + '" />');
 			
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
@@ -816,6 +823,9 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			var mediasidebar = Manager.getAction("MediaSidebar"),
 				toolbar = htmleditor.get("toolbar"),
 				button = toolbar ? toolbar.getButton("insertimage") : null;
+			
+			// When HTML changes make sure images has wrapper elements
+			htmleditor.on("afterSetHTML", this.afterSetHTML, this);
 			
 			// Add command
 			htmleditor.addCommand("insertimage", Y.bind(this.toggleMediaSidebar, this));
@@ -951,6 +961,25 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		},
 		
 		/**
+		 * Unclean HTML, add wrapper node around it
+		 */
+		afterSetHTML: function (event) {
+			var htmleditor = this.htmleditor,
+				node = htmleditor.get("srcNode"),
+				images = node.all("img"),
+				i = 0,
+				ii = images.size(),
+				data = null;
+			
+			for (; i<ii; i++) {
+				data = htmleditor.getData(images.item(i));
+				if (data && data.type == "image") {
+					this.getImageWrapperNode(images.item(i));
+				}
+			}
+		},
+		
+		/**
 		 * Clean up after plugin
 		 * Called when editor instance is destroyed
 		 */
@@ -1036,7 +1065,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 
 					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));					
 					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
-					var html = '<span class="supra-image align-' + classname + '" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="left: -' + item.crop_left + 'px; top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
+					var html = '<span class="supra-image align-' + classname + '" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
 
 					if (item.type == 'lightbox') {
 						//For lightbox add link around image

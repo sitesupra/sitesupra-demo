@@ -148,13 +148,19 @@ YUI.add('supra.iframe-handler', function (Y) {
 				return null;
 			}
 			
-			var doc = this.get('doc');
-			var link = doc.createElement('link');
+			var doc = this.get('doc'),
+				head = doc.getElementsByTagName('HEAD')[0],
+				link = doc.createElement('link');
 				link.rel = "stylesheet";
 				link.type = "text/css";
 				link.href = href;
 			
-			doc.getElementsByTagName('HEAD')[0].appendChild(link);
+			if (head.childNodes.length) {
+				head.insertBefore(link, head.childNodes[0]);
+			} else {
+				head.appendChild(link);
+			}
+			
 			return link;
 		},
 		

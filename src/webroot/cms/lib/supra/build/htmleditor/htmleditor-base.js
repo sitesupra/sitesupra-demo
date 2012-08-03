@@ -218,6 +218,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			//Fire "nodeChange" event
 			this.selection = null;
 			this.refresh();
+			
+			//Fire event
+			this.fire('afterSetHTML');
 		},
 		
 		/**
