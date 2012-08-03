@@ -1,5 +1,5 @@
 {% macro menu_block(title, links) %}
-<li>
+<li class="one_third">
 	<div class="text">
 		<h2>{{ title }}</h2>
 		{% if links %}
@@ -16,7 +16,7 @@
 </li>
 {% endmacro %}
 
-<ul>
+<ul class="clearfix">
 	{{ _self.menu_block(title1, items1) }}
 	{{ _self.menu_block(title2, items2) }}
 	{{ _self.menu_block(title3, items3) }}
