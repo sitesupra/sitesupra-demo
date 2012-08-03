@@ -10,3 +10,9 @@
          editable: Supra\Editable\Link
          label: Menu Root
          shared: false
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+         name: menuLabel
+         editable: Supra\Editable\String
+         label: Menu Label
+         shared: false
+         default: Menu
