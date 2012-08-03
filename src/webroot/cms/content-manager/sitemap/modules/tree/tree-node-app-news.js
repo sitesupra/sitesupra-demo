@@ -48,27 +48,6 @@ YUI().add('website.sitemap-tree-node-app-news', function (Y) {
 			this.children().forEach(function (node) {
 				node.set('droppablePlaces', {'inside': true, 'before': false, 'after': false});
 			});
-		},
-		
-		/**
-		 * Instead of expanding children show news list popup
-		 * 
-		 * @private
-		 */
-		'_setExpandedExpand': function () {
-			var returnValue = Node.superclass._setExpandedExpand.apply(this, arguments);
-			
-			var children = this.children(),
-				i = 0,
-				size = children.length;
-			
-			for(; i<size; i++) {
-				if (children[i].isInstanceOf('TreeNodeList')) {
-					children[i].expand(); break;
-				}
-			}
-			
-			return returnValue;
 		}
 	});
 	

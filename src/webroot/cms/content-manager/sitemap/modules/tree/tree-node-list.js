@@ -349,10 +349,13 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 		 */
 		'filter': function () {
 			var filter = this._widgets.filter,
-				datagrid = this._widgets.datagrid;
+				datagrid = this._widgets.datagrid,
+				query = filter.getInput('filterQuery').get('value');
 			
-			datagrid.requestParams.set('query', filter.getInput('filterQuery').get('value'));
-			datagrid.reset();
+			if (datagrid.requestParams.get('query') != query) {
+				datagrid.requestParams.set('query', query);
+				datagrid.reset();
+			}
 			
 			//Cancel timer
 			if (this.filterTimer) {

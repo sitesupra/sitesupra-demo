@@ -129,7 +129,9 @@ YUI().add('website.sitemap-new-page', function (Y) {
 			if (this.get('expanded') == value) return !!value;
 			
 			var boundingBox = this.get('boundingBox'),
-				anim = this._anim;
+				anim = this._anim,
+				count = this._application_count,
+				height = Math.min(80 + 80 * count, 470);
 			
 			if (value) {
 				//Slide down
