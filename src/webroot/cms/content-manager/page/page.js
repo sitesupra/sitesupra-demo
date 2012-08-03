@@ -157,6 +157,14 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Reload page data and content
+		 */
+		reloadPage: function () {
+			//Reload page data
+			this.loadPage(this.data.id);
+		},
+		
+		/**
 		 * Load page data
 		 * 
 		 * @param {Number} page_id
@@ -371,7 +379,7 @@ Supra(function (Y) {
 			this.onUnlockPage();
 			
 			//Reload page data
-			this.loadPage(this.data.id);
+			this.reloadPage();
 			
 			//Show notification
 			Supra.Manager.executeAction('Notification', Supra.Intl.get(['page', 'publish_notification']));
