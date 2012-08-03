@@ -204,6 +204,9 @@ YUI.add("supra.page-content-ordering", function (Y) {
 	        var proxy = e.target.get("dragNode");
 			proxy.addClass(CLASSNAME_PROXY);
 			
+			//Move to the body to prevent overflow: hidden from hiding it
+			this.get("host").get("body").append(proxy);
+			
 			//Add classname to item which is dragged (not proxy)
 			//to mark item which is dragged
 			var overlay = e.target.get("node"),
