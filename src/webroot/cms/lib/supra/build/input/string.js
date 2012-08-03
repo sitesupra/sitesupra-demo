@@ -6,6 +6,8 @@ YUI.add('supra.input-string', function (Y) {
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
+		
+		this._last_value = '';
 	}
 	
 	Input.NAME = 'input-string';
@@ -56,6 +58,13 @@ YUI.add('supra.input-string', function (Y) {
 		KEY_RETURN_ALLOW: true,
 		KEY_ESCAPE_ALLOW: true,
 		
+		/**
+		 * Last known value, used to restore input value if new value doesn't
+		 * pass mask validation
+		 * @type {String}
+		 * @private
+		 */
+		_last_value: null,
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
@@ -159,7 +168,12 @@ YUI.add('supra.input-string', function (Y) {
 				mask = this.get('valueMask');
 			
 			if (mask) {
-				if (!mask.test(value)) return e.preventDefault();
+				if (value && !mask.test(value)) {
+					//It's not possible to prevent input event, so we set previous value
+					this.set('value', this._last_value);
+				} else {
+					this._last_value = value;
+				}
 			}
 			
 			this.fire('input', {'value': value});
@@ -249,6 +263,7 @@ YUI.add('supra.input-string', function (Y) {
 				node.set('innerHTML', Y.Escape.html(value) || '&nbsp;');
 			}
 			
+			this._last_value = value;
 			this._original_value = value;
 			return value;
 		},
