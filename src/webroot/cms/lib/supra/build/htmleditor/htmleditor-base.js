@@ -202,7 +202,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			
 			//Replace with <p></p> if empty
 			if (!Y.UA.ie && this.get('mode') == Supra.HTMLEditor.MODE_RICH) {
-				if (!html) html = '<p>&nbsp;</p>';
+				if (!html) html = '<p></p>';
 			}
 			
 			//Set HTML

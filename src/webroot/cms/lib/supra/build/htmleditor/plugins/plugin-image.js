@@ -364,6 +364,8 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				//Wrap image in <span class="supra-image">
 				ancestor = Y.Node(this.htmleditor.get("doc").createElement("SPAN"));
 				ancestor.addClass("supra-image");
+				ancestor.setAttribute("contenteditable", false);
+				ancestor.setAttribute("unselectable", "on");
 				
 				var data = this.getImageDataFromNode(image);
 				
@@ -683,7 +685,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
+					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
 					htmleditor.setData(uid, data);
 				}
 				
@@ -739,7 +741,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				"crop_height": size_data.height
 			});
 			
-			img = Y.Node.create('<span class="supra-image align-' + data.align + '" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" class="align-' + data.align + '" />');
+			img = Y.Node.create('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" class="align-' + data.align + '" />');
 			
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
@@ -1065,7 +1067,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 
 					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));					
 					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
-					var html = '<span class="supra-image align-' + classname + '" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
+					var html = '<span class="supra-image align-' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
 
 					if (item.type == 'lightbox') {
 						//For lightbox add link around image

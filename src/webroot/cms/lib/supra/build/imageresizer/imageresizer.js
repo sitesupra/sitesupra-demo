@@ -786,7 +786,6 @@ YUI().add("supra.imageresizer", function (Y) {
 				containerNode = imageContainerNode.ancestor();
 			
 			image.removeAttribute("unselectable");
-			containerNode.removeAttribute("contentEditable");
 			containerNode.append(image);
 			containerNode.removeClass("supra-image-editing");
 			containerNode.setStyles({
