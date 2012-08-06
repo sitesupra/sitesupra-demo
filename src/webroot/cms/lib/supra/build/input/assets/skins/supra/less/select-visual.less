@@ -180,6 +180,58 @@
 	}
 }
 
+/*
+ * Medium height
+ */
+.yui3-input-select-visual-mid {
+	
+	.su-button {
+		&, .su-button-content, button {
+			background-image: url(input-select-visual-background-mid.png);
+			height: 90px;
+		}
+		
+		& {
+			background-position: 0 -90px;
+		}
+		button {
+			background-position: 100% -180px;
+		}
+		
+		&.su-button-mouse-hover {
+			background-position: 0 -360px;
+			
+			.su-button-content {
+				background-position: 0 -270px;
+			}
+			button {
+				background-position: 100% -450px;
+			}
+		}
+		
+		&.su-button-down {
+			background-position: 0 -630px;
+			
+			.su-button-content {
+				background-position: 0 -540px;
+			}
+			button {
+				background-position: 100% -720px;
+			}
+		}
+		
+		.su-button-bg {
+			top: 11px;
+			height: 58px;
+			.box-sizing (border-box);
+			
+			div {
+				height: 52px;
+			}
+		}
+	}
+}
+
 /**
  * Background styles
  */

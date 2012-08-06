@@ -25,7 +25,7 @@ YUI.add('supra.input-select-visual', function (Y) {
 		
 		/**
 		 * Style:
-		 * "" or "no-labels"
+		 * "" or "no-labels", "mid"
 		 */
 		'style': {
 			value: '',
@@ -34,7 +34,7 @@ YUI.add('supra.input-select-visual', function (Y) {
 		
 		/**
 		 * Icon image style:
-		 * "center", "fill" or "button"
+		 * "center", "fill" or "button", "html"
 		 */
 		'iconStyle': {
 			value: 'center',
@@ -53,6 +53,17 @@ YUI.add('supra.input-select-visual', function (Y) {
 		 * Loading icon
 		 */
 		'nodeLoading': {
+			value: null
+		},
+		
+		/**
+		 * Additional CSS if icon style is HTML
+		 */
+		"css": {
+			value: null,
+			setter: '_setCSS'
+		},
+		"cssNode": {
 			value: null
 		}
 	};
@@ -90,6 +101,10 @@ YUI.add('supra.input-select-visual', function (Y) {
 			if (this.get('iconStyle')) {
 				classname = Y.ClassNameManager.getClassName(Input.NAME, this.get('iconStyle'));
 				boundingBox.addClass(classname);
+				
+				if (this.get('iconStyle') == 'html') {
+					this.set('css', this.get('css'));
+				}
 			}
 		},
 		
@@ -144,7 +159,11 @@ YUI.add('supra.input-select-visual', function (Y) {
 		 * @private
 		 */
 		getButtonLabelTemplate: function (definition) {
-			return '<div class="su-button-bg"><div style="' + this.getButtonBackgroundStyle(definition) + '"></div><p></p></div>';
+			if (this.get('iconStyle') == 'html') {
+				return '<div class="su-button-bg"><div style="' + this.getButtonBackgroundStyle(definition) + '">' + (definition.html || '') + '</div><p></p></div>';
+			} else {
+				return '<div class="su-button-bg"><div style="' + this.getButtonBackgroundStyle(definition) + '"></div><p></p></div>';
+			}
 		},
 		
 		/**
@@ -267,6 +286,43 @@ YUI.add('supra.input-select-visual', function (Y) {
 			this.set('disabled', loading);
 			return loading;
 		},
+		
+		/**
+		 * CSS attribute setter
+		 * 
+		 * @param {String} css CSS styles
+		 * @return New value
+		 * @type {String}
+		 * @private
+		 */
+		_setCSS: function (css) {
+			var box = this.get('boundingBox'),
+				node = this.get('cssNode'),
+				id = null;
+			
+			if (css && this.get('iconStyle') == 'html') {
+				id = this.get('id');
+				
+				//Prepend styles with ID
+				css = css.replace(/[^\{\}]+[\{]/g, function (match) {
+					match = match.split(',');
+					return '#' + id + ' ' + match.join(', #' + id + ' ');
+				});
+				
+				if (!node) {
+					node = Y.Node.create('<style></style>');
+				}
+				
+				node.getDOMNode().innerText = css;
+				box.append(node);
+				this.set('cssNode', node);
+				
+				//We want to set only once
+				return '';
+			}
+			
+			return css;
+		}
 		
 	});
 	
