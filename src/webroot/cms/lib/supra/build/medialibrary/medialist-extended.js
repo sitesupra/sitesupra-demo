@@ -307,7 +307,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 							'prevParent': parent
 						});
 					} else {
-						if (previous_parent && !data_object.getData(previous_parent).children.length) {
+						if (previous_parent && previous_parent !== '0' && !data_object.getData(previous_parent).children.length) {
 							//If previous parent is now empty render empty template
 							var temp = this.renderTemplate({'id': previous_parent}, this.get('templateEmpty'));
 							temp.setData('itemId', parent);

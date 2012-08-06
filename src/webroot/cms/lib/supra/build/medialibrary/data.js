@@ -408,12 +408,12 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			}
 			
 			//Add item to the root data?
-			if (!parent) {
+			if (!parent || parent === '0') {
 				data.push(item);
 			}
 			
 			//Remove from previous parent children list
-			if (prev && indexed[prev].children) {
+			if (prev && prev !== '0' && indexed[prev].children) {
 				var index = Y.Array.indexOf(indexed[prev].children, id);
 				if (index != -1) {
 					indexed[prev].children.splice(index, 1);
@@ -422,7 +422,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			}
 			
 			//Add to parent data if children are loaded
-			if (parent && indexed[parent].children) {
+			if (parent && parent !== '0' && indexed[parent].children) {
 				indexed[parent].children.push(id);
 				indexed[parent].children_count += 1;
 			}
