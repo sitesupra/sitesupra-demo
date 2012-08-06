@@ -255,8 +255,10 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					
 					//Show buttons
 					if (toolbar.hasActionButtons(this.host.NAME)) {
-						toolbar.setActiveAction(this.host.NAME);
-						buttons.setActiveAction(this.host.NAME);
+						if (this.host.PLUGIN_LAYOUT_SIDEBAR_MANAGE_BUTTONS !== false) {
+							toolbar.setActiveAction(this.host.NAME);
+							buttons.setActiveAction(this.host.NAME);
+						}
 					}
 					
 					//Event
@@ -265,8 +267,10 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					if (!this.host.get('frozen')) {
 						//Hide buttons
 						if (toolbar.hasActionButtons(this.host.NAME)) {
-							toolbar.unsetActiveAction(this.host.NAME);
-							buttons.unsetActiveAction(this.host.NAME);
+							if (this.host.PLUGIN_LAYOUT_SIDEBAR_MANAGE_BUTTONS !== false) {
+								toolbar.unsetActiveAction(this.host.NAME);
+								buttons.unsetActiveAction(this.host.NAME);
+							}
 						}
 					}
 					

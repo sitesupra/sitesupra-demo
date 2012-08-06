@@ -37,6 +37,8 @@ Supra(function (Y) {
 		// Layout container action NAME
 		LAYOUT_CONTAINER: 'LayoutRightContainer',
 		
+		// Prevent PluginLayoutSidebar from managing toolbar buttons, we will do it manually
+		PLUGIN_LAYOUT_SIDEBAR_MANAGE_BUTTONS: false,
 		
 		
 		
