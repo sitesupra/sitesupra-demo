@@ -417,7 +417,12 @@
 			
 			"click_here": "Click here to enter {label}",
 			"click_here_edit": "Click here to edit",
-			"drop_replace": "Drop here to replace image"
+			"drop_replace": "Drop here to replace image",
+			
+			"empty": "You have no images<br />in the slideshow yet",
+			"drag_and_drop": "Drag and drop<br />folder or files here",
+			"add_image": "Add image",
+			"just_drag_and_drop": "or just drag-and-drop file here"
 		},
 		
 		"linkmanager": {

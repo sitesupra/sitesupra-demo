@@ -204,8 +204,19 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			list.delegate('dragenter', this.listItemDragEnter, 'span.img b', this);
 			list.delegate('dragleave', this.listItemDragLeave, 'span.img b', this);
 			
-			var marker = this.listItemDropMarker = Y.Node.create('<li class="gallery-marker"><div></div></li>');
-			list.append(marker);
+			//Marker
+			var marker = this.listItemDropMarker = list.one('li.gallery-marker');
+			marker.on('mousedown', function (e) {
+				this.addClass('mousedown');
+				e.halt();
+			});
+			marker.on('mouseup', function () {
+				this.removeClass('mousedown');
+			});
+			marker.on('mouseout', function () {
+				this.removeClass('mousedown');
+			});
+			marker.on('click', this.openMediaLibrary, this);
 			
 			this.bindDragDrop();
 		},
@@ -504,6 +515,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			});
 			
 			del.dd.addInvalid('P'); // P is used in inline editables
+			del.dd.addInvalid('.gallery-marker'); // Marker
 
 			del.on('drag:drag', fnDragDrag);
 			del.on('drag:start', fnDragStart);
@@ -761,9 +773,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		listDragLeave: function (e) {
 			if (this.shared) return;
 			
-			if (this.listDragOver) {
+			if (this.listDragOver && this.listDragOver != 'none') {
 				//Left some element
-				this.listDragOver = null;
+				this.listDragOver = 'none';
 			} else {
 				//Actually left list
 				this.list.removeClass('gallery-over');
@@ -911,9 +923,14 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		openMediaLibrary: function () {
 			if (this.shared) return;
 			
+			this.list.addClass('mediasidebar-opened');
+			
 			Manager.getAction('MediaSidebar').execute({
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
+				}, this),
+				'onclose': Y.bind(function () {
+					this.list.removeClass('mediasidebar-opened');
 				}, this)
 			});
 			
@@ -1004,6 +1021,11 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 					this.data.images.splice(i,1);
 					this.settingsFormCancel();
 					this.scrollable.syncUI();
+					
+					if (!this.data.images.length) {
+						this.list.addClass('list-empty');
+					}
+					
 					return true;
 				}
 			}
@@ -1133,6 +1155,10 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			
 			this.dragDelegate.syncTargets();
 			this.scrollable.syncUI();
+			
+			//Move marker to the end of the list
+			this.list.append(this.listItemDropMarker);
+			this.list.removeClass('list-empty');
 			
 			return true;
 		},
