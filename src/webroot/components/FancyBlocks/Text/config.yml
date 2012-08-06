@@ -18,10 +18,12 @@
           id: layout
           type: top
           label: Layout
+          icon: /cms/lib/supra/img/toolbar/icon-layout.png
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: design
           type: top
           label: Design
+          icon: /cms/lib/supra/img/toolbar/icon-design.png
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: content

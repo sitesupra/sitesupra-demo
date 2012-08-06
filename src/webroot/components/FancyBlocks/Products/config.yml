@@ -15,12 +15,12 @@
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: design
           type: top
-          icon: icons/group-design.png
+          icon: /cms/lib/supra/img/toolbar/icon-design.png
           label: Design
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: navigation
           type: top
-          icon: icons/group-navigation.png
+          icon: /cms/lib/supra/img/toolbar/icon-navigation.png
           label: Navigation
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:

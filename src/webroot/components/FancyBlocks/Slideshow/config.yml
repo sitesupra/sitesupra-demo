@@ -16,12 +16,12 @@
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: design
           type: top
-          icon: icons/group-design.png
+          icon: /cms/lib/supra/img/toolbar/icon-design.png
           label: Design
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: animation
           type: top
-          icon: icons/group-animation.png
+          icon: /cms/lib/supra/img/toolbar/icon-animation.png
           label: Animation
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
