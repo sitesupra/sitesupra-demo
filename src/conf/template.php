@@ -7,8 +7,12 @@ $twig = new Supra\Template\Parser\Twig\Twig($loader, array(
 //	'strict_variables' => true,
 		));
 
-$twig->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension(null, array('lib/Supra/Form/view/form_supra.html.twig')));
-//$twig->addExtension(new \Supra\Template\Parser\Twig\Extension\TranslationExtension());
+
+$renderEngine = new \Symfony\Bridge\Twig\Form\TwigRendererEngine(array('lib/Supra/Form/view/form_supra.html.twig'));
+$renderEngine->setEnvironment($twig);
+$renderer = new Symfony\Bridge\Twig\Form\TwigRenderer($renderEngine);
+$renderer->setEnvironment($twig);
+$twig->addExtension(new \Symfony\Bridge\Twig\Extension\FormExtension($renderer));
 $twig->addExtension(
 		new Symfony\Bridge\Twig\Extension\TranslationExtension(
 				new Symfony\Component\Translation\IdentityTranslator(
