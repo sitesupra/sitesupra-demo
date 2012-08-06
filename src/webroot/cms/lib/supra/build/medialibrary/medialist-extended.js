@@ -27,7 +27,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
-	Extended.NAME = 'medialist';
+	Extended.NAME = 'medialist-extended';
 	Extended.CLASS_NAME = Y.ClassNameManager.getClassName(Extended.NAME);
 	
 	/**
@@ -150,14 +150,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		'slideshowClass': {
 			'value': Supra.SlideshowMultiView
-		},
-		
-		/**
-		 * Sorting
-		 * @type {String}
-		 */
-		'sortBy': {
-			value: 'filename'
 		},
 		
 		/**
@@ -464,9 +456,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			//On item render set up form
 			this.on('itemRender', this.handleItemRender, this);
 			
-			//On sort change redraw lists
-			this.after('sortByChange', this.handleSortingChange, this);
-			
 			Extended.superclass.bindUI.apply(this, arguments);
 		},
 		
@@ -477,74 +466,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		syncUI: function () {
 			Extended.superclass.syncUI.apply(this, arguments);
-		},
-		
-		/**
-		 * Sort or filter data
-		 * 
-		 * @param {Array} data
-		 * @return Sorted and filtered data
-		 * @type {Array}
-		 * @private
-		 */
-		sortData: function (data) {
-			var sort_by = this.get('sortBy');
-			
-			//Duplicate
-			data = [].concat(data);
-			
-			//Sort
-			data.sort(function (a, b) {
-				//Folder always first
-				if (a.type != b.type && (a.type == Data.TYPE_FOLDER || b.type == Data.TYPE_FOLDER)) {
-					return a.type < b.type ? -1 : 1;
-				}
-				
-				var val_a = a[sort_by],
-					val_b = b[sort_by];
-				
-				if (typeof val_a == 'string') val_a = val_a.toLowerCase();
-				if (typeof val_b == 'string') val_b = val_b.toLowerCase();
-				
-				return val_a < val_b ? -1 : 1;
-			});
-			
-			return data;
-		},
-		
-		/**
-		 * Change sorting
-		 * @param {Object} value
-		 */
-		handleSortingChange: function (evt) {
-			if (evt.newVal == evt.oldVal) return;
-			
-			var value = evt.newVal,
-				item = this.getSelectedItem(),
-				root_folder_id = this.get('rootFolderId'),
-				path = null,
-				slides = this.slideshow.slides;
-			
-			if (item) {
-				path = item.path.slice(1);
-				path.push(item.id);
-			} else {
-				path = [root_folder_id];
-			}
-			
-			this.set('noAnimations', true);
-			this.open(root_folder_id);
-			
-			for(var id in slides) {
-				if (id != 'slide_' + root_folder_id) {
-					this.slideshow.removeSlide(id);
-				}
-			}
-			
-			//Render items
-			this.renderItem(root_folder_id);
-			this.open(path);
-			this.set('noAnimations', false);
 		},
 		
 		/**
