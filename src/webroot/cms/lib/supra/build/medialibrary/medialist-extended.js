@@ -124,8 +124,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	 * @type {String}
 	 */
 	Extended.TEMPLATE_FOLDER_ITEM_TEMP = Template.compile('\
-		<li class="type-temp" data-id="{{ id }}">\
+		<li class="type-temp' + (FILE_API_SUPPORTED ? '' : ' type-temp-legacy') + '" data-id="{{ id }}">\
 			<span class="title">{{ filename|escape }}</span>\
+			<a class="cancel"></a>\
 			<span class="progress"><em></em></span>\
 		</li>');
 	

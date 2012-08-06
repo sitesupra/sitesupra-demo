@@ -413,7 +413,8 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				io = null,
 				uri = this.get('requestUri'),
 				file_id = null,
-				file = null;
+				file = null,
+				node = null;
 			
 			for(var i=0,ii=files.length; i<ii; i++) {
 				//If only images are displayed, then only images can be uploaded. Same with files
@@ -423,12 +424,14 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				file = files.item(i);
 				file_id = this.get('host').addFile(folder, {'title': file.fileName || file.name});
 				
+				node = this.get('host').getItemNode(file_id);
+				
 				//Event data will be passed to 'load' and 'progress' event listeners
 				event_data = {
 					'folder': folder,
 					'file_id': file_id,
 					'file_name': file.fileName || file.name,
-					'node': this.get('host').getItemNode(file_id)
+					'node': node
 				};
 				
 				io = new IO({
@@ -437,6 +440,9 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 					'data': data,
 					'eventData': event_data
 				});
+				
+				//Abort upload on X click
+				node.one('.cancel').on('click', io.abort, io);
 				
 				//Add event listeners
 				io.on('load', this.onFileComplete, this);
@@ -600,6 +606,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		
 		/**
 		 * On file upload complete change temporary item into real item
+		 * This is called also if file upload failed
 		 * 
 		 * @param {Event} evt
 		 * @private

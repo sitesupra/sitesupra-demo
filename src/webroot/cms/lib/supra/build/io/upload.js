@@ -95,6 +95,7 @@ YUI.add('supra.io-upload', function (Y) {
 		abort: function () {
 			if (this.xhr) {
 				this.fire('abort');
+				this.fire('load', Supra.mix({'data': null}, this.get('eventData') || {}));
 				this.xhr.abort();
 				this.destroy();
 			} else {
