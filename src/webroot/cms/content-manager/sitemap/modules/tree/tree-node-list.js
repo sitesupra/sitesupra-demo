@@ -71,6 +71,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 		'renderUI': function () {
 			Node.superclass.renderUI.apply(this, arguments);
 			
+			this.set('expandable', true); // always
 			this.get('boundingBox').addClass(this.getClassName('list'));
 		},
 		
