@@ -172,11 +172,9 @@ class BlockControllerConfiguration extends ComponentConfiguration
 				$values = array();
 
 				foreach ($property->values as $value) {
-					if (empty($value['icon'])) {
-						continue;
+					if ( ! empty($value['icon'])) {
+						$value['icon'] = $this->getIconWebPath($value['icon']);
 					}
-
-					$value['icon'] = $this->getIconWebPath($value['icon']);
 
 					$values[] = $value;
 				}
