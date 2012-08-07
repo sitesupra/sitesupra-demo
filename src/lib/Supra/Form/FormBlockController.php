@@ -32,8 +32,18 @@ abstract class FormBlockController extends BlockController
 
 		$this->bindedForm = $this->createForm();
 		$name = $this->getBlock()->getId();
-		
-		if ($request->getPost()->hasChild($name)) {
+
+		$conf = $this->getConfiguration();
+
+		if (empty($conf->method) || strcasecmp($conf->method, 'get') == 0) {
+			$input = $request->getQuery();
+		} elseif (strcasecmp($conf->method, 'post') == 0) {
+			$input = $request->getPost();
+		} else {
+			throw new \Supra\Configuration\Exception\InvalidConfiguration("Bad method '$conf->method' received in form configuration");
+		}
+
+		if ($input->hasChild($name)) {
 
 			// TODO: make it somehow better...
 			$symfonyRequest = new Request(
