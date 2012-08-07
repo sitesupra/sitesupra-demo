@@ -38,11 +38,10 @@ require_once __DIR__ . '/cli-config.php';
 
 $cli = \Supra\Console\Application::getInstance();
 $cli->setCatchExceptions(true);
-//$cli->setHelperSet($helperSet);
+$cli->setHelperSet($helperSet);
 
 $cli->addCommandClasses($cliCommandClasses);
 
-$cli->setHelperSet($helperSet);
 $cli->setCatchExceptions(false);
 
 if (file_exists(SUPRA_CONF_PATH . 'cli.php')) {

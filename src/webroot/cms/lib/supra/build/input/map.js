@@ -52,13 +52,13 @@ YUI.add('supra.input-map', function (Y) {
 		},
 		
 		ready: function () {
-			var listeners = this.listeners,
+			var listeners = MapManager.listeners,
 				i = 0,
 				ii = listeners.length;
 			
-			this.listeners = [];
-			this.loading = false;
-			this.loaded = true;
+			MapManager.listeners = [];
+			MapManager.loading = false;
+			MapManager.loaded = true;
 			
 			for(; i<ii; i++) {
 				listeners[i].fn.call(listeners[i].obj);

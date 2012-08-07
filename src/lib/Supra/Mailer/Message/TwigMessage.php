@@ -75,7 +75,7 @@ class TwigMessage extends SimpleMessage
 			return;
 		}
 		
-		$loader = new FilesystemLoaderByContext($this->context);
+		$loader = new FilesystemLoaderByContext($this->context, $this->twig->getLoader());
 		$body = $this->twig->parseTemplate($template, $vars, $loader);
 		
 		parent::setBody($body, $contentType, $charset);

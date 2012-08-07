@@ -220,7 +220,25 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			//Since toolbar is created by single instance of gallery
 			//keyword "this" may have incorrect reference
 			var self = Manager.PageContent.getContent().get('activeChild'),
-				shared = self.properties.isPropertyShared('images');
+				shared = self.properties.isPropertyShared('images'),
+				imageProperties = self.getImageProperties();
+				
+			if ( ! imageProperties.length && shared) {
+				var localeId = self.properties._shared_properties.images.locale,
+					locale = Supra.data.getLocale(localeId),
+					localeTitle = locale ? locale.title : localeId;
+
+				Supra.Manager.executeAction('Confirmation', {
+					'message': Supra.Intl.get(['form', 'shared_gallery_unavailable']).replace('{{ localeTitle }}', localeTitle),
+					'useMask': true,
+					'buttons': [{
+						'id': 'ok', 
+						'label': 'Ok'
+					}]
+				});
+				
+				return;
+			}
 			
 			// if gallery is based on shared properties, then we will output a notice about that
 			if (force !== true && shared) {

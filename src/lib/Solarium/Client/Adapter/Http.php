@@ -134,7 +134,7 @@ class Solarium_Client_Adapter_Http extends Solarium_Client_Adapter
     protected function _getData($uri, $context)
     {
         // @codeCoverageIgnoreStart
-        $data = @file_get_contents($uri, false, $context);
+        $data = file_get_contents($uri, false, $context);
 
         if (isset($http_response_header)) {
             $headers = $http_response_header;

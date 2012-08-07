@@ -15,7 +15,10 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * Encapsulates the logic needed to create sub-requests, redirect the user, and match URLs.
@@ -24,16 +27,19 @@ use Symfony\Component\Routing\RouterInterface;
  */
 class HttpUtils
 {
-    private $router;
+    private $urlGenerator;
+    private $urlMatcher;
 
     /**
      * Constructor.
      *
-     * @param RouterInterface $router An RouterInterface instance
+     * @param UrlGeneratorInterface $urlGenerator A UrlGeneratorInterface instance
+     * @param UrlMatcherInterface   $urlMatcher   A UrlMatcherInterface instance
      */
-    public function __construct(RouterInterface $router = null)
+    public function __construct(UrlGeneratorInterface $urlGenerator = null, UrlMatcherInterface $urlMatcher = null)
     {
-        $this->router = $router;
+        $this->urlGenerator = $urlGenerator;
+        $this->urlMatcher = $urlMatcher;
     }
 
     /**
@@ -47,14 +53,7 @@ class HttpUtils
      */
     public function createRedirectResponse(Request $request, $path, $status = 302)
     {
-        if ('/' === $path[0]) {
-            $path = $request->getUriForPath($path);
-        } elseif (0 !== strpos($path, 'http')) {
-            $this->resetLocale($request);
-            $path = $this->generateUrl($path, true);
-        }
-
-        return new RedirectResponse($path, $status);
+        return new RedirectResponse($this->generateUri($request, $path), $status);
     }
 
     /**
@@ -67,12 +66,7 @@ class HttpUtils
      */
     public function createRequest(Request $request, $path)
     {
-        if ($path && '/' !== $path[0] && 0 !== strpos($path, 'http')) {
-            $this->resetLocale($request);
-            $path = $this->generateUrl($path, true);
-        }
-
-        $newRequest = Request::create($path, 'get', array(), $request->cookies->all(), array(), $request->server->all());
+        $newRequest = Request::create($this->generateUri($request, $path), 'get', array(), $request->cookies->all(), array(), $request->server->all());
         if ($session = $request->getSession()) {
             $newRequest->setSession($session);
         }
@@ -102,10 +96,12 @@ class HttpUtils
     {
         if ('/' !== $path[0]) {
             try {
-                $parameters = $this->router->match($request->getPathInfo());
+                $parameters = $this->urlMatcher->match($request->getPathInfo());
 
                 return $path === $parameters['_route'];
-            } catch (\Exception $e) {
+            } catch (MethodNotAllowedException $e) {
+                return false;
+            } catch (ResourceNotFoundException $e) {
                 return false;
             }
         }
@@ -113,33 +109,33 @@ class HttpUtils
         return $path === $request->getPathInfo();
     }
 
-    // hack (don't have a better solution for now)
-    private function resetLocale(Request $request)
+    /**
+     * Generates a URI, based on the given path or absolute URL.
+     *
+     * @param Request $request A Request instance
+     * @param string $path A path (an absolute path (/foo), an absolute URL (http://...), or a route name (foo))
+     *
+     * @return string An absolute URL
+     */
+    public function generateUri($request, $path)
     {
-        $context = $this->router->getContext();
-        if ($context->getParameter('_locale')) {
-            return;
+        if (0 === strpos($path, 'http') || !$path) {
+            return $path;
         }
 
-        try {
-            $parameters = $this->router->match($request->getPathInfo());
-
-            if (isset($parameters['_locale'])) {
-                $context->setParameter('_locale', $parameters['_locale']);
-            } elseif ($session = $request->getSession()) {
-                $context->setParameter('_locale', $session->getLocale());
-            }
-        } catch (\Exception $e) {
-            // let's hope user doesn't use the locale in the path
+        if ('/' === $path[0]) {
+            return $request->getUriForPath($path);
         }
+
+        return $this->generateUrl($path, true);
     }
 
     private function generateUrl($route, $absolute = false)
     {
-        if (null === $this->router) {
-            throw new \LogicException('You must provide a RouterInterface instance to be able to use routes.');
+        if (null === $this->urlGenerator) {
+            throw new \LogicException('You must provide a UrlGeneratorInterface instance to be able to use routes.');
         }
 
-        return $this->router->generate($route, array(), $absolute);
+        return $this->urlGenerator->generate($route, array(), $absolute);
     }
 }

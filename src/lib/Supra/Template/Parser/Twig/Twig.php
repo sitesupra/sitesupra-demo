@@ -25,7 +25,7 @@ class Twig extends Twig_Environment implements TemplateParser
 		}
 
 		try {
-			$data = $closure($this);
+			$contents = $closure($this);
 		} catch (\Exception $e) {}
 
 		if ( ! is_null($oldLoader)) {
@@ -36,7 +36,7 @@ class Twig extends Twig_Environment implements TemplateParser
 			throw $e;
 		}
 
-		return $data;
+		return $contents;
 	}
 	
 	/**

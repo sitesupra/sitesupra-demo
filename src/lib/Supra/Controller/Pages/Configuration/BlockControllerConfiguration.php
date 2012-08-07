@@ -4,7 +4,6 @@ namespace Supra\Controller\Pages\Configuration;
 
 use Supra\Controller\Pages\BlockControllerCollection;
 use Supra\Loader\Loader;
-use Supra\Configuration\ConfigurationInterface;
 use Supra\Configuration\ComponentConfiguration;
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Configuration\BlockControllerPlugin;

@@ -21,11 +21,6 @@ class TwigSupraBlockGlobal
 	protected $blockController;
 	
 	/**
-	 * @var FormExtension
-	 */
-	protected $form;
-	
-	/**
 	 * @var array
 	 */
 	private $preloadImageData = array();
@@ -41,10 +36,6 @@ class TwigSupraBlockGlobal
 	public function __construct(BlockController $blockController)
 	{
 		$this->blockController = $blockController;
-		
-		if ($blockController instanceof FormBlockController) {
-			$this->form = new FormExtension($blockController);
-		}
 	}
 
 	/**
@@ -176,13 +167,6 @@ class TwigSupraBlockGlobal
 		return $tag;
 	}
 	
-	/**
-	 * @return FormExtension
-	 */
-	public function getForm()
-	{
-		return $this->form;
-	}
 	
 	public function getBlock()
 	{

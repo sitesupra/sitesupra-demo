@@ -37,7 +37,7 @@ abstract class DefaultProduct implements ProductAbstraction
 
 	/**
 	 * Sets prices for 1 item of this product.
-	 * @param array $prices 
+	 * @param array $prices
 	 */
 	public function setPrices($prices)
 	{

@@ -8,7 +8,6 @@ use Supra\Locale\Locale;
 use Supra\Payment\Entity\Currency\Currency;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Product\ProductAbstraction;
-use Supra\Payment\Product\ProductProviderAbstraction;
 use Supra\Payment\Entity\Order\OrderItem;
 use Supra\Payment\Entity\Order\OrderProductItem;
 use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
@@ -27,7 +26,7 @@ abstract class Order extends Database\Entity
 {
 
 	/**
-	 * @OneToMany(targetEntity="OrderItem", mappedBy="order")
+	 * @OneToMany(targetEntity="OrderItem", mappedBy="order", cascade={"persist"})
 	 * @var ArrayCollection
 	 */
 	protected $items;
