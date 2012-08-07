@@ -160,7 +160,7 @@ YUI.add('supra.input-select-visual', function (Y) {
 		 */
 		getButtonLabelTemplate: function (definition) {
 			if (this.get('iconStyle') == 'html') {
-				return '<div class="su-button-bg"><div style="' + this.getButtonBackgroundStyle(definition) + '">' + (definition.html || '') + '</div><p></p></div>';
+				return '<div class="su-button-bg"><div>' + (definition.html || '') + '</div><p></p></div>';
 			} else {
 				return '<div class="su-button-bg"><div style="' + this.getButtonBackgroundStyle(definition) + '"></div><p></p></div>';
 			}
