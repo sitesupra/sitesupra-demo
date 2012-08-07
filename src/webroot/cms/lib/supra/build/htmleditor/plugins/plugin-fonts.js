@@ -31,6 +31,9 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		// Select color type, "fore" or "back"
 		colorType: null,
 		
+		// Font size input change listener
+		toolbarFontSizeChangeListener: null,
+		
 		
 		/**
 		 * Update selected element font
@@ -38,7 +41,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @private
 		 */
 		updateFont: function () {
-			if (!this.silentUpdating) {
+			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
 				var value = this.fontInput.get("value");
 				this.exec(value, "fontname");
 			}
@@ -50,7 +53,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @private
 		 */
 		updateColor: function () {
-			if (!this.silentUpdating) {
+			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
 				var value = this.colorInput.get("value");
 				this.exec(value, this.colorType + "color");
 			}
@@ -62,7 +65,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @private
 		 */
 		updateFontSize: function () {
-			if (!this.silentUpdating) {
+			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
 				var value = this.fontSizeInput.get("value");
 				this.exec(value, "fontsize");
 			}
@@ -155,6 +158,27 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			if (!event.allowed) {
 				this.hideSidebar();
 			}
+			
+			this.fontSizeInput.set("disabled", !event.allowed);
+		},
+		
+		/**
+		 * Disabled attribute change
+		 * 
+		 * @param {Object} event Attribute change event facade object
+		 * @private
+		 */
+		handleDisabledChange: function (event) {
+			var listener = this.toolbarFontSizeChangeListener;
+			
+			if (event.newVal && listener) {
+				//Disable
+				listener.detach();
+				this.toolbarFontSizeChangeListener = null;
+			} else if (!event.newVal && !listener) {
+				//Enable
+				this.toolbarFontSizeChangeListener = this.fontSizeInput.after("valueChange", this.updateFontSize, this);
+			}
 		},
 		
 		
@@ -242,7 +266,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 						}
 					}
 					
-					if (node && node.style.backgroundColor) {
+					if (node && node !== srcNode && node.style.backgroundColor) {
 						if (node.tagName == "SPAN") {
 							this.htmleditor.unwrapNode(node);
 						} else {
@@ -625,27 +649,16 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			htmleditor.addCommand("backcolor", Y.bind(this.showBackColorSidebar, this));
 			
 			// Font size input
-			var input = this.fontSizeInput = toolbar.getButton("fontsize");
+			var input = this.fontSizeInput = toolbar.getButton("fontsize"),
+				values = input.get('values');
+			
+			//Special style
 			input.addClass("align-center");
-			input.set("values", [
-				{"id": 6, "title": "6"},
-				{"id": 8, "title": "8"},
-				{"id": 9, "title": "9"},
-				{"id": 10, "title": "10"},
-				{"id": 11, "title": "11"},
-				{"id": 12, "title": "12"},
-				{"id": 14, "title": "14"},
-				{"id": 16, "title": "16"},
-				{"id": 18, "title": "18"},
-				{"id": 24, "title": "24"},
-				{"id": 30, "title": "30"},
-				{"id": 36, "title": "36"},
-				{"id": 48, "title": "48"},
-				{"id": 60, "title": "60"},
-				{"id": 72, "title": "72"}
-			]);
-			input.set("value", 12);
-			input.after("valueChange", this.updateFontSize, this);
+			
+			//On enable/disable add or remove listener 
+			this.listeners.push(
+				htmleditor.on("disabledChange", this.handleDisabledChange, this)
+			);
 			
 			//When un-editable node is selected disable toolbar button
 			this.listeners.push(

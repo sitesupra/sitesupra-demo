@@ -22,7 +22,23 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"type": "separator"},
 						{"id": "fonts", "type": "button", "command": "fonts", "icon": "/cms/lib/supra/img/htmleditor/icon-fonts.png"},
 					{"type": "separator"},
-						{"id": "fontsize", "type": "dropdown", "command": "fontsize"},
+						{"id": "fontsize", "type": "dropdown", "command": "fontsize", "values": [
+							{"id": 6, "title": "6"},
+							{"id": 8, "title": "8"},
+							{"id": 9, "title": "9"},
+							{"id": 10, "title": "10"},
+							{"id": 11, "title": "11"},
+							{"id": 12, "title": "12"},
+							{"id": 14, "title": "14"},
+							{"id": 16, "title": "16"},
+							{"id": 18, "title": "18"},
+							{"id": 24, "title": "24"},
+							{"id": 30, "title": "30"},
+							{"id": 36, "title": "36"},
+							{"id": 48, "title": "48"},
+							{"id": 60, "title": "60"},
+							{"id": 72, "title": "72"}
+						]},
 					{"type": "separator"},
 						{"id": "forecolor", "type": "button", "command": "forecolor", "icon": "/cms/lib/supra/img/htmleditor/icon-forecolor.png"},
 						{"id": "backcolor", "type": "button", "command": "backcolor", "icon": "/cms/lib/supra/img/htmleditor/icon-backcolor.png"},
@@ -221,7 +237,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		 * Render all groups and controls
 		 */
 		renderUI: function () {
-			var r = HTMLEditorToolbar.superclass.renderUI.apply(this, arguments);
+			HTMLEditorToolbar.superclass.renderUI.apply(this, arguments);
 			
 			var groups = BUTTONS_DEFAULT.groups;
 			for(var i=0,ii=groups.length; i<ii; i++) {
@@ -268,8 +284,6 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 			}
 			
 			this.fire('contentResize');
-			
-			return r;
 		},
 		
 		/**

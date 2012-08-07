@@ -888,6 +888,11 @@ YUI.add("supra.form", function (Y) {
 		},
 		
 		_setDisabled: function (disabled) {
+			//If rendering phase and should enable form (default) then skip, bacause
+			//all inputs already are enabled by default and if any is not
+			//then that was intended like that
+			if (!this.get('rendered') && !disabled) return disabled;
+			
 			var inputs = this.getInputs();
 			for(var id in inputs) inputs[id].set("disabled", disabled);
 			

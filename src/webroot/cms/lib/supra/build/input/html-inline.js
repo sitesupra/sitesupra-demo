@@ -87,7 +87,8 @@ YUI.add("supra.input-inline-html", function (Y) {
 					'toolbar': toolbar,
 					'mode': Supra.HTMLEditor.MODE_RICH,
 					'parent': this,
-					'root': this.get('root') || this
+					'root': this.get('root') || this,
+					'disabled': true
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
