@@ -101,25 +101,55 @@
           values:
             - id: column_1
               title: 1 column
-              icon: icons/columns-1.png
+              icon: icons\columns-1.png
+              html: <table><tr><td class="h-2 w-12">1</td></tr></table>
             - id: column_2
               title: 2 columns
-              icon: icons/columns-2.png
+              icon: icons\columns-2.png
+              html: <table><tr><td class="h-2 w-6">1</td><td class="h-2 w-2">2</td></tr></table>
             - id: column_3
               title: 3 columns
-              icon: icons/columns-3.png
+              icon: icons\columns-3.png
+              html: <table><tr><td class="h-2 w-4">1</td><td class="h-2 w-4">2</td><td class="h-2 w-4">3</td></tr></table>
             - id: column_4
               title: 4 columns
-              icon: icons/columns-4.png
+              icon: icons\columns-4.png
+              html: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">2</td><td class="h-2 w-3">3</td><td class="h-2 w-3">4</td></tr></table>
             - id: column_1_2_h
               title: 1+2 columns
-              icon: icons/columns-1-2-h.png
+              icon: icons\columns-1-2-h.png
+              html: <table><tr><td class="h-2 w-6" rowspan="2">1</td><td class="h-1 w-4">2</td></tr><tr><td class="h-1 w-4">3</td></tr></table>
             - id: column_2_1_h
               title: 2+1 columns
-              icon: icons/columns-2-1-h.png
+              icon: icons\columns-2-1-h.png
+              html: <table><tr><td class="h-1 w-4">1</td><td class="h-2 w-6" rowspan="2">3</td></tr><tr><td class="h-1 w-4">2</td></tr></table>
             - id: column_2_1_v
-              title: 2+1 columns
-              icon: icons/columns-2-1-v.png
+              title: 3 columns
+              icon: icons\columns-2-1-v.png
+              html: <table><tr><td class="h-2 w-6">1</td><td class="h-2 w-3">2</td><td class="h-2 w-3">3</td></tr></table>
             - id: column_1_2_v
-              title: 1+2 columns
-              icon: icons/columns-1-2-v.png
+              title: 3 columns
+              icon: icons\columns-1-2-v.png
+              html: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">2</td><td class="h-2 w-6">3</td></tr></table>
+          additionalParameters:
+            iconStyle: html
+            style: mid
+            css: |
+              .su-button .su-button-bg { padding: 0; }
+              .su-button .su-button-bg div { height: 57px; }
+              table { width: 100%; border-spacing: 3px; border-collapse: separate; }
+              td { 
+              background: url(/components/FancyBlocks/Text/icons/background.png) 0 0 repeat-x;
+              vertical-align: middle; text-align: center;
+              text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.5);
+              color: #054873;
+              font-size: 18px;
+              font-weight: bold;
+              }
+              td.h-1 { height: 24px; background-position: 0 -52px; }
+              tr + tr td.h-1 { height: 24px; background-position: 0 -77px; }
+              td.h-2 { height: 52px; font-size: 30px; }
+              td.w-12 { width: 100%; }
+              td.w-6 { width: 50%; }
+              td.w-4 { width: 33.3%; }
+              td.w-3 { width: 25%; }
