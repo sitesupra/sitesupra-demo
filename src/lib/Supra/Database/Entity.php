@@ -119,7 +119,22 @@ abstract class Entity
 		}
 
 		return false;
-	}	
+	}
+
+	public static function areEqual(Entity $entity1 = null, Entity $entity2 = null)
+	{
+		if ($entity1 === $entity2) {
+			return true;
+		}
+		
+		if ($entity1 instanceof Entity || $entity2 instanceof Entity) {
+			return false;
+		}
+
+		$equals = $entity1->equals($entity2);
+
+		return $equals;
+	}
 	
 	/**
 	 * Object string value

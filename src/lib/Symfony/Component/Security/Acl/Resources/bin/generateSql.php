@@ -1,12 +1,12 @@
 <?php
 
 /*
- * This file is part of the Symfony framework.
+ * This file is part of the Symfony package.
  *
  * (c) Fabien Potencier <fabien@symfony.com>
  *
- * This source file is subject to the MIT license that is bundled
- * with this source code in the file LICENSE.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 require_once __DIR__.'/../../../../ClassLoader/UniversalClassLoader.php';
@@ -24,7 +24,6 @@ $loader->registerNamespaces(array(
     'Doctrine'                   => __DIR__.'/../../../../../../../vendor/doctrine/lib',
 ));
 $loader->register();
-
 
 $schema = new Schema(array(
     'class_table_name'         => 'acl_classes',
@@ -47,6 +46,6 @@ foreach ($finder as $file) {
     }
 
     $platform = $reflection->newInstance();
-    $targetFile = sprintf(__DIR__.'/../schema/%s.sql', $platform->getName());
+    $targetFile = sprintf(__DIR__.'/../schema/%s.sql', $platform->name);
     file_put_contents($targetFile, implode("\n\n", $schema->toSql($platform)));
 }

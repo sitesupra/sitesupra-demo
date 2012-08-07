@@ -16,7 +16,6 @@ use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Product\ProductProvider;
 use Supra\Payment\Product\ProductAbstraction;
-use Supra\Payment\Product\ProductProviderAbstraction;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Event\EventManager;
 use Supra\User\Entity\User;

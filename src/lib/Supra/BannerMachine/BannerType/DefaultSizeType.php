@@ -54,7 +54,7 @@ class DefaultSizeType extends BannerTypeAbstraction
 				($imageHeight > $this->getHeight() * (1 + $this->ratioDelta)) || 
 				($imageHeight < $this->getHeight() * (1 - $this->ratioDelta))
 		) { 
-			throw new Exception\RuntimeException('Image size is not valid.');
+			throw new Exception\ValidationException('Image size is not valid.');
 		}
 						
 		return true;

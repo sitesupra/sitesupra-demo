@@ -7,7 +7,6 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
 use Supra\Database\Doctrine;
 use Supra\Cache\CacheNamespaceWrapper;
-use Doctrine\Common\Cache\ArrayCache;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventManager;
@@ -18,13 +17,14 @@ use Doctrine\DBAL\Types\Type;
 use Supra\Database\Doctrine\Type\SupraIdType;
 use Supra\Database\Doctrine\Type\PathType;
 use Supra\Database\Doctrine\Listener\TimestampableListener;
-use Supra\Controller\Pages\PageController;
 use Supra\FileStorage\Listener\FileGroupCacheDropListener;
 use PDO;
 use Supra\Log\Logger\EventsSqlLogger;
 use Supra\Database\Doctrine\Type\UtcDateTimeType;
 use Supra\Database\DetachedDiscriminatorHandler;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Supra\Loader\Loader;
+use Doctrine\Common\EventSubscriber;
 
 /**
  * Entity manager creation
@@ -90,6 +90,12 @@ class EntityManagerConfiguration implements ConfigurationInterface
 	 * @var array
 	 */
 	public $entityPaths = array(
+	);
+
+	/**
+	 * @var array
+	 */
+	public $eventSubscribers = array(
 	);
 
 	/**
@@ -272,6 +278,13 @@ class EntityManagerConfiguration implements ConfigurationInterface
 		$eventManager->addEventSubscriber(new FileGroupCacheDropListener());
 
 		$eventManager->addEventListener(array(Events::loadClassMetadata), new DetachedDiscriminatorHandler());
+
+		foreach ($this->eventSubscribers as $eventSubscriber) {
+			if (is_string($eventSubscriber)) {
+				$eventSubscriber = Loader::getClassInstance($eventSubscriber, 'Doctrine\Common\EventSubscriber');
+			}
+			$eventManager->addEventSubscriber($eventSubscriber);
+		}
 	}
 
 	protected function configureEntityManager(EntityManager $entityManager)

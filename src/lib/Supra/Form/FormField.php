@@ -2,8 +2,6 @@
 
 namespace Supra\Form;
 
-use Supra\Form\Constraints\Abstraction\Constraint;
-
 /**
  * @Annotation
  */
@@ -21,58 +19,46 @@ class FormField
 	const TYPE_CHOICE = 'choice';
 	
 	/**
-	 * One of $types
+	 * Field type, can be null
 	 * @var string 
 	 */
 	protected $type;
 	
 	/**
 	 * Field name
-	 * @var string 
+	 * @var string
 	 */
 	protected $name;
 
 	/**
-	 * Allowed field types
-	 * @var array 
-	 */
-	private static $types = array(
-		self::TYPE_TEXT,
-		self::TYPE_TEXTAREA,
-		self::TYPE_PASSWORD,
-		self::TYPE_CHECKBOX,
-		self::TYPE_FILE,
-		self::TYPE_RADIO,
-		self::TYPE_HIDDEN,
-		self::TYPE_CHOICE,
-	);
-	
-	/**
 	 * @var array
 	 */
-	protected $constraints = array();
+	protected $groups = array();
 
 	/**
 	 * @var array
 	 */
 	protected $arguments = array();
-	
+
+	/**
+	 * Stores error message information – constraint and original message
+	 * @var array
+	 */
 	protected $errorInfo;
 	
-	/*
-	 * 
+	/**
+	 * @param array $arguments
 	 */
 	public function __construct(array $arguments = array())
 	{
-		if ( ! is_string($arguments['type']) || ! in_array($arguments['type'], self::$types, true)) {
-			throw new Exception\RuntimeException(
-					"Form type \"{$arguments['type']}\" is not allowed. " .
-					"Use one of \"" . join('", "', self::$types) . '" annotation types. '
-					. 'Example @FormField(type="text")'
-			);
+		if (isset($arguments['type'])) {
+			$this->type = $arguments['type'];
+			unset($arguments['type']);
 		}
-
-		$this->type = $arguments['type'];
+		if (isset($arguments['groups'])) {
+			$this->groups = $arguments['groups'];
+			unset($arguments['groups']);
+		}
 		$this->arguments  = $arguments;
 	}
 
@@ -93,45 +79,17 @@ class FormField
 	}
 
 	/**
-	 * @return array 
+	 * @param array $errorInfo
 	 */
-	public function getConstraints()
-	{
-		return $this->constraints;
-	}
-
-	/**
-	 * @param Constraint $constraint 
-	 */
-	public function addConstraint(Constraint $constraint)
-	{
-		$this->constraints[] = $constraint;
-	}
-
-	/**
-	 * Adds constraint
-	 * 
-	 * @throws Exception\RuntimeException if one of constraints is not Constraint instances
-	 * @param array $constraints 
-	 */
-	public function addConstraints(array $constraints)
-	{
-//		// validation
-//		foreach ($constraints as $constraint) {
-//			if ( ! $constraint instanceof Constraint) {
-//				throw new Exception\RuntimeException('Passed constraint is not instance of Supra\Form\Constraints\Abstraction\Constraint. ', $constraint);
-//			}
-//		}
-		
-		$this->constraints = $constraints;
-	}
-
-	public function setErrorInfo($errorInfo)
+	public function setErrorInfo(array $errorInfo)
 	{
 		$this->errorInfo = $errorInfo;
 	}
 
-	public function getErrorinfo()
+	/**
+	 * @return array
+	 */
+	public function getErrorInfo()
 	{
 		return $this->errorInfo;
 	}
@@ -177,5 +135,26 @@ class FormField
 		return null;
 	}
 
+	/**
+	 * @param array $groups
+	 * @return boolean
+	 */
+	public function inGroups($groups)
+	{
+		if (empty($this->groups)) {
+			return true;
+		}
+
+		if (empty($groups)) {
+			return true;
+		}
+
+		// Skip field if groups have no common values
+		if (array_intersect($this->groups, $groups) == array()) {
+			return false;
+		}
+
+		return true;
+	}
 
 }

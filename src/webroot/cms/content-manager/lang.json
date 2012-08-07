@@ -41,7 +41,8 @@
 			"set_image": "Set image",
 			"set_link": "Set link",
 			"shared_property_description": "The value for this block has been taken from {{ localeTitle }} localization. Go there to manage it.",
-			"shared_gallery_notice": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
+			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
+			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 			
 			"block": {
 				"no_image": "No image",

@@ -84,6 +84,30 @@ class FileStorage
 	private $fileAccessMode = \SITESUPRA_FILE_PERMISSION_MODE;
 
 	/**
+	 * @param string $fileId
+	 * @param string $type
+	 * @return null|\Supra\FileStorage\File
+	 */
+	public function find($fileId, $type = null)
+	{
+		if ( ! is_string($fileId)) {
+			return null;
+		}
+
+		if (empty($type)) {
+			$type = Entity\Abstraction\File::CN();
+		}
+		$file = $this->getDoctrineEntityManager()
+				->find($type, $fileId);
+
+		if ($file instanceof Entity\Abstraction\File) {
+			return $file;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Sets external (public) file url base.
 	 * @param string $urlBase 
 	 */

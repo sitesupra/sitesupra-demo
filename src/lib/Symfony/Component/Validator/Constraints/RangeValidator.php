@@ -16,20 +16,11 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
- *
- * @api
  */
 class RangeValidator extends ConstraintValidator
 {
     /**
-     * Checks if the passed value is valid.
-     *
-     * @param mixed      $value      The value that should be validated
-     * @param Constraint $constraint The constraint for the validation
-     *
-     * @return Boolean Whether or not the value is valid
-     *
-     * @api
+     * {@inheritDoc}
      */
     public function validate($value, Constraint $constraint)
     {
@@ -45,7 +36,7 @@ class RangeValidator extends ConstraintValidator
             return;
         }
 
-        if ($value > $constraint->max) {
+        if (null !== $constraint->max && $value > $constraint->max) {
             $this->context->addViolation($constraint->maxMessage, array(
                 '{{ value }}' => $value,
                 '{{ limit }}' => $constraint->max,
@@ -54,7 +45,7 @@ class RangeValidator extends ConstraintValidator
             return;
         }
 
-        if ($value < $constraint->min) {
+        if (null !== $constraint->min && $value < $constraint->min) {
             $this->context->addViolation($constraint->minMessage, array(
                 '{{ value }}' => $value,
                 '{{ limit }}' => $constraint->min,

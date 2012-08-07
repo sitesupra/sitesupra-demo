@@ -37,6 +37,12 @@ class OrderProductItem extends OrderItem
 	 */
 	protected $product;
 
+	public function __construct()
+	{
+		parent::__construct();
+		$this->quantity = 1;
+	}
+
 	/**
 	 * @return integer
 	 */

@@ -4,7 +4,6 @@ namespace Supra\Controller\Pages\Configuration;
 
 use Supra\Controller\Pages\BlockControllerCollection;
 use Supra\Loader\Loader;
-use Supra\Configuration\ConfigurationInterface;
 use Supra\Configuration\ComponentConfiguration;
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Configuration\BlockControllerPlugin;
@@ -173,11 +172,9 @@ class BlockControllerConfiguration extends ComponentConfiguration
 				$values = array();
 
 				foreach ($property->values as $value) {
-					if (empty($value['icon'])) {
-						continue;
+					if ( ! empty($value['icon'])) {
+						$value['icon'] = $this->getIconWebPath($value['icon']);
 					}
-
-					$value['icon'] = $this->getIconWebPath($value['icon']);
 
 					$values[] = $value;
 				}

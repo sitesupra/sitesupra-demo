@@ -12,7 +12,6 @@
 namespace Symfony\Component\Security\Acl\Domain;
 
 use Symfony\Component\Security\Acl\Exception\NoAceFoundException;
-use Symfony\Component\Security\Acl\Exception\SidNotLoadedException;
 use Symfony\Component\Security\Acl\Model\AclInterface;
 use Symfony\Component\Security\Acl\Model\AuditLoggerInterface;
 use Symfony\Component\Security\Acl\Model\EntryInterface;
@@ -36,7 +35,6 @@ class PermissionGrantingStrategy implements PermissionGrantingStrategyInterface
      * Sets the audit logger
      *
      * @param AuditLoggerInterface $auditLogger
-     * @return void
      */
     public function setAuditLogger(AuditLoggerInterface $auditLogger)
     {
@@ -198,9 +196,9 @@ class PermissionGrantingStrategy implements PermissionGrantingStrategyInterface
         $strategy = $ace->getStrategy();
         if (self::ALL === $strategy) {
             return $requiredMask === ($ace->getMask() & $requiredMask);
-        } else if (self::ANY === $strategy) {
+        } elseif (self::ANY === $strategy) {
             return 0 !== ($ace->getMask() & $requiredMask);
-        } else if (self::EQUAL === $strategy) {
+        } elseif (self::EQUAL === $strategy) {
             return $requiredMask === $ace->getMask();
         }
 

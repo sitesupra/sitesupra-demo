@@ -17,73 +17,16 @@ use Symfony\Component\Validator\Constraint;
  * @Annotation
  *
  * @api
+ *
+ * @deprecated Deprecated since version 2.1, to be removed in 2.3.
  */
-class Size extends Constraint
+class Size extends Range
 {
-    const TYPE_STRING     = 'string';
-    const TYPE_COLLECTION = 'collection';
-
-    public $minMessage;
-    public $maxMessage;
-    public $exactMessage;
-    public $type;
-    public $min;
-    public $max;
-    public $charset = 'UTF-8';
-
-    private $stringMinMessage   = 'This value is too short. It should have {{ limit }} characters or more.';
-    private $stringMaxMessage   = 'This value is too long. It should have {{ limit }} characters or less.';
-    private $stringExactMessage = 'This value should have exactly {{ limit }} characters.';
-
-    private $collectionMinMessage   = 'This collection should contain {{ limit }} elements or more.';
-    private $collectionMaxMessage   = 'This collection should contain {{ limit }} elements or less.';
-    private $collectionExactMessage = 'This collection should contain exactly {{ limit }} elements.';
-
-    public function getMinMessage($type)
+    /**
+     * {@inheritDoc}
+     */
+    public function validatedBy()
     {
-        if (null !== $this->minMessage) {
-            return $this->minMessage;
-        }
-
-        switch ($type) {
-            case static::TYPE_STRING:
-                return $this->stringMinMessage;
-            case static::TYPE_COLLECTION:
-                return $this->collectionMinMessage;
-            default:
-                throw new \InvalidArgumentException('Invalid type specified.');
-        }
-    }
-
-    public function getMaxMessage($type)
-    {
-        if (null !== $this->maxMessage) {
-            return $this->maxMessage;
-        }
-
-        switch ($type) {
-            case static::TYPE_STRING:
-                return $this->stringMaxMessage;
-            case static::TYPE_COLLECTION:
-                return $this->collectionMaxMessage;
-            default:
-                throw new \InvalidArgumentException('Invalid type specified.');
-        }
-    }
-
-    public function getExactMessage($type)
-    {
-        if (null !== $this->exactMessage) {
-            return $this->exactMessage;
-        }
-
-        switch ($type) {
-            case static::TYPE_STRING:
-                return $this->stringExactMessage;
-            case static::TYPE_COLLECTION:
-                return $this->collectionExactMessage;
-            default:
-                throw new \InvalidArgumentException('Invalid type specified.');
-        }
+        return get_parent_class($this).'Validator';
     }
 }

@@ -12,13 +12,13 @@
 namespace Symfony\Component\Form\Tests\Extension\Csrf\Type;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
 use Symfony\Component\Form\Tests\Extension\Core\Type\TypeTestCase;
 
 class FormTypeCsrfExtensionTest_ChildType extends AbstractType
 {
-    public function buildForm(FormBuilder $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         // The form needs a child in order to trigger CSRF protection by
         // default
@@ -56,45 +56,45 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
         ));
     }
 
-    public function testCsrfProtectionByDefaultIfRootAndNotSingleControl()
+    public function testCsrfProtectionByDefaultIfRootAndCompound()
     {
         $view = $this->factory
             ->create('form', null, array(
                 'csrf_field_name' => 'csrf',
-                'single_control' => false,
+                'compound' => true,
             ))
             ->createView();
 
-        $this->assertTrue($view->hasChild('csrf'));
+        $this->assertTrue(isset($view['csrf']));
     }
 
-    public function testNoCsrfProtectionByDefaultIfNotSingleControlButNotRoot()
+    public function testNoCsrfProtectionByDefaultIfCompoundButNotRoot()
     {
         $view = $this->factory
-            ->createNamedBuilder('form', 'root')
+            ->createNamedBuilder('root', 'form')
             ->add($this->factory
                 ->createNamedBuilder('form', 'form', null, array(
                     'csrf_field_name' => 'csrf',
-                    'single_control' => false,
+                    'compound' => true,
                 ))
             )
             ->getForm()
-            ->createView()
-            ->getChild('form');
+            ->get('form')
+            ->createView();
 
-        $this->assertFalse($view->hasChild('csrf'));
+        $this->assertFalse(isset($view['csrf']));
     }
 
-    public function testNoCsrfProtectionByDefaultIfRootButSingleControl()
+    public function testNoCsrfProtectionByDefaultIfRootButNotCompound()
     {
         $view = $this->factory
             ->create('form', null, array(
                 'csrf_field_name' => 'csrf',
-                'single_control' => true,
+                'compound' => false,
             ))
             ->createView();
 
-        $this->assertFalse($view->hasChild('csrf'));
+        $this->assertFalse(isset($view['csrf']));
     }
 
     public function testCsrfProtectionCanBeDisabled()
@@ -103,11 +103,11 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
             ->create('form', null, array(
                 'csrf_field_name' => 'csrf',
                 'csrf_protection' => false,
-                'single_control' => false,
+                'compound' => true,
             ))
             ->createView();
 
-        $this->assertFalse($view->hasChild('csrf'));
+        $this->assertFalse(isset($view['csrf']));
     }
 
     public function testGenerateCsrfToken()
@@ -122,11 +122,11 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
                 'csrf_field_name' => 'csrf',
                 'csrf_provider' => $this->csrfProvider,
                 'intention' => '%INTENTION%',
-                'single_control' => false,
+                'compound' => true,
             ))
             ->createView();
 
-        $this->assertEquals('token', $view->getChild('csrf')->get('value'));
+        $this->assertEquals('token', $view['csrf']->vars['value']);
     }
 
     public function provideBoolean()
@@ -140,7 +140,7 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
     /**
      * @dataProvider provideBoolean
      */
-    public function testValidateTokenOnBindIfRootAndNotSingleControl($valid)
+    public function testValidateTokenOnBindIfRootAndCompound($valid)
     {
         $this->csrfProvider->expects($this->once())
             ->method('isCsrfTokenValid')
@@ -148,12 +148,14 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
             ->will($this->returnValue($valid));
 
         $form = $this->factory
-            ->create('form', null, array(
+            ->createBuilder('form', null, array(
                 'csrf_field_name' => 'csrf',
                 'csrf_provider' => $this->csrfProvider,
                 'intention' => '%INTENTION%',
-                'single_control' => false,
-            ));
+                'compound' => true,
+            ))
+            ->add('child', 'text')
+            ->getForm();
 
         $form->bind(array(
             'child' => 'foobar',
@@ -167,18 +169,20 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
         $this->assertSame($valid, $form->isValid());
     }
 
-    public function testFailIfRootAndNotSingleControlAndTokenMissing()
+    public function testFailIfRootAndCompoundAndTokenMissing()
     {
         $this->csrfProvider->expects($this->never())
             ->method('isCsrfTokenValid');
 
         $form = $this->factory
-            ->create('form', null, array(
+            ->createBuilder('form', null, array(
                 'csrf_field_name' => 'csrf',
                 'csrf_provider' => $this->csrfProvider,
                 'intention' => '%INTENTION%',
-                'single_control' => false,
-            ));
+                'compound' => true,
+            ))
+            ->add('child', 'text')
+            ->getForm();
 
         $form->bind(array(
             'child' => 'foobar',
@@ -192,19 +196,19 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
         $this->assertFalse($form->isValid());
     }
 
-    public function testDontValidateTokenIfNotSingleControlButNoRoot()
+    public function testDontValidateTokenIfCompoundButNoRoot()
     {
         $this->csrfProvider->expects($this->never())
             ->method('isCsrfTokenValid');
 
         $form = $this->factory
-            ->createNamedBuilder('form', 'root')
+            ->createNamedBuilder('root', 'form')
             ->add($this->factory
                 ->createNamedBuilder('form', 'form', null, array(
                     'csrf_field_name' => 'csrf',
                     'csrf_provider' => $this->csrfProvider,
                     'intention' => '%INTENTION%',
-                    'single_control' => false,
+                    'compound' => true,
                 ))
             )
             ->getForm()
@@ -216,7 +220,7 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
         ));
     }
 
-    public function testDontValidateTokenIfRootButSingleControl()
+    public function testDontValidateTokenIfRootButNotCompound()
     {
         $this->csrfProvider->expects($this->never())
             ->method('isCsrfTokenValid');
@@ -226,7 +230,7 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
                 'csrf_field_name' => 'csrf',
                 'csrf_provider' => $this->csrfProvider,
                 'intention' => '%INTENTION%',
-                'single_control' => true,
+                'compound' => false,
             ));
 
         $form->bind(array(
@@ -246,9 +250,9 @@ class FormTypeCsrfExtensionTest extends TypeTestCase
                 'allow_add' => true,
             ))
             ->createView()
-            ->get('prototype');
+            ->vars['prototype'];
 
-        $this->assertFalse($prototypeView->hasChild('csrf'));
+        $this->assertFalse(isset($prototypeView['csrf']));
         $this->assertCount(1, $prototypeView);
     }
 }
