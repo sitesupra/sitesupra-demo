@@ -854,13 +854,16 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					}
 					
 					Supra.mix(node.get('data'), {
-						'children': null,
+						'children': data.children_count ? [] : null,
 						'children_count': 0
 					}, data);
 					
 					//Make sure children is not loaded dynamically, since this is new page
 					if (data.type == 'page' || data.type == 'group') {
 						node.get('tree').get('data').setIsLoaded(data.id, true);
+					} else if (data.children_count) {
+						node.set('expandable', true);
+						node.set('childrenRendered', false);
 					}
 					
 					//Success
