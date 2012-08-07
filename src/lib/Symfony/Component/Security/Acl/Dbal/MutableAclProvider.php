@@ -144,11 +144,10 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
      * This allows us to keep track of which values have been changed, so we don't
      * have to do a full introspection when ->updateAcl() is called.
      *
-     * @param mixed $sender
+     * @param mixed  $sender
      * @param string $propertyName
-     * @param mixed $oldValue
-     * @param mixed $newValue
-     * @return void
+     * @param mixed  $oldValue
+     * @param mixed  $newValue
      */
     public function propertyChanged($sender, $propertyName, $oldValue, $newValue)
     {
@@ -242,7 +241,7 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
                 if (null === $propertyChanges['parentAcl'][1]) {
                     $sets[] = 'parent_object_identity_id = NULL';
                 } else {
-                    $sets[] = 'parent_object_identity_id = '.intval($propertyChanges['parentAcl'][1]->getId());
+                    $sets[] = 'parent_object_identity_id = '.$this->connection->quote($propertyChanges['parentAcl'][1]->getId());
                 }
 
                 $this->regenerateAncestorRelations($acl);
@@ -344,9 +343,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteAccessControlEntriesSql($oidPK)
     {
         return sprintf(
-              'DELETE FROM %s WHERE object_identity_id = %d',
+              'DELETE FROM %s WHERE object_identity_id = %s',
             $this->options['entry_table_name'],
-            $oidPK
+            $this->connection->quote($oidPK)
         );
     }
 
@@ -359,9 +358,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteAccessControlEntrySql($acePK)
     {
         return sprintf(
-            'DELETE FROM %s WHERE id = %d',
+            'DELETE FROM %s WHERE id = %s',
             $this->options['entry_table_name'],
-            $acePK
+            $this->connection->quote($acePK)
         );
     }
 
@@ -374,9 +373,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteObjectIdentitySql($pk)
     {
         return sprintf(
-            'DELETE FROM %s WHERE id = %d',
+            'DELETE FROM %s WHERE id = %s',
             $this->options['oid_table_name'],
-            $pk
+            $this->connection->quote($pk)
         );
     }
 
@@ -389,25 +388,25 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteObjectIdentityRelationsSql($pk)
     {
         return sprintf(
-            'DELETE FROM %s WHERE object_identity_id = %d',
+            'DELETE FROM %s WHERE object_identity_id = %s',
             $this->options['oid_ancestors_table_name'],
-            $pk
+            $this->connection->quote($pk)
         );
     }
 
     /**
      * Constructs the SQL for inserting an ACE.
      *
-     * @param integer $classId
+     * @param integer      $classId
      * @param integer|null $objectIdentityId
-     * @param string|null $field
-     * @param integer $aceOrder
-     * @param integer $securityIdentityId
-     * @param string $strategy
-     * @param integer $mask
-     * @param Boolean $granting
-     * @param Boolean $auditSuccess
-     * @param Boolean $auditFailure
+     * @param string|null  $field
+     * @param integer      $aceOrder
+     * @param integer      $securityIdentityId
+     * @param string       $strategy
+     * @param integer      $mask
+     * @param Boolean      $granting
+     * @param Boolean      $auditSuccess
+     * @param Boolean      $auditFailure
      * @return string
      */
     protected function getInsertAccessControlEntrySql($classId, $objectIdentityId, $field, $aceOrder, $securityIdentityId, $strategy, $mask, $granting, $auditSuccess, $auditFailure)
@@ -425,17 +424,17 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
                 audit_success,
                 audit_failure
             )
-            VALUES (%d, %s, %s, %d, %d, %d, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %d, %s, %d, %s, %s, %s, %s)
 QUERY;
 
         return sprintf(
             $query,
             $this->options['entry_table_name'],
-            $classId,
-            null === $objectIdentityId? 'NULL' : intval($objectIdentityId),
+            $this->connection->quote($classId),
+            null === $objectIdentityId? 'NULL' : $this->connection->quote($objectIdentityId),
             null === $field? 'NULL' : $this->connection->quote($field),
             $aceOrder,
-            $securityIdentityId,
+            $this->connection->quote($securityIdentityId),
             $mask,
             $this->connection->getDatabasePlatform()->convertBooleans($granting),
             $this->connection->quote($strategy),
@@ -469,17 +468,17 @@ QUERY;
     protected function getInsertObjectIdentityRelationSql($objectIdentityId, $ancestorId)
     {
         return sprintf(
-            'INSERT INTO %s (object_identity_id, ancestor_id) VALUES (%d, %d)',
+            'INSERT INTO %s (object_identity_id, ancestor_id) VALUES (%s, %s)',
             $this->options['oid_ancestors_table_name'],
-            $objectIdentityId,
-            $ancestorId
+            $this->connection->quote($objectIdentityId),
+            $this->connection->quote($ancestorId)
         );
     }
 
     /**
      * Constructs the SQL for inserting an object identity.
      *
-     * @param string $identifier
+     * @param string  $identifier
      * @param integer $classId
      * @param Boolean $entriesInheriting
      * @return string
@@ -488,13 +487,13 @@ QUERY;
     {
         $query = <<<QUERY
               INSERT INTO %s (class_id, object_identifier, entries_inheriting)
-              VALUES (%d, %s, %s)
+              VALUES (%s, %s, %s)
 QUERY;
 
         return sprintf(
             $query,
             $this->options['oid_table_name'],
-            $classId,
+            $this->connection->quote($classId),
             $this->connection->quote($identifier),
             $this->connection->getDatabasePlatform()->convertBooleans($entriesInheriting)
         );
@@ -512,7 +511,7 @@ QUERY;
         if ($sid instanceof UserSecurityIdentity) {
             $identifier = $sid->getClass().'-'.$sid->getUsername();
             $username = true;
-        } else if ($sid instanceof RoleSecurityIdentity) {
+        } elseif ($sid instanceof RoleSecurityIdentity) {
             $identifier = $sid->getRole();
             $username = false;
         } else {
@@ -532,19 +531,19 @@ QUERY;
      *
      * @param integer $classId
      * @param integer $oid
-     * @param string $field
+     * @param string  $field
      * @param integer $order
      * @return string
      */
     protected function getSelectAccessControlEntryIdSql($classId, $oid, $field, $order)
     {
         return sprintf(
-            'SELECT id FROM %s WHERE class_id = %d AND %s AND %s AND ace_order = %d',
+            'SELECT id FROM %s WHERE class_id = %s AND %s AND %s AND ace_order = %d',
             $this->options['entry_table_name'],
-            $classId,
+            $this->connection->quote($classId),
             null === $oid ?
                 $this->connection->getDatabasePlatform()->getIsNullExpression('object_identity_id')
-                : 'object_identity_id = '.intval($oid),
+                : 'object_identity_id = '.$this->connection->quote($oid),
             null === $field ?
                 $this->connection->getDatabasePlatform()->getIsNullExpression('field_name')
                 : 'field_name = '.$this->connection->quote($field),
@@ -580,7 +579,7 @@ QUERY;
         if ($sid instanceof UserSecurityIdentity) {
             $identifier = $sid->getClass().'-'.$sid->getUsername();
             $username = true;
-        } else if ($sid instanceof RoleSecurityIdentity) {
+        } elseif ($sid instanceof RoleSecurityIdentity) {
             $identifier = $sid->getRole();
             $username = false;
         } else {
@@ -599,7 +598,7 @@ QUERY;
      * Constructs the SQL for updating an object identity.
      *
      * @param integer $pk
-     * @param array $changes
+     * @param array   $changes
      * @throws \InvalidArgumentException
      * @return string
      */
@@ -610,10 +609,10 @@ QUERY;
         }
 
         return sprintf(
-            'UPDATE %s SET %s WHERE id = %d',
+            'UPDATE %s SET %s WHERE id = %s',
             $this->options['oid_table_name'],
             implode(', ', $changes),
-            $pk
+            $this->connection->quote($pk)
         );
     }
 
@@ -621,7 +620,7 @@ QUERY;
      * Constructs the SQL for updating an ACE.
      *
      * @param integer $pk
-     * @param array $sets
+     * @param array   $sets
      * @throws \InvalidArgumentException
      * @return string
      */
@@ -632,10 +631,10 @@ QUERY;
         }
 
         return sprintf(
-            'UPDATE %s SET %s WHERE id = %d',
+            'UPDATE %s SET %s WHERE id = %s',
             $this->options['entry_table_name'],
             implode(', ', $sets),
-            $pk
+            $this->connection->quote($pk)
         );
     }
 
@@ -643,7 +642,6 @@ QUERY;
      * Creates the ACL for the passed object identity
      *
      * @param ObjectIdentityInterface $oid
-     * @return void
      */
     private function createObjectIdentity(ObjectIdentityInterface $oid)
     {
@@ -695,7 +693,6 @@ QUERY;
      * Deletes all ACEs for the given object identity primary key.
      *
      * @param integer $oidPK
-     * @return void
      */
     private function deleteAccessControlEntries($oidPK)
     {
@@ -706,7 +703,6 @@ QUERY;
      * Deletes the object identity from the database.
      *
      * @param integer $pk
-     * @return void
      */
     private function deleteObjectIdentity($pk)
     {
@@ -717,7 +713,6 @@ QUERY;
      * Deletes all entries from the relations table from the database.
      *
      * @param integer $pk
-     * @return void
      */
     private function deleteObjectIdentityRelations($pk)
     {
@@ -728,7 +723,6 @@ QUERY;
      * This regenerates the ancestor table which is used for fast read access.
      *
      * @param AclInterface $acl
-     * @return void
      */
     private function regenerateAncestorRelations(AclInterface $acl)
     {
@@ -748,8 +742,7 @@ QUERY;
      * This processes changes on an ACE related property (classFieldAces, or objectFieldAces).
      *
      * @param string $name
-     * @param array $changes
-     * @return void
+     * @param array  $changes
      */
     private function updateFieldAceProperty($name, array $changes)
     {
@@ -805,8 +798,7 @@ QUERY;
      * This processes changes on an ACE related property (classAces, or objectAces).
      *
      * @param string $name
-     * @param array $changes
-     * @return void
+     * @param array  $changes
      */
     private function updateAceProperty($name, array $changes)
     {
@@ -860,7 +852,6 @@ QUERY;
      * Persists the changes which were made to ACEs to the database.
      *
      * @param \SplObjectStorage $aces
-     * @return void
      */
     private function updateAces(\SplObjectStorage $aces)
     {

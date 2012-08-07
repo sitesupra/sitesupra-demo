@@ -12,17 +12,19 @@
 namespace Symfony\Component\Form\Extension\Core\Type;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\Extension\Core\EventListener\ResizeFormListener;
+use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class CollectionType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilder $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         if ($options['allow_add'] && $options['prototype']) {
             $prototype = $builder->create($options['prototype_name'], $options['type'], array_replace(array(
@@ -39,51 +41,57 @@ class CollectionType extends AbstractType
             $options['allow_delete']
         );
 
-        $builder
-            ->addEventSubscriber($resizeListener)
-            ->setAttribute('allow_add', $options['allow_add'])
-            ->setAttribute('allow_delete', $options['allow_delete'])
-        ;
+        $builder->addEventSubscriber($resizeListener);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildView(FormView $view, FormInterface $form)
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
-        $view
-            ->set('allow_add', $form->getAttribute('allow_add'))
-            ->set('allow_delete', $form->getAttribute('allow_delete'))
-        ;
+        $view->vars = array_replace($view->vars, array(
+            'allow_add'    => $options['allow_add'],
+            'allow_delete' => $options['allow_delete'],
+        ));
 
-        if ($form->hasAttribute('prototype')) {
-            $view->set('prototype', $form->getAttribute('prototype')->createView($view));
+        if ($form->getConfig()->hasAttribute('prototype')) {
+            $view->vars['prototype'] = $form->getConfig()->getAttribute('prototype')->createView($view);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildViewBottomUp(FormView $view, FormInterface $form)
+    public function finishView(FormView $view, FormInterface $form, array $options)
     {
-        if ($form->hasAttribute('prototype') && $view->get('prototype')->get('multipart')) {
-            $view->set('multipart', true);
+        if ($form->getConfig()->hasAttribute('prototype') && $view->vars['prototype']->vars['multipart']) {
+            $view->vars['multipart'] = true;
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefaultOptions()
+    public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-        return array(
+        $optionsNormalizer = function (Options $options, $value) {
+            $value['block_name'] = 'entry';
+
+            return $value;
+        };
+
+        $resolver->setDefaults(array(
             'allow_add'      => false,
             'allow_delete'   => false,
             'prototype'      => true,
             'prototype_name' => '__name__',
             'type'           => 'text',
             'options'        => array(),
-        );
+        ));
+
+        $resolver->setNormalizers(array(
+            'options' => $optionsNormalizer,
+        ));
     }
 
     /**

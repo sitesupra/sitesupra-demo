@@ -414,8 +414,9 @@ function (Y) {
 				this.one().addClass("hidden");
 				
 				// Enable page header
-				if (Supra.Manager.PageHeader) {
-					Supra.Manager.PageHeader.languagebar.set("disabled", false);
+				var header = Supra.Manager.PageHeader;
+				if (header && header.languagebar) {
+					header.languagebar.set("disabled", false);
 				}
 			}, this));
 		},

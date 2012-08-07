@@ -12,6 +12,7 @@
 namespace Symfony\Component\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * @Annotation
@@ -20,17 +21,18 @@ use Symfony\Component\Validator\Constraint;
  */
 class Range extends Constraint
 {
-    public $minMessage = 'This value should be {{ limit }} or more.';
-    public $maxMessage = 'This value should be {{ limit }} or less.';
-    public $invalidMessage = 'This value should be a valid number.';
+    public $minMessage = 'This value should be {{ limit }} or more';
+    public $maxMessage = 'This value should be {{ limit }} or less';
+    public $invalidMessage = 'This value should be a valid number';
     public $min;
     public $max;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getRequiredOptions()
+    public function __construct($options = null)
     {
-        return array('min', 'max');
+        parent::__construct($options);
+
+        if (null === $this->min && null === $this->max) {
+            throw new MissingOptionsException('Either option "min" or "max" must be given for constraint ' . __CLASS__, array('min', 'max'));
+        }
     }
 }

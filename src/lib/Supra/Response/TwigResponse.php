@@ -3,7 +3,6 @@
 namespace Supra\Response;
 
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Loader\Loader;
 use Supra\Template\Parser\Twig\Twig;
 use Supra\Template\Parser\Twig\Loader\FilesystemLoaderByContext;
 
@@ -89,7 +88,7 @@ class TwigResponse extends HttpResponse
 		} else {
 			
 			if ( ! is_null($this->loaderContext)) {
-				$loader = new FilesystemLoaderByContext($this->loaderContext);
+				$loader = new FilesystemLoaderByContext($this->loaderContext, $this->twigEnvironment->getLoader());
 			}
 		}
 		$content = $this->twigEnvironment->parseTemplate($templateName, $this->templateVariables, $loader);

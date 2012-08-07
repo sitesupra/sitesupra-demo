@@ -47,7 +47,7 @@ class EditableHtml extends ParsedHtmlFilter
 		$html .= $content;
 		$html .= '</div>';
 		
-		$markup = new Twig_Markup($html);
+		$markup = new Twig_Markup($html, 'UTF-8');
 		
 		return $markup;
 	}

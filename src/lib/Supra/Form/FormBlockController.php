@@ -6,12 +6,13 @@ use Supra\Controller\Pages\BlockController;
 use Symfony\Component\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Form\Configuration\FormBlockControllerConfiguration;
-use Symfony\Component\Validator\Mapping\Loader\AnnotationLoader;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Validator;
 use Supra\Loader\Loader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @method \Supra\Form\Configuration\FormBlockControllerConfiguration getConfiguration()
+ */
 abstract class FormBlockController extends BlockController
 {
 	/**
@@ -43,22 +44,17 @@ abstract class FormBlockController extends BlockController
 					$request->getPostFiles()->getArrayCopy(),
 					$request->getServer());
 			
-			$this->bindedForm->bindRequest($symfonyRequest);
-			
+			$this->bindedForm->bind($symfonyRequest);
 			$view = $this->getFormView();
-			$this->getResponse()->assign('form', $view);
-
+			
 			if ($this->bindedForm->isValid()) {
-				$this->success();
-				return;
+				$data = $this->bindedForm->getData();
+				$this->success($data);
 			} else {
 				$this->failure();
-				return;
 			}
 		} else {
-
 			$view = $this->getFormView();
-			$this->getResponse()->assign('form', $view);
 			$this->render();
 		}
 	}
@@ -70,8 +66,9 @@ abstract class FormBlockController extends BlockController
 
 	/**
 	 * On form success action
+	 * @param mixed $data
 	 */
-	abstract protected function success();
+	abstract protected function success($data);
 
 	/**
 	 * On form failure action
@@ -80,11 +77,50 @@ abstract class FormBlockController extends BlockController
 
 	/**
 	 * Custom validation
-	 * @return boolean 
+	 * @param \Symfony\Component\Form\FormEvent $event
 	 */
-	public function validate(Form\Event\DataEvent $event)
+	public function validate(Form\FormEvent $event)
 	{
 		
+	}
+
+	/**
+	 * @param \Symfony\Component\Form\FormEvent $event
+	 */
+	public function errorMessageTranslationListener(Form\FormEvent $event)
+	{
+		$form = $event->getForm();
+		$this->translateErrorMessages($form);
+	}
+
+	/**
+	 * @param \Symfony\Component\Form\FormInterface $form
+	 */
+	private function translateErrorMessages(Form\FormInterface $form)
+	{
+		$errors = $form->getErrors();
+
+		foreach ($errors as $error) {
+			/* @var $error Form\FormError */
+			$message = $error->getMessageTemplate();
+			$messageLocalized = null;
+			
+			$propertyName = FormBlockControllerConfiguration::generateEditableName(FormBlockControllerConfiguration::FORM_GROUP_ID_ERROR, $form->getName())
+					. '_' . $message;
+
+			if ($this->hasProperty($propertyName)) {
+				$messageLocalized = $this->getPropertyValue($propertyName);
+			} else {
+				$this->log->warn("Error message '$message' not localized");
+				$messageLocalized = $message;
+			}
+
+			$error->__construct($messageLocalized, $error->getMessageParameters(), $error->getMessagePluralization());
+		}
+
+		foreach ($form->all() as $element) {
+			$this->translateErrorMessages($element);
+		}
 	}
 
 	/**
@@ -98,10 +134,26 @@ abstract class FormBlockController extends BlockController
 	public function getFormView()
 	{
 		if (is_null($this->formView)) {
-			$this->formView = $this->bindedForm->createView();
+			$this->createFormView();
 		}
 
 		return $this->formView;
+	}
+
+	protected function createFormView()
+	{
+		$this->formView = $this->bindedForm->createView();
+		$this->getResponse()->assign('form', $this->formView);
+	}
+
+	/**
+	 * Data object can be filled with initial values in this stage
+	 * @param mixed $data
+	 * @return mixed
+	 */
+	protected function initializeData($data)
+	{
+		return $data;
 	}
 
 	/**
@@ -110,12 +162,14 @@ abstract class FormBlockController extends BlockController
 	protected function createForm()
 	{
 		$conf = $this->getConfiguration();
-		$dataObject = Loader::getClassInstance($conf->form);
+		$dataObject = Loader::getClassInstance($conf->dataClass);
+		$dataObject = $this->initializeData($dataObject);
 		$formBuilder = $this->prepareFormBuilder($dataObject);
+		$groups = (array) $formBuilder->getOption('validation_groups');
 		
-		foreach ($conf->fields as $field) {
+		foreach ($conf->getFields() as $field) {
 			/* @var $field FormField */
-			$options = array();
+			$options = $field->getArguments();
 
 			$propertyGroup = FormBlockControllerConfiguration::FORM_GROUP_ID_LABELS;
 			$propertyName = FormBlockControllerConfiguration::generateEditableName($propertyGroup, $field);
@@ -138,8 +192,13 @@ abstract class FormBlockController extends BlockController
 					$options['choice_list'] = $choiceList;
 				}
 			}
+
+			// Skip the field
+			if ( ! $field->inGroups($groups)) {
+				continue;
+			}
 			
-			$formBuilder->add($field->getName(), $field->getType(), $options);
+			$formBuilder->add($field->getName(), null, $options);
 		}
 
 		// Custom events
@@ -147,8 +206,11 @@ abstract class FormBlockController extends BlockController
 			$formBuilder->addEventSubscriber($this);
 		}
 
-		// Old stuff...
-		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 10);
+		// Custom validation
+		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 0);
+
+		// Error message translation using block properties
+		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'errorMessageTranslationListener'), 0);
 
 		return $formBuilder->getForm();
 	}
@@ -192,6 +254,26 @@ abstract class FormBlockController extends BlockController
 	}
 
 	/**
+	 * Validation groups can be provided
+	 * @return array
+	 */
+	protected function getFormValidationGroups()
+	{
+		return array(Validator\Constraint::DEFAULT_GROUP);
+	}
+
+	/**
+	 * Form builder options can be overriden
+	 * @return array
+	 */
+	protected function getFormBuilderOptions()
+	{
+		return array(
+			'validation_groups' => $this->getFormValidationGroups()
+		);
+	}
+
+	/**
 	 * @param object $dataObject
 	 * @return Form\FormBuilder 
 	 */
@@ -200,28 +282,27 @@ abstract class FormBlockController extends BlockController
 //		@TODO: Add CSRF later
 //		$csrfProvider = new Form\Extension\Csrf\CsrfProvider\DefaultCsrfProvider(uniqid());
 
-		$path = SUPRA_LIBRARY_PATH . 'Symfony' . DIRECTORY_SEPARATOR . 'Component'
-				. DIRECTORY_SEPARATOR . 'Form' . DIRECTORY_SEPARATOR . 'Resources'
-				. DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'validation.xml';
+		$configuration = $this->getConfiguration();
+		$annotationLoader = $configuration->getAnnotationLoader();
 
-		$loaderChain = new Validator\Mapping\Loader\LoaderChain(array(
-					new AnnotationLoader(new AnnotationReader()),
-					new \Symfony\Component\Validator\Mapping\Loader\XmlFileLoader($path),
-				));
-
-		$metadataFactory = new Validator\Mapping\ClassMetadataFactory($loaderChain);
+		$cache = new FormClassMetadataCache();
+		$metadataFactory = new Validator\Mapping\ClassMetadataFactory($annotationLoader, $cache);
 		$validatorFactory = new Validator\ConstraintValidatorFactory();
 
 		$validator = new Validator\Validator($metadataFactory, $validatorFactory);
 
-		$factory = new Form\FormFactory(array(
-					new Form\Extension\Core\CoreExtension(),
-					new Form\Extension\Validator\ValidatorExtension($validator),
-//					new Form\Extension\Csrf\CsrfExtension($csrfProvider)
-				));
+		$formRegistry = new Form\FormRegistry(array(
+				new Form\Extension\Core\CoreExtension(),
+				new Form\Extension\Validator\ValidatorExtension($validator),
+				new FormSupraExtension($configuration),
+//				new Form\Extension\Csrf\CsrfExtension($csrfProvider)
+		));
+
+		$factory = new Form\FormFactory($formRegistry);
 
 		$id = $this->getBlock()->getId();
-		$formBuilder = $factory->createNamedBuilder('form', $id, $dataObject);
+		$options = $this->getFormBuilderOptions();
+		$formBuilder = $factory->createNamedBuilder($id, 'form', $dataObject, $options);
 
 		return $formBuilder;
 	}

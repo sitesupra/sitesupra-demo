@@ -124,6 +124,8 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			var container = this.get('boundingBox'),
 				widgets = this._widgets,
 				panel = null,
+				filter = null,
+				button = null,
 				datagrid = null;
 			
 			//Panel
@@ -133,7 +135,8 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				'zIndex': 2
 			});
 			panel.render(container);
-			panel.get('contentBox').setStyle('height', 312);
+			panel.addClass('ui-light');
+			panel.get('contentBox').setStyle('height', 350);
 			
 			//Up
 			this._panelDnd = new Y.DD.Drop({
@@ -143,12 +146,35 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			
 			this._panelDnd.set('treeNode', this);
 			
+			//Filter form
+			widgets.filter = filter = new Supra.Form({
+				'style': 'horizontal',
+				'inputs': [
+					{'type': 'String', 'id': 'filterQuery', 'name': 'query', 'label': ''}
+				]
+			});
+			
+			filter.addClass('filters');
+			filter.render(panel.get('contentBox'));
+			
+			filter.on('submit', this.filter, this);
+			filter.getInput('filterQuery').on('input', this.onFilterInputEvent, this);
+			
+			widgets.button = button = new Supra.Button({
+				'label': 'Search',
+				'style': 'small'
+			});
+			
+			button.on('click', this.filter, this);
+			button.render(filter.get('contentBox'));
+			
 			//Datagrid
 			widgets.datagrid = datagrid = new Supra.DataGrid({
 				'requestURI': this.get('tree').get('requestURI'),
 				'requestParams': {
 					'parent_id': this.get('data').id,
-					'locale': this.get('tree').get('locale')
+					'locale': this.get('tree').get('locale'),
+					'query': ''
 				},
 				
 				'style': 'list',
@@ -228,6 +254,8 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				
 				this.get('tree').fire('page:select', params);
 			}, this);
+			
+			window.nodelist = this;
 		},
 		
 		/**
@@ -299,6 +327,53 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			this._widgets.panel.hide();
 			
 			return false;
+		},
+		
+		
+		/**
+		 * ------------------------------ PRIVATE ------------------------------
+		 */
+		
+		
+		/**
+		 * Timer for checking when was last input
+		 * @type {Object}
+		 * @private
+		 */
+		'filterTimer': null,
+		
+		/**
+		 * Filter content
+		 * 
+		 * @private
+		 */
+		'filter': function () {
+			var filter = this._widgets.filter,
+				datagrid = this._widgets.datagrid,
+				query = filter.getInput('filterQuery').get('value');
+			
+			if (datagrid.requestParams.get('query') != query) {
+				datagrid.requestParams.set('query', query);
+				datagrid.reset();
+			}
+			
+			//Cancel timer
+			if (this.filterTimer) {
+				this.filterTimer.cancel();
+				this.filterTimer = null;
+			}
+		},
+		
+		/**
+		 * When filter input value changes set timer
+		 * @param {Object} e
+		 */
+		'onFilterInputEvent': function (e) {
+			if (this.filterTimer) {
+				this.filterTimer.cancel();
+			}
+			
+			this.filterTimer = Y.later(250, this, this.filter);
 		}
 	});
 	

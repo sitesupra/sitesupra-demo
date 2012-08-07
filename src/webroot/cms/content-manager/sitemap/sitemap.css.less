@@ -461,6 +461,35 @@
 		}
 	}
 	
+	.su-panel-content {
+		padding-top: 38px;
+	}
+	
+	.filters {
+		position: absolute;
+		top: 6px; //6px == panel content margin
+		left: 6px;
+		right: 6px;
+		text-align: left;
+		background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
+		border-bottom: 1px solid #B3B3C3;
+		
+		.yui3-form-content {
+			padding: 7px;
+		}
+		.yui3-input {
+			&, .yui3-input-string-content {
+				display: inline-block;
+			}
+			label {
+				display: none;
+			}
+			input {
+				width: 370px;
+			}
+		}
+	}
+	
 	.su-datagrid {
 		td {
 			cursor: pointer;

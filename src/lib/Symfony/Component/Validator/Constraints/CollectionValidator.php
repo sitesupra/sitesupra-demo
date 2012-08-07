@@ -25,12 +25,7 @@ use Symfony\Component\Validator\Constraints\Collection\Required;
 class CollectionValidator extends ConstraintValidator
 {
     /**
-     * Checks if the passed value is valid.
-     *
-     * @param mixed      $value      The value that should be validated
-     * @param Constraint $constraint The constraint for the validation
-     *
-     * @api
+     * {@inheritDoc}
      */
     public function validate($value, Constraint $constraint)
     {
@@ -52,17 +47,7 @@ class CollectionValidator extends ConstraintValidator
                 (is_array($value) && array_key_exists($field, $value)) ||
                 ($value instanceof \ArrayAccess && $value->offsetExists($field))
             ) {
-                if ($fieldConstraint instanceof Required || $fieldConstraint instanceof Optional) {
-                    $constraints = $fieldConstraint->constraints;
-                } else {
-                    $constraints = $fieldConstraint;
-                }
-
-                // cannot simply cast to array, because then the object is converted to an
-                // array instead of wrapped inside
-                $constraints = is_array($constraints) ? $constraints : array($constraints);
-
-                foreach ($constraints as $constr) {
+                foreach ($fieldConstraint->constraints as $constr) {
                     $walker->walkConstraint($constr, $value[$field], $group, $propertyPath.'['.$field.']');
                 }
             } elseif (!$fieldConstraint instanceof Optional && !$constraint->allowMissingFields) {

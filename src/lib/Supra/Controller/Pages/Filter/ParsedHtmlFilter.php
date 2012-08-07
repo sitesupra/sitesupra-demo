@@ -243,7 +243,7 @@ class ParsedHtmlFilter implements FilterInterface
 		$metadata = $this->property->getMetadata();
 
 		$filteredValue = $this->parseSupraMarkup($value, $metadata);
-		$markup = new Twig_Markup($filteredValue);
+		$markup = new Twig_Markup($filteredValue, 'UTF-8');
 		
 		return $markup;
 	}

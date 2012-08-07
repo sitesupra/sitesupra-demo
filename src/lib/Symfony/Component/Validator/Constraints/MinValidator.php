@@ -18,6 +18,8 @@ use Symfony\Component\Validator\ConstraintValidator;
  * @author Bernhard Schussek <bschussek@gmail.com>
  *
  * @api
+ *
+ * @deprecated Deprecated since version 2.1, to be removed in 2.3.
  */
 class MinValidator extends ConstraintValidator
 {
@@ -31,7 +33,7 @@ class MinValidator extends ConstraintValidator
      */
     public function validate($value, Constraint $constraint)
     {
-        if (null === $value) {
+        if (null === $value || '' === $value) {
             return;
         }
 

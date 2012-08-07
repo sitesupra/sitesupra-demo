@@ -42,7 +42,7 @@ class SitemapAction extends PageManagerAction
 		$this->getResponse()
 				->setResponseData($response);
 	}
-	
+
 	/**
 	 * Main method passing the templates tree
 	 */
@@ -53,7 +53,7 @@ class SitemapAction extends PageManagerAction
 		$this->getResponse()
 				->setResponseData($response);
 	}
-	
+
 	/**
 	 * Page move action
 	 */
@@ -61,16 +61,16 @@ class SitemapAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$input = $this->getRequestInput();
-		
+
 		$page = null;
-		
+
 		$localization = $this->getPageLocalizationByRequestKey('page_id');
 		if (is_null($localization)) {
 
 			$page = $this->getPage();
-			
+
 			if (is_null($page)) {
-				$pageId = $this->getRequestParameter('page_id');				
+				$pageId = $this->getRequestParameter('page_id');
 				throw new CmsException('sitemap.error.page_not_found', "Page data for page {$pageId} not found");
 			}
 		}
@@ -78,7 +78,7 @@ class SitemapAction extends PageManagerAction
 		if (is_null($page)) {
 			$page = $localization->getMaster();
 		}
-		
+
 		$parent = $this->getPageByRequestKey('parent_id');
 		$reference = $this->getPageByRequestKey('reference_id');
 
@@ -89,9 +89,9 @@ class SitemapAction extends PageManagerAction
 				}
 				$parent->addChild($page);
 			} else {
-				
+
 				$referenceType = $input->get('reference_type', 'before');
-				
+
 				if ($referenceType == 'after') {
 					$page->moveAsNextSiblingOf($reference);
 				} else {
@@ -108,10 +108,9 @@ class SitemapAction extends PageManagerAction
 //		$eventArgs = new LifecycleEventArgs($publicPage, $publicEm);
 //		$publicEm->getEventManager()->dispatchEvent(PagePathGenerator::postPageMove, $eventArgs);
 //		$publicEm->flush();
-
 		// If all went well, fire the post-publish events for published page localizations.
 		$eventManager = ObjectRepository::getEventManager($this);
-		
+
 		foreach ($page->getLocalizations() as $localization) {
 
 			$eventArgs = new CmsPagePublishEventArgs($this);
@@ -161,35 +160,31 @@ class SitemapAction extends PageManagerAction
 		$em = $this->entityManager;
 		$input = $this->getRequestInput();
 		$localeId = $this->getLocale()->getId();
-		
-		// Parent ID and level
-		$parentId = null;
-		$levels = null;
-		
-		// Calculation of parent and level
-		{
-			if ($input->has('parent_id')) {
-				$parentId = $input->get('parent_id');
-				
-				// Special case for root page, need to fetch 2 levels
-				if (empty($parentId)) {
-					$levels = 2;
-				} else {
-					$levels = 1;
-				}
-			}
 
-			// Is this used now?
-			$parentId = $input->get('root', $parentId);
+		// Parent ID and level
+		$levels = null;
+
+		if ($input->has('parent_id')) {
+			$parentId = $input->get('parent_id');
+
+			// Special case for root page, need to fetch 2 levels
+			if (empty($parentId)) {
+				$levels = 2;
+			} else {
+				$levels = 1;
+			}
 		}
-		
+
+		// Is this used now?
+		$parentId = $input->get('root', $parentId);
+
 		/* @var $parentLocalization Entity\Abstraction\Localization */
 		$parentLocalization = null;
 		$filter = null;
-		
+
 		if ( ! empty($parentId)) {
 			list($parentId, $filter) = explode('_', $parentId);
-			
+
 			// Find localization, special case for group pages
 			if ($entity == Entity\Page::CN()) {
 				$parentLocalization = $em->find(Entity\PageLocalization::CN(), $parentId);
@@ -209,9 +204,9 @@ class SitemapAction extends PageManagerAction
 				throw new CmsException(null, 'The page the children has been requested for was not found');
 			}
 		}
-		
+
 		$response = $this->gatherChildrenData($entity, $parentLocalization, $filter, $levels);
-		
+
 		return $response;
 	}
 
@@ -229,18 +224,20 @@ class SitemapAction extends PageManagerAction
 		$em = $this->entityManager;
 		$input = $this->getRequestInput();
 		$localeId = $this->getLocale()->getId();
-		
+
 		$existingOnly = (boolean) $input->getValidIfExists('existing_only', 'boolean');
 		
+		$customTitleQuery = $input->get('query', false);
+
 		/* @vdoc $pageFinder \Supra\Controller\Pages\Finder\PageFinder */
 		$pageFinder = null;
-		
+
 		if ($entity == Entity\Page::CN()) {
 			$pageFinder = new \Supra\Controller\Pages\Finder\PageFinder($em);
 		} else {
 			$pageFinder = new \Supra\Controller\Pages\Finder\TemplateFinder($em);
 		}
-		
+
 		// Reading by one level because need specific reading strategy for application pages
 		if (empty($parentLocalization)) {
 			$pageFinder->addLevelFilter(0, 0);
@@ -248,9 +245,9 @@ class SitemapAction extends PageManagerAction
 			$rootNode = $parentLocalization->getMaster();
 			$pageFinder->addFilterByParent($rootNode, 1, 1);
 		}
-		
+
 		$queryBuilder = $pageFinder->getQueryBuilder();
-		
+
 		if ($existingOnly) {
 			$queryBuilder->leftJoin('e.localizations', 'l_', 'WITH', 'l_.locale = :locale')
 					->setParameter('locale', $localeId)
@@ -263,74 +260,79 @@ class SitemapAction extends PageManagerAction
 					->andWhere('l_.id IS NOT NULL OR e.global = true OR (e.level = 0 AND e.global = false)');
 		}
 		
+		if($customTitleQuery) {
+			$queryBuilder->andWhere('l_.title LIKE :customTitleQuery');
+			$queryBuilder->setParameter('customTitleQuery', $customTitleQuery . '%');
+		}
+
 		$filterFolders = array();
 		$application = null;
-		
+
 		if ($parentLocalization instanceof Entity\ApplicationLocalization) {
-			
+
 			$application = PageApplicationCollection::getInstance()
 					->createApplication($parentLocalization, $em);
-			
+
 			// TODO: remove the type cast when methods are moved to the abstraction
 			/* @var $application \Supra\Controller\Pages\News\NewsApplication */
 			$filterFolders = (array) $application->getFilterFolders($filter);
 			$application->applyFilters($queryBuilder, $filter);
 		}
-		
+
 		$offset = $input->getValidIfExists('offset', 'smallint');
 		$limit = $input->getValidIfExists('resultsPerRequest', 'smallint');
-		
+
 		$query = $queryBuilder->getQuery();
 		$query->setFirstResult($offset);
 		$query->setMaxResults($limit);
-		
+
 		$paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query, true);
-		
+
 		// TODO: fix, shouldn't return mixed result depending on arguments
 		if ($count) {
 			// When only the count is needed...
 			$count = count($filterFolders) + count($paginator);
-			
+
 			return $count;
 		} else {
-			
+
 			$response = array();
-			
+
 			$pages = iterator_to_array($paginator);
 
 			// Prepend the filter folders
 			$pages = array_merge($filterFolders, $pages);
-			
+
 			if ( ! is_null($levels)) {
-				$levels--;
+				$levels --;
 			}
-			
+
 			foreach ($filterFolders as $filterFolder) {
 				if ( ! $filterFolder instanceof Entity\TemporaryGroupPage) {
 					throw new \LogicException("Application " . get_class($application) . ' returned invalid filter folders');
 				}
 			}
-			
+
 			foreach ($pages as $page) {
 				/* @var $page Entity\Abstraction\AbstractPage */
-				
+
 				$pageData = $this->convertPageToArray($page, $localeId);
-				
+
 				// Skipping the page
 				if (is_null($pageData)) {
 					continue;
 				}
-				
+
 				$pageData['children_count'] = 0;
-				
+
 				$localization = $page->getLocalization($localeId);
-				
+
 				if ( ! empty($localization)) {
 					$filter = null;
 					if ($page instanceof Entity\TemporaryGroupPage) {
 						$filter = $page->getTitle();
 						$localization = $parentLocalization;
-						
+
 						// TODO: for now it's enabled for all filter folders
 						$pageData['childrenListStyle'] = 'scrollList';
 						$pageData['selectable'] = false;
@@ -339,25 +341,25 @@ class SitemapAction extends PageManagerAction
 						$pageData['isDropTarget'] = true;
 						$pageData['new_children_first'] = true;
 					}
-					
+
 					if ($levels === 0) {
 						$pageData['children_count'] = $this->gatherChildrenData($entity, $localization, $filter, $levels, true);
 					} else {
 						$pageData['children'] = $this->gatherChildrenData($entity, $localization, $filter, $levels, false);
 						$pageData['children_count'] = count($pageData['children']);
 					}
-					
+
 					// TODO: might be job for JS
 					if ($pageData['children_count'] > 0 && $pageData['icon'] = 'page') {
 						$pageData['icon'] = 'folder';
 					}
 				}
-				
+
 				$response[] = $pageData;
 			}
-			
+
 			return $response;
 		}
 	}
-	
+
 }

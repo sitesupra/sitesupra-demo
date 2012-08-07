@@ -72,8 +72,15 @@ YUI.add('supra.input-string', function (Y) {
 			}
 			
 			//Handle keydown
-			input.on('keypress', this._onKeyPress, this);
 			input.on('keydown', this._onKeyDown, this);
+			
+			//Handle input, with yui .on("input"...) event doesn't work
+			var node = input.getDOMNode();
+			if (node.addEventListener) {
+				node.addEventListener('input', Y.bind(this._onInput, this), false);
+			} else {
+				input.on('keypress', this._onKeyPress, this);
+			}
 			
 			//Handle value attribute change
 			if (!this.get('srcNode').compareTo(input)) {
@@ -140,6 +147,22 @@ YUI.add('supra.input-string', function (Y) {
 				input.blur();
 				this.fire('reset');
 			}
+		},
+		
+		/**
+		 * On data input validate value
+		 * 
+		 * @param {Object} e
+		 */
+		_onInput: function (e) {
+			var value = this.get('value'),
+				mask = this.get('valueMask');
+			
+			if (mask) {
+				if (!mask.test(value)) return e.preventDefault();
+			}
+			
+			this.fire('input', {'value': value});
 		},
 		
 		_onFocus: function () {

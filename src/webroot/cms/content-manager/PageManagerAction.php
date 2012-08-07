@@ -475,8 +475,8 @@ abstract class PageManagerAction extends CmsAction
 
 			$redirect = $this->getPageController()->getRedirectData($data);
 
-			$array['redirect'] = $redirect['redirect'] ? $redirect['redirect'] : false;
-			$array['redirect_page_id'] = $redirect['redirect_page_id'] ? $redirect['redirect_page_id'] : '';
+			$array['redirect'] = (!empty($redirect['redirect'])) ? $redirect['redirect'] : false;
+			$array['redirect_page_id'] = (!empty($redirect['redirect_page_id'])) ? $redirect['redirect_page_id'] : '';
 		}
 
 		// Node type

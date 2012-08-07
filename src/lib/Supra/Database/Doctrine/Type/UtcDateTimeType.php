@@ -39,6 +39,10 @@ class UtcDateTimeType extends DateTimeType
 			return null;
 		}
 
+		if ( ! $value instanceof DateTime) {
+			throw new \RuntimeException("Not datetime passed to the datetime type object");
+		}
+
 		// Don't change the timezone for the original value
 		$value = clone $value;
 

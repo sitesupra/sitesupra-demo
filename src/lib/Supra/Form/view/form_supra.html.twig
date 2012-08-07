@@ -1,0 +1,38 @@
+{% extends 'lib/Symfony/Bridge/Twig/Resources/views/Form/form_div_layout.html.twig' %}
+
+{% block file_id_widget %}
+	{% if multiple %}
+		{% if value is null or value is empty %}
+			
+		{% else %}
+			<ul>
+			{% for file in value %}
+				<li><strong>{{ file.filename }}</strong> ({{ file.size }}b)</li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	{% else %}
+		{% if value is null %}
+			
+		{% else %}
+			<ul><li><strong>{{ value.filename }}</strong> ({{ value.size }}b)</li></ul>
+		{% endif %}
+	{% endif %}
+{% endblock %}
+
+{# don't show file widget if disabled #}
+{% block file_widget %}
+	{% if disabled %}
+		{# no output #}
+	{% else %}
+		{{ block('form_widget') }}
+	{% endif %}
+{% endblock %}
+
+{% block submit_widget %}
+{% spaceless %}
+    {% set type = type|default('submit') %}
+    {% set value = label %}
+    {{ block('form_widget_simple') }}
+{% endspaceless %}
+{% endblock %}

@@ -13,7 +13,7 @@ interface ProductAbstraction
 
 	public function getProviderClass();
 
-	public function getPrice($amount, Currency $currency, DateTime $when = null);
+	public function getPrice($quantity, Currency $currency, DateTime $when = null);
 	
 	public function getDescription(Locale $locale);
 }
