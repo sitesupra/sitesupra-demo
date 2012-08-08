@@ -537,4 +537,12 @@ class Theme extends Database\Entity implements ThemeInterface
 		$this->configuration = $configuration;
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getPreviewContentUrl()
+	{
+		return $this->getUrlBase() . 'preview.html';
+	}
+
 }

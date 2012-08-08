@@ -20,5 +20,8 @@
 	Supra.Manager.executeAction('Header');
 	Supra.Manager.executeAction('Root');
 	
-	//Supra.Manager.executeAction('Welcome');
+	{% if show_welcome %} 
+		Supra.Manager.executeAction('Welcome');
+	{% endif %}
+		
 {% endblock %}
