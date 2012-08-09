@@ -101,6 +101,8 @@ class ThemeParameterValue extends Database\Entity
 
 			$outputValue = "'" . $theme->getUrlBase() . DIRECTORY_SEPARATOR . $this->getValue() . "'";
 			$outputValue = str_replace('//', '/', $outputValue);
+		} else {
+			$parameter->getConfiguration()->makeOutputValue($outputValue);
 		}
 
 		return $outputValue;

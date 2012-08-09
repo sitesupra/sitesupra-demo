@@ -17,9 +17,26 @@ class FontParameterConfiguration extends ThemeParameterConfiguration
 	 */
 	public $listName;
 
+	/**
+	 * @param array $designData
+	 */
 	public function makeDesignData(&$designData)
 	{
 		$designData['fonts'][$this->listName] = $this->fonts;
+	}
+
+	/**
+	 * @param array $outputValue
+	 */
+	public function makeOutputValue(&$outputValue)
+	{
+		foreach ($this->fonts as $fontData) {
+
+			if ($fontData['title'] == $outputValue) {
+				$outputValue = $fontData;
+				break;
+			}
+		}
 	}
 
 }

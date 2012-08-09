@@ -309,8 +309,25 @@ class Theme extends Database\Entity implements ThemeInterface
 		$lessc->setRootDir($this->getRootDir());
 
 		$values = $parameterSet->getOutputValues();
-
-		$cssContent = $lessc->parse(null, $values);
+		
+		$flatValues = array();
+		
+		foreach($values as $key => $value) {
+			
+			if(is_array($value)) {
+				
+				foreach($value as $key2 => $value2) {
+					$flatValues[$key . '_' . $key2] = $value2;
+				}
+			}
+			else {
+				$flatValues[$key] = $value;
+			}
+		}
+		
+		\Log::error('FLAT: ', $flatValues);
+		
+		$cssContent = $lessc->parse(null, $flatValues);
 
 		$this->writeGenetratedCssToFile($parameterSet, $cssContent);
 	}

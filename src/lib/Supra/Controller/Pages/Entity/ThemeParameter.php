@@ -137,4 +137,24 @@ class ThemeParameter extends Database\Entity
 		return $parameterValue;
 	}
 
+	/**
+	 * 
+	 */
+	public function getConfiguration()
+	{
+		$themeConfiguration = $this->getTheme()->getConfiguration();
+
+		$configuration = null;
+
+		foreach ($themeConfiguration->parameters as $someParameterConfiguration) {
+
+			if ($someParameterConfiguration->name == $this->name) {
+				$configuration = $someParameterConfiguration;
+				break;
+			}
+		}
+
+		return $configuration;
+	}
+
 }
