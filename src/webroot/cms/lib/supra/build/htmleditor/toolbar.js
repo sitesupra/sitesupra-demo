@@ -7,6 +7,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		groups: [
 			{
 				"id": "main",
+				"autoVisible": true, // always visible
+				"animate": false, // never animate slide in/slide out
+				"height": 48,
 				"controls": [
 					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"},
 					{"type": "separator"},
@@ -17,6 +20,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 			},
 			{
 				"id": "text",
+				"autoVisible": true, // always visible
+				"animate": true,
+				"height": 42,
 				"controls": [
 						{"id": "style", "type": "button", "command": "style", "icon": "/cms/lib/supra/img/htmleditor/icon-style.png"},
 					{"type": "separator"},
@@ -68,11 +74,31 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
 					
 				]
+			},
+			{
+				"id": "table",
+				"autoVisible": false, // visible only when needed
+				"visible": false,
+				"animate": true,
+				"height": 42,
+				"controls": [
+						{"id": "row-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-before.png",  "command": "row-before"},
+						{"id": "row-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-delete.png",  "command": "row-delete"},
+						{"id": "row-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-after.png",  "command": "row-after"},
+					{"type": "separator"},
+						{"id": "merge",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-cell-merge.png",  "command": "merge-cells"},
+					{"type": "separator"},
+						{"id": "column-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-before.png",  "command": "column-before"},
+						{"id": "column-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-delete.png",  "command": "column-delete"},
+						{"id": "column-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-after.png",  "command": "column-after"},
+					{"type": "separator"},
+						{"id": "table-settings",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-settings.png",  "command": "table-settings"}
+				]
 			}
 		]
 	};
 	
-	var TEMPLATE_GROUP = '<div class="yui3-editor-toolbar-{id} yui3-editor-toolbar-{id}-hidden">\
+	var TEMPLATE_GROUP = '<div class="yui3-editor-toolbar-{id} hidden">\
 							<div class="yui3-editor-toolbar-{id}-content"></div>\
 						  </div>';
 	
@@ -99,11 +125,18 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	Y.extend(HTMLEditorToolbar, Y.Widget, {
 		
 		/**
-		 * List of group nodes
+		 * List of groups
 		 * @type {Object}
 		 * @private
 		 */
-		groupNodes: {},
+		groups: {},
+		
+		/**
+		 * Visible group order
+		 * @type {Object}
+		 * @private
+		 */
+		groupOrder: [],
 		
 		/**
 		 * List of all controls
@@ -119,16 +152,80 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		previousControlStates: null,
 		
 		
+		/* ---------------------------- Height ------------------------------ */
+		
+		
 		/**
-		 * Bind event listeners
+		 * Force leyout update
+		 */
+		syncLayout: function () {
+			var action = Supra.Manager.getAction('LayoutTopContainer');
+			if (action.get('executed')) action.syncLayout();
+		},
+		
+		/**
+		 * Calculate content height
+		 * 
+		 * @return Toolbar content height
+		 * @type {Number}
+		 * @private
+		 */
+		calculateContentHeight: function () {
+			var groups = this.groups,
+				height = 0,
+				id = null;
+			
+			for (var id in groups) {
+				if (groups[id].visible && id != 'main') { // "main" is outside content
+					height += groups[id].height;
+				}
+			}
+			
+			return height;
+		},
+		
+		/**
+		 * Update content height
 		 * 
 		 * @private
 		 */
-		bindUI: function () {
-			var r = HTMLEditorToolbar.superclass.bindUI.apply(this, arguments);
+		updateContentHeight: function () {
+			var height = this.calculateContentHeight(),
+				node = this.get('contentBox');
 			
-			return r;
+			node.setStyle('height', height + 'px');
+			
+			this.syncLayout();
+			this.fire('contentResize');
 		},
+		
+		/**
+		 * Returns group node top position in which it should be
+		 * 
+		 * @param {String} group_id Group ID
+		 * @return Group top position
+		 * @type {Number}
+		 */
+		getGroupPosition: function (group_id) {
+			var groups = this.groups,
+				groupOrder = this.groupOrder,
+				i = 0,
+				ii = groupOrder.length,
+				top = 0;
+			
+			for (; i<ii; i++) {
+				if (groupOrder[i] == group_id) return top;
+				if (groupOrder[i] != 'main') { // "main" is outside content
+					top += groups[groupOrder[i]].height;
+				}
+			}
+			
+			return top;
+		},
+		
+		
+		/* ---------------------------- Controls ------------------------------ */
+		
 		
 		/**
 		 * Returns control
@@ -239,11 +336,26 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		renderUI: function () {
 			HTMLEditorToolbar.superclass.renderUI.apply(this, arguments);
 			
-			var groups = BUTTONS_DEFAULT.groups;
+			var groups = BUTTONS_DEFAULT.groups,
+				groupList = this.groups = {},
+				id = null,
+				index = 0;
+			
 			for(var i=0,ii=groups.length; i<ii; i++) {
+				id = groups[i].id;
+				
+				groupList[id] = {
+					'node': null,
+					'visible': false,
+					'height': groups[i].height,
+					'animate': groups[i].animate,
+					'autoVisible': groups[i].autoVisible,
+					'index': null
+				};
+				
 				//Create tab
-				var template = Y.substitute(TEMPLATE_GROUP, {'id': groups[i].id}),
-					cont = this.groupNodes[groups[i].id] = Y.Node.create(template).appendTo(this.get('contentBox')),
+				var template = Y.substitute(TEMPLATE_GROUP, {'id': id}),
+					cont = groupList[id].node = Y.Node.create(template).appendTo(this.get('contentBox')),
 					first = true,
 					nextFirst = false,
 					last = false;
@@ -282,8 +394,6 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				}
 				
 			}
-			
-			this.fire('contentResize');
 		},
 		
 		/**
@@ -315,6 +425,138 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				
 				this.previousControlStates = {};
 			}
+		},
+		
+		
+		/* ---------------------------- Visibility ------------------------------ */
+		
+		
+		/**
+		 * Show group
+		 * 
+		 * @param {String} group_id Group ID
+		 * @param {Boolean} silent In silent mode content height is not updated
+		 */
+		showGroup: function (group_id, silent) {
+			var group = this.groups[group_id],
+				groupOrder = this.groupOrder,
+				position = null;
+			
+			if (group && !group.visible) {
+				
+				group.visible = true;
+				group.node.removeClass('hidden');
+				group.index = groupOrder.length;
+				groupOrder.push(group_id);
+				
+				if (group.animate) {
+					position = this.getGroupPosition(group_id);
+					group.node.setStyle('top', position - 48 + 'px');
+					group.node.transition({
+						'top': position + 'px',
+						'easing': 'ease-out',
+						'duration': 0.5
+					});
+				} else if (group_id == 'main') {
+					//Main slide has special animation
+					group.node.one('div').transition({
+						'duration': 0.5,
+						'easing': 'ease-out',
+						'marginTop': '0px'
+					});
+				}
+				
+				if (!silent) this.updateContentHeight();
+			}
+		},
+		
+		/**
+		 * Hide group
+		 * 
+		 * @param {String} group_id Group name
+		 * @param {Boolean} silent In silent mode content height is not updated
+		 */
+		hideGroup: function (group_id, silent, after) {
+			var groups = this.groups,
+				group = groups[group_id],
+				groupOrder = this.groupOrder,
+				position = null;
+			
+			if (group && group.visible) {
+				groupOrder.splice(group.index, 1);
+				
+				group.index = null;
+				group.visible = false;
+				
+				if (group.animate) {
+					position = this.getGroupPosition(group_id);
+					
+					group.node.transition({
+						'top': position - 48 + 'px',
+						'easing': 'ease-out',
+						'duration': 0.5
+					}, Y.bind(function () {
+						group.node.addClass('hidden');
+						if (!silent) this.updateContentHeight();
+						if (Y.Lang.isFunction(after)) after();
+					}, this));
+					
+				} else if (group_id == 'main') {
+					
+					//Main slide has special animation
+					group.node.one('div').transition({
+						'duration': 0.5,
+						'easing': 'ease-out',
+						'marginTop': '50px'
+					}, Y.bind(function () {
+						group.node.addClass('hidden');
+						if (!silent) this.updateContentHeight();
+						if (Y.Lang.isFunction(after)) after();
+					}, this));
+					
+				} else {
+					
+					if (!silent) this.updateContentHeight();
+					if (Y.Lang.isFunction(after)) after();
+					
+				}
+			}
+		},
+		
+		/**
+		 * Handle visibility change
+		 * @param {Object} visible
+		 */
+		_uiSetVisible: function (visible) {
+			if (visible) {
+				this.get('boundingBox').removeClass(this.getClassName('hidden'));
+				
+				var group_proto = BUTTONS_DEFAULT.groups,
+					groups = this.groups,
+					id = null,
+					i = 0,
+					ii = group_proto.length,
+					show = [];
+				
+				for (; i<ii; i++) {
+					id = group_proto[i].id;
+					if (groups[id].autoVisible) show.push(id);
+				}
+				
+				for (i=0,ii=show.length; i<ii; i++) {
+					this.showGroup(show[i], i != ii - 1);
+				}
+			} else {
+				var groupOrder = this.groupOrder,
+					i = groupOrder.length - 1,
+					fn = Y.bind(function () { 
+							this.get('boundingBox').addClass(this.getClassName('hidden'));
+						 }, this);
+				
+				for (; i >= 0; i--) {
+					this.hideGroup(groupOrder[i], i != 0, i == 0 ? fn : null);
+				}
+			}
 		}
 		
 	});
@@ -322,4 +564,4 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	Supra.HTMLEditorToolbar = HTMLEditorToolbar;
 	
 	
-}, YUI.version, {requires:['widget', 'supra.panel', 'supra.button']});
+}, YUI.version, {requires:['widget', 'supra.panel', 'supra.button', 'transition']});

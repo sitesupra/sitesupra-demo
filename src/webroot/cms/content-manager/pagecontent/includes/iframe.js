@@ -117,6 +117,17 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 */
 		stylesheetParser: null,
 		
+		/**
+		 * Layout is binded
+		 * @type {Number}
+		 */
+		layoutBinded: false,
+		
+		/**
+		 * Last known top offset
+		 */
+		layoutOffsetTop: null,
+		
 		
 		/**
 		 * Add script to the page content
@@ -195,6 +206,12 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//Trigger ready event
 			this.fire('ready', {'iframe': this, 'body': body});
 			this.get("nodeIframe").fire('ready');
+			
+			//Bind to layout
+			if (this.layout && !this.layoutBinded) {
+				this.layoutBinded = true;
+				this.layout.on('sync', this.onLayoutSync, this);
+			}
 		},
 		
 		/**
@@ -684,6 +701,31 @@ YUI.add('supra.iframe-handler', function (Y) {
 			}
 			
 			return this.fontsURI = (load.length ? uri + load.join('|') : '');
+		},
+		
+		/**
+		 * On layout sync update content scroll to match new offset
+		 * This is done so that user don't see content jumping when top-container height changes
+		 * 
+		 * @param {Object} event
+		 */
+		onLayoutSync: function (event) {
+			if (this.layoutOffsetTop === null) {
+				this.layoutOffsetTop = event.offset.top;
+			}
+			
+			if (this.layoutOffsetTop != event.offset.top) {
+				var diff = event.offset.top - this.layoutOffsetTop,
+					doc = this.get('doc'),
+					body = doc.body,
+					html = doc.querySelector('HTML'),
+					scroll = (html ? html.scrollTop : 0) || (body ? body.scrollTop : 0) + diff;
+				
+				html.scrollTop = scroll;
+				body.scrollTop = scroll;
+				
+				this.layoutOffsetTop = event.offset.top;
+			}
 		}
 		
 	});

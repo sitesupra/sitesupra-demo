@@ -33,11 +33,10 @@
 	}
 }
 
-.yui3-editor-toolbar-text {
+.yui3-editor-toolbar-text,
+.yui3-editor-toolbar-table {
 	.box-shadow (0, 1px, 0, rgba(0,0,0,0.15));
 	.border-radius (0, 0, 3px, 3px);
-	.transition-property (top);
-	.transition-duration (1s);
 	
 	background: url(/cms/lib/supra/img/toolbar/buttons-background.png) 0 -48px repeat-x;
 	padding: 8px 10px 0;
@@ -45,19 +44,12 @@
 	width: 655px;
 	position: absolute;
 	z-index: 1;
-	margin: 48px 0 0 -290px;
+	margin: 48px 0 0 -337px;
 	top: 0;
 	left: 50%;
 	
-	position: relative;
-	margin: 0 auto;
-	left: auto;
-	
-	
-	&.yui3-editor-toolbar-text-hidden {
-		.transition-property (top);
-		.transition-duration (0.5s);
-		top: -48px;
+	&.yui3-editor-toolbar-table {
+		z-index: 0;
 	}
 	
 	/**
@@ -227,13 +219,15 @@
 
 /* Cross-browser inconsistencies fix */
 .gecko, .ie {
-	.yui3-editor-toolbar-text .yui3-button img {
+	.yui3-editor-toolbar-text .yui3-button img,
+	.yui3-editor-toolbar-table .yui3-button img {
 		position: relative;
 		margin: 0 0 0 -1px;
 		display: inline-block;
 	}
 }
-.ie .yui3-editor-toolbar-text .yui3-input-select .yui3-input-select-inner > p {
+.ie .yui3-editor-toolbar-text .yui3-input-select .yui3-input-select-inner > p,
+.ie .yui3-editor-toolbar-table .yui3-input-select .yui3-input-select-inner > p {
 	/* Fix for IE toolbar select list width */
 	min-width: 143px;
 }

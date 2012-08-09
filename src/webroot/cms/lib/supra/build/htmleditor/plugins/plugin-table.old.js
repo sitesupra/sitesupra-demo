@@ -2,7 +2,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 	
 	//Constants
 	var HTMLEDITOR_COMMAND = 'inserttable',
-		HTMLEDITOR_SETTINGS_COMMAND = 'table-settings',
 		HTMLEDITOR_BUTTON  = 'inserttable';
 	
 	var defaultConfiguration = {
@@ -24,6 +23,8 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		data: null,
 		silent: false,
 		
+		buttons: null,
+		
 		/**
 		 * Generate settings form
 		 */
@@ -39,19 +40,21 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				plugin.excludeTags(['table', 'tr', 'td', 'th']);
 			}
 			
-			//Form
+			//Get styles
+			var styles = this.getTableStyles();
+			
+			//Properties form
 			var form_config = {
-				'style': 'vertical',
-				'inputs': [
-					{'id': 'rows', 'label': 'Rows', 'type': 'Select', 'value': '3', 'values': [
-							{'title': '1', 'id': '1'}, {'title': '2', 'id': '2'}, {'title': '3', 'id': '3'}, {'title': '4', 'id': '4'}, {'title': '5', 'id': '5'}, {'title': '6', 'id': '6'}, {'title': '7', 'id': '7'}, {'title': '8', 'id': '8'}, {'title': '9', 'id': '9'}
-						]},
-					{'id': 'columns', 'label': 'Columns', 'type': 'Select', 'value': '3', 'values': [
-							{'title': '1', 'id': '1'}, {'title': '2', 'id': '2'}, {'title': '3', 'id': '3'}, {'title': '4', 'id': '4'}, {'title': '5', 'id': '5'}, {'title': '6', 'id': '6'}, {'title': '7', 'id': '7'}, {'title': '8', 'id': '8'}, {'title': '9', 'id': '9'}
-						]},
-				]
+				'inputs': [{
+					'id': 'style',
+					'type': 'Select',
+					'label': Supra.Intl.get(['htmleditor', 'table_style']),
+					'value': '',
+					'values': styles,
+					'visible': !!styles.length
+				}],
+				'style': 'vertical'
 			};
-
 			
 			var form = new Supra.Form(form_config);
 				form.render(content);
@@ -62,12 +65,39 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				form.getInput(form_config.inputs[i].id).on('change', this.onPropertyChange, this);
 			}
 			
+			//Insert row before, after, etc.
+			var button_list = {};
+			var node_group = Y.Node.create('<div class="su-button-group-list"></div>');
+			form.get('contentBox').append(node_group);
+			
+			var btn = button_list.rowBefore = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_row_before']), 'style': 'small', 'icon': '/cms/lib/supra/img/htmleditor/table-row-before.png'});
+				btn.render(node_group).on('click', this.cmdRowBefore, this);
+			
+			var btn = button_list.rowDelete = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'delete_row']), 'style': 'small', 'icon': '/cms/lib/supra/img/htmleditor/table-row-delete.png'});
+				btn.render(node_group).on('click', this.cmdRowDelete, this);
+			
+			var btn = button_list.rowAfter = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_row_after']), 'style': 'small', 'icon': '/cms/lib/supra/img/htmleditor/table-row-after.png'});
+				btn.render(node_group).on('click', this.cmdRowAfter, this);
+			
+			var btn = button_list.mergeCells = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'merge_cells']), 'style': 'small', 'icon': '/cms/lib/supra/img/htmleditor/table-merge.png'});
+				btn.render(node_group).on('click', this.cmdMergeCells, this);
+			
+			var btn = button_list.colBefore = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_col_before']), 'style': 'small', 'icon': '/cms/lib/supra/img/htmleditor/table-col-before.png'});
+				btn.render(node_group).on('click', this.cmdColBefore, this);
+			
+			var btn = button_list.colDelete = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'delete_col']), 'style': 'small', 'icon': '/cms/lib/supra/img/htmleditor/table-col-delete.png'});
+				btn.render(node_group).on('click', this.cmdColDelete, this);
+			
+			var btn = button_list.colAfter = new Supra.Button({'label': Supra.Intl.get(['htmleditor', 'insert_col_after']), 'style': 'small', 'icon': '/cms/lib/supra/img/htmleditor/table-col-after.png'});
+				btn.render(node_group).on('click', this.cmdColAfter, this);
+			
 			//Delete button
 			var btn = new Supra.Button({'label': Supra.Intl.get(['buttons', 'delete']), 'style': 'small-red'});
 				btn.render(form.get('contentBox'));
 				btn.addClass('su-button-delete');
 				btn.on('click', this.removeSelectedTable, this);
 			
+			this.buttons = button_list;
 			this.settings_form = form;
 			return form;
 		},
@@ -99,12 +129,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		},
 		cmdRowDelete: function () {
 			this.selected_cell.ancestor().remove();
-			
-			if (this.selected_table.all('tr').size() == 0) {
-				//Table last row was removed
-				return this.removeSelectedTable();
-			}
-			
 			this.selected_cell = this.selected_table.one('th,td');
 			this.selected_cell.addClass('yui3-cell-selected');
 		},
@@ -185,11 +209,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				} else {
 					td.parentNode.removeChild(td);
 				}
-			}
-			
-			if (table.all('td').size() == 0 && table.all('th').size() == 0) {
-				//Table last column was removed
-				this.removeSelectedTable();
 			}
 		},
 		
@@ -291,35 +310,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		},
 		
 		/**
-		 * Returns number of columns in the table
-		 * 
-		 * @return Column count
-		 * @type {Number}
-		 */
-		getColCount: function () {
-			var trs = this.selected_table.all('tr'),
-				i = 0,
-				ii = trs.size(),
-				max = 0;
-			
-			for (; i<ii; i++) {
-				max = Math.max(max, this.getRowLength(trs.item(i).getDOMNode()));
-			}
-			
-			return max;
-		},
-		
-		/**
-		 * Returns number of rows in the table
-		 * 
-		 * @return Row count
-		 * @type {Number}
-		 */
-		getRowCount: function () {
-			return this.selected_table.all('tr').size();
-		},
-		
-		/**
 		 * Returns cell index (all previous cell colspan summ)
 		 * 
 		 * @param {HTMLElement} cell
@@ -340,13 +330,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			return index;
 		},
 		
-		/**
-		 * Returns number of cells in a row
-		 * 
-		 * @param {HTMLElement} tr Row element
-		 * @return Number of cells in a row
-		 * @type {Number}
-		 */
 		getRowLength: function (tr) {
 			var tds = tr.childNodes,
 				length = 0;
@@ -412,8 +395,15 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			return index;
 		},
 		
+		/*
+		getCellAtIndex: function () {
+			
+		},
+		*/
+		
 		/**
-		 * Handle property input value change, update UI
+		 * Handle property input value change
+		 * Save data and update UI
 		 * 
 		 * @param {Object} event Event
 		 */
@@ -434,10 +424,14 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * @param {String} value
 		 */
 		setProperty: function (id, value) {
-			if (id == 'rows') {
-				
-			} else if (id == 'columns') {
-				
+			//Update table style
+			if (id == 'style') {
+				var styles = this.getTableStyles();
+				for(var i=0,ii=styles.length; i<ii; i++) {
+					this.selected_table.removeClass(styles[i].id);
+				} 
+				this.selected_table.addClass(value);
+				this.data.style = value;
 			}
 		},
 		
@@ -485,7 +479,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				this.original_data = null;
 				this.data = null;
 				this.htmleditor.refresh(true);
-				this.hideToolbar();
 				this.hideSettingsForm();
 			}
 		},
@@ -511,22 +504,10 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			return list.length == 1 ? [] : list;
 		},
 		
-		showToolbar: function () {
-			var toolbar = this.htmleditor.get('toolbar');
-			toolbar.getButton(HTMLEDITOR_BUTTON).set('down', true);
-			toolbar.showGroup('table');
-		},
-		
-		hideToolbar: function () {
-			var toolbar = this.htmleditor.get('toolbar');
-			toolbar.getButton(HTMLEDITOR_BUTTON).set('down', false);
-			toolbar.hideGroup('table');
-		},
-		
 		/**
 		 * Show table settings bar
 		 */
-		showTableSettings: function () {
+		showTableSettings: function (event) {
 			//Make sure PageContentSettings is rendered
 			var form = this.settings_form || this.createSettingsForm(),
 				action = Manager.getAction('PageContentSettings');
@@ -535,11 +516,11 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				if (action.get('loaded')) {
 					if (!action.get('created')) {
 						action.renderAction();
-						this.showTableSettings();
+						this.showTableSettings(event);
 					}
 				} else {
 					action.once('loaded', function () {
-						this.showTableSettings();
+						this.showTableSettings(event);
 					}, this);
 					action.load();
 				}
@@ -552,35 +533,42 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				'scrollable': true
 			});
 			
+			//
+			this.selected_table = event.target.closest('table');
+			this.selected_cell = event.target.closest('td,th');
+			
+			if (this.selected_table) {
+				this.selected_table.addClass('yui3-table-selected');
+			} else {
+				return;
+			}
+			if (this.selected_cell) {
+				this.selected_cell.addClass('yui3-cell-selected');
+			}
+			
+			//Find current style
+			var styles = this.getTableStyles();
+			var	data = {
+				'style': ''
+			};
+			for(var i=0,ii=styles.length; i<ii; i++) {
+				if (this.selected_table.hasClass(styles[i].id)) {
+					data.style = styles[i].id;
+					break;
+				}
+			}
+			
+			//Reset form
 			this.silent = true;
-			form.getInput('rows').set('value', this.getRowCount());
-			form.getInput('columns').set('value', this.getColCount());
+			this.settings_form.resetValues()
+							  .setValues(data, 'id');
 			this.silent = false;
-		},
-		
-		/**
-		 * Focus table
-		 */
-		focusTable: function (element) {
-			var table = element ? element.closest('table') : null,
-				cell = element ? element.closest('td,th') : null;
 			
-			if (this.selected_table && (!table || !table.compareTo(this.selected_table))) {
-				this.selected_table.removeClass('yui3-table-selected');
-			}
-			if (table) {
-				table.addClass('yui3-table-selected');
-			}
+			//Clone data because data properties will change and orginal properties should stay intact
+			this.original_data = Supra.mix({}, data);
+			this.data = data;
 			
-			if (this.selected_cell && (!cell || !cell.compareTo(this.selected_cell))) {
-				this.selected_cell.removeClass('yui3-cell-selected');
-			}
-			if (cell) {
-				cell.addClass('yui3-cell-selected');
-			}
-			
-			this.selected_table = table;
-			this.selected_cell = cell;
+			if (event.halt) event.halt();
 		},
 		
 		/**
@@ -589,28 +577,24 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		insertTable: function (values) {
 			var htmleditor = this.htmleditor;
 			
-			if (this.selected_table) {
-				//Focus already on table, don't allow creating table inside another table
-				return;
-			}
-			
 			if (!htmleditor.get('disabled') && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
 				var cell_html = '<br />';
 				if (Y.UA.ie) {
 					cell_html = '';
 				}
 				
-				var html_row = '<tr><td>' + cell_html + '</td><td>' + cell_html + '</td><td>' + cell_html + '</td></tr>',
-					html_table = '<table><tbody><tr><th>' + cell_html + '</th><th>' + cell_html + '</th><th>' + cell_html + '</th></tr>' + html_row + html_row + '</tbody></table>';
+				var styles = this.getTableStyles(),	//Get all table styles
+					classname = styles.length ? styles[0].id : '',
+					
+					html_row = '<tr><td>' + cell_html + '</td><td>' + cell_html + '</td><td>' + cell_html + '</td></tr>',
+					html_table = '<table class="' + classname + '"><tbody><tr><th>' + cell_html + '</th><th>' + cell_html + '</th><th>' + cell_html + '</th></tr>' + html_row + html_row + '</tbody></table>';
 				
 				//Replace selection with table
 				var node = htmleditor.replaceSelection(html_table);
 				
 				if (node) {
 					node = (new Y.Node(node)).one('th,th');
-					
-					this.showToolbar();
-					this.focusTable(node);
+					this.showTableSettings({'target': node});
 				}
 				
 				//Set changed event
@@ -632,15 +616,21 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 					this.settingsFormApply();
 				}
 				
-				if (!this.selected_table) {
-					this.showToolbar();
+				if (this.selected_table) {
+					if (this.selected_cell) {
+						this.selected_cell.removeClass('yui3-cell-selected');
+					}
+					this.selected_cell = element;
+					this.selected_cell.addClass('yui3-cell-selected');
+				} else {
+					//If table is first element in editor, then on editing start
+					//table settings is shown which breaks block properties
+					Y.later(16, this, function () {
+						this.showTableSettings({'target': element});
+					});
 				}
-				
-				this.focusTable(element);
 			} else if (this.selected_table) {
-				this.focusTable(null);
 				this.settingsFormApply();
-				this.hideToolbar();
 			}
 		},
 		
@@ -655,25 +645,13 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			
 			// Add command
 			htmleditor.addCommand(HTMLEDITOR_COMMAND, Y.bind(this.insertTable, this));
-			htmleditor.addCommand(HTMLEDITOR_SETTINGS_COMMAND, Y.bind(this.showTableSettings, this));
-			
-			htmleditor.addCommand('row-before', Y.bind(this.cmdRowBefore, this));
-			htmleditor.addCommand('row-after', Y.bind(this.cmdRowAfter, this));
-			htmleditor.addCommand('row-delete', Y.bind(this.cmdRowDelete, this));
-			htmleditor.addCommand('merge', Y.bind(this.cmdRowBefore, this));
-			htmleditor.addCommand('column-before', Y.bind(this.cmdColBefore, this));
-			htmleditor.addCommand('column-after', Y.bind(this.cmdColAfter, this));
-			htmleditor.addCommand('column-delete', Y.bind(this.cmdColDelete, this));
 			
 			var button = this.getButton();
 			if (button) {
 				//When un-editable node is selected disable toolbar button
 				htmleditor.on('editingAllowedChange', function (event) {
-					if (!event.allowed) {
-						this.hideToolbar();
-					}
 					button.set('disabled', !event.allowed);
-				}, this);
+				});
 			}
 			
 			//When image looses focus hide settings form

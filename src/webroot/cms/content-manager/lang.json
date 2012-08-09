@@ -121,6 +121,15 @@
 			"indent": "Indent",
 			"outdent": "Outdent",
 			
+			"row-before": "Insert row before",
+			"row-delete": "Delete row",
+			"row-after": "Insert row after",
+			"merge": "Merge cells",
+			"column-before": "Insert column before",
+			"column-delete": "Delete column",
+			"column-after":  "Insert column after",
+			"table-settings":  "Table settings",
+			
 			"style": "Styles",
 			
 			"group_text": "Text",
@@ -176,14 +185,7 @@
 			"image_style_none": "No style",
 			
 			"table_style": "Table style",
-			"table_properties": "Table properties",
-			"insert_row_before": "Insert row before",
-			"insert_row_after": "Insert row after",
-			"delete_row": "Delete row",
-			"merge_cells": "Merge cells",
-			"insert_col_before": "Insert column before",
-			"insert_col_after": "Insert column after",
-			"delete_col": "Delete column"
+			"table_properties": "Table properties"
 		},
 		
 		"settings": {
