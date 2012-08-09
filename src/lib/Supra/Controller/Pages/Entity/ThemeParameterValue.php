@@ -101,22 +101,10 @@ class ThemeParameterValue extends Database\Entity
 
 			$outputValue = "'" . $theme->getUrlBase() . DIRECTORY_SEPARATOR . $this->getValue() . "'";
 			$outputValue = str_replace('//', '/', $outputValue);
-		} else if ($parameter->getType() == 'font') {
-
-			$fontParameterConfiguration = $parameter->getConfiguration();
-
-			foreach ($fontParameterConfiguration->fonts as $fontData) {
-
-				\Log::error($outputValue);
-				\Log::error($fontData);
-				
-				if ($fontData['title'] == $outputValue) {
-
-					$outputValue = $fontData;
-				}
-			}
+		} else {
+			$parameter->getConfiguration()->makeOutputValue($outputValue);
 		}
-		
+
 		return $outputValue;
 	}
 

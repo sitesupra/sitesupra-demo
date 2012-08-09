@@ -223,6 +223,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		}
 
 		$em->flush();
+		
+		$theme->generateCssFiles();
 	}
 
 	/**
