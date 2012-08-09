@@ -26,7 +26,7 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 	/**
 	 * @var string
 	 */
-	public $type = 'custom';
+	public $type; // = 'custom';
 
 	/**
 	 * @var string
@@ -81,7 +81,12 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 
 		$parameter->setDefaultValue($this->defaultValue);
 
-		$parameter->setType($this->type);
+		if(empty($this->type)) {
+			$parameter->setType('custom');
+		}
+		else {
+			$parameter->setType($this->type);
+		}
 
 		$this->parameter = $parameter;
 	}
