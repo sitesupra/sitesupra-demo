@@ -40,7 +40,7 @@ class DecimalToStringTransformer implements DataTransformerInterface
             return '';
         }
 
-        if (!is_numeric($value)) {
+        if ( ! is_numeric($value)) {
             throw new UnexpectedTypeException($value, 'numeric');
         }
 
