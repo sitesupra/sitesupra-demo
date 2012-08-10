@@ -59,7 +59,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			
 			//On style change update table
 			for(var i=0,ii=form_config.inputs.length; i<ii; i++) {
-				form.getInput(form_config.inputs[i].id).on('change', this.onPropertyChange, this);
+				form.getInput(form_config.inputs[i].id).after('valueChange', this.onPropertyChange, this);
 			}
 			
 			//Delete button
@@ -297,6 +297,8 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * @type {Number}
 		 */
 		getColCount: function () {
+			if (!this.selected_table) return 0;
+			
 			var trs = this.selected_table.all('tr'),
 				i = 0,
 				ii = trs.size(),
@@ -316,7 +318,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * @type {Number}
 		 */
 		getRowCount: function () {
-			return this.selected_table.all('tr').size();
+			return this.selected_table ? this.selected_table.all('tr').size() : 0;
 		},
 		
 		/**
@@ -435,8 +437,82 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 */
 		setProperty: function (id, value) {
 			if (id == 'rows') {
+				var old_value = this.getRowCount(),
+					i = 0, ii = 0,
+					trs = this.selected_table.all('tr');
+				
+				//Remove selection classname
+				if (this.selected_cell) {
+					this.selected_cell.removeClass('yui3-cell-selected');
+				}
+				
+				value = parseInt(value, 10);
+				this.selected_cell = trs.item(trs.size() - 1).one('th, td');
+				
+				if (value > old_value) {
+					//Increase column count
+					for (i=old_value+1, ii=value+1; i<ii; i++) {
+						this.cmdRowAfter();
+						
+						trs = this.selected_table.all('tr');
+						this.selected_cell = trs.item(trs.size() - 1).one('th, td');
+					}
+				} else if (value < old_value) {
+					//Remove columns
+					for (i=old_value, ii=value; i>ii; i--) {
+						this.cmdRowDelete();
+						
+						trs = this.selected_table.all('tr');
+						this.selected_cell = trs.item(trs.size() - 1).one('th, td');
+					}
+				}
+				
+				//Set selection and add classname
+				trs = this.selected_table.all('tr');
+				this.selected_cell = trs.item(trs.size() - 1).one('th, td');
+				this.selected_cell.addClass('yui3-cell-selected');
+				
+				//Property changed, update editor 'changed' state
+				this.htmleditor._changed();
 				
 			} else if (id == 'columns') {
+				var old_value = this.getColCount(),
+					i = 0, ii = 0,
+					tds = this.selected_table.one('tr').all('th, td');
+				
+				//Remove selection classname
+				if (this.selected_cell) {
+					this.selected_cell.removeClass('yui3-cell-selected');
+				}
+				
+				value = parseInt(value, 10);
+				this.selected_cell = tds.item(tds.size() - 1);
+				
+				if (value > old_value) {
+					//Increase column count
+					for (i=old_value+1, ii=value+1; i<ii; i++) {
+						this.cmdColAfter();
+						
+						tds = this.selected_table.one('tr').all('th, td');
+						this.selected_cell = tds.item(tds.size() - 1);
+					}
+				} else if (value < old_value) {
+					//Remove columns
+					for (i=old_value, ii=value; i>ii; i--) {
+						this.cmdColDelete();
+						
+						tds = this.selected_table.one('tr').all('th, td');
+						this.selected_cell = tds.item(tds.size() - 1);
+					}
+				}
+				
+				//Set selection and add classname
+				tds = this.selected_table.one('tr').all('th, td');
+				this.selected_cell = tds.item(tds.size() - 1);
+				this.selected_cell.addClass('yui3-cell-selected');
+				
+				//Property changed, update editor 'changed' state
+				this.htmleditor._changed();
 				
 			}
 		},
@@ -448,30 +524,9 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			if (this.settings_form && this.settings_form.get('visible')) {
 				Manager.PageContentSettings.hide();
 			}
-		},
-		
-		/**
-		 * Apply settings changes
-		 */
-		settingsFormApply: function () {
-			if (this.selected_table) {
-				
-				this.selected_table.removeClass('yui3-table-selected');
-				
-				if (this.selected_cell) {
-					this.selected_cell.removeClass('yui3-cell-selected');
-				}
-				
-				this.selected_table = null;
-				this.selected_cell = null;
-				this.original_data = null;
-				this.data = null;
-				
-				this.hideSettingsForm();
-				
-				//Property changed, update editor 'changed' state
-				this.htmleditor._changed();
-			}
+			
+			//Button style
+			this.getButton(HTMLEDITOR_SETTINGS_COMMAND).set('down', false);
 		},
 		
 		/**
@@ -527,6 +582,8 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * Show table settings bar
 		 */
 		showTableSettings: function () {
+			if (!this.selected_table) return;
+			
 			//Make sure PageContentSettings is rendered
 			var form = this.settings_form || this.createSettingsForm(),
 				action = Manager.getAction('PageContentSettings');
@@ -546,8 +603,11 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				return false;
 			}
 			
+			//Button style
+			this.getButton(HTMLEDITOR_SETTINGS_COMMAND).set('down', true);
+			
 			action.execute(form, {
-				'doneCallback': Y.bind(this.settingsFormApply, this),
+				'doneCallback': Y.bind(this.hideSettingsForm, this),
 				'title': Supra.Intl.get(['htmleditor', 'table_properties']),
 				'scrollable': true
 			});
@@ -629,7 +689,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 					table = element.closest('table');
 				
 				if (this.selected_table && !table.compareTo(this.selected_table)) {
-					this.settingsFormApply();
+					this.hideSettingsForm();
 				}
 				
 				if (!this.selected_table) {
@@ -639,7 +699,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				this.focusTable(element);
 			} else if (this.selected_table) {
 				this.focusTable(null);
-				this.settingsFormApply();
+				this.hideSettingsForm();
 				this.hideToolbar();
 			}
 		},
@@ -660,7 +720,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			htmleditor.addCommand('row-before', Y.bind(this.cmdRowBefore, this));
 			htmleditor.addCommand('row-after', Y.bind(this.cmdRowAfter, this));
 			htmleditor.addCommand('row-delete', Y.bind(this.cmdRowDelete, this));
-			htmleditor.addCommand('merge', Y.bind(this.cmdRowBefore, this));
+			htmleditor.addCommand('merge-cells', Y.bind(this.cmdMergeCells, this));
 			htmleditor.addCommand('column-before', Y.bind(this.cmdColBefore, this));
 			htmleditor.addCommand('column-after', Y.bind(this.cmdColAfter, this));
 			htmleditor.addCommand('column-delete', Y.bind(this.cmdColDelete, this));
@@ -680,9 +740,9 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			htmleditor.on('nodeChange', this.onNodeChange, this);
 		},
 		
-		getButton: function () {
+		getButton: function (id) {
 			var toolbar = this.htmleditor.get('toolbar');
-			return toolbar ? toolbar.getButton(HTMLEDITOR_BUTTON) : null;
+			return toolbar ? toolbar.getButton(id || HTMLEDITOR_BUTTON) : null;
 		},
 		
 		/**
