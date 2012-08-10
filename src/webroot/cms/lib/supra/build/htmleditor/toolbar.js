@@ -106,7 +106,8 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	
 	function HTMLEditorToolbar (config) {
 		this.controls = {};
-		this.groupNodes = {};
+		this.groups = {};
+		this.groupOrder = [];
 		
 		HTMLEditorToolbar.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
@@ -255,9 +256,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		 */
 		addControl: function (group_id, data, options) {
 			if (!data || !group_id) return;
-			if (typeof group_id == 'string' && !(group_id in this.groupNodes)) return;
+			if (typeof group_id == 'string' && !(group_id in this.groups)) return;
 			
-			var cont = typeof group_id == 'string' ? this.groupNodes[group_id].one('div') : group_id,
+			var cont = typeof group_id == 'string' ? this.groups[group_id].node.one('div') : group_id,
 				label,
 				title,
 				node,

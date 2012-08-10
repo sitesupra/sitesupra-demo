@@ -16,11 +16,11 @@ class CopyrightBlock extends BlockController
 		$properties = array();
 
 		$copyrightText = new Editable\InlineString('Copyright');
-		$copyrightText->setDefaultValue('Copyright © 2011 Ovid Theme is proudly powered by Wordpress.');
+		$copyrightText->setDefaultValue('Copyright © 2011 Lorem ipsum');
 		$properties['copyright'] = $copyrightText;
 
 		$themeText = new Editable\InlineString('Theme');
-		$themeText->setDefaultValue('Wordpress theme by Peerapong.');
+		$themeText->setDefaultValue('Theme by Lorem ipsum');
 		$properties['theme'] = $themeText;
 
 		$imagesText = new Editable\InlineString('Images');
