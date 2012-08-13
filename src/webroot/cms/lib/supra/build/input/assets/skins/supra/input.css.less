@@ -65,6 +65,10 @@
 	}
 	.yui3-form p.label {
 		width: auto;
+		
+		&.large {
+			font-size: 14px;
+		}
 	}
 	
 		/* Dark color theme */
@@ -478,7 +482,8 @@
 	.yui3-input {
 		margin: 10px 0;
 		
-		label {
+		label,
+		p.label {
 			width: 160px;
 		}
 		
@@ -547,7 +552,8 @@
  */
 .yui3-form-vertical {
 
-	.yui3-input label {
+	.yui3-input label,
+	p.label {
 		padding: 7px 0 4px 2px;
 		width: auto;
 	}
@@ -566,7 +572,8 @@
 	.yui3-input-link label,
 	.yui3-input-image label,
 	.yui3-input-color label,
-	.yui3-input-block-background label {
+	.yui3-input-block-background label,
+	p.label {
 		display: block;
 	}
 	.yui3-input-string input,

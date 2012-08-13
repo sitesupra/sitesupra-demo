@@ -101,6 +101,7 @@ YUI.add('supra.input-proto', function (Y) {
 					if (node && !node.test('p')) node = null;
 				}
 			}
+			if (node && node.test('p.label')) node = null;
 			return node;
 		},
 		'disabled': function (srcNode) {

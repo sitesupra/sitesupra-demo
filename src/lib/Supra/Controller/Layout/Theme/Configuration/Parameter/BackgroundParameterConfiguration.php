@@ -11,12 +11,17 @@ class BackgroundParameterConfiguration extends ThemeParameterConfiguration
 	 * @var array
 	 */
 	public $backgrounds;
+	
+	/**
+	 * @var string
+	 */
+	public $listName;
 
 	/**
 	 * @param array $designData
 	 */
 	public function makeDesignData(&$designData)
-	{
+	{	
 		$designData['backgrounds'][$this->listName] = $this->backgrounds;
 	}
 

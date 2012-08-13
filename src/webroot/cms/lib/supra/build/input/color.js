@@ -14,13 +14,13 @@ YUI.add("supra.input-color", function (Y) {
 							<div class="bar"><div class="handle"></div></div>\
 							<div class="preview"></div>\
 							<span>#</span>\
-							<input type="text" name="hex" /><br />\
+							<input type="text" name="hex" maxlength="6" /><br />\
 							<span>{{ "{# inputs.red #}"|default("R") }}</span>\
-							<input type="text" name="red" class="rgb" /><br />\
+							<input type="text" name="red" maxlength="3" class="rgb" /><br />\
 							<span>{{ "{# inputs.green #}"|default("G") }}</span>\
-							<input type="text" name="green" class="rgb" /><br />\
+							<input type="text" name="green" maxlength="3" class="rgb" /><br />\
 							<span>{{ "{# inputs.blue #}"|default("B") }}</span>\
-							<input type="text" name="blue" class="rgb" />\
+							<input type="text" name="blue" maxlength="3" class="rgb" />\
 						</div>\
 					');
 	
@@ -94,10 +94,21 @@ YUI.add("supra.input-color", function (Y) {
 		//Unset button text
 		"labelUnset": {
 			"value": "No color"
+		},
+		//Shim node
+		"nodeShim": {
+			"value": null
 		}
 	};
 	
-	Input.HTML_PARSER = {};
+	Input.HTML_PARSER = {
+		"allowUnset": function (srcNode) {
+			var input = this.get("inputNode"),
+				unset = srcNode.getAttribute("suAllowUnset") == "true" || (input && input.getAttribute("suAllowUnset") == "true");
+			
+			return unset === true ? true : null;
+		}
+	};
 	
 	Y.extend(Input, Supra.Input.Proto, {
 		INPUT_TEMPLATE: "<input type=\"hidden\" value=\"\" />",
@@ -442,6 +453,8 @@ YUI.add("supra.input-color", function (Y) {
 			
 			if (this.cursorUpEvent) this.cursorUpEvent.detach();
 			this.cursorUpEvent = doc.on("mouseup", this._upBarCursor, this);
+			
+			this._showShim();
 		},
 		
 		/**
@@ -474,6 +487,8 @@ YUI.add("supra.input-color", function (Y) {
 				this.cursorMoveEvent.detach();
 				this.cursorMoveEvent = null;
 			}
+			
+			this._hideShim();
 		},
 		
 		/**
@@ -494,6 +509,43 @@ YUI.add("supra.input-color", function (Y) {
 			});
 			
 			this.fire("input", {"newVal": this.hex});
+		},
+		
+		/**
+		 * Create element to prevent drag stopping when over iframe
+		 * 
+		 * @private
+		 */
+		_showShim: function () {
+			var shim = this.get("nodeShim");
+			if (!shim) {
+				shim = Y.Node.create("<div></div>");
+				shim.setStyles({
+					"position": "absolute",
+					"z-index": 1,
+					"top": 0,
+					"right": 0,
+					"bottom": 0,
+					"left": 0,
+					"background": "#fff",
+					"opacity": 0
+				});
+				this.set("nodeShim", shim);
+			}
+			
+			shim.appendTo(document.body);
+		},
+		
+		/**
+		 * Hide shim node
+		 * 
+		 * @private
+		 */
+		_hideShim: function () {
+			var shim = this.get("nodeShim");
+			if (shim) {
+				shim.remove();
+			}
 		},
 		
 		
@@ -564,6 +616,8 @@ YUI.add("supra.input-color", function (Y) {
 			
 			if (this.cursorUpEvent) this.cursorUpEvent.detach();
 			this.cursorUpEvent = doc.on("mouseup", this._upMapCursor, this);
+			
+			this._showShim();
 		},
 		
 		/**
@@ -597,6 +651,8 @@ YUI.add("supra.input-color", function (Y) {
 				this.cursorMoveEvent.detach();
 				this.cursorMoveEvent = null;
 			}
+			
+			this._hideShim();
 		},
 		
 		/**
