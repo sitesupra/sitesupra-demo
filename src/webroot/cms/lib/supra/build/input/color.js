@@ -830,6 +830,9 @@ YUI.add("supra.input-color", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			//Handle transparent CSS value, this is not a valid color
+			if (value == "transparent") value = "";
+			
 			var fixed = (value || "#000000").toUpperCase();
 			
 			this.rgb = Color.parse(fixed) || {'red': 0, 'green': 0, 'blue': 0};
