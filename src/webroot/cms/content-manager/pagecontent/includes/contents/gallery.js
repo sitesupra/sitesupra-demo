@@ -159,6 +159,8 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				image = null,
 				dataObject = Manager.MediaSidebar.medialist.get('dataObject');
 			
+			if (!item_data) return; // not an image
+			
 			if (item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
 				
 				//Add single image
