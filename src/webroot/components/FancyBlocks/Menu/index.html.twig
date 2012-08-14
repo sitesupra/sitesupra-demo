@@ -50,6 +50,7 @@
 
 	<div class="selector" data-toggle="selectors" data-default-behaviour="true">
 		<a>
+			{% set has_title = false %}
 			{% for data in items %}
 				{% set child = data.localization %}
 				{% set active = supra.isActive(child.path, true) %}
@@ -57,8 +58,12 @@
 					<input type="hidden" value="/{{ supra.locale.id }}{{ child.path }}" />
 					<span>{{ child.title }}</span>
 					<i></i>
+					{% set has_title = true %}
 				{% endif %}
 			{% endfor %}
+			{% if not has_title %}
+				<span>{{ supra.request.pageLocalization.title }}</span><i></i>
+			{% endif %}
 		</a>
 		<div><div>
 			<ul>
