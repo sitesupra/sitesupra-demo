@@ -13,7 +13,7 @@ YUI.add('supra.header.appdock', function(Y) {
 	var ICON_BLANK = '/cms/lib/supra/img/px.gif';
 	
 	//Templates
-	var TEMPLATE_CURRENT = '<img src="{icon}" alt="" /><span>{title}</span>';
+	var TEMPLATE_CURRENT = '<span class="icon-dashboard"><img src="/cms/lib/supra/img/toolbar/buttons-dashboard.png" /></span><img src="{icon}" alt="" class="icon" /><span class="title">{title}</span>';
 	var TEMPLATE_ITEM = '<li><a href="{path}"><img src="{icon}" alt="" /><span>{title}</span></a></li>';
 	var TEMPLATE_ITEM_LOGOUT = '<li class="logout"><a href="{path}"><div></div><span>{title}</span></a></li>';
 	
@@ -115,8 +115,8 @@ YUI.add('supra.header.appdock', function(Y) {
 			var node_app = this.get('nodeApp'),
 				data_app = this.get('data');
 			
-			var node_img = node_app.one('img'),
-				node_title = node_app.one('span');
+			var node_img = node_app.one('img.icon'),
+				node_title = node_app.one('span.title');
 			
 			if (!node_img) {
 				var node_data = {
