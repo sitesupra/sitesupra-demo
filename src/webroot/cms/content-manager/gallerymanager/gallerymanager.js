@@ -366,7 +366,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 					property = input.get('id'),
 					value = input.get('value');
 				
-				this.selected_image_data[property] = value;
+				this.selected_image_data.properties[property] = value;
 				this.updateInlineEditableUI(this.selected_image_data.id);
 			}
 		},
@@ -451,17 +451,19 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 */
 		settingsFormApply: function (dont_hide) {
 			if (this.settings_form && this.settings_form.get('visible')) {
-				var image_data_from_form = this.settings_form.getValuesObject('id');
+				var image_data_from_form = this.settings_form.getValuesObject('id'),
+					image_data = this.selected_image_data,
+					data = this.data;
 				
 				// Fix image path (#6624)
 				if (image_data_from_form.image) {
 					image_data_from_form.image.path = this.selected_image_data.image.path;
+					this.selected_image_data.image = image_data_from_form.image;
+					
+					delete(image_data_from_form.image);
 				}
 				
-				var image_data = Supra.mix(this.selected_image_data, image_data_from_form),
-					data = this.data;
-				
-				image_data.properties = Supra.mix(image_data.properties, this.settings_form.getValuesObject('id'))
+				Supra.mix(image_data, {'properties': image_data_from_form});
 				
 				for (var i=0,ii=data.images.length; i<ii; i++) {
 					if (data.images[i].image.id == image_data.image.id) {
@@ -838,7 +840,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 					for (; i<ii; i++) {
 						if (images[i].id == image_id) {
 							value = input.get('value');
-							images[i][property_id] = value;
+							images[i].properties[property_id] = value;
 							
 							//Update settings form
 							if (this.settings_form && this.settings_form.get('visible')) {
@@ -1069,6 +1071,12 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			//Add new items
 			for(var i=0,ii=images.length; i<ii; i++) {
 				this.renderItem(images[i]);
+			}
+			
+			if (images.length) {
+				this.list.removeClass('list-empty');
+			} else {
+				this.list.addClass('list-empty');
 			}
 			
 			this.dragDelegate.syncTargets();

@@ -442,7 +442,8 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				});
 				
 				//Abort upload on X click
-				node.one('.cancel').on('click', io.abort, io);
+				var cancel = node.one('.cancel');
+				if (cancel) cancel.on('click', io.abort, io);
 				
 				//Add event listeners
 				io.on('load', this.onFileComplete, this);

@@ -395,13 +395,13 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Extract only image ID and properties, remove all other data
 			for(var i=0,ii=data.images.length; i<ii; i++) {
-				image = Supra.mix({}, data.images[i]);
+				image = Supra.mix({'properties': {}}, data.images[i]);
 				delete(image.image);
 				
 				images.push(image);
 				
 				for(var k=0; k<kk; k++) {
-					image[properties[k].id] = data.images[i][properties[k].id] || '';
+					image.properties[properties[k].id] = data.images[i].properties[properties[k].id] || '';
 				}
 			}
 			
