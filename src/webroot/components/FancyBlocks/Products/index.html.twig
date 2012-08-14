@@ -17,7 +17,7 @@
 						
 						{% if design == "box" %}
 							
-							{% if product.link %}<a class="outer" href="{{product.link.url}}" target="{{product.link.target}}">{% else %}<span class="outer">{% endif %}
+							{% if product.property.link %}<a class="outer" href="{{product.property.link.url}}" target="{{product.property.link.target}}">{% else %}<span class="outer">{% endif %}
 								
 								<span class="inner-text">
 									<h2>{{ product.property.title }}</h2>
@@ -41,7 +41,7 @@
 									     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
 								</span>
 								
-							{% if product.link %}</a>{% else %}</span>{% endif %}
+							{% if product.property.link %}</a>{% else %}</span>{% endif %}
 							
 						{% else %}
 						
@@ -49,15 +49,15 @@
 						
 							<h2>{{ product.property.title }}</h2>
 							<p>{{ product.property.description }}</p>
-							{% if product.link %}
-								{% if product.link.title %}
-									{% set title = product.link.title %}
-								{% elseif product.link.page %}
-									{% set title = product.link.page.title %}
+							{% if product.property.link %}
+								{% if product.property.link.title %}
+									{% set title = product.property.link.title %}
+								{% elseif product.property.link.page %}
+									{% set title = product.property.link.page.title %}
 								{% else %}
-									{% set title = product.link.url %}
+									{% set title = product.property.link.url %}
 								{% endif %}
-								<a class="link" href="{{product.link.url}}" target="{{product.link.target}}">{{title}}</a>
+								<a class="link" href="{{product.property.link.url}}" target="{{product.property.link.target}}">{{title}}</a>
 							{% endif %}
 							
 						{% endif %}
