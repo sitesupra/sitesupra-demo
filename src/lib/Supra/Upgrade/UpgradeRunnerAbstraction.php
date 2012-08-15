@@ -209,14 +209,14 @@ abstract class UpgradeRunnerAbstraction
 		$newFiles = array();
 
 		foreach ($files as $path => $file) {
-			$realPath = realpath($path);
-
-			if ($realPath === false) {
-				$this->log->warn("Realpath for upgrade file $path is not found.");
-				continue;
-			}
-
-			$path = $realPath;
+//			$realPath = realpath($path);
+//
+//			if ($realPath === false) {
+//				$this->log->warn("Realpath for upgrade file $path is not found.");
+//				continue;
+//			}
+//
+//			$path = $realPath;
 
 			//if (strpos($path, $this->upgradeDir . DIRECTORY_SEPARATOR) !== 0) {
 			//	$this->log->warn("Upgrade file $path is not inside upgrade directory.");
