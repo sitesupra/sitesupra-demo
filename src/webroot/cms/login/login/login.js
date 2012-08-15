@@ -87,7 +87,7 @@ Supra('supra.input', 'cookie', function (Y) {
 			
 			//Disable button and form
 			this.loginform.set('disabled', true);
-			this.footer.getButton('done').set('loading', true);
+			this.footer.getButton('ok').set('loading', true);
 			
 			//Send request manually, because of unusual response types
 			//On failure 403 error will be caught by Supra.io and
@@ -157,7 +157,7 @@ Supra('supra.input', 'cookie', function (Y) {
 				Supra.data.set('sessionId', value);
 				
 				//Enable button and form
-				this.footer.getButton('done').set('loading', false);
+				this.footer.getButton('ok').set('loading', false);
 				this.loginform.set('disabled', false);
 				
 				//Hide form
@@ -181,7 +181,7 @@ Supra('supra.input', 'cookie', function (Y) {
 			this.setErrorMessage(data);
 
 			//Enable button and form
-			this.footer.getButton('done').set('loading', false);
+			this.footer.getButton('ok').set('loading', false);
 			this.loginform.set('disabled', false);
 		},
 		
@@ -218,7 +218,7 @@ Supra('supra.input', 'cookie', function (Y) {
 			this.panel.centered();
 			
 			//Enable button and form
-			this.footer.getButton('done').set('loading', false);
+			this.footer.getButton('ok').set('loading', false);
 			this.loginform.set('disabled', false);
 			
 			//Disable login field if needed

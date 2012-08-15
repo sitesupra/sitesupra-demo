@@ -45,7 +45,8 @@
 	.yui3-input-link-hidden,
 	.yui3-input-image-hidden,
 	.yui3-input-color-hidden,
-	.yui3-input-block-background {
+	.yui3-input-block-background-hidden,
+	.yui3-input-image-inline-hidden {
 		display: none;
 	}
 	
@@ -467,6 +468,9 @@
 /* Block background */
 @import "less/block-background.less";
 
+/* Inline image */
+@import "less/image-inline.less";
+
 /* Map */
 .yui3-input-map label {
 	padding-bottom: 7px;
@@ -573,6 +577,7 @@
 	.yui3-input-image label,
 	.yui3-input-color label,
 	.yui3-input-block-background label,
+	.yui3-input-image-inline label,
 	p.label {
 		display: block;
 	}

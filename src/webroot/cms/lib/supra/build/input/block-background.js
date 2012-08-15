@@ -130,8 +130,14 @@ YUI.add("supra.input-block-background", function (Y) {
 		 * Returns properties widget
 		 */
 		getPropertiesWidget: function () {
-			var form = this.getParentWidget("form");
-			return form ? form.get("parent") : null;
+			var form = this.getParentWidget("form"),
+				parent = form ? form.get("parent") : null;
+			
+			if (parent && parent.isInstanceOf('page-content-properties')) {
+				return parent
+			}
+			
+			return null;
 		},
 		
 		
@@ -151,6 +157,13 @@ YUI.add("supra.input-block-background", function (Y) {
 				group = (form.getConfig(this.get("id")) || {}).group || "";
 				
 				properties.showPropertiesForm(group);
+			} else {
+				//Not part of block properties, search for Action
+				var parent = this.getParentWidget("ActionBase");
+				if (parent  && parent.plugins.getPlugin('PluginSidebar')) {
+					//Has sidebar plugin, so this action is in sidebar
+					parent.execute();
+				}
 			}
 		},
 		
@@ -343,7 +356,7 @@ YUI.add("supra.input-block-background", function (Y) {
 			if (this.slide) return this.slide;
 			
 			var slideshow = this.getSlideshow(),
-				value = this.get("value"),
+				has_image = this._hasImage(),
 				slide = null,
 				slide_id = this.get("id") + "_slide",
 				button = null;
@@ -368,7 +381,7 @@ YUI.add("supra.input-block-background", function (Y) {
 				}));
 				button.on("click", this.editImage, this);
 				button.addClass("button-section");
-				button.set("disabled", !value || !value.image);
+				button.set("disabled", !has_image);
 				button.render(slide);
 				
 				//Remove button
@@ -377,7 +390,7 @@ YUI.add("supra.input-block-background", function (Y) {
 					"style": "small-red"
 				}));
 				button.on("click", this.removeImage, this);
-				button.set("disabled", !value || !value.image);
+				button.set("disabled", !has_image);
 				button.render(slide);
 				
 				//When slide is hidden stop editing image
@@ -408,6 +421,18 @@ YUI.add("supra.input-block-background", function (Y) {
 		
 		/* ------------------------------ Attributes -------------------------------- */
 		
+		
+		/**
+		 * Returns true if image is selected, otherwise false
+		 * 
+		 * @return True if image is selected
+		 * @type {Boolean}
+		 * @private
+		 */
+		_hasImage: function () {
+			var value = this.get("value");
+			return value && value.image;
+		},
 		
 		/**
 		 * Value attribute setter

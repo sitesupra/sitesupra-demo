@@ -639,6 +639,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/block-background.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-image-inline': {
+		path: 'input/image-inline.js',
+		requires: ['supra.input-block-background']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -662,7 +666,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-map',
 			'supra.input-color',
 			'supra.input-date',
-			'supra.input-block-background'
+			'supra.input-block-background',
+			'supra.input-image-inline'
 		]
 	},
 	'supra.input': {
