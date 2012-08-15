@@ -32,8 +32,18 @@ abstract class FormBlockController extends BlockController
 
 		$this->bindedForm = $this->createForm();
 		$name = $this->getBlock()->getId();
-		
-		if ($request->getPost()->hasChild($name)) {
+
+		$conf = $this->getConfiguration();
+
+		if (empty($conf->method) || strcasecmp($conf->method, 'get') == 0) {
+			$input = $request->getQuery();
+		} elseif (strcasecmp($conf->method, 'post') == 0) {
+			$input = $request->getPost();
+		} else {
+			throw new \Supra\Configuration\Exception\InvalidConfiguration("Bad method '$conf->method' received in form configuration");
+		}
+
+		if ($input->hasChild($name)) {
 
 			// TODO: make it somehow better...
 			$symfonyRequest = new Request(
@@ -274,6 +284,15 @@ abstract class FormBlockController extends BlockController
 	}
 
 	/**
+	 * Possiblity to add additional extensions
+	 * @return array
+	 */
+	protected function getFormExtensions()
+	{
+		return array();
+	}
+
+	/**
 	 * @param object $dataObject
 	 * @return Form\FormBuilder 
 	 */
@@ -291,18 +310,24 @@ abstract class FormBlockController extends BlockController
 
 		$validator = new Validator\Validator($metadataFactory, $validatorFactory);
 
-		$formRegistry = new Form\FormRegistry(array(
-				new Form\Extension\Core\CoreExtension(),
-				new Form\Extension\Validator\ValidatorExtension($validator),
-				new FormSupraExtension($configuration),
-//				new Form\Extension\Csrf\CsrfExtension($csrfProvider)
-		));
+		$extensions = array(
+			new Form\Extension\Core\CoreExtension(),
+			new Form\Extension\Validator\ValidatorExtension($validator),
+			new FormSupraExtension($configuration),
+//			new Form\Extension\Csrf\CsrfExtension($csrfProvider)
+		);
+
+		$extensions = array_merge($extensions, $this->getFormExtensions());
+
+		$formRegistry = new Form\FormRegistry($extensions);
 
 		$factory = new Form\FormFactory($formRegistry);
 
 		$id = $this->getBlock()->getId();
 		$options = $this->getFormBuilderOptions();
 		$formBuilder = $factory->createNamedBuilder($id, 'form', $dataObject, $options);
+
+		
 
 		return $formBuilder;
 	}

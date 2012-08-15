@@ -256,14 +256,14 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//Clean up
 			this.destroyContent();
 			
+			//Change iframe HTML
+			this.writeHTML(html);
+			
 			//Save document & window instances
 			var win = this.get('nodeIframe').getDOMNode().contentWindow;
 			var doc = win.document;
 			this.set('win', win);
 			this.set('doc', doc);
-			
-			//Change iframe HTML
-			this.writeHTML(html);
 			
 			//Small delay before continue
 			Y.later(50, this, function () {
