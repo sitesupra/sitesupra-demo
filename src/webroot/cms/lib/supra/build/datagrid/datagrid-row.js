@@ -206,7 +206,7 @@ YUI.add("supra.datagrid-row", function (Y) {
 				}
 			}
 			
-			return this.getColumnNode(column[0].id);
+			return this.getColumnNode(columns[0].id);
 		},
 		
 		/**

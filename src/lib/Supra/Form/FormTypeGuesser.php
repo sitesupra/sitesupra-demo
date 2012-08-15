@@ -40,7 +40,7 @@ class FormTypeGuesser implements FormTypeGuesserInterface
 	}
 
 	/**
-	 * Will mark as not required if the annotation
+	 * Will mark as not required if the annotation is under custom validation groups
 	 * @param string $class
 	 * @param string $property
 	 * @return null|\Symfony\Component\Form\Guess\ValueGuess

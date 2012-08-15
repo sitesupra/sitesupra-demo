@@ -93,6 +93,12 @@ class User extends AbstractUser
 	protected $localeId;
 
 	/**
+	 * @Column(type="string", name="status", nullable=true)
+	 * @var string
+	 */
+	protected $status;
+
+	/**
 	 * Generates random salt for new users
 	 */
 	public function __construct()
@@ -319,6 +325,22 @@ class User extends AbstractUser
 		$userData = get_object_vars($sibling);
 
 		$this->fillFromArray($userData);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getStatus()
+	{
+		return $this->status;
+	}
+
+	/**
+ 	 * @param string $status
+	 */
+	public function setStatus($status)
+	{
+		$this->status = $status;
 	}
 
 	public function fillFromArray(array $userData)

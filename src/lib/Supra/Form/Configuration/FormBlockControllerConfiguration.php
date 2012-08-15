@@ -24,6 +24,11 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 	public $dataClass;
 
 	/**
+	 * @var string
+	 */
+	public $method = 'post';
+
+	/**
 	 * @var array
 	 */
 	private $fields;
