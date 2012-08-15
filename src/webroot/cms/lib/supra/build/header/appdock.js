@@ -125,7 +125,7 @@ YUI.add('supra.header.appdock', function(Y) {
 				};
 				node_img = Y.Node.create(Y.substitute(TEMPLATE_CURRENT, node_data));
 				node_app.append(node_img);
-				node_title = node_app.one('span');
+				node_title = node_app.one('span.title');
 			} else {
 				node_img.setAttribute('src', this.getAppIcon(data_app, '32'));
 				node_title.set('text', data_app ? data_app.title : ''); 
