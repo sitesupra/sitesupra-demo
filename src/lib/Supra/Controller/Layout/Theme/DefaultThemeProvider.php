@@ -349,4 +349,12 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		return $allThemes;
 	}
 
+	/**
+	 * @return Theme
+	 */
+	public function makeNewTheme()
+	{
+		return new Theme();
+	}
+
 }

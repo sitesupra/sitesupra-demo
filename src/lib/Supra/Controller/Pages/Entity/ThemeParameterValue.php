@@ -93,16 +93,14 @@ class ThemeParameterValue extends Database\Entity
 	{
 		$parameter = $this->getParameter();
 
-		$theme = $parameter->getTheme();
-
 		$outputValue = $this->getValue();
 
-		if ($parameter->getType() == 'url') {
+		$parameterConfiguration = $parameter->getConfiguration();
 
-			$outputValue = "'" . $theme->getUrlBase() . DIRECTORY_SEPARATOR . $this->getValue() . "'";
-			$outputValue = str_replace('//', '/', $outputValue);
+		if (empty($parameterConfiguration)) {
+			\Log::error('Parameter configuration empty for parameter "' . $parameter->getName() . '".');
 		} else {
-			$parameter->getConfiguration()->makeOutputValue($outputValue);
+			$parameterConfiguration->makeOutputValue($outputValue);
 		}
 
 		return $outputValue;

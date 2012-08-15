@@ -27,9 +27,14 @@ abstract class ThemeProviderAbstraction
 	 * @return Theme 
 	 */
 	abstract public function getThemeByName($themeName);
-	
+
 	/**
 	 * @param Theme 
 	 */
 	abstract public function storeTheme(Theme $theme);
+
+	/**
+	 * @return Theme
+	 */
+	abstract public function makeNewTheme();
 }

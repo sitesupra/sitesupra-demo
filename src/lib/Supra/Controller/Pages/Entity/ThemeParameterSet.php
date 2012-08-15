@@ -78,6 +78,30 @@ class ThemeParameterSet extends Database\Entity
 	}
 
 	/**
+	 * @return array 
+	 */
+	public function getLessOutputValues()
+	{
+		$values = array();
+
+		foreach ($this->values as $value) {
+			/* @var $value ThemeParameterValue */
+
+			$configuration = $value->getParameter()->getConfiguration();
+
+			if (isset($configuration->noLess)) {
+				continue;
+			}
+
+			$name = $value->getParameterName();
+
+			$values[$name] = $value->getOutputValue();
+		}
+
+		return $values;
+	}
+
+	/**
 	 * @return Theme
 	 */
 	public function getTheme()

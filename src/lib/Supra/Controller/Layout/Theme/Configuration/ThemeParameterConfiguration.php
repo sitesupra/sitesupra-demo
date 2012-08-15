@@ -2,7 +2,6 @@
 
 namespace Supra\Controller\Layout\Theme\Configuration;
 
-use Supra\Configuration\ConfigurationInterface;
 use Supra\Controller\Pages\Entity\ThemeParameter;
 
 class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
@@ -52,6 +51,11 @@ class ThemeParameterConfiguration extends ThemeConfigurationAbstraction
 	 * @var ThemeParameter
 	 */
 	protected $parameter;
+	
+	/**
+	 * @var boolean
+	 */
+	public $noLess;
 
 	/**
 	 * @return ThemeParameter

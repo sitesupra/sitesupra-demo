@@ -10,10 +10,14 @@ use Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration;
 use Supra\Configuration\Parser\YamlParser;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
 use Supra\Controller\Pages\Entity\ThemeParameter;
+use Supra\Controller\Layout\Exception;
 
 /**
  * @Entity
  * @ChangeTrackingPolicy("DEFERRED_EXPLICIT")
+ * @InheritanceType("SINGLE_TABLE")
+ * @DetachedDiscrimintators
+ * @DetachedDiscriminatorValue("theme")
  * @Table(uniqueConstraints={@UniqueConstraint(name="unique_name_idx", columns={"name"})}))
  */
 class Theme extends Database\Entity implements ThemeInterface
@@ -282,14 +286,17 @@ class Theme extends Database\Entity implements ThemeInterface
 		return $outputValues;
 	}
 
+	/**
+	 * 
+	 */
 	public function generateCssFiles()
 	{
+		if ($this->parameterSets->count() == 0) {
+			$this->makeDefaultParameterSet();
+		}
+
 		foreach ($this->parameterSets as $parameterSet) {
-
-
 			/* @var $parameterSet ThemeParameterSet */
-
-			\Log::debug($parameterSet->getName());
 			$this->generateCssFileFromLess($parameterSet);
 		}
 	}
@@ -308,25 +315,34 @@ class Theme extends Database\Entity implements ThemeInterface
 
 		$lessc->setRootDir($this->getRootDir());
 
-		$values = $parameterSet->getOutputValues();
-		
+		$values = $parameterSet->getLessOutputValues();
+
 		$flatValues = array();
-		
-		foreach($values as $key => $value) {
-			
-			if(is_array($value)) {
-				
-				foreach($value as $key2 => $value2) {
+
+		foreach ($values as $key => $value) {
+
+			if (is_array($value)) {
+
+				foreach ($value as $key2 => $value2) {
+
+					if (empty($value2)) {
+						$value = '';
+					}
+
 					$flatValues[$key . '_' . $key2] = $value2;
 				}
-			}
-			else {
+			} else {
+
+				if (empty($value)) {
+					$value = '';
+				}
+
 				$flatValues[$key] = $value;
 			}
 		}
-		
+
 		\Log::error('FLAT: ', $flatValues);
-		
+
 		$cssContent = $lessc->parse(null, $flatValues);
 
 		$this->writeGenetratedCssToFile($parameterSet, $cssContent);
@@ -380,9 +396,17 @@ class Theme extends Database\Entity implements ThemeInterface
 	/**
 	 * @return string
 	 */
-	protected function getCurrentGeneratedCssUrl()
+	public function getCurrentGeneratedCssUrl()
 	{
 		return $this->getGeneratedCssUrl($this->getCurrentParameterSet());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCurrentGeneratedCssFilename()
+	{
+		return $this->getGeneratedCssFilename($this->getCurrentParameterSet());
 	}
 
 	/**
@@ -435,6 +459,17 @@ class Theme extends Database\Entity implements ThemeInterface
 		}
 
 		return $this->activeParameterSet;
+	}
+
+	/**
+	 * 
+	 */
+	public function makeDefaultParameterSet()
+	{
+		$currentParameterSet = $this->getCurrentParameterSet();
+
+		$this->addParameterSet($currentParameterSet);
+		$this->setActiveParameterSet($currentParameterSet);
 	}
 
 	/**

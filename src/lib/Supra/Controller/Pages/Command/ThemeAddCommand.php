@@ -151,7 +151,7 @@ class ThemeAddCommand extends Command
 
 		if (empty($theme)) {
 
-			$theme = new Theme();
+			$theme = $themeProvider->makeNewTheme();
 			$theme->setName($themeName);
 		}
 
@@ -169,8 +169,6 @@ class ThemeAddCommand extends Command
 		$configurationLoader->loadFile($themeConfigurationFilename);
 
 		$themeProvider->storeTheme($theme);
-
-		$theme->generateCssFiles();
 
 		$output->writeln('Theme "' . $themeName . '" added/updated.');
 	}
