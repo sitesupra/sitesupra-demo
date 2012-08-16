@@ -14,7 +14,6 @@ YUI().add('supra.datagrid-new-item', function (Y) {
 	DataGridNewItem.CSS_PREFIX = 'su-datagrid-new-item';
 	
 	DataGridNewItem.TEMPLATE = Supra.Template.compile('\
-			<div class="deco"><img src="/cms/lib/supra/img/crud/new-item-icon.png" alt="" /></div>\
 			<div class="item">\
 				{% if icon %}<img src="{{ icon }}" alt="" />{% else %}<div class="img"></div>{% endif %}\
 				<label>{{ title }}</label>\

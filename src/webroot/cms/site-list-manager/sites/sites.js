@@ -16,9 +16,16 @@ function (Y) {
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;
 	
+	//Application is loaded from dashboard or is standalone
+	var STANDALONE = Supra.data.get(["application", "id"]) == "site-list-manager";
 	
 	//Create Action class
 	new Action({
+		
+		/* Attributes:
+		 *     sites - site list, if not present then loaded through ajax
+		 *     logoutUri - page which will logout user, if not present will use /cms/logout
+		 */
 		
 		/**
 		 * Unique action name
@@ -111,8 +118,18 @@ function (Y) {
 			
 			//Logout
 			node.one('a.close').on("click", function() {
-				document.location = Supra.Manager.Loader.getDynamicPath() + '/logout/'
+				var path = this.get("logoutUri");
+				if (!path) {
+					path = Supra.Manager.Loader.getDynamicPath() + '/logout/';
+				}
+				
+				document.location = path;
 			});
+			
+			//In standalone mode there is no dashboard
+			if (STANDALONE) {
+				Supra.Manager.Header.app.set("disabled", true);
+			}
 		},
 		
 		
@@ -195,9 +212,16 @@ function (Y) {
 		saveDomain: function (e) {
 			var form = this.widgets.form,
 				values = form.getSaveValues(),
-				uri = this.getDataPath('dev/create'),
+				uri = null,
 				error = false,
 				valid = false;
+			
+			if (STANDALONE) {
+				uri = document.location;
+				values.action = 'create';
+			} else {
+				uri = this.getDataPath('dev/create');
+			}
 			
 			valid = Y.Lang.trim(values.name);
 			form.getInput('name').set('error', !valid);
@@ -220,9 +244,11 @@ function (Y) {
 						'complete': function (data, status) {
 							this.widgets.form.set('disabled', false);
 							this.widgets.submit.set('loading', false);
-							this.hideForm();
 							
 							if (status && data.redirect) {
+								//Hide form
+								this.hideForm();
+								
 								//Redirect
 								document.location = data.redirect;
 							}
@@ -246,15 +272,28 @@ function (Y) {
 		createDataGrid: function () {
 			if (this.widgets.datagrid) return;
 			
-			var container = this.one("div.sites-list div.su-block-content");
+			var container = this.one("div.sites-list div.su-block-content"),
+				data = this.get("sites"),
+				dataSource = null;
+			
+			if (data) {
+				//Instead of JSON we will be using local data
+				dataSource = new Y.DataSource.Local({
+					"source": data
+				});
+			}
 			
 			var datagrid = this.widgets.datagrid = new Supra.DataGrid({
 				"requestURI": this.getDataPath("dev/sites"),
 				"columns": [
-					{"id": "title", "title": "Title"},
-					{"id": "id", "title": "Domain"},
+					{"id": "projectName", "title": "Title"},
+					{"id": "secureBaseUrl", "title": "Domain", "formatter": this.formatDomainName},
 					{"id": "status", "title": "Status", "formatter": this.formatStatusColumn}
-				]
+				],
+				"dataColumns": [
+					{"id": "id"}
+				],
+				"dataSource": dataSource
 			});
 			datagrid.render(container);
 			datagrid.on("row:click", this.handleRowClick, this);
@@ -275,6 +314,16 @@ function (Y) {
 		 * 
 		 * @private
 		 */
+		formatDomainName: function (col_id, value, data) {
+			//Remove protocol from domain
+			return value.replace(/http(s)?:\/\//, "");
+		},
+		
+		/**
+		 * Format data grid status column text
+		 * 
+		 * @private
+		 */
 		formatStatusColumn: function (col_id, value, data) {
 			return "<div class=\"status-" + value + "\">" + Y.Escape.html(Supra.Intl.get(["site-list-manager", "status", String(value)])) + "</div>";
 		},
@@ -283,10 +332,21 @@ function (Y) {
 		 * Handle row click
 		 */
 		handleRowClick: function (e) {
-			var record_id = e.row.getID();
+			var record_id = e.row.getID(),
+				data = e.data;
+			
 			if (record_id) {
-				//@TODO Clicked on record, redirect where?
-				alert("@TODO: Clicked on " + record_id + ", now redirect where?");
+				
+				if (STANDALONE) {
+					//POST to this page
+					var form = Y.Node.create('<form class="offscreen" method="post"><input type="hidden" name="site" value="' + record_id + '" /><input type="submit" /></form>');
+					Y.Node(document.body).append(form);
+					form.getDOMNode().submit();
+				} else {
+					var uri = data.secureBaseUrl + Supra.Manager.Loader.getDynamicPath();
+					document.location = uri;
+				}
+				
 			}
 		},
 		

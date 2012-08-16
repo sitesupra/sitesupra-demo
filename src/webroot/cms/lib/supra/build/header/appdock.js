@@ -157,6 +157,7 @@ YUI.add('supra.header.appdock', function(Y) {
 		toggleAppDockBar: function (event) {
 			//Stop event
 			if (event) event.halt();
+			if (this.get('disabled')) return;
 			
 			//Hide if it's already visible
 			var dashboard = Supra.Manager.getAction("Applications"),
