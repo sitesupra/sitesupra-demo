@@ -3,9 +3,6 @@
 
 YUI.add('supra.input-image-inline', function (Y) {
 	
-	//Blank image data URI
-	var BLANK_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
-	
 	//Shortcuts
 	var Manager = Supra.Manager;
 	
@@ -21,6 +18,10 @@ YUI.add('supra.input-image-inline', function (Y) {
 		// Image node which is edited
 		"targetNode": {
 			value: null
+		},
+		//Blank image URI or data URI
+		"blankImageUrl": {
+			value: "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
 		}
 	};
 	
@@ -147,7 +148,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			value = (value === undefined || value === null ? "" : value);
+			value = (value === undefined || value === null || typeof value !== "object" ? "" : value);
 			
 			this.image = value ? value : "";
 			
@@ -269,7 +270,8 @@ YUI.add('supra.input-image-inline', function (Y) {
 				node.setStyles({
 					"margin": "0"
 				});
-				node.setAttribute("src", BLANK_IMAGE);
+				
+				node.setAttribute("src", this.get("blankImageUrl"));
 				node.removeAttribute("width");
 				node.removeAttribute("height");
 				
