@@ -709,11 +709,15 @@ YUI.add("supra.form", function (Y) {
 			
 			if (Y.Lang.isArray(list)) {
 				for(var i=0,ii=list.length; i<ii; i++) {
-					if (list[i] in inputs) inputs[list[i]].resetValue();
+					if (list[i] in inputs) {
+						inputs[list[i]].resetValue();
+						inputs[list[i]].set('error', false);
+					}
 				}
 			} else {
 				for(var id in inputs) {
 					inputs[id].resetValue();
+					inputs[id].set('error', false);
 				}
 			}
 			

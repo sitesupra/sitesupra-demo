@@ -31,7 +31,11 @@
 			"keywords": {
 				"title": "Top keywords",
 				"view_all": "View all"
-			}, 
+			},
+			
+			"sites": {
+				"view_all": "View all my sites"
+			},
 			
 			"logout": "Logout"
 		},

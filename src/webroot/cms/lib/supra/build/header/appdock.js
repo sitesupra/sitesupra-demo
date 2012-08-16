@@ -159,11 +159,17 @@ YUI.add('supra.header.appdock', function(Y) {
 			if (event) event.halt();
 			
 			//Hide if it's already visible
-			var action = Supra.Manager.getAction("Applications");
-			if (action.get("visible")) {
-				action.hide();
+			var dashboard = Supra.Manager.getAction("Applications"),
+				sites = Supra.Manager.getAction("Sites");
+			
+			if (dashboard.get("visible")) {
+				if (sites.get("visible")) {
+					sites.hide();
+				} else {
+					dashboard.hide();
+				}
 			} else {
-				action.execute();
+				dashboard.execute();
 			}
 		}
 	});

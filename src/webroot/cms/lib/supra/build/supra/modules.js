@@ -472,6 +472,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'datagrid/datagrid-row.js',
 		requires: ['widget']
 	},
+	'supra.datagrid-new-item': {
+		path: 'datagrid-new-item/datagrid-new-item.js',
+		requires: ['widget', 'dd-drag'],
+		skinnable: true
+	},
 	
 	/**
 	 * List

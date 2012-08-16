@@ -1,12 +1,11 @@
 //Invoke strict mode
 "use strict";
 
-YUI().add('website.datagrid-new-item', function (Y) {
+YUI().add('supra.datagrid-new-item', function (Y) {
 	
-	//Shortcuts
-	var CRUD = Supra.CRUD;
-	
-	
+	/**
+	 * Data grid new item
+	 */
 	function DataGridNewItem(config) {
 		DataGridNewItem.superclass.constructor.apply(this, arguments);
 	}
@@ -14,20 +13,25 @@ YUI().add('website.datagrid-new-item', function (Y) {
 	DataGridNewItem.NAME = 'DataGridNewItem';
 	DataGridNewItem.CSS_PREFIX = 'su-datagrid-new-item';
 	
-	
-	DataGridNewItem.TEMPLATE_ITEM = Supra.Template.compile('\
+	DataGridNewItem.TEMPLATE = Supra.Template.compile('\
+			<div class="deco"><img src="/cms/lib/supra/img/crud/new-item-icon.png" alt="" /></div>\
 			<div class="item">\
 				{% if icon %}<img src="{{ icon }}" alt="" />{% else %}<div class="img"></div>{% endif %}\
 				<label>{{ title }}</label>\
 			</div>\
 		');
 	
-	DataGridNewItem.TEMPLATE = '\
-			<div class="deco"><img src="/cms/crud-manager/images/datagrid-new-item-icon.png" alt="" /></div>\
-			' + DataGridNewItem.TEMPLATE_ITEM({"title": Supra.Intl.get(["crud", "new_item"])}) + '\
-		';
-	
-	DataGridNewItem.ATTRS = {};
+	DataGridNewItem.ATTRS = {
+		
+		'newItemLabel': {
+			'value': 'New'
+		},
+		
+		'draggable': { 
+			'value': true
+		}
+		
+	};
 	
 	Y.extend(DataGridNewItem, Y.Widget, {
 		
@@ -49,7 +53,8 @@ YUI().add('website.datagrid-new-item', function (Y) {
 			var contentBox = this.get('contentBox');
 			
 			//Render template
-				contentBox.set('innerHTML', DataGridNewItem.TEMPLATE);
+				var html = DataGridNewItem.TEMPLATE({'title': this.get('newItemLabel')});
+				contentBox.set('innerHTML', html);
 			
 		},
 		
@@ -86,19 +91,25 @@ YUI().add('website.datagrid-new-item', function (Y) {
 		 * @private
 		 */
 		'_bindDnD': function (apps) {
-			var drag = this.new_item_drag = new Y.DD.Drag({
-				node: this.get('contentBox').one('div.item'),
-				//Can be droped only on datagrid items, not in recycle bin
-				groups: ['datagrid', 'new-item']
-			});
-			
-			drag.plug(Y.Plugin.DDProxy, {
-				moveOnEnd: false,
-				cloneNode: true
-			});
-			
-			drag.on('drag:start', this.decorateNewItemProxy, this);
-			drag.on('drag:end',   this.undecorateNewItemProxy, this);
+			if (this.get('draggable')) {
+				
+				var drag = this.new_item_drag = new Y.DD.Drag({
+					node: this.get('contentBox').one('div.item'),
+					//Can be droped only on datagrid items, not in recycle bin
+					groups: ['datagrid', 'new-item']
+				});
+				
+				drag.plug(Y.Plugin.DDProxy, {
+					moveOnEnd: false,
+					cloneNode: true
+				});
+				
+				drag.on('drag:start', this.decorateNewItemProxy, this);
+				drag.on('drag:end',   this.undecorateNewItemProxy, this);
+				
+			} else {
+				this.get('contentBox').addClass('not-draggable');
+			}
 		},
 		
 		/**
@@ -112,7 +123,7 @@ YUI().add('website.datagrid-new-item', function (Y) {
 			//Set offset from mouse
 			e.target.deltaXY = [-16, 16];
 			
-			drag_node.empty().append(Y.Node.create(Supra.Intl.get(['crud', 'new_item'])));
+			drag_node.empty().append(Y.Node.create(this.get('newItemLabel')));
 			drag_node.setStyles({'width': '300px', 'height': 'auto'});
 			drag_node.addClass('su-datagrid-proxy');
 		},

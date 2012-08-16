@@ -1,0 +1,28 @@
+{
+	"status": 1,
+	"data": {
+		"total": 4,
+		"results": [
+			{
+				"id": "inactive.videinfra.com",
+				"title": "Inactive one",
+				"status": 0
+			},
+			{
+				"id": "active.videinfra.com",
+				"title": "Hyper active",
+				"status": 1
+			},
+			{
+				"id": "soon-to-expire.videinfra.com",
+				"title": "Here it goes",
+				"status": 2
+			},
+			{
+				"id": "expired.videinfra.com",
+				"title": "And... it's gone",
+				"status": 3
+			}
+		]
+	}
+}

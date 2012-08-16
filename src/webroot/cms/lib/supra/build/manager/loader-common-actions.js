@@ -24,7 +24,8 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'Login': '/login',
 		'LinkManager': '/content-manager',
 		'UserAvatar': '/internal-user-manager',
-		'Applications': '/dashboard'
+		'Applications': '/dashboard',
+		'Sites': '/site-list-manager'
 	});
 
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

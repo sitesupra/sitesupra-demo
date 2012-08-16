@@ -263,6 +263,12 @@ YUI.add('supra.input-string', function (Y) {
 				node.set('innerHTML', Y.Escape.html(value) || '&nbsp;');
 			}
 			
+			if (value) {
+				this.get('boundingBox').removeClass(this.getClassName('empty'));
+			} else {
+				this.get('boundingBox').addClass(this.getClassName('empty'));
+			}
+			
 			this._last_value = value;
 			this._original_value = value;
 			return value;

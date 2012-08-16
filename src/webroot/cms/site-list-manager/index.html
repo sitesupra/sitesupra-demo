@@ -2,20 +2,12 @@
 <html>
 <head>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-	<meta name="robots" content="noindex,nofollow" />
-	<title>{{ manager.title }}</title>
+	<title>Site list</title>
 	
 	<!-- Fav icon -->
-	<link rel="icon" type="image/png" href="/favicon.png" />
-
-	{# @FIXME: there is no such icon #}
-	{#
-	<!--[if lte IE 8]>
+	<link rel="icon" type="image/png" href="/favicon.png" /><!--[if lte IE 8]>
 	<link rel="shortcut icon" href="/favicon-simple.ico" type="image/vnd.microsoft.icon" />
-	<![endif]-->
-	#}
-	
-	<!--[if gt IE 8]>
+	<![endif]--><!--[if gt IE 8]>
 	<link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
 	<![endif]-->
 	
@@ -26,39 +18,33 @@
 	<link rel="stylesheet" type="text/css" href="/cms/lib/supra/combo/combo.php?/cms/lib/yui.3.5.0/build/cssreset/reset.css&amp;/cms/lib/supra/build/supra/reset.css" />
 	
 </head>
-<body class="yui3-skin-supra {% block bodyClass %}{% endblock %}">
+<body class="yui3-skin-supra loading">
 	
 	<div class="loading-icon"></div>
 	
-	{% block htmlBodyHeader %}
 	<div class="cms-header" id="cmsHeader"></div>
-	{% endblock %}
-	
 	<div class="cms-content" id="cmsContent"></div>
 	
 	<script type="text/javascript">
 	//<![CDATA[
 	
 		Supra('supra.manager', function (Y) {
-			{% block jsPathConfiguration %}
-			var APP_PATH = '/{{ manager.url }}',
+			var APP_PATH = '/site-list-manager',
 				STATIC_PATH = '/cms',
-				DYNAMIC_PATH = '/{{ constant('SUPRA_CMS_URL') }}';
+				DYNAMIC_PATH = '/cms';
 			
 			//Set current manager paths
 			Supra.Manager.Loader.setStaticPath(STATIC_PATH);
 			Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
 			
 			Supra.Manager.Loader.setBasePath(APP_PATH);
-			
-			Supra.setModuleGroupPath('website', STATIC_PATH + APP_PATH + {% block jsModulePath %}''{% endblock %});
-			{% endblock %}
+			Supra.setModuleGroupPath('website', STATIC_PATH + APP_PATH + '/modules');
 			
 			//Configuration / parameters
 			Supra.data.set({
 				//Session (used in Ajax requests)
-				'sessionName': null,
-				'sessionId': null,
+				'sessionName': 'SID',
+				'sessionId': '',
 				
 				//Date & time formats
 				'dateFormat': '%d.%m.%Y',
@@ -67,53 +53,49 @@
 				
 				//User data
 				'user': {
-					'name': {{ action.user.name | json_encode | raw }},
-					'login': {{ action.user.login | json_encode | raw }},
-					'avatar_id': {{ action.user.avatar | json_encode | raw }},
-					'id': {{ action.user.id | json_encode | raw }},
-					'avatar': {{ action.currentUserArray.avatar | json_encode | raw }}
+					'id': '',
+					'name': 'Chuck Noriss',
+					'login': 'chuck.noriss',
+					'avatar': null
 				},
-				
-				'site': {
-					'title': null //'www.videinfra.com'
-				},
-				
-				{% block jsSupraDataSet %}{% endblock %}
 				
 				//Languages
-				'locale': {{ currentLocale | json_encode | raw }},
+				'locale': 'lv_LV',
 				
-				'contexts': {{ localesList | json_encode | raw }},
+				'contexts': [
+					{
+						'title': 'Latvia',
+						'languages': [{'id': 'lv_LV', 'flag': 'lv', 'title': 'Latvian'}, {'id': 'ru_RU', 'flag': 'ru', 'title': 'Russian'}, {'id': 'en_LV', 'flag': 'en', 'title': 'English'}]
+					},
+					{
+						'title': 'Russia',
+						'languages': [{'id': 'ru_RU', 'flag': 'ru', 'title': 'Russian'}]
+					},
+					{
+						'title': 'United Kingdom',
+						'languages': [{'id': 'en_GB', 'flag': 'en', 'title': 'English'}]
+					}
+				],
 				
 				//Application
 				'application': {
-					'id': {{ manager.id | json_encode | raw }},
-					'path': DYNAMIC_PATH + APP_PATH,
-					'icon': {{ manager.icon | json_encode | raw }},
-					'title': {{ manager.title | json_encode | raw }}
+					'id': 'Supra\\Cms\\SiteListManager',
+					'path': STATIC_PATH + APP_PATH,
+					'icon': '/cms/lib/supra/img/apps/site-list-manager',
+					'title': 'Site list'
 				},
 				
-				//CMS Internationalization
+				//Internationalization
 				'lang': 'en'
+
 			});
 			
-			//Start pinging server
-			Supra.data.set('sessionCheckPings', true);
-			
-			{% block jsSupraManager %}
 			//Start loading actions
-			Supra.Manager.loadActions([
-				'Header',
-				'Root',
-				'LayoutContainers',
-				'PageToolbar',
-				'PageButtons'
-			]);
+			Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers']);
 			
 			//Execute initial actions
 			Supra.Manager.executeAction('Header');
 			Supra.Manager.executeAction('Root');
-			{% endblock %}
 			
 		});
 		

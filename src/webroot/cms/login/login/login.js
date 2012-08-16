@@ -59,6 +59,7 @@ Supra('supra.input', 'cookie', function (Y) {
 		 */
 		render: function () {
 			this.loginform.on('submit', this.submit, this);
+			this.footer.getButton('ok').set('style', 'mid-blue');
 		},
 		
 		/**

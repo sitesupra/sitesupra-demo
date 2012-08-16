@@ -165,6 +165,11 @@
 			color: #58586C;
 			background: url(../img/background-pattern-darker.jpg) 0 0 repeat;
 			box-shadow: 0 1px 1px rgba(1,1,8,.6) inset, 0 1px 0 rgba(255, 255, 255, 0.15);
+			
+			&::-webkit-input-placeholder { color: #7C7D85; }
+			&::-ms-input-placeholder { color: #7C7D85; }
+			&::-moz-placeholder { color: #7C7D85; }
+			&::input-placeholder { color: #7C7D85; }
 		}
 	
 	.yui3-input textarea {
@@ -635,12 +640,20 @@
 }
 
 .ui-center-dark {
-	.yui3-input-string.yui3-input-error label,
-	.yui3-input-number.yui3-input-error label,
-	.yui3-input-path.yui3-input-error label,
-	.yui3-input-text.yui3-input-error label {
-		color: #f00;
-		text-shadow: 0 -1px 0 #000;
+	.yui3-input-string.yui3-input-error,
+	.yui3-input-number.yui3-input-error,
+	.yui3-input-path.yui3-input-error,
+	.yui3-input-text.yui3-input-error {
+		label {
+			color: #f00;
+			text-shadow: 0 -1px 0 #000;
+		}
+		input, textarea {
+			&::-webkit-input-placeholder { color: #c00; }
+			&::-ms-input-placeholder { color: #c00; }
+			&::-moz-placeholder { color: #c00; }
+			&::input-placeholder { color: #c00; }			
+		}
 	}
 }
 
