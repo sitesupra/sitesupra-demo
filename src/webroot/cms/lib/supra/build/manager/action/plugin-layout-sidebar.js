@@ -114,7 +114,7 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 			 * on action execute "execute" function will not be called either
 			 */
 			this.host.addAttr('frozen', {
-				'value': false
+				'value': this.host.get('frozen') || false
 			});
 			
 			this.host._frozenExecute = this.host.execute;

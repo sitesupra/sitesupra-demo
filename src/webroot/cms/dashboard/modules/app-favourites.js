@@ -55,7 +55,7 @@ YUI.add("dashboard.app-favourites", function (Y) {
 		
 		//Single item width
 		"itemHeight": {
-			"value": 125
+			"value": 155
 		}
 	};
 	
