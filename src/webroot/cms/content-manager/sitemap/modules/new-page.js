@@ -68,7 +68,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		 * @type {Number}
 		 * @private
 		 */
-		'_application_count': null,
+		'_application_count': 1,
 		
 		/**
 		 * Render UI

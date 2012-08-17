@@ -760,7 +760,8 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 				this.list.removeClass('gallery-over');
 			} else if (e.target.closest('ul.list')) {
 				this.listDragOver = 'list';
-				this.list.addClass('gallery-over').append(this.listItemDropMarker);
+				this.list.addClass('gallery-over');
+				this.list.append(this.listItemDropMarker);
 			} else {
 				this.listDragOver = 'none';
 			}
@@ -923,11 +924,15 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 * @private
 		 */
 		openMediaLibrary: function () {
-			if (this.shared) return;
+			var mediasidebar = Manager.getAction('MediaSidebar');
+			if (this.shared || mediasidebar.get('visible')) return;
+			
+			//Place marker at the end of the list
+			this.list.append(this.listItemDropMarker);
 			
 			this.list.addClass('mediasidebar-opened');
 			
-			Manager.getAction('MediaSidebar').execute({
+			mediasidebar.execute({
 				'onselect': Y.bind(function (event) {
 					this.addImage(event.image);
 				}, this),
@@ -944,6 +949,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 		 */
 		openMediaLibraryForReplace: function (e) {
 			if (this.shared) return;
+			
+			//Place marker at the end of the list
+			this.list.append(this.listItemDropMarker);
 			
 			var image_id = this.selected_image_data.id,
 				data = this.selected_image_data,
