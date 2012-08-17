@@ -2,6 +2,8 @@
 
 namespace Supra\Controller\Pages\Entity\Theme\Parameter;
 
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterValue;
+
 /**
  * @Entity
  */
