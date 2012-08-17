@@ -317,7 +317,12 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 					
 				case 'mldelete':
 					
-					this.medialist.deleteSelectedItem();
+					var button = Manager.PageToolbar.getActionButton('mldelete');
+					button.set('loading', true);
+					
+					this.medialist.deleteSelectedItem(function () {
+						button.set('loading', false);
+					});
 					break;
 					
 				case 'mlundo':

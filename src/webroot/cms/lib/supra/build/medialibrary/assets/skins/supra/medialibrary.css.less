@@ -432,6 +432,8 @@
 	}
 	
 	.input-sortby {
+		@labelWidth: 60px;
+		
 		position: absolute;
 		left: 0;
 		right: 0;
@@ -440,8 +442,17 @@
 		margin: 0;
 		padding: 7px 19px;
 		
+		.yui3-input-select-list-content {
+			padding-left: @labelWidth;
+		}
+		
 		label {
-			display: none;
+			.box-sizing (border-box);
+			display: block;
+			float: left;
+			width: @labelWidth;
+			margin-left: -@labelWidth;
+			position: relative;
 		}
 	}
 }
