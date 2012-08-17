@@ -2,29 +2,11 @@
 
 namespace Supra\Controller\Layout\Theme\Configuration\Parameter;
 
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
+use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
+use Supra\Controller\Pages\Entity\Theme\Parameter\FontParameter;
 
-class FontParameterConfiguration extends ThemeParameterConfiguration
+class FontParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
-
-	/**
-	 * @var array
-	 */
-	public $fonts;
-
-	/**
-	 * @var string
-	 */
-	public $listName;
-
-	/**
-	 * @param array $designData
-	 */
-	public function makeDesignData(&$designData)
-	{
-		$designData['fonts'][$this->listName] = $this->fonts;
-	}
-
 	/**
 	 * @param array $outputValue
 	 */
@@ -37,6 +19,11 @@ class FontParameterConfiguration extends ThemeParameterConfiguration
 				break;
 			}
 		}
+	}
+
+	protected function getParameterClass()
+	{
+		return FontParameter::CN();
 	}
 
 }

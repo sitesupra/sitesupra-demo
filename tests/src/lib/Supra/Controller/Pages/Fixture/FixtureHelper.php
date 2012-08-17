@@ -651,11 +651,11 @@ class FixtureHelper
 
 		$layout = $theme->getLayout($layoutName);
 
-		//$layout = new Entity\ThemeLayout();
+		//$layout = new Entity\Theme\ThemeLayout();
 		//$this->entityManager->persist($layout);
 		//$layout->setFilename($fileName);
 		//foreach (array('header', 'main', 'footer', 'sidebar') as $name) {
-		//	$layoutPlaceHolder = new Entity\ThemeLayoutPlaceholder();
+		//	$layoutPlaceHolder = new Entity\Theme\ThemeLayoutPlaceholder();
 		//	$layoutPlaceHolder->setName($name);
 		//	$layoutPlaceHolder->setLayout($layout);
 		//}

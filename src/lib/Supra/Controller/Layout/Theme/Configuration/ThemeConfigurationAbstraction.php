@@ -3,7 +3,7 @@
 namespace Supra\Controller\Layout\Theme\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
-use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\Theme\Theme;
 use Supra\Configuration\Exception;
 use Supra\Configuration\Loader\LoaderRequestingConfigurationInterface;
 use Supra\Configuration\Loader\ComponentConfigurationLoader;

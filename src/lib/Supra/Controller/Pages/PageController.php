@@ -390,10 +390,10 @@ class PageController extends ControllerAbstraction
 	}
 
 	/**
-	 * @param Entity\ThemeLayout $layout
+	 * @param Entity\Theme\ThemeLayout $layout
 	 * @param array $blocks array of block responses
 	 */
-	protected function processLayout(Entity\ThemeLayout $layout, array $placeResponses)
+	protected function processLayout(Entity\Theme\ThemeLayout $layout, array $placeResponses)
 	{
 		$layoutProcessor = $this->getLayoutProcessor();
 

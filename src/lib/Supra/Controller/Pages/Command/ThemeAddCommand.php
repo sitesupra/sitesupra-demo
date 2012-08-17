@@ -11,11 +11,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
 use Supra\Configuration\Parser\YamlParser;
-use Supra\Controller\Pages\Entity\Theme;
-use Supra\Controller\Pages\Entity\ThemeLayout;
-use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
-use Supra\Controller\Pages\Entity\ThemeParameterSet;
-use Supra\Controller\Pages\Entity\ThemeParameter;
+use Supra\Controller\Pages\Entity\Theme\Theme;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholder;
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
 use Supra\Controller\Layout\Theme\ThemeProvider;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Doctrine\ORM\EntityManager;
@@ -148,7 +148,7 @@ class ThemeAddCommand extends Command
 		}
 
 		$theme = $themeProvider->findThemeByName($themeName);
-
+		
 		if (empty($theme)) {
 
 			$theme = $themeProvider->makeNewTheme();
@@ -167,7 +167,7 @@ class ThemeAddCommand extends Command
 		$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_NO_CACHE);
 
 		$configurationLoader->loadFile($themeConfigurationFilename);
-
+		
 		$themeProvider->storeTheme($theme);
 
 		$output->writeln('Theme "' . $themeName . '" added/updated.');

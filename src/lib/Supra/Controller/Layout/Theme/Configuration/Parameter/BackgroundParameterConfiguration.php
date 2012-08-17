@@ -2,45 +2,18 @@
 
 namespace Supra\Controller\Layout\Theme\Configuration\Parameter;
 
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
+use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
+use Supra\Controller\Pages\Entity\Theme\Parameter\BackgroundParameter;
 
-class BackgroundParameterConfiguration extends ThemeParameterConfiguration
+class BackgroundParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
 
 	/**
-	 * @var array
+	 * @return string
 	 */
-	public $backgrounds;
-	
-	/**
-	 * @var string
-	 */
-	public $listName;
-
-	/**
-	 * @param array $designData
-	 */
-	public function makeDesignData(&$designData)
-	{	
-		$designData['backgrounds'][$this->listName] = $this->backgrounds;
-	}
-
-	/**
-	 * @param string $outputValue
-	 */
-	public function makeOutputValue(&$outputValue)
+	protected function getParameterClass()
 	{
-		foreach ($this->backgrounds as $backgroundData) {
-
-			if ($backgroundData['id'] == $outputValue) {
-				
-				$backgroundData['icon'] = "'" . $backgroundData['icon'] . "'";
-				$backgroundData['icon'] = str_replace('//', '/', $backgroundData['icon']);
-				
-				$outputValue = $backgroundData;
-				break;
-			}
-		}
+		return BackgroundParameter::CN();
 	}
 
 }

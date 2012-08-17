@@ -1,15 +1,13 @@
 <?php
 
-namespace Supra\Controller\Pages\Entity;
+namespace Supra\Controller\Pages\Entity\Theme;
 
 use Supra\Database;
-use Layout\Exception;
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
 
 /**
  * @Entity 
  * @ChangeTrackingPolicy("DEFERRED_EXPLICIT")
- * @Table(name="ThemeParameterValue_", uniqueConstraints={@UniqueConstraint(name="unique_name_in_set_idx", columns={"parameterName", "set_id"})}))
+ * @Table(name="ThemeParameterValue", uniqueConstraints={@UniqueConstraint(name="unique_name_in_set_idx", columns={"parameterName", "set_id"})}))
  */
 class ThemeParameterValue extends Database\Entity
 {
@@ -32,6 +30,11 @@ class ThemeParameterValue extends Database\Entity
 	 * @var string
 	 */
 	protected $value;
+
+	/**
+	 * kludge
+	 */
+	protected $parameter;
 
 	public function __clone()
 	{
@@ -84,48 +87,6 @@ class ThemeParameterValue extends Database\Entity
 	public function setValue($value)
 	{
 		$this->value = $value;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOutputValue()
-	{
-		$parameter = $this->getParameter();
-
-		$outputValue = $this->getValue();
-
-		$parameterConfiguration = $parameter->getConfiguration();
-
-		if (empty($parameterConfiguration)) {
-			\Log::error('Parameter configuration empty for parameter "' . $parameter->getName() . '".');
-		} else {
-			$parameterConfiguration->makeOutputValue($outputValue);
-		}
-
-		return $outputValue;
-	}
-
-	/**
-	 * @return ThemeParameter
-	 */
-	public function getParameter()
-	{
-		if (empty($this->parameter)) {
-
-			$set = $this->getSet();
-
-			$theme = $set->getTheme();
-
-			$parameters = $theme->getParameters();
-
-			if ( ! empty($parameters[$this->getParameterName()])) {
-
-				$this->parameter = $parameters[$this->getParameterName()];
-			}
-		}
-
-		return $this->parameter;
 	}
 
 }

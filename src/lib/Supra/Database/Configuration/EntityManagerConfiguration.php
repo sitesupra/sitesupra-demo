@@ -24,7 +24,6 @@ use Supra\Database\Doctrine\Type\UtcDateTimeType;
 use Supra\Database\DetachedDiscriminatorHandler;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Supra\Loader\Loader;
-use Doctrine\Common\EventSubscriber;
 
 /**
  * Entity manager creation
@@ -56,6 +55,8 @@ class EntityManagerConfiguration implements ConfigurationInterface
 	 */
 	public $entityLibraryPaths = array(
 		'page' => 'Supra/Controller/Pages/Entity/',
+		'theme' => 'Supra/Controller/Pages/Entity/Theme/',
+		'themeParameter' => 'Supra/Controller/Pages/Entity/Theme/Parameter/',
 		'file' => 'Supra/FileStorage/Entity/',
 		'user' => 'Supra/User/Entity/',
 		'cron' => 'Supra/Console/Cron/Entity/',
@@ -69,6 +70,8 @@ class EntityManagerConfiguration implements ConfigurationInterface
 	
 	public $entityNamespaces = array(
 		'page' => 'Supra\Controller\Pages\Entity',
+		'theme' => 'Supra\Controller\Pages\Entity\Theme',
+		'themeParameter' => 'Supra\Controller\Pages\Entity\Theme\Parameter',
 		'file' => 'Supra\FileStorage\Entity',
 		'user' => 'Supra\User\Entity',
 		'cron' => 'Supra\Console\Cron\Entity',

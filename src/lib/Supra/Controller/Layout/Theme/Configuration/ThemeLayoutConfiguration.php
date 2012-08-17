@@ -5,8 +5,8 @@ namespace Supra\Controller\Layout\Theme\Configuration;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Controller\Layout\Theme\Theme;
 use Supra\Configuration\Exception;
-use Supra\Controller\Pages\Entity\ThemeLayout;
-use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholder;
 use Supra\Controller\Layout\Processor\TwigProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 

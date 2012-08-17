@@ -21,7 +21,7 @@ use Supra\Locale\Locale;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
-use Supra\Controller\Pages\Entity\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 
 /**
  * 

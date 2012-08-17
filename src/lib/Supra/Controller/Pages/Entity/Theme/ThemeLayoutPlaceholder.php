@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Pages\Entity;
+namespace Supra\Controller\Pages\Entity\Theme;
 
 use Supra\Database;
 

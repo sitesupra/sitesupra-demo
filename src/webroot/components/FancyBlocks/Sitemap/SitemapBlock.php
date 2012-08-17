@@ -55,7 +55,7 @@ class SitemapBlock extends LinksBlock
 		$localizations = $localizationFinder->getResult();
 		$map = $this->addRealLevels($localizations);
 
-		/* @var $theme Entity\Theme */
+		/* @var $theme Entity\Theme\Theme */
 		$theme = $this->getRequest()->getLayout()->getTheme();
 		
 		$response->getContext()

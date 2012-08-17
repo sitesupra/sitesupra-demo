@@ -69,7 +69,7 @@ class NewsListBlock extends BlockController
 		$response->assign('threePublications', $threePublicationsData);
 		$response->assign('publications', $publicationsData);
 
-		/* @var $theme \Supra\Controller\Pages\Entity\Theme */
+		/* @var $theme \Supra\Controller\Pages\Entity\Theme\Theme */
 		$theme = $this->getRequest()->getLayout()->getTheme();
 
 		$response->getContext()

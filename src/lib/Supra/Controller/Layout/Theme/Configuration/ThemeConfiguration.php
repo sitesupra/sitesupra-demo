@@ -3,14 +3,14 @@
 namespace Supra\Controller\Layout\Theme\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
-use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\Theme\Theme;
 use Supra\Configuration\Exception;
 use Supra\Configuration\Loader\LoaderRequestingConfigurationInterface;
 use Supra\Configuration\Loader\ComponentConfigurationLoader;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
 use Supra\Controller\Layout\Theme\ThemeProvider;
-use Supra\Controller\Pages\Entity\ThemeParameterSet;
-use Supra\Controller\Pages\Entity\ThemeParameter;
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class ThemeConfiguration extends ThemeConfigurationAbstraction
@@ -118,14 +118,14 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		if ( ! empty($this->parameters)) {
 
 			foreach ($this->parameters as $parameterConfiguration) {
-				/* @var $parameterConfiguration ThemeParameterConfiguration */
+				/* @var $parameterConfiguration ThemeParameterConfigurationAbstraction */
 
 				$parameter = $parameterConfiguration->getParameter();
 
 				$parametersAfter[$parameter->getName()] = $parameter;
 			}
 		}
-		
+
 		$theme->setActiveParameterSet(null);
 
 		$parameterNamesAfter = $parametersAfter->getKeys();
@@ -196,6 +196,11 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 
 		$namesToRemove = array_diff($parameterSetNamesBefore, $parameterSetNamesAfter);
 		foreach ($namesToRemove as $nameToRemove) {
+
+			if ($parameterSetsBefore[$nameToRemove]->getType() != ThemeParameterSet::TYPE_PRESET) {
+				continue;
+			}
+
 			$theme->removeParameterSet($parameterSetsBefore[$nameToRemove]);
 		}
 
@@ -213,13 +218,13 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		foreach ($parameterSets as $parameterSet) {
 
 			foreach ($parameters as $parameter) {
-				/* @var $parameter ThemeParameter */
+				/* @var $parameter \Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction */
 
 				$parameterSetValues = $parameterSet->getValues();
 
 				if (empty($parameterSetValues[$parameter->getName()])) {
 
-					$value = $parameter->getThemeParameterValue();
+					$value = $parameter->getDefaultThemeParameterValue($parameterSet);
 					$parameterSet->addValue($value);
 				}
 			}

@@ -3,14 +3,14 @@
 namespace Supra\Controller\Layout\Theme\Configuration\Parameter;
 
 use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
-use Supra\Controller\Pages\Entity\Theme\Parameter\ColorParameter;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ArrayParameter;
 
-class ColorParameterConfiguration extends ThemeParameterConfigurationAbstraction
+class ArrayParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
 
 	protected function getParameterClass()
 	{
-		return ColorParameter::CN();
+		return ArrayParameter::CN();
 	}
 
 }

@@ -1,16 +1,17 @@
 <?php
 
-namespace Supra\Controller\Pages\Entity;
+namespace Supra\Controller\Pages\Entity\Theme;
 
 use Supra\Database;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Controller\Layout\Theme\ThemeInterface;
 use Supra\Less\SupraLessC;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfiguration;
-use Supra\Configuration\Parser\YamlParser;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
-use Supra\Controller\Pages\Entity\ThemeParameter;
+use Supra\Configuration\Parser\YamlParser;
 use Supra\Controller\Layout\Exception;
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
 
 /**
  * @Entity
@@ -25,6 +26,7 @@ class Theme extends Database\Entity implements ThemeInterface
 
 	const PATH_PART_GENERATED_CSS = 'generatedCss';
 	const PATH_PART_LAYOUTS = 'layouts';
+	const DEFAULT_PARAMETER_SET_NAME = 'default';
 
 	/**
 	 * @Column(type="string")
@@ -75,7 +77,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	protected $parameterSets;
 
 	/**
-	 * @OneToMany(targetEntity="ThemeParameter", mappedBy="theme", cascade={"all"}, orphanRemoval=true, indexBy="name")
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction", mappedBy="theme", cascade={"all"}, orphanRemoval=true, indexBy="name")
 	 * @var ArrayCollection
 	 */
 	protected $parameters;
@@ -97,6 +99,11 @@ class Theme extends Database\Entity implements ThemeInterface
 	 * @var string
 	 */
 	protected $urlBase;
+
+	/**
+	 * @var array
+	 */
+	private $currentParameterSetOuptutValues;
 
 	public function __construct()
 	{
@@ -248,18 +255,18 @@ class Theme extends Database\Entity implements ThemeInterface
 	}
 
 	/**
-	 * @param ThemeParameter $parameter 
+	 * @param ThemeParameterAbstraction $parameter 
 	 */
-	public function addParameter(ThemeParameter $parameter)
+	public function addParameter(ThemeParameterAbstraction $parameter)
 	{
 		$parameter->setTheme($this);
 		$this->parameters[$parameter->getName()] = $parameter;
 	}
 
 	/**
-	 * @param ThemeParameter $parameter 
+	 * @param ThemeParameterAbstraction $parameter 
 	 */
-	public function removeParameter(ThemeParameter $parameter)
+	public function removeParameter(ThemeParameterAbstraction $parameter)
 	{
 		$parameter->setTheme(null);
 
@@ -271,19 +278,24 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function getCurrentParameterSetOutputValues()
 	{
-		$currentParameterSet = $this->getCurrentParameterSet();
+		if (empty($this->currentParameterSetOuptutValues)) {
 
-		$outputValues = $currentParameterSet->getOutputValues();
+			$currentParameterSet = $this->getCurrentParameterSet();
 
-		$outputValues['name'] = $this->getName();
+			$outputValues = $currentParameterSet->getOutputValues();
 
-		$outputValues['urlBase'] = $this->getUrlBase();
+			$outputValues['name'] = $this->getName();
 
-		$outputValues['generatedCssUrl'] = $this->getCurrentGeneratedCssUrl();
+			$outputValues['urlBase'] = $this->getUrlBase();
 
-		$outputValues['parameterSetName'] = $currentParameterSet->getName();
+			$outputValues['generatedCssUrl'] = $this->getCurrentGeneratedCssUrl();
 
-		return $outputValues;
+			$outputValues['parameterSetName'] = $currentParameterSet->getName();
+
+			$this->currentParameterSetOuptutValues = $outputValues;
+		}
+
+		return $this->currentParameterSetOuptutValues;
 	}
 
 	/**
@@ -315,7 +327,7 @@ class Theme extends Database\Entity implements ThemeInterface
 
 		$lessc->setRootDir($this->getRootDir());
 
-		$values = $parameterSet->getLessOutputValues();
+		$values = $parameterSet->getOutputValuesForLess();
 
 		$flatValues = array();
 
@@ -421,13 +433,13 @@ class Theme extends Database\Entity implements ThemeInterface
 		if (empty($this->currentParameterSet)) {
 
 			$this->currentParameterSet = new ThemeParameterSet();
+			$this->currentParameterSet->setTheme($this);
 
 			foreach ($this->getParameters() as $parameter) {
-				/* @var $parameter ThemeParameter */
+				/* @var $parameter ThemeParameterAbstraction */
 
-				$value = $parameter->getThemeParameterValue();
+				$value = $parameter->getDefaultThemeParameterValue($this->currentParameterSet);
 				$this->currentParameterSet->addValue($value);
-				$this->currentParameterSet->setTheme($this);
 			}
 
 			$this->currentParameterSet->setName('auto-current');
@@ -462,14 +474,17 @@ class Theme extends Database\Entity implements ThemeInterface
 	}
 
 	/**
-	 * 
+	 * @return ThemeParameterSet
 	 */
-	public function makeDefaultParameterSet()
+	public function getDefaultParameterSet()
 	{
-		$currentParameterSet = $this->getCurrentParameterSet();
+		if ( ! $this->parameterSets->containsKey(self::DEFAULT_PARAMETER_SET_NAME)) {
+			throw new Exception\RuntimeException('Default parameter set is not defined for theme "' . $this->getName() . '".');
+		}
 
-		$this->addParameterSet($currentParameterSet);
-		$this->setActiveParameterSet($currentParameterSet);
+		$defaultParameterSet = $this->parameterSets->get(self::DEFAULT_PARAMETER_SET_NAME);
+
+		return $defaultParameterSet;
 	}
 
 	/**
@@ -509,6 +524,10 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function addParameterSet(ThemeParameterSet $parameterSet)
 	{
+		if ($this->parameterSets->containsKey($parameterSet->getName())) {
+			$this->removeParameterSet($this->parameterSets->get($parameterSet->getName()));
+		}
+
 		$parameterSet->setTheme($this);
 
 		$this->parameterSets[$parameterSet->getName()] = $parameterSet;
@@ -595,6 +614,39 @@ class Theme extends Database\Entity implements ThemeInterface
 	public function getPreviewContentUrl()
 	{
 		return $this->getUrlBase() . 'preview.html';
+	}
+
+	/**
+	 * @param ThemeParameterSet $set
+	 * @param ThemeParameterAbstraction $parameter
+	 * @param mixed $newValue
+	 */
+	public function setParameterValue(ThemeParameterSet $set, ThemeParameterAbstraction $parameter, $newValue)
+	{
+		$parameterName = $parameter->getName();
+
+		$parameterValues = $set->getValues();
+
+		/* @var $parameterValue ThemeParameterValue */
+		if ($parameterValues->containsKey($parameterName)) {
+			$parameterValue = $parameterValues->get($parameterName);
+		} else {
+			$parameterValue = $set->addNewValue($parameterName);
+		}
+
+		$parameter->updateValue($parameterValue, $newValue);
+	}
+
+	/**
+	  s	 * @param \Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction $parameter
+	 * @param mixed $newValue
+	 */
+	public function setCurrentParameterSetValue(ThemeParameterAbstraction $parameter, $newValue)
+	{
+
+		$currentParameterSet = $this->getCurrentParameterSet();
+
+		$this->setParameterValue($currentParameterSet, $parameter, $newValue);
 	}
 
 }

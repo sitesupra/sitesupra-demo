@@ -3,9 +3,9 @@
 use Supra\Upgrade\Script\UpgradeScriptAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\TemplateLayout;
-use Supra\Controller\Pages\Entity\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 use Supra\Controller\Pages\Entity\Layout;
-use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\Theme\Theme;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Supra\Upgrade\Script\SkippableOnError;

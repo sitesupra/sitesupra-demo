@@ -5,7 +5,7 @@ namespace Supra\Controller\Pages\Set;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\Template;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
-use Supra\Controller\Pages\Entity\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 
 /**
  * Set containing 

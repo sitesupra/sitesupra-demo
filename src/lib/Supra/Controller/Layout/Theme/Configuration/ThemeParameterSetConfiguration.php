@@ -2,9 +2,9 @@
 
 namespace Supra\Controller\Layout\Theme\Configuration;
 
-use Supra\Controller\Pages\Entity\ThemeParameterSet;
-use Supra\Controller\Pages\Entity\ThemeParameter;
-use Supra\Controller\Pages\Entity\ThemeParameterValue;
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterValue;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class ThemeParameterSetConfiguration extends ThemeConfigurationAbstraction
@@ -34,11 +34,6 @@ class ThemeParameterSetConfiguration extends ThemeConfigurationAbstraction
 	 * @var ThemeParameterSet;
 	 */
 	protected $parameterSet;
-	
-	/**
-	 * @var boolean
-	 */
-	public $enabled;
 
 	/**
 	 * @return ThemeParameterSet
@@ -93,11 +88,11 @@ class ThemeParameterSetConfiguration extends ThemeConfigurationAbstraction
 				}
 
 				$value->setValue($valueValue);
-				
+
 				$valuesAfter[$parameterName] = $value;
 			}
 		}
-		
+
 		$valueNamesAfter = $valuesAfter->getKeys();
 
 		//$namesToRemove = array_diff($valueNamesBefore, $valueNamesAfter);
