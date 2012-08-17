@@ -13,6 +13,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	var Data = Supra.MediaLibraryData,
 		Template = Supra.Template;
 	
+	/*
+	 * HTML5 support
+	 */
+	var FILE_API_SUPPORTED = typeof FileReader !== 'undefined';
 	
 	/**
 	 * Media list
@@ -119,7 +123,12 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, folder item template for temporary file
 	 * @type {String}
 	 */
-	List.TEMPLATE_FOLDER_ITEM_TEMP = Template.compile('<li class="type-temp" data-id="{{ id }}"></li>');
+	List.TEMPLATE_FOLDER_ITEM_TEMP = Template.compile('\
+		<li class="type-temp' + (FILE_API_SUPPORTED ? '' : ' type-temp-legacy') + '" data-id="{{ id }}">\
+			<span class="title">{{ filename|escape }}</span>\
+			<a class="cancel"></a>\
+			<span class="progress"><em></em></span>\
+		</li>');
 	
 	/**
 	 * Constant, file template
@@ -727,6 +736,25 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			while(folder_data) {
 				if (folder_data.type == Data.TYPE_FOLDER) return folder_data;
 				folder_data = this.getItemData(folder_data.parent);
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns image preview node
+		 * 
+		 * @private
+		 */
+		getImageNode: function () {
+			var item = this.getSelectedItem(),
+				slide = null;
+			
+			if (item) {
+				slide = this.slideshow.getSlide('slide_' + item.id);
+				if (slide) {
+					return slide.one('div.preview img');
+				}
 			}
 			
 			return null;

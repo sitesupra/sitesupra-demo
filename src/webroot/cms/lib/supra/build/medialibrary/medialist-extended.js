@@ -364,8 +364,11 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		/**
 		 * Deletes selected item.
 		 * Chainable
+		 * 
+		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback function context
 		 */
-		deleteSelectedItem: function () {
+		deleteSelectedItem: function (callback, context) {
 			var item = this.getSelectedItem();
 			if (item) {
 				var data_object = this.get('dataObject'),
@@ -399,6 +402,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 							//Update scrollbars
 							parent_slide.one('.su-slide-content, .su-multiview-slide-content').fire('contentResize');
 						}
+					}
+					
+					if (Y.Lang.isFunction(callback)) {
+						callback.call(context || this);
 					}
 					
 				}, this));

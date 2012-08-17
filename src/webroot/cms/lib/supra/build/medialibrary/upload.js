@@ -422,7 +422,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				
 				//Create temporary item
 				file = files.item(i);
-				file_id = this.get('host').addFile(folder, {'title': file.fileName || file.name});
+				file_id = this.get('host').addFile(folder, {'title': file.fileName || file.name, 'filename': file.fileName || file.name});
 				
 				node = this.get('host').getItemNode(file_id);
 				
@@ -478,7 +478,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				file = null;
 			
 			//Create temporary item
-			file_id = this.get('host').addFile(folder, {'title': file_name});
+			file_id = this.get('host').addFile(folder, {'title': file_name, 'filename': file_name});
 			
 			//Event data will be passed to 'load' and 'progress' event listeners
 			event_data = {
