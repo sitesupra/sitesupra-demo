@@ -209,13 +209,16 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 			$theme->addParameterSet($parameterSetsAfter[$nameToAdd]);
 		}
 
-		// Add undefined parameter values to sets, using default values fomr parameters.
+		// Add undefined parameter values to sets, using default values from default parameter set (it must exist or this will fail).
 
 		$parameters = $theme->getParameters();
 
 		$parameterSets = $theme->getParameterSets();
 
+		$defaultParameterSet = $theme->getDefaultParameterSet();
+
 		foreach ($parameterSets as $parameterSet) {
+			/* @var $parameterSet ThemeParameterSet */
 
 			foreach ($parameters as $parameter) {
 				/* @var $parameter \Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction */
@@ -224,8 +227,12 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 
 				if (empty($parameterSetValues[$parameter->getName()])) {
 
-					$value = $parameter->getDefaultThemeParameterValue($parameterSet);
-					$parameterSet->addValue($value);
+					$parameterValue = $parameterSet->addNewValueForParameter($parameter);
+
+					/* @var $parameterValueFromDefaultParameterSet \Supra\Controller\Pages\Entity\Theme\ThemeParameterValue */
+					$parameterValueFromDefaultParameterSet = $defaultParameterSet->getValues()->get($parameter->getName());
+
+					$parameterValue->setValue($parameterValueFromDefaultParameterSet->getValue());
 				}
 			}
 		}
