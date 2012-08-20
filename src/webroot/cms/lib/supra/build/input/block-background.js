@@ -160,9 +160,15 @@ YUI.add("supra.input-block-background", function (Y) {
 			} else {
 				//Not part of block properties, search for Action
 				var parent = this.getParentWidget("ActionBase");
-				if (parent  && parent.plugins.getPlugin('PluginSidebar')) {
+				if (parent  && parent.plugins.getPlugin("PluginSidebar")) {
 					//Has sidebar plugin, so this action is in sidebar
-					parent.execute();
+					if (parent.get("frozen")) {
+						//In frozen state show/execute are not called, so we have to
+						//force it to show content
+						parent.showFrozen();
+					} else {
+						parent.execute();
+					}
 				}
 			}
 		},
