@@ -10,7 +10,7 @@ use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstr
  * @Entity
  * @InheritanceType("SINGLE_TABLE")
  * @ChangeTrackingPolicy("DEFERRED_EXPLICIT")
- * @Table(name="su_ThemeParameter", uniqueConstraints={@UniqueConstraint(name="unique_name_in_theme_idx", columns={"name", "theme_id"})}))
+ * @Table(name="su_ThemeParameter", uniqueConstraints={@UniqueConstraint(name="unique_name_in_theme_idx", columns={"name", "theme_id", "dtype"})}))
  * @DiscriminatorMap({
  * 	"array" = "ArrayParameter", 
  * 	"background" = "BackgroundParameter",
