@@ -1,8 +1,9 @@
+
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Gallery\GalleryBlock
     title: Gallery Block
-    groupId: system
-    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    groupId: features
+    description: Description
     cmsClassname: Gallery
     icon: icon.png
     cache:
@@ -11,7 +12,6 @@
         global: false
         groups:
           - Supra\FileStorage
-          # becase has shared properties
           - Supra\Controller\Pages
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -19,18 +19,41 @@
           editable: Supra\Editable\Gallery
           label: Images
           shared: true
+          properties:
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: title
+                editable: Supra\Editable\String
+                label: Title
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: description
+                editable: Supra\Editable\Textarea
+                label: Description
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: title
-          editable: Supra\Editable\String
-          label: Title
+          name: style
+          editable: Supra\Editable\SelectVisual
+          label: Style
           shared: true
+          default: grid
+          values:
+            - id: grid
+              title: Grid with lightbox
+              icon: icons/style-grid.png
+            - id: slideshow
+              title: Slideshow
+              icon: icons/style-slideshow.png
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: checkboxgg
-          editable: Supra\Editable\Checkbox
-          label: Checkbox
+          name: design
+          editable: Supra\Editable\SelectVisual
+          label: Design
           shared: true
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: title_nonshared
-          editable: Supra\Editable\String
-          label: Nonshared title
-          shared: false
+          default: simple
+          values:
+            - id: simple
+              title: Plain
+              icon: icons/design-simple.png
+            - id: border
+              title: Frame
+              icon: icons/design-border.png
+            - id: box
+              title: Shadow
+              icon: icons/design-boxes.png

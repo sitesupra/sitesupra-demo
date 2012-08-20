@@ -3,9 +3,6 @@
 namespace Project\FancyBlocks\Gallery;
 
 use Supra\Controller\Pages\BlockController;
-use Supra\Request;
-use Supra\Response;
-use Supra\Editable;
 
 class GalleryBlock extends BlockController
 {
