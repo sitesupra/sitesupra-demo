@@ -9,8 +9,7 @@
 			<ul>
 				{% for image in images %}
 				<li>
-					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 358, true ) | raw %}
-					<img src="{{ tag.getAttribute('src')|escape }}" alt="" />
+					{{ supraBlock.imageHtmlTag( image.imageId, 960, 560, true ) | raw }}
 					
 					<div>
 						{% set property = image.property %}
