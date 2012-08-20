@@ -220,7 +220,7 @@ function (Y) {
 				uri = document.location;
 				values.action = 'create';
 			} else {
-				uri = this.getDataPath('dev/create');
+				uri = this.getDataPath('create');
 			}
 			
 			valid = Y.Lang.trim(values.name);
@@ -284,10 +284,10 @@ function (Y) {
 			}
 			
 			var datagrid = this.widgets.datagrid = new Supra.DataGrid({
-				"requestURI": this.getDataPath("dev/sites"),
+				"requestURI": this.getDataPath("sites"),
 				"columns": [
 					{"id": "projectName", "title": "Title"},
-					{"id": "secureBaseUrl", "title": "Domain", "formatter": this.formatDomainName},
+					{"id": "domainName", "title": "Domain", "formatter": this.formatDomainName},
 					{"id": "status", "title": "Status", "formatter": this.formatStatusColumn}
 				],
 				"dataColumns": [

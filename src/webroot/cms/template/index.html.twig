@@ -75,7 +75,7 @@
 				},
 				
 				'site': {
-					'title': null //'www.videinfra.com'
+					'title': {% if siteTitle %}'{{ siteTitle }}'{% else %}null{% endif %} //'www.videinfra.com'
 				},
 				
 				{% block jsSupraDataSet %}{% endblock %}
