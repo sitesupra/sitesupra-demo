@@ -121,7 +121,7 @@ YUI.add('supra.input-string', function (Y) {
 				//Already handled by _onKeyDown
 			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
 				//Already handled by _onKeyDown
-			} else if (mask && charCode) {
+			} else if (charCode) {
 				//46 - 'Delete'
 				//Validate against mask
 				var str = String.fromCharCode(charCode),
@@ -131,7 +131,13 @@ YUI.add('supra.input-string', function (Y) {
 				value = value.substr(0, inputNode.selectionStart) + str + value.substr(inputNode.selectionEnd).replace(/^\s*|\s*$/, '');
 
 				if (e.ctrlKey && charCode == 118) return;
-				if (!mask.test(value)) return e.preventDefault();
+				if (mask && !mask.test(value)) return e.preventDefault();
+				
+				//Trigger input event
+				if (this._last_value != value) {
+					this._last_value = value;
+					this.fire('input', {'value': value});
+				}
 			}
 		},
 		
@@ -172,11 +178,15 @@ YUI.add('supra.input-string', function (Y) {
 					//It's not possible to prevent input event, so we set previous value
 					this.set('value', this._last_value);
 				} else {
-					this._last_value = value;
+					if (this._last_value != value) {
+						this._last_value = value;
+						this.fire('input', {'value': value});
+					}
 				}
+			} else if (this._last_value != value) {
+				this._last_value = value;
+				this.fire('input', {'value': value});
 			}
-			
-			this.fire('input', {'value': value});
 		},
 		
 		_onFocus: function () {
