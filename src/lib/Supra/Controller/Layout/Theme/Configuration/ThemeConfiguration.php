@@ -211,28 +211,31 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 
 		// Add undefined parameter values to sets, using default values from default parameter set (it must exist or this will fail).
 
-		$parameters = $theme->getParameters();
+		if ($theme->getParameterSets()->containsKey(Theme::DEFAULT_PARAMETER_SET_NAME)) {
 
-		$parameterSets = $theme->getParameterSets();
+			$parameters = $theme->getParameters();
 
-		$defaultParameterSet = $theme->getDefaultParameterSet();
+			$parameterSets = $theme->getParameterSets();
 
-		foreach ($parameterSets as $parameterSet) {
-			/* @var $parameterSet ThemeParameterSet */
+			$defaultParameterSet = $theme->getDefaultParameterSet();
 
-			foreach ($parameters as $parameter) {
-				/* @var $parameter \Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction */
+			foreach ($parameterSets as $parameterSet) {
+				/* @var $parameterSet ThemeParameterSet */
 
-				$parameterSetValues = $parameterSet->getValues();
+				foreach ($parameters as $parameter) {
+					/* @var $parameter \Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction */
 
-				if (empty($parameterSetValues[$parameter->getName()])) {
+					$parameterSetValues = $parameterSet->getValues();
 
-					$parameterValue = $parameterSet->addNewValueForParameter($parameter);
+					if (empty($parameterSetValues[$parameter->getName()])) {
 
-					/* @var $parameterValueFromDefaultParameterSet \Supra\Controller\Pages\Entity\Theme\ThemeParameterValue */
-					$parameterValueFromDefaultParameterSet = $defaultParameterSet->getValues()->get($parameter->getName());
+						$parameterValue = $parameterSet->addNewValueForParameter($parameter);
 
-					$parameterValue->setValue($parameterValueFromDefaultParameterSet->getValue());
+						/* @var $parameterValueFromDefaultParameterSet \Supra\Controller\Pages\Entity\Theme\ThemeParameterValue */
+						$parameterValueFromDefaultParameterSet = $defaultParameterSet->getValues()->get($parameter->getName());
+
+						$parameterValue->setValue($parameterValueFromDefaultParameterSet->getValue());
+					}
 				}
 			}
 		}

@@ -303,10 +303,6 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	public function generateCssFiles()
 	{
-		if ($this->parameterSets->count() == 0) {
-			$this->makeDefaultParameterSet();
-		}
-
 		foreach ($this->parameterSets as $parameterSet) {
 			/* @var $parameterSet ThemeParameterSet */
 			$this->generateCssFileFromLess($parameterSet);
