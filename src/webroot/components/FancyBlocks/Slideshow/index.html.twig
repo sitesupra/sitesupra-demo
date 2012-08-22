@@ -9,7 +9,24 @@
 			<ul>
 				{% for image in images %}
 				<li>
-					{{ supraBlock.imageHtmlTag( image.imageId, 960, 560, true ) | raw }}
+					{% set width_full = 960 %}
+					{% set height_full = 358 %}
+					{% set ratio = height_full / width_full %}
+					
+					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 960 * ratio, true ) | raw %}
+					{% set tag_tablet = supraBlock.imageHtmlTag( image.imageId, 768, 768 * ratio, true ) | raw %}
+					{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, 420, 420 * ratio, true ) | raw %}
+					{% set tag_mobile_p = supraBlock.imageHtmlTag( image.imageId, 300, 300 * ratio, true ) | raw %}
+					
+					<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
+						 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
+						 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
+					     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
+					     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
+					     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
+					     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
+					     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
+					     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
 					
 					<div>
 						{% set property = image.property %}

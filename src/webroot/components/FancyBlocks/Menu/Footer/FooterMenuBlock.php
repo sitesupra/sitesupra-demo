@@ -39,16 +39,19 @@ class FooterMenuBlock extends MenuBlock
 
 		if ($link1 instanceof LinkReferencedElement) {
 			$response->assign('title1', $link1->getTitle() ? $link1->getTitle() :$link1->getElementTitle());
+			$response->assign('link1',  $link1->getHref());
 			$response->assign('items1', $this->getItems($link1));
 		}
 
 		if ($link2 instanceof LinkReferencedElement) {
 			$response->assign('title2', $link2->getTitle() ? $link2->getTitle() :$link2->getElementTitle());
+			$response->assign('link2',  $link2->getHref());
 			$response->assign('items2', $this->getItems($link2));
 		}
 
 		if ($link3 instanceof LinkReferencedElement) {
 			$response->assign('title3', $link3->getTitle() ? $link3->getTitle() :$link3->getElementTitle());
+			$response->assign('link3',  $link3->getHref());
 			$response->assign('items3', $this->getItems($link3));
 		}
 

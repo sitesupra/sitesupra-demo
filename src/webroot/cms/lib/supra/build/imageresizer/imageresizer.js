@@ -521,22 +521,28 @@ YUI().add("supra.imageresizer", function (Y) {
 				this.dragEnd(e);
 			}
 			
-			if (this.get("cursor") < 4) {
-				this.resizeActive = true;
-			} else {
-				this.moveActive = true;
-			}
-			
 			this.eventDrop = Y.Node(this.get("doc")).on("mouseup", this.dragEnd, this);
-			this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragMove, this);
-			
-			this.mouseStartX = e.clientX;
-			this.mouseStartY = e.clientY;
-			this.dragStartW = this.dragW = this.resizeActive ? this.cropWidth : this.cropLeft;
-			this.dragStartH = this.dragH = this.resizeActive ? this.cropHeight : this.cropTop;
 			
 			this.dragCropLeft = this.cropLeft;
 			this.dragCropTop = this.cropTop;
+			this.mouseStartX = e.clientX;
+			this.mouseStartY = e.clientY;
+			
+			if (this.get("cursor") < 4) {
+				//Resize
+				this.resizeActive = true;
+				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragResize, this);
+				
+				this.dragStartW = this.dragW = this.cropWidth;
+				this.dragStartH = this.dragH = this.cropHeight;
+			} else {
+				//Move
+				this.moveActive = true;
+				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragMove, this);
+				
+				this.dragStartW = this.dragW = this.cropLeft;
+				this.dragStartH = this.dragH = this.cropTop;
+			}
 			
 			e.preventDefault();
 		},
@@ -555,7 +561,64 @@ YUI().add("supra.imageresizer", function (Y) {
 				sizeY  = this.dragStartH + deltaY,
 				mode   = this.get("mode");
 			
-			if (this.resizeActive) { // resize
+			if (this.moveActive) {
+				var node = this.get("image"),
+					cropWidth = this.cropWidth,
+					cropHeight = this.cropHeight,
+					imageHeight = this.imageHeight,
+					imageWidth = this.imageWidth;
+				
+				if (!node) return;
+				
+				if (sizeX < 0) sizeX = 0;
+				if (sizeY < 0) sizeY = 0;
+				
+				if (mode == ImageResizer.MODE_IMAGE) {
+					// Image
+					if (sizeX + cropWidth > imageWidth) {
+						sizeX = imageWidth - cropWidth;
+					}
+					if (sizeY + cropHeight > imageHeight) {
+						sizeY = imageHeight - cropHeight;
+					}
+				} else {
+					// Background
+					if (sizeX > imageWidth) {
+						sizeX = imageWidth;
+					}
+					if (sizeY > imageHeight) {
+						sizeY = imageHeight;
+					}
+				}
+				
+				if (sizeX != this.dragCropLeft || sizeY != this.dragCropTop) {
+					this.dragCropLeft = sizeX;
+					this.dragCropTop  = sizeY;
+					
+					if (mode == ImageResizer.MODE_IMAGE) {
+						node.setStyle("margin", - sizeY + "px 0 0 -" + sizeX + "px");
+					} else {
+						node.setStyle("backgroundPosition", - sizeX + "px -" + sizeY + "px");
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Handle mouse move while resizing
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		dragResize: function (e) {
+			var cursor = this.get("cursor"),
+				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+				sizeX  = this.dragStartW + deltaX,
+				sizeY  = this.dragStartH + deltaY,
+				mode   = this.get("mode");
+			
+			if (this.resizeActive) {
 				var node = this.get("imageContainerNode"),
 					minW = this.get("minCropWidth"),
 					maxW = this.get("maxCropWidth"),
@@ -600,46 +663,6 @@ YUI().add("supra.imageresizer", function (Y) {
 					this.dragCropLeft = cropLeft;
 					
 					this.get("image").setStyle("margin", - cropTop + "px 0 0 -" + cropLeft + "px");
-				}
-			} else { // move
-				var node = this.get("image"),
-					cropWidth = this.cropWidth,
-					cropHeight = this.cropHeight
-					imageHeight = this.imageHeight,
-					imageWidth = this.imageWidth;
-				
-				if (!node) return;
-				
-				if (sizeX < 0) sizeX = 0;
-				if (sizeY < 0) sizeY = 0;
-				
-				if (mode == ImageResizer.MODE_IMAGE) {
-					// Image
-					if (sizeX + cropWidth > imageWidth) {
-						sizeX = imageWidth - cropWidth;
-					}
-					if (sizeY + cropHeight > imageHeight) {
-						sizeY = imageHeight - cropHeight;
-					}
-				} else {
-					// Background
-					if (sizeX > imageWidth) {
-						sizeX = imageWidth;
-					}
-					if (sizeY > imageHeight) {
-						sizeY = imageHeight;
-					}
-				}
-				
-				if (sizeX != this.dragCropLeft || sizeY != this.dragCropTop) {
-					this.dragCropLeft = sizeX;
-					this.dragCropTop  = sizeY;
-					
-					if (mode == ImageResizer.MODE_IMAGE) {
-						node.setStyle("margin", - sizeY + "px 0 0 -" + sizeX + "px");
-					} else {
-						node.setStyle("backgroundPosition", - sizeX + "px -" + sizeY + "px");
-					}
 				}
 			}
 		},

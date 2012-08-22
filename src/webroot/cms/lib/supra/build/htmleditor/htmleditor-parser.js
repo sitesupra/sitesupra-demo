@@ -127,25 +127,49 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					tagCloseIndex = html.indexOf('>', tagOpenIndex);
 					if (tagCloseIndex != -1) {
 						tag = this.cleanTag(html.substring(tagOpenIndex + 1, tagCloseIndex));
-						
 						if (tag) {
 							if (typeof tag === 'string') {
 								//Closing tag
-								if (tagStack[0][0] == tag) {
+								if (tagStack.length && tagStack[0][0] == tag) {
 									//Get item from stack
 									tag = tagStack.shift();
-									html = html.substr(0, tagOpenIndex) + tag[2] + html.substr(tagCloseIndex + 1);
 									
-									//Fix index
-									tagOpenIndex += tag[2].length - 1;
+									if (tag[3]) {
+										//Remove existing tag
+										html = html.substr(0, tagOpenIndex) + tag[2] + html.substr(tagCloseIndex + 1);
+										
+										//Update index
+										tagOpenIndex += tag[2].length - 1;
+									} else {
+										//Keep existing tag
+										html = html.substr(0, tagOpenIndex) + tag[2] + html.substr(tagOpenIndex);
+										
+										//Update index
+										tagOpenIndex = tagCloseIndex + tag[2].length - 1;
+									}
 								}
 							} else {
 								//Add item to stack
 								tagStack.unshift(tag);
-								html = html.substr(0, tagOpenIndex) + tag[1] + html.substr(tagCloseIndex + 1);
 								
-								//Fix index
-								tagOpenIndex += tag[1].length - 1;
+								if (tag[3]) {
+									//Remove existing tag
+									html = html.substr(0, tagOpenIndex) + tag[1] + html.substr(tagCloseIndex + 1);
+									
+									//Update index
+									tagOpenIndex += tag[1].length - 1;
+								} else {
+									//Keep existing tag
+									var tmp = html.substr(tagOpenIndex, tagCloseIndex + 1 - tagOpenIndex).replace(/style=("[^"]*"|'[^']*')/, '');
+									
+									html =  html.substr(0, tagOpenIndex) +
+											tmp +
+											tag[1] +
+											html.substr(tagCloseIndex + 1);
+									
+									//Update index
+									tagOpenIndex += tmp.length + tag[1].length - 1;
+								}
 							}
 						}
 					}
@@ -217,13 +241,19 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				classAdd = '',
 				styleAdd = '',
 				tagClosing = false,
-				match = null;
+				match = null,
+				remove = true;
 			
 			tagClosing = !!tagName[1];
 			tagName = tagName[2].toLowerCase();
 			
 			if (!(tagName in styleTags)) return null;
 			if (tagClosing) return tagName;
+			
+			if (tagName == 'a' || tagName == 'q') {
+				//Don't remove existing tags
+				remove = false;
+			}
 			
 			for(k=0; k<kk; k++) {
 				match = html.match(styleToTag[k][1]);
@@ -245,7 +275,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			return [
 				tagName,
 				tagsAdd.length ? '<' + tagsAdd.join(classAdd + styleAdd + '><') + classAdd + styleAdd + '>' : '',
-				tagsAdd.length ? '</' + tagsAdd.reverse().join('></') + '>' : ''
+				tagsAdd.length ? '</' + tagsAdd.reverse().join('></') + '>' : '',
+				remove
 			];
 		},
 		

@@ -11,10 +11,14 @@
 			<ul>
 				{% for image in images %}
 				<li>
-					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 560, true ) | raw %}
-					{% set tag_tablet = supraBlock.imageHtmlTag( image.imageId, 768, 448, true ) | raw %}
-					{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, 420, 245, true ) | raw %}
-					{% set tag_mobile_p = supraBlock.imageHtmlTag( image.imageId, 300, 175, true ) | raw %}
+					{% set width_full = 960 %}
+					{% set height_full = 358 %}
+					{% set ratio = height_full / width_full %}
+					
+					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 960 * ratio, true ) | raw %}
+					{% set tag_tablet = supraBlock.imageHtmlTag( image.imageId, 768, 768 * ratio, true ) | raw %}
+					{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, 420, 420 * ratio, true ) | raw %}
+					{% set tag_mobile_p = supraBlock.imageHtmlTag( image.imageId, 300, 300 * ratio, true ) | raw %}
 					
 					<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
 						 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
@@ -50,7 +54,7 @@
 					<li class="grid_4">
 						
 						{% set tag = supraBlock.imageHtmlTag( product.imageId, 220, 125, true ) | raw %}
-						{% set tag_full = supraBlock.imageHtmlTag( product.imageId, 960, 600, true ) | raw %}
+						{% set tag_full = supraBlock.imageHtmlTag( product.imageId, 960, 358, true ) | raw %}
 						{% set tag_tablet_full = supraBlock.imageHtmlTag( product.imageId, 768, 448, true ) | raw %}
 						
 						{% if design == "box" %}
