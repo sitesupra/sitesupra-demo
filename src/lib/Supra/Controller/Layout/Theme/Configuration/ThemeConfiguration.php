@@ -77,20 +77,31 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	public $overviewImages;
 
 	/**
+	 * @var string
+	 */
+	public $author;
+
+	/**
+	 * @var string
+	 */
+	public $category;
+
+	/**
 	 * 
 	 */
-	public function configure()
+	protected function fetchConfiguration()
 	{
-
-		$loaderMode = $this->getLoaderMode();
 		$theme = $this->getTheme();
 
-		if ($loaderMode == ThemeConfigurationLoader::MODE_FETCH_CONFIGURATION) {
+		$theme->setConfiguration($this);
+	}
 
-			$theme->setConfiguration($this);
-
-			return;
-		}
+	/**
+	 * 
+	 */
+	protected function readConfiguration()
+	{
+		$theme = $this->getTheme();
 
 		$theme->setTitle($this->title);
 		$theme->setDescription($this->description);

@@ -26,7 +26,7 @@ class ThemeParameterValue extends Database\Entity
 	protected $parameterName;
 
 	/**
-	 * @Column(type="string", nullable=true)
+	 * @Column(type="text", nullable=true)
 	 * @var string
 	 */
 	protected $value;

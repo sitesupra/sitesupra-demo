@@ -267,6 +267,9 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		return $this->getRootDir() . DIRECTORY_SEPARATOR . $themeName . DIRECTORY_SEPARATOR . 'theme.yml';
 	}
 
+	/**
+	 * @param Theme $theme
+	 */
 	public function removeTheme(Theme $theme)
 	{
 		$em = $this->getEntityManager();
@@ -325,6 +328,11 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		$em->flush();
 	}
 
+	/**
+	 * @param \Supra\Controller\Pages\Entity\Template $template
+	 * @param string $media
+	 * @return ThemeLayout
+	 */
 	public function getCurrentThemeLayoutForTemplate(Template $template, $media = TemplateLayout::MEDIA_SCREEN)
 	{
 		$currentTheme = $this->getCurrentTheme();

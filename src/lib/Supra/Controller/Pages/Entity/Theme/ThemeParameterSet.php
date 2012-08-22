@@ -206,12 +206,7 @@ class ThemeParameterSet extends Database\Entity
 	{
 		$parameterName = $parameter->getName();
 
-		if ($this->values->containsKey($parameterName)) {
-			$parameterValue = $this->values->get($parameterName);
-		} else {
-			$parameterValue = $this->addNewValueForParameter($parameter);
-			$parameterValue->setValue($parameter->getDefaultValue());
-		}
+		$parameterValue = $this->values->get($parameterName);
 
 		return $parameterValue;
 	}
@@ -224,19 +219,29 @@ class ThemeParameterSet extends Database\Entity
 		$theme = $this->getTheme();
 		$parameters = $theme->getParameters();
 
-		$outputValuesForLess = array();
-
 		foreach ($parameters as $parameter) {
 			/* @var $parameter ThemeParameterAbstraction */
 
 			if ($parameter->hasValueForLess()) {
 
 				$parameterValue = $this->getParameterValueForParameter($parameter);
-				$outputValuesForLess[$parameter->getName()] = $parameter->getLessOuptutValueFromParameterValue($parameterValue);
+
+				$outputValueForLess = $parameter->getLessOuptutValueFromParameterValue($parameterValue);
+				$parameterName = $parameter->getName();
+
+				if (is_array($outputValueForLess)) {
+
+					foreach ($outputValueForLess as $key => $value) {
+						$flatOutputValuesForLess[$parameterName . '_' . $key] = $value;
+					}
+				} else {
+
+					$flatOutputValuesForLess[$parameterName] = $outputValueForLess;
+				}
 			}
 		}
 
-		return $outputValuesForLess;
+		return $flatOutputValuesForLess;
 	}
 
 	/**

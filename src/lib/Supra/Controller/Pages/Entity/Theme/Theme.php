@@ -315,7 +315,6 @@ class Theme extends Database\Entity implements ThemeInterface
 	protected function generateCssFileFromLess(ThemeParameterSet $parameterSet)
 	{
 		if ( ! file_exists($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.less')) {
-
 			return;
 		}
 
@@ -323,35 +322,9 @@ class Theme extends Database\Entity implements ThemeInterface
 
 		$lessc->setRootDir($this->getRootDir());
 
-		$values = $parameterSet->getOutputValuesForLess();
+		$valuesForLess = $parameterSet->getOutputValuesForLess();
 
-		$flatValues = array();
-
-		foreach ($values as $key => $value) {
-
-			if (is_array($value)) {
-
-				foreach ($value as $key2 => $value2) {
-
-					if (empty($value2)) {
-						$value = '';
-					}
-
-					$flatValues[$key . '_' . $key2] = $value2;
-				}
-			} else {
-
-				if (empty($value)) {
-					$value = '';
-				}
-
-				$flatValues[$key] = $value;
-			}
-		}
-
-		\Log::error('FLAT: ', $flatValues);
-
-		$cssContent = $lessc->parse(null, $flatValues);
+		$cssContent = $lessc->parse(null, $valuesForLess);
 
 		$this->writeGenetratedCssToFile($parameterSet, $cssContent);
 	}

@@ -48,7 +48,7 @@ abstract class ThemeParameterConfigurationAbstraction extends ThemeConfiguration
 	/**
 	 * 
 	 */
-	public function configure()
+	public function readConfiguration()
 	{
 		$theme = $this->getTheme();
 

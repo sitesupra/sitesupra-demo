@@ -41,7 +41,10 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 		return $this->layout;
 	}
 
-	function configure()
+	/**
+	 * 
+	 */
+	function readConfiguration()
 	{
 		$theme = $this->getTheme();
 
@@ -68,13 +71,13 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 	protected function processPlaceholders()
 	{
 		$layout = $this->getLayout();
-		
+
 		$placeholders = $layout->getPlaceholders();
 		$currentPlaceholderNames = $placeholders->getKeys();
 
 		$theme = $this->getTheme();
 		$rootDir = $theme->getRootDir();
-		
+
 		$twigProcessor = new TwigProcessor();
 		$twigProcessor->setLayoutDir($rootDir);
 

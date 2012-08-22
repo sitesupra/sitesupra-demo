@@ -55,9 +55,35 @@ abstract class ThemeConfigurationAbstraction implements ConfigurationInterface, 
 		return $this->loader->getThemeProvider();
 	}
 
+	/**
+	 * @return string
+	 */
 	protected function getLoaderMode()
 	{
 		return $this->loader->getMode();
+	}
+
+	abstract protected function readConfiguration();
+
+	/**
+	 * 
+	 */
+	protected function fetchConfiguration()
+	{
+		
+	}
+
+	/**
+	 * 
+	 */
+	public function configure()
+	{
+		$loaderMode = $this->getLoaderMode();
+		if ($loaderMode == ThemeConfigurationLoader::MODE_READ_CONFIGURATION) {
+			$this->readConfiguration();
+		} else {
+			$this->fetchConfiguration();
+		}
 	}
 
 }

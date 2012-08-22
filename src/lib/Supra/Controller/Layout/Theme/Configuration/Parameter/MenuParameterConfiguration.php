@@ -8,16 +8,6 @@ use Supra\Controller\Pages\Entity\Theme\Parameter\MenuParameter;
 class MenuParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
 
-	/**
-	 * @var array
-	 */
-	public $menus;
-
-	public function makeDesignData(&$designData)
-	{
-		$designData['menus'] = $this->menus;
-	}
-
 	protected function getParameterClass()
 	{
 		return MenuParameter::CN();

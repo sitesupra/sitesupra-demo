@@ -43,7 +43,10 @@ class ThemeParameterSetConfiguration extends ThemeConfigurationAbstraction
 		return $this->parameterSet;
 	}
 
-	public function configure()
+	/**
+	 * 
+	 */
+	public function readConfiguration()
 	{
 		$theme = $this->getTheme();
 
