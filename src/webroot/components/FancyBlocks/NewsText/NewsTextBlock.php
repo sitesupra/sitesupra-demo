@@ -31,6 +31,11 @@ class NewsTextBlock extends BlockController
 		
 		$response->assign('comment', $comment);
 		
+		$theme = $this->getRequest()->getLayout()->getTheme();
+		
+		$response->getContext()
+				->addCssLinkToLayoutSnippet('css', $theme->getUrlBase() . '/assets/css/page-news.css');
+				
 		// Local file is used
 		$response->outputTemplate('index.html.twig');
 	}

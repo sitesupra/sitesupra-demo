@@ -94,7 +94,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				this.get('srcNode').on('mousedown', this._handleNodeMouseDown, this)
 			);
 			this.events.push(
-				this.get('srcNode').on('mouseup', this._handleNodeChange, this)
+				doc.on('mouseup', this._handleNodeChange, this)
 			);
 			
 			this.events.push(
@@ -170,7 +170,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					this._handleNodeChange({}, force);
 				});
 			} else {
-				return this._handleNodeChange({}, force);
+				return this._handleNodeChange({}, force) == 2;
 			}
 		},
 		
@@ -382,9 +382,11 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 * If cursor entered/left un-editable content fires editingAllowedChange
 		 * 
 		 * @param {Object} event
+		 * @return Returns 2 if selection changed and 1 if selection didn't changed. True/false is not used to prevent event stopping
+		 * @type {Number}
 		 */
 		_handleNodeChange: function (event, force) {
-			if (this.get('disabled') && !force) return false;
+			if (this.get('disabled') && !force) return 1;
 			
 			var oldSel = this.selection,
 				newSel = this.getSelection(),
@@ -406,7 +408,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					fireSelectionEvent = true;
 				} else {
 					//Nothing at all changed, skip
-					return false; 
+					return 1; 
 				}
 			} else {
 				fireSelectionEvent = true;
@@ -433,9 +435,11 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					this.fire('editingAllowedChange', {'allowed': allowed});
 				}
 				
-				return true;
+				return 2;
 			}
-			return false;
+			
+			
+			return 1;
 		},
 		
 		/**
