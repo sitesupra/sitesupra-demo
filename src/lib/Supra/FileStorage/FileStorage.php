@@ -755,8 +755,8 @@ class FileStorage
 		$cropper->setOutputQuality($quality);
 		$cropper->setTop($cropTop);
 		$cropper->setLeft($cropLeft);
-		$cropper->setBottom($cropTop + $cropHeight);
-		$cropper->setRight($cropLeft + $cropWidth);
+		$cropper->setBottom($cropTop + $cropHeight - 1);
+		$cropper->setRight($cropLeft + $cropWidth - 1);
 
 		$variantFileDir = $this->getFilesystemDir($file)
 				. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR

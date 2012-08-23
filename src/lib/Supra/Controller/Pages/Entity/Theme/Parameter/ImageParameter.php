@@ -21,14 +21,20 @@ class ImageParameter extends ThemeParameterAbstraction
 	{
 		$filestorage = ObjectRepository::getFileStorage($this);
 
-		$image = $filestorage->find($input['image']);
+		if (isset($input['image'])) {
 
-		$variantName = $filestorage->createImageVariant(
-				$image, $input['size_width'], $input['size_height'], $input['crop_left'], $input['crop_top'], $input['crop_width'], $input['crop_height']
-		);
+			$image = $filestorage->find($input['image']);
 
-		$input['variant_name'] = $variantName;
-		
+			if ( ! empty($image)) {
+
+				$variantName = $filestorage->createImageVariant(
+						$image, $input['size_width'], $input['size_height'], $input['crop_left'], $input['crop_top'], $input['crop_width'], $input['crop_height']
+				);
+
+				$input['variant_name'] = $variantName;
+			}
+		}
+
 		$parameterValue->setValue(serialize($input));
 	}
 
@@ -51,7 +57,7 @@ class ImageParameter extends ThemeParameterAbstraction
 		} else {
 			$outputValue = null;
 		}
-		
+
 		return $outputValue;
 	}
 
