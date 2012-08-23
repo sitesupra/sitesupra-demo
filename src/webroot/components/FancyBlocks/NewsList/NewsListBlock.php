@@ -146,7 +146,9 @@ class NewsListBlock extends BlockController
 
 		if ( ! empty($newsApplicationLink)) {
 			$localization = $newsApplicationLink->getPage();
-		} else {
+		}
+
+		if (empty($localization)) {
 			$localization = $request->getPageLocalization();
 		}
 
