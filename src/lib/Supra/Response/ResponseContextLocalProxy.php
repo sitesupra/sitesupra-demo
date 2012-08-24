@@ -80,7 +80,7 @@ class ResponseContextLocalProxy extends ResponseContext
 	public function addToLayoutSnippet($key, $snippet)
 	{
 		$this->localContext->addToLayoutSnippet($key, $snippet);
-		parent::addToLayoutSnippet($key, $snippet);
+		return parent::addToLayoutSnippet($key, $snippet);
 	}
 	
 	/**
