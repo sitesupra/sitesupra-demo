@@ -269,56 +269,15 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	}
 	
 	/**
+	 * Returns link page localization
+	 * Deperecated method, use getPageLocalization() instead
+	 * @deprecated
+	 * 
 	 * @return Localization
 	 */
 	public function getPage()
 	{
-		if (empty($this->pageId)) {
-			return;
-		}
-		
-		if ( ! is_null($this->pageLocalization)) {
-			return $this->pageLocalization;
-		}
-		
-		$em = ObjectRepository::getEntityManager($this);
-		
-		$pageData = null;
-		$localizationEntity = Localization::CN();
-		$localeId = ObjectRepository::getLocaleManager($this)
-				->getCurrent()
-				->getId();
-		
-		$criteria = array(
-			'master' => $this->pageId,
-			'locale' => $localeId,
-		);
-		
-		// Now master page ID is stored, still the old implementation is working
-		$dql = "SELECT l, m, p FROM $localizationEntity l
-				JOIN l.master m
-				LEFT JOIN l.path p
-				WHERE (l.master = :master AND l.locale= :locale) 
-				OR l.id = :master";
-		
-		try {
-			$pageData = $em->createQuery($dql)
-					->setParameters($criteria)
-					->getSingleResult();
-		} catch (NoResultException $noResult) {
-			
-			// Special case for group page selection when no localization exists in database
-			$master = $em->find(GroupPage::CN(), $this->pageId);
-			
-			if ($master instanceof GroupPage) {
-				$pageData = $master->getLocalization($localeId);
-			}
-		}
-		
-		// Cache the result
-		$this->pageLocalization = $pageData;
-		
-		return $pageData;
+		return $this->getPageLocalization();
 	}
 	
 	/**
@@ -427,4 +386,57 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		return $url;
 	}
 	
+	/**
+	 * Get link page localization
+ 	 * @return Localization
+	 */
+	public function getPageLocalization()
+	{
+		if (empty($this->pageId)) {
+			return;
+		}
+		
+		if ( ! is_null($this->pageLocalization)) {
+			return $this->pageLocalization;
+		}
+		
+		$em = ObjectRepository::getEntityManager($this);
+		
+		$pageData = null;
+		$localizationEntity = Localization::CN();
+		$localeId = ObjectRepository::getLocaleManager($this)
+				->getCurrent()
+				->getId();
+		
+		$criteria = array(
+			'master' => $this->pageId,
+			'locale' => $localeId,
+		);
+		
+		// Now master page ID is stored, still the old implementation is working
+		$dql = "SELECT l, m, p FROM $localizationEntity l
+				JOIN l.master m
+				LEFT JOIN l.path p
+				WHERE (l.master = :master AND l.locale= :locale) 
+				OR l.id = :master";
+		
+		try {
+			$pageData = $em->createQuery($dql)
+					->setParameters($criteria)
+					->getSingleResult();
+		} catch (NoResultException $noResult) {
+			
+			// Special case for group page selection when no localization exists in database
+			$master = $em->find(GroupPage::CN(), $this->pageId);
+			
+			if ($master instanceof GroupPage) {
+				$pageData = $master->getLocalization($localeId);
+			}
+		}
+		
+		// Cache the result
+		$this->pageLocalization = $pageData;
+		
+		return $pageData;
+	}
 }
