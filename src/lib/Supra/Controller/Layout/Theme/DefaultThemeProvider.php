@@ -223,7 +223,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		}
 
 		$em->flush();
-		
+
 		$theme->generateCssFiles();
 	}
 
@@ -276,7 +276,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 
 		$parameterSets = $theme->getParameterSets();
 		
-		$theme->setActiveParameterSet(null);		
+		$theme->setActiveParameterSet(null);
 		$em->persist($theme);
 		$em->flush();
 
@@ -284,7 +284,7 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 
 			foreach ($parameterSets as $parameterSet) {
 				/* @var $parameterSet ThemeParameterSet */
-
+				
 				$values = $parameterSet->getValues();
 
 				foreach ($values as $value) {
@@ -293,8 +293,10 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				}
 
 				$theme->removeParameterSet($parameterSet);
-			}	
+			}
 		}
+		$em->persist($theme);
+		$em->flush();
 
 		$parameters = $theme->getParameters();
 
@@ -304,6 +306,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				$theme->removeParameter($parameter);
 			}
 		}
+		$em->persist($theme);
+		$em->flush();
 
 		$layouts = $theme->getLayouts();
 
@@ -323,7 +327,6 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				$theme->removeLayout($layout);
 			}
 		}
-
 		$em->remove($theme);
 		$em->flush();
 	}
