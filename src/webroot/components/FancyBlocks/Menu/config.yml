@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Menu\MenuBlock
-    title: Menu Block
+    title: Menu
     groupId: features
     description: Description
     cmsClassname: Editable

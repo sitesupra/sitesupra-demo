@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Menu\Footer\FooterMenuBlock
-    title: Footer Menu Block
+    title: Footer Menu
     groupId: features
     description: Description
     cmsClassname: Editable

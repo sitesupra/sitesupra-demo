@@ -1,7 +1,7 @@
 
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Gallery\GalleryBlock
-    title: Gallery Block
+    title: Gallery
     groupId: features
     description: Description
     cmsClassname: Gallery

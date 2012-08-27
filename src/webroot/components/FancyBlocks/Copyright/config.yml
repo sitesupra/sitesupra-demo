@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Copyright\CopyrightBlock
-    title: Copyright Block
+    title: Copyright
     groupId: features
     description: Description
     cmsClassname: Editable

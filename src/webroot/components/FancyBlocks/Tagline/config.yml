@@ -1,7 +1,7 @@
 
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Tagline\TaglineBlock
-    title: Tagline Block
+    title: Tagline
     groupId: features
     description: Description
     cmsClassname: Editable

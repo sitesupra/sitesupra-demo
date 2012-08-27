@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Logotype\LogotypeBlock
-    title: Logotype Block
+    title: Logotype
     groupId: features
     description: Description
     cmsClassname: Editable

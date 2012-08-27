@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Products\ProductsBlock
-    title: Products block
+    title: Products
     groupId: features
     description: Products gallery #1
     cmsClassname: Gallery

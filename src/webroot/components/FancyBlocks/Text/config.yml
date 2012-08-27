@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Text\TextController
-    title: Fancy Text
+    title: Text
     groupId: features
     description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
     cmsClassname: Editable
