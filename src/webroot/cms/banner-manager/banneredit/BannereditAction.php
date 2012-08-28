@@ -16,6 +16,7 @@ use Doctrine\ORM\EntityRepository;
 use Supra\Controller\Pages\Entitsy\Page;
 use Supra\Cms\Exception\CmsException;
 use Supra\Request\RequestData;
+use Supra\BannerMachine\BannerType\Exception\ValidationException;
 
 class BannereditAction extends CmsAction
 {
@@ -168,7 +169,11 @@ class BannereditAction extends CmsAction
 
 		$bannerType = $this->bannerProvider->getType($banner->getTypeId());
 
-		$bannerType->validate($banner);
+		try {
+			$bannerType->validate($banner);
+		} catch (ValidationException $e) {
+			throw new CmsException(null, $e->getMessage());
+		}
 
 		$this->bannerProvider->store($banner);
 	}

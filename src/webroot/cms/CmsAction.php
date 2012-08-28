@@ -74,11 +74,18 @@ abstract class CmsAction extends SimpleController
 		// Handle localized exceptions
 		try {
 			$request = $this->getRequest();
-			
+
 			$response = $this->getResponse();
 			$localeId = $this->getLocale()->getId();
 
 			if ($response instanceof TwigResponse) {
+
+				$ini = ObjectRepository::getIniConfigurationLoader($this);
+
+				if ($ini->getValue('system', 'supraportal_site', false)) {
+					$response->assign('siteTitle', $ini->getValue('system', 'host'));
+				}
+
 				$response->assign('currentLocale', $localeId);
 			}
 
@@ -256,7 +263,7 @@ abstract class CmsAction extends SimpleController
 	}
 
 	/**
-	 * @return RequestData
+	 * @return Request\RequestData
 	 */
 	protected function getRequestInput()
 	{

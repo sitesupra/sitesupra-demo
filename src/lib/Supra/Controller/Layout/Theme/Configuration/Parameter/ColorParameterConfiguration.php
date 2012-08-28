@@ -2,21 +2,15 @@
 
 namespace Supra\Controller\Layout\Theme\Configuration\Parameter;
 
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
+use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ColorParameter;
 
-class ColorParameterConfiguration extends ThemeParameterConfiguration
+class ColorParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
 
-	/**
-	 * @var array
-	 */
-	public $colors = array();
-
-	public function makeDesignData(&$designData)
+	protected function getParameterClass()
 	{
-		if ($this->visible && ! empty($this->colors)) {
-			$designData['colors'] = $this->colors;
-		}
+		return ColorParameter::CN();
 	}
 
 }

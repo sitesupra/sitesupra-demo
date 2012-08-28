@@ -74,6 +74,10 @@
 					'avatar': {{ action.currentUserArray.avatar | json_encode | raw }}
 				},
 				
+				'site': {
+					'title': {% if siteTitle %}'{{ siteTitle }}'{% else %}null{% endif %} //'www.videinfra.com'
+				},
+				
 				{% block jsSupraDataSet %}{% endblock %}
 				
 				//Languages

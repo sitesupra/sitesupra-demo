@@ -56,18 +56,17 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				var sel = win.getSelection();
 				var range = sel.rangeCount ? sel.getRangeAt(0) : doc.createRange();
 				
-				range.setStart(selection.start, selection.start_offset);
-				range.setEnd(selection.end, selection.end_offset);
+				try {
+					//Preventing error when DOM node doesn't exist
+					range.setStart(selection.start, selection.start_offset);
+					range.setEnd(selection.end, selection.end_offset);
+					
+					sel.removeAllRanges();
+					sel.addRange(range);
+				} catch (err) {
+				}
 				
-				sel.removeAllRanges();
-				sel.addRange(range);
-				
-				this._resetSelection(selection);
-			} else if (doc.selection) {
-				//IE < 9
-				//@TODO
-				
-				this._resetSelection(selection);
+				this.resetSelectionCache(selection);
 			}
 		},
 		
@@ -78,7 +77,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		 * @type {Boolean}
 		 */
 		selectionIsCollapsed: function () {
-			return this.selection.collapsed;
+			return !this.selection || this.selection.collapsed;
 		},
 		
 		/**
@@ -114,6 +113,9 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 			if (!selection) return null;
 			
 			var node = selection.end || selection.start;
+			if (selection.end_offset === 0 && (!selection.collapsed)) {
+				node = selection.start || selection.end;
+			}
 			
 			//Find HTMLElement
 			while(node && node !== container) {
@@ -217,22 +219,75 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 					}
 				}
 				
-			} else if (doc.selection) {
-				//IE < 9
-				var range = doc.selection.createRange();
-				var end_container,
-					start_container = end_container = range.parentElement();
-					start_offset = 0,
-					end_offset = range.text.length;
 			}
 			
-			return {
+			return this._normalizeSelection({
 				start: start_container,
 				start_offset: start_offset,
 				end: end_container,
 				end_offset: end_offset,
 				collapsed: (start_container == end_container && start_offset == end_offset)
-			};
+			});
+		},
+		
+		/**
+		 * Normalize selection value
+		 * 
+		 * @param {Object} selection Selection object
+		 * @return Normalized selection value
+		 * @private
+		 */
+		_normalizeSelection: function (selection) {
+			var tmp_start = null,
+				tmp_start_offset = null,
+				tmp_end = null,
+				tmp_end_offset = null;
+			
+			if (selection.start !== selection.end) {
+				if (selection.start.nodeType == 3) {
+					//Text node
+					if (selection.start_offset == 0) {
+						tmp_start = selection.start.parentNode;
+						tmp_start_offset = this._getChildIndex(selection.start);
+					} else if (selection.start_offset == selection.start.length) {
+						tmp_start = selection.start.nextSibling;
+						tmp_start_offset = 0;
+						if (!tmp_start) {
+							tmp_start = selection.start.parentNode;
+							tmp_start_offset = tmp_start.childNodes.length;
+						}
+					}
+				}
+				if (selection.end.nodeType == 3) {
+					//Text node
+					if (selection.end_offset == 0) {
+						tmp_end = selection.end.previousSibling;
+						tmp_end_offset = tmp_end ? this._getNodeLength(tmp_end) : 0;
+						if (!tmp_end) {
+							tmp_end = selection.end.parentNode;
+							tmp_end_offset = tmp_end ? this._getNodeLength(tmp_end) : 0;
+						}
+					} else if (selection.end_offset == selection.end.length) {
+						tmp_end = selection.end.parentNode;
+						tmp_end_offset = this._getChildIndex(selection.end) + 1;
+					}
+				}
+				
+				if (tmp_end && tmp_end === tmp_start) {
+					selection.end = tmp_end;
+					selection.end_offset = tmp_end_offset;
+					selection.start = tmp_start;
+					selection.start_offset = tmp_start_offset;
+				} else if (tmp_end && tmp_end == selection.start) {
+					selection.end = tmp_end;
+					selection.end_offset = tmp_end_offset;
+				} else if (tmp_start && tmp_start == selection.end) {
+					selection.start = tmp_start;
+					selection.start_offset = tmp_start_offset;
+				}
+			}
+			
+			return selection;
 		},
 		
 		/**
@@ -251,13 +306,25 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				var range = (sel.rangeCount ? sel.getRangeAt(0) : doc.createRange());
 				
 				if (node) {
-					range.selectNode(node);
+					try {
+						//Preventing error when DOM node doesn't exist
+						range.selectNode(node);
+					} catch (err) {
+						return;
+					}
 				} else {
 					var srcNode = Y.Node.getDOMNode(this.get('srcNode'));
 					
 					if(srcNode) {
 						var c = srcNode.lastChild;
-						if (c) range.setStartAfter(c);
+						if (c) {
+							try {
+								//Preventing error when DOM node doesn't exist
+								range.setStartAfter(c);
+							} catch (err) {
+								return;
+							}
+						}
 					}
 				}
 				
@@ -270,7 +337,19 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				range.select();
 			}
 			
-			this._resetSelection();
+			this.resetSelectionCache({
+				"collapsed": !!(node.nodeType == 1 ? node.childNodes.length : node.length),
+				"start": node,
+				"start_offset": 0,
+				"end": node,
+				"end_offset": (node.nodeType == 1 ? node.childNodes.length : node.length)
+			});
+			
+			if (node.nodeType == 1) {
+				this.selectedElement = node;
+			} else {
+				this.selectedElement = null;
+			}
 		},
 		
 		/**
@@ -330,24 +409,9 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				sel.removeAllRanges();
 				sel.addRange(range);
 				
-				this._resetSelection();
+				this.resetSelectionCache();
 				
 				return node;
-			} else if (doc.selection) {
-				//IE < 9
-				var sel = doc.selection;
-				var str = (str ? str : doc.selection.createRange().htmlText);
-				var range = sel.createRange();
-				
-				if (wrapTagName) {
-					range.pasteHTML('<' + wrapTagName + '>' + str + '</' + wrapTagName + '>');
-				} else {
-					range.pasteHTML(str);
-				}
-				
-				this._resetSelection();
-				
-				return null;
 			}
 		},
 		
@@ -419,11 +483,25 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		},
 		
 		/**
+		 * Remove node from dom without removing its content
+		 * 
+		 * @param {Object} node Node to remove
+		 */
+		unwrapNode: function (node) {
+			if (node && node.nodeType == 1 && node.parentNode) {
+				while(node.firstChild) {
+					node.parentNode.insertBefore(node.firstChild, node);
+				}
+				node.parentNode.removeChild(node);
+			}
+		},
+		
+		/**
 		 * Reset selection variable cache
 		 * 
 		 * @param {Object} selection Optional. Selection object
 		 */
-		_resetSelection: function (selection) {
+		resetSelectionCache: function (selection) {
 			this.selectedElement = null;
 			this.selection = selection || this.getSelection();
 			this.path = null;

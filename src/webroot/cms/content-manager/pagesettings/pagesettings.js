@@ -319,6 +319,7 @@
 
 						this.setFormValue('template', this.page_data);
 						this.slideshow.scrollBack();
+						this.saveSettingsChanges(); // save immediatelly to show template change
 					}, this);
 				} else {
 					this.template_list.set('template', this.page_data.template.id);
@@ -591,20 +592,21 @@
 			},
 			
 			/**
-			 * In case of Schedule slide, done will act as Back button
+			 * Handle "Done" button click
 			 */
 			onDoneButton: function () {
-				
-				if (this.slideshow) {
-					var slideId = this.slideshow.get('slide');
-					
-					if (slideId == 'slideSchedule') {
-						this.onBackButton();
-						return;
-					}
+				//In case of Schedule slide, done will act as Back button
+				if (this.slideshow.get('slide') == 'slideSchedule') {
+					this.onBackButton();
+					return;
 				}
 				
+				//Scroll to first slide
+				this.onBackButton();
+				this.slideshow.set('slide', SLIDE_ROOT);
+				
 				this.saveSettingsChanges();
+				this.hide();
 			},
 
 			/**
@@ -713,13 +715,16 @@
 			 * Save changes
 			 */
 			saveSettingsChanges: function () {
-				//Scroll to first slide
-				this.onBackButton();
-				this.slideshow.set('slide', SLIDE_ROOT)
-
 				//Get data
 				var page_data = this.page_data,
-					form_data = this.form.getValuesObject();
+					form_data = this.form.getValuesObject(),
+					template_changed = false;
+				
+				if (this.getType() == 'page') {	//Page
+					if (Manager.Page.getPageData().template.id != page_data.template.id) {
+						template_changed = true;
+					}
+				}
 
 				//Remove unneeded form data for save request
 				//Scheduled and created date/time are in page_data
@@ -784,8 +789,13 @@
 						'success': function () {
 							Manager.Page.setPageData(page_data);
 
-							//Update title in page content
-							this.updatePageContentData(page_data);
+							if (template_changed) {
+								//Reload page content
+								Manager.Page.reloadPage();
+							} else {
+								//Update title in page content
+								this.updatePageContentData(page_data);
+							}
 							
 							//Change page title and version title
 							Manager.getAction('PageHeader').setTitle('page', page_data.title);
@@ -793,8 +803,6 @@
 						}
 					}
 				}, this);
-
-				this.hide();
 			},
 
 			/**

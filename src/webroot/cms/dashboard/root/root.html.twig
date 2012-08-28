@@ -12,3 +12,16 @@
 
 	Supra.setModuleGroupPath('website', STATIC_PATH + APP_PATH + '/modules');
 {% endblock %}
+{% block jsSupraManager %}
+	//Start loading actions
+	Supra.Manager.loadActions(['Header', 'Root', 'LayoutContainers']);
+	
+	//Execute initial actions
+	Supra.Manager.executeAction('Header');
+	Supra.Manager.executeAction('Root');
+	
+	{% if show_welcome %} 
+		Supra.Manager.executeAction('Welcome');
+	{% endif %}
+		
+{% endblock %}

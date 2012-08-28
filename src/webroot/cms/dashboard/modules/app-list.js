@@ -53,7 +53,7 @@ YUI.add("dashboard.app-list", function (Y) {
 		
 		//Single item width
 		"itemHeight": {
-			"value": 125
+			"value": 155
 		}
 	};
 	

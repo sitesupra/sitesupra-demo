@@ -3,14 +3,14 @@
 namespace Supra\Controller\Layout\Theme\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
-use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\Theme\Theme;
 use Supra\Configuration\Exception;
 use Supra\Configuration\Loader\LoaderRequestingConfigurationInterface;
 use Supra\Configuration\Loader\ComponentConfigurationLoader;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
 use Supra\Controller\Layout\Theme\ThemeProvider;
-use Supra\Controller\Pages\Entity\ThemeParameterSet;
-use Supra\Controller\Pages\Entity\ThemeParameter;
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class ThemeConfiguration extends ThemeConfigurationAbstraction
@@ -77,20 +77,31 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	public $overviewImages;
 
 	/**
+	 * @var string
+	 */
+	public $author;
+
+	/**
+	 * @var string
+	 */
+	public $category;
+
+	/**
 	 * 
 	 */
-	public function configure()
+	protected function fetchConfiguration()
 	{
-
-		$loaderMode = $this->getLoaderMode();
 		$theme = $this->getTheme();
 
-		if ($loaderMode == ThemeConfigurationLoader::MODE_FETCH_CONFIGURATION) {
+		$theme->setConfiguration($this);
+	}
 
-			$theme->setConfiguration($this);
-
-			return;
-		}
+	/**
+	 * 
+	 */
+	protected function readConfiguration()
+	{
+		$theme = $this->getTheme();
 
 		$theme->setTitle($this->title);
 		$theme->setDescription($this->description);
@@ -118,14 +129,14 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		if ( ! empty($this->parameters)) {
 
 			foreach ($this->parameters as $parameterConfiguration) {
-				/* @var $parameterConfiguration ThemeParameterConfiguration */
+				/* @var $parameterConfiguration ThemeParameterConfigurationAbstraction */
 
 				$parameter = $parameterConfiguration->getParameter();
 
 				$parametersAfter[$parameter->getName()] = $parameter;
 			}
 		}
-		
+
 		$theme->setActiveParameterSet(null);
 
 		$parameterNamesAfter = $parametersAfter->getKeys();
@@ -196,6 +207,11 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 
 		$namesToRemove = array_diff($parameterSetNamesBefore, $parameterSetNamesAfter);
 		foreach ($namesToRemove as $nameToRemove) {
+
+			if ($parameterSetsBefore[$nameToRemove]->getType() != ThemeParameterSet::TYPE_PRESET) {
+				continue;
+			}
+
 			$theme->removeParameterSet($parameterSetsBefore[$nameToRemove]);
 		}
 
@@ -204,23 +220,33 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 			$theme->addParameterSet($parameterSetsAfter[$nameToAdd]);
 		}
 
-		// Add undefined parameter values to sets, using default values fomr parameters.
+		// Add undefined parameter values to sets, using default values from default parameter set (it must exist or this will fail).
 
-		$parameters = $theme->getParameters();
+		if ($theme->getParameterSets()->containsKey(Theme::DEFAULT_PARAMETER_SET_NAME)) {
 
-		$parameterSets = $theme->getParameterSets();
+			$parameters = $theme->getParameters();
 
-		foreach ($parameterSets as $parameterSet) {
+			$parameterSets = $theme->getParameterSets();
 
-			foreach ($parameters as $parameter) {
-				/* @var $parameter ThemeParameter */
+			$defaultParameterSet = $theme->getDefaultParameterSet();
 
-				$parameterSetValues = $parameterSet->getValues();
+			foreach ($parameterSets as $parameterSet) {
+				/* @var $parameterSet ThemeParameterSet */
 
-				if (empty($parameterSetValues[$parameter->getName()])) {
+				foreach ($parameters as $parameter) {
+					/* @var $parameter \Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction */
 
-					$value = $parameter->getThemeParameterValue();
-					$parameterSet->addValue($value);
+					$parameterSetValues = $parameterSet->getValues();
+
+					if (empty($parameterSetValues[$parameter->getName()])) {
+
+						$parameterValue = $parameterSet->addNewValueForParameter($parameter);
+
+						/* @var $parameterValueFromDefaultParameterSet \Supra\Controller\Pages\Entity\Theme\ThemeParameterValue */
+						$parameterValueFromDefaultParameterSet = $defaultParameterSet->getValues()->get($parameter->getName());
+
+						$parameterValue->setValue($parameterValueFromDefaultParameterSet->getValue());
+					}
 				}
 			}
 		}

@@ -1,0 +1,12 @@
+<div class="socials">
+	{% set link = supraBlock.property('rss') %}
+	{% if link %}<a href="{{link.getUrl()}}" class="social social-rss pull-left" {% if link.target %}target="{{ link.target }}"{%endif%}></a>{%endif%}
+	<div class="pull-right">
+		{% set link = supraBlock.property('flickr') %}
+		{% if link %}<a href="{{link.getUrl()}}" class="social social-flickr" {% if link.target %}target="{{ link.target }}"{%endif%}></a>{%endif%}
+		{% set link = supraBlock.property('facebook') %}
+		{% if link %}<a href="{{link.getUrl()}}" class="social social-facebook" {% if link.target %}target="{{ link.target }}"{%endif%}></a>{%endif%}
+		{% set link = supraBlock.property('youtube') %}
+		{% if link %}<a href="{{link.getUrl()}}" class="social social-youtube" {% if link.target %}target="{{ link.target }}"{%endif%}></a>{%endif%}
+	</div>
+</div>

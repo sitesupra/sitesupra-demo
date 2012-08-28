@@ -140,13 +140,15 @@ class RemoteCommandController extends ControllerAbstraction
 			$application = \Supra\Console\Application::getInstance();
 			$application->addCommandClasses($this->getCommandClasses());
 			$application->setAutoExit(false);
-
+			$application->setCatchExceptions(false);
+			
 			$resultCode = $application->run($input, $output);
 
 			$remoteCommandResponse->setResultCode($resultCode);
 			$remoteCommandResponse->setProxyOutput($output);
+			
 			$remoteCommandResponse->setSuccess(true);
-		} catch (\Exception $e) {
+		} catch (\RuntimeException $e) {
 
 			$remoteCommandResponse->setError($e);
 			$remoteCommandResponse->setSuccess(false);

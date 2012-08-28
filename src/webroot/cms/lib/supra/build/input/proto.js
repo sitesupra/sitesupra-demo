@@ -58,6 +58,15 @@ YUI.add('supra.input-proto', function (Y) {
 		'style': {
 			value: null,
 			setter: '_setStyle'
+		},
+		
+		// Parent widget, usually Supra.Form instance
+		'parent': {
+			value: null
+		},
+		// Root parent widget, usually Supra.Form instance
+		'root': {
+			value: null
 		}
 	};
 	
@@ -92,6 +101,7 @@ YUI.add('supra.input-proto', function (Y) {
 					if (node && !node.test('p')) node = null;
 				}
 			}
+			if (node && node.test('p.label')) node = null;
 			return node;
 		},
 		'disabled': function (srcNode) {
@@ -170,6 +180,10 @@ YUI.add('supra.input-proto', function (Y) {
 				lbl = Y.Node.create(this.LABEL_TEMPLATE);
 				lbl.setAttribute('for', id);
 				lbl.set('text', this.get('label') || '');
+				
+				if (!this.get('label')) {
+					lbl.addClass('hidden');
+				}
 				
 				if (cont.compareTo(inp)) {
 					inp.insert(lbl, 'before');
@@ -331,7 +345,12 @@ YUI.add('supra.input-proto', function (Y) {
 			var node = this.get('labelNode');
 			if (node) {
 				lbl = Supra.Intl.replace(lbl);
-				node.set('text', lbl);
+				if (lbl) {
+					node.set('text', lbl);
+					node.removeClass('hidden');
+				} else {
+					node.addClass('hidden');
+				}
 			}
 			
 			return lbl;

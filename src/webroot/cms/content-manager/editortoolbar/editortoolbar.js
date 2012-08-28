@@ -88,7 +88,9 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 		 * @private
 		 */
 		initialize: function () {
-			this.toolbar = new Supra.HTMLEditorToolbar();
+			this.toolbar = new Supra.HTMLEditorToolbar({
+				visible: false // initially hidden, because toolbar is created before any input is focused
+			});
 		},
 		
 		/**
@@ -154,16 +156,13 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 				this.hide_timer.cancel();
 			}
 			
-			this.hide_timer = Y.later(16, this, this.afterHide);
+			this.hide_timer = Y.later(515, this, this.afterHide);
 			
 			//Removed toolbar buttons
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			
-			//Toggle classnames
-			var nodes = this.toolbar.groupNodes;
-			for(var id in nodes) {
-				nodes[id].addClass('yui3-editor-toolbar-' + id + '-hidden');
-			}
+			//Hide toolbar
+			this.toolbar.hide();
 			
 			//Hide "Done", "Close" buttons
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
@@ -176,20 +175,8 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 			//Unset timer
 			this.hide_timer = null;
 			
-			//Animate toolbar out
-			var group_node = this.toolbar.get('contentBox').one('div.yui3-editor-toolbar-main-content');
-			group_node.transition({
-				'duration': 0.35,
-				'easing': 'ease-out',
-				'marginTop': '50px'
-			});
-			
-			//When animation ends hide it
-			Y.later(500, this, function () {
-				this.toolbar.set('visible', false);
-				Manager.getAction('LayoutTopContainer').fire('contentResize');
-				Action.Base.prototype.hide.call(this);
-			});
+			//When animation ends hide toolbar
+			Action.Base.prototype.hide.call(this);
 		},
 		
 		/**
@@ -204,9 +191,8 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 				this.hide_timer = null;
 			}
 			
-			//Show toolbar and resize container
-			this.toolbar.set('visible', true);
-			Manager.getAction('LayoutTopContainer').fire('contentResize');
+			//Show toolbar
+			this.toolbar.show();
 			
 			//Add empty button set to PageToolbar to hide buttons
 			var pagetoolbar = Manager.getAction('PageToolbar');
@@ -214,20 +200,6 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 				pagetoolbar.addActionButtons(this.NAME, []);
 			}
 			pagetoolbar.setActiveAction(this.NAME);
-			
-			//Show toolbar
-			var group_node = this.toolbar.get('contentBox').one('div.yui3-editor-toolbar-main-content');
-			group_node.transition({
-				'duration': 0.35,
-				'easing': 'ease-out',
-				'marginTop': '0px'
-			});
-			
-			//Toggle classnames
-			var nodes = this.toolbar.groupNodes;
-			for(var id in nodes) {
-				nodes[id].removeClass('yui3-editor-toolbar-' + id + '-hidden');
-			}
 			
 			//Show "Done", "Close" buttons
 			Manager.getAction('PageButtons').setActiveAction(this.NAME);

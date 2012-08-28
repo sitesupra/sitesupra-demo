@@ -21,6 +21,7 @@
 	padding: 8px;
 	cursor: pointer;
 	text-decoration: none;
+	line-height: 32px;
 	
 	img {
 		vertical-align: middle;
@@ -40,6 +41,7 @@
 			
 			img {
 				display: inline-block;
+				vertical-align: top;
 			}
 		}
 	}
@@ -47,6 +49,19 @@
 	&:hover span.icon-dashboard img {
 		position: relative;
 		margin-top: -32px;
+	}
+}
+
+/**
+ * = Disabled app
+ */
+.yui3-app-disabled {
+	.yui3-app-current {
+		cursor: default;
+		
+		span.icon-dashboard {
+			display: none;
+		}
 	}
 }
 

@@ -44,6 +44,26 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 */
 		'standalone': {
 			value: false
+		},
+		/**
+		 * Parent widget, usually input
+		 */
+		'parent': {
+			value: null
+		},
+		/**
+		 * Root parent input, could be form or block
+		 */
+		'root': {
+			value: null
+		},
+		
+		/**
+		 * Stylesheet parser,
+		 * Supra.IframeStylesheetParser instance
+		 */
+		'stylesheetParser': {
+			value: null
 		}
 	};
 	
@@ -55,6 +75,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 	Y.extend(HTMLEditor, Y.Base, {
 		
 		events: [],
+		
 		
 		syncUI: function () {
 			
@@ -73,7 +94,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				this.get('srcNode').on('mousedown', this._handleNodeMouseDown, this)
 			);
 			this.events.push(
-				this.get('srcNode').on('mouseup', this._handleNodeChange, this)
+				doc.on('mouseup', this._handleNodeChange, this)
 			);
 			
 			this.events.push(
@@ -103,6 +124,20 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			this.commands = {};
 			this.selection = null;
 			
+			if (!this.get("stylesheetParser")) {
+				var root = this.get("root");
+				if (root && root.getStylesheetParser) {
+					//Root is block, we can take borrow from it
+					this.set("stylesheetParser", root.getStylesheetParser());
+				} else {
+					//Create new parser
+					this.set("stylesheetParser", new Supra.IframeStylesheetParser({
+						"win": this.get("win"),
+						"doc": this.get("doc")
+					}));
+				}
+			}
+			
 			this.renderUI();
 			this.bindUI();
 			this.syncUI();
@@ -122,7 +157,6 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			var events = this.events;
 			for(var i=0,ii=events.length; i<ii; i++) events[i].detach();
 			this.events = [];
-			
 			this.destroyPlugins();
 		},
 		
@@ -136,7 +170,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					this._handleNodeChange({}, force);
 				});
 			} else {
-				return this._handleNodeChange({}, force);
+				return this._handleNodeChange({}, force) == 2;
 			}
 		},
 		
@@ -168,7 +202,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			
 			//Replace with <p></p> if empty
 			if (!Y.UA.ie && this.get('mode') == Supra.HTMLEditor.MODE_RICH) {
-				if (!html) html = '<p>&nbsp;</p>';
+				if (!html) html = '<p></p>';
 			}
 			
 			//Set HTML
@@ -184,6 +218,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			//Fire "nodeChange" event
 			this.selection = null;
 			this.refresh();
+			
+			//Fire event
+			this.fire('afterSetHTML');
 		},
 		
 		/**
@@ -250,6 +287,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					//Focus
 					this.get('srcNode').focus();
 				}
+				
+				//Prevent object resizing
+				this.disableObjectResizing();
 				
 				//Update selection, etc.
 				this.refresh(true);
@@ -342,9 +382,11 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 * If cursor entered/left un-editable content fires editingAllowedChange
 		 * 
 		 * @param {Object} event
+		 * @return Returns 2 if selection changed and 1 if selection didn't changed. True/false is not used to prevent event stopping
+		 * @type {Number}
 		 */
 		_handleNodeChange: function (event, force) {
-			if (this.get('disabled') && !force) return false;
+			if (this.get('disabled') && !force) return 1;
 			
 			var oldSel = this.selection,
 				newSel = this.getSelection(),
@@ -366,14 +408,14 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					fireSelectionEvent = true;
 				} else {
 					//Nothing at all changed, skip
-					return false; 
+					return 1; 
 				}
 			} else {
 				fireSelectionEvent = true;
 				fireNodeEvent = true;
 			}
 			
-			this._resetSelection(newSel);
+			this.resetSelectionCache(newSel);
 			
 			if (fireSelectionEvent) {
 				event.selection = newSel;
@@ -393,9 +435,11 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					this.fire('editingAllowedChange', {'allowed': allowed});
 				}
 				
-				return true;
+				return 2;
 			}
-			return false;
+			
+			
+			return 1;
 		},
 		
 		/**

@@ -1,0 +1,18 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\Menu\Left\LeftMenuBlock
+    title: Left Menu
+    groupId: features
+    description: Sweet Left Menu Block
+    cmsClassname: Editable
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+         name: rootLink
+         editable: Supra\Editable\Link
+         label: Menu Root
+         shared: false
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+         name: menuLabel
+         editable: Supra\Editable\String
+         label: Menu Label
+         shared: false
+         default: Menu

@@ -192,7 +192,6 @@ Supra(function (Y) {
 			}
 			
 			if (active_group != this.active_group) {
-				
 				if (this.active_group) {
 					if (old_animation_index === null) old_animation_index = Y.Array.indexOf(this.history, this.active_group); 
 					this.animationQueue.push({'action_id': this.active_group, 'visible': false, 'index': old_animation_index});

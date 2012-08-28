@@ -15,7 +15,8 @@ Supra('dd-drag', function (Y) {
 		'{pagecontent}includes/plugin-properties.js',
 		'{pagecontent}includes/plugin-droptarget.js',
 		'{pagecontent}includes/iframe.js',
-		'{pagecontent}includes/contents.js'
+		'{pagecontent}includes/contents.js',
+		'{pagecontent}includes/plugin-ordering.js'
 	];
 
 	//Shortcut
@@ -372,6 +373,7 @@ Supra('dd-drag', function (Y) {
 			this.initDD(document);
 			
 			var dd = new Y.DD.Drag({
+				offsetNode: false, // exactly where cursor is
 	            node: item.node,
 	            dragMode: 'intersect'
 	        });
@@ -399,6 +401,30 @@ Supra('dd-drag', function (Y) {
 				this.iframe_handler.set('overlayVisible', true);
 	        }, this);
 			
+			dd.on('drag:drag', function(e) {
+				var scroll = this.iframe_handler.getScroll();
+				var x = e.pageX, y = e.pageY;
+				var r = Y.DOM._getRegion(y, x+1, y+1, x);
+				var target = this.iframe_handler.get('srcNode');
+				
+				if (target.inRegion(r)) {
+					var xy = target.getXY();
+					xy[0] = x - xy[0] + scroll[0];
+					xy[1] = y - xy[1] + scroll[1];
+					
+					var ret = this.fire('dragmove', {
+						position: xy,
+						block: item.data,
+						dragnode: dd
+					});
+				}
+			}, this);
+			
+			dd.on('drag:dropmiss', function(e) {
+				//Hide overlay
+				this.iframe_handler.set('overlayVisible', false);
+			}, this);
+			
 	        dd.on('drag:end', function(e) {
 				e.preventDefault();
 				
@@ -422,10 +448,12 @@ Supra('dd-drag', function (Y) {
 						//delay to allow draged item to reset it's position if needed
 						Y.later(15, this, function () {
 							Manager.PageInsertBlock.hide();
+							this.getContent().set('insertHighlight', false);
 						});
 					}
 				}
 				
+				this.getContent().set('insertHighlight', true);
 				this.fire('dragend');
 				
 				//Because of Editor toolbar, container top position changes and 
@@ -446,16 +474,17 @@ Supra('dd-drag', function (Y) {
 		render: function () {
 			var highlight = false;
 			
+			this.on('dragmove', function (e) {
+				this.getContent().fire('block:dragmove', e);
+			}, this);
 			this.on('dragstart', function (e) {
-				highlight = this.getContent().get('highlight');
 				this.getContent().fire('block:dragstart', e);
 			}, this);
-			this.on('dragend', function () {
-				this.getContent().set('highlight', highlight);
-			}, this);
 			this.on('dragend:hit', function (e) {
-				this.getContent().set('highlight', false);
 				return this.getContent().fire('block:dragend', e);
+			}, this);
+			this.on('dragend', function () {
+				
 			}, this);
 			
 			//Add toolbar buttons

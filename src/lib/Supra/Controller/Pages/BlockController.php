@@ -204,14 +204,22 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	public function prepareTwigEnvironment()
 	{
+		$request = $this->getRequest();
+
 		$response = $this->getResponse();
 
 		if ($response instanceof Response\TwigResponse) {
+
 			$twig = $response->getTwigEnvironment();
 
 			$helper = new Twig\TwigSupraGlobal();
 			$helper->setRequest($this->request);
+
+			$theme = $request->getLayout()->getTheme();
+
+			$helper->setTheme($theme);
 			$helper->setResponseContext($response->getContext());
+
 			ObjectRepository::setCallerParent($helper, $this);
 			$twig->addGlobal('supra', $helper);
 

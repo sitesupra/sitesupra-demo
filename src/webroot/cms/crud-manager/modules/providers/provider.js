@@ -400,7 +400,9 @@ YUI.add('website.provider', function (Y) {
 				 * Create new item and delete icons
 				 */
 				if (this.get('create')) {
-					this.data_grid_new = new Supra.DataGridNewItem();
+					this.data_grid_new = new Supra.DataGridNewItem({
+						'newItemLabel': Supra.Intl.get(['crud', 'new_item'])
+					});
 					
 					this.data_grid_new.render(container);
 					this.data_grid_new.on('insert:click', this._handleRowInsert, this);
@@ -633,4 +635,4 @@ YUI.add('website.provider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ['widget', 'supra.datagrid', 'supra.datagrid-loader', 'supra.datagrid-draggable', 'website.datagrid-delete', 'website.datagrid-new-item', 'supra.form']});
+}, YUI.version, {requires: ['widget', 'supra.datagrid', 'supra.datagrid-loader', 'supra.datagrid-draggable', 'website.datagrid-delete', 'supra.datagrid-new-item', 'supra.form']});

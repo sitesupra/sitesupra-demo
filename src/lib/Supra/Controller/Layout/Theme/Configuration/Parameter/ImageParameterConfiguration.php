@@ -2,12 +2,16 @@
 
 namespace Supra\Controller\Layout\Theme\Configuration\Parameter;
 
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
+use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ImageParameter;
 
-class ImageParameterConfiguration extends ThemeParameterConfiguration
+class ImageParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
-	/**
-	 * @var array
-	 */
-	public $images;
+
+	protected function getParameterClass()
+	{
+		return ImageParameter::CN();
+	}
+
 }

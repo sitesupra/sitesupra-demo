@@ -8,7 +8,7 @@
 	var STATIC_PATH = Supra.Manager.Loader.getStaticPath(),
 		APP_PATH = Supra.Manager.Loader.getActionBasePath("Applications");
 	
-	Supra.setModuleGroupPath('dashboard', STATIC_PATH + APP_PATH + '/modules');
+	Supra.setModuleGroupPath("dashboard", STATIC_PATH + APP_PATH + "/modules");
 	
 	Supra.addModule("dashboard.stats", {
 		path: "stats.js",
@@ -110,9 +110,7 @@ function (Y) {
 			"apps": null,
 			"favourites": null,
 			
-			"scrollable": null,
-			
-			"sites": null
+			"scrollable": null
 		},
 		
 		/**
@@ -196,16 +194,16 @@ function (Y) {
 				node.one("div.user img").addClass("hidden");
 			}
 			
-			if (Supra.data.get(['application', 'id']) === 'Supra\\Cms\\Dashboard') {
-				Supra.Y.one('div.yui3-app-content').addClass('hidden');
+			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
+				Supra.Y.one("div.yui3-app-content").addClass("hidden");
 			}
 			
 //			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
 //				node.one("a.close").addClass("hidden");
 //			} else {
 				//node.one("a.close").on("click", this.hide, this);
-				node.one('a.close').on("click", function() {
-					document.location = Supra.Manager.Loader.getDynamicPath() + '/logout/'
+				node.one("a.close").on("click", function() {
+					document.location = Supra.Manager.Loader.getDynamicPath() + "/logout/"
 				});
 //			}
 		},
@@ -222,25 +220,12 @@ function (Y) {
 			
 			this.loadStatisticsData();
 			
-			this.loadSitesData();
+			this.renderSiteInfo();
 		},
 		
-		/**
-		 * Load site list
-		 * 
-		 * @private
-		 */
-		loadSitesData: function () {
-			Supra.io(this.getDataPath("../site/sites"), function (data, status) {
-				if (status && data && data.length > 1) {
-					this.widgets.sites = new Supra.Input.Select({
-						"srcNode": this.one("select"),
-						"values": data
-					});
-					this.widgets.sites.render();
-				}
-			}, this);
-		},
+		
+		/* ------------------------------------ Data ------------------------------------ */
+		
 		
 		/**
 		 * Load and set statistics data
@@ -296,6 +281,10 @@ function (Y) {
 				}
 			}, this);
 		},
+		
+		
+		/* ------------------------------------ Favourites ------------------------------------ */
+		
 		
 		/**
 		 * When application is added to favourites inform server
@@ -391,6 +380,41 @@ function (Y) {
 			this.widgets.apps.removeApplication(e.application.id);
 		},
 		
+		
+		/* ------------------------------------ Site info  ------------------------------------ */
+		
+		
+		/**
+		 * Render site info
+		 * 
+		 * @private
+		 */
+		renderSiteInfo: function () {
+			var title = Supra.data.get(["site", "title"]),
+				node = null;
+			
+			if (title) {
+				node = this.one("div.site");
+				node.removeClass("hidden");
+				
+				node.one("span").set("text", title);
+				node.one("a").on("click", this.openSiteListManager, this);
+			}
+		},
+		
+		/**
+		 * Open site list manager
+		 * 
+		 * @private
+		 */
+		openSiteListManager: function () {
+			Supra.Manager.executeAction("Sites");
+		},
+		
+		
+		/* ------------------------------------ Action  ------------------------------------ */
+		
+		
 		/**
 		 * Animate dashboard out of view
 		 */
@@ -433,7 +457,7 @@ function (Y) {
 				transition = null;
 			
 			//Animation turned off ?
-			if (this.get('animation') !== false) {
+			if (this.get("animation") !== false) {
 				
 				if (Y.UA.opera || (Y.UA.ie && Y.UA.ie < 10)) {
 					//Fallback for non-supporting browsers

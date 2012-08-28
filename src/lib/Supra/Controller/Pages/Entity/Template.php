@@ -5,7 +5,7 @@ namespace Supra\Controller\Pages\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
-use Supra\Controller\Pages\Entity\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 
 /**
  * Page controller template class

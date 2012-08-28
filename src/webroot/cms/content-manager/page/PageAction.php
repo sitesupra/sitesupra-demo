@@ -21,7 +21,7 @@ use Supra\Locale\Locale;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
-use Supra\Controller\Pages\Entity\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 
 /**
  * 
@@ -220,10 +220,10 @@ class PageAction extends PageManagerAction
 				'page_id' => $localization->getId()
 			);
 		}
-		
+
 		$lock = false;
 		$lockData = $pageData->getLock();
-		
+
 		if ( ! is_null($lockData)) {
 			$userId = $lockData->getUserId();
 			if ($this->getUser()->getId() === $userId) {
@@ -352,13 +352,13 @@ class PageAction extends PageManagerAction
 				$propertyDefinition = $configuration->properties;
 
 				foreach ($propertyDefinition as $property) {
-					
+
 					/* @var $property BlockPropertyConfiguration */
 					$propertyName = $property->name;
 					$blockProperty = $controller->getProperty($propertyName);
 
 					if ($page->isBlockPropertyEditable($blockProperty)) {
-						
+
 						$propertyData = $this->gatherPropertyData($controller, $property);
 						$blockData['properties'][$propertyName] = $propertyData;
 					}
@@ -376,7 +376,7 @@ class PageAction extends PageManagerAction
 		$this->getResponse()
 				->addResponsePart('permissions', array(array('edit' => true, 'publish' => true)));
 	}
-	
+
 	/**
 	 * Creates a new page
 	 * @TODO: create action for templates as well
@@ -747,7 +747,7 @@ class PageAction extends PageManagerAction
 			return;
 		}
 	}
-	
+
 	/**
 	 * Returns all layouts
 	 */
@@ -777,7 +777,7 @@ class PageAction extends PageManagerAction
 
 		return $layouts;
 	}
-	
+
 	/**
 	 * @param BlockController $blockController
 	 * @param BlockPropertyConfiguration $property
@@ -787,9 +787,9 @@ class PageAction extends PageManagerAction
 	protected function gatherPropertyData($blockController, $property)
 	{
 		$propertyName = $property->name;
-		
+
 		$blockProperty = $blockController->getProperty($propertyName);
-		
+
 		$editable = $blockProperty->getEditable();
 		$propertyValue = $editable->getContentForEdit();
 		$metadataCollection = $blockProperty->getMetadata();
@@ -797,13 +797,13 @@ class PageAction extends PageManagerAction
 
 		/* @var $metadata Entity\BlockPropertyMetadata */
 		foreach ($metadataCollection as $name => $metadata) {
-						
+
 			$data[$name] = array();
-	
+
 			$referencedElement = $metadata->getReferencedElement();
-			$data[$name] = $this->convertReferencedElementToArray($referencedElement, ( ! $editable instanceof Editable\Gallery));				
+			$data[$name] = $this->convertReferencedElementToArray($referencedElement, ( ! $editable instanceof Editable\Gallery));
 		}
-			
+
 		$propertyData = $propertyValue;
 
 		if ($editable instanceof Editable\Html) {
@@ -827,29 +827,55 @@ class PageAction extends PageManagerAction
 
 				if ($image instanceof \Supra\FileStorage\Entity\Image) {
 					$propertyData = $fileStorage->getFileInfo($image);
-				}	
+				}
 			}
 		}
 
+		if ($editable instanceof Editable\BlockBackground) {
+
+			$classname = null;
+			$imageData = null;
+				
+			if ($blockProperty->getMetadata()->containsKey('image')) {
+
+				$imageReferencedElement = $blockProperty->getMetadata()->get('image')->getReferencedElement();
+
+				$imageId = $imageReferencedElement->getImageId();
+
+				$fileStorage = ObjectRepository::getFileStorage($this);
+
+				$image = $fileStorage->getDoctrineEntityManager()
+						->find(\Supra\FileStorage\Entity\Image::CN(), $imageId);
+
+				if(!empty($image)) {
+					$imageData = $imageReferencedElement->toArray();
+					$imageData['image'] = $fileStorage->getFileInfo($image);
+				}
+			} else {
+				$classname = $blockProperty->getValue();
+			}
+
+			$propertyData = array('image' => $imageData, 'classname' => $classname);
+		}
 
 		if ($editable instanceof Editable\Gallery) {
-			
+
 			$galleryController = $editable->getDummyBlockController();
 			$galleryController->setRequest($this->getPageRequest());
-			
-			foreach($metadataCollection as $name => $metadata) {
-				
+
+			foreach ($metadataCollection as $name => $metadata) {
+
 				$subProperties = array();
 				$galleryController->setParentMetadata($metadata);
-				
-				foreach($property->properties as $subPropertyDefinition) {
+
+				foreach ($property->properties as $subPropertyDefinition) {
 					$subProperties[$subPropertyDefinition->name] = $this->gatherPropertyData($galleryController, $subPropertyDefinition);
 				}
-				
+
 				$data[$name] = $data[$name]
-					+ array('properties' => $subProperties);
+						+ array('properties' => $subProperties);
 			}
-			
+
 			ksort($data);
 			$propertyData = array_values($data);
 		}
@@ -859,18 +885,18 @@ class PageAction extends PageManagerAction
 			'value' => $propertyData,
 			'language' => null,
 		);
-		
+
 		if ($blockProperty instanceof Entity\SharedBlockProperty) {
 			$propertyInfo['__shared__'] = true;
 			$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
 					->getLocale();
 		}
-		
+
 		//TODO: sub-properties are not prepared to be non-/shared
 		if ($blockController instanceof \Supra\Controller\Pages\GalleryBlockController) {
 			$propertyInfo = $propertyData;
 		}
-		
+
 		return $propertyInfo;
 	}
 

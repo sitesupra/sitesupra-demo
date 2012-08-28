@@ -7,13 +7,10 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		groups: [
 			{
 				"id": "main",
+				"autoVisible": true, // always visible
+				"animate": false, // never animate slide in/slide out
+				"height": 48,
 				"controls": [
-					{"id": "insertimage", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
-					{"type": "separator"},
-					{"id": "insertlink", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
-					{"type": "separator"},
-					{"id": "inserttable", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"},
-					{"type": "separator"},
 					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"},
 					{"type": "separator"},
 					{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
@@ -23,33 +20,87 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 			},
 			{
 				"id": "text",
+				"autoVisible": true, // always visible
+				"animate": true,
+				"height": 42,
 				"controls": [
-					{"id": "bold", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-bold.png", "command": "bold"},
-					{"id": "italic", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-italic.png", "command": "italic"},
-					{"id": "underline", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-underline.png", "command": "underline"},
-					{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/cms/lib/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
-					/*{"type": "separator"},
-					{"id": "p", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-p.png", "command": "p"},
-					{"id": "h1", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h1.png", "command": "h1"},
-					{"id": "h2", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h2.png", "command": "h2"},
-					{"id": "h3", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h3.png", "command": "h3"},
-					{"id": "h4", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h4.png", "command": "h4"},
-					{"id": "h5", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-h5.png", "command": "h5"},*/
+						{"id": "style", "type": "button", "command": "style", "icon": "/cms/lib/supra/img/htmleditor/icon-style.png"},
 					{"type": "separator"},
-					{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul"},
-					{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol"},
+						{"id": "fonts", "type": "button", "command": "fonts", "icon": "/cms/lib/supra/img/htmleditor/icon-fonts.png"},
 					{"type": "separator"},
-					{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
-					{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
+						{"id": "fontsize", "type": "dropdown", "command": "fontsize", "values": [
+							{"id": 6, "title": "6"},
+							{"id": 8, "title": "8"},
+							{"id": 9, "title": "9"},
+							{"id": 10, "title": "10"},
+							{"id": 11, "title": "11"},
+							{"id": 12, "title": "12"},
+							{"id": 13, "title": "13"},
+							{"id": 14, "title": "14"},
+							{"id": 15, "title": "15"},
+							{"id": 16, "title": "16"},
+							{"id": 18, "title": "18"},
+							{"id": 24, "title": "24"},
+							{"id": 30, "title": "30"},
+							{"id": 36, "title": "36"},
+							{"id": 48, "title": "48"},
+							{"id": 60, "title": "60"},
+							{"id": 72, "title": "72"}
+						]},
 					{"type": "separator"},
-					{"id": "type", "type": "dropdown", "command": "type"},
-					{"id": "style", "type": "dropdown", "command": "style"}
+						{"id": "forecolor", "type": "button", "command": "forecolor", "icon": "/cms/lib/supra/img/htmleditor/icon-forecolor.png"},
+						{"id": "backcolor", "type": "button", "command": "backcolor", "icon": "/cms/lib/supra/img/htmleditor/icon-backcolor.png"},
+					{"type": "separator"},
+						{"id": "bold", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-bold.png", "command": "bold"},
+						{"id": "italic", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-italic.png", "command": "italic"},
+						{"id": "underline", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-underline.png", "command": "underline"},
+						{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/cms/lib/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
+					{"type": "separator"},
+						{"id": "align", "type": "dropdown", "command": "align", "style": "icons-text", "values": [
+							{"id": "left", "title": "Left", "icon": "/cms/lib/supra/img/htmleditor/align-left.png"},
+							{"id": "center", "title": "Center", "icon": "/cms/lib/supra/img/htmleditor/align-center.png"},
+							{"id": "right", "title": "Right", "icon": "/cms/lib/supra/img/htmleditor/align-right.png"},
+							{"id": "justify", "title": "Justify", "icon": "/cms/lib/supra/img/htmleditor/align-justify.png"}
+						]},
+					{"type": "separator"},
+						{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul"},
+						{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol"},
+					{"type": "separator"},
+						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
+						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
+					{"type": "separator"},
+						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
+					{"type": "separator"},
+						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
+					{"type": "separator"},
+						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
+					
+				]
+			},
+			{
+				"id": "table",
+				"autoVisible": false, // visible only when needed
+				"visible": false,
+				"animate": true,
+				"height": 42,
+				"controls": [
+						{"id": "row-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-before.png",  "command": "row-before"},
+						{"id": "row-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-delete.png",  "command": "row-delete"},
+						{"id": "row-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-after.png",  "command": "row-after"},
+					{"type": "separator"},
+						{"id": "merge",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-cell-merge.png",  "command": "merge-cells"},
+					{"type": "separator"},
+						{"id": "column-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-before.png",  "command": "column-before"},
+						{"id": "column-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-delete.png",  "command": "column-delete"},
+						{"id": "column-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-after.png",  "command": "column-after"},
+					{"type": "separator"},
+						{"id": "table-settings",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-settings.png",  "command": "table-settings"}
 				]
 			}
 		]
 	};
 	
-	var TEMPLATE_GROUP = '<div class="yui3-editor-toolbar-{id} yui3-editor-toolbar-{id}-hidden">\
+	var TEMPLATE_GROUP = '<div class="yui3-editor-toolbar-{id} hidden">\
 							<div class="yui3-editor-toolbar-{id}-content"></div>\
 						  </div>';
 	
@@ -57,7 +108,8 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	
 	function HTMLEditorToolbar (config) {
 		this.controls = {};
-		this.groupNodes = {};
+		this.groups = {};
+		this.groupOrder = [];
 		
 		HTMLEditorToolbar.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
@@ -76,11 +128,18 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	Y.extend(HTMLEditorToolbar, Y.Widget, {
 		
 		/**
-		 * List of group nodes
+		 * List of groups
 		 * @type {Object}
 		 * @private
 		 */
-		groupNodes: {},
+		groups: {},
+		
+		/**
+		 * Visible group order
+		 * @type {Object}
+		 * @private
+		 */
+		groupOrder: [],
 		
 		/**
 		 * List of all controls
@@ -96,16 +155,80 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		previousControlStates: null,
 		
 		
+		/* ---------------------------- Height ------------------------------ */
+		
+		
 		/**
-		 * Bind event listeners
+		 * Force leyout update
+		 */
+		syncLayout: function () {
+			var action = Supra.Manager.getAction('LayoutTopContainer');
+			if (action.get('executed')) action.syncLayout();
+		},
+		
+		/**
+		 * Calculate content height
+		 * 
+		 * @return Toolbar content height
+		 * @type {Number}
+		 * @private
+		 */
+		calculateContentHeight: function () {
+			var groups = this.groups,
+				height = 0,
+				id = null;
+			
+			for (var id in groups) {
+				if (groups[id].visible && id != 'main') { // "main" is outside content
+					height += groups[id].height;
+				}
+			}
+			
+			return height;
+		},
+		
+		/**
+		 * Update content height
 		 * 
 		 * @private
 		 */
-		bindUI: function () {
-			var r = HTMLEditorToolbar.superclass.bindUI.apply(this, arguments);
+		updateContentHeight: function () {
+			var height = this.calculateContentHeight(),
+				node = this.get('contentBox');
 			
-			return r;
+			node.setStyle('height', height + 'px');
+			
+			this.syncLayout();
+			this.fire('contentResize');
 		},
+		
+		/**
+		 * Returns group node top position in which it should be
+		 * 
+		 * @param {String} group_id Group ID
+		 * @return Group top position
+		 * @type {Number}
+		 */
+		getGroupPosition: function (group_id) {
+			var groups = this.groups,
+				groupOrder = this.groupOrder,
+				i = 0,
+				ii = groupOrder.length,
+				top = 0;
+			
+			for (; i<ii; i++) {
+				if (groupOrder[i] == group_id) return top;
+				if (groupOrder[i] != 'main') { // "main" is outside content
+					top += groups[groupOrder[i]].height;
+				}
+			}
+			
+			return top;
+		},
+		
+		
+		/* ---------------------------- Controls ------------------------------ */
+		
 		
 		/**
 		 * Returns control
@@ -135,9 +258,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		 */
 		addControl: function (group_id, data, options) {
 			if (!data || !group_id) return;
-			if (typeof group_id == 'string' && !(group_id in this.groupNodes)) return;
+			if (typeof group_id == 'string' && !(group_id in this.groups)) return;
 			
-			var cont = typeof group_id == 'string' ? this.groupNodes[group_id].one('div') : group_id,
+			var cont = typeof group_id == 'string' ? this.groups[group_id].node.one('div') : group_id,
 				label,
 				title,
 				node,
@@ -154,7 +277,12 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				case 'dropdown':
 					node = Y.Node.create('<select></select>');
 					cont.append(node);
-					node = new Supra.Input.Select({'srcNode': node, 'scrollable': false});
+					node = new Supra.Input.Select({
+						'srcNode': node,
+						'scrollable': false,
+						'values': data.values,
+						'textRenderer': data.style == 'icons-text' ? function (item) { return '<span class="icon-crop"><img src="' + item.icon + '" /></span>'; } : null
+					});
 					node.render();
 					break;
 				case 'button':
@@ -209,13 +337,28 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		 * Render all groups and controls
 		 */
 		renderUI: function () {
-			var r = HTMLEditorToolbar.superclass.renderUI.apply(this, arguments);
+			HTMLEditorToolbar.superclass.renderUI.apply(this, arguments);
 			
-			var groups = BUTTONS_DEFAULT.groups;
+			var groups = BUTTONS_DEFAULT.groups,
+				groupList = this.groups = {},
+				id = null,
+				index = 0;
+			
 			for(var i=0,ii=groups.length; i<ii; i++) {
+				id = groups[i].id;
+				
+				groupList[id] = {
+					'node': null,
+					'visible': false,
+					'height': groups[i].height,
+					'animate': groups[i].animate,
+					'autoVisible': groups[i].autoVisible,
+					'index': null
+				};
+				
 				//Create tab
-				var template = Y.substitute(TEMPLATE_GROUP, {'id': groups[i].id}),
-					cont = this.groupNodes[groups[i].id] = Y.Node.create(template).appendTo(this.get('contentBox')),
+				var template = Y.substitute(TEMPLATE_GROUP, {'id': id}),
+					cont = groupList[id].node = Y.Node.create(template).appendTo(this.get('contentBox')),
 					first = true,
 					nextFirst = false,
 					last = false;
@@ -254,10 +397,6 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				}
 				
 			}
-			
-			this.fire('contentResize');
-			
-			return r;
 		},
 		
 		/**
@@ -289,6 +428,138 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				
 				this.previousControlStates = {};
 			}
+		},
+		
+		
+		/* ---------------------------- Visibility ------------------------------ */
+		
+		
+		/**
+		 * Show group
+		 * 
+		 * @param {String} group_id Group ID
+		 * @param {Boolean} silent In silent mode content height is not updated
+		 */
+		showGroup: function (group_id, silent) {
+			var group = this.groups[group_id],
+				groupOrder = this.groupOrder,
+				position = null;
+			
+			if (group && !group.visible) {
+				
+				group.visible = true;
+				group.node.removeClass('hidden');
+				group.index = groupOrder.length;
+				groupOrder.push(group_id);
+				
+				if (group.animate) {
+					position = this.getGroupPosition(group_id);
+					group.node.setStyle('top', position - 48 + 'px');
+					group.node.transition({
+						'top': position + 'px',
+						'easing': 'ease-out',
+						'duration': 0.5
+					});
+				} else if (group_id == 'main') {
+					//Main slide has special animation
+					group.node.one('div').transition({
+						'duration': 0.5,
+						'easing': 'ease-out',
+						'marginTop': '0px'
+					});
+				}
+				
+				if (!silent) this.updateContentHeight();
+			}
+		},
+		
+		/**
+		 * Hide group
+		 * 
+		 * @param {String} group_id Group name
+		 * @param {Boolean} silent In silent mode content height is not updated
+		 */
+		hideGroup: function (group_id, silent, after) {
+			var groups = this.groups,
+				group = groups[group_id],
+				groupOrder = this.groupOrder,
+				position = null;
+			
+			if (group && group.visible) {
+				groupOrder.splice(group.index, 1);
+				
+				group.index = null;
+				group.visible = false;
+				
+				if (group.animate) {
+					position = this.getGroupPosition(group_id);
+					
+					group.node.transition({
+						'top': position - 48 + 'px',
+						'easing': 'ease-out',
+						'duration': 0.5
+					}, Y.bind(function () {
+						group.node.addClass('hidden');
+						if (!silent) this.updateContentHeight();
+						if (Y.Lang.isFunction(after)) after();
+					}, this));
+					
+				} else if (group_id == 'main') {
+					
+					//Main slide has special animation
+					group.node.one('div').transition({
+						'duration': 0.5,
+						'easing': 'ease-out',
+						'marginTop': '50px'
+					}, Y.bind(function () {
+						group.node.addClass('hidden');
+						if (!silent) this.updateContentHeight();
+						if (Y.Lang.isFunction(after)) after();
+					}, this));
+					
+				} else {
+					
+					if (!silent) this.updateContentHeight();
+					if (Y.Lang.isFunction(after)) after();
+					
+				}
+			}
+		},
+		
+		/**
+		 * Handle visibility change
+		 * @param {Object} visible
+		 */
+		_uiSetVisible: function (visible) {
+			if (visible) {
+				this.get('boundingBox').removeClass(this.getClassName('hidden'));
+				
+				var group_proto = BUTTONS_DEFAULT.groups,
+					groups = this.groups,
+					id = null,
+					i = 0,
+					ii = group_proto.length,
+					show = [];
+				
+				for (; i<ii; i++) {
+					id = group_proto[i].id;
+					if (groups[id].autoVisible) show.push(id);
+				}
+				
+				for (i=0,ii=show.length; i<ii; i++) {
+					this.showGroup(show[i], i != ii - 1);
+				}
+			} else {
+				var groupOrder = this.groupOrder,
+					i = groupOrder.length - 1,
+					fn = Y.bind(function () { 
+							this.get('boundingBox').addClass(this.getClassName('hidden'));
+						 }, this);
+				
+				for (; i >= 0; i--) {
+					this.hideGroup(groupOrder[i], i != 0, i == 0 ? fn : null);
+				}
+			}
 		}
 		
 	});
@@ -296,4 +567,4 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	Supra.HTMLEditorToolbar = HTMLEditorToolbar;
 	
 	
-}, YUI.version, {requires:['widget', 'supra.panel', 'supra.button']});
+}, YUI.version, {requires:['widget', 'supra.panel', 'supra.button', 'transition']});

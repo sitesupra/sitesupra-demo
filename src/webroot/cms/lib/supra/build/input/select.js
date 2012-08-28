@@ -17,7 +17,7 @@ YUI.add("supra.input-select", function (Y) {
 		 */
 		"values": {
 			value: [],
-			setter: '_setValues'
+			setter: "_setValues"
 		},
 		
 		/**
@@ -26,7 +26,7 @@ YUI.add("supra.input-select", function (Y) {
 		 */
 		"loading": {
 			value: false,
-			setter: '_setLoading'
+			setter: "_setLoading"
 		},
 		
 		/**
@@ -38,7 +38,7 @@ YUI.add("supra.input-select", function (Y) {
 		},
 		
 		/**
-		 * Don't use replacement
+		 * Don"t use replacement
 		 * @type {Boolean}
 		 */
 		"useReplacement": {
@@ -90,7 +90,7 @@ YUI.add("supra.input-select", function (Y) {
 		 */
 		"opened": {
 			value: false,
-			setter: '_setDropdownOpened'
+			setter: "_setDropdownOpened"
 		},
 		
 		/**
@@ -108,24 +108,33 @@ YUI.add("supra.input-select", function (Y) {
 		 */
 		"itemRenderer": {
 			value: null
+		},
+		
+		/**
+		 * Text renderer, allows to create
+		 * different selected item text
+		 * @type {Function}
+		 */
+		"textRenderer": {
+			value: null
 		}
 	};
 	
 	Input.HTML_PARSER = {
 		"values": function (srcNode) {
-			var input = this.get('inputNode'),
+			var input = this.get("inputNode"),
 				values = [];
 			
-			if (input && input.test('select')) {
+			if (input && input.test("select")) {
 				var options = Y.Node.getDOMNode(input).options;
 				for(var i=0,ii=options.length; i<ii; i++) {
 					values.push({
-						'id': options[i].value,
-						'title': options[i].text
+						"id": options[i].value,
+						"title": options[i].text
 					});
 				}
 			} else {
-				values = this.get('values') || [];
+				values = this.get("values") || [];
 			}
 			
 			return values;
@@ -133,9 +142,9 @@ YUI.add("supra.input-select", function (Y) {
 	};
 	
 	Y.extend(Input, Supra.Input.String, {
-		CONTENT_TEMPLATE: '<div></div>',
-		INPUT_TEMPLATE: '<select></select>',
-		LABEL_TEMPLATE: '<label></label>',
+		CONTENT_TEMPLATE: "<div></div>",
+		INPUT_TEMPLATE: "<select></select>",
+		LABEL_TEMPLATE: "<label></label>",
 		
 		/**
 		 * Dropdown opening animation
@@ -173,18 +182,18 @@ YUI.add("supra.input-select", function (Y) {
 			
 			//Add inner node
 			var node = Y.Node.create(this.CONTENT_TEMPLATE);
-			node.addClass(this.getClassName('inner'));
-			node.setAttribute('tabindex', '0');
-			this.get('inputNode').insert(node, 'after');
-			this.set('innerNode', node);
+			node.addClass(this.getClassName("inner"));
+			node.setAttribute("tabindex", "0");
+			this.get("inputNode").insert(node, "after");
+			this.set("innerNode", node);
 			
 			//Input doesn't need to be visible
-			this.get('inputNode').addClass('hidden');
+			this.get("inputNode").addClass("hidden");
 			
 			//Text node
-			var text_node = Y.Node.create('<p></p>');
-			this.get('innerNode').append(text_node);
-			this.set('textNode', text_node);
+			var text_node = Y.Node.create("<p></p>");
+			this.get("innerNode").append(text_node);
+			this.set("textNode", text_node);
 			
 			//Dropdown node
 			var dropdown_node = Y.Node.create('\
@@ -193,25 +202,25 @@ YUI.add("supra.input-select", function (Y) {
 						<div class="' + this.getClassName('dropdown-content') + '"></div>\
 					</div>');
 			
-			this.set('dropdownNode', dropdown_node);
-			this.set('contentNode', dropdown_node.one('.' + this.getClassName('dropdown-content')));
-			this.get('innerNode').append(dropdown_node);
+			this.set("dropdownNode", dropdown_node);
+			this.set("contentNode", dropdown_node.one("." + this.getClassName("dropdown-content")));
+			this.get("innerNode").append(dropdown_node);
 			
 			//Sync values
-			this.set('values', this.get('values'));
+			this.set("values", this.get("values"));
 		},
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
 			
-			var inner_node = this.get('innerNode');
-			inner_node.on('mouseenter', this._onMouseOver, this);
-			inner_node.on('mouseleave', this._onMouseOut, this);
-			inner_node.on('mousedown', this._onMouseDown, this);
-			inner_node.on('keydown', this._onKeyPress, this);
+			var inner_node = this.get("innerNode");
+			inner_node.on("mouseenter", this._onMouseOver, this);
+			inner_node.on("mouseleave", this._onMouseOut, this);
+			inner_node.on("mousedown", this._onMouseDown, this);
+			inner_node.on("keydown", this._onKeyPress, this);
 			
 			//Handle list item  click
-			inner_node.delegate('click', this._onItemClick, 'a[data-id]', this);
+			inner_node.delegate("click", this._onItemClick, "a[data-id]", this);
 		},
 		
 		/**
@@ -219,7 +228,7 @@ YUI.add("supra.input-select", function (Y) {
 		 * is disabled
 		 */
 		_uiSetFocused: function () {
-			if (this.get('disabled')) return;
+			if (this.get("disabled")) return;
 			Input.superclass._uiSetFocused.apply(this, arguments);
 		},
 		
@@ -230,8 +239,8 @@ YUI.add("supra.input-select", function (Y) {
 		 * @private
 		 */
 		_onMouseOver: function (e) {
-			if (this.get('disabled')) return;
-			this.get('boundingBox').addClass(this.getClassName('mouse-over'));
+			if (this.get("disabled")) return;
+			this.get("boundingBox").addClass(this.getClassName("mouse-over"));
 		},
 		
 		/**
@@ -241,8 +250,8 @@ YUI.add("supra.input-select", function (Y) {
 		 * @private
 		 */
 		_onMouseOut: function (e) {
-			if (this.get('disabled')) return;
-			this.get('boundingBox').removeClass(this.getClassName('mouse-over'));
+			if (this.get("disabled")) return;
+			this.get("boundingBox").removeClass(this.getClassName("mouse-over"));
 		},
 		
 		/**
@@ -253,10 +262,10 @@ YUI.add("supra.input-select", function (Y) {
 		 */
 		_onMouseDown: function (e) {
 			//If user clicked inside dropdown then ignore
-			var target = e.target.closest('.' + this.getClassName('dropdown'));
+			var target = e.target.closest("." + this.getClassName("dropdown"));
 			if (target) return;
 			
-			this.set('opened', !this.get('opened'));
+			this.set("opened", !this.get("opened"));
 		},
 		
 		/**
@@ -266,44 +275,44 @@ YUI.add("supra.input-select", function (Y) {
 		 * @private
 		 */
 		_onKeyPress: function (e) {
-			if (this.get('disabled')) return;
+			if (this.get("disabled")) return;
 			
 			var key = e.keyCode;
 			
-			if (!this.get('opened')) {
+			if (!this.get("opened")) {
 				if (key == 13 || key == 40) {
 					//Return key or arrow down, open dropdown
-					this.set('opened', true);
+					this.set("opened", true);
 				}
 			} else {
 				if (key == 27 || key == 9) {
 					//Escape key or tab key, close dropdown
-					this.set('opened', false);
+					this.set("opened", false);
 				} else if (key == 40 || key == 38) {
 					//Arrow down or up
-					var dir = key == 40 ? 'next' : 'previous',
-						node = this.get('dropdownNode'),
-						item = node.one('.selected'),
+					var dir = key == 40 ? "next" : "previous",
+						node = this.get("dropdownNode"),
+						item = node.one(".selected"),
 						prev = item;
 					
 					if (!item) {
-						item = node.one('.' + this.getClassName('item'));
+						item = node.one("." + this.getClassName("item"));
 					} else {
 						item = item[dir]();
 					}
 					
 					//Find visible item
-					while(item && item.hasClass('hidden')) {
+					while(item && item.hasClass("hidden")) {
 						item = item[dir]();
 					}
 					
 					//Style
 					if (item) {
 						if (prev) {
-							prev.removeClass('selected');
+							prev.removeClass("selected");
 						}
-						item.addClass('selected');
-						this.highlight_id = item.getAttribute('data-id');
+						item.addClass("selected");
+						this.highlight_id = item.getAttribute("data-id");
 						
 						//Update scroll position
 						if (this.scrollable) {
@@ -312,10 +321,10 @@ YUI.add("supra.input-select", function (Y) {
 					}
 				} else if (key == 13) {
 					if (this.highlight_id !== null) {
-						this.set('value', this.highlight_id);
+						this.set("value", this.highlight_id);
 					}
 					
-					this.set('opened', false);
+					this.set("opened", false);
 				}
 			}
 		},
@@ -327,13 +336,13 @@ YUI.add("supra.input-select", function (Y) {
 		 * @private
 		 */
 		_onItemClick: function (e) {
-			if (this.get('disabled')) return;
+			if (this.get("disabled")) return;
 			
-			var item = e.target.closest('a'),
-				value = item.getAttribute('data-id');
+			var item = e.target.closest("a"),
+				value = item.getAttribute("data-id");
 			
-			this.set('value', value);
-			this.set('opened', false);
+			this.set("value", value);
+			this.set("opened", false);
 		},
 		
 		/**
@@ -342,17 +351,17 @@ YUI.add("supra.input-select", function (Y) {
 		 * @private
 		 */
 		_openDropDown: function () {
-			if (this.get('disabled')) return;
+			if (this.get("disabled")) return;
 			
-			var inner_node = this.get('innerNode'),
-				dropdown_node = this.get('dropdownNode'),
-				bounding_node = this.get('boundingBox');
+			var inner_node = this.get("innerNode"),
+				dropdown_node = this.get("dropdownNode"),
+				bounding_node = this.get("boundingBox");
 			
-			bounding_node.addClass(this.getClassName('open'));
+			bounding_node.addClass(this.getClassName("open"));
 			dropdown_node.setStyles({
-				'opacity': 0,
-				'marginTop': -15,
-				'minWidth': inner_node.get('offsetWidth') + 'px'
+				"opacity": 0,
+				"marginTop": -15,
+				"minWidth": inner_node.get("offsetWidth") + "px"
 			});
 			
 			//Animations
@@ -374,23 +383,23 @@ YUI.add("supra.input-select", function (Y) {
 					.run();
 			
 			//Listeners
-			this.close_event_listener = Y.one(document).on('mousedown', this._closeDropDownAttr, this);
+			this.close_event_listener = Y.one(document).on("mousedown", this._closeDropDownAttr, this);
 			
 			//Scrollable
 			if (this.scrollable) {
 				this.scrollable.syncUI();
-			} else if (this.get('scrollable')) {
+			} else if (this.get("scrollable")) {
 				//Scrollable content
-				this.get('boundingBox').addClass(this.getClassName('scrollable'));
+				this.get("boundingBox").addClass(this.getClassName("scrollable"));
 				
 				this.scrollable = new Supra.Scrollable({
-					'srcNode': this.get('contentNode'),
-					'axis': 'y'
+					"srcNode": this.get("contentNode"),
+					"axis": "y"
 				});
 				
 				this.scrollable.render();
 				
-				this.set('contentNode', this.scrollable.get('contentBox'));
+				this.set("contentNode", this.scrollable.get("contentBox"));
 			}
 		},
 		
@@ -400,14 +409,14 @@ YUI.add("supra.input-select", function (Y) {
 		_closeDropDownAttr: function (e) {
 			//Check validity
 			if (e && e.target) {
-				var node = e.target.closest('.' + this.getClassName('inner'));
-				if (node && node === this.get('innerNode')) {
+				var node = e.target.closest("." + this.getClassName("inner"));
+				if (node && node === this.get("innerNode")) {
 					return;
 				}
 			}
 			
-			if (this.get('opened')) {
-				this.set('opened', false);
+			if (this.get("opened")) {
+				this.set("opened", false);
 			}
 		},
 		
@@ -424,22 +433,22 @@ YUI.add("supra.input-select", function (Y) {
 			//Animations
 			if (!this.anim_close) {
 				this.anim_close = new Y.Anim({
-					node: this.get('dropdownNode'),
+					node: this.get("dropdownNode"),
 				    duration: 0.25,
 				    easing: Y.Easing.easeOutStrong,
 					from: {opacity: 1, marginTop: 0},
 					to: {opacity: 0, marginTop: -15}
 				});
-				this.anim_close.on('end', function () {
-					this.get('boundingBox').removeClass(this.getClassName('closing'));
+				this.anim_close.on("end", function () {
+					this.get("boundingBox").removeClass(this.getClassName("closing"));
 				}, this);
 			}
 			if (this.anim_open) {
 				this.anim_open.stop();
 			}
 			
-			this.get('boundingBox').addClass(this.getClassName('closing'));
-			this.get('boundingBox').removeClass(this.getClassName('open'));
+			this.get("boundingBox").addClass(this.getClassName("closing"));
+			this.get("boundingBox").removeClass(this.getClassName("open"));
 			
 			this.anim_close
 					.stop()
@@ -447,9 +456,9 @@ YUI.add("supra.input-select", function (Y) {
 			
 			//Remove item highlighting
 			this.highlight_id = null;
-			var item = this.get('dropdownNode').one('.selected');
+			var item = this.get("dropdownNode").one(".selected");
 			if (item) {
-				item.removeClass('selected');
+				item.removeClass("selected");
 			}
 		},
 		
@@ -460,10 +469,10 @@ YUI.add("supra.input-select", function (Y) {
 		 * @private
 		 */
 		_setDropdownOpened: function (value) {
-			var prev = !!this.get('opened'),
+			var prev = !!this.get("opened"),
 				value = !!value;
 			
-			if (this.get('disabled')) {
+			if (this.get("disabled")) {
 				return false;
 			}
 			
@@ -489,8 +498,8 @@ YUI.add("supra.input-select", function (Y) {
 		_setDisabled: function (value) {
 			value = Input.superclass._setDisabled.apply(this, arguments);
 			
-			if (value && this.get('opened')) {
-				this.set('opened', false);
+			if (value && this.get("opened")) {
+				this.set("opened", false);
 			}
 			
 			return value;
@@ -505,19 +514,19 @@ YUI.add("supra.input-select", function (Y) {
 		 * @private
 		 */
 		_setLoading: function (loading) {
-			var box = this.get('innerNode');
+			var box = this.get("innerNode");
 			
 			if (box) {
-				if (loading && !this.get('nodeLoading')) {
+				if (loading && !this.get("nodeLoading")) {
 					var node = Y.Node.create('<span class="loading-icon"></span>');
 					box.append(node);
-					this.set('nodeLoading', node);
+					this.set("nodeLoading", node);
 				}
 				
-				box.toggleClass(this.getClassName('loading'), loading);
+				box.toggleClass(this.getClassName("loading"), loading);
 			}
 			
-			this.set('disabled', loading);
+			this.set("disabled", loading);
 			return loading;
 		},
 		
@@ -532,18 +541,19 @@ YUI.add("supra.input-select", function (Y) {
 		_setValues: function (values) {
 			if (!Y.Lang.isArray(values)) values = [];
 			
-			var inputNode = this.get('inputNode'),
-				contentNode = this.get('contentNode'),
-				item_class = this.getClassName('item'),
-				renderer = this.get('itemRenderer'),
-				show_empty_value = this.get('showEmptyValue'),
+			var inputNode = this.get("inputNode"),
+				contentNode = this.get("contentNode"),
+				item_class = this.getClassName("item"),
+				renderer = this.get("itemRenderer"),
+				textRenderer = this.get("textRenderer"),
+				show_empty_value = this.get("showEmptyValue"),
 				html = null,
 				title = null;
 			
 			if (inputNode) {
 				var domNode = Y.Node.getDOMNode(inputNode),
-					value = this.get('value'),
-					text_node = this.get('textNode');
+					value = this.get("value"),
+					text_node = this.get("textNode");
 				
 				//Remove all options
 				for(var i = domNode.options.length - 1; i>=0; i--) {
@@ -558,17 +568,21 @@ YUI.add("supra.input-select", function (Y) {
 					
 					//Check if title is localized
 					title = values[i].title;
-					if (title.indexOf('{#') != -1) {
+					if (title.indexOf("{#") != -1) {
 						title = Supra.Intl.replace(title);
 					}
 					
 					domNode.options[i] = new Option(title, values[i].id, values[i].id == value);
 					
 					if (values[i].id == value && text_node) {
-						text_node.set('text', title);
+						if (textRenderer) {
+							text_node.set("innerHTML", textRenderer(values[i], i));
+						} else {
+							text_node.set("text", title);
+						}
 					}
 					
-					if (contentNode && (show_empty_value || values[i].id !== '')) {
+					if (contentNode && (show_empty_value || values[i].id !== "")) {
 						if (renderer) {
 							html = renderer(values[i], i);
 						} else {
@@ -591,7 +605,7 @@ YUI.add("supra.input-select", function (Y) {
 		 * @type {Object}
 		 */
 		getValueNodes: function () {
-			var nodes = this.get('contentNode').all('.' + this.getClassName('item')),
+			var nodes = this.get("contentNode").all("." + this.getClassName("item")),
 				node = null,
 				obj = {},
 				i = 0,
@@ -599,7 +613,7 @@ YUI.add("supra.input-select", function (Y) {
 			
 			for(; i<ii; i++) {
 				node = nodes.item(i);
-				obj[node.getAttribute('data-id')] = node;
+				obj[node.getAttribute("data-id")] = node;
 			}
 			
 			return obj;
@@ -617,21 +631,19 @@ YUI.add("supra.input-select", function (Y) {
 			value = Input.superclass._setValue.apply(this, arguments);
 			
 			//If not rendered yet, then textNode will not exist
-			if (!this.get('textNode')) return value;
+			if (!this.get("textNode")) return value;
 			
-			var values = this.get('values'),
-				title  = null;
+			var values = this.get("values"),
+				title  = null,
+				renderer = this.get("textRenderer");
 			
 			for(var i=0,ii=values.length; i<ii; i++) {
 				if (values[i].id == value) {
-					
-					//Check if title is localized
-					title = values[i].title;
-					if (title.indexOf('{#') != -1) {
-						title = Supra.Intl.replace(title);
+					if (renderer) {
+						this.setText(renderer(values[i], i) || "", false);
+					} else {
+						this.setText(values[i].title);
 					}
-					
-					this.get('textNode').set('text', title);
 					break;
 				}
 			}
@@ -640,13 +652,53 @@ YUI.add("supra.input-select", function (Y) {
 		},
 		
 		/**
+		 * Set dropdown text
+		 * Can be used when value is not in the list or for custom text
+		 * 
+		 * @param {String} title Text
+		 */
+		setText: function (title, escape) {
+			var node = this.get("textNode");
+			if (!node) return this;
+			
+			//Check if title is localized
+			title = String(title || "");
+			if (title.indexOf("{#") != -1) {
+				title = Supra.Intl.replace(title);
+			}
+			
+			if (escape === false) {
+				node.set("innerHTML", title);
+			} else {
+				node.set("text", title);
+			}
+			return this;
+		},
+		
+		/**
+		 * Returns true if list has options with given id
+		 * 
+		 * @param {String} id Option ID
+		 * @return True if has option with given id, otherwise false
+		 * @type {Boolean}
+		 */
+		hasValue: function (id) {
+			var values = this.get("values"),
+				i = 0,
+				ii = values.length;
+			
+			 for (; i<ii; i++) if (values[i].id == id) return true;
+			 return false
+		},
+		
+		/**
 		 * Reset value to default
 		 */
 		resetValue: function () {
-			var value = this.get('defaultValue'),
-				values = this.get('values');
+			var value = this.get("defaultValue"),
+				values = this.get("values");
 			
-			this.set('value', value !== null ? value : (values.length ? values[0].id : ''));
+			this.set("value", value !== null ? value : (values.length ? values[0].id : ""));
 			return this;
 		},
 		
@@ -661,7 +713,7 @@ YUI.add("supra.input-select", function (Y) {
 				this.close_event_listener = null;
 			}
 			
-			this.get('innerNode').destroy(true);
+			this.get("innerNode").destroy(true);
 		}
 		
 	});
