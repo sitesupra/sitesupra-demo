@@ -498,9 +498,9 @@ abstract class PageRequest extends HttpRequest
 			$qb->where($or);
 
 			// When specific ID is passed, limit by it
-			$blockId = $this->getQueryValue('block_id', null);
+			$blockId = $this->getBlockRequestId();
 			if ( ! is_null($blockId)) {
-				$qb->andWhere('b.id = :blockId')
+				$qb->andWhere('b.id = :blockId OR b.componentClass = :blockId')
 						->setParameter('blockId', $blockId);
 			}
 			

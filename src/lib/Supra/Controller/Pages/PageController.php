@@ -227,7 +227,7 @@ class PageController extends ControllerAbstraction
 			
 			$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController)
 				use ($blockId, $response) {
-					if ($block->getId() === $blockId) {
+					if ($block->getId() === $blockId || $block->getComponentClass() === $blockId) {
 						$response->output($blockController->getResponse());
 					}
 				};
