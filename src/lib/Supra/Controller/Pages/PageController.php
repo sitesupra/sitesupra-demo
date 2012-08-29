@@ -798,6 +798,7 @@ class PageController extends ControllerAbstraction
 		$eventManager = ObjectRepository::getEventManager($this);
 
 		$return = array();
+		$unsetBlocksByIndex = array();
 
 		/* @var $block Entity\Abstraction\Block */
 		foreach ($blocks as $index => $block) {
@@ -857,8 +858,14 @@ class PageController extends ControllerAbstraction
 			} catch (Exception\InvalidBlockException $e) {
 
 				\Log::warn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
-				unset($blocks[$index]);
+
+				$unsetBlocksByIndex[] = $index;
 			}
+		}
+
+		// unset afterwards, or else some blocks get prepared 2 times..
+		foreach ($unsetBlocksByIndex as $index) {
+			unset($blocks[$index]);
 		}
 
 		return $return;
