@@ -1,35 +1,15 @@
-- Project\Payment\Paypal\Configuration:
-    id: paypal_one
-    url: /payment/paypal_one
-    returnHost: http://supra7.krists.vig
-    callbackHost: http://krists.videinfra.com
-    iniSectionName: paypal_configuration_one
-    collection: Project\Payment\DummyStore
-    
-    
-- Project\Payment\Paypal\Configuration:
-    id: paypal_two
-    url: /payment/paypal_two
-    returnHost: http://supra7.krists.vig
-    callbackHost: http://krists.videinfra.com
-    iniSectionName: paypal_configuration_two
-    collection: Project\Payment\DummyStore
-    
-- Project\Payment\Transact\Configuration:
-    id: transact_one
-    url: /payment/transact_one
-    returnHost: http://supra7.krists.vig
-    callbackHost: http://krists.videinfra.com
-    iniSectionName: transact_configuration_one
-    collection: Project\Payment\DummyStore
-    formDataPath: /dummy-shop/transact-data-form
-    is3dAccount: true
-    gatewayCollects: false
-
-                     
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Payment\Transact\TransactDataForm
-    title: Transact Form
+    class: Project\Payment\Dengi\DengiDataFormBlock
+    title: Dengi Form Block
     groupId: system
-    description: It's a Transact Form.
+    description: It's a Dengi Form.
     cmsClassname: Editable
+
+
+- Project\Payment\Dengi\Configuration:
+    id: dengi_one
+    url: /payment
+    returnHost: http://supra7.krists.vig
+    callbackHost: http://krists.videinfra.com
+    iniSectionName: dengi_one_configuration
+    collection: Playpad
