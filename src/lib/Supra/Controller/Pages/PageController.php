@@ -7,9 +7,6 @@ use Supra\Response;
 use Supra\Response\ResponseInterface;
 use Supra\Request\RequestInterface;
 use Supra\Controller\Layout;
-use Supra\Database\Doctrine;
-use Doctrine\ORM\PersistentCollection;
-use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Response\PlaceHolder;
@@ -821,6 +818,7 @@ class PageController extends ControllerAbstraction
 					$eventArgs->blockController = &$blockController;
 					$eventArgs->actionType = $eventAction;
 					$eventArgs->request = $this->request;
+					$eventArgs->response = $this->response;
 					$eventArgs->blockRequest = ($this->getRequest()->getBlockRequestId() !== null);
 
 					$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
