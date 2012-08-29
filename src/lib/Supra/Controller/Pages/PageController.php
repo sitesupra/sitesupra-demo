@@ -853,6 +853,8 @@ class PageController extends ControllerAbstraction
 					$eventArgs->cached = isset($this->blockContentCache[$blockId]);
 					$eventManager->fire(BlockEvents::blockEndExecuteEvent, $eventArgs);
 				}
+			} catch (Exception\SilentBlockSkipException $e) {
+				$unsetBlocksByIndex[] = $index;
 			} catch (Exception\InvalidBlockException $e) {
 
 				\Log::warn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
