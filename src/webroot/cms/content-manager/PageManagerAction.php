@@ -647,15 +647,27 @@ abstract class PageManagerAction extends CmsAction
 		$pageId = $page->getId();
 
 		if ($page instanceof Entity\Template) {
+			
 			$localizationEntity = Entity\PageLocalization::CN();
+			
 			$dql = "SELECT COUNT(p.id) FROM $localizationEntity p
 	                WHERE p.template = ?0";
+			
 			$count = $this->entityManager->createQuery($dql)
 					->setParameters(array($pageId))
 					->getSingleScalarResult();
 
 			if ((int) $count > 0) {
-				throw new CmsException(null, 'Cannot remove template as there are pages using it.');
+				throw new CmsException(null, "Cannot remove template as there are {$count} pages using it.");
+			}
+			
+			$publicEm = ObjectRepository::getEntityManager('#public');
+			$count = $publicEm->createQuery($dql)
+					->setParameter(0, $pageId)
+					->getSingleScalarResult();
+			
+			if ((int) $count > 0) {
+				throw new CmsException(null, "There are {$count} published pages that uses this template! <br/>Un-publish them or publish new version before removing template");
 			}
 		}
 
