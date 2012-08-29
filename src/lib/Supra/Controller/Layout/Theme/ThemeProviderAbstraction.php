@@ -38,4 +38,19 @@ abstract class ThemeProviderAbstraction
 	 * @return Theme
 	 */
 	abstract public function makeNewTheme();
+
+	/**
+	 * @return Theme
+	 */
+	abstract public function getActiveTheme();
+
+	/**
+	 * @param Theme $theme 
+	 */
+	abstract public function setActiveTheme(Theme $theme);
+
+	/**
+	 * @param Theme $theme 
+	 */
+	abstract public function setCurrentTheme(Theme $theme);
 }

@@ -137,7 +137,11 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 			}
 		}
 
-		$theme->setActiveParameterSet(null);
+		$activeParameterSet = $theme->getActiveParameterSet();
+
+		if (empty($activeParameterSet) || $activeParameterSet->getType() == ThemeParameterSet::TYPE_PRESET) {
+			$theme->setActiveParameterSet(null);
+		}
 
 		$parameterNamesAfter = $parametersAfter->getKeys();
 
