@@ -5,11 +5,11 @@ namespace Supra\Controller\Layout\Theme;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Entity\Theme;
-use Supra\Controller\Pages\Entity\ThemeParameterSet;
-use Supra\Controller\Pages\Entity\ThemeParameter;
-use Supra\Controller\Pages\Entity\ThemeLayout;
-use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
+use Supra\Controller\Pages\Entity\Theme\Theme;
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholder;
 use Supra\Controller\Layout\Exception;
 use Supra\Controller\Pages\Entity\TemplateLayout;
 use Supra\Controller\Pages\Entity\Template;
@@ -223,6 +223,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		}
 
 		$em->flush();
+
+		$theme->generateCssFiles();
 	}
 
 	/**
@@ -265,17 +267,24 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		return $this->getRootDir() . DIRECTORY_SEPARATOR . $themeName . DIRECTORY_SEPARATOR . 'theme.yml';
 	}
 
+	/**
+	 * @param Theme $theme
+	 */
 	public function removeTheme(Theme $theme)
 	{
 		$em = $this->getEntityManager();
 
 		$parameterSets = $theme->getParameterSets();
+		
+		$theme->setActiveParameterSet(null);
+		$em->persist($theme);
+		$em->flush();
 
 		if ( ! empty($parameterSets)) {
 
 			foreach ($parameterSets as $parameterSet) {
 				/* @var $parameterSet ThemeParameterSet */
-
+				
 				$values = $parameterSet->getValues();
 
 				foreach ($values as $value) {
@@ -286,6 +295,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				$theme->removeParameterSet($parameterSet);
 			}
 		}
+		$em->persist($theme);
+		$em->flush();
 
 		$parameters = $theme->getParameters();
 
@@ -295,6 +306,8 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				$theme->removeParameter($parameter);
 			}
 		}
+		$em->persist($theme);
+		$em->flush();
 
 		$layouts = $theme->getLayouts();
 
@@ -314,11 +327,15 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 				$theme->removeLayout($layout);
 			}
 		}
-
 		$em->remove($theme);
 		$em->flush();
 	}
 
+	/**
+	 * @param \Supra\Controller\Pages\Entity\Template $template
+	 * @param string $media
+	 * @return ThemeLayout
+	 */
 	public function getCurrentThemeLayoutForTemplate(Template $template, $media = TemplateLayout::MEDIA_SCREEN)
 	{
 		$currentTheme = $this->getCurrentTheme();
@@ -341,6 +358,14 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 		$allThemes = $this->getThemeRepository()->findAll();
 
 		return $allThemes;
+	}
+
+	/**
+	 * @return Theme
+	 */
+	public function makeNewTheme()
+	{
+		return new Theme();
 	}
 
 }

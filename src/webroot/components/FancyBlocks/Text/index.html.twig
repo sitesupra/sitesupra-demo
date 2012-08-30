@@ -1,0 +1,125 @@
+<!-- {{ comment }} -->
+
+{% set layout = supraBlock.property('layout') %}
+{% set bg_color = supraBlock.property('background_color') %}
+{% set bg_image = supraBlock.property('background_image') %}
+{% set border_color = supraBlock.property('border_color') %}
+{% set border_style = supraBlock.property('border_style') %}
+
+<div data-refresh-event="text" class="
+		text
+		{% if border_style %}{{ border_style }}{% endif %}
+		{% if bg_image.classname %}{{ bg_image.classname }}{% endif %}
+	" style="
+		{% if bg_image.image %}
+			background: {% if bg_color %}{{ bg_color }}{% endif %} url('{{ bg_image.image }}') 0 0 no-repeat;
+		{% elseif bg_color %}
+			background-color: {{ bg_color }};
+		{% endif %}
+		{% if border_color %}border-color: {{ border_color }};{% endif %}
+	">
+
+	{% if layout == "column_2" %}
+	 
+		<div class="one_half alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_half omega">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="clear"><!-- --></div>
+		
+	{% elseif layout == "column_3" %}
+		
+		<div class="one_third alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_third">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="one_third omega">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="clear"><!-- --></div>
+		
+	{% elseif layout == "column_4" %}
+		
+		<div class="one_fourth alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_fourth">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="one_fourth">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="one_fourth omega">
+			{{ supraBlock.property('content_4') }}
+		</div>
+		<div class="clear"><!-- --></div>
+	
+	{% elseif layout == "column_2_1_v" %}
+	
+		<div class="one_half alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_fourth">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="one_fourth omega">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="clear"><!-- --></div>
+	
+	{% elseif layout == "column_1_2_v" %}
+	
+		<div class="one_fourth alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_fourth">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="one_half omega">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="clear"><!-- --></div>
+		
+	{% elseif layout == "column_2_1_h" %}
+	
+		<div class="one_half alpha">
+			<div class="grid_item">
+				{{ supraBlock.property('content') }}
+			</div>
+			<div class="">
+				{{ supraBlock.property('content_2') }}
+			</div>
+		</div>
+		<div class="one_half omega">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="clear"><!-- --></div>
+	
+	{% elseif layout == "column_1_2_h" %}
+	
+		<div class="one_half alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_half omega">
+			<div class="grid_item">
+				{{ supraBlock.property('content_2') }}
+			</div>
+			<div class="">
+				{{ supraBlock.property('content_3') }}
+			</div>
+		</div>
+		
+		<div class="clear"><!-- --></div>
+		
+	{% else %}
+	
+		{# 1 column #}
+		{{ supraBlock.property('content') }}
+		
+	{% endif %}
+
+</div>

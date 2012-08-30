@@ -207,6 +207,7 @@ YUI.add('supra.manager-base', function (Y) {
 			if (action_name in this) {
 				this[action_name].destroy();
 				delete(this[action_name]);
+				delete(this.actions[action_name]);
 				Supra.Manager.Loader.destroyAction(action_name);
 			}
 		},

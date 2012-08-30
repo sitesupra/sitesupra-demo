@@ -31,9 +31,20 @@
 			"keywords": {
 				"title": "Top keywords",
 				"view_all": "View all"
-			}, 
+			},
+			
+			"sites": {
+				"view_all": "View all my sites"
+			},
 			
 			"logout": "Logout"
+		},
+		
+		"welcome": {
+			"title": "Welcome to SiteSupra!",
+			"create_site": "To create your site ",
+			
+			"confirm": "Yes, it’s clear!"
 		}
 	}
 }

@@ -2,8 +2,6 @@
 
 namespace Supra\FileStorage\Entity;
 
-
-
 /**
  * Image resized versions
  * @Entity
@@ -62,6 +60,30 @@ class ImageSize extends Abstraction\Entity
 	protected $cropMode = false;
 
 	/**
+	 * @Column(name="crop_top", type="integer", nullable=true)
+	 * @var integer
+	 */
+	protected $cropTop;
+
+	/**
+	 * @Column(name="crop_left", type="integer", nullable=true)
+	 * @var integer
+	 */
+	protected $cropLeft;
+
+	/**
+	 * @Column(name="crop_width", type="integer", nullable=true)
+	 * @var integer
+	 */
+	protected $cropWidth;
+
+	/**
+	 * @Column(name="crop_height", type="integer", nullable=true)
+	 * @var integer
+	 */
+	protected $cropHeight;
+
+	/**
 	 * Construct
 	 * @param string $sizeName
 	 * @param bool $cropped
@@ -78,7 +100,7 @@ class ImageSize extends Abstraction\Entity
 	 * Set width
 	 * @param int $width 
 	 */
-	public function setWidth($width) 
+	public function setWidth($width)
 	{
 		$newWidth = intval($width);
 		if ($newWidth > 0) {
@@ -151,7 +173,7 @@ class ImageSize extends Abstraction\Entity
 	 */
 	public function getName()
 	{
-		return (string)$this->name;
+		return (string) $this->name;
 	}
 
 	/**
@@ -160,9 +182,29 @@ class ImageSize extends Abstraction\Entity
 	 */
 	public function getFolderName()
 	{
-		$return = $this->getWidth() . 'x' . $this->getHeight();
-		
-		return $return;
+		$return = array($this->getWidth(), 'x', $this->getHeight());
+
+		if ($this->isCropped()) {
+
+			$return[] = 't';
+			$return[] = intval($this->getCropTop());
+			$return[] = 'l';
+			$return[] = intval($this->getCropLeft());
+			$return[] = 'w';
+			$return[] = intval($this->getCropWidth());
+			$return[] = 'h';
+			$return[] = intval($this->getCropHeight());
+		}
+
+		return join('', $return);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isCropped()
+	{
+		return $this->getCropLeft() || $this->getCropTop() || $this->getCropWidth() || $this->getCropHeight();
 	}
 
 	/**
@@ -173,7 +215,7 @@ class ImageSize extends Abstraction\Entity
 	public function setMaster(Image $master)
 	{
 		$attached = $master->addImageSize($this);
-		
+
 		if ($attached) {
 			$this->master = $master;
 			return true;
@@ -195,12 +237,12 @@ class ImageSize extends Abstraction\Entity
 	 * Set target size width
 	 * @param integer $width
 	 */
-	public function setTargetWidth($width) 
+	public function setTargetWidth($width)
 	{
 		$newTargetWidth = intval($width);
 		if ($newTargetWidth >= 0) {
 			$this->targetWidth = $newTargetWidth;
-		}	
+		}
 	}
 
 	/**
@@ -221,7 +263,7 @@ class ImageSize extends Abstraction\Entity
 		$newTargetHeight = intval($height);
 		if ($newTargetHeight >= 0) {
 			$this->targetHeight = $newTargetHeight;
-		}	
+		}
 	}
 
 	/**
@@ -239,7 +281,7 @@ class ImageSize extends Abstraction\Entity
 	 */
 	public function setCropMode($cropped)
 	{
-		$this->cropMode = (bool)$cropped;
+		$this->cropMode = (bool) $cropped;
 	}
 
 	/**
@@ -250,5 +292,66 @@ class ImageSize extends Abstraction\Entity
 	{
 		return $this->cropMode;
 	}
-	
+
+	public function getCropTop()
+	{
+		return $this->cropTop;
+	}
+
+	/**
+	 * @param integer $cropTop
+	 */
+	public function setCropTop($cropTop)
+	{
+		$this->cropTop = $cropTop;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getCropLeft()
+	{
+		return $this->cropLeft;
+	}
+
+	/**
+	 * @param integer $cropLeft
+	 */
+	public function setCropLeft($cropLeft)
+	{
+		$this->cropLeft = $cropLeft;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getCropWidth()
+	{
+		return $this->cropWidth;
+	}
+
+	/**
+	 * @param integer $cropWidth
+	 */
+	public function setCropWidth($cropWidth)
+	{
+		$this->cropWidth = $cropWidth;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getCropHeight()
+	{
+		return $this->cropHeight;
+	}
+
+	/**
+	 * @param integer $cropHeight
+	 */
+	public function setCropHeight($cropHeight)
+	{
+		$this->cropHeight = $cropHeight;
+	}
+
 }

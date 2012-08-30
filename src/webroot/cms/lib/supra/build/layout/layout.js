@@ -139,7 +139,8 @@ YUI.add('supra.plugin-layout', function (Y) {
 			
 			var host = this.get('host'),
 				node = host.get('boundingBox'),
-				style = {};
+				style = {},
+				info = {};
 			
 			if (!node && host.isInstanceOf('Node')) node = host;
 			if (!node) node = host.get('srcNode');
@@ -147,6 +148,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 			if (node) {
 				for(var pos in changed) {
 					if (changed[pos]) {
+						info[pos] = offset[pos];
 						style[pos] = offset[pos] + 'px';
 					}
 				}
@@ -156,7 +158,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 				if (node) node.fire('contentResize');
 			}
 			
-			this.fire('sync');
+			this.fire('sync', {'offset': info});
 		},
 		
 		/**

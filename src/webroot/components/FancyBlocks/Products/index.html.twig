@@ -1,0 +1,87 @@
+{% set navigation = supraBlock.property('navigation')|default('scrollbar') %}
+{% set design = supraBlock.property('design')|default('box') %}
+{% set products = supraBlock.property('images') %}
+
+{% if products|length %}
+
+	<div class="block">
+		
+		<div class="products-slider style-{{ design }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
+			<ul>
+				{% for index, product in products %}
+					{% if index and index % 4 == 0 %}
+						<li class="clear"></li>
+					{% endif %}
+					
+					<li class="grid_4">
+						
+						{% set tag = supraBlock.imageHtmlTag( product.imageId, 220, 125, true ) | raw %}
+						
+						{% if design == "box" %}
+							
+							{% if product.property.link %}<a class="outer" href="{{product.property.link.url}}" target="{{product.property.link.target}}">{% else %}<span class="outer">{% endif %}
+								
+								<span class="inner-text">
+									<h2>{{ product.property.title }}</h2>
+									<p>{{ product.property.description }}</p>
+								</span>
+								
+								{% set tag_tablet = supraBlock.imageHtmlTag( product.imageId, 132, 75, true ) | raw %}
+								{% set tag_mobile = supraBlock.imageHtmlTag( product.imageId, 380, 215, true ) | raw %}
+								{% set tag_mobile_p = supraBlock.imageHtmlTag( product.imageId, 260, 147, true ) | raw %}
+								
+								<span class="img">
+									<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
+										 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
+										 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
+									     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
+									     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
+									     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
+									     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
+									     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
+									     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+								</span>
+								
+							{% if product.property.link %}</a>{% else %}</span>{% endif %}
+							
+						{% else %}
+						
+							{% set tag_tablet = supraBlock.imageHtmlTag( product.imageId, 172, 95, true ) | raw %}
+							{% set tag_mobile = supraBlock.imageHtmlTag( product.imageId, 420, 237, true ) | raw %}
+							{% set tag_mobile_p = supraBlock.imageHtmlTag( product.imageId, 300, 170, true ) | raw %}
+							<span class="img">
+								<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
+									 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
+									 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
+								     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
+								     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
+								     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
+								     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
+								     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
+								     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+							</span>
+						
+							<h2>{{ product.property.title }}</h2>
+							<p>{{ product.property.description }}</p>
+							{% if product.property.link %}
+								{% if product.property.link.title %}
+									{% set title = product.property.link.title %}
+								{% elseif product.property.link.page %}
+									{% set title = product.property.link.page.title %}
+								{% else %}
+									{% set title = product.property.link.url %}
+								{% endif %}
+								<a class="link" href="{{product.property.link.url}}" target="{{product.property.link.target}}">{{title}}</a>
+							{% endif %}
+							
+						{% endif %}
+					</li>
+				{% endfor %}
+				
+				<li class="clear"></li>
+			</ul>
+		</div>
+		
+	</div>
+	
+{% endif %}

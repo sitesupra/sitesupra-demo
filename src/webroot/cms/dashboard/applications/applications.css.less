@@ -51,16 +51,30 @@
 		padding: 17px 0 0 66px;
 	}
 	
-	.yui3-input-select {
-		float: left;
-		margin: 13px 0 0 42px;
+	.site {
+		float: right;
+		margin: 0 24px 0 0;
 		
-		.yui3-input-select-inner > p {
-			padding-right: 10px;
+		a, span {
+			display: inline-block;
+			line-height: 12px;
+			padding: 16px 8px 10px;
 		}
 		
-		label {
-			display: none;
+		span {
+			//Site title
+			color: #7DC9F2;
+			font-weight: bold;
+		}
+		a {
+			//Link to site manager
+			color: #fff;
+			font-size: 11px;
+			text-decoration: underline;
+			
+			&:hover {
+				text-decoration: none;
+			}
 		}
 	}
 	
@@ -109,13 +123,13 @@
 li.app-list-proxy {
 	float: left;
 	width: 150px;
-	height: 115px;
+	height: 135px;
 	padding-top: 20px;
 	cursor: pointer;
 	
 	span {
 		display: block;
-		height: 75px;
+		height: 110px;
 		text-align: center;
 		
 		img {

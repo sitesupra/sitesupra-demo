@@ -422,7 +422,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 				'page_id': page_data.id,
 				'block_id': this.getId(),
 				'locale': Supra.data.get('locale'),
-				'properties': this.properties.getNonInlineSaveValues()
+				'properties': this.processData(this.properties.getNonInlineSaveValues())
 			};
 			
 			//If editing template, then send also "locked" property

@@ -274,7 +274,7 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 		 */
 		close: function () {
 			//Enable block editing
-			Supra.Manager.PageContent.getContent().set('highlight', false);
+			Supra.Manager.PageContent.getContent().set('insertHighlight', false);
 			this.hide();
 		},
 		
@@ -299,7 +299,7 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 			this.slideshow.syncUI();
 			
 			//Blocks not editable while this action is visible
-			Supra.Manager.PageContent.getContent().set('highlight', true);
+			Supra.Manager.PageContent.getContent().set('insertHighlight', true);
 		}
 	});
 	

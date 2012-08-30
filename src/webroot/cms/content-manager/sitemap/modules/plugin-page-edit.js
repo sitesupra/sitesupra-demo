@@ -343,6 +343,11 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 					node.destroy();
 					
 				} else {
+					//Hide panel
+					if (this._node === node) {
+						this._widgets.panel.hide();
+					}
+					
 					//Restore all interactions with node
 					if (is_page) {
 						node.set('loading', false);
@@ -484,7 +489,7 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 				'useMask': true,
 				'buttons': [
 					{'id': 'delete', 'label': '{# buttons.yes #}', 'click': function () { this._deletePage(node); }, 'context': this},
-					{'id': 'no', 'label': 'No'}
+					{'id': 'no', 'label': '{# buttons.no #}'}
 				]
 			});
 		},

@@ -15,10 +15,9 @@
     - assets.js.jquery
 
 - _class: HtmlInjection
-  id: assets.js.app.ajaxcontent
+  id: assets.js.app.parse
   html:
     js: |
-      <script src="/assets/js/app/ajaxcontent.js"></script>
       <script>
        $(function () {
          $.app.parse($('body'));
@@ -26,6 +25,15 @@
       </script>
   depends:
     - assets.js.app.app
+
+- _class: HtmlInjection
+  id: assets.js.app.ajaxcontent
+  html:
+    js: |
+      <script src="/assets/js/app/ajaxcontent.js"></script>
+  depends:
+    - assets.js.app.app
+    - assets.js.app.parse
 
 - _class: HtmlInjection
   id: assets.js.app.ajaxform

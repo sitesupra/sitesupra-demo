@@ -23,6 +23,11 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		'rules': {},
 		'messages': {}
 	},
+
+	/**
+	 * @type {Callback}
+	 */
+	'submitEvent': null,
 	
 	/**
 	 * Initialize module
@@ -38,6 +43,7 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		
 		this.url    = this.options.url    || element.attr('action');
 		this.method = this.options.method || this.getForm().attr('method');
+		this.submitEvent = this.proxy(this.submit);
 		
 		this.onChange();
 		this.element.delegate('input, select, textarea', 'blur', this.proxy(this.validateEventTarget));
@@ -49,7 +55,9 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 	 * @private
 	 */
 	'onChange': function () {
-		this.getForm().on('submit', this.proxy(this.submit));
+		this.getForm()
+			.unbind('submit', this.submitEvent)
+			.on('submit', this.submitEvent);
 	},
 
 	/**
@@ -354,8 +362,32 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 			i	= 0,
 			ii	= arr.length,
 			obj	= {};
-		
-		for(; i<ii; i++) obj[arr[i].name] = arr[i].value;
+
+		for(; i<ii; i++) {
+			// Rather limited recognition for now
+			var name = arr[i].name;
+			var arrayForm = name.match(/^(.*)\[(.*)\]$/);
+
+			if (arrayForm) {
+				name = arrayForm[1];
+				offset = arrayForm[2];
+				if ( ! (name in obj)) {
+					if (offset == '') {
+						obj[name] = [];
+					} else {
+						obj[name] = {};
+					}
+				}
+
+				if (offset == '') {
+					obj[name].push(arr[i].value);
+				} else {
+					obj[name][offset] = arr[i].value;
+				}
+			} else {
+				obj[name] = arr[i].value;
+			}
+		}
 		
 		return obj;
 	},

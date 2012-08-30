@@ -27,6 +27,10 @@
 
 .yui3-input {
 	padding: 0 5px 0 0;
+	
+	.yui3-input {
+		padding: 0;
+	}
 }
 	.yui3-input-hidden,
 	.yui3-input-string-hidden,
@@ -40,7 +44,9 @@
 	.yui3-input-file-upload-hidden,
 	.yui3-input-link-hidden,
 	.yui3-input-image-hidden,
-	.yui3-input-color-hidden {
+	.yui3-input-color-hidden,
+	.yui3-input-block-background-hidden,
+	.yui3-input-image-inline-hidden {
 		display: none;
 	}
 	
@@ -60,6 +66,10 @@
 	}
 	.yui3-form p.label {
 		width: auto;
+		
+		&.large {
+			font-size: 14px;
+		}
 	}
 	
 		/* Dark color theme */
@@ -155,6 +165,11 @@
 			color: #58586C;
 			background: url(../img/background-pattern-darker.jpg) 0 0 repeat;
 			box-shadow: 0 1px 1px rgba(1,1,8,.6) inset, 0 1px 0 rgba(255, 255, 255, 0.15);
+			
+			&::-webkit-input-placeholder { color: #7C7D85; }
+			&::-ms-input-placeholder { color: #7C7D85; }
+			&::-moz-placeholder { color: #7C7D85; }
+			&::input-placeholder { color: #7C7D85; }
 		}
 	
 	.yui3-input textarea {
@@ -420,6 +435,9 @@
 /* Visual select list */
 @import "less/select-visual.less";
 
+/* Fonts */
+@import "less/fonts.less";
+
 /* color */
 @import "less/color.less";
 
@@ -452,6 +470,12 @@
 /* Date */
 @import "less/date.less";
 
+/* Block background */
+@import "less/block-background.less";
+
+/* Inline image */
+@import "less/image-inline.less";
+
 /* Map */
 .yui3-input-map label {
 	padding-bottom: 7px;
@@ -467,8 +491,13 @@
 	.yui3-input {
 		margin: 10px 0;
 		
-		label {
+		label,
+		p.label {
 			width: 160px;
+		}
+		
+		&:first-child {
+			margin-top: 0;
 		}
 	}
 	
@@ -532,7 +561,8 @@
  */
 .yui3-form-vertical {
 
-	.yui3-input label {
+	.yui3-input label,
+	p.label {
 		padding: 7px 0 4px 2px;
 		width: auto;
 	}
@@ -550,7 +580,10 @@
 	.yui3-input-slider label,
 	.yui3-input-link label,
 	.yui3-input-image label,
-	.yui3-input-color label {
+	.yui3-input-color label,
+	.yui3-input-block-background label,
+	.yui3-input-image-inline label,
+	p.label {
 		display: block;
 	}
 	.yui3-input-string input,
@@ -607,12 +640,20 @@
 }
 
 .ui-center-dark {
-	.yui3-input-string.yui3-input-error label,
-	.yui3-input-number.yui3-input-error label,
-	.yui3-input-path.yui3-input-error label,
-	.yui3-input-text.yui3-input-error label {
-		color: #f00;
-		text-shadow: 0 -1px 0 #000;
+	.yui3-input-string.yui3-input-error,
+	.yui3-input-number.yui3-input-error,
+	.yui3-input-path.yui3-input-error,
+	.yui3-input-text.yui3-input-error {
+		label {
+			color: #f00;
+			text-shadow: 0 -1px 0 #000;
+		}
+		input, textarea {
+			&::-webkit-input-placeholder { color: #c00; }
+			&::-ms-input-placeholder { color: #c00; }
+			&::-moz-placeholder { color: #c00; }
+			&::input-placeholder { color: #c00; }			
+		}
 	}
 }
 

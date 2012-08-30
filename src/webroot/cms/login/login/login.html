@@ -1,20 +1,24 @@
-<div class="login-form">
-	
-	<form class="yui3-form-vertical" method="post" action="?" id="loginform" autocomplete><fieldset>
+<div>
+	<div class="login-form-background ui-login">
 		
-		<div class="error-message hidden"></div>
+		<form class="yui3-form-vertical" method="post" action="?" id="loginform" autocomplete><fieldset>
+			
+			<div class="logo">
+				<img src="/cms/login/login/images/sitesupra-logo.png" alt="sitesupra" />
+			</div>
+			
+			<div class="error-message hidden"></div>
+			
+			<input type="text" id="email" name="supra_login" value="" length="30" autocomplete autofocus placeholder="{# login.email #}" />
+			
+			<input type="password" id="password" name="supra_password" value="" length="30" autocomplete placeholder="{# login.password #}"/>
+			
+		</fieldset></form>
 		
-		<label for="email">{#login.email#}:</label>
-		<input type="text" id="email" name="supra_login" value="" length="30" autocomplete autofocus />
+		<div class="footer">
+			<!-- form="loginform" attribute specifies to which form button belongs to -->
+			<button type="submit" form="loginform" class="ok">{#login.login#}</button>
+		</div>
 		
-		<label for="password">{#login.password#}:</label>
-		<input type="password" id="password" name="supra_password" value="" length="30" autocomplete />
-		
-	</fieldset></form>
-	
-	<div class="footer">
-		<!-- form="loginform" attribute specifies to which form button belongs to -->
-		<button type="submit" form="loginform" class="done">{#login.login#}</button>
 	</div>
-	
 </div>

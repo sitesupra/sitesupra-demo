@@ -1,0 +1,550 @@
+@import "/cms/lib/supra/less/common.less";
+
+/**
+ * This stylesheet is added to iframe content
+ */
+
+.yui3-hidden {
+	display: none !important;
+}
+
+.yui3-content {
+	overflow: hidden;
+	min-height: 60px;
+}
+.yui3-content-inline {
+	clear: both;
+}
+
+.yui3-content,
+.yui3-content-marker,
+.yui3-box-reset,
+.yui3-dd-proxy {
+	padding: 0 !important;
+	margin: 0 !important;
+	border: 0 !important;
+	background: none !important;
+}
+.yui3-box-reset {
+	float: none !important;
+	position: static !important;
+	left: auto !important;
+	right: auto !important;
+	top: auto !important;
+	bottom: auto !important;
+}
+
+/**
+ * Drop position marker
+ */
+.yui3-content-marker {
+	display: block;
+	position: absolute;
+	z-index: 9999;
+	border: 2px solid #009DF8 !important;
+	margin: -3px 0 0 -2px !important;
+	
+	.border-radius (5px);
+}
+
+/**
+ * Overlay
+ */
+.yui3-content-overlay,
+.yui3-editable .yui3-content-overlay.editing {
+	/* By default not visible */
+	display: none;
+}
+.yui3-editable .yui3-content-overlay {
+	/* Show if content is editable */
+	
+	display: block;
+	position: absolute;
+	cursor: pointer;
+	z-index: 9999;
+	opacity: 0;
+	border: 2px solid #009DF8;
+	.border-radius (5px);
+	.box-shadow (none);
+	.transition-property (opacity);
+	.transition-duration (0.35s);
+	
+	span {
+		display: none;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		
+		width: 59px;
+		height: 59px;
+		margin: -30px 0 0 -30px;
+		
+		.border-radius (59px);
+		.box-shadow (0, 1px, 0, rgba(0, 0, 0, .43));
+		
+		background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 0 0 no-repeat;
+	}
+}
+.yui3-editable .yui3-content-overlay:hover,
+.yui3-editable .yui3-content-overlay-hover,
+.yui3-editable .yui3-content-overlay-loading {
+	.transition-property (opacity);
+	.transition-duration (0.35s);
+	opacity: 1;
+}
+
+.yui3-editable .yui3-content-overlay-closed {
+	span {
+		background-image: url(/cms/lib/supra/img/htmleditor/editable-closed-background.gif)
+	}
+}
+.yui3-editable .yui3-content-overlay:hover,
+.yui3-editable .yui3-content-overlay-hover {
+	span {
+		display: block;
+	}
+}
+
+/* Overlay loading indicator */
+.yui3-editable .yui3-content-overlay-loading {
+	cursor: default;
+	background: none;
+	
+	span {
+		cursor: default;
+		display: block;
+		overflow: hidden;
+		height: 24px;
+		width: 24px;
+		padding: 0;
+		margin: -12px 0 0 -12px !important;
+		background: url(/cms/lib/supra/img/ajax-loader-24-24.png) 0 0 no-repeat;
+		
+		.border-radius (0);
+		.box-shadow (none);
+	}
+}
+
+
+/* Overlay shouldn't be visible while reordering */
+.yui3-editable .yui3-content-reorder,
+.yui3-editable .yui3-content-insert {
+	/* While reordering make sure we can drop on list and it's visible */
+	min-height: 50px;
+	
+	border: 2px solid #999 !important;
+	position: relative !important;
+	margin: -2px !important;
+	
+	.border-radius (5px);
+	opacity: 0.75;
+	
+	.yui3-content-overlay {
+		/* All overlays */
+		opacity: 1;
+		background: none;
+		cursor: default;
+		
+		/* Align to match container */
+		margin: -2px 0 0 -2px;
+		
+		span {
+			/* All overlay inner nodes */
+			display: none;
+			cursor: default;
+		}
+	}
+	
+	.yui3-content-proxy {
+		/* Proxy node */
+		opacity: 1;
+	}
+	.yui3-dd-dragging {
+		/* Overlay node */
+		display: none;
+	}
+}
+
+/* Overlay proxy element */
+.yui3-editable .yui3-content-proxy {
+	opacity: 1;
+	padding: 0;
+	background: none;
+	display: block !important;
+	z-index: 110;
+	
+	/* Remove animation, looks better without it */
+	.transition-property (none);
+}
+
+/**
+ * Element highlight overlay
+ */
+.yui3-element-overlay {
+	position: absolute;
+	z-index: 9000;
+	overflow: hidden;
+	
+	border: 2px solid #009DF8;
+	.border-radius (5px);
+}
+
+/**
+ * Drag & drop
+ */
+.yui3-dd-shim {
+	width: auto !important;
+	height: auto !important;
+	position: fixed !important;
+	right: 0;
+	bottom: 0;
+}
+.yui3-editable .yui3-content-proxy span {
+	display: none !important;
+}
+
+.yui3-editable .yui3-content-draging {
+	/* Item which is being dragged (this is not proxy) */
+	opacity: 0.25;
+	filter: alpha(opacity=25);
+}
+
+/**
+ * Default content
+ */
+.editing {
+	position: relative;
+	z-index: 10000;
+	
+	&,
+	.yui3-content-inline {
+		outline: 2px dashed #00A5F8;
+		
+		-moz-outline-radius: 5px;
+		-webkit-outline-radius: 5px;
+		outline-radius: 5px;
+		
+		overflow: hidden;
+		min-height: 1.5em;
+	}
+	
+	.yui3-input-string-inline.yui3-content-inline {
+		overflow: visible;
+		min-height: 1em;
+	}
+}
+
+/**
+ * Standalone HTML editor content
+ */
+.standalone {
+	height: 100%;
+	min-width: 0 !important;
+	width: auto !important;
+	overflow: auto !important;
+	
+	body {
+		min-width: 0 !important;
+		width: auto !important;
+	}
+	.editing {
+		outline: none;    /* Don't need outline, because everything is editable */
+		min-height: 100%; /* Fill all height */
+		padding: 0 10px !important;   /* to make sure content is not at the border*/
+	}
+}
+.standalone-disabled,
+.standalone-disabled * {
+	cursor: pointer;
+}
+
+/**
+ * HTML content
+ */
+.editing.yui3-content-inline-editable {
+	outline: none;
+	overflow: visible;
+}
+
+/**
+ * List content
+ */
+.yui3-content-list {
+	overflow: visible;
+	min-height: 0;
+
+	&.editing {
+		overflow: hidden;
+		
+		.yui3-content-inline {
+			/* If list is being edited, then don't highlight inline contents */
+			outline: none;
+			min-height: 0;
+			overflow: visible;
+		}
+	}
+} 
+
+/**
+ * Specific content styles
+ */
+
+.editing .yui3-input-html-inline img {
+	cursor: pointer !important;
+	
+	&.yui3-image-selected,
+	&.yui3-gallery-selected {
+		/* Image focused */
+		.box-shadow (0, 0, 4px, #39f);
+	}
+}
+.editing .yui3-input-html-inline p {
+	// Cross-browser normalize
+	min-height: 1em;
+}
+
+.yui3-highlight .yui3-highlight-list {
+	outline: 2px solid #009DF8;
+	
+	-moz-outline-radius: 5px;
+	-webkit-outline-radius: 5px;
+	outline-radius: 5px;
+	
+	overflow: hidden;
+	
+	/*background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 50% 50% no-repeat;*/
+	
+	/* Expand to for easier drag and drop of new blocks */
+	min-height: 90px;
+}
+
+/**
+ * = Image resize
+ */
+.supra-image {
+	&,
+	.supra-image-inner,
+	.supra-image-size {
+		position: relative !important;
+		display: inline-block !important;
+		overflow: hidden !important;
+		visibility: visible !important;
+		vertical-align: baseline !important;
+		position: relative !important;
+		/* Not !important to allow overwrite */
+		background: none;
+		border: 0;        
+		width: auto;
+		height: auto;
+	}
+	
+	.supra-image-inner {
+		vertical-align: bottom !important; /* Fixes gap between image and container */
+	}
+	.supra-image-inner,
+	.supra-image-size {
+		float: none !important;
+		background: none !important;
+		border: 0 !important;
+		outline: none !important;
+		.border-radius (0 !important);
+		.box-shadow (none !important);
+	}
+	img {
+		position: relative !important;
+		display: inline-block !important;
+		left: 0;
+		top: 0;
+		
+		/* Remove all styles, they should be applied to .supra-image in editor.css */
+		margin: 0;
+		float: none !important;
+		border: 0 !important;
+		outline: none !important;
+		.border-radius (0 !important);
+		.box-shadow (none !important);
+	}
+	
+	&.supra-image-selected {
+		/* Any style when image is selected? */
+	}
+	&.supra-image-editing {
+		overflow: visible !important;
+	}
+}
+
+.supra-image.supra-image-editing .supra-image-size,
+.supra-background-editing .supra-image-size {
+	position: absolute !important;
+	z-index: 1 !important;
+	width: 100px;
+	text-align: center !important;
+	font: 12px/18px Arial, Helvetica, sans-serif !important;
+	font-weight: normal !important;
+	font-style: normal !important;
+	color: #fff !important;
+	text-shadow: 0 1px 1px #000;
+	top: 6px !important;
+	left: 50% !important;
+	margin: 0 0 0 -50px !important;
+}
+
+.supra-image.supra-image-editing .supra-image-resize,
+.supra-background-editing .supra-image-resize {
+	display: block;
+	position: absolute;
+	z-index: 1;
+	left: 1px;
+	top: 1px;
+	right: 1px;
+	bottom: 1px;
+	border: 2px solid #000;
+	cursor: move !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-nw {
+	cursor: nw-resize !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw-active.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-ne {
+	cursor: ne-resize !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne-active.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-sw {
+	cursor: sw-resize !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw-active.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-se {
+	cursor: se-resize !important;
+	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/cms/lib/supra/img/htmleditor/resize-handle-se-active.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-move,
+.supra-background-editing .supra-image-resize-move {
+	background: rgba(0,0,0,0);
+	z-index: 102;
+}
+
+/**
+ * = Controls
+ */
+.yui3-controls {
+	position: relative;
+	height: 0px;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	z-index: 10001;
+}
+	.yui3-controls-content {
+		position: absolute;
+		top: -44px;
+		left: -2px;
+		right: -2px;
+		
+		background: #f5f5f5;
+		border: 2px solid #f00;
+		border-bottom: 0;
+		.border-radius (4px, 4px, 0, 0);
+		.box-shadow (0, 1px, 2px, rgba(0, 0, 0, 0.15));
+		
+		padding: 5px;
+		
+		.su-button-mid-blue {
+			float: right;
+		}
+	}
+
+/**
+ * = Content
+ */
+*::-moz-focus-inner {
+	border: 0;
+	outline: none;
+}
+
+.editing table.yui3-table-selected {
+	td, th {
+		/*outline: 1px dotted #ccc;*/
+	}
+	.yui3-cell-selected {
+		.box-shadow (0, 0, 4px, #39f);
+	}
+}
+ 
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.editing table.yui3-table-selected .yui3-cell-selected {
+		outline: 2px dotted #39f;
+		.box-shadow (none);
+	}
+}
+
+/* Fix for cursor position in lists in IE */
+.standalone .editing li > div,
+.editing .yui3-input-html-inline li > div {
+	display: inline;
+	vertical-align: top;
+}
+
+/* Cursors */
+.su-uneditable, .su-uneditable * {
+	cursor: default !important;
+}
+.su-editable, .su-editable * {
+	cursor: text !important;
+}
+
+/**
+ * = Broken block style
+ */
+.yui3-content-Supra_Controller_Pages_BrokenBlockController {
+	text-align: center;
+	
+	p {
+		text-align: center;
+		margin: 0;
+		padding: 2px 0 3px;
+		border: 1px dashed #F26786;
+		background: none;
+		
+		span {
+			display: inline-block;
+			padding: 0 0 0 35px;
+			margin: 0;
+			background: url(/cms/lib/supra/img/blocks/broken-icon.png) 0 0 no-repeat;
+			
+			color: #999;
+			font-size: 14px;
+			font-weight: bold;
+			font-style: normal;
+			line-height: 24px;
+			text-decoration: none;
+		}
+	}
+}
+
+
+/**
+ * = Fullscreen mode
+ */
+body.yui3-fullscreen > * {
+	display: none;
+}
+body.yui3-fullscreen > .yui3-fullscreen {
+	display: block;
+	margin: 10px 0 0 !important;
+}

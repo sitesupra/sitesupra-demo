@@ -10,7 +10,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 class ApplicationsAction extends DasboardAbstractAction
 {
 
-	const ICON_64 = '_64x64.png';
+	const ICON_100 = '_100x100.png';
 
 	/**
 	 * Overriden so PHP <= 5.3.2 doesn't treat applicationsAction() as a constructor
@@ -63,7 +63,7 @@ class ApplicationsAction extends DasboardAbstractAction
 			$applications[$config->id] = array(
 				'title' => $config->title,
 				'id' => $config->class,
-				'icon' => $config->icon . self::ICON_64,
+				'icon' => $config->icon . self::ICON_100,
 				'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $config->url)
 			);
 			

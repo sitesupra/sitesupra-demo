@@ -42,7 +42,16 @@
 			"set_link": "Set link",
 			"shared_property_description": "The value for this block has been taken from {{ localeTitle }} localization. Go there to manage it.",
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
-			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?"
+			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
+			
+			"block": {
+				"no_image": "No image",
+				"custom_image": "Custom image",
+				"set_image": "Set image",
+				"change_image": "Change image",
+				"edit_image": "Edit image",
+				"remove_image": "Remove image"
+			}
 		},
 		
 		"datagrid": {
@@ -112,6 +121,15 @@
 			"indent": "Indent",
 			"outdent": "Outdent",
 			
+			"row-before": "Insert row before",
+			"row-delete": "Delete row",
+			"row-after": "Insert row after",
+			"merge": "Merge cells",
+			"column-before": "Insert column before",
+			"column-delete": "Delete column",
+			"column-after":  "Insert column after",
+			"table-settings":  "Table settings",
+			
 			"style": "Styles",
 			
 			"group_text": "Text",
@@ -144,6 +162,11 @@
 				"IMG": "Image"
 			},
 			
+			"styles": "Styles",
+			"fonts": "Fonts",
+			"forecolor": "Text color",
+			"backcolor": "Background color",
+			
 			"image_properties": "Image properties",
 			"image_size": "Image size",
 			"size_custom": "Custom",
@@ -159,19 +182,10 @@
 			"alignment_center": "Align inline",
 			"alignment_right": "Align right",
 			"image_style": "Style",
-			"style_normal": "Normal",
-			"style_border": "Border",
-			"style_lightbox": "Lightbox",
+			"image_style_none": "No style",
 			
 			"table_style": "Table style",
-			"table_properties": "Table properties",
-			"insert_row_before": "Insert row before",
-			"insert_row_after": "Insert row after",
-			"delete_row": "Delete row",
-			"merge_cells": "Merge cells",
-			"insert_col_before": "Insert column before",
-			"insert_col_after": "Insert column after",
-			"delete_col": "Delete column"
+			"table_properties": "Table properties"
 		},
 		
 		"settings": {
@@ -406,7 +420,12 @@
 			
 			"click_here": "Click here to enter {label}",
 			"click_here_edit": "Click here to edit",
-			"drop_replace": "Drop here to replace image"
+			"drop_replace": "Drop here to replace image",
+			
+			"empty": "You have no images<br />in the slideshow yet",
+			"drag_and_drop": "Drag and drop<br />folder or files here",
+			"add_image": "Add image",
+			"just_drag_and_drop": "or just drag-and-drop file here"
 		},
 		
 		"linkmanager": {

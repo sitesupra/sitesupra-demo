@@ -14,6 +14,7 @@ use Supra\Editable;
 
 class BlocksAction extends PageManagerAction
 {
+
 	/**
 	 * Overriden so PHP <= 5.3.2 doesn't treat blocksAction() as a constructor
 	 */
@@ -21,7 +22,7 @@ class BlocksAction extends PageManagerAction
 	{
 		parent::__construct();
 	}
-	
+
 	/**
 	 * Collects block definition information
 	 */
@@ -38,9 +39,9 @@ class BlocksAction extends PageManagerAction
 		$isDefaultGroupSet = false;
 		$defaultGroupKey = 0;
 		$groupIds = array();
-		
+
 		$groupConfigurationList = $blockCollection->getGroupsConfigurationList();
-		
+
 		foreach ($groupConfigurationList as $group) {
 			/* @var $group \Supra\Controller\Pages\Configuration\BlockControllerGroupConfiguration */
 
@@ -51,7 +52,9 @@ class BlocksAction extends PageManagerAction
 			}
 
 			if ($isDefaultGroup && ! $isDefaultGroupSet) {
-				$newDefaultGroupKey = end(array_keys($response['groups']));
+
+				$keys = array_keys($response['groups']);
+				$newDefaultGroupKey = end($keys);
 
 				if ( ! is_null($newDefaultGroupKey)) {
 					$defaultGroupKey = $newDefaultGroupKey ++;
@@ -79,12 +82,12 @@ class BlocksAction extends PageManagerAction
 		if ( ! $isDefaultGroupSet) {
 			$response['groups'][$defaultGroupKey]['default'] = true;
 		}
-		
+
 		// Title array for ordering
 		$titles = array();
 
 		$blockConfigurationList = $blockCollection->getBlocksConfigurationList();
-		
+
 		foreach ($blockConfigurationList as $conf) {
 			/* @var $conf \Supra\Controller\Pages\Configuration\BlockControllerConfiguration */
 
@@ -111,35 +114,35 @@ class BlocksAction extends PageManagerAction
 				'hidden' => $conf->hidden,
 				'html' => $conf->html,
 			);
-			
+
 			$titles[] = $conf->title;
 		}
-		
+
 		// Order by block title
 		array_multisort($titles, $response['blocks']);
 
 		$this->getResponse()->setResponseData($response);
 	}
-	
+
 	protected function gatherPropertyArray($properties)
 	{
-		
+
 		$response = array();
-		
+
 		if (is_array($properties)) {
 			foreach ($properties as $property) {
 
 				$editable = $property->editableInstance;
 
 				$propertyData = array(
-					'id' =>		$property->name,
-					'type' =>	$editable->getEditorType(),
+					'id' => $property->name,
+					'type' => $editable->getEditorType(),
 					'inline' => $editable->isInlineEditable(),
-					'label' =>	$editable->getLabel(),
-					'value' =>	$editable->getDefaultValue(),
-					'group' =>	$editable->getGroupId(),
-				)
-				+ $editable->getAdditionalParameters();
+					'label' => $editable->getLabel(),
+					'value' => $editable->getDefaultValue(),
+					'group' => $editable->getGroupId(),
+						)
+						+ $editable->getAdditionalParameters();
 
 				if ($editable instanceof Editable\Gallery) {
 					$propertyData['properties'] = $this->gatherPropertyArray($property->properties);
@@ -148,7 +151,7 @@ class BlocksAction extends PageManagerAction
 				$response[] = $propertyData;
 			}
 		}
-		
+
 		return $response;
 	}
 

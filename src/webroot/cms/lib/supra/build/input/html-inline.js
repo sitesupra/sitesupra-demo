@@ -10,9 +10,19 @@ YUI.add("supra.input-inline-html", function (Y) {
 	
 	Input.NAME = "input-html-inline";
 	Input.ATTRS = {
-		'doc': null,
-		'win': null,
-		'toolbar': null
+		'doc': {
+			value: null
+		},
+		'win': {
+			value: null
+		},
+		'toolbar': {
+			value: null
+		},
+		'inline': {
+			value: true,
+			readOnly: true
+		}
 	};
 	
 	Input.HTML_PARSER = {};
@@ -75,7 +85,10 @@ YUI.add("supra.input-inline-html", function (Y) {
 					'srcNode': src,
 					'iframeNode': this.get('nodeIframe'),
 					'toolbar': toolbar,
-					'mode': Supra.HTMLEditor.MODE_RICH
+					'mode': Supra.HTMLEditor.MODE_RICH,
+					'parent': this,
+					'root': this.get('root') || this,
+					'disabled': true
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -167,7 +180,8 @@ YUI.add("supra.input-inline-html", function (Y) {
 				
 				return {
 					'html': this.htmleditor.getHTML(),
-					'data': this.htmleditor.getAllData()
+					'data': this.htmleditor.getAllData(),
+					'fonts': this.htmleditor.getUsedFonts()
 				};
 			} else {
 				return value;
@@ -187,7 +201,8 @@ YUI.add("supra.input-inline-html", function (Y) {
 			if (this.htmleditor) {
 				return {
 					'html': this.htmleditor.getProcessedHTML(),
-					'data': this.htmleditor.getProcessedData()
+					'data': this.htmleditor.getProcessedData(),
+					'fonts': this.htmleditor.getUsedFonts()
 				};
 			} else {
 				return value;

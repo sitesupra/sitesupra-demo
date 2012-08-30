@@ -5,8 +5,8 @@ namespace Supra\Controller\Layout\Theme\Configuration;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Controller\Layout\Theme\Theme;
 use Supra\Configuration\Exception;
-use Supra\Controller\Pages\Entity\ThemeLayout;
-use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholder;
 use Supra\Controller\Layout\Processor\TwigProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -41,7 +41,10 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 		return $this->layout;
 	}
 
-	function configure()
+	/**
+	 * 
+	 */
+	function readConfiguration()
 	{
 		$theme = $this->getTheme();
 
@@ -68,13 +71,13 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 	protected function processPlaceholders()
 	{
 		$layout = $this->getLayout();
-		
+
 		$placeholders = $layout->getPlaceholders();
 		$currentPlaceholderNames = $placeholders->getKeys();
 
 		$theme = $this->getTheme();
 		$rootDir = $theme->getRootDir();
-		
+
 		$twigProcessor = new TwigProcessor();
 		$twigProcessor->setLayoutDir($rootDir);
 
