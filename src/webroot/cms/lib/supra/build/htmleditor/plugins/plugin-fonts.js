@@ -648,6 +648,15 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			htmleditor.addCommand("forecolor", Y.bind(this.showTextColorSidebar, this));
 			htmleditor.addCommand("backcolor", Y.bind(this.showBackColorSidebar, this));
 			
+			// Show inputs / buttons
+			var inputs = ["fonts", "fontsize", "forecolor", "backcolor"],
+				i = 0,
+				ii = inputs.length;
+			
+			for (;i<ii; i++) {
+				toolbar.getButton(inputs[i]).set("visible", true);
+			}
+			
 			// Font size input
 			var input = this.fontSizeInput = toolbar.getButton("fontsize"),
 				values = input.get('values');

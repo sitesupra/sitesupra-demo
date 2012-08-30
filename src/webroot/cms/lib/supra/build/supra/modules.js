@@ -309,6 +309,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-table',
+			'supra.htmleditor-plugin-table-mobile',
 			'supra.htmleditor-plugin-fullscreen',
 			'supra.htmleditor-plugin-formats',
 			'supra.htmleditor-plugin-lists',
@@ -375,6 +376,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-table': {
 			path: 'htmleditor/plugins/plugin-table.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-table-mobile': {
+			path: 'htmleditor/plugins/plugin-table-mobile.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-fullscreen': {

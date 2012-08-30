@@ -26,9 +26,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"controls": [
 						{"id": "style", "type": "button", "command": "style", "icon": "/cms/lib/supra/img/htmleditor/icon-style.png"},
 					{"type": "separator"},
-						{"id": "fonts", "type": "button", "command": "fonts", "icon": "/cms/lib/supra/img/htmleditor/icon-fonts.png"},
+						{"id": "fonts", "type": "button", "command": "fonts", "icon": "/cms/lib/supra/img/htmleditor/icon-fonts.png", "visible": false},
 					{"type": "separator"},
-						{"id": "fontsize", "type": "dropdown", "command": "fontsize", "values": [
+						{"id": "fontsize", "type": "dropdown", "command": "fontsize", "visible": false, "values": [
 							{"id": 6, "title": "6"},
 							{"id": 8, "title": "8"},
 							{"id": 9, "title": "9"},
@@ -48,8 +48,8 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 							{"id": 72, "title": "72"}
 						]},
 					{"type": "separator"},
-						{"id": "forecolor", "type": "button", "command": "forecolor", "icon": "/cms/lib/supra/img/htmleditor/icon-forecolor.png"},
-						{"id": "backcolor", "type": "button", "command": "backcolor", "icon": "/cms/lib/supra/img/htmleditor/icon-backcolor.png"},
+						{"id": "forecolor", "type": "button", "command": "forecolor", "icon": "/cms/lib/supra/img/htmleditor/icon-forecolor.png", "visible": false},
+						{"id": "backcolor", "type": "button", "command": "backcolor", "icon": "/cms/lib/supra/img/htmleditor/icon-backcolor.png", "visible": false},
 					{"type": "separator"},
 						{"id": "bold", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-bold.png", "command": "bold"},
 						{"id": "italic", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-italic.png", "command": "italic"},
@@ -267,7 +267,8 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				node_source,
 				node_previous,
 				first = options && 'first' in options ? options.first : true,
-				last = options && 'last' in options ? options.last : true;
+				last = options && 'last' in options ? options.last : true,
+				visible = data.visible === false ? false : true;
 			
 			switch(data.type) {
 				case 'separator':
@@ -281,14 +282,15 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 						'srcNode': node,
 						'scrollable': false,
 						'values': data.values,
-						'textRenderer': data.style == 'icons-text' ? function (item) { return '<span class="icon-crop"><img src="' + item.icon + '" /></span>'; } : null
+						'textRenderer': data.style == 'icons-text' ? function (item) { return '<span class="icon-crop"><img src="' + item.icon + '" /></span>'; } : null,
+						'visible': visible
 					});
 					node.render();
 					break;
 				case 'button':
 				default:
 					title = data.title || Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
-					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group"});
+					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group", "visible": visible});
 					node.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 					node.render(cont);
 					

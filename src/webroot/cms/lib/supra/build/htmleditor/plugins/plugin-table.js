@@ -763,7 +763,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		destroy: function () {},
 		
 		/**
-		 * Process HTML and insert mobile friendly version of table
+		 * Process HTML
 		 * Called before HTML is saved
 		 * 
 		 * @param {String} html
@@ -771,100 +771,11 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * @type {HTML}
 		 */
 		tagHTML: function (html) {
-			var regex_table = REGEX_TABLE,
-				regex_table_start = REGEX_TABLE_START,
-				regex_rows = REGEX_ROWS,
-				regex_cells = REGEX_CELLS,
-				regex_colspan = REGEX_COLSPAN,
-				
-				classname_even = CLASSNAME_EVEN,
-				classname_odd = CLASSNAME_ODD,
-				
-				extractHeadings = this.tagHTMLExtractHeadings;
-			
-			//Regex are dirty, but quick and does the job done
-			html = html.replace(regex_table, function (match) {
-				var html = match.match(regex_table_start)[0].replace(/<table/i, '\n<table class="mobile mobile-portrait"'),
-					headings = extractHeadings(match),
-					rows = match.match(regex_rows),
-					cells = null,
-					colspan = null,
-					i = 0,
-					ii = rows.length,
-					k = 0,
-					kk = 0,
-					index = 0;
-				
-				for (; i<ii; i++) {
-					cells = rows[i].match(regex_cells) || [];
-					index = 0;
-					
-					for (k=0, kk=cells.length; k<kk; k++) {
-						colspan = cells[k].match(regex_colspan);
-						if (colspan) {
-							cells[k] = cells[k].replace(colspan, '');
-							colspan = parseInt(colspan, 10) || 1;
-						} else {
-							colspan = 1;
-						}
-						
-						html += '<tr class="' + (i % 2 ? classname_even : classname_odd) + '">';
-						html += headings[index];
-						html += cells[k];
-						html += '</tr>';
-						
-						index += colspan;
-					}
-				}
-				
-				return match.replace(/<table[^>]*(class="?'?[^"']*"?'?)?/i, '<table class="desktop tablet"') + html + '</table>';
-			});
-			
 			return html;
 		},
 		
 		/**
-		 * Extract all headings from HTML
-		 * 
-		 * @param {String} html
-		 * @return Array with all heading HTML
-		 * @type {Array}
-		 */
-		tagHTMLExtractHeadings: function (html) {
-			var regex_headings = REGEX_HEADINGS,
-				regex_colspan = REGEX_COLSPAN,
-				headings = [],
-				heading = '',
-				colspan = 1,
-				matches = html.match(regex_headings),
-				i = 0,
-				ii = matches.length;
-			
-			for (; i<ii; i++) {
-				heading = matches[i];
-				colspan = heading.match(regex_colspan);
-				
-				if (colspan) {
-					heading = heading.replace(colspan, '');
-					colspan = parseInt(colspan, 10) || 1;
-				} else {
-					colspan = 1;
-				}
-				
-				headings.push(heading);
-				
-				if (colspan > 1) {
-					for (var i=1; i<=colspan; i++) {
-						headings.push('<th></th>');
-					}
-				}
-			}
-			
-			return headings;
-		},
-		
-		/**
-		 * Process HTML and remove all mobile version tables
+		 * Process HTML
 		 * Called before HTML is set
 		 * 
 		 * @param {String} html HTML
@@ -873,7 +784,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * @type {String}
 		 */
 		untagHTML: function (html, data) {
-			html = html.replace(REGEX_MOBILE_TABLE, '');
 			return html;
 		}
 		
