@@ -30,6 +30,9 @@
 			'gallery': {
 				'galleryBlockId': {% if galleryBlockId%}{{ galleryBlockId | json_encode | raw }}{% else %}null{% endif %}
 			}
+			{% for pluginId, pluginConfig in config.htmlEditorPlugins %}
+				, {{ pluginId | json_encode | raw }}: {{ pluginConfig | json_encode | raw }}
+			{% endfor %}
 		}
 	},
 
