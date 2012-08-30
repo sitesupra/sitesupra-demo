@@ -46,4 +46,9 @@ class BlockEventsArgs extends EventArgs
 	 * @var Supra\Controller\Pages\Request\PageRequest
 	 */
 	public $request;
+	
+	/**
+	 * @var Supra\Response\HttpResponse
+	 */
+	public $response;
 }

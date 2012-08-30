@@ -178,40 +178,39 @@ class ImageResizer extends ImageProcessor
 		if (empty($this->targetHeight) || ($this->targetHeight <= 0)) {
 			throw new ImageProcessorException('Target height is not set or is invalid');
 		}
+
+		$newDimensions = $this->getExpectedSize(false);
 		
 		$dimensions = array();
 		
 		// set default dimensions for image-to-image copy
-		$dimensions['sourceLeft'] = 0;
-		$dimensions['sourceTop'] = 0;
-		$dimensions['sourceWidth'] = $originalWidth;
-		$dimensions['sourceHeight'] = $originalHeight;
-		$dimensions['destWidth'] = $this->targetWidth;
-		$dimensions['destHeight'] = $this->targetHeight;
+		$dimensions['sourceLeft'] = null;
+		$dimensions['sourceTop'] = null;
+		$dimensions['sourceWidth'] = null;
+		$dimensions['sourceHeight'] = null;
+		$dimensions['destWidth'] = round($newDimensions['width']);
+		$dimensions['destHeight'] = round($newDimensions['height']);
 
 		// get ratios 
-		$wRatio = $originalWidth / $this->targetWidth;
-		$hRatio = $originalHeight / $this->targetHeight;
-		$maxRatio = max($wRatio, $hRatio);
-		$minRatio = min($wRatio, $hRatio);
+		$wRatio = max($originalWidth / $newDimensions['width'], 1);
+		$hRatio = max($originalHeight / $newDimensions['height'], 1);
 
-		if ($this->cropMode && ($minRatio >= 1)) {
-			// set source dimensions to center (with target aspect ratio)
-			$sourceHeight = $this->targetHeight * $minRatio;
-			$dimensions['sourceTop'] = 
-					round(($originalHeight - $sourceHeight) / 2);
-			$dimensions['sourceHeight'] = round($sourceHeight);
-
-			$sourceWidth = $this->targetWidth * $minRatio;
-			$dimensions['sourceLeft'] = 
-					round(($originalWidth - $sourceWidth) / 2);
-			$dimensions['sourceWidth'] = round($sourceWidth);
-
+		if ( ! $this->cropMode) {
+			$wRatio = $hRatio = max($wRatio, $hRatio);
 		} else {
-			// set destination dimension (with original aspect ratio)
-			$dimensions['destWidth'] = round($originalWidth / $maxRatio);
-			$dimensions['destHeight'] = round($originalHeight / $maxRatio);
+			$wRatio = $hRatio = min($wRatio, $hRatio);
 		}
+
+		// set source dimensions to center (with target aspect ratio)
+		$sourceHeight = $newDimensions['height'] * $hRatio;
+		$dimensions['sourceTop'] =
+				round(($originalHeight - $sourceHeight) / 2);
+		$dimensions['sourceHeight'] = round($sourceHeight);
+
+		$sourceWidth = $newDimensions['width'] * $wRatio;
+		$dimensions['sourceLeft'] =
+				round(($originalWidth - $sourceWidth) / 2);
+		$dimensions['sourceWidth'] = round($sourceWidth);
 
 		return $dimensions;
 	}
@@ -220,14 +219,8 @@ class ImageResizer extends ImageProcessor
 	 * Get expected dimensions of processed image
 	 * @return array
 	 */
-	public function getExpectedSize() {
-//		$imageInfo = $this->getImageInfo($this->sourceFilename);
-//		$dimensions = $this->calculateDimensions($imageInfo['width'], $imageInfo['height']);
-//		$return = array(
-//			'width' => $dimensions['destWidth'],
-//			'height' => $dimensions['destHeight']
-//		);
-//		return $return;
+	public function getExpectedSize($round = true)
+	{
 		if (empty($this->sourceFilename)) {
 			throw new ImageProcessorException('Source image is not set');
 		}
@@ -240,21 +233,20 @@ class ImageResizer extends ImageProcessor
 
 		$imageInfo = $this->getImageInfo($this->sourceFilename);
 
-		$wRatio = $imageInfo->getWidth() / $this->targetWidth;
-		$hRatio = $imageInfo->getHeight() / $this->targetHeight;
-		$maxRatio = max($wRatio, $hRatio);
-		$minRatio = min($wRatio, $hRatio);
+		$wRatio = max($imageInfo->getWidth() / $this->targetWidth, 1);
+		$hRatio = max($imageInfo->getHeight() / $this->targetHeight, 1);
 
-		$cropMode = ($this->cropMode && ($minRatio >= 1));
+		if ( ! $this->cropMode) {
+			$wRatio = $hRatio = max($wRatio, $hRatio);
+		}
 
 		$dimensions = array(
-			'width' => $this->targetWidth,
-			'height' => $this->targetHeight
+			'width' => $imageInfo->getWidth() / $wRatio,
+			'height' => $imageInfo->getHeight() / $hRatio,
 		);
-		
-		if ( ! $cropMode) {
-			$dimensions['width'] = round($imageInfo->getWidth() / $maxRatio);
-			$dimensions['height'] = round($imageInfo->getHeight() / $maxRatio);
+
+		if ($round) {
+			$dimensions = array_map('round', $dimensions);
 		}
 
 		return $dimensions;
