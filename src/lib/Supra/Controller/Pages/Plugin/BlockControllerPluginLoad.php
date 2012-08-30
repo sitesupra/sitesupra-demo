@@ -18,9 +18,9 @@ class BlockControllerPluginLoad extends BlockControllerPlugin
 	
 	public function bind(BlockController $blockController)
 	{
-		$object = ObjectRepository::getObject($this->id, BlockControllerPlugin::CN);
+		$object = ObjectRepository::getObject($this->id, BlockControllerPlugin::CN, true);
 		/* @var $object BlockControllerPlugin */
-		
+
 		$object->bind($blockController);
 		
 	}
