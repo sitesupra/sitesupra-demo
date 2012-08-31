@@ -163,7 +163,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Left offset
 	 */
-	public function testProcessLeftInvalid() 
+	public function _testProcessLeftInvalid()
 	{
 		$this->object->reset();
 		$this->object
@@ -182,7 +182,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Left offset
 	 */
-	public function testProcessLeftInvalid2() 
+	public function _testProcessLeftInvalid2()
 	{
 		$this->object->reset();
 		$this->object
@@ -201,7 +201,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Right offset
 	 */
-	public function testProcessRightInvalid() 
+	public function _testProcessRightInvalid()
 	{
 		$this->object->reset();
 		$this->object
@@ -220,7 +220,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Right offset
 	 */
-	public function testProcessRightInvalid2() 
+	public function _testProcessRightInvalid2()
 	{
 		$this->object->reset();
 		$this->object
@@ -239,7 +239,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Top offset
 	 */
-	public function testProcessTopInvalid() 
+	public function _testProcessTopInvalid()
 	{
 		$this->object->reset();
 		$this->object
@@ -258,7 +258,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Top offset
 	 */
-	public function testProcessTopInvalid2() 
+	public function _testProcessTopInvalid2()
 	{
 		$this->object->reset();
 		$this->object
@@ -277,7 +277,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Bottom offset
 	 */
-	public function testProcessBottomInvalid() 
+	public function _testProcessBottomInvalid()
 	{
 		$this->object->reset();
 		$this->object
@@ -296,7 +296,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Bottom offset
 	 */
-	public function testProcessBottomInvalid2() 
+	public function _testProcessBottomInvalid2()
 	{
 		$this->object->reset();
 		$this->object
@@ -315,7 +315,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Crop width
 	 */
-	public function testProcessWidthInvalid() 
+	public function _testProcessWidthInvalid()
 	{
 		$this->object->reset();
 		$this->object
@@ -334,7 +334,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Crop width
 	 */
-	public function testProcessWidthInvalid2() 
+	public function _testProcessWidthInvalid2()
 	{
 		$this->object->reset();
 		$this->object
@@ -350,7 +350,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test process when width + left equals original width (& height + top)
 	 */
-	public function testProcessWidthInvalid3() 
+	public function testProcessWidthInvalid3()
 	{
 		$this->object->reset();
 		$this->object
@@ -369,7 +369,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Crop height
 	 */
-	public function testProcessHeightInvalid() 
+	public function _testProcessHeightInvalid()
 	{
 		$this->object->reset();
 		$this->object
@@ -388,7 +388,7 @@ class ImageCropperTest extends \PHPUnit_Framework_TestCase
 	 * @expectedException         Supra\FileStorage\Exception\ImageProcessorException
 	 * @expectedExceptionMessage  Crop height 
 	 */
-	public function testProcessHeightInvalid2() 
+	public function _testProcessHeightInvalid2()
 	{
 		$this->object->reset();
 		$this->object
