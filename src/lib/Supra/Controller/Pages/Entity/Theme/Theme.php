@@ -401,20 +401,40 @@ class Theme extends Database\Entity implements ThemeInterface
 
 		if (empty($this->currentParameterSet)) {
 
-			$this->currentParameterSet = new ThemeParameterSet();
-			$this->currentParameterSet->setTheme($this);
-
-			foreach ($this->getParameters() as $parameter) {
-				/* @var $parameter ThemeParameterAbstraction */
-
-				$value = $parameter->getDefaultThemeParameterValue($this->currentParameterSet);
-				$this->currentParameterSet->addValue($value);
-			}
-
-			$this->currentParameterSet->setName('auto-current');
+			$this->currentParameterSet = $this->getDefaultParameterSet();
 		}
 
 		return $this->currentParameterSet;
+	}
+
+	/**
+	 * @param ThemeParameterSet $sourceSet
+	 * @param ThemeParameterSet $targetSet
+	 */
+	protected function copyParameterSetValues(ThemeParameterSet $sourceSet, ThemeParameterSet $targetSet)
+	{
+		$parameters = $this->getParameters();
+
+		$targetValues = $targetSet->getValues();
+		$sourceValues = $sourceSet->getValues();
+
+		foreach ($parameters as $parameter) {
+			/* @var $parameter ThemeParameterAbstraction */
+			$parameterName = $parameter->getName();
+
+			$sourceValue = $sourceValues->get($parameterName);
+			/* @var $sourceValue ThemeParameterValue */
+
+			$targetValue = null;
+
+			if ( ! $targetValues->containsKey($parameterName)) {
+				$targetValue = $targetSet->addNewValueForParameter($parameter);
+			} else {
+				$targetValue = $targetValues->get($parameterName);
+			}
+
+			$targetValue->setValue($sourceValue->getValue());
+		}
 	}
 
 	/**
@@ -486,6 +506,37 @@ class Theme extends Database\Entity implements ThemeInterface
 	public function getParameterSets()
 	{
 		return $this->parameterSets;
+	}
+
+	/**
+	 * @param strnig $name
+	 * @param boolean $doNotInitializeFromDefault
+	 * @return ThemeParameterSet
+	 */
+	public function getParameterSet($name, $initializeFromDefault = true)
+	{
+		$parameterSets = $this->getParameterSets();
+
+		if ($parameterSets->containsKey($name)) {
+
+			$parameterSet = $parameterSets->get($name);
+		} else {
+
+			$parameterSet = new ThemeParameterSet();
+
+			$parameterSet->setName($name);
+
+			$this->addParameterSet($parameterSet);
+
+			if ($initializeFromDefault) {
+
+				$defaultParameterSet = $this->getDefaultParameterSet();
+
+				$this->copyParameterSetValues($defaultParameterSet, $parameterSet);
+			}
+		}
+
+		return $parameterSet;
 	}
 
 	/**
