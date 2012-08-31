@@ -212,21 +212,13 @@ class FrontController
 					$appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction
 			) {
 
-				$sessionManager = ObjectRepository::getSessionManager($controller);
+				$userProvider = ObjectRepository::getUserProvider($controller);
+				$user = $userProvider->getSignedInUser(false);
 
-				$authenticationNamespace = $sessionManager->getAuthenticationSpace();
-
-				if ($authenticationNamespace instanceof AuthenticationSessionNamespace) {
-
-					$user = $authenticationNamespace->getUser();
-
-					if ( ! is_null($user) && $appConfig->authorizationAccessPolicy->isApplicationAnyAccessGranted($user)) {
-						$controller->execute();
-					} else {
-						throw new ApplicationAccessDeniedException($user, $appConfig);
-					}
+				if ( ! is_null($user) && $appConfig->authorizationAccessPolicy->isApplicationAnyAccessGranted($user)) {
+					$controller->execute();
 				} else {
-					throw new Exception\RuntimeException('Could not get authentication session namespace.');
+					throw new ApplicationAccessDeniedException($user, $appConfig);
 				}
 			} else {
 				$controller->execute();

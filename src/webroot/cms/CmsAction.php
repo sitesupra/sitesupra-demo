@@ -318,11 +318,11 @@ abstract class CmsAction extends SimpleController
 	public function getUser()
 	{
 		if (is_null($this->user)) {
-			$session = ObjectRepository::getSessionManager($this)
-					->getSpace('Supra\Authentication\AuthenticationSessionNamespace');
-			/* @var $session AuthenticationSessionNamespace */
+			$userProvider = ObjectRepository::getUserProvider($this, false);
 
-			$this->user = $session->getUser();
+			if ( ! empty($userProvider)) {
+				$this->user = $userProvider->getSignedInUser();
+			}
 
 			if ( ! $this->user instanceof User) {
 				$this->user = new AnonymousUser();

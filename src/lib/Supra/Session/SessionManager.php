@@ -50,6 +50,17 @@ class SessionManager
 	{
 		$this->handler = $handler;
 	}
+
+	/**
+	 * @return bolelan
+	 */
+	public function isStarted()
+	{
+		$status = $this->handler->getSessionStatus();
+		$started = ($status === Handler\HandlerAbstraction::SESSION_STARTED);
+
+		return $started;
+	}
 	
 	/**
 	 * Starts the session
@@ -78,10 +89,14 @@ class SessionManager
 	 */
 	public function changeSessionId($sessionId)
 	{
-		$this->clear();
-		$this->close();
+		$started = $this->isStarted();
+
+		if ($started) {
+			$this->clear();
+			$this->close();
+		}
+
 		$this->handler->setSessionId($sessionId);
-		$this->start();
 	}
 		
 	/**

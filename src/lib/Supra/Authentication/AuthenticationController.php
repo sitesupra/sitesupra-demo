@@ -338,6 +338,8 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 				throw new StopRequestException("Session is already active");
 			}
 		}
+
+		$userProvider->getSessionManager()->close();
 	}
 
 	/**
