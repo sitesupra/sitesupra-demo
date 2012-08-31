@@ -69,8 +69,12 @@ abstract class HandlerAbstraction
 	 */
 	public function start() 
 	{
+		if (empty($this->sessionId)) {
+			$this->sessionId = $this->findSessionId();
+		}
+
 		$this->sessionStatus = self::SESSION_STARTED;
-		$this->sessionData = & $_SESSION;
+		$this->sessionData = $this->readSessionData();
 		
 		if ( ! isset($this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET])) {
 			$this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] = time();
@@ -78,6 +82,16 @@ abstract class HandlerAbstraction
 			
 		$this->checkSessionExpire();
 	}
+
+	/**
+	 * @return string
+	 */
+	abstract protected function findSessionId();
+
+	/**
+	 * @return array
+	 */
+	abstract protected function readSessionData();
 	
 	/**
 	 * Closes session. If persistOnClose is true, should write session data to 
@@ -96,9 +110,19 @@ abstract class HandlerAbstraction
 	/**
 	 * Clears all session data.
 	 */
-	public function clear() 
+	public function clear()
 	{
 		$this->sessionData = array();
+	}
+
+	/**
+	 * Destroy the session
+	 */
+	public function destroy()
+	{
+		$this->clear();
+		$this->close();
+		$this->sessionId = null;
 	}
 	
 	/**
@@ -187,8 +211,7 @@ abstract class HandlerAbstraction
 		$expireTime = $this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] + $this->expirationTime;
 		
 		if ($expireTime < time()) {
-			$this->clear();
-			$this->sessionId = null;
+			$this->destroy();
 		}
 		
 	}

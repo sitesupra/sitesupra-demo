@@ -340,6 +340,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		}
 
 		$userProvider->getSessionManager()->close();
+		$sessionManager->close();
 	}
 
 	/**

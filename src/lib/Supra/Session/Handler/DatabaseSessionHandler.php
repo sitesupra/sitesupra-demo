@@ -27,21 +27,20 @@ class DatabaseSessionHandler extends HandlerAbstraction
 	 * @var string
 	 */
 	private $originalDataHash;
-	
+
 	/**
-	 * Generates random session id
-	 * 
+	 * Session id for the request must be detected manually
 	 * @return string
 	 */
-	public static function generateId()
+	protected function findSessionId()
 	{
-		return sha1(uniqid(null, true));
+		return sha1(uniqid(__CLASS__, true));
 	}
 	
 	/**
 	 *
 	 */
-	public function start() 
+	protected function readSessionData()
 	{
 		$tableName = self::TABLE_NAME;
 		$sql = "SELECT 
@@ -54,65 +53,36 @@ class DatabaseSessionHandler extends HandlerAbstraction
 				WHERE s.id = ? AND s.name = ?";
 
 		$sessionName = $this->getSessionName();
-		
 		$sessionId = $this->getSessionId();
-		
-		if ( ! empty($sessionId)) {
-	
-			$connection = $this->getDatabaseConnection();
+		$connection = $this->getDatabaseConnection();
 
-			$sessionRecord = $connection->executeQuery($sql, array($sessionId, $sessionName));
-			
-			// FIXME: !
-			if (empty($sessionRecord)) {
-				$this->newRecord = true;
-			}
-			
-			if ( ! empty($sessionRecord) && isset($sessionRecord['data'])) {
-				
-				$this->originalDataHash = md5($sessionRecord['data']);
-				
-				$this->sessionData = unserialize($sessionRecord['data']);
-			}
-		} else {
-			$sessionId = self::generateId();
+		$sessionRecord = $connection->executeQuery($sql, array($sessionId, $sessionName));
+
+		// FIXME: !
+		if (empty($sessionRecord)) {
 			$this->newRecord = true;
 		}
-		
-		$this->setSessionId($sessionId);
-	
-		$this->sessionStatus = self::SESSION_STARTED;
+		$sessionData = array();
 
-		if ( ! isset($this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET])) {
-			$this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] = time();
+		if ( ! empty($sessionRecord) && isset($sessionRecord['data'])) {
+			$this->originalDataHash = md5($sessionRecord['data']);
+			$sessionData = unserialize($sessionRecord['data']);
 		}
-			
-		$this->checkSessionExpire();
+
+		return $sessionData;
 	}
 	
 	/**
 	 *
 	 */
-	public function checkSessionExpire()
+	public function destroy()
 	{
-		if (empty($this->expirationTime)) {
-			return false;
-		}
-		
-		$expireTime = $this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] + $this->expirationTime;
-		
-		if ($expireTime < time()) {
-			$this->clear();
-			
-			$tableName = self::TABLE_NAME;
-			
-			$sql = "DELETE FROM {$tableName} s WHERE s.id = ?";
-			
-			$connection = $this->getDatabaseConnection();
-			$connection->executeQuery($sql, array($this->sessionId));
-			
-			$this->sessionId = null;
-		}
+		$tableName = self::TABLE_NAME;
+
+		$sql = "DELETE FROM {$tableName} s WHERE s.id = ?";
+
+		$connection = $this->getDatabaseConnection();
+		$connection->executeQuery($sql, array($this->sessionId));
 	}
 	
 	/**
@@ -120,7 +90,7 @@ class DatabaseSessionHandler extends HandlerAbstraction
 	 */
 	public function close() 
 	{
-		if ($this->getSessionStatus() === self::SESSION_NOT_STARTED) {
+		if ($this->getSessionStatus() !== self::SESSION_STARTED) {
 			return;
 		}
 		

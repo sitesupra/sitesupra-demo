@@ -12,7 +12,7 @@ class SessionManager
 	const DEFAULT_AUTHENTICATION_NAMESPACE_CLASS = 'Supra\Authentication\AuthenticationSessionNamespace';
 	
 	/**
-	 * @var HandlerAbstraction
+	 * @var Handler\HandlerAbstraction
 	 */
 	private $handler;
 	
@@ -211,6 +211,10 @@ class SessionManager
 	 */
 	public function close() 
 	{
+		if ( ! $this->isStarted()) {
+			return;
+		}
+
 		foreach ($this->sessionData as $sessionNamespace) {
 			
 			if ($sessionNamespace instanceof SessionNamespace) {
