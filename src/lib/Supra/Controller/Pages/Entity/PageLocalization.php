@@ -181,6 +181,17 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getFullPathWithLocale()
+	{
+		$pathString = $this->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+		$pathStringWithLocale = '/' . $this->locale . $pathString;
+
+		return $pathStringWithLocale;
+	}
+
+	/**
 	 * Will return real path or null path record if page not active and only
 	 * active path is requested.
 	 * 
