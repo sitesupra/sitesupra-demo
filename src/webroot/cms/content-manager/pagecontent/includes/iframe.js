@@ -502,7 +502,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 				}
 			} else {
 				//TODO: open the link in the new tab or show message with link to the page
-				window.open(href);
+//				window.open(href);
 			}
 		},
 		
