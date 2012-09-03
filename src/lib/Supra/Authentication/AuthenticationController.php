@@ -244,6 +244,9 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 							return;
 						}
 					}
+					
+					$userProvider->getSessionManager()->close();
+					$sessionManager->close();					
 
 					throw new StopRequestException("Login success");
 				} catch (Exception\AuthenticationFailure $exc) {

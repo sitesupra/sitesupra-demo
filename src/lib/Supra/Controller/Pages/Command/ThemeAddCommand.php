@@ -150,9 +150,14 @@ class ThemeAddCommand extends Command
 		$theme = $themeProvider->findThemeByName($themeName);
 		
 		if (empty($theme)) {
+			/* @var $theme Theme */
 
 			$theme = $themeProvider->makeNewTheme();
 			$theme->setName($themeName);
+			
+			$defaultParameterSet = new ThemeParameterSet();
+			$defaultParameterSet->setName('default');
+			$theme->addParameterSet($defaultParameterSet);
 		}
 
 		$theme->setRootDir($themeDirectory);

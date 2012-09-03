@@ -80,6 +80,7 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 
 		$twigProcessor = new TwigProcessor();
 		$twigProcessor->setLayoutDir($rootDir);
+		$twigProcessor->setTheme($theme);
 
 		$placeholderNamesInTemplate = $twigProcessor->getPlaces($this->filename);
 

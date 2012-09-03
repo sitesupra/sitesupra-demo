@@ -69,6 +69,8 @@ class SessionManager
 	{
 		$this->handler->start();
 		$this->sessionData = &$this->handler->getSessionData();
+		
+		//\Log::error('SESSION START DATA: ', $this->sessionData);
 	}
 	
 	/**
@@ -85,9 +87,9 @@ class SessionManager
 	
 	/**
 	 * Changes the session ID inside the handler and reassigns the session data
-	 * @param string $sessionId
+	 * @param string $newSessionId
 	 */
-	public function changeSessionId($sessionId)
+	public function changeSessionId($newSessionId)
 	{
 		$started = $this->isStarted();
 
@@ -96,7 +98,9 @@ class SessionManager
 			$this->close();
 		}
 
-		$this->handler->setSessionId($sessionId);
+		//\Log::debug('CHANGE SESSION ID. FROM: ', $this->handler->getSessionId(), ' TO: ', $newSessionId);
+		
+		$this->handler->setSessionId($newSessionId);
 	}
 		
 	/**
@@ -221,6 +225,9 @@ class SessionManager
 				$sessionNamespace->close();	
 			}
 		}
+		
+		//\Log::error('SESSION CLOSE DATA: ', $this->sessionData);
+		
 		$this->handler->close();
 	}
 	
