@@ -5,7 +5,6 @@ namespace Supra\Controller\Pages\Listener;
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventSubscriber;
 use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
@@ -15,7 +14,6 @@ use Supra\Database\Entity;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Event\PageEventArgs;
-use Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Entity\Abstraction\Block;
 use Supra\Controller\Pages\Entity\BlockPropertyMetadata;
@@ -62,6 +60,10 @@ class EntityRevisionSetterListener implements EventSubscriber
 	 * @var string
 	 */
 	private $referenceId;
+	
+	/**
+	 * @var string
+	 */
 	private $revision;
 	
 	/**
@@ -179,6 +181,10 @@ class EntityRevisionSetterListener implements EventSubscriber
 		if ($oldRevisionId === $newRevisionId) {
 			return;
 		} 
+		
+		if ($this->uow->getEntityState($entity) !== \Doctrine\ORM\UnitOfWork::STATE_MANAGED) {
+			return;
+		}
 		
 		$entity->setRevisionId($newRevisionId);
 		

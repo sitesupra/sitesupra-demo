@@ -802,6 +802,8 @@ class PageAction extends PageManagerAction
 
 			$referencedElement = $metadata->getReferencedElement();
 			$data[$name] = $this->convertReferencedElementToArray($referencedElement, ( ! $editable instanceof Editable\Gallery));
+			
+			$data[$name]['__meta__'] = $metadata->getId();
 		}
 
 		$propertyData = $propertyValue;
