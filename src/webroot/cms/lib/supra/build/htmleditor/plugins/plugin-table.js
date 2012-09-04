@@ -10,18 +10,6 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
 	};
 	
-	//Regular expressions
-	var REGEX_TABLE = /<table(.|\n|\r)*<\/table>/ig,
-		REGEX_MOBILE_TABLE = /<table[^>]+class="?'?[^"'>]*mobile(.|\n|\r)*<\/table>/ig,
-		REGEX_TABLE_START = /<table[^>]*>/i,
-		REGEX_HEADINGS = /<th[^>]*>((.|\r|\n)*?)<\/th[^>]*>/ig,
-		REGEX_ROWS = /<tr[^>]*>((.|\r|\n)*?)<\/tr[^>]*>/ig,
-		REGEX_CELLS = /<td[^>]*>((.|\r|\n)*?)<\/td[^>]*>/ig,
-		REGEX_COLSPAN = /\s+colspan="?'?(\d+)'?"?/i,
-		
-		CLASSNAME_EVEN = 'even',
-		CLASSNAME_ODD = 'odd';
-	
 	//Shortcuts
 	var Manager = Supra.Manager;
 	
