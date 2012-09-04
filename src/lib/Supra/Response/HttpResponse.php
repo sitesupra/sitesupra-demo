@@ -21,6 +21,7 @@ class HttpResponse implements ResponseInterface
 	const STATUS_SEE_OTHER = 303;
 	const STATUS_NOT_MODIFIED = 304;
 	const STATUS_TEMPORARY_REDIRECT = 307;
+	const STATUS_UNAUTHORIZED = 401;
 
 	// Redirect types
 	const REDIRECT_PERMAMENT = 301;
@@ -53,7 +54,7 @@ class HttpResponse implements ResponseInterface
 		305 => 'Use Proxy',
 		self::STATUS_TEMPORARY_REDIRECT => 'Temporary Redirect',
 		400 => 'Bad Request',
-		401 => 'Unauthorized',
+		self::STATUS_UNAUTHORIZED => 'Unauthorized',
 		402 => 'Payment Required',
 		403 => 'Forbidden',
 		404 => 'Not Found',
@@ -179,7 +180,26 @@ class HttpResponse implements ResponseInterface
 		}
 
 		$this->code = $code;
-		$this->message = self::$messages[$code];
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getCode()
+	{
+		return $this->code;
+	}
+
+	/**
+	 * @return return string
+	 */
+	public function getMessage()
+	{
+		if (is_null($this->message)) {
+			$this->message = self::$messages[$this->code];
+		}
+		
+		return $this->message;
 	}
 
 	/**
@@ -340,7 +360,7 @@ class HttpResponse implements ResponseInterface
 		if ($this->code != self::STATUS_OK) {
 
 			$statusHeader = self::PROTOCOL . '/' . $this->protocolVersion . ' '
-					. $this->code . ' ' . $this->message;
+					. $this->code . ' ' . $this->getMessage();
 
 			$this->header(self::STATUS_HEADER_NAME, $statusHeader);
 		}
@@ -512,6 +532,14 @@ class HttpResponse implements ResponseInterface
 		}
 
 		return $headerValue;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getHeaders()
+	{
+		return $this->headers;
 	}
 
 }

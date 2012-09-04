@@ -100,6 +100,13 @@ class PhpSessionHandler extends HandlerAbstraction
 		if ($this->failure) {
 			return array();
 		}
+
+		// Ignore the session data if session name doesn't match
+		if (empty($_SESSION['SESSION_NAME']) || $_SESSION['SESSION_NAME'] != $this->sessionName) {
+			$_SESSION = array(
+				'SESSION_NAME' => $this->sessionName
+			);
+		}
 		
 		$sessionData = $_SESSION;
 

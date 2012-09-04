@@ -25,13 +25,21 @@ abstract class FormBlockController extends BlockController
 	 */
 	protected $formView;
 
+	/**
+	 * @return string
+	 */
+	protected function getFormNamespace()
+	{
+		return $this->getBlock()->getId();
+	}
+
 	protected function doExecute()
 	{
 		$request = $this->getRequest();
 		/* @var $request \Supra\Controller\Pages\Request\PageRequest */
 
 		$this->bindedForm = $this->createForm();
-		$name = $this->getBlock()->getId();
+		$name = $this->getFormNamespace();
 
 		$conf = $this->getConfiguration();
 
@@ -323,11 +331,9 @@ abstract class FormBlockController extends BlockController
 
 		$factory = new Form\FormFactory($formRegistry);
 
-		$id = $this->getBlock()->getId();
+		$id = $this->getFormNamespace();
 		$options = $this->getFormBuilderOptions();
 		$formBuilder = $factory->createNamedBuilder($id, 'form', $dataObject, $options);
-
-		
 
 		return $formBuilder;
 	}

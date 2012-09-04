@@ -94,7 +94,11 @@ class FormBlockControllerConfiguration extends BlockControllerConfiguration
 			 */
 			// splitting camelCase into words
 			$labelParts = preg_split('/(?=[A-Z])/', $field->getName());
-			$fieldLabel = ucfirst(mb_strtolower(join(' ', $labelParts)));
+
+			$fieldLabel = $field->getArgument('label');
+			if (empty($fieldLabel)) {
+				$fieldLabel = ucfirst(mb_strtolower(join(' ', $labelParts)));
+			}
 
 			$blockProperty = new BlockPropertyConfiguration();
 			$editable = new String("Field \"{$fieldLabel}\" label");
