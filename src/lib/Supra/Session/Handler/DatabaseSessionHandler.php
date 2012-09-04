@@ -56,9 +56,16 @@ class DatabaseSessionHandler extends HandlerAbstraction
 		$sessionId = $this->getSessionId();
 		$connection = $this->getDatabaseConnection();
 
-		$sessionRecord = $connection->executeQuery($sql, array($sessionId, $sessionName));
+		$sessionRecords = $connection->fetchAll($sql, array($sessionId, $sessionName));
 
-		// FIXME: !
+		if (count($sessionRecords) > 1) {
+			\Log::warn("Multiple records found for session $sessionName=$sessionId: ", $sessionRecords);
+			$this->destroy();
+			$sessionRecords = array();
+		}
+		
+		$sessionRecord = reset($sessionRecords);
+
 		if (empty($sessionRecord)) {
 			$this->newRecord = true;
 		}
@@ -99,30 +106,30 @@ class DatabaseSessionHandler extends HandlerAbstraction
 		$tableName = self::TABLE_NAME;
 		
 		if ($this->isInsertRequired()) {
-			$sql = "INSERT INTO {$tableName} s (s.id, s.name, s.dateCreated, s.data)
+			$sql = "INSERT INTO {$tableName} (id, name, dateCreated, data)
 							VALUES(?, ?, NOW(), ?)";
 			
 			$connection = $this->getDatabaseConnection();
 			$connection->executeQuery($sql, array(
 				$this->sessionId,
 				$this->sessionName,
-				$this->sessionData,
+				serialize($this->sessionData),
 			));
 		} 
 		else if ($this->isUpdateRequired()) {
 			
 			$sql = "UPDATE
-						{$tableName} s
+						{$tableName}
 					SET	
-						s.name = ?,
-						s.data = ?
+						name = ?,
+						data = ?
 					WHERE
-						s.id = ?";
+						id = ?";
 						
 			$connection = $this->getDatabaseConnection();
 			$connection->executeQuery($sql, array(
 				$this->sessionName,
-				$this->sessionData,
+				serialize($this->sessionData),
 				$this->sessionId
 			));
 		}
