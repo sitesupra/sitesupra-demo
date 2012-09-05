@@ -175,17 +175,35 @@ abstract class FormBlockController extends BlockController
 	}
 
 	/**
-	 * @return Form\Form
+	 * Possibility to change the field
+	 * @param \Supra\Form\FormField $field
+	 * @return \Supra\Form\FormField
 	 */
-	protected function createForm()
+	protected function filterFormField(FormField $field)
+	{
+		return $field;
+	}
+
+	/**
+	 * @return Form\FormBuilder
+	 * @throws Exception\RuntimeException
+	 */
+	protected function createFormBuilder()
 	{
 		$conf = $this->getConfiguration();
 		$dataObject = Loader::getClassInstance($conf->dataClass);
 		$dataObject = $this->initializeData($dataObject);
 		$formBuilder = $this->prepareFormBuilder($dataObject);
 		$groups = (array) $formBuilder->getOption('validation_groups');
-		
+
 		foreach ($conf->getFields() as $field) {
+
+			$field = $this->filterFormField($field);
+
+			if (empty($field)) {
+				continue;
+			}
+
 			/* @var $field FormField */
 			$options = $field->getArguments();
 
@@ -198,14 +216,14 @@ abstract class FormBlockController extends BlockController
 			}
 
 			if ($field->getType() === FormField::TYPE_CHOICE) {
-				
+
 				$choiceList = $field->getArgument('choice_list');
 				if ( ! is_null($choiceList)) {
-					
+
 					if ( ! class_exists($choiceList)) {
 						throw new Exception\RuntimeException('Wrong class specified as choice list argument');
 					}
-					
+
 					$choiceList = new $choiceList;
 					$options['choice_list'] = $choiceList;
 				}
@@ -215,7 +233,7 @@ abstract class FormBlockController extends BlockController
 			if ( ! $field->inGroups($groups)) {
 				continue;
 			}
-			
+
 			$formBuilder->add($field->getName(), null, $options);
 		}
 
@@ -229,6 +247,16 @@ abstract class FormBlockController extends BlockController
 
 		// Error message translation using block properties
 		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'errorMessageTranslationListener'), 0);
+
+		return $formBuilder;
+	}
+
+	/**
+	 * @return Form\Form
+	 */
+	protected function createForm()
+	{
+		$formBuilder = $this->createFormBuilder();
 
 		return $formBuilder->getForm();
 	}

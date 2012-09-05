@@ -136,6 +136,15 @@ class FormField
 	}
 
 	/**
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	public function setArgument($name, $value)
+	{
+		$this->arguments[$name] = $value;
+	}
+
+	/**
 	 * @param array $groups
 	 * @return boolean
 	 */
