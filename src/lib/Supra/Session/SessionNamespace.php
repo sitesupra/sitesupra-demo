@@ -8,6 +8,10 @@ namespace Supra\Session;
 
 class SessionNamespace
 {
+	/**
+	 * So the ObjectRepository doesn't fill the __data parameter
+	 */
+	public $__oid__;
 
 	/**
 	 * Name of namespace
@@ -42,6 +46,16 @@ class SessionNamespace
 		$this->__data = array();
 		$this->__closed = false;
 		$this->__name = $name;
+	}
+
+	public function __sleep()
+	{
+		$properties = get_object_vars($this);
+		unset($properties['__closed'], $properties['__dirty'], $properties['__oid__']);
+
+		$keys = array_keys($properties);
+
+		return $keys;
 	}
 
 	/**
@@ -110,7 +124,9 @@ class SessionNamespace
 			throw new Exception\ClosedSessionNamespaceAccess();
 		}
 
-		return isset($this->__data[$key]) ? $this->__data[$key] : null;
+		$data = isset($this->__data[$key]) ? $this->__data[$key] : null;
+
+		return $data;
 	}
 
 	/**
@@ -141,7 +157,9 @@ class SessionNamespace
 			throw new Exception\ClosedSessionNamespaceAccess();
 		}
 
-		return isset($this->__data[$key]);
+		$isset = isset($this->__data[$key]);
+
+		return $isset;
 	}
 
 	/**
