@@ -40,6 +40,7 @@ $eventManager->listen(CmsController::EVENT_POST_PAGE_DELETE, $listener);
 $listener = new GoogleAnalyticsListener();
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
 
+// Product version HTML meta tag injection
 $listener = new VersionMetadataHtmlInjection();
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
 
