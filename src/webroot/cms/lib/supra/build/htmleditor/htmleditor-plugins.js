@@ -149,14 +149,13 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
 			
 			if (configuration) {
-				if (Y.Lang.isObject(configuration)) {
-					//Mix together user configuration and default
-					configuration = Supra.mix({'modes': defaultModes}, defaultConfig, configuration);
-					
-					return configuration;
-				} else {
-					return configuration;
+				if (!Y.Lang.isObject(configuration)) {
+					configuration = {};
 				}
+				
+				//Mix together user configuration and default
+				configuration = Supra.mix({'modes': defaultModes}, defaultConfig, configuration);
+				return configuration;
 			} else if (configuration === false) {
 				//If configuration is false then plugin is disabled
 				return false;
