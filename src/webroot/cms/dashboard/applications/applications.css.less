@@ -43,6 +43,22 @@
 	height: 47px;
 	background: url(/cms/dashboard/images/header/background.png) 0 0 repeat-x;
 	
+	.user {
+		display: block;
+		cursor: default;
+		
+		&.link {
+			cursor: pointer;
+			text-decoration: none;
+			
+			span {
+				text-decoration: underline;
+			}
+			&:hover span {
+				text-decoration: none;
+			}
+		}
+	}
 	.user span {
 		color: #fff;
 		font-size: 12px;

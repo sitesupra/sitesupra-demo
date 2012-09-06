@@ -185,13 +185,13 @@ function (Y) {
 		renderHeader: function () {
 			var node = this.one("div.dashboard-header");
 			
-			node.one("div.user span").set("text", Supra.data.get(["user", "name"]));
+			node.one("a.user span").set("text", Supra.data.get(["user", "name"]));
 			
 			var avatar = Supra.data.get(["user", "avatar"]);
 			if (avatar) {
-				node.one("div.user img").setAttribute("src", Supra.data.get(["user", "avatar"]));
+				node.one("a.user img").setAttribute("src", Supra.data.get(["user", "avatar"]));
 			} else {
-				node.one("div.user img").addClass("hidden");
+				node.one("a.user img").addClass("hidden");
 			}
 			
 			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
@@ -261,24 +261,42 @@ function (Y) {
 			Supra.io(this.getDataPath("applications"), function (data, status) {
 				if (status && data) {
 					var applications = [],
-						favourites = [];
+						favourites = [],
+						profile = null; // Profile application info
 					
 					Y.Array.each(data.applications, function (app) {
-						var index = Y.Array.indexOf(data.favourites, app.id);
-						
 						//Only if not in favourites
-						if (index === -1) {
-							applications.push(app);
+						if (app.id.indexOf("\\Profile") !== -1 || app.id.indexOf("/Profile") !== -1) {
+							this.updateProfileLink(app);
 						} else {
-							favourites[index] = app;
+							var index = Y.Array.indexOf(data.favourites, app.id);
+							if (index === -1) {
+								applications.push(app);
+							} else {
+								favourites[index] = app;
+							}
 						}
-					});
+					}, this);
 					
 					this.widgets.apps.set("data", applications);
 					this.widgets.favourites.set("data", favourites);
 					
 					this.widgets.scrollable.syncUI();
+					
+					
 				}
+			}, this);
+		},
+		
+		/**
+		 * Update header profile link
+		 */
+		updateProfileLink: function (app) {
+			var node = this.one("a.user");
+			node.addClass('link');
+			node.on("click", function () {
+				//Open profile manager
+				document.location = app.path;
 			}, this);
 		},
 		
