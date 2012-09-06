@@ -86,10 +86,12 @@ class DatabaseSessionHandler extends HandlerAbstraction
 	{
 		$tableName = self::TABLE_NAME;
 
-		$sql = "DELETE FROM {$tableName} s WHERE s.id = ?";
+		$sql = "DELETE FROM {$tableName} WHERE id = ?";
 
 		$connection = $this->getDatabaseConnection();
 		$connection->executeQuery($sql, array($this->sessionId));
+
+		parent::destroy();
 	}
 	
 	/**
