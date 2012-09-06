@@ -90,10 +90,15 @@ if (typeof Supra === "undefined") {
 	 * Configuration for YUI
 	 */
 	
+	/* Increase URL max length */
+	Y.Env._loader.maxURLLength = 2000;
+	
 	/* YUI() base configuration */
 	Supra.YUI_BASE = {
 		//YUI file combo
 		combine:	true,
+		//root: "$Y/",
+		//base: "$Y/",
 	    root:		"/cms/lib/yui." + YUI.version + "/build/",
 		base:		"/cms/lib/yui." + YUI.version + "/build/",
 	    comboBase:	"/cms/lib/supra/combo/combo.php?",
@@ -114,6 +119,8 @@ if (typeof Supra === "undefined") {
 			supra: {
 				//Supra modules
 				combine: true,
+				//root: "$S/",
+				//base: "$S/",
 				root: "/cms/lib/supra/build/",
 				base: "/cms/lib/supra/build/",
 				//Use YUI file combo
