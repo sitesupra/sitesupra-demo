@@ -2,6 +2,7 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Slideshow\SlideshowBlock
     title: Slideshow
+    icon: icon.png
     groupId: features
     description: Description
     cmsClassname: Gallery

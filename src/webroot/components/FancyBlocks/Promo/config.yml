@@ -1,6 +1,7 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Promo\PromoBlock
     title: Promo
+    icon: icon.png
     groupId: features
     description: Description
     cmsClassname: Editable
