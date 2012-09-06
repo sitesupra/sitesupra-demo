@@ -5,6 +5,11 @@ $apc = function_exists('apc_store');
 
 $files = explode('&', $q);
 
+// Maybe in future might use this...
+//if (preg_match('/^[0-9a-f]{32}$/', $files[0])) {
+//	$hash = array_shift($files);
+//}
+
 if ( ! sizeOf($files)) {
 //    echo('<strong>Error:</strong> No files found.');
 	exit;
@@ -28,11 +33,16 @@ $extLength = ($css ? 3 : 2);
 $lessCss = true;
 $pre = @$pre ?: $_SERVER['DOCUMENT_ROOT'];
 
-//$pre =  __DIR__ . '/../../../../';
-$cacheDir = __DIR__ . '/../../../../../tmp';
+// if will need to store in webroot...
+//$cacheDir = $pre . '/tmp';
+$cacheDir = $pre . '/../tmp';
+
 $version = __FILE__ . '/' . @file_get_contents(__DIR__ . '/../../../../../../VERSION');
 
-foreach ($files as $file) {
+foreach ($files as &$file) {
+
+	$file = str_replace(array('Y$', 'S$'), array('/cms/lib/yui.3.5.0/build/', '/cms/lib/supra/build/'), $file);
+
 	// Only CSS/JS allowed
 	if (substr($file, - $extLength - 1) !== '.' . $ext) {
 		die();
@@ -48,6 +58,7 @@ foreach ($files as $file) {
 	//	die();
 	//}
 }
+unset($file);
 
 $eTag = getEtag($files);
 header('ETag: ' . $eTag);
