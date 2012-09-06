@@ -26,7 +26,7 @@ $css = strpos($files[0], '.css') !== false ? true : false;
 $ext = ($css ? 'css' : 'js');
 $extLength = ($css ? 3 : 2);
 $lessCss = true;
-$pre = $pre ?: $_SERVER['DOCUMENT_ROOT'];
+$pre = @$pre ?: $_SERVER['DOCUMENT_ROOT'];
 
 //$pre =  __DIR__ . '/../../../../';
 $cacheDir = __DIR__ . '/../../../../../tmp';
