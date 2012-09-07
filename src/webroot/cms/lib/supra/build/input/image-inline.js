@@ -22,6 +22,10 @@ YUI.add('supra.input-image-inline', function (Y) {
 		//Blank image URI or data URI
 		"blankImageUrl": {
 			value: "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+		},
+		// Resize image crop to smaller size on zoom if needed
+		"allowZoomResize": {
+			value: false
 		}
 	};
 	
@@ -72,7 +76,8 @@ YUI.add('supra.input-image-inline', function (Y) {
 			
 			if (!imageResizer) {
 				imageResizer = this.widgets.imageResizer = new Supra.ImageResizer({
-					"mode": Supra.ImageResizer.MODE_IMAGE
+					"mode": Supra.ImageResizer.MODE_IMAGE,
+					"allowZoomResize": this.get("allowZoomResize")
 				});
 				imageResizer.on("resize", function (event) {
 					var value = this.get("value");

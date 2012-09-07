@@ -88,6 +88,11 @@ YUI().add("supra.imageresizer", function (Y) {
 		// Mode: 0 - image, 1 - background
 		"mode": {
 			value: ImageResizer.MODE_IMAGE
+		},
+		
+		// Resize crop region to smaller on image zoom change if needed
+		"allowZoomResize": {
+			value: false
 		}
 	};
 	
@@ -425,14 +430,38 @@ YUI().add("supra.imageresizer", function (Y) {
 			if (this.get("mode") == ImageResizer.MODE_IMAGE) {
 				ratio = (this.get("maxImageWidth") / this.get("maxImageHeight"));
 				
-				//Check crop
-				if (this.cropTop + this.cropHeight > this.imageHeight) {
-					this.imageHeight = this.cropTop + this.cropHeight;
-					this.imageWidth = ~~(this.imageHeight * ratio);
-				}
-				if (this.cropLeft + this.cropWidth > this.imageWidth) {
-					this.imageWidth = this.cropLeft + this.cropWidth;
-					this.imageHeight = ~~(this.imageWidth / ratio);
+				if (this.get("allowZoomResize")) {
+					//Resize crop if needed
+					if (this.cropTop + this.cropHeight > this.imageHeight) {
+						this.cropTop = this.imageHeight - this.cropHeight;
+						if (this.cropTop < 0) {
+							this.cropHeight += this.cropTop;
+							this.cropTop = 0;
+						}
+					}
+					if (this.cropLeft + this.cropWidth > this.imageWidth) {
+						this.cropLeft = this.imageWidth - this.cropWidth;
+						if (this.cropLeft < 0) {
+							this.cropWidth += this.cropLeft;
+							this.cropLeft = 0;
+						}
+					}
+					
+					this.get("imageContainerNode").setStyles({
+						"width": this.cropWidth + "px",
+						"height": this.cropHeight + "px"
+					});
+					image.setStyle("margin", - this.cropTop + "px 0 0 -" + this.cropLeft + "px");
+				} else {
+					//Crop resize not allowed, validate new size against crop
+					if (this.cropTop + this.cropHeight > this.imageHeight) {
+						this.imageHeight = this.cropTop + this.cropHeight;
+						this.imageWidth = ~~(this.imageHeight * ratio);
+					}
+					if (this.cropLeft + this.cropWidth > this.imageWidth) {
+						this.imageWidth = this.cropLeft + this.cropWidth;
+						this.imageHeight = ~~(this.imageWidth / ratio);
+					}
 				}
 				
 				image.setStyles({
