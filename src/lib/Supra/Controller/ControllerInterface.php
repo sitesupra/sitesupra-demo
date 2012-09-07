@@ -33,4 +33,10 @@ interface ControllerInterface
 	 * @return Response\ResponseInterface
 	 */
 	public function createResponse(Request\RequestInterface $request);
+
+	/**
+	 * Handles controller raised exception
+	 * @param \Exception $e
+	 */
+	public function handleException(\Exception $e);
 }

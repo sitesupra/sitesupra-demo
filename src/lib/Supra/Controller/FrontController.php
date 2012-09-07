@@ -4,14 +4,11 @@ namespace Supra\Controller;
 
 use Supra\Request;
 use Supra\Controller\Exception;
-use Supra\Response;
 use Supra\Router;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
-use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\Authorization\Exception\ApplicationAccessDeniedException;
 use Supra\Cms\ApplicationConfiguration;
-use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Loader\Loader;
 use Closure;
@@ -223,8 +220,12 @@ class FrontController
 			} else {
 				$controller->execute();
 			}
-		} catch (\Exception $uncaughtException) {
-			
+		} catch (\Exception $unhandledException) {
+			try {
+				$controller->handleException($unhandledException);
+			} catch (\Exception $uncaughtException) {
+				// will throw after finalizing the execution
+			}
 		}
 
 		ObjectRepository::endControllerContext($controllerClass);

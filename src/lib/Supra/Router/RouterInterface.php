@@ -3,7 +3,6 @@
 namespace Supra\Router;
 
 use Supra\Request\RequestInterface;
-use Supra\Controller\ControllerInterface;
 use Closure;
 
 /**
