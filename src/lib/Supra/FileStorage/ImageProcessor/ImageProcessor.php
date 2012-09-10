@@ -113,6 +113,24 @@ abstract class ImageProcessor
 				break;
 
 			case IMAGETYPE_PNG:
+				
+				$memoryLimit = ini_get('memory_limit');
+				
+				if($memoryLimit != '-1') {
+					
+					sscanf($memoryLimit, '%dM', $memoryLimit);
+					
+					$memoryLimit = $memoryLimit * 1024 * 1024;
+					
+					$memoryUsed = memory_get_usage();
+					
+					$memoryFree = $memoryLimit - $memoryUsed;
+					
+					if($memoryFree < $imageInfo->getWidth() * $imageInfo->getHeight() * $imageInfo->getBits()) {
+						throw new ImageProcessorException("Failed to create image " . $imageInfo->getName() . " from {$mimeName} format, not enough memory.");
+					}
+				}
+				
 				$image = imageCreateFromPNG($filename);
 				break;
 		}
