@@ -25,6 +25,7 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'LinkManager': '/content-manager',
 		'UserAvatar': '/internal-user-manager',
 		'Applications': '/dashboard',
+		'BrowserSupport': '/dashboard',
 		'Sites': '-local/site-list-manager' // This is rather hacky.
 	});
 
