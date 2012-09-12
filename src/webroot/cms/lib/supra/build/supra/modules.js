@@ -380,7 +380,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-image': {
 			path: 'htmleditor/plugins/plugin-image.js',
-			requires: ['supra.htmleditor-base', 'supra.imageresizer']
+			requires: ['supra.htmleditor-base', 'supra.imageresizer', 'supra.manager']
 		},
 		'supra.htmleditor-plugin-table': {
 			path: 'htmleditor/plugins/plugin-table.js',
