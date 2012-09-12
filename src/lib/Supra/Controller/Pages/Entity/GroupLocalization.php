@@ -11,8 +11,9 @@ use Supra\Controller\Pages\Exception;
  */
 class GroupLocalization extends Abstraction\Localization
 {
+
 	const DISCRIMINATOR = self::GROUP_DISCR;
-	
+
 	/**
 	 * Overrides the default value
 	 * @var boolean
@@ -30,13 +31,13 @@ class GroupLocalization extends Abstraction\Localization
 	 * @var boolean
 	 */
 	protected $includedInSearch = false;
-	
+
 	/**
 	 * Flag which marks the entity created automatically on miss
 	 * @var boolean
 	 */
 	private $persistent = true;
-	
+
 	/**
 	 * Creates new group localization object, sets ID equal to master ID, will
 	 * regenerate if persisted
@@ -51,34 +52,34 @@ class GroupLocalization extends Abstraction\Localization
 		$this->master = $groupPage;
 		$this->persistent = false;
 	}
-	
+
 	public function getPathPart()
 	{
 		return null;
 	}
-	
+
 	public function getPath()
 	{
 		return null;
 	}
-	
+
 	public function getParentPath()
 	{
 		$parent = $this->getParent();
-		
+
 		if (empty($parent)) {
 			return null;
 		}
-		
+
 		$path = $parent->getPath();
-		
+
 		if (is_null($path)) {
 			$path = $parent->getParentPath();
 		}
-		
+
 		return $path;
 	}
-	
+
 	/**
 	 * Update the title for master as well
 	 * @param string $title
@@ -86,10 +87,10 @@ class GroupLocalization extends Abstraction\Localization
 	public function setTitle($title)
 	{
 		parent::setTitle($title);
-		
+
 		$this->master->setTitle($title);
 	}
-	
+
 	/**
 	 * @return boolean
 	 */
@@ -105,21 +106,23 @@ class GroupLocalization extends Abstraction\Localization
 	{
 		$this->persistent = true;
 	}
-	
+
 	/**
 	 * Don't allow setting this
 	 * @param boolean $includedInSearch
 	 */
 	public function includedInSearch($includedInSearch)
 	{
+		
 	}
-	
+
 	/**
 	 * Don't allow setting this
 	 * @param boolean $visibleInMenu
 	 */
 	public function setVisibleInMenu($visibleInMenu)
 	{
+		
 	}
 
 	/**
@@ -128,8 +131,9 @@ class GroupLocalization extends Abstraction\Localization
 	 */
 	public function setVisibleInSitemap($visibleInSitemap)
 	{
+		
 	}
-	
+
 	public function isVisibleInSitemap()
 	{
 		return false;
@@ -143,6 +147,16 @@ class GroupLocalization extends Abstraction\Localization
 	public function isIncludedInSearch()
 	{
 		return false;
+	}
+
+	public static function getPreviewFilenameForLocalizationAndRevision($localizationId, $revisionId)
+	{
+		return FALSE;
+	}
+
+	public static function getPreviewUrlForLocalizationAndRevision($localizationId, $revisionId)
+	{
+		return '/cms/lib/supra/img/sitemap/preview/blank.jpg';
 	}
 
 }

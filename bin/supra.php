@@ -16,6 +16,8 @@ $cliCommandClasses = array(
 	'Supra\Database\Console\SchemaDropCommand',
 	'Supra\Console\Cron\Command',
 	'Supra\Console\Gearman\WorkerCommand',
+	'Supra\Controller\Pages\Command\MakeLocalizationPreviewCommand',
+	'Supra\Controller\Pages\Command\MakeAllLocalizationPreviewsCommand',
 	'Supra\Search\Command\RunIndexerCommand',
 	'Supra\Search\Command\WipeCommand',
 	'Supra\Search\Command\WipeQueuesCommand',
