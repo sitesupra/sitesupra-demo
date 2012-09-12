@@ -318,12 +318,22 @@ class HttpRequest implements RequestInterface
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getRequestMethod()
+	{
+		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+
+		return $requestMethod;
+	}
+
+	/**
 	 * If the request was a post request
 	 * @return boolean
 	 */
 	public function isPost()
 	{
-		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+		$requestMethod = $this->getRequestMethod();
 		$isPost = $requestMethod == self::METHOD_POST;
 
 		return $isPost;
@@ -335,7 +345,7 @@ class HttpRequest implements RequestInterface
 	 */
 	public function isGet()
 	{
-		$requestMethod = $this->getServerValue('REQUEST_METHOD');
+		$requestMethod = $this->getRequestMethod();
 		$isGet = $requestMethod == self::METHOD_GET;
 
 		return $isGet;

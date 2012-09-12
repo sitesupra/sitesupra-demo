@@ -78,6 +78,8 @@ Supra.useModules = [
 	'event',
 	'querystring',
 	'escape',
+	'cookie',
+	'transition',
 	
 	'supra.event',
 	'supra.intl',
@@ -91,7 +93,13 @@ Supra.useModules = [
 	'supra.io-session',
 	'supra.io-css',
 	'supra.dom',
-	'supra.template'
+	'supra.template',
+	'supra.input',
+	'supra.manager',
+	
+	'supra.header',
+	'supra.plugin-layout',
+	'supra.languagebar'
 ];
 
 
@@ -677,7 +685,9 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-color',
 			'supra.input-date',
 			'supra.input-block-background',
-			'supra.input-image-inline'
+			'supra.input-image-inline',
+			'supra.input-inline-html',
+			'supra.input-inline-string'
 		]
 	},
 	'supra.input': {
@@ -786,7 +796,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.manager-action-plugin-form',
 			'supra.manager-action-plugin-footer',
 			'supra.manager-action-plugin-container',
-			'supra.manager-action-plugin-maincontent'
+			'supra.manager-action-plugin-maincontent',
+			'supra.manager-action-plugin-layout-sidebar'
 		]
 	},
 	'supra.manager-base': {

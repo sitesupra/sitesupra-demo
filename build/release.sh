@@ -10,7 +10,7 @@ cd ${WORKSPACE}/release
 rm ${WORKSPACE}/*.zip || echo "No ZIP artifacts to remove"
 
 # Copy contents
-rsync -r \
+rsync -r --delete \
   --copy-links \
   --safe-links \
   --exclude=.* \

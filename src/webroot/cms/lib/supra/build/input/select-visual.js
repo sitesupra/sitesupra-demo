@@ -90,7 +90,9 @@ YUI.add('supra.input-select-visual', function (Y) {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			//Classnames, etc.
-			var boundingBox = this.get("boundingBox");
+			var boundingBox = this.get("boundingBox"),
+				classname;
+			
 			boundingBox.removeClass(Supra.Input.SelectList.CLASS_NAME);
 			
 			if (this.get('style')) {

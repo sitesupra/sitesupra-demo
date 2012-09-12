@@ -2,9 +2,7 @@
 
 namespace Supra\Router;
 
-use Supra\Controller\ControllerInterface;
 use Supra\Request\RequestInterface;
-use Supra\Loader\Loader;
 use Closure;
 
 /**

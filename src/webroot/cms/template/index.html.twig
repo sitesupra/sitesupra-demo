@@ -39,7 +39,7 @@
 	<script type="text/javascript">
 	//<![CDATA[
 	
-		Supra('supra.manager', function (Y) {
+		Supra(function (Y) {
 			{% block jsPathConfiguration %}
 			var APP_PATH = '/{{ manager.url }}',
 				STATIC_PATH = '/cms',
@@ -97,23 +97,30 @@
 				'lang': 'en'
 			});
 			
-			//Start pinging server
-			Supra.data.set('sessionCheckPings', true);
-			
-			{% block jsSupraManager %}
-			//Start loading actions
-			Supra.Manager.loadActions([
-				'Header',
-				'Root',
-				'LayoutContainers',
-				'PageToolbar',
-				'PageButtons'
-			]);
-			
-			//Execute initial actions
-			Supra.Manager.executeAction('Header');
-			Supra.Manager.executeAction('Root');
-			{% endblock %}
+			//IE not supported at the moment
+			if (Supra.Y.UA.ie) {
+				Supra.Manager.executeAction('BrowserSupport');
+			} else {
+				//Start pinging server
+				Supra.data.set('sessionCheckPings', true);
+				
+				{% block jsSupraManager %}
+				
+				//Start loading actions
+				Supra.Manager.loadActions([
+					'Header',
+					'Root',
+					'LayoutContainers',
+					'PageToolbar',
+					'PageButtons'
+				]);
+				
+				//Execute initial actions
+				Supra.Manager.executeAction('Header');
+				Supra.Manager.executeAction('Root');
+				
+				{% endblock %}
+			}
 			
 		});
 		

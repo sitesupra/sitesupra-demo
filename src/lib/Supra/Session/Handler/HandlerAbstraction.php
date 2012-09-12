@@ -17,6 +17,7 @@ abstract class HandlerAbstraction
 	const SESSION_CLOSED = 1002;
 	const SESSION_COULD_NOT_START = 1003;
 	const SESSION_COULD_NOT_CLOSE = 1004;	
+	const SESSION_DESTROYED = 1005;
 	
 	protected $persistOnClose = true;
 	
@@ -120,8 +121,8 @@ abstract class HandlerAbstraction
 	 */
 	public function destroy()
 	{
+		$this->sessionStatus = self::SESSION_DESTROYED;
 		$this->clear();
-		$this->close();
 		$this->sessionId = null;
 	}
 	

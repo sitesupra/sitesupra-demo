@@ -124,13 +124,6 @@ YUI.add('supra.button', function (Y) {
 			}
 			return text || this.get('label') || '&nbsp;';
         },
-		icon: function (srcNode) {
-			var node = srcNode.one('img');
-			if (node) {
-				return node.get('src');
-			}
-			return null;
-		},
 		style: function (srcNode) {
 			var button = this.get('nodeButton'),
 				style = null;

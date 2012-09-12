@@ -1,6 +1,7 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Menu\Left\LeftMenuBlock
     title: Left Menu
+    icon: left_menu.png
     groupId: features
     description: Sweet Left Menu Block
     cmsClassname: Editable

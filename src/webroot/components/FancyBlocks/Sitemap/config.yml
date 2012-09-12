@@ -1,5 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     title: Sitemap
+    icon: icon.png
     groupId: system
     class: Project\FancyBlocks\Sitemap\SitemapBlock
     cache:

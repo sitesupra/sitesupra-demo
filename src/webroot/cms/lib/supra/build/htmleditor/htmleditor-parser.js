@@ -242,7 +242,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				styleAdd = '',
 				tagClosing = false,
 				match = null,
-				remove = true;
+				remove = false;
 			
 			tagClosing = !!tagName[1];
 			tagName = tagName[2].toLowerCase();
@@ -250,9 +250,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (!(tagName in styleTags)) return null;
 			if (tagClosing) return tagName;
 			
-			if (tagName == 'a' || tagName == 'q') {
-				//Don't remove existing tags
-				remove = false;
+			if (tagName == 'span') {
+				//Remove existing tag
+				remove = true;
 			}
 			
 			for(k=0; k<kk; k++) {

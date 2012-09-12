@@ -169,7 +169,7 @@ class ThemeAddCommand extends Command
 		$configurationLoader = new ThemeConfigurationLoader();
 		$configurationLoader->setParser($yamlParser);
 		$configurationLoader->setTheme($theme);
-		$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_NO_CACHE);
+		$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_EXPIRE_BY_MODIFICATION);
 
 		$configurationLoader->loadFile($themeConfigurationFilename);
 		

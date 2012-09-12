@@ -1,6 +1,7 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Social\SocialBlock
     title: Social
+    icon: icon.png
     groupId: features
     description: Description
     cmsClassname: Editable

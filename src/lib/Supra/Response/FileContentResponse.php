@@ -63,7 +63,7 @@ class FileContentResponse extends HttpResponse
 	 */
 	public function __toString()
 	{
-		echo file_get_contents($this->filename);
+		return file_get_contents($this->filename);
 	}
 	
 }
