@@ -15,6 +15,7 @@ $cliCommandClasses = array(
 	'Supra\Database\Console\SchemaUpdateCommand',
 	'Supra\Database\Console\SchemaDropCommand',
 	'Supra\Console\Cron\Command',
+	'Supra\Console\Gearman\WorkerCommand',
 	'Supra\Search\Command\RunIndexerCommand',
 	'Supra\Search\Command\WipeCommand',
 	'Supra\Search\Command\WipeQueuesCommand',
