@@ -359,9 +359,9 @@ class Loader
 	 */
 	static function shutdown()
 	{
-		\Log::error('HIT: ', self::$hit);
-		\Log::error('MISS: ', self::$miss);
-		\Log::error('STORING CACHE: ', count(self::$cachedClasses));
+		//\Log::error('HIT: ', self::$hit);
+		//\Log::error('MISS: ', self::$miss);
+		//\Log::error('STORING CACHE: ', count(self::$cachedClasses));
 
 		file_put_contents(self::getLoadedClassesCacheFiename(), '<?php $loadedClasses = ' . var_export(self::$cachedClasses, true) . ';');
 	}
