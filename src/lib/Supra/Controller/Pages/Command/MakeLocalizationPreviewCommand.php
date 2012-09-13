@@ -104,6 +104,8 @@ class MakeLocalizationPreviewCommand extends Command
 	 */
 	public function makeLocalizationPreview($localizationType, $localizationId, $revisionId, $geometry = '80x80')
 	{
+		clearstatcache();
+		
 		$iniConfiguration = $this->getIniConfiguration();
 		$systemInfo = $this->getSystemInformation();
 
@@ -120,15 +122,17 @@ class MakeLocalizationPreviewCommand extends Command
 		$temporaryFilename = tempnam(sys_get_temp_dir(), 'preview-' . basename($previewFilename));
 
 		$command = array(
-			$wkhtmltoimagePath . ' --format jpg --width 1280 --height 1280 --crop-h 1280 "' . $sourceUrl . '" ' . $temporaryFilename . ' 2> /dev/null',
+			$wkhtmltoimagePath . ' --format jpg --width 1280 --height 1280 --crop-h 1280 ' . escapeshellarg($sourceUrl) . ' ' . escapeshellarg($temporaryFilename),
 			'; ',
-			$gmPath . ' mogrify -resize ' . $geometry . ' ' . $temporaryFilename,
+			$gmPath . ' mogrify -resize ' . escapeshellarg($geometry) . ' ' . escapeshellarg($temporaryFilename),
 		);
 
-		//\Log::debug('COMMAND: ', $command);
+		\Log::debug('FINAL FILENAME: ', $previewFilename);
+		\Log::debug('COMMAND: ', $command);
 
 		$output = array();
 		$exitCode = 0;
+		
 		exec(join('', $command), $output, $exitCode);
 
 		if ( ! file_exists($temporaryFilename)) {

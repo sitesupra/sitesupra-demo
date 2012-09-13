@@ -901,6 +901,12 @@ abstract class PageManagerAction extends CmsAction
 				$this->writeAuditLog("Draft for %item% saved", $pageData);
 			}
 		}
+		
+		$eventManager = ObjectRepository::getEventManager();
+		$eventArgs = new CmsPageEventArgs();
+		$eventArgs->localization = $pageData;
+		$eventArgs->user = $this->getUser();
+		$eventManager->fire(CmsPageEventArgs::postPageUnlock, $eventArgs);
 	}
 
 	/**
