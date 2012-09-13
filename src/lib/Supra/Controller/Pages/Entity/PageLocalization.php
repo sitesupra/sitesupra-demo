@@ -518,7 +518,7 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public static function getPreviewUrlForLocalizationAndRevision($localizationId, $revisionId)
 	{
-		return static::getPreviewUrlForTypeAndLocalizationAndRevision('p', $localizationId, $revisionId);
+		return self::getPreviewUrlForTypeAndLocalizationAndRevision('p', $localizationId, $revisionId);
 	}
 
 	/**
@@ -528,7 +528,7 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public static function getPreviewFilenameForLocalizationAndRevision($localizationId, $revisionId)
 	{
-		return static::getPreviewFienameForTypeAndLocalizationAndRevision('p', $localizationId, $revisionId);
+		return self::getPreviewFilenameForTypeAndLocalizationAndRevision('p', $localizationId, $revisionId);
 	}
 
 }
