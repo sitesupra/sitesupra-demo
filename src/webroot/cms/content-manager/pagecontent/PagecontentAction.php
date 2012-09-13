@@ -567,35 +567,29 @@ class PagecontentAction extends PageManagerAction
 
 				$metadataCollection = $property->getMetadata();
 
-				foreach ($valueData as $elementName => &$elementData) {
-					
-					$elementFound = false;
-					
-					if (isset($elementData['__meta__'])) {
-					
-						$elementId = $elementData['__meta__'];
+				foreach ($referencedElementsData as $referencedElementName => &$referencedElementData) {
 
-						if ( ! isset($elementData['href'])) {
-							$elementData['href'] = null;
-						}
+					if ( ! isset($referencedElementData['href'])) {
+						$referencedElementData['href'] = null;
+					}
 
+					$referencedElementFound = false;
 
-						if ( ! empty($metadataCollection)) {
+					if ( ! empty($metadataCollection)) {
 
-							// search for propper metadata item by __meta__ offset value
-							foreach($metadataCollection as $metadataItem) {
-								/* @var $metadataItem Entity\BlockPropertyMetadata */
-								if ($metadataItem->getId() === $elementId) {
+						foreach ($metadataCollection as $metadataItem) {
+							/* @var $metadataItem Entity\BlockPropertyMetadata */
 
-									// update meta name, as it may change
-									$metadataItem->setName($elementName);
+							$metadataItemName = $metadataItem->getName();
 
-									$element = $metadataItem->getReferencedElement();
-									$element->fillArray($elementData);
+							if ($metadataItemName == $referencedElementName) {
 
-									$elementFound = true;
-									break;
-								}
+								$referencedElement = $metadataItem->getReferencedElement();
+								$referencedElement->fillArray($referencedElementData);
+
+								$referencedElementFound = true;
+
+								break;
 							}
 						}
 					}
@@ -607,8 +601,6 @@ class PagecontentAction extends PageManagerAction
 						$metadataItem = new Entity\BlockPropertyMetadata($referencedElementName, $property, $referencedElement);
 
 						$property->addMetadata($metadataItem);
-						
-						$elementData['__meta__'] = $metadataItem->getId();
 					}
 				}
 
@@ -621,11 +613,9 @@ class PagecontentAction extends PageManagerAction
 
 					foreach ($referencedElementsData as $referencedElementName => $referencedElementData) {
 
-						$elementId = $elementData['__meta__'];
-						
-						foreach ($metadataCollection as $metadataItem) {
+						foreach ($metadataCollection as $metadataItemName => $metadataItem) {
 
-							if ($metadataItem->getId() === $elementId) {
+							if ($metadataItemName === $referencedElementName) {
 
 								$subInput = $referencedElementData['_subPropertyInput'];
 								$galleryController->setParentMetadata($metadataItem);
