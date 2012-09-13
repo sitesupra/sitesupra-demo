@@ -132,14 +132,20 @@ class MakeLocalizationPreviewCommand extends Command
 		exec(join('', $command), $output, $exitCode);
 
 		if ( ! file_exists($temporaryFilename)) {
+			\Log::error('COMMAND: ', $command);
+			\Log::error('OUTPUT: ', $output);
 			throw new Exception\RuntimeException('Intermediate file not generated.');
 		}
 
 		if ( ! ($previewImageSize = getimagesize($temporaryFilename))) {
+			\Log::error('COMMAND: ', $command);
+			\Log::error('OUTPUT: ', $output);
 			throw new Exception\RuntimeException('Intermediate file not image.');
 		}
 
 		if ( ! rename($temporaryFilename, $previewFilename)) {
+			\Log::error('COMMAND: ', $command);
+			\Log::error('OUTPUT: ', $output);
 			throw new Exception\RuntimeException('Could not move intermediate ' . $temporaryFilename . ' to assets ' . $previewFilename . '.');
 		}
 
