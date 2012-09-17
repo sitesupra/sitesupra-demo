@@ -1,5 +1,8 @@
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', {{ accountId | json_encode | raw }}]);
+{% if domainName %}
+_gaq.push(['_setDomainName', {{ domainName | json_encode | raw }}]);
+{% endif %}
 _gaq.push(['_trackPageview']);
 
 (function() {
