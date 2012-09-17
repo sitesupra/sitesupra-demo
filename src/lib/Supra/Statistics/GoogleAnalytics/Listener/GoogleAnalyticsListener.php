@@ -18,7 +18,7 @@ class GoogleAnalyticsListener
 		$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
 
 		$sectionName = 'google_analytics';
-		if ($iniConfiguration->getSection($sectionName, false)) {
+		if ( ! $iniConfiguration->getSection($sectionName, false)) {
 			$sectionName = 'googleAnalytics';
 		}
 
