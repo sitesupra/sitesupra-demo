@@ -1065,7 +1065,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			if (!this.get('rendered')) return preview;
 			
 			if (!preview) {
-				preview || '/cms/content-manager/sitemap/images/preview/blank.jpg';
+				preview = '/cms/content-manager/sitemap/images/preview/blank.jpg';
 			}
 			
 			this.get('itemBox').one('img').setAttribute('src', preview);

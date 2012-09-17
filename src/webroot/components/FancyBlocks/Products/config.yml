@@ -65,6 +65,7 @@
           editable: Supra\Editable\SelectVisual
           label: Navigation
           shared: true
+          default: arrows
           values:
             - id: none
               title: None
