@@ -1005,12 +1005,19 @@ abstract class PageManagerAction extends CmsAction
 					$em->getEventManager()
 							->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
 
-					// page indexes in sitemap tree
-					$newPage->setLeftValue(0);
-					$newPage->setRightValue(0);
-					$newPage->setLevel(1);
+					// not needed in fact..
+//					// page indexes in sitemap tree
+//					$newPage->setLeftValue(0);
+//					$newPage->setRightValue(0);
+//					$newPage->setLevel(1);
 
-					$em->getRepository(AbstractPage::CN())
+					if ($newPage instanceof Template) {
+						$repositoryCn = Template::CN();
+					} else {
+						$repositoryCn = AbstractPage::CN();
+					}
+
+					$em->getRepository($repositoryCn)
 							->getNestedSetRepository()
 							->add($newPage);
 
@@ -1033,7 +1040,13 @@ abstract class PageManagerAction extends CmsAction
 
 		$newPage = $em->transactional($clonePage);
 
-		$newLocalizations = $newPage->getLocalizations();
+		// Refresh all data
+		$newPageId = $newPage->getId();
+		$em->clear();
+
+		$newPageRefreshed = $em->find(AbstractPage::CN(), $newPageId);
+
+		$newLocalizations = $newPageRefreshed->getLocalizations();
 		foreach ($newLocalizations as $newLocalization) {
 			if ($newLocalization instanceof Entity\TemplateLocalization) {
 				$this->pageData = $newLocalization;
@@ -1044,7 +1057,7 @@ abstract class PageManagerAction extends CmsAction
 		$currentLocale = $this->getLocale()
 				->getId();
 
-		$response = $this->convertPageToArray($newPage, $currentLocale);
+		$response = $this->convertPageToArray($newPageRefreshed, $currentLocale);
 
 		$this->getResponse()
 				->setResponseData($response);

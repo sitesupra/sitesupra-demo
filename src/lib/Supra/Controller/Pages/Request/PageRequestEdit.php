@@ -698,15 +698,31 @@ class PageRequestEdit extends PageRequest
 		}
 		
 		foreach ($classMetadata->associationMappings as $fieldName => $association) {
+
+			// Don't visit this association, might get other blocks
+			if ($entity instanceof Entity\Abstraction\Block && $fieldName == 'blockProperties') {
+				continue;
+			}
+
 			if ( ! $association['isOwningSide']) {
+
+				$newValue = null;
+
 				if (isset($entityData[$fieldName])) {
 					if ($entityData[$fieldName] instanceof Collection) {
+						$newValue = new \Doctrine\Common\Collections\ArrayCollection();
 						foreach ($entityData[$fieldName] as $collectionItem) {
-							$this->recursiveClone($collectionItem, $newEntity, $skipPathEvent);
+							$newChild = $this->recursiveClone($collectionItem, $newEntity, $skipPathEvent);
+							$newValue->add($newChild);
 						}
 					} else {
-						$this->recursiveClone($entityData[$fieldName], $newEntity, $skipPathEvent);
+						$newValue = $this->recursiveClone($entityData[$fieldName], $newEntity, $skipPathEvent);
 					}
+
+					$objectReflection = new \ReflectionObject($newEntity);
+					$propertyReflection = $objectReflection->getProperty($fieldName);
+					$propertyReflection->setAccessible(true);
+					$propertyReflection->setValue($newEntity, $newValue);
 				}
 			} else if ( ! is_null($associationOwner)) {
 				$ownerEntityClassName = $classMetadata->associationMappings[$fieldName]['targetEntity'];
@@ -756,15 +772,16 @@ class PageRequestEdit extends PageRequest
 		
 		$em->persist($newEntity);
 
-		// workaround to keep cloned entities in sync with database
-		// otherwise using them after clone will fail
-		$this->_cloneRecursionDepth--;
-		if ($this->_cloneRecursionDepth == 0) {
-			$em->flush();
-			foreach ($this->_clonedEntities as $clonedEntity) {
-				$em->refresh($clonedEntity);
-			}
-		}
+		// Maybe this is not required anymore???
+//		// workaround to keep cloned entities in sync with database
+//		// otherwise using them after clone will fail
+//		$this->_cloneRecursionDepth--;
+//		if ($this->_cloneRecursionDepth == 0) {
+//			$em->flush();
+//			foreach ($this->_clonedEntities as $clonedEntity) {
+//				$em->refresh($clonedEntity);
+//			}
+//		}
 		
 		return $newEntity;
 	}
