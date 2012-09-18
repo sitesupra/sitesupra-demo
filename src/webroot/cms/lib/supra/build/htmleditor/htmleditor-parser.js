@@ -4,7 +4,7 @@
 YUI().add('supra.htmleditor-parser', function (Y) {
 	
 	/* Tag white list, all other tags will be removed */
-	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section'];
+	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', 'font', '_span'];
 	
 	/* List of inline elements */
 	Supra.HTMLEditor.ELEMENTS_INLINE = {'b': 'b', 'i': 'i', 'span': 'span', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong': 'strong', 's': 's', 'strike': 'strike', 'a': 'a', 'u': 'u', 'img': 'img', 'br': 'br', 'q': 'q', 'big': 'big', 'mark': 'mark', 'rp': 'rp', 'rt': 'rt', 'ruby': 'ruby', 'summary': 'summary', 'time': 'time'};
@@ -13,12 +13,22 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	Supra.HTMLEditor.NOT_CLOSED_TAGS = {'img': 'img', 'br': 'br', 'param': 'param', 'col': 'col', 'embed': 'embed'};
 	
 	/* Elements which should be checked for inline style */
-	Supra.HTMLEditor.STYLED_INLINE   = ['span', 'b', 'i', 'em', 'sub', 'sup', 'small', 'strong', 's', 'strike', 'a', 'u', 'q', 'big'];
+	Supra.HTMLEditor.STYLED_INLINE   = {'span': 'span', 'b': 'b', 'i': 'i', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong':'strong', 's':'s', 'strike': 'strike', 'a': 'a', 'u': 'u', 'q': 'q', 'big': 'big'};
 	
 	/* Find all tags */
 	var REGEXP_FIND_TAGS = /<\/?([a-z][a-z0-9\:]*)\b[^>]*>/gi;
 	
 	var REGEXP_FIND_CLASS = /class=(([a-z0-9\_\-]+)|"([^"]+)")/i;
+	
+	/* List of style properties which should be converted into tags */
+	var STYLE_TO_TAG = [
+		//[TAG, REGEX, KEEP STYLE ATTRIBUTE]
+		['b', /font-weight:\s?bold/i],
+		['em', /font-style:\s?italic/i],
+		['u', /text-decoration:[^"']*underline/i],
+		['s', /text-decoration:[^"']*line-through/i],
+		['font', /background-color:[^;"']+/i, true] // we keep style, because we want to change only tag
+	];
 	
 	/* List of tagNames and matching regular expressions to find correct tag name */
 	var STYLE_TO_TAG_NAME = [
@@ -98,91 +108,74 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					html = html.replace(/<(\/?)strike/ig, '<$1s');
 				}
 				
-				//Convert <span> into B, EM, U, S
-				var styleToTag = [
-					['b', /font-weight:\s?bold/i],
-					['em', /font-style:\s?italic/i],
-					['u', /text-decoration:[^"']*underline/i],
-					['s', /text-decoration:[^"']*line-through/i]
-				];
-				
 				//Remove YUI ids from nodes
 				html = html.replace(/\s+id="yui_[^"]*"/gi, '');
 				
 				//Remove un-editable classnames
 				html = html.replace(/su\-(un)?editable/gi, '');
 				
-				var styleTags = Supra.HTMLEditor.STYLED_INLINE,
-					styleTag,
-					regexStyle,
-					tagIndex,
-					tagOpenStart,
-					tagOpenEnd,
-					tagClose,
-					tagContent,
-					tagsAdd = [],
-					tagsAppend = '',
-					tagsPrepend = '',
-					classAdd = '',
-					k = 0,
-					kk = styleToTag.length;
+				//Replace styles with tags
+				var regexTag = /<(\/?)([a-z]+)/,
+					tagOpenIndex = html.indexOf('<'),
+					tagCloseIndex = -1,
+					tag = null,
+					tagName = '',
+					tagClosing = false,
+					tagStack = [];
 				
-				for(var i=0,ii=styleTags.length; i<ii; i++) {
-					styleTag = styleTags[i];
-					
-					tagOpenStart = html.indexOf('<' + styleTag);
-					
-					//If there is a letter after style tag then match isn't correct
-					while (tagOpenStart != -1 && html.charAt(tagOpenStart + styleTag.length + 1).match(/[a-z]/i)) {
-						tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 2);
-					}
-					
-					tagOpenEnd = html.indexOf('>', tagOpenStart);
-					tagsAdd = [];
-					
-					while(tagOpenStart != -1) {
-						//See if correct tag was matched
-						tagClose = html.indexOf('</' + styleTag, tagOpenStart);
-						
-						if (tagClose == -1) {
-							//Tag is not closed, remove it
-							html = html.substring(0, tagOpenStart) + html.substr(tagOpenEnd + 1);
-						} else {
-							tagContent = html.substring(tagOpenStart, tagOpenEnd);
-							
-							for(k=0; k<kk; k++) {
-								if (tagContent.match(styleToTag[k][1])) {
-									tagsAdd[tagsAdd.length] = styleToTag[k][0];
+				while(tagOpenIndex != -1) {
+					tagCloseIndex = html.indexOf('>', tagOpenIndex);
+					if (tagCloseIndex != -1) {
+						tag = this.cleanTag(html.substring(tagOpenIndex + 1, tagCloseIndex));
+						if (tag) {
+							if (typeof tag === 'string') {
+								//Closing tag
+								if (tagStack.length && tagStack[0][0] == tag) {
+									//Get item from stack
+									tag = tagStack.shift();
+									
+									if (tag[3]) {
+										//Remove existing tag
+										html = html.substr(0, tagOpenIndex) + tag[2] + html.substr(tagCloseIndex + 1);
+										
+										//Update index
+										tagOpenIndex += tag[2].length - 1;
+									} else {
+										//Keep existing tag
+										html = html.substr(0, tagOpenIndex) + tag[2] + html.substr(tagOpenIndex);
+										
+										//Update index
+										tagOpenIndex = tagCloseIndex + tag[2].length - 1;
+									}
+								}
+							} else {
+								//Add item to stack
+								tagStack.unshift(tag);
+								
+								if (tag[3]) {
+									//Remove existing tag
+									html = html.substr(0, tagOpenIndex) + tag[1] + html.substr(tagCloseIndex + 1);
+									
+									//Update index
+									tagOpenIndex += tag[1].length - 1;
+								} else {
+									//Keep existing tag
+									var tmp = html.substr(tagOpenIndex, tagCloseIndex + 1 - tagOpenIndex).replace(/style=("[^"]*"|'[^']*')/, '');
+									
+									html =  html.substr(0, tagOpenIndex) +
+											tmp +
+											tag[1] +
+											html.substr(tagCloseIndex + 1);
+									
+									//Update index
+									tagOpenIndex += tmp.length + tag[1].length - 1;
 								}
 							}
-							
-							classAdd = tagContent.match(REGEXP_FIND_CLASS);
-							classAdd = classAdd ? ' class="' + (classAdd[2] || classAdd[3]) + '"' : '';
-							
-							tagsPrepend = tagsAdd.length ? '<_' + tagsAdd.join(classAdd + '><_') + classAdd + '>' : '';
-							tagsAppend  = tagsAdd.length ? '</_' + tagsAdd.reverse().join('></_') + '>' : '';
-							
-							html = html.substring(0, tagOpenStart)
-								 + '<_' + html.substring(tagOpenStart + 1, tagOpenEnd + 1)
-								 + tagsPrepend + html.substring(tagOpenEnd + 1, tagClose) + tagsAppend
-								 + '</_' + html.substring(tagClose + 2);
 						}
-						
-						tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 1);
-						
-						//If there is a letter after style tag then match isn't correct
-						html.charAt(tagOpenStart + styleTag.length + 1).match(/a-z/i);
-						while (tagOpenStart != -1 && html.charAt(tagOpenStart + styleTag.length + 1).match(/[a-z]/i)) {
-							tagOpenStart = html.indexOf('<' + styleTag, tagOpenStart + 2);
-						}
-						
-						tagOpenEnd = html.indexOf('>', tagOpenStart);
-						tagsAdd = [];
 					}
+					
+					tagOpenIndex = html.indexOf('<', tagOpenIndex + 1);
 				}
-				
-				//Convert <_ into <
-				html = html.replace(/<(\/?)_/g, '<$1');
 				
 				//Convert <strong> into <b>
 				html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
@@ -200,11 +193,20 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove tags, which are not white-listed (SPAN is also removed)
 				html = this.stripTags(html, Supra.HTMLEditor.WHITE_LIST_TAGS);
 				
+				//Convert <_ into <
+				html = html.replace(/<(\/?)_/g, '<$1');
+				
 				//Remove empty UL and OL tags
 				html = html.replace(/<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi, '');
 				
-				//Remove style attribute
-				html = html.replace(/\s+style="[^"]*"/gi, '');
+				//Remove style attribute, except background-color
+				html = html.replace(/\s+style=["']([^'"]*)["']/gi, function (all, styles) {
+					styles = styles.match(/background-color:[^;]+/);
+					if (styles && styles.length) {
+						return ' style="' + styles[0] + '"';
+					}
+					return '';
+				});
 				
 				//Remove empty class attributes
 				html = html.replace(/class="\s*"/g, '');
@@ -218,6 +220,64 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			this.fire('cleanHTML', {}, event);
 			
 			return event.html || '';
+		},
+		
+		/**
+		 * Convert <span> and other tag style="" attributes into tags
+		 * 
+		 * @return Tag name, opening and closing HTML
+		 * @private 
+		 */
+		cleanTag: function (html) {
+			var tagName = html.match(/^(\/?)([a-z]+)/i);
+			if (!tagName) return null;
+			
+			var styleToTag = STYLE_TO_TAG,
+				k = 0,
+				kk = styleToTag.length,
+				
+				styleTags = Supra.HTMLEditor.STYLED_INLINE,
+				tagsAdd = [],
+				classAdd = '',
+				styleAdd = '',
+				tagClosing = false,
+				match = null,
+				remove = false;
+			
+			tagClosing = !!tagName[1];
+			tagName = tagName[2].toLowerCase();
+			
+			if (!(tagName in styleTags)) return null;
+			if (tagClosing) return tagName;
+			
+			if (tagName == 'span') {
+				//Remove existing tag
+				remove = true;
+			}
+			
+			for(k=0; k<kk; k++) {
+				match = html.match(styleToTag[k][1]);
+				if (match) {
+					tagsAdd[tagsAdd.length] = styleToTag[k][0];
+					
+					//If keep style
+					if (styleToTag[k][2]) {
+						styleAdd = styleAdd + (styleAdd ? ' ': '') + match[0] + ';';
+					}
+				}
+			}
+			
+			classAdd = html.match(REGEXP_FIND_CLASS);
+			classAdd = classAdd ? ' class="' + (classAdd[2] || classAdd[3]) + '"' : '';
+			
+			styleAdd = styleAdd ? ' style="' + styleAdd + '"' : '';
+			
+			return [
+				tagName,
+				tagsAdd.length ? '<' + tagsAdd.join(classAdd + styleAdd + '><') + classAdd + styleAdd + '>' : '',
+				tagsAdd.length ? '</' + tagsAdd.reverse().join('></') + '>' : '',
+				remove
+			];
 		},
 		
 		/**

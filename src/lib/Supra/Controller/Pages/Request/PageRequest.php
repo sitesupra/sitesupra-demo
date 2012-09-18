@@ -59,7 +59,7 @@ abstract class PageRequest extends HttpRequest
 	private $pageSet;
 
 	/**
-	 * @var Entity\ThemeLayout
+	 * @var Entity\Theme\ThemeLayout
 	 */
 	private $layout;
 
@@ -325,7 +325,7 @@ abstract class PageRequest extends HttpRequest
 	}
 
 	/**
-	 * @return Entity\ThemeLayout
+	 * @return Entity\Theme\ThemeLayout
 	 */
 	public function getLayout()
 	{

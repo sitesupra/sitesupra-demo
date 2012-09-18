@@ -11,6 +11,24 @@ YUI.add('supra.iframe-handler', function (Y) {
 		Action = Manager.PageContent,
 		Root = Manager.getAction('Root');
 	
+	//List of fonts, which doesn't need to be loaded from Google Web Fonts
+	var SAFE_FONTS = [
+		"Arial", "Tahoma", "Helvetica", "sans-serif", "Arial Black", "Impact",
+		"Trebuchet MS", "MS Sans Serif", "MS Serif", "Geneva", "Comic Sans MS" /* trololol.... */,
+		"Palatino Linotype", "Book Antiqua", "Palatino", "Monaco", "Charcoal",
+		"Courier New", "Georgia", "Times New Roman", "Times",
+		"Lucida Console", "Lucida Sans Unicode", "Lucida Grande", "Gadget",
+		"monospace"
+	];
+	
+	//Map function to lowercase all array items
+	var LOWERCASE_MAP = function (str) {
+		return String(str || '').toLowerCase();
+	};
+	
+	var GOOGLE_FONT_API_URI = document.location.protocol + "//fonts.googleapis.com/css?family=";
+	
+	
 	/*
 	 * Iframe
 	 */
@@ -66,6 +84,14 @@ YUI.add('supra.iframe-handler', function (Y) {
 		'loading': {
 			value: false,
 			setter: '_setLoading'
+		},
+		
+		/**
+		 * Stylesheet parser, Supra.IframeStylesheetParser
+		 */
+		'stylesheetParser': {
+			value: null,
+			getter: '_getStylesheetParser'
 		}
 	};
 	
@@ -84,6 +110,24 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @type {Object}
 		 */
 		overlay: null,
+		
+		/**
+		 * Stylesheet parser
+		 * @type {Object}
+		 */
+		stylesheetParser: null,
+		
+		/**
+		 * Layout is binded
+		 * @type {Number}
+		 */
+		layoutBinded: false,
+		
+		/**
+		 * Last known top offset
+		 */
+		layoutOffsetTop: null,
+		
 		
 		/**
 		 * Add script to the page content
@@ -115,13 +159,19 @@ YUI.add('supra.iframe-handler', function (Y) {
 				return null;
 			}
 			
-			var doc = this.get('doc');
-			var link = doc.createElement('link');
+			var doc = this.get('doc'),
+				head = doc.getElementsByTagName('HEAD')[0],
+				link = doc.createElement('link');
 				link.rel = "stylesheet";
 				link.type = "text/css";
 				link.href = href;
 			
-			doc.getElementsByTagName('HEAD')[0].appendChild(link);
+			if (head.childNodes.length) {
+				head.insertBefore(link, head.childNodes[0]);
+			} else {
+				head.appendChild(link);
+			}
+			
 			return link;
 		},
 		
@@ -155,6 +205,13 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			//Trigger ready event
 			this.fire('ready', {'iframe': this, 'body': body});
+			this.get("nodeIframe").fire('ready');
+			
+			//Bind to layout
+			if (this.layout && !this.layoutBinded) {
+				this.layoutBinded = true;
+				this.layout.on('sync', this.onLayoutSync, this);
+			}
 		},
 		
 		/**
@@ -228,6 +285,9 @@ YUI.add('supra.iframe-handler', function (Y) {
 			var scripts = [];
 			
 			doc.open("text/html", "replace");
+			
+			//All link for Google fonts
+			html = this.includeGoogleFonts(html);
 			
 			//IE freezes when trying to insert <script> with src attribute using writeln
 			if (Supra.Y.UA.ie) {
@@ -314,6 +374,8 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			this.setHTML(this.get('html'));
 			cont.removeClass('hidden');
+			
+			this.includeGoogleFonts(document);
 		},
 		
 		/**
@@ -325,6 +387,24 @@ YUI.add('supra.iframe-handler', function (Y) {
 		_setOverlayVisible: function (value) {
 			this.overlay.toggleClass('hidden', !value);
 			return !!value;
+		},
+		
+		/**
+		 * stylesheetParser attribute getter
+		 * 
+		 * @param {Object} value
+		 */
+		_getStylesheetParser: function (value) {
+			if (this.stylesheetParser) return this.stylesheetParser;
+			
+			var parser = new Supra.IframeStylesheetParser({
+				"iframe": this.get("nodeIframe"),
+				"doc": this.get("doc"),
+				"win": this.get("win")
+			});
+			
+			this.stylesheetParser = parser;
+			return parser;
 		},
 		
 		/**
@@ -422,7 +502,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 				}
 			} else {
 				//TODO: open the link in the new tab or show message with link to the page
-				window.open(href);
+//				window.open(href);
 			}
 		},
 		
@@ -497,9 +577,9 @@ YUI.add('supra.iframe-handler', function (Y) {
 				links.push(Y.Node.getDOMNode(elements.item(i)));
 			}
 			
-			//Add stylesheets to iframe
+			//Add stylesheets to iframe, load using combo
 			if (!Supra.data.get(['supra.htmleditor', 'stylesheets', 'skip_default'], false)) {
-				link = this.addStyleSheet(Action.getActionPath() + "iframe.css");
+				link = this.addStyleSheet(Y.config.comboBase + Action.getActionPath() + "iframe.css");
 				if (link) {
 					links.push(link);
 				}
@@ -520,6 +600,132 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 */
 		_setLoading: function (value) {
 			this.get('contentBox').toggleClass('yui3-page-iframe-loading', value);
+		},
+		
+		
+		/* ------------------------------------------- FONTS ------------------------------------------- */
+		
+		
+		/**
+		 * Load fonts from Google Fonts
+		 * 
+		 * @param {String} html HTML in which will be inserted <link />, if this is document then link is added to DOM <head />
+		 */
+		includeGoogleFonts: function (html) {
+			var uri = this.getGoogleFontsURI(Supra.data.get(['supra.htmleditor', 'fonts']));
+			
+			if (typeof html === "string") {
+				
+				var replaced = false,
+					regex = new RegExp('(<link[^>]+href=)["\'][^"\']' + Y.Escape.regex(GOOGLE_FONT_API_URI) + '[^"\']*?["\']', 'i'),
+					html = html.replace(regex, function (all, pre) {
+						replaced = true;
+						return pre + '"' + uri + '"';
+					});
+				
+				if (!replaced) {
+					//Insert
+					html = html.replace(/<\/\s*head/i, '<link rel="stylesheet" href="' + uri + '" /></head');
+				}
+				
+				return html;
+			} else {
+				var doc = html;
+				if (!doc) return;
+				
+				//
+				var head = Y.Node(doc).one("head"),
+					link = head.one('link[href^="' + GOOGLE_FONT_API_URI + '"]');
+				
+				if (uri) {
+					if (link) {
+						//Update
+						link.setAttribute("href", uri);
+					} else {
+						//Add
+						link = Y.Node.create('<link href="' + uri + '" rel="stylesheet" type="text/css" />');
+						head.append(link);
+					}
+				} else if (link) {
+					//We don't have any fonts, remove link
+					link.remove();
+				}
+			}
+		},
+		
+		/**
+		 * Returns URI with all fonts
+		 * 
+		 * @return URI for <link /> element which will load all fonts
+		 */
+		getGoogleFontsURI: function (fonts) {
+			if (this.fontsURI) return this.fontsURI;
+			
+			var fonts = Y.Lang.isArray(fonts) ? fonts : [],
+				i = 0, ii = fonts.length,
+				
+				//Get all safe fonts in lowercase
+				safe  = Y.Array(SAFE_FONTS).map(LOWERCASE_MAP),
+				apis  = [],
+				
+				parts = [], k = 0, kk = 0,
+				
+				load  = [],
+				temp  = '',
+				uri   = GOOGLE_FONT_API_URI;
+			
+			//Find which ones are not in the safe font list
+			for (; i<ii; i++) {
+				//Split "Arial, Verdana" into two items
+				if (fonts[i].family || (fonts[i].title && !fonts[i].apis)) {
+					parts = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').split(',');
+				} else {
+					parts = fonts[i].apis.replace(/:[^|]+/g, '').replace(/\+/g, ' ').split('|');
+				}
+				
+				for (k=0,kk=parts.length; k<kk; k++) {
+					//If any of the part is not in the safe list, then load from Google Fonts
+					if (parts[k] && safe.indexOf(parts[k].toLowerCase()) == -1) {
+						
+						//Convert into format which is valid for uri
+						if (fonts[i].apis) {
+							load.push(fonts[i].apis);
+						} else {
+							temp = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').replace(/\s+/g, '+').replace(/,/g, '|');
+							if (temp) load.push(temp);
+						}
+						
+						break;
+					}
+				}
+			}
+			
+			return this.fontsURI = (load.length ? uri + load.join('|') : '');
+		},
+		
+		/**
+		 * On layout sync update content scroll to match new offset
+		 * This is done so that user don't see content jumping when top-container height changes
+		 * 
+		 * @param {Object} event
+		 */
+		onLayoutSync: function (event) {
+			if (this.layoutOffsetTop === null) {
+				this.layoutOffsetTop = event.offset.top;
+			}
+			
+			if (this.layoutOffsetTop != event.offset.top) {
+				var diff = event.offset.top - this.layoutOffsetTop,
+					doc = this.get('doc'),
+					body = doc.body,
+					html = doc.querySelector('HTML'),
+					scroll = (html ? html.scrollTop : 0) || (body ? body.scrollTop : 0) + diff;
+				
+				html.scrollTop = scroll;
+				body.scrollTop = scroll;
+				
+				this.layoutOffsetTop = event.offset.top;
+			}
 		}
 		
 	});

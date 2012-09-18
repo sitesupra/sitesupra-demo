@@ -13,6 +13,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	var Data = Supra.MediaLibraryData,
 		Template = Supra.Template;
 	
+	/*
+	 * HTML5 support
+	 */
+	var FILE_API_SUPPORTED = typeof FileReader !== 'undefined';
 	
 	/**
 	 * Media list
@@ -119,7 +123,12 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, folder item template for temporary file
 	 * @type {String}
 	 */
-	List.TEMPLATE_FOLDER_ITEM_TEMP = Template.compile('<li class="type-temp" data-id="{{ id }}"></li>');
+	List.TEMPLATE_FOLDER_ITEM_TEMP = Template.compile('\
+		<li class="type-temp' + (FILE_API_SUPPORTED ? '' : ' type-temp-legacy') + '" data-id="{{ id }}">\
+			<span class="title">{{ filename|escape }}</span>\
+			<a class="cancel"></a>\
+			<span class="progress"><em></em></span>\
+		</li>');
 	
 	/**
 	 * Constant, file template
@@ -330,6 +339,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Sorting
+		 * @type {String}
+		 */
+		'sortBy': {
+			value: 'filename'
+		},
+		
+		/**
 		 * Drag and drop is enabled
 		 */
 		'dndEnabled': {
@@ -422,6 +439,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		slideshow: null,
 		
 		/**
+		 * Sort by widget
+		 * @type {Object}
+		 * @private
+		 */
+		input_sortby: null,
+		
+		/**
 		 * File is selected
 		 * @type {Boolean}
 		 * @private
@@ -459,6 +483,23 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				if (this.get('displayType') !== null) {
 					data.setRequestParam(Data.PARAM_DISPLAY_TYPE, this.get('displayType') || List.DISPLAY_ALL);
 				}
+			}
+			
+			//Create "Sort by" widget, extended media list creates its own sorting widget
+			if (!this.isInstanceOf('medialist-extended')) {
+				var input = this.input_sortby = new Supra.Input.SelectList({
+					'label': Supra.Intl.get(['medialibrary', 'sort_by']),
+					'values': [
+						{'id': 'filename', 'title': Supra.Intl.get(['medialibrary', 'sort_az'])},
+						{'id': 'id', 'title': Supra.Intl.get(['medialibrary', 'sort_date'])}
+					],
+					'value': 'filename'
+				});
+				input.render(this.get('boundingBox'));
+				input.addClass('input-sortby');
+				input.on('change', function (event) {
+					this.set('sortBy', event.value);
+				}, this);
 			}
 			
 			//Create slideshow
@@ -571,6 +612,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					slide.all('li').removeClass('selected');
 				}
 			}, this);
+			
+			//On sort change redraw lists
+			this.after('sortByChange', this.handleSortingChange, this);
 		},
 		
 		/**
@@ -692,6 +736,25 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			while(folder_data) {
 				if (folder_data.type == Data.TYPE_FOLDER) return folder_data;
 				folder_data = this.getItemData(folder_data.parent);
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns image preview node
+		 * 
+		 * @private
+		 */
+		getImageNode: function () {
+			var item = this.getSelectedItem(),
+				slide = null;
+			
+			if (item) {
+				slide = this.slideshow.getSlide('slide_' + item.id);
+				if (slide) {
+					return slide.one('div.preview img');
+				}
 			}
 			
 			return null;
@@ -1311,6 +1374,41 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Handle sorting change
+		 * @param {Object} value
+		 */
+		handleSortingChange: function (evt) {
+			if (evt.newVal == evt.oldVal) return;
+			
+			var value = evt.newVal,
+				item = this.getSelectedItem(),
+				root_folder_id = this.get('rootFolderId'),
+				path = null,
+				slides = this.slideshow.slides;
+			
+			if (item) {
+				path = item.path.slice(1);
+				path.push(item.id);
+			} else {
+				path = [root_folder_id];
+			}
+			
+			this.set('noAnimations', true);
+			this.open(root_folder_id);
+			
+			for(var id in slides) {
+				if (id != 'slide_' + root_folder_id) {
+					this.slideshow.removeSlide(id);
+				}
+			}
+			
+			//Render items
+			this.renderItem(root_folder_id);
+			this.open(path);
+			this.set('noAnimations', false);
+		},
+		
+		/**
 		 * Sort or filter data
 		 * 
 		 * @param {Array} data
@@ -1319,6 +1417,27 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @private
 		 */
 		sortData: function (data) {
+			var sort_by = this.get('sortBy');
+			
+			//Duplicate
+			data = [].concat(data);
+			
+			//Sort
+			data.sort(function (a, b) {
+				//Folder always first
+				if (a.type != b.type && (a.type == Data.TYPE_FOLDER || b.type == Data.TYPE_FOLDER)) {
+					return a.type < b.type ? -1 : 1;
+				}
+				
+				var val_a = a[sort_by],
+					val_b = b[sort_by];
+				
+				if (typeof val_a == 'string') val_a = val_a.toLowerCase();
+				if (typeof val_b == 'string') val_b = val_b.toLowerCase();
+				
+				return val_a < val_b ? -1 : 1;
+			});
+			
 			return data;
 		},
 		

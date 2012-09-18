@@ -9,6 +9,17 @@ use Supra\Loader\Strategy\LoaderStrategyInterface;
  */
 class Loader
 {
+
+	/**
+	 *
+	 * @var array
+	 */
+	static $cachedClasses = array();
+	static $hit = 0;
+	static $miss = 0;
+	static $cacheEnabled = false;
+	static $cacheFilenameSuffix = 'default';
+
 	/**
 	 * The singleton instance
 	 * @var Loader
@@ -34,10 +45,39 @@ class Loader
 	public static function getInstance()
 	{
 		if (is_null(self::$instance)) {
+
 			self::$instance = new self();
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * 
+	 */
+	static function enableCache($cacheFilenameSuffix)
+	{
+		self::$cacheEnabled = true;
+		self::$cacheFilenameSuffix = $cacheFilenameSuffix;
+
+		$cacheFilename = self::getLoadedClassesCacheFiename();
+
+		if (file_exists($cacheFilename)) {
+
+			$loadedClasses = array();
+			include_once($cacheFilename);
+			self::$cachedClasses = $loadedClasses;
+		}
+
+		register_shutdown_function(array(__CLASS__, 'shutdown'));
+	}
+
+	/**
+	 * @return string
+	 */
+	static function getLoadedClassesCacheFiename()
+	{
+		return sys_get_temp_dir() . '/autoload-cache-' . self::$cacheFilenameSuffix . '.php';
 	}
 
 	/**
@@ -126,11 +166,11 @@ class Loader
 	}
 
 	/**
-	 * Autoload method, try loading class by it's name
+	 * 
 	 * @param string $className
 	 * @return boolean
 	 */
-	public function autoload($className)
+	protected function doAutoload($className)
 	{
 		if ( ! $this->strategiesOrdered) {
 			$this->orderStrategies();
@@ -139,15 +179,65 @@ class Loader
 		$classPath = $this->findClassPath($className);
 
 		if ( ! is_null($classPath)) {
-			
+
 			$included = include_once $classPath;
-			
+
 			return (bool) $included;
 		}
 
 		return false;
 	}
-	
+
+	/**
+	 * Autoload method, try loading class by it's name
+	 * @param string $className
+	 * @return boolean
+	 */
+	public function autoload($className)
+	{
+		if (self::$cacheEnabled) {
+
+			if (isset(self::$cachedClasses[$className])) {
+
+				self::$hit ++;
+				$classPath = self::$cachedClasses[$className];
+			} else {
+
+				self::$miss ++;
+				$classPath = null;
+			}
+
+			if (empty($classPath)) {
+
+				$classPath = $this->findClassPath($className);
+
+				if ( ! empty($classPath)) {
+					$loaded = include_once $classPath;
+				} else {
+					$loaded = false;
+				}
+			} else {
+
+				$loaded = include_once $classPath;
+			}
+
+			//if ($loaded) {
+			self::$cachedClasses[$className] = $classPath;
+			//}
+		} else {
+
+			$classPath = $this->findClassPath($className);
+
+			if ( ! empty($classPath)) {
+				$loaded = include_once $classPath;
+			} else {
+				$loaded = false;
+			}
+		}
+
+		return $loaded;
+	}
+
 	/**
 	 * Autoload method, try loading class by it's name
 	 * Checks for file existence, does not load class and does not provide warning messages if it does not exist  
@@ -210,10 +300,10 @@ class Loader
 				throw new Exception\ClassMismatch($className, $interface);
 			}
 		}
-		
+
 		return $object;
 	}
-	
+
 	/**
 	 * Search for the class without any messages about "include_once" failures
 	 * which will appear using the class_exists() function.
@@ -226,19 +316,19 @@ class Loader
 		if (class_exists($className, false)) {
 			return true;
 		}
-		
+
 		$classPath = self::getInstance()
 				->findClassPath($className);
-		
+
 		// This is the case when include_once will warn you
 		if ( ! is_null($classPath) && ! file_exists($classPath)) {
 			return false;
 		}
-		
+
 		// Use standard loader otherwise
 		return class_exists($className, true);
 	}
-	
+
 	/**
 	 * Search for the interface without any messages about "include_once" failures
 	 * which will appear using the interface_exists() function.
@@ -251,16 +341,29 @@ class Loader
 		if (interface_exists($className, false)) {
 			return true;
 		}
-		
+
 		$classPath = self::getInstance()
 				->findClassPath($className);
-		
+
 		// This is the case when include_once will warn you
 		if ( ! is_null($classPath) && ! file_exists($classPath)) {
 			return false;
 		}
-		
+
 		// Use standard loader otherwise
 		return interface_exists($className, true);
 	}
+
+	/**
+	 * 
+	 */
+	static function shutdown()
+	{
+		//\Log::error('HIT: ', self::$hit);
+		//\Log::error('MISS: ', self::$miss);
+		//\Log::error('STORING CACHE: ', count(self::$cachedClasses));
+
+		file_put_contents(self::getLoadedClassesCacheFiename(), '<?php $loadedClasses = ' . var_export(self::$cachedClasses, true) . ';');
+	}
+
 }

@@ -27,21 +27,20 @@ class DatabaseSessionHandler extends HandlerAbstraction
 	 * @var string
 	 */
 	private $originalDataHash;
-	
+
 	/**
-	 * Generates random session id
-	 * 
+	 * Session id for the request must be detected manually
 	 * @return string
 	 */
-	public static function generateId()
+	protected function findSessionId()
 	{
-		return sha1(uniqid(null, true));
+		return sha1(uniqid(__CLASS__, true));
 	}
 	
 	/**
 	 *
 	 */
-	public function start() 
+	protected function readSessionData()
 	{
 		$tableName = self::TABLE_NAME;
 		$sql = "SELECT 
@@ -54,65 +53,45 @@ class DatabaseSessionHandler extends HandlerAbstraction
 				WHERE s.id = ? AND s.name = ?";
 
 		$sessionName = $this->getSessionName();
-		
 		$sessionId = $this->getSessionId();
-		
-		if ( ! empty($sessionId)) {
-	
-			$connection = $this->getDatabaseConnection();
+		$connection = $this->getDatabaseConnection();
 
-			$sessionRecord = $connection->executeQuery($sql, array($sessionId, $sessionName));
-			
-			// FIXME: !
-			if (empty($sessionRecord)) {
-				$this->newRecord = true;
-			}
-			
-			if ( ! empty($sessionRecord) && isset($sessionRecord['data'])) {
-				
-				$this->originalDataHash = md5($sessionRecord['data']);
-				
-				$this->sessionData = unserialize($sessionRecord['data']);
-			}
-		} else {
-			$sessionId = self::generateId();
+		$sessionRecords = $connection->fetchAll($sql, array($sessionId, $sessionName));
+
+		if (count($sessionRecords) > 1) {
+			\Log::warn("Multiple records found for session $sessionName=$sessionId: ", $sessionRecords);
+			$this->destroy();
+			$sessionRecords = array();
+		}
+		
+		$sessionRecord = reset($sessionRecords);
+
+		if (empty($sessionRecord)) {
 			$this->newRecord = true;
 		}
-		
-		$this->setSessionId($sessionId);
-	
-		$this->sessionStatus = self::SESSION_STARTED;
+		$sessionData = array();
 
-		if ( ! isset($this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET])) {
-			$this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] = time();
+		if ( ! empty($sessionRecord) && isset($sessionRecord['data'])) {
+			$this->originalDataHash = md5($sessionRecord['data']);
+			$sessionData = unserialize($sessionRecord['data']);
 		}
-			
-		$this->checkSessionExpire();
+
+		return $sessionData;
 	}
 	
 	/**
 	 *
 	 */
-	public function checkSessionExpire()
+	public function destroy()
 	{
-		if (empty($this->expirationTime)) {
-			return false;
-		}
-		
-		$expireTime = $this->sessionData[self::SESSION_LAST_ACTIVITY_OFFSET] + $this->expirationTime;
-		
-		if ($expireTime < time()) {
-			$this->clear();
-			
-			$tableName = self::TABLE_NAME;
-			
-			$sql = "DELETE FROM {$tableName} s WHERE s.id = ?";
-			
-			$connection = $this->getDatabaseConnection();
-			$connection->executeQuery($sql, array($this->sessionId));
-			
-			$this->sessionId = null;
-		}
+		$tableName = self::TABLE_NAME;
+
+		$sql = "DELETE FROM {$tableName} WHERE id = ?";
+
+		$connection = $this->getDatabaseConnection();
+		$connection->executeQuery($sql, array($this->sessionId));
+
+		parent::destroy();
 	}
 	
 	/**
@@ -120,7 +99,7 @@ class DatabaseSessionHandler extends HandlerAbstraction
 	 */
 	public function close() 
 	{
-		if ($this->getSessionStatus() === self::SESSION_NOT_STARTED) {
+		if ($this->getSessionStatus() !== self::SESSION_STARTED) {
 			return;
 		}
 		
@@ -129,30 +108,30 @@ class DatabaseSessionHandler extends HandlerAbstraction
 		$tableName = self::TABLE_NAME;
 		
 		if ($this->isInsertRequired()) {
-			$sql = "INSERT INTO {$tableName} s (s.id, s.name, s.dateCreated, s.data)
+			$sql = "INSERT INTO {$tableName} (id, name, dateCreated, data)
 							VALUES(?, ?, NOW(), ?)";
 			
 			$connection = $this->getDatabaseConnection();
 			$connection->executeQuery($sql, array(
 				$this->sessionId,
 				$this->sessionName,
-				$this->sessionData,
+				serialize($this->sessionData),
 			));
 		} 
 		else if ($this->isUpdateRequired()) {
 			
 			$sql = "UPDATE
-						{$tableName} s
+						{$tableName}
 					SET	
-						s.name = ?,
-						s.data = ?
+						name = ?,
+						data = ?
 					WHERE
-						s.id = ?";
+						id = ?";
 						
 			$connection = $this->getDatabaseConnection();
 			$connection->executeQuery($sql, array(
 				$this->sessionName,
-				$this->sessionData,
+				serialize($this->sessionData),
 				$this->sessionId
 			));
 		}

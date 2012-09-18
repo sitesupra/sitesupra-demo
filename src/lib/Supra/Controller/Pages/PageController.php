@@ -20,6 +20,7 @@ use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Cache\CacheGroupManager;
 use Supra\Controller\Exception\AuthorizationRequiredException;
 use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
+
 /**
  * Page controller
  * @method PageRequest getRequest()
@@ -107,58 +108,63 @@ class PageController extends ControllerAbstraction
 				$localization = $request->getPageLocalization();
 				/* @var $localization Entity\PageLocalization */
 
-				if ( ! $localization instanceof Entity\PageLocalization) {
-					$this->log->warn("Page received from PageRequestView is not of PageLocalization instance, requested uri: ", $request->getActionString(), ', got ', (is_object($localization) ? get_class($localization) : gettype($localization)));
+				if ($localization instanceof Entity\TemplateLocalization) {
+
+					// Do nothing.
+				} else if ($localization instanceof Entity\PageLocalization) {
+
+					$isLimited = $localization->getPathEntity()
+							->isLimited();
+
+					if ($isLimited) {
+						$sessionManager = ObjectRepository::getSessionManager($this);
+						$currentUser = $sessionManager->getAuthenticationSpace()
+								->getUser();
+
+						if ( ! $currentUser instanceof \Supra\User\Entity\User) {
+							throw new AuthorizationRequiredException();
+						}
+					}
+
+					$redirect = $localization->getRedirect();
+					//TODO: 404 on redirect loop? Currently shows page without redirect
+					if ($redirect instanceof LinkReferencedElement) {
+
+						ObjectRepository::setCallerParent($redirect, $this);
+
+						$redirectData = $this->getRedirectData($localization);
+						$redirectLoop = empty($redirectData) ? true : false;
+						$resource = $redirect->getResource();
+
+						if (($resource == LinkReferencedElement::RESOURCE_LINK) || ! $redirectLoop) {
+
+							$location = '/';
+
+							// If redirect is external URL, add scheme for links like "www.example.org"
+							if ($resource == LinkReferencedElement::RESOURCE_LINK) {
+								$location = $redirect->getUrl($this);
+								$scheme = parse_url($location, PHP_URL_SCHEME);
+								$firstChar = substr($location, 0, 1);
+
+								if (empty($scheme) && $firstChar != '/') {
+									$location = 'http://' . $location;
+								}
+							} elseif ( ! empty($redirectData['redirect_page_path'])) {
+								$location = $redirectData['redirect_page_path'];
+							} else {
+								$location = $redirect->getUrl($this);
+							}
+
+							$response->redirect($location);
+
+							return;
+						}
+					}
+				} else {
+					$this->log->warn("Page received from PageRequestView is not of PageLocalization/TemplateLocalization instance, requested uri: ", $request->getActionString(), ', got ', (is_object($localization) ? get_class($localization) : gettype($localization)));
 					throw new ResourceNotFoundException("Wrong page instance received");
 				}
 
-				$isLimited = $localization->getPathEntity()
-						->isLimited();
-
-				if ($isLimited) {
-					$sessionManager = ObjectRepository::getSessionManager($this);
-					$currentUser = $sessionManager->getAuthenticationSpace()
-							->getUser();
-
-					if ( ! $currentUser instanceof \Supra\User\Entity\User) {
-						throw new AuthorizationRequiredException();
-					}
-				}
-
-				$redirect = $localization->getRedirect();
-                //TODO: 404 on redirect loop? Currently shows page without redirect
-				if ($redirect instanceof LinkReferencedElement) {
-
-					ObjectRepository::setCallerParent($redirect, $this);
-
-					$redirectData = $this->getRedirectData($localization);
-					$redirectLoop = empty($redirectData) ? true : false;
-					$resource = $redirect->getResource();
-
-					if (($resource == LinkReferencedElement::RESOURCE_LINK) || ! $redirectLoop) {
-						
-						$location = '/';
-
-						// If redirect is external URL, add scheme for links like "www.example.org"
-						if ($resource == LinkReferencedElement::RESOURCE_LINK) {
-							$location = $redirect->getUrl($this);
-							$scheme = parse_url($location, PHP_URL_SCHEME);
-							$firstChar = substr($location, 0, 1);
-
-							if (empty($scheme) && $firstChar != '/') {
-								$location = 'http://' . $location;
-							}
-						} elseif ( ! empty($redirectData['redirect_page_path'])) {
-							$location = $redirectData['redirect_page_path'];
-						} else {
-							$location = $redirect->getUrl($this);
-						}
-						
-						$response->redirect($location);
-
-						return;
-					}
-				}
 				// page requires user to be logged-in
 			} catch (AuthorizationRequiredException $e) {
 				try {
@@ -216,25 +222,25 @@ class PageController extends ControllerAbstraction
 		$eventManager->fire(self::EVENT_POST_PREPARE_CONTENT, $eventArgs);
 
 		$blockId = $request->getBlockRequestId();
-		
+
 		if (is_null($blockId)) {
 			$placeResponses = $this->getPlaceResponses($request);
 			$this->processLayout($layout, $placeResponses);
 		} else {
-			
+
 			$collectResponses = function(Entity\Abstraction\Block $block, BlockController $blockController)
-				use ($blockId, $response) {
-					if ($block->getId() === $blockId || $block->getComponentClass() === $blockId) {
-						$response->output($blockController->getResponse());
-					}
-				};
-			
+					use ($blockId, $response) {
+						if ($block->getId() === $blockId || $block->getComponentClass() === $blockId) {
+							$response->output($blockController->getResponse());
+						}
+					};
+
 			$this->iterateBlocks($collectResponses, Listener\BlockExecuteListener::ACTION_RESPONSE_COLLECT);
-			
+
 			$response->flush();
 		}
-		
-		
+
+
 		\Log::debug("Layout {$layout} processed and output to response for {$page}");
 	}
 
@@ -253,14 +259,14 @@ class PageController extends ControllerAbstraction
 
 		$redirect = false;
 		$redirectLocalizationId = null;
-		
+
 		if ( ! $linkElement instanceof LinkReferencedElement) {
 			return array();
 		}
 
 		do {
 			$pageLocalizationId = $pageLocalization->getId();
-			
+
 			// check if localization id is not in loop
 			if (in_array($pageLocalizationId, $redirectPageIds)) {
 
@@ -278,9 +284,9 @@ class PageController extends ControllerAbstraction
 
 			$redirectPageId = $redirectLocalization = null;
 			$resource = $linkElement->getResource();
-			
+
 			$data = array();
-			
+
 			switch ($resource) {
 				// parse fixed redirect
 				case LinkReferencedElement::RESOURCE_PAGE:
@@ -290,7 +296,7 @@ class PageController extends ControllerAbstraction
 						unset($linkElement);
 						break;
 					}
-					
+
 					$redirectPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
 							->findOneById($redirectPageId);
 
@@ -298,7 +304,7 @@ class PageController extends ControllerAbstraction
 						unset($linkElement);
 						break;
 					}
-					
+
 					// redirect localization
 					$redirectLocalization = $redirectPage->getLocalization($pageLocalization->getLocale());
 
@@ -322,7 +328,7 @@ class PageController extends ControllerAbstraction
 					$linkElement = $redirectLocalization->getRedirect();
 					$pageLocalization = $redirectLocalization;
 					$parentData = $data;
-					
+
 					break;
 				// parse relative redirect
 				case LinkReferencedElement::RESOURCE_RELATIVE_PAGE:
@@ -359,7 +365,7 @@ class PageController extends ControllerAbstraction
 					$redirect = true;
 					$redirectLocalizationId = $redirectLocalization->getId();
 					$path = '/' . $redirectLocalization->getLocale() . $redirectLocalization->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
-					
+
 					$data = array(
 						'redirect' => $redirect,
 						'redirect_page_id' => $redirectLocalizationId,
@@ -387,10 +393,10 @@ class PageController extends ControllerAbstraction
 	}
 
 	/**
-	 * @param Entity\ThemeLayout $layout
+	 * @param Entity\Theme\ThemeLayout $layout
 	 * @param array $blocks array of block responses
 	 */
-	protected function processLayout(Entity\ThemeLayout $layout, array $placeResponses)
+	protected function processLayout(Entity\Theme\ThemeLayout $layout, array $placeResponses)
 	{
 		$layoutProcessor = $this->getLayoutProcessor();
 
@@ -842,11 +848,11 @@ class PageController extends ControllerAbstraction
 				}
 
 				if ( ! is_null($eventAction)) {
-					
+
 					if ( ! is_null($blockController)) {
 						$eventArgs->setCaller($blockController);
 					}
-					
+
 					$blockTimeEnd = microtime(true);
 					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
 					$eventArgs->duration = $blockExecutionTime;

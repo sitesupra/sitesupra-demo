@@ -8,7 +8,7 @@
 	var STATIC_PATH = Supra.Manager.Loader.getStaticPath(),
 		APP_PATH = Supra.Manager.Loader.getActionBasePath("Applications");
 	
-	Supra.setModuleGroupPath('dashboard', STATIC_PATH + APP_PATH + '/modules');
+	Supra.setModuleGroupPath("dashboard", STATIC_PATH + APP_PATH + "/modules");
 	
 	Supra.addModule("dashboard.stats", {
 		path: "stats.js",
@@ -110,9 +110,7 @@ function (Y) {
 			"apps": null,
 			"favourites": null,
 			
-			"scrollable": null,
-			
-			"sites": null
+			"scrollable": null
 		},
 		
 		/**
@@ -187,25 +185,25 @@ function (Y) {
 		renderHeader: function () {
 			var node = this.one("div.dashboard-header");
 			
-			node.one("div.user span").set("text", Supra.data.get(["user", "name"]));
+			node.one("a.user span").set("text", Supra.data.get(["user", "name"]));
 			
 			var avatar = Supra.data.get(["user", "avatar"]);
 			if (avatar) {
-				node.one("div.user img").setAttribute("src", Supra.data.get(["user", "avatar"]));
+				node.one("a.user img").setAttribute("src", Supra.data.get(["user", "avatar"]));
 			} else {
-				node.one("div.user img").addClass("hidden");
+				node.one("a.user img").addClass("hidden");
 			}
 			
-			if (Supra.data.get(['application', 'id']) === 'Supra\\Cms\\Dashboard') {
-				Supra.Y.one('div.yui3-app-content').addClass('hidden');
+			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
+				Supra.Y.one("div.yui3-app-content").addClass("hidden");
 			}
 			
 //			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
 //				node.one("a.close").addClass("hidden");
 //			} else {
 				//node.one("a.close").on("click", this.hide, this);
-				node.one('a.close').on("click", function() {
-					document.location = Supra.Manager.Loader.getDynamicPath() + '/logout/'
+				node.one("a.close").on("click", function() {
+					document.location = Supra.Manager.Loader.getDynamicPath() + "/logout/"
 				});
 //			}
 		},
@@ -222,25 +220,12 @@ function (Y) {
 			
 			this.loadStatisticsData();
 			
-			this.loadSitesData();
+			this.renderSiteInfo();
 		},
 		
-		/**
-		 * Load site list
-		 * 
-		 * @private
-		 */
-		loadSitesData: function () {
-			Supra.io(this.getDataPath("../site/sites"), function (data, status) {
-				if (status && data && data.length > 1) {
-					this.widgets.sites = new Supra.Input.Select({
-						"srcNode": this.one("select"),
-						"values": data
-					});
-					this.widgets.sites.render();
-				}
-			}, this);
-		},
+		
+		/* ------------------------------------ Data ------------------------------------ */
+		
 		
 		/**
 		 * Load and set statistics data
@@ -276,26 +261,48 @@ function (Y) {
 			Supra.io(this.getDataPath("applications"), function (data, status) {
 				if (status && data) {
 					var applications = [],
-						favourites = [];
+						favourites = [],
+						profile = null; // Profile application info
 					
 					Y.Array.each(data.applications, function (app) {
-						var index = Y.Array.indexOf(data.favourites, app.id);
-						
 						//Only if not in favourites
-						if (index === -1) {
-							applications.push(app);
+						if (app.id.indexOf("\\Profile") !== -1 || app.id.indexOf("/Profile") !== -1) {
+							this.updateProfileLink(app);
 						} else {
-							favourites[index] = app;
+							var index = Y.Array.indexOf(data.favourites, app.id);
+							if (index === -1) {
+								applications.push(app);
+							} else {
+								favourites[index] = app;
+							}
 						}
-					});
+					}, this);
 					
 					this.widgets.apps.set("data", applications);
 					this.widgets.favourites.set("data", favourites);
 					
 					this.widgets.scrollable.syncUI();
+					
+					
 				}
 			}, this);
 		},
+		
+		/**
+		 * Update header profile link
+		 */
+		updateProfileLink: function (app) {
+			var node = this.one("a.user");
+			node.addClass('link');
+			node.on("click", function () {
+				//Open profile manager
+				document.location = app.path;
+			}, this);
+		},
+		
+		
+		/* ------------------------------------ Favourites ------------------------------------ */
+		
 		
 		/**
 		 * When application is added to favourites inform server
@@ -391,6 +398,41 @@ function (Y) {
 			this.widgets.apps.removeApplication(e.application.id);
 		},
 		
+		
+		/* ------------------------------------ Site info  ------------------------------------ */
+		
+		
+		/**
+		 * Render site info
+		 * 
+		 * @private
+		 */
+		renderSiteInfo: function () {
+			var title = Supra.data.get(["site", "title"]),
+				node = null;
+			
+			if (title) {
+				node = this.one("div.site");
+				node.removeClass("hidden");
+				
+				node.one("span").set("text", title);
+				node.one("a").on("click", this.openSiteListManager, this);
+			}
+		},
+		
+		/**
+		 * Open site list manager
+		 * 
+		 * @private
+		 */
+		openSiteListManager: function () {
+			Supra.Manager.executeAction("Sites");
+		},
+		
+		
+		/* ------------------------------------ Action  ------------------------------------ */
+		
+		
 		/**
 		 * Animate dashboard out of view
 		 */
@@ -433,7 +475,7 @@ function (Y) {
 				transition = null;
 			
 			//Animation turned off ?
-			if (this.get('animation') !== false) {
+			if (this.get("animation") !== false) {
 				
 				if (Y.UA.opera || (Y.UA.ie && Y.UA.ie < 10)) {
 					//Fallback for non-supporting browsers

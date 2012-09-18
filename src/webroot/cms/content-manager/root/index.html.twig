@@ -12,6 +12,16 @@
 		'stylesheets': {
 			'skip_default': false
 		},
+		'fonts': [
+			{"title": "Arial",				"family": "Helvetica, Arial"},
+			{"title": "Alice",				"family": "Alice",				"apis": "Alice"},
+			{"title": "Copse",				"family": "Copse",				"apis": "Copse"},
+			{"title": "Noticia Text",		"family": "Noticia Text",		"apis": "Noticia+Text:400,400italic,700"},
+			{"title": "Open Sans",			"family": "Open Sans",			"apis": "Open+Sans:400italic,400,700"},
+			{"title": "PT Sans",			"family": "PT Sans",			"apis": "PT+Sans:400,700,400italic"},
+			{"title": "Ubuntu",				"family": "Ubuntu",				"apis": "Ubuntu:400,700,400italic"},
+			{"title": "UnifrakturMaguntia",	"family": "UnifrakturMaguntia",	"apis": "UnifrakturMaguntia"}
+		],
 		'plugins': {
 			'image': {
 				'size': '200x200',
@@ -20,6 +30,9 @@
 			'gallery': {
 				'galleryBlockId': {% if galleryBlockId%}{{ galleryBlockId | json_encode | raw }}{% else %}null{% endif %}
 			}
+			{% for pluginId, pluginConfig in config.htmlEditorPlugins %}
+				, {{ pluginId | json_encode | raw }}: {{ pluginConfig | json_encode | raw }}
+			{% endfor %}
 		}
 	},
 

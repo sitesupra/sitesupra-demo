@@ -37,6 +37,8 @@ class RootAction extends PageManagerAction
 
 		$appConfig = ObjectRepository::getApplicationConfiguration($this);
 
+		$response->assign('config', $appConfig);
+
 		if ( ! empty($appConfig->galleryBlockId)) {
 			$blockId = str_replace('\\', '_', $appConfig->galleryBlockId);
 			$response->assign('galleryBlockId', $blockId);

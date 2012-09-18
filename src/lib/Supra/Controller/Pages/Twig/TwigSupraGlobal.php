@@ -36,6 +36,11 @@ class TwigSupraGlobal
 	protected $currentThemeParameterValues;
 
 	/**
+	 * @var ThemeInterface
+	 */
+	protected $theme;
+
+	/**
 	 * @return RequestInterface
 	 */
 	public function getRequest()
@@ -215,6 +220,14 @@ class TwigSupraGlobal
 	 */
 	public function getTheme()
 	{
+		if (is_null($this->theme)) {
+			throw new \Supra\Controller\Pages\Exception\RuntimeException("Theme is not set for the twig supra global but theme parameter is requested");
+		}
+
+		if (is_null($this->currentThemeParameterValues)) {
+			$this->currentThemeParameterValues = $this->theme->getCurrentParameterSetOutputValues();
+		}
+
 		return $this->currentThemeParameterValues;
 	}
 
@@ -223,7 +236,7 @@ class TwigSupraGlobal
 	 */
 	public function setTheme(ThemeInterface $theme)
 	{
-		$this->currentThemeParameterValues = $theme->getCurrentParameterSetOutputValues();
+		$this->theme = $theme;
 	}
 
 }

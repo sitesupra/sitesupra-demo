@@ -623,7 +623,7 @@ Y.SliderBase = Y.extend( SliderBase, Y.Widget, {
     _initThumbUrl: function () {
         if (!this.get('thumbUrl')) {
             var skin = this.getSkinName() || 'sam',
-                base = Y.config.base;
+                base = Y.config.realBase || Y.config.base;
 
             // Unfortunate hack to avoid requesting image resources from the
             // combo service.  The combo service does not serve images.

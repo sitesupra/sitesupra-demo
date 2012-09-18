@@ -1,6 +1,4 @@
 .border-radius (@radius: 2px) {
-	-webkit-border-radius: @radius;
-	-moz-border-radius: @radius;
 	border-radius: @radius;
 	
 	-moz-background-clip: padding;
@@ -9,8 +7,6 @@
 }
 
 .border-radius (@topleft, @topright, @bottomright, @bottomleft) {
-	-webkit-border-radius: @topleft @topright @bottomright @bottomleft;
-	-moz-border-radius: @topleft @topright @bottomright @bottomleft;
 	border-radius: @topleft @topright @bottomright @bottomleft;
 	
 	-moz-background-clip: padding;
@@ -19,33 +15,25 @@
 }
 
 .box-shadow (@none: none) {
-	-webkit-box-shadow: @arguments;
-	-moz-box-shadow: @arguments;
 	box-shadow: @arguments;
 }
 .box-shadow (@a, @b) {
-	-webkit-box-shadow: @a, @b;
-	-moz-box-shadow: @a, @b;
 	box-shadow: @a, @b;
 }
+.box-shadow (@a, @b, @c) {
+	box-shadow: @a, @b, @c;
+}
 .box-shadow (@x, @y, @blur, @color) {
-	-webkit-box-shadow: @arguments;
-	-moz-box-shadow: @arguments;
 	box-shadow: @arguments;
 }
 .box-shadow (@x, @y, @blur, @color, @x2, @y2, @blur2, @color2) {
-	-webkit-box-shadow: @x @y @blur @color, @x2 @y2 @blur2 @color2;
-	-moz-box-shadow: @x @y @blur @color, @x2 @y2 @blur2 @color2;
 	box-shadow: @x @y @blur @color, @x2 @y2 @blur2 @color2;
 }
 .box-shadow-inset (@x: 0, @y: 0, @blur: 1px, @color: #000) {
-	-webkit-box-shadow: @arguments inset;
-	-moz-box-shadow: @arguments inset;
 	box-shadow: @arguments inset;
 }
 
 .box-sizing (@method) {
-	-webkit-box-sizing: @method;
 	-moz-box-sizing: @method;
 	box-sizing: @method;
 }

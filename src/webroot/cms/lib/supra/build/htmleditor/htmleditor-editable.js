@@ -145,6 +145,23 @@ YUI().add('supra.htmleditor-editable', function (Y) {
 			if (charCode <= 40 || charCode == 91 || charCode == 92 || charCode == 93) return true;
 			
 			return false;
+		},
+		
+		/**
+		 * Disable object resizing using handles
+		 */
+		disableObjectResizing: function () {
+			if (!Y.UA.ie || Y.UA.ie > 9) {
+				try {
+					this.get("doc").execCommand("enableObjectResizing", false, false);
+					this.get('doc').execCommand("enableInlineTableEditing", false, false);
+				} catch (err) {}
+			} else {
+				//Prevent resizestart event
+				this.get("srcNode").getDOMNode().onresizestart = function (e) {
+					return false;
+				};
+			}
 		}
 
 	});

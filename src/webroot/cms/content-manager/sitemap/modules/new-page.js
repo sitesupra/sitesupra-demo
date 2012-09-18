@@ -64,6 +64,13 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		'_anim': null,
 		
 		/**
+		 * Application count
+		 * @type {Number}
+		 * @private
+		 */
+		'_application_count': 1,
+		
+		/**
 		 * Render UI
 		 * 
 		 * @private
@@ -137,14 +144,14 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				//Slide down
 				anim.stop();
 				anim.set('from', {'height': '0px'});
-				anim.set('to', {'height': '235px'});
+				anim.set('to', {'height': height + 'px'});
 				anim.run();
 				
 				boundingBox.addClass('expanded');
 			} else {
 				//Slide up
 				anim.stop();
-				anim.set('from', {'height': '235px'});
+				anim.set('from', {'height': height + 'px'});
 				anim.set('to', {'height': '0px'});
 				anim.run();
 				
@@ -200,6 +207,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				target.append(node);
 			}
 			
+			this._application_count = data.length + 1; //1 because we have also folder
 			this._bindDnD(data);
 		},
 		

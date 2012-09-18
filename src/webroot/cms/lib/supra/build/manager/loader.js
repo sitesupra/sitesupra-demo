@@ -167,7 +167,6 @@ YUI.add('supra.manager-loader', function (Y) {
 		destroyAction: function (action_name) {
 			var info = this.getActionInfo(action_name);
 			
-			delete(this.paths[action_name]);
 			delete(this.loading[action_name]);
 			delete(this.loaded[action_name]);
 			delete(this.template_cache[info.path_template]);

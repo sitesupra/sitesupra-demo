@@ -14,6 +14,7 @@ use Supra\Controller\Pages\Listener\BlockExecuteListener;
 use Supra\Controller\Pages\Listener\PageGroupCacheDropListener;
 use Supra\Controller\Pages\Listener\FacebookPagePublishingListener;
 use Supra\Controller\Pages\Listener\PageMetadataOutputListener;
+use Supra\Controller\Pages\Listener\VersionMetadataHtmlInjection;
 
 $ini = ObjectRepository::getIniConfigurationLoader('');
 $eventManager = ObjectRepository::getEventManager();
@@ -37,6 +38,9 @@ $eventManager->listen(CmsController::EVENT_POST_PAGE_DELETE, $listener);
 
 // Google Analytics
 $listener = new GoogleAnalyticsListener();
+$eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
+
+$listener = new VersionMetadataHtmlInjection();
 $eventManager->listen(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
 
 // Block execution log

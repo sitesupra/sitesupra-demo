@@ -2,12 +2,12 @@
 
 namespace Supra\Controller;
 
-use Exception;
 use Supra\Response\HttpResponse;
 use Supra\Authorization\Exception\AccessDeniedException;
+use Supra\Controller\Exception\MethodNotAllowedException;
 
 /**
- * Description of ExceptionController
+ * ExceptionController
  */
 class ExceptionController extends ControllerAbstraction
 {
@@ -28,7 +28,7 @@ class ExceptionController extends ControllerAbstraction
 	/**
 	 * @param Exception $exception
 	 */
-	public function setException(Exception $exception)
+	public function setException(\Exception $exception)
 	{
 		$this->exception = $exception;
 	}
@@ -44,9 +44,12 @@ class ExceptionController extends ControllerAbstraction
 		if ($response instanceof HttpResponse) {
 			$response->header("Content-Type", "text/plain");
 
-			if ($this->exception instanceof namespace\Exception\ResourceNotFoundException) {
+			if ($this->exception instanceof Exception\ResourceNotFoundException) {
 				$response->setCode(404);
 				$response->output("404 PAGE NOT FOUND\n");
+			} else if ($this->exception instanceof MethodNotAllowedException) {
+				$response->setCode(405);
+				$response->output("405 METHOD NOT ALLOWED\n");
 			} else if ($this->exception instanceof AccessDeniedException) {
 				$response->setCode(403);
 				$response->output("403 FORBIDDEN\n");

@@ -2,19 +2,15 @@
 
 namespace Supra\Controller\Layout\Theme\Configuration\Parameter;
 
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfiguration;
+use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
+use Supra\Controller\Pages\Entity\Theme\Parameter\MenuParameter;
 
-class MenuParameterConfiguration extends ThemeParameterConfiguration
+class MenuParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
 
-	/**
-	 * @var array
-	 */
-	public $menus;
-
-	public function makeDesignData(&$designData)
+	protected function getParameterClass()
 	{
-		$designData['menus'] = $this->menus;
+		return MenuParameter::CN();
 	}
 
 }

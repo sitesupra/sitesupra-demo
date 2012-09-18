@@ -107,4 +107,13 @@ abstract class ControllerAbstraction implements ControllerInterface
 		return $this->log;
 	}
 
+	/**
+	 * Throws the exception by default
+	 * @param \Exception $e
+	 * @throws \Exception
+	 */
+	public function handleException(\Exception $e)
+	{
+		throw $e;
+	}
 }

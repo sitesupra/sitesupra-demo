@@ -4,7 +4,7 @@ namespace Supra\Controller\Layout\Theme\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
+use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
 
 class ThemeProviderConfiguration implements ConfigurationInterface
 {
@@ -45,9 +45,11 @@ class ThemeProviderConfiguration implements ConfigurationInterface
 		}
 
 		$provider->setRootDir($directory);
-
 		$provider->setUrlBase($this->urlBase);
-
+		
+		$writeableIniLoader = new WriteableIniConfigurationLoader('theme.ini');
+		ObjectRepository::setIniConfigurationLoader($provider, $writeableIniLoader);
+	
 		if ($this->isDefault) {
 			ObjectRepository::setDefaultThemeProvider($provider);
 		} else {

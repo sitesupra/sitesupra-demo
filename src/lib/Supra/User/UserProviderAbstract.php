@@ -46,6 +46,12 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	private $entityManager;
 
 	/**
+	 * Currently signed in user
+	 * @var Entity\User
+	 */
+	protected $signedInUser;
+
+	/**
 	 * @return EntityManager
 	 */
 	protected function getEntityManager()
@@ -155,6 +161,10 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	 */
 	public function getSignedInUser($updateSessionTime = true)
 	{
+		if (isset($this->signedInUser)) {
+			return $this->signedInUser;
+		}
+
 		$sessionManager = $this->getSessionManager();
 		$session = $this->getSessionSpace();
 
@@ -177,6 +187,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 			return null;
 		}
 
+		// Double check the user, session user and user in db should equal
 		$sessionUser = $userSession->getUser();
 		if ( ! ($sessionUser instanceof Entity\User)
 				|| $sessionUser->getId() != $user->getId()) {
@@ -190,6 +201,8 @@ abstract class UserProviderAbstract implements UserProviderInterface
 			$userSession->setModificationTime();
 			$entityManager->flush();
 		}
+
+		$this->signedInUser = $user;
 
 		return $user;
 	}
@@ -226,6 +239,8 @@ abstract class UserProviderAbstract implements UserProviderInterface
 
 		$entityManager->flush();
 
+		$this->signedInUser = $user;
+
 		// Trigger post sign in listener
 		$eventManager->fire(self::EVENT_POST_SIGN_IN, $eventArgs);
 	}
@@ -259,6 +274,8 @@ abstract class UserProviderAbstract implements UserProviderInterface
 			$entityManager->remove($sessionEntity);
 			$entityManager->flush();
 		}
+
+		$this->signedInUser = null;
 
 		// Trigger post sign out listeners
 		$eventManager->fire(self::EVENT_POST_SIGN_OUT, $eventArgs);

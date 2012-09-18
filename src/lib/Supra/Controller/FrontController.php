@@ -4,14 +4,11 @@ namespace Supra\Controller;
 
 use Supra\Request;
 use Supra\Controller\Exception;
-use Supra\Response;
 use Supra\Router;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
-use Supra\Authorization\AuthorizedControllerInterface;
 use Supra\Authorization\Exception\ApplicationAccessDeniedException;
 use Supra\Cms\ApplicationConfiguration;
-use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Loader\Loader;
 use Closure;
@@ -212,27 +209,23 @@ class FrontController
 					$appConfig->authorizationAccessPolicy instanceof AuthorizationAccessPolicyAbstraction
 			) {
 
-				$sessionManager = ObjectRepository::getSessionManager($controller);
+				$userProvider = ObjectRepository::getUserProvider($controller);
+				$user = $userProvider->getSignedInUser(false);
 
-				$authenticationNamespace = $sessionManager->getAuthenticationSpace();
-
-				if ($authenticationNamespace instanceof AuthenticationSessionNamespace) {
-
-					$user = $authenticationNamespace->getUser();
-
-					if ( ! is_null($user) && $appConfig->authorizationAccessPolicy->isApplicationAnyAccessGranted($user)) {
-						$controller->execute();
-					} else {
-						throw new ApplicationAccessDeniedException($user, $appConfig);
-					}
+				if ( ! is_null($user) && $appConfig->authorizationAccessPolicy->isApplicationAnyAccessGranted($user)) {
+					$controller->execute();
 				} else {
-					throw new Exception\RuntimeException('Could not get authentication session namespace.');
+					throw new ApplicationAccessDeniedException($user, $appConfig);
 				}
 			} else {
 				$controller->execute();
 			}
-		} catch (\Exception $uncaughtException) {
-			
+		} catch (\Exception $unhandledException) {
+			try {
+				$controller->handleException($unhandledException);
+			} catch (\Exception $uncaughtException) {
+				// will throw after finalizing the execution
+			}
 		}
 
 		ObjectRepository::endControllerContext($controllerClass);

@@ -78,6 +78,8 @@ Supra.useModules = [
 	'event',
 	'querystring',
 	'escape',
+	'cookie',
+	'transition',
 	
 	'supra.event',
 	'supra.intl',
@@ -91,7 +93,13 @@ Supra.useModules = [
 	'supra.io-session',
 	'supra.io-css',
 	'supra.dom',
-	'supra.template'
+	'supra.template',
+	'supra.input',
+	'supra.manager',
+	
+	'supra.header',
+	'supra.plugin-layout',
+	'supra.languagebar'
 ];
 
 
@@ -306,10 +314,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-toolbar',
 			
 			'supra.htmleditor-plugin-image',
-			'supra.htmleditor-plugin-image-resize',
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-table',
+			'supra.htmleditor-plugin-table-mobile',
 			'supra.htmleditor-plugin-fullscreen',
 			'supra.htmleditor-plugin-formats',
 			'supra.htmleditor-plugin-lists',
@@ -318,12 +326,15 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph',
 			'supra.htmleditor-plugin-paragraph-string',
-			'supra.htmleditor-plugin-source'
+			'supra.htmleditor-plugin-source',
+			'supra.htmleditor-plugin-fonts',
+			'supra.htmleditor-plugin-align'
 		],
 		skinnable: true
 	},
 		'supra.htmleditor-base': {
-			path: 'htmleditor/htmleditor-base.js'
+			path: 'htmleditor/htmleditor-base.js',
+			requires: ['supra.iframe-stylesheet-parser']
 		},
 		'supra.htmleditor-parser': {
 			path: 'htmleditor/htmleditor-parser.js',
@@ -369,14 +380,14 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-image': {
 			path: 'htmleditor/plugins/plugin-image.js',
-			requires: ['supra.htmleditor-base']
-		},
-		'supra.htmleditor-plugin-image-resize': {
-			path: 'htmleditor/plugins/plugin-image-resize.js',
-			requires: ['supra.htmleditor-base']
+			requires: ['supra.htmleditor-base', 'supra.imageresizer', 'supra.manager']
 		},
 		'supra.htmleditor-plugin-table': {
 			path: 'htmleditor/plugins/plugin-table.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-table-mobile': {
+			path: 'htmleditor/plugins/plugin-table-mobile.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-fullscreen': {
@@ -415,6 +426,31 @@ Supra.YUI_BASE.groups.supra.modules = {
 			path: 'htmleditor/plugins/plugin-source.js',
 			requires: ['supra.manager', 'supra.htmleditor-base']
 		},
+		'supra.htmleditor-plugin-fonts': {
+			path: 'htmleditor/plugins/plugin-fonts.js',
+			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts']
+		},
+		'supra.htmleditor-plugin-align': {
+			path: 'htmleditor/plugins/plugin-align.js',
+			requires: ['supra.manager', 'supra.htmleditor-base']
+		},
+	
+	/**
+	 * Stylesheet parser
+	 */
+	'supra.iframe-stylesheet-parser': {
+		path: 'iframe/stylesheet-parser.js',
+		requires: ['base']
+	},
+	
+	/**
+	 * Image resize 
+	 */
+	'supra.imageresizer': {
+		path: 'imageresizer/imageresizer.js',
+		requires: ['supra.panel', 'slider', 'dd-plugin'],
+		skinnable: true
+	},
 	
 	/**
 	 * Header widget
@@ -448,6 +484,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.datagrid-row': {
 		path: 'datagrid/datagrid-row.js',
 		requires: ['widget']
+	},
+	'supra.datagrid-new-item': {
+		path: 'datagrid-new-item/datagrid-new-item.js',
+		requires: ['widget', 'dd-drag'],
+		skinnable: true
 	},
 	
 	/**
@@ -604,9 +645,21 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/color.js',
 		requires: ['supra.input-proto', 'dd', 'supra.datatype-color']
 	},
+	'supra.input-fonts': {
+		path: 'input/fonts.js',
+		requires: ['supra.input-select-visual']
+	},
 	'supra.input-date': {
 		path: 'input/date.js',
 		requires: ['supra.input-proto', 'supra.calendar']
+	},
+	'supra.input-block-background': {
+		path: 'input/block-background.js',
+		requires: ['supra.input-proto']
+	},
+	'supra.input-image-inline': {
+		path: 'input/image-inline.js',
+		requires: ['supra.input-block-background']
 	},
 	
 	'supra.form': {
@@ -630,7 +683,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-image',
 			'supra.input-map',
 			'supra.input-color',
-			'supra.input-date'
+			'supra.input-date',
+			'supra.input-block-background',
+			'supra.input-image-inline',
+			'supra.input-inline-html',
+			'supra.input-inline-string'
 		]
 	},
 	'supra.input': {
@@ -739,7 +796,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.manager-action-plugin-form',
 			'supra.manager-action-plugin-footer',
 			'supra.manager-action-plugin-container',
-			'supra.manager-action-plugin-maincontent'
+			'supra.manager-action-plugin-maincontent',
+			'supra.manager-action-plugin-layout-sidebar'
 		]
 	},
 	'supra.manager-base': {

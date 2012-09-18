@@ -14,6 +14,7 @@ class CmsPageEventArgs extends EventArgs
 	const postPagePublish = 'postPagePublish';
 	const postPageDelete = 'postPageDelete';
 	const postPageChange = 'postPageChange';
+	const postPageUnlock = 'postPageUnlock';
 	
 	/**
 	 * @var User

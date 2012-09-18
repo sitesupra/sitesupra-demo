@@ -30,6 +30,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
 		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
 		CLASSNAME_DRAGGABLE = getClassName('content', 'draggable'),					// yui3-content-draggable
+		CLASSNAME_MARKER = getClassName('content', 'marker'),						// yui3-content-marker
 		CLASSNAME_EDITING = 'editing';												// editing
 	
 	ContentProto.ATTRS = {
@@ -138,12 +139,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 		children_order: [],
 		
 		/**
-		 * Children order list (children IDs)
-		 * @type {Array}
-		 */
-		order: [],
-		
-		/**
 		 * Block node
 		 * @type {Object}
 		 */
@@ -155,6 +150,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		overlay: null,
 		
+		
+		/* --------------------------------- DATA / NODES ------------------------------------ */
 		
 		
 		/**
@@ -290,6 +287,22 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
+		 * Process data and remove all unneeded before it's sent to server
+		 * Called before save. Overwritten in sub-classes
+		 * 
+		 * @param {Object} data Data
+		 * @return Processed data
+		 * @type {Object}
+		 */
+		processData: function (data) {
+			return data;
+		},
+		
+		
+		/* --------------------------------- CHILDREN BLOCKS ------------------------------------ */
+		
+		
+		/**
 		 * Remove child
 		 * 
 		 * @param {Object} child
@@ -297,6 +310,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		removeChild: function (child) {
 			var id = child.getId(),
 				block = null;
+			
 			if (id in this.children) {
 				block = this.children[id];
 				
@@ -336,8 +350,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @param {Object} data
 		 * @param {Object} attrs
 		 * @param {Boolean} use_only If DOM elements for content is not found, don't create them
+		 * @param {Number} index Index where child should be inserted into, default at the end of the list
 		 */
-		createChild: function (data, attrs, use_only) {
+		createChild: function (data, attrs, use_only, index) {
 			var win = this.get('win');
 			var doc = this.get('doc');
 			var body = this.get('body');
@@ -357,10 +372,23 @@ YUI.add('supra.page-content-proto', function (Y) {
 						'parent': this,
 						'super': this.get('super')
 					}));
+					
 					block.render();
 					
 					//Add to order list
-					this.children_order.push(String(data.id));
+					if (typeof index === 'number') {
+						//Move DOM node
+						var next = this.children_order[index];
+						if (next) {
+							next = this.children[next];
+							next.overlay.insert(block.overlay, 'before');
+							next.overlay.insert(block.getNode(), 'before');
+						}
+						
+						this.children_order.splice(index, 0, String(data.id));
+					} else {
+						this.children_order.push(String(data.id));
+					}
 				} else {
 					Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
 				}
@@ -408,6 +436,67 @@ YUI.add('supra.page-content-proto', function (Y) {
 			return blocks;
 		},
 		
+		
+		/**
+		 * Remove child only from list without deleting it
+		 * 
+		 * @param {Object} child
+		 */
+		removeChildFromList: function (block) {
+			var id = block.getId();
+			
+			if (id in this.children) {
+				//Remove from child list
+				delete(this.children[id]);
+				
+				//Remove from order list
+				var index = Y.Array.indexOf(this.children_order, String(id));
+				if (index != -1) {
+					this.children_order.splice(index, 1);
+				}
+			}
+		},
+		
+		/**
+		 * Add existing block to the children list
+		 * 
+		 * @param {Object} block Block to add
+		 * @param {Number} index Optional index where to insert
+		 */
+		addChildToList: function (block, index) {
+			var id = block.getId(),
+				oldIndex = -1,
+				
+				children = this.children,
+				children_order = this.children_order;
+			
+			if (id in children) {
+				oldIndex = Y.Array.indexOf(children_order, String(id));
+				if (oldIndex != -1) {
+					children_order.splice(oldIndex, 1);
+				}
+			}
+			
+			//Add to child list
+			children[id] = block;
+			
+			//Add to order list
+			if (typeof index != 'number' || index < 0) index = children_order.length;
+			
+			if (index >= children_order.length) {
+				children_order.push(id);
+			} else {
+				children_order.splice(index, 0, id);
+			}
+			
+			//Update parent attribute
+			block.set('parent', this);
+		},
+		
+		
+		/* --------------------------------- CONTENT MANAGEMENT ------------------------------------ */
+		
+		
 		/**
 		 * Trigger event in content
 		 * If jQuery.refresh is available it is used, if not then jQuery event is triggered
@@ -440,17 +529,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 		},
 		
-		/**
-		 * Process data and remove all unneeded before it's sent to server
-		 * Called before save
-		 * 
-		 * @param {Object} data Data
-		 * @return Processed data
-		 * @type {Object}
-		 */
-		processData: function (data) {
-			return data;
-		},
+		
+		/* --------------------------------- LIFE CYCLE ------------------------------------ */
+		
 		
 		/**
 		 * Render widget
@@ -498,29 +579,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * Update overlay position
-		 * 
-		 * @param {Boolean} traverse Traverse children and update their overlays
-		 */
-		syncOverlayPosition: function (traverse) {
-			if (this.overlay) {
-				var node = this.getNode();
-				var w = node.get('offsetWidth'), h = node.get('offsetHeight');
-			
-				this.overlay.setStyles({
-					width: w + 'px',
-					height: h + 'px'
-				});
-			}
-			
-			if (traverse !== false) {
-				for (var i in this.children) {
-					this.children[i].syncOverlayPosition();
-				}
-			}
-		},
-		
-		/**
 		 * Render UI (create nodes, widgets, etc)
 		 * 
 		 * @private
@@ -529,6 +587,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var data = this.get('data');
 			var permission_order = true; //Supra.Permission.get('block', 'order', null, true);
 			var permission_edit = true;  //Supra.Permission.get('block', 'edit', null, true);
+			var node = this.getNode();
 			
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
@@ -539,11 +598,13 @@ YUI.add('supra.page-content-proto', function (Y) {
 				}
 			}
 			
-			if (!this.getNode()) {
+			if (!node) {
 				var type = data.type,
 					id = data.id,
-					classname_type = CLASSNAME + '-' + type,
-					node = Y.Node.create('<div id="content_' + type + '_' + id + '" class="' + CLASSNAME + ' '  + classname_type + '">' + data.value || '' + '</div>');
+					classname_type = CLASSNAME + '-' + type;
+				
+				node = Y.Node.create('<div id="content_' + type + '_' + id + '" class="' + CLASSNAME + ' '  + classname_type + '">' + data.value || '' + '</div>');
+				node.setData('blockId', this.getId());
 				
 				this.node = node;
 				this.get('parent').getNode().append(node);
@@ -583,6 +644,33 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 		},
 		
+		
+		/* --------------------------------- OVERLAY ------------------------------------ */
+		
+		
+		/**
+		 * Update overlay position
+		 * 
+		 * @param {Boolean} traverse Traverse children and update their overlays
+		 */
+		syncOverlayPosition: function (traverse) {
+			if (this.overlay) {
+				var node = this.getNode();
+				var w = node.get('offsetWidth'), h = node.get('offsetHeight');
+			
+				this.overlay.setStyles({
+					width: w + 'px',
+					height: h + 'px'
+				});
+			}
+			
+			if (traverse !== false) {
+				for (var i in this.children) {
+					this.children[i].syncOverlayPosition();
+				}
+			}
+		},
+		
 		/**
 		 * Render oberlay
 		 * 
@@ -606,6 +694,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 			this.overlay.set('innerHTML', '<span></span>');
 			this.getNode().insert(div, 'before');
 		},
+		
+		
+		/* --------------------------------- ATTRIBUTES ------------------------------------ */
+		
 		
 		/**
 		 * draggable attribute setter
@@ -706,6 +798,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 				if (this.get('highlightOverlay')) {
 					this.set('highlightOverlay', false);
 				}
+				
+				this.blockDropCache = null;
+				this.listDropCache = null;
 			}
 			
 			return !!value;
@@ -717,6 +812,185 @@ YUI.add('supra.page-content-proto', function (Y) {
 		_getChanged: function () {
 			//Not editable, so nothing can change
 			return false;
+		},
+		
+		
+		/* ------------------------------------ BLOCK DROP -------------------------------------- */
+		
+		
+		/**
+		 * Children position cache
+		 * @type {Array}
+		 */
+		blockDropCache: null,
+		
+		/**
+		 * Self position cache
+		 * @type {Object}
+		 */
+		listDropCache: null,
+		
+		/**
+		 * Drop target ID, block ID
+		 * @type {Number}
+		 */
+		blockDropPositionId: null,
+		
+		/**
+		 * Drop before target?
+		 * @type {Boolean}
+		 */
+		blockDropPositionBefore: false,
+		
+		/**
+		 * Drop marker node
+		 * @type {Object}
+		 */
+		blockDropPositionMarker: null,
+		
+		/**
+		 * Mark drop position
+		 * If event object is not passed, then removes marker
+		 * 
+		 * @param {Object} e Event facade object, optional
+		 */
+		markDropPosition: function (e) {
+			if (!e) {
+				return this._markDropPosition(null, false, null);
+			}
+			
+			var position = this.getDropPosition(e);
+			this._markDropPosition(position);
+		},
+		
+		/**
+		 * Returns drop position by event
+		 * If event object is not passed, then returns last known position
+		 * 
+		 * @param {Object} e Event facade object, optional
+		 */
+		getDropPosition: function (e) {
+			if (!e) {
+				return {
+					"id": this.blockDropPositionId,
+					"before": this.blockDropPositionBefore,
+					"region": null
+				};
+			}
+			
+			var cache = this.blockDropCache,
+				region = null,
+				id = null,
+				xy = e.position,
+				positionId = null,
+				positionBefore = false,
+				positionRegion = null,
+				hasChildren = false;
+			
+			if (!this.blockDropCache) {
+				var children = this.children;
+				
+				cache = this.blockDropCache = {}
+				
+				for (id in children) {
+					region = children[id].getNode().get("region");
+					cache[id] = region;
+				}
+				
+				this.blockDropPositionId = null;
+				this.blockDropPositionBefore = false;
+			}
+			
+			for (id in cache) {
+				hasChildren = true;
+				region = cache[id];
+				if (region.left <= xy[0] && region.right >= xy[0] && region.top <= xy[1] && region.bottom >= xy[1]) {
+					positionId = id;
+					positionBefore = (region.height / 2 > xy[1] - region.top);
+					positionRegion = region;
+				}
+			}
+			
+			if (!hasChildren && !this.isClosed()) {
+				//Drop on empty list or can't drop on any of the children
+				region = this.listDropCache || (this.listDropCache = this.getNode().get('region'));
+				
+				if (region.left <= xy[0] && region.right >= xy[0] && region.top <= xy[1] && region.bottom >= xy[1]) {
+					positionId = this.getId();
+					positionRegion = region;
+				}
+			}
+			
+			return {
+				"id": positionId,
+				"before": positionBefore,
+				"region": positionRegion
+			};
+		},
+		
+		/**
+		 * Show marker at specific position
+		 * 
+		 * @param {String} positionId Children ID or null to remove marker
+		 * @param {Boolean} positionBefore Insert marker before child
+		 * @param {Object} positionRegion Children block node region
+		 * @private
+		 */
+		_markDropPosition: function (position) {
+			var positionId = position ? position.id : null,
+				positionBefore = position ? position.before : false,
+				positionRegion = position ? position.region : null;
+			
+			if (this.blockDropPositionId != positionId || this.blockDropPositionBefore != positionBefore) {
+				var node = this.blockDropPositionMarker;
+				
+				//We don't mark list, only children blocks
+				if (positionId) {
+					if (!node) {
+						node = this.blockDropPositionMarker = Y.Node(this.get("doc").createElement("DIV")); // create using correct document object
+						node.addClass(CLASSNAME_MARKER);
+						this.get("body").append(node);
+					}
+					
+					if (positionId != this.getId()) {
+						//Block
+						node.setStyles({
+							"left": positionRegion.left + "px",
+							"top": (positionBefore ? positionRegion.top + 1 : positionRegion.bottom + 1) + "px",
+							"width": positionRegion.width + "px"
+						});
+					} else {
+						//List
+						node.setStyles({
+							"left": positionRegion.left + 2 + "px",
+							"top": positionRegion.bottom + "px",
+							"width": positionRegion.width - 4 + "px"
+						});
+					}
+				} else {
+					if (node) {
+						node.remove(true);
+						node = this.blockDropPositionMarker = null;
+					}
+				}
+				
+				this.blockDropPositionId = positionId;
+				this.blockDropPositionBefore = positionBefore;
+			}
+		},
+		
+		
+		/* ------------------------------------ CONTENT MANIPULATION -------------------------------------- */
+		
+		
+		/**
+		 * Returns stylesheet parser,
+		 * Supra.IframeStylesheetParser instance
+		 * 
+		 * @type {Object}
+		 */
+		getStylesheetParser: function () {
+			return this.get("super").get("iframe").get("stylesheetParser");
 		}
 		
 	});

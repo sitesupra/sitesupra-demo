@@ -64,6 +64,18 @@ YUI.add("supra.form", function (Y) {
 		"disabled": {
 			value: false,
 			setter: "_setDisabled"
+		},
+		/**
+		 * Parent widget, could be empty
+		 */
+		"parent": {
+			value: null
+		},
+		/**
+		 * Root parent widget, usually same as parent attribute
+		 */
+		"root": {
+			value: null
 		}
 	};
 	Form.HTML_PARSER = {
@@ -201,7 +213,7 @@ YUI.add("supra.form", function (Y) {
 			//Convert arguments into
 			//[{}, INPUT_DEFINITION, argument1, argument2, ...]
 			var args = [].slice.call(arguments,0);
-				args = [{}, INPUT_DEFINITION].concat(args);
+				args = [{"parent": this, "root": this.get("root") || this}, INPUT_DEFINITION].concat(args);
 			
 			//Mix them together
 			return Supra.mix.apply(Supra, args);
@@ -697,11 +709,15 @@ YUI.add("supra.form", function (Y) {
 			
 			if (Y.Lang.isArray(list)) {
 				for(var i=0,ii=list.length; i<ii; i++) {
-					if (list[i] in inputs) inputs[list[i]].resetValue();
+					if (list[i] in inputs) {
+						inputs[list[i]].resetValue();
+						inputs[list[i]].set('error', false);
+					}
 				}
 			} else {
 				for(var id in inputs) {
 					inputs[id].resetValue();
+					inputs[id].set('error', false);
 				}
 			}
 			
@@ -876,6 +892,11 @@ YUI.add("supra.form", function (Y) {
 		},
 		
 		_setDisabled: function (disabled) {
+			//If rendering phase and should enable form (default) then skip, bacause
+			//all inputs already are enabled by default and if any is not
+			//then that was intended like that
+			if (!this.get('rendered') && !disabled) return disabled;
+			
 			var inputs = this.getInputs();
 			for(var id in inputs) inputs[id].set("disabled", disabled);
 			

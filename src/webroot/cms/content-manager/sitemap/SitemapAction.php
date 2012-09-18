@@ -350,7 +350,7 @@ class SitemapAction extends PageManagerAction
 					}
 
 					// TODO: might be job for JS
-					if ($pageData['children_count'] > 0 && $pageData['icon'] = 'page') {
+					if ($pageData['children_count'] > 0 && $pageData['icon'] == 'page') {
 						$pageData['icon'] = 'folder';
 					}
 				}

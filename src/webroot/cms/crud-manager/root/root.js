@@ -19,7 +19,7 @@ Supra.addModule('website.provider', {
 		'supra.datagrid-loader',
 		'supra.datagrid-draggable',
 		'website.datagrid-delete',
-		'website.datagrid-new-item',
+		'supra.datagrid-new-item',
 		'supra.form'
 	]
 });
@@ -29,13 +29,6 @@ Supra.addModule('website.datagrid-delete', {
 	requires: [
 		'widget',
 		'dd-drop'
-	]
-});
-Supra.addModule('website.datagrid-new-item', {
-	path: 'datagrid-new-item/datagrid-new-item.js',
-	requires: [
-		'widget',
-		'dd-drag'
 	]
 });
 

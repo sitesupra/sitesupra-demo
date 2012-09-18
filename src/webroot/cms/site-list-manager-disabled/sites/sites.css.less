@@ -1,0 +1,227 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+.sites-manager {
+	top: 0 !important;
+	overflow: hidden;
+	
+	z-index: 15;
+	background: url(/cms/lib/supra/img/background-center.jpg) 50% 0 no-repeat, url(/cms/lib/supra/img/background-pattern.jpg) 50% 0 repeat;
+	background-attachment: fixed;
+	
+	opacity: 0; 
+	
+	.info {
+		position: absolute;
+		left: 137px;
+		right: 20px;
+		top: 65px;
+		
+		.add-site {
+			overflow: hidden;
+		}
+		
+		.yui3-form {
+			.yui3-form-content {
+				margin: 0 14px;
+			}
+			.yui3-input-string {
+				display: inline-block;
+				margin: 17px 0;
+				padding-right: 17px;
+				width: 30%;
+				.box-sizing (border-box);
+				
+				input {
+					width: 100%;
+				}
+			}
+			.su-button {
+				vertical-align: middle;
+				margin-right: 12px;
+			}
+			a.cancel {
+				color: #00A9FF;
+				text-decoration: underline;
+				text-shadow: 0 -1px 0 rgba(0, 0, 0, .75);
+				vertical-align: middle;
+				
+				&:hover {
+					text-decoration: none;
+				}
+			}
+			.su-button-disabled + a.cancel {
+				opacity: 0.5;
+				cursor: default;
+				text-decoration: underline;
+			}
+		}
+		
+		.su-datagrid {
+			.su-datagrid-content {
+				padding-left: 14px;
+				padding-right: 14px;
+			}
+			
+			table {
+				border: 0;
+				margin: 3px 0;
+			}
+			thead {
+				display: none;
+			}
+			tbody {
+				background: none;
+				
+				tr,
+				tr:nth-child(odd) {
+					background: none;
+				}
+				
+				td {
+					border-top: 1px solid #474853;
+					border-bottom: 1px solid #262730;
+					border-left: 0;
+					border-right: 0;
+					padding: 7px 2px;
+					color: #fff;
+				}
+				tr:first-child td {
+					border-top: 0;
+				}
+				tr:last-child td {
+					border-bottom: 0;
+				}
+				tr:hover td {
+					color: #fff;
+					
+					&.row-id {
+						text-decoration: underline;
+					}
+				}
+				
+				td.row-title {
+					width: 30%;
+				}
+				td.row-status {
+					padding: 6px 2px 5px 0;
+					width: 120px;
+					
+					div {
+						display: inline-block;
+						background-image: url(../images/badge-icons.png), url(../images/badge-icons.png), url(../images/badge-icons.png);
+						background-repeat: no-repeat, no-repeat, repeat-x;
+						height: 19px;
+						font-size: 9px;
+						line-height: 19px;
+						padding: 0 6px 0 25px;
+					}
+					.status (@index, @color, @shadow) {
+						background-position: 100% -19px*(3*@index+2), 0 -19px*(3*@index), 0 -19px*(3*@index+1);
+						color: @color;
+						text-shadow: 0 1px 0 @shadow;
+					}
+					div.status-0 {
+						.status (1, #006D5E, #00CFC0);
+						padding-left: 23px;
+					}
+					div.status-1 {
+						.status (0, #044D00, #09CE05);
+					}
+					div.status-2 {
+						.status (2, #B16700, #FFE916);
+					}
+					div.status-3 {
+						.status (3, #A20000, #FF6060);
+					}
+				}
+			}
+		}
+	}
+	
+	.su-datagrid-new-item {
+		left: -120px;
+		top: 0;
+		
+		.deco {
+			left: -46px;
+			top: 0;
+		}
+	}
+}
+
+/**
+ * Header
+ */
+.sites-manager-header {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	height: 47px;
+	background: url(/cms/dashboard/images/header/background.png) 0 0 repeat-x;
+	
+	.user span {
+		color: #fff;
+		font-size: 12px;
+		font-weight: bold;
+		line-height: 16px;
+		padding: 17px 0 0 66px;
+	}
+	
+	.user {
+		float: right;
+		padding-right: 80px;
+		
+		img {
+			display: inline-block;
+			vertical-align: top;
+			margin-top: 7px;
+			
+			.border-radius (5px);
+		}
+		span {
+			display: inline-block;
+			padding-left: 17px;
+			vertical-align: top;
+		}
+	}
+	
+	a.close {
+		position: absolute;
+		right: 0;
+		top: 0;
+		display: block;
+		cursor: pointer;
+		background: url(/cms/dashboard/images/header/icon-close.png) 21px 13px no-repeat;
+		height: 47px;
+		width: 63px;
+	}
+}
+
+
+/**
+ * Block module
+ */
+.sites-manager {
+	.su-block-heading {
+		.border-radius (6px, 6px, 0, 0);
+		border: 1px solid #4E4A58;
+		border-bottom: 0;
+		position: relative;
+		
+		h2 {
+			color: #fff;
+			font-size: 16px;
+			font-weight: bold;
+			line-height: 24px;
+			text-shadow: 0 1px 0 rgba(0, 0, 0, .75);
+			padding: 6px 18px;
+		}
+	}
+	.su-block-content {
+		.border-radius (0, 0, 6px, 6px);
+		border: 1px solid #4E4A58;
+		border-top: 0;
+	}
+}

@@ -3,7 +3,7 @@
 namespace Supra\Controller\Layout\Processor;
 
 use Supra\Response\ResponseInterface;
-use Supra\Controller\Pages\Entity\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 use Supra\Request\RequestInterface;
 
 /**

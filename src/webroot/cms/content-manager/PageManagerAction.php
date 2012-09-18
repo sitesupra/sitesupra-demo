@@ -49,8 +49,8 @@ use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
  */
 abstract class PageManagerAction extends CmsAction
 {
-	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
 
+	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
 	const PAGE_CONTROLLER_CLASS = 'Supra\Controller\Pages\PageController';
 
 	/**
@@ -338,8 +338,7 @@ abstract class PageManagerAction extends CmsAction
 		// Try cookie
 		if (isset($_COOKIE[self::INITIAL_PAGE_ID_COOKIE])) {
 			$pageLocalizationId = $_COOKIE[self::INITIAL_PAGE_ID_COOKIE];
-			$localization = $this->entityManager->find(Entity\Abstraction\Localization::CN(), 
-					$pageLocalizationId);
+			$localization = $this->entityManager->find(Entity\Abstraction\Localization::CN(), $pageLocalizationId);
 		}
 
 		// Root page otherwise
@@ -419,6 +418,14 @@ abstract class PageManagerAction extends CmsAction
 			$id = $page->getId();
 		}
 
+		if ($data instanceof Entity\GroupLocalization) {
+
+			$previewUrl = '/cms/lib/supra/img/sitemap/preview/group.png';
+		} else {
+			
+			$previewUrl = $data->getPreviewUrl();
+		}
+
 		// Main data
 		$array = array(
 			'id' => $id,
@@ -428,7 +435,7 @@ abstract class PageManagerAction extends CmsAction
 			'icon' => $page instanceof Entity\TemporaryGroupPage ? 'folder' :
 					($data instanceof Entity\GroupLocalization ? 'group' :
 							($page->getLevel() === 0 ? 'home' : 'page')),
-			'preview' => '/cms/lib/supra/img/sitemap/preview/' . ($data instanceof Entity\GroupLocalization ? 'group.png' : 'blank.jpg'),
+			'preview' => $previewUrl,
 			'global' => ( ! $page->isRoot() ? $page->getGlobal() : true ),
 			'localized' => $localizationExists,
 			'editable' => $localizationExists,
@@ -475,8 +482,8 @@ abstract class PageManagerAction extends CmsAction
 
 			$redirect = $this->getPageController()->getRedirectData($data);
 
-			$array['redirect'] = (!empty($redirect['redirect'])) ? $redirect['redirect'] : false;
-			$array['redirect_page_id'] = (!empty($redirect['redirect_page_id'])) ? $redirect['redirect_page_id'] : '';
+			$array['redirect'] = ( ! empty($redirect['redirect'])) ? $redirect['redirect'] : false;
+			$array['redirect_page_id'] = ( ! empty($redirect['redirect_page_id'])) ? $redirect['redirect_page_id'] : '';
 		}
 
 		// Node type
@@ -490,7 +497,7 @@ abstract class PageManagerAction extends CmsAction
 			$array['new_children_first'] = $conf->newChildrenFirst;
 			$array['isDraggable'] = $conf->isDraggable;
 			$array['isDropTarget'] = $conf->isDropTarget;
-						
+
 			// empty news application contain virtual children
 			if ( ! isset($array['children_count'])) {
 				$array['children_count'] = 1;
@@ -623,7 +630,7 @@ abstract class PageManagerAction extends CmsAction
 					$data['image'] = $info;
 				}
 			}
-			
+
 			// in some cases (gallery) there is no needed additional info
 			if ( ! $includeMeta) {
 				return array(
@@ -647,12 +654,12 @@ abstract class PageManagerAction extends CmsAction
 		$pageId = $page->getId();
 
 		if ($page instanceof Entity\Template) {
-			
+
 			$localizationEntity = Entity\PageLocalization::CN();
-			
+
 			$dql = "SELECT COUNT(p.id) FROM $localizationEntity p
 	                WHERE p.template = ?0";
-			
+
 			$count = $this->entityManager->createQuery($dql)
 					->setParameters(array($pageId))
 					->getSingleScalarResult();
@@ -660,12 +667,12 @@ abstract class PageManagerAction extends CmsAction
 			if ((int) $count > 0) {
 				throw new CmsException(null, "Cannot remove template as there are {$count} pages using it.");
 			}
-			
+
 			$publicEm = ObjectRepository::getEntityManager('#public');
 			$count = $publicEm->createQuery($dql)
 					->setParameter(0, $pageId)
 					->getSingleScalarResult();
-			
+
 			if ((int) $count > 0) {
 				throw new CmsException(null, "There are {$count} published pages that uses this template! <br/>Un-publish them or publish new version before removing template");
 			}
@@ -716,8 +723,7 @@ abstract class PageManagerAction extends CmsAction
 		$masterId = $auditEm->createQuery("SELECT l.master FROM page:Abstraction\Localization l
 				WHERE l.id = :id AND l.revision = :revision")
 				->execute(
-						array('id' => $localizationId, 'revision' => $revisionId), 
-						ColumnHydrator::HYDRATOR_ID);
+				array('id' => $localizationId, 'revision' => $revisionId), ColumnHydrator::HYDRATOR_ID);
 
 		$page = null;
 
@@ -796,7 +802,6 @@ abstract class PageManagerAction extends CmsAction
 
 			$localization = $page->getLocalization($localeId);
 			$this->pageData = $localization;
-			
 		} catch (\Exception $e) {
 			$draftEm->rollback();
 			throw $e;
@@ -896,6 +901,12 @@ abstract class PageManagerAction extends CmsAction
 				$this->writeAuditLog("Draft for %item% saved", $pageData);
 			}
 		}
+		
+		$eventManager = ObjectRepository::getEventManager();
+		$eventArgs = new CmsPageEventArgs();
+		$eventArgs->localization = $pageData;
+		$eventArgs->user = $this->getUser();
+		$eventManager->fire(CmsPageEventArgs::postPageUnlock, $eventArgs);
 	}
 
 	/**
@@ -1059,7 +1070,7 @@ abstract class PageManagerAction extends CmsAction
 		if ($targetLocale == $sourceLocale) {
 			throw new CmsException(null, 'Page duplicate will do nothing as source locale and target locale are identical');
 		}
-		
+
 		$sourceLocalization = $master->getLocalization($sourceLocale);
 		if (is_null($sourceLocalization)) {
 			throw new CmsException(null, "No source localization [{$sourceLocale}] was found");
@@ -1067,13 +1078,13 @@ abstract class PageManagerAction extends CmsAction
 
 		// dissalow to create more than one instance of root page
 		if ($master instanceof Page && $master->isRoot()) {
-			
+
 			$pathEntityName = Entity\PageLocalizationPath::CN();
-			
+
 			$dql = "SELECT p FROM $pathEntityName p
 				WHERE p.path = :path
 				AND p.locale = :locale";
-		
+
 			$query = $this->entityManager
 					->createQuery($dql)
 					->setParameters(array('path' => '', 'locale' => $targetLocale));
@@ -1083,9 +1094,9 @@ abstract class PageManagerAction extends CmsAction
 				throw new CmsException(null, 'It is not allowed to create multiple root pages');
 			}
 		}
-		
-		
-		
+
+
+
 		if ($sourceLocalization instanceof Entity\PageLocalization) {
 
 			$template = $sourceLocalization->getTemplate();
@@ -1190,7 +1201,7 @@ abstract class PageManagerAction extends CmsAction
 										foreach ($properties as $property) {
 											if ( ! in_array($property->getId(), $replacedProperties) && $targetProperty->getName() == $property->getName()
 													&& $targetProperty->getType() == $property->getType()) {
-												
+
 												$property->setBlock($targetBlock);
 												array_push($replacedProperties, $property->getId());
 
@@ -1208,7 +1219,7 @@ abstract class PageManagerAction extends CmsAction
 											}
 										}
 									}
-									
+
 //									foreach($properties as $property) {
 //										$masterMetadataId = $property->getMasterMetadataId();
 //										if ( ! is_null($masterMetadataId)) {

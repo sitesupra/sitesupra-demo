@@ -3,7 +3,7 @@
 namespace Supra\Controller\Layout\Theme\Configuration;
 
 use Supra\Configuration\Loader\ComponentConfigurationLoader;
-use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\Theme\Theme;
 
 class ThemeConfigurationLoader extends ComponentConfigurationLoader
 {

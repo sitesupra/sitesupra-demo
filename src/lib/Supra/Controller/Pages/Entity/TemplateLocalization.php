@@ -15,8 +15,9 @@ class TemplateLocalization extends Abstraction\Localization
 	/**
 	 * {@inheritdoc}
 	 */
+
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
-	
+
 	/**
 	 * @return Template
 	 */
@@ -24,7 +25,7 @@ class TemplateLocalization extends Abstraction\Localization
 	{
 		return $this->getMaster();
 	}
-	
+
 	/**
 	 * @param Template $template
 	 */
@@ -32,5 +33,25 @@ class TemplateLocalization extends Abstraction\Localization
 	{
 		$this->setMaster($template);
 	}
-	
+
+	/**
+	 * @param string $localizationId
+	 * @param string $revisionId
+	 * @return string
+	 */
+	public static function getPreviewUrlForLocalizationAndRevision($localizationId, $revisionId)
+	{
+		return static::getPreviewUrlForTypeAndLocalizationAndRevision('t', $localizationId, $revisionId);
+	}
+
+	/**
+	 * @param string $localizationId
+	 * @param string $revisionId
+	 * @return string
+	 */
+	public static function getPreviewFilenameForLocalizationAndRevision($localizationId, $revisionId)
+	{
+		return static::getPreviewFielnameForTypeAndLocalizationAndRevision('t', $localizationId, $revisionId);
+	}
+
 }

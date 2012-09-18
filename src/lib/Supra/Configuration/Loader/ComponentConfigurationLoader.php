@@ -256,6 +256,13 @@ class ComponentConfigurationLoader
 
 				// only the current directory for now
 				$return = str_replace('${__DIR__}', dirname($this->getFilePath()), $return);
+				
+				$constantTest = false;
+				sscanf($return, '${%[^}]}', $constantTest);
+				
+				if($constantTest && defined($constantTest)) {
+					$return = constant($constantTest);
+				}
 			}
 		}
 

@@ -105,8 +105,12 @@ abstract class Entity
 	 * @param Entity $entity
 	 * @return boolean
 	 */
-	public function equals(Entity $entity)
+	public function equals(Entity $entity = null)
 	{
+		if (is_null($entity)) {
+			return false;
+		}
+
 		// Equals if matches
 		if ($entity === $this) {
 			return true;

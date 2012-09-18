@@ -125,10 +125,12 @@ class ImageCropper extends ImageProcessor
 
 		// check if left and top are in range
 		if (($this->left < 0) || ($this->left >= $imageInfo->getWidth())) {
-			throw new ImageProcessorException('Left offset is out of borders');
+			$this->left = 0;
+			//throw new ImageProcessorException('Left offset is out of borders');
 		}
 		if (($this->top < 0 ) || ($this->top >= $imageInfo->getHeight())) {
-			throw new ImageProcessorException('Top offset is out of borders');
+			$this->top = 0;
+			//throw new ImageProcessorException('Top offset is out of borders');
 		}
 
 		// invert right and bottom if required
@@ -140,23 +142,27 @@ class ImageCropper extends ImageProcessor
 		}
 
 		// check if right and bottom are in range
-		if (($this->right < 0) || ($this->right >= $imageInfo->getWidth())) {
-			throw new ImageProcessorException('Right offset is out of borders');
+		if (($this->right < 0) || ($this->right > $imageInfo->getWidth())) {
+			$this->right = $imageInfo->getWidth();
+			//throw new ImageProcessorException('Right offset is out of borders');
 		}
-		if (($this->bottom < 0) || ($this->bottom >= $imageInfo->getHeight())) {
-			throw new ImageProcessorException('Bottom offset is out borders');
+		if (($this->bottom < 0) || ($this->bottom > $imageInfo->getHeight())) {
+			$this->bottom = $imageInfo->getHeight();
+			//throw new ImageProcessorException('Bottom offset is out borders');
 		}
 
 		//convert right/bottom to width/height or check width/height
 		if ($this->right !== null) {
 			$this->width = $this->right - $this->left + 1;
 		} else if ($this->width > ($imageInfo->getWidth() - $this->left)) {
-			throw new ImageProcessorException('Crop width exceeds maximum (out of borders)');
+			$this->width = $imageInfo->getWidth() - $this->left;
+			//throw new ImageProcessorException('Crop width exceeds maximum (out of borders)');
 		}
 		if ($this->bottom !== null) {
 			$this->height = $this->bottom - $this->top + 1;
 		} else if ($this->height > ($imageInfo->getHeight() - $this->top)) {
-			throw new ImageProcessorException('Crop height exceeds maximum (out of borders)');
+			$this->height = $imageInfo->getHeight() - $this->top;
+			//throw new ImageProcessorException('Crop height exceeds maximum (out of borders)');
 		}
 
 		// create output image

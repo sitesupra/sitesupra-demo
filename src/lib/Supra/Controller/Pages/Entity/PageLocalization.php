@@ -23,6 +23,7 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * {@inheritdoc}
 	 */
+
 	const DISCRIMINATOR = self::PAGE_DISCR;
 
 	/**
@@ -55,7 +56,7 @@ class PageLocalization extends Abstraction\Localization
 	 * @var boolean
 	 */
 	protected $active = true;
-	
+
 	/**
 	 * @Column(type="boolean")
 	 * @var boolean
@@ -122,7 +123,7 @@ class PageLocalization extends Abstraction\Localization
 	{
 		$this->template = $template;
 	}
-	
+
 	/**
 	 * Set null as page template, used for deleted pages that have unexisted 
 	 * template assigned.
@@ -149,8 +150,8 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function setPath(Path $path = null, $active = true, $limited = false, $inSitemap = true)
 	{
-		\Log::debug('QQQ: ', $this->getId(), ' - ', $this->getPathEntity()->isVisibleInSitemap(), ' --> ' ,  $inSitemap);
-		
+		\Log::debug('QQQ: ', $this->getId(), ' - ', $this->getPathEntity()->isVisibleInSitemap(), ' --> ', $inSitemap);
+
 		$this->getPathEntity()->setPath($path);
 		$this->getPathEntity()->setActive($active);
 		$this->getPathEntity()->setLimited($limited);
@@ -167,7 +168,7 @@ class PageLocalization extends Abstraction\Localization
 
 		return $path;
 	}
-	
+
 	/**
 	 * Shortcut for accessing the full page path
 	 * @return string
@@ -176,8 +177,19 @@ class PageLocalization extends Abstraction\Localization
 	{
 		$pathString = $this->getPath()
 				->getFullPath($format);
-		
+
 		return $pathString;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFullPathWithLocale()
+	{
+		$pathString = $this->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
+		$pathStringWithLocale = '/' . $this->locale . $pathString;
+
+		return $pathStringWithLocale;
 	}
 
 	/**
@@ -365,7 +377,7 @@ class PageLocalization extends Abstraction\Localization
 		$this->setCreationTime();
 		$this->publishTimeSet = false;
 	}
-	
+
 	/**
 	 * Return if the creation time is already set for publishing
 	 * @return boolean
@@ -391,14 +403,14 @@ class PageLocalization extends Abstraction\Localization
 	{
 		if ( ! empty($this->id)) {
 			parent::__clone();
-			
+
 			if ($this->redirect instanceof ReferencedElement\LinkReferencedElement) {
 				$this->redirect = clone $this->redirect;
 			}
-			
+
 			$this->path = new PageLocalizationPath($this);
 			$this->path->setLocale($this->locale);
-			
+
 			$this->resetCreationTime();
 		}
 	}
@@ -413,7 +425,7 @@ class PageLocalization extends Abstraction\Localization
 		if ( ! $this->active) {
 			return false;
 		}
-		
+
 		// Any parent not active
 		$active = $this->getPathEntity()
 				->isActive();
@@ -421,27 +433,27 @@ class PageLocalization extends Abstraction\Localization
 		if ( ! $active) {
 			return false;
 		}
-		
+
 		$userProviderInterface = ObjectRepository::INTERFACE_USER_PROVIDER;
 		$userProvider = ObjectRepository::getObject($this, $userProviderInterface, false);
 		$isUserAuthorized = false;
-		
+
 		if ($userProvider instanceof $userProviderInterface) {
 			$currentUser = $userProvider->getSignedInUser(false);
 			$isUserAuthorized = ($currentUser instanceof User);
 		}
-		
+
 		if ($this->limitedAccess && ! $isUserAuthorized) {
 			return false;
 		}
 
 		$isLimited = $this->getPathEntity()
 				->isLimited();
-		
+
 		if ($isLimited && ! $isUserAuthorized) {
 			return false;
 		}
-		
+
 		// Path is null for some other reason
 		$path = $this->getPathEntity()
 				->getPath();
@@ -464,12 +476,12 @@ class PageLocalization extends Abstraction\Localization
 			$this->path->setLocale($locale);
 		}
 	}
-	
-	public function resetPath() 
+
+	public function resetPath()
 	{
 		$this->path = null;
 	}
-	
+
 	/**
 	 * Helper for the publish method
 	 */
@@ -485,7 +497,7 @@ class PageLocalization extends Abstraction\Localization
 			$this->redirect->getId();
 		}
 	}
-	
+
 	/**
 	 * @param boolean $access
 	 */
@@ -493,10 +505,30 @@ class PageLocalization extends Abstraction\Localization
 	{
 		$this->limitedAccess = $access;
 	}
-	
+
 	public function isLimitedAccessPage()
 	{
 		return $this->limitedAccess;
 	}
-	
+
+	/**
+	 * @param string $localizationId
+	 * @param string $revisionId
+	 * @return string
+	 */
+	public static function getPreviewUrlForLocalizationAndRevision($localizationId, $revisionId)
+	{
+		return self::getPreviewUrlForTypeAndLocalizationAndRevision('p', $localizationId, $revisionId);
+	}
+
+	/**
+	  s	 * @param string $localizationId
+	 * @param string $revisionId
+	 * @return string
+	 */
+	public static function getPreviewFilenameForLocalizationAndRevision($localizationId, $revisionId)
+	{
+		return self::getPreviewFilenameForTypeAndLocalizationAndRevision('p', $localizationId, $revisionId);
+	}
+
 }

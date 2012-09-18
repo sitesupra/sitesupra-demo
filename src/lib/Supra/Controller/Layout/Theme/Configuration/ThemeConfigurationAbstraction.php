@@ -3,7 +3,7 @@
 namespace Supra\Controller\Layout\Theme\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
-use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\Theme\Theme;
 use Supra\Configuration\Exception;
 use Supra\Configuration\Loader\LoaderRequestingConfigurationInterface;
 use Supra\Configuration\Loader\ComponentConfigurationLoader;
@@ -55,9 +55,35 @@ abstract class ThemeConfigurationAbstraction implements ConfigurationInterface, 
 		return $this->loader->getThemeProvider();
 	}
 
+	/**
+	 * @return string
+	 */
 	protected function getLoaderMode()
 	{
 		return $this->loader->getMode();
+	}
+
+	abstract protected function readConfiguration();
+
+	/**
+	 * 
+	 */
+	protected function fetchConfiguration()
+	{
+		
+	}
+
+	/**
+	 * 
+	 */
+	public function configure()
+	{
+		$loaderMode = $this->getLoaderMode();
+		if ($loaderMode == ThemeConfigurationLoader::MODE_READ_CONFIGURATION) {
+			$this->readConfiguration();
+		} else {
+			$this->fetchConfiguration();
+		}
 	}
 
 }

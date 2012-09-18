@@ -3,9 +3,9 @@
 use Supra\Upgrade\Script\UpgradeScriptAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\TemplateLayout;
-use Supra\Controller\Pages\Entity\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 use Supra\Controller\Pages\Entity\Layout;
-use Supra\Controller\Pages\Entity\Theme;
+use Supra\Controller\Pages\Entity\Theme\Theme;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Supra\Upgrade\Script\SkippableOnError;
@@ -77,11 +77,22 @@ class S001_AddThemes extends UpgradeScriptAbstraction
 
 	public function upgrade()
 	{
+		$this->fixThemesTable();
+
 		$this->runCommand('su:theme:add', array('name' => self::THEME_NAME_DEFAULT), array('directory' => SUPRA_TEMPLATE_PATH));
 		$this->runCommand('su:theme:set_active', array('name' => self::THEME_NAME_DEFAULT));
 
 		$this->upgradeLayouts();
 	}
+
+	protected function fixThemesTable()
+        {
+                $em = ObjectRepository::getEntityManager($this);
+
+                $pdo = $em->getConnection();
+
+                $pdo->exec('UPDATE su_Theme SET dtype="theme" WHERE dtype = "";');
+        }
 
 	protected function upgradeLayouts()
 	{

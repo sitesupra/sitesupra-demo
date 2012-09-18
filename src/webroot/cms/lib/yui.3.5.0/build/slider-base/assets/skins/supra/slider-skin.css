@@ -22,6 +22,7 @@ http://yuilibrary.com/license/
 .yui3-skin-supra .yui3-slider-x .yui3-slider-thumb {
     height: 26px;
     width: 15px;
+    outline: none;
 }
 
 .yui3-skin-supra .yui3-slider-x .yui3-slider-rail-cap-left {

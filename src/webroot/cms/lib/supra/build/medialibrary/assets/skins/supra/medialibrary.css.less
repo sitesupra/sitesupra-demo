@@ -176,37 +176,69 @@
 		line-height: 23px;
 		cursor: default;
 		position: relative;
+		height: 25px;
+		background: none;
 		
 		&:hover {
 			background: none;
 		}
 		.title {
-			line-height: normal;
-			padding-left: 28px;
+			color: #fff;
+			line-height: 23px;
+			font-size: 12px;
+			text-shadow: none;
+			
+			padding-left: 21px;
 			position: relative;
 			z-index: 1;
 		}
 		.progress {
 			position: absolute;
-			left: 0;
-			right: 0;
+			left: 10px;
+			right: 18px;
 			top: 0;
-			height: 29px;
-			padding: 1px;
-			border: 1px solid #CDECFF;
+			height: 25px;
+			width: auto;
+			padding: 2px;
+			background: url(../../supra/img/medialibrary/upload-progress.png) 0 0 no-repeat,
+						url(../../supra/img/medialibrary/upload-progress.png) 100% -50px no-repeat,
+						url(../../supra/img/medialibrary/upload-progress.png) 0 -25px repeat-x;
+			
+			em {
+				display: block;
+				float: left;
+				width: 50%;
+				height: 20px;
+				background: url(../../supra/img/medialibrary/upload-progress.png) 0 -75px no-repeat,
+							url(../../supra/img/medialibrary/upload-progress.png) 100% -115px no-repeat,
+							url(../../supra/img/medialibrary/upload-progress.png) 0 -95px repeat-x;
+			}
 		}
 		
-		.progress em {
-			display: block;
-			float: left;
-			width: 50%;
+		.cancel {
+			background: url(../../supra/img/medialibrary/upload-progress.png) 4px -135px no-repeat;
+			width: 18px;
 			height: 25px;
-			background: url(../../supra/img/medialibrary/upload-progress.png) 0 0 repeat;
-		
-			.animation-duration (7s);
-			.animation-name (progressBar);
-			.animation-iteration-count (infinite);
-			.animation-timing-function (linear);
+			margin: 0;
+			display: block;
+			position: absolute;
+			right: 0;
+			top: 0;
+			cursor: pointer;
+			
+			&:hover {
+				background-position: 4px -160px;
+			}
+		}
+	}
+	& > li.type-temp-legacy {
+		.title {
+			color: #323144;
+			.text-shadow ();
+		}
+		//File upload can't be aborted and there is no progress bar
+		.progress, .cancel {
+			display: none;
 		}
 	}
 }
@@ -220,21 +252,6 @@
 		height: 44px;
 		background: url(images/icons/folder.png) 0 0 no-repeat;
 	}
-}
-
-
-
-
-
-
-
-@-moz-keyframes progressBar {
-	from { background-position: 0 0; }
-	to { background-position: 0 260px; }
-}
-@-webkit-keyframes progressBar {
-	from { background-position: 0 0; }
-	to { background-position: 0 260px; }
 }
 
 /**
@@ -396,6 +413,47 @@
 .yui3-medialist .yui3-input {
 	label {
 		display: none;
+	}
+}
+
+/**
+ * Sidebar media list with sorting switch
+ */
+.sidebar .yui3-medialist {
+	width: 100%;
+	height: 100%;
+	
+	padding-top: 47px; // Space reserved for sorting switch
+	.box-sizing (border-box);
+	
+	div.image div.preview img {
+		cursor: move;
+		max-width: 100%;
+	}
+	
+	.input-sortby {
+		@labelWidth: 60px;
+		
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		border-bottom: 1px solid #A3A4B7;
+		margin: 0;
+		padding: 7px 19px;
+		
+		.yui3-input-select-list-content {
+			padding-left: @labelWidth;
+		}
+		
+		label {
+			.box-sizing (border-box);
+			display: block;
+			float: left;
+			width: @labelWidth;
+			margin-left: -@labelWidth;
+			position: relative;
+		}
 	}
 }
 

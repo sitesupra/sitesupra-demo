@@ -203,6 +203,14 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 		},
 		
 		/**
+		 * Update layout size
+		 * @private
+		 */
+		syncLayout: function () {
+			this.fire('contentResize');
+		},
+		
+		/**
 		 * Render widgets
 		 * @private
 		 */

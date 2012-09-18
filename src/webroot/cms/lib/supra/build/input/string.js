@@ -6,6 +6,8 @@ YUI.add('supra.input-string', function (Y) {
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
+		
+		this._last_value = '';
 	}
 	
 	Input.NAME = 'input-string';
@@ -56,6 +58,13 @@ YUI.add('supra.input-string', function (Y) {
 		KEY_RETURN_ALLOW: true,
 		KEY_ESCAPE_ALLOW: true,
 		
+		/**
+		 * Last known value, used to restore input value if new value doesn't
+		 * pass mask validation
+		 * @type {String}
+		 * @private
+		 */
+		_last_value: null,
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
@@ -112,7 +121,7 @@ YUI.add('supra.input-string', function (Y) {
 				//Already handled by _onKeyDown
 			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
 				//Already handled by _onKeyDown
-			} else if (mask && charCode) {
+			} else if (charCode) {
 				//46 - 'Delete'
 				//Validate against mask
 				var str = String.fromCharCode(charCode),
@@ -122,7 +131,13 @@ YUI.add('supra.input-string', function (Y) {
 				value = value.substr(0, inputNode.selectionStart) + str + value.substr(inputNode.selectionEnd).replace(/^\s*|\s*$/, '');
 
 				if (e.ctrlKey && charCode == 118) return;
-				if (!mask.test(value)) return e.preventDefault();
+				if (mask && !mask.test(value)) return e.preventDefault();
+				
+				//Trigger input event
+				if (this._last_value != value) {
+					this._last_value = value;
+					this.fire('input', {'value': value});
+				}
 			}
 		},
 		
@@ -159,10 +174,19 @@ YUI.add('supra.input-string', function (Y) {
 				mask = this.get('valueMask');
 			
 			if (mask) {
-				if (!mask.test(value)) return e.preventDefault();
+				if (value && !mask.test(value)) {
+					//It's not possible to prevent input event, so we set previous value
+					this.set('value', this._last_value);
+				} else {
+					if (this._last_value != value) {
+						this._last_value = value;
+						this.fire('input', {'value': value});
+					}
+				}
+			} else if (this._last_value != value) {
+				this._last_value = value;
+				this.fire('input', {'value': value});
 			}
-			
-			this.fire('input', {'value': value});
 		},
 		
 		_onFocus: function () {
@@ -249,6 +273,13 @@ YUI.add('supra.input-string', function (Y) {
 				node.set('innerHTML', Y.Escape.html(value) || '&nbsp;');
 			}
 			
+			if (value) {
+				this.get('boundingBox').removeClass(this.getClassName('empty'));
+			} else {
+				this.get('boundingBox').addClass(this.getClassName('empty'));
+			}
+			
+			this._last_value = value;
 			this._original_value = value;
 			return value;
 		},

@@ -1,0 +1,62 @@
+{% set animation = supraBlock.property('animation') %}
+{% set design = supraBlock.property('design') %}
+{% set images = supraBlock.property('images') %}
+
+{% if images|length %}
+	
+	<div class="block">
+		<div class="promo-slider" data-refresh-event="promo" data-style="{{ design|default('arrows') }}" data-animation="{{ animation|default('horizontal') }}">
+			<ul>
+				{% for image in images %}
+				<li>
+					{% set width_full = 960 %}
+					{% set height_full = 358 %}
+					{% set ratio = height_full / width_full %}
+					
+					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 960 * ratio, true ) | raw %}
+					{% set tag_tablet = supraBlock.imageHtmlTag( image.imageId, 768, 768 * ratio, true ) | raw %}
+					{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, 420, 420 * ratio, true ) | raw %}
+					{% set tag_mobile_p = supraBlock.imageHtmlTag( image.imageId, 300, 300 * ratio, true ) | raw %}
+					
+					<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
+						 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
+						 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
+					     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
+					     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
+					     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
+					     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
+					     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
+					     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+					
+					<div>
+						{% set property = image.property %}
+
+						{% if property.title %}
+							{% if property.link %}
+								<h2 class="mobile"><a href="{{property.link.url}}" target="{{property.link.target}}">{{property.title}}</a></h2>
+								<h2 class="desktop tablet">{{ property.title }}</h2>
+							{% else %}
+								<h2>{{ property.title }}</h2>
+							{% endif %}
+						{% endif %}
+						{% if property.description %}<p>{{ property.description }}</p>{% endif %}
+						
+						{% if property.link %}
+							{% if property.link.title %}
+								{% set title = property.link.title %}
+							{% elseif property.link.page %}
+								{% set title = property.link.page.title %}
+							{% else %}
+								{% set title = property.link.url %}
+							{% endif %}
+							<div class="more desktop tablet"><a href="{{property.link.url}}" target="{{property.link.target}}"><span><span>{{title}}</span></span></a></div>
+						{% endif %}
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+			<div class="shadow"></div>
+		</div>
+	</div>
+	
+{% endif %}

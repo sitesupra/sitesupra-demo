@@ -10,7 +10,10 @@ YUI.add('supra.iframe-contents', function (Y) {
 	var Manager = Supra.Manager,
 		Action = Manager.PageContent,
 		Root = Manager.getAction('Root');
-	
+		
+	//Classname to add to blocks while inserting new block
+	var CLASSNAME_INSERT = Y.ClassNameManager.getClassName('content', 'insert');		//yui3-content-insert
+		
 	/*
 	 * Editable content
 	 */
@@ -50,6 +53,10 @@ YUI.add('supra.iframe-contents', function (Y) {
 		'highlight': {
 			value: false,
 			setter: '_setHighlight'
+		},
+		'insertHighlight': {
+			value: false,
+			setter: '_setInsertHighlight'
 		}
 	};
 	
@@ -142,13 +149,23 @@ YUI.add('supra.iframe-contents', function (Y) {
 			//Bind block D&D
 			this.on('block:dragend', function (e) {
 				if (e.block) {
-					var region = Y.DOM._getRegion(e.position[1], e.position[0]+88, e.position[1]+88, e.position[0]);
-					for(var i in this.children) {
-						var node = this.children[i].getNode(),
-							intersect = node.intersect(region);
+					var children = this.children;
+					
+					for(var i in children) {
+						//Check if it was dropped on this list
+						var position = children[i].getDropPosition();
 						
-						if (intersect.inRegion && this.children[i].isChildTypeAllowed(e.block.id)) {
-							return this.children[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block});
+						//Remove mark and saved drop position
+						children[i].markDropPosition(null);
+						
+						if (position.id) {
+							//If droped on the list but not children block then there is no need to send reference
+							if (position.id == children[i].getId()) {
+								position.id = null;
+							}
+							
+							//Was dropped on block
+							return children[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block, insertReference: position.id, insertBefore: position.before});
 						}
 					}
 				}
@@ -157,18 +174,30 @@ YUI.add('supra.iframe-contents', function (Y) {
 			this.on('block:dragstart', function (e) {
 				//Only if dragging block
 				if (e.block) {
-					this.set('highlight', true);
-					var type = e.block.id;
+					this.set('insertHighlight', e.block.id);
+				}
+			}, this);
+			
+			this.on('block:dragmove', function (e) {
+				//Only if dragging block
+				if (e.block) {
+					var type = e.block.id,
+						children = this.children;
 					
-					for(var i in this.children) {
-						if (this.children[i].isChildTypeAllowed(type)) {
-							this.children[i].set('highlight', true);
+					for(var i in children) {
+						if (children[i].isChildTypeAllowed(type)) {
+							children[i].markDropPosition(e);
 						}
 					}
 				}
 			}, this);
 			
 			this.once('destroy', this.beforeDestroy, this);
+			
+			//On block order change save
+			this.order.on("orderChange", this._onBlockOrderChange, this);
+			this.order.on("listChange", this._onBlockListChange, this);
+			
 			
 			//Fix context
 			var win = this.get('iframe').get('win');
@@ -229,6 +258,9 @@ YUI.add('supra.iframe-contents', function (Y) {
 		},
 		
 		renderUI: function () {
+			//Allow ordering
+			this.plug(Action.PluginOrdering);
+			
 			this.createChildren(null, true);
 			this.get('body').addClass('yui3-editable');
 		},
@@ -331,6 +363,59 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			//Global activity
 			Supra.session.triggerActivity();
+		},
+		
+		/**
+		 * Handle block order change event
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		_onBlockOrderChange: function (e) {
+			this.sendBlockOrder(e.block, e.order);
+			this.resizeOverlays();
+		},
+		
+		/**
+		 * Save block order request
+		 * 
+		 * @param {Object} block
+		 * @param {Object} order
+		 */
+		sendBlockListChange: function (block, order) {
+			var url = Manager.PageContent.getDataPath('moveblocks');
+			var page_info = Manager.Page.getPageData();
+			var data = {
+				'page_id': page_info.id,
+				
+				'place_holder_id': block.get('parent').getId(),
+				'order': order,
+				'block_id': block.getId(),
+				
+				'locale': Supra.data.get('locale')
+			};
+			
+			Supra.io(url, {
+				'data': data,
+				'method': 'post'
+			});
+						
+			//Change page version title
+			Manager.getAction('PageHeader').setVersionTitle('autosaved');
+			
+			//Global activity
+			Supra.session.triggerActivity();
+		},
+		
+		/**
+		 * Handle block order change event
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		_onBlockListChange: function (e) {
+			this.sendBlockListChange(e.block, e.order);
+			this.resizeOverlays();
 		},
 		
 		/**
@@ -487,6 +572,31 @@ YUI.add('supra.iframe-contents', function (Y) {
 		},
 		
 		/**
+		 * insertHighlight attribute setter
+		 * 
+		 * @param {Boolean} value
+		 */
+		_setInsertHighlight: function (value) {
+			this.set('disabled', value === true);
+			this.get('body').toggleClass('yui3-highlight', value === true);
+			
+			var children = this.children,
+				i = null;
+			
+			if (value && value !== true) {
+				for(i in children) {
+					if (children[i].isChildTypeAllowed(value)) {
+						children[i].getNode().addClass(CLASSNAME_INSERT);
+					}
+				}
+			} else {
+				for(i in children) {
+					children[i].getNode().removeClass(CLASSNAME_INSERT);
+				}
+			}		
+		},
+		
+		/**
 		 * Disable editing
 		 */
 		_setDisabled: function (value) {
@@ -583,7 +693,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 	
 }, YUI.version, {requires: (function () {
 	var blocks = Supra.Manager.getAction('PageContent').BLOCK_PROTOTYPES,
-		list = ['widget'];
+		list = ['widget', 'supra.page-content-ordering'];
 	
 	for(var i=0,ii=blocks.length; i<ii; i++) {
 		list.push('supra.page-content-' + blocks[i].toLowerCase());

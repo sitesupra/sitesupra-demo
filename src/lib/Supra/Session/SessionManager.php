@@ -12,7 +12,7 @@ class SessionManager
 	const DEFAULT_AUTHENTICATION_NAMESPACE_CLASS = 'Supra\Authentication\AuthenticationSessionNamespace';
 	
 	/**
-	 * @var HandlerAbstraction
+	 * @var Handler\HandlerAbstraction
 	 */
 	private $handler;
 	
@@ -50,6 +50,17 @@ class SessionManager
 	{
 		$this->handler = $handler;
 	}
+
+	/**
+	 * @return bolelan
+	 */
+	public function isStarted()
+	{
+		$status = $this->handler->getSessionStatus();
+		$started = ($status === Handler\HandlerAbstraction::SESSION_STARTED);
+
+		return $started;
+	}
 	
 	/**
 	 * Starts the session
@@ -58,6 +69,8 @@ class SessionManager
 	{
 		$this->handler->start();
 		$this->sessionData = &$this->handler->getSessionData();
+		
+		//\Log::error('SESSION START DATA: ', $this->sessionData);
 	}
 	
 	/**
@@ -74,14 +87,20 @@ class SessionManager
 	
 	/**
 	 * Changes the session ID inside the handler and reassigns the session data
-	 * @param string $sessionId
+	 * @param string $newSessionId
 	 */
-	public function changeSessionId($sessionId)
+	public function changeSessionId($newSessionId)
 	{
-		$this->clear();
-		$this->close();
-		$this->handler->setSessionId($sessionId);
-		$this->start();
+		$started = $this->isStarted();
+
+		if ($started) {
+			$this->clear();
+			$this->close();
+		}
+
+		//\Log::debug('CHANGE SESSION ID. FROM: ', $this->handler->getSessionId(), ' TO: ', $newSessionId);
+		
+		$this->handler->setSessionId($newSessionId);
 	}
 		
 	/**
@@ -196,12 +215,19 @@ class SessionManager
 	 */
 	public function close() 
 	{
+		if ( ! $this->isStarted()) {
+			return;
+		}
+
 		foreach ($this->sessionData as $sessionNamespace) {
 			
 			if ($sessionNamespace instanceof SessionNamespace) {
 				$sessionNamespace->close();	
 			}
 		}
+		
+		//\Log::error('SESSION CLOSE DATA: ', $this->sessionData);
+		
 		$this->handler->close();
 	}
 	

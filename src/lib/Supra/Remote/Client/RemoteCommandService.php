@@ -14,14 +14,13 @@ use Supra\User\SystemUser;
 
 class RemoteCommandService
 {
+
 	const POST_KEY_COMMAND_INPUT = 'commandInput';
 	const POST_KEY_COMMAND_OUTPUT = 'commandOutput';
-
 	const RESPONSE_KEY_COMMAND_RESULT_CODE = 'commandResultCode';
 	const RESPONSE_KEY_COMMAND_OUTPUT = 'commandOutput';
 	const RESPONSE_KEY_COMMAND_SUCCESS = 'commandSuccess';
 	const RESPONSE_KEY_ERROR = 'error';
-
 	const INI_SECTION_NAME = 'remote_api_endpoints';
 
 	/**
@@ -169,7 +168,10 @@ class RemoteCommandService
 		$remoteCommandResponse = unserialize(base64_decode($rawResponse));
 
 		if (empty($remoteCommandResponse)) {
-			throw $this->makeExecuteRuntimeException('Failed to un serialize remote command response. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
+			\Log::error('REQUEST URL: ', $endpointUrl);
+			\Log::error('POST DATA: ', $postData);
+			\Log::error('RAW RESPONSE DATA: ', $rawResponse);
+			throw $this->makeExecuteRuntimeException('Failed to unserialize remote command response. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
 		}
 
 		if ( ! $remoteCommandResponse instanceof RemoteCommandResponse) {
@@ -178,9 +180,12 @@ class RemoteCommandService
 
 		$proxyOutput = $remoteCommandResponse->getProxyOutput();
 
-		$proxyOutput->unproxy($output);
+		if ( ! empty($proxyOutput)) {
+			$proxyOutput->unproxy($output);
+		}
 
 		if ($remoteCommandResponse->getSuccess()) {
+
 			return $remoteCommandResponse->getResultCode();
 		}
 

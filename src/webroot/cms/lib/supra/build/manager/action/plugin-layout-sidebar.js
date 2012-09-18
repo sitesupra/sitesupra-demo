@@ -114,7 +114,7 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 			 * on action execute "execute" function will not be called either
 			 */
 			this.host.addAttr('frozen', {
-				'value': false
+				'value': this.host.get('frozen') || false
 			});
 			
 			this.host._frozenExecute = this.host.execute;
@@ -122,6 +122,7 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 			
 			this.host.execute = this.executeHost;
 			this.host.hide = this.hideHost;
+			this.host.showFrozen = this.showFrozenHost;
 			
 			this.host.after('visibleChange', this.afterVisibleChange, this);
 		},
@@ -255,8 +256,10 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					
 					//Show buttons
 					if (toolbar.hasActionButtons(this.host.NAME)) {
-						toolbar.setActiveAction(this.host.NAME);
-						buttons.setActiveAction(this.host.NAME);
+						if (this.host.PLUGIN_LAYOUT_SIDEBAR_MANAGE_BUTTONS !== false) {
+							toolbar.setActiveAction(this.host.NAME);
+							buttons.setActiveAction(this.host.NAME);
+						}
 					}
 					
 					//Event
@@ -265,8 +268,10 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					if (!this.host.get('frozen')) {
 						//Hide buttons
 						if (toolbar.hasActionButtons(this.host.NAME)) {
-							toolbar.unsetActiveAction(this.host.NAME);
-							buttons.unsetActiveAction(this.host.NAME);
+							if (this.host.PLUGIN_LAYOUT_SIDEBAR_MANAGE_BUTTONS !== false) {
+								toolbar.unsetActiveAction(this.host.NAME);
+								buttons.unsetActiveAction(this.host.NAME);
+							}
 						}
 					}
 					
@@ -325,6 +330,17 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 		hideHost: function () {
 			if (!this.get('frozen')) {
 				this._frozenHide.apply(this, arguments);
+			}
+		},
+		
+		/**
+		 * Force showing content even in frozen mode
+		 */
+		showFrozenHost: function () {
+			if (this.get('visible')) {
+				this.plugins.getPlugin('PluginSidebar').afterVisibleChange({'newVal': true, 'prevVal': false});
+			} else {
+				this.show();
 			}
 		}
 		

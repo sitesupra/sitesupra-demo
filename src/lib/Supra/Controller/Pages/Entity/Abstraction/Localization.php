@@ -28,6 +28,7 @@ use Supra\Controller\Pages\Exception\RuntimeException;
  */
 abstract class Localization extends Entity implements AuditedEntityInterface, TitleTrackingItemInterface
 {
+
 	const CHANGE_FREQUENCY_HOURLY = 'hourly';
 	const CHANGE_FREQUENCY_DAILY = 'daily';
 	const CHANGE_FREQUENCY_WEEKLY = 'weekly';
@@ -343,7 +344,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 
 		$query = $qb->getQuery();
 		$result = $query->getResult();
-		
+
 		return $result;
 	}
 
@@ -730,6 +731,65 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		}
 
 		return $ancestors;
+	}
+
+	/**
+	 * @param string $localizationType
+	 * @param string $localizationId
+	 * @param string $revisionId
+	 * @return string
+	 */
+	static function getPreviewFilenameForTypeAndLocalizationAndRevision($localizationType, $localizationId, $revisionId)
+	{
+		$previewFilename = join(DIRECTORY_SEPARATOR, array(
+			ObjectRepository::getIniConfigurationLoader(get_called_class())->getValue('system', 'site_assets_external_path'),
+			'previews',
+			$localizationType,
+			md5($localizationId . $revisionId) . '.jpg'));
+
+		return $previewFilename;
+	}
+
+	/**
+	 * @param string $localizationType
+	 * @param string $localizationId
+	 * @param string $revisionId
+	 * @return string
+	 */
+	static function getPreviewUrlForTypeAndLocalizationAndRevision($localizationType, $localizationId, $revisionId)
+	{
+		$previewUrl = join(DIRECTORY_SEPARATOR, array(
+			'/assets/previews',
+			$localizationType,
+			md5($localizationId . $revisionId) . '.jpg'));
+
+		return $previewUrl;
+	}
+
+	/**
+	 * 
+	 */
+	abstract static function getPreviewUrlForLocalizationAndRevision($localizationId, $revisionId);
+
+	/**
+	 * 
+	 */
+	abstract static function getPreviewFilenameForLocalizationAndRevision($localizationId, $revisionId);
+
+	/**
+	 * @return string
+	 */
+	public function getPreviewUrl()
+	{
+		return static::getPreviewUrlForLocalizationAndRevision($this->getId(), $this->getRevisionId());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPreviewFilename()
+	{
+		return static::getPreviewFilenameForLocalizationAndRevision($this->getId(), $this->getRevisionId());
 	}
 
 }

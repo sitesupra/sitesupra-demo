@@ -11,11 +11,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input;
 use Supra\Controller\Layout\Theme\Configuration\ThemeConfigurationLoader;
 use Supra\Configuration\Parser\YamlParser;
-use Supra\Controller\Pages\Entity\Theme;
-use Supra\Controller\Pages\Entity\ThemeLayout;
-use Supra\Controller\Pages\Entity\ThemeLayoutPlaceholder;
-use Supra\Controller\Pages\Entity\ThemeParameterSet;
-use Supra\Controller\Pages\Entity\ThemeParameter;
+use Supra\Controller\Pages\Entity\Theme\Theme;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
+use Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholder;
+use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
+use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
 use Supra\Controller\Layout\Theme\ThemeProvider;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Doctrine\ORM\EntityManager;
@@ -148,11 +148,16 @@ class ThemeAddCommand extends Command
 		}
 
 		$theme = $themeProvider->findThemeByName($themeName);
-
+		
 		if (empty($theme)) {
+			/* @var $theme Theme */
 
-			$theme = new Theme();
+			$theme = $themeProvider->makeNewTheme();
 			$theme->setName($themeName);
+			
+			$defaultParameterSet = new ThemeParameterSet();
+			$defaultParameterSet->setName('default');
+			$theme->addParameterSet($defaultParameterSet);
 		}
 
 		$theme->setRootDir($themeDirectory);
@@ -164,13 +169,11 @@ class ThemeAddCommand extends Command
 		$configurationLoader = new ThemeConfigurationLoader();
 		$configurationLoader->setParser($yamlParser);
 		$configurationLoader->setTheme($theme);
-		$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_NO_CACHE);
+		$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_EXPIRE_BY_MODIFICATION);
 
 		$configurationLoader->loadFile($themeConfigurationFilename);
-
+		
 		$themeProvider->storeTheme($theme);
-
-		$theme->generateCssFiles();
 
 		$output->writeln('Theme "' . $themeName . '" added/updated.');
 	}

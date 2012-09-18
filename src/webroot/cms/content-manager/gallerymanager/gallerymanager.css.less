@@ -10,6 +10,8 @@
 	.yui3-gallery-manager-content {
 		width: 100%;
 		height: 100%;
+		background: url(/cms/lib/supra/img/background-center.jpg) 50% -48px no-repeat,
+					url(/cms/lib/supra/img/background-pattern.jpg) 50% -48px repeat;
 		
 		.box-sizing (border-box);
 	}
@@ -42,25 +44,113 @@
 	}
 	
 	& > li.gallery-marker {
-		.box-shadow (none);
-		width: 206px;
-		height: 266px;
-		border: 2px dashed #A9AAC3;
+		width: 200px;
+		height: 234px;
 		display: none;
-		background: none;
-		padding: 0;
+		background: #E5E5E5;
+		padding: 5px;
+		cursor: pointer;
 		
-		div {
-			position: relative;
-			top: -1px;
-			margin: -2px;
-			border: 2px dashed #7C7D90;
-			width: 206px;
-			height: 266px;
+		.empty-label {
+			display: none;
+			padding: 4px 0 10px;
+			
+			color: #54576B;
+			font-size: 14px;
+			font-weight: bold;
+			line-height: 18px;
+			text-align: center;
+		}
+		.drop-icon, .add-icon {
+			border: 5px solid #F2F2F2;
+			height: 190px;
+			
+			color: #8B8C94;
+			font-size: 14px;
+			font-weight: bold;
+			line-height: 16px;
+			text-align: center;
+			
+			img {
+				display: block;
+				margin: 44px 0 4px 54px;
+			}
+		}
+		.add-icon {
+			// "Add image"
+			font-size: 18px;
+			line-height: 18px;
+			
+			span {
+				display: block;
+				height: 84px;
+				margin: 44px 0 10px 53px;
+				overflow: hidden;
+			}
+			img {
+				position: relative;
+				margin: 0;
+			}
+		}
+		&:hover .add-icon img {
+			margin-top: -84px;
+		}
+		&.mousedown .add-icon img {
+			margin-top: -168px;
+		}
+		
+		.drop-icon {
+			// "Drag and drop folder or files here"
+			display: none;
+		}
+		.drop-add {
+			// "or just drag-and-drop file here"
+			color: #8B8C94;
+			font-size: 11px;
+			font-weight: bold;
+			line-height: 12px;
+			padding: 7px 38px 0 8px;
+			height: 35px;
+			
+			background: url(/cms/content-manager/gallerymanager/images/icon-drop-small.png) 100% 6px no-repeat;
 		}
 	}
+	/*
 	&.gallery-over > li.gallery-marker {
 		display: block;
+	}
+	*/
+	
+	&.list-empty > li.gallery-marker {
+		// List is empty, but media sidebar is not opened
+		display: block;
+		
+		.empty-label {
+			display: block;
+		}
+		.drop-icon, .add-icon {
+			height: 140px;
+		}
+		.add-icon span,
+		.drop-icon img {
+			margin-top: 16px;
+		}
+	}
+	&.mediasidebar-opened > li.gallery-marker {
+		// Media sidebar opened and list is empty
+		display: block;
+		cursor: default;
+		
+		.add-icon {
+			display: none;
+		}
+		.drop-icon {
+			display: block;
+		}
+	}
+	&.mediasidebar-opened.list-empty > li.gallery-marker {
+		// Media sidebar opened and list is empty
+		
 	}
 	
 	& > li.empty {

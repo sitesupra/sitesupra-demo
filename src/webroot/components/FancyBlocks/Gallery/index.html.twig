@@ -1,0 +1,133 @@
+{% set style = supraBlock.property('style') %}
+{% set design = supraBlock.property('design') %}
+{% set images = supraBlock.property('images') %}
+
+{% if images|length %}
+
+	<div class="block gallery" data-refresh-event="gallery">
+	{% if style == "slideshow" %}
+	
+		<div class="promo-slider design-{{ design }}" data-refresh-event="promo" data-style="thumbs-outer" data-animation="horizontal">
+			<ul>
+				{% for image in images %}
+				<li>
+					{% set width_full = 960 %}
+					{% set height_full = 358 %}
+					{% set ratio = height_full / width_full %}
+					
+					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 960 * ratio, true ) | raw %}
+					{% set tag_tablet = supraBlock.imageHtmlTag( image.imageId, 768, 768 * ratio, true ) | raw %}
+					{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, 420, 420 * ratio, true ) | raw %}
+					{% set tag_mobile_p = supraBlock.imageHtmlTag( image.imageId, 300, 300 * ratio, true ) | raw %}
+					
+					<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
+						 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
+						 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
+					     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
+					     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
+					     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
+					     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
+					     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
+					     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+					
+					<div>
+						{% set property = image.property %}
+
+						{% if property.title %}<h2>{{ property.title }}</h2>{% endif %}
+						{% if property.description %}<p>{{ property.description }}</p>{% endif %}
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+			<div class="shadow"></div>
+		</div>
+	
+	{% elseif style == "grid" %}
+	
+		<div class="products-slider style-{{ design }}" data-refresh-event="carousel" data-style="{{ design }}">
+			<ul>
+				{% for index, product in images %}
+					{% if index and index % 4 == 0 %}
+						<li class="clear"></li>
+					{% endif %}
+					
+					<li class="grid_4">
+						
+						{% set tag = supraBlock.imageHtmlTag( product.imageId, 220, 125, true ) | raw %}
+						{% set tag_full = supraBlock.imageHtmlTag( product.imageId, 960, 358, true ) | raw %}
+						{% set tag_tablet_full = supraBlock.imageHtmlTag( product.imageId, 768, 448, true ) | raw %}
+						
+						{% if design == "box" %}
+							
+							<span class="outer">
+								
+								<span class="inner-text">
+									<h2>{{ product.property.title }}</h2>
+									<p>{{ product.property.description }}</p>
+								</span>
+								
+								{% set tag_tablet = supraBlock.imageHtmlTag( product.imageId, 132, 75, true ) | raw %}
+								{% set tag_mobile = supraBlock.imageHtmlTag( product.imageId, 380, 215, true ) | raw %}
+								{% set tag_mobile_p = supraBlock.imageHtmlTag( product.imageId, 260, 147, true ) | raw %}
+								
+								<a class="img" rel="lightbox"
+									href="{{ tag_full.getAttribute('src')|escape }}"
+									data-height-desktop="{{ tag_full.getAttribute('height')|escape }}"
+									data-href-desktop="{{ tag_full.getAttribute('src')|escape }}"
+								    data-height-tablet="{{ tag_tablet_full.getAttribute('height')|escape }}"
+								    data-href-tablet="{{ tag_tablet_full.getAttribute('src')|escape }}"
+							    	title="{{ product.property.title|escape('html_attr') }}">
+									
+									<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
+										 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
+										 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
+									     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
+									     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
+									     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
+									     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
+									     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
+									     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+								</a>
+								
+							</span>
+							
+						{% else %}
+							
+							{% set tag_tablet = supraBlock.imageHtmlTag( product.imageId, 172, 95, true ) | raw %}
+							{% set tag_mobile = supraBlock.imageHtmlTag( product.imageId, 420, 237, true ) | raw %}
+							{% set tag_mobile_p = supraBlock.imageHtmlTag( product.imageId, 300, 170, true ) | raw %}
+							
+							<a class="img" rel="lightbox"
+								href="{{ tag_full.getAttribute('src')|escape }}"
+								data-height-desktop="{{ tag_full.getAttribute('height')|escape }}"
+								data-href-desktop="{{ tag_full.getAttribute('src')|escape }}"
+							    data-height-tablet="{{ tag_tablet_full.getAttribute('height')|escape }}"
+							    data-href-tablet="{{ tag_tablet_full.getAttribute('src')|escape }}"
+							    title="{{ product.property.title|escape('html_attr') }}">
+								
+								<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
+										 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
+										 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
+									     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
+									     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
+									     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
+									     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
+									     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
+									     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+							</a>
+						
+							<h2>{{ product.property.title }}</h2>
+							<p>{{ product.property.description }}</p>
+							
+						{% endif %}
+					</li>
+				{% endfor %}
+				
+				<li class="clear"></li>
+			</ul>
+		</div>
+
+	{% endif %}
+	</div>
+	
+{% endif %}

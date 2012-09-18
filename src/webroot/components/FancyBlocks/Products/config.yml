@@ -1,0 +1,81 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\Products\ProductsBlock
+    title: Products
+    icon: icon.png
+    groupId: features
+    description: Products gallery #1
+    cmsClassname: Gallery
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+    propertyGroups:
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: design
+          type: top
+          icon: /cms/lib/supra/img/toolbar/icon-design.png
+          label: Design
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: navigation
+          type: top
+          icon: /cms/lib/supra/img/toolbar/icon-navigation.png
+          label: Navigation
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: images
+          editable: Supra\Editable\Gallery
+          label: Images
+          shared: false
+          # each image item sub-properties
+          properties:
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: title
+                 editable: Supra\Editable\String
+                 label: Product title
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: description
+                 editable: Supra\Editable\Textarea
+                 label: Short description
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: link
+                 editable: Supra\Editable\Link
+                 label: Product link
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: design
+          group: design
+          editable: Supra\Editable\SelectVisual
+          label: Design
+          shared: true
+          values:
+            - id: simple
+              title: Default
+              icon: icons/design-simple.png
+            - id: border
+              title: Images with borders
+              icon: icons/design-border.png
+            - id: box
+              title: Boxes with shadow
+              icon: icons/design-boxes.png
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: navigation
+          group: navigation
+          editable: Supra\Editable\SelectVisual
+          label: Navigation
+          shared: true
+          default: arrows
+          values:
+            - id: none
+              title: None
+              icon: icons/navigation-none.png
+            - id: arrows
+              title: Arrows
+              icon: icons/navigation-arrows.png
+            - id: arrows_pages
+              title: Arrows with page number
+              icon: icons/navigation-arrows-pages.png
+            - id: scrollbar
+              title: Scrollbar
+              icon: icons/navigation-scrollbar.png

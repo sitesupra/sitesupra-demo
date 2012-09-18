@@ -204,14 +204,22 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	public function prepareTwigEnvironment()
 	{
+		$request = $this->getRequest();
+
 		$response = $this->getResponse();
 
 		if ($response instanceof Response\TwigResponse) {
+
 			$twig = $response->getTwigEnvironment();
 
 			$helper = new Twig\TwigSupraGlobal();
 			$helper->setRequest($this->request);
+
+			$theme = $request->getLayout()->getTheme();
+
+			$helper->setTheme($theme);
 			$helper->setResponseContext($response->getContext());
+
 			ObjectRepository::setCallerParent($helper, $this);
 			$twig->addGlobal('supra', $helper);
 
@@ -302,7 +310,10 @@ abstract class BlockController extends ControllerAbstraction
 
 				// Must set some DATA object. Where to get this? And why data is set to property not block?
 				//FIXME: should do somehow easier than that
-				$property->setLocalization($this->getRequest()->getPageLocalization());
+				$request = $this->getRequest();
+				if ($request instanceof PageRequest) {
+					$property->setLocalization($this->getRequest()->getPageLocalization());
+				}
 			}
 			//		else {
 			//			//TODO: should we overwrite editable content parameters from the block controller config?
