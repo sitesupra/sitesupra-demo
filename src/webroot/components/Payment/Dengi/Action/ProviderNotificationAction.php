@@ -2,7 +2,7 @@
 
 namespace Project\Payment\Dengi\Action;
 
-use Project\Payment\Transact;
+use Project\Payment\Dengi;
 use Project\Payment\Dengi\Exception;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;

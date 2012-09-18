@@ -1,6 +1,6 @@
 <?php
 
-namespace Project\Payment\Transact;
+namespace Project\Payment\Dengi;
 
 use Supra\Payment\RequestControllerAbstraction;
 

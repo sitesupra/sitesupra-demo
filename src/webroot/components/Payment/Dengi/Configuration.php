@@ -1,9 +1,9 @@
 <?php
 
-namespace Project\Payment\Transact;
+namespace Project\Payment\Dengi;
 
 use Supra\Payment;
-use Project\Payment\Transact;
+use Project\Payment\Dengi;
 use Supra\ObjectRepository\ObjectRepository;
 
 class Configuration extends Payment\ConfigurationAbstraction
@@ -32,7 +32,7 @@ class Configuration extends Payment\ConfigurationAbstraction
 	/**
 	 * @var string
 	 */
-	public $formDataPath;
+	public $dataFormPath;
 
 	/**
 	 * @var string
@@ -63,7 +63,7 @@ class Configuration extends Payment\ConfigurationAbstraction
 
 			$this->paymentProvider->setReturnHost($this->returnHost);
 			$this->paymentProvider->setCallbackHost($this->callbackHost);
-			$this->paymentProvider->setFormDataPath($this->formDataPath);
+			$this->paymentProvider->setDataFormPath($this->dataFormPath);
 
 			parent::configure();
 		}

@@ -169,12 +169,12 @@ class PaymentProvider extends PaymentProviderAbstraction
 		return $this->gatewayCollects;
 	}
 
-	public function getFormDataPath()
+	public function getDataFormPath()
 	{
 		return $this->formDataPath;
 	}
 
-	public function setFormDataPath($formDataPath)
+	public function setDataFormPath($formDataPath)
 	{
 		$this->formDataPath = $formDataPath;
 	}
@@ -288,13 +288,13 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @param Order\Order $order
 	 * @return string 
 	 */
-	public function getFormDataUrl(Order\Order $order)
+	public function getDataFormUrl(Order\Order $order)
 	{
 		$queryData = array(
 			PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID => $order->getId()
 		);
 
-		$formDataUrl = $this->getFormDataPath() . '?' . http_build_query($queryData);
+		$formDataUrl = $this->getDataFormPath() . '?' . http_build_query($queryData);
 
 		return $formDataUrl;
 	}

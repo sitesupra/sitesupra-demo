@@ -1,6 +1,6 @@
 <?php
 
-namespace Project\Payment\Transact;
+namespace Project\Payment\Dengi;
 
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Entity\Order;
@@ -32,19 +32,19 @@ class PaymentProvider extends PaymentProviderAbstraction
 {
 	// Phase names used in Transact context
 
-	const PHASE_NAME_INITIALIZE_TRANSACTION = 'transact-initialize';
-	const PHASE_NAME_CHARGE_TRANSACTION = 'transact-charge';
+	const PHASE_NAME_INITIALIZE_TRANSACTION = 'dengi-initialize';
+	const PHASE_NAME_CHARGE_TRANSACTION = 'dengi-charge';
 
 	// Phase names for recurring payments
-	const PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION = 'transact-initializeRecurring';
-	const PHASE_NAME_CHARGE_RECURRING_TRANSACTION = 'transact-chargeRecurring';
+	const PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION = 'dengi-initializeRecurring';
+	const PHASE_NAME_CHARGE_RECURRING_TRANSACTION = 'dengi-chargeRecurring';
 
 	// Phase name for refund status
-	const PHASE_NAME_REFUND = 'transact-refund';
+	const PHASE_NAME_REFUND = 'dengi-refund';
 
 	// Phase names for transaction status storage
-	const PHASE_NAME_STATUS_ON_RETURN = 'transact-statusOnReturn';
-	const PHASE_NAME_STATUS_ON_NOTIFICATION = 'transact-statusOnNotification';
+	const PHASE_NAME_STATUS_ON_RETURN = 'dengi-statusOnReturn';
+	const PHASE_NAME_STATUS_ON_NOTIFICATION = 'dengi-statusOnNotification';
 
 	// Misc. key names used in Transact context
 	const KEY_NAME_TRANSACT_TRANSACTION_ID = 'OK';
@@ -63,22 +63,12 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @var string
 	 */
-	protected $merchantGuid;
+	protected $projectId;
 
 	/**
 	 * @var string
 	 */
-	protected $password;
-
-	/**
-	 * @var string
-	 */
-	protected $routingString;
-
-	/**
-	 * @var string
-	 */
-	protected $recurrentRoutingString;
+	protected $secret;
 
 	/**
 	 * @var string
@@ -86,7 +76,6 @@ class PaymentProvider extends PaymentProviderAbstraction
 	protected $returnHost;
 
 	/**
-	 *
 	 * @var string
 	 */
 	protected $callbackHost;
@@ -97,19 +86,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 	protected $apiUrl;
 
 	/**
-	 * @var boolean
-	 */
-	protected $is3dAccount;
-
-	/**
-	 * @var boolean
-	 */
-	protected $gatewayCollects;
-
-	/**
 	 * @var string
 	 */
-	protected $formDataPath;
+	protected $dataFormPath;
 
 	/**
 	 * @var string
@@ -117,150 +96,128 @@ class PaymentProvider extends PaymentProviderAbstraction
 	protected $userIpOverride;
 
 	/**
-	 * @param string $merchantGuid 
+	 * @param string $projectId 
 	 */
-	public function setMerchantGuid($merchantGuid)
+	public function setProjectId($projectId)
 	{
-		$this->merchantGuid = $merchantGuid;
-	}
-
-	public function getMerchantGuid()
-	{
-		return $this->merchantGuid;
-	}
-
-	public function getPassword()
-	{
-		return $this->password;
-	}
-
-	public function getRoutingString()
-	{
-		return $this->routingString;
-	}
-
-	public function getReturnHost()
-	{
-		return $this->returnHost;
-	}
-
-	public function getRecurrentRoutingString()
-	{
-		return $this->recurrentRoutingString;
-	}
-
-	public function setRecurrentRoutingString($recurrentRoutingString)
-	{
-		$this->recurrentRoutingString = $recurrentRoutingString;
-	}
-
-	public function getCallbackHost()
-	{
-		return $this->callbackHost;
-	}
-
-	public function getIs3dAccount()
-	{
-		return $this->is3dAccount;
-	}
-
-	public function getGatewayCollects()
-	{
-		return $this->gatewayCollects;
-	}
-
-	public function getFormDataPath()
-	{
-		return $this->formDataPath;
-	}
-
-	public function setFormDataPath($formDataPath)
-	{
-		$this->formDataPath = $formDataPath;
-	}
-
-	public function setIs3dAccount($is3dAccount)
-	{
-		$this->is3dAccount = $is3dAccount;
-	}
-
-	public function setGatewayCollects($gatewayCollects)
-	{
-		$this->gatewayCollects = $gatewayCollects;
+		$this->projectId = $projectId;
 	}
 
 	/**
-	 * @param string $password
+	 * @return string
 	 */
-	public function setPassword($password)
+	public function getProjectId()
 	{
-		$this->password = $password;
+		return $this->projectId;
 	}
 
-	public function getApiUrl()
+	/**
+	 * @param string $secret
+	 */
+	public function setSecret($secret)
 	{
-		return $this->apiUrl;
+		$this->secret = $secret;
 	}
 
-	public function setApiUrl($apiUrl)
+	/**
+	 * @return string
+	 */
+	public function getSecret()
 	{
-		$this->apiUrl = $apiUrl;
+		return $this->secret;
 	}
 
-	public function getUserIpOverride()
-	{
-		return $this->userIpOverride;
-	}
-
-	public function setUserIpOverride($userIpOverride)
-	{
-		$this->userIpOverride = $userIpOverride;
-	}
-
-	public function setRoutingstring($routingString)
-	{
-		$this->routingString = $routingString;
-	}
-
-	public function setTransactApiUrl($transactApiUrl)
-	{
-		$this->transactApiUrl = $transactApiUrl;
-	}
-
-	public function getTransactApiUrl($apiName)
-	{
-		$query = array('a' => $apiName);
-
-		return $this->transactApiUrl . '?' . http_build_query($query);
-	}
-
+	/**
+	 * @param string $returnHost
+	 */
 	public function setReturnHost($returnHost)
 	{
 		$this->returnHost = $returnHost;
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getReturnHost()
+	{
+		return $this->returnHost;
+	}
+
+	/**
+	 * @param string $callbackHost
+	 */
 	public function setCallbackHost($callbackHost)
 	{
 		$this->callbackHost = $callbackHost;
 	}
 
-	public function getTransactRedirectUrl($queryData)
+	/**
+	 * @return string
+	 */
+	public function getCallbackHost()
 	{
-		$queryString = http_build_query($queryData);
-
-		return $this->transactRedirectUrl . '?' . $queryString;
+		return $this->callbackHost;
 	}
 
-	public function setTransactRedirectUrl($transactRedirectUrl)
+	/**
+	 * @return string
+	 */
+	public function getDataFormPath()
 	{
-		$this->transactRedirectUrl = $transactRedirectUrl;
+		return $this->dataFormPath;
 	}
 
-	private function getNotificationUrl()
+	/**
+	 * @return string
+	 */
+	public function setDataFormPath($formDataPath)
+	{
+		$this->dataFormPath = $formDataPath;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getApiUrl()
+	{
+		return $this->apiUrl;
+	}
+
+	/**
+	 * @param string $apiUrl
+	 */
+	public function setApiUrl($apiUrl)
+	{
+		$this->apiUrl = $apiUrl;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUserIpOverride()
+	{
+		return $this->userIpOverride;
+	}
+
+	/**
+	 * @param string $userIpOverride
+	 */
+	public function setUserIpOverride($userIpOverride)
+	{
+		$this->userIpOverride = $userIpOverride;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNotificationUrl()
 	{
 		return $this->getCallbackHost() . $this->getBaseUrl() . '/' . self::PROVIDER_NOTIFICATION_URL_POSTFIX;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getReturnUrl()
 	{
 		return $this->getReturnHost() . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_URL_POSTFIX;
@@ -288,13 +245,13 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @param Order\Order $order
 	 * @return string 
 	 */
-	public function getFormDataUrl(Order\Order $order)
+	public function getDataFormUrl(Order\Order $order)
 	{
 		$queryData = array(
 			PaymentProviderAbstraction::REQUEST_KEY_ORDER_ID => $order->getId()
 		);
 
-		$formDataUrl = $this->getFormDataPath() . '?' . http_build_query($queryData);
+		$formDataUrl = $this->getDataFormPath() . '?' . http_build_query($queryData);
 
 		return $formDataUrl;
 	}
@@ -365,28 +322,28 @@ class PaymentProvider extends PaymentProviderAbstraction
 	public function processShopOrderDirect(Order\ShopOrder $order, $paymentCredentials)
 	{
 		$response = new \Supra\Response\HttpResponse();
-		
+
 		parent::processShopOrder($order, $response);
-		
+
 		$proxyActionQueryData = array(
 			self::REQUEST_KEY_ORDER_ID => $order->getId(),
 			Action\ProxyAction::REQUEST_KEY_RETURN_FROM_FORM => true
-		);		
-		
+		);
+
 		$request = new \Supra\Request\HttpRequest();
 		$request->setPost($paymentCredentials);
 		$request->setQuery($proxyActionQueryData);
-		
+
 		$lastRouter = new \Supra\Payment\PaymentProviderUriRouter();
 		$lastRouter->setPaymentProvider($this);
-		
+
 		$request->setLastRouter($lastRouter);
 
 		$proxyActionController = FrontController::getInstance()->runController(Action\ProxyAction::CN(), $request);
-		
-		$response = $proxyActionController->getResponse();
-		
-		return $response;
+
+		$proxyResponse = $proxyActionController->getResponse();
+
+		return $proxyResponse;
 	}
 
 	/**
@@ -536,7 +493,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function getOrderItemDescription(Order\Order $order, Locale $locale = null)
 	{
-		return 'Transact fee (' . $locale . ') - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
+		return 'Dengi fee (' . $locale . ') - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
 	}
 
 	/**

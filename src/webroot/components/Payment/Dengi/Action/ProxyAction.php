@@ -2,7 +2,7 @@
 
 namespace Project\Payment\Dengi\Action;
 
-use Project\Payment\Transact;
+use Project\Payment\Dengi;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\Order\OrderStatus;
@@ -110,8 +110,8 @@ class ProxyAction extends ProxyActionAbstraction
 
 			// If from shop, redirect user to data form URL.
 
-			$formDataUrl = $paymentProvider->getFormDataUrl($order);
-			$response->redirect($formDataUrl);
+			$dataFormUrl = $paymentProvider->getDataFormUrl($order);
+			$response->redirect($dataFormUrl);
 		} else {
 
 			// If arived here from POST with CC data - validate data and 
@@ -121,8 +121,8 @@ class ProxyAction extends ProxyActionAbstraction
 				$this->processShopOrderFormData($postData);
 			} else {
 
-				$formDataUrl = $paymentProvider->getFormDataUrl($order);
-				$response->redirect($formDataUrl);
+				$dataFormUrl = $paymentProvider->getDataFormUrl($order);
+				$response->redirect($dataFormUrl);
 			}
 		}
 
@@ -434,7 +434,7 @@ class ProxyAction extends ProxyActionAbstraction
 
 			// If from shop, redirect user to data form URL.
 
-			$formDataUrl = $paymentProvider->getFormDataUrl($order);
+			$formDataUrl = $paymentProvider->getDataFormUrl($order);
 			$response->redirect($formDataUrl);
 		} else {
 
@@ -445,7 +445,7 @@ class ProxyAction extends ProxyActionAbstraction
 				$this->processRecurringOrderFormData($postData);
 			} else {
 
-				$formDataUrl = $paymentProvider->getFormDataUrl($order);
+				$formDataUrl = $paymentProvider->getDataFormUrl($order);
 				$response->redirect($formDataUrl);
 			}
 		}

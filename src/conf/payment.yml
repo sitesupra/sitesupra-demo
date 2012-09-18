@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\Payment\Dengi\DengiDataFormBlock
-    title: Dengi Form Block
+    title: Dengi Form
     groupId: system
     description: It's a Dengi Form.
     cmsClassname: Editable
@@ -12,4 +12,5 @@
     returnHost: http://supra7.krists.vig
     callbackHost: http://krists.videinfra.com
     iniSectionName: dengi_one_configuration
-    collection: Playpad
+    dataFormPath: /dummy-shop/dengi
+    collection: Dengi
