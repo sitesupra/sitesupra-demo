@@ -107,7 +107,15 @@ if ( ! defined('SITESUPRA_FILE_PERMISSION_MODE')) {
 }
 
 try {
-	require_once SUPRA_CONF_PATH . 'configuration.php';
+
+	// TODO: validate the value
+	$profile = getenv('SUPRA_PROFILE');
+
+	if ( ! empty($profile)) {
+		require_once SUPRA_CONF_PATH . 'configuration.' . $profile . '.php';
+	} else {
+		require_once SUPRA_CONF_PATH . 'configuration.php';
+	}
 } catch (\Exception $e) {
 	\Log::fatal("Application configuration load failed: " . (string) $e);
 	header('Content-Type: text/plain');
