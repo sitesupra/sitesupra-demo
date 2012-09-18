@@ -168,6 +168,9 @@ class RemoteCommandService
 		$remoteCommandResponse = unserialize(base64_decode($rawResponse));
 
 		if (empty($remoteCommandResponse)) {
+			\Log::error('REQUEST URL: ', $endpointUrl);
+			\Log::errror('POST DATA: ', $postData);
+			\Log::error('RAW RESPONSE DATA: ', $rawResponse);
 			throw $this->makeExecuteRuntimeException('Failed to unserialize remote command response. URL: ' . $endpointUrl . ', Response code: ' . $httpResponseCode, $input, $output);
 		}
 
