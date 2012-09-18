@@ -29,6 +29,10 @@ YUI.add("supra.input-block-background", function (Y) {
 		"values": {
 			value: null,
 			getter: "_getSelectListValues"
+		},
+		"editImageAutomatically": {
+			value: true,
+			setter: "_setEditImageAutomatically"
 		}
 	};
 	
@@ -321,6 +325,16 @@ YUI.add("supra.input-block-background", function (Y) {
 					"size_height": data.image.sizes.original.height
 				}
 			});
+			
+			//Start editing image
+			if (this.get("editImageAutomatically")) {
+				//Small delay to allow media library to close before doing anything
+				Y.later(100, this, function () {
+					if (this._hasImage()) {
+						this.editImage();
+					}
+				});
+			}
 		},
 		
 		
@@ -337,6 +351,10 @@ YUI.add("supra.input-block-background", function (Y) {
 			if (slideshow && slide) {
 				
 				slideshow.set("slide", this.get("id") + "_slide");
+				
+				if (this.get("editImageAutomatically") && this._hasImage()) {
+					this.editImage();
+				}
 				
 			}
 		},
@@ -389,6 +407,10 @@ YUI.add("supra.input-block-background", function (Y) {
 				button.addClass("button-section");
 				button.set("disabled", !has_image);
 				button.render(slide);
+				
+				if (this.get("editImageAutomatically")) {
+					button.hide();
+				}
 				
 				//Remove button
 				button = this.widgets.buttonRemove = (new Supra.Button({
@@ -578,6 +600,19 @@ YUI.add("supra.input-block-background", function (Y) {
 		 */
 		_afterValueChange: function (evt) {
 			this.fire("change", {"value": this.get("value")});
+		},
+		
+		/**
+		 * When slide is opened start editing instead of waiting for user to click "Edit" button
+		 * @param {Boolean} value Attribute value
+		 * @return {Boolean} New attribute value
+		 */
+		_setEditImageAutomatically: function (value) {
+			var button = this.widgets.buttonEdit;
+			if (button) {
+				button.set("visible", !value);
+			}
+			return value;
 		}
 		
 	});

@@ -126,6 +126,16 @@ YUI.add('supra.input-image-inline', function (Y) {
 				"size_width": data.image.sizes.original.width,
 				"size_height": data.image.sizes.original.height
 			});
+			
+			//Start editing image
+			if (this.get("editImageAutomatically")) {
+				//Small delay to allow media library to close before doing anything
+				Y.later(100, this, function () {
+					if (this._hasImage()) {
+						this.editImage();
+					}
+				});
+			}
 		},
 		
 		
