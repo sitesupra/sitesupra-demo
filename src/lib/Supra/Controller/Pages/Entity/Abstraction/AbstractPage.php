@@ -402,6 +402,7 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
     {
         if ( ! empty($this->id)) {
             $this->nestedSetNode = null;
+			$this->localizations = new ArrayCollection();
             parent::__clone();
         }
     }

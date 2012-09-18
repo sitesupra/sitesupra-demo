@@ -114,7 +114,7 @@ class PagePathGenerator implements EventSubscriber
 		$this->unitOfWork = $this->em->getUnitOfWork();
 
 		if ($entity instanceof Entity\Page) {
-			$changedLocalizations = $this->pageChange($entity, false);
+			$changedLocalizations = $this->pageChange($entity, true);
 
 			foreach ($changedLocalizations as $changedLocalization) {
 				$this->em->flush($changedLocalization);
