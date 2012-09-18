@@ -52,6 +52,13 @@ class FileContentResponse extends HttpResponse
 	 */
 	public function flush()
 	{
+		if ($this->filename == '') {
+			$this->setCode(404);
+			parent::flush();
+
+			return;
+		}
+
 		// Stop output buffering
 		ob_end_flush();
 		readfile($this->filename);
@@ -63,7 +70,17 @@ class FileContentResponse extends HttpResponse
 	 */
 	public function __toString()
 	{
-		return file_get_contents($this->filename);
+		if ($this->filename != '') {
+			return file_get_contents($this->filename);
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFilename()
+	{
+		return $this->filename;
 	}
 	
 }
