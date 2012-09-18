@@ -401,7 +401,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				images.push(image);
 				
 				for(var k=0; k<kk; k++) {
-					image.properties[properties[k].id] = data.images[i].properties[properties[k].id] || '';
+					image.properties[properties[k].id] = data.images[i][properties[k].id] || '';
 				}
 			}
 			
