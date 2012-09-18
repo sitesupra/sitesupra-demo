@@ -12,6 +12,9 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		MediaLibraryList = Supra.MediaLibraryList,
 		FILE_API_SUPPORTED = typeof FileReader !== 'undefined';
 	
+	//File name black list
+	var FILE_BLACKLIST = [".DS_Store"];
+	
 	/**
 	 * File upload
 	 * Handles standard file upload, HTML5 drag & drop, simple input fallback
@@ -310,29 +313,137 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			
 			if (this.last_drop_target) {
 				this.last_drop_target.removeClass('yui3-html5-dd-target');
-				var files = evt._event.dataTransfer.files,
-					folder = this.last_drop_id;
 				
-				//Sync position
-				this.get('host').slideshow.syncUI();
+				var folder = this.last_drop_id;
 				
-				if (files.length) {
-					//Upload all files
-					this.uploadFiles(folder, files);
-				} else {
-					//No files detected
-					Supra.Manager.executeAction('Confirmation', {
-					    'message': '{#medialibrary.validation_error.invalid_drop#}',
-					    'useMask': true,
-					    'buttons': [
-					        {'id': 'delete', 'label': 'Ok'}
-					    ]
-					});
-				}
+				this.getDragDropFiles(evt._event.dataTransfer, function (files) {
+					//Sync position
+					this.get('host').slideshow.syncUI();
+					
+					//Validate files
+					files = this.testFiles(files);
+					
+					if (files.length) {
+						//Upload all files
+						this.uploadFiles(folder, files);
+					} else {
+						//No files detected
+						Supra.Manager.executeAction('Confirmation', {
+						    'message': '{#medialibrary.validation_error.invalid_drop#}',
+						    'useMask': true,
+						    'buttons': [
+						        {'id': 'delete', 'label': 'Ok'}
+						    ]
+						});
+					}
+				});
 			}
 			
 			this.last_drop_target = null;
 			this.last_drop_id = null;
+		},
+		
+		/**
+		 * Returns all files from drop
+		 * 
+		 * @param {Object} data Data transfer object
+		 * @param {Function} callback 
+		 * @return {Array} Files list
+		 * @private
+		 */
+		getDragDropFiles: function (data, callback) {
+			if (!data.items) {
+				return callback.call(this, data.files);
+			}
+			
+			var entry = null,
+				
+				items = data.items,
+				item  = null,
+				i     = 0,
+				ii    = items.length,
+				
+				files  = data.files,
+				output = [],
+				wait   = 0,
+				
+				self   = this;
+			
+			for (; i<ii; i++) {
+				item = items[i];
+				
+				if (item.webkitGetAsEntry) {
+					entry = item.webkitGetAsEntry();
+				} else if (entry = item.mozGetAsEntry()) {
+					entry = item.mozGetAsEntry();
+				} else if (entry = item.getAsEntry()) {
+					entry = item.getAsEntry();
+				}
+				
+				if (entry) {
+					wait++;
+					this.traverseFileTree(entry, "", function (files) {
+						output = output.concat(files);
+						
+						if (!--wait && i == ii) {
+							callback.call(self, output);
+						}
+					});
+				} else {
+					//We can't get entry for files or folders, assume it's ok
+					output.push(files[i]);
+				}
+			}
+			
+			if (!wait) {
+				callback.call(this, output);
+			}
+		},
+		
+		/**
+		 * 
+		 */
+		traverseFileTree: function (item, path, callback) {
+			var self = this;
+			path = path || "";
+			
+			if (item.isFile) {
+				item.file(function (file) {
+					file.path = path;
+					callback([file]);
+				});
+			} else if (item.isDirectory) {
+				var dirReader = item.createReader(),
+					output = [];
+				
+				var readEntries = function () {
+					dirReader.readEntries(function(entries) {
+						if (entries.length) {
+							var wait = 0;
+							for (var i=0, ii=entries.length; i<ii; i++) {
+								wait++;
+								self.traverseFileTree.call(self, entries[i], path + (path ? "/" : "") + item.name, function (files) {
+									output = output.concat(files);
+									if (!--wait && i == ii) {
+										//Last entry, try again
+										readEntries();
+									}
+								});
+							}
+							//Keep reading until there are no more files/folder
+							if (!wait) readEntries();
+						} else {
+							//That's it
+							callback(output);
+						}
+					});	
+				};
+				
+				readEntries();
+			} else {
+				//Is this even possible?
+				callback([]);
+			}
 		},
 		
 		/**
@@ -414,23 +525,30 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				uri = this.get('requestUri'),
 				file_id = null,
 				file = null,
+				file_name = null,
 				node = null;
 			
 			for(var i=0,ii=files.length; i<ii; i++) {
-				//If only images are displayed, then only images can be uploaded. Same with files
-				if (!this.testFileType(files.item(i))) continue;
+				//If validation fails, then skip this one
+				if (!this.testFile(files[i])) continue;
+				
+				file = files[i];
+				file_name = file.fileName || file.name;
 				
 				//Create temporary item
-				file = files.item(i);
-				file_id = this.get('host').addFile(folder, {'title': file.fileName || file.name, 'filename': file.fileName || file.name});
+				file_id = this.get('host').addFile(folder, {'title': file_name, 'filename': file_name});
 				
 				node = this.get('host').getItemNode(file_id);
+				
+				//Set folder path
+				data.folderPath = file.path || "";
 				
 				//Event data will be passed to 'load' and 'progress' event listeners
 				event_data = {
 					'folder': folder,
+					'folderPath': file.path || null,
 					'file_id': file_id,
-					'file_name': file.fileName || file.name,
+					'file_name': file_name,
 					'node': node
 				};
 				
@@ -526,7 +644,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			
 			for(var i=0,ii=files.length; i<ii; i++) {
 				//If only images are displayed, then only images can be uploaded. Same with files
-				if (!this.testFileType(files.item(i))) continue;
+				if (!this.testFileType(files[i])) continue;
 				
 				//Event data will be passed to 'load' and 'progress' event listeners
 				event_data = {
@@ -534,7 +652,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				};
 				
 				io = new IO({
-					'file': files.item(i),
+					'file': files[i],
 					'requestUri': uri,
 					'data': data,
 					'eventData': event_data
@@ -718,6 +836,60 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				default:
 					return true;
 			}
+		},
+		
+		/**
+		 * Test for valid file name
+		 * 
+		 * @param {String} file_name File name
+		 * @return {Boolean} True if file name is valid, otherwise false
+		 * @private
+		 */
+		testValidFileName: function (file_name) {
+			return Y.Array.indexOf(FILE_BLACKLIST, file_name) === -1;
+		},
+		
+		/**
+		 * Test file
+		 * 
+		 * @param {File} file
+		 * @return {Boolean} True if file type is allowed, otherwise false
+		 * @private
+		 */
+		testFile: function (file) {
+			if (!file.size) {
+				//Folders doesn't have size in FF
+				return false;
+			} else if (!this.testFileType(file)) {
+				//If only images are displayed, then only images can be uploaded. Same with files
+				return false;
+			} else if (!this.testValidFileName(file.fileName || file.name)) {
+				//Probablly system file
+				return false;
+			} else {
+				return true;
+			}
+		},
+		
+		/**
+		 * Tests all files and returns only those which pass validation
+		 * 
+		 * @param {Array} files File list
+		 * @return {Array} File list with only those files which pass validation
+		 * @private
+		 */
+		testFiles: function (files) {
+			var i = 0,
+				ii = files.length,
+				output = [];
+			
+			for (; i<ii; i++) {
+				if (this.testFile(files[i])) {
+					output.push(files[i]);
+				}
+			}
+			
+			return output;
 		},
 		
 		/**
