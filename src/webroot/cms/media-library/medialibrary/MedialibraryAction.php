@@ -332,8 +332,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 		$this->checkActionPermission($uploadPermissionCheckFolder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
 
-		$localeId = $this->getLocale()->getId();
-
 		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 
 			$file = $_FILES['file'];
@@ -368,29 +366,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$fileEntity->setFileName($file['name']);
 				$fileEntity->setSize($file['size']);
 				$fileEntity->setMimeType($file['type']);
-
-				$humanName = $file['name'];
-
-				// Could move to separate method, should be configurable {
-				// Remove extension part
-				$extensionLength = strlen($fileEntity->getExtension());
-
-				if ($extensionLength != 0) {
-					$extensionLength ++;
-					$humanName = substr($humanName, 0, -$extensionLength);
-				}
-
-				// Replace dots, underscores, space characters with space
-				$humanNameSplit = preg_split('/[\s_\.]+/', $humanName);
-
-				foreach ($humanNameSplit as &$humanNamePart) {
-					$humanNamePart = mb_strtoupper(mb_substr($humanNamePart, 0, 1))
-							. mb_substr($humanNamePart, 1);
-				}
-
-				// Implode back
-				$humanName = implode(' ', $humanNameSplit);
-
 
 				// additional jobs for images
 				if ($fileEntity instanceof Entity\Image) {
@@ -438,7 +413,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 							$folder->addChild($fileEntity);
 						}
 
-						$message = "Amount of memory required for image [{$humanName}] resizing exceeds available, it will be uploaded as File";
+						$message = "Amount of memory required for image [{$file['name']}] resizing exceeds available, it will be uploaded as a document";
 						$this->getResponse()
 								->addWarningMessage($message);
 					}
