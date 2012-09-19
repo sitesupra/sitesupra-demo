@@ -10,7 +10,7 @@ class PhpSessionHandler extends HandlerAbstraction
 	 * The name of PHP session opened
 	 * @var string
 	 */
-	private static $phpSessionOpened;
+	private static $phpSessionOpened = null;
 
 	/**
 	 * Marks the failure of the handler
@@ -29,9 +29,14 @@ class PhpSessionHandler extends HandlerAbstraction
 	 */
 	private function startPhpSession()
 	{
-		if ( ! self::$phpSessionOpened) {
+		if (self::$phpSessionOpened === null) {
+
+			if (empty($this->sessionName)) {
+				$this->sessionName = session_name();
+			} else {
+				session_name($this->sessionName);
+			}
 			
-			session_name($this->sessionName);
 			session_set_cookie_params(self::SESSION_EXPIRATION_TIME);
 
 			$success = false;
@@ -50,7 +55,7 @@ class PhpSessionHandler extends HandlerAbstraction
 			}
 		}
 
-		self::$phpSessionOpened = true;
+		self::$phpSessionOpened = $this->sessionName;
 	}
 
 	protected function findSessionId()
@@ -115,11 +120,11 @@ class PhpSessionHandler extends HandlerAbstraction
 
 	public function start()
 	{
-		if (self::$phpSessionOpened) {
+		if (self::$phpSessionOpened !== null) {
 
 			$this->failure = true;
 			$this->sessionStatus = self::SESSION_COULD_NOT_START;
-			throw new Exception\CouldNotStartSession();
+			throw new Exception\CouldNotStartSession("Session '" . self::$phpSessionOpened . "' is opened already.");
 		}
 
 		parent::start();
@@ -167,12 +172,12 @@ class PhpSessionHandler extends HandlerAbstraction
 //			session_name($currentSessionName);
 //			session_start();
 //		} else {
-//			self::$phpSessionOpened = false;
+//			self::$phpSessionOpened = null;
 //		}
 
 		$_SESSION = $this->sessionData;
 		session_write_close();
-		self::$phpSessionOpened = false;
+		self::$phpSessionOpened = null;
 	}
 
 	public function destroy()

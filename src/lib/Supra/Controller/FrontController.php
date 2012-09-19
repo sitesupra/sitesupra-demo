@@ -125,7 +125,7 @@ class FrontController
 
 			// Log the exception raised
 			$exceptionIdentifier = md5((string) $exception);
-			$this->log->error('#' . $exceptionIdentifier, ' ', $exception);
+			$this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
 
 			//TODO: should be configurable somehow
 			$exceptionController = $this->initializeController(ExceptionController::CN());
