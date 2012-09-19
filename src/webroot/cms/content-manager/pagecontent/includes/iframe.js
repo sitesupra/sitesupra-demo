@@ -266,9 +266,12 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.set('doc', doc);
 			
 			//Small delay before continue
-			Y.later(50, this, function () {
-				this._afterSetHTML(preview_only);
-			});
+			var timer = Y.later(50, this, function () {
+				if (this.get('doc').body) {
+					timer.cancel();
+					this._afterSetHTML(preview_only);
+				}
+			}, []);
 			
 			return html;
 		},
