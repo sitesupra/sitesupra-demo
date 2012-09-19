@@ -109,7 +109,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @var string
 	 */
-	protected $formDataPath;
+	protected $dataFormPath;
 
 	/**
 	 * @var string
@@ -171,12 +171,12 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 	public function getDataFormPath()
 	{
-		return $this->formDataPath;
+		return $this->dataFormPath;
 	}
 
-	public function setDataFormPath($formDataPath)
+	public function setDataFormPath($dataFormPath)
 	{
-		$this->formDataPath = $formDataPath;
+		$this->dataFormPath = $dataFormPath;
 	}
 
 	public function setIs3dAccount($is3dAccount)
