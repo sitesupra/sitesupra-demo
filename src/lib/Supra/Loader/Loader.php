@@ -77,7 +77,7 @@ class Loader
 	 */
 	static function getLoadedClassesCacheFiename()
 	{
-		return sys_get_temp_dir() . '/autoload-cache-' . self::$cacheFilenameSuffix . '.php';
+		return SUPRA_TMP_PATH . '/loader-cache-' . self::$cacheFilenameSuffix . '.php';
 	}
 
 	/**
