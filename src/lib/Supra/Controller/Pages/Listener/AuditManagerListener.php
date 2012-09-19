@@ -60,6 +60,12 @@ class AuditManagerListener implements EventSubscriber
 	 */
 	private $depth = 0;
 
+	/**
+	 * Used to filter out block properties belonging to other pages
+	 * @var Entity\Abstraction\Localization
+	 */
+	private $currentLocalization;
+
 	public function __construct()
 	{
 		$this->log = ObjectRepository::getLogger($this);
@@ -205,6 +211,10 @@ class AuditManagerListener implements EventSubscriber
 			}
 		}
 
+		if ($entity instanceof Entity\Abstraction\Localization) {
+			$this->currentLocalization = $entity;
+		}
+
 		$classMetadata = $entityManager->getClassMetadata($className);
 
 		// Let's find all association mappings we have backed up before
@@ -222,6 +232,10 @@ class AuditManagerListener implements EventSubscriber
 
 			// Check if isn't loaded already
 			$this->loadOneToAnything($entityManager, $mapping, $className, $field, $entity, $classMetadata);
+		}
+
+		if ($entity instanceof Entity\Abstraction\Localization) {
+			$this->currentLocalization = null;
 		}
 
 		if ($thisIsRootEntity) {
@@ -440,7 +454,19 @@ class AuditManagerListener implements EventSubscriber
 			$qb->andWhere('e.revision >= :baseRevision')
 					->setParameter('baseRevision', $this->baseRevision);
 		}
-				
+
+		// Filter so templates don't load page properties
+		if ($entity instanceof Block && $targetMetadata->name === BlockProperty::CN()) {
+
+			if (empty($this->currentLocalization)) {
+				throw new \LogicException("Only AbstractPage and Localization loading is allowed from the audit schema. Missing localization to filter block properties to load.");
+			}
+
+			$localizationId = $this->currentLocalization->getId();
+			$qb->andWhere('e.localization = :localizationId')
+					->setParameter('localizationId', $localizationId);
+		}
+		
 		$records = $qb->getQuery()
 				->getResult(\Doctrine\ORM\Query::HYDRATE_ARRAY);
 

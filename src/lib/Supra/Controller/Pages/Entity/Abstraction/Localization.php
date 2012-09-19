@@ -71,8 +71,8 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 
 	/**
 	 * Left here just because cascade in remove
-	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="localization", cascade={"persist", "remove"}, fetch="LAZY") 
-	 * @var Collection 
+	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\BlockProperty", mappedBy="localization", cascade={"persist", "remove"}, fetch="LAZY")
+	 * @var Collection
 	 */
 	protected $blockProperties;
 

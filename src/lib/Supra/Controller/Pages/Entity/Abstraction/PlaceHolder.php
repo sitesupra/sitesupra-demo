@@ -144,6 +144,15 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	{
 		return $this->localization;
 	}
+
+	/**
+	 * Alias of getMaster()
+	 * @return Localization
+	 */
+	public function getLocalization()
+	{
+		return $this->localization;
+	}
 	
 	/**
 	 * @return int
