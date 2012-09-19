@@ -50,7 +50,7 @@ class ImageSizeUploadFilter implements FileValidationInterface
 		
 		$memoryLeft = (int) $memoryLimit * 1024 * 1024 - memory_get_usage(); // Should use real usage or not?
 		// Read data from image info, default bitsPerChannel to 8, channel count to 4
-		$memoryRequired = $info->getWidth() * $info->getHeight() * $info->getBits() * $info->getChannels();
+		$memoryRequired = $info->getWidth() * $info->getHeight() * ($info->getBits() ?: 8) * ($info->getChannels() ?: 4);
 
 		if (2 * $memoryRequired > $memoryLeft) {
 			$message = "Not enough memory [{$memoryLeft} bytes] to resize the image, required amount [{$memoryRequired} bytes]";
