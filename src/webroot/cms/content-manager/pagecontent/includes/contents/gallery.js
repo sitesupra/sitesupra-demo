@@ -325,8 +325,8 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				images = (values && Y.Lang.isArray(values.images)) ? values.images : [],
 				properties = this.getImageProperties(),
 				property = null,
-				image  = {'image': image_data, 'id': image_data.id};
-				
+				image  = {'image': image_data, 'id': image_data.id, 'properties': {}};
+			
 			//Check if image doesn't exist in data already
 			for(var i=0,ii=images.length; i<ii; i++) {
 				if (images[i].image.id == image_data.id) return;
@@ -334,7 +334,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
 				property = properties[i].id;
-				image[property] = image_data[property] || properties[i].value || '';
+				image.properties[property] = image_data[property] || properties[i].value || '';
 			}
 			
 			image.title = image_data.filename;
@@ -399,9 +399,8 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				delete(image.image);
 				
 				images.push(image);
-				
 				for(var k=0; k<kk; k++) {
-					image.properties[properties[k].id] = data.images[i][properties[k].id] || '';
+					image.properties[properties[k].id] = data.images[i].properties[properties[k].id] || '';
 				}
 			}
 			
