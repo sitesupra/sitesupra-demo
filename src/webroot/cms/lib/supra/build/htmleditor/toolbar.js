@@ -94,7 +94,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 						{"id": "column-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-delete.png",  "command": "column-delete"},
 						{"id": "column-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-after.png",  "command": "column-after"},
 					{"type": "separator"},
-						{"id": "table-settings",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-settings.png",  "command": "table-settings"}
+						{"id": "table-settings",   "type": "button", "buttonType": "push", "command": "table-settings", "style": "small"}
 				]
 			}
 		]
@@ -290,7 +290,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				case 'button':
 				default:
 					title = data.title || Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
-					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": "group", "visible": visible});
+					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": data.style || "group", "visible": visible});
 					node.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 					node.render(cont);
 					
