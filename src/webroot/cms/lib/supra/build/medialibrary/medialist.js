@@ -81,7 +81,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, empty folder template
 	 * @type {String}
 	 */
-	List.TEMPLATE_EMPTY = Template.compile('<div class="empty" data-id="{{ id }}">{{ "medialibrary.folder_empty"|intl }}</div>');
+	List.TEMPLATE_EMPTY = Template.compile('<div class="empty" data-id="{{ id }}"></div>');
 	
 	/**
 	 * Constant, folder template
@@ -1279,6 +1279,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					node.setData('itemId', data[0].id);
 					
 					slide_content.empty().append(node);
+					slide_content.closest('.su-multiview-slide, .su-slide').removeClass('su-slide-full-width');
 					
 					//Render buttons
 					node.all('button').each(this.renderItemButton, this);
@@ -1327,6 +1328,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					
 					if (!append) slide_content.empty();
 					slide_content.append(node);
+					slide_content.closest('.su-multiview-slide, .su-slide').removeClass('su-slide-full-width');
 					
 					this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': Data.TYPE_FOLDER});
 				}
@@ -1334,6 +1336,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				//Empty
 				node = this.renderTemplate({'id': id}, this.get('templateEmpty'));
 				slide_content.empty().append(node);
+				slide_content.closest('.su-multiview-slide, .su-slide').addClass('su-slide-full-width');
 				this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': Data.TYPE_FOLDER});
 			}
 			
