@@ -126,9 +126,12 @@ YUI.add('supra.slideshow', function (Y) {
 				slides.each(function () {
 					var id = this.get('id');
 					var bound = Y.Node.create('<div class="su-slide"></div>');
+					var data = this.getData();
+					
 					this.addClass('su-slide-content');
 					this.insert(bound, 'before');
 					bound.append(this);
+					bound.setData(data);
 					newSlides[id] = bound;
 					
 					if (this.hasClass('hidden')) {

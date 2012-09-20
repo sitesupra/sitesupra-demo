@@ -33,6 +33,11 @@ YUI.add('supra.deferred', function (Y) {
 		this._promise = null;
 		this._args = null;
 		this._listeners = {"resolved": [], "rejected": [], "notify": []};
+		
+		//As arguments may be passed done, fail and notify listeners
+		if (arguments.length) {
+			this.then.apply(this, [].splice.call(arguments));
+		}
 	}
 	
 	Deferred.prototype = {

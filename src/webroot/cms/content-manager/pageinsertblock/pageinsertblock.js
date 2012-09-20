@@ -53,6 +53,12 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 		data: null,
 		
 		/**
+		 * Block groups list
+		 * @type {Array}
+		 */
+		data_groups: [],
+		
+		/**
 		 * Slideshow instance
 		 * @type {Object}
 		 */
@@ -88,7 +94,7 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 			this.data = {};
 			
 			var Blocks = Manager.getAction('Blocks'),
-				data_groups = Blocks.getAllGroups(),
+				data_groups = this.data_groups = Blocks.getAllGroups(),
 				data_all = Blocks.getAllBlocksArray();
 			
 			//Create groups
@@ -96,6 +102,7 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 				ii = data_groups.length,
 				group = null,
 				content = null,
+				container = null,
 				main_content = this.slideshow.getSlide(SLIDE_ROOT),
 				group_html = '',
 				contents = {};
@@ -105,8 +112,11 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 				
 				//Create slide
 				content = this.slideshow.addSlide({'id': group.id});
-				content.setAttribute('data-title', group.title);
-				content.setAttribute('data-icon', ICON_GROUP_PATH + group.id + '.png');
+				content.setData({
+					"title": group.title,
+					"icon": ICON_GROUP_PATH + group.id + '.png',
+					"type": "group"
+				});
 				content.addClass('button-item-list');
 				
 				contents[group.id] = content.one('.su-slide-content');
@@ -140,6 +150,13 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 			//Drag&drop
 			this.setupDD();
 			
+			//If there is only one group, then open it immediatelly
+			if (data_groups.length <= 1) {
+				this.slideshow.set('noAnimations', true);
+				this.slideshow.set('slide', data_groups[0].id);
+				this.slideshow.set('noAnimations', false);
+			}
+			
 			//Fire resize event
 			this.slideshow.syncUI();
 		},
@@ -151,23 +168,26 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 		 */
 		onSlideChange: function (evt) {
 			var slide_id = evt.newVal,
-				new_item = (slide_id ? Y.one('#' + slide_id) : null);
+				new_item = this.slideshow.getSlide(slide_id),
+				data = new_item.getData() || {},
+				show_back_button = true;
 			
-			if (evt.newVal == SLIDE_ROOT) {
-				this.get('backButton').hide();
-			} else {
+			if (data.type === "group" && this.data_groups.length <= 1) {
+				data = this.slideshow.getSlide(SLIDE_ROOT).getData();
+				show_back_button = false;
+			} else if (evt.newVal == SLIDE_ROOT) {
+				show_back_button = false;
+			}
+			
+			if (show_back_button) {
 				this.get('backButton').show();
+			} else {
+				this.get('backButton').hide();
 			}
 			
 			//Update header title and icon
-			if (new_item) {
-				var node = new_item.get('parentNode'),
-					title = new_item.getAttribute('data-title') || node.getAttribute('data-title'),
-					icon = new_item.getAttribute('data-icon') || node.getAttribute('data-icon');
-				
-				this.set('title', title);
-				this.set('icon', icon);
-			}
+			this.set('title', data.title || '');
+			this.set('icon', data.icon || '');
 		},
 		
 		/**
@@ -251,6 +271,9 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 				var node = this.slideshow.addSlide({'id': id, 'removeOnHide': true}),
 					content = node.one('div.su-slide-content');
 				
+				node.setData({
+					'title': this.data[id].title
+				});
 				content.append(Supra.Template('blockPreviewTemplate', this.data[id]));
 				
 				//Drag and drop
@@ -284,10 +307,14 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
 			
-			this.slideshow
-					.set('noAnimation', true)
-					.set('slide', SLIDE_ROOT)
-					.set('noAnimation', false);
+			// If there is only one group, then it's always visible and
+			// there is no need to scroll back to group list
+			if (this.data_groups.length > 1) {
+				this.slideshow
+						.set('noAnimation', true)
+						.set('slide', SLIDE_ROOT)
+						.set('noAnimation', false);
+			}
 		},
 		
 		/**
