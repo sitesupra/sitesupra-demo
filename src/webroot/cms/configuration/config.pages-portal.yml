@@ -4,7 +4,7 @@
   icon: /cms/lib/supra/img/apps/pages
   url: content-manager
   allowLimitedPageOption: true
-  galleryBlockId: Project\Blocks\Gallery\GalleryBlock
+  galleryBlockId: Project\FancyBlocks\Gallery\GalleryBlock
   htmlEditorPlugins:
     fonts: true
     table-mobile: true
