@@ -29,6 +29,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_OVERLAY_CLOSED = getClassName('content', 'overlay', 'closed'),	// yui3-content-overlay-closed
 		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
 		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
+		CLASSNAME_OVERLAY_TITLE = getClassName('content', 'overlay', 'title'),		// yui3-content-overlay-title
 		CLASSNAME_DRAGGABLE = getClassName('content', 'draggable'),					// yui3-content-draggable
 		CLASSNAME_MARKER = getClassName('content', 'marker'),						// yui3-content-marker
 		CLASSNAME_EDITING = 'editing';												// editing
@@ -677,7 +678,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @private
 		 */
 		renderOverlay: function () {
-			var div = new Y.Node(this.get('doc').createElement('DIV'));
+			var div = new Y.Node(this.get('doc').createElement('DIV')),
+				title = Y.Escape.html(this.getBlockTitle());
 			
 			this.overlay = div;
 			
@@ -691,7 +693,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.overlay.addClass(CLASSNAME_OVERLAY_CLOSED);
 			}
 			
-			this.overlay.set('innerHTML', '<span></span>');
+			this.overlay.set('innerHTML', '<span></span><span class="' + CLASSNAME_OVERLAY_TITLE + '">' + title + '</span>');
 			this.getNode().insert(div, 'before');
 		},
 		
@@ -799,8 +801,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 					this.set('highlightOverlay', false);
 				}
 				
-				this.blockDropCache = null;
-				this.listDropCache = null;
+				this.resetBlockPositionCache();
 			}
 			
 			return !!value;
@@ -929,6 +930,22 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
+		 * Reset block position cache
+		 */
+		resetBlockPositionCache: function () {
+			this.blockDropCache = null;
+			this.listDropCache = null;
+			
+			//Children cache
+			var children = this.children,
+				id;
+			
+			for (id in children) {
+				children[id].resetBlockPositionCache();
+			}
+		},
+		
+		/**
 		 * Show marker at specific position
 		 * 
 		 * @param {String} positionId Children ID or null to remove marker
@@ -977,8 +994,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.blockDropPositionId = positionId;
 				this.blockDropPositionBefore = positionBefore;
 			}
-		},
-		
+		}
 		
 		/* ------------------------------------ CONTENT MANIPULATION -------------------------------------- */
 		
