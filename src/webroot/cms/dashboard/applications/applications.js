@@ -233,7 +233,10 @@ function (Y) {
 		 * @private
 		 */
 		loadStatisticsData: function () {
-			Supra.io(this.getDataPath("../stats/stats"), function (data, status) {
+			//@TODO Replace with real data, dummy data per #5323 request
+			var uri = "dev/stats"; // "../stats/stats";
+			
+			Supra.io(this.getDataPath(uri), function (data, status) {
 				if (status && data) {
 					this.widgets.keywords.set("data", data.keywords);
 					this.widgets.referring.set("data", data.sources);
@@ -247,7 +250,10 @@ function (Y) {
 		 * @private
 		 */
 		loadInboxData: function () {
-			Supra.io(this.getDataPath("../inbox/inbox"), function (data, status) {
+			//@TODO Replace with real data, dummy data per #5323 request
+			var uri = "dev/inbox"; // "../inbox/inbox";
+			
+			Supra.io(this.getDataPath(uri), function (data, status) {
 				if (status && data) {
 					this.widgets.inbox.set("data", data);
 				}
