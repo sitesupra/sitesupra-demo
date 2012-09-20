@@ -624,7 +624,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			
 			if (!htmleditor.get("disabled") && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
 				var image_data = event.image,
-					size_data = this.getImageDataBySize(image_data);
+					size_data = this.getImageDataBySize(image_data, "original");
 				
 				if (this.selected_image) {
 					//If image in content is already selected, then replace
@@ -669,17 +669,28 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					//Find image by size and set initial image properties
 					var src = this.getImageURLBySize(image_data);
 					
+					//Calculate image size so that it fills container
+					var container_width = htmleditor.get("srcNode").get("offsetWidth"),
+						size_width = size_data.width,
+						size_height = size_data.height;
+					
+					if (container_width < size_width) {
+						size_height = Math.round(container_width / size_width * size_height);
+						size_width = container_width;
+					}
+					
+					//Image data
 					var data = Supra.mix({}, defaultProps, {
 						"type": this.NAME,
 						"title": (image_data.title && image_data.title[locale]) ? image_data.title[locale] : "",
 						"description": (image_data.description && image_data.description[locale]) ? image_data.description[locale] : "",
 						"image": image_data,	//Original image data
-						"size_width": size_data.width,
-						"size_height": size_data.height,
+						"size_width": size_width,
+						"size_height": size_height,
 						"crop_left": 0,
 						"crop_top": 0,
-						"crop_width": size_data.width,
-						"crop_height": size_data.height
+						"crop_width": size_width,
+						"crop_height": size_height
 					});
 					
 					//Generate unique ID for image element, to which data will be attached
@@ -721,11 +732,21 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			}
 			
 			var uid = htmleditor.generateDataUID(),
-				size_data = this.getImageDataBySize(image_data),
+				size_data = this.getImageDataBySize(image_data, "original"),
 				src = this.getImageURLBySize(image_data),
 				img = null;
 			
 			var locale = Supra.data.get("locale");
+			
+			//Calculate image size so that it fills container
+			var container_width = htmleditor.get("srcNode").get("offsetWidth"),
+				size_width = size_data.width,
+				size_height = size_data.height;
+			
+			if (container_width < size_width) {
+				size_height = Math.round(container_width / size_width * size_height);
+				size_width = container_width;
+			}
 			
 			//Set additional image properties
 			var data = Supra.mix({}, defaultProps, {
@@ -733,15 +754,15 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				"title": (image_data.title && image_data.title[locale]) ? image_data.title[locale] : "",
 				"description": (image_data.description && image_data.description[locale]) ? image_data.description[locale] : "",
 				"image": image_data,	//Original image data
-				"size_width": size_data.width,
-				"size_height": size_data.height,
+				"size_width": size_width,
+				"size_height": size_height,
 				"crop_left": 0,
 				"crop_top": 0,
-				"crop_width": size_data.width,
-				"crop_height": size_data.height
+				"crop_width": size_width,
+				"crop_height": size_height
 			});
 			
-			img = Y.Node.create('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" src="' + src + '" title="' + Y.Escape.html(image_data.title) + '" alt="' + Y.Escape.html(image_data.description) + '" class="align-' + data.align + '" />');
+			img = Y.Node.create('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
 			
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
