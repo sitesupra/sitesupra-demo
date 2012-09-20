@@ -994,7 +994,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.blockDropPositionId = positionId;
 				this.blockDropPositionBefore = positionBefore;
 			}
-		}
+		},
 		
 		/* ------------------------------------ CONTENT MANIPULATION -------------------------------------- */
 		
