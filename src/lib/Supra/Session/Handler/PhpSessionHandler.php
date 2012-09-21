@@ -41,13 +41,23 @@ class PhpSessionHandler extends HandlerAbstraction
 
 			$success = false;
 
-			if ( ! empty($this->sessionId)) {
-				session_id($this->sessionId);
-				$success = session_start();
-			} else {
-				$success = session_start();
-				$this->sessionId = session_id();
+			if (empty($this->sessionId)) {
+				if (isset($_COOKIE[$this->sessionName])) {
+					$this->sessionId = $_COOKIE[$this->sessionName];
+				} else {
+					$success = session_regenerate_id();
+
+					if ( ! $success) {
+						$this->sessionStatus = self::SESSION_COULD_NOT_START;
+						throw new Exception\CouldNotStartSession();
+					}
+
+					$this->sessionId = session_id();
+				}
 			}
+			
+			session_id($this->sessionId);
+			$success = session_start();
 
 			if ( ! $success) {
 				$this->sessionStatus = self::SESSION_COULD_NOT_START;
@@ -107,10 +117,21 @@ class PhpSessionHandler extends HandlerAbstraction
 		}
 
 		// Ignore the session data if session name doesn't match
-		if (empty($_SESSION['SESSION_NAME']) || $_SESSION['SESSION_NAME'] != $this->sessionName) {
+		if (empty($_SESSION['SESSION_NAME'])) {
 			$_SESSION = array(
 				'SESSION_NAME' => $this->sessionName
 			);
+		}
+
+		if ($_SESSION['SESSION_NAME'] != $this->sessionName) {
+
+			session_regenerate_id();
+			$this->sessionId = session_id();
+
+			$_SESSION = array(
+				'SESSION_NAME' => $this->sessionName
+			);
+			//throw new \RuntimeException("This session not meant to be used by session with name " . $this->sessionName . ' ' . $_SESSION['SESSION_NAME'] . ' provided');
 		}
 		
 		$sessionData = $_SESSION;
