@@ -631,6 +631,13 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			this.dragBlockId = null;
 			this.dragBlockIndex = null;
 			this.dragBlockRegion = null;
+			
+			var children = this.get("host").children,
+				id = null;
+			
+			for (id in children) {
+				children[id].resetBlockPositionCache();
+			}
 		},
 		
 		/**

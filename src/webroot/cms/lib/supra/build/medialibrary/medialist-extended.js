@@ -543,10 +543,12 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			var img_node = this.getImageNode(),
 				src = null;
 			
+			// Reload image source in preview
 			if (img_node) {
 				var preview_size = this.get('previewSize');
 				
 				if (data.sizes && preview_size in data.sizes) {
+					// Image preview
 					src = data.sizes[preview_size].external_path;
 					
 					img_node.ancestor().addClass('loading');
@@ -554,7 +556,40 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 						img_node.ancestor().removeClass('loading');
 					});
 					img_node.setAttribute('src', src + '?r=' + (+new Date()));
+				} else if (data.type === Data.TYPE_FILE) {
+					// File icon
+					img_node.ancestor().addClass('loading');
+					img_node.once('load', function () {
+						img_node.ancestor().removeClass('loading');
+					});
+					
+					src = "/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/file";
+					if (data.known_extension) {
+						src += '-' + data.known_extension;
+					}
+					src += "-large.png";
+					
+					img_node.setAttribute('src', src);
 				}
+			}
+			
+			// Reload image source in file list
+			if (data.type === Data.TYPE_IMAGE) {
+				var item_node = this.getItemNode(data.id);
+				if (item_node) {
+					item_node.removeClass('type-broken');
+					item_node.one('a').set('innerHTML', '<img src="' + data.thumbnail + '?r=' + (+new Date()) + '" " alt="" />');
+				}
+			} else if (data.type === Data.TYPE_FILE) {
+				var item_node = this.getItemNode(data.id);
+				if (item_node) {
+					item_node.removeClass('type-broken');
+					
+					if (data.known_extension) {
+						item_node.addClass('type-file-' + data.known_extension);
+					}
+				}
+				
 			}
 		},
 		

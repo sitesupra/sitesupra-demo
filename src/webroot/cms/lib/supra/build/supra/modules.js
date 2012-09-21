@@ -82,6 +82,7 @@ Supra.useModules = [
 	'transition',
 	
 	'supra.event',
+	'supra.deferred',
 	'supra.intl',
 	'supra.lang',
 	'substitute',
@@ -189,6 +190,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.event': {
 		path: 'event/event.js'
+	},
+	
+	/**
+	 * Deferred object
+	 */
+	'supra.deferred': {
+		path: 'event/deferred.js'
 	},
 	
 	/**

@@ -402,6 +402,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			
 			this.ui_updating = true;
 			
+			//Media sidebar is closed when clicking on image
+			this.list.removeClass('mediasidebar-opened');
+			
 			//Make sure PageContentSettings is rendered
 			var form = this.settings_form || this.createSettingsForm(),
 				action = Manager.getAction('PageContentSettings');
@@ -1059,7 +1062,6 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			
 			//Remove old data
 			list.all('LI').remove();
-			list.append(this.listItemDropMarker);
 			
 			//Remove old inputs
 			var inputs = this.inputs,
@@ -1086,6 +1088,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			} else {
 				this.list.addClass('list-empty');
 			}
+			
+			//Move marker to the end of the list
+			list.append(this.listItemDropMarker);
 			
 			this.dragDelegate.syncTargets();
 			this.scrollable.syncUI();

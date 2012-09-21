@@ -38,8 +38,6 @@
 			"sort_az": "Internal",
 			"sort_date": "Date added",
 			
-			"folder_empty": "No files in this folder",
-			
 			"label_title": "Title",
 			"label_description": "Description",
 			"label_filename": "Filename",
@@ -79,7 +77,7 @@
 		
 		"mediasidebar": {
 			"insert_image": "Files",
-			"open_app": "Open Library App"
+			"open_app": "Open Files App"
 		}
 	}
 }

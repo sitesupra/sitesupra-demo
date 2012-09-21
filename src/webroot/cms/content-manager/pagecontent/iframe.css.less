@@ -41,10 +41,30 @@
 	display: block;
 	position: absolute;
 	z-index: 9999;
-	border: 2px solid #009DF8 !important;
-	margin: -3px 0 0 -2px !important;
+	border: 1px solid #af00f8 !important;
+	margin: -2px 0 0 -1px !important;
 	
 	.border-radius (5px);
+}
+
+.yui3-content-marker-title {
+	position: relative;
+	width: 0;
+	height: 0;
+	
+	div {
+		position: absolute;
+		width: 300px;
+		
+		// Text styles
+		text-align: center !important;
+		font: 12px/18px Arial, Helvetica, sans-serif !important;
+		font-weight: normal !important;
+		font-style: normal !important;
+		color: #fff !important;
+		text-shadow: 0 1px 1px #000;
+		white-space: nowrap !important;
+	}
 }
 
 /**
@@ -84,6 +104,27 @@
 		
 		background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 0 0 no-repeat;
 	}
+	
+	span.yui3-content-overlay-title {
+		display: none;
+		width: auto;
+		height: auto;
+		margin: -15px 0 0 0;
+		padding: 0 8px;
+		background: #009DF8;
+		left: 20px;
+		.border-radius (4px);
+		.box-shadow (none);
+		
+		// Text styles
+		text-align: left !important;
+		font: 18px/30px Arial, Helvetica, sans-serif !important;
+		font-weight: bold !important;
+		font-style: normal !important;
+		color: #fff !important;
+		text-shadow: none;
+		white-space: nowrap !important;
+	}
 }
 .yui3-editable .yui3-content-overlay:hover,
 .yui3-editable .yui3-content-overlay-hover,
@@ -102,6 +143,9 @@
 .yui3-editable .yui3-content-overlay-hover {
 	span {
 		display: block;
+	}
+	span.yui3-content-overlay-title {
+		display: none;
 	}
 }
 
@@ -122,6 +166,9 @@
 		
 		.border-radius (0);
 		.box-shadow (none);
+	}
+	span.yui3-content-overlay-title {
+		display: none;
 	}
 }
 
@@ -152,6 +199,9 @@
 			/* All overlay inner nodes */
 			display: none;
 			cursor: default;
+		}
+		span.yui3-content-overlay-title {
+			display: block;
 		}
 	}
 	
@@ -351,6 +401,8 @@
 		.box-shadow (none !important);
 	}
 	img {
+		max-width: none !important;
+		max-height: none !important;
 		position: relative !important;
 		display: inline-block !important;
 		left: 0;
