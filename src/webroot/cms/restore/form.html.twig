@@ -4,7 +4,7 @@
 
 {% block content %}
 
-	{% if errorMessage %}
+	{% if errorMessage is defined and errorMessage %}
 		<p>{{ errorMessage }}</p>
 	{% endif %}
 
