@@ -1326,9 +1326,16 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					
 					slide.setData('itemId', id);
 					
-					if (!append) slide_content.empty();
+					if (!append) {
+						slide_content.empty();
+					}
+					
 					slide_content.append(node);
 					slide_content.closest('.su-multiview-slide, .su-slide').removeClass('su-slide-full-width');
+					
+					if (!append) {
+						slide_content.append(Y.Node.create('<div class="dnd-marker"></div>'));
+					}
 					
 					this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': Data.TYPE_FOLDER});
 				}

@@ -271,8 +271,7 @@ YUI.add('supra.slideshow', function (Y) {
 			}
 			
 			//Show and position new slide
-			this.slides[slideId].setStyle('left', index * 100 + '%')
-				.removeClass('hidden');
+			this.slides[slideId].setStyle('left', index * 100 + '%').removeClass('hidden');
 			
 			if (index < oldIndex) {
 				this.history.splice(index + 1);

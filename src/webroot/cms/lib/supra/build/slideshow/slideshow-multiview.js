@@ -239,7 +239,7 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 					this.removeSlide(slideId);
 				} else {
 					//Hide slide
-					this.slides[slideId].addClass('hidden');
+					this.slides[slideId].addClass('hidden').removeClass('su-multiview-slide-last');
 				}
 				
 				if (!silent) {
@@ -286,6 +286,10 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				this.history[index] = slideId;
 			}
 			
+			if (index > 0) {
+				this.slides[this.history[index - 1]].removeClass('su-multiview-slide-last');
+			}
+			
 			//Remove all unneeded slides
 			if (index < oldIndex) {
 				for(var i=this.history.length-1, ii=index; i>ii; i--) {
@@ -300,6 +304,9 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				
 				//Save value
 				this.set('slide', slideId, {silent: true});
+				
+				//Style
+				this.slides[slideId].addClass('su-multiview-slide-last');
 				
 				//Update scroll position
 				this.syncUIScrollPosition(index);
@@ -320,7 +327,9 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 				this.slide_anim.run();
 				
 				//Show new slide
-				this.slides[slideId].removeClass('hidden');
+				this.slides[slideId]
+						.removeClass('hidden')
+						.addClass('su-multiview-slide-last');
 				
 				//Update scrollbars
 				this.slides[slideId].one('.su-scrollable-content').fire('contentResize');
@@ -345,7 +354,8 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 			} else {
 				//Show new slide
 				this.slides[slideId].setStyle('left', index * slideWidth + 'px')
-					.removeClass('hidden');
+					.removeClass('hidden')
+					.addClass('su-multiview-slide-last');
 				
 				//Update scrollbars
 				this.slides[slideId].one('.su-scrollable-content').fire('contentResize');
@@ -393,9 +403,10 @@ YUI.add('supra.slideshow-multiview', function (Y) {
 			
 			if (!(slideId in this.slides)) {
 				var classSlide = 'su-multiview-slide',
+					classLast = 'su-multiview-slide-last',
 					classContent = 'su-multiview-slide-content',
 					slide = this.slides[slideId] = Y.Node.create('\
-														<div class="hidden ' + classSlide + ' ' + options.className + '">\
+														<div class="hidden ' + classSlide + ' ' + classLast + ' ' + options.className + '">\
 															<div id="' + slideId + '" class="' + classContent + '"></div>\
 														</div>');
 				

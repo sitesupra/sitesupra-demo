@@ -15,22 +15,54 @@
 	}
 }
 
-/**
- * Empty
-*/
-.yui3-medialist .su-slide-full-width {
-	width: auto !important;
-	right: 0;
+.yui3-medialist {
+	/**
+	 * Empty folder DND icon
+	 */
+	div.empty {
+		text-align: center;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: url(images/icon-drag-drop.png) 50% 50% no-repeat;
+		.text-shadow();
+	}
+	
+	/**
+	 * Last opened folder DND icon
+	 */
+	.dnd-marker {
+		position: absolute;
+		background: url(images/icon-drag-drop-small.png) 0 0 no-repeat;
+		width: 139px;
+		height: 24px;
+		left: 50%;
+		bottom: 10px;
+		margin-left: -70px;
+	}
 }
-.yui3-medialist div.empty {
-	text-align: center;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: url(images/icon-drag-drop.png) 50% 50% no-repeat;
-	.text-shadow();
+.yui3-medialist-extended {
+	.su-slide-full-width {
+		width: auto !important;
+		right: 0;
+	}
+	
+	/**
+	 * Last opened folder DND icon
+	 */
+	.dnd-marker {
+		bottom: 5px;
+		opacity: 0;
+		.transition (opacity 0.3s);
+	}
+	.su-slide-last,
+	.su-multiview-slide-last {
+		.dnd-marker {
+			opacity: 1;
+		}
+	}
 }
 
 /**
@@ -83,7 +115,7 @@
 
 .yui3-medialist ul.folder {
 	list-style: none;
-	padding: 9px 0 9px 10px;
+	padding: 9px 0 39px 10px;
 	.user-select (none);
 
 	/* Folder rename inplace editor */
