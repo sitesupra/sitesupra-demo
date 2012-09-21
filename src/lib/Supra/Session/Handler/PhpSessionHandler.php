@@ -185,7 +185,9 @@ class PhpSessionHandler extends HandlerAbstraction
 		if ($this->sessionStatus !== self::SESSION_STARTED) {
 			return;
 		}
-		
+
+		self::$phpSessionOpened = null;
+
 		session_destroy();
 		parent::destroy();
 	}
