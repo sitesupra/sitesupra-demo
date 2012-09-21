@@ -45,7 +45,10 @@ class PhpSessionHandler extends HandlerAbstraction
 				if (isset($_COOKIE[$this->sessionName])) {
 					$this->sessionId = $_COOKIE[$this->sessionName];
 				} else {
+
+					session_start();
 					$success = session_regenerate_id();
+					$_SESSION = array();
 
 					if ( ! $success) {
 						$this->sessionStatus = self::SESSION_COULD_NOT_START;
