@@ -234,7 +234,7 @@ function (Y) {
 		 */
 		loadStatisticsData: function () {
 			//@TODO Replace with real data, dummy data per #5323 request
-			var uri = "dev/stats"; // "../stats/stats";
+			var uri = "../stats/stats"; // "dev/stats";
 			
 			Supra.io(this.getDataPath(uri), function (data, status) {
 				if (status && data) {
@@ -251,7 +251,7 @@ function (Y) {
 		 */
 		loadInboxData: function () {
 			//@TODO Replace with real data, dummy data per #5323 request
-			var uri = "dev/inbox"; // "../inbox/inbox";
+			var uri = "../inbox/inbox"; // "dev/inbox";
 			
 			Supra.io(this.getDataPath(uri), function (data, status) {
 				if (status && data) {
