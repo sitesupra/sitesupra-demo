@@ -47,7 +47,7 @@ class DengiDataFormBlock extends BlockController
 		'65' => array('title' => 'Ukash'),
 		'80' => array('title' => 'W1 - Единый кошелёк '),
 		'15' => array('title' => 'WebCreds'),
-		'2' => array('title' => 'WebMoney RUB'),
+		'2' => array('title' => 'WebMoney RUB'), // !
 		'204' => array('title' => 'Web-кошелек ПСКБ'),
 		'68' => array('title' => 'WellPay!'),
 		'73' => array('title' => 'Yota.Деньги'),
@@ -56,7 +56,7 @@ class DengiDataFormBlock extends BlockController
 		'12' => array('title' => 'Карты Деньги Online'),
 		'66' => array('title' => 'Куппи'),
 		'79' => array('title' => 'Твинго (Ваши Деньги)'),
-		'7' => array('title' => 'Яндекс.Деньги'),
+		'7' => array('title' => 'Яндекс.Деньги'), //
 		'75' => array('title' => 'CONTACT'),
 		'54' => array('title' => 'Rapida'),
 		'87' => array('title' => 'Western Union'),
@@ -227,7 +227,7 @@ class DengiDataFormBlock extends BlockController
 		$session = $paymentProvider->getSessionForOrder($order);
 
 		$postData = $request->getPost()->getArrayCopy();
-		
+
 		$response->assign('formElements', $this->buildFormElements($postData));
 
 		if ( ! empty($session->errorMessages)) {
@@ -237,7 +237,7 @@ class DengiDataFormBlock extends BlockController
 			unset($session->errorMessages);
 		}
 
-		$returnUrl = $paymentProvider->getProxyActionReturnFormDataUrl($order);
+		$returnUrl = $paymentProvider->getDataFormReturnUrl($order);
 
 		$response->assign('action', $returnUrl);
 	}
@@ -250,31 +250,19 @@ class DengiDataFormBlock extends BlockController
 	private function buildFormElements($inputValues = array())
 	{
 		$formElements = array();
-		
+
 		$currentModeType = empty($inputValues['mode_type']) ? null : $inputValues['mode_type'];
 
-		foreach ($this->modeTypeDefinitions as $name => $definition) {
+		$paymentProvider = $this->getPaymentProvider();
 
-			$input = new HtmlTag('input');
-			$input->setAttribute('type', 'radio');
-			$input->setAttribute('id', 'mode_type_' . $name);
-			$input->setAttribute('name', 'mode_type');
-			$input->setAttribute('value', $name);
+		$backends = $paymentProvider->getBackends();
 
-			if ($currentModeType == $name) {		
-				$input->setAttribute('selected', 'selected');
-			}
-			$formElements[] = $input->toHtml();
+		foreach ($backends as $backend) {
+			/* @var $backend Backend\BackendAbstraction */
 
+			$isCurrent = $currentModeType == $backend->getModeType();
 
-			$label = new HtmlTag('label');
-			$label->setAttribute('for', 'mode_type_' . $name);
-			$label->setContent($definition['title'] . ' (' . $name . ')');
-			$formElements[] = $label->toHtml();
-
-
-			$br = new HtmlTag('br');
-			$formElements[] = $br->toHtml();
+			$formElements = array_merge($formElements, $backend->getFormElements($isCurrent));
 		}
 
 		return $formElements;
