@@ -268,9 +268,8 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//Small delay before continue
 			var timer = Y.later(50, this, function () {
 				if (this.get('doc').body) {
-					this._afterSetHTML(preview_only);
-					console.log("YES", timer);
 					timer.cancel();
+					this._afterSetHTML(preview_only);
 				}
 			}, [], true);
 			
