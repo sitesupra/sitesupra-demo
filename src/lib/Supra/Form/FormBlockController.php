@@ -207,13 +207,13 @@ abstract class FormBlockController extends BlockController
 			/* @var $field FormField */
 			$options = $field->getArguments();
 
-			$propertyGroup = FormBlockControllerConfiguration::FORM_GROUP_ID_LABELS;
-			$propertyName = FormBlockControllerConfiguration::generateEditableName($propertyGroup, $field);
-			$blockPropertyValue = $this->getPropertyValue($propertyName);
-
-			if ( ! empty($blockPropertyValue)) {
-				$options['label'] = $blockPropertyValue;
-			}
+//			$propertyGroup = FormBlockControllerConfiguration::FORM_GROUP_ID_LABELS;
+//			$propertyName = FormBlockControllerConfiguration::generateEditableName($propertyGroup, $field);
+//			$blockPropertyValue = $this->getPropertyValue($propertyName);
+//
+//			if ( ! empty($blockPropertyValue)) {
+//				$options['label'] = $blockPropertyValue;
+//			}
 
 			if ($field->getType() === FormField::TYPE_CHOICE) {
 
@@ -245,8 +245,9 @@ abstract class FormBlockController extends BlockController
 		// Custom validation
 		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'validate'), 0);
 
-		// Error message translation using block properties
-		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'errorMessageTranslationListener'), 0);
+		// Disabled
+//		// Error message translation using block properties
+//		$formBuilder->addEventListener(Form\FormEvents::POST_BIND, array($this, 'errorMessageTranslationListener'), 0);
 
 		return $formBuilder;
 	}

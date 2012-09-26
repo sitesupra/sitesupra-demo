@@ -271,7 +271,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 					timer.cancel();
 					this._afterSetHTML(preview_only);
 				}
-			}, []);
+			}, [], true);
 			
 			return html;
 		},

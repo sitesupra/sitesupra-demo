@@ -333,7 +333,9 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		var instance = this.get(name);
 		if (instance) return instance;
 		
-		var elements = this.element.find('#' + name + ', [name="' + name + '"]').filter('input, textarea, select');
+		var id = String(name).replace(/[^a-z0-9_\-]/gi, ''),
+			elements = this.element.find('#' + id + ', [name="' + name + '"]').filter('input, textarea, select');
+		
 		return elements.eq(0);
 	},
 	
