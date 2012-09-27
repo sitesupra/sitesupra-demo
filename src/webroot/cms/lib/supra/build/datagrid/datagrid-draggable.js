@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Continuous loader plugin
  */
 YUI.add('supra.datagrid-draggable', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function DraggablePlugin (config) {
 		DraggablePlugin.superclass.constructor.apply(this, arguments);

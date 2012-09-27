@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Handles file upload process
  */
 YUI.add('supra.io-upload', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/*
 	 * http://hacks.mozilla.org/category/fileapi/:

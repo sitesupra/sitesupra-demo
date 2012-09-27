@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Plugin to add file upload functionality for MediaList
  */
 YUI.add('supra.uploader', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * HTML5 feature support

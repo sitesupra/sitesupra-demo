@@ -77,7 +77,9 @@ Supra(
 	"transition",
 	
 function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcut
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;

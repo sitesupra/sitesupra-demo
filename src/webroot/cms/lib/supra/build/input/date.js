@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add("supra.input-date", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Date picker input

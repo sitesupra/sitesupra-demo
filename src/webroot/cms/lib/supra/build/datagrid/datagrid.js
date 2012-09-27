@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Data Grid
  */
 YUI.add("supra.datagrid", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Column definition prototype
 	var COLUMN_DEFINITION = {

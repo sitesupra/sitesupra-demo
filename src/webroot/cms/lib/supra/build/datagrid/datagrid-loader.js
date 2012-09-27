@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Continuous loader plugin
  */
 YUI.add('supra.datagrid-loader', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function LoaderPlugin (config) {
 		LoaderPlugin.superclass.constructor.apply(this, arguments);

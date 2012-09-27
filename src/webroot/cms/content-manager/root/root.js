@@ -1,6 +1,3 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Main manager action, initiates all other actions
  */
@@ -9,7 +6,9 @@ Supra(
 	'router',
 
 function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcut
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;

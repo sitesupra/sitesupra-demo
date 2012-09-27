@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Template selection input
  */
 YUI.add("supra.datagrid-row", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function DataGridRow (host, data) {
 		this.host = host;

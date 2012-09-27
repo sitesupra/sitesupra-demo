@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.slideshow', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Slideshow class 

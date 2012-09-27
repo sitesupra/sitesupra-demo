@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI().add("supra.io", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var ERROR_INVALID_RESPONSE = 'Error occured, please try again later';
 	

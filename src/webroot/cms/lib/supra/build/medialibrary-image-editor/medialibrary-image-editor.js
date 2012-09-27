@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Plugin to add editing functionality for MediaList
  */
 YUI.add('supra.medialibrary-image-editor', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/*
 	 * Shortcuts

@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.manager-base', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Class for managing Actions, loading and executing them

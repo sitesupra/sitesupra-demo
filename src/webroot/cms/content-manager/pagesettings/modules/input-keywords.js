@@ -1,11 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Keyword input
  */
 YUI.add("website.input-keywords", function (Y) {
-	
+	//Invoke strict mode
+	"use strict";
 	
 	/*
 	 * Template

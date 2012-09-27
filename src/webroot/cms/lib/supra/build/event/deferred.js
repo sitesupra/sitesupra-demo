@@ -1,6 +1,3 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Adds Supra.Deferred
  * 
@@ -11,6 +8,8 @@
  * 		Y.on('exist', function () {...}, 'Supra.Dashboard.AppList');
  */
 YUI.add('supra.deferred', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	// Functions which are available on promise object
 	var PROMISE_EXPORT = ["done", "fail", "always", "progress", "then", "state"];

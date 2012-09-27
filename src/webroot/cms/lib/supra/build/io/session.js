@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI().add("supra.io-session", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var PING_INTERVAL = 60000;
 	var PING_URI = '/check-session';

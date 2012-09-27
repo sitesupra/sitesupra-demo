@@ -1,8 +1,7 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add("dashboard.visitors", function (Y) {
- 
+	//Invoke strict mode
+	"use strict";
+	
 	var TEMPLATE_HEADING = '\
 			<div class="su-block-heading ui-center-darker-background">\
 				<h2>\

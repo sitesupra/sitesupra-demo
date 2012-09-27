@@ -1,8 +1,7 @@
-//Invoke strict mode
-"use strict";
- 
 YUI.add("dashboard.app-favourites", function (Y) {
- 	
+ 	//Invoke strict mode
+	"use strict";
+	
  	
  	var TEMPLATE_CONTAINER = Supra.Template.compile('\
  			<div class="app-list-empty app-list-outter">\

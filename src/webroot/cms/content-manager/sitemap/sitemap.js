@@ -73,6 +73,8 @@ Supra(
 	'website.sitemap-plugin-page-edit', 'website.sitemap-plugin-page-add', 'website.sitemap-plugin-page-global',
 	'website.sitemap-new-page', 'website.sitemap-delete-page',
 function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcut
 	var Manager = Supra.Manager,

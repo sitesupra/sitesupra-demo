@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.header.appdock', function(Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Icon size constant
 	var ICON_SIZES = {

@@ -1,6 +1,3 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Actions: LayoutLeftContainer, LayoutRightContainer, LayoutTopContainer
  * 
@@ -11,7 +8,9 @@
  * 		LayoutTopContainer - PageToolbar, EditorToolbar
  */
 Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcut
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;

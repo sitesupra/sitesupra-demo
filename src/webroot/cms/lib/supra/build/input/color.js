@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add("supra.input-color", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var Color = Y.DataType.Color;
 	

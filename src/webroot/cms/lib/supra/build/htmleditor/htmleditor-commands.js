@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI().add('supra.htmleditor-commands', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	Y.mix(Supra.HTMLEditor.prototype, {
 		

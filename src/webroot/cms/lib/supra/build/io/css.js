@@ -1,11 +1,10 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Extension to load CSS files
  * Needed because Y.Get.css doesn't 
  */
 YUI().add("supra.io-css", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	Supra.io.css = function (url, cfg) {
 		//Only webkit and gecko has this issue

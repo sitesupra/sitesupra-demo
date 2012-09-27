@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.input-select-visual', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Vertical button list for selecting value

@@ -1,6 +1,3 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Adds on('exist', ...) event to YUI Event class
  * 
@@ -9,6 +6,9 @@
  * 		Y.on('exist', function () {...}, 'Supra.Dashboard.AppList');
  */
 YUI.add('supra.event', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
 	//If already defined, then exit
 	if (Y.Event.onExist) return;
 	

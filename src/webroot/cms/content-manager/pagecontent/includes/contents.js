@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /*
  * Supra.Manager.PageContent.Iframe
  */
 YUI.add('supra.iframe-contents', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcut
 	var Manager = Supra.Manager,

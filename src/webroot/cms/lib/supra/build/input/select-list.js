@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.input-select-list', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Horizontal button list for selecting values

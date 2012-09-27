@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-	
 YUI.add("supra.input-inline-string", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Helper functions for escaping/unescaping strings

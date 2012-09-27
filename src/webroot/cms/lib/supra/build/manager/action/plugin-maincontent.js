@@ -1,11 +1,10 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Manager Action plugin to automatically set container as main
  * content and resize if left, right or top (Header) containers changes
  */
 YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var Action = Supra.Manager.Action;
 	

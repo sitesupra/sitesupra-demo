@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 (function () {
+	//Invoke strict mode
+	"use strict";
 	
 	// create YUI instance
 	var Y = YUI();

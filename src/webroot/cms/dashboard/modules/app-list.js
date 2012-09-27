@@ -1,8 +1,7 @@
-//Invoke strict mode
-"use strict";
- 
 YUI.add("dashboard.app-list", function (Y) {
- 	
+ 	//Invoke strict mode
+	"use strict";
+	
  	
  	var TEMPLATE_APPLICATION = Supra.Template.compile('\
 			<li data-id="{{ id|escape }}">\

@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add("dashboard.chart-hover-plugin", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function Plugin (config) {
 		Plugin.superclass.constructor.apply(this, arguments);

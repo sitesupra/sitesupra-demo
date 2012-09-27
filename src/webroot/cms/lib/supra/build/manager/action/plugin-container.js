@@ -1,11 +1,10 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Manager Action plugin to automatically hide container when
  * action 'visible' attribute changes
  */
 YUI.add('supra.manager-action-plugin-container', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var Action = Supra.Manager.Action;
 	

@@ -1,11 +1,10 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Media library data
  * Handle data loading, saving, searching
  */
 YUI.add('supra.medialibrary-data', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Properties which always will be loaded
 	var REQUIRED_PROPERTIES = ['id', 'type', 'filename' ,'private'];

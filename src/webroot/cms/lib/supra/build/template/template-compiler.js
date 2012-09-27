@@ -1,8 +1,7 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.template-compiler', function (Y) {
-		
+	//Invoke strict mode
+	"use strict";
+	
 	/**
 	 * Template compiler
 	 * Syntax based on http://www.twig-project.org/

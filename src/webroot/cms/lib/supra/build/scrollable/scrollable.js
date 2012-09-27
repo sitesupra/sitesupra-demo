@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-	
 YUI.add('supra.scrollable', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var SCROLL_DISTANCE = 100;
 	

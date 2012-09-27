@@ -1,11 +1,10 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * New site welcome message
  */
 Supra("transition", function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcut
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;
