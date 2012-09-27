@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add("supra.input-file-upload", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function Fileupload (config) {
 		Fileupload.superclass.constructor.apply(this, arguments);

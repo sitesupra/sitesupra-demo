@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.input-link', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcuts
 	var Manager = Supra.Manager;

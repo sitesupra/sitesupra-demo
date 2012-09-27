@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Plugin to add drag and drop support to media list
  */
 YUI().add('supra.medialibrary-list-dd', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/*
 	 * Constants

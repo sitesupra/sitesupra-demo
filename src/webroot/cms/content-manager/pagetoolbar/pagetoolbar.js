@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 Supra(function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Animations

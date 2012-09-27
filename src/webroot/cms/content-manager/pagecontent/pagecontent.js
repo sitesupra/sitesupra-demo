@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 Supra('dd-drag', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var BLOCK_PROTOTYPES = [
 		'Proto',

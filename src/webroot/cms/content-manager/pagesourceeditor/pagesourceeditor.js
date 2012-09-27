@@ -1,8 +1,7 @@
-//Invoke strict mode
-"use strict";
-
 Supra(function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcuts
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;

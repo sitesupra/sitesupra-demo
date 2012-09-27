@@ -1,6 +1,3 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Confirmation dialog
  * 
@@ -14,6 +11,8 @@
  * 		});
  */
 Supra('supra.input', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var DEFAULT_CONFIG = {
 		'message': '',

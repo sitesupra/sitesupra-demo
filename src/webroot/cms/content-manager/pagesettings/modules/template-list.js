@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Template selection input
  */
 YUI.add("website.template-list", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function TemplateList (config) {
 		TemplateList.superclass.constructor.apply(this, arguments);

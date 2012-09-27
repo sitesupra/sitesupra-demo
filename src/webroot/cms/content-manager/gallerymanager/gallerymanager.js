@@ -1,8 +1,7 @@
-//Invoke strict mode
-"use strict";
-
 Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcuts
 	var Manager = Supra.Manager;
 	var Action = Manager.Action;

@@ -40,11 +40,11 @@ class FormField
 	 */
 	protected $arguments = array();
 
-	/**
-	 * Stores error message information – constraint and original message
-	 * @var array
-	 */
-	protected $errorInfo;
+//	/**
+//	 * Stores error message information – constraint and original message
+//	 * @var array
+//	 */
+//	protected $errorInfo;
 	
 	/**
 	 * @param array $arguments
@@ -78,21 +78,21 @@ class FormField
 		$this->type = $type;
 	}
 
-	/**
-	 * @param array $errorInfo
-	 */
-	public function setErrorInfo(array $errorInfo)
-	{
-		$this->errorInfo = $errorInfo;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getErrorInfo()
-	{
-		return $this->errorInfo;
-	}
+//	/**
+//	 * @param array $errorInfo
+//	 */
+//	public function setErrorInfo(array $errorInfo)
+//	{
+//		$this->errorInfo = $errorInfo;
+//	}
+//
+//	/**
+//	 * @return array
+//	 */
+//	public function getErrorInfo()
+//	{
+//		return $this->errorInfo;
+//	}
 
 	/**
 	 * @return string 

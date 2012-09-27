@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Plugin to add folder drag and drop support to extended media list
  */
 YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/*
 	 * Shortcuts

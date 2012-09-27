@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /*
  * Supra.Manager.PageContent.Iframe
  */
 YUI.add('supra.iframe-handler', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcut
 	var Manager = Supra.Manager,
@@ -228,6 +227,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			if (doc) {
 				//Remove all listeners
 				Y.one(doc).purge(true);
+				doc.location = "about:blank";
 			}
 		},
 		
@@ -271,7 +271,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 					timer.cancel();
 					this._afterSetHTML(preview_only);
 				}
-			}, []);
+			}, [], true);
 			
 			return html;
 		},
@@ -535,25 +535,23 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @private
 		 */
 		_onStylesheetLoad: function (links) {
-			var fn = Y.bind(function () {
+			var timer = Y.later(50, this, function () {
 				var loaded = true;
 				for(var i=0,ii=links.length; i<ii; i++) {
 					if (!links[i].sheet) {
-						loaded = false;
-						break;
-					} else {
+						//If there is no href, then there will never be a sheet
+						if (links[i].getAttribute('href')) {
+							loaded = false;
+							break;
+						}
 					}
 				}
 				
 				if (loaded) {
-					Y.later(50, this, function () {
-						this.createContent();
-					});
-				} else {
-					setTimeout(fn, 50);
+					timer.cancel();
+					this.createContent();
 				}
-			}, this);
-			setTimeout(fn, 50);
+			}, [], true);
 		},
 		
 		/**

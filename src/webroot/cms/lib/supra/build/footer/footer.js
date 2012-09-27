@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add("supra.footer", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Button configuration defaults
 	var BUTTON_DEFINITION = {

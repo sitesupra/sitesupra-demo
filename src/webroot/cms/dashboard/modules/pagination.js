@@ -1,8 +1,7 @@
-//Invoke strict mode
-"use strict";
- 
 YUI.add("dashboard.pagination", function (Y) {
- 
+	//Invoke strict mode
+	"use strict";
+	
 	/**
 	 * Pagination navigation
 	 */

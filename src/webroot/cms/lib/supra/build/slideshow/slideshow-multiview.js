@@ -1,11 +1,11 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Slideshow for Media Library app
  * (not used for MediaBar or LinkManager)
  */
 YUI.add('supra.slideshow-multiview', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcut
 	var DEFAULT_SLIDE_WIDTH = 290;
 	

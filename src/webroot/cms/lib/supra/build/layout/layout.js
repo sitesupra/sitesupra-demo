@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /*
  * Supra.PluginLayout
  */
 YUI.add('supra.plugin-layout', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function PluginLayout () {
 		PluginLayout.superclass.constructor.apply(this, arguments);

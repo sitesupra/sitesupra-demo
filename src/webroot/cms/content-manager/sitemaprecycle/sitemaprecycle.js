@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 Supra('anim', 'transition', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcuts
 	var Manager = Supra.Manager,

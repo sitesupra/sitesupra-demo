@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.tabs', function(Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function Tabs (config) {
 		this.tabs = {};

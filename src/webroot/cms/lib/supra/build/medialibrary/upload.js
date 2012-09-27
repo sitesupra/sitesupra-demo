@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Plugin to add file upload functionality for MediaList
  */
 YUI.add('supra.medialibrary-upload', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcuts
 	var IO = Supra.IOUpload,
@@ -104,6 +103,14 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		'iframe_replace': {
 			value: null
 		},
+		
+		/**
+		 * Display type: all, images or files
+		 * @type {Number}
+		 */
+		'displayType': {
+			value: Supra.MediaLibraryList.DISPLAY_ALL
+		}
 	};
 	
 	Y.extend(Plugin, Y.Plugin.Base, {
@@ -138,11 +145,9 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 * Initialize plugin
 		 */
 		initializer: function () {
-			
 			this.subscribers = [];
 			
-			var container = this.get('host').get('contentBox'),
-				input = null,
+			var input = null,
 				node_id = null,
 				uri = null,
 				form = null,
@@ -151,9 +156,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			if (FILE_API_SUPPORTED) {
 				this.createInput();
 			} else {
-				/* Create form and iframe where form will be submitted to
-				 * For IE 
-				 */
+				// Create form and iframe where form will be submitted to For IE
 				var button = Supra.Manager.PageToolbar.getActionButton('mlupload');
 				if (button) {
 					this.createLegacyInput(button, false);
@@ -761,7 +764,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				}
 				
 				if (!evt.node) {
-					//If request was for replace and image is till opened then
+					//If request was for replace and image is still opened then
 					//reload image source
 					var item = this.get('host').getSelectedItem();
 					if (item && file_id == item.id) {

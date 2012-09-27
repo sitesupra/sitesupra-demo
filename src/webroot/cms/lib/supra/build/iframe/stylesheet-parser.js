@@ -1,9 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI().add("supra.iframe-stylesheet-parser", function (Y) {
-	
-	
+	//Invoke strict mode
+	"use strict";
 	
 	//Convert arrays to object, because object lookup is much faster
 	var toObject = function (arr) { var o={},i=0,ii=arr.length; for(;i<ii;i++) o[arr[i]]=true; return o; };

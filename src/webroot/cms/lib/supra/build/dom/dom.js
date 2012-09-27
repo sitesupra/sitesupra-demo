@@ -1,7 +1,7 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.dom', function(Y) {
+	//Invoke strict mode
+	"use strict";
+	
 	//If already defined, then exit
 	if (Y.DOM.removeFromDOM) return;
 	

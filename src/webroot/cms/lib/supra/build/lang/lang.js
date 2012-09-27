@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI().add("supra.lang", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//If already defined, then exit
 	if (Y.Lang.toArray) return;

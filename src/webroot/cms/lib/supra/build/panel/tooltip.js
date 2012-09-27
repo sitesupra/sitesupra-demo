@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.tooltip', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Panel class

@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 Supra('anim', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcut
 	var Manager = Supra.Manager,
@@ -170,9 +169,6 @@ Supra('anim', function (Y) {
 		 */
 		restoreVersion: function (version_id) {
 			var iframe = Manager.getAction('PageContent').iframe_handler;
-			
-			//Make sure there are no leftovers from previous JS by reloading iframe
-			iframe.get('doc').location = "about:blank";
 			
 			//Disable page preview
 			iframe.set('loading', true);

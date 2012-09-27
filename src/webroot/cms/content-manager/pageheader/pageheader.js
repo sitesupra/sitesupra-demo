@@ -1,12 +1,11 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Page header action:
  * title, language bar, version
  */
 Supra('supra.languagebar', function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcut
 	var Manager = Supra.Manager,
 		Action = Manager.Action,

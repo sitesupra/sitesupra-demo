@@ -1,6 +1,3 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Confirmation dialog
  * 
@@ -19,6 +16,8 @@
  * 		});
  */
 Supra('anim', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var DEFAULT_CONFIG = {
 		'message': '',

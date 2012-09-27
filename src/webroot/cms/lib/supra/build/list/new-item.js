@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI().add('supra.list-new-item', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcuts
 	

@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var Manager = Supra.Manager,
 		Action = Manager.Action;

@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.page-content-list', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcut
 	var Manager = Supra.Manager,

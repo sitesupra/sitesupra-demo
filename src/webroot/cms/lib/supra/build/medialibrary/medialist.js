@@ -1,11 +1,10 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * MediaLibraryList handles folder/file/image data loading and opening,
  * allows selecting files, folders and images
  */
 YUI.add('supra.medialibrary-list', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/*
 	 * Shortcuts

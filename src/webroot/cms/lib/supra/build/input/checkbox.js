@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add("supra.input-checkbox", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	
 	var TEMPLATE = '<div class="yui3-input-checkbox-bg" tabindex="0">\
