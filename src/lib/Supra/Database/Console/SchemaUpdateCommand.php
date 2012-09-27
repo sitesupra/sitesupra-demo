@@ -246,28 +246,5 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		
 		$output->writeln("<info>{$convertCount} tables were converted successfully</info>");
 	}
-	
-	/**
-	 * Asks Y/N question
-	 * @param OutputInterface $output
-	 * @param string $message
-	 * @return boolean
-	 */
-	protected function prompt($output, $message)
-	{
-		$dialog = $this->getHelper('dialog');
-
-		$answer = null;
-
-		while ( ! in_array($answer, array('Y', 'N', ''), true)) {
-			$answer = strtoupper($dialog->ask($output, $message));
-		}
-
-		if ($answer === 'Y') {
-			return true;
-		}
-
-		return false;
-	}
 
 }
