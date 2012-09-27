@@ -55,15 +55,16 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		$force = (true === $input->getOption('force'));
+		
 		// checking database collation
 		$wrongCollations = $this->getWrongCollations();
-		$this->outputWrongCollations($output, $wrongCollations);
-
+		$this->outputWrongCollations($output, $wrongCollations, $force);
+		
 		$output->writeln('Updating database schemas...');
 
 		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
 
-		$force = (true === $input->getOption('force'));
 		$dumpSql = (true === $input->getOption('dump-sql'));
 		$check = (true === $input->getOption('check'));
 		$updateRequired = false;
@@ -130,7 +131,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 * @param OutputInterface $output
 	 * @param type $wrongCollations 
 	 */
-	protected function outputWrongCollations(OutputInterface $output, $wrongCollations = array())
+	protected function outputWrongCollations(OutputInterface $output, $wrongCollations = array(), $force = false)
 	{
 		$utf8Recommended = 'Highly recommended to use utf8 collation.';
 		if ( ! empty($wrongCollations['database'])) {
@@ -149,6 +150,15 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			$collations = join(', ', $collations);
 
 			$output->writeln("<comment>Database tables:</comment>\n{$tables}\n<comment>has one of following collations:</comment>\n{$collations}\n<comment>{$utf8Recommended}</comment>");
+		
+			// Prompt for collation fix only if "--force" used
+			if ($force) {
+				$fixCollations = $this->prompt($output, '<question>Do you want to change collation of this tables automatically? [y/n]</question> ');
+
+				if ($fixCollations) {
+					$this->fixWrongCollations($output, $wrongCollations);
+				}
+			}
 		}
 	}
 
@@ -189,6 +199,72 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		}
 
 		return $output;
+	}
+	
+	/**
+	 * Attemps to change collation of tables and columns to utf8
+	 * 
+	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 * @param array $wrongCollations
+	 */
+	protected function fixWrongCollations(OutputInterface $output, array $wrongCollations)
+	{
+		$output->writeln('Updating tables collation to utf8...');
+		
+		$connection = $this->getHelper('db')->getConnection();
+		/* @var $connection \Doctrine\DBAL\Connection */
+		
+		$convertCount = 0;
+		
+		$connection->query('SET foreign_key_checks = 0')
+				->execute();
+		
+		foreach($wrongCollations['tables'] as $tableData) {
+				
+			$tableName = $tableData['table_name'];
+			
+			$stmt = $connection->prepare("ALTER TABLE {$tableName} CHARACTER SET = :charset, COLLATE = :collation");
+					
+			$stmt->bindValue(':charset', 'utf8');
+			$stmt->bindValue(':collation', 'utf8_general_ci');
+			$stmt->execute();
+
+			$stmt = $connection->prepare("ALTER TABLE {$tableName} CONVERT TO CHARACTER SET :charset COLLATE :collation");
+			
+			$stmt->bindValue(':charset', 'utf8');
+			$stmt->bindValue(':collation', 'utf8_general_ci');
+			$stmt->execute();
+
+			$convertCount++;
+		}
+		
+		$connection->query('SET foreign_key_checks = 1')
+				->execute();
+		
+		$output->writeln("<info>{$convertCount} tables were converted successfully</info>");
+	}
+	
+	/**
+	 * Asks Y/N question
+	 * @param OutputInterface $output
+	 * @param string $message
+	 * @return boolean
+	 */
+	protected function prompt($output, $message)
+	{
+		$dialog = $this->getHelper('dialog');
+
+		$answer = null;
+
+		while ( ! in_array($answer, array('Y', 'N', ''), true)) {
+			$answer = strtoupper($dialog->ask($output, $message));
+		}
+
+		if ($answer === 'Y') {
+			return true;
+		}
+
+		return false;
 	}
 
 }
