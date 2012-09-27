@@ -44,6 +44,11 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 							'check', null, InputOption::VALUE_NONE,
 							'Causes exception if schema is not up to date.'
 					),
+					
+					new InputOption(
+							'fix-collation', null, InputOption::VALUE_NONE,
+							'Causes attempt to fix collation of non utf8 tables'
+					),
 				));
 	}
 
@@ -54,19 +59,22 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 * @param OutputInterface $output 
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
-	{
-		$force = (true === $input->getOption('force'));
-		
+	{		
 		// checking database collation
 		$wrongCollations = $this->getWrongCollations();
-		$this->outputWrongCollations($output, $wrongCollations, $force);
+		
+		$forceFixCollation = (true === $input->getOption('fix-collation'));
+		$this->outputWrongCollations($output, $wrongCollations, $forceFixCollation);
 		
 		$output->writeln('Updating database schemas...');
 
 		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
 
+		$force = (true === $input->getOption('force'));
 		$dumpSql = (true === $input->getOption('dump-sql'));
 		$check = (true === $input->getOption('check'));
+	
+		
 		$updateRequired = false;
 
 		// Doctrine schema update
@@ -131,7 +139,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 * @param OutputInterface $output
 	 * @param type $wrongCollations 
 	 */
-	protected function outputWrongCollations(OutputInterface $output, $wrongCollations = array(), $force = false)
+	protected function outputWrongCollations(OutputInterface $output, $wrongCollations = array(), $forceFixCollation = false)
 	{
 		$utf8Recommended = 'Highly recommended to use utf8 collation.';
 		if ( ! empty($wrongCollations['database'])) {
@@ -151,13 +159,8 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 
 			$output->writeln("<comment>Database tables:</comment>\n{$tables}\n<comment>has one of following collations:</comment>\n{$collations}\n<comment>{$utf8Recommended}</comment>");
 		
-			// Prompt for collation fix only if "--force" used
-			if ($force) {
-				$fixCollations = $this->prompt($output, '<question>Do you want to change collation of this tables automatically? [y/n]</question> ');
-
-				if ($fixCollations) {
-					$this->fixWrongCollations($output, $wrongCollations);
-				}
+			if ($forceFixCollation) {
+				$this->fixWrongCollations($output, $wrongCollations);
 			}
 		}
 	}
