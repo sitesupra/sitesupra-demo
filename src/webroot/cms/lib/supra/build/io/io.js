@@ -25,7 +25,7 @@ YUI().add("supra.io", function (Y) {
 		cfg.on.complete = null;
 		cfg._data = cfg.data;
 		cfg._url = url;
-		cfg._then = cfg._then || [[/* Success */], [/* Failure */]];
+		cfg.deferred = cfg.deferred || new Supra.Deferred();
 		
 		//Add session id to data
 		if (!('data' in cfg) || !Y.Lang.isObject(cfg.data)) {
@@ -115,11 +115,8 @@ YUI().add("supra.io", function (Y) {
 		io._abort = io.abort;
 		io.abort = Supra.io.abort;
 		
-		//Deferred like
-		io.then = function (success, failure) {
-			if (typeof success === "function") io._then[0].push(success);
-			if (typeof failure === "function") io._then[1].push(failure);
-		};
+		// Apply promise functionality to io object
+		cfg.deferred.promise(io);
 		
 		return io;
 	};
@@ -297,10 +294,7 @@ YUI().add("supra.io", function (Y) {
 		//Call callbacks
 		var fn  = response.status ? cfg.on._success : cfg.on._failure,
 			ret = null,
-			
-			then = cfg._then[response.status ? 0 : 1],
-			i = 0,
-			ii = then.length;
+			deferred = cfg.deferred;
 		
 		if (Y.Lang.isFunction(cfg.on._complete)) {
 			cfg.on._complete.apply(cfg.context, [response.data, response.status]);
@@ -310,9 +304,11 @@ YUI().add("supra.io", function (Y) {
 			ret = fn.apply(cfg.context, [response.data, response.status]);
 		}
 		
-		//Deferred like callbacks
-		for (; i<ii; i++) {
-			then[i].apply(cfg.context, [response.data, response.status]);
+		//Deferred
+		if (response.status) {
+			deferred.resolveWith([response.data, response.status]);
+		} else {
+			deferred.rejectWith([response.data, response.status]);
 		}
 		
 		delete(cfg.permissions);
@@ -324,6 +320,7 @@ YUI().add("supra.io", function (Y) {
 		delete(cfg.on.failure);
 		delete(cfg.on._complete);
 		delete(cfg.on.complete);
+		delete(cfg.deferred);
 		
 		return ret;
 	};

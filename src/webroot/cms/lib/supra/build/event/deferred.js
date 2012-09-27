@@ -166,6 +166,9 @@ YUI.add('supra.deferred', function (Y) {
 					promise[exports[i]] = prepare(this[exports[i]], this);
 				}
 				
+				// For convinience promise has 'promise' method
+				promise.promise = function () { return this; };
+				
 				if (!dest) {
 					this._promise = promise;
 				}
@@ -300,6 +303,67 @@ YUI.add('supra.deferred', function (Y) {
 		state: function () {
 			return this._state;
 		}
+	};
+	
+	/**
+	 * Provides a way to execute callback functions on one or more Deferred objects.
+	 * 
+	 * If only one deferred object (or promise) is passed then returns its promise
+	 * 
+	 * If more than one is passed then returns new Deferred object which is resolved
+	 * when all Deferred objects are resolved or is rejected when any of them is rejected.
+	 * Returned Deferred object is resolved with all arguments from each object, eq.
+	 *     Supra.Deferred.when( Supra.io('a'), Supra.io('b') ).then(function (a_args, b_args) {
+	 * 	       alert(a_args[1]); // <- status
+	 *     })
+	 */
+	Deferred.when = function () {
+		var args = [].splice.call(arguments);
+		
+		// If first arugment is array then use it as deferred list
+		if (args.length === 1 && Y.Lang.isArray(args[0])) { 
+			args = args[0];
+		}
+		
+		// If there is only a single deferred object, then return its promise
+		if (args.length === 1) {
+			if (Y.Lang.isFunction(args[0].promise)) {
+				return args[0].promise();
+			}
+		} else {
+			var args = [],
+				count = args.length,
+				waiting = 0,
+				deferred = new Deferred();
+			
+			for (var i=0; i<count; i++) {
+				if (Y.Lang.isFunction(args[i].then)) {
+					waiting++;
+					(function (index, src) {
+						src.then(function () {
+							// On success update argument list and check if all has been resolved
+							args[index] = [].splice.call(arguments);
+							waiting--;
+							if (!waiting) deferred.resolveWith(args);
+						}, function () {
+							// On failure reject immediatelly
+							waiting--;
+							deferred.reject();
+						});
+					})(i, args[i]);
+				}
+			}
+			
+			if (!waiting) {
+				// No deferreds
+				deferred.resolve();
+			}
+			
+			return deferred;
+		}
+		
+		// Blank promise, which is resolved immediatelly
+		return (new Deferred()).resolve().promise();
 	};
 	
 	Supra.Deferred = Deferred;
