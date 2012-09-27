@@ -75,6 +75,7 @@
 				},
 				
 				'site': {
+					'portal': {% if siteTitle is defined and siteTitle %}true{% else %}false{% endif %},
 					'title': {% if siteTitle is defined %}'{{ siteTitle }}'{% else %}null{% endif %} //'www.videinfra.com'
 				},
 				

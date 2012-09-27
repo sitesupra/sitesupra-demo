@@ -1,0 +1,35 @@
+{
+    "status": 1,
+    "data": {
+        "visitors": [
+            {
+                "date": "11.02",
+                "visitors": 25002
+            },
+            {
+                "date": "12.02",
+                "visitors": 31235
+            },
+            {
+                "date": "13.02",
+                "visitors": 29322
+            },
+            {
+                "date": "14.02",
+                "visitors": 7233
+            },
+            {
+                "date": "15.02",
+                "visitors": 12055
+            },
+            {
+                "date": "16.02",
+                "visitors": 26533
+            },
+            {
+                "date": "17.02",
+                "visitors": 18423
+            }
+        ]
+    }
+}

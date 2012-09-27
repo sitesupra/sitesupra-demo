@@ -16,6 +16,21 @@
 			"widget"
 		]
 	});
+	Supra.addModule("dashboard.chart-hover-plugin", {
+		path: "chart-hover-plugin.js",
+		requires: [
+			"charts",
+			"plugin"
+		]
+	});
+	Supra.addModule("dashboard.visitors", {
+		path: "visitors.js",
+		requires: [
+			"widget",
+			"charts",
+			"dashboard.chart-hover-plugin"
+		]
+	});
 	Supra.addModule("dashboard.inbox", {
 		path: "inbox.js",
 		requires: [
@@ -56,6 +71,8 @@ Supra(
 	"dashboard.app-list",
 	"dashboard.app-favourites",
 	"dashboard.stats",
+	"dashboard.visitors",
+	"dashboard.chart-hover-plugin",
 	"dashboard.inbox",
 	"transition",
 	
@@ -136,6 +153,12 @@ function (Y) {
 				"srcNode": this.one("div.dashboard-referrers")
 			});
 			
+			if (Supra.data.get(["site", "portal"])) {
+				this.widgets.visitors = new Supra.Visitors({
+					"srcNode": this.one("div.dashboard-visitors")
+				});
+			}
+			
 			this.widgets.apps = new Supra.AppList({
 				"srcNode": this.one("div.dashboard-apps")
 			});
@@ -161,6 +184,10 @@ function (Y) {
 			this.widgets.inbox.render();
 			this.widgets.keywords.render();
 			this.widgets.referring.render();
+			
+			if (this.widgets.visitors) {
+				this.widgets.visitors.render();
+			}
 			
 			this.widgets.apps.render();
 			this.widgets.favourites.render();
@@ -217,7 +244,7 @@ function (Y) {
 			
 			this.loadInboxData();
 			this.loadApplicationData();
-			
+			this.loadVisitorsData();
 			this.loadStatisticsData();
 			
 			this.renderSiteInfo();
@@ -233,8 +260,12 @@ function (Y) {
 		 * @private
 		 */
 		loadStatisticsData: function () {
-			//@TODO Replace with real data, dummy data per #5323 request
-			var uri = "../stats/stats"; // "dev/stats";
+			if (Supra.data.get(["site", "portal"])) {
+				//@TODO Replace with real data, dummy data per #5323 request
+				var uri = "dev/stats";
+			} else {
+				var uri = "../stats/stats";
+			}
 			
 			Supra.io(this.getDataPath(uri), function (data, status) {
 				if (status && data) {
@@ -245,13 +276,35 @@ function (Y) {
 		},
 		
 		/**
+		 * Load and set visitors data
+		 * 
+		 * @private
+		 */
+		loadVisitorsData: function () {
+			if (Supra.data.get(["site", "portal"])) {
+				//@TODO Replace with real data, dummy data per #5323 request
+				var uri = "dev/visitors";
+				
+				Supra.io(this.getDataPath(uri), function (data, status) {
+					if (status && data) {
+						this.widgets.visitors.set("data", data);
+					}
+				}, this);
+			}
+		},
+		
+		/**
 		 * Load and set inbox data
 		 * 
 		 * @private
 		 */
 		loadInboxData: function () {
-			//@TODO Replace with real data, dummy data per #5323 request
-			var uri = "../inbox/inbox"; // "dev/inbox";
+			if (Supra.data.get(["site", "portal"])) {
+				//@TODO Replace with real data, dummy data per #5323 request
+				var uri = "dev/inbox";
+			} else {
+				var uri = "../inbox/inbox";
+			}
 			
 			Supra.io(this.getDataPath(uri), function (data, status) {
 				if (status && data) {
