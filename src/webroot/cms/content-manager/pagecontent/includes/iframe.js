@@ -228,6 +228,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			if (doc) {
 				//Remove all listeners
 				Y.one(doc).purge(true);
+				doc.location = "about:blank";
 			}
 		},
 		
