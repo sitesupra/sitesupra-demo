@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI().add('supra.datagrid-new-item', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Data grid new item

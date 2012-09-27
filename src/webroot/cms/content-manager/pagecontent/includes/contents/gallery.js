@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.page-content-gallery', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/*
 	 * Shortcuts

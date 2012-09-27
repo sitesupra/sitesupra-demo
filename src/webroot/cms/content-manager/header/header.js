@@ -1,11 +1,10 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Header action, app dock
  */
 Supra('supra.header', function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	//Shortcut
 	var Action = Supra.Manager.Action;
 	

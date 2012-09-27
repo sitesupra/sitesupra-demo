@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * MediaLibraryExtendedList adds wider layout, folder creating, folder renaming, sorting, image/file editing
  */
 YUI.add('supra.medialibrary-list-extended', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/*
 	 * Shortcuts

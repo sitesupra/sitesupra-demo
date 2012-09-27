@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.header', function(Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Add application configuration to Intl for templates
 	Supra.Intl.add({'application': Supra.data.get('application')});

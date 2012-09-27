@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.intl', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var Intl = Supra.Intl = {
 		

@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.template', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Returns template from ID or CSS selector

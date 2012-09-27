@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.input-string', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);

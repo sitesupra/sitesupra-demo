@@ -1,6 +1,3 @@
-//Invoke strict mode
-"use strict";
-
 //Add module group
 Supra.setModuleGroupPath('linkmanager', Supra.Manager.Loader.getActionFolder('LinkManager') + 'modules/');
 
@@ -28,6 +25,8 @@ Supra.addModule('linkmanager.sitemap-linkmanager-node', {
  *   hideLinkControls - link controls will be hidden, default is false
  */
 Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 'supra.medialibrary', function (Y) {
+		//Invoke strict mode
+	"use strict";
 	
 	//Shortcuts
 	var Manager = Supra.Manager,

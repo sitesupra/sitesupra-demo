@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.button-group', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function ButtonGroup (config) {
 		ButtonGroup.superclass.constructor.apply(this, arguments);

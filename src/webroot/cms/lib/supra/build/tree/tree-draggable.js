@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.tree-draggable', function(Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function TreeDraggable (config) {
 		TreeDraggable.superclass.constructor.apply(this, arguments);

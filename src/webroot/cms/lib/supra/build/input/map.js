@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.input-map', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Map manager
 	var MapManager = Supra.Input.MapManager = {

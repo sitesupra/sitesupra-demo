@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /*
  * Add color parsing and formatting
  */
 YUI.add('supra.datatype-color', function(Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var Color = Y.namespace("DataType.Color");
 	

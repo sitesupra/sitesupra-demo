@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 /**
  * Create and show/hide specific buttons when required
  */
 Supra('anim', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var BUTTON_DEFAULTS = {
 		'cancel':	{'label': Supra.Intl.get(['buttons', 'cancel'])},

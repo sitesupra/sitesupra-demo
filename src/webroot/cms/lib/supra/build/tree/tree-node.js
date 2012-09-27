@@ -1,7 +1,7 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.tree-node', function(Y) {
+	//Invoke strict mode
+	"use strict";
+	
 	var C = Y.ClassNameManager.getClassName;
 	
 	function TreeNode (config) {

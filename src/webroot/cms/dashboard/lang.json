@@ -20,7 +20,11 @@
 			},
 			
 			"visitors": {
-				"title": "Visitors"
+				"title": "Visitors",
+				"visits": "Visits",
+				"unique_visitors": "Unique Visitors",
+				"pageviews": "Pageviews",
+				"pages_per_visit": "Pages/Visit"
 			},
 			
 			"referrers": {

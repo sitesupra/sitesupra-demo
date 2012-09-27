@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-	
 YUI.add("supra.input-block-background", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	// Shortcuts
 	var Manager = Supra.Manager;

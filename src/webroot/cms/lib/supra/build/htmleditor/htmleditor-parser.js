@@ -1,10 +1,9 @@
-//Invoke strict mode
-"use strict";
-
 YUI().add('supra.htmleditor-parser', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
-	/* Tag white list, all other tags will be removed */
-	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', 'font', '_span'];
+	/* Tag white list, all other tags will be removed. <font> tag is added if "fonts" plugin is enabled */
+	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span'];
 	
 	/* List of inline elements */
 	Supra.HTMLEditor.ELEMENTS_INLINE = {'b': 'b', 'i': 'i', 'span': 'span', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong': 'strong', 's': 's', 'strike': 'strike', 'a': 'a', 'u': 'u', 'img': 'img', 'br': 'br', 'q': 'q', 'big': 'big', 'mark': 'mark', 'rp': 'rp', 'rt': 'rt', 'ruby': 'ruby', 'summary': 'summary', 'time': 'time'};
@@ -191,7 +190,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				html = html.replace(/<br\s*\/?>\s*(<\/a[^>]*>)/gi, ' $1<br />');
 				
 				//Remove tags, which are not white-listed (SPAN is also removed)
-				html = this.stripTags(html, Supra.HTMLEditor.WHITE_LIST_TAGS);
+				var white_list_tags = Supra.HTMLEditor.WHITE_LIST_TAGS;
+				if (this.getPlugin("fonts")) {
+					white_list_tags.push("font")
+				}
+				html = this.stripTags(html, white_list_tags);
 				
 				//Convert <_ into <
 				html = html.replace(/<(\/?)_/g, '<$1');

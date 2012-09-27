@@ -1,5 +1,7 @@
 Supra("supra.input", "cookie", function (Y) {
-
+	//Invoke strict mode
+	"use strict";
+	
 	var COOKIE_CHANGE_CHECK_INTERVAL = 3000;
 
 	//Shortcut

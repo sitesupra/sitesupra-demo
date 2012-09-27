@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-upload', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	//Shortcuts
 	var Manager = Supra.Manager,

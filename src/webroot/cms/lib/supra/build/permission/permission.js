@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add("supra.permission", function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	var REQUEST_URI = "/check-permissions";
 	

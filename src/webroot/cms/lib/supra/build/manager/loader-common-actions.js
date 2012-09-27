@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.manager-loader-actions', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	/**
 	 * Set common action base paths

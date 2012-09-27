@@ -1,7 +1,6 @@
-//Invoke strict mode
-"use strict";
-
 YUI.add('supra.tree-plugin-expand-history', function (Y) {
+	//Invoke strict mode
+	"use strict";
 	
 	function ExpandHistoryPlugin (config) {
 		ExpandHistoryPlugin.superclass.constructor.apply(this, arguments);
