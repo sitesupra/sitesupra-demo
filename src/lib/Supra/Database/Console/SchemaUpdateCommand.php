@@ -44,6 +44,11 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 							'check', null, InputOption::VALUE_NONE,
 							'Causes exception if schema is not up to date.'
 					),
+					
+					new InputOption(
+							'fix-collation', null, InputOption::VALUE_NONE,
+							'Causes attempt to fix collation of non utf8 tables'
+					),
 				));
 	}
 
@@ -54,11 +59,13 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 * @param OutputInterface $output 
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
-	{
+	{		
 		// checking database collation
 		$wrongCollations = $this->getWrongCollations();
-		$this->outputWrongCollations($output, $wrongCollations);
-
+		
+		$forceFixCollation = (true === $input->getOption('fix-collation'));
+		$this->outputWrongCollations($output, $wrongCollations, $forceFixCollation);
+		
 		$output->writeln('Updating database schemas...');
 
 		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
@@ -66,6 +73,8 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		$force = (true === $input->getOption('force'));
 		$dumpSql = (true === $input->getOption('dump-sql'));
 		$check = (true === $input->getOption('check'));
+	
+		
 		$updateRequired = false;
 
 		// Doctrine schema update
@@ -130,7 +139,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 * @param OutputInterface $output
 	 * @param type $wrongCollations 
 	 */
-	protected function outputWrongCollations(OutputInterface $output, $wrongCollations = array())
+	protected function outputWrongCollations(OutputInterface $output, $wrongCollations = array(), $forceFixCollation = false)
 	{
 		$utf8Recommended = 'Highly recommended to use utf8 collation.';
 		if ( ! empty($wrongCollations['database'])) {
@@ -149,6 +158,10 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			$collations = join(', ', $collations);
 
 			$output->writeln("<comment>Database tables:</comment>\n{$tables}\n<comment>has one of following collations:</comment>\n{$collations}\n<comment>{$utf8Recommended}</comment>");
+		
+			if ($forceFixCollation) {
+				$this->fixWrongCollations($output, $wrongCollations);
+			}
 		}
 	}
 
@@ -189,6 +202,49 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 		}
 
 		return $output;
+	}
+	
+	/**
+	 * Attemps to change collation of tables and columns to utf8
+	 * 
+	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 * @param array $wrongCollations
+	 */
+	protected function fixWrongCollations(OutputInterface $output, array $wrongCollations)
+	{
+		$output->writeln('Updating tables collation to utf8...');
+		
+		$connection = $this->getHelper('db')->getConnection();
+		/* @var $connection \Doctrine\DBAL\Connection */
+		
+		$convertCount = 0;
+		
+		$connection->query('SET foreign_key_checks = 0')
+				->execute();
+		
+		foreach($wrongCollations['tables'] as $tableData) {
+				
+			$tableName = $tableData['table_name'];
+			
+			$stmt = $connection->prepare("ALTER TABLE {$tableName} CHARACTER SET = :charset, COLLATE = :collation");
+					
+			$stmt->bindValue(':charset', 'utf8');
+			$stmt->bindValue(':collation', 'utf8_general_ci');
+			$stmt->execute();
+
+			$stmt = $connection->prepare("ALTER TABLE {$tableName} CONVERT TO CHARACTER SET :charset COLLATE :collation");
+			
+			$stmt->bindValue(':charset', 'utf8');
+			$stmt->bindValue(':collation', 'utf8_general_ci');
+			$stmt->execute();
+
+			$convertCount++;
+		}
+		
+		$connection->query('SET foreign_key_checks = 1')
+				->execute();
+		
+		$output->writeln("<info>{$convertCount} tables were converted successfully</info>");
 	}
 
 }
