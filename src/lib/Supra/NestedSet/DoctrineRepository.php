@@ -102,7 +102,16 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		$this->className = $className;
 	}
-
+	
+	/**
+	 * Get quoted table name
+	 * @return string
+	 */
+	public function getTableName()
+	{
+		return $this->tableName;
+	}
+	
 	/**
 	 * Return the current parameter index and increase it
 	 * @return int

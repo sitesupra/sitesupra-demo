@@ -184,6 +184,9 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$publicStatus = $folder->isPublic();
 			$dir->setPublic($publicStatus);
 
+			// Flush before nested set UPDATE
+			$this->entityManager->flush();
+			
 			$folder->addChild($dir);
 		}
 
@@ -278,11 +281,16 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
 		}
 
+		if ($file->hasChildren()) {
+			throw new CmsException(null, "Cannot delete not empty folders");
+		}
+
 		// try to delete
 		try {
 			$this->fileStorage->remove($file);
 		} catch (Exception\NotEmptyException $e) {
-			throw new CmsException('medialibrary.file_remove.can_not_delete_not_empty_directory', $e->getMessage());
+			// Should not happen
+			throw new CmsException(null, "Cannot delete not empty folders");
 		}
 
 		$this->writeAuditLog('%item% deleted', $file);
@@ -336,17 +344,12 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 			$file = $_FILES['file'];
 
-			$this->entityManager->beginTransaction();
-
 			try {
 				// checking for replace action
 				if ( ! $this->emptyRequestParameter('file_id')) {
 					$fileToReplace = $this->getFile('file_id');
 					$this->fileStorage->replaceFile($fileToReplace, $file);
 
-					// Commit the changes
-					$this->entityManager->commit();
-					
 					$this->writeAuditLog('%item% replaced', $fileToReplace);
 
 					$output = $this->imageAndFileOutput($fileToReplace);
@@ -386,6 +389,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					$publicStatus = $folder->isPublic();
 					$fileEntity->setPublic($publicStatus);
 
+					$level = $fileEntity->getLevel();
+
+					// Flush before nested set UPDATE
+					$this->entityManager->flush();
+					
 					$folder->addChild($fileEntity);
 				}
 
@@ -410,6 +418,9 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 							$publicStatus = $folder->isPublic();
 							$fileEntity->setPublic($publicStatus);
 
+							// Flush before nested set UPDATE
+							$this->entityManager->flush();
+
 							$folder->addChild($fileEntity);
 						}
 
@@ -432,11 +443,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 				$this->entityManager->flush();
 			} catch (\Exception $e) {
-				$this->entityManager->rollback();
+
+				// Do nothing..
+
 				throw $e;
 			}
-
-			$this->entityManager->commit();
 
 			// genrating output
 			$output = $this->imageAndFileOutput($fileEntity);
