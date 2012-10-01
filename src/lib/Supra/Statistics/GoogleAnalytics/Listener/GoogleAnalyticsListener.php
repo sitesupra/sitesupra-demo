@@ -30,7 +30,7 @@ class GoogleAnalyticsListener
 		$serverHttpHostAsDomainName = $iniConfiguration->getValue($sectionName, 'server_http_host_as_domain_name', false);
 		$systemHostAsDomainName = $iniConfiguration->getValue($sectionName, 'system_host_as_domain_name', false);
 
-		if ($serverHostAsDomainName) {
+		if ($serverHttpHostAsDomainName == true) {
 
 			list($domainName, $port) = explode(':', $eventArgs->request->getServerValue('HTTP_HOST'));
 		} else if ($systemHostAsDomainName == true) {
