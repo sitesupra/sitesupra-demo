@@ -6,6 +6,7 @@ use Supra\Session\Exception;
 
 class PhpSessionHandler extends HandlerAbstraction
 {
+
 	/**
 	 * The name of PHP session opened
 	 * @var string
@@ -21,6 +22,7 @@ class PhpSessionHandler extends HandlerAbstraction
 	/**
 	 * Session expiration time in seconds
 	 */
+
 	const SESSION_EXPIRATION_TIME = 0;
 
 	/**
@@ -36,7 +38,7 @@ class PhpSessionHandler extends HandlerAbstraction
 			} else {
 				session_name($this->sessionName);
 			}
-			
+
 			session_set_cookie_params(self::SESSION_EXPIRATION_TIME);
 
 			$success = false;
@@ -71,6 +73,9 @@ class PhpSessionHandler extends HandlerAbstraction
 		self::$phpSessionOpened = $this->sessionName;
 	}
 
+	/**
+	 * @return string
+	 */
 	protected function findSessionId()
 	{
 //		//TODO: fixme
@@ -86,6 +91,9 @@ class PhpSessionHandler extends HandlerAbstraction
 		return $this->sessionId;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	protected function readSessionData()
 	{
 //		session_write_close();
@@ -142,6 +150,9 @@ class PhpSessionHandler extends HandlerAbstraction
 		return $sessionData;
 	}
 
+	/**
+	 * @throws Exception\CouldNotStartSession
+	 */
 	public function start()
 	{
 		if (self::$phpSessionOpened !== null) {
@@ -157,7 +168,7 @@ class PhpSessionHandler extends HandlerAbstraction
 	/**
 	 * Closes session, writes to storage.
 	 */
-	public function close() 
+	public function close()
 	{
 		if ($this->sessionStatus !== self::SESSION_STARTED) {
 			return;
@@ -204,6 +215,9 @@ class PhpSessionHandler extends HandlerAbstraction
 		self::$phpSessionOpened = null;
 	}
 
+	/**
+	 * 
+	 */
 	public function destroy()
 	{
 		if ($this->sessionStatus !== self::SESSION_STARTED) {

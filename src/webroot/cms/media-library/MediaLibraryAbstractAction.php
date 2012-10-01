@@ -22,7 +22,7 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 	protected $fileStorage;
 	
 	/**
-	 * @var EntityManager
+	 * @var \Doctrine\ORM\EntityManager
 	 */
 	protected $entityManager;
 
@@ -57,7 +57,7 @@ abstract class MediaLibraryAbstractAction extends CmsAction
 	}
 	
 	/**
-	 * @return Entity\Abstraction\File
+	 * @return File
 	 */
 	protected function getEntity($key = 'id')
 	{

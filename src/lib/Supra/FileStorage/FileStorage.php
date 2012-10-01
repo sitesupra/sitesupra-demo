@@ -1303,7 +1303,7 @@ class FileStorage
 		if ($entity instanceof Entity\Folder) {
 			$hasChildren = $entity->hasChildren();
 			if ($hasChildren) {
-				throw new Exception\RuntimeException('You can remove only empty folders');
+				throw new Exception\NotEmptyException('You can remove only empty folders');
 			}
 			$this->removeFolder($entity);
 		} elseif ($entity instanceof Entity\File) {

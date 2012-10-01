@@ -31,7 +31,7 @@ class DoctrineNode extends NodeAbstraction
 	{
 		$this->sourceRepository = $repository;
 	}
-	
+
 	/**
 	 * Pass the doctrine entity the nested set node belongs to
 	 * @param NodeInterface $entity
@@ -98,6 +98,46 @@ class DoctrineNode extends NodeAbstraction
 	{
 		$this->repository->free($entity);
 		$this->repository = null;
+	}
+
+	/**
+	 * @param NodeInterface $relativeNode
+	 * @throws \RuntimeException
+	 */
+	protected function lock(NodeInterface $relativeNode = null)
+	{
+		parent::lock($relativeNode);
+
+		$em = $this->repository->getEntityManager();
+
+		$tableName = $this->repository->getTableName();
+		$result = $em->getConnection()->fetchColumn("SELECT GET_LOCK(?, 2)", array($tableName));
+
+		if ($result != 1) {
+			throw new \RuntimeException("Could not lock the nested set $tableName for batch operations");
+		}
+
+		$em->refresh($this->masterNode);
+		$this->refresh();
+
+		// FIXME: don't know if this might happen..
+		if ($relativeNode instanceof NodeAbstraction) {
+			$relativeNode = $relativeNode->getMasterNode();
+		}
+		
+		if ($relativeNode instanceof EntityNodeInterface) {
+			$em->refresh($relativeNode);
+			$relativeNode->getNestedSetNode()->refresh();
+		}
+	}
+
+	protected function unlock()
+	{
+		parent::unlock();
+
+		$em = $this->repository->getEntityManager();
+		$tableName = $this->repository->getTableName();
+		$em->getConnection()->fetchColumn("SELECT RELEASE_LOCK(?)", array($tableName));
 	}
 
 }

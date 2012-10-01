@@ -66,15 +66,24 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function belongsTo(NodeInterface $node)
 	{
-		$this->left = $node->getLeftValue();
-		$this->right = $node->getRightValue();
-		$this->level = $node->getLevel();
-		$this->title = $node->__toString();
 		$this->masterNode = $node;
+		$this->refresh();
 		
 		if ($node instanceof NodeLeafInterface) {
 			$this->setLeafInterface(true);
 		}
+	}
+
+	/**
+	 * Refresh indeces
+	 */
+	public function refresh()
+	{
+		$node = $this->masterNode;
+		$this->left = $node->getLeftValue();
+		$this->right = $node->getRightValue();
+		$this->level = $node->getLevel();
+		$this->title = $node->__toString();
 	}
 	
 	/**
@@ -239,6 +248,22 @@ abstract class NodeAbstraction implements NodeInterface
 	}
 
 	/**
+	 * @param NodeAbstraction $relativeNode
+	 */
+	protected function lock($relativeNode = null)
+	{
+		
+	}
+
+	/**
+	 * 
+	 */
+	protected function unlock()
+	{
+		
+	}
+
+	/**
 	 * Add child node for the current node
 	 * @param NodeInterface $child
 	 * @return NodeAbstraction
@@ -261,6 +286,8 @@ abstract class NodeAbstraction implements NodeInterface
 			return;
 		}
 		$this->deleted = true;
+
+		$this->lock();
 		
 		$left = $this->getLeftValue();
 		$spaceUsed = $this->getIntervalSize() + 1;
@@ -268,6 +295,8 @@ abstract class NodeAbstraction implements NodeInterface
 
 		// Free the unused space
 		$this->repository->truncate($left, $spaceUsed);
+
+		$this->unlock();
 	}
 
 	/**
@@ -615,9 +644,13 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function moveAsNextSiblingOf(NodeInterface $afterNode)
 	{
+		$this->lock($afterNode);
+
 		$pos = $afterNode->getRightValue() + 1;
 		$level = $afterNode->getLevel();
 		$this->move($pos, $level);
+
+		$this->unlock();
 		
 		return $this;
 	}
@@ -630,9 +663,13 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function moveAsPrevSiblingOf(NodeInterface $beforeNode)
 	{
+		$this->lock($beforeNode);
+
 		$pos = $beforeNode->getLeftValue();
 		$level = $beforeNode->getLevel();
 		$this->move($pos, $level);
+
+		$this->unlock();
 		
 		return $this;
 	}
@@ -675,10 +712,14 @@ abstract class NodeAbstraction implements NodeInterface
 	public function moveAsFirstChildOf(NodeInterface $parentNode)
 	{
 		$this->validateAddingChildren($parentNode);
+
+		$this->lock($parentNode);
 		
 		$pos = $parentNode->getLeftValue() + 1;
 		$level = $parentNode->getLevel() + 1;
 		$this->move($pos, $level);
+
+		$this->unlock();
 		
 		return $this;
 	}
@@ -692,10 +733,14 @@ abstract class NodeAbstraction implements NodeInterface
 	public function moveAsLastChildOf(NodeInterface $parentNode)
 	{
 		$this->validateAddingChildren($parentNode);
+
+		$this->lock($parentNode);
 		
 		$pos = $parentNode->getRightValue();
 		$level = $parentNode->getLevel() + 1;
 		$this->move($pos, $level);
+
+		$this->unlock();
 		
 		return $this;
 	}
