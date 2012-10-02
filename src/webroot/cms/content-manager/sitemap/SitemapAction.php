@@ -173,6 +173,9 @@ class SitemapAction extends PageManagerAction
 			} else {
 				$levels = 1;
 			}
+		} else {
+			// Enable when JS part developed
+//			$levels = 2;
 		}
 
 		// Is this used now?
