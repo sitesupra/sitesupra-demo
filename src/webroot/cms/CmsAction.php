@@ -73,25 +73,36 @@ abstract class CmsAction extends SimpleController
 
 		// Handle localized exceptions
 		try {
-			$request = $this->getRequest();
 
-			$response = $this->getResponse();
-			$localeId = $this->getLocale()->getId();
+			try {
+				$response = $this->getResponse();
+				$localeId = $this->getLocale()->getId();
 
-			if ($response instanceof TwigResponse) {
+				if ($response instanceof TwigResponse) {
 
-				$ini = ObjectRepository::getIniConfigurationLoader($this);
+					$ini = ObjectRepository::getIniConfigurationLoader($this);
 
-				if ($ini->getValue('system', 'supraportal_site', false)) {
-					$response->assign('siteTitle', $ini->getValue('system', 'host'));
+					if ($ini->getValue('system', 'supraportal_site', false)) {
+						$response->assign('siteTitle', $ini->getValue('system', 'host'));
+					}
+
+					$response->assign('currentLocale', $localeId);
 				}
 
-				$response->assign('currentLocale', $localeId);
+				$this->processCheckPermissions();
+
+				parent::execute();
+			} catch (\Exception $e) {
+				try {
+					$this->finalize($e);
+				} catch (\Exception $e) {
+					$this->log->error("CMS action finalize method raised exception ", $e->__toString());
+				}
+
+				throw $e;
 			}
 
-			$this->processCheckPermissions();
-
-			parent::execute();
+			$this->finalize();
 		} catch (StopExecutionException $exception) {
 			// Do nothing
 			$this->log->debug("CMS action excection stopped");
@@ -152,6 +163,14 @@ abstract class CmsAction extends SimpleController
 			// Write the issue inside the log
 			$this->log->error('#' . $eIdentifier . ' ' . $e, "\nRequest:\n", $debugRequest);
 		}
+	}
+
+	/**
+	 * Finilize the request
+	 */
+	protected function finalize(\Exception $e = null)
+	{
+		
 	}
 
 	/**

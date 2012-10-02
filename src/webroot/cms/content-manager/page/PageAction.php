@@ -508,7 +508,7 @@ class PageAction extends PageManagerAction
 	public function saveAction()
 	{
 		$this->isPostRequest();
-		$this->checkLock(false);
+		$this->checkLock();
 		$pageData = $this->getPageLocalization();
 
 		$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);

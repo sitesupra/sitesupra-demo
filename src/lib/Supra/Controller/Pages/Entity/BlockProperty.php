@@ -115,6 +115,14 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	}
 
 	/**
+	 * @return Localization
+	 */
+	public function getOriginalLocalization()
+	{
+		return $this->localization;
+	}
+
+	/**
 	 * @param Localization $data
 	 */
 	public function setLocalization(Localization $data)
