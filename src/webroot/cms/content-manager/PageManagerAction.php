@@ -69,6 +69,11 @@ abstract class PageManagerAction extends CmsAction
 	private $pageController;
 
 	/**
+	 * @var boolean
+	 */
+	private $lockTransactionOpened = false;
+
+	/**
 	 * Assign entity manager
 	 */
 	public function __construct()
@@ -77,6 +82,22 @@ abstract class PageManagerAction extends CmsAction
 
 		// Will fetch connection for drafts
 		$this->entityManager = ObjectRepository::getEntityManager($this);
+	}
+
+	/**
+	 * @param \Exception $e
+	 */
+	protected function finalize(\Exception $e = null)
+	{
+		if ($this->lockTransactionOpened
+				&& $this->entityManager->isOpen()
+				&& $this->entityManager->getConnection()->isTransactionActive()) {
+
+			$this->entityManager->commit();
+			$this->lockTransactionOpened = false;
+		}
+
+		parent::finalize($e);
 	}
 
 	/**
@@ -820,6 +841,8 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function restoreLocalizationVersion()
 	{
+		$this->checkLock();
+
 		$localizationId = $this->getRequestParameter('page_id');
 		$revisionId = $this->getRequestParameter('version_id');
 
@@ -868,13 +891,28 @@ abstract class PageManagerAction extends CmsAction
 			if (($pageLock->getUserId() != $userId)) {
 				throw new ObjectLockedException('page.error.page_locked', 'Page is locked by another user');
 			} else {
+				if ( ! $this->lockTransactionOpened) {
+					$this->entityManager->beginTransaction();
+					$this->lockTransactionOpened = true;
+				}
+				$this->entityManager->lock($pageLock, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
+
 				$pageLock->setModificationTime(new \DateTime('now'));
 				$this->entityManager->flush();
 			}
 		} elseif ($createLockOnMiss) {
+			
+			if ( ! $this->lockTransactionOpened) {
+				$this->entityManager->beginTransaction();
+				$this->lockTransactionOpened = true;
+			}
+
 			// Creates lock if doesn't exist
-			$this->createLock($pageData, $userId);
+			$pageLock = $this->createLock($pageData, $userId);
+			$this->entityManager->lock($pageLock, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
 		}
+
+		return $pageLock;
 	}
 
 	/**
@@ -925,7 +963,7 @@ abstract class PageManagerAction extends CmsAction
 		$force = (bool) $this->getRequestParameter('force');
 
 		try {
-			$this->checkLock(false);
+			$pageLock = $this->checkLock(false);
 		} catch (ObjectLockedException $e) {
 			if ( ! $force || ! $allowForced) {
 
@@ -954,7 +992,9 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 
-		$this->createLock($pageData, $userId);
+		if (empty($pageLock)) {
+			$this->createLock($pageData, $userId);
+		}
 
 		$this->getResponse()->setResponseData(true);
 	}
@@ -974,6 +1014,8 @@ abstract class PageManagerAction extends CmsAction
 		$pageLock->setPageRevision($revisionId);
 		$pageData->setLock($pageLock);
 		$this->entityManager->flush();
+
+		return $pageLock;
 	}
 
 	/**
