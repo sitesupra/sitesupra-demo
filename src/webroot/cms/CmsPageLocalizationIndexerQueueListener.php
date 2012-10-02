@@ -36,7 +36,7 @@ class CmsPageLocalizationIndexerQueueListener
 		// Index only pages, not templates
 		if ($localization instanceof PageLocalization) {
 			$indexerQueue = new PageLocalizationIndexerQueue(PageController::SCHEMA_PUBLIC);
-			$indexerQueue->add($eventArgs->localization);
+			$indexerQueue->add($localization);
 		}
 	}
 
@@ -56,32 +56,10 @@ class CmsPageLocalizationIndexerQueueListener
 
 		$localization = $eventArgs->localization;
 
-		// We care only about pages, not templates.
+		// Index only pages, not templates
 		if ($localization instanceof PageLocalization) {
-
-			$findRequest = new PageLocalizationFindRequest();
-
-			$findRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
-			$findRequest->setPageLocalizationId($localization->getId());
-
-			$searchService = new SearchService();
-
-			$resultSet = $searchService->processRequest($findRequest);
-
-			$items = $resultSet->getItems();
-
-			foreach ($items as $item) {
-
-				if($item instanceof PageLocalizationSearchResultItem) {
-
-					if ($item->getPageLocalizationId() == $localization->getId()) {
-
-						$indexerService = new IndexerService();
-
-						$indexerService->removeFromIndex($item->getUniqueId());
-					}
-				}
-			}
+			$indexerQueue = new PageLocalizationIndexerQueue(PageController::SCHEMA_PUBLIC);
+			$indexerQueue->addRemoval($localization);
 		}
 	}
 
