@@ -742,7 +742,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	static function getPreviewFilenameForTypeAndLocalizationAndRevision($localizationType, $localizationId, $revisionId)
 	{
 		$ini = ObjectRepository::getIniConfigurationLoader(get_called_class());
-		$webrootPath = $ini->getValue('system', 'site_assets_external_path', SUPRA_WEBROOT_PATH);
+		$webrootPath = $ini->getValue('system', 'site_assets_external_path', SUPRA_WEBROOT_PATH . 'assets/');
 
 		$previewFilename = join(DIRECTORY_SEPARATOR, array(
 			$webrootPath,
