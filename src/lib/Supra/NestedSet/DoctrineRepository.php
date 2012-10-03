@@ -54,6 +54,8 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	private $parameterOffset = 0;
 
+	private $locked = false;
+
 	/**
 	 * Constructor
 	 * @param EntityManager $em
@@ -67,6 +69,47 @@ class DoctrineRepository extends RepositoryAbstraction
 		$this->arrayHelper = new DoctrineRepositoryArrayHelper($em);
 		$platform = $em->getConnection()->getDatabasePlatform();
 		$this->tableName = $class->getQuotedTableName($platform);
+	}
+
+	/**
+	 * @param NodeInterface $relativeNode
+	 * @throws \RuntimeException
+	 */
+	public function lock()
+	{
+		$em = $this->entityManager;
+
+		$tableName = $this->tableName;
+		$result = $em->getConnection()->fetchColumn("SELECT GET_LOCK(?, 10)", array($tableName));
+
+		if ($result != 1) {
+			throw new \RuntimeException("Could not lock the nested set $tableName for batch operations");
+		}
+
+		$this->locked = true;
+
+		// Do we need to refresh anything?
+//		$em->refresh($this->masterNode);
+//		$this->refresh();
+
+//		// FIXME: don't know if this might happen..
+//		if ($relativeNode instanceof NodeAbstraction) {
+//			$relativeNode = $relativeNode->getMasterNode();
+//		}
+//
+//		if ($relativeNode instanceof EntityNodeInterface) {
+//			$em->refresh($relativeNode);
+//			$relativeNode->getNestedSetNode()->refresh();
+//		}
+	}
+
+	public function unlock()
+	{
+		$em = $this->entityManager;
+		$tableName = $this->tableName;
+		$em->getConnection()->fetchColumn("SELECT RELEASE_LOCK(?)", array($tableName));
+
+		$this->locked = false;
 	}
 
 	/**
@@ -127,6 +170,10 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	protected function getMax()
 	{
+		if ( ! $this->locked) {
+			\Log::info('Should lock before changes');
+		}
+
 		$dql = "SELECT MAX(e.right) FROM {$this->className} e";
 		$dql .= $this->getAdditionalCondition('WHERE');
 		$query = $this->entityManager
@@ -165,6 +212,10 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function truncate($offset, $size)
 	{
+		if ( ! $this->locked) {
+			\Log::info('Should lock before changes');
+		}
+
 		$size = (int)$size;
 		$offset = (int)$offset;
 
@@ -190,6 +241,10 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function move(Node\NodeInterface $node, $pos, $levelDiff, $undoMove = false)
 	{
+		if ( ! $this->locked) {
+			\Log::info('Should lock before changes');
+		}
+
 		$className = $this->className;
 		$arrayHelper = $this->arrayHelper;
 		$self = $this;
@@ -280,6 +335,10 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function delete(Node\NodeInterface $node)
 	{
+		if ( ! $this->locked) {
+			\Log::info('Should lock before changes');
+		}
+
 		if ( ! $node instanceof Node\DoctrineNode) {
 			throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
 		}

@@ -248,22 +248,6 @@ abstract class NodeAbstraction implements NodeInterface
 	}
 
 	/**
-	 * @param NodeAbstraction $relativeNode
-	 */
-	protected function lock($relativeNode = null)
-	{
-		
-	}
-
-	/**
-	 * 
-	 */
-	protected function unlock()
-	{
-		
-	}
-
-	/**
 	 * Add child node for the current node
 	 * @param NodeInterface $child
 	 * @return NodeAbstraction
@@ -287,16 +271,12 @@ abstract class NodeAbstraction implements NodeInterface
 		}
 		$this->deleted = true;
 
-		$this->lock();
-		
 		$left = $this->getLeftValue();
 		$spaceUsed = $this->getIntervalSize() + 1;
 		$this->repository->delete($this);
 
 		// Free the unused space
 		$this->repository->truncate($left, $spaceUsed);
-
-		$this->unlock();
 	}
 
 	/**
@@ -644,14 +624,10 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function moveAsNextSiblingOf(NodeInterface $afterNode)
 	{
-		$this->lock($afterNode);
-
 		$pos = $afterNode->getRightValue() + 1;
 		$level = $afterNode->getLevel();
 		$this->move($pos, $level);
 
-		$this->unlock();
-		
 		return $this;
 	}
 
@@ -663,13 +639,9 @@ abstract class NodeAbstraction implements NodeInterface
 	 */
 	public function moveAsPrevSiblingOf(NodeInterface $beforeNode)
 	{
-		$this->lock($beforeNode);
-
 		$pos = $beforeNode->getLeftValue();
 		$level = $beforeNode->getLevel();
 		$this->move($pos, $level);
-
-		$this->unlock();
 		
 		return $this;
 	}
@@ -712,15 +684,11 @@ abstract class NodeAbstraction implements NodeInterface
 	public function moveAsFirstChildOf(NodeInterface $parentNode)
 	{
 		$this->validateAddingChildren($parentNode);
-
-		$this->lock($parentNode);
 		
 		$pos = $parentNode->getLeftValue() + 1;
 		$level = $parentNode->getLevel() + 1;
 		$this->move($pos, $level);
 
-		$this->unlock();
-		
 		return $this;
 	}
 
@@ -734,14 +702,10 @@ abstract class NodeAbstraction implements NodeInterface
 	{
 		$this->validateAddingChildren($parentNode);
 
-		$this->lock($parentNode);
-		
 		$pos = $parentNode->getRightValue();
 		$level = $parentNode->getLevel() + 1;
 		$this->move($pos, $level);
 
-		$this->unlock();
-		
 		return $this;
 	}
 
