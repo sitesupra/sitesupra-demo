@@ -125,12 +125,11 @@ class IndexerService
 	public function getSolariumClient()
 	{
 		if (is_null($this->solariumClient)) {
-			try {
+			if ( ! ObjectRepository::isSolariumConfigured($this)) {
+				\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
+				$this->solariumClient = false;
+			} else {
 				$this->solariumClient = ObjectRepository::getSolariumClient($this);
-			} catch (\Exception $e) {
-				$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-				\Log::debug($message . PHP_EOL . $e->__toString());
-				return;
 			}
 		}
 

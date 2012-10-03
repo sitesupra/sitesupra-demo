@@ -102,6 +102,21 @@ class IniConfigurationLoader
 
 	/**
 	 * @param string $section
+	 * @return boolean
+	 */
+	public function hasSection($section)
+	{
+		$data = $this->getData();
+
+		if (isset($data[$section])) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param string $section
 	 * @param string $default
 	 * @return mixed
 	 * @throws Exception\ConfigurationMissing

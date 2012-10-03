@@ -27,12 +27,8 @@ class WipeQueuesCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		try {
-			ObjectRepository::getSolariumClient($this);
-		} catch (\Exception $e) {
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			$output->writeln($message);
-			\Log::debug($message . PHP_EOL . $e->__toString());
+		if ( ! ObjectRepository::isSolariumConfigured($this)) {
+			$output->writeln(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return;
 		}
 		
