@@ -199,3 +199,4 @@
 /cms/lib/supra/build/languagebar/languagebar.js
 /cms/lib/supra/build/slideshow/slideshow-input-button.js
 /cms/lib/supra/build/slideshow/slideshow.js
+/cms/lib/supra/build/event/deferred.js
