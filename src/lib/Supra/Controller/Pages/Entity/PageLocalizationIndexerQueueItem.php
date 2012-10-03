@@ -52,6 +52,12 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	protected $schemaName;
 
 	/**
+	 * @Column(type="boolean")
+	 * @var boolean
+	 */
+	protected $removal = false;
+
+	/**
 	 * @var PageLocalization
 	 */
 	protected $localization;
@@ -98,6 +104,22 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$this->schemaName = PageController::SCHEMA_DRAFT;
 
 		$this->ignoreChildren = false;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isRemoval()
+	{
+		return $this->removal;
+	}
+
+	/**
+	 * @param boolean $removal
+	 */
+	public function setRemoval($removal)
+	{
+		$this->removal = $removal;
 	}
 
 	/**
@@ -228,10 +250,54 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	}
 
 	/**
+	 * Does removal of the document..
+	 */
+	protected function remove()
+	{
+		// moved from CmsPageLocalizationIndexerQueueListener
+		try {
+			ObjectRepository::getSolariumClient($this);
+		} catch (\Exception $e) {
+			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
+			\Log::debug($message . PHP_EOL . $e->__toString());
+			return;
+		}
+
+		$findRequest = new PageLocalizationFindRequest();
+
+		$findRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
+		$findRequest->setPageLocalizationId($this->pageLocalizationId);
+
+		$searchService = new SearchService();
+
+		$resultSet = $searchService->processRequest($findRequest);
+
+		$items = $resultSet->getItems();
+
+		foreach ($items as $item) {
+
+			if ($item instanceof PageLocalizationSearchResultItem) {
+
+				if ($item->getPageLocalizationId() == $this->pageLocalizationId) {
+
+					$indexerService = new IndexerService();
+					$indexerService->removeFromIndex($item->getUniqueId());
+				}
+			}
+		}
+	}
+
+	/**
 	 * @return array of IndexedDocument
 	 */
 	public function writeIndexedDocuments($solariumDocumentWriter)
 	{
+		if ($this->removal) {
+			$this->remove();
+
+			return array();
+		}
+
 		$result = array();
 
 		if (self::isIndexed($this->pageLocalizationId, $this->revisionId)) {
@@ -259,7 +325,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 		$previousLocalization = $this->getPreviousPublishedPageLocalization($localization);
 
-		$result[] = $this->makeIndexedDocument($localization);
+		$solariumDocument = $this->makeIndexedDocument($localization);
+		$result[] = $solariumDocument;
+		$solariumDocumentWriter($solariumDocument);
 
 		$currentIndexedDocument = $this->findPageLocalizationIndexedDocument($localization->getId());
 
@@ -301,6 +369,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 				if ( ! self::isIndexed($child->getId(), $child->getRevisionId())) {
 
 					$solariumDocument = $this->makeIndexedDocument($child);
+					$result[] = $solariumDocument;
 					$solariumDocumentWriter($solariumDocument);
 				} else {
 					\Log::debug('LLL hit cache!!! ', self::makeMockId($child->getId(), $child->getRevisionId()));
@@ -313,7 +382,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			}
 		}
 
-		return true;
+		return $result;
 	}
 
 	/**

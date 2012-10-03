@@ -161,6 +161,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	 */
 	public function insertAction()
 	{
+		$repository = $this->entityManager->getRepository(Entity\Abstraction\File::CN());
+		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
+		$repository->getNestedSetRepository()->lock();
+
 		$this->isPostRequest();
 
 		if ( ! $this->hasRequestParameter('filename')) {
@@ -272,6 +276,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	 */
 	public function deleteAction()
 	{
+		$repository = $this->entityManager->getRepository(Entity\Abstraction\File::CN());
+		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
+		$repository->getNestedSetRepository()->lock();
+
 		$this->isPostRequest();
 		$file = $this->getEntity();
 
@@ -298,6 +306,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 	public function moveAction()
 	{
+		$repository = $this->entityManager->getRepository(Entity\Abstraction\File::CN());
+		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
+		$repository->getNestedSetRepository()->lock();
+
 		$this->isPostRequest();
 		$file = $this->getEntity();
 
@@ -331,6 +343,27 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	{
 		$this->isPostRequest();
 
+		if ( ! isset($_FILES['file']) || ! empty($_FILES['file']['error'])) {
+			$message = 'Error uploading the file';
+
+			//TODO: Separate messages to UI and to logger
+			if ( ! empty($_FILES['file']['error']) && isset($this->fileStorage->fileUploadErrorMessages[$_FILES['file']['error']])) {
+				$message = $this->fileStorage->fileUploadErrorMessages[$_FILES['file']['error']];
+			}
+
+			$this->getResponse()->setErrorMessage($message);
+
+			return;
+		}
+
+		$file = $_FILES['file'];
+
+		$this->entityManager->beginTransaction();
+		$repository = $this->entityManager->getRepository(Entity\Abstraction\File::CN());
+		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
+		$repository->getNestedSetRepository()->lock();
+
+		// Permission check
 		$uploadPermissionCheckFolder = null;
 
 		if ( ! $this->emptyRequestParameter('folder')) {
@@ -340,131 +373,109 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 		$this->checkActionPermission($uploadPermissionCheckFolder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
 
-		if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
+		try {
+			// checking for replace action
+			if ( ! $this->emptyRequestParameter('file_id')) {
+				$fileToReplace = $this->getFile('file_id');
+				$this->fileStorage->replaceFile($fileToReplace, $file);
 
-			$file = $_FILES['file'];
+				$this->writeAuditLog('%item% replaced', $fileToReplace);
 
-			try {
-				// checking for replace action
-				if ( ! $this->emptyRequestParameter('file_id')) {
-					$fileToReplace = $this->getFile('file_id');
-					$this->fileStorage->replaceFile($fileToReplace, $file);
+				$output = $this->imageAndFileOutput($fileToReplace);
+				$this->getResponse()->setResponseData($output);
 
-					$this->writeAuditLog('%item% replaced', $fileToReplace);
+				$this->entityManager->commit();
 
-					$output = $this->imageAndFileOutput($fileToReplace);
-					$this->getResponse()->setResponseData($output);
+				return;
+			}
 
-					return;
-				}
+			$fileEntity = null;
+			if ($this->fileStorage->isSupportedImageFormat($file['tmp_name'])) {
+				$fileEntity = new Entity\Image();
+			} else {
+				$fileEntity = new Entity\File();
+			}
+			$this->entityManager->persist($fileEntity);
 
-				$fileEntity = null;
-				if ($this->fileStorage->isSupportedImageFormat($file['tmp_name'])) {
-					$fileEntity = new Entity\Image();
-				} else {
-					$fileEntity = new Entity\File();
-				}
-				$this->entityManager->persist($fileEntity);
+			$fileEntity->setFileName($file['name']);
+			$fileEntity->setSize($file['size']);
+			$fileEntity->setMimeType($file['type']);
 
-				$fileEntity->setFileName($file['name']);
-				$fileEntity->setSize($file['size']);
-				$fileEntity->setMimeType($file['type']);
+			// additional jobs for images
+			if ($fileEntity instanceof Entity\Image) {
+				// store original size
+				$imageProcessor = new ImageProcessor\ImageResizer();
+				$imageInfo = $imageProcessor->getImageInfo($file['tmp_name']);
+				$fileEntity->setWidth($imageInfo->getWidth());
+				$fileEntity->setHeight($imageInfo->getHeight());
+			}
 
-				// additional jobs for images
-				if ($fileEntity instanceof Entity\Image) {
-					// store original size
-					$imageProcessor = new ImageProcessor\ImageResizer();
-					$imageInfo = $imageProcessor->getImageInfo($file['tmp_name']);
-					$fileEntity->setWidth($imageInfo->getWidth());
-					$fileEntity->setHeight($imageInfo->getHeight());
-				}
+			// adding file as folders child if parent folder is set
+			$folder = null;
+			if ( ! $this->emptyRequestParameter('folder')) {
 
-				// adding file as folders child if parent folder is set
-				$folder = null;
-				if ( ! $this->emptyRequestParameter('folder')) {
+				$folder = $this->getFolder('folder');
 
-					$folder = $this->getFolder('folder');
+				// get parent folder private/public status
+				$publicStatus = $folder->isPublic();
+				$fileEntity->setPublic($publicStatus);
 
-					// get parent folder private/public status
-					$publicStatus = $folder->isPublic();
-					$fileEntity->setPublic($publicStatus);
-
-					$level = $fileEntity->getLevel();
-
-					// Flush before nested set UPDATE
-					$this->entityManager->flush();
-					
-					$folder->addChild($fileEntity);
-				}
-
-				if ($fileEntity instanceof Entity\Image) {
-					try {
-						$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
-					} catch (\Supra\FileStorage\Exception\InsufficientSystemResources $e) {
-
-						$this->entityManager->flush();
-						$this->entityManager->remove($fileEntity);
-						$this->entityManager->flush();
-
-						$fileEntity = new Entity\File();
-
-						$this->entityManager->persist($fileEntity);
-
-						$fileEntity->setFileName($file['name']);
-						$fileEntity->setSize($file['size']);
-						$fileEntity->setMimeType($file['type']);
-
-						if ( ! is_null($folder)) {
-							$publicStatus = $folder->isPublic();
-							$fileEntity->setPublic($publicStatus);
-
-							// Flush before nested set UPDATE
-							$this->entityManager->flush();
-
-							$folder->addChild($fileEntity);
-						}
-
-						$message = "Amount of memory required for image [{$file['name']}] resizing exceeds available, it will be uploaded as a document";
-						$this->getResponse()
-								->addWarningMessage($message);
-					}
-				}
-
-				try {
-					// trying to upload file
-					$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
-				} catch (\Exception $e) {
-					$this->entityManager->flush();
-					$this->entityManager->remove($fileEntity);
-					$this->entityManager->flush();
-
-					throw $e;
-				}
-
+				// Flush before nested set UPDATE
 				$this->entityManager->flush();
-			} catch (\Exception $e) {
 
-				// Do nothing..
-
-				throw $e;
+				$folder->addChild($fileEntity);
 			}
 
-			// genrating output
-			$output = $this->imageAndFileOutput($fileEntity);
+			if ($fileEntity instanceof Entity\Image) {
+				try {
+					$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
+				} catch (\Supra\FileStorage\Exception\InsufficientSystemResources $e) {
 
-			$this->writeAuditLog('%item% uploaded', $fileEntity);
-			$this->getResponse()->setResponseData($output);
-		} else {
+					$this->entityManager->rollback();
+					$this->entityManager->beginTransaction();
 
-			$message = 'Error uploading the file';
+					$fileEntity = new Entity\File();
 
-			//TODO: Separate messages to UI and to logger
-			if ( ! empty($_FILES['file']['error']) && isset($this->fileStorage->fileUploadErrorMessages[$_FILES['file']['error']])) {
-				$message = $this->fileStorage->fileUploadErrorMessages[$_FILES['file']['error']];
+					$this->entityManager->persist($fileEntity);
+
+					$fileEntity->setFileName($file['name']);
+					$fileEntity->setSize($file['size']);
+					$fileEntity->setMimeType($file['type']);
+
+					if ( ! is_null($folder)) {
+						$publicStatus = $folder->isPublic();
+						$fileEntity->setPublic($publicStatus);
+
+						// Flush before nested set UPDATE
+						$this->entityManager->flush();
+
+						$folder->addChild($fileEntity);
+					}
+
+					$message = "Amount of memory required for image [{$file['name']}] resizing exceeds available, it will be uploaded as a document";
+					$this->getResponse()
+							->addWarningMessage($message);
+				}
 			}
 
-			$this->getResponse()->setErrorMessage($message);
+			// trying to upload file
+			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
+
+			$this->entityManager->flush();
+		} catch (\Exception $e) {
+
+			$this->entityManager->rollback();
+
+			throw $e;
 		}
+
+		$this->entityManager->commit();
+
+		// genrating output
+		$output = $this->imageAndFileOutput($fileEntity);
+
+		$this->writeAuditLog('%item% uploaded', $fileEntity);
+		$this->getResponse()->setResponseData($output);
 	}
 
 	/**

@@ -45,8 +45,8 @@ class PageSet extends AbstractSet
 					$layout = $abstractPage->getLayout($media);
 				}
 			}
-			
-			$trace[] = $abstractPage->__toString();
+
+			$trace[] = (string) $abstractPage;
 		}
 		
 		return $layout;
