@@ -104,7 +104,7 @@ YUI().add("supra.io", function (Y) {
 						'data': null,
 						'error_message': ERROR_INVALID_RESPONSE
 					});
-				}				
+				}
 				
 			}
 		};
@@ -306,9 +306,9 @@ YUI().add("supra.io", function (Y) {
 		
 		//Deferred
 		if (response.status) {
-			deferred.resolveWith([response.data, response.status]);
+			deferred.resolveWith(cfg.context, [response.data, response.status]);
 		} else {
-			deferred.rejectWith([response.data, response.status]);
+			deferred.rejectWith(cfg.context, [response.data, response.status]);
 		}
 		
 		delete(cfg.permissions);
