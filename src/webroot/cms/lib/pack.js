@@ -3221,7 +3221,7 @@ YUI.add('supra.datatype-date-reformat', function(Y) {
 			diff = date;
 		}
 		 
-		var day_diff = ~~(diff / 86400);
+		var day_diff = ~~(diff / 86400),
 			cache = '',
 			name = '',
 			tpl = '',
