@@ -126,6 +126,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$item['type'] = $this->getEntityType($rootNode);
 			$item['children_count'] = $rootNode->getNumberChildren();
 			$item['private'] = ! $rootNode->isPublic();
+			$item['timestamp'] = $rootNode->getModificationTime()->getTimestamp();
 
 			$output[] = $item;
 		}
@@ -572,6 +573,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 			$output['broken'] = ( ! $this->isAvailable($file));
 		}
+
+		$output['timestamp'] = $file->getModificationTime()->getTimestamp();
 
 		return $output;
 	}
