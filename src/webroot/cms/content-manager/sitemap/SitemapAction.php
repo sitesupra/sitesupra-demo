@@ -215,7 +215,7 @@ class SitemapAction extends PageManagerAction
 	/**
 	 * Returns children page array data
 	 * @param string $entity
-	 * @param ApplicationLocalization $parentLocalization
+	 * @param Entity\Abstraction\Localization $parentLocalization
 	 * @param string $filter
 	 * @param integer $levels
 	 * @param boolean $count
@@ -270,19 +270,26 @@ class SitemapAction extends PageManagerAction
 		$filterFolders = array();
 		$application = null;
 
+		$offset = $input->getValidIfExists('offset', 'smallint');
+		$limit = $input->getValidIfExists('resultsPerRequest', 'smallint');
+
 		if ($parentLocalization instanceof Entity\ApplicationLocalization) {
+
+			// This is bad solution for detecting where the sitemap has been requested from.
+			// Should group by month if sitemap requested in the sidebar.
+			//FIXME: JS should pass preference maybe
+			if (empty($filter) && $existingOnly) {
+				$filter = 'group';
+			}
 
 			$application = PageApplicationCollection::getInstance()
 					->createApplication($parentLocalization, $em);
 
 			// TODO: remove the type cast when methods are moved to the abstraction
 			/* @var $application \Supra\Controller\Pages\News\NewsApplication */
-			$filterFolders = (array) $application->getFilterFolders($filter);
+			$filterFolders = (array) $application->getFilterFolders($queryBuilder, $filter);
 			$application->applyFilters($queryBuilder, $filter);
 		}
-
-		$offset = $input->getValidIfExists('offset', 'smallint');
-		$limit = $input->getValidIfExists('resultsPerRequest', 'smallint');
 
 		$query = $queryBuilder->getQuery();
 		$query->setFirstResult($offset);
@@ -344,7 +351,9 @@ class SitemapAction extends PageManagerAction
 						$pageData['new_children_first'] = true;
 					}
 
-					if ($levels === 0) {
+					if ($levels === 0 && $page instanceof Entity\TemporaryGroupPage && $page->hasCalculatedNumberChildren()) {
+						$pageData['children_count'] = $page->getNumberChildren();
+					} elseif ($levels === 0) {
 						$pageData['children_count'] = $this->gatherChildrenData($entity, $localization, $filter, $levels, true);
 					} else {
 						$pageData['children'] = $this->gatherChildrenData($entity, $localization, $filter, $levels, false);
