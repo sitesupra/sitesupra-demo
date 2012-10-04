@@ -305,14 +305,24 @@ abstract class BlockController extends ControllerAbstraction
 				$property = new Entity\BlockProperty($name);
 				$property->setEditable($editable);
 
-				$property->setValue($editable->getDefaultValue());
+				$request = $this->getRequest();
+				$localeId = null;
+
+				if ($request instanceof PageRequest) {
+					$localeId = $request->getLocale();
+				}
+
+				/* @var $request Request\HttpRequest */
+
+				$default = $editable->getDefaultValue($localeId);
+				$property->setValue($default);
 				$property->setBlock($this->getBlock());
 
 				// Must set some DATA object. Where to get this? And why data is set to property not block?
 				//FIXME: should do somehow easier than that
 				$request = $this->getRequest();
 				if ($request instanceof PageRequest) {
-					$property->setLocalization($this->getRequest()->getPageLocalization());
+					$property->setLocalization($request->getPageLocalization());
 				}
 			}
 			//		else {

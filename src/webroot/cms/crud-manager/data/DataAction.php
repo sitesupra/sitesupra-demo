@@ -64,6 +64,7 @@ class DataAction extends CrudManagerAbstractAction
 
 	public function configurationAction()
 	{
+		$localeId = $this->getLocale();
 		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
@@ -93,7 +94,7 @@ class DataAction extends CrudManagerAbstractAction
 				'type' => $fieldObject->getEditorType(),
 			);
 			
-			$data['defaultValue'] = $fieldObject->getDefaultValue();
+			$data['defaultValue'] = $fieldObject->getDefaultValue($localeId);
 			
 			$data = array_merge($data, $fieldObject->getAdditionalParameters());
 			$fields[$key] = $data;
