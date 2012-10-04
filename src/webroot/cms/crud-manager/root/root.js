@@ -134,6 +134,16 @@ function (Y) {
 			
 			Supra.CRUD.Providers.on('ready', this.setup, this);
 			Supra.CRUD.Providers.initialize();
+			
+			//Toolbar buttons
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
+				'id': 'filters',
+				'type': 'toggle',
+				'title': Supra.Intl.get(['crud', 'filter', 'title']),
+				'icon': '/cms/lib/supra/img/toolbar/icon-filters.png',
+				'action': 'Filters'
+			}]);
 		},
 		
 		/**
