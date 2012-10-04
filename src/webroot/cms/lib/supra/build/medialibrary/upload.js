@@ -14,6 +14,9 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 	//File name black list
 	var FILE_BLACKLIST = [".DS_Store"];
 	
+	//Number of files which can uploaded simulteniously
+	var MAX_SIMULTENIOUS_UPLOADS = 1;
+	
 	/**
 	 * File upload
 	 * Handles standard file upload, HTML5 drag & drop, simple input fallback
@@ -110,6 +113,14 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 */
 		'displayType': {
 			value: Supra.MediaLibraryList.DISPLAY_ALL
+		},
+		
+		/**
+		 * Number of max simultenious uploads
+		 * @type {Number}
+		 */
+		'maxSimulteniousUploads': {
+			value: MAX_SIMULTENIOUS_UPLOADS
 		}
 	};
 	
@@ -529,7 +540,8 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				file_id = null,
 				file = null,
 				file_name = null,
-				node = null;
+				node = null,
+				queue = [];
 			
 			for(var i=0,ii=files.length; i<ii; i++) {
 				//If validation fails, then skip this one
@@ -567,10 +579,28 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				if (cancel) cancel.on('click', io.abort, io);
 				
 				//Add event listeners
-				io.on('load', this.onFileComplete, this);
 				io.on('progress', this.onFileProgress, this);
+				io.on('load', function (evt) {
+					this.onFileComplete(evt);
+					this.uploadFilesNext(queue);
+				}, this);
 				
+				//Add file to queue				
+				queue.push(io);
+			}
+			
+			for (var i=0, ii=this.get('maxSimulteniousUploads'); i<ii; i++) {
 				//Start uploading
+				this.uploadFilesNext(queue);
+			}
+		},
+		
+		/**
+		 * Upload next file from the list
+		 */
+		uploadFilesNext: function (queue) {
+			if (queue.length) {
+				var io = queue.shift();
 				io.start();
 			}
 		},

@@ -255,11 +255,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	protected function remove()
 	{
 		// moved from CmsPageLocalizationIndexerQueueListener
-		try {
-			ObjectRepository::getSolariumClient($this);
-		} catch (\Exception $e) {
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			\Log::debug($message . PHP_EOL . $e->__toString());
+		if ( ! ObjectRepository::isSolariumConfigured($this)) {
+			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return;
 		}
 

@@ -886,6 +886,16 @@ class ObjectRepository
 	}
 
 	/**
+	 * @return boolean
+	 */
+	public static function isSolariumConfigured($caller)
+	{
+		$object = self::getObject($caller, self::INTERFACE_SOLARIUM_CLIENT, false);
+
+		return ! empty($object);
+	}
+
+	/**
 	 * Get Solarium client assigned for caller.
 	 *
 	 * @param mixed $caller

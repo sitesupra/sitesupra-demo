@@ -2,30 +2,20 @@
 	"status": 1,
 	"data": {
 		"keywords": [
-			{
-				"title": "biļetes",
+ 			{
+				"title": "hosted cms",
 				"amount": 300,
 				"change": 10
 			},
 			{
-				"title": "aviobiletes",
+				"title": "best usability",
 				"amount": 240,
 				"change": 8
 			},
 			{
-				"title": "finnair",
+				"title": "website design templates",
 				"amount": 80,
 				"change": 2
-			},
-			{
-				"title": "aviobiļetes uz asv",
-				"amount": 78,
-				"change": 1
-			},
-			{
-				"title": "turkish airlines",
-				"amount": 30,
-				"change": -10
 			}
 		],
 		"sources": [
@@ -38,11 +28,6 @@
 				"title": "theverge.com",
 				"amount": 240,
 				"change": 8
-			},
-			{
-				"title": "hub.lv",
-				"amount": 80,
-				"change": 2
 			},
 			{
 				"title": "facebook.com",

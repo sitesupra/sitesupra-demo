@@ -443,8 +443,13 @@ abstract class PageManagerAction extends CmsAction
 
 			$previewUrl = '/cms/lib/supra/img/sitemap/preview/group.png';
 		} else {
+			$previewPath = $data->getPreviewFilename();
 			
-			$previewUrl = $data->getPreviewUrl();
+			if (file_exists($previewPath)) {
+				$previewUrl = $data->getPreviewUrl();
+			} else {
+				$previewUrl = '/cms/lib/supra/img/sitemap/preview/blank.jpg';
+			}
 		}
 
 		// Main data

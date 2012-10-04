@@ -83,7 +83,7 @@ class DoctrineRepository extends RepositoryAbstraction
 		$result = $em->getConnection()->fetchColumn("SELECT GET_LOCK(?, 10)", array($tableName));
 
 		if ($result != 1) {
-			throw new \RuntimeException("Could not lock the nested set $tableName for batch operations");
+			throw new Exception\CannotObtainNestedSetLock("Could not lock the nested set $tableName for batch operations");
 		}
 
 		$this->locked = true;
