@@ -290,6 +290,11 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
+			//Retore editor toolbar
+			if (this.options.retoreEditorToolbar) {
+				Manager.getAction('EditorToolbar').execute();
+			}
+			
 			//Hide action
 			Manager.getAction('LayoutLeftContainer').unsetActiveAction(this.NAME);
 		},
@@ -925,6 +930,13 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			
 			//Toolbar
 			if (this.options.hideToolbar) {
+				//Hide editor toolbar
+				if (Manager.getAction('EditorToolbar').get('visible')) {
+					this.options.retoreEditorToolbar = true;
+					Manager.getAction('EditorToolbar').hide();
+				}
+				
+				//Hide buttons
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}

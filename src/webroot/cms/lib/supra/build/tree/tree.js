@@ -236,6 +236,22 @@ YUI.add('supra.tree', function(Y) {
 		},
 		
 		/**
+		 * Load children data
+		 * 
+		 * @param {String} parent_id Item ID for which to load children
+		 */
+		loadPartial: function (parent_id) {
+			var uri = this.get('requestUri'),
+				params = {
+					'data': {'parent_id': parent_id}
+				};
+			
+			return Supra.io(uri, params, function (data, status) {
+				this.onPartialDataLoad(data, status, parent_id);
+			}, this)
+		},
+		
+		/**
 		 * Handle data load
 		 * 
 		 * @private
@@ -252,37 +268,55 @@ YUI.add('supra.tree', function(Y) {
 				item.destroy();
 			}
 			
-			this._data = [];
+			this._xhr = null;
+			this._data = data;
 			this._data_indexed = {};
 			
 			//Create data index
-			var data_indexed = {};
+			this.onPartialDataLoad(data, status);
+			
+			this.renderTreeUI(data);
+			
+			this.fire('render:complete');
+		},
+		
+		/**
+		 * Handle partial data load,
+		 * data is loaded for a parent
+		 * 
+		 * @private
+		 */
+		onPartialDataLoad: function (data, status, parent_id) {
+			//On failure assume nothing was returned
+			if (!status) data = [];
+			
+			//Create data index
+			var data_indexed = this._data_indexed;
 			var tmp = [].concat(data), i=0;
 			
+			//Add items to parent children list
+			if (parent_id) {
+				data_indexed[parent_id].children = data;
+			}
+			
+			//Update new children parent attribute and index them
 			while(i < tmp.length) {
+				
+				if (parent_id) {
+					tmp[i].parent = parent_id;
+				}
 				
 				data_indexed[tmp[i].id] = tmp[i];
 				
 				if ('children' in tmp[i] && tmp[i].children) {
 					for(var k=0, kk=tmp[i].children.length; k<kk; k++) {
-						Y.mix(tmp[i].children[k], {
-							parent: tmp[i].id
-						});
+						tmp[i].children[k].parent = tmp[i].id;
 						tmp.push(tmp[i].children[k]);
 					}
 				}
 				
 				i++;
 			}
-			
-			this._xhr = null;
-			
-			this._data = data;
-			this._data_indexed = data_indexed;
-			
-			this.renderTreeUI(data);
-			
-			this.fire('render:complete');
 		},
 		
 		/**

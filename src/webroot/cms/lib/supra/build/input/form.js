@@ -23,9 +23,9 @@ YUI.add("supra.form", function (Y) {
 	 */
 	function Form (config) {
 		//Fix "value" references for inputs
-		this.fixInputConfigValueReferences(config);
+		this.fixInputConfigValueReferences(config || {});
 		
-		Form.superclass.constructor.apply(this, [config]);
+		Form.superclass.constructor.apply(this, [config || {}]);
 		
 		this.inputs = {};
 		this.inputs_definition = {};
@@ -229,6 +229,10 @@ YUI.add("supra.form", function (Y) {
 			var type = config.type;
 				type = type.substr(0,1).toUpperCase() + type.substr(1);
 			
+			if (!config.value && config.defaultValue) {
+				config.value = config.defaultValue;
+			}
+			
 			if (type in Supra.Input) {
 				return new Supra.Input[type](config);
 			} else {
@@ -257,7 +261,33 @@ YUI.add("supra.form", function (Y) {
 					//Add input to the list of form inputs
 					this.inputs[config.get('id')] = config;
 				} else {
-					//@TODO Add possibility to add new inputs after form has been rendered
+					//Create input and append
+					var id = null,
+						input = null,
+						node = null,
+						contentBox = this.get('contentBox'),
+						srcNode = this.get('srcNode');
+					
+					config = this.normalizeInputConfig(config);
+					id = config.id || config.name;
+					this.inputs_definition[id] = config;
+					
+					input = this.factoryField(config);
+					if (input) {
+						this.inputs[id] = input;
+						
+						if (config.srcNode) {
+							input.render();
+						} else if (config.containerNode) {
+							//If input doesn't exist but has container node, then create
+							//input inside it
+							input.render(config.containerNode);
+						} else {
+							//If input doesn't exist, then create it
+							input.render(contentBox);
+						}
+					}
+					
 				}
 			} else {
 				var id = ("id" in config && config.id ? config.id : ("name" in config ? config.name : ""));
@@ -302,16 +332,12 @@ YUI.add("supra.form", function (Y) {
 				
 				if (button && !button.closest(form)) {
 					//On submit call "save"
-					button.on("click", function () {
-						this.fire("submit");
-						this.save();
-					}, this);
+					button.on("click", this.submit, this);
 					
 					//On input return key call "save"
 					form.all("input[type='text'],input[type='password']").on("keyup", function (event) {
 						if (event.keyCode == 13) { //Return key
-							this.fire("submit");
-							this.save();
+							this.submit();
 							event.preventDefault();
 						}
 					}, this);
@@ -326,6 +352,14 @@ YUI.add("supra.form", function (Y) {
 				//Save form
 				this.save();
 			}, this);
+		},
+		
+		/**
+		 * Submit form
+		 */
+		submit: function () {
+			this.fire("submit");
+			this.save();
 		},
 		
 		/**

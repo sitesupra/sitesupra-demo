@@ -117,6 +117,33 @@
 	            	deferred.resolve();
 	            	
 	            	ASSERT.areEqual(103, done, 'Done callbacks were not called again on repeated resolve call');
+	            },
+	            
+	            testPromise: function () {
+	            	
+	            	var deferred = window.deferred = Supra.Deferred(),
+	            		promise = window.promise = deferred.promise(),
+	            		done = 100,
+	            		fail = 100;
+	            	
+	            	promise.done(function (str, num) {
+	            		done++;
+	            		
+	            		ASSERT.areEqual('String', str, 'First done callback argument is string');
+	            		ASSERT.areEqual(123, num, 'Second done callback argument is number');
+	            		
+	            	}).fail(function (str, num) {
+	            		fail++;
+	            	});
+	            	
+	            	done = 0;
+	            	fail = 0;
+	            	
+	            	deferred.resolve(['String', 123]);
+	            	
+	            	ASSERT.areEqual(1, done, 'Done callback was called once');
+	            	ASSERT.areEqual(0, fail, 'Fail callback was not called');
+	            	
 	            }
 	            
 	            

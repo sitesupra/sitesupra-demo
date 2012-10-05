@@ -207,6 +207,7 @@ YUI.add("supra.input-select", function (Y) {
 			
 			//Sync values
 			this.set("values", this.get("values"));
+			this.set("value", this.get("value"));
 		},
 		
 		bindUI: function () {

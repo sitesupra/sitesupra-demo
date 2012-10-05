@@ -1,0 +1,7 @@
+1) Change js.txt, css.txt to include all files to pack;
+2) execute gather.sh
+3) commit the generated files /cms/lib/pack.js and /cms/lib/pack.css
+
+NB!
+# No empty lines in the source files
+# The "php" executable must be in path

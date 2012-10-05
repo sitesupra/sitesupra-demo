@@ -5,6 +5,8 @@ namespace Supra\Cms\CrudManager\Data;
 use Supra\Cms\CrudManager\CrudManagerAbstractAction;
 use Supra\Editable;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Cms\CrudManager\CrudRepositoryInterface;
+use Supra\Cms\CrudManager\CrudRepositoryWithFilterInterface;
 
 class DataAction extends CrudManagerAbstractAction
 {
@@ -24,28 +26,40 @@ class DataAction extends CrudManagerAbstractAction
 		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
+
+		if ( ! $repo instanceof CrudRepositoryInterface) {
+			throw new \LogicException("Crud entity's repository must implement CrudRepositoryInterface");
+		}
 		
 		// selecting all data 
 		$qb = $em->createQueryBuilder();
 		$qb->select('e');
 		$qb->from($configuration->entity, 'e');
-		
+
 		// set ordering and additional parameters
 		$repo->setAdditionalQueryParams($qb);
-		
-		$qb->setFirstResult($offset);
-		$qb->setMaxResults($resultsPerRequest);
+
+		if ($repo instanceof CrudRepositoryWithFilterInterface) {
+			$filter = $this->getRequestInput();
+			$repo->applyFilters($qb, $filter);
+		}
 		
 		// if crud manager is sortable, then we overwrite orderings
 		if ($repo->isSortable()) {
 			$qb->orderBy('e.position', 'asc');
-		}	
-		$query = $qb->getQuery();
+		}
+
+		$countQueryBuilder = clone($qb);
+		/* @var $countQueryBuilder \Doctrine\ORM\QueryBuilder */
+
+		$qb->setFirstResult($offset);
+		$qb->setMaxResults($resultsPerRequest);
+
+		$results = $qb->getQuery()
+				->getResult();
 		
-		$results = $query->getResult();
-		
-		$query = $em->createQuery("SELECT COUNT(e) as totalCount FROM {$configuration->entity} e");
-		$totalCount = $query->getSingleScalarResult();
+		$countQueryBuilder->select('COUNT(e)');
+		$totalCount = $countQueryBuilder->getQuery()->getSingleScalarResult();
 
 		$data = array();
 		foreach ($results as $result) {
@@ -64,9 +78,14 @@ class DataAction extends CrudManagerAbstractAction
 
 	public function configurationAction()
 	{
+		$localeId = $this->getLocale()->getId();
 		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);
+
+		if ( ! $repo instanceof CrudRepositoryInterface) {
+			throw new \LogicException("Crud entity's repository must implement CrudRepositoryInterface");
+		}
 
 		$entityParts = explode('\\', $configuration->entity);
 		$managerId = mb_strtolower(end($entityParts));
@@ -91,12 +110,29 @@ class DataAction extends CrudManagerAbstractAction
 			$data = array(
 				'label' => $fieldObject->getLabel(),
 				'type' => $fieldObject->getEditorType(),
-			);
+				'defaultValue' => $fieldObject->getDefaultValue($localeId),
+			) + (array) $fieldObject->getAdditionalParameters();
 			
-			$data['defaultValue'] = $fieldObject->getDefaultValue();
-			
-			$data = array_merge($data, $fieldObject->getAdditionalParameters());
 			$fields[$key] = $data;
+		}
+
+		$filters = null;
+
+		if ($repo instanceof CrudRepositoryWithFilterInterface) {
+			$filters = array();
+			$filtersObjects = $repo->getFilters();
+
+			foreach ($filtersObjects as $filterId => $filterObject) {
+				/* @var $filterObject Editable\EditableInterface */
+
+				$data = array(
+					'label' => $filterObject->getLabel(),
+					'type' => $filterObject->getEditorType(),
+					'defaultValue' => $filterObject->getDefaultValue($localeId),
+				) + (array) $filterObject->getAdditionalParameters();
+
+				$filters[$filterId] = $data;
+			}
 		}
 
 		$output = array(
@@ -106,6 +142,7 @@ class DataAction extends CrudManagerAbstractAction
 				'ui_list' => array_keys($repo->getListFields()),
 				'ui_edit' => array_keys($repo->getEditableFields()),
 				'lists' => array(),
+				'filters' => $filters ?: null,
 			)
 		);
 

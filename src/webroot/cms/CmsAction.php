@@ -23,6 +23,7 @@ use Supra\Validator\FilteredInput;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\Cms\CheckPermissions\CheckPermissionsController;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
+use Supra\NestedSet\Exception\CannotObtainNestedSetLock;
 
 /**
  * Description of CmsAction
@@ -145,6 +146,9 @@ abstract class CmsAction extends SimpleController
 			$response->setErrorMessage('You don\'t have permission to perform this action.<br />Contact your supervisor.');
 			//$response->setErrorMessage('Permission to "' . $e->getPermissionName() . '" is denied.');
 
+			$this->log->warn($e);
+		} catch (CannotObtainNestedSetLock $e) {
+			$response->setErrorMessage('The operation has timed out. Please try again.');
 			$this->log->warn($e);
 		} catch (\Exception $e) {
 			// No support for not Json actions
@@ -319,7 +323,7 @@ abstract class CmsAction extends SimpleController
 
 	/**
 	 * Return current locale
-	 * @return Locale
+	 * @return \Supra\Locale\Locale
 	 */
 	protected function getLocale()
 	{

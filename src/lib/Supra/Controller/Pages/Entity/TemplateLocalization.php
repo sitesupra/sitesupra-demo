@@ -51,7 +51,7 @@ class TemplateLocalization extends Abstraction\Localization
 	 */
 	public static function getPreviewFilenameForLocalizationAndRevision($localizationId, $revisionId)
 	{
-		return static::getPreviewFielnameForTypeAndLocalizationAndRevision('t', $localizationId, $revisionId);
+		return static::getPreviewFilenameForTypeAndLocalizationAndRevision('t', $localizationId, $revisionId);
 	}
 
 }

@@ -14,9 +14,9 @@ YUI.add('supra.deferred', function (Y) {
 	// Functions which are available on promise object
 	var PROMISE_EXPORT = ["done", "fail", "always", "progress", "then", "state"];
 	
-	var PREPARE_EXPORT = function (fn, name, context) {
-		return function () {
-			var result = fn.apply(context, [].splice.call(arguments));
+	var PREPARE_EXPORT = function (name, context) {
+		return function (a, b, c, d) {
+			var result = context[name](a, b, c, d);
 			return name === "state" ? result : this;
 		};
 	};
@@ -98,9 +98,10 @@ YUI.add('supra.deferred', function (Y) {
 		 * 
 		 * @param {String} event State on which listener should be called
 		 * @param {Function} listener Function, or array of functions, called when Deferred object is resolved
+		 * @param {Object} context Listener call context, optional
 		 * @private
 		 */
-		bind: function (event, listener) {
+		bind: function (event, listener, context) {
 			var state = this._state;
 			
 			//Validate arugments
@@ -113,9 +114,15 @@ YUI.add('supra.deferred', function (Y) {
 			// If already resolved or rejected, then call listeners
 			if (state === "resolved" || state === "rejected") {
 				if (event === state) {
-					this.fire(listener, global, this._args);
+					this.fire(listener, context || global, this._args);
 				}
 			} else {
+				// Change listener context, NOTE: this overrides resolveWith and rejectWith context
+				if (context) {
+					for (var i = 0, ii = listener.length; i<ii; i++) {
+						listener[i] = Y.bind(listener[i], context);
+					}
+				}
 				this._listeners[event] = this._listeners[event].concat(listener);
 			}
 			
@@ -155,7 +162,7 @@ YUI.add('supra.deferred', function (Y) {
 		 * @return {Object} Deferred promise object 
 		 */
 		promise: function (dest) {
-			if (dest || !promise) {
+			if (dest || !this._promise) {
 				var promise = dest || {},
 					exports = PROMISE_EXPORT,
 					prepare = PREPARE_EXPORT,
@@ -163,7 +170,7 @@ YUI.add('supra.deferred', function (Y) {
 					ii = exports.length;
 				
 				for (; i<ii; i++) {
-					promise[exports[i]] = prepare(this[exports[i]], this);
+					promise[exports[i]] = prepare(exports[i], this);
 				}
 				
 				// For convinience promise has 'promise' method
@@ -249,27 +256,30 @@ YUI.add('supra.deferred', function (Y) {
 		 * Add listener to be called when deferred object is resolved
 		 * 
 		 * @param {Function} listener Function, or array of functions, called when Deferred object is resolved
+		 * @param {Object} context Listener call context, optional
 		 */
-		done: function (listener) {
-			return this.bind("resolved", listener);
+		done: function (listener, context) {
+			return this.bind("resolved", listener, context);
 		},
 		
 		/**
 		 * Add listener to be called when deferred object is rejected
 		 * 
 		 * @param {Function} listener Function, or array of functions, called when Deferred object is rejected
+		 * @param {Object} context Listener call context, optional
 		 */
-		fail: function (listener) {
-			return this.bind("rejected", listener);
+		fail: function (listener, context) {
+			return this.bind("rejected", listener, context);
 		},
 		
 		/**
 		 * Add listener to be called when deferred object notifies progress
 		 * 
 		 * @param {Function} listener Function, or array of functions, called when Deferred object notifies progress
+		 * @param {Object} context Listener call context, optional
 		 */
-		progress: function (listener) {
-			return this.bind("notify", listener);
+		progress: function (listener, context) {
+			return this.bind("notify", listener, context);
 		},
 		
 		/**
@@ -278,18 +288,20 @@ YUI.add('supra.deferred', function (Y) {
 		 * @param {Function} done Function, or array of functions, called when Deferred object is resolved
 		 * @param {Function} fail Function, or array of functions, called when Deferred object is rejected
 		 * @param {Function} progress Function, or array of functions, called when Deferred object notifies progress
+		 * @param {Object} context Listener call context, optional
 		 */
-		then: function (done, fail, progress) {
-			return this.bind("resolved", done)
-					   .bind("rejected", fail)
-					   .bind("notify", progress);
+		then: function (done, fail, progress, context) {
+			return this.bind("resolved", done, context)
+					   .bind("rejected", fail, context)
+					   .bind("notify", progress, context);
 		},
 		
 		/**
 		 * Add listener to be called when deferred object is resolved or rejected
+		 * @param {Object} context Listener call context, optional
 		 */
-		always: function (listener) {
-			return this.done(listener).fail(listener);
+		always: function (listener, context) {
+			return this.done(listener, context).fail(listener, context);
 		},
 		
 		/**

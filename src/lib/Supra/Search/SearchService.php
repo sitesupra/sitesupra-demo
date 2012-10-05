@@ -49,15 +49,12 @@ class SearchService
 	 */
 	public function processRequest(Request\SearchRequestInterface $request)
 	{
-		try {
-		    $solariumClient = ObjectRepository::getSolariumClient($this);
-		} catch (\Exception $e) {
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			\Log::debug($message . PHP_EOL . $e->__toString());
-			
+		if ( ! ObjectRepository::isSolariumConfigured($this)) {
+			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return new Result\DefaultSearchResultSet();
 		}
-		
+
+		$solariumClient = ObjectRepository::getSolariumClient($this);
 		$selectQuery = $solariumClient->createSelect();
 
 		$request->addSimpleFilter('systemId', $this->getSystemId());

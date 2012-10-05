@@ -16,6 +16,12 @@
       Supra\Controller\Configuration\ControllerConfiguration:
         class: Supra\Controller\Pages\PageController
 
+- Supra\Router\Configuration\RouterConfiguration:
+    url: /__view__
+    controller:
+      Supra\Controller\Configuration\ControllerConfiguration:
+        class: Supra\Controller\Pages\ViewController
+
 #- Supra\Controller\Layout\Theme\Configuration\ThemeProviderConfiguration:
 #   class: Supra\Controller\Layout\Theme\DefaultThemeProvider
 #   isDefault: true

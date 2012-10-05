@@ -443,8 +443,13 @@ abstract class PageManagerAction extends CmsAction
 
 			$previewUrl = '/cms/lib/supra/img/sitemap/preview/group.png';
 		} else {
+			$previewPath = $data->getPreviewFilename();
 			
-			$previewUrl = $data->getPreviewUrl();
+			if (file_exists($previewPath)) {
+				$previewUrl = $data->getPreviewUrl();
+			} else {
+				$previewUrl = '/cms/lib/supra/img/sitemap/preview/blank.jpg';
+			}
 		}
 
 		// Main data
@@ -554,9 +559,14 @@ abstract class PageManagerAction extends CmsAction
 		$array['unpublished_draft'] = true;
 		$array['published'] = false;
 
-		$localizationId = $data->getId();
+		$publicLocalization = null;
 
-		$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
+		// No public stuff for group/temporary pages
+		if ( ! $data instanceof Entity\GroupLocalization) {
+			$localizationId = $data->getId();
+			// FIXME: causes "N" queries for "N" pages loaded in sitemap. Bad.
+			$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
+		}
 
 		$array['active'] = true;
 		if ($publicLocalization instanceof Localization) {

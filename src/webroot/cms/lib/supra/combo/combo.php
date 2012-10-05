@@ -1,6 +1,6 @@
 <?php
 
-$q = $_SERVER['QUERY_STRING'];
+$q = @$q ?: $_SERVER['QUERY_STRING'];
 $apc = function_exists('apc_store');
 
 $files = explode('&', $q);

@@ -114,10 +114,10 @@ class MakeLocalizationPreviewCommand extends Command
 		$wkhtmltoimagePath = $iniConfiguration->getValue('system', 'wkhtmltoimage_path');
 		$gmPath = $iniConfiguration->getValue('system', 'gm_path');
 
-		$siteHost = $systemInfo->getWebserverHostAndPort();
+		$siteHost = $systemInfo->getWebserverHostAndPort(Info::WITH_SCHEME);
 
-		$sourcePath = join('/', array('__view__', $localizationType, $localizationId, $revisionId));
-		$sourceUrl = http_build_url(false, array('host' => $siteHost, 'path' => $sourcePath));
+		$sourcePath = implode('/', array('__view__', $localizationType, $localizationId, $revisionId));
+		$sourceUrl = $siteHost . '/' . $sourcePath;
 
 		$temporaryFilename = tempnam(sys_get_temp_dir(), 'preview-' . basename($previewFilename));
 

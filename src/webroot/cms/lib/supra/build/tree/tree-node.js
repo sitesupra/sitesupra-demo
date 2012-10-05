@@ -34,11 +34,21 @@ YUI.add('supra.tree-node', function(Y) {
 		_is_root: null,
 		
 		syncUI: function () {
-			var data = this.get('data');
-			var node = this.get('nodeToggle');
-			var visible = (data && 'children' in data && data.children.length);
+			var data = this.get('data'),
+				has_children = false,
+				collapsed = false;
 			
-			node.toggleClass('hidden', !visible);
+			if (data) {
+				if ('children' in data && data.children.length) {
+					has_children = true;
+				} else if (data.children_count) {
+					has_children = true;
+					collapsed = true;
+				}
+			}
+			
+			this.get('nodeToggle').toggleClass('hidden', !has_children);
+			this.get('boundingBox').toggleClass(C('tree-node', 'collapsed'), collapsed);
 		},
 		
 		toggle: function () {
@@ -115,12 +125,15 @@ YUI.add('supra.tree-node', function(Y) {
 			//Insert into new parents data and new parents children list
 			var children = target._items;
 			if (Y.Lang.isNumber(index)) {
-	            target_data.children.splice(index, 0, child_data);
+				target_data.children.splice(index, 0, child_data);
 				children.splice(index, 0, child);
 	        }  else {
 	            target_data.children.push(child_data);
 				children.push(child);
 	        }
+	        
+	        //Update children count
+	        target_data.children_count = (target_data.children_count || 0) + 1;
 			
 			//Update child parent
 			child._set("parent", target);
@@ -163,6 +176,7 @@ YUI.add('supra.tree-node', function(Y) {
 					for(var i=0,ii=parent_data.children.length; i<ii; i++) {
 						if (parent_data.children[i].id == child_data.id) {
 							parent_data.children.splice(i,1);
+							parent_data.children_count = (parent_data.children_count ? parent_data.children_count - 1 : 0);
 							break;
 						}
 					}
@@ -203,9 +217,28 @@ YUI.add('supra.tree-node', function(Y) {
 			//Expand/collapse
 			this.get('nodeToggle').on('click', function (event) {
 				var data = this.get('data');
-				if (data && data.children && data.children.length) {
-					this.toggle();
-					event.halt();
+				if (data) {
+					if (data.children && data.children.length) {
+						//Show children
+						this.toggle();
+						event.halt();
+					} else if (data.children_count) {
+						//Load children
+						this.set('loading', true);
+						this.toggle();
+						
+						var tree = this.getTree();
+						tree.loadPartial(data.id)
+								.done(function (data, status) {
+									this.addChildren(data);
+									this.set('loading', false);
+								}, this)
+								.fail(function () {
+									this.set('loading', false);
+								}, this);
+						
+						event.halt();
+					}
 				}
 			}, this);
 			

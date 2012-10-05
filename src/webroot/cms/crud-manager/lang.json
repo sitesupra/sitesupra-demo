@@ -3,7 +3,13 @@
 	"data": {
 		"crud": {
 			"new_item": "New",
-			"delete_confirmation": "Are you sure you want to delete selected item?"
+			"delete_confirmation": "Are you sure you want to delete selected item?",
+			"filter": {
+				"title": "Filter",
+				"reset": "Reset",
+				"filter": "Filter",
+				"all": "All"
+			}
 		}
 	}
 }
