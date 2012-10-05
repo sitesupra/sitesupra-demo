@@ -2,18 +2,11 @@
 
 namespace Supra\Cms\MediaLibrary\Medialibrary;
 
-use Supra\FileStorage\Helpers\FileNameValidationHelper;
 use Supra\FileStorage\ImageProcessor;
 use Supra\FileStorage\Exception;
 use Supra\FileStorage\Entity;
-use Doctrine\ORM\EntityManager;
-use Supra\Response\HttpResponse;
-use Supra\Response\JsonResponse;
-use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Cms\MediaLibrary\MediaLibraryAbstractAction;
-use Supra\Exception\LocalizedException;
 use Supra\Cms\Exception\CmsException;
-use Supra\Authorization\Exception\EntityAccessDeniedException;
 use Supra\FileStorage\Entity\Folder;
 use Supra\Cms\MediaLibrary\ApplicationConfiguration;
 use Supra\ObjectRepository\ObjectRepository;
@@ -296,6 +289,17 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		// try to delete
 		try {
+
+			// Remove image sizes manually because several image sizes by name might exist.
+			// The constraint was removed to fix race condition in creating the image size.
+			if ($file instanceof Entity\Image) {
+				$em = $this->fileStorage->getDoctrineEntityManager();
+				$imageSizeCn = Entity\ImageSize::CN();
+				$em->createQuery("DELETE FROM $imageSizeCn s WHERE s.master = :master")
+						->setParameter('master', $file->getId())
+						->execute();
+			}
+
 			$this->fileStorage->remove($file);
 		} catch (Exception\NotEmptyException $e) {
 			// Should not happen
@@ -380,12 +384,14 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$fileToReplace = $this->getFile('file_id');
 				$this->fileStorage->replaceFile($fileToReplace, $file);
 
+				// close transaction and unlock the nested set
+				$this->entityManager->commit();
+				$repository->getNestedSetRepository()->unlock();
+
 				$this->writeAuditLog('%item% replaced', $fileToReplace);
 
 				$output = $this->imageAndFileOutput($fileToReplace);
 				$this->getResponse()->setResponseData($output);
-
-				$this->entityManager->commit();
 
 				return;
 			}
@@ -432,8 +438,9 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
 				} catch (\Supra\FileStorage\Exception\InsufficientSystemResources $e) {
 
-					$this->entityManager->rollback();
-					$this->entityManager->beginTransaction();
+					// Removing image
+					$this->entityManager->remove($fileEntity);
+					$this->entityManager->flush();
 
 					$fileEntity = new Entity\File();
 
@@ -459,18 +466,28 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				}
 			}
 
+			$this->entityManager->flush();
+
 			// trying to upload file
 			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
 
-			$this->entityManager->flush();
 		} catch (\Exception $e) {
 
-			$this->entityManager->rollback();
+			try {
+				// close transaction and unlock the nested set
+				$this->entityManager->flush();
+				$this->entityManager->rollback();
+				$repository->getNestedSetRepository()->unlock();
+			} catch (\Exception $e) {
+				$this->log->error("Failure on rollback/unlock: ", $e->__toString());
+			}
 
 			throw $e;
 		}
 
+		// close transaction and unlock the nested set
 		$this->entityManager->commit();
+		$repository->getNestedSetRepository()->unlock();
 
 		// genrating output
 		$output = $this->imageAndFileOutput($fileEntity);
