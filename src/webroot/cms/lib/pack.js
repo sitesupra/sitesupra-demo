@@ -16323,6 +16323,7 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 			this.host.execute = this.executeHost;
 			this.host.hide = this.hideHost;
 			this.host.showFrozen = this.showFrozenHost;
+			this.host.hideFrozen = this.hideFrozenHost;
 			
 			this.host.after('visibleChange', this.afterVisibleChange, this);
 		},
@@ -16541,6 +16542,17 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 				this.plugins.getPlugin('PluginSidebar').afterVisibleChange({'newVal': true, 'prevVal': false});
 			} else {
 				this.show();
+			}
+		},
+		
+		/**
+		 * Force showing content even in frozen mode
+		 */
+		hideFrozenHost: function () {
+			if (!this.get('visible')) {
+				this.plugins.getPlugin('PluginSidebar').afterVisibleChange({'newVal': false, 'prevVal': true});
+			} else {
+				this.hide();
 			}
 		}
 		
