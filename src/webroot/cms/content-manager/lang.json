@@ -425,7 +425,10 @@
 			"empty": "You have no images<br />in the slideshow yet",
 			"drag_and_drop": "Drag and drop<br />folder or files here",
 			"add_image": "Add image",
-			"just_drag_and_drop": "or just drag-and-drop file here"
+			"just_drag_and_drop": "or just drag-and-drop file here",
+			
+			"label": "Images",
+			"label_button": "Manage images"
 		},
 		
 		"linkmanager": {

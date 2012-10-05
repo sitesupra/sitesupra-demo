@@ -39,11 +39,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				buttons = Manager.PageButtons;
 			
 			if (!toolbar.hasActionButtons(ContentGallery.NAME)) {
+				
 				toolbar.addActionButtons(ContentGallery.NAME, [
 					{
 						'id': 'gallery_block_manage',
 						'type': 'button',
-						'title': Supra.Intl.get(['gallerymanager', 'manage']),
+						'title': Supra.Intl.get(['gallerymanager', 'label_button']),
 						'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
 						'action': this,
 						'actionFunction': 'openGalleryManager'
@@ -91,6 +92,14 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				'toolbarGroupId': ContentGallery.NAME
 			});
 			
+			//Manage button is placed in block settings if there are no property groups
+			if (!this.hasPropertyGroups()) {
+				toolbar.getActionButton('gallery_block_manage').hide();
+				this.renderManageButton();
+			} else {
+				toolbar.getActionButton('gallery_block_manage').show();
+			}
+			
 			//Find all inline and HTML properties, initialize
 			this.findInlineInputs();
 			
@@ -100,6 +109,41 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Render buttons
 			this.bindDnD();
+		},
+		
+		renderManageButton: function () {
+			//Add "Manage images" button
+			var form = this.properties.get('form'),
+				content = form.get('boundingBox').one('.su-slide-content > div') || form.get('contentBox'),
+				button = new Supra.Button({
+											'style': 'small-gray',
+											'label': Supra.Intl.get(['gallerymanager', 'label_button'])
+										 });
+			
+			button.render(content);
+			button.addClass('button-section');
+			
+			content.prepend(button.get('boundingBox'));
+			content.prepend(Y.Node.create('<p class="label">' + Supra.Intl.get(['gallerymanager', 'label']) + '</p>'));
+			
+			button.on('click', this.openGalleryManager, this);
+		},
+		
+		/**
+		 * Returns true if blocks has property groups, otherwise false
+		 * If there are property groups then "Manage images" is placed in toolbar,
+		 * otherwise it's placed in block settings
+		 * 
+		 * @returns {Boolean} True if blocks has property groups, otherwise false
+		 * @private
+		 */
+		hasPropertyGroups: function () {
+			var info = this.getBlockInfo();
+			if (info.property_groups && info.property_groups.length) {
+				return true;
+			} else {
+				return false;
+			}
 		},
 		
 		/**
