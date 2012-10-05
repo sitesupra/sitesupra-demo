@@ -229,6 +229,10 @@ YUI.add("supra.form", function (Y) {
 			var type = config.type;
 				type = type.substr(0,1).toUpperCase() + type.substr(1);
 			
+			if (!config.value && config.defaultValue) {
+				config.value = config.defaultValue;
+			}
+			
 			if (type in Supra.Input) {
 				return new Supra.Input[type](config);
 			} else {

@@ -123,9 +123,18 @@ function (Y) {
 					'containerNode': slide
 				}, filters[key]);
 				
+				if (input.type === "Select") {
+					// Add empty value to the list
+					input.values.unshift({
+						"id": "",
+						"title": Supra.Intl.get(["crud", "filter", "all"])
+					});
+				}
+				
 				form.addInput(input);
 			}
 			
+			// Footer
 			footer = new Supra.Footer({
 				'buttons': {
 					'reset': {'id': 'reset', 'label': Supra.Intl.get(['crud', 'filter', 'reset'])},

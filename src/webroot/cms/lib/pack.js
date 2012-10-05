@@ -21875,6 +21875,7 @@ YUI.add('supra.uploader', function (Y) {
 			
 			//Sync values
 			this.set("values", this.get("values"));
+			this.set("value", this.get("value"));
 		},
 		
 		bindUI: function () {
@@ -28775,6 +28776,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			var type = config.type;
 				type = type.substr(0,1).toUpperCase() + type.substr(1);
 			
+			if (!config.value && config.defaultValue) {
+				config.value = config.defaultValue;
+			}
+			
 			if (type in Supra.Input) {
 				return new Supra.Input[type](config);
 			} else {
@@ -31179,4 +31184,24 @@ YUI.add('supra.deferred', function (Y) {
 	
 	Supra.Deferred = Deferred;
 	
-}, YUI.version);
+}, YUI.version);/**
+ * For all modules loaded using pack.js skins are loaded using pack.css
+ * and we need to mark these skin modules as loaded
+ */
+(function (Y) {
+	
+	var modules = Y.Env._loader.moduleInfo,
+		loaded = YUI.Env._loaded[YUI.version],
+		name = null;
+	
+	for (name in modules) {
+		
+		if (name.indexOf('skin-') === 0) {
+			//console.log(name);
+			loaded[name] = true;
+		} else if (name.indexOf('supra.') === 0) {
+			loaded['skin-supra-' + name] = true;
+		}
+	}
+	
+})(Supra.Y);

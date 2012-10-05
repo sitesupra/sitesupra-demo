@@ -7,7 +7,8 @@
 			"filter": {
 				"title": "Filter",
 				"reset": "Reset",
-				"filter": "Filter"
+				"filter": "Filter",
+				"all": "All"
 			}
 		}
 	}
