@@ -349,7 +349,7 @@ class PageAction extends PageManagerAction
 					'properties' => array(),
 				);
 
-				$propertyDefinition = $configuration->properties;
+				$propertyDefinition = (array) $configuration->properties;
 
 				foreach ($propertyDefinition as $property) {
 
