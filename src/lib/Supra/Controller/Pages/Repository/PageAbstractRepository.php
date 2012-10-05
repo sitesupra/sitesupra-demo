@@ -7,8 +7,6 @@ use Supra\NestedSet\DoctrineRepository;
 use Supra\NestedSet\RepositoryInterface;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\EntityManager;
-use BadMethodCallException;
-use Supra\Controller\Pages\Entity\Page;
 use Supra\NestedSet\SearchCondition\DoctrineSearchCondition;
 use Supra\NestedSet\SelectOrder\DoctrineSelectOrder;
 

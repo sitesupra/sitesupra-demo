@@ -23,11 +23,6 @@ class DoctrineRepository extends RepositoryAbstraction
 	protected $entityManager;
 
 	/**
-	 * @var Mapping\ClassMetadata
-	 */
-	protected $classMetadata;
-
-	/**
 	 * @var string
 	 */
 	protected $className;
@@ -70,10 +65,16 @@ class DoctrineRepository extends RepositoryAbstraction
 	public function __construct(EntityManager $em, Mapping\ClassMetadata $class)
 	{
 		$this->entityManager = $em;
-		$this->classMetadata = $class;
 		$this->className = $class->name;
 		$this->arrayHelper = new DoctrineRepositoryArrayHelper($em);
 		$platform = $em->getConnection()->getDatabasePlatform();
+
+		$leftField = $class->fieldMappings['left'];
+
+		if (isset($leftField['declared']) && $leftField['declared'] !== $this->className) {
+			$class = $em->getClassMetadata($leftField['declared']);
+		}
+
 		$this->tableName = $class->getQuotedTableName($platform);
 	}
 
@@ -491,7 +492,6 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		$this->arrayHelper->destroy();
 		$this->arrayHelper = null;
-		$this->classMetadata = null;
 		$this->entityManager = null;
 	}
 
