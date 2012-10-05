@@ -12252,13 +12252,23 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		showLinkManager: function (data, callback, context) {
 			if (!callback) return;
 			
+			// Disable toolbar to prevent opening other controls, eq. table
+			//this.htmleditor.get('toolbar').set('disabled', true);
+			
 			Supra.Manager.getAction('LinkManager').once('execute', function () {
 				this.visible = true;
 			}, this);
 			
 			Supra.Manager.getAction('LinkManager').execute(data, {
-				'mode': 'link'
-			}, callback, context || this);
+				'mode': 'link',
+				'hideToolbar': true
+			}, function () {
+				//this.htmleditor.get('toolbar').set('disabled', false);
+				
+				if (Y.Lang.isFunction(callback)) {
+					callback.apply(context || this, arguments);
+				}
+			}, this);
 		},
 		
 		/**
@@ -12266,6 +12276,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		hideLinkManager: function () {
 			if (this.visible) {
+				//this.htmleditor.get('toolbar').set('disabled', false);
 				Supra.Manager.getAction('LinkManager').hide();
 				this.visible = false;
 				this.htmleditor.refresh();

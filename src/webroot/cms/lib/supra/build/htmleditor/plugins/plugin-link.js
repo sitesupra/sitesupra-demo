@@ -180,7 +180,8 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			}, this);
 			
 			Supra.Manager.getAction('LinkManager').execute(data, {
-				'mode': 'link'
+				'mode': 'link',
+				'hideToolbar': true
 			}, callback, context || this);
 		},
 		
