@@ -21875,6 +21875,7 @@ YUI.add('supra.uploader', function (Y) {
 			
 			//Sync values
 			this.set("values", this.get("values"));
+			this.set("value", this.get("value"));
 		},
 		
 		bindUI: function () {
@@ -28774,6 +28775,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		factoryField: function (config) {
 			var type = config.type;
 				type = type.substr(0,1).toUpperCase() + type.substr(1);
+			
+			if (!config.value && config.defaultValue) {
+				config.value = config.defaultValue;
+			}
 			
 			if (type in Supra.Input) {
 				return new Supra.Input[type](config);
