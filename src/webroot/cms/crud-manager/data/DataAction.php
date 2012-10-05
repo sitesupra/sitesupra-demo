@@ -36,7 +36,6 @@ class DataAction extends CrudManagerAbstractAction
 		$qb->select('e');
 		$qb->from($configuration->entity, 'e');
 
-		
 		// set ordering and additional parameters
 		$repo->setAdditionalQueryParams($qb);
 
@@ -117,9 +116,10 @@ class DataAction extends CrudManagerAbstractAction
 			$fields[$key] = $data;
 		}
 
-		$filters = array();
+		$filters = null;
 
 		if ($repo instanceof CrudRepositoryWithFilterInterface) {
+			$filters = array();
 			$filtersObjects = $repo->getFilters();
 
 			foreach ($filtersObjects as $filterId => $filterObject) {
@@ -142,7 +142,7 @@ class DataAction extends CrudManagerAbstractAction
 				'ui_list' => array_keys($repo->getListFields()),
 				'ui_edit' => array_keys($repo->getEditableFields()),
 				'lists' => array(),
-				'filters' => $filters,
+				'filters' => $filters ?: null,
 			)
 		);
 
