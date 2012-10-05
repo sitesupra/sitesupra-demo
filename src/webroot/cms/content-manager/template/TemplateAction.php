@@ -2,15 +2,10 @@
 
 namespace Supra\Cms\ContentManager\Template;
 
-use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;
-use Supra\Controller\Pages\Request\PageRequest;
-use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Layout\Exception as LayoutException;
-use Supra\Controller\Layout\Processor\ProcessorInterface;
-use Supra\Controller\Pages\Task\LayoutProcessorTask;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\ObjectRepository\ObjectRepository;
@@ -26,6 +21,8 @@ class TemplateAction extends PageManagerAction
 	 */
 	public function createAction()
 	{
+		$this->lock();
+
 		$this->checkApplicationAllAccessPermission();
 
 		$this->entityManager->beginTransaction();
@@ -40,6 +37,8 @@ class TemplateAction extends PageManagerAction
 		}
 
 		$this->entityManager->commit();
+
+		$this->unlock();
 
 		// Decision in #2695 to publish the template right after creating it
 		$this->pageData = $templateData;
@@ -153,6 +152,8 @@ class TemplateAction extends PageManagerAction
 
 	public function deleteAction()
 	{
+		$this->lock();
+
 		$this->checkApplicationAllAccessPermission();
 
 		$this->isPostRequest();
@@ -165,6 +166,7 @@ class TemplateAction extends PageManagerAction
 		}
 
 		$this->delete();
+		$this->unlock();
 
 		$this->writeAuditLog('%item% deleted', $page);
 	}
@@ -218,12 +220,15 @@ class TemplateAction extends PageManagerAction
 	 */
 	public function duplicateAction()
 	{
+		$this->lock();
+
 		$this->checkApplicationAllAccessPermission();
 
 		$this->isPostRequest();
 		$localization = $this->getPageLocalization();
 		$master = $localization->getMaster();
 		$this->duplicate($localization);
+		$this->unlock();
 		
 		$this->writeAuditLog('%item% duplicated', $master);
 	}

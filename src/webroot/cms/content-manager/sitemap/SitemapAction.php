@@ -59,6 +59,8 @@ class SitemapAction extends PageManagerAction
 	 */
 	public function moveAction()
 	{
+		$this->lock();
+
 		$this->isPostRequest();
 		$input = $this->getRequestInput();
 
@@ -101,6 +103,8 @@ class SitemapAction extends PageManagerAction
 		} catch (DuplicatePagePathException $uniqueException) {
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
+
+		$this->unlock();
 
 //		// Move page in public as well by event (change path)
 //		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
