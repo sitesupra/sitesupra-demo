@@ -33,6 +33,8 @@ class PageRepository extends PageAbstractRepository
 		}
 		
 		$additionalCondition = implode(' OR ', $orList);
-		$this->nestedSetRepository->setAdditionalCondition($additionalCondition);
+		$additionalConditionSql = "discr IN ('page', 'application', 'group')";
+
+		$this->nestedSetRepository->setAdditionalCondition($additionalCondition, $additionalConditionSql);
 	}
 }
