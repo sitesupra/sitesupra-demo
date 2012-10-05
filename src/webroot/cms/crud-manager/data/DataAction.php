@@ -64,7 +64,7 @@ class DataAction extends CrudManagerAbstractAction
 
 	public function configurationAction()
 	{
-		$localeId = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository($configuration->entity);

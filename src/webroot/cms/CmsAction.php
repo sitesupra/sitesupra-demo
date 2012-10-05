@@ -323,7 +323,7 @@ abstract class CmsAction extends SimpleController
 
 	/**
 	 * Return current locale
-	 * @return Locale
+	 * @return \Supra\Locale\Locale
 	 */
 	protected function getLocale()
 	{
