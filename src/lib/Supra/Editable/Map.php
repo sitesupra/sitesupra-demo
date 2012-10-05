@@ -110,16 +110,6 @@ class Map extends EditableAbstraction
 		return $content;
 	}
 	
-	public function getFilteredValue()
-	{
-		return parent::getFilteredValue();
-	}
-	
-	public function getDefaultValue()
-	{
-		return parent::getDefaultValue();
-	}
-
 	public function getContentForEdit()
 	{
 		return array(

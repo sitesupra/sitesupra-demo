@@ -56,7 +56,7 @@ YUI.add('website.providers', function (Y) {
 		initialize: function () {
 			//Load data
 			var uri = Supra.CRUD.getDataPath('configuration');
-			Supra.io(uri, this.setup, this);
+			Supra.io(uri).done(this.setup, this);
 		},
 		
 		/**

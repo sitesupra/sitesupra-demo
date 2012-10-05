@@ -200,3 +200,4 @@
 /cms/lib/supra/build/slideshow/slideshow-input-button.js
 /cms/lib/supra/build/slideshow/slideshow.js
 /cms/lib/supra/build/event/deferred.js
+/cms/lib/supra/build/supra/supra-packed-css.js

@@ -39,6 +39,12 @@ abstract class EditableAbstraction implements EditableInterface
 	protected $defaultValue;
 
 	/**
+	 * Default values (localized)
+	 * @var array
+	 */
+	protected $defaultValueLocalized = array();
+
+	/**
 	 * @param string $label
 	 */
 	public function __construct($label = null, $groupId = null)
@@ -156,18 +162,32 @@ abstract class EditableAbstraction implements EditableInterface
 		$this->group = $groupId;
 	}
 	/**
+	 * @param string $localeId
 	 * @return mixed 
 	 */
-	public function getDefaultValue()
+	public function getDefaultValue($localeId = null)
 	{
+		if ( ! is_null($localeId) && array_key_exists($localeId, $this->defaultValueLocalized)) {
+			return $this->defaultValueLocalized[$localeId];
+		}
+
 		return $this->defaultValue;
 	}
 
 	/**
-	 * @param mixed $value 
+	 * @param mixed $value
+	 * @param string $localeId
 	 */
-	public function setDefaultValue($value)
+	public function setDefaultValue($value, $localeId = null)
 	{
+		if ( ! is_null($localeId)) {
+			$this->defaultValueLocalized[$localeId] = $value;
+
+			if ( ! is_null($this->defaultValue)) {
+				return;
+			}
+		}
+
 		$this->defaultValue = $value;
 	}
 

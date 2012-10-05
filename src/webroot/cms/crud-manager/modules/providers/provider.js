@@ -11,6 +11,7 @@ YUI.add('website.provider', function (Y) {
 		this.fields_list = config.ui_list;
 		this.fields_edit = config.ui_edit;
 		this.lists = config.lists;
+		this.filters = config.filters;
 		
 		Provider.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
@@ -122,6 +123,13 @@ YUI.add('website.provider', function (Y) {
 		 * @private
 		 */
 		lists: {},
+		
+		/**
+		 * Filter list
+		 * @type {Object}
+		 * @private
+		 */
+		filters: {},
 		
 		/**
 		 * Form instance
@@ -495,6 +503,16 @@ YUI.add('website.provider', function (Y) {
 				this._createDataGrid();
 			}
 			
+			if (state) {
+				// Show or hide buttons
+				var button = Supra.Manager.PageToolbar.getActionButton('filters');
+				if (this.filters) {
+					button.show();
+				} else {
+					button.hide();
+				}
+			}
+			
 			return !!state;
 		},
 		
@@ -513,6 +531,11 @@ YUI.add('website.provider', function (Y) {
 			}
 			
 			if (state == 'edit') {
+				var filters = Supra.Manager.getAction('Filters');
+				if (filters.get('visible')) {
+					filters.hide();
+				}
+				
 				if (!this.form) {
 					this._createForm();
 				} else {

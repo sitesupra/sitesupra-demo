@@ -44,6 +44,11 @@ class TemporaryGroupPage extends GroupPage
 	{
 		return is_null($this->numberChildren) ? count($this->children) : $this->numberChildren;
 	}
+
+	public function hasCalculatedNumberChildren()
+	{
+		return ! is_null($this->numberChildren);
+	}
 	
 	public function setId($id)
 	{

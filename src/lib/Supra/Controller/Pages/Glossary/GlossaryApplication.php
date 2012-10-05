@@ -61,10 +61,11 @@ class GlossaryApplication implements PageApplicationInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @param QueryBuilder $queryBuilder
 	 * @param string $filterName
 	 * @return array
 	 */
-	public function getFilterFolders($filterName)
+	public function getFilterFolders(QueryBuilder $queryBuilder, $filterName)
 	{
 		$folders = null;
 

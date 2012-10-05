@@ -34,9 +34,10 @@ interface EditableInterface
 	public function getGroupId();
 	
 	/**
+	 * @param string $localeId
 	 * @return mixed
 	 */
-	public function getDefaultValue();
+	public function getDefaultValue($localeId = null);
 	
 	/**
 	 * @param mixed $value

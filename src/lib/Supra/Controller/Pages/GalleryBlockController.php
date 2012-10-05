@@ -68,16 +68,19 @@ class GalleryBlockController extends BlockController
 		/*
 		 * Must create new property here
 		 */
-		$propertySet = $this->getRequest()
-				->getBlockPropertySet();
+		$request = $this->getRequest();
+		/* @var $request Request\PageRequest */
+
+		$propertySet = $request->getBlockPropertySet();
 		
-		$localization = $this->getRequest()
-				->getPageLocalization();
+		$localization = $request->getPageLocalization();
+
+		$localeId = $request->getLocale();
 		
 		if (empty($property)) {
 			$property = new Entity\BlockProperty($name);
 			$property->setEditable($editable);
-			$property->setValue($editable->getDefaultValue());
+			$property->setValue($editable->getDefaultValue($localeId));
 			$property->setBlock($this->getMetadataBlock());
 			$property->setLocalization($localization);
 			

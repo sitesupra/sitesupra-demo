@@ -126,7 +126,7 @@ class BlocksAction extends PageManagerAction
 
 	protected function gatherPropertyArray($properties)
 	{
-
+		$localeId = $this->getLocale();
 		$response = array();
 
 		if (is_array($properties)) {
@@ -139,7 +139,7 @@ class BlocksAction extends PageManagerAction
 					'type' => $editable->getEditorType(),
 					'inline' => $editable->isInlineEditable(),
 					'label' => $editable->getLabel(),
-					'value' => $editable->getDefaultValue(),
+					'value' => $editable->getDefaultValue($localeId),
 					'group' => $editable->getGroupId(),
 						)
 						+ $editable->getAdditionalParameters();

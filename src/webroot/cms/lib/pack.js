@@ -3221,7 +3221,7 @@ YUI.add('supra.datatype-date-reformat', function(Y) {
 			diff = date;
 		}
 		 
-		var day_diff = ~~(diff / 86400);
+		var day_diff = ~~(diff / 86400),
 			cache = '',
 			name = '',
 			tpl = '',
@@ -28569,9 +28569,9 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	 */
 	function Form (config) {
 		//Fix "value" references for inputs
-		this.fixInputConfigValueReferences(config);
+		this.fixInputConfigValueReferences(config || {});
 		
-		Form.superclass.constructor.apply(this, [config]);
+		Form.superclass.constructor.apply(this, [config || {}]);
 		
 		this.inputs = {};
 		this.inputs_definition = {};
@@ -28803,7 +28803,33 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					//Add input to the list of form inputs
 					this.inputs[config.get('id')] = config;
 				} else {
-					//@TODO Add possibility to add new inputs after form has been rendered
+					//Create input and append
+					var id = null,
+						input = null,
+						node = null,
+						contentBox = this.get('contentBox'),
+						srcNode = this.get('srcNode');
+					
+					config = this.normalizeInputConfig(config);
+					id = config.id || config.name;
+					this.inputs_definition[id] = config;
+					
+					input = this.factoryField(config);
+					if (input) {
+						this.inputs[id] = input;
+						
+						if (config.srcNode) {
+							input.render();
+						} else if (config.containerNode) {
+							//If input doesn't exist but has container node, then create
+							//input inside it
+							input.render(config.containerNode);
+						} else {
+							//If input doesn't exist, then create it
+							input.render(contentBox);
+						}
+					}
+					
 				}
 			} else {
 				var id = ("id" in config && config.id ? config.id : ("name" in config ? config.name : ""));
@@ -28848,16 +28874,12 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 				
 				if (button && !button.closest(form)) {
 					//On submit call "save"
-					button.on("click", function () {
-						this.fire("submit");
-						this.save();
-					}, this);
+					button.on("click", this.submit, this);
 					
 					//On input return key call "save"
 					form.all("input[type='text'],input[type='password']").on("keyup", function (event) {
 						if (event.keyCode == 13) { //Return key
-							this.fire("submit");
-							this.save();
+							this.submit();
 							event.preventDefault();
 						}
 					}, this);
@@ -28872,6 +28894,14 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 				//Save form
 				this.save();
 			}, this);
+		},
+		
+		/**
+		 * Submit form
+		 */
+		submit: function () {
+			this.fire("submit");
+			this.save();
 		},
 		
 		/**
@@ -31149,4 +31179,24 @@ YUI.add('supra.deferred', function (Y) {
 	
 	Supra.Deferred = Deferred;
 	
-}, YUI.version);
+}, YUI.version);/**
+ * For all modules loaded using pack.js skins are loaded using pack.css
+ * and we need to mark these skin modules as loaded
+ */
+(function (Y) {
+	
+	var modules = Y.Env._loader.moduleInfo,
+		loaded = YUI.Env._loaded[YUI.version],
+		name = null;
+	
+	for (name in modules) {
+		
+		if (name.indexOf('skin-') === 0) {
+			//console.log(name);
+			loaded[name] = true;
+		} else if (name.indexOf('supra.') === 0) {
+			loaded['skin-supra-' + name] = true;
+		}
+	}
+	
+})(Supra.Y);
