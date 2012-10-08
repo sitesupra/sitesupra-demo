@@ -2,39 +2,16 @@
 
 namespace Supra\Cms\CrudManager\Form;
 
-use Supra\Cms\CrudManager\CrudManagerAbstractAction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Cms\Exception\CmsException;
 use Supra\AuditLog\TitleTrackingItemInterface;
-use Supra\Cms\CrudManager\CrudEntityInterface;
-use Supra\Cms\CrudManager\CrudRepositoryInterface;
-use Supra\Cms\CrudManager\CrudManagerEvents;
+use Supra\Cms\CrudManager;
 
-class FormAction extends CrudManagerAbstractAction
+class FormAction extends CrudManager\CrudManagerAbstractAction
 {
-	/**
-	 * @var \Supra\Event\EventManager
-	 */
-	protected $eventManager;
-	
-	
-	public function prepare(\Supra\Request\RequestInterface $request, \Supra\Response\ResponseInterface $response)
-	{
-		$configuration = $this->getConfiguration();
-		$em = ObjectRepository::getEntityManager($this);
-		$repository = $em->getRepository($configuration->entity);
-		
-		$this->eventManager = ObjectRepository::getEventManager($this);
-		
-		$this->bindSubscriptions($repository);
-		
-		parent::prepare($request, $response);
-	}
 	
 	public function saveAction()
 	{
-		$this->eventManager->fire(CrudManagerEvents::PRE_SAVE);
-		
 		$this->isPostRequest();
 
 		$configuration = $this->getConfiguration();
@@ -60,9 +37,15 @@ class FormAction extends CrudManagerAbstractAction
 			}
 		}
 		
+		$eventArgs = new CrudManager\CrudEntityEventArgs();
+		$eventArgs->entity = $record;
+		$eventArgs->entityManager = $em;
+		
 		if ($newRecord) {
-			$this->eventManager->fire(CrudManagerEvents::PRE_INSERT);
+			$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::PRE_INSERT, $repo, $eventArgs);
 		}
+		
+		$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::PRE_SAVE, $repo, $eventArgs);
 	
 		if ( ! $record instanceof $configuration->entity) {
 			throw new CmsException(null, 'Could not find any record with id #' . $recordId);
@@ -78,7 +61,7 @@ class FormAction extends CrudManagerAbstractAction
 		$em->flush();
 		
 		if ($newRecord) {
-			$this->eventManager->fire(CrudManagerEvents::POST_INSERT);
+			$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::POST_INSERT, $repo, $eventArgs);
 		}
 				
 		$recordId = $record->getId();
@@ -94,7 +77,7 @@ class FormAction extends CrudManagerAbstractAction
 
 		$this->writeAuditLog("Record %item% saved", $record);
 
-		$this->eventManager->fire(CrudManagerEvents::POST_SAVE);
+		$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::POST_SAVE, $repo, $eventArgs);
 		
 		$response = $this->getResponse();
 		$response->setResponseData($output);
@@ -248,21 +231,21 @@ class FormAction extends CrudManagerAbstractAction
 	}
 	
 	/**
-	 * Subscribes repository to manager events
+	 * Runs repository method if repository is subscribed to corresponding event
 	 * 
+	 * @param string $eventName
 	 * @param \Supra\Cms\CrudManager\CrudRepositoryInterface $repository
-	 * @return boolean
+	 * @param \Supra\Cms\CrudManager\CrudEntityEventArgs $eventArgs
 	 */
-	private function bindSubscriptions(CrudRepositoryInterface $repository)
+	private function fireRepositoryEvent($eventName, CrudManager\CrudRepositoryInterface $repository, CrudManager\CrudEntityEventArgs $eventArgs)
 	{
-		if ( ! $repository instanceof \Doctrine\Common\EventSubscriber) {
-			return false;
+		if ($repository instanceof CrudManager\CrudInteractiveRepositoryInterface) {
+			$subscribedEvents = $repository->getSubscribedEvents();
+		
+			if (in_array($eventName, $subscribedEvents)) {
+				$repository->$eventName($eventArgs);
+			}
 		}
-		
-		$subscribedEvents = $repository->getSubscribedEvents();		
-		
-		$this->eventManager->listen($subscribedEvents, $repository);
-		
-		return true;
 	}
+
 }
