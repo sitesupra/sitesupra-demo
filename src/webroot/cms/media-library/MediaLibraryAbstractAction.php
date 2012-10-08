@@ -17,7 +17,7 @@ use Supra\AuditLog\AuditLogEvent;
 abstract class MediaLibraryAbstractAction extends CmsAction
 {
 	/**
-	 * @var FileStorage\FileStorage
+	 * @var \Supra\FileStorage\FileStorage
 	 */
 	protected $fileStorage;
 	

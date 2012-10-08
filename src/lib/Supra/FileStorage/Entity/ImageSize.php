@@ -5,7 +5,7 @@ namespace Supra\FileStorage\Entity;
 /**
  * Image resized versions
  * @Entity
- * @Table(name="image_size", uniqueConstraints={@UniqueConstraint(name="master_id_name_idx", columns={"master_id", "name"})})
+ * @Table(name="image_size")
  */
 class ImageSize extends Abstraction\Entity
 {

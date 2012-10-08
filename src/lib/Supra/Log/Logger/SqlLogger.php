@@ -88,8 +88,7 @@ class SqlLogger
 		$this->sql = $eventArgs->sql;
 		$this->params = (array) $eventArgs->params;
 		$this->types = $eventArgs->types;
-		$this->start = microtime(true);
-		
+
 		// Fix DateTime object logging
 		foreach ($this->params as $key => &$param) {
 			if ($param instanceof \DateTime) {
@@ -119,15 +118,16 @@ class SqlLogger
 		
 		$level = $this->getLogLevel();
 		
-		$sql = $this->sql;
-		$sql = preg_replace('/SELECT\s+(.*)\s+FROM/', 'SELECT ... FROM', $sql);
-		
+		$sql = preg_replace('/SELECT\s+(.{20,})\s+FROM/', 'SELECT ... FROM', $this->sql);
+
 		$this->log($sql . "\n"
 				. ($this->params ? "(" . implode('; ', $this->params) . ")\n" : ""), 
 				$level);
 		
 //		$subject = "Query\n{$this->sql}\n";
 //		$this->log($subject, $level);
+
+		$this->start = microtime(true);
 	}
 
 	/**
@@ -135,21 +135,10 @@ class SqlLogger
 	 */
 	public function stopQuery()
 	{
-		// Enable if you need to know the execution time
-		return;
-		
-		$subject = "Query\n{$this->sql}\n/* has been run";
-		if (count($this->params) > 0) {
-			//FIXME: DateTime objects raises exception
-//			$subject .= " with parameters [" . implode(', ', $this->params) . "]";
-		}
-		
-		$executionMs = microtime(true) - $this->start;
-		$executionMs = round(1000000 * $executionMs);
-		$subject .= ", execution time {$executionMs}ms*/";
+		$executionMs = round(1000 * (microtime(true) - $this->start));
+		$subject .= "... execution time {$executionMs}ms";
 		
 		$level = $this->getLogLevel();
-		
 		$this->log($subject, $level);
 	}
 	

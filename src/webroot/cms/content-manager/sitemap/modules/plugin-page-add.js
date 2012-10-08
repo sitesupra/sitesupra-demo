@@ -724,9 +724,28 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		
 		_setAncestorTemplate: function() {
 			var form = this._widgets.form,
-				input = form.getInput('template');
+				input = form.getInput('template'),
+				template = this._getAncestorTemplate(),
+				templates = this._templates;
 			
-			input.set('value', this._getAncestorTemplate());
+			for (var i=0,ii=templates.length; i<ii; i++) {
+				if (templates[i].id == template) {
+					if (templates[i].dont_use_as_default) {
+						if (i < ii-1) {
+							// Use next template
+							template = templates[i+1].id;
+						} else if (i) {
+							// Use previous template
+							template = templates[i-1].id;
+						} else {
+							// There are no any other template to choose from
+						}
+					}
+					break;
+				}
+			}
+			
+			input.set('value', template);
 		},
 		
 		/**

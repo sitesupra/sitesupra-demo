@@ -2,19 +2,19 @@
 
 namespace Supra\Cms\ContentManager\Virtualfolder;
 
-use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;
 use Supra\Cms\Exception\CmsException;
-
 
 class VirtualfolderAction extends PageManagerAction
 {
 	/**
 	 * Action for delete virtual folder
 	 */
-	public function deleteAction(){
-		
+	public function deleteAction()
+	{
+		$this->lock();
+
 		$this->isPostRequest();
 		$folder = $this->getPageLocalization()->getMaster();
 
@@ -28,6 +28,8 @@ class VirtualfolderAction extends PageManagerAction
 		}
 		
 		$this->delete();
+		$this->unlock();
+		
 		$this->writeAuditLog('%item% deleted', $folder);
 		$this->getResponse()->setResponseData(null);		
 	}
@@ -35,8 +37,8 @@ class VirtualfolderAction extends PageManagerAction
 	/**
 	 * Action for rename virtual folder
 	 */
-	public function renameAction(){
-		
+	public function renameAction()
+	{
 		$this->isPostRequest();
 		$folder = $this->getPageLocalization();
 		

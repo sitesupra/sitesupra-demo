@@ -349,7 +349,7 @@ class PageAction extends PageManagerAction
 					'properties' => array(),
 				);
 
-				$propertyDefinition = $configuration->properties;
+				$propertyDefinition = (array) $configuration->properties;
 
 				foreach ($propertyDefinition as $property) {
 
@@ -383,6 +383,8 @@ class PageAction extends PageManagerAction
 	 */
 	public function createAction()
 	{
+		$this->lock();
+
 		$this->isPostRequest();
 
 		$type = $this->getRequestParameter('type');
@@ -484,6 +486,7 @@ class PageAction extends PageManagerAction
 		}
 
 		$this->entityManager->flush();
+		$this->unlock();
 
 		$this->writeAuditLog('%item% created', $pageData);
 
@@ -556,6 +559,8 @@ class PageAction extends PageManagerAction
 	 */
 	public function deleteAction()
 	{
+		$this->lock();
+
 		$this->isPostRequest();
 
 		$page = $this->getPageLocalization()
@@ -568,6 +573,7 @@ class PageAction extends PageManagerAction
 		}
 
 		$this->delete();
+		$this->unlock();
 
 		$this->writeAuditLog('%item% deleted', $page);
 	}
@@ -664,10 +670,13 @@ class PageAction extends PageManagerAction
 	 */
 	public function duplicateAction()
 	{
+		$this->lock();
+
 		$this->isPostRequest();
 		$localization = $this->getPageLocalization();
 		$master = $localization->getMaster();
 		$this->duplicate($localization);
+		$this->unlock();
 
 		$this->writeAuditLog('%item% duplicated', $master);
 	}

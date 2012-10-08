@@ -126,7 +126,7 @@ class BlocksAction extends PageManagerAction
 
 	protected function gatherPropertyArray($properties)
 	{
-		$localeId = $this->getLocale();
+		$localeId = $this->getLocale()->getId();
 		$response = array();
 
 		if (is_array($properties)) {

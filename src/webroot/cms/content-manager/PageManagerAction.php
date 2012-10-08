@@ -1468,4 +1468,28 @@ abstract class PageManagerAction extends CmsAction
 		return $array;
 	}
 
+	/**
+	 * Locks the nested set (both for now)
+	 */
+	protected function lock()
+	{
+		$repo = $this->entityManager->getRepository(AbstractPage::CN());
+		/* @var $repo \Supra\Controller\Pages\Repository\PageAbstractRepository */
+		$nestedSetRepo = $repo->getNestedSetRepository();
+		/* @var $nestedSetRepo \Supra\NestedSet\DoctrineRepository */
+		$nestedSetRepo->lock();
+	}
+
+	/**
+	 * Unlocks the nested set
+	 */
+	protected function unlock()
+	{
+		$repo = $this->entityManager->getRepository(AbstractPage::CN());
+		/* @var $repo \Supra\Controller\Pages\Repository\PageAbstractRepository */
+		$nestedSetRepo = $repo->getNestedSetRepository();
+		/* @var $nestedSetRepo \Supra\NestedSet\DoctrineRepository */
+		$nestedSetRepo->unlock();
+	}
+
 }

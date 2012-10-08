@@ -233,9 +233,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 			
 			//Add properties plugin (creates form)
 			this.plug(PageContent.PluginProperties, {
-				'data': data,
-				//If there are inline HTML properties, then settings form is opened using toolbar buttons
-				'showOnEdit': has_html_properties ? false: true
+				'data': data
 			});
 			
 			//Find all inline and HTML properties

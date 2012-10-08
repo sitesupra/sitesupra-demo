@@ -39,11 +39,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				buttons = Manager.PageButtons;
 			
 			if (!toolbar.hasActionButtons(ContentGallery.NAME)) {
+				
 				toolbar.addActionButtons(ContentGallery.NAME, [
 					{
 						'id': 'gallery_block_manage',
 						'type': 'button',
-						'title': Supra.Intl.get(['gallerymanager', 'manage']),
+						'title': Supra.Intl.get(['gallerymanager', 'label_button']),
 						'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
 						'action': this,
 						'actionFunction': 'openGalleryManager'
@@ -85,11 +86,27 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			//Add properties plugin (creates form)
 			this.plug(PageContent.PluginProperties, {
 				'data': data,
-				//Settings form will be opened using toolbar button
-				'showOnEdit': false,
 				//Not using default group
 				'toolbarGroupId': ContentGallery.NAME
 			});
+			
+			//Manage button is placed in block settings if there are no property groups
+			//and sidebar is opened on block edit and block is saved (stop editing) when
+			//sidebar is closed 
+			if (!this.properties.hasTopGroups()) {
+				toolbar.getActionButton('gallery_block_manage').hide();
+				this.renderManageButton();
+				
+				//Save and close block on property save (sidebar close)
+				this.on('properties:save', function () {
+					this.fire('block:save');
+				});
+				this.on('properties:cancel', function () {
+					this.fire('block:cancel');
+				});
+			} else {
+				toolbar.getActionButton('gallery_block_manage').show();
+			}
 			
 			//Find all inline and HTML properties, initialize
 			this.findInlineInputs();
@@ -100,6 +117,41 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Render buttons
 			this.bindDnD();
+		},
+		
+		renderManageButton: function () {
+			//Add "Manage images" button
+			var form = this.properties.get('form'),
+				content = form.get('boundingBox').one('.su-slide-content > div') || form.get('contentBox'),
+				button = new Supra.Button({
+											'style': 'small-gray',
+											'label': Supra.Intl.get(['gallerymanager', 'label_button'])
+										 });
+			
+			button.render(content);
+			button.addClass('button-section');
+			
+			content.prepend(button.get('boundingBox'));
+			content.prepend(Y.Node.create('<p class="label">' + Supra.Intl.get(['gallerymanager', 'label']) + '</p>'));
+			
+			button.on('click', this.openGalleryManager, this);
+		},
+		
+		/**
+		 * Returns true if blocks has property groups, otherwise false
+		 * If there are property groups then "Manage images" is placed in toolbar,
+		 * otherwise it's placed in block settings
+		 * 
+		 * @returns {Boolean} True if blocks has property groups, otherwise false
+		 * @private
+		 */
+		hasPropertyGroups: function () {
+			var info = this.getBlockInfo();
+			if (info.property_groups && info.property_groups.length) {
+				return true;
+			} else {
+				return false;
+			}
 		},
 		
 		/**
@@ -128,8 +180,10 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		onEditingStart: function () {
 			ContentGallery.superclass.onEditingStart.apply(this, arguments);
 			
-			Manager.PageToolbar.setActiveAction(ContentGallery.NAME);
-			Manager.PageButtons.setActiveAction(ContentGallery.NAME);
+			if (this.properties.hasTopGroups()) {
+				Manager.PageToolbar.setActiveAction(ContentGallery.NAME);
+				Manager.PageButtons.setActiveAction(ContentGallery.NAME);
+			}
 		},
 		
 		onEditingEnd: function () {
@@ -261,7 +315,13 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				return;
 			}
 			
-			self.properties.hidePropertiesForm();
+			if (!self.properties.hasTopGroups()) {
+				self.properties.hidePropertiesForm({
+					'keepToolbarButtons': true
+				});
+			} else {
+				self.properties.hidePropertiesForm();
+			}
 			
 			//Data
 			var gallery_data = self.properties.getValues();
@@ -276,6 +336,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				'callback': function (data, changed) {
 					if (changed) {
 						this.unresolved_changes = true;
+						
+						//Show settings
+						if (!this.properties.hasTopGroups()) {
+							//Manager.PageContentSettings.set('frozen', false);
+							self.properties.showPropertiesForm();
+						}
 						
 						//Update data
 						this.properties.setValues(data);

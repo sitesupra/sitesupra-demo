@@ -36,8 +36,12 @@ class SitemaprecycleAction extends PageManagerAction
 
 	public function restoreAction()
 	{
+		$this->lock();
+
 		// Main
 		$this->restorePageVersion();
+
+		$this->unlock();
 
 		// Audit log
 		$pageData = $this->getPageLocalization();

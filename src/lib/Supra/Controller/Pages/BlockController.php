@@ -320,7 +320,6 @@ abstract class BlockController extends ControllerAbstraction
 
 				// Must set some DATA object. Where to get this? And why data is set to property not block?
 				//FIXME: should do somehow easier than that
-				$request = $this->getRequest();
 				if ($request instanceof PageRequest) {
 					$property->setLocalization($request->getPageLocalization());
 				}

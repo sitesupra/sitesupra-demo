@@ -12257,7 +12257,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			}, this);
 			
 			Supra.Manager.getAction('LinkManager').execute(data, {
-				'mode': 'link'
+				'mode': 'link',
+				'hideToolbar': true
 			}, callback, context || this);
 		},
 		
@@ -16322,6 +16323,7 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 			this.host.execute = this.executeHost;
 			this.host.hide = this.hideHost;
 			this.host.showFrozen = this.showFrozenHost;
+			this.host.hideFrozen = this.hideFrozenHost;
 			
 			this.host.after('visibleChange', this.afterVisibleChange, this);
 		},
@@ -16540,6 +16542,17 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 				this.plugins.getPlugin('PluginSidebar').afterVisibleChange({'newVal': true, 'prevVal': false});
 			} else {
 				this.show();
+			}
+		},
+		
+		/**
+		 * Force showing content even in frozen mode
+		 */
+		hideFrozenHost: function () {
+			if (!this.get('visible')) {
+				this.plugins.getPlugin('PluginSidebar').afterVisibleChange({'newVal': false, 'prevVal': true});
+			} else {
+				this.hide();
 			}
 		}
 		
@@ -21875,6 +21888,7 @@ YUI.add('supra.uploader', function (Y) {
 			
 			//Sync values
 			this.set("values", this.get("values"));
+			this.set("value", this.get("value"));
 		},
 		
 		bindUI: function () {
@@ -28774,6 +28788,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		factoryField: function (config) {
 			var type = config.type;
 				type = type.substr(0,1).toUpperCase() + type.substr(1);
+			
+			if (!config.value && config.defaultValue) {
+				config.value = config.defaultValue;
+			}
 			
 			if (type in Supra.Input) {
 				return new Supra.Input[type](config);
