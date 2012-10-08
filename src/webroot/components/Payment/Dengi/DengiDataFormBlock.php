@@ -3,9 +3,7 @@
 namespace Project\Payment\Dengi;
 
 use Supra\Controller\Pages\BlockController;
-use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Request\PageRequestView;
-use Supra\Html\HtmlTag;
 use Project\Payment\Dengi;
 use Supra\Payment\Entity\Order;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
@@ -30,60 +28,6 @@ class DengiDataFormBlock extends BlockController
 	 * @var Order\Order
 	 */
 	protected $order;
-
-	/**
-	 * @var array
-	 */
-	protected $defaultValues = array();
-	protected $modeTypeDefinitions = array(
-		'48' => array('title' => 'ВТБ24'),
-		'76' => array('title' => 'Интернет-банк «Альфа-Клик»'),
-		'61' => array('title' => 'Промсвязьбанк'),
-		'30' => array('title' => 'IntellectMoney'),
-		'13' => array('title' => 'MoneyMail'),
-		'14' => array('title' => 'QIWI Кошелек'),
-		'9' => array('title' => 'RBK Money'),
-		'74' => array('title' => 'TeleMoney'),
-		'65' => array('title' => 'Ukash'),
-		'80' => array('title' => 'W1 - Единый кошелёк '),
-		'15' => array('title' => 'WebCreds'),
-		'2' => array('title' => 'WebMoney RUB'), // !
-		'204' => array('title' => 'Web-кошелек ПСКБ'),
-		'68' => array('title' => 'WellPay!'),
-		'73' => array('title' => 'Yota.Деньги'),
-		'32' => array('title' => 'Деньги@Mail.ru'),
-		'43' => array('title' => 'Дом.ru'),
-		'12' => array('title' => 'Карты Деньги Online'),
-		'66' => array('title' => 'Куппи'),
-		'79' => array('title' => 'Твинго (Ваши Деньги)'),
-		'7' => array('title' => 'Яндекс.Деньги'), //
-		'75' => array('title' => 'CONTACT'),
-		'54' => array('title' => 'Rapida'),
-		'87' => array('title' => 'Western Union'),
-		'62' => array('title' => 'Евросеть'),
-		'115' => array('title' => 'СберБанк Спасибо'),
-		'11' => array('title' => 'SMS'),
-		'56' => array('title' => 'Терминалы Comepay'),
-		'246' => array('title' => 'Терминалы CyberPlat'),
-		'71' => array('title' => 'Терминалы SberPlat'),
-		'42' => array('title' => 'Терминалы Кассира.Нет'),
-		'18' => array('title' => 'Терминалы ОСМП'),
-		'70' => array('title' => 'Терминалы Мобил Элемент'),
-		'37' => array('title' => 'Терминалы Свободная Касса'),
-		'64' => array('title' => 'Терминалы Элекснет'),
-		'117' => array('title' => 'Ямальская Платежная Компания'),
-		'194' => array('title' => 'BankLink (SwedBank)'),
-		'140' => array('title' => 'Dresdner Bank Internetbanking'),
-		'142' => array('title' => 'Dutch Direct Debit'),
-		'146' => array('title' => 'ELBA Internet Payment'),
-		'160' => array('title' => 'Fast Bank Transfer'),
-		'162' => array('title' => 'German Direct Debit'),
-		'168' => array('title' => 'Internet Cheque'),
-		'182' => array('title' => 'Nordea Bank'),
-		'196' => array('title' => 'Nordea Bank Finland'),
-		'198' => array('title' => 'Nordea Bank Sweden'),
-		'184' => array('title' => 'Partner Online Paying'),
-	);
 
 	/**
 	 * @return OrderProvider
@@ -233,8 +177,10 @@ class DengiDataFormBlock extends BlockController
 		if ( ! empty($session->errorMessages)) {
 
 			$response->assign('errorMessages', $session->errorMessages);
-
 			unset($session->errorMessages);
+		} else {
+			
+			$response->assign('errorMessages', array());
 		}
 
 		$returnUrl = $paymentProvider->getDataFormReturnUrl($order);

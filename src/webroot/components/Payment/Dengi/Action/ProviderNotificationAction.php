@@ -2,6 +2,11 @@
 
 namespace Project\Payment\Dengi\Action;
 
+/*
+  http://playpad.videinfra.com/payment/status-change?amount=93.59&userid=00ah52mrv04ok84gos4k&userid_extra=&orderid=00be66tub01gcsw00o4w&paymentid=102957604&paymode=40&key=2e19fea701ee34cbeb02c3d03ae6cc2d
+  http://playpad.videinfra.com/payment/status-change?userid=00ah52mrv04ok84gos4k&userid_extra=&key=65d480b7c0f40dd2983a2984eefc8e02
+ */
+
 use Project\Payment\Dengi;
 use Project\Payment\Dengi\Exception;
 use Supra\Payment\Transaction\TransactionStatus;
@@ -21,8 +26,8 @@ use Supra\ObjectRepository\ObjectRepository;
 class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 {
 
-	const REQUEST_KEY_TRANSACT_TRANSACTION_ID = 'ID';
-	const REQUEST_KEY_MERCHANT_TRANSACTION_ID = 'MerchantID';
+	const NOTIFICATION_TYPE_CHECK = 'check';
+	const NOTIFICATION_TYPE_NOTIFY = 'notify';
 
 	/**
 	 * @var Order\Order
@@ -35,81 +40,16 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 	protected $notificationData;
 
 	/**
+	 * @var \Supra\Request\RequestData
+	 */
+	protected $parameters;
+
+	/**
 	 * @return Dengi\PaymentProvider
 	 */
 	protected function getPaymentProvider()
 	{
 		return parent::getPaymentProvider();
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getNotificationData()
-	{
-		if (empty($this->notificationData)) {
-
-			$notificationData = $this->fetchNotificationDataFromRequest();
-			$this->setNotificationData($notificationData);
-		}
-
-		return $this->notificationData;
-	}
-
-	/**
-	 * @param array $notificationData 
-	 */
-	public function setTransactTransactionId($notificationData)
-	{
-		$this->notificationData = $notificationData;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function fetchNotificationDataFromRequest()
-	{
-		$request = $this->getRequest();
-
-		if ( ! ($request instanceof HttpRequest)) {
-			throw new Exception\RuntimeException('Do not know how to fetch Transact notification data from "' . get_class($request) . '" type of request.');
-		}
-
-		$notificationData = $request->getPost()->getArrayCopy();
-
-		return $notificationData;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getTransactTransactionId()
-	{
-		$notificationData = $this->getNotificationData();
-
-		if (empty($notificationData[self::REQUEST_KEY_TRANSACT_TRANSACTION_ID])) {
-			throw new Execption\RuntimeException('Could not get Transact transaction id from notification data.');
-		}
-
-		$transactTransactionId = $notificationData[self::REQUEST_KEY_TRANSACT_TRANSACTION_ID];
-
-		return $transactTransactionId;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getMerchantTransactionId()
-	{
-		$notificationData = $this->getNotificationData();
-
-		if (empty($notificationData[self::REQUEST_KEY_MERCHANT_TRANSACTION_ID])) {
-			throw new Execption\RuntimeException('Could not get merchant transaction id from notification data.');
-		}
-
-		$transactTransactionId = $notificationData[self::REQUEST_KEY_MERCHANT_TRANSACTION_ID];
-
-		return $transactTransactionId;
 	}
 
 	/**
@@ -127,21 +67,22 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 	}
 
 	/**
-	 * @return Order\Order
+	 * @return \Supra\Request\RequestData
 	 */
-	protected function fetchOrderFromRequest()
+	protected function getParameters()
 	{
-		$paymentProvider = $this->getPaymentProvider();
+		if (empty($this->parameters)) {
 
-		$merchantTransactionId = $this->getMerchantTransactionId();
+			$request = $this->getRequest();
 
-		$order = $paymentProvider->getOrderFromMerchantTransactionId($merchantTransactionId);
-
-		if (empty($order)) {
-			throw new Exception\RuntimeException('Could not fetch order from request.');
+			if ($request->isPost()) {
+				$this->parameters = $request->getPost();
+			} else {
+				$this->parameters = $request->getQuery();
+			}
 		}
 
-		return $order;
+		return $this->parameters;
 	}
 
 	/**
@@ -160,17 +101,165 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 		$this->notificationData = $notificationData;
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getNotificationData()
+	{
+		return $this->notificationData;
+	}
+
+	/**
+	 * @throws Exception\RuntimeException
+	 */
 	public function execute()
 	{
+		$notificationType = $this->getNotificationType();
+
+		switch ($notificationType) {
+			case self::NOTIFICATION_TYPE_CHECK: {
+
+					$this->executeCheck();
+				} break;
+
+			case self::NOTIFICATION_TYPE_NOTIFY: {
+
+					$order = $this->getOrder();
+
+					if ($order instanceof Order\ShopOrder) {
+
+						$this->handleShopOrder($order);
+					}
+				} break;
+
+			default: {
+					throw new Exception\RuntimeException('Notification not recognized.');
+				}
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getNotificationType()
+	{
+		$notificationType = null;
+
+		$parameters = $this->getParameters();
+
+		\Log::error('PPP: ', $parameters);
+
+		if ($parameters->has('amount')) {
+			$notificationType = self::NOTIFICATION_TYPE_NOTIFY;
+		} else {
+			$notificationType = self::NOTIFICATION_TYPE_CHECK;
+		}
+
+		return $notificationType;
+	}
+
+	/**
+	 * 
+	 * @throws Exception\RuntimeException
+	 */
+	protected function executeCheck()
+	{
+		$paymentProvider = $this->getPaymentProvider();
+
+		$parameters = $this->getParameters();
+
+		$dengiUserId = $parameters->get('userid');
+		$receivedChecksum = $parameters->get('key');
+
+		//$this->setNotificationData($parameters->getArrayCopy());
+		//$order->addToPaymentEntityParameters(Dengi\PaymentProvider::PHASE_NAME_STATUS_ON_NOTIFICATION, $this->getNotificationData());
+
+		$checkumValid = $paymentProvider->checkVerifyDengiOrderChecksum($dengiUserId, $receivedChecksum);
+
+		$userExists = $this->isValidOrderUser($dengiUserId);
+
+		$output = $paymentProvider->makeVerifyDengiOrderCheckumResponse($checkumValid && $userExists);
+
+		$response = $this->getResponse();
+
+		if ($response instanceof \Supra\Response\HttpResponse) {
+
+			$response->header('Content-Type', 'text/xml');
+			$response->output($output);
+		}
+	}
+
+	/**
+	 * @param string $dengiUserId
+	 * @return boolean
+	 */
+	protected function isValidOrderUser($dengiUserId)
+	{
+		return true;
+	}
+
+	/**
+	 * 
+	 */
+	protected function executeNotify()
+	{
+		$orderProvider = $this->getOrderProvider();
+
+		$parameters = $this->getParameters();
+
+		$paymentProvider = $this->getPaymentProvider();
+
+		$amount = $parameters->get('amount');
+		$dengiUserId = $parameters->get('userid');
+		$dengiPaymentId = $parameters->get('paymentid');
+		$receivedChecksum = $parameters->get('key');
+
+		$this->setNotificationData($parameters->getArrayCopy());
+
 		$order = $this->getOrder();
 
-		if ($order instanceof Order\ShopOrder) {
-			$this->processShopOrder($order);
-		} else if ($order instanceof Order\RecurringOrder) {
-			$this->processRecurringOrder($order);
-		} else {
-			throw new Exception\RuntimeException('Do not know what to do with notification for "' . get_class($order) . '" order type.');
+		if ( ! $order instanceof Order\ShopOrder) {
+			throw new Exception\RuntimeException('Do not how to process notification for "' . get_class($order) . '" order type.');
 		}
+		/* @var $order Order\ShopOrder */
+
+		$order->addToPaymentEntityParameters(Dengi\PaymentProvider::PHASE_NAME_STATUS_ON_NOTIFICATION, $this->getNotificationData());
+
+		$notificationValid = $paymentProvider->checkDengiOrderSuccessChecksum($amount, $dengiUserId, $dengiPaymentId, $receivedChecksum);
+
+		if ($notificationValid == false) {
+			throw new Exception\RuntimeException('Notification validtation failed.');
+		}
+
+		/* @var $transaction Supra\Payment\Entity\Transaction\Transaction */
+
+		$transaction = $order->getTransaction();
+
+		$transaction->setStatus(TransactionStatus::SUCCESS);
+
+		$orderProvider->store($order);
+
+		$response = $this->getResponse();
+
+		$notificationResponse = $paymentProvider->makeCheckDengiOrderSuccessResponse($order->getId(), $notificationValid);
+
+		\Log::error('$notificationResponse: ' . $notificationResponse);
+
+		$response->output($notificationResponse);
+	}
+
+	/**
+	 * @return Order\Order
+	 */
+	protected function fetchOrderFromRequest()
+	{
+		$orderId = $this->getParameters()->get('orderid');
+
+		$orderProvider = $this->getOrderProvider();
+
+		$order = $orderProvider->getOrder($orderId);
+
+		return $order;
 	}
 
 	/**
@@ -178,17 +267,15 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 	 */
 	protected function processShopOrder(Order\ShopOrder $order)
 	{
-		$orderProvider = $this->getOrderProvider();
-		$paymentProvider = $this->getPaymentProvider();
+		$notificationType = $this->getNotificationType();
 
-		$transaction = $order->getTransaction();
+		if ($notificationType == self::NOTIFICATION_TYPE_NOTIFY) {
 
-		$transactionStatus = $paymentProvider->getTransactTransactionStatus($transaction);
-		$order->addToPaymentEntityParameters(Dengi\PaymentProvider::PHASE_NAME_STATUS_ON_NOTIFICATION, $transactionStatus);
+			$this->executeNotify();
+		} else {
 
-		$paymentProvider->updateShopOrderStatus($order, $transactionStatus);
-
-		$orderProvider->store($order);
+			throw new Exception\RuntimeException('Do not know what to do with this type of notification.');
+		}
 	}
 
 	/**
@@ -196,27 +283,7 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 	 */
 	protected function processRecurringOrder(Order\RecurringOrder $order)
 	{
-		$orderProvider = $this->getOrderProvider();
-		/* @var $paymentProvider Tranasact\PaymentProvider */
-		$paymentProvider = $this->getPaymentProvider();
-
-		$recurringPayment = $order->getRecurringPayment();
-
-		$transactTransactionId = $this->getTransactTransactionId();
-
-		$lastTransaction = $recurringPayment->getLastTransaction();
-		$lastTransactTransactionId = $paymentProvider->getTransactTransactionIdFromPaymentEntity($lastTransaction);
-
-		if ($lastTransactTransactionId != $transactTransactionId) {
-			throw new Exception\RuntimeException('Received notification is not for last transaction for this recurring payment.');
-		}
-
-		$transactionStatus = $paymentProvider->getTransactTransactionStatus($lastTransaction);
-		$order->addToPaymentEntityParameters(Dengi\PaymentProvider::PHASE_NAME_STATUS_ON_NOTIFICATION, $transactionStatus);
-
-		$paymentProvider->updateRecurringOrderStatus($order, $transactionStatus);
-
-		$orderProvider->store($order);
+		throw new Exception\RuntimeException('Recurring orders are not supported.');
 	}
 
 	/**

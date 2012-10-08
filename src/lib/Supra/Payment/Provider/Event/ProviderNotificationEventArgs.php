@@ -2,7 +2,7 @@
 
 namespace Supra\Payment\Provider\Event;
 
-class ProviderNotificationEventArgs extends EventArgsAbstraction
+class ProviderNotificationEventArgs extends PaymentEventArgsAbstraction
 {
 	/**
 	 * @var array

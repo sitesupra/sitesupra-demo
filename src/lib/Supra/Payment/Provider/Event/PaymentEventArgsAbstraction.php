@@ -5,7 +5,7 @@ namespace Supra\Payment\Provider\Event;
 use Supra\Payment\Entity\Order\Order;
 use Supra\Event\EventArgs;
 
-abstract class EventArgsAbstraction extends EventArgs
+abstract class PaymentEventArgsAbstraction extends EventArgs
 {
 
 	/**

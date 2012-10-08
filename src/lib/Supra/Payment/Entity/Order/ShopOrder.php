@@ -60,12 +60,19 @@ class ShopOrder extends Order
 		return $paymentProviderId;
 	}
 
+	/**
+	 * @param string $phaseName
+	 * @param mixed $data
+	 */
 	public function addToPaymentEntityParameters($phaseName, $data)
 	{
 		$transaction = $this->getTransaction();
 		$transaction->addToParameters($phaseName, $data);
 	}
 
+	/**
+	 * @param integer $status
+	 */
 	public function setStatus($status)
 	{
 		OrderStatus::validate($status);

@@ -207,7 +207,7 @@ abstract class PaymentProviderAbstraction
 
 		if ($response instanceof HttpResponse) {
 			$response->redirect($proxyUrl);
-			$response->flush();
+			//$response->flush();
 		} else {
 			throw new Exception\RuntimeException('Do not know how to do redirect with response type "' . get_class($response) . '".');
 		}

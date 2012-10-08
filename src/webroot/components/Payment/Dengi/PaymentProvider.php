@@ -22,11 +22,14 @@ use Supra\Payment\Entity\Abstraction\PaymentEntity;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Response\TwigResponse;
 use Supra\Controller\FrontController;
+use Supra\Request\RequestData;
 
 class PaymentProvider extends PaymentProviderAbstraction
 {
-	// Phase names used in Dengi context
 
+	const DEFAULT_NAME = 'dengi_one';
+
+	// Phase names used in Dengi context
 	const PHASE_NAME_INITIALIZE_TRANSACTION = 'dengi-initialize';
 	const PHASE_NAME_CHARGE_TRANSACTION = 'dengi-charge';
 
@@ -307,7 +310,8 @@ class PaymentProvider extends PaymentProviderAbstraction
 			$paymentProviderOrderItem = $order->getOrderItemByPayementProvider($this->getId());
 		}
 
-		$paymentProviderOrderItem->setPrice($order->getTotalForProductItems() * 0.11);
+		//$paymentProviderOrderItem->setPrice($order->getTotalForProductItems() * 0.11);
+		$paymentProviderOrderItem->setPrice(0.00);
 	}
 
 	/**
@@ -316,9 +320,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function validateShopOrder(Order\ShopOrder $order)
 	{
-		if ($order->getTotalForProductItems() < 20.00) {
-			throw new Exception\RuntimeException('Total is too small!!!');
-		}
+		//if ($order->getTotalForProductItems() < 20.00) {
+		//	throw new Exception\RuntimeException('Total is too small!!!');
+		//}
 
 		return true;
 	}
@@ -413,7 +417,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function getOrderItemDescription(Order\Order $order, Locale $locale = null)
 	{
-		return 'Dengi fee (' . $locale . ') - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
+		return 'Dengi fee';
 	}
 
 	/**
@@ -482,12 +486,14 @@ class PaymentProvider extends PaymentProviderAbstraction
 			'mode_type' => $otherData['mode_type'],
 			'amount' => $order->getTotal(),
 			'source' => $this->getSource(),
-			'nicnkanme' => $order->getId(),
+			'nickname' => $order->getUserId(),
 			'order_id' => $order->getId(),
 			'paymentCurrency' => $backend->getCurrencyCode(),
 		);
 
 		$url = http_build_url($urlBase, array('query' => http_build_query($queryData)), HTTP_URL_JOIN_PATH | HTTP_URL_JOIN_QUERY);
+
+		\Log::error('DENGI REDIRECT URL: ', $url);
 
 		return $url;
 	}
@@ -506,6 +512,123 @@ class PaymentProvider extends PaymentProviderAbstraction
 	public function setBackends($backends)
 	{
 		$this->backends = $backends;
+	}
+
+	/**
+	 * @param string $dengiUserId
+	 * @param string $checksum
+	 */
+	public function checkVerifyDengiOrderChecksum($dengiUserId, $receivedChecksum)
+	{
+		$secret = $this->getSecret();
+
+		$checksum = md5('0' . $dengiUserId . '0' . $secret);
+
+		return $checksum == $receivedChecksum;
+	}
+
+	/**
+	 * @param boolean $success
+	 * @param string|null $comment
+	 * @return string
+	 */
+	public function makeVerifyDengiOrderCheckumResponse($success, $comment = null)
+	{
+		if ($success == true) {
+			$code = 'YES';
+		} else {
+			$code = 'NO';
+		}
+
+		$response = array(
+			'<?xml version="1.0" encoding="UTF-8"?>',
+			'<result>',
+			'<code>' . $code . '</code>',
+			'</result>');
+
+		return join("\n", $response);
+	}
+
+	/**
+	 * @param string $amount
+	 * @param string $dengiUserId
+	 * @param string $dengiPaymentId
+	 * @param string $receivedChecksum
+	 * @return boolean
+	 */
+	public function checkDengiOrderSuccessChecksum($amount, $dengiUserId, $dengiPaymentId, $receivedChecksum)
+	{
+		$secret = $this->getSecret();
+
+		$checksum = md5($amount . $dengiUserId . $dengiPaymentId . $secret);
+
+		return $checksum == $receivedChecksum;
+	}
+
+	/**
+	 * @param string $orderId
+	 * @param boolean $success
+	 * @param string|null $comment
+	 * @param string|null $course
+	 * @return string
+	 */
+	public function makeCheckDengiOrderSuccessResponse($orderId, $success, $comment = null, $course = null)
+	{
+		if ($success == true) {
+			$code = 'YES';
+		} else {
+			$code = 'NO';
+		}
+
+		$response = array(
+			'<?xml version="1.0" encoding="UTF-8"?>',
+			'<result>',
+			'<id>' . $orderId . '</id>',
+			'<code>' . $code . '</code>',
+			'<comment>' . $comment . '</comment>',
+			'<course>' . $course . '</course>',
+			'</result>',
+		);
+
+		return join("\n", $response);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function checkDengiSuccessReturnChecksum()
+	{
+		return true;
+	}
+
+	/**
+	 * @param RequestData $requestData
+	 * @return boolean
+	 */
+	public function validateDolSign(RequestData $requestData)
+	{
+		$receivedDolSign = $requestData->get('DOL_SIGN');
+
+		$requestDataAsArray = $requestData->getArrayCopy();
+
+		unset($requestDataAsArray['err_msg']);
+		unset($requestDataAsArray['DOL_SIGN']);
+		
+		// Specification is wrong, w/o comment field, even if it is empty, checksum is not valid.
+		// So this is why it is not being unset.
+		//unset($requestDataAsArray['comment']);
+
+		ksort($requestDataAsArray);
+
+		$stringToHash = '';
+
+		foreach ($requestDataAsArray as $key => $val) {
+			$stringToHash .= $key . '=' . $val;
+		}
+
+		$computedDolSign = md5($stringToHash . $this->getSecret());
+
+		return $receivedDolSign == $computedDolSign;
 	}
 
 }
