@@ -497,10 +497,8 @@ class AuditManagerListener implements EventSubscriber
 		
 		foreach ($records as $i => $record) {
 			$or->add("e.id = :id_$i AND e.revision = :revision_$i");
-			$qb->setParameters(array(
-						'id_' . $i => $record['id'],
-						'revision_' . $i => $record['revision'],
-					));
+			$qb->setParameter('id_' . $i, $record['id']);
+			$qb->setParameter('revision_' . $i, $record['revision']);
 		}
 		
 		// @OrderBy annotation
