@@ -106,7 +106,7 @@ class ProxyFactory
      *                        EntityManager will be used by this factory.
      * @return string
      */
-    private function getProxyFileName($className, $baseDir = null)
+    public function getProxyFileName($className, $baseDir = null)
     {
         $proxyDir = $baseDir ?: $this->_proxyDir;
 
