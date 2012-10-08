@@ -593,6 +593,11 @@ class ClassMetadataInfo implements ClassMetadata
      */
     private $_prototype;
 
+	/**
+	 * @var array
+	 */
+	public $auditAssociationMappings;
+
     /**
      * Initializes a new ClassMetadata instance that will hold the object-relational mapping
      * metadata of the class with the given name.
@@ -752,6 +757,8 @@ class ClassMetadataInfo implements ClassMetadata
             'table',
             'rootEntityName',
             'idGenerator', //TODO: Does not really need to be serialized. Could be moved to runtime.
+			// Supra7 needs this!
+			'auditAssociationMappings',
         );
 
         // The rest of the metadata is only serialized if necessary.
