@@ -23,6 +23,7 @@ use Supra\Validator\FilteredInput;
 use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPolicy;
 use Supra\Cms\CheckPermissions\CheckPermissionsController;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
+use Supra\NestedSet\Exception\CannotObtainNestedSetLock;
 
 /**
  * Description of CmsAction
@@ -73,25 +74,36 @@ abstract class CmsAction extends SimpleController
 
 		// Handle localized exceptions
 		try {
-			$request = $this->getRequest();
 
-			$response = $this->getResponse();
-			$localeId = $this->getLocale()->getId();
+			try {
+				$response = $this->getResponse();
+				$localeId = $this->getLocale()->getId();
 
-			if ($response instanceof TwigResponse) {
+				if ($response instanceof TwigResponse) {
 
-				$ini = ObjectRepository::getIniConfigurationLoader($this);
+					$ini = ObjectRepository::getIniConfigurationLoader($this);
 
-				if ($ini->getValue('system', 'supraportal_site', false)) {
-					$response->assign('siteTitle', $ini->getValue('system', 'host'));
+					if ($ini->getValue('system', 'supraportal_site', false)) {
+						$response->assign('siteTitle', $ini->getValue('system', 'host'));
+					}
+
+					$response->assign('currentLocale', $localeId);
 				}
 
-				$response->assign('currentLocale', $localeId);
+				$this->processCheckPermissions();
+
+				parent::execute();
+			} catch (\Exception $e) {
+				try {
+					$this->finalize($e);
+				} catch (\Exception $e) {
+					$this->log->error("CMS action finalize method raised exception ", $e->__toString());
+				}
+
+				throw $e;
 			}
 
-			$this->processCheckPermissions();
-
-			parent::execute();
+			$this->finalize();
 		} catch (StopExecutionException $exception) {
 			// Do nothing
 			$this->log->debug("CMS action excection stopped");
@@ -135,6 +147,9 @@ abstract class CmsAction extends SimpleController
 			//$response->setErrorMessage('Permission to "' . $e->getPermissionName() . '" is denied.');
 
 			$this->log->warn($e);
+		} catch (CannotObtainNestedSetLock $e) {
+			$response->setErrorMessage('The operation has timed out. Please try again.');
+			$this->log->warn($e);
 		} catch (\Exception $e) {
 			// No support for not Json actions
 			$response = $this->getResponse();
@@ -152,6 +167,14 @@ abstract class CmsAction extends SimpleController
 			// Write the issue inside the log
 			$this->log->error('#' . $eIdentifier . ' ' . $e, "\nRequest:\n", $debugRequest);
 		}
+	}
+
+	/**
+	 * Finilize the request
+	 */
+	protected function finalize(\Exception $e = null)
+	{
+		
 	}
 
 	/**
@@ -300,7 +323,7 @@ abstract class CmsAction extends SimpleController
 
 	/**
 	 * Return current locale
-	 * @return Locale
+	 * @return \Supra\Locale\Locale
 	 */
 	protected function getLocale()
 	{

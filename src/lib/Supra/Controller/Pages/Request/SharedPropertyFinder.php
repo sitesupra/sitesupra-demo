@@ -74,7 +74,7 @@ class SharedPropertyFinder
 
 		// Collects all shared properties
 		if ($configuration instanceof BlockControllerConfiguration) {
-			foreach ($configuration->properties as $property) {
+			foreach ((array) $configuration->properties as $property) {
 				/* @var $property BlockPropertyConfiguration */
 				if ($property->shared) {
 

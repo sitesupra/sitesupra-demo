@@ -48,11 +48,11 @@ class PagesettingsAction extends PageManagerAction
 
 		if ($input->has('global')) {
 			$global = $input->getValid('global', AbstractType::BOOLEAN);
-			
+
 			if ($page->isRoot() && ! $global) {
 				throw new Exception\LogicException('It is not allowed to disable translation of root page');
 			}
-			
+
 			$page->setGlobal($global);
 		}
 
@@ -81,7 +81,7 @@ class PagesettingsAction extends PageManagerAction
 			$includedInSearch = $input->getValid('include_in_search', AbstractType::BOOLEAN);
 			$pageData->setIncludedInSearch($includedInSearch);
 		}
-		
+
 		$themeProvider = ObjectRepository::getThemeProvider($this);
 		$theme = $themeProvider->getCurrentTheme();
 
@@ -109,7 +109,7 @@ class PagesettingsAction extends PageManagerAction
 					}
 
 					$parentThemeLayoutName = $parentTemplateLayout->getLayoutName();
-					
+
 					$parentThemeLayout = $theme->getLayout($parentThemeLayoutName);
 
 					// Remove current layout if any
@@ -300,6 +300,12 @@ class PagesettingsAction extends PageManagerAction
 		$templateDataDao = $this->entityManager->getRepository(Entity\TemplateLocalization::CN());
 		$templateDataList = $templateDataDao->findByLocale($localeId);
 
+		$iniLoader = ObjectRepository::getIniConfigurationLoader($this);
+
+		$doNotUseAsDefaultTemplateIds = explode(';', $iniLoader->getValue('system', 'dont_use_as_default_template_ids', ''));
+
+		\Log::error('$doNotUseAsDefaultTemplateIds: ', $doNotUseAsDefaultTemplateIds);
+
 		/* @var $templateData Entity\TemplateLocalization */
 		foreach ($templateDataList as $templateData) {
 
@@ -307,7 +313,8 @@ class PagesettingsAction extends PageManagerAction
 				'id' => $templateData->getMaster()->getId(),
 				'title' => $templateData->getTitle(),
 				//TODO: hardcoded
-				'img' => "/cms/lib/supra/img/templates/template-3-small.png"
+				'img' => "/cms/lib/supra/img/templates/template-3-small.png",
+				'dont_use_as_default' => in_array($templateData->getMaster()->getId(), $doNotUseAsDefaultTemplateIds)
 			);
 
 			$templateTitles[] = $templateData->getTitle();

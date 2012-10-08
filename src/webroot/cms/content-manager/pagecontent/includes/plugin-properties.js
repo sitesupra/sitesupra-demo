@@ -77,7 +77,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Automatically show form when content is being edited
 		 */
 		'showOnEdit': {
-			'value': false
+			'value': true
 		},
 		
 		/*
@@ -182,11 +182,17 @@ YUI.add('supra.page-content-properties', function (Y) {
 			action.execute(null, {'first_init': true});
 			action.hide();
 			
+			//Properties form
+			this.initializeProperties();
+			var form = this.get('form');
+			
 			//Create empty GroupToolbar group in toolbar in case it will be needed
 			this.createGroupToolbar();
 			
 			//Bind to editing-start and editing-end events
-			if (this.get('showOnEdit')) {
+			var showOnEdit = !this.hasTopGroups() && !this._has_inline_properties;
+			
+			if (showOnEdit) {
 				if (this.hasTopGroups()) {
 					//Show / hide toolbar buttons
 					this.get('host').on('editing-start', this.showGroupToolbar, this);
@@ -208,10 +214,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Hide form when editing ends
 			this.get('host').on('editing-end', this.hidePropertiesForm, this);
 			this.get('host').on('editing-end', this.hideGroupToolbarButtons, this);
-			
-			//Properties form
-			this.initializeProperties();
-			var form = this.get('form');
 			
 			//On block save/cancel update 'changed' attributes
 			this.get('host').on('block:save', this.onBlockSaveCancel, this);
@@ -831,7 +833,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				ii = groups.length;
 			
 			for (; i<ii; i++) {
-				if (groups[i].type === 'top') {
+				if (groups[i].type === 'top' && groups[i].id !== 'default') {
 					this._has_top_groups = true;
 					return true;
 				}

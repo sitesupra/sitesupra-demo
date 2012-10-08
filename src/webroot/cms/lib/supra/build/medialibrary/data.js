@@ -517,7 +517,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 			
 			Supra.mix(data, this.get('requestParams') || {});
 			
-			Supra.io(url, {
+			var io = Supra.io(url, {
 				'data': data,
 				'context': this,
 				'on': {
@@ -525,7 +525,7 @@ YUI.add('supra.medialibrary-data', function (Y) {
 				}
 			});
 			
-			return this;
+			return io.promise();
 		},
 		
 		/**

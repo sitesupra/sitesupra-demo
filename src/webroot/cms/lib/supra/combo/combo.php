@@ -1,6 +1,6 @@
 <?php
 
-$q = $_SERVER['QUERY_STRING'];
+$q = @$q ?: $_SERVER['QUERY_STRING'];
 $apc = function_exists('apc_store');
 
 $files = explode('&', $q);
@@ -31,7 +31,7 @@ $css = strpos($files[0], '.css') !== false ? true : false;
 $ext = ($css ? 'css' : 'js');
 $extLength = ($css ? 3 : 2);
 $lessCss = true;
-$pre = @$pre ?: $_SERVER['DOCUMENT_ROOT'];
+$pre = @$pre ? : $_SERVER['DOCUMENT_ROOT'];
 
 // if will need to store in webroot...
 //$cacheDir = $pre . '/tmp';
@@ -95,11 +95,11 @@ function getEtag($files)
 {
 	global $css, $checkFileModificationTime, $version;
 	$cacheSource = array($version);
-	
+
 	if ($checkFileModificationTime) {
 		$cacheSource[] = filemtime(__FILE__);
 	}
-	
+
 	foreach ($files as $file) {
 		if ($checkFileModificationTime) {
 			$cacheSource = array_merge($cacheSource, getFileMtime($file));
@@ -125,10 +125,20 @@ function writeFiles($files, $eTag)
 		if ($apc) {
 			apc_store('combo-' . $eTag, $out, 1800);
 		}
-		@mkdir($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/', 0777, true);
-		@file_put_contents($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/' . $eTag, $out);
-		@chmod($cacheDir . '/yui/' . substr($eTag, 0, 2), 0777);
-		@chmod($cacheDir . '/yui/' . substr($eTag, 0, 2) . '/' . $eTag, 0666);
+		
+		$outDirname = $cacheDir . '/yui/' . substr($eTag, 0, 2);
+		
+		@mkdir($outDirname, 0777, true);
+
+		$tmpFilename = tempnam($outDirname, 'tmp-');
+		@file_put_contents($tmpFilename, $out);
+
+		$outFilename = $outDirname . '/' . $eTag;
+
+		@rename($tmpFilename, $outFilename);
+
+		@chmod($outDirname, 0777);
+		@chmod($outFilename, 0666);
 	}
 
 	return $out;
@@ -137,15 +147,15 @@ function writeFiles($files, $eTag)
 function getFileMtime($file)
 {
 	global $css, $pre, $lessCss, $checkFileModificationTimeForIncludedLessCss;
-	
+
 	$cacheSource = array();
 
 	$thisPre = $pre;
 
 	if (strpos($file, '/cms-local/') === 0) {
 		$thisPre = realpath('../../../../../../../src/webroot');
-	} 
-	
+	}
+
 	$files = array($thisPre . $file);
 
 	// Try searching for .less file
@@ -153,7 +163,7 @@ function getFileMtime($file)
 		$lessFile = $thisPre . $file . '.less';
 
 		if ($lessCss && file_exists($lessFile)) {
-			
+
 			if ($checkFileModificationTimeForIncludedLessCss) {
 				$lessPhp = $thisPre . '/cms/lib/supra/lessphp/SupraLessC.php';
 				require_once $lessPhp;
@@ -185,9 +195,9 @@ function getFileContent($file)
 	global $css, $pre, $lessCss;
 
 	$outFile = null;
-	
+
 	$thisPre = $pre;
-	
+
 	if (strpos($file, '/cms-local/') === 0) {
 		$thisPre = realpath('../../../../../../../src/webroot');
 	} else {

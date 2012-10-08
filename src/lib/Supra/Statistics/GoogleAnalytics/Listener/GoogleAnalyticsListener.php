@@ -5,6 +5,7 @@ namespace Supra\Statistics\GoogleAnalytics\Listener;
 use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Request\PageRequestView;
+use Supra\Controller\Pages\Request\ViewRequest;
 
 class GoogleAnalyticsListener
 {
@@ -12,6 +13,14 @@ class GoogleAnalyticsListener
 	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
 	{
 		if ( ! ($eventArgs->request instanceof PageRequestView)) {
+
+			\Log::debug('Skipping, not a PageRequestView.');
+			return;
+		}
+
+		if ($eventArgs->request instanceof ViewRequest) {
+
+			\Log::debug('Skipping, is a ViewRequest.');
 			return;
 		}
 
@@ -27,11 +36,17 @@ class GoogleAnalyticsListener
 			return;
 		}
 
+		$serverHttpHostAsDomainName = $iniConfiguration->getValue($sectionName, 'server_http_host_as_domain_name', false);
 		$systemHostAsDomainName = $iniConfiguration->getValue($sectionName, 'system_host_as_domain_name', false);
 
-		if ($systemHostAsDomainName == true) {
+		if ($serverHttpHostAsDomainName == true) {
+
+			list($domainName, $port) = explode(':', $eventArgs->request->getServerValue('HTTP_HOST'));
+		} else if ($systemHostAsDomainName == true) {
+
 			$domainName = $iniConfiguration->getValue('system', 'host', false);
 		} else {
+
 			$domainName = $iniConfiguration->getValue($sectionName, 'domain_name', false);
 		}
 

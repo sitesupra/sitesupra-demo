@@ -31,7 +31,7 @@ class DoctrineNode extends NodeAbstraction
 	{
 		$this->sourceRepository = $repository;
 	}
-	
+
 	/**
 	 * Pass the doctrine entity the nested set node belongs to
 	 * @param NodeInterface $entity

@@ -123,4 +123,20 @@ class PageLocalizationIndexerQueue extends IndexerQueue
 		parent::store($pageLocalizationIndexerQueueItem);
 	}
 
+	/**
+	 * @param object $object
+	 * @param int $priority
+	 * @return PageLocalizationIndexerQueueItem
+	 */
+	public function addRemoval($object, $priority = IndexerQueueItem::DEFAULT_PRIORITY)
+	{
+		$newQueueItem = $this->create($object, $priority);
+		/* @var $newQueueItem PageLocalizationIndexerQueueItem */
+
+		$newQueueItem->setRemoval(true);
+		$this->store($newQueueItem);
+
+		return $newQueueItem;
+	}
+
 }

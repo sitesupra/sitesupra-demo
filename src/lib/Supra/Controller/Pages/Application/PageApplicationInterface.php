@@ -32,10 +32,11 @@ interface PageApplicationInterface
 
 	/**
 	 * Application might provide virtual filter folders
+	 * @param QueryBuilder $queryBuilder
 	 * @param string $filter
 	 * @return array
 	 */
-	public function getFilterFolders($filter);
+	public function getFilterFolders(QueryBuilder $queryBuilder, $filter);
 	
 	/**
 	 * Apply application filter

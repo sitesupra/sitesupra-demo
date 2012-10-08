@@ -171,6 +171,20 @@ abstract class IndexerQueue
 	 */
 	public function add($object, $priority = IndexerQueueItem::DEFAULT_PRIORITY)
 	{
+		$newQueueItem = $this->create($object, $priority);
+		$this->store($newQueueItem);
+
+		return $newQueueItem;
+	}
+
+	/**
+	 * Creates queue item
+	 * @param object $object
+	 * @param int $priority
+	 * @return IndexerQueueItem
+	 */
+	protected function create($object, $priority = IndexerQueueItem::DEFAULT_PRIORITY)
+	{
 		$existingQueueItem = $this->getOneByObjectAndStatus($object, IndexerQueueItemStatus::FRESH);
 
 		if ( ! empty($existingQueueItem)) {
@@ -182,8 +196,6 @@ abstract class IndexerQueue
 		/* @var $newQueueItem IndexerQueueItem */
 		$newQueueItem = new $this->itemClass($object);
 		$newQueueItem->setPriority($priority);
-
-		$this->store($newQueueItem);
 
 		return $newQueueItem;
 	}

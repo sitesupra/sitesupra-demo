@@ -23,11 +23,6 @@ class DoctrineRepository extends RepositoryAbstraction
 	protected $entityManager;
 
 	/**
-	 * @var Mapping\ClassMetadata
-	 */
-	protected $classMetadata;
-
-	/**
 	 * @var string
 	 */
 	protected $className;
@@ -47,12 +42,20 @@ class DoctrineRepository extends RepositoryAbstraction
 	 * @var string
 	 */
 	private $additionalCondition;
+
+	/**
+	 * SQL version of additional conditions
+	 * @var string
+	 */
+	private $additionalConditionSql;
 	
 	/**
 	 * Query parameter offset
 	 * @var int
 	 */
 	private $parameterOffset = 0;
+
+	private $locked = false;
 
 	/**
 	 * Constructor
@@ -62,11 +65,58 @@ class DoctrineRepository extends RepositoryAbstraction
 	public function __construct(EntityManager $em, Mapping\ClassMetadata $class)
 	{
 		$this->entityManager = $em;
-		$this->classMetadata = $class;
 		$this->className = $class->name;
 		$this->arrayHelper = new DoctrineRepositoryArrayHelper($em);
 		$platform = $em->getConnection()->getDatabasePlatform();
+
+		$leftField = $class->fieldMappings['left'];
+
+		if (isset($leftField['declared']) && $leftField['declared'] !== $this->className) {
+			$class = $em->getClassMetadata($leftField['declared']);
+		}
+
 		$this->tableName = $class->getQuotedTableName($platform);
+	}
+
+	/**
+	 * @param NodeInterface $relativeNode
+	 * @throws \RuntimeException
+	 */
+	public function lock()
+	{
+		$em = $this->entityManager;
+
+		$tableName = $this->tableName;
+		$result = $em->getConnection()->fetchColumn("SELECT GET_LOCK(?, 10)", array($tableName));
+
+		if ($result != 1) {
+			throw new Exception\CannotObtainNestedSetLock("Could not lock the nested set $tableName for batch operations");
+		}
+
+		$this->locked = true;
+
+		// Do we need to refresh anything?
+//		$em->refresh($this->masterNode);
+//		$this->refresh();
+
+//		// FIXME: don't know if this might happen..
+//		if ($relativeNode instanceof NodeAbstraction) {
+//			$relativeNode = $relativeNode->getMasterNode();
+//		}
+//
+//		if ($relativeNode instanceof EntityNodeInterface) {
+//			$em->refresh($relativeNode);
+//			$relativeNode->getNestedSetNode()->refresh();
+//		}
+	}
+
+	public function unlock()
+	{
+		$em = $this->entityManager;
+		$tableName = $this->tableName;
+		$em->getConnection()->fetchColumn("SELECT RELEASE_LOCK(?)", array($tableName));
+
+		$this->locked = false;
 	}
 
 	/**
@@ -102,7 +152,16 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		$this->className = $className;
 	}
-
+	
+	/**
+	 * Get quoted table name
+	 * @return string
+	 */
+	public function getTableName()
+	{
+		return $this->tableName;
+	}
+	
 	/**
 	 * Return the current parameter index and increase it
 	 * @return int
@@ -118,6 +177,10 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	protected function getMax()
 	{
+		if ( ! $this->locked) {
+			\Log::info('Should lock before changes');
+		}
+
 		$dql = "SELECT MAX(e.right) FROM {$this->className} e";
 		$dql .= $this->getAdditionalCondition('WHERE');
 		$query = $this->entityManager
@@ -132,23 +195,6 @@ class DoctrineRepository extends RepositoryAbstraction
 		return $max;
 	}
 
-//	public function extend($offset, $size)
-//	{
-//		$size = (int)$size;
-//		$offset = (int)$offset;
-//
-//		foreach (array('left', 'right') as $field) {
-//			$dql = "UPDATE {$this->className} e
-//					SET e.{$field} = e.{$field} + ?2
-//					WHERE e.{$field} >= ?1";
-//			$dql .= $this->getAdditionalCondition('AND');
-//			$query = $this->entityManager->createQuery($dql);
-//			$query->execute(array(1 => $offset, 2 => $size));
-//		}
-//
-//		$this->arrayHelper->extend($offset, $size);
-//	}
-
 	/**
 	 * Remove unused space in the nested set intervals
 	 * @param int $offset
@@ -156,18 +202,33 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function truncate($offset, $size)
 	{
+		if ( ! $this->locked) {
+			\Log::info('Should lock before changes');
+		}
+
 		$size = (int)$size;
 		$offset = (int)$offset;
 
-		foreach (array('left', 'right') as $field) {
-			$dql = "UPDATE {$this->className} e
-					SET e.{$field} = e.{$field} - {$size}
-					WHERE e.{$field} >= {$offset}";
+//		foreach (array('left', 'right') as $field) {
+		foreach (array('lft', 'rgt') as $field) {
 			
-			$dql .= $this->getAdditionalCondition('AND');
+			$sql = "UPDATE {$this->tableName}
+					SET {$field} = {$field} - {$size}
+					WHERE {$field} >= {$offset}";
 
-			$query = $this->entityManager->createQuery($dql);
-			$query->execute();
+			// additional condition
+			$sql .= $this->getAdditionalConditionSql('AND');
+
+			$this->entityManager->getConnection()->exec($sql);
+			
+//			$dql = "UPDATE {$this->className} e
+//					SET e.{$field} = e.{$field} - {$size}
+//					WHERE e.{$field} >= {$offset}";
+//
+//			$dql .= $this->getAdditionalCondition('AND');
+//
+//			$query = $this->entityManager->createQuery($dql);
+//			$query->execute();
 		}
 
 		$this->arrayHelper->truncate($offset, $size);
@@ -181,7 +242,11 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function move(Node\NodeInterface $node, $pos, $levelDiff, $undoMove = false)
 	{
-		$className = $this->className;
+		if ( ! $this->locked) {
+			\Log::info('Should lock before changes');
+		}
+
+		$tableName = $this->tableName;
 		$arrayHelper = $this->arrayHelper;
 		$self = $this;
 		
@@ -197,7 +262,7 @@ class DoctrineRepository extends RepositoryAbstraction
 		}
 		
 		// Transactional because need to rollback in case of trigger failure
-		$this->entityManager->transactional(function(EntityManager $entityManager) use ($node, $pos, $levelDiff, $className, $arrayHelper, $self) {
+		$this->entityManager->transactional(function(EntityManager $entityManager) use ($node, $pos, $levelDiff, $tableName, $arrayHelper, $self) {
 			$left = $node->getLeftValue();
 			$right = $node->getRightValue();
 			$spaceUsed = $right - $left + 1;
@@ -224,18 +289,30 @@ class DoctrineRepository extends RepositoryAbstraction
 				$max = $right;
 			}
 
-			// NB! It's important to set "level" before "left" for MySQL!
-			$dql = "UPDATE {$className} e
-					SET e.level = e.level + IF(e.left BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
-						e.left = e.left + IF(e.left BETWEEN {$left} AND {$right}, {$moveA}, IF(e.left BETWEEN {$a} AND {$b}, {$moveB}, 0)),
-						e.right = e.right + IF(e.right BETWEEN {$left} AND {$right}, {$moveA}, IF(e.right BETWEEN {$a} AND {$b}, {$moveB}, 0))
-					WHERE (e.left BETWEEN {$min} AND {$max}
-						OR e.right BETWEEN {$min} AND {$max})";
-			
-			$dql .= $self->getAdditionalCondition('AND');
-			
-			$query = $entityManager->createQuery($dql);
-			$query->execute();
+//			// NB! It's important to set "level" before "left" for MySQL!
+//			$dql = "UPDATE {$className} e
+//					SET e.level = e.level + IF(e.left BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
+//						e.left = e.left + IF(e.left BETWEEN {$left} AND {$right}, {$moveA}, IF(e.left BETWEEN {$a} AND {$b}, {$moveB}, 0)),
+//						e.right = e.right + IF(e.right BETWEEN {$left} AND {$right}, {$moveA}, IF(e.right BETWEEN {$a} AND {$b}, {$moveB}, 0))
+//					WHERE (e.left BETWEEN {$min} AND {$max}
+//						OR e.right BETWEEN {$min} AND {$max})";
+//
+//			$dql .= $self->getAdditionalCondition('AND');
+//
+//			$query = $entityManager->createQuery($dql);
+//			$query->execute();
+
+			$sql = "UPDATE {$tableName}
+					SET lvl = lvl + IF(lft BETWEEN {$left} AND {$right}, {$levelDiff}, 0),
+						lft = lft + IF(lft BETWEEN {$left} AND {$right}, {$moveA}, IF(lft BETWEEN {$a} AND {$b}, {$moveB}, 0)),
+						rgt = rgt + IF(rgt BETWEEN {$left} AND {$right}, {$moveA}, IF(rgt BETWEEN {$a} AND {$b}, {$moveB}, 0))
+					WHERE (lft BETWEEN {$min} AND {$max}
+						OR rgt BETWEEN {$min} AND {$max})";
+
+			$sql .= $self->getAdditionalConditionSql('AND');
+
+			$entityManager->getConnection()
+					->exec($sql);
 			
 			// Change node parameters locally as well
 			// TODO: how to rollback these changes if nested set post move trigger fails?
@@ -271,6 +348,10 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function delete(Node\NodeInterface $node)
 	{
+		if ( ! $this->locked) {
+			\Log::info('Should lock before changes');
+		}
+
 		if ( ! $node instanceof Node\DoctrineNode) {
 			throw new Exception\WrongInstance($node, 'Node\DoctrineNode');
 		}
@@ -280,13 +361,23 @@ class DoctrineRepository extends RepositoryAbstraction
 
 		// Deletes only children here because there could be associations that 
 		// doesn't allow deletion, then only leafs could be erased
-		$dql = "DELETE FROM {$this->className} e
-				WHERE e.left > {$left} AND e.right < {$right}";
+		$sql = "DELETE FROM {$this->tableName}
+				WHERE lft > {$left} AND rgt < {$right}";
 
-		$dql .= $this->getAdditionalCondition('AND');
+		$sql .= $this->getAdditionalConditionSql('AND');
+
+		$this->entityManager->getConnection()
+				->exec($sql);
 		
-		$query = $this->entityManager->createQuery($dql);
-		$query->execute();
+//		// Deletes only children here because there could be associations that
+//		// doesn't allow deletion, then only leafs could be erased
+//		$dql = "DELETE FROM {$this->className} e
+//				WHERE e.left > {$left} AND e.right < {$right}";
+//
+//		$dql .= $this->getAdditionalCondition('AND');
+//
+//		$query = $this->entityManager->createQuery($dql);
+//		$query->execute();
 		
 		$this->arrayHelper->delete($node);
 	}
@@ -401,8 +492,16 @@ class DoctrineRepository extends RepositoryAbstraction
 	{
 		$this->arrayHelper->destroy();
 		$this->arrayHelper = null;
-		$this->classMetadata = null;
 		$this->entityManager = null;
+	}
+
+	private function getPrefixedPart($part, $prefix = '')
+	{
+		if ( ! empty($part)) {
+			return ' ' . $prefix . ' ' . $part;
+		}
+
+		return $part;
 	}
 	
 	/**
@@ -412,25 +511,39 @@ class DoctrineRepository extends RepositoryAbstraction
 	 */
 	public function getAdditionalCondition($prefix = '')
 	{
-		$condition = $this->additionalCondition;
-		
-		if ( ! empty($condition)) {
-			$condition = ' ' . $prefix . ' ' . $condition;
-		}
+		$condition = $this->getPrefixedPart($this->additionalCondition, $prefix);
 		
 		return $condition;
 	}
 
 	/**
-	 * Sets additional condition, puts in braces
-	 * @param string $additionalCondition
+	 * Return additional condition with prefix if not empty
+	 * @param string $prefix
+	 * @return string
 	 */
-	public function setAdditionalCondition($additionalCondition)
+	public function getAdditionalConditionSql($prefix = '')
+	{
+		$condition = $this->getPrefixedPart($this->additionalConditionSql, $prefix);
+
+		return $condition;
+	}
+
+	/**
+	 * Sets additional condition (DQL and SQL versions), puts in braces
+	 * @param string $additionalCondition
+	 * @param string $additionalConditionSql
+	 */
+	public function setAdditionalCondition($additionalCondition, $additionalConditionSql)
 	{
 		if ( ! empty($additionalCondition)) {
 			$additionalCondition = '(' . $additionalCondition . ')';
 		}
 		$this->additionalCondition = $additionalCondition;
+
+		if ( ! empty($additionalConditionSql)) {
+			$additionalConditionSql = '(' . $additionalConditionSql . ')';
+		}
+		$this->additionalConditionSql = $additionalConditionSql;
 	}
 
 }
