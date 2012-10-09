@@ -4,24 +4,29 @@ namespace Supra\Form;
 
 use Symfony\Component\Form\FormTypeGuesserInterface;
 use Symfony\Component\Form\Guess\TypeGuess;
-use Supra\Form\Configuration\FormBlockControllerConfiguration;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Form\Guess\ValueGuess;
 use Symfony\Component\Validator\Constraints;
+use Symfony\Component\Validator\Mapping\ClassMetadataFactory;
 
 /**
  * FormTypeGuesser
  */
 class FormTypeGuesser implements FormTypeGuesserInterface
 {
-	/**
-	 * @var FormBlockControllerConfiguration
-	 */
-	private $blockConfiguration;
+//	/**
+//	 * @var FormAnnotationLoader
+//	 */
+//	private $annotationLoader;
 
-	public function __construct(FormBlockControllerConfiguration $blockConfiguration)
+	/**
+	 * @var ClassMetadataFactory
+	 */
+	private $factory;
+
+	public function __construct(ClassMetadataFactory $factory)
 	{
-		$this->blockConfiguration = $blockConfiguration;
+		$this->factory = $factory;
 	}
 
 	public function guessMaxLength($class, $property)
@@ -47,19 +52,18 @@ class FormTypeGuesser implements FormTypeGuesserInterface
 	 */
 	public function guessRequired($class, $property)
 	{
-		$blockConfiguration = $this->blockConfiguration;
-		$classPropertyAnnotations = $blockConfiguration->getAnnotationLoader()
-				->getPropertyAnnotations($class);
+		$metadata = $this->factory->getClassMetadata($class);
+		/* @var $metadata \Symfony\Component\Validator\Mapping\ClassMetadata */
 
-		if ( ! isset($classPropertyAnnotations[$property])) {
-			return null;
+		if ( ! isset($metadata->properties[$property])) {
+			return;
 		}
 
-		$propertyAnnotations = $classPropertyAnnotations[$property];
+		$propertyMetadata = $metadata->properties[$property];
 
 		$matchFound = null;
 
-		foreach ($propertyAnnotations as $propertyAnnotation) {
+		foreach ($propertyMetadata->getConstraints() as $propertyAnnotation) {
 
 			if ($propertyAnnotation instanceof Constraints\NotBlank
 					|| $propertyAnnotation instanceof Constraints\NotNull
@@ -90,23 +94,26 @@ class FormTypeGuesser implements FormTypeGuesserInterface
 	 */
 	public function guessType($class, $property)
 	{
-		$blockConfiguration = $this->blockConfiguration;
+		$metadata = $this->factory->getClassMetadata($class);
+		/* @var $metadata \Symfony\Component\Validator\Mapping\ClassMetadata */
+		$fields = $metadata->properties;
 
-		if ( ! $blockConfiguration instanceof FormBlockControllerConfiguration) {
+		if ( ! isset($fields[$property])) {
 			return null;
 		}
 
-		/* @var $blockConfiguration FormBlockControllerConfiguration */
-		$fields = $blockConfiguration->getFields();
+		$propertyMetadata = $fields[$property];
+		/* @var	$propertyMetadata \Symfony\Component\Validator\Mapping\PropertyMetadata */
 
-		if (isset($fields[$property])) {
+		foreach ($propertyMetadata->getConstraints() as $field) {
 
-			$field = $fields[$property];
-			/* @var $field FormField */
-			$type = $field->getType();
+			if ($field instanceof FormField) {
+				/* @var $field FormField */
+				$type = $field->getType();
 
-			if ( ! empty($type)) {
-				return new TypeGuess($type, $field->getArguments(), TypeGuess::HIGH_CONFIDENCE);
+				if ( ! empty($type)) {
+					return new TypeGuess($type, $field->getFieldOptions(), TypeGuess::HIGH_CONFIDENCE);
+				}
 			}
 		}
 
