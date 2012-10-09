@@ -29,6 +29,7 @@ use Supra\Remote\Client\RemoteCommandService;
 use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Supra\Controller\Layout\Theme\DefaultThemeProvider;
 use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
+use Symfony\Component\Form\FormFactoryInterface;
 
 /**
  * Object repository
@@ -66,6 +67,7 @@ class ObjectRepository
 	const INTERFACE_SYSTEM_INFO = 'Supra\Info';
 	const INTERFACE_REMOTE_COMMAND_SERVICE = 'Supra\Remote\Client\RemoteCommandService';
 	const INTERFACE_THEME_PROVIDER = 'Supra\Controller\Layout\Theme\ThemeProviderAbstraction';
+	const INTERFACE_FORM_FACTORY = 'Symfony\Component\Form\FormFactoryInterface';
 
 	/**
 	 * Object relation storage
@@ -1269,6 +1271,43 @@ class ObjectRepository
 	public static function setDefaultThemeProvider(ThemeProviderAbstraction $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_THEME_PROVIDER);
+	}
+
+	/**
+	 * @param mixed $caller
+	 * @return FormFactoryInterface
+	 */
+	public static function getFormFactory($caller)
+	{
+		$formFactory = self::getObject($caller, self::INTERFACE_FORM_FACTORY, false);
+
+		// Generate the default one
+		if (is_null($formFactory)) {
+			$configuration = new \Supra\Form\Configuration\FormFactoryConfiguration();
+			$configuration->caller = self::DEFAULT_KEY;
+			$configuration->configure();
+
+			$formFactory = self::getObject($caller, self::INTERFACE_FORM_FACTORY, true);
+		}
+
+		return $formFactory;
+	}
+
+	/**
+	 * @param mixed $caller
+	 * @param \Symfony\Component\Form\FormFactoryInterface $object
+	 */
+	public static function setFormFactory($caller, \Symfony\Component\Form\FormFactoryInterface $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_FORM_FACTORY);
+	}
+
+	/**
+	 * @param \Symfony\Component\Form\FormFactoryInterface $object
+	 */
+	public static function setDefaultFormFactory(\Symfony\Component\Form\FormFactoryInterface $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_FORM_FACTORY);
 	}
 
 }

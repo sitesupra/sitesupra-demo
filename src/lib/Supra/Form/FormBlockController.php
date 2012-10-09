@@ -7,6 +7,7 @@ use Symfony\Component\Form;
 use Symfony\Component\Validator;
 use Supra\Loader\Loader;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * @method \Supra\Form\Configuration\FormBlockControllerConfiguration getConfiguration()
@@ -129,7 +130,7 @@ abstract class FormBlockController extends BlockController
 	 */
 	protected function getFormFactory()
 	{
-		$factory = \Supra\ObjectRepository\ObjectRepository::getObject($this, 'Symfony\Component\Form\FormFactoryInterface', true);
+		$factory = ObjectRepository::getFormFactory($this);
 
 		return $factory;
 	}
