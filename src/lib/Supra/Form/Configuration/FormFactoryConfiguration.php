@@ -32,12 +32,11 @@ class FormFactoryConfiguration implements ConfigurationInterface
 
 		$validator = new Validator\Validator($metadataFactory, $validatorFactory);
 
-		$extensions = array(
+		$extensions = array_merge(array(
 			new Form\Extension\Core\CoreExtension(),
 			new Form\Extension\Validator\ValidatorExtension($validator),
 			new FormSupraExtension($metadataFactory),
-			
-		) + (array) $this->extensions;
+		), (array) $this->extensions);
 
 		$formRegistry = new Form\FormRegistry($extensions);
 		$formFactory = new Form\FormFactory($formRegistry);
