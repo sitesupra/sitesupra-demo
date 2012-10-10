@@ -6,11 +6,11 @@
     cmsClassname: Editable
 
 
-- Project\Payment\Dengi\Configuration:
-    id: dengi_one
-    url: /payment
-    returnHost: http://supra7.krists.vig
-    callbackHost: http://krists.videinfra.com
-    iniSectionName: dengi_one_configuration
-    dataFormPath: /dummy-shop/dengi
-    collection: Dengi
+#- Project\Payment\Dengi\Configuration:
+#    id: dengi_one
+#    url: /payment
+#    returnHost: http://supra7.krists.vig
+#    callbackHost: http://krists.videinfra.com
+#    iniSectionName: dengi_one_configuration
+#    dataFormPath: /dummy-shop/dengi
+#    collection: Dengi
