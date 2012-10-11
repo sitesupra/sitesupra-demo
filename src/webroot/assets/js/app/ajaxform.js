@@ -1,3 +1,8 @@
+/*
+ * @version 1.0.0
+ */
+"use strict";
+
 (function ($) {
 
 var _super = $.app.AjaxContent.prototype;
@@ -402,9 +407,9 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 	'disable': function (disabled) {
 		var inputs = this.element.find('input,select,textarea,button');
 		if (disabled) {
-			inputs.attr('disabled', 'disabled');
+			inputs.attr('readonly', 'readonly');
 		} else {
-			inputs.removeAttr('disabled');
+			inputs.removeAttr('readonly');
 		}
 	}
 	
