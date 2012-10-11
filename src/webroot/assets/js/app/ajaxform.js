@@ -377,7 +377,7 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 
 			if (arrayForm) {
 				name = arrayForm[1];
-				offset = arrayForm[2];
+				var offset = arrayForm[2];
 				if ( ! (name in obj)) {
 					if (offset == '') {
 						obj[name] = [];
