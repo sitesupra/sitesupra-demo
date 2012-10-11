@@ -1,12 +1,13 @@
 // Time selection
 .yui3-input-date-time {
+	margin-top: 10px;
 	
 	.yui3-input-string {
 		width: 30px;
 		display: inline-block;
 		vertical-align: middle;
 		padding: 0;
-		margin: 0;
+		margin: 10px 0 0;
 		
 		label {
 			display: none !important;
@@ -25,4 +26,15 @@
 		margin-top: 10px;
 	}
 	
+}
+
+.yui3-form-default,
+.yui3-form-vertical {
+	.yui3-input-date-time .yui3-input-string {
+		
+		// Needed, because otherwise default style has higher priority
+		&, &:first-child {
+			margin: 0;
+		}
+	}
 }
