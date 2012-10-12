@@ -7,6 +7,7 @@ namespace Supra\Editable;
  */
 class Select extends EditableAbstraction
 {
+
 	const EDITOR_TYPE = 'Select';
 	const EDITOR_INLINE_EDITABLE = false;
 
@@ -14,6 +15,27 @@ class Select extends EditableAbstraction
 	 * @var array
 	 */
 	protected $values = array();
+
+	/**
+	 * @var boolean
+	 */
+	protected $disabled;
+
+	/**
+	 * @return boolean
+	 */
+	public function getDisabled()
+	{
+		return $this->disabled;
+	}
+
+	/**
+	 * @param boolean $disabled
+	 */
+	public function setDisabled($disabled)
+	{
+		$this->disabled = $disabled;
+	}
 
 	/**
 	 * Return editor type
@@ -41,7 +63,7 @@ class Select extends EditableAbstraction
 			$values[] = array('id' => $label, 'title' => $value);
 		}
 
-		$output = array('values' => $values);
+		$output = array('values' => $values, 'disabled' => $this->getDisabled());
 
 		return $output;
 	}
@@ -63,4 +85,5 @@ class Select extends EditableAbstraction
 	{
 		$this->values = $values;
 	}
+
 }
