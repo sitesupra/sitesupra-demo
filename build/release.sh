@@ -36,4 +36,8 @@ rm ./src/conf/supra*.ini
 # Register version number
 echo ${project_version}.${BUILD_NUMBER} > ./VERSION
 
+cd src/webroot/
+find . -name "*.css.less" -exec php cms/lib/supra/combo/combo_pregenerate.php {} \; 
+find . -name "*.css.less" -delete
+
 zip -r ${WORKSPACE}/${JOB_NAME/%-release}.web.${project_version}.${BUILD_NUMBER}.zip *

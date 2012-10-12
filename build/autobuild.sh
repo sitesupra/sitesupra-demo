@@ -35,3 +35,7 @@ fi
 
 # Version file
 echo ${BUILD_ID} > ./VERSION
+
+cd src/webroot/
+find . -name "*.css.less" -exec php cms/lib/supra/combo/combo_pregenerate.php {} \;
+find . -name "*.css.less" -delete
