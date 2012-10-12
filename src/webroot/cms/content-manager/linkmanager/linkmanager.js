@@ -458,7 +458,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			if (!this.selectable.files) {
 				//Images only
 				display_type = Supra.MediaLibraryList.DISPLAY_IMAGES;
-			} else if (this.selectable.images) {
+			} else if (!this.selectable.images) {
 				//Files only
 				display_type = Supra.MediaLibraryList.DISPLAY_FILES;
 			}
