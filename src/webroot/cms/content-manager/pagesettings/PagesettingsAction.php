@@ -304,7 +304,7 @@ class PagesettingsAction extends PageManagerAction
 
 		$doNotUseAsDefaultTemplateIds = explode(';', $iniLoader->getValue('system', 'dont_use_as_default_template_ids', ''));
 
-		\Log::error('$doNotUseAsDefaultTemplateIds: ', $doNotUseAsDefaultTemplateIds);
+//		\Log::error('$doNotUseAsDefaultTemplateIds: ', $doNotUseAsDefaultTemplateIds);
 
 		/* @var $templateData Entity\TemplateLocalization */
 		foreach ($templateDataList as $templateData) {
