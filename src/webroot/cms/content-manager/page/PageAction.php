@@ -494,6 +494,7 @@ class PageAction extends PageManagerAction
 		$request->setDoctrineEntityManager($this->entityManager);
 		$request->getPlaceHolderSet();
 		$request->createMissingPlaceHolders();
+		$request->createMissingBlockProperties();
 
 		$this->outputPage($pageData);
 

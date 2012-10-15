@@ -8,22 +8,15 @@ use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Listener\HistoryRevisionListener;
-use Doctrine\ORM\Events;
 use Supra\Controller\Pages\PageController;
-use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
-use Supra\User\Entity\User;
-use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Event\PageEventArgs;
-use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\PageLocalizationPath;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
-use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
 /**
  * Request object for edit mode requests
