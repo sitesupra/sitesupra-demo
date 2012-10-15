@@ -2,9 +2,27 @@
 
 use Supra\Upgrade\Script\UpgradeScriptAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Entity\Theme\Theme;
 
 class S002_SetUpThemes extends UpgradeScriptAbstraction
 {
+
+	/**
+	 * Check if the theme table is in the model
+	 * @return boolean
+	 */
+	public function validate()
+	{
+		$em = ObjectRepository::getEntityManager($this);
+		$statement = $em->getConnection()
+				->prepare('SHOW TABLES LIKE \'su_Theme\'');
+
+		$statement->execute();
+		$data = $statement->fetchAll(\PDO::FETCH_ASSOC);
+		$rows = count($data);
+
+		return ($rows > 0);
+	}
 
 	public function markAsExecuted()
 	{
