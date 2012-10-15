@@ -6,10 +6,31 @@ use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Controller\Pages\Request\ViewRequest;
+use Supra\Response\HttpResponse;
+use Supra\Request\HttpRequest;
+use Supra\Response\TwigResponse;
 
 class GoogleAnalyticsListener
 {
 
+	const ADD_GOOGLE_ANALYTICS_EVENT = 'addGoogleAnalytics';
+
+	/**
+	 * @var boolean
+	 */
+	protected $googleAnalyticsAdded = false;
+
+	/**
+	 * @param PostPrepareContentEventArgs $eventArgs
+	 */
+	public function addGoogleAnalytics(PostPrepareContentEventArgs $eventArgs)
+	{
+		$this->doAddGoogleAnalytics($eventArgs->request, $eventArgs->response);
+	}
+
+	/**
+	 * @param PostPrepareContentEventArgs $eventArgs
+	 */
 	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
 	{
 		if ( ! ($eventArgs->request instanceof PageRequestView)) {
@@ -24,24 +45,77 @@ class GoogleAnalyticsListener
 			return;
 		}
 
+		$this->doAddGoogleAnalytics($eventArgs->request, $eventArgs->response);
+	}
+
+	/**
+	 * @param HttpResponse $requestResponse
+	 */
+	protected function doAddGoogleAnalytics(HttpRequest $request, HttpResponse $response)
+	{
+		if ( ! $this->googleAnalyticsAdded) {
+
+			$accountId = $this->getGoogleAnalyticsAccountId();
+
+			if ($accountId) {
+
+				$googleAnalyticsResponse = $this->getGoogleAnalyticsResponse($accountId, $request);
+
+				$response->getContext()
+						->addJsToLayoutSnippet('js', $googleAnalyticsResponse);
+
+				$this->googleAnalyticsAdded = true;
+			} else {
+
+				\Log::debug('Google Analytics Id not set!');
+			}
+		} else {
+
+			\Log::debug('Google Analytics already added!');
+		}
+	}
+
+	/**
+	 * @param string $accountId
+	 * @param HttpRequest $request
+	 * @param HttpResponse $resposne
+	 */
+	protected function getGoogleAnalyticsResponse($accountId, HttpRequest $request = null)
+	{
+		$googleAnalyticsResponse = new TwigResponse($this);
+
+		$responseData = $this->getGoogleAnalyticsResponseData($accountId, $request);
+		foreach ($responseData as $name => $value) {
+			$googleAnalyticsResponse->assign($name, $value);
+		}
+
+		$googleAnalyticsResponse->outputTemplate('main.js.twig');
+
+		return $googleAnalyticsResponse;
+	}
+
+	/**
+	 * 
+	 * @param type $accountId
+	 * @param type $request
+	 * @return type
+	 */
+	protected function getGoogleAnalyticsResponseData($accountId, HttpRequest $request = null)
+	{
 		$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
 
-		$sectionName = 'google_analytics';
-		if ( ! $iniConfiguration->getSection($sectionName, false)) {
-			$sectionName = 'googleAnalytics';
-		}
-
-		$accountId = $iniConfiguration->getValue($sectionName, 'account_id', false);
-		if ( ! $accountId) {
-			return;
-		}
+		$sectionName = $this->getGoogleAnalyticsSectionName();
 
 		$serverHttpHostAsDomainName = $iniConfiguration->getValue($sectionName, 'server_http_host_as_domain_name', false);
 		$systemHostAsDomainName = $iniConfiguration->getValue($sectionName, 'system_host_as_domain_name', false);
 
 		if ($serverHttpHostAsDomainName == true) {
 
-			list($domainName, $port) = explode(':', $eventArgs->request->getServerValue('HTTP_HOST'));
+			if (is_empty($request)) {
+				throw new Exception\RuntimeException('No HttpRequest, can not get host for GA domainName.');
+			}
+
+			list($domainName) = explode(':', $request->getServerValue('HTTP_HOST'));
 		} else if ($systemHostAsDomainName == true) {
 
 			$domainName = $iniConfiguration->getValue('system', 'host', false);
@@ -50,14 +124,41 @@ class GoogleAnalyticsListener
 			$domainName = $iniConfiguration->getValue($sectionName, 'domain_name', false);
 		}
 
-		$response = new \Supra\Response\TwigResponse($this);
-		$response->assign('accountId', $accountId);
-		$response->assign('domainName', $domainName);
-		$response->outputTemplate('main.js.twig');
+		$responseData = array(
+			'accountId' => $accountId,
+			'domainName' => $domainName
+		);
 
-		$eventArgs->response
-				->getContext()
-				->addJsToLayoutSnippet('js', $response);
+		return $responseData;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getGoogleAnalyticsSectionName()
+	{
+		$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
+
+		$sectionName = 'google_analytics';
+		if ( ! $iniConfiguration->getSection($sectionName, false)) {
+			$sectionName = 'googleAnalytics';
+		}
+
+		return $sectionName;
+	}
+
+	/**
+	 * @return string | boolean
+	 */
+	protected function getGoogleAnalyticsAccountId()
+	{
+		$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
+
+		$sectionName = $this->getGoogleAnalyticsSectionName();
+
+		$accountId = $iniConfiguration->getValue($sectionName, 'account_id', false);
+
+		return $accountId;
 	}
 
 }

@@ -212,7 +212,7 @@ abstract class BlockController extends ControllerAbstraction
 
 			$twig = $response->getTwigEnvironment();
 
-			$helper = new Twig\TwigSupraGlobal();
+			$helper = new Twig\TwigSupraPageGlobal();
 			$helper->setRequest($this->request);
 
 			$theme = $request->getLayout()->getTheme();
