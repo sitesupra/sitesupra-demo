@@ -111,7 +111,7 @@ class GoogleAnalyticsListener
 
 		if ($serverHttpHostAsDomainName == true) {
 
-			if (is_empty($request)) {
+			if (empty($request)) {
 				throw new Exception\RuntimeException('No HttpRequest, can not get host for GA domainName.');
 			}
 
