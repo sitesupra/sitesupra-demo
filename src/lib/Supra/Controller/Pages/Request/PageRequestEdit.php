@@ -654,6 +654,22 @@ class PageRequestEdit extends PageRequest
 		
 		return $placeHolders;
 	}
+
+	/**
+	 * Recursively clone the page or page localization object
+	 * @param Entity\Abstraction\Entity $entity
+	 * @return Entity\Abstraction\Entity
+	 */
+	public function recursiveClone($entity)
+	{
+		$this->_clonedEntities = array();
+		$this->_cloneRecursionDepth = 0;
+
+		$newEntity = $this->recursiveCloneInternal($entity, null, true);
+		$this->recursiveCloneFillOwningSide($newEntity);
+
+		return $newEntity;
+	}
 	
 	/**
 	 * Recursively goes through entity collections, clones and persists elements from them
@@ -663,18 +679,13 @@ class PageRequestEdit extends PageRequest
 	 * @param boolean $skipPathEvent
 	 * @return Entity
 	 */
-	public function recursiveClone($entity, $associationOwner = null, $skipPathEvent = false) 
+	private function recursiveCloneInternal($entity, $associationOwner = null, $skipPathEvent = false)
 	{
 		$em = $this->getDoctrineEntityManager();
 		$cloned = false;
 		
 		// reset at first iteration
-		if (is_null($associationOwner)) {
-			$this->_clonedEntities = array();
-			$this->_cloneRecursionDepth = 1;
-		} else {
-			$this->_cloneRecursionDepth++;
-		}
+		$this->_cloneRecursionDepth ++;
 		
 		$entityData = $em->getUnitOfWork()->getOriginalEntityData($entity);
 		$classMetadata = $em->getClassMetadata($entity::CN());
@@ -689,10 +700,10 @@ class PageRequestEdit extends PageRequest
 		} else {
 			$newEntity = $this->_clonedEntities[$entityHash];
 		}
-		
+
 		foreach ($classMetadata->associationMappings as $fieldName => $association) {
 
-			// Don't visit this association, might get other blocks
+			// Don't visit this association, might get other blocks in template cloning
 			if ($entity instanceof Entity\Abstraction\Block && $fieldName == 'blockProperties') {
 				continue;
 			}
@@ -705,11 +716,11 @@ class PageRequestEdit extends PageRequest
 					if ($entityData[$fieldName] instanceof Collection) {
 						$newValue = new \Doctrine\Common\Collections\ArrayCollection();
 						foreach ($entityData[$fieldName] as $collectionItem) {
-							$newChild = $this->recursiveClone($collectionItem, $newEntity, $skipPathEvent);
+							$newChild = $this->recursiveCloneInternal($collectionItem, $newEntity, $skipPathEvent);
 							$newValue->add($newChild);
 						}
 					} else {
-						$newValue = $this->recursiveClone($entityData[$fieldName], $newEntity, $skipPathEvent);
+						$newValue = $this->recursiveCloneInternal($entityData[$fieldName], $newEntity, $skipPathEvent);
 					}
 
 					$objectReflection = new \ReflectionObject($newEntity);
@@ -717,33 +728,11 @@ class PageRequestEdit extends PageRequest
 					$propertyReflection->setAccessible(true);
 					$propertyReflection->setValue($newEntity, $newValue);
 				}
-			} else if ( ! is_null($associationOwner)) {
-				$ownerEntityClassName = $classMetadata->associationMappings[$fieldName]['targetEntity'];
-				$ownerReflectionClass = new \ReflectionClass($ownerEntityClassName);
-
-				// FIXME association handling needs rework, not full and buggy
-				if ($ownerReflectionClass->isInstance($associationOwner)) {
-					$classMetadata->reflFields[$fieldName]->setValue($newEntity, $associationOwner);
-					
-					if ( ! $cloned) {
-						$em->getUnitOfWork()->propertyChanged($newEntity, $fieldName, null, $associationOwner);
-					}
-				}
 			}
 		}
-		
-		// handle specific cases
-		//  - copy referenced elements manually
-		//  - reset path for PageLocalizations
-		if ($newEntity instanceof Entity\BlockPropertyMetadata && $cloned) {
-			$referencedElement = $entity->getReferencedElement();
-			
-			$newReferencedElement = clone $referencedElement;
-			$em->persist($newReferencedElement);
-			
-			$newEntity->setReferencedElement($newReferencedElement);
-		}
-		else if ($newEntity instanceof Entity\PageLocalization && ! $skipPathEvent) {
+
+		// reset path for PageLocalizations
+		if ($newEntity instanceof Entity\PageLocalization && ! $skipPathEvent) {
 			$eventArgs = new LifecycleEventArgs($newEntity, $em);
 			$em->getEventManager()
 					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
@@ -765,18 +754,55 @@ class PageRequestEdit extends PageRequest
 		
 		$em->persist($newEntity);
 
-		// Maybe this is not required anymore???
-//		// workaround to keep cloned entities in sync with database
-//		// otherwise using them after clone will fail
-//		$this->_cloneRecursionDepth--;
-//		if ($this->_cloneRecursionDepth == 0) {
-//			$em->flush();
-//			foreach ($this->_clonedEntities as $clonedEntity) {
-//				$em->refresh($clonedEntity);
-//			}
-//		}
+		$this->_cloneRecursionDepth--;
 		
 		return $newEntity;
+	}
+
+	/**
+	 * Fills the new objects UP
+	 * @param Entity\Abstraction\Entity $newEntity
+	 * @throws \RuntimeException
+	 */
+	private function recursiveCloneFillOwningSide($newEntity)
+	{
+		$em = $this->getDoctrineEntityManager();
+		$classMetadata = $em->getClassMetadata($newEntity::CN());
+		
+		foreach ($classMetadata->associationMappings as $fieldName => $association) {
+
+			// Don't visit this association, will get properties from localization
+			if ($newEntity instanceof Entity\Abstraction\Block && $fieldName == 'blockProperties') {
+				continue;
+			}
+
+			$fieldReflection = $classMetadata->reflFields[$fieldName];
+			/* @var $fieldReflection \ReflectionProperty */
+			$fieldReflection->setAccessible(true);
+			$associationValue = $fieldReflection->getValue($newEntity);
+
+			if ( ! $association['isOwningSide']) {
+
+				if ($associationValue instanceof Collection) {
+					foreach ($associationValue as $collectionItem) {
+						$this->recursiveCloneFillOwningSide($collectionItem);
+					}
+				} else {
+					$this->recursiveCloneFillOwningSide($associationValue);
+				}
+			} else {
+
+				if ( ! is_null($associationValue)) {
+					$joinedEntityHash = spl_object_hash($associationValue);
+
+					if (isset($this->_clonedEntities[$joinedEntityHash])) {
+						$newJoinedEntity = $this->_clonedEntities[$joinedEntityHash];
+						$fieldReflection->setValue($newEntity, $newJoinedEntity);
+					}
+				}
+
+			}
+		}
 	}
 	
 }
