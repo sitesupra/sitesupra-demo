@@ -1460,7 +1460,11 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 
-		$nodeData = $this->loadNodeMainData($localization, $localizationExists);
+		$nodeData = null;
+		if ($localization instanceof Localization) {
+			$nodeData = $this->loadNodeMainData($localization, $localizationExists);
+		}
+
 		if ( ! empty($nodeData)) {
 			$array = array_merge($nodeData, $array);
 		}
