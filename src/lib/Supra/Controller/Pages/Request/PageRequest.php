@@ -816,6 +816,7 @@ abstract class PageRequest extends HttpRequest
 					// Copy unlocked blocks from the parent template
 					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
 
+					// TODO: should move to recursive clone
 					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
 					$placeHolder->setMaster($localization);
 				}

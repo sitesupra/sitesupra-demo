@@ -1051,7 +1051,7 @@ abstract class PageManagerAction extends CmsAction
 					$em->getEventManager()
 							->dispatchEvent(AuditEvents::pagePreDuplicateEvent);
 
-					$newPage = $request->recursiveClone($page, null, true);
+					$newPage = $request->recursiveClone($page);
 
 					$eventArgs = new LifecycleEventArgs($newPage, $em);
 					$em->getEventManager()
@@ -1178,144 +1178,149 @@ abstract class PageManagerAction extends CmsAction
 
 		$createLocalization = function() use ($request, $em, $sourceLocalization, $targetLocale, $sourceLocale, $input) {
 
-					$targetLocalization = $request->recursiveClone($sourceLocalization, null, true);
+					$targetLocalization = $request->recursiveClone($sourceLocalization, $targetLocale);
 
 					$targetLocalization->setLocale($targetLocale);
 
-					if ($targetLocalization instanceof Entity\PageLocalization) {
+					$request->createMissingPlaceHolders();
 
-						$template = $targetLocalization->getTemplate();
-						$targetTemplateLocalization = $template->getLocalization($targetLocale);
-						$targetPlaceHolders = $targetTemplateLocalization->getPlaceHolders();
+					// TODO: clone missing placeholders from the template. Even for templates it makes sense to do this.
+					// Still – I think it is happening right now on first load.
 
-						$replacedProperties = array();
-
-						foreach ($targetPlaceHolders as $targetPlaceHolder) {
-
-							$name = $targetPlaceHolder->getName();
-
-							if ( ! $targetPlaceHolder->getLocked()) {
-
-								$knownPlaceHolders = $targetLocalization->getPlaceHolders();
-								if ( ! $knownPlaceHolders->offsetExists($name)) {
-									$targetPlaceHolder = Entity\Abstraction\PlaceHolder::factory($targetLocalization, $name, $targetPlaceHolder);
-									$targetPlaceHolder->setMaster($targetLocalization);
-									$em->persist($targetPlaceHolder);
-
-									$em->flush();
-								} else {
-									$targetPlaceHolder = $knownPlaceHolders->offsetGet($name);
-								}
-							}
-
-							$qb = $em->createQueryBuilder();
-							$targetBlocks = $qb->select('b')
-									->from(Entity\Abstraction\Block::CN(), 'b')
-									->where('b.placeHolder = ?0')
-									->orderBy('b.position', 'ASC')
-									->getQuery()
-									->execute(array($targetPlaceHolder->getId()));
-
-							foreach ($targetBlocks as $targetBlock) {
-
-								$componentClass = $targetBlock->getComponentClass();
-
-								$qb = $em->createQueryBuilder();
-								$property = $qb->select('p')
-										->from(Entity\BlockProperty::CN(), 'p')
-										->join('p.block', 'b')
-										->join('b.placeHolder', 'ph')
-										->where('p.localization = ?0 AND b.componentClass = ?1 AND ph.name = ?2')
-										->orderBy('b.position', 'ASC')
-										->setMaxResults(1)
-										->getQuery()
-										->execute(array($targetLocalization->getId(), $componentClass, $targetPlaceHolder->getName()));
-
-								if ( ! empty($property)) {
-									$qb = $em->createQueryBuilder();
-									$properties = $qb->select('p')
-											->from(Entity\BlockProperty::CN(), 'p')
-											->join('p.block', 'b')
-											->join('b.placeHolder', 'ph')
-											->where('p.localization = ?0 AND b.componentClass = ?1 AND ph.name = ?2 AND b.id = ?3')
-											->orderBy('b.position', 'ASC')
-											->getQuery()
-											->execute(array($targetLocalization->getId(), $componentClass, $targetPlaceHolder->getName(), $property[0]->getBlock()->getId()));
-								}
-
-								if ( ! empty($properties)) {
-
-									$qb = $em->createQueryBuilder();
-									$targetProperties = $qb->select('p')
-											->from(Entity\BlockProperty::CN(), 'p')
-											->where('p.block = ?0 AND p.localization = ?1')
-											->getQuery()
-											->execute(array($targetBlock->getId(), $targetLocalization->getId()));
-
-									if (empty($targetProperties)) {
-										foreach ($properties as $property) {
-											if ( ! in_array($property->getId(), $replacedProperties)) {
-												$property->setBlock($targetBlock);
-												array_push($replacedProperties, $property->getId());
-											}
-										}
-									}
-
-									foreach ($targetProperties as $targetProperty) {
-
-										foreach ($properties as $property) {
-											if ( ! in_array($property->getId(), $replacedProperties) && $targetProperty->getName() == $property->getName()
-													&& $targetProperty->getType() == $property->getType()) {
-
-												$property->setBlock($targetBlock);
-												array_push($replacedProperties, $property->getId());
-
-												if ($property->getId() !== $targetProperty->getId()) {
-//													$qb = $em->createQueryBuilder();
-//													$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
-//															->where('m.blockProperty = ?0')
-//															->getQuery()->execute(array($targetProperty->getId()));
-
-													$qb = $em->createQueryBuilder();
-													$qb->delete(Entity\BlockProperty::CN(), 'p')
-															->where('p.id = ?0 AND p.masterMetadataId IS NULL')
-															->getQuery()->execute(array($targetProperty->getId()));
-												}
-											}
-										}
-									}
-
-//									foreach($properties as $property) {
-//										$masterMetadataId = $property->getMasterMetadataId();
-//										if ( ! is_null($masterMetadataId)) {
-//											$originalMetadataEntity = $em->find(Entity\BlockPropertyMetadata::CN(), $masterMetadataId);
+//					if ($targetLocalization instanceof Entity\PageLocalization) {
 //
-//											if ( ! is_null($originalMetadataEntity)) {
-//												$originalMetaName = $originalMetadataEntity->getName();
-//												$originalMetaProperty = $originalMetadataEntity->getBlockProperty();
-//												
-//												$block = $property->getBlock();
-//												
-//												$targetProperty = $em->getRepository(Entity\BlockProperty::CN())
-//														->findOneBy(array('name' => $originalMetaProperty->getName(), 'block' => $block));
-//												
-//												if ( ! is_null($targetProperty)) {
-//													$metaCollection = $targetProperty->getMetadata();
-//													
-//													$metaItem = $metaCollection->get($originalMetaName);
-//													if ( ! is_null($metaItem)) {
-//														$property->setMasterMetadata($metaItem);
-//													}
+//						$template = $targetLocalization->getTemplate();
+//						$targetTemplateLocalization = $template->getLocalization($targetLocale);
+//						$targetPlaceHolders = $targetTemplateLocalization->getPlaceHolders();
+//
+//						$replacedProperties = array();
+//
+//						foreach ($targetPlaceHolders as $targetPlaceHolder) {
+//
+//							$name = $targetPlaceHolder->getName();
+//
+//							if ( ! $targetPlaceHolder->getLocked()) {
+//
+//								$knownPlaceHolders = $targetLocalization->getPlaceHolders();
+//								if ( ! $knownPlaceHolders->offsetExists($name)) {
+//									$targetPlaceHolder = Entity\Abstraction\PlaceHolder::factory($targetLocalization, $name, $targetPlaceHolder);
+//									$targetPlaceHolder->setMaster($targetLocalization);
+//									$em->persist($targetPlaceHolder);
+//
+//									$em->flush();
+//								} else {
+//									$targetPlaceHolder = $knownPlaceHolders->offsetGet($name);
+//								}
+//							}
+//
+//							$qb = $em->createQueryBuilder();
+//							$targetBlocks = $qb->select('b')
+//									->from(Entity\Abstraction\Block::CN(), 'b')
+//									->where('b.placeHolder = ?0')
+//									->orderBy('b.position', 'ASC')
+//									->getQuery()
+//									->execute(array($targetPlaceHolder->getId()));
+//
+//							foreach ($targetBlocks as $targetBlock) {
+//
+//								$componentClass = $targetBlock->getComponentClass();
+//
+//								$qb = $em->createQueryBuilder();
+//								$property = $qb->select('p')
+//										->from(Entity\BlockProperty::CN(), 'p')
+//										->join('p.block', 'b')
+//										->join('b.placeHolder', 'ph')
+//										->where('p.localization = ?0 AND b.componentClass = ?1 AND ph.name = ?2')
+//										->orderBy('b.position', 'ASC')
+//										->setMaxResults(1)
+//										->getQuery()
+//										->execute(array($targetLocalization->getId(), $componentClass, $targetPlaceHolder->getName()));
+//
+//								if ( ! empty($property)) {
+//									$qb = $em->createQueryBuilder();
+//									$properties = $qb->select('p')
+//											->from(Entity\BlockProperty::CN(), 'p')
+//											->join('p.block', 'b')
+//											->join('b.placeHolder', 'ph')
+//											->where('p.localization = ?0 AND b.componentClass = ?1 AND ph.name = ?2 AND b.id = ?3')
+//											->orderBy('b.position', 'ASC')
+//											->getQuery()
+//											->execute(array($targetLocalization->getId(), $componentClass, $targetPlaceHolder->getName(), $property[0]->getBlock()->getId()));
+//								}
+//
+//								if ( ! empty($properties)) {
+//
+//									$qb = $em->createQueryBuilder();
+//									$targetProperties = $qb->select('p')
+//											->from(Entity\BlockProperty::CN(), 'p')
+//											->where('p.block = ?0 AND p.localization = ?1')
+//											->getQuery()
+//											->execute(array($targetBlock->getId(), $targetLocalization->getId()));
+//
+//									if (empty($targetProperties)) {
+//										foreach ($properties as $property) {
+//											if ( ! in_array($property->getId(), $replacedProperties)) {
+//												$property->setBlock($targetBlock);
+//												array_push($replacedProperties, $property->getId());
+//											}
+//										}
+//									}
+//
+//									foreach ($targetProperties as $targetProperty) {
+//
+//										foreach ($properties as $property) {
+//											if ( ! in_array($property->getId(), $replacedProperties) && $targetProperty->getName() == $property->getName()
+//													&& $targetProperty->getType() == $property->getType()) {
+//
+//												$property->setBlock($targetBlock);
+//												array_push($replacedProperties, $property->getId());
+//
+//												if ($property->getId() !== $targetProperty->getId()) {
+////													$qb = $em->createQueryBuilder();
+////													$qb->delete(Entity\BlockPropertyMetadata::CN(), 'm')
+////															->where('m.blockProperty = ?0')
+////															->getQuery()->execute(array($targetProperty->getId()));
+//
+//													$qb = $em->createQueryBuilder();
+//													$qb->delete(Entity\BlockProperty::CN(), 'p')
+//															->where('p.id = ?0 AND p.masterMetadataId IS NULL')
+//															->getQuery()->execute(array($targetProperty->getId()));
 //												}
 //											}
 //										}
 //									}
-								}
-							}
-						}
-
-						$em->flush();
-					}
+//
+////									foreach($properties as $property) {
+////										$masterMetadataId = $property->getMasterMetadataId();
+////										if ( ! is_null($masterMetadataId)) {
+////											$originalMetadataEntity = $em->find(Entity\BlockPropertyMetadata::CN(), $masterMetadataId);
+////
+////											if ( ! is_null($originalMetadataEntity)) {
+////												$originalMetaName = $originalMetadataEntity->getName();
+////												$originalMetaProperty = $originalMetadataEntity->getBlockProperty();
+////
+////												$block = $property->getBlock();
+////
+////												$targetProperty = $em->getRepository(Entity\BlockProperty::CN())
+////														->findOneBy(array('name' => $originalMetaProperty->getName(), 'block' => $block));
+////
+////												if ( ! is_null($targetProperty)) {
+////													$metaCollection = $targetProperty->getMetadata();
+////
+////													$metaItem = $metaCollection->get($originalMetaName);
+////													if ( ! is_null($metaItem)) {
+////														$property->setMasterMetadata($metaItem);
+////													}
+////												}
+////											}
+////										}
+////									}
+//								}
+//							}
+//						}
+//
+//						$em->flush();
+//					}
 
 					if ($input->has('title')) {
 						$targetLocalization->setTitle($input->get('title'));
