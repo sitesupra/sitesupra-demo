@@ -49,6 +49,7 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		this.url    = this.options.url    || element.attr('action');
 		this.method = this.options.method || this.getForm().attr('method');
 		this.submitEvent = this.proxy(this.submit);
+		this.disabled = false;
 		
 		this.onChange();
 		this.element.delegate('input, select, textarea', 'blur', this.proxy(this.validateEventTarget));
@@ -69,6 +70,10 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 	 * Submit form
 	 */
 	'submit': function () {
+		if (this.disabled) {
+			return false;
+		}
+
 		var values = this.serialize();
 		
 		if (this.validate(values)) {
@@ -86,6 +91,10 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 	 */
 	'onReload': function (html) {
 		_super.onReload.apply(this, arguments);
+		if (html == '') {
+			$('.tooltip-popup').hide();
+		}
+		this.disable(false);
 
 		this.onChange();
 	},
@@ -408,8 +417,12 @@ $.app.AjaxForm = $.app.module($.app.AjaxContent, {
 		var inputs = this.element.find('input,select,textarea,button');
 		if (disabled) {
 			inputs.attr('readonly', 'readonly');
+			this.element.addClass('disabled');
+			this.disabled = true;
 		} else {
 			inputs.removeAttr('readonly');
+			this.element.removeClass('disabled');
+			this.disabled = false;
 		}
 	}
 	

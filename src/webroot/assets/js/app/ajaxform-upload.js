@@ -65,6 +65,10 @@ $.extend(_super, {
 	 * Submit form
 	 */
 	'submit': function () {
+		if (this.disabled) {
+			return false;
+		}
+
 		var multipart = this.isMultiPart(),
 			values = this.serialize();
 		
