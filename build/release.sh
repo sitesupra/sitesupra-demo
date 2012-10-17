@@ -40,4 +40,6 @@ cd src/webroot/
 find ./cms/ -name "*.css.less" -exec php cms/lib/supra/combo/combo_pregenerate.php {} \; 
 find ./cms/ -name "*.css.less" -delete
 
+cd ${WORKSPACE}/release
+
 zip -r ${WORKSPACE}/${JOB_NAME/%-release}.web.${project_version}.${BUILD_NUMBER}.zip *
