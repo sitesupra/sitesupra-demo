@@ -165,7 +165,7 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	{
 		$initiatorUrl = $order->getInitiatorUrl();
 
-		$this->returnToPaymentInitiator($initiatorUrl);
+		$this->returnToPaymentInitiator($initiatorUrl, array(Dengi\PaymentProvider::REQUEST_KEY_ORDER_ID => $order->getId()));
 	}
 
 	/**
