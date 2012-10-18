@@ -151,8 +151,9 @@ class DengiDataFormBlock extends BlockController
 	{
 		$response = $this->getResponse();
 
-		$response->assign('formElements', $this->buildFormElements());
+		$response->assign('formElements', array());
 		$response->assign('action', '#');
+		$response->assign('errorMessages', array());
 	}
 
 	/**
