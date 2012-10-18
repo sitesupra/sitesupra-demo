@@ -66,6 +66,7 @@ class EntityManagerConfiguration implements ConfigurationInterface
 		'mail' => 'Supra/Mailer/MassMail/Entity',
 		'configuration' => 'Supra/Configuration/Entity',
 		'facebook' => 'Supra/Social/Facebook/Entity',
+		'translation' => 'Supra/Translation/Entity',
 	);
 	
 	public $entityNamespaces = array(
@@ -81,6 +82,7 @@ class EntityManagerConfiguration implements ConfigurationInterface
 		'mail' => 'Supra\Mailer\MassMail\Entity',
 		'configuration' => 'Supra\Configuration\Entity',
 		'facebook' => 'Supra\Social\Facebook\Entity',
+		'translation' => 'Supra\Translation\Entity',
 	);
 
 	/**

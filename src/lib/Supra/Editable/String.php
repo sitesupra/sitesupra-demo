@@ -18,6 +18,20 @@ class String extends EditableAbstraction
 	protected $disabled = false;
 
 	/**
+	 * @param string $label
+	 * @param string $groupId
+	 * @param array $options
+	 */
+	public function __construct($label = null, $groupId = null, $options = array())
+	{
+		parent::__construct($label, $groupId, $options);
+
+		if (isset($options['disabled'])) {
+			$this->disabled = (boolean) $options['disabled'];
+		}
+	}
+
+	/**
 	 * @param boolean $disabled
 	 */
 	public function setDisabled($disabled)

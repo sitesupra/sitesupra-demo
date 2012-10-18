@@ -47,7 +47,7 @@ abstract class EditableAbstraction implements EditableInterface
 	/**
 	 * @param string $label
 	 */
-	public function __construct($label = null, $groupId = null)
+	public function __construct($label = null, $groupId = null, $options = array())
 	{
 		$this->setLabel($label);
 		$this->setGroupId($groupId);

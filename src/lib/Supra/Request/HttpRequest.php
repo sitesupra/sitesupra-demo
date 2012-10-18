@@ -96,14 +96,7 @@ class HttpRequest implements RequestInterface
 			$this->setPostFiles($_FILES);
 		}
 
-		$pathInfo = null;
-		$pathInfoOffsets = array('PATH_INFO', 'ORIG_PATH_INFO', 'SCRIPT_URL');
-
-		foreach ($pathInfoOffsets as $pathInfoOffset) {
-			if (isset($_SERVER[$pathInfoOffset])) {
-				$pathInfo = $_SERVER[$pathInfoOffset];
-			}
-		}
+		$pathInfo = self::guessPathInfo($_SERVER);
 
 		if (is_null($pathInfo)) {
 			throw new Exception\InvalidRequest("Script URL not set in Http request object");
@@ -114,6 +107,23 @@ class HttpRequest implements RequestInterface
 
 		$path = new Path($this->requestPath);
 		$this->setPath($path);
+	}
+
+	/**
+	 * @param array $server
+	 * @return string
+	 */
+	public static function guessPathInfo($server)
+	{
+		$pathInfoOffsets = array('SCRIPT_URL', 'ORIG_PATH_INFO', 'PATH_INFO');
+
+		foreach ($pathInfoOffsets as $pathInfoOffset) {
+			if (isset($server[$pathInfoOffset])) {
+				return $server[$pathInfoOffset];
+			}
+		}
+
+		return null;
 	}
 
 	/**
