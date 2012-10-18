@@ -613,7 +613,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		unset($requestDataAsArray['err_msg']);
 		unset($requestDataAsArray['DOL_SIGN']);
-		
+
 		// Specification is wrong, w/o comment field, even if it is empty, checksum is not valid.
 		// So this is why it is not being unset.
 		//unset($requestDataAsArray['comment']);
@@ -629,6 +629,22 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$computedDolSign = md5($stringToHash . $this->getSecret());
 
 		return $receivedDolSign == $computedDolSign;
+	}
+
+	/**
+	 * @param Order\Order $order
+	 */
+	public function getOrderBackendId(Order\Order $order)
+	{
+		$paymentProviderId = $order->getPaymentProviderId();
+
+		if ($paymentProviderId != $this->getId()) {
+			throw new Exception\RuntimeException('Order is not for this payment provider.');
+		}
+
+		$backendId = $order->getPaymentEntityParameterValue(self::PHASE_NAME_INITIALIZE_TRANSACTION, 'mode_type');
+
+		return $backendId;
 	}
 
 }

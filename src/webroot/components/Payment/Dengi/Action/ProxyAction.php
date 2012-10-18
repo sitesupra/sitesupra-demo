@@ -152,6 +152,8 @@ class ProxyAction extends ProxyActionAbstraction
 		$backend->setPaymentProvider($paymentProvider);
 		$backend->setOrder($order);
 
+		$order->addToPaymentEntityParameters(Dengi\PaymentProvider::PHASE_NAME_INITIALIZE_TRANSACTION, $formData);
+		
 		$status = $backend->proxyAction($formData, $this->getResponse());
 
 		switch ($status) {

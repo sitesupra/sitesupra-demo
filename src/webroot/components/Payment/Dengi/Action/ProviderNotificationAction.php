@@ -147,7 +147,7 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 
 		$parameters = $this->getParameters();
 
-		\Log::error('PPP: ', $parameters);
+		//\Log::error('PPP: ', $parameters);
 
 		if ($parameters->has('amount')) {
 			$notificationType = self::NOTIFICATION_TYPE_NOTIFY;
