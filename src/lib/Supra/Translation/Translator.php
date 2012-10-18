@@ -10,6 +10,30 @@ class Translator extends \Symfony\Component\Translation\Translator
 	private $loaders = array();
     private $resources = array();
 
+	public function trans($id, array $parameters = array(), $domain = 'messages', $locale = null)
+	{
+		if ($id instanceof TranslatedString) {
+			return (string) $id;
+		}
+
+		return parent::trans($id, $parameters, $domain, $locale);
+	}
+
+	public function transChoice($id, $number, array $parameters = array(), $domain = 'messages', $locale = null)
+	{
+		// Skip catalogues if is already translated
+		if ($id instanceof TranslatedString) {
+			if ( ! isset($locale)) {
+				$locale = $this->getLocale();
+			}
+
+			return strtr($this->selector->choose((string) $id, (int) $number, $locale), $parameters);
+		}
+
+		return parent::transChoice($id, $number, $parameters, $domain, $locale);
+	}
+
+
 	public function addLoader($format, \Symfony\Component\Translation\Loader\LoaderInterface $loader)
 	{
 		$this->loaders[$format] = $loader;

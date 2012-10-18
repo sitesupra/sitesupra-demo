@@ -12,6 +12,11 @@ class RegisteringMessageCatalogue extends MessageCatalogue
 {
 	public function get($id, $domain = 'messages')
 	{
+		// Should not get so far
+		if ($id instanceof TranslatedString) {
+			return $id->__toString();
+		}
+
 		if ( ! $this->has($id, $domain)) {
 			$em = ObjectRepository::getEntityManager($this);
 			$translation = new Entity\Translation();
