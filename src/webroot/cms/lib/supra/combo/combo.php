@@ -36,8 +36,11 @@ $lessCss = true;
 $pre = @$pre ? : $_SERVER['DOCUMENT_ROOT'];
 
 // if will need to store in webroot...
-//$cacheDir = $pre . '/tmp';
-$cacheDir = $pre . '/../tmp';
+if (ini_get('open_basedir')) {
+	$cacheDir = $pre . '/tmp';
+} else {
+	$cacheDir = $pre . '/../tmp';
+}
 
 $version = __FILE__ . '/' . @file_get_contents(__DIR__ . '/../../../../../../VERSION');
 
@@ -127,9 +130,9 @@ function writeFiles($files, $eTag)
 		if ($apc) {
 			apc_store('combo-' . $eTag, $out, 1800);
 		}
-		
+
 		$outDirname = $cacheDir . '/yui/' . substr($eTag, 0, 2);
-		
+
 		@mkdir($outDirname, 0777, true);
 
 		$tmpFilename = tempnam($outDirname, 'tmp-');
