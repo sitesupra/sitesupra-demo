@@ -1,5 +1,7 @@
 <?php
 
+ini_set('display_errors', 'Off');
+
 $q = @$q ?: $_SERVER['QUERY_STRING'];
 $apc = function_exists('apc_store');
 
