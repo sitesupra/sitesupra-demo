@@ -6,7 +6,7 @@ use Supra\Template\Parser\Twig\Twig;
 use Twig_Loader_Filesystem;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Request\PageRequest;
-use Supra\Controller\Pages\Twig\TwigSupraGlobal;
+use Supra\Controller\Pages\Twig\TwigSupraPageGlobal;
 use Supra\Response\HttpResponse;
 use Supra\Response\ResponseContext;
 use Supra\Controller\Layout\Theme\ThemeInterface;
@@ -59,7 +59,7 @@ class TwigProcessor extends HtmlProcessor
 			throw new \RuntimeException("Twig layout processor expects twig template parser");
 		}
 
-		$helper = new TwigSupraGlobal();
+		$helper = new TwigSupraPageGlobal();
 		ObjectRepository::setCallerParent($helper, $this);
 		$helper->setRequest($this->request);
 

@@ -16323,7 +16323,6 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 			this.host.execute = this.executeHost;
 			this.host.hide = this.hideHost;
 			this.host.showFrozen = this.showFrozenHost;
-			this.host.hideFrozen = this.hideFrozenHost;
 			
 			this.host.after('visibleChange', this.afterVisibleChange, this);
 		},
@@ -16542,17 +16541,6 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 				this.plugins.getPlugin('PluginSidebar').afterVisibleChange({'newVal': true, 'prevVal': false});
 			} else {
 				this.show();
-			}
-		},
-		
-		/**
-		 * Force showing content even in frozen mode
-		 */
-		hideFrozenHost: function () {
-			if (!this.get('visible')) {
-				this.plugins.getPlugin('PluginSidebar').afterVisibleChange({'newVal': false, 'prevVal': true});
-			} else {
-				this.hide();
 			}
 		}
 		
@@ -24921,7 +24909,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			var minDate = this.get('minDate'),
 				maxDate = this.get('maxDate');
 			
-			date = date ? YDate.reformat(date, 'out_date', 'raw') : null;
+			date = date ? YDate.reformat(date, 'out_date', 'raw') || YDate.reformat(date, 'in_date', 'raw') : null;
 			date = date || this.get('rawDate') || new Date();
 			
 			if (minDate && date.getTime() < minDate.getTime()) {
@@ -24955,7 +24943,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_setDisplayDate: function (date) {
-			date = date ? YDate.reformat(date, 'out_date', 'raw') : null;
+			date = date ? YDate.reformat(date, 'out_date', 'raw') || YDate.reformat(date, 'in_date', 'raw') : null;
 			date = date || this.get('displayDate') || new Date();
 			
 			return date;
@@ -24972,7 +24960,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		_setMinDate: function (minDate) {
 			var date = this.get('rawDate') || new Date();
 			
-			minDate = minDate ? YDate.reformat(minDate, 'out_date', 'raw') : null;
+			minDate = minDate ? YDate.reformat(minDate, 'out_date', 'raw') || YDate.reformat(minDate, 'in_date', 'raw') : null;
 			if (minDate && date.getTime() < minDate.getTime()) {
 				this.set('date', new Date(minDate));
 			}
@@ -24990,7 +24978,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		_setMaxDate: function (maxDate) {
 			var date = this.get('rawDate') || new Date();
 			
-			maxDate = maxDate ? YDate.reformat(maxDate, 'out_date', 'raw') : null;
+			maxDate = maxDate ? YDate.reformat(maxDate, 'out_date', 'raw') || YDate.reformat(maxDate, 'in_date', 'raw') : null;
 			if (maxDate && date.getTime() < maxDate.getTime()) {
 				this.set('date', new Date(maxDate));
 			}
@@ -25110,27 +25098,16 @@ YUI.add('supra.datatype-color', function(Y) {
 		
 		// Label for button when no date is selected
 		"labelSet": {
-			"value": ""
+			"value": "Select a date"
 		},
 		
 		// Label for button to clear selected date
 		"labelClear": {
-			"value": ""
+			"value": "Clear all"
 		}
 	};
 	
 	Input.HTML_PARSER = {
-		// Try finding slideshow which is above this node in DOM, but still inside form
-		"slideshow": function (srcNode) {
-			var slideshow = srcNode.closest(".su-slideshow");
-			if (slideshow) {
-				var form = slideshow.closest(".yui3-form");
-				if (form) {
-					return Y.Widget.getByNode(slideshow);
-				}
-			}
-		},
-		
 		// suMinDate attribute for minDate
 		"minDate": function (srcNode) {
 			var date = srcNode.getAttribute("suMinDate");
@@ -25192,6 +25169,19 @@ YUI.add('supra.datatype-color', function(Y) {
 				
 				"popup": null
 			};
+			
+			// Try finding slideshow which is above this node in DOM, but still inside form
+			var slideshow = this.get("slideshow");
+			if (!slideshow) {
+				slideshow = this.get("boundingBox").closest(".su-slideshow");
+				if (slideshow) {
+					var form = slideshow.closest(".yui3-form");
+					if (form) {
+						slideshow = Y.Widget.getByNode(slideshow);
+						this.set("slideshow", slideshow);
+					}
+				}
+			}
 			
 			//Create button widget
 			var contentBox = this.get("contentBox");

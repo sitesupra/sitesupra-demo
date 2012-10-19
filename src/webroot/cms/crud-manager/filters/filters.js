@@ -253,7 +253,7 @@ function (Y) {
 		 * Filter
 		 */
 		filter: function () {
-			var datagrid = CRUD.Providers.getProvider('user').getDataGrid(),
+			var datagrid = CRUD.Providers.getActiveProvider().getDataGrid(),
 				values = this.widgets[this.providerId].form.getValues('name');
 			
 			datagrid.requestParams.set(values);

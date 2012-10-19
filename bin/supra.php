@@ -29,6 +29,7 @@ $cliCommandClasses = array(
 	//'Supra\Controller\Pages\Command\UpgradeTemplateLayoutsCommand',
 	'Supra\Controller\Pages\Command\ProcessScheduledPagesCommand',
 	'Supra\Controller\Pages\Command\PagePathRegenerationCommand',
+	'Supra\Controller\Pages\Command\CleanHistoryCommand',
 	'Supra\Seo\Command\GenerateSitemapCommand',
 	//'Supra\Controller\Pages\Command\UpgradeLinkReferencedElements',
 	'Supra\Remote\Command\RemoteCommand',

@@ -132,8 +132,6 @@ class SharedPropertyFinder
 		$blockGroupIds = $this->indexedResult($query);
 		
 		$this->blockGroupIds += $blockGroupIds;
-		
-		return $blockGroupIds;
 	}
 	
 	/**

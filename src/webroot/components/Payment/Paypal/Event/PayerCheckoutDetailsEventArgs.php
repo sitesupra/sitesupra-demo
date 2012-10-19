@@ -2,9 +2,9 @@
 
 namespace Project\Payment\Paypal\Event;
 
-use Supra\Payment\Provider\Event\EventArgsAbstraction;
+use Supra\Payment\Provider\Event\PaymentEventArgsAbstraction;
 
-class PayerCheckoutDetailsEventArgs extends EventArgsAbstraction
+class PayerCheckoutDetailsEventArgs extends PaymentEventArgsAbstraction
 {
 
 	/**

@@ -242,18 +242,31 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 				// Block properties are loaded from the block and filtered manually now
 				$blockProperties = $block->getBlockProperties();
 
-				/* @var $blockProperty Entity\BlockProperty */
+				/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
 				foreach ($blockProperties as $blockProperty) {
 					
 					// We are interested only in the properties belonging to the current localization
 //					if ($blockProperty->getLocalization()->equals($localization)) {
+						$metadataCollection = $blockProperty->getMetadata();
+						
 						$blockProperty = clone($blockProperty);
+
+						/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
 						
 						$blockProperty->resetLocalization();
 						$blockProperty->resetBlock();
 						
 						$blockProperty->setLocalization($localization);
 						$blockProperty->setBlock($newBlock);
+
+
+						foreach ($metadataCollection as $metadata) {
+							/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
+
+							$metadata = clone($metadata);
+							$metadata->setBlockProperty($blockProperty);
+							$em->persist($metadata);
+						}
 //					}
 
 					// Should persist by cascade

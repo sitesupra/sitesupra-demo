@@ -24,6 +24,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationThreewayWithEntitiesAccessPoli
 use Supra\Cms\CheckPermissions\CheckPermissionsController;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 use Supra\NestedSet\Exception\CannotObtainNestedSetLock;
+use Supra\Controller\Pages\Twig\TwigSupraGlobal;
 
 /**
  * Description of CmsAction
@@ -207,7 +208,17 @@ abstract class CmsAction extends SimpleController
 		// Used to get currently signed in user
 		//TODO: think about something better...
 		$response->assign('action', $this);
+		
+		$twig = $response->getTwigEnvironment();
 
+		$globalHelper = new TwigSupraGlobal();
+		
+		$globalHelper->setRequest($this->getRequest());
+		$globalHelper->setResponseContext($response->getContext());
+
+		ObjectRepository::setCallerParent($globalHelper, $this);
+		$twig->addGlobal('supra', $globalHelper);
+		
 		return $response;
 	}
 

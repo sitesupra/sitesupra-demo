@@ -76,7 +76,7 @@ class OrderProductItem extends OrderItem
 	}
 
 	/**
-	 * @param ProductAbstraction $product 
+	 * @param ProductAbstraction $product
 	 */
 	public function setProduct(ProductAbstraction $product)
 	{
@@ -87,7 +87,7 @@ class OrderProductItem extends OrderItem
 	/**
 	 * @return ProductAbstraction
 	 */
-	protected function getProduct()
+	public function getProduct()
 	{
 		if (empty($this->product)) {
 

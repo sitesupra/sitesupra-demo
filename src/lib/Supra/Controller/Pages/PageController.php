@@ -832,8 +832,18 @@ class PageController extends ControllerAbstraction
 					$blockTimeStart = microtime(true);
 				}
 
+				$blockControllerName = $block->getComponentClass();
+				if ( ! empty($blockController)) {
+					$blockControllerName = get_class($blockController);
+				}
+
+				// Should not throw exceptions
+				ObjectRepository::beginControllerContext($blockControllerName);
+
 				// NB! Block controller variable might be rewritten in the function
 				$return[$index] = $function($block, $blockController);
+
+				ObjectRepository::endControllerContext($blockControllerName);
 
 				if (
 						$blockController instanceof BlockController &&

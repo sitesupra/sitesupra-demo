@@ -280,7 +280,6 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		if ( ! empty($this->id)) {
 			$this->regenerateId();
 			$this->blockProperties = new ArrayCollection();
-			$this->placeHolder = null;
 		}
 	}
 

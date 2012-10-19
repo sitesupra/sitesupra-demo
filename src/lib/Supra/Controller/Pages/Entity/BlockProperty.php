@@ -352,4 +352,9 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 		$this->masterMetadata =
 				$this->masterMetadataId = null;
 	}
+
+	public function __clone()
+	{
+		parent::__clone();
+	}
 }

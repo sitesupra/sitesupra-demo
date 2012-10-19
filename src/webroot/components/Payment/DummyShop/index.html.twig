@@ -16,14 +16,14 @@
 			<td>{{ orderItem.getClassName() }}</td>
 			<td>{{ orderItem.getId() }}</td>
 			<td>{{ orderItem.getDescription() }}</td>
-			<td>{{ orderItem.getProductId() }}</td>
-			<td>{{ orderItem.getQuantity() }}</td>
+			<td>{# orderItem.getProductId() #}-</td>
+			<td>{# orderItem.getQuantity() #}-</td>
 			<td>{{ orderItem.getPrice() }}</td>
 		</tr>
 	{% endfor %}
 	</table>
 	
-	<form method="get" action="{{ updateOrderActionUrl }}">
+	<form method="get" action="{{ updateOrderUrl }}">
 		<input type="text" name="amount" value=""/>
 		<input type="submit" name="updateOrder" value="UPDATETH ALL TEH THINGS!" />
 		<input type="hidden" name="shopAction" value="update" />

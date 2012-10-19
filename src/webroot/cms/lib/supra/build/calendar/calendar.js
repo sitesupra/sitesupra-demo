@@ -346,7 +346,7 @@ YUI.add("supra.calendar", function (Y) {
 			var minDate = this.get('minDate'),
 				maxDate = this.get('maxDate');
 			
-			date = date ? YDate.reformat(date, 'out_date', 'raw') : null;
+			date = date ? YDate.reformat(date, 'out_date', 'raw') || YDate.reformat(date, 'in_date', 'raw') : null;
 			date = date || this.get('rawDate') || new Date();
 			
 			if (minDate && date.getTime() < minDate.getTime()) {
@@ -380,7 +380,7 @@ YUI.add("supra.calendar", function (Y) {
 		 * @private
 		 */
 		_setDisplayDate: function (date) {
-			date = date ? YDate.reformat(date, 'out_date', 'raw') : null;
+			date = date ? YDate.reformat(date, 'out_date', 'raw') || YDate.reformat(date, 'in_date', 'raw') : null;
 			date = date || this.get('displayDate') || new Date();
 			
 			return date;
@@ -397,7 +397,7 @@ YUI.add("supra.calendar", function (Y) {
 		_setMinDate: function (minDate) {
 			var date = this.get('rawDate') || new Date();
 			
-			minDate = minDate ? YDate.reformat(minDate, 'out_date', 'raw') : null;
+			minDate = minDate ? YDate.reformat(minDate, 'out_date', 'raw') || YDate.reformat(minDate, 'in_date', 'raw') : null;
 			if (minDate && date.getTime() < minDate.getTime()) {
 				this.set('date', new Date(minDate));
 			}
@@ -415,7 +415,7 @@ YUI.add("supra.calendar", function (Y) {
 		_setMaxDate: function (maxDate) {
 			var date = this.get('rawDate') || new Date();
 			
-			maxDate = maxDate ? YDate.reformat(maxDate, 'out_date', 'raw') : null;
+			maxDate = maxDate ? YDate.reformat(maxDate, 'out_date', 'raw') || YDate.reformat(maxDate, 'in_date', 'raw') : null;
 			if (maxDate && date.getTime() < maxDate.getTime()) {
 				this.set('date', new Date(maxDate));
 			}

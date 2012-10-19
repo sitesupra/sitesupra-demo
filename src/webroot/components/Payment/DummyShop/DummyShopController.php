@@ -209,6 +209,9 @@ class DummyShopController extends BlockController
 		$this->order->setInitiatorUrl($returnToShopUrl);
 	}
 
+	/**
+	 * 
+	 */
 	protected function getRecurringOrderForCurrentUser()
 	{
 		$user = $this->getUser();
@@ -342,7 +345,7 @@ class DummyShopController extends BlockController
 	{
 		$up = ObjectRepository::getUserProvider('#cms');
 
-		return $up->findUserByLogin('external-user-01');
+		return $up->findUserByLogin('admin@videinfra.com');
 	}
 
 	/**
@@ -371,14 +374,15 @@ class DummyShopController extends BlockController
 
 		$itemAmount = $request->getParameter('amount');
 
-		$productIds = array(111, 222, 333);
+		//$productIds = array(111, 222, 333);
+		$productIds = array(111); 
 
-		$currency = $this->getCurrencyByIsoCode('USD');
+		$currency = $this->getCurrencyByIsoCode('RUB');
 		$this->order->setCurrency($currency);
 
 		foreach ($productIds as $productId) {
 
-			$product = new DummyProduct($productId);
+			$product = new DummyProduct($productId, 1);
 
 			$orderItem = $this->order->getOrderItemByProduct($product);
 

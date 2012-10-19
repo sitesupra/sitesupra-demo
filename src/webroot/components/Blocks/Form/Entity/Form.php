@@ -32,8 +32,9 @@ class Form
 	public $email;
 
 	/**
-	 * @FormField(type="text", required=false)
-	 * 
+	 * @FormField(type="email", required=false)
+	 *
+	 * @Constraints\NotBlank(groups={"developer"}, message="Developers must enter secondary email")
 	 * @Constraints\Email
 	 */
 	public $secondaryEmail;

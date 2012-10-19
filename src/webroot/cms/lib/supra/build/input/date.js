@@ -37,27 +37,16 @@ YUI.add("supra.input-date", function (Y) {
 		
 		// Label for button when no date is selected
 		"labelSet": {
-			"value": ""
+			"value": "Select a date"
 		},
 		
 		// Label for button to clear selected date
 		"labelClear": {
-			"value": ""
+			"value": "Clear all"
 		}
 	};
 	
 	Input.HTML_PARSER = {
-		// Try finding slideshow which is above this node in DOM, but still inside form
-		"slideshow": function (srcNode) {
-			var slideshow = srcNode.closest(".su-slideshow");
-			if (slideshow) {
-				var form = slideshow.closest(".yui3-form");
-				if (form) {
-					return Y.Widget.getByNode(slideshow);
-				}
-			}
-		},
-		
 		// suMinDate attribute for minDate
 		"minDate": function (srcNode) {
 			var date = srcNode.getAttribute("suMinDate");
@@ -119,6 +108,19 @@ YUI.add("supra.input-date", function (Y) {
 				
 				"popup": null
 			};
+			
+			// Try finding slideshow which is above this node in DOM, but still inside form
+			var slideshow = this.get("slideshow");
+			if (!slideshow) {
+				slideshow = this.get("boundingBox").closest(".su-slideshow");
+				if (slideshow) {
+					var form = slideshow.closest(".yui3-form");
+					if (form) {
+						slideshow = Y.Widget.getByNode(slideshow);
+						this.set("slideshow", slideshow);
+					}
+				}
+			}
 			
 			//Create button widget
 			var contentBox = this.get("contentBox");
