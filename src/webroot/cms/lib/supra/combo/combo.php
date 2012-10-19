@@ -2,7 +2,7 @@
 
 ini_set('display_errors', 'Off');
 
-$q = @$q ?: $_SERVER['QUERY_STRING'];
+$q = @$q ? : $_SERVER['QUERY_STRING'];
 $apc = function_exists('apc_store');
 
 $files = explode('&', $q);
@@ -36,11 +36,8 @@ $lessCss = true;
 $pre = @$pre ? : $_SERVER['DOCUMENT_ROOT'];
 
 // if will need to store in webroot...
-if (ini_get('open_basedir')) {
-	$cacheDir = $pre . '/tmp';
-} else {
-	$cacheDir = $pre . '/../tmp';
-}
+//$cacheDir = $pre . '/tmp';
+$cacheDir = $pre . '/../tmp';
 
 $version = __FILE__ . '/' . @file_get_contents(__DIR__ . '/../../../../../../VERSION');
 
