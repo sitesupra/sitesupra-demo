@@ -7,6 +7,7 @@ $twig = new Supra\Template\Parser\Twig\Twig($loader, array(
 //	'strict_variables' => true,
 		));
 
+$twig->addExtension(new Twig_Extension_Intl);
 
 $renderEngine = new \Symfony\Bridge\Twig\Form\TwigRendererEngine(array('lib/Supra/Form/view/form_supra.html.twig'));
 $renderEngine->setEnvironment($twig);
