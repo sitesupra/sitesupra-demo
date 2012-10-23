@@ -22,6 +22,13 @@ class PhpSessionHandler extends HandlerAbstraction
 	/**
 	 * Session expiration time in seconds
 	 */
+	
+	/**
+	 * Defines, weither sessionId cookie will be sent only via ssl connection
+	 * @var boolean
+	 */
+	private $secureOnly = false;
+
 
 	const SESSION_EXPIRATION_TIME = 0;
 
@@ -39,7 +46,7 @@ class PhpSessionHandler extends HandlerAbstraction
 				session_name($this->sessionName);
 			}
 
-			session_set_cookie_params(self::SESSION_EXPIRATION_TIME);
+			session_set_cookie_params(self::SESSION_EXPIRATION_TIME, '/', null, $this->secureOnly);
 
 			$success = false;
 
@@ -228,6 +235,16 @@ class PhpSessionHandler extends HandlerAbstraction
 
 		session_destroy();
 		parent::destroy();
+	}
+	
+	/**
+	 * Defines the ssl-only session cookie flag
+	 * 
+	 * @param boolean $secureSession
+	 */
+	public function setSecureOnlySession($secureOnly)
+	{
+		$this->secureOnly = ($secureOnly == true);
 	}
 
 }
