@@ -431,6 +431,18 @@ class HttpResponse implements ResponseInterface
 	}
 
 	/**
+	 * Unsets cookie
+	 * @param Cookie $cookie
+	 */
+	public function removeCookie(Cookie $cookie)
+	{
+		$cookie->setValue(false);
+		$cookie->setExpire('-1 year');
+		
+		$this->setCookie($cookie);
+	}
+
+	/**
 	 * Send cookie to the client
 	 * @param Cookie $cookie
 	 */
