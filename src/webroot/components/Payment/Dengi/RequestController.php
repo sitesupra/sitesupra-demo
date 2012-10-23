@@ -75,8 +75,9 @@ class RequestController extends RequestControllerAbstraction
 
 							\Log::error(iconv('windows-1251', 'utf-8', $errorMessages));
 						}
-
-						$response->redirect('/404');
+						
+						$this->executeCustomerReturnAction();
+						//$response->redirect('/404');
 					}
 
 					break;
