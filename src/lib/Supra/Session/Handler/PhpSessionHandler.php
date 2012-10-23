@@ -38,6 +38,12 @@ class PhpSessionHandler extends HandlerAbstraction
 	 */
 	private function startPhpSession()
 	{
+		//FIXME: Working with global variables directly. Should have request object.
+		if ($this->secureOnly && (empty($_SERVER['HTTPS']) || strcasecmp($_SERVER['HTTPS'], 'off') === 0)) {
+			$this->sessionStatus = self::SESSION_COULD_NOT_START;
+			throw new Exception\CouldNotStartSession("Session marked as secure");
+		}
+
 		if (self::$phpSessionOpened === null) {
 
 			if (empty($this->sessionName)) {
