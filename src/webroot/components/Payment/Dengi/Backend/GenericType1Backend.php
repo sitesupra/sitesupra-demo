@@ -5,6 +5,7 @@ namespace Project\Payment\Dengi\Backend;
 use Supra\Html\HtmlTag;
 use Supra\Response\ResponseInterface;
 use Supra\Response\HttpResponse;
+use Supra\ObjectRepository\ObjectRepository;
 
 class GenericType1Backend extends Type1Backend
 {
@@ -12,10 +13,24 @@ class GenericType1Backend extends Type1Backend
 	/**
 	 * @return string
 	 */
+	protected function getTitle()
+	{
+		$localeManager = ObjectRepository::getLocaleManager($this);
+		$currentLocale = $localeManager->getCurrent();
+		
+		$translator = ObjectRepository::getTranslator($this);
+
+		$title = $translator->trans($this->getName(), array(), 'messages', $currentLocale->getId());
+
+		return $title;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getFormElements($isSelected = false)
 	{
 		$modeType = $this->getModeType();
-		$title = $this->getName();
 
 		$formElements = array();
 
@@ -30,10 +45,13 @@ class GenericType1Backend extends Type1Backend
 		}
 		$formElements[] = $input->toHtml();
 
-
 		$label = new HtmlTag('label');
 		$label->setAttribute('for', 'mode_type_' . $modeType);
-		$label->setContent($title . ' (' . $modeType . ')');
+
+		$title = $this->getTitle();
+
+		$label->setContent($title);
+
 		$formElements[] = $label->toHtml();
 
 		$br = new HtmlTag('br');
