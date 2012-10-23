@@ -1758,12 +1758,13 @@ button::-moz-focus-inner { border:0; }
 .ui-center-dark .yui3-input-checkbox-bg .label-b { color:#ffffff; }
 .ui-center-dark .yui3-input-checkbox-bg.active .label-a { color:#ffffff; }
 .ui-center-dark .yui3-input-checkbox-bg.active .label-b { color:#9191a2; }
+.yui3-input-date-time { margin-top:10px; }
 .yui3-input-date-time .yui3-input-string {
   width:30px;
   display:inline-block;
   vertical-align:middle;
   padding:0;
-  margin:0;
+  margin:10px 0 0;
 }
 .yui3-input-date-time .yui3-input-string label { display:none !important; }
 .yui3-input-date-time .yui3-input-string input { text-align:center; }
@@ -1772,6 +1773,7 @@ button::-moz-focus-inner { border:0; }
   text-align:middle;
 }
 .yui3-input-date-time .su-button { margin-top:10px; }
+.yui3-form-default .yui3-input-date-time .yui3-input-string, .yui3-form-default .yui3-input-date-time .yui3-input-string:first-child, .yui3-form-vertical .yui3-input-date-time .yui3-input-string, .yui3-form-vertical .yui3-input-date-time .yui3-input-string:first-child { margin:0; }
 .yui3-input-block-background .yui3-input { margin-top:0; }
 .yui3-input-image-inline .yui3-input { margin-top:0; }
 .yui3-input-map label { padding-bottom:7px; }

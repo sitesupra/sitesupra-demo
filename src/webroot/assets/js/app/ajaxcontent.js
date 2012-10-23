@@ -1,3 +1,8 @@
+/*
+ * @version 1.0.0
+ */
+"use strict";
+
 (function ($) {
 
 var _super = $.app.module.proto;

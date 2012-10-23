@@ -136,7 +136,7 @@ class SqlLogger
 	public function stopQuery()
 	{
 		$executionMs = round(1000 * (microtime(true) - $this->start));
-		$subject .= "... execution time {$executionMs}ms";
+		$subject = "... execution time {$executionMs}ms";
 		
 		$level = $this->getLogLevel();
 		$this->log($subject, $level);

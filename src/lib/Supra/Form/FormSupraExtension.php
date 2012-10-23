@@ -3,7 +3,7 @@
 namespace Supra\Form;
 
 use Symfony\Component\Form\AbstractExtension;
-use Supra\Form\Configuration\FormBlockControllerConfiguration;
+use Symfony\Component\Validator;
 
 /**
  * FormSupraExtension
@@ -11,18 +11,18 @@ use Supra\Form\Configuration\FormBlockControllerConfiguration;
 class FormSupraExtension extends AbstractExtension
 {
 	/**
-	 * @var FormBlockControllerConfiguration
+	 * @var \Symfony\Component\Validator\Mapping\ClassMetadataFactory
 	 */
-	private $blockConfiguration;
+	private $factory;
 
-	public function __construct(FormBlockControllerConfiguration $blockConfiguration)
+	public function __construct(Validator\Mapping\ClassMetadataFactory $factory)
 	{
-		$this->blockConfiguration = $blockConfiguration;
+		$this->factory = $factory;
 	}
 
 	protected function loadTypeGuesser()
 	{
-		return new FormTypeGuesser($this->blockConfiguration);
+		return new FormTypeGuesser($this->factory);
 	}
 
 	protected function loadTypes()
@@ -34,5 +34,8 @@ class FormSupraExtension extends AbstractExtension
 		);
 	}
 
-
+	protected function loadTypeExtensions()
+	{
+		return array(new FormTypeExtension($this->factory));
+	}
 }

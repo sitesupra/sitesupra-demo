@@ -1267,7 +1267,7 @@ class lessc {
 			$i++;
 		}
 
-		$this->env->arguments = $assigned_values;
+		$this->env->fieldOptions = $assigned_values;
 	}
 
 	// compile a prop and update $lines or $blocks appropriately
@@ -2125,8 +2125,8 @@ class lessc {
 
 		$is_arguments = $name == $this->vPrefix . 'arguments';
 		while ($current) {
-			if ($is_arguments && isset($current->arguments)) {
-				return array('list', ' ', $current->arguments);
+			if ($is_arguments && isset($current->fieldOptions)) {
+				return array('list', ' ', $current->fieldOptions);
 			}
 
 			if (isset($current->store[$name]))

@@ -2,10 +2,12 @@
 
 namespace Supra\Form;
 
+use Symfony\Component\Validator\Constraint;
+
 /**
  * @Annotation
  */
-class FormField
+class FormField extends Constraint
 {
 
 	const TYPE_TEXT = 'text';
@@ -25,41 +27,34 @@ class FormField
 	protected $type;
 	
 	/**
-	 * Field name
-	 * @var string
+	 * @var array
 	 */
-	protected $name;
+	protected $fieldGroups = array(Constraint::DEFAULT_GROUP);
 
 	/**
 	 * @var array
 	 */
-	protected $groups = array();
+	protected $fieldOptions = array();
 
 	/**
-	 * @var array
+	 * @param array $fieldOptions
 	 */
-	protected $arguments = array();
-
-//	/**
-//	 * Stores error message information – constraint and original message
-//	 * @var array
-//	 */
-//	protected $errorInfo;
-	
-	/**
-	 * @param array $arguments
-	 */
-	public function __construct(array $arguments = array())
+	public function __construct(array $fieldOptions = array())
 	{
-		if (isset($arguments['type'])) {
-			$this->type = $arguments['type'];
-			unset($arguments['type']);
+		if (isset($fieldOptions['type'])) {
+			$this->type = $fieldOptions['type'];
+			unset($fieldOptions['type']);
 		}
-		if (isset($arguments['groups'])) {
-			$this->groups = $arguments['groups'];
-			unset($arguments['groups']);
+
+		if (isset($fieldOptions['groups'])) {
+			$this->fieldGroups = $fieldOptions['groups'];
+			unset($fieldOptions['groups']);
 		}
-		$this->arguments  = $arguments;
+		
+		// Will not check this constraint now
+		$this->groups = array();
+		
+		$this->fieldOptions = $fieldOptions;
 	}
 
 	/**
@@ -78,46 +73,14 @@ class FormField
 		$this->type = $type;
 	}
 
-//	/**
-//	 * @param array $errorInfo
-//	 */
-//	public function setErrorInfo(array $errorInfo)
-//	{
-//		$this->errorInfo = $errorInfo;
-//	}
-//
-//	/**
-//	 * @return array
-//	 */
-//	public function getErrorInfo()
-//	{
-//		return $this->errorInfo;
-//	}
-
 	/**
-	 * @return string 
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
-
-	/**
-	 * @param string $name 
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
-	}
-
-	/**
-	 * Get field arguments array
+	 * Get field option array
 	 * 
 	 * @return array
 	 */
-	public function getArguments()
+	public function getFieldOptions()
 	{
-		return $this->arguments;
+		return $this->fieldOptions;
 	}
 	
 	/**
@@ -126,22 +89,13 @@ class FormField
 	 * @param string $name
 	 * @return string
 	 */
-	public function getArgument($name)
+	public function getFieldOption($name)
 	{
-		if (isset($this->arguments[$name])) {
-			return $this->arguments[$name];
+		if (isset($this->fieldOptions[$name])) {
+			return $this->fieldOptions[$name];
 		}
 		
 		return null;
-	}
-
-	/**
-	 * @param string $name
-	 * @param mixed $value
-	 */
-	public function setArgument($name, $value)
-	{
-		$this->arguments[$name] = $value;
 	}
 
 	/**
@@ -150,7 +104,7 @@ class FormField
 	 */
 	public function inGroups($groups)
 	{
-		if (empty($this->groups)) {
+		if (empty($this->fieldGroups)) {
 			return true;
 		}
 
@@ -159,7 +113,7 @@ class FormField
 		}
 
 		// Skip field if groups have no common values
-		if (array_intersect($this->groups, $groups) == array()) {
+		if (array_intersect($this->fieldGroups, $groups) == array()) {
 			return false;
 		}
 

@@ -101,6 +101,25 @@ class BlockPropertyMetadata extends Entity implements AuditedEntityInterface, Ow
 	{
 		$this->overridenReferencedElement = $referencedElement;
 	}
-	
-	
+
+	/**
+	 * Used after cloning
+	 * @param BlockProperty $blockProperty
+	 */
+	public function setBlockProperty(BlockProperty $blockProperty)
+	{
+		$this->blockProperty = $blockProperty;
+	}
+
+	public function __clone()
+	{
+		parent::__clone();
+
+		if ( ! empty($this->id)) {
+			if ( ! empty($this->referencedElement)) {
+				$this->referencedElement = clone($this->referencedElement);
+			}
+		}
+	}
+
 }

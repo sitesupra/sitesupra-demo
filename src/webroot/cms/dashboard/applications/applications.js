@@ -509,7 +509,12 @@ function (Y) {
 				"duration": 0.35
 			};
 			
-			if (Y.UA.ie && Y.UA.ie < 10) {
+			if (Y.UA.gecko || Y.UA.opera) {
+				transition = {
+					"opacity": 0,
+					"duration": 0.35
+				};
+			} else if (Y.UA.ie && Y.UA.ie < 10) {
 				transition.msTransform = transition.transform;
 			}
 			
@@ -538,7 +543,7 @@ function (Y) {
 			//Animation turned off ?
 			if (this.get("animation") !== false) {
 				
-				if (Y.UA.opera || (Y.UA.ie && Y.UA.ie < 10)) {
+				if (Y.UA.gecko || Y.UA.opera || (Y.UA.ie && Y.UA.ie < 10)) {
 					//Fallback for non-supporting browsers
 					styles = { "opacity": 0 };
 					transition = { "opacity": 1 };
@@ -557,17 +562,19 @@ function (Y) {
 			}
 			
 			Y.later(150, this, function () {
-				var node = this.one();
+				var node = this.one(),
+					after = Y.bind(function () {
+						this.load();
+						this.widgets.scrollable.syncUI();
+					}, this);
+				
 				node.setStyles(styles);
 				
 				if (transition) {
-					node.transition(transition, Y.bind(function () {
-						this.load();
-						this.widgets.scrollable.syncUI();
-					}, this));
+					// Animate
+					node.transition(transition, after);
 				} else {
-					this.load();
-					this.widgets.scrollable.syncUI();
+					after();
 				}
 			});
 			

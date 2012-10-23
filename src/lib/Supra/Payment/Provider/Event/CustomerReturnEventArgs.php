@@ -4,7 +4,7 @@ namespace Supra\Payment\Provider\Event;
 
 use Supra\Response\ResponseInterface;
 
-class CustomerReturnEventArgs extends EventArgsAbstraction
+class CustomerReturnEventArgs extends PaymentEventArgsAbstraction
 {
 	/**
 	 * @var ResponseInterface

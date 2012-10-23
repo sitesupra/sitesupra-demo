@@ -15,6 +15,12 @@ class DummyProduct implements ProductAbstraction
 	 */
 	protected $id;
 
+	/**
+	 *
+	 * @var float
+	 */
+	protected $pricePerItem = 1.00;
+
 	function __construct($id)
 	{
 		$this->id = $id;
@@ -27,7 +33,7 @@ class DummyProduct implements ProductAbstraction
 
 	public function getPrice($quantity, Currency $currency, DateTime $when = null)
 	{
-		return 3.50 * $quantity;
+		return $this->pricePerItem * $quantity;
 	}
 
 	public function getDescription(Locale $locale = null)

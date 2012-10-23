@@ -8,22 +8,15 @@ use Supra\Controller\Pages\Entity;
 use Doctrine\ORM\EntityManager;
 use Supra\Controller\Pages\Exception;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Listener\HistoryRevisionListener;
-use Doctrine\ORM\Events;
 use Supra\Controller\Pages\PageController;
-use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
-use Supra\User\Entity\User;
-use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Event\PageEventArgs;
-use Supra\Controller\Pages\Event\PageDeleteEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Entity\PageLocalizationPath;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
-use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
 /**
  * Request object for edit mode requests
@@ -42,6 +35,11 @@ class PageRequestEdit extends PageRequest
 	 * @var array
 	 */
 	private $_clonedEntities = array();
+
+	/**
+	 * @var array
+	 */
+	private $_clonedEntitySources = array();
 
 	/**
 	 * recursiveClone() method recursion depth
@@ -661,6 +659,35 @@ class PageRequestEdit extends PageRequest
 		
 		return $placeHolders;
 	}
+
+	/**
+	 * Recursively clone the page or page localization object
+	 * @param Entity\Abstraction\Entity $entity
+	 * @return Entity\Abstraction\Entity
+	 */
+	public function recursiveClone($entity, $newLocale = null)
+	{
+		$masterId = null;
+
+		// make sure it isn't called for localization without making new locale version
+		if ( ! empty($newLocale)) {
+
+			if ( ! $entity instanceof Entity\Abstraction\Localization) {
+				throw new \RuntimeException("Locale can be passed to clone only with localization entity");
+			}
+
+			$masterId = $entity->getMaster()->getId();
+		}
+
+		$this->_clonedEntities = array();
+		$this->_cloneRecursionDepth = 0;
+
+		$newEntity = $this->recursiveCloneInternal($entity, null, true);
+		$this->createBlockRelations();
+		$this->recursiveCloneFillOwningSide($newEntity, $masterId, $newLocale);
+
+		return $newEntity;
+	}
 	
 	/**
 	 * Recursively goes through entity collections, clones and persists elements from them
@@ -670,36 +697,38 @@ class PageRequestEdit extends PageRequest
 	 * @param boolean $skipPathEvent
 	 * @return Entity
 	 */
-	public function recursiveClone($entity, $associationOwner = null, $skipPathEvent = false) 
+	private function recursiveCloneInternal($entity)
 	{
 		$em = $this->getDoctrineEntityManager();
-		$cloned = false;
 		
 		// reset at first iteration
-		if (is_null($associationOwner)) {
-			$this->_clonedEntities = array();
-			$this->_cloneRecursionDepth = 1;
-		} else {
-			$this->_cloneRecursionDepth++;
-		}
+		$this->_cloneRecursionDepth ++;
 		
 		$entityData = $em->getUnitOfWork()->getOriginalEntityData($entity);
 		$classMetadata = $em->getClassMetadata($entity::CN());
 		
-		$entityHash = spl_object_hash($entity);
+		$entityHash = ObjectRepository::getObjectHash($entity);
 		$newEntity = null;
 		
 		if ( ! isset($this->_clonedEntities[$entityHash])) {
 			$newEntity = clone $entity;
 			$this->_clonedEntities[$entityHash] = $newEntity;
-			$cloned = true;
+
+			$newEntityHash = ObjectRepository::getObjectHash($newEntity);
+			$this->_clonedEntitySources[$newEntityHash] = $entity;
 		} else {
+
+			// No need to process to OneToMany and persist I guess..
 			$newEntity = $this->_clonedEntities[$entityHash];
+			
+			$this->_cloneRecursionDepth --;
+
+			return $newEntity;
 		}
-		
+
 		foreach ($classMetadata->associationMappings as $fieldName => $association) {
 
-			// Don't visit this association, might get other blocks
+			// Don't visit this association, might get other blocks in template cloning
 			if ($entity instanceof Entity\Abstraction\Block && $fieldName == 'blockProperties') {
 				continue;
 			}
@@ -711,12 +740,12 @@ class PageRequestEdit extends PageRequest
 				if (isset($entityData[$fieldName])) {
 					if ($entityData[$fieldName] instanceof Collection) {
 						$newValue = new \Doctrine\Common\Collections\ArrayCollection();
-						foreach ($entityData[$fieldName] as $collectionItem) {
-							$newChild = $this->recursiveClone($collectionItem, $newEntity, $skipPathEvent);
-							$newValue->add($newChild);
+						foreach ($entityData[$fieldName] as $offset => $collectionItem) {
+							$newChild = $this->recursiveCloneInternal($collectionItem);
+							$newValue->offsetSet($offset, $newChild);
 						}
 					} else {
-						$newValue = $this->recursiveClone($entityData[$fieldName], $newEntity, $skipPathEvent);
+						$newValue = $this->recursiveCloneInternal($entityData[$fieldName]);
 					}
 
 					$objectReflection = new \ReflectionObject($newEntity);
@@ -724,66 +753,208 @@ class PageRequestEdit extends PageRequest
 					$propertyReflection->setAccessible(true);
 					$propertyReflection->setValue($newEntity, $newValue);
 				}
-			} else if ( ! is_null($associationOwner)) {
-				$ownerEntityClassName = $classMetadata->associationMappings[$fieldName]['targetEntity'];
-				$ownerReflectionClass = new \ReflectionClass($ownerEntityClassName);
+			}
+		}
 
-				// FIXME association handling needs rework, not full and buggy
-				if ($ownerReflectionClass->isInstance($associationOwner)) {
-					$classMetadata->reflFields[$fieldName]->setValue($newEntity, $associationOwner);
-					
-					if ( ! $cloned) {
-						$em->getUnitOfWork()->propertyChanged($newEntity, $fieldName, null, $associationOwner);
+		$em->persist($newEntity);
+
+		$this->_cloneRecursionDepth --;
+		
+		return $newEntity;
+	}
+
+	/**
+	 * Creates block relations
+	 */
+	private function createBlockRelations()
+	{
+		$newOldId = array();
+
+		// For all cloned blocks collect new-old block ID pairs
+		foreach ($this->_clonedEntities as $newEntity) {
+			if ($newEntity instanceof Entity\Abstraction\Block) {
+				$newEntityHash = ObjectRepository::getObjectHash($newEntity);
+				$sourceEntity = $this->_clonedEntitySources[$newEntityHash];
+				/* @var $sourceEntity Entity\Abstraction\Block */
+
+				$oldId = $sourceEntity->getId();
+				$newId = $newEntity->getId();
+
+				$newOldId[$newId] = $oldId;
+			}
+		}
+
+		// Nothing to bind
+		if (empty($newOldId)) {
+			return;
+		}
+
+		// Read relations from database at once
+		$em = $this->getDoctrineEntityManager();
+		$blockRelationCn = Entity\BlockRelation::CN();
+		$relations = $em->createQuery("SELECT r FROM $blockRelationCn r WHERE r.blockId IN (:blockIds)")
+				->setParameter('blockIds', array_values($newOldId), \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+				->getResult();
+
+		$groupByOldId = array();
+
+		// Group relations by block ID searched
+		foreach ($relations as $relation) {
+			/* @var $relation Entity\BlockRelation */
+			$groupByOldId[$relation->getBlockId()] = $relation;
+		}
+
+		// Finally create missing and new relations
+		foreach ($newOldId as $newId => $oldId) {
+			$relation = null;
+
+			if ( ! isset($groupByOldId[$oldId])) {
+				$relation = new Entity\BlockRelation($oldId);
+				$em->persist($relation);
+			} else {
+				$relation = $groupByOldId[$oldId];
+			}
+
+			$newRelation = new Entity\BlockRelation($newId, $relation->getGroupId());
+			$em->persist($newRelation);
+		}
+	}
+
+	/**
+	 * Fills the new objects UP
+	 * @param Entity\Abstraction\Entity $newEntity
+	 * @throws \RuntimeException
+	 */
+	private function recursiveCloneFillOwningSide($newEntity, $masterId = null, $newLocale = null)
+	{
+		$em = $this->getDoctrineEntityManager();
+		$classMetadata = $em->getClassMetadata($newEntity::CN());
+		
+		foreach ($classMetadata->associationMappings as $fieldName => $association) {
+
+			// Don't visit this association, will get properties from localization
+			if ($newEntity instanceof Entity\Abstraction\Block && $fieldName == 'blockProperties') {
+				continue;
+			}
+
+			$fieldReflection = $classMetadata->reflFields[$fieldName];
+			/* @var $fieldReflection \ReflectionProperty */
+			$fieldReflection->setAccessible(true);
+			$associationValue = $fieldReflection->getValue($newEntity);
+
+			if ( ! $association['isOwningSide']) {
+
+				if ($associationValue instanceof Collection) {
+					foreach ($associationValue as $collectionItem) {
+						$this->recursiveCloneFillOwningSide($collectionItem, $masterId, $newLocale);
+					}
+				} else {
+					$this->recursiveCloneFillOwningSide($associationValue, $masterId, $newLocale);
+				}
+			} else {
+
+				if ( ! is_null($associationValue)) {
+					$joinedEntityHash = ObjectRepository::getObjectHash($associationValue);
+
+					if (isset($this->_clonedEntities[$joinedEntityHash])) {
+						$newJoinedEntity = $this->_clonedEntities[$joinedEntityHash];
+						$fieldReflection->setValue($newEntity, $newJoinedEntity);
+					} else {
+						
+						// Not found. Possibilities are:
+						// * The object of lower level was cloned (e.g.
+						//		localization was cloned, localization-page
+						//		association is being checked). Don't need to do
+						//		anything.
+						// * Block property pointing to parent template block.
+						//		Need to try changing if new localization is
+						//		being created.
+
+						if ( ! empty($newLocale) && ! empty($masterId)) {
+
+							if ($newEntity instanceof Entity\BlockProperty && $fieldName == 'block') {
+
+								/* @var	$associationValue Entity\Abstraction\Block */
+
+								$oldBlockId = $associationValue->getId();
+
+								// Find block appropriate to bind the property to
+								$relation = $em->getRepository(Entity\BlockRelation::CN())
+										->findOneByBlockId($oldBlockId);
+								/* @var $relation Entity\BlockRelation */
+
+								$groupId = $relation->getGroupId();
+
+								$matchingBlock = $em->createQueryBuilder()
+										->select('b')
+
+										// All required tables
+										->from(Entity\BlockRelation::CN(), 'r')
+										->from(Entity\Abstraction\Block::CN(), 'b')
+										->join('b.placeHolder', 'ph')
+										->join('ph.localization', 'l')
+
+										// condition to bind block and relation
+										->andWhere('r.blockId = b.id')
+
+										// group condition
+										->andWhere('r.groupId = :groupId')
+										->setParameter('groupId', $groupId)
+
+										// locale condition
+										->andWhere('l.locale = :locale')
+										->setParameter('locale', $newLocale)
+
+//										// master condition
+//										->andWhere('l.master = :masterId')
+//										->setParameter('masterId', $masterId)
+
+										->from(Entity\Abstraction\Block::CN(), 'b2')
+										->andWhere('b2.id = :oldBlockId')
+										->setParameter('oldBlockId', $oldBlockId)
+										->join('b2.placeHolder', 'ph2')
+										->join('ph2.localization', 'l2')
+
+										// Find blocks with common parent master
+										->andWhere('l.master = l2.master')
+
+										// finally..
+										->getQuery()
+										->getOneOrNullResult();
+
+								// Don't need such property..
+								if (empty($matchingBlock)) {
+									$em->remove($newEntity);
+								} else {
+									$fieldReflection->setValue($newEntity, $matchingBlock);
+								}
+							}
+						}
 					}
 				}
 			}
 		}
-		
-		// handle specific cases
-		//  - copy referenced elements manually
-		//  - reset path for PageLocalizations
-		if ($newEntity instanceof Entity\BlockPropertyMetadata && $cloned) {
-			$referencedElement = $entity->getReferencedElement();
-			
-			$newReferencedElement = clone $referencedElement;
-			$em->persist($newReferencedElement);
-			
-			$newEntity->setReferencedElement($newReferencedElement);
-		}
-		else if ($newEntity instanceof Entity\PageLocalization && ! $skipPathEvent) {
-			$eventArgs = new LifecycleEventArgs($newEntity, $em);
-			$em->getEventManager()
-					->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
-		}
-		
-		if ($newEntity instanceof Entity\Abstraction\Block) {
-			
-			$originalRelation = $em->getRepository(Entity\BlockRelation::CN())
-					->findOneBy(array('blockId' => $entity->getId()));
-		
-			if (is_null($originalRelation)) {
-				$originalRelation = new Entity\BlockRelation($entity->getId());
-				$em->persist($originalRelation);
-			}
-			
-			$relation = new Entity\BlockRelation($newEntity->getId(), $originalRelation->getGroupId());
-			$em->persist($relation);
-		}
-		
-		$em->persist($newEntity);
 
-		// Maybe this is not required anymore???
-//		// workaround to keep cloned entities in sync with database
-//		// otherwise using them after clone will fail
-//		$this->_cloneRecursionDepth--;
-//		if ($this->_cloneRecursionDepth == 0) {
-//			$em->flush();
-//			foreach ($this->_clonedEntities as $clonedEntity) {
-//				$em->refresh($clonedEntity);
-//			}
-//		}
-		
-		return $newEntity;
+		// Fix BlockProperty::$masterMetadataId
+		if ($newEntity instanceof Entity\BlockProperty) {
+			$masterMetadataId = $newEntity->getMasterMetadataId();
+
+			if ( ! empty($masterMetadataId)) {
+				$masterMetadata = $em->find(Entity\BlockPropertyMetadata::CN(), $masterMetadataId);
+
+				// Might be in some archive or something, will just remove the property pointing to it
+				if (empty($masterMetadata)) {
+					$em->remove($newEntity);
+				} else {
+					$hash = ObjectRepository::getObjectHash($masterMetadata);
+
+					if (isset($this->_clonedEntities[$hash])) {
+						$newMasterMetadata = $this->_clonedEntities[$hash];
+						$newEntity->setMasterMetadata($newMasterMetadata);
+					}
+				}
+			}
+		}
 	}
 	
 }

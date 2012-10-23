@@ -198,7 +198,7 @@ class HttpResponse implements ResponseInterface
 		if (is_null($this->message)) {
 			$this->message = self::$messages[$this->code];
 		}
-		
+
 		return $this->message;
 	}
 
@@ -524,7 +524,6 @@ class HttpResponse implements ResponseInterface
 	 */
 	public function getHeader($name, $defaultValue = null)
 	{
-
 		$headerValue = $defaultValue;
 
 		if ( ! empty($this->headers[$name])) {
@@ -532,6 +531,21 @@ class HttpResponse implements ResponseInterface
 		}
 
 		return $headerValue;
+	}
+
+	/**
+	 * Returns last value set for specific header
+	 * @param string $name
+	 * @param mixed $defaultValue
+	 * @return string | null
+	 */
+	public function getHeaderValue($name, $defaultValue = null)
+	{
+		$header = $this->getHeader($name, $defaultValue);
+		
+		$lastValue = array_pop($header);
+		
+		return $lastValue['value'];
 	}
 
 	/**

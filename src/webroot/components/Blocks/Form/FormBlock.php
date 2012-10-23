@@ -9,18 +9,6 @@ use Symfony\Component\Validator\Constraint;
 class FormBlock extends FormBlockController
 {
 
-	public static function getPropertyDefinition()
-	{
-		$properties = self::createCustomErrorProperty(
-				'Form field "Name" custom validation', 
-				'name', 
-				'Custom text "{{ custom }}" will be replaced',
-				'custom_error_message'
-		);
-		
-		return $properties;
-	}
-
 	protected function getFormValidationGroups()
 	{
 		if ( ! empty($_POST['developer_submit'])) {
@@ -56,9 +44,7 @@ class FormBlock extends FormBlockController
 		/* @var $data Entity\Form */
 		
 		if($data->getName() == 'customfail') {
-			$error = new Form\FormError('custom_error_message', array(
-				'{{ custom }}' => 'blah blah blah',
-			));
+			$error = new Form\FormError('Custom error');
 			
 			$form->get('name')->addError($error);
 		}

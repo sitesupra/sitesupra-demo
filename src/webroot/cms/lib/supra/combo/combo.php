@@ -1,6 +1,8 @@
 <?php
 
-$q = @$q ?: $_SERVER['QUERY_STRING'];
+ini_set('display_errors', 'Off');
+
+$q = @$q ? : $_SERVER['QUERY_STRING'];
 $apc = function_exists('apc_store');
 
 $files = explode('&', $q);
@@ -17,7 +19,7 @@ if ( ! sizeOf($files)) {
 
 if (count($files) > 100) {
 //	echo('<strong>Error:</strong> File count limit exceeded.');
-	die();
+	die(1);
 }
 
 // Cache settings for production
@@ -45,17 +47,17 @@ foreach ($files as &$file) {
 
 	// Only CSS/JS allowed
 	if (substr($file, - $extLength - 1) !== '.' . $ext) {
-		die();
+		die(2);
 	}
 
 	if (strpos($file, '..') !== false) {
-		die();
+		die(3);
 	}
 
 	//$expectedStart = '/cms/';
 	// Only files from webroot/cms folder allowed
 	//if (strpos($file, $expectedStart) !== 0) {
-	//	die();
+	//	die(4);
 	//}
 }
 unset($file);
@@ -64,7 +66,7 @@ $eTag = getEtag($files);
 header('ETag: ' . $eTag);
 if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $eTag === $_SERVER['HTTP_IF_NONE_MATCH']) {
 	header('HTTP/1.0 304 Not Modified');
-	die();
+	die(5);
 }
 
 $out = $cache ? getCache($eTag) : '';
@@ -125,9 +127,9 @@ function writeFiles($files, $eTag)
 		if ($apc) {
 			apc_store('combo-' . $eTag, $out, 1800);
 		}
-		
+
 		$outDirname = $cacheDir . '/yui/' . substr($eTag, 0, 2);
-		
+
 		@mkdir($outDirname, 0777, true);
 
 		$tmpFilename = tempnam($outDirname, 'tmp-');
@@ -237,7 +239,7 @@ function getFileContent($file)
 function error404()
 {
 	header("HTTP/1.0 404 Not Found");
-	die();
+	die(6);
 }
 
 if ($css) {

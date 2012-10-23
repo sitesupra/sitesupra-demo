@@ -2,17 +2,14 @@
 
 namespace Supra\Cms\CrudManager\Form;
 
-use Supra\Cms\CrudManager\CrudManagerAbstractAction;
-use Supra\Editable;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Validator\Exception\RuntimeException;
 use Supra\Cms\Exception\CmsException;
 use Supra\AuditLog\TitleTrackingItemInterface;
-use Supra\Cms\CrudManager\CrudEntityInterface;
+use Supra\Cms\CrudManager;
 
-class FormAction extends CrudManagerAbstractAction
+class FormAction extends CrudManager\CrudManagerAbstractAction
 {
-
+	
 	public function saveAction()
 	{
 		$this->isPostRequest();
@@ -39,7 +36,17 @@ class FormAction extends CrudManagerAbstractAction
 				return null;
 			}
 		}
-
+		
+		$eventArgs = new CrudManager\CrudEntityEventArgs();
+		$eventArgs->entity = $record;
+		$eventArgs->entityManager = $em;
+		
+		if ($newRecord) {
+			$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::PRE_INSERT, $repo, $eventArgs);
+		}
+		
+		$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::PRE_SAVE, $repo, $eventArgs);
+	
 		if ( ! $record instanceof $configuration->entity) {
 			throw new CmsException(null, 'Could not find any record with id #' . $recordId);
 		}
@@ -52,7 +59,11 @@ class FormAction extends CrudManagerAbstractAction
 		$output = $record->setEditValues($post);
 
 		$em->flush();
-
+		
+		if ($newRecord) {
+			$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::POST_INSERT, $repo, $eventArgs);
+		}
+				
 		$recordId = $record->getId();
 		$recordBefore = $post->get('record-before', null);
 
@@ -66,6 +77,8 @@ class FormAction extends CrudManagerAbstractAction
 
 		$this->writeAuditLog("Record %item% saved", $record);
 
+		$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::POST_SAVE, $repo, $eventArgs);
+		
 		$response = $this->getResponse();
 		$response->setResponseData($output);
 		
@@ -204,7 +217,7 @@ class FormAction extends CrudManagerAbstractAction
 			$this->writeAuditLog("Record %item% moved", $record);
 		}
 	}
-
+	
 	/**
 	 * Drops group cache. Entity name is cache group name for now.
 	 */
@@ -216,4 +229,23 @@ class FormAction extends CrudManagerAbstractAction
 		$cacheGroupManager = new \Supra\Cache\CacheGroupManager();
 		$cacheGroupManager->resetRevision($group);
 	}
+	
+	/**
+	 * Runs repository method if repository is subscribed to corresponding event
+	 * 
+	 * @param string $eventName
+	 * @param \Supra\Cms\CrudManager\CrudRepositoryInterface $repository
+	 * @param \Supra\Cms\CrudManager\CrudEntityEventArgs $eventArgs
+	 */
+	private function fireRepositoryEvent($eventName, CrudManager\CrudRepositoryInterface $repository, CrudManager\CrudEntityEventArgs $eventArgs)
+	{
+		if ($repository instanceof CrudManager\CrudInteractiveRepositoryInterface) {
+			$subscribedEvents = $repository->getSubscribedEvents();
+		
+			if (in_array($eventName, $subscribedEvents)) {
+				$repository->$eventName($eventArgs);
+			}
+		}
+	}
+
 }

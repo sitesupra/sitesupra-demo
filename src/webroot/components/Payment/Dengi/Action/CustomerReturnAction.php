@@ -31,6 +31,31 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	protected $order;
 
 	/**
+	 * @var \Supra\Request\RequestData
+	 */
+	protected $parameters;
+
+	/**
+	 * @return \Supra\Request\RequestData
+	 */
+	public function getParameters()
+	{
+		if (empty($this->parameters)) {
+
+			$request = $this->getRequest();
+
+			if ($request->isPost()) {
+
+				$this->parameters = $request->getPost();
+			} else {
+				$this->parameters = $request->getQuery();
+			}
+		}
+
+		return $this->parameters;
+	}
+
+	/**
 	 * @return Dengi\PaymentProvider
 	 */
 	protected function getPaymentProvider()
@@ -54,21 +79,6 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	}
 
 	/**
-	 * @return Order\Order
-	 */
-	protected function fetchOrderFromRequest()
-	{
-		$merchantTransactionId = $this->getRequest()
-				->getParameter(Dengi\PaymentProvider::KEY_NAME_MERCHANT_TRANSACTION_ID);
-
-		$paymentProvider = $this->getPaymentProvider();
-
-		$order = $paymentProvider->getOrderFromMerchantTransactionId($merchantTransactionId);
-
-		return $order;
-	}
-
-	/**
 	 * @param Order\Order $order 
 	 */
 	protected function setOrder(Order\Order $order)
@@ -76,15 +86,41 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		$this->order = $order;
 	}
 
+	/**
+	 * @return Order\Order
+	 */
+	protected function fetchOrderFromRequest()
+	{
+		$dengiOrderId = $this->getParameters()->get('order_id');
+
+		$orderProvider = $this->getOrderProvider();
+
+		$order = $orderProvider->getOrder($dengiOrderId);
+
+		return $order;
+	}
+
+	/**
+	 * @throws Dengi\Exception\RuntimeException
+	 */
 	public function execute()
 	{
+		$parameters = $this->getParameters();
+
+		$paymentProvider = $this->getPaymentProvider();
+
+		if ( ! $paymentProvider->validateDolSign($parameters)) {
+
+			throw new Dengi\Exception\RuntimeException('Bad request, DOL_SIGN is not valid.');
+		}
+
 		$order = $this->getOrder();
 
 		if ($order instanceof Order\ShopOrder) {
+
 			$this->handleShopOrder($order);
-		} else if ($order instanceof Order\RecurringOrder) {
-			$this->handleRecurringOrder($order);
 		} else {
+
 			throw new Dengi\Exception\RuntimeException('Do not know what to do with "' . get_class($order) . '" order');
 		}
 	}
@@ -96,42 +132,11 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	{
 		$orderProvider = $this->getOrderProvider();
 
-		$paymentProvider = $this->getPaymentProvider();
-
 		$transaction = $order->getTransaction();
 
-		$transactionStatus = $paymentProvider->getTransactTransactionStatus($transaction);
-		$transaction->addToParameters(Dengi\PaymentProvider::PHASE_NAME_STATUS_ON_RETURN, $transactionStatus);
+		$parameters = $this->getParameters();
 
-		$paymentProvider->updateShopOrderStatus($order, $transactionStatus);
-
-		$orderProvider->store($order);
-
-		$this->returnToShop($order);
-	}
-
-	/**
-	 * @param Order\RecurringOrder $order 
-	 */
-	protected function processRecurringOrder(Order\RecurringOrder $order)
-	{
-		$orderProvider = $this->getOrderProvider();
-
-		$paymentProvider = $this->getPaymentProvider();
-
-		$recurringPayment = $order->getRecurringPayment();
-
-		$lastTransaction = $recurringPayment->getLastTransaction();
-		$initialTransaction = $recurringPayment->getInitialTransaction();
-
-		if ($lastTransaction->getId() != $initialTransaction->getId()) {
-			throw new Exception\RuntimeException('Recurring payment transaction is not initial for this recurring .');
-		}
-
-		$transactionStatus = $paymentProvider->getTransactTransactionStatus($lastTransaction);
-		$lastTransaction->addToParameters(Dengi\PaymentProvider::PHASE_NAME_STATUS_ON_RETURN, $transactionStatus);
-
-		$paymentProvider->updateRecurringOrderStatus($order, $transactionStatus);
+		$transaction->addToParameters(Dengi\PaymentProvider::PHASE_NAME_STATUS_ON_RETURN, $parameters);
 
 		$orderProvider->store($order);
 
@@ -160,7 +165,16 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	{
 		$initiatorUrl = $order->getInitiatorUrl();
 
-		$this->returnToPaymentInitiator($initiatorUrl);
+		$this->returnToPaymentInitiator($initiatorUrl, array(Dengi\PaymentProvider::REQUEST_KEY_ORDER_ID => $order->getId()));
+	}
+
+	/**
+	 * @param \Supra\Payment\Entity\Order\RecurringOrder $order
+	 * @throws Dengi\Exception\RuntimeException
+	 */
+	protected function processRecurringOrder(Order\RecurringOrder $order)
+	{
+		throw new Dengi\Exception\RuntimeException('Recurring orders not supported.');
 	}
 
 }

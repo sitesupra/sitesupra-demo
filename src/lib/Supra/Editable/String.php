@@ -7,9 +7,46 @@ namespace Supra\Editable;
  */
 class String extends EditableAbstraction
 {
+
 	const EDITOR_TYPE = 'String';
 	const EDITOR_INLINE_EDITABLE = false;
-	
+
+	/**
+	 * If editable is read only.
+	 * @var boolean
+	 */
+	protected $disabled = false;
+
+	/**
+	 * @param string $label
+	 * @param string $groupId
+	 * @param array $options
+	 */
+	public function __construct($label = null, $groupId = null, $options = array())
+	{
+		parent::__construct($label, $groupId, $options);
+
+		if (isset($options['disabled'])) {
+			$this->disabled = (boolean) $options['disabled'];
+		}
+	}
+
+	/**
+	 * @param boolean $disabled
+	 */
+	public function setDisabled($disabled)
+	{
+		$this->disabled = $disabled;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getDisabled()
+	{
+		return $this->disabled;
+	}
+
 	/**
 	 * Return editor type
 	 * @return string
@@ -18,7 +55,18 @@ class String extends EditableAbstraction
 	{
 		return static::EDITOR_TYPE;
 	}
-	
+
+	/**
+	 * Which fields to serialize
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		$fields = parent::__sleep() + array('disabled');
+
+		return $fields;
+	}
+
 	/**
 	 * {@inheritdoc}
 	 * @return boolean
@@ -27,5 +75,13 @@ class String extends EditableAbstraction
 	{
 		return static::EDITOR_INLINE_EDITABLE;
 	}
-	
+
+	/**
+	 * @return array
+	 */
+	public function getAdditionalParameters()
+	{
+		return array('disabled' => $this->getDisabled());
+	}
+
 }

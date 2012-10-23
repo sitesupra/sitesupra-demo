@@ -9,12 +9,9 @@ use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Order\RecurringOrderPeriodDimension;
-use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 use Supra\Locale\Locale;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Transaction\TransactionType;
-use Supra\Payment\Entity\RecurringPayment\RecurringPaymentProductItem;
-use Supra\Payment\Entity\RecurringPayment\RecurringPaymentPaymentProviderItem;
 use Supra\Response\ResponseInterface;
 use Supra\Payment\PaymentEntityProvider;
 use Supra\Payment\SearchPaymentEntityParameter;
@@ -22,33 +19,23 @@ use Supra\Payment\Order\OrderProvider;
 use Supra\Session\SessionManager;
 use Supra\Session\SessionNamespace;
 use Supra\Payment\Entity\Abstraction\PaymentEntity;
-use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
-use Supra\Payment\Entity\RecurringPayment\RecurringPaymentTransaction;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Response\TwigResponse;
 use Supra\Controller\FrontController;
+use Supra\Request\RequestData;
 
 class PaymentProvider extends PaymentProviderAbstraction
 {
-	// Phase names used in Transact context
 
+	const DEFAULT_NAME = 'dengi_one';
+
+	// Phase names used in Dengi context
 	const PHASE_NAME_INITIALIZE_TRANSACTION = 'dengi-initialize';
 	const PHASE_NAME_CHARGE_TRANSACTION = 'dengi-charge';
-
-	// Phase names for recurring payments
-	const PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION = 'dengi-initializeRecurring';
-	const PHASE_NAME_CHARGE_RECURRING_TRANSACTION = 'dengi-chargeRecurring';
-
-	// Phase name for refund status
-	const PHASE_NAME_REFUND = 'dengi-refund';
 
 	// Phase names for transaction status storage
 	const PHASE_NAME_STATUS_ON_RETURN = 'dengi-statusOnReturn';
 	const PHASE_NAME_STATUS_ON_NOTIFICATION = 'dengi-statusOnNotification';
-
-	// Misc. key names used in Transact context
-	const KEY_NAME_TRANSACT_TRANSACTION_ID = 'OK';
-	const KEY_NAME_MERCHANT_TRANSACTION_ID = 'merchant_transaction_id';
 
 	/**
 	 * @var PaymentEntityProvider
@@ -64,6 +51,12 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @var string
 	 */
 	protected $projectId;
+
+	/**
+	 *
+	 * @var string
+	 */
+	protected $source;
 
 	/**
 	 * @var string
@@ -96,6 +89,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 	protected $userIpOverride;
 
 	/**
+	 * @var array
+	 */
+	protected $backends;
+
+	/**
 	 * @param string $projectId 
 	 */
 	public function setProjectId($projectId)
@@ -109,6 +107,22 @@ class PaymentProvider extends PaymentProviderAbstraction
 	public function getProjectId()
 	{
 		return $this->projectId;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSource()
+	{
+		return $this->source;
+	}
+
+	/**
+	 * @param string $source
+	 */
+	public function setSource($source)
+	{
+		$this->source = $source;
 	}
 
 	/**
@@ -242,6 +256,20 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @return string
+	 */
+	private function getUserIp()
+	{
+		$userIp = $this->getUserIpOverride();
+
+		if (empty($userIp)) {
+			$userIp = $_SERVER['REMOTE_ADDR'];
+		}
+
+		return $userIp;
+	}
+
+	/**
 	 * @param Order\Order $order
 	 * @return string 
 	 */
@@ -282,7 +310,8 @@ class PaymentProvider extends PaymentProviderAbstraction
 			$paymentProviderOrderItem = $order->getOrderItemByPayementProvider($this->getId());
 		}
 
-		$paymentProviderOrderItem->setPrice($order->getTotalForProductItems() * 0.11);
+		//$paymentProviderOrderItem->setPrice($order->getTotalForProductItems() * 0.11);
+		$paymentProviderOrderItem->setPrice(0.00);
 	}
 
 	/**
@@ -291,9 +320,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function validateShopOrder(Order\ShopOrder $order)
 	{
-		if ($order->getTotalForProductItems() < 20.00) {
-			throw new Exception\RuntimeException('Total is too small!!!');
-		}
+		//if ($order->getTotalForProductItems() < 20.00) {
+		//	throw new Exception\RuntimeException('Total is too small!!!');
+		//}
 
 		return true;
 	}
@@ -306,7 +335,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	{
 		parent::processShopOrder($order, $response);
 
-		// This is Transact specific behaviour.
+		// This is Dengi specific behaviour.
 		$proxyActionUrlQueryData = array(
 			self::REQUEST_KEY_ORDER_ID => $order->getId()
 		);
@@ -344,111 +373,6 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$proxyResponse = $proxyActionController->getResponse();
 
 		return $proxyResponse;
-	}
-
-	/**
-	 * @param Order\RecurringOrder $order
-	 * @param ResponseInterface $response 
-	 */
-	public function processRecurringOrder(Order\RecurringOrder $order, ResponseInterface $response)
-	{
-		parent::processRecurringOrder($order, $response);
-
-		// This is Transact specific behaviour.
-		$proxyActionUrlQueryData = array(
-			self::REQUEST_KEY_ORDER_ID => $order->getId()
-		);
-
-		$this->redirectToProxy($proxyActionUrlQueryData, $response);
-	}
-
-	/**
-	 * @param Order\RecurringOrder $order
-	 * @param float $newAmount
-	 * @param string $newDescription
-	 * @throws Exception\RuntimeException 
-	 */
-	public function processNextRecurringOrderTransaction(Order\RecurringOrder $order, $newAmount = null, $newDescription = null)
-	{
-		$orderProvider = $this->getOrderProvider();
-
-		$recurringPayment = $order->getRecurringPayment();
-
-		$initialTransaction = $recurringPayment->getInitialTransaction();
-
-		if (empty($initialTransaction) || $initialTransaction->getStatus() != TransactionStatus::SUCCESS) {
-			throw new Exception\RuntimeException('Initial transaction not completed.');
-		}
-
-		$initializeResult = $this->initializeRecurringTransaction($order, $newAmount, $newDescription);
-		$orderProvider->store($order);
-
-		if ( ! empty($initializeResult['ERROR'])) {
-
-			throw new Exception\RuntimeException('Could not start next recurring transaction.');
-		} else if ( ! empty($initializeResult['RedirectOnsite'])) {
-
-			throw new Exception\RuntimeException('Received redirect URL for recurrent transaction.');
-		}
-
-		$chargeResult = $this->chargeLastRecurringTransaction($order);
-
-		$orderProvider->store($order);
-
-		$this->updateRecurringOrderStatus($order, $chargeResult);
-
-		$orderProvider->store($order);
-	}
-
-	/**
-	 * @param Order\RecurringOrder $order
-	 * @param array $transactionStatus
-	 * @throws Exception\RuntimeException 
-	 */
-	public function updateRecurringOrderStatus(Order\RecurringOrder $order, $transactionStatus)
-	{
-		$recurringPayment = $order->getRecurringPayment();
-
-		$initialTransaction = $recurringPayment->getInitialTransaction();
-
-		$lastTransaction = $recurringPayment->getLastTransaction();
-
-		if (empty($transactionStatus) || empty($transactionStatus['Status'])) {
-			throw new Exception\RuntimeException('No transaction status.');
-		}
-
-		switch (strtolower($transactionStatus['Status'])) {
-
-			case 'success': {
-					$lastTransaction->setStatus(TransactionStatus::SUCCESS);
-
-					$order->getRecurringPayment()
-							->setStatus(RecurringPaymentStatus::PAID);
-				} break;
-
-			case 'failed': {
-					$lastTransaction->setStatus(TransactionStatus::FAILED);
-
-					if ($lastTransaction->getId() == $initialTransaction->getId()) {
-						$recurringPaymentStatus = RecurringPaymentStatus::INITIAL_TRANSACTION_FAILED;
-					} else {
-						$recurringPaymentStatus = RecurringPaymentStatus::LAST_TRANSACTION_FAILED;
-					}
-
-					$order->getRecurringPayment()
-							->setStatus($recurringPaymentStatus);
-				} break;
-
-			case 'pending': {
-
-					throw new Exception\RuntimeException('Pending transaction handling not implemented yet.');
-				} break;
-
-			default: {
-
-					throw new Exception\RuntimeException('Transaction status "' . $transactionStatus['Status'] . '" is not recognized.');
-				}
-		}
 	}
 
 	/**
@@ -493,7 +417,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function getOrderItemDescription(Order\Order $order, Locale $locale = null)
 	{
-		return 'Dengi fee (' . $locale . ') - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
+		return 'Dengi fee';
 	}
 
 	/**
@@ -522,7 +446,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @param Order\Order $order
 	 * @return string
 	 */
-	public function getProxyActionReturnFormDataUrl(Order\Order $order)
+	public function getDataFormReturnUrl(Order\Order $order)
 	{
 		$queryData = array(
 			Action\ProxyAction::REQUEST_KEY_RETURN_FROM_FORM => true,
@@ -533,569 +457,194 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param PaymentEntity $paymentEntity
-	 * @return string
-	 * @throws Exception\RuntimeException 
+	 * @param string $backendId
+	 * @return Backend\BackendAbstraction
 	 */
-	public function getTransactTransactionIdFromPaymentEntity(PaymentEntity $paymentEntity)
+	public function getBackend($backendId)
 	{
-		$phaseName = null;
-
-		if ($paymentEntity instanceof Transaction) {
-
-			$phaseName = self::PHASE_NAME_INITIALIZE_TRANSACTION;
-		} else if ($paymentEntity instanceof RecurringPaymentTransaction) {
-
-			$phaseName = self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION;
-		} else {
-			throw new Exception\RuntimeException('Do not know how to get Transact transaction id from payment entity of type "' . get_class($paymentEntity) . '".');
+		if ( ! isset($this->backends[$backendId])) {
+			throw new Exception\RuntimeException('Backend "' . $backendId . '" not found.');
 		}
 
-		$transactTransactionId = $paymentEntity->getParameterValue($phaseName, self::KEY_NAME_TRANSACT_TRANSACTION_ID);
-
-		if (empty($transactTransactionId)) {
-			throw new Exception\RuntimeException('Could not find Transact transaction id from payment entity "' . $paymentEntity->getId() . '".');
-		}
-
-		return $transactTransactionId;
+		return $this->backends[$backendId];
 	}
 
 	/**
-	 * @param string $apiName
-	 * @param array $postData
-	 * @return array 
-	 */
-	protected function callTransactApi($apiName, $postData)
-	{
-		$queryData = array('a' => $apiName);
-
-		$apiUrl = $this->getApiUrl() . '?' . http_build_query($queryData);
-
-		\Log::debug('callTransactApi URL: ', $apiUrl);
-
-		$logData = $postData;
-
-		if ( ! empty($logData['cc'])) {
-			$logData['cc'] = '****************';
-		}
-		\Log::debug('callTransactApi POST: ', $logData);
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $apiUrl);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-		$rawResponse = curl_exec($ch);
-		\Log::debug('callTransactApi RAW RESPONSE: ', $rawResponse);
-
-		$curlError = curl_error($ch);
-		if ( ! empty($curlError)) {
-			throw new Exception\RuntimeException('Transact API request failed: ' . $curlError);
-		}
-
-		$response = $this->decodeTransactResponse($rawResponse);
-
-		return $response;
-	}
-
-	/**
-	 * @param string $rawResposne
-	 * @return array
-	 */
-	protected function decodeTransactResponse($rawResposne)
-	{
-		$parts = explode('~', trim($rawResposne));
-
-		$response = array();
-
-		foreach ($parts as $part) {
-
-			$name = null;
-			$value = null;
-
-			list($name, $value) = explode(':', trim($part), 2);
-
-			$response[$name] = $value;
-		}
-
-		return $response;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getApiBaseData()
-	{
-		$apiData = array();
-
-		$apiData['guid'] = $this->getMerchantGuid();
-		$apiData['pwd'] = sha1($this->getPassword());
-		$apiData['rs'] = $this->getRoutingString();
-
-		return $apiData;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getUserIp()
-	{
-		$userIp = $this->getUserIpOverride();
-
-		if (empty($userIp)) {
-			$userIp = $_SERVER['REMOTE_ADDR'];
-		}
-
-		return $userIp;
-	}
-
-	/**
-	 * @param Order\Order $order
-	 * @param array $postData
-	 * @return array 
-	 */
-	protected function getInitializeTransactTransactionData(Order\Order $order, $merchantTransactionId, $postData)
-	{
-		$apiData = $this->getApiBaseData();
-
-		$apiData['merchant_transaction_id'] = $merchantTransactionId;
-
-		$apiData['user_ip'] = $this->getUserIp();
-
-		$description = array();
-		foreach ($order->getProductItems() as $item) {
-			/* @var $item Order\OrderProductItem */
-			$description[] = $item->getDescription() . ' x' . $item->getQuantity();
-		}
-		$apiData['description'] = join(', ', $description);
-
-		$apiData['amount'] = $order->getTotal() * 100;
-		$apiData['currency'] = $order->getCurrency()->getIso4217Code();
-
-		$apiData['merchant_site_url'] = $order->getInitiatorUrl();
-
-		$apiData['name_on_card'] = $postData['name_on_card'];
-		$apiData['street'] = $postData['street'];
-		$apiData['zip'] = $postData['zip'];
-		$apiData['city'] = $postData['city'];
-		$apiData['country'] = $postData['country'];
-		$apiData['state'] = $postData['state'] ? $postData['state'] : 'NA';
-		$apiData['email'] = $postData['email'];
-		$apiData['phone'] = $postData['phone'];
-		$apiData['card_bin'] = substr($postData['cc'], 0, 6);
-		$apiData['bin_name'] = $postData['bin_name'];
-		$apiData['bin_phone'] = $postData['bin_phone'];
-
-		return $apiData;
-	}
-
-	/**
-	 * @param Order\Order $order
-	 * @param array $postData
-	 * @return array
-	 */
-	public function initializeTransaction(Order\ShopOrder $order, $postData)
-	{
-		$transaction = $order->getTransaction();
-		/* @var $transaction Transaction */
-
-		$apiData = $this->getInitializeTransactTransactionData($order, $transaction->getId(), $postData);
-
-		$result = $this->callTransactApi('init', $apiData);
-
-		\Log::debug('TRANSACT INIT TRANSACTION RESULT: ', $result);
-
-		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_TRANSACTION, $result);
-
-		return $result;
-	}
-
-	/**
-	 * @param Order\ShopOrder $order
-	 * @param array $postData
-	 * @return array
-	 */
-	public function chargeTransaction(Order\ShopOrder $order, $postData)
-	{
-		$transaction = $order->getTransaction();
-
-		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($transaction);
-
-		$apiData = $this->getApiBaseData();
-
-		$apiData['f_extended'] = 5;
-
-		$apiData['init_transaction_id'] = $transactTransactionId;
-
-		$apiData['cc'] = $postData['cc'];
-		$apiData['cvv'] = $postData['cvv'];
-		$apiData['expire'] = $postData['expire'];
-
-		$result = $this->callTransactApi('charge', $apiData);
-
-		\Log::debug('TRANSACT CHARGE TRANSACTION RESULT: ', $result);
-
-		$transaction->addToParameters(self::PHASE_NAME_CHARGE_TRANSACTION, $result);
-
-		return $result;
-	}
-
-	/**
-	 * @param PaymentEntity $paymentEntity
-	 * @return array
-	 */
-	public function getTransactTransactionStatus(PaymentEntity $paymentEntity)
-	{
-		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($paymentEntity);
-
-		$result = $this->getTransactTransactionStatusForId($transactTransactionId);
-
-		return $result;
-	}
-
-	/**
-	 * @param string $transactTransactionId
-	 * @return array
-	 */
-	protected function getTransactTransactionStatusForId($transactTransactionId)
-	{
-		$apiData = $this->getApiBaseData();
-
-		$apiData['f_extended'] = 5;
-
-		$apiData['init_transaction_id'] = $transactTransactionId;
-		$apiData['request_type'] = 'transaction_status';
-
-		$result = $this->callTransactApi('status_request', $apiData);
-
-		\Log::debug('TRANSACT TRANSACTION STATUS RESULT: ', $result);
-
-		return $result;
-	}
-
-	/**
-	 * @param Order\Order $order 
-	 */
-	public function issueRefundForOrder(Order\Order $order, $refundAmount = false)
-	{
-		$orderProvider = $this->getOrderProvider();
-
-		if ($order instanceof ShopOrder) {
-			$this->issueRefundForShopOrder($order, $refundAmount);
-		} else if ($order instanceof Order\RecurringOrder) {
-			$this->issueRefundForRecurringOrder($order, $refundAmount);
-		} else {
-			throw new Exception\RuntimeException('Do not know how to refund "' . get_class($order) . '" ');
-		}
-
-		$orderProvider->store($order);
-	}
-
-	/**
+	 * 
 	 * @param ShopOrder $order
-	 * @param float $amount
-	 * @throws Exception\RuntimeException 
+	 * @param array $otherData
+	 * @return string
 	 */
-	protected function issueRefundForShopOrder(ShopOrder $order, $refundAmount)
+	public function getRedirectUrl(ShopOrder $order, $otherData)
 	{
-		$transaction = $order->getTransaction();
+		$urlBase = $this->getApiUrl();
 
-		if ($transaction->getStatus() != TransactionStatus::SUCCESS) {
-			throw new Exception\RuntimeException('Only successful transactions can be refunded');
-		}
+		$backend = $this->getBackend($otherData['mode_type']);
 
-		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($transaction);
+		$queryData = array(
+			'project' => $this->getProjectId(),
+			'mode_type' => $otherData['mode_type'],
+			'amount' => $order->getTotal(),
+			'source' => $this->getSource(),
+			'nickname' => $order->getUserId(),
+			'order_id' => $order->getId(),
+			'paymentCurrency' => $backend->getCurrencyCode(),
+		);
 
-		if ($refundAmount === false) {
-			$refundAmount = $transaction->getAmount();
-		}
+		$url = http_build_url($urlBase, array('query' => http_build_query($queryData)), HTTP_URL_JOIN_PATH | HTTP_URL_JOIN_QUERY);
 
-		$result = $this->issueRefundForTransactTransactionId($transactTransactionId, $refundAmount);
+		\Log::error('DENGI REDIRECT URL: ', $url);
 
-		$transaction->addToParameters(self::PHASE_NAME_REFUND, $result);
-
-		$transaction->setStatus(TransactionStatus::REFUNDED);
+		return $url;
 	}
 
 	/**
-	 * @param RecurringOrder $order
-	 * @param float $refundAmount
-	 * @throws Exception\RuntimeException 
-	 */
-	protected function issueRefundForRecurringOrder(RecurringOrder $order, $refundAmount)
-	{
-		$recurringPayment = $order->getRecurringPayment();
-
-		$lastTransaction = $recurringPayment->getLastTransaction();
-
-		if ($lastTransaction->getStatus() != TransactionStatus::SUCCESS) {
-			throw new Exception\RuntimeException('Only successful transactions can be refunded');
-		}
-
-		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($lastTransaction);
-
-		if ($refundAmount === false) {
-			$refundAmount = $lastTransaction->getAmount();
-		}
-
-		$refundResult = $this->issueRefundForTransactTransactionId($transactTransactionId, $refundAmount);
-
-		$lastTransaction->addToParameters(self::PHASE_NAME_REFUND, $refundResult);
-
-		$lastTransaction->setStatus(TransactionStatus::REFUNDED);
-	}
-
-	/**
-	 * @param string $transactTransactionId
-	 * @param float $amount 
 	 * @return array
 	 */
-	protected function issueRefundForTransactTransactionId($transactTransactionId, $amount)
+	public function getBackends()
 	{
-		$apiData = $this->getApiBaseData();
+		return $this->backends;
+	}
 
-		$apiData['init_transaction_id'] = $transactTransactionId;
-		$apiData['amount_to_refund'] = $amount * 100;
+	/**
+	 * @param array $backends
+	 */
+	public function setBackends($backends)
+	{
+		$this->backends = $backends;
+	}
 
-		$result = $this->callTransactApi('refund', $apiData);
+	/**
+	 * @param string $dengiUserId
+	 * @param string $checksum
+	 */
+	public function checkVerifyDengiOrderChecksum($dengiUserId, $receivedChecksum)
+	{
+		$secret = $this->getSecret();
 
-		\Log::debug('TRANSACT REFUND RESULT: ', $result);
+		$checksum = md5('0' . $dengiUserId . '0' . $secret);
 
-		return $result;
+		return $checksum == $receivedChecksum;
+	}
+
+	/**
+	 * @param boolean $success
+	 * @param string|null $comment
+	 * @return string
+	 */
+	public function makeVerifyDengiOrderCheckumResponse($success, $comment = null)
+	{
+		if ($success == true) {
+			$code = 'YES';
+		} else {
+			$code = 'NO';
+		}
+
+		$response = array(
+			'<?xml version="1.0" encoding="UTF-8"?>',
+			'<result>',
+			'<code>' . $code . '</code>',
+			'</result>');
+
+		return join("\n", $response);
+	}
+
+	/**
+	 * @param string $amount
+	 * @param string $dengiUserId
+	 * @param string $dengiPaymentId
+	 * @param string $receivedChecksum
+	 * @return boolean
+	 */
+	public function checkDengiOrderSuccessChecksum($amount, $dengiUserId, $dengiPaymentId, $receivedChecksum)
+	{
+		$secret = $this->getSecret();
+
+		$checksum = md5($amount . $dengiUserId . $dengiPaymentId . $secret);
+
+		return $checksum == $receivedChecksum;
+	}
+
+	/**
+	 * @param string $orderId
+	 * @param boolean $success
+	 * @param string|null $comment
+	 * @param string|null $course
+	 * @return string
+	 */
+	public function makeCheckDengiOrderSuccessResponse($orderId, $success, $comment = null, $course = null)
+	{
+		if ($success == true) {
+			$code = 'YES';
+		} else {
+			$code = 'NO';
+		}
+
+		$response = array(
+			'<?xml version="1.0" encoding="UTF-8"?>',
+			'<result>',
+			'<id>' . $orderId . '</id>',
+			'<code>' . $code . '</code>',
+			'<comment>' . $comment . '</comment>',
+			'<course>' . $course . '</course>',
+			'</result>',
+		);
+
+		return join("\n", $response);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function checkDengiSuccessReturnChecksum()
+	{
+		return true;
+	}
+
+	/**
+	 * @param RequestData $requestData
+	 * @return boolean
+	 */
+	public function validateDolSign(RequestData $requestData)
+	{
+		$receivedDolSign = $requestData->get('DOL_SIGN');
+
+		$requestDataAsArray = $requestData->getArrayCopy();
+
+		unset($requestDataAsArray['err_msg']);
+		unset($requestDataAsArray['DOL_SIGN']);
+
+		// Specification is wrong, w/o comment field, even if it is empty, checksum is not valid.
+		// So this is why it is not being unset.
+		//unset($requestDataAsArray['comment']);
+
+		ksort($requestDataAsArray);
+
+		$stringToHash = '';
+
+		foreach ($requestDataAsArray as $key => $val) {
+			$stringToHash .= $key . '=' . $val;
+		}
+
+		$computedDolSign = md5($stringToHash . $this->getSecret());
+
+		return $receivedDolSign == $computedDolSign;
 	}
 
 	/**
 	 * @param Order\Order $order
-	 * @param array $postData
-	 * @return array 
 	 */
-	public function initializeRecurringPayment(Order\RecurringOrder $order, $postData)
+	public function getOrderBackendId(Order\Order $order)
 	{
-		$recurringPayment = $order->getRecurringPayment();
-		/* @var $recurringPayment RecurringPayment */
+		$paymentProviderId = $order->getPaymentProviderId();
 
-		$transaction = new RecurringPaymentTransaction();
-
-		$transaction->setStatus(TransactionStatus::STARTED);
-		$transaction->setAmount($order->getTotal());
-		$transaction->setDescription($order->getBillingDescription());
-
-		$recurringPayment->addTransaction($transaction);
-
-		$apiData = $this->getInitializeTransactTransactionData($order, $transaction->getId(), $postData);
-
-		$apiData['save_card'] = 1;
-
-		$result = $this->callTransactApi('init', $apiData);
-
-		\Log::debug('TRANSACT INIT RECURRENT TRANSACTION RESULT: ', $result);
-
-		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $result);
-
-		return $result;
-	}
-
-	/**
-	 * @param Order\RecurringOrder
-	 * @param float $amount
-	 * @param string $description 
-	 */
-	public function initializeRecurringTransaction(Order\RecurringOrder $order, $newAmount = null, $newDescription = null)
-	{
-		$recurringPayment = $order->getRecurringPayment();
-		/* @var $recurringPayment RecurringPayment */
-
-		$initialTransaction = $recurringPayment->getInitialTransaction();
-		$initialTransacTransactionId = $this->getTransactTransactionIdFromPaymentEntity($initialTransaction);
-
-		$transaction = new RecurringPaymentTransaction();
-
-		if (empty($newAmount)) {
-			$amount = $order->getTotal();
-		} else {
-			$amount = $newAmount;
+		if ($paymentProviderId != $this->getId()) {
+			throw new Exception\RuntimeException('Order is not for this payment provider.');
 		}
 
-		$transaction->setAmount($amount);
+		$backendId = $order->getPaymentEntityParameterValue(self::PHASE_NAME_INITIALIZE_TRANSACTION, 'mode_type');
 
-		if (empty($newDescription)) {
-			$description = $order->getBillingDescription();
-		} else {
-			$description = $newDescription;
-		}
-
-		$transaction->setDescription($description);
-		$transaction->setStatus(TransactionStatus::STARTED);
-		$recurringPayment->addTransaction($transaction);
-
-		$merchantTransactionId = $transaction->getId();
-
-		$apiData = $this->getApiBaseData();
-
-		$apiData['rs'] = $this->getRecurrentRoutingString();
-
-		$apiData['original_init_id'] = $initialTransacTransactionId;
-		$apiData['merchant_transaction_id'] = $merchantTransactionId;
-		$apiData['amount'] = intval($amount * 100);
-		$apiData['description'] = $description;
-
-		$result = $this->callTransactApi('init_recurrent', $apiData);
-
-		\Log::debug('TRANSACT INIT RECURRENT TRANSACTION RESULT: ', $result);
-
-		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $result);
-
-		return $result;
-	}
-
-	/**
-	 * @param Order\RecurringOrder $order
-	 * @return array 
-	 */
-	public function chargeInitialRecurringTransaction(Order\RecurringOrder $order, $postData)
-	{
-		$recurringPayment = $order->getRecurringPayment();
-
-		$initialTransaction = $recurringPayment->getInitialTransaction();
-
-		$transactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($initialTransaction);
-
-		$apiData = $this->getApiBaseData();
-
-		$apiData['init_transaction_id'] = $transactTransactionId;
-		$apiData['f_extended'] = 5;
-
-		$apiData['cc'] = $postData['cc'];
-		$apiData['cvv'] = $postData['cvv'];
-		$apiData['expire'] = $postData['expire'];
-
-		$result = $this->callTransactApi('charge', $apiData);
-
-		\Log::debug('TRANSACT CHARGE INITIAL RECURRENT TRANSACTION RESULT: ', $result);
-		$initialTransaction->addToParameters(self::PHASE_NAME_CHARGE_RECURRING_TRANSACTION, $result);
-
-		return $result;
-	}
-
-	/**
-	 * @param Order\RecurringOrder $order
-	 * @return array 
-	 */
-	public function chargeLastRecurringTransaction(Order\RecurringOrder $order)
-	{
-		$recurringPayment = $order->getRecurringPayment();
-
-		$lastRecurringTransaction = $recurringPayment->getLastTransaction();
-
-		$recurringTransactTransactionId = $this->getTransactTransactionIdFromPaymentEntity($lastRecurringTransaction);
-
-		$apiData = $this->getApiBaseData();
-
-		$apiData['rs'] = $this->getRecurrentRoutingString();
-
-		$apiData['init_transaction_id'] = $recurringTransactTransactionId;
-		$apiData['f_extended'] = 5;
-
-		$result = $this->callTransactApi('charge_recurrent', $apiData);
-
-		\Log::debug('TRANSACT CHARGE RECURRENT TRANSACTION RESULT: ', $result);
-		$lastRecurringTransaction->addToParameters(self::PHASE_NAME_CHARGE_RECURRING_TRANSACTION, $result);
-
-		return $result;
-	}
-
-	/**
-	 * @param Order\RecurringOrder $order 
-	 * @return array
-	 */
-	public function getLastRecurringTransactionStatus(Order\RecurringOrder $order)
-	{
-		$recurringPayment = $order->getRecurringPayment();
-
-		$initialTransaction = $recurringPayment->getIntialTransaction();
-		$lastTransaction = $order->getRecurringPayment()->getLastTransaction();
-
-		$transactTrascationId = $this->getTransactTransactionIdFromPaymentEntity($lastTransaction);
-
-		$apiData = $this->getApiBaseData();
-
-		$apiData['f_extended'] = 5;
-
-		if ($lastTransaction->getId() != $initialTransaction->getId()) {
-			$apiData['rs'] = $this->getRecurrentRoutingString();
-		}
-
-		$apiData['init_transaction_id'] = $transactTrascationId;
-		$apiData['request_type'] = 'transaction_status';
-
-		$result = $this->callTransactApi('status_request', $apiData);
-
-		\Log::debug('TRANSACT RECURRENT PAYMENT STATUS RESULT: ', $result);
-	}
-
-	/**
-	 * @param string $merchantTransactionId
-	 * @return Order\Order
-	 */
-	public function getOrderFromMerchantTransactionId($merchantTransactionId)
-	{
-		$paymentEntityProvider = $this->getPaymentEntityProvider();
-		$orderProvider = $this->getOrderProvider();
-
-		$paymentEntity = $paymentEntityProvider->getEntiy($merchantTransactionId);
-
-		$order = $orderProvider->getOrderByPaymentEntity($paymentEntity);
-
-		return $order;
-	}
-
-	/**
-	 * @param string $transactTransactionId
-	 * @return Order\Order
-	 */
-	public function getOrderFromTransactTransactionId($transactTransactionId)
-	{
-		$paymentEntityProvider = $this->getPaymentEntityProvider();
-		$orderProvider = $this->getOrderProvider();
-
-		$paymentEntities = $paymentEntityProvider->findByParameterNameAndValue(self::PHASE_NAME_INITIALIZE_TRANSACTION, self::KEY_NAME_TRANSACT_TRANSACTION_ID, $transactTransactionId);
-
-		if (count($paymentEntities) > 1) {
-			throw new Exception\RuntimeException('Got more than one payment entity for Transact transaction id "' . $transactTransactionId . '".');
-		}
-		if (count($paymentEntities) == 0) {
-			throw new Exception\RuntimeException('Did not find any payment entities for Transact transaction id "' . $transactTransactionId . '".');
-		}
-
-		$paymentEntity = array_pop($paymentEntities);
-
-		$order = $orderProvider->getOrderByPaymentEntity($paymentEntity);
-
-		return $order;
-	}
-
-	/**
-	 * @param Order\Order $order
-	 * @throws Exception\RuntimeException 
-	 */
-	public function refundTransaction(Order\Order $order)
-	{
-		if ($order instanceof Order\ShopOrder) {
-
-			$this->refundShopOrder($order);
-		} else if ($order instanceof Order\RecurringOrder) {
-
-			$this->refundRecurringOrder($order);
-		} else {
-			throw new Exception\RuntimeException('Do not know how to do a refund for "' . get_class($order) . '" order type.');
-		}
+		return $backendId;
 	}
 
 }
