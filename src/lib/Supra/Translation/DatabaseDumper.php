@@ -46,10 +46,7 @@ class DatabaseDumper implements DumperInterface
 					$record->setResource($resource);
 				}
 				
-				$status = $record->getStatus();
-
-
-				switch ($status) {
+				switch ($record->getStatus()) {
 					case Entity\Translation::STATUS_MANUAL:
 						$record->setStatus(Entity\Translation::STATUS_CHANGED);
 						break;
@@ -59,7 +56,7 @@ class DatabaseDumper implements DumperInterface
 				}
 
 				// Can change value
-				if ($status == Entity\Translation::STATUS_IMPORT) {
+				if ($record->getStatus() == Entity\Translation::STATUS_IMPORT) {
 					$record->setValue($value);
 				}
 

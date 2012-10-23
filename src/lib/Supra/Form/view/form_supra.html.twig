@@ -5,7 +5,7 @@
 		{% if value is null or value is empty %}
 			
 		{% else %}
-			<ul>
+			<ul class="file-description">
 			{% for file in value %}
 				<li><strong>{{ file.filename }}</strong> ({{ file.size }}b)</li>
 			{% endfor %}
@@ -15,7 +15,7 @@
 		{% if value is null %}
 			
 		{% else %}
-			<ul><li><strong>{{ value.filename }}</strong> ({{ value.size }}b)</li></ul>
+			<div class="file-description"><p><span>{{ value.filename }} ({{ value.size }}b)</span></p></div>
 		{% endif %}
 	{% endif %}
 {% endblock %}

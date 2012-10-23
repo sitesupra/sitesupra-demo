@@ -2,7 +2,7 @@
 
 ini_set('display_errors', 'Off');
 
-$q = @$q ?: $_SERVER['QUERY_STRING'];
+$q = @$q ? : $_SERVER['QUERY_STRING'];
 $apc = function_exists('apc_store');
 
 $files = explode('&', $q);
@@ -127,9 +127,9 @@ function writeFiles($files, $eTag)
 		if ($apc) {
 			apc_store('combo-' . $eTag, $out, 1800);
 		}
-		
+
 		$outDirname = $cacheDir . '/yui/' . substr($eTag, 0, 2);
-		
+
 		@mkdir($outDirname, 0777, true);
 
 		$tmpFilename = tempnam($outDirname, 'tmp-');

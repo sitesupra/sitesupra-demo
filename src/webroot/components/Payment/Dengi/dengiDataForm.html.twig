@@ -12,8 +12,11 @@
 </select>
 <input type="submit" value="Оплатить!">
 </form> -->
+<section>
+	<h2>{{ 'Выберите вид платежа'|trans }}:</h2>
 
-<form action ="{{ action }}" method="post" enctype="application/x-www-form-urlencoded">
+	{# Form with class "payment-method" labels will trigger submit on click #}
+	<form action ="{{ action }}" method="post" enctype="application/x-www-form-urlencoded" class="payment-method">
 
 	{% if errorMessages %}
 	<ul> 
@@ -29,6 +32,10 @@
 
 	{% endfor %} 
 
-	<input type="submit" value="SEND DENGI DATA!!!" />
+	<img src="/assets/images/payment-card-mastercard.png" alt="MasterCard" class="payment-icon" />
+	<img src="/assets/images/payment-card-visa.png" alt="VISA" class="payment-icon" />
 
-</form>
+	<input type="submit" value="Send" />
+
+		</form>
+</section>
