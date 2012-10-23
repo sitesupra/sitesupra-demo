@@ -17,3 +17,4 @@
       - ${__DIR__}/Blocks/config.yml
       - ${__DIR__}/AjaxContentBlock/config.yml
       - ${__DIR__}/AjaxPoll/config.yml
+      - ${__DIR__}/Sitemap/config.yml

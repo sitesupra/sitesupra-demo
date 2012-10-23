@@ -120,6 +120,9 @@ class LocalizationFinder extends AbstractFinder
 
 	public function setLocale($locale)
 	{
+		if ($locale instanceof Locale) {
+			$locale = $locale->getId();
+		}
 		$this->locale = $locale;
 	}
 

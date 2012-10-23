@@ -39,6 +39,7 @@ class PageLocalizationLevelOrganizer extends AbstractResultOrganizer
 	 */
 	protected function prepareTree($results)
 	{
+		$hasRoot = false;
 		$map = array();
 
         // prepares array $path => $localization
@@ -50,63 +51,59 @@ class PageLocalizationLevelOrganizer extends AbstractResultOrganizer
 				continue;
 			}
 
-			$visibleInSitemap = $path->isVisibleInSitemap() && $localization->isVisibleInSitemap();
 			$isActive = $path->isActive() && $localization->isActive();
 
-			if ($visibleInSitemap && $isActive) {
+			if ($isActive) {
 				$map[$localization->getFullPath(\Supra\Uri\Path::FORMAT_NO_DELIMITERS)] = $localization;
 			}
 		}
 
 		// grouping pages by path. Building array tree
-		$output = array();
-		$root = false;
+		$output = array(
+			'children' => array(),
+		);
+
 		foreach ($map as $path => $localization) {
-			$pathParts = explode('/', $path);
-			$partsCount = count($pathParts);
-			if ($partsCount <= 1 && ! $root) {
-				if (empty($path)) {
-					$root = true;
-					$path = '/';
-				}
 
-				$output[$path] = array(
-					'localization' => $localization,
-					'children' => array(),
-				);
+			$path = trim($path, '/');
 
-				continue;
+			if (empty($path)) {
+				$hasRoot = true;
 			}
 
+			$pathParts = explode('/', $path);
 
-			if ($root) {
-				array_unshift($pathParts, '/');
+			if ($hasRoot && ! empty($path)) {
+				array_unshift($pathParts, '');
 			}
 
 			$outputReference = &$output;
-			$foundPart = false;
-			foreach ($pathParts as $part) {
-				if ($foundPart) {
-					if (isset($outputReference['children'][$part])) {
-						$outputReference = &$outputReference['children'][$part];
-						continue;
-					}
-				} else {
-					if (isset($outputReference[$part])) {
-						$outputReference = &$outputReference[$part];
-						$foundPart = true;
-						continue;
-					}
-				}
 
-				$outputReference['children'][$part] = array(
-					'localization' => $localization,
-					'children' => array(),
-				);
+			while ( ! empty($pathParts)) {
+
+				$part = $pathParts[0];
+
+				if (isset($outputReference['children'][$part])) {
+					$outputReference = &$outputReference['children'][$part];
+					array_shift($pathParts);
+				} else {
+					break;
+				}
 			}
+
+			if (empty($pathParts)) {
+				throw new \LogicException("Duplicate element under path $path");
+			}
+			
+			$pathRemainder = implode('/', $pathParts);
+
+			$outputReference['children'][$pathRemainder] = array(
+				'localization' => $localization,
+				'children' => array(),
+			);
 		}
 
-		return $output;
+		return $output['children'];
 	}
 
 }

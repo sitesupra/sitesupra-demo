@@ -9,7 +9,7 @@
 	{% endif %}
 	
 	{% set image = supraBlock.property('image') %}
-	{% set imageTagHtml = supraBlock.imageHtmlTag( image, 200, 100, false ).toHtml() %}
+	{% set imageTagHtml = supraBlock.imageHtmlTag( image, 200, 100, false ) %}
 	
 	{% if imageTagHtml %}
 		<div class="image">{{ imageTagHtml | raw }}</div>
