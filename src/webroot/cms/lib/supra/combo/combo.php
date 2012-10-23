@@ -33,13 +33,15 @@ $css = strpos($files[0], '.css') !== false ? true : false;
 $ext = ($css ? 'css' : 'js');
 $extLength = ($css ? 3 : 2);
 $lessCss = true;
-$pre = @$pre ? : $_SERVER['DOCUMENT_ROOT'];
+$webrootDir = @$pre ? : $_SERVER['DOCUMENT_ROOT'];
+$srcDir = $webrootDir . '/..';
+$baseDir = $srcDir . '/..';
 
 // if will need to store in webroot...
-//$cacheDir = $pre . '/tmp';
-$cacheDir = $pre . '/../tmp';
+//$cacheDir = $webrootDir . '/tmp';
+$cacheDir = $srcDir . '/tmp';
 
-$version = __FILE__ . '/' . @file_get_contents(__DIR__ . '/../../../../../../VERSION');
+$version = __FILE__ . '/' . @file_get_contents($baseDir . '/VERSION');
 
 foreach ($files as &$file) {
 
@@ -148,29 +150,23 @@ function writeFiles($files, $eTag)
 
 function getFileMtime($file)
 {
-	global $css, $pre, $lessCss, $checkFileModificationTimeForIncludedLessCss;
+	global $css, $webrootDir, $lessCss, $checkFileModificationTimeForIncludedLessCss;
 
 	$cacheSource = array();
 
-	$thisPre = $pre;
-
-	if (strpos($file, '/cms-local/') === 0) {
-		$thisPre = realpath('../../../../../../../src/webroot');
-	}
-
-	$files = array($thisPre . $file);
+	$files = array($webrootDir . $file);
 
 	// Try searching for .less file
 	if ($css) {
-		$lessFile = $thisPre . $file . '.less';
+		$lessFile = $webrootDir . $file . '.less';
 
 		if ($lessCss && file_exists($lessFile)) {
 
 			if ($checkFileModificationTimeForIncludedLessCss) {
-				$lessPhp = $thisPre . '/cms/lib/supra/lessphp/SupraLessC.php';
+				$lessPhp = $webrootDir . '/cms/lib/supra/lessphp/SupraLessC.php';
 				require_once $lessPhp;
 				$less = new SupraLessCFileList($lessFile);
-				$less->setRootDir($thisPre);
+				$less->setRootDir($webrootDir);
 				$less->parse();
 				$files = $less->getFileList();
 			} else {
@@ -194,37 +190,30 @@ function getFileMtime($file)
 
 function getFileContent($file)
 {
-	global $css, $pre, $lessCss;
+	global $css, $webrootDir, $lessCss;
 
 	$outFile = null;
 
-	$thisPre = $pre;
-
-	if (strpos($file, '/cms-local/') === 0) {
-		$thisPre = realpath('../../../../../../../src/webroot');
-	} else {
-		$thisPre = $pre;
-	}
 	// Try searching for .less file
 	if ($css) {
-		$lessFile = $thisPre . $file . '.less';
+		$lessFile = $webrootDir . $file . '.less';
 
 		if ($lessCss && file_exists($lessFile)) {
-			$lessPhp = $thisPre . '/cms/lib/supra/lessphp/SupraLessC.php';
+			$lessPhp = $webrootDir . '/cms/lib/supra/lessphp/SupraLessC.php';
 			require_once $lessPhp;
 			$less = new SupraLessC($lessFile);
-			$less->setRootDir($pre);
+			$less->setRootDir($webrootDir);
 			$outFile = $less->parse();
 		}
 	}
 
 	if (is_null($outFile)) {
 
-		if ( ! file_exists($thisPre . $file)) {
+		if ( ! file_exists($webrootDir . $file)) {
 			error404();
 		}
 
-		$outFile = file_get_contents($thisPre . $file);
+		$outFile = file_get_contents($webrootDir . $file);
 	}
 
 	if ($css) {
