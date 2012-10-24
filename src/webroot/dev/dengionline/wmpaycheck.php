@@ -1,0 +1,212 @@
+<?php
+
+// project=1898&mode_type=108&amount=55&source=1898&nickname=00bmpbqes00w4k4cswcs&order_id=00cdz29qa01co000sowc&paymentCurrency=RUB
+
+require_once('output.php');
+
+session_start();
+
+$whatDo = isset($_REQUEST['do']) ? $_REQUEST['do'] : 'dengi';
+
+if ( ! file_exists('clients.ini')) {
+	dieWithErrorOutput('File "clients.ini" not found. Check "clients.example.ini" and it up!"');
+}
+
+switch ($whatDo) {
+
+	case 'dengi': {
+
+			if (empty($_REQUEST['project'])) {
+
+				dieWithErrorOutput('Bad request, eh?');
+			} else {
+
+				$_SESSION['last_request'] = $_REQUEST;
+
+				generateDengiPaymentId();
+
+				dieWithDefaultOutput();
+			}
+		} break;
+
+	case 'success': {
+
+			dieWithSuccessReturn();
+		} break;
+
+	case 'failure': {
+
+			dieWithSuccessReturn();
+		} break;
+
+
+	case 'notify': {
+
+			$result = sendSuccessNotification();
+
+			dieWithDefaultOutput('Notification response', $result);
+		} break;
+
+	case 'verify': {
+
+			$result = verifyUser();
+
+			dieWithDefaultOutput('User verification response', $result);
+		} break;
+
+	default: {
+			
+		}
+}
+
+function generateDengiPaymentId()
+{
+	if ( ! isset($_SESSION['last_request']['paymentid'])) {
+		$_SESSION['last_request']['paymentid'] = rand(90000000, 99999999);
+	}
+}
+
+function getClient()
+{
+	$clients = parse_ini_file('clients.ini');
+
+	$projectId = $_SESSION['last_request']['project'];
+
+	if ( ! isset($clients[$projectId])) {
+		dieWithErrorOutput('Client "' . $projectId . '" is not found. Is "clients.ini" properly set up?');
+	}
+
+	$client = $clients[$projectId];
+
+	return $client;
+}
+
+function dieWithSuccessReturn()
+{
+	dieWithReturn('success_url');
+}
+
+function dieWithFailureReturn()
+{
+	dieWithReturn('failure_url');
+}
+
+function sendSuccessNotification()
+{
+	$client = getClient();
+
+	$requestData = $_SESSION['last_request'];
+
+	$requestData['key'] = md5($requestData['amount'] . $requestData['userid'] . $requestData['paymentid'] . $client['secret']);
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $client['notification_url']);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HEADER, false);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
+
+	$rawResponse = curl_exec($ch);
+
+	return $rawResponse;
+}
+
+function verifyUser()
+{
+	$client = getClient();
+
+	$requestData = $_SESSION['last_request'];
+
+	$requestData['key'] = md5('0' . $requestData['userid'] . '0' . $client['secret']);
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $client['notification_url']);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HEADER, false);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
+
+	$rawResponse = curl_exec($ch);
+
+	return $rawResponse;
+}
+
+function postNotification($notificationData)
+{
+	$client = getClient();
+	
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $client['notification_url']);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($notificationData));
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HEADER, false);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
+
+	$rawResponse = curl_exec($ch);
+	
+	$curlError = curl_error($ch);
+	
+	if(!empty($curlError)) {
+		dieWithErrorOutput('CURL got error: ' . $curlError, $notificationData);
+	}
+	
+	return $rawResponse;
+}
+
+function makeDolSign($queryParameters, $client)
+{
+	unset($queryParameters['err_msg']);
+	unset($queryParameters['DOL_SIGN']);
+
+	ksort($queryParameters);
+
+	$stringToHash = '';
+
+	foreach ($queryParameters as $key => $val) {
+		$stringToHash .= $key . '=' . $val;
+	}
+
+	$dolSign = md5($stringToHash . $client['secret']);
+
+	return $dolSign;
+}
+
+function makeReturnUrlQuery($client, $extra = array())
+{
+	$queryData = $_SESSION['last_request'] + $extra;
+
+	$queryData['DOL_SIGN'] = makeDolSign($queryData, $client);
+
+	return http_build_query($queryData);
+}
+
+function dieWithErrorOutput($message, $extra = null)
+{
+	die(getErrorOutput($message, $extra));
+}
+
+function dieWithDefaultOutput($message = null, $extra = null)
+{
+	die(getDefaultOuptut($message, $extra));
+}
+
+function dieWithReturn($returnUrlName)
+{
+	$client = getClient();
+
+	generateDengiPaymentId();
+
+	$url = http_build_url($client[$returnUrlName], array('query' => makeReturnUrlQuery($client)));
+
+	header('Location: ', $url);
+	die();
+}
