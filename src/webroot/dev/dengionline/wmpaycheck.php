@@ -1,5 +1,7 @@
 <?php
 
+ob_start();
+
 // project=1898&mode_type=108&amount=55&source=1898&nickname=00bmpbqes00w4k4cswcs&order_id=00cdz29qa01co000sowc&paymentCurrency=RUB
 
 require_once('output.php');
@@ -20,7 +22,7 @@ switch ($whatDo) {
 
 				dieWithErrorOutput('Bad request, eh?');
 			} else {
-
+				
 				$_SESSION['last_request'] = $_REQUEST;
 
 				generateDengiPaymentId();
@@ -36,7 +38,7 @@ switch ($whatDo) {
 
 	case 'failure': {
 
-			dieWithSuccessReturn();
+			dieWithFailureReturn();
 		} break;
 
 
@@ -44,14 +46,14 @@ switch ($whatDo) {
 
 			$result = sendSuccessNotification();
 
-			dieWithDefaultOutput('Notification response', $result);
+			dieWithDefaultOutput('Notification response', htmlspecialchars($result));
 		} break;
 
 	case 'verify': {
 
 			$result = verifyUser();
 
-			dieWithDefaultOutput('User verification response', $result);
+			dieWithDefaultOutput('User verification response', htmlspecialchars($result));
 		} break;
 
 	default: {
@@ -63,12 +65,14 @@ function generateDengiPaymentId()
 {
 	if ( ! isset($_SESSION['last_request']['paymentid'])) {
 		$_SESSION['last_request']['paymentid'] = rand(90000000, 99999999);
+		$_SESSION['last_request']['orderid'] = $_SESSION['last_request']['order_id'];
+		$_SESSION['last_request']['userid'] = $_SESSION['last_request']['nickname'];
 	}
 }
 
 function getClient()
 {
-	$clients = parse_ini_file('clients.ini');
+	$clients = parse_ini_file('clients.ini', true);
 
 	$projectId = $_SESSION['last_request']['project'];
 
@@ -95,52 +99,32 @@ function sendSuccessNotification()
 {
 	$client = getClient();
 
-	$requestData = $_SESSION['last_request'];
+	$notificationData = $_SESSION['last_request'];
 
-	$requestData['key'] = md5($requestData['amount'] . $requestData['userid'] . $requestData['paymentid'] . $client['secret']);
+	$notificationData['key'] = md5($notificationData['amount'] . $notificationData['userid'] . $notificationData['paymentid'] . $client['secret']);
 
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $client['notification_url']);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
-	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_HEADER, false);
-	curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
+	$response = postNotification($notificationData);
 
-	$rawResponse = curl_exec($ch);
-
-	return $rawResponse;
+	return $response;
 }
 
 function verifyUser()
 {
 	$client = getClient();
 
-	$requestData = $_SESSION['last_request'];
+	$notificationData = $_SESSION['last_request'];
 
-	$requestData['key'] = md5('0' . $requestData['userid'] . '0' . $client['secret']);
+	$notificationData['key'] = md5('0' . $notificationData['userid'] . '0' . $client['secret']);
 
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $client['notification_url']);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
-	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_HEADER, false);
-	curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
+	$response = postNotification($notificationData);
 
-	$rawResponse = curl_exec($ch);
-
-	return $rawResponse;
+	return $response;
 }
 
 function postNotification($notificationData)
 {
 	$client = getClient();
-	
+
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $client['notification_url']);
 	curl_setopt($ch, CURLOPT_POST, 1);
@@ -152,13 +136,13 @@ function postNotification($notificationData)
 	curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
 
 	$rawResponse = curl_exec($ch);
-	
+
 	$curlError = curl_error($ch);
-	
-	if(!empty($curlError)) {
+
+	if ( ! empty($curlError)) {
 		dieWithErrorOutput('CURL got error: ' . $curlError, $notificationData);
 	}
-	
+
 	return $rawResponse;
 }
 
@@ -203,10 +187,9 @@ function dieWithReturn($returnUrlName)
 {
 	$client = getClient();
 
-	generateDengiPaymentId();
-
 	$url = http_build_url($client[$returnUrlName], array('query' => makeReturnUrlQuery($client)));
 
-	header('Location: ', $url);
+	ob_clean();
+	header('Location: ' . $url);
 	die();
 }

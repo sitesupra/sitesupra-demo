@@ -32,8 +32,8 @@ function getDefaultOuptut($message = null, $extra = null)
 	<?php endif ?>
 
 	<?php if ($extra): ?>
-		<pre><?php echo(extra); ?></pre>
-		<hr />
+	<pre><?php echo($extra); ?></pre>
+	<hr />
 	<?php endif ?>
 
 	<p> 
@@ -45,9 +45,8 @@ function getDefaultOuptut($message = null, $extra = null)
 
 	<hr />
 
-	<pre>
-		<?php var_dump($_SESSION['last_request']); ?>
-	</pre>
+	Last request:
+	<pre><?php var_dump($_SESSION['last_request']); ?></pre>
 
 	<?php
 	return getOutputFrame(ob_get_clean());
@@ -64,7 +63,7 @@ function getErrorOutput($message, $extra = null)
 	</p>
 
 	<?php if ($extra): ?>
-		<pre><?php echo(extra); ?></pre>
+		<pre><?php echo($extra); ?></pre>
 	<?php endif ?>
 
 	<?php
