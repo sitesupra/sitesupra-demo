@@ -224,6 +224,7 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			
 			//Retore editor toolbar
 			if (this.options.retoreEditorToolbar) {
+				this.options.retoreEditorToolbar = false;
 				Manager.getAction('EditorToolbar').execute();
 			}
 		},
