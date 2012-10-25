@@ -6533,6 +6533,8 @@ YUI().add("supra.io-css", function (Y) {
 			if (!this.get('srcNode').compareTo(input)) {
 				this.on('valueChange', this._afterValueChange, this);
 			}
+			
+			this.on('input', this._onWidgetInputEvent, this);
 		},
 		
 		/**
@@ -6598,6 +6600,7 @@ YUI().add("supra.io-css", function (Y) {
 			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
 				input.set('value', this._original_value);
 				input.blur();
+				this.fire('input', {'value': this._original_value});
 				this.fire('reset');
 			}
 		},
@@ -6642,6 +6645,16 @@ YUI().add("supra.io-css", function (Y) {
 			}
 			
 			this._original_value = this.get('value');
+		},
+		
+		_onWidgetInputEvent: function (e) {
+			var value = e.value;
+			
+			if (value) {
+				this.get('boundingBox').removeClass(this.getClassName('empty'));
+			} else {
+				this.get('boundingBox').addClass(this.getClassName('empty'));
+			}
 		},
 		
 		renderUI: function () {
@@ -6717,8 +6730,13 @@ YUI().add("supra.io-css", function (Y) {
 				this.get('boundingBox').addClass(this.getClassName('empty'));
 			}
 			
-			this._last_value = value;
 			this._original_value = value;
+			
+			if (this._last_value != value) {
+				this._last_value = value;
+				this.fire('input', {'value': value});
+			}
+			
 			return value;
 		},
 		
