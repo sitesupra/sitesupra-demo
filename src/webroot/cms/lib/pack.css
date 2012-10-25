@@ -1928,6 +1928,7 @@ button::-moz-focus-inner { border:0; }
 }
 .yui3-editor-toolbar-text .yui3-input-select:last-child, .yui3-editor-toolbar-table .yui3-input-select:last-child { padding-right:0; }
 .yui3-editor-toolbar-text .yui3-input-select label, .yui3-editor-toolbar-table .yui3-input-select label { display:none; }
+.yui3-editor-toolbar-text .yui3-input-select-hidden, .yui3-editor-toolbar-table .yui3-input-select-hidden { display:none; }
 .yui3-editor-toolbar-text .su-button-group, .yui3-editor-toolbar-table .su-button-group { vertical-align:middle; }
 .yui3-editor-toolbar-text .su-button-group, .yui3-editor-toolbar-text .su-button-group .su-button-content, .yui3-editor-toolbar-text .su-button-group button, .yui3-editor-toolbar-table .su-button-group, .yui3-editor-toolbar-table .su-button-group .su-button-content, .yui3-editor-toolbar-table .su-button-group button {
   background:url(/cms/lib/supra/build/htmleditor/assets/skins/supra/button-toolbar.png);
