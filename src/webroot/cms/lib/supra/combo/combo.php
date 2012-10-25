@@ -34,8 +34,9 @@ $ext = ($css ? 'css' : 'js');
 $extLength = ($css ? 3 : 2);
 $lessCss = true;
 $webrootDir = @$pre ? : $_SERVER['DOCUMENT_ROOT'];
-$srcDir = $webrootDir . '/..';
-$baseDir = $srcDir . '/..';
+$webrootDir = $webrootDir . '/';
+$srcDir = $webrootDir . '../';
+$baseDir = $srcDir . '../';
 
 // if will need to store in webroot...
 //$cacheDir = $webrootDir . '/tmp';
@@ -163,7 +164,7 @@ function getFileMtime($file)
 		if ($lessCss && file_exists($lessFile)) {
 
 			if ($checkFileModificationTimeForIncludedLessCss) {
-				$lessPhp = $webrootDir . '/cms/lib/supra/lessphp/SupraLessC.php';
+				$lessPhp = __DIR__ . '/../lessphp/SupraLessC.php';
 				require_once $lessPhp;
 				$less = new SupraLessCFileList($lessFile);
 				$less->setRootDir($webrootDir);
@@ -178,7 +179,7 @@ function getFileMtime($file)
 	foreach ($files as $file) {
 
 		if ( ! file_exists($file)) {
-			error404();
+			error404($file);
 		}
 
 		$cacheSource[] = $file;
@@ -199,7 +200,7 @@ function getFileContent($file)
 		$lessFile = $webrootDir . $file . '.less';
 
 		if ($lessCss && file_exists($lessFile)) {
-			$lessPhp = $webrootDir . '/cms/lib/supra/lessphp/SupraLessC.php';
+			$lessPhp = __DIR__ . '/../lessphp/SupraLessC.php';
 			require_once $lessPhp;
 			$less = new SupraLessC($lessFile);
 			$less->setRootDir($webrootDir);
@@ -210,7 +211,7 @@ function getFileContent($file)
 	if (is_null($outFile)) {
 
 		if ( ! file_exists($webrootDir . $file)) {
-			error404();
+			error404($webrootDir . $file);
 		}
 
 		$outFile = file_get_contents($webrootDir . $file);
@@ -225,9 +226,13 @@ function getFileContent($file)
 	return $outFile;
 }
 
-function error404()
+function error404($filename)
 {
-	header("HTTP/1.0 404 Not Found");
+	if (isset($_SERVER['SERVER_NAME'])) {
+		header("HTTP/1.0 404 Not Found");
+	} else {
+		echo("File $filename does not exist\n");
+	}
 	die(6);
 }
 
