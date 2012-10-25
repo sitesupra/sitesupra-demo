@@ -187,7 +187,12 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.contents.render();
 			
 			//Disable editing
-			this.contents.set('highlight', true);
+			var path = Root.router.getPath(),
+				editing = Root.ROUTE_PAGE_EDIT_R.test(path) || Root.ROUTE_PAGE_CONT_R.test(path);
+			
+			if (!editing) {
+				this.contents.set('highlight', true);
+			}
 			
 			this.contents.on('activeChildChange', function (event) {
 				if (event.newVal) {
