@@ -728,6 +728,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				template = this._getAncestorTemplate(),
 				templates = this._templates;
 			
+			// Check if template doesn't have a flag 'dont_use_as_default'
 			for (var i=0,ii=templates.length; i<ii; i++) {
 				if (templates[i].id == template) {
 					if (templates[i].dont_use_as_default) {

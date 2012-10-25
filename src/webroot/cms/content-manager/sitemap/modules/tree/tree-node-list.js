@@ -126,7 +126,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				widgets = this._widgets,
 				panel = null,
 				filter = null,
-				button = null,
+				filter_input = null,
 				datagrid = null;
 			
 			//Panel
@@ -159,15 +159,10 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 			filter.render(panel.get('contentBox'));
 			
 			filter.on('submit', this.filter, this);
-			filter.getInput('filterQuery').on('input', this.onFilterInputEvent, this);
 			
-			widgets.button = button = new Supra.Button({
-				'label': 'Search',
-				'style': 'small'
-			});
-			
-			button.on('click', this.filter, this);
-			button.render(filter.get('contentBox'));
+			filter_input = filter.getInput('filterQuery');
+			filter_input.on('input', this.onFilterInputEvent, this);
+			filter_input.plug(InputStringClear);
 			
 			//Datagrid
 			widgets.datagrid = datagrid = new Supra.DataGrid({
@@ -380,6 +375,50 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 	
 	
 	Action.TreeNodeList = Node;
+	
+	
+	
+	/**
+	 * Plugin for String input to clear content on icon click
+	 */
+	function InputStringClear () {
+		InputStringClear.superclass.constructor.apply(this, arguments);
+	};
+	
+	InputStringClear.NAME = 'InputStringClear';
+	InputStringClear.NS = 'clear';
+	
+	Y.extend(InputStringClear, Y.Plugin.Base, {
+		
+		/**
+		 * Clear icon/button
+		 * 
+		 * @type {Object}
+		 * @private 
+		 */
+		nodeClear: null,
+		
+		/**
+		 * Attach to event listeners, etc.
+		 * 
+		 * @constructor
+		 * @private
+		 */
+		'initializer': function () {
+			this.nodeClear = Y.Node.create('<a class="clear"></a>');
+			this.nodeClear.on('click', this.clearInputValue, this);
+			this.get('host').get('inputNode').insert(this.nodeClear, 'after');
+		},
+		
+		/**
+		 * Clear input value
+		 * 
+		 * @private
+		 */
+		'clearInputValue': function () {
+			this.get('host').set('value', '');
+		}
+	});
 	
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
