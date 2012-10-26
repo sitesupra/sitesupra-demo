@@ -20,5 +20,5 @@ interface CrudEntityInterface
 	/**
 	 * @param array $listValues
 	 */
-	public function setEditValues(FilteredInput $editValues, $locale = null);
+	public function setEditValues(FilteredInput $editValues, $newRecord = null);
 }

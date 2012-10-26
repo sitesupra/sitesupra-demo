@@ -5,130 +5,88 @@ namespace Supra\Locale;
 /**
  * Locale object
  */
-class Locale
+interface Locale
 {
-	/**
-	 * Locale ID
-	 * @var string
-	 */
-	protected $id;
 
 	/**
-	 * Locale title
-	 * @var string
+	 * @return string
+	 * @throws Exception\RuntimeException
 	 */
-	protected $title;
+	public function getId();
 
 	/**
-	 * Locale country name
-	 * @var string
+	 * @param string $id
 	 */
-	protected $country;
-	
-	/**
-	 * Locale properties
-	 * @var array
-	 */
-	protected $properties;
+	public function setId($id);
 
 	/**
-	 * True by default
-	 * @var boolean
-	 */
-	protected $active = true;
-	
-	/**
-	 * Return locale ID
 	 * @return string
 	 */
-	public function getId()
-	{
-		return $this->id;
-	}
+	public function getTitle();
 
 	/**
-	 * Return locale title
+	 * @param string $title
+	 */
+	public function setTitle($title);
+
+	/**
 	 * @return string
 	 */
-	public function getTitle()
-	{
-		return $this->title;
-	}
+	public function getCountry();
 
 	/**
-	 * Return locale country name
-	 * @return string
+	 * @param string $country
 	 */
-	public function getCountry()
-	{
-		return $this->country;
-	}
+	public function setCountry($country);
 
 	/**
-	 * Set locale ID
-	 * @param string $id 
+	 * @return array
 	 */
-	public function setId($id)
-	{
-		$this->id = $id;
-	}
+	public function getProperties();
 
 	/**
-	 * Set locale title
-	 * @param string $title 
+	 * @param array $properties
 	 */
-	public function setTitle($title)
-	{
-		$this->title = $title;
-	}
+	public function setProperties($properties);
 
-	/**
-	 * Set locale country name
-	 * @param string $country 
-	 */
-	public function setCountry($country)
-	{
-		$this->country = $country;
-	}
-	
 	/**
 	 * Sets property
 	 * @param string $name
 	 * @param mixed $value 
 	 */
-	public function addProperty($name, $value)
-	{
-		$this->properties[$name] = $value;
-	}
-	
+	public function addProperty($name, $value);
+
 	/**
 	 * Returns propery
 	 * @param string $name
 	 * @return mixed
 	 */
-	public function getProperty($name)
-	{
-		if (isset($this->properties[$name])) {
-			return $this->properties[$name];
-		}
-	}
-	
+	public function getProperty($name);
+
 	/**
-	 * Set locale is active/inactive (either it's enabled or disabled)
-	 * @param boolean $active
-	 */
-	public function setActive($active) 
-	{
-		$this->active = $active;
-	}
-	
-	/**
-	 * Is locale active or not
+	 * 
 	 * @return boolean
 	 */
-	public function isActive()
-	{
-		return $this->active;
-	}
+	public function isActive();
 
+	/**
+	 * 
+	 * @param boolean $active
+	 */
+	public function setActive($active);
+
+	/**
+	 * @return boolean
+	 */
+	public function isDefault();
+
+	/**
+	 * @param boolean $default
+	 */
+	public function setDefault($default);
+
+	/**
+	 * @return string
+	 */
+	public function getContext();
 }

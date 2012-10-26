@@ -36,6 +36,9 @@ $cliCommandClasses = array(
 	'Supra\User\Command\CreateUserCommand',
 	'Supra\FileStorage\Command\RegenerateFilePathCommand',
 	'Supra\NestedSet\Command\ValidateNestedSetCommand',
+	'Supra\Locale\Command\AddLocaleCommand',
+	'Supra\Locale\Command\UpdateLocaleCommand',
+	'Supra\Locale\Command\SetLocalePropertyCommand'
 );
 
 require_once __DIR__ . '/cli-config.php';

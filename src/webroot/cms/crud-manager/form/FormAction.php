@@ -55,7 +55,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 		ObjectRepository::setCallerParent($record, $this);
 
 		//setting new values
-		$output = $record->setEditValues($post);
+		$output = $record->setEditValues($post, $newRecord);
 		
 		$em->persist($record);
 

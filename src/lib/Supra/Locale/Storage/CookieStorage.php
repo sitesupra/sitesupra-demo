@@ -5,7 +5,6 @@ namespace Supra\Locale\Storage;
 use Supra\Request\RequestInterface;
 use Supra\Response\ResponseInterface;
 use Supra\Response\HttpResponse;
-use Supra\Locale\Exception;
 use Supra\Http\Cookie;
 use Supra\Log\Log;
 

@@ -118,3 +118,15 @@
 
 - _class: Supra\Event\EventConfiguration
   listener: Supra\Authentication\Listener\BruteForceAuthenticationAttackProtector
+
+#- Supra\Cms\CrudManager\ApplicationConfiguration:
+#    id: Supra\Cms\LocaleManager\LocaleManager
+#    title: Locales
+#    url: locale-manager
+#    entity: Supra\Locale\Entity\Locale
+#    icon: /cms/lib/supra/img/apps/settings
+#    classname: Supra\Cms\LocaleManager\LocaleManager
+#    authorizationAccessPolicy:
+#      Supra\Cms\CrudManager\CrudManagerAuthorizationAccessPolicy:
+#        applicationNamespace: Supra\Cms\CrudManager
+

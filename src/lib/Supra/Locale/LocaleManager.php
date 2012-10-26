@@ -4,9 +4,10 @@ namespace Supra\Locale;
 
 use Supra\Request\RequestInterface;
 use Supra\Response\ResponseInterface;
+use Supra\Locale\Exception;
 
 /**
- * Localization
+ * Localization manager
  */
 class LocaleManager
 {
@@ -27,7 +28,7 @@ class LocaleManager
 	 * @var Locale
 	 */
 	protected $current;
-	
+
 	/**
 	 * Weither to process inactive locales, or not
 	 * @var boolean
@@ -42,12 +43,14 @@ class LocaleManager
 	public function add(Locale $locale)
 	{
 		$id = $locale->getId();
+		
 		if (empty($id)) {
-			throw new Exception("Locale ID is not defined");
+			throw new Exception\RuntimeException('Locale ID is not defined.');
 		}
+		
 		$this->locales[$id] = $locale;
 	}
-	
+
 	/**
 	 * Check if such locale exists
 	 * @param string $localeIdentifier
@@ -55,14 +58,16 @@ class LocaleManager
 	 */
 	public function exists($localeIdentifier, $throws = true)
 	{
-		if (array_key_exists($localeIdentifier, $this->locales)) {
+		$locales = $this->getLocales();
+		
+		if (array_key_exists($localeIdentifier, $locales)) {
 			return true;
 		}
-		
+
 		if ($throws) {
-			throw new Exception("Locale '$localeIdentifier' is not defined");
+			throw new Exception\RuntimeException("Locale '$localeIdentifier' is not defined.");
 		}
-		
+
 		return false;
 	}
 
@@ -105,13 +110,13 @@ class LocaleManager
 	public function setCurrent($locale)
 	{
 		$localeIdentifier = null;
-		
+
 		if ($locale instanceof Locale) {
 			$localeIdentifier = $locale->getId();
 		} else {
 			$localeIdentifier = $locale;
 		}
-		
+
 		$this->exists($localeIdentifier, true);
 		$this->current = $this->locales[$localeIdentifier];
 	}
@@ -132,7 +137,7 @@ class LocaleManager
 	{
 		return $this->current;
 	}
-	
+
 	/**
 	 * Returns array of defined locales
 	 * @return array 
@@ -141,7 +146,7 @@ class LocaleManager
 	{
 		return $this->locales;
 	}
-	
+
 	/**
 	 * Get list of active locale objects
 	 * @return array
@@ -150,15 +155,17 @@ class LocaleManager
 	{
 		$activeLocales = array();
 		
-		foreach ($this->locales as $id => $locale) {
+		$locales = $this->getLocales();
+
+		foreach ($locales as $id => $locale) {
 			if ($locale->isActive()) {
 				$activeLocales[$id] = $locale;
 			}
 		}
-		
+
 		return $activeLocales;
 	}
-	
+
 	/**
 	 * Detects current locale
 	 * @param RequestInterface $request
@@ -168,22 +175,27 @@ class LocaleManager
 	public function detect(RequestInterface $request, ResponseInterface $response)
 	{
 		$localeId = null;
-		
+
 		/* @var $detector Detector\DetectorInterface */
 		foreach ($this->detectors as $detector) {
+			
 			$localeId = $detector->detect($request, $response);
+			
 			if ( ! empty($localeId)) {
+				
 				$exists = $this->exists($localeId, false);
+				
 				if ($exists && ($this->processInactive || $this->isActive($localeId))) {
-					\Log::debug("Locale '{$localeId}' detected by ".get_class($detector));
+					
+					\Log::debug("Locale '{$localeId}' detected by " . get_class($detector));
 					$this->setCurrent($localeId);
 					break;
 				}
 			}
 		}
-		
+
 		if (empty($localeId)) {
-			throw new Exception("Could not detect locale for request '{$request->getActionString()}'");
+			throw new Exception\RuntimeException("Could not detect locale for request '{$request->getActionString()}'");
 		}
 
 		/* @var $storage Storage\StorageInterface */
@@ -191,7 +203,7 @@ class LocaleManager
 			$storage->store($request, $response, $localeId);
 		}
 	}
-	
+
 	/**
 	 * Check is locale specified by id active
 	 * @param type $localeId
@@ -200,17 +212,20 @@ class LocaleManager
 	public function isActive($localeId)
 	{
 		$locale = $this->getLocale($localeId, false);
-		
+
 		if ($locale instanceof Locale) {
 			return $locale->isActive();
 		}
-		
+
 		return false;
 	}
-	
+
+	/**
+	 * 
+	 */
 	public function processInactiveLocales()
 	{
 		$this->processInactive = true;
 	}
-	
+
 }
