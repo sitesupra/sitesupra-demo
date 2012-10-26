@@ -21,6 +21,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 		$post = $this->getRequestInput();
 
 		$record = null;
+		/* @var $record CrudManager\CrudEntityInterface */
 		$recordId = $post->get('id', null);
 			
 		$newRecord = false;
@@ -53,10 +54,10 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 
 		ObjectRepository::setCallerParent($record, $this);
 
-		$em->persist($record);
-
 		//setting new values
 		$output = $record->setEditValues($post);
+		
+		$em->persist($record);
 
 		$em->flush();
 		
@@ -71,8 +72,12 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 			$this->move($record, $recordBefore, false);
 		}
 
+		$recordTitle = null;
+
 		if ( ! $record instanceof TitleTrackingItemInterface) {
-			$record = $recordId;
+			$recordTitle = $recordId;
+		} else {
+			$recordTitle = $record;
 		}
 
 		$this->writeAuditLog("Record %item% saved", $record);
