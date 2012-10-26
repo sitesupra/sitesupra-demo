@@ -329,6 +329,7 @@ http://yuilibrary.com/license/
 .su-panel {
   background:rgba(42,41,55,0.85);
   border:1px solid #100e18;
+  outline:0;
   border-radius:6px;
   -moz-background-clip:padding;
   -webkit-background-clip:padding-box;
@@ -343,6 +344,7 @@ http://yuilibrary.com/license/
   -webkit-background-clip:padding-box;
   background-clip:padding-box;
   margin:6px;
+  outline:0;
 }
 .su-panel.su-panel-static {
   position:relative;

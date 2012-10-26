@@ -85,7 +85,8 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 				'srcNode': container,
 				'autoClose': true,
 				'arrowVisible': true,
-				'zIndex': 2
+				'zIndex': 2,
+				'closeOnEscapeKey': true
 			});
 			
 			//Overwrite validate click

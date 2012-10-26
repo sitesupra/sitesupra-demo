@@ -14,6 +14,9 @@ Supra('supra.input', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	var KEY_ESCAPE = 27,
+		KEY_RETURN = 13;
+	
 	var DEFAULT_CONFIG = {
 		'message': '',
 		'escape': false,
@@ -57,6 +60,7 @@ Supra('supra.input', function (Y) {
 			var panel = this.panel;
 			
 			panel.get('boundingBox').on('click', this.stopPropagation);
+			panel.get('boundingBox').on('keydown', this.handleKeyDown, this);
 			
 			//When clicking on mask prevent propagation
 			panel.once('maskNodeChange', function (event) {
@@ -122,6 +126,44 @@ Supra('supra.input', function (Y) {
 				}
 				if ('click' in buttons[i]) {
 					button.on('click', buttons[i].click, buttons[i].context || null, buttons[i].args);
+				}
+			}
+		},
+		
+		handleKeyDown: function (event) {
+			var close = false,
+				search = null;
+			
+			if (event.keyCode == KEY_RETURN) {
+				// Confirm and hide
+				search = ['save', 'delete', 'ok', 'apply', 'yes', 'done'];
+				close = true;
+			} else if (event.keyCode == KEY_ESCAPE) {
+				// Cancel and hide
+				search = ['cancel', 'no'];
+				close = true;
+			}
+			
+			if (close) {
+				var footer = this.getPluginWidgets('PluginFooter', true)[0],
+					buttons = buttons = this.config.buttons,
+					button = null;
+				
+				if (buttons.length == 1) {
+					button = buttons[0];
+				} else {
+					for (var i=0,ii=buttons.length; i<ii; i++) {
+						if (Y.Array.indexOf(search, buttons[i].id) !== -1) {
+							button = buttons[i]; break;
+						}
+					}
+				}
+				
+				if (button) {
+					if (button.click) {
+						button.click.call(button.context || this, event, button.args);
+					}
+					this.hide();
 				}
 			}
 		},

@@ -147,7 +147,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				'autoClose': false,
 				'arrowVisible': true,
 				'zIndex': 2,
-				'visible': false
+				'visible': false,
+				'closeOnEscapeKey': true
 			});
 			
 			//Bind event listeners

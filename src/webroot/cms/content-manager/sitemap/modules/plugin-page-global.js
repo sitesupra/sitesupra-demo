@@ -7,6 +7,7 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 	var Manager = Supra.Manager,
 		Action = Manager.getAction('SiteMap');
 	
+	var KEY_RETURN = 13;
 	
 	/**
 	 * Page edit settings form
@@ -82,11 +83,15 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				'autoClose': true,
 				'arrowVisible': true,
 				'zIndex': 2,
-				'visible': false
+				'visible': false,
+				'closeOnEscapeKey': true
 			});
 			
 			//Bind event listeners
 			panel.on('visibleChange', this._onVisibleChange, this);
+			
+			//On return key close form and save
+			panel.get('contentBox').on('keydown', this._onKeyDown, this);
 			
 			//Create form
 			this._createForm(container);
@@ -329,6 +334,18 @@ YUI().add('website.sitemap-plugin-page-global', function (Y) {
 				
 				//Open page
 				tree.fire('page:select', params);
+			}
+		},
+		
+		/**
+		 * On return key create page
+		 * 
+		 * @param {Event} event Event facade object
+		 * @private
+		 */
+		'_onKeyDown': function (event) {
+			if (event.keyCode == KEY_RETURN) {
+				this.createPagePrepopulated();
 			}
 		},
 		
