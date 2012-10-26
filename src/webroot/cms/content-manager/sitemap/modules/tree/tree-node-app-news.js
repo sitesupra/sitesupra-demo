@@ -33,6 +33,33 @@ YUI().add('website.sitemap-tree-node-app-news', function (Y) {
 			this.on('child:add', function (e) {
 				e.node.set('droppablePlaces', {'inside': true, 'before': false, 'after': false});
 			}, this);
+			
+			this.on('child:before-add', function (e, setter) {
+				var data = setter.data;
+				
+				if (data.type == 'page') {
+					// Page should be added to the actual list
+					
+					if (!this.get('expanded')) {
+						this.expand();
+						
+						if (this.get('loading')) {
+							// If children are loading, then wait till it's finished
+							// because we don't have a child in this case
+							this.once('expanded', function (e) {
+								this.get('tree').insertData(data, this.item(0), 'inside');
+							}, this);
+							
+							return false;
+						}
+					}
+					
+					setter.target = this.item(0);
+				} else if (data.type != 'group') {
+					// Only groups are allowed as direct children of news app
+					return false;
+				}
+			}, this);
 		},
 		
 		/**

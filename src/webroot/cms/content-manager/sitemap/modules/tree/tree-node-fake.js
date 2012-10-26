@@ -185,88 +185,24 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 			if (!target) return;
 			
 			var tree = this.get('tree'),
-				added = true;
+				added = true,
+				where = this._dndTargetPlace,
+				data  = this.get('data');
 			
 			//Drop was canceled
 			if (this._dndTargetPlace === null) return;
 			
-			if (target.isInstanceOf('TreeNodeList') && this._dndTargetPlace == 'inside') {
-				
-				target.set('expandable', true);
-				
-				//Expand list
-				target.expand();
-				
-				//Add TreeNodeList row
-				var datagrid = target.getWidget('datagrid'),
-					data = Supra.mix({'tree': tree}, target.NEW_CHILD_PROPERTIES || {}, this.get('data')),
-					row = datagrid.insert(Supra.mix({'id': Y.guid()}, data), target.get('data').new_children_first ? 0 : null),
-					params = {
-						'data': row.get('data'),
-						'node': row
-					};
-				
-			} else {
-				//Add page
-				var data = Supra.mix({}, target.NEW_CHILD_PROPERTIES || {}, this.get('data')),
-					node = null,
-					params = null;
-				
-				//If target is expandable, then wait till it's expanded before adding new item
-				if (this._dndTargetPlace == 'inside' && target.expand && target.get('expandable') && !target.get('expanded')) {
-					
-					//After expand add node
-					target.once('expanded', function () {
-						
-						var node = tree.insert(data, target, 'inside'),
-							params = {
-								'data': node.get('data'),
-								'node': node
-							};
-						
-						if (!data.id) {
-							tree.fire('page:add', params);
-						} else {
-							tree.fire('page:restore', params);
-						}
-						
-					}, this);
-					
-					target.expand();
-					
-					added = false;
-					
-				} else {
-					node = tree.insert(data, target, this._dndTargetPlace);
-					params = {
-						'data': node.get('data'),
-						'node': node
-					};
-					
-					if (node.get('parent').expand) node.get('parent').expand();
-				}
-			}
-			
-			//Only new items doesn't have ID, if page is restored from recycle bin
-			//then there will be ID
-			if (added) { 
-				if (!data.id) {
-					tree.fire('page:add', params);
-				} else {
-					tree.fire('page:restore', params);
-				}
-			}
-			
 			//Hide marker and cleanup data
 			target.set('dndMarker', false);
-			
-			//Make sure node is not actually moved
-			e.preventDefault();
-			
-			//Clean up
 			this._dndTarget = null;
 			this._dndTargetPlace = null;
 			this._dndTargetNode = null;
+			
+			//Insert item
+			tree.insertData(data, target, where);
+			
+			//Make sure node is not actually moved
+			e.preventDefault();
 		},
 		
 		

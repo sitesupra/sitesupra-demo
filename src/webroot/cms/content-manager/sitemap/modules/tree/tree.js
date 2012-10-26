@@ -796,6 +796,101 @@ YUI().add('website.sitemap-tree', function (Y) {
 		},
 		
 		/**
+		 * Add item to the tree from data
+		 * 
+		 * @param {Object} data Data for new TreeNdoe
+		 * @param {Object} reference TreeNode or TreeNode ID after/before/inside which node will be inserted
+		 * @param {String} where Point of reference
+		 * @return Tree for call chaining
+		 * @type {Object}
+		 */
+		'insertData': function (data, reference, where) {
+			var target = reference;
+			if (!target) return;
+			
+			var added = true;
+			
+			//Trigger event
+			var setter = {'target': target, 'where': where, 'data': data},
+				res = target.fire('child:before-add', setter, setter);
+			
+			if (res === false) return; // event was canceled
+			
+			where = setter.where;
+			if (setter.target !== target) target = setter.target;
+			
+			//Add item
+			if (target.isInstanceOf('TreeNodeList') && where == 'inside') {
+				
+				target.set('expandable', true);
+				
+				//Expand list
+				target.expand();
+				
+				//Add TreeNodeList row
+				var datagrid = target.getWidget('datagrid'),
+					data = Supra.mix({'tree': this}, target.NEW_CHILD_PROPERTIES || {}, data),
+					row = datagrid.insert(Supra.mix({'id': Y.guid()}, data), target.get('data').new_children_first ? 0 : null),
+					params = {
+						'data': row.get('data'),
+						'node': row
+					};
+				
+			} else {
+				//Add page
+				var data = Supra.mix({}, target.NEW_CHILD_PROPERTIES || {}, data),
+					node = null,
+					params = null;
+				
+				//If target is expandable, then wait till it's expanded before adding new item
+				if (where == 'inside' && target.expand && target.get('expandable') && !target.get('expanded')) {
+					
+					//After expand add node
+					target.once('expanded', function () {
+						
+						var node = this.insert(data, target, 'inside'),
+							params = {
+								'data': node.get('data'),
+								'node': node
+							};
+						
+						if (!data.id) {
+							this.fire('page:add', params);
+						} else {
+							this.fire('page:restore', params);
+						}
+						
+					}, this);
+					
+					target.expand();
+					
+					added = false;
+					
+				} else {
+					node = this.insert(data, target, where);
+					params = {
+						'data': node.get('data'),
+						'node': node
+					};
+					
+					if (node.get('parent').expand) node.get('parent').expand();
+				}
+			}
+			
+			//Only new items doesn't have ID, if page is restored from recycle bin
+			//then there will be ID
+			if (added) { 
+				if (!data.id) {
+					this.fire('page:add', params);
+				} else {
+					this.fire('page:restore', params);
+				}
+			}
+			
+			return this;
+		},
+		
+		/**
 		 * Alias of insert
 		 * 
 		 * @param {Object} node TreeNode, TreeNode ID or data for new TreeNdoe
