@@ -30,6 +30,7 @@ use Supra\Controller\Layout\Theme\ThemeProviderAbstraction;
 use Supra\Controller\Layout\Theme\DefaultThemeProvider;
 use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Translation\Translator;
 
 /**
  * Object repository
@@ -68,6 +69,7 @@ class ObjectRepository
 	const INTERFACE_REMOTE_COMMAND_SERVICE = 'Supra\Remote\Client\RemoteCommandService';
 	const INTERFACE_THEME_PROVIDER = 'Supra\Controller\Layout\Theme\ThemeProviderAbstraction';
 	const INTERFACE_FORM_FACTORY = 'Symfony\Component\Form\FormFactoryInterface';
+	const INTERFACE_TRANSLATOR = 'Symfony\Component\Translation\Translator';
 
 	/**
 	 * Object relation storage
@@ -1308,6 +1310,40 @@ class ObjectRepository
 	public static function setDefaultFormFactory(\Symfony\Component\Form\FormFactoryInterface $object)
 	{
 		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_FORM_FACTORY);
+	}
+
+	/**
+	 * Get assigned Translator instance.
+	 *
+	 * @param mixed $caller
+	 * @return Translator
+	 */
+	public static function getTranslator($caller)
+	{
+		$translator = self::getObject($caller, self::INTERFACE_TRANSLATOR, true);
+
+		return $translator;
+	}
+
+	/**
+	 * Assign Translator to namespace.
+	 *
+	 * @param mixed $caller
+	 * @param Translator $object 
+	 */
+	public static function setTranslator($caller, Translator $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_TRANSLATOR);
+	}
+
+	/**
+	 * Set default Translator object.
+	 *
+	 * @param Translator $object 
+	 */
+	public static function setDefaultTranslator(Translator $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_TRANSLATOR);
 	}
 
 }

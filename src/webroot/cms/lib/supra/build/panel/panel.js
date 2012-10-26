@@ -2,6 +2,8 @@ YUI.add('supra.panel', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	var KEY_ESCAPE = 27;
+	
 	var ARROW_CLASSNAMES = {
 		'L': 'left',
 		'R': 'right',
@@ -86,6 +88,13 @@ YUI.add('supra.panel', function (Y) {
 		 * Automatically close when clicked outside
 		 */
 		autoClose: {
+			value: false
+		},
+		
+		/**
+		 * Close when user presses return key
+		 */
+		closeOnEscapeKey: {
 			value: false
 		},
 		
@@ -496,7 +505,7 @@ YUI.add('supra.panel', function (Y) {
 		renderUI: function () {
 			Panel.superclass.renderUI.apply(this, arguments);
 			
-			this.get('contentBox').removeClass('hidden');
+			this.get('contentBox').removeClass('hidden').setAttribute('tabindex', 0);
 			
 			if (this.get('closeVisible')) {
 				this._setCloseVisible(true);
@@ -550,6 +559,8 @@ YUI.add('supra.panel', function (Y) {
 					delete(this._fade_anim);
 				}
 			});
+			
+			this.get('contentBox').on('keydown', this.onKeyDown, this);
 		},
 		
 		syncUI: function () {
@@ -560,6 +571,17 @@ YUI.add('supra.panel', function (Y) {
 			var position = this.get('alignPosition');
 			if (position) {
 				this._setAlignPosition(position);
+			}
+		},
+		
+		/**
+		 * Handle key down
+		 * 
+		 * @private 
+		 */
+		onKeyDown: function (e) {
+			if (e.keyCode == KEY_ESCAPE && this.get('closeOnEscapeKey')) {
+				this.hide();
 			}
 		},
 		
@@ -606,6 +628,8 @@ YUI.add('supra.panel', function (Y) {
 					this._on_click = Y.one(document).on('click', this.validateClick, this);
 				}
 			});
+			
+			this.get('contentBox').focus();
 			
 			return this;
 		},

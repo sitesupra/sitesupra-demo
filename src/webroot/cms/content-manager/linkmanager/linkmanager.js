@@ -419,16 +419,27 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						var medialibrary = Manager.getAction('MediaLibrary');
 						var list = this.medialist = (new Supra.MediaLibraryList({
 							'srcNode': node.one('#linkToFileMediaList'),
-							'foldersSelectable': false,
-							'filesSelectable': false,
+							
+							//Use media library action data path
 							'listURI': medialibrary.getDataPath('list'),
 							'viewURI': medialibrary.getDataPath('view'),
+							
+							//Allow selecting files and images
+							'foldersSelectable': false,
+							'filesSelectable': false,
+							'imagesSelectable': false,
+							
+							//Display only specific items
 							'displayType': this.getMediaListDisplayType()
 						})).render();
 						
 						//On file select change button to "Insert"
 						list.slideshow.after('slideChange', this.updateInsertButton, this);
 						list.slideshow.after('slideChange', this.updateBackButton, this);
+					
+					//Reload data
+						this.medialist.reload();
+					
 				} else {
 					//Update displayType
 						var display_type = this.getMediaListDisplayType();
@@ -494,7 +505,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				case 'linkToFile':
 					//Media library tab
 					var item = this.medialist.getSelectedItem();
-					if (item && item.type != Supra.MediaLibraryData.TYPE_FOLDER) {
+					if (item && item.type != Supra.MediaLibraryList.TYPE_FOLDER) {
 						show_insert = true;
 					}
 					break;
@@ -791,7 +802,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				
 				//File path for image is taken from original image
 				var file_path = item_data.file_web_path;
-				if (!file_path && item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+				if (!file_path && item_data.type == Supra.MediaLibraryList.TYPE_IMAGE) {
 					file_path = item_data.sizes.original.external_path;
 				}
 				

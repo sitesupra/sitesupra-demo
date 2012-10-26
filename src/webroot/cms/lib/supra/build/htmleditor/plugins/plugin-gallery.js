@@ -30,9 +30,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (!Manager.MediaSidebar) return true;
 			
 			var htmleditor = this.htmleditor,
-				folder_data = Manager.MediaSidebar.getData(gallery_id, true);
+				dataObject = Manager.MediaSidebar.dataObject(),
+				folder_data = dataObject.cache.one(gallery_id);
 			
-			if (!folder_data || folder_data.type != Supra.MediaLibraryData.TYPE_FOLDER) {
+			if (!folder_data || folder_data.type != Supra.MediaLibraryList.TYPE_FOLDER) {
 				//Only handling folders; images should be handled by image plugin 
 				return;
 			}
@@ -41,39 +42,61 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (e.halt) e.halt();
 			
 			var image_data = [],
-				image;
+				loaded = 0,
+				count  = 0;
 			
-			//Get first image data
-			for(var i in folder_data.children) {
-				image = folder_data.children[i];
-				if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-					image_data.push(folder_data.children[i]);
+			var checkComplete = Y.bind(function () {
+				if (count && loaded == count) {
+					if (Manager.PageContent) {
+						this.insertGalleryBlock(image_data);
+					}
 				}
-			}
+			}, this);
 			
-			//No images in gallery
-			if (!image_data.length) return;
-			
-			//Get list
-			if (Manager.PageContent) {
-				this.insertGalleryBlock(image_data);
-			}
+			//Load all image data
+			dataObject.all(gallery_id).done(function (images) {
+				
+				var loadDone = function (image) {
+					image_data.push(image);
+					loaded++;
+					checkComplete();
+				};
+				var loadFail = function () {
+					count--;
+					checkComplete();
+				};
+				
+				for(var i=0, ii=images.length; i<ii; i++) {
+					if (images[i].type == Supra.MediaLibraryList.TYPE_IMAGE) {
+						count++;
+						dataObject.one(images[i].id, true).done(loadDone).fail(loadFail);
+					}
+				}
+				
+				checkComplete();
+				
+			}, this);
 			
 			return false;
 		},
 		
 		insertGalleryBlock: function (images) {
-			var list = Manager.PageContent.getContent().get('activeChild').get('parent'),
+			var content = Manager.PageContent.getContent().get('activeChild'),
+				list = content.get('parent'),
 				gallery_block_id = this.configuration.galleryBlockId;
 			
 			//If list is closed or gallery is not a valid child type then cancel
 			if (list.isClosed() || !list.isChildTypeAllowed(gallery_block_id)) return;
+			
+			//Save and close current block
+			content.fire('editing-end');
 			
 			//Insert block
 			list.get('super').getBlockInsertData({
 				'type': gallery_block_id,
 				'placeholder_id': list.getId()
 			}, function (data) {
+				Manager.PageToolbar.setActiveAction("Page");
 				this.createChildFromData(data);
 					
 				//Add images to gallery block

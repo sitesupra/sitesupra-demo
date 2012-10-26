@@ -502,7 +502,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * @return string
 	 */
-	public function getAuthorizationClass()
+	public static function getAuthorizationClass()
 	{
 		return __CLASS__;
 	}

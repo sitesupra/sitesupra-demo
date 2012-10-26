@@ -115,7 +115,7 @@ abstract class AbstractUser extends Entity implements AuthorizedEntityInterface,
 		return $this->getId();
 	}
 	
-	public function getAuthorizationClass() 
+	public static function getAuthorizationClass()
 	{
 		$className = self::CN();
 		

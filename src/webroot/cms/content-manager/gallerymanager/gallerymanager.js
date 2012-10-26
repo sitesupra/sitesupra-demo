@@ -1,4 +1,4 @@
-Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) {
+Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medialibrary-list', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -300,6 +300,10 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			var content = Manager.getAction('PageContentSettings').get('contentInnerNode');
 			if (!content) return;
 			
+			//Toolbar buttons
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME + 'Settings', []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME + 'Settings', []);
+			
 			//Properties form
 			var properties = this.image_properties,
 				form_config = {
@@ -425,6 +429,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			
 			action.execute(form, {
 				'doneCallback': Y.bind(this.settingsFormApply, this),
+				'toolbarActionName': this.NAME + 'Settings',
 				
 				'title': Supra.Intl.get(['htmleditor', 'image_properties']),
 				'scrollable': true
@@ -551,9 +556,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			}
 			
 			var item_id = e.drag_id,
-				item_data = Manager.MediaSidebar.getData(item_id),
-				image = null,
-				dataObject = Manager.MediaSidebar.medialist.get('dataObject'),
+				dataObject = Manager.MediaSidebar.dataObject(),
 				replace_id = null;
 			
 			if (e.drop.closest('b')) {
@@ -568,82 +571,49 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', function (Y) 
 			//Unmark list
 			this.list.removeClass('gallery-over');
 			
-			if (item_data) {
-				if (item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
+			//Load data
+			dataObject.any(item_id, true).done(function (data) {
+				
+				if (!Y.Lang.isArray(data)) {
+					data = [data];
+				}
+				
+				var folderHasImages = false,
+					image = null;
+				
+				for (var i=0, ii=data.length; i<ii; i++) {
+					image = data[i];
 					
-					//Add single image
-					if (item_data.sizes) {
-						if (replace_id) {
-							this.replaceImage(replace_id, item_data);
-						} else {
-							this.addImage(item_data);
-						}
-					} else {
-						dataObject.once('load:complete:' + item_data.id, function(event) {
-							if (event.data) {
-								this.onImageDrop(e);
+					if (image.type == Supra.MediaLibraryList.TYPE_IMAGE) {
+						
+						dataObject.one(image.id, true).done(function (data) {
+							if (replace_id) {
+								//Replace with first image, all other add to the list
+								this.replaceImage(replace_id, data);
+								replace_id = null;
+							} else {
+								this.addImage(data);
 							}
 						}, this);
-					}
-					
-				} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
-					
-					if ( ! dataObject.hasData(item_data.id) || (item_data.children_count && ! item_data.children.length)) {
-						dataObject.once('load:complete:' + item_data.id, function(event) {
-							if (event.data) {
-								this.onImageDrop(e);
-							}
-						}, this);
 						
-						return;
-						
-					} else {
-						
-						var folderHasImages = false;
-	
-						//Add all images from folder
-						for(var i in item_data.children) {
-							image = item_data.children[i];
-							if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-								
-								if (replace_id) {
-									//Replace with first image, all other add to the list
-									this.replaceImage(replace_id, item_data.children[i]);
-									replace_id = null;
-								} else {
-									if ( ! image.sizes) {
-										dataObject.once('load:complete:' + image.id, function(event) {
-											if (event.data && event.data.length) {
-												image = event.data.shift();
-												this.addImage(image);
-											}
-										}, this);
-										
-										dataObject.loadData(image.id, [], 'view');
-									} else {
-										this.addImage(image);
-									}
-								}
-								
-								folderHasImages = true;
-							}
-						}
-	
-						//folder was without images
-						if ( ! folderHasImages) {
-							Supra.Manager.executeAction('Confirmation', {
-								'message': '{#medialibrary.validation_error.empty_folder_drop#}',
-								'useMask': true,
-								'buttons': [
-									{'id': 'delete', 'label': 'Ok'}
-								]
-							});
-	
-							return;
-						}
+						folderHasImages = true;
 					}
 				}
-			}
+				
+				//folder was without images
+				if ( ! folderHasImages) {
+					Supra.Manager.executeAction('Confirmation', {
+						'message': '{#medialibrary.validation_error.empty_folder_drop#}',
+						'useMask': true,
+						'buttons': [
+							{'id': 'delete', 'label': 'Ok'}
+						]
+					});
+
+					return;
+				}
+				
+			}, this);
 			
 			//Prevent default (which is insert folder thumbnail image) 
 			if (e.halt) e.halt();

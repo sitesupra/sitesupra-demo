@@ -472,7 +472,7 @@
 		top: 6px; //6px == panel content margin
 		left: 6px;
 		right: 6px;
-		text-align: left;
+		text-align: right;
 		background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
 		border-bottom: 1px solid #B3B3C3;
 		
@@ -486,8 +486,38 @@
 			label {
 				display: none;
 			}
+		}
+		.yui3-input-string {
+			padding-right: 0;
+			
 			input {
-				width: 370px;
+				border: 2px solid #C0C1D1;
+				border-radius: 5px;
+				background: rgba(76, 77, 103, 0.22) url(images/search-icon.png) 5px 6px no-repeat;
+				width: 170px;
+				height: 28px;
+				.box-shadow (0, 1px, 1px, rgba(0,0,0,0.6) inset);
+				
+				color: #fff;
+				line-height: 26px;
+				padding-left: 23px;
+			}
+			
+			.yui3-input-string-content {
+				position: relative;
+			}
+			.clear {
+				display: block;
+				position: absolute;
+				width: 26px;
+				height: 28px;
+				right: 0;
+				top: 0;
+				background: url(images/search-clear.png) 6px 7px no-repeat;
+				cursor: pointer;
+			}
+			&.yui3-input-string-empty .clear {
+				display: none;
 			}
 		}
 	}
@@ -510,7 +540,7 @@
 	
 	/* Text formatting */
 	.su-datagrid .row-title .ellipsis {
-		max-width: 265px;
+		max-width: 244px; // must leave enough space for status icon, delete button and scrollbar
 	}
 	
 	/* Status icons */

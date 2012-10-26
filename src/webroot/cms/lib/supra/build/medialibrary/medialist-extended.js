@@ -8,8 +8,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	/*
 	 * Shortcuts
 	 */
-	var Data = Supra.MediaLibraryData,
-		List = Supra.MediaLibraryList,
+	var List = Supra.MediaLibraryList,
 		Template = Supra.Template;
 	
 	/*
@@ -186,13 +185,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 	
 	Y.extend(Extended, List, {
 		
-		/**
-		 * Image and file property inputs
-		 * @type {Object}
-		 * @private
-		 */
-		property_widgets: {},
-		
 		
 		/**
 		 * Add folder to the parent.
@@ -205,11 +197,15 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			var parent_id = null,
 				parent_data = null;
 			
+			if (parent === "0") {
+				parent = 0;
+			}
+			
 			if (parent) {
 				parent_id = parent;
 				parent_data = this.getItemData(parent_id);
 				
-				if (!parent_data || parent_data.type != Data.TYPE_FOLDER) {
+				if (!parent_data || parent_data.type != List.TYPE_FOLDER) {
 					return false;
 				}
 			} else {
@@ -223,22 +219,31 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			}
 			
 			if (parent_data) {
-				var data_object = this.get('dataObject');
+				var data_object = this.get('data');
+				
+				if (data_object.cache.one(-1)) {
+					return;
+				} else if (parent_data && !this.isOpened(parent_id)) {
+					this.open(parent_id).done(function () {
+						this.addFolder(parent_id, title);
+					}, this);
+					return; 
+				}
 				
 				//Don't have an ID for this item yet, using -1
 				var data = {
 					'id': -1,
-					'parent': parent_data.id,
-					'type': Supra.MediaLibraryData.TYPE_FOLDER,
+					'parent': parent_id,
+					'type': List.TYPE_FOLDER,
 					'title': title || '',
 					'children_count': 0,
-					'private': data_object.isFolderPrivate(parent_data.id),
+					'private': this.isFolderPrivate(parent_id),
 					'children': []
 				};
 				
 				//Add item to the folder list
 				this.renderItem(data.parent, [data], true);
-				this.get('dataObject').addData(data.parent, [data], true);
+				this.get('data').cache.add(data);
 				
 				//Start editing
 				var slide = this.slideshow.getSlide('slide_' + data.parent),
@@ -252,16 +257,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			return this;
 		},
 		
-		/**
-		 * Move folder
-		 * 
-		 * @param {String} id Folder ID
-		 * @param {String} parent New parent folder ID
-		 */
 		moveFolder: function (id /* Folder ID */, parent /* New parent folder ID */) {
-			var data_object = this.get('dataObject'),
-				previous_parent = data_object.getData(id).parent,
-				moved = false,
+			var data_object = this.get('data'),
+				previous_parent = data_object.cache.one(id).parent,
+				moved = true,
 				node = this.getItemNode(id),
 				new_slide = null,
 				new_slide_content = null,
@@ -270,92 +269,108 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				position = null,
 				was_empty = false;
 			
-			moved = data_object.moveFolder(id, parent, function (data, success) {
-				if (moved) {
-					//Failed to move folder, revert changes
-					if (!success) {
-						
-						data_object.moveFolder(id, previous_parent, true);
-						
-						//Place node back into previous position
-						Y.DOM.restoreInDOM(position);
-						node.setData('itemId', id); //data was lost for some reason
-						
-						//If folder was empty before insert then restore empty template
-						if (was_empty) {
-							var temp = this.renderTemplate({'id': parent}, this.get('templateEmpty'));
-							temp.setData('itemId', parent);
-							new_slide_content.empty().append(temp);
-						}
-						
-						//Update slide scrollbars
-						if (prev_slide_content) prev_slide_content.fire('contentResize');
-						if (new_slide_content) new_slide_content.fire('contentResize');
-						
-						//Trigger folder move
-						this.fire('folderMove', {
-							'id': id,
-							'newParent': previous_parent,
-							'prevParent': parent
-						});
-					} else {
-						if (previous_parent && previous_parent !== '0' && !data_object.getData(previous_parent).children.length) {
-							//If previous parent is now empty render empty template
-							var temp = this.renderTemplate({'id': previous_parent}, this.get('templateEmpty'));
-							temp.setData('itemId', parent);
-							prev_slide_content.empty().append(temp);
-						}
-						
-						//Node no longer needed
-						node.destroy();
+			//Folder was moved in data
+			new_slide = this.slideshow.getSlide('slide_' + (parent || 0));
+			prev_slide_content = node.closest('.su-slide-content, .su-multiview-slide-content');
+			
+			if (previous_parent.toString() === parent.toString()) {
+				return false;
+			}
+			
+			//Remove item
+			position = Y.DOM.removeFromDOM(node);
+			
+			//Update previous slide scrollbars
+			prev_slide_content.fire('contentResize');
+			
+			if (new_slide) {
+				new_slide_content = new_slide.one('.su-slide-content, .su-multiview-slide-content');
+				
+				if (new_slide.one('div.empty')) {
+					//Currently folder is not rendered into slide, create empty folder
+					var temp = this.renderTemplate({'id': parent}, this.get('templateFolder'));
+					temp.setData('itemId', parent);
+					new_slide_content.empty().append(temp);
+					was_empty = true;
+				}
+				
+				//new_slide.one('ul.folder').append(node);
+				//Place node into correct position (kinda)
+				var ul = new_slide.one('ul.folder'),
+					li = ul.all('li.type-folder');
+				
+				if (li.size()) {
+					li.item(li.size() - 1).insert(node, 'after');
+				} else {
+					ul.prepend(node);
+				}
+				
+				new_slide.setData('itemId', parent);
+				node.setData('itemId', id); //data was lost for some reason
+				
+				//Update new slide scrollbars
+				new_slide_content.fire('contentResize');
+			}
+			
+			//Trigger folder move
+			this.fire('folderMove', {
+				'id': id,
+				'newParent': parent,
+				'prevParent': previous_parent
+			});
+			
+			data_object.save({'id': id, 'parent': parent})
+				.done(function () {
+					//
+					if (previous_parent && previous_parent !== '0' && !data_object.cache.one(previous_parent).children.length) {
+						//If previous parent is now empty render empty template
+						var temp = this.renderTemplate({'id': previous_parent}, this.get('templateEmpty'));
+						temp.setData('itemId', parent);
+						prev_slide_content.empty().append(temp);
 					}
+					
+					//Node no longer needed
+					node.destroy();
 					
 					//Trigger folder move
 					this.fire('folderMoveComplete', {
 						'id': id,
-						'newParent': success ? parent : previous_parent,
-						'prevParent': success ? previous_parent : parent
+						'newParent': parent,
+						'prevParent': previous_parent
 					});
-				}
-			}, this);
-			
-			//Folder was moved in data
-			if (moved) {
-				new_slide = this.slideshow.getSlide('slide_' + (parent || 0));
-				prev_slide_content = node.closest('.su-slide-content, .su-multiview-slide-content');
-				
-				//Remove item
-				position = Y.DOM.removeFromDOM(node);
-				
-				//Update previous slide scrollbars
-				prev_slide_content.fire('contentResize');
-				
-				if (new_slide) {
-					new_slide_content = new_slide.one('.su-slide-content, .su-multiview-slide-content');
 					
-					if (new_slide.one('div.empty')) {
-						//Currently folder is not rendered into slide, create empty folder
-						var temp = this.renderTemplate({'id': parent}, this.get('templateFolder'));
-						temp.setData('itemId', parent);
-						new_slide_content.empty().append(temp);
-						was_empty = true;
-					}
-					
-					new_slide.one('ul.folder').append(node);
-					new_slide.setData('itemId', parent);
+				}, this)
+				.fail(function () {
+					//Place node back into previous position
+					Y.DOM.restoreInDOM(position);
 					node.setData('itemId', id); //data was lost for some reason
 					
-					//Update new slide scrollbars
-					new_slide_content.fire('contentResize');
-				}
-				
-				//Trigger folder move
-				this.fire('folderMove', {
-					'id': id,
-					'newParent': parent,
-					'prevParent': previous_parent
-				});
-			}
+					//If folder was empty before insert then restore empty template
+					if (was_empty) {
+						var temp = this.renderTemplate({'id': parent}, this.get('templateEmpty'));
+						temp.setData('itemId', parent);
+						new_slide_content.empty().append(temp);
+					}
+					
+					//Update slide scrollbars
+					if (prev_slide_content) prev_slide_content.fire('contentResize');
+					if (new_slide_content) new_slide_content.fire('contentResize');
+					
+					//Trigger folder move
+					this.fire('folderMove', {
+						'id': id,
+						'newParent': previous_parent,
+						'prevParent': parent
+					});
+					
+					//Trigger folder move
+					this.fire('folderMoveComplete', {
+						'id': id,
+						'newParent': previous_parent,
+						'prevParent': parent
+					});
+					
+				}, this);
 			
 			return moved;
 		},
@@ -367,49 +382,59 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @param {Function} callback Callback function
 		 * @param {Object} context Callback function context
 		 */
-		deleteSelectedItem: function (callback, context) {
-			var item = this.getSelectedItem();
+		deleteSelectedItem: function () {
+			var item = this.getSelectedItem(),
+				deferred = null;
+			
 			if (item) {
-				var data_object = this.get('dataObject'),
-					item_id = item.id,
-					node = this.getItemNode(item_id),
-					parent_id = item.parent,
-					parent_slide = null,
-					parent_data = null;
+				var data = this.get('data'),
+					id = item.id,
+					node = this.getItemNode(id),
+					parent_id = item.parent;
 				
-				//Send request to server
-				data_object.saveDeleteData(item_id, Y.bind(function () {
-					
-					//Remove all data
-					data_object.removeData(item_id, true);
-					
-					//If item is opened, then open parent and redraw list
-					if (this.slideshow.isInHistory('slide_' + item_id)) {
-						this.open(parent_id);
-					}
-					
-					parent_slide = this.slideshow.getSlide('slide_' + parent_id)
-					if (parent_slide) {
-						parent_data = data_object.getData(parent_id);
+				//Only hide item, because request may fail
+				node.addClass('hidden');
+				
+				//If item is opened, then open parent and redraw list
+				if (this.slideshow.isInHistory('slide_' + id)) {
+					this.open(parent_id);
+				}
+				
+				deferred = data.remove(id);
+				deferred
+					.done(function () {
+						var node = this.getItemNode(id),
+							parent_slide = this.slideshow.getSlide('slide_' + parent_id),
+							parent_data = null;
 						
-						if (!parent_data || !parent_data.children_count) {
-							this.renderItem(parent_id);
-						} else {
-							//Remove node
-							node.remove();
+						if (parent_slide) {
+							parent_data = data.cache.one(parent_id);
 							
-							//Update scrollbars
-							parent_slide.one('.su-slide-content, .su-multiview-slide-content').fire('contentResize');
+							if (!parent_data || !parent_data.children_count) {
+								this.renderItem(parent_id);
+							} else {
+								//Remove node
+								if (node) {
+									node.remove();
+								}
+								
+								//Update scrollbars
+								parent_slide.one('.su-slide-content, .su-multiview-slide-content').fire('contentResize');
+							}
 						}
-					}
-					
-					if (Y.Lang.isFunction(callback)) {
-						callback.call(context || this);
-					}
-					
-				}, this));
+						
+					}, this)
+					.fail(function () {
+						var node = this.getItemNode(id);
+						node.removeClass('hidden');
+					}, this);
+				
+			} else {
+				deferred = new Supra.Deferred();
+				deferred.reject();
 			}
-			return this;
+			
+			return deferred.promise();
 		},
 		
 		/**
@@ -430,7 +455,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			
 			//Add plugin for editing files and folders
 			this.plug(List.Edit, {
-				'dataObject': this.get('dataObject')
+				'data': this.get('data')
 			});
 			
 			//Add plugin for folder drag and drop
@@ -438,10 +463,12 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			
 			//Add plugin for editing images
 			this.plug(List.ImageEditor, {
-				'dataObject': this.get('dataObject'),
+				'data': this.get('data'),
 				'rotateURI': this.get('imageRotateURI'),
 				'cropURI': this.get('imageCropURI')
 			});
+			
+			this.open(this.get('rootFolderId'));
 		},
 		
 		/**
@@ -497,7 +524,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			target.all('li').removeClass('selected');
 			
 			//Scroll to slide
-			this.open(id);
+			if (this.getOpenedItem().id != id) {
+				this.open(id);
+			}
 		},
 		
 		/**
@@ -507,7 +536,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @private
 		 */
 		handleDownloadClick: function (event /* Event */) {
-			var uri = this.get('downloadURI'),
+			var uri = this.get('data').get('downloadURI'),
 				item = this.getSelectedItem();
 			
 			//Add 'id' to the uri
@@ -555,7 +584,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 						img_node.ancestor().removeClass('loading');
 					});
 					img_node.setAttribute('src', src + '?r=' + (+new Date()));
-				} else if (data.type === Data.TYPE_FILE) {
+				} else if (data.type === List.TYPE_FILE) {
 					// File icon
 					img_node.ancestor().addClass('loading');
 					img_node.once('load', function () {
@@ -573,13 +602,13 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			}
 			
 			// Reload image source in file list
-			if (data.type === Data.TYPE_IMAGE) {
+			if (data.type === List.TYPE_IMAGE) {
 				var item_node = this.getItemNode(data.id);
 				if (item_node) {
 					item_node.removeClass('type-broken');
 					item_node.one('a').set('innerHTML', '<img src="' + data.thumbnail + '?r=' + (+new Date()) + '" " alt="" />');
 				}
-			} else if (data.type === Data.TYPE_FILE) {
+			} else if (data.type === List.TYPE_FILE) {
 				var item_node = this.getItemNode(data.id);
 				if (item_node) {
 					item_node.removeClass('type-broken');
@@ -599,16 +628,11 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		reloadFolder: function (folder) {
 			//Reload file list
-			var data_object = this.get('dataObject'),
-				parent = data_object.getData(folder).parent,
-				children = data_object.getChildrenData(folder);
+			var data = this.get('data'),
+				parent = data.cache.one(folder).parent,
+				children = data.cache.all(folder);
 			
-			for(var i=0,ii=children.length; i<ii; i++) {
-				data_object.removeData(children[i].id);
-			}
-			
-			//Remove children data
-			delete(data_object.dataIndexed[folder].children);
+			data.purge(folder);
 			
 			//Remove slide
 			this.slideshow.removeSlide('slide_' + folder);
@@ -649,14 +673,12 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 * @private
 		 */
 		handleItemRender: function (event /* Event */) {
-			if (event.type == Data.TYPE_IMAGE || event.type == Data.TYPE_FILE) {
+			if (event.type == List.TYPE_IMAGE || event.type == List.TYPE_FILE) {
 				var node = event.node,
-					inp = this.property_widgets;
+					inp = {};
 				
-				for(var i in inp) {
-					inp[i].destroy();
-				}
-				inp = {};
+				//Clean up
+				this.removePropertyWidgets();
 				
 				//Create buttons
 				var buttons = node.all('button'),
@@ -707,12 +729,13 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
-		 * Get file or image form property widgets
+		 * Returns true if item is already opened
 		 * 
-		 * @return Property widgets
+		 * @param {String} id Item id
+		 * @returns {Boolean} True if item is opened
 		 */
-		getPropertyWidgets: function () {
-			return this.property_widgets;
+		isOpened: function (id) {
+			return this.slideshow.isInHistory('slide_' + id);
 		}
 		
 	}, {});

@@ -101,10 +101,6 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 				//Show "Insert" button
 				'allowInsert': true,
 				
-				//Because of drag and drop we need to load sizes and descriptions
-				//when loading all images in the folder, not only when opening image
-				'loadItemProperties': ['sizes', 'description'],
-				
 				//Allow selecting files and images
 				'imagesSelectable': false,
 				'filesSelectable': false
@@ -193,19 +189,10 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 		},
 		
 		/**
-		 * Returns item data
-		 * 
-		 * @param {Object} id File, image or folder ID
-		 * @return Item data
-		 * @type {Object}
+		 * Returns item data object
 		 */
-		getData: function (id /* File, image or folder ID */) {
-			var data = this.medialist.get('dataObject').getData(id);
-			if (data && data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
-				data = Supra.mix({}, data);
-				data.children = this.medialist.get('dataObject').getChildrenData(id);
-			}
-			return data;
+		dataObject: function () {
+			return this.medialist.get('data');
 		},
 		
 		/**
@@ -224,6 +211,7 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			
 			//Retore editor toolbar
 			if (this.options.retoreEditorToolbar) {
+				this.options.retoreEditorToolbar = false;
 				Manager.getAction('EditorToolbar').execute();
 			}
 		},

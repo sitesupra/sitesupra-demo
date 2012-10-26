@@ -8,7 +8,7 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 	/*
 	 * Shortcuts
 	 */
-	var TYPE_FOLDER = Supra.MediaLibraryData.TYPE_FOLDER;
+	var TYPE_FOLDER = Supra.MediaLibraryList.TYPE_FOLDER;
 	
 	/**
 	 * Add drag and drop support from media library to other actions
@@ -128,9 +128,13 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 					if (parent === '0') {
 						parent = 0;
 					}
-					if (this.get('host').moveFolder(id, parent)) {
-						this.get('host').open(parent);
-					}
+					Y.later(1, this, function () {
+						if (this.get('host').moveFolder(id, parent)) {
+							var path = this.get('host').get('data').getPath(parent);
+							path.push(parent);
+							this.get('host').open(path);
+						}
+					});
 				}
 			}
 		},

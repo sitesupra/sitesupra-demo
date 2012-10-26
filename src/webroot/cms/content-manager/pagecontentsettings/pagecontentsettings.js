@@ -51,7 +51,7 @@ Supra(function (Y) {
 		form: null,
 		
 		// Editor toolbar was visible
-		open_toolbar_on_hide: false,
+		open_toolbar_on_hide: [],
 		
 		// Set page button visibility
 		tooglePageButtons: function (visible) {
@@ -87,13 +87,14 @@ Supra(function (Y) {
 			//Hide buttons
 			//Sometimes we don't want to hide buttons if sidebar is hidden only temporary
 			if (!keepToolbarButtons) {
-				Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-				Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+				Manager.getAction('PageToolbar').unsetActiveAction(this.options.toolbarActionName);
+				Manager.getAction('PageButtons').unsetActiveAction(this.options.toolbarActionName);
 			}
 			
 			//Hide form
 			if (this.form) {
-				if (!keepToolbarButtons && this.open_toolbar_on_hide) {
+				var open_toolbar_on_hide = this.open_toolbar_on_hide.pop();
+				if (!keepToolbarButtons && open_toolbar_on_hide) {
 					Manager.EditorToolbar.execute();
 				}
 				
@@ -101,7 +102,6 @@ Supra(function (Y) {
 				this.form.hide();
 				this.form = null;
 				this.options = null;
-				this.open_toolbar_on_hide = false;
 			}
 			
 		},
@@ -135,6 +135,7 @@ Supra(function (Y) {
 				'doneCallback': null,
 				'hideCallback': null,
 				'hideEditorToolbar': false,
+				'toolbarActionName': this.NAME,
 				
 				'properties': null,		//Properties class instance
 				'scrollable': false,
@@ -146,8 +147,8 @@ Supra(function (Y) {
 			
 			if (!options.first_init) {
 				//Show buttons
-				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
-				Manager.getAction('PageButtons').setActiveAction(this.NAME);
+				Manager.getAction('PageToolbar').setActiveAction(options.toolbarActionName);
+				Manager.getAction('PageButtons').setActiveAction(options.toolbarActionName);
 			}
 			
 			//Set form
@@ -163,11 +164,13 @@ Supra(function (Y) {
 						toolbar_currenly_visible = Manager.EditorToolbar.get('visible');
 					
 					//Store if editor toolbar should be shown when properties form is closed
-					this.open_toolbar_on_hide = has_html_inputs; // && toolbar_currenly_visible;
+					this.open_toolbar_on_hide.push(has_html_inputs);
 					
 					if (toolbar_currenly_visible) {
 						Manager.EditorToolbar.hide();
 					}
+				} else {
+					this.open_toolbar_on_hide.push(false);
 				}
 				
 				//Scrollable

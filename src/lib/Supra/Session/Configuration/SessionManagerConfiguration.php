@@ -39,6 +39,12 @@ class SessionManagerConfiguration implements ConfigurationInterface
 	public $sessionExpirationTime;
 
 	/**
+	 * If set to true, cookie will be sent in HTTPS only
+	 * @var boolean
+	 */
+	public $secure = false;
+
+	/**
 	 * Adds PHP namespace (a string) to list of namespaces that will be registered in object repository for this session namespace.
 	 * @param string $namespace 
 	 */
@@ -54,6 +60,10 @@ class SessionManagerConfiguration implements ConfigurationInterface
 
 		if ( ! empty($this->name)) {
 			$handler->setSessionName($this->name);
+		}
+
+		if ($handler instanceof \Supra\Session\Handler\PhpSessionHandler) {
+			$handler->setSecureOnlySession($this->secure);
 		}
 
 		$sessionManager = new SessionManager($handler);

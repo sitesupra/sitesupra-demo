@@ -26,7 +26,7 @@ interface AuthorizedEntityInterface
 	/**
 	 * @return string;
 	 */
-	public function getAuthorizationClass();
+	public static function getAuthorizationClass();
 	
 	/**
 	 * @param boolean $includeSelf

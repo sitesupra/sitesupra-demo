@@ -22,6 +22,13 @@ class PhpSessionHandler extends HandlerAbstraction
 	/**
 	 * Session expiration time in seconds
 	 */
+	
+	/**
+	 * Defines, weither sessionId cookie will be sent only via ssl connection
+	 * @var boolean
+	 */
+	private $secureOnly = false;
+
 
 	const SESSION_EXPIRATION_TIME = 0;
 
@@ -31,6 +38,12 @@ class PhpSessionHandler extends HandlerAbstraction
 	 */
 	private function startPhpSession()
 	{
+		//FIXME: Working with global variables directly. Should have request object.
+		if ($this->secureOnly && (empty($_SERVER['HTTPS']) || strcasecmp($_SERVER['HTTPS'], 'off') === 0)) {
+			$this->sessionStatus = self::SESSION_COULD_NOT_START;
+			throw new Exception\CouldNotStartSession("Session marked as secure");
+		}
+
 		if (self::$phpSessionOpened === null) {
 
 			if (empty($this->sessionName)) {
@@ -39,7 +52,7 @@ class PhpSessionHandler extends HandlerAbstraction
 				session_name($this->sessionName);
 			}
 
-			session_set_cookie_params(self::SESSION_EXPIRATION_TIME);
+			session_set_cookie_params(self::SESSION_EXPIRATION_TIME, '/', null, $this->secureOnly);
 
 			$success = false;
 
@@ -228,6 +241,16 @@ class PhpSessionHandler extends HandlerAbstraction
 
 		session_destroy();
 		parent::destroy();
+	}
+	
+	/**
+	 * Defines the ssl-only session cookie flag
+	 * 
+	 * @param boolean $secureSession
+	 */
+	public function setSecureOnlySession($secureOnly)
+	{
+		$this->secureOnly = ($secureOnly == true);
 	}
 
 }

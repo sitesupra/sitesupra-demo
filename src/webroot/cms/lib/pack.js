@@ -686,8 +686,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 		skinnable: true
 	},
 	
-	'supra.medialibrary-data': {
-		path: 'medialibrary/data.js',
+	'supra.medialibrary-data-object': {
+		path: 'medialibrary/dataobject.js',
 		requires: [
 			'attribute',
 			'array-extras'
@@ -699,7 +699,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: [
 			'widget',
 			'supra.slideshow',
-			'supra.medialibrary-data'
+			'supra.medialibrary-data-object'
 		]
 	},
 	
@@ -3823,6 +3823,8 @@ YUI.add('supra.base', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	var KEY_ESCAPE = 27;
+	
 	var ARROW_CLASSNAMES = {
 		'L': 'left',
 		'R': 'right',
@@ -3907,6 +3909,13 @@ YUI.add('supra.base', function (Y) {
 		 * Automatically close when clicked outside
 		 */
 		autoClose: {
+			value: false
+		},
+		
+		/**
+		 * Close when user presses return key
+		 */
+		closeOnEscapeKey: {
 			value: false
 		},
 		
@@ -4317,7 +4326,7 @@ YUI.add('supra.base', function (Y) {
 		renderUI: function () {
 			Panel.superclass.renderUI.apply(this, arguments);
 			
-			this.get('contentBox').removeClass('hidden');
+			this.get('contentBox').removeClass('hidden').setAttribute('tabindex', 0);
 			
 			if (this.get('closeVisible')) {
 				this._setCloseVisible(true);
@@ -4371,6 +4380,8 @@ YUI.add('supra.base', function (Y) {
 					delete(this._fade_anim);
 				}
 			});
+			
+			this.get('contentBox').on('keydown', this.onKeyDown, this);
 		},
 		
 		syncUI: function () {
@@ -4381,6 +4392,17 @@ YUI.add('supra.base', function (Y) {
 			var position = this.get('alignPosition');
 			if (position) {
 				this._setAlignPosition(position);
+			}
+		},
+		
+		/**
+		 * Handle key down
+		 * 
+		 * @private 
+		 */
+		onKeyDown: function (e) {
+			if (e.keyCode == KEY_ESCAPE && this.get('closeOnEscapeKey')) {
+				this.hide();
 			}
 		},
 		
@@ -4427,6 +4449,8 @@ YUI.add('supra.base', function (Y) {
 					this._on_click = Y.one(document).on('click', this.validateClick, this);
 				}
 			});
+			
+			this.get('contentBox').focus();
 			
 			return this;
 		},
@@ -6533,6 +6557,8 @@ YUI().add("supra.io-css", function (Y) {
 			if (!this.get('srcNode').compareTo(input)) {
 				this.on('valueChange', this._afterValueChange, this);
 			}
+			
+			this.on('input', this._onWidgetInputEvent, this);
 		},
 		
 		/**
@@ -6598,6 +6624,7 @@ YUI().add("supra.io-css", function (Y) {
 			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
 				input.set('value', this._original_value);
 				input.blur();
+				this.fire('input', {'value': this._original_value});
 				this.fire('reset');
 			}
 		},
@@ -6642,6 +6669,16 @@ YUI().add("supra.io-css", function (Y) {
 			}
 			
 			this._original_value = this.get('value');
+		},
+		
+		_onWidgetInputEvent: function (e) {
+			var value = e.value;
+			
+			if (value) {
+				this.get('boundingBox').removeClass(this.getClassName('empty'));
+			} else {
+				this.get('boundingBox').addClass(this.getClassName('empty'));
+			}
 		},
 		
 		renderUI: function () {
@@ -6717,8 +6754,13 @@ YUI().add("supra.io-css", function (Y) {
 				this.get('boundingBox').addClass(this.getClassName('empty'));
 			}
 			
-			this._last_value = value;
 			this._original_value = value;
+			
+			if (this._last_value != value) {
+				this._last_value = value;
+				this.fire('input', {'value': value});
+			}
+			
 			return value;
 		},
 		
@@ -11193,6 +11235,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				ancestor.setAttribute("unselectable", "on");
 				
 				var data = this.getImageDataFromNode(image);
+				if (!data) {
+					// This image is not associated with any data,
+					// there's nothing we can do about it
+					return;
+				}
 				
 				if (data.style) {
 					ancestor.addClass(data.style);
@@ -11540,19 +11587,19 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (!Manager.MediaSidebar) return true;
 			
 			var htmleditor = this.htmleditor,
-				image_data = Manager.MediaSidebar.getData(image_id);
+				dataObject = Manager.MediaSidebar.dataObject(),
+				image_data = dataObject.cache.one(image_id);
 			
-			if (image_data.type != Supra.MediaLibraryData.TYPE_IMAGE) {
+			if (image_data.type != Supra.MediaLibraryList.TYPE_IMAGE) {
 				//Only handling images; folders should be handled by gallery plugin 
 				return false;
 			}
 			
-			if (!image_data.sizes) {
-				//Data not loaded yet, wait till it finishes
-				Manager.MediaSidebar.medialist.get("dataObject").once("load:complete:" + image_id, function () {
+			if (dataObject.has(image_id) != 2) {
+				// Load full data for image
+				dataObject.one(image_id, true).done(function () {
 					this.dropImage(target, image_id);
 				}, this);
-				
 				return true;
 			}
 			
@@ -11982,9 +12029,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (!Manager.MediaSidebar) return true;
 			
 			var htmleditor = this.htmleditor,
-				folder_data = Manager.MediaSidebar.getData(gallery_id, true);
+				dataObject = Manager.MediaSidebar.dataObject(),
+				folder_data = dataObject.cache.one(gallery_id);
 			
-			if (!folder_data || folder_data.type != Supra.MediaLibraryData.TYPE_FOLDER) {
+			if (!folder_data || folder_data.type != Supra.MediaLibraryList.TYPE_FOLDER) {
 				//Only handling folders; images should be handled by image plugin 
 				return;
 			}
@@ -11993,39 +12041,61 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (e.halt) e.halt();
 			
 			var image_data = [],
-				image;
+				loaded = 0,
+				count  = 0;
 			
-			//Get first image data
-			for(var i in folder_data.children) {
-				image = folder_data.children[i];
-				if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-					image_data.push(folder_data.children[i]);
+			var checkComplete = Y.bind(function () {
+				if (count && loaded == count) {
+					if (Manager.PageContent) {
+						this.insertGalleryBlock(image_data);
+					}
 				}
-			}
+			}, this);
 			
-			//No images in gallery
-			if (!image_data.length) return;
-			
-			//Get list
-			if (Manager.PageContent) {
-				this.insertGalleryBlock(image_data);
-			}
+			//Load all image data
+			dataObject.all(gallery_id).done(function (images) {
+				
+				var loadDone = function (image) {
+					image_data.push(image);
+					loaded++;
+					checkComplete();
+				};
+				var loadFail = function () {
+					count--;
+					checkComplete();
+				};
+				
+				for(var i=0, ii=images.length; i<ii; i++) {
+					if (images[i].type == Supra.MediaLibraryList.TYPE_IMAGE) {
+						count++;
+						dataObject.one(images[i].id, true).done(loadDone).fail(loadFail);
+					}
+				}
+				
+				checkComplete();
+				
+			}, this);
 			
 			return false;
 		},
 		
 		insertGalleryBlock: function (images) {
-			var list = Manager.PageContent.getContent().get('activeChild').get('parent'),
+			var content = Manager.PageContent.getContent().get('activeChild'),
+				list = content.get('parent'),
 				gallery_block_id = this.configuration.galleryBlockId;
 			
 			//If list is closed or gallery is not a valid child type then cancel
 			if (list.isClosed() || !list.isChildTypeAllowed(gallery_block_id)) return;
+			
+			//Save and close current block
+			content.fire('editing-end');
 			
 			//Insert block
 			list.get('super').getBlockInsertData({
 				'type': gallery_block_id,
 				'placeholder_id': list.getId()
 			}, function (data) {
+				Manager.PageToolbar.setActiveAction("Page");
 				this.createChildFromData(data);
 					
 				//Add images to gallery block

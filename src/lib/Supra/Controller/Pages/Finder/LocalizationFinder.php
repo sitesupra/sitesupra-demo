@@ -120,16 +120,14 @@ class LocalizationFinder extends AbstractFinder
 
 	public function setLocale($locale)
 	{
+		if ($locale instanceof Locale) {
+			$locale = $locale->getId();
+		}
 		$this->locale = $locale;
 	}
 
-	/**
-	 * Filter out localizations only
-	 * @return array
-	 */
-	public function getResult()
+	protected function filterResult($result)
 	{
-		$result = parent::getResult();
 		$localizationResult = array();
 
 		foreach ($result as $entity) {

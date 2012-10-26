@@ -302,15 +302,16 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 					
 				case 'mlfolder':
 					
-					var folder = this.medialist.getSelectedFolder() || {'id': 0};
+					var folder = this.medialist.getSelectedFolder() || {'id': 0},
+						item   = this.medialist.getSelectedItem();
 					
 					//Close any opened image or file
-					if (this.medialist.getSelectedItem()) {
+					if (item.id != folder.id) {
 						this.medialist.open(folder.id);
 					}
 					
 					//Add folder
-					this.medialist.addFolder(null, '');
+					this.medialist.addFolder(folder.id, '');
 					
 					break;
 					
@@ -319,7 +320,7 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 					var button = Manager.PageToolbar.getActionButton('mldelete');
 					button.set('loading', true);
 					
-					this.medialist.deleteSelectedItem(function () {
+					this.medialist.deleteSelectedItem().always(function () {
 						button.set('loading', false);
 					});
 					break;
@@ -366,16 +367,16 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			
 			if (evt) {
 				id = evt.newVal.replace('slide_', '');
-				data = this.medialist.get('dataObject').getData(id);
+				data = this.medialist.get('data').cache.one(id);
 			} else {
 				data = this.medialist.getSelectedFolder();
 				id = data.id;
 			}
 			
-			if (data && Supra.MediaLibraryData.TYPE_FOLDER == data.type) {
+			if (data && Supra.MediaLibraryList.TYPE_FOLDER == data.type) {
 				if (data['private']) {
 					if (data.parent) {
-						if (this.medialist.get('dataObject').isFolderPrivate(data.parent)) {
+						if (this.medialist.isFolderPrivate(data.parent)) {
 							//If parent is private, can't change folder state
 							//Disable buttons
 							buttons.mlprivate.set('disabled', true);

@@ -138,6 +138,15 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 
 		$transaction->addToParameters(Dengi\PaymentProvider::PHASE_NAME_STATUS_ON_RETURN, $parameters);
 
+		$request = $this->getRequest();
+		list($action) = $request->getActions(1);
+
+		if ($action == Dengi\RequestController::DENGI_FAILURE) {
+			$transaction->setStatus(TransactionStatus::FAILED);
+		} else {
+			//
+		}
+
 		$orderProvider->store($order);
 
 		$this->returnToShop($order);
