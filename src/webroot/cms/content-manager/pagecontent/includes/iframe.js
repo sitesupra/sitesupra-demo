@@ -187,7 +187,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.contents.render();
 			
 			//Disable editing
-			var path = Root.router.getPath(),
+			var path = Root.getRoutePath(),
 				editing = Root.ROUTE_PAGE_EDIT_R.test(path) || Root.ROUTE_PAGE_CONT_R.test(path);
 			
 			if (!editing) {
