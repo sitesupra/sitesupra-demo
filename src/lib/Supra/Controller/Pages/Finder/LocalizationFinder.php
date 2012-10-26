@@ -126,13 +126,8 @@ class LocalizationFinder extends AbstractFinder
 		$this->locale = $locale;
 	}
 
-	/**
-	 * Filter out localizations only
-	 * @return array
-	 */
-	public function getResult()
+	protected function filterResult($result)
 	{
-		$result = parent::getResult();
 		$localizationResult = array();
 
 		foreach ($result as $entity) {

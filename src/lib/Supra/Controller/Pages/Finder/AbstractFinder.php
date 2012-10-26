@@ -78,11 +78,63 @@ abstract class AbstractFinder
 	
 	abstract protected function doGetQueryBuilder();
 	
-	public function getResult()
+	public final function getResult()
 	{
 		$query = $this->getQueryBuilder()
 				->getQuery();
-		
-		return $query->getResult();
+
+		$result = $query->getResult();
+		$filteredResult = $this->filterResult($result);
+
+		return $filteredResult;
+	}
+
+	/**
+	 * @param array $result
+	 * @return array
+	 */
+	protected function filterResult($result)
+	{
+		return $result;
+	}
+
+	public function getTotalCount($qb, $groupBy)
+	{
+		$qb = $this->getQueryBuilder();
+		$qbTotal = clone($qb);
+		/* @var $qbTotal QueryBuilder */
+
+		$totalCount = $qbTotal->select('COUNT(DISTINCT ' . $groupBy . ') as cnt')
+				->getQuery()
+				->getSingleScalarResult();
+
+		return $totalCount;
+	}
+
+	public function getPaginatorResult($qb, $groupBy, $limit, $offset = 0)
+	{
+		$qb = clone($qb);
+		/* @var $qb QueryBuilder */
+		$qbDistinct = clone($qb);
+		/* @var $qbDistinct QueryBuilder */
+
+		$ids = $qbDistinct->select('DISTINCT ' . $groupBy)
+				->setMaxResults($limit)
+				->setFirstResult($offset)
+				->getQuery()
+				->getResult(\Supra\Database\Doctrine\Hydrator\ColumnHydrator::HYDRATOR_ID);
+
+		if ( ! empty($ids)) {
+			$result = $qb->andWhere($qb->expr()->in($groupBy, ':paginatorIdList'))
+					->setParameter('paginatorIdList', $ids, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+					->getQuery()
+					->getResult();
+		} else {
+			$result = array();
+		}
+
+		$filteredResult = $this->filterResult($result);
+
+		return $filteredResult;
 	}
 }
