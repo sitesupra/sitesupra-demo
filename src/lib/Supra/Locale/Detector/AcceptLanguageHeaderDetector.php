@@ -55,17 +55,23 @@ class AcceptLanguageHeaderDetector extends DetectorAbstraction
 
 			foreach ($acceptList as $accept) {
 				$matches = null;
-				preg_match('/([a-z]+)(\-([a-z]+))?(\s*;\s*q=([0-9\.]+))?/i', $accept, $matches);
+				$isValid = preg_match('/([a-z]+)(\-([a-z]+))?(\s*;\s*q=([0-9\.]+))?/i', $accept, $matches);
 
-				$language = $matches[1];
-				$country = $matches[3];
-				$qValue = $this->parseLanguageQuality($matches[5]);
+				if ($isValid) {
 
-				$accepts[] = array(
-					'language' => $language,
-					'country' => $country,
-					'quality' => $qValue
-				);
+					// Fill missing indeces with nulls
+					$matches = $matches + array_fill(0, 6, null);
+
+					$language = $matches[1];
+					$country = $matches[3];
+					$qValue = $this->parseLanguageQuality($matches[5]);
+
+					$accepts[] = array(
+						'language' => $language,
+						'country' => $country,
+						'quality' => $qValue
+					);
+				}
 			}
 
 			usort($accepts, array($this, 'sortByQuality'));

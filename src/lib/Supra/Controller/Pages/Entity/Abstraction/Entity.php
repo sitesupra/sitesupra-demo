@@ -161,7 +161,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	/**
 	 * @return string
 	 */
-	public function getAuthorizationClass()
+	public static function getAuthorizationClass()
 	{
 		return __CLASS__;
 	}

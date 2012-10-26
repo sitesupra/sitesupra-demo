@@ -26,7 +26,7 @@ use Supra\Controller\Pages\Exception\RuntimeException;
  * 		"group" = "Supra\Controller\Pages\Entity\GroupLocalization"
  * })
  */
-abstract class Localization extends Entity implements AuditedEntityInterface, TitleTrackingItemInterface
+abstract class Localization extends Entity implements AuditedEntityInterface, TitleTrackingItemInterface, LocalizationInterface
 {
 
 	const CHANGE_FREQUENCY_HOURLY = 'hourly';
@@ -768,16 +768,6 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 
 		return $previewUrl;
 	}
-
-	/**
-	 * 
-	 */
-	abstract static function getPreviewUrlForLocalizationAndRevision($localizationId, $revisionId);
-
-	/**
-	 * 
-	 */
-	abstract static function getPreviewFilenameForLocalizationAndRevision($localizationId, $revisionId);
 
 	/**
 	 * @return string
