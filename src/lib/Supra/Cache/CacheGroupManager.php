@@ -16,13 +16,13 @@ class CacheGroupManager
 	 * @var Cache
 	 */
 	private static $cache;
-	
+
 	/**
 	 * Local cache
 	 * @var array
 	 */
 	private static $localCache = array();
-	
+
 	/**
 	 * Constructor 
 	 */
@@ -32,41 +32,41 @@ class CacheGroupManager
 			self::$cache = ObjectRepository::getCacheAdapter($this);
 		}
 	}
-	
+
 	private function getCacheName($group)
 	{
 		return __CLASS__ . '_' . $group;
 	}
-	
+
 	public function getRevision($group)
 	{
 		if (isset(self::$localCache[$group])) {
 			return self::$localCache[$group];
 		}
-		
+
 		$cacheName = $this->getCacheName($group);
 		$value = self::$cache->fetch($cacheName);
-		
+
 		if ($value === false) {
 			$value = $this->resetRevision($group, $cacheName);
 		} else {
 			self::$localCache[$group] = $value;
 		}
-		
+
 		return $value;
 	}
-	
+
 	public function resetRevision($group)
 	{
 		$cacheName = $this->getCacheName($group);
 		$value = mt_rand();
 		self::$cache->save($cacheName, $value);
-		
+
 		self::$localCache[$group] = $value;
 
 		return $value;
 	}
-	
+
 	/**
 	 * Generates query result cache ID for the query dependent on one or more cache groups
 	 * @param Query $query
@@ -77,19 +77,26 @@ class CacheGroupManager
 		// Cache only for public schema
 		$em = $query->getEntityManager();
 		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
-		
+
 		if ($em !== $publicEm) {
 			return;
 		}
-		
+
 		$query->useResultCache(true);
-		
+
+		$parameters = array();
+		$parameterTypes = array();
+
+		foreach ($query->getParameters() as $parameter) {
+			/* @var $parameter Query\Parameter */
+			$parameters[$parameter->getName()] = $query->processParameterValue($parameter->getValue());
+			$parameterTypes[$parameter->getName()] = $parameter->getType();
+		}
+
 		$cacheProfile = $query->getQueryCacheProfile();
 		list($cacheKey, $realCacheKey) = $cacheProfile->generateCacheKeys(
-				$query->getSQL(), 
-				$query->getParameters(), 
-				$query->getParameterTypes());
-		
+				$query->getSQL(), $parameters, $parameterTypes);
+
 		// Add group revision now
 		$groups = (array) $groups;
 		sort($groups);
@@ -97,7 +104,7 @@ class CacheGroupManager
 			$revision = $this->getRevision($group);
 			$realCacheKey .= "&rev[$group]=$revision";
 		}
-		
+
 		// Hash it
 		$cacheKey = sha1($realCacheKey);
 		$query->setResultCacheId($cacheKey);
