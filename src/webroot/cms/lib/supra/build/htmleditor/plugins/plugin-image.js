@@ -368,6 +368,11 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				ancestor.setAttribute("unselectable", "on");
 				
 				var data = this.getImageDataFromNode(image);
+				if (!data) {
+					// This image is not associated with any data,
+					// there's nothing we can do about it
+					return;
+				}
 				
 				if (data.style) {
 					ancestor.addClass(data.style);
@@ -715,19 +720,19 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			if (!Manager.MediaSidebar) return true;
 			
 			var htmleditor = this.htmleditor,
-				image_data = Manager.MediaSidebar.getData(image_id);
+				dataObject = Manager.MediaSidebar.dataObject(),
+				image_data = dataObject.cache.one(image_id);
 			
-			if (image_data.type != Supra.MediaLibraryData.TYPE_IMAGE) {
+			if (image_data.type != Supra.MediaLibraryList.TYPE_IMAGE) {
 				//Only handling images; folders should be handled by gallery plugin 
 				return false;
 			}
 			
-			if (!image_data.sizes) {
-				//Data not loaded yet, wait till it finishes
-				Manager.MediaSidebar.medialist.get("dataObject").once("load:complete:" + image_id, function () {
+			if (dataObject.has(image_id) != 2) {
+				// Load full data for image
+				dataObject.one(image_id, true).done(function () {
 					this.dropImage(target, image_id);
 				}, this);
-				
 				return true;
 			}
 			

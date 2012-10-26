@@ -9,8 +9,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	/*
 	 * Shortcuts
 	 */
-	var Data = Supra.MediaLibraryData,
-		Template = Supra.Template;
+	var Template = Supra.Template;
 	
 	/*
 	 * HTML5 support
@@ -23,6 +22,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 */
 	function List (config) {
 		List.superclass.constructor.apply(this, arguments);
+		this.property_widgets = {};
 		this.init.apply(this, arguments);
 	}
 	
@@ -53,6 +53,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * @type {Number}
 	 */
 	List.DISPLAY_FILES = 3;
+	
+	/**
+	 * Item types
+	 */
+	List.TYPE_FOLDER = 1;
+	List.TYPE_IMAGE = 2;
+	List.TYPE_FILE = 3;
+	List.TYPE_TEMP = 4;
 	
 	
 	
@@ -225,61 +233,6 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		
 	
 	List.ATTRS = {
-		/**
-		 * URI for save requests
-		 * @type {String}
-		 */
-		'saveURI': {
-			value: ''
-		},
-		
-		/**
-		 * URI for folder insert requests
-		 * @type {String}
-		 */
-		'insertURI': {
-			value: ''
-		},
-		
-		/**
-		 * URI for folder delete requests
-		 * @type {String}
-		 */
-		'deleteURI': {
-			value: ''
-		},
-		
-		/**
-		 * Request URI for image or file
-		 * @type {String}
-		 */
-		'viewURI': {
-			value: null
-		},
-		
-		/**
-		 * Request URI for folder, image or file list
-		 * @type {String}
-		 */
-		'listURI': {
-			value: null
-		},
-		
-		/**
-		 * Request URI for downloading, image or file
-		 * @type {String}
-		 */
-		'downloadURI': {
-			value: null
-		},
-		
-		/**
-		 * Request URI for folder move
-		 * @type {String}
-		 */
-		'moveURI': {
-			value: null
-		},
 		
 		/**
 		 * Root folder ID
@@ -330,10 +283,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
-		 * Media library data object, Supra.MediaLibraryData instance
-		 * @type {Object}
+		 * Media library data, Supra.DataObject.Data instance
 		 */
-		'dataObject': {
+		'data': {
 			value: null
 		},
 		
@@ -431,6 +383,13 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	Y.extend(List, Y.Widget, {
 		
 		/**
+		 * Image and file property inputs
+		 * @type {Object}
+		 * @private
+		 */
+		property_widgets: {},
+		
+		/**
 		 * Supra.Slideshow instance
 		 * @type {Object}
 		 * @private
@@ -464,42 +423,12 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @private
 		 */
 		renderUI: function () {
-			//Create data object
-			var data = this.get('dataObject');
-			if (!data) {
-				data = new Data({
-					'listURI': this.get('listURI'),
-					'viewURI': this.get('viewURI'),
-					'saveURI': this.get('saveURI'),
-					'moveURI': this.get('moveURI'),
-					'insertURI': this.get('insertURI'),
-					'deleteURI': this.get('deleteURI')
-				});
-				
-				data.setRequestParam(Data.PARAM_DISPLAY_TYPE, this.get('displayType') || List.DISPLAY_ALL);
-				this.set('dataObject', data);
-			} else {
-				if (this.get('displayType') !== null) {
-					data.setRequestParam(Data.PARAM_DISPLAY_TYPE, this.get('displayType') || List.DISPLAY_ALL);
-				}
-			}
 			
-			//Create "Sort by" widget, extended media list creates its own sorting widget
-			if (!this.isInstanceOf('medialist-extended')) {
-				var input = this.input_sortby = new Supra.Input.SelectList({
-					'label': Supra.Intl.get(['medialibrary', 'sort_by']),
-					'values': [
-						{'id': 'filename', 'title': Supra.Intl.get(['medialibrary', 'sort_az'])},
-						{'id': 'id', 'title': Supra.Intl.get(['medialibrary', 'sort_date'])}
-					],
-					'value': 'filename'
-				});
-				input.render(this.get('boundingBox'));
-				input.addClass('input-sortby');
-				input.on('change', function (event) {
-					this.set('sortBy', event.value);
-				}, this);
-			}
+			// Create data object
+			this._setDataObject(this.get('displayType'));
+			
+			//Create "Sort by" widget
+			this.renderUISortSwitch();
 			
 			//Create slideshow
 			var slideshowClass = this.get('slideshowClass');
@@ -507,11 +436,112 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				'srcNode': this.get('contentBox'),
 				'animationDuration': 0.35
 			})).render();
+		},
+		
+		/**
+		 * Test if item data is complete
+		 * 
+		 * @param {Object} item Item data which will be tested
+		 * @returns {Boolean} True if all item data is loaded, otherwise false
+		 * @private
+		 */
+		isItemDataComplete: function (item) {
+			if (item.type === List.TYPE_FILE) {
+				return 'file_web_path' in item;
+			} else if (item.type === List.TYPE_IMAGE) {
+				return 'sizes' in item;
+			} else if (item.type === List.TYPE_TEMP) {
+				return true;
+			}
+			return false;
+		},
+		
+		/**
+		 * Handle data add event
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} item Item data
+		 * @private
+		 */
+		_dataAdd: function (event, item) {
+			//Nothing here
+		},
+		
+		/**
+		 * Handle data remove event
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} item Item data
+		 * @private
+		 */
+		_dataRemove: function (event, item) {
+			//Nothing here
+		},
+		
+		/**
+		 * Handle data change event
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} item Item data
+		 * @private
+		 */
+		_dataChange: function (event, item, changes) {
+			if ('parent' in changes) {
+				this._dataRemove(event, changes);
+				this._dataAdd(event, item);
+				return;
+			}
 			
-			//Start loading data
-			Y.later(1, this, function () {
-				this.open(this.get('rootFolderId'));
+			this.uiViewUpdateItem(item, changes);
+		},
+		
+		/**
+		 * Update items UI based on changed data
+		 * 
+		 * @param {Object} item Item data
+		 * @param {Object} changes Properties which changed with old values
+		 * @private
+		 */
+		uiViewUpdateItem: function (item, changes) {
+			var node = this.getItemNode(item.id),
+				node_temp = null,
+				folder = item.type === List.TYPE_FOLDER;
+			
+			if (node) {
+				if ('filename' in changes) {
+					node_temp = node.one('.preview-title') || node.one('span');
+					if (node_temp) {
+						node_temp.set('text', item.filename);
+					}
+				}
+				if ('private' in changes && folder) {
+					node.toggleClass('type-folder-private', item.private);
+				}
+				if ('thumbnail' in changes && !folder) {
+					if (!item.broken && item.thumbnail) {
+						node.one('a img').setAttribute('src', item.thumnnail + '?t=' + (+new Date()));
+					}
+				}
+				if ('broken' in changes) {
+					node.toggleClass('type-broken', item.broken);
+				}
+			}
+		},
+		
+		renderUISortSwitch: function () {
+			var input = this.input_sortby = new Supra.Input.SelectList({
+				'label': Supra.Intl.get(['medialibrary', 'sort_by']),
+				'values': [
+					{'id': 'filename', 'title': Supra.Intl.get(['medialibrary', 'sort_az'])},
+					{'id': 'id', 'title': Supra.Intl.get(['medialibrary', 'sort_date'])}
+				],
+				'value': 'filename'
 			});
+			input.render(this.get('boundingBox'));
+			input.addClass('input-sortby');
+			input.on('change', function (event) {
+				this.set('sortBy', event.value);
+			}, this);
 		},
 		
 		/**
@@ -541,7 +571,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				target.siblings().removeClass('selected');
 				
 				//Scroll to slide
-				this.open(id);
+				if (this.getOpenedItem().id != id) {
+					this.open(id);
+				}
 			}, 'ul.folder > li', this);
 			
 			//Allow selecting files
@@ -633,14 +665,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				parent_data = null;
 			
 			if (parent == this.get('rootFolderId')) {
-				//Root folder doesn't have data in dataObject
+				//Root folder doesn't have data in data object
 				parent_id = parent;
 				parent_data = {'id': parent_id};
 			} else if (parent) {
 				parent_id = parent;
 				parent_data = this.getItemData(parent_id);
 				
-				if (!parent_data || parent_data.type != Data.TYPE_FOLDER) {
+				if (!parent_data || parent_data.type != List.TYPE_FOLDER) {
 					return false;
 				}
 			} else {
@@ -670,17 +702,17 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				var data = Supra.mix({
 					id: file_id,
 					parent: parent_id,
-					type: Supra.MediaLibraryData.TYPE_TEMP,
+					type: List.TYPE_TEMP,
 					filename: '',
 					thumbnail: null,
 					preview: null
 				}, data || {});
 				
 				//Add item to the file list
-				var data_object = this.get('dataObject');
+				var data_object = this.get('data');
 				
 				this.renderItem(parent_id, [data], true);
-				data_object.addData(parent_id, [data], true);
+				data_object.cache.add(data);
 				
 				return file_id;
 			}
@@ -691,28 +723,27 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		/**
 		 * Returns selected item data
 		 * 
-		 * @return Selected item data
-		 * @type {Object]
+		 * @returns {Object} Selected item data
 		 */
 		getSelectedItem: function () {
 			var item_id = this.slideshow.get('slide'),
-				data_object = this.get('dataObject'),
+				data_object = this.get('data'),
 				data;
 			
 			if (item_id) {
 				item_id = item_id.replace('slide_', '');
-				data = data_object.getData(item_id);
+				data = data_object.cache.one(item_id);
 				data = Supra.mix({
 					'path': data_object.getPath(item_id)
 				}, data);
 				
 				if (data) {
-					if (data.type == Data.TYPE_FOLDER && this.get('foldersSelectable')) {
+					if (data.type == List.TYPE_FOLDER && this.get('foldersSelectable')) {
 						return data;
-					} else if (data.type == Data.TYPE_FILE && (!this.get('filesSelectable') || this.file_selected)) {
+					} else if (data.type == List.TYPE_FILE && (!this.get('filesSelectable') || this.file_selected)) {
 						//If 'filesSelectable' is false, then file doesn't need to be selected by user
 						return data;
-					} else if (data.type == Data.TYPE_IMAGE && (!this.get('imagesSelectable') || this.image_selected)) {
+					} else if (data.type == List.TYPE_IMAGE && (!this.get('imagesSelectable') || this.image_selected)) {
 						//If 'filesSelectable' is false, then file doesn't need to be selected by user
 						return data;
 					}
@@ -724,8 +755,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		/**
 		 * Returns currently selected folder
 		 * 
-		 * @return Selected folder data
-		 * @type {Object}
+		 * @returns {Object} Selected folder data
 		 */
 		getSelectedFolder: function () {
 			var history = this.slideshow.getHistory(),
@@ -733,11 +763,23 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				folder_data = this.getItemData(item_id);
 			
 			while(folder_data) {
-				if (folder_data.type == Data.TYPE_FOLDER) return folder_data;
+				if (folder_data.type == List.TYPE_FOLDER) return folder_data;
 				folder_data = this.getItemData(folder_data.parent);
 			}
 			
 			return null;
+		},
+		
+		/**
+		 * Returns currently opened item
+		 * 
+		 * @returns {Object} Opened item data
+		 */
+		getOpenedItem: function () {
+			var history = this.slideshow.getHistory(),
+				item_id = String(history[history.length - 1]).replace('slide_', '');
+			
+			return this.getItemData(item_id);
 		},
 		
 		/**
@@ -773,10 +815,10 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				item_id = slide_id.replace('slide_', '');
 				if (item_id == id) {
 					var item_data = this.getItemData(item_id);
-					if (item_data.type == Data.TYPE_FILE) {
+					if (item_data.type == List.TYPE_FILE) {
 						this.file_selected = true;
 						this.fire('select', {'data': item_data});
-					} else if (item_data.type == Data.TYPE_IMAGE) {
+					} else if (item_data.type == List.TYPE_IMAGE) {
 						this.image_selected = true;
 						this.fire('select', {'data': item_data});
 					}
@@ -798,7 +840,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 */
 		setPrivateState: function (id, force) {
 			var item = null,
-				data_object = this.get('dataObject');
+				data = this.get('data');
 			
 			//Get item data
 			if (!id) {
@@ -806,49 +848,73 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				if (item) id = item.id;
 				if (!id) return this;
 			} else {
-				item = data_object.getData(id);
+				item = data.cache.one(id);
 				if (!item) return this;
 			}
 			
 			//If nothing changed then skip
 			force = Number(force);
-			if (force == item['private']) return this;
+			if (force == item.private) return this;
 			
 			//If parent is private, then folder is private and can't be changed to public
-			if (item.parent && data_object.isFolderPrivate(item.parent)) {
+			if (item.parent && this.isFolderPrivate(item.parent)) {
 				return this;
 			}
 			
-			//Update data
-			data_object.setFolderPrivate(id, force, Y.bind(function (status) {
-				if (!status) {
-					//Revert visual changes
-					this.updatePrivateStateUI(id, !force);
-					
-					//Revert toolbar button
-					var action = Supra.Manager.getAction('MediaLibrary');
-					if (action.get('created') && action.onItemChange) {
-						action.onItemChange();
-					}
-				}
-			}, this));
-			
 			//Update UI private state for this and all sub-folders
 			this.updatePrivateStateUI(id, force);
-			
 			this.reloadFolderContent(id);
+			
+			//Update data
+			data.save({'id': id, 'private': force}).fail(function () {
+				//Revert visual changes
+				this.updatePrivateStateUI(id, !force);
+				
+				//Revert toolbar button
+				var action = Supra.Manager.getAction('MediaLibrary');
+				if (action.get('created') && action.onItemChange) {
+					action.onItemChange();
+				}
+			}, this);
 		},
 		
+		/**
+		 * Returns true if folder is private, otherwise false
+		 * 
+		 * @param {String} id Folder Id
+		 * @returns {Boolean} True if folder is private
+		 * @private
+		 */
+		isFolderPrivate: function (id) {
+			var item = this.get('data').cache.one(id);
+			return (item && item.private);
+		},
+		
+		/**
+		 * Redraw folder content
+		 * 
+		 * @param {String} id Folder Id
+		 * @returns {Object} Deferred object which resolves when folder is redrawn
+		 * @private
+		 */
 		reloadFolderContent: function (id) {
-			var data_object = this.get('dataObject'),
-				item = data_object.getData(id);
+			var data_object = this.get('data'),
+				item = data_object.cache.one(id);
 			
-			this.removeChildrenSlides(item.children);
+			if (item.children) {
+				this.removeChildrenSlides(item.children);
+			}
 			
-			delete(item.children);
-			this.open(item.id);
+			this.get('data').purge(id);
+			return this.open(item.id);
 		},
 		
+		/**
+		 * Removes slides for items, recursive
+		 * 
+		 * @param {Array} children Children data which slides will be removed
+		 * @private
+		 */
 		removeChildrenSlides: function (children) {
 			var slide = null,
 				slideshow = this.slideshow,
@@ -879,24 +945,15 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @param {Number} id Folder ID
 		 */
 		updatePrivateStateUI: function (id /* Folder ID */, state /* State */) {
-			var node = this.getItemNode(id),
-				dataObject = this.get('dataObject'),
-				slide = null;
-				
-			if (!node) return this;
+			var data = this.get('data'),
+				children = data.cache.all(id);
 			
-			node.toggleClass('type-folder-private', state);
-			
-			//Update all children
-			var children = dataObject.getChildrenData(id);
+			//Update all children, recursive
 			for(var i=0,ii=children.length; i<ii; i++) {
-				//Update children data
-				children[i]['private'] = state;
 				
-				dataObject.removeData(children[i].id);
+				data.cache.save({'id': children[i].id, 'private': state});
 				
-				// clear properties, to force medialibrary reload item data (thumbnails, previews)
-				if (children[i].type == Data.TYPE_FOLDER) {
+				if (children[i].type == List.TYPE_FOLDER) {
 					this.updatePrivateStateUI(children[i].id, state);
 				}
 			}
@@ -908,58 +965,24 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * Load folder or file information
 		 * 
 		 * @param {Number} id File or folder ID
-		 * @param {Function} callback Callback function
-		 * @return True if started loading data and false if data is already loaded
-		 * @type {Boolean}
+		 * @returns {Object} Deferred object
 		 */
-		load: function (id /* File or folder ID */, callback /* Callback function */) {
-			//If no folder specified open root folder
+		load: function (id /* File or folder ID */) {
+			// If no folder specified open root folder
 			if (!id) id = this.get('rootFolderId');
 			
-			var data_object = this.get('dataObject'),
-				data = data_object.getData(id),
-				loading_folder = true,
-				loaded = false;
+			var data = this.get('data'),
+				deferred = new Supra.Deferred();
 			
-			//Check if data needs to be loaded
-			if (data) {
-				if (data.type != Data.TYPE_FOLDER) {
-					loading_folder = false;
-					if (data.type == Data.TYPE_FILE && data_object.hasData(id, List.FILE_PROPERTIES)) {
-						loaded = true;
-					} else if (data.type == Data.TYPE_IMAGE && data_object.hasData(id, List.IMAGE_PROPERTIES)) {
-						loaded = true;
-					} else if (data.type == Data.TYPE_TEMP) {
-						loaded = true;
-					}
-				} else if (data.children) {
-					loaded = true;
-				}
-			}
+			data.any(id, true)
+				.done(function (data) {
+					deferred.resolve([data, id]);
+				})
+				.fail(function () {
+					deferred.reject([null, id]);
+				});
 			
-			//Load data
-			if (!loaded) {
-				data_object.once('load:complete:' + id, function (event) {
-					if (Y.Lang.isFunction(callback)) {
-						callback(event.id, event.data);
-					}
-				}, this);
-				
-				if (loading_folder) {
-					var properties = [].concat(this.get('loadItemProperties'));
-					data_object.loadData(id, properties, 'list');
-				} else {
-					var properties = [].concat(List.FILE_PROPERTIES, List.IMAGE_PROPERTIES).concat(this.get('loadItemProperties'));
-					data_object.loadData(id, properties, 'view');
-				}
-			} else {
-				//Execute callback
-				if (Y.Lang.isFunction(callback)) {
-					callback(id, data);
-				}
-			}
-			
-			return !loaded;
+			return deferred;
 		},
 		
 		/**
@@ -967,95 +990,63 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * Chainable.
 		 * 
 		 * @param {Number} id File or folder ID
-		 * @param {Function} callback Callback function
+		 * @returns {Object} Deferred objects promise
 		 */
-		open: function (id /* File or folder ID */, callback /* Callback function */) {
-			//@TODO Replace code responsible for loading  with .load()
-			
+		open: function (id /* File or folder ID */) {
 			//If no folder specified open root folder
 			if (!id) id = this.get('rootFolderId');
 			
 			//Open file or folder using path to item
-			if (Y.Lang.isArray(id)) return this.openPath(id, callback);
+			if (Y.Lang.isArray(id)) return this.openPath(id);
 			
-			var data_object = this.get('dataObject'),
-				data = data_object.getData(id),
-				loaded = false,
-				loading_folder = true,
-				slide = this.slideshow.getSlide('slide_' + id);
-			
-			//Check if data needs to be loaded
-			if (data) {
-				if (data.type == Data.TYPE_TEMP) {
-					return this;
-				} else if (data.type != Data.TYPE_FOLDER) {
-					loading_folder = false;
-					if (data.type == Data.TYPE_FILE && data_object.hasData(id, List.FILE_PROPERTIES)) {
-						loaded = true;
-					} else if (data.type == Data.TYPE_IMAGE && data_object.hasData(id, List.IMAGE_PROPERTIES)) {
-						loaded = true;
-					} else if (data.type == Data.TYPE_TEMP) {
-						loaded = true;
-					}
-				} else if (data.children) {
-					loaded = true;
-				}
-			} else if (id == this.get('rootFolderId') && data_object.getChildrenData(0).length) {
-				//Root folder doesn't have any data, it has only children data
-				loaded = true;
-			}
+			var deferred = null,
+				data_object = this.get('data'),
+				slide = this.slideshow.getSlide('slide_' + id),
+				data = data_object.cache.one(id),
+				load = false;
 			
 			//Create slide
 			if (!slide) {
 				//File and image slides should be removed when not visible anymore
-				var remove_on_hide = !loading_folder;
+				var remove_on_hide = data_object.isFolder(id) === false;
 				slide = this.slideshow.addSlide({
 					'id': 'slide_' + id,
 					'removeOnHide': remove_on_hide
 				});
 				
-				if (loaded) {
-					if (data && data.type == Data.TYPE_FOLDER) {
-						this.renderItem(id);
-					} else {
-						this.renderItem(id, [data]);
-					}
-				}
+				//Need to load data
+				load = true;
+			
 			} else {
 				//Remove 'selected' from elements
 				slide.all('li').removeClass('selected');
+				
+				if (!data) {
+					//Need to load data
+					load = true;
+				} else {
+					deferred = new Supra.Deferred();
+					deferred.resolve();
+				}
 			}
 			
-			//Load data
-			if (!loaded) {
+			if (load) {
+				// Loading icon
 				var slide_content = slide.one('.su-slide-content, .su-multiview-slide-content');
-				
+			
 				slide_content
 					.empty()
 					.append(this.renderTemplate(data, this.get('templateLoading')));
 				
 				slide_content.fire('contentResize');
 				
-				data_object.once('load:complete:' + id, function (event) {
-					if (event.data) {
-						//Success
-						this.renderItem(event.id, event.data);
-					} else {
-						//Failure, go back to previous slide
-						this.slideshow.scrollBack();
-					}
-					if (Y.Lang.isFunction(callback)) {
-						callback(event.id, event.data);
-					}
+				// Load data and render
+				deferred = this.load(id).done(function (data, id) {
+					this.renderItem(id, data);
+				}, this).fail(function () {
+					//Failure, go back to previous slide
+					this.slideshow.scrollBack();
 				}, this);
-				
-				if (loading_folder) {
-					var properties = [].concat(this.get('loadItemProperties'));
-					data_object.loadData(id, properties, 'list');
-				} else {
-					var properties = [].concat(List.FILE_PROPERTIES, List.IMAGE_PROPERTIES).concat(this.get('loadItemProperties'));
-					data_object.loadData(id, properties, 'view');
-				}
 			}
 			
 			//Mark item in parent slide as selected
@@ -1063,9 +1054,12 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				var parent_slide = this.slideshow.getSlide('slide_' + data.parent);
 				if (parent_slide) {
 					var node = parent_slide.one('li[data-id="' + id + '"]');
-					if (node) node.addClass('selected');
+					if (node) {
+						node.siblings().removeClass('selected');
+						node.addClass('selected');
+					}
 				}
-			} 
+			}
 			
 			//Scroll to slide
 			if (this.slideshow.isInHistory('slide_' + id)) {
@@ -1076,29 +1070,23 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				this.slideshow.scrollTo('slide_' + id, null, data ? 'slide_' + data.parent : null);
 			}
 			
-			//Execute callback
-			if (loaded) {
-				if (Y.Lang.isFunction(callback)) {
-					callback(id, data);
-				}
-			}
-			
-			return this;
+			return deferred;
 		},
 		
 		/**
 		 * Open item which may not be loaded yet using path to it
 		 * 
 		 * @param {Array} path Path
-		 * @param {Function} callback Callback function
+		 * @returns {Object} Deferred object
 		 * @private
 		 */
-		openPath: function (path /* Path to open */, callback /* Callback function */) {
+		openPath: function (path /* Path to open */) {
 			var slideshow = this.slideshow,
 				from = 0,
 				stack = path,
 				root_folder_id = this.get('rootFolderId'),
-				noAnimations = this.get('noAnimations');
+				noAnimations = this.get('noAnimations'),
+				deferred = new Supra.Deferred();
 			
 			//Check if root folder is in path, if not then add
 			if (path[0] != root_folder_id) {
@@ -1117,33 +1105,23 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			if (stack.length) {
 				var next = Y.bind(function (item_id, data) {
 					if (stack.length && data) {
-						var id = stack[0],
+						var id = stack.shift(),
 							attr = this.get('noAnimations');
 						
-						stack = stack.slice(1);
-						
 						this.set('noAnimations', noAnimations)
-						this.open(id, next);
+						this.open(id).always(next);
 						this.set('noAnimations', attr)
 					} else {
-						//Execute callback
-						if (Y.Lang.isFunction(callback)) {
-							callback(path);
-						}
+						deferred.resolve();
 					}
 				}, this);
 				next(null, true);
 			} else if (path.length) {
 				//Last item is already opened, only need to show it
-				this.open(path[path.length - 1]);
-				
-				//Execute callback
-				if (Y.Lang.isFunction(callback)) {
-					callback(path);
-				}
+				return this.open(path[path.length - 1]);
 			}
 			
-			return this;
+			return deferred.promise();
 		},
 		
 		/**
@@ -1171,9 +1149,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			}
 			
 			this.slideshow.set('noAnimations', true);
-			this.openPath(history, Y.bind(function () {
+			this.openPath(history).always(function () {
 				this.slideshow.set('noAnimations', false);
-			}, this));
+			}, this);
 		},
 		
 		/**
@@ -1183,7 +1161,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @private
 		 */
 		reset: function () {
-			var data_object = this.get('dataObject'),
+			var data = this.get('data'),
 				slideshow = this.slideshow,
 				slides = slideshow.slides,
 				slide = null,
@@ -1204,16 +1182,16 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				slideshow.removeSlide(id);
 				
 				//Fire event
-				var item = data_object.getData(data_id);
+				var item = data.cache.one(data_id);
 				this.fire('removeSlide', {
 					'id': data_id,
 					'node': slide,
-					'type': item ? item.type : Data.TYPE_FOLDER
+					'type': item ? item.type : List.TYPE_FOLDER
 				});
 			}
 			
 			//Reset data
-			data_object.destroy();
+			data.purge(this.get('rootFolderId'));
 			
 			return history;
 		},
@@ -1223,7 +1201,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @param {Number} id File or folder ID
 		 */
 		getItemNode: function (id) {
-			var data = this.get('dataObject').getData(id);
+			var data = this.get('data').cache.one(id);
 			if (data) {
 				var slide = this.slideshow.getSlide('slide_' + data.parent);
 				if (slide) {
@@ -1248,7 +1226,8 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				slide_content = null,
 				template,
 				node,
-				item;
+				item,
+				empty;
 			
 			//No slide to render data into, probably it was already closed
 			if (!slide) return;
@@ -1256,26 +1235,29 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			//Get data if arguments is not passed
 			if (typeof data === 'undefined' || data === null) {
-				data = this.get('dataObject').getData(id);
-				if (!data || data.type == Data.TYPE_FOLDER) {
-					data = this.get('dataObject').getChildrenData(id);
-				}
+				data = this.get('data').cache.any(id);
 			}
 			
-			if (data && data.length) {
-				if (data.length == 1 && data[0].id == id && data[0].type != Data.TYPE_FOLDER) {
+			//Is file missing or folder is empty?
+			empty = !data || (Y.Lang.isArray(data) && !data.length);
+			
+			if (!empty) {
+				if (!Y.Lang.isArray(data)) {
 					//File or image
-					if (data[0].type == Data.TYPE_FILE) {
+					if (data.type == List.TYPE_FILE) {
 						template = this.get('templateFile');
-					} else if (data[0].type == Data.TYPE_IMAGE) {
+					} else if (data.type == List.TYPE_IMAGE) {
 						template = this.get('templateImage');
 					}
 					
 					var template_data = {'allowInsert': this.get('allowInsert')};
-						template_data = Supra.mix(template_data, data[0]);
+						template_data = Supra.mix(template_data, data);
 					
 					node = this.renderTemplate(template_data, template);
-					node.setData('itemId', data[0].id);
+					node.setData('itemId', data.id);
+					
+					//Clean before replacing content
+					this.removePropertyWidgets();
 					
 					slide_content.empty().append(node);
 					slide_content.closest('.su-multiview-slide, .su-slide').removeClass('su-slide-full-width');
@@ -1286,7 +1268,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 //					//More / less
 //					node.all('a.more, a.less').on('click', this.handleInfoToggleClick, this);
 					
-					this.fire('itemRender', {'node': node, 'id': id, 'data': data[0], 'type': data[0].type});
+					this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': data.type});
 				} else {
 					//Folder
 					if (append) {
@@ -1326,6 +1308,9 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					slide.setData('itemId', id);
 					
 					if (!append) {
+						//Clean before replacing content
+						this.removePropertyWidgets();
+						
 						slide_content.empty();
 					}
 					
@@ -1336,14 +1321,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 						slide_content.append(Y.Node.create('<div class="dnd-marker"></div>'));
 					}
 					
-					this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': Data.TYPE_FOLDER});
+					this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': List.TYPE_FOLDER});
 				}
 			} else {
 				//Empty
 				node = this.renderTemplate({'id': id}, this.get('templateEmpty'));
 				slide_content.empty().append(node);
 				slide_content.closest('.su-multiview-slide, .su-slide').addClass('su-slide-full-width');
-				this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': Data.TYPE_FOLDER});
+				this.fire('itemRender', {'node': node, 'id': id, 'data': data, 'type': List.TYPE_FOLDER});
 			}
 			
 			slide_content.fire('contentResize');
@@ -1434,7 +1419,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			//Sort
 			data.sort(function (a, b) {
 				//Folder always first
-				if (a.type != b.type && (a.type == Data.TYPE_FOLDER || b.type == Data.TYPE_FOLDER)) {
+				if (a.type != b.type && (a.type == List.TYPE_FOLDER || b.type == List.TYPE_FOLDER)) {
 					return a.type < b.type ? -1 : 1;
 				}
 				
@@ -1506,7 +1491,52 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * @param {Mumber} id Item ID
 		 */
 		getItemData: function (id /* Item ID */) {
-			return this.get('dataObject').getData(id || this.get('rootFolderId'));
+			var data = this.get('data'),
+				item = data.cache.one(id),
+				children = null;
+			
+			if (item) return item;
+			
+			children = data.cache.all(id);
+			if (!children) {
+				id = this.get('rootFolderId');
+				children = data.cache.all(id);
+			}
+			
+			if (children) {
+				var loaded = data.dataLoaded[id];
+				
+				return {
+			   		'id': this.get('rootFolderId'),
+			   		'type': List.TYPE_FOLDER,
+			   		'children': children,
+			   		'children_count': loaded ? loaded.totalRecords : null
+			   };
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Get file or image form property widgets
+		 * 
+		 * @return Property widgets
+		 */
+		getPropertyWidgets: function () {
+			return this.property_widgets;
+		},
+		
+		/**
+		 * Destroy all widgets
+		 */
+		removePropertyWidgets: function () {
+			var inp = this.property_widgets;
+			
+			for(var i in inp) {
+				inp[i].destroy();
+			}
+			
+			this.property_widgets = {};
 		},
 		
 		/**
@@ -1523,14 +1553,43 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * Display type setter
 		 */
 		_setDisplayType: function (value) {
-			if (this.get('displayType') != value) {
-				var data_object = this.get('dataObject');
-				if (data_object) {
-					this.get('dataObject').setRequestParam('type', value);
-					//this.reload();
-				}
+			value = value || List.DISPLAY_ALL;
+			
+			if (this.get('rendered') && this.get('displayType') != value) {
+				this._setDataObject(value);
 			}
+			
 			return value;
+		},
+		
+		/**
+		 * Change data object
+		 */
+		_setDataObject: function (type) {
+			var old = this.get('data');
+			var data = Supra.DataObject.get({
+				'id': 'medialibrary_' + type,
+				'actionName': 'MediaLibrary',
+				'completeTest': this.isItemDataComplete
+			});
+			
+			data.setRequestParam('type', type);
+			this.set('data', data);
+			
+			if (old) {
+				old.detach('add', this._dataAdd, this);
+				old.detach('add:multiple', this._dataAddMultiple, this);
+				old.detach('remove', this._dataRemove, this);
+				old.detach('change', this._dataChange, this);
+			}
+			
+			// Handle data change
+			data.on('add', this._dataAdd, this);
+			data.on('add:multiple', this._dataAddMultiple, this);
+			data.on('remove', this._dataRemove, this);
+			data.on('change', this._dataChange, this);
+			
+			// @TODO Redraw UI
 		},
 		
 		/**
@@ -1553,4 +1612,4 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['widget', 'supra.slideshow', 'supra.medialibrary-data']});
+}, YUI.version, {'requires': ['widget', 'supra.slideshow', 'supra.medialibrary-data-object']});

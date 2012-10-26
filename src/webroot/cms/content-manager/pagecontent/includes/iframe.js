@@ -577,10 +577,16 @@ YUI.add('supra.iframe-handler', function (Y) {
 			var links = [],
 				elements = Y.Node(doc).all('link[rel="stylesheet"]'),
 				app_path = null,
-				link = null;
-			
-			for(var i=0,ii=elements.size(); i<ii; i++) {
-				links.push(Y.Node.getDOMNode(elements.item(i)));
+				link = null,
+				href = '';
+ 			
+ 			for(var i=0,ii=elements.size(); i<ii; i++) {
+				href = elements.item(i).getAttribute('href');
+				
+				// Not google font stylesheet
+				if (!href || href.indexOf(GOOGLE_FONT_API_URI) === -1) {
+					links.push(Y.Node.getDOMNode(elements.item(i)));
+				}
 			}
 			
 			//Add stylesheets to iframe, load using combo

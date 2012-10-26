@@ -765,7 +765,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 */
 		onFileComplete: function (evt) {
 			var host = this.get('host'),
-				data_object = host.get('dataObject'),
+				data_object = host.get('data'),
 				data = evt.data,
 				file_id = evt.file_id,
 				node = evt.node,
@@ -780,13 +780,14 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			if (data) {
 				if (temp_file) {
 					//Mix temporary and loaded data
-					var old_data = data_object.getData(file_id);
+					var old_data = data_object.cache.one(file_id);
 					data = Supra.mix({}, old_data, data);
 				} else if (file_id) {
 					//If request was replace then update data
-					var old_data = data_object.getData(file_id);
+					var old_data = data_object.cache.one(file_id);
 					if (old_data) {
-						Supra.mix(old_data, data);
+						data_object.cache.save(data);
+						data = data_object.cache.one(file_id);
 					}
 					
 					//Fire event on media list
@@ -796,25 +797,25 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				if (!evt.node) {
 					//If request was for replace and image is still opened then
 					//reload image source
-					var item = this.get('host').getSelectedItem();
+					var item = host.getOpenedItem();
 					if (item && file_id == item.id) {
-						this.get('host').reloadImageSource(data);
+						host.reloadImageSource(data);
 					}
 					
 					return;
 				}
 				
 				//Add file
-				var new_file_id = this.get('host').addFile(folder, data),
-					new_file_node = this.get('host').getItemNode(new_file_id);
-								
+				var new_file_id = host.addFile(folder, data),
+					new_file_node = host.getItemNode(new_file_id);
+				
 				//Place it before temporary item
 				if (new_file_node && node) {
 					node.insert(new_file_node, 'before');
 				}
 				
 				//Remove temporary data and node
-				if (file_id) data_object.removeData(file_id, true);
+				if (file_id) data_object.cache.remove(file_id, true);
 				if (node) node.remove();
 				
 			} else {

@@ -157,6 +157,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 		
 		onEditingStart: function () {
 			//If there are InlineHTML contents, show toolbar when editing
+			
 			if (this.inline_inputs_count) {
 				if (this.html_inputs_count) {
 					Manager.EditorToolbar.execute();

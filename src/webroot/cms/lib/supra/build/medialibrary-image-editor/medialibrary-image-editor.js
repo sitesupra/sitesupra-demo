@@ -8,8 +8,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 	/*
 	 * Shortcuts
 	 */
-	var Data = Supra.MediaLibraryData,
-		List = Supra.MediaLibraryList,
+	var List = Supra.MediaLibraryList,
 		Template = Supra.Template;
 		
 	/*
@@ -41,10 +40,10 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 	
 	Plugin.ATTRS = {
 		/**
-		 * Media library data object, Supra.MediaLibraryData instance
+		 * Media library data object, Supra.DataObject.Data instance
 		 * @type {Object}
 		 */
-		'dataObject': {
+		'data': {
 			value: null
 		},
 		
@@ -209,7 +208,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 				this.button_edit = null;
 			}
 			
-			if (event.type == Data.TYPE_IMAGE) {
+			if (event.type == List.TYPE_IMAGE) {
 				var node = event.node;
 				
 				//Create button
@@ -265,7 +264,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 						
 						if (status) {
 							//Update image data
-							var latest_data = this.get('host').get('dataObject').getData(image_data.id);
+							var latest_data = this.get('host').get('data').cache.one(image_data.id);
 							latest_data.sizes = data.sizes;
 							image_data.sizes = data.sizes;
 							
@@ -315,7 +314,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 						
 						if (status) {
 							//Update image data
-							var latest_data = this.get('host').get('dataObject').getData(image_data.id);
+							var latest_data = this.get('host').get('data').cache.one(image_data.id);
 							latest_data.sizes = data.sizes;
 							image_data.sizes = data.sizes;
 							

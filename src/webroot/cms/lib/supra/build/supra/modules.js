@@ -235,8 +235,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 		skinnable: true
 	},
 	
-	'supra.medialibrary-data': {
-		path: 'medialibrary/data.js',
+	'supra.medialibrary-data-object': {
+		path: 'medialibrary/dataobject.js',
 		requires: [
 			'attribute',
 			'array-extras'
@@ -248,7 +248,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: [
 			'widget',
 			'supra.slideshow',
-			'supra.medialibrary-data'
+			'supra.medialibrary-data-object'
 		]
 	},
 	

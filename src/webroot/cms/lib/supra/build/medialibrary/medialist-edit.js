@@ -6,12 +6,11 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 	"use strict";
 	
 	//Shortcuts
-	var Data = Supra.MediaLibraryData,
-		MediaLibraryList = Supra.MediaLibraryList;
+	var MediaLibraryList = Supra.MediaLibraryList;
 	
 	/**
-	 * File upload
-	 * Handles standard file upload, HTML5 drag & drop, simple input fallback
+	 * Folder rename plugin
+	 * Saves item properties when they change
 	 */
 	function Plugin (config) {
 		Plugin.superclass.constructor.apply(this, arguments);
@@ -22,10 +21,10 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 	
 	Plugin.ATTRS = {
 		/**
-		 * Media library data object, Supra.MediaLibraryData instance
+		 * Media library data object, Supra.DataObject.Data instance
 		 * @type {Object}
 		 */
-		'dataObject': {
+		'data': {
 			value: null
 		}
 	};
@@ -61,7 +60,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 		 */
 		renameFolder: function (target /* Folder node */) {
 			var id = target.getData('itemId'),
-				data = this.get('dataObject').getData(id) || {};
+				data = this.get('data').cache.one(id) || {};
 			
 			//Create input
 			var input = Y.Node.create('<input type="text" value="" />');
@@ -97,56 +96,61 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 		handleRenameComplete: function (event /* Event */, obj /* Item data */) {
 			var value = obj.object.get('value'),
 				id = obj.id,
-				post_data = null,
-				original_title;
+				original_title,
+				deferred = null;
 			
 			if (obj.data.filename != value && value) {
 				original_title = obj.data.filename;
-				obj.data.filename = value;
 				obj.node.one('span').set('innerHTML', Y.Escape.html(value));
 				
-				post_data = {
-					'filename': value
-				};
-				
-				if (obj.id == -1) {
+				if (id == -1) {
 					//For new item add also parent ID and private status
-					post_data.parent = obj.data.parent;
-					post_data['private'] = obj.data['private'];
+					this.get('data').add({
+						'filename': value,
+						'type': 1,
+						'parent': obj.data.parent,
+						'private': obj.data.private
+					})
+						.always(function () {
+							this.get('data').cache.remove(-1);
+						}, this)
+						.done(function (data) {
+							//Redraw parent
+							this.get('host').renderItem(obj.data.parent);
+						}, this)
+						.fail(function () {
+							//Remove item
+							obj.node.remove();
+						}, this);
+					
+				} else {
+					this.get('data').save({
+						'id': obj.id,
+						'filename': value
+					})
+						.done(function (data) {
+							//Redraw parent
+							this.get('host').reloadFolder(obj.id);
+						}, this)
+						.fail(function () {
+							//Revert title changes
+							obj.node.one('span').set('innerHTML', Y.Escape.html(original_title));
+						}, this);
+					
 				}
 				
-				this.get('dataObject').saveData(obj.id, post_data, function (status, data, id) {
-					if (id == -1) {
-						if (status && data) {
-							//Update node itemId
-							obj.node.setData('itemId', data);
-						} else {
-							//Remove data
-							this.get('dataObject').removeData(obj.id, true);
-							obj.node.remove();
-						}
-						
-						//Redraw parent
-						this.get('host').renderItem(obj.data.parent);
-					} else {
-						if (!status) {
-							//Revert title changes
-							obj.data.filename = original_title;
-							obj.node.one('span').set('innerHTML', Y.Escape.html(original_title));
-						} else {
-							this.get('host').reloadFolder(obj.id);
-						}
-					}
-				}, this);
 			} else if (id == -1) {
-				this.get('dataObject').removeData(obj.id, true);
+				this.get('data').cache.remove(obj.id);
 				obj.node.remove();
 				
 				//Redraw parent
 				this.get('host').renderItem(obj.data.parent);
 			}
 			
-			obj.node.removeClass('renaming');
+			if (obj.node) {
+				obj.node.removeClass('renaming');
+			}
+			
 			obj.object.destroy();
 		},
 		
@@ -162,75 +166,23 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 				value = data.input.get('value');
 			
 			if (value && value != data.data[name]) {
-				var data_object = this.get('dataObject'),
+				var data_object = this.get('data'),
 					id = data.data.id,
-					item_data = data_object.getData(id),
+					item_data = data_object.cache.one(id),
 					original_value = data.data[name],
-					props = {},
+					props = {'id': id},
 					locale = null;
-					
-				props[name] = item_data[name] = data.data[name] = value;
 				
-				data_object.saveData(id, props, Y.bind(function (status, responseData) {
-					if (!status) {
-						//Revert changes
-						this.revertItemPropertyChange(id, name, original_value);
-						
-						if (Y.Lang.isObject(data.data[name])) {
-							data.data[name][locale] = original_value;
-						} else {
-							data.data[name] = original_value;
-						}
-					} else {
-						if (responseData && responseData.id && responseData.id == id) {
-							Supra.mix(item_data, responseData);
-						}
-					}
-				}, this));
+				props[name] = value;
 				
-				//Update filename in folder list
-				if (name == 'filename') {
-					var host = this.get('host'),
-						parent_id = host.getItemData(id).parent,
-						li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + id + '"]');
-					
-					li.one('span').set('text', value);
-				}
+				data_object.save(props)
+					.fail(function (changes) {
+						//Revert input changes
+						data.input.set('value', changes[name]);
+					}, this);
+				
 			} else if (!value) {
 				data.input.set('value', data.data[name]);
-			}
-		},
-		
-		/**
-		 * If save request fails revert changes
-		 * 
-		 * @param {String} id File or folder ID
-		 * @param {String} name Property name
-		 * @param {String} value Original property value
-		 * @private
-		 */
-		revertItemPropertyChange: function (id, name, value) {
-			var host = this.get('host'),
-				data_object = this.get('dataObject'),
-				item_data = data_object.getData(id),
-				props = {};
-			
-			//Revert data
-			item_data[name] = value;
-			
-			//Revert 'title' which is shown in item list
-			if (name == 'filename') {
-				var host = this.get('host'),
-					parent_id = host.getItemData(id).parent,
-					li = host.slideshow.getSlide('slide_' + parent_id).one('li[data-id="' + id + '"]');
-				
-				li.one('span').set('text', value);
-			}
-			
-			//Revert input value
-			var widgets = host.getPropertyWidgets();
-			if (name in widgets) {
-				widgets[name].set('value', value);
 			}
 		}
 		

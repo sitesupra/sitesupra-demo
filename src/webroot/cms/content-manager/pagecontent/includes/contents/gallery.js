@@ -208,56 +208,64 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			}
 			
 			var item_id = e.drag_id,
-				item_data = Manager.MediaSidebar.getData(item_id),
-				image = null,
-				dataObject = Manager.MediaSidebar.medialist.get('dataObject');
+				dataObject = Manager.MediaSidebar.dataObject(),
+				replace_id = null;
 			
-			if (!item_data) return; // not an image
-			
-			if (item_data.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-				
-				//Add single image
-				this.addImage(item_data);
-				
-			} else if (item_data.type == Supra.MediaLibraryData.TYPE_FOLDER) {
-				
-				if ( ! dataObject.hasData(item_data.id) 
-					|| (item_data.children && item_data.children.length != item_data.children_count)) {
-					dataObject.once('load:complete:' + item_data.id, function(event) {
-						if (event.data) {
-							this.onDrop(e);
-						}
-					}, this);
-					
-					return;
-					
-				} else {
-					
-					var folderHasImages = false;
-
-					//Add all images from folder
-					for(var i in item_data.children) {
-						image = item_data.children[i];
-						if (image.type == Supra.MediaLibraryData.TYPE_IMAGE) {
-							this.addImage(item_data.children[i]);
-							folderHasImages = true;
-						}
-					}
-
-					//folder was without images
-					if ( ! folderHasImages) {
-						Supra.Manager.executeAction('Confirmation', {
-							'message': '{#medialibrary.validation_error.empty_folder_drop#}',
-							'useMask': true,
-							'buttons': [
-								{'id': 'delete', 'label': 'Ok'}
-							]
-						});
-
-						return;
-					}
+			if (e.drop.closest('b')) {
+				//Image was dropped on existing item
+				var node_li = e.drop.closest('li.gallery-item');
+				if (node_li) {
+					node_li.removeClass('gallery-item-over');
+					replace_id = node_li.getData('imageId');
 				}
 			}
+			
+			//Unmark list
+			this.list.removeClass('gallery-over');
+			
+			//Load data
+			dataObject.any(item_id, true).done(function (data) {
+				
+				if (!Y.Lang.isArray(data)) {
+					data = [data];
+				}
+				
+				var folderHasImages = false,
+					image = null;
+				
+				for (var i=0, ii=data.length; i<ii; i++) {
+					image = data[i];
+					
+					if (image.type == Supra.MediaLibraryList.TYPE_IMAGE) {
+						
+						dataObject.one(image.id, true).done(function (data) {
+							if (replace_id) {
+								//Replace with first image, all other add to the list
+								this.replaceImage(replace_id, data);
+								replace_id = null;
+							} else {
+								this.addImage(data);
+							}
+						}, this);
+						
+						folderHasImages = true;
+					}
+				}
+				
+				//folder was without images
+				if ( ! folderHasImages) {
+					Supra.Manager.executeAction('Confirmation', {
+						'message': '{#medialibrary.validation_error.empty_folder_drop#}',
+						'useMask': true,
+						'buttons': [
+							{'id': 'delete', 'label': 'Ok'}
+						]
+					});
+
+					return;
+				}
+				
+			}, this);
 			
 			this.reloadContent();
 			
