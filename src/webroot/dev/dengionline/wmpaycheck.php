@@ -12,10 +12,10 @@ $iniDirectory = '../../../../../src/conf/';
 
 $iniDirectoryRealpath = realpath($iniDirectory);
 
-$iniFilename = $iniDirectoryRealpath . '/dengionline-stub.ini';
+$iniFilename = $iniDirectoryRealpath . '/supra.ini';
 
 if ( ! file_exists($iniFilename)) {
-	dieWithErrorOutput('File "dengionline-stub.ini" not found in directory "' . $iniDirectoryRealpath . '".');
+	dieWithErrorOutput('File "supra.ini" not found in directory "' . $iniDirectoryRealpath . '".');
 }
 
 $whatDo = isset($_REQUEST['do']) ? $_REQUEST['do'] : 'dengi';
@@ -84,15 +84,17 @@ function getClient()
 {
 	global $iniFilename;
 
-	$clients = parse_ini_file($iniFilename, true);
+	$ini = parse_ini_file($iniFilename, true);
 
 	$projectId = $_SESSION['last_request']['project'];
 
-	if ( ! isset($clients[$projectId])) {
-		dieWithErrorOutput('Client "' . $projectId . '" is not found. Is "' . $iniFilename . '" properly set up?');
+	$clientSectionName = 'dengionline_stub_' . $projectId;
+	
+	if ( ! isset($ini[$clientSectionName])) {
+		dieWithErrorOutput('Dengionline stub section for client "' . $projectId . '" is not found. Is "' . $iniFilename . '" properly set up?');
 	}
 
-	$client = $clients[$projectId];
+	$client = $ini[$clientSectionName];
 
 	return $client;
 }
