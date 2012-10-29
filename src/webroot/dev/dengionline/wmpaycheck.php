@@ -8,11 +8,17 @@ require_once('output.php');
 
 session_start();
 
-$whatDo = isset($_REQUEST['do']) ? $_REQUEST['do'] : 'dengi';
+$iniDirectory = '../../../../../src/conf/';
 
-if ( ! file_exists('clients.ini')) {
-	dieWithErrorOutput('File "clients.ini" not found. Check "clients.example.ini" and it up!"');
+$iniDirectoryRealpath = realpath($iniDirectory);
+
+$iniFilename = $iniDirectoryRealpath . '/supra.ini';
+
+if ( ! file_exists($iniFilename)) {
+	dieWithErrorOutput('File "supra.ini" not found in directory "' . $iniDirectoryRealpath . '".');
 }
+
+$whatDo = isset($_REQUEST['do']) ? $_REQUEST['do'] : 'dengi';
 
 switch ($whatDo) {
 
@@ -22,7 +28,7 @@ switch ($whatDo) {
 
 				dieWithErrorOutput('Bad request, eh?');
 			} else {
-				
+
 				$_SESSION['last_request'] = $_REQUEST;
 
 				generateDengiPaymentId();
@@ -32,6 +38,10 @@ switch ($whatDo) {
 		} break;
 
 	case 'success': {
+
+			sendSuccessNotification();
+
+			sleep(2);
 
 			dieWithSuccessReturn();
 		} break;
@@ -72,15 +82,19 @@ function generateDengiPaymentId()
 
 function getClient()
 {
-	$clients = parse_ini_file('clients.ini', true);
+	global $iniFilename;
+
+	$ini = parse_ini_file($iniFilename, true);
 
 	$projectId = $_SESSION['last_request']['project'];
 
-	if ( ! isset($clients[$projectId])) {
-		dieWithErrorOutput('Client "' . $projectId . '" is not found. Is "clients.ini" properly set up?');
+	$clientSectionName = 'dengionline_stub_' . $projectId;
+	
+	if ( ! isset($ini[$clientSectionName])) {
+		dieWithErrorOutput('Dengionline stub section for client "' . $projectId . '" is not found. Is "' . $iniFilename . '" properly set up?');
 	}
 
-	$client = $clients[$projectId];
+	$client = $ini[$clientSectionName];
 
 	return $client;
 }
