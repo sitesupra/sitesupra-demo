@@ -341,11 +341,11 @@ YUI.add("supra.input-file-upload", function (Y) {
 			//Uploader
 			this.uploader = new Supra.Uploader({
 				'requestUri': this.get('requestUri'),
-				'multiple': this.get('multiple'),
+				'allowMultiple': this.get('multiple'),
 				'data': this.get('data'),
 				'validateFile': this.get('validateFile'),
 				'clickTarget': this.get('buttonNode'),
-				'dragTarget': this.get('boundingBox')
+				'dropTarget': this.get('boundingBox')
 			});
 		},
 		
@@ -438,17 +438,18 @@ YUI.add("supra.input-file-upload", function (Y) {
 		 * @private
 		 */
 		onFileUploadComplete: function (event) {
-			if (event.data) {
+			var data = event.details[0];
+			if (data) {
 				//Update value
 				var value = this.get('value'),
 					multiple = this.get('multiple');
 				
 				if (multiple) {
-					value.push(event.data.id);
-					this.titles.push(event.data.title);
+					value.push(data.id);
+					this.titles.push(data.title);
 				} else {
-					value = [event.data.id];
-					this.titles = [event.data.title];
+					value = [data.id];
+					this.titles = [data.title];
 				}
 				
 				this.set('value', value);

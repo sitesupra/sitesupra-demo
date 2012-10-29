@@ -147,8 +147,6 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 			widgets.form = new Supra.Form({
 				'srcNode': container.one('form')
 			});
-			
-			
 		},
 		
 		/**

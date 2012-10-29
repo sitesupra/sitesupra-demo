@@ -111,9 +111,11 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			list.render(container);
 			
 			//Add HTML5 file upload support
-			list.plug(Supra.MediaLibraryList.Upload, {
+			list.upload = new Supra.MediaLibraryList.Uploader({
+				'allowBrowse': false,
 				'requestUri': medialibrary.getDataPath('upload'),
-				'dragContainer': new Y.Node(document.body)
+				'medialist': list,
+				'dropTarget': list.get('boundingBox')
 			});
 			
 			//Show/hide back button when slide changes
