@@ -36,6 +36,8 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 						<div class="status-special status-not-published">{{ "sitemap.status_not_published"|intl }}</div>\
 					{% elseif type == "page" and ! published %}\\n\
 						<div class="status-special status-draft">{{ "sitemap.status_draft"|intl }}</div>\
+					{% elseif type == "page" and scheduled %}\\n\
+						<div class="status-special status-scheduled">{{ "sitemap.status_scheduled"|intl }}</div>\
 					{% endif %}\
 				</div>\
 				<label>{{ label|escape }}</label>\
@@ -189,6 +191,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'value': false
 		},
 		'active': {
+			'value': false
+		},
+		'scheduled': {
 			'value': false
 		}
 		
