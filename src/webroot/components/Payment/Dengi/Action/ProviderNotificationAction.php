@@ -243,7 +243,7 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 
 		$notificationResponse = $paymentProvider->makeCheckDengiOrderSuccessResponse($order->getId(), $notificationValid);
 
-		\Log::error('$notificationResponse: ' . $notificationResponse);
+		\Log::debug('$notificationResponse: ' . $notificationResponse);
 
 		$response->output($notificationResponse);
 	}

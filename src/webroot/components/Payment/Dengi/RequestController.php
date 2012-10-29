@@ -43,7 +43,7 @@ class RequestController extends RequestControllerAbstraction
 	 */
 	public function execute()
 	{
-		\Log::error('$_REQUEST: ', $_REQUEST);
+		\Log::debug('$_REQUEST: ', $_REQUEST);
 
 		$request = $this->getRequest();
 
@@ -69,11 +69,11 @@ class RequestController extends RequestControllerAbstraction
 						if (is_array($errorMessages)) {
 
 							foreach ($errorMessages as $errorMessage) {
-								\Log::error(iconv('windows-1251', 'utf-8', $errorMessage));
+								\Log::debug(iconv('windows-1251', 'utf-8', $errorMessage));
 							}
 						} else {
 
-							\Log::error(iconv('windows-1251', 'utf-8', $errorMessages));
+							\Log::debug(iconv('windows-1251', 'utf-8', $errorMessages));
 						}
 						
 						$this->executeCustomerReturnAction();

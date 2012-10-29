@@ -493,7 +493,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		$url = http_build_url($urlBase, array('query' => http_build_query($queryData)), HTTP_URL_JOIN_PATH | HTTP_URL_JOIN_QUERY);
 
-		\Log::error('DENGI REDIRECT URL: ', $url);
+		\Log::debug('DENGI REDIRECT URL: ', $url);
 
 		return $url;
 	}
