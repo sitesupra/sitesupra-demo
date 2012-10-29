@@ -570,6 +570,45 @@ function (Y) {
 		},
 		
 		/**
+		 * Expand all pages in path
+		 * 
+		 * @param {Array} path List of pages
+		 */
+		restoreState: function (path) {
+			if (path.length) {
+				
+				var id = null,
+					i = 0,
+					ii = path.length,
+					
+					tree = this.tree,
+					data = tree.get('data'),
+					item = null,
+					next = function () { this.restoreState(path); };
+				
+				for (; i<ii; i++) {
+					id = path[i];
+					if (id) {
+						item = tree.item(id);
+						id = null;
+						if (item) {
+							path[i] = null;
+							
+							if (!item.get('expanded')) {
+								item.once('expanded', next, this);
+								item.set('expanded', true);
+							}
+						}
+					}
+				}
+				
+				if (tree.get('loading')) {
+					tree.once('load:complete', next, this);
+				}
+			}
+		},
+		
+		/**
 		 * Returns selected node or root node
 		 * 
 		 * @return Selected or root node if none is selected or can't be found
@@ -644,12 +683,14 @@ function (Y) {
 			
 			options = Supra.mix({'mode': 'pages'}, options || {});
 			
+			var page_data = Manager.Page.getPageData(),
+				page_locale = null;
+			
 			if (this.firstExec) {
 				this.firstExec = false;
 				Y.one('body').removeClass('loading');
 			} else {
-				var page_data = Manager.Page.getPageData(),
-					page_locale = page_data ? page_data.locale : this.languageSelector.get('value');
+				page_locale = page_data ? page_data.locale : this.languageSelector.get('value');
 				
 				//Open sitemap in same language as currently opened page
 				if (page_locale != this.languageSelector.get('value')) {
@@ -667,6 +708,11 @@ function (Y) {
 			
 			//Start loading data
 			this.tree.get('data').load();
+			
+			//Show previously opened page
+			if (page_data && page_data.tree_path) {
+				this.restoreState([].concat(page_data.tree_path));
+			}
 		}
 	});
 	
