@@ -876,7 +876,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					
 					Supra.mix(node.get('data'), {
 						'children': data.children_count ? [] : null,
-						'children_count': 0
+						'children_count': 0,
+						'temporary': false
 					}, data);
 					
 					//Make sure children is not loaded dynamically, since this is new page
@@ -933,7 +934,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					var dataObject = treeNode.get('tree').get('data'),
 						parentData = dataObject.item(data.parent_id + (is_row_node ? '_list' : ''));
 
-					if (parentData) {
+					if (parentData && !this.hasItemInArray(parentData.children, data.id)) {
 						parentData.children_count++;
 						parentData.children.unshift(node.get('data'));
 					}
@@ -957,6 +958,13 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				this._widgets.buttonCreate.set('loading', false);
 				this._widgets.buttonCancel.set('disabled', false);
 			}, this);
+		},
+		
+		'hasItemInArray': function (array, id) {
+			for (var i=0,ii=array.length; i<ii; i++) {
+				if (array[i]._id === id) return true;
+			}
+			return false;
 		},
 		
 		/**
