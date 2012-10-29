@@ -81,3 +81,5 @@
             - id: fade
               title: Fade
               icon: icons/animation-fade.png
+          additionalParameters:
+              iconStyle: center
