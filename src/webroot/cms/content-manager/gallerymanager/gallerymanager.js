@@ -1,4 +1,4 @@
-Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medialibrary-list', function (Y) {
+Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medialibrary-list', 'supra.uploader', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -102,6 +102,13 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		 * @private
 		 */
 		selected_image_data: null,
+		
+		/**
+		 * Image upload folder when using drag and drop from desktop
+		 * @type {String}
+		 * @private
+		 */
+		image_upload_folder: 0,
 		
 		/**
 		 * Image inputs
@@ -218,6 +225,64 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 			marker.on('click', this.openMediaLibrary, this);
 			
 			this.bindDragDrop();
+			this.createUploader();
+		},
+		
+		/**
+		 * Create uploader widget instance
+		 * 
+		 * @private
+		 */
+		createUploader: function () {
+			if (this.uploader) return;
+			
+			//Create uploader
+			var target = this.one('ul.list');
+			
+			this.uploader = new Supra.Uploader({
+				'clickTarget': null,
+				'dropTarget': target,
+				
+				'allowBrowse': false,
+				'allowMultiple': true,
+				'accept': 'image/*',
+				
+				'requestUri': Manager.getAction('MediaLibrary').getDataPath('upload'),
+				'uploadFolderId': this.image_upload_folder
+			});
+			
+			this.uploader.on('file:upload', this.onFileUploadStart, this);
+			this.uploader.on('file:complete', this.onFileUploadEnd, this);
+			this.uploader.on('file:error', this.onFileUploadError, this);
+		},
+		
+		/**
+		 * Handle file upload start
+		 */
+		onFileUploadStart: function (e) {
+			var data = e.details[0];
+			this.addImage({
+				'id': e.id,
+				'title': e.title,
+				'filename': e.filename,
+				'temporary': true
+			});
+		},
+		
+		/**
+		 * Handle file upload end
+		 */
+		onFileUploadEnd: function (e) {
+			var data = e.details[0];
+			this.removeImage(e.old_id);
+			this.addImage(data);
+		},
+		
+		/**
+		 * Handle file upload error
+		 */
+		onFileUploadError: function (e) {
+			this.removeImage(e.id);
 		},
 		
 		/**
@@ -689,6 +754,11 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		listItemDragEnter: function (e) {
 			if (this.shared) return;
 			
+			if (e._event.dataTransfer.effectAllowed == 'all') {
+				// Trying to drop files from desktop, can't do that!
+				return;
+			}
+			
 			if (e.target.test('b')) {
 				var target = e.target.closest('LI');
 				target.addClass('gallery-item-over');
@@ -1081,10 +1151,15 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 				html_img = '',
 				label = Supra.Intl.get(['gallerymanager', 'click_here']),
 				value = null,
-				propertyData = data.properties;
+				propertyData = data.properties,
+				temporary = data.image.temporary;
 			
 			if (data.image.sizes && preview_size in data.image.sizes) {
 				src = data.image.sizes[preview_size].external_path;
+			} else if (data.image.thumbnail) {
+				// Try guessing, posibbly image will not match url if ratio is not
+				// the same as to preview width/height
+				src = data.image.thumbnail.replace(/\/\d+x\d+\//, '/' + preview_size + '/');
 			} else {
 				src = this.PREVIEW_BROKEN;
 			}
@@ -1102,9 +1177,14 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 			}
 			
 			//HTML for image (center, handle error)
-			html_img = '<span class="img"><i></i><img src="' + src + '" alt="" onerror="this.src=\'' + this.PREVIEW_BROKEN + '\'" /><b>' + Supra.Intl.get(['gallerymanager', 'drop_replace']) + '</b></span>';
+			html_img = '<span class="img">' +
+							'<i></i>'+
+							'<img src="' + src + '" alt="" onerror="this.src=\'' + this.PREVIEW_BROKEN + '\'" />' +
+							'<b>' + Supra.Intl.get(['gallerymanager', 'drop_replace']) + '</b>' +
+							(temporary ? '<span class="loading-icon"></span>' : '') +
+						'</span>';
 			
-			item = Y.Node.create('<li class="yui3-dd-drop gallery-item" data-id="' + data.image.id + '" title="' + Supra.Intl.get(['gallerymanager', 'click_here_edit']) + '">' + html_img + html + '</li>');
+			item = Y.Node.create('<li class="yui3-dd-drop gallery-item' + (temporary ? ' loading' : '') + '" data-id="' + data.image.id + '" title="' + Supra.Intl.get(['gallerymanager', 'click_here_edit']) + '">' + html_img + html + '</li>');
 			item.setData('imageId', data.image.id);
 			list.append(item);
 		},
@@ -1217,7 +1297,8 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 				'callback': null,
 				'context': null,
 				'properties': [],
-				'shared': false
+				'shared': false,
+				'imageUploadFolder': 0
 			}, options);
 			
 			if (!Manager.getAction('PageToolbar').inHistory(this.NAME)) {
@@ -1231,6 +1312,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 			
 			this.data = options.data;
 			this.image_properties = options.properties || [];
+			this.image_upload_folder = options.imageUploadFolder || 0;
 			
 			this.renderData();
 

@@ -201,15 +201,17 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			})).render();
 			
 			//On folder change show/hide private/public buttons
-			this.medialist.slideshow.on('slideChange', this.onItemChange, this);
+			list.slideshow.on('slideChange', this.onItemChange, this);
 			
 			//Pass through events
-			this.bubbleEvents(this.medialist, ['replace', 'rotate', 'crop']);
+			this.bubbleEvents(list, ['replace', 'rotate', 'crop']);
 			
 			//Add file upload support
-			list.plug(Supra.MediaLibraryList.Upload, {
+			list.upload = new Supra.MediaLibraryList.Uploader({
 				'requestUri': this.getDataPath('upload'),
-				'dragContainer': new Y.Node(document.body)
+				'medialist': list,
+				'dropTarget': list.get('boundingBox'),
+				'clickTarget': Manager.PageToolbar.getActionButton('mlupload')
 			});
 			
 			//Create "Sort by" widget
@@ -294,9 +296,7 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			switch (button_id) {
 				case 'mlupload':
 					
-					if (FILE_API_SUPPORTED) {
-						this.medialist.upload.openBrowser();
-					}
+					// Handled by Uploder
 					
 					break;
 					

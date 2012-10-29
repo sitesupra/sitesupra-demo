@@ -185,8 +185,7 @@ Supra('supra.panel', 'transition', function (Y) {
 			if (this.uploader) return;
 			
 			//Create uploader
-			var ml = Manager.getAction('MediaLibrary'),
-				target = this.one('li:last-child');
+			var target = this.one('li:last-child');
 			
 			this.user_id = this.getUserId();
 			
@@ -194,12 +193,12 @@ Supra('supra.panel', 'transition', function (Y) {
 				'clickTarget': target,
 				'dropTarget': target,
 				
-				'multiple': false,
+				'allowMultiple': false,
 				'accept': 'image/*',
 				
 				'requestUri': Manager.getAction('UserAvatar').getDataPath('upload'),
+				'uploadFolderId': Supra.data.get(['mediaLibrary', 'avatarFolder'], 0),
 				'data': {
-					'folder': Supra.data.get(['mediaLibrary', 'avatarFolder'], 0),
 					'user_id': this.user_id
 				}
 			});
