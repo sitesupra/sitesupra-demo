@@ -4,7 +4,7 @@ namespace Supra\User\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
 use Doctrine\Common\Collections;
 use DateTime;
@@ -273,15 +273,15 @@ class User extends AbstractUser
 	}
 
 	/**
-	 * @param Locale $locale 
+	 * @param LocaleInterface $locale
 	 */
-	public function setLocale(Locale $locale)
+	public function setLocale(LocaleInterface $locale)
 	{
 		$this->localeId = $locale->getId();
 	}
 
 	/**
-	 * @return Locale
+	 * @return LocaleInterface
 	 */
 	public function getLocale()
 	{

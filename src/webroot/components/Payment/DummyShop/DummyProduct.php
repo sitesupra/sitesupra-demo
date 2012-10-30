@@ -5,7 +5,7 @@ namespace Project\Payment\DummyShop;
 use Supra\Payment\Product\ProductAbstraction;
 use Supra\Payment\Entity\Currency\Currency;
 use \DateTime;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 
 class DummyProduct implements ProductAbstraction
 {
@@ -36,7 +36,7 @@ class DummyProduct implements ProductAbstraction
 		return $this->pricePerItem * $quantity;
 	}
 
-	public function getDescription(Locale $locale = null)
+	public function getDescription(LocaleInterface $locale = null)
 	{
 		return 'Trololo Product ' . $this->id;
 	}

@@ -10,7 +10,7 @@ use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Entity\Order\OrderItem;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Entity\Order\OrderProductItem;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Transaction\TransactionType;
@@ -528,10 +528,10 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 	/**
 	 * @param Order $order
-	 * @param Locale $locale 
+	 * @param LocaleInterface $locale
 	 * @return boolean
 	 */
-	public function getOrderItemDescription(Order $order, Locale $locale = null)
+	public function getOrderItemDescription(Order $order, LocaleInterface $locale = null)
 	{
 		return 'Paypal fee - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
 	}

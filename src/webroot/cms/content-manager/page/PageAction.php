@@ -17,7 +17,7 @@ use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
 use Supra\Controller\Pages\BrokenBlockController;
 use Supra\Uri\Path;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
@@ -711,7 +711,7 @@ class PageAction extends PageManagerAction
 		$locales = $localeManager->getLocales();
 
 		foreach ($locales as $locale) {
-			/* @var $locale Locale */
+			/* @var $locale LocaleInterface */
 
 			$_localeId = $locale->getId();
 			$pathPrefix = new Path($_localeId);

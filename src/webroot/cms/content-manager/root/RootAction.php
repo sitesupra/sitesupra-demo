@@ -7,7 +7,6 @@ use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Request;
 use Supra\Response;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Locale\Locale;
 
 /**
  * Root action, returns initial HTML
