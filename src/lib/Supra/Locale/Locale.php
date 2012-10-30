@@ -12,6 +12,11 @@ class Locale implements LocaleInterface
 	/**
 	 * @var string
 	 */
+	protected $id;
+
+	/**
+	 * @var string
+	 */
 	protected $context = self::DEFAULT_CONTEXT;
 
 	/**

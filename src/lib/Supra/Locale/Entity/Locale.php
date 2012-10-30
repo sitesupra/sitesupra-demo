@@ -22,6 +22,13 @@ class Locale extends LocaleObject implements CrudEntityInterface
 	protected $context = self::DEFAULT_CONTEXT;
 
 	/**
+	 * @Id
+	 * @Column(type="string", nullable=false)
+	 * @var string
+	 */
+	protected $id;
+
+	/**
 	 * @Column(type="string", nullable=false)
 	 * @var string
 	 */
