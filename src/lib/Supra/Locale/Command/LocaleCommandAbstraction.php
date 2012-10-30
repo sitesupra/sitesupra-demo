@@ -56,7 +56,7 @@ abstract class LocaleCommandAbstraction extends SymfonyCommand
 	}
 
 	/**
-	 * @return Locale\Locale
+	 * @return Locale\LocaleInterface
 	 */
 	protected function fetchLocaleFromInput()
 	{
