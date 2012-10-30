@@ -119,4 +119,13 @@ class Locale extends LocaleObject implements CrudEntityInterface
 		$this->addProperty('language', $editValues->get('languageProperty'));
 	}
 
+	/**
+	 * Loads full name of the class
+	 * TODO: Decide is it smart
+	 */
+	public static function CN()
+	{
+		return get_called_class();
+	}
+
 }
