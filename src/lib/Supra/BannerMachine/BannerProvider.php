@@ -9,8 +9,8 @@ use Supra\BannerMachine\Entity\Banner;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\BannerMachine\BannerType\BannerTypeAbstraction;
 use Supra\BannerMachine\Exception\BannerNotFoundException;
-use \DateTime;
-use Supra\Locale\Locale;
+use DateTime;
+use Supra\Locale\LocaleInterface;
 use Supra\FileStorage\Entity\Abstraction\File;
 
 class BannerProvider
@@ -187,7 +187,7 @@ class BannerProvider
 		}
 	}
 
-	public function getRandomBanner(BannerTypeAbstraction $bannerType, Locale $locale)
+	public function getRandomBanner(BannerTypeAbstraction $bannerType, LocaleInterface $locale)
 	{
 		if (empty($this->types[$bannerType->getId()])) {
 			throw new Exception\RuntimeException('Unknown banner type "' . $bannerType->getId() . '".');

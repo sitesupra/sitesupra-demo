@@ -2,7 +2,7 @@
 
 namespace Supra\Payment\Entity\Order;
 
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use \DateTime;
 use Supra\Payment\Entity\Currency\Currency;
 use Supra\Payment\Product\ProductAbstraction;
@@ -115,10 +115,10 @@ class OrderProductItem extends OrderItem
 	}
 
 	/**
-	 * @param Locale $locale
+	 * @param LocaleInterface $locale
 	 * @return string
 	 */
-	public function getDescription(Locale $locale = null)
+	public function getDescription(LocaleInterface $locale = null)
 	{
 		$product = $this->getProduct();
 

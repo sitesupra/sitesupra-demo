@@ -3,7 +3,6 @@
 namespace Supra\Controller\Pages\Twig;
 
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Locale\Locale;
 use Supra\Request\RequestInterface;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Uri\Path;

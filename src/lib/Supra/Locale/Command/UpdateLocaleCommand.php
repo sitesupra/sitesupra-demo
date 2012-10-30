@@ -19,7 +19,7 @@ class UpdateLocaleCommand extends LocaleCommandAbstraction
 	protected $locale;
 
 	/**
-	 * @return Locale\Locale
+	 * @return Locale\LocaleInterface
 	 */
 	public function getLocale()
 	{

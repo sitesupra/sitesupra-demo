@@ -22,7 +22,7 @@ class TranslationCrudRepository extends \Doctrine\ORM\EntityRepository implement
 			$localeManager = \Supra\ObjectRepository\ObjectRepository::getLocaleManager($this);
 
 			foreach ($localeManager->getLocales() as $locale) {
-				/* @var $locale \Supra\Locale\Locale */
+				/* @var $locale \Supra\Locale\LocaleInterface */
 				$languageId = $locale->getId();
 				$languages[$languageId] = $locale->getTitle();
 			}

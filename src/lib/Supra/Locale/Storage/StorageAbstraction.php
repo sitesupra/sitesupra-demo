@@ -2,7 +2,7 @@
 
 namespace Supra\Locale\Storage;
 
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 
 /**
  * Locale storage abstraction
@@ -17,9 +17,9 @@ abstract class StorageAbstraction implements StorageInterface
 
 	/**
 	 * Sets locale data provider
-	 * @param Locale $locale
+	 * @param LocaleInterface $locale
 	 */
-	public function setLocale(Locale $locale)
+	public function setLocale(LocaleInterface $locale)
 	{
 		$this->locale = $locale;
 	}

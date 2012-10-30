@@ -3,7 +3,7 @@
 namespace Supra\Controller\Pages\Finder;
 
 use Supra\Controller\Pages\Entity;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 
 /**
  * LocalizationFinder
@@ -120,7 +120,7 @@ class LocalizationFinder extends AbstractFinder
 
 	public function setLocale($locale)
 	{
-		if ($locale instanceof Locale) {
+		if ($locale instanceof LocaleInterface) {
 			$locale = $locale->getId();
 		}
 		$this->locale = $locale;

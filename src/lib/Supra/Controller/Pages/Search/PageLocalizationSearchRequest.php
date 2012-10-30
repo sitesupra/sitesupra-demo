@@ -5,7 +5,7 @@ namespace Supra\Controller\Pages\Search;
 use \Solarium_Query_Select;
 use \Solarium_Result_Select;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\Request\Abstraction\SearchRequestAbstraction;
 use Supra\Search\Result\DefaultSearchResultSet;
@@ -34,7 +34,7 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	}
 
 	/**
-	 * @param Locale $locale 
+	 * @param LocaleInterface $locale
 	 */
 	public function setLocale($locale)
 	{

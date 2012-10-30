@@ -2,9 +2,7 @@
 
 namespace Supra\Locale\Entity;
 
-use Supra\Database;
-use Supra\Locale\Exception;
-use Supra\Locale\Locale as LocaleInterface;
+use Supra\Locale\Locale as LocaleObject;
 use Supra\Cms\CrudManager\CrudEntityInterface;
 use Supra\Validator\FilteredInput;
 use Supra\Cms\Exception\CmsException;
@@ -13,10 +11,8 @@ use Supra\Cms\Exception\CmsException;
  * @Entity(repositoryClass="Supra\Cms\LocaleManager\LocaleManagerCrudRepository")
  * @Table(indexes={@index(name="context_idx", columns={"context"})})
  */
-class Locale extends Database\Entity implements LocaleInterface, CrudEntityInterface
+class Locale extends LocaleObject implements CrudEntityInterface
 {
-
-	const DEFAULT_CONTEXT = 'unified';
 
 	/**
 	 * @Id
@@ -54,150 +50,6 @@ class Locale extends Database\Entity implements LocaleInterface, CrudEntityInter
 	 * @var boolean
 	 */
 	protected $default = false;
-
-	/**
-	 * 
-	 */
-	function __construct($context = self::DEFAULT_CONTEXT)
-	{
-// Do nothing - parent constructor calls $this->regenerateId(), 
-// which is not what we want here.
-
-		$this->context = $context;
-	}
-
-	/**
-	 * @return string
-	 * @throws Exception\RuntimeException
-	 */
-	public function getId()
-	{
-		if (empty($this->id)) {
-			throw new Exception\RuntimeException('Locale id not set.');
-		}
-
-		return $this->id;
-	}
-
-	/**
-	 * @param string $id
-	 */
-	public function setId($id)
-	{
-		$this->id = $id;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTitle()
-	{
-		return $this->title;
-	}
-
-	/**
-	 * @param string $title
-	 */
-	public function setTitle($title)
-	{
-		$this->title = $title;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCountry()
-	{
-		return $this->country;
-	}
-
-	/**
-	 * @param string $country
-	 */
-	public function setCountry($country)
-	{
-		$this->country = $country;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getProperties()
-	{
-		return $this->properties;
-	}
-
-	/**
-	 * @param array $properties
-	 */
-	public function setProperties($properties)
-	{
-		$this->properties = $properties;
-	}
-
-	/**
-	 * Sets property
-	 * @param string $name
-	 * @param mixed $value 
-	 */
-	public function addProperty($name, $value)
-	{
-		$this->properties[$name] = $value;
-	}
-
-	/**
-	 * Returns propery
-	 * @param string $name
-	 * @return mixed
-	 */
-	public function getProperty($name)
-	{
-		if (isset($this->properties[$name])) {
-			return $this->properties[$name];
-		}
-	}
-
-	/**
-	 * 
-	 * @return boolean
-	 */
-	public function isActive()
-	{
-		return $this->active;
-	}
-
-	/**
-	 * 
-	 * @param boolean $active
-	 */
-	public function setActive($active)
-	{
-		$this->active = $active;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function isDefault()
-	{
-		return $this->default;
-	}
-
-	/**
-	 * @param boolean $default
-	 */
-	public function setDefault($default)
-	{
-		$this->default = $default;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getContext()
-	{
-		return $this->context;
-	}
 
 	/**
 	 * @return array

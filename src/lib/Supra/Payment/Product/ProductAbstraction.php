@@ -4,7 +4,7 @@ namespace Supra\Payment\Product;
 
 use Supra\Payment\Entity\Currency\Currency;
 use \DateTime;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 
 interface ProductAbstraction
 {
@@ -15,5 +15,5 @@ interface ProductAbstraction
 
 	public function getPrice($quantity, Currency $currency, DateTime $when = null);
 	
-	public function getDescription(Locale $locale);
+	public function getDescription(LocaleInterface $locale);
 }

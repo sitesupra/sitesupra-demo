@@ -114,7 +114,7 @@ class DatabaseBackedLocaleManager extends LocaleManager
 	/**
 	 * @param Locale $locale
 	 */
-	public function add(Locale $locale)
+	public function add(LocaleInterface $locale)
 	{
 		throw new Exception\RuntimeException('Locale may not be added with add() for database backed locale manager.');
 	}

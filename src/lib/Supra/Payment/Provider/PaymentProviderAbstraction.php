@@ -8,7 +8,7 @@ use Supra\Payment\Entity\Order\Order;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Entity\Order\ShopOrder;
 use Supra\Payment\Entity\Order\RecurringOrder;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Transaction\TransactionType;
@@ -254,7 +254,7 @@ abstract class PaymentProviderAbstraction
 		throw new Exception\RuntimeException('Recurring payment transactions not implemented.');
 	}
 
-	abstract function getOrderItemDescription(Order $order, Locale $locale);
+	abstract function getOrderItemDescription(Order $order, LocaleInterface $locale);
 
 	/**
 	 * @return string

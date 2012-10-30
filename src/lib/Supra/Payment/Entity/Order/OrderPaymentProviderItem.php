@@ -3,7 +3,7 @@
 namespace Supra\Payment\Entity\Order;
 
 use \DateTime;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use Supra\ObjectRepository\ObjectRepository;
 
 /**
@@ -48,10 +48,10 @@ class OrderPaymentProviderItem extends OrderItem
 	}
 	
 	/**
-	 * @param Locale $locale
+	 * @param LocaleInterface $locale
 	 * @return string 
 	 */
-	public function getDescription(Locale $locale = null)
+	public function getDescription(LocaleInterface $locale = null)
 	{
 		$paymentProviderCollection = ObjectRepository::getPaymentProviderCollection($this);
 

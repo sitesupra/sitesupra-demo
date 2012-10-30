@@ -25,7 +25,7 @@ class LocaleManager
 
 	/**
 	 * Current locale identifier
-	 * @var Locale
+	 * @var LocaleInterface
 	 */
 	protected $current;
 
@@ -37,10 +37,10 @@ class LocaleManager
 
 	/**
 	 * Add locale data
-	 * @param Locale $locale
+	 * @param LocaleInterface $locale
 	 * @throws Exception if Locale's ID is empty
 	 */
-	public function add(Locale $locale)
+	public function add(LocaleInterface $locale)
 	{
 		$id = $locale->getId();
 		
@@ -111,7 +111,7 @@ class LocaleManager
 	{
 		$localeIdentifier = null;
 
-		if ($locale instanceof Locale) {
+		if ($locale instanceof LocaleInterface) {
 			$localeIdentifier = $locale->getId();
 		} else {
 			$localeIdentifier = $locale;
@@ -213,7 +213,7 @@ class LocaleManager
 	{
 		$locale = $this->getLocale($localeId, false);
 
-		if ($locale instanceof Locale) {
+		if ($locale instanceof LocaleInterface) {
 			return $locale->isActive();
 		}
 

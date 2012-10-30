@@ -6,7 +6,6 @@ use \Solarium_Query_Select;
 use \Solarium_Result_Select;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\Request\Abstraction\SearchRequestAbstraction;
-use Supra\Locale\Locale;
 use Supra\ObjectRepository\ObjectRepository;
 use \Supra\Search\Result\DefaultSearchResultSet;
 

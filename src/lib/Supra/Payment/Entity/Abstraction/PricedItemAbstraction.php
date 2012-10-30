@@ -6,7 +6,7 @@ use Supra\Database;
 use Supra\Payment\Entity\Currency\Currency;
 use \DateTime;
 use Supra\Payment\Product\ProductAbstraction;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use Supra\Payment\Entity\Order\Order;
 
 /**
@@ -58,7 +58,7 @@ abstract class PricedItemAbstraction extends Database\Entity
 		$this->order = $order;
 	}
 
-	public function getDescription(Locale $locale = null)
+	public function getDescription(LocaleInterface $locale = null)
 	{
 		return 'Some description';
 	}

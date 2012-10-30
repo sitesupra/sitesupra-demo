@@ -4,7 +4,7 @@ namespace Supra\Payment\Entity\Order;
 
 use \DateTime;
 use Supra\Database;
-use Supra\Locale\Locale;
+use Supra\Locale\LocaleInterface;
 use Supra\Payment\Entity\Currency\Currency;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Product\ProductAbstraction;
@@ -100,15 +100,15 @@ abstract class Order extends Database\Entity
 	}
 
 	/**
-	 * @param Locale $locale 
+	 * @param LocaleInterface $locale
 	 */
-	public function setLocale(Locale $locale)
+	public function setLocale(LocaleInterface $locale)
 	{
 		$this->localeId = $locale->getId();
 	}
 
 	/**
-	 * @return Locale
+	 * @return LocaleInterface
 	 */
 	public function getLocale()
 	{
@@ -319,9 +319,9 @@ abstract class Order extends Database\Entity
 	}
 
 	/**
-	 * @param Locale $locale 
+	 * @param LocaleInterface $locale
 	 */
-	public function updateLocale(Locale $locale)
+	public function updateLocale(LocaleInterface $locale)
 	{
 		if ($this->locale != $locale->getId()) {
 			$this->setLocale($locale);
