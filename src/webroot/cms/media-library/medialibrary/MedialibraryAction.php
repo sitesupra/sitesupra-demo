@@ -273,6 +273,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 			$fileName = $this->getRequestParameter('filename');
 
+			if (trim($fileName) == '') {
+				throw new CmsException(null, 'Empty filename not allowed');
+			}
+
 			$originalFileInfo = pathinfo($file->getFileName());
 
 			$newFileInfo = pathinfo($fileName);
