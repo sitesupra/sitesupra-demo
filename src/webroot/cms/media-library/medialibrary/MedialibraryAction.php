@@ -43,12 +43,29 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	}
 
 	/**
+	 * @param Entity\Abstraction\File $node
+	 * @return array
+	 */
+	private function getEntityData($node)
+	{
+		$item = array();
+
+		$item['id'] = $node->getId();
+		$item['filename'] = $node->getFileName();
+		$item['type'] = $this->getEntityType($node);
+		$item['children_count'] = $node->getNumberChildren();
+		$item['private'] = ! $node->isPublic();
+		$item['timestamp'] = $node->getModificationTime()->getTimestamp();
+
+		return $item;
+	}
+
+	/**
 	 * Used for list folder item
 	 */
 	public function listAction()
 	{
 		$rootNodes = array();
-		$localeId = $this->getLocale()->getId();
 
 		// FIXME: store the classname as constant somewhere?
 		/* @var $repo FileRepository */
@@ -66,7 +83,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		foreach ($rootNodes as $rootNode) {
 			/* @var $rootNode Entity\Abstraction\File */
-			$item = array();
 
 			if ( ! $this->emptyRequestParameter('type')) {
 
@@ -80,6 +96,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					continue;
 				}
 			}
+
+			$item = $this->getEntityData($rootNode);
 
 			if ($rootNode instanceof Entity\File) {
 
@@ -113,13 +131,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					$item['broken'] = true;
 				}
 			}
-
-			$item['id'] = $rootNode->getId();
-			$item['filename'] = $rootNode->getFileName();
-			$item['type'] = $this->getEntityType($rootNode);
-			$item['children_count'] = $rootNode->getNumberChildren();
-			$item['private'] = ! $rootNode->isPublic();
-			$item['timestamp'] = $rootNode->getModificationTime()->getTimestamp();
 
 			$output[] = $item;
 		}
@@ -396,6 +407,58 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->checkActionPermission($uploadPermissionCheckFolder, Entity\Abstraction\File::PERMISSION_UPLOAD_NAME);
 
 		try {
+
+			// getting the folder to upload in
+			$folder = null;
+			if ( ! $this->emptyRequestParameter('folder')) {
+				$folder = $this->getFolder('folder');
+			}
+
+			// Will return the top folder created/found from folderPath string
+			$firstSubFolder = null;
+
+			// Create/get folder by path provided
+			$folderPath = $this->getRequest()
+					->getPostValue('folderPath', '');
+
+			$folderPathParts = explode('/', trim(str_replace('\\', '/', $folderPath), '/'));
+
+			if ( ! empty($folderPathParts)) {
+				foreach ($folderPathParts as $part) {
+
+					$folderFound = false;
+					$children = null;
+
+					if ($folder instanceof Folder) {
+						$children = $folder->getChildren();
+					} elseif (is_null($folder)) {
+						$children = $repository->getRootNodes();
+					} else {
+						throw new \LogicException("Not supported folder type: " . gettype($folder) . ', class: ' . get_class($folder));
+					}
+
+					foreach ($children as $child) {
+						if ($child instanceof Folder) {
+							$_name = $child->getTitle();
+							if (strcasecmp($_name, $part) === 0) {
+								$folderFound = $child;
+								break;
+							}
+						}
+					}
+
+					if ($folderFound) {
+						$folder = $folderFound;
+					} else {
+						$folder = $this->createFolder($part, $folder);
+					}
+
+					if (empty($firstSubFolder)) {
+						$firstSubFolder = $folder;
+					}
+				}
+			}
+
 			// checking for replace action
 			if ( ! $this->emptyRequestParameter('file_id')) {
 				$fileToReplace = $this->getFile('file_id');
@@ -434,60 +497,11 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				$fileEntity->setHeight($imageInfo->getHeight());
 			}
 
-			// adding file as folders child if parent folder is set
-			$folder = null;
-			if ( ! $this->emptyRequestParameter('folder')) {
-
-				$folder = $this->getFolder('folder');
-
+			if ( ! empty($folder)) {
 				// get parent folder private/public status
 				$publicStatus = $folder->isPublic();
 				$fileEntity->setPublic($publicStatus);
-			}
 
-			//TODO: Will be removed. The JS will request creation of all folders beforehand.
-			$folderPath = $this->getRequest()
-					->getPostValue('folderPath', null);
-
-			if ( ! empty($folderPath)) {
-
-				// Flush before folder creation
-				$this->entityManager->flush();
-
-				$folderPathParts = explode('/', trim(str_replace('\\', '/', $folderPath), '/'));
-
-				foreach ($folderPathParts as $part) {
-
-					$folderFound = false;
-					$children = null;
-
-					if ($folder instanceof Folder) {
-						$children = $folder->getChildren();
-					} elseif (is_null($folder)) {
-						$children = $repository->getRootNodes();
-					} else {
-						throw new \LogicException("Not supported folder type: " . gettype($folder) . ', class: ' . get_class($folder));
-					}
-
-					foreach ($children as $child) {
-						if ($child instanceof Folder) {
-							$_name = $child->getTitle();
-							if (strcasecmp($_name, $part) === 0) {
-								$folderFound = $child;
-								break;
-							}
-						}
-					}
-
-					if ($folderFound) {
-						$folder = $folderFound;
-					} else {
-						$folder = $this->createFolder($part, $folder);
-					}
-				}
-			}
-			
-			if ( ! empty($folder)) {
 				// Flush before nested set UPDATE
 				$this->entityManager->flush();
 				
@@ -550,8 +564,13 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->entityManager->commit();
 		$repository->getNestedSetRepository()->unlock();
 
-		// genrating output
+		// generating output
 		$output = $this->imageAndFileOutput($fileEntity);
+		
+		if ( ! empty($firstSubFolder)) {
+			$firstSubFolderOutput = $this->getEntityData($firstSubFolder);
+			$output['folder'] = $firstSubFolderOutput;
+		}
 
 		$this->writeAuditLog('%item% uploaded', $fileEntity);
 		$this->getResponse()->setResponseData($output);
