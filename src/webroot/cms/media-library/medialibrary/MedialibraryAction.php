@@ -429,9 +429,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$folderPath = $this->getRequest()
 					->getPostValue('folderPath', '');
 
-			$folderPathParts = explode('/', trim(str_replace('\\', '/', $folderPath), '/'));
+			$folderPath = trim(str_replace('\\', '/', $folderPath), '/');
 
-			if ( ! empty($folderPathParts)) {
+			if ( ! empty($folderPath)) {
+				$folderPathParts = explode('/', $folderPath);
 				foreach ($folderPathParts as $part) {
 
 					$folderFound = false;
