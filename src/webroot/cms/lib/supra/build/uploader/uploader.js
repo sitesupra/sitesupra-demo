@@ -772,7 +772,7 @@ YUI.add('supra.uploader', function (Y) {
 			if (!files || !files.length) return false;
 			
 			//Find folder
-			var data = {'file_id': file_id},
+			var data = this.getReplaceFileData(file_id),
 				event_data = null,
 				io = null,
 				uri = this.get('requestUri');
@@ -822,7 +822,7 @@ YUI.add('supra.uploader', function (Y) {
 			if (!file_name || !this.testFileTypeExtension(file_name)) return false;
 			
 			//Find folder
-			var data = {'file_id': file_id},
+			var data = this.getReplaceFileData(file_id),
 				event_data = null,
 				io = null,
 				uri = this.get('requestUri');
@@ -848,6 +848,17 @@ YUI.add('supra.uploader', function (Y) {
 			
 			//Start uploading
 			io.start();
+		},
+		
+		/**
+		 * Returns data for file replace
+		 * 
+		 * @param {String} file_id File ID
+		 * @returns {Object} Upload data
+		 * @private
+		 */
+		getReplaceFileData: function (file_id) {
+			return Supra.mix({'file_id': file_id}, this.get('data'));
 		},
 		
 		/**

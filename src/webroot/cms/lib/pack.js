@@ -19595,7 +19595,7 @@ YUI.add('supra.io-upload-legacy', function (Y) {
 				};
 			
 			//Add data to the form
-			data = Supra.mix(data, this.get('data') || {});
+			data = Supra.io.serialize(Supra.mix(data, this.get('data') || {}));
 			
 			for(var i in data) {
 				input = Y.Node.create('<input type="hidden" />');
@@ -19750,7 +19750,7 @@ YUI.add('supra.io-upload', function (Y) {
 		start: function () {
 			//Use FormData
 			var fd = new FormData(),
-				data = this.get('data') || {},
+				data = Supra.io.serialize(this.get('data') || {}),
 				uri = this.get('requestUri'),
 				limit = 500;	//500 MB
 			
@@ -20619,7 +20619,7 @@ YUI.add('supra.uploader', function (Y) {
 			if (!files || !files.length) return false;
 			
 			//Find folder
-			var data = {'file_id': file_id},
+			var data = this.getReplaceFileData(file_id),
 				event_data = null,
 				io = null,
 				uri = this.get('requestUri');
@@ -20669,7 +20669,7 @@ YUI.add('supra.uploader', function (Y) {
 			if (!file_name || !this.testFileTypeExtension(file_name)) return false;
 			
 			//Find folder
-			var data = {'file_id': file_id},
+			var data = this.getReplaceFileData(file_id),
 				event_data = null,
 				io = null,
 				uri = this.get('requestUri');
@@ -20695,6 +20695,17 @@ YUI.add('supra.uploader', function (Y) {
 			
 			//Start uploading
 			io.start();
+		},
+		
+		/**
+		 * Returns data for file replace
+		 * 
+		 * @param {String} file_id File ID
+		 * @returns {Object} Upload data
+		 * @private
+		 */
+		getReplaceFileData: function (file_id) {
+			return Supra.mix({'file_id': file_id}, this.get('data'));
 		},
 		
 		/**

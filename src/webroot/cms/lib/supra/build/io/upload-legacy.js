@@ -87,7 +87,7 @@ YUI.add('supra.io-upload-legacy', function (Y) {
 				};
 			
 			//Add data to the form
-			data = Supra.mix(data, this.get('data') || {});
+			data = Supra.io.serialize(Supra.mix(data, this.get('data') || {}));
 			
 			for(var i in data) {
 				input = Y.Node.create('<input type="hidden" />');

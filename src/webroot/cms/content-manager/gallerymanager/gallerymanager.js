@@ -248,12 +248,34 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 				'accept': 'image/*',
 				
 				'requestUri': Manager.getAction('MediaLibrary').getDataPath('upload'),
-				'uploadFolderId': this.image_upload_folder
+				'uploadFolderId': this.image_upload_folder,
+				
+				'data': this.getUploaderFileUploadData()
 			});
 			
 			this.uploader.on('file:upload', this.onFileUploadStart, this);
 			this.uploader.on('file:complete', this.onFileUploadEnd, this);
 			this.uploader.on('file:error', this.onFileUploadError, this);
+		},
+		
+		/**
+		 * Returns data which will be sent when uploading file
+		 * Needed for upload to include correct preview size
+		 * 
+		 * @private
+		 */
+		getUploaderFileUploadData: function () {
+			var data = {'sizes': []},
+				size = null;
+			
+			size = this.PREVIEW_SIZE.split('x');
+			data.sizes.push({
+				'width': size[0],
+				'height': size[1],
+				'crop': false
+			});
+			
+			return data;
 		},
 		
 		/**

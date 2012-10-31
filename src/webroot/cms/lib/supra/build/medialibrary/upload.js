@@ -224,6 +224,37 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		},
 		
 		/**
+		 * Returns data for file replace
+		 * 
+		 * @param {String} file_id File ID
+		 * @returns {Object} Upload data
+		 * @private
+		 */
+		getReplaceFileData: function (file_id) {
+			var medialist = this.get('medialist'),
+				data = {'file_id': file_id, 'sizes': []},
+				size = null;
+			
+			// Thumbnail image size
+			size = medialist.get('thumbnailSize').split('x');
+			data.sizes.push({
+				'width': size[0],
+				'height': size[1],
+				'crop': true
+			});
+			
+			// Preview image size
+			size = medialist.get('previewSize').split('x');
+			data.sizes.push({
+				'width': size[0],
+				'height': size[1],
+				'crop': false
+			});
+			
+			return Supra.mix(data, this.get('data'));
+		},
+		
+		/**
 		 * On file upload progress update progress bar
 		 * 
 		 * @param {Event} evt
