@@ -88,14 +88,19 @@ class MultiTableDeleteExecutor extends AbstractSqlExecutor
 
         // 4. Store DDL for temporary identifier table.
         $columnDefinitions = array();
+        $columns = array();
         foreach ($idColumnNames as $idColumnName) {
             $columnDefinitions[$idColumnName] = array(
                 'notnull' => true,
                 'type' => \Doctrine\DBAL\Types\Type::getType($rootClass->getTypeOfColumn($idColumnName))
             );
+            $columns[] = new \Doctrine\DBAL\Schema\Column($idColumnName, $columnDefinitions[$idColumnName]['type'], $columnDefinitions[$idColumnName]);
         }
-        $this->_createTempTableSql = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
-                . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
+        $table = new \Doctrine\DBAL\Schema\Table($tempTable, $columns, array(), array(), 0, array('temporary' => true));
+
+        $this->_createTempTableSql = implode(";\n", $platform->getCreateTableSQL($table));
+//        $this->_createTempTableSql = $platform->getCreateTemporaryTableSnippetSQL() . ' ' . $tempTable . ' ('
+//                . $platform->getColumnDeclarationListSQL($columnDefinitions) . ')';
         $this->_dropTempTableSql = $platform->getDropTemporaryTableSQL($tempTable);
     }
 
