@@ -171,6 +171,12 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$folder = new Entity\Folder();
 		$this->entityManager->persist($folder);
 
+		$dirName = trim($dirName);
+
+		if (empty($dirName)) {
+			throw new CmsException(null, "Folder name shouldn't be empty");
+		}
+
 		$folder->setFileName($dirName);
 
 		// Adding child folder if parent exists
