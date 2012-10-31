@@ -92,7 +92,7 @@ YUI.add('supra.io-upload-legacy', function (Y) {
 			for(var i in data) {
 				input = Y.Node.create('<input type="hidden" />');
 				input.setAttribute('name', i);
-				input.setAttribute('value', data[i]);
+				input.setAttribute('value', decodeURIComponent(data[i]));
 				form.append(input);
 			}
 			

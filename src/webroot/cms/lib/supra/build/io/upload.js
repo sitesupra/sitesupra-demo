@@ -73,7 +73,9 @@ YUI.add('supra.io-upload', function (Y) {
 			
 			fd.append("MAX_FILE_SIZE", limit * 1024 * 1024);
 			fd.append("file", this.get('file'));
-			for(var i in data) fd.append(i, data[i]);
+			for(var i in data) {
+				fd.append(i, decodeURIComponent(data[i]));
+			}
 			
 			var xhr = this.xhr = new XMLHttpRequest();
 			

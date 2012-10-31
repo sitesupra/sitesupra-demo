@@ -206,6 +206,22 @@
 			background: url(images/icons/broken.png) 0 0 no-repeat;
 		}
 		
+		&.loading.type-folder {
+			position: relative;
+			cursor: default;
+			
+			> a {
+				.loading-icon(20px);
+				.loading-icon-light();
+				
+				left: 15px;
+				top: 9px;
+				margin: 0;
+				background-image: none;
+				cursor: default;
+			}
+		}
+		
 	}
 	
 	/*

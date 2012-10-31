@@ -19600,7 +19600,7 @@ YUI.add('supra.io-upload-legacy', function (Y) {
 			for(var i in data) {
 				input = Y.Node.create('<input type="hidden" />');
 				input.setAttribute('name', i);
-				input.setAttribute('value', data[i]);
+				input.setAttribute('value', decodeURIComponent(data[i]));
 				form.append(input);
 			}
 			
@@ -19756,7 +19756,9 @@ YUI.add('supra.io-upload', function (Y) {
 			
 			fd.append("MAX_FILE_SIZE", limit * 1024 * 1024);
 			fd.append("file", this.get('file'));
-			for(var i in data) fd.append(i, data[i]);
+			for(var i in data) {
+				fd.append(i, decodeURIComponent(data[i]));
+			}
 			
 			var xhr = this.xhr = new XMLHttpRequest();
 			
@@ -20326,9 +20328,9 @@ YUI.add('supra.uploader', function (Y) {
 				
 				if (item.webkitGetAsEntry) {
 					entry = item.webkitGetAsEntry();
-				} else if (entry = item.mozGetAsEntry()) {
+				} else if (entry = item.mozGetAsEntry) {
 					entry = item.mozGetAsEntry();
-				} else if (entry = item.getAsEntry()) {
+				} else if (entry = item.getAsEntry) {
 					entry = item.getAsEntry();
 				}
 				
@@ -20484,6 +20486,10 @@ YUI.add('supra.uploader', function (Y) {
 		 * @private
 		 */
 		uploadFiles: function (folder /* Folder ID */, files /* File list */) {
+			/*
+			 * !IMPORTANT
+			 * If you are updating this file, please update also medialibrary/upload.js
+			 */
 			if (!files || !files.length) return;
 			
 			//Find folder
@@ -20495,7 +20501,10 @@ YUI.add('supra.uploader', function (Y) {
 				file_id = null,
 				file = null,
 				file_name = null,
-				queue = [];
+				queue = [],
+				
+				count = 0,
+				loaded = 0;
 			
 			for(var i=0,ii=files.length; i<ii; i++) {
 				//If validation fails, then skip this one
@@ -20514,9 +20523,9 @@ YUI.add('supra.uploader', function (Y) {
 				//Event data will be passed to 'load' and 'progress' event listeners
 				event_data = {
 					'folder': folder,
-					'folderPath': data.folderPath,
 					'file_id': file_id,
-					'file_name': file_name
+					'file_name': file_name,
+					'folderPath': data.folderPath
 				};
 				
 				io = new IO({
@@ -20527,12 +20536,17 @@ YUI.add('supra.uploader', function (Y) {
 				});
 				
 				//Fire event
-				this.fire('file:upload', {'title': file_name, 'filename': file_name, 'id': file_id});
+				this.fire('file:upload', {'title': file_name, 'filename': file_name, 'id': file_id, 'folderPath': data.folderPath});
 				
 				//Add event listeners
+				count++;
+				
 				io.on('progress', this.onFileProgress, this);
 				io.on('load', function (evt) {
-					this.onFileComplete(evt);
+					loaded++;
+					var completed = count == loaded;
+					
+					this.onFileComplete(evt, completed);
 					this.uploadFilesNext(queue);
 				}, this);
 				
@@ -20563,6 +20577,10 @@ YUI.add('supra.uploader', function (Y) {
 		 * @private
 		 */
 		uploadFilesLegacy: function (folder /* Folder ID */) {
+			/*
+			 * !IMPORTANT
+			 * If you are updating this file, please update also medialibrary/upload.js
+			 */
 			var file_name = this.get('input').getDOMNode().value || '';
 			
 			file_name = file_name.replace(/.*(\\|\/)/, '');
@@ -20587,7 +20605,8 @@ YUI.add('supra.uploader', function (Y) {
 			event_data = {
 				'folder': folder,
 				'file_id': file_id,
-				'file_name': file_name
+				'file_name': file_name,
+				'folderPath': ''
 			};
 			
 			io = new IOLegacy({
@@ -20599,10 +20618,12 @@ YUI.add('supra.uploader', function (Y) {
 			});
 			
 			//Fire event
-			this.fire('file:upload', {'title': file_name, 'filename': file_name, 'id': file_id});
+			this.fire('file:upload', {'title': file_name, 'filename': file_name, 'id': file_id, 'folderPath': ''});
 				
 			//Add event listeners
-			io.on('load', this.onFileComplete, this);
+			io.on('load', function (evt) {
+				this.onFileComplete(evt, true);
+			}, this);
 			
 			//Start uploading
 			io.start();
@@ -20725,9 +20746,10 @@ YUI.add('supra.uploader', function (Y) {
 		 * This is called also if file upload failed
 		 * 
 		 * @param {Event} evt
+		 * @param {Boolean} all_files_completed All file has been uploaded
 		 * @private
 		 */
-		onFileComplete: function (evt) {
+		onFileComplete: function (evt, all_files_completed) {
 			var data = evt.data,
 				file_id = evt.file_id,
 				folder = evt.folder;

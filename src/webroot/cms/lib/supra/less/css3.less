@@ -158,3 +158,39 @@
 	background-image: -webkit-linear-gradient(top, @colorA @posA, @colorB @posB);
 	background-image: -ms-linear-gradient(top, @colorA @posA, @colorB @posB);
 }
+
+/*
+ * Loading icon
+ */
+@-moz-keyframes spin {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(360deg); }
+}
+@-webkit-keyframes spin {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(360deg); }
+}
+@keyframes spin {
+	0% { transform:rotate(0deg); }
+	100% { transform:rotate(360deg); }
+}
+
+.loading-icon (@size: 30px) {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin: -@size/2 0 0 -@size/2;
+	
+	border: 5px solid #C1C0CA;
+	border-top: 5px solid transparent;
+	border-left: 5px solid transparent;
+	.border-radius (@size*2-10px);
+	width: @size;
+	height: @size;
+	
+	.animation (spin .75s infinite linear);
+}
+.loading-icon-light () {
+	border-right-color: rgba(255, 255, 255, 0.3);
+	border-bottom-color: rgba(255, 255, 255, 0.3);
+}

@@ -61,6 +61,10 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 * @private
 		 */
 		uploadFiles: function (folder /* Folder ID */, files /* File list */) {
+			/*
+			 * !IMPORTANT
+			 * If you are updating this file, please update also uploader/uploader.js if needed
+			 */
 			if (!files || !files.length) return;
 			
 			//Find folder
@@ -73,7 +77,10 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				file = null,
 				file_name = null,
 				node = null,
-				queue = [];
+				queue = [],
+				
+				count = 0,
+				loaded = 0;
 			
 			for(var i=0,ii=files.length; i<ii; i++) {
 				//If validation fails, then skip this one
@@ -82,21 +89,26 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				file = files[i];
 				file_name = file.fileName || file.name;
 				
+				//Set folder path
+				data.folderPath = file.path || '';
+				
 				//Create temporary item
-				file_id = this.get('medialist').addFile(folder, {'title': file_name, 'filename': file_name});
+				file_id = this.get('medialist').addFile(folder, {'title': file_name, 'filename': file_name, 'folderPath': data.folderPath});
 				
 				node = this.get('medialist').getItemNode(file_id);
 				
-				//Set folder path
-				data.folderPath = file.path || '';
+				//Show loading icon on folder if uploading into a folder
+				if (data.folderPath && node) {
+					node.addClass('loading');
+				}
 				
 				//Event data will be passed to 'load' and 'progress' event listeners
 				event_data = {
 					'folder': folder,
-					'folderPath': data.folderPath,
 					'file_id': file_id,
 					'file_name': file_name,
-					'node': node
+					'node': node,
+					'folderPath': data.folderPath
 				};
 				
 				io = new IO({
@@ -115,12 +127,17 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				}
 				
 				//Fire event
-				this.fire('file:upload', {'title': file_name, 'filename': file_name, 'id': file_id});
+				this.fire('file:upload', {'title': file_name, 'filename': file_name, 'id': file_id, 'folderPath': data.folderPath});
 				
 				//Add event listeners
+				count++;
+				
 				io.on('progress', this.onFileProgress, this);
 				io.on('load', function (evt) {
-					this.onFileComplete(evt);
+					loaded++;
+					var completed = count == loaded;
+					
+					this.onFileComplete(evt, completed);
 					this.uploadFilesNext(queue);
 				}, this);
 				
@@ -141,6 +158,10 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 * @private
 		 */
 		uploadFilesLegacy: function (folder /* Folder ID */) {
+			/*
+			 * !IMPORTANT
+			 * If you are updating this file, please update also uploader/uploader.js if needed
+			 */
 			var file_name = this.get('input').getDOMNode().value || '';
 			
 			file_name = file_name.replace(/.*(\\|\/)/, '');
@@ -158,14 +179,15 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				file = null;
 			
 			//Create temporary item
-			file_id = this.get('medialist').addFile(folder, {'title': file_name, 'filename': file_name});
+			file_id = this.get('medialist').addFile(folder, {'title': file_name, 'filename': file_name, 'folderPath': ''});
 			
 			//Event data will be passed to 'load' and 'progress' event listeners
 			event_data = {
 				'folder': folder,
 				'file_id': file_id,
 				'file_name': file_name,
-				'node': this.get('medialist').getItemNode(file_id)
+				'node': this.get('medialist').getItemNode(file_id),
+				'folderPath': ''
 			};
 			
 			io = new IOLegacy({
@@ -177,10 +199,12 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 			});
 			
 			//Fire event
-			this.fire('file:upload', {'title': file_name, 'filename': file_name, 'id': file_id});
+			this.fire('file:upload', {'title': file_name, 'filename': file_name, 'id': file_id, 'folderPath': ''});
 			
 			//Add event listeners
-			io.on('load', this.onFileComplete, this);
+			io.on('load', function (evt) {
+				this.onFileComplete(evt, true);
+			}, this);
 			
 			//Start uploading
 			io.start();
@@ -265,7 +289,10 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				this.fire('file:progress', {'id': evt.file_id, 'percentage': evt.percentage});
 			}
 			if (evt.node) {
-				evt.node.one('em').setStyle('width', ~~(evt.percentage) + '%');
+				var progress_node = evt.node.one('em');
+				if (progress_node) {
+					progress_node.setStyle('width', ~~(evt.percentage) + '%');
+				}
 			}
 		},
 		
@@ -274,15 +301,17 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 		 * This is called also if file upload failed
 		 * 
 		 * @param {Event} evt
+		 * @param {Boolean} all_files_completed All file has been uploaded
 		 * @private
 		 */
-		onFileComplete: function (evt) {
+		onFileComplete: function (evt, all_files_completed) {
 			var host = this.get('medialist'),
 				data_object = host.get('data'),
 				data = evt.data,
 				file_id = evt.file_id,
 				node = evt.node,
 				folder = evt.folder,
+				path = evt.folderPath,
 				temp_file = (typeof file_id == 'number' && file_id < 0), 
 				img_node = host.getImageNode();
 				
@@ -290,7 +319,30 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				img_node.ancestor().removeClass('loading');
 			}
 			
-			if (data) {
+			if (path && data) {
+				// File was uploaded within a folder, eg. uploaded a folder inside which was this file
+				
+				if (file_id) {
+					var old_data = data_object.cache.one(file_id);
+					
+					if (old_data && temp_file) {
+						//Remove temporary data and node
+						data_object.cache.remove(file_id);
+												
+						//Add item to the folder list
+						host.addFile(folder, data.folder);
+					} else if (old_data) {
+						data_object.cache.save(data.folder);
+					}
+				}
+				if (node && temp_file) {
+					node.remove();
+				} else if (node && all_files_completed) {
+					node.removeClass('loading');
+				}
+				
+				this.fire('file:complete', Supra.mix({}, data));
+			} else if (data) {
 				if (temp_file) {
 					//Mix temporary and loaded data
 					var old_data = data_object.cache.one(file_id);
@@ -335,9 +387,14 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 					old_id: file_id
 				}, data));
 			} else {
+				//Remove temporary data and node
+				if (file_id) data_object.cache.remove(file_id, true);
+				if (node) node.remove();
+				
 				this.fire('file:error', {
-					id: file_id
+					id: path ? null : file_id
 				});
+				
 				Y.log('Failed to upload "' + evt.file_name + '"', 'debug');
 				if (node) node.remove();
 			}		
