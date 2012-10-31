@@ -60,22 +60,25 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{		
+		$force = (true === $input->getOption('force'));
+		$dumpSql = (true === $input->getOption('dump-sql'));
+		$check = (true === $input->getOption('check'));
+		$forceFixCollation = $force || (true === $input->getOption('fix-collation'));
+		$updateRequired = false;
+
 		// checking database collation
 		$wrongCollations = $this->getWrongCollations();
+
+		if ( ! empty($wrongCollations['tables'])) {
+			$updateRequired = true;
+		}
 		
-		$forceFixCollation = (true === $input->getOption('fix-collation'));
 		$this->outputWrongCollations($output, $wrongCollations, $forceFixCollation);
 		
 		$output->writeln('Updating database schemas...');
 
 		$output->writeln('<comment>ATTENTION</comment>: This operation should not be executed in a production environment.');
-
-		$force = (true === $input->getOption('force'));
-		$dumpSql = (true === $input->getOption('dump-sql'));
-		$check = (true === $input->getOption('check'));
-	
 		
-		$updateRequired = false;
 
 		// Doctrine schema update
 		foreach ($this->entityManagers as $entityManagerName => $em) {
@@ -141,10 +144,10 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 	 */
 	protected function outputWrongCollations(OutputInterface $output, $wrongCollations = array(), $forceFixCollation = false)
 	{
-		$utf8Recommended = 'All tables must use utf8_unicode_ci collation.';
-		if ( ! empty($wrongCollations['database'])) {
-			$output->writeln("<comment>Database has {$wrongCollations['database']} collation set as default. {$utf8Recommended}</comment>");
-		}
+		// This script doesn't fix this, no warning then
+//		if ( ! empty($wrongCollations['database'])) {
+//			$output->writeln("<comment>Database has {$wrongCollations['database']} collation set as default. Default collation utf8_unicode_ci is recommended.</comment>");
+//		}
 
 		if ( ! empty($wrongCollations['tables'])) {
 			$tables = $collations = array();
@@ -157,7 +160,7 @@ class SchemaUpdateCommand extends SchemaAbstractCommand
 			$tables = join(', ', $tables);
 			$collations = join(', ', $collations);
 
-			$output->writeln("<comment>Database tables:</comment>\n{$tables}\n<comment>has one of following collations:</comment>\n{$collations}\n<comment>{$utf8Recommended}</comment>");
+			$output->writeln("<comment>Database tables:</comment>\n{$tables}\n<comment>has one of following collations:</comment>\n{$collations}\n<comment>All tables must use utf8_unicode_ci collation.</comment>");
 
 			if ( ! $forceFixCollation) {
 				$forceFixCollation = $this->askApproval($output, '<question>Database is not up to date. Do you want to update now? [y/N]</question> ');
