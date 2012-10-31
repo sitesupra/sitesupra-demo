@@ -149,6 +149,38 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		$this->getResponse()->setResponseData($return);
 	}
+	
+	/**
+	 * @param string $dirName
+	 * @param Folder $parentFolder
+	 * @return \Supra\FileStorage\Entity\Folder
+	 */
+	private function createFolder($dirName, $parentFolder = null)
+	{
+		$folder = new Entity\Folder();
+		$this->entityManager->persist($folder);
+
+		$folder->setFileName($dirName);
+
+		// Adding child folder if parent exists
+		if ( ! empty($parentFolder)) {
+			// get parent folder private/public status
+			$publicStatus = $parentFolder->isPublic();
+			$folder->setPublic($publicStatus);
+
+			// Flush before nested set UPDATE
+			$this->entityManager->flush();
+
+			$parentFolder->addChild($folder);
+		}
+
+		// trying to create folder
+		$this->fileStorage->createFolder($folder);
+
+		$this->entityManager->flush();
+
+		return $folder;
+	}
 
 	/**
 	 * Used for new folder creation
@@ -168,30 +200,15 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			return;
 		}
 
-		$dir = new Entity\Folder();
-		$this->entityManager->persist($dir);
-
 		$dirName = $this->getRequestParameter('filename');
-		$dir->setFileName($dirName);
+		$parentFolder = null;
 
 		// Adding child folder if parent exists
 		if ( ! $this->emptyRequestParameter('parent')) {
-			$folder = $this->getFolder('parent');
-
-			// get parent folder private/public status
-			$publicStatus = $folder->isPublic();
-			$dir->setPublic($publicStatus);
-
-			// Flush before nested set UPDATE
-			$this->entityManager->flush();
-			
-			$folder->addChild($dir);
+			$parentFolder = $this->getFolder('parent');
 		}
 
-		// trying to create folder
-		$this->fileStorage->createFolder($dir);
-
-		$this->entityManager->flush();
+		$dir = $this->createFolder($dirName, $parentFolder);
 
 		$insertedId = $dir->getId();
 		$this->writeAuditLog('%item% created', $dir);
@@ -426,10 +443,54 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				// get parent folder private/public status
 				$publicStatus = $folder->isPublic();
 				$fileEntity->setPublic($publicStatus);
+			}
 
-				// Flush before nested set UPDATE
+			//TODO: Will be removed. The JS will request creation of all folders beforehand.
+			$folderPath = $this->getRequest()
+					->getPostValue('folderPath', null);
+
+			if ( ! empty($folderPath)) {
+
+				// Flush before folder creation
 				$this->entityManager->flush();
 
+				$folderPathParts = explode('/', trim(str_replace('\\', '/', $folderPath), '/'));
+
+				foreach ($folderPathParts as $part) {
+
+					$folderFound = false;
+					$children = null;
+
+					if ($folder instanceof Folder) {
+						$children = $folder->getChildren();
+					} elseif (is_null($folder)) {
+						$children = $repository->getRootNodes();
+					} else {
+						throw new \LogicException("Not supported folder type: " . gettype($folder) . ', class: ' . get_class($folder));
+					}
+
+					foreach ($children as $child) {
+						if ($child instanceof Folder) {
+							$_name = $child->getTitle();
+							if (strcasecmp($_name, $part) === 0) {
+								$folderFound = $child;
+								break;
+							}
+						}
+					}
+
+					if ($folderFound) {
+						$folder = $folderFound;
+					} else {
+						$folder = $this->createFolder($part, $folder);
+					}
+				}
+			}
+			
+			if ( ! empty($folder)) {
+				// Flush before nested set UPDATE
+				$this->entityManager->flush();
+				
 				$folder->addChild($fileEntity);
 			}
 
