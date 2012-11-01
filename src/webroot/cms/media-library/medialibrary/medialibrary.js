@@ -306,7 +306,7 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 						item   = this.medialist.getSelectedItem();
 					
 					//Close any opened image or file
-					if (item.id != folder.id) {
+					if (item && folder && item.id != folder.id) {
 						this.medialist.open(folder.id);
 					}
 					

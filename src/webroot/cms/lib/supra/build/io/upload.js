@@ -67,13 +67,15 @@ YUI.add('supra.io-upload', function (Y) {
 		start: function () {
 			//Use FormData
 			var fd = new FormData(),
-				data = this.get('data') || {},
+				data = Supra.io.serialize(this.get('data') || {}),
 				uri = this.get('requestUri'),
 				limit = 500;	//500 MB
 			
 			fd.append("MAX_FILE_SIZE", limit * 1024 * 1024);
 			fd.append("file", this.get('file'));
-			for(var i in data) fd.append(i, data[i]);
+			for(var i in data) {
+				fd.append(i, decodeURIComponent(data[i]));
+			}
 			
 			var xhr = this.xhr = new XMLHttpRequest();
 			

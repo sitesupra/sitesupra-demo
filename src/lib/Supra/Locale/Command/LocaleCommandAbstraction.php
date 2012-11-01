@@ -88,7 +88,7 @@ abstract class LocaleCommandAbstraction extends SymfonyCommand
 	 */
 	protected function configure()
 	{
-		$this->addOption('context', null, InputOption::VALUE_REQUIRED, 'Locale manager context', LocaleEntity::DEFAULT_CONTEXT);
+		$this->addOption('context', null, InputOption::VALUE_REQUIRED, 'Locale manager context', Locale\Locale::DEFAULT_CONTEXT);
 	}
 
 	abstract protected function doExecute();

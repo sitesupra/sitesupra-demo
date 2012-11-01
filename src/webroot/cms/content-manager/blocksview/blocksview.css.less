@@ -55,7 +55,16 @@
 			
 			img {
 				display: block;
+				position: relative;
 				width: 32px;	/* Scale from 64 to 32 */
+				margin-top: -32px;
+			}
+		}
+		
+		&:hover,
+		&.selected {
+			.img img {
+				margin-top: 0;
 			}
 		}
 		

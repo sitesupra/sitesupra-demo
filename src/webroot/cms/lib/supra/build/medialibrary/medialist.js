@@ -559,6 +559,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				
 				var id = target.getData('itemId') || target.getAttribute('data-id');
 				
+				//If loading, then skip
+				if (target.hasClass('loading')) {
+					return;
+				}
+				
 				//Blur focused input if item is not selected
 				if (!target.hasClass('selected')) {
 					if (Y.Node(document.activeElement).test('input, textarea')) {
@@ -687,7 +692,22 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			if (parent_data) {
 				//Don't have an ID for this item yet, generate random number
-				var file_id = -(~~(Math.random() * 64000));
+				var file_id = data.id || -(~~(Math.random() * 64000)),
+					type = data.type || List.TYPE_TEMP,
+					filename = data.filename || '';
+				
+				//File should be added to folder, but since we have a path try to lookup
+				//that folder or create a folder and return it instead of file
+				if (data.folderPath) {
+					filename = data.folderPath.split('/')[0];
+					type = List.TYPE_FOLDER;
+					
+					var item = this.getItemDataByTitle(parent_id, filename);
+					if (item) {
+						// Item already exists
+						return item.id;
+					}
+				}
 				
 				//If there is no slide, then skip
 				var slide = this.slideshow.getSlide('slide_' + parent_id);
@@ -700,13 +720,14 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}
 				
 				var data = Supra.mix({
-					id: file_id,
 					parent: parent_id,
-					type: List.TYPE_TEMP,
-					filename: '',
 					thumbnail: null,
 					preview: null
-				}, data || {});
+				}, data || {}, {
+					filename: filename,
+					type: type,
+					id: file_id
+				});
 				
 				//Add item to the file list
 				var data_object = this.get('data');
@@ -1512,6 +1533,28 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			   		'children': children,
 			   		'children_count': loaded ? loaded.totalRecords : null
 			   };
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns loaded item data by title/filename which is inside given folder
+		 * 
+		 * @param {String} parent Parent ID
+		 * @param {String} filename File name
+		 * @returns {Object} File or folder info
+		 */
+		getItemDataByTitle: function (parent /* Parent ID */, filename /* File name*/) {
+			var data = this.get('data'),
+				items = data.cache.all(parent),
+				i = 0,
+				ii = items.length;
+			
+			for (; i<ii; i++) {
+				if (items[i].filename == filename) {
+					return items[i];
+				}
 			}
 			
 			return null;

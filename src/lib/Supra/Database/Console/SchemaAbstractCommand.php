@@ -5,6 +5,7 @@ namespace Supra\Database\Console;
 use Symfony\Component\Console\Command\Command;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * SchemaAbstractCommand
@@ -43,5 +44,28 @@ abstract class SchemaAbstractCommand extends Command
 
 			$this->entityManagers[$mode] = $entityManager;
 		}
+	}
+
+	/**
+	 * @param OutputInterface $output
+	 * @param string $message
+	 * @return boolean
+	 */
+	protected function askApproval(OutputInterface $output, $message)
+	{
+		$dialog = $this->getHelper('dialog');
+
+		$answer = null;
+
+		while ( ! in_array($answer, array('Y', 'N', ''), true)) {
+			$answer = $dialog->ask($output, $message);
+			$answer = strtoupper($answer);
+		}
+
+		if ($answer === 'Y') {
+			return true;
+		}
+
+		return false;
 	}
 }
