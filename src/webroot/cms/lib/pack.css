@@ -823,7 +823,7 @@ button::-moz-focus-inner { border:0; }
 .yui3-form .yui3-form-fill .su-slide-content { padding:0 10px; }
 .yui3-input { padding:0 5px 0 0; }
 .yui3-input .yui3-input { padding:0; }
-.yui3-input-hidden, .yui3-input-string-hidden, .yui3-input-text-hidden, .yui3-input-html-hidden, .yui3-input-number-hidden, .yui3-input-select-hidden, .yui3-input-select-list-hidden, .yui3-input-checkbox-hidden, .yui3-input-path-hidden, .yui3-input-file-upload-hidden, .yui3-input-link-hidden, .yui3-input-image-hidden, .yui3-input-color-hidden, .yui3-input-block-background-hidden, .yui3-input-image-inline-hidden { display:none; }
+.yui3-input-hidden, .yui3-input-string-hidden, .yui3-input-text-hidden, .yui3-input-html-hidden, .yui3-input-number-hidden, .yui3-input-select-hidden, .yui3-input-select-list-hidden, .yui3-input-checkbox-hidden, .yui3-input-path-hidden, .yui3-input-file-upload-hidden, .yui3-input-link-hidden, .yui3-input-image-hidden, .yui3-input-file-hidden, .yui3-input-color-hidden, .yui3-input-block-background-hidden, .yui3-input-image-inline-hidden { display:none; }
 .yui3-input label, .yui3-form p.label, .ui-dark .ui-light .yui3-input label, .ui-dark .ui-light .yui3-form p.label {
   padding:7px 10px 0 5px;
   display:inline-block;
@@ -1837,7 +1837,7 @@ button::-moz-focus-inner { border:0; }
 .yui3-form-default .yui3-input label, .yui3-form-default .yui3-input p.label, .yui3-form-vertical .yui3-input label, .yui3-form-vertical .yui3-input p.label { width:160px; }
 .yui3-form-default .yui3-input:first-child, .yui3-form-vertical .yui3-input:first-child { margin-top:0; }
 .yui3-form-default .yui3-input-string input, .yui3-form-default .yui3-input-number input, .yui3-form-default .yui3-input-text textarea, .yui3-form-default .yui3-input-html textarea, .yui3-form-default .yui3-input-html iframe, .yui3-form-vertical .yui3-input-string input, .yui3-form-vertical .yui3-input-number input, .yui3-form-vertical .yui3-input-text textarea, .yui3-form-vertical .yui3-input-html textarea, .yui3-form-vertical .yui3-input-html iframe { width:400px; }
-.yui3-form-default .yui3-input-image .su-button, .yui3-form-default .yui3-input-link .su-button, .yui3-form-vertical .yui3-input-image .su-button, .yui3-form-vertical .yui3-input-link .su-button {
+.yui3-form-default .yui3-input-image .su-button, .yui3-form-default .yui3-input-file .su-button, .yui3-form-default .yui3-input-link .su-button, .yui3-form-vertical .yui3-input-image .su-button, .yui3-form-vertical .yui3-input-file .su-button, .yui3-form-vertical .yui3-input-link .su-button {
   width:400px;
   display:inline-block;
 }
@@ -1849,27 +1849,27 @@ button::-moz-focus-inner { border:0; }
   width:400px;
   display:inline-block;
 }
-.yui3-form-default .yui3-input-image .su-button, .yui3-form-default .yui3-input-link .su-button, .yui3-form-vertical .yui3-input-image .su-button, .yui3-form-vertical .yui3-input-link .su-button { width:400px; }
-.yui3-form-default .yui3-input-image .su-button div, .yui3-form-default .yui3-input-link .su-button div, .yui3-form-vertical .yui3-input-image .su-button div, .yui3-form-vertical .yui3-input-link .su-button div { display:block; }
-.yui3-form-default .yui3-input-image .su-button button, .yui3-form-default .yui3-input-link .su-button button, .yui3-form-vertical .yui3-input-image .su-button button, .yui3-form-vertical .yui3-input-link .su-button button { width:100%; }
+.yui3-form-default .yui3-input-image .su-button, .yui3-form-default .yui3-input-file .su-button, .yui3-form-default .yui3-input-link .su-button, .yui3-form-vertical .yui3-input-image .su-button, .yui3-form-vertical .yui3-input-file .su-button, .yui3-form-vertical .yui3-input-link .su-button { width:400px; }
+.yui3-form-default .yui3-input-image .su-button div, .yui3-form-default .yui3-input-file .su-button div, .yui3-form-default .yui3-input-link .su-button div, .yui3-form-vertical .yui3-input-image .su-button div, .yui3-form-vertical .yui3-input-file .su-button div, .yui3-form-vertical .yui3-input-link .su-button div { display:block; }
+.yui3-form-default .yui3-input-image .su-button button, .yui3-form-default .yui3-input-file .su-button button, .yui3-form-default .yui3-input-link .su-button button, .yui3-form-vertical .yui3-input-image .su-button button, .yui3-form-vertical .yui3-input-file .su-button button, .yui3-form-vertical .yui3-input-link .su-button button { width:100%; }
 .yui3-form-default .su-button-delete, .yui3-form-default .su-button-edit, .yui3-form-default .su-button-save, .yui3-form-vertical .su-button-delete, .yui3-form-vertical .su-button-edit, .yui3-form-vertical .su-button-save { margin-right:10px; }
 .yui3-form-vertical .yui3-input label, .yui3-form-vertical p.label {
   padding:7px 0 4px 2px;
   width:auto;
 }
 .yui3-form-vertical .yui3-input .description { padding:0 0 4px 2px; }
-.yui3-form-vertical .yui3-input-string label, .yui3-form-vertical .yui3-input-number label, .yui3-form-vertical .yui3-input-text label, .yui3-form-vertical .yui3-input-html label, .yui3-form-vertical .yui3-input-path label, .yui3-form-vertical .yui3-input-select label, .yui3-form-vertical .yui3-input-select-list label, .yui3-form-vertical .yui3-input-file-upload label, .yui3-form-vertical .yui3-input-slider label, .yui3-form-vertical .yui3-input-link label, .yui3-form-vertical .yui3-input-image label, .yui3-form-vertical .yui3-input-color label, .yui3-form-vertical .yui3-input-block-background label, .yui3-form-vertical .yui3-input-image-inline label, .yui3-form-vertical p.label { display:block; }
+.yui3-form-vertical .yui3-input-string label, .yui3-form-vertical .yui3-input-number label, .yui3-form-vertical .yui3-input-text label, .yui3-form-vertical .yui3-input-html label, .yui3-form-vertical .yui3-input-path label, .yui3-form-vertical .yui3-input-select label, .yui3-form-vertical .yui3-input-select-list label, .yui3-form-vertical .yui3-input-file-upload label, .yui3-form-vertical .yui3-input-slider label, .yui3-form-vertical .yui3-input-link label, .yui3-form-vertical .yui3-input-image label, .yui3-form-vertical .yui3-input-file label, .yui3-form-vertical .yui3-input-color label, .yui3-form-vertical .yui3-input-block-background label, .yui3-form-vertical .yui3-input-image-inline label, .yui3-form-vertical p.label { display:block; }
 .yui3-form-vertical .yui3-input-string input, .yui3-form-vertical .yui3-input-number input, .yui3-form-vertical .yui3-input-select select, .yui3-form-vertical .yui3-input-text textarea, .yui3-form-vertical .yui3-input-html textarea, .yui3-form-vertical .yui3-input-html iframe { width:100%; }
 .yui3-form-vertical .yui3-input-path input { width:50%; }
 .yui3-form-vertical .yui3-input-select .yui3-input-select-inner {
   width:auto;
   display:block;
 }
-.yui3-form-vertical .yui3-input-link .su-button, .yui3-form-vertical .yui3-input-link .su-button div, .yui3-form-vertical .yui3-input-image .su-button, .yui3-form-vertical .yui3-input-image .su-button div {
+.yui3-form-vertical .yui3-input-link .su-button, .yui3-form-vertical .yui3-input-link .su-button div, .yui3-form-vertical .yui3-input-image .su-button, .yui3-form-vertical .yui3-input-image .su-button div, .yui3-form-vertical .yui3-input-file .su-button, .yui3-form-vertical .yui3-input-file .su-button div {
   display:block;
   width:auto;
 }
-.yui3-form-vertical .yui3-input-link .su-button button, .yui3-form-vertical .yui3-input-image .su-button button { width:100%; }
+.yui3-form-vertical .yui3-input-link .su-button button, .yui3-form-vertical .yui3-input-image .su-button button, .yui3-form-vertical .yui3-input-file .su-button button { width:100%; }
 .yui3-form .error-message {
   background:#ffc8c8;
   border:1px solid #cc0000;

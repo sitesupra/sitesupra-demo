@@ -237,6 +237,7 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			
 			if (Y.Lang.isFunction(this.options.onselect)) {
 				this.options.onselect({
+					// @TODO Is it safe to rename this?
 					'image': this.medialist.getSelectedItem()
 				});
 			}
