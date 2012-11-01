@@ -232,7 +232,17 @@ class PageAction extends PageManagerAction
 				);
 			}
 		}
+		
+		$parentIdsArray = array();
 
+		if ( ! $page->isRoot()) {
+			$parentData = $pageData->getParent();
+			while ( ! is_null($parentData)) {
+				array_unshift($parentIdsArray, $parentData->getId());
+				$parentData = $parentData->getParent();
+			}
+		}
+		
 		$array = array(
 			'id' => $pageData->getId(),
 			'master_id' => $page->getId(),
@@ -262,7 +272,8 @@ class PageAction extends PageManagerAction
 			'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),
 			'include_in_search' => $pageData->isIncludedInSearch(),
 			'published' => $isPublished,
-			'lock' => $lock
+			'lock' => $lock, 
+			'tree_path' => $parentIdsArray,
 		);
 
 		if ( ! is_null($templateError)) {
