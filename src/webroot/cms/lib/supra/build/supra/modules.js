@@ -645,6 +645,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/image.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-file': {
+		path: 'input/file.js',
+		requires: ['supra.input-proto']
+	},
 	'supra.input-map': {
 		path: 'input/map.js',
 		requires: ['supra.input-proto']
@@ -689,6 +693,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-slider',
 			'supra.input-link',
 			'supra.input-image',
+			'supra.input-file',
 			'supra.input-map',
 			'supra.input-color',
 			'supra.input-date',
