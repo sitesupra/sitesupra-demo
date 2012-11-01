@@ -296,6 +296,32 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 
 		return $parentData;
 	}
+	
+	/**
+	 * Returns page antestor localziation array
+	 * 
+	 * @param int $levelLimit
+	 * @param boolean $includeNode
+	 * @return array
+	 */
+	public function getAncestors($levelLimit = 0, $includeNode = false)
+	{
+		$master = $this->getMaster();
+		
+		if (empty($master)) {
+			return array();
+		}
+		
+		$ancestors = array();
+		
+		$pageAncestors = $master->getAncestors($levelLimit, $includeNode);
+		
+		foreach ($pageAncestors as $ancestor) {
+			$ancestors[] = $ancestor->getLocalization($this->locale);
+		}
+		
+		return $ancestors;
+	}
 
 	/**
 	 * @param string $type 

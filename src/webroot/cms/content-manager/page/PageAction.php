@@ -235,14 +235,11 @@ class PageAction extends PageManagerAction
 		
 		$parentIdsArray = array();
 
-		if ( ! $page->isRoot()) {
-			$parentData = $pageData->getParent();
-			while ( ! is_null($parentData)) {
-				array_unshift($parentIdsArray, $parentData->getId());
-				$parentData = $parentData->getParent();
-			}
+		$ancestors = $pageData->getAncestors();
+		foreach ($ancestors as $ancestor) {
+			$parentIdsArray[] = $ancestor->getId();
 		}
-		
+				
 		$array = array(
 			'id' => $pageData->getId(),
 			'master_id' => $page->getId(),
