@@ -160,7 +160,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		$this->getResponse()->setResponseData($return);
 	}
-	
+
 	/**
 	 * @param string $dirName
 	 * @param Folder $parentFolder
@@ -329,30 +329,59 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
 		}
 
-		if ($file->hasChildren()) {
-			throw new CmsException(null, "Cannot delete not empty folders");
-		}
-
 		// try to delete
 		try {
+			if ($file->hasChildren()) {
 
-			// Remove image sizes manually because several image sizes by name might exist.
-			// The constraint was removed to fix race condition in creating the image size.
-			if ($file instanceof Entity\Image) {
-				$em = $this->fileStorage->getDoctrineEntityManager();
-				$imageSizeCn = Entity\ImageSize::CN();
-				$em->createQuery("DELETE FROM $imageSizeCn s WHERE s.master = :master")
-						->setParameter('master', $file->getId())
-						->execute();
+				$this->getConfirmation('Are You sure?');
+
+				$this->removeFilesRecursively($file);
+			} else {
+
+				$this->removeSingleFile($file);
 			}
-
-			$this->fileStorage->remove($file);
 		} catch (Exception\NotEmptyException $e) {
 			// Should not happen
 			throw new CmsException(null, "Cannot delete not empty folders");
 		}
 
 		$this->writeAuditLog('%item% deleted', $file);
+	}
+
+	/**
+	 * @param Entity\File $file
+	 */
+	protected function removeSingleFile(Entity\Abstraction\File $file)
+	{
+		if ($file instanceof Entity\Image) {
+			$em = $this->fileStorage->getDoctrineEntityManager();
+			$imageSizeCn = Entity\ImageSize::CN();
+			$em->createQuery("DELETE FROM $imageSizeCn s WHERE s.master = :master")
+					->setParameter('master', $file->getId())
+					->execute();
+		}
+
+		$this->fileStorage->remove($file);
+	}
+
+	/**
+	 * @param Entity\File $file
+	 */
+	protected function removeFilesRecursively(Entity\Folder $file)
+	{
+		if ($file->hasChildren()) {
+
+			foreach ($file->getChildren() as $childFile) {
+
+				if ($childFile instanceof Entity\Folder) {
+					$this->removeFilesRecursively($childFile);
+				} else {
+					$this->removeSingleFile($childFile);
+				}
+			}
+		}
+
+		$this->removeSingleFile($file);
 	}
 
 	public function moveAction()
@@ -523,7 +552,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 				// Flush before nested set UPDATE
 				$this->entityManager->flush();
-				
+
 				$folder->addChild($fileEntity);
 			}
 
@@ -564,7 +593,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 			// trying to upload file
 			$this->fileStorage->storeFileData($fileEntity, $file['tmp_name']);
-
 		} catch (\Exception $e) {
 
 			try {
@@ -585,7 +613,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		// generating output
 		$output = $this->imageAndFileOutput($fileEntity);
-		
+
 		if ( ! empty($firstSubFolder)) {
 			$firstSubFolderOutput = $this->getEntityData($firstSubFolder);
 			$output['folder'] = $firstSubFolderOutput;
@@ -684,11 +712,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					unset($output['sizes'][$sizeName]);
 				}
 			}
-		} 
+		}
 //		else {
 //			unset($output['sizes']);
 //		}
-
 		// Create thumbnail&preview
 		try {
 			if ($file instanceof Entity\Image && $this->fileStorage->fileExists($file)) {
