@@ -39,6 +39,7 @@
 			"visible": "Visible",
 			"style": "Style",
 			"set_image": "Set image",
+			"set_file": "Set file",
 			"set_link": "Set link",
 			"shared_property_description": "The value for this block has been taken from {{ localeTitle }} localization. Go there to manage it.",
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",

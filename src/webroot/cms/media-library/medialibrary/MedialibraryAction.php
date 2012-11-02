@@ -684,9 +684,10 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 					unset($output['sizes'][$sizeName]);
 				}
 			}
-		} else {
-			unset($output['sizes']);
-		}
+		} 
+//		else {
+//			unset($output['sizes']);
+//		}
 
 		// Create thumbnail&preview
 		try {

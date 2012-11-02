@@ -58,7 +58,7 @@ abstract class AuditLogWriterAbstraction
 		} catch (\Exception $e) {
 			
 			// Try bootstrap logger to log the exception
-			$bootstrapLogger = Log::getBootstrapLogger();
+			$bootstrapLogger = \Log::getBootstrapLogger();
 			$bootstrapLogger->error($e);
 		}
 	}

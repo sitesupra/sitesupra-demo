@@ -232,14 +232,14 @@ class PageAction extends PageManagerAction
 				);
 			}
 		}
-		
+
 		$parentIdsArray = array();
 
 		$ancestors = $pageData->getAncestors();
 		foreach ($ancestors as $ancestor) {
 			$parentIdsArray[] = $ancestor->getId();
 		}
-				
+
 		$array = array(
 			'id' => $pageData->getId(),
 			'master_id' => $page->getId(),
@@ -269,7 +269,7 @@ class PageAction extends PageManagerAction
 			'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),
 			'include_in_search' => $pageData->isIncludedInSearch(),
 			'published' => $isPublished,
-			'lock' => $lock, 
+			'lock' => $lock,
 			'tree_path' => $parentIdsArray,
 		);
 
@@ -820,7 +820,7 @@ class PageAction extends PageManagerAction
 
 			$referencedElement = $metadata->getReferencedElement();
 			$data[$name] = $this->convertReferencedElementToArray($referencedElement, ( ! $editable instanceof Editable\Gallery));
-			
+
 			$data[$name]['__meta__'] = $metadata->getId();
 		}
 
@@ -851,11 +851,22 @@ class PageAction extends PageManagerAction
 			}
 		}
 
+		if ($editable instanceof Editable\File) {
+			if ($propertyValue) {
+				$fileStorage = ObjectRepository::getFileStorage($this);
+				$file = $fileStorage->getDoctrineEntityManager()
+						->find(\Supra\FileStorage\Entity\File::CN(), $propertyValue);
+				if ($file instanceof \Supra\FileStorage\Entity\File) {
+					$propertyData = $fileStorage->getFileInfo($file);
+				}
+			}
+		}
+
 		if ($editable instanceof Editable\BlockBackground) {
 
 			$classname = null;
 			$imageData = null;
-				
+
 			if ($blockProperty->getMetadata()->containsKey('image')) {
 
 				$imageReferencedElement = $blockProperty->getMetadata()->get('image')->getReferencedElement();
@@ -867,7 +878,7 @@ class PageAction extends PageManagerAction
 				$image = $fileStorage->getDoctrineEntityManager()
 						->find(\Supra\FileStorage\Entity\Image::CN(), $imageId);
 
-				if(!empty($image)) {
+				if ( ! empty($image)) {
 					$imageData = $imageReferencedElement->toArray();
 					$imageData['image'] = $fileStorage->getFileInfo($image);
 				}
