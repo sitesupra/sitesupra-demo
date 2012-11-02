@@ -136,7 +136,7 @@ abstract class UpgradeRunnerAbstraction
 		try {
 			$executedFiles = $this->getConnection()->executeQuery($selectQuery)
 					->fetchAll(PDO::FETCH_COLUMN);
-		} catch (\PDOException $e) {
+		} catch (\Doctrine\DBAL\DBALException $e) {
 			$this->log->warn("Exception {$e->getMessage()} has been raised, assuming the table " . static::UPGRADE_HISTORY_TABLE . " is not created yet.");
 		}
 

@@ -97,7 +97,7 @@ class DatabaseUpgradeRunner extends UpgradeRunnerAbstraction
 				$this->log->debug("Skipping $path, SQL '$runUnless' succeeded");
 
 				return false;
-			} catch (\PDOException $expected) {
+			} catch (\Doctrine\DBAL\DBALException $expected) {
 
 				$connection->rollback();
 				// Exception was expected
@@ -138,7 +138,7 @@ class DatabaseUpgradeRunner extends UpgradeRunnerAbstraction
 
 				$connection->insert(static::UPGRADE_HISTORY_TABLE, $insert);
 			}
-		} catch (\PDOException $e) {
+		} catch (\Doctrine\DBAL\DBALException $e) {
 
 			$connection->rollback();
 			$this->log->error("Could not perform upgrade for $path: {$e->getMessage()}");
