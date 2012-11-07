@@ -460,7 +460,12 @@ class PageController extends ControllerAbstraction
 
 					$blockClass = $block->getComponentClass();
 					$configuration = ObjectRepository::getComponentConfiguration($blockClass);
-					$blockCache = $configuration->cache;
+					
+					if ( ! empty($configuration->cache)) {
+						$blockCache = $configuration->cache;
+					} else {
+						$blockCache = null;
+					}
 
 					if ($blockCache instanceof Configuration\BlockControllerCacheConfiguration) {
 
