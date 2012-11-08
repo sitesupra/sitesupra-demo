@@ -16,7 +16,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 	 */
 	var SLIDE_ID = 'imageEditor';
 	
-	var TEMPLATE = Template.compile('<div class="yui3-imageeditor loading">\
+	var TEMPLATE = Template.compile('<div class="yui3-imageeditor ui-light-background loading">\
 						<span class="v-center"></span>\
 						<div class="yui3-imageeditor-content">\
 							<div class="overlay-t"></div><div class="overlay-b"></div><div class="overlay-l"></div><div class="overlay-r"></div>\
@@ -24,6 +24,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 								<span class="drag-lt"></span><span class="drag-rt"></span><span class="drag-lb"></span><span class="drag-rb"></span>\
 							</div>\
 							<img src="{{ external_path }}?r={{ Math.random() }}" alt="" />\
+							<span class="loading-icon"></span>\
 						</div>\
 					</div>');
 	

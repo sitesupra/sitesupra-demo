@@ -53,6 +53,11 @@
 	-webkit-user-select: @type;
 	user-select: @type;
 }
+.user-drag (@type: none) {
+	.user-select (@type);
+	-moz-user-drag: @type;
+	-webkit-user-drag: @type;
+}
 
 /*
  * CSS3 transformations
