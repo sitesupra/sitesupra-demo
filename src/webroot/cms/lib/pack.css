@@ -160,9 +160,24 @@ body > .loading-icon {
 }
 body.loading > .loading-icon { display:block; }
 body.loading .cms-content, body.loading .cms-header { opacity:0; }
-.ui-light-background .loading-icon {
-  border-right-color:rgba(255,255,255,0.3);
-  border-bottom-color:rgba(255,255,255,0.3);
+.loading-icon {
+  position:absolute;
+  left:50%;
+  top:50%;
+  margin:-15px 0 0 -15px;
+  border:5px solid #c1c0ca;
+  border-top:5px solid transparent;
+  border-left:5px solid transparent;
+  border-radius:50px;
+  -moz-background-clip:padding;
+  -webkit-background-clip:padding-box;
+  background-clip:padding-box;
+  width:30px;
+  height:30px;
+  -moz-animation:spin .75s infinite linear;
+  -webkit-animation:spin .75s infinite linear;
+  -ms-animation:spin .75s infinite linear;
+  animation:spin .75s infinite linear;
 }
 .ui-light-background {
   border-color:#a8a9bd;

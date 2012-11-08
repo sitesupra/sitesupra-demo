@@ -175,7 +175,7 @@
 	100% { transform:rotate(360deg); }
 }
 
-.loading-icon (@size: 30px) {
+.loading-icon-mixin (@size: 30px) {
 	position: absolute;
 	left: 50%;
 	top: 50%;
@@ -190,7 +190,7 @@
 	
 	.animation (spin .75s infinite linear);
 }
-.loading-icon-light () {
+.loading-icon-mixin-light () {
 	border-right-color: rgba(255, 255, 255, 0.3);
 	border-bottom-color: rgba(255, 255, 255, 0.3);
 }
