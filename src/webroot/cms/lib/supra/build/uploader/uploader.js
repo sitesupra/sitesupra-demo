@@ -669,7 +669,9 @@ YUI.add('supra.uploader', function (Y) {
 				file_id = -FILE_COUNTER;
 				
 				//Set folder path
-				data.folderPath = file.path || '';
+				data = Supra.mix({}, data, {
+					'folderPath': file.path || ''
+				});
 				
 				//Event data will be passed to 'load' and 'progress' event listeners
 				event_data = {

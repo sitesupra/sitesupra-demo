@@ -90,7 +90,9 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				file_name = file.fileName || file.name;
 				
 				//Set folder path
-				data.folderPath = file.path || '';
+				data = Supra.mix({}, data, {
+					'folderPath': file.path || ''
+				});
 				
 				//Create temporary item
 				file_id = this.get('medialist').addFile(folder, {'title': file_name, 'filename': file_name, 'folderPath': data.folderPath});
