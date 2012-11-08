@@ -444,7 +444,7 @@ abstract class PageManagerAction extends CmsAction
 			$previewUrl = '/cms/lib/supra/img/sitemap/preview/group.png';
 		} else {
 			$previewPath = $data->getPreviewFilename();
-			
+
 			if (file_exists($previewPath)) {
 				$previewUrl = $data->getPreviewUrl();
 			} else {
@@ -911,7 +911,7 @@ abstract class PageManagerAction extends CmsAction
 				$this->entityManager->flush();
 			}
 		} elseif ($createLockOnMiss) {
-			
+
 			if ( ! $this->lockTransactionOpened) {
 				$this->entityManager->beginTransaction();
 				$this->lockTransactionOpened = true;
@@ -949,7 +949,7 @@ abstract class PageManagerAction extends CmsAction
 				$this->writeAuditLog("Draft for %item% saved", $pageData);
 			}
 		}
-		
+
 		$eventManager = ObjectRepository::getEventManager();
 		$eventArgs = new CmsPageEventArgs();
 		$eventArgs->localization = $pageData;
@@ -1186,7 +1186,6 @@ abstract class PageManagerAction extends CmsAction
 
 					// TODO: clone missing placeholders from the template. Even for templates it makes sense to do this.
 					// Still – I think it is happening right now on first load.
-
 //					if ($targetLocalization instanceof Entity\PageLocalization) {
 //
 //						$template = $targetLocalization->getTemplate();
@@ -1472,6 +1471,10 @@ abstract class PageManagerAction extends CmsAction
 
 		if ( ! empty($nodeData)) {
 			$array = array_merge($nodeData, $array);
+		}
+
+		if ($page instanceof Entity\Template) {
+			$array['type'] = 'template';
 		}
 
 		return $array;
