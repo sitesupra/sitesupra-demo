@@ -454,7 +454,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				// templates by default are active, published
 				'active': (this.get('mode') == 'templates' ? true : data.active),
 				'published': (this.get('mode') == 'templates' ? true : data.published),
-				'scheduled': (this.get('mode') == 'templates' ? true : data.scheduled),
+				'scheduled': (this.get('mode') == 'templates' ? false : data.scheduled),
 				
 				'parent': this
 			}, item));
