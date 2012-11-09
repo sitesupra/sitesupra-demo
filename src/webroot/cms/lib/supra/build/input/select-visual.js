@@ -93,7 +93,7 @@ YUI.add('supra.input-select-visual', function (Y) {
 				classname = Y.ClassNameManager.getClassName(Input.NAME, this.get('style'));
 				boundingBox.addClass(classname);
 			}
-
+			
 			if (this.get('iconStyle')) {
 				classname = this.getClassName(this.get('iconStyle'));
 				boundingBox.addClass(classname);

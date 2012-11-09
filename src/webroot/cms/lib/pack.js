@@ -18483,6 +18483,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				
 				boundingBox.addClass(classname);
 			}
+			
 			if (!this.buttons_rendered) {
 				this.renderButtons(this.get('values'));
 			}
@@ -18502,7 +18503,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			var buttons = this.buttons,
 				value = this._getInternalValue(),
 				has_value_match = false,
-				input = Y.Node.getDOMNode(this.get('inputNode')),
+				inputNode = this.get('inputNode'),
+				input = inputNode.getDOMNode(),
 				show_empty_value = this.get("showEmptyValue");
 			
 			if (this.buttons_rendered && input.options && input.options.length) {
@@ -18510,14 +18512,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				while(input.options.length) {
 					input.remove(input.options[0]);
 				}
-			} else if (!this.buttons_rendered) {
-				//No need to remove options if this is initial render
-				input = null;
 			}
 			
 			
 			//Buttons will be placed instead of input
-			this.get('inputNode').addClass('hidden');
+			inputNode.addClass('hidden');
 			
 			var button_width = 100 / values.length;
 			
@@ -18540,11 +18539,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			//Set value
 			if (this.get('multiple') && Y.Lang.isArray(value)) {
 				for(var id in buttons) {
-					buttons[id].set('down', Y.Array.indexOf(value, id) != -1);
+					this.buttons[id].set('down', Y.Array.indexOf(value, id) != -1);
 				}
 			} else if (value in buttons) {
 				buttons[value].set('down', true);
-				this.get('inputNode').set('value', value);
+				inputNode.set('value', value);
 			}
 			
 			//Buttons rendered
@@ -18734,7 +18733,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @private
 		 */
 		_setValues: function (values) {
-			this.renderButtons(values);
+			if (this.get('rendered')) {
+				this.renderButtons(values);
+			}
 			return values;
 		},
 		
@@ -18941,7 +18942,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				classname = Y.ClassNameManager.getClassName(Input.NAME, this.get('style'));
 				boundingBox.addClass(classname);
 			}
-
+			
 			if (this.get('iconStyle')) {
 				classname = this.getClassName(this.get('iconStyle'));
 				boundingBox.addClass(classname);

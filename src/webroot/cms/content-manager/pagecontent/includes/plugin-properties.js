@@ -1078,8 +1078,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		showGroupToolbar: function () {
-			Manager.PageToolbar.setActiveAction('BlockToolbar');
-			Manager.PageButtons.setActiveAction('BlockToolbar');
+			var group_id = this.get('toolbarGroupId');
+			Manager.PageToolbar.setActiveAction(group_id);
+			Manager.PageButtons.setActiveAction(group_id);
 		},
 		
 		/**
@@ -1088,8 +1089,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @private
 		 */
 		hideGroupToolbar: function () {
-			Manager.PageToolbar.unsetActiveAction('BlockToolbar');
-			Manager.PageButtons.unsetActiveAction('BlockToolbar');
+			var group_id = this.get('toolbarGroupId');
+			Manager.PageToolbar.unsetActiveAction(group_id);
+			Manager.PageButtons.unsetActiveAction(group_id);
 		},
 		
 		/**
@@ -1120,8 +1122,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		/**
 		 * Returns true if there are inline inputs, otherwise false
 		 * 
-		 * @return True if there are inline inputs
-		 * @type {Boolean}
+		 * @returns {Boolean} True if there are inline inputs
 		 */
 		hasInlineInputs: function () {
 			return this._has_inline_properties;
