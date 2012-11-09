@@ -190,7 +190,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.createGroupToolbar();
 			
 			//Bind to editing-start and editing-end events
-			var showOnEdit = !this.hasTopGroups() && !this._has_inline_properties;
+			var showOnEdit = !this._has_inline_properties;
 			
 			if (showOnEdit) {
 				if (this.hasTopGroups()) {
@@ -1102,6 +1102,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			if (!Manager.PageToolbar.hasActionButtons(NAME)) {
 				Manager.PageToolbar.addActionButtons(NAME, []);
+			}
+			if (!Manager.PageButtons.hasActionButtons(NAME)) {
 				Manager.PageButtons.addActionButtons(NAME, [{
 					'id': 'done',
 					'callback': Y.bind(function () {

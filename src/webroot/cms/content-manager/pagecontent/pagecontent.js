@@ -172,6 +172,7 @@ Supra('dd-drag', function (Y) {
 		},
 		onStartEditingRoute: function (req) {
 			var page = Manager.getAction('Page'),
+				template = Manager.getAction('Template'),
 				data = page.getPageData(),
 				is_allowed = Supra.Permission.get('page', data.id, 'edit_page', false);
 			
@@ -228,7 +229,11 @@ Supra('dd-drag', function (Y) {
 				} else {
 					
 					//Page lock information is not known, unlock page
-					page.lockPage();
+					if (page.isPage()) {
+						page.lockPage();
+					} else {
+						template.lockTemplate();
+					}
 					
 				}
 			}
