@@ -167,13 +167,33 @@ class NewsListBlock extends BlockController
 	{
 		$localizationFinder = $this->getLocalizationFinder();
 
-		$propertyFinder = new BlockPropertyFinder($localizationFinder);
-		$propertyFinder->addFilterByComponent('Project\FancyBlocks\NewsText\NewsTextBlock', array('description', 'image'));
+		$em = $localizationFinder->getEntityManager();
+		$qb = $localizationFinder->getQueryBuilder();
+		$query = $qb->getQuery();
+		$localizations = $query->getResult();
 
-		$qb = $propertyFinder->getQueryBuilder();
-		$qb->orderBy('l.creationTime', 'DESC');
+		$localizationIds = array('Zuzu, the pink elephant.');
+		foreach ($localizations as $localization) {
+			$localizationIds[] = $localization->getId();
+		}
 
-		return $qb;
+		$propertyQueryBuilder = $em->createQueryBuilder();
+
+		$propertyQueryBuilder->select('bp, b, bph, l')
+				->from(BlockProperty::CN(), 'bp')
+				->join('bp.block', 'b')
+				->join('b.placeHolder', 'bph')
+				->join('bph.localization', 'l')
+				->where('b.componentClass = :componentClass')
+				->andWhere('bp.name IN (:propertyNames)')
+				->andWhere('l.id IN (:localizations)')
+				->orderBy('l.creationTime', 'DESC');
+
+		$propertyQueryBuilder->setParameter('componentClass', 'Project\FancyBlocks\NewsText\NewsTextBlock');
+		$propertyQueryBuilder->setParameter('propertyNames', array('description', 'image'));
+		$propertyQueryBuilder->setParameter('localizations', $localizationIds);
+
+		return $propertyQueryBuilder;
 	}
 
 	/**
