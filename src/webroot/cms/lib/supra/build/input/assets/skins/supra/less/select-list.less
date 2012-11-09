@@ -115,6 +115,123 @@
 }
 
 /**
+ * Large icons
+ */
+.yui3-input-select-list-items,
+.ui-dark .ui-light .yui3-input-select-list-items {
+	.su-button {
+		display: block;
+		border-bottom: 1px solid rgba(37, 38, 43, 0.2);
+		border-top: 1px solid rgba(255, 255, 255, 0.2);
+		
+		&.su-button-first {
+			border-top: 0;
+		}
+		&.su-button-last {
+			border-bottom: 0;
+		}
+		
+		&, .su-button-content, button {
+			background: none;
+			height: auto;
+		}
+		
+		.su-button-content {
+			.border-radius (4px);
+			margin: 4px 0;
+		}
+		&.su-button-first .su-button-content {
+			.border-radius (4px);
+			margin-top: 0;
+		}
+		&.su-button-last .su-button-content {
+			.border-radius (4px);
+			margin-bottom: 0;
+		}
+		
+		button {
+			text-align: left;
+			padding: 7px;
+		}
+		
+		.img {
+			height: auto;
+			overflow: visible;
+			img {
+				margin: 0 5px 0 0;
+				border: 1px solid #42444f;
+				.box-shadow (0, 1px, 0, rgba(0, 0, 0, 0.15));
+			}
+		}
+		p {
+			color: #fff;
+			font-weight: normal;
+			vertical-align: middle;
+			padding-right: 0;
+			padding-left: 5px;
+			text-align: left;
+		}
+		
+		&,
+		&.su-button-mouse-hover,
+		&.su-button-focused,
+		&.su-button-down,
+		&.su-button-mouse-down {
+			p {
+				text-shadow: 0 1px 0 rgba(0, 10, 50, 0.4);
+			}
+		}
+		&.su-button-mouse-hover,
+		&.su-button-focused,
+		&.su-button-down {
+			.su-button-content {
+				background: rgba(61, 65, 84, 0.5);
+			}
+		}
+	}
+	
+	.su-button {
+		&,
+		&.su-button-first,
+		&.su-button-last {
+			.border-radius (0);
+		}
+	}
+}
+.ui-dark .yui3-input-select-list-items {
+	.su-button {
+		border-bottom-color: rgba(0, 0, 0, 0.6);
+		border-top-color: rgba(255, 255, 255, 0.15);
+		
+		p {
+			color: #757589;
+		}
+		
+		&.su-button-mouse-hover,
+		&.su-button-focused,
+		&.su-button-down,
+		&.su-button-mouse-down {
+			p {
+				color: #fff;
+			}
+		}
+		
+		&, .su-button-content, button {
+			background: none;
+		}
+		
+		&.su-button-mouse-hover,
+		&.su-button-focused,
+		&.su-button-down {
+			.su-button-content {
+				//background: rgba(61, 65, 84, 0.5);
+				.linear-gradient (rgb(97,97,118), 0%, rgb(77,77,97), 38%);
+			}
+		}
+	}
+}
+
+/**
  * Minimal style (no labels)
  */
 .yui3-input-select-list.yui3-input-minimal {

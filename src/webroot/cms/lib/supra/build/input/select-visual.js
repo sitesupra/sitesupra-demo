@@ -71,11 +71,6 @@ YUI.add('supra.input-select-visual', function (Y) {
 		'backgroundColor': function (srcNode) {
 			return srcNode.getAttribute('suBackgroundColor') || 'transparent';
 		},
-		'style': function (srcNode) {
-			if (srcNode.getAttribute('suStyle')) {
-				return srcNode.getAttribute('suStyle') || '';
-			}
-		},
 		'iconStyle': function (srcNode) {
 			if (srcNode.getAttribute('suIconStyle')) {
 				return srcNode.getAttribute('suIconStyle') || '';
@@ -98,9 +93,9 @@ YUI.add('supra.input-select-visual', function (Y) {
 				classname = Y.ClassNameManager.getClassName(Input.NAME, this.get('style'));
 				boundingBox.addClass(classname);
 			}
-			
+
 			if (this.get('iconStyle')) {
-				classname = Y.ClassNameManager.getClassName(Input.NAME, this.get('iconStyle'));
+				classname = this.getClassName(this.get('iconStyle'));
 				boundingBox.addClass(classname);
 				
 				if (this.get('iconStyle') == 'html') {
@@ -212,32 +207,6 @@ YUI.add('supra.input-select-visual', function (Y) {
 		},
 		
 		/**
-		 * Style attribute setter
-		 * 
-		 * @param {String} value Style value
-		 * @return New style attribute value
-		 * @type {String}
-		 * @private
-		 */
-		_setStyle: function (value) {
-			var prev = this.get('style'),
-				classname = null;
-			
-			if (prev != value) {
-				if (prev) { 
-					classname = Y.ClassNameManager.getClassName(Input.NAME, prev);
-					this.get('boundingBox').removeClass(classname);
-				}
-				if (value) {
-					classname = Y.ClassNameManager.getClassName(Input.NAME, value);
-					this.get('boundingBox').addClass(classname);
-				}
-			}
-			
-			return value;
-		},
-		
-		/**
 		 * Icon style attribute setter
 		 * 
 		 * @param {String} value Style value
@@ -251,11 +220,11 @@ YUI.add('supra.input-select-visual', function (Y) {
 			
 			if (prev != value) {
 				if (prev) { 
-					classname = Y.ClassNameManager.getClassName(Input.NAME, prev);
+					classname = this.getClassName(prev);
 					this.get('boundingBox').removeClass(classname);
 				}
 				if (value) {
-					classname = Y.ClassNameManager.getClassName(Input.NAME, value);
+					classname = this.getClassName(value);
 					this.get('boundingBox').addClass(classname);
 				}
 			}
@@ -323,6 +292,34 @@ YUI.add('supra.input-select-visual', function (Y) {
 			}
 			
 			return css;
+		},
+		
+		/**
+		 * Style attribute setter
+		 * We overwrite select list setter, because we don't want extended classes to
+		 * have 'style' classnames prefixed with their names which would break
+		 * existing styles
+		 * 
+		 * @param {String} value Style value
+		 * @returns {String} New style attribute value
+		 * @private
+		 */
+		_setStyle: function (value) {
+			var prev = this.get('style'),
+				classname = null;
+			
+			if (prev != value) {
+				if (prev) { 
+					classname = Y.ClassNameManager.getClassName(Input.NAME, prev);
+					this.get('boundingBox').removeClass(classname);
+				}
+				if (value) {
+					classname = Y.ClassNameManager.getClassName(Input.NAME, value);
+					this.get('boundingBox').addClass(classname);
+				}
+			}
+			
+			return value;
 		}
 		
 	});

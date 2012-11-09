@@ -111,6 +111,7 @@
 /cms/lib/supra/build/datatype/datatype-date-reformat.js
 /cms/lib/supra/build/base/base.js
 /cms/lib/supra/build/button/button.js
+/cms/lib/supra/build/button/plugin-input.js
 /cms/lib/supra/build/panel/panel.js
 /cms/lib/supra/build/permission/permission.js
 /cms/lib/supra/build/io/session.js

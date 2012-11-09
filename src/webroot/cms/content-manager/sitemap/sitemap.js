@@ -57,7 +57,7 @@ Supra.addModule('website.sitemap-plugin-page-global', {
 
 Supra.addModule('website.sitemap-new-page', {
 	path: 'sitemap/modules/new-page.js',
-	requires: ['supra.scrollable']
+	requires: ['supra.scrollable', 'transition']
 });
 Supra.addModule('website.sitemap-delete-page', {
 	path: 'sitemap/modules/delete-page.js',

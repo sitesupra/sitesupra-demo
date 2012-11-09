@@ -138,6 +138,105 @@
 	.box-shadow (0, -1px, 0, #808094);
 }
 
+/*
+ * Section link
+ */
+a.button-section {
+	display: block;
+	margin: 25px 0 15px;
+	padding: 5px 0;
+	
+	color: #090613;
+	text-decoration: none;
+	text-shadow: 0 1px 0 rgba(211,212,226,.33);
+	
+	img {
+		display: inline-block;
+		vertical-align: top;
+		margin-right: 7px;
+	}
+	img.active {
+		display: none;
+	}
+	
+	span {
+		display: inline-block;
+		vertical-align: top;
+		margin-top: 4px;
+		
+		font-size: 14px;
+		font-weight: bold;
+		line-height: 18px;
+	}
+	
+	&:hover,
+	&:focus {
+		color: #fff;
+		outline: none;
+		text-shadow: 0 1px 0 rgba(0,0,0,0.75);
+	}
+	&:hover img.active,
+	&:focus img.active {
+		display: inline-block;
+	}
+	&:hover img.inactive,
+	&:focus img.inactive {
+		display: none;
+	}
+	
+	&.disabled {
+		opacity: 0.5;
+		color: #302750;
+		cursor: default;
+		
+		img.active {
+			display: none;
+		}
+		img.inactive {
+			display: inline-block;
+		}
+	}
+}
+a.button-section + a.button-section {
+	margin-top: 15px;
+}
+.yui3-input + a.button-section.hidden + a.button-section {
+	margin-top: 25px;
+}
+
+.ui-dark {
+	a.button-section {
+		color: #757589;
+		text-shadow: 0 1px 0 rgba(0,0,0,.75);
+		
+		&:hover,
+		&:focus {
+			color: #fff;
+			text-shadow: 0 1px 0 rgba(0,0,0,.75);
+		}
+		&.disabled {
+			color: #606071;
+		}
+	}
+}
+
+/*
+ * Section button
+ */
+div.button-section {
+	&, div {
+		display: block;
+	}
+	button {
+		width: 100%;
+		text-align: left;
+	}
+	p {
+		background: url(/cms/lib/supra/img/sidebar/button-arrow.png) 100% 8px no-repeat;
+		display: block;
+	}
+}
+
 /* Content */
 .sidebar-content {
 	position: absolute;
@@ -152,107 +251,10 @@
 	&.has-footer {
 		bottom: 46px;
 	}
-
-	/*
-	 * Section link
-	 */
-	a.button-section {
-		display: block;
-		margin: 25px 0 15px;
-		padding: 5px 0;
-		
-		color: #090613;
-		text-decoration: none;
-		text-shadow: 0 1px 0 rgba(211,212,226,.33);
-		
-		img {
-			display: inline-block;
-			vertical-align: top;
-			margin-right: 7px;
-		}
-		img.active {
-			display: none;
-		}
-		
-		span {
-			display: inline-block;
-			vertical-align: top;
-			margin-top: 4px;
-			
-			font-size: 14px;
-			font-weight: bold;
-			line-height: 18px;
-		}
-		
-		&:hover,
-		&:focus {
-			color: #fff;
-			outline: none;
-			text-shadow: 0 1px 0 rgba(0,0,0,0.75);
-		}
-		&:hover img.active,
-		&:focus img.active {
-			display: inline-block;
-		}
-		&:hover img.inactive,
-		&:focus img.inactive {
-			display: none;
-		}
-		
-		&.disabled {
-			opacity: 0.5;
-			color: #302750;
-			cursor: default;
-			
-			img.active {
-				display: none;
-			}
-			img.inactive {
-				display: inline-block;
-			}
-		}
-	}
-	a.button-section + a.button-section {
-		margin-top: 15px;
-	}
-	.yui3-input + a.button-section.hidden + a.button-section {
-		margin-top: 25px;
-	}
-	
-	/*
-	 * Section button
-	 */
-	div.button-section {
-		&, div {
-			display: block;
-		}
-		button {
-			width: 100%;
-			text-align: left;
-		}
-		p {
-			background: url(/cms/lib/supra/img/sidebar/button-arrow.png) 100% 8px no-repeat;
-			display: block;
-		}
-	}
 }
 
 .ui-dark {
 	.sidebar-content {
-		a.button-section {
-			color: #757589;
-			text-shadow: 0 1px 0 rgba(0,0,0,.75);
-			
-			&:hover,
-			&:focus {
-				color: #fff;
-				text-shadow: 0 1px 0 rgba(0,0,0,.75);
-			}
-			&.disabled {
-				color: #606071;
-			}
-		}
-		
 		/*
 		 * Inputs
 		 */

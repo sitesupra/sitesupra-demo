@@ -305,23 +305,27 @@ Supra('website.template-list', 'website.input-keywords', 'supra.input', 'supra.c
 		 */
 		onSlideTemplate: function (node) {
 			if (!this.template_list) {
-				this.template_list = new Supra.TemplateList({
-					'srcNode': node.one('ul.template-list'),
-					'requestUri': this.getDataPath('templates'),
-					'template': this.page_data.template.id
+				this.template_list = new Supra.Input.SelectList({
+					'value': this.page_data.template.id,
+					'style': 'items'
 				});
-
-				this.template_list.render();
-
+				
+				this.template_list.render('div.template-list');
+				this.template_list.set('loading', true);
+				this.loadTemplateList();
+				
 				this.template_list.on('change', function (e) {
-					this.page_data.template = e.template;
-
-					this.setFormValue('template', this.page_data);
-					this.slideshow.scrollBack();
-					this.saveSettingsChanges(); // save immediatelly to show template change
+					var data = this.template_list.getValueData(e.value);
+					if (data) {
+						this.page_data.template = data;
+						
+						this.setFormValue('template', this.page_data);
+						this.slideshow.scrollBack();
+						this.saveSettingsChanges(); // save immediatelly to show template change
+					}
 				}, this);
 			} else {
-				this.template_list.set('template', this.page_data.template.id);
+				this.template_list.set('value', this.page_data.template.id);
 			}
 		},
 
@@ -335,6 +339,20 @@ Supra('website.template-list', 'website.input-keywords', 'supra.input', 'supra.c
 			} else {
 				node.set('text', Supra.Intl.get(['settings', 'advanced_unknown']));
 			}
+		},
+		
+		/**
+		 * Load template list
+		 * 
+		 * @private
+		 */
+		loadTemplateList: function () {
+			var uri = this.getDataPath('templates');
+			
+			Supra.io(uri).always(function (templates) {
+				this.template_list.set('values', templates || []);
+				this.template_list.set('loading', false);
+			}, this);
 		},
 
 		/**

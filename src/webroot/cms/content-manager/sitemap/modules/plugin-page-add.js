@@ -38,10 +38,16 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			'form': null,
 			/* Form container panel */
 			'panel': null,
+			/* Template list container node */
+			'templateList': null,
+			/* Scrollable widget for template list */
+			'templateScrollable': null,
 			/* Create page button */
 			'buttonCreate': null,
 			/* Cancel button */
-			'buttonCancel': null
+			'buttonCancel': null,
+			/* Template button */
+			'buttonTemplate': null
 		},
 		
 		/**
@@ -160,7 +166,9 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			//Render all widgets
 			for(var i in widgets) {
-				widgets[i].render();
+				if (widgets[i]) {
+					widgets[i].render();
+				}
 			}
 			
 			//Listeners
@@ -175,12 +183,15 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 */
 		'_createForm': function (container) {
 			var widgets = this._widgets,
-				buttons = container.all('button');
+				buttons = container.all('.middle button'),
+				button_tpl = container.one('.template-section button');
 			
 			//Buttons
-			widgets.buttonCreate = new Supra.Button({'srcNode': buttons.item(0), 'style': 'small-blue'});
-			widgets.buttonCancel = new Supra.Button({'srcNode': buttons.item(1), 'style': 'small'});
+			widgets.buttonTemplate = new Supra.Button({'srcNode': button_tpl});
+			widgets.buttonCreate = new Supra.Button({'srcNode': buttons.item(0)});
+			widgets.buttonCancel = new Supra.Button({'srcNode': buttons.item(1)});
 			
+			widgets.buttonTemplate.on('click', this.showTemplates, this);
 			widgets.buttonCreate.on('click', this.createPage, this);
 			widgets.buttonCancel.on('click', this.hide, this);
 			
@@ -217,7 +228,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 			}
 			
-			//Fill template list
+			inputs.template.on('change', this.hideTemplates, this);
+			
+			//Fill template list and on template change update button
+			this._widgets.buttonTemplate.plug(Supra.Button.PluginInput, {'input': inputs.template});
 			this._fillTemplates();
 		},
 		
@@ -304,7 +318,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				region = target.get('region'),
 				space = winWidth - region.left - region.width;
 			
-			if (space < 270) {
+			if (space < 520) {
 				return 'R';
 			} else {
 				return 'L';
@@ -548,11 +562,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			if (templates && form && this.get('host').get('mode') == 'pages' && form.getInput('template')) {
 				form.getInput('template').set('loading', false);
 				
-				var select_template_title = Supra.Intl.get(['sitemap', 'select_template']);
-				templates.unshift({id:'', title: select_template_title});
-				
 				form.getInput('template').set('showEmptyValue', false);
-				
 				form.getInput('template').set('values', templates);
 			}
 		},
@@ -655,28 +665,31 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				index = 0,
 				is_tree_node = node.isInstanceOf('TreeNode'),
 				is_row_node = node.isInstanceOf('DataGridRow'),
-				layoutInput = form.getInput('layout');
+				layoutInput = form.getInput('layout'),
+				buttonTemplate = this._widgets.buttonTemplate;
 				
 			layoutInput.set('showEmptyValue', false);
 			
 			if (this.get('host').get('mode') == 'pages') {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_page_label_title']));
-				layoutInput.set('visible', false);
-				form.getInput('template').set('visible', true);
+				layoutInput.hide();
+				
+				buttonTemplate.show();
 				
 				if (node.get('root')) {
 					//Root page doesn't have a path
-					form.getInput('path').set('visible', false);
+					form.getInput('path').hide();
 				} else {
-					form.getInput('path').set('visible', true);
+					form.getInput('path').show();
 				}
 			} else {
 				title = Supra.Intl.get(['sitemap', 'new_template']);
 				path = 'new-template';
 				
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_template_label_title']));
-				form.getInput('path').set('visible', false);
-				form.getInput('template').set('visible', false);
+				form.getInput('path').hide();
+				
+				buttonTemplate.hide();
 				
 				//Layouts
 				this.fillLayoutList(layoutInput, node);
@@ -684,9 +697,9 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			}
 			
 			if (data.type == 'group') {
-				form.getInput('path').set('visible', false);
-				form.getInput('template').set('visible', false);
-				layoutInput.set('visible', false);
+				form.getInput('path').hide();
+				buttonTemplate.hide();
+				layoutInput.hide();
 			}
 			
 			//Find unique title and path which doesn't exist for any of the siblings
@@ -713,8 +726,6 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				input = form.getInput('path');
 				input.set('value', path);
 				
-				//input = form.getInput('template');
-				//input.set('value', this._getAncestorTemplate());
 				this._setAncestorTemplate();
 				
 			} else {
@@ -723,9 +734,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			}
 		},
 		
-		_setAncestorTemplate: function() {
+		'_setAncestorTemplate': function() {
 			var form = this._widgets.form,
 				input = form.getInput('template'),
+				button = this._widgets.buttonTemplate,
 				template = this._getAncestorTemplate(),
 				templates = this._templates;
 			
@@ -784,6 +796,67 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				input.set('values', layouts);
 				input.set('value', '');
 				input.set('visible', true);
+			}
+		},
+		
+		/**
+		 * Show template list
+		 */
+		'showTemplates': function () {
+			var panel = this._widgets.panel,
+				form = panel.get('contentBox'),
+				container = this._widgets.templateList,
+				scrollable = this._widgets.templateScrollable;
+			
+			if (!container) {
+				form = panel.get('contentBox');
+				container = this._widgets.templateList = form.one('div.su-sitemap-template-list');
+				
+				scrollable = this._widgets.templateScrollable = new Supra.Scrollable({
+					'srcNode': container.one('div.su-sitemap-template-list-scrollable')
+				});
+				scrollable.render();
+				
+				form.insert(container, 'before');
+			}
+			
+			if (container.hasClass('hidden')) {
+				
+				//  6 -> 259
+				form.transition({
+					'easing': 'ease-out',
+					'duration': 0.3,
+					'marginRight': '259px'
+				});
+				
+				container.removeClass('hidden');
+				scrollable.syncUI();
+			}
+		},
+		
+		/**
+		 * Hide template list
+		 */
+		'hideTemplates': function (quick) {
+			var panel = this._widgets.panel,
+				form = panel ? panel.get('contentBox') : null,
+				container = this._widgets.templateList;
+			
+			if (container && !container.hasClass('hidden')) {
+				
+				if (quick === true) {
+					form.setStyle('marginRight', '6px');
+					container.addClass('hidden');
+				} else {
+					//  259 -> 6
+					form.transition({
+						'easing': 'ease-out',
+						'duration': 0.3,
+						'marginRight': '6px'
+					}, Y.bind(function () {
+						container.addClass('hidden');
+					}, this));
+				}
 			}
 		},
 		
@@ -974,6 +1047,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			if (this._widgets.panel) {
 				this._widgets.panel.hide();
 			}
+			
+			this.hideTemplates(true /* quick */);
 		}
 	});
 	
@@ -985,4 +1060,4 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn);this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.input']});
+}, YUI.version, {'requires': ['supra.input', 'transition']});

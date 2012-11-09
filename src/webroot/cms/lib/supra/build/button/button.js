@@ -78,7 +78,7 @@ YUI.add('supra.button', function (Y) {
 			} else {
 				var node = srcNode.one('BUTTON,INPUT');
 				if (!node) {
-					node = Y.Node.create('<button type="button">' + (Supra.Intl.replace(this.get('label') || '')) + '</button>');
+					node = Y.Node.create('<button type="button">' + Y.Escape.html(Supra.Intl.replace(this.get('label') || '')) + '</button>');
 					this.get('contentBox').append(node);
 				}
 				
@@ -121,7 +121,7 @@ YUI.add('supra.button', function (Y) {
 			if (label) {
 				text = label.get('innerHTML');
 			}
-			return text || this.get('label') || '&nbsp;';
+			return text || this.get('label') || ' ';
         },
 		style: function (srcNode) {
 			var button = this.get('nodeButton'),
@@ -203,7 +203,7 @@ YUI.add('supra.button', function (Y) {
 					var tpl = Y.Node.create(this.LABEL_TEMPLATE),
 						p = tpl.test('P') ? tpl : tpl.one('P');
 					
-					p.set('innerHTML', Supra.Intl.replace(this.get('label') || ''));
+					p.set('innerHTML', Y.Escape.html(Supra.Intl.replace(this.get('label') || '')));
 					
 					btn.set('innerHTML', '');
 					btn.appendChild(tpl);

@@ -313,7 +313,7 @@ class PagesettingsAction extends PageManagerAction
 				'id' => $templateData->getMaster()->getId(),
 				'title' => $templateData->getTitle(),
 				//TODO: hardcoded
-				'img' => "/cms/lib/supra/img/templates/template-3-small.png",
+				'icon' => '/cms/lib/supra/img/sitemap/preview/blank.jpg',
 				'dont_use_as_default' => in_array($templateData->getMaster()->getId(), $doNotUseAsDefaultTemplateIds)
 			);
 

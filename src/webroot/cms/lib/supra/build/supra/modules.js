@@ -216,6 +216,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 		skinnable: true
 	},
 	
+	'supra.button-plugin-input': {
+		path: 'button/plugin-input.js',
+		requires: ['plugin', 'supra.button']
+	},
+	
 	/**
 	 * Button widget
 	 */
@@ -700,7 +705,9 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-block-background',
 			'supra.input-image-inline',
 			'supra.input-inline-html',
-			'supra.input-inline-string'
+			'supra.input-inline-string',
+			
+			'supra.button-plugin-input'
 		]
 	},
 	'supra.input': {
