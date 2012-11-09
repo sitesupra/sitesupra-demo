@@ -423,6 +423,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 * @private
 		 */
 		'_onPagePropertyChange': function (e) {
+			if (!this._node) return; // most likely initialization stage
+			
 			var input = e.target,
 				id    = input.get('id'),
 				value = input.get('value'),
@@ -666,7 +668,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				is_tree_node = node.isInstanceOf('TreeNode'),
 				is_row_node = node.isInstanceOf('DataGridRow'),
 				layoutInput = form.getInput('layout'),
-				buttonTemplate = this._widgets.buttonTemplate;
+				buttonTemplateNode = this._widgets.buttonTemplate.get('boundingBox').ancestor();
 				
 			layoutInput.set('showEmptyValue', false);
 			
@@ -674,7 +676,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_page_label_title']));
 				layoutInput.hide();
 				
-				buttonTemplate.show();
+				buttonTemplateNode.removeClass('hidden');
 				
 				if (node.get('root')) {
 					//Root page doesn't have a path
@@ -689,7 +691,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_template_label_title']));
 				form.getInput('path').hide();
 				
-				buttonTemplate.hide();
+				buttonTemplateNode.addClass('hidden');
 				
 				//Layouts
 				this.fillLayoutList(layoutInput, node);
@@ -698,8 +700,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			if (data.type == 'group') {
 				form.getInput('path').hide();
-				buttonTemplate.hide();
 				layoutInput.hide();
+				buttonTemplateNode.addClass('hidden');
 			}
 			
 			//Find unique title and path which doesn't exist for any of the siblings
