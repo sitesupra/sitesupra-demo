@@ -449,11 +449,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 	
 	/**
-	 * Stylesheet parser
+	 * Iframe + stylesheet parser
 	 */
 	'supra.iframe-stylesheet-parser': {
 		path: 'iframe/stylesheet-parser.js',
 		requires: ['base']
+	},
+	'supra.iframe': {
+		path: 'iframe/iframe.js',
+		requires: ['widget', 'supra.iframe-stylesheet-parser'],
+		skinnable: true
 	},
 	
 	/**

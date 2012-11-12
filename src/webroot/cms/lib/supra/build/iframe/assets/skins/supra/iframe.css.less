@@ -1,0 +1,27 @@
+.su-iframe {
+	position: relative;
+	
+	.loading-icon {
+		display: none;
+	}
+	
+	iframe {
+		border: 0;
+		background: #fff;	
+	}
+	
+	&.fullscreen,
+	&.fullscreen iframe {
+		width: 100%;
+		height: 100%;
+	}
+	
+	&.loading {
+		iframe {
+			visibility: hidden;
+		}
+		.loading-icon {
+			display: block;
+		}
+	}
+}
