@@ -148,9 +148,15 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 				// Configuration from plugin itself
 				defaultConfig = defaultConfig || Supra.HTMLEditor.PLUGINS[pluginId].configuration,
 				// Configuration from html editor configuration
-				attrConfig    = this.get('plugins')[pluginId],
+				attrConfig    = this.get('plugins'),
 				// Default modes
 				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
+			
+			if (attrConfig) {
+				attrConfig = attrConfig[pluginId];
+			} else {
+				attrConfig = null;
+			}
 			
 			if (attrConfig === false) {
 				//If configuration is false then plugin is disabled

@@ -42,7 +42,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 * Plugin configuration
 		 */
 		'plugins': {
-			value: null
+			value: {}
 		},
 		/**
 		 * HTMLEditor is in standalone mode
