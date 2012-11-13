@@ -958,7 +958,7 @@ class FileStorage
 				->setRotationCount($rotationCount);
 		$rotator->rotate();
 
-		if (($rotationCount % 2) == 1) {
+		if ((abs($rotationCount) % 2) == 1) {
 			$tmp = $file->getWidth();
 			$file->setWidth($file->getHeight());
 			$file->setHeight($tmp);
