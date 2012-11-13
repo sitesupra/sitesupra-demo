@@ -184,9 +184,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @return string
 	 */
-	public function setDataFormPath($formDataPath)
+	public function setDataFormPath($dataFormPath)
 	{
-		$this->dataFormPath = $formDataPath;
+		$this->dataFormPath = $dataFormPath;
 	}
 
 	/**

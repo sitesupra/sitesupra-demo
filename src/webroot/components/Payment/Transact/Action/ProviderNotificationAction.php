@@ -88,7 +88,7 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 		$notificationData = $this->getNotificationData();
 
 		if (empty($notificationData[self::REQUEST_KEY_TRANSACT_TRANSACTION_ID])) {
-			throw new Execption\RuntimeException('Could not get Transact transaction id from notification data.');
+			throw new Exception\RuntimeException('Could not get Transact transaction id from notification data.');
 		}
 
 		$transactTransactionId = $notificationData[self::REQUEST_KEY_TRANSACT_TRANSACTION_ID];
@@ -104,12 +104,15 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 		$notificationData = $this->getNotificationData();
 
 		if (empty($notificationData[self::REQUEST_KEY_MERCHANT_TRANSACTION_ID])) {
-			throw new Execption\RuntimeException('Could not get merchant transaction id from notification data.');
+			
+			\Log::debug('NOTIFICATION DATA: ', $notificationData);
+			
+			throw new Exception\RuntimeException('Could not get merchant transaction id from notification data.');
 		}
 
-		$transactTransactionId = $notificationData[self::REQUEST_KEY_MERCHANT_TRANSACTION_ID];
+		$merchantTransactionId = $notificationData[self::REQUEST_KEY_MERCHANT_TRANSACTION_ID];
 
-		return $transactTransactionId;
+		return $merchantTransactionId;
 	}
 
 	/**

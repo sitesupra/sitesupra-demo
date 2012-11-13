@@ -334,9 +334,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function validateShopOrder(Order\ShopOrder $order)
 	{
-		if ($order->getTotalForProductItems() < 20.00) {
-			throw new Exception\RuntimeException('Total is too small!!!');
-		}
+		//if ($order->getTotalForProductItems() < 20.00) {
+		//	throw new Exception\RuntimeException('Total is too small!!!');
+		//}
 
 		return true;
 	}
@@ -536,7 +536,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	public function getOrderItemDescription(Order\Order $order, LocaleInterface $locale = null)
 	{
-		return 'Transact fee (' . $locale . ') - ' . ($order->getTotalForProductItems() * 0.10) . ' ' . $order->getCurrency()->getIso4217Code();
+		return 'Transact processing fee';
 	}
 
 	/**

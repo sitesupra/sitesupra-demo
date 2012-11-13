@@ -84,7 +84,7 @@ class Configuration extends Payment\ConfigurationAbstraction
 
 			$this->paymentProvider->setReturnHost($this->returnHost);
 			$this->paymentProvider->setCallbackHost($this->callbackHost);
-			$this->paymentProvider->setDataFormPath($this->formDataPath);
+			$this->paymentProvider->setDataFormPath($this->dataFormPath);
 
 			parent::configure();
 		}

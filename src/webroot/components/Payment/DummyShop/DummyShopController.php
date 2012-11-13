@@ -345,7 +345,7 @@ class DummyShopController extends BlockController
 	{
 		$up = ObjectRepository::getUserProvider('#cms');
 
-		return $up->findUserByLogin('admin@videinfra.com');
+		return $up->findUserByLogin('external-user-01');
 	}
 
 	/**
@@ -374,8 +374,8 @@ class DummyShopController extends BlockController
 
 		$itemAmount = $request->getParameter('amount');
 
-		//$productIds = array(111, 222, 333);
-		$productIds = array(111); 
+		$productIds = array(111, 222, 333);
+		//$productIds = array(111); 
 
 		$currency = $this->getCurrencyByIsoCode('RUB');
 		$this->order->setCurrency($currency);

@@ -18,3 +18,13 @@
       - ${__DIR__}/AjaxContentBlock/config.yml
       - ${__DIR__}/AjaxPoll/config.yml
       - ${__DIR__}/Sitemap/config.yml
+      - ${__DIR__}/FancyBlocks/NewsText/config.yml
+
+
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    title: Transact data form
+    groupId: system
+    class: Project\Payment\Transact\TransactDataForm
+    description: Transact data form
+    cmsClassname: Editable
+    

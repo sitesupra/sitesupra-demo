@@ -14,3 +14,14 @@
 #    iniSectionName: dengi_one_configuration
 #    dataFormPath: /dummy-shop/dengi
 #    collection: Dengi
+
+- Project\Payment\Transact\Configuration:
+    id: transact_kkkk
+    url: /payment/transact_kkkk
+    returnHost: http://supra7.krists.vig
+    callbackHost: http://supra7.krists.com
+    iniSectionName: transact_configuration_kkkk
+    collection: SupraPortal\Payment
+    dataFormPath: /dummy-shop/transact
+    is3dAccount: true
+    gatewayCollects: false
