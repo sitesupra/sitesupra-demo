@@ -374,7 +374,7 @@ YUI().add('supra.iframe', function (Y) {
 				var action = Supra.Manager.getAction('PageContent');
 				
 				if (action.get('loaded')) {
-					link = this.addStyleSheet(Y.config.comboBase + Action.getActionPath() + 'iframe.css');
+					link = this.addStyleSheet(Y.config.comboBase + action.getActionPath() + 'iframe.css');
 					if (link) {
 						links.push(link);
 					}

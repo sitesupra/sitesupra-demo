@@ -143,24 +143,40 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 		getPluginConfiguration: function (pluginId, defaultConfig) {
 			if (!(pluginId in Supra.HTMLEditor.PLUGINS) && !defaultConfig) return false;
 			
-			var configuration = Supra.data.get(['supra.htmleditor', 'plugins', pluginId]),
+			var // Configuration from Supra.data
+				configuration = Supra.data.get(['supra.htmleditor', 'plugins', pluginId]),
+				// Configuration from plugin itself
 				defaultConfig = defaultConfig || Supra.HTMLEditor.PLUGINS[pluginId].configuration,
+				// Configuration from html editor configuration
+				attrConfig    = this.get('plugins'),
+				// Default modes
 				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
 			
-			if (configuration) {
-				if (!Y.Lang.isObject(configuration)) {
-					configuration = {};
-				}
-				
-				//Mix together user configuration and default
-				configuration = Supra.mix({'modes': defaultModes}, defaultConfig, configuration);
-				return configuration;
-			} else if (configuration === false) {
-				//If configuration is false then plugin is disabled
-				return false;
+			if (attrConfig) {
+				attrConfig = attrConfig[pluginId];
+			} else {
+				attrConfig = null;
 			}
 			
-			return Supra.mix({'modes': defaultModes}, defaultConfig);
+			if (attrConfig === false) {
+				//If configuration is false then plugin is disabled
+				return false;
+			} else {
+				var type = Y.Lang.type(attrConfig);
+				if ((type === 'null' || type === 'undefined') && configuration === false) {
+					//If configuration is false then plugin is disabled
+					return false;
+				} 
+			} 
+			
+			if (!Y.Lang.isObject(attrConfig)) {
+				attrConfig = {};
+			}
+			if (!Y.Lang.isObject(configuration)) {
+				configuration = {};
+			}
+			
+			return Supra.mix({'modes': defaultModes}, defaultConfig, configuration, attrConfig);
 		}
 		
 	});
