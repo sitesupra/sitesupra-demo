@@ -12,10 +12,10 @@ function getOutputFrame($content)
 	<?php echo($content); ?>
 
 	<hr />
-	
+
 	Session:
 	<pre><?php var_dump($_SESSION); ?></pre> 
-	
+
 	<hr />
 
 	<?php
@@ -28,13 +28,15 @@ function getDefaultOuptut($message = null, $extra = null)
 	?>
 
 	<?php if ($message): ?>
-	<h2><?php echo($message); ?></h2>
+		<h2><?php echo($message); ?></h2>
 	<?php endif ?>
 
 	<?php if ($extra): ?>
-	<pre><?php echo($extra); ?></pre>
-	<hr />
+		<pre><?php echo($extra); ?></pre>
+		<hr />
 	<?php endif ?>
+
+	<?php if( ! empty($_SESSION['last_request'])): ?>
 
 	<p> 
 		<a href="?do=success">Return with SUCCESS</a> <br />
@@ -47,6 +49,8 @@ function getDefaultOuptut($message = null, $extra = null)
 
 	Last request:
 	<pre><?php var_dump($_SESSION['last_request']); ?></pre>
+
+	<?php endif ?>
 
 	<?php
 	return getOutputFrame(ob_get_clean());

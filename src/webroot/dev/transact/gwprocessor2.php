@@ -291,5 +291,5 @@ function dieWithTransactResponse($responseData)
  */
 function getStubUrl($whatDo = 'transact', $extra = array())
 {
-	return http_build_url($_SERVER['PHP_SELF'], array('query' => http_build_query($extra + array('do' => $whatDo))));
+	return http_build_url($_SERVER['REQUEST_URI'], array('query' => http_build_query($extra + array('do' => $whatDo))));
 }
