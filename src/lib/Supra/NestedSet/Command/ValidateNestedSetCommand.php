@@ -22,8 +22,8 @@ class ValidateNestedSetCommand extends Command
 	protected function configure()
 	{
 		$this->setName('su:nested_set:check')
-				->setDescription('Cheks nested set indecies.')
-				->addArgument('entity', InputArgument::REQUIRED, 'Nested set entity name');
+				->setDescription('Cheks nested set indecies')
+				->addArgument('entity', InputArgument::OPTIONAL, 'Nested set entity name');
 	}
 
 	/**
@@ -34,38 +34,56 @@ class ValidateNestedSetCommand extends Command
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-		$entityName = $input->getArgument('entity');
+		$entityNames = $input->getArgument('entity');
+		
+		if (empty($entityNames)) {
+			$entityNames = array(
+				\Supra\Controller\Pages\Entity\Page::CN(),
+				\Supra\Controller\Pages\Entity\Template::CN(),
+				\Supra\FileStorage\Entity\Abstraction\File::CN(),
+			);
+		}
+		
+		if ( ! is_array($entityNames)) {
+			$entityNames = array($entityNames);
+		}
 
 		$em = ObjectRepository::getEntityManager($this);
 		$this->removeListeners($em);
-		$em->beginTransaction();
-
-		$fixRequired = $this->isFixRequired($em, $output, $entityName);
-
-		if ($fixRequired) {
-
-			// Check again on the fixed data, will give up if set is still broken
-			$fixStillRequired = $this->isFixRequired($em, $output, $entityName);
-
-			if ($fixStillRequired) {
-				$output->writeln("<error>Could not repair.</error>");
-				$em->rollback();
-				return;
-			}
-
-			// Suggest autofix
-			$commit = $this->prompt($output, '<question>Do you want to fix the nested set automatically? [y/N]</question> ');
+		
+		foreach ($entityNames as $entityName) {
 			
-			if ($commit) {
-				$em->commit();
+			$em->beginTransaction();
+			
+			$output->writeln("<info>Validating \"{$entityName}\"</info>");
+			
+			$fixRequired = $this->isFixRequired($em, $output, $entityName);
+
+			if ($fixRequired) {
+
+				// Check again on the fixed data, will give up if set is still broken
+				$fixStillRequired = $this->isFixRequired($em, $output, $entityName);
+
+				if ($fixStillRequired) {
+					$output->writeln("<error>Could not repair.</error>");
+					$em->rollback();
+					return;
+				}
+
+				// Suggest autofix
+				$commit = $this->prompt($output, '<question>Do you want to fix the nested set automatically? [y/N]</question> ');
+
+				if ($commit) {
+					$em->commit();
+				} else {
+					$em->rollback();
+				}
 			} else {
 				$em->rollback();
 			}
-		} else {
-			$em->rollback();
+			
+			$output->writeln('Done check.');
 		}
-
-		$output->writeln('Done check.');
 	}
 
 	/**
@@ -113,11 +131,15 @@ class ValidateNestedSetCommand extends Command
 
 		$qb = $nestedRepository->createSearchQueryBuilder($filter, $order);
 
-		// Need ID and indecies only
-		$qb->select('e.id, e.left, e.right, e.level');
+		$qb->select('e');
+		
+		$query = $qb->getQuery();
+			
+		$query->setHint(\Doctrine\ORM\Query::HINT_FORCE_PARTIAL_LOAD, true);
+		$query->setHydrationMode(\Doctrine\ORM\Query::HYDRATE_SIMPLEOBJECT);
 
-		$records = $qb->getQuery()->getResult();
-
+		$records = $query->getResult();
+		
 		/**
 		 * Keeps pile of current parents
 		 * @var $parents array
@@ -132,7 +154,7 @@ class ValidateNestedSetCommand extends Command
 		$nodes = array();
 
 		foreach ($records as $record) {
-			$level = $record['level'];
+			$level = $record->getLevel();
 
 			$node = new ValidationArrayNode($record);
 			$nodes[] = $node;
@@ -174,10 +196,25 @@ class ValidateNestedSetCommand extends Command
 				$dbEntity = $em->find($entityName, $node->getId());
 				/* @var $dbEntity \Supra\NestedSet\Node\EntityNodeInterface */
 
+				if ( ! $node->isLeaf() && $node->isOriginallyWithLeafInterface() ) {
+
+					$children = $node->getChildren();
+					foreach ($children as $child) {
+						
+						if ( ! $node->isOk()) {
+							$child->moveAsNextSiblingOf($node);
+						} else {
+							$child->moveAsPrevSiblingOf($node);
+						}
+					}
+					
+				} else {
 				// Overwrite the indecies
-				$dbEntity->setLeftValue($node->getLeftValue());
-				$dbEntity->setRightValue($node->getRightValue());
-				$dbEntity->setLevel($node->getLevel());
+					$dbEntity->setLeftValue($node->getLeftValue());
+					$dbEntity->setRightValue($node->getRightValue());
+
+					$dbEntity->setLevel($node->getLevel());
+				}
 
 				$fixRequired = true;
 			}
