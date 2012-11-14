@@ -8,10 +8,25 @@ namespace Supra\NestedSet\Command;
 class ValidationArrayNode extends \Supra\NestedSet\Node\ArrayNode
 {
 	public $originalData;
-
-	public function __construct(array $original)
+	
+	/**
+	 * 
+	 */
+	public function __construct(\Supra\NestedSet\Node\NodeInterface $entity)
 	{
-		$this->originalData = $original;
+		$this->originalData = array(
+			'id' => $entity->getId(),
+			'left' => $entity->getLeftValue(),
+			'right' => $entity->getRightValue(),
+			'level' => $entity->getLevel(),
+			'isLeafInterface' => false,
+		);
+		
+		if ($entity instanceof \Supra\FileStorage\Entity\File
+				|| $entity instanceof \Supra\FileStorage\Entity\Image) {
+			
+			$this->originalData['isLeafInterface'] = true;
+		}
 	}
 
 	public function getNodeTitle()
@@ -30,22 +45,38 @@ class ValidationArrayNode extends \Supra\NestedSet\Node\ArrayNode
 			$levelStatus = sprintf('LEVEL %4d --> %4s', $this->originalData['level'], $this->level);
 		}
 		
-		return sprintf('%20s   %20s   %20s   %20s',
+		if ($this->originalData['isLeafInterface'] && ! $this->isLeaf()) {
+			$leafStatus = 'should be LEAF but has children';
+		}
+		
+		return sprintf('%20s   %20s   %20s   %20s   %20s',
 				$id,
 				$leftStatus,
 				$rightStatus,
-				$levelStatus);
+				$levelStatus,
+				$leafStatus
+		);
 	}
 
 	public function isOk()
 	{
 		return $leftStatus = $this->originalData['left'] == $this->left &&
 				$rightStatus = $this->originalData['right'] == $this->right &&
-				$levelStatus = $this->originalData['level'] == $this->level;
+				$levelStatus = $this->originalData['level'] == $this->level
+				&& ( $this->isLeaf() || ! $this->originalData['isLeafInterface'] )
+				;
 	}
 
 	public function getId()
 	{
 		return $this->originalData['id'];
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isOriginallyWithLeafInterface()
+	{
+		return ($this->originalData['isLeafInterface'] === true);
 	}
 }
