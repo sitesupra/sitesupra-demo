@@ -28,7 +28,7 @@ class PaymentProviderCollection
 	public function get($paymentProviderId)
 	{
 		if (empty($this->paymentProviders[$paymentProviderId])) {
-			throw new Exception\RuntimeException('Payment provider "' . $paymentProviderId . '" is not found in collection.');
+			throw new Exception\RuntimeException('Payment provider "' . $paymentProviderId . '" is not found in collection. Have ' . join(', ', array_keys($this->paymentProviders)) . '.');
 		}
 
 		return $this->paymentProviders[$paymentProviderId];

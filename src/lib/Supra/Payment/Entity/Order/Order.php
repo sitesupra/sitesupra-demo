@@ -19,6 +19,7 @@ use Supra\Payment\Entity\Abstraction\PaymentEntity;
  * @Entity
  * @HasLifecycleCallbacks
  * @InheritanceType("SINGLE_TABLE")
+ * @DetachedDiscriminators
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"shop" = "ShopOrder", "recurring" = "RecurringOrder"})
  */
@@ -114,10 +115,10 @@ abstract class Order extends Database\Entity
 	{
 		$localeManager = ObjectRepository::getLocaleManager($this);
 
-		if(empty($this->localeId)) {
+		if (empty($this->localeId)) {
 			$this->localeId = $localeManager->getCurrent()->getId();
 		}
-		
+
 		$locale = $localeManager->getLocale($this->localeId);
 
 		return $locale;
@@ -344,7 +345,9 @@ abstract class Order extends Database\Entity
 
 		return $result;
 	}
-	
+
+	abstract public function isPaid();
+
 	abstract public function getPaymentEntityId();
 
 	abstract public function getPaymentProviderId();
@@ -352,5 +355,4 @@ abstract class Order extends Database\Entity
 	abstract public function addToPaymentEntityParameters($phaseName, $data);
 
 	abstract public function getPaymentEntityParameterValue($phaseName, $name);
-	
 }

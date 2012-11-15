@@ -5,6 +5,7 @@ namespace Supra\Payment\Entity\Order;
 use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Order\RecurringOrderPeriodDimension;
+use Supra\Payment\Transaction\TransactionStatus;
 
 /**
  * @Entity
@@ -159,6 +160,14 @@ class RecurringOrder extends Order
 				->getId();
 
 		return $paymentEntityId;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isPaid()
+	{
+		return $this->getRecurringPayment()->getLastTransaction()->getStatus() == TransactionStatus::SUCCESS;
 	}
 
 }

@@ -5,6 +5,7 @@ namespace Supra\Payment\Entity\Order;
 use Supra\Database;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Entity\Transaction\Transaction;
+use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Payment\Entity\Currency\Currency;
 use Supra\Payment\Entity\Order\OrderItem;
 use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
@@ -106,6 +107,14 @@ class ShopOrder extends Order
 				->getId();
 
 		return $paymentEntityId;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isPaid()
+	{
+		return $this->getTransaction()->getStatus() == TransactionStatus::SUCCESS;
 	}
 
 }

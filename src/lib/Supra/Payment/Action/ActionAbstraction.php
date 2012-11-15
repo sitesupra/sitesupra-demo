@@ -243,20 +243,9 @@ abstract class ActionAbstraction extends ControllerAbstraction
 
 			if ( ! $response->isRedirect()) {
 
-				$queryParts = parse_url($initiatorUrl);
+				$url = http_build_url($initiatorUrl, array('query' => http_build_query($queryData)), HTTP_URL_JOIN_QUERY);
 
-				$urlBase = $queryParts['scheme'] . '://' . $queryParts['host'] . $queryParts['path'];
-
-				$query = array();
-
-				if ( ! empty($queryParts['query'])) {
-					$query[] = $queryParts['query'];
-				}
-				$query[] = http_build_query($queryData);
-
-				$query = join('&', $query);
-
-				$response->redirect($urlBase . '?' . $query);
+				$response->redirect($url);
 			}
 		}
 	}
