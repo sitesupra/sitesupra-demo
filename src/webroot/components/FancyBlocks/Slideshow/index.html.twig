@@ -3,16 +3,23 @@
 {% set images = supraBlock.property('images') %}
 
 {% if images|length %}
+
+	{% set width_full = 960 %}
+	{% set height_full = 358 %}
+	{% set ratio = height_full / width_full %}
+
+	{% for image in images %}
+		{{ supraBlock.preloadImage( image.imageId, 960, 960 * ratio, true ) }}
+		{{ supraBlock.preloadImage( image.imageId, 768, 768 * ratio, true ) }}
+		{{ supraBlock.preloadImage( image.imageId, 420, 420 * ratio, true ) }}
+		{{ supraBlock.preloadImage( image.imageId, 300, 300 * ratio, true ) }}
+	{% endfor %}
 	
 	<div class="block">
 		<div class="promo-slider" data-refresh-event="promo" data-style="{{ design|default('arrows') }}" data-animation="{{ animation|default('horizontal') }}">
 			<ul>
 				{% for image in images %}
 				<li>
-					{% set width_full = 960 %}
-					{% set height_full = 358 %}
-					{% set ratio = height_full / width_full %}
-					
 					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 960 * ratio, true ) | raw %}
 					{% set tag_tablet = supraBlock.imageHtmlTag( image.imageId, 768, 768 * ratio, true ) | raw %}
 					{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, 420, 420 * ratio, true ) | raw %}

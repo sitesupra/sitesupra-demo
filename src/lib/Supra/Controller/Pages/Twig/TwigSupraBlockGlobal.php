@@ -63,7 +63,7 @@ class TwigSupraBlockGlobal
 	 */
 	public function preloadImage($imageId, $width = null, $height = null, $cropped = false)
 	{
-		$this->preloadImageData[$width][$height][$cropped][$imageId] = true;
+		$this->preloadImageData[round($width)][round($height)][$cropped][$imageId] = true;
 	}
 	
 	/**
@@ -74,6 +74,9 @@ class TwigSupraBlockGlobal
 	 */
 	private function doPreloadImages($width, $height, $cropped)
 	{
+		$width = round($width);
+		$height = round($height);
+		
 		$fileStorage = ObjectRepository::getFileStorage($this);
 		$em = $fileStorage->getDoctrineEntityManager();
 		
@@ -148,9 +151,15 @@ class TwigSupraBlockGlobal
 		if (is_null($width)) {
 			$width = 10000;
 		}
+		else {
+			$width = round($width);
+		}
 		
 		if (is_null($height)) {
 			$height = 10000;
+		}
+		else {
+			$height = round($height);
 		}
 		
 		if (isset($this->preloadedImages[$width][$height][$cropped][$imageId])) {
