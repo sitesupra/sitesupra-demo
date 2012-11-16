@@ -95,19 +95,25 @@ class DatabaseBackedLocaleManager extends LocaleManager
 	 */
 	public function loadAll()
 	{
-		$findAllCriteria = array('context' => $this->getContext());
+		try {
 
-		$locales = $this->getRepository()->findBy($findAllCriteria);
+			$findAllCriteria = array('context' => $this->getContext());
 
-		foreach ($locales as $locale) {
+			$locales = $this->getRepository()->findBy($findAllCriteria);
 
-			/* @var $locale LocaleEntity */
+			foreach ($locales as $locale) {
 
-			parent::add($locale);
+				/* @var $locale LocaleEntity */
 
-			if ($locale->isDefault()) {
-				$this->defaultLocale = $locale;
+				parent::add($locale);
+
+				if ($locale->isDefault()) {
+					$this->defaultLocale = $locale;
+				}
 			}
+		} catch (\Doctrine\DBAL\DBALException $e) {
+			
+			\Log::error('Could not load locales from database: ', $e);
 		}
 	}
 
@@ -159,7 +165,7 @@ class DatabaseBackedLocaleManager extends LocaleManager
 		}
 
 		parent::add($locale);
-		
+
 		$locale->setDefault(true);
 
 		$this->defaultLocale = $locale;
