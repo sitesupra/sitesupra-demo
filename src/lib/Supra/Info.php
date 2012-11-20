@@ -149,4 +149,27 @@ class Info implements Configuration\ConfigurationInterface
 		return $this->id;
 	}
 
+	/**
+	 * Returns name of project
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	/**
+	 * Returns data as associative array
+	 * @return array
+	 */
+	public function getAsArray()
+	{
+		return array(
+			'systemId' => $this->getSystemId(),
+			'siteId' => $this->getSiteId(),
+			'webserverHostAndPort' => $this->getWebserverHostAndPort(),
+			'name' => $this->getName()
+		);
+	}
+
 }
