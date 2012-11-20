@@ -65,45 +65,61 @@ class ExceptionController extends ControllerAbstraction
 
 				if ($iniConfiguration->getValue('system', 'email_exceptions', false) == true) {
 
-					$mailer = ObjectRepository::getMailer($this);
-					$systemInfo = ObjectRepository::getSystemInfo($this);
-					$userProvider = ObjectRepository::getUserProvider($this);
-
-					$message = new \Swift_Message('Caught exception, #' . $exceptionIdentifier);
-
-					$bodyParts = array();
-
-					$bodyParts['Trace'] = $this->exception->getTraceAsString();
-					$bodyParts['System info'] = $systemInfo->asArray();
-
-					$currentUser = $userProvider->getSignedInUser(false);
-
-					if ( ! empty($currentUser)) {
-						$bodyParts['User login'] = $currentUser->getLogin();
-					} else {
-						$bodyParts['User login'] = 'N/A';
-					}
-
-					$body = array();
-					foreach($bodyParts as $name => $bodyPart){
-						$body[] = $name . "\n" . '------------------------------------' . "\n" . $bodyPart . "\n";
-					}
-					$body = join("\n", $body);
-					
-					$message->setBody($body);
-
-					$toAddress = $iniConfiguration->getValue('system', 'email_exception_to');
-					$message->setTo($toAddress);
-
-					$fromAddress = $iniConfiguration->getValue('system', 'email_exception_from');
-					$message->setFrom($fromAddress);
-
-					$mailer->send($message);
+					$this->sendExceptionReportToEmail();
 				}
 			}
 		}
 
 //		$response->output("\n" . $this->exception->__toString());
+	}
+
+	protected function sendExceptionReportToEmail()
+	{
+		$mailer = ObjectRepository::getMailer($this);
+		$systemInfo = ObjectRepository::getSystemInfo($this);
+		$userProvider = ObjectRepository::getUserProvider('#cms');
+
+		$exceptionIdentifier = md5((string) $this->exception);
+
+		$message = new \Swift_Message('Caught exception, #' . $exceptionIdentifier);
+
+		$bodyParts = array();
+
+		$bodyParts['Trace'] = $this->exception->getTraceAsString();
+
+		$systemInfoData = array();
+		foreach ($systemInfo->getAsArray() as $name => $value) {
+			$systemInfoData[] = $name . ': ' . $value;
+		}
+
+		$bodyParts['System info'] = join("\n", $systemInfoData);
+
+		$currentUser = $userProvider->getSignedInUser(false);
+
+		if ( ! empty($currentUser)) {
+			$bodyParts['User login'] = $currentUser->getLogin();
+		} else {
+			$bodyParts['User login'] = 'N/A';
+		}
+
+		$body = array();
+		foreach ($bodyParts as $name => $bodyPart) {
+			$body[] = $name . "\n" . '------------------------------------' . "\n" . $bodyPart . "\n";
+		}
+		$body = join("\n", $body);
+
+		$message->setBody($body);
+
+		$toAddress = $iniConfiguration->getValue('system', 'email_exceptions_to');
+		$message->setTo($toAddress);
+
+		$fromAddress = $iniConfiguration->getValue('system', 'email_exceptions_from', false);
+		if (empty($fromAddress)) {
+			$fromAddress = $iniConfiguration->getValue('mail', 'default_email');
+		}
+		$message->setFrom($fromAddress);
+
+		$mailer->send($message);
 	}
 
 }
