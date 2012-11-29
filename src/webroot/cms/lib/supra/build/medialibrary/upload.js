@@ -474,7 +474,7 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 						    'message': '{#medialibrary.validation_error.invalid_drop#}',
 						    'useMask': true,
 						    'buttons': [
-						        {'id': 'delete', 'label': 'Ok'}
+						        {'id': 'delete', 'label': 'OK'}
 						    ]
 						});
 					}

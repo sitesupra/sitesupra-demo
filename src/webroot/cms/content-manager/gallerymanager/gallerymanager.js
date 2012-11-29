@@ -693,7 +693,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 						'message': '{#medialibrary.validation_error.empty_folder_drop#}',
 						'useMask': true,
 						'buttons': [
-							{'id': 'delete', 'label': 'Ok'}
+							{'id': 'delete', 'label': 'OK'}
 						]
 					});
 

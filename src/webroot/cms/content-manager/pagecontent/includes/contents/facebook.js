@@ -94,7 +94,7 @@ YUI.add('supra.page-content-facebook', function (Y) {
 				'message': message,
 				'buttons': [{
 					'id': 'ok', 
-					'label': 'Ok'
+					'label': 'OK'
 				}]
 			});
 		},

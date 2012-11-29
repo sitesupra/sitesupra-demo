@@ -780,7 +780,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					'message': Supra.Intl.get(['error', 'no_layouts']),
 					'buttons': [{
 						'id': 'ok', 
-						'label': 'Ok'
+						'label': 'OK'
 					}]
 				});
 
