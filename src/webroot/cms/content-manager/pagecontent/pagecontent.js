@@ -55,11 +55,6 @@ Supra('dd-drag', function (Y) {
 		editing: false,
 		
 		/**
-		 * Registered DND target (CMS document or iframe document) 
-		 */
-		dnd_target: null,
-		
-		/**
 		 * Dependancies has been loaded
 		 * @type {Boolean}
 		 */
@@ -88,7 +83,6 @@ Supra('dd-drag', function (Y) {
 		initialize: function () {
 			//Load sidebar content settings before all other modules
 			Manager.loadAction('PageContentSettings');
-			Manager.getAction('PageContentSettings').on('loaded', this.loadModules, this);
 			
 			//Y.Router route
 			Root.router.route(Root.ROUTE_PAGE, 		Y.bind(this.onStopEditingRoute, this));
@@ -104,7 +98,22 @@ Supra('dd-drag', function (Y) {
 				}
 			}, this);
 			
-			Manager.getAction('Page').on('loaded', this.ready, this);
+			//Settings
+			var settings = Manager.getAction('PageContentSettings');
+			if (settings.get('loaded')) {
+				this.loadModules();
+			} else {
+				settings.on('loaded', this.loadModules, this);
+			}
+			
+			//Page
+			var page = Manager.getAction('Page');
+			if (page.get('loaded')) {
+				this.ready();
+			}
+			
+			//When page will reload we need to update iframe
+			page.on('loaded', this.ready, this);
 		},
 		
 		loadModules: function () {
@@ -291,7 +300,9 @@ Supra('dd-drag', function (Y) {
 			var page_data = Manager.Page.getPageData();
 			
 			//Wait till page data and dependancies are loaded
-			if (!page_data || !this.dependancies_loaded) return;
+			if (!page_data || !this.dependancies_loaded) {
+				return;
+			}
 			
 			if (!this.iframe_handler) {
 				this.iframe_handler = new this.IframeHandler({

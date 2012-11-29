@@ -509,13 +509,11 @@ function (Y) {
 				"duration": 0.35
 			};
 			
-			if (Y.UA.gecko || Y.UA.opera) {
+			if (Y.UA.gecko || Y.UA.opera || Y.UA.ie) {
 				transition = {
 					"opacity": 0,
 					"duration": 0.35
 				};
-			} else if (Y.UA.ie && Y.UA.ie < 10) {
-				transition.msTransform = transition.transform;
 			}
 			
 			this.one().transition(transition, Y.bind(function () {
@@ -542,21 +540,19 @@ function (Y) {
 			
 			//Animation turned off ?
 			if (this.get("animation") !== false) {
+				styles = {
+					"opacity": 0,
+					"transform": "scale(2)"
+				};
+				transition = {
+					"opacity": 1,
+					"transform": "scale(1)"
+				};
 				
-				if (Y.UA.gecko || Y.UA.opera || (Y.UA.ie && Y.UA.ie < 10)) {
+				if (Y.UA.gecko || Y.UA.opera || Y.UA.ie) {
 					//Fallback for non-supporting browsers
 					styles = { "opacity": 0 };
 					transition = { "opacity": 1 };
-				} else {
-					//Transformation transitions supported
-					styles = {
-						"opacity": 0,
-						"transform": "scale(2)"
-					};
-					transition = {
-						"opacity": 1,
-						"transform": "scale(1)"
-					};
 				}
 				
 			}

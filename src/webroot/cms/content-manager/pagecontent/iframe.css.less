@@ -348,8 +348,8 @@
 		.box-shadow (0, 0, 4px, #39f);
 	}
 }
-.editing .yui3-input-html-inline p {
-	// Cross-browser normalize
+.non-ie .editing .yui3-input-html-inline p {
+	// Cross-browser normalize, except for IE which adds handles if element has 'layout'
 	min-height: 1em;
 }
 

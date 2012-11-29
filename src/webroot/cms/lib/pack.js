@@ -29826,7 +29826,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			
 			//Find button with "form" attribute which could be in the footer
 			//and add support for IE
-			if (Y.UA.ie && Y.UA.ie <= 9) {
+			if (Y.UA.ie) {
 				var form = this.get("srcNode"),
 					form_id = form.get("id"),
 					button = Y.one("button[form='" + form_id + "']");

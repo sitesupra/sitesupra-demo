@@ -193,7 +193,7 @@ YUI().add('supra.iframe', function (Y) {
 			
 			if (doc) {
 				//Remove all listeners
-				Y.one(doc).purge(true);
+				Y.Node(doc).destroy(true);
 				doc.location = 'about:blank';
 				
 				this.set('doc', null);
@@ -353,6 +353,13 @@ YUI().add('supra.iframe', function (Y) {
 			
 			//Add "supra-cms" class to the <html> element
 			Y.Node(doc).one('html').addClass('supra-cms');
+			
+			//Add "ie" class to the <html> element
+			if (Supra.Y.UA.ie && Supra.Y.UA.ie < 10) {
+				Y.Node(doc).one('html').addClass('ie');
+			} else {
+				Y.Node(doc).one('html').addClass('non-ie');
+			}
 			
 			//Get all stylesheet links
 			var links = [],

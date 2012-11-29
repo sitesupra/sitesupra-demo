@@ -99,7 +99,7 @@
 			});
 			
 			//IE not supported at the moment
-			if (Supra.Y.UA.ie) {
+			if (Supra.Y.UA.ie && Supra.Y.UA.ie < 9) {
 				Supra.Manager.executeAction('BrowserSupport');
 			} else {
 				//Start pinging server
