@@ -258,7 +258,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 						'message': '{#medialibrary.validation_error.empty_folder_drop#}',
 						'useMask': true,
 						'buttons': [
-							{'id': 'delete', 'label': 'Ok'}
+							{'id': 'delete', 'label': 'OK'}
 						]
 					});
 
@@ -296,7 +296,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					'useMask': true,
 					'buttons': [{
 						'id': 'ok', 
-						'label': 'Ok'
+						'label': 'OK'
 					}]
 				});
 				

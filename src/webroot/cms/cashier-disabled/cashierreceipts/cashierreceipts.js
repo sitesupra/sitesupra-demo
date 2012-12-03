@@ -408,7 +408,7 @@ function (Y) {
 			Supra.Manager.executeAction('Confirmation', {
 				'message': 'Payment done, need confirmation screen!!!',
 				'buttons': [
-					{'id': 'ok', 'label': 'Ok'}
+					{'id': 'ok', 'label': 'OK'}
 				]
 			});
 		},

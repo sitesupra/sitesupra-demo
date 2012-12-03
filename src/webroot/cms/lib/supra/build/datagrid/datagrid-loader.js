@@ -17,6 +17,9 @@ YUI.add('supra.datagrid-loader', function (Y) {
 	LoaderPlugin.ATTRS = {
 		'recordHeight': {
 			'value': null
+		},
+		'dataSource': {
+			'value': null
 		}
 	};
 	

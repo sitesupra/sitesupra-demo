@@ -1431,6 +1431,7 @@ button::-moz-focus-inner { border:0; }
   color:#ffffff;
   text-shadow:0 1px 0 rgba(0,19,52,0.4);
 }
+.ie .yui3-input-select-list .su-button .img img, .ie .ui-dark .ui-light .yui3-input-select-list .su-button .img img { vertical-align:middle; }
 .ui-dark .yui3-input-select-list .su-button, .ui-dark .yui3-input-select-list .su-button .su-button-content, .ui-dark .yui3-input-select-list .su-button button { background-image:url(/cms/lib/supra/build/input/assets/skins/supra/input-select-list-dark.png); }
 .ui-dark .yui3-input-select-list .su-button p {
   color:#373649;
@@ -2246,7 +2247,6 @@ button::-moz-focus-inner { border:0; }
   margin:0 0 0 -1px;
   display:inline-block;
 }
-.ie .yui3-editor-toolbar-text .yui3-input-select .yui3-input-select-inner > p, .ie .yui3-editor-toolbar-table .yui3-input-select .yui3-input-select-inner > p { min-width:143px; }
 
 .su-imageresizer { cursor:move; }
 .su-imageresizer .su-panel-content { padding:10px 20px 5px; }

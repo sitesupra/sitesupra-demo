@@ -204,6 +204,12 @@ YUI().add('website.sitemap-tree', function (Y) {
 			//Destroy view
 			this.get('view').destroy();
 			this.set('view', null);
+			
+			//Destroy DND
+			if (this._dndDrop) {
+				this._dndDrop.destroy();
+				this._dndDrop = null;
+			}
 		},
 		
 		

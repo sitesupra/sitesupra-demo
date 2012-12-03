@@ -239,6 +239,8 @@ Supra(function (Y) {
 					Supra.data.set({'page': {'id': data.id}});
 					
 					this.data = data;
+					
+					//Fire 'loaded' event, this will trigger PageContent to update iframe
 					this.fire('loaded', {'data': data});
 					
 					//Check lock status

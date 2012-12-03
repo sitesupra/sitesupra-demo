@@ -47,11 +47,14 @@ YUI.add("supra.page-content-ordering", function (Y) {
 		 */
 		destructor: function () {
 			if (this.dragDelegate) {
+				var dragDelegate = this.dragDelegate;
+				
 				//Make sure targets are destroyed
-				this.dragDelegate.dd.unplug(Y.Plugin.DDProxy);
-				this.dragDelegate.dd.unplug(Y.Plugin.DDConstrained);
-				this.dragDelegate.dd.destroy();
-				this.dragDelegate.destroy();
+				dragDelegate.dd.unplug('proxy'); // Y.Plugin.DDProxy
+				dragDelegate.dd.unplug('con');   // Y.Plugin.DDConstrained
+				dragDelegate.dd.destroy();
+				dragDelegate.destroy();
+				this.dragDelegate = null;
 			}
 		},
 		
@@ -148,7 +151,7 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				PageContent.initDD(this.get("host").get("doc"));
 			}
 			
-			var del = this.dragDelegate = new Y.DD.Delegate({
+			var del = this.dragDelegate = window.del = new Y.DD.Delegate({
 				"container": container,
 				"nodes": selector,
 				"target": true,
@@ -178,6 +181,7 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			}
 			
 			//When blocks are added or removed sync drag and drop
+			//this.afterHostMethod("createChildren", this.dragDelegate.syncTargets, this.dragDelegate);
 			this.afterHostMethod("createChildren", this.dragDelegate.syncTargets, this.dragDelegate);
 		},
 		

@@ -224,14 +224,17 @@ YUI.add('supra.iframe-handler', function (Y) {
 		destroyContent: function () {
 			var doc = this.get('doc');
 			
+			if (doc) {
+				//Remove all listeners
+				Y.Node(doc).destroy(true);
+			}
+			
 			if (this.contents) {
 				this.contents.destroy();
 				this.contents = null;
 			}
 			
 			if (doc) {
-				//Remove all listeners
-				Y.one(doc).purge(true);
 				doc.location = "about:blank";
 			}
 		},
@@ -255,11 +258,11 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @type {String}
 		 */
 		setHTML: function (html, preview_only) {
-			//Set attribute
-			this.set('html', html);
-			
 			//Clean up
 			this.destroyContent();
+			
+			//Set attribute
+			this.set('html', html);
 			
 			//Change iframe HTML
 			this.writeHTML(html);
@@ -572,6 +575,13 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			//Add "supra-cms" class to the <html> element
 			Y.Node(doc).one('html').addClass('supra-cms');
+			
+			//Add "ie" class to the <html> element
+			if (Supra.Y.UA.ie && Supra.Y.UA.ie < 10) {
+				Y.Node(doc).one('html').addClass('ie');
+			} else {
+				Y.Node(doc).one('html').addClass('non-ie');
+			}
 			
 			//Get all stylesheet links
 			var links = [],
