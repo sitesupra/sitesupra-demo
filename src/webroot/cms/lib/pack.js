@@ -2448,7 +2448,7 @@ YUI.add('supra.event', function (Y) {
 		    'message': response.error_message,
 		    'useMask': true,
 		    'buttons': [
-		        {'id': 'delete', 'label': 'Ok'}
+		        {'id': 'delete', 'label': 'OK'}
 		    ]
 		});
 	};
@@ -2492,7 +2492,7 @@ YUI.add('supra.event', function (Y) {
 			'align': single ? 'center' : 'left',
 			'useMask': true,
 			'buttons': [
-				{'id': 'delete', 'label': 'Ok'}
+				{'id': 'delete', 'label': 'OK'}
 			]
 		});
 	};
@@ -20651,7 +20651,7 @@ YUI.add('supra.uploader', function (Y) {
 							    'message': '{#medialibrary.validation_error.invalid_drop#}',
 							    'useMask': true,
 							    'buttons': [
-							        {'id': 'delete', 'label': 'Ok'}
+							        {'id': 'delete', 'label': 'OK'}
 							    ]
 							});
 						}
