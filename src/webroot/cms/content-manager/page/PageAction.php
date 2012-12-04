@@ -498,11 +498,13 @@ class PageAction extends PageManagerAction
 
 		$this->writeAuditLog('%item% created', $pageData);
 
-		$request = PageRequestEdit::factory($pageData);
-		$request->setDoctrineEntityManager($this->entityManager);
-		$request->getPlaceHolderSet();
-		$request->createMissingPlaceHolders();
-		$request->createMissingBlockProperties();
+		if ( ! $page instanceof Entity\GroupPage) {
+			$request = PageRequestEdit::factory($pageData);
+			$request->setDoctrineEntityManager($this->entityManager);
+			$request->getPlaceHolderSet();
+			$request->createMissingPlaceHolders();
+			$request->createMissingBlockProperties();
+		}
 
 		$this->outputPage($pageData);
 
