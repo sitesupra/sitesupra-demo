@@ -448,11 +448,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			
 			Extended.superclass.renderUI.apply(this, arguments);
 			
-			//Initialize drag and drop to prevent DD from being attached to iframe
-			if ('Manager' in Supra && 'PageContent' in Supra.Manager) {
-				Supra.Manager.PageContent.initDD();
-			}
-			
 			//Add plugin for editing files and folders
 			this.plug(List.Edit, {
 				'data': this.get('data')

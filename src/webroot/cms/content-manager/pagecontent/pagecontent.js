@@ -355,37 +355,9 @@ Supra('dd-drag', function (Y) {
 		},
 		
 		/**
-		 * Initialize document drag and drop
-		 */
-		initDD: function (target) {
-			target = target || document;
-			Y.config.doc = target;
-			
-			if (!target._dd_intialized) {
-				//On each new DND item registration update YUI document if needed
-				//This is needed to resolve YUI DD not being attached to correct document
-				target._dd_intialized = true;
-				Y.DD.DDM._setupListeners();
-			}
-		},
-		
-		/**
-		 * Reset document drag and drop by removing bindings
-		 * and re-attaching them
-		 */
-		resetDD: function (target) {
-			Y.one(target).purge();
-			target._dd_intialized = false;
-			
-			this.initDD(target);
-			if (document !== target) this.initDD(document);
-		},
-		
-		/**
 		 * Add item to contents D&D list
 		 */
 		registerDD: function (item) {
-			this.initDD(document);
 			
 			var dd = new Y.DD.Drag({
 				offsetNode: false, // exactly where cursor is

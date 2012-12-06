@@ -1,5 +1,5 @@
 /**
- * Plugin to add editing functionality for MediaList
+ * Plugin to link button and input so that button represents input value
  */
 YUI.add('supra.button-plugin-input', function (Y) {
 	//Invoke strict mode

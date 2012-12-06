@@ -1,4 +1,40 @@
-Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medialibrary-list', 'supra.uploader', function (Y) {
+//Add module group
+Supra.setModuleGroupPath('gallerymanager', Supra.Manager.Loader.getActionFolder('GalleryManager') + 'modules/');
+
+//Add module definitions
+Supra.addModules({
+	'gallerymanager.itemlist': {
+		path: 'itemlist.js',
+		requires: ['supra.iframe', 'supra.template', 'plugin']
+	},
+	'gallerymanager.itemlist-highlight': {
+		path: 'itemlist-highlight.js',
+		requires: ['plugin', 'event-mouseenter']
+	},
+	'gallerymanager.itemlist-order': {
+		path: 'itemlist-order.js',
+		requires: ['plugin', 'dd-delegate']
+	},
+	'gallerymanager.itemlist-drop': {
+		path: 'itemlist-drop.js',
+		requires: ['plugin', 'dd-delegate']
+	},
+	'gallerymanager.itemlist-uploader': {
+		path: 'itemlist-uploader.js',
+		requires: ['plugin', 'supra.uploader']
+	},
+	'gallerymanager.imageeditor': {
+		path: 'imageeditor.js',
+		requires: ['supra.imageresizer', 'widget']
+	}
+});
+
+Supra(
+	'dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy',
+	'supra.medialibrary-list',
+	'gallerymanager.itemlist', 'gallerymanager.itemlist-highlight', 'gallerymanager.itemlist-order', 'gallerymanager.itemlist-drop', 'gallerymanager.itemlist-uploader', 'gallerymanager.imageeditor',
+function (Y) {
+
 	//Invoke strict mode
 	"use strict";
 	
@@ -75,26 +111,11 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		
 		
 		/**
-		 * Last drag X position
-		 * @type {Number}
-		 * @private
-		 */
-		lastDragX: 0,
-		dragGoingUp: false,
-		
-		/**
 		 * Settings form
 		 * @type {Object}
 		 * @private
 		 */
 		settings_form: null,
-		
-		/**
-		 * Scrollable instance
-		 * @type {Object}
-		 * @private
-		 */
-		scrollable: null,
 		
 		/**
 		 * Selected image data
@@ -111,32 +132,11 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		image_upload_folder: 0,
 		
 		/**
-		 * Image inputs
-		 * @type {Object}
-		 * @private
-		 */
-		inputs: {},
-		
-		/**
 		 * UI input values are changing
 		 * @type {Boolean}
 		 * @private
 		 */
 		ui_updating: false,
-		
-		/**
-		 * List node
-		 * @type {Object}
-		 * @private
-		 */
-		list: null,
-		
-		/**
-		 * List item for marking drop place
-		 * @type {Object}
-		 * @private
-		 */
-		listItemDropMarker: null,
 		
 		/**
 		 * @private
@@ -156,6 +156,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 				if (evt.newVal) {
 					this.one().removeClass('hidden');
 				} else {
+					
+					this.itemlist.resetAll();
+					
 					this.one().addClass('hidden');
 					this.callback = null;
 					this.data = null;
@@ -164,6 +167,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 				if (this.settings_form && this.settings_form.get('visible')) {
 					Manager.PageContentSettings.hide();
 				}
+				
 				Manager.getAction('EditorToolbar').set('disabled', evt.newVal);
 			}, this);
 		},
@@ -174,14 +178,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		 */
 		render: function () {
 			//Add buttons to toolbar
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
-				'id': 'gallery_manager_insert',
-				'type': 'button',
-				'title': Supra.Intl.get(['gallerymanager', 'insert']),
-				'icon': '/cms/lib/supra/img/toolbar/icon-image.png',
-				'action': this,
-				'actionFunction': 'openMediaLibrary'
-			}]);
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
 			
 			//Add side buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
@@ -192,185 +189,25 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 				}
 			}]);
 			
-			//Scrollable
-			this.scrollable = new Supra.Scrollable({
-				'srcNode': this.one('div.scrollable')
-			});
-			
-			this.scrollable.render();
-			this.layout.on('sync', this.scrollable.syncUI, this.scrollable);
-					
-			//Bind inline editables
-			var list = this.list = this.one('ul.list');
-			list.delegate('click', this.createInlineEditable, 'p.inline', this);
-			list.delegate('click', this.handleImageClick, 'li.gallery-item span.img', this);
-			
-			list.on('dragenter', this.listDragEnter, this);
-			list.on('dragleave', this.listDragLeave, this);
-			list.delegate('dragenter', this.listItemDragEnter, 'span.img b', this);
-			list.delegate('dragleave', this.listItemDragLeave, 'span.img b', this);
-			
-			//Marker
-			var marker = this.listItemDropMarker = list.one('li.gallery-marker');
-			marker.on('mousedown', function (e) {
-				this.addClass('mousedown');
-				e.halt();
-			});
-			marker.on('mouseup', function () {
-				this.removeClass('mousedown');
-			});
-			marker.on('mouseout', function () {
-				this.removeClass('mousedown');
-			});
-			marker.on('click', this.openMediaLibrary, this);
-			
-			this.bindDragDrop();
-			this.createUploader();
+ 			// Iframe test
+ 			this.renderIframe();
 		},
 		
-		/**
-		 * Create uploader widget instance
-		 * 
-		 * @private
-		 */
-		createUploader: function () {
-			if (this.uploader) return;
+		renderIframe: function () {
 			
-			//Create uploader
-			var target = this.one('ul.list');
+			// Item list renders all items
+			this.plug(Supra.GalleryManagerItemList);
 			
-			this.uploader = new Supra.Uploader({
-				'clickTarget': null,
-				'dropTarget': target,
-				
-				'allowBrowse': false,
-				'allowMultiple': true,
-				'accept': 'image/*',
-				
-				'requestUri': Manager.getAction('MediaLibrary').getDataPath('upload'),
-				'uploadFolderId': this.image_upload_folder,
-				
-				'data': this.getUploaderFileUploadData()
-			});
+			// Highlight will create elements for hover
+			this.itemlist.plug(Supra.GalleryManagerItemListHighlight);
 			
-			this.uploader.on('file:upload', this.onFileUploadStart, this);
-			this.uploader.on('file:complete', this.onFileUploadEnd, this);
-			this.uploader.on('file:error', this.onFileUploadError, this);
-		},
-		
-		/**
-		 * Returns data which will be sent when uploading file
-		 * Needed for upload to include correct preview size
-		 * 
-		 * @private
-		 */
-		getUploaderFileUploadData: function () {
-			var data = {'sizes': []},
-				size = null;
-			
-			size = this.PREVIEW_SIZE.split('x');
-			data.sizes.push({
-				'width': size[0],
-				'height': size[1],
-				'crop': false
-			});
-			
-			return data;
-		},
-		
-		/**
-		 * Handle file upload start
-		 */
-		onFileUploadStart: function (e) {
-			var data = e.details[0];
-			this.addImage({
-				'id': e.id,
-				'title': e.title,
-				'filename': e.filename,
-				'temporary': true
-			});
-		},
-		
-		/**
-		 * Handle file upload end
-		 */
-		onFileUploadEnd: function (e) {
-			var data = e.details[0];
-			this.removeImage(e.old_id);
-			this.addImage(data);
-		},
-		
-		/**
-		 * Handle file upload error
-		 */
-		onFileUploadError: function (e) {
-			this.removeImage(e.id);
-		},
-		
-		/**
-		 * Returns image property by ID or null
-		 * 
-		 * @param {String} id Property ID
-		 * @return Property info
-		 * @type {Object}
-		 * @private
-		 */
-		getImageProperty: function (id) {
-			var properties = this.image_properties,
-				i = 0,
-				ii = properties.length;
-			
-			for (; i<ii; i++) {
-				if (properties[i].id == id) return properties[i];
+			// Order items by drag and drop
+			if (!this.shared) {
+				this.itemlist.plug(Supra.GalleryManagerItemListOrder);
+				this.itemlist.plug(Supra.GalleryManagerItemListDrop);
+				this.itemlist.plug(Supra.GalleryManagerItemListUploader);
 			}
 			
-			return null;
-		},
-		
-		/**
-		 * Returns image data by list node
-		 * 
-		 * @param {Object} node Y.Node instance
-		 * @return Image data
-		 * @type {Object}
-		 * @private
-		 */
-		getImageDataByNode: function (node) {
-			return this.getImageDataById(node.getData('imageId'));
-		},
-		
-		/**
-		 * Returns image data by ID
-		 * 
-		 * @param {String} image_id Image ID
-		 * @return Image data
-		 * @type {Object}
-		 * @private
-		 */
-		getImageDataById: function (image_id) {
-			var data = this.data,
-				image_data = null;
-			
-			for (var i=0,ii=data.images.length; i<ii; i++) {
-				if (data.images[i].image.id == image_id) {
-					image_data = data.images[i];
-					break;
-				}
-			}
-
-			return image_data;
-		},
-		
-		/**
-		 * Returns image node by ID
-		 * 
-		 * @param {String} id Image ID
-		 * @return Image node
-		 * @type {Object}
-		 * @private
-		 */
-		getImageNodeById: function (id) {
-			return this.one('li[data-id="' + id + '"]');
 		},
 		
 		
@@ -404,10 +241,12 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 			
 			//On input value change update inline inputs and labels
 			var ii = properties.length,
-				i = 0;
+				i = 0,
+				type = null;
 			
 			for (; i<ii; i++) {
-				if (properties[i].type === 'String') {
+				type = properties[i].type;
+				if (type === 'Number' || type === 'String' || type === 'Text') {
 					form.getInput(properties[i].id).on('valueChange', this.afterSettingsFormInputChange, this);
 				}
 			}
@@ -415,6 +254,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 			//Manage button
 			var btn = this.widgets.manageButton = new Supra.Button({'label': Supra.Intl.get(['gallerymanager', 'manage']), 'style': 'small'});
 				btn.render(form.get('contentBox'));
+				btn.addClass('su-button-fill');
 				btn.on('click', this.openMediaLibraryForReplace, this);
 				
 			//Button separator
@@ -465,79 +305,84 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		 * Remove selected image
 		 */
 		removeSelectedImage: function () {
-			this.removeImage(this.selected_image_data.id);
+			if (this.itemlist.editingId) {
+				this.itemlist.removeItem(this.itemlist.editingId);
+			}
 		},
 		
 		/**
 		 * Show image settings bar
+		 * 
+		 * @param {String} id Image ID
 		 */
-		showImageSettings: function (target) {
-
-			if (target.test('.gallery')) return false;
-			target = target.closest('li');
+		showImageSettings: function (id) {
+			var id = id || this.itemlist.editingId,
+				data = null;
 			
-			var data = this.getImageDataByNode(target);
-			
-			if (this.settings_form && this.settings_form.get('visible')) {
-				if (this.selected_image_data && this.selected_image_data.id != data.id) {
-					//Save previous image data
-					this.settingsFormApply(true);
-				}
-			}
-			
-			if (!data) {
-				Y.log('Missing image data for image ' + target.getAttribute('src'), 'debug');
-				return false;
-			}
-			
-			this.ui_updating = true;
-			
-			//Media sidebar is closed when clicking on image
-			this.list.removeClass('mediasidebar-opened');
-			
-			//Make sure PageContentSettings is rendered
-			var form = this.settings_form || this.createSettingsForm(),
-				action = Manager.getAction('PageContentSettings');
-			
-			if (!form) {
-				if (action.get('loaded')) {
-					if (!action.get('created')) {
-						action.renderAction();
-						this.showImageSettings(target);
-					}
-				} else {
-					action.once('loaded', function () {
-						this.showImageSettings(target);
-					}, this);
-					action.load();
-				}
-				return false;
-			}
-			
-			action.execute(form, {
-				'doneCallback': Y.bind(this.settingsFormApply, this),
-				'toolbarActionName': this.NAME + 'Settings',
+			if (id) {
+				data = this.itemlist.getDataById(id);
 				
-				'title': Supra.Intl.get(['htmleditor', 'image_properties']),
-				'scrollable': true
-			});
-			
-			this.selected_image_data = data;
-
-			this.settings_form.resetValues()
-							  .setValuesObject(data.properties, 'id');
-							  
-			if (this.widgets.deleteButton) {
-				if (this.shared) {
-					this.widgets.deleteButton.hide();
-				} else {
-					this.widgets.deleteButton.show();
+				if (this.settings_form && this.settings_form.get('visible')) {
+					if (this.selected_image_data && this.selected_image_data.id != id) {
+						//Save previous image data
+						this.settingsFormApply(true);
+					}
 				}
+				
+				if (!data) {
+					Y.log('Missing image data for image "' + id + '"', 'debug');
+					return false;
+				}
+				
+				this.ui_updating = true;
+				
+				//Media sidebar is closed when clicking on image
+				//this.list.removeClass('mediasidebar-opened');
+				
+				//Make sure PageContentSettings is rendered
+				var form = this.settings_form || this.createSettingsForm(),
+					action = Manager.getAction('PageContentSettings');
+				
+				if (!form) {
+					if (action.get('loaded')) {
+						if (!action.get('created')) {
+							action.renderAction();
+							this.showImageSettings(id);
+						}
+					} else {
+						action.once('loaded', function () {
+							this.showImageSettings(id);
+						}, this);
+						action.load();
+					}
+					return false;
+				}
+				
+				action.execute(form, {
+					'doneCallback': Y.bind(this.settingsFormApply, this),
+					'toolbarActionName': this.NAME + 'Settings',
+					
+					'title': Supra.Intl.get(['htmleditor', 'image_properties']),
+					'scrollable': true
+				});
+				
+				this.selected_image_data = data;
+	
+				this.settings_form.resetValues()
+								  .setValuesObject(data.properties, 'id');
+								  
+				if (this.widgets.deleteButton) {
+					if (this.shared) {
+						this.widgets.deleteButton.hide();
+					} else {
+						this.widgets.deleteButton.show();
+					}
+				}
+				
+				this.ui_updating = false;
+				
+				return true;
 			}
-			
-			this.ui_updating = false;
-			
-			return true;
 		},
 		
 		/**
@@ -560,9 +405,9 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 				Supra.mix(image_data, {'properties': image_data_from_form});
 				
 				for (var i=0,ii=data.images.length; i<ii; i++) {
-					if (data.images[i].image.id == image_data.image.id) {
+					if (data.images[i].id == image_data.id) {
 						data.images[i] = image_data;
-						this.updateInlineEditableUI(image_data.image.id);
+						this.updateInlineEditableUI(image_data.id);
 						break;
 					}
 				}
@@ -576,276 +421,8 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		settingsFormCancel: function () {
 			if (this.settings_form && this.settings_form.get('visible')) {
 				Manager.PageContentSettings.hide();
+				this.itemlist.blurInlineEditor();
 				this.selected_image_data = null;
-			}
-		},
-		
-		
-		/*
-		 * ---------------------------------- DRAG AND DROP ------------------------------------
-		 */
-		
-		
-		/**
-		 * Bind drag & drop event listeners
-		 */
-		bindDragDrop: function () {
-			//Initialize drag and drop
-			Manager.PageContent.initDD();
-			
-			var fnDragDrag = Y.bind(this.onDragDrag, this),
-				fnDragStart = Y.bind(this.onDragStart, this),
-				fnDropOver = Y.bind(this.onDropOver, this);
-			
-			var del = this.dragDelegate = new Y.DD.Delegate({
-				container: '#galleryManagerList',
-				nodes: 'li',
-				target: {},
-				dragConfig: {
-					haltDown: false
-				}
-			});
-			del.dd.plug(Y.Plugin.DDProxy, {
-				moveOnEnd: false,
-				cloneNode: true
-			});
-			
-			del.dd.addInvalid('P'); // P is used in inline editables
-			del.dd.addInvalid('.gallery-marker'); // Marker
-
-			del.on('drag:drag', fnDragDrag);
-			del.on('drag:start', fnDragStart);
-			del.on('drag:over', fnDropOver);
-			
-			//Drop from media library, add image or images
-			var srcNode = this.one();
-			srcNode.on('dataDrop', this.onImageDrop, this);
-			
-			//Enable drag & drop
-			this.drop = new Manager.PageContent.PluginDropTarget({
-				'srcNode': srcNode,
-				'doc': document
-			});
-		},
-		
-		/**
-		 * On image or folder drop add images to the list
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		onImageDrop: function (e) {
-			if (!Manager.MediaSidebar) {
-				//If media sidebar is not loaded, then user didn't droped image from there
-				//Prevent default (which is insert folder thumbnail image) 
-				if (e.halt) e.halt();
-				return false;
-			}
-			
-			var item_id = e.drag_id,
-				dataObject = Manager.MediaSidebar.dataObject(),
-				replace_id = null;
-			
-			if (e.drop.closest('b')) {
-				//Image was dropped on existing item
-				var node_li = e.drop.closest('li.gallery-item');
-				if (node_li) {
-					node_li.removeClass('gallery-item-over');
-					replace_id = node_li.getData('imageId');
-				}
-			}
-			
-			//Unmark list
-			this.list.removeClass('gallery-over');
-			
-			//Load data
-			dataObject.any(item_id, true).done(function (data) {
-				
-				if (!Y.Lang.isArray(data)) {
-					data = [data];
-				}
-				
-				var folderHasImages = false,
-					image = null;
-				
-				for (var i=0, ii=data.length; i<ii; i++) {
-					image = data[i];
-					
-					if (image.type == Supra.MediaLibraryList.TYPE_IMAGE) {
-						
-						dataObject.one(image.id, true).done(function (data) {
-							if (replace_id) {
-								//Replace with first image, all other add to the list
-								this.replaceImage(replace_id, data);
-								replace_id = null;
-							} else {
-								this.addImage(data);
-							}
-						}, this);
-						
-						folderHasImages = true;
-					}
-				}
-				
-				//folder was without images
-				if ( ! folderHasImages) {
-					Supra.Manager.executeAction('Confirmation', {
-						'message': '{#medialibrary.validation_error.empty_folder_drop#}',
-						'useMask': true,
-						'buttons': [
-							{'id': 'delete', 'label': 'OK'}
-						]
-					});
-
-					return;
-				}
-				
-			}, this);
-			
-			//Prevent default (which is insert folder thumbnail image) 
-			if (e.halt) e.halt();
-			
-			return false;
-		},
-		
-		/**
-		 * Handle drag:drag event
-		 * 
-		 * @param {Object} evt Event
-		 * @private
-		 */
-		onDragDrag: function (evt) {
-			if (this.shared) return;
-			var x = evt.target.lastXY[0];
-			
-			this.dragGoingUp = (x < this.lastDragX);
-		    this.lastDragX = x;
-		},
-		
-		/**
-		 * Handle drag:start event
-		 * 
-		 * @param {Object} evt Event
-		 * @private
-		 */
-		onDragStart: function (evt) {
-			if (this.shared) return;
-			//Get our drag object
-	        var drag = evt.target;
-			
-	        //Set some styles here
-	        drag.get('dragNode').addClass('gallery-item-proxy');
-		},
-		
-		/**
-		 * Handle drop:over event
-		 * 
-		 * @param {Object} evt Event
-		 * @private
-		 */
-		onDropOver: function (evt) {
-			if (this.shared) return;
-			
-			//Get a reference to our drag and drop nodes
-		    var drag = evt.drag.get('node'),
-		        drop = evt.drop.get('node');
-			
-		    //Are we dropping on a li node?
-		    if (drop.get('tagName').toLowerCase() === 'li' && drop.hasClass('gallery-item')) {
-			    //Are we not going up?
-		        if (!this.dragGoingUp) {
-		            drop = drop.get('nextSibling');
-		        }
-				if (!this.dragGoingUp && !drop) {
-			        evt.drop.get('node').get('parentNode').append(drag);
-				} else {
-			        evt.drop.get('node').get('parentNode').insertBefore(drag, drop);
-				}
-				
-		        //Resize this nodes shim, so we can drop on it later.
-		        evt.drop.sizeShim();
-		    }
-		},
-		
-		/**
-		 * Image or folder from media library dragged over an item
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private 
-		 */
-		listItemDragEnter: function (e) {
-			if (this.shared) return;
-			
-			if (e._event.dataTransfer.effectAllowed == 'all') {
-				// Trying to drop files from desktop, can't do that!
-				return;
-			}
-			
-			if (e.target.test('b')) {
-				var target = e.target.closest('LI');
-				target.addClass('gallery-item-over');
-			}
-		},
-		
-		/**
-		 * Image or folder from media library dragged out of item
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private 
-		 */
-		listItemDragLeave: function (e) {
-			if (this.shared) return;
-			
-			if (e.target.test('b')) {
-				var target = e.target.closest('LI');
-				target.removeClass('gallery-item-over');
-			}
-		},
-		
-		
-		/**
-		 * Drag mouse over position
-		 * @type {String}
-		 * @private
-		 */
-		listDragOver: null,
-		
-		/**
-		 * Image or folder from media library dragged over an item
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private 
-		 */
-		listDragEnter: function (e) {
-			if (this.shared) return;
-			
-			if (e.target.closest('span.img')) {
-				this.listDragOver = 'item';
-				this.list.removeClass('gallery-over');
-			} else if (e.target.closest('ul.list')) {
-				this.listDragOver = 'list';
-				this.list.addClass('gallery-over');
-				this.list.append(this.listItemDropMarker);
-			} else {
-				this.listDragOver = 'none';
-			}
-		},
-		
-		/**
-		 * Image or folder from media library dragged out of item
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private 
-		 */
-		listDragLeave: function (e) {
-			if (this.shared) return;
-			
-			if (this.listDragOver && this.listDragOver != 'none') {
-				//Left some element
-				this.listDragOver = 'none';
-			} else {
-				//Actually left list
-				this.list.removeClass('gallery-over');
 			}
 		},
 		
@@ -856,125 +433,13 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		
 		
 		/**
-		 * When p.inline is clicked replace it with inline editable input
-		 * 
-		 * @private
-		 */
-		createInlineEditable: function (e) {
-			var node = e.target.closest('p'),
-				node_li = node.closest('LI'),
-				data = this.getImageDataByNode(node_li),
-				image_id = node.getAttribute('data-image-id'),
-				property_id = node.getAttribute('data-property-id'),
-				property = this.getImageProperty(property_id),
-				label = Supra.Intl.get(['gallerymanager', 'click_here']).replace('{label}', property.label.toLowerCase()),
-								
-				input = new Supra.Input.String({
-					'useReplacement': true,
-					'value': data.properties[property_id]
-				});
-			
-			//Save input
-			this.inputs[image_id] = this.inputs[image_id] || {};
-			this.inputs[image_id][property_id] = input;
-			
-			//On focus show sidebar
-			input.on('focus', function () {
-				this.showImageSettings(node_li);
-			}, this);
-			
-			//On blur set default label if value is empty
-			input.on('blur', function () {
-				var value = this.get('value');
-				
-				if (!value) {
-					this.get('replacementNode').set('text', label).addClass('empty');
-				} else {
-					this.get('replacementNode').removeClass('empty');
-				}
-			});
-			
-			//On change update data
-			input.on('change', function () {
-				if (!this.ui_updating) {
-					var images = this.data.images,
-						i = 0,
-						ii = images.length,
-						value = null;
-					
-					for (; i<ii; i++) {
-						if (images[i].id == image_id) {
-							value = input.get('value');
-							images[i].properties[property_id] = value;
-							
-							//Update settings form
-							if (this.settings_form && this.settings_form.get('visible')) {
-								this.ui_updating = true;
-								this.settings_form.getInput(property_id).set('value', value);
-								this.ui_updating = false;
-							}
-							
-							break;
-						}
-					}
-				}
-			}, this);
-			
-			node.set('text', '');
-			node.removeClass('inline');
-			input.render(node);
-			input._onFocus();
-			
-			if (!data[property_id]) {
-				input.get('replacementNode').set('text', label).addClass('empty');
-			}
-			
-			this.showImageSettings(node_li);
-		},
-		
-		/**
 		 * Update labels, etc.
 		 * 
 		 * @param {String} image_id Image ID
 		 * @private
 		 */
-		updateInlineEditableUI: function (image_id, ignore_inputs, ignore_labels) {
-			var node = this.getImageNodeById(image_id),
-				node_label = null,
-				image_data = this.getImageDataById(image_id),
-				inputs = this.inputs[image_id],
-			
-				properties = this.image_properties,
-				label = null;
-			
-			//Update inputs
-			if (!ignore_inputs && inputs) {
-				this.ui_updating = true;
-				
-				for (var key in inputs) {
-					inputs[key].set('value', image_data.properties[key]);
-					inputs[key].fire('blur');
-				}
-				
-				this.ui_updating = false;
-			}
-			
-			//Update p.inline which hasn't been converted into inputs
-			if (!ignore_labels && node) {
-				for (var p=0, pp=properties.length; p<pp; p++) {
-					if (properties[p].type == 'String') {
-						node_label = node.one('p.inline.' + properties[p].id);
-						if (node_label) {
-							if (image_data.properties[properties[p].id]) {
-								node_label.removeClass('empty').set('text', image_data.properties[properties[p].id]);
-							} else {
-								label = Supra.Intl.get(['gallerymanager', 'click_here']).replace('{label}', properties[p].label.toLowerCase()),
-								node_label.addClass('empty').set('text', label);
-							}
-						}
-					}
-				}
-			}
+		updateInlineEditableUI: function (image_id) {
+			this.itemlist.updateUI(image_id);
 		},
 		
 		
@@ -984,52 +449,52 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		
 		
 		/**
-		 * Open media library sidebar
-		 * @private
-		 */
-		openMediaLibrary: function () {
-			var mediasidebar = Manager.getAction('MediaSidebar');
-			if (this.shared || mediasidebar.get('visible')) return;
-			
-			//Place marker at the end of the list
-			this.list.append(this.listItemDropMarker);
-			
-			this.list.addClass('mediasidebar-opened');
-			
-			mediasidebar.execute({
-				'onselect': Y.bind(function (event) {
-					this.addImage(event.image);
-				}, this),
-				'onclose': Y.bind(function () {
-					this.list.removeClass('mediasidebar-opened');
-				}, this)
-			});
-			
-		},
-		
-		/**
 		 * Open media library sidebar for image replace
+		 * 
+		 * @param {String} id Item id which should be replaced
 		 * @private
 		 */
-		openMediaLibraryForReplace: function (e) {
+		openMediaLibraryForReplace: function (id) {
 			if (this.shared) return;
 			
-			//Place marker at the end of the list
-			this.list.append(this.listItemDropMarker);
+			if (typeof id === 'object') {
+				// Event
+				id = this.itemlist.editingId;
+			}
 			
-			var image_id = this.selected_image_data.id,
-				data = this.selected_image_data,
-				path = [];
+			var itemlist = this.itemlist,
+				data = itemlist.getDataById(id),
+				path = null;
 			
-			path = path.concat(data.image.path);
-			path.push(data.image.id);
+			if (!data) {
+				return;
+			}
 			
-			Manager.getAction('MediaSidebar').execute({
+			if (data.image) {
+				path = [].concat(data.image.path);
+				path.push(data.image.id);
+			}
+			
+			// Close image editing
+			if (itemlist.editingProperty === 'image' && itemlist.editingInput) {
+				// There is no input if image is not set yet
+				itemlist.editingInput.set('disabled', true);
+			}
+			
+			// Style
+			this.itemlist.get('listNode').addClass('supra-gallerymanager-drop');
+			
+			var mediaSidebar = Manager.getAction('MediaSidebar');
+			mediaSidebar.execute({
 				'onselect': Y.bind(function (event) {
-					this.replaceImage(image_id, event.image);
+					this.replaceImage(id, event.image);
 				}, this),
 				'item': path
 			});
+			
+			mediaSidebar.once('hide', function () {
+				this.itemlist.get('listNode').removeClass('supra-gallerymanager-drop');
+			}, this);
 			
 		},
 		
@@ -1038,18 +503,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		 * ---------------------------------- IMAGE LIST ------------------------------------
 		 */
 		
-		
-		/**
-		 * On image click show settings form
-		 * 
-		 * @param {Event} event Event facade object
-		 * @private
-		 */
-		handleImageClick: function (event) {
-			var node = event.target.closest('li');
-			this.showImageSettings(node);
-		},
-		
+				
 		/**
 		 * Replace image
 		 * 
@@ -1058,157 +512,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		 * @private
 		 */
 		replaceImage: function (id, image) {
-			//Image image with which user is trying to replace already
-			//exists in the list, then skip
-			if (!this.addImage(image)) return false;
-			
-			var old_data = this.getImageDataById(id),
-				new_data = this.getImageDataById(image.id),
-				old_node = this.getImageNodeById(id),
-				new_node = this.getImageNodeById(image.id),
-				properties = this.image_properties;
-			
-			for (var i=0, ii=properties.length; i<ii; i++) {
-				new_data.properties[properties[i].id] = old_data.properties[properties[i].id];
-			}
-			
-			old_node.insert(new_node, 'before');
-			
-			this.removeImage(id);
-			this.updateInlineEditableUI(image.id);
-			
-			return true;
-		},
-		
-		/**
-		 * Remove image by ID
-		 * 
-		 * @param {String} image_id Image ID
-		 * @private
-		 */
-		removeImage: function (image_id) {
-			var images = this.data.images;
-			
-			for(var i=0,ii=images.length; i<ii; i++) {
-				if (images[i].id === image_id) {
-					this.list.one('li[data-id="' + image_id + '"]').remove();
-					this.data.images.splice(i,1);
-					this.settingsFormCancel();
-					this.scrollable.syncUI();
-					
-					if (!this.data.images.length) {
-						this.list.addClass('list-empty');
-					}
-					
-					return true;
-				}
-			}
-			
-			Y.log('GalleryManager image which was supposed to be selected is not in image list');
-			return false;
-		},
-		
-		/**
-		 * Render image list
-		 * 
-		 * @param {Object} data Data
-		 * @private
-		 */
-		renderData: function () {
-			var list = this.list,
-				images = this.data.images,
-				preview_size = this.PREVIEW_SIZE,
-				src,
-				item;
-			
-			//Remove old data
-			list.all('LI').remove();
-			
-			//Remove old inputs
-			var inputs = this.inputs,
-				key = null,
-				name = null;
-			
-			if (inputs) {
-				for (key in inputs) {
-					for (name in inputs[key]) {
-						inputs[key][name].destroy();
-					}
-				}
-			}
-			
-			this.inputs = {};
-			
-			//Add new items
-			for(var i=0,ii=images.length; i<ii; i++) {
-				this.renderItem(images[i]);
-			}
-			
-			if (images.length) {
-				this.list.removeClass('list-empty');
-			} else {
-				this.list.addClass('list-empty');
-			}
-			
-			//Move marker to the end of the list
-			list.append(this.listItemDropMarker);
-			
-			this.dragDelegate.syncTargets();
-			this.scrollable.syncUI();
-		},
-		
-		/**
-		 * Render image item
-		 * 
-		 * @param {Object} data Image data
-		 * @private
-		 */
-		renderItem: function (data) {
-			var src = null,
-				preview_size = this.PREVIEW_SIZE,
-				list = this.list,
-				item = null,
-				properties = this.image_properties,
-				html = '',
-				html_img = '',
-				label = Supra.Intl.get(['gallerymanager', 'click_here']),
-				value = null,
-				propertyData = data.properties,
-				temporary = data.image.temporary;
-			
-			if (data.image.sizes && preview_size in data.image.sizes) {
-				src = data.image.sizes[preview_size].external_path;
-			} else if (data.image.thumbnail) {
-				// Try guessing, posibbly image will not match url if ratio is not
-				// the same as to preview width/height
-				src = data.image.thumbnail.replace(/\/\d+x\d+\//, '/' + preview_size + '/');
-			} else {
-				src = this.PREVIEW_BROKEN;
-			}
-			
-			//HTML for inline editable inputs
-			for (var i=0, ii=properties.length; i<ii; i++) {
-				if (properties[i].type == 'String') {
-					if (propertyData[properties[i].id] && propertyData[properties[i].id]) {
-						html += '<p title="" class="inline ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + Y.Escape.html(propertyData[properties[i].id]) + '<p>';
-					} else {
-						value = label.replace('{label}', properties[i].label.toLowerCase());
-						html += '<p title="" class="inline empty ' + properties[i].id + '" data-property-id="' + properties[i].id + '" data-image-id="' + data.image.id + '">' + value + '<p>';
-					}
-				}
-			}
-			
-			//HTML for image (center, handle error)
-			html_img = '<span class="img">' +
-							'<i></i>'+
-							'<img src="' + src + '" alt="" onerror="this.src=\'' + this.PREVIEW_BROKEN + '\'" />' +
-							'<b>' + Supra.Intl.get(['gallerymanager', 'drop_replace']) + '</b>' +
-							(temporary ? '<span class="loading-icon"></span>' : '') +
-						'</span>';
-			
-			item = Y.Node.create('<li class="yui3-dd-drop gallery-item' + (temporary ? ' loading' : '') + '" data-id="' + data.image.id + '" title="' + Supra.Intl.get(['gallerymanager', 'click_here_edit']) + '">' + html_img + html + '</li>');
-			item.setData('imageId', data.image.id);
-			list.append(item);
+			return this.itemlist.replaceItem(id, image);
 		},
 		
 		/**
@@ -1218,64 +522,31 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 		 * @private
 		 */
 		addImage: function (image_data) {
-			var images = this.data.images,
-				properties = this.image_properties,
-				property = null,
-				image  = {
-					'image': image_data,
-					'id': image_data.id,
-					'properties': {}
-				};
-			
-			//Check if image doesn't exist in data already
-			for (var i=0, ii=images.length; i<ii; i++) {
-				if (images[i].image.id == image_data.id) return false;
-			}
-			
-			for (var i=0, ii=properties.length; i<ii; i++) {
-				property = properties[i].id;
-				image.properties[property] = image_data[property] || properties[i].value || '';
-			}
-			
-			//If image has property named "title", replace property value with image filename
-			if (image.properties && typeof(image.properties.title) !== 'undefined') {
-				image.properties.title = image_data.filename;
-			}
-			
-			images.push(image);
-			this.renderItem(image);
-			
-			this.dragDelegate.syncTargets();
-			this.scrollable.syncUI();
-			
-			//Move marker to the end of the list
-			this.list.append(this.listItemDropMarker);
-			this.list.removeClass('list-empty');
-			
-			return true;
+			return this.itemlist.addImage(image_data);
 		},
 		
 		/**
-		 * Apply changes
+		 * Apply changes, call callback with new data
 		 * 
 		 * @private
 		 */
 		applyChanges: function () {
-			var items = this.all('li'),
+			var items = this.itemlist.get('listNode').all(this.itemlist.getChildSelector()),
 				order = {},
 				data = this.data;
 			
-			//Get image order
+			//Get image order from node order
 			if (items.size()) {
 				items.each(function (item, index) {
-					order[this.getData('imageId')] = index;
+					var id = this.getData('item-id');
+					if (id) order[id] = index;
 				});
 			}
 			
 			//Sort images array
 			data.images.sort(function (a, b) {
-				var oa = order[a.image.id],
-					ob = order[b.image.id];
+				var oa = order[a.id],
+					ob = order[b.id];
 				
 				return oa > ob ? 1 : -1;
 			});
@@ -1336,8 +607,10 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 			this.image_properties = options.properties || [];
 			this.image_upload_folder = options.imageUploadFolder || 0;
 			
-			this.renderData();
+			this.itemlist.set('showInsertControl', !options.shared);
+			this.itemlist.reloadIframe();
 
+			/*
 			var insertButton = Manager.getAction('PageToolbar').getActionButton('gallery_manager_insert');
 			
 			// if gallery is shared, hide insert button
@@ -1346,6 +619,7 @@ Supra('dd-delegate', 'dd-drop-plugin', 'dd-constrain', 'dd-proxy', 'supra.medial
 			} else {
 				insertButton.show();
 			}
+			*/
 
 			this.show();
 		}

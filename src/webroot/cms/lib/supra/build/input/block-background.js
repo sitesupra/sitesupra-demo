@@ -220,6 +220,13 @@ YUI.add("supra.input-block-background", function (Y) {
 		},
 		
 		/**
+		 * Stop editing image
+		 */
+		stopEditingImage: function () {
+			imageResizer.set("image", null);
+		},
+		
+		/**
 		 * Remove selected image
 		 */
 		removeImage: function () {

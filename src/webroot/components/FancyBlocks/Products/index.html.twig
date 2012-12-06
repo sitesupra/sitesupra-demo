@@ -1,77 +1,202 @@
 {% set navigation = supraBlock.property('navigation')|default('scrollbar') %}
 {% set design = supraBlock.property('design')|default('box') %}
 {% set products = supraBlock.property('images') %}
+{% set layout = supraBlock.property('layout') %}
+{% set image = supraBlock.property('image') %}
+{% set link = supraBlock.property('link') %}
+{% set link_title = '' %}
 
-{% if products|length %}
+{% set ratio = 0.7 %}
+
+{% if layout == 'columns_3' %}
+	{% set columns = 3 %}
+{% elseif layout == 'columns_2' %}
+	{% set columns = 2 %}
+{% else %}
+	{% set columns = 4 %}
+{% endif %}
+
+{% if design == 'border' %}
+	{% set padding = 30 %}
+{% elseif design == 'box' %}
+	{% set padding = 60 %}
+{% else %}
+	{% set padding = 20 %}
+{% endif %}
+
+
+{# Macro for outputing images #}
+	
+	{# Calculate image width based on layout, design and screen size #}
+	{% macro imageWidth (screen, columns, padding) %}
+		{% set image = supraBlock.property('image') %}
+		
+		{% if image == 'icon' %}
+			64
+		{% else %}
+			{% if screen > 420 %}
+				{{ (screen - padding * columns) / columns }}
+			{% else %}
+				{{ screen - padding * columns }}
+			{% endif %}
+		{% endif %}
+	{% endmacro %}
+	
+	{# Output image tag #}
+	{% macro responsiveImage(id, ratio, columns, padding) %}
+		{% import _self as output %}
+		
+		{% set screenWidth = 960 %}
+		{% set screenWidthTablet = 768 %}
+		{% set screenWidthMobile = 420 %}
+		{% set screenWidthMobilePortrait = 300 %}
+		
+		{# Size for web #}
+		{% set w = output.imageWidth(screenWidth, columns, padding)|trim|raw %}
+		{% set h = w * ratio %}
+		{% set tag = supraBlock.imageHtmlTag( id, w, h, true ) | raw %}
+		
+		{# Size for tablet landspace #}
+		{% set w = output.imageWidth(screenWidthTablet, columns, padding)|trim|raw %}
+		{% set h = w * ratio %}
+		{% set tag_tablet = supraBlock.imageHtmlTag( id, w, h, true ) | raw %}
+		
+		{# Size for tablet portrait / mobile landspace #}
+		{% set w = output.imageWidth(screenWidthMobile, columns, padding)|trim|raw %}
+		{% set h = w * ratio %}
+		{% set tag_mobile = supraBlock.imageHtmlTag( id, w, h, true ) | raw %}
+		
+		{# Size for mobile portrait #}
+		{% set w = output.imageWidth(screenWidthMobilePortrait, columns, padding)|trim|raw %}
+		{% set h = w * ratio %}
+		{% set tag_mobile_p = supraBlock.imageHtmlTag( id, w, h, true ) | raw %}
+		
+		{% if tag.getAttribute('src') %}
+		<span class="img">
+			<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
+				 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
+				 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
+			     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
+			     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
+			     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
+			     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
+			     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
+			     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+		</span>
+		{% endif %}
+	{% endmacro %}
+	
+	{# Output image tag for CMS Gallery manager #}
+	{% macro imageCMS(ratio, columns, padding) %}
+		{% import _self as output %}
+		{% set image = supraBlock.property('image') %}
+			
+		{% if image == 'icon' %}
+			<span class="img">
+				<img src="about:blank" alt="" width="64" height="64" />
+			</span>
+		{% else %}
+			{% set screenWidth = 960 %}
+			{% set w = output.imageWidth(screenWidth, columns, padding)|trim|raw|number_format(0, '.', '') %}
+			{% set h = w*ratio|number_format(0, '.', '') %}
+			<span class="img">
+				<img src="about:blank" alt="" width="{{ w }}" height="{{ h }}" />
+			</span>
+		{% endif %}
+	{% endmacro %}
+
+{# Macro for outputing links #}
+	{% macro link(product, link_type) %}
+		{% if product.property.link %}
+			{% if product.property.link.title %}
+				{% set link_title = product.property.link.title %}
+			{% elseif product.property.link.page %}
+				{% set link_title = product.property.link.page.title %}
+			{% else %}
+				{% set link_title = product.property.link.url %}
+			{% endif %}
+			
+			{% if link_type == 'button' %}
+				<a class="button" href="{{product.property.link.url}}" target="{{product.property.link.target}}"><span><span>{{ product.property.link_label|default( link_title ) }}</span></span></a>
+			{% elseif link_type == 'text' %}
+				<a class="link" href="{{product.property.link.url}}" target="{{product.property.link.target}}">{{ product.property.link_label|default( link_title ) }}</a>
+			{% elseif link_type == 'overlay' %}
+				<a class="overlay" href="{{product.property.link.url}}" target="{{product.property.link.target}}" title="{{ product.property.link_label|default( link_title ) }}"></a>
+			{% endif %}
+		{% endif %}
+	{% endmacro %}
+
+{# Macro for outputing text + link #}
+	{% macro text(product, link_type) %}
+		{% import _self as output %}
+		
+		<h2>{{ product.property.title }}</h2>
+		<p>{{ product.property.description }}</p>
+		
+		{% if link_type == 'button' or link_type == 'text' %}			
+			{{ output.link(product, link_type) }}
+		{% endif %}
+	{% endmacro %}
+
+{# Macros needs to be imported before use #}
+{% import _self as output %}
+
+
+{% if products|length or supra.cmsRequest %}
 
 	<div class="block">
 		
-		<div class="products-slider style-{{ design }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
+		<div class="products-slider style-{{ design }} img-{{ image }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
 			<ul>
 				{% for index, product in products %}
 					{% if index and index % 4 == 0 %}
 						<li class="clear"></li>
 					{% endif %}
 					
-					<li class="grid_4">
-						
-						{% set tag = supraBlock.imageHtmlTag( product.imageId, 220, 125, true ) | raw %}
+					<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} {% if design != 'box' %}clearfix{% endif %}">
 						
 						{% if design == "box" %}
 							
-							{% if product.property.link %}<a class="outer" href="{{product.property.link.url}}" target="{{product.property.link.target}}">{% else %}<span class="outer">{% endif %}
+							<span class="outer clearfix">
+								{# Text and then image, unless it's icon mode #}
 								
-								<span class="inner-text">
-									<h2>{{ product.property.title }}</h2>
-									<p>{{ product.property.description }}</p>
-								</span>
+								{% if link == 'overlay' %}
+									{{ output.link(product, link) }}
+								{% endif %}
 								
-								{% set tag_tablet = supraBlock.imageHtmlTag( product.imageId, 132, 75, true ) | raw %}
-								{% set tag_mobile = supraBlock.imageHtmlTag( product.imageId, 380, 215, true ) | raw %}
-								{% set tag_mobile_p = supraBlock.imageHtmlTag( product.imageId, 260, 147, true ) | raw %}
+								{% if image == 'icon' %}
+									<span class="img">
+										{{ supraBlock.imageHtmlTag( product.imageId, 64, 64, true )|raw }}
+									</span>
+								{% endif %}
 								
-								<span class="img">
-									<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
-										 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
-										 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
-									     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
-									     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
-									     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
-									     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
-									     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
-									     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
-								</span>
+								{% if image != 'only' %}
+									{{ output.text(product, link) }}
+								{% endif %}
 								
-							{% if product.property.link %}</a>{% else %}</span>{% endif %}
+								{% if image != 'icon' %}
+									{{ output.responsiveImage( product.imageId, ratio, columns, padding) }}
+								{% endif %}
+								
+							</span>
 							
 						{% else %}
-						
-							{% set tag_tablet = supraBlock.imageHtmlTag( product.imageId, 172, 95, true ) | raw %}
-							{% set tag_mobile = supraBlock.imageHtmlTag( product.imageId, 420, 237, true ) | raw %}
-							{% set tag_mobile_p = supraBlock.imageHtmlTag( product.imageId, 300, 170, true ) | raw %}
-							<span class="img">
-								<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
-									 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
-									 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
-								     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
-								     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
-								     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
-								     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
-								     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
-								     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
-							</span>
-						
-							<h2>{{ product.property.title }}</h2>
-							<p>{{ product.property.description }}</p>
-							{% if product.property.link %}
-								{% if product.property.link.title %}
-									{% set title = product.property.link.title %}
-								{% elseif product.property.link.page %}
-									{% set title = product.property.link.page.title %}
-								{% else %}
-									{% set title = product.property.link.url %}
-								{% endif %}
-								<a class="link" href="{{product.property.link.url}}" target="{{product.property.link.target}}">{{title}}</a>
+							{# Image followed by text #}
+							
+							{% if image == 'icon' %}
+								<span class="img">
+									{{ supraBlock.imageHtmlTag( product.imageId, 64, 64, true )|raw }}
+								</span>
+							{% else %}
+								{{ output.responsiveImage( product.imageId, ratio, columns, padding ) }}
+							{% endif %}
+							
+							{% if image != 'only' %}
+								{{ output.text(product, link) }}
+							{% endif %}
+							
+							{% if link == 'overlay' %}
+								{{ output.link(product, link) }}
 							{% endif %}
 							
 						{% endif %}
@@ -81,6 +206,59 @@
 				<li class="clear"></li>
 			</ul>
 		</div>
+		
+		
+		{# Instructions how to render item in CMS Gallery manager edit mode #}
+		{% if supra.cmsRequest %}{% raw %}
+			<script type="text/supra-template" data-supra-container-selector="ul">
+				
+				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} {% if design != 'box' %}clearfix{% endif %}">
+					{% if design == "box" %}
+					
+						<span class="outer clearfix">
+							
+							{% endraw %}{% if image == 'icon' %}
+								{{ output.imageCMS(ratio, columns, padding) }}
+							{% endif %}{% raw %}
+							
+							{% if image != 'only' %}
+							<span class="inner-text">
+								<h2>{{ property.title }}</h2>
+								<p>{{ property.description }}</p>
+								
+								{% if link == 'button' %}
+									<a class="button"><span><span>{{ property.link_label }}</span></span></a>
+								{% elseif link == 'text' %}
+									<a class="link">{{ property.link_label }}</a>
+								{% endif %}
+							</span>
+							{% endif %}
+							
+							{% endraw %}{% if image != 'icon' %}
+								{{ output.imageCMS(ratio, columns, padding) }}
+							{% endif %}{% raw %}
+						</span>
+						
+					{% else %}
+						
+						{% endraw %}{{ output.imageCMS(ratio, columns, padding) }}{% raw %}
+						
+						{% if image != 'only' %}
+							<h2>{{ property.title }}</h2>
+							<p>{{ property.description }}</p>
+							
+							{% if link == 'button' %}
+								<a class="button"><span><span>{{ property.link_label }}</span></span></a>
+							{% elseif link == 'text' %}
+								<a class="link">{{ property.link_label }}</a>
+							{% endif %}
+						{% endif %}
+						
+					{% endif %}
+				</li>
+				
+			</script>
+		{% endraw %}{% endif %}
 		
 	</div>
 	

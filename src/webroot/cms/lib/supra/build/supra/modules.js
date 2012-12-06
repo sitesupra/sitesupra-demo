@@ -22,6 +22,21 @@
 	};
 	
 	/**
+	 * Add list of modules to the definitions list
+	 * 
+	 * @param {Object} definitions Module definitions
+	 */
+	Supra.addModules = function (definitions) {
+		if (Y.Lang.isObject(definitions)) {
+			for (var key in definitions) {
+				
+				Supra.addModule(key, definitions[key]);
+				
+			}
+		}
+	};
+	
+	/**
 	 * Set path to modules with 'website' prefix
 	 * 
 	 * @param {String} path
@@ -81,6 +96,7 @@ Supra.useModules = [
 	'cookie',
 	'transition',
 	
+	'supra.dd-ddm',
 	'supra.event',
 	'supra.deferred',
 	'supra.intl',
@@ -182,6 +198,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'uploader/uploader.js',
 		requires: [
 			'supra.io-upload'
+		]
+	},
+	
+	/**
+	 * Y.DD.DDM extension to allow shims for multiple documents
+	 */
+	'supra.dd-ddm': {
+		path: 'dd-ddm/dd-ddm.js',
+		requires: [
+			'dd-ddm'
 		]
 	},
 	

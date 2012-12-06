@@ -149,7 +149,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			
 			this.initPlugins();
 			
-			this._changed = Y.throttle(Y.bind(this._changed, this), 1000);
+			this._changed = Supra.throttle(this._changed, 1000, this);
 			
 			this.setHTML(this.get('srcNode').get('innerHTML'));
 		},

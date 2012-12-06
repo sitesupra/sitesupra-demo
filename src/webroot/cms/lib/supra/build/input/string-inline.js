@@ -12,8 +12,8 @@ YUI.add("supra.input-inline-string", function (Y) {
         '"': '&quot;',
         "'": '&#x27;',
         '/': '&#x2F;',
-        '`': '&#x60;',
-        ' ': '&nbsp;'
+        '`': '&#x60;'
+        //' ': '&nbsp;'
     }
 	
 	var HTML_CHARS_INVERSE = {};
@@ -94,6 +94,7 @@ YUI.add("supra.input-inline-string", function (Y) {
 				value = this.htmleditor.getProcessedHTML();
 				value = value.replace(/<[^>]+>/g, '');
 				value = value.replace(/&.*?;/g, unescapeHtml);
+				value = value.replace(/(^&nbsp;|&nbsp;$)/gi, ' ');
 			}
 			
 			return value;
@@ -132,8 +133,8 @@ YUI.add("supra.input-inline-string", function (Y) {
 		 * On blur move carret to the body
 		 */
 		blur: function () {
-			if (this.get('disabled')) return;
 			Input.superclass.blur.apply(this, arguments);
+			if (this.get('disabled')) return;
 			
 			if (this.htmleditor) {
 				//Set carret position to body
