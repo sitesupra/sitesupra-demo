@@ -2,11 +2,8 @@
 
 namespace Supra\User\Entity;
 
-use Doctrine\Common\Collections\Collection;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\LocaleInterface;
-use Supra\Cms\InternalUserManager\Useravatar\UseravatarAction;
-use Doctrine\Common\Collections;
 use DateTime;
 
 /**
@@ -97,6 +94,18 @@ class User extends AbstractUser
 	 * @var string
 	 */
 	protected $status;
+	
+	/**
+	 * @Column(type="datetime", nullable=true)
+	 * @var \DateTime
+	 */
+	protected $lastPasswordChangeTime;
+	
+	/**
+	 * @Column(type="boolean")
+	 * @var boolean
+	 */
+	protected $forcePasswordChange;
 
 	/**
 	 * Generates random salt for new users
@@ -125,6 +134,19 @@ class User extends AbstractUser
 	public function setPassword($password)
 	{
 		$this->password = $password;
+		
+		// password expiration related
+		$this->lastPasswordChangeTime = new DateTime('now');
+		$this->forcePasswordChange = false;
+	}
+	
+	/**
+	 * Get user last password change datetime
+	 * @return \DateTime|null
+	 */
+	public function getLastPasswordChangeTime()
+	{
+		return $this->lastPasswordChangeTime;
 	}
 
 	/**
@@ -355,11 +377,13 @@ class User extends AbstractUser
 		$this->group = $userData['group'];
 		$this->lastLoginTime = $userData['lastLoginTime'];
 		$this->active = $userData['active'];
-
+		
 		$this->salt = $userData['salt'];
 		//$this->userSessions = $userData['userSessions'];
 
 		$this->localeId = $userData['localeId'];
+		
+		$this->lastPasswordChangeTime = $userData['lastPasswordChangeTime'];
 	}
 
 	public static function getAlias()
@@ -397,6 +421,25 @@ class User extends AbstractUser
 		$url .= "?s=$size&d=$defaultImageset&r=$maxAllowedDecencyRating";
 
 		return $url;
+	}
+	
+	/**
+	 * Set flag, which used to force user to change password 
+	 * related to password expiration feature
+	 */
+	public function forcePasswordChange()
+	{
+		$this->forcePasswordChange = true;
+	}
+	
+	/**
+	 * Check weither current user is forced to change his password
+	 * 
+	 * @return boolean
+	 */
+	public function isForcedToChangePassword()
+	{
+		return ($this->forcePasswordChange === true);
 	}
 
 }

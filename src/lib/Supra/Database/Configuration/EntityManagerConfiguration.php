@@ -67,7 +67,8 @@ class EntityManagerConfiguration implements ConfigurationInterface
 		'configuration' => 'Supra/Configuration/Entity',
 		'facebook' => 'Supra/Social/Facebook/Entity',
 		'translation' => 'Supra/Translation/Entity',
-		'locale' => 'Supra/Locale/Entity'
+		'locale' => 'Supra/Locale/Entity',
+		'password' => 'Supra/Password/Entity/',
 	);
 	
 	public $entityNamespaces = array(
@@ -84,7 +85,8 @@ class EntityManagerConfiguration implements ConfigurationInterface
 		'configuration' => 'Supra\Configuration\Entity',
 		'facebook' => 'Supra\Social\Facebook\Entity',
 		'translation' => 'Supra\Translation\Entity',
-		'locale' => 'Supra/Locale/Entity'
+		'locale' => 'Supra/Locale/Entity',
+		'password' => 'Supra\Password\Entity',
 	);
 
 	/**

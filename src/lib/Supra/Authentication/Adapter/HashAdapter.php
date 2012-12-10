@@ -87,7 +87,7 @@ class HashAdapter implements AuthenticationAdapterInterface
 		if ( ! is_null($password)) {
 			
 			if ($password->isEmpty()) {
-				throw new Exception\PasswordPolicyException("Empty password is not allowed");
+				throw new \Supra\Password\Exception\PasswordPolicyException("Empty password is not allowed");
 			}
 			
 			$salt = $user->resetSalt();
