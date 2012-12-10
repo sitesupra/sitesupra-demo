@@ -224,14 +224,14 @@ YUI.add('supra.iframe-handler', function (Y) {
 		destroyContent: function () {
 			var doc = this.get('doc');
 			
-			if (doc) {
-				//Remove all listeners
-				Y.Node(doc).destroy(true);
-			}
-			
 			if (this.contents) {
 				this.contents.destroy();
 				this.contents = null;
+			}
+			
+			if (doc) {
+				//Remove all listeners
+				Y.Node(doc).destroy(true);
 			}
 			
 			if (doc) {
