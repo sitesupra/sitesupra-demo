@@ -2178,6 +2178,7 @@ YUI.add('supra.event', function (Y) {
 				Y.log('Session expired', 'info');
 				
 				var pre_filter_message = response.getResponseHeader('X-Authentication-Pre-Filter-Message');
+				var pre_filter_redirect_url = response.getResponseHeader('X-Authentication-Pre-Filter-Redirect');
 				
 				//If there is authentication message then this was login request
 				//which shouldn't be queued
@@ -2189,7 +2190,8 @@ YUI.add('supra.event', function (Y) {
 					'status': response.status,
 					'success': false,
 					'data': null,
-					'error_message': pre_filter_message
+					'error_message': pre_filter_message,
+					'redirect_url': pre_filter_redirect_url
 				});
 				
 			} else {
@@ -2366,8 +2368,12 @@ YUI.add('supra.event', function (Y) {
 	 * @private
 	 */
 	Supra.io.handleResponse = function (cfg, response) {
-		//Show login form
+		//Show login/password form
 		if (response.status == 401) {
+			
+			if (response.redirect_url) {
+				return this.handleRedirect(cfg, response);
+			}
 			
 			if (Supra.Manager) {
 				Supra.Manager.executeAction('Login', response);
@@ -2514,6 +2520,18 @@ YUI.add('supra.event', function (Y) {
 		    	{'id': 'no',  'context': this, 'click': function () { this.handleConfirmationResult(0, cfg, response); }}
 		    ]
 		});
+	};
+	
+	/**
+	 * Handle redirect response
+	 * 
+	 * @param {Object} request Request configuration
+	 * @param {Object} response Request response
+	 * @private
+	 */
+	Supra.io.handleRedirect = function (cfg, response) {
+		// Note: this may not go through if user is editing page
+		document.location = response.redirect_url;
 	};
 	
 	/**
@@ -14470,6 +14488,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		'LayoutContainers': '/content-manager',
 		'Confirmation': '/content-manager',
 		'Login': '/login',
+		'MyPassword': '/login',
 		'LinkManager': '/content-manager',
 		'UserAvatar': '/internal-user-manager',
 		'Applications': '/dashboard',
