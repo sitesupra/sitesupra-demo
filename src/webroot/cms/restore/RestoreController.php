@@ -173,18 +173,9 @@ class RestoreController extends InternalUserManagerAbstractAction
 		// Don't need anymore
 		unset($confirmPassword);
 
-		$passwordLength = strlen($plainPassword);
+		//$passwordLength = strlen($plainPassword);
 		$password = new AuthenticationPassword($plainPassword);
-
-		// TODO: password policy should be configurable for user provider
-		// check password lenght
-		if ($passwordLength < self::MIN_PASSWORD_LENGTH) {
-			$response->assign('errorMessage', 'Passwords length should be ' . self::MIN_PASSWORD_LENGTH . ' or more characters');
-			$response->outputTemplate('restore/form.html.twig');
-
-			return;
-		}
-
+		
 		$user = $this->validateUser($email, $time, $hash);
 
 		if (is_null($user)) {
@@ -192,11 +183,23 @@ class RestoreController extends InternalUserManagerAbstractAction
 
 			return;
 		}
-
-		$user->resetSalt();
-
+		
 		$userProvider = ObjectRepository::getUserProvider($this);
-
+		$passwordPolicy = $userProvider->getPasswordPolicy();
+		
+		if ($passwordPolicy instanceof \Supra\Password\PasswordPolicyInterface) {
+			try {
+				$passwordPolicy->validate($password, $user);
+			} catch (\Supra\Password\Exception\PasswordPolicyException $e) {
+				$response->assign('errorMessage', $e->getMessage());
+				$response->outputTemplate('restore/form.html.twig');
+				
+				return;
+			}
+		}
+	
+		$user->resetSalt();
+	
 		$userProvider->credentialChange($user, $password);
 		$userProvider->updateUser($user);
 
