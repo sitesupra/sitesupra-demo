@@ -607,6 +607,8 @@ function (Y) {
 			this.image_properties = options.properties || [];
 			this.image_upload_folder = options.imageUploadFolder || 0;
 			
+			this.show();
+			
 			this.itemlist.set('showInsertControl', !options.shared);
 			this.itemlist.reloadIframe();
 
@@ -620,8 +622,6 @@ function (Y) {
 				insertButton.show();
 			}
 			*/
-
-			this.show();
 		}
 		
 	});

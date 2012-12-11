@@ -1989,11 +1989,7 @@ YUI.add("dd-delegate",function(e){var d=function(f){d.superclass.constructor.app
 		 * List of all _pg elements and their document bodies
 		 * @private
 		 */
-		_pg_list: [{
-			'_pg': null,
-			'_pg_doc': document,
-			'_pg_body': document.body
-		}],
+		_pg_list: [],
 		
 		
 		/**
@@ -2127,6 +2123,9 @@ YUI.add("dd-delegate",function(e){var d=function(f){d.superclass.constructor.app
 		}
 		
 	});
+	
+	// Register self immediatelly
+	Y.DD.DDM.regDoc(Y.config.doc);
 	
 }, YUI.version, {'requires': ['dd-ddm']});/**
  * Adds on('exist', ...) event to YUI Event class
@@ -29530,8 +29529,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
         '"': '&quot;',
         "'": '&#x27;',
         '/': '&#x2F;',
-        '`': '&#x60;'
-        //' ': '&nbsp;'
+        '`': '&#x60;',
+        ' ': '&nbsp;'
     }
 	
 	var HTML_CHARS_INVERSE = {};
@@ -29539,15 +29538,27 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	
 	for (var i in HTML_CHARS) {
 		HTML_CHARS_INVERSE[HTML_CHARS[i].toLowerCase()] = i;
-		HTML_CHARS_REGEXP += '\\' + i;
+		
+		if (i != ' ') {
+			// We escaping characters leave whitespace as is
+			HTML_CHARS_REGEXP += '\\' + i;
+		}
 	}
 	
 	HTML_CHARS_REGEXP = new RegExp('[' + HTML_CHARS_REGEXP + ']', 'g');
 	
+	/**
+	 * Escape HTML character for safe use in HTML
+	 * Used in 'value' attribute setter / when setting value
+	 */
 	function escapeHtml (chr) {
 		return HTML_CHARS[chr] || chr;
 	}
 	
+	/**
+	 * Unescape HTML character for string
+	 * Used in 'value' and 'saveValue' attribute getter / when getting value
+	 */
 	function unescapeHtml (ent) {
 		return HTML_CHARS_INVERSE[ent.toLowerCase()] || ent;
 	}
@@ -29610,9 +29621,11 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		_getSaveValue: function (value) {
 			if (this.htmleditor) {
 				value = this.htmleditor.getProcessedHTML();
+				
+				// Remove all tags
 				value = value.replace(/<[^>]+>/g, '');
+				// Unescape characters
 				value = value.replace(/&.*?;/g, unescapeHtml);
-				value = value.replace(/(^&nbsp;|&nbsp;$)/gi, ' ');
 			}
 			
 			return value;

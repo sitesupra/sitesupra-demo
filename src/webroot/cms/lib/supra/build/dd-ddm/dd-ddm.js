@@ -22,11 +22,7 @@ YUI.add('supra.dd-ddm', function (Y) {
 		 * List of all _pg elements and their document bodies
 		 * @private
 		 */
-		_pg_list: [{
-			'_pg': null,
-			'_pg_doc': document,
-			'_pg_body': document.body
-		}],
+		_pg_list: [],
 		
 		
 		/**
@@ -160,5 +156,8 @@ YUI.add('supra.dd-ddm', function (Y) {
 		}
 		
 	});
+	
+	// Register self immediatelly
+	Y.DD.DDM.regDoc(Y.config.doc);
 	
 }, YUI.version, {'requires': ['dd-ddm']});

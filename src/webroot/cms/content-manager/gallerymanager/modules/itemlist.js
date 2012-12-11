@@ -794,13 +794,16 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		reloadIframe: function () {
 			this.resetAll();
 			
-			var iframe = this.get('iframe');
+			var iframe = this.get('iframe'),
+				html   = this.getHTML();
 			
 			iframe.set('loading', true);
-			iframe.once('ready', this.renderItems, this);
- 			iframe.set('html', this.getHTML());
- 			
- 			// Note: renderItems is event listener, so it will be called after HTML is set, not before!
+			
+			if (html) {
+				iframe.once('ready', this.renderItems, this);
+	 			iframe.set('html', html);
+	 			// Note: renderItems is event listener, so it will be called after HTML is set, not before!
+		 	}
 		},
 		
 		
@@ -830,7 +833,28 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				listSelector = template.getAttribute('data-supra-container-selector') || 'ul, ol';
 				node = block.getNode().one(listSelector);
 				
-				this.template = Supra.Template.compile(template.get('innerHTML'));
+				try {
+					this.template = Supra.Template.compile(template.get('innerHTML'));
+				} catch (err) {
+					// Error, template can't be compiled
+					Y.log('Block "' + block.getBlockTitle() + '" item template is invalid: "' + err.message + '"', 'error', 'gallerymanager.itemlist');
+				}
+			} else {
+				// Error, template is missing
+				Y.log('Block "' + block.getBlockTitle() + '" item template which would be used by GalleryManager is missing. Block should have a <script type="text/supra-template"> or <script type="text/template"> template.', 'error', 'gallerymanager.itemlist');
+			}
+			
+			if (!template) {
+				// Close manager, since it's not possible to create new items
+				this.get('host').cancelChanges();
+				
+				// Show message to user before closing GalleryManager
+				Supra.Manager.executeAction('Confirmation', {
+					'message': Supra.Intl.get(['gallerymanager', 'error_template']).replace('{block}', block.getBlockTitle()),
+					'buttons': [{'id': 'error'}]
+				});
+				
+				return false;
 			}
 			
 			// Recreate DOM structure

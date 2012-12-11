@@ -431,7 +431,9 @@
 			"just_drag_and_drop": "or just drag-and-drop<br />file here",
 			
 			"label": "Images",
-			"label_button": "Manage images"
+			"label_button": "Manage images",
+			
+			"error_template": "Error occured in {block} block"
 		},
 		
 		"linkmanager": {

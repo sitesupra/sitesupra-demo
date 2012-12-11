@@ -2,11 +2,11 @@
 {% set design = supraBlock.property('design') %}
 {% set images = supraBlock.property('images') %}
 
-{% if images|length %}
+{% set width_full = 960 %}
+{% set height_full = 358 %}
+{% set ratio = height_full / width_full %}
 
-	{% set width_full = 960 %}
-	{% set height_full = 358 %}
-	{% set ratio = height_full / width_full %}
+{% if images|length or supra.cmsRequest %}
 
 	{% for image in images %}
 		{{ supraBlock.preloadImage( image.imageId, 960, 960 * ratio, true ) }}
@@ -62,8 +62,26 @@
 				</li>
 				{% endfor %}
 			</ul>
+			
+			{% if images|length %}
 			<div class="shadow"></div>
+			{% endif %}
 		</div>
 	</div>
+	
+	{# Instructions how to render item in CMS Gallery manager edit mode #}
+	{% if supra.cmsRequest %}{% raw %}
+		<script type="text/supra-template" data-supra-container-selector="ul">
+			
+			<li>
+				{% endraw %}<img src="about:blank" alt="" width="{{ width_full }}" height="{{ height_full }}" />{% raw %}
+				<div>
+					<h2>{{ property.title }}</h2>
+					<p>{{ property.description }}</p>
+				</div>
+			</li>
+			
+		</script>
+	{% endraw %}{% endif %}
 	
 {% endif %}
