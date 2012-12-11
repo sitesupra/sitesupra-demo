@@ -155,9 +155,7 @@ Supra("supra.input", function (Y) {
 			this.passwordform.set("disabled", true);
 			this.footer.getButton("ok").set("loading", true);
 			
-			//Send request manually, because of unusual response types
-			//On failure 403 error will be caught by Supra.io and
-			//this action will be executed again
+			//Send request and capture response
 			Supra.io(uri, {
 				"data": data,
 				"method": "post",
@@ -258,9 +256,8 @@ Supra("supra.input", function (Y) {
 			
 			} else {
 
-				this.errors.passwordCurrent = this.errors.passwordNew 
-					this.errors.passwordConfirm = false;
-					
+				this.errors.passwordCurrent = this.errors.passwordNew;
+				this.errors.passwordConfirm = false;
 				this.errors.both = true;
 			}
 			
