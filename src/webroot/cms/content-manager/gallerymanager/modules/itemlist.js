@@ -403,7 +403,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				
 				//Find template
 				var block = this.getBlock(),
-					templateStr = block.getNode().one('script[type="text/supra-template"], script[type="text/template"]'),
+					templateNode = this.getItemTemplateNode(),
 					template = null,
 					node = null,
 					html = '',
@@ -412,8 +412,8 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 					regex_tag = /<([a-z]+)(\s[^>]*)?>/i;
 				
 				// Create wrapper element
-				if (templateStr) {
-					html = templateStr.get('innerHTML').match(regex_tag);
+				if (templateNode) {
+					html = templateNode.get('innerHTML').match(regex_tag);
 					html = html[0] + TEMPLATE_ADD_NEW_ITEM + '</' + html[1] + '>';
 				} else {
 					html = '<li>' + TEMPLATE_ADD_NEW_ITEM + '</li>';
@@ -811,6 +811,22 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		
 		
 		/**
+		 * Returns item template node
+		 * 
+		 * @private
+		 */
+		getItemTemplateNode: function () {
+			var node = this.getBlock().getNode(),
+				template = null;
+			
+			template = node.one('[data-supra-id="gallerymanager-item"]');
+			if (template) return template;
+			
+			template = node.one('script[type="text/supra-template"], script[type="text/template"]');
+			return template;
+		},
+		
+		/**
 		 * Returns HTML needed to recreate block
 		 * 
 		 * @returns {String} HTML
@@ -827,14 +843,16 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				listSelector = '';
 			
 			// Find template
-			var template = block.getNode().one('script[type="text/supra-template"], script[type="text/template"]');
-			if (template) {
-				// As template attribute should be set container node selector
-				listSelector = template.getAttribute('data-supra-container-selector') || 'ul, ol';
-				node = block.getNode().one(listSelector);
+			var templateNode = this.getItemTemplateNode();
+			if (templateNode) {
+				// Template node should have container node selector as attribute
+				listSelector = templateNode.getAttribute('data-supra-container-selector') || 'ul, ol';
+				
+				// If there is no selector or no node then use block main node
+				node = (listSelector ? block.getNode().one(listSelector) : null) || block.getNode();
 				
 				try {
-					this.template = Supra.Template.compile(template.get('innerHTML'));
+					this.template = Supra.Template.compile(templateNode.get('innerHTML'));
 				} catch (err) {
 					// Error, template can't be compiled
 					Y.log('Block "' + block.getBlockTitle() + '" item template is invalid: "' + err.message + '"', 'error', 'gallerymanager.itemlist');
@@ -844,7 +862,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				Y.log('Block "' + block.getBlockTitle() + '" item template which would be used by GalleryManager is missing. Block should have a <script type="text/supra-template"> or <script type="text/template"> template.', 'error', 'gallerymanager.itemlist');
 			}
 			
-			if (!template) {
+			if (!this.template) {
 				// Close manager, since it's not possible to create new items
 				this.get('host').cancelChanges();
 				
@@ -871,7 +889,8 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 					}
 					
 					if (nodeTag == 'body') {
-						// Add wrapper
+						// Add wrapper for content inside body, which will be 100% height of content
+						// it's needed for HTML5 drag and drop events to work correctly
 						structure.unshift('<div class="yui3-inline-reset yui3-box-reset supra-gallerymanager-wrapper">');
 						structure.push('</div>');
 					}

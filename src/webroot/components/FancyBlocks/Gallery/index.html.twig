@@ -44,7 +44,7 @@
 		
 		{# Instructions how to render item in CMS Gallery manager edit mode #}
 		{% if supra.cmsRequest %}{% raw %}
-		<script type="text/supra-template" data-supra-container-selector="ul">
+		<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
 			<li>
 				{% endraw %}<img src="about:blank" alt="" width="{{ width_full }}" height="{{ height_full }}" />{% raw %}
 				<div>
@@ -142,7 +142,7 @@
 		
 		{# Instructions how to render item in CMS Gallery manager edit mode #}
 		{% if supra.cmsRequest %}{% raw %}
-		<script type="text/supra-template" data-supra-container-selector="ul">
+		<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
 			<li class="grid_4">
 				{% if design == "box" %}
 					
