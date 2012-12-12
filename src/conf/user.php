@@ -4,11 +4,28 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\User;
 use Supra\User\Validation\EmailValidation;
 use Supra\Authentication\Adapter\HashAdapter;
+use Supra\Password;
 
 $userProvider = new User\UserProvider();
 //$userProvider->setRemoteApiEndpointId('portal');
 		
 $userProvider->addValidationFilter(new EmailValidation());
+
+$passwordPolicy = new Password\PasswordPolicy;
+
+// Password min/max length validator
+$passwordPolicy->addValidationFilter(new Password\Validation\LengthValidation(5));
+
+// Password re-use 
+$passwordPolicy->addValidationFilter(new Password\Validation\PasswordReuseValidation(3));
+//$passwordPolicy->addValidationFilter(new Password\Validation\CharacterSetStrengthValidation(true, true, true));
+//$passwordPolicy->addValidationFilter(new Password\Validation\LetterCaseValidation(true, true));
+
+// Expiration period is defined as an ISO 8601 string
+// see: http://en.wikipedia.org/wiki/Iso8601#Durations
+$passwordPolicy->setPasswordExpirationPeriod('P90D');
+
+$userProvider->setPasswordPolicy($passwordPolicy);
 
 $authAdapter = new HashAdapter();
 

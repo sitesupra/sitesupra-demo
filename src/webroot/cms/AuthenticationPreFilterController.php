@@ -16,6 +16,7 @@ class AuthenticationPreFilterController extends AuthenticationController
 		$cmsBase = SUPRA_CMS_URL;
 
 		$this->setLoginPath($cmsBase . '/login/');
+		$this->setPasswordChangePath($cmsBase . '/login/mypassword/');
 		$this->setBasePath($cmsBase . '/');
 		$this->setLoginField('supra_login');
 		$this->setPasswordField('supra_password');

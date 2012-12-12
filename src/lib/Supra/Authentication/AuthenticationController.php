@@ -11,18 +11,28 @@ use Supra\Response;
 use Supra\User;
 use Supra\Uri\Path;
 use Supra\Session\SessionNamespace;
+use Supra\Password\PasswordPolicyInterface;
+use Supra\Password\Exception\PasswordExpiredException;
 
 /**
  * Authentication controller
  */
 abstract class AuthenticationController extends ControllerAbstraction implements Controller\PreFilterInterface
 {
-
+	
+	const HEADER_401_MESSAGE = 'X-Authentication-Pre-Filter-Message',
+			HEADER_401_REDIRECT = 'X-Authentication-Pre-Filter-Redirect';
+	
 	/**
 	 * Login page path
 	 * @var string
 	 */
 	protected $loginPath = 'login';
+
+	/**
+	 * @var string
+	 */
+	protected $passwordPath = 'login/mypassword';
 
 	/**
 	 * Check session action path
@@ -131,6 +141,24 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	{
 		return new Path($this->loginPath, '/');
 	}
+	
+	/**
+	 * 
+	 * @return \Supra\Uri\Path
+	 */
+	public function getPasswordChangePath()
+	{
+		return new Path($this->passwordPath, '/');
+	}
+	
+	/**
+	 * Sets password change page path
+	 * @param string $path 
+	 */
+	public function setPasswordChangePath($path)
+	{
+		$this->passwordPath = $path;
+	}
 
 	/**
 	 * Sets login page path
@@ -180,45 +208,35 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		unset($session->login, $session->message);
 
 		$request = $this->getRequest();
-		$path = $this->getRequest()->getPath();
 
-		$xmlHttpRequest = false;
-		$requestedWith = $this->getRequest()->getServerValue('HTTP_X_REQUESTED_WITH');
-
-		if ($requestedWith == 'XMLHttpRequest') {
-			$xmlHttpRequest = true;
-		}
-
-		$post = $this->getRequest()->isPost();
+		$xmlHttpRequest = ($request->getServerValue('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest' ? true : false);
+		$path = $request->getPath();
+		
+		$isPost = $request->isPost();
 		$isPublicUrl = $this->isPublicUrl($path);
 
 		$loginPath = $this->getLoginPath();
-		// if post request then check for login and password fields presence
-		if ($post) {
+		
+		if ($isPost) {
 
 			// login and password fields name
 			$loginField = $this->getLoginField();
-			$passwordField = $this->getPasswordField();
-
-			// login and password
 			$login = $this->getRequest()->getPostValue($loginField);
-			$plainPassword = $this->getRequest()->getPostValue($passwordField);
-			$password = new AuthenticationPassword($plainPassword);
-
+			
+			$user = null;
+			
 			if ( ! empty($login)) {
+				
+				$passwordField = $this->getPasswordField();
+				$plainPassword = $this->getRequest()->getPostValue($passwordField);
 
-				// Authenticating user
-				$user = null;
-
+				$password = new AuthenticationPassword($plainPassword);
+				
+				
 				$eventArgs = new Event\EventArgs($this);
 				$eventArgs->request = $request;
 
 				try {
-
-					// TODO: Maybe should be moved to some password policy guide with password expire features?
-					if ($password->isEmpty()) {
-						throw new Exception\WrongPasswordException("Empty passwords are not allowed");
-					}
 
 					$eventManager = ObjectRepository::getEventManager($this);
 					$eventManager->fire(Event\EventArgs::preAuthenticate, $eventArgs);
@@ -230,9 +248,14 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					$auditLog = ObjectRepository::getAuditLogger($this);
 					$auditLog->info($this, "User '{$user->getEmail()}' logged in", $user);
 
-					$eventManager = ObjectRepository::getEventManager($this);
 					$eventManager->fire(Event\EventArgs::onAuthenticationSuccess, $eventArgs);
+					
+					$passwordPolicy = $userProvider->getPasswordPolicy();
+					if ($passwordPolicy instanceof PasswordPolicyInterface) {
+						$passwordPolicy->validateUserPasswordExpiration($user);
+					}
 
+					// 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(200);
 						$this->response->output('1');
@@ -249,6 +272,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					$sessionManager->close();					
 
 					throw new StopRequestException("Login success");
+
 				} catch (Exception\AuthenticationFailure $exc) {
 
 					$eventManager = ObjectRepository::getEventManager($this);
@@ -268,6 +292,28 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					if ($exc instanceof Exception\AuthenticationBanException) {
 						$message = 'Too many authentication failures';
 					}
+					
+					if ($exc instanceof PasswordExpiredException) {
+						
+						if ($path->equals($loginPath)) {
+							$user->forcePasswordChange();
+							$userProvider->updateUser($user);
+						}
+												
+						if ( ! $xmlHttpRequest) {
+							$message = 'Password is expired';
+							$request->setPath($this->getPasswordChangePath());
+							
+							return;
+						} else {
+							$message = 'Your password has expired and for the security reasons it must be changed';
+							
+							$redirectPath = $this->getPasswordChangePath()
+									->getPath(Path::FORMAT_BOTH_DELIMITERS);
+							
+							$this->response->header(self::HEADER_401_REDIRECT, $redirectPath);
+						}
+					}
 
 					//TODO: i18n
 					if (is_null($message)) {
@@ -281,7 +327,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 					if ($xmlHttpRequest) {
 						$this->response->setCode(401);
-						$this->response->header('X-Authentication-Pre-Filter-Message', $message);
+						$this->response->header(self::HEADER_401_MESSAGE, $message);
 					} else {
 
 						$session->login = $login;
@@ -317,6 +363,8 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 		}
 		$sessionUser = $userProvider->getSignedInUser($updateSession);
 
+		$passwordChangePath = $this->getPasswordChangePath();
+		
 		// if session is empty we redirect user to login page
 		if (empty($sessionUser)) {
 
@@ -324,6 +372,10 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 
 				if ($xmlHttpRequest) {
 					$this->response->setCode(401);
+					
+					if ($path->startsWith($passwordChangePath)) {
+						$this->response->header(self::HEADER_401_REDIRECT, $loginPath->getPath(Path::FORMAT_BOTH_DELIMITERS) . '?redirect_to=' . urlencode($fullUri));
+					}
 				} else {
 					$fullUri = $this->getRequest()->getRequestUri();
 					$this->response->redirect($loginPath->getPath(Path::FORMAT_BOTH_DELIMITERS) . '?redirect_to=' . urlencode($fullUri));
@@ -333,8 +385,32 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			}
 		} else {
 
+			
+			
+			if ($sessionUser->isForcedToChangePassword()) {
+				
+				if ( ! $path->startsWith($passwordChangePath)) {
+					
+					$redirectPath = $this->getPasswordChangePath()
+									->getPath(Path::FORMAT_BOTH_DELIMITERS);
+					
+					if ($xmlHttpRequest) {
+						$this->response->setCode(401);
+	
+						$this->response->header(self::HEADER_401_REDIRECT, $redirectPath);
+						$this->response->header(self::HEADER_401_MESSAGE, 'Your password is expired');
+					} else {
+						$this->response->redirect($redirectPath . '?redirect_to=' . urlencode($fullUri));
+						
+					}	
+					throw new StopRequestException("Password expired");
+				}
+				
+				return;
+			}
+			
 			// Redirect from login form if the session is active
-			if ($path->equals($loginPath)) {
+			if ($path->equals($loginPath) || $path->startsWith($passwordChangePath)) {
 				$redirect = $this->getSuccessRedirectUrl();
 				$this->response->redirect($redirect);
 

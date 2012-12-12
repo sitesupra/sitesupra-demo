@@ -6,5 +6,5 @@
 
 {% block jsSupraManager %}
 	//Execute initial actions
-	Supra.Manager.executeAction('Login');
+	Supra.Manager.executeAction('{{ managerAction|default('Login') }}');
 {% endblock %}

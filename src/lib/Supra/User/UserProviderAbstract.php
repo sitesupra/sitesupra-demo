@@ -7,20 +7,19 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authentication\Adapter;
 use Supra\Authentication\AuthenticationPassword;
 use Supra\Authentication\Exception\UserNotFoundException;
-use Supra\Authentication\Exception\AuthenticationFailure;
 use Supra\Authentication\AuthenticationSessionNamespace;
 use Supra\Session\SessionManager;
 use Doctrine\ORM\EntityManager;
 use Supra\User\Event\UserCreateEventArgs;
 use Supra\Authentication\Event\EventArgs;
 use Supra\User\Entity\UserPreference;
+use Supra\Password\PasswordPolicyInterface;
 
 abstract class UserProviderAbstract implements UserProviderInterface
 {
 	/**
 	 * Event names
 	 */
-
 	const EVENT_PRE_SIGN_IN = 'preSignIn';
 	const EVENT_POST_SIGN_IN = 'postSignIn';
 	const EVENT_PRE_SIGN_OUT = 'preSignOut';
@@ -28,11 +27,11 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	const EVENT_POST_USER_CREATE = 'postUserCreate';
 
 	/**
-	 * Validation filters
+	 * User validation filters
 	 * @var array 
 	 */
 	private $validationFilters = array();
-
+	
 	/**
 	 * Authentication adapter
 	 * @var Adapter\AuthenticationAdapterInterface
@@ -50,6 +49,12 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	 * @var Entity\User
 	 */
 	protected $signedInUser;
+	
+	/**
+	 * Password policy object
+	 * @var PasswordPolicyInterface
+	 */
+	protected $passwordPolicy;
 
 	/**
 	 * @return EntityManager
@@ -316,6 +321,10 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	 */
 	public function credentialChange(Entity\User $user, AuthenticationPassword $password = null)
 	{
+		if ( ! is_null($password)) {
+			$this->validateUserPassword($password, $user);
+		}
+		
 		$this->authAdapter->credentialChange($user, $password);
 	}
 
@@ -475,5 +484,33 @@ abstract class UserProviderAbstract implements UserProviderInterface
 
 		$em->flush();
 	}
-
+	
+	/**
+	 * @param \Supra\Authentication\AuthenticationPassword $password
+	 * @param \Supra\User\Entity\User $user
+	 */
+	protected function validateUserPassword(AuthenticationPassword $password, Entity\User $user)
+	{
+		if ($this->passwordPolicy instanceof PasswordPolicyInterface) {
+			$this->passwordPolicy->validate($password, $user);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param \Supra\Password\PasswordPolicyInterface $passwordPolicy
+	 */
+	public function setPasswordPolicy(PasswordPolicyInterface $passwordPolicy)
+	{
+		$this->passwordPolicy = $passwordPolicy;
+	}
+	
+	/**
+	 * 
+	 * @return \Supra\Password\PasswordPolicyInterface
+	 */
+	public function getPasswordPolicy()
+	{
+		return $this->passwordPolicy;
+	}
 }

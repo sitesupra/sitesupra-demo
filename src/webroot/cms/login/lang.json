@@ -6,6 +6,17 @@
 			"password": "Password",
 			"login": "Login",
 			"error": "Please enter email and password"
+		},
+		
+		"password": {
+			"current": "Current password",
+			"new": "New password",
+			"confirm_new": "Confirm new password",
+			"save": "Change it!",
+			"expired": "Your password has expired and for the security reasons it must be changed",
+			
+			"error_same_passwords": "Your new password must not be the same as old one!",
+			"error_passwords_missmatch": "The confirmation password does not match the new password you entered!"
 		}
 	}
 }

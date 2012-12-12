@@ -21,6 +21,7 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'LayoutContainers': '/content-manager',
 		'Confirmation': '/content-manager',
 		'Login': '/login',
+		'MyPassword': '/login',
 		'LinkManager': '/content-manager',
 		'UserAvatar': '/internal-user-manager',
 		'Applications': '/dashboard',
