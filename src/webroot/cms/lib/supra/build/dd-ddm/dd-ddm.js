@@ -34,13 +34,20 @@ YUI.add('supra.dd-ddm', function (Y) {
 				i = 0,
 				ii = list.length,
 				body = doc.body,
-				original = Y.config.doc;
+				original = Y.config.doc,
+				_pg = this._pg,
+				object = null;
 			
 			for (; i<ii; i++) {
 				if (list[i]._pg_body === body) {
 					// Already exists
 					return;
 				}
+			}
+			
+			// If registering other document than this then reset _pg
+			if (doc !== original) {
+				this._pg = null;
 			}
 			
 			// Add to the list
@@ -54,6 +61,12 @@ YUI.add('supra.dd-ddm', function (Y) {
 			Y.config.doc = doc;
 			Y.DD.DDM._setupListeners();
 			Y.config.doc = original;
+			
+			// If registering other document than this then restore correct _pg 
+			if (doc !== original) {
+				this._pg = null;
+				this._pg_set(original);
+			}
 		},
 		
 		/**
@@ -65,10 +78,14 @@ YUI.add('supra.dd-ddm', function (Y) {
 				ii = list.length,
 				body = doc.body;
 			
+			// To be sure all targets are deactivated
+			//this._deactivateTargets();
+			
 			for (; i<ii; i++) {
 				if (list[i]._pg_body === body) {
 					if (body === this._pg_body) {
-						this._pg_find(document.body);
+						// Set new document
+						this._pg_set(document);
 					}
 					list.splice(i, 1);
 					return;

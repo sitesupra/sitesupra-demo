@@ -180,11 +180,15 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 */
 		createContent: function () {
 			//Add contents
-			var body = new Y.Node(this.get('doc').body);
+			var doc  = this.get('doc'),
+				body = new Y.Node(doc.body);
 			
 			if (this.contents) this.contents.destroy();
-			this.contents = new Action.IframeContents({'iframe': this, 'doc': this.get('doc'), 'win': this.get('win'), 'body': body, 'contentData': this.get('contentData')});
+			this.contents = new Action.IframeContents({'iframe': this, 'doc': doc, 'win': this.get('win'), 'body': body, 'contentData': this.get('contentData')});
 			this.contents.render();
+			
+			//Register document for drag and drop
+			Y.DD.DDM.regDoc(doc);
 			
 			//Disable editing
 			var path = Root.getRoutePath(),
@@ -224,6 +228,11 @@ YUI.add('supra.iframe-handler', function (Y) {
 		destroyContent: function () {
 			var doc = this.get('doc');
 			
+			if (doc) {
+				// Remove document from DDM
+				Y.DD.DDM.unregDoc(doc);
+			}
+			
 			if (this.contents) {
 				// This will destroy content and all attached widgets, plugins etc.
 				this.contents.destroy();
@@ -231,15 +240,10 @@ YUI.add('supra.iframe-handler', function (Y) {
 			}
 			
 			if (doc) {
-				// Remove document from DDM
-				Y.DD.DDM.unregDoc(doc);
-				
 				// Remove all listeners, widgets, plugins, etc. which hasn't been removed
 				// by contents.destroy()
 				Y.Node(doc).destroy(true);
-			}
-			
-			if (doc) {
+				
 				// Set to blank to remove all JS
 				doc.location = "about:blank";
 			}
@@ -615,9 +619,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			//In preview mode there is no drag and drop and no editing
 			if (!preview_only) {
-				//Register document for drag and drop
-				Y.DD.DDM.regDoc(doc);
-				
 				//When stylesheets are loaded initialize IframeContents
 				this._onStylesheetLoad(links, body);
 			}
