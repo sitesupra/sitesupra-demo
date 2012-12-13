@@ -21,13 +21,29 @@ class LetterCaseValidation implements PasswordValidationInterface
 	 */
 	private $requiresLower;
 	
+
+	/**
+	 * @return string
+	 */
+	public function getFilterRequirements()
+	{
+		if ($this->requiresLower && $this->requiresUpper) {
+			return "Must contain a combination of upper and lower case letters.";
+		} 
+		else if ($this->requiresLower) {
+			return "Must contain at least one lower case letter.";
+		}
+		else if ($this->requiresUpper) {
+			return "Must contain at least one upper case letter.";
+		}
+	}
 	
 	/**
 	 * Filter configuration
 	 */
 	public function __construct($requiresUpper = false, $requiresLower = false)
 	{
-		if ($requiresLower === false && $requiresLower === false) {
+		if ($requiresLower === false && $requiresUpper === false) {
 			throw new Exception\RuntimeException('Letter case filter should have at least one of the argument to be defined');
 		}
 		

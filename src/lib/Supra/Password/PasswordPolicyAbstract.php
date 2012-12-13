@@ -24,7 +24,7 @@ abstract class PasswordPolicyAbstract implements PasswordPolicyInterface
 	 * @var string
 	 */
 	protected $expirationPeriod;
-	
+
 	
 	/**
 	 * Adds validation filter to array
@@ -58,6 +58,16 @@ abstract class PasswordPolicyAbstract implements PasswordPolicyInterface
 			/* @var $filter Validation\PasswordValidationInterface */
 			$filter->validatePassword($password, $user);
 		}
+	}
+	
+	/**
+	 * Returs array of password validation filters
+	 * 
+	 * @return array
+	 */
+	public function getValidationFilters()
+	{
+		return $this->validationFilters;
 	}
 	
 	/**
@@ -97,4 +107,5 @@ abstract class PasswordPolicyAbstract implements PasswordPolicyInterface
 		}
 		
 	}
+	
 }

@@ -11,30 +11,40 @@ class CharacterSetStrengthValidation implements PasswordValidationInterface
 	/**
 	 * @var boolean
 	 */
-	private $requiresAlpha;
+	private $requiresAlphanumeric;
 	
 	/**
 	 * @var boolean
 	 */
-	private $requiresNumeric;
+	private $requiresSpecialChars;
+	
 	
 	/**
-	 * @var boolean
+	 * @return string
 	 */
-	private $requiresSymbols;
+	public function getFilterRequirements()
+	{
+		if ($this->requiresAlphanumeric && $this->requiresSpecialChars) {
+			return 'Must use the characters a-z, A-Z, 0-9 and the following: !@#$%^&*?-_~/\\';
+		}
+		else if ($this->requiresAlphanumeric) {
+			return 'Must use the characters a-z, A-Z, 0-9';
+		}
+		else if ($this->requiresSpecialChars) {
+			return 'Must use the special characters like following: !@#$%^&*?-_~/\\';
+		}
+	}
 	
 	/**
 	 * Filter configuration
 	 * 
-	 * @param boolean $requiresAlpha
-	 * @param boolean $requiresNumeric
+	 * @param boolean $requiresAlphanumeric
 	 * @param boolean $requiresSymbols
 	 */
-	public function __construct($requiresAlpha, $requiresNumeric, $requiresSymbols)
+	public function __construct($requiresAlphanumeric, $requiresSpecialChars)
 	{
-		$this->requiresAlpha = (bool) $requiresAlpha;
-		$this->requiresNumeric = (bool) $requiresNumeric;
-		$this->requiresSymbols = (bool) $requiresSymbols;
+		$this->requiresAlphanumeric = (bool) $requiresAlphanumeric;
+		$this->requiresSpecialChars = (bool) $requiresSpecialChars;
 	}
 	
 	/**
@@ -44,15 +54,11 @@ class CharacterSetStrengthValidation implements PasswordValidationInterface
 	{
 		$passwordString = $password->__toString();
 		
-		if ($this->requiresNumeric && ! preg_match("/[0-9]/", $passwordString)) {
-			 throw new PasswordPolicyException('Password must contain at least one digit');
-		}
-		
-		if ($this->requiresAlpha && ! preg_match("/[A-Za-z]/", $passwordString)) {
+		if ($this->requiresAlphanumeric && ! preg_match("/[A-Za-z0-9]/", $passwordString)) {
 			 throw new PasswordPolicyException('Password must contain at least one alphanumeric character');
 		}
 		
-		if ($this->requiresSymbols && ! preg_match("/[\!,@,#,\$,%,\^,&,\*,\?,-,_,~,\/,\\\]/", $passwordString)) {
+		if ($this->requiresSpecialChars && ! preg_match("/[\!,@,#,\$,%,\^,&,\*,\?,-,_,~,\/,\\\]/", $passwordString)) {
 			 throw new PasswordPolicyException('Password must contain at least one symbol');
 		}
 	}

@@ -5,6 +5,11 @@
 {% block bodyClass %}loading{% endblock %}
 
 {% block jsSupraManager %}
+
+	{% if passwordRequirements is defined and passwordRequirements %}
+		Supra.data.set('password_requirements', {{ passwordRequirements|json_encode|raw }});
+	{% endif %}
+	
 	//Execute initial actions
 	Supra.Manager.executeAction('{{ managerAction|default('Login') }}');
 {% endblock %}
