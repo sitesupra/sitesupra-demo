@@ -10,6 +10,13 @@ Supra("supra.input", function (Y) {
 	//Create Action class
 	new Action(Action.PluginPanel, Action.PluginForm, Action.PluginFooter, {
 		
+		REQUIREMENTS_TEMPLATE: "<h3>{{ title }}</h3>\
+				<ul>\
+					{% for requirement in requirements %}\
+					<li>{{ requirement }}</li>\
+					{% endfor %}\
+				</ul>",
+		
 		/**
 		 * Unique action name
 		 * @type {String}
@@ -43,12 +50,11 @@ Supra("supra.input", function (Y) {
 		 * @private
 		 */
 		errors: {
-			"passwordNew": false,
-			"passwordCurrent": false,
-			"passwordConfirm": false,
-			"both": false
+			"password_new": false,
+			"password_current": false,
+			"password_confirm": false,
+			"all": false
 		},
-		
 		
 
 		/**
@@ -78,12 +84,22 @@ Supra("supra.input", function (Y) {
 				}
 			}, this);
 			
+			
+			var requirements = Supra.data.get("password_requirements");
+
+			if (requirements) {
+				var templateData = {"title": Supra.Intl.get(["password", "requirements_title"]), "requirements": requirements},
+					html = (Supra.Template.compile(this.REQUIREMENTS_TEMPLATE))(templateData);
+
+				this.one("div.requirements").set("innerHTML", html).removeClass("hidden");
+			}
+			
 			//Password form
 			this.passwordform.on("submit", this.submit, this);
 			
-			this.decorateInput(this.passwordform.getInput("passwordNew"), "passwordNew");
-			this.decorateInput(this.passwordform.getInput("passwordCurrent"), "passwordCurrent");
-			this.decorateInput(this.passwordform.getInput("passwordConfirm"), "passwordConfirm");
+			this.decorateInput(this.passwordform.getInput("passwordCurrent"), "password_current", true);
+			this.decorateInput(this.passwordform.getInput("passwordNew"), "password_new");
+			this.decorateInput(this.passwordform.getInput("passwordConfirm"), "password_confirm");
 			
 			//Footer
 			this.footer.getButton("ok").set("style", "mid-blue");
@@ -118,20 +134,23 @@ Supra("supra.input", function (Y) {
 		 * 
 		 * @private
 		 */
-		decorateInput: function (input, name) {
+		decorateInput: function (input, name, use_valid) {
 			var node = input.get("boundingBox");
 			node.append(Y.Node.create("<em class=\"error\"></em>"));
-			node.append(Y.Node.create("<em class=\"valid\"></em>"));
+			
+			//if (use_valid) {
+			//	node.append(Y.Node.create("<em class=\"valid\"></em>"));
+			//}
 			
 			input.on("input", function (event) {
 				if (!event.value) {
 					input.addClass(input.getClassName("empty"));
 					this.errors[name] = true;
-					this.errors.both = false;
+					this.errors.all = false;
 				} else {
 					input.removeClass(input.getClassName("empty"));
 					this.errors[name] = false;
-					this.errors.both = false;
+					this.errors.all = false;
 				}
 				
 				this.setErrorStyles();
@@ -155,7 +174,6 @@ Supra("supra.input", function (Y) {
 			this.passwordform.set("disabled", true);
 			this.footer.getButton("ok").set("loading", true);
 			
-			//Send request and capture response
 			Supra.io(uri, {
 				"data": data,
 				"method": "post",
@@ -174,51 +192,65 @@ Supra("supra.input", function (Y) {
 		 * @private
 		 */
 		validate: function (data) {
-
+			
+			this.setErrorMessage(null, 'new');
+			this.setErrorMessage(null, 'current');
+			
 			if ( ! data.supra_password_current 
 				|| ! data.supra_password
 				|| ! data.supra_password_confirm) {
 				
-				this.errors.passwordNew = !data.supra_password;
-				this.errors.passwordConfirm = !data.supra_password_confirm;
-				this.errors.passwordCurrent = !data.supra_password_confirm;
+				this.errors.password_new = !data.supra_password;
+				this.errors.password_confirm = !data.supra_password_confirm;
+				this.errors.password_current = !data.supra_password_current;
 
-				this.errors.both = false;
-				
+				this.errors.all = false;
+								
 				if ( ! data.supra_password_current) {
 					this.passwordform.getInput("supra_password_current").focus();
 				} else if ( ! data.supra_password) {
 					this.passwordform.getInput("supra_password").focus();
 				} else if ( ! data.supra_password_confirm) {
 					this.passwordform.getInput("supra_password_confirm").focus();
-				}			
+				}
+				
+				if (this.errors.password_new){ 
+					this.setErrorMessage(Supra.Intl.get(["password", "error_fields_required"]), 'new');
+				}
+				
+				if (this.errors.password_current){ 
+					this.setErrorMessage(Supra.Intl.get(["password", "error_field_required"]), 'current');
+				}
+				
 				
 				return false;
 			}
 			
 			if (data.supra_password_current == data.supra_password) {
-				
-				this.errors.passwordConfirm = 
-					this.errors.both = false;
-				
-				this.errors.passwordNew = 
-					this.errors.passwordConfirm = true;
+			
+				this.errors.password_current = 
+					this.errors.all = false;
+
+				this.errors.password_new = 
+					this.errors.password_confirm = true;
 				
 				this.passwordform.getInput("passwordNew").focus();
 				
-				this.setErrorMessage(Supra.Intl.get(["password", "error_same_passwords"]));
+				this.setErrorMessage(null, 'current');
+				this.setErrorMessage(Supra.Intl.get(["password", "error_same_passwords"]), 'new');
 				
 				return false;
 			}
 			
 			if (data.supra_password != data.supra_password_confirm) {
 				
-				this.errors.passwordNew = 
-					this.errors.passwordConfirm = true;
+				this.errors.password_new = 
+					this.errors.password_confirm = true;
 				
 				this.passwordform.getInput("passwordNew").focus();
 				
-				this.setErrorMessage(Supra.Intl.get(["password", "error_passwords_missmatch"]));
+				this.setErrorMessage(null, 'current');
+				this.setErrorMessage(Supra.Intl.get(["password", "error_passwords_missmatch"]), 'new');
 				
 				return false;
 			}
@@ -244,36 +276,53 @@ Supra("supra.input", function (Y) {
 		 * @private
 		 */
 		onChangeFailure: function (data) {
-									
-			data.errorMessage = data.errorMessage || "Internal server error";
-			
-			if (data || data.errorFields) {
-				this.errors.both = false;
-				
-				this.errors.passwordCurrent = data.errorFields.passwordCurrent || false;
-				this.errors.passwordNew = data.errorFields.passwordNew || false;
-				this.errors.passwordConfirm = data.errorFields.passwordConfirm || false;
-			
-			} else {
 
-				this.errors.passwordCurrent = this.errors.passwordNew;
-				this.errors.passwordConfirm = false;
-				this.errors.both = true;
+			this.errors.password_new = this.errors.password_current
+					= this.errors.all = false;
+				
+			this.setErrorMessage(null, 'new');
+			this.setErrorMessage(null, 'current');
+
+			if (data && data.errors) {
+				
+				if (data.errors.password_new && data.errors_password_current) {
+					this.errors.all = true;
+					
+					this.errors.password_new = false;
+					this.errors.password_current = false;
+				}
+				else {
+					this.errors.password_new = this.errors.password_confirm = data.errors.password_new;
+					this.errors.password_current = data.errors.password_current;
+				}
+	
 			}
 			
-			this.setErrorMessage(data.errorMessage);
-
-			if (this.errors.passwordCurrent) {
-				this.passwordform.getInput("supra_password_current").focus();
-			} else if (this.errors.passwordNew) {
-				this.passwordform.getInput("supra_password").focus();
-			} else if (this.errors.passwordConfirm) {
-				this.passwordform.getInput("supra_password_confirm").focus();
-			}		
+			if (data.errors.password_current || data.errors.password_new) {
+				
+				if (data.errors.password_current) {
+					this.setErrorMessage(Supra.Intl.get(["password", "error_current"]), 'current');
+				} 
+				
+				if (data.errors.password_new) {
+					this.setErrorMessage(Supra.Intl.get(["password", "error_requirements"]), 'new');
+				}
+			} else {
+				this.setErrorMessage('Internal server error', 'current');
+				this.setErrorMessage(null, 'new');
+			}
 
 			//Enable button and form
 			this.footer.getButton("ok").set("loading", false);
 			this.passwordform.set("disabled", false);
+			
+			if (this.errors.password_current || this.errors.all) {
+				this.passwordform.getInput("passwordCurrent").focus();
+			} 
+			else if (this.errors.password_new) {
+				this.passwordform.getInput("passwordNew").focus();
+			}	
+			
 		},
 		
 		/**
@@ -282,11 +331,19 @@ Supra("supra.input", function (Y) {
 		 * @param {String} mesasge
 		 * @private
 		 */
-		setErrorMessage: function (message) {
-			if (message) {
-				this.one("div.error-message").set("text", message).removeClass("hidden");
+		setErrorMessage: function (message, selector) {
+			var node = null;
+			
+			if (selector) {
+				node = this.one("div.error-message." + selector);
 			} else {
-				this.one("div.error-message").addClass("hidden");
+				node = this.one("div.error-message");
+			}
+			
+			if (message) {
+				node.set("text", message).removeClass("hidden");
+			} else {
+				node.addClass("hidden");
 			}
 			
 			this.setErrorStyles();
@@ -299,21 +356,19 @@ Supra("supra.input", function (Y) {
 			var errors = this.errors;
 			
 			this.passwordform.getInput("passwordCurrent")
-						.set("error", errors.passwordCurrent || errors.both);
+						.set("error", errors.password_current || errors.all);
 						
 			this.passwordform.getInput("passwordNew")
-						.set("error", errors.passwordNew || errors.both);
+						.set("error", errors.password_new || errors.all);
 						
 			this.passwordform.getInput("passwordConfirm")
-						.set("error", errors.passwordConfirm);
+						.set("error", errors.password_confirm || errors.all);
 		},
 		
 		/**
 		 * Execute action
-		 *
-		 * @param {Object} response Request response object
 		 */
-		execute: function (response) {
+		execute: function () {
 			//Show form
 			this.show();
 			
@@ -323,14 +378,10 @@ Supra("supra.input", function (Y) {
 			Supra.session.cancelPing();
 			
 			//Show or hide error message
-			this.errors.current = this.errors.password 
-				this.errors.confirm = false;
+			this.errors.password_current = this.errors.password_new
+				this.errors.all = false;
 				
-			if (response && response.error_message) {
-				this.errors.both = true;
-			}
-			
-			this.setErrorMessage(response ? response.error_message : Supra.Intl.get(["password", "expired"]));
+			this.setErrorMessage(null);
 			
 			//Enable button and form
 			this.footer.getButton("ok").set("loading", false);
@@ -339,9 +390,7 @@ Supra("supra.input", function (Y) {
 			//Reset password field value and focus input
 			this.passwordform.getInput("passwordNew").resetValue();
 			this.passwordform.getInput("passwordConfirm").resetValue();
-			this.passwordform.getInput("passwordCurrent").resetValue();
-
-			this.passwordform.getInput("passwordCurrent").focus();
+			this.passwordform.getInput("passwordCurrent").resetValue().focus();
 		}
 		
 	});

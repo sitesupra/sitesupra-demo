@@ -11,24 +11,31 @@ use Supra\Password\Exception\PasswordPolicyException;
 /**
  * 
  */
-class PasswordReuseValidation implements PasswordValidationInterface
+class PasswordHistoryValidation implements PasswordValidationInterface
 {
 	/**
 	 * @var integer
 	 */
-	private $passwordReUseLimit;
+	private $recordsLimit;
 	
+	/**
+	 * @return string
+	 */
+	public function getFilterRequirements()
+	{
+		return "Must not be one of your previous {$this->recordsLimit} passwords";
+	}
 	
 	/**
 	 * Filter configuration
 	 */
-	public function __construct($passwordReUseLimit)
+	public function __construct($recordsLimit)
 	{
-		if ( (int) $passwordReUseLimit < 1) {
-			throw new Exception\RuntimeException('Re-use limit value should be positive integer');
+		if ( (int) $recordsLimit < 1) {
+			throw new Exception\RuntimeException('Password history records limit value should be positive integer');
 		}
 		
-		$this->passwordReUseLimit = (int) $passwordReUseLimit;
+		$this->recordsLimit = (int) $recordsLimit;
 	}
 	
 	/**
@@ -46,7 +53,7 @@ class PasswordReuseValidation implements PasswordValidationInterface
 				->select('ph')
 				->where('ph.userId = :userId')
 				->orderBy('ph.id')
-				->setMaxResults($this->passwordReUseLimit);
+				->setMaxResults($this->recordsLimit);
 		
 		$passwords = $qb->getQuery()
 				->setParameter('userId', $user->getId())
@@ -56,7 +63,7 @@ class PasswordReuseValidation implements PasswordValidationInterface
 			
 			/* @var $oldPassword PasswordHistoryRecord */
 			if ($oldPassword->isEquals($password)) {
-				throw new PasswordPolicyException("Password policy restricts to use last {$this->passwordReUseLimit} already used password(s), please select another one");
+				throw new PasswordPolicyException("Password policy restricts to use last {$this->recordsLimit} already used password(s), please select another one");
 			}
 		}
 	}

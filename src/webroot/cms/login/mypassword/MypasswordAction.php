@@ -26,7 +26,20 @@ class MypasswordAction extends CmsAction
 		$manager->url = 'login/mypassword';
 		$manager->configure();
 		
+		$passwordRequirements = array();
+		$userProvider = ObjectRepository::getUserProvider($this);
+		
+		$passwordPolicy = $userProvider->getPasswordPolicy();
+		if ( ! is_null($passwordPolicy)) {
+			$filters = $passwordPolicy->getValidationFilters();
+			foreach($filters as $filter) {
+				/* @var $filter Supra\Password\Validation\PasswordValidationInterface */
+				$passwordRequirements[] = $filter->getFilterRequirements();
+			}
+		}
+		
 		$this->getResponse()
+				->assign('passwordRequirements', $passwordRequirements)
 				->assign('managerAction', 'MyPassword')
 				->assign('manager', $manager)
 				->outputTemplate('login/index.html.twig');
@@ -38,7 +51,7 @@ class MypasswordAction extends CmsAction
 		$user = $this->getUser();
 		
 		if ( ! $user instanceof Entity\User || $user instanceof Entity\AnonymousUser) {	
-			throw new CmsException('Wrong current user!');
+			throw new CmsException('Wrong current user object');
 		}
 		
 		$userProvider = ObjectRepository::getUserProvider($this);
@@ -53,65 +66,44 @@ class MypasswordAction extends CmsAction
 		
 		$currentPasswordError = false;
 		$newPasswordError = false;
+		$success = false;
 		
 		try {
 			$authAdapter->authenticate($user, $currentPassword);
 		} catch (\Supra\Authentication\Exception\AuthenticationFailure $e) {
-			$errorMessage = 'Current password you have entered is invalid';	
 			$currentPasswordError = true;
 		}
 		
-		if (is_null($errorMessage)) {
-			$newPlainPassword = $request->getPostValue('supra_password', null);
-			$confirmPasswordPlain = $request->getPostValue('supra_password_confirm', null);
+		$newPlainPassword = $request->getPostValue('supra_password', null);
+		$confirmPasswordPlain = $request->getPostValue('supra_password_confirm', null);
 
-			if ($newPlainPassword != $confirmPasswordPlain) {
-				throw new CmsException('Confirmation password does not match the password');
-			}
-
-			$newPassword = new AuthenticationPassword($newPlainPassword);
-
-			try {
-				
-				$oldPasswordHash = $user->getPassword();
-				$oldPasswordSalt = $user->getSalt();
-				
-				$userProvider->credentialChange($user, $newPassword);
-				
-				$passwordRecord = new \Supra\Password\Entity\PasswordHistoryRecord();
-				
-				$passwordRecord->setHash($oldPasswordHash);
-				$passwordRecord->setSalt($oldPasswordSalt);
-				
-				$passwordRecord->setUser($user);
-				
-				$em = ObjectRepository::getEntityManager($this);
-				$em->persist($passwordRecord);
-				
-				$em->flush();
-				
-				$userProvider->updateUser($user);
-				
-			} catch (\Supra\Password\Exception\PasswordPolicyException $e) {
-				$errorMessage = $e->getMessage();
-				$newPasswordError = true;
-			}
+		if ($newPlainPassword != $confirmPasswordPlain) {
+			throw new CmsException('Confirmation password does not match the password');
 		}
 
-		if ( ! empty($errorMessage)) {
-			$success = false;
-		} else {
+		$newPassword = new AuthenticationPassword($newPlainPassword);
+		
+		try {
+			$userProvider->validateUserPassword($newPassword, $user);
+		} catch (\Supra\Password\Exception\PasswordPolicyException $e) {
+			$newPasswordError = true;
+		}
+
+		if ( ! $currentPasswordError && ! $newPasswordError) {
+			$userProvider->credentialChange($user, $newPassword);
+			$userProvider->updateUser($user);
+			
 			$success = true;
 		}
 		
 		$this->getResponse()
 				->setResponseData(array(
-					'success' => $success, 
-					'errorMessage' => $errorMessage,
-					'errorFields' => array(
-						'passwordNew' => $newPasswordError,
-						'passwordCurrent' => $currentPasswordError,
-					)
+					'success' => $success,
+					
+					'errors' => array(
+						'password_new' => $newPasswordError,
+						'password_current' => $currentPasswordError,
+					),
 		));
 	}
 	
