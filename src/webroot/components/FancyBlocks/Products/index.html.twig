@@ -157,7 +157,7 @@
 						
 						{% if design == "box" %}
 							
-							<span class="outer clearfix">
+							<div class="outer clearfix">
 								{# Text and then image, unless it's icon mode #}
 								
 								{% if link == 'overlay' %}
@@ -178,7 +178,7 @@
 									{{ output.responsiveImage( product.imageId, ratio, columns, padding) }}
 								{% endif %}
 								
-							</span>
+							</div>
 							
 						{% else %}
 							{# Image followed by text #}
@@ -215,7 +215,7 @@
 				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} {% if design != 'box' %}clearfix{% endif %}">
 					{% if design == "box" %}
 					
-						<span class="outer clearfix">
+						<div class="outer clearfix">
 							
 							{% endraw %}{% if image == 'icon' %}
 								{{ output.imageCMS(ratio, columns, padding) }}
@@ -237,7 +237,7 @@
 							{% endraw %}{% if image != 'icon' %}
 								{{ output.imageCMS(ratio, columns, padding) }}
 							{% endif %}{% raw %}
-						</span>
+						</div>
 						
 					{% else %}
 						
