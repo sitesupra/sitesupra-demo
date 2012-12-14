@@ -19178,7 +19178,16 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					node = Y.Node.create('<style></style>');
 				}
 				
-				node.getDOMNode().innerText = css;
+				// Set style content
+				var domNode = node.getDOMNode();
+				if ('innerText' in domNode) {
+					// Chrome
+					node.getDOMNode().innerText = css;
+				} else {
+					// FF
+					node.getDOMNode().innerHTML = css;
+				}
+				
 				box.append(node);
 				this.set('cssNode', node);
 				
