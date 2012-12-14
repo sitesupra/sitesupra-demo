@@ -58,7 +58,8 @@ YUI.add('supra.button-plugin-input', function (Y) {
 			if (input.isInstanceOf('input')) {
 				if (input.getValueData) {
 					// We can get detailed data from input
-					input.on('change', this.onSelectChange, this);
+					input.after('change', this.onSelectChange, this);
+					input.after('valuesChange', this.onSelectChange, this);
 				} else {
 					// We don't know how to handle this, try guessing
 					input.on('change', this.onInputChange, this);
@@ -75,8 +76,8 @@ YUI.add('supra.button-plugin-input', function (Y) {
 		onSelectChange: function (event) {
 			var button = this.get('host'),
 				input  = this.get('input'),
-				value  = event.value,
-				data   = this.get('input').getValueData(value);
+				value  = input.get('value'),
+				data   = input.getValueData(value);
 			
 			if (data) {
 				this.syncUI({
