@@ -139,6 +139,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 		_has_inline_properties: false,
 		
 		/**
+		 * HTML properties were found
+		 * @type {Boolean}
+		 * @private
+		 */
+		_has_html_properties: false,
+		
+		/**
 		 * There are groups with type "top"
 		 * @type {Boolean}
 		 * @private
@@ -190,7 +197,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.createGroupToolbar();
 			
 			//Bind to editing-start and editing-end events
-			var showOnEdit = !this._has_inline_properties;
+			var showOnEdit = !this._has_html_properties;
 			
 			if (showOnEdit) {
 				if (this.hasTopGroups()) {
@@ -243,6 +250,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this._group_toolbar_buttons = [];
 			this._group_nodes = group_nodes;
 			this._has_inline_properties = false;
+			this._has_html_properties = false;
 			
 			var host_properties = {
 				'doc': host.get('doc'),
@@ -267,6 +275,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
 						
 						this._has_inline_properties = true;
+						
+						if (properties[i].type === 'InlineHTML') {
+							this._has_html_properties = true;
+						}
 					} else {
 						//If there is no inline node, fail silently
 					}
@@ -904,7 +916,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					
 					//For default group create button only if there are other groups and
 					//HTMLEditor toolbar is not visible (it already has a button)
-					if (definition.id !== 'default' || (this.hasTopGroups() && !this.hasInlineInputs())) {
+					if (definition.id !== 'default' || (this.hasTopGroups() && !this.hasHtmlInputs())) {
 						//Create toolbar button
 						var button_id = this.get('host').getId() + '_' + definition.id.replace(/[^a-z0-9\-\_]/ig, '');
 						
@@ -1128,6 +1140,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 			return this._has_inline_properties;
 		},
 		
+		/**
+		 * Returns true if there are inline HTML inputs, otherwise false
+		 * 
+		 * @returns {Boolean} True if there are html inputs
+		 */
+		hasHtmlInputs: function () {
+			return this._has_html_properties;
+		},
+		
 		
 		/*
 		 * ----------------------------- ATTRIBUTES -------------------------------
@@ -1192,7 +1213,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		_getToolbarGroupId: function (value) {
 			if (!value) {
-				if (this.hasInlineInputs()) {
+				if (this.hasHtmlInputs()) {
 					value = 'EditorToolbar';
 				} else {
 					value = 'BlockToolbar';
