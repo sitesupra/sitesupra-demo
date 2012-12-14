@@ -21,6 +21,21 @@ class LengthValidation implements PasswordValidationInterface
 	 */
 	private $maxLength;
 	
+	/**
+	 * @return string
+	 */
+	public function getFilterRequirements()
+	{
+		if ( ! is_null($this->minLength) && ! is_null($this->maxLength)) {
+			return "Must be at least {$this->minLength} but not more than {$this->maxLength} characters in length";
+		} 
+		else if ( ! is_null($this->minLength)) {
+			return "Must be at least {$this->minLength} characters in length.";
+		}
+		else if ( ! is_null($this->maxLength)) {
+			return "Must be not more than {$this->maxLength} characters in length.";
+		}
+	}
 	
 	/**
 	 * Filter configuration

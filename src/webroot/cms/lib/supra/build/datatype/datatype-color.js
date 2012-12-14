@@ -404,7 +404,7 @@ YUI.add('supra.datatype-color', function(Y) {
 					  strPad(rgb.green.toString(16)) +
 					  strPad(rgb.blue.toString(16));
 			
-			return "#" + str;
+			return "#" + str.toUpperCase();
 		},
 		
 		/**

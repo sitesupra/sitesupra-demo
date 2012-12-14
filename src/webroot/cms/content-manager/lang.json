@@ -312,6 +312,7 @@
 			"new_template_label_title": "Title",
 			"new_page_label_path": "Path",
 			"new_template_label_layout": "Layout",
+			"new_page_label_template": "Template",
 			
 			"create_page": "Create",
 			"create_template": "Create",

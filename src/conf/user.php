@@ -14,12 +14,10 @@ $userProvider->addValidationFilter(new EmailValidation());
 $passwordPolicy = new Password\PasswordPolicy;
 
 // Password min/max length validator
-$passwordPolicy->addValidationFilter(new Password\Validation\LengthValidation(5));
-
-// Password re-use 
-$passwordPolicy->addValidationFilter(new Password\Validation\PasswordReuseValidation(3));
-//$passwordPolicy->addValidationFilter(new Password\Validation\CharacterSetStrengthValidation(true, true, true));
-//$passwordPolicy->addValidationFilter(new Password\Validation\LetterCaseValidation(true, true));
+$passwordPolicy->addValidationFilter(new Password\Validation\LengthValidation(8));
+$passwordPolicy->addValidationFilter(new Password\Validation\CharacterSetStrengthValidation(false, true));
+$passwordPolicy->addValidationFilter(new Password\Validation\LetterCaseValidation(true, true));
+$passwordPolicy->addValidationFilter(new Password\Validation\PasswordHistoryValidation(3));
 
 // Expiration period is defined as an ISO 8601 string
 // see: http://en.wikipedia.org/wiki/Iso8601#Durations

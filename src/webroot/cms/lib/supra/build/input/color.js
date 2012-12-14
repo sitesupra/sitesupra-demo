@@ -262,6 +262,11 @@ YUI.add("supra.input-color", function (Y) {
 			this.get("nodeInputGreen").on("blur", this._onBlurRGB, this);
 			this.get("nodeInputBlue").on("blur", this._onBlurRGB, this);
 			
+			this.get("nodeInputHEX").on("keyup", this._onKeyHEX, this);
+			this.get("nodeInputRed").on("keyup", this._onKeyRGB, this);
+			this.get("nodeInputGreen").on("keyup", this._onKeyRGB, this);
+			this.get("nodeInputBlue").on("keyup", this._onKeyRGB, this);
+			
 			if (this.get("allowUnset")) {
 				this.get("nodeUnset").on("mousedown", this._onUnset, this);
 			}
@@ -331,8 +336,14 @@ YUI.add("supra.input-color", function (Y) {
 		},
 		
 		syncUIHEX: function () {
-			if (this.get("nodeInputHEX") && !this.uiFrozen) {
-				this.get("nodeInputHEX").set("value", this.hex.replace('#', ''));
+			var input = this.get("nodeInputHEX"),
+				value = null;
+			
+			if (input && !this.uiFrozen) {
+				value = this.hex.replace('#', '');
+				if (input.get('value') != value) {
+					input.set("value", value);
+				}
 			}
 		},
 		
@@ -385,6 +396,19 @@ YUI.add("supra.input-color", function (Y) {
 		},
 		
 		/**
+		 * On HEX input change update color
+		 */
+		_onKeyHEX: function (e) {
+			var node = this.get("nodeInputHEX"),
+				value = "#" + node.get("value").toUpperCase();
+			
+			// if full color or return key pressed then apply color
+			if (this.hex != value && (value.match(/^#[0-9ABCDEF]{6}$/) || e.keyCode == 13)) {
+				this._onBlurHEX();
+			}
+		},
+		
+		/**
 		 * On RGB input blur update color
 		 */
 		_onBlurRGB: function () {
@@ -416,6 +440,26 @@ YUI.add("supra.input-color", function (Y) {
 			if (this.rgb.red != red || this.rgb.green != green || this.rgb.blue != blue) {
 				this.setRGB(red, green, blue);
 				this.set("value", this.hex);
+			}
+		},
+		
+		/**
+		 * On RGB input change update color
+		 */
+		_onKeyRGB: function (e) {
+			var nodeRed = this.get("nodeInputRed"),
+				nodeGreen = this.get("nodeInputGreen"),
+				nodeBlue = this.get("nodeInputBlue"),
+				red = nodeRed.get("value"),
+				green = nodeGreen.get("value"),
+				blue = nodeBlue.get("value"),
+				reg_num = /^[1-9][0-9]{0,2}$/;
+			
+			if (red.match(reg_num) && parseInt(red) < 255 &&
+				green.match(reg_num) && parseInt(green) < 255 &&
+				blue.match(reg_num) && parseInt(blue) < 255) {
+				
+				this._onBlurRGB();
 			}
 		},
 		
