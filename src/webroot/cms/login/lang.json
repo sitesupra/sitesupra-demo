@@ -21,7 +21,7 @@
 			
 			"error_current": "Current password you have entered is invalid",
 			
-			"error_fields_required": "Theese fields are required!",
+			"error_fields_required": "These fields are required!",
 			"error_field_required": "This field is required!",
 			
 			"requirements_title": "Password rules:"
