@@ -489,7 +489,7 @@ abstract class UserProviderAbstract implements UserProviderInterface
 	 * @param \Supra\Authentication\AuthenticationPassword $password
 	 * @param \Supra\User\Entity\User $user
 	 */
-	protected function validateUserPassword(AuthenticationPassword $password, Entity\User $user)
+	public function validateUserPassword(AuthenticationPassword $password, Entity\User $user)
 	{
 		if ($this->passwordPolicy instanceof PasswordPolicyInterface) {
 			$this->passwordPolicy->validate($password, $user);
