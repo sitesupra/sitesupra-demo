@@ -48,9 +48,16 @@ class PasswordHistoryRecord extends Entity
 	/**
 	 * 
 	 */
-	public function __construct()
+	public function __construct(User $user = null)
 	{
 		parent::__construct();
+		
+		if ( ! is_null($user)) {
+			$this->hash = $user->getPassword();
+			$this->salt = $user->getSalt();
+			
+			$this->userId = $user->getId();
+		}
 		
 		$this->creationTime = new \DateTime('now');
 	}

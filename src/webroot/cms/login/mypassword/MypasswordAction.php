@@ -92,7 +92,7 @@ class MypasswordAction extends CmsAction
 		if ( ! $currentPasswordError && ! $newPasswordError) {
 			$userProvider->credentialChange($user, $newPassword);
 			$userProvider->updateUser($user);
-			
+						
 			$success = true;
 		}
 		

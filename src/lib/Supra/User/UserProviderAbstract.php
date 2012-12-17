@@ -325,7 +325,20 @@ abstract class UserProviderAbstract implements UserProviderInterface
 			$this->validateUserPassword($password, $user);
 		}
 		
+		$passwordRecord = null;
+		if ( ! is_null($password)) {
+			$passwordRecord = new \Supra\Password\Entity\PasswordHistoryRecord($user);
+		}	
+		
 		$this->authAdapter->credentialChange($user, $password);
+		
+		if ( ! is_null($passwordRecord)) {
+			
+			$em = ObjectRepository::getEntityManager('\Supra\Password\Validation\PasswordHistoryValidation');
+			
+			$em->persist($passwordRecord);
+			$em->flush();
+		}
 	}
 
 	/**

@@ -52,7 +52,7 @@ class PasswordHistoryValidation implements PasswordValidationInterface
 		$qb->from(PasswordHistoryRecord::CN(), 'ph')
 				->select('ph')
 				->where('ph.userId = :userId')
-				->orderBy('ph.id')
+				->orderBy('ph.id', 'DESC')
 				->setMaxResults($this->recordsLimit);
 		
 		$passwords = $qb->getQuery()
