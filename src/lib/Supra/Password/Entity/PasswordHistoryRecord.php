@@ -34,13 +34,13 @@ class PasswordHistoryRecord extends Entity
 	protected $creationTime;
 	
 	/**
-	 * @Column(type="string", nullable=false)
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $hash;
 	
 	/**
-	 * @Column(type="string", nullable=false)
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $salt;

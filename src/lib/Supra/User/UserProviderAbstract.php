@@ -326,7 +326,8 @@ abstract class UserProviderAbstract implements UserProviderInterface
 		}
 		
 		$passwordRecord = null;
-		if ( ! is_null($password)) {
+		$currentHash = $user->getPassword();
+		if ( ! is_null($password) && ! empty($currentHash)) {
 			$passwordRecord = new \Supra\Password\Entity\PasswordHistoryRecord($user);
 		}	
 		
