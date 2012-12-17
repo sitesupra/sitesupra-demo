@@ -105,7 +105,7 @@ class User extends AbstractUser
 	 * @Column(type="boolean")
 	 * @var boolean
 	 */
-	protected $forcePasswordChange;
+	protected $forcePasswordChange = false;
 
 	/**
 	 * Generates random salt for new users
