@@ -55,11 +55,11 @@ class CharacterSetStrengthValidation implements PasswordValidationInterface
 		$passwordString = $password->__toString();
 		
 		if ($this->requiresAlphanumeric && ! preg_match("/[a-zA-Z]+[0-9]+/", $passwordString)) {
-			 throw new PasswordPolicyException('Password must contain at least one alphanumeric character');
+			 throw new PasswordPolicyException('Password must be mix of alpha and numeric characters');
 		}
 		
 		if ($this->requiresSpecialChars && ! preg_match("/[\!,@,#,\$,%,\^,&,\*,\?,-,_,~,\/,\\\]/", $passwordString)) {
-			 throw new PasswordPolicyException('Password must contain at least one symbol');
+			 throw new PasswordPolicyException('Password must contain at least one special character');
 		}
 	}
 }
