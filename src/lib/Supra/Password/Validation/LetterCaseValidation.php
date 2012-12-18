@@ -17,7 +17,7 @@ class LetterCaseValidation implements PasswordValidationInterface
 	 */
 	public function getFilterRequirements()
 	{
-		return "Must contain a combination of upper and lower case letters.";
+		return "Must contain a combination of upper and lower case letters";
 	}
 	
 	/**
