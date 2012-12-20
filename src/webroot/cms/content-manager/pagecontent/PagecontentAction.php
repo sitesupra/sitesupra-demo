@@ -170,9 +170,9 @@ class PagecontentAction extends PageManagerAction
 		}
 
 		// Load received property values and data from the POST
-		$inputProperties = $input->getChild('properties', true);
+		$propertyInput = $input->getChild('properties', true);
 
-		$this->handlePropertyValues($blockController, $inputProperties);
+		$this->handlePropertyValues($blockController, $propertyInput);
 
 		$this->entityManager->flush();
 
@@ -460,13 +460,13 @@ class PagecontentAction extends PageManagerAction
 	protected function handlePropertyValues(\Supra\Controller\Pages\BlockController $blockController, \Supra\Request\RequestData $input)
 	{
 		$blockConfiguration = $blockController->getConfiguration();
-		$propertyDefinitions = $blockConfiguration->properties;
+		$propertyConfigurations = $blockConfiguration->properties;
 
-		foreach ($propertyDefinitions as $propertyDefinition) {
+		foreach ($propertyConfigurations as $configuration) {
 
-			$propertyName = $propertyDefinition->name;
+			$propertyName = $configuration->name;
 
-			if ($input->has($propertyName) || $input->hasChild($propertyName)) {
+			if ($input->offsetExists($propertyName)) {
 
 				$property = $blockController->getProperty($propertyName);
 
@@ -507,31 +507,21 @@ class PagecontentAction extends PageManagerAction
 						}
 					}
 				} elseif ($editable instanceof Editable\Gallery) {
-
+					
 					if ($input->hasChild($propertyName)) {
-
-						$imageList = $input->getChild($propertyName);
-
-						while ($imageList->valid()) {
-
-							$subInput = $imageList->getNextChild();
-							$propertyInput = $subInput->getChild('properties');
-
-							$referencedImageData = $subInput->getArrayCopy();
-
-							// Mark the data with image type
-							$referencedImageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
-							$referencedImageData['_subPropertyInput'] = $propertyInput;
-
-							$referencedElementsData[] = $referencedImageData;
-						}
+						
+						$imagesListInput = $input->getChild($propertyName);	
+						$this->storeGalleryProperties($imagesListInput, $property);
+						
 					} else {
-						// Scalar sent if need to empty the gallery
 						$checkValue = $input->get($propertyName);
 
 						if ( ! empty($checkValue)) {
 							throw new \InvalidArgumentException("Empty value need to be sent to empty the gallery, $checkValue received");
 						}
+						
+						$metadataCollection = $property->getMetadata();
+						$this->removeMetadataCollection($metadataCollection);
 					}
 				} elseif ($editable instanceof Editable\BlockBackground) {
 
@@ -604,47 +594,117 @@ class PagecontentAction extends PageManagerAction
 					}
 				}
 
-				if ($editable instanceof Editable\Gallery) {
+				// Delete removed metadata
+				if ( ! $editable instanceof Editable\Gallery) {
+					foreach ($metadataCollection as $metadataName => $metadataValue) {
+						/* @var $metadataValue Entity\BlockPropertyMetadata */
 
-					$metadataCollection = $property->getMetadata();
-
-					$galleryController = $editable->getDummyBlockController();
-					$galleryController->setRequest($this->getPageRequest());
-
-					foreach ($referencedElementsData as $referencedElementName => $referencedElementData) {
-
-						foreach ($metadataCollection as $metadataItemName => $metadataItem) {
-
-							if ($metadataItemName === $referencedElementName) {
-
-								$subInput = $referencedElementData['_subPropertyInput'];
-								$galleryController->setParentMetadata($metadataItem);
-
-								$this->handlePropertyValues($galleryController, $subInput);
-
-								break;
-							}
+						if ( ! array_key_exists($metadataName, $referencedElementsData)) {
+							$metadataCollection->remove($metadataName);
+							$this->entityManager->remove($metadataValue);
 						}
 					}
 				}
+			}
+		}
+	}
+	
+	private function storeGalleryProperties($input, $property)
+	{
+		$editable = $property->getEditable();
+		/* @var $editable Editable\Gallery */
+		
+		$galleryBlockController = $editable->getDummyBlockController();
+		$galleryBlockController->setRequest($this->getPageRequest());
+		
+		$metadataArray = array();
 
-				// Delete removed metadata
-				foreach ($metadataCollection as $metadataName => $metadataValue) {
-					/* @var $metadataValue Entity\BlockPropertyMetadata */
+		$metadataCollection = $property->getMetadata();
+		foreach($metadataCollection as $metadataItem) {
+			$metadataArray[$metadataItem->getId()] = $metadataItem;			
+		}
+		
+		$index = 0;
 
-					if ( ! array_key_exists($metadataName, $referencedElementsData)) {
-
-						$qb = $this->entityManager->createQueryBuilder();
-						$qb->delete(Entity\BlockProperty::CN(), 'p')
-								->where('p.masterMetadataId = ?0')
-								->getQuery()->execute(array($metadataValue->getId()));
-
-						$this->entityManager->flush();
-
-						$metadataCollection->remove($metadataName);
-						$this->entityManager->remove($metadataValue);
-					}
+		while ($input->valid()) {
+			
+			//	[properties]
+			//		[title]:cover-3.jpg
+			//		[description]:
+			//		[link]:
+			//	[id]:00eop8lua00400g0kkco
+			$metaItemInput = $input->getNextChild();
+			
+			$imageId = $metaItemInput->get('id');
+			
+			if ($metaItemInput->has('__meta__')) {
+				
+				$id = $metaItemInput->get('__meta__');
+				
+				if (isset($metadataArray[$id])) {					
+					$metaItem = $metadataArray[$id];
+					unset($metadataArray[$id]);
+				} else {
+					\Log::error("Metadata item with ID #{$id} not found");
+					
+					$index++;
+					continue;
 				}
+				
+				$element = $metaItem->getReferencedElement();
+				
+			} else {
+				// new element added
+				$element = new Entity\ReferencedElement\ImageReferencedElement();	
+				$metaItem = new Entity\BlockPropertyMetadata($index, $property, $element);
+			}
+			
+			$metaItem->setName($index);
+			$element->setImageId($imageId);
+			
+			$metaItem->setReferencedElement($element);
+			
+			/* @var $property Entity\BlockProperty */
+			$property->addMetadata($metaItem);
+			
+			
+			$galleryBlockController->setParentMetadata($metaItem);
+			
+			$propertyInput = $metaItemInput->getChild('properties');
+			$this->handlePropertyValues($galleryBlockController, $propertyInput);
+			
+			$index++;
+		}
+	
+		$this->removeMetadataCollection($metadataArray);
+	}
+	
+	private function removeMetadataCollection($collection)
+	{
+		$ids = \Supra\Database\Entity::collectIds($collection);
+		
+		if ( ! empty($ids)) {
+				
+			$qb = $this->entityManager
+						->createQueryBuilder();
+
+			$subProperties = $qb->select('bp')
+						->from(Entity\BlockProperty::CN(), 'bp')
+						->where('bp.masterMetadataId IN (:ids)')
+						->setParameter('ids', $ids)
+						->getQuery()
+						->setHint(\Doctrine\ORM\Query::HINT_FORCE_PARTIAL_LOAD, true)
+						->setHydrationMode(\Doctrine\ORM\Query::HYDRATE_SIMPLEOBJECT)
+						->getResult();
+			
+			foreach ($subProperties as $property) {
+				$this->entityManager->remove($property);
+			}
+			
+			$this->entityManager->flush();
+			
+			foreach ($collection as $item) {
+				$this->entityManager->remove($item);
 			}
 		}
 	}
