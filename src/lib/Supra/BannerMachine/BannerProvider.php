@@ -35,6 +35,16 @@ class BannerProvider
 	 * @var array
 	 */
 	protected $types;
+	
+	/**
+	 * @var string
+	 */
+	protected $frontendTemplate;
+
+	/**
+	 * @var string
+	 */
+	protected $cmsTemplate;
 
 	/**
 	 * @var string
@@ -266,6 +276,26 @@ class BannerProvider
 	public function getRedirectorPath()
 	{
 		return $this->redirectorPath;
+	}
+	
+	public function setFrontendTemplate($templateName)
+	{
+		$this->frontendTemplate = $templateName;
+	}
+	
+	public function getFrontendTemplate()
+	{
+		return $this->frontendTemplate;
+	}
+	
+	public function setCmsTemplate($templateName)
+	{
+		$this->cmsTemplate = $templateName;
+	}
+	
+	public function getCmsTemplate()
+	{
+		return $this->cmsTemplate;
 	}
 
 	public function getBannersByFile(File $file)

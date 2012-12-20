@@ -86,7 +86,11 @@ class BannerMachineController extends BlockController
 		}
 
 		$response->assign('bannerContent', $bannerContent);
-		$response->outputTemplate('banner-fe.html.twig');
+		
+		$frontendTemplate = $this->bannerProvider
+				->getFrontendTemplate();
+		
+		$response->outputTemplate($frontendTemplate);
 	}
 
 	protected function editBanner()
@@ -120,7 +124,11 @@ class BannerMachineController extends BlockController
 		}
 
 		$response->assign('bannerContent', $bannerContent);
-		$response->outputTemplate('banner-bo.html.twig');
+		
+		$cmsTemplate = $this->bannerProvider
+				->getCmsTemplate();
+		
+		$response->outputTemplate($cmsTemplate);
 	}
 
 	public static function getPropertyDefinition()

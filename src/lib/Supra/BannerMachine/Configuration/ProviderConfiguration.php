@@ -20,6 +20,9 @@ class ProviderConfiguration implements ConfigurationInterface
 	public $types;
 	public $redirectorPath;
 	public $namespace;
+	
+	public $frontendTemplate = 'banner-fe.html.twig';
+	public $cmsTemplate = 'banner-bo.html.twig';
 
 	public function configure()
 	{
@@ -37,6 +40,9 @@ class ProviderConfiguration implements ConfigurationInterface
 		$provider->setTypes($types);
 
 		$provider->setRedirectorPath($this->redirectorPath);
+		
+		$provider->setFrontendTemplate($this->frontendTemplate);
+		$provider->setCmsTemplate($this->cmsTemplate);
 
 		$router = new UriRouter();
 		$router->setPath($this->redirectorPath);
