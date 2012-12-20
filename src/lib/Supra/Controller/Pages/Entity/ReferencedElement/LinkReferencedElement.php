@@ -171,7 +171,12 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				break;
 				
 			case self::RESOURCE_LINK:
-				$title = $this->getHref();
+				if ( ! empty($this->title)) {
+					$title = $this->title;
+				} else {
+					$title = $this->getHref();
+				}
+				
 				break;
 			
 			case self::RESOURCE_RELATIVE_PAGE:
