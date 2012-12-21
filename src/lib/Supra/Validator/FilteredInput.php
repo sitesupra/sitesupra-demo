@@ -23,6 +23,10 @@ class FilteredInput extends \ArrayIterator
 	 */
 	public function has($index)
 	{
+		if (is_null($index)) {
+			return false;
+		}
+		
 		if ( ! $this->offsetExists($index)) {
 			return false;
 		}
@@ -43,6 +47,10 @@ class FilteredInput extends \ArrayIterator
 	 */
 	public function hasChild($index)
 	{
+		if (is_null($index)) {
+			return false;
+		}
+		
 		if ( ! $this->offsetExists($index)) {
 			return false;
 		}
