@@ -47,7 +47,7 @@ class FileWriter extends StreamWriter
 	 */
 	protected function getStream(LogEvent $event)
 	{
-		$filename = $this->parameters['url'];
+		$filename = $this->formatUrl($this->parameters['url']);
 
 		if ( ! file_exists($filename)) {
 			touch($filename);
