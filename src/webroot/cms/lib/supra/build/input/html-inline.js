@@ -155,6 +155,10 @@ YUI.add("supra.input-inline-html", function (Y) {
 		 * @private
 		 */
 		_setDisabled: function (value) {
+			if (value) {
+				this.blur();
+			}
+			
 			if (this.htmleditor) {
 				this.htmleditor.set('disabled', !!value);
 				return !!value;

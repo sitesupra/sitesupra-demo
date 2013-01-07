@@ -43,10 +43,12 @@ YUI.add("supra.slideshow-input-button", function (Y) {
 			
 			this.get('boundingBox')
 					.addClass('input-group')
-					.addClass('input-group-button');
+					.addClass('input-group-button')
+					.addClass('button-section');
 			
 			var button = new Supra.Button({
-				'label': this.get('label')
+				'label': this.get('label'),
+				'style': 'small-gray'
 			});
 			button.render(this.get('boundingBox'));
 			this.set('button', button);

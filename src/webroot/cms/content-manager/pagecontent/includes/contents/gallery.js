@@ -117,6 +117,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Render buttons
 			this.bindDnD();
+			
+			//Bind to content click
+			this.bindItemClick();
 		},
 		
 		renderManageButton: function () {
@@ -171,6 +174,35 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				'srcNode': srcNode,
 				'doc': doc
 			});
+		},
+		
+		/**
+		 * Bind clicking on one of the items as a trigger for opening gallery manager
+		 * 
+		 * @private
+		 */
+		bindItemClick: function () {
+			
+			// Find template
+			var node = this.getNode(),
+				template = node.one('script[type="text/supra-template"], script[type="text/template"]'),
+				listSelector = 'ul, ol';
+			
+			if (template) {
+				// As template attribute should be set container node selector
+				listSelector = template.getAttribute('data-supra-container-selector') || listSelector;
+			}
+			
+			if (listSelector) {
+				node.delegate('click', function (e) {
+					var target = e.target;
+					if (target.closest(listSelector) && !target.test(listSelector)) {
+						// User clicked on list item
+						this.openGalleryManager();
+					}
+				}, listSelector, this);
+			}
+			
 		},
 		
 		bindUI: function () {
@@ -372,6 +404,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				}, this),
 				'onclose': Y.bind(function () {
 					this.properties.showPropertiesForm();
+					this.itemlist.blurInlineEditor();
 					//button.set('loading', false);
 				}, this)
 			});
@@ -468,8 +501,17 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Extract only image ID and properties, remove all other data
 			for(var i=0,ii=data.images.length; i<ii; i++) {
-				image = Supra.mix({'properties': {}}, data.images[i]);
-				delete(image.image);
+				// deep clone
+				image = Supra.mix({'properties': {}}, data.images[i], true);
+				
+				if (image.image && image.image.image) {
+					// There is cropping and size information, leave it intact
+					// only replace image info with id
+					image.image.image = image.image.image.id;
+				} else {
+					// No cropping or size information
+					delete(image.image);
+				}
 				
 				images.push(image);
 				for(var k=0; k<kk; k++) {

@@ -2,19 +2,19 @@
 {% set design = supraBlock.property('design') %}
 {% set images = supraBlock.property('images') %}
 
-{% if images|length %}
+{% if images|length or supra.cmsRequest %}
 
 	<div class="block gallery" data-refresh-event="gallery">
 	{% if style == "slideshow" %}
-	
+		
+		{% set width_full = 960 %}
+		{% set height_full = 358 %}
+		{% set ratio = height_full / width_full %}
+		
 		<div class="promo-slider design-{{ design }}" data-refresh-event="promo" data-style="thumbs-outer" data-animation="horizontal">
 			<ul>
 				{% for image in images %}
 				<li>
-					{% set width_full = 960 %}
-					{% set height_full = 358 %}
-					{% set ratio = height_full / width_full %}
-					
 					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 960 * ratio, true ) | raw %}
 					{% set tag_tablet = supraBlock.imageHtmlTag( image.imageId, 768, 768 * ratio, true ) | raw %}
 					{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, 420, 420 * ratio, true ) | raw %}
@@ -41,6 +41,19 @@
 			</ul>
 			<div class="shadow"></div>
 		</div>
+		
+		{# Instructions how to render item in CMS Gallery manager edit mode #}
+		{% if supra.cmsRequest %}{% raw %}
+		<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
+			<li>
+				{% endraw %}<img src="about:blank" alt="" width="{{ width_full }}" height="{{ height_full }}" />{% raw %}
+				<div>
+					<h2>{{ property.title }}</h2>
+					<p>{{ property.description }}</p>
+				</div>
+			</li>
+		</script>
+		{% endraw %}{% endif %}
 	
 	{% elseif style == "grid" %}
 	
@@ -126,6 +139,31 @@
 				<li class="clear"></li>
 			</ul>
 		</div>
+		
+		{# Instructions how to render item in CMS Gallery manager edit mode #}
+		{% if supra.cmsRequest %}{% raw %}
+		<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
+			<li class="grid_4">
+				{% if design == "box" %}
+					
+					<span class="outer">
+						<span class="inner-text">
+							<h2>{{ property.title }}</h2>
+							<p>{{ property.description }}</p>
+						</span>
+						<img src="about:blank" alt="" width="220" height="125" />
+					</span>
+				
+				{% else %}
+				
+					<img src="about:blank" alt="" width="220" height="125" />
+					<h2>{{ property.title }}</h2>
+					<p>{{ property.description }}</p>
+				
+				{% endif %}
+			</li>
+		</script>
+		{% endraw %}{% endif %}
 
 	{% endif %}
 	</div>

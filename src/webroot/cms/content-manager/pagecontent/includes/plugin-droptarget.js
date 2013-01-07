@@ -44,6 +44,18 @@ YUI.add('supra.page-content-droptarget', function (Y) {
 		fn_mouse_up: null,
 		
 		
+		destroy: function () {
+			// Remove callbacks
+			this.onDragEnd();
+			
+			// Purge source node events
+			var node = this.get('srcNode');
+			node.purge();
+			
+			// Clean up
+			this.set('srcNode', null);
+			this.detachAll();
+		},
 		
 		/**
 		 * Returns item data which is being dragged

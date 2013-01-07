@@ -48,8 +48,6 @@ YUI.add("supra.page-content-ordering", function (Y) {
 		destructor: function () {
 			if (this.dragDelegate) {
 				var dragDelegate = this.dragDelegate;
-				
-				//Make sure targets are destroyed
 				this.dragDelegate = null;
 				dragDelegate.destroy();
 			}
@@ -142,12 +140,6 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			
 			this.dragSelector = selector;
 			
-			//DD must be initialized for iframe
-			if (!Y.UA.ie) {
-				//IE fails when trying to do this
-				PageContent.initDD(this.get("host").get("doc"));
-			}
-			
 			var del = this.dragDelegate = new Y.DD.Delegate({
 				"container": container,
 				"nodes": selector,
@@ -171,13 +163,8 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			//Use throttle, because drag event executes very often and affects performance
 			del.on("drag:drag", Y.throttle(Y.bind(this.onDragDrag, this), 50));
 			
-			//Restore document
-			if (!Y.UA.ie) {
-				//IE fails when trying to do this
-				PageContent.initDD(document);
-			}
-			
 			//When blocks are added or removed sync drag and drop
+			//this.afterHostMethod("createChildren", this.dragDelegate.syncTargets, this.dragDelegate);
 			this.afterHostMethod("createChildren", this.dragDelegate.syncTargets, this.dragDelegate);
 		},
 		

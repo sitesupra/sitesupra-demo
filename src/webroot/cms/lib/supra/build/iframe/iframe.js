@@ -76,6 +76,11 @@ YUI().add('supra.iframe', function (Y) {
 		'stylesheetParser': {
 			value: null,
 			getter: '_getStylesheetParser'
+		},
+		
+		// Automatically initialize listeners for handling drag and drop
+		'initDndListeners': {
+			value: true
 		}
 	};
 	
@@ -180,6 +185,11 @@ YUI().add('supra.iframe', function (Y) {
 			//Trigger ready event
 			this.fire('ready', {'iframe': this, 'body': body, 'doc': doc});
 			this.get('contentBox').fire('ready');
+			
+			//Register document with DDM
+			if (this.get('initDndListeners') && Y.DD) {
+				Y.DD.DDM.regDoc(doc);
+			}
 		},
 		
 		/**
@@ -192,6 +202,11 @@ YUI().add('supra.iframe', function (Y) {
 				parser = this.stylesheetParser;
 			
 			if (doc) {
+				//Unregister document from DDM
+				if (this.get('initDndListeners') && Y.DD) {
+					Y.DD.DDM.unregDoc(doc);
+				}
+				
 				//Remove all listeners
 				Y.Node(doc).destroy(true);
 				doc.location = 'about:blank';

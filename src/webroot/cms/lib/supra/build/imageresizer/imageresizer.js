@@ -451,20 +451,22 @@ YUI().add("supra.imageresizer", function (Y) {
 						"width": this.cropWidth + "px",
 						"height": this.cropHeight + "px"
 					});
-					image.setStyle("margin", - this.cropTop + "px 0 0 -" + this.cropLeft + "px");
 				} else {
 					//Crop resize not allowed, validate new size against crop
 					if (this.cropTop + this.cropHeight > this.imageHeight) {
+						this.cropTop = Math.max(0, this.imageHeight - this.cropHeight);
 						this.imageHeight = this.cropTop + this.cropHeight;
 						this.imageWidth = ~~(this.imageHeight * ratio);
 					}
 					if (this.cropLeft + this.cropWidth > this.imageWidth) {
+						this.cropLeft = Math.max(0, this.imageWidth - this.cropWidth);
 						this.imageWidth = this.cropLeft + this.cropWidth;
 						this.imageHeight = ~~(this.imageWidth / ratio);
 					}
 				}
 				
 				image.setStyles({
+					"margin": - this.cropTop + "px 0 0 -" + this.cropLeft + "px",
 					"width": this.imageWidth + "px",
 					"height": this.imageHeight + "px"
 				});

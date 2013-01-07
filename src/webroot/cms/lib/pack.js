@@ -473,6 +473,21 @@ if (typeof Supra === "undefined") {
 	};
 	
 	/**
+	 * Add list of modules to the definitions list
+	 * 
+	 * @param {Object} definitions Module definitions
+	 */
+	Supra.addModules = function (definitions) {
+		if (Y.Lang.isObject(definitions)) {
+			for (var key in definitions) {
+				
+				Supra.addModule(key, definitions[key]);
+				
+			}
+		}
+	};
+	
+	/**
 	 * Set path to modules with 'website' prefix
 	 * 
 	 * @param {String} path
@@ -532,6 +547,7 @@ Supra.useModules = [
 	'cookie',
 	'transition',
 	
+	'supra.dd-ddm',
 	'supra.event',
 	'supra.deferred',
 	'supra.intl',
@@ -633,6 +649,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'uploader/uploader.js',
 		requires: [
 			'supra.io-upload'
+		]
+	},
+	
+	/**
+	 * Y.DD.DDM extension to allow shims for multiple documents
+	 */
+	'supra.dd-ddm': {
+		path: 'dd-ddm/dd-ddm.js',
+		requires: [
+			'dd-ddm'
 		]
 	},
 	
@@ -1939,7 +1965,186 @@ Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
 */
-YUI.add("dd-delegate",function(e){var d=function(f){d.superclass.constructor.apply(this,arguments);},c="container",b="nodes",a=e.Node.create("<div>Temp Node</div>");e.extend(d,e.Base,{_bubbleTargets:e.DD.DDM,dd:null,_shimState:null,_handles:null,_onNodeChange:function(f){this.set("dragNode",f.newVal);},_afterDragEnd:function(f){e.DD.DDM._noShim=this._shimState;this.set("lastNode",this.dd.get("node"));this.get("lastNode").removeClass(e.DD.DDM.CSS_PREFIX+"-dragging");this.dd._unprep();this.dd.set("node",a);},_delMouseDown:function(h){var g=h.currentTarget,f=this.dd;if(g.test(this.get(b))&&!g.test(this.get("invalid"))){this._shimState=e.DD.DDM._noShim;e.DD.DDM._noShim=true;this.set("currentNode",g);f.set("node",g);if(f.proxy){f.set("dragNode",e.DD.DDM._proxy);}else{f.set("dragNode",g);}f._prep();f.fire("drag:mouseDown",{ev:h});}},_onMouseEnter:function(f){this._shimState=e.DD.DDM._noShim;e.DD.DDM._noShim=true;},_onMouseLeave:function(f){e.DD.DDM._noShim=this._shimState;},initializer:function(g){this._handles=[];var h=this.get("dragConfig")||{},f=this.get(c);h.node=a.cloneNode(true);h.bubbleTargets=this;if(this.get("handles")){h.handles=this.get("handles");}this.dd=new e.DD.Drag(h);this.dd.after("drag:end",e.bind(this._afterDragEnd,this));this.dd.on("dragNodeChange",e.bind(this._onNodeChange,this));this.dd.after("drag:mouseup",function(){this._unprep();});this._handles.push(e.delegate(e.DD.Drag.START_EVENT,e.bind(this._delMouseDown,this),f,this.get(b)));this._handles.push(e.on("mouseenter",e.bind(this._onMouseEnter,this),f));this._handles.push(e.on("mouseleave",e.bind(this._onMouseLeave,this),f));e.later(50,this,this.syncTargets);e.DD.DDM.regDelegate(this);},syncTargets:function(){if(!e.Plugin.Drop||this.get("destroyed")){return;}var g,f,h;if(this.get("target")){g=e.one(this.get(c)).all(this.get(b));f=this.dd.get("groups");h=this.get("dragConfig");if(h&&"groups" in h){f=h.groups;}g.each(function(j){this.createDrop(j,f);},this);}return this;},createDrop:function(h,f){var g={useShim:false,bubbleTargets:this};if(!h.drop){h.plug(e.Plugin.Drop,g);}h.drop.set("groups",f);return h;},destructor:function(){if(this.dd){this.dd.destroy();}if(e.Plugin.Drop){var f=e.one(this.get(c)).all(this.get(b));f.unplug(e.Plugin.Drop);}e.each(this._handles,function(g){g.detach();});}},{NAME:"delegate",ATTRS:{container:{value:"body"},nodes:{value:".dd-draggable"},invalid:{value:"input, select, button, a, textarea"},lastNode:{value:a},currentNode:{value:a},dragNode:{value:a},over:{value:false},target:{value:false},dragConfig:{value:null},handles:{value:null}}});e.mix(e.DD.DDM,{_delegates:[],regDelegate:function(f){this._delegates.push(f);},getDelegate:function(g){var f=null;g=e.one(g);e.each(this._delegates,function(h){if(g.test(h.get(c))){f=h;}},this);return f;}});e.namespace("DD");e.DD.Delegate=d;},"3.5.0",{skinnable:false,requires:["dd-drag","event-mouseenter","dd-drop-plugin"]});/**
+YUI.add("dd-delegate",function(e){var d=function(f){d.superclass.constructor.apply(this,arguments);},c="container",b="nodes",a=e.Node.create("<div>Temp Node</div>");e.extend(d,e.Base,{_bubbleTargets:e.DD.DDM,dd:null,_shimState:null,_handles:null,_onNodeChange:function(f){this.set("dragNode",f.newVal);},_afterDragEnd:function(f){e.DD.DDM._noShim=this._shimState;this.set("lastNode",this.dd.get("node"));this.get("lastNode").removeClass(e.DD.DDM.CSS_PREFIX+"-dragging");this.dd._unprep();this.dd.set("node",a);},_delMouseDown:function(h){var g=h.currentTarget,f=this.dd;if(g.test(this.get(b))&&!g.test(this.get("invalid"))){this._shimState=e.DD.DDM._noShim;e.DD.DDM._noShim=true;this.set("currentNode",g);f.set("node",g);if(f.proxy){f.set("dragNode",e.DD.DDM._proxy);}else{f.set("dragNode",g);}f._prep();f.fire("drag:mouseDown",{ev:h});}},_onMouseEnter:function(f){this._shimState=e.DD.DDM._noShim;e.DD.DDM._noShim=true;},_onMouseLeave:function(f){e.DD.DDM._noShim=this._shimState;},initializer:function(g){this._handles=[];var h=this.get("dragConfig")||{},f=this.get(c);h.node=a.cloneNode(true);h.bubbleTargets=this;if(this.get("handles")){h.handles=this.get("handles");}this.dd=new e.DD.Drag(h);this.dd.after("drag:end",e.bind(this._afterDragEnd,this));this.dd.on("dragNodeChange",e.bind(this._onNodeChange,this));this.dd.after("drag:mouseup",function(){this._unprep();});this._handles.push(e.delegate(e.DD.Drag.START_EVENT,e.bind(this._delMouseDown,this),f,this.get(b)));this._handles.push(e.on("mouseenter",e.bind(this._onMouseEnter,this),f));this._handles.push(e.on("mouseleave",e.bind(this._onMouseLeave,this),f));e.later(50,this,this.syncTargets);e.DD.DDM.regDelegate(this);},syncTargets:function(){if(!e.Plugin.Drop||this.get("destroyed")){return;}var g,f,h;if(this.get("target")){g=e.one(this.get(c)).all(this.get(b));f=this.dd.get("groups");h=this.get("dragConfig");if(h&&"groups" in h){f=h.groups;}g.each(function(j){this.createDrop(j,f);},this);}return this;},createDrop:function(h,f){var g={useShim:false,bubbleTargets:this};if(!h.drop){h.plug(e.Plugin.Drop,g);}h.drop.set("groups",f);return h;},destructor:function(){if(this.dd){this.dd.destroy();}if(e.Plugin.Drop){var f=e.one(this.get(c)).all(this.get(b));f.unplug(e.Plugin.Drop);}e.each(this._handles,function(g){g.detach();});}},{NAME:"delegate",ATTRS:{container:{value:"body"},nodes:{value:".dd-draggable"},invalid:{value:"input, select, button, a, textarea"},lastNode:{value:a},currentNode:{value:a},dragNode:{value:a},over:{value:false},target:{value:false},dragConfig:{value:null},handles:{value:null}}});e.mix(e.DD.DDM,{_delegates:[],regDelegate:function(f){this._delegates.push(f);},getDelegate:function(g){var f=null;g=e.one(g);e.each(this._delegates,function(h){if(g.test(h.get(c))){f=h;}},this);return f;}});e.namespace("DD");e.DD.Delegate=d;},"3.5.0",{skinnable:false,requires:["dd-drag","event-mouseenter","dd-drop-plugin"]});YUI.add('supra.dd-ddm', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	/*
+	 * Overwrite Y.DD.DDM shim activation to allow having separate shim for each document
+	 * because of iframes
+	 */
+	Supra.mix(Y.DD.DDM, {
+		
+		// Preserve original functions
+		_pg_activateOriginal: Y.DD.DDM._pg_activate,
+		_createPGOriginal: Y.DD.DDM._createPG,
+		
+		/**
+		 * Document body to which _pg belongs to
+		 * @private
+		 */
+		_pg_body: null,
+		
+		/**
+		 * List of all _pg elements and their document bodies
+		 * @private
+		 */
+		_pg_list: [],
+		
+		
+		/**
+		 * Add document to the list of documents to which shim should
+		 * be added
+		 */
+		regDoc: function (doc) {
+			var list = this._pg_list,
+				i = 0,
+				ii = list.length,
+				body = doc.body,
+				original = Y.config.doc,
+				_pg = this._pg,
+				object = null;
+			
+			for (; i<ii; i++) {
+				if (list[i]._pg_body === body) {
+					// Already exists
+					return;
+				}
+			}
+			
+			// If registering other document than this then reset _pg
+			if (doc !== original) {
+				this._pg = null;
+			}
+			
+			// Add to the list
+			list.push({
+				'_pg': this._pg,
+				'_pg_doc': doc,
+				'_pg_body': doc.body
+			});
+			
+			// Set up listeners
+			Y.config.doc = doc;
+			Y.DD.DDM._setupListeners();
+			Y.config.doc = original;
+			
+			// If registering other document than this then restore correct _pg 
+			if (doc !== original) {
+				this._pg = null;
+				this._pg_set(original);
+			}
+		},
+		
+		/**
+		 * Remove document from the list of documents
+		 */
+		unregDoc: function (doc) {
+			var list = this._pg_list,
+				i = 0,
+				ii = list.length,
+				body = doc.body;
+			
+			// To be sure all targets are deactivated
+			//this._deactivateTargets();
+			
+			for (; i<ii; i++) {
+				if (list[i]._pg_body === body) {
+					if (body === this._pg_body) {
+						// Set new document
+						this._pg_set(document);
+					}
+					list.splice(i, 1);
+					return;
+				}
+			}
+		},
+		
+		/**
+		 * Activates the shim for document in which active drag element is inside
+		 * if document was added using addDoc()
+		 * 
+		 * @private
+		 */
+		_pg_activate: function () {
+			var node = this.activeDrag.get('node'),
+				doc  = node.getDOMNode().ownerDocument,
+				original_doc = Y.config.doc,
+				//doc  = document,
+				//original_doc = document,
+				body = doc.body,
+				create = false;
+			
+			// If current pg owner document body doesn't match then search
+			// for existing from the list
+			if (this._pg_body !== body) {
+				this._pg_set(doc);
+			}
+			
+			this._pg_activateOriginal();
+			
+			// Restore original document in config after _pg has been created
+			Y.config.doc = original_doc;
+		},
+		
+		/**
+		 * Finds document in the list of registered documents
+		 * 
+		 * @param {Object} doc Document
+		 * @returns {Object} Object with document, body and shim node
+		 * @private
+		 */
+		_pg_find: function (doc) {
+			var list = this._pg_list,
+				i = 0,
+				ii = list.length,
+				body = doc.body;
+			
+			for (; i<ii; i++) {
+				if (list[i]._pg_body === body) {
+					return list[i];
+				}
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Set document as active
+		 * 
+		 * @param {Object} doc Document element
+		 * @private
+		 */
+		_pg_set: function (doc) {
+			var item = this._pg_find(doc);
+			if (item) {
+				// Found a match
+				this._pg_body = item._pg_body;
+				this._pg = item._pg;
+				
+				// Update document
+				Y.config.doc = item._pg_doc;
+			}
+		},
+		
+		/**
+		 * Create shim element and save it in the registered document list
+		 * 
+		 * @private
+		 */
+		_createPG: function () {
+			this._createPGOriginal();
+			
+			// Save _pg element
+			this._pg_find(Y.config.doc)._pg = this._pg;
+		}
+		
+	});
+	
+	// Register self immediatelly
+	Y.DD.DDM.regDoc(Y.config.doc);
+	
+}, YUI.version, {'requires': ['dd-ddm']});/**
  * Adds on('exist', ...) event to YUI Event class
  * 
  * Usage:
@@ -3855,7 +4060,7 @@ YUI.add('supra.base', function (Y) {
 	
 	
 }, YUI.version, {'requires': ['node-focusmanager', 'widget', 'widget-child']});/**
- * Plugin to add editing functionality for MediaList
+ * Plugin to link button and input so that button represents input value
  */
 YUI.add('supra.button-plugin-input', function (Y) {
 	//Invoke strict mode
@@ -7512,7 +7717,7 @@ YUI.add('supra.input-text', function (Y) {
 			
 			this.initPlugins();
 			
-			this._changed = Y.throttle(Y.bind(this._changed, this), 1000);
+			this._changed = Supra.throttle(this._changed, 1000, this);
 			
 			this.setHTML(this.get('srcNode').get('innerHTML'));
 		},
@@ -10471,20 +10676,22 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						"width": this.cropWidth + "px",
 						"height": this.cropHeight + "px"
 					});
-					image.setStyle("margin", - this.cropTop + "px 0 0 -" + this.cropLeft + "px");
 				} else {
 					//Crop resize not allowed, validate new size against crop
 					if (this.cropTop + this.cropHeight > this.imageHeight) {
+						this.cropTop = Math.max(0, this.imageHeight - this.cropHeight);
 						this.imageHeight = this.cropTop + this.cropHeight;
 						this.imageWidth = ~~(this.imageHeight * ratio);
 					}
 					if (this.cropLeft + this.cropWidth > this.imageWidth) {
+						this.cropLeft = Math.max(0, this.imageWidth - this.cropWidth);
 						this.imageWidth = this.cropLeft + this.cropWidth;
 						this.imageHeight = ~~(this.imageWidth / ratio);
 					}
 				}
 				
 				image.setStyles({
+					"margin": - this.cropTop + "px 0 0 -" + this.cropLeft + "px",
 					"width": this.imageWidth + "px",
 					"height": this.imageHeight + "px"
 				});
@@ -11156,9 +11363,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					{"id": "title", "type": "String", "label": Supra.Intl.get(["htmleditor", "image_title"]), "value": ""},
 					{"id": "description", "type": "String", "label": Supra.Intl.get(["htmleditor", "image_description"]), "value": ""},
 					{"id": "align", "style": "minimal", "type": "SelectList", "label": Supra.Intl.get(["htmleditor", "image_alignment"]), "value": "right", "values": [
-						{"id": "left", "title": Supra.Intl.get(["htmleditor", "alignment_left"]), "icon": "/cms/lib/supra/img/htmleditor/align-left.png"},
-						{"id": "middle", "title": Supra.Intl.get(["htmleditor", "alignment_center"]), "icon": "/cms/lib/supra/img/htmleditor/align-center.png"},
-						{"id": "right", "title": Supra.Intl.get(["htmleditor", "alignment_right"]), "icon": "/cms/lib/supra/img/htmleditor/align-right.png"}
+						{"id": "left", "title": Supra.Intl.get(["htmleditor", "alignment_left"]), "icon": "/cms/lib/supra/img/htmleditor/align-left-button.png"},
+						{"id": "middle", "title": Supra.Intl.get(["htmleditor", "alignment_center"]), "icon": "/cms/lib/supra/img/htmleditor/align-center-button.png"},
+						{"id": "right", "title": Supra.Intl.get(["htmleditor", "alignment_right"]), "icon": "/cms/lib/supra/img/htmleditor/align-right-button.png"}
 					]},
 					{"id": "style", "style": "minimal", "type": "SelectVisual", "label": Supra.Intl.get(["htmleditor", "image_style"]), "value": "default", "values": []}
 				],
@@ -26827,6 +27034,13 @@ YUI.add('supra.datatype-color', function(Y) {
 		},
 		
 		/**
+		 * Stop editing image
+		 */
+		stopEditingImage: function () {
+			imageResizer.set("image", null);
+		},
+		
+		/**
 		 * Remove selected image
 		 */
 		removeImage: function () {
@@ -29308,6 +29522,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @private
 		 */
 		_setDisabled: function (value) {
+			if (value) {
+				this.blur();
+			}
+			
 			if (this.htmleditor) {
 				this.htmleditor.set('disabled', !!value);
 				return !!value;
@@ -29410,15 +29628,27 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	
 	for (var i in HTML_CHARS) {
 		HTML_CHARS_INVERSE[HTML_CHARS[i].toLowerCase()] = i;
-		HTML_CHARS_REGEXP += '\\' + i;
+		
+		if (i != ' ') {
+			// We escaping characters leave whitespace as is
+			HTML_CHARS_REGEXP += '\\' + i;
+		}
 	}
 	
 	HTML_CHARS_REGEXP = new RegExp('[' + HTML_CHARS_REGEXP + ']', 'g');
 	
+	/**
+	 * Escape HTML character for safe use in HTML
+	 * Used in 'value' attribute setter / when setting value
+	 */
 	function escapeHtml (chr) {
 		return HTML_CHARS[chr] || chr;
 	}
 	
+	/**
+	 * Unescape HTML character for string
+	 * Used in 'value' and 'saveValue' attribute getter / when getting value
+	 */
 	function unescapeHtml (ent) {
 		return HTML_CHARS_INVERSE[ent.toLowerCase()] || ent;
 	}
@@ -29481,7 +29711,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		_getSaveValue: function (value) {
 			if (this.htmleditor) {
 				value = this.htmleditor.getProcessedHTML();
+				
+				// Remove all tags
 				value = value.replace(/<[^>]+>/g, '');
+				// Unescape characters
 				value = value.replace(/&.*?;/g, unescapeHtml);
 			}
 			
@@ -29521,8 +29754,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * On blur move carret to the body
 		 */
 		blur: function () {
-			if (this.get('disabled')) return;
 			Input.superclass.blur.apply(this, arguments);
+			if (this.get('disabled')) return;
 			
 			if (this.htmleditor) {
 				//Set carret position to body
@@ -31288,10 +31521,12 @@ YUI.add('supra.plugin-layout', function (Y) {
 			
 			this.get('boundingBox')
 					.addClass('input-group')
-					.addClass('input-group-button');
+					.addClass('input-group-button')
+					.addClass('button-section');
 			
 			var button = new Supra.Button({
-				'label': this.get('label')
+				'label': this.get('label'),
+				'style': 'small-gray'
 			});
 			button.render(this.get('boundingBox'));
 			this.set('button', button);
