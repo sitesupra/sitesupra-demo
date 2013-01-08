@@ -88,7 +88,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 	 * Constant, empty folder template
 	 * @type {String}
 	 */
-	List.TEMPLATE_EMPTY = Template.compile('<div class="empty" data-id="{{ id }}"></div>');
+	List.TEMPLATE_EMPTY = Template.compile('<div class="empty' + (FILE_API_SUPPORTED ? ' empty-dnd' : '') + '" data-id="{{ id }}"></div>');
 	
 	/**
 	 * Constant, folder template
@@ -1338,7 +1338,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					slide_content.append(node);
 					slide_content.closest('.su-multiview-slide, .su-slide').removeClass('su-slide-full-width');
 					
-					if (!append) {
+					if (!append && FILE_API_SUPPORTED) {
 						slide_content.append(Y.Node.create('<div class="dnd-marker"></div>'));
 					}
 					
