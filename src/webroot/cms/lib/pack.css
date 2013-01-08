@@ -945,7 +945,8 @@ button::-moz-focus-inner { border:0; }
   box-shadow:0 2px 5px rgba(0,0,0,0.75) inset, 0 1px 0 rgba(52,51,66,0.75);
 }
 .ui-center-dark .yui3-input input, .ui-center-dark .yui3-input textarea, .ui-center-dark .yui3-input iframe {
-  color:#58586c;
+  color:#8f8f9a;
+  line-height:24px;
   background:url(../img/background-pattern-darker.jpg) 0 0 repeat;
   box-shadow:0 1px 1px rgba(1,1,8,0.6) inset;
   box-shadow:0 1px 1px rgba(1,1,8,0.6) inset, 0 1px 0 rgba(255,255,255,0.15);
