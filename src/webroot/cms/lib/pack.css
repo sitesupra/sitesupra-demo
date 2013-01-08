@@ -434,6 +434,7 @@ http://yuilibrary.com/license/
   padding:10px 15px;
   color:#ffffff;
 }
+.su-tooltip .su-tooltip-content { outline:0; }
 .su-tooltip .su-panel-arrow-top {
   background-image:url(/cms/lib/supra/img/panel/tooltip-arrow-top.png);
   top:-11px !important;
