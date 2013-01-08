@@ -145,9 +145,11 @@ function (Y) {
 		 * @constructor
 		 */
 		initialize: function () {
+			/*
 			this.widgets.inbox = new Supra.Inbox({
 				"srcNode": this.one("div.dashboard-inbox")
 			});
+			*/
 			this.widgets.keywords = new Supra.Stats({
 				"srcNode": this.one("div.dashboard-keywords")
 			});
@@ -183,7 +185,7 @@ function (Y) {
 			Y.one("body").removeClass("loading");
 			
 			//Stats widgets
-			this.widgets.inbox.render();
+			//this.widgets.inbox.render();
 			this.widgets.keywords.render();
 			this.widgets.referring.render();
 			
@@ -244,7 +246,7 @@ function (Y) {
 			if (this.loaded) return;
 			this.loaded = true;
 			
-			this.loadInboxData();
+			//this.loadInboxData();
 			this.loadApplicationData();
 			this.loadVisitorsData();
 			this.loadStatisticsData();
