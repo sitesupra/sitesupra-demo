@@ -919,16 +919,18 @@ YUI.add('supra.page-content-proto', function (Y) {
 				region = cache[id];
 				if (region.left <= xy[0] && region.right >= xy[0] && region.top <= xy[1] && region.bottom >= xy[1]) {
 					positionId = id;
-					positionBefore = true;
+					positionBefore = (region.height / 2 > xy[1] - region.top);
 					positionRegion = region;
 					matched = true;
 					
+					/*
 					if (this.blockDropPositionId == positionId) {
 						// User hovered same item again, alternate between
 						// insert before and insert after because drop marker
 						// is either before this item or after
 						positionBefore = !this.blockDropPositionBefore;
 					}
+					*/
 				}
 			}
 			
