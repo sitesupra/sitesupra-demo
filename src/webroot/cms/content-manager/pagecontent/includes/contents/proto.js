@@ -30,8 +30,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
 		CLASSNAME_OVERLAY_TITLE = getClassName('content', 'overlay', 'title'),		// yui3-content-overlay-title
 		CLASSNAME_DRAGGABLE = getClassName('content', 'draggable'),					// yui3-content-draggable
-		CLASSNAME_MARKER = getClassName('content', 'marker'),						// yui3-content-marker
+		CLASSNAME_MARKER = getClassName('content', 'visual-cue'),					// yui3-content-visual-cue
+		CLASSNAME_MARKER_TITLE = getClassName('content', 'visual-cue', 'title'),	// yui3-content-visual-cue-title
 		CLASSNAME_EDITING = 'editing';												// editing
+	
+	var TEMPLATE_MARKER = '<div class=""'
 	
 	ContentProto.ATTRS = {
 		'data': {
@@ -187,6 +190,16 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.node = this.get('body').one('#' + this.getNodeId());
 			}
 			return this.node;
+		},
+		
+		/**
+		 * Returns overlay node
+		 * 
+		 * @return Overlay node
+		 * @type {Object}
+		 */
+		getOverlayNode: function () {
+			return this.overlay;
 		},
 		
 		/**
@@ -853,14 +866,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * If event object is not passed, then removes marker
 		 * 
 		 * @param {Object} e Event facade object, optional
+		 * @param {String} title Block title
 		 */
-		markDropPosition: function (e) {
+		markDropPosition: function (e, title) {
 			if (!e) {
 				return this._markDropPosition(null, false, null);
 			}
 			
 			var position = this.getDropPosition(e);
-			this._markDropPosition(position);
+			this._markDropPosition(position, title);
 		},
 		
 		/**
@@ -885,7 +899,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 				positionId = null,
 				positionBefore = false,
 				positionRegion = null,
-				hasChildren = false;
+				hasChildren = false,
+				matched = false;
 			
 			if (!this.blockDropCache) {
 				var children = this.children;
@@ -896,28 +911,44 @@ YUI.add('supra.page-content-proto', function (Y) {
 					region = children[id].getNode().get("region");
 					cache[id] = region;
 				}
-				
-				this.blockDropPositionId = null;
-				this.blockDropPositionBefore = false;
 			}
 			
+			// Check if hovering any child block
 			for (id in cache) {
 				hasChildren = true;
 				region = cache[id];
 				if (region.left <= xy[0] && region.right >= xy[0] && region.top <= xy[1] && region.bottom >= xy[1]) {
 					positionId = id;
-					positionBefore = (region.height / 2 > xy[1] - region.top);
+					positionBefore = true;
 					positionRegion = region;
+					matched = true;
+					
+					if (this.blockDropPositionId == positionId) {
+						// User hovered same item again, alternate between
+						// insert before and insert after because drop marker
+						// is either before this item or after
+						positionBefore = !this.blockDropPositionBefore;
+					}
 				}
 			}
 			
-			if (!hasChildren && !this.isClosed()) {
-				//Drop on empty list or can't drop on any of the children
+			// Check if hovering this list at all
+			if (!matched && !this.isClosed()) {
 				region = this.listDropCache || (this.listDropCache = this.getNode().get('region'));
 				
 				if (region.left <= xy[0] && region.right >= xy[0] && region.top <= xy[1] && region.bottom >= xy[1]) {
-					positionId = this.getId();
-					positionRegion = region;
+					
+					if (!hasChildren) {
+						// There are no hoverable items inside the list
+						// Report list itself
+						positionId = this.getId();
+						positionRegion = region;
+					} else {
+						// Most likely still hovered over drop marker, so we report
+						// same item 
+						positionId = this.blockDropPositionId;
+						positionBefore = this.blockDropPositionBefore;
+					}
 				}
 			}
 			
@@ -947,42 +978,44 @@ YUI.add('supra.page-content-proto', function (Y) {
 		/**
 		 * Show marker at specific position
 		 * 
-		 * @param {String} positionId Children ID or null to remove marker
-		 * @param {Boolean} positionBefore Insert marker before child
-		 * @param {Object} positionRegion Children block node region
+		 * @param {Object} position Object with children ID, position and region
+		 * @param {String} title Block title which is inserted
 		 * @private
 		 */
-		_markDropPosition: function (position) {
+		_markDropPosition: function (position, title) {
 			var positionId = position ? position.id : null,
-				positionBefore = position ? position.before : false,
-				positionRegion = position ? position.region : null;
+				positionBefore = position ? position.before : false;
 			
 			if (this.blockDropPositionId != positionId || this.blockDropPositionBefore != positionBefore) {
-				var node = this.blockDropPositionMarker;
+				var node = this.blockDropPositionMarker,
+					reference = null;
 				
 				//We don't mark list, only children blocks
 				if (positionId) {
+					
 					if (!node) {
+						var title = Supra.Intl.get(["insertblock", "drop_to_insert"]).replace("{block}", title || "");
+						
 						node = this.blockDropPositionMarker = Y.Node(this.get("doc").createElement("DIV")); // create using correct document object
 						node.addClass(CLASSNAME_MARKER);
-						this.get("body").append(node);
+						node.set("innerHTML", '<span></span><span class="' + CLASSNAME_MARKER_TITLE + '">' + title + '</span>');
 					}
 					
 					if (positionId != this.getId()) {
-						//Block
-						node.setStyles({
-							"left": positionRegion.left + "px",
-							"top": (positionBefore ? positionRegion.top + 1 : positionRegion.bottom + 1) + "px",
-							"width": positionRegion.width + "px"
-						});
+						// Block
+						if (positionBefore) {
+							reference = this.children[positionId].getOverlayNode();
+							reference.insert(node, "before");
+						} else {
+							reference = this.children[positionId].getNode();
+							reference.insert(node, "after");
+						}
 					} else {
-						//List
-						node.setStyles({
-							"left": positionRegion.left + 2 + "px",
-							"top": positionRegion.bottom + "px",
-							"width": positionRegion.width - 4 + "px"
-						});
+						// List
+						reference = this.getNode();
+						reference.appendChild(node);
 					}
+					
 				} else {
 					if (node) {
 						node.remove(true);
@@ -992,6 +1025,14 @@ YUI.add('supra.page-content-proto', function (Y) {
 				
 				this.blockDropPositionId = positionId;
 				this.blockDropPositionBefore = positionBefore;
+				
+				// Reset cache for all blocks because order has changed
+				var blocks = this.get("super").getChildren(),
+					id = null;
+				
+				for (id in blocks) {
+					blocks[id].resetBlockPositionCache();
+				}
 			}
 		},
 		

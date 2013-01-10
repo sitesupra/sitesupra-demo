@@ -98,11 +98,13 @@
  * Overlay
  */
 .yui3-content-overlay,
-.yui3-editable .yui3-content-overlay.editing {
+.yui3-editable .yui3-content-overlay.editing,
+.yui3-content-visual-cue {
 	/* By default not visible */
 	display: none;
 }
-.yui3-editable .yui3-content-overlay {
+.yui3-editable .yui3-content-overlay,
+.yui3-editable .yui3-content-visual-cue {
 	/* Show if content is editable */
 	
 	display: block;
@@ -131,28 +133,29 @@
 		
 		background: url(/cms/lib/supra/img/htmleditor/editable-background.gif) 0 0 no-repeat;
 	}
-	
-	span.yui3-content-overlay-title {
-		display: none;
-		width: auto;
-		height: auto;
-		margin: -15px 0 0 0;
-		padding: 0 8px;
-		background: #009DF8;
-		left: 20px;
-		.border-radius (4px);
-		.box-shadow (none);
-		
-		// Text styles
-		text-align: left !important;
-		font: 18px/30px Arial, Helvetica, sans-serif !important;
-		font-weight: bold !important;
-		font-style: normal !important;
-		color: #fff !important;
-		text-shadow: none;
-		white-space: nowrap !important;
-	}
 }
+.yui3-editable .yui3-content-overlay span.yui3-content-overlay-title,
+.yui3-editable .yui3-content-visual-cue span.yui3-content-visual-cue-title {
+	display: none;
+	width: auto;
+	height: auto;
+	margin: -15px 0 0 0;
+	padding: 0 8px;
+	background: #009DF8;
+	left: 20px;
+	.border-radius (4px);
+	.box-shadow (none);
+	
+	// Text styles
+	text-align: left !important;
+	font: 18px/30px Arial, Helvetica, sans-serif !important;
+	font-weight: bold !important;
+	font-style: normal !important;
+	color: #fff !important;
+	text-shadow: none;
+	white-space: nowrap !important;
+}
+	
 .yui3-editable .yui3-content-overlay:hover,
 .yui3-editable .yui3-content-overlay-hover,
 .yui3-editable .yui3-content-overlay-loading {
@@ -174,6 +177,19 @@
 	span.yui3-content-overlay-title {
 		display: none;
 	}
+}
+
+/* Block insert visual cue */
+.yui3-editable .yui3-content-visual-cue {
+	// Gray
+	position: relative;
+	z-index: 10000;
+	border-color: #606060;
+	min-height: 60px;
+}
+.yui3-editable .yui3-content-visual-cue span.yui3-content-visual-cue-title {
+	background-color: #797979;
+	color: #000 !important;
 }
 
 /* Overlay loading indicator */
@@ -204,7 +220,7 @@
 .yui3-editable .yui3-content-reorder,
 .yui3-editable .yui3-content-insert {
 	/* While reordering make sure we can drop on list and it's visible */
-	min-height: 50px;
+	min-height: 60px;
 	
 	border: 2px solid #999 !important;
 	position: relative !important;
@@ -213,7 +229,8 @@
 	.border-radius (5px);
 	opacity: 0.75;
 	
-	.yui3-content-overlay {
+	.yui3-content-overlay,
+	.yui3-content-visual-cue {
 		/* All overlays */
 		opacity: 1;
 		background: none;
@@ -227,9 +244,10 @@
 			display: none;
 			cursor: default;
 		}
-		span.yui3-content-overlay-title {
-			display: block;
-		}
+	}
+	.yui3-content-overlay span.yui3-content-overlay-title,
+	.yui3-content-visual-cue span.yui3-content-visual-cue-title {
+		display: block;
 	}
 	
 	.yui3-content-proxy {
@@ -239,6 +257,23 @@
 	.yui3-dd-dragging {
 		/* Overlay node */
 		display: none;
+	}
+}
+
+.yui3-editable .yui3-content-insert .yui3-content-visual-cue {
+	margin: 0 -2px;
+	
+	&:first-child {
+		margin-top: -2px;
+		padding-top: 2px;
+	}
+	&:last-child {
+		margin-bottom: -2px;
+		padding-bottom: 2px;
+	}
+	&:only-child {
+		margin: -2px;
+		padding: 0;
 	}
 }
 

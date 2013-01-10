@@ -148,23 +148,25 @@ YUI.add('supra.iframe-contents', function (Y) {
 			//Bind block D&D
 			this.on('block:dragend', function (e) {
 				if (e.block) {
-					var children = this.children;
+					var children = this.getAllChildren();
 					
 					for(var i in children) {
-						//Check if it was dropped on this list
-						var position = children[i].getDropPosition();
-						
-						//Remove mark and saved drop position
-						children[i].markDropPosition(null);
-						
-						if (position.id) {
-							//If droped on the list but not children block then there is no need to send reference
-							if (position.id == children[i].getId()) {
-								position.id = null;
-							}
+						if (children[i].isInstanceOf('page-content-list')) {
+							//Check if it was dropped on this child
+							var position = children[i].getDropPosition();
 							
-							//Was dropped on block
-							return children[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block, insertReference: position.id, insertBefore: position.before});
+							//Remove mark and saved drop position
+							children[i].markDropPosition(null);
+							
+							if (position.id) {
+								//If droped on the list but not children block then there is no need to send reference
+								if (position.id == children[i].getId()) {
+									position.id = null;
+								}
+								
+								//Was dropped on block
+								return children[i].fire('dragend:hit', {dragnode: e.dragnode, block: e.block, insertReference: position.id, insertBefore: position.before});
+							}
 						}
 					}
 				}
@@ -181,11 +183,12 @@ YUI.add('supra.iframe-contents', function (Y) {
 				//Only if dragging block
 				if (e.block) {
 					var type = e.block.id,
-						children = this.children;
+						children = this.children,
+						title = e.block.title;
 					
 					for(var i in children) {
 						if (children[i].isChildTypeAllowed(type)) {
-							children[i].markDropPosition(e);
+							children[i].markDropPosition(e, title);
 						}
 					}
 				}
@@ -579,20 +582,23 @@ YUI.add('supra.iframe-contents', function (Y) {
 			this.set('disabled', value === true);
 			this.get('body').toggleClass('yui3-highlight', value === true);
 			
-			var children = this.children,
-				i = null;
+			var children = this.getAllChildren(),
+				child = null,
+				list_classname = 'page-content-list',
+				id = null;
 			
 			if (value && value !== true) {
-				for(i in children) {
-					if (children[i].isChildTypeAllowed(value)) {
-						children[i].getNode().addClass(CLASSNAME_INSERT);
+				for(id in children) {
+					child = children[id];
+					if (child.isInstanceOf(list_classname) && child.isChildTypeAllowed(value)) {
+						child.getNode().addClass(CLASSNAME_INSERT);
 					}
 				}
 			} else {
-				for(i in children) {
-					children[i].getNode().removeClass(CLASSNAME_INSERT);
+				for(id in children) {
+					children[id].getNode().removeClass(CLASSNAME_INSERT);
 				}
-			}		
+			}
 		},
 		
 		/**
