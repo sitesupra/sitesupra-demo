@@ -125,7 +125,7 @@ YUI.add('supra.page-content-list', function (Y) {
 				'value': data.html
 			}, {
 				'draggable': !this.isClosed(),
-				'editable': true
+				'editable': data.editable !== false
 			}, false, index);
 			
 			//Disable highlight, we will be editing this block

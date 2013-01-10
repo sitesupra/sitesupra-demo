@@ -593,7 +593,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
 					this.createChild(data.contents[i], {
 						'draggable': !data.contents[i].closed && !this.isClosed() && permission_order,
-						'editable': !data.contents[i].closed && permission_edit
+						'editable': !data.contents[i].closed && permission_edit && data.contents[i].editable !== false
 					}, true);
 				}
 			}

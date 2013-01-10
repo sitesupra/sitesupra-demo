@@ -245,7 +245,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 								'parent': null,
 								'super': this,
 								'draggable': !data[i].closed,
-								'editable': !data[i].closed
+								'editable': !data[i].closed && data[i].editable !== false
 							});
 							block.render();
 						} else {
