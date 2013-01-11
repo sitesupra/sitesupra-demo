@@ -171,7 +171,9 @@
 								{% endif %}
 								
 								{% if image != 'only' %}
-									{{ output.text(product, link) }}
+									<div class="inner-text">
+										{{ output.text(product, link) }}
+									</div>
 								{% endif %}
 								
 								{% if image != 'icon' %}
@@ -192,7 +194,9 @@
 							{% endif %}
 							
 							{% if image != 'only' %}
-								{{ output.text(product, link) }}
+								<div class="inner-text">
+									{{ output.text(product, link) }}
+								</div>
 							{% endif %}
 							
 							{% if link == 'overlay' %}
@@ -222,7 +226,7 @@
 							{% endif %}{% raw %}
 							
 							{% if image != 'only' %}
-							<span class="inner-text">
+							<div class="inner-text">
 								<h2>{{ property.title }}</h2>
 								<p>{{ property.description }}</p>
 								
@@ -231,7 +235,7 @@
 								{% elseif link == 'text' %}
 									<a class="link">{{ property.link_label }}</a>
 								{% endif %}
-							</span>
+							</div>
 							{% endif %}
 							
 							{% endraw %}{% if image != 'icon' %}
@@ -244,14 +248,16 @@
 						{% endraw %}{{ output.imageCMS(ratio, columns, padding) }}{% raw %}
 						
 						{% if image != 'only' %}
-							<h2>{{ property.title }}</h2>
-							<p>{{ property.description }}</p>
+							<div class="inner-text">
+								<h2>{{ property.title }}</h2>
+								<p>{{ property.description }}</p>
 							
-							{% if link == 'button' %}
-								<a class="button"><span><span>{{ property.link_label }}</span></span></a>
-							{% elseif link == 'text' %}
-								<a class="link">{{ property.link_label }}</a>
-							{% endif %}
+								{% if link == 'button' %}
+									<a class="button"><span><span>{{ property.link_label }}</span></span></a>
+								{% elseif link == 'text' %}
+									<a class="link">{{ property.link_label }}</a>
+								{% endif %}
+							</div>
 						{% endif %}
 						
 					{% endif %}
