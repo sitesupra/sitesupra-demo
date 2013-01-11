@@ -150,7 +150,6 @@ function (Y) {
 		 */
 		initialize: function () {
 			
-			
 			//On visibility change update container class and disable/enable toolbar
 			this.on('visibleChange', function (evt) {
 				if (evt.newVal) {
@@ -164,12 +163,9 @@ function (Y) {
 					this.data = null;
 				}
 				
-				if (this.settings_form && this.settings_form.get('visible')) {
-					Manager.PageContentSettings.hide();
-				}
-				
 				Manager.getAction('EditorToolbar').set('disabled', evt.newVal);
 			}, this);
+
 		},
 		
 		/**
@@ -196,7 +192,7 @@ function (Y) {
 		renderIframe: function () {
 			
 			// Item list renders all items
-			this.plug(Supra.GalleryManagerItemList);
+			this.plug(Supra.GalleryManagerItemList, {'visible': false});
 			
 			// Highlight will create elements for hover
 			this.itemlist.plug(Supra.GalleryManagerItemListHighlight);
@@ -525,6 +521,85 @@ function (Y) {
 			return this.itemlist.addImage(image_data);
 		},
 		
+		
+		/*
+		 * ---------------------------------- SHOW/HIDE ------------------------------------
+		 */
+		
+		
+		show: function () {
+			if (!this.get('visible')) {
+				this.set('visible', true);
+				this.animateIn();
+			}
+		},
+		
+		hide: function () {
+			if (this.get('visible')) {
+				// Hide settings form
+				if (this.settings_form && this.settings_form.get('visible')) {
+					Manager.PageContentSettings.hide();
+				}
+				
+				this.animateOut();
+			}
+		},
+		
+		animateIn: function () {
+			var node = this.one(),
+				width = Y.DOM.viewportRegion().width;
+			
+			// Update styles to allow 'left' animation
+			node.setStyles({
+				'width': width,
+				'right': 'auto',
+				'left': '100%'
+			});
+			
+			node.removeClass('hidden');
+			
+			// Animate position
+			node.transition({
+				'duration': 0.5,
+				'left': '0%'
+			}, Y.bind(function () {
+				node.setStyles({
+					'width': 'auto',
+					'left': '0px',
+					'right': '0px'
+				});
+				
+				this.itemlist.set('visible', true);
+			}, this));
+		},
+		
+		animateOut: function () {
+			var node = this.one(),
+				width = Y.DOM.viewportRegion().width;
+			
+			// Update styles to allow 'left' animation
+			node.setStyles({
+				'width': width,
+				'right': 'auto',
+				'left': '0%'
+			});
+			
+			// Animate position
+			node.transition({
+				'duration': 0.5,
+				'left': '100%'
+			}, Y.bind(function () {
+				node.addClass('hidden');
+				this.set('visible', false);
+			}, this));
+		},
+		
+		
+		/*
+		 * ---------------------------------- OPEN/SAVE ------------------------------------
+		 */
+		
+		
 		/**
 		 * Apply changes, call callback with new data
 		 * 
@@ -607,21 +682,11 @@ function (Y) {
 			this.image_properties = options.properties || [];
 			this.image_upload_folder = options.imageUploadFolder || 0;
 			
-			this.show();
-			
 			this.itemlist.set('showInsertControl', !options.shared);
+			this.itemlist.set('visible', false);
 			this.itemlist.reloadIframe();
-
-			/*
-			var insertButton = Manager.getAction('PageToolbar').getActionButton('gallery_manager_insert');
 			
-			// if gallery is shared, hide insert button
-			if (this.shared) {
-				insertButton.hide();
-			} else {
-				insertButton.show();
-			}
-			*/
+			this.show();
 		}
 		
 	});

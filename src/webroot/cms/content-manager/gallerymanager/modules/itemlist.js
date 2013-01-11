@@ -46,6 +46,12 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		'showInsertControl': {
 			value: true,
 			setter: '_setShowInsertControl'
+		},
+		// Visibility
+		'visible': {
+			value: true,
+			setter: '_setVisible',
+			getter: '_getVisible'
 		}
 	};
 	
@@ -137,7 +143,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		},
 		
 		
-		/* ---------------------------- ITEM DATA --------------------------- */
+		/* ---------------------------- ATTRIBUTES --------------------------- */
 		
 		
 		_setShowInsertControl: function (value) {
@@ -152,6 +158,30 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		/**
+		 * Visibility attribute setter
+		 * 
+		 * @param {Boolean} visible Visibility state
+		 * @returns {Boolean} New visibility state
+		 * @private
+		 */
+		_setVisible: function (visible) {
+			var iframe = this.get('iframe');
+			if (iframe) iframe.set('visible', visible);
+			return visible;
+		},
+		
+		/**
+		 * Visiblity attribute getter
+		 * 
+		 * @returns {Boolean} Visible attribute value
+		 * @private
+		 */
+		_getVisible: function () {
+			var iframe = this.get('iframe');
+			return iframe ? iframe.get('visible') : false;
 		},
 		
 		
@@ -778,8 +808,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * @private
 		 */
 		renderIframe: function () {
-			var iframe = new Supra.Iframe(),
-				host   = this.get('host');
+			var host   = this.get('host'),
+				iframe = new Supra.Iframe({
+					'visible': this.get('visible')
+				});
 			
  			iframe.render(host.one('.yui3-gallery-manager-content'));
  			iframe.addClass('fullscreen');
