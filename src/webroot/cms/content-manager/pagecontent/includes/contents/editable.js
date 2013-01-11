@@ -450,6 +450,94 @@ YUI.add('supra.page-content-editable', function (Y) {
 		},
 		
 		/**
+		 * Save state and trigger event before settings new HTML
+		 */
+		beforeSetHTML: function () {
+			//Get values
+			var values = this.properties.get('form').getValues('id'),
+				active_inline_property = this.get('active_inline_property'),
+				
+				children = this.children,
+				id = null;
+			
+			//Unset active inline property
+			if (active_inline_property) {
+				this.set('active_inline_property', null);
+			}
+			
+			//Save references
+			this._beforeSetHTMLValues = values;
+			this._beforeSetHTMLActiveInlineProperty = active_inline_property;
+			
+			//Clean up
+			this.fireContentEvent('cleanup', this.getNode().getDOMNode());
+			
+			//Traverse children
+			for (id in children) {
+				if (children[id].beforeSetHTML) {
+					children[id].beforeSetHTML();
+				}
+			}
+		},
+		
+		/**
+		 * Restore state and trigger event after settings new HTML
+		 */
+		afterSetHTML: function () {
+			var values = this._beforeSetHTMLValues,
+				active_inline_property = this._beforeSetHTMLActiveInlineProperty,
+				
+				children = this.children,
+				id = null;
+			
+			//Traverse children
+			for (id in children) {
+				if (children[id].afterSetHTML) {
+					children[id].afterSetHTML();
+				}
+			}
+			
+			//Remove temporary data
+			delete(this._beforeSetHTMLValues);
+			delete(this._beforeSetHTMLActiveInlineProperty);
+			
+			//Trigger refresh
+			this.fireContentEvent('refresh', this.getNode().getDOMNode());
+			
+			//Recreate inline inputs
+			var properties_handler	= this.properties,
+				properties			= properties_handler.get('properties'),
+				id					= null;
+			
+			for(var i=0, ii=properties.length; i<ii; i++) {
+				if (properties[i].inline) {
+					id = properties[i].id;
+					properties_handler.resetProperty(id, values[id]);
+				}
+			}
+			
+			//Update inline input list
+			this.findInlineInputs();
+			
+			//Restore current active inline property
+			if (active_inline_property) {
+				if (!(active_inline_property in this.inline_inputs)) {
+					for(active_inline_property in this.inline_inputs) {
+						//We need only first property
+						break;
+					}
+				}
+				if (active_inline_property in this.inline_inputs) {
+					this.set('active_inline_property', active_inline_property);
+				}
+			}
+			
+			//Update overlay position
+			//Use timeout to make sure everything is styled before doing sync
+			setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+		},
+		
+		/**
 		 * Update content HTML
 		 * Since inline inputs has references need to destroy and
 		 * recreate all inline inputs preserving current values
@@ -459,55 +547,15 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		_reloadContentSetHTML: function (data) {
 			if (data && data.internal_html) {
-				//Get values
-				var values = this.properties.get('form').getValues('id'),
-					active_inline_property = this.get('active_inline_property');
 				
-				//Unset active inline property
-				if (active_inline_property) {
-					this.set('active_inline_property', null);
-				}
-				
-				//Clean up
-				this.fireContentEvent('cleanup', this.getNode().getDOMNode());
+				//Save state and trigger event
+				this.beforeSetHTML();
 				
 				//Replace HTML
 				this.getNode().set('innerHTML', data.internal_html);
 				
-				//Trigger refresh
-				this.fireContentEvent('refresh', this.getNode().getDOMNode());
-				
-				//Recreate inline inputs
-				var properties_handler	= this.properties,
-					properties			= properties_handler.get('properties'),
-					id					= null;
-				
-				for(var i=0, ii=properties.length; i<ii; i++) {
-					if (properties[i].inline) {
-						id = properties[i].id;
-						properties_handler.resetProperty(id, values[id]);
-					}
-				}
-				
-				//Update inline input list
-				this.findInlineInputs();
-				
-				//Restore current active inline property
-				if (active_inline_property) {
-					if (!(active_inline_property in this.inline_inputs)) {
-						for(active_inline_property in this.inline_inputs) {
-							//We need only first property
-							break;
-						}
-					}
-					if (active_inline_property in this.inline_inputs) {
-						this.set('active_inline_property', active_inline_property);
-					}
-				}
-				
-				//Update overlay position
-				//Use timeout to make sure everything is styled before doing sync
-				setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+				//Restore state and trigger event
+				this.afterSetHTML();
 			}
 		},
 		
