@@ -882,46 +882,50 @@ class PageRequestEdit extends PageRequest
 								$relation = $em->getRepository(Entity\BlockRelation::CN())
 										->findOneByBlockId($oldBlockId);
 								/* @var $relation Entity\BlockRelation */
+								
+								$matchingBlock = null;
 
-								$groupId = $relation->getGroupId();
+								if ($relation instanceof Entity\BlockRelation) {
+									$groupId = $relation->getGroupId();
 
-								$matchingBlock = $em->createQueryBuilder()
-										->select('b')
+									$matchingBlock = $em->createQueryBuilder()
+											->select('b')
 
-										// All required tables
-										->from(Entity\BlockRelation::CN(), 'r')
-										->from(Entity\Abstraction\Block::CN(), 'b')
-										->join('b.placeHolder', 'ph')
-										->join('ph.localization', 'l')
+											// All required tables
+											->from(Entity\BlockRelation::CN(), 'r')
+											->from(Entity\Abstraction\Block::CN(), 'b')
+											->join('b.placeHolder', 'ph')
+											->join('ph.localization', 'l')
 
-										// condition to bind block and relation
-										->andWhere('r.blockId = b.id')
+											// condition to bind block and relation
+											->andWhere('r.blockId = b.id')
 
-										// group condition
-										->andWhere('r.groupId = :groupId')
-										->setParameter('groupId', $groupId)
+											// group condition
+											->andWhere('r.groupId = :groupId')
+											->setParameter('groupId', $groupId)
 
-										// locale condition
-										->andWhere('l.locale = :locale')
-										->setParameter('locale', $newLocale)
+											// locale condition
+											->andWhere('l.locale = :locale')
+											->setParameter('locale', $newLocale)
 
-//										// master condition
-//										->andWhere('l.master = :masterId')
-//										->setParameter('masterId', $masterId)
+	//										// master condition
+	//										->andWhere('l.master = :masterId')
+	//										->setParameter('masterId', $masterId)
 
-										->from(Entity\Abstraction\Block::CN(), 'b2')
-										->andWhere('b2.id = :oldBlockId')
-										->setParameter('oldBlockId', $oldBlockId)
-										->join('b2.placeHolder', 'ph2')
-										->join('ph2.localization', 'l2')
+											->from(Entity\Abstraction\Block::CN(), 'b2')
+											->andWhere('b2.id = :oldBlockId')
+											->setParameter('oldBlockId', $oldBlockId)
+											->join('b2.placeHolder', 'ph2')
+											->join('ph2.localization', 'l2')
 
-										// Find blocks with common parent master
-										->andWhere('l.master = l2.master')
+											// Find blocks with common parent master
+											->andWhere('l.master = l2.master')
 
-										// finally..
-										->getQuery()
-										->getOneOrNullResult();
-
+											// finally..
+											->getQuery()
+											->getOneOrNullResult();
+								}
+								
 								// Don't need such property..
 								if (empty($matchingBlock)) {
 									$em->remove($newEntity);
