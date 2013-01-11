@@ -408,9 +408,15 @@ YUI.add('supra.page-content-editable', function (Y) {
 				return;
 			}
 			
-			var uri = PageContent.getDataPath('contenthtml'),
+			var uri = null,
 				page_data = Page.getPageData(),
 				data = null;
+			
+			if (this.isList()) {
+				uri = PageContent.getDataPath('contenthtml-placeholder');
+			} else {
+				uri = PageContent.getDataPath('contenthtml');
+			}
 			
 			if ( ! this.properties) {
 				throw new Error("Properties not found for object " + this.constructor.name);
@@ -431,6 +437,14 @@ YUI.add('supra.page-content-editable', function (Y) {
 				this.properties.get('data').locked = data.locked;
 			} else if ('__locked__' in data.properties) {
 				delete(data.properties.__locked__);
+			}
+			
+			// If there is nothing to save, then ignore
+			if (!data.properties || Y.Object.isEmpty(data.properties)) {
+				if (Y.Lang.isFunction(callback)) {
+					callback(this);
+				}
+				return;
 			}
 			
 			Supra.io(uri, {

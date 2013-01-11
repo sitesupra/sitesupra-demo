@@ -10,9 +10,8 @@ YUI.add("supra.page-content-ordering", function (Y) {
 	var CLASSNAME_REORDER = Y.ClassNameManager.getClassName("content", "reorder"),		//yui3-content-reorder
 		CLASSNAME_DRAGING = Y.ClassNameManager.getClassName("content", "draging"),		//yui3-content-draging
 		CLASSNAME_PROXY = Y.ClassNameManager.getClassName("content", "proxy"),			//yui3-content-proxy
-		CLASSNAME_DRAGGABLE = Y.ClassNameManager.getClassName("content", "draggable"),	//yui3-content-draggable
-		CLASSNAME_OVERLAY = Y.ClassNameManager.getClassName("content", "overlay");		//yui3-content-overlay
-	
+		CLASSNAME_DRAGGABLE = 'su-overlay-draggable',
+		CLASSNAME_OVERLAY = 'su-overlay';
 	
 	/**
 	 * This is plugin for Supra.Manager.PageContent.IframeContents to enable block ordering
@@ -128,6 +127,13 @@ YUI.add("supra.page-content-ordering", function (Y) {
 		 */
 		dragBlockRegion: null,
 		
+		/**
+		 * Highlight mode before user started dragging
+		 * @type {String}
+		 * @private
+		 */
+		highlightModeBeforeDrag: null,
+		
 		
 		/**
 		 * Bind drag and drop
@@ -185,6 +191,9 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				block = this.get("host").getChildById(listRegions[i].id);
 				block.getNode().addClass(CLASSNAME_REORDER);
 			}
+			
+			this.highlightModeBeforeDrag = this.get('host').get('highlightMode');
+			this.get('host').set('highlightMode', 'order');
 			
 			//Add classname to proxy element
 	        var proxy = e.target.get("dragNode");
@@ -258,6 +267,8 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				block = this.get("host").getChildById(listRegions[i].id);
 				block.getNode().removeClass(CLASSNAME_REORDER);
 			}
+			
+			this.get('host').set('highlightMode', this.highlightModeBeforeDrag);
 			
 			//Remove classname from node which was dragged (not proxy node)
 			var node = e.target.get("node").next();

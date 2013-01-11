@@ -2209,6 +2209,7 @@ button::-moz-focus-inner { border:0; }
   box-shadow:none;
   margin-top:1px;
 }
+.gecko .yui3-editor-toolbar-text .su-button-group button, .gecko .yui3-editor-toolbar-table .su-button-group button { padding:0 3px; }
 .sidebar-content .style-list {
   background:#ffffff;
   padding:5px 5px 13px;

@@ -46,16 +46,17 @@ YUI.add('supra.iframe-contents', function (Y) {
 		'activeChild': {
 			value: null
 		},
+		
 		/*
 		 * Highlight list nodes
 		 */
-		'highlight': {
-			value: false,
-			setter: '_setHighlight'
+		'highlightMode': {
+			value: 'disabled',
+			setter: '_setHighlightMode'
 		},
-		'insertHighlight': {
-			value: false,
-			setter: '_setInsertHighlight'
+		
+		'highlightFilter': {
+			value: ''
 		}
 	};
 	
@@ -112,6 +113,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 								Root.router.save(uri);
 							}
 						}
+						this.set('highlightMode', 'edit');
 					}
 					if (evt.newVal && !evt.newVal.get('editing') && evt.newVal.get('editable')) {
 						evt.newVal.set('editing', true);
@@ -121,9 +123,13 @@ YUI.add('supra.iframe-contents', function (Y) {
 													  .replace(':block_id', evt.newVal.get('data').id);
 						
 						Root.router.save(uri);
+						this.set('highlightMode', 'disabled');
 					}
 				}
-			});
+			}, this);
+			
+			//Update children highlightMode after it has changed
+			this.after('highlightModeChange', this._afterHighlightModeChange, this);
 			
 			//Routing
 			Root.router.route(Root.ROUTE_PAGE_EDIT, Y.bind(this.routeMain, this));
@@ -175,7 +181,8 @@ YUI.add('supra.iframe-contents', function (Y) {
 			this.on('block:dragstart', function (e) {
 				//Only if dragging block
 				if (e.block) {
-					this.set('insertHighlight', e.block.id);
+					this.set('highlightModeFilter', e.block.id);
+					this.set('highlightMode', 'insert');
 				}
 			}, this);
 			
@@ -198,22 +205,13 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			//On block order change save
 			this.order.on("orderChange", this._onBlockOrderChange, this);
-			this.order.on("listChange", this._onBlockListChange, this);
+			this.order.on("listChange", this._onBlockOrderListChange, this);
 			
 			
 			//Fix context
 			var win = this.get('iframe').get('win');
 			this.resizeOverlays = Y.throttle(Y.bind(this.resizeOverlays, this), 50);
 			Y.on('resize', this.resizeOverlays, win);
-		},
-		
-		/**
-		 * Resize and reposition overlays
-		 */
-		resizeOverlays: function () {
-			for(var i in this.children) {
-				this.children[i].syncOverlayPosition();
-			}
 		},
 		
 		/**
@@ -337,6 +335,10 @@ YUI.add('supra.iframe-contents', function (Y) {
 			Supra.session.triggerActivity();
 		},
 		
+		
+		/* --------------------------- HANDLE ORDER CHANGE --------------------------- */
+		
+		
 		/**
 		 * Save block order request
 		 * 
@@ -415,10 +417,14 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 * @param {Object} e Event facade object
 		 * @private
 		 */
-		_onBlockListChange: function (e) {
+		_onBlockOrderListChange: function (e) {
 			this.sendBlockListChange(e.block, e.order);
 			this.resizeOverlays();
 		},
+		
+		
+		/* --------------------------- SAVE DATA --------------------------- */
+		
 		
 		/**
 		 * Save block properties
@@ -524,82 +530,6 @@ YUI.add('supra.iframe-contents', function (Y) {
 			//Global activity
 			Supra.session.triggerActivity();
 		},
-
-		// Seems this isn't used because it is not possible to delete a placeholder
-//		/**
-//		 * Remove child Supra.Manager.PageContent.Proto object
-//		 *
-//		 * @param {Object} child
-//		 */
-//		removeChild: function (child) {
-//			for(var i in this.children) {
-//				if (this.children[i] === child) {
-//
-//					//Send request
-//					this.sendBlockDelete(child, function (data, status) {
-//						if (status) {
-//							var node = child.getNode();
-//
-//							//Remove from child list
-//							delete(this.children[i]);
-//
-//							//Destroy block
-//							child.destroy();
-//							if (node) node.remove();
-//						} else {
-//							child.properties.showPropertiesForm();
-//						}
-//					}, this);
-//				}
-//			}
-//		},
-		
-		/**
-		 * highlight attribute setter
-		 * 
-		 * @param {Boolean} value If true highlight will be shown
-		 * @private
-		 */
-		_setHighlight: function (value) {
-			this.set('disabled', value);
-			this.get('body').toggleClass('yui3-highlight', value);
-			
-			if (!value) {
-				for (var i in this.children) {
-					this.children[i].set('highlight', false);
-				}
-			}
-			
-			return !!value;
-		},
-		
-		/**
-		 * insertHighlight attribute setter
-		 * 
-		 * @param {Boolean} value
-		 */
-		_setInsertHighlight: function (value) {
-			this.set('disabled', value === true);
-			this.get('body').toggleClass('yui3-highlight', value === true);
-			
-			var children = this.getAllChildren(),
-				child = null,
-				list_classname = 'page-content-list',
-				id = null;
-			
-			if (value && value !== true) {
-				for(id in children) {
-					child = children[id];
-					if (child.isInstanceOf(list_classname) && child.isChildTypeAllowed(value)) {
-						child.getNode().addClass(CLASSNAME_INSERT);
-					}
-				}
-			} else {
-				for(id in children) {
-					children[id].getNode().removeClass(CLASSNAME_INSERT);
-				}
-			}
-		},
 		
 		/**
 		 * Disable editing
@@ -613,6 +543,62 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			return !!value;
 		},
+		
+		
+		/* --------------------------- HIGHLIGHTING --------------------------- */
+		
+		
+		/**
+		 * Highlight mode attribute setter
+		 * 
+		 * @param {String} mode Higlight mode value
+		 * @returns {String} New highlight mode value
+		 * @private
+		 */
+		_setHighlightMode: function (mode) {
+			var old_mode = this.get('highlightMode'),
+				mode = mode || 'disabled',
+				node = this.get('body');
+			
+			if (node && old_mode != mode) {
+				this.get('body').replaceClass('su-highlight-' + old_mode, 'su-highlight-' + mode);
+			}
+			
+			return mode;
+		},
+		
+		/**
+		 * Highlight children blocks
+		 * 
+		 * @param {Object} evt Event facade object for highlight mode change
+		 * @private
+		 */
+		_afterHighlightModeChange: function (evt) {
+			var children = this.children,
+				id = null,
+				mode = evt.newVal,
+				old_mode = evt.prevVal;
+			
+			if (mode != old_mode) {
+				
+				for (id in children) {
+					children[id].set('highlightMode', mode);
+				}
+			}
+		},
+		
+		/**
+		 * Resize and reposition overlays
+		 */
+		resizeOverlays: function () {
+			for(var i in this.children) {
+				this.children[i].syncOverlayPosition();
+			}
+		},
+		
+		
+		/* --------------------------- CHILDREN --------------------------- */
+		
 		
 		/**
 		 * Returns child block by ID

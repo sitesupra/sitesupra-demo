@@ -195,7 +195,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 				editing = Root.ROUTE_PAGE_EDIT_R.test(path) || Root.ROUTE_PAGE_CONT_R.test(path);
 			
 			if (!editing) {
-				this.contents.set('highlight', true);
+				this.contents.set('highlightMode', 'disabled');
 			}
 			
 			this.contents.on('activeChildChange', function (event) {

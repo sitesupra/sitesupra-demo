@@ -24,17 +24,45 @@ YUI.add('supra.page-content-proto', function (Y) {
 	
 	//CSS classes
 	var CLASSNAME = getClassName('content'),										// yui3-content
-		CLASSNAME_OVERLAY = getClassName('content', 'overlay'),						// yui3-content-overlay
-		CLASSNAME_OVERLAY_CLOSED = getClassName('content', 'overlay', 'closed'),	// yui3-content-overlay-closed
+		
+		CLASSNAME_OVERLAY = 'su-overlay',
+		
+		CLASSNAME_OVERLAY_LIST = 'su-overlay-list',
+		CLASSNAME_OVERLAY_EDITABLE = 'su-overlay-editable',
+		CLASSNAME_OVERLAY_CLOSED = 'su-overlay-closed',
+		CLASSNAME_OVERLAY_HEIGHT = 'su-overlay-height',
+		
+		CLASSNAME_OVERLAY_NAME = 'su-overlay-name',
+		CLASSNAME_OVERLAY_ICON = 'su-overlay-icon',
+		
+		//CLASSNAME_OVERLAY = getClassName('content', 'overlay'),						// yui3-content-overlay
+		//CLASSNAME_OVERLAY_LIST = getClassName('content', 'overlay', 'list'),		// yui3-content-overlay-list
+		//CLASSNAME_OVERLAY_CLOSED = getClassName('content', 'overlay', 'closed'),	// yui3-content-overlay-closed
 		CLASSNAME_OVERLAY_HOVER = getClassName('content', 'overlay', 'hover'),		// yui3-content-overlay-hover
-		CLASSNAME_OVERLAY_LOADING = getClassName('content', 'overlay', 'loading'),	// yui3-content-overlay-loading
-		CLASSNAME_OVERLAY_TITLE = getClassName('content', 'overlay', 'title'),		// yui3-content-overlay-title
-		CLASSNAME_DRAGGABLE = getClassName('content', 'draggable'),					// yui3-content-draggable
-		CLASSNAME_MARKER = getClassName('content', 'visual-cue'),					// yui3-content-visual-cue
-		CLASSNAME_MARKER_TITLE = getClassName('content', 'visual-cue', 'title'),	// yui3-content-visual-cue-title
+		
+		CLASSNAME_OVERLAY_DRAGGABLE = 'su-overlay-draggable',
+		
+		CLASSNAME_MARKER = 'su-visual-cue',
+		CLASSNAME_MARKER_NAME = 'su-visual-cue-name',
+		
+		CLASSNAME_HIGHLIGHT = 'su-content-highlight',
+		
 		CLASSNAME_EDITING = 'editing';												// editing
 	
-	var TEMPLATE_MARKER = '<div class=""'
+	
+	var CLASSNAME_OVERLAY_MODE = {
+		'overlay-visible': 'su-overlay-visible',
+		'overlay-visible-hover': 'su-overlay-visible-hover',
+		'overlay-hidden': '',
+		
+		'icon-visible': 'su-overlay-icon-visible',
+		'icon-visible-hover': 'su-overlay-icon-visible-hover',
+		'icon-visible-loading': 'su-overlay-icon-visible-loading',
+		'icon-hidden': '',
+		
+		'name-visible': 'su-overlay-name-visible',
+		'name-hidden': ''
+	};
 	
 	ContentProto.ATTRS = {
 		'data': {
@@ -89,19 +117,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * Is block highlighted right now?
+		 * Highlight block
 		 */
-		'highlight': {
-			value: false,
-			setter: '_setHighlight'
-		},
-		
-		/**
-		 * If block overlay highlighted right now?
-		 */
-		'highlightOverlay': {
-			value: false,
-			setter: '_setHighlightOverlay'
+		'highlightMode': {
+			value: null,
+			setter: '_setHighlightMode'
 		},
 		
 		/**
@@ -152,6 +172,32 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @type {Object}
 		 */
 		overlay: null,
+		
+		/**
+		 * Last set highlight mode
+		 * @type {String|Null}
+		 */
+		highlight_mode: null,
+		
+		/**
+		 * Highlight mode class names
+		 * @type {String}
+		 */
+		highlight_mode_classname: null,
+		highlight_mode_icon_classname: null,
+		highlight_mode_name_className: null,
+		
+		/**
+		 * Last known container highlight state
+		 * @type {Boolean}
+		 */
+		highlight_container: false,
+		
+		/**
+		 * Block is list
+		 * @type {Boolean}
+		 */
+		is_list: false,
 		
 		
 		/* --------------------------------- DATA / NODES ------------------------------------ */
@@ -220,7 +266,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @type {String}
 		 */
 		getBlockTitle: function () {
-			return this.getBlockInfo().title;
+			if (this.isList()) {
+				return this.get('data').title;
+			} else {
+				return this.getBlockInfo().title;
+			}
 		},
 		
 		/**
@@ -287,8 +337,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		/**
 		 * Returns if parent is closed
 		 * 
-		 * @return True if parent is closed, otherwise false
-		 * @type {Boolean}
+		 * @returns {Boolean} True if parent is closed, otherwise false
 		 */
 		isParentClosed: function () {
 			var parent = this.get('parent');
@@ -297,6 +346,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 			} else {
 				return false;
 			}
+		},
+		
+		/**
+		 * Returns if block is list
+		 * 
+		 * @returns {Boolean} True if block is list, otherwise false
+		 */
+		isList: function () {
+			return this.is_list;
 		},
 		
 		/**
@@ -691,22 +749,249 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		renderOverlay: function () {
 			var div = new Y.Node(this.get('doc').createElement('DIV')),
-				title = Y.Escape.html(this.getBlockTitle());
+				title = Y.Escape.html(this.getBlockTitle());;
 			
 			this.overlay = div;
 			
 			if (this.get('draggable')) {
-				this.overlay.addClass(CLASSNAME_DRAGGABLE);
+				this.overlay.addClass(CLASSNAME_OVERLAY_DRAGGABLE);
 			}
 			
 			this.overlay.addClass(CLASSNAME_OVERLAY);
+			
+			if (this.isList()) {
+				this.overlay.addClass(CLASSNAME_OVERLAY_LIST);
+			} else {
+				this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
+			}
 			
 			if (this.isParentClosed()) {
 				this.overlay.addClass(CLASSNAME_OVERLAY_CLOSED);
 			}
 			
-			this.overlay.set('innerHTML', '<span></span><span class="' + CLASSNAME_OVERLAY_TITLE + '">' + title + '</span>');
+			this.overlay.set('innerHTML', '<span class="' + CLASSNAME_OVERLAY_ICON + '"></span><span class="' + CLASSNAME_OVERLAY_NAME + '">' + title + '</span>');
 			this.getNode().insert(div, 'before');
+		},
+		
+		/**
+		 * Highlight mode attribute setter
+		 * 
+		 * @param {String|Null} mode Highlight mode
+		 * @returns {String} New mode value
+		 * @private
+		 */
+		_setHighlightMode: function (mode) {
+			this.setHighlightMode(mode, true);
+			return mode;
+		},
+		
+		/**
+		 * Change highlight mode
+		 * 
+		 * @param {String|Null} mode New mode
+		 * @param {Boolean} overwrite If true attribute value will be ignored
+		 */
+		setHighlightMode: function (mode, overwrite) {
+			if (!this.overlay) return;
+			
+			var attr_mode = overwrite ? mode : this.get('highlightMode'),
+				old_mode = this.highlight_mode,
+				mode = attr_mode || mode || this.get('super').get('highlightMode'),
+				
+				children_mode = mode,
+				children = this.children,
+				id = null,
+				filter = null,
+				
+				overlay = this.getOverlayNode(),
+				classnames = CLASSNAME_OVERLAY_MODE,
+				
+				node = this.getNode(),
+				old_highlight_container = this.highlight_container,
+				highlight_container = false,
+				
+				old_overlay_classname = this.highlight_mode_classname,
+				old_icon_classname = this.highlight_mode_icon_classname,
+				old_name_classname = this.highlight_mode_name_classname,
+				
+				overlay_classname = old_overlay_classname,
+				icon_classname = old_icon_classname,
+				name_classname = old_name_classname,
+				
+				// Is this block a list?
+				is_list = this.isList();
+			
+			// Only if changed
+			if (old_mode == mode) return;
+			
+			switch (mode) {
+				case 'edit':
+					// Normal edit mode, any non-list content can be edited
+					// - non-list overlays are visible on hover, icon is shown
+					// - list overlays are hidden
+					
+					if (is_list) {
+						overlay_classname = 'overlay-hidden';
+					} else {
+						overlay_classname = 'overlay-visible-hover';
+						icon_classname = 'icon-visible';
+						name_classname = 'name-hidden';
+					}
+					
+					break;
+				case 'insert':
+				case 'order':
+					// Page blocks are reordered or block is dragged for insertion
+					// - non-list overlays are visible with name
+					// - list overlays are hidden, but container itself is highlighted
+					
+					filter = this.get('super').get('highlightFilter') || '_undefined';
+					
+					// Only placeholders which can have child with given classname/type
+					if (is_list) {
+						if (this.isChildTypeAllowed(filter)) {
+							// This list can have this child
+							highlight_container = true;
+						}
+						
+						overlay_classname = 'overlay-hidden';
+						
+					} else {
+						if (this.get('parent').isChildTypeAllowed(filter)) {
+							// Parent can have that child, show overlay to allowed order, insert
+							// before or after this one
+							overlay_classname = 'overlay-visible';
+							icon_classname = 'icon-hidden';
+							name_classname = 'name-visible';
+						} else {
+							overlay_classname = 'overlay-hidden';
+						}
+					}
+					
+					break;
+				case 'blocks':
+					// Page blocks are viewed
+					// - non-list overlays are visible with name; icon is shown on hover
+					// - list blocks are hidden
+					
+					if (is_list) {
+						overlay_classname = 'overlay-hidden';
+					} else {
+						overlay_classname = 'overlay-visible';
+						icon_classname = 'icon-visible-hover';
+						name_classname = 'name-visible';
+					}
+					
+					break;
+				case 'blocks-hover':
+					// Page blocks are viewed and this block is hovered
+					// - non-list overlays are visible with name and icon
+					// - list blocks are hidden
+					
+					if (is_list) {
+						overlay_classname = 'overlay-hidden';
+					} else {
+						overlay_classname = 'overlay-visible';
+						icon_classname = 'icon-visible';
+						name_classname = 'name-visible';
+					}
+					
+					break;
+				case 'placeholders':
+					// Placeholder blocks are viewed
+					// - non-list overlays are hidden
+					// - list overlays are visible with name; icon is shown on hover
+					
+					if (is_list) {
+						overlay_classname = 'overlay-visible';
+						icon_classname = 'icon-visible-hover';
+						name_classname = 'name-visible';
+					} else {
+						overlay_classname = 'overlay-hidden';
+					}
+					
+					break;
+				case 'placeholders-hover':
+					// Placeholder blocks are viewed
+					// - non-list overlays are hidden
+					// - list overlays are visible with name and icon
+					
+					if (is_list) {
+						overlay_classname = 'overlay-visible';
+						icon_classname = 'icon-visible';
+						name_classname = 'name-visible';
+					} else {
+						overlay_classname = 'overlay-hidden';
+					}
+					
+					break;
+				case 'loading':
+					// Block or placeholder content is loading
+					// - overlay is visible with loading icon
+					// - all children overlays are hidden
+					
+					overlay_classname = 'overlay-visible';
+					icon_classname = 'icon-visible-loading';
+					name_classname = 'name-hidden';
+					
+					for (id in children) {
+						children[id].set('highlightMode', 'disabled');
+					}
+					children_mode = null;
+					
+					break;
+				case 'disabled':
+				default:
+					// Remove all highlights
+					
+					mode = 'disabled';
+					
+					overlay_classname = 'overlay-hidden';
+					icon_classname = 'icon-hidden';
+					name_classname = 'name-hidden';
+					
+					break;
+			}
+			
+			if (overlay_classname != old_overlay_classname) {
+				overlay.replaceClass(classnames[old_overlay_classname], classnames[overlay_classname]);
+				this.highlight_mode_classname = overlay_classname;
+			}
+			if (icon_classname != old_icon_classname) {
+				overlay.replaceClass(classnames[old_icon_classname], classnames[icon_classname]);
+				this.highlight_mode_icon_classname = icon_classname;
+			}
+			if (name_classname != old_name_classname) {
+				overlay.replaceClass(classnames[old_name_classname], classnames[name_classname]);
+				this.highlight_mode_name_classname = name_classname;
+			}
+			
+			this.highlight_mode = mode;
+			
+			// ???
+			/*
+			if (this.get('editing')) {
+				this.set('editing', false);
+			}
+			*/
+			
+			// Highlight container itself
+			if (old_highlight_container != highlight_container) {
+				node.toggleClass(CLASSNAME_HIGHLIGHT, highlight_container);
+				this.highlight_container = highlight_container;
+			}
+			
+			// Reset overlay cache
+			if (mode != 'disabled') {
+				this.resetBlockPositionCache();
+			}
+			
+			// Apply to children
+			if (children_mode) {
+				for (id in children) {
+					children[id].setHighlightMode(children_mode);
+				}
+			}
 		},
 		
 		
@@ -723,7 +1008,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var node = this.overlay;
 			
 			if (node) {
-				node.toggleClass(CLASSNAME_DRAGGABLE, value);
+				node.toggleClass(CLASSNAME_OVERLAY_DRAGGABLE, value);
 			}
 			
 			return !!value;
@@ -739,7 +1024,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if (value == (this.get('editing') || false)) return !!value;
 			
 			if (value) {
-				if (this.overlay) this.overlay.addClass(CLASSNAME_EDITING);
 				this.getNode().addClass(CLASSNAME_EDITING);
 				
 				//Prevent user from switching to other blocks
@@ -749,7 +1033,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.fire('editing-start');
 				this.get('super').fire('editing-start', this.get('data'));
 			} else {
-				if (this.overlay) this.overlay.removeClass(CLASSNAME_EDITING);
 				this.getNode().removeClass(CLASSNAME_EDITING);
 				
 				//Prevent user from switching to other blocks
@@ -767,21 +1050,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * highlightOverlay attribute setter
-		 * 
-		 * @param {Boolean} value
-		 * @private
-		 */
-		_setHighlightOverlay: function (value) {
-			if (!this.overlay) return false;
-			if (value == this.get('highlightOverlay')) return !!value;
-			
-			this.overlay.toggleClass(CLASSNAME_OVERLAY_HOVER, value);
-			
-			return !!value;
-		},
-		
-		/**
 		 * loading attribute setter
 		 * 
 		 * @param {Boolean} value
@@ -789,32 +1057,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		_setLoading: function (value) {
 			if (!this.overlay) return false;
-			this.set('highlightOverlay', !!value);
-			
-			this.overlay.toggleClass(CLASSNAME_OVERLAY_LOADING, value);
-			
-			return !!value;
-		},
-		
-		/**
-		 * highlight attribute setter
-		 * 
-		 * @param {Boolean} value
-		 * @private
-		 */
-		_setHighlight: function (value) {
-			this.getNode().toggleClass('yui3-highlight-' + this.getBlockType(), value);
-			
-			if (value) {
-				if (this.get('editing')) {
-					this.set('editing', false);
-				}
-				if (this.get('highlightOverlay')) {
-					this.set('highlightOverlay', false);
-				}
-				
-				this.resetBlockPositionCache();
-			}
+			this.set('highlightMode', value ? 'loading' : null);
 			
 			return !!value;
 		},
@@ -922,15 +1165,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 					positionBefore = (region.height / 2 > xy[1] - region.top);
 					positionRegion = region;
 					matched = true;
-					
-					/*
-					if (this.blockDropPositionId == positionId) {
-						// User hovered same item again, alternate between
-						// insert before and insert after because drop marker
-						// is either before this item or after
-						positionBefore = !this.blockDropPositionBefore;
-					}
-					*/
 				}
 			}
 			
@@ -1000,7 +1234,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 						
 						node = this.blockDropPositionMarker = Y.Node(this.get("doc").createElement("DIV")); // create using correct document object
 						node.addClass(CLASSNAME_MARKER);
-						node.set("innerHTML", '<span></span><span class="' + CLASSNAME_MARKER_TITLE + '">' + title + '</span>');
+						node.set("innerHTML", '<span class="' + CLASSNAME_MARKER_NAME + '">' + title + '</span>');
 					}
 					
 					if (positionId != this.getId()) {

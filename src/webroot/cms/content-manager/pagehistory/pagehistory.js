@@ -212,7 +212,7 @@ Supra('anim', function (Y) {
 			//When iframe will be ready
 			iframe.once('ready', function () {
 				//Show editable areas
-				iframe.contents.set('highlight', false);
+				iframe.contents.set('highlightMode', 'edit');
 			});
 			
 			//Reload page data

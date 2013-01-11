@@ -229,7 +229,7 @@ Supra('dd-drag', function (Y) {
 					
 					if (this.getContent()) {
 						//Enable highlights
-						this.getContent().set('highlight', false);
+						this.getContent().set('highlightMode', 'edit');
 						
 						//Resize overlays
 						this.getContent().resizeOverlays();
@@ -275,7 +275,7 @@ Supra('dd-drag', function (Y) {
 					content.set('activeChild', null);
 					
 					//Disable highlights
-					content.set('highlight', true);
+					content.set('highlightMode', 'disabled');
 				}
 			}
 			
@@ -435,12 +435,12 @@ Supra('dd-drag', function (Y) {
 						//delay to allow draged item to reset it's position if needed
 						Y.later(15, this, function () {
 							Manager.PageInsertBlock.hide();
-							this.getContent().set('insertHighlight', false);
+							this.getContent().set('highlightMode', 'edit');
 						});
 					}
 				}
 				
-				this.getContent().set('insertHighlight', true);
+				this.getContent().set('highlightMode', 'disabled');
 				this.fire('dragend');
 				
 				//Because of Editor toolbar, container top position changes and 

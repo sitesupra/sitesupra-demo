@@ -67,56 +67,14 @@ Supra(function (Y) {
 			var container = this.one('ul.block-list');
 			
 			//Bind listeners
-			container.delegate('mouseenter', function (evt) {
-				var target = evt.target.closest('LI'),
-					content_id = target.getAttribute('data-id');
-				
-				if (this.type == 'blocks') {
-					//Blocks
-					this.blocks[content_id].set('highlightOverlay', true);
-				} else {
-					//Place holders
-					Manager.PageContent.getContent().set('highlight', true);
-					this.blocks[content_id].set('highlight', true);
-				}
-				
-			}, 'li', this);
+			container.delegate('mouseenter', this.itemOnMouseEnter, 'li', this);
 			
-			container.delegate('mouseleave', function (evt) {
-				var target = evt.target.closest('LI'),
-					content_id = target.getAttribute('data-id');
-				
-				if (this.type == 'blocks') {
-					//Blocks
-					this.blocks[content_id].set('highlightOverlay', false);
-				} else {
-					//Place holders
-					Manager.PageContent.getContent().set('highlight', false);
-					this.blocks[content_id].set('highlight', false);
-				}
-			}, 'li', this);
+			container.delegate('mouseleave', this.itemOnMouseLeave, 'li', this);
 			
-			container.delegate('click', function (evt) {
-				this.hide();
-				
-				var target = evt.target.closest('LI'),
-					content_id = target.getAttribute('data-id'),
-					contents = null;
-				
-				//Start editing content
-				contents = Manager.PageContent.getContent();
-				contents.set('activeChild', this.blocks[content_id]);
-				
-				//Show properties form
-				/*
-				if (this.blocks[content_id].properties) {
-					this.blocks[content_id].properties.showPropertiesForm();
-				}
-				*/
-			}, 'li', this);
+			container.delegate('click', this.itemOnClick, 'li', this);
 			
 			//Control button
-			this.get('controlButton').on('click', this.hide, this);
+			this.get('controlButton').on('click', this.close, this);
 		},
 		
 		/**
@@ -146,9 +104,10 @@ Supra(function (Y) {
 			
 			//Update block list
 			for(var id in blocks) {
-				//If not closed and is not list
-				if (!blocks[id].isClosed()) {
-					is_placeholder = blocks[id].isInstanceOf('page-content-list');
+				
+				//Show only blocks which are not closed and are editable
+				if (!blocks[id].isClosed() && blocks[id].get('editable')) {
+					is_placeholder = blocks[id].isList();
 					
 					if ((this.type == 'blocks' && !is_placeholder) || (this.type != 'blocks' && is_placeholder)) {
 						
@@ -173,10 +132,10 @@ Supra(function (Y) {
 						if (!icon) {
 							if (is_placeholder) {
 								//Default placeholder icon
-								icon = '/cms/lib/supra/img/blocks/icons-items/list_32x32.png';
+								icon = '/cms/lib/supra/img/blocks/icons-items/list.png';
 							} else {
 								//Default block icon
-								icon = '/cms/lib/supra/img/blocks/icons-items/default_32x32.png';
+								icon = '/cms/lib/supra/img/blocks/icons-items/default.png';
 							}
 						}
 						
@@ -194,6 +153,68 @@ Supra(function (Y) {
 			container.set('innerHTML', Supra.Template('pageBlockListItems', {'blocks': template_data}));
 		},
 		
+		
+		/* --------------- UI EVENT HANDLERS ----------------- */
+		
+		
+		/**
+		 * On item mouse over highlight it
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
+		itemOnMouseEnter: function (evt) {
+			var target = evt.target.closest('LI'),
+				content_id = target.getAttribute('data-id');
+			
+			if (this.type == 'blocks') {
+				//Blocks
+				this.blocks[content_id].set('highlightMode', 'blocks-hover');
+			} else {
+				//Place holders
+				this.blocks[content_id].set('highlightMode', 'placeholders-hover');
+			}
+		},
+		
+		/**
+		 * On item mouse leave remove highlight
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
+		itemOnMouseLeave: function (evt) {
+			var target = evt.target.closest('LI'),
+				content_id = target.getAttribute('data-id');
+			
+			//Remove block specific highlighting
+			this.blocks[content_id].set('highlightMode', null);
+		},
+		
+		/**
+		 * On item click open block for editing
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
+		itemOnClick: function (evt) {
+			this.hide();
+			
+			var target = evt.target.closest('LI'),
+				content_id = target.getAttribute('data-id'),
+				contents = null;
+			
+			//Start editing content
+			contents = Manager.PageContent.getContent();
+			contents.set('activeChild', this.blocks[content_id]);
+		},
+		
+		/**
+		 * Close manager after control button click
+		 */
+		close: function () {
+			Manager.PageContent.getContent().set('highlightMode', 'edit');
+			this.hide();
+		},
 		
 		/**
 		 * Hide action
@@ -219,6 +240,13 @@ Supra(function (Y) {
 				this.execute();
 			} else {
 				this.renderData();
+			}
+			
+			// Highlight overlays
+			if (type == 'blocksview') {
+				Manager.PageContent.getContent().set('highlightMode', 'blocks');
+			} else {
+				Manager.PageContent.getContent().set('highlightMode', 'placeholders');
 			}
 		},
 		

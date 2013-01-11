@@ -29,6 +29,12 @@ YUI.add('supra.page-content-list', function (Y) {
 	
 	Y.extend(ContentList, PageContent.Editable, {
 		
+		/**
+		 * Block is list
+		 * @type {Boolean}
+		 */
+		is_list: true,
+		
 		
 		/* --------------------------------- LIFE CYCLE ------------------------------------ */
 		
@@ -129,8 +135,7 @@ YUI.add('supra.page-content-list', function (Y) {
 			}, false, index);
 			
 			//Disable highlight, we will be editing this block
-			this.get('super').set('highlight', false);
-			this.get('super').set('insertHighlight', false);
+			this.get('super').set('highlightMode', 'edit');
 			
 			//When new item is created focus on it
 			this.get('super').set('activeChild', block);
@@ -161,25 +166,18 @@ YUI.add('supra.page-content-list', function (Y) {
 			}
 		},
 		
-		/**
-		 * Shouldn't have any overlay, since user can't click or drag place holders
-		 */
-		renderOverlay: function () {
-		},
+		
+		/* --------------------------------- ATTRIBUTES ------------------------------------ */
+		
 		
 		/**
-		 * There is no need to reload content, because list doesn't have any
-		 * properties which could change content
-		 */
-		reloadContentHTML: function () {
-		},
-		
-		/**
-		 * Since there are no properties which could change content we don't have
-		 * to do anything
+		 * draggable attribute setter
+		 * 
+		 * @param {Boolean} value
 		 * @private
 		 */
-		_reloadContentSetHTML: function () {
+		_setDraggable: function (value) {
+			return false;
 		}
 	});
 	
