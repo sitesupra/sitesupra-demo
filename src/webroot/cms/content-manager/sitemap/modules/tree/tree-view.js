@@ -332,8 +332,17 @@ YUI().add('website.sitemap-tree-view', function (Y) {
 		'getVisibleRegion': function () {
 			var tree = this.get('tree'),
 				root = tree.get('visibilityRootNode'),
-				region = root ? this.getChildRegion(root) : this.getTreeRegion();
-				
+				region = null;
+			
+			if (root) {
+				// node may not be in dom yet, may happen during rendering
+				// and region can't be retrieved in that case
+				region = this.getChildRegion(root);
+			}
+			if (!region) {
+				region = this.getTreeRegion();
+			}
+			
 			return region;
 		},
 		
