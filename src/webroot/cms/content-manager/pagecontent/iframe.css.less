@@ -108,6 +108,11 @@
 	.transition-property (opacity);
 	.transition-duration (0.35s);
 	
+	&.su-overlay-list {
+		border-style: dashed;
+		border-color: #555;
+	}
+	
 	// Icon
 	.su-overlay-icon {
 		display: none;
@@ -193,6 +198,9 @@
 		.su-overlay-name {
 			display: block;
 		}	
+	}
+	&.su-overlay-list .su-overlay-name {
+		background: #555;
 	}
 	
 }
