@@ -152,7 +152,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				'srcNode': container,
 				'autoClose': false,
 				'arrowVisible': true,
-				'zIndex': 2,
+				'zIndex': 6, // above new item and recycle bin
 				'visible': false,
 				'closeOnEscapeKey': true
 			});
@@ -621,7 +621,6 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 								}
 								
 								var children = parent.get('data').children;
-								
 								for(var i in children) {
 									if (children[i].localized) {
 										template = children[0].template;

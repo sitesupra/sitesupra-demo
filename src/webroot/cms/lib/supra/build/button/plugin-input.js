@@ -62,7 +62,7 @@ YUI.add('supra.button-plugin-input', function (Y) {
 					input.after('valuesChange', this.onSelectChange, this);
 				} else {
 					// We don't know how to handle this, try guessing
-					input.on('change', this.onInputChange, this);
+					input.after('change', this.onInputChange, this);
 				}
 			}
 		},
@@ -76,8 +76,16 @@ YUI.add('supra.button-plugin-input', function (Y) {
 		onSelectChange: function (event) {
 			var button = this.get('host'),
 				input  = this.get('input'),
-				value  = input.get('value'),
-				data   = input.getValueData(value);
+				value  = event.value,
+				data   = null,
+				type   = typeof value;
+			
+			if (type === 'null' || type === 'undefined') {
+				value = input.get('value');
+				type  = typeof value;
+			}
+			
+			data = input.getValueData(value);
 			
 			if (data) {
 				this.syncUI({
@@ -100,6 +108,11 @@ YUI.add('supra.button-plugin-input', function (Y) {
 				input  = this.get('input'),
 				value  = event.value,
 				type   = typeof value;
+			
+			if (type === 'null' || type === 'undefined') {
+				value = input.get('value');
+				type  = typeof value;
+			}
 			
 			if (type === 'null' || type === 'undefined') {
 				value = '';
