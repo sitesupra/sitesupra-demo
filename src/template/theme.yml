@@ -12,8 +12,85 @@
         name: root
         title: Root Layout
         filename: root.html.twig
-
       - _class: Configuration\ThemeLayoutConfiguration
         name: child
         title: Child Layout
         filename: child.html.twig
+      - _class: Configuration\ThemeLayoutConfiguration
+        name: sets
+        title: Manageable placeholders
+        filename: sets.html.twig
+ 
+    # Available PlaceHolderSets are defined here
+    placeHolderSets:
+      # single column | the same as simple placeholder
+      - _class: Configuration\ThemePlaceholderSetConfiguration
+        name: single
+        title: Single
+        layout: placeholder-layouts/single.html.twig
+      # 3 x 1
+      - _class: Configuration\ThemePlaceholderSetConfiguration
+        name: three_one
+        title: Three + one
+        layout: placeholder-layouts/three_one.html.twig
+      # 1 x 3
+      - _class: Configuration\ThemePlaceholderSetConfiguration
+        name: one_three
+        title: One + three
+        layout: placeholder-layouts/one_three.html.twig
+      # 2 x 2
+      - _class: Configuration\ThemePlaceholderSetConfiguration
+        name: two_two
+        title: Two + two
+        layout: placeholder-layouts/two_two.html.twig
+      # 2 x 1 x 1
+      - _class: Configuration\ThemePlaceholderSetConfiguration
+        name: two_one_one
+        title: Two + one + one
+        layout: placeholder-layouts/two_one_one.html.twig
+      # 1 x 1 x 2
+      - _class: Configuration\ThemePlaceholderSetConfiguration
+        name: one_one_two
+        title: One + one + two
+        layout: placeholder-layouts/one_one_two.html.twig
+      # 1 x 1 x 1 x 1
+      - _class: Configuration\ThemePlaceholderSetConfiguration
+        name: four
+        title: Four columns
+        layout: placeholder-layouts/four.html.twig
+    
+    containers:
+      # <!--placeHolderSet(header_set)-->
+      - _class: Configuration\ThemePlaceholderSetContainerConfiguration
+        name: header_set
+        title: Header
+        default: single
+        allowedSets: 
+          - single
+          - three_one
+          - one_three
+          - two_two
+          - two_one_one
+          - one_one_two
+          - four
+      # <!--placeHolderSet(footer_set)-->
+      - _class: Configuration\ThemePlaceholderSetContainerConfiguration
+        name: footer_set
+        title: Footer
+        default: four
+        allowedSets: 
+          - single
+          - three_one
+          - one_three
+          - two_two
+          - two_one_one
+          - one_one_two
+          - four
+      # <!--placeHolderSet(body_set)-->
+      - _class: Configuration\ThemePlaceholderSetContainerConfiguration
+        name: body_set
+        title: Body row #1
+        default: three_one
+        allowedSets: 
+          - single
+          - four

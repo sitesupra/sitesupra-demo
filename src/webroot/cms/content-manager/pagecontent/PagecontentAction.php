@@ -333,6 +333,8 @@ class PagecontentAction extends PageManagerAction
 
 	/**
 	 * Saves placeholder settings (locked parameter)
+	 * 
+	 * @FIXME
 	 */
 	public function savePlaceholderAction()
 	{
@@ -348,6 +350,40 @@ class PagecontentAction extends PageManagerAction
 				->getPlaceHolders()
 				->get($placeHolderName);
 
+		$locked = $input->getValid('locked', 'boolean');
+		
+		if (empty($placeHolder)) {
+			
+			$placeHolders = $request->getPageLocalization()
+				->getPlaceHolders();
+			
+			foreach($placeHolders as $templatePlaceHolder) {
+				if ($templatePlaceHolder->getContainer() == $placeHolderName) {
+					$placeHolder = $templatePlaceHolder;
+				}
+			}
+
+			if ( ! empty($placeHolder)) {
+				$properties = $input->getChild('properties');
+				$layout = $properties->get('layout');
+
+				$placeHolders = $request->getPageLocalization()
+					->getPlaceHolders();
+
+				foreach($placeHolders as $placeHold) {
+					if ($placeHold->getContainer() == $placeHolderName) {
+						$placeHold->setPlaceholderSetName($layout);
+						$placeHolder->setLocked($locked);
+					}
+				}
+			}
+			
+			$this->entityManager->flush();
+			$this->savePostTrigger();
+			
+			return;
+		}
+		
 		if (empty($placeHolder)) {
 			throw new CmsException(null, "The placeholder by name '$placeHolderName' doesn't exist anymore");
 		}
@@ -356,14 +392,13 @@ class PagecontentAction extends PageManagerAction
 			throw new CmsException(null, "Not possible to change locked status for page placeholder");
 		}
 
-		$locked = $input->getValid('locked', 'boolean');
 		$placeHolder->setLocked($locked);
 
 		$this->entityManager->flush();
 
 		$this->savePostTrigger();
 	}
-
+	
 	/**
 	 * 
 	 */
@@ -708,5 +743,56 @@ class PagecontentAction extends PageManagerAction
 			}
 		}
 	}
+	
+	/**
+	 * @FIXME
+	 */
+	public function contenthtmlPlaceholderAction()
+	{
+		$this->isPostRequest();
+		$this->checkLock();
+		$request = $this->getPageRequest();
+		$input = $this->getRequestInput();
 
+		$containerName = $input->get('block_id');
+
+		$pageData = $request->getPageLocalization();
+		$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+
+		$controller = $this->getPageController();
+
+		$response = $controller->createResponse($request);
+		$controller->prepare($request, $response);
+
+		ObjectRepository::beginControllerContext($controller);
+
+		$outputString = null;
+		$containerResponse = null;
+		try {
+			$controller->execute();
+			$placeResponses = $controller->returnPlaceResponses();
+			
+			foreach($placeResponses as $placeResponse) {
+				if ($placeResponse instanceof \Supra\Controller\Pages\Response\PlaceHoldersContainer\PlaceHoldersContainerResponse) {
+					$container = $placeResponse->getContainer();
+					if ($container == $containerName) {
+						$containerResponse = $placeResponse;
+						break;
+					}
+				}
+			}
+		} catch (\Exception $e) {
+				ObjectRepository::endControllerContext($controller);
+				throw $e;
+			}
+		ObjectRepository::endControllerContext($controller);
+		
+		if ( ! is_null($containerResponse)) {
+			$outputString = $containerResponse->getOutputString();
+		}
+
+		$this->getResponse()->setResponseData(
+				array('internal_html' => $outputString)
+		);
+	}
 }

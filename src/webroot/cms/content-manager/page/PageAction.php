@@ -317,10 +317,40 @@ class PageAction extends PageManagerAction
 		$responseContext = new ResponseContext();
 
 		$this->getResponse()->setContext($responseContext);
+		
+		$containersData = array();
 
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
 
+			$groupName = null;
+			$containerName = $placeHolder->getContainer();
+			if ( ! empty($containerName)) {
+				$groupName = $placeHolder->getPlaceholderSetName();
+				
+				if ( ! isset($containersData[$containerName])) {
+					$placeHolderContainerData = array(
+						'id' => $containerName,
+						'closed' => false,
+						'locked' => false,
+						'title' => $containerName,
+						'type' => 'list_one',
+						'allow' => array(),
+						'layout_limit' => 4,
+						'properties' => array(
+							'layout' => array('value' => $groupName, 'language' => null, '__shared' => false),
+						),
+						'contents' => array(),
+					);
+					
+					$containersData[$containerName] = $placeHolderContainerData;
+				}
+			}
+			
+			if ($placeHolder->getName() == 'footer') {
+				continue;
+			}
+			
 			$placeHolderData = array(
 				'id' => $placeHolder->getName(),
 				'title' => $placeHolder->getTitle(),
@@ -371,12 +401,20 @@ class PageAction extends PageManagerAction
 						$blockData['properties'][$propertyName] = $propertyData;
 					}
 				}
-
+				
 				$placeHolderData['contents'][] = $blockData;
 			}
 
-			$array['contents'][] = $placeHolderData;
+			if ( ! empty($containerName)) {
+				$placeHolderData['type'] = 'list_one';
+				$placeHolderData['editable'] = false;
+				$containersData[$containerName]['contents'][] = $placeHolderData;
+			} else {
+				$array['contents'][] = $placeHolderData;
+			}			
 		}
+		
+		$array['contents'] = array_merge($array['contents'], array_values($containersData));
 
 		$this->getResponse()->setResponseData($array);
 
@@ -933,4 +971,9 @@ class PageAction extends PageManagerAction
 		return $propertyInfo;
 	}
 
+	private function preparePlaceholdersOutput($data)
+	{
+		
+	}
+	
 }

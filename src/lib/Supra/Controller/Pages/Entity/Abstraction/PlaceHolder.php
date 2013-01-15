@@ -32,6 +32,18 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	 * @var string
 	 */
 	protected $name;
+	
+	/**
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $container;
+	
+	/**
+	 * @Column(name="placeholderSetName", type="string", nullable=true)
+	 * @var string
+	 */
+	protected $setName;
 
 	/**
 	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", mappedBy="placeHolder", cascade={"persist", "remove"})
@@ -58,6 +70,26 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 		$this->blocks = new ArrayCollection();
 	}
 
+	public function setContainer($container)
+	{
+		$this->container = $container;
+	}
+	
+	public function getContainer()
+	{
+		return $this->container;
+	}
+	
+	public function getPlaceholderSetName()
+	{
+		return $this->setName;
+	}
+	
+	public function setPlaceholderSetName($name)
+	{
+		$this->setName = $name;
+	}
+	
 	/**
 	 * Set layout place holder name
 	 * @param string $Name
@@ -196,7 +228,7 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 				throw new Exception\LogicException("Not recognized discriminator value for entity {$localization}");
 		}
 
-		if ( ! is_null($source)) {
+		if ( ! is_null($source)) {			
 			$blocks = $source->getBlocks();
 
 			/* @var $block Block */

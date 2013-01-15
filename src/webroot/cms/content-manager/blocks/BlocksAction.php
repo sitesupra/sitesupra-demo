@@ -4,12 +4,7 @@ namespace Supra\Cms\ContentManager\Blocks;
 
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\BlockControllerCollection;
-use Supra\Request;
-use Supra\Response;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Configuration\Exception\ConfigurationMissing;
-use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
-use Supra\Controller\Pages\BlockPropertyGroupCollection;
 use Supra\Editable;
 
 class BlocksAction extends PageManagerAction
@@ -114,13 +109,19 @@ class BlocksAction extends PageManagerAction
 				'hidden' => $conf->hidden,
 				'html' => $conf->html,
 			);
-
+			
 			$titles[] = $conf->title;
 		}
 
 		// Order by block title
 		array_multisort($titles, $response['blocks']);
 
+		// Appends Theme hidden blocks
+		$themeBlocksData = $this->getThemeBlocksData();
+		if ( ! empty($themeBlocksData)) {
+			array_push($response['blocks'], $themeBlocksData);
+		}
+		
 		$this->getResponse()->setResponseData($response);
 	}
 
@@ -153,6 +154,82 @@ class BlocksAction extends PageManagerAction
 		}
 
 		return $response;
+	}
+	
+	/**
+	 * @FIXME
+	 * @return array
+	 */
+	private function getThemeBlocksData()
+	{
+		$dummyEditable = new Editable\SelectVisual();
+		$localeId = $this->getLocale()->getId();
+		
+		$dummyPropertyData = array(
+			'id' => 'layout',
+			'type' => $dummyEditable->getEditorType(),
+			'inline' => $dummyEditable->isInlineEditable(),
+			'label' => $dummyEditable->getLabel(),
+			'value' => $dummyEditable->getDefaultValue($localeId),
+			'group' => $dummyEditable->getGroupId(),
+		)
+			+ $dummyEditable->getAdditionalParameters();
+		
+		$dummyPropertyData['values'] = array(
+			array(
+				'id' => 'single',
+				'title' => 'Single row',
+				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+			),
+			array(
+				'id' => 'three_one',
+				'title' => 'Three + One',
+				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+			),
+			array(
+				'id' => 'one_three',
+				'title' => 'One + Three',
+				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+			),
+			array(
+				'id' => 'two_two',
+				'title' => 'Two + Two',
+				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+			),
+			array(
+				'id' => 'two_one_one',
+				'title' => 'Two + One + One',
+				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+			),
+			array(
+				'id' => 'one_one_two',
+				'title' => 'One + One + Two',
+				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+			),
+			array(
+				'id' => 'four',
+				'title' => 'Four columns',
+				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+			),
+		);
+		
+		$placeHolderContainerDummyBlock = array(
+			'id' => 'list_one',
+			'classname' => 'List',
+			'hidden' => true,
+			'group' => 'system',
+			'property_groups' => array(),
+			'title' => 'Layout',
+			'description' => '',
+			'icon' => '/cms/lib/supra/img/blocks/icons-items/default.png',
+			'html' => null,
+
+			'properties' => array(
+				$dummyPropertyData,
+			),
+		);
+		
+		return $placeHolderContainerDummyBlock;
 	}
 
 }

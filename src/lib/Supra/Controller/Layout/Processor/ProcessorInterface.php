@@ -3,7 +3,6 @@
 namespace Supra\Controller\Layout\Processor;
 
 use Supra\Response\ResponseInterface;
-use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 use Supra\Request\RequestInterface;
 
 /**
@@ -25,6 +24,14 @@ interface ProcessorInterface
 	 * @return array
 	 */
 	public function getPlaces($layoutSrc);
+	
+	/**
+	 * Returns the list of place group containers
+	 * 
+	 * @param string $layoutSrc
+	 * @return array
+	 */
+	public function getPlaceContainers($layoutSrc);
 	
 	/**
 	 * Set request object to use

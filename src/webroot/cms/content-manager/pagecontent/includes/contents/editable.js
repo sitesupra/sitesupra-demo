@@ -467,21 +467,23 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 * Save state and trigger event before settings new HTML
 		 */
 		beforeSetHTML: function () {
-			//Get values
-			var values = this.properties.get('form').getValues('id'),
-				active_inline_property = this.get('active_inline_property'),
-				
-				children = this.children,
-				id = null;
-			
-			//Unset active inline property
-			if (active_inline_property) {
-				this.set('active_inline_property', null);
+			if (this.properties) {
+				//Get values
+				var values = this.properties.get('form').getValues('id'),
+					active_inline_property = this.get('active_inline_property'),
+
+					children = this.children,
+					id = null;
+
+				//Unset active inline property
+				if (active_inline_property) {
+					this.set('active_inline_property', null);
+				}
+
+				//Save references
+				this._beforeSetHTMLValues = values;
+				this._beforeSetHTMLActiveInlineProperty = active_inline_property;
 			}
-			
-			//Save references
-			this._beforeSetHTMLValues = values;
-			this._beforeSetHTMLActiveInlineProperty = active_inline_property;
 			
 			//Clean up
 			this.fireContentEvent('cleanup', this.getNode().getDOMNode());
@@ -518,31 +520,33 @@ YUI.add('supra.page-content-editable', function (Y) {
 			//Trigger refresh
 			this.fireContentEvent('refresh', this.getNode().getDOMNode());
 			
-			//Recreate inline inputs
-			var properties_handler	= this.properties,
-				properties			= properties_handler.get('properties'),
-				id					= null;
-			
-			for(var i=0, ii=properties.length; i<ii; i++) {
-				if (properties[i].inline) {
-					id = properties[i].id;
-					properties_handler.resetProperty(id, values[id]);
-				}
-			}
-			
-			//Update inline input list
-			this.findInlineInputs();
-			
-			//Restore current active inline property
-			if (active_inline_property) {
-				if (!(active_inline_property in this.inline_inputs)) {
-					for(active_inline_property in this.inline_inputs) {
-						//We need only first property
-						break;
+			if (this.properties) {
+				//Recreate inline inputs
+				var properties_handler	= this.properties,
+					properties			= properties_handler.get('properties'),
+					id					= null;
+
+				for(var i=0, ii=properties.length; i<ii; i++) {
+					if (properties[i].inline) {
+						id = properties[i].id;
+						properties_handler.resetProperty(id, values[id]);
 					}
 				}
-				if (active_inline_property in this.inline_inputs) {
-					this.set('active_inline_property', active_inline_property);
+
+				//Update inline input list
+				this.findInlineInputs();
+
+				//Restore current active inline property
+				if (active_inline_property) {
+					if (!(active_inline_property in this.inline_inputs)) {
+						for(active_inline_property in this.inline_inputs) {
+							//We need only first property
+							break;
+						}
+					}
+					if (active_inline_property in this.inline_inputs) {
+						this.set('active_inline_property', active_inline_property);
+					}
 				}
 			}
 			
