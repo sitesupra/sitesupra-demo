@@ -326,8 +326,15 @@ li.app-list-proxy {
 	.inner {
 		min-height: 80px;
 	}
-	.axisLabel {
-		border-bottom: 2px solid #4b4e5d;
+	
+	// show eveery 4-th label
+	.axisLabel:nth-child(4n+1),
+	.axisLabel:nth-child(4n+2),
+	.axisLabel:nth-child(4n+3) {
+		display: none !important;
+	}
+	[tabindex] {
+		outline: none;
 	}
 }
 
