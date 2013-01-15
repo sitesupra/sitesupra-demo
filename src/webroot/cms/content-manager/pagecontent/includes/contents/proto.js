@@ -792,7 +792,17 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @param {Boolean} overwrite If true attribute value will be ignored
 		 */
 		setHighlightMode: function (mode, overwrite) {
-			if (!this.overlay) return;
+			if (!this.overlay) {
+				
+				var children = this.children,
+					id = null;
+				
+				for (id in children) {
+					children[id].setHighlightMode(mode);
+				}
+				
+				return;
+			}
 			
 			var attr_mode = overwrite ? mode : this.get('highlightMode'),
 				old_mode = this.highlight_mode,

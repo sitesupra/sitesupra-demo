@@ -196,6 +196,8 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			if (!editing) {
 				this.contents.set('highlightMode', 'disabled');
+			} else {
+				this.contents.set('highlightMode', 'edit');
 			}
 			
 			this.contents.on('activeChildChange', function (event) {
@@ -213,7 +215,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			//Trigger ready event
 			this.fire('ready', {'iframe': this, 'body': body});
-			this.get("nodeIframe").fire('ready');
+			this.get('nodeIframe').fire('ready');
 			
 			//Bind to layout
 			if (this.layout && !this.layoutBinded) {

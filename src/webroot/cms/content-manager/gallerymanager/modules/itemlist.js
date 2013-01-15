@@ -872,13 +872,17 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				nodeId = '',
 				structure = [],
 				selector = '',
-				listSelector = '';
+				listSelector = '',
+				listItemSelector = '';
 			
 			// Find template
 			var templateNode = this.getItemTemplateNode();
 			if (templateNode) {
 				// Template node should have container node selector as attribute
 				listSelector = templateNode.getAttribute('data-supra-container-selector') || 'ul, ol';
+				
+				// Template node can have child selector as attribute
+				listItemSelector = templateNode.getAttribute('data-supra-item-selector') || '';
 				
 				// If there is no selector or no node then use block main node
 				node = (listSelector ? block.getNode().one(listSelector) : null) || block.getNode();
@@ -953,6 +957,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			
 			// Save selector to find node when iframe is ready
 			this.listNodeSelector = selector
+			
+			if (listItemSelector) {
+				this.listItemSelector = listItemSelector;
+			}
 			
 			return structure.join('');
 		},
