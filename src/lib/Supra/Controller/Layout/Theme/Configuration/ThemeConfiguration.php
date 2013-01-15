@@ -13,6 +13,8 @@ use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
 use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use Supra\Controller\Pages\Entity\Theme as ThemeEntity;
+
 class ThemeConfiguration extends ThemeConfigurationAbstraction
 {
 
@@ -86,6 +88,10 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 */
 	public $category;
 
+	public $placeHolderSets;
+	
+	public $containers;
+	
 	/**
 	 * 
 	 */
@@ -113,6 +119,10 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 
 		$this->processParameters();
 
+		$this->processPlaceholderSets();
+		$this->processPlaceholderContainers();
+		
+		
 		$this->processLayouts();
 
 		$this->processParameterSets();
@@ -256,4 +266,40 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		}
 	}
 
+	protected function processPlaceholderSets()
+	{
+		$theme = $this->getTheme();
+		$setsBefore = $theme->getPlaceholderSets();
+		
+		$setNamesBefore = $setsBefore->getKeys();
+		$setNamesNow = array();
+		
+		foreach ($this->placeHolderSets as $placeHolderSetConfiguration) {
+			$setName = $placeHolderSetConfiguration->name;
+						
+			if ( ! in_array($setName, $setNamesBefore)) {
+				$set = new ThemeEntity\ThemePlaceholderSet($setName, $placeHolderSetConfiguration->layout);
+				$theme->addPlaceholderSet($set);
+			} else {
+				$set = $setsBefore->get($setName);
+			}
+			
+			$set->setLayoutFilename($placeHolderSetConfiguration->layout);
+			
+			$setNamesNow[] = $setName;
+		}
+		
+		$setNamesToRemove = array_diff($setNamesBefore, $setNamesNow);
+		
+		foreach ($setNamesToRemove as $setNameToRemove) {
+			$setToRemove = $setsBefore->get($setNameToRemove);
+			$theme->removePlaceholderSet($setToRemove);
+		}
+	}
+	
+	protected function processPlaceholderContainers()
+	{
+		$theme = $this->getTheme();
+		$theme->setPlaceholderContainerConfiguration($this->containers);
+	}
 }

@@ -44,12 +44,21 @@ class ThemeLayout extends Database\Entity
 	 * @var ArrayCollection
 	 */
 	protected $placeholders;
+	
+//	/**
+//	 * @OneToMany(targetEntity="ThemeLayoutPlaceholderGroup", mappedBy="layout", cascade={"all"}, orphanRemoval=true, indexBy="name")
+//	 * @var ArrayCollection
+//	 */
+//	protected $placeholderSets;
+	
+	
 
 	public function __construct()
 	{
 		parent::__construct();
 
 		$this->placeholders = new ArrayCollection();
+		$this->placeholderSets = new ArrayCollection();
 	}
 
 	/**
@@ -143,6 +152,27 @@ class ThemeLayout extends Database\Entity
 
 		$this->placeholders[$placeholder->getName()] = $placeholder;
 	}
+	
+//	
+//	/**
+//	 * @param ThemeLayoutPlaceholder $placeholder
+//	 * @FIXME: group name is NOT unique
+//	 */
+//	public function addPlaceholderGroup(ThemeLayoutPlaceholderGroup $group)
+//	{
+//		$group->setLayout($this);
+//		$this->placeholderSets[$group->getName()] = $group;
+//	}
+//	
+//	public function getPlaceholderGroupNames()
+//	{
+//		return $this->placeholderGroups->getKeys();
+//	}
+//	
+//	public function getPlaceholderGroups()
+//	{
+//		return $this->placeholderGroups;
+//	}
 
 	/**
 	 * @param ThemeLayoutPlaceholder $placeholder 

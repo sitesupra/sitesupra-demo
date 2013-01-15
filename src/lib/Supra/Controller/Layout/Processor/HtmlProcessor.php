@@ -5,6 +5,7 @@ namespace Supra\Controller\Layout\Processor;
 use Supra\Response\ResponseInterface;
 use Supra\Controller\Layout\Exception;
 use Supra\Request\RequestInterface;
+use Supra\Controller\Pages\Response\PlaceHoldersContainer\PlaceHoldersContainerResponse;
 
 /**
  * Simple layout processor
@@ -15,6 +16,11 @@ class HtmlProcessor implements ProcessorInterface
 	 * Place holder function name
 	 */
 	const PLACE_HOLDER = 'placeHolder';
+	
+	/**
+	 * Place holder container function name
+	 */
+	const PLACE_HOLDER_SET = 'placeHolderSet';
 
 	/**
 	 * Maximum layout file size
@@ -27,13 +33,16 @@ class HtmlProcessor implements ProcessorInterface
 	 */
 	static protected $macroFunctions = array(
 		self::PLACE_HOLDER,
+		self::PLACE_HOLDER_SET,
 	);
 
-	/**
+	/**Pa
 	 * Layout root dir
 	 * @var string
 	 */
 	protected $layoutDir;
+	
+	public $layout;
 
 	/**
 	 * @var string
@@ -83,10 +92,12 @@ class HtmlProcessor implements ProcessorInterface
 		// Output CDATA
 		$cdataCallback = function($cdata) use ($response) {
 					$response->output($cdata);
-				};
+		};
 
+		$self = $this;
+		
 		// Flush place holder responses into master response
-		$macroCallback = function($func, array $args) use (&$response, &$placeResponses) {
+		$macroCallback = function($func, array $args, $self) use (&$response, &$placeResponses, $self) {
 					if ($func == HtmlProcessor::PLACE_HOLDER) {
 						if ( ! array_key_exists(0, $args) || $args[0] == '') {
 							throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in template ");
@@ -100,9 +111,55 @@ class HtmlProcessor implements ProcessorInterface
 							$placeResponse->flushToResponse($response);
 						}
 					}
+
+					if ($func == HtmlProcessor::PLACE_HOLDER_SET) {
+
+						foreach($placeResponses as $placeResponse) {
+							if ($placeResponse instanceof PlaceHoldersContainerResponse) {
+								if ($placeResponse->getContainer() == $args[0]) {
+									$currentContainerResponses = $placeResponse->getPlaceHolderResponses();
+									$containerResponse = $placeResponse;
+									break;
+								}
+							}
+						}
+						
+						if ( ! empty($currentContainerResponses)) {
+							$groupName = $containerResponse->getGroup();
+							$layoutGroups = $self->layout->getTheme()->getPlaceholderSets();
+							
+							if ( ! $layoutGroups->isEmpty()) {
+														
+								// @FIXME: replace with default value assigned on configuration processing							
+								if ( empty($groupName)) {
+									$groupName = $layoutGroups->first()
+											->getName();
+								}
+
+								/* @var $layoutGroups \Doctrine\ORM\PersistentCollection */
+
+								if ($layoutGroups->offsetExists($groupName)) {
+									$group = $layoutGroups->get($groupName);
+									/* @var $group Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholderGroup */
+									$self->process($containerResponse, $currentContainerResponses, $group->getLayoutFilename());
+									
+									$containerResponse->flushToResponse($response);
+								} else {
+									\Log::warn("No configuration found for {$groupName}, output for this placeholders group is skipped");
+								}
+							} else {
+								\Log::warn('Layout group array is empty');
+							}
+						}
+					}
 				};
 
 		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
+	}
+	
+	public function setLayout($layout)
+	{
+		$this->layout = $layout;
 	}
 
 	/**
@@ -115,9 +172,7 @@ class HtmlProcessor implements ProcessorInterface
 		$places = array();
 
 		// Ignore CDATA
-		$cdataCallback = function($cdata) {
-					
-				};
+		$cdataCallback = function($cdata) {};
 
 		// Collect place holders
 		$macroCallback = function($func, array $args) use (&$places, $layoutSrc) {
@@ -134,6 +189,30 @@ class HtmlProcessor implements ProcessorInterface
 		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
 
 		return $places;
+	}
+	
+	public function getPlaceContainers($layoutSrc)
+	{
+		$groups = array();
+		
+		// Ignore CDATA
+		$cdataCallback = function($cdata) {};
+
+		// Collect place holders
+		$macroCallback = function($func, array $args) use (&$groups, $layoutSrc) {
+					if ($func == HtmlProcessor::PLACE_HOLDER_SET) {
+						if ( ! array_key_exists(0, $args) || $args[0] == '') {
+							throw new Exception\RuntimeException("No placeholder container name defined in the placeHolderContainer macro in file {$layoutSrc}");
+						}
+
+						// Normalize placeholder ID for case insensitive MySQL varchar field
+						$groups[] = mb_strtolower($args[0]);
+					}
+				};
+
+		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
+		
+		return $groups;
 	}
 
 	/**
@@ -228,7 +307,7 @@ class HtmlProcessor implements ProcessorInterface
 					continue;
 				}
 
-				$macroCallback($macroFunction, $macroArguments);
+				$macroCallback($macroFunction, $macroArguments, null);
 
 				// remove the used data
 				$layoutContent = substr($layoutContent, $pos + $endLength);

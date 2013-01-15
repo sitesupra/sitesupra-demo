@@ -353,6 +353,17 @@ abstract class PageRequest extends HttpRequest
 		
 		return $layout->getPlaceHolderNames();
 	}
+	
+	public function getLayoutPlaceHolders()
+	{
+		$layout = $this->getLayout();
+		
+		if (is_null($layout)) {
+			return null;
+		}
+		
+		return $layout->getPlaceholders();
+	}
 
 	/**
 	 * @return Set\PlaceHolderSet
@@ -370,10 +381,13 @@ abstract class PageRequest extends HttpRequest
 		$pageSetIds = $this->getPageSetIds();
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		
+		$layoutPlaceHolders = $this->getLayoutPlaceHolders();
+		
 		$em = $this->getDoctrineEntityManager();
 		
 		// Skip only if empty array is received
-		if (is_array($layoutPlaceHolderNames) && empty($layoutPlaceHolderNames)) {
+//		if (is_array($layoutPlaceHolderNames) && empty($layoutPlaceHolderNames)) {
+		if (is_array($layoutPlaceHolders) && empty($layoutPlaceHolders)) {
 			return $this->placeHolderSet;
 		}
 		
@@ -784,11 +798,12 @@ abstract class PageRequest extends HttpRequest
 	public function createMissingPlaceHolders()
 	{
 		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
+		$layoutPlaceHolders = $this->getLayoutPlaceHolders();
 
 		if (empty($layoutPlaceHolderNames)) {
 			return;
 		}
-
+		
 		// getPlaceHolderSet() already contains current method call inside
 		// but it should not go recursively, as getPlaceHolderSet() will return
 		// set without executing, if it is already loaded
@@ -800,7 +815,10 @@ abstract class PageRequest extends HttpRequest
 		$finalPlaceHolders = $placeHolderSet->getFinalPlaceHolders();
 		$parentPlaceHolders = $placeHolderSet->getParentPlaceHolders();
 
-		foreach ($layoutPlaceHolderNames as $name) {
+		foreach ($layoutPlaceHolders as $layoutPlaceHolder) {
+			
+			$name = $layoutPlaceHolder->getName();
+			
 			if ( ! $finalPlaceHolders->offsetExists($name)) {
 
 
@@ -815,10 +833,19 @@ abstract class PageRequest extends HttpRequest
 				if (empty($placeHolder)) {
 					// Copy unlocked blocks from the parent template
 					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
-
+					
 					// TODO: should move to recursive clone
 					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
 					$placeHolder->setMaster($localization);
+					
+					// @FIXME: move to ::factory
+					if ( ! is_null($parentPlaceHolder)) {
+						$placeHolder->setContainer($parentPlaceHolder->getContainer());
+						$placeHolder->setPlaceholderSetName($parentPlaceHolder->getPlaceholderSetName());
+					} else {
+						$placeHolder->setContainer($layoutPlaceHolder->getContainer());
+						$placeHolder->setPlaceholderSetName($layoutPlaceHolder->getDefaultSetName());
+					}
 				}
 
 				// Persist only for draft connection with ID generation

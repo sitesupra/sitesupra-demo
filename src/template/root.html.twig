@@ -21,19 +21,27 @@
 <body>
 	<div id="header" title="Header">
 		<div class="inner">
+			{% block header %}
 			<!--placeHolder(header)-->
+			{% endblock %}
 		</div>
 	</div>
+	{% block sidebar %}
 	<div id="sidebar" title="Sidebar">
 		<!--placeHolder(sidebar)-->
 	</div>
+	{% endblock %}
+		
 	<div id="content" title="Main">
 		{% block content %}
 			<!--placeHolder(main)-->
 		{% endblock %}
 	</div>
+		
 	<div id="footer" title="Footer">
-		<!--placeHolder(footer)-->
+		{% block footer %}
+			<!--placeHolder(footer)-->
+		{% endblock %}
 	</div>
 
 	<script src="/assets/js/jquery.js"></script>

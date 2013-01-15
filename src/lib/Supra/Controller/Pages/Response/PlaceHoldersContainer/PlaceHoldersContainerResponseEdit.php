@@ -1,13 +1,13 @@
 <?php
 
-namespace Supra\Controller\Pages\Response\PlaceHolder;
+namespace Supra\Controller\Pages\Response\PlaceHoldersContainer;
 
 use Supra\Response\ResponseInterface;
 
 /**
- * Response for place holder edit mode
+ * 
  */
-class PlaceHolderResponseEdit extends PlaceHolderResponse
+class PlaceHoldersContainerResponseEdit extends PlaceHoldersContainerResponse
 {
 	/**
 	 * Flush the response to another response object
@@ -15,13 +15,11 @@ class PlaceHolderResponseEdit extends PlaceHolderResponse
 	 */
 	public function flushToResponse(ResponseInterface $response)
 	{
-		$placeHolder = $this->getPlaceHolder();
+		$containerName = $this->getContainer();
 		
-		$placeHolderName = $placeHolder->getName();
-		
-		$response->output('<div id="content_' . $placeHolderName 
+		$response->output('<div id="content_' . $containerName 
 				. '" class="yui3-content yui3-content-list yui3-content-list-' 
-				. $placeHolderName . '">');
+				. $containerName . '">');
 		
 		parent::flushToResponse($response);
 		

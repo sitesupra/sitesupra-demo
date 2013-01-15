@@ -226,3 +226,24 @@ table td, table th {
 #header .language-selector {
 	margin-top: -20px;
 }
+
+
+
+div.columns div {
+	min-width: 100px;
+	float: left;
+	margin: 10px;
+	background-color: #ecedf5;
+}
+
+div.columns div.last {
+	clear: right;
+}
+
+div.columns div.large-three {
+	min-width: 300px;
+}
+
+div.columns div.large-two {
+	min-width: 200px;
+}

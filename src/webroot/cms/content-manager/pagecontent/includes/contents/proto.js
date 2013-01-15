@@ -221,7 +221,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @type {String}
 		 */
 		getNodeId: function () {
-			var id = 'content_' + this.getBlockType() + '_' + this.getId();
+			var id = 'content_' + this.getId();
 			return id;
 		},
 		
@@ -431,7 +431,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var type = data.type;
 			var properties = Manager.Blocks.getBlock(type);
 			var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
-			var html_id = '#content_' + (type || null) + '_' + (data.id || null);
+			var html_id = '#content_' + (data.id || null);
 			
 			if (!use_only || body.one(html_id)) {
 				if (classname in PageContent) {
@@ -674,7 +674,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 					id = data.id,
 					classname_type = CLASSNAME + '-' + type;
 				
-				node = Y.Node.create('<div id="content_' + type + '_' + id + '" class="' + CLASSNAME + ' '  + classname_type + '">' + data.value || '' + '</div>');
+				node = Y.Node.create('<div id="content_' + id + '" class="' + CLASSNAME + ' '  + classname_type + '">' + data.value || '' + '</div>');
 				node.setData('blockId', this.getId());
 				
 				this.node = node;

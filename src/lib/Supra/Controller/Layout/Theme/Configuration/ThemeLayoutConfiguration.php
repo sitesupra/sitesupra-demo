@@ -10,6 +10,8 @@ use Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholder;
 use Supra\Controller\Layout\Processor\TwigProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use Supra\Controller\Pages\Entity\Theme as ThemeEntity;
+
 class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 {
 
@@ -32,7 +34,13 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 	 * @var ThemeLayout
 	 */
 	protected $layout;
+	
+	/**
+	 * @var array
+	 */
+	public $placeHolderContainers = array();
 
+	
 	/**
 	 * @return ThemeLayout
 	 */
@@ -81,8 +89,43 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 		$twigProcessor = new TwigProcessor();
 		$twigProcessor->setLayoutDir($rootDir);
 		$twigProcessor->setTheme($theme);
+		
+		$placeHolderContainers = $twigProcessor->getPlaceContainers($this->filename);
+		//$containersConfiguration = $theme->getPlaceholderContainerConfiguration();
+		
+		$themePlaceHolderSets = $theme->getPlaceholderSets();
+		
+		$containersPlaceHolders = array();
+		$placeContainerMap = array();
+		
+		if ( ! empty($placeHolderContainers)) {
+			
+			$setsPlaces = array();
+			
+			foreach ($placeHolderContainers as $containerName) {
+				
+				foreach ($themePlaceHolderSets as $placeHolderSet) {
+					
+					$setLayout = $placeHolderSet->getLayoutFilename();
+					$currentSetPlaces = $twigProcessor->getPlaces($setLayout);
+					
+					$setsPlaces = array_merge($setsPlaces, $currentSetPlaces);
+					
+				}
+				
+				foreach($setsPlaces as $placeName) {
+					$finalPlaceName = $containerName . '_' . $placeName;
+					if ( ! in_array($finalPlaceName, $containersPlaceHolders)) {
+						$containersPlaceHolders[] = $finalPlaceName;
+						$placeContainerMap[$finalPlaceName] = $containerName;
+					}
+				}
+			}
+		}
 
 		$placeholderNamesInTemplate = $twigProcessor->getPlaces($this->filename);
+		
+		$placeholderNamesInTemplate = array_merge($placeholderNamesInTemplate, $containersPlaceHolders);
 
 		$namesToRemove = array_diff($currentPlaceholderNames, $placeholderNamesInTemplate);
 		foreach ($namesToRemove as $nameToRemove) {
@@ -91,11 +134,28 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 
 		$namesToAdd = array_diff($placeholderNamesInTemplate, $currentPlaceholderNames);
 		foreach ($namesToAdd as $nameToAdd) {
+			
+			$containerName = null;
+			if (isset($placeContainerMap[$nameToAdd])) {
+				$containerName = $placeContainerMap[$nameToAdd];
+			}
 
-			$placeholder = new ThemeLayoutPlaceholder();
+			$placeholder = new ThemeLayoutPlaceholder($containerName);
 			$placeholder->setName($nameToAdd);
 
 			$layout->addPlaceholder($placeholder);
+		}
+		
+		// @FIXME
+		$defaultSet = $themePlaceHolderSets->first();
+		if ( ! empty($defaultSet)) {
+			$defaultSetName = $defaultSet->getName();
+		}
+		
+		foreach($containersPlaceHolders as $placeholderName) {
+			$placeholder = $placeholders->get($placeholderName);
+			$placeholder->setContainer($placeContainerMap[$placeholderName]);
+			$placeholder->setDefaultSetName($defaultSetName);
 		}
 	}
 

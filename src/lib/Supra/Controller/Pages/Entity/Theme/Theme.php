@@ -99,6 +99,14 @@ class Theme extends Database\Entity implements ThemeInterface
 	 * @var string
 	 */
 	protected $urlBase;
+	
+	/**
+	 * @OneToMany(targetEntity="ThemePlaceholderSet", mappedBy="theme", cascade={"all"}, orphanRemoval=true, indexBy="name")
+	 * @var Arraycollection
+	 */
+	protected $placeholderSets;
+	
+	protected $placeholderContainerConfiguration;
 
 	/**
 	 * @var array
@@ -112,6 +120,7 @@ class Theme extends Database\Entity implements ThemeInterface
 		$this->parameters = new ArrayCollection();
 		$this->parameterSets = new ArrayCollection();
 		$this->layouts = new ArrayCollection();
+		$this->placeholderSets = new ArrayCollection();
 	}
 
 	/**
@@ -667,6 +676,51 @@ class Theme extends Database\Entity implements ThemeInterface
 		$currentParameterSet = $this->getCurrentParameterSet();
 
 		$this->setParameterValue($currentParameterSet, $parameter, $newValue);
+	}
+	
+	/**
+	 * @FIXME
+	 */
+	public function getPlaceholderSets()
+	{
+		return $this->placeholderSets;
+	}
+
+	/**
+	 * @FIXME
+	 */
+	public function addPlaceholderSet(ThemePlaceholderSet $set)
+	{
+		$set->setTheme($this);
+		$this->placeholderSets->set($set->getName(), $set);
+	}
+
+	/**
+	 * @FIXME
+	 */
+	public function removePlaceholderSet(ThemePlaceholderSet $set)
+	{
+		$set->setTheme(null);
+
+		$this->placeholderSets->removeElement($set);
+	}
+
+	/**
+	 * @FIXME
+	 */
+	public function getPlaceholderSet($name)
+	{
+		return $this->placeholderSets->get($name);
+	}
+	
+	public function setPlaceholderContainerConfiguration($configuration)
+	{
+		$this->placeholderContainerConfiguration = $configuration;
+	}
+	
+	public function getPlaceholderContainerConfiguration()
+	{
+		return $this->placeholderContainerConfiguration;
 	}
 
 }

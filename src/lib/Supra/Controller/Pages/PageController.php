@@ -21,6 +21,8 @@ use Supra\Cache\CacheGroupManager;
 use Supra\Controller\Exception\AuthorizationRequiredException;
 use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
+use Supra\Controller\Pages\Response\PlaceHoldersContainer;
+
 /**
  * Page controller
  * @method PageRequest getRequest()
@@ -45,6 +47,12 @@ class PageController extends ControllerAbstraction
 	 * @var array
 	 */
 	private $blockControllers = array();
+	
+	/**
+	 *
+	 * @var array
+	 */
+	private $placeHoldersContainerResponses = array();
 
 	/**
 	 * @var array
@@ -237,9 +245,9 @@ class PageController extends ControllerAbstraction
 
 			$this->iterateBlocks($collectResponses, Listener\BlockExecuteListener::ACTION_RESPONSE_COLLECT);
 
-			$response->flush();
+			$response->flush();		
 		}
-
+		
 
 		\Log::debug("Layout {$layout} processed and output to response for {$page}");
 	}
@@ -395,10 +403,14 @@ class PageController extends ControllerAbstraction
 	/**
 	 * @param Entity\Theme\ThemeLayout $layout
 	 * @param array $blocks array of block responses
+	 * 
+	 * @FIXME
 	 */
 	protected function processLayout(Entity\Theme\ThemeLayout $layout, array $placeResponses)
 	{
 		$layoutProcessor = $this->getLayoutProcessor();
+		
+		$layoutProcessor->setLayout($layout);
 
 		$layoutProcessor->setTheme($layout->getTheme());
 
@@ -692,6 +704,9 @@ class PageController extends ControllerAbstraction
 	 * @param Entity\Abstraction\AbstractPage $page
 	 * @param Entity\Abstraction\PlaceHolder $placeHolder
 	 * @return PlaceHolder\PlaceHolderResponse
+	 * 
+	 * 
+	 * @FIXME
 	 */
 	public function createPlaceResponse(Entity\Abstraction\AbstractPage $page, Entity\Abstraction\PlaceHolder $placeHolder)
 	{
@@ -702,9 +717,31 @@ class PageController extends ControllerAbstraction
 		} else {
 			$response = new PlaceHolder\PlaceHolderResponseView();
 		}
-
+		
 		$response->setPlaceHolder($placeHolder);
 
+		$containerName = $placeHolder->getContainer();
+		if ( ! empty($containerName)) {
+			
+			if (isset($this->placeHoldersContainerResponses[$containerName])) {
+			
+				$containerResponse = $this->placeHoldersContainerResponses[$containerName];
+			} else {
+				
+				if ($this->request instanceof namespace\Request\PageRequestEdit) {
+					$containerResponse = new PlaceHoldersContainer\PlaceHoldersContainerResponseEdit();
+				} else {
+					$containerResponse = new PlaceHoldersContainer\PlaceHoldersContainerResponseView();
+				}
+
+				$this->placeHoldersContainerResponses[$containerName] = $containerResponse;
+			}
+			
+			$containerResponse->addPlaceHolderResponse($response);
+			
+			return $containerResponse;
+		}
+		
 		return $response;
 	}
 
@@ -758,7 +795,7 @@ class PageController extends ControllerAbstraction
 							$blockName = $blockController::BLOCK_NAME;
 						}
 
-						$prefixContent = '<div id="content_' . $blockName . '_' . $blockId
+						$prefixContent = '<div id="content_' . $blockId
 								. '" class="yui3-content yui3-content-' . $blockName
 								. ' yui3-content-' . $blockName . '-' . $blockId . '">';
 
@@ -791,6 +828,14 @@ class PageController extends ControllerAbstraction
 		$this->iterateBlocks($collectResponses, Listener\BlockExecuteListener::ACTION_RESPONSE_COLLECT);
 
 		return $placeResponses;
+	}
+	
+	/**
+	 * @FIXME
+	 */
+	public function returnPlaceResponses()
+	{
+		return $this->getPlaceResponses();
 	}
 
 	/**

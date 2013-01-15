@@ -234,7 +234,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 					var type = data[i].type;
 					var properties = Manager.Blocks.getBlock(type);
 					var classname = properties && properties.classname ? properties.classname : type[0].toUpperCase() + type.substr(1);
-					var html_id = '#content_' + (data[i].type || null) + '_' + (data[i].id || null);
+					var html_id = '#content_' + (data[i].id || null);
 					
 					if (!use_only || body.one(html_id)) {
 						if (classname in Action) {
