@@ -12,17 +12,17 @@ YUI.add('dashboard.visitors', function (Y) {
 	
 	var TEMPLATE_BODY = '\
 			<div class="su-block-content ui-center-dark-background">\
-				<div class="chart loading"></div>\
+				<div class="chart loading">\
+					<div class="monthly clearfix"></div>\
+					<div class="daily"></div>\
+				</div>\
 			</div>';
 	
 	var TEMPLATE_ITEM = '\
-			<li class="item">\
+			<div class="item">\
+				<p class="count">{{ amount }}</p>\
 				<p>{{ title|escape }}</p>\
-				<p class="right">\
-					<b>{{ amount }}</b>\
-					{% if change > 0 %}<span class="up">+{{ change }}</span>{% else %}<span class="down">{{ change }}</span>{% endif %}\
-				</p>\
-			</li>';
+			</div>';
 	
 	var COLORS = {
 			'pageviews': '#4ecb69',
@@ -89,6 +89,7 @@ YUI.add('dashboard.visitors', function (Y) {
 		//Templates
 		TEMPLATE_HEADING: TEMPLATE_HEADING,
 		TEMPLATE_BODY: TEMPLATE_BODY,
+		TEMPLATE_ITEM: TEMPLATE_ITEM,
 		
 		//Nodes
 		nodes: {
@@ -148,52 +149,67 @@ YUI.add('dashboard.visitors', function (Y) {
 		renderData: function (data) {
 			if (!this.nodes.body) return data;
 			
-			var container = this.nodes.body.one('.chart'),
-				formatted = [];
-			
 			if (data) {
-				container.removeClass('loading');
+				this.nodes.body.one('.chart').removeClass('loading');
 				
-				//Count data for general stats
-				var i = 0,
-					ii = data.visitors.length,
-					date = null;
-				
-				for (; i<ii; i++) {
-					/*
-						'date': data.visitors[i].date,
-						'pageviews': data.visitors[i].pageviews,
-						'visitors': data.visitors[i].visitors,
-						'visits': data.visitors[i].visits
-					*/
-				}
-				
-				//@TODO Replace image with real data
-				container.set('innerHTML', '<img class="details" src="/cms/dashboard/images/apps/visitors-stats.png" alt="" /><div class="inner"></div>');
-				
-				this.renderChart(data.visitors);
+				this.renderStats(data.monthly);
+				this.renderChart(data.daily);
 			}
 			
 			return data;
 		},
 		
 		/**
-		 * Render chart
+		 * Render monthly statistics
+		 */
+		renderStats: function (data) {
+			var container = this.nodes.body.one('.chart .monthly'),
+				template  = Supra.Template.compile(this.TEMPLATE_ITEM),
+				html      = '';
+			
+			console.log(data);
+			
+			html += template({
+				'title': Supra.Intl.get(['dashboard', 'visitors', 'visitors']),
+				'amount': Y.DataType.Number.format(data.visitors, {'thousandsSeparator': ' '})
+			});
+			
+			html += template({
+				'title': Supra.Intl.get(['dashboard', 'visitors', 'visits']),
+				'amount': Y.DataType.Number.format(data.visits, {'thousandsSeparator': ' '})
+			});
+			
+			html += template({
+				'title': Supra.Intl.get(['dashboard', 'visitors', 'pageviews']),
+				'amount': Y.DataType.Number.format(data.pageviews, {'thousandsSeparator': ' '})
+			});
+			
+			container.empty().append(html);
+		},
+		
+		/**
+		 * Render chart with daily data
 		 */
 		renderChart: function (data) {
-			var container = this.nodes.body.one('.chart .inner');
+			var container = this.nodes.body.one('.chart .daily');
 			
+			if (this.chart) {
+				this.chart.set('dataProvider', data);
+				return;
+			}
+			
+			// Render styled chart
 			var tooltip = {
 				'styles': {
 					'backgroundColor': '#202230',
 					'color': '#ffffff',
 					'borderColor': '#4e4a58',
 					'textAlign': 'left',
-					'fontSize': '11px',
+					'fontSize': '12px',
 					'fontWeight': 'bold',
-					'padding': '5px',
+					'padding': '7px 10px',
 					'borderRadius': '3px',
-					'line-height': '15px'
+					'line-height': '18px'
 				},
 				'setTextFunction': function (textField, val) {
 					textField.setContent(String(val));
@@ -207,7 +223,7 @@ YUI.add('dashboard.visitors', function (Y) {
 					// Format values
 					for (var i=0, ii=valueItems.length; i<ii; i++) {
 						name = valueItems[i].displayName;
-						label += '<span style="color: ' + COLORS[name] + '">' + Supra.Intl.get(['dashboard', 'visitors', name]) + ':</span> ' + valueItems[i].value + '<br />';
+						label += '<span class="tooltip-label" style="color: ' + COLORS[name] + '">' + Supra.Intl.get(['dashboard', 'visitors', name]) + ':</span> <span class="tooltip-value">' + valueItems[i].value + '</span><br />';
 					}
 					return label;
 				}
@@ -216,7 +232,7 @@ YUI.add('dashboard.visitors', function (Y) {
 			var chart = this.chart = new Y.Chart({
 				'dataProvider': data,
 				'type': 'combo',
-				'horizontalGridlines': false,
+				'horizontalGridlines': false, //{ 'styles': { 'line': { 'weight': 1, 'color': '#4e4a58' } } },
 				'verticalGridlines': false,
 				
 				'tooltip': tooltip,
@@ -232,7 +248,11 @@ YUI.add('dashboard.visitors', function (Y) {
 						'xAxis': 'xaxis',
                 		'yAxis': 'yaxis',
                 		'xKey': 'date',
-                		'yKey': 'pageviews'
+                		'yKey': 'pageviews',
+                		'styles': {
+                			'line-weight': 1,
+                			'color': '#4e4a58'
+                		}
                 	},
                 	{
 						'type': 'combo',
@@ -264,20 +284,14 @@ YUI.add('dashboard.visitors', function (Y) {
 						},
 						'type': 'category',
 						'styles': {
-							'majorTicks': {
-								'display': 'none',
-								'length': 0,
-							},
-							'minorTicks': {
-								'length': 0,
-							},
 							'line': {
 								'color': 'transparent'
 							},
 							'label': {
 								'color': '#a9acc1',
 								'fontSize': 100,
-								'textDecoration': 'none'
+								'textDecoration': 'none',
+								'textShadow': '0 1px 0 rgba(0, 0, 0, 0.75)'
 							}
 						}
 					}
@@ -328,11 +342,6 @@ YUI.add('dashboard.visitors', function (Y) {
 							'line': {
 								'weight': 2,
 								'color': COLORS.visitors_line
-							},
-							'axes': {
-								'majorTicks': {
-									'display': 'none'
-								}
 							},
 							'marker': {
 								'width': 18,
