@@ -362,19 +362,43 @@ class PagecontentAction extends PageManagerAction
 					$placeHolder = $templatePlaceHolder;
 				}
 			}
-
+			
+			// @FIXME: dumb, but temporary solution
 			if ( ! empty($placeHolder)) {
 				$properties = $input->getChild('properties');
 				$layout = $properties->get('layout');
 
 				$placeHolders = $request->getPageLocalization()
 					->getPlaceHolders();
-
+				
 				foreach($placeHolders as $placeHold) {
 					if ($placeHold->getContainer() == $placeHolderName) {
 						$placeHold->setPlaceholderSetName($layout);
 						$placeHolder->setLocked($locked);
 					}
+				}
+				
+				$qb = $this->entityManager->createQueryBuilder();
+				$localizationIdsResult = $qb->select('pl.id')
+						->from(Entity\PageLocalization::CN(), 'pl')
+						->where('pl.template = ?0')
+						->setParameter(0, $this->getPage())
+						->getQuery()
+						->getScalarResult()
+						;
+				
+				if ( ! empty($localizationIdsResult)) {
+					$ids = array();
+					foreach($localizationIdsResult as $localizationResult) {
+						$ids[] = $localizationResult['id'];
+					}
+					
+					$pagePlaceHolderCn = Entity\PagePlaceHolder::CN();
+					$this->entityManager->createQuery("UPDATE $pagePlaceHolderCn p SET p.setName = :setName WHERE p.localization IN (:ids) AND p.container = :container")
+								->setParameter('container', $placeHolderName)
+								->setParameter('setName', $layout)
+								->setParameter('ids', $ids)
+								->execute();
 				}
 			}
 			
