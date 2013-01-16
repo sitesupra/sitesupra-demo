@@ -147,15 +147,17 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 		}
 		
 		// @FIXME
-		$defaultSet = $themePlaceHolderSets->first();
-		if ( ! empty($defaultSet)) {
-			$defaultSetName = $defaultSet->getName();
-		}
-		
-		foreach($containersPlaceHolders as $placeholderName) {
-			$placeholder = $placeholders->get($placeholderName);
-			$placeholder->setContainer($placeContainerMap[$placeholderName]);
-			$placeholder->setDefaultSetName($defaultSetName);
+		if ( ! is_null($themePlaceHolderSets)) {
+			$defaultSet = $themePlaceHolderSets->first();
+			if ( ! empty($defaultSet)) {
+				$defaultSetName = $defaultSet->getName();
+			}
+
+			foreach($containersPlaceHolders as $placeholderName) {
+				$placeholder = $placeholders->get($placeholderName);
+				$placeholder->setContainer($placeContainerMap[$placeholderName]);
+				$placeholder->setDefaultSetName($defaultSetName);
+			}
 		}
 	}
 
