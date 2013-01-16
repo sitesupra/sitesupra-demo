@@ -3,6 +3,7 @@
 namespace Supra\Controller\Pages\Response\PlaceHoldersContainer;
 
 use Supra\Response\HttpResponse;
+use Supra\Controller\Pages\Response;
 
 class PlaceHoldersContainerResponse extends HttpResponse
 {
@@ -41,7 +42,7 @@ class PlaceHoldersContainerResponse extends HttpResponse
 	/**
 	 * @param \Supra\Controller\Pages\Response\PlaceHolder\PlaceHolderResponse $placeHolderResponse
 	 */
-	public function addPlaceHolderResponse(PlaceHolderResponse $placeHolderResponse)
+	public function addPlaceHolderResponse(Response\PlaceHolder\PlaceHolderResponse $placeHolderResponse)
 	{
 		$placeHolder = $placeHolderResponse->getPlaceHolder();
 		$placeHolderName = $placeHolder->getName();
