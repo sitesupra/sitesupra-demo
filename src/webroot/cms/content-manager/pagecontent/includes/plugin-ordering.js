@@ -525,8 +525,9 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				blockRegions = [],
 				blockRegionsOrder = {},
 				
-				listBlocks = this.get("host").getChildren(),
+				listBlocks = this.get("host").getAllChildren(),
 				listBlock = null,
+				listBlockData = null,
 				listId = null,
 				
 				blocks = null,
@@ -539,8 +540,17 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				listBlock = listBlocks[listId];
 				
 				// If block is closed, then children can't be ordered or dragged
-				if (!listBlock.isClosed()) {
-					blocks = listBlock.getAllChildren();
+				if (listBlock.isList() && !listBlock.isClosed()) {
+					
+					// Check if anything can be dropped inside
+					listBlockData = listBlock.get('data');
+					if ('allow' in listBlockData && !listBlockData.allow.length) {
+						// This list can't have any children, skipping
+						continue;
+					}
+					
+					
+					blocks = listBlock.getChildren();
 					blockRegionsOrder[listId] = [];
 					
 					for (id in blocks) {

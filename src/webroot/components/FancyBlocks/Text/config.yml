@@ -101,28 +101,28 @@
           values:
             - id: column_1
               title: 1 column
-              html: <table><tr><td class="h-2 w-12">1</td></tr></table>
+              html: <table><tr><td class="h-2 w-12">4</td></tr></table>
             - id: column_2
               title: 2 columns
-              html: <table><tr><td class="h-2 w-6">1</td><td class="h-2 w-2">2</td></tr></table>
+              html: <table><tr><td class="h-2 w-6">2</td><td class="h-2 w-2">2</td></tr></table>
             - id: column_3
               title: 3 columns
-              html: <table><tr><td class="h-2 w-4">1</td><td class="h-2 w-4">2</td><td class="h-2 w-4">3</td></tr></table>
+              html: <table><tr><td class="h-2 w-4">1</td><td class="h-2 w-4">1</td><td class="h-2 w-4">1</td></tr></table>
             - id: column_4
               title: 4 columns
-              html: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">2</td><td class="h-2 w-3">3</td><td class="h-2 w-3">4</td></tr></table>
+              html: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>
             - id: column_1_2_h
               title: 1+2 columns
-              html: <table><tr><td class="h-2 w-6" rowspan="2">1</td><td class="h-1 w-6">2</td></tr><tr><td class="h-1 w-6">3</td></tr></table>
+              html: <table><tr><td class="h-2 w-6" rowspan="2">2</td><td class="h-1 w-6">2</td></tr><tr><td class="h-1 w-6">2</td></tr></table>
             - id: column_2_1_h
               title: 2+1 columns
-              html: <table><tr><td class="h-1 w-6">1</td><td class="h-2 w-6" rowspan="2">3</td></tr><tr><td class="h-1 w-6">2</td></tr></table>
+              html: <table><tr><td class="h-1 w-6">2</td><td class="h-2 w-6" rowspan="2">2</td></tr><tr><td class="h-1 w-6">2</td></tr></table>
             - id: column_2_1_v
               title: 3 columns
-              html: <table><tr><td class="h-2 w-6">1</td><td class="h-2 w-3">2</td><td class="h-2 w-3">3</td></tr></table>
+              html: <table><tr><td class="h-2 w-6">2</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>
             - id: column_1_2_v
               title: 3 columns
-              html: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">2</td><td class="h-2 w-6">3</td></tr></table>
+              html: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-6">2</td></tr></table>
           additionalParameters:
             iconStyle: html
             style: mid
