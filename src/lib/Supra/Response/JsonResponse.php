@@ -53,6 +53,8 @@ class JsonResponse extends HttpResponse
 	public function __construct()
 	{
 		parent::__construct();
+		
+		parent::header('Content-Type', 'application/json', true);
 	}
 
 	/**
