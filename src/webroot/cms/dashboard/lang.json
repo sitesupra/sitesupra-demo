@@ -22,9 +22,8 @@
 			"visitors": {
 				"title": "Visitors",
 				"visits": "Visits",
-				"unique_visitors": "Unique Visitors",
-				"pageviews": "Pageviews",
-				"pages_per_visit": "Pages/Visit"
+				"visitors": "Visitors",
+				"pageviews": "Pageviews"
 			},
 			
 			"referrers": {

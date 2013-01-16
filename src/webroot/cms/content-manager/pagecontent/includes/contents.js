@@ -136,19 +136,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			Root.router.route(Root.ROUTE_PAGE_CONT, Y.bind(this.routeBlock, this));
 			
 			//Restore state
-			this.get('iframe').on('ready', function () {
-				var match = Root.getRoutePath().match(Root.ROUTE_PAGE_CONT_R);
-				if (match) {
-					var block = this.getChildById(match[1]);
-					if (block) {
-						//Need delay to make sure editing state is correctly set
-						//needed only if settings immediately after load
-						Y.later(1, this, function () {
-							this.set('activeChild', block);
-						});
-					}
-				}
-			}, this);
+			this.get('iframe').on('ready', this.onIframeReady, this);
 			
 			
 			//Bind block D&D
@@ -212,6 +200,25 @@ YUI.add('supra.iframe-contents', function (Y) {
 			var win = this.get('iframe').get('win');
 			this.resizeOverlays = Y.throttle(Y.bind(this.resizeOverlays, this), 50);
 			Y.on('resize', this.resizeOverlays, win);
+		},
+		
+		/**
+		 * On iframe ready restore editing state
+		 * 
+		 * @private
+		 */
+		onIframeReady: function () {
+			var match = Root.getRoutePath().match(Root.ROUTE_PAGE_CONT_R);
+			if (match) {
+				var block = this.getChildById(match[1]);
+				if (block) {
+					//Need delay to make sure editing state is correctly set
+					//needed only if settings immediately after load
+					Y.later(1, this, function () {
+						this.set('activeChild', block);
+					});
+				}
+			}
 		},
 		
 		/**
