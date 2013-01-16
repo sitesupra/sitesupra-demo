@@ -55,7 +55,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			setter: '_setHighlightMode'
 		},
 		
-		'highlightFilter': {
+		'highlightModeFilter': {
 			value: ''
 		}
 	};
@@ -157,7 +157,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 					var children = this.getAllChildren();
 					
 					for(var i in children) {
-						if (children[i].isInstanceOf('page-content-list')) {
+						if (children[i].isList()) {
 							//Check if it was dropped on this child
 							var position = children[i].getDropPosition();
 							
@@ -190,11 +190,11 @@ YUI.add('supra.iframe-contents', function (Y) {
 				//Only if dragging block
 				if (e.block) {
 					var type = e.block.id,
-						children = this.children,
+						children = children = this.getAllChildren(),
 						title = e.block.title;
 					
 					for(var i in children) {
-						if (children[i].isChildTypeAllowed(type)) {
+						if (children[i].isList() && children[i].isChildTypeAllowed(type)) {
 							children[i].markDropPosition(e, title);
 						}
 					}

@@ -84,10 +84,19 @@ Supra(function (Y) {
 							//add 'locked' property to property list;
 							//input will be hidden and disabled if current page is not template (see plugin-properties.js)
 							block.properties = block.properties || [];
+							block.property_groups = block.property_groups || [];
+							
 							block.properties.push({
 								'id': '__locked__',
 								'type': 'Checkbox',
-								'label': 'Global block'
+								'label': Supra.Intl.get(['inputs', 'locked']),
+								'group': 'advanced'
+							});
+							block.property_groups.push({
+								'id': 'advanced',
+								'label': Supra.Intl.get(['inputs', 'advanced']),
+								'type': 'sidebar',
+								'icon': null
 							});
 						}
 						
@@ -151,7 +160,16 @@ Supra(function (Y) {
 						{
 							'id': '__locked__',
 							'type': 'Checkbox',
-							'label': 'Global block'
+							'label': Supra.Intl.get(['inputs', 'locked']),
+							'group': 'advanced'
+						}
+					],
+					'property_groups': [
+						{
+							'id': 'advanced',
+							'label': Supra.Intl.get(['inputs', 'advanced']),
+							'type': 'sidebar',
+							'icon': null
 						}
 					],
 					'title': ''

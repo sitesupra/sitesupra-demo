@@ -114,11 +114,13 @@ Supra(function (Y) {
 						block = blocks[id];
 						block_definition = block.getBlockInfo();
 						
-						if (block_definition.hidden) {
+						if (block_definition.hidden && !is_placeholder) {
 							//Don't show hidden blocks (eq. broken block)
+							//But show hidden placeholders (eq. Placeholder sets)
 							continue;
 						}
 						
+						/*
 						//Change block title into more readable form
 						title = block_definition ? block_definition.title : '';
 						if (!title) {
@@ -126,6 +128,7 @@ Supra(function (Y) {
 							title = title.replace(/[\-\_\.]/g, ' ');
 							title = title.substr(0,1).toUpperCase() + title.substr(1);
 						}
+						*/
 						
 						//Icon
 						icon = (block_definition ? block_definition.icon : '');
@@ -141,7 +144,7 @@ Supra(function (Y) {
 						
 						template_data.push({
 							'id': id,
-							'title': title,
+							'title': block.getBlockTitle(),
 							'icon': icon 
 						});
 						

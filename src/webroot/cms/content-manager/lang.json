@@ -26,7 +26,10 @@
 		"inputs": {
 			"red": "Red",
 			"green": "Green",
-			"blue": "Blue"
+			"blue": "Blue",
+			
+			"advanced": "Advanced",
+			"locked": "Global block"
 		},
 		
 		"error": {

@@ -266,11 +266,21 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @type {String}
 		 */
 		getBlockTitle: function () {
+			var title = '';
 			if (this.isList()) {
-				return this.get('data').title;
+				title = this.get('data').title;
 			} else {
-				return this.getBlockInfo().title;
+				title = this.getBlockInfo().title;
 			}
+			
+			if (!title) {
+				// Change ID into more readable form
+				title = this.getId();
+				title = title.replace(/[\-\_\.]/g, ' ');
+				title = title.substr(0,1).toUpperCase() + title.substr(1);
+			}
+			
+			return title;
 		},
 		
 		/**
@@ -798,17 +808,22 @@ YUI.add('supra.page-content-proto', function (Y) {
 				old_mode = this.highlight_mode,
 				mode = attr_mode || mode || this.get('super').get('highlightMode'),
 				
+				// Children
 				children_mode = mode,
 				children = this.children,
 				id = null,
 				filter = null,
 				
+				// Nodes
 				overlay = this.getOverlayNode(),
-				classnames = CLASSNAME_OVERLAY_MODE,
-				
 				node = this.getNode(),
+				
+				// Node highlight
 				old_highlight_container = this.highlight_container,
 				highlight_container = false,
+				
+				// Overlay highlight classnames
+				classnames = CLASSNAME_OVERLAY_MODE,
 				
 				old_overlay_classname = this.highlight_mode_classname,
 				old_icon_classname = this.highlight_mode_icon_classname,
@@ -845,7 +860,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 					// - non-list overlays are visible with name
 					// - list overlays are hidden, but container itself is highlighted
 					
-					filter = this.get('super').get('highlightFilter') || '_undefined';
+					filter = this.get('super').get('highlightModeFilter') || '_undefined';
 					
 					// Only placeholders which can have child with given classname/type
 					if (is_list) {
@@ -967,13 +982,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			this.highlight_mode = mode;
-			
-			// ???
-			/*
-			if (this.get('editing')) {
-				this.set('editing', false);
-			}
-			*/
 			
 			// Highlight container itself
 			if (old_highlight_container != highlight_container) {
