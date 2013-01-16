@@ -802,21 +802,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @param {Boolean} overwrite If true attribute value will be ignored
 		 */
 		setHighlightMode: function (mode, overwrite) {
-			if (!this.overlay) {
-				
-				var children = this.children,
-					id = null;
-				
-				for (id in children) {
-					children[id].setHighlightMode(mode);
-				}
-				
-				return;
-			}
 			
-			var attr_mode = overwrite ? mode : this.get('highlightMode'),
-				old_mode = this.highlight_mode,
-				mode = attr_mode || mode || this.get('super').get('highlightMode'),
+				// Is this block a list?
+			var is_list = this.isList(),
 				
 				// Children
 				children_mode = mode,
@@ -827,10 +815,43 @@ YUI.add('supra.page-content-proto', function (Y) {
 				// Nodes
 				overlay = this.getOverlayNode(),
 				node = this.getNode(),
-				
+			
 				// Node highlight
 				old_highlight_container = this.highlight_container,
-				highlight_container = false,
+				highlight_container = false;
+			
+			
+			// If overlay is missing only apply styles for node
+			if (!overlay) {
+				
+				var children = this.children,
+					id = null;
+				
+				for (id in children) {
+					children[id].setHighlightMode(mode);
+				}
+				
+				if (mode == 'insert' || mode == 'order') {
+					filter = this.get('super').get('highlightModeFilter') || '_undefined';
+					
+					if (is_list && this.isChildTypeAllowed(filter)) {
+						// This list can have this child
+						highlight_container = true;
+					}
+				}
+				
+				if (old_highlight_container != highlight_container) {
+					node.toggleClass(CLASSNAME_HIGHLIGHT, highlight_container);
+					this.highlight_container = highlight_container;
+				}
+				
+				return;
+			}
+			
+			
+			var attr_mode = overwrite ? mode : this.get('highlightMode'),
+				old_mode = this.highlight_mode,
+				mode = attr_mode || mode || this.get('super').get('highlightMode'),
 				
 				// Overlay highlight classnames
 				classnames = CLASSNAME_OVERLAY_MODE,
@@ -841,10 +862,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				
 				overlay_classname = old_overlay_classname,
 				icon_classname = old_icon_classname,
-				name_classname = old_name_classname,
-				
-				// Is this block a list?
-				is_list = this.isList();
+				name_classname = old_name_classname;
 			
 			// Only if changed
 			if (old_mode == mode) return;
