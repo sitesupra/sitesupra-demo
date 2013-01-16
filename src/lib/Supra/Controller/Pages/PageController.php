@@ -786,6 +786,23 @@ class PageController extends ControllerAbstraction
 					}
 
 					$placeResponse = $placeResponses[$placeName];
+					
+					$placeHolderResponse = null;
+					
+					if ($placeResponse instanceof PlaceHoldersContainer\PlaceHoldersContainerResponse) {
+						$placeHolderResponse = $placeResponse->getPlaceHolderResponse($placeName);
+						
+						if (is_null($placeHolderResponse)) {
+							
+							$log->error("Placeholder response for name {$placeName} is not found inside PlaceHolderContainer response object");
+							
+							return null;
+						}
+					}
+					
+					if (empty($placeHolderResponse)) {
+						$placeHolderResponse = $placeResponse;
+					}
 
 					//TODO: move to separate method
 					if ($request instanceof Request\PageRequestEdit) {
@@ -799,13 +816,13 @@ class PageController extends ControllerAbstraction
 								. '" class="yui3-content yui3-content-' . $blockName
 								. ' yui3-content-' . $blockName . '-' . $blockId . '">';
 
-						$placeResponse->output($prefixContent);
+						$placeHolderResponse->output($prefixContent);
 					}
-
-					$placeResponse->output($response);
-
+					
+					$placeHolderResponse->output($response);
+					
 					if ($request instanceof Request\PageRequestEdit) {
-						$placeResponse->output('</div>');
+						$placeHolderResponse->output('</div>');
 					}
 
 					if (isset($blockCacheRequests[$blockId])) {

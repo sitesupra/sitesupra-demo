@@ -50,6 +50,7 @@ class PlaceHoldersContainerResponse extends HttpResponse
 		if (is_null($this->container)) {
 			$this->container = $placeHolder->getContainer();
 			$this->group = $placeHolder->getPlaceholderSetName();
+			$this->id = $this->container . mt_rand(0, 200);
 		}
 		
 		$nameInLayout = str_replace($this->container . '_', '', $placeHolderName);
@@ -63,6 +64,29 @@ class PlaceHoldersContainerResponse extends HttpResponse
 	public function getPlaceHolderResponses()
 	{
 		return $this->placeHolderResponses;
+	}
+	
+	public function getPlaceHolderResponse($placeName)
+	{
+		$nameInLayout = str_replace($this->container . '_', '', $placeName);
+		
+		if (isset($this->placeHolderResponses[$nameInLayout])) {
+			return $this->placeHolderResponses[$nameInLayout];
+		}
+		
+		return null;
+	}
+	
+	public function output($output)
+	{
+		if ($this->container == 'footer_set') {
+			1+1;
+		}
+		
+		
+		1+1;
+		
+		parent::output($output);
 	}
 	
 }

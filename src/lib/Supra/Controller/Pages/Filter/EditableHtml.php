@@ -42,7 +42,7 @@ class EditableHtml extends ParsedHtmlFilter
 		// Normalize block name
 		$blockName = $block->getComponentName();
 
-		$html = '<div id="content_' . $blockName . '_' . $blockId . '_' . $propertyName 
+		$html = '<div id="content_' . $blockId . '_' . $propertyName 
 				. '" class="yui3-content-inline yui3-input-html-inline-content">';
 		$html .= $content;
 		$html .= '</div>';

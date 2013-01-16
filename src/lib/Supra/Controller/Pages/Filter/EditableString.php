@@ -26,7 +26,7 @@ class EditableString implements FilterInterface
 		// Normalize block name
 		$blockName = $block->getComponentName();
 
-		$html = '<div id="content_' . $blockName . '_' . $blockId . '_' . $propertyName
+		$html = '<div id="content_' . $blockId . '_' . $propertyName
 				. '" class="yui3-content-inline yui3-input-string-inline">';
 		$html .= htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
 		$html .= '</div>';
