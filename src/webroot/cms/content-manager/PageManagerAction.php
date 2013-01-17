@@ -658,7 +658,7 @@ abstract class PageManagerAction extends CmsAction
 
 				if ($image instanceof Image) {
 					$info = $fs->getFileInfo($image);
-					$data['image'] = $info;
+					$data['image'] = $info + $element->toArray();
 				}
 			}
 

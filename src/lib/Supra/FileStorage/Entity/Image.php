@@ -128,7 +128,7 @@ class Image extends File
 	/**
 	 * Get collection of all assigned sizes
 	 *
-	 * @return type 
+	 * @return \Doctrine\Common\Collections\ArrayCollection
 	 */
 	public function getImageSizeCollection()
 	{

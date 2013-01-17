@@ -745,8 +745,13 @@ class FileStorage
 		$variant = $file->getImageSize($croppedVariantName);
 
 		$variant->setQuality($quality);
+		
 		$variant->setTargetWidth($width);
+		$variant->setWidth($width);
+		
 		$variant->setTargetHeight($height);
+		$variant->setHeight($height);
+		
 		$variant->setCropTop($cropTop);
 		$variant->setCropLeft($cropLeft);
 		$variant->setCropWidth($cropWidth);
@@ -869,6 +874,127 @@ class FileStorage
 
 		return $sizeName;
 	}
+	
+	
+	/**
+	 * Create resized version for the image
+	 * @param Entity\Image $file
+	 * @param integer $targetWidth
+	 * @param integer $targetHeight
+	 * @param boolean $cropped 
+	 * @param integer $quality
+	 * @param boolean $force
+	 * @return string
+	 */
+	public function createCroppedImageVariant(Entity\ImageSize $sourceImageSize, $targetWidth, $targetHeight, $cropped = false, $quality = 95, $force = false)
+	{
+		// validate params
+		if ( ! $sourceImageSize instanceof Entity\ImageSize) {
+			throw new Exception\RuntimeException('ImageSize entity expected');
+		}
+		if (($targetWidth <= 0) || ($targetHeight <= 0)) {
+			throw new Exception\RuntimeException('Dimensions are invalid');
+		}
+		
+		if ( ! $sourceImageSize->isCropped()) {
+			throw new Exception\RuntimeException('Cannot resize non-cropped images with this metod');
+		}
+		
+		$image = $sourceImageSize->getMaster();
+
+		$sizeName = $this->getImageSizeNameForResizedCrop($targetWidth, $targetHeight, $sourceImageSize->getTargetWidth(), $sourceImageSize->getTargetHeight(), $sourceImageSize->getCropLeft(), $sourceImageSize->getCropTop(), $sourceImageSize->getCropWidth(), $sourceImageSize->getCropHeight(), $cropped);
+			
+		if ( ! $this->fileExists($image)) {
+			$this->log()->warn("Image '{$image->getFileName()}' is missing in the filesystem, tried to resize cropped variant to {$sizeName}");
+
+			return $sizeName;
+		}
+		
+		$size = $image->getImageSize($sizeName);
+
+		if (($size->getTargetHeight() == $targetHeight)
+				&& ($size->getTargetWidth() == $targetWidth)
+				&& ($size->getQuality() == $quality)
+				&& ($size->getCropMode() == $cropped)
+				&& empty($force)
+		) {
+			// nothing to update
+			return $sizeName;
+		}
+		
+		$size->setCropTop($sourceImageSize->getCropTop());
+		$size->setCropLeft($sourceImageSize->getCropLeft());
+		$size->setCropWidth($sourceImageSize->getCropWidth());
+		$size->setCropHeight($sourceImageSize->getCropHeight());
+		
+		$size->setCropSourceWidth($sourceImageSize->getWidth());
+		$size->setCropSourceHeight($sourceImageSize->getHeight());
+	
+		$size->setQuality($quality);
+		$size->setCropMode($cropped);
+		$size->setTargetWidth($targetWidth);
+		$size->setTargetHeight($targetHeight);
+
+		$originalFilePath = $this->getImagePath($image, $sourceImageSize->getName());
+
+		// initiate resizer
+		$resizer = new ImageProcessor\ImageResizer;
+		$resizer->setSourceFile($originalFilePath)
+				->setOutputQuality($quality)
+				->setTargetWidth($targetWidth)
+				->setTargetHeight($targetHeight)
+				->setCropMode($cropped);
+
+		$expectedSize = $resizer->getExpectedSize();
+		$size->setWidth($expectedSize['width']);
+		$size->setHeight($expectedSize['height']);
+
+		$resizedFileDir = $this->getFilesystemDir($image)
+				. self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
+				. $size->getFolderName();
+
+		if ( ! file_exists($resizedFileDir)) {
+			$mkdirResult = mkdir($resizedFileDir, $this->folderAccessMode, true);
+			if (empty($mkdirResult)) {
+				throw new Exception\RuntimeException(
+						'Could not create directory for resized image');
+			}
+		}
+
+		$resizedFilePath = $resizedFileDir . DIRECTORY_SEPARATOR . $image->getFileName();
+		$resizer->setOutputFile($resizedFilePath);
+		$resizer->process();
+
+		$entityManager = $this->getDoctrineEntityManager();
+
+		$entityManager->persist($size);
+		
+		$size->setCropSourceWidth($sourceImageSize->getWidth());
+		$size->setCropSourceHeight($sourceImageSize->getHeight());
+		
+		$entityManager->flush();
+
+		return $sizeName;
+	}
+	
+	
+	public function getImageSizeNameForResizedCrop($targetWidth, $targetHeight, $sourceWidth, $sourceHeight, $cropLeft, $cropTop, $cropWidth, $cropHeight)
+	{
+		$sizeNameParts = array($targetWidth, 'x', $targetHeight, 'c', $sourceWidth, 'x', $sourceHeight);
+
+		if ($cropLeft || $cropTop || $cropWidth || $cropHeight) {
+			$sizeNameParts[] = 't';
+			$sizeNameParts[] = intval($cropTop);
+			$sizeNameParts[] = 'l';
+			$sizeNameParts[] = intval($cropTop);
+			$sizeNameParts[] = 'w';
+			$sizeNameParts[] = intval($cropWidth);
+			$sizeNameParts[] = 'h';
+			$sizeNameParts[] = intval($cropHeight);
+		}
+
+		return join('', $sizeNameParts);
+	}
 
 	/**
 	 * @param integer $width
@@ -887,7 +1013,7 @@ class FileStorage
 			$sizeNameParts[] = 't';
 			$sizeNameParts[] = intval($cropTop);
 			$sizeNameParts[] = 'l';
-			$sizeNameParts[] = intval($cropTop);
+			$sizeNameParts[] = intval($cropLeft);
 			$sizeNameParts[] = 'w';
 			$sizeNameParts[] = intval($cropWidth);
 			$sizeNameParts[] = 'h';
@@ -896,7 +1022,7 @@ class FileStorage
 
 		return join('', $sizeNameParts);
 	}
-
+	
 	/**
 	 * Returns image size name, based on image height, weight and cropped flag
 	 * @param integer $targetWidth
@@ -1096,7 +1222,7 @@ class FileStorage
 	/**
 	 * Get full file path or its directory (with trailing slash)
 	 * @param Entity\Abstraction\File $file
-	 * @param boolean $dirOnly 
+	 * @param boolean $includeFilename
 	 * @param integer $forcePath Forces external or internal path. Use FILE_INFO_EXTERNAL and FILE_INFO_INTERNAL constants
 	 * @return string
 	 */

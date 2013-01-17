@@ -660,6 +660,15 @@ class PagecontentAction extends PageManagerAction
 			}
 			
 			$metaItem->setName($index);
+			
+			if ($metaItemInput->hasChild('image')) {
+				$imageData = $metaItemInput->getChild('image')
+						->getArrayCopy();
+
+				$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
+				$element->fillArray($imageData);
+			}
+			
 			$element->setImageId($imageId);
 			
 			$metaItem->setReferencedElement($element);
