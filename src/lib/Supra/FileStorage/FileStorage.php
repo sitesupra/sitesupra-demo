@@ -711,8 +711,8 @@ class FileStorage
 	public function createImageVariant(Entity\Image $file, $width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight, $quality = 95, $force = false)
 	{
 		
-		if ( ! ($cropLeft || $cropTop || $cropWidth || $cropHeight)) {
-			$resizedVariantName = $this->createResizedImage($file, $width, $height);
+		if ( ! ($cropLeft || $cropTop || $cropWidth || $cropHeight) || 
+				( ! $cropLeft && ! $cropTop && $cropWidth == $width && $cropHeight == $height)) {
 			
 			return $resizedVariantName;
 		}
