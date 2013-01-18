@@ -280,7 +280,13 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * @private
 		 */
 		normalizeItemData: function (data) {
-			if (!data.image || data.image.id) {
+			if (data.image && data.image.crop_width) {
+				// Image has crop and size properties
+				if (!data.image.image) {
+					data.broken = true;
+				}
+			} else if (!data.image || data.image.id) {
+				// No crop or size properties, add default ones
 				var image = data.image;
 				data.image = {
 					'image': image && image.sizes ? image : null,
