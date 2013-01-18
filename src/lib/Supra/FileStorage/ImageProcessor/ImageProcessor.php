@@ -323,6 +323,22 @@ abstract class ImageProcessor
 			imagesavealpha($destImage, true);
 		}
 	}
+	
+	/**
+	 * 
+	 * @param \Supra\FileStorage\ImageInfo $imageInfo
+	 * @param integer $width
+	 * @param integer $height
+	 * @return resource
+	 */
+	public function createOutputImage($imageInfo, $width, $height)
+	{
+		if ($imageInfo->getType() == IMAGETYPE_PNG) {
+			return imagecreate($width, $height);
+		}
+		
+		return imagecreatetruecolor($width, $height);
+	}
 
 	/**
 	 * Process
