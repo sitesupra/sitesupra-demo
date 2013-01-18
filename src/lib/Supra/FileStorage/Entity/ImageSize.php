@@ -82,6 +82,19 @@ class ImageSize extends Abstraction\Entity
 	 * @var integer
 	 */
 	protected $cropHeight;
+        
+    /**
+     * @Column(name="crop_source_width", type="integer", nullable=true)
+     * @var integer
+     */
+    protected $cropSourceWidth;
+    
+    /**
+     * @Column(name="crop_source_height", type="integer", nullable=true)
+     * @var integer
+     */
+    protected $cropSourceHeight;
+    
 
 	/**
 	 * Construct
