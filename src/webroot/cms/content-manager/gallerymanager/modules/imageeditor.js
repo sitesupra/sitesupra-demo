@@ -108,15 +108,20 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 		_startEditing: function () {
 			var imageResizer = this.get('imageResizer'),
 				node = this.get('srcNode'),
+				wrap = null,
+				width = 0,
 				size = this.get('value').image.sizes.original;
 			
 			if (!imageResizer) {
+				wrap = node.closest('.supra-image') || node;
+				width = wrap.getAttribute('width') || wrap.get('offsetWidth');
+				
 				imageResizer = new Supra.ImageResizer({
 					'mode': Supra.ImageResizer.MODE_IMAGE,
 					'allowZoomResize': false,
 					'autoClose': false,
-					'maxCropWidth': node.get('offsetWidth'),
-					'minCropWidth': node.get('offsetWidth')
+					'maxCropWidth': width,
+					'minCropWidth': width
 				});
 				imageResizer.on('resize', this._editingUpdate, this);
 				
