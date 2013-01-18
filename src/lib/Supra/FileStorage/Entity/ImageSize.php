@@ -82,18 +82,19 @@ class ImageSize extends Abstraction\Entity
 	 * @var integer
 	 */
 	protected $cropHeight;
-	
-	/**
-	 * @Column(name="crop_source_width", type="integer", nullable=true)
-	 * @var integer
-	 */
-	protected $cropSourceWidth;
-	
-	/**
-	 * @Column(name="crop_source_height", type="integer", nullable=true)
-	 * @var integer
-	 */
-	protected $cropSourceHeight;
+        
+    /**
+     * @Column(name="crop_source_width", type="integer", nullable=true)
+     * @var integer
+     */
+    protected $cropSourceWidth;
+    
+    /**
+     * @Column(name="crop_source_height", type="integer", nullable=true)
+     * @var integer
+     */
+    protected $cropSourceHeight;
+    
 
 	/**
 	 * Construct
@@ -195,15 +196,8 @@ class ImageSize extends Abstraction\Entity
 	public function getFolderName()
 	{
 		$return = array($this->getWidth(), 'x', $this->getHeight());
-		
+
 		if ($this->isCropped()) {
-			
-			if ($this->isCropVariant()) {
-				$return[] = 'c';
-				$return[] = intval($this->getCropSourceWidth());
-				$return[] = 'x';
-				$return[] = intval($this->getCropSourceHeight());
-			}
 
 			$return[] = 't';
 			$return[] = intval($this->getCropTop());
@@ -214,7 +208,7 @@ class ImageSize extends Abstraction\Entity
 			$return[] = 'h';
 			$return[] = intval($this->getCropHeight());
 		}
-		
+
 		return join('', $return);
 	}
 
@@ -224,14 +218,6 @@ class ImageSize extends Abstraction\Entity
 	public function isCropped()
 	{
 		return $this->getCropLeft() || $this->getCropTop() || $this->getCropWidth() || $this->getCropHeight();
-	}
-	
-	/**
-	 * @return boolean
-	 */
-	public function isCropVariant()
-	{
-		return $this->getCropSourceHeight() || $this->getCropSourceWidth();
 	}
 
 	/**
@@ -379,38 +365,6 @@ class ImageSize extends Abstraction\Entity
 	public function setCropHeight($cropHeight)
 	{
 		$this->cropHeight = $cropHeight;
-	}
-	
-	/**
-	 * @return integer
-	 */
-	public function getCropSourceWidth()
-	{
-		return $this->cropSourceWidth;
-	}
-	
-	/**
-	 * @return integer
-	 */
-	public function getCropSourceHeight()
-	{
-		return $this->cropSourceHeight;
-	}
-	
-	/**
-	 * @param integer $sourceWidth
-	 */
-	public function setCropSourceWidth($sourceWidth)
-	{
-		$this->cropSourceWidth = $sourceWidth;
-	}
-	
-	/**
-	 * @param integer $sourceHeight
-	 */
-	public function setCropSourceHeight($sourceHeight)
-	{
-		$this->cropSourceHeight = $sourceHeight;
 	}
 
 }
