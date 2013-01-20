@@ -713,7 +713,8 @@ class FileStorage
 		
 		if ( ! ($cropLeft || $cropTop || $cropWidth || $cropHeight) || 
 				( ! $cropLeft && ! $cropTop && $cropWidth == $width && $cropHeight == $height)) {
-			
+				
+			$resizedVariantName = $this->createResizedImage($file, $width, $height);
 			return $resizedVariantName;
 		}
 		else {
