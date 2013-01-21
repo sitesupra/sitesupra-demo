@@ -45,6 +45,12 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @var string
 	 */
 	protected $target;
+    
+    /**
+     * @Column(type="string", nullable=true)
+     * @var string
+     */
+    protected $classname;
 	
 	/**
 	 * @Column(type="string", nullable=true)
@@ -121,6 +127,22 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	{
 		$this->target = $target;
 	}
+    
+    /**
+     * @return string
+     */
+    public function getClassName()
+    {
+        return $this->classname;
+    }
+
+    /**
+     * @param string $classname
+     */
+    public function setClassName($classname)
+    {
+        $this->classname = $classname;
+    }
 
 	/**
 	 * @return string
@@ -252,6 +274,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			'page_master_id' => $this->pageId,
 			'file_id' => $this->fileId,
 			'href' => $this->href,
+			'classname' => $this->classname,
 		);
 		
 		return $array;
@@ -269,7 +292,8 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		$this->pageId = $array['page_master_id'];
 		$this->fileId = $array['file_id'];
 		$this->href = $array['href'];
-		
+		$this->classname = $array['classname'];
+        
 		$this->pageLocalization = null;
 	}
 	

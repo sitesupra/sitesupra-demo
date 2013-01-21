@@ -11,7 +11,6 @@
 	for (name in modules) {
 		
 		if (name.indexOf('skin-') === 0) {
-			//console.log(name);
 			loaded[name] = true;
 		} else if (name.indexOf('supra.') === 0) {
 			loaded['skin-supra-' + name] = true;

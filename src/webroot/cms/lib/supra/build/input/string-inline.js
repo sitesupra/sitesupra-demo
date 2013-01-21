@@ -84,7 +84,9 @@ YUI.add("supra.input-inline-string", function (Y) {
 					'win': win,
 					'srcNode': src,
 					'toolbar': this.get('toolbar'),
-					'mode': Supra.HTMLEditor.MODE_STRING
+					'mode': Supra.HTMLEditor.MODE_STRING,
+					'parent': this,
+					'root': this.get('root') || this
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);

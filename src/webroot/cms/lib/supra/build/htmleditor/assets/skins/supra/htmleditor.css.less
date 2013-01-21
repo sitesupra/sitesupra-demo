@@ -31,7 +31,8 @@
 }
 
 .yui3-editor-toolbar-text,
-.yui3-editor-toolbar-table {
+.yui3-editor-toolbar-table,
+.yui3-editor-toolbar-itemlist {
 	.box-shadow (0, 1px, 0, rgba(0,0,0,0.15));
 	.border-radius (0, 0, 3px, 3px);
 	
@@ -92,7 +93,7 @@
 			}
 			button {
 				background-position: 100% @button-height * -2;
-				padding: 0 5px;
+				padding: 0 4px;
 			}
 			p {
 				display: none;
@@ -115,7 +116,7 @@
 			}
 			
 			&.su-button-last {
-				margin-right: 4px;
+				margin-right: 3px;
 			}
 			&.su-button-last button {
 				background-position: 100% @button-height * -4;
@@ -187,12 +188,13 @@
 // Firefox fix
 .gecko {
 	.yui3-editor-toolbar-text,
-	.yui3-editor-toolbar-table {
+	.yui3-editor-toolbar-table,
+	.yui3-editor-toolbar-itemlist {
 		/**
 		 * Toolbar buttons
 		 */
 		.su-button-group button {
-			padding: 0 3px;
+			padding: 0 2px;
 		}
 	}
 }
@@ -238,7 +240,8 @@
 /* Cross-browser inconsistencies fix */
 .gecko, .ie {
 	.yui3-editor-toolbar-text .yui3-button img,
-	.yui3-editor-toolbar-table .yui3-button img {
+	.yui3-editor-toolbar-table .yui3-button img,
+	.yui3-editor-toolbar-itemlist .yui3-button img {
 		position: relative;
 		margin: 0 0 0 -1px;
 		display: inline-block;

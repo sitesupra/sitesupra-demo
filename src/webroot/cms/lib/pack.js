@@ -807,6 +807,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-table',
+			'supra.htmleditor-plugin-itemlist',
 			'supra.htmleditor-plugin-table-mobile',
 			'supra.htmleditor-plugin-fullscreen',
 			'supra.htmleditor-plugin-formats',
@@ -878,6 +879,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-table-mobile': {
 			path: 'htmleditor/plugins/plugin-table-mobile.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-itemlist': {
+			path: 'htmleditor/plugins/plugin-itemlist.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-fullscreen': {
@@ -7650,6 +7655,14 @@ YUI.add('supra.input-text', function (Y) {
 		 */
 		'stylesheetParser': {
 			value: null
+		},
+		
+		/**
+		 * Delayed initialization
+		 * Used for performance reasons
+		 */
+		'delayedInitialization': {
+			value: false
 		}
 	};
 	
@@ -7710,6 +7723,18 @@ YUI.add('supra.input-text', function (Y) {
 			this.commands = {};
 			this.selection = null;
 			
+			// For performance reasons (if there is we must delay initialization
+			if (this.get('delayedInitialization')) {
+				Y.later(16, this, this.renderDelayed);
+			} else {
+				this.renderDelayed();
+			}
+		},
+		
+		/**
+		 * Initialize everything
+		 */
+		renderDelayed: function () {
 			if (!this.get("stylesheetParser")) {
 				var root = this.get("root");
 				if (root && root.getStylesheetParser) {
@@ -9762,6 +9787,21 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						{"id": "column-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-after.png",  "command": "column-after"},
 					{"type": "separator"},
 						{"id": "table-settings",   "type": "button", "buttonType": "push", "command": "table-settings", "style": "small"}
+				]
+			},
+			{
+				"id": "itemlist",
+				"autoVisible": false, // visible only when needed
+				"visible": false,
+				"animate": true,
+				"height": 42,
+				"controls": [
+					{"id": "itemlist-row-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-before.png",  "command": "itemlist-before"},
+					{"id": "itemlist-row-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-delete.png",  "command": "itemlist-delete"},
+					{"id": "itemlist-row-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-after.png",  "command": "itemlist-after"},
+					{"id": "itemlist-column-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-before.png",  "command": "itemlist-before", "visible": false},
+					{"id": "itemlist-column-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-delete.png",  "command": "itemlist-delete", "visible": false},
+					{"id": "itemlist-column-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-after.png",  "command": "itemlist-after", "visible": false}
 				]
 			}
 		]
@@ -12655,7 +12695,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				var uid = htmleditor.generateDataUID(),
 					text = this.htmleditor.getSelectionText(),
 					href = this.normalizeHref(data.href),
-					html = '<a id="' + uid + '"' + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '" href="' + href + '">' + text + '</a>';
+					html = '<a id="' + uid + '"' + (data.classname ? ' class="' + data.classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '" href="' + href + '">' + text + '</a>';
 				
 				data.type = this.NAME;
 				htmleditor.setData(uid, data)
@@ -12688,7 +12728,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					'title': target.getAttribute('title'),
 					'target': target.getAttribute('target'),
 					'href': this.normalizeHref(target.getAttribute('href')),
-					'resource': 'link'
+					'resource': 'link',
+					'classname': target.getAttribute('class')
 				}
 			}
 			
@@ -12878,6 +12919,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				var data = htmleditor.getData(id);
 				
 				if (data && data.type == NAME) {
+					//Extract classname
+					var classname = html.match(/class="([^"]+)"/);
+					data.classname = classname ? classname[1] : '';
+					
 					return '{supra.' + NAME + ' id="' + id + '"}';
 				} else {
 					return html;
@@ -12909,6 +12954,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 						'resource': 'link',
 						'target': attrs.target || '',
 						'title': attrs.title || '',
+						'classname': attrs['class'] || '',
 						'type': 'link'
 					};
 				
@@ -12941,7 +12987,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
 				
 				var href = self.normalizeHref(data[id].href);
-				return '<a id="' + id + '"' + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '" href="' + href + '">';
+				return '<a id="' + id + '"' + (data[id].classname ? ' class="' + data[id].classname + '"' : '') + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '" href="' + href + '">';
 			});
 			
 			//Closing tags
@@ -13922,6 +13968,516 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
+}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
+	
+	//Constants
+	var HTMLEDITOR_TOOLBAR = 'itemlist';
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+	};
+	
+	//Shortcuts
+	var Manager = Supra.Manager;
+	
+	
+	Supra.HTMLEditor.addPlugin('itemlist', defaultConfiguration, {
+		
+		
+		/* --------------------------- TOOLBAR --------------------------- */
+		
+		
+		/**
+		 * Show itemlist toolbar
+		 */
+		showToolbar: function () {
+			var toolbar = this.htmleditor.get('toolbar'),
+				orientation = this.getOptions().orientation;
+			
+			toolbar.showGroup(HTMLEDITOR_TOOLBAR);
+			
+			if (orientation == 'horizontal') {
+				toolbar.getButton('itemlist-row-before').hide();
+				toolbar.getButton('itemlist-row-delete').hide();
+				toolbar.getButton('itemlist-row-after').hide();
+				toolbar.getButton('itemlist-column-before').show();
+				toolbar.getButton('itemlist-column-delete').show();
+				toolbar.getButton('itemlist-column-after').show();
+			} else {
+				toolbar.getButton('itemlist-row-before').show();
+				toolbar.getButton('itemlist-row-delete').show();
+				toolbar.getButton('itemlist-row-after').show();
+				toolbar.getButton('itemlist-column-before').hide();
+				toolbar.getButton('itemlist-column-delete').hide();
+				toolbar.getButton('itemlist-column-after').hide();
+			}
+		},
+		
+		/**
+		 * Hide itemlist toolbar
+		 */
+		hideToolbar: function () {
+			var toolbar = this.htmleditor.get('toolbar');
+			toolbar.hideGroup(HTMLEDITOR_TOOLBAR);
+		},
+		
+		
+		/* --------------------------- Options --------------------------- */
+		
+		
+		/**
+		 * Configuration options, how to handle DOM, etc.
+		 * @type {Object}
+		 * @private
+		 */
+		_options: null,
+		
+		/**
+		 * Returns options from embeded script tag in page HTML
+		 */
+		getOptions: function () {
+			if (this._options !== null) return this._options;
+			
+			var container = this.getBlockContainer();
+				node = container ? container.one('[type="text/supra-instructions"]') : null,
+				options = {
+					'orientation': 'horizontal',
+					'properties': []
+				};
+			
+			if (node) {
+				try {
+					options = Supra.mix(options, Y.JSON.parse(node.get('innerHTML')) || {});
+				} catch (err) {
+					options = false;
+				}
+			}
+			
+			if (!options || !options.properties || !options.properties.length) {
+				options = false; 
+			}
+			
+			this._options = options;
+			
+			return options;
+		},
+		
+		/**
+		 * Returns property options
+		 */
+		getPropertyOptions: function (property) {
+			var properties = this.getOptions().properties,
+				i = 0,
+				ii = properties.length;
+			
+			property = property.replace(/\d+/, '%d');
+			
+			for (; i<ii; i++) {
+				if (properties[i].name === property) return properties[i];
+			}
+			
+			return null;
+		},
+		
+		
+		/* --------------------------- ITEMS --------------------------- */
+		
+		/**
+		 * Number of items used
+		 * @type {Number}
+		 * @private
+		 */
+		_count: 0,
+		
+		/**
+		 * Total number of items
+		 * @type {Number}
+		 * @private
+		 */
+		_total: 0,
+		
+		/**
+		 * List of nodes grouped by property name
+		 * @type {Object}
+		 * @private
+		 */
+		_nodes: null,
+		
+		
+		/**
+		 * Remove cache
+		 */
+		purgeCache: function () {
+			this._nodes = null;
+		},
+		
+		/**
+		 * Collect cache
+		 */
+		collectCache: function () {
+			this.getItemNodes();
+		},
+		
+		/**
+		 * Returns list of all nodes grouped by property name
+		 * 
+		 * @returns {Object}
+		 */
+		getItemNodes: function () {
+			if (this._nodes) return this._nodes;
+			
+			var node = this.getBlockContainer(),
+				properties = this.getOptions().properties,
+				i = 0,
+				ii = properties.length,
+				nodes = {},
+				
+				tmp = null,
+				count = 0,
+				total = 0;
+			
+			if (node) {
+				for (; i<ii; i++) {
+					tmp = node.all(properties[i]['item-selector']);
+					nodes[properties[i]['name']] = tmp;
+					
+					if (i == 0) {
+						total = tmp.size();
+						count = total - tmp.filter('.supra-hidden').size();
+					}
+				}
+			}
+			
+			this._total = total;
+			this._count = count;
+			
+			return nodes; 
+		},
+		
+		/**
+		 * Returns block container node
+		 * 
+		 * @returns {Object} Block container node
+		 */
+		getBlockContainer: function () {
+			var root = this.htmleditor.get('root');
+			if (root && root.getNode) return root.getNode();
+			return null;
+		},
+		
+		/**
+		 * Returns active index
+		 * 
+		 * @returns {Number} Active item index
+		 */
+		getActiveIndex: function () {
+			var properties = this.getOptions().properties,
+				i = 0,
+				ii = properties.length,
+				classname = '',
+				
+				nodes = this.getItemNodes(),
+				tmp = null,
+				k = 0,
+				kk = 0;
+			
+			for (; i<ii; i++) {
+				classname = properties[i]['classname-active'];
+				if (classname) {
+					tmp = nodes[properties[i].name];
+					k = 0;
+					kk = tmp.size();
+					
+					for (; k<kk; k++) {
+						if (tmp.item(k).hasClass(classname)) return k;
+					}
+				}
+			}
+			
+			// Fail...
+			return 0;
+		},
+		
+		/**
+		 * Returns nodes by index
+		 */
+		getItemNodesByIndex: function (index) {
+			var nodes = this.getItemNodes(),
+				properties = this.getOptions().properties,
+				i = 0,
+				ii = properties.length,
+				output = [],
+				node = null;
+			
+			for (; i<ii; i++) {
+				node = nodes[properties[i].name].item(index);
+				if (node) {
+					output.push(node);
+				}
+			}
+			
+			return output;
+		},
+		
+		/**
+		 * Hide item by index
+		 * 
+		 * @param {Number} index Item index
+		 */
+		hideItemByIndex: function (index) {
+			var nodes = this.getItemNodesByIndex(index),
+				i = 0,
+				ii = nodes.length;
+			
+			for (; i<ii; i++) {
+				nodes[i].addClass('supra-hidden');
+			}
+		},
+		
+		/**
+		 * Show item by index
+		 * 
+		 * @param {Number} index Item index
+		 */
+		showItemByIndex: function (index) {
+			var nodes = this.getItemNodesByIndex(index),
+				i = 0,
+				ii = nodes.length;
+			
+			for (; i<ii; i++) {
+				nodes[i].removeClass('supra-hidden');
+			}
+		},
+		
+		/**
+		 * Set active item by index
+		 * 
+		 * @param {Number} index Item index
+		 */
+		setActiveItemByIndex: function (index) {
+			if (index >= 0 && index < this._count) {
+				
+				var properties = this.getOptions().properties,
+					i = 0,
+					ii = properties.length,
+					nodes = this.getItemNodes(),
+					tmp = null,
+					k = 0,
+					kk = 0,
+					classname = '';
+				
+				for (; i<ii; i++) {
+					classname = properties[i]['classname-active'];
+					
+					if (classname) {
+						tmp = nodes[properties[i].name];
+						k = 0;
+						kk = tmp.size();
+						
+						for (; k<kk; k++) {
+							if (k === index) {
+								tmp.item(k).addClass(classname);
+							} else {
+								tmp.item(k).removeClass(classname);
+							}
+						}
+					}
+				}
+				
+			}
+		},
+		
+		/**
+		 * Copy property values from index a to index b
+		 */
+		copyItemPropertiesByIndex: function (a, b) {
+			var properties = this.getOptions().properties,
+				i = 0,
+				ii = properties.length,
+				name_a = null,
+				name_b = null,
+				root = this.htmleditor.get('root'), // root is either a block or form
+				inputs = root.getInputs ? root.getInputs() : root.properties.get('form').getInputs(),
+				input_a = null,
+				input_b = null;
+			
+			for (; i<ii; i++) {
+				name_a = properties[i].name.replace('%d', (a + 1)); // +1 because property names starts from 1
+				name_b = properties[i].name.replace('%d', (b + 1)); // +1 because property names starts from 1
+				
+				input_a = inputs[name_a];
+				input_b = inputs[name_b];
+				
+				if (input_a && input_b) {
+					input_b.setValue(input_a.getValue());
+				}
+			}
+		},
+		
+		/**
+		 * Reset item property values
+		 */
+		resetItemPropertiesByIndex: function (index) {
+			var properties = this.getOptions().properties,
+				i = 0,
+				ii = properties.length,
+				name = null,
+				root = this.htmleditor.get('root'), // root is either a block or form
+				inputs = root.getInputs ? root.getInputs() : root.properties.get('form').getInputs(),
+				input = null;
+			
+			for (; i<ii; i++) {
+				name = properties[i].name.replace('%d', (index + 1)); // +1 because property names starts from 1
+				input = inputs[name];
+				
+				if (input) {
+					input.setValue('');
+				}
+			}
+		},
+		
+		
+		/* --------------------------- COMMANDS --------------------------- */
+		
+		
+		cmdInsertBefore: function () {
+			this.collectCache();
+			
+			// Maximum number of items reached
+			if (this._count >= this._total) return;
+			
+			this.showItemByIndex(this._count);
+			this._count++;
+			
+			var active = this.getActiveIndex(),
+				i = this._count,
+				ii = active + 1; 
+			
+			for (; i>ii; i--) {
+				this.copyItemPropertiesByIndex(i-2, i-1);
+			}
+			
+			this.resetItemPropertiesByIndex(active);
+		},
+		
+		cmdInsertAfter: function () {
+			this.collectCache();
+			
+			// Maximum number of items reached
+			if (this._count >= this._total) return;
+			
+			this.showItemByIndex(this._count);
+			this._count++;
+			
+			var active = this.getActiveIndex(),
+				i = this._count,
+				ii = active + 2; 
+			
+			for (; i>ii; i--) {
+				this.copyItemPropertiesByIndex(i-2, i-1);
+			}
+			
+			this.resetItemPropertiesByIndex(active + 1);
+			this.setActiveItemByIndex(active + 1);
+		},
+		
+		cmdDelete: function () {
+			this.collectCache();
+			
+			// At least one item must remain
+			if (this._count <= 1) return;
+			
+			this.hideItemByIndex(this._count - 1);
+			this._count--;
+			
+			var active = this.getActiveIndex(),
+				i = active,
+				ii = this._count; 
+			
+			for (; i<ii; i++) {
+				this.copyItemPropertiesByIndex(i+1, i);
+			}
+			
+			if (active >= this._count) { 
+				this.setActiveItemByIndex(active - 1);
+			}
+			
+			this.resetItemPropertiesByIndex(this._count);
+		},
+		
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor) {
+			// Find options
+			var options = this.getOptions();
+			 
+			if (options) {
+				// Add commands
+				htmleditor.addCommand('itemlist-before', Y.bind(this.cmdInsertBefore, this));
+				htmleditor.addCommand('itemlist-after', Y.bind(this.cmdInsertAfter, this));
+				htmleditor.addCommand('itemlist-delete', Y.bind(this.cmdDelete, this));
+			}
+			
+			htmleditor.on('disabledChange', this.purgeCache, this);
+			htmleditor.on('editingAllowedChange', this.purgeCache, this);
+			
+			//When un-editable node is selected hide toolbar
+			htmleditor.on('editingAllowedChange', function (event) {
+				if (!event.allowed || !options) {
+					this.hideToolbar();
+				} else {
+					this.showToolbar();
+				}
+			}, this);
+		},
+		
+		/**
+		 * Clean up after plugin
+		 * Called when editor instance is destroyed
+		 */
+		destroy: function () {
+			this.purgeCache();
+		},
+		
+		/**
+		 * Process HTML
+		 * Called before HTML is saved
+		 * 
+		 * @param {String} html
+		 * @return Processed HTML
+		 * @type {HTML}
+		 */
+		tagHTML: function (html) {
+			return html;
+		},
+		
+		/**
+		 * Process HTML
+		 * Called before HTML is set
+		 * 
+		 * @param {String} html HTML
+		 * @param {Object} data Data
+		 * @return Processed HTML
+		 * @type {String}
+		 */
+		untagHTML: function (html, data) {
+			return html;
+		}
+		
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+
 }, YUI.version, {'requires': ['supra.htmleditor-base']});YUI.add('supra.manager-base', function (Y) {
 	//Invoke strict mode
 	"use strict";
@@ -22215,7 +22771,7 @@ YUI.add('supra.uploader', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
-	var SCROLL_DISTANCE = 100;
+	var SCROLL_DISTANCE = 35;
 	
 	
 	
@@ -29704,7 +30260,9 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					'win': win,
 					'srcNode': src,
 					'toolbar': this.get('toolbar'),
-					'mode': Supra.HTMLEditor.MODE_STRING
+					'mode': Supra.HTMLEditor.MODE_STRING,
+					'parent': this,
+					'root': this.get('root') || this
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -32472,7 +33030,6 @@ YUI.add('supra.deferred', function (Y) {
 	for (name in modules) {
 		
 		if (name.indexOf('skin-') === 0) {
-			//console.log(name);
 			loaded[name] = true;
 		} else if (name.indexOf('supra.') === 0) {
 			loaded['skin-supra-' + name] = true;

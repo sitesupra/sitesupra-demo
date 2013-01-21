@@ -69,6 +69,14 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 */
 		'stylesheetParser': {
 			value: null
+		},
+		
+		/**
+		 * Delayed initialization
+		 * Used for performance reasons
+		 */
+		'delayedInitialization': {
+			value: false
 		}
 	};
 	
@@ -129,6 +137,18 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			this.commands = {};
 			this.selection = null;
 			
+			// For performance reasons (if there is we must delay initialization
+			if (this.get('delayedInitialization')) {
+				Y.later(16, this, this.renderDelayed);
+			} else {
+				this.renderDelayed();
+			}
+		},
+		
+		/**
+		 * Initialize everything
+		 */
+		renderDelayed: function () {
 			if (!this.get("stylesheetParser")) {
 				var root = this.get("root");
 				if (root && root.getStylesheetParser) {
