@@ -131,8 +131,13 @@ class ParsedHtmlFilter implements FilterInterface
 			$tag = new \Supra\Html\HtmlTag('img');
 			$src = $width = $height = null;
 			
-			$width = $size->getWidth();
-			$height = $size->getHeight();
+			if ($size->isCropped()) {
+				$width = $size->getCropWidth();
+				$height = $size->getCropHeight();
+			} else {
+				$width = $size->getWidth();
+				$height = $size->getHeight();
+			}
 			
 			$src = $fs->getWebPath($image, $size);
 			if ($this->requestType == self::REQUEST_TYPE_EDIT) {

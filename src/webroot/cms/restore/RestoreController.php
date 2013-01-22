@@ -149,6 +149,9 @@ class RestoreController extends InternalUserManagerAbstractAction
 		$input = $this->getRequestInput();
 
 		$response = $this->getResponse();
+		
+		$basePath = $this->getBasePath();
+		$response->assign('basePath', $basePath);
 
 		// Assign parameters back to template
 		$email = $input->getValid('e', 'email');

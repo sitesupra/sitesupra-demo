@@ -623,53 +623,45 @@ abstract class PageManagerAction extends CmsAction
 	 * @param ReferencedElement\ReferencedElementAbstract $element
 	 * @return array
 	 */
-	protected function convertReferencedElementToArray(ReferencedElement\ReferencedElementAbstract $element, $includeMeta = true)
+	protected function convertReferencedElementToArray(ReferencedElement\ReferencedElementAbstract $element)
 	{
-		$data = $element->toArray();
-		$fs = ObjectRepository::getFileStorage($this);
-		$em = $fs->getDoctrineEntityManager();
+		$fileData = array();
 
+		$storage = ObjectRepository::getFileStorage($this);
+		
 		if ($element instanceof ReferencedElement\LinkReferencedElement) {
-
-			if ($element->getResource() == 'file') {
+			
+			if ($element->getResource() == ReferencedElement\LinkReferencedElement::RESOURCE_FILE) {
 
 				$fileId = $element->getFileId();
 
 				if ( ! empty($fileId)) {
-					$file = $em->find(File::CN(), $fileId);
+					
+					$file = $storage->find($fileId, File::CN());
 
-					if ($file instanceof File) {
-						$fileInfo = $fs->getFileInfo($file);
-						$data['file_path'] = $fileInfo['path'];
+					if ( ! is_null($file)) {
+						$fileInfo = $storage->getFileInfo($file);
+						$fileData['file_path'] = $fileInfo['path'];
 					}
 				}
 			}
-		} elseif ($element instanceof ReferencedElement\ImageReferencedElement) {
+		}
+		
+		else if ($element instanceof ReferencedElement\ImageReferencedElement) {
 
 			$imageId = $element->getImageId();
 
-			// ID will be set even if image not found
-			$data['image'] = array(
-				'id' => $imageId
-			);
-
 			if ( ! empty($imageId)) {
-				$image = $em->find(Image::CN(), $imageId);
+				$image = $storage->find($imageId, Image::CN());
 
-				if ($image instanceof Image) {
-					$info = $fs->getFileInfo($image);
-					$data['image'] = $info;
+				if ( !is_null($image)) {
+					$info = $storage->getFileInfo($image);
+					$fileData['image'] = $info;
 				}
 			}
-
-			// in some cases (gallery) there is no needed additional info
-			if ( ! $includeMeta) {
-				return array(
-					'id' => $imageId,
-					'image' => $data['image'],
-				);
-			}
 		}
+		
+		$data = $fileData + $element->toArray();
 
 		return $data;
 	}

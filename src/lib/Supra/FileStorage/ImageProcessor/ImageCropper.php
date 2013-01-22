@@ -166,12 +166,11 @@ class ImageCropper extends ImageProcessor
 		}
 
 		// create output image
-		$croppedImage = imagecreatetruecolor($this->width, $this->height);
-		
-		// check if transparecy requires special treatment
-		if ($imageInfo->getType() == IMAGETYPE_PNG) {
-			$this->preserveTransparency($image, $croppedImage, $imageInfo->getType());
-		}
+		$croppedImage = $this->createOutputImage($imageInfo, $this->width, $this->height);	
+//		// check if transparecy requires special treatment
+//		if ($imageInfo->getType() == IMAGETYPE_PNG) {
+//			$this->preserveTransparency($image, $croppedImage, $imageInfo->getType());
+//		}
 
 		//copy cropped
 		imagecopy($croppedImage, $image, 

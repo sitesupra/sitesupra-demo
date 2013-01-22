@@ -52,11 +52,22 @@ class ImageRotator extends ImageProcessor
 		if ($this->rotationCount != 0) {
 			$imageInfo = $this->getImageInfo($this->sourceFilename);
 			$image = $this->createImageFromFile($this->sourceFilename);
-
+		
 			$angle = $this->rotationCount * -90;
 			$bgd_color = 0;
 			$rotatedImage = imagerotate($image, $angle, $bgd_color);
-
+			
+			if ($imageInfo->getType() == IMAGETYPE_PNG) {
+				$this->preserveTransparency($image, $rotatedImage, $imageInfo->getType());
+			}
+			
+			// Rotated PNG image size fastfix
+			if ($imageInfo->getType() === IMAGETYPE_PNG) {
+				$pngImage = $this->createOutputImage($imageInfo, $imageInfo->getHeight(), $imageInfo->getWidth());
+				imagecopy($pngImage, $rotatedImage, 0, 0, 0, 0, $imageInfo->getHeight(), $imageInfo->getWidth());			
+				$rotatedImage = $pngImage;
+			}
+			
 			$this->saveImageToFile($rotatedImage, $this->targetFilename, 
 					$imageInfo->getType(), $this->targetQuality, $imageInfo->getMime());
 		} elseif ($this->sourceFilename != $this->targetFilename) {
