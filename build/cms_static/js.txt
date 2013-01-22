@@ -184,6 +184,7 @@
 /cms/lib/supra/build/input/date.js
 /cms/lib/supra/build/input/block-background.js
 /cms/lib/supra/build/input/image-inline.js
+/cms/lib/supra/build/input/video.js
 /cms/lib/supra/build/input/input.js
 /cms/lib/supra/build/manager/action/plugin-form.js
 /cms/lib/supra/build/manager/manager.js

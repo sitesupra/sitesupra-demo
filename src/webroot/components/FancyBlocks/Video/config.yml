@@ -1,0 +1,24 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\Video\VideoBlock
+    title: Video
+    groupId: features
+    description: Embed video from popular video sharing services
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+        lifetime: 60 seconds
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: title
+          editable: Supra\Editable\String
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: video
+          editable: Supra\Editable\Video
+          label: Insert URL or embed code

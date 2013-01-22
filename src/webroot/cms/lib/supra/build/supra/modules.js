@@ -714,6 +714,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/image-inline.js',
 		requires: ['supra.input-block-background']
 	},
+	'supra.input-video': {
+		path: 'input/video.js',
+		requires: ['supra.input-hidden']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -742,6 +746,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-image-inline',
 			'supra.input-inline-html',
 			'supra.input-inline-string',
+			'supra.input-video',
 			
 			'supra.button-plugin-input'
 		]

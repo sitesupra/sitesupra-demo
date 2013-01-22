@@ -877,7 +877,7 @@ button::-moz-focus-inner { border:0; }
 .yui3-form .yui3-form-fill .su-slide-content { padding:0 10px; }
 .yui3-input { padding:0 5px 0 0; }
 .yui3-input .yui3-input { padding:0; }
-.yui3-input-hidden, .yui3-input-string-hidden, .yui3-input-text-hidden, .yui3-input-html-hidden, .yui3-input-number-hidden, .yui3-input-select-hidden, .yui3-input-select-list-hidden, .yui3-input-checkbox-hidden, .yui3-input-path-hidden, .yui3-input-file-upload-hidden, .yui3-input-link-hidden, .yui3-input-image-hidden, .yui3-input-file-hidden, .yui3-input-color-hidden, .yui3-input-block-background-hidden, .yui3-input-image-inline-hidden { display:none; }
+.yui3-input-hidden, .yui3-input-string-hidden, .yui3-input-text-hidden, .yui3-input-html-hidden, .yui3-input-number-hidden, .yui3-input-select-hidden, .yui3-input-select-list-hidden, .yui3-input-checkbox-hidden, .yui3-input-path-hidden, .yui3-input-file-upload-hidden, .yui3-input-link-hidden, .yui3-input-image-hidden, .yui3-input-file-hidden, .yui3-input-color-hidden, .yui3-input-block-background-hidden, .yui3-input-image-inline-hidden, .yui3-input-button-hidden, .button-section.yui3-input-button-hidden { display:none; }
 .yui3-input label, .yui3-form p.label, .ui-dark .ui-light .yui3-input label, .ui-dark .ui-light .yui3-form p.label {
   padding:7px 10px 0 5px;
   display:inline-block;
