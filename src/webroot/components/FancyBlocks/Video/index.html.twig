@@ -3,6 +3,8 @@
 {% set ratio = 16/9 %}
 {% set height = width/ratio %}
 
+{% set video = supraBlock.property('video') %}
+
 {% if video.resource == 'source' and video.source|trim %}
 
 	{# HTML #}

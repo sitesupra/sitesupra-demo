@@ -31,8 +31,6 @@ class VideoBlock extends BlockController
         
         $response->assign('comment', $comment);
         
-        $response->assign('video', $this->getVideoData());
-        
         // Local file is used
         $response->outputTemplate('index.html.twig');
     }

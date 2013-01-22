@@ -882,7 +882,7 @@ class PageAction extends PageManagerAction
 			);
 		}
 
-		if ($editable instanceof Editable\Link) {
+		if ($editable instanceof Editable\Link || $editable instanceof Editable\Video) {
 			if (isset($data[0])) {
 				$propertyData = $data[0];
 			}
