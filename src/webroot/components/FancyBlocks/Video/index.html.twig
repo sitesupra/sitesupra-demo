@@ -5,31 +5,33 @@
 
 {% set video = supraBlock.property('video') %}
 
-{% if video.resource == 'source' and video.source|trim %}
+{% if video %}
+	{% if video.resource == 'source' and video.source|trim %}
 
-	{# HTML #}
-	<div class="block" data-attach="$.fn.resize">
-		{{ video.source|raw }}
-	</div>
-
-{% elseif video.resource == 'link' and video.id %}
-
-	{% if video.service == 'youtube' %}
+		{# HTML #}
 		<div class="block" data-attach="$.fn.resize">
-			<object width="{{ width }}" height="{{ height|number_format }}">
-				<param name="movie" value="http://www.youtube.com/v/{{ video.id }}?hl=en_US&amp;version=3&amp;rel=0"></param>
-				<param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param>
-				<embed src="http://www.youtube.com/v/{{ video.id }}?hl=en_US&amp;version=3&amp;rel=0" type="application/x-shockwave-flash" width="{{ width }}" height="{{ height|number_format }}" allowscriptaccess="always" allowfullscreen="true"></embed>
-			</object>
+			{{ video.source|raw }}
 		</div>
-	{% elseif video.service == 'vimeo' %}
-		<div class="block" data-attach="$.fn.resize">
-			<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-		</div>
+
+	{% elseif video.resource == 'link' and video.id %}
+
+		{% if video.service == 'youtube' %}
+			<div class="block" data-attach="$.fn.resize">
+				<object width="{{ width }}" height="{{ height|number_format }}">
+					<param name="movie" value="http://www.youtube.com/v/{{ video.id }}?hl=en_US&amp;version=3&amp;rel=0"></param>
+					<param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param>
+					<embed src="http://www.youtube.com/v/{{ video.id }}?hl=en_US&amp;version=3&amp;rel=0" type="application/x-shockwave-flash" width="{{ width }}" height="{{ height|number_format }}" allowscriptaccess="always" allowfullscreen="true"></embed>
+				</object>
+			</div>
+		{% elseif video.service == 'vimeo' %}
+			<div class="block" data-attach="$.fn.resize">
+				<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+			</div>
+		{% endif %}
+
+	{% elseif video.resource == 'file' %}
+
+		{# File from media library, but not right now! #}
+
 	{% endif %}
-
-{% elseif video.resource == 'file' %}
-	
-	{# File from media library, but not right now! #}
-	
 {% endif %}
