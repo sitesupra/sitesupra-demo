@@ -134,6 +134,13 @@
 			"column-after":  "Insert column after",
 			"table-settings":  "Table settings",
 			
+			"itemlist-row-before": "Insert before",
+			"itemlist-row-delete": "Delete",
+			"itemlist-row-after": "Insert after",
+			"itemlist-column-before": "Insert before",
+			"itemlist-column-delete": "Delete",
+			"itemlist-column-after":  "Insert after",
+			
 			"style": "Styles",
 			
 			"group_text": "Text",

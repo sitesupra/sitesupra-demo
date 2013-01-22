@@ -500,7 +500,18 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
-		 * Returns all children blocks
+		 * Returns direct descendent children blocks
+		 *
+		 * @param {Object} target Optional. Target object to add children to
+		 * @return Children blocks
+		 * @type {Object}
+		 */
+		getChildren: function (target) {
+			return Supra.mix(target || {}, this.children);
+		},
+		
+		/**
+		 * Returns all children blocks, including children children
 		 *
 		 * @param {Object} target Optional. Target object to add children to
 		 * @return Children blocks
@@ -512,6 +523,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			for(var child_id in children) {
 				blocks[child_id] = children[child_id];
+				children[child_id].getAllChildren(blocks);
 			}
 			
 			return blocks;
@@ -806,6 +818,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 				// Is this block a list?
 			var is_list = this.isList(),
 				
+				// Highlight mode
+				attr_mode = overwrite ? mode : this.get('highlightMode'),
+				old_mode = this.highlight_mode,
+				mode = attr_mode || mode || this.get('super').get('highlightMode'),
+				
 				// Children
 				children_mode = mode,
 				children = this.children,
@@ -815,11 +832,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 				// Nodes
 				overlay = this.getOverlayNode(),
 				node = this.getNode(),
-			
+				
 				// Node highlight
 				old_highlight_container = this.highlight_container,
 				highlight_container = false;
-			
 			
 			// If overlay is missing only apply styles for node
 			if (!overlay) {
@@ -827,10 +843,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				var children = this.children,
 					id = null;
 				
-				for (id in children) {
-					children[id].setHighlightMode(mode);
-				}
-				
+				// Only 'insert' and 'order' modes style node, all other style overlay
 				if (mode == 'insert' || mode == 'order') {
 					filter = this.get('super').get('highlightModeFilter') || '_undefined';
 					
@@ -840,21 +853,25 @@ YUI.add('supra.page-content-proto', function (Y) {
 					}
 				}
 				
+				// Highlight container itself
 				if (old_highlight_container != highlight_container) {
 					node.toggleClass(CLASSNAME_HIGHLIGHT, highlight_container);
 					this.highlight_container = highlight_container;
+				}
+				
+				this.highlight_mode = mode;
+				
+				// Apply to children
+				for (id in children) {
+					children[id].setHighlightMode(mode);
 				}
 				
 				return;
 			}
 			
 			
-			var attr_mode = overwrite ? mode : this.get('highlightMode'),
-				old_mode = this.highlight_mode,
-				mode = attr_mode || mode || this.get('super').get('highlightMode'),
-				
 				// Overlay highlight classnames
-				classnames = CLASSNAME_OVERLAY_MODE,
+			var classnames = CLASSNAME_OVERLAY_MODE,
 				
 				old_overlay_classname = this.highlight_mode_classname,
 				old_icon_classname = this.highlight_mode_icon_classname,

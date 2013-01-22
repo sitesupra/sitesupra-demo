@@ -55,8 +55,9 @@ class ParsedHtmlFilter implements FilterInterface
 		$attributes = array(
 				'target' => $link->getTarget(),
 				'title' => $link->getTitle(),
-				'href' => $link->getUrl()
-		);
+				'href' => $link->getUrl(),
+				'class' => $link->getClassName(),
+		);  
 
 		$tag = new \Supra\Html\HtmlTagStart('a');
 

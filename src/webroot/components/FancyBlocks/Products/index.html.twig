@@ -146,14 +146,14 @@
 
 	<div class="block">
 		
-		<div class="products-slider style-{{ design }} img-{{ image }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
+		<div class="products-slider style-{{ design }} img-{{ image }} link-{{ link }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
 			<ul>
 				{% for index, product in products %}
 					{% if index and index % 4 == 0 %}
 						<li class="clear"></li>
 					{% endif %}
 					
-					<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} {% if design != 'box' %}clearfix{% endif %}">
+					<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} {% if design != 'box' %}clearfix{% endif %}">
 						
 						{% if design == "box" %}
 							

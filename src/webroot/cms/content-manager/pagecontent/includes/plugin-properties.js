@@ -687,16 +687,25 @@ YUI.add('supra.page-content-properties', function (Y) {
 			if (form) {
 				var page_data = Manager.Page.getPageData(),
 					locked_input = form.getInput('__locked__'),
-					parent = this.get('host').get('parent');
-				
+					parent = this.get('host').get('parent'),
+					advanced_button = form.getInput('advanced_button'),
+					advanced_inputs = this.getPropertiesInGroup('advanced');
 				
 				if (page_data.type != 'page' && (!parent || !parent.get('data').closed)) {
 					//Template blocks have "Global block" input
 					//but if placeholder is closed (not editable), then don't show it
 					locked_input.set('disabled', false).set('visible', true);
+					advanced_button.set('visible', true);
 				} else {
 					//Pages don't have "locked" input
 					locked_input.set('disabled', true).set('visible', false);
+					
+					//If only input is '__locked__' then hide button
+					if (!advanced_inputs.length || (advanced_inputs.length == 1 && advanced_inputs[0].id == '__locked__')) {
+						advanced_button.set('visible', false);
+					} else {
+						advanced_button.set('visible', true);
+					}
 				}
 				
 				this._updating_values = true;
@@ -829,6 +838,27 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			return null;
+		},
+		
+		/**
+		 * Returns all properties in the group
+		 * 
+		 * @param {String} group_id Group ID
+		 * @returns {Array} Properties in the group
+		 */
+		getPropertiesInGroup: function (group_id) {
+			var properties = this.get('properties'),
+				i = 0,
+				ii = properties.length,
+				in_group = [];
+			
+			for (; i<ii; i++) {
+				if (properties[i].group && properties[i].group == group_id) {
+					in_group.push(properties[i]);
+				}
+			}
+			
+			return in_group;
 		},
 		
 		/**

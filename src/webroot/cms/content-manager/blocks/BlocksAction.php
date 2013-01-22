@@ -165,6 +165,47 @@ class BlocksAction extends PageManagerAction
 		$dummyEditable = new Editable\SelectVisual();
 		$localeId = $this->getLocale()->getId();
 		
+        $dummyEditable->setIconStyle('html');
+        $dummyEditable->setStyle('mid');
+        $dummyEditable->setCss('
+            .su-button .su-button-bg {
+                padding: 0;
+            }
+            .su-button .su-button-bg div {
+                height: 57px;
+            }
+            table {
+                width: 100%;
+                border-spacing: 3px;
+                border-collapse: separate;
+            }
+            td { 
+                background: url(/components/FancyBlocks/Text/icons/background.png) 0 0 repeat-x;
+                vertical-align: middle; text-align: center;
+                text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.5);
+                color: #054873;
+                font-size: 18px;
+                font-weight: bold;
+            }
+            td.h-1 {
+                height: 24px;
+                background-position: 0 -52px;
+            }
+            tr + tr td.h-1 {
+                height: 24px;
+                background-position: 0 -77px;
+            }
+            td.h-2 {
+                height: 52px;
+                font-size: 30px;
+            }
+            td.w-12 { width: 100%; }
+            td.w-9  { width: 75%; }
+            td.w-6  { width: 50%; }
+            td.w-4  { width: 33.3%; }
+            td.w-3  { width: 25%; }
+        ');
+        
 		$dummyPropertyData = array(
 			'id' => 'layout',
 			'type' => $dummyEditable->getEditorType(),
@@ -172,6 +213,8 @@ class BlocksAction extends PageManagerAction
 			'label' => $dummyEditable->getLabel(),
 			'value' => $dummyEditable->getDefaultValue($localeId),
 			'group' => $dummyEditable->getGroupId(),
+			'style' => 'mid',
+            'iconStyle' => 'html',
 		)
 			+ $dummyEditable->getAdditionalParameters();
 		
@@ -179,37 +222,37 @@ class BlocksAction extends PageManagerAction
 			array(
 				'id' => 'single',
 				'title' => 'Single row',
-				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+				'html' => '<table><tr><td class="h-2 w-12">4</td></tr></table>',
 			),
 			array(
 				'id' => 'three_one',
 				'title' => 'Three + One',
-				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+				'html' => '<table><tr><td class="h-2 w-9">3</td><td class="h-2 w-3">1</td></tr></table>',
 			),
 			array(
 				'id' => 'one_three',
 				'title' => 'One + Three',
-				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+				'html' => '<table><tr><td class="h-2 w-3">1</td><td class="h-2 w-9">3</td></tr></table>',
 			),
 			array(
 				'id' => 'two_two',
 				'title' => 'Two + Two',
-				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+				'html' => '<table><tr><td class="h-2 w-6">2</td><td class="h-2 w-2">2</td></tr></table>',
 			),
 			array(
 				'id' => 'two_one_one',
 				'title' => 'Two + One + One',
-				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+				'html' => '<table><tr><td class="h-2 w-6">2</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>',
 			),
 			array(
 				'id' => 'one_one_two',
 				'title' => 'One + One + Two',
-				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+				'html' => '<table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-6">2</td></tr></table>',
 			),
 			array(
 				'id' => 'four',
 				'title' => 'Four columns',
-				'icon' => '/components/FancyBlocks/NewsText/icons/columns-1.png',
+				'html' => '<table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>',
 			),
 		);
 		

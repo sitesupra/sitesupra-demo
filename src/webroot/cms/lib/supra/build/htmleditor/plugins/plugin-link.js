@@ -72,7 +72,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				var uid = htmleditor.generateDataUID(),
 					text = this.htmleditor.getSelectionText(),
 					href = this.normalizeHref(data.href),
-					html = '<a id="' + uid + '"' + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '" href="' + href + '">' + text + '</a>';
+					html = '<a id="' + uid + '"' + (data.classname ? ' class="' + data.classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '" href="' + href + '">' + text + '</a>';
 				
 				data.type = this.NAME;
 				htmleditor.setData(uid, data)
@@ -105,7 +105,8 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 					'title': target.getAttribute('title'),
 					'target': target.getAttribute('target'),
 					'href': this.normalizeHref(target.getAttribute('href')),
-					'resource': 'link'
+					'resource': 'link',
+					'classname': target.getAttribute('class')
 				}
 			}
 			
@@ -295,6 +296,10 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				var data = htmleditor.getData(id);
 				
 				if (data && data.type == NAME) {
+					//Extract classname
+					var classname = html.match(/class="([^"]+)"/);
+					data.classname = classname ? classname[1] : '';
+					
 					return '{supra.' + NAME + ' id="' + id + '"}';
 				} else {
 					return html;
@@ -326,6 +331,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 						'resource': 'link',
 						'target': attrs.target || '',
 						'title': attrs.title || '',
+						'classname': attrs['class'] || '',
 						'type': 'link'
 					};
 				
@@ -358,7 +364,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
 				
 				var href = self.normalizeHref(data[id].href);
-				return '<a id="' + id + '"' + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '" href="' + href + '">';
+				return '<a id="' + id + '"' + (data[id].classname ? ' class="' + data[id].classname + '"' : '') + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '" href="' + href + '">';
 			});
 			
 			//Closing tags

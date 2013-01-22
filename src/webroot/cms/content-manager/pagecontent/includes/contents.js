@@ -635,14 +635,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 * @type {Object}
 		 */
 		getChildren: function () {
-			var blocks = {},
-				children = this.children;
-			
-			for(var child_id in children) {
-				blocks[child_id] = children[child_id];
-			}
-			
-			return blocks;
+			return Supra.mix({}, this.children);
 		},
 		
 		/**

@@ -151,7 +151,7 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		'load': function () {
 			//
 			if (this.loader.loading) {
-				//console.log('TRIED TO INITIATE LOADING WHILE PREVIOUS IS NOT COMPLETE');
+				// TRIED TO INITIATE LOADING WHILE PREVIOUS IS NOT COMPLETE
 				return;
 			}
 			

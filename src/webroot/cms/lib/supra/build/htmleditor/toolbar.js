@@ -95,6 +95,21 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					{"type": "separator"},
 						{"id": "table-settings",   "type": "button", "buttonType": "push", "command": "table-settings", "style": "small"}
 				]
+			},
+			{
+				"id": "itemlist",
+				"autoVisible": false, // visible only when needed
+				"visible": false,
+				"animate": true,
+				"height": 42,
+				"controls": [
+					{"id": "itemlist-row-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-before.png",  "command": "itemlist-before"},
+					{"id": "itemlist-row-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-delete.png",  "command": "itemlist-delete"},
+					{"id": "itemlist-row-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-after.png",  "command": "itemlist-after"},
+					{"id": "itemlist-column-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-before.png",  "command": "itemlist-before", "visible": false},
+					{"id": "itemlist-column-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-delete.png",  "command": "itemlist-delete", "visible": false},
+					{"id": "itemlist-column-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-after.png",  "command": "itemlist-after", "visible": false}
+				]
 			}
 		]
 	};

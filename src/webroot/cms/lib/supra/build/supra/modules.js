@@ -356,6 +356,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-table',
+			'supra.htmleditor-plugin-itemlist',
 			'supra.htmleditor-plugin-table-mobile',
 			'supra.htmleditor-plugin-fullscreen',
 			'supra.htmleditor-plugin-formats',
@@ -427,6 +428,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-table-mobile': {
 			path: 'htmleditor/plugins/plugin-table-mobile.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-itemlist': {
+			path: 'htmleditor/plugins/plugin-itemlist.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-fullscreen': {
@@ -709,6 +714,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/image-inline.js',
 		requires: ['supra.input-block-background']
 	},
+	'supra.input-video': {
+		path: 'input/video.js',
+		requires: ['supra.input-hidden']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -737,6 +746,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-image-inline',
 			'supra.input-inline-html',
 			'supra.input-inline-string',
+			'supra.input-video',
 			
 			'supra.button-plugin-input'
 		]
