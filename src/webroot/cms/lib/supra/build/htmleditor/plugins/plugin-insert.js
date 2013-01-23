@@ -51,6 +51,19 @@ YUI().add("supra.htmleditor-plugin-insert", function (Y) {
 		},
 		
 		/**
+		 * When editable/uneditable content is selected enable/disable button and hide toolbar
+		 * 
+		 * @private
+		 */
+		onEditingAllowedChange: function (event) {
+			this.htmleditor.get("toolbar").getButton("insert").set("disabled", !event.allowed);
+			
+			if (!event.allowed) {
+				this.hideInsertToolbar();
+			}
+		},
+		
+		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
@@ -71,21 +84,13 @@ YUI().add("supra.htmleditor-plugin-insert", function (Y) {
 			
 			for (; i<ii; i++) {
 				if (controls[i].command) {
-					htmleditor.addCommand(controls[i].command, Y.bind(function (x, command) {
-						this.hideInsertToolbar();
-					}, this));
+					htmleditor.addCommand(controls[i].command, Y.bind(this.hideInsertToolbar, this));
 				}
 			}
 			
 			if (button) {
 				//When un-editable node is selected disable toolbar button and hide toolbar
-				htmleditor.on("editingAllowedChange", function (event) {
-					button.set("disabled", !event.allowed);
-					
-					if (!event.allowed) {
-						this.hideInsertToolbar();
-					}
-				}, this);
+				htmleditor.on("editingAllowedChange", this.onEditingAllowedChange, this);
 			}
 			
 			//Hide media library when editor is closed

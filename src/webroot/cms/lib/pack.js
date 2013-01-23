@@ -14051,7 +14051,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		},
 		
 		showToolbar: function () {
-			console.log('show table toolbar');
 			var toolbar = this.htmleditor.get('toolbar');
 			toolbar.getButton(HTMLEDITOR_BUTTON).set('down', true);
 			toolbar.showGroup('table');
@@ -14964,20 +14963,15 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var toolbar = this.htmleditor.get("toolbar"),
 				button = toolbar.getButton("insert");
 			
-			console.log('toggleInsertToolbar');
 			if (button) {
 				if (!this.visible) {
 					this.visible = true;
 					toolbar.showGroup("insert");
 					button.set("down", true);
-					
-					console.log('SHOW');
 				} else {
 					this.visible = false;
 					toolbar.hideGroup("insert");
 					button.set("down", false);
-					
-					console.log('HIDE');
 				}
 			}
 		},
@@ -14986,9 +14980,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * Hide insert toolbar
 		 */
 		hideInsertToolbar: function () {
-			console.log('A. hideInsertToolbar', this.visible);
 			if (this.visible) {
-				console.log('B. hide');
 				var toolbar = this.htmleditor.get("toolbar"),
 					button = toolbar.getButton("insert");
 				
@@ -14996,6 +14988,19 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				button.set("down", false);
 				
 				this.visible = false;
+			}
+		},
+		
+		/**
+		 * When editable/uneditable content is selected enable/disable button and hide toolbar
+		 * 
+		 * @private
+		 */
+		onEditingAllowedChange: function (event) {
+			this.htmleditor.get("toolbar").getButton("insert").set("disabled", !event.allowed);
+			
+			if (!event.allowed) {
+				this.hideInsertToolbar();
 			}
 		},
 		
@@ -15020,21 +15025,13 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			for (; i<ii; i++) {
 				if (controls[i].command) {
-					htmleditor.addCommand(controls[i].command, Y.bind(function (x, command) {
-						this.hideInsertToolbar();
-					}, this));
+					htmleditor.addCommand(controls[i].command, Y.bind(this.hideInsertToolbar, this));
 				}
 			}
 			
 			if (button) {
 				//When un-editable node is selected disable toolbar button and hide toolbar
-				htmleditor.on("editingAllowedChange", function (event) {
-					button.set("disabled", !event.allowed);
-					
-					if (!event.allowed) {
-						this.hideInsertToolbar();
-					}
-				}, this);
+				htmleditor.on("editingAllowedChange", this.onEditingAllowedChange, this);
 			}
 			
 			//Hide media library when editor is closed
