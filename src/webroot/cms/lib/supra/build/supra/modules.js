@@ -369,7 +369,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-paragraph-string',
 			'supra.htmleditor-plugin-source',
 			'supra.htmleditor-plugin-fonts',
-			'supra.htmleditor-plugin-align'
+			'supra.htmleditor-plugin-align',
+			'supra.htmleditor-plugin-insert'
 		],
 		skinnable: true
 	},
@@ -421,6 +422,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-gallery': {
 			path: 'htmleditor/plugins/plugin-gallery.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-insert': {
+			path: 'htmleditor/plugins/plugin-insert.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-image': {

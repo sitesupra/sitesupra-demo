@@ -820,7 +820,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-paragraph-string',
 			'supra.htmleditor-plugin-source',
 			'supra.htmleditor-plugin-fonts',
-			'supra.htmleditor-plugin-align'
+			'supra.htmleditor-plugin-align',
+			'supra.htmleditor-plugin-insert'
 		],
 		skinnable: true
 	},
@@ -872,6 +873,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-gallery': {
 			path: 'htmleditor/plugins/plugin-gallery.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-insert': {
+			path: 'htmleditor/plugins/plugin-insert.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-image': {
@@ -9771,14 +9776,23 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
 						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
-						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
-					{"type": "separator"},
 						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
+					{"type": "separator"},
+						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert"}
+				]
+			},
+			{
+				"id": "insert",
+				"autoVisible": false, // visible only when needed
+				"visible": false,
+				"animate": true,
+				"height": 42,
+				"controls": [
+						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
 					{"type": "separator"},
 						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo"},
 					{"type": "separator"},
 						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
-					
 				]
 			},
 			{
@@ -9958,6 +9972,38 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		getControl: function (id) {
 			return (id in this.controls ? this.controls[id] : null);
+		},
+		
+		/**
+		 * Returns all controls in group
+		 * 
+		 * @param {String} group_id Group ID
+		 * @returns {Array} List of group controls
+		 */
+		getControlsInGroup: function (group_id) {
+			var groups = BUTTONS_DEFAULT.groups,
+				i = 0,
+				ii = groups.length,
+				controls = null,
+				result = [];
+				
+			for (; i<ii; i++) {
+				if (groups[i].id === group_id) {
+					controls = groups[i].controls;
+					
+					if (controls) {
+						for (i=0,ii=controls.length; i<ii; i++) {
+							if (controls[i].type !== 'separator') {
+								result.push(controls[i]);
+							}
+						}
+					}
+					
+					break;
+				}
+			}
+			
+			return result;
 		},
 		
 		/**
@@ -14005,6 +14051,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		},
 		
 		showToolbar: function () {
+			console.log('show table toolbar');
 			var toolbar = this.htmleditor.get('toolbar');
 			toolbar.getButton(HTMLEDITOR_BUTTON).set('down', true);
 			toolbar.showGroup('table');
@@ -14893,7 +14940,115 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 
-}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI.add('supra.manager-base', function (Y) {
+}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI().add("supra.htmleditor-plugin-insert", function (Y) {
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+	};
+	
+	/*
+	 * Plugin to control insert panel
+	 */
+	Supra.HTMLEditor.addPlugin("insert", defaultConfiguration, {
+		
+		/**
+		 * Insert toolbar is visible
+		 */
+		visible: false,
+		
+		/**
+		 * Toggle insert toolbar
+		 */
+		toggleInsertToolbar: function () {
+			var toolbar = this.htmleditor.get("toolbar"),
+				button = toolbar.getButton("insert");
+			
+			console.log('toggleInsertToolbar');
+			if (button) {
+				if (!this.visible) {
+					this.visible = true;
+					toolbar.showGroup("insert");
+					button.set("down", true);
+					
+					console.log('SHOW');
+				} else {
+					this.visible = false;
+					toolbar.hideGroup("insert");
+					button.set("down", false);
+					
+					console.log('HIDE');
+				}
+			}
+		},
+		
+		/**
+		 * Hide insert toolbar
+		 */
+		hideInsertToolbar: function () {
+			console.log('A. hideInsertToolbar', this.visible);
+			if (this.visible) {
+				console.log('B. hide');
+				var toolbar = this.htmleditor.get("toolbar"),
+					button = toolbar.getButton("insert");
+				
+				toolbar.hideGroup("insert");
+				button.set("down", false);
+				
+				this.visible = false;
+			}
+		},
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			var toolbar = htmleditor.get("toolbar"),
+				button = toolbar ? toolbar.getButton("insert") : null;
+			
+			// Add command
+			htmleditor.addCommand("insert", Y.bind(this.toggleInsertToolbar, this));
+			
+			// When one of the insert controls is clicked hide toolbar
+			var controls = toolbar.getControlsInGroup("insert"),
+				i = 0,
+				ii = controls.length;
+			
+			for (; i<ii; i++) {
+				if (controls[i].command) {
+					htmleditor.addCommand(controls[i].command, Y.bind(function (x, command) {
+						this.hideInsertToolbar();
+					}, this));
+				}
+			}
+			
+			if (button) {
+				//When un-editable node is selected disable toolbar button and hide toolbar
+				htmleditor.on("editingAllowedChange", function (event) {
+					button.set("disabled", !event.allowed);
+					
+					if (!event.allowed) {
+						this.hideInsertToolbar();
+					}
+				}, this);
+			}
+			
+			//Hide media library when editor is closed
+			htmleditor.on("disable", this.hideInsertToolbar, this);
+		}
+		
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {"requires": ["supra.htmleditor-base"]});YUI.add('supra.manager-base', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
