@@ -568,10 +568,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 					size = value.image.sizes.original;
 					
 					ratio = size.width / size.height;
-					width = parseInt(imageNode.getAttribute('width') || imageNode.get('offsetWidth'), 10);
+					width = Math.min(size.width, parseInt(imageNode.getAttribute('width') || imageNode.get('offsetWidth'), 10));
 					height = ~~(width / ratio);
 					crop_width = width;
-					crop_height = Math.min(height, parseInt(imageNode.getAttribute('height') || imageNode.get('offsetHeight'), 10));
+					crop_height = Math.min(size.height, height, parseInt(imageNode.getAttribute('height') || imageNode.get('offsetHeight'), 10));
 					
 					value.size_width = width;
 					value.size_height = height;
