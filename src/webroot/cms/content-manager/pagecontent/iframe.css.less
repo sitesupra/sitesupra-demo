@@ -688,6 +688,26 @@
 }
 
 /**
+ * = Video
+ */
+.supra-video {
+	// Default embed width is 560px, so
+	// height: 560px / (16 / 9 ratio)
+	height: 315px !important;
+	background: #f5f5f5 url(/cms/lib/supra/img/htmleditor/video-placeholder.png) 50% 50% no-repeat !important;
+	border: 1px solid #ccc !important;
+	cursor: pointer !important;
+	
+	> * {
+		display: none !important;
+	}
+	
+	&:hover {
+		border-color: #00A5F8 !important;
+	}
+}
+
+/**
  * = Broken block style
  */
 .yui3-content-Supra_Controller_Pages_BrokenBlockController {

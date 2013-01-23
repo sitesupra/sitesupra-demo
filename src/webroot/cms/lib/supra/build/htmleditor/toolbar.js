@@ -68,12 +68,23 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
 						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
-						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
-					{"type": "separator"},
 						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
 					{"type": "separator"},
+						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert"}
+				]
+			},
+			{
+				"id": "insert",
+				"autoVisible": false, // visible only when needed
+				"visible": false,
+				"animate": true,
+				"height": 42,
+				"controls": [
+						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
+					{"type": "separator"},
+						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo"},
+					{"type": "separator"},
 						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
-					
 				]
 			},
 			{
@@ -253,6 +264,38 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		 */
 		getControl: function (id) {
 			return (id in this.controls ? this.controls[id] : null);
+		},
+		
+		/**
+		 * Returns all controls in group
+		 * 
+		 * @param {String} group_id Group ID
+		 * @returns {Array} List of group controls
+		 */
+		getControlsInGroup: function (group_id) {
+			var groups = BUTTONS_DEFAULT.groups,
+				i = 0,
+				ii = groups.length,
+				controls = null,
+				result = [];
+				
+			for (; i<ii; i++) {
+				if (groups[i].id === group_id) {
+					controls = groups[i].controls;
+					
+					if (controls) {
+						for (i=0,ii=controls.length; i<ii; i++) {
+							if (controls[i].type !== 'separator') {
+								result.push(controls[i]);
+							}
+						}
+					}
+					
+					break;
+				}
+			}
+			
+			return result;
 		},
 		
 		/**

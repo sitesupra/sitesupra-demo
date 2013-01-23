@@ -108,9 +108,11 @@
 			"manage_images": "Manage images",
 			"add_images": "Add images",
 			
+			"insert": "Insert",
 			"insertimage": "Image",
 			"insertlink": "Link",
 			"inserttable": "Table",
+			"insertvideo": "Video",
 			"source": "Source",
 			"fullscreen": "Fullscreen",
 			"settings": "Block settings",
@@ -194,6 +196,10 @@
 			"alignment_right": "Align right",
 			"image_style": "Style",
 			"image_style_none": "No style",
+			
+			"video_properties": "Video properties",
+			"video_source": "Insert URL or embed code",
+			"video_delete": "Delete video",
 			
 			"table_style": "Table style",
 			"table_properties": "Table properties"

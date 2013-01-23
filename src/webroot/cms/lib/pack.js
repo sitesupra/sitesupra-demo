@@ -806,6 +806,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-image',
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
+			'supra.htmleditor-plugin-video',
 			'supra.htmleditor-plugin-table',
 			'supra.htmleditor-plugin-itemlist',
 			'supra.htmleditor-plugin-table-mobile',
@@ -819,7 +820,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-paragraph-string',
 			'supra.htmleditor-plugin-source',
 			'supra.htmleditor-plugin-fonts',
-			'supra.htmleditor-plugin-align'
+			'supra.htmleditor-plugin-align',
+			'supra.htmleditor-plugin-insert'
 		],
 		skinnable: true
 	},
@@ -865,8 +867,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 			path: 'htmleditor/plugins/plugin-link.js',
 			requires: ['supra.htmleditor-base']
 		},
+		'supra.htmleditor-plugin-video': {
+			path: 'htmleditor/plugins/plugin-video',
+			requires: ['supra.htmleditor-base']
+		},
 		'supra.htmleditor-plugin-gallery': {
 			path: 'htmleditor/plugins/plugin-gallery.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-insert': {
+			path: 'htmleditor/plugins/plugin-insert.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-image': {
@@ -9766,12 +9776,23 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
 						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
-						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
-					{"type": "separator"},
 						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
 					{"type": "separator"},
+						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert"}
+				]
+			},
+			{
+				"id": "insert",
+				"autoVisible": false, // visible only when needed
+				"visible": false,
+				"animate": true,
+				"height": 42,
+				"controls": [
+						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
+					{"type": "separator"},
+						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo"},
+					{"type": "separator"},
 						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
-					
 				]
 			},
 			{
@@ -9951,6 +9972,38 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		getControl: function (id) {
 			return (id in this.controls ? this.controls[id] : null);
+		},
+		
+		/**
+		 * Returns all controls in group
+		 * 
+		 * @param {String} group_id Group ID
+		 * @returns {Array} List of group controls
+		 */
+		getControlsInGroup: function (group_id) {
+			var groups = BUTTONS_DEFAULT.groups,
+				i = 0,
+				ii = groups.length,
+				controls = null,
+				result = [];
+				
+			for (; i<ii; i++) {
+				if (groups[i].id === group_id) {
+					controls = groups[i].controls;
+					
+					if (controls) {
+						for (i=0,ii=controls.length; i<ii; i++) {
+							if (controls[i].type !== 'separator') {
+								result.push(controls[i]);
+							}
+						}
+					}
+					
+					break;
+				}
+			}
+			
+			return result;
 		},
 		
 		/**
@@ -13027,6 +13080,409 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
+}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI().add('supra.htmleditor-plugin-video', function (Y) {
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+	};
+	
+	var Manager = Supra.Manager;
+	
+	Supra.HTMLEditor.addPlugin('video', defaultConfiguration, {
+		
+		/**
+		 * Link editor is visible
+		 * @type {Boolean}
+		 */
+		visible: false,
+		
+		
+		/* --------------------------- INSERT/EDIT VIDEO --------------------------- */
+		
+		
+		/**
+		 * Returns empty data object
+		 * 
+		 * @private
+		 */
+		getBlankData: function () {
+			return {
+				'type': this.NAME,
+				'resource': 'source',
+				'source': ''
+			};
+		},
+		
+		/**
+		 * Insert link around current selection
+		 */
+		insertVideo: function () {
+			if (!this.htmleditor.editingAllowed) return;
+			
+			var htmleditor = this.htmleditor,
+				selection = htmleditor.getSelection(),
+				node = null;
+			
+			// If in current selection is a video then edit it instead of creating new
+			var nodes = htmleditor.findNodesInSelection(selection, '.supra-video');
+			
+			if (nodes && nodes.size()) {
+				// Edit selected video
+				
+				node = nodes.item(0);
+				
+				if ( this.editVideo(node) ) {
+					//Prevent default 
+					return false;
+				}
+				
+			} else if (htmleditor.isSelectionEditable(selection)) {
+				// Insert video element
+				var uid = htmleditor.generateDataUID(),
+					html = '<div id="' + uid + '" class="supra-video yui3-box-reset su-uneditable" tabindex="0"></div>',
+					data = this.getBlankData();
+				
+				htmleditor.setData(uid, data);
+				htmleditor.replaceSelection(html, null);
+				
+				node = htmleditor.one('#' + uid);
+				htmleditor.disableNodeEditing(node.getDOMNode());
+				
+				// Trigger selection change event
+				this.htmleditor.refresh(true);
+				
+				// Start editing video
+				if ( this.editVideo(node, data) ) {
+					//Prevent default
+					return false;
+				}
+				
+			}
+			
+			return true;
+		},
+		
+		/**
+		 * Edit video
+		 * 
+		 * @param {Object} target Event or target element
+		 * @param {Object} data Target element data, optional
+		 * @private
+		 */
+		editVideo: function (target, data) {
+			// Target may be actually event object
+			var target = target.currentTarget ? target.currentTarget : target;
+			
+			if (!this.htmleditor.editingAllowed) return;
+			
+			//Get current value
+			var data = data || this.htmleditor.getData(target);
+			
+			if (!data) {
+				// Missing data
+				return false;
+			}
+			
+			this.showVideoSettings(target, data, function () {
+				this.onVideoEditingDone(target);
+			}, this);
+			
+			return true;
+		},
+		
+		/**
+		 * After user changed video save data into htmleditor
+		 * 
+		 * @param {Object} event
+		 * @private
+		 */
+		onVideoEditingDone: function () {
+			if (!this.selected_video) return;
+			
+			var data = this.settings_form.getValues('id'),
+				id   = this.selected_video_id;
+			
+			if (data && data.video) {
+				// 'video' is input name
+				this.htmleditor.setData(id, Supra.mix({'type': this.NAME}, data.video));
+			}
+			
+			//
+			this.selected_video = null;
+			this.selected_video_id = null;
+			
+			this.hideVideoSettings();
+			
+			//Trigger selection change event
+			this.visible = false;
+			this.htmleditor.refresh(true);
+			
+			//Button is not down anymore
+			var button = this.htmleditor.get('toolbar').getButton('insertvideo');
+			if (button) button.set('down', false);
+		},
+		
+		
+		/* --------------------------- DELETE VIDEO --------------------------- */
+		
+		
+		/**
+		 * Remove selected video
+		 * 
+		 * @private
+		 */
+		removeSelectedVideo: function () {
+			var node = this.selected_video,
+				id = this.selected_video_id;
+			
+			if (node) {
+				node.remove();
+				this.selected_video = null;
+				this.selected_video_id = null;
+				this.htmleditor.removeData(id);
+				this.htmleditor.refresh(true);
+				
+				this.hideVideoSettings();
+			}
+		},
+		
+		
+		/* --------------------------- SETTINGS FORM --------------------------- */
+		
+		
+		/**
+		 * Settings form
+		 * @type {Object}
+		 * @private
+		 */
+		settings_form: null,
+		
+		/**
+		 * Selected video ID
+		 * @type {String}
+		 * @private
+		 */
+		selected_video_id: null,
+		
+		/**
+		 * Selected video element
+		 * @type {Object}
+		 * @private
+		 */
+		selected_video: null,
+		
+		
+		/**
+		 * Create settings form
+		 * 
+		 * @returns {Object} Settings form
+		 * @private
+		 */
+		createSettingsForm: function () {
+			//Get form placeholder
+			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
+			if (!content) return;
+			
+			//Properties form
+			var form_config = {
+				"inputs": [
+					{"id": "video", "type": "Video", "label": Supra.Intl.get(["htmleditor", "video_source"]), "value": ""}
+				],
+				"style": "vertical"
+			};
+			
+			var form = new Supra.Form(form_config);
+				form.render(content);
+				form.hide();
+			
+			//Delete button
+			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "video_delete"]), "style": "small-red"});
+				btn.render(form.get("contentBox"));
+				btn.addClass("su-button-delete");
+				btn.on("click", this.removeSelectedVideo, this);
+			
+			this.settings_form = form;
+			return form;
+		},
+		
+		/**
+		 * Show video settings
+		 * 
+		 * @param {Object} target Target element
+		 * @param {Object} data Video object data
+		 */
+		showVideoSettings: function (target, data, callback) {
+			if (!data) {
+				Y.log("Missing data to edit video", "debug");
+				return false;
+			}
+			
+			//Make sure PageContentSettings is rendered
+			var form = this.settings_form || this.createSettingsForm(),
+				action = Manager.getAction("PageContentSettings");
+			
+			if (!form) {
+				if (action.get("loaded")) {
+					if (!action.get("created")) {
+						action.renderAction();
+						this.showVideoSettings(target, data, callback);
+					}
+				} else {
+					action.once("loaded", function () {
+						this.showVideoSettings(target, data, callback);
+					}, this);
+					action.load();
+				}
+				return false;
+			}
+			
+			action.execute(form, {
+				"hideCallback": Y.bind(callback, this),
+				"title": Supra.Intl.get(["htmleditor", "video_properties"]),
+				"scrollable": true
+			});
+			
+			//
+			this.selected_video = target;
+			this.selected_video_id = this.selected_video.getAttribute("id");
+			
+			this.settings_form
+					.resetValues()
+					.setValues({'video': data}, 'id', true);
+			
+			return true;
+		},
+		
+		/**
+		 * Hide link manager
+		 */
+		hideVideoSettings: function () {
+			if (this.settings_form && this.settings_form.get("visible")) {
+				Manager.PageContentSettings.hide();
+			}
+		},
+		
+		/**
+		 * Show or hide link manager based on toolbar button state
+		 */
+		toggleVideoSettings: function () {
+			if (this.selected_video) {
+				this.onVideoEditingDone();
+				
+				// Prevent default
+				return false;
+			} else {
+				return this.insertVideo();
+			}
+		},
+		
+		/* --------------------------- INITIALIZE --------------------------- */
+		
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor) {
+			// Add command
+			htmleditor.addCommand('insertvideo', Y.bind(this.toggleVideoSettings, this));
+			
+			// When clicking on video show editor
+			var container = htmleditor.get('srcNode');
+			container.delegate('click', Y.bind(this.editVideo, this), '.supra-video');
+			
+			// Button
+			var toolbar = htmleditor.get('toolbar');
+			var button = toolbar ? toolbar.getButton('insertvideo') : null;
+			if (button) {
+				
+				//When un-editable node is selected disable toolbar button
+				htmleditor.on('editingAllowedChange', function (event) {
+					button.set('disabled', !event.allowed);
+				});
+			}
+			
+			this.visible = false;
+			
+			//After paste replace links with tags
+			htmleditor.on('pasteHTML', this.tagPastedHTML, this);
+			
+			//When selection changes hide link manager
+			htmleditor.on('selectionChange', this.hideVideoSettings, this);
+			
+			//Hide link manager when editor is closed
+			htmleditor.on('disable', this.hideVideoSettings, this);
+		},
+		
+		/**
+		 * Clean up after plugin
+		 * Called when editor instance is destroyed
+		 */
+		destroy: function () {},
+		
+		
+		/* --------------------------- PARSER --------------------------- */
+		
+		
+		/**
+		 * Process HTML and replace all nodes with supra tags {supra.video id="..."}
+		 * Called before HTML is saved
+		 * 
+		 * @param {String} html
+		 * @return Processed HTML
+		 * @type {HTML}
+		 */
+		tagHTML: function (html) {
+			var htmleditor = this.htmleditor,
+				NAME = this.NAME;
+			
+			//Opening tag
+			html = html.replace(/<div [^>]*id="([^"]+)"[^>]*>/gi, function (html, id) {
+				if (!id) return html;
+				var data = htmleditor.getData(id);
+				
+				if (data && data.type == NAME) {
+					return '{supra.' + NAME + ' id="' + id + '"}';
+				} else {
+					return html;
+				}
+			});
+			
+			return html;
+		},
+		
+		/**
+		 * Process HTML and replace all supra tags with nodes
+		 * Called before HTML is set
+		 * 
+		 * @param {String} html HTML
+		 * @param {Object} data Data
+		 * @return Processed HTML
+		 * @type {String}
+		 */
+		untagHTML: function (html, data) {
+			var NAME = this.NAME;
+			
+			html = html.replace(/{supra\.video id="([^"]+)"}/ig, function (tag, id) {
+				if (!id || !data[id] || data[id].type != NAME) return '';
+				
+				return '<div id="' + id + '" class="supra-video yui3-box-reset su-uneditable" tabindex="0"></div>';
+			});
+			
+			return html;
+		}
+		
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
 }, YUI.version, {'requires': ['supra.htmleditor-base']});YUI().add('supra.htmleditor-plugin-table', function (Y) {
 	
 	//Constants
@@ -14483,7 +14939,113 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 
-}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI.add('supra.manager-base', function (Y) {
+}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI().add("supra.htmleditor-plugin-insert", function (Y) {
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+	};
+	
+	/*
+	 * Plugin to control insert panel
+	 */
+	Supra.HTMLEditor.addPlugin("insert", defaultConfiguration, {
+		
+		/**
+		 * Insert toolbar is visible
+		 */
+		visible: false,
+		
+		/**
+		 * Toggle insert toolbar
+		 */
+		toggleInsertToolbar: function () {
+			var toolbar = this.htmleditor.get("toolbar"),
+				button = toolbar.getButton("insert");
+			
+			if (button) {
+				if (!this.visible) {
+					this.visible = true;
+					toolbar.showGroup("insert");
+					button.set("down", true);
+				} else {
+					this.visible = false;
+					toolbar.hideGroup("insert");
+					button.set("down", false);
+				}
+			}
+		},
+		
+		/**
+		 * Hide insert toolbar
+		 */
+		hideInsertToolbar: function () {
+			if (this.visible) {
+				var toolbar = this.htmleditor.get("toolbar"),
+					button = toolbar.getButton("insert");
+				
+				toolbar.hideGroup("insert");
+				button.set("down", false);
+				
+				this.visible = false;
+			}
+		},
+		
+		/**
+		 * When editable/uneditable content is selected enable/disable button and hide toolbar
+		 * 
+		 * @private
+		 */
+		onEditingAllowedChange: function (event) {
+			this.htmleditor.get("toolbar").getButton("insert").set("disabled", !event.allowed);
+			
+			if (!event.allowed) {
+				this.hideInsertToolbar();
+			}
+		},
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			var toolbar = htmleditor.get("toolbar"),
+				button = toolbar ? toolbar.getButton("insert") : null;
+			
+			// Add command
+			htmleditor.addCommand("insert", Y.bind(this.toggleInsertToolbar, this));
+			
+			// When one of the insert controls is clicked hide toolbar
+			var controls = toolbar.getControlsInGroup("insert"),
+				i = 0,
+				ii = controls.length;
+			
+			for (; i<ii; i++) {
+				if (controls[i].command) {
+					htmleditor.addCommand(controls[i].command, Y.bind(this.hideInsertToolbar, this));
+				}
+			}
+			
+			if (button) {
+				//When un-editable node is selected disable toolbar button and hide toolbar
+				htmleditor.on("editingAllowedChange", this.onEditingAllowedChange, this);
+			}
+			
+			//Hide media library when editor is closed
+			htmleditor.on("disable", this.hideInsertToolbar, this);
+		}
+		
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {"requires": ["supra.htmleditor-base"]});YUI.add('supra.manager-base', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -28387,9 +28949,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (!data || !data.resource) {
 				data = {
 					'resource': 'source',
-					'source': '',
-					'width': 0,
-					'height': 0
+					'source': ''
 				}
 			} else {
 				source_value = data.source || '';
@@ -28414,9 +28974,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			return {
 				'resource': data && data.resource ? data.resource : 'source',
-				'source': input ? input.get('value') : data.source || '',
-				'width': 0,
-				'height': 0
+				'source': input ? input.get('value') : data.source || ''
 			};
 		},
 		

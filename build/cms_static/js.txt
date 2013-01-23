@@ -138,9 +138,11 @@
 /cms/lib/supra/build/htmleditor/plugins/plugin-image.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-gallery.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-link.js
+/cms/lib/supra/build/htmleditor/plugins/plugin-video.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-table.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-table-mobile.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-itemlist.js
+/cms/lib/supra/build/htmleditor/plugins/plugin-insert.js
 /cms/lib/supra/build/manager/base.js
 /cms/lib/supra/build/manager/loader.js
 /cms/lib/supra/build/manager/loader-common-actions.js

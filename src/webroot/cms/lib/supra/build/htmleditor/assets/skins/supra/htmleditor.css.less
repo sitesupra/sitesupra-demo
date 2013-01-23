@@ -32,7 +32,8 @@
 
 .yui3-editor-toolbar-text,
 .yui3-editor-toolbar-table,
-.yui3-editor-toolbar-itemlist {
+.yui3-editor-toolbar-itemlist,
+.yui3-editor-toolbar-insert {
 	.box-shadow (0, 1px, 0, rgba(0,0,0,0.15));
 	.border-radius (0, 0, 3px, 3px);
 	
@@ -46,7 +47,9 @@
 	top: 0;
 	left: 50%;
 	
-	&.yui3-editor-toolbar-table {
+	&.yui3-editor-toolbar-table,
+	&.yui3-editor-toolbar-itemlist,
+	&.yui3-editor-toolbar-insert {
 		z-index: 0;
 	}
 	
@@ -189,7 +192,8 @@
 .gecko {
 	.yui3-editor-toolbar-text,
 	.yui3-editor-toolbar-table,
-	.yui3-editor-toolbar-itemlist {
+	.yui3-editor-toolbar-itemlist,
+	.yui3-editor-toolbar-insert {
 		/**
 		 * Toolbar buttons
 		 */
@@ -241,7 +245,8 @@
 .gecko, .ie {
 	.yui3-editor-toolbar-text .yui3-button img,
 	.yui3-editor-toolbar-table .yui3-button img,
-	.yui3-editor-toolbar-itemlist .yui3-button img {
+	.yui3-editor-toolbar-itemlist .yui3-button img,
+	.yui3-editor-toolbar-insert .yui3-button img {
 		position: relative;
 		margin: 0 0 0 -1px;
 		display: inline-block;
