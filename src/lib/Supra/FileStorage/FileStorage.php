@@ -759,6 +759,13 @@ class FileStorage
 		$variant->setCropHeight($cropHeight);
 
 		$resizedVariantFilename = $this->getImagePath($file, $resizedVariantName);
+		
+		if ( ! file_exists($resizedVariantFilename)) {
+			$this->log()->warn("Resized image file {$resizedVariantFilename} is missing in the filesystem");
+
+			return $resizedVariantName;
+		}
+		
 
 		$cropper = new ImageProcessor\ImageCropper();
 
@@ -898,7 +905,7 @@ class FileStorage
 		}
 		
 		if ( ! $sourceImageSize->isCropped()) {
-			throw new Exception\RuntimeException('Cannot resize non-cropped images with this metod');
+			//throw new Exception\RuntimeException('Cannot resize non-cropped images with this metod');
 		}
 		
 		$image = $sourceImageSize->getMaster();
@@ -936,11 +943,17 @@ class FileStorage
 		$size->setTargetWidth($targetWidth);
 		$size->setTargetHeight($targetHeight);
 
-		$originalFilePath = $this->getImagePath($image, $sourceImageSize->getName());
+		$variantFileName = $this->getImagePath($image, $sourceImageSize->getName());
 
+		if ( ! file_exists($variantFileName)) {
+			$this->log()->warn("Image cropped variant file {$variantFileName} is missing in the filesystem");
+
+			return $sizeName;
+		}
+		
 		// initiate resizer
 		$resizer = new ImageProcessor\ImageResizer;
-		$resizer->setSourceFile($originalFilePath)
+		$resizer->setSourceFile($variantFileName)
 				->setOutputQuality($quality)
 				->setTargetWidth($targetWidth)
 				->setTargetHeight($targetHeight)
