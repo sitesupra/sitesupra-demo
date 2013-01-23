@@ -13205,7 +13205,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			if (data && data.video) {
 				// 'video' is input name
-				this.htmleditor.setData(id, data.video);
+				this.htmleditor.setData(id, Supra.mix({'type': this.NAME}, data.video));
 			}
 			
 			//
