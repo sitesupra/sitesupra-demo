@@ -4,7 +4,7 @@ namespace Supra\Controller\Pages\Filter;
 
 use Supra\Editable\Filter\FilterInterface;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Request\PageRequest;
+use Supra\Controller\Pages\Entity\ReferencedElement\VideoReferencedElement;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Controller\Pages\Entity;
@@ -215,6 +215,19 @@ class ParsedHtmlFilter implements FilterInterface
 					$result[] = $this->parseSupraImage($image);
 				}
 			}
+			else if ($element instanceof Markup\SupraMarkupVideo) {
+
+				$metadataItem = $metadata[$element->getId()];
+
+				if (empty($metadataItem)) {
+					$this->log->warn("Referenced video element " . get_class($element) . "-" . $element->getId() . " not found for {$this->property}");
+				}
+				else {
+
+					$video = $metadataItem->getReferencedElement();
+					$result[] = $this->parseSupraVideo($video);
+				}
+			}
 			else if ($element instanceof Markup\SupraMarkupLinkStart) {
 
 				$metadataItem = $metadata[$element->getId()];
@@ -237,6 +250,48 @@ class ParsedHtmlFilter implements FilterInterface
 		}
 
 		return join('', $result);
+	}
+	
+	/**
+	 * Parse supra.video
+	 * @param \Supra\Controller\Pages\Entity\ReferencedElement\VideoReferencedElement $videoData
+	 * @return string
+	 */
+	private function parseSupraVideo(VideoReferencedElement $element)
+	{
+		$html = null;
+		
+		$type = $element->getResourceType();
+			
+		if ($type == VideoReferencedElement::RESOURCE_LINK) {
+			
+			$service = $element->getExternalService();
+			$width = $element->getWidth();
+			$height = $element->getHeight();
+			
+			$videoId = $element->getExternalId();
+			
+			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
+				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
+				<object width=\"{$width}\" height=\"{$height}\">
+					<param name=\"movie\" value=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\"></param>
+					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
+					<embed src=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+				</object>
+			</div>";		
+			}
+			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
+				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
+				<iframe src=\"http://player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				</div>";
+			}
+		}
+		else {
+			$filteredEmbedCode = $element->getFilteredEmbedCode();
+			$html = "<div class=\"video\" data-attach=\"$.fn.resize\">{$filteredEmbedCode}</div>";
+		}
+	
+		return $html;
 	}
 
 	/**

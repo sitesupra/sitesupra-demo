@@ -313,5 +313,10 @@ class VideoReferencedElement extends ReferencedElementAbstract
 		$this->service = $service;
 		$this->resource = $resourceType;
 	}
+	
+	public function getFilteredEmbedCode()
+	{
+		return $this->embedCode;
+	}
 		
 }
