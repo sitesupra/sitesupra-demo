@@ -266,8 +266,8 @@ class ParsedHtmlFilter implements FilterInterface
 		if ($type == VideoReferencedElement::RESOURCE_LINK) {
 			
 			$service = $element->getExternalService();
-			$width = $element->getWidth();
-			$height = $element->getHeight();
+			$width = 560;
+			$height = 315;
 			
 			$videoId = $element->getExternalId();
 			
