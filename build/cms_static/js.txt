@@ -138,6 +138,7 @@
 /cms/lib/supra/build/htmleditor/plugins/plugin-image.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-gallery.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-link.js
+/cms/lib/supra/build/htmleditor/plugins/plugin-video.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-table.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-table-mobile.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-itemlist.js

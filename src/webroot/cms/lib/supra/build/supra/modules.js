@@ -355,6 +355,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-image',
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
+			'supra.htmleditor-plugin-video',
 			'supra.htmleditor-plugin-table',
 			'supra.htmleditor-plugin-itemlist',
 			'supra.htmleditor-plugin-table-mobile',
@@ -412,6 +413,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		/* Plugins */
 		'supra.htmleditor-plugin-link': {
 			path: 'htmleditor/plugins/plugin-link.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-video': {
+			path: 'htmleditor/plugins/plugin-video',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-gallery': {
