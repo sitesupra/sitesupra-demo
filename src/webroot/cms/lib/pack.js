@@ -10626,7 +10626,6 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			
 			slider.render(contentBox);
 			slider.on("valueChange", this.zoomChange, this);
-			slider.on("slideEnd", this.fixZoom, this);
 			
 			boundingBox.addClass("su-imageresizer");
 		},
@@ -10655,7 +10654,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		zoomChange: function (e) {
-			if (!this.get("image")) return;
+			if (e.silent || !this.get("image")) return;
 			
 			var image = this.get("image"),
 				zoom = e.newVal,
@@ -10729,7 +10728,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		fixZoom: function () {
-			this.zoomSlider.set("value", this.sizeToZoom(this.imageWidth, this.imageHeight));
+			this.zoomSlider.set("value", this.sizeToZoom(this.imageWidth, this.imageHeight), {silent: true});
 		},
 		
 		/**
@@ -10741,11 +10740,21 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @type {Number}
 		 */
 		sizeToZoom: function (width, height) {
-			if (width >= height) {
-				return Math.round((width - this.minImageWidth) / (this.get("maxImageWidth") - this.minImageWidth) * 100);
+			var minImageWidth = 0,
+				minImageHeight = 0;
+				
+			if (this.get('allowZoomResize')) {
+				minImageWidth = this.minImageWidth;
+				minImageHeight = this.minImageHeight;
 			} else {
-				//If width < height then height will give us better precision
-				return Math.round((height - this.minImageHeight) / (this.get("maxImageHeight") - this.minImageHeight) * 100);
+				minImageWidth = this.cropWidth;
+				minImageHeight = this.cropHeight;
+			}
+			
+			if (this.get("maxImageWidth") - minImageWidth < this.get("maxImageHeight") - minImageHeight) {
+				return Math.round((width - minImageWidth) / (this.get("maxImageWidth") - minImageWidth) * 100);
+			} else {
+				return Math.round((height - minImageHeight) / (this.get("maxImageHeight") - minImageHeight) * 100);
 			}
 		},
 		
@@ -10759,15 +10768,25 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		zoomToSize: function (zoom) {
 			var width = 0,
 				height = 0,
-				ratio = 0;
+				ratio = 0,
+				minImageWidth = 0,
+				minImageHeight = 0;
+			
+			if (this.get('allowZoomResize')) {
+				minImageWidth = this.minImageWidth;
+				minImageHeight = this.minImageHeight;
+			} else {
+				minImageWidth = this.cropWidth;
+				minImageHeight = this.cropHeight;
+			}
 			
 			if (this.imageWidth > this.imageHeight) {
 				ratio = (this.get("maxImageWidth") / this.get("maxImageHeight"));
-				width = (this.get("maxImageWidth") - this.minImageWidth) * zoom / 100 + this.minImageWidth;
+				width = (this.get("maxImageWidth") - minImageWidth) * zoom / 100 + minImageWidth;
 				height = width / ratio;
 			} else {
 				ratio = (this.get("maxImageHeight") / this.get("maxImageWidth"));
-				height = (this.get("maxImageHeight") - this.minImageHeight) * zoom / 100 + this.minImageHeight;
+				height = (this.get("maxImageHeight") - minImageHeight) * zoom / 100 + minImageHeight;
 				width = height / ratio;
 			}
 			
@@ -10971,6 +10990,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			
 			this.resizeActive = false;
 			this.moveActive = false;
+			this.fixZoom();
 		},
 		
 		/**
