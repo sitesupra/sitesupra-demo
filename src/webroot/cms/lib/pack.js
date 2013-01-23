@@ -13441,7 +13441,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				NAME = this.NAME;
 			
 			//Opening tag
-			html = html.replace(/<div [^>]*id="([^"]+)"[^>]*>/gi, function (html, id) {
+			html = html.replace(/<div [^>]*id="([^"]+)"[^>]*>[^<]*<\/div[^>]*>/gi, function (html, id) {
 				if (!id) return html;
 				var data = htmleditor.getData(id);
 				
@@ -28936,6 +28936,35 @@ YUI.add('supra.datatype-color', function(Y) {
 		},
 		
 		/**
+		 * Convert 'link' video data into 'source'
+		 * 
+		 * @param {Object} data Video data
+		 * @returns {Object} Normalized video data
+		 */
+		normalizeData: function (data) {
+			if (!data || !data.resource) {
+				data = {'resource': 'source', 'source': ''};
+			} else if (data.resource == 'link'){
+				data = Supra.mix({}, data);
+				data.resource = 'source';
+				
+				switch (data.service) {
+					case 'youtube':
+						data.source = 'http://' + data.service + '.com/?v=' + data.id;
+						break;
+					case 'vimeo':
+						data.source = 'http://' + data.service + '.com/' + data.id;
+						break;
+				}
+				
+				delete(data.id);
+				delete(data.service);
+			}
+			
+			return data;
+		},
+		
+		/**
 		 * Value attribute setter
 		 * 
 		 * @param {Object} data New input value
@@ -28943,20 +28972,14 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_setValue: function (data) {
-			var source_value = '',
+			var value = '',
 				input = this.widgets ? this.widgets.source : null; // May not be rendered yet
 			
-			if (!data || !data.resource) {
-				data = {
-					'resource': 'source',
-					'source': ''
-				}
-			} else {
-				source_value = data.source || '';
-			}
+			data = this.normalizeData(data);
+			value = data.source || '';
 			
-			if (input && input.get('value') !== source_value) {
-				input.set('value', source_value);
+			if (input && input.get('value') !== value) {
+				input.set('value', value);
 			}
 			
 			return data;

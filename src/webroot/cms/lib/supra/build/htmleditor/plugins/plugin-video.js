@@ -359,7 +359,7 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 				NAME = this.NAME;
 			
 			//Opening tag
-			html = html.replace(/<div [^>]*id="([^"]+)"[^>]*>/gi, function (html, id) {
+			html = html.replace(/<div [^>]*id="([^"]+)"[^>]*>[^<]*<\/div[^>]*>/gi, function (html, id) {
 				if (!id) return html;
 				var data = htmleditor.getData(id);
 				
