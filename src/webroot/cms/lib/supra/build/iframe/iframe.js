@@ -370,7 +370,7 @@ YUI().add('supra.iframe', function (Y) {
 			Y.Node(doc).one('html').addClass('supra-cms');
 			
 			//Add "ie" class to the <html> element
-			if (Supra.Y.UA.ie && Supra.Y.UA.ie < 10) {
+			if (Supra.Y.UA.ie) {
 				Y.Node(doc).one('html').addClass('ie');
 			} else {
 				Y.Node(doc).one('html').addClass('non-ie');

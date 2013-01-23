@@ -46,9 +46,8 @@ YUI.add("supra.page-content-ordering", function (Y) {
 		 */
 		destructor: function () {
 			if (this.dragDelegate) {
-				var dragDelegate = this.dragDelegate;
+				this.dragDelegate.destroy();
 				this.dragDelegate = null;
-				dragDelegate.destroy();
 			}
 		},
 		
