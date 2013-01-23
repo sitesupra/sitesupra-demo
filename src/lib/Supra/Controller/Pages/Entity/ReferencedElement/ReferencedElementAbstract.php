@@ -13,7 +13,8 @@ use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({
  *		"link" = "LinkReferencedElement", 
- *		"image" = "ImageReferencedElement"
+ *		"image" = "ImageReferencedElement",
+ *		"video" = "VideoReferencedElement",
  * })
  */
 abstract class ReferencedElementAbstract extends Entity implements AuditedEntityInterface
@@ -33,20 +34,23 @@ abstract class ReferencedElementAbstract extends Entity implements AuditedEntity
 		$element = null;
 		
 		switch ($array['type']) {
-			
 			case LinkReferencedElement::TYPE_ID:
 				$element = new LinkReferencedElement();
-				$element->fillArray($array);
 				break;
 			
 			case ImageReferencedElement::TYPE_ID:
 				$element = new ImageReferencedElement();
-				$element->fillArray($array);
+				break;
+			
+			case VideoReferencedElement::TYPE_ID:
+				$element = new VideoReferencedElement();
 				break;
 			
 			default:
 				throw new Exception\RuntimeException("Invalid metadata array: " . print_r($array, 1));
 		}
+		
+		$element->fillArray($array);
 		
 		return $element;
 	}

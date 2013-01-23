@@ -373,7 +373,7 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
-
+		
 		if ($editable instanceof Editable\InlineString) {
 			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
 				$filter = new Filter\EditableString();
@@ -395,6 +395,13 @@ abstract class BlockController extends ControllerAbstraction
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$filter->request = $this->request;
+			$editable->addFilter($filter);
+		}
+		
+		if ($editable instanceof Editable\Video) {
+			$filter = new Filter\VideoFilter();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
 

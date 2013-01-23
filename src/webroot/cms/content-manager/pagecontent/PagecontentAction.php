@@ -2,7 +2,6 @@
 
 namespace Supra\Cms\ContentManager\Pagecontent;
 
-use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity;
@@ -607,7 +606,26 @@ class PagecontentAction extends PageManagerAction
 
 						$value = null;
 					}
-				} else {
+				}
+				elseif ($editable instanceof Editable\Video) {
+
+					if ($input->hasChild($propertyName)) {
+
+						$videoData = $input->getChild($propertyName)
+								->getArrayCopy();
+						
+						$videoData['type'] = Entity\ReferencedElement\VideoReferencedElement::TYPE_ID;
+						$referencedElementsData[0] = $videoData;
+					} else {
+						// Scalar sent if need to empty the link
+						$checkValue = $input->get($propertyName);
+
+						if ( ! empty($checkValue)) {
+							throw new \InvalidArgumentException("Empty value need to be sent to unset the link, $checkValue received");
+						}
+					}
+				}			
+				else {
 					$propertyData = $input->get($propertyName);
 					$value = $propertyData;
 				}
@@ -719,6 +737,15 @@ class PagecontentAction extends PageManagerAction
 			}
 			
 			$metaItem->setName($index);
+			
+			if ($metaItemInput->hasChild('image')) {
+				$imageData = $metaItemInput->getChild('image')
+						->getArrayCopy();
+
+				$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
+				$element->fillArray($imageData);
+			}
+			
 			$element->setImageId($imageId);
 			
 			$metaItem->setReferencedElement($element);

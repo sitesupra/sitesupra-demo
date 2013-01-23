@@ -7,7 +7,6 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\ImageSize;
 use Supra\Html\HtmlTag;
-use Supra\Form\FormBlockController;
 
 /**
  * Supra page controller twig helper
@@ -61,9 +60,9 @@ class TwigSupraBlockGlobal
 	 * @param integer $height
 	 * @param boolean $cropped
 	 */
-	public function preloadImage($imageId, $width = null, $height = null, $cropped = false)
+	public function preloadImage($imageId, $width = null, $height = null, $cropped = false, $fromSize = null)
 	{
-		$this->preloadImageData[round($width)][round($height)][$cropped][$imageId] = true;
+		$this->preloadImageData[round($width)][round($height)][$cropped][$fromSize][$imageId] = true;
 	}
 	
 	/**
@@ -72,7 +71,7 @@ class TwigSupraBlockGlobal
 	 * @param integer $height
 	 * @param boolean $cropped
 	 */
-	private function doPreloadImages($width, $height, $cropped)
+	private function doPreloadImages($width, $height, $cropped, $fromSize)
 	{
 		$width = round($width);
 		$height = round($height);
@@ -80,7 +79,7 @@ class TwigSupraBlockGlobal
 		$fileStorage = ObjectRepository::getFileStorage($this);
 		$em = $fileStorage->getDoctrineEntityManager();
 		
-		$imageIds = array_keys($this->preloadImageData[$width][$height][$cropped]);
+		$imageIds = array_keys($this->preloadImageData[$width][$height][$cropped][$fromSize]);
 		
 		if (empty($imageIds)) {
 			return;
@@ -100,6 +99,11 @@ class TwigSupraBlockGlobal
 				->andWhere('s.master IN (?0) AND s.targetWidth = ?1 AND s.targetHeight = ?2 AND s.cropMode = ?3')
 				->setParameters(array($imageIds, $width, $height, $cropped));
 		
+		if ( ! is_null($fromSize)) {
+			$qb->andWhere('s.name = ?4')
+					->setParameter(4, $fromSize);
+		}
+		
 		$sizes = $qb->getQuery()->getResult();
 		
 		foreach ($sizes as $key => $size) {
@@ -111,8 +115,16 @@ class TwigSupraBlockGlobal
 			$imageSize = null;
 			
 			if (empty($sizes[$imageId])) {
-				$sizeName = $fileStorage->createResizedImage($image, $width, $height, $cropped);
-				$imageSize = $image->getImageSize($sizeName);
+				if ( ! empty($fromSize)) {
+					 $sourceImageSize = $image->findImageSize($fromSize);
+					 if ( ! is_null($sourceImageSize)) {
+						 $sizeName = $fileStorage->createCroppedImageVariant($sourceImageSize, $width, $height, $cropped);		
+					 } 
+					 $imageSize = $image->getImageSize($sizeName);
+				} else {
+					$sizeName = $fileStorage->createResizedImage($image, $width, $height, $cropped);
+					$imageSize = $image->getImageSize($sizeName);
+				}
 			} else {
 				$imageSize = $sizes[$imageId];
 			}
@@ -123,60 +135,45 @@ class TwigSupraBlockGlobal
 			$img = new HtmlTag('img');
 			
 			$webPath = $fileStorage->getWebPath($image, $imageSize);
+						
 			$img->setAttribute('src', $webPath);
 			$img->setAttribute('width', $realWidth);
 			$img->setAttribute('height', $realHeight);
 			
-			$this->preloadedImages[$width][$height][$cropped][$imageId] = $img;
+			$this->preloadedImages[$width][$height][$cropped][$fromSize][$imageId] = $img;
 		}
 		
 		// Clear data
-		$this->preloadImageData[$width][$height][$cropped] = array();
+		$this->preloadImageData[$width][$height][$cropped][$fromSize] = array();
 	}
 	
-	/**
-	 * @param string $imageId
-	 * @param integer $width
-	 * @param integer $height
-	 * @param boolean $cropped
-	 * @return HtmlTag
-	 */
-	public function imageHtmlTag($imageId, $width = null, $height = null, $cropped = false)
+	public function imageHtmlTag($imageId, $width = null, $height = null, $cropped = false, $fromSize = null)
 	{
 		if (empty($imageId)) {
 			return;
 		}
 		
-		// For now..
-		if (is_null($width)) {
-			$width = 10000;
-		}
-		else {
-			$width = round($width);
-		}
+		// For now...
+		$width = ( ! is_null($width) ? round($width) : 10000);
+		$height = ( ! is_null($height) ? round($height) : 10000);
 		
-		if (is_null($height)) {
-			$height = 10000;
-		}
-		else {
-			$height = round($height);
-		}
-		
-		if (isset($this->preloadedImages[$width][$height][$cropped][$imageId])) {
-			$tag = $this->preloadedImages[$width][$height][$cropped][$imageId];
+		if (isset($this->preloadedImages[$width][$height][$cropped][$fromSize][$imageId])) {
+			$tag = $this->preloadedImages[$width][$height][$cropped][$fromSize][$imageId];
 			
 			return $tag;
 		}
 		
-		$this->preloadImage($imageId, $width, $height, $cropped);
-		$this->doPreloadImages($width, $height, $cropped);
+		$this->preloadImage($imageId, $width, $height, $cropped, $fromSize);
+		$this->doPreloadImages($width, $height, $cropped, $fromSize);
 		
-		$tag = $this->preloadedImages[$width][$height][$cropped][$imageId];
+		$tag = $this->preloadedImages[$width][$height][$cropped][$fromSize][$imageId];
 		
 		return $tag;
 	}
 	
-	
+	/**
+	 * @return \Supra\Controller\Pages\Entity\Abstraction\Block
+	 */
 	public function getBlock()
 	{
 		return $this->blockController->getBlock();

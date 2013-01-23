@@ -115,12 +115,12 @@ class ImageResizer extends ImageProcessor
 			$destWidth = $dimensions['destWidth'];
 			$destHeight = $dimensions['destHeight'];
 			
-			// create image resource for new image
-			$resizedImage = imagecreatetruecolor($destWidth, $destHeight);
-			// check if transparecy requires special treatment
-			if ($imageInfo->getType() == IMAGETYPE_PNG) {
-				$this->preserveTransparency($sourceImage, $resizedImage, $imageInfo->getType());
-			}
+			$resizedImage = $this->createOutputImage($imageInfo, $destWidth, $destHeight);
+			
+//			// check if transparecy requires special treatment
+//			if ($imageInfo->getType() == IMAGETYPE_PNG) {
+//				$this->preserveTransparency($sourceImage, $resizedImage, $imageInfo->getType());
+//			}
 			
 			// copy and resize
 			imagecopyresampled($resizedImage, $sourceImage, 
