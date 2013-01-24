@@ -21,6 +21,9 @@ YUI.add('gallerymanager.itemlist-drop', function (Y) {
 	ItemListDrop.NS = 'drop';
 	
 	ItemListDrop.ATTRS = {
+		'disabled': {
+			value: false
+		}
 	};
 	
 	Y.extend(ItemListDrop, Y.Plugin.Base, {
@@ -75,6 +78,8 @@ YUI.add('gallerymanager.itemlist-drop', function (Y) {
 		 * Attach drag and drop listeners
 		 */
 		reattachListeners: function () {
+			if (this.get('disabled')) return false;
+			
 			var itemlist = this.get('host'),
 				container = itemlist.get('listNode'),
 				childSelector = null,

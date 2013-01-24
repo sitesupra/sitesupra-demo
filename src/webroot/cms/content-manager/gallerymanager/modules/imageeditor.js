@@ -17,7 +17,7 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 	ImageEditor.ATTRS = {
 		// Disabled state
 		'disabled': {
-			value: null,
+			value: false,
 			setter: '_setDisabled'
 		},
 		// Editing state

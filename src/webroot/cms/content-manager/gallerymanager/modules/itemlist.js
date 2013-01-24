@@ -52,6 +52,11 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			value: true,
 			setter: '_setVisible',
 			getter: '_getVisible'
+		},
+		// List is 'shared'
+		'shared': {
+			value: false,
+			setter: '_setShared'
 		}
 	};
 	
@@ -104,8 +109,11 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * Reset cache, clean up
 		 */
 		resetAll: function () {
+			var shared = this.get('shared');
+			
 			// Widgets / plugins
 			if (this.order) {
+				this.order.set('disabled', shared);
 				this.order.resetAll();
 			}
 			
@@ -114,7 +122,12 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			}
 			
 			if (this.drop) {
+				this.drop.set('disabled', shared);
 				this.drop.resetAll();
+			}
+			
+			if (this.uploader) {
+				this.uploader.set('disabled', shared);
 			}
 			
 			if (this.newItemControl) {
@@ -158,6 +171,19 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			}
 			
 			return !!value;
+		},
+		
+		/**
+		 * Shared attribute setter
+		 * 
+		 * @param {Boolean} shared Shared state
+		 * @returns {Boolean} New shared state
+		 * @private
+		 */
+		_setShared: function (shared) {
+			// New item button
+			this.set('showInsertControl', !shared);
+			return !!shared;
 		},
 		
 		/**
@@ -581,7 +607,8 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				
 				input = new Supra.GalleryManagerImageEditor({
 					'srcNode': imageNode,
-					'value': value
+					'value': value,
+					'disabled': this.get('shared')
 				});
 				
 				input.render();
@@ -705,7 +732,8 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 */
 		focusInlineEditor: function (id, property) {
 			var container = null,
-				input = null;
+				input = null,
+				shared = this.get('shared');
 			
 			if (typeof id === 'object') {
 				// Event
@@ -719,7 +747,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 					// Image input may loose focus and is closed, while 
 					// sidebar stays open and property is still considered to be focused
 					// (not a bug, otherwise behaviour would be wierd)
-					if (this.editingInput && !this.editingInput.get('editing')) {
+					if (!shared && this.editingInput && !this.editingInput.get('editing')) {
 						this.editingInput.edit();
 					}
 				} else {
@@ -739,8 +767,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				this.editingProperty = property;
 				this.editingInput = input;
 				
-				input.set('disabled', false);
-				input.focus();
+				if (property !== 'image' || !shared) {
+					input.set('disabled', false);
+					input.focus();
+				}
 				
 				this.get('host').showImageSettings(id);
 				
@@ -751,7 +781,12 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				this.editingProperty = property;
 				this.editingInput = null;
 				
-				this.get('host').openMediaLibraryForReplace(id);
+				if (!shared) {
+					this.get('host').openMediaLibraryForReplace(id);
+				} else {
+					// Can't edit image, just show settings
+					this.get('host').showImageSettings(id);
+				}
 			}
 			
 			this.fire('focusItem', {'input': this.editingInput, 'id': id, 'property': property});

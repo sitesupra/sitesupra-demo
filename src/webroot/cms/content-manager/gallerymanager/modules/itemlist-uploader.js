@@ -18,7 +18,9 @@ YUI.add('gallerymanager.itemlist-uploader', function (Y) {
 	
 	ItemListUploader.ATTRS = {
 		
-		
+		'disabled': {
+			value: false
+		}
 		
 	};
 	
@@ -69,7 +71,13 @@ YUI.add('gallerymanager.itemlist-uploader', function (Y) {
 				target = null,
 				image_upload_folder = null;
 			
-			if (this.uploader || !container) return;
+			if (this.uploader) {
+				this.uploader.set('disabled', this.get('disabled'));
+				return false;
+			}
+			if (!container) {
+				return false;
+			}
 			
 			//Create uploader
 			//doc = itemlist.getDocument();

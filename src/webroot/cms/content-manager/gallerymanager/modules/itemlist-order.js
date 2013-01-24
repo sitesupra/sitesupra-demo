@@ -17,6 +17,9 @@ YUI.add('gallerymanager.itemlist-order', function (Y) {
 	ItemListOrder.NS = 'order';
 	
 	ItemListOrder.ATTRS = {
+		'disabled': {
+			value: false
+		}
 	};
 	
 	Y.extend(ItemListOrder, Y.Plugin.Base, {
@@ -74,6 +77,8 @@ YUI.add('gallerymanager.itemlist-order', function (Y) {
 		 * Attach drag and drop listeners
 		 */
 		reattachListeners: function () {
+			if (this.get('disabled')) return;
+			
 			var itemlist = this.get('host'),
 				container = itemlist.get('listNode');
 			
@@ -192,7 +197,7 @@ YUI.add('gallerymanager.itemlist-order', function (Y) {
 		        indexTo = 0;
 			
 		    //Are we dropping on a li node?
-		    if (drop.get('tagName').toLowerCase() === selector) {
+		    if (drop.test(selector)) {
 			    index = drop.get('parentNode').get('children').indexOf(drop);
 			    dragGoingUp = index < this.lastDragIndex;
 			    

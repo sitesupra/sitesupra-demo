@@ -198,11 +198,9 @@ function (Y) {
 			this.itemlist.plug(Supra.GalleryManagerItemListHighlight);
 			
 			// Order items by drag and drop
-			if (!this.shared) {
-				this.itemlist.plug(Supra.GalleryManagerItemListOrder);
-				this.itemlist.plug(Supra.GalleryManagerItemListDrop);
-				this.itemlist.plug(Supra.GalleryManagerItemListUploader);
-			}
+			this.itemlist.plug(Supra.GalleryManagerItemListOrder);
+			this.itemlist.plug(Supra.GalleryManagerItemListDrop);
+			this.itemlist.plug(Supra.GalleryManagerItemListUploader);
 			
 		},
 		
@@ -252,7 +250,11 @@ function (Y) {
 				btn.render(form.get('contentBox'));
 				btn.addClass('su-button-fill');
 				btn.on('click', this.openMediaLibraryForReplace, this);
-				
+			
+			if (this.shared) {
+				btn.set('visible', false);
+			}
+			
 			//Button separator
 			form.get('contentBox').append('<br />');
 				
@@ -655,6 +657,19 @@ function (Y) {
 		},
 		
 		/**
+		 * Enable/disable some functionality in shared mode
+		 */
+		applySharedSettings: function (shared) {
+			// Manage image button
+			if (this.widgets.manageButton) {
+				this.widgets.manageButton.set('visible', !shared);
+			}
+			
+			// Change shared property
+			this.itemlist.set('shared', shared);
+		},
+		
+		/**
 		 * Execute action
 		 * 
 		 * @param {Object} options Gallery options: data, callback, context, block
@@ -675,6 +690,7 @@ function (Y) {
 			}
 			
 			this.shared = options.shared;
+			this.applySharedSettings(options.shared);
 			
 			this.callback = options.callback ? (options.context ? Y.bind(options.callback, options.context) : options.callback) : null;
 			
@@ -682,7 +698,6 @@ function (Y) {
 			this.image_properties = options.properties || [];
 			this.image_upload_folder = options.imageUploadFolder || 0;
 			
-			this.itemlist.set('showInsertControl', !options.shared);
 			this.itemlist.set('visible', false);
 			this.itemlist.reloadIframe();
 			
