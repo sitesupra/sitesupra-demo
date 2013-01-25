@@ -228,6 +228,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 			}
 			
+			inputs.title.on('input', this._onPagePropertyChange, this);
 			inputs.template.on('change', this.hideTemplates, this);
 			
 			//Fill template list and on template change update button
