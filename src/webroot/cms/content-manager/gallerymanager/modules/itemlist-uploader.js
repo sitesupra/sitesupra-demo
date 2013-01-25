@@ -84,6 +84,9 @@ YUI.add('gallerymanager.itemlist-uploader', function (Y) {
 			target = itemlist.getWrapperNode();
 			image_upload_folder = itemlist.get('host').image_upload_folder;
 			
+			var uploadData = this.getUploaderFileUploadData();
+				uploadData.force = true;
+			
 			this.uploader = new Supra.Uploader({
 				'clickTarget': null,
 				'dropTarget': target,
@@ -95,7 +98,7 @@ YUI.add('gallerymanager.itemlist-uploader', function (Y) {
 				'requestUri': Manager.getAction('MediaLibrary').getDataPath('upload'),
 				'uploadFolderId': image_upload_folder,
 				
-				'data': this.getUploaderFileUploadData()
+				'data': uploadData
 			});
 			
 			this.uploader.on('file:upload', this.onFileUploadStart, this);

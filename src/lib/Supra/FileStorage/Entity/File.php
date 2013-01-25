@@ -3,9 +3,7 @@
 namespace Supra\FileStorage\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Supra\NestedSet;
-use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * File object
@@ -88,7 +86,18 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 
 		return $extension;
 	}
-
+	
+	/**
+	 * Returns file name without extension
+	 * @return string
+	 */
+	public function getFileNameWithoutExtension()
+	{
+		$fileName = pathinfo($this->fileName, PATHINFO_FILENAME);
+		
+		return $fileName;
+	}
+	
 	/**
 	 * {@inheritdoc}
 	 * @param string $locale
