@@ -10,8 +10,16 @@ class Translator extends \Symfony\Component\Translation\Translator
 	private $loaders = array();
     private $resources = array();
 
+	/**
+	 * @var string
+	 */
+	private $currentLocale = null;
+	
+	
 	public function trans($id, array $parameters = array(), $domain = 'messages', $locale = null)
 	{
+		$locale = (is_null($locale) ? $this->getCurrentLocale() : $locale);
+		
 		if ($id instanceof TranslatedString) {
 			return (string) $id;
 		}
@@ -21,6 +29,8 @@ class Translator extends \Symfony\Component\Translation\Translator
 
 	public function transChoice($id, $number, array $parameters = array(), $domain = 'messages', $locale = null)
 	{
+		$locale = (is_null($locale) ? $this->getCurrentLocale() : $locale);
+		
 		// Skip catalogues if is already translated
 		if ($id instanceof TranslatedString) {
 			if ( ! isset($locale)) {
@@ -69,5 +79,20 @@ class Translator extends \Symfony\Component\Translation\Translator
 			$registeringCatalogue->addCatalogue($this->catalogues[$locale]);
 			$this->catalogues[$locale] = $registeringCatalogue;
 		}
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 */
+	protected function getCurrentLocale()
+	{
+		if (is_null($this->currentLocale)) {
+			$localeManager = \Supra\ObjectRepository\ObjectRepository::getLocaleManager($this);
+			$this->currentLocale = $localeManager->getCurrent()
+					->getId();
+		}
+		
+		return $this->currentLocale;
 	}
 }

@@ -657,6 +657,11 @@ YUI.add('supra.iframe-contents', function (Y) {
 		},
 		
 		beforeDestroy: function () {
+			//Remove ordering
+			if (this.order) {
+				this.order.destroy();
+			}
+			
 			//Destroy children
 			var child = null,
 				blocks = this.children;

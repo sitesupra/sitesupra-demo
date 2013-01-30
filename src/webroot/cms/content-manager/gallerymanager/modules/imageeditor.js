@@ -17,7 +17,7 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 	ImageEditor.ATTRS = {
 		// Disabled state
 		'disabled': {
-			value: null,
+			value: false,
 			setter: '_setDisabled'
 		},
 		// Editing state
@@ -108,26 +108,25 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 		_startEditing: function () {
 			var imageResizer = this.get('imageResizer'),
 				node = this.get('srcNode'),
-				wrap = null,
-				width = 0,
+				wrap = node.closest('.supra-image') || node,
+				width = wrap.getAttribute('width') || wrap.get('offsetWidth'),
 				size = this.get('value').image.sizes.original;
 			
 			if (!imageResizer) {
-				wrap = node.closest('.supra-image') || node;
-				width = wrap.getAttribute('width') || wrap.get('offsetWidth');
-				
 				imageResizer = new Supra.ImageResizer({
 					'mode': Supra.ImageResizer.MODE_IMAGE,
 					'allowZoomResize': false,
 					'autoClose': false,
-					'maxCropWidth': width,
-					'minCropWidth': width
+					'maxCropWidth': Math.min(width, size.width),
+					'minCropWidth': Math.min(width, size.width)
 				});
 				imageResizer.on('resize', this._editingUpdate, this);
 				
 				this.set('imageResizer', imageResizer);
 			}
 			
+			imageResizer.set('maxCropWidth', Math.min(width, size.width));
+			imageResizer.set('minCropWidth', Math.min(width, size.width));
 			imageResizer.set('maxImageHeight', size.height);
 			imageResizer.set('maxImageWidth', size.width);
 			imageResizer.set('image', node);

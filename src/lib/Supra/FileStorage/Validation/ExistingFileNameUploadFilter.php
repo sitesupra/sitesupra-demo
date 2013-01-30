@@ -34,7 +34,7 @@ class ExistingFileNameUploadFilter extends FileFolderSharedValidation
 					$message = $typeName . ' with this name already exists.';
 					\Log::info($message);
 					
-					throw new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
+					throw new Exception\DuplicateFileNameException(self::EXCEPTION_MESSAGE_KEY, $message);
 				}
 			}
 		}

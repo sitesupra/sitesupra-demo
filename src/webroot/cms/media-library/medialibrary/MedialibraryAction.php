@@ -18,6 +18,8 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	const TYPE_FOLDER = 1;
 	const TYPE_IMAGE = 2;
 	const TYPE_FILE = 3;
+	
+	const DUPLICATE_NAME_PATTERN = '%s (%d).%s';
 
 	//
 	const MAX_FILE_BASENAME_LENGTH = 100;
@@ -422,6 +424,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	public function uploadAction()
 	{
 		$this->isPostRequest();
+		$post = $this->getRequest()->getPost();
 
 		if ( ! isset($_FILES['file']) || ! empty($_FILES['file']['error'])) {
 			$message = 'Error uploading the file';
@@ -555,10 +558,47 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 				$folder->addChild($fileEntity);
 			}
+			
+			// when "force" set to true, then we need to ignore duplicate 
+			// filename exception, so postfix will be added to filename
+			if ($fileEntity instanceof Entity\File) {
+				if ($post->has('force') && $post->getValid('force', \Supra\Validator\Type\AbstractType::BOOLEAN)) {
+					try { 
+						$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
+					} catch (Exception\DuplicateFileNameException $e) {
 
+						$siblings = $fileEntity->getSiblings();
+						
+						$existingNames = array();
+						foreach($siblings as $siblingEntity) {
+							if ( ! $siblingEntity->equals($fileEntity)) {
+								$existingNames[] = $siblingEntity->getFileName();
+							}
+						}
+
+						$extension = $fileEntity->getExtension();
+						$fileNamePart = $fileEntity->getFileNameWithoutExtension();
+						
+						$possibleName = null;
+						// assume that 1000 iterations is enough, to create unique name
+						// if not, well... duplicate file name exception will be thrown
+						for ($i = 1; $i < 1000; $i++) {
+							$possibleName = sprintf(self::DUPLICATE_NAME_PATTERN, $fileNamePart, $i, $extension);
+							
+							if ( ! in_array($possibleName, $existingNames)) {
+								$fileEntity->setFileName($possibleName);
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			// when it is not enough available memory to complete Image resize/crop
+			// file will be uploaded as simple File entity
 			if ($fileEntity instanceof Entity\Image) {
 				try {
-					$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);
+					$this->fileStorage->validateFileUpload($fileEntity, $file['tmp_name']);		
 				} catch (\Supra\FileStorage\Exception\InsufficientSystemResources $e) {
 
 					// Removing image
