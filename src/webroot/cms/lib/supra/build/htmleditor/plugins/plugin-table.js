@@ -605,10 +605,16 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			//Button style
 			this.getButton(HTMLEDITOR_SETTINGS_COMMAND).set('down', true);
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			action.execute(form, {
 				'doneCallback': Y.bind(this.hideSettingsForm, this),
 				'title': Supra.Intl.get(['htmleditor', 'table_properties']),
-				'scrollable': true
+				'scrollable': true,
+				'toolbarActionName': 'htmleditor-plugin'
 			});
 			
 			this.silent = true;

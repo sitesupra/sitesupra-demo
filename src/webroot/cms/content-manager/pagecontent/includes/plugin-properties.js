@@ -349,8 +349,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			this.set('slideshow', slideshow);
 			
+			//Hide back button
+			this.get('action').get('backButton').hide();
+			
 			//Bind to "Back" button
-			this.get('action').get('backButton').on('click', slideshow.scrollBack, slideshow);
+			this.get('action').get('backButton').on('click', function () {
+				if (this.get('action').form === this.get('form')) {
+					this.get('slideshow').scrollBack();
+				}
+			}, this);
 			
 			return slideshow;
 		},

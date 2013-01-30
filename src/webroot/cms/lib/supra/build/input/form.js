@@ -1,18 +1,18 @@
-YUI.add("supra.form", function (Y) {
+YUI.add('supra.form', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
 	//Input configuration defaults
 	var INPUT_DEFINITION = {
-		"id": null,
-		"name": null,
-		"label": "",
-		"type": "String",
-		"srcNode": null,
-		"containerNode": null,
-		"labelNode": null,
-		"value": "",
-		"disabled": false
+		'id': null,
+		'name': null,
+		'label': '',
+		'type': 'String',
+		'srcNode': null,
+		'containerNode': null,
+		'labelNode': null,
+		'value': '',
+		'disabled': false
 	};
 	
 	/**
@@ -22,7 +22,7 @@ YUI.add("supra.form", function (Y) {
 	 * @param {Object} config Configuration
 	 */
 	function Form (config) {
-		//Fix "value" references for inputs
+		//Fix 'value' references for inputs
 		this.fixInputConfigValueReferences(config || {});
 		
 		Form.superclass.constructor.apply(this, [config || {}]);
@@ -33,55 +33,61 @@ YUI.add("supra.form", function (Y) {
 		this.processAttributes();
 	}
 	
-	Form.NAME = "form";
+	Form.NAME = 'form';
 	Form.ATTRS = {
-		"inputs": {
+		'inputs': {
 			value: null
 		},
-		"autoDiscoverInputs": {
+		'autoDiscoverInputs': {
 			value: true
 		},
-		"urlLoad": {
+		'urlLoad': {
 			value: null
 		},
-		"urlSave": {
+		'urlSave': {
 			value: null
 		},
-		"urlDelete": {
+		'urlDelete': {
 			value: null
 		},
-		"style": {
-			value: ""
+		'style': {
+			value: ''
 		},
 		/**
 		 * Values which user was trying to set, but didn't had inputs
 		 * for them
 		 */
-		"plainValues": {
+		'plainValues': {
 			value: {}
 		},
-		"disabled": {
+		'disabled': {
 			value: false,
-			setter: "_setDisabled"
+			setter: '_setDisabled'
 		},
 		/**
 		 * Parent widget, could be empty
 		 */
-		"parent": {
+		'parent': {
 			value: null
 		},
 		/**
 		 * Root parent widget, usually same as parent attribute
 		 */
-		"root": {
+		'root': {
+			value: null
+		},
+		/**
+		 * Slideshow object, optional
+		 */
+		'slideshow': {
 			value: null
 		}
 	};
 	Form.HTML_PARSER = {
-		"urlLoad": function (srcNode) {
-			var value = this.get("urlLoad");
-			if (value === null && srcNode.test("form")) {
-				value = srcNode.getAttribute("action");
+		'urlLoad': function (srcNode) {
+			var value = this.get('urlLoad');
+			if (value === null && srcNode.test('form')) {
+				value = srcNode.getAttribute('action');
 			}
 			return value ? value : null;
 		}
@@ -109,70 +115,70 @@ YUI.add("supra.form", function (Y) {
 		 * @type {Object}
 		 */
 		discoverInputs: function () {
-			var inputs = this.get("srcNode").all("input,textarea,select");
+			var inputs = this.get('srcNode').all('input,textarea,select');
 			var config = {};
 			
 			for(var i=0,ii=inputs.size(); i<ii; i++) {
 				var input = inputs.item(i);
 				
 				//suIgnore allows to skip inputs
-				if (input.getAttribute("suIgnore")) continue;
+				if (input.getAttribute('suIgnore')) continue;
 				
-				var id = input.getAttribute("id") || input.getAttribute("name");
-				var name = input.getAttribute("name") || input.getAttribute("id");
-				var value = input.get("value");
-				var disabled = input.getAttribute("disabled") ? true : false;
-				var label = "";
+				var id = input.getAttribute('id') || input.getAttribute('name');
+				var name = input.getAttribute('name') || input.getAttribute('id');
+				var value = input.get('value');
+				var disabled = input.getAttribute('disabled') ? true : false;
+				var label = '';
 				
 				//If there is no name or id, then input can't be identified
 				if (!id || !name) continue;
 				
-				var tagName = input.get("tagName").toLowerCase();
-				var tagType = input.getAttribute("type").toLowerCase();
-				var type = "String";
+				var tagName = input.get('tagName').toLowerCase();
+				var tagType = input.getAttribute('type').toLowerCase();
+				var type = 'String';
 				
 				//Get label
-				var labelNode = this.get("srcNode").one("label[for='" + id + "']");
+				var labelNode = this.get('srcNode').one('label[for="' + id + '"]');
 				if (labelNode) {
-					label = labelNode.get("innerHTML");
+					label = labelNode.get('innerHTML');
 				}
 				
 				//Detect type
-				var suType = input.getAttribute("suType");
+				var suType = input.getAttribute('suType');
 				if (suType) {
 					type = suType;
 				} else {
 					switch(tagName) {
-						case "textarea":
-							type = "Text"; break;
-						case "select":
-							type = "Select"; break;
-						case "input":
+						case 'textarea':
+							type = 'Text'; break;
+						case 'select':
+							type = 'Select'; break;
+						case 'input':
 							switch(tagType) {
-								case "hidden":
-									type = "Hidden"; break;
-								case "checkbox":
-									type = "Checkbox"; break;
-								case "radio":
-									type = "Radio"; break;
-								case "file":
-									type = "FileUpload"; break;
+								case 'hidden':
+									type = 'Hidden'; break;
+								case 'checkbox':
+									type = 'Checkbox'; break;
+								case 'radio':
+									type = 'Radio'; break;
+								case 'file':
+									type = 'FileUpload'; break;
 							}
 							break;
 					}
 				}
 				
-				var srcNode = input.ancestor("div.field") || input;
+				var srcNode = input.ancestor('div.field') || input;
 				
 				config[id] = {
-					"id": id,
-					"label": label,
-					"name": name,
-					"type": type,
-					"srcNode": srcNode,
-					"labelNode": labelNode,
-					"value": value,
-					"disabled": disabled
+					'id': id,
+					'label': label,
+					'name': name,
+					'type': type,
+					'srcNode': srcNode,
+					'labelNode': labelNode,
+					'value': value,
+					'disabled': disabled
 				};
 			}
 			
@@ -212,7 +218,7 @@ YUI.add("supra.form", function (Y) {
 			//Convert arguments into
 			//[{}, INPUT_DEFINITION, argument1, argument2, ...]
 			var args = [].slice.call(arguments,0);
-				args = [{"parent": this, "root": this.get("root") || this}, INPUT_DEFINITION].concat(args);
+				args = [{'parent': this, 'root': this.get('root') || this}, INPUT_DEFINITION].concat(args);
 			
 			//Mix them together
 			return Supra.mix.apply(Supra, args);
@@ -256,8 +262,8 @@ YUI.add("supra.form", function (Y) {
 		 * @param {Object} config
 		 */
 		addInput: function (config) {
-			if (this.get("rendered")) {
-				if (config.isInstanceOf && config.isInstanceOf("input")) {
+			if (this.get('rendered')) {
+				if (config.isInstanceOf && config.isInstanceOf('input')) {
 					//Add input to the list of form inputs
 					this.inputs[config.get('id')] = config;
 				} else {
@@ -265,7 +271,7 @@ YUI.add("supra.form", function (Y) {
 					var id = null,
 						input = null,
 						node = null,
-						contentBox = this.get('contentBox'),
+						contentBox = this.getContentNode(),
 						srcNode = this.get('srcNode');
 					
 					config = this.normalizeInputConfig(config);
@@ -290,9 +296,9 @@ YUI.add("supra.form", function (Y) {
 					
 				}
 			} else {
-				var id = ("id" in config && config.id ? config.id : ("name" in config ? config.name : ""));
+				var id = ('id' in config && config.id ? config.id : ('name' in config ? config.name : ''));
 				if (!id) {
-					Y.log("Input configuration must specify ID or NAME", "debug");
+					Y.log('Input configuration must specify ID or NAME', 'debug');
 					return this;
 				}
 				
@@ -310,6 +316,31 @@ YUI.add("supra.form", function (Y) {
 			return this.addInput(config);
 		},
 		
+		/**
+		 * Returns form contentBox or slideshow main slide content
+		 * 
+		 * @returns {Object} Content node
+		 */
+		getContentNode: function () {
+			var slideshow = this.get('slideshow'),
+				slide,
+				key;
+			
+			if (slideshow && slideshow.getSlide) {
+				slide = slideshow.getSlide('propertySlideMain');
+				if (!slide) {
+					for (key in slideshow.slides) {
+						slide = slideshow.getSlide(key);
+					}
+				}
+				if (slide) {
+					return slide.one('.su-slide-content');
+				}
+			}
+			
+			return this.get('contentBox');
+		},
+		
 		
 		/**
 		 * Bind even listeners
@@ -319,23 +350,23 @@ YUI.add("supra.form", function (Y) {
 			Form.superclass.bindUI.apply(this, arguments);
 			
 			//On visibility change show/hide form
-			this.on("visibleChange", function (event) {
-				this.get("boundingBox").toggleClass("hidden", !event.newVal);
+			this.on('visibleChange', function (event) {
+				this.get('boundingBox').toggleClass('hidden', !event.newVal);
 			}, this);
 			
-			//Find button with "form" attribute which could be in the footer
+			//Find button with 'form' attribute which could be in the footer
 			//and add support for IE
 			if (Y.UA.ie) {
-				var form = this.get("srcNode"),
-					form_id = form.get("id"),
-					button = Y.one("button[form='" + form_id + "']");
+				var form = this.get('srcNode'),
+					form_id = form.get('id'),
+					button = Y.one('button[form="' + form_id + '"]');
 				
 				if (button && !button.closest(form)) {
-					//On submit call "save"
-					button.on("click", this.submit, this);
+					//On submit call 'save'
+					button.on('click', this.submit, this);
 					
-					//On input return key call "save"
-					form.all("input[type='text'],input[type='password']").on("keyup", function (event) {
+					//On input return key call 'save'
+					form.all('input[type="text"],input[type="password"]').on('keyup', function (event) {
 						if (event.keyCode == 13) { //Return key
 							this.submit();
 							event.preventDefault();
@@ -344,8 +375,8 @@ YUI.add("supra.form", function (Y) {
 				}
 			}
 			
-			//On submit call "save"
-			this.get("srcNode").on("submit", function (event) {
+			//On submit call 'save'
+			this.get('srcNode').on('submit', function (event) {
 				//Use ajax
 				event.preventDefault();
 				
@@ -358,7 +389,7 @@ YUI.add("supra.form", function (Y) {
 		 * Submit form
 		 */
 		submit: function () {
-			this.fire("submit");
+			this.fire('submit');
 			this.save();
 		},
 		
@@ -366,7 +397,7 @@ YUI.add("supra.form", function (Y) {
 		 * Process Input attribute
 		 */
 		processAttributes: function () {
-			var inputs = this.get("inputs");
+			var inputs = this.get('inputs');
 			
 			if (Y.Lang.isArray(inputs)) {
 				var obj = {},
@@ -375,7 +406,7 @@ YUI.add("supra.form", function (Y) {
 					ii = inputs.length;
 				
 				for(; i<ii; i++) {
-					id = (("id" in inputs[i]) ? inputs[i].id : ("name" in inputs[i] ? inputs[i].name : null));
+					id = (('id' in inputs[i]) ? inputs[i].id : ('name' in inputs[i] ? inputs[i].name : null));
 					if (id) {
 						obj[id] = inputs[i];
 					}
@@ -393,14 +424,14 @@ YUI.add("supra.form", function (Y) {
 		renderUI: function () {
 			Form.superclass.renderUI.apply(this, arguments);
 			
-			var srcNode = this.get("srcNode");
-			var contentBox = this.get("contentBox");
+			var srcNode = this.get('srcNode');
+			var contentBox = this.get('contentBox');
 			
 			var inputs = {};
 			var definitions = this.inputs_definition || {};
 			
 			//Find all inputs
-			if (this.get("autoDiscoverInputs")) {
+			if (this.get('autoDiscoverInputs')) {
 				definitions = Supra.mix(this.discoverInputs(), definitions, true);
 			}
 			
@@ -409,7 +440,20 @@ YUI.add("supra.form", function (Y) {
 			var definition = null,
 				id = null,
 				node = null,
-				input;
+				input = null,
+				slide = null,
+				slideshow = this.get('slideshow');
+			
+			//Change content box to slideshow content
+			if (slideshow) {
+				if (slideshow === true) {
+					slideshow = new Supra.Slideshow();
+					slideshow.render(contentBox);
+					this.set('slideshow', slideshow);
+					slide = slideshow.addSlide('propertySlideMain');
+				}
+				contentBox = this.getContentNode();
+			}
 			
 			//Create Inputs
 			for(var i in definitions) {
@@ -418,9 +462,9 @@ YUI.add("supra.form", function (Y) {
 				
 				//Try finding input
 				if (!definition.srcNode) {
-							    node = srcNode.one("#" + id);
-					if (!node)  node = srcNode.one("*[name='" + definition.name + "']");
-					if (!node)  node = srcNode.one("*[data-input-id='" + id + "']");
+							    node = srcNode.one('#' + id);
+					if (!node)  node = srcNode.one('*[name="' + definition.name + '"]');
+					if (!node)  node = srcNode.one('*[data-input-id="' + id + '"]');
 					
 					if (node) {
 						definition.srcNode = node;
@@ -447,24 +491,24 @@ YUI.add("supra.form", function (Y) {
 			this.inputs = inputs;
 			this.inputs_definition = definitions;
 			
-			var style = this.get("style") || this.get("srcNode").getAttribute("suStyle") || "default";
+			var style = this.get('style') || this.get('srcNode').getAttribute('suStyle') || 'default';
 			this.setStyle(style);
 		},
 		
 		/**
 		 * Change form style
 		 * 
-		 * @param {String} style Style values, valid values are "default", "vertical" and "default vertical"
+		 * @param {String} style Style values, valid values are 'default', 'vertical' and 'default vertical'
 		 */
 		setStyle: function (style) {
-			//Style value can be also "default vertical"
+			//Style value can be also 'default vertical'
 			style = style.split(' ');
 			
 			var i = 0,
 				ii = style.length;
 			
 			for(; i<ii; i++) {
-				this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Form.NAME, style[i]));
+				this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, style[i]));
 			}
 		},
 		
@@ -534,12 +578,12 @@ YUI.add("supra.form", function (Y) {
 		 * @private
 		 */
 		serializeObject: function (obj, prefix, skip_encode) {
-			var prefix = prefix || "";
+			var prefix = prefix || '';
 			var out = {};
 			
 			for(var id in obj) {
 				var name = skip_encode ? id : encodeURIComponent(id);
-					name = prefix ? prefix + "[" + name + "]" : name;
+					name = prefix ? prefix + '[' + name + ']' : name;
 				
 				if (Y.Lang.isObject(obj[id])) {
 					out = Y.mix(this.serializeObject(obj[id], name, skip_encode) ,out);
@@ -553,7 +597,7 @@ YUI.add("supra.form", function (Y) {
 		
 		/**
 		 * Convert one-dimensional value object into multi-dimensional changing
-		 * "key1[key2][key3]" = 3 into {key1: {key2: {key3: 3}}}
+		 * 'key1[key2][key3]' = 3 into {key1: {key2: {key3: 3}}}
 		 * 
 		 * @param {Object} obj
 		 * @return Multi dimensional object
@@ -568,9 +612,9 @@ YUI.add("supra.form", function (Y) {
 			
 			for(var id in obj) {
 				//If value is not string, then no need to decode
-				is_string = typeof obj[id] == "string";
+				is_string = typeof obj[id] == 'string';
 				
-				if (String(id).indexOf("[") != -1) {
+				if (String(id).indexOf('[') != -1) {
 					if (m = id.match(/([^\[]+)\[([^\]]+)\](.*)/)) {
 						try {
 							name = skip_decode || !is_string ? m[1] : QueryString.unescape(String(m[1]));
@@ -603,7 +647,7 @@ YUI.add("supra.form", function (Y) {
 		unserializeItem: function (id, value, out, skip_decode) {
 			var m, name, is_string;
 			
-			if (String(id).indexOf("[") != -1) {
+			if (String(id).indexOf('[') != -1) {
 				if (m = id.match(/([^\[]+)\[([^\]]+)\](.*)/)) {
 					try {
 						name = skip_decode ? m[1] : QueryString.unescape(String(m[1]));
@@ -614,7 +658,7 @@ YUI.add("supra.form", function (Y) {
 					this.unserializeItem(m[2] + m[3], value, out[name], skip_decode);
 				}
 			} else {
-				is_string = typeof value == "string";
+				is_string = typeof value == 'string';
 				try {
 					out[id] = skip_decode || !is_string ? value : QueryString.unescape(value);
 				} catch (e) {
@@ -626,7 +670,7 @@ YUI.add("supra.form", function (Y) {
 		/**
 		 * Returns serialize values ready for use in query string
 		 * 
-		 * @param {String} key Name of the property, which will be used for key, default is "name"
+		 * @param {String} key Name of the property, which will be used for key, default is 'name'
 		 * @return Form input values
 		 * @type {Object}
 		 */
@@ -641,7 +685,7 @@ YUI.add("supra.form", function (Y) {
 		 * Returns values parsing input names and changing into
 		 * multi-dimension object
 		 * 
-		 * @param {String} key Name of the property, which will be used for key, default is "name"
+		 * @param {String} key Name of the property, which will be used for key, default is 'name'
 		 * @return Form input values
 		 * @type {Object}
 		 */
@@ -652,7 +696,7 @@ YUI.add("supra.form", function (Y) {
 		
 		/**
 		 * Returns input name => value pairs
-		 * Optionally other attribute can be used instead of "name"
+		 * Optionally other attribute can be used instead of 'name'
 		 * 
 		 * @param {String} key
 		 * @param {Boolean} save Return save value
@@ -660,16 +704,16 @@ YUI.add("supra.form", function (Y) {
 		 * @type {Object}
 		 */
 		getValues: function (key, save) {
-			var key = key || "name";
-			var values = Supra.mix({}, this.get("plainValues"));
+			var key = key || 'name';
+			var values = Supra.mix({}, this.get('plainValues'));
 			var definitions = this.inputs_definition;
-			var prop = save ? "saveValue" : "value";
+			var prop = save ? 'saveValue' : 'value';
 			
 			for(var id in this.inputs) {
 				var input = this.inputs[id];
 				var val = input.get(prop);
 				if (val !== undefined) {
-					values[key == "id" || key == "name" ? definitions[id][key] : input.getAttribute(key)] = val;
+					values[key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key)] = val;
 				}
 			}
 			
@@ -678,7 +722,7 @@ YUI.add("supra.form", function (Y) {
 		
 		/**
 		 * Returns save values as input name => value pairs
-		 * Optionally other attribute can be used instead of "name"
+		 * Optionally other attribute can be used instead of 'name'
 		 * 
 		 * @param {String} key
 		 * @return Form input values
@@ -695,21 +739,21 @@ YUI.add("supra.form", function (Y) {
 		 * @param {Object} key
 		 */
 		setValues: function (data, key, skip_encode) {
-			var key = key || "name",
+			var key = key || 'name',
 				definitions = this.inputs_definition,
 				input = null,
 				key_value = null,
 				data = skip_encode ? data : this.serializeObject(data, null, true),
-				plainValues = this.get("plainValues");
+				plainValues = this.get('plainValues');
 			
 			data = data || {};
 			
 			for(var id in this.inputs) {
 				input = this.inputs[id];
-				key_value = (key == "id" || key == "name" ? definitions[id][key] : input.getAttribute(key));
+				key_value = (key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key));
 				
 				if (key_value in data) {
-					input.set("value", data[key_value]);
+					input.set('value', data[key_value]);
 				}
 			}
 			
@@ -723,7 +767,7 @@ YUI.add("supra.form", function (Y) {
 		},
 		
 		/**
-		 * Set input values without converting names {"a": {"b": "c"}} into {"a[b]": "c"}
+		 * Set input values without converting names {'a': {'b': 'c'}} into {'a[b]': 'c'}
 		 * 
 		 * @param {Object} data
 		 * @param {Object} key
@@ -754,7 +798,7 @@ YUI.add("supra.form", function (Y) {
 				}
 			}
 			
-			this.set("plainValues", {});
+			this.set('plainValues', {});
 			
 			return this;
 		},
@@ -789,7 +833,7 @@ YUI.add("supra.form", function (Y) {
 			if (id in this.inputs) {
 				return this.inputs[id];
 			} else {
-				//Search by "name"
+				//Search by 'name'
 				var definitions = this.inputs_definition;
 				
 				for(var i in definitions) {
@@ -826,7 +870,7 @@ YUI.add("supra.form", function (Y) {
 		 * @param {Boolean} value
 		 */
 		setAutoDiscoverInputs: function (value) {
-			this.set("autoDiscoverInputs", !!value);
+			this.set('autoDiscoverInputs', !!value);
 			return this;
 		},
 		
@@ -836,7 +880,7 @@ YUI.add("supra.form", function (Y) {
 		 * @param {String} url
 		 */
 		setURLLoad: function (url) {
-			this.set("urlLoad", url);
+			this.set('urlLoad', url);
 			return this;
 		},
 		
@@ -846,7 +890,7 @@ YUI.add("supra.form", function (Y) {
 		 * @param {String} url
 		 */
 		setURLDelete: function (url) {
-			this.set("urlDelete", url);
+			this.set('urlDelete', url);
 			return this;
 		},
 		
@@ -856,7 +900,7 @@ YUI.add("supra.form", function (Y) {
 		 * @param {String} url
 		 */
 		setURLSave: function (url) {
-			this.set("urlSave", url);
+			this.set('urlSave', url);
 			return this;
 		},
 		
@@ -875,20 +919,20 @@ YUI.add("supra.form", function (Y) {
 		 * Validate and execute save request if url is set and user is authorized to save data
 		 */
 		save: function (callback, context) {
-			if (!this.get("disabled") && this.validate()) {
-				var uri = this.get("urlSave"),
+			if (!this.get('disabled') && this.validate()) {
+				var uri = this.get('urlSave'),
 					values = null;
 				
 				if (uri) {
-					values = this.getSaveValues(this.get("inputs") ? "id" : "name");
+					values = this.getSaveValues(this.get('inputs') ? 'id' : 'name');
 					
 					Supra.io(uri, {
-						"method": "post",
-						"data": values,
-						"context": context || this,
-						"on": {
-							"success": callback,
-							"failure": callback
+						'method': 'post',
+						'data': values,
+						'context': context || this,
+						'on': {
+							'success': callback,
+							'failure': callback
 						}
 					});
 					
@@ -898,7 +942,7 @@ YUI.add("supra.form", function (Y) {
 					}
 				}
 				
-				this.fire("save");
+				this.fire('save');
 			} else {
 				if (callback) {
 					callback.call(context = context || this, null, 0);
@@ -912,16 +956,16 @@ YUI.add("supra.form", function (Y) {
 		load: function () {
 			//@TODO
 			
-			this.fire("load");
+			this.fire('load');
 		},
 		
 		/**
 		 * Execute delete request if url is set, form has ID field and user is authorized to delete record
 		 */
-		"delete": function () {
+		'delete': function () {
 			//@TODO
 			
-			this.fire("delete");
+			this.fire('delete');
 		},
 		
 		_setDisabled: function (disabled) {
@@ -931,7 +975,7 @@ YUI.add("supra.form", function (Y) {
 			if (!this.get('rendered') && !disabled) return disabled;
 			
 			var inputs = this.getInputs();
-			for(var id in inputs) inputs[id].set("disabled", disabled);
+			for(var id in inputs) inputs[id].set('disabled', disabled);
 			
 			return disabled;
 		}

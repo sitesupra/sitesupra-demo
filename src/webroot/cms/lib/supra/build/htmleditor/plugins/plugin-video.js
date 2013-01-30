@@ -255,10 +255,16 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 				return false;
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			action.execute(form, {
 				"hideCallback": Y.bind(callback, this),
 				"title": Supra.Intl.get(["htmleditor", "video_properties"]),
-				"scrollable": true
+				"scrollable": true,
+				"toolbarActionName": "htmleditor-plugin"
 			});
 			
 			//

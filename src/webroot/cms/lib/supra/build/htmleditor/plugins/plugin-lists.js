@@ -59,16 +59,18 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 			var allowEditing = this.htmleditor.editingAllowed;
 			
 			var node = this.htmleditor.getSelectedElement(),
+				rootNode = this.htmleditor.get('srcNode').getDOMNode(),
 				down = false,
 				buttons = this.buttons,
 				selected = null,
 				i = null;
 			
-			while(node) {
+			while (node) {
 				if (node.tagName in buttons) {
 					selected = node.tagName;
 					break;
 				}
+				if (node === rootNode) break;
 				node = node.parentNode;
 			}
 			

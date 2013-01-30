@@ -1,0 +1,108 @@
+@import "/cms/lib/supra/less/common.less";
+
+.su-slideshow-manager {
+	.layout-fullscreen();
+	
+	z-index: 6;
+	background: #fff;
+	overflow: hidden;
+	
+	.su-slideshow-manager-content {
+		width: 100%;
+		height: 100%;
+		background: url(/cms/lib/supra/img/background-center.jpg) 50% -48px no-repeat,
+								url(/cms/lib/supra/img/background-pattern.jpg) 50% -48px repeat;
+		
+		.box-sizing (border-box);
+	}
+	
+	// Iframe
+	.su-iframe.fullscreen {
+		.box-sizing (border-box);
+		padding-bottom: 144px; // space for list
+	}
+}
+
+.su-slideshow-manager-list {
+	.layout-fullscreen();
+	top: auto;
+	
+	ul {
+		width: 110px;
+		padding: 0 10px 0 20px;
+	}
+	
+	li {
+		float: left;
+		margin-right: 10px;
+		position: relative;
+		
+		width: 100px;
+		height: 100px;
+		
+		.background {
+			background: url(/cms/content-manager/sitemap/images/tree-item.png) 0 0 no-repeat;
+			position: absolute;
+			width: 200px;
+			height: 167px;
+			left: -50px;
+			top: 0;
+		}
+		
+		// Active item marker
+		.marker {
+			background: url(/cms/content-manager/sitemap/images/tree-item-marker.png) 0 0 no-repeat;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100px;
+			height: 100px;
+			display: none;
+		}
+		&.active .marker {
+			display: block;
+		}
+		
+		// Text, image
+		.content {
+			position: relative;
+			z-index: 1;
+			width: 100px;
+			height: 100px;
+			text-align: center;
+			cursor: pointer;
+			overflow: hidden;
+		}
+		
+		.center {
+			display: inline-block;
+			width: 1px;
+			height: 100px;
+			vertical-align: middle;
+		}
+		.title {
+			color: #ffffff;
+			font-size: 12px;
+			font-weight: bold;
+			line-height: 14px;
+			text-overflow: ellipsis;
+			text-shadow: 0 1px 0 rgba(0,0,0,0.75);
+			vertical-align: middle;
+			white-space: normal;
+			display: inline-block;
+			width: 85px;
+		}
+	}
+	
+	// New item button
+	li.new-item {
+		.background {
+			background: url(/cms/content-manager/sitemap/images/apps/page.png) -434px 0 no-repeat;
+			left: -47px;
+			top: 0;
+			width: 191px;
+			height: 166px;
+		}
+	}
+	
+}

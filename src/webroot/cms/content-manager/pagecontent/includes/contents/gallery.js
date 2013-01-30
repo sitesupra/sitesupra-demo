@@ -47,7 +47,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 						'title': Supra.Intl.get(['gallerymanager', 'label_button']),
 						'icon': '/cms/lib/supra/img/toolbar/icon-pages.png',
 						'action': this,
-						'actionFunction': 'openGalleryManager'
+						'actionFunction': 'openExternalManager'
 					}
 				]);
 				
@@ -137,7 +137,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			content.prepend(button.get('boundingBox'));
 			content.prepend(Y.Node.create('<p class="label">' + Supra.Intl.get(['gallerymanager', 'label']) + '</p>'));
 			
-			button.on('click', this.openGalleryManager, this);
+			button.on('click', this.openExternalManager, this);
 		},
 		
 		/**
@@ -198,7 +198,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					var target = e.target;
 					if (target.closest(listSelector) && !target.test(listSelector)) {
 						// User clicked on list item
-						this.openGalleryManager();
+						this.openExternalManager();
 					}
 				}, listSelector, this);
 			}
@@ -311,7 +311,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * Open gallery manager and update data when it closes
 		 * @private
 		 */
-		openGalleryManager: function (force) {
+		openExternalManager: function (force) {
 			//Since toolbar is created by single instance of gallery
 			//keyword "this" may have incorrect reference
 			var self = Manager.PageContent.getContent().get('activeChild'),
@@ -338,17 +338,17 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			// if gallery is based on shared properties, then we will output a notice about that
 			if (force !== true && shared) {
 				Supra.Manager.executeAction('Confirmation', {
-					'message': "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
+					'message': Supra.Intl.get(['form', 'shared_property_notice']),
 					'useMask': true,
 					'buttons': [
 						{
 							'id': 'yes', 
-							'label': 'Continue',
+							'label': Supra.Intl.get(['buttons', 'continue']),
 							'click': function() {
-								self.openGalleryManager(true);
+								self.openExternalManager(true);
 							}
 						},
-						{'id': 'no', 'label': 'Cancel'}
+						{'id': 'no', 'label': Supra.Intl.get(['buttons', 'cancel'])}
 					]
 				});
 				

@@ -186,7 +186,7 @@ YUI.add("supra.input-block-background", function (Y) {
 		editImage: function () {
 			var imageResizer = this.widgets.imageResizer,
 				block = this.get("root"),
-				node = block && block.getNode ? block.getNode().one("*") : null,
+				node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
 				size = this.image.image.sizes.original;
 			
 			if (!node) {
@@ -506,6 +506,18 @@ YUI.add("supra.input-block-background", function (Y) {
 					} else {
 						this.widgets.buttonEdit.set("disabled", true);
 					}
+				}
+			}
+			
+			if (this.image) {
+				var block = this.get("root"),
+					node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
+					size = this.image.image.sizes.original;
+				
+				if (node && size) {
+					node.setStyles({
+						'backgroundImage': 'url(' + size.external_path + ')'
+					});
 				}
 			}
 			

@@ -84,6 +84,13 @@ YUI.add('supra.input-select-list', function (Y) {
 		buttons: {},
 		
 		/**
+		 * List of values matching buttons
+		 * @type {Object}
+		 * @private
+		 */
+		button_value_map: null,
+		
+		/**
 		 * Buttons has been rendered
 		 * @type {Boolean}
 		 * @private
@@ -101,6 +108,8 @@ YUI.add('supra.input-select-list', function (Y) {
 		},
 		
 		renderUI: function () {
+			this.button_value_map = {};
+			
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			if (this.get('style')) {
@@ -131,7 +140,8 @@ YUI.add('supra.input-select-list', function (Y) {
 				has_value_match = false,
 				inputNode = this.get('inputNode'),
 				input = inputNode.getDOMNode(),
-				show_empty_value = this.get("showEmptyValue");
+				show_empty_value = this.get('showEmptyValue'),
+				button_value_map = this.button_value_map;
 			
 			if (this.buttons_rendered && input.options && input.options.length) {
 				//Remove old options
@@ -165,11 +175,19 @@ YUI.add('supra.input-select-list', function (Y) {
 			//Set value
 			if (this.get('multiple') && Y.Lang.isArray(value)) {
 				for(var id in buttons) {
+					if (id in button_value_map) {
+						id = button_value_map[id];
+					}
 					this.buttons[id].set('down', Y.Array.indexOf(value, id) != -1);
 				}
-			} else if (value in buttons) {
-				buttons[value].set('down', true);
+			} else {
 				inputNode.set('value', value);
+				if (value in button_value_map) {
+					value = button_value_map[value];
+				}
+				if (value in buttons) {
+					buttons[value].set('down', true);
+				}
 			}
 			
 			//Buttons rendered
@@ -387,14 +405,24 @@ YUI.add('supra.input-select-list', function (Y) {
 			//Input value is not valid if 'multiple' attribute is true
 			this.get('inputNode').set('value', value);
 			
+			//Map for buttons and values
+			var button_value_map = this.button_value_map;
+			
 			if (this.get('multiple') && Y.Lang.isArray(value)) {
 				//Update button states
 				for(var i in this.buttons) {
+					if (i in button_value_map) {
+						i = button_value_map[i];
+					}
 					this.buttons[i].set('down', Y.Array.indexOf(value, i) != -1);
 				}
 			} else {
+				var _value = value;
+				if (_value in button_value_map) {
+					_value = button_value_map[value];
+				}
 				for(var i in this.buttons) {
-					this.buttons[i].set('down', i == value);
+					this.buttons[i].set('down', i == _value);
 				}
 			}
 			

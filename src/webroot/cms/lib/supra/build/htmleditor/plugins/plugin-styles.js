@@ -328,6 +328,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			if (!event.allowed) {
 				this.hideStylesSidebar();
 			}
+			
+			this.htmleditor.get('toolbar').getButton('style').set('disabled', !event.allowed);
 		},
 		
 		/**
@@ -574,12 +576,18 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			var node = this.node = Y.Node.create('<div></div>');
 			form.get('contentBox').append(node);
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			action.execute(form, {
 				'doneCallback': Y.bind(this.hideStylesSidebar, this),
 				'hideCallback': Y.bind(this.onStyleSidebarHide, this),
 				
 				'title': Supra.Intl.get(['htmleditor', 'styles']),
-				'scrollable': true
+				'scrollable': true,
+				'toolbarActionName': 'htmleditor-plugin'
 			});
 			
 			//Render list
