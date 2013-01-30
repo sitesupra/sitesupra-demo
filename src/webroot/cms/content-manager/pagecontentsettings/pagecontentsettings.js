@@ -102,6 +102,7 @@ Supra(function (Y) {
 				this.form.hide();
 				this.form = null;
 				this.options = null;
+				this.set('slideshow', null);
 			}
 			
 		},
@@ -184,7 +185,8 @@ Supra(function (Y) {
 				
 				//Update slideshow position 
 				var slideshow = form.get('slideshow'); 
-				if (slideshow) { 
+				if (slideshow) {
+					this.set('slideshow', slideshow);
 					slideshow.syncUI(); 
 				}
 			}

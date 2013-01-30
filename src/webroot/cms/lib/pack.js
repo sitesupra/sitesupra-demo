@@ -11887,10 +11887,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				return false;
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			action.execute(form, {
 				"hideCallback": Y.bind(this.settingsFormApply, this),
 				"title": Supra.Intl.get(["htmleditor", "image_properties"]),
-				"scrollable": true
+				"scrollable": true,
+				"toolbarActionName": "htmleditor-plugin"
 			});
 			
 			//
@@ -12277,6 +12283,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				});
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			//When media library is hidden show settings form if image is selected
 			mediasidebar.on("hide", function () {
 				if (this.selected_image) {
@@ -12284,7 +12295,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						"doneCallback": Y.bind(this.settingsFormApply, this),
 						
 						"title": Supra.Intl.get(["htmleditor", "image_properties"]),
-						"scrollable": true
+						"scrollable": true,
+						"toolbarActionName": "htmleditor-plugin"
 					});
 				}
 			}, this);
@@ -13337,10 +13349,16 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				return false;
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			action.execute(form, {
 				"hideCallback": Y.bind(callback, this),
 				"title": Supra.Intl.get(["htmleditor", "video_properties"]),
-				"scrollable": true
+				"scrollable": true,
+				"toolbarActionName": "htmleditor-plugin"
 			});
 			
 			//
@@ -14090,10 +14108,16 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Button style
 			this.getButton(HTMLEDITOR_SETTINGS_COMMAND).set('down', true);
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			action.execute(form, {
 				'doneCallback': Y.bind(this.hideSettingsForm, this),
 				'title': Supra.Intl.get(['htmleditor', 'table_properties']),
-				'scrollable': true
+				'scrollable': true,
+				'toolbarActionName': 'htmleditor-plugin'
 			});
 			
 			this.silent = true;
@@ -17938,6 +17962,19 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 				this.setScrollable(true);
 			}
 			
+			//Slideshow
+			this.host.addAttr('slideshow', {
+				'value': false,
+				'setter': Y.bind(this.setSlideshow, this)
+			});
+			
+			// Back button event listener
+			var back = this.host.get('backButton');
+			if (back) {
+				back.hide();
+				back.on('click', this.onBackButtonClick, this);
+			}
+			
 			/*
 			 * In frozen state if sidebar is hidden then toolbar buttons
 			 * will not be removed and "hide" function is not called,
@@ -17956,6 +17993,70 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 			
 			this.host.after('visibleChange', this.afterVisibleChange, this);
 		},
+		
+		
+		/* ------------------------------ Slideshow ------------------------------ */
+		
+		
+		/**
+		 * Slideshow attribute setter
+		 * 
+		 * @param {Object} slideshow Slideshow object or null
+		 * @returns {Object} New attribute value
+		 * @private
+		 */
+		setSlideshow: function (slideshow) {
+			var backButton = this.host.get('backButton'),
+				old_slideshow = this.host.get('slideshow');
+			
+			if (old_slideshow !== slideshow) {
+				if (old_slideshow) {
+					old_slideshow.detach('slideChange', this.onSlideshowSlideChange, this);
+				}
+				if (slideshow) {
+					slideshow.on('slideChange', this.onSlideshowSlideChange, this);
+				}
+				
+				if (!slideshow || slideshow.isRootSlide()) {
+					backButton.hide();
+				} else {
+					backButton.show();
+				}
+			}
+			
+			return slideshow;
+		},
+		
+		/**
+		 * Handle back button click
+		 */
+		onBackButtonClick: function () {
+			var slideshow = this.host.get('slideshow');
+			if (slideshow) {
+				slideshow.scrollBack();
+			}
+		},
+		
+		/**
+		 * On slideshow slide change show or hide back button
+		 */
+		onSlideshowSlideChange: function (evt) {
+			var slideshow = this.host.get('slideshow'),
+				history = slideshow.getHistory();
+			
+			if (!slideshow.isRootSlide(evt.newVal)) {
+				// Root slide
+				var button = this.host.get('backButton');
+				if (button) button.show();
+			} else {
+				// Not a root slide
+				var button = this.host.get('backButton');
+				if (button) button.hide();
+			}
+		},
+		
+		/* ------------------------------ Attributes ------------------------------ */
+		
 		
 		/**
 		 * Set header visibility
@@ -18386,16 +18487,18 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 			var allowEditing = this.htmleditor.editingAllowed;
 			
 			var node = this.htmleditor.getSelectedElement(),
+				rootNode = this.htmleditor.get('srcNode').getDOMNode(),
 				down = false,
 				buttons = this.buttons,
 				selected = null,
 				i = null;
 			
-			while(node) {
+			while (node) {
 				if (node.tagName in buttons) {
 					selected = node.tagName;
 					break;
 				}
+				if (node === rootNode) break;
 				node = node.parentNode;
 			}
 			
@@ -18932,6 +19035,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			if (!event.allowed) {
 				this.hideStylesSidebar();
 			}
+			
+			this.htmleditor.get('toolbar').getButton('style').set('disabled', !event.allowed);
 		},
 		
 		/**
@@ -19178,12 +19283,18 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			var node = this.node = Y.Node.create('<div></div>');
 			form.get('contentBox').append(node);
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			action.execute(form, {
 				'doneCallback': Y.bind(this.hideStylesSidebar, this),
 				'hideCallback': Y.bind(this.onStyleSidebarHide, this),
 				
 				'title': Supra.Intl.get(['htmleditor', 'styles']),
-				'scrollable': true
+				'scrollable': true,
+				'toolbarActionName': 'htmleditor-plugin'
 			});
 			
 			//Render list
@@ -19848,6 +19959,13 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		buttons: {},
 		
 		/**
+		 * List of values matching buttons
+		 * @type {Object}
+		 * @private
+		 */
+		button_value_map: null,
+		
+		/**
 		 * Buttons has been rendered
 		 * @type {Boolean}
 		 * @private
@@ -19865,6 +19983,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		},
 		
 		renderUI: function () {
+			this.button_value_map = {};
+			
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			if (this.get('style')) {
@@ -19895,7 +20015,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				has_value_match = false,
 				inputNode = this.get('inputNode'),
 				input = inputNode.getDOMNode(),
-				show_empty_value = this.get("showEmptyValue");
+				show_empty_value = this.get('showEmptyValue'),
+				button_value_map = this.button_value_map;
 			
 			if (this.buttons_rendered && input.options && input.options.length) {
 				//Remove old options
@@ -19929,11 +20050,19 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			//Set value
 			if (this.get('multiple') && Y.Lang.isArray(value)) {
 				for(var id in buttons) {
+					if (id in button_value_map) {
+						id = button_value_map[id];
+					}
 					this.buttons[id].set('down', Y.Array.indexOf(value, id) != -1);
 				}
-			} else if (value in buttons) {
-				buttons[value].set('down', true);
+			} else {
 				inputNode.set('value', value);
+				if (value in button_value_map) {
+					value = button_value_map[value];
+				}
+				if (value in buttons) {
+					buttons[value].set('down', true);
+				}
 			}
 			
 			//Buttons rendered
@@ -20151,14 +20280,24 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			//Input value is not valid if 'multiple' attribute is true
 			this.get('inputNode').set('value', value);
 			
+			//Map for buttons and values
+			var button_value_map = this.button_value_map;
+			
 			if (this.get('multiple') && Y.Lang.isArray(value)) {
 				//Update button states
 				for(var i in this.buttons) {
+					if (i in button_value_map) {
+						i = button_value_map[i];
+					}
 					this.buttons[i].set('down', Y.Array.indexOf(value, i) != -1);
 				}
 			} else {
+				var _value = value;
+				if (_value in button_value_map) {
+					_value = button_value_map[value];
+				}
 				for(var i in this.buttons) {
-					this.buttons[i].set('down', i == value);
+					this.buttons[i].set('down', i == _value);
 				}
 			}
 			
@@ -20303,6 +20442,14 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		},
 		"cssNode": {
 			value: null
+		},
+		
+		/**
+		 * Render widget into separate slide and add
+		 * button to the place where this widget should be
+		 */
+		"separateSlide": {
+			value: false
 		}
 	};
 	
@@ -20319,7 +20466,48 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	Y.extend(Input, Supra.Input.SelectList, {
 		
+		widgets: null,
+		
+		
+		/**
+		 * On desctruction life cycle remove created slides
+		 * and inputs
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			if (this.widgets) {
+				var slideshow = this.get('slideshow'),
+					inputs = this.widgets.inputs,
+					slides = this.widgets.slides,
+					key = null;
+				
+				if (slideshow) {
+					
+					for (key in inputs) {
+						inputs[key].destroy();
+					}
+					for (key in slides) {
+						slideshow.removeSlide(key);
+					}
+					
+				}
+				
+				this.widgets = null;
+			}
+		},
+		
 		renderUI: function () {
+			this.widgets = {
+				// Separate slide
+				'slide': null,
+				'button': null,
+				
+				// Values slides and inputs
+				'slides': {},
+				'inputs': {}
+			};
+			
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			//Classnames, etc.
@@ -20341,13 +20529,42 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					this.set('css', this.get('css'));
 				}
 			}
+			
+			if (this.get('separateSlide')) {
+				var slideshow = this.getSlideshow(),
+					slide = null,
+					button = null;
+				
+				if (slideshow) {
+					this.widgets.button = button = new Supra.Button({
+						'label': this.get('label')
+					});
+					
+					this.widgets.slide = slide = slideshow.addSlide('propertySlide' + this.get('id'));
+					slide = slide.one('.su-slide-content');
+					
+					button.render();
+					button.addClass('button-section');
+					button.on('click', this._slideshowChangeSlide, this);
+					this.get('boundingBox').insert(button.get('boundingBox'), 'before');
+					
+					slide.append(this.get('boundingBox'));
+				} else {
+					this.set('separateSlide', false);
+				}
+			}
 		},
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'type': 'toggle', 'style': 'group'}),
+				button = new Supra.Button({'label': definition.title, 'type': definition.values ? 'button' : 'toggle', 'style': 'group'}),
 				value = this._getInternalValue(),
-				has_value_match = false;
+				has_value_match = false,
+				
+				slideshow = this.getSlideshow(),
+				slide = null,
+				subinput = null,
+				button_value_map = this.button_value_map;
 			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
@@ -20362,6 +20579,39 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 			if (last) {
 				button.get('boundingBox').addClass('su-button-last');
+			}
+			
+			if (definition.values && slideshow) {
+				button.get('boundingBox').addClass('button-section');
+				slide = slideshow.addSlide('propertySlide' + this.get('id') + definition.id);
+				
+				// Create input (self)
+				subinput = new Input(
+					Supra.mix({
+						'values': definition.values,
+						'label': definition.title
+					}, this.getAttrs(['value', 'backgroundColor', 'css', 'cssNode', 'defaultValue', 'iconStyle', 'multiple', 'renderer', 'showEmptyValue', 'style', 'value']))
+				);
+				
+				subinput.render(slide.one('.su-slide-content'));
+				subinput.set('value', this.get('value'));
+				
+				this.widgets.slides[definition.id] = slide;
+				this.widgets.inputs[definition.id] = subinput;
+				
+				subinput.after('valueChange', this._afterDescendantValueChange, this, definition.id);
+				
+				// Add sub values to the value list
+				if (input && input.options) {
+					for (var i=0, ii=definition.values.length; i<ii; i++) {
+						input.options[input.options.length] = new Option(definition.values[i].title, definition.values[i].id);
+						button_value_map[definition.values[i].id] = definition.id;
+					}
+				} else {
+					for (var i=0, ii=definition.values.length; i<ii; i++) {
+						button_value_map[definition.values[i].id] = definition.id;
+					}
+				}
 			}
 			
 			if (input && input.options) {
@@ -20381,7 +20631,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			button.get('boundingBox').setStyle('width', button_width + '%');
 			
 			//On click update input value
-			button.on('click', this._onClick, this, definition.id);
+			if (definition.values && slideshow) {
+				button.on('click', this._slideshowChangeSlide, this, definition.id);
+			} else {
+				button.on('click', this._onClick, this, definition.id);
+			}
 			
 			return has_value_match;
 		},
@@ -20421,6 +20675,97 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 			
 			return style;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- EVENT LISTENERS ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Change slideshow slide to values list
+		 * 
+		 * @private
+		 */
+		_slideshowChangeSlide: function (event, id) {
+			var slideshow = this.getSlideshow(),
+				slide_id  = 'propertySlide' + this.get('id');
+			
+			if (id) {
+				slide_id += id;
+			}
+			
+			slideshow.set('slide', slide_id);
+		},
+		
+		/**
+		 * After value change
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+				
+				var inputs = this.widgets.inputs,
+					id = null;
+				
+				for (id in inputs) {
+					if (inputs[id].get('value') != evt.newVal) {
+						inputs[id].set('value', evt.newVal);
+					}
+				}
+			}
+		},
+		
+		/**
+		 * After sub-input value change
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @param {Object} id Descendant id
+		 * @private
+		 */
+		_afterDescendantValueChange: function (evt, id) {
+			if (evt.prevVal != evt.newVal) {
+				if (this.get('value') != evt.newVal) {
+					this.set('value', evt.newVal);
+				}
+			}
+		},
+		
+		/*
+		 * ---------------------------------------- SLIDESHOW ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Returns parent widget by class name
+		 * 
+		 * @param {String} classname Parent widgets class name
+		 * @return Widget instance or null if not found
+		 * @private
+		 */
+		getParentWidget: function (classname) {
+			var parent = this.get("parent");
+			while (parent) {
+				if (parent.isInstanceOf(classname)) return parent;
+				parent = parent.get("parent");
+			}
+			return null;
+		},
+		
+		/**
+		 * Returns slideshow
+		 * 
+		 * @return Slideshow
+		 * @type {Object}
+		 * @private
+		 */
+		getSlideshow: function () {
+			var form = this.getParentWidget("form");
+			return form ? form.get("slideshow") : null;
 		},
 		
 		
@@ -28136,7 +28481,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		editImage: function () {
 			var imageResizer = this.widgets.imageResizer,
 				block = this.get("root"),
-				node = block && block.getNode ? block.getNode().one("*") : null,
+				node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
 				size = this.image.image.sizes.original;
 			
 			if (!node) {
@@ -28456,6 +28801,18 @@ YUI.add('supra.datatype-color', function(Y) {
 					} else {
 						this.widgets.buttonEdit.set("disabled", true);
 					}
+				}
+			}
+			
+			if (this.image) {
+				var block = this.get("root"),
+					node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
+					size = this.image.image.sizes.original;
+				
+				if (node && size) {
+					node.setStyles({
+						'backgroundImage': 'url(' + size.external_path + ')'
+					});
 				}
 			}
 			
@@ -29152,7 +29509,8 @@ YUI().add('supra.htmleditor-plugin-fullscreen', function (Y) {
 			if (!this.fullscreen) return;
 			this.fullscreen = false;
 			
-			var body = this.htmleditor.get('srcNode').closest('body'),
+			var htmleditor = this.htmleditor,
+				body = htmleditor.get('srcNode').closest('body'),
 				toolbar = htmleditor.get('toolbar'),
 				button = toolbar ? toolbar.getButton('fullscreen') : null;
 			
@@ -29168,7 +29526,7 @@ YUI().add('supra.htmleditor-plugin-fullscreen', function (Y) {
 		 * Toggle fullscreen mode
 		 */
 		toggleFullScreenMode: function () {
-			var toolbar = htmleditor.get('toolbar'),
+			var toolbar = this.htmleditor.get('toolbar'),
 				button = toolbar ? toolbar.getButton('fullscreen') : null;
 			
 			if (button.get('down')) {
@@ -29315,9 +29673,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 	Supra.HTMLEditor.addPlugin("fonts", defaultConfiguration, {
 		
 		// Font input
-		fontInput: null,
+		fontFnput: null,
 		
-		// Font size input
+		// Font button
+		fontFamilyInput: null,
+		
+		// Fore color button
+		foreColorInput: null,
+		
+		// Back color button
+		backColorInput: null,
+		
+		// Font size button
 		fontSizeInput: null,
 		
 		// Updating input to reflect selected element styles
@@ -29458,6 +29825,9 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			}
 			
 			this.fontSizeInput.set("disabled", !event.allowed);
+			this.fontFamilyInput.set("disabled", !event.allowed);
+			this.foreColorInput.set("disabled", !event.allowed);
+			this.backColorInput.set("disabled", !event.allowed);
 		},
 		
 		/**
@@ -29787,7 +30157,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		showFontSidebar: function () {
 			//Make sure PageContentSettings is rendered
 			var form = this.font_settings_form || this.createFontSidebar(),
-				action = Manager.getAction("PageContentSettings");
+				action = Manager.getAction("PageContentSettings"),
+				toolbarName = "htmleditor-plugin";
 			
 			if (!form) {
 				if (action.get("loaded")) {
@@ -29804,12 +30175,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				return false;
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons(toolbarName)) {
+				Manager.getAction('PageToolbar').addActionButtons(toolbarName, []);
+				Manager.getAction('PageButtons').addActionButtons(toolbarName, []);
+			}
+			
 			action.execute(form, {
 				"doneCallback": Y.bind(this.hideSidebar, this),
 				"hideCallback": Y.bind(this.onSidebarHide, this),
 				
 				"title": Supra.Intl.get(["htmleditor", "fonts"]),
-				"scrollable": true
+				"scrollable": true,
+				"toolbarActionName": toolbarName
 			});
 			
 			//Fonts toolbar button
@@ -29853,7 +30230,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		showColorSidebar: function () {
 			//Make sure PageContentSettings is rendered
 			var form = this.color_settings_form || this.createColorSidebar(),
-				action = Manager.getAction("PageContentSettings");
+				action = Manager.getAction("PageContentSettings"),
+				toolbarName = "htmleditor-plugin";
 			
 			if (!form) {
 				if (action.get("loaded")) {
@@ -29870,12 +30248,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				return false;
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons(toolbarName)) {
+				Manager.getAction('PageToolbar').addActionButtons(toolbarName, []);
+				Manager.getAction('PageButtons').addActionButtons(toolbarName, []);
+			}
+			
 			action.execute(form, {
 				"doneCallback": Y.bind(this.hideSidebar, this),
 				"hideCallback": Y.bind(this.onSidebarHide, this),
 				
 				"title": Supra.Intl.get(["htmleditor", this.colorType + "color"]),
-				"scrollable": true
+				"scrollable": true,
+				"toolbarActionName": toolbarName
 			});
 			
 			//Color toolbar button
@@ -29955,7 +30339,11 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				toolbar.getButton(inputs[i]).set("visible", true);
 			}
 			
-			// Font size input
+			// Inputs
+			this.fontFamilyInput = toolbar.getButton("fonts");
+			this.foreColorInput  = toolbar.getButton("forecolor");
+			this.backColorInput  = toolbar.getButton("backcolor");
+			
 			var input = this.fontSizeInput = toolbar.getButton("fontsize"),
 				values = input.get('values');
 			
@@ -31082,21 +31470,21 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-inline-html"]});YUI.add("supra.form", function (Y) {
+}, YUI.version, {requires:["supra.input-inline-html"]});YUI.add('supra.form', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
 	//Input configuration defaults
 	var INPUT_DEFINITION = {
-		"id": null,
-		"name": null,
-		"label": "",
-		"type": "String",
-		"srcNode": null,
-		"containerNode": null,
-		"labelNode": null,
-		"value": "",
-		"disabled": false
+		'id': null,
+		'name': null,
+		'label': '',
+		'type': 'String',
+		'srcNode': null,
+		'containerNode': null,
+		'labelNode': null,
+		'value': '',
+		'disabled': false
 	};
 	
 	/**
@@ -31106,7 +31494,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	 * @param {Object} config Configuration
 	 */
 	function Form (config) {
-		//Fix "value" references for inputs
+		//Fix 'value' references for inputs
 		this.fixInputConfigValueReferences(config || {});
 		
 		Form.superclass.constructor.apply(this, [config || {}]);
@@ -31117,55 +31505,61 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		this.processAttributes();
 	}
 	
-	Form.NAME = "form";
+	Form.NAME = 'form';
 	Form.ATTRS = {
-		"inputs": {
+		'inputs': {
 			value: null
 		},
-		"autoDiscoverInputs": {
+		'autoDiscoverInputs': {
 			value: true
 		},
-		"urlLoad": {
+		'urlLoad': {
 			value: null
 		},
-		"urlSave": {
+		'urlSave': {
 			value: null
 		},
-		"urlDelete": {
+		'urlDelete': {
 			value: null
 		},
-		"style": {
-			value: ""
+		'style': {
+			value: ''
 		},
 		/**
 		 * Values which user was trying to set, but didn't had inputs
 		 * for them
 		 */
-		"plainValues": {
+		'plainValues': {
 			value: {}
 		},
-		"disabled": {
+		'disabled': {
 			value: false,
-			setter: "_setDisabled"
+			setter: '_setDisabled'
 		},
 		/**
 		 * Parent widget, could be empty
 		 */
-		"parent": {
+		'parent': {
 			value: null
 		},
 		/**
 		 * Root parent widget, usually same as parent attribute
 		 */
-		"root": {
+		'root': {
+			value: null
+		},
+		/**
+		 * Slideshow object, optional
+		 */
+		'slideshow': {
 			value: null
 		}
 	};
 	Form.HTML_PARSER = {
-		"urlLoad": function (srcNode) {
-			var value = this.get("urlLoad");
-			if (value === null && srcNode.test("form")) {
-				value = srcNode.getAttribute("action");
+		'urlLoad': function (srcNode) {
+			var value = this.get('urlLoad');
+			if (value === null && srcNode.test('form')) {
+				value = srcNode.getAttribute('action');
 			}
 			return value ? value : null;
 		}
@@ -31193,70 +31587,70 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @type {Object}
 		 */
 		discoverInputs: function () {
-			var inputs = this.get("srcNode").all("input,textarea,select");
+			var inputs = this.get('srcNode').all('input,textarea,select');
 			var config = {};
 			
 			for(var i=0,ii=inputs.size(); i<ii; i++) {
 				var input = inputs.item(i);
 				
 				//suIgnore allows to skip inputs
-				if (input.getAttribute("suIgnore")) continue;
+				if (input.getAttribute('suIgnore')) continue;
 				
-				var id = input.getAttribute("id") || input.getAttribute("name");
-				var name = input.getAttribute("name") || input.getAttribute("id");
-				var value = input.get("value");
-				var disabled = input.getAttribute("disabled") ? true : false;
-				var label = "";
+				var id = input.getAttribute('id') || input.getAttribute('name');
+				var name = input.getAttribute('name') || input.getAttribute('id');
+				var value = input.get('value');
+				var disabled = input.getAttribute('disabled') ? true : false;
+				var label = '';
 				
 				//If there is no name or id, then input can't be identified
 				if (!id || !name) continue;
 				
-				var tagName = input.get("tagName").toLowerCase();
-				var tagType = input.getAttribute("type").toLowerCase();
-				var type = "String";
+				var tagName = input.get('tagName').toLowerCase();
+				var tagType = input.getAttribute('type').toLowerCase();
+				var type = 'String';
 				
 				//Get label
-				var labelNode = this.get("srcNode").one("label[for='" + id + "']");
+				var labelNode = this.get('srcNode').one('label[for="' + id + '"]');
 				if (labelNode) {
-					label = labelNode.get("innerHTML");
+					label = labelNode.get('innerHTML');
 				}
 				
 				//Detect type
-				var suType = input.getAttribute("suType");
+				var suType = input.getAttribute('suType');
 				if (suType) {
 					type = suType;
 				} else {
 					switch(tagName) {
-						case "textarea":
-							type = "Text"; break;
-						case "select":
-							type = "Select"; break;
-						case "input":
+						case 'textarea':
+							type = 'Text'; break;
+						case 'select':
+							type = 'Select'; break;
+						case 'input':
 							switch(tagType) {
-								case "hidden":
-									type = "Hidden"; break;
-								case "checkbox":
-									type = "Checkbox"; break;
-								case "radio":
-									type = "Radio"; break;
-								case "file":
-									type = "FileUpload"; break;
+								case 'hidden':
+									type = 'Hidden'; break;
+								case 'checkbox':
+									type = 'Checkbox'; break;
+								case 'radio':
+									type = 'Radio'; break;
+								case 'file':
+									type = 'FileUpload'; break;
 							}
 							break;
 					}
 				}
 				
-				var srcNode = input.ancestor("div.field") || input;
+				var srcNode = input.ancestor('div.field') || input;
 				
 				config[id] = {
-					"id": id,
-					"label": label,
-					"name": name,
-					"type": type,
-					"srcNode": srcNode,
-					"labelNode": labelNode,
-					"value": value,
-					"disabled": disabled
+					'id': id,
+					'label': label,
+					'name': name,
+					'type': type,
+					'srcNode': srcNode,
+					'labelNode': labelNode,
+					'value': value,
+					'disabled': disabled
 				};
 			}
 			
@@ -31296,7 +31690,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			//Convert arguments into
 			//[{}, INPUT_DEFINITION, argument1, argument2, ...]
 			var args = [].slice.call(arguments,0);
-				args = [{"parent": this, "root": this.get("root") || this}, INPUT_DEFINITION].concat(args);
+				args = [{'parent': this, 'root': this.get('root') || this}, INPUT_DEFINITION].concat(args);
 			
 			//Mix them together
 			return Supra.mix.apply(Supra, args);
@@ -31340,8 +31734,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @param {Object} config
 		 */
 		addInput: function (config) {
-			if (this.get("rendered")) {
-				if (config.isInstanceOf && config.isInstanceOf("input")) {
+			if (this.get('rendered')) {
+				if (config.isInstanceOf && config.isInstanceOf('input')) {
 					//Add input to the list of form inputs
 					this.inputs[config.get('id')] = config;
 				} else {
@@ -31349,7 +31743,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					var id = null,
 						input = null,
 						node = null,
-						contentBox = this.get('contentBox'),
+						contentBox = this.getContentNode(),
 						srcNode = this.get('srcNode');
 					
 					config = this.normalizeInputConfig(config);
@@ -31374,9 +31768,9 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					
 				}
 			} else {
-				var id = ("id" in config && config.id ? config.id : ("name" in config ? config.name : ""));
+				var id = ('id' in config && config.id ? config.id : ('name' in config ? config.name : ''));
 				if (!id) {
-					Y.log("Input configuration must specify ID or NAME", "debug");
+					Y.log('Input configuration must specify ID or NAME', 'debug');
 					return this;
 				}
 				
@@ -31394,6 +31788,31 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			return this.addInput(config);
 		},
 		
+		/**
+		 * Returns form contentBox or slideshow main slide content
+		 * 
+		 * @returns {Object} Content node
+		 */
+		getContentNode: function () {
+			var slideshow = this.get('slideshow'),
+				slide,
+				key;
+			
+			if (slideshow && slideshow.getSlide) {
+				slide = slideshow.getSlide('propertySlideMain');
+				if (!slide) {
+					for (key in slideshow.slides) {
+						slide = slideshow.getSlide(key);
+					}
+				}
+				if (slide) {
+					return slide.one('.su-slide-content');
+				}
+			}
+			
+			return this.get('contentBox');
+		},
+		
 		
 		/**
 		 * Bind even listeners
@@ -31403,23 +31822,23 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			Form.superclass.bindUI.apply(this, arguments);
 			
 			//On visibility change show/hide form
-			this.on("visibleChange", function (event) {
-				this.get("boundingBox").toggleClass("hidden", !event.newVal);
+			this.on('visibleChange', function (event) {
+				this.get('boundingBox').toggleClass('hidden', !event.newVal);
 			}, this);
 			
-			//Find button with "form" attribute which could be in the footer
+			//Find button with 'form' attribute which could be in the footer
 			//and add support for IE
 			if (Y.UA.ie) {
-				var form = this.get("srcNode"),
-					form_id = form.get("id"),
-					button = Y.one("button[form='" + form_id + "']");
+				var form = this.get('srcNode'),
+					form_id = form.get('id'),
+					button = Y.one('button[form="' + form_id + '"]');
 				
 				if (button && !button.closest(form)) {
-					//On submit call "save"
-					button.on("click", this.submit, this);
+					//On submit call 'save'
+					button.on('click', this.submit, this);
 					
-					//On input return key call "save"
-					form.all("input[type='text'],input[type='password']").on("keyup", function (event) {
+					//On input return key call 'save'
+					form.all('input[type="text"],input[type="password"]').on('keyup', function (event) {
 						if (event.keyCode == 13) { //Return key
 							this.submit();
 							event.preventDefault();
@@ -31428,8 +31847,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 				}
 			}
 			
-			//On submit call "save"
-			this.get("srcNode").on("submit", function (event) {
+			//On submit call 'save'
+			this.get('srcNode').on('submit', function (event) {
 				//Use ajax
 				event.preventDefault();
 				
@@ -31442,7 +31861,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * Submit form
 		 */
 		submit: function () {
-			this.fire("submit");
+			this.fire('submit');
 			this.save();
 		},
 		
@@ -31450,7 +31869,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * Process Input attribute
 		 */
 		processAttributes: function () {
-			var inputs = this.get("inputs");
+			var inputs = this.get('inputs');
 			
 			if (Y.Lang.isArray(inputs)) {
 				var obj = {},
@@ -31459,7 +31878,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					ii = inputs.length;
 				
 				for(; i<ii; i++) {
-					id = (("id" in inputs[i]) ? inputs[i].id : ("name" in inputs[i] ? inputs[i].name : null));
+					id = (('id' in inputs[i]) ? inputs[i].id : ('name' in inputs[i] ? inputs[i].name : null));
 					if (id) {
 						obj[id] = inputs[i];
 					}
@@ -31477,14 +31896,14 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		renderUI: function () {
 			Form.superclass.renderUI.apply(this, arguments);
 			
-			var srcNode = this.get("srcNode");
-			var contentBox = this.get("contentBox");
+			var srcNode = this.get('srcNode');
+			var contentBox = this.get('contentBox');
 			
 			var inputs = {};
 			var definitions = this.inputs_definition || {};
 			
 			//Find all inputs
-			if (this.get("autoDiscoverInputs")) {
+			if (this.get('autoDiscoverInputs')) {
 				definitions = Supra.mix(this.discoverInputs(), definitions, true);
 			}
 			
@@ -31493,7 +31912,20 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			var definition = null,
 				id = null,
 				node = null,
-				input;
+				input = null,
+				slide = null,
+				slideshow = this.get('slideshow');
+			
+			//Change content box to slideshow content
+			if (slideshow) {
+				if (slideshow === true) {
+					slideshow = new Supra.Slideshow();
+					slideshow.render(contentBox);
+					this.set('slideshow', slideshow);
+					slide = slideshow.addSlide('propertySlideMain');
+				}
+				contentBox = this.getContentNode();
+			}
 			
 			//Create Inputs
 			for(var i in definitions) {
@@ -31502,9 +31934,9 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 				
 				//Try finding input
 				if (!definition.srcNode) {
-							    node = srcNode.one("#" + id);
-					if (!node)  node = srcNode.one("*[name='" + definition.name + "']");
-					if (!node)  node = srcNode.one("*[data-input-id='" + id + "']");
+							    node = srcNode.one('#' + id);
+					if (!node)  node = srcNode.one('*[name="' + definition.name + '"]');
+					if (!node)  node = srcNode.one('*[data-input-id="' + id + '"]');
 					
 					if (node) {
 						definition.srcNode = node;
@@ -31531,24 +31963,24 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			this.inputs = inputs;
 			this.inputs_definition = definitions;
 			
-			var style = this.get("style") || this.get("srcNode").getAttribute("suStyle") || "default";
+			var style = this.get('style') || this.get('srcNode').getAttribute('suStyle') || 'default';
 			this.setStyle(style);
 		},
 		
 		/**
 		 * Change form style
 		 * 
-		 * @param {String} style Style values, valid values are "default", "vertical" and "default vertical"
+		 * @param {String} style Style values, valid values are 'default', 'vertical' and 'default vertical'
 		 */
 		setStyle: function (style) {
-			//Style value can be also "default vertical"
+			//Style value can be also 'default vertical'
 			style = style.split(' ');
 			
 			var i = 0,
 				ii = style.length;
 			
 			for(; i<ii; i++) {
-				this.get("srcNode").addClass(Y.ClassNameManager.getClassName(Form.NAME, style[i]));
+				this.get('srcNode').addClass(Y.ClassNameManager.getClassName(Form.NAME, style[i]));
 			}
 		},
 		
@@ -31618,12 +32050,12 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @private
 		 */
 		serializeObject: function (obj, prefix, skip_encode) {
-			var prefix = prefix || "";
+			var prefix = prefix || '';
 			var out = {};
 			
 			for(var id in obj) {
 				var name = skip_encode ? id : encodeURIComponent(id);
-					name = prefix ? prefix + "[" + name + "]" : name;
+					name = prefix ? prefix + '[' + name + ']' : name;
 				
 				if (Y.Lang.isObject(obj[id])) {
 					out = Y.mix(this.serializeObject(obj[id], name, skip_encode) ,out);
@@ -31637,7 +32069,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		
 		/**
 		 * Convert one-dimensional value object into multi-dimensional changing
-		 * "key1[key2][key3]" = 3 into {key1: {key2: {key3: 3}}}
+		 * 'key1[key2][key3]' = 3 into {key1: {key2: {key3: 3}}}
 		 * 
 		 * @param {Object} obj
 		 * @return Multi dimensional object
@@ -31652,9 +32084,9 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			
 			for(var id in obj) {
 				//If value is not string, then no need to decode
-				is_string = typeof obj[id] == "string";
+				is_string = typeof obj[id] == 'string';
 				
-				if (String(id).indexOf("[") != -1) {
+				if (String(id).indexOf('[') != -1) {
 					if (m = id.match(/([^\[]+)\[([^\]]+)\](.*)/)) {
 						try {
 							name = skip_decode || !is_string ? m[1] : QueryString.unescape(String(m[1]));
@@ -31687,7 +32119,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		unserializeItem: function (id, value, out, skip_decode) {
 			var m, name, is_string;
 			
-			if (String(id).indexOf("[") != -1) {
+			if (String(id).indexOf('[') != -1) {
 				if (m = id.match(/([^\[]+)\[([^\]]+)\](.*)/)) {
 					try {
 						name = skip_decode ? m[1] : QueryString.unescape(String(m[1]));
@@ -31698,7 +32130,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					this.unserializeItem(m[2] + m[3], value, out[name], skip_decode);
 				}
 			} else {
-				is_string = typeof value == "string";
+				is_string = typeof value == 'string';
 				try {
 					out[id] = skip_decode || !is_string ? value : QueryString.unescape(value);
 				} catch (e) {
@@ -31710,7 +32142,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		/**
 		 * Returns serialize values ready for use in query string
 		 * 
-		 * @param {String} key Name of the property, which will be used for key, default is "name"
+		 * @param {String} key Name of the property, which will be used for key, default is 'name'
 		 * @return Form input values
 		 * @type {Object}
 		 */
@@ -31725,7 +32157,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * Returns values parsing input names and changing into
 		 * multi-dimension object
 		 * 
-		 * @param {String} key Name of the property, which will be used for key, default is "name"
+		 * @param {String} key Name of the property, which will be used for key, default is 'name'
 		 * @return Form input values
 		 * @type {Object}
 		 */
@@ -31736,7 +32168,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		
 		/**
 		 * Returns input name => value pairs
-		 * Optionally other attribute can be used instead of "name"
+		 * Optionally other attribute can be used instead of 'name'
 		 * 
 		 * @param {String} key
 		 * @param {Boolean} save Return save value
@@ -31744,16 +32176,16 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @type {Object}
 		 */
 		getValues: function (key, save) {
-			var key = key || "name";
-			var values = Supra.mix({}, this.get("plainValues"));
+			var key = key || 'name';
+			var values = Supra.mix({}, this.get('plainValues'));
 			var definitions = this.inputs_definition;
-			var prop = save ? "saveValue" : "value";
+			var prop = save ? 'saveValue' : 'value';
 			
 			for(var id in this.inputs) {
 				var input = this.inputs[id];
 				var val = input.get(prop);
 				if (val !== undefined) {
-					values[key == "id" || key == "name" ? definitions[id][key] : input.getAttribute(key)] = val;
+					values[key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key)] = val;
 				}
 			}
 			
@@ -31762,7 +32194,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		
 		/**
 		 * Returns save values as input name => value pairs
-		 * Optionally other attribute can be used instead of "name"
+		 * Optionally other attribute can be used instead of 'name'
 		 * 
 		 * @param {String} key
 		 * @return Form input values
@@ -31779,21 +32211,21 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @param {Object} key
 		 */
 		setValues: function (data, key, skip_encode) {
-			var key = key || "name",
+			var key = key || 'name',
 				definitions = this.inputs_definition,
 				input = null,
 				key_value = null,
 				data = skip_encode ? data : this.serializeObject(data, null, true),
-				plainValues = this.get("plainValues");
+				plainValues = this.get('plainValues');
 			
 			data = data || {};
 			
 			for(var id in this.inputs) {
 				input = this.inputs[id];
-				key_value = (key == "id" || key == "name" ? definitions[id][key] : input.getAttribute(key));
+				key_value = (key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key));
 				
 				if (key_value in data) {
-					input.set("value", data[key_value]);
+					input.set('value', data[key_value]);
 				}
 			}
 			
@@ -31807,7 +32239,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		},
 		
 		/**
-		 * Set input values without converting names {"a": {"b": "c"}} into {"a[b]": "c"}
+		 * Set input values without converting names {'a': {'b': 'c'}} into {'a[b]': 'c'}
 		 * 
 		 * @param {Object} data
 		 * @param {Object} key
@@ -31838,7 +32270,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 				}
 			}
 			
-			this.set("plainValues", {});
+			this.set('plainValues', {});
 			
 			return this;
 		},
@@ -31873,7 +32305,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			if (id in this.inputs) {
 				return this.inputs[id];
 			} else {
-				//Search by "name"
+				//Search by 'name'
 				var definitions = this.inputs_definition;
 				
 				for(var i in definitions) {
@@ -31910,7 +32342,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @param {Boolean} value
 		 */
 		setAutoDiscoverInputs: function (value) {
-			this.set("autoDiscoverInputs", !!value);
+			this.set('autoDiscoverInputs', !!value);
 			return this;
 		},
 		
@@ -31920,7 +32352,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @param {String} url
 		 */
 		setURLLoad: function (url) {
-			this.set("urlLoad", url);
+			this.set('urlLoad', url);
 			return this;
 		},
 		
@@ -31930,7 +32362,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @param {String} url
 		 */
 		setURLDelete: function (url) {
-			this.set("urlDelete", url);
+			this.set('urlDelete', url);
 			return this;
 		},
 		
@@ -31940,7 +32372,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @param {String} url
 		 */
 		setURLSave: function (url) {
-			this.set("urlSave", url);
+			this.set('urlSave', url);
 			return this;
 		},
 		
@@ -31959,20 +32391,20 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * Validate and execute save request if url is set and user is authorized to save data
 		 */
 		save: function (callback, context) {
-			if (!this.get("disabled") && this.validate()) {
-				var uri = this.get("urlSave"),
+			if (!this.get('disabled') && this.validate()) {
+				var uri = this.get('urlSave'),
 					values = null;
 				
 				if (uri) {
-					values = this.getSaveValues(this.get("inputs") ? "id" : "name");
+					values = this.getSaveValues(this.get('inputs') ? 'id' : 'name');
 					
 					Supra.io(uri, {
-						"method": "post",
-						"data": values,
-						"context": context || this,
-						"on": {
-							"success": callback,
-							"failure": callback
+						'method': 'post',
+						'data': values,
+						'context': context || this,
+						'on': {
+							'success': callback,
+							'failure': callback
 						}
 					});
 					
@@ -31982,7 +32414,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					}
 				}
 				
-				this.fire("save");
+				this.fire('save');
 			} else {
 				if (callback) {
 					callback.call(context = context || this, null, 0);
@@ -31996,16 +32428,16 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		load: function () {
 			//@TODO
 			
-			this.fire("load");
+			this.fire('load');
 		},
 		
 		/**
 		 * Execute delete request if url is set, form has ID field and user is authorized to delete record
 		 */
-		"delete": function () {
+		'delete': function () {
 			//@TODO
 			
-			this.fire("delete");
+			this.fire('delete');
 		},
 		
 		_setDisabled: function (disabled) {
@@ -32015,7 +32447,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			if (!this.get('rendered') && !disabled) return disabled;
 			
 			var inputs = this.getInputs();
-			for(var id in inputs) inputs[id].set("disabled", disabled);
+			for(var id in inputs) inputs[id].set('disabled', disabled);
 			
 			return disabled;
 		}
@@ -32856,14 +33288,14 @@ YUI.add('supra.plugin-layout', function (Y) {
 	 * @param {Object} config Configuration
 	 */
 	function Slideshow (config) {
-		Slideshow.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
-		
 		this.render_queue = [];
 		this.history = [];
 		this.slides = {};
 		this.remove_on_hide = {};
 		this.anim = null;
+		
+		Slideshow.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
 	}
 	
 	Slideshow.NAME = 'slideshow';
@@ -33004,7 +33436,10 @@ YUI.add('supra.plugin-layout', function (Y) {
 						break;
 					}
 				} else {
-					this.history.push(this.get('slide'));
+					var slideId = this.get('slide');
+					if (Y.Array.indexOf(this.history, slideId) == -1) {
+						this.history.push(slideId);
+					}
 				}
 				
 				Supra.mix(this.slides, newSlides);
@@ -33290,12 +33725,18 @@ YUI.add('supra.plugin-layout', function (Y) {
 		
 		/**
 		 * Returns true if currently opened slide is first one
+		 * or if slideId argument is passed checks if that slide is root
 		 * 
+		 * @param {String} slideId Optional, checks if given slide is root instead of current
 		 * @return True if current slide is first one
 		 * @type {Boolean}
 		 */
-		isRootSlide: function () {
-			return this.history.length <= 1;
+		isRootSlide: function (slideId) {
+			if (slideId) {
+				return !this.history.length || this.history[0] == slideId;
+			} else {
+				return this.history.length <= 1;
+			}
 		},
 		
 		/**

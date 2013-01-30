@@ -486,10 +486,16 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				return false;
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			action.execute(form, {
 				"hideCallback": Y.bind(this.settingsFormApply, this),
 				"title": Supra.Intl.get(["htmleditor", "image_properties"]),
-				"scrollable": true
+				"scrollable": true,
+				"toolbarActionName": "htmleditor-plugin"
 			});
 			
 			//
@@ -876,6 +882,11 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				});
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
 			//When media library is hidden show settings form if image is selected
 			mediasidebar.on("hide", function () {
 				if (this.selected_image) {
@@ -883,7 +894,8 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 						"doneCallback": Y.bind(this.settingsFormApply, this),
 						
 						"title": Supra.Intl.get(["htmleditor", "image_properties"]),
-						"scrollable": true
+						"scrollable": true,
+						"toolbarActionName": "htmleditor-plugin"
 					});
 				}
 			}, this);

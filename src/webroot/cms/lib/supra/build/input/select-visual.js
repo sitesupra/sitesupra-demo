@@ -64,6 +64,14 @@ YUI.add('supra.input-select-visual', function (Y) {
 		},
 		"cssNode": {
 			value: null
+		},
+		
+		/**
+		 * Render widget into separate slide and add
+		 * button to the place where this widget should be
+		 */
+		"separateSlide": {
+			value: false
 		}
 	};
 	
@@ -80,7 +88,48 @@ YUI.add('supra.input-select-visual', function (Y) {
 	
 	Y.extend(Input, Supra.Input.SelectList, {
 		
+		widgets: null,
+		
+		
+		/**
+		 * On desctruction life cycle remove created slides
+		 * and inputs
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			if (this.widgets) {
+				var slideshow = this.get('slideshow'),
+					inputs = this.widgets.inputs,
+					slides = this.widgets.slides,
+					key = null;
+				
+				if (slideshow) {
+					
+					for (key in inputs) {
+						inputs[key].destroy();
+					}
+					for (key in slides) {
+						slideshow.removeSlide(key);
+					}
+					
+				}
+				
+				this.widgets = null;
+			}
+		},
+		
 		renderUI: function () {
+			this.widgets = {
+				// Separate slide
+				'slide': null,
+				'button': null,
+				
+				// Values slides and inputs
+				'slides': {},
+				'inputs': {}
+			};
+			
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			//Classnames, etc.
@@ -102,13 +151,42 @@ YUI.add('supra.input-select-visual', function (Y) {
 					this.set('css', this.get('css'));
 				}
 			}
+			
+			if (this.get('separateSlide')) {
+				var slideshow = this.getSlideshow(),
+					slide = null,
+					button = null;
+				
+				if (slideshow) {
+					this.widgets.button = button = new Supra.Button({
+						'label': this.get('label')
+					});
+					
+					this.widgets.slide = slide = slideshow.addSlide('propertySlide' + this.get('id'));
+					slide = slide.one('.su-slide-content');
+					
+					button.render();
+					button.addClass('button-section');
+					button.on('click', this._slideshowChangeSlide, this);
+					this.get('boundingBox').insert(button.get('boundingBox'), 'before');
+					
+					slide.append(this.get('boundingBox'));
+				} else {
+					this.set('separateSlide', false);
+				}
+			}
 		},
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'type': 'toggle', 'style': 'group'}),
+				button = new Supra.Button({'label': definition.title, 'type': definition.values ? 'button' : 'toggle', 'style': 'group'}),
 				value = this._getInternalValue(),
-				has_value_match = false;
+				has_value_match = false,
+				
+				slideshow = this.getSlideshow(),
+				slide = null,
+				subinput = null,
+				button_value_map = this.button_value_map;
 			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
@@ -123,6 +201,39 @@ YUI.add('supra.input-select-visual', function (Y) {
 			}
 			if (last) {
 				button.get('boundingBox').addClass('su-button-last');
+			}
+			
+			if (definition.values && slideshow) {
+				button.get('boundingBox').addClass('button-section');
+				slide = slideshow.addSlide('propertySlide' + this.get('id') + definition.id);
+				
+				// Create input (self)
+				subinput = new Input(
+					Supra.mix({
+						'values': definition.values,
+						'label': definition.title
+					}, this.getAttrs(['value', 'backgroundColor', 'css', 'cssNode', 'defaultValue', 'iconStyle', 'multiple', 'renderer', 'showEmptyValue', 'style', 'value']))
+				);
+				
+				subinput.render(slide.one('.su-slide-content'));
+				subinput.set('value', this.get('value'));
+				
+				this.widgets.slides[definition.id] = slide;
+				this.widgets.inputs[definition.id] = subinput;
+				
+				subinput.after('valueChange', this._afterDescendantValueChange, this, definition.id);
+				
+				// Add sub values to the value list
+				if (input && input.options) {
+					for (var i=0, ii=definition.values.length; i<ii; i++) {
+						input.options[input.options.length] = new Option(definition.values[i].title, definition.values[i].id);
+						button_value_map[definition.values[i].id] = definition.id;
+					}
+				} else {
+					for (var i=0, ii=definition.values.length; i<ii; i++) {
+						button_value_map[definition.values[i].id] = definition.id;
+					}
+				}
 			}
 			
 			if (input && input.options) {
@@ -142,7 +253,11 @@ YUI.add('supra.input-select-visual', function (Y) {
 			button.get('boundingBox').setStyle('width', button_width + '%');
 			
 			//On click update input value
-			button.on('click', this._onClick, this, definition.id);
+			if (definition.values && slideshow) {
+				button.on('click', this._slideshowChangeSlide, this, definition.id);
+			} else {
+				button.on('click', this._onClick, this, definition.id);
+			}
 			
 			return has_value_match;
 		},
@@ -182,6 +297,97 @@ YUI.add('supra.input-select-visual', function (Y) {
 			}
 			
 			return style;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- EVENT LISTENERS ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Change slideshow slide to values list
+		 * 
+		 * @private
+		 */
+		_slideshowChangeSlide: function (event, id) {
+			var slideshow = this.getSlideshow(),
+				slide_id  = 'propertySlide' + this.get('id');
+			
+			if (id) {
+				slide_id += id;
+			}
+			
+			slideshow.set('slide', slide_id);
+		},
+		
+		/**
+		 * After value change
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+				
+				var inputs = this.widgets.inputs,
+					id = null;
+				
+				for (id in inputs) {
+					if (inputs[id].get('value') != evt.newVal) {
+						inputs[id].set('value', evt.newVal);
+					}
+				}
+			}
+		},
+		
+		/**
+		 * After sub-input value change
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @param {Object} id Descendant id
+		 * @private
+		 */
+		_afterDescendantValueChange: function (evt, id) {
+			if (evt.prevVal != evt.newVal) {
+				if (this.get('value') != evt.newVal) {
+					this.set('value', evt.newVal);
+				}
+			}
+		},
+		
+		/*
+		 * ---------------------------------------- SLIDESHOW ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Returns parent widget by class name
+		 * 
+		 * @param {String} classname Parent widgets class name
+		 * @return Widget instance or null if not found
+		 * @private
+		 */
+		getParentWidget: function (classname) {
+			var parent = this.get("parent");
+			while (parent) {
+				if (parent.isInstanceOf(classname)) return parent;
+				parent = parent.get("parent");
+			}
+			return null;
+		},
+		
+		/**
+		 * Returns slideshow
+		 * 
+		 * @return Slideshow
+		 * @type {Object}
+		 * @private
+		 */
+		getSlideshow: function () {
+			var form = this.getParentWidget("form");
+			return form ? form.get("slideshow") : null;
 		},
 		
 		

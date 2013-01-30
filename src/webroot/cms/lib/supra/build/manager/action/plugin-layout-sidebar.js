@@ -107,6 +107,19 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 				this.setScrollable(true);
 			}
 			
+			//Slideshow
+			this.host.addAttr('slideshow', {
+				'value': false,
+				'setter': Y.bind(this.setSlideshow, this)
+			});
+			
+			// Back button event listener
+			var back = this.host.get('backButton');
+			if (back) {
+				back.hide();
+				back.on('click', this.onBackButtonClick, this);
+			}
+			
 			/*
 			 * In frozen state if sidebar is hidden then toolbar buttons
 			 * will not be removed and "hide" function is not called,
@@ -125,6 +138,70 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 			
 			this.host.after('visibleChange', this.afterVisibleChange, this);
 		},
+		
+		
+		/* ------------------------------ Slideshow ------------------------------ */
+		
+		
+		/**
+		 * Slideshow attribute setter
+		 * 
+		 * @param {Object} slideshow Slideshow object or null
+		 * @returns {Object} New attribute value
+		 * @private
+		 */
+		setSlideshow: function (slideshow) {
+			var backButton = this.host.get('backButton'),
+				old_slideshow = this.host.get('slideshow');
+			
+			if (old_slideshow !== slideshow) {
+				if (old_slideshow) {
+					old_slideshow.detach('slideChange', this.onSlideshowSlideChange, this);
+				}
+				if (slideshow) {
+					slideshow.on('slideChange', this.onSlideshowSlideChange, this);
+				}
+				
+				if (!slideshow || slideshow.isRootSlide()) {
+					backButton.hide();
+				} else {
+					backButton.show();
+				}
+			}
+			
+			return slideshow;
+		},
+		
+		/**
+		 * Handle back button click
+		 */
+		onBackButtonClick: function () {
+			var slideshow = this.host.get('slideshow');
+			if (slideshow) {
+				slideshow.scrollBack();
+			}
+		},
+		
+		/**
+		 * On slideshow slide change show or hide back button
+		 */
+		onSlideshowSlideChange: function (evt) {
+			var slideshow = this.host.get('slideshow'),
+				history = slideshow.getHistory();
+			
+			if (!slideshow.isRootSlide(evt.newVal)) {
+				// Root slide
+				var button = this.host.get('backButton');
+				if (button) button.show();
+			} else {
+				// Not a root slide
+				var button = this.host.get('backButton');
+				if (button) button.hide();
+			}
+		},
+		
+		/* ------------------------------ Attributes ------------------------------ */
+		
 		
 		/**
 		 * Set header visibility

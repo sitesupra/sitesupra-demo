@@ -51,7 +51,8 @@ YUI().add('supra.htmleditor-plugin-fullscreen', function (Y) {
 			if (!this.fullscreen) return;
 			this.fullscreen = false;
 			
-			var body = this.htmleditor.get('srcNode').closest('body'),
+			var htmleditor = this.htmleditor,
+				body = htmleditor.get('srcNode').closest('body'),
 				toolbar = htmleditor.get('toolbar'),
 				button = toolbar ? toolbar.getButton('fullscreen') : null;
 			
@@ -67,7 +68,7 @@ YUI().add('supra.htmleditor-plugin-fullscreen', function (Y) {
 		 * Toggle fullscreen mode
 		 */
 		toggleFullScreenMode: function () {
-			var toolbar = htmleditor.get('toolbar'),
+			var toolbar = this.htmleditor.get('toolbar'),
 				button = toolbar ? toolbar.getButton('fullscreen') : null;
 			
 			if (button.get('down')) {

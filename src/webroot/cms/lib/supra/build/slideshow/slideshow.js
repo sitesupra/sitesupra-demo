@@ -9,14 +9,14 @@ YUI.add('supra.slideshow', function (Y) {
 	 * @param {Object} config Configuration
 	 */
 	function Slideshow (config) {
-		Slideshow.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
-		
 		this.render_queue = [];
 		this.history = [];
 		this.slides = {};
 		this.remove_on_hide = {};
 		this.anim = null;
+		
+		Slideshow.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
 	}
 	
 	Slideshow.NAME = 'slideshow';
@@ -157,7 +157,10 @@ YUI.add('supra.slideshow', function (Y) {
 						break;
 					}
 				} else {
-					this.history.push(this.get('slide'));
+					var slideId = this.get('slide');
+					if (Y.Array.indexOf(this.history, slideId) == -1) {
+						this.history.push(slideId);
+					}
 				}
 				
 				Supra.mix(this.slides, newSlides);
@@ -443,12 +446,18 @@ YUI.add('supra.slideshow', function (Y) {
 		
 		/**
 		 * Returns true if currently opened slide is first one
+		 * or if slideId argument is passed checks if that slide is root
 		 * 
+		 * @param {String} slideId Optional, checks if given slide is root instead of current
 		 * @return True if current slide is first one
 		 * @type {Boolean}
 		 */
-		isRootSlide: function () {
-			return this.history.length <= 1;
+		isRootSlide: function (slideId) {
+			if (slideId) {
+				return !this.history.length || this.history[0] == slideId;
+			} else {
+				return this.history.length <= 1;
+			}
 		},
 		
 		/**

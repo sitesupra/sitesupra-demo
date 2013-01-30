@@ -1,0 +1,129 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\SlideshowAdvanced\SlideshowAdvancedBlock
+    title: Advanced slideshow
+    icon: icon.png
+    groupId: features
+    description: Description
+    cmsClassname: Slideshow
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+    propertyGroups:
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: design
+          type: sidebar
+          icon: /cms/lib/supra/img/toolbar/icon-design.png
+          label: Design
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: animation
+          type: sidebar
+          icon: /cms/lib/supra/img/toolbar/icon-animation.png
+          label: Animation
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: design
+          group: design
+          editable: Supra\Editable\SelectVisual
+          label: Design
+          shared: true
+          defaultValue: arrows
+          values:
+            - id: none
+              title: None
+              icon: icons/design-none.png
+            - id: arrows
+              title: Arrows
+              icon: icons/design-arrows.png
+            - id: dots
+              title: Dots
+              icon: icons/design-dots.png
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: scrollTimerEnabled
+          group: animation
+          editable: Supra\Editable\Checkbox
+          label: Auto scroll
+          description: Automatically goes from one slide to next after a delay
+          shared: true
+          defaultValue: 1
+      #- Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+      #    name: scrollTimerDelay
+      #    group: animation
+      #    editable: Supra\Editable\Slider
+      #    label: Auto scroll delay
+      #    shared: true
+      #    additionalParameters:
+      #        minValue: 1
+      #        maxValue: 10
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: animation
+          group: animation
+          editable: Supra\Editable\SelectVisual
+          label: Animation
+          shared: true
+          values:
+            - id: horizontal
+              title: Horizontal slide
+              icon: icons/animation-horizontal.png
+            - id: vertical
+              title: Vertical slide
+              icon: icons/animation-vertical.png
+            - id: fade
+              title: Fade
+              icon: icons/animation-fade.png
+          additionalParameters:
+              iconStyle: center
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: slides
+          editable: Supra\Editable\Slideshow
+          label: Slides
+          shared: true
+          properties:
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: layout
+                editable: Supra\Editable\SelectVisual
+                label: Layout
+                defaultValue: arrows
+                values:
+                  - id: bg
+                    title: Background image only
+                    icon: icons/layout/bg.png
+                  - id: bg_text
+                    title: Background image and text
+                    icon: icons/layout/bg-text.png
+                    values:
+                      - id: bg_text_left
+                        title: Text on left side
+                        icon: icons/layout/bg-text-left.png
+                      - id: bg_text_right
+                        title: Text on right side
+                        icon: icons/layout/bg-text-right.png
+                additionalParameters:
+                    separateSlide: true
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: background
+                editable: Supra\Editable\BlockBackground
+                label: Background
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: text_main
+                editable: Supra\Editable\Html
+                label: Main text
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: text_top
+                editable: Supra\Editable\Html
+                label: Top text
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: image
+                editable: Supra\Editable\Image
+                label: Image
+          #additionalParameters:
+          #    layouts:
+          #      - id: bg
+          #        html: <div class="as-wrapper"></div>
+          #      - id: bg_text_left
+          #        html: <div class="as-wrapper"><div class="text left">{{ property.text }}</div></div>
+          #      - id: bg_text_right
+          #        html: <div class="as-wrapper"><div class="text right">{{ property.text }}</div></div>

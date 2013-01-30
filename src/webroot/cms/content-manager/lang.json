@@ -21,7 +21,8 @@
 			"error": "OK",
 			"insert": "Insert",
 			"visible": "Visible",
-			"hidden": "Hidden"
+			"hidden": "Hidden",
+			"continue": "Continue"
 		},
 		"inputs": {
 			"red": "Red",
@@ -46,6 +47,8 @@
 			"set_link": "Set link",
 			"shared_property_description": "The value for this block has been taken from {{ localeTitle }} localization. Go there to manage it.",
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
+			"shared_slideshow_unavailable": "Images for the this slideshow have been taken from {{ localeTitle }} localization. Go there to manage them.",
+			"shared_slideshow_notice": "This slideshow has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
 			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 			
 			"block": {
@@ -450,6 +453,20 @@
 			
 			"label": "Images",
 			"label_button": "Manage images",
+			
+			"error_template": "Error occured in {block} block"
+		},
+		
+		"slideshowmanager": {
+			"title": "Edit slideshow slides",
+			
+			"label": "Slides",
+			"label_button": "Edit slides",
+			
+			"sidebar_title": "Edit slide",
+			"delete_slide": "Delete slide",
+			
+			"add_new": "Add New",
 			
 			"error_template": "Error occured in {block} block"
 		},

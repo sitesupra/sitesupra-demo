@@ -17,9 +17,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 	Supra.HTMLEditor.addPlugin("fonts", defaultConfiguration, {
 		
 		// Font input
-		fontInput: null,
+		fontFnput: null,
 		
-		// Font size input
+		// Font button
+		fontFamilyInput: null,
+		
+		// Fore color button
+		foreColorInput: null,
+		
+		// Back color button
+		backColorInput: null,
+		
+		// Font size button
 		fontSizeInput: null,
 		
 		// Updating input to reflect selected element styles
@@ -160,6 +169,9 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			}
 			
 			this.fontSizeInput.set("disabled", !event.allowed);
+			this.fontFamilyInput.set("disabled", !event.allowed);
+			this.foreColorInput.set("disabled", !event.allowed);
+			this.backColorInput.set("disabled", !event.allowed);
 		},
 		
 		/**
@@ -489,7 +501,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		showFontSidebar: function () {
 			//Make sure PageContentSettings is rendered
 			var form = this.font_settings_form || this.createFontSidebar(),
-				action = Manager.getAction("PageContentSettings");
+				action = Manager.getAction("PageContentSettings"),
+				toolbarName = "htmleditor-plugin";
 			
 			if (!form) {
 				if (action.get("loaded")) {
@@ -506,12 +519,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				return false;
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons(toolbarName)) {
+				Manager.getAction('PageToolbar').addActionButtons(toolbarName, []);
+				Manager.getAction('PageButtons').addActionButtons(toolbarName, []);
+			}
+			
 			action.execute(form, {
 				"doneCallback": Y.bind(this.hideSidebar, this),
 				"hideCallback": Y.bind(this.onSidebarHide, this),
 				
 				"title": Supra.Intl.get(["htmleditor", "fonts"]),
-				"scrollable": true
+				"scrollable": true,
+				"toolbarActionName": toolbarName
 			});
 			
 			//Fonts toolbar button
@@ -555,7 +574,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		showColorSidebar: function () {
 			//Make sure PageContentSettings is rendered
 			var form = this.color_settings_form || this.createColorSidebar(),
-				action = Manager.getAction("PageContentSettings");
+				action = Manager.getAction("PageContentSettings"),
+				toolbarName = "htmleditor-plugin";
 			
 			if (!form) {
 				if (action.get("loaded")) {
@@ -572,12 +592,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				return false;
 			}
 			
+			if (!Manager.getAction('PageToolbar').hasActionButtons(toolbarName)) {
+				Manager.getAction('PageToolbar').addActionButtons(toolbarName, []);
+				Manager.getAction('PageButtons').addActionButtons(toolbarName, []);
+			}
+			
 			action.execute(form, {
 				"doneCallback": Y.bind(this.hideSidebar, this),
 				"hideCallback": Y.bind(this.onSidebarHide, this),
 				
 				"title": Supra.Intl.get(["htmleditor", this.colorType + "color"]),
-				"scrollable": true
+				"scrollable": true,
+				"toolbarActionName": toolbarName
 			});
 			
 			//Color toolbar button
@@ -657,7 +683,11 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				toolbar.getButton(inputs[i]).set("visible", true);
 			}
 			
-			// Font size input
+			// Inputs
+			this.fontFamilyInput = toolbar.getButton("fonts");
+			this.foreColorInput  = toolbar.getButton("forecolor");
+			this.backColorInput  = toolbar.getButton("backcolor");
+			
 			var input = this.fontSizeInput = toolbar.getButton("fontsize"),
 				values = input.get('values');
 			
