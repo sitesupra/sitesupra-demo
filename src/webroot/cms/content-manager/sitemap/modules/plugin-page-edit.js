@@ -163,6 +163,8 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 			for(id in inputs) {
 				inputs[id].on('change', this._onPagePropertyChange, this);
 			}
+			
+			inputs.title.on('input', this._onPagePropertyQuickChange, this);
 		},
 		
 		/**
@@ -252,6 +254,7 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 		'_onPagePropertyChange': function (e) {
 			var id = e.target.get('id'),
 				value = e.target.get('value'),
+				original = null,
 				node = this._node,
 				data = node.get('data'),
 				post_data = {};
@@ -266,6 +269,9 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 				post_data.locale = this.get('host').get('locale');
 				post_data[id] = value;
 				
+				original = data[id];
+				data[id] = value;
+				
 				//Save data
 				Manager.Page.updatePage(post_data, function (response, success) {
 					if (success) {
@@ -278,6 +284,8 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 						}
 					} else {
 						//Revert changes
+						data[id] = original;
+						
 						if (this._nodeDataMapping[id]) {
 							node.set(this._nodeDataMapping[id], data[id]);
 						}
@@ -288,6 +296,31 @@ YUI().add('website.sitemap-plugin-page-edit', function (Y) {
 						}
 					}
 				}, this);
+			}
+		},
+		
+		/**
+		 * On page property change update UI
+		 * 
+		 * @private
+		 */
+		'_onPagePropertyQuickChange': function (e) {
+			if (!this._node) return; // most likely initialization stage
+			
+			var input = e.target,
+				id    = input.get('id'),
+				value = input.get('value'),
+				node  = this._node;
+			
+			if (node.isInstanceOf('TreeNode')) {
+				//Update node attribute
+				if (this._nodeDataMapping[id]) {
+					node.set(this._nodeDataMapping[id], value);
+				}
+			} else {
+				if (this._rowDataMapping[id]) {
+					node.set(this._rowDataMapping[id], value);
+				}
 			}
 		},
 		

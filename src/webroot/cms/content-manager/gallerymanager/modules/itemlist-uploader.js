@@ -18,7 +18,9 @@ YUI.add('gallerymanager.itemlist-uploader', function (Y) {
 	
 	ItemListUploader.ATTRS = {
 		
-		
+		'disabled': {
+			value: false
+		}
 		
 	};
 	
@@ -69,12 +71,21 @@ YUI.add('gallerymanager.itemlist-uploader', function (Y) {
 				target = null,
 				image_upload_folder = null;
 			
-			if (this.uploader || !container) return;
+			if (this.uploader) {
+				this.uploader.set('disabled', this.get('disabled'));
+				return false;
+			}
+			if (!container) {
+				return false;
+			}
 			
 			//Create uploader
 			//doc = itemlist.getDocument();
 			target = itemlist.getWrapperNode();
 			image_upload_folder = itemlist.get('host').image_upload_folder;
+			
+			var uploadData = this.getUploaderFileUploadData();
+				uploadData.force = true;
 			
 			this.uploader = new Supra.Uploader({
 				'clickTarget': null,
@@ -87,7 +98,7 @@ YUI.add('gallerymanager.itemlist-uploader', function (Y) {
 				'requestUri': Manager.getAction('MediaLibrary').getDataPath('upload'),
 				'uploadFolderId': image_upload_folder,
 				
-				'data': this.getUploaderFileUploadData()
+				'data': uploadData
 			});
 			
 			this.uploader.on('file:upload', this.onFileUploadStart, this);
