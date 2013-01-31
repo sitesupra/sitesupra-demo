@@ -61,6 +61,11 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 	public $properties = array();
 
 	/**
+	 * @var string
+	 */
+	public $description;
+	
+	/**
 	 * Hash table for editable additional properties
 	 * @var array
 	 */
@@ -94,6 +99,10 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 
 		if ( ! empty($this->group)) {
 			$this->editableInstance->setGroupId($this->group);
+		}
+		
+		if ( ! empty($this->description)) {
+			$this->editableInstance->setDescription($this->description);
 		}
 	}
 
