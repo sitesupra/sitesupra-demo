@@ -203,7 +203,9 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 						'id': 'status',
 						'title': '',
 						'formatter': function (col_id, value, data) {
-							if (!data.localized) {
+							if (data.type == 'page' && data.state == "temporary") {
+								return '';
+							} else if ( ! data.localized) {
 								return '<div class="status-icon"><div class="status-not-localized">' + Supra.Intl.get(['sitemap', 'status_not_created']) + '</div></div>';
 							} else if (data.type == 'page' && data.scheduled) {
 								return '<div class="status-icon"><div class="status-scheduled">' + Supra.Intl.get(['sitemap', 'status_scheduled']) + '</div></div>';
