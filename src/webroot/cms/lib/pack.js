@@ -557,7 +557,7 @@ Supra.useModules = [
 	'supra.base',					// + base, node
 	'supra.panel',					// + supra.button, widget, overlay
 	'supra.permission',
-	'supra.io',						// + io, json
+	'supra.io',						// + io, json, jsonp
 	'supra.io-session',
 	'supra.io-css',
 	'supra.dom',
@@ -614,7 +614,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	
 	'supra.io': {
 		path: 'io/io.js',
-		requires: ['io', 'json']
+		requires: ['io', 'json', 'jsonp', 'jsonp-url']
 	},
 	'supra.io-session': {
 		path: 'io/session.js',
@@ -1985,7 +1985,19 @@ Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
 */
-YUI.add("dd-delegate",function(e){var d=function(f){d.superclass.constructor.apply(this,arguments);},c="container",b="nodes",a=e.Node.create("<div>Temp Node</div>");e.extend(d,e.Base,{_bubbleTargets:e.DD.DDM,dd:null,_shimState:null,_handles:null,_onNodeChange:function(f){this.set("dragNode",f.newVal);},_afterDragEnd:function(f){e.DD.DDM._noShim=this._shimState;this.set("lastNode",this.dd.get("node"));this.get("lastNode").removeClass(e.DD.DDM.CSS_PREFIX+"-dragging");this.dd._unprep();this.dd.set("node",a);},_delMouseDown:function(h){var g=h.currentTarget,f=this.dd;if(g.test(this.get(b))&&!g.test(this.get("invalid"))){this._shimState=e.DD.DDM._noShim;e.DD.DDM._noShim=true;this.set("currentNode",g);f.set("node",g);if(f.proxy){f.set("dragNode",e.DD.DDM._proxy);}else{f.set("dragNode",g);}f._prep();f.fire("drag:mouseDown",{ev:h});}},_onMouseEnter:function(f){this._shimState=e.DD.DDM._noShim;e.DD.DDM._noShim=true;},_onMouseLeave:function(f){e.DD.DDM._noShim=this._shimState;},initializer:function(g){this._handles=[];var h=this.get("dragConfig")||{},f=this.get(c);h.node=a.cloneNode(true);h.bubbleTargets=this;if(this.get("handles")){h.handles=this.get("handles");}this.dd=new e.DD.Drag(h);this.dd.after("drag:end",e.bind(this._afterDragEnd,this));this.dd.on("dragNodeChange",e.bind(this._onNodeChange,this));this.dd.after("drag:mouseup",function(){this._unprep();});this._handles.push(e.delegate(e.DD.Drag.START_EVENT,e.bind(this._delMouseDown,this),f,this.get(b)));this._handles.push(e.on("mouseenter",e.bind(this._onMouseEnter,this),f));this._handles.push(e.on("mouseleave",e.bind(this._onMouseLeave,this),f));e.later(50,this,this.syncTargets);e.DD.DDM.regDelegate(this);},syncTargets:function(){if(!e.Plugin.Drop||this.get("destroyed")){return;}var g,f,h;if(this.get("target")){g=e.one(this.get(c)).all(this.get(b));f=this.dd.get("groups");h=this.get("dragConfig");if(h&&"groups" in h){f=h.groups;}g.each(function(j){this.createDrop(j,f);},this);}return this;},createDrop:function(h,f){var g={useShim:false,bubbleTargets:this};if(!h.drop){h.plug(e.Plugin.Drop,g);}h.drop.set("groups",f);return h;},destructor:function(){if(this.dd){this.dd.destroy();}if(e.Plugin.Drop){var f=e.one(this.get(c)).all(this.get(b));f.unplug(e.Plugin.Drop);}e.each(this._handles,function(g){g.detach();});}},{NAME:"delegate",ATTRS:{container:{value:"body"},nodes:{value:".dd-draggable"},invalid:{value:"input, select, button, a, textarea"},lastNode:{value:a},currentNode:{value:a},dragNode:{value:a},over:{value:false},target:{value:false},dragConfig:{value:null},handles:{value:null}}});e.mix(e.DD.DDM,{_delegates:[],regDelegate:function(f){this._delegates.push(f);},getDelegate:function(g){var f=null;g=e.one(g);e.each(this._delegates,function(h){if(g.test(h.get(c))){f=h;}},this);return f;}});e.namespace("DD");e.DD.Delegate=d;},"3.5.0",{skinnable:false,requires:["dd-drag","event-mouseenter","dd-drop-plugin"]});YUI.add('supra.dd-ddm', function (Y) {
+YUI.add("dd-delegate",function(e){var d=function(f){d.superclass.constructor.apply(this,arguments);},c="container",b="nodes",a=e.Node.create("<div>Temp Node</div>");e.extend(d,e.Base,{_bubbleTargets:e.DD.DDM,dd:null,_shimState:null,_handles:null,_onNodeChange:function(f){this.set("dragNode",f.newVal);},_afterDragEnd:function(f){e.DD.DDM._noShim=this._shimState;this.set("lastNode",this.dd.get("node"));this.get("lastNode").removeClass(e.DD.DDM.CSS_PREFIX+"-dragging");this.dd._unprep();this.dd.set("node",a);},_delMouseDown:function(h){var g=h.currentTarget,f=this.dd;if(g.test(this.get(b))&&!g.test(this.get("invalid"))){this._shimState=e.DD.DDM._noShim;e.DD.DDM._noShim=true;this.set("currentNode",g);f.set("node",g);if(f.proxy){f.set("dragNode",e.DD.DDM._proxy);}else{f.set("dragNode",g);}f._prep();f.fire("drag:mouseDown",{ev:h});}},_onMouseEnter:function(f){this._shimState=e.DD.DDM._noShim;e.DD.DDM._noShim=true;},_onMouseLeave:function(f){e.DD.DDM._noShim=this._shimState;},initializer:function(g){this._handles=[];var h=this.get("dragConfig")||{},f=this.get(c);h.node=a.cloneNode(true);h.bubbleTargets=this;if(this.get("handles")){h.handles=this.get("handles");}this.dd=new e.DD.Drag(h);this.dd.after("drag:end",e.bind(this._afterDragEnd,this));this.dd.on("dragNodeChange",e.bind(this._onNodeChange,this));this.dd.after("drag:mouseup",function(){this._unprep();});this._handles.push(e.delegate(e.DD.Drag.START_EVENT,e.bind(this._delMouseDown,this),f,this.get(b)));this._handles.push(e.on("mouseenter",e.bind(this._onMouseEnter,this),f));this._handles.push(e.on("mouseleave",e.bind(this._onMouseLeave,this),f));e.later(50,this,this.syncTargets);e.DD.DDM.regDelegate(this);},syncTargets:function(){if(!e.Plugin.Drop||this.get("destroyed")){return;}var g,f,h;if(this.get("target")){g=e.one(this.get(c)).all(this.get(b));f=this.dd.get("groups");h=this.get("dragConfig");if(h&&"groups" in h){f=h.groups;}g.each(function(j){this.createDrop(j,f);},this);}return this;},createDrop:function(h,f){var g={useShim:false,bubbleTargets:this};if(!h.drop){h.plug(e.Plugin.Drop,g);}h.drop.set("groups",f);return h;},destructor:function(){if(this.dd){this.dd.destroy();}if(e.Plugin.Drop){var f=e.one(this.get(c)).all(this.get(b));f.unplug(e.Plugin.Drop);}e.each(this._handles,function(g){g.detach();});}},{NAME:"delegate",ATTRS:{container:{value:"body"},nodes:{value:".dd-draggable"},invalid:{value:"input, select, button, a, textarea"},lastNode:{value:a},currentNode:{value:a},dragNode:{value:a},over:{value:false},target:{value:false},dragConfig:{value:null},handles:{value:null}}});e.mix(e.DD.DDM,{_delegates:[],regDelegate:function(f){this._delegates.push(f);},getDelegate:function(g){var f=null;g=e.one(g);e.each(this._delegates,function(h){if(g.test(h.get(c))){f=h;}},this);return f;}});e.namespace("DD");e.DD.Delegate=d;},"3.5.0",{skinnable:false,requires:["dd-drag","event-mouseenter","dd-drop-plugin"]});/*
+YUI 3.5.0 (build 5089)
+Copyright 2012 Yahoo! Inc. All rights reserved.
+Licensed under the BSD License.
+http://yuilibrary.com/license/
+*/
+YUI.add("jsonp",function(c){var b=c.Lang.isFunction;function a(){this._init.apply(this,arguments);}a.prototype={_init:function(d,f){this.url=d;this._requests={};this._timeouts={};f=(b(f))?{on:{success:f}}:f||{};var e=f.on||{};if(!e.success){e.success=this._defaultCallback(d,f);}this._config=c.merge({context:this,args:[],format:this._format,allowCache:false},f,{on:e});},_defaultCallback:function(){},send:function(){var d=this,g=c.Array(arguments,0,true),f=d._config,h=d._proxy||c.guid(),e;if(f.allowCache){d._proxy=h;}if(d._requests[h]===undefined){d._requests[h]=0;}if(d._timeouts[h]===undefined){d._timeouts[h]=0;}d._requests[h]++;g.unshift(d.url,"YUI.Env.JSONP."+h);e=f.format.apply(d,g);if(!f.on.success){return d;}function i(k,j){return(b(k))?function(n){var m=true,l="_requests";if(j){++d._timeouts[h];--d._requests[h];}else{if(!d._requests[h]){m=false;l="_timeouts";}--d[l][h];}if(!d._requests[h]&&!d._timeouts[h]){delete YUI.Env.JSONP[h];}if(m){k.apply(f.context,[n].concat(f.args));}}:null;}YUI.Env.JSONP[h]=i(f.on.success);c.Get.script(e,{onFailure:i(f.on.failure),onTimeout:i(f.on.timeout,true),timeout:f.timeout,charset:f.charset,attributes:f.attributes});return d;},_format:function(d,e){return d.replace(/\{callback\}/,e);}};c.JSONPRequest=a;c.jsonp=function(d,f){var e=new c.JSONPRequest(d,f);return e.send.apply(e,c.Array(arguments,2,true));};if(!YUI.Env.JSONP){YUI.Env.JSONP={};}},"3.5.0",{requires:["get","oop"]});/*
+YUI 3.5.0 (build 5089)
+Copyright 2012 Yahoo! Inc. All rights reserved.
+Licensed under the BSD License.
+http://yuilibrary.com/license/
+*/
+YUI.add("jsonp-url",function(d){var a=d.JSONPRequest,c=d.Object.getValue,b=function(){};d.mix(a.prototype,{_pattern:/\bcallback=(.*?)(?=&|$)/i,_template:"callback={callback}",_defaultCallback:function(g){var f=g.match(this._pattern),j=[],h=0,e,k,l;if(f){e=f[1].replace(/\[(['"])(.*?)\1\]/g,function(m,i,n){j[h]=n;return".@"+(h++);}).replace(/\[(\d+)\]/g,function(m,i){j[h]=parseInt(i,10)|0;return".@"+(h++);}).replace(/^\./,"");if(!/[^\w\.\$@]/.test(e)){k=e.split(".");for(h=k.length-1;h>=0;--h){if(k[h].charAt(0)==="@"){k[h]=j[parseInt(k[h].substr(1),10)];}}l=c(d.config.win,k)||c(d,k)||c(d,k.slice(1));}}return l||b;},_format:function(e,g){var h=this._template.replace(/\{callback\}/,g),f;if(this._pattern.test(e)){return e.replace(this._pattern,h);}else{f=e.slice(-1);if(f!=="&"&&f!=="?"){e+=(e.indexOf("?")>-1)?"&":"?";}return e+h;}}},true);},"3.5.0",{requires:["jsonp"]});YUI.add('supra.dd-ddm', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -2391,66 +2403,100 @@ YUI.add('supra.event', function (Y) {
 		
 		//Set callbacks
 		cfg.on.success = function (transaction, response) {
-
-			var response = Supra.io.parseResponse(url, cfg, response.responseText);
+			
+			if (cfg.transportMethod != 'jsonp') {
+				// Second argument is data as string
+				var response = Supra.io.parseResponse(url, cfg, response.responseText);
+			} else {
+				// First argument is data as object/array/etc
+				var response = Supra.io.parseResponse(url, cfg, transaction);
+			}
 			return Supra.io.handleResponse(cfg, response);
 
 		};
 		cfg.on.failure = function (transaction, response) {
 
-			if (response.status == 401) {
-				//Authentication error, session expired
-				Y.log('Session expired', 'info');
-				
-				var pre_filter_message = response.getResponseHeader('X-Authentication-Pre-Filter-Message');
-				var pre_filter_redirect_url = response.getResponseHeader('X-Authentication-Pre-Filter-Redirect');
-				
-				//If there is authentication message then this was login request
-				//which shouldn't be queued
-				if (!pre_filter_message) {
-					Supra.io.loginRequestQueue.add(args);
-				}
-				
-				return Supra.io.handleResponse(cfg, {
-					'status': response.status,
-					'success': false,
-					'data': null,
-					'error_message': pre_filter_message,
-					'redirect_url': pre_filter_redirect_url
-				});
-				
-			} else {
-				//Invalid response
-				Y.log('Request to "' + url + '" failed', 'debug');
-				
-				if (response.responseText) {
+			if (cfg.transportMethod != 'jsonp') {
+				// XHR request
+				if (response.status == 401) {
+					//Authentication error, session expired
+					Y.log('Session expired', 'info');
 					
-					var response = Supra.io.parseResponse(url, cfg, response.responseText);
-					response.status = false;
+					var pre_filter_message = response.getResponseHeader('X-Authentication-Pre-Filter-Message');
+					var pre_filter_redirect_url = response.getResponseHeader('X-Authentication-Pre-Filter-Redirect');
 					
-					return Supra.io.handleResponse(cfg, response);
-					
-				} else {
+					//If there is authentication message then this was login request
+					//which shouldn't be queued
+					if (!pre_filter_message) {
+						Supra.io.loginRequestQueue.add(args);
+					}
 					
 					return Supra.io.handleResponse(cfg, {
-						'status': 0,
+						'status': response.status,
 						'success': false,
 						'data': null,
-						'error_message': ERROR_INVALID_RESPONSE
+						'error_message': pre_filter_message,
+						'redirect_url': pre_filter_redirect_url
 					});
+					
+				} else {
+					//Invalid response
+					Y.log('Request to "' + url + '" failed', 'debug');
+					
+					if (response.responseText) {
+						
+						var response = Supra.io.parseResponse(url, cfg, response.responseText);
+						response.status = false;
+						
+						return Supra.io.handleResponse(cfg, response);
+						
+					} else {
+						
+						return Supra.io.handleResponse(cfg, {
+							'status': 0,
+							'success': false,
+							'data': null,
+							'error_message': ERROR_INVALID_RESPONSE
+						});
+					}
+					
 				}
+			} else {
+				// JSONP request
+				Y.log('Request to "' + url + '" failed', 'debug');
 				
+				return Supra.io.handleResponse(cfg, {
+					'status': 0,
+					'success': false,
+					'data': null,
+					'error_message': ERROR_INVALID_RESPONSE
+				});
 			}
 		};
 		
-		io = Y.io(url, cfg);
-		
-		io.supra_cfg = cfg;
-		io._abort = io.abort;
-		io.abort = Supra.io.abort;
-		
-		// Apply promise functionality to io object
-		cfg.deferred.promise(io);
+		if (cfg.transportMethod === 'jsonp' && cfg.method === 'post') {
+			// Trying to send jsonp POST request, currently not supported!
+			// Invalid request
+			Y.log('Request to "' + url + '" failed, because POST request can not be sent through JSONP', 'debug');
+			
+			io.supra_cfg = cfg;
+			io._abort = io.abort;
+			io.abort = Supra.io.abort;
+			
+			// Apply promise functionality to io object
+			cfg.deferred.promise(io);
+			
+			io.rejectWith(cfg.context, [null, false]);
+		} else {
+			io = Y[cfg.transportMethod](url, cfg);
+			
+			io.supra_cfg = cfg;
+			io._abort = io.abort;
+			io.abort = Supra.io.abort;
+			
+			// Apply promise functionality to io object
+			cfg.deferred.promise(io);
+		}
 		
 		return io;
 	};
@@ -2518,12 +2564,20 @@ YUI.add('supra.event', function (Y) {
 			'sync': false,
 			'context': context,
 			'suppress_errors': false,
+			'transportMethod': 'io',
 			'on': {
 				'success': callback,
 				'failure': null,
 				'complete': null
 			}
 		};
+		
+		//External request ?
+		if (url.indexOf('http') == 0 && url.indexOf(document.location.protocol + '//' + document.location.hostname) == -1) {
+			cfg_new.type = 'jsonplain';
+			cfg_new.transportMethod = 'jsonp';
+			cfg_new.method = 'get';
+		}
 		
 		//Save context and remove from config to avoid traversing them on Supra.mix
 		context = cfg.context || cfg_new.context;
@@ -2551,18 +2605,18 @@ YUI.add('supra.event', function (Y) {
 			response = {'status': false, 'data': null};
 		
 		//Localization, unless in configuration skipIntl is set
-		if (responseText.indexOf('{#') !== -1 && (!cfg || !cfg.skipIntl)) {
+		if (responseText.indexOf && responseText.indexOf('{#') !== -1 && (!cfg || !cfg.skipIntl)) {
 			responseText = Supra.Intl.replace(responseText, 'json');
 		}
 		
 		try {
 			switch((cfg.type || '').toLowerCase()) {
 				case 'json':
-					data = Y.JSON.parse(responseText);
+					data = typeof responseText === 'object' ? responseText : Y.JSON.parse(responseText);
 					Supra.mix(response, data);
 					break;
 				case 'jsonplain':
-					data = Y.JSON.parse(responseText);
+					data = typeof responseText === 'object' ? responseText : Y.JSON.parse(responseText);
 					Supra.mix(response, {'status': true, 'data': data});
 					break;
 				default:
@@ -2885,7 +2939,7 @@ YUI.add('supra.event', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ["io", "json"]});YUI.add('supra.intl', function (Y) {
+}, YUI.version, {requires: ["io", "json", "jsonp", "jsonp-url"]});YUI.add('supra.intl', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -6484,11 +6538,20 @@ YUI().add("supra.io-css", function (Y) {
 				this.set('inputNode', inp);
 			}
 			
+			// Craete description element
+			if (inp && !descr && this.DESCRIPTION_TEMPLATE) {
+				var description = this.get('description');
+				if (description) {
+					descr = Y.Node.create(this.DESCRIPTION_TEMPLATE);
+					this.set('descriptionNode', descr);
+				}
+			}
 			if (descr && inp) {
 				descr.addClass('description');
 				inp.insert(descr, 'after');
 			}
 			
+			// Create label element
 			if (inp && !lbl && this.LABEL_TEMPLATE) {
 				var id = inp.getAttribute('id');
 				
@@ -6828,6 +6891,22 @@ YUI().add("supra.io-css", function (Y) {
 		 */
 		validate: function () {
 			//@TODO
+		},
+		
+		/**
+		 * Start editing input
+		 */
+		startEditing: function () {
+			if (!this.get('disabled')) {
+				this.focus();
+			}
+		},
+		
+		/**
+		 * Stop editing input
+		 */
+		stopEditing: function () {
+			this.blur();
 		},
 		
 		/**
@@ -13239,6 +13318,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (data && data.video) {
 				// 'video' is input name
 				this.htmleditor.setData(id, Supra.mix({'type': this.NAME}, data.video));
+				this.updateVideoPreview(this.selected_video, data.video);
 			}
 			
 			//
@@ -13254,6 +13334,24 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Button is not down anymore
 			var button = this.htmleditor.get('toolbar').getButton('insertvideo');
 			if (button) button.set('down', false);
+		},
+		
+		/**
+		 * Update video preview image
+		 * 
+		 * @param {Object} node Video element
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoPreview: function (node, data) {
+			this.getVideoPreviewUrl(data).always(function (url) {
+				if (url) {
+					// Using setAttribute because it's not possible to use !important in styles
+					node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important;')
+				} else {
+					node.removeAttribute('style');
+				}
+			}, this);
 		},
 		
 		
@@ -13320,7 +13418,13 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Properties form
 			var form_config = {
 				"inputs": [
-					{"id": "video", "type": "Video", "label": Supra.Intl.get(["htmleditor", "video_source"]), "value": ""}
+					{
+						"id": "video",
+						"type": "Video",
+						"label": Supra.Intl.get(["htmleditor", "video_source"]),
+						"description": Supra.Intl.get(["htmleditor", "video_description"]),
+						"value": ""
+					}
 				],
 				"style": "vertical"
 			};
@@ -13455,6 +13559,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//Hide link manager when editor is closed
 			htmleditor.on('disable', this.hideVideoSettings, this);
+			
+			// When HTML changes make sure video previews are set
+			htmleditor.on("afterSetHTML", this.afterSetHTML, this);
 		},
 		
 		/**
@@ -13465,6 +13572,89 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		
 		
 		/* --------------------------- PARSER --------------------------- */
+		
+		
+		/**
+		 * Update video previews
+		 * 
+		 * @private
+		 */
+		afterSetHTML: function () {
+			var htmleditor = this.htmleditor,
+				data = htmleditor.getAllData(),
+				id,
+				srcNode = htmleditor.get('srcNode'),
+				node = null;
+			
+			for(id in data) {
+				if (data[id].type == this.NAME) {
+					node = srcNode.one('#' + id);
+					if (node) {
+						this.updateVideoPreview(node, data[id]);
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Extract image url from video data
+		 * 
+		 * @param {Object} data Video data
+		 * @returns {String} Image url
+		 */
+		getVideoPreviewUrl: function (data) {
+			var service = null,
+				video_id = null,
+				match = null,
+				
+				// http://youtu.be/...
+				// http://www.youtube.com/v/...
+				// http://www.youtube.com/...?v=...
+				regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be\/|youtube.[a-z]+)\/(v\/|.*\&v=|.*\?v=)([a-z0-9_\-]+)/i,
+				// http://vimeo.com/...
+				regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+				
+				deferred = new Supra.Deferred();
+			
+			if (data) {
+				if (data.resource == "link") {
+					service = data.service;
+					video_id = data.id;
+				} else if (data.resource == "source") {
+					if (match = data.source.match(regex_youtube)) {
+						service = 'youtube';
+						video_id = match[5];
+					} else if (match = data.source.match(regex_vimeo)) {
+						service = 'vimeo';
+						video_id = match[5];
+					}
+				}
+			}
+			
+			if (service == 'youtube') {
+				deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
+			} else if (service == 'vimeo') {
+				//
+				var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
+				Supra.io(url, {
+					'suppress_errors': true, // don't display errors
+					'context': this,
+					'on': {
+						'complete': function (data, success) {
+							if (data && data[0]) {
+								deferred.resolveWith(this, [data[0].thumbnail_large]);
+							} else {
+								deferred.rejectWith(this, []);
+							}
+						}
+					}
+				});
+			} else {
+				deferred.rejectWith(this, []);
+			}
+			
+			return deferred.promise();
+		},
 		
 		
 		/**
@@ -13508,7 +13698,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			html = html.replace(/{supra\.video id="([^"]+)"}/ig, function (tag, id) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
-				
 				return '<div id="' + id + '" class="supra-video yui3-box-reset su-uneditable" tabindex="0"></div>';
 			});
 			
@@ -28348,6 +28537,13 @@ YUI.add('supra.datatype-color', function(Y) {
 		"editImageAutomatically": {
 			value: true,
 			setter: "_setEditImageAutomatically"
+		},
+		/**
+		 * Render widget into separate slide and add
+		 * button to the place where this widget should be
+		 */
+		"separateSlide": {
+			value: true
 		}
 	};
 	
@@ -28405,18 +28601,23 @@ YUI.add('supra.datatype-color', function(Y) {
 			inputNode.insert(selectList.get("boundingBox"), "before");
 			selectList.buttons._custom.hide();
 			
-			// Button "Custom image"
-			var buttonCustom = new Supra.Button({
-				"label": Supra.Intl.get(["form", "block", "custom_image"]),
-				"style": "small-gray"
-			});
-			buttonCustom.addClass("button-section");
-			buttonCustom.on("click", this.openSlide, this);
-			buttonCustom.render(renderTarget);
-			inputNode.insert(buttonCustom.get("boundingBox"), "before");
-			
 			this.widgets.selectList = selectList;
-			this.widgets.buttonCustom = buttonCustom;
+			
+			// Button "Custom image"
+			if (this.get('separateSlide')) {
+				var buttonCustom = new Supra.Button({
+					"label": Supra.Intl.get(["form", "block", "custom_image"]),
+					"style": "small-gray"
+				});
+				buttonCustom.addClass("button-section");
+				buttonCustom.on("click", this.openSlide, this);
+				buttonCustom.render(renderTarget);
+				inputNode.insert(buttonCustom.get("boundingBox"), "before");
+				
+				this.widgets.buttonCustom = buttonCustom;
+			} else {
+				this.openSlide();
+			}
 			
 			//Handle value attribute change
 			selectList.on("valueChange", this._afterValueChange, this);
@@ -28499,7 +28700,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		/**
 		 * Start image editing
 		 */
-		editImage: function () {
+		startEditing: function () {
 			var imageResizer = this.widgets.imageResizer,
 				block = this.get("root"),
 				node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
@@ -28538,8 +28739,11 @@ YUI.add('supra.datatype-color', function(Y) {
 		/**
 		 * Stop editing image
 		 */
-		stopEditingImage: function () {
-			imageResizer.set("image", null);
+		stopEditing: function () {
+			var imageResizer = this.widgets.imageResizer;
+			if (imageResizer) {
+				imageResizer.set("image", null);
+			}
 		},
 		
 		/**
@@ -28653,7 +28857,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				//Small delay to allow media library to close before doing anything
 				Y.later(100, this, function () {
 					if (this._hasImage()) {
-						this.editImage();
+						this.startEditing();
 					}
 				});
 			}
@@ -28670,12 +28874,18 @@ YUI.add('supra.datatype-color', function(Y) {
 			var slideshow = this.getSlideshow(),
 				slide = this.getSlideshowSlide();
 			
-			if (slideshow && slide) {
+			if (!this.get('separateSlide')) {
+				
+				if (this.get("editImageAutomatically") && this._hasImage()) {
+					this.startEditing();
+				}
+				
+			} else if (slideshow && slide) {
 				
 				slideshow.set("slide", this.get("id") + "_slide");
 				
 				if (this.get("editImageAutomatically") && this._hasImage()) {
-					this.editImage();
+					this.startEditing();
 				}
 				
 			}
@@ -28705,12 +28915,22 @@ YUI.add('supra.datatype-color', function(Y) {
 				has_image = this._hasImage(),
 				slide = null,
 				slide_id = this.get("id") + "_slide",
-				button = null;
-			
-			if (slideshow) {
-				slide = this.slide = slideshow.addSlide(slide_id);
-				slide = slide.one(".su-slide-content");
+				button = null,
+				separate = this.get('separateSlide'),
 				
+				container = null,
+				boundingBox = null;
+			
+			if (slideshow || !separate) {
+				if (separate) {
+					slide = this.slide = slideshow.addSlide(slide_id);
+					container = slide.one(".su-slide-content");
+				} else {
+					boundingBox = this.get('boundingBox');
+					container = boundingBox.ancestor();
+				}
+				
+				console.log(boundingBox.getDOMNode(), container.getDOMNode());
 				//Set button
 				button = this.widgets.buttonSet = (new Supra.Button({
 					"label": Supra.Intl.get(["form", "block", "set_image"]),
@@ -28718,17 +28938,25 @@ YUI.add('supra.datatype-color', function(Y) {
 				}));
 				button.on("click", this.openMediaSidebar, this);
 				button.addClass("button-section")
-				button.render(slide);
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
 				
 				//Edit button
 				button = this.widgets.buttonEdit = (new Supra.Button({
 					"label": Supra.Intl.get(["form", "block", "edit_image"]),
 					"style": "small"
 				}));
-				button.on("click", this.editImage, this);
+				button.on("click", this.startEditing, this);
 				button.addClass("button-section");
 				button.set("disabled", !has_image);
-				button.render(slide);
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
 				
 				if (this.get("editImageAutomatically")) {
 					button.hide();
@@ -28741,14 +28969,20 @@ YUI.add('supra.datatype-color', function(Y) {
 				}));
 				button.on("click", this.removeImage, this);
 				button.set("disabled", !has_image);
-				button.render(slide);
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
 				
 				//When slide is hidden stop editing image
-				slideshow.on("slideChange", function (evt) {
-					if (evt.prevVal == slide_id && this.widgets.imageResizer) {
-						this.widgets.imageResizer.set("image", null);
-					}
-				}, this);
+				if (!separate) {
+					slideshow.on("slideChange", function (evt) {
+						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
+							this.widgets.imageResizer.set("image", null);
+						}
+					}, this);
+				}
 				
 				return slide;
 			}
@@ -28828,11 +29062,14 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (this.image) {
 				var block = this.get("root"),
 					node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
-					size = this.image.image.sizes.original;
+					image = this.image,
+					size = image.image.sizes.original;
 				
 				if (node && size) {
-					node.setStyles({
-						'backgroundImage': 'url(' + size.external_path + ')'
+					node.setStyles({	
+						'backgroundImage': 'url(' + size.external_path + ')',
+						'backgroundSize': image.size_width + 'px ' + image.size_height + 'px',
+						'backgroundPosition': -image.crop_left + 'px ' + (-image.crop_top) + 'px'
 					});
 				}
 			}
@@ -29005,16 +29242,20 @@ YUI.add('supra.datatype-color', function(Y) {
 				value = this.get("value");
 			
 			// Button "Custom image"
-			var buttonCustom = new Supra.Button({
-				"label": Supra.Intl.get(["form", "block", "custom_image"]),
-				"style": "small-gray"
-			});
-			buttonCustom.addClass("button-section");
-			buttonCustom.on("click", this.openSlide, this);
-			buttonCustom.render(renderTarget);
-			inputNode.insert(buttonCustom.get("boundingBox"), "before");
-			
-			this.widgets.buttonCustom = buttonCustom;
+			if (this.get('separateSlide')) {
+				var buttonCustom = new Supra.Button({
+					"label": Supra.Intl.get(["form", "block", "custom_image"]),
+					"style": "small-gray"
+				});
+				buttonCustom.addClass("button-section");
+				buttonCustom.on("click", this.openSlide, this);
+				buttonCustom.render(renderTarget);
+				inputNode.insert(buttonCustom.get("boundingBox"), "before");
+				
+				this.widgets.buttonCustom = buttonCustom;
+			} else {
+				this.openSlide();
+			}
 		},
 		
 		/* ----------------------------- Image edit ------------------------------- */
@@ -29023,10 +29264,11 @@ YUI.add('supra.datatype-color', function(Y) {
 		/**
 		 * Start image editing
 		 */
-		editImage: function () {
+		startEditing: function () {
 			var imageResizer = this.widgets.imageResizer,
 				node = this.get("targetNode"),
-				size = this.image.image.sizes.original;
+				size = this.image.image.sizes.original,
+				container_width = size.width;
 			
 			if (!node) {
 				return;
@@ -29052,6 +29294,9 @@ YUI.add('supra.datatype-color', function(Y) {
 				}, this);
 			}
 			
+			container_width = Math.min(node.ancestor().get("offsetWidth") || size.width, size.width);
+			
+			imageResizer.set("maxCropWidth", container_width);
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
@@ -29090,7 +29335,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				//Small delay to allow media library to close before doing anything
 				Y.later(100, this, function () {
 					if (this._hasImage()) {
-						this.editImage();
+						this.startEditing();
 					}
 				});
 			}
@@ -29290,6 +29535,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		widgets: null,
 		
+		
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
@@ -29297,7 +29543,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			var source = this.widgets.source = new Supra.Input.Text({
 				'label': this.get('label'),
-				'value': this.get('value').source
+				'value': this.get('value').source,
+				'description': this.get('description'),
+				'parent': this
 			});
 			
 			source.render(this.get('contentBox'));
@@ -29390,6 +29638,28 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 		},
 		
+		/**
+		 * Description attribute setter
+		 * Set description on source input not this element
+		 * 
+		 * @param {String} descr Description text
+		 * @return New description
+		 * @type {String}
+		 * @private
+		 */
+		_setDescription: function (descr) {
+			if (this.widgets && this.widgets.source) {
+				this.widgets.source.set('description', descr);
+			}
+			return descr;
+		},
+		
+		/**
+		 * When widgets value changes update value for self
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
 		_onWidgetsChange: function (evt) {
 			if (evt.prevVal != evt.newVal) {
 				this.set('value', this.get('value'));

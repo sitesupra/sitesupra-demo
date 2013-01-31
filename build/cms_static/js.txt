@@ -103,6 +103,8 @@
 /cms/lib/yui.3.5.0/build/dd-scroll/dd-scroll-min.js
 /cms/lib/yui.3.5.0/build/dd-drop-plugin/dd-drop-plugin-min.js
 /cms/lib/yui.3.5.0/build/dd-delegate/dd-delegate-min.js
+/cms/lib/yui.3.5.0/build/jsonp/jsonp-min.js
+/cms/lib/yui.3.5.0/build/jsonp-url/jsonp-url-min.js
 /cms/lib/supra/build/dd-ddm/dd-ddm.js
 /cms/lib/supra/build/event/event.js
 /cms/lib/supra/build/io/io.js

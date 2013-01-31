@@ -106,7 +106,7 @@ Supra.useModules = [
 	'supra.base',					// + base, node
 	'supra.panel',					// + supra.button, widget, overlay
 	'supra.permission',
-	'supra.io',						// + io, json
+	'supra.io',						// + io, json, jsonp
 	'supra.io-session',
 	'supra.io-css',
 	'supra.dom',
@@ -163,7 +163,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	
 	'supra.io': {
 		path: 'io/io.js',
-		requires: ['io', 'json']
+		requires: ['io', 'json', 'jsonp', 'jsonp-url']
 	},
 	'supra.io-session': {
 		path: 'io/session.js',

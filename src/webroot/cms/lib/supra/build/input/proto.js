@@ -169,11 +169,20 @@ YUI.add('supra.input-proto', function (Y) {
 				this.set('inputNode', inp);
 			}
 			
+			// Craete description element
+			if (inp && !descr && this.DESCRIPTION_TEMPLATE) {
+				var description = this.get('description');
+				if (description) {
+					descr = Y.Node.create(this.DESCRIPTION_TEMPLATE);
+					this.set('descriptionNode', descr);
+				}
+			}
 			if (descr && inp) {
 				descr.addClass('description');
 				inp.insert(descr, 'after');
 			}
 			
+			// Create label element
 			if (inp && !lbl && this.LABEL_TEMPLATE) {
 				var id = inp.getAttribute('id');
 				
@@ -513,6 +522,22 @@ YUI.add('supra.input-proto', function (Y) {
 		 */
 		validate: function () {
 			//@TODO
+		},
+		
+		/**
+		 * Start editing input
+		 */
+		startEditing: function () {
+			if (!this.get('disabled')) {
+				this.focus();
+			}
+		},
+		
+		/**
+		 * Stop editing input
+		 */
+		stopEditing: function () {
+			this.blur();
 		},
 		
 		/**
