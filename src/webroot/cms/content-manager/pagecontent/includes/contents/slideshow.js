@@ -320,6 +320,65 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		 * @private
 		 */
 		getSlideProperties: function () {
+			// @TODO Remove following temporary data
+			return [{
+          		'id': 'layout',
+          		'type': 'SelectVisual',
+          		'label': 'Layout',
+          		'defaultValue': 'bg_text_left',
+          		'separateSlide': true,
+          		'values': [{
+  					'id': 'bg',
+  					'title': 'Background image only',
+  					'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg.png'
+  				}, {
+  					'id': 'bg_text',
+  					'title': 'Background image and text',
+  					'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text.png',
+  					'values': [{
+  						'id': 'bg_text_left',
+  						'title': 'Text on left side',
+  						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-left.png'
+  					}, {
+  						'id': 'bg_text_right',
+  						'title': 'Text on right side',
+  						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-right.png'
+  					}]
+  				}]
+          	}, {
+          		'id': 'background',
+          		'type': 'BlockBackground',
+          		'label': 'Background image'
+          	}, {
+          		'id': 'text_main',
+          		'type': 'InlineHTML',
+          		'label': 'Main text',
+          		'defaultValue': {
+          			'data': {},
+          			'html': '<h1>Lorem ipsum</h1><h2>Dolor sit amet</h2><p>Lid est laborum dolo es fugats untras. Et harums quidem rerum facilisdolores nemis omnis fugiats vitaro minimarerums unsers sadips dolores sitsers untra nemi amets.</p>'
+          		},
+          		'inline': true
+          	}, {
+          		'id': 'text_top',
+          		'type': 'InlineHTML',
+          		'label': 'Top text',
+          		'defaultValue': {
+          			'data': {},
+          			'html': '<h1>Lorem ipsum</h1><h2>Dolor sit amet</h2><p>Lid est laborum dolo es fugats untras. Et harums quidem rerum facilisdolores nemis omnis fugiats vitaro minimarerums unsers sadips dolores sitsers untra nemi amets.</p>'
+          		},
+          		'inline': true
+          	}, {
+          		'id': 'media',
+          		'type': 'InlineMedia',
+          		'label': 'Image or video'
+          	}/*, {
+          		'id': 'image',
+          		'type': 'InlineImage',
+          		'label': 'Image'
+          	}*/];
+          	
+          	
+          	
 			var block = this.getBlockInfo(),
 				properties = block.properties,
 				i = 0,
@@ -343,6 +402,20 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		 * @private
 		 */
 		getSlideLayouts: function () {
+			// @TODO Remove following temporary data
+			return [{
+					'id': 'bg',
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /></div></li>'
+          		}, {
+					'id': 'bg_text_left',
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}</div><div class="as-layer as-layer-right-large">{{ property.media }}</div></li>'
+          		}, {
+					'id': 'bg_text_right',
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}</div></li>'
+          		}];
+          		
+          		
+          		
 			var block = this.getBlockInfo(),
 				properties = block.properties,
 				i = 0,
@@ -391,6 +464,8 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		processData: function (data) {
 			var property   = this.getPropertyName();
 			
+			console.log('DATA BEFORE:', Supra.mix({}, data, true));
+			
 			// Shared property, can't edit?
 			if (this.properties.isPropertyShared(property)) {
 				data[property] = [];
@@ -400,7 +475,8 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			var items      = [],
 				item       = {},
 				properties = this.getSlideProperties(),
-				kk         = properties.length;
+				kk         = properties.length,
+				prop       = null;
 			
 			//Default data
 			data[property] = data[property] || [];
@@ -408,19 +484,26 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			//Extract only image ID and properties, remove all other data
 			for(var i=0,ii=data[property].length; i<ii; i++) {
 				// deep clone
-				item = Supra.mix({'properties': {}}, data[property][i], true);
+				item = Supra.mix({}, data[property][i], true);
 				items.push(item);
 				
 				for(var k=0; k<kk; k++) {
-					item.properties[properties[k].id] = data[property][i].properties[properties[k].id] || '';
+					if (properties[k].type === 'InlineImage' || properties[k].type === 'BlockBackground') {
+						// Send only image id instead of full image data
+						prop = item[properties[k].id];
+						if (prop && prop.image && prop.image.image) {
+							prop.image.image = prop.image.image.id;
+						}
+						
+						//item[properties[k].id] = item[properties[k].id] || '';
+					}
 				}
 			}
 			
-			if (items.length == 0) {
-				items = 0;
-			}
-			
 			data[property] = items;
+			
+			console.log('DATA AFTER:', data);
+			
 			return data;
 		},
 		

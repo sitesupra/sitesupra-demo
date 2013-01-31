@@ -35,7 +35,14 @@
 			"image_label": "Edit image",
 			
 			"video_label": "Paste the URL of a video or embed code",
-			"video_description": "Paste the URL of the video page on Youtube or Vimeo or paste the HTML embed code"
+			"video_description": "Paste the URL of the video page on Youtube or Vimeo or paste the HTML embed code",
+			
+			"media": {
+				"add_image": "Add image",
+				"add_video": "Add video",
+				"delete_image": "Delete image",
+				"delete_video": "Delete video"
+			}
 		},
 		
 		"error": {

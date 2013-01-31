@@ -10921,7 +10921,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			var minImageWidth = 0,
 				minImageHeight = 0;
 				
-			if (this.get('allowZoomResize')) {
+			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND) {
 				minImageWidth = this.minImageWidth;
 				minImageHeight = this.minImageHeight;
 			} else {
@@ -10950,7 +10950,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				minImageWidth = 0,
 				minImageHeight = 0;
 			
-			if (this.get('allowZoomResize')) {
+			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND) {
 				minImageWidth = this.minImageWidth;
 				minImageHeight = this.minImageHeight;
 			} else {
@@ -28589,12 +28589,15 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			var inputNode = this.get("inputNode"),
 				renderTarget = inputNode.get("parentNode"),
+				values = this.getBackgroundStyles(),
 				value = this.get("value");
 			
 			// Select list
+			// Visible only if there are other options than "No image" and "Custom"
 			var selectList = new Supra.Input.SelectVisual({
-				"values": this.getBackgroundStyles(),
-				"value": value ? (value.image ? "_custom" : value.classname || "") : ""
+				"values": values,
+				"value": value ? (value.image ? "_custom" : value.classname || "") : "",
+				"visible": values.length > 2
 			});
 			
 			selectList.render(renderTarget);
@@ -28680,16 +28683,21 @@ YUI.add('supra.datatype-color', function(Y) {
 			} else {
 				//Not part of block properties, search for Action
 				var parent = this.getParentWidget("ActionBase");
-				if (parent  && parent.plugins.getPlugin("PluginSidebar")) {
+				if (parent && parent.plugins.getPlugin("PluginSidebar")) {
 					//Has sidebar plugin, so this action is in sidebar
 					if (parent.get("frozen")) {
 						//In frozen state show/execute are not called, so we have to
 						//force it to show content
 						parent.showFrozen();
+						parent.set("frozen", false);
 					} else {
 						parent.execute();
 					}
 				}
+			}
+			
+			if (this.image) {
+				this.startEditing();
 			}
 		},
 		
@@ -28750,6 +28758,8 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * Remove selected image
 		 */
 		removeImage: function () {
+			this.stopEditing();
+			
 			this.set("value", {
 				"classname": "",
 				"image": null
@@ -28799,6 +28809,33 @@ YUI.add('supra.datatype-color', function(Y) {
 			return result;
 		},
 		
+		/**
+		 * Apply image styles after input value changes
+		 * 
+		 * @private
+		 */
+		applyImageStyle: function (image) {
+			var styles = {'backgroundImage': 'none', 'backgroundSize': 'auto', 'backgroundPosition': '0 0'},
+				block = this.get("root"),
+				node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
+				size = null;
+			
+			if (node) {
+				if (image) {
+					size = image.image.sizes.original;
+					if (size) {
+						styles = {	
+							'backgroundImage': 'url(' + size.external_path + ')',
+							'backgroundSize': image.size_width + 'px ' + image.size_height + 'px',
+							'backgroundPosition': -image.crop_left + 'px ' + (-image.crop_top) + 'px'
+						};
+					}
+				}
+				
+				node.setStyles(styles);
+			}
+		},
+		
 		
 		/* ---------------------------- Media sidebar ------------------------------ */
 		
@@ -28807,13 +28844,24 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * Set image
 		 */
 		openMediaSidebar: function () {
-			//Close settings form
+			// Close settings form
 			var properties = this.getPropertiesWidget();
 			if (properties) {
 				properties.hidePropertiesForm({
 					"keepToolbarButtons": true // we keep them because settings sidebar is hidden temporary
 				});
+			} else {
+				// Not part of block properties, search for Action
+				var parent = this.getParentWidget("ActionBase");
+				if (parent && parent.plugins.getPlugin("PluginSidebar")) {
+					// Freeze to prevent from closing, so that we can restore the state
+					// after media sidebar is closed
+					parent.set("frozen", true);
+				}
 			}
+			
+			// Stop editing image
+			this.stopEditing();
 			
 			//Open MediaSidebar
 			var mediasidebar = Supra.Manager.getAction("MediaSidebar"),
@@ -28822,15 +28870,11 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			mediasidebar.execute({
 				"onselect": Y.bind(this.insertImage, this),
+				"onclose": Y.bind(this.showSettingsSidebar, this),
 				"hideToolbar": true,
 				"item": path,
 				"dndEnabled": false
 			});
-			
-			//When media library is hidden show settings form again
-			mediasidebar.once("hide", function () {
-				this.showSettingsSidebar();
-			}, this);
 		},
 		
 		/**
@@ -28902,6 +28946,22 @@ YUI.add('supra.datatype-color', function(Y) {
 		},
 		
 		/**
+		 * When slideshow slide changes back then stop editing
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		onSlideshowSlideChange: function (event) {
+			var slide_id = this.get("id") + "_slide";
+			
+			if (event.newVal != event.prevVal) {
+				if (event.prevVal == slide_id) {
+					this.stopEditing();
+				}
+			}
+		},
+		
+		/**
 		 * Returns slideshow slide for image controls
 		 * 
 		 * @return Slideshow slide
@@ -28916,7 +28976,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				slide = null,
 				slide_id = this.get("id") + "_slide",
 				button = null,
-				separate = this.get('separateSlide'),
+				separate = this.get("separateSlide"),
 				
 				container = null,
 				boundingBox = null;
@@ -28925,12 +28985,12 @@ YUI.add('supra.datatype-color', function(Y) {
 				if (separate) {
 					slide = this.slide = slideshow.addSlide(slide_id);
 					container = slide.one(".su-slide-content");
+					slideshow.on("slideChange", this.onSlideshowSlideChange, this);
 				} else {
 					boundingBox = this.get('boundingBox');
 					container = boundingBox.ancestor();
 				}
 				
-				console.log(boundingBox.getDOMNode(), container.getDOMNode());
 				//Set button
 				button = this.widgets.buttonSet = (new Supra.Button({
 					"label": Supra.Intl.get(["form", "block", "set_image"]),
@@ -29059,20 +29119,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				}
 			}
 			
-			if (this.image) {
-				var block = this.get("root"),
-					node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
-					image = this.image,
-					size = image.image.sizes.original;
-				
-				if (node && size) {
-					node.setStyles({	
-						'backgroundImage': 'url(' + size.external_path + ')',
-						'backgroundSize': image.size_width + 'px ' + image.size_height + 'px',
-						'backgroundPosition': -image.crop_left + 'px ' + (-image.crop_top) + 'px'
-					});
-				}
-			}
+			this.applyImageStyle(this.image);
 			
 			/*
 			 * value == {
@@ -29265,6 +29312,11 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * Start image editing
 		 */
 		startEditing: function () {
+			if (!this.image || !this.image.image) {
+				// No data for image to edit
+				return;
+			}
+			
 			var imageResizer = this.widgets.imageResizer,
 				node = this.get("targetNode"),
 				size = this.image.image.sizes.original,
@@ -29514,6 +29566,18 @@ YUI.add('supra.datatype-color', function(Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	/**
+	 * Video input type
+	 * 
+	 * Value format if entered an embed code or link:
+	 * 		resource: "source",
+	 * 		source: "...", // embed code or link url
+	 * 
+	 * Value format if entered a link:
+	 * 		resource: "link",
+	 * 		service: "...", // service name "youtube" or "vimeo"
+	 * 		id: "...", // youtube or vimeo video ID
+	 */
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);

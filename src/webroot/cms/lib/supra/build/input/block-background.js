@@ -32,6 +32,13 @@ YUI.add("supra.input-block-background", function (Y) {
 		"editImageAutomatically": {
 			value: true,
 			setter: "_setEditImageAutomatically"
+		},
+		/**
+		 * Render widget into separate slide and add
+		 * button to the place where this widget should be
+		 */
+		"separateSlide": {
+			value: true
 		}
 	};
 	
@@ -77,30 +84,38 @@ YUI.add("supra.input-block-background", function (Y) {
 			
 			var inputNode = this.get("inputNode"),
 				renderTarget = inputNode.get("parentNode"),
+				values = this.getBackgroundStyles(),
 				value = this.get("value");
 			
 			// Select list
+			// Visible only if there are other options than "No image" and "Custom"
 			var selectList = new Supra.Input.SelectVisual({
-				"values": this.getBackgroundStyles(),
-				"value": value ? (value.image ? "_custom" : value.classname || "") : ""
+				"values": values,
+				"value": value ? (value.image ? "_custom" : value.classname || "") : "",
+				"visible": values.length > 2
 			});
 			
 			selectList.render(renderTarget);
 			inputNode.insert(selectList.get("boundingBox"), "before");
 			selectList.buttons._custom.hide();
 			
-			// Button "Custom image"
-			var buttonCustom = new Supra.Button({
-				"label": Supra.Intl.get(["form", "block", "custom_image"]),
-				"style": "small-gray"
-			});
-			buttonCustom.addClass("button-section");
-			buttonCustom.on("click", this.openSlide, this);
-			buttonCustom.render(renderTarget);
-			inputNode.insert(buttonCustom.get("boundingBox"), "before");
-			
 			this.widgets.selectList = selectList;
-			this.widgets.buttonCustom = buttonCustom;
+			
+			// Button "Custom image"
+			if (this.get('separateSlide')) {
+				var buttonCustom = new Supra.Button({
+					"label": Supra.Intl.get(["form", "block", "custom_image"]),
+					"style": "small-gray"
+				});
+				buttonCustom.addClass("button-section");
+				buttonCustom.on("click", this.openSlide, this);
+				buttonCustom.render(renderTarget);
+				inputNode.insert(buttonCustom.get("boundingBox"), "before");
+				
+				this.widgets.buttonCustom = buttonCustom;
+			} else {
+				this.openSlide();
+			}
 			
 			//Handle value attribute change
 			selectList.on("valueChange", this._afterValueChange, this);
@@ -163,16 +178,21 @@ YUI.add("supra.input-block-background", function (Y) {
 			} else {
 				//Not part of block properties, search for Action
 				var parent = this.getParentWidget("ActionBase");
-				if (parent  && parent.plugins.getPlugin("PluginSidebar")) {
+				if (parent && parent.plugins.getPlugin("PluginSidebar")) {
 					//Has sidebar plugin, so this action is in sidebar
 					if (parent.get("frozen")) {
 						//In frozen state show/execute are not called, so we have to
 						//force it to show content
 						parent.showFrozen();
+						parent.set("frozen", false);
 					} else {
 						parent.execute();
 					}
 				}
+			}
+			
+			if (this.image) {
+				this.startEditing();
 			}
 		},
 		
@@ -183,7 +203,7 @@ YUI.add("supra.input-block-background", function (Y) {
 		/**
 		 * Start image editing
 		 */
-		editImage: function () {
+		startEditing: function () {
 			var imageResizer = this.widgets.imageResizer,
 				block = this.get("root"),
 				node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
@@ -222,14 +242,19 @@ YUI.add("supra.input-block-background", function (Y) {
 		/**
 		 * Stop editing image
 		 */
-		stopEditingImage: function () {
-			imageResizer.set("image", null);
+		stopEditing: function () {
+			var imageResizer = this.widgets.imageResizer;
+			if (imageResizer) {
+				imageResizer.set("image", null);
+			}
 		},
 		
 		/**
 		 * Remove selected image
 		 */
 		removeImage: function () {
+			this.stopEditing();
+			
 			this.set("value", {
 				"classname": "",
 				"image": null
@@ -279,6 +304,33 @@ YUI.add("supra.input-block-background", function (Y) {
 			return result;
 		},
 		
+		/**
+		 * Apply image styles after input value changes
+		 * 
+		 * @private
+		 */
+		applyImageStyle: function (image) {
+			var styles = {'backgroundImage': 'none', 'backgroundSize': 'auto', 'backgroundPosition': '0 0'},
+				block = this.get("root"),
+				node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
+				size = null;
+			
+			if (node) {
+				if (image) {
+					size = image.image.sizes.original;
+					if (size) {
+						styles = {	
+							'backgroundImage': 'url(' + size.external_path + ')',
+							'backgroundSize': image.size_width + 'px ' + image.size_height + 'px',
+							'backgroundPosition': -image.crop_left + 'px ' + (-image.crop_top) + 'px'
+						};
+					}
+				}
+				
+				node.setStyles(styles);
+			}
+		},
+		
 		
 		/* ---------------------------- Media sidebar ------------------------------ */
 		
@@ -287,13 +339,24 @@ YUI.add("supra.input-block-background", function (Y) {
 		 * Set image
 		 */
 		openMediaSidebar: function () {
-			//Close settings form
+			// Close settings form
 			var properties = this.getPropertiesWidget();
 			if (properties) {
 				properties.hidePropertiesForm({
 					"keepToolbarButtons": true // we keep them because settings sidebar is hidden temporary
 				});
+			} else {
+				// Not part of block properties, search for Action
+				var parent = this.getParentWidget("ActionBase");
+				if (parent && parent.plugins.getPlugin("PluginSidebar")) {
+					// Freeze to prevent from closing, so that we can restore the state
+					// after media sidebar is closed
+					parent.set("frozen", true);
+				}
 			}
+			
+			// Stop editing image
+			this.stopEditing();
 			
 			//Open MediaSidebar
 			var mediasidebar = Supra.Manager.getAction("MediaSidebar"),
@@ -302,15 +365,11 @@ YUI.add("supra.input-block-background", function (Y) {
 			
 			mediasidebar.execute({
 				"onselect": Y.bind(this.insertImage, this),
+				"onclose": Y.bind(this.showSettingsSidebar, this),
 				"hideToolbar": true,
 				"item": path,
 				"dndEnabled": false
 			});
-			
-			//When media library is hidden show settings form again
-			mediasidebar.once("hide", function () {
-				this.showSettingsSidebar();
-			}, this);
 		},
 		
 		/**
@@ -337,7 +396,7 @@ YUI.add("supra.input-block-background", function (Y) {
 				//Small delay to allow media library to close before doing anything
 				Y.later(100, this, function () {
 					if (this._hasImage()) {
-						this.editImage();
+						this.startEditing();
 					}
 				});
 			}
@@ -354,12 +413,18 @@ YUI.add("supra.input-block-background", function (Y) {
 			var slideshow = this.getSlideshow(),
 				slide = this.getSlideshowSlide();
 			
-			if (slideshow && slide) {
+			if (!this.get('separateSlide')) {
+				
+				if (this.get("editImageAutomatically") && this._hasImage()) {
+					this.startEditing();
+				}
+				
+			} else if (slideshow && slide) {
 				
 				slideshow.set("slide", this.get("id") + "_slide");
 				
 				if (this.get("editImageAutomatically") && this._hasImage()) {
-					this.editImage();
+					this.startEditing();
 				}
 				
 			}
@@ -372,6 +437,22 @@ YUI.add("supra.input-block-background", function (Y) {
 			var slideshow = this.getSlideshow();
 			if (slideshow && slideshow.get("slide") == this.get("id") + "_slide") {
 				slideshow.scrollBack();
+			}
+		},
+		
+		/**
+		 * When slideshow slide changes back then stop editing
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		onSlideshowSlideChange: function (event) {
+			var slide_id = this.get("id") + "_slide";
+			
+			if (event.newVal != event.prevVal) {
+				if (event.prevVal == slide_id) {
+					this.stopEditing();
+				}
 			}
 		},
 		
@@ -389,11 +470,21 @@ YUI.add("supra.input-block-background", function (Y) {
 				has_image = this._hasImage(),
 				slide = null,
 				slide_id = this.get("id") + "_slide",
-				button = null;
+				button = null,
+				separate = this.get("separateSlide"),
+				
+				container = null,
+				boundingBox = null;
 			
-			if (slideshow) {
-				slide = this.slide = slideshow.addSlide(slide_id);
-				slide = slide.one(".su-slide-content");
+			if (slideshow || !separate) {
+				if (separate) {
+					slide = this.slide = slideshow.addSlide(slide_id);
+					container = slide.one(".su-slide-content");
+					slideshow.on("slideChange", this.onSlideshowSlideChange, this);
+				} else {
+					boundingBox = this.get('boundingBox');
+					container = boundingBox.ancestor();
+				}
 				
 				//Set button
 				button = this.widgets.buttonSet = (new Supra.Button({
@@ -402,17 +493,25 @@ YUI.add("supra.input-block-background", function (Y) {
 				}));
 				button.on("click", this.openMediaSidebar, this);
 				button.addClass("button-section")
-				button.render(slide);
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
 				
 				//Edit button
 				button = this.widgets.buttonEdit = (new Supra.Button({
 					"label": Supra.Intl.get(["form", "block", "edit_image"]),
 					"style": "small"
 				}));
-				button.on("click", this.editImage, this);
+				button.on("click", this.startEditing, this);
 				button.addClass("button-section");
 				button.set("disabled", !has_image);
-				button.render(slide);
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
 				
 				if (this.get("editImageAutomatically")) {
 					button.hide();
@@ -425,14 +524,20 @@ YUI.add("supra.input-block-background", function (Y) {
 				}));
 				button.on("click", this.removeImage, this);
 				button.set("disabled", !has_image);
-				button.render(slide);
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
 				
 				//When slide is hidden stop editing image
-				slideshow.on("slideChange", function (evt) {
-					if (evt.prevVal == slide_id && this.widgets.imageResizer) {
-						this.widgets.imageResizer.set("image", null);
-					}
-				}, this);
+				if (!separate) {
+					slideshow.on("slideChange", function (evt) {
+						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
+							this.widgets.imageResizer.set("image", null);
+						}
+					}, this);
+				}
 				
 				return slide;
 			}
@@ -509,17 +614,7 @@ YUI.add("supra.input-block-background", function (Y) {
 				}
 			}
 			
-			if (this.image) {
-				var block = this.get("root"),
-					node = this.get("targetNode") || (block && block.getNode ? block.getNode().one("*") : null),
-					size = this.image.image.sizes.original;
-				
-				if (node && size) {
-					node.setStyles({
-						'backgroundImage': 'url(' + size.external_path + ')'
-					});
-				}
-			}
+			this.applyImageStyle(this.image);
 			
 			/*
 			 * value == {

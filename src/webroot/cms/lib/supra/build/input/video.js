@@ -2,6 +2,18 @@ YUI.add('supra.input-video', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	/**
+	 * Video input type
+	 * 
+	 * Value format if entered an embed code or link:
+	 * 		resource: "source",
+	 * 		source: "...", // embed code or link url
+	 * 
+	 * Value format if entered a link:
+	 * 		resource: "link",
+	 * 		service: "...", // service name "youtube" or "vimeo"
+	 * 		id: "...", // youtube or vimeo video ID
+	 */
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);

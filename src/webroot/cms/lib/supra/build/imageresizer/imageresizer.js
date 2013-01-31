@@ -505,7 +505,7 @@ YUI().add("supra.imageresizer", function (Y) {
 			var minImageWidth = 0,
 				minImageHeight = 0;
 				
-			if (this.get('allowZoomResize')) {
+			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND) {
 				minImageWidth = this.minImageWidth;
 				minImageHeight = this.minImageHeight;
 			} else {
@@ -534,7 +534,7 @@ YUI().add("supra.imageresizer", function (Y) {
 				minImageWidth = 0,
 				minImageHeight = 0;
 			
-			if (this.get('allowZoomResize')) {
+			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND) {
 				minImageWidth = this.minImageWidth;
 				minImageHeight = this.minImageHeight;
 			} else {

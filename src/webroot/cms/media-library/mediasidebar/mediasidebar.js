@@ -254,6 +254,8 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			
 			//Set options
 			this.options = Supra.mix({
+				'onselect': null,
+				'onclose': null,
 				'displayType': Supra.MediaLibraryList.DISPLAY_IMAGES,
 				'dndEnabled': true,
 				'hideToolbar': false,

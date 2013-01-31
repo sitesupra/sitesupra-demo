@@ -135,13 +135,19 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 						value = property.defaultValue || '';
 						model.property[id] = '<span class="yui3-inline-reset" data-supra-item-property="' + id + '">' + value + '</span>';
 					} else if (property.type == '...') {
-						// @TODO Implement image/video selection input
+						// @TODO Implement image/video selection input?
 					}
 				}
 				
-				if (property.type == 'InlineImage' || property.type == 'BlockBackground') {
+				if (property.type == 'BlockBackground') {
 					value = property.defaultValue || '';
 					model.property[id] = value + '" data-supra-item-property="' + id;
+				} else if (property.type == 'InlineImage') {
+					value = property.defaultValue || '';
+					model.property[id] = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
+				} else if (property.type == 'InlineMedia') {
+					value = property.defaultValue || '';
+					model.property[id] = '<div class="supra-media" unselectable="on" contenteditable="false" data-supra-item-property="' + id + '"></div>';
 				}
 			}
 			

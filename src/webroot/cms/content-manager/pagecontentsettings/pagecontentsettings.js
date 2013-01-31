@@ -155,6 +155,12 @@ Supra(function (Y) {
 			//Set form
 			if (form) {
 				this.form = form;
+				
+				// Set settings sidebar as parent
+				if (!form.get('parent')) {
+					form.set('parent', this);
+				}
+				
 				this.show();
 				form.show();
 				

@@ -312,7 +312,6 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			
 			if (event.newVal !== event.prevVal && id && property) {
 				save[property] = input.get('value');
-				console.log(property, save[property]);
 				if (save[property]) {
 					data.changeSlide(id, save);
 				}
