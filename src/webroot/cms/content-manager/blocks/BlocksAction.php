@@ -141,6 +141,7 @@ class BlocksAction extends PageManagerAction
 					'label' => $editable->getLabel(),
 					'value' => $editable->getDefaultValue($localeId),
 					'group' => $editable->getGroupId(),
+					'description' => $editable->getDescription(),
 						)
 						+ $editable->getAdditionalParameters();
 

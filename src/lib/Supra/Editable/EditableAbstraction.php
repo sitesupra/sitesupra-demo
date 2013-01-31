@@ -37,6 +37,12 @@ abstract class EditableAbstraction implements EditableInterface
 	 * @var mixed
 	 */
 	protected $defaultValue;
+	
+	/**
+	 * Description for the editable
+	 * @var string
+	 */
+	protected $description;
 
 	/**
 	 * Default values (localized)
@@ -211,6 +217,22 @@ abstract class EditableAbstraction implements EditableInterface
 	public function getAdditionalParameters()
 	{
 		return array();
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getDescription()
+	{
+		return $this->description;
+	}
+	
+	/**
+	 * @param string $description
+	 */
+	public function setDescription($description)
+	{
+		$this->description = $description;
 	}
 	
 	public static function CN()
