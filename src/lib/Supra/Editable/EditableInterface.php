@@ -77,4 +77,15 @@ interface EditableInterface
 	 * @return array
 	 */
 	public function getAdditionalParameters();
+	
+	/**
+	 * Get editable description/hint
+	 * @return string
+	 */
+	public function getDescription();
+	
+	/**
+	 * @param string $description
+	 */
+	public function setDescription($description);
 }
