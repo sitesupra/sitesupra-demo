@@ -30,7 +30,12 @@
 			"blue": "Blue",
 			
 			"advanced": "Advanced",
-			"locked": "Global block"
+			"locked": "Global block",
+			
+			"image_label": "Edit image",
+			
+			"video_label": "Paste the URL of a video or embed code",
+			"video_description": "Paste the URL of the video page on Youtube or Vimeo or paste the HTML embed code"
 		},
 		
 		"error": {
@@ -201,7 +206,8 @@
 			"image_style_none": "No style",
 			
 			"video_properties": "Video properties",
-			"video_source": "Insert URL or embed code",
+			"video_source": "Paste the URL of a video or embed code",
+			"video_description": "Paste the URL of the video page on Youtube or Vimeo or paste the HTML embed code",
 			"video_delete": "Delete video",
 			
 			"table_style": "Table style",

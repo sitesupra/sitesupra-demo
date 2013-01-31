@@ -124,6 +124,7 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			if (data && data.video) {
 				// 'video' is input name
 				this.htmleditor.setData(id, Supra.mix({'type': this.NAME}, data.video));
+				this.updateVideoPreview(this.selected_video, data.video);
 			}
 			
 			//
@@ -139,6 +140,24 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			//Button is not down anymore
 			var button = this.htmleditor.get('toolbar').getButton('insertvideo');
 			if (button) button.set('down', false);
+		},
+		
+		/**
+		 * Update video preview image
+		 * 
+		 * @param {Object} node Video element
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoPreview: function (node, data) {
+			this.getVideoPreviewUrl(data).always(function (url) {
+				if (url) {
+					// Using setAttribute because it's not possible to use !important in styles
+					node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important;')
+				} else {
+					node.removeAttribute('style');
+				}
+			}, this);
 		},
 		
 		
@@ -205,7 +224,13 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			//Properties form
 			var form_config = {
 				"inputs": [
-					{"id": "video", "type": "Video", "label": Supra.Intl.get(["htmleditor", "video_source"]), "value": ""}
+					{
+						"id": "video",
+						"type": "Video",
+						"label": Supra.Intl.get(["htmleditor", "video_source"]),
+						"description": Supra.Intl.get(["htmleditor", "video_description"]),
+						"value": ""
+					}
 				],
 				"style": "vertical"
 			};
@@ -340,6 +365,9 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			
 			//Hide link manager when editor is closed
 			htmleditor.on('disable', this.hideVideoSettings, this);
+			
+			// When HTML changes make sure video previews are set
+			htmleditor.on("afterSetHTML", this.afterSetHTML, this);
 		},
 		
 		/**
@@ -350,6 +378,89 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 		
 		
 		/* --------------------------- PARSER --------------------------- */
+		
+		
+		/**
+		 * Update video previews
+		 * 
+		 * @private
+		 */
+		afterSetHTML: function () {
+			var htmleditor = this.htmleditor,
+				data = htmleditor.getAllData(),
+				id,
+				srcNode = htmleditor.get('srcNode'),
+				node = null;
+			
+			for(id in data) {
+				if (data[id].type == this.NAME) {
+					node = srcNode.one('#' + id);
+					if (node) {
+						this.updateVideoPreview(node, data[id]);
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Extract image url from video data
+		 * 
+		 * @param {Object} data Video data
+		 * @returns {String} Image url
+		 */
+		getVideoPreviewUrl: function (data) {
+			var service = null,
+				video_id = null,
+				match = null,
+				
+				// http://youtu.be/...
+				// http://www.youtube.com/v/...
+				// http://www.youtube.com/...?v=...
+				regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be\/|youtube.[a-z]+)\/(v\/|.*\&v=|.*\?v=)([a-z0-9_\-]+)/i,
+				// http://vimeo.com/...
+				regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+				
+				deferred = new Supra.Deferred();
+			
+			if (data) {
+				if (data.resource == "link") {
+					service = data.service;
+					video_id = data.id;
+				} else if (data.resource == "source") {
+					if (match = data.source.match(regex_youtube)) {
+						service = 'youtube';
+						video_id = match[5];
+					} else if (match = data.source.match(regex_vimeo)) {
+						service = 'vimeo';
+						video_id = match[5];
+					}
+				}
+			}
+			
+			if (service == 'youtube') {
+				deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
+			} else if (service == 'vimeo') {
+				//
+				var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
+				Supra.io(url, {
+					'suppress_errors': true, // don't display errors
+					'context': this,
+					'on': {
+						'complete': function (data, success) {
+							if (data && data[0]) {
+								deferred.resolveWith(this, [data[0].thumbnail_large]);
+							} else {
+								deferred.rejectWith(this, []);
+							}
+						}
+					}
+				});
+			} else {
+				deferred.rejectWith(this, []);
+			}
+			
+			return deferred.promise();
+		},
 		
 		
 		/**
@@ -393,7 +504,6 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			
 			html = html.replace(/{supra\.video id="([^"]+)"}/ig, function (tag, id) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
-				
 				return '<div id="' + id + '" class="supra-video yui3-box-reset su-uneditable" tabindex="0"></div>';
 			});
 			

@@ -23,6 +23,7 @@ YUI.add('supra.input-video', function (Y) {
 		 */
 		widgets: null,
 		
+		
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
@@ -30,7 +31,9 @@ YUI.add('supra.input-video', function (Y) {
 			
 			var source = this.widgets.source = new Supra.Input.Text({
 				'label': this.get('label'),
-				'value': this.get('value').source
+				'value': this.get('value').source,
+				'description': this.get('description'),
+				'parent': this
 			});
 			
 			source.render(this.get('contentBox'));
@@ -123,6 +126,28 @@ YUI.add('supra.input-video', function (Y) {
 			}
 		},
 		
+		/**
+		 * Description attribute setter
+		 * Set description on source input not this element
+		 * 
+		 * @param {String} descr Description text
+		 * @return New description
+		 * @type {String}
+		 * @private
+		 */
+		_setDescription: function (descr) {
+			if (this.widgets && this.widgets.source) {
+				this.widgets.source.set('description', descr);
+			}
+			return descr;
+		},
+		
+		/**
+		 * When widgets value changes update value for self
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
 		_onWidgetsChange: function (evt) {
 			if (evt.prevVal != evt.newVal) {
 				this.set('value', this.get('value'));

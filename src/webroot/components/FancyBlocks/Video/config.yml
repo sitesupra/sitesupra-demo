@@ -21,4 +21,5 @@
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: video
           editable: Supra\Editable\Video
-          label: Insert URL or embed code
+          label: Paste the URL of a video or embed code
+          description: Paste the URL of the video page on Youtube or Vimeo or paste the HTML embed code

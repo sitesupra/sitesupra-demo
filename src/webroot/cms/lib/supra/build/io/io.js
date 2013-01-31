@@ -59,66 +59,100 @@ YUI().add("supra.io", function (Y) {
 		
 		//Set callbacks
 		cfg.on.success = function (transaction, response) {
-
-			var response = Supra.io.parseResponse(url, cfg, response.responseText);
+			
+			if (cfg.transportMethod != 'jsonp') {
+				// Second argument is data as string
+				var response = Supra.io.parseResponse(url, cfg, response.responseText);
+			} else {
+				// First argument is data as object/array/etc
+				var response = Supra.io.parseResponse(url, cfg, transaction);
+			}
 			return Supra.io.handleResponse(cfg, response);
 
 		};
 		cfg.on.failure = function (transaction, response) {
 
-			if (response.status == 401) {
-				//Authentication error, session expired
-				Y.log('Session expired', 'info');
-				
-				var pre_filter_message = response.getResponseHeader('X-Authentication-Pre-Filter-Message');
-				var pre_filter_redirect_url = response.getResponseHeader('X-Authentication-Pre-Filter-Redirect');
-				
-				//If there is authentication message then this was login request
-				//which shouldn't be queued
-				if (!pre_filter_message) {
-					Supra.io.loginRequestQueue.add(args);
-				}
-				
-				return Supra.io.handleResponse(cfg, {
-					'status': response.status,
-					'success': false,
-					'data': null,
-					'error_message': pre_filter_message,
-					'redirect_url': pre_filter_redirect_url
-				});
-				
-			} else {
-				//Invalid response
-				Y.log('Request to "' + url + '" failed', 'debug');
-				
-				if (response.responseText) {
+			if (cfg.transportMethod != 'jsonp') {
+				// XHR request
+				if (response.status == 401) {
+					//Authentication error, session expired
+					Y.log('Session expired', 'info');
 					
-					var response = Supra.io.parseResponse(url, cfg, response.responseText);
-					response.status = false;
+					var pre_filter_message = response.getResponseHeader('X-Authentication-Pre-Filter-Message');
+					var pre_filter_redirect_url = response.getResponseHeader('X-Authentication-Pre-Filter-Redirect');
 					
-					return Supra.io.handleResponse(cfg, response);
-					
-				} else {
+					//If there is authentication message then this was login request
+					//which shouldn't be queued
+					if (!pre_filter_message) {
+						Supra.io.loginRequestQueue.add(args);
+					}
 					
 					return Supra.io.handleResponse(cfg, {
-						'status': 0,
+						'status': response.status,
 						'success': false,
 						'data': null,
-						'error_message': ERROR_INVALID_RESPONSE
+						'error_message': pre_filter_message,
+						'redirect_url': pre_filter_redirect_url
 					});
+					
+				} else {
+					//Invalid response
+					Y.log('Request to "' + url + '" failed', 'debug');
+					
+					if (response.responseText) {
+						
+						var response = Supra.io.parseResponse(url, cfg, response.responseText);
+						response.status = false;
+						
+						return Supra.io.handleResponse(cfg, response);
+						
+					} else {
+						
+						return Supra.io.handleResponse(cfg, {
+							'status': 0,
+							'success': false,
+							'data': null,
+							'error_message': ERROR_INVALID_RESPONSE
+						});
+					}
+					
 				}
+			} else {
+				// JSONP request
+				Y.log('Request to "' + url + '" failed', 'debug');
 				
+				return Supra.io.handleResponse(cfg, {
+					'status': 0,
+					'success': false,
+					'data': null,
+					'error_message': ERROR_INVALID_RESPONSE
+				});
 			}
 		};
 		
-		io = Y.io(url, cfg);
-		
-		io.supra_cfg = cfg;
-		io._abort = io.abort;
-		io.abort = Supra.io.abort;
-		
-		// Apply promise functionality to io object
-		cfg.deferred.promise(io);
+		if (cfg.transportMethod === 'jsonp' && cfg.method === 'post') {
+			// Trying to send jsonp POST request, currently not supported!
+			// Invalid request
+			Y.log('Request to "' + url + '" failed, because POST request can not be sent through JSONP', 'debug');
+			
+			io.supra_cfg = cfg;
+			io._abort = io.abort;
+			io.abort = Supra.io.abort;
+			
+			// Apply promise functionality to io object
+			cfg.deferred.promise(io);
+			
+			io.rejectWith(cfg.context, [null, false]);
+		} else {
+			io = Y[cfg.transportMethod](url, cfg);
+			
+			io.supra_cfg = cfg;
+			io._abort = io.abort;
+			io.abort = Supra.io.abort;
+			
+			// Apply promise functionality to io object
+			cfg.deferred.promise(io);
+		}
 		
 		return io;
 	};
@@ -186,12 +220,20 @@ YUI().add("supra.io", function (Y) {
 			'sync': false,
 			'context': context,
 			'suppress_errors': false,
+			'transportMethod': 'io',
 			'on': {
 				'success': callback,
 				'failure': null,
 				'complete': null
 			}
 		};
+		
+		//External request ?
+		if (url.indexOf('http') == 0 && url.indexOf(document.location.protocol + '//' + document.location.hostname) == -1) {
+			cfg_new.type = 'jsonplain';
+			cfg_new.transportMethod = 'jsonp';
+			cfg_new.method = 'get';
+		}
 		
 		//Save context and remove from config to avoid traversing them on Supra.mix
 		context = cfg.context || cfg_new.context;
@@ -219,18 +261,18 @@ YUI().add("supra.io", function (Y) {
 			response = {'status': false, 'data': null};
 		
 		//Localization, unless in configuration skipIntl is set
-		if (responseText.indexOf('{#') !== -1 && (!cfg || !cfg.skipIntl)) {
+		if (responseText.indexOf && responseText.indexOf('{#') !== -1 && (!cfg || !cfg.skipIntl)) {
 			responseText = Supra.Intl.replace(responseText, 'json');
 		}
 		
 		try {
 			switch((cfg.type || '').toLowerCase()) {
 				case 'json':
-					data = Y.JSON.parse(responseText);
+					data = typeof responseText === 'object' ? responseText : Y.JSON.parse(responseText);
 					Supra.mix(response, data);
 					break;
 				case 'jsonplain':
-					data = Y.JSON.parse(responseText);
+					data = typeof responseText === 'object' ? responseText : Y.JSON.parse(responseText);
 					Supra.mix(response, {'status': true, 'data': data});
 					break;
 				default:
@@ -553,4 +595,4 @@ YUI().add("supra.io", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ["io", "json"]});
+}, YUI.version, {requires: ["io", "json", "jsonp", "jsonp-url"]});
