@@ -110,6 +110,8 @@ class ExceptionController extends ControllerAbstraction
 
 		$message->setBody($body);
 
+		$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
+		
 		$toAddress = $iniConfiguration->getValue('system', 'email_exceptions_to');
 		$message->setTo($toAddress);
 
