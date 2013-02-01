@@ -162,10 +162,12 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 					slideshow.on('slideChange', this.onSlideshowSlideChange, this);
 				}
 				
-				if (!slideshow || slideshow.isRootSlide()) {
-					backButton.hide();
-				} else {
-					backButton.show();
+				if (backButton) {
+					if (!slideshow || slideshow.isRootSlide()) {
+						backButton.hide();
+					} else {
+						backButton.show();
+					}
 				}
 			}
 			
