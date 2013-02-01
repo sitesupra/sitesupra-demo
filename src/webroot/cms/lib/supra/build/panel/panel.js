@@ -158,6 +158,13 @@ YUI.add('supra.panel', function (Y) {
 		ARROW_OFFSET: 20,
 		
 		/**
+		 * Content padding, used to calculate arrow / node position
+		 * @type {Number}
+		 * @private
+		 */
+		CONTENT_PADDING: 10,
+		
+		/**
 		 * Close button template
 		 * @type {String}
 		 * @private
@@ -342,6 +349,7 @@ YUI.add('supra.panel', function (Y) {
 					//Arrow position is set in pixels
 					default: offset = parseInt(position[1], 10) || 0;
 				}
+				
 				this._arrow.setStyle('left', offset + 'px');
 			}
 		},
@@ -405,14 +413,14 @@ YUI.add('supra.panel', function (Y) {
 				host_offset = box.getY();
 				host_size = box.get('offsetHeight');
 				target_size = target.get('offsetHeight');
-				target_offset = target.getY() + ~~(target_size / 2);
+				target_offset = target.getY() + ~~(target_size / 2 - this.CONTENT_PADDING / 2);
 				style_attr = 'top';
 			} else {
 				//Arrow is positioned at the top or bottom of panel
 				host_offset = box.getX();
 				host_size = box.get('offsetWidth');
 				target_size = target.get('offsetWidth');
-				target_offset = target.getX() + ~~(target_size / 2);
+				target_offset = target.getX() + ~~(target_size / 2 - this.CONTENT_PADDING / 2);
 			}
 			
 			offset = Math.min(Math.max(this.ARROW_OFFSET, target_offset - host_offset), host_size);
