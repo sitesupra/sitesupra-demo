@@ -224,6 +224,11 @@ YUI.add('slideshowmanager.view', function (Y) {
 		_activateInput: function (event, property, input) {
 			var old_input = this._activeInput;
 			
+			if (old_input === input) {
+				// Already editing
+				return;
+			}
+			
 			if (Manager.getAction('MediaSidebar').get('visible')) {
 				// Can't edit anything while media library is shown
 				return;
@@ -288,7 +293,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 				data = this.get('host').data,
 				save = {};
 			
-			if (id && property) {
+			if (id && property && !this.silentUpdatingValues) {
 				save[property.id] = input.get('value');
 				data.changeSlide(id, save);
 			}
@@ -304,17 +309,20 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * @param {String}
 		 */
 		renderItem: function (id) {
+			// Don't update data, ui, etc. on value change
+			this.silentUpdatingValues = true;
+			
 			var container = null,
 				id = (typeof id === 'string' ? id : this.get('activeItemId')),
 				iframe = this.get('iframe'),
 				data = this.get('host').data.getSlideById(id);
 			
+			// Destroy old inline properties
+			this._cleanUpInputs();
+			
 			// Find container node
 			container = iframe.one('*[data-supra-container]');
 			this.set('listNode', container);
-			
-			// Destroy old inline properties
-			this._cleanUpInputs();
 			
 			// Remove old elements
 			container.empty();
@@ -364,6 +372,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 			
 			// Restore input properties
 			this._restoreInputs(data);
+			
+			// On input value change update data, ui, etc.
+			this.silentUpdatingValues = false;
 		},
 		
 		/**
@@ -390,6 +401,20 @@ YUI.add('slideshowmanager.view', function (Y) {
 			this.widgets.inputs = [];
 			this.inputValues = values;
 			this._activeInput = null;
+			
+			// ReSet partially inline properties
+			var properties = this.get('host').settings.getProperties(),
+				property = null,
+				i = 0,
+				ii = properties.length,
+				form = this.get('host').settings.getForm();
+			
+			for (; i<ii; i++) {
+				property = properties[i];
+				if (property.type == 'InlineImage' || property.type == 'InlineMedia' || property.type == 'BlockBackground') {
+					form.getInput(property.id).set('targetNode', null);
+				}
+			}
 		},
 		
 		/**

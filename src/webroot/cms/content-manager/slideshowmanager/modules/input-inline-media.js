@@ -59,6 +59,13 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		 */
 		type: '',
 		
+		/**
+		 * Value is being updated by input, don't change UI
+		 * @type {Boolean}
+		 * @private
+		 */
+		silentValueUpdate: false,
+		
 		
 		/**
 		 * On desctruction life cycle clean up
@@ -105,7 +112,8 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				'label': Supra.Intl.get(['inputs', 'image']),
 				'parent': this,
 				'value': null,
-				'separateSlide': false
+				'separateSlide': false,
+				'allowRemoveImage': false
 			});
 			
 			input_video = new Supra.Input.Video({
@@ -115,6 +123,17 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				'parent': this,
 				'value': null
 			});
+			
+			input_video.on('change', function () {
+				this.updateVideoPreviewImage();
+				this._fireValueChange();
+			}, this);
+			input_image.on('change', function () {
+				this._fireValueChange();
+			}, this);
+			input_image.on('valueChange', function () {
+				this._fireValueChange();
+			}, this);
 			
 			input_image.render(slide_image.one('.su-slide-content'));
 			input_video.render(slide_video.one('.su-slide-content'));
@@ -171,6 +190,9 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			slideshow.set('noAnimations', true);
 			slideshow.set('slide', slide_id);
 			slideshow.set('noAnimations', false);
+			
+			// Hardcoded for now!?
+			Supra.Manager.PageContentSettings.get('backButton').hide();
 		},
 		
 		/**
@@ -185,6 +207,9 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			slideshow.set('noAnimations', true);
 			slideshow.set('slide', slide_id);
 			slideshow.set('noAnimations', false);
+			
+			// Hardcoded for now!?
+			Supra.Manager.PageContentSettings.get('backButton').hide();
 		},
 		
 		/**
@@ -327,6 +352,11 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 						this.widgets.input_video.startEditing();
 					} else {
 						this.widgets.input_image.startEditing();
+						
+						if (!this.get('value').image) {
+							// Open media library to choose image
+							this.widgets.input_image.openMediaSidebar();
+						}
 					}
 				}
 			}
@@ -381,26 +411,32 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		 * @private
 		 */
 		renderContent: function (node, data) {
-			var node = this.get('targetNode'),
+			var node = node || this.get('targetNode'),
 				type = data.type || this.type;
 			
-			if (!node) return;
+			if (!node) {
+				this.widgets.input_image.set('targetNode', null);
+				return;
+			}
 			
 			if (data && type == 'image') {
-				var html = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + this.get('blankImageUrl') + '" alt="" /></span>';
+				var style = null,
+					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" style="width: 100%; height: 220px; background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
 				
 				node.set('innerHTML', html);
 				this.widgets.input_image.set('targetNode', node.one('img'));
+				this.widgets.input_image.syncUI();
 			} else {
 				this.widgets.input_image.stopEditing();
 				this.widgets.input_image.set('targetNode', null);
 			}
 			
 			if (data && type == 'video') {
-				var html = 'VIDEO PREVIEW HERE';
-				
+				var width = node.get('offsetWidth'),
+					height = ~~(width * 9 / 16),
+					html = '<div class="supra-video" style="height: ' + height + 'px !important;"></div>';
 				node.set('innerHTML', html);
-				//@TODO
+				this.updateVideoPreviewImage(data);
 			}
 			
 			if (!data || (type !== 'image' && type !== 'video')) {
@@ -414,11 +450,51 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			}
 		},
 		
+		/**
+		 * Update video preview image
+		 * 
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoPreviewImage: function (data) {
+			var targetNode = this.get('targetNode');
+			if (!targetNode) return;
+			
+			var Input = Supra.Input.Video,
+				node = targetNode.one('.supra-video'),
+				data = data || this.widgets.input_video.get('value');
+			
+			if (node) {
+				Input.getVideoPreviewUrl(data).always(function (url) {
+					var width = node.get('offsetWidth'),
+						height = ~~(width * 9 / 16);
+					
+					if (url) {
+						// Using setAttribute because it's not possible to use !important in styles
+						node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important; height: ' + height + 'px !important;')
+					} else {
+						node.setAttribute('style', 'height: ' + height + 'px !important;')
+					}
+				}, this);
+			}
+		},
+		
 		
 		/*
 		 * ---------------------------------------- VALUE ----------------------------------------
 		 */
 		
+		
+		/**
+		 * Trigger value change events
+		 * 
+		 * @private
+		 */
+		_fireValueChange: function () {
+			this.silentValueUpdate = true;
+			this.set('value', this.get('value'));
+			this.silentValueUpdate = false;
+		},
 		
 		/**
 		 * Value attribute setter
@@ -428,7 +504,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			if (!this.widgets) return value;
+			if (!this.widgets || this.silentValueUpdate) return value;
 			
 			var data = Supra.mix({'type': ''}, value || {}),
 				type = data.type;
@@ -475,7 +551,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			if (data) {
 				return Supra.mix({'type': type}, data);
 			} else {
-				return '';
+				return {'type': type};
 			}
 		},
 		

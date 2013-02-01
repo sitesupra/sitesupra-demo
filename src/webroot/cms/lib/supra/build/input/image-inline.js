@@ -62,6 +62,14 @@ YUI.add('supra.input-image-inline', function (Y) {
 			}
 		},
 		
+		/**
+		 * Update inline editable style
+		 */
+		syncUI: function () {
+			this._applyStyle(this.get('value'));
+		},
+		
+		
 		/* ----------------------------- Image edit ------------------------------- */
 		
 		
@@ -76,8 +84,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 			
 			var imageResizer = this.widgets.imageResizer,
 				node = this.get("targetNode"),
-				size = this.image.image.sizes.original,
-				container_width = size.width;
+				size = this.image.image.sizes.original;
 			
 			if (!node) {
 				return;
@@ -103,9 +110,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 				}, this);
 			}
 			
-			container_width = Math.min(node.ancestor().get("offsetWidth") || size.width, size.width);
-			
-			imageResizer.set("maxCropWidth", container_width);
+			imageResizer.set("maxCropWidth", Math.min(size.width, this._getContainerWidth()));
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
@@ -272,10 +277,11 @@ YUI.add('supra.input-image-inline', function (Y) {
 				container = null;
 			
 			if (!node) return;
-			
 			container = node.ancestor();
 			
 			if (value) {
+				value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
+				
 				if (!container.hasClass("supra-image")) {
 					var doc = node.getDOMNode().ownerDocument;
 					container = Y.Node(doc.createElement("span"));
@@ -302,13 +308,36 @@ YUI.add('supra.input-image-inline', function (Y) {
 				node.removeAttribute("width");
 				node.removeAttribute("height");
 				
-				if (container) {
+				if (container && container.hasClass("supra-image")) {
 					container.setStyles({
 						"width": "auto",
 						"height": "auto"
 					});
 				}
 			}
+		},
+		
+		/**
+		 * Returns container node width / max crop width
+		 * 
+		 * @private
+		 */
+		_getContainerWidth: function () {
+			var node = this.get("targetNode"),
+				container = null,
+				width = 0;
+			
+			if (!node) return 0;
+			
+			container = node.ancestor();
+			if (!container) return 0;
+			
+			// Find container width to calculate max possible width
+			while (container.test('.supra-image, .supra-image-inner')) {
+				container = container.ancestor();
+			}
+			
+			return container.get("offsetWidth");
 		}
 		
 	});

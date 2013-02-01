@@ -33,6 +33,10 @@ YUI.add("supra.input-block-background", function (Y) {
 			value: true,
 			setter: "_setEditImageAutomatically"
 		},
+		"allowRemoveImage": {
+			value: true,
+			setter: "_setAllowRemoveImage"
+		},
 		/**
 		 * Render widget into separate slide and add
 		 * button to the place where this widget should be
@@ -524,6 +528,7 @@ YUI.add("supra.input-block-background", function (Y) {
 				}));
 				button.on("click", this.removeImage, this);
 				button.set("disabled", !has_image);
+				button.set("visible", this.get("allowRemoveImage"));
 				button.render(container);
 				
 				if (boundingBox) {
@@ -724,6 +729,19 @@ YUI.add("supra.input-block-background", function (Y) {
 			var button = this.widgets.buttonEdit;
 			if (button) {
 				button.set("visible", !value);
+			}
+			return value;
+		},
+		
+		/**
+		 * Allow removing image / allow having no image
+		 * @param {Boolean} value Attribute value
+		 * @return {Boolean} New attribute value
+		 */
+		_setAllowRemoveImage: function (value) {
+			var button = this.widgets.buttonRemove;
+			if (button) {
+				button.set("visible", value);
 			}
 			return value;
 		}

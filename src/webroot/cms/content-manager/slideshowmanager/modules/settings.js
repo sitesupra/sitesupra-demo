@@ -204,6 +204,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		showForm: function () {
 			//Make sure PageContentSettings is rendered
 			var form = this.getForm(),
+				slideshow = form.get('slideshow'),
 				action = Manager.getAction('PageContentSettings');
 			
 			if (!form) {
@@ -230,7 +231,9 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			});
 			
 			// Update form state
+			slideshow.set('noAnimations', true);
 			this.set('activeItemId', this.get('activeItemId'));
+			slideshow.set('noAnimations', false);
 		},
 		
 		/**
@@ -288,6 +291,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				var slideshow = form.get('slideshow'),
 					rootSlideId = slideshow.getHistory()[0];
 				
+				// Scroll to root slide
 				slideshow.set('slide', rootSlideId);
 			}
 			

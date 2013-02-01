@@ -13352,7 +13352,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * @private
 		 */
 		updateVideoPreview: function (node, data) {
-			this.getVideoPreviewUrl(data).always(function (url) {
+			var Input = Supra.Input.Video;
+			Input.getVideoPreviewUrl(data).always(function (url) {
 				if (url) {
 					// Using setAttribute because it's not possible to use !important in styles
 					node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important;')
@@ -13603,67 +13604,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				}
 			}
 		},
-		
-		/**
-		 * Extract image url from video data
-		 * 
-		 * @param {Object} data Video data
-		 * @returns {String} Image url
-		 */
-		getVideoPreviewUrl: function (data) {
-			var service = null,
-				video_id = null,
-				match = null,
-				
-				// http://youtu.be/...
-				// http://www.youtube.com/v/...
-				// http://www.youtube.com/...?v=...
-				regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be\/|youtube.[a-z]+)\/(v\/|.*\&v=|.*\?v=)([a-z0-9_\-]+)/i,
-				// http://vimeo.com/...
-				regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
-				
-				deferred = new Supra.Deferred();
-			
-			if (data) {
-				if (data.resource == "link") {
-					service = data.service;
-					video_id = data.id;
-				} else if (data.resource == "source") {
-					if (match = data.source.match(regex_youtube)) {
-						service = 'youtube';
-						video_id = match[5];
-					} else if (match = data.source.match(regex_vimeo)) {
-						service = 'vimeo';
-						video_id = match[5];
-					}
-				}
-			}
-			
-			if (service == 'youtube') {
-				deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
-			} else if (service == 'vimeo') {
-				//
-				var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
-				Supra.io(url, {
-					'suppress_errors': true, // don't display errors
-					'context': this,
-					'on': {
-						'complete': function (data, success) {
-							if (data && data[0]) {
-								deferred.resolveWith(this, [data[0].thumbnail_large]);
-							} else {
-								deferred.rejectWith(this, []);
-							}
-						}
-					}
-				});
-			} else {
-				deferred.rejectWith(this, []);
-			}
-			
-			return deferred.promise();
-		},
-		
 		
 		/**
 		 * Process HTML and replace all nodes with supra tags {supra.video id="..."}
@@ -28548,6 +28488,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			value: true,
 			setter: "_setEditImageAutomatically"
 		},
+		"allowRemoveImage": {
+			value: true,
+			setter: "_setAllowRemoveImage"
+		},
 		/**
 		 * Render widget into separate slide and add
 		 * button to the place where this widget should be
@@ -29039,6 +28983,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				}));
 				button.on("click", this.removeImage, this);
 				button.set("disabled", !has_image);
+				button.set("visible", this.get("allowRemoveImage"));
 				button.render(container);
 				
 				if (boundingBox) {
@@ -29241,6 +29186,19 @@ YUI.add('supra.datatype-color', function(Y) {
 				button.set("visible", !value);
 			}
 			return value;
+		},
+		
+		/**
+		 * Allow removing image / allow having no image
+		 * @param {Boolean} value Attribute value
+		 * @return {Boolean} New attribute value
+		 */
+		_setAllowRemoveImage: function (value) {
+			var button = this.widgets.buttonRemove;
+			if (button) {
+				button.set("visible", value);
+			}
+			return value;
 		}
 		
 	});
@@ -29315,6 +29273,14 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 		},
 		
+		/**
+		 * Update inline editable style
+		 */
+		syncUI: function () {
+			this._applyStyle(this.get('value'));
+		},
+		
+		
 		/* ----------------------------- Image edit ------------------------------- */
 		
 		
@@ -29329,8 +29295,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			var imageResizer = this.widgets.imageResizer,
 				node = this.get("targetNode"),
-				size = this.image.image.sizes.original,
-				container_width = size.width;
+				size = this.image.image.sizes.original;
 			
 			if (!node) {
 				return;
@@ -29356,9 +29321,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				}, this);
 			}
 			
-			container_width = Math.min(node.ancestor().get("offsetWidth") || size.width, size.width);
-			
-			imageResizer.set("maxCropWidth", container_width);
+			imageResizer.set("maxCropWidth", Math.min(size.width, this._getContainerWidth()));
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
@@ -29525,10 +29488,11 @@ YUI.add('supra.datatype-color', function(Y) {
 				container = null;
 			
 			if (!node) return;
-			
 			container = node.ancestor();
 			
 			if (value) {
+				value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
+				
 				if (!container.hasClass("supra-image")) {
 					var doc = node.getDOMNode().ownerDocument;
 					container = Y.Node(doc.createElement("span"));
@@ -29555,13 +29519,36 @@ YUI.add('supra.datatype-color', function(Y) {
 				node.removeAttribute("width");
 				node.removeAttribute("height");
 				
-				if (container) {
+				if (container && container.hasClass("supra-image")) {
 					container.setStyles({
 						"width": "auto",
 						"height": "auto"
 					});
 				}
 			}
+		},
+		
+		/**
+		 * Returns container node width / max crop width
+		 * 
+		 * @private
+		 */
+		_getContainerWidth: function () {
+			var node = this.get("targetNode"),
+				container = null,
+				width = 0;
+			
+			if (!node) return 0;
+			
+			container = node.ancestor();
+			if (!container) return 0;
+			
+			// Find container width to calculate max possible width
+			while (container.test('.supra-image, .supra-image-inner')) {
+				container = container.ancestor();
+			}
+			
+			return container.get("offsetWidth");
 		}
 		
 	});
@@ -29741,6 +29728,68 @@ YUI.add('supra.datatype-color', function(Y) {
 		}
 		
 	});
+	
+	/**
+	 * Extract image url from video data
+	 * 
+	 * @param {Object} data Video data
+	 * @returns {String} Image url
+	 */
+	Input.getVideoPreviewUrl = function (data) {
+		var service = null,
+			video_id = null,
+			match = null,
+			
+			// http://youtu.be/...
+			// http://www.youtube.com/v/...
+			// http://www.youtube.com/...?v=...
+			regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be|youtube.[a-z]+)(\/embed\/|\/v\/|\/.*\&v=|\/.*\?v=|\/)([a-z0-9_\-]+)/i,
+			// http://vimeo.com/...
+			regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+			
+			deferred = new Supra.Deferred();
+		
+		if (data) {
+			if (data.resource == "link") {
+				service = data.service;
+				video_id = data.id;
+			} else if (data.resource == "source") {
+				if (match = data.source.match(regex_youtube)) {
+					service = 'youtube';
+					video_id = match[5];
+				} else if (match = data.source.match(regex_vimeo)) {
+					service = 'vimeo';
+					video_id = match[5];
+				}
+			}
+		}
+		
+		if (service == 'youtube') {
+			deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
+		} else if (service == 'vimeo') {
+			//
+			var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
+			Supra.io(url, {
+				'suppress_errors': true, // don't display errors
+				'context': this,
+				'on': {
+					'complete': function (data, success) {
+						if (data && data[0]) {
+							deferred.resolveWith(this, [data[0].thumbnail_large]);
+						} else {
+							deferred.rejectWith(this, []);
+						}
+					}
+				}
+			});
+		} else {
+			deferred.rejectWith(this, []);
+		}
+		
+		return deferred.promise();
+	};
+	
+	
 	
 	Supra.Input.Video = Input;
 	

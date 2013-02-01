@@ -168,6 +168,68 @@ YUI.add('supra.input-video', function (Y) {
 		
 	});
 	
+	/**
+	 * Extract image url from video data
+	 * 
+	 * @param {Object} data Video data
+	 * @returns {String} Image url
+	 */
+	Input.getVideoPreviewUrl = function (data) {
+		var service = null,
+			video_id = null,
+			match = null,
+			
+			// http://youtu.be/...
+			// http://www.youtube.com/v/...
+			// http://www.youtube.com/...?v=...
+			regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be|youtube.[a-z]+)(\/embed\/|\/v\/|\/.*\&v=|\/.*\?v=|\/)([a-z0-9_\-]+)/i,
+			// http://vimeo.com/...
+			regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+			
+			deferred = new Supra.Deferred();
+		
+		if (data) {
+			if (data.resource == "link") {
+				service = data.service;
+				video_id = data.id;
+			} else if (data.resource == "source") {
+				if (match = data.source.match(regex_youtube)) {
+					service = 'youtube';
+					video_id = match[5];
+				} else if (match = data.source.match(regex_vimeo)) {
+					service = 'vimeo';
+					video_id = match[5];
+				}
+			}
+		}
+		
+		if (service == 'youtube') {
+			deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
+		} else if (service == 'vimeo') {
+			//
+			var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
+			Supra.io(url, {
+				'suppress_errors': true, // don't display errors
+				'context': this,
+				'on': {
+					'complete': function (data, success) {
+						if (data && data[0]) {
+							deferred.resolveWith(this, [data[0].thumbnail_large]);
+						} else {
+							deferred.rejectWith(this, []);
+						}
+					}
+				}
+			});
+		} else {
+			deferred.rejectWith(this, []);
+		}
+		
+		return deferred.promise();
+	};
+	
+	
+	
 	Supra.Input.Video = Input;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

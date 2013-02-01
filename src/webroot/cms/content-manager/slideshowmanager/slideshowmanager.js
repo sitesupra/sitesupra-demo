@@ -411,7 +411,6 @@ Supra([
 		execute: function (options) {
 			options = this.normalizeOptions(options);
 			this.options = options;
-			console.log(options);
 			
 			if (!Manager.getAction('PageToolbar').inHistory(this.NAME)) {
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);

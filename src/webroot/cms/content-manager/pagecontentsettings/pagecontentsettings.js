@@ -53,6 +53,10 @@ Supra(function (Y) {
 		// Editor toolbar was visible
 		open_toolbar_on_hide: [],
 		
+		// Options cache for forms
+		optionsCache: {},
+		
+		
 		// Set page button visibility
 		tooglePageButtons: function (visible) {
 			var buttons = Supra.Manager.PageButtons.buttons[this.NAME];
@@ -132,19 +136,21 @@ Supra(function (Y) {
 				this.callback();
 				this.form.hide();
 			}
-			var options = this.options = Supra.mix({
-				'doneCallback': null,
-				'hideCallback': null,
-				'hideEditorToolbar': false,
-				'toolbarActionName': this.NAME,
-				
-				'properties': null,		//Properties class instance
-				'scrollable': false,
-				'title': null,
-				'icon': '/cms/lib/supra/img/sidebar/icons/settings.png',
-				
-				'first_init': false
-			}, options || {});
+			
+			var cache = (form ? this.optionsCache[form.get('id')] : null) || {},
+				options = this.options = Supra.mix({
+					'doneCallback': null,
+					'hideCallback': null,
+					'hideEditorToolbar': false,
+					'toolbarActionName': this.NAME,
+					
+					'properties': null,		//Properties class instance
+					'scrollable': false,
+					'title': null,
+					'icon': '/cms/lib/supra/img/sidebar/icons/settings.png',
+					
+					'first_init': false
+				}, cache, options || {});
 			
 			if (!options.first_init) {
 				//Show buttons
@@ -155,6 +161,10 @@ Supra(function (Y) {
 			//Set form
 			if (form) {
 				this.form = form;
+				
+				// Cache options
+				options.first_init = false;
+				this.optionsCache[form.get('id')] = options;
 				
 				// Set settings sidebar as parent
 				if (!form.get('parent')) {
