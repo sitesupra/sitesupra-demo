@@ -149,10 +149,16 @@ Supra([
 			
 			this.data.on('update', function (event) {
 				var id = event.id,
-					data = event.data;
+					newData = event.newData,
+					prevData = event.prevData,
+					active = this.get('activeSlideId');
 				
-				if ('layout' in data) {
-					this.view.renderItem(id);
+				if ('layout' in newData) {
+					if (id === active) {
+						// Layout classname
+						this.view.updateLayoutClassName(prevData.layout, newData.layout);
+						this.view.renderItem(id);
+					}
 					this.list.redrawItem(id);
 				}
 			}, this);

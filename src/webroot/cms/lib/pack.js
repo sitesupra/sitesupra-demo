@@ -20732,7 +20732,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'type': definition.values ? 'button' : 'toggle', 'style': 'group'}),
+				is_group = definition.values && definition.values.length,
+				button = null,
 				value = this._getInternalValue(),
 				has_value_match = false,
 				
@@ -20741,12 +20742,23 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				subinput = null,
 				button_value_map = this.button_value_map;
 			
+			// Create button
+			button = new Supra.Button({
+				'label': definition.title,
+				'type': is_group ? 'button' : 'toggle',
+				'style': is_group ? 'small' : 'group'
+			});
+			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
 			}
 			
-			button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
-			button.LABEL_TEMPLATE = this.getButtonLabelTemplate(definition);
+			// If not a group then render set different decoration
+			if (!is_group) {
+				button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
+				button.LABEL_TEMPLATE = this.getButtonLabelTemplate(definition);
+			}
+			
 			this.buttons[definition.id] = button;
 			
 			if (first) {
@@ -20756,7 +20768,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				button.get('boundingBox').addClass('su-button-last');
 			}
 			
-			if (definition.values && slideshow) {
+			if (is_group && slideshow) {
 				button.get('boundingBox').addClass('button-section');
 				slide = slideshow.addSlide('propertySlide' + this.get('id') + definition.id);
 				
@@ -20804,6 +20816,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			
 			//Set button width
 			button.get('boundingBox').setStyle('width', button_width + '%');
+			
+			// Group button should fill all available space
+			if (is_group) {
+				button.addClass('su-button-fill');
+			}
 			
 			//On click update input value
 			if (definition.values && slideshow) {
@@ -28707,7 +28724,6 @@ YUI.add('supra.datatype-color', function(Y) {
 					this.set("value", value);
 					
 					if (!event.silent) {
-						console.log('BLUR -> resize');
 						this.blur();
 					}
 				}, this);
@@ -28727,7 +28743,6 @@ YUI.add('supra.datatype-color', function(Y) {
 			var imageResizer = this.widgets.imageResizer;
 			if (imageResizer) {
 				imageResizer.set("image", null);
-				console.log('BLUR -> stopEditing');
 				this.blur();
 			}
 		},
@@ -28975,7 +28990,7 @@ YUI.add('supra.datatype-color', function(Y) {
 					"style": "small"
 				}));
 				button.on("click", this.openMediaSidebar, this);
-				button.addClass("button-section")
+				button.addClass("su-button-fill");
 				button.render(container);
 				
 				if (boundingBox) {
@@ -28988,7 +29003,7 @@ YUI.add('supra.datatype-color', function(Y) {
 					"style": "small"
 				}));
 				button.on("click", this.startEditing, this);
-				button.addClass("button-section");
+				button.addClass("su-button-fill");
 				button.set("disabled", !has_image);
 				button.render(container);
 				
@@ -29006,6 +29021,7 @@ YUI.add('supra.datatype-color', function(Y) {
 					"style": "small-red"
 				}));
 				button.on("click", this.removeImage, this);
+				button.addClass("su-button-fill");
 				button.set("disabled", !has_image);
 				button.set("visible", this.get("allowRemoveImage"));
 				button.render(container);
@@ -29019,7 +29035,6 @@ YUI.add('supra.datatype-color', function(Y) {
 					slideshow.on("slideChange", function (evt) {
 						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
 							this.widgets.imageResizer.set("image", null);
-							console.log('BLUR -> slideChange');
 							this.blur();
 						}
 					}, this);
@@ -29346,7 +29361,6 @@ YUI.add('supra.datatype-color', function(Y) {
 					this.set("value", value);
 					
 					if (!event.silent) {
-						console.log('BLUR -> resize');
 						this.blur();
 					}
 				}, this);

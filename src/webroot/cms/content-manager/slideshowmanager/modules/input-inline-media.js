@@ -164,6 +164,9 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			delete_image.render(slide_image.one('.su-slide-content'));
 			delete_video.render(slide_video.one('.su-slide-content'));
 			
+			delete_image.addClass("su-button-fill");
+			delete_video.addClass("su-button-fill");
+			
 			this.widgets = {
 				// Separate slides
 				'slide_image': slide_image,

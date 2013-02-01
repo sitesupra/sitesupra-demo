@@ -179,7 +179,8 @@ YUI.add('supra.input-select-visual', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'type': definition.values ? 'button' : 'toggle', 'style': 'group'}),
+				is_group = definition.values && definition.values.length,
+				button = null,
 				value = this._getInternalValue(),
 				has_value_match = false,
 				
@@ -188,12 +189,23 @@ YUI.add('supra.input-select-visual', function (Y) {
 				subinput = null,
 				button_value_map = this.button_value_map;
 			
+			// Create button
+			button = new Supra.Button({
+				'label': definition.title,
+				'type': is_group ? 'button' : 'toggle',
+				'style': is_group ? 'small' : 'group'
+			});
+			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
 			}
 			
-			button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
-			button.LABEL_TEMPLATE = this.getButtonLabelTemplate(definition);
+			// If not a group then render set different decoration
+			if (!is_group) {
+				button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
+				button.LABEL_TEMPLATE = this.getButtonLabelTemplate(definition);
+			}
+			
 			this.buttons[definition.id] = button;
 			
 			if (first) {
@@ -203,7 +215,7 @@ YUI.add('supra.input-select-visual', function (Y) {
 				button.get('boundingBox').addClass('su-button-last');
 			}
 			
-			if (definition.values && slideshow) {
+			if (is_group && slideshow) {
 				button.get('boundingBox').addClass('button-section');
 				slide = slideshow.addSlide('propertySlide' + this.get('id') + definition.id);
 				
@@ -251,6 +263,11 @@ YUI.add('supra.input-select-visual', function (Y) {
 			
 			//Set button width
 			button.get('boundingBox').setStyle('width', button_width + '%');
+			
+			// Group button should fill all available space
+			if (is_group) {
+				button.addClass('su-button-fill');
+			}
 			
 			//On click update input value
 			if (definition.values && slideshow) {

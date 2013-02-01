@@ -237,7 +237,6 @@ YUI.add("supra.input-block-background", function (Y) {
 					this.set("value", value);
 					
 					if (!event.silent) {
-						console.log('BLUR -> resize');
 						this.blur();
 					}
 				}, this);
@@ -257,7 +256,6 @@ YUI.add("supra.input-block-background", function (Y) {
 			var imageResizer = this.widgets.imageResizer;
 			if (imageResizer) {
 				imageResizer.set("image", null);
-				console.log('BLUR -> stopEditing');
 				this.blur();
 			}
 		},
@@ -505,7 +503,7 @@ YUI.add("supra.input-block-background", function (Y) {
 					"style": "small"
 				}));
 				button.on("click", this.openMediaSidebar, this);
-				button.addClass("button-section")
+				button.addClass("su-button-fill");
 				button.render(container);
 				
 				if (boundingBox) {
@@ -518,7 +516,7 @@ YUI.add("supra.input-block-background", function (Y) {
 					"style": "small"
 				}));
 				button.on("click", this.startEditing, this);
-				button.addClass("button-section");
+				button.addClass("su-button-fill");
 				button.set("disabled", !has_image);
 				button.render(container);
 				
@@ -536,6 +534,7 @@ YUI.add("supra.input-block-background", function (Y) {
 					"style": "small-red"
 				}));
 				button.on("click", this.removeImage, this);
+				button.addClass("su-button-fill");
 				button.set("disabled", !has_image);
 				button.set("visible", this.get("allowRemoveImage"));
 				button.render(container);
@@ -549,7 +548,6 @@ YUI.add("supra.input-block-background", function (Y) {
 					slideshow.on("slideChange", function (evt) {
 						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
 							this.widgets.imageResizer.set("image", null);
-							console.log('BLUR -> slideChange');
 							this.blur();
 						}
 					}, this);

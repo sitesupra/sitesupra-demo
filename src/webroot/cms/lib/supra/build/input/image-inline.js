@@ -109,7 +109,6 @@ YUI.add('supra.input-image-inline', function (Y) {
 					this.set("value", value);
 					
 					if (!event.silent) {
-						console.log('BLUR -> resize');
 						this.blur();
 					}
 				}, this);

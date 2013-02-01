@@ -80,7 +80,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 */
 		resetAll: function () {
 			// Active property
-			this._stopEditing();
+			this.stopEditing();
 			
 			// Clean up inputs
 			this._cleanUpInputs();
@@ -194,12 +194,39 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * @private 
 		 */
 		_setActiveItemId: function (id) {
-			var iframe = this.get('iframe');
+			var iframe = this.get('iframe'),
+				old_id = null,
+				old_data = null,
+				new_data = null;
 			
 			if (iframe && !iframe.get('loading')) {
+				old_id = this.get('activeItemId');
+				old_data = this.get('host').data.getSlideById(old_id);
+				new_data = this.get('host').data.getSlideById(id);
+				
+				this.updateLayoutClassName(old_data.layout, new_data.layout);
 				this.renderItem(id);
 				return id;
 			}
+		},
+		
+		/**
+		 * Update layout classname
+		 * 
+		 * @param {String} old_layout Old layout id
+		 * @param {String} new_layout New layout id
+		 */
+		updateLayoutClassName: function (old_layout, new_layout) {
+			if (old_layout === new_layout) return;
+			
+			var iframe = this.get('iframe');
+			if (!iframe || iframe.get('loading')) return;
+			
+			var node      = iframe.one('*[data-supra-container]'),
+				old_class = 'layout-' + old_layout,
+				new_class = 'layout-' + new_layout;
+			
+			node.replaceClass(old_class, new_class);
 		},
 		
 		
@@ -245,7 +272,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 */
 		_onInputBlur: function (event, property, input) {
 			if (input === this._activeInput) {
-				this._stopEditing();
+				this.stopEditing();
 			}
 		},
 		
@@ -273,12 +300,12 @@ YUI.add('slideshowmanager.view', function (Y) {
 			if (input.get('disabled') || !input.isInstanceOf('input-html-inline')) {
 				if (input.isInstanceOf('input-html-inline')) {
 					//Stop editing, but keep EditorToolbar
-					this._stopEditing(true);
+					this.stopEditing(true);
 					this.get('host').settings.hide();
 					Supra.Manager.EditorToolbar.execute();	
 				} else {
 					//Stop editing
-					this._stopEditing();
+					this.stopEditing();
 				}
 				
 				this._activeInput = input;
@@ -292,7 +319,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 		/**
 		 * Deatcivate input: disable content editing and show sidebar
 		 */
-		_stopEditing: function (preserveToolbar) {
+		stopEditing: function (preserveToolbar) {
 			var input = this._activeInput;
 			
 			if (input && !input.get('disabled') && input.isInstanceOf('input-html-inline')) {
@@ -371,6 +398,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 			// Render new item
 			var html = this.get('host').layouts.getLayoutHtml(data.layout);
 			container.set('innerHTML', html);
+			
+			// Classname for styling
+			container.addClass('layout-' + data.layout);
 			
 			// Set partially inline properties
 			this._restorePartialInlineInputs(data);
@@ -518,7 +548,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 						input.on('change', this._firePropertyChangeEvent, this, property, input);
 						
 						if (input.getEditor) {
-							input.getEditor().addCommand('manage', Y.bind(this._stopEditing, this));
+							input.getEditor().addCommand('manage', Y.bind(this.stopEditing, this));
 						}
 					}
 				}

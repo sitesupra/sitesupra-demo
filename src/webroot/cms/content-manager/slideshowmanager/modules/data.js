@@ -181,10 +181,15 @@ YUI.add('slideshowmanager.data', function (Y) {
 		 */
 		changeSlide: function (id, data) {
 			if (id && data) {
-				var slide = this.getSlideById(id);
+				var slide = this.getSlideById(id),
+					prevData = null;
+				
 				if (slide) {
+					// Get all values which we are about to overwrite (only those values!)
+					prevData = Y.mix({}, slide, true, Y.Object.keys(data));
+					
 					Supra.mix(slide, data);
-					this.fire('update', {'id': id, 'data': data});
+					this.fire('update', {'id': id, 'newData': data, 'prevData': prevData});
 					return true;
 				}
 			}
