@@ -46,16 +46,20 @@ YUI.add('supra.input-image-inline', function (Y) {
 				value = this.get("value");
 			
 			// Button "Custom image"
-			var buttonCustom = new Supra.Button({
-				"label": Supra.Intl.get(["form", "block", "custom_image"]),
-				"style": "small-gray"
-			});
-			buttonCustom.addClass("button-section");
-			buttonCustom.on("click", this.openSlide, this);
-			buttonCustom.render(renderTarget);
-			inputNode.insert(buttonCustom.get("boundingBox"), "before");
-			
-			this.widgets.buttonCustom = buttonCustom;
+			if (this.get('separateSlide')) {
+				var buttonCustom = new Supra.Button({
+					"label": Supra.Intl.get(["form", "block", "custom_image"]),
+					"style": "small-gray"
+				});
+				buttonCustom.addClass("button-section");
+				buttonCustom.on("click", this.openSlide, this);
+				buttonCustom.render(renderTarget);
+				inputNode.insert(buttonCustom.get("boundingBox"), "before");
+				
+				this.widgets.buttonCustom = buttonCustom;
+			} else {
+				this.openSlide();
+			}
 		},
 		
 		/* ----------------------------- Image edit ------------------------------- */
@@ -64,10 +68,16 @@ YUI.add('supra.input-image-inline', function (Y) {
 		/**
 		 * Start image editing
 		 */
-		editImage: function () {
+		startEditing: function () {
+			if (!this.image || !this.image.image) {
+				// No data for image to edit
+				return;
+			}
+			
 			var imageResizer = this.widgets.imageResizer,
 				node = this.get("targetNode"),
-				size = this.image.image.sizes.original;
+				size = this.image.image.sizes.original,
+				container_width = size.width;
 			
 			if (!node) {
 				return;
@@ -93,6 +103,9 @@ YUI.add('supra.input-image-inline', function (Y) {
 				}, this);
 			}
 			
+			container_width = Math.min(node.ancestor().get("offsetWidth") || size.width, size.width);
+			
+			imageResizer.set("maxCropWidth", container_width);
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
@@ -131,7 +144,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 				//Small delay to allow media library to close before doing anything
 				Y.later(100, this, function () {
 					if (this._hasImage()) {
-						this.editImage();
+						this.startEditing();
 					}
 				});
 			}

@@ -79,6 +79,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * Reset cache, clean up
 		 */
 		resetAll: function () {
+			// Active property
+			this.stopEditing();
+			
 			// Container node
 			var node = this.get('listNode');
 			if (node) {
@@ -219,13 +222,26 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * @private
 		 */
 		_activateInput: function (event, property, input) {
-			if (input.get('disabled')) {
+			var old_input = this._activeInput;
+			
+			if (Manager.getAction('MediaSidebar').get('visible')) {
+				// Can't edit anything while media library is shown
+				return;
+			}
+			
+			if (input.get('disabled') || !input.isInstanceOf('input-html-inline')) {
 				if (input.isInstanceOf('input-html-inline')) {
+					//Stop editing, but keep EditorToolbar
+					this.stopEditing(true);
 					this.get('host').settings.hide();
-					Supra.Manager.EditorToolbar.execute();
+					Supra.Manager.EditorToolbar.execute();	
+				} else {
+					//Stop editing
+					this.stopEditing();
 				}
+				
 				input.set('disabled', false);
-				input.focus();
+				input.startEditing();
 				
 				this._activeInput = input;
 				this._activePropertyId = property.id;
@@ -235,14 +251,24 @@ YUI.add('slideshowmanager.view', function (Y) {
 		/**
 		 * Deatcivate input: disable content editing and show sidebar
 		 */
-		_deativateInput: function (event) {
+		stopEditing: function (preserveToolbar) {
 			var input = this._activeInput;
 			
-			if (input && !input.get('disabled')) {
+			if (input && !input.get('disabled') && input.isInstanceOf('input-html-inline')) {
 				input.set('disabled', true);
-				if (input.isInstanceOf('input-html-inline')) {
+				if (input.isInstanceOf('input-html-inline') && preserveToolbar !== true) {
 					Supra.Manager.EditorToolbar.hide();
 					this.get('host').settings.show();
+				}
+			}
+			
+			// Stop editing
+			if (this.get('host').settings.widgets.form) {
+				var inputs = this.get('host').settings.widgets.form.getInputs(),
+					key = null;
+				
+				for (key in inputs) {
+					inputs[key].stopEditing();
 				}
 			}
 			
@@ -264,7 +290,6 @@ YUI.add('slideshowmanager.view', function (Y) {
 			
 			if (id && property) {
 				save[property.id] = input.get('value');
-				console.log('CHANGE!', property.id, save);
 				data.changeSlide(id, save);
 			}
 		},
@@ -314,19 +339,26 @@ YUI.add('slideshowmanager.view', function (Y) {
 			
 			for (; i<ii; i++) {
 				property = properties[i];
-				if (property.type == 'InlineImage') {
+				if (property.type == 'InlineImage' || property.type == 'InlineMedia') {
 					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
-					input = form.getInput(property.id);
-					input.set('targetNode', node);
-					input.set('value', data[property.id]);
+					if (node) {
+						input = form.getInput(property.id);
+						
+						node.on('mousedown', this._activateInput, this, property, input);
+						input.set('targetNode', node);
+						input.set('value', data[property.id]);
+					}
 				} else if (property.type == 'BlockBackground') {
 					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
-					node.addClass('hidden');
-					node = node.ancestor();
-					
-					input = form.getInput(property.id);
-					input.set('targetNode', node);
-					input.set('value', data[property.id]);
+					if (node) {
+						input = form.getInput(property.id);
+						
+						node.addClass('hidden');
+						node = node.ancestor();
+						
+						input.set('targetNode', node);
+						input.set('value', data[property.id]);
+					}
 				}
 			}
 			
@@ -410,7 +442,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 						input.on('change', this._firePropertyChangeEvent, this, property, input);
 						
 						if (input.getEditor) {
-							input.getEditor().addCommand('manage', Y.bind(this._deativateInput, this));
+							input.getEditor().addCommand('manage', Y.bind(this.stopEditing, this));
 						}
 					}
 				}
@@ -523,7 +555,6 @@ YUI.add('slideshowmanager.view', function (Y) {
 				
 				stylesheets.push('<link rel="stylesheet" type="text/css" href="' + linkHref + '" media="' + linkMedia + '" />');
 			}
-			
 			
 			// Gallery manager stylesheet for new item, drag and drop, etc. styles
 			linkHrefExtra = Manager.Loader.getActionInfo('SlideshowManager').folder + 'modules/view.css';
