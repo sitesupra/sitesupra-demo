@@ -138,8 +138,13 @@ YUI.add('supra.input-proto', function (Y) {
 			
 			//On Input focus, focus input element
 			this.on('focusedChange', function (event) {
-				if (event.newVal && event.newVal != event.prevVal) {
-					this.get('inputNode').focus();
+				if (event.newVal != event.prevVal) {
+					if (event.newVal) {
+						this.get('inputNode').focus();
+						this.fire('focus');
+					} else {
+						this.fire('blur');
+					}
 				}
 			}, this);
 			

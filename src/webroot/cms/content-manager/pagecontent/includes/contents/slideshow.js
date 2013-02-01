@@ -84,6 +84,20 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			//Handle block save / cancel
 			this.on('block:save', this.savePropertyChanges, this);
 			this.on('block:cancel', this.cancelPropertyChanges, this);
+			
+			//On item click open slideshow manager
+			this.bindItemClick();
+		},
+		
+		/**
+		 * Bind clicking on one of the items as a trigger for opening gallery manager
+		 * 
+		 * @private
+		 */
+		bindItemClick: function () {
+			this.getNode().on('click', function (e) {
+				this.openExternalManager();
+			}, this);
 		},
 		
 		/* -------------------------- Buttons -------------------------- */
@@ -464,8 +478,6 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		processData: function (data) {
 			var property   = this.getPropertyName();
 			
-			console.log('DATA BEFORE:', Supra.mix({}, data, true));
-			
 			// Shared property, can't edit?
 			if (this.properties.isPropertyShared(property)) {
 				data[property] = [];
@@ -501,8 +513,6 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			}
 			
 			data[property] = items;
-			
-			console.log('DATA AFTER:', data);
 			
 			return data;
 		},

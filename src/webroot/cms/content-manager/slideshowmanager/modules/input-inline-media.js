@@ -124,10 +124,19 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				'value': null
 			});
 			
+			// Video input events
+			input_video.on('focus', this.focus, this);
+			input_video.on('blur', this.blur, this);
+			
 			input_video.on('change', function () {
 				this.updateVideoPreviewImage();
 				this._fireValueChange();
 			}, this);
+			
+			// Image input events
+			input_image.on('focus', this.focus, this);
+			input_image.on('blur', this.blur, this);
+			
 			input_image.on('change', function () {
 				this._fireValueChange();
 			}, this);
@@ -421,7 +430,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			
 			if (data && type == 'image') {
 				var style = null,
-					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" style="width: 100%; height: 220px; background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
+					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" style="background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
 				
 				node.set('innerHTML', html);
 				this.widgets.input_image.set('targetNode', node.one('img'));

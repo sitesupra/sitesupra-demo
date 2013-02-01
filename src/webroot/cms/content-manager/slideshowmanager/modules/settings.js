@@ -223,7 +223,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			action.execute(form, {
-				'doneCallback': Y.bind(this.hide, this),
+				'doneCallback': Y.bind(this.onSidebarDone, this),
 				'toolbarActionName': Settings.NAME,
 				
 				'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title']),
@@ -234,6 +234,17 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			slideshow.set('noAnimations', true);
 			this.set('activeItemId', this.get('activeItemId'));
 			slideshow.set('noAnimations', false);
+		},
+		
+		/**
+		 * When sidebar is closed stop editing associated input
+		 * 
+		 * @private
+		 */
+		onSidebarDone: function () {
+			// Stop editing
+			this.get('host').view._stopEditing();
+			this.hide();
 		},
 		
 		/**

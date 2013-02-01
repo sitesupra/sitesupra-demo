@@ -107,6 +107,11 @@ YUI.add('supra.input-image-inline', function (Y) {
 					value.size_height = event.imageHeight;
 					
 					this.set("value", value);
+					
+					if (!event.silent) {
+						console.log('BLUR -> resize');
+						this.blur();
+					}
 				}, this);
 			}
 			
@@ -114,6 +119,8 @@ YUI.add('supra.input-image-inline', function (Y) {
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
+			
+			this.focus();
 		},
 		
 		/**

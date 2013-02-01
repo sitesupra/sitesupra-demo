@@ -14,6 +14,11 @@
           - Supra\Controller\Pages
     propertyGroups:
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: slideshow_block_manage
+          icon: /cms/lib/supra/img/toolbar/icon-pages.png
+          type: top
+          label: Edit slides
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: design
           type: sidebar
           icon: /cms/lib/supra/img/toolbar/icon-design.png

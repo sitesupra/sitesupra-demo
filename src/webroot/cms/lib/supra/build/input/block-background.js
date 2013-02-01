@@ -235,12 +235,19 @@ YUI.add("supra.input-block-background", function (Y) {
 					image.size_height = event.imageHeight;
 					
 					this.set("value", value);
+					
+					if (!event.silent) {
+						console.log('BLUR -> resize');
+						this.blur();
+					}
 				}, this);
 			}
 			
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
+			
+			this.focus();
 		},
 		
 		/**
@@ -250,6 +257,8 @@ YUI.add("supra.input-block-background", function (Y) {
 			var imageResizer = this.widgets.imageResizer;
 			if (imageResizer) {
 				imageResizer.set("image", null);
+				console.log('BLUR -> stopEditing');
+				this.blur();
 			}
 		},
 		
@@ -536,10 +545,12 @@ YUI.add("supra.input-block-background", function (Y) {
 				}
 				
 				//When slide is hidden stop editing image
-				if (!separate) {
+				if (separate) {
 					slideshow.on("slideChange", function (evt) {
 						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
 							this.widgets.imageResizer.set("image", null);
+							console.log('BLUR -> slideChange');
+							this.blur();
 						}
 					}, this);
 				}

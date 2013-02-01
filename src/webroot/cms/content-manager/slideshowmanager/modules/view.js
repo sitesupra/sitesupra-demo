@@ -80,7 +80,10 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 */
 		resetAll: function () {
 			// Active property
-			this.stopEditing();
+			this._stopEditing();
+			
+			// Clean up inputs
+			this._cleanUpInputs();
 			
 			// Container node
 			var node = this.get('listNode');
@@ -88,6 +91,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 				node.destroy(true);
 				this.set('listNode', null);
 			}
+			
+			this._activeInput = null;
+			this._activePropertyId = null;
 		},
 		
 		
@@ -214,6 +220,36 @@ YUI.add('slideshowmanager.view', function (Y) {
 		
 		
 		/**
+		 * On input focus start editing it
+		 * This is for inline image, background inputs
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} property Property info
+		 * @param {Object} input Property input
+		 * @private
+		 */
+		_onInputFocus: function (event, property, input) {
+			if (input !== this._activeInput) {
+				this._startEditing(event, property, input);
+			}
+		},
+		
+		/**
+		 * On input blur stop editing it
+		 * This is for inline image, background inputs
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} property Property info
+		 * @param {Object} input Property input
+		 * @private
+		 */
+		_onInputBlur: function (event, property, input) {
+			if (input === this._activeInput) {
+				this._stopEditing();
+			}
+		},
+		
+		/**
 		 * Active input: start editing content, close sidebar
 		 * 
 		 * @param {Object} event Event facade object
@@ -221,7 +257,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * @param {Object} input Property input
 		 * @private
 		 */
-		_activateInput: function (event, property, input) {
+		_startEditing: function (event, property, input) {
 			var old_input = this._activeInput;
 			
 			if (old_input === input) {
@@ -237,26 +273,26 @@ YUI.add('slideshowmanager.view', function (Y) {
 			if (input.get('disabled') || !input.isInstanceOf('input-html-inline')) {
 				if (input.isInstanceOf('input-html-inline')) {
 					//Stop editing, but keep EditorToolbar
-					this.stopEditing(true);
+					this._stopEditing(true);
 					this.get('host').settings.hide();
 					Supra.Manager.EditorToolbar.execute();	
 				} else {
 					//Stop editing
-					this.stopEditing();
+					this._stopEditing();
 				}
-				
-				input.set('disabled', false);
-				input.startEditing();
 				
 				this._activeInput = input;
 				this._activePropertyId = property.id;
+				
+				input.set('disabled', false);
+				input.startEditing();
 			}
 		},
 		
 		/**
 		 * Deatcivate input: disable content editing and show sidebar
 		 */
-		stopEditing: function (preserveToolbar) {
+		_stopEditing: function (preserveToolbar) {
 			var input = this._activeInput;
 			
 			if (input && !input.get('disabled') && input.isInstanceOf('input-html-inline')) {
@@ -267,6 +303,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 				}
 			}
 			
+			this._activeInput = null;
+			this._activePropertyId = null;
+			
 			// Stop editing
 			if (this.get('host').settings.widgets.form) {
 				var inputs = this.get('host').settings.widgets.form.getInputs(),
@@ -276,9 +315,6 @@ YUI.add('slideshowmanager.view', function (Y) {
 					inputs[key].stopEditing();
 				}
 			}
-			
-			this._activeInput = null;
-			this._activePropertyId = null;
 		},
 		
 		/**
@@ -337,38 +373,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			container.set('innerHTML', html);
 			
 			// Set partially inline properties
-			var properties = this.get('host').settings.getProperties(),
-				property = null,
-				i = 0,
-				ii = properties.length,
-				node = null,
-				form = this.get('host').settings.getForm(),
-				input;
-			
-			for (; i<ii; i++) {
-				property = properties[i];
-				if (property.type == 'InlineImage' || property.type == 'InlineMedia') {
-					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
-					if (node) {
-						input = form.getInput(property.id);
-						
-						node.on('mousedown', this._activateInput, this, property, input);
-						input.set('targetNode', node);
-						input.set('value', data[property.id]);
-					}
-				} else if (property.type == 'BlockBackground') {
-					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
-					if (node) {
-						input = form.getInput(property.id);
-						
-						node.addClass('hidden');
-						node = node.ancestor();
-						
-						input.set('targetNode', node);
-						input.set('value', data[property.id]);
-					}
-				}
-			}
+			this._restorePartialInlineInputs(data);
 			
 			// Restore input properties
 			this._restoreInputs(data);
@@ -393,6 +398,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 				
 			}
 			
+			// Remove inline inputs
 			for (; i<ii; i++) {
 				values[inputs[i].get('id')] = inputs[i].get('value');
 				inputs[i].destroy();
@@ -402,7 +408,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			this.inputValues = values;
 			this._activeInput = null;
 			
-			// ReSet partially inline properties
+			// Reset partial inline inputs
 			var properties = this.get('host').settings.getProperties(),
 				property = null,
 				i = 0,
@@ -418,8 +424,53 @@ YUI.add('slideshowmanager.view', function (Y) {
 		},
 		
 		/**
+		 * Restore partial inline input nodes and values
+		 * 
+		 * @param {Object} data Slide data
+		 * @private
+		 */
+		_restorePartialInlineInputs: function (data) {
+			var properties = this.get('host').settings.getProperties(),
+				property = null,
+				i = 0,
+				ii = properties.length,
+				iframe = this.get('iframe'),
+				node = null,
+				form = this.get('host').settings.getForm(),
+				input;
+			
+			for (; i<ii; i++) {
+				property = properties[i];
+				if (property.type == 'InlineImage' || property.type == 'InlineMedia') {
+					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					if (node) {
+						input = form.getInput(property.id);
+						
+						node.on('mousedown', this._startEditing, this, property, input);
+						input.set('targetNode', node);
+						input.set('value', data[property.id]);
+						input.on('blur', this._onInputBlur, this, property, input);
+						input.on('focus', this._onInputFocus, this, property, input);
+					}
+				} else if (property.type == 'BlockBackground') {
+					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					if (node) {
+						input = form.getInput(property.id);
+						
+						node.addClass('hidden');
+						node = node.ancestor();
+						
+						input.set('targetNode', node);
+						input.set('value', data[property.id]);
+					}
+				}
+			}
+		},
+		
+		/**
 		 * Create new inputs after content is inserted
 		 * 
+		 * @param {Object} data Slide data
 		 * @private
 		 */
 		_restoreInputs: function (data) {
@@ -463,11 +514,11 @@ YUI.add('slideshowmanager.view', function (Y) {
 							input.set('disabled', true);
 						}
 						
-						node.on('mousedown', this._activateInput, this, property, input);
+						node.on('mousedown', this._startEditing, this, property, input);
 						input.on('change', this._firePropertyChangeEvent, this, property, input);
 						
 						if (input.getEditor) {
-							input.getEditor().addCommand('manage', Y.bind(this.stopEditing, this));
+							input.getEditor().addCommand('manage', Y.bind(this._stopEditing, this));
 						}
 					}
 				}

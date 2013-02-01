@@ -6515,8 +6515,13 @@ YUI().add("supra.io-css", function (Y) {
 			
 			//On Input focus, focus input element
 			this.on('focusedChange', function (event) {
-				if (event.newVal && event.newVal != event.prevVal) {
-					this.get('inputNode').focus();
+				if (event.newVal != event.prevVal) {
+					if (event.newVal) {
+						this.get('inputNode').focus();
+						this.fire('focus');
+					} else {
+						this.fire('blur');
+					}
 				}
 			}, this);
 			
@@ -11273,10 +11278,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * Remove all created elements and events
 		 * 
 		 * @param {Y.Node} image Image node
+		 * @param {Boolean} silent Image is removed, but another will be set shortly
 		 * @private
 		 */
-		tearDownImage: function (image) {
+		tearDownImage: function (image, silent) {
 			if (!image) return;
+			
+			if (!this.get("imageContainerNode")) {
+				// Already teared down, 'resize' event triggered this again
+				return;
+			}
 			
 			var imageContainerNode = this.get("imageContainerNode"),
 				resizeHandleNode = this.get("resizeHandleNode"),
@@ -11300,6 +11311,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			imageContainerNode.remove(true);
 			this.set("imageContainerNode", null);
 			
+			if (this.zoomPanel) {
+				this.zoomPanel.hide();
+			}
+			
 			this.fire("resize", {
 				"image": image,
 				"cropLeft": this.cropLeft,
@@ -11307,12 +11322,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"cropWidth": this.cropWidth,
 				"cropHeight": this.cropHeight,
 				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight
+				"imageHeight": this.imageHeight,
+				"silent": !!silent
 			});
-			
-			if (this.zoomPanel) {
-				this.zoomPanel.hide();
-			}
 		},
 		
 		
@@ -11388,9 +11400,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * Remove all created elements and events
 		 * 
 		 * @param {Y.Node} image Node which background was resized
+		 * @param {Boolean} silent Image is removed, but another will be set shortly
 		 * @private
 		 */
-		tearDownBackground: function (image) {
+		tearDownBackground: function (image, silent) {
 			if (!image) return;
 			
 			var resizeHandleNode = this.get("resizeHandleNode"),
@@ -11411,7 +11424,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"cropWidth": this.cropWidth,
 				"cropHeight": this.cropHeight,
 				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight
+				"imageHeight": this.imageHeight,
+				"silent": !!silent
 			});
 			
 			if (this.zoomPanel) {
@@ -11432,14 +11446,15 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		_setImageAttr: function (image) {
 			var image = image ? (image.getDOMNode ? image : Y.Node(image)) : null,
-				doc = image ? image.getDOMNode().ownerDocument : null;
+				doc = image ? image.getDOMNode().ownerDocument : null,
+				silent = !!image;
 			
 			if (this.get("image")) {
 				
 				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
-					this.tearDownImage(this.get("image"));
+					this.tearDownImage(this.get("image"), silent);
 				} else {
-					this.tearDownBackground(this.get("image"));
+					this.tearDownBackground(this.get("image"), silent);
 				}
 			}
 			
@@ -28690,12 +28705,19 @@ YUI.add('supra.datatype-color', function(Y) {
 					image.size_height = event.imageHeight;
 					
 					this.set("value", value);
+					
+					if (!event.silent) {
+						console.log('BLUR -> resize');
+						this.blur();
+					}
 				}, this);
 			}
 			
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
+			
+			this.focus();
 		},
 		
 		/**
@@ -28705,6 +28727,8 @@ YUI.add('supra.datatype-color', function(Y) {
 			var imageResizer = this.widgets.imageResizer;
 			if (imageResizer) {
 				imageResizer.set("image", null);
+				console.log('BLUR -> stopEditing');
+				this.blur();
 			}
 		},
 		
@@ -28991,10 +29015,12 @@ YUI.add('supra.datatype-color', function(Y) {
 				}
 				
 				//When slide is hidden stop editing image
-				if (!separate) {
+				if (separate) {
 					slideshow.on("slideChange", function (evt) {
 						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
 							this.widgets.imageResizer.set("image", null);
+							console.log('BLUR -> slideChange');
+							this.blur();
 						}
 					}, this);
 				}
@@ -29318,6 +29344,11 @@ YUI.add('supra.datatype-color', function(Y) {
 					value.size_height = event.imageHeight;
 					
 					this.set("value", value);
+					
+					if (!event.silent) {
+						console.log('BLUR -> resize');
+						this.blur();
+					}
 				}, this);
 			}
 			
@@ -29325,6 +29356,8 @@ YUI.add('supra.datatype-color', function(Y) {
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
+			
+			this.focus();
 		},
 		
 		/**
