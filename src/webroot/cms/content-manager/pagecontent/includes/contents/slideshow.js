@@ -430,10 +430,13 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		  		'id': 'media',
 		  		'type': 'InlineMedia',
 		  		'label': 'Image or video'
-		  	}/*, {
+		  	}, {
 		  		'id': 'buttons',
 		  		'type': 'Set',
 		  		'label': 'Buttons',
+		  		'labelAdd': 'Add more buttons',
+		  		'labelRemove': 'Remove button',
+		  		'labelItem': 'Button %s',
 		  		'properties': [
 		  			{
 		  				'id': 'title',
@@ -446,7 +449,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		  				'label': 'Link'
 		  			}
 		  		]
-		  	}*/];
+		  	}];
 		  	
 		  	
 		  	
@@ -482,43 +485,43 @@ YUI.add('supra.page-content-slideshow', function (Y) {
           		
           		{
 					'id': 'bg_text_left',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}</div><div class="as-layer as-layer-right-large">&nbsp;</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">&nbsp;</div></li>'
           		}, {
 					'id': 'bg_text_right',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div></li>'
           		}, {
           			'id': 'bg_text_left_top',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-small">{{ property.text_main }}</div><div class="as-layer as-layer-right-large">&nbsp;</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">&nbsp;</div></li>'
           		}, {
 					'id': 'bg_text_right_top',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div></li>'
           		}, {
           			'id': 'bg_text_left_bottom',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}</div><div class="as-layer as-layer-right-large">&nbsp;</div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">&nbsp;</div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
           		}, {
 					'id': 'bg_text_right_bottom',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}</div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
           		},
           		
           		
           		{
 					'id': 'bg_text_img_left',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}</div><div class="as-layer as-layer-right-large">{{ property.media }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">{{ property.media }}</div></li>'
           		}, {
 					'id': 'bg_text_img_right',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div></li>'
           		}, {
           			'id': 'bg_text_img_left_top',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-small">{{ property.text_main }}</div><div class="as-layer as-layer-right-large">{{ property.media }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">{{ property.media }}</div></li>'
           		}, {
 					'id': 'bg_text_img_right_top',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div></li>'
           		}, {
           			'id': 'bg_text_img_left_bottom',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}</div><div class="as-layer as-layer-right-large">{{ property.media }}</div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">{{ property.media }}</div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
           		}, {
 					'id': 'bg_text_img_right_bottom',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}</div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
+          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
           		}];
           		
           		

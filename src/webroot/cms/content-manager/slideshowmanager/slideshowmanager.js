@@ -26,6 +26,10 @@ Supra.addModules({
 	'slideshowmanager.input-inline-media': {
 		path: 'input-inline-media.js',
 		requires: ['supra.input-proto']
+	},
+	'slideshowmanager.plugin-inline-button': {
+		path: 'plugin-inline-button.js',
+		requires: ['supra.input-proto', 'plugin', 'supra.template']
 	}
 });
 
@@ -35,7 +39,8 @@ Supra([
 	'slideshowmanager.list',
 	'slideshowmanager.settings',
 	'slideshowmanager.view',
-	'slideshowmanager.input-inline-media'
+	'slideshowmanager.input-inline-media',
+	'slideshowmanager.plugin-inline-button'
 ], function (Y) {
 	//Invoke strict mode
 	"use strict";

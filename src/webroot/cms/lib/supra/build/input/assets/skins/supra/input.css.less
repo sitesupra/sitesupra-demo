@@ -50,6 +50,7 @@
 	.yui3-input-block-background-hidden,
 	.yui3-input-image-inline-hidden,
 	.yui3-input-button-hidden,
+	.yui3-input-set-hidden,
 	.button-section.yui3-input-button-hidden {
 		display: none;
 	}
@@ -110,6 +111,7 @@
 			padding-right: 0;
 		}
 		.yui3-input-string .description,
+		.yui3-input-set .description,
 		.yui3-input-text .description,
 		.yui3-input-video .description {
 			/* String, text and video and 100% wide */
@@ -454,6 +456,9 @@
 /* Video */
 @import "less/video.less";
 
+/* Set */
+@import "less/set.less";
+
 /* Slider */
 .yui3-input-slider .less,
 .yui3-input-slider .more {
@@ -585,6 +590,7 @@
 		padding: 0 0 4px 2px;
 	}
 	.yui3-input-string label,
+	.yui3-input-set label,
 	.yui3-input-number label,
 	.yui3-input-text label,
 	.yui3-input-html label,

@@ -15,6 +15,8 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 	
 	Input.ATTRS = {
 		// Render widget into separate form
+		// needed because image can be edited inline and in main form
+		// InlineImage input may not be welcome
 		'separateForm': {
 			value: false
 		},
@@ -124,26 +126,6 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				'value': null
 			});
 			
-			// Video input events
-			input_video.on('focus', this.focus, this);
-			input_video.on('blur', this.blur, this);
-			
-			input_video.on('change', function () {
-				this.updateVideoPreviewImage();
-				this._fireValueChange();
-			}, this);
-			
-			// Image input events
-			input_image.on('focus', this.focus, this);
-			input_image.on('blur', this.blur, this);
-			
-			input_image.on('change', function () {
-				this._fireValueChange();
-			}, this);
-			input_image.on('valueChange', function () {
-				this._fireValueChange();
-			}, this);
-			
 			input_image.render(slide_image.one('.su-slide-content'));
 			input_video.render(slide_video.one('.su-slide-content'));
 			
@@ -157,9 +139,6 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				'style': 'small-red',
 				'label': Supra.Intl.get(['inputs', 'media', 'delete_video'])
 			});
-			
-			delete_image.on('click', this.removeMedia, this);
-			delete_video.on('click', this.removeMedia, this);
 			
 			delete_image.render(slide_image.one('.su-slide-content'));
 			delete_video.render(slide_video.one('.su-slide-content'));
@@ -182,6 +161,43 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			};
 			
 			this.renderContent(this.get('targetNode'), this.get('value'));
+		},
+		
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+			
+			var input_image  = this.widgets.input_image,
+				input_video  = this.widgets.input_video,
+				
+				delete_image = this.widgets.delete_image,
+				delete_video = this.widgets.delete_video;
+			
+			// Video input events
+			input_video.on('focus', this.focus, this);
+			input_video.on('blur', this.blur, this);
+			
+			input_video.on('change', function () {
+				this.updateVideoPreviewImage();
+				this._fireValueChange();
+			}, this);
+			
+			// Image input events
+			input_image.on('focus', this.focus, this);
+			input_image.on('blur', this.blur, this);
+			
+			input_image.on('change', function () {
+				this._fireValueChange();
+			}, this);
+			input_image.on('valueChange', function () {
+				this._fireValueChange();
+			}, this);
+			
+			// Button events
+			delete_image.on('click', this.removeMedia, this);
+			delete_video.on('click', this.removeMedia, this);
+			
+			// Change event
+			this.on('valueChange', this._afterValueChange, this);
 		},
 		
 		
@@ -250,35 +266,6 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 					slideshow.scrollBack();
 				}
 			}
-		},
-		
-		
-		/**
-		 * Returns parent widget by class name
-		 * 
-		 * @param {String} classname Parent widgets class name
-		 * @return Widget instance or null if not found
-		 * @private
-		 */
-		getParentWidget: function (classname) {
-			var parent = this.get("parent");
-			while (parent) {
-				if (parent.isInstanceOf(classname)) return parent;
-				parent = parent.get("parent");
-			}
-			return null;
-		},
-		
-		/**
-		 * Returns slideshow
-		 * 
-		 * @return Slideshow
-		 * @type {Object}
-		 * @private
-		 */
-		getSlideshow: function () {
-			var form = this.getParentWidget("form");
-			return form ? form.get("slideshow") : null;
 		},
 		
 		
@@ -564,6 +551,12 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				return Supra.mix({'type': type}, data);
 			} else {
 				return {'type': type};
+			}
+		},
+		
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
 			}
 		},
 		

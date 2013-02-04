@@ -443,12 +443,20 @@ YUI.add('slideshowmanager.view', function (Y) {
 				property = null,
 				i = 0,
 				ii = properties.length,
-				form = this.get('host').settings.getForm();
+				form = this.get('host').settings.getForm(),
+				input = null;
 			
 			for (; i<ii; i++) {
 				property = properties[i];
 				if (property.type == 'InlineImage' || property.type == 'InlineMedia' || property.type == 'BlockBackground') {
 					form.getInput(property.id).set('targetNode', null);
+				} else if (property.type == 'Set') {
+					input = form.getInput(property.id);
+					
+					// Input plugin target node needs to be updated too
+					if (input && input.inline) {
+						input.inline.set('targetNode', null);
+					}
 				}
 			}
 		},
@@ -492,6 +500,16 @@ YUI.add('slideshowmanager.view', function (Y) {
 						
 						input.set('targetNode', node);
 						input.set('value', data[property.id]);
+					}
+				} else if (property.type == 'Set') {
+					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					if (node) {
+						input = form.getInput(property.id);
+						
+						// SlideshowManagerViewButton plugin
+						if (input && input.inline) {
+							input.inline.set('targetNode', node);
+						}
 					}
 				}
 			}

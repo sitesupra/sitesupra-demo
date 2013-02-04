@@ -146,8 +146,14 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			var form = new Supra.Form(form_config);
 				form.render(content);
 				form.hide();
-				form.addClass('yui3-form-fill');
+				form.addClass('yui3-form-fill'),
+				input = null;
 			
+			//Buttons input plugin
+			input = form.getInput('buttons');
+			if (input) {
+				input.plug(Supra.SlideshowManagerViewButton, {});
+			}
 			
 			//On input value change update inline inputs
 			var ii = properties.length,

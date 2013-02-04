@@ -553,6 +553,45 @@ YUI.add('supra.input-proto', function (Y) {
 		 */
 		toString: function () {
 			return String(this.getValue() || '');
+		},
+		
+		
+		/* ------------------------------ SIDEBAR -------------------------------- */
+		
+		
+		/**
+		 * Returns parent widget by class name
+		 * 
+		 * @param {String} classname Parent widgets class name
+		 * @return Widget instance or null if not found
+		 * @private
+		 */
+		getParentWidget: function (classname) {
+			var parent = this.get("parent");
+			while (parent) {
+				if (parent.isInstanceOf(classname)) return parent;
+				parent = parent.get("parent");
+			}
+			return null;
+		},
+		
+		/**
+		 * Returns slideshow
+		 * 
+		 * @returns {Object} Slideshow instance if there is one
+		 */
+		getSlideshow: function () {
+			var form = this.getParentWidget("form");
+			return form ? form.get("slideshow") : null;
+		},
+		
+		/**
+		 * Returns form
+		 * 
+		 * @returns {Object} Form instance to which this input belongs to
+		 */
+		getForm: function () {
+			return this.getParentWidget("form");
 		}
 		
 	});
