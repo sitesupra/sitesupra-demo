@@ -25,7 +25,7 @@ Supra.addModules({
 	},
 	'slideshowmanager.input-inline-media': {
 		path: 'input-inline-media.js',
-		requires: ['supra.input-proto']
+		requires: ['supra.input-proto', 'supra.uploader']
 	},
 	'slideshowmanager.plugin-inline-button': {
 		path: 'plugin-inline-button.js',

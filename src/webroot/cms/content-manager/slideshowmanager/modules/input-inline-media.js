@@ -40,6 +40,16 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		//Blank image URI or data URI
 		'blankImageUrl': {
 			value: "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+		},
+		
+		// Allow file upload using drag and drop
+		'allowDropUpload': {
+			value: true
+		},
+		
+		// Image upload folder id
+		'uploadFolderId': {
+			value: 0
 		}
 	};
 	
@@ -79,6 +89,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				var slideshow = this.get('slideshow'),
 					inputs = this.widgets.inputs,
 					slides = this.widgets.slides,
+					uploader = this.widgets.uploader,
 					key = null;
 				
 				if (slideshow) {
@@ -90,6 +101,10 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 						slideshow.removeSlide(key);
 					}
 					
+				}
+				
+				if (uploader) {
+					uploader.destroy();
 				}
 				
 				this.widgets = null;
@@ -106,7 +121,26 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				slide_image = slideshow.addSlide(this.get('id') + '_slide_image'),
 				slide_video = slideshow.addSlide(this.get('id') + '_slide_video'),
 				delete_image = null,
-				delete_video = null;
+				delete_video = null,
+				uploader = null,
+				target = null;
+			
+			// Drag and drop upload
+			if (this.get('allowDropUpload')) {
+				target = this.get('targetNode');
+				uploader = new Supra.Uploader({
+					'clickTarget': null,
+					'dropTarget': this._getDropTargetNode(target),
+					
+					'allowBrowse': false,
+					'allowMultiple': false,
+					'accept': 'image/*',
+					
+					'requestUri': Supra.Manager.getAction('MediaLibrary').getDataPath('upload'),
+					'uploadFolderId': this.get('uploadFolderId')
+
+				});
+			}
 			
 			// Inputs
 			input_image = new Supra.Input.InlineImage({
@@ -157,7 +191,10 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				
 				// Buttons
 				'delete_image': delete_image,
-				'delete_video': delete_video
+				'delete_video': delete_video,
+				
+				// File uploader
+				'uploader': uploader
 			};
 			
 			this.renderContent(this.get('targetNode'), this.get('value'));
@@ -170,7 +207,9 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				input_video  = this.widgets.input_video,
 				
 				delete_image = this.widgets.delete_image,
-				delete_video = this.widgets.delete_video;
+				delete_video = this.widgets.delete_video,
+				
+				uploader     = this.widgets.uploader;
 			
 			// Video input events
 			input_video.on('focus', this.focus, this);
@@ -198,6 +237,57 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			
 			// Change event
 			this.on('valueChange', this._afterValueChange, this);
+			
+			// Uploader events
+			if (uploader) {
+				uploader.on('file:upload',   this._onFileUploadStart, this);
+				uploader.on('file:complete', this._onFileUploadEnd, this);
+				uploader.on('file:error',    this._onFileUploadError, this);
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------------- FILE UPLOAD ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Handle file upload start
+		 * 
+		 * @private
+		 */
+		_onFileUploadStart: function (e) {
+			// data.title, data.filename, data.id
+			var data = e.details[0];
+		},
+		
+		/**
+		 * Handle file upload end
+		 * 
+		 * @private
+		 */
+		_onFileUploadEnd: function (e) {
+			var data = e.details[0]
+			this.insertImageData(data);
+		},
+		
+		/**
+		 * Handle file upload error
+		 * 
+		 * @private
+		 */
+		_onFileUploadError: function (e) {
+			// Error
+		},
+		
+		/**
+		 * Returns drag and drop target node
+		 * 
+		 * @private
+		 */
+		_getDropTargetNode: function (node) {
+			return node ? node.closest('.supra-slideshowmanager-wrapper') || node : null;
 		},
 		
 		
@@ -333,6 +423,12 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		_setTargetNode: function (node) {
 			if (this.get('rendered')) {
 				this.renderContent(node, this.get('value'));
+				
+				var uploader = this.widgets.uploader;
+				if (uploader) {
+					uploader.set('dropTarget', this._getDropTargetNode(node));
+					uploader.set('disabled', this.get('disabled'));
+				}
 			}
 			return node;
 		},
@@ -380,6 +476,29 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			});
 			
 			this.startEditing();
+		},
+		
+		insertImageData: function (data) {
+			var node = this.get('targetNode'),
+				size = data.sizes.original,
+				width = Math.min(size.width, node.get('offsetWidth')) || size.width,
+				height = size.height;
+			
+			if (width != size.width) {
+				// Change height
+				height = Math.round(width / (size.width / size.height));
+			}
+			
+			this.set('value', {
+				'type': 'image',
+				'crop_left': 0,
+				'crop_top': 0,
+				'crop_width': width,
+				'crop_height': height,
+				'size_height': height,
+				'size_width': width,
+				'image': data
+			});
 		},
 		
 		insertVideo: function () {
@@ -575,4 +694,4 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});
+}, YUI.version, {requires:['supra.input-proto', 'supra.uploader']});
