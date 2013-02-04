@@ -285,7 +285,9 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			var data = self.properties.getValues(),
 				property = this.getPropertyName();
 			
-			data[property] = data[property] || [];
+			if (!Y.Lang.isArray(data[property])) {
+				data[property] = [];
+			}
 			
 			//Show gallery
 			Supra.Manager.executeAction('SlideshowManager', {
@@ -587,7 +589,9 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 				prop       = null;
 			
 			//Default data
-			data[property] = data[property] || [];
+			if (!Y.Lang.isArray(data[property])) {
+				data[property] = [];
+			}
 			
 			//Extract only image ID and properties, remove all other data
 			for(var i=0,ii=data[property].length; i<ii; i++) {

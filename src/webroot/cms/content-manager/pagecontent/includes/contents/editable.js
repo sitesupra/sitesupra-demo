@@ -458,6 +458,11 @@ YUI.add('supra.page-content-editable', function (Y) {
 						if (Y.Lang.isFunction(callback)) {
 							callback(this);
 						}
+					},
+					'failure': function () {
+						if (Y.Lang.isFunction(callback)) {
+							callback(this);
+						}
 					}
 				}
 			})

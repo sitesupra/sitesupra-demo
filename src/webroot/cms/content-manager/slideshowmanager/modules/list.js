@@ -156,6 +156,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 			}
 			
 			this._items = {};
+			this._count = 0;
 		},
 		
 		/**

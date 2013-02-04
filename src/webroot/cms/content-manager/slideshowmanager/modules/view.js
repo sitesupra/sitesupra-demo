@@ -204,7 +204,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 				old_data = this.get('host').data.getSlideById(old_id);
 				new_data = this.get('host').data.getSlideById(id);
 				
-				this.updateLayoutClassName(old_data.layout, new_data.layout);
+				this.updateLayoutClassName(old_data ? old_data.layout : '', new_data ? new_data.layout : '');
 				this.renderItem(id);
 				return id;
 			}

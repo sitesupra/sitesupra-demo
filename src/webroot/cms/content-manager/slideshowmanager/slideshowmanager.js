@@ -325,6 +325,7 @@ Supra([
 					'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title'])
 				});
 			} else {
+				button.enable();
 				button.show();
 			}
 			
@@ -404,13 +405,14 @@ Supra([
 				'imageUploadFolder': 0
 			}, options || {});
 			
+			if (!Y.Lang.isArray(options.data.slides)) {
+				options.data.slides = [];
+			}
+			
 			if (options.callback && options.context) {
 				options.callback = Y.bind(options.callback, options.context);
 			}
 			
-			// @TODO Remove following harcoded data, layout and property settings
-			options.data.slides = [];
-          	
           	return options;
 		},
 		
@@ -436,6 +438,11 @@ Supra([
 			// If there are no slides then create one
 			if (!options.data.slides.length) {
 				this.data.addSlide(this.data.getNewSlideData());
+			} else {
+				Y.each(options.data.slides, function (item) {
+					this.list.addItem(item);
+					this.settings.updateItemCount();	
+				}, this);
 			}
 			
 			// Reload iframe content

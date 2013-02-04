@@ -249,7 +249,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 */
 		onSidebarDone: function () {
 			// Stop editing
-			this.get('host').view._stopEditing();
+			this.get('host').view.stopEditing();
 			this.hide();
 		},
 		
@@ -298,7 +298,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			
 			if (form) {
 				this.silentUpdatingValues = true;
-				form.setValues(data, 'id');
+				form.setValues(data, 'id', true); // no encoding
 				this.silentUpdatingValues = false;
 			}
 			
