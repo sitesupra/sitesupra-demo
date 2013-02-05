@@ -313,9 +313,8 @@ class ParsedHtmlFilter implements FilterInterface
 				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
 					<object width=\"{$width}\" height=\"{$height}\">
 					<param name=\"movie\" value=\"{$src}\"></param>
-					{$wmodeParam}
 					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-					<embed src=\"{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+					<embed {$wmodeParam} src=\"{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
 				</object></div>";
 			}
 		}
