@@ -701,6 +701,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 				
 				this.node = node;
 				this.get('parent').getNode().append(node);
+				
+				//Trigger refresh
+				this.fireContentEvent('refresh', node.getDOMNode());
 			}
 			
 			if (!permission_edit) {
