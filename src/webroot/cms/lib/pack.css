@@ -836,6 +836,7 @@ button::-moz-focus-inner { border:0; }
 .su-button-item.su-button-down div, .su-button-item.su-button-mouse-down div { background-position:0 -186px; }
 .su-button-item.su-button-disabled div { background-position:0 -279px; }
 .su-button-item.su-button-disabled p { color:#ecedf5; }
+.su-button-item.su-button-loading img { visibility:hidden; }
 
 @-moz-keyframes spin {
   0% {

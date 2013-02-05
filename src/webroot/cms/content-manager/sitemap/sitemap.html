@@ -40,14 +40,14 @@
 			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="products" suPath="http://videinfra.com/" />
 			
 			<div class="yui3-input template-section">
-				<label></label>
+				<label>{# sitemap.new_page_label_template #}</label>
 				<button type="button" suStyle="item"><p></p></button>
 				<input type="hidden" name="template[id]" />
 				<input type="hidden" name="template[img]" />
 				<input type="hidden" name="template[title]" />
 			</div>
 			
-			<label for="template">{# sitemap.new_page_label_template #}</label>
+			<label for="template" class="hidden"></label>
 			<div class="su-sitemap-template-list hidden">
 				<div class="su-sitemap-template-list-scrollable">
 					<select name="template" suStyle="items" suType="SelectList"></select>

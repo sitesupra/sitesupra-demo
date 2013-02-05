@@ -536,6 +536,9 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			if (this._widgets.form && this._widgets.form.getInput('template')) {
 				this._widgets.form.getInput('template').set('loading', true);
 			}
+			if (this._widgets.buttonTemplate) {
+				this._widgets.buttonTemplate.set('loading', true);
+			}
 			
 			Supra.io(uri, {
 				'data': {
@@ -594,7 +597,12 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 */
 		'_fillTemplates': function () {
 			var templates = this._templates,
-				form = this._widgets.form;
+				form = this._widgets.form,
+				button = this._widgets.buttonTemplate;
+				
+			if (button) {
+				button.set('loading', false);
+			}
 				
 			if (templates && form && this.get('host').get('mode') == 'pages' && form.getInput('template')) {
 				form.getInput('template').set('loading', false);
