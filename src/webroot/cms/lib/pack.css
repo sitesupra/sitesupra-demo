@@ -382,21 +382,21 @@ http://yuilibrary.com/license/
   width:36px;
   height:23px;
   top:-23px;
-  margin-left:-19px;
+  margin-left:-20px;
 }
 .su-panel.su-panel-arrow-bottom .su-panel-arrow, .su-panel.su-tooltip-arrow-bottom .su-tooltip-arrow {
   background:url("/cms/lib/supra/build/panel/assets/skins/supra/arrow-bottom.png") 0 0 no-repeat;
   width:36px;
   height:23px;
   bottom:-23px;
-  margin-left:-19px;
+  margin-left:-20px;
 }
 .su-panel.su-panel-arrow-left .su-panel-arrow, .su-panel.su-tooltip-arrow-left .su-tooltip-arrow {
   background:url("/cms/lib/supra/build/panel/assets/skins/supra/arrow-left.png") 0 0 no-repeat;
   width:23px;
   height:36px;
   left:-23px !important;
-  margin-top:-19px;
+  margin-top:-20px;
 }
 .su-panel.su-panel-arrow-right .su-panel-arrow, .su-panel.su-tooltip-arrow-right .su-tooltip-arrow {
   background:url("/cms/lib/supra/build/panel/assets/skins/supra/arrow-right.png") 0 0 no-repeat;
@@ -404,7 +404,7 @@ http://yuilibrary.com/license/
   height:36px;
   left:auto !important;
   right:-23px !important;
-  margin-top:-19px;
+  margin-top:-20px;
 }
 .su-panel .su-panel-inner {
   border-radius:3px;

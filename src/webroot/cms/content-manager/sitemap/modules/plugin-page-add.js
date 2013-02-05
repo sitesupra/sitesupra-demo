@@ -97,6 +97,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		
 		'_layouts': null,
 		
+		/**
+		 * Default page title when panel is opened
+		 * 
+		 * @type {String}
+		 * @private
+		 */
+		'_defaultTitle': '',
+		
 		
 	
 		/**
@@ -228,6 +236,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 			}
 			
+			inputs.title.on('focus', this._onTitleFocus, this);
 			inputs.title.on('input', this._onPagePropertyChange, this);
 			inputs.template.on('change', this.hideTemplates, this);
 			
@@ -421,6 +430,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		/**
 		 * On property change update tree node
 		 * 
+		 * @param {Object} e Event facade object
 		 * @private
 		 */
 		'_onPagePropertyChange': function (e) {
@@ -445,6 +455,30 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 				
 				data[id] = value;
+				
+				// Create path from title
+				if (id === 'title') {
+					var input_path = this._widgets.form.getInput('path');
+					if (input_path.get('visible')) {
+						input_path.set('value', Y.Lang.toPath(value));
+					}
+				}
+			}
+		},
+		
+		/**
+		 * When title is focused remove default value
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		'_onTitleFocus': function (e) {
+			var input  = e.target,
+				value  = input.get('value'),
+				placeholder_value = this._defaultTitle;
+			
+			if (value === placeholder_value) {
+				input.set('value', '');
 			}
 		},
 		
@@ -717,6 +751,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			input = form.getInput('title');
 			input.set('value', title);
+			
+			this._defaultTitle = title;
 			
 			if (is_tree_node) {
 				node.set('label', title);
