@@ -1,3 +1,4 @@
+{% set block_title = supraBlock.property('block_title') %}
 {% set style = supraBlock.property('style') %}
 {% set design = supraBlock.property('design') %}
 {% set images = supraBlock.property('images') %}
@@ -5,6 +6,13 @@
 {% if images|length or supra.cmsRequest %}
 
 	<div class="block gallery" data-refresh-event="gallery">
+	
+		{% if supra.cmsRequest or block_title %}
+		<h2 class="block-title"><div>
+			{% if block_title %}{{ block_title }}{% endif %}
+		</div></h2>
+		{% endif %}
+	
 	{% if style == "slideshow" %}
 		
 		{% set width_full = 960 %}

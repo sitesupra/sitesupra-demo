@@ -20,6 +20,10 @@
           icon: /cms/lib/supra/img/toolbar/icon-design.png
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\InlineString
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: design
           group: design
           editable: Supra\Editable\SelectVisual

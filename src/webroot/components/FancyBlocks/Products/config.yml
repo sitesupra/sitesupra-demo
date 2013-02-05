@@ -25,6 +25,10 @@
           label: Navigation
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\InlineString
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: images
           editable: Supra\Editable\Gallery
           label: Images
