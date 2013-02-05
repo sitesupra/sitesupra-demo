@@ -639,7 +639,18 @@ class PagecontentAction extends PageManagerAction
 					if ( ! isset($referencedElementData['href'])) {
 						$referencedElementData['href'] = null;
 					}
+					
+					if ($referencedElementData['type'] == Entity\ReferencedElement\VideoReferencedElement::TYPE_ID) {
 
+						$videoData = Entity\ReferencedElement\VideoReferencedElement::parseVideoSourceInput($referencedElementData['source']);
+
+						if ($videoData === false) {
+							throw new CmsException(null, "Video link you provided is invalid or this video service is not supported. Sorry about that.");
+						}
+									
+						$referencedElementData = $videoData + $referencedElementData;
+					}
+						
 					$referencedElementFound = false;
 
 					if ( ! empty($metadataCollection)) {
@@ -664,7 +675,7 @@ class PagecontentAction extends PageManagerAction
 					if ( ! $referencedElementFound) {
 
 						$referencedElement = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($referencedElementData);
-
+						
 						$metadataItem = new Entity\BlockPropertyMetadata($referencedElementName, $property, $referencedElement);
 
 						$property->addMetadata($metadataItem);

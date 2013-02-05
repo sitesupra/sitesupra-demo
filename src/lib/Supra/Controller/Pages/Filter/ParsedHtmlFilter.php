@@ -261,9 +261,9 @@ class ParsedHtmlFilter implements FilterInterface
 	{
 		$html = null;
 		
-		$type = $element->getResourceType();
+		$resource = $element->getResource();
 			
-		if ($type == VideoReferencedElement::RESOURCE_LINK) {
+		if ($resource == VideoReferencedElement::RESOURCE_LINK) {
 			
 			$service = $element->getExternalService();
 			$width = 560;
@@ -271,12 +271,18 @@ class ParsedHtmlFilter implements FilterInterface
 			
 			$videoId = $element->getExternalId();
 			
+			$wmodeParam = null;
+			if ($this->requestType == self::REQUEST_TYPE_EDIT) {
+				$wmodeParam = 'wmode="opaque"';
+			}
+			
 			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
 				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
 				<object width=\"{$width}\" height=\"{$height}\">
 					<param name=\"movie\" value=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\"></param>
 					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-					<embed src=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+					
+					<embed {$wmodeParam} src=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
 				</object>
 			</div>";		
 			}
@@ -286,9 +292,32 @@ class ParsedHtmlFilter implements FilterInterface
 				</div>";
 			}
 		}
-		else {
-			$filteredEmbedCode = $element->getFilteredEmbedCode();
-			$html = "<div class=\"video\" data-attach=\"$.fn.resize\">{$filteredEmbedCode}</div>";
+		else if ($resource == VideoReferencedElement::RESOURCE_SOURCE) {
+			
+			$width = $element->getWidth();
+			$height = $element->getHeight();
+			$src = $element->getExternalPath();
+			
+			if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_IFRAME) {
+				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
+					<iframe src=\"{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+					</div>";
+			}			
+			else if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_EMBED) {
+				
+				$wmodeParam = null;
+				if ($this->requestType == self::REQUEST_TYPE_EDIT) {
+					$wmodeParam = 'wmode="opaque"';
+				}
+				
+				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
+					<object width=\"{$width}\" height=\"{$height}\">
+					<param name=\"movie\" value=\"{$src}\"></param>
+					{$wmodeParam}
+					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
+					<embed src=\"{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+				</object></div>";
+			}
 		}
 	
 		return $html;
