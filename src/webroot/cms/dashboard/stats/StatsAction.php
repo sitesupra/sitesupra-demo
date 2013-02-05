@@ -16,122 +16,165 @@ class StatsAction extends DasboardAbstractAction
 	
 	const DAY_PERIOD = 86400;
 	const WEEK_PERIOD = 604800;
-		
 	
-	public function statsAction()
+	protected $provider;
+	
+	
+	/**
+	 * 
+	 */
+	public function __construct()
 	{
-		$response = $this->getResponse();
-		
-		$userConfig = ObjectRepository::getIniConfigurationLoader($this);
-		
-		$accountEmail = $userConfig->getValue('googleAnalytics', 'email', null);
-		$accountPasswd = $userConfig->getValue('googleAnalytics', 'password', null);
-		$profileId = $userConfig->getValue('googleAnalytics', 'profile_id', null);
-		
-		if (is_null($accountEmail) || is_null($accountPasswd) || is_null($profileId)) {
-			$response->setResponseData(array(
-				'keywords' => array(),
-				'sources' => array(),
-			));	
-			return;
-		}
-		
-		$responseArray = array();
-		
-		$refreshInterval = $userConfig->getValue('googleAnalytics', 'refresh_interval', '5 hours');
-		
-		// TODO: store data partially when it will be known, 
-		// how top sources/keywords will be shown
-		$cache = ObjectRepository::getCacheAdapter($this);
-		
-		$responseArray = $cache->fetch(__class__);
-		if ($responseArray === false) {
-			
-			$dataProvider = new GoogleAnalyticsDataProvider();
-			$dataProvider->authenticate($accountEmail, $accountPasswd);
-			$dataProvider->setProfileId($profileId);
-
-			$now = time();
-			$interval = self::WEEK_PERIOD;
-
-			//$startTime  = (self::STATS_INCLUDE_TODAY ? $now : $now - self::DAY_PERIOD);
-			$startTime  = (self::STATS_INCLUDE_TODAY === true ? $now : $now - $interval);
-			
-			for ($i = 0; $i < self::STATS_PERIODS; $i++) {
-
-				$startDay = date('Y-m-d', $startTime);
-				$endDay = date('Y-m-d', $startTime + $interval);
-
-				$period = array(
-					$startDay,
-					$endDay,
-				);
-
-				$return = &$responseArray[$startDay];
-
-				//$return['pageviews'] = $dataProvider->getPageViewCount($period);
-				//$return['visitors'] = $dataProvider->getVisitorCount($period);
-				//$return['visits'] = $dataProvider->getVisitCount($period);
-				
-				$return = $dataProvider->getDasboardCommonStats($period);
-				//$return = array();
-				
-				$return['keywords'] = $dataProvider->getTopKeywords($period, 10);
-				$return['sources'] = $dataProvider->getTopSources($period, 10);
-				
-				$startTime = $startTime - $interval;
-			}
-			
-			$responseArray = $this->prepareStatsOutput($responseArray);
-			$cache->save(__class__, $responseArray, strtotime($refreshInterval));
-			
-			// debug info
-			$responseArray['cacheVersion'] = false;
-		} else {
-			$responseArray['cacheVersion'] = true;
-		}
-		
-		$response->setResponseData($responseArray);
-		
+		$this->provider = new GoogleAnalyticsDataProvider();
 	}
 	
 	/**
-	 * Helper method to prepare stats output as it expects JS
-	 * temporary
+	 * 
 	 */
-	protected function prepareStatsOutput($statsArray)
+	public function statsAction()
 	{
-		$statsArray = array_reverse($statsArray, true);
+		$siteId = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'id', null);		
 		
-		$keywords = $sources = array();
-		foreach ($statsArray as $key => &$dailyStats) {
+		//@TODO: create solution for Supra7 overall, not Portal only
+		if (empty($siteId)) {
+			$this->getResponse()
+				->setResponseData(array());
 			
-			foreach($dailyStats['keywords'] as &$keywordStats) {
-				
-				if (isset($keywords[$keywordStats['title']])) {
+			return;
+		}
+		
+		$responseData = false;
+		
+		$writeableIni = ObjectRepository::getIniConfigurationLoader($this);
+		$profileId = $writeableIni->getValue('google_analytics', 'profile_id', null);
+		
+		if ( ! empty($profileId)) {
+			$cacheKey = get_class($this) . $profileId . '_stats';
+			$cache = ObjectRepository::getCacheAdapter($this);
+			$responseData = $cache->fetch($cacheKey);		
+		}
+		
+		$cacheResults = false;
+
+		if ($responseData === false) {
+			$isAuthenticated = $this->provider->isAuthenticated();
+
+			$responseData = array(
+				'profile_id' => $profileId,
+				'is_authenticated' => $isAuthenticated,
+				'stats' => null,
+				'authorization_url' => $this->provider->getAuthAdapter()->createAuthorizationUrl($siteId),
+			);
+
+			if ( ! empty($profileId)) {
+				if ($isAuthenticated) {
+
+					$this->provider->setProfileId($profileId);
+
+					$stats = $this->loadStatsCollection();
+					$responseData['stats'] = $stats;
 					
-					$amount = $keywordStats['amount'] - $keywords[$keywordStats['title']];
-					$keywordStats['change'] = ($amount !== 0 ? $amount : null);
-						
+					$cacheResults = true;
 				}
-				$keywords[$keywordStats['title']] = $keywordStats['amount'];
-			}
-			
-			foreach($dailyStats['sources'] as &$sourceStats) {
-				
-				if (isset($sources[$sourceStats['title']])) {
-					$amount = $sourceStats['amount'] - $sources[$sourceStats['title']];
-					$sourceStats['change'] = ($amount !== 0 ? $amount : null);
-				}
-				$sources[$sourceStats['title']] = $sourceStats['amount'];
 			}
 		}
 		
-		if (is_array($statsArray)) {
-			return array_pop($statsArray);
-		} 
+		if ($cacheResults) {
+			$cache->save($cacheKey, $responseData, 60*60*24);
+		}
 		
-		return array('keywords' => array(), 'sources' => array());
+		$this->getResponse()
+				->setResponseData($responseData);
 	}
+	
+	/**
+	 * Google Profile Id save action
+	 */
+	public function saveAction()
+	{
+		$this->isPostRequest();
+		$request = $this->getRequest();
+		/* @var $request \Supra\Request\HttpRequest */
 
+		$saved = false;
+		
+		$profileId = $request->getPostValue('profile_id');
+		if ( ! empty($profileId)) {
+			$writeableIni  = ObjectRepository::getIniConfigurationLoader($this);
+			if ( ! $writeableIni instanceof \Supra\Configuration\Loader\WriteableIniConfigurationLoader) {
+				throw new \RuntimeException('Statistics save action requires Writeable ini loader instance');
+			}
+			
+			$writeableIni->setValue('google_analytics', 'profile_id', $profileId);
+			$writeableIni->write();
+			
+			$saved = true;
+		}
+		
+		$this->getResponse()
+				->setStatus($saved);		
+	}
+	
+	/**
+	 * List available profiles
+	 */
+	public function profilesAction()
+	{
+		// use refresh token as a part of cache key
+		$refreshToken = $this->provider->getRefreshToken();
+		
+		$profiles = false;
+		
+		if ( ! empty($refreshToken)) {
+			$cacheKey = get_class($this) . $refreshToken;
+			$cache = ObjectRepository::getCacheAdapter($this);
+		
+			$profiles = $cache->fetch($cacheKey);
+		}
+		
+		if ($profiles === false) {
+			
+			$profiles = array();
+
+			$isAuthenticated = $this->provider->isAuthenticated();
+
+			if ($isAuthenticated) {
+				$profilesList =  $this->provider->listProfiles();
+
+				foreach($profilesList as $profile) {
+					$profiles[] = array(
+						'id' => $profile['profileId'],
+						'name' => $profile['profileName'],
+					);
+				}
+			}
+			
+			$cache->save($cacheKey, $profiles, 600);
+		}
+
+		$this->getResponse()
+				->setResponseData($profiles);
+	}
+	
+	/**
+	 * @return array
+	 */
+	protected function loadStatsCollection()
+	{
+		$now = time();
+		$period = array($now - 6048000, $now);
+		
+		$statistics = array(
+			'keywords' => array(),
+			'sources' => array(),
+			'visitors' => array(),
+		);
+		
+		$keywords = $this->provider->getTopKeywords($period);
+		$sources = $this->provider->getTopSources($period);
+		
+		
+		
+		return $statistics;
+	}
 }

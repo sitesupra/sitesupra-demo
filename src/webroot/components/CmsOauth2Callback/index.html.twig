@@ -1,0 +1,16 @@
+<html>
+	<head>
+		<title>Processing...</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+				{% if authSuccess %}
+				if (window.opener && window.opener.Supra
+					&& typeof(window.opener.Supra.Manager.Applications.reloadAnalytics) == "function") {
+						window.opener.Supra.Manager.Applications.reloadAnalytics();
+				}
+				{% endif %}
+				self.close();
+		</script>
+	</body>
+</html>

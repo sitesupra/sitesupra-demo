@@ -60,3 +60,4 @@ ObjectRepository::setUserProvider('Project\SampleAuthentication\SampleAuthentica
 ObjectRepository::setUserProvider('Project\SampleAuthentication\SampleAuthenticationPreFilter', $userProvider);
 ObjectRepository::setUserProvider('Project\SocialMedia\SocialMediaController', $userProvider);
 ObjectRepository::setUserProvider('Project\CmsRemoteLogin\Controller', $userProvider);
+ObjectRepository::setUserProvider('Project\CmsOauth2Callback\Oauth2CallbackController', $userProvider);
