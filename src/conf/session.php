@@ -16,6 +16,7 @@ $sessionManagerConfiguration->namespaces = array(
 	'Project\SampleAuthentication\SampleAuthenticationPreFilter',
 	'Project\SocialMedia\SocialMediaController',
 	'Project\CmsRemoteLogin\Controller',
+	'Project\CmsOauth2Callback\Oauth2CallbackController',
 );
 $sessionManagerConfiguration->configure();
 

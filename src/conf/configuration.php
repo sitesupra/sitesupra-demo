@@ -14,6 +14,7 @@ ObjectRepository::setIniConfigurationLoader('Supra\Controller\Layout\Theme', $wr
 
 $writeableIniLoader = new WriteableIniConfigurationLoader('supra.ini');
 ObjectRepository::setIniConfigurationLoader('Supra\Cms\Settings', $writeableIniLoader);
+ObjectRepository::setIniConfigurationLoader('Supra\Statistics\GoogleAnalytics\Authentication\Storage\WriteableIniStorage', $writeableIniLoader);
 
 require_once SUPRA_CONF_PATH . 'loader.php';
 require_once SUPRA_CONF_PATH . 'log.php';
@@ -52,3 +53,5 @@ $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'SocialMedia/config.yml');
 $configLoader->loadFile(SUPRA_COMPONENT_PATH . 'Ajax/config.yml');
 $configLoader->loadFile(SUPRA_LIBRARY_PATH . 'Supra/Social/Facebook/config.yml');
 $configLoader->loadFile(SUPRA_WEBROOT_PATH . 'assets/js/config.yml');
+
+$configLoader->loadFile(SUPRA_COMPONENT_PATH . 'CmsOauth2Callback/config.yml');

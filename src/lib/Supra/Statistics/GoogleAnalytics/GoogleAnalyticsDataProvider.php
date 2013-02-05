@@ -2,283 +2,128 @@
 
 namespace Supra\Statistics\GoogleAnalytics;
 
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Cms\Exception\CmsException;
 use Supra\Statistics\Exception\RuntimeException;
+use Supra\RemoteHttp\Request\RemoteHttpRequest;
+use Supra\RemoteHttp\Response\RemoteHttpResponse;
 
-class GoogleAnalyticsDataProvider {
+/**
+ * 
+ */
+class GoogleAnalyticsDataProvider 
+{
+	/**
+	 * SiteSupra oAuth2 web-application configuration
+	 * @TODO: move values to ...? 
+	 */
+	const SUPRA_CLIENT_SECRET = '4fkvgHQIqsXjrYt_UjN_U8kS';
+	const SUPRA_CLIENT_ID = '833104259663.apps.googleusercontent.com';
+	const SUPRA_REDIRECT_URI = 'http://sitesupra.net/oauth2callback';
+	
+	const URL_FEED_DATA = 'https://www.googleapis.com/analytics/v2.4/data';
+	const URL_BASE_FEED_MANAGEMENT = 'https://www.googleapis.com/analytics/v2.4/management/';
 	
 	const PERIOD_DATE_FORMAT = 'Y-m-d';
-	
 	const GA_PREFIX = 'ga:';
 
-	const URL_CLIENT_LOGIN = 'https://www.google.com/accounts/ClientLogin';
-	const URL_DATA_FEED = 'https://www.google.com/analytics/feeds/data';
-	
-	const DEFAULT_TIMEOUT = 10; // seconds
-	
 	/**
-	 * Contains authorization token, returned by ClientLogin section
-	 * @var string
-	 */
-	protected $authToken;
-	
-	/**
-	 * Info about Supra, taken from Info class
-	 * used to ident this application when making requests to Google Analytics
-	 * @var string
-	 */
-	protected $supraVersion;
-	
-	/**
-	 * Some default headers, that could be usefull on each request
 	 * @var array
 	 */
-	protected $defaultHeaders = array(
-		'GData-Version: 2.0', // which version of Google Api data we are requesting
-	);
-	
-	/**
-	 * @var int
-	 */
-	protected $httpRequestTimeout;
-	
+	protected $defaultHeaders = array();
+
 	/**
 	 * @var string
 	 */
-	private $accountPasswd;
+	protected $profileId;
 	
 	/**
-	 * @var string
+	 * @var \Supra\RemoteHttp\RemoteHttpRequestService
 	 */
-	private $accountEmail;
+	protected $requestService;
 	
 	/**
-	 * @var string
+	 * @var Authentication\OAuth2Authentication
 	 */
-	private $profileId;
+	protected $authAdapter;
 	
-	
+	/**
+	 * 
+	 */
 	public function __construct()
 	{
-		$systemInfo = ObjectRepository::getSystemInfo($this);
-		$this->supraVersion = $systemInfo->name . $systemInfo->version;
+		$authAdapter = new Authentication\OAuth2Authentication();
 		
-		$this->httpRequestTimeout = self::DEFAULT_TIMEOUT;
+		$authAdapter->setClientId(self::SUPRA_CLIENT_ID);
+		$authAdapter->setClientSecret(self::SUPRA_CLIENT_SECRET);
+		$authAdapter->setRedirectUri(self::SUPRA_REDIRECT_URI);
+		
+		$authAdapter->setStorage(new Authentication\Storage\WriteableIniStorage);
+
+		$this->authAdapter = $authAdapter;
+		
+		$this->requestService = new \Supra\RemoteHttp\RemoteHttpRequestService();
+	}
+	
+	/**
+	 * @param string $profileId
+	 */
+	public function setProfileId($profileId)
+	{
+		$this->profileId = $profileId;
 	}
 
 	/**
-	 * @param string $id
+	 * @return Authentication\OAuth2Authentication
 	 */
-	public function setAccountEmail($email)
+	public function getAuthAdapter()
 	{
-		$this->accountEmail = $email;
+		return $this->authAdapter;
 	}
 	
 	/**
-	 * @param string $passwd
+	 * @return boolean
 	 */
-	public function setAccountPasswd($passwd)
+	public function isAuthenticated()
 	{
-		$this->accountPasswd = $passwd;
+		return $this->authAdapter->isAuthenticated();
 	}
 	
 	/**
-	 * @param string $id
+	 * @return RemoteHttpResponse
 	 */
-	public function setProfileId($id)
+	protected function doRequest($requestUrl, $method = 'GET', $requestVars = array(), $headers = array())
 	{
-		$this->profileId = $id;
-	}
+		if ( ! $this->authAdapter->isAuthenticated()) {
+			throw new RuntimeException('You should authenticate before you request Google Analytics feed data');
+		}
+		
+		$request = new RemoteHttpRequest($requestUrl, $method, $requestVars);
+		foreach ($headers as $name => $value) {
+			$request->header($name, $value);
+		}
+		
+		$this->authAdapter->sign($request);
+		
+		$response = $this->requestService->makeRequest($request);
+		
+		$this->validateResponse($response);
 	
-	/**
-	 * Overrides default http request timeout
-	 * 
-	 * @param int $seconds
-	 */
-	public function setRequestTimeout($seconds)
-	{
-		$this->httpRequestTimeout = $seconds;
-	}
-		
-	/**
-	 * Access to Google API data requires user to be authenticated
-	 * This will tries to do that (using ClientLogin auth) and, 
-	 * if suceeded, stores received auth token
-	 * inside property
-	 * 
-	 * @param string $email
-	 * @param string $passwd
-	 */
-	public function authenticate($email, $passwd)
-	{
-		if (empty($email) || empty($passwd)) {
-			throw new RuntimeException('Missing authentification configuration for Google Services');
-		}
-		
-		$requestVars = array(
-			'accountType' => 'GOOGLE',
-			'Email' => $email,
-			'Passwd' => $passwd,
-			'service' => 'analytics',
-			'source' => $this->supraVersion,
-		);
-		
-		$response = $this->request(self::URL_CLIENT_LOGIN, $requestVars, array(), 'POST');
-		
-		$matches = null;
-		preg_match("/Auth=([a-z0-9_\-]+)/i", $response, $matches);
-
-		if (empty($matches)) {
-			throw new RuntimeException('Failed to authenticate at Google Services');
-		}
-		
-		$this->authToken = $matches[1];
-	}
-	
-	/**
-	 * Wrapper for request method
-	 * Currently wraps fopenRequest() method,
-	 * if CURL extension is present, 
-	 * it is possible to use it also using curlRequest
-	 * 
-	 * @param type $requestUrl
-	 * @param array $requestVars
-	 * @param array $headers
-	 * @param 
-	 * @return string
-	 */
-	protected function request($requestUrl, array $requestVars = array(), array $headers = array(), $requestMethod = 'GET')
-	{
-		return $this->fopenRequest($requestUrl, $requestVars, $headers, $requestMethod);
-	}
-	
-	/**
-	 * Does a HTTP request using CURL library, to $requestUrl, with $requestVars and, 
-	 * if present in $headers, additional request headers. 
-	 * Request method (GET/POST) could be specified in $requestMethod
-	 * 
-	 * @param string $requestUrl
-	 * @param array $requestVars
-	 * @param array $headers
-	 * @param string $requestMethod
-	 * @return string
-	 */
-//	protected function curlRequest($requestUrl, array $requestVars = array(), array $headers = array(), $requestMethod = 'GET')
-//	{
-//		// if request is a GET request, apply request vars to URL string
-//		if ($requestMethod == 'GET' && ! empty($requestVars)) {
-//			$requestUrl = $requestUrl . '?' . http_build_query($requestVars);
-//		}
-//		
-//		$curl = curl_init($requestUrl);
-//		
-//		// default headers
-//		$headers = array_merge($headers, $this->defaultHeaders);
-//		
-//		// authorization token header, if set already
-//		if ( ! empty($this->authToken)) {
-//			array_push($headers, 'Authorization: GoogleLogin auth=' . $this->authToken);
-//		}
-//		
-//		// apply headers
-//		if ( ! empty($headers)) {
-//			curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-//		}
-//		 
-//		if ($requestMethod == 'POST' && ! empty($requestVars)) {
-//			curl_setopt($curl, CURLOPT_POSTFIELDS, $requestVars);
-//		}
-//		
-//		curl_setopt($curl, CURLOPT_POST, ($requestMethod == 'POST' ? true : false));
-//
-//		$response = curl_exec($curl);
-//		
-//		curl_close($curl);
-//		
-//		return $response;
-//	}
-	
-	/**
-	 * Does a HTTP request using URL fopen, to $requestUrl, with $requestVars and, 
-	 * if present in $headers, additional request headers. 
-	 * Request method (GET/POST) could be specified in $requestMethod
-	 * 
-	 * @param string $requestUrl
-	 * @param array $requestVars
-	 * @param array $headers
-	 * @param string $requestMethod
-	 * @return string
-	 */
-	protected function fopenRequest($requestUrl, array $requestVars = array(), array $headers = array(), $requestMethod = 'GET')
-	{
-		$contextOptions = array(
-			'http' => array(
-				'method' => $requestMethod,
-				'timeout' => $this->httpRequestTimeout,
-				'ignore_errors' => true,
-			),
-		);
-		
-		$httpOptions = &$contextOptions['http'];
-		
-		$httpRequestVars = null;
-		if ( ! empty($requestVars)) {
-			$httpRequestVars = http_build_query($requestVars);
-		}
-		
-		$headers = array_merge($headers, $this->defaultHeaders);
-		
-		if ( ! empty($this->authToken)) {
-			array_push($headers, 'Authorization: GoogleLogin auth=' . $this->authToken);
-		}
-		
-		$requestHeaders = null;
-		if ( ! empty($headers)) {
-			$requestHeaders = implode("\r\n", $headers) . "\r\n";
-		}
-		
-		if ($requestMethod == 'POST') {
-			$requestHeaders = "Content-type: application/x-www-form-urlencoded\r\nContent-Length: " . strlen($httpRequestVars) . "\r\n" . $headers;
-			
-			$httpOptions['content'] = $httpRequestVars;
-		} else {
-			$requestUrl = $requestUrl . '?' . $httpRequestVars;
-		}
-    
-		if ( ! is_null($requestHeaders)) {
-			$httpOptions['header'] = $headers;
-		}
-		
-		$context = stream_context_create($contextOptions);
-		
-		$response = file_get_contents($requestUrl, null, $context);
-		if (isset($http_response_header) && ! empty($http_response_header)) {
-			$this->checkResponseHeaders($http_response_header);
-		}
-
 		return $response;
 	}
 	
-	protected function checkResponseHeaders($headerArray)
+	/**
+	 * 
+	 */
+	protected function validateResponse(RemoteHttpResponse $response)
 	{
-		$matches = array();
-		preg_match('#HTTP/\d+\.\d+ (\d+)#', $headerArray[0], $matches);
-		
-		if (empty($matches) ||  ! isset($matches[1])) {
-			throw new RuntimeException('Wrong response headers');
-		}
-		
-		// TODO: could check also a string notation of status code, to return more clear error reason
-		switch($matches[1]) {
+		$responseCode = $response->getCode();
+			
+		switch($responseCode) {
 			case 200:
-				// all went ok
 				break;
 			case 400:
-				throw new RuntimeException('Wrong query');
+				throw new RuntimeException('Wrong request query');
 				break;
 			case 401:
-				// Invalid credentials
 				throw new RuntimeException('Authorization token is invalid or expired');
 				break;
 			case 403:
@@ -288,8 +133,9 @@ class GoogleAnalyticsDataProvider {
 			case 503:
 				throw new RuntimeException('Google Services server returned an error');
 				break;
+			default:
+				throw new RuntimeException("Unknown response code {$responseCode} received");
 		}
-		
 	}
 	
 	/**
@@ -305,9 +151,11 @@ class GoogleAnalyticsDataProvider {
 	protected function requestDataFeed(array $metrics, $fromDate, $tillDate, array $dimensions = array(), array $sort = array(), $limit = null)
 	{	
 		if (empty($this->profileId)) {
-			// TODO: perform request to Management API and fetch profile id 
-			throw new RuntimeException('ProfileID should be defined to perform Data Feed requests');
+			throw new RuntimeException('Profile ID should be defined to perform Google Analytics Data Feed requests');
 		}
+		
+		$fromDate = date(self::PERIOD_DATE_FORMAT, $fromDate);
+		$tillDate = date(self::PERIOD_DATE_FORMAT, $tillDate);
 		
 		$requestVars = array(
 			'ids' => 'ga:' . $this->profileId,
@@ -318,7 +166,7 @@ class GoogleAnalyticsDataProvider {
 		
 		// limits max return results
 		// Google defaults is 1000
-		// Max. value = 10 000
+		// Max. value = 10000
 		if ( ! empty($limit)) {
 			$requestVars['max-results'] = (int) $limit;
 		}
@@ -331,77 +179,14 @@ class GoogleAnalyticsDataProvider {
 			$requestVars['sort'] = implode(',', $sort);
 		}
 		
-		// TODO: implement filters, segment and start_index
+		//@TODO: implement filters, segment and start_index
 		
-		$rawResponse = $this->request(self::URL_DATA_FEED, $requestVars);
+		$response = $this->doRequest(self::URL_FEED_DATA, 'GET', $requestVars);
 		
-		$response = $this->parseRawResponse($rawResponse);
+		$body = $response->getBody();
+		$feedData = $this->parseFeedResponse($body);
 		
-		return $response;
-	}
-	
-	/**
-	 * Parses raw report data from Google Analytics and returns an array with
-	 * available aggregated metric values and report entries represented by 
-	 * GoogleAnalyticsReportItem objects
-	 * 
-	 * @param string $rawResponse
-	 * @return array
-	 */
-	protected function parseRawResponse($rawResponse) 
-	{
-		$response = array();
-		
-		$xmlObject = simplexml_load_string($rawResponse);
-		
-		$results = $xmlObject->children('http://schemas.google.com/analytics/2009');
-		
-		// aggregated metric values
-		foreach ($results->aggregates->metric as $aggregateMetric) {
-			
-			$name = str_replace(self::GA_PREFIX, '', strval($aggregateMetric->attributes()->name));
-			$value = $this->parseIntValue(strval($aggregateMetric->attributes()->value));
-      
-			$response['aggregates'][$name] = $value;
-
-		}
-		
-		// result entries
-		// each entry contains metric values grouped by specified dimensions
-		// for example, when metric = ga:visits and dimension = ga:keyword
-		// each entry will contain amount of visits for a single keyword
-		// that could be represented by simple array of "keyword" => "visit count"
-		// "first keyword" => 15145
-		// "second keyword" => 44778
-		// "another one keyword" => 789
-		//
-		foreach($xmlObject->entry as $entry) {
-			
-			$metrics = array();
-			foreach ($entry->children('http://schemas.google.com/analytics/2009')->metric as $metric) {
-				
-				$name = str_replace(self::GA_PREFIX, '', $metric->attributes()->name);
-				$value = $this->parseIntValue(strval($metric->attributes()->value));
-				
-				$metrics[$name] = $value;
-				
-			}
-			
-			$dimensions = array();
-			foreach ($entry->children('http://schemas.google.com/analytics/2009')->dimension as $dimension) {
-			
-				$name = str_replace(self::GA_PREFIX, '', $dimension->attributes()->name);
-				$value = strval($dimension->attributes()->value);
-					
-				$dimensions[$name] = $value;
-				
-			}
-			
-			$response['entries'][] = new GoogleAnalyticsReportItem($metrics, $dimensions);
-			
-		}
-		
-		return $response;
+		return $feedData;
 	}
 	
 	protected function parseIntValue($value) {
@@ -563,5 +348,103 @@ class GoogleAnalyticsDataProvider {
 		}
 		
 		return $result;
+	}
+		
+	/**
+	 * @return array
+	 */
+	public function listProfiles()
+	{
+		$requestUrl = self::URL_BASE_FEED_MANAGEMENT . 'accounts/~all/webproperties/~all/profiles/';
+		$response = $this->doRequest($requestUrl, 'GET');
+		
+		$body = $response->getBody();
+		$profiles = $this->parseProfileResponse($body);
+		
+		return $profiles;
+	}
+	
+	/**
+	 * 
+	 * @param string $response
+	 * @return array
+	 */
+	private function parseProfileResponse($response)
+	{
+		$profiles = array();
+		
+		$feedObject = simplexml_load_string($response);
+		
+		if ( ! empty($feedObject->entry)) {
+			foreach ($feedObject->entry as $entry) {
+				$profileProperties = array();
+				foreach ($entry->children('http://schemas.google.com/analytics/2009')->property as $property) {
+					$profileProperties[str_replace('ga:','',$property->attributes()->name)] = strval($property->attributes()->value);
+				}
+				
+				$profiles[] = $profileProperties;
+			}	
+		}
+		
+		return $profiles;
+	}
+	
+	/**
+	 * 
+	 */
+	private function parseFeedResponse($response)
+	{
+		$feedData = array();
+		
+		$xmlObject = simplexml_load_string($response);
+		
+		$results = $xmlObject->children('http://schemas.google.com/analytics/2009');
+		
+		// aggregated metric values
+		foreach ($results->aggregates->metric as $aggregateMetric) {
+			
+			$name = str_replace(self::GA_PREFIX, '', strval($aggregateMetric->attributes()->name));
+			$value = $this->parseIntValue(strval($aggregateMetric->attributes()->value));
+      
+			$feedData['aggregates'][$name] = $value;
+
+		}
+		
+		// result entries
+		// each entry contains metric values grouped by specified dimensions
+		// for example, when metric = ga:visits and dimension = ga:keyword
+		// each entry will contain amount of visits for a single keyword
+		// that could be represented by simple array of "keyword" => "visit count"
+		// "first keyword" => 15145
+		// "second keyword" => 44778
+		// "another one keyword" => 789
+		//
+		foreach($xmlObject->entry as $entry) {
+			
+			$metrics = array();
+			foreach ($entry->children('http://schemas.google.com/analytics/2009')->metric as $metric) {
+				
+				$name = str_replace(self::GA_PREFIX, '', $metric->attributes()->name);
+				$value = $this->parseIntValue(strval($metric->attributes()->value));
+				
+				$metrics[$name] = $value;
+				
+			}
+			
+			$dimensions = array();
+			foreach ($entry->children('http://schemas.google.com/analytics/2009')->dimension as $dimension) {
+			
+				$name = str_replace(self::GA_PREFIX, '', $dimension->attributes()->name);
+				$value = strval($dimension->attributes()->value);
+					
+				$dimensions[$name] = $value;
+				
+			}
+			
+			$feedData['entries'][] = new GoogleAnalyticsReportItem($metrics, $dimensions);
+			
+		}
+		
+		return $feedData;
 	}
 }
