@@ -106,8 +106,13 @@ YUI.add('supra.page-content-editable', function (Y) {
 		savePropertyChanges: function () {
 			if (this.properties && this.unresolved_changes) {
 				//For blocks use sendBlockProperties, for place holders sendPlaceHolderProperties
+				//and for place holders in page use sendPagePlaceHolderProperties
 				if (this.isInstanceOf('page-content-list')) {
-					var fn = 'sendPlaceHolderProperties';
+					if (Manager.Page.getPageData().type == 'page') {
+						var fn = 'sendPagePlaceHolderProperties';
+					} else {
+						var fn = 'sendPlaceHolderProperties';
+					}
 				} else {
 					var fn = 'sendBlockProperties';
 				}
@@ -413,7 +418,11 @@ YUI.add('supra.page-content-editable', function (Y) {
 				data = null;
 			
 			if (this.isList()) {
-				uri = PageContent.getDataPath('contenthtml-placeholder');
+				if (page_data.type == 'page') {
+					uri = PageContent.getDataPath('contenthtml-page-placeholder');
+				} else {
+					uri = PageContent.getDataPath('contenthtml-placeholder');
+				}
 			} else {
 				uri = PageContent.getDataPath('contenthtml');
 			}
@@ -455,6 +464,11 @@ YUI.add('supra.page-content-editable', function (Y) {
 					'success': function(data) {
 						this._reloadContentSetHTML(data);
 						
+						if (Y.Lang.isFunction(callback)) {
+							callback(this);
+						}
+					},
+					'failure': function () {
 						if (Y.Lang.isFunction(callback)) {
 							callback(this);
 						}

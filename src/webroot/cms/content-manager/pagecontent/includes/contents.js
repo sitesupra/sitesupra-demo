@@ -434,63 +434,6 @@ YUI.add('supra.iframe-contents', function (Y) {
 		
 		
 		/**
-		 * Save block properties
-		 * 
-		 * @param {Object} block Block
-		 * @param {Function} callback Callback function
-		 * @param {Object} context Callback context
-		 */
-		sendBlockProperties: function (block, callback, context) {
-			var url = Manager.PageContent.getDataPath('save'),
-				page_data = Manager.Page.getPageData(),
-				values = block.properties.getValues();
-			
-			//Some inputs (like InlineHTML) needs data to be processed before saving it
-			var save_values = block.properties.getSaveValues();
-			
-			//Allow block to modify data before saving it
-			save_values = block.processData(save_values);
-			
-			var post_data = {
-				'page_id': page_data.id,
-				'block_id': block.getId(),
-				'locale': Supra.data.get('locale'),
-				'properties': save_values
-			};
-			
-			//If editing template, then send also "locked", but not as part
-			//of properties
-			if (page_data.type != 'page') {
-				if (typeof save_values.__locked__ !== 'undefined') {
-					post_data.locked = save_values.__locked__;
-					block.properties.get('data').locked = post_data.locked;
-					delete(save_values.__locked__);
-				}
-			}
-			
-			//Remove __locked__ from values which are sent to backend
-			if ('__locked__' in save_values) {
-				delete(save_values.__locked__);
-			}
-			
-			Supra.io(url, {
-				'data': post_data,
-				'method': 'post',
-				'on': {'complete': function (data, status) {
-					callback.apply(this, arguments);
-					
-					if (status) {
-						//Change page version title
-						Manager.getAction('PageHeader').setVersionTitle('autosaved');
-					}
-				}}
-			}, context);
-			
-			//Global activity
-			Supra.session.triggerActivity();
-		},
-		
-		/**
 		 * Save placeholder properties
 		 * 
 		 * @param {Object} placeholder Supra.Manager.PageContent.List instance
@@ -499,27 +442,81 @@ YUI.add('supra.iframe-contents', function (Y) {
 		 */
 		sendPlaceHolderProperties: function (placeholder, callback, context) {
 			var url = Manager.PageContent.getDataPath('save-placeholder'),
-				page_data = Manager.Page.getPageData(),
-				values = placeholder.properties.getValues();
+				property = 'place_holder_id';
 			
-			var save_values = placeholder.properties.getSaveValues(),
+			this.sendObjectProperties(placeholder, property, callback, context, url);
+		},
+		
+		/**
+		 * Save placeholder properties from within a page
+		 * 
+		 * @param {Object} placeholder Supra.Manager.PageContent.List instance
+		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback context
+		 */
+		sendPagePlaceHolderProperties: function (placeholder, callback, context) {
+			var url = Manager.PageContent.getDataPath('save-page-placeholder'),
+				property = 'place_holder_id';
+			
+			this.sendObjectProperties(placeholder, property, callback, context, url);
+		},
+		
+		/**
+		 * Save block properties
+		 * 
+		 * @param {Object} block Block
+		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback context
+		 */
+		sendBlockProperties: function (block, callback, context) {
+			var url = Manager.PageContent.getDataPath('save'),
+				property = 'block_id';
+			
+			this.sendObjectProperties(block, property, callback, context, url);
+		},
+		
+		/**
+		 * Save block or placeholder properties
+		 * 
+		 * @param {Object} object Block or list instance
+		 * @param {String} object_property_name Post variable in which to send block or placeholder id
+		 * @param {Function} callback Callback function
+		 * @param {Object} context Callback context
+		 * @param {STring} url Url to which send the request
+		 * @private
+		 */
+		sendObjectProperties: function (object, object_property_name, callback, context, url) {
+			var page_data = Manager.Page.getPageData(),
+				values = object.properties.getValues();
+			
+			var save_values = object.properties.getSaveValues(),
 				locked = false;
 			
 			//Allow block to modify data before saving it
-			save_values = placeholder.processData(save_values);
-			
-			//Send "locked" as separate value, not as part of properties
-			locked = save_values.__locked__;
-			delete(save_values.__locked__);
-			placeholder.properties.get('data').locked = locked;
+			save_values = object.processData(save_values);
 			
 			var post_data = {
 				'page_id': page_data.id,
-				'place_holder_id': placeholder.getId(),
 				'locale': Supra.data.get('locale'),
-				'locked': locked,
 				'properties': save_values
 			};
+			
+			post_data[object_property_name] = object.getId();
+			
+			//If editing template, then send also "locked", but not as part
+			//of properties
+			if (page_data.type != 'page') {
+				if (typeof save_values.__locked__ !== 'undefined') {
+					post_data.locked = save_values.__locked__;
+					object.properties.get('data').locked = post_data.locked;
+					delete(save_values.__locked__);
+				}
+			}
+			
+			//Remove __locked__ from values which are sent to backend
+			if ('__locked__' in save_values) {
+				delete(save_values.__locked__);
+			}
 			
 			Supra.io(url, {
 				'data': post_data,

@@ -13,15 +13,13 @@
           - Supra\FileStorage
           - Supra\Controller\Pages
         lifetime: 60 seconds
-    propertyGroups:
-      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
-          id: design
-          label: Design
-          icon: /cms/lib/supra/img/toolbar/icon-design.png
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\InlineString
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: design
-          group: design
           editable: Supra\Editable\SelectVisual
           label: Design
           values:
@@ -34,26 +32,32 @@
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: title_1
           editable: Supra\Editable\InlineString
+          default: Lorem ipsum
           label: Title 1
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: content_1
           editable: Supra\Editable\Html
+          default: <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce mattis velit nec neque euismod aliquet. Ut eget vestibulum magna. Donec molestie condimentum est, ut eleifend sem dapibus ac. Praesent in massa eu turpis rhoncus molestie. Quisque nibh nibh, venenatis quis cursus a, interdum eu lorem. In risus ligula, rhoncus at scelerisque id, dictum vel purus. Vestibulum tempus cursus malesuada.</p>
           label: Content 1
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: title_2
           editable: Supra\Editable\InlineString
+          default: Nam sed tristique risus
           label: Title 2
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: content_2
           editable: Supra\Editable\Html
+          default: <p>Quisque consequat augue at est ullamcorper et tincidunt sem ultrices. In quis odio consectetur diam consequat interdum. Ut venenatis elit in lorem mattis luctus aliquam mauris feugiat. Duis nec volutpat purus. Nulla mattis dui ut est aliquam venenatis. Nulla ac libero ac arcu convallis faucibus.</p>
           label: Content 2
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: title_3
           editable: Supra\Editable\InlineString
+          default: Donec rhoncus
           label: Title 3
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: content_3
           editable: Supra\Editable\Html
+          default: <p>Donec cursus enim velit. Ut vel eros id tellus mattis ornare eget ac dui. Proin placerat dolor eu dui tempus sed tristique risus fringilla. Integer elementum rhoncus dolor, sed varius elit placerat a. Morbi nec mauris sollicitudin turpis fringilla tempor vel nec velit. Fusce in nulla non nibh lacinia mollis sit amet id dui. Quisque eu arcu nec neque tristique pulvinar.</p>
           label: Content 3
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: title_4

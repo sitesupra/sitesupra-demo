@@ -270,6 +270,13 @@ YUI.add('supra.uploader', function (Y) {
 			if (!this.get('disabled')) {
 				this.set('disabled', false);
 			}
+			
+			//Load MediaLibrary localizations
+			var Loader = Supra.Manager.Loader,
+				Intl   = Supra.Intl,
+				path   = Loader.getStaticPath() + Loader.getActionBasePath('MediaLibrary');
+			
+			Intl.loadAppData(path);
 		},
 		
 		/**
@@ -393,10 +400,10 @@ YUI.add('supra.uploader', function (Y) {
 			
 			if (folder_id !== this.last_drop_id) {
 				if (this.last_drop_target) {
-					this.last_drop_target.removeClass('yui3-html5-dd-target')
+					this.last_drop_target.removeClass('yui3-html5-dd-target');
 				}
 				if (folder_node) {
-					folder_node.addClass('yui3-html5-dd-target')
+					folder_node.addClass('yui3-html5-dd-target');
 				}
 				
 				this.last_drop_target = folder_node;

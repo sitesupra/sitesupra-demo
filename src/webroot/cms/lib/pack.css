@@ -382,21 +382,21 @@ http://yuilibrary.com/license/
   width:36px;
   height:23px;
   top:-23px;
-  margin-left:-19px;
+  margin-left:-20px;
 }
 .su-panel.su-panel-arrow-bottom .su-panel-arrow, .su-panel.su-tooltip-arrow-bottom .su-tooltip-arrow {
   background:url("/cms/lib/supra/build/panel/assets/skins/supra/arrow-bottom.png") 0 0 no-repeat;
   width:36px;
   height:23px;
   bottom:-23px;
-  margin-left:-19px;
+  margin-left:-20px;
 }
 .su-panel.su-panel-arrow-left .su-panel-arrow, .su-panel.su-tooltip-arrow-left .su-tooltip-arrow {
   background:url("/cms/lib/supra/build/panel/assets/skins/supra/arrow-left.png") 0 0 no-repeat;
   width:23px;
   height:36px;
   left:-23px !important;
-  margin-top:-19px;
+  margin-top:-20px;
 }
 .su-panel.su-panel-arrow-right .su-panel-arrow, .su-panel.su-tooltip-arrow-right .su-tooltip-arrow {
   background:url("/cms/lib/supra/build/panel/assets/skins/supra/arrow-right.png") 0 0 no-repeat;
@@ -404,7 +404,7 @@ http://yuilibrary.com/license/
   height:36px;
   left:auto !important;
   right:-23px !important;
-  margin-top:-19px;
+  margin-top:-20px;
 }
 .su-panel .su-panel-inner {
   border-radius:3px;
@@ -836,6 +836,7 @@ button::-moz-focus-inner { border:0; }
 .su-button-item.su-button-down div, .su-button-item.su-button-mouse-down div { background-position:0 -186px; }
 .su-button-item.su-button-disabled div { background-position:0 -279px; }
 .su-button-item.su-button-disabled p { color:#ecedf5; }
+.su-button-item.su-button-loading img { visibility:hidden; }
 
 @-moz-keyframes spin {
   0% {
@@ -880,7 +881,7 @@ button::-moz-focus-inner { border:0; }
 }
 .yui3-form .yui3-form-fill .su-slide-content { padding:0 10px; }
 .yui3-input { padding:0; }
-.yui3-input-hidden, .yui3-input-string-hidden, .yui3-input-text-hidden, .yui3-input-html-hidden, .yui3-input-number-hidden, .yui3-input-select-hidden, .yui3-input-select-list-hidden, .yui3-input-checkbox-hidden, .yui3-input-path-hidden, .yui3-input-file-upload-hidden, .yui3-input-link-hidden, .yui3-input-image-hidden, .yui3-input-file-hidden, .yui3-input-color-hidden, .yui3-input-block-background-hidden, .yui3-input-image-inline-hidden, .yui3-input-button-hidden, .button-section.yui3-input-button-hidden { display:none; }
+.yui3-input-hidden, .yui3-input-string-hidden, .yui3-input-text-hidden, .yui3-input-html-hidden, .yui3-input-number-hidden, .yui3-input-select-hidden, .yui3-input-select-list-hidden, .yui3-input-checkbox-hidden, .yui3-input-path-hidden, .yui3-input-file-upload-hidden, .yui3-input-link-hidden, .yui3-input-image-hidden, .yui3-input-file-hidden, .yui3-input-color-hidden, .yui3-input-block-background-hidden, .yui3-input-image-inline-hidden, .yui3-input-button-hidden, .yui3-input-set-hidden, .button-section.yui3-input-button-hidden { display:none; }
 .yui3-input label, .yui3-form p.label, .ui-dark .ui-light .yui3-input label, .ui-dark .ui-light .yui3-form p.label {
   padding:7px 10px 0 5px;
   display:inline-block;
@@ -916,7 +917,7 @@ button::-moz-focus-inner { border:0; }
   width:auto;
   padding-right:0;
 }
-.yui3-input-string .description, .yui3-input-text .description, .yui3-input-video .description {
+.yui3-input-string .description, .yui3-input-set .description, .yui3-input-text .description, .yui3-input-video .description {
   width:auto;
   padding-right:0;
   padding-top:4px;
@@ -1590,8 +1591,15 @@ button::-moz-focus-inner { border:0; }
 .yui3-input-select-list.yui3-input-minimal .su-button.su-button-down button { background-position:100% -288px; }
 .yui3-input-select-list.yui3-input-minimal .su-button.su-button-down.su-button-last button { background-position:100% -336px; }
 .yui3-input-select-list.yui3-input-minimal .su-button.su-button-down img { margin-top:-24px; }
-.yui3-input-select-visual .su-button { position:relative; }
-.yui3-input-select-visual .su-button, .yui3-input-select-visual .su-button .su-button-content, .yui3-input-select-visual .su-button button {
+.yui3-input-select-visual .su-button-small { width:100% !important; }
+.yui3-input-select-visual .su-button-small p {
+  padding-right:20px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.yui3-input-select-visual .su-button-group { position:relative; }
+.yui3-input-select-visual .su-button-group, .yui3-input-select-visual .su-button-group .su-button-content, .yui3-input-select-visual .su-button-group button {
   border-radius:3px;
   -moz-background-clip:padding;
   -webkit-background-clip:padding-box;
@@ -1601,14 +1609,14 @@ button::-moz-focus-inner { border:0; }
   display:block;
   width:100%;
 }
-.yui3-input-select-visual .su-button {
+.yui3-input-select-visual .su-button-group {
   background-position:0 -73px;
   background-repeat:repeat-x;
   width:100% !important;
 }
-.yui3-input-select-visual .su-button button { background-position:100% -146px; }
-.yui3-input-select-visual .su-button div { padding:0; }
-.yui3-input-select-visual .su-button .su-button-bg {
+.yui3-input-select-visual .su-button-group button { background-position:100% -146px; }
+.yui3-input-select-visual .su-button-group div { padding:0; }
+.yui3-input-select-visual .su-button-group .su-button-bg {
   display:block;
   height:37px;
   padding:3px 3px 2px;
@@ -1618,34 +1626,39 @@ button::-moz-focus-inner { border:0; }
   position:relative;
   top:11px;
 }
-.yui3-input-select-visual .su-button .su-button-bg div {
+.yui3-input-select-visual .su-button-group .su-button-bg div {
   display:block;
   height:37px;
   border-bottom:1px solid #0d0e12;
   background-repeat:repeat;
   background-position:0 50%;
 }
-.yui3-input-select-visual .su-button .su-button-bg p {
+.yui3-input-select-visual .su-button-group .su-button-bg p {
   color:#6f7183;
   font-size:10px;
+  text-align:left;
+  text-overflow:ellipsis;
   text-shadow:0 1px 0 rgba(0,0,0,0.6);
+  white-space:nowrap;
+  overflow:hidden;
   position:absolute;
   top:-22px;
   left:0;
+  width:100%;
 }
-.yui3-input-select-visual .su-button.su-button-mouse-hover { background-position:0 -292px; }
-.yui3-input-select-visual .su-button.su-button-mouse-hover .su-button-content { background-position:0 -219px; }
-.yui3-input-select-visual .su-button.su-button-mouse-hover button { background-position:100% -365px; }
-.yui3-input-select-visual .su-button.su-button-down { background-position:0 -511px; }
-.yui3-input-select-visual .su-button.su-button-down .su-button-content { background-position:0 -438px; }
-.yui3-input-select-visual .su-button.su-button-down button { background-position:100% -584px; }
-.yui3-input-select-visual .su-button.su-button-mouse-hover .su-button-bg, .yui3-input-select-visual .su-button.su-button-down .su-button-bg { border-bottom-color:#898ea8; }
-.yui3-input-select-visual .su-button.su-button-mouse-hover .su-button-bg p, .yui3-input-select-visual .su-button.su-button-down .su-button-bg p { color:#ffffff; }
-.yui3-input-select-visual .su-button.button-section { margin-bottom:0; }
-.yui3-input-select-visual .su-button.button-section p { background:none; }
-.yui3-input-select-visual .su-button.button-section button { background-position:100% -657px; }
-.yui3-input-select-visual .su-button.button-section.su-button-mouse-hover button { background-position:100% -730px; }
-.yui3-input-select-visual .su-button.button-section.su-button-down button { background-position:100% -803px; }
+.yui3-input-select-visual .su-button-group.su-button-mouse-hover { background-position:0 -292px; }
+.yui3-input-select-visual .su-button-group.su-button-mouse-hover .su-button-content { background-position:0 -219px; }
+.yui3-input-select-visual .su-button-group.su-button-mouse-hover button { background-position:100% -365px; }
+.yui3-input-select-visual .su-button-group.su-button-down { background-position:0 -511px; }
+.yui3-input-select-visual .su-button-group.su-button-down .su-button-content { background-position:0 -438px; }
+.yui3-input-select-visual .su-button-group.su-button-down button { background-position:100% -584px; }
+.yui3-input-select-visual .su-button-group.su-button-mouse-hover .su-button-bg, .yui3-input-select-visual .su-button-group.su-button-down .su-button-bg { border-bottom-color:#898ea8; }
+.yui3-input-select-visual .su-button-group.su-button-mouse-hover .su-button-bg p, .yui3-input-select-visual .su-button-group.su-button-down .su-button-bg p { color:#ffffff; }
+.yui3-input-select-visual .su-button-group.button-section { margin-bottom:0; }
+.yui3-input-select-visual .su-button-group.button-section p { background:none; }
+.yui3-input-select-visual .su-button-group.button-section button { background-position:100% -657px; }
+.yui3-input-select-visual .su-button-group.button-section.su-button-mouse-hover button { background-position:100% -730px; }
+.yui3-input-select-visual .su-button-group.button-section.su-button-down button { background-position:100% -803px; }
 .yui3-input-select-visual .su-button + .su-button { margin-top:11px; }
 .yui3-input-select-visual.yui3-input-select-visual-hidden { display:none; }
 .yui3-form-vertical .yui3-input-select-visual label { padding-bottom:8px; }
@@ -1654,59 +1667,59 @@ button::-moz-focus-inner { border:0; }
 .yui3-input-select-visual-content.yui3-input-select-visual-loading .su-button { opacity:0.5; }
 .yui3-input-select-visual-content.yui3-input-select-visual-loading .su-button-down { opacity:0.25; }
 .yui3-input-select-visual-content.yui3-input-select-visual-loading > .loading-icon { display:block; }
-.yui3-input-select-visual-no-labels .su-button, .yui3-input-select-visual-no-labels .su-button .su-button-content, .yui3-input-select-visual-no-labels .su-button button {
+.yui3-input-select-visual-no-labels .su-button-group, .yui3-input-select-visual-no-labels .su-button-group .su-button-content, .yui3-input-select-visual-no-labels .su-button-group button {
   background-image:url("/cms/lib/supra/build/input/assets/skins/supra/input-select-visual-background-lbl.png");
   height:49px;
 }
-.yui3-input-select-visual-no-labels .su-button {
+.yui3-input-select-visual-no-labels .su-button-group {
   background-position:0 -49px;
   background-repeat:repeat-x;
   width:100% !important;
 }
-.yui3-input-select-visual-no-labels .su-button button { background-position:100% -98px; }
-.yui3-input-select-visual-no-labels .su-button.su-button-mouse-hover { background-position:0 -196px; }
-.yui3-input-select-visual-no-labels .su-button.su-button-mouse-hover .su-button-content { background-position:0 -147px; }
-.yui3-input-select-visual-no-labels .su-button.su-button-mouse-hover button { background-position:100% -245px; }
-.yui3-input-select-visual-no-labels .su-button.su-button-down { background-position:0 -343px; }
-.yui3-input-select-visual-no-labels .su-button.su-button-down .su-button-content { background-position:0 -294px; }
-.yui3-input-select-visual-no-labels .su-button.su-button-down button { background-position:100% -392px; }
-.yui3-input-select-visual-no-labels .su-button .su-button-bg {
+.yui3-input-select-visual-no-labels .su-button-group button { background-position:100% -98px; }
+.yui3-input-select-visual-no-labels .su-button-group.su-button-mouse-hover { background-position:0 -196px; }
+.yui3-input-select-visual-no-labels .su-button-group.su-button-mouse-hover .su-button-content { background-position:0 -147px; }
+.yui3-input-select-visual-no-labels .su-button-group.su-button-mouse-hover button { background-position:100% -245px; }
+.yui3-input-select-visual-no-labels .su-button-group.su-button-down { background-position:0 -343px; }
+.yui3-input-select-visual-no-labels .su-button-group.su-button-down .su-button-content { background-position:0 -294px; }
+.yui3-input-select-visual-no-labels .su-button-group.su-button-down button { background-position:100% -392px; }
+.yui3-input-select-visual-no-labels .su-button-group .su-button-bg {
   height:31px;
   top:0;
 }
-.yui3-input-select-visual-no-labels .su-button .su-button-bg div {
+.yui3-input-select-visual-no-labels .su-button-group .su-button-bg div {
   height:31px;
   background-position:50% 50%;
 }
-.yui3-input-select-visual-no-labels .su-button .su-button-bg p { display:none; }
-.yui3-input-select-visual-mid .su-button, .yui3-input-select-visual-mid .su-button .su-button-content, .yui3-input-select-visual-mid .su-button button {
+.yui3-input-select-visual-no-labels .su-button-group .su-button-bg p { display:none; }
+.yui3-input-select-visual-mid .su-button-group, .yui3-input-select-visual-mid .su-button-group .su-button-content, .yui3-input-select-visual-mid .su-button-group button {
   background-image:url("/cms/lib/supra/build/input/assets/skins/supra/input-select-visual-background-mid.png");
   height:90px;
 }
-.yui3-input-select-visual-mid .su-button { background-position:0 -90px; }
-.yui3-input-select-visual-mid .su-button button { background-position:100% -180px; }
-.yui3-input-select-visual-mid .su-button.su-button-mouse-hover { background-position:0 -360px; }
-.yui3-input-select-visual-mid .su-button.su-button-mouse-hover .su-button-content { background-position:0 -270px; }
-.yui3-input-select-visual-mid .su-button.su-button-mouse-hover button { background-position:100% -450px; }
-.yui3-input-select-visual-mid .su-button.su-button-down { background-position:0 -630px; }
-.yui3-input-select-visual-mid .su-button.su-button-down .su-button-content { background-position:0 -540px; }
-.yui3-input-select-visual-mid .su-button.su-button-down button { background-position:100% -720px; }
-.yui3-input-select-visual-mid .su-button .su-button-bg {
+.yui3-input-select-visual-mid .su-button-group { background-position:0 -90px; }
+.yui3-input-select-visual-mid .su-button-group button { background-position:100% -180px; }
+.yui3-input-select-visual-mid .su-button-group.su-button-mouse-hover { background-position:0 -360px; }
+.yui3-input-select-visual-mid .su-button-group.su-button-mouse-hover .su-button-content { background-position:0 -270px; }
+.yui3-input-select-visual-mid .su-button-group.su-button-mouse-hover button { background-position:100% -450px; }
+.yui3-input-select-visual-mid .su-button-group.su-button-down { background-position:0 -630px; }
+.yui3-input-select-visual-mid .su-button-group.su-button-down .su-button-content { background-position:0 -540px; }
+.yui3-input-select-visual-mid .su-button-group.su-button-down button { background-position:100% -720px; }
+.yui3-input-select-visual-mid .su-button-group .su-button-bg {
   top:11px;
   height:58px;
   -moz-box-sizing:border-box;
   box-sizing:border-box;
 }
-.yui3-input-select-visual-mid .su-button .su-button-bg div { height:52px; }
-.yui3-input-select-visual-normal .su-button .su-button-bg div {
+.yui3-input-select-visual-mid .su-button-group .su-button-bg div { height:52px; }
+.yui3-input-select-visual-normal .su-button-group .su-button-bg div {
   background-position:0 0;
   background-repeat:no-repeat;
 }
-.yui3-input-select-visual-fill .su-button .su-button-bg div {
+.yui3-input-select-visual-fill .su-button-group .su-button-bg div {
   background-position:0 0;
   background-repeat:repeat;
 }
-.yui3-input-select-visual-center .su-button .su-button-bg {
+.yui3-input-select-visual-center .su-button-group .su-button-bg {
   border-radius:3px;
   -moz-background-clip:padding;
   -webkit-background-clip:padding-box;
@@ -1714,11 +1727,11 @@ button::-moz-focus-inner { border:0; }
   box-shadow:0;
   box-shadow:0 1px 2px rgba(0,0,0,0.75) inset;
 }
-.yui3-input-select-visual-center .su-button .su-button-bg div {
+.yui3-input-select-visual-center .su-button-group .su-button-bg div {
   background-position:50% 50%;
   background-repeat:no-repeat;
 }
-.yui3-input-select-visual-button .su-button .su-button-bg {
+.yui3-input-select-visual-button .su-button-group .su-button-bg {
   border-radius:3px;
   -moz-background-clip:padding;
   -webkit-background-clip:padding-box;
@@ -1726,11 +1739,11 @@ button::-moz-focus-inner { border:0; }
   box-shadow:0;
   box-shadow:0 1px 2px rgba(0,0,0,0.75) inset;
 }
-.yui3-input-select-visual-button .su-button .su-button-bg div {
+.yui3-input-select-visual-button .su-button-group .su-button-bg div {
   background-position:0 0, 100% -74px, 0 -37px;
   background-repeat:no-repeat;
 }
-.yui3-input-select-visual-no-labels.yui3-input-select-visual-button .su-button .su-button-bg div {
+.yui3-input-select-visual-no-labels.yui3-input-select-visual-button .su-button-group .su-button-bg div {
   background-position:50% -31px, 0 0, 100% -62px;
   background-repeat:no-repeat;
 }
@@ -1856,6 +1869,7 @@ button::-moz-focus-inner { border:0; }
   margin-top:0;
   margin-bottom:0;
 }
+.su-input-set-group { margin:0 0 30px; }
 .yui3-input-slider .less, .yui3-input-slider .more {
   display:inline-block;
   cursor:pointer;
@@ -2007,7 +2021,7 @@ button::-moz-focus-inner { border:0; }
   width:auto;
 }
 .yui3-form-vertical .yui3-input .description { padding:0 0 4px 2px; }
-.yui3-form-vertical .yui3-input-string label, .yui3-form-vertical .yui3-input-number label, .yui3-form-vertical .yui3-input-text label, .yui3-form-vertical .yui3-input-html label, .yui3-form-vertical .yui3-input-path label, .yui3-form-vertical .yui3-input-select label, .yui3-form-vertical .yui3-input-select-list label, .yui3-form-vertical .yui3-input-file-upload label, .yui3-form-vertical .yui3-input-slider label, .yui3-form-vertical .yui3-input-link label, .yui3-form-vertical .yui3-input-image label, .yui3-form-vertical .yui3-input-file label, .yui3-form-vertical .yui3-input-color label, .yui3-form-vertical .yui3-input-block-background label, .yui3-form-vertical .yui3-input-image-inline label, .yui3-form-vertical p.label { display:block; }
+.yui3-form-vertical .yui3-input-string label, .yui3-form-vertical .yui3-input-set label, .yui3-form-vertical .yui3-input-number label, .yui3-form-vertical .yui3-input-text label, .yui3-form-vertical .yui3-input-html label, .yui3-form-vertical .yui3-input-path label, .yui3-form-vertical .yui3-input-select label, .yui3-form-vertical .yui3-input-select-list label, .yui3-form-vertical .yui3-input-file-upload label, .yui3-form-vertical .yui3-input-slider label, .yui3-form-vertical .yui3-input-link label, .yui3-form-vertical .yui3-input-image label, .yui3-form-vertical .yui3-input-file label, .yui3-form-vertical .yui3-input-color label, .yui3-form-vertical .yui3-input-block-background label, .yui3-form-vertical .yui3-input-image-inline label, .yui3-form-vertical p.label { display:block; }
 .yui3-form-vertical .yui3-input-string input, .yui3-form-vertical .yui3-input-number input, .yui3-form-vertical .yui3-input-select select, .yui3-form-vertical .yui3-input-text textarea, .yui3-form-vertical .yui3-input-html textarea, .yui3-form-vertical .yui3-input-html iframe { width:100%; }
 .yui3-form-vertical .yui3-input-path input { width:50%; }
 .yui3-form-vertical .yui3-input-select .yui3-input-select-inner {

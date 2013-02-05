@@ -849,10 +849,16 @@ YUI().add("supra.imageresizer", function (Y) {
 		 * Remove all created elements and events
 		 * 
 		 * @param {Y.Node} image Image node
+		 * @param {Boolean} silent Image is removed, but another will be set shortly
 		 * @private
 		 */
-		tearDownImage: function (image) {
+		tearDownImage: function (image, silent) {
 			if (!image) return;
+			
+			if (!this.get("imageContainerNode")) {
+				// Already teared down, 'resize' event triggered this again
+				return;
+			}
 			
 			var imageContainerNode = this.get("imageContainerNode"),
 				resizeHandleNode = this.get("resizeHandleNode"),
@@ -876,6 +882,10 @@ YUI().add("supra.imageresizer", function (Y) {
 			imageContainerNode.remove(true);
 			this.set("imageContainerNode", null);
 			
+			if (this.zoomPanel) {
+				this.zoomPanel.hide();
+			}
+			
 			this.fire("resize", {
 				"image": image,
 				"cropLeft": this.cropLeft,
@@ -883,12 +893,9 @@ YUI().add("supra.imageresizer", function (Y) {
 				"cropWidth": this.cropWidth,
 				"cropHeight": this.cropHeight,
 				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight
+				"imageHeight": this.imageHeight,
+				"silent": !!silent
 			});
-			
-			if (this.zoomPanel) {
-				this.zoomPanel.hide();
-			}
 		},
 		
 		
@@ -964,9 +971,10 @@ YUI().add("supra.imageresizer", function (Y) {
 		 * Remove all created elements and events
 		 * 
 		 * @param {Y.Node} image Node which background was resized
+		 * @param {Boolean} silent Image is removed, but another will be set shortly
 		 * @private
 		 */
-		tearDownBackground: function (image) {
+		tearDownBackground: function (image, silent) {
 			if (!image) return;
 			
 			var resizeHandleNode = this.get("resizeHandleNode"),
@@ -987,7 +995,8 @@ YUI().add("supra.imageresizer", function (Y) {
 				"cropWidth": this.cropWidth,
 				"cropHeight": this.cropHeight,
 				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight
+				"imageHeight": this.imageHeight,
+				"silent": !!silent
 			});
 			
 			if (this.zoomPanel) {
@@ -1008,14 +1017,15 @@ YUI().add("supra.imageresizer", function (Y) {
 		 */
 		_setImageAttr: function (image) {
 			var image = image ? (image.getDOMNode ? image : Y.Node(image)) : null,
-				doc = image ? image.getDOMNode().ownerDocument : null;
+				doc = image ? image.getDOMNode().ownerDocument : null,
+				silent = !!image;
 			
 			if (this.get("image")) {
 				
 				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
-					this.tearDownImage(this.get("image"));
+					this.tearDownImage(this.get("image"), silent);
 				} else {
-					this.tearDownBackground(this.get("image"));
+					this.tearDownBackground(this.get("image"), silent);
 				}
 			}
 			

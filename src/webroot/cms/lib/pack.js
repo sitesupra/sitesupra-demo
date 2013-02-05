@@ -1179,6 +1179,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/video.js',
 		requires: ['supra.input-hidden']
 	},
+	'supra.input-set': {
+		path: 'input/set.js',
+		requires: ['supra.input-hidden']
+	},
 	
 	'supra.form': {
 		path: 'input/form.js',
@@ -1208,6 +1212,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-inline-html',
 			'supra.input-inline-string',
 			'supra.input-video',
+			'supra.input-set',
 			
 			'supra.button-plugin-input'
 		]
@@ -3247,6 +3252,48 @@ YUI.add('supra.event', function (Y) {
 		
 		return o1_size == o2_size;
 	};
+	
+	/**
+	 * Convert all invalid characters into url compatible form
+	 * 
+	 * @param {String} str String to convert
+	 * @returns {String} Converted string
+	 */
+	Y.Lang.toPath = function (str) {
+		str = String(str || '');
+		
+		// Convert non-ASCII characters
+		var map = Y.Lang.toPath.map,
+			i = 0,
+			ii = str.length,
+			out = '',
+			chr = '';
+		
+		for (; i<ii; i++) {
+			chr = str[i];
+			out += (chr in map ? map[chr] : chr);
+		}
+		
+		str = out.toLowerCase();
+		
+		// Replace invalid characters with dash
+		str = str.replace(/[^a-z0-9\-]/g, '-');
+		
+		// Remove invalid first and last characters
+		str = str.replace(/(^[^a-z0-9]+|[^a-z0-9]+$)/g, '');
+		
+		// remove repeated characters
+		str = str.replace(/([\-\_])[\-\_]+/g, '$1');
+		
+		return str;
+	};
+	
+	/**
+	 * Non-ASCII to ASCII character map
+	 * @type {Object}
+	 * @private
+	 */
+	Y.Lang.toPath.map = {'À': 'A', 'Á': 'A', 'Â': 'A', 'Ã': 'A', 'Ä': 'Ae', 'Å': 'A', 'Æ': 'A', 'Ā': 'A', 'Ą': 'A', 'Ă': 'A', 'Ç': 'C', 'Ć': 'C', 'Č': 'C', 'Ĉ': 'C', 'Ċ': 'C', 'Ď': 'D', 'Đ': 'D', 'È': 'E', 'É': 'E', 'Ê': 'E', 'Ë': 'E', 'Ē': 'E', 'Ę': 'E', 'Ě': 'E', 'Ĕ': 'E', 'Ė': 'E', 'Ĝ': 'G', 'Ğ': 'G', 'Ġ': 'G', 'Ģ': 'G', 'Ĥ': 'H', 'Ħ': 'H', 'Ì': 'I', 'Í': 'I', 'Î': 'I', 'Ï': 'I', 'Ī': 'I', 'Ĩ': 'I', 'Ĭ': 'I', 'Į': 'I', 'İ': 'I', 'Ĳ': 'IJ', 'Ĵ': 'J', 'Ķ': 'K', 'Ľ': 'K', 'Ĺ': 'K', 'Ļ': 'K', 'Ŀ': 'K', 'Ł': 'L', 'Ñ': 'N', 'Ń': 'N', 'Ň': 'N', 'Ņ': 'N', 'Ŋ': 'N', 'Ò': 'O', 'Ó': 'O', 'Ô': 'O', 'Õ': 'O', 'Ö': 'Oe', 'Ø': 'O', 'Ō': 'O', 'Ő': 'O', 'Ŏ': 'O', 'Œ': 'OE', 'Ŕ': 'R', 'Ř': 'R', 'Ŗ': 'R', 'Ś': 'S', 'Ş': 'S', 'Ŝ': 'S', 'Ș': 'S', 'Š': 'S', 'Ť': 'T', 'Ţ': 'T', 'Ŧ': 'T', 'Ț': 'T', 'Ù': 'U', 'Ú': 'U', 'Û': 'U', 'Ü': 'Ue', 'Ū': 'U', 'Ů': 'U', 'Ű': 'U', 'Ŭ': 'U', 'Ũ': 'U', 'Ų': 'U', 'Ŵ': 'W', 'Ŷ': 'Y', 'Ÿ': 'Y', 'Ý': 'Y', 'Ź': 'Z', 'Ż': 'Z', 'Ž': 'Z', 'à': 'a', 'á': 'a', 'â': 'a', 'ã': 'a', 'ä': 'ae', 'ā': 'a', 'ą': 'a', 'ă': 'a', 'å': 'a', 'æ': 'ae', 'ç': 'c', 'ć': 'c', 'č': 'c', 'ĉ': 'c', 'ċ': 'c', 'ď': 'd', 'đ': 'd', 'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e', 'ē': 'e', 'ę': 'e', 'ě': 'e', 'ĕ': 'e', 'ė': 'e', 'ƒ': 'f', 'ĝ': 'g', 'ğ': 'g', 'ġ': 'g', 'ģ': 'g', 'ĥ': 'h', 'ħ': 'h', 'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i', 'ī': 'i', 'ĩ': 'i', 'ĭ': 'i', 'į': 'i', 'ı': 'i', 'ĳ': 'ij', 'ĵ': 'j', 'ķ': 'k', 'ĸ': 'k', 'ł': 'l', 'ľ': 'l', 'ĺ': 'l', 'ļ': 'l', 'ŀ': 'l', 'ñ': 'n', 'ń': 'n', 'ň': 'n', 'ņ': 'n', 'ŉ': 'n', 'ŋ': 'n', 'ò': 'o', 'ó': 'o', 'ô': 'o', 'õ': 'o', 'ö': 'oe', 'ø': 'o', 'ō': 'o', 'ő': 'o', 'ŏ': 'o', 'œ': 'oe', 'ŕ': 'r', 'ř': 'r', 'ŗ': 'r', 'ś': 's', 'š': 's', 'ť': 't', 'ù': '', 'ú': '', 'û': '', 'ü': 'ue', 'ū': '', 'ů': '', 'ű': '', 'ŭ': '', 'ũ': '', 'ų': '', 'ŵ': 'w', 'ÿ': 'y', 'ý': 'y', 'ŷ': 'y', 'ż': 'z', 'ź': 'z', 'ž': 'z', 'ß': 'ss', 'ſ': 'ss', 'Α': 'A', 'Ά': 'A', 'Ἀ': 'A', 'Ἁ': 'A', 'Ἂ': 'A', 'Ἃ': 'A', 'Ἄ': 'A', 'Ἅ': 'A', 'Ἆ': 'A', 'Ἇ': 'A', 'ᾈ': 'A', 'ᾉ': 'A', 'ᾊ': 'A', 'ᾋ': 'A', 'ᾌ': 'A', 'ᾍ': 'A', 'ᾎ': 'A', 'ᾏ': 'A', 'Ᾰ': 'A', 'Ᾱ': 'A', 'Ὰ': 'A', 'Ά': 'A', 'ᾼ': 'A', 'Β': 'B', 'Γ': 'G', 'Δ': 'D', 'Ε': 'E', 'Έ': 'E', 'Ἐ': 'E', 'Ἑ': 'E', 'Ἒ': 'E', 'Ἓ': 'E', 'Ἔ': 'E', 'Ἕ': 'E', 'Έ': 'E', 'Ὲ': 'E', 'Ζ': 'Z', 'Η': 'I', 'Ή': 'I', 'Ἠ': 'I', 'Ἡ': 'I', 'Ἢ': 'I', 'Ἣ': 'I', 'Ἤ': 'I', 'Ἥ': 'I', 'Ἦ': 'I', 'Ἧ': 'I', 'ᾘ': 'I', 'ᾙ': 'I', 'ᾚ': 'I', 'ᾛ': 'I', 'ᾜ': 'I', 'ᾝ': 'I', 'ᾞ': 'I', 'ᾟ': 'I', 'Ὴ': 'I', 'Ή': 'I', 'ῌ': 'I', 'Θ': 'TH', 'Ι': 'I', 'Ί': 'I', 'Ϊ': 'I', 'Ἰ': 'I', 'Ἱ': 'I', 'Ἲ': 'I', 'Ἳ': 'I', 'Ἴ': 'I', 'Ἵ': 'I', 'Ἶ': 'I', 'Ἷ': 'I', 'Ῐ': 'I', 'Ῑ': 'I', 'Ὶ': 'I', 'Ί': 'I', 'Κ': 'K', 'Λ': 'L', 'Μ': 'M', 'Ν': 'N', 'Ξ': 'KS', 'Ο': 'O', 'Ό': 'O', 'Ὀ': 'O', 'Ὁ': 'O', 'Ὂ': 'O', 'Ὃ': 'O', 'Ὄ': 'O', 'Ὅ': 'O', 'Ὸ': 'O', 'Ό': 'O', 'Π': 'P', 'Ρ': 'R', 'Ῥ': 'R', 'Σ': 'S', 'Τ': 'T', 'Υ': 'Y', 'Ύ': 'Y', 'Ϋ': 'Y', 'Ὑ': 'Y', 'Ὓ': 'Y', 'Ὕ': 'Y', 'Ὗ': 'Y', 'Ῠ': 'Y', 'Ῡ': 'Y', 'Ὺ': 'Y', 'Ύ': 'Y', 'Φ': 'F', 'Χ': 'X', 'Ψ': 'PS', 'Ω': 'O', 'Ώ': 'O', 'Ὠ': 'O', 'Ὡ': 'O', 'Ὢ': 'O', 'Ὣ': 'O', 'Ὤ': 'O', 'Ὥ': 'O', 'Ὦ': 'O', 'Ὧ': 'O', 'ᾨ': 'O', 'ᾩ': 'O', 'ᾪ': 'O', 'ᾫ': 'O', 'ᾬ': 'O', 'ᾭ': 'O', 'ᾮ': 'O', 'ᾯ': 'O', 'Ὼ': 'O', 'Ώ': 'O', 'ῼ': 'O', 'α': 'a', 'ά': 'a', 'ἀ': 'a', 'ἁ': 'a', 'ἂ': 'a', 'ἃ': 'a', 'ἄ': 'a', 'ἅ': 'a', 'ἆ': 'a', 'ἇ': 'a', 'ᾀ': 'a', 'ᾁ': 'a', 'ᾂ': 'a', 'ᾃ': 'a', 'ᾄ': 'a', 'ᾅ': 'a', 'ᾆ': 'a', 'ᾇ': 'a', 'ὰ': 'a', 'ά': 'a', 'ᾰ': 'a', 'ᾱ': 'a', 'ᾲ': 'a', 'ᾳ': 'a', 'ᾴ': 'a', 'ᾶ': 'a', 'ᾷ': 'a', 'β': 'b', 'γ': 'g', 'δ': 'd', 'ε': 'e', 'έ': 'e', 'ἐ': 'e', 'ἑ': 'e', 'ἒ': 'e', 'ἓ': 'e', 'ἔ': 'e', 'ἕ': 'e', 'ὲ': 'e', 'έ': 'e', 'ζ': 'z', 'η': 'i', 'ή': 'i', 'ἠ': 'i', 'ἡ': 'i', 'ἢ': 'i', 'ἣ': 'i', 'ἤ': 'i', 'ἥ': 'i', 'ἦ': 'i', 'ἧ': 'i', 'ᾐ': 'i', 'ᾑ': 'i', 'ᾒ': 'i', 'ᾓ': 'i', 'ᾔ': 'i', 'ᾕ': 'i', 'ᾖ': 'i', 'ᾗ': 'i', 'ὴ': 'i', 'ή': 'i', 'ῂ': 'i', 'ῃ': 'i', 'ῄ': 'i', 'ῆ': 'i', 'ῇ': 'i', 'θ': 'th', 'ι': 'i', 'ί': 'i', 'ϊ': 'i', 'ΐ': 'i', 'ἰ': 'i', 'ἱ': 'i', 'ἲ': 'i', 'ἳ': 'i', 'ἴ': 'i', 'ἵ': 'i', 'ἶ': 'i', 'ἷ': 'i', 'ὶ': 'i', 'ί': 'i', 'ῐ': 'i', 'ῑ': 'i', 'ῒ': 'i', 'ΐ': 'i', 'ῖ': 'i', 'ῗ': 'i', 'κ': 'k', 'λ': 'l', 'μ': 'm', 'ν': 'n', 'ξ': 'ks', 'ο': 'o', 'ό': 'o', 'ὀ': 'o', 'ὁ': 'o', 'ὂ': 'o', 'ὃ': 'o', 'ὄ': 'o', 'ὅ': 'o', 'ὸ': 'o', 'ό': 'o', 'π': 'p', 'ρ': 'r', 'ῤ': 'r', 'ῥ': 'r', 'σ': 's', 'ς': 's', 'τ': 't', 'υ': 'y', 'ύ': 'y', 'ϋ': 'y', 'ΰ': 'y', 'ὐ': 'y', 'ὑ': 'y', 'ὒ': 'y', 'ὓ': 'y', 'ὔ': 'y', 'ὕ': 'y', 'ὖ': 'y', 'ὗ': 'y', 'ὺ': 'y', 'ύ': 'y', 'ῠ': 'y', 'ῡ': 'y', 'ῢ': 'y', 'ΰ': 'y', 'ῦ': 'y', 'ῧ': 'y', 'φ': 'f', 'χ': 'x', 'ψ': 'ps', 'ω': 'o', 'ώ': 'o', 'ὠ': 'o', 'ὡ': 'o', 'ὢ': 'o', 'ὣ': 'o', 'ὤ': 'o', 'ὥ': 'o', 'ὦ': 'o', 'ὧ': 'o', 'ᾠ': 'o', 'ᾡ': 'o', 'ᾢ': 'o', 'ᾣ': 'o', 'ᾤ': 'o', 'ᾥ': 'o', 'ᾦ': 'o', 'ᾧ': 'o', 'ὼ': 'o', 'ώ': 'o', 'ῲ': 'o', 'ῳ': 'o', 'ῴ': 'o', 'ῶ': 'o', 'ῷ': 'o', '¨': '', '΅': '', '᾿': '', '῾': '', '῍': '', '῝': '', '῎': '', '῞': '', '῏': '', '῟': '', '῀': '', '῁': '', '΄': '', '΅': '', '`': '', '῭': '', 'ͺ': '', '᾽': '', 'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'E', 'Ж': 'ZH', 'З': 'Z', 'И': 'I', 'Й': 'I', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F', 'Х': 'KH', 'Ц': 'TS', 'Ч': 'CH', 'Ш': 'SH', 'Щ': 'SHCH', 'Ы': 'Y', 'Э': 'E', 'Ю': 'YU', 'Я': 'YA', 'а': 'A', 'б': 'B', 'в': 'V', 'г': 'G', 'д': 'D', 'е': 'E', 'ё': 'E', 'ж': 'ZH', 'з': 'Z', 'и': 'I', 'й': 'I', 'к': 'K', 'л': 'L', 'м': 'M', 'н': 'N', 'о': 'O', 'п': 'P', 'р': 'R', 'с': 'S', 'т': 'T', 'у': 'U', 'ф': 'F', 'х': 'KH', 'ц': 'TS', 'ч': 'CH', 'ш': 'SH', 'щ': 'SHCH', 'ы': 'Y', 'э': 'E', 'ю': 'YU', 'я': 'YA', 'Ъ': '', 'ъ': '', 'Ь': '', 'ь': '', 'ð': 'd', 'Ð': 'D', 'þ': 'th', 'Þ': 'TH', 'ა': 'a', 'ბ': 'b', 'გ': 'g', 'დ': 'd', 'ე': 'e', 'ვ': 'v', 'ზ': 'z', 'თ': 't', 'ი': 'i', 'კ': 'k', 'ლ': 'l', 'მ': 'm', 'ნ': 'n', 'ო': 'o', 'პ': 'p', 'ჟ': 'zh', 'რ': 'r', 'ს': 's', 'ტ': 't', 'უ': '', 'ფ': 'p', 'ქ': 'k', 'ღ': 'gh', 'ყ': 'q', 'შ': 'sh', 'ჩ': 'ch', 'ც': 'ts', 'ძ': 'dz', 'წ': 'ts', 'ჭ': 'ch', 'ხ': 'kh', 'ჯ': 'j', 'ჰ': 'h' };
 
 }, YUI.version);/*
  * Add custom date format support to Y.DataType.Date.parse
@@ -4465,6 +4512,13 @@ YUI.add('supra.button-plugin-input', function (Y) {
 		ARROW_OFFSET: 20,
 		
 		/**
+		 * Content padding, used to calculate arrow / node position
+		 * @type {Number}
+		 * @private
+		 */
+		CONTENT_PADDING: 10,
+		
+		/**
 		 * Close button template
 		 * @type {String}
 		 * @private
@@ -4649,6 +4703,7 @@ YUI.add('supra.button-plugin-input', function (Y) {
 					//Arrow position is set in pixels
 					default: offset = parseInt(position[1], 10) || 0;
 				}
+				
 				this._arrow.setStyle('left', offset + 'px');
 			}
 		},
@@ -4712,14 +4767,14 @@ YUI.add('supra.button-plugin-input', function (Y) {
 				host_offset = box.getY();
 				host_size = box.get('offsetHeight');
 				target_size = target.get('offsetHeight');
-				target_offset = target.getY() + ~~(target_size / 2);
+				target_offset = target.getY() + ~~(target_size / 2 - this.CONTENT_PADDING / 2);
 				style_attr = 'top';
 			} else {
 				//Arrow is positioned at the top or bottom of panel
 				host_offset = box.getX();
 				host_size = box.get('offsetWidth');
 				target_size = target.get('offsetWidth');
-				target_offset = target.getX() + ~~(target_size / 2);
+				target_offset = target.getX() + ~~(target_size / 2 - this.CONTENT_PADDING / 2);
 			}
 			
 			offset = Math.min(Math.max(this.ARROW_OFFSET, target_offset - host_offset), host_size);
@@ -6507,8 +6562,13 @@ YUI().add("supra.io-css", function (Y) {
 			
 			//On Input focus, focus input element
 			this.on('focusedChange', function (event) {
-				if (event.newVal && event.newVal != event.prevVal) {
-					this.get('inputNode').focus();
+				if (event.newVal != event.prevVal) {
+					if (event.newVal) {
+						this.get('inputNode').focus();
+						this.fire('focus');
+					} else {
+						this.fire('blur');
+					}
 				}
 			}, this);
 			
@@ -6917,6 +6977,45 @@ YUI().add("supra.io-css", function (Y) {
 		 */
 		toString: function () {
 			return String(this.getValue() || '');
+		},
+		
+		
+		/* ------------------------------ SIDEBAR -------------------------------- */
+		
+		
+		/**
+		 * Returns parent widget by class name
+		 * 
+		 * @param {String} classname Parent widgets class name
+		 * @return Widget instance or null if not found
+		 * @private
+		 */
+		getParentWidget: function (classname) {
+			var parent = this.get("parent");
+			while (parent) {
+				if (parent.isInstanceOf(classname)) return parent;
+				parent = parent.get("parent");
+			}
+			return null;
+		},
+		
+		/**
+		 * Returns slideshow
+		 * 
+		 * @returns {Object} Slideshow instance if there is one
+		 */
+		getSlideshow: function () {
+			var form = this.getParentWidget("form");
+			return form ? form.get("slideshow") : null;
+		},
+		
+		/**
+		 * Returns form
+		 * 
+		 * @returns {Object} Form instance to which this input belongs to
+		 */
+		getForm: function () {
+			return this.getParentWidget("form");
 		}
 		
 	});
@@ -11265,10 +11364,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * Remove all created elements and events
 		 * 
 		 * @param {Y.Node} image Image node
+		 * @param {Boolean} silent Image is removed, but another will be set shortly
 		 * @private
 		 */
-		tearDownImage: function (image) {
+		tearDownImage: function (image, silent) {
 			if (!image) return;
+			
+			if (!this.get("imageContainerNode")) {
+				// Already teared down, 'resize' event triggered this again
+				return;
+			}
 			
 			var imageContainerNode = this.get("imageContainerNode"),
 				resizeHandleNode = this.get("resizeHandleNode"),
@@ -11292,6 +11397,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			imageContainerNode.remove(true);
 			this.set("imageContainerNode", null);
 			
+			if (this.zoomPanel) {
+				this.zoomPanel.hide();
+			}
+			
 			this.fire("resize", {
 				"image": image,
 				"cropLeft": this.cropLeft,
@@ -11299,12 +11408,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"cropWidth": this.cropWidth,
 				"cropHeight": this.cropHeight,
 				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight
+				"imageHeight": this.imageHeight,
+				"silent": !!silent
 			});
-			
-			if (this.zoomPanel) {
-				this.zoomPanel.hide();
-			}
 		},
 		
 		
@@ -11380,9 +11486,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * Remove all created elements and events
 		 * 
 		 * @param {Y.Node} image Node which background was resized
+		 * @param {Boolean} silent Image is removed, but another will be set shortly
 		 * @private
 		 */
-		tearDownBackground: function (image) {
+		tearDownBackground: function (image, silent) {
 			if (!image) return;
 			
 			var resizeHandleNode = this.get("resizeHandleNode"),
@@ -11403,7 +11510,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"cropWidth": this.cropWidth,
 				"cropHeight": this.cropHeight,
 				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight
+				"imageHeight": this.imageHeight,
+				"silent": !!silent
 			});
 			
 			if (this.zoomPanel) {
@@ -11424,14 +11532,15 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		_setImageAttr: function (image) {
 			var image = image ? (image.getDOMNode ? image : Y.Node(image)) : null,
-				doc = image ? image.getDOMNode().ownerDocument : null;
+				doc = image ? image.getDOMNode().ownerDocument : null,
+				silent = !!image;
 			
 			if (this.get("image")) {
 				
 				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
-					this.tearDownImage(this.get("image"));
+					this.tearDownImage(this.get("image"), silent);
 				} else {
-					this.tearDownBackground(this.get("image"));
+					this.tearDownBackground(this.get("image"), silent);
 				}
 			}
 			
@@ -13344,7 +13453,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * @private
 		 */
 		updateVideoPreview: function (node, data) {
-			this.getVideoPreviewUrl(data).always(function (url) {
+			var Input = Supra.Input.Video;
+			Input.getVideoPreviewUrl(data).always(function (url) {
 				if (url) {
 					// Using setAttribute because it's not possible to use !important in styles
 					node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important;')
@@ -13595,67 +13705,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				}
 			}
 		},
-		
-		/**
-		 * Extract image url from video data
-		 * 
-		 * @param {Object} data Video data
-		 * @returns {String} Image url
-		 */
-		getVideoPreviewUrl: function (data) {
-			var service = null,
-				video_id = null,
-				match = null,
-				
-				// http://youtu.be/...
-				// http://www.youtube.com/v/...
-				// http://www.youtube.com/...?v=...
-				regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be\/|youtube.[a-z]+)\/(v\/|.*\&v=|.*\?v=)([a-z0-9_\-]+)/i,
-				// http://vimeo.com/...
-				regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
-				
-				deferred = new Supra.Deferred();
-			
-			if (data) {
-				if (data.resource == "link") {
-					service = data.service;
-					video_id = data.id;
-				} else if (data.resource == "source") {
-					if (match = data.source.match(regex_youtube)) {
-						service = 'youtube';
-						video_id = match[5];
-					} else if (match = data.source.match(regex_vimeo)) {
-						service = 'vimeo';
-						video_id = match[5];
-					}
-				}
-			}
-			
-			if (service == 'youtube') {
-				deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
-			} else if (service == 'vimeo') {
-				//
-				var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
-				Supra.io(url, {
-					'suppress_errors': true, // don't display errors
-					'context': this,
-					'on': {
-						'complete': function (data, success) {
-							if (data && data[0]) {
-								deferred.resolveWith(this, [data[0].thumbnail_large]);
-							} else {
-								deferred.rejectWith(this, []);
-							}
-						}
-					}
-				});
-			} else {
-				deferred.rejectWith(this, []);
-			}
-			
-			return deferred.promise();
-		},
-		
 		
 		/**
 		 * Process HTML and replace all nodes with supra tags {supra.video id="..."}
@@ -20769,7 +20818,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'type': definition.values ? 'button' : 'toggle', 'style': 'group'}),
+				is_group = definition.values && definition.values.length,
+				button = null,
 				value = this._getInternalValue(),
 				has_value_match = false,
 				
@@ -20778,12 +20828,23 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				subinput = null,
 				button_value_map = this.button_value_map;
 			
+			// Create button
+			button = new Supra.Button({
+				'label': definition.title,
+				'type': is_group ? 'button' : 'toggle',
+				'style': is_group ? 'small' : 'group'
+			});
+			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
 			}
 			
-			button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
-			button.LABEL_TEMPLATE = this.getButtonLabelTemplate(definition);
+			// If not a group then render set different decoration
+			if (!is_group) {
+				button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
+				button.LABEL_TEMPLATE = this.getButtonLabelTemplate(definition);
+			}
+			
 			this.buttons[definition.id] = button;
 			
 			if (first) {
@@ -20793,7 +20854,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				button.get('boundingBox').addClass('su-button-last');
 			}
 			
-			if (definition.values && slideshow) {
+			if (is_group && slideshow) {
 				button.get('boundingBox').addClass('button-section');
 				slide = slideshow.addSlide('propertySlide' + this.get('id') + definition.id);
 				
@@ -20841,6 +20902,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			
 			//Set button width
 			button.get('boundingBox').setStyle('width', button_width + '%');
+			
+			// Group button should fill all available space
+			if (is_group) {
+				button.addClass('su-button-fill');
+			}
 			
 			//On click update input value
 			if (definition.values && slideshow) {
@@ -22414,6 +22480,13 @@ YUI.add('supra.uploader', function (Y) {
 			if (!this.get('disabled')) {
 				this.set('disabled', false);
 			}
+			
+			//Load MediaLibrary localizations
+			var Loader = Supra.Manager.Loader,
+				Intl   = Supra.Intl,
+				path   = Loader.getStaticPath() + Loader.getActionBasePath('MediaLibrary');
+			
+			Intl.loadAppData(path);
 		},
 		
 		/**
@@ -22537,10 +22610,10 @@ YUI.add('supra.uploader', function (Y) {
 			
 			if (folder_id !== this.last_drop_id) {
 				if (this.last_drop_target) {
-					this.last_drop_target.removeClass('yui3-html5-dd-target')
+					this.last_drop_target.removeClass('yui3-html5-dd-target');
 				}
 				if (folder_node) {
-					folder_node.addClass('yui3-html5-dd-target')
+					folder_node.addClass('yui3-html5-dd-target');
 				}
 				
 				this.last_drop_target = folder_node;
@@ -28540,6 +28613,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			value: true,
 			setter: "_setEditImageAutomatically"
 		},
+		"allowRemoveImage": {
+			value: true,
+			setter: "_setAllowRemoveImage"
+		},
 		/**
 		 * Render widget into separate slide and add
 		 * button to the place where this widget should be
@@ -28738,12 +28815,18 @@ YUI.add('supra.datatype-color', function(Y) {
 					image.size_height = event.imageHeight;
 					
 					this.set("value", value);
+					
+					if (!event.silent) {
+						this.blur();
+					}
 				}, this);
 			}
 			
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
+			
+			this.focus();
 		},
 		
 		/**
@@ -28753,6 +28836,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			var imageResizer = this.widgets.imageResizer;
 			if (imageResizer) {
 				imageResizer.set("image", null);
+				this.blur();
 			}
 		},
 		
@@ -28999,7 +29083,7 @@ YUI.add('supra.datatype-color', function(Y) {
 					"style": "small"
 				}));
 				button.on("click", this.openMediaSidebar, this);
-				button.addClass("button-section")
+				button.addClass("su-button-fill");
 				button.render(container);
 				
 				if (boundingBox) {
@@ -29012,7 +29096,7 @@ YUI.add('supra.datatype-color', function(Y) {
 					"style": "small"
 				}));
 				button.on("click", this.startEditing, this);
-				button.addClass("button-section");
+				button.addClass("su-button-fill");
 				button.set("disabled", !has_image);
 				button.render(container);
 				
@@ -29030,7 +29114,9 @@ YUI.add('supra.datatype-color', function(Y) {
 					"style": "small-red"
 				}));
 				button.on("click", this.removeImage, this);
+				button.addClass("su-button-fill");
 				button.set("disabled", !has_image);
+				button.set("visible", this.get("allowRemoveImage"));
 				button.render(container);
 				
 				if (boundingBox) {
@@ -29038,10 +29124,11 @@ YUI.add('supra.datatype-color', function(Y) {
 				}
 				
 				//When slide is hidden stop editing image
-				if (!separate) {
+				if (separate) {
 					slideshow.on("slideChange", function (evt) {
 						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
 							this.widgets.imageResizer.set("image", null);
+							this.blur();
 						}
 					}, this);
 				}
@@ -29233,6 +29320,19 @@ YUI.add('supra.datatype-color', function(Y) {
 				button.set("visible", !value);
 			}
 			return value;
+		},
+		
+		/**
+		 * Allow removing image / allow having no image
+		 * @param {Boolean} value Attribute value
+		 * @return {Boolean} New attribute value
+		 */
+		_setAllowRemoveImage: function (value) {
+			var button = this.widgets.buttonRemove;
+			if (button) {
+				button.set("visible", value);
+			}
+			return value;
 		}
 		
 	});
@@ -29307,6 +29407,14 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 		},
 		
+		/**
+		 * Update inline editable style
+		 */
+		syncUI: function () {
+			this._applyStyle(this.get('value'));
+		},
+		
+		
 		/* ----------------------------- Image edit ------------------------------- */
 		
 		
@@ -29321,8 +29429,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			var imageResizer = this.widgets.imageResizer,
 				node = this.get("targetNode"),
-				size = this.image.image.sizes.original,
-				container_width = size.width;
+				size = this.image.image.sizes.original;
 			
 			if (!node) {
 				return;
@@ -29345,15 +29452,19 @@ YUI.add('supra.datatype-color', function(Y) {
 					value.size_height = event.imageHeight;
 					
 					this.set("value", value);
+					
+					if (!event.silent) {
+						this.blur();
+					}
 				}, this);
 			}
 			
-			container_width = Math.min(node.ancestor().get("offsetWidth") || size.width, size.width);
-			
-			imageResizer.set("maxCropWidth", container_width);
+			imageResizer.set("maxCropWidth", Math.min(size.width, this._getContainerWidth()));
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
+			
+			this.focus();
 		},
 		
 		/**
@@ -29517,10 +29628,11 @@ YUI.add('supra.datatype-color', function(Y) {
 				container = null;
 			
 			if (!node) return;
-			
 			container = node.ancestor();
 			
 			if (value) {
+				value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
+				
 				if (!container.hasClass("supra-image")) {
 					var doc = node.getDOMNode().ownerDocument;
 					container = Y.Node(doc.createElement("span"));
@@ -29547,13 +29659,36 @@ YUI.add('supra.datatype-color', function(Y) {
 				node.removeAttribute("width");
 				node.removeAttribute("height");
 				
-				if (container) {
+				if (container && container.hasClass("supra-image")) {
 					container.setStyles({
 						"width": "auto",
 						"height": "auto"
 					});
 				}
 			}
+		},
+		
+		/**
+		 * Returns container node width / max crop width
+		 * 
+		 * @private
+		 */
+		_getContainerWidth: function () {
+			var node = this.get("targetNode"),
+				container = null,
+				width = 0;
+			
+			if (!node) return 0;
+			
+			container = node.ancestor();
+			if (!container) return 0;
+			
+			// Find container width to calculate max possible width
+			while (container.test('.supra-image, .supra-image-inner')) {
+				container = container.ancestor();
+			}
+			
+			return container.get("offsetWidth");
 		}
 		
 	});
@@ -29734,13 +29869,755 @@ YUI.add('supra.datatype-color', function(Y) {
 		
 	});
 	
+	/**
+	 * Extract image url from video data
+	 * 
+	 * @param {Object} data Video data
+	 * @returns {String} Image url
+	 */
+	Input.getVideoPreviewUrl = function (data) {
+		var service = null,
+			video_id = null,
+			match = null,
+			
+			// http://youtu.be/...
+			// http://www.youtube.com/v/...
+			// http://www.youtube.com/...?v=...
+			regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be|youtube.[a-z]+)(\/embed\/|\/v\/|\/.*\&v=|\/.*\?v=|\/)([a-z0-9_\-]+)/i,
+			// http://vimeo.com/...
+			regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+			
+			deferred = new Supra.Deferred();
+		
+		if (data) {
+			if (data.resource == "link") {
+				service = data.service;
+				video_id = data.id;
+			} else if (data.resource == "source") {
+				if (match = data.source.match(regex_youtube)) {
+					service = 'youtube';
+					video_id = match[5];
+				} else if (match = data.source.match(regex_vimeo)) {
+					service = 'vimeo';
+					video_id = match[5];
+				}
+			}
+		}
+		
+		if (service == 'youtube') {
+			deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
+		} else if (service == 'vimeo') {
+			//
+			var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
+			Supra.io(url, {
+				'suppress_errors': true, // don't display errors
+				'context': this,
+				'on': {
+					'complete': function (data, success) {
+						if (data && data[0]) {
+							deferred.resolveWith(this, [data[0].thumbnail_large]);
+						} else {
+							deferred.rejectWith(this, []);
+						}
+					}
+				}
+			});
+		} else {
+			deferred.rejectWith(this, []);
+		}
+		
+		return deferred.promise();
+	};
+	
+	
+	
 	Supra.Input.Video = Input;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});YUI.add("supra.input", function (Y) {
+}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-set', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	/**
+	 * List of input groups with controls to add or remove
+	 * groups
+	 */
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	Input.NAME = 'input-set';
+	Input.CSS_PREFIX = 'su-' + Input.NAME;
+	Input.CLASS_NAME = 'su-input-set';
+	
+	Input.ATTRS = {
+		
+		// Properties for each set
+		'properties': {
+			value: null
+		},
+		
+		// Render widget into separate slide and add
+		// button to the place where this widget should be
+		'separateSlide': {
+			value: true
+		},
+		
+		// Add more button label
+		'labelAdd': {
+			value: 'Add more'
+		},
+		
+		// Remove button label
+		'labelRemove': {
+			value: 'Remove'
+		},
+		
+		// Item number label
+		'labelItem': {
+			value: '#%s'
+		},
+		
+		// Minimal set count
+		'minCount': {
+			value: 0
+		},
+		
+		// Maximal set count
+		'maxCount': {
+			value: 0
+		}
+	};
+	
+	Input.HTML_PARSER = {
+		
+	};
+	
+	Y.extend(Input, Supra.Input.Proto, {
+		
+		INPUT_TEMPLATE: '<input type="hidden" value="" />',
+		
+		
+		/**
+		 * Set count
+		 * @type {Number}
+		 * @private
+		 */
+		_count: 0,
+		
+		/**
+		 * Slide content node
+		 * @type {Object}
+		 * @private
+		 */
+		_slideContent: null,
+		
+		/**
+		 * Button to open slide
+		 * @type {Object}
+		 * @private
+		 */
+		_slideButton: null,
+		
+		/**
+		 * Slide name
+		 * @type {String}
+		 * @private
+		 */
+		_slideId: null,
+		
+		/**
+		 * "Add more" button
+		 * @type {Object}
+		 * @private
+		 */
+		_addButton: null,
+		
+		/**
+		 * List of set nodes
+		 * @type {Object}
+		 * @private
+		 */
+		_nodes: null,
+		
+		/**
+		 * List of set inputs, array of objects
+		 * @type {Array}
+		 * @private
+		 */
+		_inputs: null,
+		
+		/**
+		 * Value is beeing updated by setter
+		 * Don't trigger event
+		 * @type {Boolean}
+		 * @private
+		 */
+		_silentValueUpdate: false,
+		
+		/**
+		 * Values has been rendered
+		 * @type {Boolean}
+		 * @private
+		 */
+		_valuesRendered: false,
+		
+		/**
+		 * Focused list index
+		 * @type {Number}
+		 * @private
+		 */
+		_focusedSetIndex: 0,
+		
+		
+		
+		/**
+		 * On desctruction life cycle clean up
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			var count = this._count,
+				i = count-1;
+			
+			for (; i >= 0; i--) {
+				this._removeSet(i);
+			}
+			
+			if (this._slideId) {
+				var slideshow = this.getSlideshow();
+				slideshow.removeSlide(this._slideId);
+			}
+			
+			this._slideContent = null;
+			this._slideId = null;
+			this._inputs = [];
+			this._nodes = [];
+			this._count = 0;
+			
+			this._fireResizeEvent();
+		},
+		
+		/**
+		 * Life cycle method, render input
+		 * 
+		 * @private
+		 */
+		renderUI: function () {
+			this._count = 0;
+			this._nodes = [];
+			this._inputs = [];
+			
+			// Create sets?
+			if (this.get('separateSlide')) {
+				var slideshow = this.getSlideshow();
+				if (!slideshow) {
+					this.set('separateSlide', false);
+					Y.log('Unable to create new slide for Supra.Input.Set "' + this.get('id') + '", because slideshow can\'t be detected');
+				} else {
+					// Don't create label, we have a button
+					this.LABEL_TEMPLATE = null;
+					this.DESCRIPTION_TEMPLATE = null;
+				}
+			}
+			
+			Input.superclass.renderUI.apply(this, arguments);
+			
+			// New item button
+			var button = this._addButton = new Supra.Button({
+				'label': this.get('labelAdd'),
+				'style': 'small-gray'
+			});
+			button.addClass(button.getClassName('fill'));
+			
+			// Create slide or render data
+			if (!this.get('separateSlide')) {
+				this._createAllSets();
+				button.render(this.get('contentBox'));
+			} else {
+				this._createSlide();
+				button.render(this._slideContent);
+			}
+		},
+		
+		/**
+		 * Life cycle method, attach event listeners
+		 * 
+		 * @private
+		 */
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+			
+			// When slide is opened for first time create inputs
+			if (this.get('separateSlide')) {
+				var slideshow = this.getSlideshow();
+				var evt_handle = slideshow.on('slideChange', function (evt) {
+					if (evt.newVal == this._slideId) {
+						evt_handle.detach();
+						this._createAllSets();
+					}
+				}, this);
+				
+				// On button click open slide
+				this._slideButton.on('click', this._openSlide, this);
+				
+				// Disabled change
+				this.on('disabledChange', function (event) {
+					this._slideButton.set('disabled', event.newVal);
+				}, this);
+			}
+			
+			// Add new item on "Add more" click
+			this._addButton.on('click', this.addSet, this);
+			
+			// Change event
+			this.on('valueChange', this._afterValueChange, this);
+		},
+		
+		
+		/*
+		 * ---------------------------------------- SETS ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Recreate sets from data
+		 * 
+		 * @private
+		 */
+		_createAllSets: function () {
+			var data = this.get('value'),
+				i = 0,
+				ii = data.length;
+			
+			for (; i<ii; i++) {
+				this._addSet(data[i]);
+			}
+			
+			this._valuesRendered = true;
+			this._fireResizeEvent();
+		},
+		
+		/**
+		 * Add new set
+		 * 
+		 * @param {Object} data Set default input values
+		 * @param {Boolean} animate Animate UI
+		 * @private
+		 */
+		_addSet: function (data, animate) {
+			var properties = this.get('properties'),
+				i = 0,
+				count = properties.length,
+				form  = this.getForm(),
+				node = Y.Node.create('<div class="' + this.getClassName('group') + '"></div>'),
+				index = this._count,
+				
+				id = null,
+				input = null,
+				inputs = {},
+				
+				heading = null,
+				button = null,
+				
+				container = null;
+			
+			data = data || {};
+			
+			// Create container node
+			if (this.get('separateSlide')) {
+				container = this._slideContent;
+			} else {
+				container = this.get('contentBox');
+			}
+			
+			container.append(node);
+			
+			if (this._addButton) {
+				container.append(this._addButton.get('boundingBox'));
+			}
+			
+			// Create heading
+			heading = inputs.nodeHeading = Y.Node.create('<h3>' + this.get('labelItem').replace('%s', index + 1) + '</h3>');
+			node.append(heading);
+			
+			// Create inputs
+			for (; i<count; i++) {
+				id = properties[i].id;
+				
+				input = form.factoryField(Supra.mix({}, properties[i], {
+					'id': id + '_' + Y.guid(),
+					'name': id,
+					'value': data[id],
+					'parent': this
+				}));
+				
+				input.render(node);
+				
+				//input.after('change', this._fireChangeEvent, this);
+				input.after('valueChange', this._fireChangeEvent, this);
+				input.on('focus', this._onInputFocus, this);
+				input.on('input', this._fireInputEvent, this, id);
+				
+				inputs[id] = input;
+			}
+			
+			// "Remove" button
+			button = inputs.buttonRemove = new Supra.Button({
+				'label': this.get('labelRemove'),
+				'style': 'small-red'
+			});
+			button.addClass(button.getClassName('fill'));
+			button.render(node);
+			button.on('click', this._removeTargetSet, this, node);
+			
+			this._count++;
+			this._nodes.push(node);
+			this._inputs.push(inputs);
+			
+			if (animate) {
+				this._animateIn(node);
+			}
+		},
+		
+		/**
+		 * Remove set
+		 * 
+		 * @param {Number} index Set index
+		 * @param {Boolean} animate Animate UI
+		 * @private
+		 */
+		_removeSet: function (index, animate) {
+			var nodes = this._nodes,
+				inputs = this._inputs,
+				count = this._count,
+				
+				tmp = null,
+				key = null,
+				
+				node = null;
+			
+			if (index >=0 && index < count) {
+				tmp = inputs[index];
+				node = nodes[index];
+				
+				if (animate) {
+					this._animateOut(node, tmp);
+				} else {
+					// Destroy inputs
+					for (key in tmp) {
+						if (tmp[key] && tmp[key].destroy) {
+							tmp[key].destroy(true);
+						}
+					}
+					
+					node.remove(true);
+				}
+				
+				inputs.splice(index, 1);
+				nodes.splice(index, 1);
+				this._count--;
+				
+				// Update all other set headings
+				var i = index,
+					ii = count - 1;
+				
+				for (; i<ii; i++) {
+					inputs[i].nodeHeading.set('innerHTML', this.get('labelItem').replace('%s', i + 1));
+				}
+			}
+		},
+		
+		/**
+		 * Remove set in which "Remove" button was clicked
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} node Set node which needs to be removed
+		 * @private
+		 */
+		_removeTargetSet: function (event, node) {
+			var index = this._getSetIndex(node);
+			this.removeSet(index);
+		},
+		
+		addSet: function (data) {
+			this._addSet(data, true);
+			this._fireResizeEvent();
+			this._fireChangeEvent();
+			this.fire('add', data);
+		},
+		
+		removeSet: function (index) {
+			this.fire('remove', index);
+			this._removeSet(index, true);
+			this._fireResizeEvent();
+			this._fireChangeEvent();
+		},
+		
+		/**
+		 * Returns set count
+		 * 
+		 * @returns {Number} Set count
+		 */
+		size: function () {
+			return this._count;
+		},
+		
+		/**
+		 * Returns set index by node
+		 * 
+		 * @param {Object} node Set container node
+		 * @returns {Number} Set index
+		 * @private
+		 */
+		_getSetIndex: function (node) {
+			var index = 0,
+				selector = '.' + this.getClassName('group');
+			
+			node = node.closest(selector);
+			
+			while (node) {
+				node = node.previous(selector);
+				if (node) {
+					index++;
+				}
+			}
+			
+			return index;
+		},
+		
+		/**
+		 * On input focus save set index
+		 */
+		_onInputFocus: function (event) {
+			this._focusedSetIndex = this._getSetIndex(event.target.get('srcNode'));
+		},
+		
+		
+		/*
+		 * ---------------------------------------- ANIMATIONS ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Fade and slide in node
+		 * 
+		 * @param {Object} node Slide node which will be animated
+		 * @private
+		 */
+		_animateIn: function (node) {
+			var height = node.get('offsetHeight');
+			
+			node.setStyles({
+				'overflow': 'hidden',
+				'height': '0px',
+				'opacity': 0
+			});
+			node.transition({
+				'height': height + 'px',
+				'opacity': 1,
+				'duration': 0.35
+			}, function () {
+				node.removeAttribute('style');
+			});
+		},
+		
+		_animateOut: function (node, inputs) {
+			node.setStyles({
+				'overflow': 'hidden',
+				'margin': 0,
+				'padding': 0
+			});
+			node.transition({
+				'height': '0px',
+				'opacity': 0,
+				'duration': 0.35
+			}, function () {
+				//Destroy inputs
+				if (inputs) {
+					for (var key in inputs) {
+						if (inputs[key] && inputs[key].destroy) {
+							inputs[key].destroy(true);
+						}
+					}
+				}
+				// Remove node
+				node.remove(true);
+			});
+		},
+		
+		
+		/*
+		 * ---------------------------------------- SLIDESHOW ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Add slide to the slideshow
+		 * 
+		 * @private
+		 */
+		_createSlide: function () {
+			var slideshow = this.getSlideshow(),
+				slide_id = this.get('id') + '_' + Y.guid(),
+				slide = slideshow.addSlide(slide_id);
+			
+			this._slideContent = slide.one('.su-slide-content');
+			this._slideId = slide_id;
+			
+			// Button
+			var button = new Supra.Button({
+				'style': 'small-gray',
+				'label': this.get('label')
+			});
+			
+			button.addClass('button-section');
+			button.render(this.get('contentBox'));
+			
+			this._slideButton = button;
+		},
+		
+		_openSlide: function () {
+			var slideshow = this.getSlideshow();
+			slideshow.set('slide', this._slideId);
+		},
+		
+		/**
+		 * Fire resize event
+		 * 
+		 * @param {Object} node Node which content changed
+		 * @private
+		 */
+		_fireResizeEvent: function () {
+			var container = null;
+			
+			if (this.get('separateSlide')) {
+				container = this._slideContent;
+			} else {
+				container = this.get('contentBox');
+			}
+			
+			container = container.closest('.su-scrollable-content');
+			if (container) {
+				container.fire('contentResize');
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------------- VALUE ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Trigger value change events
+		 * 
+		 * @private
+		 */
+		_fireChangeEvent: function () {
+			this._silentValueUpdate = true;
+			this.set('value', this.get('value'));
+			this._silentValueUpdate = false;
+		},
+		
+		_fireInputEvent: function (event, property) {
+			var index = this._focusedSetIndex;
+			
+			this.fire('input', {
+				'value': event.value,
+				'index': index,
+				'property': property
+			});
+		},
+		
+		/**
+		 * Value attribute setter
+		 * 
+		 * @param {Object} value New value
+		 * @returns {Object} New value
+		 * @private
+		 */
+		_setValue: function (value) {
+			value = value || [];
+			
+			// If we are updating 'value' then don't change UI
+			// If inputs hasn't been rendered then we can't set value
+			if (!this.get('rendered') || this._silentValueUpdate || !this._valuesRendered) return value;
+			
+			// Remove old values
+			var count = this._count,
+				i = count-1;
+			
+			for (; i >= 0; i--) {
+				this._removeSet(i);
+			}
+			
+			// Add new values
+			count = value.length;
+			i = 0;
+			
+			for (; i<count; i++) {
+				this._addSet(value[i]);
+			}
+			
+			this._fireResizeEvent();
+			
+			return value;
+		},
+		
+		/**
+		 * Value attribute getter
+		 * 
+		 * @returns {Object} Value
+		 * @private
+		 */
+		_getValue: function (value) {
+			// If inputs hasn't been rendered then we can't get values from
+			// inputs which doesn't exist
+			if (!this.get('rendered') || !this._valuesRendered) return value;
+			
+			var i = 0,
+				ii = this._count,
+				data = [],
+				item = null,
+				properties = this.get('properties'),
+				id = null,
+				k = 0,
+				kk = properties.length,
+				inputs = this._inputs;
+			
+			for (; i<ii; i++) {
+				item = {};
+				
+				for (k=0; k<kk; k++) {
+					id = properties[k].id;
+					item[id] = inputs[i][id].get('saveValue');
+				}
+				
+				data.push(item);
+			}
+			
+			return data;
+		},
+		
+		_afterValueChange: function (evt) {
+			this.fire('change', {'value': evt.newVal});
+		}
+		
+	});
+	
+	Supra.Input.Set = Input;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:['supra.input-proto']});
+YUI.add("supra.input", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	

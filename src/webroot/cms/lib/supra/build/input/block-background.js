@@ -33,6 +33,10 @@ YUI.add("supra.input-block-background", function (Y) {
 			value: true,
 			setter: "_setEditImageAutomatically"
 		},
+		"allowRemoveImage": {
+			value: true,
+			setter: "_setAllowRemoveImage"
+		},
 		/**
 		 * Render widget into separate slide and add
 		 * button to the place where this widget should be
@@ -231,12 +235,18 @@ YUI.add("supra.input-block-background", function (Y) {
 					image.size_height = event.imageHeight;
 					
 					this.set("value", value);
+					
+					if (!event.silent) {
+						this.blur();
+					}
 				}, this);
 			}
 			
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("image", node);
+			
+			this.focus();
 		},
 		
 		/**
@@ -246,6 +256,7 @@ YUI.add("supra.input-block-background", function (Y) {
 			var imageResizer = this.widgets.imageResizer;
 			if (imageResizer) {
 				imageResizer.set("image", null);
+				this.blur();
 			}
 		},
 		
@@ -492,7 +503,7 @@ YUI.add("supra.input-block-background", function (Y) {
 					"style": "small"
 				}));
 				button.on("click", this.openMediaSidebar, this);
-				button.addClass("button-section")
+				button.addClass("su-button-fill");
 				button.render(container);
 				
 				if (boundingBox) {
@@ -505,7 +516,7 @@ YUI.add("supra.input-block-background", function (Y) {
 					"style": "small"
 				}));
 				button.on("click", this.startEditing, this);
-				button.addClass("button-section");
+				button.addClass("su-button-fill");
 				button.set("disabled", !has_image);
 				button.render(container);
 				
@@ -523,7 +534,9 @@ YUI.add("supra.input-block-background", function (Y) {
 					"style": "small-red"
 				}));
 				button.on("click", this.removeImage, this);
+				button.addClass("su-button-fill");
 				button.set("disabled", !has_image);
+				button.set("visible", this.get("allowRemoveImage"));
 				button.render(container);
 				
 				if (boundingBox) {
@@ -531,10 +544,11 @@ YUI.add("supra.input-block-background", function (Y) {
 				}
 				
 				//When slide is hidden stop editing image
-				if (!separate) {
+				if (separate) {
 					slideshow.on("slideChange", function (evt) {
 						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
 							this.widgets.imageResizer.set("image", null);
+							this.blur();
 						}
 					}, this);
 				}
@@ -724,6 +738,19 @@ YUI.add("supra.input-block-background", function (Y) {
 			var button = this.widgets.buttonEdit;
 			if (button) {
 				button.set("visible", !value);
+			}
+			return value;
+		},
+		
+		/**
+		 * Allow removing image / allow having no image
+		 * @param {Boolean} value Attribute value
+		 * @return {Boolean} New attribute value
+		 */
+		_setAllowRemoveImage: function (value) {
+			var button = this.widgets.buttonRemove;
+			if (button) {
+				button.set("visible", value);
 			}
 			return value;
 		}

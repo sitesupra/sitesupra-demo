@@ -15,6 +15,8 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 	
 	Input.ATTRS = {
 		// Render widget into separate form
+		// needed because image can be edited inline and in main form
+		// InlineImage input may not be welcome
 		'separateForm': {
 			value: false
 		},
@@ -38,6 +40,16 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		//Blank image URI or data URI
 		'blankImageUrl': {
 			value: "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+		},
+		
+		// Allow file upload using drag and drop
+		'allowDropUpload': {
+			value: true
+		},
+		
+		// Image upload folder id
+		'uploadFolderId': {
+			value: 0
 		}
 	};
 	
@@ -59,6 +71,13 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		 */
 		type: '',
 		
+		/**
+		 * Value is being updated by input, don't change UI
+		 * @type {Boolean}
+		 * @private
+		 */
+		silentValueUpdate: false,
+		
 		
 		/**
 		 * On desctruction life cycle clean up
@@ -70,6 +89,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				var slideshow = this.get('slideshow'),
 					inputs = this.widgets.inputs,
 					slides = this.widgets.slides,
+					uploader = this.widgets.uploader,
 					key = null;
 				
 				if (slideshow) {
@@ -81,6 +101,10 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 						slideshow.removeSlide(key);
 					}
 					
+				}
+				
+				if (uploader) {
+					uploader.destroy();
 				}
 				
 				this.widgets = null;
@@ -97,7 +121,26 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				slide_image = slideshow.addSlide(this.get('id') + '_slide_image'),
 				slide_video = slideshow.addSlide(this.get('id') + '_slide_video'),
 				delete_image = null,
-				delete_video = null;
+				delete_video = null,
+				uploader = null,
+				target = null;
+			
+			// Drag and drop upload
+			if (this.get('allowDropUpload')) {
+				target = this.get('targetNode');
+				uploader = new Supra.Uploader({
+					'clickTarget': null,
+					'dropTarget': this._getDropTargetNode(target),
+					
+					'allowBrowse': false,
+					'allowMultiple': false,
+					'accept': 'image/*',
+					
+					'requestUri': Supra.Manager.getAction('MediaLibrary').getDataPath('upload'),
+					'uploadFolderId': this.get('uploadFolderId')
+
+				});
+			}
 			
 			// Inputs
 			input_image = new Supra.Input.InlineImage({
@@ -105,7 +148,8 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				'label': Supra.Intl.get(['inputs', 'image']),
 				'parent': this,
 				'value': null,
-				'separateSlide': false
+				'separateSlide': false,
+				'allowRemoveImage': false
 			});
 			
 			input_video = new Supra.Input.Video({
@@ -130,11 +174,11 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				'label': Supra.Intl.get(['inputs', 'media', 'delete_video'])
 			});
 			
-			delete_image.on('click', this.removeMedia, this);
-			delete_video.on('click', this.removeMedia, this);
-			
 			delete_image.render(slide_image.one('.su-slide-content'));
 			delete_video.render(slide_video.one('.su-slide-content'));
+			
+			delete_image.addClass("su-button-fill");
+			delete_video.addClass("su-button-fill");
 			
 			this.widgets = {
 				// Separate slides
@@ -147,10 +191,103 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				
 				// Buttons
 				'delete_image': delete_image,
-				'delete_video': delete_video
+				'delete_video': delete_video,
+				
+				// File uploader
+				'uploader': uploader
 			};
 			
 			this.renderContent(this.get('targetNode'), this.get('value'));
+		},
+		
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+			
+			var input_image  = this.widgets.input_image,
+				input_video  = this.widgets.input_video,
+				
+				delete_image = this.widgets.delete_image,
+				delete_video = this.widgets.delete_video,
+				
+				uploader     = this.widgets.uploader;
+			
+			// Video input events
+			input_video.on('focus', this.focus, this);
+			input_video.on('blur', this.blur, this);
+			
+			input_video.on('change', function () {
+				this.updateVideoPreviewImage();
+				this._fireValueChange();
+			}, this);
+			
+			// Image input events
+			input_image.on('focus', this.focus, this);
+			input_image.on('blur', this.blur, this);
+			
+			input_image.on('change', function () {
+				this._fireValueChange();
+			}, this);
+			input_image.on('valueChange', function () {
+				this._fireValueChange();
+			}, this);
+			
+			// Button events
+			delete_image.on('click', this.removeMedia, this);
+			delete_video.on('click', this.removeMedia, this);
+			
+			// Change event
+			this.on('valueChange', this._afterValueChange, this);
+			
+			// Uploader events
+			if (uploader) {
+				uploader.on('file:upload',   this._onFileUploadStart, this);
+				uploader.on('file:complete', this._onFileUploadEnd, this);
+				uploader.on('file:error',    this._onFileUploadError, this);
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------------- FILE UPLOAD ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Handle file upload start
+		 * 
+		 * @private
+		 */
+		_onFileUploadStart: function (e) {
+			// data.title, data.filename, data.id
+			var data = e.details[0];
+		},
+		
+		/**
+		 * Handle file upload end
+		 * 
+		 * @private
+		 */
+		_onFileUploadEnd: function (e) {
+			var data = e.details[0]
+			this.insertImageData(data);
+		},
+		
+		/**
+		 * Handle file upload error
+		 * 
+		 * @private
+		 */
+		_onFileUploadError: function (e) {
+			// Error
+		},
+		
+		/**
+		 * Returns drag and drop target node
+		 * 
+		 * @private
+		 */
+		_getDropTargetNode: function (node) {
+			return node ? node.closest('.supra-slideshowmanager-wrapper') || node : null;
 		},
 		
 		
@@ -171,6 +308,9 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			slideshow.set('noAnimations', true);
 			slideshow.set('slide', slide_id);
 			slideshow.set('noAnimations', false);
+			
+			// Hardcoded for now!?
+			Supra.Manager.PageContentSettings.get('backButton').hide();
 		},
 		
 		/**
@@ -185,6 +325,9 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			slideshow.set('noAnimations', true);
 			slideshow.set('slide', slide_id);
 			slideshow.set('noAnimations', false);
+			
+			// Hardcoded for now!?
+			Supra.Manager.PageContentSettings.get('backButton').hide();
 		},
 		
 		/**
@@ -213,35 +356,6 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 					slideshow.scrollBack();
 				}
 			}
-		},
-		
-		
-		/**
-		 * Returns parent widget by class name
-		 * 
-		 * @param {String} classname Parent widgets class name
-		 * @return Widget instance or null if not found
-		 * @private
-		 */
-		getParentWidget: function (classname) {
-			var parent = this.get("parent");
-			while (parent) {
-				if (parent.isInstanceOf(classname)) return parent;
-				parent = parent.get("parent");
-			}
-			return null;
-		},
-		
-		/**
-		 * Returns slideshow
-		 * 
-		 * @return Slideshow
-		 * @type {Object}
-		 * @private
-		 */
-		getSlideshow: function () {
-			var form = this.getParentWidget("form");
-			return form ? form.get("slideshow") : null;
 		},
 		
 		
@@ -309,6 +423,12 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		_setTargetNode: function (node) {
 			if (this.get('rendered')) {
 				this.renderContent(node, this.get('value'));
+				
+				var uploader = this.widgets.uploader;
+				if (uploader) {
+					uploader.set('dropTarget', this._getDropTargetNode(node));
+					uploader.set('disabled', this.get('disabled'));
+				}
 			}
 			return node;
 		},
@@ -327,6 +447,11 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 						this.widgets.input_video.startEditing();
 					} else {
 						this.widgets.input_image.startEditing();
+						
+						if (!this.get('value').image) {
+							// Open media library to choose image
+							this.widgets.input_image.openMediaSidebar();
+						}
 					}
 				}
 			}
@@ -351,6 +476,29 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			});
 			
 			this.startEditing();
+		},
+		
+		insertImageData: function (data) {
+			var node = this.get('targetNode'),
+				size = data.sizes.original,
+				width = Math.min(size.width, node.get('offsetWidth')) || size.width,
+				height = size.height;
+			
+			if (width != size.width) {
+				// Change height
+				height = Math.round(width / (size.width / size.height));
+			}
+			
+			this.set('value', {
+				'type': 'image',
+				'crop_left': 0,
+				'crop_top': 0,
+				'crop_width': width,
+				'crop_height': height,
+				'size_height': height,
+				'size_width': width,
+				'image': data
+			});
 		},
 		
 		insertVideo: function () {
@@ -381,26 +529,32 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		 * @private
 		 */
 		renderContent: function (node, data) {
-			var node = this.get('targetNode'),
+			var node = node || this.get('targetNode'),
 				type = data.type || this.type;
 			
-			if (!node) return;
+			if (!node) {
+				this.widgets.input_image.set('targetNode', null);
+				return;
+			}
 			
 			if (data && type == 'image') {
-				var html = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + this.get('blankImageUrl') + '" alt="" /></span>';
+				var style = null,
+					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" style="background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
 				
 				node.set('innerHTML', html);
 				this.widgets.input_image.set('targetNode', node.one('img'));
+				this.widgets.input_image.syncUI();
 			} else {
 				this.widgets.input_image.stopEditing();
 				this.widgets.input_image.set('targetNode', null);
 			}
 			
 			if (data && type == 'video') {
-				var html = 'VIDEO PREVIEW HERE';
-				
+				var width = node.get('offsetWidth'),
+					height = ~~(width * 9 / 16),
+					html = '<div class="supra-video" style="height: ' + height + 'px !important;"></div>';
 				node.set('innerHTML', html);
-				//@TODO
+				this.updateVideoPreviewImage(data);
 			}
 			
 			if (!data || (type !== 'image' && type !== 'video')) {
@@ -414,11 +568,51 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			}
 		},
 		
+		/**
+		 * Update video preview image
+		 * 
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoPreviewImage: function (data) {
+			var targetNode = this.get('targetNode');
+			if (!targetNode) return;
+			
+			var Input = Supra.Input.Video,
+				node = targetNode.one('.supra-video'),
+				data = data || this.widgets.input_video.get('value');
+			
+			if (node) {
+				Input.getVideoPreviewUrl(data).always(function (url) {
+					var width = node.get('offsetWidth'),
+						height = ~~(width * 9 / 16);
+					
+					if (url) {
+						// Using setAttribute because it's not possible to use !important in styles
+						node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important; height: ' + height + 'px !important;')
+					} else {
+						node.setAttribute('style', 'height: ' + height + 'px !important;')
+					}
+				}, this);
+			}
+		},
+		
 		
 		/*
 		 * ---------------------------------------- VALUE ----------------------------------------
 		 */
 		
+		
+		/**
+		 * Trigger value change events
+		 * 
+		 * @private
+		 */
+		_fireValueChange: function () {
+			this.silentValueUpdate = true;
+			this.set('value', this.get('value'));
+			this.silentValueUpdate = false;
+		},
 		
 		/**
 		 * Value attribute setter
@@ -428,7 +622,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			if (!this.widgets) return value;
+			if (!this.widgets || this.silentValueUpdate) return value;
 			
 			var data = Supra.mix({'type': ''}, value || {}),
 				type = data.type;
@@ -475,7 +669,13 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			if (data) {
 				return Supra.mix({'type': type}, data);
 			} else {
-				return '';
+				return {'type': type};
+			}
+		},
+		
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
 			}
 		},
 		
@@ -494,4 +694,4 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});
+}, YUI.version, {requires:['supra.input-proto', 'supra.uploader']});

@@ -97,6 +97,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		
 		'_layouts': null,
 		
+		/**
+		 * Default page title when panel is opened
+		 * 
+		 * @type {String}
+		 * @private
+		 */
+		'_defaultTitle': '',
+		
 		
 	
 		/**
@@ -228,6 +236,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 			}
 			
+			inputs.title.on('focus', this._onTitleFocus, this);
 			inputs.title.on('input', this._onPagePropertyChange, this);
 			inputs.template.on('change', this.hideTemplates, this);
 			
@@ -421,6 +430,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		/**
 		 * On property change update tree node
 		 * 
+		 * @param {Object} e Event facade object
 		 * @private
 		 */
 		'_onPagePropertyChange': function (e) {
@@ -445,6 +455,30 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				}
 				
 				data[id] = value;
+				
+				// Create path from title
+				if (id === 'title') {
+					var input_path = this._widgets.form.getInput('path');
+					if (input_path.get('visible')) {
+						input_path.set('value', Y.Lang.toPath(value));
+					}
+				}
+			}
+		},
+		
+		/**
+		 * When title is focused remove default value
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		'_onTitleFocus': function (e) {
+			var input  = e.target,
+				value  = input.get('value'),
+				placeholder_value = this._defaultTitle;
+			
+			if (value === placeholder_value) {
+				input.set('value', '');
 			}
 		},
 		
@@ -501,6 +535,9 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			//Loading icon
 			if (this._widgets.form && this._widgets.form.getInput('template')) {
 				this._widgets.form.getInput('template').set('loading', true);
+			}
+			if (this._widgets.buttonTemplate) {
+				this._widgets.buttonTemplate.set('loading', true);
 			}
 			
 			Supra.io(uri, {
@@ -560,7 +597,12 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 */
 		'_fillTemplates': function () {
 			var templates = this._templates,
-				form = this._widgets.form;
+				form = this._widgets.form,
+				button = this._widgets.buttonTemplate;
+				
+			if (button) {
+				button.set('loading', false);
+			}
 				
 			if (templates && form && this.get('host').get('mode') == 'pages' && form.getInput('template')) {
 				form.getInput('template').set('loading', false);
@@ -717,6 +759,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			input = form.getInput('title');
 			input.set('value', title);
+			
+			this._defaultTitle = title;
 			
 			if (is_tree_node) {
 				node.set('label', title);

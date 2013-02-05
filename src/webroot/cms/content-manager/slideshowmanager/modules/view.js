@@ -82,12 +82,18 @@ YUI.add('slideshowmanager.view', function (Y) {
 			// Active property
 			this.stopEditing();
 			
+			// Clean up inputs
+			this._cleanUpInputs();
+			
 			// Container node
 			var node = this.get('listNode');
 			if (node) {
 				node.destroy(true);
 				this.set('listNode', null);
 			}
+			
+			this._activeInput = null;
+			this._activePropertyId = null;
 		},
 		
 		
@@ -188,12 +194,39 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * @private 
 		 */
 		_setActiveItemId: function (id) {
-			var iframe = this.get('iframe');
+			var iframe = this.get('iframe'),
+				old_id = null,
+				old_data = null,
+				new_data = null;
 			
 			if (iframe && !iframe.get('loading')) {
+				old_id = this.get('activeItemId');
+				old_data = this.get('host').data.getSlideById(old_id);
+				new_data = this.get('host').data.getSlideById(id);
+				
+				this.updateLayoutClassName(old_data ? old_data.layout : '', new_data ? new_data.layout : '');
 				this.renderItem(id);
 				return id;
 			}
+		},
+		
+		/**
+		 * Update layout classname
+		 * 
+		 * @param {String} old_layout Old layout id
+		 * @param {String} new_layout New layout id
+		 */
+		updateLayoutClassName: function (old_layout, new_layout) {
+			if (old_layout === new_layout) return;
+			
+			var iframe = this.get('iframe');
+			if (!iframe || iframe.get('loading')) return;
+			
+			var node      = iframe.one('*[data-supra-container]'),
+				old_class = 'layout-' + old_layout,
+				new_class = 'layout-' + new_layout;
+			
+			node.replaceClass(old_class, new_class);
 		},
 		
 		
@@ -214,6 +247,36 @@ YUI.add('slideshowmanager.view', function (Y) {
 		
 		
 		/**
+		 * On input focus start editing it
+		 * This is for inline image, background inputs
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} property Property info
+		 * @param {Object} input Property input
+		 * @private
+		 */
+		_onInputFocus: function (event, property, input) {
+			if (input !== this._activeInput) {
+				this._startEditing(event, property, input);
+			}
+		},
+		
+		/**
+		 * On input blur stop editing it
+		 * This is for inline image, background inputs
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} property Property info
+		 * @param {Object} input Property input
+		 * @private
+		 */
+		_onInputBlur: function (event, property, input) {
+			if (input === this._activeInput) {
+				this.stopEditing();
+			}
+		},
+		
+		/**
 		 * Active input: start editing content, close sidebar
 		 * 
 		 * @param {Object} event Event facade object
@@ -221,8 +284,13 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * @param {Object} input Property input
 		 * @private
 		 */
-		_activateInput: function (event, property, input) {
+		_startEditing: function (event, property, input) {
 			var old_input = this._activeInput;
+			
+			if (old_input === input) {
+				// Already editing
+				return;
+			}
 			
 			if (Manager.getAction('MediaSidebar').get('visible')) {
 				// Can't edit anything while media library is shown
@@ -240,11 +308,11 @@ YUI.add('slideshowmanager.view', function (Y) {
 					this.stopEditing();
 				}
 				
-				input.set('disabled', false);
-				input.startEditing();
-				
 				this._activeInput = input;
 				this._activePropertyId = property.id;
+				
+				input.set('disabled', false);
+				input.startEditing();
 			}
 		},
 		
@@ -262,6 +330,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 				}
 			}
 			
+			this._activeInput = null;
+			this._activePropertyId = null;
+			
 			// Stop editing
 			if (this.get('host').settings.widgets.form) {
 				var inputs = this.get('host').settings.widgets.form.getInputs(),
@@ -271,9 +342,6 @@ YUI.add('slideshowmanager.view', function (Y) {
 					inputs[key].stopEditing();
 				}
 			}
-			
-			this._activeInput = null;
-			this._activePropertyId = null;
 		},
 		
 		/**
@@ -288,7 +356,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 				data = this.get('host').data,
 				save = {};
 			
-			if (id && property) {
+			if (id && property && !this.silentUpdatingValues) {
 				save[property.id] = input.get('value');
 				data.changeSlide(id, save);
 			}
@@ -304,17 +372,20 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * @param {String}
 		 */
 		renderItem: function (id) {
+			// Don't update data, ui, etc. on value change
+			this.silentUpdatingValues = true;
+			
 			var container = null,
 				id = (typeof id === 'string' ? id : this.get('activeItemId')),
 				iframe = this.get('iframe'),
 				data = this.get('host').data.getSlideById(id);
 			
+			// Destroy old inline properties
+			this._cleanUpInputs();
+			
 			// Find container node
 			container = iframe.one('*[data-supra-container]');
 			this.set('listNode', container);
-			
-			// Destroy old inline properties
-			this._cleanUpInputs();
 			
 			// Remove old elements
 			container.empty();
@@ -328,42 +399,17 @@ YUI.add('slideshowmanager.view', function (Y) {
 			var html = this.get('host').layouts.getLayoutHtml(data.layout);
 			container.set('innerHTML', html);
 			
-			// Set partially inline properties
-			var properties = this.get('host').settings.getProperties(),
-				property = null,
-				i = 0,
-				ii = properties.length,
-				node = null,
-				form = this.get('host').settings.getForm(),
-				input;
+			// Classname for styling
+			container.addClass('layout-' + data.layout);
 			
-			for (; i<ii; i++) {
-				property = properties[i];
-				if (property.type == 'InlineImage' || property.type == 'InlineMedia') {
-					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
-					if (node) {
-						input = form.getInput(property.id);
-						
-						node.on('mousedown', this._activateInput, this, property, input);
-						input.set('targetNode', node);
-						input.set('value', data[property.id]);
-					}
-				} else if (property.type == 'BlockBackground') {
-					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
-					if (node) {
-						input = form.getInput(property.id);
-						
-						node.addClass('hidden');
-						node = node.ancestor();
-						
-						input.set('targetNode', node);
-						input.set('value', data[property.id]);
-					}
-				}
-			}
+			// Set partially inline properties
+			this._restorePartialInlineInputs(data);
 			
 			// Restore input properties
 			this._restoreInputs(data);
+			
+			// On input value change update data, ui, etc.
+			this.silentUpdatingValues = false;
 		},
 		
 		/**
@@ -382,6 +428,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 				
 			}
 			
+			// Remove inline inputs
 			for (; i<ii; i++) {
 				values[inputs[i].get('id')] = inputs[i].get('value');
 				inputs[i].destroy();
@@ -390,11 +437,88 @@ YUI.add('slideshowmanager.view', function (Y) {
 			this.widgets.inputs = [];
 			this.inputValues = values;
 			this._activeInput = null;
+			
+			// Reset partial inline inputs
+			var properties = this.get('host').settings.getProperties(),
+				property = null,
+				i = 0,
+				ii = properties.length,
+				form = this.get('host').settings.getForm(),
+				input = null;
+			
+			for (; i<ii; i++) {
+				property = properties[i];
+				if (property.type == 'InlineImage' || property.type == 'InlineMedia' || property.type == 'BlockBackground') {
+					form.getInput(property.id).set('targetNode', null);
+				} else if (property.type == 'Set') {
+					input = form.getInput(property.id);
+					
+					// Input plugin target node needs to be updated too
+					if (input && input.inline) {
+						input.inline.set('targetNode', null);
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Restore partial inline input nodes and values
+		 * 
+		 * @param {Object} data Slide data
+		 * @private
+		 */
+		_restorePartialInlineInputs: function (data) {
+			var properties = this.get('host').settings.getProperties(),
+				property = null,
+				i = 0,
+				ii = properties.length,
+				iframe = this.get('iframe'),
+				node = null,
+				form = this.get('host').settings.getForm(),
+				input;
+			
+			for (; i<ii; i++) {
+				property = properties[i];
+				if (property.type == 'InlineImage' || property.type == 'InlineMedia') {
+					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					if (node) {
+						input = form.getInput(property.id);
+						
+						node.on('mousedown', this._startEditing, this, property, input);
+						input.set('targetNode', node);
+						input.set('value', data[property.id]);
+						input.on('blur', this._onInputBlur, this, property, input);
+						input.on('focus', this._onInputFocus, this, property, input);
+					}
+				} else if (property.type == 'BlockBackground') {
+					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					if (node) {
+						input = form.getInput(property.id);
+						
+						node.addClass('hidden');
+						node = node.ancestor();
+						
+						input.set('targetNode', node);
+						input.set('value', data[property.id]);
+					}
+				} else if (property.type == 'Set') {
+					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					if (node) {
+						input = form.getInput(property.id);
+						
+						// SlideshowManagerViewButton plugin
+						if (input && input.inline) {
+							input.inline.set('targetNode', node);
+						}
+					}
+				}
+			}
 		},
 		
 		/**
 		 * Create new inputs after content is inserted
 		 * 
+		 * @param {Object} data Slide data
 		 * @private
 		 */
 		_restoreInputs: function (data) {
@@ -438,7 +562,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 							input.set('disabled', true);
 						}
 						
-						node.on('mousedown', this._activateInput, this, property, input);
+						node.on('mousedown', this._startEditing, this, property, input);
 						input.on('change', this._firePropertyChangeEvent, this, property, input);
 						
 						if (input.getEditor) {

@@ -34,6 +34,18 @@
 					<select name="layout" id="layout" value="" suType="Select">
 					</select>
 					
+					<div class="yui3-input template-section">
+						<label>{#settings.template#}</label>
+						<button type="button" class="button-template button-section"><p></p></button>
+						<input type="hidden" name="template[id]" />
+						<input type="hidden" name="template[img]" />
+						<input type="hidden" name="template[title]" />
+					</div>
+					
+					<p class="template-hint description">
+						{#settings.pages_will_inherit_these_values#}
+					</p>
+					
 					<a class="button-section button-meta" tabindex="0" data-target="slideMeta">
 						<img src="/cms/lib/supra/img/sidebar/icons/settings-seo-inactive.png" class="inactive" />
 						<img src="/cms/lib/supra/img/sidebar/icons/settings-seo.png" class="active" />
@@ -192,18 +204,6 @@
 							{#settings.advanced_unknown#}
 						</p></button>
 					</div>
-					
-					<div class="yui3-input template-section">
-						<label>{#settings.template#}</label>
-						<button type="button" class="button-template button-section"><p></p></button>
-						<input type="hidden" name="template[id]" />
-						<input type="hidden" name="template[img]" />
-						<input type="hidden" name="template[title]" />
-					</div>
-					
-					<p class="template-hint description">
-						{#settings.pages_will_inherit_these_values#}
-					</p>
 					
 					<br />
 					

@@ -40,8 +40,8 @@
 			"media": {
 				"add_image": "Add image",
 				"add_video": "Add video",
-				"delete_image": "Delete image",
-				"delete_video": "Delete video"
+				"delete_image": "Remove image",
+				"delete_video": "Remove video"
 			}
 		},
 		

@@ -146,8 +146,14 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			var form = new Supra.Form(form_config);
 				form.render(content);
 				form.hide();
-				form.addClass('yui3-form-fill');
+				form.addClass('yui3-form-fill'),
+				input = null;
 			
+			//Buttons input plugin
+			input = form.getInput('buttons');
+			if (input) {
+				input.plug(Supra.SlideshowManagerViewButton, {});
+			}
 			
 			//On input value change update inline inputs
 			var ii = properties.length,
@@ -204,6 +210,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		showForm: function () {
 			//Make sure PageContentSettings is rendered
 			var form = this.getForm(),
+				slideshow = form.get('slideshow'),
 				action = Manager.getAction('PageContentSettings');
 			
 			if (!form) {
@@ -222,7 +229,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			action.execute(form, {
-				'doneCallback': Y.bind(this.hide, this),
+				'doneCallback': Y.bind(this.onSidebarDone, this),
 				'toolbarActionName': Settings.NAME,
 				
 				'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title']),
@@ -230,7 +237,20 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			});
 			
 			// Update form state
+			slideshow.set('noAnimations', true);
 			this.set('activeItemId', this.get('activeItemId'));
+			slideshow.set('noAnimations', false);
+		},
+		
+		/**
+		 * When sidebar is closed stop editing associated input
+		 * 
+		 * @private
+		 */
+		onSidebarDone: function () {
+			// Stop editing
+			this.get('host').view.stopEditing();
+			this.hide();
 		},
 		
 		/**
@@ -278,7 +298,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			
 			if (form) {
 				this.silentUpdatingValues = true;
-				form.setValues(data, 'id');
+				form.setValues(data, 'id', true); // no encoding
 				this.silentUpdatingValues = false;
 			}
 			
@@ -288,6 +308,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				var slideshow = form.get('slideshow'),
 					rootSlideId = slideshow.getHistory()[0];
 				
+				// Scroll to root slide
 				slideshow.set('slide', rootSlideId);
 			}
 			

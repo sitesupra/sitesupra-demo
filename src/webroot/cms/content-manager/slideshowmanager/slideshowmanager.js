@@ -25,7 +25,11 @@ Supra.addModules({
 	},
 	'slideshowmanager.input-inline-media': {
 		path: 'input-inline-media.js',
-		requires: ['supra.input-proto']
+		requires: ['supra.input-proto', 'supra.uploader']
+	},
+	'slideshowmanager.plugin-inline-button': {
+		path: 'plugin-inline-button.js',
+		requires: ['supra.input-proto', 'plugin', 'supra.template']
 	}
 });
 
@@ -35,7 +39,8 @@ Supra([
 	'slideshowmanager.list',
 	'slideshowmanager.settings',
 	'slideshowmanager.view',
-	'slideshowmanager.input-inline-media'
+	'slideshowmanager.input-inline-media',
+	'slideshowmanager.plugin-inline-button'
 ], function (Y) {
 	//Invoke strict mode
 	"use strict";
@@ -149,10 +154,16 @@ Supra([
 			
 			this.data.on('update', function (event) {
 				var id = event.id,
-					data = event.data;
+					newData = event.newData,
+					prevData = event.prevData,
+					active = this.get('activeSlideId');
 				
-				if ('layout' in data) {
-					this.view.renderItem(id);
+				if ('layout' in newData) {
+					if (id === active) {
+						// Layout classname
+						this.view.updateLayoutClassName(prevData.layout, newData.layout);
+						this.view.renderItem(id);
+					}
 					this.list.redrawItem(id);
 				}
 			}, this);
@@ -314,6 +325,7 @@ Supra([
 					'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title'])
 				});
 			} else {
+				button.enable();
 				button.show();
 			}
 			
@@ -393,13 +405,14 @@ Supra([
 				'imageUploadFolder': 0
 			}, options || {});
 			
+			if (!Y.Lang.isArray(options.data.slides)) {
+				options.data.slides = [];
+			}
+			
 			if (options.callback && options.context) {
 				options.callback = Y.bind(options.callback, options.context);
 			}
 			
-			// @TODO Remove following harcoded data, layout and property settings
-			options.data.slides = [];
-          	
           	return options;
 		},
 		
@@ -411,7 +424,6 @@ Supra([
 		execute: function (options) {
 			options = this.normalizeOptions(options);
 			this.options = options;
-			console.log(options);
 			
 			if (!Manager.getAction('PageToolbar').inHistory(this.NAME)) {
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);
@@ -426,6 +438,11 @@ Supra([
 			// If there are no slides then create one
 			if (!options.data.slides.length) {
 				this.data.addSlide(this.data.getNewSlideData());
+			} else {
+				Y.each(options.data.slides, function (item) {
+					this.list.addItem(item);
+					this.settings.updateItemCount();	
+				}, this);
 			}
 			
 			// Reload iframe content

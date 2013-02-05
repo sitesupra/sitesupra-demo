@@ -211,16 +211,7 @@ Supra('dd-drag', function (Y) {
 						button_publish.set('disabled', false);
 					}
 					
-					//Hide "Placeholders" button if editing page and show if editing template
-					var button = Manager.getAction('PageToolbar').getActionButton('placeholderview');
-					if (data.type == 'page') {
-						button.set('disabled', true);
-						button.hide();
-					} else {
-						button.set('disabled', false);
-						button.show();
-					}
-					
+					//"Settings" button label
 					var settingsButton = Manager.getAction('PageToolbar').getActionButton('settings');
 					if (data.type == 'page') {
 						settingsButton.set('label', Supra.Intl.get(['settings', 'button_page']));

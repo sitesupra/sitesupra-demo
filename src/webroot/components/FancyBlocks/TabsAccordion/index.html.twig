@@ -3,6 +3,14 @@
 {% if design == 'tabs' %}
 
 	<section class="tabs block" data-attach="$.fn.tabs" data-refresh-event="tabs-accordion">
+		
+		{% set block_title = supraBlock.property('block_title') %}
+		{% if supra.cmsRequest or block_title %}
+		<h2 class="block-title"><div>
+			{% if block_title %}{{ block_title }}{% endif %}
+		</div></h2>
+		{% endif %}
+		
 		<ul class="tabs-headings clearfix">
 			{% set first = true %}
 			{% for i in 1..50 %}
@@ -36,6 +44,14 @@
 {% elseif design == 'accordion' %}
 
 	<section class="accordion block" data-attach="$.fn.accordion" data-refresh-event="tabs-accordion">
+		
+		{% set block_title = supraBlock.property('block_title') %}
+		{% if supra.cmsRequest or block_title %}
+		<h2 class="block-title"><div>
+			{% if block_title %}{{ block_title }}{% endif %}
+		</div></h2>
+		{% endif %}
+		
 		{% set first = true %}
 		{% for i in 1..50 %}
 			{% set title = propertyMap["title_" ~ i] %}

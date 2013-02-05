@@ -146,6 +146,13 @@
 
 	<div class="block">
 		
+		{% set block_title = supraBlock.property('block_title') %}
+		{% if supra.cmsRequest or block_title %}
+		<h2 class="block-title"><div>
+			{% if block_title %}{{ block_title }}{% endif %}
+		</div></h2>
+		{% endif %}
+		
 		<div class="products-slider style-{{ design }} img-{{ image }} link-{{ link }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
 			<ul>
 				{% for index, product in products %}
