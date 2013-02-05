@@ -8,3 +8,8 @@
         enabled: true
         groups:
           - Supra\Controller\Pages
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\InlineString
+          label: Title
