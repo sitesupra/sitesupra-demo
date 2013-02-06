@@ -10,8 +10,9 @@
 	
 	Supra.setModuleGroupPath("dashboard", STATIC_PATH + APP_PATH + "/modules");
 	
-	Supra.addModule("dashboard.stats", {
-		path: "stats.js",
+	// Statistics
+	Supra.addModule("dashboard.stats-list", {
+		path: "stats-list.js",
 		requires: [
 			"widget"
 		]
@@ -23,20 +24,35 @@
 			"plugin"
 		]
 	});
-	Supra.addModule("dashboard.visitors", {
-		path: "visitors.js",
+	Supra.addModule("dashboard.stats-visitors", {
+		path: "stats-visitors.js",
 		requires: [
 			"widget",
 			"charts",
 			"dashboard.chart-hover-plugin"
 		]
 	});
+	
+	Supra.addModule("dashboard.stats", {
+		path: "stats.js",
+		requires: [
+			"widget",
+			"supra.io",
+			"supra.deferred",
+			"dashboard.stats-list",
+			"dashboard.stats-visitors"
+		]
+	});
+	
+	// Inbox
 	Supra.addModule("dashboard.inbox", {
 		path: "inbox.js",
 		requires: [
-			"dashboard.stats"
+			"dashboard.stats-list"
 		]
 	});
+	
+	// Application list
 	Supra.addModule("dashboard.pagination", {
 		path: "pagination.js",
 		requires: [
@@ -66,17 +82,16 @@
 /**
  * Main manager action, initiates all other actions
  */
-Supra(
+Supra([
 	
 	"dashboard.app-list",
 	"dashboard.app-favourites",
-	"dashboard.stats",
-	"dashboard.visitors",
-	"dashboard.chart-hover-plugin",
-	"dashboard.inbox",
 	"transition",
 	
-function (Y) {
+	//Supra.data.get(["site", "portal"]) ? "dashboard.inbox" : null,
+	Supra.data.get(["site", "portal"]) ? "dashboard.stats" : null
+	
+], function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -123,8 +138,7 @@ function (Y) {
 		 */
 		widgets: {
 			"inbox": null,
-			"keywords": null,
-			"referring": null,
+			"stats": null,
 			
 			"apps": null,
 			"favourites": null,
@@ -145,21 +159,14 @@ function (Y) {
 		 * @constructor
 		 */
 		initialize: function () {
-			/*
-			this.widgets.inbox = new Supra.Inbox({
-				"srcNode": this.one("div.dashboard-inbox")
-			});
-			*/
-			this.widgets.keywords = new Supra.Stats({
-				"srcNode": this.one("div.dashboard-keywords")
-			});
-			this.widgets.referring = new Supra.Stats({
-				"srcNode": this.one("div.dashboard-referrers")
-			});
 			
-			if (Supra.data.get(["site", "portal"])) {
-				this.widgets.visitors = new Supra.Visitors({
-					"srcNode": this.one("div.dashboard-visitors")
+			// If stats module is loaded
+			if (Supra.DashboardStats) {
+				this.widgets.stats = new Supra.DashboardStats({
+					"statsRequestUri": this.getDataPath("../stats/stats"),
+					"profilesRequestUri": this.getDataPath("../stats/profiles"),
+					"saveRequestUri": this.getDataPath("../stats/save"),
+					"srcNode": this.one("div.info")
 				});
 			}
 			
@@ -180,18 +187,8 @@ function (Y) {
 		 * Render widgets
 		 */
 		render: function () {
-			
 			//Hide loading icon
 			Y.one("body").removeClass("loading");
-			
-			//Stats widgets
-			//this.widgets.inbox.render();
-			this.widgets.keywords.render();
-			this.widgets.referring.render();
-			
-			if (this.widgets.visitors) {
-				this.widgets.visitors.render();
-			}
 			
 			this.widgets.apps.render();
 			this.widgets.favourites.render();
@@ -245,77 +242,12 @@ function (Y) {
 		load: function () {
 			if (this.loaded) return;
 			this.loaded = true;
-			
-			//this.loadInboxData();
 			this.loadApplicationData();
-			this.loadVisitorsData();
-			this.loadStatisticsData();
-			
 			this.renderSiteInfo();
 		},
 		
 		
 		/* ------------------------------------ Data ------------------------------------ */
-		
-		
-		/**
-		 * Load and set statistics data
-		 * 
-		 * @private
-		 */
-		loadStatisticsData: function () {
-			if (Supra.data.get(["site", "portal"])) {
-				//@TODO Replace with real data, dummy data per #5323 request
-				var uri = "dev/stats";
-			} else {
-				var uri = "../stats/stats";
-			}
-			
-			Supra.io(this.getDataPath(uri), function (data, status) {
-				if (status && data) {
-					this.widgets.keywords.set("data", data.keywords);
-					this.widgets.referring.set("data", data.sources);
-				}
-			}, this);
-		},
-		
-		/**
-		 * Load and set visitors data
-		 * 
-		 * @private
-		 */
-		loadVisitorsData: function () {
-			if (Supra.data.get(["site", "portal"])) {
-				//@TODO Replace with real data, dummy data per #5323 request
-				var uri = "dev/visitors";
-				
-				Supra.io(this.getDataPath(uri), function (data, status) {
-					if (status && data) {
-						this.widgets.visitors.set("data", data);
-					}
-				}, this);
-			}
-		},
-		
-		/**
-		 * Load and set inbox data
-		 * 
-		 * @private
-		 */
-		loadInboxData: function () {
-			if (Supra.data.get(["site", "portal"])) {
-				//@TODO Replace with real data, dummy data per #5323 request
-				var uri = "dev/inbox";
-			} else {
-				var uri = "../inbox/inbox";
-			}
-			
-			Supra.io(this.getDataPath(uri), function (data, status) {
-				if (status && data) {
-					this.widgets.inbox.set("data", data);
-				}
-			}, this);
-		},
 		
 		/**
 		 * Load and set application list and favourites data 

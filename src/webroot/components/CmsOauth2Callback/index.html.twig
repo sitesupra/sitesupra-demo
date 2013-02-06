@@ -6,8 +6,8 @@
 		<script type="text/javascript">
 				{% if authSuccess %}
 				if (window.opener && window.opener.Supra
-					&& typeof(window.opener.Supra.Manager.Applications.reloadAnalytics) == "function") {
-						window.opener.Supra.Manager.Applications.reloadAnalytics();
+					&& typeof(window.opener.Supra.data.authorizationCallback) == "function") {
+						window.opener.Supra.data.authorizationCallback();
 				}
 				{% endif %}
 				self.close();

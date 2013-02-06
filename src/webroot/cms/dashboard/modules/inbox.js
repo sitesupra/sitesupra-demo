@@ -39,7 +39,7 @@ YUI.add("dashboard.inbox", function (Y) {
 	
 	Inbox.HTML_PARSER = {};
  
-	Y.extend(Inbox, Supra.Stats, {
+	Y.extend(Inbox, Supra.DashboardStatsList, {
 		
 		//Templates
 		TEMPLATE_HEADING: TEMPLATE_HEADING,
@@ -114,7 +114,7 @@ YUI.add("dashboard.inbox", function (Y) {
 		}
 	});
  
-	Supra.Inbox = Inbox;
+	Supra.DashboardInbox = Inbox;
  
 	//Since this widget has Supra namespace, it doesn"t need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

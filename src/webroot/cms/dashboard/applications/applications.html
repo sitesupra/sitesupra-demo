@@ -34,6 +34,29 @@
 		<div class="dashboard-inbox" suTitle="{# dashboard.inbox.title #}"></div>
 		-->
 		
+		<div class="loading-icon"></div>
+		
+		<!-- Authorization -->
+		<div class="dashboard-authorization hidden">
+			 <div class="su-block-heading ui-center-darker-background">
+				<h2>
+					<span>{# dashboard.authorization.title #}</span>
+				</h2>
+			</div>
+			<div class="su-block-content ui-center-dark-background">
+				
+				<button suStyle="mid" class="su-button-fill hidden">{# dashboard.authorization.authorize #}</button>
+				
+				<form class="yui3-form-vertical hidden">
+				 	
+				 	<select name="profiles" suType="Select"></select>
+				 	<button suStyle="small" class="su-button-fill hidden">{# dashboard.authorization.authorize_profile #}</button>
+				 	
+				 </form>
+				
+			</div>
+		</div>
+		
 		<!-- Visitors -->
 		<div class="dashboard-visitors"
 			 suTitle="{# dashboard.visitors.title #}">

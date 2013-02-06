@@ -29,6 +29,13 @@
 	.info {
 		width: 35%;
 		right: 65px;
+		
+		> .loading-icon {
+			display: none;
+		}
+		&.loading > .loading-icon {
+			display: block;
+		}
 	}
 }
 
@@ -373,6 +380,17 @@ li.app-list-proxy {
 	
 	min-height: 50px;
 	
+	li.empty {
+		color: #ffffff;
+		font-size: 16px;
+		font-weight: bold;
+		line-height: 24px;
+		text-align: center;
+		text-shadow: 0 1px 0 rgba(0,0,0,0.75);
+		padding: 15px 0 0;
+		opacity: 0.25;
+	}
+	
 	li.item {
 		border-top: 1px solid #474853;
 		border-bottom: 1px solid #262730;
@@ -448,5 +466,15 @@ li.app-list-proxy {
 				color: #7AD2FF;
 			}
 		}
+	}
+}
+
+/**
+ * Authorization
+ */
+.dashboard-authorization {
+	.su-block-content {
+		text-align: center;
+		padding: 35px 20%;
 	}
 }

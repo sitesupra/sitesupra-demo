@@ -40,6 +40,15 @@
 				"view_all": "View all my sites"
 			},
 			
+			"authorization": {
+				"title": "Google Analytics",
+				"authorize": "Authorize",
+				
+				"select_profile": "Please select profile",
+				"authorize_profile": "Authorize"
+			},
+			
+			"no_data": "There is no data for this view.",
 			"logout": "Logout"
 		},
 		

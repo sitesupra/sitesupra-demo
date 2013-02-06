@@ -1,4 +1,4 @@
-YUI.add('dashboard.visitors', function (Y) {
+YUI.add('dashboard.stats-visitors', function (Y) {
 	//Invoke strict mode
 	'use strict';
 	
@@ -166,8 +166,6 @@ YUI.add('dashboard.visitors', function (Y) {
 			var container = this.nodes.body.one('.chart .monthly'),
 				template  = Supra.Template.compile(this.TEMPLATE_ITEM),
 				html      = '';
-			
-			console.log(data);
 			
 			html += template({
 				'title': Supra.Intl.get(['dashboard', 'visitors', 'visitors']),
@@ -407,7 +405,7 @@ YUI.add('dashboard.visitors', function (Y) {
 		}
 	});
  
-	Supra.Visitors = Visitors;
+	Supra.DashboardStatsVisitors = Visitors;
  
 	//Since this widget has Supra namespace, it doesn"t need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
