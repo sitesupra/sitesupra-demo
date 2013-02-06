@@ -316,6 +316,12 @@ class PagesettingsAction extends PageManagerAction
 			} else {
 				$previewUrl = '/cms/lib/supra/img/sitemap/preview/blank.jpg';
 			}
+
+			if (file_exists($previewPath)) {
+				$previewUrl = $templateData->getPreviewUrl();
+			} else {
+				$previewUrl = '/cms/lib/supra/img/sitemap/preview/blank.jpg';
+			}
 			
 			$templateArray[] = array(
 				'id' => $templateData->getMaster()->getId(),
