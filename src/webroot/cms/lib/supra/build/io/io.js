@@ -244,6 +244,9 @@ YUI().add("supra.io", function (Y) {
 		//Restore context
 		cfg.context = cfg_new.context = context;
 		
+		//Remove traversing in url, eq  /folder/folder/../something
+		url = url.replace(/\/[^\/\?]+\/\.\.\//i, '/');
+		
 		return [url, cfg_new, permissions, callback, context];
 	};
 	

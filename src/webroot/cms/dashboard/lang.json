@@ -49,6 +49,7 @@
 			},
 			
 			"settings": {
+				"profile": "Website %s",
 				"change_website": "Change website",
 				"remove_analytics": "Remove Google Analytics"
 			},

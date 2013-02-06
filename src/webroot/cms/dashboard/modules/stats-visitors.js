@@ -1,4 +1,4 @@
-	//Invoke strict mode
+//Invoke strict mode
 YUI.add('dashboard.stats-visitors', function (Y) {
 	'use strict';
 	

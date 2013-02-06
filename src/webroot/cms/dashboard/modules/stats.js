@@ -45,6 +45,11 @@ YUI.add('dashboard.stats', function (Y) {
 		'loading': {
 			value: false,
 			setter: '_setLoading'
+		},
+		
+		// Show statistics
+		'showStatistics': {
+			value: true
 		}
 	};
 	
@@ -90,7 +95,6 @@ YUI.add('dashboard.stats', function (Y) {
 		 * Test UI
 		 * @TODO Remove
 		 */
-		/*
 		test: function () {
 			this._handleStatsData({
 				'authorization_url': 'http://www.google.com',
@@ -104,22 +108,21 @@ YUI.add('dashboard.stats', function (Y) {
 				
 				Y.later(750, this, function () {
 					this._showProfilesListView([
-						{'id': 'test1', 'title': 'Test profile #1'},
-						{'id': 'test2', 'title': 'Test profile #2'},
-						{'id': 'test3', 'title': 'Test profile #3'}
+						{'id': '1', 'title': 'domain1.example.tld'},
+						{'id': '2', 'title': 'domain2.example.tld'},
+						{'id': '3', 'title': 'domain3.example.tld'}
 					]);
 					
 					this._widgets.profilesButton.detach('click');
 					this._widgets.profilesButton.on('click', function () {
 						this.set('loading', true);
-						this.set('statsRequestUri', Supra.Manager.Applications.getDataPath('dev/stats'));
+						this.set('statsRequestUri', Supra.Manager.getAction('Applications').getDataPath('dev/stats'));
 						this._loadStats();
 					}, this);
 				})
 				
 			}, this);
 		},
-		*/
 		
 		
 		/* --------------------------- RENDER STATISTICS DATA --------------------------- */
@@ -128,6 +131,7 @@ YUI.add('dashboard.stats', function (Y) {
 		/**
 		 * Render statistics data
 		 * 
+		 * @param {Object} data Statistics data
 		 * @private
 		 */
 		_renderStats: function (data) {
@@ -144,25 +148,37 @@ YUI.add('dashboard.stats', function (Y) {
 				visitors       = this._widgets.visitorsStats;
 			
 			if (!visitors) {
+				visitors = this._widgets.visitorsStats = new Supra.DashboardStatsVisitors({
+					'visible': !auth_visible,
+					'title': Supra.Intl.get(['dashboard', 'visitors', 'title'])
+				});
 				keywords = this._widgets.keywordsStats = new Supra.DashboardStatsList({
 					'srcNode': node_keywords,
-					'visible': !auth_visible
+					'visible': !auth_visible,
+					'title': Supra.Intl.get(['dashboard', 'keywords', 'title']),
+					'linkTitle': Supra.Intl.get(['dashboard', 'keywords', 'view_all']),
+					'linkTarget': 'https://www.google.com/analytics/web/#report/trafficsources-organic/'
 				});
 				referrers = this._widgets.sourcesStats = new Supra.DashboardStatsList({
 					'srcNode': node_referrers,
-					'visible': !auth_visible
-				});
-				visitors = this._widgets.visitorsStats = new Supra.DashboardStatsVisitors({
-					'srcNode': node_visitors,
-					'visible': !auth_visible
+					'visible': !auth_visible,
+					'title': Supra.Intl.get(['dashboard', 'referrers', 'title']),
+					'linkTitle': Supra.Intl.get(['dashboard', 'referrers', 'view_all']),
+					'linkTarget': 'https://www.google.com/analytics/web/#report/trafficsources-all-traffic/'
 				});
 				
-				this._widgets.keywordsStats.render();
-				this._widgets.sourcesStats.render();
-				this._widgets.visitorsStats.render();
+				visitors.render(node_src);
+				visitors.get('boundingBox').addClass('dashboard-visitors');
 				
-				this._widgets.visitorsStats.on('profilesListClick', this.showProfilesListView, this);
-				this._widgets.visitorsStats.on('unauthorizeClick', this._unauthorizeAccess, this);
+				keywords.render(node_src);
+				keywords.get('boundingBox').addClass('dashboard-keywords');
+				
+				referrers.render(node_src);
+				referrers.get('boundingBox').addClass('dashboard-referrers');
+				
+				
+				visitors.on('profilesListClick', this.showProfilesListView, this);
+				visitors.on('unauthorizeClick', this._unauthorizeAccess, this);
 			}
 			
 			if (data.stats) {
@@ -194,18 +210,85 @@ YUI.add('dashboard.stats', function (Y) {
 					visitors.set('visible', true);
 					
 					if (data.stats) {
-						this._widgets.keywordsStats.set('data', data.stats.keywords);
-						this._widgets.sourcesStats.set('data',  data.stats.sources);
-						this._widgets.visitorsStats.set('data', data.stats.visitors);
+						keywords.set('data', data.stats.keywords);
+						referrers.set('data',  data.stats.sources);
+						visitors.set('data', data.stats.visitors);
 					}
 				}, this));
 				
 				this.set('loading', false);
 			} else {
 				if (data.stats) {
-					this._widgets.keywordsStats.set('data', data.stats.keywords);
-					this._widgets.sourcesStats.set('data',  data.stats.sources);
-					this._widgets.visitorsStats.set('data', data.stats.visitors);
+					keywords.set('data', data.stats.keywords);
+					referrers.set('data',  data.stats.sources);
+					visitors.set('data', data.stats.visitors);
+				}
+				
+				this.set('loading', false);
+			}
+		},
+		
+		/**
+		 * Render statistics summary and controls
+		 * 
+		 * @param {Object} data Summary data
+		 * @private
+		 */
+		_renderSummary: function (data) {
+			var node_src       = this.get('srcNode'),
+				node_auth      = node_src.one('.dashboard-authorization'),
+				
+				summary        = this._widgets.summary,
+				
+				auth_visible   = !node_auth.hasClass('hidden');
+			
+			if (!summary) {
+				summary = this._widgets.summary = new Supra.DashboardStatsSummary({
+					'visible': !auth_visible
+				});
+				
+				summary.render(node_src);
+				summary.get('boundingBox').addClass('dashboard-summary');
+				
+				summary.on('profilesListClick', this.showProfilesListView, this);
+				summary.on('unauthorizeClick', this._unauthorizeAccess, this);
+			}
+			
+			if (data.stats) {
+				// Render chart with "0" as data
+				if (!Y.Object.size(data.stats.visitors)) {
+					data.stats.visitors = {
+						'monthly': {
+							'pageviews': 0, 'visits': 0, 'visitors': 0
+						},
+						'daily': Y.Array.map([-13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0], function (days) {
+							return {
+								'date': Y.DataType.Date.reformat(new Date(Date.now() - 86400000 * days), 'raw', '%Y/%m/%d'),
+								'pageviews': 0, 'visits': 0, 'visitors': 0
+							};
+						})
+					};
+				}
+			}
+			
+			
+			if (auth_visible) {
+				node_auth.transition({
+					'opacity': 0,
+					'duration': 0.35
+				}, Y.bind(function () {
+					node_auth.addClass('hidden');
+					summary.set('visible', true);
+					
+					if (data.stats) {
+						summary.set('data', data.stats.keywords);
+					}
+				}, this));
+				
+				this.set('loading', false);
+			} else {
+				if (data.stats) {
+					summary.set('data', data.stats.keywords);
 				}
 				
 				this.set('loading', false);
@@ -222,11 +305,16 @@ YUI.add('dashboard.stats', function (Y) {
 		 * @private
 		 */
 		_loadStats: function () {
-			var uri = this.get('statsRequestUri');
+			var uri = this.get('statsRequestUri'),
+				data = {};
+			
+			if (!this.get('showStatistics')) {
+				data.no_statistics = 1;
+			}
 			
 			this.set('loading', true);
 			
-			Supra.io(uri)
+			Supra.io(uri, {'data': data})
 				.done(this._handleStatsData, this)
 				.fail(this._handleStatsFailure, this);
 		},
@@ -240,7 +328,11 @@ YUI.add('dashboard.stats', function (Y) {
 		_handleStatsData: function (data) {
 			if (data.profile_id && data.is_authenticated) {
 				// Statistics data was received
-				this._renderStats(data);
+				if (this.get('showStatistics')) {
+					this._renderStats(data);
+				} else {
+					this._renderSummary(data);
+				}
 			} else if (!data.is_authenticated) {
 				// User not authenticated, show button
 				this._authorization_url = data.authorization_url;
@@ -257,7 +349,7 @@ YUI.add('dashboard.stats', function (Y) {
 		 * @private
 		 */
 		_handleStatsFailure: function () {
-			this._deferred_stats.rejectWith(this);
+			// Is there anything we can do?
 			this.set('loading', false);
 		},
 		
@@ -273,6 +365,10 @@ YUI.add('dashboard.stats', function (Y) {
 				this._widgets.visitorsStats.hide();
 				this._widgets.sourcesStats.hide();
 				this._widgets.keywordsStats.hide();
+				
+				Y.later(350, this, this.showAuthorizationView);
+			} else if (this._widgets.summary) {
+				this._widgets.summary.hide();
 				
 				Y.later(350, this, this.showAuthorizationView);
 			} else {
@@ -441,6 +537,13 @@ YUI.add('dashboard.stats', function (Y) {
 				Y.later(350, this, function () {
 					this._showProfilesListView(data);
 				});
+			} else if (this._widgets.summary && this._widgets.summary.get('visible')) {
+				// Hide statistics summary view
+				this._widgets.summary.hide();
+				
+				Y.later(350, this, function () {
+					this._showProfilesListView(data);
+				});
 			} else {
 				this._renderProfilesData(data);
 			}
@@ -493,7 +596,7 @@ YUI.add('dashboard.stats', function (Y) {
 			// Set profile list
 			profiles.unshift({
 				'id': '',
-				'title': Supra.Intl.get(['dashboard', 'authorization', 'select_profile'])
+				'title': Supra.Intl.get(['dashboard', 'authorization', 'select_profile']) || ''
 			});
 			
 			input.set('showEmptyValue', false);
@@ -601,4 +704,4 @@ YUI.add('dashboard.stats', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.io', 'supra.deferred', 'dashboard.stats-list', 'dashboard.stats-visitors']});
+}, YUI.version, {'requires': ['supra.io', 'supra.deferred', 'dashboard.stats-list', 'dashboard.stats-visitors', 'dashboard.stats-summary']});

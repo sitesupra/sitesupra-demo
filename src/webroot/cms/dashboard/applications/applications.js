@@ -32,6 +32,12 @@
 			"dashboard.chart-hover-plugin"
 		]
 	});
+	Supra.addModule("dashboard.stats-summary", {
+		path: "stats-summary.js",
+		requires: [
+			"widget"
+		]
+	});
 	
 	Supra.addModule("dashboard.stats", {
 		path: "stats.js",
@@ -40,7 +46,8 @@
 			"supra.io",
 			"supra.deferred",
 			"dashboard.stats-list",
-			"dashboard.stats-visitors"
+			"dashboard.stats-visitors",
+			"dashboard.stats-summary"
 		]
 	});
 	
