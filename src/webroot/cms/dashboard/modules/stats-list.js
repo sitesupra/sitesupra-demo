@@ -103,16 +103,21 @@ YUI.add("dashboard.stats-list", function (Y) {
 		renderUI: function () {
 			Stats.superclass.renderUI.apply(this, arguments);
 			
+			var template = null,
+				heading = null,
+				body = null,
+				box = this.get('boundingBox');
+				
 			this.nodes = {
 				"heading": null,
 				"body": null
 			};
 			
-			this.get("boundingBox").addClass("su-block");
+			box.addClass("su-block");
 			
-			var template = null,
-				heading = null,
-				body = null;
+			if (!this.get('visible')) {
+				box.addClass("hidden");
+			}
 			
 			template = Supra.Template.compile(this.TEMPLATE_HEADING);
 			heading = this.nodes.heading = Y.Node.create(template({
@@ -184,6 +189,30 @@ YUI.add("dashboard.stats-list", function (Y) {
 		_setTitle: function (title) {
 			if (this.nodes.heading) this.nodes.heading.one("span").set("text", title);
 			return title;
+		},
+		
+		/**
+		 * Visibility attribute setter
+		 * 
+		 * @param {Boolean} visible
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			if (!this.get('rendered')) return !!visible;
+			var node = this.get('boundingBox'),
+				hidden = node.hasClass('hidden');
+			
+			if (visible && hidden) {
+				node.removeClass('hidden')
+					.setStyles({'opacity': 0})
+					.transition({'opacity': 1, 'duration': 0.35});
+			} else if (!visible && !hidden) {
+				node.transition({'opacity': 0, 'duration': 0.35}, function () {
+						node.addClass('hidden');
+					});
+			}
+			
+			return !!visible;
 		}
 	});
  

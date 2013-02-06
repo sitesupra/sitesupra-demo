@@ -26,6 +26,11 @@ YUI.add('dashboard.stats', function (Y) {
 			value: null
 		},
 		
+		// Unauthorize
+		'unauthorizeRequestUri': {
+			value: null
+		},
+		
 		// URI to save selected profile
 		'saveRequestUri': {
 			value: null
@@ -81,6 +86,10 @@ YUI.add('dashboard.stats', function (Y) {
 			//Y.later(750, this, this.test);
 		},
 		
+		/**
+		 * Test UI
+		 * @TODO Remove
+		 */
 		/*
 		test: function () {
 			this._handleStatsData({
@@ -94,7 +103,7 @@ YUI.add('dashboard.stats', function (Y) {
 				this.set('loading', true);
 				
 				Y.later(750, this, function () {
-					this._renderProfilesData([
+					this._showProfilesListView([
 						{'id': 'test1', 'title': 'Test profile #1'},
 						{'id': 'test2', 'title': 'Test profile #2'},
 						{'id': 'test3', 'title': 'Test profile #3'}
@@ -128,23 +137,33 @@ YUI.add('dashboard.stats', function (Y) {
 				node_visitors  = node_src.one('div.dashboard-visitors'),
 				node_auth      = node_src.one('.dashboard-authorization'),
 				
-				keywords       = null,
-				referrers      = null,
-				visitors       = null;
+				auth_visible   = !node_auth.hasClass('hidden'),
+				
+				keywords       = this._widgets.keywordsStats,
+				referrers      = this._widgets.sourcesStats,
+				visitors       = this._widgets.visitorsStats;
 			
-			keywords = this._widgets.keywordsStats = new Supra.DashboardStatsList({
-				'srcNode': node_keywords
-			});
-			referrers = this._widgets.sourcesStats = new Supra.DashboardStatsList({
-				'srcNode': node_referrers
-			});
-			visitors = this._widgets.visitorsStats = new Supra.DashboardStatsVisitors({
-				'srcNode': node_visitors
-			});
-			
-			this._widgets.keywordsStats.render();
-			this._widgets.sourcesStats.render();
-			this._widgets.visitorsStats.render();
+			if (!visitors) {
+				keywords = this._widgets.keywordsStats = new Supra.DashboardStatsList({
+					'srcNode': node_keywords,
+					'visible': !auth_visible
+				});
+				referrers = this._widgets.sourcesStats = new Supra.DashboardStatsList({
+					'srcNode': node_referrers,
+					'visible': !auth_visible
+				});
+				visitors = this._widgets.visitorsStats = new Supra.DashboardStatsVisitors({
+					'srcNode': node_visitors,
+					'visible': !auth_visible
+				});
+				
+				this._widgets.keywordsStats.render();
+				this._widgets.sourcesStats.render();
+				this._widgets.visitorsStats.render();
+				
+				this._widgets.visitorsStats.on('profilesListClick', this.showProfilesListView, this);
+				this._widgets.visitorsStats.on('unauthorizeClick', this._unauthorizeAccess, this);
+			}
 			
 			if (data.stats) {
 				// Render chart with "0" as data
@@ -161,30 +180,34 @@ YUI.add('dashboard.stats', function (Y) {
 						})
 					};
 				}
-				
-				this._widgets.keywordsStats.set('data', data.stats.keywords);
-				this._widgets.sourcesStats.set('data',  data.stats.sources);
-				this._widgets.visitorsStats.set('data', data.stats.visitors);
 			}
 			
 			
-			if (!node_auth.hasClass('hidden')) {
-				keywords.get('boundingBox').addClass('hidden');
-				referrers.get('boundingBox').addClass('hidden');
-				visitors.get('boundingBox').addClass('hidden');
-				
+			if (auth_visible) {
 				node_auth.transition({
 					'opacity': 0,
 					'duration': 0.35
-				}, function () {
+				}, Y.bind(function () {
 					node_auth.addClass('hidden');
-					keywords.get('boundingBox').removeClass('hidden').setStyles({'opacity': 0}).transition({'opacity': 1, 'duration': 0.35});
-					referrers.get('boundingBox').removeClass('hidden').setStyles({'opacity': 0}).transition({'opacity': 1, 'duration': 0.35});
-					visitors.get('boundingBox').removeClass('hidden').setStyles({'opacity': 0}).transition({'opacity': 1, 'duration': 0.35});
-				});
+					keywords.set('visible', true);
+					referrers.set('visible', true);
+					visitors.set('visible', true);
+					
+					if (data.stats) {
+						this._widgets.keywordsStats.set('data', data.stats.keywords);
+						this._widgets.sourcesStats.set('data',  data.stats.sources);
+						this._widgets.visitorsStats.set('data', data.stats.visitors);
+					}
+				}, this));
 				
 				this.set('loading', false);
 			} else {
+				if (data.stats) {
+					this._widgets.keywordsStats.set('data', data.stats.keywords);
+					this._widgets.sourcesStats.set('data',  data.stats.sources);
+					this._widgets.visitorsStats.set('data', data.stats.visitors);
+				}
+				
 				this.set('loading', false);
 			}
 		},
@@ -224,7 +247,7 @@ YUI.add('dashboard.stats', function (Y) {
 				this._renderAuthorization(data);
 			} else if (!data.profile_id) {
 				// User must choose profile, show profile list
-				this._loadProfilesList();
+				this.showProfilesListView();
 			}
 		},
 		
@@ -241,6 +264,50 @@ YUI.add('dashboard.stats', function (Y) {
 		
 		/* --------------------------- AUTHORIZATION --------------------------- */
 		
+		
+		/**
+		 * Show authorization view
+		 */
+		showAuthorizationView: function () {
+			if (this._widgets.visitorsStats && this._widgets.visitorsStats.get('visible')) {
+				this._widgets.visitorsStats.hide();
+				this._widgets.sourcesStats.hide();
+				this._widgets.keywordsStats.hide();
+				
+				Y.later(350, this, this.showAuthorizationView);
+			} else {
+				
+				var node = null,
+					form = this._widgets.profilesForm,
+					button = this._widgets.authorizationButton,
+					profilesButton = this._widgets.profilesButton;
+				
+				if (!button) {
+					this._renderAuthorization();
+				} else {
+					node = this.get('srcNode').one('.dashboard-authorization');
+					
+					node.removeClass('hidden');
+					node.setStyles({
+						'opacity': 0
+					}).transition({
+						'opacity': 1,
+						'duration': 0.35
+					});
+				}
+				
+				if (form) {
+					form.hide();
+					profilesButton.hide();
+				}
+				if (button) {
+					button.show();
+				}
+				
+			}
+			
+			this.set('loading', false);
+		},
 		
 		/**
 		 * Render authorization button
@@ -317,6 +384,21 @@ YUI.add('dashboard.stats', function (Y) {
 			this.set('loading', false);
 		},
 		
+		/**
+		 * Remove authorization
+		 * 
+		 * @private
+		 */
+		_unauthorizeAccess: function () {
+			var uri = this.get('unauthorizeRequestUri');
+			
+			Supra.io(uri, {
+				'method': 'post'
+			})
+				.done(this.showAuthorizationView, this)
+				.fail(this.showAuthorizationView, this)
+		},
+		
 		
 		/* --------------------------- PROFILE CHOICE --------------------------- */
 		
@@ -326,11 +408,11 @@ YUI.add('dashboard.stats', function (Y) {
 		 * 
 		 * @private
 		 */
-		_loadProfilesList: function () {
+		showProfilesListView: function () {
 			var uri = this.get('profilesRequestUri');
 			
 			Supra.io(uri)
-				.done(this._renderProfilesData, this)
+				.done(this._showProfilesListView, this)
 				.fail(this._handleProfilesFailure, this);
 		},
 		
@@ -341,6 +423,28 @@ YUI.add('dashboard.stats', function (Y) {
 		 */
 		_handleProfilesFailure: function () {
 			// Is there anything we can do?
+			this.set('loading', false);
+		},
+		
+		
+		
+		/**
+		 * Show profile list view
+		 */
+		_showProfilesListView: function (data) {
+			if (this._widgets.visitorsStats && this._widgets.visitorsStats.get('visible')) {
+				// Hide stats view
+				this._widgets.visitorsStats.hide();
+				this._widgets.sourcesStats.hide();
+				this._widgets.keywordsStats.hide();
+				
+				Y.later(350, this, function () {
+					this._showProfilesListView(data);
+				});
+			} else {
+				this._renderProfilesData(data);
+			}
+			
 			this.set('loading', false);
 		},
 		
@@ -377,6 +481,7 @@ YUI.add('dashboard.stats', function (Y) {
 				input.on('valueChange', this._handleProfilesChange, this);
 				
 			} else {
+				input.set('value', '');
 				profilesButton.hide();
 				form.show();
 			}

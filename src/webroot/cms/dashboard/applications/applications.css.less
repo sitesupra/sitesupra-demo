@@ -470,11 +470,70 @@ li.app-list-proxy {
 }
 
 /**
+ * Visitors module
+ */
+.su-visitors {
+
+	.su-block-content {
+		height: 200px;
+	}
+	
+	.stats-settings {
+		margin: 68px 20% 0;
+		
+		.su-button {
+			margin-bottom: 10px;
+		}
+	}
+	
+}
+
+/* ---- Button ---- */
+@import "/cms/lib/supra/build/button/assets/skins/supra/less/button-mixin.less";
+
+.su-visitors .button-settings {
+	.button (url("../images/info/buttons.png"), 21px, 252px);
+}
+.su-visitors .button-done {
+	.button (url("../images/info/buttons.png"), 21px, 0px);
+}
+.su-visitors .su-button-stats-settings {
+	float: right;
+	position: relative;
+	margin: 1px -10px 0 0;
+	line-height: 21px;	
+	
+	&.button-settings {
+		p {
+			padding: 0;
+			width: 12px;
+			background: url("../images/info/buttons-icon-edit.png") 50% 5px no-repeat;
+		}
+	}
+}
+.gecko .su-visitors .su-button-stats-settings {
+	/* Fix button > p offset */
+	p {
+		position: relative;
+		margin: 0 -2px;
+	}
+}
+
+/**
  * Authorization
  */
 .dashboard-authorization {
 	.su-block-content {
 		text-align: center;
-		padding: 35px 20%;
+		padding: 0 20%;
+		height: 200px - 1px; // 1px == margin
+		overflow: hidden;
+		
+		> .su-button {
+			margin-top: 82px;
+		}
+		> .yui3-form {
+			margin-top: 70px;
+		}
 	}
 }

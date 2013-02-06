@@ -44,8 +44,13 @@
 				"title": "Google Analytics",
 				"authorize": "Authorize",
 				
-				"select_profile": "Please select profile",
+				"select_profile": "Please select website",
 				"authorize_profile": "Authorize"
+			},
+			
+			"settings": {
+				"change_website": "Change website",
+				"remove_analytics": "Remove Google Analytics"
 			},
 			
 			"no_data": "There is no data for this view.",

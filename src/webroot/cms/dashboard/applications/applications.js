@@ -165,6 +165,7 @@ Supra([
 				this.widgets.stats = new Supra.DashboardStats({
 					"statsRequestUri": this.getDataPath("../stats/stats"),
 					"profilesRequestUri": this.getDataPath("../stats/profiles"),
+					"unauthorizeRequestUri": this.getDataPath("../stats/delete"),
 					"saveRequestUri": this.getDataPath("../stats/save"),
 					"srcNode": this.one("div.info")
 				});
