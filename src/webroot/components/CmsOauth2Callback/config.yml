@@ -1,5 +1,0 @@
-- Supra\Router\Configuration\RouterConfiguration:
-    url: /cms-oauth2callback
-    controller:
-      Supra\Controller\Configuration\ControllerConfiguration:
-        class: Project\CmsOauth2Callback\Oauth2CallbackController
