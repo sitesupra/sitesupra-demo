@@ -308,12 +308,19 @@ class PagesettingsAction extends PageManagerAction
 
 		/* @var $templateData Entity\TemplateLocalization */
 		foreach ($templateDataList as $templateData) {
+			
+			$previewPath = $templateData->getPreviewFilename();
 
+			if (file_exists($previewPath)) {
+				$previewUrl = $templateData->getPreviewUrl();
+			} else {
+				$previewUrl = '/cms/lib/supra/img/sitemap/preview/blank.jpg';
+			}
+			
 			$templateArray[] = array(
 				'id' => $templateData->getMaster()->getId(),
 				'title' => $templateData->getTitle(),
-				//TODO: hardcoded
-				'icon' => '/cms/lib/supra/img/sitemap/preview/blank.jpg',
+				'icon' => $previewUrl,
 				'dont_use_as_default' => in_array($templateData->getMaster()->getId(), $doNotUseAsDefaultTemplateIds)
 			);
 
