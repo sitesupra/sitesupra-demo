@@ -80,7 +80,7 @@ YUI.add('dashboard.stats-summary', function (Y) {
 					unauthorize_button = this._widgets.unauthorizeButton,
 					node_info = this._nodes.profileId,
 					node = this.get('contentBox'),
-					info = Supra.Intl.get(['dashboard', 'settings', 'profile']).replace('%s', data.profile_id);
+					info = Supra.Intl.get(['dashboard', 'settings', 'profile']).replace('%s', data.profileTitle || '');
 				
 				if (!profiles_button) {
 					this._nodes.profileId = node_info = Y.Node.create('<p class="profile-info"></p>');
