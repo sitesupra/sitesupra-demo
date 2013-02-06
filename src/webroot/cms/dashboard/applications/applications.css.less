@@ -29,6 +29,13 @@
 	.info {
 		width: 35%;
 		right: 65px;
+		
+		> .loading-icon {
+			display: none;
+		}
+		&.loading > .loading-icon {
+			display: block;
+		}
 	}
 }
 
@@ -243,6 +250,15 @@ li.app-list-proxy {
 	.app-list-empty .app-list li.empty {
 		display: block;
 	}
+	
+	// Drag and drop
+	.app-list.yui3-dd-drop-active-valid {
+		//border-color: #55c5ff;
+		
+		&.yui3-dd-drop-over {
+			border-color: #55c5ff;
+		}
+	}
 }
 
 /**
@@ -373,6 +389,17 @@ li.app-list-proxy {
 	
 	min-height: 50px;
 	
+	li.empty {
+		color: #ffffff;
+		font-size: 16px;
+		font-weight: bold;
+		line-height: 24px;
+		text-align: center;
+		text-shadow: 0 1px 0 rgba(0,0,0,0.75);
+		padding: 15px 0 0;
+		opacity: 0.25;
+	}
+	
 	li.item {
 		border-top: 1px solid #474853;
 		border-bottom: 1px solid #262730;
@@ -447,6 +474,75 @@ li.app-list-proxy {
 			a {
 				color: #7AD2FF;
 			}
+		}
+	}
+}
+
+/**
+ * Visitors module
+ */
+.su-visitors {
+
+	.su-block-content {
+		height: 200px;
+	}
+	
+	.stats-settings {
+		margin: 68px 20% 0;
+		
+		.su-button {
+			margin-bottom: 10px;
+		}
+	}
+	
+}
+
+/* ---- Button ---- */
+@import "/cms/lib/supra/build/button/assets/skins/supra/less/button-mixin.less";
+
+.su-visitors .button-settings {
+	.button (url("../images/info/buttons.png"), 21px, 252px);
+}
+.su-visitors .button-done {
+	.button (url("../images/info/buttons.png"), 21px, 0px);
+}
+.su-visitors .su-button-stats-settings {
+	float: right;
+	position: relative;
+	margin: 1px -10px 0 0;
+	line-height: 21px;	
+	
+	&.button-settings {
+		p {
+			padding: 0;
+			width: 12px;
+			background: url("../images/info/buttons-icon-edit.png") 50% 5px no-repeat;
+		}
+	}
+}
+.gecko .su-visitors .su-button-stats-settings {
+	/* Fix button > p offset */
+	p {
+		position: relative;
+		margin: 0 -2px;
+	}
+}
+
+/**
+ * Authorization
+ */
+.dashboard-authorization {
+	.su-block-content {
+		text-align: center;
+		padding: 0 20%;
+		height: 200px - 1px; // 1px == margin
+		overflow: hidden;
+		
+		> .su-button {
+			margin-top: 82px;
+		}
+		> .yui3-form {
+			margin-top: 70px;
 		}
 	}
 }

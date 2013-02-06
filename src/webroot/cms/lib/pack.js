@@ -25190,6 +25190,8 @@ YUI.add('supra.uploader', function (Y) {
 					
 					//Check if title is localized
 					title = values[i].title;
+					title = (title || title === 0 ? String(title) : '');
+					
 					if (title.indexOf("{#") != -1) {
 						title = Supra.Intl.replace(title);
 					}

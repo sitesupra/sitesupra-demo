@@ -45,7 +45,7 @@ class StatsAction extends DasboardAbstractAction
 		
 		$responseData = false;
 		
-		$writeableIni = ObjectRepository::getIniConfigurationLoader($this);
+		$writeableIni = ObjectRepository::getIniConfigurationLoader('Supra\Statistics\GoogleAnalytics\Authentication\Storage\WriteableIniStorage');
 		$profileId = $writeableIni->getValue('google_analytics', 'profile_id', null);
 		
 		if ( ! empty($profileId)) {
@@ -121,7 +121,7 @@ class StatsAction extends DasboardAbstractAction
 	public function profilesAction()
 	{
 		// use refresh token as a part of cache key
-		$refreshToken = $this->provider->getRefreshToken();
+		$refreshToken = $this->provider->getAuthAdapter()->getRefreshToken();
 		
 		$profiles = false;
 		
@@ -144,7 +144,7 @@ class StatsAction extends DasboardAbstractAction
 				foreach($profilesList as $profile) {
 					$profiles[] = array(
 						'id' => $profile['profileId'],
-						'name' => $profile['profileName'],
+						'title' => $profile['profileName'],
 					);
 				}
 			}

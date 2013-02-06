@@ -34,23 +34,27 @@
 		<div class="dashboard-inbox" suTitle="{# dashboard.inbox.title #}"></div>
 		-->
 		
-		<!-- Visitors -->
-		<div class="dashboard-visitors"
-			 suTitle="{# dashboard.visitors.title #}">
-		</div>
+		<div class="loading-icon"></div>
 		
-		<!-- Referrers -->
-		<div class="dashboard-referrers"
-			 suTitle="{# dashboard.referrers.title #}"
-			 suLinkTitle="{# dashboard.referrers.view_all #}"
-			 suLinkTarget="https://www.google.com/analytics/web/#report/trafficsources-all-traffic/">
-		</div>
-		
-		<!-- Keywords -->
-		<div class="dashboard-keywords"
-			 suTitle="{# dashboard.keywords.title #}"
-			 suLinkTitle="{# dashboard.referrers.view_all #}"
-			 suLinkTarget="https://www.google.com/analytics/web/#report/trafficsources-organic/">
+		<!-- Authorization -->
+		<div class="dashboard-authorization hidden">
+			 <div class="su-block-heading ui-center-darker-background">
+				<h2>
+					<span>{# dashboard.authorization.title #}</span>
+				</h2>
+			</div>
+			<div class="su-block-content ui-center-dark-background">
+				
+				<button suStyle="mid" class="su-button-fill hidden">{# dashboard.authorization.authorize #}</button>
+				
+				<form suStyle="vertical" class="hidden">
+				 	
+				 	<select name="profiles" suType="Select"></select>
+				 	<button suStyle="small" class="su-button-fill hidden">{# dashboard.authorization.authorize_profile #}</button>
+				 	
+				</form>
+				
+			</div>
 		</div>
 		
 	</div>

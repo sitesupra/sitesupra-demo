@@ -1,12 +1,13 @@
-YUI.add('dashboard.visitors', function (Y) {
-	//Invoke strict mode
+//Invoke strict mode
+YUI.add('dashboard.stats-visitors', function (Y) {
 	'use strict';
 	
 	var TEMPLATE_HEADING = '\
 			<div class="su-block-heading ui-center-darker-background">\
 				<h2>\
 					<span>{{ title|escape }}</span>\
-					{% if linkTitle and linkTarget %}<a target="_blank" href="{{ linkTarget|escape }}">{{ linkTitle|escape }}</a>{% endif %}\
+					<button suStyle="small" class="button-settings"></button>\
+					<button suStyle="small" class="button-done"></button>\
 				</h2>\
 			</div>';
 	
@@ -54,14 +55,6 @@ YUI.add('dashboard.visitors', function (Y) {
 			'value': '',
 			'setter': '_setTitle'
 		},
-		//Heading link title
-		'linkTitle': {
-			'value': ''
-		},
-		//Heading link target
-		'linkTarget': {
-			'value': ''
-		},
 		//Data
 		'data': {
 			'value': null,
@@ -73,28 +66,29 @@ YUI.add('dashboard.visitors', function (Y) {
 		'title': function (srcNode) {
 			var attr = srcNode.getAttribute('suTitle');
 			if (attr) return attr;
-		},
-		'linkTitle': function (srcNode) {
-			var attr = srcNode.getAttribute('suLinkTitle');
-			if (attr) return attr;
-		},
-		'linkTarget': function (srcNode) {
-			var attr = srcNode.getAttribute('suLinkTarget');
-			if (attr) return attr;
 		}
 	};
  
 	Y.extend(Visitors, Y.Widget, {
 		
-		//Templates
+		// Templates
 		TEMPLATE_HEADING: TEMPLATE_HEADING,
 		TEMPLATE_BODY: TEMPLATE_BODY,
 		TEMPLATE_ITEM: TEMPLATE_ITEM,
 		
-		//Nodes
-		nodes: {
+		// Nodes
+		_nodes: {
 			'heading': null,
 			'body': null
+		},
+		
+		// Widgets
+		_widgets: {
+			'slideshow': null,
+			'settingsButton': null,
+			'doneButton': null,
+			'profilesButton': null,
+			'unauthorizeButton': null
 		},
 		
 		//Data
@@ -109,28 +103,77 @@ YUI.add('dashboard.visitors', function (Y) {
 		renderUI: function () {
 			Visitors.superclass.renderUI.apply(this, arguments);
 			
-			this.nodes = {
+			var template = null,
+				heading = null,
+				body = null,
+				node = null,
+				slideshow = null,
+				settings_button = null,
+				done_button,
+				box = this.get('boundingBox');
+			
+			this._nodes = {
 				'heading': null,
 				'body': null
 			};
+			this._widgets = {
+				'slideshow': null,
+				'settingsButton': null,
+				'doneButton': null,
+				'profilesButton': null,
+				'unauthorizeButton': null
+			};
 			
-			this.get('boundingBox').addClass('su-block');
+			box.addClass("su-block");
 			
-			var template = null,
-				heading = null,
-				body = null;
+			if (!this.get('visible')) {
+				box.addClass("hidden");
+			}
+			
 			
 			template = Supra.Template.compile(this.TEMPLATE_HEADING);
-			heading = this.nodes.heading = Y.Node.create(template({
-				'title': this.get('title'),
-				'linkTitle': this.get('linkTitle'),
-				'linkTarget': this.get('linkTarget')
+			heading = this._nodes.heading = Y.Node.create(template({
+				'title': this.get('title')
 			}));
 			
 			template = Supra.Template.compile(this.TEMPLATE_BODY);
-			body = this.nodes.body = Y.Node.create(template({}));
+			body = this._nodes.body = Y.Node.create(template({}));
 			
-			this.get('boundingBox').append(heading).append(body);
+			this.get('contentBox').append(heading).append(body);
+			
+			// Settings button
+			settings_button = this._widgets.settingsButton = new Supra.Button({
+				'srcNode': heading.one('button.button-settings')
+			});
+			settings_button.addClass(settings_button.getClassName('stats-settings'));
+			settings_button.render();
+			settings_button.on('click', this.showSettings, this);
+			
+			// Done button
+			done_button = this._widgets.doneButton = new Supra.Button({
+				'srcNode': heading.one('button.button-done'),
+				'label': Supra.Intl.get(['buttons', 'done'])
+			});
+			done_button.addClass(done_button.getClassName('stats-settings'));
+			done_button.render();
+			done_button.hide();
+			done_button.on('click', this.closeSettings, this);
+			
+			// Slideshow
+			slideshow = this._widgets.slideshow = new Supra.Slideshow();
+			slideshow.render(body);
+			slideshow.addSlide({'id': 'analytics_main', 'scrollable': false});
+			
+			slideshow.on('slideChange', function () {
+				// Disable button loading state
+				this._widgets.profilesButton.set('loading', false);
+				this._widgets.unauthorizeButton.set('loading', false);
+				this._widgets.profilesButton.set('disabled', false);
+				this._widgets.unauthorizeButton.set('disabled', false);
+			}, this);
+			
+			node = slideshow.getSlide('analytics_main').one('.su-slide-content');
+			node.append(body.one('.chart'));
 			
 			if (this.get('data')) {
 				this.renderData(this.get('data'));
@@ -147,10 +190,10 @@ YUI.add('dashboard.visitors', function (Y) {
 		 * Render data
 		 */
 		renderData: function (data) {
-			if (!this.nodes.body) return data;
+			if (!this._nodes.body) return data;
 			
 			if (data) {
-				this.nodes.body.one('.chart').removeClass('loading');
+				this._nodes.body.one('.chart').removeClass('loading');
 				
 				this.renderStats(data.monthly);
 				this.renderChart(data.daily);
@@ -163,11 +206,9 @@ YUI.add('dashboard.visitors', function (Y) {
 		 * Render monthly statistics
 		 */
 		renderStats: function (data) {
-			var container = this.nodes.body.one('.chart .monthly'),
+			var container = this._nodes.body.one('.chart .monthly'),
 				template  = Supra.Template.compile(this.TEMPLATE_ITEM),
 				html      = '';
-			
-			console.log(data);
 			
 			html += template({
 				'title': Supra.Intl.get(['dashboard', 'visitors', 'visitors']),
@@ -191,7 +232,7 @@ YUI.add('dashboard.visitors', function (Y) {
 		 * Render chart with daily data
 		 */
 		renderChart: function (data) {
-			var container = this.nodes.body.one('.chart .daily');
+			var container = this._nodes.body.one('.chart .daily');
 			
 			if (this.chart) {
 				this.chart.set('dataProvider', data);
@@ -386,6 +427,84 @@ YUI.add('dashboard.visitors', function (Y) {
 		        node.setStyle("visibility", "visible");
 		    }
 		},
+		
+		
+		/**
+		 * ---------------------------- SETTINGS -------------------------
+		 */
+		
+		
+		/**
+		 * Show Google Analytics settings
+		 */
+		showSettings: function () {
+			var slideshow = this._widgets.slideshow,
+				slide = null,
+				button = null,
+				node = null;
+			
+			if (!slideshow.getSlide('analytics_settings')) {
+				slide = slideshow.addSlide({'id': 'analytics_settings', 'scrollable': false});
+				slide = slide.one('.su-slide-content');
+				
+				node = Y.Node.create('<div class="stats-settings"></div>');
+				slide.append(node);
+				
+				this._widgets.profilesButton = button = new Supra.Button({
+					'label': Supra.Intl.get(['dashboard', 'settings', 'change_website']),
+					'style': 'small'
+				});
+				button.render(node);
+				button.addClass(button.getClassName('fill'));
+				button.on('click', this._fireProfilesEvent, this);
+				
+				this._widgets.unauthorizeButton = button = new Supra.Button({
+					'label': Supra.Intl.get(['dashboard', 'settings', 'remove_analytics']),
+					'style': 'small-red'
+				});
+				button.render(node);
+				button.addClass(button.getClassName('fill'));
+				button.on('click', this._fireUnauthorizeEvent, this);
+			}
+			
+			slideshow.set('slide', 'analytics_settings');
+			
+			this._widgets.settingsButton.hide();
+			this._widgets.doneButton.show();
+		},
+		
+		/**
+		 * Hide Google Analytics settings
+		 */
+		closeSettings: function () {
+			var slideshow = this._widgets.slideshow;
+			slideshow.set('slide', 'analytics_main');
+			
+			this._widgets.settingsButton.show();
+			this._widgets.doneButton.hide();
+		},
+		
+		/**
+		 * Fire profile button click event
+		 * 
+		 * @private
+		 */
+		_fireProfilesEvent: function () {
+			this._widgets.profilesButton.set('loading', true);
+			this._widgets.unauthorizeButton.set('disabled', true);
+			this.fire('profilesListClick');
+		},
+		
+		/**
+		 * Fire unauthorize button click event
+		 * 
+		 * @private
+		 */
+		_fireUnauthorizeEvent: function () {
+			this._widgets.unauthorizeButton.set('loading', true);
+			this._widgets.profilesButton.set('disabled', true);
+			this.fire('unauthorizeClick');
+		},
  
  
 		/**
@@ -402,12 +521,43 @@ YUI.add('dashboard.visitors', function (Y) {
 		 * @private
 		 */
 		_setTitle: function (title) {
-			if (this.nodes.heading) this.nodes.heading.one('span').set('text', title);
+			if (this._nodes.heading) this._nodes.heading.one('span').set('text', title);
 			return title;
+		},
+		
+		/**
+		 * Visibility attribute setter
+		 * 
+		 * @param {Boolean} visible
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			if (!this.get('rendered')) return !!visible;
+			var node = this.get('boundingBox'),
+				hidden = node.hasClass('hidden');
+			
+			if (visible && hidden) {
+				node.setStyles({'opacity': 0})
+					.removeClass('hidden')
+					.transition({'opacity': 1, 'duration': 0.35});
+			} else if (!visible && !hidden) {
+				node.transition({'opacity': 0, 'duration': 0.35}, Y.bind(function () {
+					node.addClass('hidden');
+					
+					this._widgets.slideshow.set('noAnimations', true);
+					this._widgets.slideshow.set('slide', 'analytics_main');
+					this._widgets.slideshow.set('noAnimations', false);
+					
+					this._widgets.settingsButton.show();
+					this._widgets.doneButton.hide();
+				}, this));
+			}
+			
+			return !!visible;
 		}
 	});
  
-	Supra.Visitors = Visitors;
+	Supra.DashboardStatsVisitors = Visitors;
  
 	//Since this widget has Supra namespace, it doesn"t need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
