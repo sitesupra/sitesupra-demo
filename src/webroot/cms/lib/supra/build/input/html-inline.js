@@ -7,6 +7,12 @@ YUI.add("supra.input-inline-html", function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = false;
+	
 	Input.NAME = "input-html-inline";
 	Input.ATTRS = {
 		'doc': {

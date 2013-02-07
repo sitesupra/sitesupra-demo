@@ -7,6 +7,12 @@ YUI.add('supra.input-text', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-text';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {};

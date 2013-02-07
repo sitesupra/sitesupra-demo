@@ -222,7 +222,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 				data = this.get('data');
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
-				if (properties[i].inline && properties[i].type == 'InlineHTML') {
+				if (properties[i].type == 'InlineHTML') {
 					has_html_properties = true;
 					break;
 				}
@@ -287,11 +287,13 @@ YUI.add('supra.page-content-editable', function (Y) {
 				this.renderOverlay();
 				
 				//Find if there are any inline properties
-				var properties = this.getProperties();
+				var properties = this.getProperties(),
+					is_inline = false;
 				
 				if (properties) {
 					for(var i=0,ii=properties.length; i<ii; i++) {
-						if (properties[i].inline) {
+						is_inline = Supra.Input.isInline(properties[i].type);
+						if (is_inline) {
 							//Add class to allow detect if content has inline properties
 							this.getNode().addClass(CLASSNAME_INLINE_EDITABLE);
 							break;
@@ -329,15 +331,21 @@ YUI.add('supra.page-content-editable', function (Y) {
 				properties = this.getProperties(),
 				id = null,
 				node = this.getNode(),
-				inline_node = null;
+				inline_node = null,
+				
+				toolbar = Manager.EditorToolbar.getToolbar(),
+				
+				is_inline = false;
+			
 			
 			this.inline_inputs = {};
 			this.html_inputs = {};
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
 				id = properties[i].id;
+				is_inline = Supra.Input.isInline(properties[i].type);
 				
-				if (properties[i].inline && id in inputs) {
+				if (is_inline && id in inputs) {
 					
 					//If there is no inline node, fail silently
 					inline_node = node.one('#' + this.getNodeId() + '_' + properties[i].id);
@@ -357,6 +365,14 @@ YUI.add('supra.page-content-editable', function (Y) {
 						
 						//Bind command to editor instead of toolbar, because toolbar is shared between editors
 						inputs[id].getEditor().addCommand('settings', Y.bind(this.onSettingsCommand, this));
+					} else {
+						// Partially inline, so HTML toolbar may be visible
+						// and clicking on settings button should open block settings
+						toolbar.on('command', function (event, id, input) {
+							if (event.command === 'settings' && !input.get('disabled') && this.get('active_inline_property') == id) {
+								this.onSettingsCommand();
+							}
+						}, this, id, inputs[id]);
 					}
 					
 					//When clicking on node enable corresponding editor
@@ -387,12 +403,20 @@ YUI.add('supra.page-content-editable', function (Y) {
 				if (this.inline_inputs) {
 					//Disable old inline input
 					if (old_property_id && old_property_id in this.inline_inputs) {
+						if (this.inline_inputs[old_property_id].stopEditing) {
+							this.inline_inputs[old_property_id].stopEditing();
+						}
+						
 						this.inline_inputs[old_property_id].set('disabled', true);
 					}
 					
 					//Enable active inline input
 					if (property_id && property_id in this.inline_inputs) {
 						this.inline_inputs[property_id].set('disabled', false);
+						
+						if (this.inline_inputs[property_id].startEditing) {
+							this.inline_inputs[property_id].startEditing();
+						}
 					}
 					
 					return property_id;
@@ -538,10 +562,14 @@ YUI.add('supra.page-content-editable', function (Y) {
 				//Recreate inline inputs
 				var properties_handler	= this.properties,
 					properties			= properties_handler.get('properties'),
-					id					= null;
+					id					= null,
+					is_inline           = false;
 
 				for(var i=0, ii=properties.length; i<ii; i++) {
-					if (properties[i].inline) {
+					is_inline = Supra.Input.isInline(properties[i].type);
+					
+					// Inline and inline+contained properties need to be reset
+					if (is_inline) {
 						id = properties[i].id;
 						properties_handler.resetProperty(id, values[id]);
 					}

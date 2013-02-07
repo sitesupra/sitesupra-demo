@@ -8,6 +8,12 @@ YUI.add('website.input-slider-cashier', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-slider-cashier';
 	Input.CSS_PREFIX = 'su-' + Input.NAME;
 	

@@ -1,4 +1,4 @@
-YUI.add('slideshowmanager.input-inline-media', function (Y) {
+YUI.add('supra.input-media-inline', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -10,7 +10,13 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
-	Input.NAME = 'input-inline-media';
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
+	Input.NAME = 'input-media-inline';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	
 	Input.ATTRS = {
@@ -18,7 +24,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		// needed because image can be edited inline and in main form
 		// InlineImage input may not be welcome
 		'separateForm': {
-			value: false
+			value: true
 		},
 		
 		// Node inside which should be placed image or video
@@ -50,6 +56,11 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		// Image upload folder id
 		'uploadFolderId': {
 			value: 0
+		},
+		
+		// Editing state
+		'editing': {
+			value: false
 		}
 	};
 	
@@ -61,6 +72,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		
 		INPUT_TEMPLATE: '<input type="hidden" value="" />',
 		LABEL_TEMPLATE: '',
+		DESCRIPTION_TEMPLATE: '',
 		
 		widgets: null,
 		
@@ -350,7 +362,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				slide_image = this.get('id') + '_slide_image',
 				slide_video = this.get('id') + '_slide_video';
 			
-			if (sldieshow) {
+			if (slideshow) {
 				current = slideshow.get("slide");
 				if (current == slide_image || current == slide_video) {
 					slideshow.scrollBack();
@@ -403,6 +415,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				group = null;
 			
 			if (form && properties) {
+				this.closeSlide();
 				properties.hidePropertiesForm();
 			} else {
 				//Not part of block properties, search for Action
@@ -439,6 +452,7 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 		startEditing: function () {
 			if (!this.get('disabled')) {
 				this.focus();
+				this.set('editing', true);
 				
 				if (this.type === 'video' || this.type === 'image') {
 					this.showSettingsSidebar();
@@ -467,6 +481,11 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 				this.widgets.input_video.stopEditing();
 			} else if (this.type === 'image') {
 				this.widgets.input_image.stopEditing();
+			}
+			
+			if (this.get('editing')) {
+				this.set('editing', false);
+				this.hideSettingsSidebar();
 			}
 		},
 		
@@ -559,12 +578,19 @@ YUI.add('slideshowmanager.input-inline-media', function (Y) {
 			
 			if (!data || (type !== 'image' && type !== 'video')) {
 				// Empty with buttons
-				var html = '<div align="center" class="yui3-box-reset"><a class="button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>' +
+				var label = this.get('label'),
+					description = this.get('description'),
+					html = (label ? '<h2>' + Y.Escape.html(label) + '</h2>' : '') +
+						   (description ? '<p>' + Y.Escape.html(description) + '</p>' : '') +
+						   '<div align="center" class="yui3-box-reset"><a class="button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>' +
 						   '<a class="button" data-supra-action="addVideo">' + (this.get('labelAddVideo') || Supra.Intl.get(['inputs', 'media', 'add_video'])) + '</a></div>';
 				
+				node.addClass(this.getClassName('empty'));
 				node.set('innerHTML', html);
 				node.one('a[data-supra-action="addImage"]').on('click', this.insertImage, this);
 				node.one('a[data-supra-action="addVideo"]').on('click', this.insertVideo, this);
+			} else {
+				node.removeClass(this.getClassName('empty'));
 			}
 		},
 		

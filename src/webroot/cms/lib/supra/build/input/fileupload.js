@@ -7,6 +7,12 @@ YUI.add("supra.input-file-upload", function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Fileupload.IS_INLINE = false;
+	
+	// Input is inside form
+	Fileupload.IS_CONTAINED = true;
+	
 	Fileupload.NAME = "input-file-upload";
 	Fileupload.CLASS_NAME = Y.ClassNameManager.getClassName(Fileupload.NAME);
 	Fileupload.ATTRS = {

@@ -7,13 +7,9 @@ Supra.addModule('website.template-list-css', {
 	path: 'pagesettings/modules/template-list.css',
 	type: 'css'
 });
-Supra.addModule('website.input-keywords', {
-	path: 'pagesettings/modules/input-keywords.js',
-	requires: ['supra.input-proto']
-});
 
 
-Supra('website.template-list', 'website.input-keywords', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
+Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -650,7 +646,7 @@ Supra('website.template-list', 'website.input-keywords', 'supra.input', 'supra.c
 			}
 
 			//Keywords
-			this.form.getInput('keywords').set('keywordRequestUri', this.getDataPath('suggestions'));
+			this.form.getInput('keywords').set('suggestionRequestUri', this.getDataPath('suggestions'));
 
 			//If user doesn't have publish rights, then disable "Schedule publish" button 
 			if (!Supra.Permission.get('page', page_data.id, 'supervise_page', false)) {

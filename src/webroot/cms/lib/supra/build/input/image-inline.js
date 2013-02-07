@@ -11,6 +11,12 @@ YUI.add('supra.input-image-inline', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-image-inline';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
@@ -140,14 +146,25 @@ YUI.add('supra.input-image-inline', function (Y) {
 		 * @private
 		 */
 		insertImage: function (data) {
+			var container_width = this._getContainerWidth(),
+				width  = data.image.sizes.original.width,
+				height = data.image.sizes.original.height,
+				ratio  = 0;
+			
+			if (container_width && width > container_width) {
+				ratio = width / height;
+				width = container_width;
+				height = Math.round(width / ratio);
+			}
+			
 			this.set("value", {
 				"image": data.image,
 				"crop_left": 0,
 				"crop_top": 0,
-				"crop_width": data.image.sizes.original.width,
-				"crop_height": data.image.sizes.original.height,
-				"size_width": data.image.sizes.original.width,
-				"size_height": data.image.sizes.original.height
+				"crop_width": width,
+				"crop_height": height,
+				"size_width": width,
+				"size_height": height
 			});
 			
 			//Start editing image

@@ -36,6 +36,7 @@
 	.yui3-input-hidden,
 	.yui3-input-string-hidden,
 	.yui3-input-text-hidden,
+	.yui3-input-keywords-hidden,
 	.yui3-input-html-hidden,
 	.yui3-input-number-hidden,
 	.yui3-input-select-hidden,
@@ -111,6 +112,7 @@
 			padding-right: 0;
 		}
 		.yui3-input-string .description,
+		.yui3-input-keywords .description,
 		.yui3-input-set .description,
 		.yui3-input-text .description,
 		.yui3-input-video .description {
@@ -187,8 +189,8 @@
 		}
 	
 	.yui3-input textarea {
-		height: auto;
-		max-height: 100px;
+		height: 100px;
+		max-height: 200px;
 		line-height: 16px;
 		padding: 3px;
 		resize: vertical;
@@ -494,6 +496,9 @@
 /* Inline image */
 @import "less/image-inline.less";
 
+/* Keywords */
+@import "less/keywords.less";
+
 /* Map */
 .yui3-input-map label {
 	padding-bottom: 7px;
@@ -590,6 +595,7 @@
 		padding: 0 0 4px 2px;
 	}
 	.yui3-input-string label,
+	.yui3-input-keywords label,
 	.yui3-input-set label,
 	.yui3-input-number label,
 	.yui3-input-text label,

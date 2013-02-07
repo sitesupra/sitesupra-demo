@@ -881,7 +881,7 @@ button::-moz-focus-inner { border:0; }
 }
 .yui3-form .yui3-form-fill .su-slide-content { padding:0 10px; }
 .yui3-input { padding:0; }
-.yui3-input-hidden, .yui3-input-string-hidden, .yui3-input-text-hidden, .yui3-input-html-hidden, .yui3-input-number-hidden, .yui3-input-select-hidden, .yui3-input-select-list-hidden, .yui3-input-checkbox-hidden, .yui3-input-path-hidden, .yui3-input-file-upload-hidden, .yui3-input-link-hidden, .yui3-input-image-hidden, .yui3-input-file-hidden, .yui3-input-color-hidden, .yui3-input-block-background-hidden, .yui3-input-image-inline-hidden, .yui3-input-button-hidden, .yui3-input-set-hidden, .button-section.yui3-input-button-hidden { display:none; }
+.yui3-input-hidden, .yui3-input-string-hidden, .yui3-input-text-hidden, .yui3-input-keywords-hidden, .yui3-input-html-hidden, .yui3-input-number-hidden, .yui3-input-select-hidden, .yui3-input-select-list-hidden, .yui3-input-checkbox-hidden, .yui3-input-path-hidden, .yui3-input-file-upload-hidden, .yui3-input-link-hidden, .yui3-input-image-hidden, .yui3-input-file-hidden, .yui3-input-color-hidden, .yui3-input-block-background-hidden, .yui3-input-image-inline-hidden, .yui3-input-button-hidden, .yui3-input-set-hidden, .button-section.yui3-input-button-hidden { display:none; }
 .yui3-input label, .yui3-form p.label, .ui-dark .ui-light .yui3-input label, .ui-dark .ui-light .yui3-form p.label {
   padding:7px 10px 0 5px;
   display:inline-block;
@@ -917,7 +917,7 @@ button::-moz-focus-inner { border:0; }
   width:auto;
   padding-right:0;
 }
-.yui3-input-string .description, .yui3-input-set .description, .yui3-input-text .description, .yui3-input-video .description {
+.yui3-input-string .description, .yui3-input-keywords .description, .yui3-input-set .description, .yui3-input-text .description, .yui3-input-video .description {
   width:auto;
   padding-right:0;
   padding-top:4px;
@@ -965,8 +965,8 @@ button::-moz-focus-inner { border:0; }
 .ui-center-dark .yui3-input input::-moz-placeholder, .ui-center-dark .yui3-input textarea::-moz-placeholder, .ui-center-dark .yui3-input iframe::-moz-placeholder { color:#7c7d85; }
 .ui-center-dark .yui3-input input::input-placeholder, .ui-center-dark .yui3-input textarea::input-placeholder, .ui-center-dark .yui3-input iframe::input-placeholder { color:#7c7d85; }
 .yui3-input textarea {
-  height:auto;
-  max-height:100px;
+  height:100px;
+  max-height:200px;
   line-height:16px;
   padding:3px;
   resize:vertical;
@@ -1994,6 +1994,89 @@ button::-moz-focus-inner { border:0; }
 .yui3-form-default .yui3-input-date-time .yui3-input-string, .yui3-form-default .yui3-input-date-time .yui3-input-string:first-child, .yui3-form-vertical .yui3-input-date-time .yui3-input-string, .yui3-form-vertical .yui3-input-date-time .yui3-input-string:first-child { margin:0; }
 .yui3-input-block-background .yui3-input { margin-top:0; }
 .yui3-input-image-inline .yui3-input { margin-top:0; }
+.ui-dark .yui3-input-keywords .input-list, .ui-dark .yui3-input-keywords .suggestions-list {
+  color:#ffffff;
+  cursor:text;
+  font-size:11px;
+  line-height:15px;
+  background:#090613;
+  box-shadow:0 1px 1px rgba(4,1,17,0.6) inset, 0 1px 0 rgba(255,255,255,0.15);
+  padding:8px 16px 0 0;
+  border:0;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  border-radius:3px 3px 3px 3.1px;
+}
+.ui-dark .yui3-input-keywords .input-list span, .ui-dark .yui3-input-keywords .suggestions-list span {
+  text-overflow:ellipsis;
+  vertical-align:middle;
+  display:inline-block;
+  max-width:100%;
+  padding:0 22px 0 8px;
+  margin:0 0 8px 8px;
+  overflow:hidden;
+  background:#36333e url("/cms/lib/supra/build/input/assets/skins/supra/icons/icon-remove.gif") 100% 0 no-repeat;
+  border-radius:5px;
+  -moz-background-clip:padding;
+  -webkit-background-clip:padding-box;
+  background-clip:padding-box;
+  -moz-box-sizing:border-box;
+  box-sizing:border-box;
+  position:relative;
+}
+.ui-dark .yui3-input-keywords .input-list span a, .ui-dark .yui3-input-keywords .suggestions-list span a {
+  display:inline-block;
+  width:15px;
+  height:15px;
+  position:absolute;
+  top:0;
+  right:0;
+}
+.ui-dark .yui3-input-keywords .input-list input, .ui-dark .yui3-input-keywords .suggestions-list input {
+  border-radius:0px;
+  -moz-background-clip:padding;
+  -webkit-background-clip:padding-box;
+  background-clip:padding-box;
+  box-shadow:none;
+  background:none;
+  border:0;
+  display:inline-block;
+  height:15px;
+  padding:0;
+  margin:0 0 8px 8px;
+  width:100%;
+  color:#ffffff;
+  line-height:15px;
+}
+.ui-dark .yui3-input-keywords .suggestions {
+  padding-top:8px;
+  min-height:30px;
+  margin-top:1px;
+}
+.ui-dark .yui3-input-keywords .suggestions .suggestions-list {
+  background-color:transparent;
+  box-shadow:none;
+  border-radius:none;
+  -moz-background-clip:padding;
+  -webkit-background-clip:padding-box;
+  background-clip:padding-box;
+}
+.ui-dark .yui3-input-keywords .suggestions .suggestions-list span {
+  background:#393846;
+  padding:0 8px;
+  margin:0 4px 8px 0;
+  cursor:pointer;
+}
+.ui-dark .yui3-input-keywords .suggestions .suggestions-list .suggestion-msg {
+  background:transparent;
+  padding:0;
+  margin:0 4px 4px 0;
+}
+.ui-dark .yui3-input-keywords .suggestions a.link-clear-all {
+  color:#8c8ca1;
+  font-size:11px;
+}
+.ui-dark .yui3-input-keywords-disabled .input-list, .ui-dark .yui3-input-keywords-disabled .suggestions-list, .ui-dark .yui3-input-keywords-disabled .input-list a, .ui-dark .yui3-input-keywords-disabled .suggestions-list a, .ui-dark .yui3-input-keywords-disabled .suggestions .suggestions-list span { cursor:default; }
 .yui3-input-map label { padding-bottom:7px; }
 .yui3-form-default, .yui3-form-vertical { margin:0 10px; }
 .yui3-form-default .yui3-input, .yui3-form-vertical .yui3-input { margin:10px 0; }
@@ -2021,7 +2104,7 @@ button::-moz-focus-inner { border:0; }
   width:auto;
 }
 .yui3-form-vertical .yui3-input .description { padding:0 0 4px 2px; }
-.yui3-form-vertical .yui3-input-string label, .yui3-form-vertical .yui3-input-set label, .yui3-form-vertical .yui3-input-number label, .yui3-form-vertical .yui3-input-text label, .yui3-form-vertical .yui3-input-html label, .yui3-form-vertical .yui3-input-path label, .yui3-form-vertical .yui3-input-select label, .yui3-form-vertical .yui3-input-select-list label, .yui3-form-vertical .yui3-input-file-upload label, .yui3-form-vertical .yui3-input-slider label, .yui3-form-vertical .yui3-input-link label, .yui3-form-vertical .yui3-input-image label, .yui3-form-vertical .yui3-input-file label, .yui3-form-vertical .yui3-input-color label, .yui3-form-vertical .yui3-input-block-background label, .yui3-form-vertical .yui3-input-image-inline label, .yui3-form-vertical p.label { display:block; }
+.yui3-form-vertical .yui3-input-string label, .yui3-form-vertical .yui3-input-keywords label, .yui3-form-vertical .yui3-input-set label, .yui3-form-vertical .yui3-input-number label, .yui3-form-vertical .yui3-input-text label, .yui3-form-vertical .yui3-input-html label, .yui3-form-vertical .yui3-input-path label, .yui3-form-vertical .yui3-input-select label, .yui3-form-vertical .yui3-input-select-list label, .yui3-form-vertical .yui3-input-file-upload label, .yui3-form-vertical .yui3-input-slider label, .yui3-form-vertical .yui3-input-link label, .yui3-form-vertical .yui3-input-image label, .yui3-form-vertical .yui3-input-file label, .yui3-form-vertical .yui3-input-color label, .yui3-form-vertical .yui3-input-block-background label, .yui3-form-vertical .yui3-input-image-inline label, .yui3-form-vertical p.label { display:block; }
 .yui3-form-vertical .yui3-input-string input, .yui3-form-vertical .yui3-input-number input, .yui3-form-vertical .yui3-input-select select, .yui3-form-vertical .yui3-input-text textarea, .yui3-form-vertical .yui3-input-html textarea, .yui3-form-vertical .yui3-input-html iframe { width:100%; }
 .yui3-form-vertical .yui3-input-path input { width:50%; }
 .yui3-form-vertical .yui3-input-select .yui3-input-select-inner {

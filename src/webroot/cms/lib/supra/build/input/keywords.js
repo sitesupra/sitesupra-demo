@@ -1,16 +1,16 @@
 /**
  * Keyword input
  */
-YUI.add("website.input-keywords", function (Y) {
+YUI.add("supra.input-keywords", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
 	/*
 	 * Template
 	 */
-	var TEMPLATE_KEYWORDS = Supra.Template.compile('<span class="suggestion-msg">Suggested:</span>\
-				{% for keyword in keywords %}\
-					<span data-keyword="{{ keyword|e }}">{{ keyword|e }}</span>\
+	var TEMPLATE_VALUES = Supra.Template.compile('<span class="suggestion-msg">Suggested:</span>\
+				{% for value in values %}\
+					<span data-value="{{ value|e }}">{{ value|e }}</span>\
 				{% endfor %}\
 			');
 	
@@ -19,6 +19,12 @@ YUI.add("website.input-keywords", function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-keywords";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -35,15 +41,29 @@ YUI.add("website.input-keywords", function (Y) {
 		"suggestionsListNode": {
 			value: null
 		},
-		"keywordRequestUri": {
+		"suggestionRequestUri": {
 			value: null
 		},
-		"keywords": {
+		"values": {
 			value: null
+		},
+		
+		"suggestionsEnabled": {
+			value: false,
+			setter: '_setSuggestionsEnabled'
 		}
 	};
 	
-	Input.HTML_PARSER = {};
+	Input.HTML_PARSER = {
+		'suggestionsEnabled': function (srcNode) {
+			var value = srcNode.getAttribute('suSuggestionsEnabled');
+			if (value === "true" || value === true || value === 1) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
 	
 	Y.extend(Input, Supra.Input.Proto, {
 		INPUT_TEMPLATE: '<input type="text" value="" />',
@@ -53,8 +73,10 @@ YUI.add("website.input-keywords", function (Y) {
 		/**
 		 * Key code constants
 		 */
-		KEY_RETURN: 13,
-		KEY_ESCAPE: 27,
+		KEY_RETURN:    13,
+		KEY_ESCAPE:    27,
+		KEY_COMMA:     188,
+		KEY_SEMICOLON: 186,
 		
 		/**
 		 * List of suggestions
@@ -70,11 +92,14 @@ YUI.add("website.input-keywords", function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
+			this.suggestions = [];
+			
 			var inputNode = this.get('inputNode'),
 				inputListNode = Y.Node.create('<div class="input-list"></div>'),
 				suggestionsNode = Y.Node.create('<div class="suggestions"></div>'),
 				suggestionsButton = new Supra.Button({'label': '{#settings.suggestions#}', 'style': 'small', 'id': 'button-suggestions'}),
 				suggestionsListNode = Y.Node.create('<div class="suggestions-list hidden"></div>'),
+				suggestionsEnabled = this.get('suggestionsEnabled'),
 				
 				clearAllLabel = Supra.Intl.get(['settings', 'clear_all']),
 				clearAllLink = new Y.Node.create('<a class="link-clear-all hidden">' + clearAllLabel + '</div>');
@@ -92,6 +117,13 @@ YUI.add("website.input-keywords", function (Y) {
 			this.set('suggestionsListNode', suggestionsListNode);
 			this.set('clearAllLink', clearAllLink);
 			this.set('inputListNode', inputListNode);
+			
+			if (!suggestionsEnabled) {
+				suggestionsNode.addClass('hidden');
+			}
+			if (this.get('disabled')) {
+				suggestionsButton.set('disabled', true);
+			}
 		},
 		
 		/**
@@ -108,16 +140,16 @@ YUI.add("website.input-keywords", function (Y) {
 				clearAllLink = this.get('clearAllLink'),
 				inputNode = this.get('inputNode');
 			
-			//On keyword click remove it
-			inputListNode.delegate('click', this._onRemoveKeyword, 'a', this);
+			//On item click remove it
+			inputListNode.delegate('click', this._onRemoveItem, 'a', this);
 			
 			//On click inside focus on input
 			inputListNode.on('click', this.focus, this);
 
-			//On button click load Keywords into suggestionList
-			suggestionsButton.on('click', this.loadKeywords, this);
+			//On button click load Items into suggestionList
+			suggestionsButton.on('click', this.loadItems, this);
 
-			//On keyword sugesstion click add it to suggestionsList
+			//On item sugesstion click add it to suggestionsList
 			suggestionsListNode.delegate('click', this.addSuggestion, 'span', this);
 
 			//Onhide suggestion list
@@ -129,7 +161,7 @@ YUI.add("website.input-keywords", function (Y) {
 			//Remove default behaviour, which is updating value on 'change'
 			inputNode.detach('change');
 			
-			//On blur update keyword list
+			//On blur update item list
 			inputNode.on('blur', this._onBlur, this);
 			
 			//Update value
@@ -137,27 +169,27 @@ YUI.add("website.input-keywords", function (Y) {
 		},
 		
 		/**
-		 * Update keyword list
+		 * Update item list
 		 */
 		syncUI: function () {
 			Input.superclass.syncUI.apply(this, arguments);
 			
-			var keywords = this.get('keywords'),
+			var values = this.get('values'),
 				inputListNode = this.get('inputListNode'),
 				tempNode = null;
 			
-			if (!keywords) {
-				keywords = [];
-				this.set('keywords', keywords);
+			if (!values) {
+				values = [];
+				this.set('values', values);
 			}
 			
 			if (inputListNode) {
 				inputListNode.all('span').remove();
 				
-				for(var i=keywords.length-1; i>=0; i--) {
+				for(var i=values.length-1; i>=0; i--) {
 					tempNode = Y.Node.create('<span></span>');
-					tempNode.set('text', keywords[i]);
-					tempNode.setAttribute('data-keyword', keywords[i]);
+					tempNode.set('text', values[i]);
+					tempNode.setAttribute('data-value', values[i]);
 					tempNode.appendChild('<a></a>');
 					inputListNode.prepend(tempNode);
 				}
@@ -174,15 +206,15 @@ YUI.add("website.input-keywords", function (Y) {
 		 * 
 		 * @private
 		 */
-		loadKeywords: function () {
+		loadItems: function () {
 			this.get('suggestionsButton').set('loading', true);
 			
-			Supra.io(this.get('keywordRequestUri'), {
+			Supra.io(this.get('suggestionRequestUri'), {
 				'data': {
 					'page_id': Supra.data.get(['page', 'id'])
 				},
 				'on': {
-					'complete': this.onLoadKeywords
+					'complete': this.onLoadItems
 				}
 			}, this);
 		},
@@ -194,22 +226,22 @@ YUI.add("website.input-keywords", function (Y) {
 		 * @param {Boolean} status Request response status
 		 * @private
 		 */
-		onLoadKeywords: function (data, status) {
+		onLoadItems: function (data, status) {
 			var suggestionsListNode = this.get('suggestionsListNode'),
 				clearAllLink = this.get('clearAllLink'),
-				keywords = this.get('keywords');
+				values = this.get('values');
 				
 			if (status && data.length) {
 				this.suggestions = data;
-				suggestionsListNode.set('innerHTML', TEMPLATE_KEYWORDS({'keywords': data}));
+				suggestionsListNode.set('innerHTML', TEMPLATE_VALUES({'values': data}));
 				
 				this.showSuggestionList();
 				
-				if(keywords) {
+				if(values) {
 					//Traverse all kewords and hide which are in suggestions list
-					for(var j=0; j<=keywords.length-1; j++) {
+					for(var j=0; j<=values.length-1; j++) {
 						
-						var node = Y.one('.suggestions-list span[data-keyword="' + keywords[j] + '"]');
+						var node = Y.one('.suggestions-list span[data-value="' + values[j] + '"]');
 						if (node) {
 							node.addClass('hidden');
 						}
@@ -226,12 +258,12 @@ YUI.add("website.input-keywords", function (Y) {
 		},
 		
 		/**
-		 * On blur add keyword to the list
+		 * On blur add item to the list
 		 * 
 		 * @private
 		 */
 		_onBlur: function () {
-			this.addKeyword(this.get('inputNode').get('value'));
+			this.addItem(this.get('inputNode').get('value'));
 			this.get('inputNode').set('value', '');
 		},
 		
@@ -242,42 +274,46 @@ YUI.add("website.input-keywords", function (Y) {
 		 * @private
 		 */
 		_onKeyDown: function (e) {
-			if (e.keyCode == this.KEY_RETURN) {
+			if (e.keyCode == this.KEY_RETURN || e.keyCode == this.KEY_COMMA || e.keyCode == this.KEY_SEMICOLON) {
 				var inputValue = this.get('inputNode').get('value');
-				this.addKeyword(inputValue);
+				this.addItem(inputValue);
 				this.hideSuggestion(inputValue);
 				this.get('inputNode').set('value', '');
+				e.preventDefault();
 			} else if (e.keyCode == this.KEY_ESCAPE) {
 				this.get('inputNode').set('value', '');
+				e.preventDefault();
 			}
 		},
 		
 		/**
-		 * Remove keyword
+		 * Remove item
 		 * 
 		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		_onRemoveKeyword: function (e) {
+		_onRemoveItem: function (e) {
+			if (this.get('disabled')) return;
+			
 			var target = e.target.closest('span'),
-				keyword = target.getAttribute('data-keyword'),
-				keywords = this.get('keywords'),
+				value = target.getAttribute('data-value'),
+				values = this.get('values'),
 				index = null;
 			
-			if (!keywords) {
-				keywords = [];
-				this.set('keywords', keywords);
+			if (!values) {
+				values = [];
+				this.set('values', values);
 			}
 			
-			index = Y.Array.indexOf(keywords, keyword);
+			index = Y.Array.indexOf(values, value);
 			
 			if (index != -1) {
-				keywords.splice(index, 1);
+				values.splice(index, 1);
 				target.remove();
 			}
 			
-			// check if keyword was a suggestion and unhide it in suggestions list
-			this.showSuggestion(keyword);
+			// check if item was a suggestion and unhide it in suggestions list
+			this.showSuggestion(value);
 		},
 
 		/**
@@ -286,23 +322,25 @@ YUI.add("website.input-keywords", function (Y) {
 		 * @param {Event} event
 		 */
 		addSuggestion: function (event) {
-			var target = event.target.closest('span'),
-				keyword = target.getAttribute('data-keyword');
+			if (this.get('disabled')) return;
 			
-			this.addKeyword(keyword);
-			this.hideSuggestion(keyword);
+			var target = event.target.closest('span'),
+				value = target.getAttribute('data-value');
+			
+			this.addItem(value);
+			this.hideSuggestion(value);
 		},
 
 
 		/**
 		 * Hide suggestion in suggestion list 
 		 * 
-		 * @param {String} keyword
+		 * @param {String} suggestion
 		 */
 		hideSuggestion: function (suggestion) {
-			//check if suggestion is in keywords
+			//check if suggestion is in items
 			var escaped = Y.Escape.html(suggestion),
-				node = Y.one('.suggestions-list span[data-keyword="' + escaped + '"]');
+				node = Y.one('.suggestions-list span[data-value="' + escaped + '"]');
 			
 			if (node) {
 				node.addClass('hidden');
@@ -314,12 +352,12 @@ YUI.add("website.input-keywords", function (Y) {
 		/**
 		 * Show prevouisly hidden suggestion from suggestion list 
 		 * 
-		 * @param {String} keyword
+		 * @param {String} suggestion
 		 */
 		showSuggestion: function (suggestion) {
-			//check if suggestion is in keywords
+			//check if suggestion is in items
 			var escaped = Y.Escape.html(suggestion),
-				node = Y.one('.suggestions-list span[data-keyword="' + escaped + '"]');
+				node = Y.one('.suggestions-list span[data-value="' + escaped + '"]');
 			
 			if (node) {
 				node.removeClass('hidden');
@@ -345,6 +383,8 @@ YUI.add("website.input-keywords", function (Y) {
 		 * @private
 		 */
 		closeSuggestionsList: function () {
+			if (this.get('disabled')) return;
+			
 			var suggestionsButton = this.get('suggestionsButton'),
 				suggestionsListNode = this.get('suggestionsListNode'),
 				clearAllLink = this.get('clearAllLink');
@@ -364,34 +404,42 @@ YUI.add("website.input-keywords", function (Y) {
 		
 
 		/**
-		 * Add keyword the list 
+		 * Add item the list 
 		 * 
-		 * @param {String} keyword
+		 * @param {String} value
 		 */
-		addKeyword: function (keyword) {
-			var keywords = this.get('keywords'),
+		addItem: function (value) {
+			var values = this.get('values'),
+				index = -1,
 				inputNode = this.get('inputNode'),
 				tempNode = Y.Node.create('<span></span>');
 							
-			if (!keywords) {
-				keywords = [];
-				this.set('keywords', keywords);
+			if (!values) {
+				values = [];
+				this.set('values', values);
 			}
 			
 			//Validate
-			keyword = Y.Lang.trim(keyword);
-			if (!keyword.length 
-				|| Y.Array.indexOf(keywords, keyword) != -1
-				|| keyword.split(/\s+/).length > 5) {
+			value = Y.Lang.trim(value);
+			if (!value.length) {
+				// Empty
+				return;
+			}
+			if (value.split(/\s+/).length > 5) {
+				// More than 5 words, why this limit exists???
+				return;
+			}
+			if (values.join(';').toLowerCase().indexOf(value.toLowerCase()) != -1) {
+				// Already is in list
 				return;
 			}
 			
-			//Add keyword
-			keywords.push(keyword);
+			//Add item
+			values.push(value);
 			
 			//Add node
-			tempNode.set('text', keyword);
-			tempNode.setAttribute('data-keyword', keyword);
+			tempNode.set('text', value);
+			tempNode.setAttribute('data-value', value);
 			tempNode.appendChild('<a></a>');
 			
 			inputNode.insert(tempNode, 'before');
@@ -414,9 +462,13 @@ YUI.add("website.input-keywords", function (Y) {
 			}
 		},
 		
+		
+		/* ------------------------------- ATTRIBUTES ------------------------------- */
+		
+		
 		_setValue: function (value) {
 			this.get('inputNode').set('value', value);
-			this.set('keywords', value ? value.split(';') : []);
+			this.set('values', value ? value.split(';') : []);
 			this.closeSuggestionsList();
 			
 			this.syncUI();
@@ -424,8 +476,48 @@ YUI.add("website.input-keywords", function (Y) {
 		},
 		
 		_getValue: function () {
-			return (this.get('keywords') || []).join(';');
-		}
+			return (this.get('values') || []).join(';');
+		},
+		
+		/**
+		 * SuggestionsEnabled attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setSuggestionsEnabled: function (enabled) {
+			if (!this.get('rendered')) return !!enabled;
+			
+			if (enabled) {
+				this.get('suggestionsNode').removeClass('hidden');
+			} else {
+				this.closeSuggestionsList();
+				this.get('suggestionsNode').addClass('hidden');
+			}
+			
+			return !!enabled;
+		},
+		
+		/**
+		 * Disabled attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setDisabled: function (value) {
+			value = Input.superclass._setDisabled.apply(this, arguments);
+			
+			var button = this.get('suggestionsButton');
+			if (button) {
+				button.set('disabled', value);
+			}
+			
+			return value;
+		},
 	
 	});
 	

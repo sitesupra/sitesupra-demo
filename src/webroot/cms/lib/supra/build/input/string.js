@@ -9,6 +9,12 @@ YUI.add('supra.input-string', function (Y) {
 		this._last_value = '';
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-string';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
