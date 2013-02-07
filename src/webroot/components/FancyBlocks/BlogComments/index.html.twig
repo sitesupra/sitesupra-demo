@@ -1,0 +1,56 @@
+<div class="block blog-comments">
+	
+	<h2 class="block-title"><div>
+		{{ commentCount }} {{ supraBlock.property('list_title') }}
+	</div></h2>
+	
+	<div class="commentslist">
+		
+		{# Comment #}
+		<article>
+			<div class="comment">
+				<div class="avatar">
+					<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
+				</div>
+				<div class="meta-info">
+					<span class="author">admin</span>
+					<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
+					<a href="#">- Reply</a>
+				</div>
+				<p>
+					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.<br />
+					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.<br />
+					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.
+				</p>
+			</div>
+			
+			{# Sub comments #}
+			<div class="commentslist">
+				<article>
+					<div class="comment">
+						<div class="avatar">
+							<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
+						</div>
+						<div class="meta-info">
+							<span class="author">admin</span>
+							<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
+							<a href="#">- Reply</a>
+						</div>
+						<p>This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.</p>
+					</div>
+				</article>
+			</div>
+		</article>
+		
+	</div>
+	
+</div>
+<div class="block blog-comments-form">
+	
+	<h2 class="block-title"><div>
+		{{ supraBlock.property('form_title') }}
+	</div></h2>
+	
+	<input type="button" class="button small" value="POST COMMENT">
+	
+</div>

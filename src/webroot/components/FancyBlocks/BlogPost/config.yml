@@ -13,11 +13,6 @@
           - Supra\FileStorage
           - Supra\Controller\Pages
         lifetime: 60 seconds
-    propertyGroups:
-      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
-          id: layout
-          type: top
-          label: Layout
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: description

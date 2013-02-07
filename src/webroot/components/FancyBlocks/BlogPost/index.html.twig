@@ -2,10 +2,10 @@
 	
 	{% set media = supraBlock.property('media') %}
 	{% if media or supra.cmsRequest %}
-	<div class="media">
+	<figure class="media">
 		<div id="content_{{ supraBlock.getBlock().getId() }}_media" class="yui3-content-inline yui3-input-media-inline-content"></div>
 		{#   {{ media }}   #}
-	</div>
+	</figure>
 	{% endif %}
 	
 	<div data-refresh-event="text" class="text">
@@ -15,14 +15,14 @@
 	
 	<div class="meta-info">
 		{# if date is object with format function like in news then uncomment following line #}
-		{# <span class="date">{{ date.format('d M Y') }}</span> #}
+		{# <time datetime="{{ date|date('Y-m-d') }}">{{ date.format('F j, Y') }}</time> #}
 		
 		{# if date is timestamp then uncomment following line #}
-		<span class="date">{{ date|date('d M Y') }}</span>
+		<time datetime="{{ date|date('Y-m-d') }}">{{ date|date('F j, Y') }}</time>
 		
 		{% if tags|length %}
 		<span class="separator">|</span>
-		<span class="keywords">
+		<span class="tags">
 			{% for tag in tags %}
 				<a class="tag" href="@TODO/{{ tag.url }}">{{ tag.title|e }}</a>{% if not loop.last %}, {% endif %}
 			{% endfor %}
