@@ -30619,7 +30619,6 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 			
 			if (this.get('editing')) {
-				console.log('CLOSE SIDEBAR');
 				this.set('editing', false);
 				this.hideSettingsSidebar();
 			}
@@ -30830,8 +30829,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (data) {
 				return Supra.mix({'type': type}, data);
-			} else {
+			} else if (type) {
 				return {'type': type};
+			} else {
+				return '';
 			}
 		},
 		

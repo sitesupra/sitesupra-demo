@@ -694,8 +694,10 @@ YUI.add('supra.input-media-inline', function (Y) {
 			
 			if (data) {
 				return Supra.mix({'type': type}, data);
-			} else {
+			} else if (type) {
 				return {'type': type};
+			} else {
+				return '';
 			}
 		},
 		
