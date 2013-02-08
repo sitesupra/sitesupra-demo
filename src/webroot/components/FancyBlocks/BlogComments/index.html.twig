@@ -13,7 +13,7 @@
 					<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
 				</div>
 				<div class="meta-info">
-					<span class="author">admin</span>
+					<span class="author">Admin</span>
 					<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
 					<a href="#">- Reply</a>
 				</div>
@@ -32,11 +32,14 @@
 							<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
 						</div>
 						<div class="meta-info">
-							<span class="author">admin</span>
+							<a class="author" rel="author" href="http://www.google.com" target="_blank">Admin</a>
 							<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
 							<a href="#">- Reply</a>
 						</div>
-						<p>This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.</p>
+						<p>
+							<em>Your comment is awaiting moderation.</em><br />
+							This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.
+						</p>
 					</div>
 				</article>
 			</div>
@@ -51,6 +54,26 @@
 		{{ supraBlock.property('form_title') }}
 	</div></h2>
 	
-	<input type="button" class="button small" value="POST COMMENT">
+	<form class="form" method="post">
+		
+		<div class="row">
+			<div class="one_third alpha">
+				<input type="text" class="input-text" value="" placeholder="Name (required)" name="name" required />
+			</div>
+			<div class="one_third">
+				<input type="email" class="input-text" value="" placeholder="Email (required)" name="email" required />
+			</div>
+			<div class="one_third omega">
+				<input type="url" class="input-text" value="" placeholder="Website" name="url" />
+			</div>
+		</div>
+		<div class="row">
+			<textarea class="input-text" placeholder="Comment..." name="comment"></textarea>
+		</div>
+		<div class="row">
+			<input type="submit" class="button small" value="POST COMMENT">
+		</div>
+		
+	</form>
 	
 </div>
