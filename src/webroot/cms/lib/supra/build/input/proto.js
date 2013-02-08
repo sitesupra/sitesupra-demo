@@ -9,6 +9,12 @@ YUI.add('supra.input-proto', function (Y) {
 		this._original_value = null;
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input';
 	Input.ATTRS = {
 		'inputNode': {
@@ -581,8 +587,12 @@ YUI.add('supra.input-proto', function (Y) {
 		 * @returns {Object} Slideshow instance if there is one
 		 */
 		getSlideshow: function () {
-			var form = this.getParentWidget("form");
-			return form ? form.get("slideshow") : null;
+			var form = this.getParentWidget("form"),
+				slideshow = form ? form.get("slideshow") : null;
+			
+			
+			
+			return slideshow;
 		},
 		
 		/**
@@ -597,7 +607,47 @@ YUI.add('supra.input-proto', function (Y) {
 	});
 	
 	Supra.Input = {
-		'Proto': Input
+		'Proto': Input,
+		
+		/**
+		 * Returns true if input is inline
+		 * Input can be inline and contained at the same time, so this is not exclusive
+		 * If IS_INLINE constant is not set on input, then by default returns false
+		 * 
+		 * @param {String} type Input type
+		 * @returns {Boolean} True if input is inline
+		 */
+		'isInline': function (type) {
+			var type_str = String(type || ''),
+				name = type_str.substr(0, 1).toUpperCase() + type_str.substr(1),
+				inline = false;
+			
+			if (name in Supra.Input && Supra.Input[name].IS_INLINE === true) {
+				inline = true;
+			}
+			
+			return inline;
+		},
+		
+		/**
+		 * Returns true if input is contained inside form
+		 * Input can be inline and contained at the same time, so this is not exclusive
+		 * If IS_CONTAINED constant is not set on input, then by default returns true
+		 * 
+		 * @param {String} type Input type
+		 * @returns {Boolean} True if input is inline
+		 */
+		'isContained': function (type) {
+			var type_str = String(type || ''),
+				name = type_str.substr(0, 1).toUpperCase() + type_str.substr(1),
+				contained = true;
+			
+			if (name in Supra.Input && Supra.Input[name].IS_CONTAINED === false) {
+				contained = false;
+			}
+			
+			return contained;
+		}
 	};
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

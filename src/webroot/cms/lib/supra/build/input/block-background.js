@@ -13,6 +13,12 @@ YUI.add("supra.input-block-background", function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = "block-background";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {

@@ -1,0 +1,26 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\BlogComments\BlogCommentsBlock
+    title: Blog Comments
+    groupId: features
+    description: Description
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+        lifetime: 60 seconds
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: list_title
+          editable: Supra\Editable\InlineString
+          label: Comment list title
+          default: Comments
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: form_title
+          editable: Supra\Editable\InlineString
+          label: Comment form title
+          default: Leave A Comment

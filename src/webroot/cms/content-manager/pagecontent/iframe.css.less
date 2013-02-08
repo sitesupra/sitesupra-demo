@@ -496,6 +496,28 @@
 }
 
 /**
+ * Media input
+ */
+.yui3-input-media-inline-content.yui3-input-media-inline-empty {
+	// Empty box not visible while not editing
+	display: none;
+}
+.editing .yui3-input-media-inline-content {
+	
+	&.yui3-input-media-inline-empty {
+		display: block;
+		text-align: center;
+		padding: 20px 0 27px;
+	}
+	
+	.supra-image,
+	.supra-video {
+		cursor: pointer;
+	}
+	
+}
+
+/**
  * = Image resize
  */
 .supra-image {

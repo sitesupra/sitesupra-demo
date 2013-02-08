@@ -11,6 +11,12 @@ YUI.add('supra.input-set', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-set';
 	Input.CSS_PREFIX = 'su-' + Input.NAME;
 	Input.CLASS_NAME = 'su-input-set';

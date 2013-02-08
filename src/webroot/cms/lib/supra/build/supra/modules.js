@@ -728,9 +728,17 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/video.js',
 		requires: ['supra.input-hidden']
 	},
+	'supra.input-keywords': {
+		path: 'input/keywords.js',
+		requires: ['supra.input-proto', 'supra.io']
+	},
 	'supra.input-set': {
 		path: 'input/set.js',
 		requires: ['supra.input-hidden']
+	},
+	'supra.input-media-inline': {
+		path: 'input/media-inline.js',
+		requires: ['supra.input-proto', 'supra.uploader']
 	},
 	
 	'supra.form': {
@@ -761,7 +769,9 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-inline-html',
 			'supra.input-inline-string',
 			'supra.input-video',
+			'supra.input-keywords',
 			'supra.input-set',
+			'supra.input-media-inline',
 			
 			'supra.button-plugin-input'
 		]

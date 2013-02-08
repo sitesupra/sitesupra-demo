@@ -127,27 +127,27 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 				property = properties[i];
 				id = property.id;
 				
-				if (property.inline) {
-					if (property.type == 'InlineHTML') {
+				switch (property.type) {
+					case 'InlineHTML':
 						value = property.defaultValue || {'html': ''};
 						model.property[id] = '<div class="yui3-content yui3-box-reset" data-supra-item-property="' + id + '">' + (value.html || '') + '</div>';
-					} else if (property.type == 'InlineString') {
+						break;
+					case 'InlineString':
 						value = property.defaultValue || '';
 						model.property[id] = '<span class="yui3-inline-reset" data-supra-item-property="' + id + '">' + value + '</span>';
-					} else if (property.type == '...') {
-						// @TODO Implement image/video selection input?
-					}
-				}
-				
-				if (property.type == 'BlockBackground') {
-					value = property.defaultValue || '';
-					model.property[id] = value + '" data-supra-item-property="' + id;
-				} else if (property.type == 'InlineImage') {
-					value = property.defaultValue || '';
-					model.property[id] = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
-				} else if (property.type == 'InlineMedia') {
-					value = property.defaultValue || '';
-					model.property[id] = '<div class="supra-media" unselectable="on" contenteditable="false" data-supra-item-property="' + id + '"></div>';
+						break;
+					case 'BlockBackground':
+						value = property.defaultValue || '';
+						model.property[id] = value + '" data-supra-item-property="' + id;
+						break;
+					case 'InlineImage':
+						value = property.defaultValue || '';
+						model.property[id] = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
+						break;
+					case 'InlineMedia':
+						value = property.defaultValue || '';
+						model.property[id] = '<div class="supra-media" unselectable="on" contenteditable="false" data-supra-item-property="' + id + '"></div>';
+						break;
 				}
 			}
 			

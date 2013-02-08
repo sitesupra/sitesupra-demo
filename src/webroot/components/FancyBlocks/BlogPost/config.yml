@@ -1,0 +1,37 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\BlogPost\BlogPostBlock
+    title: Blog Post
+    groupId: features
+    description: Description
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+        lifetime: 60 seconds
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: description
+          editable: Supra\Editable\Textarea
+          label: Short description
+          description: Will show as preview 
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: tags
+          editable: Supra\Editable\Keywords
+          label: Tags
+          description: Use comma, semicolon or return key to separate tags 
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: media
+          editable: Supra\Editable\InlineMedia
+          label: Main illustration
+          description: Will show with this post's preview
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: content
+          editable: Supra\Editable\Html
+          label: Content
+          default: <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.</p>
+      

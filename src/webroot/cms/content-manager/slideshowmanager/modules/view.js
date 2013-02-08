@@ -448,12 +448,15 @@ YUI.add('slideshowmanager.view', function (Y) {
 			
 			for (; i<ii; i++) {
 				property = properties[i];
-				if (property.type == 'InlineImage' || property.type == 'InlineMedia' || property.type == 'BlockBackground') {
-					form.getInput(property.id).set('targetNode', null);
+				if (Supra.Input.isInline(property.type)) {
+					input = form.getInput(property.id);
+					if (input) {
+						input.set('targetNode', null);
+					}
 				} else if (property.type == 'Set') {
 					input = form.getInput(property.id);
 					
-					// Input plugin target node needs to be updated too
+					// SlideshowManagerViewButton plugin
 					if (input && input.inline) {
 						input.inline.set('targetNode', null);
 					}
@@ -533,11 +536,17 @@ YUI.add('slideshowmanager.view', function (Y) {
 				inputs = this.widgets.inputs,
 				iframe = this.get('iframe'),
 				
-				active = this._activePropertyId;
+				active = this._activePropertyId,
+				
+				is_inline = false,
+				is_contained = false;
 			
 			for (; i<ii; i++) {
 				property = properties[i];
-				if (property.inline) {
+				is_inline = Supra.Input.isInline(property.type);
+				is_contained = Supra.Input.isContained(property.type);
+				
+				if (is_inline && !is_contained) {
 					
 					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
 					if (node) {
@@ -548,6 +557,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 							'win': iframe.get('win'),
 							'toolbar': Manager.EditorToolbar.getToolbar(),
 							'srcNode': node,
+							'targetNode': node,
 							'value': value
 						});
 						

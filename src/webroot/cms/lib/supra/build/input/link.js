@@ -25,6 +25,12 @@ YUI.add('supra.input-link', function (Y) {
 		}
 	};
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.HTML_PARSER = {};
 	
 	Y.extend(Input, Supra.Input.Proto, {

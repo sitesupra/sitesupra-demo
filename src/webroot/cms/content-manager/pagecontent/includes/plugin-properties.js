@@ -4,18 +4,18 @@ YUI.add('supra.page-content-properties', function (Y) {
 	
 	//Shortcuts
 	var Manager = Supra.Manager,
-		Action = Manager.Action;
+		Action  = Manager.Action;
 	
-	var ACTION_TEMPLATE = '\
-			<div class="sidebar block-settings">\
-				<div class="sidebar-header">\
-					<button class="button-back hidden"><p></p></button>\
-					<img src="/cms/lib/supra/img/sidebar/icons/settings.png" alt="" />\
-					<button type="button" class="button-control"><p>{#buttons.done#}</p></button>\
-					<h2></h2>\
-				</div>\
-				<div class="sidebar-content has-header"></div>\
-			</div>';
+	var ACTION_TEMPLATE = 
+			'<div class="sidebar block-settings">' +
+			'	<div class="sidebar-header">' +
+			'		<button class="button-back hidden"><p></p></button>' +
+			'		<img src="/cms/lib/supra/img/sidebar/icons/settings.png" alt="" />' +
+			'		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>' +
+			'		<h2></h2>' +
+			'	</div>' +
+			'	<div class="sidebar-content has-header"></div>' +
+			'</div>';
 	
 	/*
 	 * Properties plugin
@@ -261,20 +261,30 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Slideshow is used for grouping properties with type "sidebar"
 			var slideshow = this.initializeSlideshow(),
 				group_node = null,
-				default_group_node = null;
+				default_group_node = null,
+				is_inline = false,
+				is_contained = false;
 			
 			//Find inline properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
-				if (properties[i].inline) {
+				is_inline = Supra.Input.isInline(properties[i].type);
+				is_contained = Supra.Input.isContained(properties[i].type);
+				
+				if (is_inline) {
 					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
-					host_properties.srcNode = host_node.one('#' + host_node.getAttribute('id') + '_' + properties[i].id);
+					host_properties.targetNode = host_node.one('#' + host_node.getAttribute('id') + '_' + properties[i].id);
 					
-					if (host_properties.srcNode) {
-						host_properties.contentBox = host_properties.srcNode;
-						host_properties.boundingBox = host_properties.srcNode;
-						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
+					if (host_properties.targetNode) {
+						if (!is_contained) {
+							host_properties.srcNode = host_properties.targetNode;
+							host_properties.contentBox = host_properties.targetNode;
+							host_properties.boundingBox = host_properties.targetNode;
+							
+							// If it's contained then don't consider as inline
+							this._has_inline_properties = true;
+						}
 						
-						this._has_inline_properties = true;
+						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
 						
 						if (properties[i].type === 'InlineHTML') {
 							this._has_html_properties = true;
@@ -290,7 +300,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			//Process non-inline properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
-				if (!properties[i].inline) {
+				is_inline = Supra.Input.isInline(properties[i].type);
+				is_contained = Supra.Input.isContained(properties[i].type);
+				
+				if (is_contained && !is_inline) {
 					//Grouping
 					group = properties[i].group || 'default';
 					group_node = group_nodes[group];
@@ -315,8 +328,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
 			
 			//Create form
+			form_config.slideshow = slideshow;
 			var form = this.initializeForm(form_config);
-			form.set('slideshow', slideshow);
+			//form.set('slideshow', slideshow);
 			
 			//Bind to change event
 			var inputs = form.getInputs();
@@ -413,7 +427,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 				host_node = host.getNode(),
 				
 				property = null,
-				config = {};
+				config = {},
+				
+				is_inline = true,
+				is_contained = false;
 			
 			for(; i<ii; i++) {
 				if (properties[i].id == id) {
@@ -424,9 +441,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			if (property) {
 				var srcNode = null;
+				is_contained = Supra.Input.isContained(property.type);
 				
-				//Destroy old input
-				if (id in inputs) {
+				//Destroy old input if only inline
+				if (!is_contained && id in inputs) {
 					inputs[id].destroy();
 				}
 				
@@ -440,21 +458,29 @@ YUI.add('supra.page-content-properties', function (Y) {
 					return null;
 				}
 				
-				//Get input config
-				config = Supra.mix({
-					'doc': host.get('doc'),
-					'win': host.get('win'),
-					'toolbar': Supra.Manager.EditorToolbar.getToolbar(),
-					'srcNode': srcNode,
-					'contentBox': srcNode,
-					'boundingBox': srcNode
-				}, property, {
-					'value': value ? value : property.value
-				});
-				
-				//Create new input 
-				inputs[id] = form.factoryField(config);
-				inputs[id].render();
+				if (!is_contained) {
+					//Get input config
+					config = Supra.mix({
+						'doc': host.get('doc'),
+						'win': host.get('win'),
+						'toolbar': Supra.Manager.EditorToolbar.getToolbar(),
+						'srcNode': srcNode,
+						'contentBox': srcNode,
+						'boundingBox': srcNode,
+						'targetNode': srcNode
+					}, property, {
+						'value': value ? value : property.value
+					});
+					
+					//Create new input 
+					inputs[id] = form.factoryField(config);
+					inputs[id].render();
+				} else {
+					// Contained input
+					if (id in inputs) {
+						inputs[id].set('targetNode', srcNode);
+					}
+				}
 				
 				//Set config, because inputs without definitions will break form
 				inputs_definition[id] = config;
@@ -492,7 +518,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
 				if (properties[i].id == id) {
-					if (properties[i].inline) {
+					if (Supra.Input.isInline(properties[i].type)) {
 						if (!inlineChanged) {
 							this.set('inlineChanged', true);
 						}
@@ -678,10 +704,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 		getNonInlineValues: function (values) {
 			var values = values ? values : this.getValues(),
 				properties = this.get('properties'),
-				out = {};
+				out = {},
+				is_contained = false;
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
-				if (!properties[i].inline) out[properties[i].id] = values[properties[i].id];
+				is_contained = Supra.Input.isContained(properties[i].type);
+				
+				if (is_contained) {
+					out[properties[i].id] = values[properties[i].id];
+				}
 			}
 			
 			return out;
@@ -777,10 +808,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var values = values ? values : this.getSaveValues(),
 				properties = this.get('properties'),
 				out = {},
-				value = null;
+				value = null,
+				is_contained;
 				
 			for(var i=0,ii=properties.length; i<ii; i++) {
-				if (!properties[i].inline) {
+				is_contained = Supra.Input.isContained(properties[i].type);
+				if (is_contained) {
 
 					value = values[properties[i].id];
 					

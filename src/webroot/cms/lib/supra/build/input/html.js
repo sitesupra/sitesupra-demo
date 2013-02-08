@@ -12,6 +12,12 @@ YUI.add("supra.input-html", function (Y) {
 		Manager.Loader.loadAction('PageContentSettings');
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = "input-html";
 	Input.ATTRS = {
 		'doc': null,

@@ -1179,9 +1179,17 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/video.js',
 		requires: ['supra.input-hidden']
 	},
+	'supra.input-keywords': {
+		path: 'input/keywords.js',
+		requires: ['supra.input-proto', 'supra.io']
+	},
 	'supra.input-set': {
 		path: 'input/set.js',
 		requires: ['supra.input-hidden']
+	},
+	'supra.input-media-inline': {
+		path: 'input/media-inline.js',
+		requires: ['supra.input-proto', 'supra.uploader']
 	},
 	
 	'supra.form': {
@@ -1212,7 +1220,9 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-inline-html',
 			'supra.input-inline-string',
 			'supra.input-video',
+			'supra.input-keywords',
 			'supra.input-set',
+			'supra.input-media-inline',
 			
 			'supra.button-plugin-input'
 		]
@@ -2592,6 +2602,9 @@ YUI.add('supra.event', function (Y) {
 		
 		//Restore context
 		cfg.context = cfg_new.context = context;
+		
+		//Remove traversing in url, eq  /folder/folder/../something
+		url = url.replace(/\/[^\/\?]+\/\.\.\//i, '/');
 		
 		return [url, cfg_new, permissions, callback, context];
 	};
@@ -6433,6 +6446,12 @@ YUI().add("supra.io-css", function (Y) {
 		this._original_value = null;
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input';
 	Input.ATTRS = {
 		'inputNode': {
@@ -7005,8 +7024,12 @@ YUI().add("supra.io-css", function (Y) {
 		 * @returns {Object} Slideshow instance if there is one
 		 */
 		getSlideshow: function () {
-			var form = this.getParentWidget("form");
-			return form ? form.get("slideshow") : null;
+			var form = this.getParentWidget("form"),
+				slideshow = form ? form.get("slideshow") : null;
+			
+			
+			
+			return slideshow;
 		},
 		
 		/**
@@ -7021,7 +7044,47 @@ YUI().add("supra.io-css", function (Y) {
 	});
 	
 	Supra.Input = {
-		'Proto': Input
+		'Proto': Input,
+		
+		/**
+		 * Returns true if input is inline
+		 * Input can be inline and contained at the same time, so this is not exclusive
+		 * If IS_INLINE constant is not set on input, then by default returns false
+		 * 
+		 * @param {String} type Input type
+		 * @returns {Boolean} True if input is inline
+		 */
+		'isInline': function (type) {
+			var type_str = String(type || ''),
+				name = type_str.substr(0, 1).toUpperCase() + type_str.substr(1),
+				inline = false;
+			
+			if (name in Supra.Input && Supra.Input[name].IS_INLINE === true) {
+				inline = true;
+			}
+			
+			return inline;
+		},
+		
+		/**
+		 * Returns true if input is contained inside form
+		 * Input can be inline and contained at the same time, so this is not exclusive
+		 * If IS_CONTAINED constant is not set on input, then by default returns true
+		 * 
+		 * @param {String} type Input type
+		 * @returns {Boolean} True if input is inline
+		 */
+		'isContained': function (type) {
+			var type_str = String(type || ''),
+				name = type_str.substr(0, 1).toUpperCase() + type_str.substr(1),
+				contained = true;
+			
+			if (name in Supra.Input && Supra.Input[name].IS_CONTAINED === false) {
+				contained = false;
+			}
+			
+			return contained;
+		}
 	};
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
@@ -7036,6 +7099,12 @@ YUI().add("supra.io-css", function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-hidden";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -7081,6 +7150,12 @@ YUI().add("supra.io-css", function (Y) {
 		
 		this._last_value = '';
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = 'input-string';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -7397,6 +7472,12 @@ YUI.add('supra.input-text', function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = 'input-text';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -20146,6 +20227,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-select-list';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
@@ -20648,6 +20735,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = 'input-select-visual';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -21213,6 +21306,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-fonts';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	
@@ -21258,6 +21357,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-number";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -21486,6 +21591,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-path';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
@@ -21603,6 +21714,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-checkbox";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -23448,6 +23565,12 @@ YUI.add('supra.uploader', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Fileupload.IS_INLINE = false;
+	
+	// Input is inside form
+	Fileupload.IS_CONTAINED = true;
+	
 	Fileupload.NAME = "input-file-upload";
 	Fileupload.CLASS_NAME = Y.ClassNameManager.getClassName(Fileupload.NAME);
 	Fileupload.ATTRS = {
@@ -24629,6 +24752,12 @@ YUI.add('supra.uploader', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = "input-select";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
@@ -25358,6 +25487,12 @@ YUI.add('supra.input-slider', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-slider';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
@@ -25657,6 +25792,12 @@ YUI.add('supra.input-slider', function (Y) {
 		}
 	};
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.HTML_PARSER = {};
 	
 	Y.extend(Input, Supra.Input.Proto, {
@@ -25789,6 +25930,12 @@ YUI.add('supra.input-slider', function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = 'input-image';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -26045,6 +26192,12 @@ YUI.add('supra.input-slider', function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = 'input-map';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -26678,6 +26831,12 @@ YUI.add('supra.datatype-color', function(Y) {
 		
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-color";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -28070,6 +28229,12 @@ YUI.add('supra.datatype-color', function(Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = "input-date";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
@@ -28594,6 +28759,12 @@ YUI.add('supra.datatype-color', function(Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "block-background";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -29358,6 +29529,12 @@ YUI.add('supra.datatype-color', function(Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-image-inline';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
@@ -29487,14 +29664,25 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		insertImage: function (data) {
+			var container_width = this._getContainerWidth(),
+				width  = data.image.sizes.original.width,
+				height = data.image.sizes.original.height,
+				ratio  = 0;
+			
+			if (container_width && width > container_width) {
+				ratio = width / height;
+				width = container_width;
+				height = Math.round(width / ratio);
+			}
+			
 			this.set("value", {
 				"image": data.image,
 				"crop_left": 0,
 				"crop_top": 0,
-				"crop_width": data.image.sizes.original.width,
-				"crop_height": data.image.sizes.original.height,
-				"size_width": data.image.sizes.original.width,
-				"size_height": data.image.sizes.original.height
+				"crop_width": width,
+				"crop_height": height,
+				"size_width": width,
+				"size_height": height
 			});
 			
 			//Start editing image
@@ -29722,6 +29910,12 @@ YUI.add('supra.datatype-color', function(Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = 'input-video';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {};
@@ -29939,7 +30133,1261 @@ YUI.add('supra.datatype-color', function(Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-set', function (Y) {
+}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-media-inline', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	/**
+	 * Vertical button list for selecting value
+	 */
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
+	Input.NAME = 'input-media-inline';
+	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
+	
+	Input.ATTRS = {
+		// Render widget into separate form
+		// needed because image can be edited inline and in main form
+		// InlineImage input may not be welcome
+		'separateForm': {
+			value: true
+		},
+		
+		// Node inside which should be placed image or video
+		'targetNode': {
+			value: null,
+			setter: '_setTargetNode'
+		},
+		
+		// Button label to add video
+		'labelAddVideo': {
+			value: ''
+		},
+		
+		// Button label to add image
+		'labelAddImage': {
+			value: ''
+		},
+		
+		//Blank image URI or data URI
+		'blankImageUrl': {
+			value: "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+		},
+		
+		// Allow file upload using drag and drop
+		'allowDropUpload': {
+			value: true
+		},
+		
+		// Image upload folder id
+		'uploadFolderId': {
+			value: 0
+		},
+		
+		// Editing state
+		'editing': {
+			value: false
+		}
+	};
+	
+	Input.HTML_PARSER = {
+		
+	};
+	
+	Y.extend(Input, Supra.Input.Proto, {
+		
+		INPUT_TEMPLATE: '<input type="hidden" value="" />',
+		LABEL_TEMPLATE: '',
+		DESCRIPTION_TEMPLATE: '',
+		
+		widgets: null,
+		
+		/**
+		 * Value type 'video', 'image' or empty stirng if not set yet
+		 * @type {String}
+		 * @private
+		 */
+		type: '',
+		
+		/**
+		 * Value is being updated by input, don't change UI
+		 * @type {Boolean}
+		 * @private
+		 */
+		silentValueUpdate: false,
+		
+		
+		/**
+		 * On desctruction life cycle clean up
+		 * 
+		 * @private
+		 */
+		destructor: function () {
+			if (this.widgets) {
+				var slideshow = this.get('slideshow'),
+					inputs = this.widgets.inputs,
+					slides = this.widgets.slides,
+					uploader = this.widgets.uploader,
+					key = null;
+				
+				if (slideshow) {
+					
+					for (key in inputs) {
+						inputs[key].destroy();
+					}
+					for (key in slides) {
+						slideshow.removeSlide(key);
+					}
+					
+				}
+				
+				if (uploader) {
+					uploader.destroy();
+				}
+				
+				this.widgets = null;
+			}
+		},
+		
+		renderUI: function () {
+			Input.superclass.renderUI.apply(this, arguments);
+			
+			var form = this.getParentWidget("form"),
+				slideshow = this.getSlideshow(),
+				input_image = null,
+				input_video = null,
+				slide_image = slideshow.addSlide(this.get('id') + '_slide_image'),
+				slide_video = slideshow.addSlide(this.get('id') + '_slide_video'),
+				delete_image = null,
+				delete_video = null,
+				uploader = null,
+				target = null;
+			
+			// Drag and drop upload
+			if (this.get('allowDropUpload')) {
+				target = this.get('targetNode');
+				uploader = new Supra.Uploader({
+					'clickTarget': null,
+					'dropTarget': this._getDropTargetNode(target),
+					
+					'allowBrowse': false,
+					'allowMultiple': false,
+					'accept': 'image/*',
+					
+					'requestUri': Supra.Manager.getAction('MediaLibrary').getDataPath('upload'),
+					'uploadFolderId': this.get('uploadFolderId')
+
+				});
+			}
+			
+			// Inputs
+			input_image = new Supra.Input.InlineImage({
+				'id': this.get('id') + '_input_image',
+				'label': Supra.Intl.get(['inputs', 'image']),
+				'parent': this,
+				'value': null,
+				'separateSlide': false,
+				'allowRemoveImage': false
+			});
+			
+			input_video = new Supra.Input.Video({
+				'id': this.get('id') + '_input_video',
+				'label': Supra.Intl.get(['inputs', 'video_label']),
+				'description': Supra.Intl.get(['inputs', 'video_description']),
+				'parent': this,
+				'value': null
+			});
+			
+			input_image.render(slide_image.one('.su-slide-content'));
+			input_video.render(slide_video.one('.su-slide-content'));
+			
+			// Buttons
+			delete_image = new Supra.Button({
+				'style': 'small-red',
+				'label': Supra.Intl.get(['inputs', 'media', 'delete_image'])
+			});
+			
+			delete_video = new Supra.Button({
+				'style': 'small-red',
+				'label': Supra.Intl.get(['inputs', 'media', 'delete_video'])
+			});
+			
+			delete_image.render(slide_image.one('.su-slide-content'));
+			delete_video.render(slide_video.one('.su-slide-content'));
+			
+			delete_image.addClass("su-button-fill");
+			delete_video.addClass("su-button-fill");
+			
+			this.widgets = {
+				// Separate slides
+				'slide_image': slide_image,
+				'slide_video': slide_video,
+				
+				// Inputs
+				'input_image': input_image,
+				'input_video': input_video,
+				
+				// Buttons
+				'delete_image': delete_image,
+				'delete_video': delete_video,
+				
+				// File uploader
+				'uploader': uploader
+			};
+			
+			this.renderContent(this.get('targetNode'), this.get('value'));
+		},
+		
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+			
+			var input_image  = this.widgets.input_image,
+				input_video  = this.widgets.input_video,
+				
+				delete_image = this.widgets.delete_image,
+				delete_video = this.widgets.delete_video,
+				
+				uploader     = this.widgets.uploader;
+			
+			// Video input events
+			input_video.on('focus', this.focus, this);
+			input_video.on('blur', this.blur, this);
+			
+			input_video.on('change', function () {
+				this.updateVideoPreviewImage();
+				this._fireValueChange();
+			}, this);
+			
+			// Image input events
+			input_image.on('focus', this.focus, this);
+			input_image.on('blur', this.blur, this);
+			
+			input_image.on('change', function () {
+				this._fireValueChange();
+			}, this);
+			input_image.on('valueChange', function () {
+				this._fireValueChange();
+			}, this);
+			
+			// Button events
+			delete_image.on('click', this.removeMedia, this);
+			delete_video.on('click', this.removeMedia, this);
+			
+			// Change event
+			this.on('valueChange', this._afterValueChange, this);
+			
+			// Uploader events
+			if (uploader) {
+				uploader.on('file:upload',   this._onFileUploadStart, this);
+				uploader.on('file:complete', this._onFileUploadEnd, this);
+				uploader.on('file:error',    this._onFileUploadError, this);
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------------- FILE UPLOAD ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Handle file upload start
+		 * 
+		 * @private
+		 */
+		_onFileUploadStart: function (e) {
+			// data.title, data.filename, data.id
+			var data = e.details[0];
+		},
+		
+		/**
+		 * Handle file upload end
+		 * 
+		 * @private
+		 */
+		_onFileUploadEnd: function (e) {
+			var data = e.details[0]
+			this.insertImageData(data);
+		},
+		
+		/**
+		 * Handle file upload error
+		 * 
+		 * @private
+		 */
+		_onFileUploadError: function (e) {
+			// Error
+		},
+		
+		/**
+		 * Returns drag and drop target node
+		 * 
+		 * @private
+		 */
+		_getDropTargetNode: function (node) {
+			return node ? node.closest('.supra-slideshowmanager-wrapper') || node : null;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- SLIDESHOW ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Open image slide
+		 * 
+		 * @private
+		 */
+		openImageSlide: function () {
+			var slideshow = this.getSlideshow(),
+				slide_id  = this.get('id') + '_slide_image';
+			
+			slideshow.set('noAnimations', true);
+			slideshow.set('slide', slide_id);
+			slideshow.set('noAnimations', false);
+			
+			// Hardcoded for now!?
+			Supra.Manager.PageContentSettings.get('backButton').hide();
+		},
+		
+		/**
+		 * Open video slide
+		 * 
+		 * @private
+		 */
+		openVideoSlide: function () {
+			var slideshow = this.getSlideshow(),
+				slide_id  = this.get('id') + '_slide_video';
+			
+			slideshow.set('noAnimations', true);
+			slideshow.set('slide', slide_id);
+			slideshow.set('noAnimations', false);
+			
+			// Hardcoded for now!?
+			Supra.Manager.PageContentSettings.get('backButton').hide();
+		},
+		
+		/**
+		 * Open slide matching value
+		 */
+		openSlide: function () {
+			if (this.type === 'video') {
+				this.openVideoSlide();
+			} else if (this.type === 'image') {
+				this.openImageSlide();
+			}
+		},
+		
+		/**
+		 * Close slide
+		 */
+		closeSlide: function () {
+			var slideshow = this.getSlideshow(),
+				current = null,
+				slide_image = this.get('id') + '_slide_image',
+				slide_video = this.get('id') + '_slide_video';
+			
+			if (slideshow) {
+				current = slideshow.get("slide");
+				if (current == slide_image || current == slide_video) {
+					slideshow.scrollBack();
+				}
+			}
+		},
+		
+		
+		/* ------------------------------ SIDEBAR -------------------------------- */
+		
+		
+		/**
+		 * Show settings form
+		 */
+		showSettingsSidebar: function () {
+			var form = this.getParentWidget("form"), 
+				properties = this.getParentWidget("page-content-properties"),
+				group = null;
+			
+			if (form && properties) {
+				//We can get input group from input definition
+				group = (form.getConfig(this.get("id")) || {}).group || "";
+				
+				properties.showPropertiesForm(group);
+			} else {
+				//Not part of block properties, search for Action
+				var parent = this.getParentWidget("ActionBase");
+				if (parent && parent.plugins.getPlugin("PluginSidebar")) {
+					//Has sidebar plugin, so this action is in sidebar
+					if (parent.get("frozen")) {
+						//In frozen state show/execute are not called, so we have to
+						//force it to show content
+						parent.showFrozen();
+						parent.set("frozen", false);
+					} else {
+						parent.execute(form);
+					}
+				}
+			}
+			
+			this.openSlide();
+		},
+		
+		/**
+		 * Hide settings form
+		 */
+		hideSettingsSidebar: function () {
+			var form = this.getParentWidget("form"), 
+				properties = this.getParentWidget("page-content-properties"),
+				group = null;
+			
+			if (form && properties) {
+				this.closeSlide();
+				properties.hidePropertiesForm();
+			} else {
+				//Not part of block properties, search for Action
+				var parent = this.getParentWidget("ActionBase");
+				if (parent && parent.plugins.getPlugin("PluginSidebar")) {
+					//Has sidebar plugin, so this action is in sidebar
+					parent.hide();
+				}
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------------- EDITING ----------------------------------------
+		 */
+		
+		
+		_setTargetNode: function (node) {
+			if (this.get('rendered')) {
+				this.renderContent(node, this.get('value'));
+				
+				var uploader = this.widgets.uploader;
+				if (uploader) {
+					uploader.set('dropTarget', this._getDropTargetNode(node));
+					uploader.set('disabled', this.get('disabled'));
+				}
+			}
+			return node;
+		},
+		
+		/**
+		 * Start editing input
+		 */
+		startEditing: function () {
+			if (!this.get('disabled')) {
+				this.focus();
+				this.set('editing', true);
+				
+				if (this.type === 'video' || this.type === 'image') {
+					this.showSettingsSidebar();
+					
+					if (this.type === 'video') {
+						this.widgets.input_video.startEditing();
+					} else {
+						this.widgets.input_image.startEditing();
+						
+						if (!this.get('value').image) {
+							// Open media library to choose image
+							this.widgets.input_image.openMediaSidebar();
+						}
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Stop editing input
+		 */
+		stopEditing: function () {
+			this.blur();
+			
+			if (this.type === 'video') {
+				this.widgets.input_video.stopEditing();
+			} else if (this.type === 'image') {
+				this.widgets.input_image.stopEditing();
+			}
+			
+			if (this.get('editing')) {
+				this.set('editing', false);
+				this.hideSettingsSidebar();
+			}
+		},
+		
+		insertImage: function () {
+			this.set('value', {
+				'type': 'image'
+			});
+			
+			this.startEditing();
+		},
+		
+		insertImageData: function (data) {
+			var node = this.get('targetNode'),
+				size = data.sizes.original,
+				width = Math.min(size.width, node.get('offsetWidth')) || size.width,
+				height = size.height;
+			
+			if (width != size.width) {
+				// Change height
+				height = Math.round(width / (size.width / size.height));
+			}
+			
+			this.set('value', {
+				'type': 'image',
+				'crop_left': 0,
+				'crop_top': 0,
+				'crop_width': width,
+				'crop_height': height,
+				'size_height': height,
+				'size_width': width,
+				'image': data
+			});
+		},
+		
+		insertVideo: function () {
+			this.set('value', {
+				'type': 'video',
+				'resource': 'source',
+				'source': ''
+			});
+			
+			this.startEditing();
+		},
+		
+		/**
+		 * Remove image or video
+		 * 
+		 * @private
+		 */
+		removeMedia: function () {
+			this.set('value', {'type': ''});
+			this.hideSettingsSidebar();
+		},
+		
+		/**
+		 * Render value inside content
+		 * 
+		 * @param {Object} node Node in which to render
+		 * @param {Object} data Media data
+		 * @private
+		 */
+		renderContent: function (node, data) {
+			var node = node || this.get('targetNode'),
+				type = data.type || this.type;
+			
+			if (!node) {
+				this.widgets.input_image.set('targetNode', null);
+				return;
+			}
+			
+			if (data && type == 'image') {
+				var style = null,
+					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" style="background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
+				
+				node.set('innerHTML', html);
+				this.widgets.input_image.set('targetNode', node.one('img'));
+				this.widgets.input_image.syncUI();
+			} else {
+				this.widgets.input_image.stopEditing();
+				this.widgets.input_image.set('targetNode', null);
+			}
+			
+			if (data && type == 'video') {
+				var width = node.get('offsetWidth'),
+					height = ~~(width * 9 / 16),
+					html = '<div class="supra-video" style="height: ' + height + 'px !important;"></div>';
+				node.set('innerHTML', html);
+				this.updateVideoPreviewImage(data);
+			}
+			
+			if (!data || (type !== 'image' && type !== 'video')) {
+				// Empty with buttons
+				var label = this.get('label'),
+					description = this.get('description'),
+					html = (label ? '<h2>' + Y.Escape.html(label) + '</h2>' : '') +
+						   (description ? '<p>' + Y.Escape.html(description) + '</p>' : '') +
+						   '<div align="center" class="yui3-box-reset"><a class="button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>' +
+						   '<a class="button" data-supra-action="addVideo">' + (this.get('labelAddVideo') || Supra.Intl.get(['inputs', 'media', 'add_video'])) + '</a></div>';
+				
+				node.addClass(this.getClassName('empty'));
+				node.set('innerHTML', html);
+				node.one('a[data-supra-action="addImage"]').on('click', this.insertImage, this);
+				node.one('a[data-supra-action="addVideo"]').on('click', this.insertVideo, this);
+			} else {
+				node.removeClass(this.getClassName('empty'));
+			}
+		},
+		
+		/**
+		 * Update video preview image
+		 * 
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoPreviewImage: function (data) {
+			var targetNode = this.get('targetNode');
+			if (!targetNode) return;
+			
+			var Input = Supra.Input.Video,
+				node = targetNode.one('.supra-video'),
+				data = data || this.widgets.input_video.get('value');
+			
+			if (node) {
+				Input.getVideoPreviewUrl(data).always(function (url) {
+					var width = node.get('offsetWidth'),
+						height = ~~(width * 9 / 16);
+					
+					if (url) {
+						// Using setAttribute because it's not possible to use !important in styles
+						node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important; height: ' + height + 'px !important;')
+					} else {
+						node.setAttribute('style', 'height: ' + height + 'px !important;')
+					}
+				}, this);
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------------- VALUE ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Trigger value change events
+		 * 
+		 * @private
+		 */
+		_fireValueChange: function () {
+			this.silentValueUpdate = true;
+			this.set('value', this.get('value'));
+			this.silentValueUpdate = false;
+		},
+		
+		/**
+		 * Value attribute setter
+		 * 
+		 * @param {Object} value New value
+		 * @returns {Object} New value
+		 * @private
+		 */
+		_setValue: function (value) {
+			if (!this.widgets || this.silentValueUpdate) return value;
+			
+			var data = Supra.mix({'type': ''}, value || {}),
+				type = data.type;
+			
+			delete(data.type);
+			
+			if (type == 'image' && Y.Object.size(data)) {
+				this.widgets.input_image.set('value', data);
+			} else {
+				this.widgets.input_image.set('value', null);
+			}
+			
+			if (type == 'video') {
+				this.widgets.input_video.set('value', data);
+			} else {
+				this.widgets.input_video.set('value', null);
+			}
+			
+			this.type = type;
+			
+			this.renderContent(this.get('targetNode'), data);
+			
+			return value;
+		},
+		
+		/**
+		 * Value attribute getter
+		 * 
+		 * @returns {Object} Value
+		 * @private
+		 */
+		_getValue: function (value) {
+			if (!this.widgets) return value;
+			
+			var type = this.type,
+				data = null;
+			
+			if (type == 'image') {
+				data = this.widgets.input_image.get('value');
+			} else if (type == 'video') {
+				data = this.widgets.input_video.get('value');
+			}
+			
+			if (data) {
+				return Supra.mix({'type': type}, data);
+			} else if (type) {
+				return {'type': type};
+			} else {
+				return '';
+			}
+		},
+		
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+			}
+		},
+		
+		/**
+		 * Returns 'video' or 'image'
+		 */
+		getValueType: function () {
+			var value = this.get('value');
+		}
+		
+	});
+	
+	Supra.Input.InlineMedia = Input;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:['supra.input-proto', 'supra.uploader']});/**
+ * Keyword input
+ */
+YUI.add("supra.input-keywords", function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	/*
+	 * Template
+	 */
+	var TEMPLATE_VALUES = Supra.Template.compile('<span class="suggestion-msg">Suggested:</span>\
+				{% for value in values %}\
+					<span data-value="{{ value|e }}">{{ value|e }}</span>\
+				{% endfor %}\
+			');
+	
+	
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
+	Input.NAME = "input-keywords";
+	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
+	Input.ATTRS = {
+		"inputNode": {
+			value: null
+		},
+		"inputListNode": {
+			value: null
+		},
+		"suggestionsNode": {
+			value: null
+		},
+		"suggestionsListNode": {
+			value: null
+		},
+		"suggestionRequestUri": {
+			value: null
+		},
+		"values": {
+			value: null
+		},
+		
+		"suggestionsEnabled": {
+			value: false,
+			setter: '_setSuggestionsEnabled'
+		}
+	};
+	
+	Input.HTML_PARSER = {
+		'suggestionsEnabled': function (srcNode) {
+			var value = srcNode.getAttribute('suSuggestionsEnabled');
+			if (value === "true" || value === true || value === 1) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
+	
+	Y.extend(Input, Supra.Input.Proto, {
+		INPUT_TEMPLATE: '<input type="text" value="" />',
+		
+		
+		
+		/**
+		 * Key code constants
+		 */
+		KEY_RETURN:    13,
+		KEY_ESCAPE:    27,
+		KEY_COMMA:     188,
+		KEY_SEMICOLON: 186,
+		
+		/**
+		 * List of suggestions
+		 * @private
+		 */
+		suggestions: [],
+		
+		/**
+		 * Add needed nodes, etc.
+		 * 
+		 * @private
+		 */
+		renderUI: function () {
+			Input.superclass.renderUI.apply(this, arguments);
+			
+			this.suggestions = [];
+			
+			var inputNode = this.get('inputNode'),
+				inputListNode = Y.Node.create('<div class="input-list"></div>'),
+				suggestionsNode = Y.Node.create('<div class="suggestions"></div>'),
+				suggestionsButton = new Supra.Button({'label': '{#settings.suggestions#}', 'style': 'small', 'id': 'button-suggestions'}),
+				suggestionsListNode = Y.Node.create('<div class="suggestions-list hidden"></div>'),
+				suggestionsEnabled = this.get('suggestionsEnabled'),
+				
+				clearAllLabel = Supra.Intl.get(['settings', 'clear_all']),
+				clearAllLink = new Y.Node.create('<a class="link-clear-all hidden">' + clearAllLabel + '</div>');
+
+			inputNode.insert(inputListNode, 'after');
+			inputListNode.append(inputNode);
+
+			inputListNode.insert(suggestionsNode, 'after');
+			suggestionsButton.render(suggestionsNode);
+			suggestionsNode.append(suggestionsListNode);
+			suggestionsNode.append(clearAllLink);
+
+			this.set('suggestionsNode', suggestionsNode);
+			this.set('suggestionsButton', suggestionsButton);
+			this.set('suggestionsListNode', suggestionsListNode);
+			this.set('clearAllLink', clearAllLink);
+			this.set('inputListNode', inputListNode);
+			
+			if (!suggestionsEnabled) {
+				suggestionsNode.addClass('hidden');
+			}
+			if (this.get('disabled')) {
+				suggestionsButton.set('disabled', true);
+			}
+		},
+		
+		/**
+		 * Attach event listeners
+		 * 
+		 * @private
+		 */
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+			
+			var inputListNode = this.get('inputListNode'),
+				suggestionsButton = this.get('suggestionsButton'),
+				suggestionsListNode = this.get('suggestionsListNode'),
+				clearAllLink = this.get('clearAllLink'),
+				inputNode = this.get('inputNode');
+			
+			//On item click remove it
+			inputListNode.delegate('click', this._onRemoveItem, 'a', this);
+			
+			//On click inside focus on input
+			inputListNode.on('click', this.focus, this);
+
+			//On button click load Items into suggestionList
+			suggestionsButton.on('click', this.loadItems, this);
+
+			//On item sugesstion click add it to suggestionsList
+			suggestionsListNode.delegate('click', this.addSuggestion, 'span', this);
+
+			//Onhide suggestion list
+			clearAllLink.on('click', this.closeSuggestionsList, this);
+
+			//Handle return and escape keys
+			inputNode.on('keydown', this._onKeyDown, this);
+			
+			//Remove default behaviour, which is updating value on 'change'
+			inputNode.detach('change');
+			
+			//On blur update item list
+			inputNode.on('blur', this._onBlur, this);
+			
+			//Update value
+			this.syncUI();
+		},
+		
+		/**
+		 * Update item list
+		 */
+		syncUI: function () {
+			Input.superclass.syncUI.apply(this, arguments);
+			
+			var values = this.get('values'),
+				inputListNode = this.get('inputListNode'),
+				tempNode = null;
+			
+			if (!values) {
+				values = [];
+				this.set('values', values);
+			}
+			
+			if (inputListNode) {
+				inputListNode.all('span').remove();
+				
+				for(var i=values.length-1; i>=0; i--) {
+					tempNode = Y.Node.create('<span></span>');
+					tempNode.set('text', values[i]);
+					tempNode.setAttribute('data-value', values[i]);
+					tempNode.appendChild('<a></a>');
+					inputListNode.prepend(tempNode);
+				}
+			}
+			
+			this.get('inputNode').set('value', '');
+			
+			this.updateScrollbars();
+			
+		},
+		
+		/**
+		 * Load list of suggestions and populate list
+		 * 
+		 * @private
+		 */
+		loadItems: function () {
+			this.get('suggestionsButton').set('loading', true);
+			
+			Supra.io(this.get('suggestionRequestUri'), {
+				'data': {
+					'page_id': Supra.data.get(['page', 'id'])
+				},
+				'on': {
+					'complete': this.onLoadItems
+				}
+			}, this);
+		},
+		
+		/**
+		 * Handle suggestion load event
+		 * 
+		 * @param {Object} data Request response data
+		 * @param {Boolean} status Request response status
+		 * @private
+		 */
+		onLoadItems: function (data, status) {
+			var suggestionsListNode = this.get('suggestionsListNode'),
+				clearAllLink = this.get('clearAllLink'),
+				values = this.get('values');
+				
+			if (status && data.length) {
+				this.suggestions = data;
+				suggestionsListNode.set('innerHTML', TEMPLATE_VALUES({'values': data}));
+				
+				this.showSuggestionList();
+				
+				if(values) {
+					//Traverse all kewords and hide which are in suggestions list
+					for(var j=0; j<=values.length-1; j++) {
+						
+						var node = Y.one('.suggestions-list span[data-value="' + values[j] + '"]');
+						if (node) {
+							node.addClass('hidden');
+						}
+					}
+				}
+					
+			} else {
+				this.suggestions = [];
+				suggestionsListNode.set('innerHTML', '');
+			}
+
+			this.get('suggestionsButton').set('loading', false);
+			this.updateScrollbars();
+		},
+		
+		/**
+		 * On blur add item to the list
+		 * 
+		 * @private
+		 */
+		_onBlur: function () {
+			this.addItem(this.get('inputNode').get('value'));
+			this.get('inputNode').set('value', '');
+		},
+		
+		/**
+		 * Handle escape and return keys
+		 * 
+		 * @param {Event} e Event fascade object
+		 * @private
+		 */
+		_onKeyDown: function (e) {
+			if (e.keyCode == this.KEY_RETURN || e.keyCode == this.KEY_COMMA || e.keyCode == this.KEY_SEMICOLON) {
+				var inputValue = this.get('inputNode').get('value');
+				this.addItem(inputValue);
+				this.hideSuggestion(inputValue);
+				this.get('inputNode').set('value', '');
+				e.preventDefault();
+			} else if (e.keyCode == this.KEY_ESCAPE) {
+				this.get('inputNode').set('value', '');
+				e.preventDefault();
+			}
+		},
+		
+		/**
+		 * Remove item
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		_onRemoveItem: function (e) {
+			if (this.get('disabled')) return;
+			
+			var target = e.target.closest('span'),
+				value = target.getAttribute('data-value'),
+				values = this.get('values'),
+				index = null;
+			
+			if (!values) {
+				values = [];
+				this.set('values', values);
+			}
+			
+			index = Y.Array.indexOf(values, value);
+			
+			if (index != -1) {
+				values.splice(index, 1);
+				target.remove();
+			}
+			
+			// check if item was a suggestion and unhide it in suggestions list
+			this.showSuggestion(value);
+		},
+
+		/**
+		 * Add suggestion the list 
+		 * 
+		 * @param {Event} event
+		 */
+		addSuggestion: function (event) {
+			if (this.get('disabled')) return;
+			
+			var target = event.target.closest('span'),
+				value = target.getAttribute('data-value');
+			
+			this.addItem(value);
+			this.hideSuggestion(value);
+		},
+
+
+		/**
+		 * Hide suggestion in suggestion list 
+		 * 
+		 * @param {String} suggestion
+		 */
+		hideSuggestion: function (suggestion) {
+			//check if suggestion is in items
+			var escaped = Y.Escape.html(suggestion),
+				node = Y.one('.suggestions-list span[data-value="' + escaped + '"]');
+			
+			if (node) {
+				node.addClass('hidden');
+			}
+			
+			this.updateScrollbars();
+		},
+
+		/**
+		 * Show prevouisly hidden suggestion from suggestion list 
+		 * 
+		 * @param {String} suggestion
+		 */
+		showSuggestion: function (suggestion) {
+			//check if suggestion is in items
+			var escaped = Y.Escape.html(suggestion),
+				node = Y.one('.suggestions-list span[data-value="' + escaped + '"]');
+			
+			if (node) {
+				node.removeClass('hidden');
+			}
+			
+			this.updateScrollbars();
+		},
+		
+		/**
+		 * Show suggestion list
+		 * 
+		 * @private
+		 */
+		showSuggestionList: function () {
+			this.get('suggestionsButton').hide();
+			this.get('suggestionsListNode').removeClass('hidden');
+			this.get('clearAllLink').removeClass('hidden');
+		},
+
+		/**
+		 * Hide Suggestion List
+		 * 
+		 * @private
+		 */
+		closeSuggestionsList: function () {
+			if (this.get('disabled')) return;
+			
+			var suggestionsButton = this.get('suggestionsButton'),
+				suggestionsListNode = this.get('suggestionsListNode'),
+				clearAllLink = this.get('clearAllLink');
+
+			if (suggestionsListNode) {
+				suggestionsListNode.addClass('hidden');
+			}
+			if (clearAllLink) {
+				clearAllLink.addClass('hidden');
+			}
+			if (suggestionsButton) {
+				suggestionsButton.show();	
+			}
+			
+			this.updateScrollbars();
+		},
+		
+
+		/**
+		 * Add item the list 
+		 * 
+		 * @param {String} value
+		 */
+		addItem: function (value) {
+			var values = this.get('values'),
+				index = -1,
+				inputNode = this.get('inputNode'),
+				tempNode = Y.Node.create('<span></span>');
+							
+			if (!values) {
+				values = [];
+				this.set('values', values);
+			}
+			
+			//Validate
+			value = Y.Lang.trim(value);
+			if (!value.length) {
+				// Empty
+				return;
+			}
+			if (value.split(/\s+/).length > 5) {
+				// More than 5 words, why this limit exists???
+				return;
+			}
+			if (values.join(';').toLowerCase().indexOf(value.toLowerCase()) != -1) {
+				// Already is in list
+				return;
+			}
+			
+			//Add item
+			values.push(value);
+			
+			//Add node
+			tempNode.set('text', value);
+			tempNode.setAttribute('data-value', value);
+			tempNode.appendChild('<a></a>');
+			
+			inputNode.insert(tempNode, 'before');
+			
+			this.updateScrollbars();
+			
+			//Events
+			this.fire('change', {'value': this.get('value')});
+		},
+		
+		/**
+		 * Update scrollbar position and size
+		 * 
+		 * @private
+		 */
+		updateScrollbars: function () {
+			var node = this.get('boundingBox').closest('.su-scrollable-content');
+			if (node) {
+				node.fire('contentResize');
+			}
+		},
+		
+		
+		/* ------------------------------- ATTRIBUTES ------------------------------- */
+		
+		
+		_setValue: function (value) {
+			this.get('inputNode').set('value', value);
+			this.set('values', value ? value.split(';') : []);
+			this.closeSuggestionsList();
+			
+			this.syncUI();
+			return value;
+		},
+		
+		_getValue: function () {
+			return (this.get('values') || []).join(';');
+		},
+		
+		/**
+		 * SuggestionsEnabled attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setSuggestionsEnabled: function (enabled) {
+			if (!this.get('rendered')) return !!enabled;
+			
+			if (enabled) {
+				this.get('suggestionsNode').removeClass('hidden');
+			} else {
+				this.closeSuggestionsList();
+				this.get('suggestionsNode').addClass('hidden');
+			}
+			
+			return !!enabled;
+		},
+		
+		/**
+		 * Disabled attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setDisabled: function (value) {
+			value = Input.superclass._setDisabled.apply(this, arguments);
+			
+			var button = this.get('suggestionsButton');
+			if (button) {
+				button.set('disabled', value);
+			}
+			
+			return value;
+		},
+	
+	});
+	
+	Supra.Input.Keywords = Input;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn);this.fn = function () {};
+	
+}, YUI.version, {requires:["supra.input-proto"]});
+YUI.add('supra.input-set', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -29951,6 +31399,12 @@ YUI.add('supra.datatype-color', function(Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = 'input-set';
 	Input.CSS_PREFIX = 'su-' + Input.NAME;
@@ -31835,6 +33289,12 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		Manager.Loader.loadAction('PageContentSettings');
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
 	Input.NAME = "input-html";
 	Input.ATTRS = {
 		'doc': null,
@@ -32273,6 +33733,12 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = false;
+	
 	Input.NAME = "input-html-inline";
 	Input.ATTRS = {
 		'doc': {
@@ -32561,6 +34027,12 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = false;
 	
 	Input.NAME = "input-string-inline";
 	Input.ATTRS = {
@@ -34429,6 +35901,12 @@ YUI.add('supra.plugin-layout', function (Y) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
 	}
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-button";
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
