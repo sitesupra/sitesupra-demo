@@ -128,9 +128,9 @@ class ThemeLayoutPlaceholderGroup extends \Supra\Database\Entity
 	/**
 	 * 
 	 */
-	public function getDefaultGroup()
+	public function getDefaultLayout()
 	{
-		$this->layout->getTheme()
+		return $this->layout->getTheme()
 				->getPlaceholderGroupLayouts()->first();
 	}
 }
