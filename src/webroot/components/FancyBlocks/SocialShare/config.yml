@@ -1,0 +1,21 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\SocialShare\SocialShareBlock
+    title: Social Share
+    groupId: features
+    description: Description
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+        lifetime: 60 seconds
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: share_title
+          editable: Supra\Editable\InlineString
+          label: Title
+          default: Share This Story, Choose Your Platform!
