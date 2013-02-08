@@ -479,7 +479,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 				}
 			}
 
-			console.log('PREVENT B!');
 			e.preventDefault();
 		},
 		
