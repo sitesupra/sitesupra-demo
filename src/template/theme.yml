@@ -7,6 +7,7 @@
     title: Default theme
     description: DEFAULT THEME IS DEFAULT, ALWAYS!
     enabled: true
+        
     layouts: 
       - _class: Configuration\ThemeLayoutConfiguration
         name: root
@@ -20,77 +21,47 @@
         name: sets
         title: Manageable placeholders
         filename: sets.html.twig
- 
-    # Available PlaceHolderSets are defined here
-    placeHolderSets:
-      # single column | the same as simple placeholder
-      - _class: Configuration\ThemePlaceholderSetConfiguration
+     
+    groupLayouts: 
+      # single column | much the same as simple placeholder
+      - _class: Configuration\ThemePlaceholderGroupLayoutConfiguration
         name: single
-        title: Single
-        layout: placeholder-layouts/single.html.twig
+        title: One column
+        filename: placeholder-layouts/single.html.twig
+        iconHtml: <table><tr><td class="h-2 w-12">4</td></tr></table>
       # 3 x 1
-      - _class: Configuration\ThemePlaceholderSetConfiguration
+      - _class: Configuration\ThemePlaceholderGroupLayoutConfiguration
         name: three_one
-        title: Three + one
-        layout: placeholder-layouts/three_one.html.twig
+        title: Three + One
+        filename: placeholder-layouts/three_one.html.twig
+        iconHtml: <table><tr><td class="h-2 w-9">3</td><td class="h-2 w-3">1</td></tr></table>
       # 1 x 3
-      - _class: Configuration\ThemePlaceholderSetConfiguration
+      - _class: Configuration\ThemePlaceholderGroupLayoutConfiguration
         name: one_three
-        title: One + three
-        layout: placeholder-layouts/one_three.html.twig
+        title: One + Three
+        filename: placeholder-layouts/one_three.html.twig
+        iconHtml: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-9">3</td></tr></table>
       # 2 x 2
-      - _class: Configuration\ThemePlaceholderSetConfiguration
+      - _class: Configuration\ThemePlaceholderGroupLayoutConfiguration
         name: two_two
-        title: Two + two
-        layout: placeholder-layouts/two_two.html.twig
+        title: Two + Two
+        filename: placeholder-layouts/two_two.html.twig
+        iconHtml: <table><tr><td class="h-2 w-6">2</td><td class="h-2 w-2">2</td></tr></table>
       # 2 x 1 x 1
-      - _class: Configuration\ThemePlaceholderSetConfiguration
+      - _class: Configuration\ThemePlaceholderGroupLayoutConfiguration
         name: two_one_one
-        title: Two + one + one
-        layout: placeholder-layouts/two_one_one.html.twig
+        title: Two + One + One
+        filename: placeholder-layouts/two_one_one.html.twig
+        iconHtml: <table><tr><td class="h-2 w-6">2</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>
       # 1 x 1 x 2
-      - _class: Configuration\ThemePlaceholderSetConfiguration
+      - _class: Configuration\ThemePlaceholderGroupLayoutConfiguration
         name: one_one_two
-        title: One + one + two
-        layout: placeholder-layouts/one_one_two.html.twig
+        title: One + One + Two
+        filename: placeholder-layouts/one_one_two.html.twig
+        iconHtml: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-6">2</td></tr></table>
       # 1 x 1 x 1 x 1
-      - _class: Configuration\ThemePlaceholderSetConfiguration
+      - _class: Configuration\ThemePlaceholderGroupLayoutConfiguration
         name: four
         title: Four columns
-        layout: placeholder-layouts/four.html.twig
-    
-    containers:
-      # <!--placeHolderSet(header_set)-->
-      - _class: Configuration\ThemePlaceholderSetContainerConfiguration
-        name: header_set
-        title: Header
-        default: single
-        allowedSets: 
-          - single
-          - three_one
-          - one_three
-          - two_two
-          - two_one_one
-          - one_one_two
-          - four
-      # <!--placeHolderSet(footer_set)-->
-      - _class: Configuration\ThemePlaceholderSetContainerConfiguration
-        name: footer_set
-        title: Footer
-        default: four
-        allowedSets: 
-          - single
-          - three_one
-          - one_three
-          - two_two
-          - two_one_one
-          - one_one_two
-          - four
-      # <!--placeHolderSet(body_set)-->
-      - _class: Configuration\ThemePlaceholderSetContainerConfiguration
-        name: body_set
-        title: Body row #1
-        default: three_one
-        allowedSets: 
-          - single
-          - four
+        filename: placeholder-layouts/four.html.twig
+        iconHtml: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>

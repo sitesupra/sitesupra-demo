@@ -45,20 +45,22 @@ class ThemeLayout extends Database\Entity
 	 */
 	protected $placeholders;
 	
-//	/**
-//	 * @OneToMany(targetEntity="ThemeLayoutPlaceholderGroup", mappedBy="layout", cascade={"all"}, orphanRemoval=true, indexBy="name")
-//	 * @var ArrayCollection
-//	 */
-//	protected $placeholderSets;
+	/**
+	 * @OneToMany(targetEntity="ThemeLayoutPlaceholderGroup", mappedBy="layout", cascade={"all"}, orphanRemoval=true, indexBy="name")
+	 * @var ArrayCollection
+	 */
+	protected $placeholderGroups;
 	
 	
-
+	/**
+	 * 
+	 */
 	public function __construct()
 	{
 		parent::__construct();
 
 		$this->placeholders = new ArrayCollection();
-		$this->placeholderSets = new ArrayCollection();
+		$this->placeholderGroups = new ArrayCollection();
 	}
 
 	/**
@@ -149,31 +151,9 @@ class ThemeLayout extends Database\Entity
 	public function addPlaceholder(ThemeLayoutPlaceholder $placeholder)
 	{
 		$placeholder->setLayout($this);
-
 		$this->placeholders[$placeholder->getName()] = $placeholder;
 	}
 	
-//	
-//	/**
-//	 * @param ThemeLayoutPlaceholder $placeholder
-//	 * @FIXME: group name is NOT unique
-//	 */
-//	public function addPlaceholderGroup(ThemeLayoutPlaceholderGroup $group)
-//	{
-//		$group->setLayout($this);
-//		$this->placeholderSets[$group->getName()] = $group;
-//	}
-//	
-//	public function getPlaceholderGroupNames()
-//	{
-//		return $this->placeholderGroups->getKeys();
-//	}
-//	
-//	public function getPlaceholderGroups()
-//	{
-//		return $this->placeholderGroups;
-//	}
-
 	/**
 	 * @param ThemeLayoutPlaceholder $placeholder 
 	 */
@@ -182,6 +162,26 @@ class ThemeLayout extends Database\Entity
 		$placeholder->setLayout(null);
 
 		$this->placeholders->removeElement($placeholder);
+	}
+	
+	/**
+	 * @return ArrayCollection
+	 */
+	public function getPlaceholderGroups()
+	{
+		return $this->placeholderGroups;
+	}
+
+	public function addPlaceholderGroup(ThemeLayoutPlaceholderGroup $placeholderGroup)
+	{
+		$placeholderGroup->setLayout($this);
+		$this->placeholderGroups->set($placeholderGroup->getName(), $placeholderGroup);
+	}
+	
+	public function removePlaceholderGroup(ThemeLayoutPlaceholderGroup $placeholderGroup)
+	{
+		$placeholderGroup->setLayout(null);
+		$this->placeholderGroups->removeElement($placeholderGroup);
 	}
 
 	/**

@@ -797,16 +797,14 @@ abstract class PageRequest extends HttpRequest
 	 */
 	public function createMissingPlaceHolders()
 	{
-		$layoutPlaceHolderNames = $this->getLayoutPlaceHolderNames();
 		$layoutPlaceHolders = $this->getLayoutPlaceHolders();
 
-		if (empty($layoutPlaceHolderNames)) {
+		if ($layoutPlaceHolders->isEmpty()) {
 			return;
 		}
+
+		$this->createMissingPlaceHolderGroups();
 		
-		// getPlaceHolderSet() already contains current method call inside
-		// but it should not go recursively, as getPlaceHolderSet() will return
-		// set without executing, if it is already loaded
 		$placeHolderSet = $this->getPlaceHolderSet();
 
 		$entityManager = $this->getDoctrineEntityManager();
@@ -820,7 +818,6 @@ abstract class PageRequest extends HttpRequest
 			$name = $layoutPlaceHolder->getName();
 			
 			if ( ! $finalPlaceHolders->offsetExists($name)) {
-
 
 				// Check if page doesn't have it already set locally
 				$placeHolder = null;
@@ -838,16 +835,21 @@ abstract class PageRequest extends HttpRequest
 					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
 					$placeHolder->setMaster($localization);
 					
-					// @FIXME: move to ::factory
-					if ( ! is_null($parentPlaceHolder)) {
-						$placeHolder->setContainer($parentPlaceHolder->getContainer());
-						$placeHolder->setPlaceholderSetName($parentPlaceHolder->getPlaceholderSetName());
-					} else {
-						$placeHolder->setContainer($layoutPlaceHolder->getContainer());
-						$placeHolder->setPlaceholderSetName($layoutPlaceHolder->getDefaultSetName());
+					if (is_null($parentPlaceHolder)) {
+						$layoutPlaceHolderGroup = $layoutPlaceHolder->getGroup();
+						if ( ! is_null($layoutPlaceHolderGroup)) {
+							
+							$name = $layoutPlaceHolderGroup->getName();
+							$localizationGroups = $localization->getPlaceholderGroups();
+								
+							$group = $localizationGroups->get($name);
+							if ( ! is_null($group)) {
+								$placeHolder->setGroup($group);
+							}
+						}
 					}
 				}
-
+			
 				// Persist only for draft connection with ID generation
 				if ($this instanceof PageRequestEdit) {
 					$entityManager->persist($placeHolder);
@@ -860,6 +862,45 @@ abstract class PageRequest extends HttpRequest
 		// Flush only for draft connection with ID generation
 		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
 			$entityManager->flush();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	protected function createMissingPlaceHolderGroups()
+	{
+		$localization = $this->getPageLocalization();
+		
+		if ($localization instanceof Entity\TemplateLocalization) {
+			$groupsInTemplate = $localization->getPlaceholderGroups();
+			$groupInTemplateNames = $groupsInTemplate->getKeys();
+			
+			$layout = $this->getLayout();
+		
+			$groups = $layout->getPlaceholderGroups();
+			$em = $this->getDoctrineEntityManager();
+			
+			foreach ($groups as $group) {
+				/* @var $layoutGroup Entity\Theme\ThemeLayoutPlaceholderGroup */
+				$groupName = $group->getName();
+
+
+				if ( ! in_array($groupName, $groupInTemplateNames)) {
+					$groupInTemplate = new Entity\TemplatePlaceHolderGroup($groupName);
+					
+					$groupInTemplate->setTitle($group->getTitle());
+				
+					$defaultLayout = $group->getDefaultLayout();
+					$groupInTemplate->setGroupLayout($defaultLayout);
+					
+					$localization->addPlaceholderGroup($groupInTemplate);
+					
+					if ($this instanceof PageRequestEdit) {
+						$em->persist($groupInTemplate);
+					}
+				}
+			}
 		}
 	}
 

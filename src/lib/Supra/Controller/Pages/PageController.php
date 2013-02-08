@@ -20,8 +20,7 @@ use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Cache\CacheGroupManager;
 use Supra\Controller\Exception\AuthorizationRequiredException;
 use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
-
-use Supra\Controller\Pages\Response\PlaceHoldersContainer;
+use Supra\Controller\Pages\Response\PlaceHolderGroup;
 
 /**
  * Page controller
@@ -52,7 +51,7 @@ class PageController extends ControllerAbstraction
 	 *
 	 * @var array
 	 */
-	private $placeHoldersContainerResponses = array();
+	private $placeHolderGroupResponses = array();
 
 	/**
 	 * @var array
@@ -403,14 +402,10 @@ class PageController extends ControllerAbstraction
 	/**
 	 * @param Entity\Theme\ThemeLayout $layout
 	 * @param array $blocks array of block responses
-	 * 
-	 * @FIXME
 	 */
 	protected function processLayout(Entity\Theme\ThemeLayout $layout, array $placeResponses)
 	{
 		$layoutProcessor = $this->getLayoutProcessor();
-		
-		$layoutProcessor->setLayout($layout);
 
 		$layoutProcessor->setTheme($layout->getTheme());
 
@@ -703,10 +698,6 @@ class PageController extends ControllerAbstraction
 	 * Creates place holder response object
 	 * @param Entity\Abstraction\AbstractPage $page
 	 * @param Entity\Abstraction\PlaceHolder $placeHolder
-	 * @return PlaceHolder\PlaceHolderResponse
-	 * 
-	 * 
-	 * @FIXME
 	 */
 	public function createPlaceResponse(Entity\Abstraction\AbstractPage $page, Entity\Abstraction\PlaceHolder $placeHolder)
 	{
@@ -720,26 +711,40 @@ class PageController extends ControllerAbstraction
 		
 		$response->setPlaceHolder($placeHolder);
 
-		$containerName = $placeHolder->getContainer();
-		if ( ! empty($containerName)) {
+		$group = $placeHolder->getGroup();
+		if ( ! empty($group)) {
 			
-			if (isset($this->placeHoldersContainerResponses[$containerName])) {
+			$groupName = $group->getName();
 			
-				$containerResponse = $this->placeHoldersContainerResponses[$containerName];
+			if (isset($this->placeHolderGroupResponses[$groupName])) {
+				$groupResponse = $this->placeHolderGroupResponses[$groupName];
 			} else {
 				
 				if ($this->request instanceof namespace\Request\PageRequestEdit) {
-					$containerResponse = new PlaceHoldersContainer\PlaceHoldersContainerResponseEdit();
+					$groupResponse = new PlaceHolderGroup\PlaceHolderGroupResponseEdit();
 				} else {
-					$containerResponse = new PlaceHoldersContainer\PlaceHoldersContainerResponseView();
+					$groupResponse = new PlaceHolderGroup\PlaceHolderGroupResponseView();
 				}
 
-				$this->placeHoldersContainerResponses[$containerName] = $containerResponse;
+				$groupResponse->setGroupName($groupName);
+				
+				$theme = $this->getRequest()
+						->getLayout()
+						->getTheme();
+				
+				$groupLayoutName = $group->getGroupLayout();
+				
+				$groupLayouts = $theme->getPlaceholderGroupLayouts();
+				if ($groupLayouts && $groupLayouts->offsetExists($groupLayoutName)) {
+					$groupResponse->setGroupLayout($groupLayouts->get($groupLayoutName));
+				}
+				
+				$this->placeHolderGroupResponses[$groupName] = $groupResponse;
 			}
 			
-			$containerResponse->addPlaceHolderResponse($response);
+			$groupResponse->addPlaceHolderResponse($response);
 			
-			return $containerResponse;
+			return $groupResponse;
 		}
 		
 		return $response;
@@ -789,13 +794,19 @@ class PageController extends ControllerAbstraction
 					
 					$placeHolderResponse = null;
 					
-					if ($placeResponse instanceof PlaceHoldersContainer\PlaceHoldersContainerResponse) {
+					if ($placeResponse instanceof PlaceHolderGroup\PlaceHolderGroupResponse) {
+						
+						$groupLayout = $placeResponse->getGroupLayout();
+						if (is_null($groupLayout)) {
+							
+							$groupName = $placeResponse->getGroupName();
+							$log->warn("Placeholders group {$groupName} is missing for layout, skipping");
+						}
+						
 						$placeHolderResponse = $placeResponse->getPlaceHolderResponse($placeName);
 						
 						if (is_null($placeHolderResponse)) {
-							
-							$log->error("Placeholder response for name {$placeName} is not found inside PlaceHolderContainer response object");
-							
+							$log->error("Placeholder response for name {$placeName} is not found inside PlaceHolderGroup response object");
 							return null;
 						}
 					}

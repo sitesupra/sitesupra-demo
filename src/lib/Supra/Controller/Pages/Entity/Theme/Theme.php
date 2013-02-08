@@ -101,18 +101,17 @@ class Theme extends Database\Entity implements ThemeInterface
 	protected $urlBase;
 	
 	/**
-	 * @OneToMany(targetEntity="ThemePlaceholderSet", mappedBy="theme", cascade={"all"}, orphanRemoval=true, indexBy="name")
+	 * @OneToMany(targetEntity="ThemePlaceholderGroupLayout", mappedBy="theme", cascade={"all"}, orphanRemoval=true, indexBy="name")
 	 * @var Arraycollection
 	 */
-	protected $placeholderSets;
+	protected $placeholderGroupLayouts;
 	
-	protected $placeholderContainerConfiguration;
-
 	/**
 	 * @var array
 	 */
 	private $currentParameterSetOuptutValues;
 
+	
 	public function __construct()
 	{
 		parent::__construct();
@@ -120,7 +119,8 @@ class Theme extends Database\Entity implements ThemeInterface
 		$this->parameters = new ArrayCollection();
 		$this->parameterSets = new ArrayCollection();
 		$this->layouts = new ArrayCollection();
-		$this->placeholderSets = new ArrayCollection();
+		
+		$this->placeholderGroupLayouts = new ArrayCollection();
 	}
 
 	/**
@@ -667,7 +667,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	}
 
 	/**
-	  s	 * @param \Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction $parameter
+	 * @param \Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction $parameter
 	 * @param mixed $newValue
 	 */
 	public function setCurrentParameterSetValue(ThemeParameterAbstraction $parameter, $newValue)
@@ -679,48 +679,22 @@ class Theme extends Database\Entity implements ThemeInterface
 	}
 	
 	/**
-	 * @FIXME
+	 * @return ArrayCollection
 	 */
-	public function getPlaceholderSets()
+	public function getPlaceholderGroupLayouts()
 	{
-		return $this->placeholderSets;
-	}
-
-	/**
-	 * @FIXME
-	 */
-	public function addPlaceholderSet(ThemePlaceholderSet $set)
-	{
-		$set->setTheme($this);
-		$this->placeholderSets->set($set->getName(), $set);
-	}
-
-	/**
-	 * @FIXME
-	 */
-	public function removePlaceholderSet(ThemePlaceholderSet $set)
-	{
-		$set->setTheme(null);
-
-		$this->placeholderSets->removeElement($set);
-	}
-
-	/**
-	 * @FIXME
-	 */
-	public function getPlaceholderSet($name)
-	{
-		return $this->placeholderSets->get($name);
+		return $this->placeholderGroupLayouts;
 	}
 	
-	public function setPlaceholderContainerConfiguration($configuration)
+	public function addPlaceholderGroupLayout(ThemePlaceholderGroupLayout $layout)
 	{
-		$this->placeholderContainerConfiguration = $configuration;
+		$layout->setTheme($this);
+		$this->placeholderGroupLayouts->set($layout->getName(), $layout);
 	}
 	
-	public function getPlaceholderContainerConfiguration()
+	public function removePlaceholderGroupLayout(ThemePlaceholderGroupLayout $layout)
 	{
-		return $this->placeholderContainerConfiguration;
+		$layout->setTheme(null);
+		$this->placeholderGroupLayouts->removeElement($layout);
 	}
-
 }

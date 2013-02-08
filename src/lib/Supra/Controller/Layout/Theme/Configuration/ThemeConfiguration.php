@@ -56,11 +56,6 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	/**
 	 * @var array
 	 */
-	public $layouts;
-
-	/**
-	 * @var array
-	 */
 	public $tags;
 
 	/**
@@ -88,9 +83,16 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 */
 	public $category;
 
-	public $placeHolderSets;
+	/**
+	 * @var array
+	 */
+	public $groupLayouts;
 	
-	public $containers;
+	/**
+	 * @var array
+	 */
+	public $layouts;
+	
 	
 	/**
 	 * 
@@ -98,7 +100,6 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	protected function fetchConfiguration()
 	{
 		$theme = $this->getTheme();
-
 		$theme->setConfiguration($this);
 	}
 
@@ -119,15 +120,15 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 
 		$this->processParameters();
 
-		$this->processPlaceholderSets();
-		$this->processPlaceholderContainers();
-		
-		
+		$this->processPlaceholderGroupLayouts();
 		$this->processLayouts();
 
 		$this->processParameterSets();
 	}
 
+	/**
+	 * 
+	 */
 	protected function processParameters()
 	{
 		$theme = $this->getTheme();
@@ -166,38 +167,9 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		}
 	}
 
-	protected function processLayouts()
-	{
-		$theme = $this->getTheme();
-
-		$layoutsBefore = $theme->getLayouts();
-		$layoutNamesBefore = $layoutsBefore->getKeys();
-
-		$layoutsAfter = new ArrayCollection();
-		if ( ! empty($this->layouts)) {
-
-			foreach ($this->layouts as $layoutConfiguration) {
-				/* @var $layoutConfiguration ThemeLayoutConfiguration */
-
-				$layout = $layoutConfiguration->getLayout();
-
-				$layoutsAfter[$layout->getName()] = $layout;
-			}
-		}
-
-		$layoutNamesAfter = $layoutsAfter->getKeys();
-
-		$namesToRemove = array_diff($layoutNamesBefore, $layoutNamesAfter);
-		foreach ($namesToRemove as $nameToRemove) {
-			$theme->removeLayout($layoutsBefore[$nameToRemove]);
-		}
-
-		$namesToAdd = array_diff($layoutNamesAfter, $layoutNamesBefore);
-		foreach ($namesToAdd as $nameToAdd) {
-			$theme->addLayout($layoutsAfter[$nameToAdd]);
-		}
-	}
-
+	/**
+	 * 
+	 */
 	protected function processParameterSets()
 	{
 		$theme = $this->getTheme();
@@ -266,40 +238,69 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		}
 	}
 
-	protected function processPlaceholderSets()
+	/**
+	 * 
+	 */
+	protected function processPlaceholderGroupLayouts()
 	{
 		$theme = $this->getTheme();
-		$setsBefore = $theme->getPlaceholderSets();
+		$layoutsBefore = $theme->getPlaceholderGroupLayouts();
 		
-		$setNamesBefore = $setsBefore->getKeys();
-		$setNamesNow = array();
+		$layoutNamesBefore = $layoutsBefore->getKeys();
 		
-		foreach ($this->placeHolderSets as $placeHolderSetConfiguration) {
-			$setName = $placeHolderSetConfiguration->name;
-						
-			if ( ! in_array($setName, $setNamesBefore)) {
-				$set = new ThemeEntity\ThemePlaceholderSet($setName, $placeHolderSetConfiguration->layout);
-				$theme->addPlaceholderSet($set);
-			} else {
-				$set = $setsBefore->get($setName);
+		$layoutNamesNow = array();
+
+		if ( ! empty($this->groupLayouts)) {
+			foreach ($this->groupLayouts as $layoutConfiguration) {
+				/* @var $layoutConfiguration \Supra\Controller\Layout\Theme\Configuration\ThemePlaceholderGroupLayoutConfiguration */
+
+				$layout = $layoutConfiguration->getLayout();
+				$layoutNamesNow[] = $layout->getName();
 			}
-			
-			$set->setLayoutFilename($placeHolderSetConfiguration->layout);
-			
-			$setNamesNow[] = $setName;
 		}
-		
-		$setNamesToRemove = array_diff($setNamesBefore, $setNamesNow);
-		
-		foreach ($setNamesToRemove as $setNameToRemove) {
-			$setToRemove = $setsBefore->get($setNameToRemove);
-			$theme->removePlaceholderSet($setToRemove);
+
+		$layoutNamesToRemove = array_diff($layoutNamesBefore, $layoutNamesNow);
+		foreach($layoutNamesToRemove as $nameToRemove) {
+			$layout = $layoutsBefore->get($nameToRemove);
+			$theme->removePlaceholderGroupLayout($layout);
 		}
 	}
 	
-	protected function processPlaceholderContainers()
+	/**
+	 * 
+	 */
+	protected function processLayouts()
 	{
 		$theme = $this->getTheme();
-		$theme->setPlaceholderContainerConfiguration($this->containers);
+
+		$layoutsBefore = $theme->getLayouts();
+		$layoutNamesBefore = $layoutsBefore->getKeys();
+
+		$layoutsAfter = new ArrayCollection();
+		if ( ! empty($this->layouts)) {
+
+			foreach ($this->layouts as $layoutConfiguration) {
+				/* @var $layoutConfiguration ThemeLayoutConfiguration */
+
+				$layout = $layoutConfiguration->getLayout();
+				
+				$layoutConfiguration->processPlaceholders();
+				
+				$layoutsAfter[$layout->getName()] = $layout;
+			}
+		}
+
+		$layoutNamesAfter = $layoutsAfter->getKeys();
+
+		$namesToRemove = array_diff($layoutNamesBefore, $layoutNamesAfter);
+		foreach ($namesToRemove as $nameToRemove) {
+			$theme->removeLayout($layoutsBefore[$nameToRemove]);
+		}
+
+		$namesToAdd = array_diff($layoutNamesAfter, $layoutNamesBefore);
+		foreach ($namesToAdd as $nameToAdd) {
+			$theme->addLayout($layoutsAfter[$nameToAdd]);
+		}
 	}
+
 }

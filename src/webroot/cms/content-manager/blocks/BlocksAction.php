@@ -92,7 +92,7 @@ class BlocksAction extends PageManagerAction
 				$blockGroup = $response['groups'][$defaultGroupKey]['id'];
 			}
 
-			$controller = $blockCollection->createBlockController($conf->class);
+//			$controller = $blockCollection->createBlockController($conf->class);
 			$propertyDefinition = $conf->properties;
 
 			$properties = $this->gatherPropertyArray($propertyDefinition);
@@ -116,10 +116,9 @@ class BlocksAction extends PageManagerAction
 		// Order by block title
 		array_multisort($titles, $response['blocks']);
 
-		// Appends Theme hidden blocks
-		$themeBlocksData = $this->getThemeBlocksData();
-		if ( ! empty($themeBlocksData)) {
-			array_push($response['blocks'], $themeBlocksData);
+		$themeBlockData = $this->getThemePlaceholderLayoutsBlockData();
+		if ( ! empty($themeBlockData)) {
+			array_push($response['blocks'], $themeBlockData);
 		}
 		
 		$this->getResponse()->setResponseData($response);
@@ -157,18 +156,25 @@ class BlocksAction extends PageManagerAction
 		return $response;
 	}
 	
-	/**
-	 * @FIXME
+	/** 
 	 * @return array
 	 */
-	private function getThemeBlocksData()
+	private function getThemePlaceholderLayoutsBlockData()
 	{
-		$dummyEditable = new Editable\SelectVisual();
-		$localeId = $this->getLocale()->getId();
+		$layouts = $this->entityManager
+				->getRepository(\Supra\Controller\Pages\Entity\Theme\ThemePlaceholderGroupLayout::CN())
+				->findAll();
 		
-        $dummyEditable->setIconStyle('html');
-        $dummyEditable->setStyle('mid');
-        $dummyEditable->setCss('
+		if (empty($layouts)) {
+			return array();
+		}
+		
+		$editable = new Editable\SelectVisual();
+		
+        $editable->setIconStyle('html');
+        $editable->setStyle('mid');
+		
+	    $editable->setCss('
             .su-button .su-button-bg {
                 padding: 0;
             }
@@ -207,57 +213,31 @@ class BlocksAction extends PageManagerAction
             td.w-3  { width: 25%; }
         ');
         
-		$dummyPropertyData = array(
+		$property = array(
 			'id' => 'layout',
-			'type' => $dummyEditable->getEditorType(),
-			'inline' => $dummyEditable->isInlineEditable(),
-			'label' => $dummyEditable->getLabel(),
-			'value' => $dummyEditable->getDefaultValue($localeId),
-			'group' => $dummyEditable->getGroupId(),
-			'style' => 'mid',
-            'iconStyle' => 'html',
-		)
-			+ $dummyEditable->getAdditionalParameters();
+			'type' => $editable->getEditorType(),
+			'inline' => $editable->isInlineEditable(),
+			'label' => $editable->getLabel(),
+			'value' => $editable->getDefaultValue(),
+			'group' => $editable->getGroupId(),
+			'style' => $editable->getStyle(),
+            'iconStyle' => $editable->getIconStyle(),
+			'values' => array(),
+		) + $editable->getAdditionalParameters();
 		
-		$dummyPropertyData['values'] = array(
-			array(
-				'id' => 'single',
-				'title' => 'Single row',
-				'html' => '<table><tr><td class="h-2 w-12">4</td></tr></table>',
-			),
-			array(
-				'id' => 'three_one',
-				'title' => 'Three + One',
-				'html' => '<table><tr><td class="h-2 w-9">3</td><td class="h-2 w-3">1</td></tr></table>',
-			),
-			array(
-				'id' => 'one_three',
-				'title' => 'One + Three',
-				'html' => '<table><tr><td class="h-2 w-3">1</td><td class="h-2 w-9">3</td></tr></table>',
-			),
-			array(
-				'id' => 'two_two',
-				'title' => 'Two + Two',
-				'html' => '<table><tr><td class="h-2 w-6">2</td><td class="h-2 w-2">2</td></tr></table>',
-			),
-			array(
-				'id' => 'two_one_one',
-				'title' => 'Two + One + One',
-				'html' => '<table><tr><td class="h-2 w-6">2</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>',
-			),
-			array(
-				'id' => 'one_one_two',
-				'title' => 'One + One + Two',
-				'html' => '<table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-6">2</td></tr></table>',
-			),
-			array(
-				'id' => 'four',
-				'title' => 'Four columns',
-				'html' => '<table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>',
-			),
-		);
 		
-		$placeHolderContainerDummyBlock = array(
+		$values = &$property['values'];
+		foreach ($layouts as $layout) {
+			/* @var $layout \Supra\Controller\Pages\Entity\Theme\ThemePlaceholderGroupLayout */
+			
+			$values[] = array(
+				'id' => $layout->getName(),
+				'title' => $layout->getTitle(),
+				'html' => $layout->getIconHtml(),
+			);
+		}		
+
+		$layoutsBlock = array(
 			'id' => 'list_one',
 			'classname' => 'List',
 			'hidden' => true,
@@ -265,15 +245,15 @@ class BlocksAction extends PageManagerAction
 			'property_groups' => array(),
 			'title' => 'Layout',
 			'description' => '',
-			'icon' => '/cms/lib/supra/img/blocks/icons-items/default.png',
+			'icon' => '',
 			'html' => null,
 
 			'properties' => array(
-				$dummyPropertyData,
+				$property,
 			),
 		);
 		
-		return $placeHolderContainerDummyBlock;
+		return $layoutsBlock;
 	}
 
 }

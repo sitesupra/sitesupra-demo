@@ -322,33 +322,33 @@ class PageAction extends PageManagerAction
 
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
-
-			$groupName = null;
-			$containerName = $placeHolder->getContainer();
-			if ( ! empty($containerName)) {
-				$groupName = $placeHolder->getPlaceholderSetName();
+			
+			$group = $placeHolder->getGroup();
+			if ( ! is_null($group)) {
+				
+				$groupName = $group->getName();
+				
+				$containerName = $group->getName();
+				$groupLayout = $group->getGroupLayout();
+				//$groupName = $placeHolder->getPlaceholderSetName();
 				
 				if ( ! isset($containersData[$containerName])) {
 					$placeHolderContainerData = array(
 						'id' => $containerName,
 						'closed' => false,
 						'locked' => false,
-						'title' => $containerName,
+						'title' => $group->getTitle(),
 						'type' => 'list_one',
 						'allow' => array(),
 						'layout_limit' => 4,
 						'properties' => array(
-							'layout' => array('value' => $groupName, 'language' => null, '__shared' => false),
+							'layout' => array('value' => $groupLayout, 'language' => null, '__shared' => false),
 						),
 						'contents' => array(),
 					);
 					
 					$containersData[$containerName] = $placeHolderContainerData;
 				}
-			}
-			
-			if ($placeHolder->getName() == 'footer') {
-				continue;
 			}
 			
 			$placeHolderData = array(
@@ -406,6 +406,11 @@ class PageAction extends PageManagerAction
 			}
 
 			if ( ! empty($containerName)) {
+				
+				if ($placeHolderData['locked']) {
+					$containersData[$containerName]['locked'] = true;
+				}
+				
 				$placeHolderData['type'] = 'list_one';
 				$placeHolderData['editable'] = false;
 				$containersData[$containerName]['contents'][] = $placeHolderData;

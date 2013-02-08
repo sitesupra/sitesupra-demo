@@ -349,62 +349,36 @@ class PagecontentAction extends PageManagerAction
 				->getPlaceHolders()
 				->get($placeHolderName);
 
-		$locked = $input->getValid('locked', 'boolean');
-		
+		$localization = $request->getPageLocalization();
+			
 		if (empty($placeHolder)) {
 			
-			$placeHolders = $request->getPageLocalization()
-				->getPlaceHolders();
-			
-			foreach($placeHolders as $templatePlaceHolder) {
-				if ($templatePlaceHolder->getContainer() == $placeHolderName) {
-					$placeHolder = $templatePlaceHolder;
-				}
-			}
-			
-			// @FIXME: dumb, but temporary solution
-			if ( ! empty($placeHolder)) {
+			$groups = $localization->getPlaceHolderGroups();
+	
+			if ($groups->offsetExists($placeHolderName)) {
+				
 				$properties = $input->getChild('properties');
-				$layout = $properties->get('layout');
-
-				$placeHolders = $request->getPageLocalization()
-					->getPlaceHolders();
+				$layoutName = $properties->get('layout');
 				
-				foreach($placeHolders as $placeHold) {
-					if ($placeHold->getContainer() == $placeHolderName) {
-						$placeHold->setPlaceholderSetName($layout);
-						$placeHolder->setLocked($locked);
+				$layout = $this->entityManager->getRepository(Entity\Theme\ThemePlaceholderGroupLayout::CN())
+						->findOneByName($layoutName);
+				
+				$group = $groups->get($placeHolderName);
+				$group->setGroupLayout($layout);
+				
+				if ($input->has('locked')) {
+					$locked = $input->getValid('locked', 'boolean');
+					$placeHolders = $group->getPlaceholders();
+					foreach($placeHolders as $placeHolder) {
+						if ($placeHolder instanceof Entity\TemplatePlaceHolder) {
+							$placeHolder->setLocked($locked);
+						}
 					}
 				}
 				
-				$qb = $this->entityManager->createQueryBuilder();
-				$localizationIdsResult = $qb->select('pl.id')
-						->from(Entity\PageLocalization::CN(), 'pl')
-						->where('pl.template = ?0')
-						->setParameter(0, $this->getPage())
-						->getQuery()
-						->getScalarResult()
-						;
-				
-				if ( ! empty($localizationIdsResult)) {
-					$ids = array();
-					foreach($localizationIdsResult as $localizationResult) {
-						$ids[] = $localizationResult['id'];
-					}
-					
-					$pagePlaceHolderCn = Entity\PagePlaceHolder::CN();
-					$this->entityManager->createQuery("UPDATE $pagePlaceHolderCn p SET p.setName = :setName WHERE p.localization IN (:ids) AND p.container = :container")
-								->setParameter('container', $placeHolderName)
-								->setParameter('setName', $layout)
-								->setParameter('ids', $ids)
-								->execute();
-				}
+				$this->entityManager->flush();
+				return;
 			}
-			
-			$this->entityManager->flush();
-			$this->savePostTrigger();
-			
-			return;
 		}
 		
 		if (empty($placeHolder)) {
@@ -414,7 +388,8 @@ class PagecontentAction extends PageManagerAction
 		if ( ! $placeHolder instanceof Entity\TemplatePlaceHolder) {
 			throw new CmsException(null, "Not possible to change locked status for page placeholder");
 		}
-
+		
+		$locked = $input->getValid('locked', 'boolean');
 		$placeHolder->setLocked($locked);
 
 		$this->entityManager->flush();
@@ -807,16 +782,16 @@ class PagecontentAction extends PageManagerAction
 	}
 	
 	/**
-	 * @FIXME
+	 * @FIXME: optimize by generating response only for requested group
 	 */
-	public function contenthtmlPlaceholderAction()
+	protected function contenthtmlPlaceholderGroupAction()
 	{
 		$this->isPostRequest();
 		$this->checkLock();
 		$request = $this->getPageRequest();
 		$input = $this->getRequestInput();
 
-		$containerName = $input->get('block_id');
+		$groupName = $input->get('block_id');
 
 		$pageData = $request->getPageLocalization();
 		$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
@@ -829,32 +804,56 @@ class PagecontentAction extends PageManagerAction
 		ObjectRepository::beginControllerContext($controller);
 
 		$outputString = null;
-		$containerResponse = null;
+		$groupResponse = null;
 		try {
 			$controller->execute();
 			$placeResponses = $controller->returnPlaceResponses();
 			
 			foreach($placeResponses as $placeResponse) {
-				if ($placeResponse instanceof \Supra\Controller\Pages\Response\PlaceHoldersContainer\PlaceHoldersContainerResponse) {
-					$container = $placeResponse->getContainer();
-					if ($container == $containerName) {
-						$containerResponse = $placeResponse;
+				if ($placeResponse instanceof \Supra\Controller\Pages\Response\PlaceHolderGroup\PlaceHolderGroupResponse) {
+					if ($placeResponse->getGroupName() == $groupName) {
+						$groupResponse = $placeResponse;
 						break;
 					}
 				}
 			}
 		} catch (\Exception $e) {
-				ObjectRepository::endControllerContext($controller);
-				throw $e;
-			}
+			ObjectRepository::endControllerContext($controller);
+			throw $e;
+		}
+		
 		ObjectRepository::endControllerContext($controller);
 		
-		if ( ! is_null($containerResponse)) {
-			$outputString = $containerResponse->getOutputString();
+		if ( ! is_null($groupResponse)) {
+			$outputString = $groupResponse->getOutputString();
 		}
 
 		$this->getResponse()->setResponseData(
 				array('internal_html' => $outputString)
 		);
+	}
+	
+	/**
+	 * For now, it's an alias of contenthtmlPlaceholderGroupAction()
+	 */
+	public function contenthtmlPagePlaceholderAction()
+	{
+		$this->contenthtmlPlaceholderGroupAction();
+	}
+	
+	/**
+	 * alias of contenthtmlPlaceholderGroupAction()
+	 */
+	public function contenthtmlPlaceholderAction()
+	{
+		$this->contenthtmlPlaceholderGroupAction();
+	}
+	
+	/**
+	 * For now, it's an alias of savePlaceholderAction()
+	 */
+	public function savePagePlaceholderAction()
+	{
+		$this->savePlaceholderAction();
 	}
 }
