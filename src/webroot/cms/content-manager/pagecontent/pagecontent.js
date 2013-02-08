@@ -121,7 +121,10 @@ Supra('dd-drag', function (Y) {
 			var incl = includes,
 				blocks = this.BLOCK_PROTOTYPES = BLOCK_PROTOTYPES,
 				path = this.getActionPath(),
-				args = [];
+				args = [],
+				
+				// combo base
+				url = Y.Env._loader.comboBase;
 			
 			//Load blocks
 			for(var i=blocks.length-1; i>=0; i--) {
@@ -133,8 +136,11 @@ Supra('dd-drag', function (Y) {
 				args.push(incl[id].replace('{pagecontent}', path));
 			}
 			
+			// Combo
+			url += args.join('&');
+			
 			//Load modules
-			Y.Get.script(args, {
+			Y.Get.script(url, {
 				'onSuccess': function () {
 					//Create classes
 					Supra('supra.iframe-handler', 'supra.iframe-contents', 'supra.plugin-layout', Y.bind(function () {

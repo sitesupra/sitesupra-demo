@@ -1,13 +1,14 @@
 <div class="block blog-comments">
 	
 	<h2 class="block-title"><div>
-		{{ commentCount }} {{ supraBlock.property('list_title') }}
+		{% if not supra.cmsRequest %}{{ commentCount }}{% endif %}
+		{{ supraBlock.property('list_title') }}
 	</div></h2>
 	
 	<div class="comments-list">
 		
 		{# Comment #}
-		<article>
+		<article {% if supra.cmsRequest %}data-attach="$.app.Comments" data-id="{{ supraBlock.block.id }}_1" data-url="{{ supra.request.pageLocalization.path }}?block_id={{ supraBlock.block.id }}&comment_id=1&action=remove_comment"{% endif %}>
 			<div class="comment">
 				<div class="avatar">
 					<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
@@ -15,7 +16,10 @@
 				<div class="meta-info">
 					<span class="author">Admin</span>
 					<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
-					<a href="#">- Reply</a>
+					
+					{% if supra.cmsRequest %}
+						<a class="button tiny supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_1')" href="javascript://">Delete comment</a>
+					{% endif %}
 				</div>
 				<p>
 					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.<br />
@@ -23,25 +27,24 @@
 					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.
 				</p>
 			</div>
-			
-			{# Sub comments #}
-			<div class="comments-list">
-				<article>
-					<div class="comment">
-						<div class="avatar">
-							<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
-						</div>
-						<div class="meta-info">
-							<a class="author" rel="author" href="http://www.google.com" target="_blank">Admin</a>
-							<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
-							<a href="#">- Reply</a>
-						</div>
-						<p>
-							<em>Your comment is awaiting moderation.</em><br />
-							This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.
-						</p>
-					</div>
-				</article>
+		</article>
+		<article {% if supra.cmsRequest %}data-attach="$.app.Comments" data-id="{{ supraBlock.block.id }}_2" data-url="{{ supra.request.pageLocalization.path }}?block_id={{ supraBlock.block.id }}&comment_id=2&action=remove_comment"{% endif %}>
+			<div class="comment">
+				<div class="avatar">
+					<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
+				</div>
+				<div class="meta-info">
+					<a class="author" rel="author" href="http://www.google.com" target="_blank">Admin</a>
+					<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
+					
+					{% if supra.cmsRequest %}
+						<a class="button tiny supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_2')" href="javascript://">Delete comment</a>
+					{% endif %}
+				</div>
+				<p>
+					<em>Your comment is awaiting moderation.</em><br />
+					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.
+				</p>
 			</div>
 		</article>
 		
@@ -58,20 +61,20 @@
 		
 		<div class="row">
 			<div class="one_third alpha">
-				<input type="text" class="input-text" value="" placeholder="Name (required)" name="name" required />
+				<input type="text" class="input-text" value="" placeholder="{{ supraBlock.property('label_name')|e }}" name="name" required />
 			</div>
 			<div class="one_third">
-				<input type="email" class="input-text" value="" placeholder="Email (required)" name="email" required />
+				<input type="email" class="input-text" value="" placeholder="{{ supraBlock.property('label_email')|e }}" name="email" required />
 			</div>
 			<div class="one_third omega">
-				<input type="url" class="input-text" value="" placeholder="Website" name="url" />
+				<input type="url" class="input-text" value="" placeholder="{{ supraBlock.property('label_website')|e }}" name="url" />
 			</div>
 		</div>
 		<div class="row">
-			<textarea class="input-text" placeholder="Comment..." name="comment"></textarea>
+			<textarea class="input-text" placeholder="{{ supraBlock.property('label_comment')|e }}" name="comment"></textarea>
 		</div>
 		<div class="row">
-			<input type="submit" class="button small" value="POST COMMENT">
+			<input type="submit" class="button small" value="{{ supraBlock.property('label_submit')|e }}">
 		</div>
 		
 	</form>
