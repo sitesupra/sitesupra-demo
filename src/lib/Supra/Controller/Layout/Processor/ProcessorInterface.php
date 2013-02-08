@@ -26,12 +26,12 @@ interface ProcessorInterface
 	public function getPlaces($layoutSrc);
 	
 	/**
-	 * Returns the list of place group containers
+	 * Returns the list of place holder groups
 	 * 
 	 * @param string $layoutSrc
 	 * @return array
 	 */
-	public function getPlaceContainers($layoutSrc);
+	public function getPlaceGroups($layoutSrc);
 	
 	/**
 	 * Set request object to use

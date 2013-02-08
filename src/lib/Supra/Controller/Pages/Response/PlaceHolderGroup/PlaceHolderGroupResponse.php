@@ -1,14 +1,14 @@
 <?php
 
-namespace Supra\Controller\Pages\Response\PlaceHoldersContainer;
+namespace Supra\Controller\Pages\Response\PlaceHolderGroup;
 
 use Supra\Response\HttpResponse;
 use Supra\Controller\Pages\Response;
 
-class PlaceHoldersContainerResponse extends HttpResponse
+class PlaceHolderGroupResponse extends HttpResponse
 {
 	/**
-	 * Array of responses object for each placeholder related to this container
+	 * Array of responses object for each placeholder related to this group
 	 * @var array
 	 */
 	protected $placeholderResponses = array();
@@ -16,27 +16,43 @@ class PlaceHoldersContainerResponse extends HttpResponse
 	/**
 	 * @var string
 	 */
-	protected $container;
+	protected $groupName;
 	
 	/**
 	 * @var string
 	 */
-	protected $group;
+	protected $groupLayout;
 	
 	/**
 	 * @return string
 	 */
-	public function getContainer()
+	public function getGroupName()
 	{		
-		return $this->container;
+		return $this->groupName;
 	}
 	
 	/**
-	 * @return string
+	 * @param string $name
 	 */
-	public function getGroup()
+	public function setGroupName($name)
 	{
-		return $this->group;
+		$this->groupName = $name;
+	}
+	
+	/**
+	 * @return type
+	 */
+	public function getGroupLayout()
+	{
+		return $this->groupLayout;
+	}
+	
+	/**
+	 * @param type $layout
+	 */
+	public function setGroupLayout($layout)
+	{
+		$this->groupLayout = $layout;
 	}
 	
 	/**
@@ -47,13 +63,7 @@ class PlaceHoldersContainerResponse extends HttpResponse
 		$placeHolder = $placeHolderResponse->getPlaceHolder();
 		$placeHolderName = $placeHolder->getName();
 		
-		if (is_null($this->container)) {
-			$this->container = $placeHolder->getContainer();
-			$this->group = $placeHolder->getPlaceholderSetName();
-			$this->id = $this->container . mt_rand(0, 200);
-		}
-		
-		$nameInLayout = str_replace($this->container . '_', '', $placeHolderName);
+		$nameInLayout = str_replace($this->groupName . '_', '', $placeHolderName);
 		
 		$this->placeHolderResponses[$nameInLayout] = $placeHolderResponse;
 	}
@@ -68,7 +78,7 @@ class PlaceHoldersContainerResponse extends HttpResponse
 	
 	public function getPlaceHolderResponse($placeName)
 	{
-		$nameInLayout = str_replace($this->container . '_', '', $placeName);
+		$nameInLayout = str_replace($this->groupName . '_', '', $placeName);
 		
 		if (isset($this->placeHolderResponses[$nameInLayout])) {
 			return $this->placeHolderResponses[$nameInLayout];
@@ -76,17 +86,5 @@ class PlaceHoldersContainerResponse extends HttpResponse
 		
 		return null;
 	}
-	
-	public function output($output)
-	{
-		if ($this->container == 'footer_set') {
-			1+1;
-		}
 		
-		
-		1+1;
-		
-		parent::output($output);
-	}
-	
 }

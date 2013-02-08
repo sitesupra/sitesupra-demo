@@ -36,25 +36,21 @@ class ThemeLayoutPlaceholder extends Database\Entity
 	 * @var ThemeLayout
 	 */
 	protected $layout;
-
+	
+	/**
+	 * @ManyToOne(targetEntity="ThemeLayoutPlaceholderGroup", inversedBy="placeholders")
+	 * @var ThemeLayoutPlaceHolderGroup
+	 */
+	protected $group;
+	
+	
 	/**
 	 * 
 	 */
-	public function __construct($containerName = null)
+	public function __construct($name = null)
 	{
 		parent::__construct();
-		
-		$this->container = $containerName;
-	}
-	
-	public function getContainer()
-	{
-		return $this->container;
-	}
-	
-	public function setContainer($container)
-	{
-		$this->container = $container;
+		$this->name = $name;
 	}
 	
 	/**
@@ -90,17 +86,27 @@ class ThemeLayoutPlaceholder extends Database\Entity
 	}
 	
 	/**
-	 * 
-	 * @return string
+	 *
 	 */
-	public function getDefaultSetName()
+	public function getGroup()
 	{
-		return $this->defaultSetName;
+		return $this->group;
 	}
 	
-	public function setDefaultSetName($defaultSetName)
+	/**
+	 *
+	 */
+	public function setGroup(ThemeLayoutPlaceholderGroup $group)
 	{
-		$this->defaultSetName = $defaultSetName;
+		$this->group = $group;
+	}
+	
+	/**
+	 * 
+	 */
+	public function resetGroup()
+	{
+		$this->group = null;
 	}
 
 }

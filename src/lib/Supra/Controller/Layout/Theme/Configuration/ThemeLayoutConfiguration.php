@@ -2,15 +2,10 @@
 
 namespace Supra\Controller\Layout\Theme\Configuration;
 
-use Supra\Configuration\ConfigurationInterface;
-use Supra\Controller\Layout\Theme\Theme;
-use Supra\Configuration\Exception;
 use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 use Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholder;
 use Supra\Controller\Layout\Processor\TwigProcessor;
-use Doctrine\Common\Collections\ArrayCollection;
-
-use Supra\Controller\Pages\Entity\Theme as ThemeEntity;
+use Supra\Controller\Pages\Entity\Theme;
 
 class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 {
@@ -72,16 +67,17 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 		$layout->setFilename($this->filename);
 
 		$this->layout = $layout;
-
-		$this->processPlaceholders();
 	}
-
-	protected function processPlaceholders()
+	
+	/**
+	 * 
+	 */
+	public function processPlaceholders()
 	{
 		$layout = $this->getLayout();
 
 		$placeholders = $layout->getPlaceholders();
-		$currentPlaceholderNames = $placeholders->getKeys();
+		$namesBefore = $placeholders->getKeys();
 
 		$theme = $this->getTheme();
 		$rootDir = $theme->getRootDir();
@@ -89,74 +85,104 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 		$twigProcessor = new TwigProcessor();
 		$twigProcessor->setLayoutDir($rootDir);
 		$twigProcessor->setTheme($theme);
-		
-		$placeHolderContainers = $twigProcessor->getPlaceContainers($this->filename);
-		//$containersConfiguration = $theme->getPlaceholderContainerConfiguration();
-		
-		$themePlaceHolderSets = $theme->getPlaceholderSets();
-		
-		$containersPlaceHolders = array();
-		$placeContainerMap = array();
-		
-		if ( ! empty($placeHolderContainers)) {
+
+		$namesInLayout = $twigProcessor->getPlaces($this->filename);
+
+		$namesNow = array();
+		foreach ($namesInLayout as $nameInLayout) {
+			if ( ! in_array($nameInLayout, $namesBefore)) {
+				$placeholder = new ThemeLayoutPlaceholder($nameInLayout);
+				$layout->addPlaceholder($placeholder);
+			} else {
+				$placeholder = $placeholders->get($nameInLayout);
+			}
 			
-			$setsPlaces = array();
+			$namesNow[] = $nameInLayout;
+		}
+		
+		$groupsBefore = $layout->getPlaceholderGroups();
+		$groupNamesBefore = $groupsBefore->getKeys();
+		
+		$groupNamesNow = array();
+		
+		$groupNames = $twigProcessor->getPlaceGroups($this->filename);
+		
+		if ( ! empty($groupNames)) {
 			
-			foreach ($placeHolderContainers as $containerName) {
+			$groupLayouts = $theme->getPlaceholderGroupLayouts();
+			
+			$layoutPlaces = array();
+			foreach($groupLayouts as $groupLayout) {
+				/* @var $groupLayout \Supra\Controller\Pages\Entity\Theme\ThemePlaceholderGroupLayout */
+				$layoutFile = $groupLayout->getFileName();
+				$places = $twigProcessor->getPlaces($layoutFile);
 				
-				foreach ($themePlaceHolderSets as $placeHolderSet) {
-					
-					$setLayout = $placeHolderSet->getLayoutFilename();
-					$currentSetPlaces = $twigProcessor->getPlaces($setLayout);
-					
-					$setsPlaces = array_merge($setsPlaces, $currentSetPlaces);
-					
-				}
-				
-				foreach($setsPlaces as $placeName) {
-					$finalPlaceName = $containerName . '_' . $placeName;
-					if ( ! in_array($finalPlaceName, $containersPlaceHolders)) {
-						$containersPlaceHolders[] = $finalPlaceName;
-						$placeContainerMap[$finalPlaceName] = $containerName;
+				foreach ($places as $place) {
+					if ( ! in_array($place, $layoutPlaces)) {
+						$layoutPlaces[] = $place;
 					}
 				}
 			}
-		}
-
-		$placeholderNamesInTemplate = $twigProcessor->getPlaces($this->filename);
-		
-		$placeholderNamesInTemplate = array_merge($placeholderNamesInTemplate, $containersPlaceHolders);
-
-		$namesToRemove = array_diff($currentPlaceholderNames, $placeholderNamesInTemplate);
-		foreach ($namesToRemove as $nameToRemove) {
-			$layout->removePlaceholder($placeholders[$nameToRemove]);
-		}
-
-		$namesToAdd = array_diff($placeholderNamesInTemplate, $currentPlaceholderNames);
-		foreach ($namesToAdd as $nameToAdd) {
 			
-			$containerName = null;
-			if (isset($placeContainerMap[$nameToAdd])) {
-				$containerName = $placeContainerMap[$nameToAdd];
+			if (empty($layoutPlaces)) {
+				\Log::warn('PlaceholderGroup layouts contains no places, check layout files');
 			}
+			
+			foreach ($groupNames as $groupName) {
+				$name = null;
+				$title = null;
+				
+				if (($pos = mb_strpos($groupName, '|')) !== false) {
+					$name = trim(mb_substr($groupName, 0, $pos));
+					$title = trim(mb_substr($groupName, $pos+1));
+				} else {
+					$name = $groupName;
+				}
+				
+				$title = (empty($title) ? ucfirst($name) : $title);
+				
+				if ( ! in_array($name, $groupNamesBefore)) {
+					$group = new Theme\ThemeLayoutPlaceholderGroup($name);
+					$layout->addPlaceholderGroup($group);
+				} else {
+					$group = $groupsBefore->get($name);
+				}
+				
+				$groupNamesNow[] = $name;
+				
+				$group->setTitle($title);
+				
+				foreach ($layoutPlaces as $placeName) {
+					$groupPlaceholderName = $name . '_' . $placeName;
+					
+					if ( ! in_array($groupPlaceholderName, $namesBefore)) {
+						$placeholder = new ThemeLayoutPlaceholder($groupPlaceholderName);
+						$layout->addPlaceholder($placeholder);
+					} else {
+						$placeholder = $placeholders->get($groupPlaceholderName);
+					}
+					
+					$group->addPlaceholder($placeholder);
 
-			$placeholder = new ThemeLayoutPlaceholder($containerName);
-			$placeholder->setName($nameToAdd);
-
-			$layout->addPlaceholder($placeholder);
+					$namesNow[] = $groupPlaceholderName;
+				}
+			}
 		}
 		
-		// @FIXME
-		if ( ! is_null($themePlaceHolderSets)) {
-			$defaultSet = $themePlaceHolderSets->first();
-			if ( ! empty($defaultSet)) {
-				$defaultSetName = $defaultSet->getName();
-			}
+		$groupNamesToRemove = array_diff($groupNamesBefore, $groupNamesNow);
+		foreach ($groupNamesToRemove as $name) {
+			$group = $groupsBefore->get($name);
+			$layout->removePlaceholderGroup($group);
+		}
+		
+		$namesToRemove = array_diff($namesBefore, $namesNow);
+		foreach ($namesToRemove as $nameToRemove) {
+			$placeholder = $placeholders->get($nameToRemove);
+			$layout->removePlaceholder($placeholder);
 
-			foreach($containersPlaceHolders as $placeholderName) {
-				$placeholder = $placeholders->get($placeholderName);
-				$placeholder->setContainer($placeContainerMap[$placeholderName]);
-				$placeholder->setDefaultSetName($defaultSetName);
+			$group = $placeholder->getGroup();
+			if ( ! is_null($group)) {
+				$group->removePlaceholder($placeholder);
 			}
 		}
 	}

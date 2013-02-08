@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\PagePlaceHolder;
 use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
+use Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup;
 
 /**
  * Page and template place holder data abstraction
@@ -34,17 +35,11 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	protected $name;
 	
 	/**
-	 * @Column(type="string", nullable=true)
-	 * @var string
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup", inversedBy="placeholders", cascade={"persist"})
+	 * @var \Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup
 	 */
-	protected $container;
+	protected $group;
 	
-	/**
-	 * @Column(name="placeholderSetName", type="string", nullable=true)
-	 * @var string
-	 */
-	protected $setName;
-
 	/**
 	 * @OneToMany(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Block", mappedBy="placeHolder", cascade={"persist", "remove"})
 	 * @OrderBy({"position" = "ASC"})
@@ -59,6 +54,7 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	 */
 	protected $localization;
 
+	
 	/**
 	 * Constructor
 	 * @param string $name
@@ -70,26 +66,6 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 		$this->blocks = new ArrayCollection();
 	}
 
-	public function setContainer($container)
-	{
-		$this->container = $container;
-	}
-	
-	public function getContainer()
-	{
-		return $this->container;
-	}
-	
-	public function getPlaceholderSetName()
-	{
-		return $this->setName;
-	}
-	
-	public function setPlaceholderSetName($name)
-	{
-		$this->setName = $name;
-	}
-	
 	/**
 	 * Set layout place holder name
 	 * @param string $Name
@@ -227,8 +203,13 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 			default:
 				throw new Exception\LogicException("Not recognized discriminator value for entity {$localization}");
 		}
-
-		if ( ! is_null($source)) {			
+		
+		if ( ! is_null($source)) {
+			$group = $source->getGroup();
+			if ($group instanceof TemplatePlaceHolderGroup) {
+				$placeHolder->setGroup($group);
+			}
+			
 			$blocks = $source->getBlocks();
 
 			/* @var $block Block */
@@ -318,18 +299,28 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 		return $this->localization;
 	}
 	
-	/*
-	public function __clone()
+	/**
+	 * @return \Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup
+	 */
+	public function getGroup()
 	{
-		parent::__clone();
-		
-		$blocks = new ArrayCollection();
-		foreach($this->blocks as $block) {
-			$newBlock = clone $block;
-			$blocks->add($block);
-		}
-		
-		$this->blocks = $blocks;
+		return $this->group;
 	}
-*/
+	
+	/**
+	 * @param \Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup $group
+	 */
+	public function setGroup(\Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup $group)
+	{
+		$this->group = $group;
+		$group->addPlaceholder($this);
+	}
+	
+	/**
+	 * 
+	 */
+	public function resetGroup()
+	{
+		$this->group = null;
+	}
 }

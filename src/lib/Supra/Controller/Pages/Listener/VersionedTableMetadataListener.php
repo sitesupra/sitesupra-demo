@@ -19,6 +19,7 @@ abstract class VersionedTableMetadataListener
 		'Supra\Controller\Pages\Entity\Abstraction\PlaceHolder',
 		'Supra\Controller\Pages\Entity\PagePlaceHolder',
 		'Supra\Controller\Pages\Entity\TemplatePlaceHolder',
+		'Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup',
 		
 		'Supra\Controller\Pages\Entity\Abstraction\Block',
 		'Supra\Controller\Pages\Entity\PageBlock',

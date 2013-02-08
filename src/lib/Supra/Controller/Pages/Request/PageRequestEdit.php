@@ -164,6 +164,12 @@ class PageRequestEdit extends PageRequest
 			$newRedirect = $publicData->getRedirect();
 		}
 		
+		// 0. Copy placeHolder groups
+		$placeHolderGroups = $draftData->getPlaceHolderGroups();
+		foreach ($placeHolderGroups as $group) {
+			$publicEm->merge($group);
+		}
+		
 		// 1. Get all blocks to be copied
 		$draftBlocks = $this->getBlocksInPage($draftEm, $draftData);
 
@@ -294,7 +300,7 @@ class PageRequestEdit extends PageRequest
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($missingPlaceHolders as $placeHolder) {
 			$placeHolder = $publicEm->merge($placeHolder);
-
+			
 			// Reset locked property
 			if ($placeHolder instanceof Entity\TemplatePlaceHolder) {
 				$placeHolder->setLocked(false);
