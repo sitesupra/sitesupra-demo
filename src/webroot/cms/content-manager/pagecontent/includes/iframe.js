@@ -453,7 +453,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//External links should be opened in new window
 			//Internal links should be opened as page
 			//Javascript,hash and mail links should be ignored
-			var target = e.target,
+			var target = e.target.closest('a'),
 				href = null,
 				local_links = new RegExp('^mailto:|^javascript:|' + document.location.pathname + '#', 'i');
 
@@ -461,9 +461,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 				//If clicked on link inside content which is beeing edited, then don't do anything
 				e.preventDefault();
 				return;
-			}
-			if (!target.test('a')) {
-				target = target.ancestor('a');
 			}
 			if (target && (href = target.get('href')) && !local_links.test(href)) {
 
@@ -482,6 +479,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 				}
 			}
 
+			console.log('PREVENT B!');
 			e.preventDefault();
 		},
 		

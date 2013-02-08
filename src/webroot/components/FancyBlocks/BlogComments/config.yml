@@ -24,3 +24,28 @@
           editable: Supra\Editable\InlineString
           label: Comment form title
           default: Leave A Comment
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: label_name
+          editable: Supra\Editable\String
+          label: Name input label
+          default: Name (required)
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: label_email
+          editable: Supra\Editable\String
+          label: Email input label
+          default: Email (required)
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: label_website
+          editable: Supra\Editable\String
+          label: Website input label
+          default: Website
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: label_comment
+          editable: Supra\Editable\String
+          label: Comment input label
+          default: Comment...
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: label_submit
+          editable: Supra\Editable\String
+          label: Submit button label
+          default: POST COMMENT
