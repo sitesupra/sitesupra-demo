@@ -378,10 +378,12 @@ class PagecontentAction extends PageManagerAction
 				
 				$this->entityManager->flush();
 				return;
-			} elseif ($localization instanceof Entity\PageLocalization) {
-				// silently exit right now
-				return;
 			}
+		}
+		
+		if ( ! $input->has('locked') && $localization instanceof Entity\PageLocalization) {
+			// silently exit for now
+			return;
 		}
 		
 		if (empty($placeHolder)) {
