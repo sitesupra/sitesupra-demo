@@ -174,6 +174,7 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				},
 				
 				'style': 'list',
+				'tableHeadingVisible': false,
 				
 				//We will set total number of records manually in 'requestTotalRecords' 
 				'requestMetaLocator': {},
@@ -252,8 +253,6 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 				
 				this.get('tree').fire('page:select', params);
 			}, this);
-			
-			window.nodelist = this;
 		},
 		
 		/**

@@ -987,6 +987,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'datagrid/datagrid-loader.js',
 		requires: ['plugin', 'supra.datagrid']
 	},
+	'supra.datagrid-sortable': {
+		path: 'datagrid/datagrid-sortable.js',
+		requires: ['plugin', 'supra.datagrid']
+	},
 	'supra.datagrid-draggable': {
 		path: 'datagrid/datagrid-draggable.js',
 		requires: ['plugin', 'dd-delegate', 'dd-drag', 'dd-proxy', 'dd-drop', 'supra.datagrid']
@@ -16191,6 +16195,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		'PageToolbar': '/content-manager',
 		'PageButtons': '/content-manager',
 		'EditorToolbar': '/content-manager',
+		'Page': '/content-manager',
 		'PageContentSettings': '/content-manager',
 		'PageSourceEditor': '/content-manager',
 		'LayoutContainers': '/content-manager',
@@ -16201,6 +16206,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		'UserAvatar': '/internal-user-manager',
 		'Applications': '/dashboard',
 		'BrowserSupport': '/dashboard',
+		'Blog': '/blog-manager',
 		'Sites': '-local/site-list-manager' // This is rather hacky.
 	});
 

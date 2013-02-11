@@ -956,7 +956,7 @@ button::-moz-focus-inner { border:0; }
 .ui-center-dark .yui3-input input, .ui-center-dark .yui3-input textarea, .ui-center-dark .yui3-input iframe {
   color:#8f8f9a;
   line-height:24px;
-  background:url(../img/background-pattern-darker.jpg) 0 0 repeat;
+  background:url(/cms/lib/supra/img/background-pattern-darker.jpg) 0 0 repeat;
   box-shadow:0 1px 1px rgba(1,1,8,0.6) inset;
   box-shadow:0 1px 1px rgba(1,1,8,0.6) inset, 0 1px 0 rgba(255,255,255,0.15);
 }
@@ -964,6 +964,7 @@ button::-moz-focus-inner { border:0; }
 .ui-center-dark .yui3-input input::-ms-input-placeholder, .ui-center-dark .yui3-input textarea::-ms-input-placeholder, .ui-center-dark .yui3-input iframe::-ms-input-placeholder { color:#7c7d85; }
 .ui-center-dark .yui3-input input::-moz-placeholder, .ui-center-dark .yui3-input textarea::-moz-placeholder, .ui-center-dark .yui3-input iframe::-moz-placeholder { color:#7c7d85; }
 .ui-center-dark .yui3-input input::input-placeholder, .ui-center-dark .yui3-input textarea::input-placeholder, .ui-center-dark .yui3-input iframe::input-placeholder { color:#7c7d85; }
+.ui-center-dark .yui3-input textarea { line-height:16px; }
 .yui3-input textarea {
   height:100px;
   max-height:200px;

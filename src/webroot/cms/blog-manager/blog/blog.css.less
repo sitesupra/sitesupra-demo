@@ -1,0 +1,24 @@
+//Common style definitions
+@import "/cms/lib/supra/less/common.less";
+
+.blog {
+	.layout-fullscreen();
+	z-index: 3;
+	
+	.loading-icon {
+		display: none;
+	}
+	&.loading {
+		.loading-icon {
+			display: block;
+		}
+	}
+	
+	.su-slide-content {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+@import "blog_posts.less";
+@import "blog_settings.less";

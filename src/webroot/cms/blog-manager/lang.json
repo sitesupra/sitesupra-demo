@@ -1,0 +1,40 @@
+{
+	"status": true,
+	"data": {
+		"blog": {
+			
+			"columns": {
+				"time": "Date",
+				"title": "Post title",
+				"author": "Author",
+				"comments": "Comments"
+			},
+			
+			"toolbar": {
+				"posts": "Posts",
+				"settings": "Blog Settings"
+			},
+			
+			"posts": {
+				"status_not_created": "NOT-translated",
+				"status_draft": "DRAFT",
+				"status_not_published": "NOT-published",
+				"status_scheduled": "SCHEDULED",
+			
+				"new_post": "New post",
+				"delete_post": "Are you sure you want to delete selected post?"
+			},
+			
+			"settings": {
+				"author": {
+					"title": "About author",
+					"about": "About text"
+				},
+				"tags": {
+					"title": "Tags"
+				}
+			}
+			
+		}
+	}
+}
