@@ -727,7 +727,8 @@ function (Y) {
 		toggleRecycleBin: function () {
 			var toolbar = Manager.getAction('PageToolbar'),
 				button  = toolbar.getActionButton('blog_recycle_bin'),
-				action  = Supra.Manager.getAction('SiteMapRecycle');
+				action  = Supra.Manager.getAction('SiteMapRecycle'),
+				buttonNewPost = this.widgets.buttonNewPost;
 			
 			if (!button.get('down')) {
 				action.execute({
@@ -735,12 +736,15 @@ function (Y) {
 					'parent_id': this.parent_id,
 					'onclose': function () {
 						button.set('down', false);
+						buttonNewPost.show();
 					}
 				});
 				
+				buttonNewPost.hide();
 				button.set('down', true);
 			} else {
 				action.hide();
+				buttonNewPost.show();
 			}
 		},
 		
