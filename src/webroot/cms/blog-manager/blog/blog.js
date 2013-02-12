@@ -312,9 +312,9 @@ function (Y) {
 						'title': Supra.Intl.get(['blog', 'columns', 'time']),
 						'formatter': 'dateShort'
 					}, {
-						'id': 'icon',
+						'id': 'status',
 						'title': '',
-						'formatter': function () { return '<img src="/cms/content-manager/sitemap/images/icon-news.png" height="22" width="20" alt="" />'; }
+						'formatter': this.formatColumnStatus
 					}, {
 						'id': 'title',
 						'title': Supra.Intl.get(['blog', 'columns', 'title'])
@@ -325,10 +325,6 @@ function (Y) {
 						'id': 'comments',
 						'title': Supra.Intl.get(['blog', 'columns', 'comments']),
 						'formatter': this.formatColumnComments
-					}, {
-						'id': 'status',
-						'title': '',
-						'formatter': this.formatColumnStatus
 					}, {
 						'id': 'delete',
 						'title': '',

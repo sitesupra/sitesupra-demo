@@ -363,7 +363,7 @@ Supra('anim', 'transition', function (Y) {
 				var drag_node = e.target.get('dragNode');
 				
 				drag_node.addClass('su-blog-restore');
-				drag_node.one('.title').set('innerHTML', '<img src="/cms/content-manager/sitemap/images/icon-news.png" height="22" width="20" alt="">' + data.title);
+				drag_node.one('.title').set('innerHTML', data.title);
 				
 				Y.one('body').append(drag_node);
 			}, this);
