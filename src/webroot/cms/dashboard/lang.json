@@ -27,13 +27,11 @@
 			},
 			
 			"referrers": {
-				"title": "Top referring sites",
-				"view_all": "View all"
+				"title": "Top referring sites"
 			},
 			
 			"keywords": {
-				"title": "Top keywords",
-				"view_all": "View all"
+				"title": "Top keywords"
 			},
 			
 			"sites": {

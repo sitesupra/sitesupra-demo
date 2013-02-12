@@ -150,21 +150,18 @@ YUI.add('dashboard.stats', function (Y) {
 			if (!visitors) {
 				visitors = this._widgets.visitorsStats = new Supra.DashboardStatsVisitors({
 					'visible': !auth_visible,
-					'title': Supra.Intl.get(['dashboard', 'visitors', 'title'])
+					'title': Supra.Intl.get(['dashboard', 'visitors', 'title']),
+					'website': data.profile_title
 				});
 				keywords = this._widgets.keywordsStats = new Supra.DashboardStatsList({
 					'srcNode': node_keywords,
 					'visible': !auth_visible,
-					'title': Supra.Intl.get(['dashboard', 'keywords', 'title']),
-					'linkTitle': Supra.Intl.get(['dashboard', 'keywords', 'view_all']),
-					'linkTarget': 'https://www.google.com/analytics/web/#report/trafficsources-organic/'
+					'title': Supra.Intl.get(['dashboard', 'keywords', 'title'])
 				});
 				referrers = this._widgets.sourcesStats = new Supra.DashboardStatsList({
 					'srcNode': node_referrers,
 					'visible': !auth_visible,
-					'title': Supra.Intl.get(['dashboard', 'referrers', 'title']),
-					'linkTitle': Supra.Intl.get(['dashboard', 'referrers', 'view_all']),
-					'linkTarget': 'https://www.google.com/analytics/web/#report/trafficsources-all-traffic/'
+					'title': Supra.Intl.get(['dashboard', 'referrers', 'title'])
 				});
 				
 				visitors.render(node_src);
@@ -208,11 +205,13 @@ YUI.add('dashboard.stats', function (Y) {
 					keywords.set('visible', true);
 					referrers.set('visible', true);
 					visitors.set('visible', true);
+					visitors.set('website', '');
 					
 					if (data.stats) {
 						keywords.set('data', data.stats.keywords);
 						referrers.set('data',  data.stats.sources);
 						visitors.set('data', data.stats.visitors);
+						visitors.set('website', data.profile_title);
 					}
 				}, this));
 				
@@ -222,6 +221,7 @@ YUI.add('dashboard.stats', function (Y) {
 					keywords.set('data', data.stats.keywords);
 					referrers.set('data',  data.stats.sources);
 					visitors.set('data', data.stats.visitors);
+					visitors.set('website', data.profile_title);
 				}
 				
 				this.set('loading', false);

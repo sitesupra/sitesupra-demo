@@ -3,6 +3,7 @@
 	"data": {
 		"is_authenticated": true,
 		"profile_id": "test_1",
+		"profile_title": "example.tpl",
 		"stats": {
 			"visitors": {
 		    	"monthly": {
