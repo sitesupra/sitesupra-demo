@@ -146,6 +146,17 @@ function (Y) {
 		 */
 		filterTimer: null,
 		
+		/**
+		 * Action execution options
+		 * @type {Object}
+		 * @private
+		 */
+		options: {
+			'standalone': false,
+			'parent_id': '',
+			'sitemap_element': null
+		},
+		
 		
 		/**
 		 * @constructor
@@ -287,7 +298,7 @@ function (Y) {
 				// Url params (GET parameters)
 				'requestParams': {
 					'locale': this.locale,
-					'parent_id': this.parent_id,
+					'parent_id': this.options.parent_id,
 					'query': ''
 				},
 				
@@ -572,7 +583,7 @@ function (Y) {
 					'published': false,
 					'scheduled': false,
 					'type': 'page',
-					'parent_id': this.parent_id,
+					'parent_id': this.options.parent_id,
 					
 					'title': '',
 					'template': '',
@@ -652,7 +663,7 @@ function (Y) {
 		 * @param {Object} record_id
 		 */
 		openBlogPost: function (record_id) {
-			if (this.standalone) {
+			if (this.options.standalone) {
 				// Open content manager action
 				var url = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('SiteMap') + '/h/page/' + record_id;
 				
@@ -661,11 +672,26 @@ function (Y) {
 			} else {
 				var data = this.widgets.datagrid.getRowByID(record_id).getData();
 				
-				Supra.data.set('locale', this.locale);
-				this.fire('page:select', {
-					'data': data
-				});
+				if (this.options.sitemap_element) {
+					// Animate sitemap
+					Supra.Manager.SiteMap.animate(this.options.sitemap_element, false).done(function () {
+						this._openBlogPost(data);
+					}, this);
+					this.options.sitemap_element = null;
+				} else {
+					// No animation, since we don't have needed element
+					this._openBlogPost(data);
+				}
 			}
+		},
+		
+		_openBlogPost: function (data) {
+			this.hide();
+			
+			Supra.data.set('locale', this.locale);
+			this.fire('page:select', {
+				'data': data
+			});
 		},
 		
 		
@@ -733,7 +759,7 @@ function (Y) {
 			if (!button.get('down')) {
 				action.execute({
 					'type': 'Blog',
-					'parent_id': this.parent_id,
+					'parent_id': this.options.parent_id,
 					'onclose': function () {
 						button.set('down', false);
 						buttonNewPost.show();
@@ -774,6 +800,11 @@ function (Y) {
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
+			//Animate sitemap
+			if (this.options.sitemap_element) {
+				Supra.Manager.SiteMap.animate(this.options.sitemap_element, true, 'blog');
+			}
+			
 			//Remove from header
 			Manager.getAction('Header').unsetActiveApplication(this.NAME);
 		},
@@ -798,17 +829,21 @@ function (Y) {
 		 * Execute action
 		 */
 		execute: function (options) {
-			this.standalone = (options && options.standalone);
-			this.parent_id = (options && options.parent_id ? options.parent_id : '');
+			this.options = Supra.mix({
+				'standalone': false,
+				'parent_id': '',
+				'sitemap_element': null
+			}, options || {});
+			
 			this.show();
 			
-			if (!this.standalone) {
+			if (!this.options.standalone) {
 				this.locale = Manager.getAction('SiteMap').languageSelector.get('value');
 				this.widgets.languageSelector.set('value', this.locale, {'silent': true});
 			}
 			
 			this.widgets.datagrid.requestParams.set('locale', this.locale);
-			this.widgets.datagrid.requestParams.set('parent_id', this.parent_id);
+			this.widgets.datagrid.requestParams.set('parent_id', this.options.parent_id);
 			this.widgets.datagrid.reset();
 		}
 	});

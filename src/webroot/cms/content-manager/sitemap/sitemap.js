@@ -211,12 +211,14 @@ function (Y) {
 		 */
 		render: function () {
 			//Animation
-			this.animationNode = this.one('div.animation-node');
+			this.animationNode = this.one('div.su-sitemap-animation-node');
 			this.animation = new Y.Anim({
 				'node': this.animationNode,
 				'duration': 0.5,
 				'easing': Y.Easing.easeIn
 			});
+			
+			Y.one('body').append(this.animationNode);
 			
 			//Language selector
 			this.languageSelector = this.renderLanguageBar();
@@ -450,26 +452,31 @@ function (Y) {
 		 * 
 		 * @param {Object} node Node to animate into
 		 * @param {Boolean} reverse Reverse animation
+		 * @param {String} origin Origin of the call
 		 * @private
 		 */
-		animate: function (node, reverse) {
+		animate: function (node, reverse, origin) {
 			//Visiblity state, set before calculating regions
 			if (reverse) {
-				this.animationNode.setStyles({'opacity': 1, 'display': 'block', 'left': 0, 'top': 0, 'right': 0, 'bottom': 0});
+				this.animationNode.setStyles({'opacity': 1, 'display': 'block', 'left': 0, 'top': 48, 'right': 0, 'bottom': 0});
 				this.set('visible', true);
 			}
 			
 			//
-			var animationNode = this.animationNode,
+			var cleanUp       = (origin != 'blog'),
+				
+				animationNode = this.animationNode,
 				animation     = this.animation,
 				
 				styles_from   = {},
-				styles_to     = {'left': 0, 'top': 0, 'right': 0, 'bottom': 0, 'opacity': 1},
+				styles_to     = {'left': 0, 'top': 48, 'right': 0, 'bottom': 0, 'opacity': 1},
 				
 				target_reg    = this.one().get('region'),
 				
 				node          = node || this.tree.get('contentBox'),
-				node_reg      = node.get('region');
+				node_reg      = node.get('region'),
+				
+				deferred      = new Supra.Deferred();
 			
 			//Animation styles
 			styles_from = {
@@ -479,6 +486,14 @@ function (Y) {
 				'bottom':  target_reg.height - node_reg.height - node_reg.top,
 				'opacity': 0.35
 			};
+			
+			if (origin == 'blog') {
+				// Hardcoded, is there a better solution?
+				animationNode.setStyle('background', 'url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat');
+			} else {
+				// Origin is page
+				animationNode.setStyle('background', '#fff');
+			}
 			
 			if (reverse) {
 				animation.set('from', styles_to);
@@ -503,15 +518,17 @@ function (Y) {
 						this.setStyle('display', 'none');
 					});
 					
-					this.set('visible', false);
-					
-					Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-					Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
-					
-					Manager.executeAction('PageHeader', true);
-					
-					//Clean up tree
-					this.tree.removeAll(null, true);
+					if (cleanUp) {
+						this.set('visible', false);
+						
+						Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+						Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
+						
+						Manager.executeAction('PageHeader', true);
+						
+						//Clean up tree
+						this.tree.removeAll(null, true);
+					}
 					
 					//State
 					this.hiding = false;
@@ -521,8 +538,11 @@ function (Y) {
 					
 					this.animationNode.hide();
 				}
+				
+				deferred.resolve();
 			}, this);
 			
+			return deferred.promise();
 		},
 		
 		
