@@ -20,14 +20,17 @@ class WriteableIniStorage implements StorageInterface
 	/**
 	 * @throws \RuntimeException
 	 */
-	public function __construct()
+	public function __construct($iniLoader = null)
 	{
-		$ini = \Supra\ObjectRepository\ObjectRepository::getIniConfigurationLoader($this);
-		if ( ! $ini instanceof \Supra\Configuration\Loader\WriteableIniConfigurationLoader) {
+		if (is_null($iniLoader)) {
+			$iniLoader = \Supra\ObjectRepository\ObjectRepository::getIniConfigurationLoader($this);
+		}
+		
+		if ( ! $iniLoader instanceof \Supra\Configuration\Loader\WriteableIniConfigurationLoader) {
 			throw new \RuntimeException('Received configuration loader must be an instance of WriteableIniConfigurationLoader');
 		}
 		
-		$this->ini = $ini;
+		$this->ini = $iniLoader;
 	}
 	
 	public function get($key, $default = null)
