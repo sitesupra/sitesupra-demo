@@ -6,6 +6,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 			<div class="su-block-heading ui-center-darker-background">\
 				<h2>\
 					<span>{{ title|escape }}</span>\
+					<small>{{ website|escape }}</small>\
 					<button suStyle="small" class="button-settings"></button>\
 					<button suStyle="small" class="button-done"></button>\
 				</h2>\
@@ -54,6 +55,11 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		'title': {
 			'value': '',
 			'setter': '_setTitle'
+		},
+		//Website title
+		'website': {
+			'value': '',
+			'setter': '_setWebsiteTitle'
 		},
 		//Data
 		'data': {
@@ -133,7 +139,8 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 			
 			template = Supra.Template.compile(this.TEMPLATE_HEADING);
 			heading = this._nodes.heading = Y.Node.create(template({
-				'title': this.get('title')
+				'title': this.get('title'),
+				'website': this.get('website')
 			}));
 			
 			template = Supra.Template.compile(this.TEMPLATE_BODY);
@@ -522,6 +529,19 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		 */
 		_setTitle: function (title) {
 			if (this._nodes.heading) this._nodes.heading.one('span').set('text', title);
+			return title;
+		},
+		
+		/**
+		 * Website title attribute setter
+		 * 
+		 * @param {String} title New title
+		 * @return New title
+		 * @type {String}
+		 * @private
+		 */
+		_setWebsiteTitle: function (title) {
+			if (this._nodes.heading) this._nodes.heading.one('small').set('text', title);
 			return title;
 		},
 		

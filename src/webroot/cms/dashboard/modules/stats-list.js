@@ -6,7 +6,6 @@ YUI.add("dashboard.stats-list", function (Y) {
 			<div class="su-block-heading ui-center-darker-background">\
 				<h2>\
 					<span>{{ title|escape }}</span>\
-					{% if linkTitle and linkTarget %}<a target="_blank" href="{{ linkTarget|escape }}">{{ linkTitle|escape }}</a>{% endif %}\
 				</h2>\
 			</div>';
 	
@@ -44,14 +43,6 @@ YUI.add("dashboard.stats-list", function (Y) {
 			"value": "",
 			"setter": "_setTitle"
 		},
-		//Heading link title
-		"linkTitle": {
-			"value": ""
-		},
-		//Heading link target
-		"linkTarget": {
-			"value": ""
-		},
 		//Data
 		"data": {
 			"value": null,
@@ -66,14 +57,6 @@ YUI.add("dashboard.stats-list", function (Y) {
 	Stats.HTML_PARSER = {
 		"title": function (srcNode) {
 			var attr = srcNode.getAttribute("suTitle");
-			if (attr) return attr;
-		},
-		"linkTitle": function (srcNode) {
-			var attr = srcNode.getAttribute("suLinkTitle");
-			if (attr) return attr;
-		},
-		"linkTarget": function (srcNode) {
-			var attr = srcNode.getAttribute("suLinkTarget");
 			if (attr) return attr;
 		}
 	};
@@ -121,9 +104,7 @@ YUI.add("dashboard.stats-list", function (Y) {
 			
 			template = Supra.Template.compile(this.TEMPLATE_HEADING);
 			heading = this.nodes.heading = Y.Node.create(template({
-				"title": this.get("title"),
-				"linkTitle": this.get("linkTitle"),
-				"linkTarget": this.get("linkTarget")
+				"title": this.get("title")
 			}));
 			
 			template = Supra.Template.compile(this.TEMPLATE_BODY);
