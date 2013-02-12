@@ -46,7 +46,7 @@ class StatsAction extends DasboardAbstractAction
 			$siteId = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'id', null);
 			
 			$serverName = $this->getRequest()
-					->getServerValue('SERVER_NAME');
+					->getServerValue('HTTP_HOST');
 			
 			$state = implode(',', array($siteId, $serverName));
 			
