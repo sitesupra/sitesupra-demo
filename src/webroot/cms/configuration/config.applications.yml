@@ -45,17 +45,20 @@
 #    _class: Supra\Cms\Settings\SettingsAuthorizationAccessPolicy
 #    applicationNamespace: Supra\Cms\Settings
 
-- _class: Supra\Cms\MediaLibrary\ApplicationConfiguration
-  id: Supra\Cms\MediaLibrary
-  title: Files
-  url: media-library
-  icon: /cms/lib/supra/img/apps/media_library
-
 - _class: Supra\Cms\BlogManager\ApplicationConfiguration
   id: Supra\Cms\BlogManager
   title: Blog
   url: blog-manager
   icon: /cms/lib/supra/img/apps/blog
+  authorizationAccessPolicy:
+    _class: Supra\Cms\BlogManager\BlogManagerAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\BlogManager
+
+- _class: Supra\Cms\MediaLibrary\ApplicationConfiguration
+  id: Supra\Cms\MediaLibrary
+  title: Files
+  url: media-library
+  icon: /cms/lib/supra/img/apps/media_library
 
 ##possible values: "full", "partial" and "none"
 ## - "none" will disable any existence check
