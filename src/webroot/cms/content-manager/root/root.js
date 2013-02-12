@@ -298,6 +298,7 @@ function (Y) {
 			});
 			
 			this.bindSiteMap();	
+			this.bindBlogManager();
 		},
 		
 		/**
@@ -306,6 +307,20 @@ function (Y) {
 		bindSiteMap: function () {
 			//When page is selected in sitemap load it
 			Manager.getAction('SiteMap').on('page:select', function (evt) {
+				//Only if page is localized
+				if (evt.data.localized) {
+					//Change path
+					this.router.save(this.ROUTE_PAGE.replace(':page_id', evt.data.id));
+				}
+			}, this);
+		},
+		
+		/**
+		 * Bind SiteMap action to Page
+		 */
+		bindBlogManager: function () {
+			//When page is selected in sitemap load it
+			Manager.getAction('Blog').on('page:select', function (evt) {
 				//Only if page is localized
 				if (evt.data.localized) {
 					//Change path

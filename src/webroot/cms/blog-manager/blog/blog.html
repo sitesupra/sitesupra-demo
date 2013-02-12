@@ -1,0 +1,63 @@
+<!-- Container panel -->
+<div class="blog center-container">
+	
+	<div class="blog-slideshow">
+		<div id="blog_posts" suScrollable="false" class="ui-light ui-light-background">
+			<div class="datagrid-toolbar">
+				<button type="button" suStyle="mid-blue">{# blog.posts.new_post #}</button>
+				
+				<div class="blog-languages"></div>
+				
+				<div class="filters"></div>
+			</div>
+			
+			<div class="datagrid"></div>
+		</div>
+		<div id="blog_settings" class="blog-settings hidden" suScrollable="false">
+			
+			<div class="nav-content ui-center-darker-background">
+				
+				<div class="nav-tabs" suStyle="tab" suType="radio">
+					<button suIcon="/cms/blog-manager/images/groups/author.png" suId="tabContentAuthor" suDown="true">{# blog.settings.author.title #}</button>
+					<button suIcon="/cms/blog-manager/images/groups/tags.png"   suId="tabContentTags">{# blog.settings.tags.title #}</button>
+				</div>
+				
+			</div>
+			<div class="main-content ui-center-dark ui-center-dark-background">
+				
+				<div class="slideshow">
+					<div id="tabContentAuthor">
+						
+						<em class="avatar">
+							<img src="/cms/lib/supra/img/avatar-default-48x48.png" alt="" />
+						</em>
+							
+						<form suStyle="vertical">
+							
+							<label for="about">{# blog.settings.author.about #}</label>
+							<textarea name="about"></textarea>
+							
+							<div class="footer">
+								<button type="submit" class="save">{# buttons.done #}</button>
+							</div>
+						</form>
+						
+					</div>
+					<div id="tabContentTags" class="hidden">
+						
+						<form suStyle="vertical">
+							TODO
+							<div class="footer">
+								<button type="submit" class="save">{# buttons.done #}</button>
+							</div>
+						</form>
+						
+					</div>
+				</div>
+				
+			</div>
+			
+		</div>
+	</div>
+	
+</div>

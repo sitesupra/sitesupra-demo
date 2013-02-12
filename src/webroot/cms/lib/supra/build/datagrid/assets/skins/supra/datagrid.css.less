@@ -10,6 +10,9 @@
 	thead {
 		display: none;
 	}
+	th span {
+		display: inline-block;
+	}
 	
 	.su-datagrid-spacer {
 		.border-radius (5px);
@@ -75,6 +78,19 @@
 	line-height: 16px;
 	text-shadow: 0 1px 0 rgba(187, 188, 203, 0.6);
 	text-align: left;
+	
+	thead {
+		display: table-header-group;
+	}
+	
+	th {
+		font-weight: bold;
+		padding: 5px 0;
+		
+		span {
+			padding: 0 8px 0 0;
+		}
+	}
 	
 	td {
 		padding: 5px 8px 5px 0;
@@ -165,7 +181,11 @@
 		text-align: left;
 		text-shadow: 0 1px 0 #AEADBD;
 		
-		padding: 1px 13px 0;
+		padding: 1px 0 0;
+		
+		span {
+			padding: 0 13px;
+		}
 	}
 	
 	td {
@@ -244,7 +264,11 @@
 			font-size: 12px;
 			font-weight: bold;
 			line-height: 24px;
-			padding: 7px 14px 5px;
+			padding: 7px 0 5px;
+			
+			span {
+				padding: 0 14px;
+			}
 			
 			b {
 				font-size: 16px;
@@ -292,5 +316,24 @@
 	
 	a {
 		color: #7AD2FF;
+	}
+}
+
+.su-datagrid-sortable {
+	thead th.sort {
+		cursor: pointer;
+	}
+	thead th.sort:hover span {
+		text-decoration: underline;
+	}
+	thead th.sort-asc span,
+	thead th.sort-desc span {
+		padding-right: 15px;
+	}
+	thead th.sort-asc span {
+		background: url(sort-asc.png) 100% 50% no-repeat;
+	}
+	thead th.sort-desc span {
+		background: url(sort-desc.png) 100% 50% no-repeat;
 	}
 }

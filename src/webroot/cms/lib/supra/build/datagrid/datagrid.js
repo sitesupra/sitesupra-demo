@@ -53,6 +53,10 @@ YUI.add("supra.datagrid", function (Y) {
 			'value': false,
 			'writeOnce': true
 		},
+		'tableHeadingVisible': {
+			'value': true,
+			'setter': '_setTableHeadingVisible'
+		},
 		'columns': {
 			'value': [],
 			'setter': '_setColumns'
@@ -90,6 +94,13 @@ YUI.add("supra.datagrid", function (Y) {
 		},
 		'nodeScrollable': {
 			'value': null
+		},
+		
+		/**
+		 * Automatically start loading data when craeted
+		 */
+		'autoLoad': {
+			'value': true
 		},
 		
 		/**
@@ -333,8 +344,13 @@ YUI.add("supra.datagrid", function (Y) {
 				}
 				
 				id = column.id.replace(/[^a-z0-9\-_]*/ig, '');
-				node = Y.Node.create('<th ' + (column.width ? 'width="' + column.width + '" ' : '') + 'class="col-' + id + '">' + (column.title || '') + '</th>');
+				node = Y.Node.create('<th ' + (column.width ? 'width="' + column.width + '" ' : '') + 'class="col-' + id + '"><span>' + (column.title || '') + '</span></th>');
 				heading.append(node);
+			}
+			
+			//Heading visibility
+			if (!this.get('tableHeadingVisible')) {
+				heading.ancestor().addClass('hidden');
 			}
 			
 			//Data columns are not rendered
@@ -392,7 +408,9 @@ YUI.add("supra.datagrid", function (Y) {
 			this.tableBodyNode.delegate('click', this._handleRowClick, 'tr', this);
 			
 			//When rendering is done start loading data
-			this.after('render', this.reset, this);
+			if (this.get('autoLoad')) {
+				this.after('render', this.reset, this);
+			}
 		},
 		
 		/**
@@ -1045,6 +1063,25 @@ YUI.add("supra.datagrid", function (Y) {
 		'_setClickable': function (clickable) {
 			this.get('boundingBox').toggleClass(this.getClassName('clickable'), clickable);
 			return clickable;
+		},
+		
+		/**
+		 * tableHeadingVisible attribute setter
+		 * 
+		 * @param {Boolean} visible New visibility attribute value
+		 * @return New attribute value
+		 * @type {Boolean}
+		 * @private
+		 */
+		'_setTableHeadingVisible': function (visible) {
+			
+			if (this.get('rendered')) {
+				var node = this.get('tableHeadingNode');
+				if (node) {
+					node.ancestor().toggleClass('hidden', !visible);
+				}
+			}
+			return !!visible;
 		},
 		
 		/**

@@ -27,6 +27,10 @@ Supra.addModule('website.sitemap-tree-node-app-news', {
 	path: 'sitemap/modules/tree/tree-node-app-news.js',
 	requires: ['website.sitemap-tree-node-app']
 });
+Supra.addModule('website.sitemap-tree-node-app-blog', {
+	path: 'sitemap/modules/tree/tree-node-app-blog.js',
+	requires: ['website.sitemap-tree-node-app']
+});
 
 Supra.addModule('website.sitemap-tree-view', {
 	path: 'sitemap/modules/tree/tree-view.js',
@@ -68,7 +72,7 @@ Supra.addModule('website.sitemap-delete-page', {
 Supra(
 	'anim', 'transition',
 	'website.sitemap-tree',
-	'website.sitemap-tree-node', 'website.sitemap-tree-node-fake', 'website.sitemap-tree-node-list', 'website.sitemap-tree-node-app', 'website.sitemap-tree-node-app-news',
+	'website.sitemap-tree-node', 'website.sitemap-tree-node-fake', 'website.sitemap-tree-node-list', 'website.sitemap-tree-node-app', 'website.sitemap-tree-node-app-news', 'website.sitemap-tree-node-app-blog',
 	'website.sitemap-tree-view', 'website.sitemap-tree-data', 'website.sitemap-tree-util',
 	'website.sitemap-plugin-page-edit', 'website.sitemap-plugin-page-add', 'website.sitemap-plugin-page-global',
 	'website.sitemap-new-page', 'website.sitemap-delete-page',
@@ -646,6 +650,10 @@ function (Y) {
 				this.animate(node.get('itemBox'));
 			} else {
 				this.animate(null);
+			}
+			
+			if (Manager.getAction('Blog').get('visible')) {
+				Manager.getAction('Blog').hide();
 			}
 			
 			return this;

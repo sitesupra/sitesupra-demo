@@ -536,6 +536,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'datagrid/datagrid-loader.js',
 		requires: ['plugin', 'supra.datagrid']
 	},
+	'supra.datagrid-sortable': {
+		path: 'datagrid/datagrid-sortable.js',
+		requires: ['plugin', 'supra.datagrid']
+	},
 	'supra.datagrid-draggable': {
 		path: 'datagrid/datagrid-draggable.js',
 		requires: ['plugin', 'dd-delegate', 'dd-drag', 'dd-proxy', 'dd-drop', 'supra.datagrid']
