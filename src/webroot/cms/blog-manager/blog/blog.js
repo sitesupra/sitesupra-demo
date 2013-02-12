@@ -17,6 +17,14 @@
 			'supra.form', 'plugin'
 		]
 	});
+	
+	// Datagrid plugin to enable drag and drop post restore
+	Supra.addModule('blog.datagrid-restore', {
+		path: 'datagrid-plugin-restore.js',
+		requires: [
+			'plugin', 'dd-drop', 'supra.datagrid'
+		]
+	});
 })();
 
 /**
@@ -30,6 +38,7 @@ Supra(
 	'supra.datagrid-loader',
 	'supra.datagrid-sortable',
 	
+	'blog.datagrid-restore',
 	'blog.input-string-clear',
 	
 function (Y) {
@@ -53,11 +62,17 @@ function (Y) {
 			'title': Supra.Intl.get(['blog', 'toolbar', 'settings']),
 			'icon': '/cms/lib/supra/img/toolbar/icon-blog-settings.png',
 			'type': 'tab'
-	    }
+	   },
+	   {
+	   		'id': 'blog_recycle_bin',
+	   		'title': Supra.Intl.get(['blog', 'toolbar', 'recycle_bin']),
+	   		'icon': '/cms/lib/supra/img/toolbar/icon-recycle.png',
+	   		'type': 'button'
+	   }
 	];
 	
 	//Create Action class
-	new Action({
+	new Action(Manager.Action.PluginContainer, Action.PluginMainContent, {
 		
 		/**
 		 * Unique action name
@@ -130,6 +145,17 @@ function (Y) {
 		 * @private
 		 */
 		filterTimer: null,
+		
+		/**
+		 * Action execution options
+		 * @type {Object}
+		 * @private
+		 */
+		options: {
+			'standalone': false,
+			'parent_id': '',
+			'sitemap_element': null
+		},
 		
 		
 		/**
@@ -272,7 +298,7 @@ function (Y) {
 				// Url params (GET parameters)
 				'requestParams': {
 					'locale': this.locale,
-					'parent_id': this.parent_id,
+					'parent_id': this.options.parent_id,
 					'query': ''
 				},
 				
@@ -297,9 +323,9 @@ function (Y) {
 						'title': Supra.Intl.get(['blog', 'columns', 'time']),
 						'formatter': 'dateShort'
 					}, {
-						'id': 'icon',
+						'id': 'status',
 						'title': '',
-						'formatter': function () { return '<img src="/cms/content-manager/sitemap/images/icon-news.png" height="22" width="20" alt="" />'; }
+						'formatter': this.formatColumnStatus
 					}, {
 						'id': 'title',
 						'title': Supra.Intl.get(['blog', 'columns', 'title'])
@@ -310,10 +336,6 @@ function (Y) {
 						'id': 'comments',
 						'title': Supra.Intl.get(['blog', 'columns', 'comments']),
 						'formatter': this.formatColumnComments
-					}, {
-						'id': 'status',
-						'title': '',
-						'formatter': this.formatColumnStatus
 					}, {
 						'id': 'delete',
 						'title': '',
@@ -336,6 +358,8 @@ function (Y) {
 				'columns': ['time', 'title', 'author', 'comments'],
 				'column': 'time',
 				'order': 'desc'
+			});
+			this.widgets.datagrid.plug(Supra.DataGrid.RestorePlugin, {
 			});
 			
 			//Bind event listeners
@@ -559,7 +583,7 @@ function (Y) {
 					'published': false,
 					'scheduled': false,
 					'type': 'page',
-					'parent_id': this.parent_id,
+					'parent_id': this.options.parent_id,
 					
 					'title': '',
 					'template': '',
@@ -639,7 +663,7 @@ function (Y) {
 		 * @param {Object} record_id
 		 */
 		openBlogPost: function (record_id) {
-			if (this.standalone) {
+			if (this.options.standalone) {
 				// Open content manager action
 				var url = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('SiteMap') + '/h/page/' + record_id;
 				
@@ -648,11 +672,26 @@ function (Y) {
 			} else {
 				var data = this.widgets.datagrid.getRowByID(record_id).getData();
 				
-				Supra.data.set('locale', this.locale);
-				this.fire('page:select', {
-					'data': data
-				});
+				if (this.options.sitemap_element) {
+					// Animate sitemap
+					Supra.Manager.SiteMap.animate(this.options.sitemap_element, false).done(function () {
+						this._openBlogPost(data);
+					}, this);
+					this.options.sitemap_element = null;
+				} else {
+					// No animation, since we don't have needed element
+					this._openBlogPost(data);
+				}
 			}
+		},
+		
+		_openBlogPost: function (data) {
+			this.hide();
+			
+			Supra.data.set('locale', this.locale);
+			this.fire('page:select', {
+				'data': data
+			});
 		},
 		
 		
@@ -674,6 +713,8 @@ function (Y) {
 			
 			toolbar.getActionButton('blog_posts').on('click', this.handleToolbarButton, this, 'blog_posts');
 			toolbar.getActionButton('blog_settings').on('click', this.handleToolbarButton, this, 'blog_settings');
+			
+			toolbar.getActionButton('blog_recycle_bin').on('click', this.toggleRecycleBin, this);
 			
 			//Add side buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
@@ -704,6 +745,35 @@ function (Y) {
 			this.widgets.slideshow.set('slide', id);
 		},
 		
+		/**
+		 * Toggle recycle bin
+		 * 
+		 * @private
+		 */
+		toggleRecycleBin: function () {
+			var toolbar = Manager.getAction('PageToolbar'),
+				button  = toolbar.getActionButton('blog_recycle_bin'),
+				action  = Supra.Manager.getAction('SiteMapRecycle'),
+				buttonNewPost = this.widgets.buttonNewPost;
+			
+			if (!button.get('down')) {
+				action.execute({
+					'type': 'Blog',
+					'parent_id': this.options.parent_id,
+					'onclose': function () {
+						button.set('down', false);
+						buttonNewPost.show();
+					}
+				});
+				
+				buttonNewPost.hide();
+				button.set('down', true);
+			} else {
+				action.hide();
+				buttonNewPost.show();
+			}
+		},
+		
 		
 		/* ------------------------------------ Action  ------------------------------------ */
 		
@@ -730,6 +800,11 @@ function (Y) {
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
+			//Animate sitemap
+			if (this.options.sitemap_element) {
+				Supra.Manager.SiteMap.animate(this.options.sitemap_element, true, 'blog');
+			}
+			
 			//Remove from header
 			Manager.getAction('Header').unsetActiveApplication(this.NAME);
 		},
@@ -754,17 +829,21 @@ function (Y) {
 		 * Execute action
 		 */
 		execute: function (options) {
-			this.standalone = (options && options.standalone);
-			this.parent_id = (options && options.parent_id ? options.parent_id : '');
+			this.options = Supra.mix({
+				'standalone': false,
+				'parent_id': '',
+				'sitemap_element': null
+			}, options || {});
+			
 			this.show();
 			
-			if (!this.standalone) {
+			if (!this.options.standalone) {
 				this.locale = Manager.getAction('SiteMap').languageSelector.get('value');
 				this.widgets.languageSelector.set('value', this.locale, {'silent': true});
 			}
 			
 			this.widgets.datagrid.requestParams.set('locale', this.locale);
-			this.widgets.datagrid.requestParams.set('parent_id', this.parent_id);
+			this.widgets.datagrid.requestParams.set('parent_id', this.options.parent_id);
 			this.widgets.datagrid.reset();
 		}
 	});

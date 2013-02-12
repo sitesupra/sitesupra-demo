@@ -794,13 +794,14 @@ button::-moz-focus-inner { border:0; }
   box-shadow:0;
   box-shadow:0 1px 0 rgba(0,0,0,0.15);
 }
+.su-button-mid, .su-button-mid div, .su-button-mid-blue, .su-button-mid-blue div { border-radius:4px; }
 .su-button-mid p, .su-button-mid-blue p {
   color:#ffffff;
+  font-size:14px;
   text-shadow:0 1px rgba(0,19,52,0.4);
   min-width:67px;
 }
 .su-button-mid.su-button-disabled p, .su-button-mid-blue.su-button-disabled p { color:#ecedf5; }
-.su-button-mid-blue p { font-size:14px; }
 .su-button-item {
   display:block;
   box-shadow:none;

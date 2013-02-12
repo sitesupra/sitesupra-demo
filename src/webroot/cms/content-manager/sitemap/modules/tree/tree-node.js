@@ -90,6 +90,10 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'value': false,
 			'setter': '_setDndMarker'
 		},
+		// Drag and drop group ID for this node
+		'groupId': {
+			'value': null
+		},
 		
 		'depth': {
 			'value': 0
@@ -208,7 +212,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		'WIDTH': 120,
 		
 		/**
-		 * Drag and drop groups
+		 * Drag and drop groups, all
 		 * @type {Array}
 		 */
 		'DND_GROUPS': [
@@ -217,6 +221,23 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			'new-template', 'restore-template',
 			'new-group', 'new-application',
 			'delete'
+		],
+		
+		/**
+		 * Group which is actually this one
+		 * @type {String}
+		 */
+		'DND_GROUP_ID': 'default',
+		
+		/**
+		 * Groups which are allowed to be dropped
+		 * @type {Array}
+		 */
+		'DND_GROUPS_ALLOW': [
+			'default',
+			'new-page', 'restore-page',
+			'new-template', 'restore-template',
+			'new-group', 'new-application',
 		],
 		
 		/**
@@ -521,7 +542,6 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				node: this.get('boundingBox'),
 				dragMode: 'point',
 				target: true,
-				treeNode: this,
 				groups: this.DND_GROUPS
 			}).plug(Y.Plugin.DDProxy, {
 				moveOnEnd: false,			// Don't move original node at the end of drag
@@ -529,8 +549,13 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			});
 			
 			dnd.set('treeNode', this);
+			dnd.set('groupId', this.get('groupId') || this.DND_GROUP_ID);
+			dnd.set('groupsAllow', this.DND_GROUPS_ALLOW);
 			
 			//Target config
+			dnd.target.set('groupId', this.get('groupId') || this.DND_GROUP_ID);
+			dnd.target.set('groupsAllow', this.DND_GROUPS_ALLOW);
+			
 			dnd.target.set('padding', '0px 10px 0px 10px')
 			dnd.target.set('node', this.get('itemBox'));
 			dnd.target.set('treeNode', this);
@@ -597,9 +622,19 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		'_dndOver': function(e) {
 			var dragNode = e.drag.get('node'),
 				dropNode = e.drop.get('node').closest('.su-tree-node'),
-				view     = this.get('view');
+				view     = this.get('view'),
+				
+				group_id = e.drag.get('groupId'),
+				groups   = e.drop.get('groupsAllow'),
+				in_group = true;
 			
-			if (!view.get('animating')) {
+			if (group_id && groups) {
+				if (Y.Array.indexOf(groups, group_id) == -1) {
+					in_group = false;
+				}
+			}
+			
+			if (!view.get('animating') && in_group) {
 				if (!dropNode && !this.get('tree').size()) {
 					//If tree doesn't have any children
 					var target = this.get('tree');

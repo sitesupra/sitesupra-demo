@@ -2,7 +2,8 @@
 	
 	// Toolbar
 	.datagrid-toolbar {
-		padding: 7px;
+		padding: 11px;
+		height: 35px;
 		background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
 		border-bottom: 1px solid #B3B3C3;
 	}
@@ -12,7 +13,7 @@
 		height: auto;
 		position: absolute;
 		left: 0;
-		top: 50px;
+		top: 58px;
 		bottom: 0;
 		width: 100%;
 		
@@ -29,20 +30,23 @@
 			text-decoration: none;
 		}
 		
-		/* Icon */
-		.row-icon {
-			width: 20px;
-		}
-		
-		/* Date */
-		.row-time {
-			width: 24px;
+		/* Drop target for page restore */
+		.yui3-dd-dragging td {
+			color: #65667c;
+			font-size: 16px;
+			font-weight: bold;
+			line-height: 23px;
+			text-align: center;
+			text-shadow: 0 1px 0 rgba(255,255,255,0.21);
+			
+			span {
+				display: inline-block;
+				padding-right: 31px;
+				background: url(/cms/lib/supra/img/blocks/drag-icon.png) 100% 0 no-repeat;
+			}
 		}
 		
 		/* Comments icon */
-		.row-comments {
-			width: 21px;
-		}
 		.comments-icon {
 			display: inline-block;
 			width: 20px;
@@ -64,7 +68,7 @@
 		
 		/* Status icons */
 		.row-status {
-			padding-right: 4px;
+			padding-right: 10px;
 		}
 		.status-icon {
 			text-align: right;
@@ -72,12 +76,12 @@
 			div {
 				display: inline-block;
 				height: 20px;
-				padding: 0 7px 0 25px;
+				padding: 0 25px 0 7px;
 				font-size: 9px;
 				line-height: 20px;
-				background: url(/cms/content-manager/sitemap/images/tree-node-list-page-icons.png) 0 0 no-repeat,
-							url(/cms/content-manager/sitemap/images/tree-node-list-page-icons.png) 100% -40px no-repeat,
-							url(/cms/content-manager/sitemap/images/tree-node-list-page-icons.png) 0 -20px repeat-x;
+				background: url(../images/icon-status.png) 0 0 no-repeat,
+							url(../images/icon-status.png) 100% -40px no-repeat,
+							url(../images/icon-status.png) 0 -20px repeat-x;
 			}
 			
 			.status-not-localized {
@@ -97,9 +101,6 @@
 		}
 		
 		/* Delete icon */
-		.row-delete {
-			width: 20px;
-		}
 		.delete-icon {
 			display: inline-block;
 			vertical-align: top;
@@ -123,7 +124,7 @@
 	.blog-languages {
 		position: absolute;
 		left: 50%;
-		top: 3px;
+		top: 9px;
 		width: 400px;
 		margin-left: -200px;
 		text-align: center;
@@ -249,8 +250,8 @@
 	// Filter form
 	.filters {
 		position: absolute;
-		top: 4px;
-		right: 4px;
+		top: 8px;
+		right: 8px;
 		
 		.yui3-form-content {
 			padding: 7px;
@@ -298,4 +299,28 @@
 		}
 	}
 	
+}
+
+.su-blog-restore {
+	z-index: 9999;
+	
+	.img-restore {
+		display: none;
+	}
+	.title {
+		display: inline-block;
+		min-width: 200px;
+		max-width: 400px;
+		overflow: hidden;
+		padding: 5px 10px 3px;
+		background: url(/cms/lib/supra/img/sidebar/left-bg.gif) 0 0 repeat;
+		border: 1px solid #4a4b57;
+		opacity: 0.85;
+		
+		color: #323144;
+		cursor: move;
+		text-shadow: 0 1px 0 rgba(187, 188, 203, .6);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 }

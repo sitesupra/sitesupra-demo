@@ -216,6 +216,22 @@
 					}
 				}
 				
+				&.disabled,
+				&.disabled:hover {
+					opacity: 0.35;
+					cursor: default;
+					
+					span.title {
+						color: #0a0616;
+						cursor: default;
+						background: none;
+						padding-right: 0;
+					}
+					em {
+						color: #0a0616;
+					}
+				}
+				
 				&.loading {
 					background: url(/cms/lib/supra/img/loaders/loader-light-16.gif) 100% 50% no-repeat;
 				}

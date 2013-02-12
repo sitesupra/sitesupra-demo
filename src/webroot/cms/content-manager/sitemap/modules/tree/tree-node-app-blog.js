@@ -22,6 +22,23 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 	Y.extend(Node, Action.TreeNodeApp, {
 		
 		/**
+		 * Drag and drop groups
+		 * @type {Array}
+		 */
+		'DND_GROUPS': [
+			'new-page',
+			'delete'
+		],
+		
+		/**
+		 * Groups which are allowed to be dropped here
+		 * @type {Array}
+		 */
+		'DND_GROUPS_ALLOW': [
+			'new-page'
+		],
+		
+		/**
 		 * Not expandable
 		 * 
 		 * @private
@@ -39,11 +56,6 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 		 */
 		'bindUI': function () {
 			Node.superclass.bindUI.apply(this, arguments);
-			
-			//Prevent adding new children directly inside Blog application
-			this.on('child:add', function (e) {
-				e.node.set('droppablePlaces', {'inside': true, 'before': false, 'after': false});
-			}, this);
 			
 			this.on('child:before-add', function (e, setter) {
 				var data = setter.data;
@@ -92,12 +104,26 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 		'_onToggleClick': function (e) {
 			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
 				// Open blog manager
-				var data = this.get('data');
+				var data = this.get('data'),
+					deferred = null;
 				
-				Supra.Manager.executeAction('Blog', {
-					'parent_id': data.id,
-					'node': this
-				});
+				// Start loading immediately
+				Supra.Manager.loadAction('Blog');
+				 
+				// Arguments:
+				//		node
+				//		reverse animation
+				//		origin
+				deferred = Supra.Manager.SiteMap.animate(this.get('itemBox'), false, 'blog');
+				
+				deferred.done(function () {
+					// Show blog when animation is done
+					Supra.Manager.executeAction('Blog', {
+						'parent_id': data.id,
+						'node': this,
+						'sitemap_element': this.get('itemBox')
+					});
+				}, this);
 			}
 		},
 		
