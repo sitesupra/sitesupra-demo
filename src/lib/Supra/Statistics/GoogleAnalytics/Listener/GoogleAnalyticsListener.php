@@ -56,19 +56,20 @@ class GoogleAnalyticsListener
 		if ( ! $this->googleAnalyticsAdded) {
 
 			$accountId = $this->getGoogleAnalyticsAccountId();
-
-			if ($accountId) {
-
+			if ( ! empty($accountId)) {
 				$googleAnalyticsResponse = $this->getGoogleAnalyticsResponse($accountId, $request);
 
 				$response->getContext()
 						->addJsToLayoutSnippet('js', $googleAnalyticsResponse);
-
-				$this->googleAnalyticsAdded = true;
-			} else {
-
-				\Log::debug('Google Analytics Id not set!');
 			}
+			
+			$accountId = $this->getConfigurableGoogleAnalyticsAccountId();
+			if ( ! empty($accountId)) {
+				$googleAnalyticsResponse = $this->getGoogleAnalyticsResponse($accountId, $request, false);
+				$response->getContext()
+						->addJsToLayoutSnippet('js', $googleAnalyticsResponse);
+			}
+			
 		} else {
 
 			\Log::debug('Google Analytics already added!');
@@ -80,11 +81,11 @@ class GoogleAnalyticsListener
 	 * @param HttpRequest $request
 	 * @param HttpResponse $resposne
 	 */
-	protected function getGoogleAnalyticsResponse($accountId, HttpRequest $request = null)
+	protected function getGoogleAnalyticsResponse($accountId, HttpRequest $request = null, $useHostAsDomainParameter = true)
 	{
 		$googleAnalyticsResponse = new TwigResponse($this);
 
-		$responseData = $this->getGoogleAnalyticsResponseData($accountId, $request);
+		$responseData = $this->getGoogleAnalyticsResponseData($accountId, $request, $useHostAsDomainParameter);
 		foreach ($responseData as $name => $value) {
 			$googleAnalyticsResponse->assign($name, $value);
 		}
@@ -100,7 +101,7 @@ class GoogleAnalyticsListener
 	 * @param type $request
 	 * @return type
 	 */
-	protected function getGoogleAnalyticsResponseData($accountId, HttpRequest $request = null)
+	protected function getGoogleAnalyticsResponseData($accountId, HttpRequest $request = null, $useHostAsDomainParameter = true)
 	{
 		$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
 
@@ -109,7 +110,7 @@ class GoogleAnalyticsListener
 		$serverHttpHostAsDomainName = $iniConfiguration->getValue($sectionName, 'server_http_host_as_domain_name', false);
 		$systemHostAsDomainName = $iniConfiguration->getValue($sectionName, 'system_host_as_domain_name', false);
 
-		if ($serverHttpHostAsDomainName == true) {
+		if ($serverHttpHostAsDomainName == true || ! $useHostAsDomainParameter) {
 
 			if (empty($request)) {
 				throw new Exception\RuntimeException('No HttpRequest, can not get host for GA domainName.');
@@ -117,7 +118,6 @@ class GoogleAnalyticsListener
 
 			list($domainName) = explode(':', $request->getServerValue('HTTP_HOST'));
 		} else if ($systemHostAsDomainName == true) {
-
 			$domainName = $iniConfiguration->getValue('system', 'host', false);
 		} else {
 
@@ -126,7 +126,7 @@ class GoogleAnalyticsListener
 
 		$responseData = array(
 			'accountId' => $accountId,
-			'domainName' => $domainName
+			'domainName' => $domainName,
 		);
 
 		return $responseData;
@@ -153,12 +153,28 @@ class GoogleAnalyticsListener
 	protected function getGoogleAnalyticsAccountId()
 	{
 		$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
-
+		
 		$sectionName = $this->getGoogleAnalyticsSectionName();
 
 		$accountId = $iniConfiguration->getValue($sectionName, 'account_id', false);
-		
+
 		return $accountId;
 	}
-
+	
+	/**
+	 * @return string | null
+	 */
+	protected function getConfigurableGoogleAnalyticsAccountId()
+	{
+		$googleIni = ObjectRepository::getIniConfigurationLoader('#google');
+		if ($googleIni instanceof \Supra\Configuration\Loader\WriteableIniConfigurationLoader) {
+			$accountId = $googleIni->getValue('google_analytics', 'account_id', null);
+			if ( ! empty($accountId)) {
+				return $accountId;
+			}
+		}
+		
+		return null;
+	}
+	
 }

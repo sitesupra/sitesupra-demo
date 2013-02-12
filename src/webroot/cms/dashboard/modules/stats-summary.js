@@ -97,7 +97,7 @@ YUI.add('dashboard.stats-summary', function (Y) {
 					profiles_button.on('click', this._fireProfilesEvent, this);
 					
 					this._widgets.unauthorizeButton = unauthorize_button = new Supra.Button({
-						'label': Supra.Intl.get(['dashboard', 'settings', 'remove_analytics']),
+						'label': this._getUnauthorizeButtonLabel(data.account_name),
 						'style': 'small-red'
 					});
 					unauthorize_button.render(node);
@@ -105,6 +105,7 @@ YUI.add('dashboard.stats-summary', function (Y) {
 					unauthorize_button.on('click', this._fireUnauthorizeEvent, this);
 				} else {
 					node_info.set('text', info);
+					unauthorize_button.set('label', this._getUnauthorizeButtonLabel(data.account_name));
 				}
 				
 				profiles_button.set('loading', false);
@@ -115,6 +116,10 @@ YUI.add('dashboard.stats-summary', function (Y) {
 			}
 			
 			return data;
+		},
+		
+		_getUnauthorizeButtonLabel: function (account_name) {
+			return Supra.Intl.get(['dashboard', 'settings', 'remove_analytics']).replace('%s', account_name);
 		},
 		
 		

@@ -61,6 +61,11 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 			'value': '',
 			'setter': '_setWebsiteTitle'
 		},
+		//Website title
+		'account_name': {
+			'value': '',
+			'setter': '_setAccountName'
+		},
 		//Data
 		'data': {
 			'value': null,
@@ -466,7 +471,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 				button.on('click', this._fireProfilesEvent, this);
 				
 				this._widgets.unauthorizeButton = button = new Supra.Button({
-					'label': Supra.Intl.get(['dashboard', 'settings', 'remove_analytics']),
+					'label': this._getUnauthorizeButtonLabel(),
 					'style': 'small-red'
 				});
 				button.render(node);
@@ -512,6 +517,18 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 			this._widgets.profilesButton.set('disabled', true);
 			this.fire('unauthorizeClick');
 		},
+		
+		/**
+		 * Returns button label
+		 * 
+		 * @param {String} account_name Optional account name, if not set then taken from attribute
+		 * @returns {String} Button label
+		 * @private
+		 */
+		_getUnauthorizeButtonLabel: function (account_name) {
+			var account_name = account_name || this.get('account_name') || '';
+			return Supra.Intl.get(['dashboard', 'settings', 'remove_analytics']).replace('%s', account_name);
+		},
  
  
 		/**
@@ -543,6 +560,23 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		_setWebsiteTitle: function (title) {
 			if (this._nodes.heading) this._nodes.heading.one('small').set('text', title);
 			return title;
+		},
+		
+		/**
+		 * Account nameattribute setter
+		 * 
+		 * @param {String} account_name Account name
+		 * @return Account name
+		 * @type {String}
+		 * @private
+		 */
+		_setAccountName: function (account_name) {
+			var button = this._widgets.unauthorizeButton;
+			if (button) {
+				button.set('label', this._getUnauthorizeButtonLabel(account_name));
+			}
+			
+			return account_name;
 		},
 		
 		/**

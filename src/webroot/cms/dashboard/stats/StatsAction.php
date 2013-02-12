@@ -2,21 +2,12 @@
 
 namespace Supra\Cms\Dashboard\Stats;
 
-use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Statistics\GoogleAnalytics\GoogleAnalyticsDataProvider;
 use Supra\Cms\Dashboard\DasboardAbstractAction;
 
 class StatsAction extends DasboardAbstractAction
 {
-
-	//const STATS_PERIOD_DAYS = 2;
-	const STATS_PERIODS = 2;
-	const STATS_INCLUDE_TODAY = false;
-	
-	const DAY_PERIOD = 86400;
-	const WEEK_PERIOD = 604800;
-		
 	/**
 	 * 
 	 */
@@ -51,6 +42,7 @@ class StatsAction extends DasboardAbstractAction
 			$state = implode(',', array($siteId, $serverName));
 			
 			$responseData = array(
+				'account_name' => $provider->getAuthAdapter()->getCurrentAccountName(),
 				'profile_id' => $profileId,
 				'profile_title' => $profileTitle,
 				'is_authenticated' => $isAuthenticated,
