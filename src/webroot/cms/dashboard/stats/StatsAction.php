@@ -43,14 +43,19 @@ class StatsAction extends DasboardAbstractAction
 			}
 			
 			$isAuthenticated = $provider->isAuthenticated();
-			$siteId = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'id', null);		
+			$siteId = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'id', null);
+			
+			$serverName = $this->getRequest()
+					->getServerValue('SERVER_NAME');
+			
+			$state = implode(',', array($siteId, $serverName));
 			
 			$responseData = array(
 				'profile_id' => $profileId,
 				'profile_title' => $profileTitle,
 				'is_authenticated' => $isAuthenticated,
 				'authorization_url' => $provider->getAuthAdapter()
-					->createAuthorizationUrl($siteId),
+					->createAuthorizationUrl($state),
 				'stats' => null,
 			);
 
