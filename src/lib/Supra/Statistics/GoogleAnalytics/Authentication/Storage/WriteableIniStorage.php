@@ -40,6 +40,11 @@ class WriteableIniStorage implements StorageInterface
 	
 	public function set($key, $value)
 	{
+		//@FIXME: allow to store nullable values inside WriteableIniLoader shema or add remove() method
+		if (is_null($value)) {
+			$value = '';
+		}
+		
 		return $this->ini->setValue(self::SECTION, $key, $value);
 	}
 	
