@@ -2,7 +2,7 @@
 	
 	// Toolbar
 	.datagrid-toolbar {
-		padding: 7px;
+		padding: 11px;
 		background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
 		border-bottom: 1px solid #B3B3C3;
 	}
@@ -27,6 +27,22 @@
 		&.su-datagrid-disabled tr:hover .row-title {
 			cursor: default;
 			text-decoration: none;
+		}
+		
+		/* Drop target for page restore */
+		.yui3-dd-dragging td {
+			color: #65667c;
+			font-size: 16px;
+			font-weight: bold;
+			line-height: 23px;
+			text-align: center;
+			text-shadow: 0 1px 0 rgba(255,255,255,0.21);
+			
+			span {
+				display: inline-block;
+				padding-right: 31px;
+				background: url(/cms/lib/supra/img/blocks/drag-icon.png) 100% 0 no-repeat;
+			}
 		}
 		
 		/* Icon */
@@ -123,7 +139,7 @@
 	.blog-languages {
 		position: absolute;
 		left: 50%;
-		top: 3px;
+		top: 9px;
 		width: 400px;
 		margin-left: -200px;
 		text-align: center;
@@ -249,8 +265,8 @@
 	// Filter form
 	.filters {
 		position: absolute;
-		top: 4px;
-		right: 4px;
+		top: 8px;
+		right: 8px;
 		
 		.yui3-form-content {
 			padding: 7px;
@@ -298,4 +314,33 @@
 		}
 	}
 	
+}
+
+.su-blog-restore {
+	z-index: 9999;
+	
+	.img-restore {
+		display: none;
+	}
+	.title {
+		img {
+			margin: 0 10px 2px 0;
+			vertical-align: middle;
+		}
+		
+		display: inline-block;
+		min-width: 200px;
+		max-width: 400px;
+		overflow: hidden;
+		padding: 5px 10px 3px;
+		background: url(/cms/lib/supra/img/sidebar/left-bg.gif) 0 0 repeat;
+		border: 1px solid #4a4b57;
+		opacity: 0.85;
+		
+		color: #323144;
+		cursor: move;
+		text-shadow: 0 1px 0 rgba(187, 188, 203, .6);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 }

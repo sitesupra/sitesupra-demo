@@ -11,6 +11,7 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 	Supra.Manager.Loader.setActionBasePaths({
 		'Header': '/content-manager',
 		'SiteMap': '/content-manager',
+		'SiteMapRecycle': '/content-manager',
 		'MediaLibrary': '/media-library',
 		'MediaSidebar': '/media-library',
 		'PageToolbar': '/content-manager',

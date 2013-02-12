@@ -16190,6 +16190,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	Supra.Manager.Loader.setActionBasePaths({
 		'Header': '/content-manager',
 		'SiteMap': '/content-manager',
+		'SiteMapRecycle': '/content-manager',
 		'MediaLibrary': '/media-library',
 		'MediaSidebar': '/media-library',
 		'PageToolbar': '/content-manager',

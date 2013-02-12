@@ -17,6 +17,14 @@
 			'supra.form', 'plugin'
 		]
 	});
+	
+	// Datagrid plugin to enable drag and drop post restore
+	Supra.addModule('blog.datagrid-restore', {
+		path: 'datagrid-plugin-restore.js',
+		requires: [
+			'plugin', 'dd-drop', 'supra.datagrid'
+		]
+	});
 })();
 
 /**
@@ -30,6 +38,7 @@ Supra(
 	'supra.datagrid-loader',
 	'supra.datagrid-sortable',
 	
+	'blog.datagrid-restore',
 	'blog.input-string-clear',
 	
 function (Y) {
@@ -53,11 +62,17 @@ function (Y) {
 			'title': Supra.Intl.get(['blog', 'toolbar', 'settings']),
 			'icon': '/cms/lib/supra/img/toolbar/icon-blog-settings.png',
 			'type': 'tab'
-	    }
+	   },
+	   {
+	   		'id': 'blog_recycle_bin',
+	   		'title': Supra.Intl.get(['blog', 'toolbar', 'recycle_bin']),
+	   		'icon': '/cms/lib/supra/img/toolbar/icon-recycle.png',
+	   		'type': 'button'
+	   }
 	];
 	
 	//Create Action class
-	new Action({
+	new Action(Manager.Action.PluginContainer, Action.PluginMainContent, {
 		
 		/**
 		 * Unique action name
@@ -336,6 +351,8 @@ function (Y) {
 				'columns': ['time', 'title', 'author', 'comments'],
 				'column': 'time',
 				'order': 'desc'
+			});
+			this.widgets.datagrid.plug(Supra.DataGrid.RestorePlugin, {
 			});
 			
 			//Bind event listeners
@@ -675,6 +692,8 @@ function (Y) {
 			toolbar.getActionButton('blog_posts').on('click', this.handleToolbarButton, this, 'blog_posts');
 			toolbar.getActionButton('blog_settings').on('click', this.handleToolbarButton, this, 'blog_settings');
 			
+			toolbar.getActionButton('blog_recycle_bin').on('click', this.toggleRecycleBin, this);
+			
 			//Add side buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
 				'id': 'done',
@@ -702,6 +721,31 @@ function (Y) {
 			
 			//Add buttons to toolbar
 			this.widgets.slideshow.set('slide', id);
+		},
+		
+		/**
+		 * Toggle recycle bin
+		 * 
+		 * @private
+		 */
+		toggleRecycleBin: function () {
+			var toolbar = Manager.getAction('PageToolbar'),
+				button  = toolbar.getActionButton('blog_recycle_bin'),
+				action  = Supra.Manager.getAction('SiteMapRecycle');
+			
+			if (!button.get('down')) {
+				action.execute({
+					'type': 'Blog',
+					'parent_id': this.parent_id,
+					'onclose': function () {
+						button.set('down', false);
+					}
+				});
+				
+				button.set('down', true);
+			} else {
+				action.hide();
+			}
 		},
 		
 		

@@ -127,7 +127,8 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 		 * @private
 		 */
 		'_dndBind': function () {
-			var groups = this.get('groups') || null;
+			var groups = this.get('groups') || null,
+				group_id = groups.length ? groups[0] : 'default';
 			
 			var dnd = this._dnd = new Y.DD.Drag({
 				node: this.get('boundingBox'),
@@ -140,6 +141,7 @@ YUI().add('website.sitemap-tree-node-fake', function (Y) {
 				cloneNode: true
 			});
 			
+			dnd.set('groupId', group_id);
 			dnd.set('treeNode', this);
 			
 			if (!this.get('draggable')) {

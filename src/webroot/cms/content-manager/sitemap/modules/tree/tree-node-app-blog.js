@@ -22,6 +22,23 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 	Y.extend(Node, Action.TreeNodeApp, {
 		
 		/**
+		 * Drag and drop groups
+		 * @type {Array}
+		 */
+		'DND_GROUPS': [
+			'new-page',
+			'delete'
+		],
+		
+		/**
+		 * Groups which are allowed to be dropped here
+		 * @type {Array}
+		 */
+		'DND_GROUPS_ALLOW': [
+			'new-page'
+		],
+		
+		/**
 		 * Not expandable
 		 * 
 		 * @private
@@ -39,6 +56,11 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 		 */
 		'bindUI': function () {
 			Node.superclass.bindUI.apply(this, arguments);
+			
+			//Can drop only new page, nothing else
+			//if (this._dnd) {
+			//	this._dnd.target.set('groups', ['new-page']);
+			//}
 			
 			//Prevent adding new children directly inside Blog application
 			this.on('child:add', function (e) {
