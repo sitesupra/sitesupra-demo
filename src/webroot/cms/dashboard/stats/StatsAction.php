@@ -118,7 +118,7 @@ class StatsAction extends DasboardAbstractAction
 			
 		$writeableIni->setValue('google_analytics', 'profile_id', $profileData['id']);
 		$writeableIni->setValue('google_analytics', 'profile_title', $profileData['title']);
-		//$writeableIni->setValue('google_analytics', 'account_id', $profileData['web_property_id']);
+		$writeableIni->setValue('google_analytics', 'web_property_id', $profileData['web_property_id']);
 		
 		$writeableIni->write();
 
@@ -174,7 +174,7 @@ class StatsAction extends DasboardAbstractAction
 				foreach($profilesList as $profile) {
 					$profiles[] = array(
 						'id' => $profile['profileId'],
-						//'web_property_id' => $profile['webPropertyId'],
+						'web_property_id' => $profile['webPropertyId'],
 						'title' => $profile['profileName'],
 					);
 				}
