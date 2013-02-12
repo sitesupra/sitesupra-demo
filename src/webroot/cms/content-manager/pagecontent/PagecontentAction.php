@@ -381,6 +381,11 @@ class PagecontentAction extends PageManagerAction
 			}
 		}
 		
+		if ( ! $input->has('locked') && $localization instanceof Entity\PageLocalization) {
+			// silently exit for now
+			return;
+		}
+		
 		if (empty($placeHolder)) {
 			throw new CmsException(null, "The placeholder by name '$placeHolderName' doesn't exist anymore");
 		}

@@ -100,6 +100,8 @@ class OAuth2Authentication implements AuthenticationInterface
 	 */
 	protected function doRequest($url, $requestType, $params = array())
 	{
+		\Log::info("Requesting Google Authentication service by url {$url}");
+		
 		$request = new RemoteHttpRequest($url, $requestType, $params);
 		
 		$response = $this->httpService->makeRequest($request);
@@ -264,6 +266,21 @@ class OAuth2Authentication implements AuthenticationInterface
 	{
 		$token = $this->getAccessToken();
 		return ( ! empty($token));
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function unauthorize()
+	{
+		$this->accessToken = null;
+		$this->accessTokenCreated = null;
+		$this->refreshToken = null;
+		$this->accessTokenExpires = null;
+		
+		$this->storeTokenValues();
+		
+		return true;
 	}
 	
 	/**

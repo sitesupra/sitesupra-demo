@@ -28,7 +28,10 @@ class GoogleAnalyticsDataProvider
 	/**
 	 * @var array
 	 */
-	protected $defaultHeaders = array();
+	protected $defaultHeaders = array(
+		'Accept-Encoding' => 'gzip',
+		'User-Agent' => 'cURL/php5 (gzip)',
+	);
 
 	/**
 	 * @var string
@@ -50,16 +53,6 @@ class GoogleAnalyticsDataProvider
 	 */
 	public function __construct()
 	{
-		$authAdapter = new Authentication\OAuth2Authentication();
-		
-		$authAdapter->setClientId(self::SUPRA_CLIENT_ID);
-		$authAdapter->setClientSecret(self::SUPRA_CLIENT_SECRET);
-		$authAdapter->setRedirectUri(self::SUPRA_REDIRECT_URI);
-		
-		$authAdapter->setStorage(new Authentication\Storage\WriteableIniStorage);
-
-		$this->authAdapter = $authAdapter;
-		
 		$this->requestService = new \Supra\RemoteHttp\RemoteHttpRequestService();
 	}
 	
@@ -72,11 +65,19 @@ class GoogleAnalyticsDataProvider
 	}
 
 	/**
-	 * @return Authentication\OAuth2Authentication
+	 * @return \Supra\Statistics\GoogleAnalytics\Authentication\AuthenticationInterface
 	 */
 	public function getAuthAdapter()
 	{
 		return $this->authAdapter;
+	}
+	
+	/**
+	 * @param \Supra\Statistics\GoogleAnalytics\Authentication\AuthenticationInterface $adapter
+	 */
+	public function setAuthAdapter(Authentication\AuthenticationInterface $adapter)
+	{
+		$this->authAdapter = $adapter;
 	}
 	
 	/**
@@ -88,10 +89,20 @@ class GoogleAnalyticsDataProvider
 	}
 	
 	/**
+	 * @return boolean
+	 */
+	public function unauthorize()
+	{
+		return $this->authAdapter->unauthorize();
+	}
+	
+	/**
 	 * @return RemoteHttpResponse
 	 */
 	protected function doRequest($requestUrl, $method = 'GET', $requestVars = array(), $headers = array())
 	{
+		\Log::info("Requesting GoogleAnalytics service by {$requestUrl}");
+				
 		if ( ! $this->authAdapter->isAuthenticated()) {
 			throw new RuntimeException('You should authenticate before you request Google Analytics feed data');
 		}
@@ -139,29 +150,23 @@ class GoogleAnalyticsDataProvider
 	}
 	
 	/**
-	 * 
-	 * @param array $metrics
-	 * @param string $fromDate
-	 * @param string $tillDate
-	 * @param array $dimensions
-	 * @param array $sort
-	 * @param int $limit
-	 * @return array
+	 *
 	 */
-	protected function requestDataFeed(array $metrics, $fromDate, $tillDate, array $dimensions = array(), array $sort = array(), $limit = null)
+	public function requestDataFeed(array $metrics, array $dimensions = array(), array $sort = array(), array $filters = array(), $limit = null)
 	{	
 		if (empty($this->profileId)) {
 			throw new RuntimeException('Profile ID should be defined to perform Google Analytics Data Feed requests');
 		}
 		
-		$fromDate = date(self::PERIOD_DATE_FORMAT, $fromDate);
-		$tillDate = date(self::PERIOD_DATE_FORMAT, $tillDate);
+		if (empty($this->startTime) || empty($this->endTime)) {
+			throw new RuntimeException('No period defined');
+		}
 		
 		$requestVars = array(
 			'ids' => 'ga:' . $this->profileId,
 			'metrics' => implode(',', $metrics),
-			'start-date' => $fromDate,
-			'end-date' => $tillDate,
+			'start-date' => $this->startTime,
+			'end-date' => $this->endTime,
 		);
 		
 		// limits max return results
@@ -179,6 +184,10 @@ class GoogleAnalyticsDataProvider
 			$requestVars['sort'] = implode(',', $sort);
 		}
 		
+		if ( ! empty($filters)) {
+			$requestVars['filters'] = implode(',', $filters);
+		}
+		
 		//@TODO: implement filters, segment and start_index
 		
 		$response = $this->doRequest(self::URL_FEED_DATA, 'GET', $requestVars);
@@ -189,6 +198,26 @@ class GoogleAnalyticsDataProvider
 		return $feedData;
 	}
 	
+	/** 
+	 * @param integer $timestamp
+	 */
+	public function setPeriodStart($timestamp)
+	{
+		$this->startTime = date(self::PERIOD_DATE_FORMAT, $timestamp);
+	}
+	
+	/**
+	 * @param integer $timestamp
+	 */
+	public function setPeriodEnd($timestamp)
+	{
+		$this->endTime = date(self::PERIOD_DATE_FORMAT, $timestamp);
+	}
+	
+	/**
+	 * @param string $value
+	 * @return number
+	 */
 	protected function parseIntValue($value) {
 		
 		if (preg_match('/^(\d+\.\d+)|(\d+E\d+)|(\d+.\d+E\d+)$/', $value)) {
@@ -200,156 +229,56 @@ class GoogleAnalyticsDataProvider
 		return $value;
 	}
 	
-	public function getPageViewCount(array $period) 
-	{
-		$metrics = array('ga:pageviews');
-		
-		list($from, $till) = $period;
-			
-		$response = $this->requestDataFeed($metrics, $from, $till);
-
-		if (isset($response['aggregates']['pageviews'])) {
-			return $response['aggregates']['pageviews'];
-		}
-		
-		return null;
-	}
-	
-	public function getVisitorCount(array $period)
-	{
-		$metrics = array('ga:visitors');
-		
-		list($from, $till) = $period;
-			
-		$response = $this->requestDataFeed($metrics, $from, $till);
-
-		if (isset($response['aggregates']['visitors'])) {
-			return $response['aggregates']['visitors'];
-		}
-		
-		return null;
-	}
-	
-	public function getVisitCount(array $period)
-	{
-		$metrics = array('ga:visits');
-		
-		list($from, $till) = $period;
-			
-		$response = $this->requestDataFeed($metrics, $from, $till);
-
-		if (isset($response['aggregates']['visits'])) {
-			return $response['aggregates']['visits'];
-		}
-		
-		return null;
-	}
-	
-	public function getTopSources(array $period, $limit = 50)
-	{
-		/*
-		return array(
-			array('title' => 'www.google.lv', 'amount' => rand(55, 300)),
-			array('title' => 'www.ss.lv', 'amount' => rand(10, 50)),
-		);
-		 */
-		
-		$metrics = array('ga:visits');
-		$dimensions = array('ga:source');
-		$sort = array('-ga:visits');
-		
-		list($from, $till) = $period;
-			
-		$response = $this->requestDataFeed($metrics, $from, $till, $dimensions, $sort, $limit);
-
-		$list = array();
-		
-		if (isset($response['entries'])) {
-			foreach ($response['entries'] as $entry) {
-				$source = $entry->getSource();
-				$visitCount = $entry->getVisits();
-				
-				$list[] = array(
-					'title' => $source,
-					'amount' => $visitCount,
-				);
-				
-			}
-		}
-		
-		return $list;
-	}
-	
-	public function getTopKeywords(array $period, $limit = 50)
-	{
-		/*
-		return array(
-			array('title' => 'supra7', 'amount' => rand(55, 300)),
-			array('title' => 'cms', 'amount' => rand(10, 50)),
-		);
-		 */
-		
-		$metrics = array('ga:visits');
-		$dimensions = array('ga:keyword');
-		$sort = array('-ga:visits');
-		
-		list($from, $till) = $period;
-			
-		$response = $this->requestDataFeed($metrics, $from, $till, $dimensions, $sort, $limit);
-
-		$list = array();
-		
-		if (isset($response['entries'])) {
-			foreach ($response['entries'] as $entry) {
-				$keyword = $entry->getKeyword();
-				$visitCount = $entry->getVisits();
-				
-				$list[] = array(
-					'title' => $keyword,
-					'amount' => $visitCount,
-				);
-				
-			}
-		}
-		
-		return $list;
-	}
-	
 	/**
-	 * Returns an array with visitor/pageview/visit stats loaded in one query
-	 * 
-	 * @param array $period
 	 * @return array
 	 */
-	public function getDasboardCommonStats(array $period)
+	public function getVisitorsByDay()
 	{
-		$result = array(
-			'visits' => null,
-			'visitors' => null,
-			'pageviews' => null,
-		);
+		$dimensions = array('ga:day');
+		$metrics = array('ga:visits', 'ga:pageviews', 'ga:visitors');
+		$sort = array('ga:day');
+	
+		$response = $this->requestDataFeed($metrics, $dimensions, $sort);
 		
-		$metrics = array('ga:visitors', 'ga:pageviews', 'ga:visits');
-		
-		list($from, $till) = $period;
-		
-		$response = $this->requestDataFeed($metrics, $from, $till);
-		
-		if (isset($response['aggregates']['visits'])) {
-			$result['visits'] = $response['aggregates']['visits'];
+		if ( ! empty($response['entries']) && ! empty($response['aggregates'])) {
+			return $response;
 		}
 		
-		if (isset($response['aggregates']['visitors'])) {
-			$result['visitors'] = $response['aggregates']['visitors'];
-		}
-		
-		if (isset($response['aggregates']['pageviews'])) {
-			$result['pageviews'] = $response['aggregates']['pageviews'];
-		}
-		
-		return $result;
+		return array();
 	}
+	
+	public function getTopSourcesByDay()
+	{
+		$dimensions = array('ga:source', 'ga:month', 'ga:year', 'ga:day');
+		$metrics = array('ga:visits');
+		$sort = array('-ga:year', '-ga:month', '-ga:day', '-ga:visits');
+		$filters = array('ga:source!=(direct)');
+	
+		$response = $this->requestDataFeed($metrics, $dimensions, $sort, $filters);
 		
+		if ( ! empty($response['entries'])) {
+			return $response;
+		}
+		
+		return array();
+	}
+	
+	public function getTopKeywordsByDay()
+	{
+		$dimensions = array('ga:keyword', 'ga:month', 'ga:year', 'ga:day');
+		$metrics = array('ga:visits');
+		$sort = array('-ga:year', '-ga:month', '-ga:day', '-ga:visits');
+		$filters = array('ga:keyword!=(not set)');
+	
+		$response = $this->requestDataFeed($metrics, $dimensions, $sort, $filters);
+		
+		if ( ! empty($response['entries'])) {
+			return $response;
+		}
+		
+		return array();
+	}
+
 	/**
 	 * @return array
 	 */

@@ -157,7 +157,7 @@ class GoogleAnalyticsListener
 		$sectionName = $this->getGoogleAnalyticsSectionName();
 
 		$accountId = $iniConfiguration->getValue($sectionName, 'account_id', false);
-
+		
 		return $accountId;
 	}
 

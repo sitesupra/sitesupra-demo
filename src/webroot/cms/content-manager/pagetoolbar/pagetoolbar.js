@@ -334,8 +334,8 @@ Supra(function (Y) {
 			
 			if (!config) return;
 			
-			var action = Y.Lang.isWidget(config.action) ? config.action : Manager.getAction(config.action);
-			var action_id = action.NAME || action.constructor.NAME;
+			var action = config.action ? (Y.Lang.isWidget(config.action) ? config.action : Manager.getAction(config.action)) : null;
+			var action_id = action ? (action.NAME || action.constructor.NAME) : null;
 			var type = (config.type ? config.type : 'toggle');
 			
 			if (event.target.get('down') || (type != 'toggle' && type != 'tab')) {
@@ -369,7 +369,7 @@ Supra(function (Y) {
 						action[config.actionFunction](config.id, config);
 					}
 				} else {
-					if (action.execute) {
+					if (action && action.execute) {
 						action.execute();
 					}
 				}
@@ -381,7 +381,7 @@ Supra(function (Y) {
 					event.target.set('down', true);
 				} else {
 					//Hide action
-					if (action.hide) {
+					if (action && action.hide) {
 						action.hide();
 					}
 					if (this.active_action == action_id) this.active_action = null;
