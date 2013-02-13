@@ -1,0 +1,38 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\Testimonials\TestimonialsBlock
+    title: Testimonials
+    icon: icon.png
+    groupId: features
+    description: Testimonials from customers
+    cmsClassname: Gallery
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\InlineString
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: images
+          editable: Supra\Editable\Gallery
+          label: Images
+          shared: false
+          # each image item sub-properties
+          properties:
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: testimony
+                 editable: Supra\Editable\Textarea
+                 label: Testimony
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: name
+                 editable: Supra\Editable\String
+                 label: Name
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                 name: link
+                 editable: Supra\Editable\Link
+                 label: Link

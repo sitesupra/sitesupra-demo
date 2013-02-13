@@ -17,3 +17,4 @@
       - NewsList/config.yml
       - NewsText/config.yml
       - BlogPost/config.yml
+      - Testimonials/config.yml

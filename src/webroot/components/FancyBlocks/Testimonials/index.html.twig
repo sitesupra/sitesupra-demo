@@ -1,0 +1,62 @@
+{% set testimonials = supraBlock.property('images') %}
+<div class="block" data-refresh-event="carousel" data-list=".testimonials" data-items="blockquote" data-animation="fade" data-classname="testimonials" data-timer="5000">
+	
+	{% set block_title = supraBlock.property('block_title') %}
+	{% if supra.cmsRequest or block_title %}
+	<h2 class="block-title"><div>
+		{% if block_title %}{{ block_title }}{% endif %}
+	</div></h2>
+	{% endif %}
+	
+	<div class="testimonials">
+		{% for index, testimony in testimonials %}
+		<blockquote class="hreview">
+			<span class="item hidden"><span class="fn">PAGE NAME</span></span>
+			
+			<q class="description">{% spaceless %}
+				<span class="deco"></span>"{{ testimony.property.testimony|trim }}"
+			{% endspaceless %}</q>
+			
+			<span class="who">
+				<span class="photo">
+					{% set tag = supraBlock.imageHtmlTag( testimony.imageId, 50, 50, true, testimony.size_name ) | raw %}
+					{% if testimony.imageId %}
+						{{ tag|raw }}
+					{% else %}
+						<span class="photo-empty"></span>
+					{% endif %}
+				</span>
+				
+				{% if testimony.property.link %}
+					<a href="{{ testimony.property.link.url }}" target="{{ testimony.property.link.target }}" class="reviewer">
+						<em class="valign"{% if tag %} style="height: {{ tag.getAttribute('height') }}px"{% endif %}></em><em>{{ testimony.property.name }}</em>
+					</a>
+				{% else %}
+					<span class="reviewer">
+						<em class="valign"{% if tag %} style="height: {{ tag.getAttribute('height') }}px"{% endif %}></em><em>{{ testimony.property.name }}</em>
+					</span>
+				{% endif %}
+			</span>
+		</blockquote>
+		{% endfor %}
+	</div>
+	
+	{% if supra.cmsRequest %}{% raw %}
+	<script type="text/supra-template" data-supra-container-selector="div.testimonials" data-supra-item-selector="blockquote" data-supra-id="gallerymanager-item">
+		
+		<blockquote class="hreview">
+			<div class="description">
+				<span class="deco"></span>
+				<div>{{ property.testimony }}</div>
+			</div>
+			
+			<div class="who">
+				<div class="photo"><img src="about:blank" alt="" width="50" height="50" /></div>
+				<div class="reviewer"><div class="valign"></div><div>{{ property.name }}</div></div>
+			</div>
+		</blockquote>
+		
+	</script>
+	{% endraw %}{% endif %}
+	
+</div>
