@@ -168,7 +168,7 @@ class GoogleAnalyticsListener
 	{
 		$googleIni = ObjectRepository::getIniConfigurationLoader('#google');
 		if ($googleIni instanceof \Supra\Configuration\Loader\WriteableIniConfigurationLoader) {
-			$accountId = $googleIni->getValue('google_analytics', 'account_id', null);
+			$accountId = $googleIni->getValue('google_analytics', 'web_property_id', null);
 			if ( ! empty($accountId)) {
 				return $accountId;
 			}
