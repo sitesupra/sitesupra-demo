@@ -1058,7 +1058,6 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			
 			if (data) {
 				model.id = data.id;
-				model.image = data.image.image;
 				model.property = Supra.mix({}, data.properties);
 				
 				for (key in model.property) {
