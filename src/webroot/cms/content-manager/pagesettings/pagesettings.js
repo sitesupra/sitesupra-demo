@@ -106,6 +106,12 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		 * @type {Boolean}
 		 */
 		last_content_disabled_state: false,
+		
+		/**
+		 * Update path when title changes
+		 * @type {Boolean}
+		 */
+		auto_update_path_from_title: false,
 
 
 
@@ -515,6 +521,41 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 						Manager.getAction('PageHeader').setAvailableLocalizations(page.localizations, evt.newVal);
 					}
 				});
+			
+			// When title changes path may need to be updated
+			form.getInput('title').on('input', this.onTitleInput, this);
+			form.getInput('title').after('valueChange',  this.onTitleChange, this);
+		},
+		
+		/**
+		 * Check if page path will need to be update
+		 * 
+		 * @private
+		 */
+		onTitleChange: function () {
+			this.onTitleInput();
+			
+			var value = this.form.getInput('path').get('value');
+			if (value && value.indexOf('new-page') == 0) {
+				this.auto_update_path_from_title = true;
+			} else {
+				this.auto_update_path_from_title = false;
+			}
+		},
+		
+		/**
+		 * On title input event update path if needed
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		onTitleInput: function (e) {
+			if (this.auto_update_path_from_title) {
+				var title = e ? e.value : this.form.getInput('title').get('value'),
+					path  = Y.Lang.toPath(title);
+				
+				this.form.getInput('path').set('value', path);
+			}
 		},
 
 		/**
@@ -631,7 +672,7 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 			this.form.resetValues();
 			
 			this.form.setValues(page_data, 'id');
-
+			
 			if (this.getType() == 'page') {
 				//Templates doesn't have 'redirect' or 'template'
 
@@ -643,6 +684,11 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 
 				//Set redirect info
 				this.setFormValue('redirect', page_data);
+				
+				//Update page path when title changes?
+				this.auto_update_path_from_title = (page_data.path && page_data.path.indexOf('new-page') == 0);
+			} else {
+				this.auto_update_path_from_title = false;
 			}
 
 			//Keywords
