@@ -342,7 +342,7 @@ class PagecontentAction extends PageManagerAction
 		$input = $this->getRequestInput();
 		$request = $this->getPageRequest();
 
-		$placeHolderName = $input->get('place_holder_id');
+		$placeHolderName = ($input->has('place_holder_id') ? $input->get('place_holder_id') : $input->get('block_id'));
 
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		$placeHolder = $request->getPageLocalization()
@@ -843,6 +843,7 @@ class PagecontentAction extends PageManagerAction
 	 */
 	public function contenthtmlPagePlaceholderAction()
 	{
+		$this->savePlaceholderAction();
 		$this->contenthtmlPlaceholderGroupAction();
 	}
 	
@@ -851,6 +852,7 @@ class PagecontentAction extends PageManagerAction
 	 */
 	public function contenthtmlPlaceholderAction()
 	{
+		$this->savePlaceholderAction();
 		$this->contenthtmlPlaceholderGroupAction();
 	}
 	
