@@ -535,6 +535,11 @@ YUI.add('supra.page-content-editable', function (Y) {
 		},
 		
 		/**
+		 * Handle state before HTML is set
+		 */
+		beforeSetHTMLHost: function () {},
+		
+		/**
 		 * Restore state and trigger event after settings new HTML
 		 */
 		afterSetHTML: function () {
@@ -591,10 +596,28 @@ YUI.add('supra.page-content-editable', function (Y) {
 					}
 				}
 			}
-			
+		},
+		
+		/**
+		 * Handle state before HTML is set
+		 */
+		afterSetHTMLHost: function () {
 			//Update overlay position
 			//Use timeout to make sure everything is styled before doing sync
-			setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+			setTimeout(Y.bind(function () {
+				
+				var children = this.children,
+					id = null;
+				
+				if (children) {
+					for (id in children) {
+						children[id].setHighlightMode();
+					}
+				}
+				
+				this.setHighlightMode();
+				this.syncOverlayPosition(true);
+			}, this), 1);
 		},
 		
 		/**
@@ -609,6 +632,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 			if (data && data.internal_html) {
 				
 				//Save state and trigger event
+				this.beforeSetHTMLHost();
 				this.beforeSetHTML();
 				
 				//Replace HTML
@@ -616,6 +640,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 				
 				//Restore state and trigger event
 				this.afterSetHTML();
+				this.afterSetHTMLHost();
 			}
 		},
 		
