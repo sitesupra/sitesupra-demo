@@ -409,7 +409,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			images.push(image);
 			this.renderItem(image);
 			
-			return true;
+			return image;
 		},
 		
 		/**
@@ -491,7 +491,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				
 				node.one('span').on('click', function () {
 					this.fire('addNewItem');
-					this.addItem();
+					var image = this.addItem();
+					
+					// Start editing image
+					this.focusInlineEditor(image.id, 'image');
 				}, this);
 			}
 		},
@@ -1055,7 +1058,6 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			
 			if (data) {
 				model.id = data.id;
-				model.image = data.image.image;
 				model.property = Supra.mix({}, data.properties);
 				
 				for (key in model.property) {

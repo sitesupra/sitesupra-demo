@@ -773,6 +773,13 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @private
 		 */
 		renderOverlay: function () {
+			if (this.overlay) {
+				if (!this.overlay.inDoc()) {
+					this.getNode().insert(this.overlay, 'before');
+				}
+				return;
+			}
+			
 			var div = new Y.Node(this.get('doc').createElement('DIV')),
 				title = Y.Escape.html(this.getBlockTitle());;
 			
@@ -795,7 +802,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			this.overlay.set('innerHTML', '<span class="' + CLASSNAME_OVERLAY_ICON + '"></span><span class="' + CLASSNAME_OVERLAY_NAME + '">' + title + '</span>');
-			this.getNode().insert(div, 'before');
+			this.getNode().insert(this.overlay, 'before');
 		},
 		
 		/**

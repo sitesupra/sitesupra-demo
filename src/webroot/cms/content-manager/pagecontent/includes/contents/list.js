@@ -116,6 +116,49 @@ YUI.add('supra.page-content-list', function (Y) {
 		
 		
 		/**
+		 * Before we change HTML destroy all children
+		 * 
+		 * @private
+		 */
+		beforeSetHTMLHost: function () {
+			ContentList.superclass.beforeSetHTMLHost.apply(this, arguments);
+			
+			var children = this.children,
+				id = null;
+				
+			for (id in children) {
+				children[id].destroy();
+			}
+			
+			this.children_order = [];
+			this.children = {};
+		},
+		
+		/**
+		 * After HTML change recreate children
+		 * Children-children will be automatically created
+		 * 
+		 * @private
+		 */
+		afterSetHTMLHost: function () {
+			var data = this.get('data'),
+				permission_order = true,
+				permission_edit = true;
+			
+			if ('contents' in data) {
+				for(var i=0,ii=data.contents.length; i<ii; i++) {
+					this.createChild(data.contents[i], {
+						'draggable': !data.contents[i].closed && !this.isClosed() && permission_order,
+						'editable': !data.contents[i].closed && permission_edit && data.contents[i].editable !== false
+					}, true);
+				}
+			}
+			
+			this.setHighlightMode();
+			ContentList.superclass.afterSetHTMLHost.apply(this, arguments);
+		},
+		
+		/**
 		 * Create block from data
 		 * 
 		 * @param {Object} data Block data

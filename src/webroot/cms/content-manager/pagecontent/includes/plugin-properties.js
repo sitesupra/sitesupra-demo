@@ -567,6 +567,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			result = host.fireContentEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value, 'propertyValueList': values});
 			
+			// On list layout change automatically reload content
+			if (id === 'layout' && host.isInstanceOf('page-content-list')) {
+				result = false;
+			}
+			
 			if (!dirty && result === false) {
 				//Some property was recognized, but preview can't be updated without refresh
 				
