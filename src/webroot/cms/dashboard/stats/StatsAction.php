@@ -2,21 +2,12 @@
 
 namespace Supra\Cms\Dashboard\Stats;
 
-use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Statistics\GoogleAnalytics\GoogleAnalyticsDataProvider;
 use Supra\Cms\Dashboard\DasboardAbstractAction;
 
 class StatsAction extends DasboardAbstractAction
 {
-
-	//const STATS_PERIOD_DAYS = 2;
-	const STATS_PERIODS = 2;
-	const STATS_INCLUDE_TODAY = false;
-	
-	const DAY_PERIOD = 86400;
-	const WEEK_PERIOD = 604800;
-		
 	/**
 	 * 
 	 */
@@ -51,6 +42,7 @@ class StatsAction extends DasboardAbstractAction
 			$state = implode(',', array($siteId, $serverName));
 			
 			$responseData = array(
+				'account_name' => $provider->getAuthAdapter()->getCurrentAccountName(),
 				'profile_id' => $profileId,
 				'profile_title' => $profileTitle,
 				'is_authenticated' => $isAuthenticated,
@@ -126,7 +118,7 @@ class StatsAction extends DasboardAbstractAction
 			
 		$writeableIni->setValue('google_analytics', 'profile_id', $profileData['id']);
 		$writeableIni->setValue('google_analytics', 'profile_title', $profileData['title']);
-		//$writeableIni->setValue('google_analytics', 'account_id', $profileData['web_property_id']);
+		$writeableIni->setValue('google_analytics', 'web_property_id', $profileData['web_property_id']);
 		
 		$writeableIni->write();
 
@@ -182,7 +174,7 @@ class StatsAction extends DasboardAbstractAction
 				foreach($profilesList as $profile) {
 					$profiles[] = array(
 						'id' => $profile['profileId'],
-						//'web_property_id' => $profile['webPropertyId'],
+						'web_property_id' => $profile['webPropertyId'],
 						'title' => $profile['profileName'],
 					);
 				}

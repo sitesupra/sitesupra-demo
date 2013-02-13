@@ -18,10 +18,13 @@ class OAuth2Authentication implements AuthenticationInterface
 	const URL_OAUTH2_AUTH = 'https://accounts.google.com/o/oauth2/auth';
 	const URL_OAUTH2_REVOKE = 'https://accounts.google.com/o/oauth2/revoke';
 	const URL_OAUTH2_TOKEN = 'https://accounts.google.com/o/oauth2/token';
+	const URL_OAUTH2_USERINFO = 'https://www.googleapis.com/oauth2/v1/userinfo';
 	
 	protected $accessToken = null;
 	protected $accessTokenExpiresIn = null;
 	protected $accessTokenCreated = null;
+	
+	protected $tokensOwnerAccountEmail = null;
 	
 	private $loaded = false;
 	
@@ -156,6 +159,8 @@ class OAuth2Authentication implements AuthenticationInterface
 		
 		$this->refreshToken = $decodedResponse['refresh_token'];
 		
+		$this->obtainTokenOwnerAccountEmail();
+		
 		$this->storeTokenValues();
 		
 		return true;
@@ -198,6 +203,27 @@ class OAuth2Authentication implements AuthenticationInterface
 		return $this->accessToken;
 	}
 	
+	protected function obtainTokenOwnerAccountEmail()
+	{
+		$requestParams = array(
+			'access_token' => $this->accessToken,
+		);
+		
+		$response = $this->doRequest(self::URL_OAUTH2_USERINFO, 'GET', $requestParams);
+		if ($response->getCode() !== 200) {
+			throw new \RuntimeException('Failed to refresh access token token');
+		}
+		
+		$responseBody = $response->getBody();
+		$decodedResponse = json_decode($responseBody, true);
+		
+		if ( ! isset($decodedResponse['email'])) {
+			throw new \RuntimeException('Wrong response when requesting userinfo feed');
+		}
+		
+		$this->tokensOwnerAccountEmail = $decodedResponse['email'];
+	}
+	
 	/**
 	 * 
 	 */
@@ -213,10 +239,13 @@ class OAuth2Authentication implements AuthenticationInterface
 
 		$refreshToken = $this->storage->get('refresh_token');
 		
+		$email = $this->storage->get('account_email');
+		
 		$this->accessToken = $accessToken;
 		$this->accessTokenExpiresIn = $accessTokenExpiresIn;
 		$this->accessTokenCreated = $accessTokenCreated;
 		$this->refreshToken = $refreshToken;
+		$this->tokensOwnerAccountEmail = $email;
 		
 		$this->loaded = true;
 	}
@@ -230,6 +259,7 @@ class OAuth2Authentication implements AuthenticationInterface
 		$this->storage->set('access_token_expires_in', $this->accessTokenExpiresIn);
 		$this->storage->set('access_token_created', $this->accessTokenCreated);
 		$this->storage->set('refresh_token', $this->refreshToken);
+		$this->storage->set('account_email', $this->tokensOwnerAccountEmail);
 		
 		$this->storage->flush();
 	}
@@ -314,5 +344,13 @@ class OAuth2Authentication implements AuthenticationInterface
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getCurrentAccountName()
+	{
+		return $this->tokensOwnerAccountEmail;
 	}
 }

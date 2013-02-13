@@ -206,12 +206,14 @@ YUI.add('dashboard.stats', function (Y) {
 					referrers.set('visible', true);
 					visitors.set('visible', true);
 					visitors.set('website', '');
+					visitors.set('account_name', '');
 					
 					if (data.stats) {
 						keywords.set('data', data.stats.keywords);
 						referrers.set('data',  data.stats.sources);
 						visitors.set('data', data.stats.visitors);
 						visitors.set('website', data.profile_title);
+						visitors.set('account_name', data.account_name);
 					}
 				}, this));
 				
@@ -222,6 +224,7 @@ YUI.add('dashboard.stats', function (Y) {
 					referrers.set('data',  data.stats.sources);
 					visitors.set('data', data.stats.visitors);
 					visitors.set('website', data.profile_title);
+					visitors.set('account_name', data.account_name);
 				}
 				
 				this.set('loading', false);
@@ -254,24 +257,6 @@ YUI.add('dashboard.stats', function (Y) {
 				summary.on('unauthorizeClick', this._unauthorizeAccess, this);
 			}
 			
-			if (data.stats) {
-				// Render chart with "0" as data
-				if (!Y.Object.size(data.stats.visitors)) {
-					data.stats.visitors = {
-						'monthly': {
-							'pageviews': 0, 'visits': 0, 'visitors': 0
-						},
-						'daily': Y.Array.map([-13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0], function (days) {
-							return {
-								'date': Y.DataType.Date.reformat(new Date(Date.now() - 86400000 * days), 'raw', '%Y/%m/%d'),
-								'pageviews': 0, 'visits': 0, 'visitors': 0
-							};
-						})
-					};
-				}
-			}
-			
-			
 			if (auth_visible) {
 				node_auth.transition({
 					'opacity': 0,
@@ -280,15 +265,15 @@ YUI.add('dashboard.stats', function (Y) {
 					node_auth.addClass('hidden');
 					summary.set('visible', true);
 					
-					if (data.stats) {
-						summary.set('data', data.stats.keywords);
+					if (data) {
+						summary.set('data', data);
 					}
 				}, this));
 				
 				this.set('loading', false);
 			} else {
-				if (data.stats) {
-					summary.set('data', data.stats.keywords);
+				if (data) {
+					summary.set('data', data);
 				}
 				
 				this.set('loading', false);
