@@ -43,47 +43,16 @@
 	{% endmacro %}
 	
 	{# Output image tag #}
-	{% macro responsiveImage(id, ratio, columns, padding) %}
+	{% macro responsiveImage(id, ratio, columns, padding, size) %}
 		{% import _self as output %}
 		
-		{% set screenWidth = 960 %}
-		{% set screenWidthTablet = 768 %}
-		{% set screenWidthMobile = 420 %}
-		{% set screenWidthMobilePortrait = 300 %}
-		
-		{# Size for web #}
-		{% set w = output.imageWidth(screenWidth, columns, padding)|trim|raw %}
-		{% set h = w * ratio %}
-		{% set tag = supraBlock.imageHtmlTag( id, w, h, true ) | raw %}
-		
-		{# Size for tablet landspace #}
-		{% set w = output.imageWidth(screenWidthTablet, columns, padding)|trim|raw %}
-		{% set h = w * ratio %}
-		{% set tag_tablet = supraBlock.imageHtmlTag( id, w, h, true ) | raw %}
-		
-		{# Size for tablet portrait / mobile landspace #}
-		{% set w = output.imageWidth(screenWidthMobile, columns, padding)|trim|raw %}
-		{% set h = w * ratio %}
-		{% set tag_mobile = supraBlock.imageHtmlTag( id, w, h, true ) | raw %}
-		
-		{# Size for mobile portrait #}
-		{% set w = output.imageWidth(screenWidthMobilePortrait, columns, padding)|trim|raw %}
-		{% set h = w * ratio %}
-		{% set tag_mobile_p = supraBlock.imageHtmlTag( id, w, h, true ) | raw %}
-		
-		{% if tag.getAttribute('src') %}
 		<span class="img">
-			<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
-				 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
-				 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
-			     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
-			     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
-			     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
-			     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
-			     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
-			     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+			{% set screenWidth = 960 %}
+			{% set w = output.imageWidth(screenWidth, columns, padding)|trim|raw %}
+			{% set h = w * ratio %}
+			
+			{{ supraBlock.imageHtmlTag( id, w, h, true, size )|raw }}
 		</span>
-		{% endif %}
 	{% endmacro %}
 	
 	{# Output image tag for CMS Gallery manager #}
@@ -173,7 +142,7 @@
 								
 								{% if image == 'icon' %}
 									<span class="img">
-										{{ supraBlock.imageHtmlTag( product.imageId, 64, 64, true )|raw }}
+										{{ supraBlock.imageHtmlTag( product.imageId, 64, 64, true, product.size_name )|raw }}
 									</span>
 								{% endif %}
 								
@@ -184,7 +153,7 @@
 								{% endif %}
 								
 								{% if image != 'icon' %}
-									{{ output.responsiveImage( product.imageId, ratio, columns, padding) }}
+									{{ output.responsiveImage( product.imageId, ratio, columns, padding, product.size_name) }}
 								{% endif %}
 								
 							</div>
@@ -194,10 +163,10 @@
 							
 							{% if image == 'icon' %}
 								<span class="img">
-									{{ supraBlock.imageHtmlTag( product.imageId, 64, 64, true )|raw }}
+									{{ supraBlock.imageHtmlTag( product.imageId, 64, 64, true, product.size_name )|raw }}
 								</span>
 							{% else %}
-								{{ output.responsiveImage( product.imageId, ratio, columns, padding ) }}
+								{{ output.responsiveImage( product.imageId, ratio, columns, padding, product.size_name ) }}
 							{% endif %}
 							
 							{% if image != 'only' %}
