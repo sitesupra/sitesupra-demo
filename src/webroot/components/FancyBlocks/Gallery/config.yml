@@ -22,7 +22,6 @@
           name: images
           editable: Supra\Editable\Gallery
           label: Images
-          shared: true
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: title
@@ -36,7 +35,6 @@
           name: style
           editable: Supra\Editable\SelectVisual
           label: Style
-          shared: true
           default: grid
           values:
             - id: grid
@@ -49,7 +47,6 @@
           name: design
           editable: Supra\Editable\SelectVisual
           label: Design
-          shared: true
           default: simple
           values:
             - id: simple

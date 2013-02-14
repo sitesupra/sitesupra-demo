@@ -8,4 +8,3 @@
           name: newsApplication
           editable: Supra\Editable\Link
           label: News Application
-          shared: false

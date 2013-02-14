@@ -21,7 +21,6 @@
           name: images
           editable: Supra\Editable\Gallery
           label: Images
-          shared: false
           # each image item sub-properties
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
