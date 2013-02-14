@@ -337,6 +337,7 @@ class PageAction extends PageManagerAction
 						'id' => $containerName,
 						'closed' => false,
 						'locked' => false,
+						'editable' => true,
 						'title' => $group->getTitle(),
 						'type' => 'list_one',
 						'allow' => array(),
@@ -409,6 +410,9 @@ class PageAction extends PageManagerAction
 				
 				if ($placeHolderData['locked']) {
 					$containersData[$containerName]['locked'] = true;
+					if ($pageData instanceof Entity\PageLocalization) {
+						$containersData[$containerName]['editable'] = false;
+					}
 				}
 				
 				$placeHolderData['type'] = 'list_one';
