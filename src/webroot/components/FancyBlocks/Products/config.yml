@@ -56,7 +56,6 @@
           group: design
           editable: Supra\Editable\SelectVisual
           label: Design
-          shared: true
           values:
             - id: simple
               title: Default
@@ -72,7 +71,6 @@
           group: design
           editable: Supra\Editable\SelectVisual
           label: Link
-          shared: true
           default: text
           values:
             - id: button
@@ -89,7 +87,6 @@
           group: design
           editable: Supra\Editable\SelectVisual
           label: Image
-          shared: true
           default: all
           values:
             - id: only
@@ -106,7 +103,6 @@
           group: navigation
           editable: Supra\Editable\SelectVisual
           label: Navigation
-          shared: true
           default: arrows
           values:
             - id: none

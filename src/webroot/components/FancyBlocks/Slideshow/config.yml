@@ -29,7 +29,6 @@
           name: images
           editable: Supra\Editable\Gallery
           label: Images
-          shared: true
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: title
@@ -48,7 +47,6 @@
           group: design
           editable: Supra\Editable\SelectVisual
           label: Design
-          shared: true
           values:
             - id: dots
               title: Dots
@@ -67,7 +65,6 @@
           group: animation
           editable: Supra\Editable\SelectVisual
           label: Animation
-          shared: true
           values:
             - id: horizontal
               title: Horizontal slide
