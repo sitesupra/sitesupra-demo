@@ -332,9 +332,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if block is closed
+		 * If block is closed, then user is prevented from adding children, ordering or removing
+		 * this block
 		 * 
-		 * @return True if block is closed, otherwise false
-		 * @type {Boolean}
+		 * @returns {Boolean} True if block is closed, otherwise false
 		 */
 		isClosed: function () {
 			var data = this.get('data');
@@ -802,7 +803,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			this.overlay.set('innerHTML', '<span class="' + CLASSNAME_OVERLAY_ICON + '"></span><span class="' + CLASSNAME_OVERLAY_NAME + '">' + title + '</span>');
-			this.getNode().insert(this.overlay, 'before');
+			this.getNode().insert(div, 'before');
 		},
 		
 		/**
