@@ -182,6 +182,7 @@
 /cms/lib/supra/build/input/link.js
 /cms/lib/supra/build/input/image.js
 /cms/lib/supra/build/input/map.js
+/cms/lib/supra/build/input/map-inline.js
 /cms/lib/supra/build/datatype/datatype-color.js
 /cms/lib/supra/build/input/color.js
 /cms/lib/supra/build/calendar/calendar.js

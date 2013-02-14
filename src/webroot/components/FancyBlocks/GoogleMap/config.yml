@@ -1,0 +1,28 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\GoogleMap\GoogleMapBlock
+    title: Google Map
+    groupId: features
+    description: The Google Map block allows you to embed a Google Maps map in your page. 
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+        lifetime: 60 seconds
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\InlineString
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: map
+          editable: Supra\Editable\InlineMap
+          label: Google Map
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: marker_text
+          editable: Supra\Editable\Textarea
+          label: Info box text

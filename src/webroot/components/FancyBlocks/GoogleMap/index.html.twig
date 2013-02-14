@@ -1,0 +1,20 @@
+<div class="block">
+	{% set block_title = supraBlock.property('block_title') %}
+	{% if supra.cmsRequest or block_title %}
+	<h2 class="block-title"><div>
+		{% if block_title %}{{ block_title }}{% endif %}
+	</div></h2>
+	{% endif %}
+	
+
+	{% set map = supraBlock.property('map') %}
+	{% spaceless %}
+	<div
+		{% if supra.cmsRequest %}
+			id="content_{{ supraBlock.getBlock().getId() }}_map" class="yui3-content-inline yui3-input-map-inline map"
+		{% else %}
+			class="map"
+		{% endif %}
+		data-refresh-event="map" data-latitude="{{ map.latitude }}" data-longitude="{{ map.longitude }}" data-marker-text=""></div>
+	{% endspaceless %}
+</div>

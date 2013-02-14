@@ -708,6 +708,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/map.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-map-inline': {
+		path: 'input/map-inline.js',
+		requires: ['supra.input-proto']
+	},
 	'supra.input-color': {
 		path: 'input/color.js',
 		requires: ['supra.input-proto', 'dd', 'supra.datatype-color']
@@ -766,6 +770,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-image',
 			'supra.input-file',
 			'supra.input-map',
+			'supra.input-map-inline',
 			'supra.input-color',
 			'supra.input-date',
 			'supra.input-block-background',

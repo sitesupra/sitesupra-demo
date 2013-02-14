@@ -235,7 +235,9 @@ YUI.add('supra.form', function (Y) {
 			var type = config.type;
 				type = type.substr(0,1).toUpperCase() + type.substr(1);
 			
-			if (!config.value && config.defaultValue) {
+			if (config.value && !config.defaultValue) {
+				config.defaultValue = config.value;
+			} else if (!config.value && config.defaultValue) {
 				config.value = config.defaultValue;
 			}
 			
@@ -265,6 +267,7 @@ YUI.add('supra.form', function (Y) {
 			if (this.get('rendered')) {
 				if (config.isInstanceOf && config.isInstanceOf('input')) {
 					//Add input to the list of form inputs
+					config.set('parent', this);
 					this.inputs[config.get('id')] = config;
 				} else {
 					//Create input and append
