@@ -332,9 +332,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if block is closed
+		 * If block is closed, then user is prevented from adding children, ordering or removing
+		 * this block
 		 * 
-		 * @return True if block is closed, otherwise false
-		 * @type {Boolean}
+		 * @returns {Boolean} True if block is closed, otherwise false
 		 */
 		isClosed: function () {
 			var data = this.get('data');
@@ -416,6 +417,18 @@ YUI.add('supra.page-content-proto', function (Y) {
 						if (index != -1) {
 							this.children_order.splice(index, 1);
 						}
+						
+						//Remove from data list
+						var contents = this.get('data').contents,
+							i = 0,
+							ii = contents.length;
+						
+						for (; i<ii; i++) {
+							if (contents[i].id == id) {
+								contents.splice(i, 1);
+								break;
+							}
+						}
 					} else {
 						// Reopen the properties sidebar if fails
 						block.properties.showPropertiesForm();
@@ -469,6 +482,22 @@ YUI.add('supra.page-content-proto', function (Y) {
 						this.children_order.splice(index, 0, String(data.id));
 					} else {
 						this.children_order.push(String(data.id));
+					}
+					
+					//Add to data list
+					var contents = this.get('data').contents,
+						i = 0,
+						ii = contents.length,
+						has = false;
+					
+					for (; i<ii; i++) {
+						if (contents[i].id == data.id) {
+							has = true;
+						}
+					}
+					
+					if (!has) {
+						contents.push(data);
 					}
 				} else {
 					Y.error('Class "' + classname + '" for content "' + data.id + '" is missing.');
@@ -547,6 +576,18 @@ YUI.add('supra.page-content-proto', function (Y) {
 				if (index != -1) {
 					this.children_order.splice(index, 1);
 				}
+				
+				//Remove from data list
+				var contents = this.get('data').contents,
+					i = 0,
+					ii = contents.length;
+				
+				for (; i<ii; i++) {
+					if (contents[i].id == id) {
+						contents.splice(i, 1);
+						break;
+					}
+				}
 			}
 		},
 		
@@ -581,6 +622,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 			} else {
 				children_order.splice(index, 0, id);
 			}
+			
+			//Add to data list
+			var contents = this.get('data').contents;
+			contents.push(block.get('data'));
 			
 			//Update parent attribute
 			block.set('parent', this);
@@ -802,7 +847,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			this.overlay.set('innerHTML', '<span class="' + CLASSNAME_OVERLAY_ICON + '"></span><span class="' + CLASSNAME_OVERLAY_NAME + '">' + title + '</span>');
-			this.getNode().insert(this.overlay, 'before');
+			this.getNode().insert(div, 'before');
 		},
 		
 		/**

@@ -120,16 +120,6 @@ Supra(function (Y) {
 							continue;
 						}
 						
-						/*
-						//Change block title into more readable form
-						title = block_definition ? block_definition.title : '';
-						if (!title) {
-							title = id;
-							title = title.replace(/[\-\_\.]/g, ' ');
-							title = title.substr(0,1).toUpperCase() + title.substr(1);
-						}
-						*/
-						
 						//Icon
 						icon = (block_definition ? block_definition.icon : '');
 						if (!icon) {
