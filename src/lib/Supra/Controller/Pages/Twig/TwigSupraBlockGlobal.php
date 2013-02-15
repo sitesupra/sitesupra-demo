@@ -54,6 +54,23 @@ class TwigSupraBlockGlobal
 	}
 	
 	/**
+	 * Checks, wheiter block property have raw value (RAW - means value without CMS div wrappers)
+	 * @param string $name
+	 * @return boolean
+	 */
+	public function isEmpty($name)
+	{
+		if (empty($name)) {
+			return;
+		}
+		
+		$propertyValue = $this->blockController->getProperty($name)
+				->getValue();
+		
+		return empty($propertyValue);
+	}
+	
+	/**
 	 * Mark image for preload
 	 * @param string $imageId
 	 * @param integer $width
