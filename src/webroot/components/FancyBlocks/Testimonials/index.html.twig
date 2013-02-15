@@ -1,10 +1,9 @@
 {% set testimonials = supraBlock.property('images') %}
 <div class="block" data-refresh-event="carousel" data-list=".testimonials" data-items="blockquote" data-animation="fade" data-classname="testimonials" data-timer="5000" data-keyboard="false" data-touch="false">
 	
-	{% set block_title = supraBlock.property('block_title') %}
-	{% if supra.cmsRequest or block_title %}
+	{% if not supraBlock.isEmpty('block_title') %}
 	<h2 class="block-title"><div>
-		{% if block_title %}{{ block_title }}{% endif %}
+		{{ supraBlock.property('block_title') }}
 	</div></h2>
 	{% endif %}
 	
