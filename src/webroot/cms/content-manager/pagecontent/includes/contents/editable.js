@@ -283,7 +283,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 		renderUI: function () {
 			ContentEditable.superclass.renderUI.apply(this, arguments);
 			
-			if (this.get('editable')) {
+			if (this.get('editable') || this.isPlaceholder()) {
 				this.renderOverlay();
 				
 				//Find if there are any inline properties

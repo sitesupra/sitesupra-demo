@@ -123,7 +123,13 @@ YUI.add('supra.iframe-contents', function (Y) {
 													  .replace(':block_id', evt.newVal.get('data').id);
 						
 						Root.router.save(uri);
-						this.set('highlightMode', 'disabled');
+						
+						if (evt.newVal.isList()) {
+							this.set('highlightMode', 'editing');
+							evt.newVal.set('highlightMode', 'editing-list');
+						} else {
+							this.set('highlightMode', 'editing');
+						}
 					}
 				}
 			}, this);
