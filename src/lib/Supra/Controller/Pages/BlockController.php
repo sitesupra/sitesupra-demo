@@ -367,14 +367,14 @@ abstract class BlockController extends ControllerAbstraction
 			}
 		}
 
-		if ($editable instanceof Editable\Link) {
+		else if ($editable instanceof Editable\Link) {
 			$filter = new Filter\LinkFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
 		
-		if ($editable instanceof Editable\InlineString) {
+		else if ($editable instanceof Editable\InlineString) {
 			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
 				$filter = new Filter\EditableString();
 				ObjectRepository::setCallerParent($filter, $this);
@@ -383,14 +383,14 @@ abstract class BlockController extends ControllerAbstraction
 			}
 		}
 
-		if ($editable instanceof Editable\Textarea) {
+		else if ($editable instanceof Editable\Textarea) {
 			$filter = new Filter\EditableTextarea();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
 
-		if ($editable instanceof Editable\Gallery) {
+		else if ($editable instanceof Editable\Gallery) {
 			$filter = new Filter\GalleryFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
@@ -398,8 +398,15 @@ abstract class BlockController extends ControllerAbstraction
 			$editable->addFilter($filter);
 		}
 		
-		if ($editable instanceof Editable\Video) {
+		else if ($editable instanceof Editable\Video) {
 			$filter = new Filter\VideoFilter();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
+		}
+		
+		else if ($editable instanceof Editable\InlineMap) {
+			$filter = new Filter\InlineMapFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);

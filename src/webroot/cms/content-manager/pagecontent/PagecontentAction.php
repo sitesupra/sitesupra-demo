@@ -544,13 +544,16 @@ class PagecontentAction extends PageManagerAction
 							throw new \InvalidArgumentException("Empty value need to be sent to unset the link, $checkValue received");
 						}
 					}
-				} elseif ($editable instanceof Editable\Gallery) {
+				} elseif ($editable instanceof Editable\Gallery || $editable instanceof Editable\Slideshow) {
 					
 					if ($input->hasChild($propertyName)) {
+						$listInput = $input->getChild($propertyName);
 						
-						$imagesListInput = $input->getChild($propertyName);	
-						$this->storeGalleryProperties($imagesListInput, $property);
-						
+						if ($editable instanceof Editable\Gallery) {
+							$this->storeGalleryProperties($listInput, $property);
+						} else {
+							$this->storeSlideshowProperties($listInput, $property);
+						}
 					} else {
 						$checkValue = $input->get($propertyName);
 
@@ -604,7 +607,17 @@ class PagecontentAction extends PageManagerAction
 							throw new \InvalidArgumentException("Empty value need to be sent to unset the link, $checkValue received");
 						}
 					}
-				}			
+				} else if ($editable instanceof Editable\InlineMap) {
+					if ($input->hasChild($propertyName)) {
+						
+						$mapInput = $input->getChild($propertyName);
+						
+						$latitude = (float)$mapInput->get('latitude');
+						$longitude = (float)$mapInput->get('longitude');
+						
+						$value = "{$latitude}|{$longitude}";
+					}
+				}	
 				else {
 					$propertyData = $input->get($propertyName);
 					$value = $propertyData;
@@ -862,5 +875,13 @@ class PagecontentAction extends PageManagerAction
 	public function savePagePlaceholderAction()
 	{
 		$this->savePlaceholderAction();
+	}
+	
+	/**
+	 * @FIXME
+	 */
+	private function storeSlideshowProperties($input, $property)
+	{
+		$this->storeGalleryProperties($input, $property);
 	}
 }

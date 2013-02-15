@@ -21,11 +21,16 @@ class InlineMap extends EditableAbstraction
     
     /**
      * {@inheritdoc}
-     * @return boolean
+     * @return booleanPa
      */
     public function isInlineEditable()
     {
         return static::EDITOR_INLINE_EDITABLE;
     }
+	
+	public function getContentForEdit()
+	{
+		return $this->getFilteredValue();
+	}
     
 }

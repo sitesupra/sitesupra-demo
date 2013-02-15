@@ -26,17 +26,5 @@ class BlockBackground extends EditableAbstraction {
 	public function isInlineEditable()
 	{
 		return static::EDITOR_INLINE_EDITABLE;
-	}
-
-	public function getContent()
-	{
-		return parent::getContent();
-	}
-
-	public function getContentForEdit()
-	{
-		return parent::getContentForEdit();
-	}
-
-	
+	}	
 }

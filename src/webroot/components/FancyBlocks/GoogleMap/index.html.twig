@@ -8,6 +8,7 @@
 	
 
 	{% set map = supraBlock.property('map') %}
+	{% set markerText = supraBlock.property('marker_text') %}
 	{% spaceless %}
 	<div
 		{% if supra.cmsRequest %}
@@ -15,6 +16,6 @@
 		{% else %}
 			class="map"
 		{% endif %}
-		data-refresh-event="map" data-latitude="{{ map.latitude }}" data-longitude="{{ map.longitude }}" data-marker-text=""></div>
+		data-refresh-event="map" data-latitude="{{ map.latitude }}" data-longitude="{{ map.longitude }}" data-marker-text="{{ markerText }}"></div>
 	{% endspaceless %}
 </div>

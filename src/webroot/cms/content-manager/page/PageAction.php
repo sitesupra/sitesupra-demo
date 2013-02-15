@@ -919,7 +919,7 @@ class PageAction extends PageManagerAction
 				}
 			}
 		}
-
+		
 		if ($editable instanceof Editable\BlockBackground) {
 
 			$classname = null;
@@ -989,9 +989,9 @@ class PageAction extends PageManagerAction
 		return $propertyInfo;
 	}
 
-	private function preparePlaceholdersOutput($data)
-	{
-		
-	}
+//	private function preparePlaceholdersOutput($data)
+//	{
+//		
+//	}
 	
 }
