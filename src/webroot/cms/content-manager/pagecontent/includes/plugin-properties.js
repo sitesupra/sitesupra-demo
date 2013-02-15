@@ -595,9 +595,12 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Reset slideshow position
 			this.get('slideshow').set('slide', 'propertySlideMain');
 			
-			//Property which affects inline content may have
-			//changed, need to reload block content 
-			this.get('host').reloadContentHTML();
+			// Property which affects inline content may have
+			// changed, need to reload block content.
+			if (!this.get('host').saving) {
+				this.get('host').reloadContentHTML();
+			} 
+			
 		},
 		
 		/**

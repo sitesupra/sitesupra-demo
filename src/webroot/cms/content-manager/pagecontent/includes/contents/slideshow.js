@@ -654,7 +654,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		 */
 		reloadContent: function () {
 			this.set('loading', true);
-			this.properties.get('host').reloadContentHTML(
+			this.reloadContentHTML(
 				function(editable) { 
 					editable.set('loading', false);
 				}

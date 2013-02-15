@@ -105,6 +105,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		savePropertyChanges: function () {
 			if (this.properties && this.unresolved_changes) {
+				this.saving = true;
+				
 				//For blocks use sendBlockProperties, for place holders sendPlaceHolderProperties
 				//and for place holders in page use sendPagePlaceHolderProperties
 				if (this.isInstanceOf('page-content-list')) {
@@ -126,6 +128,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 						var data = this.get('data');
 						data.properties = this.properties.get('data').properties;
 						this.set('data', data);
+						this._reloadContentSetHTML(response_data);
+						this.saving = false;
 					}
 					
 				}, this);
@@ -498,7 +502,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 						}
 					}
 				}
-			})
+			});
 		},
 		
 		/**
