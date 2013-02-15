@@ -1,4 +1,3 @@
-
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Gallery\GalleryBlock
     title: Gallery
@@ -18,6 +17,7 @@
           name: block_title
           editable: Supra\Editable\String
           label: Title
+          default: Gallery
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: images
           editable: Supra\Editable\Gallery
@@ -27,10 +27,12 @@
                 name: title
                 editable: Supra\Editable\String
                 label: Title
+                default: Lorem ipsum dolor sit amet
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: description
                 editable: Supra\Editable\Textarea
                 label: Description
+                default: Volutpat nunc aliquet amet duis duis ultrices egestas ac ipsum sit arcu ac sagittis consectetur id adipiscing eu
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: style
           editable: Supra\Editable\SelectVisual

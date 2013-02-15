@@ -13,3 +13,4 @@
           name: block_title
           editable: Supra\Editable\String
           label: Title
+          default: Sitemap

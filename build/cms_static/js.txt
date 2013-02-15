@@ -110,6 +110,7 @@
 /cms/lib/supra/build/io/io.js
 /cms/lib/supra/build/intl/intl.js
 /cms/lib/supra/build/lang/lang.js
+/cms/lib/supra/build/lipsum/lipsum.js
 /cms/lib/supra/build/datatype/datatype-date-parse.js
 /cms/lib/supra/build/datatype/datatype-date-reformat.js
 /cms/lib/supra/build/base/base.js

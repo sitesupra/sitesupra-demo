@@ -70,7 +70,8 @@ YUI.add('supra.page-content-list', function (Y) {
 			this.on('dragend:hit', function (e) {
 				var reference = e.insertReference,
 					before = e.insertBefore,
-					index = null;
+					index = null,
+					properties = null;
 				
 				if (!before && reference) {
 					//Find next block
@@ -89,11 +90,17 @@ YUI.add('supra.page-content-list', function (Y) {
 					index = Y.Array.indexOf(this.children_order, reference);
 				}
 				
+				// Generate lipsum data
+				properties = Manager.Blocks.getBlockLipsumData(e.block.id);
+				
+				// Insert block
 				this.get('super').getBlockInsertData({
 					'type': e.block.id,
 					'placeholder_id': this.getId(),
-					'reference_id': reference
+					'reference_id': reference,
+					'properties': properties
 				}, function (data) {
+					// Create block in UI
 					this.createChildFromData(data, index);
 				}, this);
 				
@@ -166,8 +173,6 @@ YUI.add('supra.page-content-list', function (Y) {
 		 * @param {Number} index Index where block should be inserted, default at the end
 		 */
 		createChildFromData: function (data, index) {
-			data = this.lipsumChildData(data);
-			
 			var block = this.createChild({
 				'id': data.id,
 				'closed': false,
@@ -185,11 +190,6 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			//When new item is created focus on it
 			this.get('super').set('activeChild', block);
-		},
-		
-		lipsumChildData: function (data) {
-			console.log(data);
-			return data;
 		},
 		
 		/**

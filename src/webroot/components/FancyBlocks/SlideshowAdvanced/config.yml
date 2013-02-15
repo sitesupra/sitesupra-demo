@@ -150,10 +150,12 @@
                 name: text_main
                 editable: Supra\Editable\Html
                 label: Main text
+                default: <p>Nascetur in mattis donec massa sed libero mauris congue at. Fames enim laoreet eget diam. Habitant nunc sed adipiscing malesuada feugiat viverra justo malesuada.</p>
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: text_top
                 editable: Supra\Editable\Html
                 label: Top text
+                default: <p>Nascetur in mattis donec massa sed libero mauris congue at. Fames enim laoreet eget diam. Habitant nunc sed adipiscing malesuada feugiat viverra justo malesuada.</p>
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: image
                 editable: Supra\Editable\Image

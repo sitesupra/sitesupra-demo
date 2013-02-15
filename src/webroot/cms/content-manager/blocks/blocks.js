@@ -180,6 +180,22 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Returns lipsum data for block
+		 * 
+		 * @param {String} id Block ID
+		 * @returns {Object} Lipsum data for block properties
+		 */
+		getBlockLipsumData: function (id) {
+			var block = this.getBlock(id);
+			
+			if (block) {
+				return Supra.Form.lipsum(block.properties);
+			} else {
+				return {};
+			}
+		},
+		
+		/**
 		 * Execute
 		 *
 		 * @param {Function} callback Callback function

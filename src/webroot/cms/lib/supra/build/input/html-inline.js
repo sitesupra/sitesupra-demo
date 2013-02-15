@@ -238,6 +238,13 @@ YUI.add("supra.input-inline-html", function (Y) {
 		
 	});
 	
+	Input.lipsum = function () {
+		return {
+			'data': {},
+			'html': Supra.Limsum.html()
+		};
+	};
+	
 	Supra.Input.InlineHTML = Input;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

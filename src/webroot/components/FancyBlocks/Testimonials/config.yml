@@ -17,6 +17,7 @@
           name: block_title
           editable: Supra\Editable\String
           label: Title
+          default: What Client's Say
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: images
           editable: Supra\Editable\Gallery
@@ -27,10 +28,12 @@
                  name: testimony
                  editable: Supra\Editable\Textarea
                  label: Testimony
+                 default: Volutpat nunc aliquet amet duis duis ultrices egestas ac ipsum sit arcu ac sagittis consectetur id adipiscing eu
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                  name: name
                  editable: Supra\Editable\String
                  label: Name
+                 default: Lorem Ipsum
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                  name: link
                  editable: Supra\Editable\Link

@@ -16,7 +16,8 @@ Supra('dd-drag', function (Y) {
 		'{pagecontent}includes/plugin-droptarget.js',
 		'{pagecontent}includes/iframe.js',
 		'{pagecontent}includes/contents.js',
-		'{pagecontent}includes/plugin-ordering.js'
+		'{pagecontent}includes/plugin-ordering.js',
+		'S$lipsum/lipsum.js'
 	];
 
 	//Shortcut
@@ -143,7 +144,7 @@ Supra('dd-drag', function (Y) {
 			Y.Get.script(url, {
 				'onSuccess': function () {
 					//Create classes
-					Supra('supra.iframe-handler', 'supra.iframe-contents', 'supra.plugin-layout', Y.bind(function () {
+					Supra('supra.iframe-handler', 'supra.iframe-contents', 'supra.plugin-layout', 'supra.lipsum', Y.bind(function () {
 						this.dependancies_loaded = true;
 						this.ready();
 					}, this));

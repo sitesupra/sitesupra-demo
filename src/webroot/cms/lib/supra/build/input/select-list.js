@@ -103,6 +103,13 @@ YUI.add('supra.input-select-list', function (Y) {
 		 */
 		buttons_rendered: false,
 		
+		/**
+		 * Last known value
+		 * @type {String}
+		 * @private
+		 */
+		last_value: null,
+		
 		
 		bindUI: function () {
 			var input = this.get('inputNode');
@@ -360,7 +367,7 @@ YUI.add('supra.input-select-list', function (Y) {
 		 * @private
 		 */
 		_getInternalValue: function () {
-			return this.get('value');
+			return this.last_value;
 		},
 		
 		_afterValueChange: function (evt) {
@@ -397,6 +404,10 @@ YUI.add('supra.input-select-list', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (this.get('id') == 'image' || this.get('name') == 'image') {
+				console.log('_setValue', this.get('id') || this.get('name'), value);
+				console.trace();
+			}
 			
 			// Convert boolean values to string
 			if (typeof value == 'boolean') {
@@ -405,6 +416,7 @@ YUI.add('supra.input-select-list', function (Y) {
 			
 			if (!this.get('rendered')) {
 				// Not rendered, there are no buttons yet
+				this.last_value = value;
 				return value;
 			}
 			
@@ -432,6 +444,7 @@ YUI.add('supra.input-select-list', function (Y) {
 				}
 			}
 			
+			this.last_value = value;
 			return value;
 		},
 		
@@ -445,7 +458,7 @@ YUI.add('supra.input-select-list', function (Y) {
 			var values = this.get('values');
 			if (!values || !values.length) {
 				// There are no options, so any value will be considered as ok
-				return value;
+				return this.last_value;
 			}
 			
 			if (this.get('multiple')) {
@@ -460,7 +473,7 @@ YUI.add('supra.input-select-list', function (Y) {
 				
 				return value;
 			} else {
-				return this.get('inputNode').get('value');
+				return this.last_value;
 			}
 		},
 		

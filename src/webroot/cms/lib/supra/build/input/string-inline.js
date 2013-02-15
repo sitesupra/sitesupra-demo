@@ -200,6 +200,10 @@ YUI.add("supra.input-inline-string", function (Y) {
 		
 	});
 	
+	Input.lipsum = function () {
+		return Supra.Limsum.sentence({'count': 4, 'variation': 1});
+	};
+	
 	Supra.Input.InlineString = Input;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

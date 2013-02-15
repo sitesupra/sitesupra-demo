@@ -18,6 +18,7 @@
           name: title
           editable: Supra\Editable\String
           label: Title
+          default: Lorem ipsum dolor sit amet
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: video
           editable: Supra\Editable\Video

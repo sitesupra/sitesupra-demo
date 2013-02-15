@@ -606,6 +606,17 @@ YUI.add('supra.input-proto', function (Y) {
 		
 	});
 	
+	
+	/**
+	 * Generate "lipsum" value for input, optional
+	 * 
+	 * @returns {String} Lipsum value
+	 */
+	Input.lipsum = function () {
+		return '';
+	};
+	
+	
 	Supra.Input = {
 		'Proto': Input,
 		
@@ -615,12 +626,13 @@ YUI.add('supra.input-proto', function (Y) {
 		 * If IS_INLINE constant is not set on input, then by default returns false
 		 * 
 		 * @param {String} type Input type
+		 * @param {Boolean} default_value Default return value if input doesn't exist, default is false
 		 * @returns {Boolean} True if input is inline
 		 */
-		'isInline': function (type) {
+		'isInline': function (type, default_value) {
 			var type_str = String(type || ''),
 				name = type_str.substr(0, 1).toUpperCase() + type_str.substr(1),
-				inline = false;
+				inline = (default_value === true || default_value === false ? default_value : false);
 			
 			if (name in Supra.Input && Supra.Input[name].IS_INLINE === true) {
 				inline = true;
@@ -635,12 +647,13 @@ YUI.add('supra.input-proto', function (Y) {
 		 * If IS_CONTAINED constant is not set on input, then by default returns true
 		 * 
 		 * @param {String} type Input type
-		 * @returns {Boolean} True if input is inline
+		 * @param {Boolean} default_value Default return value if input doesn't exist, default is true
+		 * @returns {Boolean} True if input is contained
 		 */
-		'isContained': function (type) {
+		'isContained': function (type, default_value) {
 			var type_str = String(type || ''),
 				name = type_str.substr(0, 1).toUpperCase() + type_str.substr(1),
-				contained = true;
+				contained = (default_value === true || default_value === false ? default_value : true);
 			
 			if (name in Supra.Input && Supra.Input[name].IS_CONTAINED === false) {
 				contained = false;
@@ -654,4 +667,4 @@ YUI.add('supra.input-proto', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget']});
+}, YUI.version, {requires:['widget', 'supra.lipsum']});

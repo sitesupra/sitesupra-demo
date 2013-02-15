@@ -22,6 +22,10 @@ YUI.add('supra.input-text', function (Y) {
 		KEY_RETURN_ALLOW: false
 	});
 	
+	Input.lipsum = function () {
+		return Supra.Limsum.paragraph({'count': 4});
+	};
+	
 	Supra.Input.Text = Input;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

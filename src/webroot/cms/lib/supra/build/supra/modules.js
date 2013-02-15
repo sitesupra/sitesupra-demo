@@ -155,6 +155,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Supra.Lipsum
+	 */
+	'supra.lipsum': {
+		path: 'lipsum/lipsum.js'
+	},
+	
+	/**
 	 * Y.DOM extension
 	 */
 	'supra.dom': {
@@ -646,7 +653,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.input-proto': {
 		path: 'input/proto.js',
-		requires: ['widget']
+		requires: ['widget', 'supra.lipsum']
 	},
 	'supra.input-hidden': {
 		path: 'input/hidden.js',

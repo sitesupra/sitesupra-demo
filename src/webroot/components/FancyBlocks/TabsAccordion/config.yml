@@ -18,6 +18,7 @@
           name: block_title
           editable: Supra\Editable\String
           label: Title
+          default: Lorem ipsum dolor sit amet
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: design
           editable: Supra\Editable\SelectVisual

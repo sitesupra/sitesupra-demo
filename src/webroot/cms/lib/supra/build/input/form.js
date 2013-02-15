@@ -984,6 +984,73 @@ YUI.add('supra.form', function (Y) {
 		}
 	});
 	
+	/**
+	 * Returns lipsum data for inputs
+	 * 
+	 * @param {Object} inputs List of input definitions
+	 * @returns {Object} Lipsum data for inputs
+	 */
+	Form.lipsum = function (inputs, overwrite_defaults) {
+		var properties = inputs,
+			property = null,
+			i = 0,
+			ii = properties.length,
+			lipsum = null,
+			input = null,
+			generated = {};
+		
+		for (; i<ii; i++) {
+			property = properties[i];
+			lipsum = Form.lipsumProperty(property, overwrite_defaults);
+			if (lipsum) {
+				generated[property.id] = lipsum;
+			}
+		}
+		
+		return generated;
+	};
+	
+	Form.lipsumProperty = function (property, overwrite_defaults) {
+		var input = Supra.Input[property.type],
+			i = 0,
+			ii = 0,
+			k = 0,
+			kk = 0,
+			lipsum = '',
+			items = null,
+			item = null;
+		
+		if (input && input.lipsum) {
+			// Input
+			if (overwrite_defaults) {
+				lipsum = input.lipsum();
+			}
+		} else if (property.type == 'Gallery') {
+			// Gallery block
+			items = [];
+			
+			// Create 4 items
+			if (property.properties) {
+				for (k=0, kk=4; k<kk; k++) {
+					item = {'id': Y.guid(), 'image': null, 'properties': {}};
+					
+					for (i=0, ii=property.properties.length; i<ii; i++) {
+						lipsum = Form.lipsumProperty(property.properties[i], overwrite_defaults);
+						item.properties[property.properties[i].id] = lipsum || property.properties[i].value || '';
+					}
+					items.push(item);
+				}
+			}
+			
+			lipsum = items.length ? items : null;
+		} else if (property.type == 'Slideshow') {
+			// Slideshow block
+		}
+		
+		return lipsum;
+	};
+	
+	
 	Supra.Form = Form;
 	Supra.Form.normalizeInputConfig = Form.prototype.normalizeInputConfig;
 	Supra.Form.factoryField = Form.prototype.factoryField;

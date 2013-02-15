@@ -34,10 +34,12 @@
                 name: title
                 editable: Supra\Editable\String
                 label: Title
+                default: Lorem ipsum dolor sit amet
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: description
                 editable: Supra\Editable\Textarea
                 label: Description
+                default: Volutpat nunc aliquet amet duis duis ultrices egestas ac ipsum sit arcu ac sagittis consectetur id adipiscing eu
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: link
                 editable: Supra\Editable\Link

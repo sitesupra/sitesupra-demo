@@ -28,6 +28,7 @@
           name: block_title
           editable: Supra\Editable\String
           label: Title
+          default: Lorem ipsum
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: images
           editable: Supra\Editable\Gallery
@@ -36,21 +37,24 @@
           # each image item sub-properties
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                 name: title
-                 editable: Supra\Editable\String
-                 label: Product title
+                name: title
+                editable: Supra\Editable\String
+                label: Product title
+                default: Lorem ipsum dolor sit amet
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                 name: description
-                 editable: Supra\Editable\Textarea
-                 label: Short description
+                name: description
+                editable: Supra\Editable\Textarea
+                label: Short description
+                default: Volutpat nunc aliquet amet duis duis ultrices egestas ac ipsum sit arcu ac sagittis consectetur id adipiscing eu
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                 name: link
-                 editable: Supra\Editable\Link
-                 label: Product link
+                name: link
+                editable: Supra\Editable\Link
+                label: Product link
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                 name: link_label
-                 editable: Supra\Editable\String
-                 label: Link label
+                name: link_label
+                editable: Supra\Editable\String
+                label: Link label
+                default: Read more
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: design
           group: design

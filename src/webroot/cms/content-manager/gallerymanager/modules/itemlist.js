@@ -646,11 +646,14 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				property = null;
 			
 			for (var i=0, ii=properties.length; i<ii; i++) {
-				// Replace only if isn't default value
 				property = properties[i].id;
-				if (properties[i].label != old_data.properties[property]) {
+				if (old_data.properties[property]) {
 					new_data.properties[property] = old_data.properties[property];
 				}
+				// Replace only if isn't default value
+				//if (properties[i].label != old_data.properties[property]) {
+				//	new_data.properties[property] = old_data.properties[property];
+				//}
 			}
 			
 			old_node.insert(new_node, 'before');
