@@ -160,11 +160,14 @@ YUI.add('supra.page-content-list', function (Y) {
 		
 		/**
 		 * Create block from data
+		 * Populates all properties with lorem ipsum
 		 * 
 		 * @param {Object} data Block data
 		 * @param {Number} index Index where block should be inserted, default at the end
 		 */
 		createChildFromData: function (data, index) {
+			data = this.lipsumChildData(data);
+			
 			var block = this.createChild({
 				'id': data.id,
 				'closed': false,
@@ -182,6 +185,11 @@ YUI.add('supra.page-content-list', function (Y) {
 			
 			//When new item is created focus on it
 			this.get('super').set('activeChild', block);
+		},
+		
+		lipsumChildData: function (data) {
+			console.log(data);
+			return data;
 		},
 		
 		/**

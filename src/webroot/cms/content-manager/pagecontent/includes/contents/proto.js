@@ -361,11 +361,28 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if block is list
+		 * Placeholders are also lists
 		 * 
 		 * @returns {Boolean} True if block is list, otherwise false
 		 */
 		isList: function () {
 			return this.is_list;
+		},
+		
+		/**
+		 * Returns if block is placeholder
+		 * 
+		 * @returns {Boolean} True if block is placeholder, otherwise false
+		 */
+		isPlaceholder: function () {
+			var is_list = this.is_list,
+				parent = this.get('parent');
+			
+			if (is_list && parent && parent.isList()) {
+				return true;
+			} else {
+				return false;
+			}
 		},
 		
 		/**
@@ -872,11 +889,14 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 				// Is this block a list?
 			var is_list = this.isList(),
+				is_placeholder = this.isPlaceholder(),
+				
+				parent = this.get('parent'),
 				
 				// Highlight mode
 				attr_mode = overwrite ? mode : this.get('highlightMode'),
 				old_mode = this.highlight_mode,
-				mode = attr_mode || mode || this.get('super').get('highlightMode'),
+				mode = attr_mode || mode || (parent ? parent.get('highlightMode') : null) || this.get('super').get('highlightMode'),
 				
 				// Children
 				children_mode = mode,
@@ -1015,9 +1035,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 				case 'placeholders':
 					// Placeholder blocks are viewed
 					// - non-list overlays are hidden
-					// - list overlays are visible with name; icon is shown on hover
+					// - list overlays (top level) are visible with name; icon is shown on hover
 					
-					if (is_list) {
+					if (is_list && !is_placeholder) {
 						overlay_classname = 'overlay-visible';
 						icon_classname = 'icon-visible-hover';
 						name_classname = 'name-visible';
@@ -1029,9 +1049,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 				case 'placeholders-hover':
 					// Placeholder blocks are viewed
 					// - non-list overlays are hidden
-					// - list overlays are visible with name and icon
+					// - list overlays (top level) are visible with name and icon
 					
-					if (is_list) {
+					if (is_list && !is_placeholder) {
 						overlay_classname = 'overlay-visible';
 						icon_classname = 'icon-visible';
 						name_classname = 'name-visible';
@@ -1055,8 +1075,22 @@ YUI.add('supra.page-content-proto', function (Y) {
 					children_mode = null;
 					
 					break;
+				case 'editing-list':
+					// List edit mode
+					
+					if (is_placeholder) {
+						overlay_classname = 'overlay-visible';
+						icon_classname = 'icon-hidden';
+						name_classname = 'name-hidden';
+					} else {
+						overlay_classname = 'overlay-hidden';
+					}
+					
+					break;
 				case 'disabled':
+				case 'editing':
 				default:
+					// Editing content or disabled
 					// Remove all highlights
 					
 					mode = 'disabled';

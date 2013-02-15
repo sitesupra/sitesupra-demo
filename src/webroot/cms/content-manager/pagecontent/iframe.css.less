@@ -104,6 +104,7 @@
 	cursor: pointer;
 	z-index: 9999;
 	border: 2px solid #009DF8;
+	box-sizing: border-box;
 	.border-radius (5px);
 	.box-shadow (none);
 	.transition-property (opacity);
@@ -204,6 +205,13 @@
 		background: #555;
 	}
 	
+}
+
+// Placeholder overlays cursor
+.yui3-content-list .su-overlay.su-overlay-list {
+	&, span {
+		cursor: default;
+	}
 }
 
 // Overlay visible
@@ -452,8 +460,13 @@
 
 	&.editing {
 		overflow: hidden;
-		min-height: 90px;
+		min-height: 60px;
+		outline: 0;
 		
+		.yui3-content-list {
+			/* If list is being edited, then set sub-list height, so that these can be highlighted */
+			min-height: 60px;
+		}
 		.yui3-content-inline {
 			/* If list is being edited, then don't highlight inline contents */
 			outline: none;

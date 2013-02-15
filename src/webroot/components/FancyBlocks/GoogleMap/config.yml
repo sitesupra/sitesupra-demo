@@ -25,4 +25,5 @@
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: marker_text
           editable: Supra\Editable\Textarea
-          label: Info box text
+          label: Tooltip text
+          description: Address or description which will be shown in tooltip
