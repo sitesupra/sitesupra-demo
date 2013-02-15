@@ -125,17 +125,47 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		renderManageButton: function () {
 			//Add "Manage images" button
 			var form = this.properties.get('form'),
+				
+				properties = this.getProperties(),
+				i = 0,
+				ii = properties.length,
+				reference = null,
+				has_reference = false,
+				tmp = null,
+				
 				content = form.get('boundingBox').one('.su-slide-content > div') || form.get('contentBox'),
 				button = new Supra.Button({
 											'style': 'small-gray',
 											'label': Supra.Intl.get(['gallerymanager', 'label_button'])
 										 });
 			
+			// Find position where to insert button
+			for (; i<ii; i++) {
+				if (properties[i].type == 'Gallery') {
+					has_reference = true;
+					break;
+				} else {
+					if (Supra.Input.isContained(properties[i].type)) {
+						tmp = form.getInput(properties[i].id);
+						if (tmp) {
+							reference = tmp.get('boundingBox');
+						}
+					}
+				}
+			}
+			
 			button.render(content);
 			button.addClass('button-section');
 			
-			content.prepend(button.get('boundingBox'));
-			content.prepend(Y.Node.create('<p class="label">' + Supra.Intl.get(['gallerymanager', 'label']) + '</p>'));
+			if (reference && has_reference) {
+				// Add after reference element
+				reference.insertBefore(Y.Node.create('<p class="label">' + Supra.Intl.get(['gallerymanager', 'label']) + '</p>'));
+				reference.insertBefore(button.get('boundingBox'));
+			} else {
+				// Add to the begining of the form
+				content.prepend(button.get('boundingBox'));
+				content.prepend(Y.Node.create('<p class="label">' + Supra.Intl.get(['gallerymanager', 'label']) + '</p>'));
+			}
 			
 			button.on('click', this.openExternalManager, this);
 		},

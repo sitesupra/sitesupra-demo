@@ -16,7 +16,7 @@
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: block_title
-          editable: Supra\Editable\InlineString
+          editable: Supra\Editable\String
           label: Title
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: design

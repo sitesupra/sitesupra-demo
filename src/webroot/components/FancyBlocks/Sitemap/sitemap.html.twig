@@ -1,9 +1,8 @@
 <div class="block sitemap">
 	
-	{% set block_title = supraBlock.property('block_title') %}
-	{% if supra.cmsRequest or block_title %}
+	{% if not supraBlock.isEmpty('block_title') %}
 	<h2 class="block-title"><div>
-		{% if block_title %}{{ block_title }}{% endif %}
+		{{ supraBlock.property('block_title') }}
 	</div></h2>
 	{% endif %}
 
