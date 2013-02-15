@@ -11638,6 +11638,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			this.cropLeft = - parseInt(image.getStyle("marginLeft"), 10) || 0;
 			this.cropTop = - parseInt(image.getStyle("marginTop"), 10) || 0;
 			
+			//If image is not loaded, then width and height could be 0
+			if (!this.imageWidth || !this.imageHeight) {
+				image.on('load', function (event, image) {
+					this.imageWidth = image.get("offsetWidth");
+					this.imageHeight = image.get("offsetHeight");
+				}, this, image);
+			}
+			
 			//Set size label
 			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
 			
@@ -20844,11 +20852,6 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			if (this.get('id') == 'image' || this.get('name') == 'image') {
-				console.log('_setValue', this.get('id') || this.get('name'), value);
-				console.trace();
-			}
-			
 			// Convert boolean values to string
 			if (typeof value == 'boolean') {
 				value = value ? "1" : "0";

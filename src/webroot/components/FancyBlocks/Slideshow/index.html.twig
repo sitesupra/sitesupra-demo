@@ -1,18 +1,45 @@
+{% set width_full = 960 %}
+{% set height_full = 600 %}
+{% set width_small = 420 %}
+
+{# <!-- Macro for outputing images --> #}
+	{% macro imageHtmlTag (image, width, height) %}
+		
+		{% if not width %}{% set width = image.crop_width %}{% endif %}
+		{% if not height %}{% set height = image.crop_height %}{% endif %}
+		
+		{# {{ supraBlock.preloadImage( image.imageId, width, height, true, image.size_name ) }} #}
+		
+		{% set tag = supraBlock.imageHtmlTag( image.imageId, width, height, true, image.size_name )|raw %}
+		{% set width = tag.getAttribute('width') %}
+		{% set height = tag.getAttribute('height') %}
+		{% set ratio = width / height %}
+		
+		{% if width < 420 %}
+			{# <!-- Larger image for table and mobile --> #}
+			{% set width_mobile = 420 %}
+			{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, width_mobile, width_mobile / ratio, true )|raw %}
+		{% endif %}
+		
+		<img src="{{ tag.getAttribute('src') }}" width="{{ width }}" height="{{ height }}" {% if width < 420 %}
+			 data-src-desktop="{{ tag.getAttribute('src') }}" data-height-desktop="{{ height }}"
+			 data-src-mobile-all="{{ tag_mobile.getAttribute('src') }}" data-height-mobile-all="{{ tag_mobile.getAttribute('tag_mobile') }}"
+			 class="responsive"
+			 {% endif %}alt="" />
+		
+	{% endmacro %}
+	{% import _self as output %}
+
+
+
 {% set animation = supraBlock.property('animation') %}
 {% set design = supraBlock.property('design') %}
 {% set images = supraBlock.property('images') %}
 
-{% set width_full = 960 %}
-{% set height_full = 358 %}
-{% set ratio = height_full / width_full %}
-
 {% if images|length or supra.cmsRequest %}
 
 	{% for image in images %}
-		{{ supraBlock.preloadImage( image.imageId, 960, 960 * ratio, true ) }}
-		{{ supraBlock.preloadImage( image.imageId, 768, 768 * ratio, true ) }}
-		{{ supraBlock.preloadImage( image.imageId, 420, 420 * ratio, true ) }}
-		{{ supraBlock.preloadImage( image.imageId, 300, 300 * ratio, true ) }}
+		{{ supraBlock.preloadImage( image.imageId, width_full, height_full true ) }}
 	{% endfor %}
 	
 	<div class="block">
@@ -20,20 +47,7 @@
 			<ul>
 				{% for image in images %}
 				<li>
-					{% set tag = supraBlock.imageHtmlTag( image.imageId, 960, 960 * ratio, true ) | raw %}
-					{% set tag_tablet = supraBlock.imageHtmlTag( image.imageId, 768, 768 * ratio, true ) | raw %}
-					{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, 420, 420 * ratio, true ) | raw %}
-					{% set tag_mobile_p = supraBlock.imageHtmlTag( image.imageId, 300, 300 * ratio, true ) | raw %}
-					
-					<img height="{{ tag.getAttribute('height')|escape }}" src="{{ tag.getAttribute('src')|escape }}" alt=""
-						 data-height-desktop="{{ tag.getAttribute('height')|escape }}"
-						 data-src-desktop="{{ tag.getAttribute('src')|escape }}"
-					     data-height-tablet="{{ tag_tablet.getAttribute('height')|escape }}"
-					     data-src-tablet="{{ tag_tablet.getAttribute('src')|escape }}"
-					     data-height-mobile="{{ tag_mobile.getAttribute('height')|escape }}"
-					     data-src-mobile="{{ tag_mobile.getAttribute('src')|escape }}"
-					     data-height-mobile-portrait="{{ tag_mobile_p.getAttribute('height')|escape }}"
-					     data-src-mobile-portrait="{{ tag_mobile_p.getAttribute('src')|escape }}" class="responsive" />
+					{{ outputp.imageHtmlTag (image, width_full, height_full )}}
 					
 					<div>
 						{% set property = image.property %}

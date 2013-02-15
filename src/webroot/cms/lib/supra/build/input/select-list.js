@@ -404,11 +404,6 @@ YUI.add('supra.input-select-list', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			if (this.get('id') == 'image' || this.get('name') == 'image') {
-				console.log('_setValue', this.get('id') || this.get('name'), value);
-				console.trace();
-			}
-			
 			// Convert boolean values to string
 			if (typeof value == 'boolean') {
 				value = value ? "1" : "0";
