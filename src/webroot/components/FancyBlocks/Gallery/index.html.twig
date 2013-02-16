@@ -13,19 +13,22 @@
 		{% set tag = supraBlock.imageHtmlTag( image.imageId, width, height, true, image.size_name )|raw %}
 		{% set width = tag.getAttribute('width') %}
 		{% set height = tag.getAttribute('height') %}
-		{% set ratio = width / height %}
-		
-		{% if width < 420 %}
-			{# <!-- Larger image for table and mobile --> #}
-			{% set width_mobile = 420 %}
+
+		{% if width or height %}
+			{% set ratio = width / height %}
+
+			{% if width < 420 %}
+				{# <!-- Larger image for table and mobile --> #}
+				{% set width_mobile = 420 %}
 			{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, width_mobile, width_mobile / ratio, true )|raw %}
+			{% endif %}
+
+			<img src="{{ tag.getAttribute('src') }}" width="{{ width }}" height="{{ height }}" {% if width < 420 %}
+				 data-src-desktop="{{ tag.getAttribute('src') }}" data-height-desktop="{{ height }}"
+				 data-src-mobile-all="{{ tag_mobile.getAttribute('src') }}" data-height-mobile-all="{{ tag_mobile.getAttribute('tag_mobile') }}"
+				 class="responsive"
+				 {% endif %}alt="" />
 		{% endif %}
-		
-		<img src="{{ tag.getAttribute('src') }}" width="{{ width }}" height="{{ height }}" {% if width < 420 %}
-			 data-src-desktop="{{ tag.getAttribute('src') }}" data-height-desktop="{{ height }}"
-			 data-src-mobile-all="{{ tag_mobile.getAttribute('src') }}" data-height-mobile-all="{{ tag_mobile.getAttribute('tag_mobile') }}"
-			 class="responsive"
-			 {% endif %}alt="" />
 		
 	{% endmacro %}
 	{% import _self as output %}

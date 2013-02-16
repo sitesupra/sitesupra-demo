@@ -39,7 +39,7 @@
 {% if images|length or supra.cmsRequest %}
 
 	{% for image in images %}
-		{{ supraBlock.preloadImage( image.imageId, width_full, height_full true ) }}
+		{{ supraBlock.preloadImage( image.imageId, width_full, height_full, true ) }}
 	{% endfor %}
 	
 	<div class="block">
