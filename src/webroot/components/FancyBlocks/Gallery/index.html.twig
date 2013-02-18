@@ -84,8 +84,8 @@
 	
 	{% elseif style == "grid" %}
 	
-		<div class="products-slider style-{{ design }}" data-refresh-event="carousel" data-style="{{ design }}">
-			<ul>
+		<div class="products-slider clearfix style-{{ design }}" data-refresh-event="carousel" data-style="{{ design }}">
+			<ul class="clearfix">
 				{% for index, product in images %}
 					{% if index and index % 4 == 0 %}
 						<li class="clear"></li>

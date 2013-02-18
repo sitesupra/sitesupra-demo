@@ -155,8 +155,9 @@ YUI.add('gallerymanager.itemlist-order', function (Y) {
 	        	proxy = drag.get('dragNode'),
 	        	node = drag.get('node');
 			
-	        //Set some styles here
+	        //Set proxy styles
 	        proxy.addClass('supra-gallerymanager-proxy');
+	        proxy.removeClass('su-gallerymanager-focused');
 	        
 	        //Move proxy to body
 	       	Y.Node(this.get('host').getDocument().body).append(proxy);

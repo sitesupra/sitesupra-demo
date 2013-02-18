@@ -183,6 +183,11 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 				}
 				
 				node.setStyle('margin', -value.crop_top + 'px 0 0 -' + value.crop_left + 'px');
+				
+				// none is invalid, but it removes previous size
+				node.setStyle('width', value.size_width ? value.size_width + 'px' : 'none');
+				node.setStyle('height', value.size_height ? value.size_height + 'px' : 'none');
+				
 				node.setAttribute('width', value.size_width);
 				node.setAttribute('height', value.size_height);
 				node.setAttribute('src', value.image.sizes.original.external_path);

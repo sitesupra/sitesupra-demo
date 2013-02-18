@@ -145,8 +145,8 @@
 		</div></h2>
 		{% endif %}
 		
-		<div class="products-slider style-{{ design }} img-{{ image }} link-{{ link }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
-			<ul>
+		<div class="products-slider clearfix style-{{ design }} img-{{ image }} link-{{ link }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
+			<ul class="clearfix">
 				{% for index, product in products %}
 					{% if index and index % 4 == 0 %}
 						<li class="clear"></li>

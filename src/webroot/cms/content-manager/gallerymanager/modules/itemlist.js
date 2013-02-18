@@ -797,6 +797,12 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			
 			this.fire('focusItem', {'input': this.editingInput, 'id': id, 'property': property});
 			
+			// Highlight focused item
+			var node = this.items[id].node;
+			if (node) {
+				node.addClass('su-gallerymanager-focused');
+			}
+			
 			// Hide new item control
 			var control = this.newItemControl;
 			if (control) {
@@ -819,6 +825,13 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				
 				this.fire('blurItem', {'input': this.editingInput, 'id': this.editingId, 'property': this.editingProperty});
 				
+				// Remove highlight from item
+				var node = this.items[this.editingId].node;
+				if (node) {
+					node.removeClass('su-gallerymanager-focused');
+				}
+				
+				// Unset data
 				this.editingId = null;
 				this.editingProperty = null;
 				this.editingInput = null;
