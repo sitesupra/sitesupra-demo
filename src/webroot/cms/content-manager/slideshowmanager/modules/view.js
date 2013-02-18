@@ -357,7 +357,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 				save = {};
 			
 			if (id && property && !this.silentUpdatingValues) {
-				save[property.id] = input.get('value');
+				save[property.id] = input.get('saveValue');
 				data.changeSlide(id, save);
 			}
 		},
@@ -430,7 +430,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			
 			// Remove inline inputs
 			for (; i<ii; i++) {
-				values[inputs[i].get('id')] = inputs[i].get('value');
+				values[inputs[i].get('id')] = inputs[i].get('saveValue');
 				inputs[i].destroy();
 			}
 			

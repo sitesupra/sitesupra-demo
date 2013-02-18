@@ -332,7 +332,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				value = '';
 			
 			if (event.newVal !== event.prevVal && id && property) {
-				save[property] = input.get('value');
+				save[property] = input.get('saveValue');
 				if (save[property]) {
 					data.changeSlide(id, save);
 				}
