@@ -796,6 +796,12 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			}
 			
 			this.fire('focusItem', {'input': this.editingInput, 'id': id, 'property': property});
+			
+			// Hide new item control
+			var control = this.newItemControl;
+			if (control) {
+				control.addClass('hidden');
+			}
 		},
 		
 		/**
@@ -816,6 +822,12 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				this.editingId = null;
 				this.editingProperty = null;
 				this.editingInput = null;
+				
+				// Hide new item control
+				var control = this.newItemControl;
+				if (control && this.get('showInsertControl')) {
+					control.removeClass('hidden');
+				}
 			}
 		},
 		

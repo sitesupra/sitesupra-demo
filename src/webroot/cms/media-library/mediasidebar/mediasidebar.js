@@ -225,7 +225,9 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			this.hide();
 			
 			if (Y.Lang.isFunction(this.options.onclose)) {
-				this.options.onclose();
+				this.options.onclose({
+					'image': null
+				});
 			}
 		},
 		
@@ -237,12 +239,13 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			
 			if (Y.Lang.isFunction(this.options.onselect)) {
 				this.options.onselect({
-					// @TODO Is it safe to rename this?
 					'image': this.medialist.getSelectedItem()
 				});
 			}
 			if (Y.Lang.isFunction(this.options.onclose)) {
-				this.options.onclose();
+				this.options.onclose({
+					'image': this.medialist.getSelectedItem()
+				});
 			}
 		},
 		

@@ -485,7 +485,16 @@ function (Y) {
 			var mediaSidebar = Manager.getAction('MediaSidebar');
 			mediaSidebar.execute({
 				'onselect': Y.bind(function (event) {
-					this.replaceImage(id, event.image);
+					if (!this.replaceImage(id, event.image)) {
+						// Image wasn't added, blur!
+						this.itemlist.blurInlineEditor();
+					}
+				}, this),
+				'onclose': Y.bind(function (event) {
+					if (!event.image) {
+						// Image wasn't added, blur!
+						this.itemlist.blurInlineEditor();
+					}
 				}, this),
 				'item': path
 			});
