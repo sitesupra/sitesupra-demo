@@ -31491,6 +31491,34 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 		},
 		
+		/**
+		 * Returns value for saving
+		 * 
+		 * @return {Object}
+		 * @private
+		 */
+		_getSaveValue: function () {
+			var value = this.get("value");
+			
+			if (value && value.image) {
+				//We want to send only image ID
+				//We clone image info to be sure that we don't overwrite info
+				value = Supra.mix({}, value, {
+					"image": value.image.id
+				});
+			}
+			
+			/*
+			 * value == {
+			 * 	   "type": "image",
+			 * 	   "image": "...id...",
+			 *     "crop_height": Number, "crop_width": Number, "crop_left": Number, "crop_top": Number,
+			 *     "size_width": Number, "size_height": Number
+			 * }
+			 */
+			return value;
+		},
+		
 		_afterValueChange: function (evt) {
 			if (evt.prevVal != evt.newVal) {
 				this.fire('change', {'value': evt.newVal});

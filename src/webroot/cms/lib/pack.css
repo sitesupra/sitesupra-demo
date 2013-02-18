@@ -198,7 +198,7 @@ body {
   overflow:hidden;
   position:relative;
   background:url(/cms/lib/supra/img/background-center.jpg) 50% 0 no-repeat, url(/cms/lib/supra/img/background-pattern.jpg) 50% 0 repeat;
-  font:12px Arial, Helvetica, sans-serif;
+  font:12px "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   color:#333333;
   -webkit-font-smoothing:antialiased;
   font-smoothing:antialiased;
@@ -498,7 +498,7 @@ button::-moz-focus-inner { border:0; }
 .su-button div { padding:0 5px; }
 .su-button button { background-repeat:repeat-x; }
 .su-button button, .su-button button:focus, .su-button button:active { outline:none !important; }
-.su-button button, .su-button button p { font-family:Helvetica, Arial, sans-serif; }
+.su-button button, .su-button button p { font-family:"HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; }
 .su-button img, .su-button p {
   -moz-user-drag:none;
   -moz-user-select:none;

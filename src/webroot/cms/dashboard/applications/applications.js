@@ -75,15 +75,6 @@
 			"dd"
 		]
 	});
-	Supra.addModule("dashboard.app-favourites", {
-		path: "app-favourites.js",
-		requires: [
-			"widget",
-			"dashboard.pagination",
-			"transition",
-			"dd"
-		]
-	});
 })();
 
 /**
@@ -92,7 +83,6 @@
 Supra([
 	
 	"dashboard.app-list",
-	"dashboard.app-favourites",
 	"transition",
 	
 	//Supra.data.get(["site", "portal"]) ? "dashboard.inbox" : null,
@@ -148,7 +138,6 @@ Supra([
 			"stats": null,
 			
 			"apps": null,
-			"favourites": null,
 			
 			"scrollable": null
 		},
@@ -182,10 +171,6 @@ Supra([
 				"srcNode": this.one("div.dashboard-apps")
 			});
 			
-			this.widgets.favourites = new Supra.AppFavourites({
-				"srcNode": this.one("div.dashboard-favourites")
-			});
-			
 			this.widgets.scrollable = new Supra.Scrollable({
 				"srcNode": this.one("div.apps-scrollable")
 			});
@@ -199,20 +184,12 @@ Supra([
 			Y.one("body").removeClass("loading");
 			
 			this.widgets.apps.render();
-			this.widgets.favourites.render();
-			
-			this.widgets.favourites.on("appadd", this.onFavourite, this);
-			this.widgets.favourites.on("appremove", this.onFavouriteRemove, this);
-			this.widgets.favourites.on("appmove", this.onFavouriteSort, this);
-			
-			this.widgets.favourites.on("appadd", this.removeAppFromApps, this);
-			this.widgets.apps.on("appadd", this.removeAppFromFavourites, this);
+			this.widgets.apps.on("appmove", this.onAppsSort, this);
 			
 			this.renderHeader();
 			
 			//Scrollable
 			this.widgets.scrollable.render();
-			this.widgets.favourites.on("resize", this.widgets.scrollable.syncUI, this.widgets.scrollable);
 		},
 		
 		/**
@@ -258,32 +235,23 @@ Supra([
 		/* ------------------------------------ Data ------------------------------------ */
 		
 		/**
-		 * Load and set application list and favourites data 
+		 * Load and set application list data 
 		 */
 		loadApplicationData: function () {
 			Supra.io(this.getDataPath("applications"), function (data, status) {
 				if (status && data) {
 					var applications = [],
-						favourites = [],
 						profile = null; // Profile application info
 					
 					Y.Array.each(data.applications, function (app) {
-						//Only if not in favourites
 						if (app.id.indexOf("\\Profile") !== -1 || app.id.indexOf("/Profile") !== -1) {
 							this.updateProfileLink(app);
 						} else {
-							var index = Y.Array.indexOf(data.favourites, app.id);
-							if (index === -1) {
-								applications.push(app);
-							} else {
-								favourites[index] = app;
-							}
+							applications.push(app);
 						}
 					}, this);
 					
 					this.widgets.apps.set("data", applications);
-					this.widgets.favourites.set("data", favourites);
-					
 					this.widgets.scrollable.syncUI();
 					
 					
@@ -304,70 +272,16 @@ Supra([
 		},
 		
 		
-		/* ------------------------------------ Favourites ------------------------------------ */
+		/* ------------------------------------ Apps ------------------------------------ */
 		
 		
 		/**
-		 * When application is added to favourites inform server
+		 * When application list is sorted inform server
 		 * 
 		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		onFavourite: function (e) {
-			var app = e.application,
-				ref = e.reference;
-			
-			Supra.io(this.getDataPath("favourite"), {
-				"data": {
-					"id": app.id,
-					"before": ref ? ref.id : "",
-					"favourite": 1
-				},
-				"method": "post",
-				"context": this,
-				"on": {
-					"failure": function () {
-						//Revert changes
-						this.widgets.favourites.removeApplication(app.id, true);
-						this.widgets.apps.addApplication(app, true);
-					}
-				}
-			});
-		},
-		
-		/**
-		 * When application is removed from favourites inform server
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		onFavouriteRemove: function (e) {
-			var app = e.application;
-			
-			Supra.io(this.getDataPath("favourite"), {
-				"data": {
-					"id": app.id,
-					"favourite": 0
-				},
-				"method": "post",
-				"context": this,
-				"on": {
-					"failure": function () {
-						//Revert changes
-						this.widgets.apps.removeApplication(app.id, true);
-						this.widgets.favourites.addApplication(app, true);
-					}
-				}
-			});
-		},
-		
-		/**
-		 * When favourite application list is sorted inform server
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		onFavouriteSort: function (e) {
+		onAppsSort: function (e) {
 			var app = e.application,
 				ref = e.reference;
 			
@@ -379,26 +293,6 @@ Supra([
 				"method": "post",
 				"context": this
 			});
-		},
-		
-		/**
-		 * When application is addded to the app list remove it from favourites
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		removeAppFromFavourites: function (e) {
-			this.widgets.favourites.removeApplication(e.application.id);
-		},
-		
-		/**
-		 * When application is addded to the favourites remove it from app list
-		 * 
-		 * @param {Event} e Event facade object
-		 * @private
-		 */
-		removeAppFromApps: function (e) {
-			this.widgets.apps.removeApplication(e.application.id);
 		},
 		
 		

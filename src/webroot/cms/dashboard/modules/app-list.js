@@ -127,6 +127,20 @@ YUI.add("dashboard.app-list", function (Y) {
 		 */
 		"columnCountChanged": false,
 		
+		/**
+		 * Application ID which is beeing dragged
+		 * @type {String}
+		 * @private
+		 */
+		"appDragging": null,
+		
+		/**
+		 * Application ID before which dragged item is inserted
+		 * @type {String}
+		 * @private
+		 */
+		"appTarget": null,
+		
  
 		/**
 		 * Create/add nodes, render widgets
@@ -194,7 +208,7 @@ YUI.add("dashboard.app-list", function (Y) {
 			var draggable = this.draggable = new Y.DD.Delegate({
 				"container": this.widgets.slideshow.get("contentBox"),
 				"nodes": "li",
-				"target": false,
+				"target": true,
 				"dragConfig": {
 					"haltDown": false
 				}
@@ -210,9 +224,12 @@ YUI.add("dashboard.app-list", function (Y) {
 			});
 			
 			draggable.on("drag:start", this.onDragStart, this);
+			draggable.on("drag:over", Supra.throttle(this.onDragOver, 16, this));
+			draggable.on("drag:end", this.onDragEnd, this);
+			draggable.on("drop:hit", this.onDrop, this);
 			target.on("drop:hit", this.onDrop, this);
 		},
- 
+		
 		/**
 		 * Clean up
 		 *
@@ -244,19 +261,72 @@ YUI.add("dashboard.app-list", function (Y) {
 		
 		
 		onDragStart: function (e) {
+			//Node
+			var node = e.target.get("node"),
+				data = node.getData("app");
+			
+			if (data) {
+				this.appDragging = data;
+				this.appTarget = null;
+			}
+			
 			//Add classname to proxy element
 	        var proxy = e.target.get("dragNode");
 			proxy.addClass("app-list-proxy");
 			
-			Y.one("body").append(proxy);
+			Y.one('body').append(proxy);
 		},
 		
-		onDragEnd: function (e) {
-			var node = e.target.get("node"),
-				id = node.getAttribute("data-id");
+		/**
+		 * Fires when draggable item is over another item
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onDragOver: function (e) {
+			var drag = e.drag.get("node"),
+				drop = e.drop.get("node");
 			
-			if (id) {
-				this.removeApplication(id);
+			if (drag && drop) {
+				drag = drag.getData("app");
+				drop = drop.getData("app");
+				
+				if (drag && drop && drag.id !== drop.id) {
+					var drag_index = this.getApplicationIndex(drag.id),
+						drop_index = this.getApplicationIndex(drop.id);
+					
+					if (drag_index != drop_index) {
+						if (this.changeApplicationIndex(drag_index, drop_index)) {
+							//Save drop ID
+							if (drop_index + 1 < this.data.length) {
+								this.appTarget = this.data[drop_index + 1];
+							} else {
+								this.appTarget = "";
+							}
+							
+							//Animate items
+							this.moveApplications();
+						}
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Fires when dragable item from this list is droped
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onDragEnd: function (e) {
+			if (this.appTarget !== null) {
+				this.fire("appmove", {
+					"application": this.appDragging,
+					"reference": this.appTarget
+				});
+				
+				this.appDragging = null;
+				this.appTarget = null;
 			}
 		},
 		
@@ -267,12 +337,25 @@ YUI.add("dashboard.app-list", function (Y) {
 		 * @private
 		 */
 		onDrop: function (e) {
-			var node = e.drag.get("node");
-			if (node) {
-				var data = node.getData("app");
-				if (data) {
-					this.addApplication(data);
-				}
+			this.moveApplications();
+		},
+		
+		/**
+		 * Reset drag and drop cache
+		 * 
+		 * @param {Boolean} clean Clean all cache
+		 * @private
+		 */
+		resetDropCache: function (clean) {
+			if (Y.DD.DDM.activeDrag) {
+				if (clean === true) {
+					Y.DD.DDM._activateTargets();
+				} else {
+					//Shim
+		            Y.each(Y.DD.DDM.targets, function(v, k) {
+		                v.sizeShim();
+		            }, Y.DD.DDM);
+	            }
 			}
 		},
 		
@@ -294,7 +377,7 @@ YUI.add("dashboard.app-list", function (Y) {
 				info = [];
 			
 			applications = Y.Array.map(data, function (app, index) {
-				info[index] = {"ready": false, "slide": -1, "index": index};
+				info[index] = {"ready": false, "slide": -1, "index": index, "animating": false};
 				var node = Y.Node.create(this.TEMPLATE_APPLICATION(app));
 				node.setData("app", app);
 				return node;
@@ -351,37 +434,39 @@ YUI.add("dashboard.app-list", function (Y) {
 							
 							if (slideIndex == currentSlide) {
 								//Fade in
-								this.appFadeIn(applications[i], slides[slideIndex], position);
+								this.appFadeIn(applications[i], slides[slideIndex], position, false, info[i]);
 							} else {
 								//Fade out
-								this.appFadeOut(applications[i], slides[slideIndex], position);
+								this.appFadeOut(applications[i], slides[slideIndex], position, info[i]);
 							}
 						} else {
 							//Item changed from and to invisible slide
-							this.appPlace(applications[i], slides[slideIndex], position);
+							this.appPlace(applications[i], slides[slideIndex], position, info[i]);
 						}
 					} else {
 						//Only if slide or index changed
 						if (columnCountChanged || info[i].slide != slideIndex || info[i].index != itemIndex) {
 							//Animate if in visible slide
-							this.appMove(applications[i], position, inVisibleSlide);
+							this.appMove(applications[i], position, inVisibleSlide, info[i]);
 						}
 					}
 				} else {
 					//If not already in DOM
-					
-					
-					//If not already in DOM
 					if (info[i].added && inVisibleSlide) {
-						this.appFadeIn(applications[i], slides[slideIndex], position, true);
+						this.appFadeIn(applications[i], slides[slideIndex], position, true, info[i]);
 					} else {
-						this.appPlace(applications[i], slides[slideIndex], position);
+						this.appPlace(applications[i], slides[slideIndex], position, info[i]);
 					}
 				}
 				
 				//Save info
-				info[i] = {"ready": true, "slide": slideIndex, "index": itemIndex};
+				info[i].ready = true;
+				info[i].slide = slideIndex;
+				info[i].index = itemIndex;
 			}
+			
+			//Update DND
+			this.draggable.syncTargets();
 		},
 		
 		/**
@@ -549,6 +634,62 @@ YUI.add("dashboard.app-list", function (Y) {
 		
 		
 		/**
+		 * ---------------------------- SORTING -------------------------
+		 */
+		
+		
+		/**
+		 * Get application index
+		 * 
+		 * @param {String} id Application id
+		 * @private
+		 */
+		getApplicationIndex: function (id) {
+			var data = this.data,
+				ii = data.length,
+				i = 0;
+			
+			for (; i<ii; i++) {
+				if (data[i].id === id) return i;
+			}
+			
+			return -1;
+		},
+		
+		/**
+		 * Move application from one place to another
+		 * 
+		 * @param {Number} from Index of item which will be moed
+		 * @param {Number} to Index to move to
+		 * @private
+		 */
+		changeApplicationIndex: function (from ,to) {
+			var data = this.data,
+				applications = this.applications,
+				applications_info = this.applications_info,
+				item = null;
+			
+			if (!applications_info[to].animating) {
+				item = data[from];
+				data.splice(from, 1);
+				data.splice(to, 0, item);
+				
+				item = applications[from];
+				applications.splice(from, 1);
+				applications.splice(to, 0, item);
+				
+				item = applications_info[from];
+				applications_info.splice(from, 1);
+				applications_info.splice(to, 0, item);
+				
+				return true;
+			}
+			
+			return false;
+		},
+		
+		
+		/**
 		 * ---------------------------- ANIMATIONS -------------------------
 		 */
 		
@@ -558,11 +699,15 @@ YUI.add("dashboard.app-list", function (Y) {
 		 * 
 		 * @private
 		 */
-		appFadeOut: function (app, container, position) {
+		appFadeOut: function (app, container, position, info) {
+			if (info) {
+				info.animating = true;
+			}
+			
 			app.transition({
 				"opacity": 0,
 				"duration": 0.35
-			}, function () {
+			}, Y.bind(function () {
 				if (container) {
 					//Move into correct position
 					container.append(app);
@@ -575,7 +720,12 @@ YUI.add("dashboard.app-list", function (Y) {
 					//Remove
 					app.remove();
 				}
-			});
+				
+				if (info) {
+					this.resetDropCache(true);
+					info.animating = false;
+				}
+			}, this));
 		},
 		
 		/**
@@ -583,7 +733,11 @@ YUI.add("dashboard.app-list", function (Y) {
 		 * 
 		 * @private
 		 */
-		appFadeIn: function (app, container, position, added) {
+		appFadeIn: function (app, container, position, added, info) {
+			if (info) {
+				info.animating = true;
+			}
+			
 			var styles = {
 					"left": position[0] + "px",
 					"top":  position[1] + "px",
@@ -601,7 +755,12 @@ YUI.add("dashboard.app-list", function (Y) {
 			
 			container.append(app);
 			app.setStyles(styles);
-			app.transition(anim);
+			app.transition(anim, Y.bind(function () {
+				if (info) {
+					this.resetDropCache(true);
+					info.animating = false;
+				}
+			}, this));
 		},
 		
 		/**
@@ -609,13 +768,22 @@ YUI.add("dashboard.app-list", function (Y) {
 		 * 
 		 * @private
 		 */
-		appMove: function (app, position, animate) {
+		appMove: function (app, position, animate, info) {
 			if (animate) {
+				if (info) {
+					info.animating = true;
+				}
+				
 				app.transition({
 					"left": position[0] + "px",
 					"top":  position[1] + "px",
 					"duration": 0.35
-				});
+				}, Y.bind(function () {
+					if (info) {
+						this.resetDropCache(true);
+						info.animating = false;
+					}
+				}, this));
 			} else {
 				app.setStyles({
 					"left": position[0] + "px",
@@ -635,94 +803,6 @@ YUI.add("dashboard.app-list", function (Y) {
 				"left": position[0] + "px",
 				"top":  position[1] + "px"
 			});
-		},
-		
- 
- 
-		/**
-		 * ---------------------------- API -------------------------
-		 */
- 
- 
-		/**
-		 * Remove application form the list
-		 * 
-		 * @param {String} id Application ID
-		 * @param {Boolean} silent Don't trigger event
-		 */
-		removeApplication: function (id, silent) {
-			var applications = this.applications,
-				application = null,
-				info = this.applications_info,
-				//draggables = this.draggables,
-				data = this.data,
-				removed = false;
-			
-			for (var i=0, ii=applications.length; i<ii; i++) {
-				if (applications[i].getAttribute("data-id") == id) {
-					this.appFadeOut(applications[i]);
-					
-					applications.splice(i, 1);
-					info.splice(i, 1);
-					
-					removed = true;
-					break;
-				}
-			}
-			
-			for (var i=0, ii=data.length; i<ii; i++) {
-				if (data[i].id == id) {
-					application = data[i];
-					data.splice(i, 1); break;
-				}
-			}
-			
-			if (removed) {
-				this.moveApplications();
-				this.draggable.syncTargets();
-				
-				if (silent !== true) {
-					this.fire("appremove", {
-						"application": application
-					});
-				}
-			}
-		},
-		
-		/**
-		 * Add application
-		 * 
-		 * @param {Object} data Application data
-		 * @param {Boolean} silent Don't trigger event
-		 */
-		addApplication: function (data, silent) {
-			var find = Y.Array.find(this.data, function (item) {
-				if (item.id === data.id) return true;
-			});
-			
-			if (find) {
-				//Item already in the list
-				return;
-			}
-			
-			var index = this.data.length,
-				node = Y.Node.create(this.TEMPLATE_APPLICATION(data));
-			
-			node.setData("app", data);
-			
-			this.data.push(data);
-			this.applications.push(node);
-			this.applications_info.push({"ready": false, "slide": -1, "index": index, "added": true});
-			
-			this.moveApplications();
-			this.draggable.syncTargets();
-			
-			if (silent !== true) {
-				this.fire("appadd", {
-					"application": data,
-					"node": node
-				});
-			}
 		},
  
  
