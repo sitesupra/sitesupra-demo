@@ -1,12 +1,33 @@
 <!-- {{ comment }} -->
 
 {% set layout = supraBlock.property('layout') %}
+{# 
 {% set design = supraBlock.property('design') %}
+#}
+{% set bg_color = supraBlock.property('background_color') %}
+{% set bg_image = supraBlock.property('background_image') %}
+{% set border_color = supraBlock.property('border_color') %}
+{% set border_style = supraBlock.property('border_style') %}
 
 <div data-refresh-event="text" class="
 		text block clearfix
-		{% if design %}{{ design }}{% endif %}
+		{% if border_style %}{{ border_style }}{% endif %}
+		{% if bg_image.classname %}{{ bg_image.classname }}{% endif %}
+	" style="
+		{% if bg_image.image %}
+			background: {% if bg_color %}{{ bg_color }}{% endif %} url('{{ bg_image.image }}') 0 0 no-repeat;
+		{% elseif bg_color %}
+			background-color: {{ bg_color }};
+		{% endif %}
+		{% if border_color %}border-color: {{ border_color }};{% endif %}
 	">
+		 
+{#
+ <div data-refresh-event="text" class="
+		text block clearfix
+		{% if design %}{{ design }}{% endif %}
+">
+#}
 
 	{% if layout == "column_2" %}
 	 
