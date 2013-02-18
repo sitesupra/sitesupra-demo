@@ -325,7 +325,7 @@ Supra('supra.tabs', 'supra.template', 'dd-drag', function (Y) {
 			this.slideshow.syncUI();
 			
 			//Blocks not editable while this action is visible
-			Supra.Manager.PageContent.getContent().set('highlightMode', 'disabled');
+			Supra.Manager.PageContent.getContent().set('highlightMode', 'insert');
 		}
 	});
 	

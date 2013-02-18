@@ -146,7 +146,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			
 			//Bind block D&D
-			this.on('block:dragend', function (e) {
+			this.on('block:dragend:hit', function (e) {
 				if (e.block) {
 					var children = this.getAllChildren();
 					
@@ -191,6 +191,17 @@ YUI.add('supra.iframe-contents', function (Y) {
 						if (children[i].isList() && children[i].isChildTypeAllowed(type)) {
 							children[i].markDropPosition(e, title);
 						}
+					}
+				}
+			}, this);
+			
+			this.on('block:dragend:miss', function (e) {
+				// Remove highlight
+				var children = this.getAllChildren();
+				
+				for(var i in children) {
+					if (children[i].isList()) {
+						children[i].markDropPosition(null);
 					}
 				}
 			}, this);

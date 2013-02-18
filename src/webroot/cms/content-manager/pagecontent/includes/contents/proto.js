@@ -709,7 +709,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 		bindUI: function () {
 			if (this.get('editable') && this.overlay) {
 				this.overlay.on('click', function() {
-					if (!this.get('loading')) {
+					if (!this.get('loading') && this.highlight_mode != 'loading' && this.highlight_mode != 'insert' && this.highlight_mode != 'disabled') {
+						// Don't edit if loading or is in insert mode
 						this.get('super').set('activeChild', this);
 					}
 				}, this);
@@ -887,7 +888,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		setHighlightMode: function (mode, overwrite) {
 			
-				// Is this block a list?
+			// Is this block a list?
 			var is_list = this.isList(),
 				is_placeholder = this.isPlaceholder(),
 				
@@ -944,8 +945,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				return;
 			}
 			
-			
-				// Overlay highlight classnames
+			// Overlay highlight classnames
 			var classnames = CLASSNAME_OVERLAY_MODE,
 				
 				old_overlay_classname = this.highlight_mode_classname,
@@ -1131,6 +1131,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 			// Apply to children
 			if (children_mode) {
 				for (id in children) {
+					if (old_mode === 'loading') {
+						// Children were disabled because of 'loading', re-enable them
+						children[id].set('highlightMode', null);
+					}
 					children[id].setHighlightMode(children_mode);
 				}
 			}

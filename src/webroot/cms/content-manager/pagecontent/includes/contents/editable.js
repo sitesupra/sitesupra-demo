@@ -610,7 +610,6 @@ YUI.add('supra.page-content-editable', function (Y) {
 			//Update overlay position
 			//Use timeout to make sure everything is styled before doing sync
 			setTimeout(Y.bind(function () {
-				
 				var children = this.children,
 					id = null;
 				

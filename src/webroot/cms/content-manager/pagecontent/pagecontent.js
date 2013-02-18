@@ -439,7 +439,7 @@ Supra('dd-drag', function (Y) {
 					}
 				}
 				
-				this.getContent().set('highlightMode', 'disabled');
+				//this.getContent().set('highlightMode', 'disabled');
 				this.fire('dragend');
 				
 				//Because of Editor toolbar, container top position changes and 
@@ -467,10 +467,10 @@ Supra('dd-drag', function (Y) {
 				this.getContent().fire('block:dragstart', e);
 			}, this);
 			this.on('dragend:hit', function (e) {
-				return this.getContent().fire('block:dragend', e);
+				return this.getContent().fire('block:dragend:hit', e);
 			}, this);
-			this.on('dragend', function () {
-				
+			this.on('dragend', function (e) {
+				this.getContent().fire('block:dragend:miss', e);
 			}, this);
 			
 			//Add toolbar buttons
