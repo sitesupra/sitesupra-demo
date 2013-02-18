@@ -71,7 +71,8 @@ YUI.add('supra.page-content-list', function (Y) {
 				var reference = e.insertReference,
 					before = e.insertBefore,
 					index = null,
-					properties = null;
+					properties = null,
+					defaults = null;
 				
 				if (!before && reference) {
 					//Find next block
@@ -91,6 +92,7 @@ YUI.add('supra.page-content-list', function (Y) {
 				}
 				
 				// Generate lipsum data
+				defaults = Manager.Blocks.getBlockDefaultData(e.block.id);
 				properties = Manager.Blocks.getBlockLipsumData(e.block.id);
 				
 				// Insert block
@@ -101,6 +103,16 @@ YUI.add('supra.page-content-list', function (Y) {
 					'properties': properties
 				}, function (data) {
 					// Create block in UI
+					data = Supra.mix({'properties': defaults}, data, true);
+					
+					for (var id in data.properties) {
+						data.properties[id] = {
+							'__shared__': false,
+							'language': null,
+							'value': data.properties[id]
+						};
+					}
+					
 					this.createChildFromData(data, index);
 				}, this);
 				

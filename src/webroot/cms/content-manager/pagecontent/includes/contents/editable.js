@@ -190,6 +190,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 			}
 			
 			this.unresolved_changes = true;
+			
 			this.properties.set('data', this.get('data'));
 			
 			//Change header title

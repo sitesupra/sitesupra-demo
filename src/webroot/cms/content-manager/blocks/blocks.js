@@ -196,6 +196,37 @@ Supra(function (Y) {
 		},
 		
 		/**
+		 * Returns default data for block (defaults for inputs)
+		 * 
+		 * @param {String} id Block ID
+		 * @returns {Object} Default data for block properties
+		 */
+		getBlockDefaultData: function (id) {
+			var block = this.getBlock(id),
+				properties = block ? block.properties : [],
+				data = {},
+				i = 0,
+				ii = properties.length,
+				type = null,
+				value = null;
+			
+			for (; i<ii; i++) {
+				value = properties[i].value;
+				if (value) {
+					type = properties[i].type;
+					
+					if (type == 'InlineHTML' && typeof value == 'string') {
+						data[properties[i].id] = {'data': {}, 'html': value};
+					} else {
+						data[properties[i].id] = value;
+					}
+				}
+			}
+			
+			return data;
+		},
+		
+		/**
 		 * Execute
 		 *
 		 * @param {Function} callback Callback function

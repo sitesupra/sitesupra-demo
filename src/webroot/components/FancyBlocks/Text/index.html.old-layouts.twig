@@ -1,0 +1,114 @@
+<!-- {{ comment }} -->
+
+{% set layout = supraBlock.property('layout') %}
+{% set design = supraBlock.property('design') %}
+
+<div data-refresh-event="text" class="
+		text block clearfix
+		{% if design %}{{ design }}{% endif %}
+	">
+
+	{% if layout == "column_2" %}
+	 
+		<div class="one_half alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_half omega">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="clear"><!-- --></div>
+		
+	{% elseif layout == "column_3" %}
+		
+		<div class="one_third alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_third">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="one_third omega">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="clear"><!-- --></div>
+		
+	{% elseif layout == "column_4" %}
+		
+		<div class="one_fourth alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_fourth">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="one_fourth">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="one_fourth omega">
+			{{ supraBlock.property('content_4') }}
+		</div>
+		<div class="clear"><!-- --></div>
+	
+	{% elseif layout == "column_2_1_v" %}
+	
+		<div class="one_half alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_fourth">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="one_fourth omega">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="clear"><!-- --></div>
+	
+	{% elseif layout == "column_1_2_v" %}
+	
+		<div class="one_fourth alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_fourth">
+			{{ supraBlock.property('content_2') }}
+		</div>
+		<div class="one_half omega">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="clear"><!-- --></div>
+		
+	{% elseif layout == "column_2_1_h" %}
+	
+		<div class="one_half alpha">
+			<div class="grid_item">
+				{{ supraBlock.property('content') }}
+			</div>
+			<div class="">
+				{{ supraBlock.property('content_2') }}
+			</div>
+		</div>
+		<div class="one_half omega">
+			{{ supraBlock.property('content_3') }}
+		</div>
+		<div class="clear"><!-- --></div>
+	
+	{% elseif layout == "column_1_2_h" %}
+	
+		<div class="one_half alpha">
+			{{ supraBlock.property('content') }}
+		</div>
+		<div class="one_half omega">
+			<div class="grid_item">
+				{{ supraBlock.property('content_2') }}
+			</div>
+			<div class="">
+				{{ supraBlock.property('content_3') }}
+			</div>
+		</div>
+		
+		<div class="clear"><!-- --></div>
+		
+	{% else %}
+	
+		{# 1 column #}
+		{{ supraBlock.property('content') }}
+		
+	{% endif %}
+
+</div>

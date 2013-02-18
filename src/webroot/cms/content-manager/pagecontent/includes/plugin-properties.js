@@ -391,6 +391,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			slideshow.render(form.get('contentBox'));
 			
 			this._updating_values = true;
+			
 			form.setValues(data, 'id');
 			this._updating_values = false;
 			
@@ -727,7 +728,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		setValues: function (values) {
-	
 			var form = this.get('form');
 			
 			if (form) {
