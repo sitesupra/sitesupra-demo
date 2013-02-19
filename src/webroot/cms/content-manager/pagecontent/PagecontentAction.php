@@ -950,8 +950,10 @@ class PagecontentAction extends PageManagerAction
 								default: 
 									throw new CmsException(null, "Unknown media type {$mediaInput['type']} received");
 							}
+							
+							$slideData[$name] = $element->toArray();
 						}
-						$slideData[$name] = $element->toArray();
+						
 							
 					}
 					else if ($editable instanceof Editable\Set) {
