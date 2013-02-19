@@ -7,7 +7,6 @@ use Supra\Configuration\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Loader;
-use Supra\Configuration\ConfigurationInterface;
 
 /**
  * Component configuration loader
@@ -279,7 +278,7 @@ class ComponentConfigurationLoader
 	protected function processObject($className, $properties)
 	{
 		try {
-
+			
 			if ( ! empty($this->uses)) {
 
 				$classNameParts = explode('\\', $className);

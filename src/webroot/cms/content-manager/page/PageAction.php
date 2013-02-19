@@ -968,7 +968,12 @@ class PageAction extends PageManagerAction
 			ksort($data);
 			$propertyData = array_values($data);
 		}
-
+		
+		//
+		if ($editable instanceof Editable\Slideshow) {
+			$propertyData = $this->prepareSlideshowProperties($blockProperty, $property);
+		}
+		
 		$propertyInfo = array(
 			'__shared__' => false,
 			'value' => $propertyData,
@@ -988,10 +993,56 @@ class PageAction extends PageManagerAction
 
 		return $propertyInfo;
 	}
-
-//	private function preparePlaceholdersOutput($data)
-//	{
-//		
-//	}
 	
+	/**
+	 * @FIXME
+	 * 
+	 * @param type $property
+	 * @param type $configuration
+	 */
+	private function prepareSlideshowProperties($property, $configuration)
+	{
+		$editable = $property->getEditable();
+		$propertyValue = $editable->getContentForEdit();
+		
+		
+		foreach ($propertyValue as &$slideData) {
+			foreach ($configuration->properties as $propertyConfiguration) {
+
+				$name = $propertyConfiguration->name;
+				$propertyEditable = $propertyConfiguration->editableInstance;
+
+				if ($propertyEditable instanceof Editable\InlineMedia) {
+					if (isset($slideData[$name])) {
+						$type = $slideData[$name]['type'];
+						if ($type == 'image') {
+							$id = $slideData[$name]['id'];
+							
+							$storage = ObjectRepository::getFileStorage($this);
+							$image = $storage->find($id, \Supra\FileStorage\Entity\Image::CN());
+							
+							if ( ! empty($image)) {
+								$slideData[$name]['image'] = $storage->getFileInfo($image);
+							}
+						}
+					}
+				}
+				
+				if ($propertyEditable instanceof Editable\Image) {
+					if (isset($slideData[$name])) {
+						$id = $slideData[$name]['id'];
+
+						$storage = ObjectRepository::getFileStorage($this);
+						$image = $storage->find($id, \Supra\FileStorage\Entity\Image::CN());
+
+						if ( ! empty($image)) {
+							$slideData[$name]['image'] = $storage->getFileInfo($image);
+						}
+					}
+				}
+			}
+		}
+		
+		return $propertyValue;	
+	}
 }

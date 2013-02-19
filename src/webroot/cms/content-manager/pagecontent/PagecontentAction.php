@@ -552,7 +552,7 @@ class PagecontentAction extends PageManagerAction
 						if ($editable instanceof Editable\Gallery) {
 							$this->storeGalleryProperties($listInput, $property);
 						} else {
-							$this->storeSlideshowProperties($listInput, $property);
+							$value = $this->storeSlideshowProperties($listInput, $property, $configuration);
 						}
 					} else {
 						$checkValue = $input->get($propertyName);
@@ -880,8 +880,130 @@ class PagecontentAction extends PageManagerAction
 	/**
 	 * @FIXME
 	 */
-	private function storeSlideshowProperties($input, $property)
+	private function storeSlideshowProperties($input, $property, $configuration)
 	{
-		$this->storeGalleryProperties($input, $property);
+		//$inputArray = $input->getArrayCopy();
+		
+		$slideshowData = array();
+		
+		while ($input->valid()) {
+			
+			$slideKey = $input->key();
+			$slideInput = $input->getNextChild();
+	
+			$slideData = array();
+			
+			foreach ($configuration->properties as $propertyConfiguration) {
+				/* @var $propertyConfiguration Supra\Controller\Pages\Configuration\BlockPropertyConfiguration */
+				
+				$name = $propertyConfiguration->name;
+				$editable = $propertyConfiguration->editableInstance;
+				
+				
+				if ($slideInput->has($name) || $slideInput->hasChild($name)) {
+					if ($editable instanceof Editable\SelectVisual) {
+						$slideData[$name] = $slideInput->get($name);
+					}
+					else if ($editable instanceof Editable\Html) {
+
+						$htmlInput = $slideInput->getChild($name);
+
+						$htmlData = array(
+							'html' => $htmlInput->get('html'),
+						);
+
+						if ($htmlInput->hasChild('data')) {
+							$htmlData['data'] = $htmlInput['data'];
+						}
+
+						$slideData[$name] = $htmlData;
+					}
+
+					// @TODO: this part of logic nicely fits inside Editable methods 
+					else if ($editable instanceof Editable\InlineMedia) {
+						
+						if ($slideInput->hasChild($name)) {
+						
+							$mediaInput = $slideInput->getChild($name);
+							$mediaArray = $mediaInput->getArrayCopy();
+
+							switch($mediaInput['type']) {
+								case Entity\ReferencedElement\ImageReferencedElement::TYPE_ID:
+									$element = new Entity\ReferencedElement\ImageReferencedElement;
+
+									$element->fillArray($mediaArray);
+									break;
+
+								case Entity\ReferencedElement\VideoReferencedElement::TYPE_ID:
+
+									$element = new Entity\ReferencedElement\VideoReferencedElement;
+
+									$videoData = Entity\ReferencedElement\VideoReferencedElement::parseVideoSourceInput($mediaArray['source']);
+									if ($videoData !== false) {
+										$videoData = $videoData + $mediaArray;
+										$element->fillArray($videoData);
+										//throw new CmsException(null, "Video link you provided is invalid or this video service is not supported. Sorry about that.");
+									}
+
+									break;
+
+								default: 
+									throw new CmsException(null, "Unknown media type {$mediaInput['type']} received");
+							}
+						}
+						$slideData[$name] = $element->toArray();
+							
+					}
+					else if ($editable instanceof Editable\Set) {
+						
+						// set of button properties
+						$setInput = $slideInput->getChild($name);
+						
+						$setDataArray = array();
+						
+						while ($setInput->valid()) {
+							
+							$setElementKey = $setInput->key();
+							$setElementInput = $setInput->getNextChild();
+							
+							$setData = array();
+							$value = null;
+							
+							foreach ($propertyConfiguration->properties as $setPropertyConfiguration) {
+								/* @var $setPropertyConfiguration Supra\Controller\Pages\Configuration\BlockPropertyConfiguration */
+								$propertyName = $setPropertyConfiguration->name;
+								$propertyEditable = $setPropertyConfiguration->editableInstance;
+
+								if ($propertyEditable instanceof Editable\Link) {
+									$linkData = $setElementInput->getChild($propertyName)
+											->getArrayCopy();
+									$linkElement = new Entity\ReferencedElement\LinkReferencedElement;
+									
+									$linkElement->fillArray($linkData);
+									$value = $linkElement->toArray();
+								} 
+								else if ($propertyEditable instanceof Editable\String) {
+									$value = $setElementInput->get($propertyName);
+								}
+								
+								$setData[$propertyName] = $value;
+							}
+							
+							$setDataArray[$setElementKey] = $setData;
+						}
+					}
+					
+					else {
+						//$slideData[$name] = $slideInput->get($name);
+					}
+				} else {
+					$slideData[$name] = $propertyConfiguration->default;
+				}
+			}
+			
+			$slideshowData[$slideKey] = $slideData;
+		}
+		
+		return $slideshowData;
 	}
 }

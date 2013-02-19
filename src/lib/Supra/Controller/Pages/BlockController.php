@@ -411,6 +411,13 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
+		
+		else if ($editable instanceof Editable\Slideshow) {
+			$filter = new Filter\SlideshowFilter();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
+		}
 
 		$this->configuredBlockProperties[$propertyId] = true;
 	}

@@ -40,7 +40,7 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 	public $default;
 
 	/**
-	 * For Select and SelectVisual editables
+	 * For Select, SelectVisual and Slideshow editables
 	 * @var array
 	 */
 	public $values = array();
@@ -78,13 +78,16 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		$this->editableInstance->setDefaultValue($this->default);
 
 		// setting predefined values for select boxes
+		// @FIXME: not nice
 		if ($this->editableInstance instanceof Editable\Select
-				|| $this->editableInstance instanceof Editable\SelectVisual) {
+				|| $this->editableInstance instanceof Editable\SelectVisual
+				|| $this->editableInstance instanceof Editable\Slideshow) {
+			
 			if (method_exists($this->editableInstance, 'setValues')) {
 				$this->editableInstance->setValues($this->values);
 			}
 		}
-
+		
 		//FIXME: not nice. Editable might inform about its additionals maybe?
 		foreach ($this->additionalParameters as $name => $value) {
 
@@ -106,6 +109,12 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		}
 	}
 
+	/**
+	 * 
+	 * @param \Supra\Editable\EditableInterface $editable
+	 * @param type $name
+	 * @return \Supra\Controller\Pages\Configuration\BlockPropertyConfiguration
+	 */
 	public function fillFromEditable(EditableInterface $editable, $name)
 	{
 		$this->name = $name;

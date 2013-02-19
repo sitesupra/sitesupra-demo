@@ -131,9 +131,10 @@ class BlocksAction extends PageManagerAction
 
 		if (is_array($properties)) {
 			foreach ($properties as $property) {
-
+				
+				/* @var $property \Supra\Controller\Pages\Configuration\BlockPropertyConfiguration */
 				$editable = $property->editableInstance;
-
+				
 				$propertyData = array(
 					'id' => $property->name,
 					'type' => $editable->getEditorType(),
@@ -145,7 +146,7 @@ class BlocksAction extends PageManagerAction
 						)
 						+ $editable->getAdditionalParameters();
 
-				if ($editable instanceof Editable\Gallery) {
+				if ( ! empty($property->properties) && is_array($property->properties)) {
 					$propertyData['properties'] = $this->gatherPropertyArray($property->properties);
 				}
 

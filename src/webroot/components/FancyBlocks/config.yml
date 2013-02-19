@@ -18,3 +18,6 @@
       - NewsText/config.yml
       - BlogPost/config.yml
       - Testimonials/config.yml
+      - SlideshowAdvanced/config.yml
+      - GoogleMap/config.yml
+      - Video/config.yml

@@ -11,5 +11,4 @@ class TestimonialsBlock extends BlockController
 		$response = $this->getResponse();
 		$response->outputTemplate('index.html.twig');
 	}
-
 }

@@ -186,10 +186,10 @@ class ParsedHtmlFilter implements FilterInterface
 	/**
 	 * Replace image/link supra tags with real elements
 	 * @param string $value
-	 * @param Collection $metadata
+	 * @param array $metadataElements
 	 * @return string 
 	 */
-	protected function parseSupraMarkup($value, Collection $metadata)
+	protected function parseSupraMarkup($value, array $metadataElements = array())
 	{
 		$tokenizer = new Markup\DefaultTokenizer($value);
 
@@ -204,40 +204,34 @@ class ParsedHtmlFilter implements FilterInterface
 			}
 			else if ($element instanceof Markup\SupraMarkupImage) {
 
-				$metadataItem = $metadata[$element->getId()];
-
-				if (empty($metadataItem)) {
+				if ( ! isset($metadataElements[$element->getId()])) {
 					$this->log->warn("Referenced image element " . get_class($element) . "-" . $element->getId() . " not found for {$this->property}");
 				}
 				else {
 
-					$image = $metadataItem->getReferencedElement();
+					$image = $metadataElements[$element->getId()];
 					$result[] = $this->parseSupraImage($image);
 				}
 			}
 			else if ($element instanceof Markup\SupraMarkupVideo) {
 
-				$metadataItem = $metadata[$element->getId()];
-
-				if (empty($metadataItem)) {
+				if ( ! isset($metadataElements[$element->getId()])) {
 					$this->log->warn("Referenced video element " . get_class($element) . "-" . $element->getId() . " not found for {$this->property}");
 				}
 				else {
 
-					$video = $metadataItem->getReferencedElement();
+					$video = $metadataElements[$element->getId()];
 					$result[] = $this->parseSupraVideo($video);
 				}
 			}
 			else if ($element instanceof Markup\SupraMarkupLinkStart) {
 
-				$metadataItem = $metadata[$element->getId()];
-
-				if (empty($metadataItem)) {
+				if ( ! isset($metadataElements[$element->getId()])) {
 					$this->log->warn("Referenced link element " . get_class($element) . "-" . $element->getId() . " not found for {$this->property}");
 				}
 				else {
 
-					$link = $metadataItem->getReferencedElement();
+					$link = $metadataElements[$element->getId()];
 					// Overwriting in case of duplicate markup tag usage
 					ObjectRepository::setCallerParent($link, $this, true);
 					$result[] = $this->parseSupraLinkStart($link);
@@ -330,11 +324,26 @@ class ParsedHtmlFilter implements FilterInterface
 	{
 		$value = $this->property->getValue();
 		$metadata = $this->property->getMetadata();
+		
+		$elements = array();
+		foreach ($metadata as $key => $metadataItem) {
+			$elements[$key] = $metadataItem->getReferencedElement();
+		}
+		
+		return $this->doFilter($value, $elements);
+	}
 
-		$filteredValue = $this->parseSupraMarkup($value, $metadata);
+	/**
+	 * @param string $html
+	 * @param array $referencedElements
+	 * @return \Twig_Markup
+	 */
+	public function doFilter($html, $referencedElements)
+	{
+		$filteredValue = $this->parseSupraMarkup($html, $referencedElements);
 		$markup = new Twig_Markup($filteredValue, 'UTF-8');
 		
 		return $markup;
 	}
-
+		
 }
