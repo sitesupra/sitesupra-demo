@@ -12,6 +12,7 @@
         groups:
           - Supra\FileStorage
           - Supra\Controller\Pages
+          
     propertyGroups:
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: slideshow_block_manage
@@ -28,14 +29,14 @@
           type: sidebar
           icon: /cms/lib/supra/img/toolbar/icon-animation.png
           label: Animation
+    
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: design
           group: design
           editable: Supra\Editable\SelectVisual
           label: Design
-          shared: true
-          defaultValue: arrows
+          default: arrows
           values:
             - id: none
               title: None
@@ -52,14 +53,12 @@
           editable: Supra\Editable\Checkbox
           label: Auto scroll
           description: Automatically goes from one slide to next after a delay
-          shared: true
-          defaultValue: 1
+          default: 1
       #- Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
       #    name: scrollTimerDelay
       #    group: animation
       #    editable: Supra\Editable\Slider
       #    label: Auto scroll delay
-      #    shared: true
       #    additionalParameters:
       #        minValue: 1
       #        maxValue: 10
@@ -68,7 +67,6 @@
           group: animation
           editable: Supra\Editable\SelectVisual
           label: Animation
-          shared: true
           values:
             - id: horizontal
               title: Horizontal slide
@@ -85,13 +83,46 @@
           name: slides
           editable: Supra\Editable\Slideshow
           label: Slides
-          shared: true
+          # predefined Layout values
+          values:
+            ## background image only
+            - id: bg
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg.html
+            ## layouts with text   
+            - id: bg_text_left
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left.html
+            - id: bg_text_right
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right.html
+            - id: bg_text_left_top
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left_top.html
+            - id: bg_text_left_top
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left_top.html
+            - id: bg_text_right_top
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right_top.html
+            - id: bg_text_left_bottom
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left_bottom.html
+            - id: bg_text_right_top
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right_top.html
+            ## layouts with media
+            - id: bg_text_img_left
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left.html
+            - id: bg_text_img_right
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right.html
+            - id: bg_text_img_left_top
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left_top.html
+            - id: bg_text_img_right_top
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right_top.html
+            - id: bg_text_img_left_bottom
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left_bottom.html
+            - id: bg_text_img_right_top
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right_top.html
+          
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: layout
                 editable: Supra\Editable\SelectVisual
                 label: Layout
-                defaultValue: bg_text_img_left
+                default: bg_text_img_left
                 values:
                   - id: bg
                     title: Background image only
@@ -147,6 +178,10 @@
                 editable: Supra\Editable\BlockBackground
                 label: Background
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: media
+                editable: Supra\Editable\InlineMedia
+                label: Media
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: text_main
                 editable: Supra\Editable\Html
                 label: Main text
@@ -160,11 +195,21 @@
                 name: image
                 editable: Supra\Editable\Image
                 label: Image
-          #additionalParameters:
-          #    layouts:
-          #      - id: bg
-          #        html: <div class="as-wrapper"></div>
-          #      - id: bg_text_left
-          #        html: <div class="as-wrapper"><div class="text left">{{ property.text }}</div></div>
-          #      - id: bg_text_right
-          #        html: <div class="as-wrapper"><div class="text right">{{ property.text }}</div></div>
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: buttons
+                editable: Supra\Editable\PropertySet
+                label: Buttons
+ 
+                properties:
+                  - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                      name: title
+                      label: Title
+                      editable: Supra\Editable\String
+                  - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                      name: link
+                      label: Link
+                      editable: Supra\Editable\Link
+                additionalParameters:
+                  labelAdd: Add more buttons
+                  labelRemove: Remove button
+                  labelItem: "Button %s"

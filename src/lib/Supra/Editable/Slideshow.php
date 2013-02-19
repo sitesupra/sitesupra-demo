@@ -7,12 +7,6 @@ namespace Supra\Editable;
  */
 class Slideshow extends EditableAbstraction
 {
-	
-	/**
-	 * @var boolean
-	 */
-	protected $separateSlide = true;
-	
 	/**
 	 * @var array
 	 */
@@ -33,15 +27,7 @@ class Slideshow extends EditableAbstraction
 	{
 		return false;
 	}
-	
-	/**
-	 * @param boolean $separateSlide
-	 */
-	public function setSeparateSlide($separateSlide)
-	{
-		$this->separateSlide = (bool)$separateSlide;
-	}
-	
+		
 	/**
 	 * @param array $layouts
 	 */
@@ -63,7 +49,6 @@ class Slideshow extends EditableAbstraction
 	{
 		return array(
 			'layouts' => $this->layouts,
-			'separateSlide' => $this->separateSlide,
 		);
 	}
 	

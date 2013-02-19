@@ -19,12 +19,25 @@ class SelectVisual extends Select
 	 * @var string
 	 */
 	protected $css = '';
+	
+	/**
+	 * @var boolean
+	 */
+	protected $separateSlide = false;
 
+
+	/**
+	 *
+	 */
 	public function getAdditionalParameters()
 	{
-		$output = array('values' => $this->values, 'iconStyle' => $this->iconStyle, 'style' => $this->style, 'css' => $this->css);
-
-		return $output;
+		return array(
+			'values' => $this->values,
+			'iconStyle' => $this->iconStyle, 
+			'style' => $this->style,
+			'css' => $this->css,
+			'separateSlide' => $this->separateSlide,
+		);
 	}
 
 	/**
@@ -86,5 +99,13 @@ class SelectVisual extends Select
 	public function setCss($css)
 	{
 		$this->css = $css;
+	}
+	
+	/**
+	 * @param boolean $separateSlide
+	 */
+	public function setSeparateSlide($separateSlide)
+	{
+		$this->separateSlide = (bool)$separateSlide;
 	}
 }
