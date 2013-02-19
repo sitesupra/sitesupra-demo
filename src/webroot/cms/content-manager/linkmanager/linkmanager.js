@@ -856,7 +856,6 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					data = data || this.initial_data;
 				}
 				
-				console.log(data);
 				this.callback.call(this.context, data);
 			}
 			
