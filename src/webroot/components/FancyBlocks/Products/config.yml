@@ -56,21 +56,6 @@
                 label: Link label
                 default: Read more
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: design
-          group: design
-          editable: Supra\Editable\SelectVisual
-          label: Design
-          values:
-            - id: simple
-              title: Default
-              icon: icons/design-simple.png
-            - id: border
-              title: Images with borders
-              icon: icons/design-border.png
-            - id: box
-              title: Boxes with shadow
-              icon: icons/design-boxes.png
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: link
           group: design
           editable: Supra\Editable\SelectVisual
@@ -87,10 +72,10 @@
               title: Whole unit linked
               icon: icons/link-overlay.png
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: image
+          name: design
           group: design
           editable: Supra\Editable\SelectVisual
-          label: Image
+          label: Design
           default: all
           values:
             - id: only

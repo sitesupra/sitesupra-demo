@@ -5982,8 +5982,8 @@ YUI().add("supra.io-css", function (Y) {
 		 */
 		'compileExpression': function (identifier, expr, fn) {
 			if (typeof fn == 'function') {
-				//Convert " and " to " && ", " or " to " || "
-				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ');
+				//Convert " and " to " && ", " or " to " || ", " ~ " to concatanation
+				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ').replace(REG_CAT, ' + "" + ');
 				return fn(expr);
 			}
 			return '';
@@ -6306,6 +6306,17 @@ YUI().add("supra.io-css", function (Y) {
 			},
 			
 			/**
+			 * Raw value output
+			 * Currently automatic escaping is not supported, so there is no need
+			 * for this, we have it only for compatibility
+			 * 
+			 * @param {Object} obj Object
+			 */
+			'raw': function (obj) {
+				return obj;
+			},
+			
+			/**
 			 * Supra.Intl filter
 			 * Returns internationalized string
 			 * 
@@ -6525,6 +6536,7 @@ YUI().add("supra.io-css", function (Y) {
 		
 		REG_CHECK_MODIFIERS	= /[a-z0-9\$_'"\.\,\[\]\(\)\:\{\}]+\|[a-z0-9_]/i,
 		
+		REG_CAT				= /\s*~\s*/g,
 		REG_AND				= /\s+and\s+/g,
 		REG_OR				= /\s+or\s+/g,
 		REG_FOR				= /\s*([a-z0-9_]+)(\s*,\s*([a-z0-9_]+))?\s+in\s+(.*)/i,
@@ -21588,7 +21600,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version);YUI.add("supra.input-number", function (Y) {
+}, YUI.version);
+YUI.add("supra.input-number", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -26583,7 +26596,8 @@ YUI.add('supra.input-slider', function (Y) {
 	//Default value
 	var DEFAULT_VALUE = {
 		'latitude': 0,
-		'longitude': 0
+		'longitude': 0,
+		'zoom': 14
 	};
 	
 	
@@ -26639,6 +26653,13 @@ YUI.add('supra.input-slider', function (Y) {
 		marker: null,
 		
 		/**
+		 * Info box
+		 * @type {Object}
+		 * @private
+		 */
+		info: null,
+		
+		/**
 		 * Location cache
 		 * @type {Array}
 		 * @private
@@ -26660,11 +26681,32 @@ YUI.add('supra.input-slider', function (Y) {
 		silent: false,
 		
 		/**
-		 * Dragend event listener
+		 * Event listeners have been attached
 		 * @type {Boolean}
 		 * @private
 		 */
-		_dragendListener: null,
+		eventsBinded: false,
+		
+		/**
+		 * Map was created by this widget, not page itself
+		 * @type {Boolean}
+		 * @private
+		 */
+		mapSourceSelf: true,
+		
+		/**
+		 * Dragend event listener
+		 * @type {Object}
+		 * @private
+		 */
+		dragendListener: null,
+		
+		/**
+		 * Zoom change event listener
+		 * @type {Object}
+		 * @private
+		 */
+		zoomChangeListener: null,
 		
 		
 		renderUI: function () {
@@ -26677,22 +26719,17 @@ YUI.add('supra.input-slider', function (Y) {
 			this.createMap(this.get('targetNode'));
 		},
 		
-		bindUI: function () {
-			Input.superclass.bindUI.apply(this, arguments);
-			
-			// FIXME Using form is dirty, should be using startEditing / stopEditing instead
-			var form = this.getForm();
-			if (form) {
-				form.on('visibleChange', function (e) {
-					if (e.newVal != e.prevVal) {
-						if (e.newVal) {
-							this.bindMapEvents();
-						} else {
-							this.unbindMapEvents();
-						}
-					}
-				}, this);
+		startEditing: function () {
+			if (!this.get('disabled')) {
+				this.bindMapEvents();
 			}
+			
+			Input.superclass.startEditing.apply(this, arguments);
+		},
+		
+		stopEditing: function () {
+			Input.superclass.stopEditing.apply(this, arguments);
+			this.unbindMapEvents();
 		},
 		
 		/**
@@ -26700,16 +26737,31 @@ YUI.add('supra.input-slider', function (Y) {
 		 * Enable marker drag and drop
 		 */
 		bindMapEvents: function () {
-			if (this.marker) {
+			if (this.marker && !this.eventsBinded) {
 				var global = this.get('win');
 				
-				if (this._dragendListener) {
+				if (this.dragendListener) {
 					// Remove in case if old reference
-					global.google.maps.event.removeListener(this._dragendListener);
+					global.google.maps.event.removeListener(this.dragendListener);
+				}
+				if (this.zoomChangeListener) {
+					// Remove in case if old reference
+					global.google.maps.event.removeListener(this.zoomChangeListener);
+				}
+				
+				// Hide info box while editing
+				if (this.info) {
+					this.info.close();
 				}
 				
 				this.marker.set('draggable', true);
-				this._dragendListener = global.google.maps.event.addListener(this.marker, 'dragend', this._afterValueChange);
+				this.dragendListener = global.google.maps.event.addListener(this.marker, 'dragend', this._afterValueChange);
+				this.zoomChangeListener = global.google.maps.event.addListener(this.map, 'zoom_changed', this._afterValueChange);
+				
+				this.eventsBinded = true;
+				
+				this.map.set('center', this.marker.get('position'));
+				this.map.set('zoom', this.get('value').zoom);
 			}
 		},
 		
@@ -26718,12 +26770,21 @@ YUI.add('supra.input-slider', function (Y) {
 		 * Disable marker drag and drop
 		 */
 		unbindMapEvents: function () {
-			if (this.marker) {
+			if (this.marker && this.eventsBinded) {
 				var global = this.get('win');
 				
+				if (this.info && this.mapSourceSelf) {
+					this.info.open(this.map, this.marker);
+				}
+				
+				global.google.maps.event.removeListener(this.dragendListener);
+				global.google.maps.event.removeListener(this.zoomChangeListener);
+				
 				this.marker.set('draggable', false);
-				global.google.maps.event.removeListener(this._dragendListener);
-				this._dragendListener = null;
+				
+				this.zoomChangeListener = null;
+				this.dragendListener = null;
+				this.eventsBinded = false;
 			}
 		},
 		
@@ -26734,6 +26795,11 @@ YUI.add('supra.input-slider', function (Y) {
 		 */
 		createMap: function (targetNode) {
 			if (targetNode && targetNode !== this.get('targetNode')) {
+				this.unbindMapEvents();
+				this.map = null;
+				this.marker = null;
+				this.info = null;
+				
 				MapManager.prepare(this.get('doc'), this.get('win'), function () {
 					this._createMap(targetNode);
 				}, this);
@@ -26767,7 +26833,9 @@ YUI.add('supra.input-slider', function (Y) {
 					// We can get existing map instance
 					this.map = g_instance.map;
 					this.marker = g_instance.marker;
-					this.startEditing();
+					this.info = g_instance.info;
+					this.mapSourceSelf = false;
+					
 					return;
 				}
 			}
@@ -26776,7 +26844,7 @@ YUI.add('supra.input-slider', function (Y) {
 			
 			latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
 			options = {
-				zoom: 8,
+				zoom: value.zoom,
 				center: latlng,
 				streetViewControl: false,
 				mapTypeId: global.google.maps.MapTypeId.ROADMAP
@@ -26790,8 +26858,7 @@ YUI.add('supra.input-slider', function (Y) {
 			}
 			marker = this.marker = new global.google.maps.Marker({'position': latlng, 'map': map, 'draggable': true});
 			
-			//On marker drag trigger change event
-			this.startEditing();
+			this.mapSourceSelf = true;
 		},
 		
 		
@@ -26835,6 +26902,7 @@ YUI.add('supra.input-slider', function (Y) {
 			if (map && marker) {
 				latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
 				map.setCenter(latlng);
+				map.setZoom(value.zoom || DEFAULT_VALUE.zoom);
 				marker.setPosition(latlng);
 			}
 			
@@ -26868,12 +26936,16 @@ YUI.add('supra.input-slider', function (Y) {
 		_afterValueChange: function () {
 			var value = this.get('value');
 			
+			if (this.map) {
+				value.zoom = this.map.get('zoom');
+			}
+			
 			this.silent = true;
 			this.set('value', value);
 			this.silent = false;
 			
 			this.fire('change', {'value': value});
-		}
+		},
 		
 	});
 	

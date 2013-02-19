@@ -30,6 +30,29 @@
             - id: accordion
               title: Accordion
               icon: icons/design-accordion.png
+          values:
+            - id: tabs
+              title: Tabs
+              html: <table><tr><td class="h-2 w-12">Tabs</td></tr></table>
+            - id: accordion
+              title: Accordion
+              html: <table><tr><td class="h-2 w-12">Accordion</td></tr></table>
+          additionalParameters:
+            iconStyle: html
+            style: mid
+            css: |
+              .su-button .su-button-bg { padding: 0; }
+              .su-button .su-button-bg div { height: 57px; }
+              table { width: 100%; border-spacing: 3px; border-collapse: separate; }
+              td { 
+              background: url(/components/FancyBlocks/Text/icons/background.png) 0 0 repeat-x;
+              vertical-align: middle; text-align: center;
+              text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.5);
+              color: #054873;
+              font-size: 18px;
+              font-weight: bold;
+              height: 52px;
+              }
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: title_1
           editable: Supra\Editable\InlineString

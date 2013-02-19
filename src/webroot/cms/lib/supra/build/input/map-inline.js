@@ -8,7 +8,8 @@ YUI.add('supra.input-map-inline', function (Y) {
 	//Default value
 	var DEFAULT_VALUE = {
 		'latitude': 0,
-		'longitude': 0
+		'longitude': 0,
+		'zoom': 14
 	};
 	
 	
@@ -64,6 +65,13 @@ YUI.add('supra.input-map-inline', function (Y) {
 		marker: null,
 		
 		/**
+		 * Info box
+		 * @type {Object}
+		 * @private
+		 */
+		info: null,
+		
+		/**
 		 * Location cache
 		 * @type {Array}
 		 * @private
@@ -85,11 +93,32 @@ YUI.add('supra.input-map-inline', function (Y) {
 		silent: false,
 		
 		/**
-		 * Dragend event listener
+		 * Event listeners have been attached
 		 * @type {Boolean}
 		 * @private
 		 */
-		_dragendListener: null,
+		eventsBinded: false,
+		
+		/**
+		 * Map was created by this widget, not page itself
+		 * @type {Boolean}
+		 * @private
+		 */
+		mapSourceSelf: true,
+		
+		/**
+		 * Dragend event listener
+		 * @type {Object}
+		 * @private
+		 */
+		dragendListener: null,
+		
+		/**
+		 * Zoom change event listener
+		 * @type {Object}
+		 * @private
+		 */
+		zoomChangeListener: null,
 		
 		
 		renderUI: function () {
@@ -102,22 +131,17 @@ YUI.add('supra.input-map-inline', function (Y) {
 			this.createMap(this.get('targetNode'));
 		},
 		
-		bindUI: function () {
-			Input.superclass.bindUI.apply(this, arguments);
-			
-			// FIXME Using form is dirty, should be using startEditing / stopEditing instead
-			var form = this.getForm();
-			if (form) {
-				form.on('visibleChange', function (e) {
-					if (e.newVal != e.prevVal) {
-						if (e.newVal) {
-							this.bindMapEvents();
-						} else {
-							this.unbindMapEvents();
-						}
-					}
-				}, this);
+		startEditing: function () {
+			if (!this.get('disabled')) {
+				this.bindMapEvents();
 			}
+			
+			Input.superclass.startEditing.apply(this, arguments);
+		},
+		
+		stopEditing: function () {
+			Input.superclass.stopEditing.apply(this, arguments);
+			this.unbindMapEvents();
 		},
 		
 		/**
@@ -125,16 +149,31 @@ YUI.add('supra.input-map-inline', function (Y) {
 		 * Enable marker drag and drop
 		 */
 		bindMapEvents: function () {
-			if (this.marker) {
+			if (this.marker && !this.eventsBinded) {
 				var global = this.get('win');
 				
-				if (this._dragendListener) {
+				if (this.dragendListener) {
 					// Remove in case if old reference
-					global.google.maps.event.removeListener(this._dragendListener);
+					global.google.maps.event.removeListener(this.dragendListener);
+				}
+				if (this.zoomChangeListener) {
+					// Remove in case if old reference
+					global.google.maps.event.removeListener(this.zoomChangeListener);
+				}
+				
+				// Hide info box while editing
+				if (this.info) {
+					this.info.close();
 				}
 				
 				this.marker.set('draggable', true);
-				this._dragendListener = global.google.maps.event.addListener(this.marker, 'dragend', this._afterValueChange);
+				this.dragendListener = global.google.maps.event.addListener(this.marker, 'dragend', this._afterValueChange);
+				this.zoomChangeListener = global.google.maps.event.addListener(this.map, 'zoom_changed', this._afterValueChange);
+				
+				this.eventsBinded = true;
+				
+				this.map.set('center', this.marker.get('position'));
+				this.map.set('zoom', this.get('value').zoom);
 			}
 		},
 		
@@ -143,12 +182,21 @@ YUI.add('supra.input-map-inline', function (Y) {
 		 * Disable marker drag and drop
 		 */
 		unbindMapEvents: function () {
-			if (this.marker) {
+			if (this.marker && this.eventsBinded) {
 				var global = this.get('win');
 				
+				if (this.info && this.mapSourceSelf) {
+					this.info.open(this.map, this.marker);
+				}
+				
+				global.google.maps.event.removeListener(this.dragendListener);
+				global.google.maps.event.removeListener(this.zoomChangeListener);
+				
 				this.marker.set('draggable', false);
-				global.google.maps.event.removeListener(this._dragendListener);
-				this._dragendListener = null;
+				
+				this.zoomChangeListener = null;
+				this.dragendListener = null;
+				this.eventsBinded = false;
 			}
 		},
 		
@@ -159,6 +207,11 @@ YUI.add('supra.input-map-inline', function (Y) {
 		 */
 		createMap: function (targetNode) {
 			if (targetNode && targetNode !== this.get('targetNode')) {
+				this.unbindMapEvents();
+				this.map = null;
+				this.marker = null;
+				this.info = null;
+				
 				MapManager.prepare(this.get('doc'), this.get('win'), function () {
 					this._createMap(targetNode);
 				}, this);
@@ -192,7 +245,9 @@ YUI.add('supra.input-map-inline', function (Y) {
 					// We can get existing map instance
 					this.map = g_instance.map;
 					this.marker = g_instance.marker;
-					this.startEditing();
+					this.info = g_instance.info;
+					this.mapSourceSelf = false;
+					
 					return;
 				}
 			}
@@ -201,7 +256,7 @@ YUI.add('supra.input-map-inline', function (Y) {
 			
 			latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
 			options = {
-				zoom: 8,
+				zoom: value.zoom,
 				center: latlng,
 				streetViewControl: false,
 				mapTypeId: global.google.maps.MapTypeId.ROADMAP
@@ -215,8 +270,7 @@ YUI.add('supra.input-map-inline', function (Y) {
 			}
 			marker = this.marker = new global.google.maps.Marker({'position': latlng, 'map': map, 'draggable': true});
 			
-			//On marker drag trigger change event
-			this.startEditing();
+			this.mapSourceSelf = true;
 		},
 		
 		
@@ -260,6 +314,7 @@ YUI.add('supra.input-map-inline', function (Y) {
 			if (map && marker) {
 				latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
 				map.setCenter(latlng);
+				map.setZoom(value.zoom || DEFAULT_VALUE.zoom);
 				marker.setPosition(latlng);
 			}
 			
@@ -292,6 +347,10 @@ YUI.add('supra.input-map-inline', function (Y) {
 		 */
 		_afterValueChange: function () {
 			var value = this.get('value');
+			
+			if (this.map) {
+				value.zoom = this.map.get('zoom');
+			}
 			
 			this.silent = true;
 			this.set('value', value);

@@ -36,10 +36,9 @@
 
 
 {% set navigation = supraBlock.property('navigation')|default('scrollbar') %}
-{% set design = supraBlock.property('design')|default('box') %}
+{% set design = supraBlock.property('design')|default('all') %}
 {% set products = supraBlock.property('images') %}
 {% set layout = supraBlock.property('layout') %}
-{% set image = supraBlock.property('image') %}
 {% set link = supraBlock.property('link') %}
 {% set link_title = '' %}
 
@@ -53,44 +52,36 @@
 	{% set columns = 4 %}
 {% endif %}
 
-{% if design == 'border' %}
-	{% set padding = 30 %}
-{% elseif design == 'box' %}
-	{% set padding = 60 %}
-{% else %}
-	{% set padding = 20 %}
-{% endif %}
-
 
 {# Macro for outputing images #}
 	
 	{# Calculate image width based on layout, design and screen size #}
-	{% macro imageWidth (screen, columns, padding) %}
-		{% set image = supraBlock.property('image') %}
+	{% macro imageWidth (screen, columns) %}
+		{% set design = supraBlock.property('design') %}
 		
-		{% if image == 'icon' %}
+		{% if design == 'icon' %}
 			{{ width_icon }}
 		{% else %}
 			{% if screen > 420 %}
-				{{ (screen - padding * columns) / columns }}
+				{{ (screen - 20 * columns) / columns }}
 			{% else %}
-				{{ screen - padding * columns }}
+				{{ screen - 20 * columns }}
 			{% endif %}
 		{% endif %}
 	{% endmacro %}
 	
 	{# Output image tag for CMS Gallery manager #}
-	{% macro imageCMS(ratio, columns, padding) %}
+	{% macro imageCMS(ratio, columns) %}
 		{% import _self as output %}
-		{% set image = supraBlock.property('image') %}
-			
-		{% if image == 'icon' %}
+		{% set design = supraBlock.property('design') %}
+		
+		{% if design == 'icon' %}
 			<span class="img">
 				<img src="about:blank" alt="" width="{{ width_icon }}" height="{{ width_icon }}" />
 			</span>
 		{% else %}
 			{% set screenWidth = 960 %}
-			{% set w = output.imageWidth(screenWidth, columns, padding)|trim|raw|number_format(0, '.', '') %}
+			{% set w = output.imageWidth(screenWidth, columns)|trim|raw|number_format(0, '.', '') %}
 			{% set h = w*ratio|number_format(0, '.', '') %}
 			<span class="img">
 				<img src="about:blank" alt="" width="{{ w }}" height="{{ h }}" />
@@ -145,63 +136,31 @@
 		</div></h2>
 		{% endif %}
 		
-		<div class="products-slider clearfix style-{{ design }} img-{{ image }} link-{{ link }}" data-refresh-event="carousel" data-style="{{ design }}" data-{{ navigation }}="true">
+		<div class="products-slider clearfix img-{{ design }} link-{{ link }}" data-refresh-event="carousel" data-{{ navigation }}="true">
 			<ul class="clearfix">
 				{% for index, product in products %}
 					{% if index and index % 4 == 0 %}
 						<li class="clear"></li>
 					{% endif %}
 					
-					<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} {% if design != 'box' %}clearfix{% endif %}">
+					<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
 						
-						{% if design == "box" %}
-							
-							<div class="outer clearfix">
-								{# Text and then image, unless it's icon mode #}
-								
-								{% if link == 'overlay' %}
-									{{ output.link(product, link) }}
-								{% endif %}
-								
-								{% if image == 'icon' %}
-									<span class="img">
-										{{ output.imageHtmlTag( product, width_icon, width_icon ) }}
-									</span>
-								{% endif %}
-								
-								{% if image != 'only' %}
-									<div class="inner-text">
-										{{ output.text(product, link) }}
-									</div>
-								{% endif %}
-								
-								{% if image != 'icon' %}
-									{{ output.imageHtmlTag( product ) }}
-								{% endif %}
-								
-							</div>
-							
+						{% if design == 'icon' %}
+							<span class="img">
+								{{ output.imageHtmlTag( product, width_icon, width_icon ) }}
+							</span>
 						{% else %}
-							{# Image followed by text #}
-							
-							{% if image == 'icon' %}
-								<span class="img">
-									{{ output.imageHtmlTag( product, width_icon, width_icon ) }}
-								</span>
-							{% else %}
-								{{ output.imageHtmlTag( product ) }}
-							{% endif %}
-							
-							{% if image != 'only' %}
-								<div class="inner-text">
-									{{ output.text(product, link) }}
-								</div>
-							{% endif %}
-							
-							{% if link == 'overlay' %}
-								{{ output.link(product, link) }}
-							{% endif %}
-							
+							{{ output.imageHtmlTag( product ) }}
+						{% endif %}
+						
+						{% if design != 'only' %}
+							<div class="inner-text">
+								{{ output.text(product, link) }}
+							</div>
+						{% endif %}
+						
+						{% if link == 'overlay' %}
+							{{ output.link(product, link) }}
 						{% endif %}
 					</li>
 				{% endfor %}
@@ -215,50 +174,20 @@
 		{% if supra.cmsRequest %}{% raw %}
 			<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
 				
-				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} {% if design != 'box' %}clearfix{% endif %}">
-					{% if design == "box" %}
+				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
+					{% endraw %}{{ output.imageCMS(ratio, columns) }}{% raw %}
 					
-						<div class="outer clearfix">
-							
-							{% endraw %}{% if image == 'icon' %}
-								{{ output.imageCMS(ratio, columns, padding) }}
-							{% endif %}{% raw %}
-							
-							{% if image != 'only' %}
-							<div class="inner-text">
-								<h2>{{ property.title }}</h2>
-								<p>{{ property.description }}</p>
-								
-								{% if link == 'button' %}
-									<a class="button"><span><span>{{ property.link_label }}</span></span></a>
-								{% elseif link == 'text' %}
-									<a class="link">{{ property.link_label }}</a>
-								{% endif %}
-							</div>
+					{% if design != 'only' %}
+						<div class="inner-text">
+							<h2>{{ property.title }}</h2>
+							<p>{{ property.description }}</p>
+						
+							{% if link == 'button' %}
+								<a class="button"><span><span>{{ property.link_label }}</span></span></a>
+							{% elseif link == 'text' %}
+								<a class="link">{{ property.link_label }}</a>
 							{% endif %}
-							
-							{% endraw %}{% if image != 'icon' %}
-								{{ output.imageCMS(ratio, columns, padding) }}
-							{% endif %}{% raw %}
 						</div>
-						
-					{% else %}
-						
-						{% endraw %}{{ output.imageCMS(ratio, columns, padding) }}{% raw %}
-						
-						{% if image != 'only' %}
-							<div class="inner-text">
-								<h2>{{ property.title }}</h2>
-								<p>{{ property.description }}</p>
-							
-								{% if link == 'button' %}
-									<a class="button"><span><span>{{ property.link_label }}</span></span></a>
-								{% elseif link == 'text' %}
-									<a class="link">{{ property.link_label }}</a>
-								{% endif %}
-							</div>
-						{% endif %}
-						
 					{% endif %}
 				</li>
 				
