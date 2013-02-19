@@ -999,7 +999,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 					if (nodeTag == 'body') {
 						// Add wrapper for content inside body, which will be 100% height of content
 						// it's needed for HTML5 drag and drop events to work correctly
-						structure.unshift('<div class="yui3-inline-reset yui3-box-reset supra-gallerymanager-wrapper">');
+						structure.unshift('<div class="yui3-inline-reset yui3-box-reset su-gallerymanager-wrapper">');
 						structure.push('</div>');
 					}
 					
@@ -1016,7 +1016,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			} else {
 				structure = [
 					'<html class="supra-cms">',
-						'<body><div class="yui3-inline-reset yui3-box-reset supra-gallerymanager-wrapper">',
+						'<body><div class="yui3-inline-reset yui3-box-reset su-gallerymanager-wrapper">',
 							'<ul>',
 							'</ul>',
 						'</div></body>',
@@ -1121,7 +1121,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 */
 		getWrapperNode: function () {
 			var doc = this.getDocument();
-			return doc ? Y.Node(doc.body).one('.supra-gallerymanager-wrapper') : null;
+			return doc ? Y.Node(doc.body).one('.su-gallerymanager-wrapper') : null;
 		},
 		
 		/**

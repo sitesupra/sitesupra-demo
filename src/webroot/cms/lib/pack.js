@@ -21588,7 +21588,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version);YUI.add("supra.input-number", function (Y) {
+}, YUI.version);
+YUI.add("supra.input-number", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	

@@ -1902,7 +1902,7 @@ button::-moz-focus-inner { border:0; }
 .yui3-input-checkbox-bg {
   display:block;
   float:right;
-  margin:5px 25px 0 30px;
+  margin:5px 25px 0 0;
   width:50px;
   height:17px;
   position:relative;
