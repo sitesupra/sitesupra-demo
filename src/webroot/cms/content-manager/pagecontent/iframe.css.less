@@ -190,11 +190,15 @@
 		// Text styles
 		text-align: left !important;
 		font: 18px/30px Arial, Helvetica, sans-serif !important;
-		font-weight: bold !important;
+		font-weight: normal !important;
 		font-style: normal !important;
 		color: #fff !important;
 		text-shadow: none;
 		white-space: nowrap !important;
+		
+		small {
+			font-size: 13px;
+		}
 	}
 	&.su-overlay-name-visible {
 		.su-overlay-name {
@@ -203,6 +207,40 @@
 	}
 	&.su-overlay-list .su-overlay-name {
 		background: #555;
+	}
+	
+	// Editable block overlay (non-list)
+	&.su-overlay-editable .su-overlay-name {
+		line-height: 24px !important;
+		padding: 10px 70px 10px 10px;
+		left: 50%;
+		margin: -35px 0 0 -111px; // assume width is ~222px
+		
+		.su-overlay-icon {
+			left: auto;
+			right: 5px;
+		}
+	}
+	&.su-overlay-editable.su-overlay-closed .su-overlay-name {
+		margin-left: -71px; // text is smaller, assume width is ~142px
+	}
+	
+	&.su-overlay-editable.su-overlay-icon-visible-hover {
+		// Icon is visible only on hover
+		/*
+		.su-overlay-name {
+			padding-right: 10px;
+		}
+		&:hover .su-overlay-name {
+			padding-right: 70px;
+		}
+		*/
+	}
+	
+	&.su-overlay-editable.su-overlay-name-visible .su-overlay-name + .su-overlay-icon {
+		// Don't show icon if name is visible, because there is another icon is inside
+		// this element 
+		display: none;
 	}
 	
 }

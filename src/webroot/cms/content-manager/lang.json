@@ -93,7 +93,7 @@
 			"delete_block_shared_confirmation": "The block may contain data that is shared among other page localizations. By deleting the block you may lose this data. Do you wish to proceed?",
 			
 			"click_to_edit": "Click to edit",
-			"click_to_edit_drag_to_move": "Click to edit<br />Drag &amp; drop to move",
+			"click_to_edit_drag_to_move": "Click to edit, Drag to move",
 			
 			"locked_message": "Page was locked by {{ username|escape }} on {{ datetime|escape }}",
 			"unlock": "Unlock",

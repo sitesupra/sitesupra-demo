@@ -844,27 +844,37 @@ YUI.add('supra.page-content-proto', function (Y) {
 			}
 			
 			var div = new Y.Node(this.get('doc').createElement('DIV')),
-				title = Y.Escape.html(this.getBlockTitle());;
+				title = Y.Escape.html(this.getBlockTitle()),
+				html = '';
 			
 			this.overlay = div;
 			
 			if (this.get('draggable')) {
-				this.overlay.addClass(CLASSNAME_OVERLAY_DRAGGABLE);
+			 	this.overlay.addClass(CLASSNAME_OVERLAY_DRAGGABLE);
 			}
 			
 			this.overlay.addClass(CLASSNAME_OVERLAY);
 			
 			if (this.isList()) {
 				this.overlay.addClass(CLASSNAME_OVERLAY_LIST);
+				html = '<span class="' + CLASSNAME_OVERLAY_ICON + '"></span><span class="' + CLASSNAME_OVERLAY_NAME + '">' + title + '</span>';
 			} else {
 				this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
+				
+				if (this.isParentClosed()) {
+					title += '<br /><small>' + Supra.Intl.get(['page', 'click_to_edit']) + '</small>';
+				} else {
+					title += '<br /><small>' + Supra.Intl.get(['page', 'click_to_edit_drag_to_move']) + '</small>';
+				}
+				
+				html = '<span class="' + CLASSNAME_OVERLAY_NAME + '">' + title + '<span class="' + CLASSNAME_OVERLAY_ICON + '"></span></span><span class="' + CLASSNAME_OVERLAY_ICON + '"></span>';
 			}
 			
 			if (this.isParentClosed()) {
 				this.overlay.addClass(CLASSNAME_OVERLAY_CLOSED);
 			}
 			
-			this.overlay.set('innerHTML', '<span class="' + CLASSNAME_OVERLAY_ICON + '"></span><span class="' + CLASSNAME_OVERLAY_NAME + '">' + title + '</span>');
+			this.overlay.set('innerHTML', html);
 			this.getNode().insert(div, 'before');
 		},
 		
@@ -970,7 +980,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 					} else {
 						overlay_classname = 'overlay-visible-hover';
 						icon_classname = 'icon-visible';
-						name_classname = 'name-hidden';
+						name_classname = 'name-visible';
 					}
 					
 					break;
