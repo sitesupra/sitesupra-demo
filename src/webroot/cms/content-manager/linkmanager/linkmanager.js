@@ -62,6 +62,9 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 		}
 	};
 	
+	//Regular expression to test external link without protocol
+	var TEST_EXTERNAL_LINK = /^[a-z0-9]+[a-z0-9-]*[a-z0-9]+(\.[a-z0-9]+)+(\/|$)/i;
+	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {
 		
@@ -782,15 +785,22 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						'title': page_title
 					};
 				} else {
-					var page_title = data.title;
+					var page_title = data.title,
+						page_href  = data.href;
+					
 					if (this.options.hideLinkControls) {
-						page_title = data.href;
+						page_title = page_href;
+					}
+					
+					//Add protocol to external links without it
+					if (page_href && TEST_EXTERNAL_LINK.test(page_href)) {
+						page_href = 'http://' + page_href;
 					}
 					
 					//Link to external resource
 					return {
 						'resource': 'link',
-						'href': data.href,
+						'href': page_href,
 						'target': data.target ? '_blank' : '',
 						'title': page_title
 					};
@@ -846,6 +856,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					data = data || this.initial_data;
 				}
 				
+				console.log(data);
 				this.callback.call(this.context, data);
 			}
 			
