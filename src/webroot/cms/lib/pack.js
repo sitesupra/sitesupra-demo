@@ -5982,8 +5982,8 @@ YUI().add("supra.io-css", function (Y) {
 		 */
 		'compileExpression': function (identifier, expr, fn) {
 			if (typeof fn == 'function') {
-				//Convert " and " to " && ", " or " to " || "
-				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ');
+				//Convert " and " to " && ", " or " to " || ", " ~ " to concatanation
+				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ').replace(REG_CAT, ' + "" + ');
 				return fn(expr);
 			}
 			return '';
@@ -6306,6 +6306,17 @@ YUI().add("supra.io-css", function (Y) {
 			},
 			
 			/**
+			 * Raw value output
+			 * Currently automatic escaping is not supported, so there is no need
+			 * for this, we have it only for compatibility
+			 * 
+			 * @param {Object} obj Object
+			 */
+			'raw': function (obj) {
+				return obj;
+			},
+			
+			/**
 			 * Supra.Intl filter
 			 * Returns internationalized string
 			 * 
@@ -6525,6 +6536,7 @@ YUI().add("supra.io-css", function (Y) {
 		
 		REG_CHECK_MODIFIERS	= /[a-z0-9\$_'"\.\,\[\]\(\)\:\{\}]+\|[a-z0-9_]/i,
 		
+		REG_CAT				= /\s*~\s*/g,
 		REG_AND				= /\s+and\s+/g,
 		REG_OR				= /\s+or\s+/g,
 		REG_FOR				= /\s*([a-z0-9_]+)(\s*,\s*([a-z0-9_]+))?\s+in\s+(.*)/i,
