@@ -6,6 +6,13 @@
 {% set video = supraBlock.property('video') %}
 
 {% if video %}
+
+	{% if not supraBlock.isEmpty('block_title') %}
+	<h2 class="block-title"><div>
+		{{ supraBlock.property('block_title') }}
+	</div></h2>
+	{% endif %}
+
 	{% if video.resource == 'source' %}
 		{# HTML #}
 		<div class="block video" data-attach="$.fn.resize">

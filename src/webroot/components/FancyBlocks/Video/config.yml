@@ -15,7 +15,7 @@
         lifetime: 60 seconds
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: title
+          name: block_title
           editable: Supra\Editable\String
           label: Title
           default: Lorem ipsum dolor sit amet
