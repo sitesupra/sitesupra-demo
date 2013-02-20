@@ -13303,6 +13303,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			}
 			
 			//Trigger selection change event
+			this.htmleditor._changed();
 			this.visible = false;
 			this.htmleditor.refresh(true);
 			
@@ -13364,12 +13365,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			} else {
 				//Insert all link children nodes before link and remove <A>
 				target.insert(target.get('childNodes'), 'before').remove();
-				
-				//Trigger change event
-				this.htmleditor._changed();
 			}
 			
 			//Trigger selection change event
+			this.htmleditor._changed();
 			this.visible = false;
 			this.htmleditor.refresh(true);
 			
@@ -26945,7 +26944,7 @@ YUI.add('supra.input-slider', function (Y) {
 			this.silent = false;
 			
 			this.fire('change', {'value': value});
-		},
+		}
 		
 	});
 	
@@ -34550,7 +34549,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 */
 		bindUI: function () {
 			if (this.htmleditor) {
-				this.htmleditor.on('change', function (evt) {
+				this.htmleditor.after('change', function (evt) {
 					this.fire('change');
 				}, this);
 			}
@@ -34716,6 +34715,13 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (typeof value === 'string') {
+				value = {
+					data: {},
+					html: value
+				};
+			}
+			
 			if (this.htmleditor) {
 				this.htmleditor.setAllData(value ? value.data : {});
 				this.htmleditor.setHTML(value ? value.html : '');

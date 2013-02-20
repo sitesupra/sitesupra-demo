@@ -1,5 +1,7 @@
-<li>
+<li {% if hidden %}class="hidden"{% endif %}>
 	<div class="as-wrapper">
-		<img class="as-layer absolute fill" src="{{ property.background }}" />
+		{% if property.background %}
+			<img class="as-layer absolute fill" src="{{ property.background }}" />
+		{% endif %}
 	</div>
 </li>

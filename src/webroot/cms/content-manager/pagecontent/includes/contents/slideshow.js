@@ -369,6 +369,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		 */
 		getSlideProperties: function () {
 			// @TODO Remove following temporary data
+			/*
 			return [{
           		'id': 'layout',
           		'type': 'SelectVisual',
@@ -484,8 +485,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		  			}
 		  		]
 		  	}];
-		  	
-		  	
+		  	*/
 		  	
 			var block = this.getBlockInfo(),
 				properties = block.properties,
@@ -511,6 +511,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		 */
 		getSlideLayouts: function () {
 			// @TODO Remove following temporary data
+			/*
 			return [{
 					'id': 'bg',
           			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /></div></li>'
@@ -557,8 +558,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 					'id': 'bg_text_img_right_bottom',
           			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
           		}];
-          		
-          		
+          	*/
           		
 			var block = this.getBlockInfo(),
 				properties = block.properties,
@@ -632,7 +632,13 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 				items.push(item);
 				
 				for(var k=0; k<kk; k++) {
-					if (properties[k].type === 'InlineImage' || properties[k].type === 'BlockBackground') {
+					if (properties[k].type === 'InlineMedia') {
+						// Send only image id instead of full image data
+						prop = item[properties[k].id];
+						if (prop && prop.image && prop.image.id) {
+							prop.image = prop.image.id;
+						}
+					} else if (properties[k].type === 'InlineImage' || properties[k].type === 'BlockBackground') {
 						// Send only image id instead of full image data
 						prop = item[properties[k].id];
 						if (prop && prop.image && prop.image.image) {
