@@ -1,7 +1,7 @@
 {% import _self as slideshow %}
 
 <div class="block">
-	<div class="slideshow-advanced" data-attach="$.fn.slideshowAdvancedPredefined" {% if supraBlock.property('scrollTimerEnabled') %}data-scroll-timer="{{ supraBlock.property('scrollTimerDelay') }}"{% endif %}>
+	<div class="slideshow-advanced" data-refresh-event="slideshowAdvanced" {% if supraBlock.property('scrollTimerEnabled') %}data-scroll-timer="{{ supraBlock.property('scrollTimerDelay') }}"{% endif %}>
 		<ul class="as-container" data-supra-container="true">
 			{% if slides %}
 				{# Slide data here #}
