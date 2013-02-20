@@ -32,7 +32,12 @@ class EditableHtml extends ParsedHtmlFilter
 		$value = $this->property->getValue();
 		$metadata = $this->property->getMetadata();
 		
-		$content = $this->parseSupraMarkup($value, $metadata);
+		$elements = array();
+		foreach ($metadata as $key => $metadataItem) {
+			$elements[$key] = $metadataItem->getReferencedElement();
+		}
+		
+		$content = $this->parseSupraMarkup($value, $elements);
 		
 		$propertyName = $this->property->getName();
 			

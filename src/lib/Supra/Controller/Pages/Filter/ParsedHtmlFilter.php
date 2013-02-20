@@ -329,7 +329,7 @@ class ParsedHtmlFilter implements FilterInterface
 		foreach ($metadata as $key => $metadataItem) {
 			$elements[$key] = $metadataItem->getReferencedElement();
 		}
-		
+				
 		return $this->doFilter($value, $elements);
 	}
 
