@@ -29,6 +29,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		CLASSNAME_OVERLAY_LIST = 'su-overlay-list',
 		CLASSNAME_OVERLAY_EDITABLE = 'su-overlay-editable',
+		CLASSNAME_OVERLAY_EXTERNAL = 'su-overlay-external',
 		CLASSNAME_OVERLAY_CLOSED = 'su-overlay-closed',
 		CLASSNAME_OVERLAY_HEIGHT = 'su-overlay-height',
 		
@@ -145,6 +146,13 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		'html': {
 			value: ''
+		},
+		
+		/**
+		 * This is a new block or not
+		 */
+		'new': {
+			value: false
 		}
 	};
 	
@@ -707,13 +715,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * @private
 		 */
 		bindUI: function () {
-			if (this.get('editable') && this.overlay) {
-				this.overlay.on('click', function() {
-					if (!this.get('loading') && this.highlight_mode != 'loading' && this.highlight_mode != 'insert' && this.highlight_mode != 'disabled') {
-						// Don't edit if loading or is in insert mode
-						this.get('super').set('activeChild', this);
-					}
-				}, this);
+			if (this.overlay) {
+				this.overlay.on('click', this.handleLayoutClick, this);
 			}
 			
 			//Handle block save / cancel
@@ -732,6 +735,26 @@ YUI.add('supra.page-content-proto', function (Y) {
 			});
 			
 			this.before('destroy', this.beforeDestroy, this);
+		},
+		
+		handleLayoutClick: function () {
+			if (this.get('editable')) {
+				if (!this.get('loading') && this.highlight_mode != 'loading' && this.highlight_mode != 'insert' && this.highlight_mode != 'disabled') {
+					// Don't edit if loading or is in insert mode
+					this.get('super').set('activeChild', this);
+				}
+			} else {
+				var owner_id = this.get('data').owner_id;
+				if (owner_id) {
+					// User has permissions to edit template, open that page
+					//Stop editing
+					PageContent.stopEditing();
+
+					//Change path
+					var Root = Manager.getAction('Root');
+					Root.router.save(Root.ROUTE_PAGE.replace(':page_id', owner_id));
+				}
+			}
 		},
 		
 		/**
@@ -859,9 +882,19 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.overlay.addClass(CLASSNAME_OVERLAY_LIST);
 				html = '<span class="' + CLASSNAME_OVERLAY_ICON + '"></span><span class="' + CLASSNAME_OVERLAY_NAME + '">' + title + '</span>';
 			} else {
-				this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
+				if (this.get('editable')) {
+					this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
+				} else {
+					// User has permissions to edit template?
+					var has_permissions = !!this.get('data').owner_id;
+					if (has_permissions) {
+						this.overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
+					}
+				}
 				
-				if (this.isParentClosed()) {
+				if (!this.get('editable')) {
+					title = 'Global Block<br /><small>Click to edit on Template</small>';
+				} else if (this.isParentClosed()) {
 					title += '<br /><small>' + Supra.Intl.get(['page', 'click_to_edit']) + '</small>';
 				} else {
 					title += '<br /><small>' + Supra.Intl.get(['page', 'click_to_edit_drag_to_move']) + '</small>';
@@ -901,6 +934,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			// Is this block a list?
 			var is_list = this.isList(),
 				is_placeholder = this.isPlaceholder(),
+				is_editable = this.get('editable'),
 				
 				parent = this.get('parent'),
 				
@@ -978,9 +1012,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 					if (is_list) {
 						overlay_classname = 'overlay-hidden';
 					} else {
-						overlay_classname = 'overlay-visible-hover';
-						icon_classname = 'icon-visible';
-						name_classname = 'name-visible';
+						if (is_editable) {
+							overlay_classname = 'overlay-visible-hover';
+							icon_classname = 'icon-visible';
+							name_classname = 'name-visible';
+						} else {
+							overlay_classname = 'overlay-visible-hover';
+							icon_classname = 'icon-hidden';
+							name_classname = 'name-visible';
+						}
 					}
 					
 					break;
@@ -1002,7 +1042,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 						overlay_classname = 'overlay-hidden';
 						
 					} else {
-						if (this.get('parent').isChildTypeAllowed(filter)) {
+						if (is_editable && this.get('parent').isChildTypeAllowed(filter)) {
 							// Parent can have that child, show overlay to allowed order, insert
 							// before or after this one
 							overlay_classname = 'overlay-visible';
@@ -1022,9 +1062,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 					if (is_list) {
 						overlay_classname = 'overlay-hidden';
 					} else {
-						overlay_classname = 'overlay-visible';
-						icon_classname = 'icon-visible-hover';
-						name_classname = 'name-visible';
+						if (is_editable) {
+							overlay_classname = 'overlay-visible';
+							icon_classname = 'icon-visible-hover';
+							name_classname = 'name-visible';
+						} else {
+							overlay_classname = 'overlay-visible';
+							icon_classname = 'icon-hidden';
+							name_classname = 'name-visible';
+						}
 					}
 					
 					break;
@@ -1036,9 +1082,15 @@ YUI.add('supra.page-content-proto', function (Y) {
 					if (is_list) {
 						overlay_classname = 'overlay-hidden';
 					} else {
-						overlay_classname = 'overlay-visible';
-						icon_classname = 'icon-visible';
-						name_classname = 'name-visible';
+						if (is_editable) {
+							overlay_classname = 'overlay-visible';
+							icon_classname = 'icon-visible';
+							name_classname = 'name-visible';
+						} else {
+							overlay_classname = 'overlay-visible';
+							icon_classname = 'icon-hidden';
+							name_classname = 'name-visible';
+						}
 					}
 					
 					break;
@@ -1197,6 +1249,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 				//Fire editing-end event and propagate up to parent
 				this.fire('editing-end');
 				this.get('super').fire('editing-end', this.get('data'));
+				
+				//Block is not new anymore
+				this.set('new', false);
 				
 				//Update overlay position
 				this.syncOverlayPosition();

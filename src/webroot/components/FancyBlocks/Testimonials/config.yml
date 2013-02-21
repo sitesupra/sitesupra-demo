@@ -17,7 +17,7 @@
           name: block_title
           editable: Supra\Editable\String
           label: Title
-          default: What Client's Say
+          default: What Clients Say
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: images
           editable: Supra\Editable\Gallery
