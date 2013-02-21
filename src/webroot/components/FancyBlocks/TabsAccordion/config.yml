@@ -46,14 +46,16 @@
               .su-button .su-button-bg div { height: 57px; }
               table { width: 100%; border-spacing: 3px; border-collapse: separate; }
               td { 
-              background: url(/components/FancyBlocks/Text/icons/background.png) 0 0 repeat-x;
+              background: url(/components/FancyBlocks/Text/icons/background.png) 0 -102px repeat-x;
               vertical-align: middle; text-align: center;
               text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.5);
-              color: #054873;
+              color: #4b4e62;
               font-size: 18px;
               font-weight: bold;
               height: 52px;
               }
+              .su-button-down td,
+              .su-button-mouse-hover td { color: #054873; background-position: 0 0; }
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: title_1
           editable: Supra\Editable\InlineString

@@ -71,6 +71,8 @@
             - id: overlay
               title: Whole unit linked
               icon: icons/link-overlay.png
+          additionalParameters:
+            style: mid
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: design
           group: design
@@ -87,6 +89,8 @@
             - id: icon
               title: Icon and description
               icon: icons/image-icon.png
+          additionalParameters:
+            style: mid
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: navigation
           group: navigation
@@ -106,3 +110,5 @@
             - id: scrollbar
               title: Scrollbar
               icon: icons/navigation-scrollbar.png
+          additionalParameters:
+            style: mid
