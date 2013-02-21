@@ -104,6 +104,7 @@ class BlocksAction extends PageManagerAction
 				'title' => $conf->title,
 				'description' => $conf->description,
 				'icon' => $conf->iconWebPath,
+				'preferredGroup' => $conf->preferredGroup,
 				'classname' => $conf->cmsClassname,
 				'properties' => $properties,
 				'hidden' => $conf->hidden,
