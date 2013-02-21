@@ -186,8 +186,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Create right bar container action if it doesn't exist
 			var action = Manager.getAction('PageContentSettings');
 			this.set('action', action);
-			action.execute(null, {'first_init': true});
-			action.hide();
+			
+			if (!action.get('executed')) {
+				action.execute(null, {'first_init': true});
+				action.hide();
+			}
 			
 			//Properties form
 			this.initializeProperties();
@@ -197,34 +200,58 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.createGroupToolbar();
 			
 			//Bind to editing-start and editing-end events
-			var showOnEdit = !this._has_html_properties;
-			
-			if (showOnEdit) {
-				if (this.hasTopGroups()) {
-					//Show / hide toolbar buttons
-					this.get('host').on('editing-start', this.showGroupToolbar, this);
-					this.get('host').on('editing-end',   this.hideGroupToolbar, this);
-					
-					setTimeout(Y.bind(this.showGroupToolbar, this), 50);
-					
-					//Set correct attribute value
-					this.set('showOnEdit', false);
-				} else {
-					//Show form immediatelly
-					this.get('host').on('editing-start', this.showPropertiesForm, this);
-					setTimeout(Y.bind(this.showPropertiesForm, this), 50);
-				}
-			}
-			
-			this.get('host').on('editing-start', this.showGroupToolbarButtons, this);
-			
-			//Hide form when editing ends
-			this.get('host').on('editing-end', this.hidePropertiesForm, this);
-			this.get('host').on('editing-end', this.hideGroupToolbarButtons, this);
+			this.get('host').on('editing-start', this.handleEditingStart, this);
+			this.get('host').on('editing-end', this.handleEditingEnd, this);
 			
 			//On block save/cancel update 'changed' attributes
 			this.get('host').on('block:save', this.onBlockSaveCancel, this);
 			this.get('host').on('block:cancel', this.onBlockSaveCancel, this);
+			
+			//Start editing immediatelly
+			setTimeout(Y.bind(this.handleEditingStart, this), 50);
+		},
+		
+		/**
+		 * On editing start show toolbar and open settings form if needed
+		 * 
+		 * @private
+		 */
+		handleEditingStart: function () {
+			// preferred group exists only for new blocks
+			var preferred_property_group = this.getPreferredGroup();
+			
+			// if there are html properties then don't show on edit, because
+			// editor toolbar will be shown and HTML is immediately editable
+			var show_on_edit = !this._has_html_properties;
+			
+			if (preferred_property_group) {
+				this.showPropertiesForm(preferred_property_group);
+			} else if (show_on_edit) {
+				if (this.hasTopGroups()) {
+					this.showGroupToolbar();
+				} else {
+					this.showPropertiesForm();
+				}
+			}
+			
+			this.showGroupToolbarButtons();
+		},
+		
+		/**
+		 * On editing end hide toolbar and settings form
+		 * 
+		 * @private
+		 */
+		handleEditingEnd: function () {
+			if (this._has_html_properties) {
+				if (this.hasTopGroups()) {
+					this.hideGroupToolbar();
+				}
+			}
+			
+			//Hide form when editing ends
+			this.hidePropertiesForm();
+			this.hideGroupToolbarButtons();
 		},
 		
 		/**
@@ -931,6 +958,20 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			this._has_top_groups = false;
 			return false;
+		},
+		
+		/**
+		 * Returns preferred group if block is new
+		 * otherwise null
+		 * 
+		 * @returns {String} Preferred property group if block is new
+		 */
+		getPreferredGroup: function () {
+			if (this.get('host').get('new')) {
+				return this.get('host').getBlockInfo().preferredPropertyGroup;
+			} else {
+				return null;
+			}
 		},
 		
 		/**

@@ -103,7 +103,7 @@ YUI.add('supra.page-content-list', function (Y) {
 					'properties': properties
 				}, function (data) {
 					// Create block in UI
-					data = Supra.mix({'properties': defaults}, data, true);
+					data = Supra.mix({'properties': defaults, 'new': true}, data, true);
 					
 					for (var id in data.properties) {
 						data.properties[id] = {
@@ -194,7 +194,8 @@ YUI.add('supra.page-content-list', function (Y) {
 				'value': data.html
 			}, {
 				'draggable': !this.isClosed(),
-				'editable': data.editable !== false
+				'editable': data.editable !== false,
+				'new': data['new']
 			}, false, index);
 			
 			//Disable highlight, we will be editing this block

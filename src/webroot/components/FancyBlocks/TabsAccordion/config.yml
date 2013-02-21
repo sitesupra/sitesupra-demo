@@ -13,6 +13,7 @@
           - Supra\FileStorage
           - Supra\Controller\Pages
         lifetime: 60 seconds
+    preferredPropertyGroup: settings
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: block_title

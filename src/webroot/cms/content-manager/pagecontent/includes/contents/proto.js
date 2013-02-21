@@ -145,6 +145,13 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 */
 		'html': {
 			value: ''
+		},
+		
+		/**
+		 * This is a new block or not
+		 */
+		'new': {
+			value: false
 		}
 	};
 	
@@ -1197,6 +1204,9 @@ YUI.add('supra.page-content-proto', function (Y) {
 				//Fire editing-end event and propagate up to parent
 				this.fire('editing-end');
 				this.get('super').fire('editing-end', this.get('data'));
+				
+				//Block is not new anymore
+				this.set('new', false);
 				
 				//Update overlay position
 				this.syncOverlayPosition();
