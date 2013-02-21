@@ -289,20 +289,26 @@ YUI.add('supra.page-content-editable', function (Y) {
 		renderUI: function () {
 			ContentEditable.superclass.renderUI.apply(this, arguments);
 			
-			if (this.get('editable') || this.isPlaceholder()) {
+			var is_editable = this.get('editable'),				// Editable block
+				is_placeholder = this.isPlaceholder(),			// Placeholder block
+				has_permissions = !!this.get('data').owner_id;	// Has user permissions to edit template?
+			
+			if (is_editable || is_placeholder || has_permissions) {
 				this.renderOverlay();
-				
-				//Find if there are any inline properties
-				var properties = this.getProperties(),
-					is_inline = false;
-				
-				if (properties) {
-					for(var i=0,ii=properties.length; i<ii; i++) {
-						is_inline = Supra.Input.isInline(properties[i].type);
-						if (is_inline) {
-							//Add class to allow detect if content has inline properties
-							this.getNode().addClass(CLASSNAME_INLINE_EDITABLE);
-							break;
+			
+				if (is_editable) {
+					//Find if there are any inline properties
+					var properties = this.getProperties(),
+						is_inline = false;
+					
+					if (properties) {
+						for(var i=0,ii=properties.length; i<ii; i++) {
+							is_inline = Supra.Input.isInline(properties[i].type);
+							if (is_inline) {
+								//Add class to allow detect if content has inline properties
+								this.getNode().addClass(CLASSNAME_INLINE_EDITABLE);
+								break;
+							}
 						}
 					}
 				}
