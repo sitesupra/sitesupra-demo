@@ -564,6 +564,91 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					editable.set('loading', false);
 				}
 			);
+		},
+		
+		reloadContentHTML: function (callback) {
+			ContentGallery.superclass.reloadContentHTML.call(this, function (editable, changed) {
+				if (changed) {
+					// res will be false if content is not reloaded
+					if (editable.updateImageSizes(callback)) {
+						if (Y.Lang.isFunction(callback)) {
+							callback(editable, changed);
+						}
+					}
+				}
+			});
+		},
+		
+		/**
+		 * Check if images fill container
+		 * Needed after layout changes
+		 * 
+		 * @private
+		 */
+		updateImageSizes: function (callback) {
+			var node = this.getNode(),
+				script = node.one('[data-supra-id="gallerymanager-item"]'),
+				selector = script ? script.getAttribute('data-supra-image-selector') : '',
+				nodes = null,
+				values = null,
+				images = null,
+				i = 0,
+				ii = 0,
+				reload_content = false;
+			
+			if (selector) {
+				values = this.properties.getValues();
+				images = (values && Y.Lang.isArray(values.images)) ? values.images : [];
+				
+				if (images) {
+					nodes = node.all(selector);
+					ii = Math.min(images.length, nodes.size());
+					
+					for (; i<ii; i++) {
+						
+						var node = nodes.item(i),
+							width = node.ancestor().getInnerWidth(),
+							old_val = images[i].image,
+							new_val = null;
+						
+						if (node && old_val) {
+							new_val = Y.DataType.Image.resize(old_val, {
+								'maxCropWidth': width,
+								'scale': true
+							});
+							
+							if (
+								new_val.crop_width  != old_val.crop_width ||
+								new_val.crop_height != old_val.crop_height ||
+								new_val.crop_left   != old_val.crop_left ||
+								new_val.crop_top    != old_val.crop_top ||
+								new_val.size_width  != old_val.size_width ||
+								new_val.size_height != old_val.size_height)
+							{
+								images[i].image = new_val;
+								
+								if (width > old_val.crop_width && new_val.crop_width > old_val.crop_width) {
+									// Don't show until reloaded
+									node.setStyles({
+										'width': new_val.crop_width + 'px',
+										'height': new_val.crop_height + 'px'
+									});
+									reload_content = true;
+								}
+							}
+						}
+						
+					}
+					
+					if (reload_content) {
+						// Reload content
+						this.reloadContentHTML(callback);
+						return false;
+					}
+				}
+			}
+			
+			return true;
 		}
 	});
 	

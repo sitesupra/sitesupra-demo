@@ -263,11 +263,13 @@ YUI.add('slideshowmanager.data', function (Y) {
 			var properties = this.get('host').options.properties,
 				i = 0,
 				ii = properties.length,
-				data = {};
+				data = {},
+				value = null;
 			
 			for (; i<ii; i++) {
-				if (properties[i].defaultValue) {
-					data[properties[i].id] = properties[i].defaultValue;
+				value = properties[i].default || properties[i].value;
+				if (value) {
+					data[properties[i].id] = value;
 				} else {
 					data[properties[i].id] = '';
 				}
@@ -288,7 +290,15 @@ YUI.add('slideshowmanager.data', function (Y) {
 		 * @private
 		 */
 		_setData: function (data) {
-			this._data = data || [];
+			this._data = data = data || [];
+			
+			for (var i=0, ii=data.length; i<ii; i++) {
+				// If there is no 'id' property, then add it
+				if (!data[i].id) {
+					data[i].id = Y.guid();
+				}
+			}
+			
 			return data;
 		},
 		

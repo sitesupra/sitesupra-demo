@@ -514,7 +514,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.imageresizer': {
 		path: 'imageresizer/imageresizer.js',
-		requires: ['supra.panel', 'slider', 'dd-plugin'],
+		requires: ['supra.panel', 'slider', 'dd-plugin', 'supra.datatype-image'],
 		skinnable: true
 	},
 	
@@ -733,7 +733,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.input-block-background': {
 		path: 'input/block-background.js',
-		requires: ['supra.input-proto']
+		requires: ['supra.input-proto', 'supra.datatype-image']
 	},
 	'supra.input-image-inline': {
 		path: 'input/image-inline.js',
@@ -753,7 +753,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.input-media-inline': {
 		path: 'input/media-inline.js',
-		requires: ['supra.input-proto', 'supra.uploader']
+		requires: ['supra.input-proto', 'supra.uploader', 'supra.datatype-image']
 	},
 	
 	'supra.form': {
@@ -840,6 +840,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.datatype-color': {
 		path: 'datatype/datatype-color.js'
+	},
+	
+	/**
+	 * Image
+	 */
+	'supra.datatype-image': {
+		path: 'datatype/datatype-image.js'
 	},
 	
 	/**

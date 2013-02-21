@@ -51,6 +51,12 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 		CONTENT_TEMPLATE: '<img />',
 		
 		/**
+		 * Value change trigerred by updateImageSize
+		 * @private
+		 */
+		silentUpdateImageSize: false,
+		
+		/**
 		 * Render widget
 		 * 
 		 * @private
@@ -59,8 +65,10 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 			var value = this.get('value');
 			if (value) {
 				this._applyStyle(value);
+				this.updateImageSize();
 			}
 			
+			this.after('valueChange', this.updateImageSize, this);
 			this.get('boundingBox').addClass('yui3-inline-reset');
 		},
 		
@@ -96,6 +104,40 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 			}
 		},
 		
+		/**
+		 * Update image size to fill container
+		 */
+		updateImageSize: function () {
+			if (this.silentUpdateImageSize) return;
+			this.silentUpdateImageSize = true;
+			
+			var node = this.get('srcNode'),
+				old_val = this.get('value'),
+				new_val = null;
+			
+			if (node && old_val) {
+				new_val = Y.DataType.Image.resize(old_val, {
+					'node': node.ancestor(),
+					'scale': true
+				});
+				
+				if (
+					new_val.crop_width  != old_val.crop_width ||
+					new_val.crop_height != old_val.crop_height ||
+					new_val.crop_left   != old_val.crop_left ||
+					new_val.crop_top    != old_val.crop_top ||
+					new_val.size_width  != old_val.size_width ||
+					new_val.size_height != old_val.size_height)
+				{
+					this.set('value', new_val);
+					this.fire('change');
+					this.fire('resize');
+				}
+			}
+			
+			this.silentUpdateImageSize = false;
+		},
+		
 		
 		/* ------------------------------ PRIVATE -------------------------------- */
 		
@@ -108,9 +150,16 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 		_startEditing: function () {
 			var imageResizer = this.get('imageResizer'),
 				node = this.get('srcNode'),
-				wrap = node.closest('.supra-image') || node,
-				width = wrap.getAttribute('width') || wrap.get('offsetWidth'),
+				wrap = (node.closest('.supra-image') || node),
+				ancestor = wrap.ancestor(),
+				width = null,
 				size = this.get('value').image.sizes.original;
+			
+			if (ancestor.test('.yui3-widget')) {
+				ancestor = ancestor.ancestor();
+			}
+			
+			width = ancestor.get('offsetWidth') || wrap.getAttribute('width') || wrap.get('offsetWidth');
 			
 			if (!imageResizer) {
 				imageResizer = new Supra.ImageResizer({
@@ -261,7 +310,9 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 		 * @returns {Object} New value attribute value
 		 */
 		_setValue: function (value) {
-			this._applyStyle(value);
+			if (value) {
+				this._applyStyle(value);
+			}
 			return value;
 		},
 		

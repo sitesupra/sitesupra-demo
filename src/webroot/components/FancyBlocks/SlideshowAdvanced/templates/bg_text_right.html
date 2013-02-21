@@ -1,9 +1,12 @@
-<li>
+<li {% if hidden %}class="hidden"{% endif %}>
 	<div class="as-wrapper">
-		<img class="as-layer absolute fill" src="{{ property.background }}" />
+		{% if property.background %}
+			<img class="as-layer absolute fill" src="{{ property.background }}" />
+		{% endif %}
+		
 		<div class="as-layer as-layer-left-large">&nbsp;</div>
 		<div class="as-layer as-layer-right-small">
-			{{ property.text_main | raw }}
+			{{ property.text_main|raw }}
 			<div class="as-layer buttons" data-supra-item-property="buttons"></div>
 		</div>
 	</div>

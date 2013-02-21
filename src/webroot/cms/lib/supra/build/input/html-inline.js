@@ -62,7 +62,7 @@ YUI.add("supra.input-inline-html", function (Y) {
 		 */
 		bindUI: function () {
 			if (this.htmleditor) {
-				this.htmleditor.on('change', function (evt) {
+				this.htmleditor.after('change', function (evt) {
 					this.fire('change');
 				}, this);
 			}
@@ -228,6 +228,13 @@ YUI.add("supra.input-inline-html", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (typeof value === 'string') {
+				value = {
+					data: {},
+					html: value
+				};
+			}
+			
 			if (this.htmleditor) {
 				this.htmleditor.setAllData(value ? value.data : {});
 				this.htmleditor.setHTML(value ? value.html : '');

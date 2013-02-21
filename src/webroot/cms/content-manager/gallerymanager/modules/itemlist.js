@@ -298,6 +298,27 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		},
 		
 		/**
+		 * Update image data without validating UI state 
+		 */
+		updateImageDataAuto: function (event, id) {
+			var value = event.target.get('saveValue'),
+				images = this.get('host').data.images,
+				i = 0,
+				ii = images.length;
+			
+			this.get('host').ui_updating = true;
+			
+			for (; i<ii; i++) {
+				if (images[i].id == id) {
+					images[i].image = value;
+					break;
+				}
+			}
+			
+			this.get('host').ui_updating = false;
+		},
+		
+		/**
 		 * Convert old format data without size and crop into new format
 		 * with size and crop
 		 * 
@@ -614,8 +635,14 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 					'disabled': this.get('shared')
 				});
 				
-				input.render();
+				// When image is resized save data
 				input.on('change', this.updateData, this);
+				
+				// When image is resized automatically (not user input), then save data
+				// without validating UI state (eg. if user is editing)
+				input.on('resize', this.updateImageDataAuto, this, itemId);
+				
+				input.render();
 			} else {
 				imageNode.setAttribute('src', '/cms/lib/supra/img/px.gif');
 				imageNode.setStyles({

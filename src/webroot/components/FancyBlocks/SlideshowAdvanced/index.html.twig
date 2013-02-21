@@ -1,7 +1,7 @@
 {% import _self as slideshow %}
 
 <div class="block">
-	<div class="slideshow-advanced" data-attach="$.fn.slideshowAdvanced" {% if supraBlock.property('scrollTimerEnabled') %}data-scroll-timer="5"{% endif %}>
+	<div class="slideshow-advanced" data-refresh-event="slideshowAdvanced" {% if supraBlock.property('scrollTimerEnabled') %}data-scroll-timer="{{ supraBlock.property('scrollTimerDelay') }}"{% endif %}>
 		<ul class="as-container" data-supra-container="true">
 			{% if slides %}
 				{# Slide data here #}
@@ -12,6 +12,7 @@
 					{% set text_top = slide['text_top'] %}
 				
 					{% set property = {
+						'hidden': loop.index,
 						'media': media, 
 						'text_main': text_main,
 						'text_top': text_top,
@@ -31,12 +32,12 @@
 {% macro media(mediaData) %}
 {% spaceless %}
 	{% if mediaData.type == 'image' %}
-		{{ supraBlock.imageHtmlTag(mediaData.id, 120, 120) | raw }}
+		{{ supraBlock.imageHtmlTag(mediaData.id, 500, 500) | raw }}
 	{% elseif mediaData.type == 'video' %}
 		{% set video = mediaData %}
 
 		{# Default width and height, resizing is done by javascript #}
-		{% set width = 400 %}
+		{% set width = 500 %}
 		{% set ratio = 16/9 %}
 		{% set height = width/ratio %}
 

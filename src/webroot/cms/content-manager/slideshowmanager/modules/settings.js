@@ -109,18 +109,38 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 */
 		getProperties: function () {
 			var properties = this.get('host').options.properties,
-				iframe = this.get('host').view.get('iframe'),
 				filtered = [],
 				i = 0,
 				ii = properties.length;
 			
 			for (; i<ii; i++) {
-				if (!properties[i].inline) {
+				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);
 				}
 			}
 			
 			return filtered;
+		},
+		
+		/**
+		 * Returns property by id
+		 * 
+		 * @param {String} id Property id
+		 * @returns {Object} Property data
+		 */
+		getProperty: function (id) {
+			var properties = this.get('host').options.properties,
+				filtered = [],
+				i = 0,
+				ii = properties.length;
+			
+			for (; i<ii; i++) {
+				if (properties[i].id == id) {
+					return properties[i];
+				}
+			}
+			
+			return null;
 		},
 		
 		/**
@@ -323,17 +343,26 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 * @param {Object} input Input which value changed
 		 * @private
 		 */
-		_firePropertyChangeEvent: function (event, property, input) {
+		_firePropertyChangeEvent: function (event, property_name, input) {
 			if (this.silentUpdatingValues) return;
 			
 			var id   = this.get('activeItemId'),
 				data = this.get('host').data,
 				save = {},
-				value = '';
+				value = '',
+				property = null;
 			
-			if (event.newVal !== event.prevVal && id && property) {
-				save[property] = input.get('saveValue');
-				if (save[property]) {
+			if (event.newVal !== event.prevVal && id && property_name) {
+				property = this.getProperty(property_name);
+				if (property.type == 'InlineHTML') {
+					// Inline HTML must be parsed right now, can't be easily done afterwards
+					save[property_name] = input.get('saveValue');
+				} else {
+					// All other properties, including image can be parsed correctly
+					// We will need all image data, to restore state after slide change
+					save[property_name] = input.get('value');
+				}
+				if (save[property_name]) {
 					data.changeSlide(id, save);
 				}
 			}

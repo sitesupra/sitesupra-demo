@@ -80,6 +80,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			}
 			
 			//Trigger selection change event
+			this.htmleditor._changed();
 			this.visible = false;
 			this.htmleditor.refresh(true);
 			
@@ -141,12 +142,10 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			} else {
 				//Insert all link children nodes before link and remove <A>
 				target.insert(target.get('childNodes'), 'before').remove();
-				
-				//Trigger change event
-				this.htmleditor._changed();
 			}
 			
 			//Trigger selection change event
+			this.htmleditor._changed();
 			this.visible = false;
 			this.htmleditor.refresh(true);
 			

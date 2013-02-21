@@ -357,7 +357,15 @@ YUI.add('slideshowmanager.view', function (Y) {
 				save = {};
 			
 			if (id && property && !this.silentUpdatingValues) {
-				save[property.id] = input.get('saveValue');
+				property = this.get('host').settings.getProperty(property.id);
+				if (property.type == 'InlineHTML') {
+					// Inline HTML must be parsed, can't be easily done afterwards
+					save[property.id] = input.get('saveValue');
+				} else {
+					// All other properties, including image can be parsed correctly
+					// We will need all image data, to restore state after slide change
+					save[property.id] = input.get('value');
+				}
 				data.changeSlide(id, save);
 			}
 		},
@@ -374,6 +382,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 		renderItem: function (id) {
 			// Don't update data, ui, etc. on value change
 			this.silentUpdatingValues = true;
+			this.get('host').settings.silentUpdatingValues = true;
 			
 			var container = null,
 				id = (typeof id === 'string' ? id : this.get('activeItemId')),
@@ -410,6 +419,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			
 			// On input value change update data, ui, etc.
 			this.silentUpdatingValues = false;
+			this.get('host').settings.silentUpdatingValues = false;
 		},
 		
 		/**
@@ -430,7 +440,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			
 			// Remove inline inputs
 			for (; i<ii; i++) {
-				values[inputs[i].get('id')] = inputs[i].get('saveValue');
+				values[inputs[i].get('id')] = inputs[i].get('value');
 				inputs[i].destroy();
 			}
 			
