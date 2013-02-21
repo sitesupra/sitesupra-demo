@@ -38,6 +38,16 @@ class SlideshowAdvancedBlock extends BlockController
 					continue;
 				}
 				
+				$slide = $slide + array(
+					'text_main' => null,
+					'text_top' => null,
+					'media' => null,
+					'image' => null,
+					'background' => null,
+					'layout' => null,
+					'buttons' => null,
+				);
+				
 				$slideData = array(
 					'text_main' => $this->filterHtml($slide['text_main']),
 					'text_top' => $this->filterHtml($slide['text_top']),

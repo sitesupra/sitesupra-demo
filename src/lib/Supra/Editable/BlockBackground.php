@@ -36,9 +36,11 @@ class BlockBackground extends EditableAbstraction {
 	 */
 	public function setContent($content)
 	{
-		if (is_array($content) && isset($content['image'])) {
+		if (is_array($content) && isset($content['image']) && ! empty($content['image'])) {
 			$this->contentMetadata = new ImageReferencedElement;
 			$this->contentMetadata->fillArray($content['image']);
+		} else {
+			$this->contentMetadata = null;
 		}
 	}
 	
