@@ -439,7 +439,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 */
 		reloadContentHTML: function (callback) {
 			if ( ! this.properties) {
-				return;
+				return false;
 			}
 			
 			var uri = null,
@@ -480,9 +480,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 			// If there is nothing to save, then ignore
 			if (!data.properties || Y.Object.isEmpty(data.properties)) {
 				if (Y.Lang.isFunction(callback)) {
-					callback(this);
+					callback(this, false);
 				}
-				return;
+				return false;
 			}
 			
 			Supra.io(uri, {
@@ -494,12 +494,12 @@ YUI.add('supra.page-content-editable', function (Y) {
 						this._reloadContentSetHTML(data);
 						
 						if (Y.Lang.isFunction(callback)) {
-							callback(this);
+							callback(this, true);
 						}
 					},
 					'failure': function () {
 						if (Y.Lang.isFunction(callback)) {
-							callback(this);
+							callback(this, false);
 						}
 					}
 				}

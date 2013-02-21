@@ -9,8 +9,6 @@
 		{% if not width %}{% set width = image.crop_width %}{% endif %}
 		{% if not height %}{% set height = image.crop_height %}{% endif %}
 		
-		{# {{ supraBlock.preloadImage( image.imageId, width, height, true, image.size_name ) }} #}
-		
 		{% set tag = supraBlock.imageHtmlTag( image.imageId, width, height, true, image.size_name )|raw %}
 		{% set width = tag.getAttribute('width') %}
 		{% set height = tag.getAttribute('height') %}
@@ -172,7 +170,7 @@
 		
 		{# Instructions how to render item in CMS Gallery manager edit mode #}
 		{% if supra.cmsRequest %}{% raw %}
-			<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
+			<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item" data-supra-image-selector="li > img">
 				
 				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
 					{% endraw %}{{ output.imageCMS(ratio, columns) }}{% raw %}

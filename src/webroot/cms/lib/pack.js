@@ -965,7 +965,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.imageresizer': {
 		path: 'imageresizer/imageresizer.js',
-		requires: ['supra.panel', 'slider', 'dd-plugin'],
+		requires: ['supra.panel', 'slider', 'dd-plugin', 'supra.datatype-image'],
 		skinnable: true
 	},
 	
@@ -1184,7 +1184,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.input-block-background': {
 		path: 'input/block-background.js',
-		requires: ['supra.input-proto']
+		requires: ['supra.input-proto', 'supra.datatype-image']
 	},
 	'supra.input-image-inline': {
 		path: 'input/image-inline.js',
@@ -1204,7 +1204,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.input-media-inline': {
 		path: 'input/media-inline.js',
-		requires: ['supra.input-proto', 'supra.uploader']
+		requires: ['supra.input-proto', 'supra.uploader', 'supra.datatype-image']
 	},
 	
 	'supra.form': {
@@ -1291,6 +1291,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.datatype-color': {
 		path: 'datatype/datatype-color.js'
+	},
+	
+	/**
+	 * Image
+	 */
+	'supra.datatype-image': {
+		path: 'datatype/datatype-image.js'
 	},
 	
 	/**
@@ -3508,6 +3515,189 @@ YUI.add('supra.event', function (Y) {
 	delete(this.fn); this.fn = function () {};
 	
 }, YUI.version);/*
+ * Add color parsing and formatting
+ */
+YUI.add('supra.datatype-image', function(Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	var Image = Y.namespace("DataType.Image");
+	
+	Image.parse = function (value) {
+		// Parse image information
+		if (value && value.sizes) {
+			// Add crop information
+			value = {
+				'image': value,
+				'crop_left': 0,
+				'crop_top': 0,
+				'crop_width': value.sizes.original.width,
+				'crop_height': value.sizes.original.height,
+				'size_width': value.sizes.original.width,
+				'size_height': value.sizes.original.height
+			};
+		} else if (!value) {
+			value = {
+				'image': null,
+				'crop_left': 0,
+				'crop_top': 0,
+				'crop_width': 0,
+				'crop_height': 0,
+				'size_width': 0,
+				'size_height': 0
+			};
+		}
+		
+		return value;
+	};
+	
+	/**
+	 * Format image value by stripping out
+	 */
+	Image.format = function (value) {
+		// Strip image information and replace with id
+		if (value.image && value.image.sizes) {
+			value.image = value.image.id;
+		}
+		
+		// Make sure crop values are numbers
+		if ('crop_left' in value || 'crop_top' in value || 'crop_width' in value || 'crop_height' in value) {
+			if (!value.crop_left) value.crop_left = 0;
+			if (!value.crop_top) value.crop_top = 0;
+			if (!value.crop_width) value.crop_width = value.size_width || 0;
+			if (!value.crop_height) value.crop_height = value.size_height || 0;
+		}
+		
+		return value;
+	};
+	
+	/**
+	 * Recalculate crop and image size
+	 * 
+	 * @param {Object} data Image data
+	 * @param {Object} options Resize options
+	 */
+	Image.resize = function (data, options) {
+		options = Supra.mix({
+			// Try to fill container, valid values are "horizontal", "vertical", "both" and false
+			'fill': 'horizontal',
+			
+			// Node which to use for calculations
+			'node': null,
+			// If node matches filter value then traverse up the tree to find correct node
+			'nodeFilter': '.supra-image, .supra-image-inner, img',
+			
+			// If node is not set then this will be used
+			'maxCropWidth': 0,
+			// If node is not set then this will be used
+			'maxCropHeight': 0,
+			
+			// If crop size changed then also change image size proportionally
+			'scale': false
+		}, options);
+		
+		// Find closest node fulfilling filter
+		var node = options.node;
+		if (node && options.nodeFilter) {
+			// Inline nodes take children width, not full
+			while (node.test(options.nodeFilter) || node.getStyle('display') == 'inline') {
+				node = node.ancestor();
+			}
+		}
+		
+		var size = data.image.sizes.original,
+			ratio = size.width / size.height,
+			coef = 0,
+			
+			size_width = data.size_width || size.width,
+			size_height = data.size_height || size.height,
+			crop_left = data.crop_left || 0,
+			crop_top = data.crop_top || 0,
+			crop_width = data.crop_width || size.width,
+			crop_height = data.crop_height || size.height,
+			
+			size_max_width = size.width,
+			size_max_height = size.height,
+			crop_min_width = 32,
+			crop_min_height = 32,
+			crop_max_width = size_max_width,
+			crop_max_height = size_max_height,
+			
+			node_width  = (node ? node.getAttribute('width')  || node.getInnerWidth() : 0)  || options.maxCropWidth || 0,
+			node_height = (node ? node.getAttribute('height') || node.getInnerHeight() : 0) || options.maxCropHeight || 0;
+		
+		// Calculate maximal and miminal widths and heights base on node size
+		if (node_width && options.fill === 'horizontal') {
+			crop_width = crop_max_width = Math.min(size.width, node_width);
+			
+			// If crop changed then scale, etc.
+			if (crop_width != data.crop_width) {
+				if (options.scale) {
+					// Change also crop height and size height
+					coef = crop_width / data.crop_width;
+					
+					crop_left   = Math.floor(data.crop_left * coef);
+					crop_top    = Math.floor(data.crop_top * coef);
+					crop_height = Math.floor(data.crop_height * coef);
+					size_width  = Math.floor(data.size_width * coef);
+					size_height = Math.floor(data.size_height * coef);
+				}
+				
+				// Validate size
+				if (size_width > size_max_width) {
+					size_width = size_max_width;
+				}
+				if (size_height > size_max_height) {
+					size_height = size_max_height;
+				}
+				
+				// Validate crop positions
+				if (crop_height + crop_top > size_height) {
+					crop_top = size_height - crop_height;
+					
+					if (crop_top < 0) {
+						size_height -= crop_top; // increases size_height
+						size_width = Math.floor(size_height * ratio);
+						crop_top = 0;
+						
+						if (size_height > size_max_height) {
+							// Image not large enough, reduce crop height
+							crop_height -= (size_height - size_max_height);
+							size_height = size_max_height;
+							size_width = size_max_width;
+						}
+					}
+				}
+				if (crop_width + crop_left > size_width) {
+					crop_left = size_width - crop_width;
+					
+					if (crop_left < 0) {
+						size_width -= crop_left; // increases size_width
+						size_height = Math.floor(size_width / ratio);
+						crop_left = 0;
+						
+						if (size_width > size_max_width) {
+							// Image not large enough, reduce crop width
+							crop_width -= (size_width - size_max_width);
+							size_width = size_max_width;
+							size_height = size_max_height;
+						}
+					}
+				}
+			}
+		}
+		
+		return Supra.mix({}, data, {
+			'crop_left': crop_left,
+			'crop_top': crop_top,
+			'crop_width': crop_width,
+			'crop_height': crop_height,
+			'size_width': size_width,
+			'size_height': size_height
+		});
+	};
+	
+}, YUI.version);/*
  * Add custom date format support to Y.DataType.Date.parse
  * Example:
  * 		Y.DateType.Date.parse('2001-05-22', {format: '%Y-%d-%m'})
@@ -3936,6 +4126,34 @@ YUI.add('supra.base', function (Y) {
 				
 				return self;
 			}
+		},
+		
+		/**
+		 * Returns node width without margin, padding and border
+		 * 
+		 * @returns {Number} Inner width
+		 */
+		getInnerWidth: function () {
+			var width = this.get('offsetWidth'),
+				padding = (parseInt(this.getStyle('paddingLeft'), 10) || 0) + (parseInt(this.getStyle('paddingRight'), 10) || 0),
+				margin = (parseInt(this.getStyle('marginLeft'), 10) || 0) + (parseInt(this.getStyle('marginRight'), 10) || 0),
+				border = (parseInt(this.getStyle('borderLeftWidth'), 10) || 0) + (parseInt(this.getStyle('borderRightWidth'), 10) || 0);
+			
+			return Math.max(0, width - padding - margin - border);
+		},
+		
+		/**
+		 * Returns node height without margin, padding and border
+		 * 
+		 * @returns {Number} Inner height
+		 */
+		getInnerHeight: function () {
+			var height = this.get('offsetHeight'),
+				padding = (parseInt(this.getStyle('paddingTop'), 10) || 0) + (parseInt(this.getStyle('paddingBottom'), 10) || 0),
+				margin = (parseInt(this.getStyle('marginTop'), 10) || 0) + (parseInt(this.getStyle('marginBottom'), 10) || 0),
+				border = (parseInt(this.getStyle('borderTopWidth'), 10) || 0) + (parseInt(this.getStyle('borderBottomWidth'), 10) || 0);
+			
+			return Math.max(0, height - padding - margin - border);
 		}
 	};
 	
