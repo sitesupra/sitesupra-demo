@@ -48,12 +48,14 @@ class SupraLessCFileList extends SupraLessC
 	}
 	
 	// Skip all except import
-	function compileProp($prop, $block, $tags, &$_lines, &$_blocks) {
+	//function compileProp($prop, $block, $tags, &$_lines, &$_blocks) {
+	function compileProp($prop, $block, $out) 
+	{
 		if ($prop[0] != 'import') {
 			return;
 		}
 		
-		return parent::compileProp($prop, $block, $tags, $_lines, $_blocks);
+		return parent::compileProp($prop, $block, $out);
 	}
 	
 }

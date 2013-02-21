@@ -1005,39 +1005,22 @@ class PageAction extends PageManagerAction
 		$editable = $property->getEditable();
 		$propertyValue = $editable->getContentForEdit();
 		
-		
 		foreach ($propertyValue as &$slideData) {
 			foreach ($configuration->properties as $propertyConfiguration) {
 
 				$name = $propertyConfiguration->name;
 				$propertyEditable = $propertyConfiguration->editableInstance;
 
-				if ($propertyEditable instanceof Editable\InlineMedia) {
-					if (isset($slideData[$name])) {
-						$type = $slideData[$name]['type'];
-						if ($type == 'image') {
-							$id = $slideData[$name]['id'];
-							
-							$storage = ObjectRepository::getFileStorage($this);
-							$image = $storage->find($id, \Supra\FileStorage\Entity\Image::CN());
-							
-							if ( ! empty($image)) {
-								$slideData[$name]['image'] = $storage->getFileInfo($image);
-							}
-						}
-					}
-				}
-				
-				if ($propertyEditable instanceof Editable\Image) {
-					if (isset($slideData[$name])) {
-						$id = $slideData[$name]['id'];
-
-						$storage = ObjectRepository::getFileStorage($this);
-						$image = $storage->find($id, \Supra\FileStorage\Entity\Image::CN());
-
-						if ( ! empty($image)) {
-							$slideData[$name]['image'] = $storage->getFileInfo($image);
-						}
+				if (isset($slideData[$name])) {
+					/* @var $propertyEditable \Supra\Editable\EditableInterface */
+					$propertyEditable->setContent($slideData[$name]);
+					$editableContent = $propertyEditable->getContentForEdit();
+					
+					if ($propertyEditable instanceof Editable\InlineMedia
+							|| $propertyEditable instanceof Editable\Image
+							|| $propertyEditable instanceof Editable\BlockBackground) {
+						
+						$slideData[$name] = $editableContent;
 					}
 				}
 			}

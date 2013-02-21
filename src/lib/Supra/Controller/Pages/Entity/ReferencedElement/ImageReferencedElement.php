@@ -339,8 +339,8 @@ class ImageReferencedElement extends ReferencedElementAbstract
 		$array = array(
 			'type' => self::TYPE_ID,
 			'id' => $this->imageId,
-			//TODO: Remove after JS change (#5686)
-			'image' => $this->imageId,
+//			//TODO: Remove after JS change (#5686)
+//			'image' => $this->imageId,
 			'align' => $this->align,
 			'style' => $this->style,
 			'size_width' => $this->width,

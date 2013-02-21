@@ -19,6 +19,8 @@ abstract class EditableAbstraction implements EditableInterface
 	 * @return mixed
 	 */
 	protected $content;
+	
+	protected $contentMetadata = array();
 
 	/**
 	 * Content label
@@ -86,7 +88,40 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->content = $content;
 	}
+	
+	/**
+	 * @return type
+	 */
+	public function getContentMetadata()
+	{
+		return $this->contentMetadata;
+	}
 
+	/**
+	 * @param type $contentMetadata
+	 */
+	public function setContentMetadata($contentMetadata)
+	{
+		$this->contentMetadata = $contentMetadata;
+	}
+
+	/**
+	 * 
+	 * @return type
+	 */
+	public function getContentMetadataForEdit()
+	{
+		return $this->contentMetadata;
+	}
+
+	/**
+	 * @param type $contentMetadata
+	 */
+	public function setContentMetadataFromEdit($contentMetadata)
+	{
+		$this->contentMetadata = $contentMetadata;
+	}
+	
 	/**
 	 * Adds filter for the editable content, one of type
 	 * @param Filter\FilterInterface $filter
