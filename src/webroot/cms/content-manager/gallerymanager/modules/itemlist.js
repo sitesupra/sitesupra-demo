@@ -12,7 +12,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				<span class="supra-gallerymanager-new-empty-label yui3-inline-reset yui3-box-reset">' + Supra.Intl.get(['gallerymanager', 'empty']) + '</span>\
 				<span class="supra-gallerymanager-new-add yui3-inline-reset yui3-box-reset">\
 					<span></span>\
-					' + Supra.Intl.get(['gallerymanager', 'add_image']) + '\
+					' + Supra.Intl.get(['gallerymanager', 'add_item']) + '\
 				</span>\
 				<span class="supra-gallerymanager-new-drop yui3-inline-reset yui3-box-reset">\
 					<span></span>\

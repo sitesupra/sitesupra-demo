@@ -445,7 +445,7 @@
 		},
 		
 		"gallerymanager": {
-			"title": "Manage gallery images",
+			"title": "Manage items",
 			"label_title": "Title",
 			
 			"insert": "Insert",
@@ -459,13 +459,14 @@
 			
 			"edit_move": "Click to edit<br />or drag to move",
 			
-			"empty": "You have no images<br />in the slideshow yet",
+			"empty": "You have no items<br />in the list yet",
 			"drag_and_drop": "Drag and drop<br />folder or files here",
-			"add_image": "Add image",
+			"add_item": "Add item",
 			"just_drag_and_drop": "or just drag-and-drop<br />file here",
 			
-			"label": "Images",
-			"label_button": "Manage images",
+			"settings_title": "Item properties",
+			"label": "Items",
+			"label_button": "Manage items",
 			
 			"error_template": "Error occured in {block} block"
 		},

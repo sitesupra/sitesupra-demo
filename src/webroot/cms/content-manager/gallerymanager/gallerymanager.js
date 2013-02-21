@@ -360,7 +360,7 @@ function (Y) {
 					'doneCallback': Y.bind(this.settingsFormApply, this),
 					'toolbarActionName': this.NAME + 'Settings',
 					
-					'title': Supra.Intl.get(['htmleditor', 'image_properties']),
+					'title': Supra.Intl.get(['gallerymanager', 'imagesettings_title']),
 					'scrollable': true
 				});
 				
