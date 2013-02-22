@@ -12,6 +12,7 @@
 /cms/lib/supra/build/button/assets/skins/supra/button.css
 /cms/lib/supra/build/input/assets/skins/supra/input.css
 /cms/lib/supra/build/htmleditor/assets/skins/supra/htmleditor.css
+/cms/lib/supra/build/slider/assets/skins/supra/slider.css
 /cms/lib/supra/build/imageresizer/assets/skins/supra/imageresizer.css
 /cms/lib/supra/build/footer/assets/skins/supra/footer.css
 /cms/lib/supra/build/scrollable/assets/skins/supra/scrollable.css

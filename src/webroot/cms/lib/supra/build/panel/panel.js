@@ -99,6 +99,13 @@ YUI.add('supra.panel', function (Y) {
 		},
 		
 		/**
+		 * UI style, ("", "dark")
+		 */
+		style: {
+			value: ''
+		},
+		
+		/**
 		 * Mask all other content
 		 */
 		useMask: {
@@ -211,6 +218,23 @@ YUI.add('supra.panel', function (Y) {
 			}
 			
 			return useMask;
+		},
+		
+		/**
+		 * 
+		 */
+		_handleStyleChange: function (e) {
+			var node = this.get('boundingBox'),
+				className = '';
+			
+			if (e.prevVal) {
+				className = this.getClassName('style', e.prevVal);
+				node.removeClass(className);
+			}
+			if (e.newVal) {
+				className = this.getClassName('style', e.newVal);
+				node.addClass(className);
+			}
 		},
 		
 		/**
@@ -522,6 +546,9 @@ YUI.add('supra.panel', function (Y) {
 			if (this.get('arrowVisible')) {
 				this._setArrowVisible(this.get('arrowVisible'));
 			}
+			if (this.get('style')) {
+				this._handleStyleChange({'newVal': this.get('style'), 'prevVal': ''});
+			}
 			
 			Y.later(1, this, this.syncUI);
 		},
@@ -567,6 +594,9 @@ YUI.add('supra.panel', function (Y) {
 					delete(this._fade_anim);
 				}
 			});
+			
+			//On style change update it
+			this.on('styleChange', this._handleStyleChange, this);
 			
 			this.get('contentBox').on('keydown', this.onKeyDown, this);
 		},

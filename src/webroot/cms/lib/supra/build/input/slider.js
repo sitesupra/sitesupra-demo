@@ -158,7 +158,7 @@ YUI.add('supra.input-slider', function (Y) {
 			}
 			
 			//Create slider
-			this.slider = new Y.Slider({
+			this.slider = new Supra.Slider({
 				'axis': 'x',
 				'min': 0,
 				'max': values.length - 1,
@@ -285,4 +285,4 @@ YUI.add('supra.input-slider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto', 'slider']});
+}, YUI.version, {requires:['supra.input-proto', 'supra.slider']});

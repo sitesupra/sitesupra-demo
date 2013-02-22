@@ -514,7 +514,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.imageresizer': {
 		path: 'imageresizer/imageresizer.js',
-		requires: ['supra.panel', 'slider', 'dd-plugin', 'supra.datatype-image'],
+		requires: ['supra.panel', 'supra.slider', 'dd-plugin', 'supra.datatype-image'],
 		skinnable: true
 	},
 	
@@ -587,6 +587,15 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.tooltip': {
 		path: 'panel/tooltip.js',
 		requires: ['supra.panel']
+	},
+	
+	/**
+	 * Slider widget
+	 */
+	'supra.slider': {
+		path: 'slider/slider.js',
+		requires: ['slider'],
+		skinnable: true
 	},
 	
 	/**
@@ -697,7 +706,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.input-slider': {
 		path: 'input/slider.js',
-		requires: ['supra.input-proto', 'slider']
+		requires: ['supra.input-proto', 'supra.slider']
 	},
 	'supra.input-link': {
 		path: 'input/link.js',

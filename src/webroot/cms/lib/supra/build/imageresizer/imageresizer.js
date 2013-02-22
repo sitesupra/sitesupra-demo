@@ -268,7 +268,7 @@ YUI().add("supra.imageresizer", function (Y) {
 		
 		/**
 		 * Zoom slider
-		 * Y.Slider instance
+		 * Supra.Slider instance
 		 * @type {Object}
 		 * @private
 		 */
@@ -370,7 +370,8 @@ YUI().add("supra.imageresizer", function (Y) {
 			
 			var panel = this.zoomPanel = new Supra.Panel({
 				"zIndex": 100,
-				"plugins": [ Y.Plugin.Drag ]
+				"plugins": [ Y.Plugin.Drag ],
+				"style": "dark"
 				/*"alignPosition": "T",
 				"arrowVisible": true*/
 			});
@@ -378,7 +379,7 @@ YUI().add("supra.imageresizer", function (Y) {
 			
 			var boundingBox = panel.get("boundingBox"),
 				contentBox = panel.get("contentBox"),
-				slider = this.zoomSlider = new Y.Slider({
+				slider = this.zoomSlider = new Supra.Slider({
 					"axis": "x",
 					"min": 0,
 					"max": 100,
@@ -1101,4 +1102,4 @@ YUI().add("supra.imageresizer", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ["supra.panel", "slider", "dd-plugin"]});
+}, YUI.version, {requires: ["supra.panel", "supra.slider", "dd-plugin"]});

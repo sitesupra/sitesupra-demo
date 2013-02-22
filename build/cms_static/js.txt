@@ -138,6 +138,7 @@
 /cms/lib/supra/build/htmleditor/htmleditor-plugins.js
 /cms/lib/supra/build/htmleditor/htmleditor-data.js
 /cms/lib/supra/build/htmleditor/toolbar.js
+/cms/lib/supra/build/slider/slider.js
 /cms/lib/supra/build/imageresizer/imageresizer.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-image.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-gallery.js
