@@ -31336,6 +31336,13 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		silentValueUpdate: false,
 		
+		/**
+		 * Video or image input value is being updated by this input
+		 * @type {Boolean}
+		 * @private
+		 */
+		silentChildValueUpdate: false,
+		
 		
 		/**
 		 * On desctruction life cycle clean up
@@ -31881,6 +31888,8 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_fireValueChange: function () {
+			if (this.silentChildValueUpdate) return;
+			
 			this.silentValueUpdate = true;
 			this.set('value', this.get('value'));
 			this.silentValueUpdate = false;
@@ -31895,6 +31904,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		_setValue: function (value) {
 			if (!this.widgets || this.silentValueUpdate) return value;
+			this.silentChildValueUpdate = true;
 			
 			var data = Supra.mix({'type': ''}, value || {}),
 				type = data.type;
@@ -31917,6 +31927,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			this.renderContent(this.get('targetNode'), data);
 			
+			this.silentChildValueUpdate = false;
 			return value;
 		},
 		
