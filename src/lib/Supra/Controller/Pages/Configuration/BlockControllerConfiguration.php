@@ -171,27 +171,42 @@ class BlockControllerConfiguration extends ComponentConfiguration
 
 		// generating new icon path for SelectVisual
 		if (is_array($this->properties)) {
-
 			foreach ($this->properties as $property) {
-				if ( ! $property->editableInstance instanceof \Supra\Editable\SelectVisual) {
-					continue;
-				}
+				
+				if ($property->editableInstance instanceof \Supra\Editable\Slideshow) {
+					foreach ($property->properties as $subProperty) {
 
-				$values = array();
-
-				foreach ($property->values as $value) {
-					if ( ! empty($value['icon'])) {
-						$value['icon'] = $this->getIconWebPath($value['icon']);
+						$subEditable = $subProperty->editableInstance;
+						if ($subEditable instanceof \Supra\Editable\SelectVisual) {
+							$this->processSelectVisual($subProperty);
+						}
 					}
-
-					$values[] = $value;
 				}
 
-				$property->editableInstance->setValues($values);
+				if ($property->editableInstance instanceof \Supra\Editable\SelectVisual) {
+					$this->processSelectVisual($property);
+				}
 			}
 		}
 	}
-
+	
+	private function processSelectVisual($property)
+	{
+		foreach ($property->values as &$value) {
+			if ( ! empty($value['icon'])) {
+				$value['icon'] = $this->getIconWebPath($value['icon']);
+			}
+			
+			if ( ! empty($value['values'])) {
+				foreach ($value['values'] as &$subValue) {
+					$subValue['icon'] = $this->getIconWebPath($subValue['icon']);
+				}
+			}
+		}
+		
+		$property->editableInstance->setValues($property->values);
+	}
+	
 	/**
 	 * Return icon webpath
 	 * @return string
