@@ -114,6 +114,10 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				ii = properties.length;
 			
 			for (; i<ii; i++) {
+				// Don't close editing when clicking outside image
+				if (properties[i].type == 'InlineMedia') {
+					properties[i].autoClose = false;
+				}
 				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);
 				}
@@ -269,8 +273,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 */
 		onSidebarDone: function () {
 			// Stop editing
-			this.get('host').view.stopEditing();
-			this.hide();
+			this.get('host').close();
 		},
 		
 		/**

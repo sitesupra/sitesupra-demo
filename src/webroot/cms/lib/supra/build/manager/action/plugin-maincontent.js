@@ -22,6 +22,13 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 				layoutLeftContainer = Supra.Manager.getAction('LayoutLeftContainer'),
 				layoutRightContainer = Supra.Manager.getAction('LayoutRightContainer');
 			
+			//Attribute
+			if (this.host.addAttr) {
+				this.host.addAttr('layoutDisabled', {
+					'value': false
+				});
+			}
+			
 			//Position
 			this.host.one().addClass('center-container');
 			

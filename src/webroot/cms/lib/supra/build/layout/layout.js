@@ -101,6 +101,9 @@ YUI.add('supra.plugin-layout', function (Y) {
 		 * Update position
 		 */
 		syncUI: function () {
+			// If layout is disabled for some reason, then
+			if (this.get('host').get('layoutDisabled') === true) return;
+			
 			var config = this.get('offset'),
 				changed = {'left': false, 'top': false, 'right': false, 'bottom': false},
 				offset = {'left': config[0], 'top': config[1], 'right': config[2], 'bottom': config[3]},

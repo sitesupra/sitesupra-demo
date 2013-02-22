@@ -18825,6 +18825,13 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 				layoutLeftContainer = Supra.Manager.getAction('LayoutLeftContainer'),
 				layoutRightContainer = Supra.Manager.getAction('LayoutRightContainer');
 			
+			//Attribute
+			if (this.host.addAttr) {
+				this.host.addAttr('layoutDisabled', {
+					'value': false
+				});
+			}
+			
 			//Position
 			this.host.one().addClass('center-container');
 			
@@ -30703,6 +30710,10 @@ YUI.add('supra.datatype-color', function(Y) {
 		// Resize image crop to smaller size on zoom if needed
 		"allowZoomResize": {
 			value: false
+		},
+		// Stop editing when clicked outside image
+		"autoClose": {
+			value: true
 		}
 	};
 	
@@ -30771,7 +30782,8 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (!imageResizer) {
 				imageResizer = this.widgets.imageResizer = new Supra.ImageResizer({
 					"mode": Supra.ImageResizer.MODE_IMAGE,
-					"allowZoomResize": this.get("allowZoomResize")
+					"allowZoomResize": this.get("allowZoomResize"),
+					"autoClose": this.get("autoClose")
 				});
 				imageResizer.on("resize", function (event) {
 					var value = this.get("value");
@@ -31350,6 +31362,11 @@ YUI.add('supra.datatype-color', function(Y) {
 		// Editing state
 		'editing': {
 			value: false
+		},
+		
+		// Stop editing when clicked outside image
+		"autoClose": {
+			value: true
 		}
 	};
 	
@@ -31457,7 +31474,8 @@ YUI.add('supra.datatype-color', function(Y) {
 				'parent': this,
 				'value': null,
 				'separateSlide': false,
-				'allowRemoveImage': false
+				'allowRemoveImage': false,
+				'autoClose': this.get('autoClose')
 			});
 			
 			input_video = new Supra.Input.Video({
@@ -36756,6 +36774,9 @@ YUI.add('supra.plugin-layout', function (Y) {
 		 * Update position
 		 */
 		syncUI: function () {
+			// If layout is disabled for some reason, then
+			if (this.get('host').get('layoutDisabled') === true) return;
+			
 			var config = this.get('offset'),
 				changed = {'left': false, 'top': false, 'right': false, 'bottom': false},
 				offset = {'left': config[0], 'top': config[1], 'right': config[2], 'bottom': config[3]},

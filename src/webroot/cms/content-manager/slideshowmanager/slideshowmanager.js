@@ -169,26 +169,9 @@ Supra([
 		 * @private
 		 */
 		render: function () {
-			//Add buttons to toolbar
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
-				'id': 'manage',
-				'type': 'button',
-				'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title']),
-				'icon': '/cms/lib/supra/img/htmleditor/icon-settings.png',
-				
-				'action': 'SlideshowManager',
-				'actionFunction': 'showSettings'
-			}]);
-			
-			//Add side buttons
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
-				'id': 'done',
-				'context': this,
-				'callback': this.close
-			}]);
-			
- 			// Iframe test
- 			//this.renderIframe();
+			//Add buttons
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 		},
 		
 		/**
@@ -199,8 +182,17 @@ Supra([
 				var id = event.newVal;
 				
 				this.list.set('activeItemId', id);
-				this.settings.set('activeItemId', id);
+				
+				this.view.stopEditing();
 				this.view.set('activeItemId', id);
+				
+				this.settings.set('activeItemId', id);
+				
+				if (event.newVal) {
+					// Show form only if there is an item to edit,
+					// when manager is closed activeItemId is set to null
+					this.settings.showForm();
+				}
 			}
 		},
 		
@@ -211,6 +203,7 @@ Supra([
 		
 		show: function () {
 			if (!this.get('visible')) {
+				this.set('layoutDisabled', true);
 				this.set('visible', true);
 				this.animateIn();
 			}
@@ -218,6 +211,8 @@ Supra([
 		
 		hide: function () {
 			if (this.get('visible')) {
+				this.set('layoutDisabled', true);
+				
 				// Hide settings form
 				if (this.settings_form && this.settings_form.get('visible')) {
 					Manager.PageContentSettings.hide();
@@ -254,6 +249,12 @@ Supra([
 				// Animation completed, show UI elements
 				this.settings.show();
 				this.view.show();
+				
+				// Enable auto layout management
+				this.set('layoutDisabled', false);
+				
+				// Make sure settings are positioned properly
+				Supra.Manager.LayoutRightContainer.syncLayout();
 			}, this));
 		},
 		
@@ -274,7 +275,11 @@ Supra([
 				'left': '100%'
 			}, Y.bind(function () {
 				node.addClass('hidden');
+				
 				this.set('visible', false);
+				
+				// Enable auto layout management
+				this.set('layoutDisabled', false);
 			}, this));
 		},
 		
@@ -358,11 +363,11 @@ Supra([
 		 * @private
 		 */
 		close: function () {
-			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
-			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
-			
 			this.view.stopEditing();
 			this.settings.hide();
+			
+			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
+			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
 			if (this.options.callback) {
 				var data = Supra.mix({}, this.options.data, {'slides': this.data.get('data')});
