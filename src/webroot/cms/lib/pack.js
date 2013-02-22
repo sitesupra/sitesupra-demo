@@ -11486,6 +11486,22 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		zoomSlider: null,
 		
+		/**
+		 * Zoom in button
+		 * Supra.Button instance
+		 * @type {Object}
+		 * @private
+		 */
+		buttonZoomIn: null,
+		
+		/**
+		 * Zoom out button
+		 * Supra.Button instance
+		 * @type {Object}
+		 * @private
+		 */
+		buttonZoomOut: null,
+		
 		
 		
 		/**
@@ -11503,9 +11519,17 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (this.zoomPanel) {
 				this.zoomPanel.destroy();
 			}
+			if (this.buttonZoomIn) {
+				this.buttonZoomIn.destroy();
+			}
+			if (this.buttonZoomOut) {
+				this.buttonZoomOut.destroy();
+			}
 			
 			this.zoomSlider = null;
 			this.zoomPanel = null;
+			this.buttonZoomIn = null;
+			this.buttonZoomOut = null;
 		},
 		
 		
@@ -11597,10 +11621,29 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					"max": 100,
 					"value": 100,
 					"length": 250
+				}),
+				zoomIn = this.buttonZoomIn = new Supra.Button({
+					"label": "",
+					"style": "zoom-in"
+				}),
+				zoomOut = this.buttonZoomOut = new Supra.Button({
+					"label": "",
+					"style": "zoom-out"
 				});
 			
 			slider.render(contentBox);
 			slider.on("valueChange", this.zoomChange, this);
+			
+			// 
+			zoomIn.render(contentBox);
+			zoomOut.render(contentBox);
+			
+			zoomIn.on('click', function () {
+				this.set('value', (this.get('value') + this.get('majorStep')));
+			}, slider);
+			zoomOut.on('click', function () {
+				this.set('value', (this.get('value') - this.get('majorStep')));
+			}, slider);
 			
 			boundingBox.addClass("su-imageresizer");
 		},

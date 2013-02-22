@@ -4,6 +4,46 @@
 	cursor: move;
 	
 	.su-panel-content {
-		padding: 15px 20px 5px;
+		padding: 15px 30px 5px 31px;
+	}
+	
+	.su-button-zoom-in,
+	.su-button-zoom-out {
+		top: 14px;
+		position: absolute;
+		
+		.su-button-content {
+			padding: 0;
+			background: url(button-zoom.png) 0 0 no-repeat;
+			&, button {
+				width: 20px;
+				height: 20px;
+				overflow: hidden;
+			}
+		}
+		
+		&.su-button-mouse-hover,
+		&.su-button-mouse-down {
+			.su-button-content {
+				background-position: 0 -19px;
+			}
+		}
+	}
+	
+	.su-button-zoom-in {
+		right: 10px;
+	}
+	.su-button-zoom-out {
+		left: 10px;
+		
+		.su-button-content {
+			background-position: 0 -38px;
+		}
+		&.su-button-mouse-hover,
+		&.su-button-mouse-down {
+			.su-button-content {
+				background-position: 0 -57px;
+			}
+		}
 	}
 }

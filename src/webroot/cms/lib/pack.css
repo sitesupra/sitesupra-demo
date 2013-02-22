@@ -4061,7 +4061,44 @@ button::-moz-focus-inner {
   cursor: move;
 }
 .su-imageresizer .su-panel-content {
-  padding: 15px 20px 5px;
+  padding: 15px 30px 5px 31px;
+}
+.su-imageresizer .su-button-zoom-in,
+.su-imageresizer .su-button-zoom-out {
+  top: 14px;
+  position: absolute;
+}
+.su-imageresizer .su-button-zoom-in .su-button-content,
+.su-imageresizer .su-button-zoom-out .su-button-content {
+  padding: 0;
+  background: url("/cms/lib/supra/build/imageresizer/assets/skins/supra/button-zoom.png") 0 0 no-repeat;
+}
+.su-imageresizer .su-button-zoom-in .su-button-content,
+.su-imageresizer .su-button-zoom-in .su-button-content button,
+.su-imageresizer .su-button-zoom-out .su-button-content,
+.su-imageresizer .su-button-zoom-out .su-button-content button {
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+}
+.su-imageresizer .su-button-zoom-in.su-button-mouse-hover .su-button-content,
+.su-imageresizer .su-button-zoom-in.su-button-mouse-down .su-button-content,
+.su-imageresizer .su-button-zoom-out.su-button-mouse-hover .su-button-content,
+.su-imageresizer .su-button-zoom-out.su-button-mouse-down .su-button-content {
+  background-position: 0 -19px;
+}
+.su-imageresizer .su-button-zoom-in {
+  right: 10px;
+}
+.su-imageresizer .su-button-zoom-out {
+  left: 10px;
+}
+.su-imageresizer .su-button-zoom-out .su-button-content {
+  background-position: 0 -38px;
+}
+.su-imageresizer .su-button-zoom-out.su-button-mouse-hover .su-button-content,
+.su-imageresizer .su-button-zoom-out.su-button-mouse-down .su-button-content {
+  background-position: 0 -57px;
 }
 
 .yui3-footer {
