@@ -882,8 +882,6 @@ class PagecontentAction extends PageManagerAction
 	 */
 	private function storeSlideshowProperties($input, $property, $configuration)
 	{
-		//$inputArray = $input->getArrayCopy();
-		
 		$slideshowData = array();
 		
 		while ($input->valid()) {
@@ -899,64 +897,13 @@ class PagecontentAction extends PageManagerAction
 				$name = $propertyConfiguration->name;
 				$editable = $propertyConfiguration->editableInstance;
 				
+				/* @var $editable \Supra\Editable\EditableInterface */
 				
 				if ($slideInput->has($name) || $slideInput->hasChild($name)) {
-					if ($editable instanceof Editable\SelectVisual) {
-						$slideData[$name] = $slideInput->get($name);
-					}
-					else if ($editable instanceof Editable\Html) {
-
-						$htmlInput = $slideInput->getChild($name);
-
-						$htmlData = array(
-							'html' => $htmlInput->get('html'),
-						);
-
-						if ($htmlInput->hasChild('data')) {
-							$htmlData['data'] = $htmlInput['data'];
-						}
-
-						$slideData[$name] = $htmlData;
-					}
-
-					// @TODO: this part of logic nicely fits inside Editable methods 
-					else if ($editable instanceof Editable\InlineMedia) {
-						
-						if ($slideInput->hasChild($name)) {
-						
-							$mediaInput = $slideInput->getChild($name);
-							$mediaArray = $mediaInput->getArrayCopy();
-
-							switch($mediaInput['type']) {
-								case Entity\ReferencedElement\ImageReferencedElement::TYPE_ID:
-									$element = new Entity\ReferencedElement\ImageReferencedElement;
-
-									$element->fillArray($mediaArray);
-									break;
-
-								case Entity\ReferencedElement\VideoReferencedElement::TYPE_ID:
-
-									$element = new Entity\ReferencedElement\VideoReferencedElement;
-
-									$videoData = Entity\ReferencedElement\VideoReferencedElement::parseVideoSourceInput($mediaArray['source']);
-									if ($videoData !== false) {
-										$videoData = $videoData + $mediaArray;
-										$element->fillArray($videoData);
-										//throw new CmsException(null, "Video link you provided is invalid or this video service is not supported. Sorry about that.");
-									}
-
-									break;
-
-								default: 
-									throw new CmsException(null, "Unknown media type {$mediaInput['type']} received");
-							}
-							
-							$slideData[$name] = $element->toArray();
-						}
-						
-							
-					}
-					else if ($editable instanceof Editable\Set) {
+					
+					$content = $slideInput->has($name) ? $slideInput->get($name) : $slideInput->getChild($name)->getArrayCopy();
+					
+					if ($editable instanceof Editable\Set) {
 						
 						// set of button properties
 						$setInput = $slideInput->getChild($name);
@@ -978,7 +925,7 @@ class PagecontentAction extends PageManagerAction
 
 								if ($propertyEditable instanceof Editable\Link) {
 									$linkData = $setElementInput->getChild($propertyName)
-											->getArrayCopy();
+											->PgetArrayCopy();
 									$linkElement = new Entity\ReferencedElement\LinkReferencedElement;
 									
 									$linkElement->fillArray($linkData);
@@ -994,10 +941,11 @@ class PagecontentAction extends PageManagerAction
 							$setDataArray[$setElementKey] = $setData;
 						}
 					}
-					
-					else {
-						//$slideData[$name] = $slideInput->get($name);
+					else { 
+						$editable->setContentFromEdit($content);
+						$slideData[$name] = $editable->getContentForEdit();
 					}
+					
 				} else {
 					$slideData[$name] = $propertyConfiguration->default;
 				}

@@ -6,16 +6,22 @@ use Supra\Controller\Pages\BlockController;
 
 class SlideshowAdvancedBlock extends BlockController
 {
+	/**
+	 * 
+	 */
 	protected function doExecute()
 	{
-		$slidesData = $this->prepareSlidesData();
+		$slides = $this->prepareSlides();
 		
 		$this->getResponse()
-				->assign('slides', $slidesData)
+				->assign('slides', $slides)
 				->outputTemplate('index.html.twig');
 	}
 	
-	protected function prepareSlidesData()
+	/**
+	 * @return array
+	 */
+	protected function prepareSlides()
 	{
 		$slidesResponse = array();
 		
@@ -25,19 +31,31 @@ class SlideshowAdvancedBlock extends BlockController
 		$layouts = $this->getAvailableLayouts();
 		
 		if ( ! empty($slidesArray)) {
+			
 			foreach ($slidesArray as $slide) {
 				
 				if ( ! isset($layouts[$slide['layout']])) {
 					continue;
 				}
 				
+				$slide = $slide + array(
+					'text_main' => null,
+					'text_top' => null,
+					'media' => null,
+					'image' => null,
+					'background' => null,
+					'layout' => null,
+					'buttons' => null,
+				);
+				
 				$slideData = array(
 					'text_main' => $this->filterHtml($slide['text_main']),
 					'text_top' => $this->filterHtml($slide['text_top']),
 					'media' => $slide['media'],
 					'image' => $slide['image'],
-					'background' => $slide['background'],
+					'background' => $this->filterBackground($slide['background']),
 					'layout' => $slide['layout'],
+					'buttons' => $this->filterButtons($slide['buttons']),
 				);
 				
 				$slidesResponse[] = $slideData;
@@ -87,6 +105,40 @@ class SlideshowAdvancedBlock extends BlockController
 		$filteredHtml = $filter->doFilter($html, $elements);
 		
 		return $filteredHtml;
+	}
+	
+	/**
+	 * @param array $buttonsData
+	 * @return array
+	 */
+	private function filterButtons($buttonsData)
+	{
+		if ( ! empty($buttonsData)) {
+			foreach ($buttonsData as &$button) {
+				if (is_array($button['link'])) {
+					
+					$linkElement = new \Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
+					$linkElement->fillArray($button['link']);
+					
+					$button['link'] = $linkElement;
+				}
+			}
+		}
+		
+		return $buttonsData;
+	}
+	
+	/**
+	 * @param array $backgroundData
+	 * @return array|null
+	 */
+	private function filterBackground($backgroundData)
+	{		
+		if ( ! empty($backgroundData) && isset($backgroundData['image'])) {
+			return $backgroundData['image'];
+		}
+		
+		return null;
 	}
 
 }

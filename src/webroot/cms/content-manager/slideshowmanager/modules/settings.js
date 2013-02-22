@@ -362,9 +362,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 					// We will need all image data, to restore state after slide change
 					save[property_name] = input.get('value');
 				}
-				if (save[property_name]) {
-					data.changeSlide(id, save);
-				}
+				
+				data.changeSlide(id, save);
 			}
 		},
 		

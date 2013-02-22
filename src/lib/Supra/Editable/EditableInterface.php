@@ -67,6 +67,14 @@ interface EditableInterface
 	
 	public function setContentFromEdit($content);
 	
+	public function getContentMetadata();
+	
+	public function setContentMetadata($contentMetadata);
+	
+	public function getContentMetadataForEdit();
+	
+	public function setContentMetadataFromEdit($contentMetadata);
+	
 	/**
 	 * Get filtered value for the editable content by action
 	 * @return mixed

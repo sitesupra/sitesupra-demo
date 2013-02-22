@@ -6,17 +6,13 @@
 			{% if slides %}
 				{# Slide data here #}
 				{% for slide in slides %}
-					{% set media = slideshow.media(slide['media']) %}
-					{% set background = slideshow.background(slide['background']) %}
-					{% set text_main = slide['text_main'] %}
-					{% set text_top = slide['text_top'] %}
-				
 					{% set property = {
 						'hidden': loop.index,
-						'media': media, 
-						'text_main': text_main,
-						'text_top': text_top,
-						'background': background
+						'media': slideshow.media(slide['media']), 
+						'text_main': slide['text_main'],
+						'text_top': slide['text_top'],
+						'background': slideshow.background(slide['background']),
+						'buttons': slideshow.buttons(slide['buttons']),
 					} %}
 				
 					{# FIXME: bad solution #}
@@ -81,5 +77,15 @@
 		{% set src = tag.attribute('src') %}
 		{{ src }}
 	{% endif%}
+{% endspaceless %}
+{% endmacro %}
+
+{% macro buttons(buttonsData)%}
+{% spaceless %}
+	{% if buttonsData %}
+		{% for button in buttonsData %}
+			<a class="button" {% if button.link %}href="{{ button.link.href }}"{% endif %}>{{ button.title }}</a>
+		{% endfor %}
+	{% endif %}
 {% endspaceless %}
 {% endmacro %}
