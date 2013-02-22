@@ -19,6 +19,11 @@ class SelectVisual extends Select
 	 * @var string
 	 */
 	protected $css = '';
+    
+    /**
+     * @var string
+     */
+    protected $labelButton;
 	
 	/**
 	 * @var boolean
@@ -36,6 +41,7 @@ class SelectVisual extends Select
 			'iconStyle' => $this->iconStyle, 
 			'style' => $this->style,
 			'css' => $this->css,
+            'labelButton' => $this->labelButton,
 			'separateSlide' => $this->separateSlide,
 		);
 	}
@@ -100,6 +106,14 @@ class SelectVisual extends Select
 	{
 		$this->css = $css;
 	}
+    
+    /**
+     * @param string $labelButton
+     */
+    public function setLabelButton($labelButton)
+    {
+        $this->labelButton = $labelButton;
+    }
 	
 	/**
 	 * @param boolean $separateSlide

@@ -21489,6 +21489,13 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 */
 		"separateSlide": {
 			value: false
+		},
+		
+		/**
+		 * Button label in case of separate slide
+		 */
+		"labelButton": {
+			value: ""
 		}
 	};
 	
@@ -21542,6 +21549,10 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				'slide': null,
 				'button': null,
 				
+				// If using separate slide then
+				// container for label and button
+				'separateContainer': null,
+				
 				// Values slides and inputs
 				'slides': {},
 				'inputs': {}
@@ -21576,7 +21587,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				
 				if (slideshow) {
 					this.widgets.button = button = new Supra.Button({
-						'label': this.get('label')
+						'label': this.get('labelButton') || this.get('label'),
+						'style': 'small'
 					});
 					
 					this.widgets.slide = slide = slideshow.addSlide('propertySlide' + this.get('id'));
@@ -21585,9 +21597,19 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					button.render();
 					button.addClass('button-section');
 					button.on('click', this._slideshowChangeSlide, this);
-					this.get('boundingBox').insert(button.get('boundingBox'), 'before');
 					
-					slide.append(this.get('boundingBox'));
+					var labelNode = this.get('labelNode'),
+						boundingBox = this.get('boundingBox'),
+						container = this.widgets.separateContainer = Y.Node.create('<div class="yui3-widget yui3-input"></div>');
+					
+					if (labelNode) {
+						container.append(labelNode, 'before');
+					}
+					
+					container.append(button.get('boundingBox'));
+					boundingBox.insert(container, 'before');
+					
+					slide.append(boundingBox);
 				} else {
 					this.set('separateSlide', false);
 				}
@@ -30023,7 +30045,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (this.get('separateSlide')) {
 				var buttonCustom = new Supra.Button({
 					"label": Supra.Intl.get(["form", "block", "custom_image"]),
-					"style": "small-gray"
+					"style": "small"
 				});
 				buttonCustom.addClass("button-section");
 				buttonCustom.on("click", this.openSlide, this);
@@ -32649,6 +32671,11 @@ YUI.add('supra.input-set', function (Y) {
 			value: '#%s'
 		},
 		
+		// Button label to use instead of "Label"
+		'labelButton': {
+			value: ''
+		},
+		
 		// Minimal set count
 		'minCount': {
 			value: 0
@@ -32786,8 +32813,7 @@ YUI.add('supra.input-set', function (Y) {
 					this.set('separateSlide', false);
 					Y.log('Unable to create new slide for Supra.Input.Set "' + this.get('id') + '", because slideshow can\'t be detected');
 				} else {
-					// Don't create label, we have a button
-					this.LABEL_TEMPLATE = null;
+					// Don't create description, we have a button
 					this.DESCRIPTION_TEMPLATE = null;
 				}
 			}
@@ -33131,15 +33157,18 @@ YUI.add('supra.input-set', function (Y) {
 		_createSlide: function () {
 			var slideshow = this.getSlideshow(),
 				slide_id = this.get('id') + '_' + Y.guid(),
-				slide = slideshow.addSlide(slide_id);
+				slide = slideshow.addSlide(slide_id),
+				
+				label = this.get('label'),
+				labelButton = this.get('labelButton');
 			
 			this._slideContent = slide.one('.su-slide-content');
 			this._slideId = slide_id;
 			
 			// Button
 			var button = new Supra.Button({
-				'style': 'small-gray',
-				'label': this.get('label')
+				'style': 'small',
+				'label': labelButton || label
 			});
 			
 			button.addClass('button-section');

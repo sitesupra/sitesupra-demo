@@ -21,6 +21,16 @@ class PropertySet extends EditableAbstraction
 	 * @var string
 	 */
 	protected $labelItem;
+    
+    /**
+     * @var string
+     */
+    protected $labelButton;
+    
+    /**
+     * @var boolean
+     */
+    protected $separateSlide = false;
 	
 	
 	/**
@@ -48,6 +58,8 @@ class PropertySet extends EditableAbstraction
 			'labelAdd' => $this->labelAdd,
 			'labelRemove' => $this->labelRemove,
 			'labelItem' => $this->labelItem,
+			'labelButton' => $this->labelButton,
+            'separateSlide' => $this->separateSlide,
 		);
 	}
 	
@@ -74,4 +86,20 @@ class PropertySet extends EditableAbstraction
 	{
 		$this->labelItem = $labelItem;
 	}
+    
+    /**
+     * @param string $labelButton
+     */
+    public function setLabelButton($labelButton)
+    {
+        $this->labelButton = $labelButton;
+    }
+    
+    /**
+     * @param boolean $separateSlide
+     */
+    public function setSeparateSlide($separateSlide)
+    {
+        $this->separateSlide = (bool)$separateSlide;
+    }
 }

@@ -115,7 +115,7 @@ YUI.add("supra.input-block-background", function (Y) {
 			if (this.get('separateSlide')) {
 				var buttonCustom = new Supra.Button({
 					"label": Supra.Intl.get(["form", "block", "custom_image"]),
-					"style": "small-gray"
+					"style": "small"
 				});
 				buttonCustom.addClass("button-section");
 				buttonCustom.on("click", this.openSlide, this);
