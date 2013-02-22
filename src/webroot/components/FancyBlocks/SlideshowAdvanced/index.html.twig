@@ -28,7 +28,7 @@
 {% macro media(mediaData) %}
 {% spaceless %}
 	{% if mediaData.type == 'image' %}
-		{{ supraBlock.imageHtmlTag(mediaData.id, 500, 500) | raw }}
+		{{ supraBlock.imageHtmlTag(mediaData.id, mediaData.size_width, mediaData.size_height, true, mediaData.size_name) | raw }}
 	{% elseif mediaData.type == 'video' %}
 		{% set video = mediaData %}
 
@@ -73,7 +73,7 @@
 {% macro background(backgroundData, width, height) %}
 {% spaceless %}
 	{% if backgroundData %}
-		{% set tag = supraBlock.imageHtmlTag(backgroundData.id, width, height, true) %}
+		{% set tag = supraBlock.imageHtmlTag(backgroundData.id, width, height, true, backgroundData.size_name) %}
 		{% set src = tag.attribute('src') %}
 		{{ src }}
 	{% endif%}

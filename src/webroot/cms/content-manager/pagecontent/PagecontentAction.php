@@ -941,8 +941,14 @@ class PagecontentAction extends PageManagerAction
 							$setDataArray[$setElementKey] = $setData;
 						}
 					}
-					else { 
-						$editable->setContentFromEdit($content);
+					else {
+						
+						try {
+							$editable->setContentFromEdit($content);
+						} catch (\Supra\Editable\Exception\RuntimeException $e) {
+							throw new CmsException(null, $e->getMessage());
+						}
+						
 						$slideData[$name] = $editable->getContentForEdit();
 					}
 					

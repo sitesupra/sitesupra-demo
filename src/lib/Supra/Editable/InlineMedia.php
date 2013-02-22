@@ -59,16 +59,32 @@ class InlineMedia extends EditableAbstraction
 					break;
 
 				case ReferencedElement\VideoReferencedElement::TYPE_ID:
-					$mediaElement = new ReferencedElement\VideoReferencedElement;
-					$videoData = ReferencedElement\VideoReferencedElement::parseVideoSourceInput($content['source']);
+					switch ($content['resource']) {
+						case ReferencedElement\VideoReferencedElement::RESOURCE_SOURCE:
 
-					if ($videoData === false) {
-						throw new Exception\RuntimeException("Video link/source you provided is invalid or this video service is not supported. Sorry about that.");
+							if ( ! empty($content['source'])) {
+
+								$mediaElement = new ReferencedElement\VideoReferencedElement;
+								$videoData = $mediaElement::parseVideoSourceInput($content['source']);
+
+								if ($videoData === false) {
+									throw new Exception\RuntimeException("Video link/source you provided is invalid or this video service is not supported. Sorry about that.");
+								}
+
+								$content = $videoData + $content;
+							}
+
+							break;
+
+						case ReferencedElement\VideoReferencedElement::RESOURCE_LINK:
+						case ReferencedElement\VideoReferencedElement::RESOURCE_FILE:
+							$mediaElement = new ReferencedElement\VideoReferencedElement;
 					}
-					
-					$videoData = $videoData + $content;
-					$mediaElement->fillArray($videoData);
-					
+
+					if ( ! is_null($mediaElement)) {
+						$mediaElement->fillArray($content);
+					}
+
 					break;
 
 				default: 

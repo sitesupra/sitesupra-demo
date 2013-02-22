@@ -2,7 +2,8 @@
 
 namespace Project\FancyBlocks\SlideshowAdvanced;
 
-use Supra\Controller\Pages\BlockController;
+use Supra\Controller\Pages\BlockController,
+	Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
 
 class SlideshowAdvancedBlock extends BlockController
 {
@@ -51,7 +52,7 @@ class SlideshowAdvancedBlock extends BlockController
 				$slideData = array(
 					'text_main' => $this->filterHtml($slide['text_main']),
 					'text_top' => $this->filterHtml($slide['text_top']),
-					'media' => $slide['media'],
+					'media' => $this->filterMedia($slide['media']),
 					'image' => $slide['image'],
 					'background' => $this->filterBackground($slide['background']),
 					'layout' => $slide['layout'],
@@ -98,7 +99,14 @@ class SlideshowAdvancedBlock extends BlockController
 		
 		$elements = array();
 		foreach ($data as $key => $referencedElementData) {
-			$elements[$key] = \Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract::fromArray($referencedElementData);
+			
+			$element = \Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract::fromArray($referencedElementData);
+			
+			if ($element instanceof ImageReferencedElement) {
+				$this->getImageElementSizeName($element);
+			}
+			
+			$elements[$key] = $element;
 		}
 			
 		$filter = new \Supra\Controller\Pages\Filter\ParsedHtmlFilter();
@@ -135,10 +143,79 @@ class SlideshowAdvancedBlock extends BlockController
 	private function filterBackground($backgroundData)
 	{		
 		if ( ! empty($backgroundData) && isset($backgroundData['image'])) {
+			
+			$element = new ImageReferencedElement;
+			$element->fillArray($backgroundData['image']);
+			
+			$sizeName = $this->getImageElementSizeName($element);
+			
+			$backgroundData['image']['size_name'] = $sizeName;
+			
 			return $backgroundData['image'];
 		}
 		
 		return null;
+	}
+	
+	private function filterMedia($mediaData)
+	{
+		if (isset($mediaData['type']) && $mediaData['type'] == 'image') {
+			
+			$element = new ImageReferencedElement;
+			$element->fillArray($mediaData);
+			
+			$sizeName = $this->getImageElementSizeName($element);
+			
+			$mediaData['size_name'] = $sizeName;
+		}
+		
+		return $mediaData;
+	}
+	
+	/**
+	 * @TODO: performance?
+	 * @param \Project\FancyBlocks\SlideshowAdvanced\ImageReferencedElement $element
+	 * @return string
+	 */
+	protected function getImageElementSizeName(ImageReferencedElement $element)
+	{
+		$imageId = $element->getImageId();
+		$width = $element->getWidth();
+		$height = $element->getHeight();
+
+		$fileStorage = $this->getFileStorage();
+
+		$fsEm = $fileStorage->getDoctrineEntityManager();
+		$image = $fsEm->find(\Supra\FileStorage\Entity\Image::CN(), $imageId);
+
+		if ( ! $image instanceof \Supra\FileStorage\Entity\Image) {
+			\Log::warn("Image by ID $imageId was not found inside the file storage specified." .
+					" Maybe another file storage must be configured for the image size creator listener?");
+
+			return;
+		}
+
+		// No dimensions
+		if ($width > 0 && $height > 0 || $element->isCropped()) {
+
+			if ($element->isCropped()) {
+				$sizeName = $fileStorage->createImageVariant($image, $width, $height, $element->getCropLeft(), $element->getCropTop(), $element->getCropWidth(), $element->getCropHeight());
+			} else {
+				$sizeName = $fileStorage->createResizedImage($image, $width, $height);
+			}
+			$element->setSizeName($sizeName);
+		}
+		
+		return $sizeName;
+	}
+	
+	private function getFileStorage()
+	{
+		if (is_null($this->fileStorage)) {
+			$this->fileStorage = \Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
+		}
+		
+		return $this->fileStorage;
 	}
 
 }
