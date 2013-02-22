@@ -309,7 +309,7 @@ Supra([
 				});
 				
 				custom.render(button.get('boundingBox').ancestor());
-				custom.on('click', this.close, this);
+				custom.on('click', this.view.stopEditing, this.view);
 			}
 			
 			// 'Manage slide' button
