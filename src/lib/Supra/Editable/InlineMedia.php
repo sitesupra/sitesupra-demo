@@ -88,7 +88,7 @@ class InlineMedia extends EditableAbstraction
 			
 			$data = $this->contentMetadata->toArray();
 
-			if ($this->contentMetadata instanceof ImageReferencedElement) {
+			if ($this->contentMetadata instanceof ReferencedElement\ImageReferencedElement) {
 
 				$imageId = $this->contentMetadata->getImageId();
 
