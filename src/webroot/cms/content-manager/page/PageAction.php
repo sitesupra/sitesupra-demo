@@ -386,6 +386,8 @@ class PageAction extends PageManagerAction
 					'closed' => ! $pageData->isBlockEditable($block),
 					'locked' => $block->getLocked(),
 					'properties' => array(),
+					'owner_id' => $block->getPlaceHolder()
+						->getLocalization()->getId(),
 				);
 
 				$propertyDefinition = (array) $configuration->properties;
