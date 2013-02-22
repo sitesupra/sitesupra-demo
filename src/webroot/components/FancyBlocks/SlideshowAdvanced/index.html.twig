@@ -70,10 +70,10 @@
 {% endspaceless %}
 {% endmacro %}
 
-{% macro background(backgroundData, width, height) %}
+{% macro background(backgroundData) %}
 {% spaceless %}
 	{% if backgroundData %}
-		{% set tag = supraBlock.imageHtmlTag(backgroundData.id, width, height, true, backgroundData.size_name) %}
+		{% set tag = supraBlock.imageHtmlTag(backgroundData.id, backgroundData.size_width, backgroundData.size_height, true, backgroundData.size_name) %}
 		{% set src = tag.attribute('src') %}
 		{{ src }}
 	{% endif%}
