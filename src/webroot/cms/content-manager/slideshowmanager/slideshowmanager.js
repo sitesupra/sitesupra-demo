@@ -118,7 +118,8 @@ Supra([
 				this.data.removeSlideById(event.data.id);
 			}, this);
 			this.list.on('addClick', function () {
-				this.data.addSlide(this.data.getNewSlideData());
+				var id = this.data.addSlide(this.data.getNewSlideData());
+				this.set('activeSlideId', id);
 			}, this);
 			this.list.on('itemClick', function (event) {
 				this.set('activeSlideId', event.data.id);

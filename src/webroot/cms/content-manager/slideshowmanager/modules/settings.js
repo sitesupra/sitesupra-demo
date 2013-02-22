@@ -85,8 +85,16 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 * @private
 		 */
 		fireRemoveEvent: function () {
-			var id = this.get('activeItemId');
-			this.fire('removeClick', {'data': {'id': id}})
+			var id = this.get('activeItemId'),
+				button = this.widgets.deleteButton;
+			
+			this.fire('removeClick', {'data': {'id': id}});
+			
+			// Show loading icon while animating list
+			button.set('loading', true);
+			Y.later(350, this, function () {
+				button.set('loading', false);
+			});
 		},
 		
 		
