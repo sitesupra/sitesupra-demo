@@ -65,7 +65,7 @@
 			
 			"block": {
 				"no_image": "No image",
-				"custom_image": "Custom image",
+				"custom_image": "Set image",
 				"set_image": "Set image",
 				"change_image": "Change image",
 				"edit_image": "Edit image",

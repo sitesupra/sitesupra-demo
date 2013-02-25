@@ -61,6 +61,11 @@ YUI.add('supra.input-media-inline', function (Y) {
 		// Editing state
 		'editing': {
 			value: false
+		},
+		
+		// Stop editing when clicked outside image
+		"autoClose": {
+			value: true
 		}
 	};
 	
@@ -168,7 +173,8 @@ YUI.add('supra.input-media-inline', function (Y) {
 				'parent': this,
 				'value': null,
 				'separateSlide': false,
-				'allowRemoveImage': false
+				'allowRemoveImage': false,
+				'autoClose': this.get('autoClose')
 			});
 			
 			input_video = new Supra.Input.Video({

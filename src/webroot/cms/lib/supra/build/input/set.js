@@ -49,6 +49,11 @@ YUI.add('supra.input-set', function (Y) {
 			value: '#%s'
 		},
 		
+		// Button label to use instead of "Label"
+		'labelButton': {
+			value: ''
+		},
+		
 		// Minimal set count
 		'minCount': {
 			value: 0
@@ -186,8 +191,7 @@ YUI.add('supra.input-set', function (Y) {
 					this.set('separateSlide', false);
 					Y.log('Unable to create new slide for Supra.Input.Set "' + this.get('id') + '", because slideshow can\'t be detected');
 				} else {
-					// Don't create label, we have a button
-					this.LABEL_TEMPLATE = null;
+					// Don't create description, we have a button
 					this.DESCRIPTION_TEMPLATE = null;
 				}
 			}
@@ -531,15 +535,18 @@ YUI.add('supra.input-set', function (Y) {
 		_createSlide: function () {
 			var slideshow = this.getSlideshow(),
 				slide_id = this.get('id') + '_' + Y.guid(),
-				slide = slideshow.addSlide(slide_id);
+				slide = slideshow.addSlide(slide_id),
+				
+				label = this.get('label'),
+				labelButton = this.get('labelButton');
 			
 			this._slideContent = slide.one('.su-slide-content');
 			this._slideId = slide_id;
 			
 			// Button
 			var button = new Supra.Button({
-				'style': 'small-gray',
-				'label': this.get('label')
+				'style': 'small',
+				'label': labelButton || label
 			});
 			
 			button.addClass('button-section');

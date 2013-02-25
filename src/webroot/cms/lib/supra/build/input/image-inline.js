@@ -31,6 +31,10 @@ YUI.add('supra.input-image-inline', function (Y) {
 		// Resize image crop to smaller size on zoom if needed
 		"allowZoomResize": {
 			value: false
+		},
+		// Stop editing when clicked outside image
+		"autoClose": {
+			value: true
 		}
 	};
 	
@@ -99,7 +103,8 @@ YUI.add('supra.input-image-inline', function (Y) {
 			if (!imageResizer) {
 				imageResizer = this.widgets.imageResizer = new Supra.ImageResizer({
 					"mode": Supra.ImageResizer.MODE_IMAGE,
-					"allowZoomResize": this.get("allowZoomResize")
+					"allowZoomResize": this.get("allowZoomResize"),
+					"autoClose": this.get("autoClose")
 				});
 				imageResizer.on("resize", function (event) {
 					var value = this.get("value");

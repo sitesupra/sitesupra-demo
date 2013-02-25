@@ -85,8 +85,16 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 * @private
 		 */
 		fireRemoveEvent: function () {
-			var id = this.get('activeItemId');
-			this.fire('removeClick', {'data': {'id': id}})
+			var id = this.get('activeItemId'),
+				button = this.widgets.deleteButton;
+			
+			this.fire('removeClick', {'data': {'id': id}});
+			
+			// Show loading icon while animating list
+			button.set('loading', true);
+			Y.later(350, this, function () {
+				button.set('loading', false);
+			});
 		},
 		
 		
@@ -114,6 +122,10 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				ii = properties.length;
 			
 			for (; i<ii; i++) {
+				// Don't close editing when clicking outside image
+				if (properties[i].type == 'InlineMedia') {
+					properties[i].autoClose = false;
+				}
 				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);
 				}
@@ -269,8 +281,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 */
 		onSidebarDone: function () {
 			// Stop editing
-			this.get('host').view.stopEditing();
-			this.hide();
+			this.get('host').close();
 		},
 		
 		/**

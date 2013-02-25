@@ -26,11 +26,6 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 	
 	Y.extend(ContentSlideshow, PageContent.Editable, {
 		
-		/**
-		 * Gallery manage/add buttons
-		*/
-		buttons: {},
-		
 		
 		renderUISettings: function () {
 			var toolbar = Manager.PageToolbar,
@@ -64,7 +59,9 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			//and sidebar is opened on block edit and block is saved (stop editing) when
 			//sidebar is closed 
 			if (!this.properties.hasTopGroups()) {
+				// Hide toolbar button
 				toolbar.getActionButton('slideshow_block_manage').hide();
+				
 				this.renderSidebarButton();
 				
 				//Save and close block on property save (sidebar close)
@@ -147,6 +144,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 				properties = this.getProperties(),
 				i = 0,
 				ii = properties.length,
+				references = {},
 				reference = null,
 				has_reference = false,
 				tmp = null,
@@ -161,12 +159,15 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			for (; i<ii; i++) {
 				if (properties[i].type == 'Slideshow') {
 					has_reference = true;
+					reference = references[properties[i].group || 'default'];
+					references = null;
 					break;
 				} else {
 					if (Supra.Input.isContained(properties[i].type)) {
 						tmp = form.getInput(properties[i].id);
 						if (tmp) {
-							reference = tmp.get('boundingBox');
+							// We map nodes by 'group', because we wan't to insert button in same group
+							references[properties[i].group || 'default'] = tmp.get('boundingBox');
 						}
 					}
 				}
@@ -184,8 +185,6 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 				content.prepend(button.get('boundingBox'));
 				content.prepend(Y.Node.create('<p class="label">' + Supra.Intl.get(['slideshowmanager', 'label']) + '</p>'));
 			}
-			
-			
 			
 			button.on('click', this.openExternalManager, this);
 		},
@@ -368,125 +367,6 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		 * @private
 		 */
 		getSlideProperties: function () {
-			// @TODO Remove following temporary data
-			/*
-			return [{
-          		'id': 'layout',
-          		'type': 'SelectVisual',
-      			'label': 'Layout',
-		  		'defaultValue': 'bg_text_left',
-		  		'separateSlide': true,
-		  		'values': [{
-  					'id': 'bg',
-  					'title': 'Background image only',
-  					'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg.png'
-  				}, {
-					'id': 'bg_text',
-					'title': 'Background image and text',
-					'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text.png',
-					'values': [{
-						'id': 'bg_text_left',
-						'title': 'Text on left side',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-left.png'
-					}, {
-						'id': 'bg_text_right',
-						'title': 'Text on right side',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-right.png'
-					}, {
-						'id': 'bg_text_left_top',
-						'title': 'Text on left and top sides',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-left-top.png'
-					}, {
-						'id': 'bg_text_right_top',
-						'title': 'Text on right and top sides',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-right-top.png'
-					}, {
-						'id': 'bg_text_left_bottom',
-						'title': 'Text on left and bottom sides',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-left-bottom.png'
-					}, {
-						'id': 'bg_text_right_top',
-						'title': 'Text on right and bottom sides',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-right-bottom.png'
-					}]
-				}, {
-					'id': 'bg_text_img',
-					'title': 'Background image, text and graphics element',
-					'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-img.png',
-					'values': [{
-						'id': 'bg_text_img_left',
-						'title': 'Text on left side',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-img-left.png'
-					}, {
-						'id': 'bg_text_img_right',
-						'title': 'Text on right side',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-img-right.png'
-					}, {
-						'id': 'bg_text_img_left_top',
-						'title': 'Text on left and top sides',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-img-left-top.png'
-					}, {
-						'id': 'bg_text_img_right_top',
-						'title': 'Text on right and top sides',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-img-right-top.png'
-					}, {
-						'id': 'bg_text_img_left_bottom',
-						'title': 'Text on left and bottom sides',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-img-left-bottom.png'
-					}, {
-						'id': 'bg_text_img_right_top',
-						'title': 'Text on right and bottom sides',
-						'icon': '/components/FancyBlocks/SlideshowAdvanced/icons/layout/bg-text-img-right-bottom.png'
-					}]
-				}]
-		  	}, {
-		  		'id': 'background',
-		  		'type': 'BlockBackground',
-		  		'label': 'Background image'
-		  	}, {
-		  		'id': 'text_main',
-		  		'type': 'InlineHTML',
-		  		'label': 'Main text',
-		  		'defaultValue': {
-		  			'data': {},
-		  			'html': '<h1>Lorem ipsum</h1><h2>Dolor sit amet</h2><p>Lid est laborum dolo es fugats untras. Et harums quidem rerum facilisdolores nemis omnis fugiats vitaro minimarerums unsers sadips dolores sitsers untra nemi amets.</p>'
-		  		},
-		  		'inline': true
-		  	}, {
-		  		'id': 'text_top',
-		  		'type': 'InlineHTML',
-		  		'label': 'Top text',
-		  		'defaultValue': {
-		  			'data': {},
-		  			'html': '<p>Lid est laborum dolo es fugats untras. Et harums quidem rerum facilisdolores nemis omnis fugiats vitaro minimarerums unsers sadips dolores sitsers untra nemi amets.</p>'
-		  		},
-		  		'inline': true
-		  	}, {
-		  		'id': 'media',
-		  		'type': 'InlineMedia',
-		  		'label': 'Image or video'
-		  	}, {
-		  		'id': 'buttons',
-		  		'type': 'Set',
-		  		'label': 'Buttons',
-		  		'labelAdd': 'Add more buttons',
-		  		'labelRemove': 'Remove button',
-		  		'labelItem': 'Button %s',
-		  		'properties': [
-		  			{
-		  				'id': 'title',
-		  				'type': 'String',
-		  				'label': 'Title'
-		  			},
-		  			{
-		  				'id': 'link',
-		  				'type': 'Link',
-		  				'label': 'Link'
-		  			}
-		  		]
-		  	}];
-		  	*/
-		  	
 			var block = this.getBlockInfo(),
 				properties = block.properties,
 				i = 0,
@@ -510,56 +390,6 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		 * @private
 		 */
 		getSlideLayouts: function () {
-			// @TODO Remove following temporary data
-			/*
-			return [{
-					'id': 'bg',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /></div></li>'
-          		},
-          		
-          		
-          		{
-					'id': 'bg_text_left',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">&nbsp;</div></li>'
-          		}, {
-					'id': 'bg_text_right',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div></li>'
-          		}, {
-          			'id': 'bg_text_left_top',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">&nbsp;</div></li>'
-          		}, {
-					'id': 'bg_text_right_top',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div></li>'
-          		}, {
-          			'id': 'bg_text_left_bottom',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">&nbsp;</div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
-          		}, {
-					'id': 'bg_text_right_bottom',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">&nbsp;</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
-          		},
-          		
-          		
-          		{
-					'id': 'bg_text_img_left',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">{{ property.media }}</div></li>'
-          		}, {
-					'id': 'bg_text_img_right',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div></li>'
-          		}, {
-          			'id': 'bg_text_img_left_top',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">{{ property.media }}</div></li>'
-          		}, {
-					'id': 'bg_text_img_right_top',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-top">{{ property.text_top }}</div><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div></li>'
-          		}, {
-          			'id': 'bg_text_img_left_bottom',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-right-large">{{ property.media }}</div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
-          		}, {
-					'id': 'bg_text_img_right_bottom',
-          			'html': '<li><div class="as-wrapper"><img class="as-layer absolute fill" src="{{ property.background }}" /><div class="as-layer as-layer-left-large">{{ property.media }}</div><div class="as-layer as-layer-right-small">{{ property.text_main }}<div class="as-layer buttons" data-supra-item-property="buttons"></div></div><div class="as-layer as-layer-bottom">{{ property.text_top }}</div></li>'
-          		}];
-          	*/
-          		
 			var block = this.getBlockInfo(),
 				properties = block.properties,
 				i = 0,

@@ -15,11 +15,6 @@
           
     propertyGroups:
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
-          id: slideshow_block_manage
-          icon: /cms/lib/supra/img/toolbar/icon-pages.png
-          type: top
-          label: Edit slides
-      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: design
           type: sidebar
           icon: /cms/lib/supra/img/toolbar/icon-design.png
@@ -122,7 +117,7 @@
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: layout
                 editable: Supra\Editable\SelectVisual
-                label: Layout
+                label: Slide layout
                 default: bg_text_img_left
                 values:
                   - id: bg
@@ -174,10 +169,13 @@
                         icon: icons/layout/bg-text-img-right-bottom.png
                 additionalParameters:
                     separateSlide: true
+                    labelButton: Set layout
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background
                 editable: Supra\Editable\BlockBackground
-                label: Background
+                label: Background image
+                additionalParameters:
+                  labelButton: Set image
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: media
                 editable: Supra\Editable\InlineMedia
@@ -196,7 +194,6 @@
                 name: buttons
                 editable: Supra\Editable\PropertySet
                 label: Buttons
- 
                 properties:
                   - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                       name: title
@@ -207,6 +204,8 @@
                       label: Link
                       editable: Supra\Editable\Link
                 additionalParameters:
+                  separateSlide: true
                   labelAdd: Add more buttons
                   labelRemove: Remove button
                   labelItem: "Button %s"
+                  labelButton: Set buttons

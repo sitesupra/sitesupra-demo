@@ -78,6 +78,13 @@ YUI.add('supra.input-select-visual', function (Y) {
 		 */
 		"separateSlide": {
 			value: false
+		},
+		
+		/**
+		 * Button label in case of separate slide
+		 */
+		"labelButton": {
+			value: ""
 		}
 	};
 	
@@ -131,6 +138,10 @@ YUI.add('supra.input-select-visual', function (Y) {
 				'slide': null,
 				'button': null,
 				
+				// If using separate slide then
+				// container for label and button
+				'separateContainer': null,
+				
 				// Values slides and inputs
 				'slides': {},
 				'inputs': {}
@@ -165,7 +176,8 @@ YUI.add('supra.input-select-visual', function (Y) {
 				
 				if (slideshow) {
 					this.widgets.button = button = new Supra.Button({
-						'label': this.get('label')
+						'label': this.get('labelButton') || this.get('label'),
+						'style': 'small'
 					});
 					
 					this.widgets.slide = slide = slideshow.addSlide('propertySlide' + this.get('id'));
@@ -174,9 +186,19 @@ YUI.add('supra.input-select-visual', function (Y) {
 					button.render();
 					button.addClass('button-section');
 					button.on('click', this._slideshowChangeSlide, this);
-					this.get('boundingBox').insert(button.get('boundingBox'), 'before');
 					
-					slide.append(this.get('boundingBox'));
+					var labelNode = this.get('labelNode'),
+						boundingBox = this.get('boundingBox'),
+						container = this.widgets.separateContainer = Y.Node.create('<div class="yui3-widget yui3-input"></div>');
+					
+					if (labelNode) {
+						container.append(labelNode, 'before');
+					}
+					
+					container.append(button.get('boundingBox'));
+					boundingBox.insert(container, 'before');
+					
+					slide.append(boundingBox);
 				} else {
 					this.set('separateSlide', false);
 				}
