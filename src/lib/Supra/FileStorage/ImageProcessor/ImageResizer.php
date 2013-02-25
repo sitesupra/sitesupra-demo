@@ -73,7 +73,6 @@ class ImageResizer extends ImageProcessor
 	 */
 	public function process()
 	{
-
 		// parameter check
 		if (empty($this->sourceFilename)) {
 			throw new ImageProcessorException('Source image is not set');
@@ -100,38 +99,24 @@ class ImageResizer extends ImageProcessor
 		}
 		
 		if ($needsResize) {
-			/* resize image */
-
-			// open source
-			$sourceImage = $this->createImageFromFile($this->sourceFilename);
-
+			
 			$dimensions = 
 					$this->calculateDimensions($imageInfo->getWidth(), $imageInfo->getHeight());
+
+			// @TODO: maybe it's possible to avoid usage of this array? 
+			// (now used at GD2 imagecopyresampled())
+			$sourceDimensions = array(
+				'left' => $dimensions['sourceLeft'],
+				'top' => $dimensions['sourceTop'],
+				'width' => $dimensions['sourceWidth'],
+				'height' => $dimensions['sourceHeight'],
+			);
 			
-			$sourceLeft = $dimensions['sourceLeft'];
-			$sourceTop = $dimensions['sourceTop'];
-			$sourceWidth = $dimensions['sourceWidth'];
-			$sourceHeight = $dimensions['sourceHeight'];
 			$destWidth = $dimensions['destWidth'];
 			$destHeight = $dimensions['destHeight'];
-			
-			$resizedImage = $this->createOutputImage($imageInfo, $destWidth, $destHeight);
-			
-//			// check if transparecy requires special treatment
-//			if ($imageInfo->getType() == IMAGETYPE_PNG) {
-//				$this->preserveTransparency($sourceImage, $resizedImage, $imageInfo->getType());
-//			}
-			
-			// copy and resize
-			imagecopyresampled($resizedImage, $sourceImage, 
-					0, 0, 
-					$sourceLeft, $sourceTop,
-					$destWidth, $destHeight,
-					$sourceWidth, $sourceHeight);
-
-			// save to file
-			$this->saveImageToFile($resizedImage, $this->targetFilename, 
-					$imageInfo->getType(), $this->targetQuality, $imageInfo->getMime());
+						
+			$this->adapter
+					->doResize($this->sourceFilename, $this->targetFilename, $destWidth, $destHeight, $sourceDimensions);
 
 		} elseif ($this->sourceFilename != $this->targetFilename) {
 			// copy original

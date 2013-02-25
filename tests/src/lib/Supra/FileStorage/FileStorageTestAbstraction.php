@@ -144,7 +144,7 @@ class FileStorageTestAbstraction extends \PHPUnit_Framework_TestCase
 		$image->setMimeType($mimeType);
 
 
-		$imageProcessor = new ImageResizer();
+//		$imageProcessor = new ImageResizer();
 		$imageInfo = getimagesize($uploadFile);
 		$image->setWidth($imageInfo[0]);
 		$image->setHeight($imageInfo[0]);
