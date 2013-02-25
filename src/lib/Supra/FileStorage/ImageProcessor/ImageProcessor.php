@@ -11,7 +11,11 @@ use Supra\FileStorage\ImageInfo;
  */
 abstract class ImageProcessor
 {
-
+	/**
+	 * @var Adapter\ImageProcessorAdapterInterface
+	 */
+	protected $adapter;
+	
 	/**
 	 * Source file name (path)
 	 *
@@ -33,6 +37,20 @@ abstract class ImageProcessor
 	 */
 	protected $targetFilename;
 
+	
+	/**
+	 * @param \Supra\FileStorage\ImageProcessor\Adapter\ImageProcessorAdapterInterface $adapter
+	 * @throws \RuntimeException
+	 */
+	public function __construct(Adapter\ImageProcessorAdapterInterface $adapter)
+	{
+		if ( ! $adapter instanceof Adapter\ImageProcessorAdapterInterface) {
+			throw new \RuntimeException("ImageProcessor needs for propper ProcessorAdapter to be set");
+		}
+		
+		$this->adapter = $adapter;
+	}
+	
 	/**
 	 * Get full image info (dimesions, mime-type etc)
 	 *
@@ -83,65 +101,65 @@ abstract class ImageProcessor
 		return $this->getImageInfo($filename)->getMime();
 	}
 
-	/**
-	 * Create GD resource image from file
-	 * 
-	 * @param string $filename
-	 * @return resource
-	 * @throws ImageProcessorException
-	 */
-	protected function createImageFromFile($filename)
-	{
-		$image = null;
-
-		$imageInfo = $this->getImageInfo($filename);
-		$mimeType = $imageInfo->getType();
-		$mimeName = $imageInfo->getMime();
-
-		if ( ! self::isSupportedImageType($mimeType)) {
-			throw new ImageProcessorException($mimeName . ' images are not supported');
-		}
-
-		switch ($mimeType) {
-
-			case IMAGETYPE_GIF:
-				$image = imageCreateFromGIF($filename);
-				break;
-
-			case IMAGETYPE_JPEG:
-				$image = imageCreateFromJPEG($filename);
-				break;
-
-			case IMAGETYPE_PNG:
-				
-				$memoryLimit = ini_get('memory_limit');
-				
-				if($memoryLimit != '-1') {
-					
-					sscanf($memoryLimit, '%dM', $memoryLimit);
-					
-					$memoryLimit = $memoryLimit * 1024 * 1024;
-					
-					$memoryUsed = memory_get_usage();
-					
-					$memoryFree = $memoryLimit - $memoryUsed;
-					
-					if($memoryFree < $imageInfo->getWidth() * $imageInfo->getHeight() * $imageInfo->getBits()) {
-						throw new ImageProcessorException("Failed to create image " . $imageInfo->getName() . " from {$mimeName} format, not enough memory.");
-					}
-				}
-				
-				$image = imageCreateFromPNG($filename);
-				break;
-		}
-
-		if ( ! is_resource($image)) {
-			$baseName = pathinfo($filename, PATHINFO_BASENAME);
-			throw new ImageProcessorException("Failed to create image {$baseName} from {$mimeName} format.");
-		}
-
-		return $image;
-	}
+//	/**
+//	 * Create GD resource image from file
+//	 * 
+//	 * @param string $filename
+//	 * @return resource
+//	 * @throws ImageProcessorException
+//	 */
+//	protected function createImageFromFile($filename)
+//	{
+//		$image = null;
+//
+//		$imageInfo = $this->getImageInfo($filename);
+//		$mimeType = $imageInfo->getType();
+//		$mimeName = $imageInfo->getMime();
+//
+//		if ( ! self::isSupportedImageType($mimeType)) {
+//			throw new ImageProcessorException($mimeName . ' images are not supported');
+//		}
+//
+//		switch ($mimeType) {
+//
+//			case IMAGETYPE_GIF:
+//				$image = imageCreateFromGIF($filename);
+//				break;
+//
+//			case IMAGETYPE_JPEG:
+//				$image = imageCreateFromJPEG($filename);
+//				break;
+//
+//			case IMAGETYPE_PNG:
+//				
+//				$memoryLimit = ini_get('memory_limit');
+//				
+//				if($memoryLimit != '-1') {
+//					
+//					sscanf($memoryLimit, '%dM', $memoryLimit);
+//					
+//					$memoryLimit = $memoryLimit * 1024 * 1024;
+//					
+//					$memoryUsed = memory_get_usage();
+//					
+//					$memoryFree = $memoryLimit - $memoryUsed;
+//					
+//					if($memoryFree < $imageInfo->getWidth() * $imageInfo->getHeight() * $imageInfo->getBits()) {
+//						throw new ImageProcessorException("Failed to create image " . $imageInfo->getName() . " from {$mimeName} format, not enough memory.");
+//					}
+//				}
+//				
+//				$image = imageCreateFromPNG($filename);
+//				break;
+//		}
+//
+//		if ( ! is_resource($image)) {
+//			$baseName = pathinfo($filename, PATHINFO_BASENAME);
+//			throw new ImageProcessorException("Failed to create image {$baseName} from {$mimeName} format.");
+//		}
+//
+//		return $image;
+//	}
 
 	/**
 	 * @param integer $imageType One of IMAGETYPE_* constants
@@ -177,54 +195,54 @@ abstract class ImageProcessor
 		return false;
 	}
 
-	/**
-	 * Save gd image to file
-	 *
-	 * @param resource $image
-	 * @param string $filename
-	 * @param int $mimeType
-	 * @param int $jpegQuality
-	 * @param string $mimeName
-	 */
-	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality, $mimeName)
-	{
-		if ( ! self::isSupportedImageType($mimeType)) {
-			throw new ImageProcessorException("$mimeName ($mimeType) images are not supported");
-		}
+//	/**
+//	 * Save gd image to file
+//	 *
+//	 * @param resource $image
+//	 * @param string $filename
+//	 * @param int $mimeType
+//	 * @param int $jpegQuality
+//	 * @param string $mimeName
+//	 */
+//	protected function saveImageToFile($image, $filename, $mimeType, $jpegQuality, $mimeName)
+//	{
+//		if ( ! self::isSupportedImageType($mimeType)) {
+//			throw new ImageProcessorException("$mimeName ($mimeType) images are not supported");
+//		}
+//
+//		switch ($mimeType) {
+//			case IMAGETYPE_GIF:
+//				return imagegif($image, $filename);
+//
+//			case IMAGETYPE_JPEG:
+//				return imagejpeg($image, $filename, $this->evaluateQuality(100, $jpegQuality));
+//
+//			case IMAGETYPE_PNG:
+//				return imagepng($image, $filename, 9 - $this->evaluateQuality(9, $jpegQuality));
+//		}
+//	}
 
-		switch ($mimeType) {
-			case IMAGETYPE_GIF:
-				return imagegif($image, $filename);
-
-			case IMAGETYPE_JPEG:
-				return imagejpeg($image, $filename, $this->evaluateQuality(100, $jpegQuality));
-
-			case IMAGETYPE_PNG:
-				return imagepng($image, $filename, 9 - $this->evaluateQuality(9, $jpegQuality));
-		}
-	}
-
-	/**
-	 * Evaluate quality for image resampling
-	 * 
-	 * @param int $maxAllowed
-	 * @param int $userSetting
-	 */
-	protected function evaluateQuality($maxAllowed, $userSetting)
-	{
-		$userSetting = intval($userSetting);
-
-		if ($userSetting > 100) {
-			$userSetting = 100;
-		}
-
-		if ($userSetting < 0) {
-			$userSetting = 0;
-		}
-		$result = $userSetting * $maxAllowed / 100;
-
-		return $result;
-	}
+//	/**
+//	 * Evaluate quality for image resampling
+//	 * 
+//	 * @param int $maxAllowed
+//	 * @param int $userSetting
+//	 */
+//	protected function evaluateQuality($maxAllowed, $userSetting)
+//	{
+//		$userSetting = intval($userSetting);
+//
+//		if ($userSetting > 100) {
+//			$userSetting = 100;
+//		}
+//
+//		if ($userSetting < 0) {
+//			$userSetting = 0;
+//		}
+//		$result = $userSetting * $maxAllowed / 100;
+//
+//		return $result;
+//	}
 
 	/**
 	 * Set source image file
@@ -238,10 +256,7 @@ abstract class ImageProcessor
 			throw new ImageProcessorException('Source image does not exist');
 		}
 		$this->sourceFilename = $filename;
-// TODO decide if such functionality is needed
-//		if (empty($this->targetFilename)) {
-//			$this->targetFilename = $filename;
-//		}
+
 		return $this;
 	}
 
@@ -280,69 +295,70 @@ abstract class ImageProcessor
 		$this->targetFilename = null;
 	}
 
-	/**
-	 * Preserve image transparency between copy source and destination
-	 * Taken from http://mediumexposure.com/smart-image-resizing-while-preserving-transparency-php-and-gd-library/
-	 * 
-	 * @param resource $sourceImage
-	 * @param resource $destImage 
-	 * @param integer $mimeType
-	 */
-	protected function preserveTransparency($sourceImage, $destImage, $mimeType)
-	{
-		$transparentIndex = imagecolortransparent($sourceImage);
-
-		// If we have a specific transparent color
-		if ($transparentIndex >= 0) {
-
-			// Get the original image's transparent color's RGB values
-			$transparentColor = imagecolorsforindex($sourceImage, $transparentIndex);
-
-			// Allocate the same color in the new image resource
-			$transparentIndex = imagecolorallocate($destImage, $transparentColor['red'], $transparentColor['green'], $transparentColor['blue']);
-
-			// Completely fill the background of the new image with allocated color.
-			imagefill($destImage, 0, 0, $transparentIndex);
-
-			// Set the background color for new image to transparent
-			imagecolortransparent($destImage, $transparentIndex);
-		}
-		// Always make a transparent background color for PNGs that don't have one allocated already
-		elseif ($mimeType == IMAGETYPE_PNG) {
-
-			// Turn off transparency blending (temporarily)
-			imagealphablending($destImage, false);
-
-			// Create a new transparent color for image
-			$color = imagecolorallocatealpha($destImage, 0, 0, 0, 127);
-
-			// Completely fill the background of the new image with allocated color.
-			imagefill($destImage, 0, 0, $color);
-
-			// Restore transparency blending
-			imagesavealpha($destImage, true);
-		}
-	}
+//	/**
+//	 * Preserve image transparency between copy source and destination
+//	 * Taken from http://mediumexposure.com/smart-image-resizing-while-preserving-transparency-php-and-gd-library/
+//	 * 
+//	 * @param resource $sourceImage
+//	 * @param resource $destImage 
+//	 * @param integer $mimeType
+//	 */
+//	protected function preserveTransparency($sourceImage, $destImage, $mimeType)
+//	{
+//		$transparentIndex = imagecolortransparent($sourceImage);
+//
+//		// If we have a specific transparent color
+//		if ($transparentIndex >= 0) {
+//
+//			// Get the original image's transparent color's RGB values
+//			$transparentColor = imagecolorsforindex($sourceImage, $transparentIndex);
+//
+//			// Allocate the same color in the new image resource
+//			$transparentIndex = imagecolorallocate($destImage, $transparentColor['red'], $transparentColor['green'], $transparentColor['blue']);
+//
+//			// Completely fill the background of the new image with allocated color.
+//			imagefill($destImage, 0, 0, $transparentIndex);
+//
+//			// Set the background color for new image to transparent
+//			imagecolortransparent($destImage, $transparentIndex);
+//		}
+//		// Always make a transparent background color for PNGs that don't have one allocated already
+//		elseif ($mimeType == IMAGETYPE_PNG) {
+//
+//			// Turn off transparency blending (temporarily)
+//			imagealphablending($destImage, false);
+//
+//			// Create a new transparent color for image
+//			$color = imagecolorallocatealpha($destImage, 0, 0, 0, 127);
+//
+//			// Completely fill the background of the new image with allocated color.
+//			imagefill($destImage, 0, 0, $color);
+//
+//			// Restore transparency blending
+//			imagesavealpha($destImage, true);
+//		}
+//	}
 	
-	/**
-	 * 
-	 * @param \Supra\FileStorage\ImageInfo $imageInfo
-	 * @param integer $width
-	 * @param integer $height
-	 * @return resource
-	 */
-	public function createOutputImage($imageInfo, $width, $height)
-	{
-		if ($imageInfo->getType() == IMAGETYPE_PNG) {
-			return imagecreate($width, $height);
-		}
-		
-		return imagecreatetruecolor($width, $height);
-	}
+//	/**
+//	 * 
+//	 * @param \Supra\FileStorage\ImageInfo $imageInfo
+//	 * @param integer $width
+//	 * @param integer $height
+//	 * @return resource
+//	 */
+//	public function createOutputImage($imageInfo, $width, $height)
+//	{
+////		if ($imageInfo->getType() == IMAGETYPE_PNG) {
+////			return imagecreate($width, $height);
+////		}
+////		
+////		return imagecreatetruecolor($width, $height);
+//		
+//		return $this->adapter->createOutputImage($imageInfo, $width, $height);
+//	}
 
 	/**
 	 * Process
-	 * 
 	 */
 	abstract public function process();
 }

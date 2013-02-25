@@ -542,7 +542,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			// additional jobs for images
 			if ($fileEntity instanceof Entity\Image) {
 				// store original size
-				$imageProcessor = new ImageProcessor\ImageResizer();
+				$imageProcessor = $this->fileStorage->getImageResizer();
 				$imageInfo = $imageProcessor->getImageInfo($file['tmp_name']);
 				$fileEntity->setWidth($imageInfo->getWidth());
 				$fileEntity->setHeight($imageInfo->getHeight());

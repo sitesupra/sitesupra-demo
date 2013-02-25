@@ -40,37 +40,22 @@ class ImageRotator extends ImageProcessor
 	 */
 	public function process()
 	{
-
 		// parameter check
 		if (empty($this->sourceFilename)) {
 			throw new ImageProcessorException('Source image is not set');
 		}
 		if (empty($this->targetFilename)) {
-			throw new ImageProcessorException('Target (output) file is not set');
+			throw new ImageProcessorException('Target file name is not set');
 		}
 
 		if ($this->rotationCount != 0) {
-			$imageInfo = $this->getImageInfo($this->sourceFilename);
-			$image = $this->createImageFromFile($this->sourceFilename);
-		
-			$angle = $this->rotationCount * -90;
-			$bgd_color = 0;
-			$rotatedImage = imagerotate($image, $angle, $bgd_color);
+
+			$degrees = $this->rotationCount * 90;
 			
-			if ($imageInfo->getType() == IMAGETYPE_PNG) {
-				$this->preserveTransparency($image, $rotatedImage, $imageInfo->getType());
-			}
-			
-			// Rotated PNG image size fastfix
-			if ($imageInfo->getType() === IMAGETYPE_PNG) {
-				$pngImage = $this->createOutputImage($imageInfo, $imageInfo->getHeight(), $imageInfo->getWidth());
-				imagecopy($pngImage, $rotatedImage, 0, 0, 0, 0, $imageInfo->getHeight(), $imageInfo->getWidth());			
-				$rotatedImage = $pngImage;
-			}
-			
-			$this->saveImageToFile($rotatedImage, $this->targetFilename, 
-					$imageInfo->getType(), $this->targetQuality, $imageInfo->getMime());
-		} elseif ($this->sourceFilename != $this->targetFilename) {
+			$this->adapter
+					->doRotate($this->sourceFilename, $this->targetFilename, $degrees);
+		} 
+		elseif ($this->sourceFilename != $this->targetFilename) {
 			copy($this->sourceFilename, $this->targetFilename);
 		}
 
@@ -88,7 +73,6 @@ class ImageRotator extends ImageProcessor
 
 	/**
 	 * Rotate right (set 90 degrees CW and process)
-	 * 
 	 */
 	public function rotateRight()
 	{
@@ -117,7 +101,6 @@ class ImageRotator extends ImageProcessor
 
 	/**
 	 * Reset this instance
-	 * 
 	 */
 	public function reset()
 	{

@@ -68,7 +68,7 @@ class FileStorageTest extends FileStorageTestAbstraction
 		$file->setMimeType($mimeType);
 
 		if ($file instanceof \Supra\FileStorage\Entity\Image) {
-			$imageProcessor = new ImageResizer();
+			$imageProcessor = $this->fileStorage->getImageResizer();
 			$imageInfo = $imageProcessor->getImageInfo($uploadFile);
 			$file->setWidth($imageInfo->getWidth());
 			$file->setHeight($imageInfo->getHeight());

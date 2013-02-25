@@ -767,7 +767,7 @@ class FileStorage
 		}
 		
 
-		$cropper = new ImageProcessor\ImageCropper();
+		$cropper = $this->getImageCropper();
 
 		$cropper->setSourceFile($resizedVariantFilename);
 		$cropper->setOutputQuality($quality);
@@ -848,7 +848,8 @@ class FileStorage
 		$originalFilePath = $this->getFilesystemPath($file, true);
 
 		// initiate resizer
-		$resizer = new ImageProcessor\ImageResizer;
+		$resizer = $this->getImageResizer();
+
 		$resizer->setSourceFile($originalFilePath)
 				->setOutputQuality($quality)
 				->setTargetWidth($targetWidth)
@@ -951,8 +952,8 @@ class FileStorage
 			return $sizeName;
 		}
 		
-		// initiate resizer
-		$resizer = new ImageProcessor\ImageResizer;
+		$resizer = $this->getImageResizer();
+		
 		$resizer->setSourceFile($variantFileName)
 				->setOutputQuality($quality)
 				->setTargetWidth($targetWidth)
@@ -1096,7 +1097,7 @@ class FileStorage
 		}
 
 		$filename = $this->getFilesystemPath($file);
-		$rotator = new ImageProcessor\ImageRotator;
+		$rotator = $this->getImageRotator();
 		$rotator->setSourceFile($filename)
 				->setOutputFile($filename)
 				->setOutputQuality($quality)
@@ -1162,7 +1163,7 @@ class FileStorage
 		}
 
 		$filename = $this->getFilesystemPath($file);
-		$cropper = new ImageProcessor\ImageCropper();
+		$cropper = $this->getImageCropper();
 		$cropper->setSourceFile($filename)
 				->setOutputFile($filename)
 				->setOutputQuality($quality)
@@ -1382,8 +1383,9 @@ class FileStorage
 
 		// additional jobs for images
 		if ($fileEntity instanceof Entity\Image) {
+			
+			$imageProcessor  = $this->getImageResizer();
 			// store original size
-			$imageProcessor = new ImageProcessor\ImageResizer();
 			$imageInfo = $imageProcessor->getImageInfo($fileEntity);
 			$fileEntity->setWidth($imageInfo->getWidth());
 			$fileEntity->setHeight($imageInfo->getHeight());
@@ -1613,5 +1615,67 @@ class FileStorage
 			'width' => $expectedWidth,
 		);
 	}
+	
+	/**
+	 * @return ImageProcessor\Adapter\ImageProcessorAdapterInterface
+	 */
+	public function getImageProcessorAdapter()
+	{
+		if (is_null($this->adapter)) {
+			$this->autoloadImageProcessorAdapter();
+		}
+		
+		return $this->adapter;
+	}
+	
+	/**
+	 * @param ImageProcessor\Adapter\ImageProcessorAdapterInterface $adapter
+	 */
+	public function setImageProcessorAdapter(ImageProcessor\Adapter\ImageProcessorAdapterInterface $adapter)
+	{
+		$this->adapter = $adapter;
+	}
+		
+	/**
+	 *
+	 */
+	private function autoloadImageProcessorAdapter()
+	{
+		if (ImageProcessor\Adapter\ImageMagickAdapter::isAvailable()) {
+			
+			$this->adapter = new ImageProcessor\Adapter\ImageMagickAdapter();
+		}
+		else if (ImageProcessor\Adapter\Gd2Adapter::isAvailable()) {
+			
+			$this->adapter = new ImageProcessor\Adapter\Gd2Adapter();
+		}
+		else {
+			throw new Exception\RuntimeException('Failed to autoload image processor adapter, 
+				please specify one by yourself using FileStorage configuration');
+		}
+	}
 
+	/**
+	 * @return ImageProcessor\ImageResizer
+	 */
+	public function getImageResizer()
+	{
+		return new ImageProcessor\ImageResizer($this->getImageProcessorAdapter());
+	}
+	
+	/**
+	 * @return ImageProcessor\ImageCropper
+	 */
+	public function getImageCropper()
+	{
+		return new ImageProcessor\ImageCropper($this->getImageProcessorAdapter());
+	}
+	
+	/**
+	 * @return ImageProcessor\ImageRotator
+	 */
+	public function getImageRotator()
+	{
+		return new ImageProcessor\ImageRotator($this->getImageProcessorAdapter());
+	}
 }

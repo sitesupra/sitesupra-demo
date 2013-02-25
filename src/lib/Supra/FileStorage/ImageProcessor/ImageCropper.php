@@ -102,7 +102,6 @@ class ImageCropper extends ImageProcessor
 	 */
 	public function process()
 	{
-
 		// parameter check
 		if (empty($this->sourceFilename)) {
 			throw new ImageProcessorException('Source image is not set');
@@ -120,7 +119,6 @@ class ImageCropper extends ImageProcessor
 			throw new ImageProcessorException('Crop dimensions are incomplete to process image');
 		}
 
-		$image = $this->createImageFromFile($this->sourceFilename);
 		$imageInfo = $this->getImageInfo($this->sourceFilename);
 
 		// check if left and top are in range
@@ -165,23 +163,8 @@ class ImageCropper extends ImageProcessor
 			//throw new ImageProcessorException('Crop height exceeds maximum (out of borders)');
 		}
 
-		// create output image
-		$croppedImage = $this->createOutputImage($imageInfo, $this->width, $this->height);	
-//		// check if transparecy requires special treatment
-//		if ($imageInfo->getType() == IMAGETYPE_PNG) {
-//			$this->preserveTransparency($image, $croppedImage, $imageInfo->getType());
-//		}
-
-		//copy cropped
-		imagecopy($croppedImage, $image, 
-				0, 0, 
-				$this->left, $this->top, 
-				$this->width, $this->height);
-
-		// save to file
-		$this->saveImageToFile($croppedImage, $this->targetFilename, 
-				$imageInfo->getType(), $this->targetQuality, $imageInfo->getMime());
-
+		$this->adapter->doCrop($this->sourceFilename, $this->targetFilename, $this->width, $this->height, $this->left, $this->top);
+	
 		chmod($this->targetFilename, SITESUPRA_FILE_PERMISSION_MODE);
 	}
 

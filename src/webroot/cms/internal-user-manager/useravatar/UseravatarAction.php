@@ -176,7 +176,7 @@ class UseravatarAction extends InternalUserManagerAbstractAction
 
 		// resizing images
 		foreach (self::$avatarSizes as $sizeId => $size) {
-			$resizer = new ImageResizer();
+			$resizer = $fileStorage->getImageResizer();
 			$resizer->setSourceFile($originalFilePath)
 					->setOutputQuality(80)
 					->setTargetWidth($size['width'])
