@@ -17,11 +17,9 @@ use Doctrine\ORM\NoResultException;
 use Supra\Controller\Pages\Exception\LayoutNotFound;
 use Supra\Controller\Pages\BrokenBlockController;
 use Supra\Uri\Path;
-use Supra\Locale\LocaleInterface;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
-use Supra\Controller\Pages\Entity\Theme\ThemeLayout;
 
 /**
  * 
@@ -56,15 +54,7 @@ class PageAction extends PageManagerAction
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
 
-		$page = $pageData->getMaster();
-
-		// Can this really happen?
-		if (empty($page)) {
-			$this->getResponse()
-					->setErrorMessage("Page does not exist");
-
-			return;
-		}
+		$page = $request->getPage();
 
 		$this->setInitialPageId($pageId);
 
@@ -302,8 +292,6 @@ class PageAction extends PageManagerAction
 		}
 
 		$array['root'] = $page->isRoot();
-
-		$page = $request->getPage();
 
 		$placeHolderSet = array();
 		$blockSet = new \Supra\Controller\Pages\Set\BlockSet();
@@ -888,7 +876,7 @@ class PageAction extends PageManagerAction
 
 		if ($editable instanceof Editable\Html) {
 			$propertyData = array(
-				'html' => $propertyValue,
+				'html' => $propertyValue['html'],
 				'data' => $data
 			);
 		}
