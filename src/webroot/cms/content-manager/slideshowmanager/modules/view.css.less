@@ -23,3 +23,21 @@ body, html {
 .supra-media img {
 	cursor: pointer !important;
 }
+
+/* Slide resize handle */
+.su-slideshowmanager-resizer {
+	background: #009df8 url(/cms/content-manager/slideshowmanager/images/resize-handle.png) 50% 50% no-repeat !important;
+	cursor: move !important;
+	height: 16px;
+	position: relative !important; // for tooltip
+	
+	.tooltip {
+		left: 50%;
+		margin-left: -26px;
+		width: 30px;
+	}
+	
+	&.yui3-dd-dragging .tooltip {
+		opacity: 1;
+	}
+}

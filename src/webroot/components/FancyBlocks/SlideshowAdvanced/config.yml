@@ -181,6 +181,10 @@
                 editable: Supra\Editable\InlineMedia
                 label: 
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: height
+                editable: Supra\Editable\Number
+                label: 
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: text_main
                 editable: Supra\Editable\Html
                 label: Main text

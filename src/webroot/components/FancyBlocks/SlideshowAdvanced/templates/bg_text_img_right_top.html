@@ -1,7 +1,7 @@
 <li {% if hidden %}class="hidden"{% endif %}>
-	<div class="as-wrapper">
+	<div class="as-wrapper" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %}>
 		{% if property.background %}
-			<img class="as-layer absolute fill" src="{{ property.background }}" />
+			<img class="as-layer absolute as-background" src="{{ property.background }}" />
 		{% endif %}
 		
 		<div class="as-layer as-layer-top">

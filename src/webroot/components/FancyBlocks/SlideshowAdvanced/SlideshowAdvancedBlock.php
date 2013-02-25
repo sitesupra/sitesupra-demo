@@ -47,6 +47,7 @@ class SlideshowAdvancedBlock extends BlockController
 					'background' => null,
 					'layout' => null,
 					'buttons' => null,
+					'height' => null,
 				);
 				
 				$slideData = array(
@@ -57,6 +58,7 @@ class SlideshowAdvancedBlock extends BlockController
 					'background' => $this->filterBackground($slide['background']),
 					'layout' => $slide['layout'],
 					'buttons' => $this->filterButtons($slide['buttons']),
+					'height' => $slide['height'],
 				);
 				
 				$slidesResponse[] = $slideData;

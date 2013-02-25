@@ -26,6 +26,10 @@ Supra.addModules({
 	'slideshowmanager.plugin-inline-button': {
 		path: 'plugin-inline-button.js',
 		requires: ['supra.input-proto', 'plugin', 'supra.template']
+	},
+	'slideshowmanager.input-resizer': {
+		path: 'input-resizer.js',
+		requires: ['supra.input-proto']
 	}
 });
 
@@ -35,7 +39,8 @@ Supra([
 	'slideshowmanager.list',
 	'slideshowmanager.settings',
 	'slideshowmanager.view',
-	'slideshowmanager.plugin-inline-button'
+	'slideshowmanager.plugin-inline-button',
+	'slideshowmanager.input-resizer'
 ], function (Y) {
 	//Invoke strict mode
 	"use strict";
@@ -412,6 +417,15 @@ Supra([
 			
 			if (options.callback && options.context) {
 				options.callback = Y.bind(options.callback, options.context);
+			}
+			
+			// Change 'height' property to editable
+			for (var property, i=0, ii=options.properties.length; i<ii; i++) {
+				property = options.properties[i];
+				if (property.id == 'height') {
+					property.type = 'SlideshowInputResizer';
+					property.inline = true;
+				}
 			}
 			
           	return options;

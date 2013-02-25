@@ -524,6 +524,14 @@ YUI.add('slideshowmanager.view', function (Y) {
 							input.inline.set('targetNode', node);
 						}
 					}
+				} else if (property.type == 'SlideshowInputResizer') {
+					node = iframe.one('*[data-supra-container]');
+					if (node) {
+						input = form.getInput(property.id);
+						
+						input.set('targetNode', node);
+						input.set('value', data[property.id]);
+					}
 				}
 			}
 		},
@@ -543,6 +551,8 @@ YUI.add('slideshowmanager.view', function (Y) {
 				value  = null,
 				input  = null,
 				node   = null,
+				srcNode = null,
+				contNode = null,
 				inputs = this.widgets.inputs,
 				iframe = this.get('iframe'),
 				
@@ -558,7 +568,14 @@ YUI.add('slideshowmanager.view', function (Y) {
 				
 				if (is_inline && !is_contained) {
 					
-					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					if (property.type == 'SlideshowInputResizer') {
+						contNode = node = iframe.one('*[data-supra-container]');
+						srcNode = null;
+					} else {
+						srcNode = node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+						contNode = null;
+					}
+					
 					if (node) {
 						value = data[property.id] || values[property.id];
 						
@@ -566,13 +583,13 @@ YUI.add('slideshowmanager.view', function (Y) {
 							'doc': iframe.get('doc'),
 							'win': iframe.get('win'),
 							'toolbar': Manager.EditorToolbar.getToolbar(),
-							'srcNode': node,
+							'srcNode': srcNode,
 							'targetNode': node,
 							'value': value
 						});
 						
 						inputs.push(input);
-						input.render();
+						input.render(contNode);
 						input.set('value', value);
 						
 						if (active && active == property.id) {
@@ -582,7 +599,10 @@ YUI.add('slideshowmanager.view', function (Y) {
 							input.set('disabled', true);
 						}
 						
-						node.on('mousedown', this._startEditing, this, property, input);
+						if (srcNode) {
+							srcNode.on('mousedown', this._startEditing, this, property, input);
+						}
+						
 						input.on('change', this._firePropertyChangeEvent, this, property, input);
 						
 						if (input.getEditor) {
