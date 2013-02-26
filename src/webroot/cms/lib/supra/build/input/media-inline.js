@@ -571,7 +571,8 @@ YUI.add('supra.input-media-inline', function (Y) {
 			
 			if (data && type == 'image') {
 				var style = null,
-					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" style="background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
+					//html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" style="background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
+					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" alt="" />';
 				
 				node.set('innerHTML', html);
 				this.widgets.input_image.set('targetNode', node.one('img'));

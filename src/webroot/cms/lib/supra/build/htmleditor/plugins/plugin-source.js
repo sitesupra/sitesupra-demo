@@ -34,6 +34,7 @@ YUI().add('supra.htmleditor-plugin-source', function (Y) {
 		 */
 		updateSource: function (html) {
 			this.htmleditor.setHTML(html);
+			this.htmleditor._changed();
 		},
 		
 		/**

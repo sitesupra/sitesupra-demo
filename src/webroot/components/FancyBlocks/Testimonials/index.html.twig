@@ -1,5 +1,5 @@
 {% set testimonials = supraBlock.property('images') %}
-<div class="block" data-refresh-event="carousel" data-list=".testimonials" data-items="blockquote" data-animation="fade" data-classname="testimonials" data-timer="5000" data-keyboard="false" data-touch="false">
+<div class="block">
 	
 	{% if not supraBlock.isEmpty('block_title') %}
 	<h2 class="block-title"><div>
@@ -7,37 +7,39 @@
 	</div></h2>
 	{% endif %}
 	
-	<div class="testimonials">
-		{% for index, testimony in testimonials %}
-		<blockquote class="hreview">
-			<span class="item hidden"><span class="fn">PAGE NAME</span></span>
-			
-			<q class="description">{% spaceless %}
-				<span class="deco"></span>"{{ testimony.property.testimony|trim }}"
-			{% endspaceless %}</q>
-			
-			<span class="who">
-				<span class="photo">
-					{% set tag = supraBlock.imageHtmlTag( testimony.imageId, 50, 50, true, testimony.size_name ) | raw %}
-					{% if testimony.imageId %}
-						{{ tag|raw }}
+	<div class="testimonials" data-refresh-event="carousel" data-list=".testimonials-inner" data-items="blockquote" data-animation="fade" data-classname="" data-timer="5000" data-keyboard="false" data-touch="false" data-arrows="true">
+		<div class="testimonials-inner">
+			{% for index, testimony in testimonials %}
+			<blockquote class="hreview">
+				<span class="item hidden"><span class="fn">PAGE NAME</span></span>
+				
+				<q class="description">{% spaceless %}
+					<span class="deco"></span>"{{ testimony.property.testimony|trim }}"
+				{% endspaceless %}</q>
+				
+				<span class="who">
+					<span class="photo">
+						{% set tag = supraBlock.imageHtmlTag( testimony.imageId, 50, 50, true, testimony.size_name ) | raw %}
+						{% if testimony.imageId %}
+							{{ tag|raw }}
+						{% else %}
+							<span class="photo-empty"></span>
+						{% endif %}
+					</span>
+					
+					{% if testimony.property.link %}
+						<a href="{{ testimony.property.link.url }}" target="{{ testimony.property.link.target }}" class="reviewer">
+							<em class="valign"{% if tag %} style="height: {{ tag.getAttribute('height') }}px"{% endif %}></em><em>{{ testimony.property.name }}</em>
+						</a>
 					{% else %}
-						<span class="photo-empty"></span>
+						<span class="reviewer">
+							<em class="valign"{% if tag %} style="height: {{ tag.getAttribute('height') }}px"{% endif %}></em><em>{{ testimony.property.name }}</em>
+						</span>
 					{% endif %}
 				</span>
-				
-				{% if testimony.property.link %}
-					<a href="{{ testimony.property.link.url }}" target="{{ testimony.property.link.target }}" class="reviewer">
-						<em class="valign"{% if tag %} style="height: {{ tag.getAttribute('height') }}px"{% endif %}></em><em>{{ testimony.property.name }}</em>
-					</a>
-				{% else %}
-					<span class="reviewer">
-						<em class="valign"{% if tag %} style="height: {{ tag.getAttribute('height') }}px"{% endif %}></em><em>{{ testimony.property.name }}</em>
-					</span>
-				{% endif %}
-			</span>
-		</blockquote>
-		{% endfor %}
+			</blockquote>
+			{% endfor %}
+		</div>
 	</div>
 	
 	{% if supra.cmsRequest %}{% raw %}

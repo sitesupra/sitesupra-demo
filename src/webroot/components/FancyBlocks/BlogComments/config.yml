@@ -48,4 +48,4 @@
           name: label_submit
           editable: Supra\Editable\String
           label: Submit button label
-          default: POST COMMENT
+          default: Post Comment

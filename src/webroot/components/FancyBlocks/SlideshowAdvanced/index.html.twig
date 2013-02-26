@@ -55,11 +55,7 @@
 		{% elseif video.resource == 'link' and video.id %}
 			{% if video.service == 'youtube' %}
 				<div class="video" data-attach="$.fn.resize">
-					<object width="{{ width }}" height="{{ height|number_format }}">
-						<param name="movie" value="http://www.youtube.com/v/{{ video.id }}?hl=en_US&amp;version=3&amp;rel=0"></param>
-						<param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param>
-						<embed{% if supra.isCmsRequest %} wmode="opaque"{%endif%} src="http://www.youtube.com/v/{{ video.id }}?hl=en_US&amp;version=3&amp;rel=0" type="application/x-shockwave-flash" width="{{ width }}" height="{{ height|number_format }}" allowscriptaccess="always" allowfullscreen="true"></embed>
-					</object>
+					<iframe src="http://www.youtube.com/embed/{{ video.id }}?hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 				</div>
 			{% elseif video.service == 'vimeo' %}
 				<div class="video" data-attach="$.fn.resize">

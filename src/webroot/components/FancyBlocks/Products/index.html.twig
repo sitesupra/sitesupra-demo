@@ -135,36 +135,38 @@
 		{% endif %}
 		
 		<div class="products-slider clearfix img-{{ design }} link-{{ link }}" data-refresh-event="carousel" data-{{ navigation }}="true">
-			<ul class="clearfix">
-				{% for index, product in products %}
-					{% if index and index % 4 == 0 %}
-						<li class="clear"></li>
-					{% endif %}
+			<div class="products-slider-inner clearfix">
+				<ul class="clearfix">
+					{% for index, product in products %}
+						{% if index and index % 4 == 0 %}
+							<li class="clear"></li>
+						{% endif %}
+						
+						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
+							
+							{% if design == 'icon' %}
+								<span class="img">
+									{{ output.imageHtmlTag( product, width_icon, width_icon ) }}
+								</span>
+							{% else %}
+								{{ output.imageHtmlTag( product ) }}
+							{% endif %}
+							
+							{% if design != 'only' %}
+								<div class="inner-text">
+									{{ output.text(product, link) }}
+								</div>
+							{% endif %}
+							
+							{% if link == 'overlay' %}
+								{{ output.link(product, link) }}
+							{% endif %}
+						</li>
+					{% endfor %}
 					
-					<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
-						
-						{% if design == 'icon' %}
-							<span class="img">
-								{{ output.imageHtmlTag( product, width_icon, width_icon ) }}
-							</span>
-						{% else %}
-							{{ output.imageHtmlTag( product ) }}
-						{% endif %}
-						
-						{% if design != 'only' %}
-							<div class="inner-text">
-								{{ output.text(product, link) }}
-							</div>
-						{% endif %}
-						
-						{% if link == 'overlay' %}
-							{{ output.link(product, link) }}
-						{% endif %}
-					</li>
-				{% endfor %}
-				
-				<li class="clear"></li>
-			</ul>
+					<li class="clear"></li>
+				</ul>
+			</div>
 		</div>
 		
 		
