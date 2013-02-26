@@ -163,10 +163,11 @@ class BlocksAction extends PageManagerAction
 	 */
 	private function getThemePlaceholderLayoutsBlockData()
 	{
-		$layouts = $this->entityManager
-				->getRepository(\Supra\Controller\Pages\Entity\Theme\ThemePlaceholderGroupLayout::CN())
-				->findAll();
-		
+		$themeProvider = ObjectRepository::getThemeProvider($this);
+		$activeTheme = $themeProvider->getCurrentTheme();
+
+		$layouts = $activeTheme->getPlaceholderGroupLayouts();
+
 		if (empty($layouts)) {
 			return array();
 		}

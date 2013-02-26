@@ -360,8 +360,12 @@ class PagecontentAction extends PageManagerAction
 				$properties = $input->getChild('properties');
 				$layoutName = $properties->get('layout');
 				
-				$layout = $this->entityManager->getRepository(Entity\Theme\ThemePlaceholderGroupLayout::CN())
-						->findOneByName($layoutName);
+				$themeProvider = ObjectRepository::getThemeProvider($this);
+				$activeTheme = $themeProvider->getCurrentTheme();
+
+				$layouts = $activeTheme->getPlaceholderGroupLayouts();
+				
+				$layout = $layouts->get($layoutName);
 				
 				$group = $groups->get($placeHolderName);
 				$group->setGroupLayout($layout);
