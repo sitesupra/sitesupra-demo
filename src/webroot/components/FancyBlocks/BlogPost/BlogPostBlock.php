@@ -40,10 +40,12 @@ class BlogPostBlock extends BlockController
 		$tags = explode(';', $tags);
         
         foreach ($tags as $tag) {
-            $items[] = array(
-                'title' => $tag,
-                'url' => '#', // FIXME
-            );
+            if ($tag) {
+                $items[] = array(
+                    'title' => $tag,
+                    'url' => '#', // FIXME
+                );
+            }
         }
         
         return $items;

@@ -1,4 +1,5 @@
 {% set testimonials = supraBlock.property('images') %}
+{% set navigation = supraBlock.property('navigation')|default('none') %}
 <div class="block">
 	
 	{% if not supraBlock.isEmpty('block_title') %}
@@ -7,7 +8,7 @@
 	</div></h2>
 	{% endif %}
 	
-	<div class="testimonials" data-refresh-event="carousel" data-list=".testimonials-inner" data-items="blockquote" data-animation="fade" data-classname="" data-timer="5000" data-keyboard="false" data-touch="false" data-arrows="true">
+	<div class="testimonials" data-refresh-event="carousel" data-list=".testimonials-inner" data-items="blockquote" data-animation="fade" data-classname="" data-timer="5000" data-keyboard="false" data-touch="false" data-{{ navigation }}="true">
 		<div class="testimonials-inner">
 			{% for index, testimony in testimonials %}
 			<blockquote class="hreview">

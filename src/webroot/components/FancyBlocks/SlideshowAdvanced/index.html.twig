@@ -1,5 +1,6 @@
 {% import _self as slideshow %}
 
+{% if slides or supra.cmsRequest %}
 <div class="block">
 	<div class="slideshow-advanced" data-refresh-event="slideshowAdvanced" {% if supraBlock.property('scrollTimerEnabled') %}data-scroll-timer="{{ supraBlock.property('scrollTimerDelay') }}"{% endif %} {% if supraBlock.property('animation') %}data-animation="{{ supraBlock.property('animation') }}"{% endif %}>
 		<div class="as-inner">
@@ -27,6 +28,7 @@
 		</div>
 	</div>
 </div>
+{% endif %}
 
 {% macro media(mediaData) %}
 {% spaceless %}
