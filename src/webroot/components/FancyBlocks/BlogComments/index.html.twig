@@ -61,17 +61,21 @@
 		
 		<div class="clearfix">
 			<div class="one_third grid_item alpha">
+				<label for="name">{{ supraBlock.property('label_name') }}<sup class="required">*</sup></label>
 				<input type="text" class="input-text" value="" placeholder="{{ supraBlock.property('label_name')|e }}" name="name" required />
 			</div>
 			<div class="one_third grid_item">
+				<label for="email">{{ supraBlock.property('label_email') }}<sup class="required">*</sup></label>
 				<input type="email" class="input-text" value="" placeholder="{{ supraBlock.property('label_email')|e }}" name="email" required />
 			</div>
 			<div class="one_third grid_item omega">
+				<label for="url">{{ supraBlock.property('label_website') }}<sup class="required">*</sup></label>
 				<input type="url" class="input-text" value="" placeholder="{{ supraBlock.property('label_website')|e }}" name="url" />
 			</div>
 		</div>
 		<div class="row">
-			<textarea class="input-text" placeholder="{{ supraBlock.property('label_comment')|e }}" name="comment"></textarea>
+			<label for="url">{{ supraBlock.property('label_comment') }}<sup class="required">*</sup></label>
+			<textarea class="input-text" placeholder="{{ supraBlock.property('label_comment')|e }}" name="comment" required></textarea>
 		</div>
 		<div class="row">
 			<input type="submit" class="button small" value="{{ supraBlock.property('label_submit')|e }}">

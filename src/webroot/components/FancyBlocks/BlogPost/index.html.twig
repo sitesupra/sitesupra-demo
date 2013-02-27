@@ -1,5 +1,9 @@
 <div class="block blog-post">
 	
+	<div class="page-title">
+		{{ supra.pageTitleHtmlTag('h1') | raw }}
+	</div>
+	
 	{% set media = supraBlock.property('media') %}
 	{% if media or supra.cmsRequest %}
 	<figure class="media">
@@ -9,7 +13,6 @@
 	{% endif %}
 	
 	<div data-refresh-event="text" class="text">
-		{{ supra.pageTitleHtmlTag('h2') | raw }}
 		{{ supraBlock.property('content') }}
 	</div>
 	

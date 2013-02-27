@@ -60,31 +60,31 @@ YUI.add('supra.base', function (Y) {
 		},
 		
 		/**
-		 * Returns node width without margin, padding and border
+		 * Returns node width without padding and border
 		 * 
 		 * @returns {Number} Inner width
 		 */
 		getInnerWidth: function () {
 			var width = this.get('offsetWidth'),
 				padding = (parseInt(this.getStyle('paddingLeft'), 10) || 0) + (parseInt(this.getStyle('paddingRight'), 10) || 0),
-				margin = (parseInt(this.getStyle('marginLeft'), 10) || 0) + (parseInt(this.getStyle('marginRight'), 10) || 0),
+				//margin = (parseInt(this.getStyle('marginLeft'), 10) || 0) + (parseInt(this.getStyle('marginRight'), 10) || 0),
 				border = (parseInt(this.getStyle('borderLeftWidth'), 10) || 0) + (parseInt(this.getStyle('borderRightWidth'), 10) || 0);
 			
-			return Math.max(0, width - padding - margin - border);
+			return Math.max(0, width - padding - border);
 		},
 		
 		/**
-		 * Returns node height without margin, padding and border
+		 * Returns node height without padding and border
 		 * 
 		 * @returns {Number} Inner height
 		 */
 		getInnerHeight: function () {
 			var height = this.get('offsetHeight'),
 				padding = (parseInt(this.getStyle('paddingTop'), 10) || 0) + (parseInt(this.getStyle('paddingBottom'), 10) || 0),
-				margin = (parseInt(this.getStyle('marginTop'), 10) || 0) + (parseInt(this.getStyle('marginBottom'), 10) || 0),
+				//margin = (parseInt(this.getStyle('marginTop'), 10) || 0) + (parseInt(this.getStyle('marginBottom'), 10) || 0),
 				border = (parseInt(this.getStyle('borderTopWidth'), 10) || 0) + (parseInt(this.getStyle('borderBottomWidth'), 10) || 0);
 			
-			return Math.max(0, height - padding - margin - border);
+			return Math.max(0, height - padding - border);
 		}
 	};
 	

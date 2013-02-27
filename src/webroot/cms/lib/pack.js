@@ -4138,31 +4138,31 @@ YUI.add('supra.base', function (Y) {
 		},
 		
 		/**
-		 * Returns node width without margin, padding and border
+		 * Returns node width without padding and border
 		 * 
 		 * @returns {Number} Inner width
 		 */
 		getInnerWidth: function () {
 			var width = this.get('offsetWidth'),
 				padding = (parseInt(this.getStyle('paddingLeft'), 10) || 0) + (parseInt(this.getStyle('paddingRight'), 10) || 0),
-				margin = (parseInt(this.getStyle('marginLeft'), 10) || 0) + (parseInt(this.getStyle('marginRight'), 10) || 0),
+				//margin = (parseInt(this.getStyle('marginLeft'), 10) || 0) + (parseInt(this.getStyle('marginRight'), 10) || 0),
 				border = (parseInt(this.getStyle('borderLeftWidth'), 10) || 0) + (parseInt(this.getStyle('borderRightWidth'), 10) || 0);
 			
-			return Math.max(0, width - padding - margin - border);
+			return Math.max(0, width - padding - border);
 		},
 		
 		/**
-		 * Returns node height without margin, padding and border
+		 * Returns node height without padding and border
 		 * 
 		 * @returns {Number} Inner height
 		 */
 		getInnerHeight: function () {
 			var height = this.get('offsetHeight'),
 				padding = (parseInt(this.getStyle('paddingTop'), 10) || 0) + (parseInt(this.getStyle('paddingBottom'), 10) || 0),
-				margin = (parseInt(this.getStyle('marginTop'), 10) || 0) + (parseInt(this.getStyle('marginBottom'), 10) || 0),
+				//margin = (parseInt(this.getStyle('marginTop'), 10) || 0) + (parseInt(this.getStyle('marginBottom'), 10) || 0),
 				border = (parseInt(this.getStyle('borderTopWidth'), 10) || 0) + (parseInt(this.getStyle('borderBottomWidth'), 10) || 0);
 			
-			return Math.max(0, height - padding - margin - border);
+			return Math.max(0, height - padding - border);
 		}
 	};
 	
@@ -31894,7 +31894,8 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (data && type == 'image') {
 				var style = null,
-					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" style="background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
+					//html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" style="background: #e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat;" alt="" />';
+					html = '<img class="as-layer" src="' + this.get('blankImageUrl') + '" width="100%" height="220" alt="" />';
 				
 				node.set('innerHTML', html);
 				this.widgets.input_image.set('targetNode', node.one('img'));
@@ -33543,6 +33544,7 @@ YUI().add('supra.htmleditor-plugin-fullscreen', function (Y) {
 		 */
 		updateSource: function (html) {
 			this.htmleditor.setHTML(html);
+			this.htmleditor._changed();
 		},
 		
 		/**
