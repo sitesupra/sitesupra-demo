@@ -847,6 +847,16 @@ abstract class PageRequest extends HttpRequest
 								$placeHolder->setGroup($group);
 							}
 						}
+					} else {
+						$group = $parentPlaceHolder->getGroup();
+						if ( ! is_null($group)) {
+							$groupName = $group->getName();
+							$localizationGroups = $localization->getPlaceholderGroups();
+							
+							if ($localizationGroups->containsKey($groupName)) {
+								$placeHolder->setGroup($localizationGroups->get($groupName));
+							}
+						}
 					}
 				}
 			

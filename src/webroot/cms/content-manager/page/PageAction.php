@@ -41,51 +41,19 @@ class PageAction extends PageManagerAction
 	public function pageAction()
 	{
 		$controller = $this->getPageController();
-		$pageData = $this->getPageLocalization();
-
-		// Use page localization locale, still current CmsAction locale should be the same already
-		$localeId = $pageData->getLocale();
-
-		$pageId = $pageData->getId();
-
-		// Create special request
 		$request = $this->getPageRequest();
-
+		
+		$localization = $this->getPageLocalization();
+		$page = $request->getPage();
+		
 		$response = $controller->createResponse($request);
 		$controller->prepare($request, $response);
-
-		$page = $request->getPage();
-
-		$this->setInitialPageId($pageId);
-
-		$isAllowedEditing = true;
-
-		if ($page instanceof Entity\Template) {
-
-			try {
-				$isAllowedEditing = $this->checkApplicationAllAccessPermission();
-			} catch (AuthorizationException $e) {
-				$isAllowedEditing = false;
-			}
-		} else {
-
-			try {
-				$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-			} catch (AuthorizationException $e) {
-
-				try {
-					$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-				} catch (AuthorizationException $e) {
-					$isAllowedEditing = false;
-				}
-			}
-		}
-
-		$request->setPageLocalization($pageData);
+		
+		$this->setInitialPageId($localization->getId());
+				
 		$templateError = null;
-
 		// TODO: handling?
-		if ($pageData->getTemplate() != null) {
+		if ($localization->getTemplate() != null) {
 			ObjectRepository::beginControllerContext($controller);
 			try {
 				$controller->execute($request);
@@ -101,244 +69,42 @@ class PageAction extends PageManagerAction
 		} else {
 			$templateError = new \RuntimeException("No template is chosen");
 		}
-
-		$pathPart = null;
-		$pathPrefix = null;
-		$templateArray = array();
-		$scheduledDate = null;
-		$scheduledTime = null;
-		$metaKeywords = null;
-		$metaDescription = null;
-		$active = true;
-		$redirect = null;
-		$createdDate = null;
-		$createdTime = null;
-		$isLimited = null;
-		$hasLimitedParent = null;
-
-		//TODO: create some path for templates also (?)
-		if ($page instanceof Entity\Page) {
-
-			/* @var $pageData Entity\PageLocalization */
-			$pathPart = $pageData->getPathPart();
-
-			if ($page->hasParent()) {
-				$pathPrefix = $page->getParent()
-						->getPath();
-			}
-
-			$template = $pageData->getTemplate();
-
-			if ($template instanceof Entity\Template) {
-				$templateData = $template->getLocalization($localeId);
-
-				if ($templateData instanceof Entity\TemplateLocalization) {
-					$templateArray = array(
-						'id' => $template->getId(),
-						'title' => $templateData->getTitle(),
-						//TODO: hardcoded
-						'img' => '/cms/lib/supra/img/templates/template-3-small.png',
-					);
-				} else {
-					$templateError = new \RuntimeException("No template localization was found");
-					//TODO: warn
-//					throw new \Supra\Controller\Pages\Exception\RuntimeException("Template doesn't exist for page $page in locale $localeId");
-				}
-			} else {
-				$templateError = new \RuntimeException("No template entity was assigned or found");
-				//TODO: warn
-			}
-
-			$scheduledDateTime = $pageData->getScheduleTime();
-			$redirectLink = $pageData->getRedirect();
-			$metaKeywords = $pageData->getMetaKeywords();
-			$metaDescription = $pageData->getMetaDescription();
-			$active = $pageData->isActive();
-
-			if ($pageData instanceof Entity\PageLocalization) {
-				$isLimited = $pageData->isLimitedAccessPage();
-
-				$hasLimitedParent = false;
-				$parent = $pageData->getParent();
-				while ( ! is_null($parent)) {
-					if ($parent instanceof Entity\PageLocalization) {
-						$hasLimitedParent = $parent->getPathEntity()
-								->isLimited();
-
-						break;
-					}
-
-					$parent = $parent->getParent();
-				}
-			}
-
-			if ( ! is_null($redirectLink)) {
-				$redirect = $this->convertReferencedElementToArray($redirectLink);
-			}
-
-			if ( ! is_null($scheduledDateTime)) {
-				$scheduledDate = $scheduledDateTime->format('Y-m-d');
-				$scheduledTime = $scheduledDateTime->format('H:i:s');
-			}
-
-			if ($pageData->isPublishTimeSet()) {
-				$createdDateTime = $pageData->getCreationTime();
-				$createdDate = $createdDateTime->format('Y-m-d');
-				$createdTime = $createdDateTime->format('H:i:s');
-			}
-		}
-
-		$type = 'page';
-
-		if ($page instanceof Entity\Template) {
-			$type = 'template';
-		}
-
-		$publicEm = ObjectRepository::getEntityManager('#public');
-		$publishedData = $publicEm->find(Entity\Abstraction\Localization::CN(), $pageData->getId());
-		$isPublished = false;
-		if ($publishedData instanceof Entity\Abstraction\Localization) {
-			$isPublished = ($pageData->getRevisionId() == $publishedData->getRevisionId());
-		}
-
-		$pageLocalizationArray = array();
-		$pageLocalizations = $page->getLocalizations();
-
-		foreach ($pageLocalizations as $localization) {
-			/* @var $localization Entity\Abstraction\Localization */
-			$pageLocalizationArray[$localization->getLocale()] = array(
-				'page_id' => $localization->getId()
-			);
-		}
-
-		$lock = false;
-		$lockData = $pageData->getLock();
-
-		if ( ! is_null($lockData)) {
-			$userId = $lockData->getUserId();
-			if ($this->getUser()->getId() === $userId) {
-				$lock = array(
-					'userlogin' => $this->getUser()->getLogin(),
-				);
-			}
-		}
-
-		$parentIdsArray = array();
-
-		$ancestors = $pageData->getAncestors();
-		foreach ($ancestors as $ancestor) {
-			$parentIdsArray[] = $ancestor->getId();
-		}
-
-		$array = array(
-			'id' => $pageData->getId(),
-			'master_id' => $page->getId(),
-			'revision_id' => $pageData->getRevisionId(),
-			'locale' => $localeId,
-			'title' => $pageData->getTitle(),
-			'path' => $pathPart,
-			'path_prefix' => $pathPrefix,
-			'template' => $templateArray,
-			'type' => $type,
-			'internal_html' => $response->__toString(),
-			'contents' => array(),
-			'keywords' => $metaKeywords,
-			'description' => $metaDescription,
-			'scheduled_date' => $scheduledDate,
-			'scheduled_time' => $scheduledTime,
-			'redirect' => $redirect,
-			'active' => $active,
-			'is_limited' => $isLimited,
-			'has_limited_parent' => $hasLimitedParent,
-			'created_date' => $createdDate,
-			'created_time' => $createdTime,
-			'global' => $page->getGlobal(),
-			'localizations' => $pageLocalizationArray,
-			'allow_edit' => $isAllowedEditing,
-			'is_visible_in_menu' => $pageData->isVisibleInMenu(),
-			'is_visible_in_sitemap' => $pageData->isVisibleInSitemap(),
-			'include_in_search' => $pageData->isIncludedInSearch(),
-			'published' => $isPublished,
-			'lock' => $lock,
-			'tree_path' => $parentIdsArray,
-		);
-
-		if ( ! is_null($templateError)) {
-			$this->log->warn("Page could not be shown in CMS because of exception:\n", $templateError);
-
-			$array['internal_html'] = '<h1>Page template or layout not found</h1><p>Please make sure the template is assigned and the template is published in this locale and it has layout assigned.</p>';
-		}
-
-		if ($page instanceof Entity\Page) {
-			$array['page_change_frequency'] = $pageData->getChangeFrequency();
-			$array['page_priority'] = $pageData->getPagePriority();
-		}
-
-		if ($page instanceof Entity\Template) {
-
-			$layoutName = null;
-
-			if ($page->hasLayout($this->getMedia())) {
-
-				$layout = $page->getLayout($this->getMedia());
-
-				$layoutName = $layout->getName();
-			}
-
-			$array['layout'] = $layoutName;
-
-			// fetch all layouts
-			$array['layouts'] = $this->getLayouts();
-		}
-
-		$array['root'] = $page->isRoot();
-
+		
+		$localizationArray = $this->convertLocalizationToArray($localization);
+		
 		$placeHolderSet = array();
 		$blockSet = new \Supra\Controller\Pages\Set\BlockSet();
 
-		if (is_null($templateError)) {
-			$placeHolderSet = $request->getPlaceHolderSet()
-					->getFinalPlaceHolders();
+		if ( ! is_null($templateError)) {
+			$this->log->warn("Page could not be shown in CMS because of exception:\n", $templateError);
+			$localizationArray['internal_html'] = '<h1>Page template or layout not found</h1><p>Please make sure the template is assigned and the template is published in this locale and it has layout assigned.</p>';
+		}
+		else {
+			$localizationArray['internal_html'] = $response->__toString();
+			
+			$placeHolderSet = $request->getPlaceHolderSet()->getFinalPlaceHolders();
 			$blockSet = $request->getBlockSet();
 		}
 
 		$responseContext = new ResponseContext();
-
 		$this->getResponse()->setContext($responseContext);
 		
-		$containersData = array();
-		
-		// Collecting locked blocks
-		$lockedBlocks = array();
-		foreach ($blockSet as $block) {
-			if ($block->getLocked()) {
-
-				$holderName = $block->getPlaceHolder()
-						->getName();
-
-				if ( ! isset($lockedBlocks[$holderName])) {
-					$lockedBlocks[$holderName] = array();
-				}
-
-				$lockedBlocks[$holderName][] = $block;
-			}
-		}		
+		$groupsData = array();
 
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
 			
+			$groupName = null;
 			$group = $placeHolder->getGroup();
+
 			if ( ! is_null($group)) {
 				
 				$groupName = $group->getName();
-				
-				$containerName = $group->getName();
 				$groupLayout = $group->getGroupLayout();
-				//$groupName = $placeHolder->getPlaceholderSetName();
 				
-				if ( ! isset($containersData[$containerName])) {
-					$placeHolderContainerData = array(
-						'id' => $containerName,
+				if ( ! isset($groupsData[$groupName])) {
+					$groupData = array(
+						'id' => $groupName,
 						'closed' => false,
 						'locked' => false,
 						'editable' => true,
@@ -347,12 +113,16 @@ class PageAction extends PageManagerAction
 						'allow' => array(),
 						'layout_limit' => 4,
 						'properties' => array(
-							'layout' => array('value' => $groupLayout, 'language' => null, '__shared' => false),
+							'layout' => array(
+								'value' => $groupLayout, 
+								'language' => null, 
+								'__shared' => false
+							),
 						),
 						'contents' => array(),
 					);
 					
-					$containersData[$containerName] = $placeHolderContainerData;
+					$groupsData[$groupName] = $groupData;
 				}
 			}
 			
@@ -360,7 +130,7 @@ class PageAction extends PageManagerAction
 				'id' => $placeHolder->getName(),
 				'title' => $placeHolder->getTitle(),
 				'type' => 'list',
-				'closed' => ! $pageData->isPlaceHolderEditable($placeHolder),
+				'closed' => ! $localization->isPlaceHolderEditable($placeHolder),
 				'locked' => $placeHolder->getLocked(),
 				//TODO: not specified now
 //				'allow' => array(
@@ -369,13 +139,7 @@ class PageAction extends PageManagerAction
 				'contents' => array()
 			);
 
-			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder)
-					->getArrayCopy();
-			
-			$placeHolderName = $placeHolder->getName();
-			if ( ! $placeHolder->getLocked() && isset($lockedBlocks[$placeHolderName])) {
-				$blockSubset = array_merge($blockSubset, $lockedBlocks[$placeHolderName]);
-			}
+			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder);
 
 			/* @var $block Entity\Abstraction\Block */
 			foreach ($blockSubset as $block) {
@@ -393,7 +157,7 @@ class PageAction extends PageManagerAction
 				$blockData = array(
 					'id' => $block->getId(),
 					'type' => $block->getComponentName(),
-					'closed' => ! $pageData->isBlockEditable($block),
+					'closed' => ! $localization->isBlockEditable($block),
 					'locked' => $block->getLocked(),
 					'properties' => array(),
 					'owner_id' => $block->getPlaceHolder()
@@ -418,26 +182,23 @@ class PageAction extends PageManagerAction
 				$placeHolderData['contents'][] = $blockData;
 			}
 
-			if ( ! empty($containerName)) {
-				
+			if ( ! empty($groupName)) {
+				// TODO: move locked parameter to group config
 				if ($placeHolderData['locked']) {
-					$containersData[$containerName]['locked'] = true;
-					if ($pageData instanceof Entity\PageLocalization) {
-						$containersData[$containerName]['editable'] = false;
-					}
+					$groupsData[$groupName]['locked'] = true;
+					$groupsData[$groupName]['editable'] = false;
 				}
 				
 				$placeHolderData['type'] = 'list_one';
 				$placeHolderData['editable'] = false;
-				$containersData[$containerName]['contents'][] = $placeHolderData;
+				$groupsData[$groupName]['contents'][] = $placeHolderData;
 			} else {
-				$array['contents'][] = $placeHolderData;
+				$localizationArray['contents'][] = $placeHolderData;
 			}			
 		}
 		
-		$array['contents'] = array_merge($array['contents'], array_values($containersData));
-
-		$this->getResponse()->setResponseData($array);
+		$localizationArray['contents'] = array_merge(array_values($groupsData), $localizationArray['contents']);
+		$this->getResponse()->setResponseData($localizationArray);
 
 		// TODO: implement in CmsAction
 		$this->getResponse()
@@ -1039,5 +800,229 @@ class PageAction extends PageManagerAction
 		}
 		
 		return $propertyValue;	
+	}
+	
+	/**
+	 * 
+	 * @param \Supra\Controller\Pages\Entity\Abstraction\Localization $localization
+	 * @return boolean
+	 */
+	private function isAllowedToEditLocalization(Entity\Abstraction\Localization $localization)
+	{
+		$page = $localization->getMaster();
+		
+		$allowed = true;
+		
+		if ($page instanceof Entity\Template) {
+			try {
+				$allowed = $this->checkApplicationAllAccessPermission();
+			} catch (AuthorizationException $e) {
+				$allowed = false;
+			}
+		} 
+		else {
+			try {
+				$this->checkActionPermission($page, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+			} catch (AuthorizationException $e) {
+
+				try {
+					$this->checkActionPermission($localization, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
+				} catch (AuthorizationException $e) {
+					$allowed = false;
+				}
+			}
+		}
+		
+		return $allowed;
+	}
+	
+	/**
+	 * 
+	 * @param \Supra\Controller\Pages\Entity\Abstraction\Localization $localization
+	 * @return array
+	 */
+	private function convertLocalizationToArray(Entity\Abstraction\Localization $localization)
+	{
+		$page = $localization->getMaster();
+		$isTemplateInstance = ($page instanceof Entity\Template);
+		
+		$localizationId = $localization->getId();
+		$localeId = $localization->getLocale();
+		
+		// defaults
+		$pathPart = null;
+		$pathPrefix = null;
+		$templateArray = array();
+		$scheduledDate = null;
+		$scheduledTime = null;
+		$metaKeywords = null;
+		$metaDescription = null;
+		$isActive = true;
+		$redirect = null;
+		$createdDate = null;
+		$createdTime = null;
+		$isLimited = null;
+		$hasLimitedParent = null;
+		$locked = false;
+		$changeFrequency = null;
+		$priority = null;
+		$layoutName = null;
+		$layouts = null;
+		
+		if ( ! $isTemplateInstance) {
+			/* @var $localization Entity\PageLocalization */
+			
+			// collecting localization template data
+			$template = $localization->getTemplate();
+			if ($template instanceof Entity\Template) {
+				
+				$templateLocalization = $template->getLocalization($localeId);
+
+				if ($templateLocalization instanceof Entity\TemplateLocalization) {
+					$templateArray = array(
+						'id' => $template->getId(),
+						'title' => $templateLocalization->getTitle(),
+						// @FIXME: hardcoded value
+						'img' => '/cms/lib/supra/img/templates/template-3-small.png',
+					);
+				} else {
+					$templateError = new \RuntimeException("No template localization was found");
+					$this->log->error("No template {$localeId} localization was found for localization #{$localizationId}");
+				}
+			} else {
+				$templateError = new \RuntimeException("No template entity was assigned or found");
+				$this->log->error("No template entity was found for localization #{$localizationId}");
+			}
+			
+			// collecting path data
+			$pathPart = $localization->getPathPart();
+			if ($page->hasParent()) {
+				$pathPrefix = $page->getParent()->getPath();
+			}
+
+			// redirect object, if set
+			$redirect = $localization->getRedirect();
+			if ($redirect instanceof Entity\ReferencedElement\LinkReferencedElement) {
+				$redirect = $this->convertReferencedElementToArray($redirect);
+			}
+			
+			// publish schedule, if set
+			$scheduledDateTime = $localization->getScheduleTime();
+			if ($scheduledDateTime instanceof \DateTime) {
+				$scheduledDate = $scheduledDateTime->format('Y-m-d');
+				$scheduledTime = $scheduledDateTime->format('H:i:s');
+			}
+			
+			// publish time, could be null
+			if ($localization->isPublishTimeSet()) {
+				$createdDateTime = $localization->getCreationTime();
+				$createdDate = $createdDateTime->format('Y-m-d');
+				$createdTime = $createdDateTime->format('H:i:s');
+			}
+			
+			$metaKeywords = $localization->getMetaKeywords();
+			$metaDescription = $localization->getMetaDescription();
+			$isActive = $localization->isActive();
+			
+			// SEO
+			$changeFrequency = $localization->getChangeFrequency();
+			$priority = $localization->getPagePriority();
+
+//			// TODO: this functionality isn't working right now
+//			$isLimited = $localization->isLimitedAccessPage();
+//			$hasLimitedParent = false;
+//			
+//			$parent = $localization->getParent();
+//			while ( ! is_null($parent)) {
+//				$hasLimitedParent = $parent->getPathEntity()->isLimited();
+//				if ($hasLimitedParent) {
+//					break;
+//				}
+//				$parent = $parent->getParent();
+//			}			
+		}
+
+		if ($isTemplateInstance) {
+			if ($page->hasLayout($this->getMedia())) {
+				$layout = $page->getLayout($this->getMedia());
+				$layoutName = $layout->getName();
+			}
+			$layouts = $this->getLayouts();
+		}
+		
+		// Comparing published version (if any) revision with draft 
+		$publicEm = ObjectRepository::getEntityManager('#public');
+		$publishedData = $publicEm->find(Entity\Abstraction\Localization::CN(), $localizationId);
+		$isPublished = false;
+		if ($publishedData !== null) {
+			$isPublished = ($localization->getRevisionId() == $publishedData->getRevisionId());
+		}
+
+		// Collecting all available localizations
+		$localizationsData = array();
+		$localizations = $page->getLocalizations();
+		foreach ($localizations as $localization) {
+			/* @var $localization Entity\Abstraction\Localization */
+			$localizationsData[$localization->getLocale()] = array(
+				'page_id' => $localization->getId()
+			);
+		}
+
+		// Page lock
+		$lock = $localization->getLock();
+		if ($lock !== null) {
+			$lockOwner = $lock->getUserId();
+			$currentUser = $this->getUser();
+			
+			if ($currentUser->getId() == $lockOwner) {
+				$locked = array(
+					'userlogin' => $this->getUser()->getLogin(),
+				);
+			}
+		}
+
+		$ancestors = $localization->getAncestors();
+		$ancestorIds = \Supra\Database\Entity::collectIds($ancestors);
+
+		$array = array(
+			'id' => $localizationId,
+			'master_id' => $page->getId(),
+			'root' => $page->isRoot(),
+			'revision_id' => $localization->getRevisionId(),
+			'locale' => $localeId,
+			'title' => $localization->getTitle(),
+			'path' => $pathPart,
+			'path_prefix' => $pathPrefix,
+			'template' => $templateArray,
+			'type' => $isTemplateInstance ? 'template' : 'page',
+			'keywords' => $metaKeywords,
+			'description' => $metaDescription,
+			'scheduled_date' => $scheduledDate,
+			'scheduled_time' => $scheduledTime,
+			'redirect' => $redirect,
+			'active' => $isActive,
+			'is_limited' => $isLimited,
+			'has_limited_parent' => $hasLimitedParent,
+			'created_date' => $createdDate,
+			'created_time' => $createdTime,
+			'global' => $page->getGlobal(),
+			'localizations' => $localizationsData,
+			'allow_edit' => $this->isAllowedToEditLocalization($localization),
+			'is_visible_in_menu' => $localization->isVisibleInMenu(),
+			'is_visible_in_sitemap' => $localization->isVisibleInSitemap(),
+			'include_in_search' => $localization->isIncludedInSearch(),
+			'published' => $isPublished,
+			'lock' => $locked,
+			'tree_path' => $ancestorIds,
+			'page_change_frequency' => $changeFrequency,
+			'page_priority' => $priority,
+			'layout' => $layoutName,
+			'layouts' => $layouts,
+			
+			'internal_html' => null,
+			'contents' => array(),
+		);
+		
+		return $array;
 	}
 }
