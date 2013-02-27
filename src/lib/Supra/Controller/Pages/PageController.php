@@ -735,7 +735,8 @@ class PageController extends ControllerAbstraction
 				$groupLayoutName = $group->getGroupLayout();
 				
 				$groupLayouts = $theme->getPlaceholderGroupLayouts();
-				if ($groupLayouts && $groupLayouts->offsetExists($groupLayoutName)) {
+				
+				if ( $groupLayouts && $groupLayouts->offsetExists($groupLayoutName)) {
 					$groupResponse->setGroupLayout($groupLayouts->get($groupLayoutName));
 				}
 				

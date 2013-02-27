@@ -131,24 +131,11 @@ class HtmlProcessor implements ProcessorInterface
 						
 						if ( ! empty($currentGroupResponses)) {
 							$layout = $groupResponse->getGroupLayout();
-//							if ( ! is_null($layout)) {
-							$self->process($groupResponse, $currentGroupResponses, $layout->getFileName());
-							$groupResponse->flushToResponse($response);
-//							}
-							
-//							$groupLayouts = $self->layout->getTheme()->getPlaceholderGroupLayouts();
-//							
-//							if ( ! $groupLayouts->isEmpty()) {
-//								if ($groupLayouts->offsetExists($layoutName)) {
-//									$groupLayout = $groupLayouts->get($layoutName);
-//									/* @var $group Supra\Controller\Pages\Entity\Theme\ThemeLayoutPlaceholderGroup */
-//									
-//								} else {
-//									\Log::warn("No configuration found for {$layoutName}, output for this placeholders group is skipped");
-//								}
-//							} else {
-//								\Log::warn('Layout group array is empty');
-//							}
+							if ( ! is_null($layout)) {
+								$self->process($groupResponse, $currentGroupResponses, $layout->getFileName());
+								$groupResponse->flushToResponse($response);
+							}
+	
 						}
 					}
 				};

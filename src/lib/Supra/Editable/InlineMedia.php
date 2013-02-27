@@ -112,7 +112,7 @@ class InlineMedia extends EditableAbstraction
 				$image = $storage->find($imageId, \Supra\FileStorage\Entity\Image::CN());
 
 				if (is_null($image)) {
-					\Log::notice("Failed to find image #{$imageId} for referenced element");
+					\Log::warn("Failed to find image #{$imageId} for referenced element");
 					return $data;
 				}
 
