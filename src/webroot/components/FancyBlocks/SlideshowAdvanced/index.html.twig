@@ -2,27 +2,29 @@
 
 <div class="block">
 	<div class="slideshow-advanced" data-refresh-event="slideshowAdvanced" {% if supraBlock.property('scrollTimerEnabled') %}data-scroll-timer="{{ supraBlock.property('scrollTimerDelay') }}"{% endif %} {% if supraBlock.property('animation') %}data-animation="{{ supraBlock.property('animation') }}"{% endif %}>
-		<ul class="as-container" data-supra-container="true">
-			{% if slides %}
-				{# Slide data here #}
-				{% for slide in slides %}
-					{% set property = {
-						'hidden': loop.index,
-						'media': slideshow.media(slide['media']), 
-						'text_main': slide['text_main'],
-						'text_top': slide['text_top'],
-						'background': slideshow.background(slide['background']),
-						'buttons': slideshow.buttons(slide['buttons']),
-						'height': slide['height'],
-					} %}
+		<div class="as-inner">
+			<ul class="as-container" data-supra-container="true">
+				{% if slides %}
+					{# Slide data here #}
+					{% for slide in slides %}
+						{% set property = {
+							'hidden': loop.index,
+							'media': slideshow.media(slide['media']), 
+							'text_main': slide['text_main'],
+							'text_top': slide['text_top'],
+							'background': slideshow.background(slide['background']),
+							'buttons': slideshow.buttons(slide['buttons']),
+							'height': slide['height'],
+						} %}
+					
+						{# FIXME: bad solution #}
+						{% include 'templates/' ~ slide.layout ~ '.html' %}
+					{% endfor %}
+				{% endif %}
 				
-					{# FIXME: bad solution #}
-					{% include 'templates/' ~ slide.layout ~ '.html' %}
-				{% endfor %}
-			{% endif %}
-			
-		</ul>
-		<div class="decoration"></div>
+			</ul>
+			<div class="decoration"></div>
+		</div>
 	</div>
 </div>
 

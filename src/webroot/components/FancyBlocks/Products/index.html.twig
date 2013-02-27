@@ -112,7 +112,13 @@
 	{% macro text(product, link_type) %}
 		{% import _self as output %}
 		
-		<h2>{{ product.property.title }}</h2>
+		<h2>
+			{% if link_type == 'overlay' and product.property.link %}
+				<a href="{{ product.property.link.url }}" target="{{ product.property.link.target }}">{{ product.property.title }}</a>
+			{% else %}
+				{{ product.property.title }}
+			{% endif %}
+		</h2>
 		<p>{{ product.property.description }}</p>
 		
 		{% if link_type == 'button' or link_type == 'text' %}			
@@ -144,22 +150,21 @@
 						
 						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
 							
-							{% if design == 'icon' %}
-								<span class="img">
+							<span class="img">
+								{% if design == 'icon' %}
 									{{ output.imageHtmlTag( product, width_icon, width_icon ) }}
-								</span>
-							{% else %}
-								{{ output.imageHtmlTag( product ) }}
-							{% endif %}
+								{% else %}
+									{{ output.imageHtmlTag( product ) }}
+								{% endif %}
+								{% if link == 'overlay' %}
+									{{ output.link(product, link) }}
+								{% endif %}
+							</span>
 							
 							{% if design != 'only' %}
 								<div class="inner-text">
 									{{ output.text(product, link) }}
 								</div>
-							{% endif %}
-							
-							{% if link == 'overlay' %}
-								{{ output.link(product, link) }}
 							{% endif %}
 						</li>
 					{% endfor %}
