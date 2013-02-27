@@ -38,3 +38,21 @@
                  name: link
                  editable: Supra\Editable\Link
                  label: Link
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: navigation
+          group: navigation
+          editable: Supra\Editable\SelectVisual
+          label: Navigation
+          default: none
+          values:
+            - id: none
+              title: None
+              icon: icons/navigation-none.png
+            - id: arrows
+              title: Arrows
+              icon: icons/navigation-arrows.png
+            - id: arrows_pages
+              title: Arrows with page number
+              icon: icons/navigation-arrows-pages.png
+          additionalParameters:
+            style: mid

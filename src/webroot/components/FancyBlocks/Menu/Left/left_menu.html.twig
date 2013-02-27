@@ -1,9 +1,7 @@
 <div class="sidebar-menu desktop tablet">
 	<div class="background"></div>
 	<div class="inner">
-		<div class="heading toggle">
-			<h3><a><span>{{ supraBlock.property('menuLabel')|e }}</span></a></h3>
-		</div>
+		<h3 class="heading"><span>{{ supraBlock.property('menuLabel')|e }}</span></h3>
 		<ul class="content">
 			{% for menu_item in menu_items %}
 				{% if(menu_item.items) %} 
