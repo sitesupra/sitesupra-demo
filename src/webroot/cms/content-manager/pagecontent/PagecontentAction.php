@@ -3,12 +3,8 @@
 namespace Supra\Cms\ContentManager\Pagecontent;
 
 use Supra\Cms\ContentManager\PageManagerAction;
-use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Entity;
 use Supra\Cms\Exception\CmsException;
-use Supra\Controller\Pages\BlockControllerCollection;
-use Supra\Response\HttpResponse;
-use Supra\Controller\Pages\Filter\EditableHtml;
 use Supra\Editable;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
@@ -191,7 +187,7 @@ class PagecontentAction extends PageManagerAction
 			$block->executeController($blockController);
 
 			$response = $blockController->getResponse();
-			/* @var $response HttpResponse */
+			/* @var $response \Supra\Response\HttpResponse */
 			$outputString = $response->getOutputString();
 
 			$e = null;
