@@ -89,6 +89,20 @@ class PageAction extends PageManagerAction
 		$responseContext = new ResponseContext();
 		$this->getResponse()->setContext($responseContext);
 		
+		// Collecting locked blocks
+		$lockedBlocks = array();
+		foreach ($blockSet as $block) {
+			if ($block->getLocked()) {
+				$holderName = $block->getPlaceHolder()->getName();
+
+				if ( ! isset($lockedBlocks[$holderName])) {
+					$lockedBlocks[$holderName] = array();
+				}
+
+				$lockedBlocks[$holderName][] = $block;
+			}
+		}          
+		
 		$groupsData = array();
 
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
@@ -139,7 +153,12 @@ class PageAction extends PageManagerAction
 				'contents' => array()
 			);
 
-			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder);
+			$blockSubset = $blockSet->getPlaceHolderBlockSet($placeHolder)
+					->getArrayCopy();
+			
+			if ( ! $placeHolder->getLocked() && isset($lockedBlocks[$placeHolderName])) {
+				$blockSubset = array_merge($blockSubset, $lockedBlocks[$placeHolderName]);
+			}
 
 			/* @var $block Entity\Abstraction\Block */
 			foreach ($blockSubset as $block) {
