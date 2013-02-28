@@ -108,6 +108,8 @@ class PageAction extends PageManagerAction
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
 			
+			$placeHolderName = $placeHolder->getName();
+			
 			$groupName = null;
 			$group = $placeHolder->getGroup();
 
@@ -141,7 +143,7 @@ class PageAction extends PageManagerAction
 			}
 			
 			$placeHolderData = array(
-				'id' => $placeHolder->getName(),
+				'id' => $placeHolderName,
 				'title' => $placeHolder->getTitle(),
 				'type' => 'list',
 				'closed' => ! $localization->isPlaceHolderEditable($placeHolder),
