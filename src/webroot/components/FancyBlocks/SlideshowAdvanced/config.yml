@@ -15,10 +15,10 @@
           
     propertyGroups:
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
-          id: design
+          id: navigation
           type: sidebar
-          icon: /cms/lib/supra/img/toolbar/icon-design.png
-          label: Design
+          icon: /cms/lib/supra/img/toolbar/icon-navigation.png
+          label: Navigation
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: animation
           type: sidebar
@@ -27,21 +27,24 @@
     
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: design
-          group: design
+          name: navigation
+          group: navigation
           editable: Supra\Editable\SelectVisual
-          label: Design
+          label: Navigation
           default: arrows
           values:
             - id: none
               title: None
-              icon: icons/design-none.png
+              icon: icons/design/none.png
             - id: arrows
               title: Arrows
-              icon: icons/design-arrows.png
+              icon: icons/design/arrows.png
             - id: dots
               title: Dots
-              icon: icons/design-dots.png
+              icon: icons/design/dots.png
+            - id: progress
+              title: Progress bar
+              icon: icons/design/progress.png
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: scrollTimerEnabled
           group: animation
@@ -66,13 +69,13 @@
           values:
             - id: horizontal
               title: Horizontal slide
-              icon: icons/animation-horizontal.png
+              icon: icons/animation/horizontal.png
             - id: vertical
               title: Vertical slide
-              icon: icons/animation-vertical.png
+              icon: icons/animation/vertical.png
             - id: fade
               title: Fade
-              icon: icons/animation-fade.png
+              icon: icons/animation/fade.png
           additionalParameters:
               iconStyle: center
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
