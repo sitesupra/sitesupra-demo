@@ -31919,8 +31919,10 @@ YUI.add('supra.datatype-color', function(Y) {
 					description = this.get('description'),
 					html = (label ? '<h2>' + Y.Escape.html(label) + '</h2>' : '') +
 						   (description ? '<p>' + Y.Escape.html(description) + '</p>' : '') +
-						   '<div align="center" class="yui3-box-reset"><a class="button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>' +
-						   '<a class="button" data-supra-action="addVideo">' + (this.get('labelAddVideo') || Supra.Intl.get(['inputs', 'media', 'add_video'])) + '</a></div>';
+						   '<div align="center" class="yui3-box-reset">' +
+						       '<a class="supra-button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>' +
+						       '<a class="supra-button" data-supra-action="addVideo">' + (this.get('labelAddVideo') || Supra.Intl.get(['inputs', 'media', 'add_video'])) + '</a>' +
+						   '</div>';
 				
 				node.addClass(this.getClassName('empty'));
 				node.set('innerHTML', html);
