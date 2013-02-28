@@ -4,14 +4,14 @@
 	{% endif %}
 	<div class="as-wrapper" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %} data-supra-item-height="true">
 		<i class="as-center" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %} data-supra-item-height="true"></i>
-		<div class="as-layer as-layer-left-large">
-			{{ property.media }}
-		</div>
 		<div class="as-layer as-layer-right-small">
 			{{ property.text_main|raw }}
 			<div class="as-layer buttons" data-supra-item-property="buttons">
 				{{ property.buttons|raw }}
 			</div>
+		</div>
+		<div class="as-layer as-layer-left-large">
+			{{ property.media }}
 		</div>
 	</div>
 </li>

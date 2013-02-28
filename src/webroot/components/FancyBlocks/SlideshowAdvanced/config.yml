@@ -81,19 +81,18 @@
           label: Slides
           # predefined Layout values
           values:
-            ## background image only
-            - id: bg
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg.html
             ## layouts with text   
             - id: bg_text_left
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left.html
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left.html.twig
             - id: bg_text_right
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right.html
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right.html.twig
+            - id: bg_text_center
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_center.html.twig
             ## layouts with media
             - id: bg_text_img_left
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left.html
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left.html.twig
             - id: bg_text_img_right
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right.html
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right.html.twig
           
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -102,32 +101,26 @@
                 label: Slide layout
                 default: bg_text_img_left
                 values:
-                  - id: bg
-                    title: Background image only
-                    icon: icons/layout/bg.png
-                  - id: bg_text
-                    title: Background image and text
-                    icon: icons/layout/bg-text.png
-                    values:
-                      - id: bg_text_left
-                        title: Text on left side
-                        icon: icons/layout/bg-text-left.png
-                      - id: bg_text_right
-                        title: Text on right side
-                        icon: icons/layout/bg-text-right.png
-                  - id: bg_text_img
-                    title: Background image, text and graphics element
-                    icon: icons/layout/bg-text-img.png
-                    values:
-                      - id: bg_text_img_left
-                        title: Text on left side
-                        icon: icons/layout/bg-text-img-left.png
-                      - id: bg_text_img_right
-                        title: Text on right side
-                        icon: icons/layout/bg-text-img-right.png
+                  - id: bg_text_left
+                    title: Text on left side
+                    icon: icons/layout/bg-text-left.png
+                  - id: bg_text_right
+                    title: Text on right side
+                    icon: icons/layout/bg-text-right.png
+                  - id: bg_text_center
+                    title: Text in center
+                    icon: icons/layout/bg-text-center.png
+                  - id: bg_text_img_left
+                    title: Text on left side
+                    icon: icons/layout/bg-text-img-left.png
+                  - id: bg_text_img_right
+                    title: Text on right side
+                    icon: icons/layout/bg-text-img-right.png
                 additionalParameters:
-                    separateSlide: true
-                    labelButton: Set layout
+                  style: mid
+                  iconStyle: center
+                  separateSlide: true
+                  labelButton: Set layout
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background
                 editable: Supra\Editable\BlockBackground
@@ -146,12 +139,7 @@
                 name: text_main
                 editable: Supra\Editable\Html
                 label: Main text
-                default: <h1>Lorem ipsum</h1><h2>Dolor sit amet</h2><p>Lid est laborum dolo es fugats untras. Et harums quidem rerum facilisdolores nemis omnis fugiats vitaro minimarerums unsers sadips dolores sitsers untra nemi amets.</p>
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                name: text_top
-                editable: Supra\Editable\Html
-                label: Top text
-                default: <p>Nascetur in mattis donec massa sed libero mauris congue at. Fames enim laoreet eget diam. Habitant nunc sed adipiscing malesuada feugiat viverra justo malesuada.</p>
+                default: <h1>Lorem ipsum</h1><br /><h2>Dolor sit amet</h2><p>Lid est laborum dolo es fugats untras. Et harums quidem rerum facilisdolores nemis omnis fugiats vitaro minimarerums unsers sadips dolores sitsers untra nemi amets.</p>
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: buttons
                 editable: Supra\Editable\PropertySet
