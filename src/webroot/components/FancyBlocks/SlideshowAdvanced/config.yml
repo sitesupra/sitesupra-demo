@@ -35,16 +35,16 @@
           values:
             - id: none
               title: None
-              icon: icons/design/none.png
+              icon: icons/navigation/none.png
             - id: arrows
               title: Arrows
-              icon: icons/design/arrows.png
+              icon: icons/navigation/arrows.png
             - id: dots
               title: Dots
-              icon: icons/design/dots.png
+              icon: icons/navigation/dots.png
             - id: progress
               title: Progress bar
-              icon: icons/design/progress.png
+              icon: icons/navigation/progress.png
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: scrollTimerEnabled
           group: animation
