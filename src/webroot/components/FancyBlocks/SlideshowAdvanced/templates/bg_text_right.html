@@ -1,9 +1,9 @@
 <li {% if hidden %}class="hidden"{% endif %}>
-	<div class="as-wrapper" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %}>
-		{% if property.background %}
-			<img class="as-layer absolute as-background" src="{{ property.background }}" />
-		{% endif %}
-		
+	{% if property.background %}
+		<img class="as-layer absolute as-background" src="{{ property.background }}" />
+	{% endif %}
+	<div class="as-wrapper" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %} data-supra-item-height="true">
+		<i class="as-center" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %} data-supra-item-height="true"></i>
 		<div class="as-layer as-layer-left-large">&nbsp;</div>
 		<div class="as-layer as-layer-right-small">
 			{{ property.text_main|raw }}
