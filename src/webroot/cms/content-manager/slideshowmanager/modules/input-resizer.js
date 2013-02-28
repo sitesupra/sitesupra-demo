@@ -281,18 +281,28 @@ YUI.add('slideshowmanager.input-resizer', function (Y) {
 		 */
 		_uiSetHeight: function (height) {
 			var target = this.get('targetNode'),
-				node = null,
-				prop = this.get('cssProperty');
+				nodes = null,
+				prop = this.get('cssProperty'),
+				i = 0,
+				ii = 0;
 			
 			if (target) {
-				node = target.one('li > *');
+				nodes = target.all('*[data-supra-item-height]');
+				ii = nodes.size();
+				
+				for (; i<ii; i++) {
+					// empty value will remove
+					nodes.item(i).setStyle(prop, height ? height + 'px' : '');
+				}
+				
+				/*node = target.one('li > div');
 				if (!node) node = target.one('li');
 				if (!node) node = target;
-			}
-			
-			if (node) {
-				// empty value will remove
-				node.setStyle(prop, height ? height + 'px' : '');
+				
+				if (node) {
+					// empty value will remove
+					node.setStyle(prop, height ? height + 'px' : '');
+				}*/
 			}
 			
 			// Tooltip

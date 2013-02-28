@@ -89,29 +89,11 @@
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left.html
             - id: bg_text_right
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right.html
-            - id: bg_text_left_top
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left_top.html
-            - id: bg_text_left_top
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left_top.html
-            - id: bg_text_right_top
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right_top.html
-            - id: bg_text_left_bottom
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left_bottom.html
-            - id: bg_text_right_top
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right_top.html
             ## layouts with media
             - id: bg_text_img_left
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left.html
             - id: bg_text_img_right
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right.html
-            - id: bg_text_img_left_top
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left_top.html
-            - id: bg_text_img_right_top
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right_top.html
-            - id: bg_text_img_left_bottom
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left_bottom.html
-            - id: bg_text_img_right_top
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right_top.html
           
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -133,18 +115,6 @@
                       - id: bg_text_right
                         title: Text on right side
                         icon: icons/layout/bg-text-right.png
-                      - id: bg_text_left_top
-                        title: Text on left and top sides
-                        icon: icons/layout/bg-text-left-top.png
-                      - id: bg_text_right_top
-                        title: Text on right and top sides
-                        icon: icons/layout/bg-text-right-top.png
-                      - id: bg_text_left_bottom
-                        title: Text on left and bottom sides
-                        icon: icons/layout/bg-text-left-bottom.png
-                      - id: bg_text_right_top
-                        title: Text on right and bottom sides
-                        icon: icons/layout/bg-text-right-bottom.png
                   - id: bg_text_img
                     title: Background image, text and graphics element
                     icon: icons/layout/bg-text-img.png
@@ -155,18 +125,6 @@
                       - id: bg_text_img_right
                         title: Text on right side
                         icon: icons/layout/bg-text-img-right.png
-                      - id: bg_text_img_left_top
-                        title: Text on left and top sides
-                        icon: icons/layout/bg-text-img-left-top.png
-                      - id: bg_text_img_right_top
-                        title: Text on right and top sides
-                        icon: icons/layout/bg-text-img-right-top.png
-                      - id: bg_text_img_left_bottom
-                        title: Text on left and bottom sides
-                        icon: icons/layout/bg-text-img-left-bottom.png
-                      - id: bg_text_img_right_top
-                        title: Text on right and bottom sides
-                        icon: icons/layout/bg-text-img-right-bottom.png
                 additionalParameters:
                     separateSlide: true
                     labelButton: Set layout
