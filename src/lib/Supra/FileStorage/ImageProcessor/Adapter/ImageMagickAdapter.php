@@ -45,6 +45,8 @@ class ImageMagickAdapter extends ImageProcessorAdapterAbstract
 	 */
 	protected function saveToFile(\Imagick $image, $fileName)
 	{
+		$image->stripImage();
+		
 		$image->writeImage($fileName);
 		$image->destroy();
 	}
