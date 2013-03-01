@@ -132,6 +132,8 @@ YUI.add('slideshowmanager.list', function (Y) {
 			
 			this._items = {};
 			this._scrollable = scrollable;
+			
+			this.plug(Supra.SlideshowManagerListOrder);
 		},
 		
 		/**
@@ -155,6 +157,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 			
 			this._items = {};
 			this._count = 0;
+			this.order.update();
 		},
 		
 		/**
@@ -241,6 +244,8 @@ YUI.add('slideshowmanager.list', function (Y) {
 			this._count++;
 			this._items[id] = node;
 			this._scrollable.syncUI();
+			
+			this.order.update();
 		},
 		
 		/**
@@ -282,6 +287,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 					
 					// Scrollbar
 					this._scrollable.syncUI();
+					this.order.update();
 					
 				}, this));
 			}

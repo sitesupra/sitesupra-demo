@@ -15,6 +15,10 @@ Supra.addModules({
 		path: 'list.js',
 		requires: ['plugin', 'supra.template']
 	},
+	'slideshowmanager.list-order': {
+		path: 'list-order.js',
+		requires: ['plugin', 'dd']
+	},
 	'slideshowmanager.settings': {
 		path: 'settings.js',
 		requires: ['plugin', 'supra.form']
@@ -37,6 +41,7 @@ Supra([
 	'slideshowmanager.data',
 	'slideshowmanager.layouts',
 	'slideshowmanager.list',
+	'slideshowmanager.list-order',
 	'slideshowmanager.settings',
 	'slideshowmanager.view',
 	'slideshowmanager.plugin-inline-button',
@@ -128,6 +133,9 @@ Supra([
 			}, this);
 			this.list.on('itemClick', function (event) {
 				this.set('activeSlideId', event.data.id);
+			}, this);
+			this.list.on('order', function (event) {
+				this.data.swapSlideIndex(event.indexDrag, event.indexDrop);
 			}, this);
 			
 			// Update UI when data changes

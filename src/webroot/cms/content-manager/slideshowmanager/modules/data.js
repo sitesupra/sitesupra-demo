@@ -114,63 +114,20 @@ YUI.add('slideshowmanager.data', function (Y) {
 		},
 		
 		/**
-		 * Change slide order
+		 * Change slide index
 		 * 
-		 * @param {String} id Slide ID which position changed
-		 * @param {String} reference Slide ID before/after which now slide is placed
-		 * @param {String} position 'before' or 'after'
-		 * @returns {Boolean} True of success, false on failure
+		 * @param {Number} from Item index which to move
+		 * @param {Number} to Index where to move item
 		 */
-		changeSlideOrder: function (id, reference, position) {
+		swapSlideIndex: function (from, to) {
 			var data = this._data,
-				i = 0,
-				ii = data.length,
-				index_id = -1,
-				index_reference = -1,
-				slide = null;
+				item = null;
 			
-			for (; i<ii; i++) {
-				if (data[i].id == id) {
-					index_id = i;
-					
-					if (!reference || index_reference != -1) {
-						break;
-					}
-				}
-				if (data[i].id == reference) {
-					index_reference = i;
-					
-					if (index_id != -1) {
-						break;
-					}
-				}
+			if (from >= 0 && from < data.length) {
+				item = data[from];
+				data.splice(from, 1);
+				data.splice(to, 0, item);
 			}
-			
-			if (index_id != -1) {
-				slide = data[index_id];
-				
-				if (reference) {
-					if (reference_id != -1) {
-						data.splice(index_id, 1);
-						
-						if (index_id < index_reference) {
-							index_reference--;
-						}
-						if (position == 'after') {
-							index_reference++;
-						}
-						
-						data.splice(index_reference, 0, slide);
-					}
-				} else {
-					// Add at the end
-					data.push(slide);
-					this.fire('order', {'id': id, 'reference': reference, 'position': position});
-					return true;
-				}
-			}
-			
-			return false;
 		},
 		
 		/**
