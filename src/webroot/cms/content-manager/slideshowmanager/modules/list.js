@@ -302,8 +302,6 @@ YUI.add('slideshowmanager.list', function (Y) {
 				image_img = null,
 				background = null;
 			
-			console.log(id, data);
-			
 			image_bg  = Supra.getObjectValue(data, ['background', 'image', 'image', 'sizes', 'original', 'external_path']);
 			image_img = Supra.getObjectValue(data, ['media', 'image', 'sizes', 'original', 'external_path']);
 			
