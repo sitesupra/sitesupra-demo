@@ -1124,7 +1124,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			
 			//Open folders one by one
 			if (stack.length) {
-				var next = Y.bind(function (item_id, data) {
+				var next = Y.bind(function (data) {
 					if (stack.length && data) {
 						var id = stack.shift(),
 							attr = this.get('noAnimations');
@@ -1136,7 +1136,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 						deferred.resolve();
 					}
 				}, this);
-				next(null, true);
+				next(true);
 			} else if (path.length) {
 				//Last item is already opened, only need to show it
 				return this.open(path[path.length - 1]);

@@ -30334,7 +30334,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			//Open MediaSidebar
 			var mediasidebar = Supra.Manager.getAction("MediaSidebar"),
 				form = this.getParentWidget("form"),
-				path = this.image ? [].concat(this.image.path).concat(this.image.id) : 0;
+				path = this.image && this.image.image ? [].concat(this.image.image.path).concat(this.image.image.id) : 0;
 			
 			mediasidebar.execute({
 				"onselect": Y.bind(this.insertImage, this),
