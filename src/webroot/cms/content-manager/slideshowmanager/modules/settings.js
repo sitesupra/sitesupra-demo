@@ -125,6 +125,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				// Don't close editing when clicking outside image
 				if (properties[i].type == 'InlineMedia') {
 					properties[i].autoClose = false;
+					properties[i].separateSlide = false;
 				}
 				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);

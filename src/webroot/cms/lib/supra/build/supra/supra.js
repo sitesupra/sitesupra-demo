@@ -246,5 +246,31 @@ if (typeof Supra === "undefined") {
 		};
 	};
 	
+	/**
+	 * Retrieves the sub value at the provided path, from the value object provided.
+	 * 
+	 * @param {Object} obj The object from which to extract the property value.
+	 * @param {Object} path A path array, specifying the object traversal path from which to obtain the sub value.
+	 * @returns {Object} The value stored in the path, undefined if not found, undefined if the source is not an object. Returns the source object if an empty path is provided.
+	 */
+	Supra.getObjectValue = function (obj, path) {
+		if (!path || !path.length) {
+			return obj;
+		}
+		if(!obj || !Y.Lang.isObject(obj)) {
+			return undefined;
+		}
+		
+		var i = 0,
+			path = Y.Array(path),
+			size = path.length;
+		
+		for (; obj !== undefined && i < size; i++) {
+			obj = obj ? obj[path[i]] : undefined;
+		}
+		
+		return obj;
+	};
+	
 })();
 }

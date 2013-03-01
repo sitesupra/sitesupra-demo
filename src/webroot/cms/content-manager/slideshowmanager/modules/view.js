@@ -322,11 +322,19 @@ YUI.add('slideshowmanager.view', function (Y) {
 		stopEditing: function (preserveToolbar) {
 			var input = this._activeInput;
 			
-			if (input && !input.get('disabled') && input.isInstanceOf('input-html-inline')) {
-				input.set('disabled', true);
-				if (input.isInstanceOf('input-html-inline') && preserveToolbar !== true) {
-					Supra.Manager.EditorToolbar.hide();
+			if (input && !input.get('disabled')) {
+				if (input.isInstanceOf('input-html-inline')) {
+					
+					input.set('disabled', true);
+					if (preserveToolbar !== true) {
+						Supra.Manager.EditorToolbar.hide();
+						this.get('host').settings.show();
+					}
+					
+				} else if (input.isInstanceOf('input-media-inline')) {
+					
 					this.get('host').settings.show();
+					
 				}
 			}
 			
@@ -679,6 +687,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 					// it's needed for HTML5 drag and drop events to work correctly
 					structure.unshift('<div class="yui3-inline-reset yui3-box-reset supra-slideshowmanager-wrapper">');
 					structure.push('</div>');
+					
+					// Add class to the 
+					nodeClass += ' supra-slideshowmanager';
 				}
 				
 				structure.unshift('<' + nodeTag + '' + (nodeTag === 'html' ? ' lang=' + (node.getAttribute('lang') || '') : '') + ' class="' + nodeClass + '" id="' + nodeId + '">');

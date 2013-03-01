@@ -17,10 +17,8 @@ YUI.add('slideshowmanager.list', function (Y) {
 		'<li>\
 			<div class="background"></div>\
 			<div class="marker"></div>\
-			<div class="content click-target">\
-				{% if icon %}\
-					<img src="{{ icon }}" alt="" />\
-				{% else %}\
+			<div class="content click-target" {% if background %}style="background-image: {{ background }};"{% endif %}>\
+				{% if !background %}\
 					<span class="center"></span><span class="title">{{ title }}</span>\
 				{% endif %}\
 			</div>\
@@ -195,11 +193,21 @@ YUI.add('slideshowmanager.list', function (Y) {
 				list = this.get('listNode'),
 				new_item = this.get('newItemControl'),
 				node = null,
-				layout = this.get('host').layouts.getLayoutById(data.layout);
+				layout = this.get('host').layouts.getLayoutById(data.layout),
+				image_bg = null,
+				image_img = null,
+				background = null;
+			
+			image_bg  = Supra.getObjectValue(data, ['background', 'image', 'image', 'sizes', 'original', 'external_path']);
+			image_img = Supra.getObjectValue(data, ['media', 'image', 'sizes', 'original', 'external_path']);
+			
+			if (image_bg || image_img) {
+				background = (image_img ? 'url(' + image_img + ')' : 'none') + ', ' + (image_bg ? 'url(' + image_bg + ')' : 'none');
+			}
 			
 			node = Y.Node.create(ITEM_TEMPLATE(
 				Supra.mix({}, data, {
-					'icon': layout.icon,
+					'background': background,
 					'title': layout.label
 				})
 			));
@@ -286,7 +294,24 @@ YUI.add('slideshowmanager.list', function (Y) {
 		 * @param {Object} data Item data
 		 */
 		redrawItem: function (id) {
+			var data = this.get('host').data.getSlideById(id),
+				node = this._items[id],
+				node_bg = node.one('.content'),
+				
+				image_bg = null,
+				image_img = null,
+				background = null;
 			
+			console.log(id, data);
+			
+			image_bg  = Supra.getObjectValue(data, ['background', 'image', 'image', 'sizes', 'original', 'external_path']);
+			image_img = Supra.getObjectValue(data, ['media', 'image', 'sizes', 'original', 'external_path']);
+			
+			if (image_bg || image_img) {
+				background = (image_img ? 'url(' + image_img + ')' : 'none') + ', ' + (image_bg ? 'url(' + image_bg + ')' : 'none');
+			}
+			
+			node_bg.setStyle('backgroundImage', background || 'none');
 		},
 		
 		/**

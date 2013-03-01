@@ -165,6 +165,8 @@ Supra([
 						this.view.updateLayoutClassName(prevData.layout, newData.layout);
 						this.view.renderItem(id);
 					}
+				}
+				if ('background' in newData || 'media' in newData) {
 					this.list.redrawItem(id);
 				}
 			}, this);

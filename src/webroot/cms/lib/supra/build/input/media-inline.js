@@ -322,37 +322,32 @@ YUI.add('supra.input-media-inline', function (Y) {
 		
 		
 		/**
-		 * Open image slide
+		 * Open specific slide
 		 * 
+		 * @param {String} slide_id Slide id
 		 * @private
 		 */
-		openImageSlide: function () {
-			var slideshow = this.getSlideshow(),
-				slide_id  = this.get('id') + '_slide_image';
+		openSpecificSlide: function (slide_id) {
+			var slideshow = this.getSlideshow();
 			
 			slideshow.set('noAnimations', true);
 			slideshow.set('slide', slide_id);
 			slideshow.set('noAnimations', false);
 			
-			// Hardcoded for now!?
-			Supra.Manager.PageContentSettings.get('backButton').hide();
-		},
-		
-		/**
-		 * Open video slide
-		 * 
-		 * @private
-		 */
-		openVideoSlide: function () {
-			var slideshow = this.getSlideshow(),
-				slide_id  = this.get('id') + '_slide_video';
-			
-			slideshow.set('noAnimations', true);
-			slideshow.set('slide', slide_id);
-			slideshow.set('noAnimations', false);
-			
-			// Hardcoded for now!?
-			Supra.Manager.PageContentSettings.get('backButton').hide();
+			if (this.get('separateSlide')) {
+				Supra.Manager.PageContentSettings.get('backButton').hide();
+			} else {
+				var evt = slideshow.on('slideChange', function (e) {
+					if (e.newVal != e.prevVal && e.prevVal == slide_id) {
+						evt.detach();
+						
+						if (this.get('focused')) {
+							this.set('editing', false);
+							this.stopEditing();
+						}
+					}
+				}, this);
+			}
 		},
 		
 		/**
@@ -360,9 +355,9 @@ YUI.add('supra.input-media-inline', function (Y) {
 		 */
 		openSlide: function () {
 			if (this.type === 'video') {
-				this.openVideoSlide();
+				this.openSpecificSlide(this.get('id') + '_slide_video');
 			} else if (this.type === 'image') {
-				this.openImageSlide();
+				this.openSpecificSlide(this.get('id') + '_slide_image');
 			}
 		},
 		
@@ -497,7 +492,6 @@ YUI.add('supra.input-media-inline', function (Y) {
 			}
 			
 			if (this.get('editing')) {
-				this.set('editing', false);
 				this.hideSettingsSidebar();
 			}
 		},
