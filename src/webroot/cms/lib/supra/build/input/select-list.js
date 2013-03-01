@@ -209,7 +209,7 @@ YUI.add('supra.input-select-list', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'icon': definition.icon, 'type': 'toggle', 'style': 'group'}),
+				button = new Supra.Button({'label': definition.title, 'icon': definition.icon, 'type': 'toggle', 'style': ''}),
 				value = this._getInternalValue(),
 				has_value_match = false;
 			

@@ -21328,7 +21328,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'icon': definition.icon, 'type': 'toggle', 'style': 'group'}),
+				button = new Supra.Button({'label': definition.title, 'icon': definition.icon, 'type': 'toggle', 'style': ''}),
 				value = this._getInternalValue(),
 				has_value_match = false;
 			
@@ -30282,16 +30282,21 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			// Button "Custom image"
 			if (this.get('separateSlide')) {
-				var buttonCustom = new Supra.Button({
-					"label": Supra.Intl.get(["form", "block", "custom_image"]),
-					"style": "small"
-				});
-				buttonCustom.addClass("button-section");
-				buttonCustom.on("click", this.openSlide, this);
-				buttonCustom.render(renderTarget);
-				inputNode.insert(buttonCustom.get("boundingBox"), "before");
 				
-				this.widgets.buttonCustom = buttonCustom;
+				var button = new Supra.Button({
+					'label': Supra.Intl.get(["form", "block", "custom_image"]),
+					'style': 'group',
+					'groupStyle': 'mid',
+					'iconStyle': '',
+					'icon': ''
+				});
+				
+				button.addClass("button-section");
+				button.on("click", this.openSlide, this);
+				button.render(renderTarget);
+				inputNode.insert(button.get("boundingBox"), "before");
+				
+				this.widgets.buttonCustom = button;
 			} else {
 				this.openSlide();
 			}
@@ -30800,6 +30805,31 @@ YUI.add('supra.datatype-color', function(Y) {
 					} else {
 						this.widgets.buttonEdit.set("disabled", true);
 					}
+				}
+				
+				// Standalone button background preview
+				if (this.widgets.buttonCustom) {
+					var button = this.widgets.buttonCustom,
+						style = '',
+						icon = null;
+					
+					if (value && value.image && value.image.image) {
+						icon = Supra.getObjectValue(value, ['image', 'image', 'sizes', '200x200', 'external_path']);
+					}
+					
+					if (icon) {
+						button.set('iconStyle', '');
+					} else {
+						button.set('iconStyle', 'center');
+						style = 'center';
+						icon = '/cms/lib/supra/build/input/assets/skins/supra/icons/select-visual-none.png'
+					}
+					
+					if (button.get('iconStyle') != style) {
+						button.set('iconStyle', style);
+					}
+					
+					button.set('icon', icon);					
 				}
 			}
 			
