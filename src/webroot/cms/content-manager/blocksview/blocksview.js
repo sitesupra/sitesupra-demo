@@ -84,6 +84,7 @@ Supra(function (Y) {
 			if (!this.type) return;
 			
 			var blocks = this.blocks = Manager.PageContent.getContent().getAllChildren(),
+				filtered = [],
 				block = null,
 				block_type = null,
 				block_definition = null,
@@ -92,58 +93,116 @@ Supra(function (Y) {
 				item = null,
 				is_placeholder = false,
 				title = '',
-				icon = '';
+				icon = '',
+				type = this.type;
 			
 			//Update heaidng
 			var heading = this.one('h2');
-			if (this.type == 'blocks') {
+			if (type == 'blocks') {
 				heading.set('text', Supra.Intl.get(['blocks', 'title']));
 			} else {
 				heading.set('text', Supra.Intl.get(['placeholders', 'title']));
 			}
 			
-			//Update block list
+			//Filter blocks
 			for(var id in blocks) {
-				
 				//Show only blocks which are not closed and are editable
 				if (!blocks[id].isClosed() && blocks[id].get('editable')) {
 					is_placeholder = blocks[id].isList();
 					
-					if ((this.type == 'blocks' && !is_placeholder) || (this.type != 'blocks' && is_placeholder)) {
-						
-						block = blocks[id];
-						block_definition = block.getBlockInfo();
-						
-						if (block_definition.hidden && !is_placeholder) {
-							//Don't show hidden blocks (eq. broken block)
-							//But show hidden placeholders (eq. Placeholder sets)
-							continue;
-						}
-						
-						//Icon
-						icon = (block_definition ? block_definition.icon : '');
-						if (!icon) {
-							if (is_placeholder) {
-								//Default placeholder icon
-								icon = '/cms/lib/supra/img/blocks/icons-items/list.png';
-							} else {
-								//Default block icon
-								icon = '/cms/lib/supra/img/blocks/icons-items/default.png';
-							}
-						}
-						
-						template_data.push({
-							'id': id,
-							'title': block.getBlockTitle(),
-							'icon': icon 
-						});
-						
+					if ((type == 'blocks' && !is_placeholder) || (type != 'blocks' && is_placeholder)) {
+						filtered.push(blocks[id]);
 					}
 				}
 			}
 			
+			blocks = this.sortBlocksByDomOrder(filtered);
+			
+			//Update block list
+			var i = 0,
+				ii = blocks.length,
+				id = null;
+			
+			for(; i<ii; i++) {
+				block = blocks[i];
+				block_definition = block.getBlockInfo();
+				id = block.getId();
+				is_placeholder = block.isList();
+				
+				if (block_definition.hidden && !is_placeholder) {
+					//Don't show hidden blocks (eq. broken block)
+					//But show hidden placeholders (eq. Placeholder sets)
+					continue;
+				}
+				
+				//Icon
+				icon = (block_definition ? block_definition.icon : '');
+				if (!icon) {
+					if (is_placeholder) {
+						//Default placeholder icon
+						icon = '/cms/lib/supra/img/blocks/icons-items/list.png';
+					} else {
+						//Default block icon
+						icon = '/cms/lib/supra/img/blocks/icons-items/default.png';
+					}
+				}
+				
+				template_data.push({
+					'id': id,
+					'title': block.getBlockTitle(),
+					'icon': icon 
+				});
+			}
+			
 			//Render items
 			container.set('innerHTML', Supra.Template('pageBlockListItems', {'blocks': template_data}));
+		},
+		
+		/**
+		 * Sort block data by DOM order
+		 * 
+		 * @param {Array} blocks List of blocks
+		 * @returns {Array} Block list ordered by their appearance in DOM
+		 * @private
+		 */
+		sortBlocksByDomOrder: function (blocks) {
+			var doc = Y.Node(Manager.PageContent.getContent().get('doc')),
+				node,
+				ancestor,
+				index = 0,
+				
+				i = 0,
+				ii = blocks.length,
+				
+				order = {},
+				sorted = [],
+				
+				pad = function (n) { n = String(n); return '000'.substr(0, 3 - n.length) + n; };
+			
+			for (; i<ii; i++) {
+				node = blocks[i].getNode();
+				ancestor = node.ancestor();
+				index = '';
+				
+				while(ancestor && !node.test('body')) {
+					index = pad(ancestor.get('children').indexOf(node)) + index;
+					
+					node = node.ancestor();
+					ancestor = node.ancestor();
+				}
+				
+				order[blocks[i].getId()] = index;
+			}
+			
+			sorted = [].concat(blocks);
+			sorted.sort(function (a, b) {
+				var a_index = order[a.getId()],
+					b_index = order[b.getId()];
+				
+				return a_index == b_index ? 0 : (a_index < b_index ? -1 : 1);
+			});
+			
+			return sorted;
 		},
 		
 		
