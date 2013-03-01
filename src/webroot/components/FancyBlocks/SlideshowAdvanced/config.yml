@@ -123,7 +123,6 @@
                   style: mid
                   iconStyle: center
                   separateSlide: true
-                  labelButton: Set layout
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background
                 editable: Supra\Editable\BlockBackground

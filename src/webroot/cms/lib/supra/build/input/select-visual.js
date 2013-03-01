@@ -175,9 +175,21 @@ YUI.add('supra.input-select-visual', function (Y) {
 					button = null;
 				
 				if (slideshow) {
+					/*
 					this.widgets.button = button = new Supra.Button({
 						'label': this.get('labelButton') || this.get('label'),
 						'style': 'small'
+					});
+					*/
+					var value = this.getValueData(this.get('value')),
+						label = this.get('labelButton') || value.title;
+					
+					this.widgets.button = button = new Supra.Button({
+						'label': label,
+						'style': 'group',
+						'groupStyle': this.get('style'),
+						'iconStyle': this.get('iconStyle'),
+						'icon': value && value.icon ? value.icon : ''
 					});
 					
 					this.widgets.slide = slide = slideshow.addSlide('propertySlide' + this.get('id'));
@@ -221,17 +233,15 @@ YUI.add('supra.input-select-visual', function (Y) {
 			button = new Supra.Button({
 				'label': definition.title,
 				'type': is_group ? 'button' : 'toggle',
-				'style': is_group ? 'small' : 'group'
+				'style': is_group ? 'small' : 'group',
+				'groupStyle': this.get('style'),
+				'iconStyle': this.get('iconStyle'),
+				'icon': definition.icon,
+				'iconHTML': definition.html
 			});
 			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
-			}
-			
-			// If not a group then render set different decoration
-			if (!is_group) {
-				button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
-				button.LABEL_TEMPLATE = this.getButtonLabelTemplate(definition);
 			}
 			
 			this.buttons[definition.id] = button;
@@ -305,43 +315,6 @@ YUI.add('supra.input-select-visual', function (Y) {
 			}
 			
 			return has_value_match;
-		},
-		
-		/**
-		 * Returns button label template
-		 * 
-		 * @return Label template
-		 * @type {String}
-		 * @private
-		 */
-		getButtonLabelTemplate: function (definition) {
-			if (this.get('iconStyle') == 'html') {
-				return '<div class="su-button-bg"><div>' + (definition.html || '') + '</div><p></p></div>';
-			} else {
-				return '<div class="su-button-bg"><div style="' + this.getButtonBackgroundStyle(definition) + '"></div><p></p></div>';
-			}
-		},
-		
-		/**
-		 * Returns button background style
-		 * 
-		 * @param {Object} definition Button definition
-		 * @return Background CSS style
-		 * @type {String}
-		 * @private
-		 */
-		getButtonBackgroundStyle: function (definition) {
-			var style = 'background-color: ' + this.get('backgroundColor') +';';
-			
-			if (definition.icon) {
-				if (this.get('iconStyle') == 'button') {
-					style += 'background-image: url(' + definition.icon + '), url(' + definition.icon + '), url(' + definition.icon + ');';
-				} else {
-					style += 'background-image: url(' + definition.icon + ');';
-				}
-			}
-			
-			return style;
 		},
 		
 		
@@ -442,6 +415,29 @@ YUI.add('supra.input-select-visual', function (Y) {
 		
 		
 		/**
+		 * Value attribute setter
+		 * 
+		 * @param {String} value Value id
+		 * @returns {String} New value
+		 * @private
+		 */
+		_setValue: function (value) {
+			value = Input.superclass._setValue.call(this, value);
+			
+			if (this.widgets && this.widgets.button) {
+				var data = this.getValueData(value);
+				
+				this.widgets.button.set('icon', data && data.icon ? data.icon : '');
+				
+				if (!this.get('labelButton')) {
+					this.widgets.button.set('label', data && data.title ? data.title : '');
+				}
+			}
+			
+			return value;
+		},
+		
+		/**
 		 * Background color attribute setter
 		 * 
 		 * @param {String} value Background color
@@ -477,6 +473,15 @@ YUI.add('supra.input-select-visual', function (Y) {
 				if (value) {
 					classname = this.getClassName(value);
 					this.get('boundingBox').addClass(classname);
+				}
+			}
+			
+			var buttons = this.buttons,
+				id = null;
+			
+			if (buttons) {
+				for (id in buttons) {
+					buttons[id].set('iconStyle', value);
 				}
 			}
 			
@@ -576,6 +581,15 @@ YUI.add('supra.input-select-visual', function (Y) {
 				if (value) {
 					classname = Y.ClassNameManager.getClassName(Input.NAME, value);
 					this.get('boundingBox').addClass(classname);
+				}
+				
+				var buttons = this.buttons,
+					id = null;
+				
+				if (buttons) {
+					for (id in buttons) {
+						buttons[id].set('groupStyle', value);
+					}
 				}
 			}
 			

@@ -33,6 +33,10 @@ YUI.add('supra.button', function (Y) {
 		type: {
 			value: 'push'		// Valid types are 'push', 'toggle'
 		},
+		/**
+		 * Button style:
+		 * "small", "small-gray", "small-blue", "mid", "mid-blue", "group"
+		 */
 		style: {
 			value: 'small',
 			setter: '_setStyle'
@@ -56,6 +60,45 @@ YUI.add('supra.button', function (Y) {
 		icon: {
 			value: null,
 			setter: '_setIcon'
+		},
+		
+		
+		/**
+		 * Group style if style is "group":
+		 * "mid" or "no-labels"
+		 */
+		groupStyle: {
+			value: '',
+			setter: '_setGroupStyle'
+		},
+		/**
+		 * Icon image style style is "group":
+		 * "normal", "center", "fill", "button" or "html"
+		 */
+		iconStyle: {
+			value: 'normal',
+			setter: '_setIconStyle'
+		},
+		
+		/**
+		 * Icon background color if style is "group" and iconStyle is "html"
+		 */
+		iconBackgroundColor: {
+			value: 'transparent'
+		},
+		
+		/**
+		 * Icon HTML if style is "group" and iconStyle is "html"
+		 */
+		iconHTML: {
+			value: ''
+		},
+		
+		/**
+		 * Icon CSS if style is "group" and iconStyle is "html"
+		 */
+		iconCSS: {
+			value: ''
 		}
 	},
 	
@@ -162,7 +205,35 @@ YUI.add('supra.button', function (Y) {
 			}
 			
 			return down;
+		},
+		
+		iconStyle: function (srcNode) {
+			var button = this.get('nodeButton'),
+				style = null;
+			
+			if (button) {
+				style = button.getAttribute('suIconStyle') || undefined;
+			}
+		},
+		
+		groupStyle: function (srcNode) {
+			var button = this.get('nodeButton'),
+				style = null;
+			
+			if (button) {
+				style = button.getAttribute('suGroupStyle') || '';
+			}
+		},
+		
+		iconBackgroundColor: function (srcNode) {
+			var button = this.get('nodeButton'),
+				style = button.getAttribute('suIconBackgroundColor');
+			
+			if (button && style) {
+				return style;
+			}
 		}
+
     };
 	
 	Y.extend(Button, Y.Widget, {
@@ -172,6 +243,8 @@ YUI.add('supra.button', function (Y) {
 		 * @type {String}
 		 */
 		ICON_TEMPLATE: '<img src="" alt="" />',
+		
+		ICON_TEMPLATE_GROUP: '<span class="img"><img src="" alt="" /></span>',
 		
 		/**
 		 * Label template
@@ -200,7 +273,7 @@ YUI.add('supra.button', function (Y) {
 			var btn = this.get('nodeButton');
 			if (btn) {
 				if (!this.get('nodeLabel') || this.get('nodeLabel').get('tagName') != 'P') {
-					var tpl = Y.Node.create(this.LABEL_TEMPLATE),
+					var tpl = Y.Node.create(this._getLabelTemplate()),
 						p = tpl.test('P') ? tpl : tpl.one('P');
 					
 					p.set('innerHTML', Y.Escape.html(Supra.Intl.replace(this.get('label') || '')));
@@ -266,11 +339,79 @@ YUI.add('supra.button', function (Y) {
 			this.on('click', this._onClick, this);
 		},
 		
+		
+		/* ---------------------------- Label ---------------------------- */
+		
+		
+		/**
+		 * Returns button label template
+		 * 
+		 * @return Label template
+		 * @type {String}
+		 * @private
+		 */
+		_getLabelTemplate: function (definition) {
+			if (this.get('style') == 'group') {
+				if (this.get('iconStyle') == 'html') {
+					return '<div class="su-button-bg"><div>' + (this.get('iconHTML') || '') + '</div><p></p></div>';
+				} else {
+					return '<div class="su-button-bg"><div style="' + this._getButtonBackgroundStyle(this.get('icon')) + '"></div><p></p></div>';
+				}
+			} else {
+				return this.LABEL_TEMPLATE;
+			}
+		},
+		
+		/**
+		 * Returns button background style
+		 * 
+		 * @param {Object} definition Button definition
+		 * @return Background CSS style
+		 * @type {String}
+		 * @private
+		 */
+		_getButtonBackgroundStyle: function (icon, asObject) {
+			var color = this.get('iconBackgroundColor'),
+				image = '',
+				style = '';
+			
+			if (icon) {
+				if (this.get('iconStyle') == 'button') {
+					image = 'url(' + icon + '), url(' + icon + '), url(' + icon + ')';
+				} else {
+					image = 'url(' + icon + ')';
+				}
+			}
+			
+			if (asObject) {
+				style = {
+					'backgroundColor': color,
+					'backgroundImage': image
+				};
+			} else {
+				style = 'background-color: ' + color + '; background-image: ' + image + ';';
+			}
+			
+			return style;
+		},
+		
+		
+		/* ---------------------------- ... ---------------------------- */
+		
+		
 		_syncUIStyle: function (name, add) {
 			var box = this.get('boundingBox');
 			if (box) {
 				var style = this.get('style');
 				if (style) box.addClass(this.getClassName(style));
+				
+				var style = this.get('groupStyle');
+				if (style) box.addClass(this.getClassName('group', style));
+				
+				var icon_style = this.get('iconStyle');
+				if (style && icon_style) {
+					box.addClass(this.getClassName('group', style, icon_style));
+				}
 			}
 		},
 		_setDisabled: function (disabled) {
@@ -309,6 +450,46 @@ YUI.add('supra.button', function (Y) {
 			}
 		},
 		
+		_setGroupStyle: function (new_style) {
+			var box = this.get('boundingBox');
+			if (!box) return new_style;
+			
+			var old_style = this.get('groupStyle'),
+				icon_style = this.get('iconStyle');
+			
+			if (new_style == old_style) return;
+			
+			if (box) {
+				if (old_style) {
+					box.removeClass(this.getClassName('group', old_style));
+					if (icon_style) {
+						box.removeClass(this.getClassName('group', old_style, icon_style));
+					}
+				}
+				if (new_style) {
+					box.addClass(this.getClassName('group', new_style));
+					if (icon_style) {
+						box.addClass(this.getClassName('group', new_style, icon_style));
+					}
+				}
+			}
+		},
+		
+		_setIconStyle: function (new_style) {
+			var box = this.get('boundingBox');
+			if (!box) return new_style;
+			
+			var group_style = this.get('groupStyle'),
+				old_style = this.get('iconStyle');
+			
+			if (new_style == old_style) return;
+			
+			if (box) {
+				if (old_style) box.removeClass(this.getClassName('group', group_style, old_style));
+				if (new_style) box.addClass(this.getClassName('group', group_style, new_style));
+			}
+		},
+		
 		_setDown: function (down) {
 			var box = this.get('boundingBox');
 			if (!box) return !!down;
@@ -324,7 +505,8 @@ YUI.add('supra.button', function (Y) {
 		
 		_setLabel: function (label) {
 			var labelNode = this.get('nodeLabel'),
-				escaped = null;
+				escaped = null,
+				node = null;
 			
 			if (labelNode) {
 				label = label ? Supra.Intl.replace(label) : '';
@@ -333,7 +515,10 @@ YUI.add('supra.button', function (Y) {
 				
 				//Buttons with group style doesn't have labels, use "title" attribute
 				if (this.get('style') == 'group' && this.get('icon')) {
-					this.get('buttonNode').setAttribute('title', label);
+					node = this.get('buttonNode');
+					if (node) {
+						node.setAttribute('title', label);
+					}
 				}
 			}
 		},
@@ -345,23 +530,37 @@ YUI.add('supra.button', function (Y) {
 		},
 		
 		_setIcon: function (value) {
-			var img = this.get('contentBox').one('img');
-			if (!img) {
-				if (!value) return value;
-				var button = this.get('nodeButton');
-				if (!button) return value;
-				
-				var node = Y.Node.create(this.ICON_TEMPLATE);
-				button.prepend(node);
-				
-				img = node.test('img') ? node : node.one('img');
-				img.setAttribute('src', value);
-			} else {
-				if (!value) {
-					img.remove();
-					return value;
+			
+			if (this.get('style') == 'group') {
+				if (this.get('iconStyle') != 'html') {
+					var node = this.get('contentBox').one('.su-button-bg > div'),
+						styles = null;
+					
+					if (node) {
+						styles = this._getButtonBackgroundStyle(value, true);
+						node.setStyles(styles);
+					}
 				}
-				img.setAttribute('src', value);
+			} else {
+				var img = this.get('contentBox').one('img');
+				if (!img) {
+					if (!value) return value;
+					var button = this.get('nodeButton');
+					if (!button) return value;
+					
+					var template = this.get('style') == 'group' ? this.ICON_TEMPLATE_GROUP : this.ICON_TEMPLATE;
+					var node = Y.Node.create(template);
+					button.prepend(node);
+					
+					img = node.test('img') ? node : node.one('img');
+					img.setAttribute('src', value);
+				} else {
+					if (!value) {
+						img.remove();
+						return value;
+					}
+					img.setAttribute('src', value);
+				}
 			}
 			
 			return value;
