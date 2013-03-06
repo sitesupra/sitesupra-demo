@@ -291,56 +291,57 @@
 }
 
 /**
- * Normal backgorund styles, height is 37px
+ * Normal backgorund styles, height is 37px, 
  */
-.backgroundImageStyles (@prefixA, @prefixB, @height) {
-	@offset: -@height;
+.backgroundImageStyles (@prefixA, @prefixB, @height, @imageHeight: 52px) {
+	@offset: -@imageHeight;
+	@bgOffset: ceil((@height - @imageHeight) / 2);
 	
 	(~".su-button-group.su-button-group-@{prefixB}-normal") {
 		.su-button-bg div {
-			background-position: 0 0;
+			background-position: 0 @bgOffset;
 			background-repeat: no-repeat;
 		}
 		&.su-button-mouse-hover,
 		&.su-button-down {
 			.su-button-bg div {
-				background-position: 0 @offset;
+				background-position: 0 @offset + @bgOffset;
 			}
 		}
 	}
 	(~".su-button-group.su-button-group-@{prefixB}-fill") {
 		.su-button-bg div {
-			background-position: 0 0;
+			background-position: 0 @bgOffset;
 			background-repeat: repeat;
 		}
 		&.su-button-mouse-hover,
 		&.su-button-down {
 			.su-button-bg div {
-				background-position: 0 @offset;
+				background-position: 0 @offset + @bgOffset;
 			}
 		}
 	}
 	(~".su-button-group.su-button-group-@{prefixB}-center") {
 		.su-button-bg div {
-			background-position: 50% 0;
+			background-position: 50% @bgOffset;
 			background-repeat: no-repeat;
 		}
 		&.su-button-mouse-hover,
 		&.su-button-down {
 			.su-button-bg div {
-				background-position: 50% @offset;
+				background-position: 50% @offset + @bgOffset;
 			}
 		}
 	}
 	(~".su-button-group.su-button-group-@{prefixB}-button") {
 		.su-button-bg div {
-			background-position: 0 0, 100% @offset*2, 0 @offset;
+			background-position: 0 0, 100% @offset*2 + @bgOffset, 0 @offset + @bgOffset;
 			background-repeat: no-repeat;
 		}
 		&.su-button-mouse-hover,
 		&.su-button-down {
 			.su-button-bg div {
-				background-position: 0 @offset*3, 100% @offset*5, 0 @offset*4;
+				background-position: 0 @offset*3, 100% @offset*5 + @bgOffset, 0 @offset*4 + @bgOffset;
 			}
 		}
 	}
@@ -348,50 +349,50 @@
 	
 	(~"@{prefixA}@{prefixB}.yui3-input-select-visual-normal .su-button-group") {
 		 .su-button-bg div {
-			background-position: 0 0;
+			background-position: 0 @bgOffset;
 			background-repeat: no-repeat;
 		}
 		&.su-button-mouse-hover,
 		&.su-button-down {
 			.su-button-bg div {
-				background-position: 0 @offset;
+				background-position: 0 @offset + @bgOffset;
 			}
 		}
 	}
 	
 	(~"@{prefixA}@{prefixB}.yui3-input-select-visual-fill .su-button-group") {
 		.su-button-bg div {
-			background-position: 0 0;
+			background-position: 0 @bgOffset;
 			background-repeat: repeat;
 		}
 		&.su-button-mouse-hover,
 		&.su-button-down {
 			.su-button-bg div {
-				background-position: 0 @offset;
+				background-position: 0 @offset + @bgOffset;
 			}
 		}
 	}
 	(~"@{prefixA}@{prefixB}.yui3-input-select-visual-center .su-button-group") {
 		.su-button-bg div {
-			background-position: 50% 0;
+			background-position: 50% @bgOffset;
 			background-repeat: no-repeat;
 		}
 		&.su-button-mouse-hover,
 		&.su-button-down {
 			.su-button-bg div {
-				background-position: 50% @offset;
+				background-position: 50% @offset + @bgOffset;
 			}
 		}
 	}
 	(~"@{prefixA}@{prefixB}.yui3-input-select-visual-button .su-button-group") {
 		.su-button-bg div {
-			background-position: 0 0, 100% @offset*2, 0 @offset;
+			background-position: 0 0, 100% @offset*2 + @bgOffset, 0 @offset + @bgOffset;
 			background-repeat: no-repeat;
 		}
 		&.su-button-mouse-hover,
 		&.su-button-down {
 			.su-button-bg div {
-				background-position: 0 @offset*3, 100% @offset*5, 0 @offset*4;
+				background-position: 0 @offset*3 + @bgOffset, 100% @offset*5 + @bgOffset, 0 @offset*4 + @bgOffset;
 			}
 		}
 	}

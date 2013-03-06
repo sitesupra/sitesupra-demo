@@ -2755,71 +2755,71 @@ button::-moz-focus-inner {
   height: 52px;
 }
 .su-button-group.su-button-group--normal .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 -7px;
   background-repeat: no-repeat;
 }
 .su-button-group.su-button-group--normal.su-button-mouse-hover .su-button-bg div,
 .su-button-group.su-button-group--normal.su-button-down .su-button-bg div {
-  background-position: 0 -37px;
+  background-position: 0 -59px;
 }
 .su-button-group.su-button-group--fill .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 -7px;
   background-repeat: repeat;
 }
 .su-button-group.su-button-group--fill.su-button-mouse-hover .su-button-bg div,
 .su-button-group.su-button-group--fill.su-button-down .su-button-bg div {
-  background-position: 0 -37px;
+  background-position: 0 -59px;
 }
 .su-button-group.su-button-group--center .su-button-bg div {
-  background-position: 50% 0;
+  background-position: 50% -7px;
   background-repeat: no-repeat;
 }
 .su-button-group.su-button-group--center.su-button-mouse-hover .su-button-bg div,
 .su-button-group.su-button-group--center.su-button-down .su-button-bg div {
-  background-position: 50% -37px;
+  background-position: 50% -59px;
 }
 .su-button-group.su-button-group--button .su-button-bg div {
-  background-position: 0 0, 100% -74px, 0 -37px;
+  background-position: 0 0, 100% -111px, 0 -59px;
   background-repeat: no-repeat;
 }
 .su-button-group.su-button-group--button.su-button-mouse-hover .su-button-bg div,
 .su-button-group.su-button-group--button.su-button-down .su-button-bg div {
-  background-position: 0 -111px, 100% -185px, 0 -148px;
+  background-position: 0 -156px, 100% -267px, 0 -215px;
 }
 .yui3-input-select-visual-normal .su-button-group .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 -7px;
   background-repeat: no-repeat;
 }
 .yui3-input-select-visual-normal .su-button-group.su-button-mouse-hover .su-button-bg div,
 .yui3-input-select-visual-normal .su-button-group.su-button-down .su-button-bg div {
-  background-position: 0 -37px;
+  background-position: 0 -59px;
 }
 .yui3-input-select-visual-fill .su-button-group .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 -7px;
   background-repeat: repeat;
 }
 .yui3-input-select-visual-fill .su-button-group.su-button-mouse-hover .su-button-bg div,
 .yui3-input-select-visual-fill .su-button-group.su-button-down .su-button-bg div {
-  background-position: 0 -37px;
+  background-position: 0 -59px;
 }
 .yui3-input-select-visual-center .su-button-group .su-button-bg div {
-  background-position: 50% 0;
+  background-position: 50% -7px;
   background-repeat: no-repeat;
 }
 .yui3-input-select-visual-center .su-button-group.su-button-mouse-hover .su-button-bg div,
 .yui3-input-select-visual-center .su-button-group.su-button-down .su-button-bg div {
-  background-position: 50% -37px;
+  background-position: 50% -59px;
 }
 .yui3-input-select-visual-button .su-button-group .su-button-bg div {
-  background-position: 0 0, 100% -74px, 0 -37px;
+  background-position: 0 0, 100% -111px, 0 -59px;
   background-repeat: no-repeat;
 }
 .yui3-input-select-visual-button .su-button-group.su-button-mouse-hover .su-button-bg div,
 .yui3-input-select-visual-button .su-button-group.su-button-down .su-button-bg div {
-  background-position: 0 -111px, 100% -185px, 0 -148px;
+  background-position: 0 -163px, 100% -267px, 0 -215px;
 }
 .su-button-group.su-button-group-mid-normal .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 0px;
   background-repeat: no-repeat;
 }
 .su-button-group.su-button-group-mid-normal.su-button-mouse-hover .su-button-bg div,
@@ -2827,7 +2827,7 @@ button::-moz-focus-inner {
   background-position: 0 -52px;
 }
 .su-button-group.su-button-group-mid-fill .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 0px;
   background-repeat: repeat;
 }
 .su-button-group.su-button-group-mid-fill.su-button-mouse-hover .su-button-bg div,
@@ -2835,7 +2835,7 @@ button::-moz-focus-inner {
   background-position: 0 -52px;
 }
 .su-button-group.su-button-group-mid-center .su-button-bg div {
-  background-position: 50% 0;
+  background-position: 50% 0px;
   background-repeat: no-repeat;
 }
 .su-button-group.su-button-group-mid-center.su-button-mouse-hover .su-button-bg div,
@@ -2851,7 +2851,7 @@ button::-moz-focus-inner {
   background-position: 0 -156px, 100% -260px, 0 -208px;
 }
 .yui3-input-select-visual-mid.yui3-input-select-visual-normal .su-button-group .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 0px;
   background-repeat: no-repeat;
 }
 .yui3-input-select-visual-mid.yui3-input-select-visual-normal .su-button-group.su-button-mouse-hover .su-button-bg div,
@@ -2859,7 +2859,7 @@ button::-moz-focus-inner {
   background-position: 0 -52px;
 }
 .yui3-input-select-visual-mid.yui3-input-select-visual-fill .su-button-group .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 0px;
   background-repeat: repeat;
 }
 .yui3-input-select-visual-mid.yui3-input-select-visual-fill .su-button-group.su-button-mouse-hover .su-button-bg div,
@@ -2867,7 +2867,7 @@ button::-moz-focus-inner {
   background-position: 0 -52px;
 }
 .yui3-input-select-visual-mid.yui3-input-select-visual-center .su-button-group .su-button-bg div {
-  background-position: 50% 0;
+  background-position: 50% 0px;
   background-repeat: no-repeat;
 }
 .yui3-input-select-visual-mid.yui3-input-select-visual-center .su-button-group.su-button-mouse-hover .su-button-bg div,
@@ -2883,68 +2883,68 @@ button::-moz-focus-inner {
   background-position: 0 -156px, 100% -260px, 0 -208px;
 }
 .su-button-group.su-button-group-no-labels-normal .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 -10px;
   background-repeat: no-repeat;
 }
 .su-button-group.su-button-group-no-labels-normal.su-button-mouse-hover .su-button-bg div,
 .su-button-group.su-button-group-no-labels-normal.su-button-down .su-button-bg div {
-  background-position: 0 -31px;
+  background-position: 0 -62px;
 }
 .su-button-group.su-button-group-no-labels-fill .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 -10px;
   background-repeat: repeat;
 }
 .su-button-group.su-button-group-no-labels-fill.su-button-mouse-hover .su-button-bg div,
 .su-button-group.su-button-group-no-labels-fill.su-button-down .su-button-bg div {
-  background-position: 0 -31px;
+  background-position: 0 -62px;
 }
 .su-button-group.su-button-group-no-labels-center .su-button-bg div {
-  background-position: 50% 0;
+  background-position: 50% -10px;
   background-repeat: no-repeat;
 }
 .su-button-group.su-button-group-no-labels-center.su-button-mouse-hover .su-button-bg div,
 .su-button-group.su-button-group-no-labels-center.su-button-down .su-button-bg div {
-  background-position: 50% -31px;
+  background-position: 50% -62px;
 }
 .su-button-group.su-button-group-no-labels-button .su-button-bg div {
-  background-position: 0 0, 100% -62px, 0 -31px;
+  background-position: 0 0, 100% -114px, 0 -62px;
   background-repeat: no-repeat;
 }
 .su-button-group.su-button-group-no-labels-button.su-button-mouse-hover .su-button-bg div,
 .su-button-group.su-button-group-no-labels-button.su-button-down .su-button-bg div {
-  background-position: 0 -93px, 100% -155px, 0 -124px;
+  background-position: 0 -156px, 100% -270px, 0 -218px;
 }
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-normal .su-button-group .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 -10px;
   background-repeat: no-repeat;
 }
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-normal .su-button-group.su-button-mouse-hover .su-button-bg div,
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-normal .su-button-group.su-button-down .su-button-bg div {
-  background-position: 0 -31px;
+  background-position: 0 -62px;
 }
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-fill .su-button-group .su-button-bg div {
-  background-position: 0 0;
+  background-position: 0 -10px;
   background-repeat: repeat;
 }
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-fill .su-button-group.su-button-mouse-hover .su-button-bg div,
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-fill .su-button-group.su-button-down .su-button-bg div {
-  background-position: 0 -31px;
+  background-position: 0 -62px;
 }
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-center .su-button-group .su-button-bg div {
-  background-position: 50% 0;
+  background-position: 50% -10px;
   background-repeat: no-repeat;
 }
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-center .su-button-group.su-button-mouse-hover .su-button-bg div,
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-center .su-button-group.su-button-down .su-button-bg div {
-  background-position: 50% -31px;
+  background-position: 50% -62px;
 }
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-button .su-button-group .su-button-bg div {
-  background-position: 0 0, 100% -62px, 0 -31px;
+  background-position: 0 0, 100% -114px, 0 -62px;
   background-repeat: no-repeat;
 }
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-button .su-button-group.su-button-mouse-hover .su-button-bg div,
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-button .su-button-group.su-button-down .su-button-bg div {
-  background-position: 0 -93px, 100% -155px, 0 -124px;
+  background-position: 0 -166px, 100% -270px, 0 -218px;
 }
 .yui3-input-fonts .su-button-group .su-button-bg p {
   display: block;

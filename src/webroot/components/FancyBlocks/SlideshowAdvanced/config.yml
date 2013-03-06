@@ -45,6 +45,9 @@
             - id: progress
               title: Progress bar
               icon: icons/navigation/progress.png
+          additionalParameters:
+              iconStyle: center
+              style: mid
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: scrollTimerEnabled
           group: animation
