@@ -428,6 +428,16 @@ YUI.add('supra.input-proto', function (Y) {
 		},
 		
 		/**
+		 * Visible attribute setter
+		 * 
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			Input.superclass._uiSetVisible.apply(this, arguments);
+			this.get('boundingBox').toggleClass('hidden', !visible);
+		},
+		
+		/**
 		 * Set input value
 		 * 
 		 * @param {Object} value

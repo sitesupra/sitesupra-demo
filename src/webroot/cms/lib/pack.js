@@ -7571,6 +7571,16 @@ YUI().add("supra.io-css", function (Y) {
 		},
 		
 		/**
+		 * Visible attribute setter
+		 * 
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			Input.superclass._uiSetVisible.apply(this, arguments);
+			this.get('boundingBox').toggleClass('hidden', !visible);
+		},
+		
+		/**
 		 * Set input value
 		 * 
 		 * @param {Object} value
@@ -31369,7 +31379,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			var node = this.get("targetNode"),
 				container = null;
 			
-			if (!node) return;
+			if (!node || !node.getDOMNode()) return;
 			container = node.ancestor();
 			
 			if (value) {

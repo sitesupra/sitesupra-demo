@@ -346,7 +346,7 @@ YUI().add('supra.iframe', function (Y) {
 			doc.open('text/html', 'replace');
 			
 			//All link for Google fonts
-			html = GoogleFonts.addFontsToHTML(html, this.get('fonts'));
+			html = Supra.GoogleFonts.addFontsToHTML(html, this.get('fonts'));
 			
 			//IE freezes when trying to insert <script> with src attribute using writeln
 			if (Supra.Y.UA.ie) {

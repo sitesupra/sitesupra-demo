@@ -304,7 +304,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 			var node = this.get("targetNode"),
 				container = null;
 			
-			if (!node) return;
+			if (!node || !node.getDOMNode()) return;
 			container = node.ancestor();
 			
 			if (value) {

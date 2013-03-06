@@ -312,7 +312,7 @@ YUI().add('supra.google-fonts', function (Y) {
 	}
 	
 	GoogleFonts.addFontsToHTML = function (html, fonts) {
-		var uri = GoogleFonts.getURI(fonts);
+		var uri = GoogleFonts.getURI(fonts),
 			replaced = false,
 			regex = new RegExp('(<link[^>]+href=)["\'][^"\']*?' + Y.Escape.regex(GOOGLE_FONT_API_URI) + '[^"\']*?["\']', 'i'),
 			html = html.replace(regex, function (all, pre) {
