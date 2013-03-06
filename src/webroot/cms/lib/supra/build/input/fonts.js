@@ -19,17 +19,40 @@ YUI.add('supra.input-fonts', function (Y) {
 	Input.NAME = 'input-fonts';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	
+	Input.ATTRS = {
+		/**
+		 * Style:
+		 * "" or "no-labels", "mid"
+		 */
+		'style': {
+			value: 'no-labels',
+			setter: '_setStyle'
+		}
+	};
+	
 	Y.extend(Input, Supra.Input.SelectVisual, {
 		
 		/**
-		 * Returns button label template
-		 * 
-		 * @return Label template
-		 * @type {String}
+		 * Google fonts object, used to load fonts into current document for live preview of fonts
+		 * Supra.GoogleFonts instance
+		 * @type {Object}
 		 * @private
 		 */
-		getButtonLabelTemplate: function (definition) {
-			return '<div class="su-button-bg"><div style="' + this.getButtonBackgroundStyle(definition) + '"><p style="' + this.getButtonFontStyle(definition) + '"></p></div></div>';
+		googleFonts: null,
+		
+		/**
+		 * Decorate button
+		 * 
+		 * @param {Object} definition Option definition, configuration
+		 * @param {Object} button Button
+		 * @private
+		 */
+		decorateButton: function (definition, button) {
+			var font_style = this.getButtonFontStyle(definition);
+			
+			button._getLabelTemplate = function () {
+				return '<div class="su-button-bg"><div style="' + this._getButtonBackgroundStyle(this.get('icon')) + '"></div><p style="' + font_style + '"></p></div></div>';
+			};
 		},
 		
 		/**
@@ -43,7 +66,54 @@ YUI.add('supra.input-fonts', function (Y) {
 		getButtonFontStyle: function (definition) {
 			var family = (definition.family || definition.title || '');
 			return family ? 'font-family: ' + family + ';' : '';
+		},
+		
+		
+		/* ------------------------------ FONTS ------------------------------ */
+		
+		
+		/**
+		 * Load all fonts from all values
+		 */
+		loadFonts: function (values) {
+			var google_fonts = this.googleFonts,
+				fonts = [],
+				i = 0,
+				ii = values.length;
+			
+			for (; i<ii; i++) {
+				if (values[i].apis) {
+					fonts.push(values[i]);
+				}
+			}
+			
+			if (google_fonts) {
+				google_fonts.set('fonts', fonts);
+			} else {
+				google_fonts = this.googleFonts = new Supra.GoogleFonts({
+					'fonts': fonts,
+					'doc': document
+				});
+			}
+		},
+		
+		
+		/* ------------------------------ ATTRIBUTES ------------------------------ */
+		
+		
+		/**
+		 * Values attribute setter
+		 * 
+		 * @private
+		 */
+		_setValues: function (values) {
+			values = Input.superclass._setValues.apply(this, arguments);
+			
+			this.loadFonts(values);
+			
+			return values;
 		}
+		
 		
 	});
 	

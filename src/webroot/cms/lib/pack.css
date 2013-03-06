@@ -2965,20 +2965,26 @@ button::-moz-focus-inner {
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-button .su-button-group.su-button-down .su-button-bg div {
   background-position: 0 -93px, 100% -155px, 0 -124px;
 }
-.yui3-input-select-visual.yui3-input-fonts .su-button .su-button-bg p {
+.yui3-input-fonts .su-button-group .su-button-bg p {
   display: block;
-  position: static;
   padding: 0 7px;
+  color: #777f90;
   font-size: 14px;
   line-height: 32px;
   text-align: left;
-  text-shadow: none;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
   white-space: nowrap;
+  top: 5px;
 }
-.yui3-input-select-visual.yui3-input-fonts .su-button .su-button-bg p,
-.yui3-input-select-visual.yui3-input-fonts .su-button.su-button-mouse-hover .su-button-bg p,
-.yui3-input-select-visual.yui3-input-fonts .su-button.su-button-down .su-button-bg p {
-  color: #007CCB;
+.yui3-input-fonts .su-button-group.su-button-mouse-hover .su-button-bg p,
+.yui3-input-fonts .su-button-group.su-button-down .su-button-bg p {
+  color: #00b1f5;
+}
+.yui3-input-fonts .su-button-group.su-button-group-no-labels .su-button-bg p {
+  top: 2px;
+}
+.yui3-input-fonts .su-button-group.su-button-group-mid .su-button-bg p {
+  top: 13px;
 }
 .ui-dark .yui3-input-color .unset {
   padding-bottom: 10px;
@@ -3135,6 +3141,9 @@ button::-moz-focus-inner {
   padding-top: 7px !important;
   padding-bottom: 0 !important;
 }
+.yui3-input-checkbox label.hidden {
+  display: none !important;
+}
 .yui3-input-checkbox .description {
   width: 128px !important;
   padding-top: 4px !important;
@@ -3200,6 +3209,11 @@ button::-moz-focus-inner {
 .yui3-input-checkbox-disabled .yui3-input-checkbox-bg .label-b,
 .yui3-input-checkbox-disabled .yui3-input-checkbox-bg span.pin {
   cursor: default;
+}
+.yui3-input-checkbox.yui3-input-fill .yui3-input-checkbox-bg {
+  float: none;
+  margin-left: auto;
+  margin-right: auto;
 }
 .ui-dark .yui3-input-checkbox-bg,
 .ui-dark .yui3-input-checkbox-bg span.pin {
@@ -3751,233 +3765,234 @@ button::-moz-focus-inner {
 .yui3-editor-toolbar-insert .yui3-input-select-hidden {
   display: none;
 }
-.yui3-editor-toolbar-text .su-button-group,
-.yui3-editor-toolbar-table .su-button-group,
-.yui3-editor-toolbar-itemlist .su-button-group,
-.yui3-editor-toolbar-insert .su-button-group {
+.yui3-editor-toolbar-text .su-button-toolbar,
+.yui3-editor-toolbar-table .su-button-toolbar,
+.yui3-editor-toolbar-itemlist .su-button-toolbar,
+.yui3-editor-toolbar-insert .su-button-toolbar {
   vertical-align: middle;
+  width: auto !important;
 }
-.yui3-editor-toolbar-text .su-button-group,
-.yui3-editor-toolbar-text .su-button-group .su-button-content,
-.yui3-editor-toolbar-text .su-button-group button,
-.yui3-editor-toolbar-table .su-button-group,
-.yui3-editor-toolbar-table .su-button-group .su-button-content,
-.yui3-editor-toolbar-table .su-button-group button,
-.yui3-editor-toolbar-itemlist .su-button-group,
-.yui3-editor-toolbar-itemlist .su-button-group .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group button,
-.yui3-editor-toolbar-insert .su-button-group,
-.yui3-editor-toolbar-insert .su-button-group .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group button {
+.yui3-editor-toolbar-text .su-button-toolbar,
+.yui3-editor-toolbar-text .su-button-toolbar .su-button-content,
+.yui3-editor-toolbar-text .su-button-toolbar button,
+.yui3-editor-toolbar-table .su-button-toolbar,
+.yui3-editor-toolbar-table .su-button-toolbar .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar,
+.yui3-editor-toolbar-itemlist .su-button-toolbar .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar button,
+.yui3-editor-toolbar-insert .su-button-toolbar,
+.yui3-editor-toolbar-insert .su-button-toolbar .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar button {
   background: url("/cms/lib/supra/build/htmleditor/assets/skins/supra/button-toolbar.png");
   background-repeat: no-repeat;
   height: 26px;
 }
-.yui3-editor-toolbar-text .su-button-group,
-.yui3-editor-toolbar-table .su-button-group,
-.yui3-editor-toolbar-itemlist .su-button-group,
-.yui3-editor-toolbar-insert .su-button-group {
+.yui3-editor-toolbar-text .su-button-toolbar,
+.yui3-editor-toolbar-table .su-button-toolbar,
+.yui3-editor-toolbar-itemlist .su-button-toolbar,
+.yui3-editor-toolbar-insert .su-button-toolbar {
   box-shadow: 0 1px 0 rgba(163,164,185,0.2);
   background-position: 0 -26px;
   background-repeat: repeat-x;
 }
-.yui3-editor-toolbar-text .su-button-group .su-button-content,
-.yui3-editor-toolbar-table .su-button-group .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group .su-button-content {
+.yui3-editor-toolbar-text .su-button-toolbar .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar .su-button-content {
   background-position: 0 0;
   padding: 0;
 }
-.yui3-editor-toolbar-text .su-button-group button,
-.yui3-editor-toolbar-table .su-button-group button,
-.yui3-editor-toolbar-itemlist .su-button-group button,
-.yui3-editor-toolbar-insert .su-button-group button {
+.yui3-editor-toolbar-text .su-button-toolbar button,
+.yui3-editor-toolbar-table .su-button-toolbar button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar button,
+.yui3-editor-toolbar-insert .su-button-toolbar button {
   background-position: 100% -52px;
   padding: 0 4px;
 }
-.yui3-editor-toolbar-text .su-button-group p,
-.yui3-editor-toolbar-table .su-button-group p,
-.yui3-editor-toolbar-itemlist .su-button-group p,
-.yui3-editor-toolbar-insert .su-button-group p {
+.yui3-editor-toolbar-text .su-button-toolbar p,
+.yui3-editor-toolbar-table .su-button-toolbar p,
+.yui3-editor-toolbar-itemlist .su-button-toolbar p,
+.yui3-editor-toolbar-insert .su-button-toolbar p {
   display: none;
 }
-.yui3-editor-toolbar-text .su-button-group .img,
-.yui3-editor-toolbar-table .su-button-group .img,
-.yui3-editor-toolbar-itemlist .su-button-group .img,
-.yui3-editor-toolbar-insert .su-button-group .img {
+.yui3-editor-toolbar-text .su-button-toolbar .img,
+.yui3-editor-toolbar-table .su-button-toolbar .img,
+.yui3-editor-toolbar-itemlist .su-button-toolbar .img,
+.yui3-editor-toolbar-insert .su-button-toolbar .img {
   display: inline-block;
   height: 26px;
   overflow: hidden;
 }
-.yui3-editor-toolbar-text .su-button-group .img img,
-.yui3-editor-toolbar-table .su-button-group .img img,
-.yui3-editor-toolbar-itemlist .su-button-group .img img,
-.yui3-editor-toolbar-insert .su-button-group .img img {
+.yui3-editor-toolbar-text .su-button-toolbar .img img,
+.yui3-editor-toolbar-table .su-button-toolbar .img img,
+.yui3-editor-toolbar-itemlist .su-button-toolbar .img img,
+.yui3-editor-toolbar-insert .su-button-toolbar .img img {
   display: inline-block;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-first .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-first .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-first .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-first .su-button-content {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-first .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-first .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-first .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-first .su-button-content {
   background-position: 0 -78px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-first,
-.yui3-editor-toolbar-text .su-button-group.su-button-first .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-first,
-.yui3-editor-toolbar-table .su-button-group.su-button-first .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-first,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-first .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-first,
-.yui3-editor-toolbar-insert .su-button-group.su-button-first .su-button-content {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-first,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-first .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-first,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-first .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-first,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-first .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-first,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-first .su-button-content {
   border-radius: 3px 0 0 3px;
   -moz-background-clip: padding;
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-last,
-.yui3-editor-toolbar-table .su-button-group.su-button-last,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-last,
-.yui3-editor-toolbar-insert .su-button-group.su-button-last {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-last,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-last,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-last,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-last {
   margin-right: 3px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-last button,
-.yui3-editor-toolbar-table .su-button-group.su-button-last button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-last button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-last button {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-last button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-last button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-last button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-last button {
   background-position: 100% -104px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-last,
-.yui3-editor-toolbar-text .su-button-group.su-button-last .su-button-content,
-.yui3-editor-toolbar-text .su-button-group.su-button-last button,
-.yui3-editor-toolbar-table .su-button-group.su-button-last,
-.yui3-editor-toolbar-table .su-button-group.su-button-last .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-last button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-last,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-last .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-last button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-last,
-.yui3-editor-toolbar-insert .su-button-group.su-button-last .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-last button {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-last,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-last .su-button-content,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-last button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-last,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-last .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-last button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-last,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-last .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-last button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-last,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-last .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-last button {
   border-radius: 0 3px 3px 0;
   -moz-background-clip: padding;
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-hover,
-.yui3-editor-toolbar-text .su-button-group.su-button-focused,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-hover,
-.yui3-editor-toolbar-table .su-button-group.su-button-focused,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-hover,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-focused,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-hover,
-.yui3-editor-toolbar-insert .su-button-group.su-button-focused {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-hover,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-focused,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-hover,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-focused,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-hover,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-focused,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-hover,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-focused {
   background-position: 0 -156px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-hover .su-button-content,
-.yui3-editor-toolbar-text .su-button-group.su-button-focused .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-hover .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-focused .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-hover .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-focused .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-hover .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-focused .su-button-content {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-hover .su-button-content,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-focused .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-hover .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-focused .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-hover .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-focused .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-hover .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-focused .su-button-content {
   background-position: 0 -130px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-hover button,
-.yui3-editor-toolbar-text .su-button-group.su-button-focused button,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-hover button,
-.yui3-editor-toolbar-table .su-button-group.su-button-focused button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-hover button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-focused button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-hover button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-focused button {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-hover button,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-focused button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-hover button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-focused button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-hover button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-focused button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-hover button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-focused button {
   background-position: 100% -182px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-hover.su-button-first .su-button-content,
-.yui3-editor-toolbar-text .su-button-group.su-button-focused.su-button-first .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-hover.su-button-first .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-focused.su-button-first .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-hover.su-button-first .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-focused.su-button-first .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-hover.su-button-first .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-focused.su-button-first .su-button-content {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-hover.su-button-first .su-button-content,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-focused.su-button-first .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-hover.su-button-first .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-focused.su-button-first .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-hover.su-button-first .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-focused.su-button-first .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-hover.su-button-first .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-focused.su-button-first .su-button-content {
   background-position: 0 -208px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-hover.su-button-last button,
-.yui3-editor-toolbar-text .su-button-group.su-button-focused.su-button-last button,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-hover.su-button-last button,
-.yui3-editor-toolbar-table .su-button-group.su-button-focused.su-button-last button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-hover.su-button-last button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-focused.su-button-last button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-hover.su-button-last button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-focused.su-button-last button {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-hover.su-button-last button,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-focused.su-button-last button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-hover.su-button-last button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-focused.su-button-last button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-hover.su-button-last button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-focused.su-button-last button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-hover.su-button-last button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-focused.su-button-last button {
   background-position: 100% -234px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-down,
-.yui3-editor-toolbar-text .su-button-group.su-button-down,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-down,
-.yui3-editor-toolbar-table .su-button-group.su-button-down,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-down,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-down,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-down,
-.yui3-editor-toolbar-insert .su-button-group.su-button-down {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-down,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-down,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-down,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-down,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-down,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-down,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-down,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-down {
   background-position: 0 -286px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-down .su-button-content,
-.yui3-editor-toolbar-text .su-button-group.su-button-down .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-down .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-down .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-down .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-down .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-down .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-down .su-button-content {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-down .su-button-content,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-down .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-down .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-down .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-down .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-down .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-down .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-down .su-button-content {
   background-position: 0 -260px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-down button,
-.yui3-editor-toolbar-text .su-button-group.su-button-down button,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-down button,
-.yui3-editor-toolbar-table .su-button-group.su-button-down button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-down button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-down button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-down button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-down button {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-down button,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-down button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-down button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-down button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-down button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-down button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-down button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-down button {
   background-position: 100% -312px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-down .img img,
-.yui3-editor-toolbar-text .su-button-group.su-button-down .img img,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-down .img img,
-.yui3-editor-toolbar-table .su-button-group.su-button-down .img img,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-down .img img,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-down .img img,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-down .img img,
-.yui3-editor-toolbar-insert .su-button-group.su-button-down .img img {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-down .img img,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-down .img img,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-down .img img,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-down .img img,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-down .img img,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-down .img img,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-down .img img,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-down .img img {
   position: relative;
   margin-top: -26px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-down.su-button-first .su-button-content,
-.yui3-editor-toolbar-text .su-button-group.su-button-down.su-button-first .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-down.su-button-first .su-button-content,
-.yui3-editor-toolbar-table .su-button-group.su-button-down.su-button-first .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-down.su-button-first .su-button-content,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-down.su-button-first .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-down.su-button-first .su-button-content,
-.yui3-editor-toolbar-insert .su-button-group.su-button-down.su-button-first .su-button-content {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-down.su-button-first .su-button-content,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-down.su-button-first .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-down.su-button-first .su-button-content,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-down.su-button-first .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-down.su-button-first .su-button-content,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-down.su-button-first .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-down.su-button-first .su-button-content,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-down.su-button-first .su-button-content {
   background-position: 0 -338px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-mouse-down.su-button-last button,
-.yui3-editor-toolbar-text .su-button-group.su-button-down.su-button-last button,
-.yui3-editor-toolbar-table .su-button-group.su-button-mouse-down.su-button-last button,
-.yui3-editor-toolbar-table .su-button-group.su-button-down.su-button-last button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-mouse-down.su-button-last button,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-down.su-button-last button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-mouse-down.su-button-last button,
-.yui3-editor-toolbar-insert .su-button-group.su-button-down.su-button-last button {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-mouse-down.su-button-last button,
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-down.su-button-last button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-mouse-down.su-button-last button,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-down.su-button-last button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-mouse-down.su-button-last button,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-down.su-button-last button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-mouse-down.su-button-last button,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-down.su-button-last button {
   background-position: 100% -364px;
 }
-.yui3-editor-toolbar-text .su-button-group.su-button-disabled img,
-.yui3-editor-toolbar-table .su-button-group.su-button-disabled img,
-.yui3-editor-toolbar-itemlist .su-button-group.su-button-disabled img,
-.yui3-editor-toolbar-insert .su-button-group.su-button-disabled img {
+.yui3-editor-toolbar-text .su-button-toolbar.su-button-disabled img,
+.yui3-editor-toolbar-table .su-button-toolbar.su-button-disabled img,
+.yui3-editor-toolbar-itemlist .su-button-toolbar.su-button-disabled img,
+.yui3-editor-toolbar-insert .su-button-toolbar.su-button-disabled img {
   opacity: 0.5;
 }
 .yui3-editor-toolbar-text .su-button-small,
@@ -3987,10 +4002,10 @@ button::-moz-focus-inner {
   box-shadow: none;
   margin-top: 1px;
 }
-.gecko .yui3-editor-toolbar-text .su-button-group button,
-.gecko .yui3-editor-toolbar-table .su-button-group button,
-.gecko .yui3-editor-toolbar-itemlist .su-button-group button,
-.gecko .yui3-editor-toolbar-insert .su-button-group button {
+.gecko .yui3-editor-toolbar-text .su-button-toolbar button,
+.gecko .yui3-editor-toolbar-table .su-button-toolbar button,
+.gecko .yui3-editor-toolbar-itemlist .su-button-toolbar button,
+.gecko .yui3-editor-toolbar-insert .su-button-toolbar button {
   padding: 0 2px;
 }
 .sidebar-content .style-list {

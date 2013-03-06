@@ -505,8 +505,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	'supra.iframe': {
 		path: 'iframe/iframe.js',
-		requires: ['widget', 'supra.iframe-stylesheet-parser'],
+		requires: ['widget', 'supra.iframe-stylesheet-parser', 'supra.google-fonts'],
 		skinnable: true
+	},
+	
+	/**
+	 * Google fonts
+	 */
+	'supra.google-fonts': {
+		path: 'google-fonts/google-fonts.js',
+		requires: ['base']
 	},
 	
 	/**
@@ -760,6 +768,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/set.js',
 		requires: ['supra.input-hidden']
 	},
+	'supra.input-group': {
+		path: 'input/group.js',
+		requires: ['supra.input-hidden']
+	},
 	'supra.input-media-inline': {
 		path: 'input/media-inline.js',
 		requires: ['supra.input-proto', 'supra.uploader', 'supra.datatype-image']
@@ -796,6 +808,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-video',
 			'supra.input-keywords',
 			'supra.input-set',
+			'supra.input-group',
 			'supra.input-media-inline',
 			
 			'supra.button-plugin-input'

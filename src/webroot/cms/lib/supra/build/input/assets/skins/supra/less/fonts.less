@@ -3,24 +3,32 @@
 /**
  * Fonts input
  */
-.yui3-input-select-visual.yui3-input-fonts .su-button {
+.yui3-input-fonts .su-button-group {
 	.su-button-bg p {
 		display: block;
-		position: static;
 		padding: 0 7px;
 		
+		color: #777f90;
 		font-size: 14px;
 		line-height: 32px;
 		text-align: left;
-		text-shadow: none;
+		text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 		white-space: nowrap;
+		
+		top: 5px;
 	}
 	
-	&,
 	&.su-button-mouse-hover,
 	&.su-button-down {
 		.su-button-bg p {
-			color: #007CCB;
+			color: #00b1f5;
 		}
+	}
+	
+	&.su-button-group-no-labels .su-button-bg p {
+		top: 2px;
+	}
+	&.su-button-group-mid .su-button-bg p {
+		top: 13px;
 	}
 }

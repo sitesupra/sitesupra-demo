@@ -365,7 +365,9 @@ YUI.add('supra.slideshow', function (Y) {
 			var options = Supra.mix({
 				'id': null,
 				'removeOnHide': false,
-				'scrollable': true
+				'scrollable': true,
+				'title': '',
+				'icon': ''
 			}, Y.Lang.isObject(options) ? options : {'id': options});
 			
 			if (!options.id) return null;
@@ -377,7 +379,7 @@ YUI.add('supra.slideshow', function (Y) {
 			
 			if (!(slideId in this.slides)) {
 				var slide = this.slides[slideId] = Y.Node.create('\
-														<div class="hidden su-slide">\
+														<div class="hidden su-slide" data-icon="' + Y.Escape.html(options.icon) + '" data-title="' + Y.Escape.html(options.title) + '">\
 															<div id="' + slideId + '" class="su-slide-content"></div>\
 														</div>');
 				

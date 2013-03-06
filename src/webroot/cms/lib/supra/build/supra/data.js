@@ -59,7 +59,7 @@
 				Supra.data[key] = value;
 				
 				if (fn in Supra.data) {
-					Supra.data[fn](value);
+					Supra.data[fn](value, prevVal);
 				}
 			}
 		},
@@ -126,7 +126,7 @@
 		 */
 		registerHandler: function (property, handler) {
 			if (Y.Lang.isFunction(handler)) {
-				this['_' + name + 'Change'] = handler;
+				this['_' + property + 'Change'] = handler;
 			}
 		},
 		

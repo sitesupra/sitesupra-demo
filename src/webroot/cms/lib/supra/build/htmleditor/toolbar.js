@@ -347,7 +347,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				case 'button':
 				default:
 					title = data.title || Y.Escape.html(Supra.Intl.get(['htmleditor', data.id]));
-					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": data.style || "group", "visible": visible});
+					node = new Supra.Button({"label": title, "icon": data.icon, "type": data.buttonType || "toggle", "style": data.style || "toolbar", "visible": visible});
 					node.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 					node.render(cont);
 					

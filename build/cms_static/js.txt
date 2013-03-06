@@ -196,6 +196,7 @@
 /cms/lib/supra/build/input/media-inline.js
 /cms/lib/supra/build/input/keywords.js
 /cms/lib/supra/build/input/set.js
+/cms/lib/supra/build/input/group.js
 /cms/lib/supra/build/input/input.js
 /cms/lib/supra/build/manager/action/plugin-form.js
 /cms/lib/supra/build/manager/manager.js

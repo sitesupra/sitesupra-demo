@@ -2,15 +2,21 @@
 	margin: 18px 0;
 }
 
-.yui3-input-checkbox label {
-	display: inline-block !important;
-	width: 100px !important;
-	padding-top: 7px !important;
-	padding-bottom: 0 !important;
-}
-.yui3-input-checkbox .description {
-	width: 128px !important;
-	padding-top: 4px !important;
+.yui3-input-checkbox {
+	label {
+		display: inline-block !important;
+		width: 100px !important;
+		padding-top: 7px !important;
+		padding-bottom: 0 !important;
+		
+		&.hidden {
+			display: none !important;
+		}
+	}
+	.description {
+		width: 128px !important;
+		padding-top: 4px !important;
+	}
 }
 
 .yui3-input-checkbox-bg {
@@ -88,6 +94,17 @@
 	.label-b,
 	span.pin {
 		cursor: default;
+	}
+}
+
+/**
+ * Fill style
+ */
+.yui3-input-checkbox.yui3-input-fill {
+	.yui3-input-checkbox-bg {
+		float: none;
+		margin-left: auto;
+		margin-right: auto;
 	}
 }
 

@@ -56,13 +56,16 @@ Supra(function (Y) {
 		// Options cache for forms
 		optionsCache: {},
 		
+		// Slideshow slide change event attachment
+		evt_slide_change: null,
+		
 		
 		// Set page button visibility
-		tooglePageButtons: function (visible) {
+		tooglePageButtons: function (toolbar_buttons, control_button) {
 			var buttons = Supra.Manager.PageButtons.buttons[this.NAME];
-			for(var i=0,ii=buttons.length; i<ii; i++) buttons[i].set('visible', visible);
+			for(var i=0,ii=buttons.length; i<ii; i++) buttons[i].set('visible', toolbar_buttons);
 			
-			this.get('controlButton').get('visible', !!visible);
+			this.get('controlButton').set('visible', control_button);
 		},
 		
 		// Render action container
@@ -75,6 +78,50 @@ Supra(function (Y) {
 			this.get('controlButton').on('click', function () {
 				this.callback(true);
 			}, this);
+			
+			//Handle slideshow change
+			this.on('slideshowChange', this.onSlideshowChange, this);
+		},
+		
+		/**
+		 * On slideshow change bind to slide change to update title and icon
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		onSlideshowChange: function (e) {
+			if (this.evt_slide_change) {
+				this.evt_slide_change.detach();
+				this.evt_slide_change = null;
+			}
+			
+			if (e.newVal) {
+				this.evt_slide_change = e.newVal.on('slideChange', this.onSlideChange, this);
+			}
+		},
+		
+		/**
+		 * On slide change update sidebar title and icon
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		onSlideChange: function (e) {
+			var slideshow = this.get('slideshow'),
+				slide = e.newVal,
+				title = '',
+				icon  = '';
+			
+			if (slideshow && slide) {
+				slide = slideshow.getSlide(slide);
+				if (slide) {
+					title = slide.getAttribute('data-title') || this.options.title;
+					icon = slide.getAttribute('data-icon') || this.options.icon;
+					
+					if (title) this.set('title', title);
+					if (icon) this.set('icon', icon);
+				}
+			}
 		},
 		
 		/**
@@ -142,6 +189,7 @@ Supra(function (Y) {
 					'doneCallback': null,
 					'hideCallback': null,
 					'hideEditorToolbar': false,
+					'hideDoneButton': false,
 					'toolbarActionName': this.NAME,
 					
 					'properties': null,		//Properties class instance
@@ -171,10 +219,15 @@ Supra(function (Y) {
 					form.set('parent', this);
 				}
 				
+				// Render
+				if (!form.get('rendered')) {
+					form.render(this.get('contentInnerNode'));
+				}
+				
 				this.show();
 				form.show();
 				
-				this.tooglePageButtons(!!options.doneCallback);
+				this.tooglePageButtons(!!options.doneCallback, !options.hideDoneButton);
 				
 				if (options.hideEditorToolbar) {
 					var has_html_inputs          = options.properties.get('host').html_inputs_count,

@@ -263,41 +263,43 @@ YUI.add('supra.form', function (Y) {
 		 * 
 		 * @param {Object} config
 		 */
-		addInput: function (config) {
-			if (this.get('rendered')) {
-				if (config.isInstanceOf && config.isInstanceOf('input')) {
-					//Add input to the list of form inputs
-					config.set('parent', this);
-					this.inputs[config.get('id')] = config;
-				} else {
-					//Create input and append
-					var id = null,
-						input = null,
-						node = null,
-						contentBox = this.getContentNode(),
-						srcNode = this.get('srcNode');
+		addInput: function (config, definition) {
+			if (config.isInstanceOf && config.isInstanceOf('input') && definition) {
+				//Add input to the list of form inputs
+				config.set('parent', this);
+				
+				var id = config.get('id');
+				this.inputs[id] = config;
+				this.inputs_definition[id] = definition;
+			} else if (this.get('rendered')) {
+				
+				//Create input and append
+				var id = null,
+					input = null,
+					node = null,
+					contentBox = this.getContentNode(),
+					srcNode = this.get('srcNode');
+				
+				config = this.normalizeInputConfig(config);
+				id = config.id || config.name;
+				this.inputs_definition[id] = config;
+				
+				input = this.factoryField(config);
+				if (input) {
+					this.inputs[id] = input;
 					
-					config = this.normalizeInputConfig(config);
-					id = config.id || config.name;
-					this.inputs_definition[id] = config;
-					
-					input = this.factoryField(config);
-					if (input) {
-						this.inputs[id] = input;
-						
-						if (config.srcNode) {
-							input.render();
-						} else if (config.containerNode) {
-							//If input doesn't exist but has container node, then create
-							//input inside it
-							input.render(config.containerNode);
-						} else {
-							//If input doesn't exist, then create it
-							input.render(contentBox);
-						}
+					if (config.srcNode) {
+						input.render();
+					} else if (config.containerNode) {
+						//If input doesn't exist but has container node, then create
+						//input inside it
+						input.render(config.containerNode);
+					} else {
+						//If input doesn't exist, then create it
+						input.render(contentBox);
 					}
-					
 				}
+				
 			} else {
 				var id = ('id' in config && config.id ? config.id : ('name' in config ? config.name : ''));
 				if (!id) {
@@ -417,7 +419,7 @@ YUI.add('supra.form', function (Y) {
 				inputs = obj;
 			}
 			
-			this.inputs_definition = inputs || {};
+			Supra.mix(this.inputs_definition, inputs || {});
 		},
 		
 		/**
@@ -430,7 +432,7 @@ YUI.add('supra.form', function (Y) {
 			var srcNode = this.get('srcNode');
 			var contentBox = this.get('contentBox');
 			
-			var inputs = {};
+			var inputs = this.inputs || {};
 			var definitions = this.inputs_definition || {};
 			
 			//Find all inputs
@@ -460,6 +462,9 @@ YUI.add('supra.form', function (Y) {
 			
 			//Create Inputs
 			for(var i in definitions) {
+				//If input already exists, then don't create it
+				if (definitions[i].id in inputs) continue;
+				
 				definition = definitions[i] = this.normalizeInputConfig(definitions[i]);
 				id = definition.id;
 				

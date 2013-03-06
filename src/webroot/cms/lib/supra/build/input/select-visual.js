@@ -240,6 +240,8 @@ YUI.add('supra.input-select-visual', function (Y) {
 				'iconHTML': definition.html
 			});
 			
+			this.decorateButton(definition, button);
+			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
 			}
@@ -316,6 +318,16 @@ YUI.add('supra.input-select-visual', function (Y) {
 			
 			return has_value_match;
 		},
+		
+		/**
+		 * Decorate button
+		 * May be used by extended classes
+		 * 
+		 * @param {Object} definition Option definition, configuration
+		 * @param {Object} button Button
+		 * @private
+		 */
+		decorateButton: function (definition, button) {},
 		
 		
 		/*

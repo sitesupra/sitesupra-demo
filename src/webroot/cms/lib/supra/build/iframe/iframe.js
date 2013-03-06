@@ -81,6 +81,11 @@ YUI().add('supra.iframe', function (Y) {
 		// Automatically initialize listeners for handling drag and drop
 		'initDndListeners': {
 			value: true
+		},
+		
+		// Prevent navigation to another pages
+		'preventNavigation': {
+			value: true
 		}
 	};
 	
@@ -120,6 +125,12 @@ YUI().add('supra.iframe', function (Y) {
 		 */
 		stylesheetParser: null,
 		
+		/**
+		 * Supra.GoogleFonts instance
+		 * @type {Object}
+		 * @private
+		 */
+		googleFonts: null,
 		
 		
 		/**
@@ -150,7 +161,8 @@ YUI().add('supra.iframe', function (Y) {
 		 */
 		bindUI: function () {
 			
-			
+			this.after('docChange', this._afterDocChange, this);
+			this.after('fontsChange', this._afterFontsChange, this);
 			
 		},
 		
@@ -199,7 +211,8 @@ YUI().add('supra.iframe', function (Y) {
 		 */
 		contentDestructor: function () {
 			var doc = this.get('doc'),
-				parser = this.stylesheetParser;
+				parser = this.stylesheetParser,
+				fonts = this.googleFonts;
 			
 			if (doc) {
 				//Unregister document from DDM
@@ -213,6 +226,11 @@ YUI().add('supra.iframe', function (Y) {
 				
 				this.set('doc', null);
 				this.set('win', null);
+			}
+			
+			if (fonts) {
+				fonts.destroy();
+				this.googleFonts = null;
 			}
 			
 			if (parser) {
@@ -290,6 +308,26 @@ YUI().add('supra.iframe', function (Y) {
 		
 		
 		/*
+		 * ---------------------------------- PRIVATE: URL CHANGE ---------------------------------
+		 */
+		
+		
+		/**
+		 * After URL change get win and doc objects
+		 */
+		afterSetURL: function () {
+			//Save document & window instances
+			var win = this.get('contentBox').getDOMNode().contentWindow,
+				doc = win.document,
+				body = doc.body;
+			
+			this.set('win', win);
+			this.set('doc', doc);
+			
+			this.afterWriteHTML();
+		},
+		
+		/*
 		 * ---------------------------------- PRIVATE: HTML CONTENT ---------------------------------
 		 */
 		
@@ -308,7 +346,7 @@ YUI().add('supra.iframe', function (Y) {
 			doc.open('text/html', 'replace');
 			
 			//All link for Google fonts
-			html = this.includeGoogleFonts(html, this.get('fonts'));
+			html = GoogleFonts.addFontsToHTML(html, this.get('fonts'));
 			
 			//IE freezes when trying to insert <script> with src attribute using writeln
 			if (Supra.Y.UA.ie) {
@@ -380,13 +418,15 @@ YUI().add('supra.iframe', function (Y) {
 			var links = [],
 				elements = Y.Node(doc).all('link[rel="stylesheet"]'),
 				link = null,
-				href = '';
+				href = '',
+				type = '';
  			
  			for(var i=0,ii=elements.size(); i<ii; i++) {
 				href = elements.item(i).getAttribute('href');
+				type = elements.item(i).getAttribute('type');
 				
-				// Not google font stylesheet
-				if (!href || href.indexOf(GOOGLE_FONT_API_URI) === -1) {
+				// Not google font stylesheets and not .less files
+				if ((!href || href.indexOf(GOOGLE_FONT_API_URI) === -1) && (!type || type === 'text/css')) {
 					links.push(Y.Node.getDOMNode(elements.item(i)));
 				}
 			}
@@ -454,7 +494,9 @@ YUI().add('supra.iframe', function (Y) {
 		 * @private
 		 */
 		handleContentLinkClick: function (e) {
-			e.preventDefault();
+			if (this.get('preventNavigation')) {
+				e.preventDefault();
+			}
 		},
 		
 		/**
@@ -464,120 +506,49 @@ YUI().add('supra.iframe', function (Y) {
 		 * @private
 		 */
 		handleContentFormSubmit: function (e) {
-			e.preventDefault();
+			if (this.get('preventNavigation')) {
+				e.preventDefault();
+			}
 		},
 		
 		
-		/* ------------------------------------------- FONTS ------------------------------------------- */
-		
-		
-		/**
-		 * Load fonts from Google Fonts
-		 * 
-		 * @param {String} html HTML in which will be inserted <link />, if this is document then link is added to DOM <head />
-		 * @private
+		/*
+		 * ---------------------------------- GOOGLE FONTS ---------------------------------
 		 */
-		includeGoogleFonts: function (html, fonts) {
-			var uri = this.getGoogleFontsURI(fonts);
-			
-			if (typeof html === 'string') {
-				
-				var replaced = false,
-					regex = new RegExp('(<link[^>]+href=)["\'][^"\']*?' + Y.Escape.regex(GOOGLE_FONT_API_URI) + '[^"\']*?["\']', 'i'),
-					html = html.replace(regex, function (all, pre) {
-						replaced = true;
-						return pre + '"' + uri + '"';
-					});
-				
-				if (!replaced) {
-					//Insert
-					html = html.replace(/<\/\s*head/i, '<link rel="stylesheet" href="' + uri + '" /></head');
-				}
-				
-				return html;
+		
+
+		/**
+		 * Handle document change
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */		
+		_afterDocChange: function (e) {
+			if (this.googleFonts) {
+				this.googleFonts.set('doc', e.newVal);
 			} else {
-				var doc = html;
-				if (!doc) return;
-				
-				//
-				var head = Y.Node(doc).one('head'),
-					link = head.one('link[href^="' + GOOGLE_FONT_API_URI + '"]');
-				
-				if (uri) {
-					if (link) {
-						//Update
-						link.setAttribute('href', uri);
-					} else {
-						//Add
-						link = Y.Node.create('<link href="' + uri + '" rel="stylesheet" type="text/css" />');
-						head.append(link);
-					}
-				} else if (link) {
-					//We don't have any fonts, remove link
-					link.remove();
-				}
+				this.googleFonts = new Supra.GoogleFonts({
+					'doc': e.newVal,
+					'fonts': this.get('fonts')
+				});
 			}
 		},
 		
 		/**
-		 * Returns URI with all fonts
+		 * Handle fonts change
 		 * 
-		 * @return URI for <link /> element which will load all fonts
+		 * @param {Object} e Event facade object
 		 * @private
 		 */
-		getGoogleFontsURI: function (fonts) {
-			if (this.fontsURI) return this.fontsURI;
-			
-			var fonts = Y.Lang.isArray(fonts) ? fonts : [],
-				i = 0, ii = fonts.length,
-				
-				//Get all safe fonts in lowercase
-				safe  = Y.Array(SAFE_FONTS).map(LOWERCASE_MAP),
-				apis  = [],
-				
-				parts = [], k = 0, kk = 0,
-				
-				load  = [],
-				temp  = '',
-				uri   = GOOGLE_FONT_API_URI;
-			
-			//Find which ones are not in the safe font list
-			for (; i<ii; i++) {
-				//Split "Arial, Verdana" into two items
-				if (fonts[i].family || (fonts[i].title && !fonts[i].apis)) {
-					parts = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').split(',');
-				} else {
-					parts = fonts[i].apis.replace(/:[^|]+/g, '').replace(/\+/g, ' ').split('|');
-				}
-				
-				for (k=0,kk=parts.length; k<kk; k++) {
-					//If any of the part is not in the safe list, then load from Google Fonts
-					if (parts[k] && safe.indexOf(parts[k].toLowerCase()) == -1) {
-						
-						//Convert into format which is valid for uri
-						if (fonts[i].apis) {
-							load.push(fonts[i].apis);
-						} else {
-							temp = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').replace(/\s+/g, '+').replace(/,/g, '|');
-							if (temp) load.push(temp);
-						}
-						
-						break;
-					}
-				}
+		_afterFontsChange: function (e) {
+			if (this.googleFonts) {
+				this.googleFonts.set('fonts', e.newVal);
+			} else {
+				this.googleFonts = new Supra.GoogleFonts({
+					'doc': this.get('doc'),
+					'fonts': e.newVal
+				});
 			}
-			
-			return this.fontsURI = (load.length ? uri + load.join('|') : '');
-		},
-		
-		/**
-		 * Returns URI which was used to get font CSS file
-		 * 
-		 * @return Fonts CSS file URI
-		 * @type {String}
-		 */
-		getFontRequestURI: function () {
-			return this.fontsURI;
 		},
 		
 		
@@ -602,7 +573,7 @@ YUI().add('supra.iframe', function (Y) {
 				
 				//
 				var iframe = this.get('contentBox');
-				iframe.once('load', this.afterWriteHTML, this);
+				iframe.once('load', this.afterSetURL, this);
 				iframe.setAttribute('src', url);
 			}
 			
@@ -627,7 +598,7 @@ YUI().add('supra.iframe', function (Y) {
 			
 			return html;
 		},
-			
+		
 		/**
 		 * Load fonts from Google Fonts
 		 * 
@@ -641,7 +612,7 @@ YUI().add('supra.iframe', function (Y) {
 				unique_hash = {},
 				id = null;
 			
-			// Find unique
+			// Extract unique
 			for (; i<ii; i++) {
 				id = fonts[i].apis || fonts[i].family;
 				if (!(id in unique_hash)) {
@@ -651,12 +622,6 @@ YUI().add('supra.iframe', function (Y) {
 			}
 			
 			fonts = unique_arr;
-			
-			// Set
-			if (!this.get('rendered') || !this.get('doc')) return fonts;
-			
-			this.includeGoogleFonts(fonts);
-			
 			return fonts;
 		},
 		
