@@ -44,8 +44,8 @@ class Info implements Configuration\ConfigurationInterface
 
 	public function configure()
 	{
-		// fetching data from supra.ini
-		$conf = ObjectRepository::getIniConfigurationLoader('');
+		$conf = $this->getIniConfigurationLoader();
+		
 		$this->id = $conf->getValue('system', 'id', null);
 		$this->hostName = $conf->getValue('system', 'host');
 		$this->name = $conf->getValue('system', 'name');
@@ -170,6 +170,14 @@ class Info implements Configuration\ConfigurationInterface
 			'webserverHostAndPort' => $this->getWebserverHostAndPort(),
 			'name' => $this->getName()
 		);
+	}
+	
+	/**
+	 * @return Configuration\Loader\IniConfigurationLoader
+	 */
+	protected function getIniConfigurationLoader()
+	{
+		return ObjectRepository::getIniConfigurationLoader('');
 	}
 
 }
