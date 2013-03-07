@@ -27,6 +27,11 @@ class InlineMedia extends EditableAbstraction
      */
     protected $fixedMaxCropWidth = true;
     
+    /**
+     * @var boolean
+     */
+    protected $autoClose = false;
+    
 	/**
      *
      */
@@ -36,6 +41,7 @@ class InlineMedia extends EditableAbstraction
             'allowVideo' => $this->allowVideo,
             'allowImage' => $this->allowImage,
             'fixedMaxCropWidth' => $this->fixedMaxCropWidth,
+            'autoClose' => $this->autoClose,
         );
     }
     
@@ -61,6 +67,14 @@ class InlineMedia extends EditableAbstraction
     public function setFixedMaxCropWidth($fixedMaxCropWidth)
     {
         $this->fixedMaxCropWidth = (bool)$fixedMaxCropWidth;
+    }
+    
+    /**
+     * @param boolean $allowImage
+     */
+    public function setAutoClose($autoClose)
+    {
+        $this->autoClose = (bool)$autoClose;
     }
     
 	/**

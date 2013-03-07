@@ -11822,10 +11822,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * Unset mouse cursor
 		 */
 		unsetMouseCursor: function (e) {
-			if (this.get("cursor") != 4) {
+			if (!this.resizeActive && !this.moveActive && this.get("cursor") != 4) {
 				this.set("cursor", 4);
 			}
-		}
+		},
 		
 		/**
 		 * Returns cursor classname
