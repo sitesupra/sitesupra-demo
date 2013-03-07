@@ -38,6 +38,9 @@ class LoginAction extends CmsAction
 		$manager->configure();
 		
 		$response->assign('manager', $manager);
+		
+		// FIXME
+		$response->assign('passwordResetUri', '#');
 
 		$response->outputTemplate('login/index.html.twig');
 		

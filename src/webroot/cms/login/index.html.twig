@@ -9,6 +9,9 @@
 	{% if passwordRequirements is defined and passwordRequirements %}
 		Supra.data.set('password_requirements', {{ passwordRequirements|json_encode|raw }});
 	{% endif %}
+	{% if passwordResetUri is defined and passwordResetUri %}
+		Supra.data.set('password_reset_uri', {{ passwordResetUri|json_encode|raw }});
+	{% endif %}
 	
 	//Execute initial actions
 	Supra.Manager.executeAction('{{ managerAction|default('Login') }}');

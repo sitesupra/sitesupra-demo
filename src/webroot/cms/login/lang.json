@@ -5,7 +5,8 @@
 			"email": "Email",
 			"password": "Password",
 			"login": "Login",
-			"error": "Please enter email and password"
+			"error": "Please enter email and password",
+			"reset": "Forgot password?"
 		},
 		
 		"password": {
