@@ -617,7 +617,20 @@ class PagecontentAction extends PageManagerAction
 						
 						$value = "{$latitude}|{$longitude}";
 					}
-				}	
+				} else if ($editable instanceof Editable\InlineMedia) {
+					
+					if ($input->hasChild($propertyName)) {
+						
+						$mediaData = $input->getChild($propertyName)
+								->getArrayCopy();
+						
+						$editable->setContentFromEdit($mediaData);
+						$metaElement = $editable->getContentMetadataForEdit();
+						if ( ! empty($metaElement)) {
+							$referencedElementsData[0] = $metaElement->toArray();
+						}
+					}
+				}
 				else {
 					$propertyData = $input->get($propertyName);
 					$value = $propertyData;

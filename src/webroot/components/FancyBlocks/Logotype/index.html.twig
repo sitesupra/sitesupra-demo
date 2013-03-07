@@ -16,17 +16,9 @@
 			<{{ tag }} class="txt">{{ supraBlock.property('text') }}</{{ tag }}>
 		{% endif %}
 		
-		{% if supra.cmsRequest %}
-			<div class="img">
-				<div id="content_{{ supraBlock.getBlock().getId() }}_image" class="yui3-content-inline yui3-input-media-inline-content">
-					{{ supraBlock.imageHtmlTag(image.id, mediaData.size_width, mediaData.size_height, true, mediaData.size_name) | raw }}
-				</div>
-			</div>
-		{% elseif image %}
-			<span class="img">
-				{{ supraBlock.imageHtmlTag(image.id, mediaData.size_width, mediaData.size_height, true, mediaData.size_name) | raw }}
-			</span>
-		{% endif %}
+		<{{ tag }} class="img">
+			{{ supraBlock.property('image') | raw }}
+		</{{ tag }}>
 		
 		{% if layout == 'text_right' or layout == 'text_bottom' %}
 			<{{ tag }} class="txt">{{ supraBlock.property('text') }}</{{ tag }}>

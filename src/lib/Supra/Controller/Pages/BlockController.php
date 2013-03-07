@@ -418,6 +418,18 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
+		
+		else if ($editable instanceof Editable\InlineMedia) {
+			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+				$filter = new Filter\EditableInlineMedia();
+			} else {
+				$filter = new Filter\InlineMediaFilter();
+			}
+			
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
+		}
 
 		$this->configuredBlockProperties[$propertyId] = true;
 	}

@@ -655,7 +655,7 @@ class PageAction extends PageManagerAction
 		$propertyValue = $editable->getContentForEdit();
 		$metadataCollection = $blockProperty->getMetadata();
 		$data = array();
-
+		
 		/* @var $metadata Entity\BlockPropertyMetadata */
 		foreach ($metadataCollection as $name => $metadata) {
 
@@ -686,6 +686,12 @@ class PageAction extends PageManagerAction
 		}
 
 		if ($editable instanceof Editable\Link || $editable instanceof Editable\Video) {
+			if (isset($data[0])) {
+				$propertyData = $data[0];
+			}
+		}
+		
+		if ($editable instanceof Editable\InlineMedia) {
 			if (isset($data[0])) {
 				$propertyData = $data[0];
 			}
