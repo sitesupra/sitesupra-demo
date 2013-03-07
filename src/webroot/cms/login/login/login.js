@@ -101,9 +101,11 @@ Supra("supra.input", "cookie", function (Y) {
 			this.footer.getButton("ok").set("style", "mid-blue");
 			
 			//Password reset link
-			var uri = Supra.data.get("password_reset_uri");
-			if (uri) {
-				this.one("#reset").removeClass("hidden").setAttribute("href", uri);
+			if (Supra.data.get(["site", "portal"])) {
+				var uri = Supra.data.get(["site", "password_reset_uri"]);
+				if (uri) {
+					this.one("#reset").removeClass("hidden").setAttribute("href", uri);
+				}
 			}
 		},
 		
