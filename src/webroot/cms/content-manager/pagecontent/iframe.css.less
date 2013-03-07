@@ -10,7 +10,7 @@
 }
 
 .yui3-content {
-	overflow: hidden;
+	.clear-fix ();
 	min-height: 60px;
 }
 .yui3-content-inline {
@@ -457,12 +457,12 @@
 	&,
 	.yui3-content-inline {
 		outline: 2px dashed #00A5F8;
-		overflow: hidden;
 		min-height: 1.5em;
+		
+		.clear-fix ();
 	}
 	
 	.yui3-input-string-inline.yui3-content-inline {
-		overflow: visible;
 		min-height: 1em;
 	}
 }
@@ -599,8 +599,7 @@
  */
 .supra-image {
 	&,
-	.supra-image-inner,
-	.supra-image-size {
+	.supra-image-inner {
 		position: relative !important;
 		display: inline-block !important;
 		overflow: hidden !important;
@@ -616,13 +615,10 @@
 	
 	.supra-image-inner {
 		vertical-align: bottom !important; /* Fixes gap between image and container */
-	}
-	.supra-image-inner,
-	.supra-image-size {
 		float: none !important;
 		background: none !important;
 		border: 0 !important;
-		outline: none !important;
+		outline: 2px solid #00a8f9 !important;
 		.border-radius (0 !important);
 		.box-shadow (none !important);
 	}
@@ -651,20 +647,15 @@
 	}
 }
 
-.supra-image.supra-image-editing .supra-image-size,
-.supra-background-editing .supra-image-size {
-	position: absolute !important;
-	z-index: 1 !important;
-	width: 100px;
-	text-align: center !important;
-	font: 12px/18px Arial, Helvetica, sans-serif !important;
-	font-weight: normal !important;
-	font-style: normal !important;
-	color: #fff !important;
-	text-shadow: 0 1px 1px #000;
-	top: 6px !important;
-	left: 50% !important;
-	margin: 0 0 0 -50px !important;
+.supra-image.supra-image-editing .tooltip,
+.supra-background-editing .tooltip {
+	left: 50%;
+	width: 50px;
+	margin-left: -35px;
+	
+	&.bottom {
+		top: 105%;
+	}
 }
 
 .supra-image.supra-image-editing .supra-image-resize,
@@ -672,11 +663,10 @@
 	display: block;
 	position: absolute;
 	z-index: 1;
-	left: 1px;
-	top: 1px;
-	right: 1px;
-	bottom: 1px;
-	border: 2px solid #000;
+	left: -6px;
+	top: -6px;
+	right: -6px;
+	bottom: -7px;
 	cursor: move !important;
 	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,

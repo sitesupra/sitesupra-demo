@@ -126,6 +126,23 @@ legend {
 /* YUI CSS Detection Stamp */
 #yui3-css-stamp.cssreset { display: none; }
 
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -387,6 +404,23 @@ http://yuilibrary.com/license/
 */
 .yui3-slider,.yui3-slider-rail{display:-moz-inline-stack;display:inline-block;*display:inline;zoom:1;vertical-align:middle}.yui3-slider-content{position:relative;display:block}.yui3-slider-rail{position:relative}.yui3-slider-rail-cap-top,.yui3-slider-rail-cap-left,.yui3-slider-rail-cap-bottom,.yui3-slider-rail-cap-right,.yui3-slider-thumb,.yui3-slider-thumb-image,.yui3-slider-thumb-shadow{position:absolute}.yui3-slider-thumb{overflow:hidden;outline:none}.yui3-skin-supra .yui3-slider-x .yui3-slider-rail,.yui3-skin-supra .yui3-slider-x .yui3-slider-rail-cap-left,.yui3-skin-supra .yui3-slider-x .yui3-slider-rail-cap-right{background-image:url("/cms/lib/yui.3.5.0/build/slider-base/assets/skins/supra/rail-x.png");background-repeat:repeat-x}.yui3-skin-supra .yui3-slider-x .yui3-slider-rail{height:26px}.yui3-skin-supra .yui3-slider-x .yui3-slider-thumb{height:26px;width:15px}.yui3-skin-supra .yui3-slider-x .yui3-slider-rail-cap-left{background-position:0 -20px;height:20px;left:-2px;width:5px}.yui3-skin-supra .yui3-slider-x .yui3-slider-rail-cap-right{background-position:0 -40px;height:20px;right:-2px;width:5px}.yui3-skin-supra .yui3-slider-x .yui3-slider-thumb-image{left:0;top:-10px}.yui3-skin-supra .yui3-slider-x .yui3-slider-thumb-shadow{left:0;opacity:.15;filter:alpha(opacity=15);top:-50px}.yui3-skin-supra .yui3-slider-y .yui3-slider-rail,.yui3-skin-supra .yui3-slider-y .yui3-slider-rail-cap-top,.yui3-skin-supra .yui3-slider-y .yui3-slider-rail-cap-bottom{background-image:url("/cms/lib/yui.3.5.0/build/slider-base/assets/skins/supra/rail-y.png");background-repeat:repeat-y}.yui3-skin-supra .yui3-slider-y .yui3-slider-rail{width:26px}.yui3-skin-supra .yui3-slider-y .yui3-slider-thumb{width:26px;height:15px}.yui3-skin-supra .yui3-slider-y .yui3-slider-rail-cap-top{background-position:-20px 0;width:20px;top:-2px;height:5px}.yui3-skin-supra .yui3-slider-y .yui3-slider-rail-cap-bottom{background-position:-40px 0;width:20px;bottom:-2px;height:5px}.yui3-skin-supra .yui3-slider-y .yui3-slider-thumb-image{left:-10px;top:0}.yui3-skin-supra .yui3-slider-y .yui3-slider-thumb-shadow{left:-50px;opacity:.15;filter:alpha(opacity=15);top:0}#yui3-css-stamp.skin-supra-slider-base{display:none}
 
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -539,6 +573,23 @@ http://yuilibrary.com/license/
   margin: 3px;
 }
 
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -1348,6 +1399,23 @@ button::-moz-focus-inner {
   visibility: hidden;
 }
 
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -3640,6 +3708,23 @@ button::-moz-focus-inner {
   overflow: hidden;
 }
 
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -4065,6 +4150,23 @@ button::-moz-focus-inner {
   display: inline-block;
 }
 
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -4293,6 +4395,23 @@ button::-moz-focus-inner {
 .ui-center-dark .yui3-form .yui3-footer-content {
 	padding-top: 0;
 }
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -4447,6 +4566,23 @@ button::-moz-focus-inner {
   background: #1E1D27;
 }
 
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);
@@ -4804,6 +4940,23 @@ button::-moz-focus-inner {
   text-decoration: none;
 }
 
+.clear-fix {
+  zoom: 1;
+}
+.clear-fix:before,
+.clear-fix:after {
+  content: '.';
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  width: 0;
+  height: 0;
+}
+.clear-fix:after {
+  clear: both;
+}
 @-moz-keyframes spin {
   0% {
     -moz-transform: rotate(0deg);

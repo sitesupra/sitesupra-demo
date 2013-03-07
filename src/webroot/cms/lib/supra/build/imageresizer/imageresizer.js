@@ -359,6 +359,15 @@ YUI().add("supra.imageresizer", function (Y) {
 		},
 		
 		/**
+		 * Unset mouse cursor
+		 */
+		unsetMouseCursor: function (e) {
+			if (this.get("cursor") != 4) {
+				this.set("cursor", 4);
+			}
+		}
+		
+		/**
 		 * Returns cursor classname
 		 * 
 		 * @param {Number} cursor
@@ -834,10 +843,11 @@ YUI().add("supra.imageresizer", function (Y) {
 			resizeHandleNode.addClass("supra-image-resize");
 			containerNode.append(resizeHandleNode);
 			resizeHandleNode.on("mousemove", this.setMouseCursor, this);
+			resizeHandleNode.on("mouseleave", this.unsetMouseCursor, this);
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("supra-image-size");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
 			containerNode.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			
@@ -972,7 +982,7 @@ YUI().add("supra.imageresizer", function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("supra-image-size");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
 			image.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			image.addClass("supra-background-editing");

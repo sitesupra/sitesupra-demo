@@ -13,6 +13,57 @@ class InlineMedia extends EditableAbstraction
 	const EDITOR_INLINE_EDITABLE = true;
 	
 	/**
+     * @var boolean
+     */
+    protected $allowVideo = true;
+    
+    /**
+     * @var boolean
+     */
+    protected $allowImage = true;
+    
+    /**
+     * @var boolean
+     */
+    protected $fixedMaxCropWidth = true;
+    
+	/**
+     *
+     */
+    public function getAdditionalParameters()
+    {
+        return array(
+            'allowVideo' => $this->allowVideo,
+            'allowImage' => $this->allowImage,
+            'fixedMaxCropWidth' => $this->fixedMaxCropWidth,
+        );
+    }
+    
+    /**
+     * @param boolean $allowVideo
+     */
+    public function setAllowVideo($allowVideo)
+    {
+        $this->allowVideo = (bool)$allowVideo;
+    }
+    
+    /**
+     * @param boolean $allowImage
+     */
+    public function setAllowImage($allowImage)
+    {
+        $this->allowImage = (bool)$allowImage;
+    }
+    
+    /**
+     * @param boolean $allowImage
+     */
+    public function setFixedMaxCropWidth($fixedMaxCropWidth)
+    {
+        $this->fixedMaxCropWidth = (bool)$fixedMaxCropWidth;
+    }
+    
+	/**
 	 * Return editor type
 	 * @return string
 	 */

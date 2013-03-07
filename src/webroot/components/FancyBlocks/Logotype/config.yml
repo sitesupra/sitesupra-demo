@@ -12,3 +12,40 @@
         groups:
           - Supra\FileStorage
           - Supra\Controller\Pages
+
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: layout
+          editable: Supra\Editable\SelectVisual
+          label: Slide layout
+          default: text_right
+          values:
+            - id: text_right
+              title: Text on right side
+              icon: icons/layout/text-right.png
+            - id: text_left
+              title: Text on left side
+              icon: icons/layout/text-left.png
+            - id: text_bottom
+              title: Text at the bottom
+              icon: icons/layout/text-bottom.png
+            - id: text_top
+              title: Text at the top
+              icon: icons/layout/text-top.png
+          additionalParameters:
+            style: mid
+            iconStyle: center
+            separateSlide: true
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: image
+          editable: Supra\Editable\InlineMedia
+          label: 
+          default: 
+          additionalParameters:
+            allowVideo: false
+            fixedMaxCropWidth: false
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: text
+          editable: Supra\Editable\Html
+          label: Text
+          default: Text

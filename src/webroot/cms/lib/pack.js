@@ -11819,6 +11819,15 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		},
 		
 		/**
+		 * Unset mouse cursor
+		 */
+		unsetMouseCursor: function (e) {
+			if (this.get("cursor") != 4) {
+				this.set("cursor", 4);
+			}
+		}
+		
+		/**
 		 * Returns cursor classname
 		 * 
 		 * @param {Number} cursor
@@ -12294,10 +12303,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			resizeHandleNode.addClass("supra-image-resize");
 			containerNode.append(resizeHandleNode);
 			resizeHandleNode.on("mousemove", this.setMouseCursor, this);
+			resizeHandleNode.on("mouseleave", this.unsetMouseCursor, this);
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("supra-image-size");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
 			containerNode.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			
@@ -12432,7 +12442,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("supra-image-size");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
 			image.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			image.addClass("supra-background-editing");
@@ -31110,6 +31120,10 @@ YUI.add('supra.datatype-color', function(Y) {
 		// Stop editing when clicked outside image
 		"autoClose": {
 			value: true
+		},
+		// Max crop width is fixed and container can't increase in size
+		"fixedMaxCropWidth": {
+			value: true
 		}
 	};
 	
@@ -31200,9 +31214,11 @@ YUI.add('supra.datatype-color', function(Y) {
 				}, this);
 			}
 			
-			imageResizer.set("maxCropWidth", Math.min(size.width, this._getContainerWidth()));
+			imageResizer.set("maxCropWidth", this.get('fixedMaxCropWidth') ? Math.min(size.width, this._getContainerWidth()) : 0);
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
+			imageResizer.set("minImageHeight", 32);
+			imageResizer.set("minImageHeight", 32);
 			imageResizer.set("image", node);
 			
 			this.focus();
@@ -31763,6 +31779,21 @@ YUI.add('supra.datatype-color', function(Y) {
 		// Stop editing when clicked outside image
 		"autoClose": {
 			value: true
+		},
+		
+		// Allow inserting video
+		"allowVideo": {
+			value: true
+		},
+		
+		// Allow inserting image
+		'allowImage': {
+			value: true
+		},
+		
+		// Max crop width is fixed to container width and container can't increase 
+		'fixedMaxCropWidth': {
+			value: true
 		}
 	};
 	
@@ -31871,7 +31902,8 @@ YUI.add('supra.datatype-color', function(Y) {
 				'value': null,
 				'separateSlide': false,
 				'allowRemoveImage': false,
-				'autoClose': this.get('autoClose')
+				'autoClose': this.get('autoClose'),
+				'fixedMaxCropWidth': this.get('fixedMaxCropWidth')
 			});
 			
 			input_video = new Supra.Input.Video({
@@ -32283,19 +32315,28 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (!data || (type !== 'image' && type !== 'video')) {
 				// Empty with buttons
-				var label = this.get('label'),
+				var allow_video = this.get('allowVideo'),
+					allow_image = this.get('allowImage'),
+					tmp = null,
+					
+					label = this.get('label'),
 					description = this.get('description'),
+					
 					html = (label ? '<h2>' + Y.Escape.html(label) + '</h2>' : '') +
 						   (description ? '<p>' + Y.Escape.html(description) + '</p>' : '') +
 						   '<div align="center" class="yui3-box-reset">' +
-						       '<a class="supra-button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>' +
-						       '<a class="supra-button" data-supra-action="addVideo">' + (this.get('labelAddVideo') || Supra.Intl.get(['inputs', 'media', 'add_video'])) + '</a>' +
+						       (allow_image ? ('<a class="supra-button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>') : '') +
+						       (allow_video ? ('<a class="supra-button" data-supra-action="addVideo">' + (this.get('labelAddVideo') || Supra.Intl.get(['inputs', 'media', 'add_video'])) + '</a>') : '') +
 						   '</div>';
 				
 				node.addClass(this.getClassName('empty'));
 				node.set('innerHTML', html);
-				node.one('a[data-supra-action="addImage"]').on('click', this.insertImage, this);
-				node.one('a[data-supra-action="addVideo"]').on('click', this.insertVideo, this);
+				
+				tmp = node.one('a[data-supra-action="addImage"]');
+				if (tmp) tmp.on('click', this.insertImage, this);
+				
+				tmp = node.one('a[data-supra-action="addVideo"]');
+				if (tmp) tmp.on('click', this.insertVideo, this);
 			} else {
 				node.removeClass(this.getClassName('empty'));
 			}

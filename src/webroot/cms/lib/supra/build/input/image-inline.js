@@ -35,6 +35,10 @@ YUI.add('supra.input-image-inline', function (Y) {
 		// Stop editing when clicked outside image
 		"autoClose": {
 			value: true
+		},
+		// Max crop width is fixed and container can't increase in size
+		"fixedMaxCropWidth": {
+			value: true
 		}
 	};
 	
@@ -125,9 +129,11 @@ YUI.add('supra.input-image-inline', function (Y) {
 				}, this);
 			}
 			
-			imageResizer.set("maxCropWidth", Math.min(size.width, this._getContainerWidth()));
+			imageResizer.set("maxCropWidth", this.get('fixedMaxCropWidth') ? Math.min(size.width, this._getContainerWidth()) : 0);
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
+			imageResizer.set("minImageHeight", 32);
+			imageResizer.set("minImageHeight", 32);
 			imageResizer.set("image", node);
 			
 			this.focus();

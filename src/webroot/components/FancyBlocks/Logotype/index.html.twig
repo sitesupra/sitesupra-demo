@@ -1,17 +1,41 @@
+{% set rootPage = supra.isActive('/',true) %}
+{% set layout = supraBlock.property('layout') %}
+{% set image = supraBlock.property('image') %}
+{% set tag = 'span' %}
+
 {% spaceless %}
-<div class="logo"><i></i>
-	{% set rootPage = supra.isActive('/',true) %}
-	{% if not rootPage %}
+<div class="logo {{ layout }}" data-refresh-event="logotype"><i></i>
+	{% if not rootPage and not supra.cmsRequest %}
 		<a href="/">
+	{% else %}
+		{% set tag = 'div' %}
+		<div>
 	{% endif %}
-		{% set imageid = supraBlock.property('logotype') %}
-		{% if imageid %}
-			{{ supraBlock.imageHtmlTag(imageid, 400, 200) | raw }}
-		{% else %}
-			<img src="{{ supra.theme.urlBase }}assets/img/logo.png" alt="">
+		
+		{% if layout == 'text_left' or layout == 'text_top' %}
+			<{{ tag }} class="txt">{{ supraBlock.property('text') }}</{{ tag }}>
 		{% endif %}
-	{% if not rootPage %}
+		
+		{% if supra.cmsRequest %}
+			<div class="img">
+				<div id="content_{{ supraBlock.getBlock().getId() }}_image" class="yui3-content-inline yui3-input-media-inline-content">
+					{{ supraBlock.imageHtmlTag(image.id, mediaData.size_width, mediaData.size_height, true, mediaData.size_name) | raw }}
+				</div>
+			</div>
+		{% elseif image %}
+			<span class="img">
+				{{ supraBlock.imageHtmlTag(image.id, mediaData.size_width, mediaData.size_height, true, mediaData.size_name) | raw }}
+			</span>
+		{% endif %}
+		
+		{% if layout == 'text_right' or layout == 'text_bottom' %}
+			<{{ tag }} class="txt">{{ supraBlock.property('text') }}</{{ tag }}>
+		{% endif %}
+	
+	{% if not rootPage and not supra.cmsRequest %}
 		</a>
+	{% else %}
+		</div>
 	{% endif %}
 </div>
 {% endspaceless %}

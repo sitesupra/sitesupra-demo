@@ -66,6 +66,21 @@ YUI.add('supra.input-media-inline', function (Y) {
 		// Stop editing when clicked outside image
 		"autoClose": {
 			value: true
+		},
+		
+		// Allow inserting video
+		"allowVideo": {
+			value: true
+		},
+		
+		// Allow inserting image
+		'allowImage': {
+			value: true
+		},
+		
+		// Max crop width is fixed to container width and container can't increase 
+		'fixedMaxCropWidth': {
+			value: true
 		}
 	};
 	
@@ -174,7 +189,8 @@ YUI.add('supra.input-media-inline', function (Y) {
 				'value': null,
 				'separateSlide': false,
 				'allowRemoveImage': false,
-				'autoClose': this.get('autoClose')
+				'autoClose': this.get('autoClose'),
+				'fixedMaxCropWidth': this.get('fixedMaxCropWidth')
 			});
 			
 			input_video = new Supra.Input.Video({
@@ -586,19 +602,28 @@ YUI.add('supra.input-media-inline', function (Y) {
 			
 			if (!data || (type !== 'image' && type !== 'video')) {
 				// Empty with buttons
-				var label = this.get('label'),
+				var allow_video = this.get('allowVideo'),
+					allow_image = this.get('allowImage'),
+					tmp = null,
+					
+					label = this.get('label'),
 					description = this.get('description'),
+					
 					html = (label ? '<h2>' + Y.Escape.html(label) + '</h2>' : '') +
 						   (description ? '<p>' + Y.Escape.html(description) + '</p>' : '') +
 						   '<div align="center" class="yui3-box-reset">' +
-						       '<a class="supra-button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>' +
-						       '<a class="supra-button" data-supra-action="addVideo">' + (this.get('labelAddVideo') || Supra.Intl.get(['inputs', 'media', 'add_video'])) + '</a>' +
+						       (allow_image ? ('<a class="supra-button" data-supra-action="addImage">' + (this.get('labelAddImage') || Supra.Intl.get(['inputs', 'media', 'add_image'])) + '</a>') : '') +
+						       (allow_video ? ('<a class="supra-button" data-supra-action="addVideo">' + (this.get('labelAddVideo') || Supra.Intl.get(['inputs', 'media', 'add_video'])) + '</a>') : '') +
 						   '</div>';
 				
 				node.addClass(this.getClassName('empty'));
 				node.set('innerHTML', html);
-				node.one('a[data-supra-action="addImage"]').on('click', this.insertImage, this);
-				node.one('a[data-supra-action="addVideo"]').on('click', this.insertVideo, this);
+				
+				tmp = node.one('a[data-supra-action="addImage"]');
+				if (tmp) tmp.on('click', this.insertImage, this);
+				
+				tmp = node.one('a[data-supra-action="addVideo"]');
+				if (tmp) tmp.on('click', this.insertVideo, this);
 			} else {
 				node.removeClass(this.getClassName('empty'));
 			}
