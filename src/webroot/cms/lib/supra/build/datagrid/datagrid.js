@@ -488,6 +488,7 @@ YUI.add("supra.datagrid", function (Y) {
 		 */
 		'_dataReceivedFailure': function (e) {
 			//Y.log(e, 'error');
+			this.fire('load:failure');
 			
 			//Remove loading style
 			this.set('loading', false);

@@ -224,6 +224,9 @@ YUI.add('supra.datagrid-loader', function (Y) {
 		'_dataReceivedFailure': function (e) {
 			Y.log(e, 'error');
 			
+			//Event
+			this.fire('load:failure');
+			
 			this.loader.loading = false;
 		},
 		
