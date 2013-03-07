@@ -50,7 +50,7 @@ YUI.add('supra.datatype-date-reformat', function(Y) {
 	 * @return Date in pretty format
 	 * @type {String}
 	 */
-	Dt.since = function (date, format) {
+	Dt.since = function (date, format, template) {
 		var diff = 0;
 		
 		if (typeof date !== 'number') {
@@ -111,7 +111,13 @@ YUI.add('supra.datatype-date-reformat', function(Y) {
 		}
 		
 		tpl = Supra.Intl.get(['date', name]) || ('{{ n }} ' + name);
-		tpl = (Supra.Intl.get(['date', 'ago']) || '{{ n }} ago').replace(/{{\s*n\s*}}/, tpl);
+		
+		if (template) {
+			tpl = template.replace(/{{\s*n\s*}}/, tpl);
+		} else {
+			tpl = (Supra.Intl.get(['date', 'ago']) || '{{ n }} ago').replace(/{{\s*n\s*}}/, tpl);
+		}
+		
 		tpl = Supra.Template.compile(tpl, 'datatype.date.since.' + name);
 		
 		return tpl(data);

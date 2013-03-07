@@ -227,7 +227,7 @@ body {
   overflow: hidden;
   position: relative;
   background: url(/cms/lib/supra/img/background-center.jpg) 50% 0 no-repeat, url(/cms/lib/supra/img/background-pattern.jpg) 50% 0 repeat;
-  font: 12px "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font: 12px "Helvetica Neue", "HelveticaNeue-Light", "Helvetica Neue Light", Helvetica, Arial, "Lucida Grande", sans-serif;
   color: #333;
   -webkit-font-smoothing: antialiased;
   font-smoothing: antialiased;
