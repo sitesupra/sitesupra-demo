@@ -36,7 +36,6 @@
             style: mid
             iconStyle: center
             separateSlide: true
-            autoClose: false
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: image
           editable: Supra\Editable\InlineMedia
@@ -45,6 +44,7 @@
           additionalParameters:
             allowVideo: false
             fixedMaxCropWidth: false
+            autoClose: false
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: text
           editable: Supra\Editable\Html

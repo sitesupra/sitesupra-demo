@@ -309,6 +309,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 							
 							// If it's contained then don't consider as inline
 							this._has_inline_properties = true;
+						} else {
+							host_properties.srcNode = null;
+							host_properties.contentBox = null;
+							host_properties.boundingBox = null;
 						}
 						
 						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
@@ -364,6 +368,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			for(var id in inputs) {
 				inputs[id].on('change', this.onPropertyChange, this);
 				inputs[id].on('input', this.onImmediatePropertyChange, this);
+				inputs[id].after('focusedChange', this.afterInputBlur, this);
 			}
 			
 			//Delete block button
@@ -503,15 +508,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 					//Create new input 
 					inputs[id] = form.factoryField(config);
 					inputs[id].render();
+					
+					//Set config, because inputs without definitions will break form
+					inputs_definition[id] = config;
 				} else {
 					// Contained input
 					if (id in inputs) {
 						inputs[id].set('targetNode', srcNode);
 					}
 				}
-				
-				//Set config, because inputs without definitions will break form
-				inputs_definition[id] = config;
 				
 				//Restore value
 				inputs[id].set('value', value);
@@ -520,6 +525,24 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			return null;
+		},
+		
+		/**
+		 * Input blur
+		 * 
+		 * @param {Object} evt
+		 */
+		afterInputBlur: function (evt) {
+			if (evt.newVal != evt.prevVal) {
+				//Unset active property
+				var input = evt.target,
+					id = input.get('id'),
+					host = this.get('host');
+				
+				if (host.get('active_inline_property') == id) {
+					host.set('active_inline_property', null);
+				}
+			}
 		},
 		
 		/**
@@ -824,6 +847,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				var values = form.getValues('id', true);
 		
 				for (var name in values) {
+					//FIXME Hardcoded property name
 					if (this.isPropertyShared(name) && name !== 'images') delete values[name];
 				}
 

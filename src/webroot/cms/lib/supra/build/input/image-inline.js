@@ -162,6 +162,10 @@ YUI.add('supra.input-image-inline', function (Y) {
 				height = data.image.sizes.original.height,
 				ratio  = 0;
 			
+			if (!this.get('fixedMaxCropWidth') && container_width < 100) {
+				container_width = 100;
+			}
+			
 			if (container_width && width > container_width) {
 				ratio = width / height;
 				width = container_width;
@@ -314,7 +318,9 @@ YUI.add('supra.input-image-inline', function (Y) {
 			container = node.ancestor();
 			
 			if (value) {
-				value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
+				if (this.get('fixedMaxCropWidth')) {
+					value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
+				}
 				
 				if (!container.hasClass("supra-image")) {
 					var doc = node.getDOMNode().ownerDocument;

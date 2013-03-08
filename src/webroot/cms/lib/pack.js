@@ -11799,8 +11799,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (!this.resizeActive && !this.moveActive) {
 				var x = e._event.layerX,
 					y = e._event.layerY,
-					w = this.cropWidth,
-					h = this.cropHeight,
+					w = this.cropWidth + 6 * 2,
+					h = this.cropHeight + 6 * 2,
 					handleSize = RESIZE_HANDLE_SIZE,
 					cursor = 4;
 				
@@ -31253,6 +31253,10 @@ YUI.add('supra.datatype-color', function(Y) {
 				height = data.image.sizes.original.height,
 				ratio  = 0;
 			
+			if (!this.get('fixedMaxCropWidth') && container_width < 100) {
+				container_width = 100;
+			}
+			
 			if (container_width && width > container_width) {
 				ratio = width / height;
 				width = container_width;
@@ -31405,7 +31409,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			container = node.ancestor();
 			
 			if (value) {
-				value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
+				if (this.get('fixedMaxCropWidth')) {
+					value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
+				}
 				
 				if (!container.hasClass("supra-image")) {
 					var doc = node.getDOMNode().ownerDocument;

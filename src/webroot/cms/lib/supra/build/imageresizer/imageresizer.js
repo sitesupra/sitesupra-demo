@@ -333,8 +333,8 @@ YUI().add("supra.imageresizer", function (Y) {
 			if (!this.resizeActive && !this.moveActive) {
 				var x = e._event.layerX,
 					y = e._event.layerY,
-					w = this.cropWidth,
-					h = this.cropHeight,
+					w = this.cropWidth + 6 * 2,
+					h = this.cropHeight + 6 * 2,
 					handleSize = RESIZE_HANDLE_SIZE,
 					cursor = 4;
 				

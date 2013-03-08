@@ -428,6 +428,18 @@ YUI.add('supra.page-content-editable', function (Y) {
 						
 						if (this.inline_inputs[property_id].startEditing) {
 							this.inline_inputs[property_id].startEditing();
+							
+							// Small delay because sidebar will be shown and input may need
+							// to show its own sidebar
+							Y.later(16, this, function () {
+								var old_property_id = this.get('active_inline_property'),
+									editing_disabled = this.get('super').get('disabled'),
+									disabled = this.inline_inputs[property_id].get('disabled');
+								
+								if (!editing_disabled && !disabled && old_property_id == property_id) {
+									this.inline_inputs[property_id].startEditing();
+								}
+							});
 						}
 					}
 					
