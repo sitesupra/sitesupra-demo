@@ -37,6 +37,13 @@ class LoginAction extends CmsAction
 		$manager->url = 'login';
 		$manager->configure();
 		
+		$ini = ObjectRepository::getIniConfigurationLoader($this);
+		$passwordResetUri = $ini->getValue('cms', 'password_reset_uri', false);
+		
+		if ($passwordResetUri) {
+			$response->assign('passwordResetUri', $passwordResetUri);
+		}
+		
 		$response->assign('manager', $manager);
 
 		$response->outputTemplate('login/index.html.twig');
