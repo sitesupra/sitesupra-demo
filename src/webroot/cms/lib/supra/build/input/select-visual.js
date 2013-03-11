@@ -175,12 +175,6 @@ YUI.add('supra.input-select-visual', function (Y) {
 					button = null;
 				
 				if (slideshow) {
-					/*
-					this.widgets.button = button = new Supra.Button({
-						'label': this.get('labelButton') || this.get('label'),
-						'style': 'small'
-					});
-					*/
 					var value = this.getValueData(this.get('value')),
 						label = this.get('labelButton') || value.title;
 					
@@ -197,6 +191,7 @@ YUI.add('supra.input-select-visual', function (Y) {
 					
 					button.render();
 					button.addClass('button-section');
+					button.addClass(this.getClassName('slide', 'button'));
 					button.on('click', this._slideshowChangeSlide, this);
 					
 					var labelNode = this.get('labelNode'),
@@ -240,6 +235,7 @@ YUI.add('supra.input-select-visual', function (Y) {
 				'iconHTML': definition.html
 			});
 			
+			//Decorate button style
 			this.decorateButton(definition, button);
 			
 			if (contentBox.test('input,select')) {

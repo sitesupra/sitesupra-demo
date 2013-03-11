@@ -3014,7 +3014,42 @@ button::-moz-focus-inner {
 .yui3-input-select-visual-no-labels.yui3-input-select-visual-button .su-button-group.su-button-down .su-button-bg div {
   background-position: 0 -166px, 100% -270px, 0 -218px;
 }
-.yui3-input-fonts .su-button-group .su-button-bg p {
+.yui3-input-fonts-content {
+  padding: 10px 0;
+  background: #fff;
+}
+.yui3-input-fonts .su-button {
+  width: 100% !important;
+}
+.yui3-input-fonts .su-button,
+.yui3-input-fonts .su-button .su-button-content,
+.yui3-input-fonts .su-button button,
+.yui3-input-fonts .su-button .su-button-bg,
+.yui3-input-fonts .su-button p {
+  display: block;
+}
+.yui3-input-fonts .su-button .su-button-bg {
+  background: none;
+}
+.yui3-input-fonts .su-button .su-button-bg div {
+  display: none;
+}
+.yui3-input-fonts .su-button p {
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 22px;
+  padding: 0 7px 0 11px;
+  text-align: left;
+  text-shadow: none;
+}
+.yui3-input-fonts .su-button.su-button-down {
+  background: url("/cms/lib/supra/build/htmleditor/assets/skins/supra/dropdown-selected-item.png") 5px 8px no-repeat;
+}
+.yui3-input-fonts .su-button + .su-button {
+  margin-top: 0;
+}
+.yui3-input-fonts-slide-button.su-button-group .su-button-bg p {
   display: block;
   padding: 0 7px;
   color: #777f90;
@@ -3025,14 +3060,14 @@ button::-moz-focus-inner {
   white-space: nowrap;
   top: 5px;
 }
-.yui3-input-fonts .su-button-group.su-button-mouse-hover .su-button-bg p,
-.yui3-input-fonts .su-button-group.su-button-down .su-button-bg p {
+.yui3-input-fonts-slide-button.su-button-group.su-button-mouse-hover .su-button-bg p,
+.yui3-input-fonts-slide-button.su-button-group.su-button-down .su-button-bg p {
   color: #00b1f5;
 }
-.yui3-input-fonts .su-button-group.su-button-group-no-labels .su-button-bg p {
+.yui3-input-fonts-slide-button.su-button-group.su-button-group-no-labels .su-button-bg p {
   top: 2px;
 }
-.yui3-input-fonts .su-button-group.su-button-group-mid .su-button-bg p {
+.yui3-input-fonts-slide-button.su-button-group.su-button-group-mid .su-button-bg p {
   top: 13px;
 }
 .ui-dark .yui3-input-color .unset {

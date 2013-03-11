@@ -3,7 +3,51 @@
 /**
  * Fonts input
  */
-.yui3-input-fonts .su-button-group {
+.yui3-input-fonts-content {
+	padding: 10px 0;
+	background: #fff;
+}
+
+.yui3-input-fonts .su-button {
+	width: 100% !important;
+	
+	&,
+	.su-button-content,
+	button,
+	.su-button-bg,
+	p {
+		display: block;
+	}
+	
+	.su-button-bg {
+		background: none;
+		
+		div {
+			display: none;
+		}
+	}
+	p {
+		color: #333;
+		font-size: 16px;
+		font-weight: bold;
+		line-height: 22px;
+		padding: 0 7px 0 11px;
+		text-align: left;
+		text-shadow: none;
+	}
+	
+	&.su-button-down {
+		background: url("/cms/lib/supra/build/htmleditor/assets/skins/supra/dropdown-selected-item.png") 5px 8px no-repeat;
+	}
+}
+.yui3-input-fonts .su-button + .su-button {
+	margin-top: 0;
+}
+
+/**
+ * Separate slide button
+ */ 
+.yui3-input-fonts-slide-button.su-button-group {
 	.su-button-bg p {
 		display: block;
 		padding: 0 7px;

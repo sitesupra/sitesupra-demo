@@ -21850,12 +21850,6 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					button = null;
 				
 				if (slideshow) {
-					/*
-					this.widgets.button = button = new Supra.Button({
-						'label': this.get('labelButton') || this.get('label'),
-						'style': 'small'
-					});
-					*/
 					var value = this.getValueData(this.get('value')),
 						label = this.get('labelButton') || value.title;
 					
@@ -21872,6 +21866,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					
 					button.render();
 					button.addClass('button-section');
+					button.addClass(this.getClassName('slide', 'button'));
 					button.on('click', this._slideshowChangeSlide, this);
 					
 					var labelNode = this.get('labelNode'),
@@ -21915,6 +21910,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				'iconHTML': definition.html
 			});
 			
+			//Decorate button style
 			this.decorateButton(definition, button);
 			
 			if (contentBox.test('input,select')) {
@@ -22346,6 +22342,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			button._getLabelTemplate = function () {
 				return '<div class="su-button-bg"><div style="' + this._getButtonBackgroundStyle(this.get('icon')) + '"></div><p style="' + font_style + '"></p></div></div>';
 			};
+			button.after('render', function () {
+				button.removeClass('su-button-group');
+			});
 		},
 		
 		/**

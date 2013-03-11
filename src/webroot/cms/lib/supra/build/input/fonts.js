@@ -53,6 +53,9 @@ YUI.add('supra.input-fonts', function (Y) {
 			button._getLabelTemplate = function () {
 				return '<div class="su-button-bg"><div style="' + this._getButtonBackgroundStyle(this.get('icon')) + '"></div><p style="' + font_style + '"></p></div></div>';
 			};
+			button.after('render', function () {
+				button.removeClass('su-button-group');
+			});
 		},
 		
 		/**
