@@ -168,7 +168,8 @@ Supra([
 			}
 			
 			this.widgets.apps = new Supra.AppList({
-				"srcNode": this.one("div.dashboard-apps")
+				"srcNode": this.one("div.dashboard-apps"),
+				"value": Supra.data.get(["application", "id"])
 			});
 			
 			this.widgets.scrollable = new Supra.Scrollable({

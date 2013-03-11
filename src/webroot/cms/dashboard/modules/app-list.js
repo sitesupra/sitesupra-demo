@@ -4,7 +4,7 @@ YUI.add("dashboard.app-list", function (Y) {
 	
  	
  	var TEMPLATE_APPLICATION = Supra.Template.compile('\
-			<li data-id="{{ id|escape }}">\
+			<li data-id="{{ id|escape }}" {% if active %}class="active"{% endif %}>\
 				<a href="{{ path|escape }}" />\
 					<span><img src="{{ icon|escape }}" alt="" /></span>\
 					<label>{{ title|escape }}</label>\
@@ -55,6 +55,11 @@ YUI.add("dashboard.app-list", function (Y) {
 		//Single item width
 		"itemHeight": {
 			"value": 138
+		},
+		
+		// Current application id
+		"value": {
+			"value": null
 		}
 	};
 	
@@ -376,11 +381,18 @@ YUI.add("dashboard.app-list", function (Y) {
 		fillApplicationList: function (data) {
 			var applications = null,
 				rows = this.get("rows"),
-				info = [];
+				info = [],
+				current = this.get("value");
 			
 			applications = Y.Array.map(data, function (app, index) {
 				info[index] = {"ready": false, "slide": -1, "index": index, "animating": false};
-				var node = Y.Node.create(this.TEMPLATE_APPLICATION(app));
+				
+				var data = Supra.mix({
+					"active": app.id === current
+				}, app);
+				
+				var node = Y.Node.create(this.TEMPLATE_APPLICATION(data));
+				
 				node.setData("app", app);
 				return node;
 			}, this);
