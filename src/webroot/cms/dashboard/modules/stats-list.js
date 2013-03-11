@@ -3,14 +3,14 @@ YUI.add("dashboard.stats-list", function (Y) {
 	"use strict";
 	
 	var TEMPLATE_HEADING = '\
-			<div class="su-block-heading ui-center-darker-background">\
+			<div class="su-block-heading">\
 				<h2>\
 					<span>{{ title|escape }}</span>\
 				</h2>\
 			</div>';
 	
 	var TEMPLATE_BODY = '\
-			<div class="su-block-content ui-center-dark-background">\
+			<div class="su-block-content">\
 				<ul class="data-list loading">\
 					<li class="loading-icon"></li>\
 				</ul>\
@@ -181,13 +181,13 @@ YUI.add("dashboard.stats-list", function (Y) {
 		_uiSetVisible: function (visible) {
 			if (!this.get('rendered')) return !!visible;
 			var node = this.get('boundingBox'),
-				hidden = node.hasClass('hidden');
+				is_hidden = node.hasClass('hidden');
 			
-			if (visible && hidden) {
-				node.removeClass('hidden')
-					.setStyles({'opacity': 0})
+			if (visible && is_hidden) {
+				node.setStyles({'opacity': 0})
+					.removeClass('hidden')
 					.transition({'opacity': 1, 'duration': 0.35});
-			} else if (!visible && !hidden) {
+			} else if (!visible && !is_hidden) {
 				node.transition({'opacity': 0, 'duration': 0.35}, function () {
 						node.addClass('hidden');
 					});

@@ -165,13 +165,13 @@ YUI.add('dashboard.stats-summary', function (Y) {
 		_uiSetVisible: function (visible) {
 			if (!this.get('rendered')) return !!visible;
 			var node = this.get('boundingBox'),
-				hidden = node.hasClass('hidden');
+				is_hidden = node.hasClass('hidden');
 			
-			if (visible && hidden) {
+			if (visible && is_hidden) {
 				node.setStyles({'opacity': 0})
 					.removeClass('hidden')
 					.transition({'opacity': 1, 'duration': 0.35});
-			} else if (!visible && !hidden) {
+			} else if (!visible && !is_hidden) {
 				node.transition({'opacity': 0, 'duration': 0.35}, Y.bind(function () {
 					node.addClass('hidden');
 				}, this));

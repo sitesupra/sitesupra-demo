@@ -5,8 +5,10 @@ YUI.add("dashboard.app-list", function (Y) {
  	
  	var TEMPLATE_APPLICATION = Supra.Template.compile('\
 			<li data-id="{{ id|escape }}">\
-				<span><img src="{{ icon|escape }}" alt="" /></span>\
-				<label>{{ title|escape }}</label>\
+				<a href="{{ path|escape }}" />\
+					<span><img src="{{ icon|escape }}" alt="" /></span>\
+					<label>{{ title|escape }}</label>\
+				</a>\
 			</li>');
  	
 	
@@ -37,22 +39,22 @@ YUI.add("dashboard.app-list", function (Y) {
 		
 		//Number of rows
 		"rows": {
-			"value": 3
+			"value": 2
 		},
 		
 		//Number of columns
 		"columns": {
-			"value": 4
+			"value": 5
 		},
 		
 		//Single item width
 		"itemWidth": {
-			"value": 150
+			"value": 138
 		},
 		
 		//Single item width
 		"itemHeight": {
-			"value": 155
+			"value": 138
 		}
 	};
 	
@@ -156,6 +158,10 @@ YUI.add("dashboard.app-list", function (Y) {
 			var h2 = Y.Node.create("<h2></h2>").set("text", this.get("title"));
 			container.append(h2);
 			
+			//Pagination
+			var pagination = new Supra.Pagination();
+			pagination.render(container);
+			
 			//Slideshow
 			var slideshow = new Supra.Slideshow({
 				"scrollable": false
@@ -163,11 +169,6 @@ YUI.add("dashboard.app-list", function (Y) {
 			
 			slideshow.render(container);
 			slideshow.get("boundingBox").setStyle("height", this.getSlideHeight());
-			
-			//Pagination
-			var pagination = new Supra.Pagination();
-			
-			pagination.render(container);
 			
 			//Set initial column count
 			this.set("columns", this.getColumnCount());
@@ -201,18 +202,19 @@ YUI.add("dashboard.app-list", function (Y) {
 			//Change slide on navigation active index change
 			this.widgets.pagination.on("indexChange", this.handleNavigationIndexChange, this);
 			
-			//Click
-			this.widgets.slideshow.get("contentBox").delegate("click", this.handleAppClick, "li", this);
-			
 			//Drag and drop
 			var draggable = this.draggable = new Y.DD.Delegate({
 				"container": this.widgets.slideshow.get("contentBox"),
 				"nodes": "li",
 				"target": true,
+				"invalid": "input, select, button, textarea",
 				"dragConfig": {
-					"haltDown": false
+					"haltDown": false,
+					"invalid": "input, select, button, textarea"
 				}
 			});
+			
+			draggable.dd.removeInvalid('a');
 			
 			draggable.dd.plug(Y.Plugin.DDProxy, {
 				"moveOnEnd": false,
@@ -481,13 +483,6 @@ YUI.add("dashboard.app-list", function (Y) {
 				columns = this.get("columns"),
 				rows = this.get("rows");
 			
-			/*
-			return [
-				~~(index / rows) * width,	// x
-				index % rows * height		// y
-			];
-			*/
-			
 			return [
 				index % columns * width,		//x
 				~~(index / columns) * height	//y
@@ -607,28 +602,6 @@ YUI.add("dashboard.app-list", function (Y) {
 		handleNavigationIndexChange: function (e) {
 			if (e.newVal != e.prevVal) {
 				this.widgets.slideshow.set("slide", "slide_" + e.newVal);
-			}
-		},
-		
-		/**
-		 * Handle click on application
-		 */
-		handleAppClick: function (e) {
-			var node	= e.target.closest("li"),
-				id		= node.getAttribute("data-id"),
-				apps	= this.data,
-				i		= 0,
-				ii		= apps.length;
-			
-			for (; i<ii; i++) {
-				if (apps[i].id == id) {
-					if (e.button == 2) {
-						//Middle mouse button, open in new tab
-						window.open(apps[i].path);
-					} else {
-						document.location = apps[i].path;
-					}
-				}
 			}
 		},
 		

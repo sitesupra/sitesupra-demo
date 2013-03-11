@@ -11,6 +11,7 @@ class ApplicationsAction extends DasboardAbstractAction
 {
 
 	const ICON_100 = '_100x100.png';
+	const ICON_90 = '_90x90.png';
 
 	/**
 	 * Overriden so PHP <= 5.3.2 doesn't treat applicationsAction() as a constructor
@@ -63,7 +64,7 @@ class ApplicationsAction extends DasboardAbstractAction
 			$applications[$config->id] = array(
 				'title' => $config->title,
 				'id' => $config->class,
-				'icon' => $config->icon . self::ICON_100,
+				'icon' => $config->icon . self::ICON_90,
 				'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $config->url)
 			);
 			

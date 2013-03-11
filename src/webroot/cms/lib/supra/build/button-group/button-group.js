@@ -7,7 +7,7 @@ YUI.add('supra.button-group', function (Y) {
 		this.init.apply(this, arguments);
 	}
 	
-	ButtonGroup.NAME = 'button-group';
+	ButtonGroup.NAME = 'group';
 	ButtonGroup.CSS_PREFIX = 'su-' + ButtonGroup.NAME;
 	ButtonGroup.CLASS_NAME = Y.ClassNameManager.getClassName(ButtonGroup.NAME);
 	

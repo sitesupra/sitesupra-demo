@@ -264,7 +264,8 @@ YUI.add('supra.slideshow', function (Y) {
 				oldIndex = Y.Array.indexOf(this.history, oldSlideId),
 				slideWidth = this._getWidth(),
 				to = - index * slideWidth,
-				from = - oldIndex * slideWidth;
+				from = - oldIndex * slideWidth,
+				boxNode = this.get('boundingBox');
 			
 			if (index == -1) {
 				index = this.history.length;
@@ -290,6 +291,8 @@ YUI.add('supra.slideshow', function (Y) {
 							//Hide slide
 							this.slides[oldSlideId].addClass('hidden');
 						}
+						
+						boxNode.setStyle('overflow', '');
 					}
 					
 					//Execute callback
@@ -297,6 +300,8 @@ YUI.add('supra.slideshow', function (Y) {
 						callback.call(context || this, slideId);
 					}
 				}, this);
+				
+				boxNode.setStyle('overflow', 'hidden');
 				
 				this.anim.stop();
 				this.anim.set('from', {'left': from});

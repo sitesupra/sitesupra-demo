@@ -3,36 +3,36 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 	'use strict';
 	
 	var TEMPLATE_HEADING = '\
-			<div class="su-block-heading ui-center-darker-background">\
+			<div class="su-block-heading">\
 				<h2>\
 					<span>{{ title|escape }}</span>\
 					<small>{{ website|escape }}</small>\
 					<button suStyle="small" class="button-settings"></button>\
-					<button suStyle="small" class="button-done"></button>\
+					<button suStyle="small-blue" class="button-done"></button>\
 				</h2>\
 			</div>';
 	
 	var TEMPLATE_BODY = '\
-			<div class="su-block-content ui-center-dark-background">\
+			<div class="su-block-content">\
 				<div class="chart loading">\
-					<div class="monthly clearfix"></div>\
 					<div class="daily"></div>\
+					<div class="monthly clearfix"></div>\
 				</div>\
 			</div>';
 	
 	var TEMPLATE_ITEM = '\
 			<div class="item">\
+				<p class="title icon-{{ icon }}">{{ title|escape }}</p>\
 				<p class="count">{{ amount }}</p>\
-				<p>{{ title|escape }}</p>\
 			</div>';
 	
 	var COLORS = {
-			'pageviews': '#4ecb69',
-			'pageviews_line': '#59ff7c',
-			'visits': '#e4700d',
-			'visits_line': '#fe7500',
-			'visitors': '#73b6c5',
-			'visitors_line': '#55c5ff'
+			'pageviews': 'rgba(0, 0, 0, 0.07)',
+			'pageviews_line': '#25ca85',
+			'visits': 'rgba(0, 0, 0, 0.07)',
+			'visits_line': '#ffffff',
+			'visitors': 'rgba(0, 0, 0, 0.07)',
+			'visitors_line': '#faab02'
 		};
 	
 	var LABEL_FORMAT = '%b %e',
@@ -224,17 +224,20 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 			
 			html += template({
 				'title': Supra.Intl.get(['dashboard', 'visitors', 'visitors']),
-				'amount': Y.DataType.Number.format(data.visitors, {'thousandsSeparator': ' '})
+				'amount': Y.DataType.Number.format(data.visitors, {'thousandsSeparator': ' '}),
+				'icon': 'visitors'
 			});
 			
 			html += template({
 				'title': Supra.Intl.get(['dashboard', 'visitors', 'visits']),
-				'amount': Y.DataType.Number.format(data.visits, {'thousandsSeparator': ' '})
+				'amount': Y.DataType.Number.format(data.visits, {'thousandsSeparator': ' '}),
+				'icon': 'visits'
 			});
 			
 			html += template({
 				'title': Supra.Intl.get(['dashboard', 'visitors', 'pageviews']),
-				'amount': Y.DataType.Number.format(data.pageviews, {'thousandsSeparator': ' '})
+				'amount': Y.DataType.Number.format(data.pageviews, {'thousandsSeparator': ' '}),
+				'icon': 'pageviews'
 			});
 			
 			container.empty().append(html);
@@ -285,7 +288,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 			var chart = this.chart = new Y.Chart({
 				'dataProvider': data,
 				'type': 'combo',
-				'horizontalGridlines': false, //{ 'styles': { 'line': { 'weight': 1, 'color': '#4e4a58' } } },
+				'horizontalGridlines': false, //{ 'styles': { 'line': { 'weight': 1, 'color': '#2f7ec4' } } },
 				'verticalGridlines': false,
 				
 				'tooltip': tooltip,
@@ -301,11 +304,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 						'xAxis': 'xaxis',
                 		'yAxis': 'yaxis',
                 		'xKey': 'date',
-                		'yKey': 'pageviews',
-                		'styles': {
-                			'line-weight': 1,
-                			'color': '#4e4a58'
-                		}
+                		'yKey': 'pageviews'
                 	},
                 	{
 						'type': 'combo',
@@ -333,18 +332,21 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 						'keys': ['date'],
 						'position': 'bottom',
 						'labelFunction': function (val) {
-							return Y.DataType.Date.reformat(val, 'in_date', LABEL_FORMAT);
+							return Y.DataType.Date.reformat(val, 'in_date', LABEL_FORMAT).toUpperCase();
 						},
 						'type': 'category',
 						'styles': {
+							'majorTicks': {
+								'display': 'none'
+							},
 							'line': {
-								'color': 'transparent'
+								'color': '#2367a3',
+								'weight': 1
 							},
 							'label': {
-								'color': '#a9acc1',
+								'color': '#91c6f5',
 								'fontSize': 100,
-								'textDecoration': 'none',
-								'textShadow': '0 1px 0 rgba(0, 0, 0, 0.75)'
+								'textDecoration': 'none'
 							}
 						}
 					}
@@ -367,7 +369,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 								'color': COLORS.pageviews
 							},
 							'line': {
-								'weight': 2,
+								'weight': 3,
 								'color': COLORS.pageviews_line
 							},
 							'marker': {
@@ -380,7 +382,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 								'color': COLORS.visits
 							},
 							'line': {
-								'weight': 2,
+								'weight': 3,
 								'color': COLORS.visits_line
 							},
 							'marker': {
@@ -393,7 +395,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 								'color': COLORS.visitors
 							},
 							'line': {
-								'weight': 2,
+								'weight': 3,
 								'color': COLORS.visitors_line
 							},
 							'marker': {
@@ -405,7 +407,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 				}
 			});
 			
-			chart._showTooltip = this._showChartTooltip;
+			//chart._showTooltip = this._showChartTooltip;
 			
 			chart.render(container);
 		},
@@ -418,6 +420,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		 * @param {Number} y Tooltip y coordinate
 		 * @private
 		 */
+		/*
 		_showChartTooltip: function (msg, x, y) {
 			var tt = this.get("tooltip"),
 		        node = tt.node,
@@ -439,6 +442,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		        node.setStyle("visibility", "visible");
 		    }
 		},
+		*/
 		
 		
 		/**
@@ -588,13 +592,14 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		_uiSetVisible: function (visible) {
 			if (!this.get('rendered')) return !!visible;
 			var node = this.get('boundingBox'),
-				hidden = node.hasClass('hidden');
+				is_hidden = node.hasClass('hidden');
 			
-			if (visible && hidden) {
+			if (visible && is_hidden) {
 				node.setStyles({'opacity': 0})
 					.removeClass('hidden')
 					.transition({'opacity': 1, 'duration': 0.35});
-			} else if (!visible && !hidden) {
+			} else if (!visible && !is_hidden) {
+				
 				node.transition({'opacity': 0, 'duration': 0.35}, Y.bind(function () {
 					node.addClass('hidden');
 					

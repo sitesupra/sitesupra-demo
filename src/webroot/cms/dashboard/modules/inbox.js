@@ -3,14 +3,14 @@ YUI.add("dashboard.inbox", function (Y) {
 	"use strict";
 	
 	var TEMPLATE_HEADING = '\
-			<div class="su-block-heading ui-center-darker-background">\
+			<div class="su-block-heading">\
 				<h2>\
 					<span>{{ title|escape }}</span>\
 				</h2>\
 			</div>';
 	
 	var TEMPLATE_BODY = '\
-			<div class="su-block-content ui-center-dark-background">\
+			<div class="su-block-content">\
 				<ul class="data-list loading">\
 					<li class="loading-icon"></li>\
 				</ul>\

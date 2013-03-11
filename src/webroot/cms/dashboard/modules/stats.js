@@ -164,15 +164,14 @@ YUI.add('dashboard.stats', function (Y) {
 					'title': Supra.Intl.get(['dashboard', 'referrers', 'title'])
 				});
 				
-				visitors.render(node_src);
+				visitors.render(node_auth.ancestor());
 				visitors.get('boundingBox').addClass('dashboard-visitors');
 				
-				keywords.render(node_src);
-				keywords.get('boundingBox').addClass('dashboard-keywords');
-				
 				referrers.render(node_src);
-				referrers.get('boundingBox').addClass('dashboard-referrers');
+				referrers.get('boundingBox').addClass('dashboard-referrers').addClass('grid-2');
 				
+				keywords.render(node_src);
+				keywords.get('boundingBox').addClass('dashboard-keywords').addClass('grid-2');
 				
 				visitors.on('profilesListClick', this.showProfilesListView, this);
 				visitors.on('unauthorizeClick', this._unauthorizeAccess, this);
@@ -352,7 +351,7 @@ YUI.add('dashboard.stats', function (Y) {
 				this._widgets.keywordsStats.hide();
 				
 				Y.later(350, this, this.showAuthorizationView);
-			} else if (this._widgets.summary) {
+			} else if (this._widgets.summary && this._widgets.summary.get('visible')) {
 				this._widgets.summary.hide();
 				
 				Y.later(350, this, this.showAuthorizationView);

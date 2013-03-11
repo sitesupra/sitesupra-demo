@@ -163,7 +163,7 @@ Supra([
 					"profilesRequestUri": this.getDataPath("../stats/profiles"),
 					"unauthorizeRequestUri": this.getDataPath("../stats/delete"),
 					"saveRequestUri": this.getDataPath("../stats/save"),
-					"srcNode": this.one("div.info")
+					"srcNode": this.one("div.grid")
 				});
 			}
 			
