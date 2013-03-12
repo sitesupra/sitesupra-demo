@@ -672,6 +672,9 @@ function (Y) {
 			} else {
 				var data = this.widgets.datagrid.getRowByID(record_id).getData();
 				
+				// Close recycle bin
+				this.hideRecycleBin();
+				
 				if (this.options.sitemap_element) {
 					// Animate sitemap
 					Supra.Manager.SiteMap.animate(this.options.sitemap_element, false).done(function () {
@@ -741,6 +744,9 @@ function (Y) {
 				button.set('down', buttons[i] == id);
 			}
 			
+			//Recycle bin is disabled in blog settings
+			toolbar.getActionButton('blog_recycle_bin').set('disabled', id == 'blog_settings');
+			
 			//Add buttons to toolbar
 			this.widgets.slideshow.set('slide', id);
 		},
@@ -752,26 +758,58 @@ function (Y) {
 		 */
 		toggleRecycleBin: function () {
 			var toolbar = Manager.getAction('PageToolbar'),
+				button  = toolbar.getActionButton('blog_recycle_bin');
+			
+			if (!button.get('down')) {
+				this.showRecycleBin();
+			} else {
+				this.hideRecycleBin();
+			}
+		},
+		
+		/**
+		 * Show recycle bin
+		 * 
+		 * @private
+		 */
+		showRecycleBin: function () {
+			var toolbar = Manager.getAction('PageToolbar'),
 				button  = toolbar.getActionButton('blog_recycle_bin'),
 				action  = Supra.Manager.getAction('SiteMapRecycle'),
 				buttonNewPost = this.widgets.buttonNewPost;
 			
-			if (!button.get('down')) {
-				action.execute({
-					'type': 'Blog',
-					'parent_id': this.options.parent_id,
-					'onclose': function () {
-						button.set('down', false);
-						buttonNewPost.show();
-					}
-				});
+			action.execute({
+				'type': 'Blog',
+				'parent_id': this.options.parent_id,
+				'onclose': function () {
+					toolbar.getActionButton('blog_recycle_bin').set('down', false);
+					toolbar.getActionButton('blog_posts').set('disabled', false);
+					toolbar.getActionButton('blog_settings').set('disabled', false);
+					buttonNewPost.show();
+				}
+			});
+			
+			buttonNewPost.hide();
+			toolbar.getActionButton('blog_recycle_bin').set('down', true);
+			toolbar.getActionButton('blog_posts').set('disabled', true);
+			toolbar.getActionButton('blog_settings').set('disabled', true);
+		},
+		
+		/**
+		 * Hide recycle bin
+		 * 
+		 * @private
+		 */
+		hideRecycleBin: function () {
+			var toolbar = Manager.getAction('PageToolbar'),
+				action  = Supra.Manager.getAction('SiteMapRecycle'),
+				buttonNewPost = this.widgets.buttonNewPost;
+			
+			toolbar.getActionButton('blog_posts').set('disabled', true);
+			toolbar.getActionButton('blog_settings').set('disabled', true);
 				
-				buttonNewPost.hide();
-				button.set('down', true);
-			} else {
-				action.hide();
-				buttonNewPost.show();
-			}
+			action.hide();
+			buttonNewPost.show();
 		},
 		
 		
