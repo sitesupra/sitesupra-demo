@@ -165,6 +165,8 @@ Supra([
 					"saveRequestUri": this.getDataPath("../stats/save"),
 					"srcNode": this.one("div.grid")
 				});
+			} else {
+				this.one('.dashboard-analytics').addClass('hidden');
 			}
 			
 			this.widgets.apps = new Supra.AppList({
