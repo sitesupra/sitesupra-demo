@@ -190,20 +190,20 @@ class BlocksAction extends PageManagerAction
                 border-collapse: separate;
             }
             td { 
-                background: url(/components/FancyBlocks/Text/icons/background.png) 0 0 repeat-x;
+                background: url(/components/FancyBlocks/Text/icons/background.png) 0 -102px repeat-x;
                 vertical-align: middle; text-align: center;
                 text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 255, 255, 0.5);
-                color: #054873;
+                color: #4b4e62;
                 font-size: 18px;
                 font-weight: bold;
             }
             td.h-1 {
                 height: 24px;
-                background-position: 0 -52px;
+                background-position: 0 -154px;
             }
             tr + tr td.h-1 {
                 height: 24px;
-                background-position: 0 -77px;
+                background-position: 0 -179px;
             }
             td.h-2 {
                 height: 52px;
@@ -214,6 +214,20 @@ class BlocksAction extends PageManagerAction
             td.w-6  { width: 50%; }
             td.w-4  { width: 33.3%; }
             td.w-3  { width: 25%; }
+            
+            .su-button-down td,
+            .su-button-mouse-hover td {
+                color: #054873;
+                background-position: 0 0;
+            }
+            .su-button-down td.h-1,
+            .su-button-mouse-hover td.h-1 {
+                background-position: 0 -52px;
+            }
+            .su-button-down tr + tr td.h-1,
+            .su-button-mouse-hover tr + tr td.h-1 {
+                background-position: 0 -77px;
+            }
         ');
         
 		$property = array(
