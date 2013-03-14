@@ -86,6 +86,11 @@ YUI().add('supra.iframe', function (Y) {
 		// Prevent navigation to another pages
 		'preventNavigation': {
 			value: true
+		},
+		
+		// Prevent navigation to external pages
+		'preventExternalNavigation': {
+			value: true
 		}
 	};
 	
@@ -132,6 +137,14 @@ YUI().add('supra.iframe', function (Y) {
 		 */
 		googleFonts: null,
 		
+		/**
+		 * Property which caused content change or null if none of the properties did
+		 * Value can be "url" or "html"
+		 * @type {String}
+		 * @private
+		 */
+		contentChangeTrigger: null,
+		
 		
 		/**
 		 * Render UI
@@ -160,10 +173,10 @@ YUI().add('supra.iframe', function (Y) {
 		 * @private
 		 */
 		bindUI: function () {
+			this.get('contentBox').on('load', this._afterContentChange, this);
 			
 			this.after('docChange', this._afterDocChange, this);
 			this.after('fontsChange', this._afterFontsChange, this);
-			
 		},
 		
 		/**
@@ -318,6 +331,41 @@ YUI().add('supra.iframe', function (Y) {
 		 * @private
 		 */
 		afterSetURL: function () {
+			this.afterUnkownOriginContentChange();
+		},
+		
+		/**
+		 * Before URL change
+		 * 
+		 * @private
+		 */
+		beforeSetURL: function () {
+		},
+		
+		
+		/*
+		 * ---------------------------------- CONTENT ---------------------------------
+		 */
+		
+		
+		/**
+		 * After content change check why it was changed
+		 * If url or html attribute change didn't triggered this then
+		 * update document
+		 * 
+		 * @private
+		 */
+		_afterContentChange: function () {
+			if (this.contentChangeTrigger) {
+				// Content change was triggered by url or html change
+				this.contentChangeTrigger = null;
+			} else {
+				// None of the properties caused content change, update
+				this.afterUnkownOriginContentChange();
+			}
+		},
+		
+		afterUnkownOriginContentChange: function () {
 			//Save document & window instances
 			var win = this.get('contentBox').getDOMNode().contentWindow,
 				doc = win.document,
@@ -327,14 +375,6 @@ YUI().add('supra.iframe', function (Y) {
 			this.set('doc', doc);
 			
 			this.afterWriteHTML();
-		},
-		
-		/**
-		 * Before URL change we may need to do something
-		 * 
-		 * @private
-		 */
-		beforeSetURL: function () {
 		},
 		
 		
@@ -507,14 +547,35 @@ YUI().add('supra.iframe', function (Y) {
 		handleContentLinkClick: function (e) {
 			if (this.get('preventNavigation')) {
 				e.preventDefault();
-			} else {
-				var target = e.target.closest('a'),
-					href = target.getAttribute('href');
-				
-				if (href) {
-					this.set('url', href);
+				return;
+			}
+			
+			// Prevent navigation to external domain
+			var target = e.target.closest('a'),
+				href = target.getAttribute('href'),
+				path = null,
+				doc = this.get('doc'),
+				regex_absolute = /^([a-z]:\/\/|\/)/i;
+			
+			if (this.get('preventExternalNavigation')) {
+				if (href.indexOf(doc.location.hostname) == -1 && href.match(/^[a-z]+:\/\//i)) {
+					// Trying to navigate to another domain
 					e.preventDefault();
+					return;
 				}
+			}
+			
+			// Change iframe URL
+			if (href) {
+				// URL must be absolute, not relative
+				path = '';
+				if (!regex_absolute.test(href)) {
+					path = document.location.pathname;
+					if (path.substr(-1, 1) != '/') path += '/';
+				}
+				
+				this.set('url', path + href);
+				e.preventDefault();
 			}
 		},
 		
@@ -587,6 +648,8 @@ YUI().add('supra.iframe', function (Y) {
 			if (!this.get('rendered')) return url;
 			
 			if (url) {
+				this.contentChangeTrigger = 'url';
+				
 				//Clean up
 				this.contentDestructor();
 				
@@ -611,6 +674,8 @@ YUI().add('supra.iframe', function (Y) {
 		 */
 		_setHTML: function (html) {
 			if (!this.get('rendered')) return html;
+			
+			this.contentChangeTrigger = 'html';
 			
 			//Clean up
 			this.contentDestructor();
