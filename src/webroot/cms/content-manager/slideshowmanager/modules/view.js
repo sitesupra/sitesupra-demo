@@ -704,14 +704,16 @@ YUI.add('slideshowmanager.view', function (Y) {
 		},
 		
 		/**
-		 * Returns HTML for stylesheet link tags
+		 * Returns HTML for link tags
 		 * 
-		 * @returns {String} HTML for stylesheet link tags
+		 * @returns {String} HTML for link tags
 		 * @private
 		 */
 		getHTMLLinks: function () {
 			// Recreate styles
 			var doc = this.getOriginalDocument(),
+				google_fonts = null,
+				fonts_node = null,
 				
 				links = Y.Node(doc).all('link[rel="stylesheet"]'),
 				i = 0,
@@ -735,7 +737,24 @@ YUI.add('slideshowmanager.view', function (Y) {
 			linkHrefExtra = Manager.Loader.getActionInfo('SlideshowManager').folder + 'modules/view.css';
 			stylesheets.push('<link rel="stylesheet" type="text/css" href="' + linkHrefExtra + '" />');
 			
+			// Google fonts
+			google_fonts = new Supra.GoogleFonts({'doc': doc});
+			fonts_node = google_fonts.getLinkNode();
+			
+			if (fonts_node) {
+				stylesheets.push('<link rel="stylesheet" type="text/css" href="' + fonts_node.getAttribute('href') + '" />');
+			}
+			
 			return stylesheets.join('');
+		},
+		
+		/**
+		 * Returns original iframe object
+		 * 
+		 * @returns {Object} Original iframe object
+		 */
+		getOriginalIframe: function () {
+			return Action.getIframeHandler();
 		},
 		
 		/**

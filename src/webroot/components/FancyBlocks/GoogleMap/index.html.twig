@@ -1,7 +1,10 @@
+{% set heading_class = 'no-heading' %}
+
 <div class="block">
 	{% if not supraBlock.isEmpty('block_title') %}
 	<h2 class="block-title"><div>
 		{{ supraBlock.property('block_title') }}
+		{% set heading_class = 'has-heading' %}
 	</div></h2>
 	{% endif %}
 	
@@ -11,9 +14,9 @@
 	{% spaceless %}
 	<div
 		{% if supra.cmsRequest %}
-			id="content_{{ supraBlock.getBlock().getId() }}_map" class="yui3-content-inline yui3-input-map-inline map"
+			id="content_{{ supraBlock.getBlock().getId() }}_map" class="yui3-content-inline yui3-input-map-inline map {{ heading_class }}"
 		{% else %}
-			class="map"
+			class="map {{ heading_class }}"
 		{% endif %}
 		data-refresh-event="googleMap" data-latitude="{{ map.latitude }}" data-longitude="{{ map.longitude }}" data-zoom="{{ map.zoom }}" data-marker-text="{{ markerText }}"></div>
 	{% endspaceless %}

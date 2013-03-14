@@ -1,12 +1,14 @@
+{% set heading_class = 'no-heading' %}
 <div class="block sitemap">
 	
 	{% if not supraBlock.isEmpty('block_title') %}
 	<h2 class="block-title"><div>
 		{{ supraBlock.property('block_title') }}
+		{% set heading_class = 'has-heading' %}
 	</div></h2>
 	{% endif %}
 
-	<ul>
+	<ul class="{{ heading_class }}">
 	
 	{% set level = 0 %}
 	{% set prevLevel = 0 %}

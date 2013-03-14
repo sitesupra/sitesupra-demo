@@ -220,7 +220,7 @@ function getFileContent($file)
 	if ($css) {
 		//Add path for images which are in same folder as CSS file
 		$dir = dirname($file);
-		$outFile = preg_replace("/url\([\"|\']?([^\/\.\"\'][^\)]*?)[\"\']?\)/", "url(\"$dir/$1\")", $outFile);
+		$outFile = preg_replace("/url\([\"|\']?(?!data:image)([^\/\.\"\'][^\)]*?)[\"\']?\)/", "url(\"$dir/$1\")", $outFile);
 	}
 
 	return $outFile;

@@ -56,3 +56,4 @@
               icon: icons/navigation-arrows-pages.png
           additionalParameters:
             style: mid
+            iconStyle: center

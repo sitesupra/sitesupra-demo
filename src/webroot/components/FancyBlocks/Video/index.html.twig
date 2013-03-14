@@ -4,18 +4,20 @@
 {% set height = width/ratio %}
 
 {% set video = supraBlock.property('video') %}
+{% set heading_class = 'no-heading' %}
 
 {% if video %}
 
 	{% if not supraBlock.isEmpty('block_title') %}
 	<h2 class="block-title"><div>
 		{{ supraBlock.property('block_title') }}
+		{% set heading_class = 'has-heading' %}
 	</div></h2>
 	{% endif %}
 
 	{% if video.resource == 'source' %}
 		{# HTML #}
-		<div class="block video" data-attach="$.fn.resize">
+		<div class="block video {{ heading_class }}" data-attach="$.fn.resize">
 			{% if video.source_type == 'iframe' %}
 				<iframe src="{{ video.src }}" width="{{ video.width }}" height="{{ video.height }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 			{% elseif video.source_type == 'embed' %}
@@ -30,11 +32,11 @@
 	{% elseif video.resource == 'link' and video.id %}
 
 		{% if video.service == 'youtube' %}
-			<div class="block video" data-attach="$.fn.resize">
+			<div class="block video {{ heading_class }}" data-attach="$.fn.resize">
 				<iframe src="http://www.youtube.com/embed/{{ video.id }}?hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 			</div>
 		{% elseif video.service == 'vimeo' %}
-			<div class="block video" data-attach="$.fn.resize">
+			<div class="block video {{ heading_class }}" data-attach="$.fn.resize">
 				<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 			</div>
 		{% endif %}

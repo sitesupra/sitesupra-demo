@@ -1,8 +1,3 @@
-{% set width_full = 960 %}
-{% set height_full = 600 %}
-{% set width_small = 420 %}
-{% set width_icon = 64 %}
-
 {# <!-- Macro for outputing images --> #}
 	{% macro imageHtmlTag (image, width, height) %}
 		
@@ -41,6 +36,7 @@
 {% set layout = supraBlock.property('layout') %}
 {% set link = supraBlock.property('link') %}
 {% set link_title = '' %}
+{% set heading_class = 'no-heading' %}
 
 {% set ratio = 0.7 %}
 
@@ -51,43 +47,6 @@
 {% else %}
 	{% set columns = 4 %}
 {% endif %}
-
-
-{# Macro for outputing images #}
-	
-	{# Calculate image width based on layout, design and screen size #}
-	{% macro imageWidth (screen, columns) %}
-		{% set design = supraBlock.property('design') %}
-		
-		{% if design == 'icon' %}
-			{{ width_icon }}
-		{% else %}
-			{% if screen > 420 %}
-				{{ (screen - 20 * columns) / columns }}
-			{% else %}
-				{{ screen - 20 * columns }}
-			{% endif %}
-		{% endif %}
-	{% endmacro %}
-	
-	{# Output image tag for CMS Gallery manager #}
-	{% macro imageCMS(ratio, columns) %}
-		{% import _self as output %}
-		{% set design = supraBlock.property('design') %}
-		
-		{% if design == 'icon' %}
-			<span class="img">
-				<img src="about:blank" alt="" width="{{ width_icon }}" height="{{ width_icon }}" />
-			</span>
-		{% else %}
-			{% set screenWidth = 960 %}
-			{% set w = output.imageWidth(screenWidth, columns)|trim|raw|number_format(0, '.', '') %}
-			{% set h = w*ratio|number_format(0, '.', '') %}
-			<span class="img">
-				<img src="about:blank" alt="" width="{{ w }}" height="{{ h }}" />
-			</span>
-		{% endif %}
-	{% endmacro %}
 
 {# Macro for outputing links #}
 	{% macro link(product, link_type) %}
@@ -139,10 +98,11 @@
 		{% if not supraBlock.isEmpty('block_title') %}
 		<h2 class="block-title"><div>
 			{{ supraBlock.property('block_title') }}
+			{% set heading_class = 'has-heading' %}
 		</div></h2>
 		{% endif %}
 		
-		<div class="products-slider clearfix img-{{ design }} link-{{ link }}" data-refresh-event="carousel" data-{{ navigation }}="true">
+		<div class="products-slider clearfix img-{{ design }} link-{{ link }} {{ heading_class }}" data-refresh-event="carousel" data-{{ navigation }}="true">
 			<div class="products-slider-inner clearfix">
 				<ul class="clearfix">
 					{% for index, product in products %}
@@ -154,8 +114,6 @@
 							
 							<span class="img">
 								{% if design == 'icon' %}
-									{{ output.imageHtmlTag( product, width_icon, width_icon ) }}
-								{% else %}
 									{{ output.imageHtmlTag( product ) }}
 								{% endif %}
 								{% if link == 'overlay' %}
@@ -182,7 +140,9 @@
 			<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item" data-supra-image-selector="li > img">
 				
 				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
-					{% endraw %}{{ output.imageCMS(ratio, columns) }}{% raw %}
+					<span class="img">
+						<img src="about:blank" alt="" />
+					</span>
 					
 					{% if design != 'only' %}
 						<div class="inner-text">

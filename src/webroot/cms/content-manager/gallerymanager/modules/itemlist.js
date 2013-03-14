@@ -605,6 +605,8 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				ratio = 0,
 				width = 0,
 				height = 0,
+				node_width = 0,
+				node_height = 0,
 				crop_width = 0,
 				crop_height = 0,
 				
@@ -617,11 +619,14 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				if (!value.size_width) {
 					size = value.image.sizes.original;
 					
+					node_width = parseInt(imageNode.getAttribute('width') || imageNode.get('offsetWidth'), 10) || imageNode.ancestor().get('offsetWidth');
+					node_height = parseInt(imageNode.getAttribute('height') || imageNode.get('offsetHeight'), 10) || imageNode.ancestor().get('offsetHeight');
+					
 					ratio = size.width / size.height;
-					width = Math.min(size.width, parseInt(imageNode.getAttribute('width') || imageNode.get('offsetWidth'), 10));
+					width = Math.min(size.width, node_width || 99999);
 					height = ~~(width / ratio);
 					crop_width = width;
-					crop_height = Math.min(size.height, height, parseInt(imageNode.getAttribute('height') || imageNode.get('offsetHeight'), 10));
+					crop_height = Math.min(size.height, height, node_height || 99999);
 					
 					value.size_width = width;
 					value.size_height = height;

@@ -1,4 +1,5 @@
 {% set design = supraBlock.property('design')|default('tabs') %}
+{% set heading_class = 'no-heading' %}
 
 {% if design == 'tabs' %}
 
@@ -7,36 +8,39 @@
 		{% if not supraBlock.isEmpty('block_title') %}
 		<h2 class="block-title"><div>
 			{{ supraBlock.property('block_title') }}
+			{% set heading_class = 'has-heading' %}
 		</div></h2>
 		{% endif %}
 		
-		<ul class="tabs-headings clearfix">
-			{% set first = true %}
-			{% for i in 1..50 %}
-				{% set title = propertyMap["title_" ~ i] %}
-				{% if supra.cmsRequest or title %}
-					<li class="tabs-heading {% if first %}active{% endif %} {% if not title and not first %}supra-hidden{% endif %}">
-						{% if supra.cmsRequest %}
-							<div>{{ supraBlock.property("title_" ~ i) }}</div>
-						{% else %}
-							<a href="#tab{{ i }}">{{ supraBlock.property("title_" ~ i) }}</a>
-						{% endif %}
-					</li>
-					{% set first = false %}
-				{% endif %}
-			{% endfor %}
-		</ul>
-		<div class="tabs-container">
-			{% set first = true %}
-			{% for i in 1..50 %}
-				{% set title = propertyMap["title_" ~ i] %}
-				{% if supra.cmsRequest or title %}
-					<div class="tabs-content text clearfix {% if first %}active{% endif %} {% if not title and not first %}supra-hidden{% endif %}" name="tab{{ i }}">
-						{{ supraBlock.property("content_" ~ i) }}
-					</div>
-					{% set first = false %}
-				{% endif %}
-			{% endfor %}
+		<div class="tabs-inner {{ heading_class }}">
+			<ul class="tabs-headings clearfix">
+				{% set first = true %}
+				{% for i in 1..50 %}
+					{% set title = propertyMap["title_" ~ i] %}
+					{% if supra.cmsRequest or title %}
+						<li class="tabs-heading {% if first %}active{% endif %} {% if not title and not first %}supra-hidden{% endif %}">
+							{% if supra.cmsRequest %}
+								<div>{{ supraBlock.property("title_" ~ i) }}</div>
+							{% else %}
+								<a href="#tab{{ i }}">{{ supraBlock.property("title_" ~ i) }}</a>
+							{% endif %}
+						</li>
+						{% set first = false %}
+					{% endif %}
+				{% endfor %}
+			</ul>
+			<div class="tabs-container">
+				{% set first = true %}
+				{% for i in 1..50 %}
+					{% set title = propertyMap["title_" ~ i] %}
+					{% if supra.cmsRequest or title %}
+						<div class="tabs-content text clearfix {% if first %}active{% endif %} {% if not title and not first %}supra-hidden{% endif %}" name="tab{{ i }}">
+							{{ supraBlock.property("content_" ~ i) }}
+						</div>
+						{% set first = false %}
+					{% endif %}
+				{% endfor %}
+			</div>
 		</div>
 	</section>
 	
@@ -51,27 +55,30 @@
 		</div></h2>
 		{% endif %}
 		
-		{% set first = true %}
-		{% for i in 1..50 %}
-			{% set title = propertyMap["title_" ~ i] %}
-			<!-- {{ title }} -->
-			{% if supra.cmsRequest or title %}
-				<div class="accordion-item {% if first %}{% endif %} {% if not title and not first %}supra-hidden{% endif %}">
-					<h5 class="accordion-heading">
-						<span class="arrow"></span>
-						{% if supra.cmsRequest %}
-							<div>{{ supraBlock.property("title_" ~ i) }}</div>
-						{% else %}
-							<a href="#accordion{{ i }}">{{ supraBlock.property("title_" ~ i) }}</a>
-						{% endif %}
-					</h5>
-					<div class="accordion-content text clearfix" name="accordion{{ i }}">
-						{{ supraBlock.property("content_" ~ i) }}
+		<div class="accordion-inner {{ heading_class }}">
+			{% set first = true %}
+			{% for i in 1..50 %}
+				{% set title = propertyMap["title_" ~ i] %}
+				<!-- {{ title }} -->
+				{% if supra.cmsRequest or title %}
+					<div class="accordion-item {% if first %}{% endif %} {% if not title and not first %}supra-hidden{% endif %}">
+						<h5 class="accordion-heading">
+							<span class="arrow"></span>
+							{% if supra.cmsRequest %}
+								<div>{{ supraBlock.property("title_" ~ i) }}</div>
+							{% else %}
+								<a href="#accordion{{ i }}">{{ supraBlock.property("title_" ~ i) }}</a>
+							{% endif %}
+						</h5>
+						<div class="accordion-content text clearfix" name="accordion{{ i }}">
+							{{ supraBlock.property("content_" ~ i) }}
+						</div>
 					</div>
-				</div>
-				{% set first = false %}
-			{% endif %}
-		{% endfor %}
+					{% set first = false %}
+				{% endif %}
+			{% endfor %}
+		</div>
+		
 	</section>
 	
 {% endif %}

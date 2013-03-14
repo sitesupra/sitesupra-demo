@@ -1,14 +1,17 @@
 {% set testimonials = supraBlock.property('images') %}
 {% set navigation = supraBlock.property('navigation')|default('none') %}
+{% set heading_class = 'no-heading' %}
+
 <div class="block">
 	
 	{% if not supraBlock.isEmpty('block_title') %}
 	<h2 class="block-title"><div>
 		{{ supraBlock.property('block_title') }}
+		{% set heading_class = 'has-heading' %}
 	</div></h2>
 	{% endif %}
 	
-	<div class="testimonials" data-refresh-event="carousel" data-list=".testimonials-inner" data-items="blockquote" data-animation="fade" data-classname="" data-timer="5000" data-keyboard="false" data-touch="false" data-{{ navigation }}="true">
+	<div class="testimonials {{ heading_class }}" data-refresh-event="carousel" data-list=".testimonials-inner" data-items="blockquote" data-animation="fade" data-classname="" data-timer="5000" data-keyboard="false" data-touch="false" data-{{ navigation }}="true">
 		<div class="testimonials-inner">
 			{% for index, testimony in testimonials %}
 			<blockquote class="hreview">

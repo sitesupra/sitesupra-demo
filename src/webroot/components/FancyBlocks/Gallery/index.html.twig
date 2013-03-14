@@ -37,6 +37,7 @@
 {% set style = supraBlock.property('style') %}
 {% set design = supraBlock.property('design') %}
 {% set images = supraBlock.property('images') %}
+{% set heading_class = 'no-heading' %}
 
 {% if images|length or supra.cmsRequest %}
 
@@ -45,12 +46,13 @@
 		{% if not supraBlock.isEmpty('block_title') %}
 		<h2 class="block-title"><div>
 			{{ supraBlock.property('block_title') }}
+			{% set heading_class = 'has-heading' %}
 		</div></h2>
 		{% endif %}
 	
 	{% if style == "slideshow" %}
 		
-		<div class="promo-slider design-{{ design }}" data-refresh-event="promo" data-style="thumbs-outer" data-animation="horizontal">
+		<div class="promo-slider design-{{ design }} {{ heading_class }}" data-refresh-event="promo" data-style="thumbs-outer" data-animation="horizontal">
 			<ul>
 				{% for image in images %}
 				<li>
