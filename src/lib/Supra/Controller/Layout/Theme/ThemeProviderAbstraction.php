@@ -53,4 +53,14 @@ abstract class ThemeProviderAbstraction
 	 * @param Theme $theme 
 	 */
 	abstract public function setCurrentTheme(Theme $theme);
+	
+	/**
+	 * @param Theme $theme
+	 */
+	abstract public function useThemeAsPreviewTheme(Theme $theme);
+	
+	/**
+	 * @return boolean
+	 */
+	abstract public function isThemePreviewActive();
 }

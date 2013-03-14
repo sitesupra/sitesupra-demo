@@ -41,6 +41,11 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	 * @var string
 	 */
 	protected $urlBase;
+	
+	/**
+	 * @var boolean
+	 */
+	private $isThemePreviewActive = false;
 
 	/**
 	 * @return EntityManager
@@ -367,5 +372,21 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	{
 		return new Theme();
 	}
-
+	
+	/**
+	 * @param \Supra\Controller\Pages\Entity\Theme\Theme $theme
+	 */
+	public function useThemeAsPreviewTheme(Theme $theme)
+	{
+		$this->setCurrentTheme($theme);
+		$this->isThemePreviewActive = true;
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isThemePreviewActive()
+	{
+		return $this->isThemePreviewActive === true;
+	}
 }

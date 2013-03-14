@@ -12,5 +12,10 @@ class ButtonParameterConfiguration extends ThemeParameterConfigurationAbstractio
 	{
 		return ButtonParameter::CN();
 	}
+	
+	public function getEditorType()
+	{
+		return 'Button';
+	}
 
 }

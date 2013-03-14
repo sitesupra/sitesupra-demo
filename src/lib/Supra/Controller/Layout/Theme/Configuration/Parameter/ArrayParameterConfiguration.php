@@ -8,9 +8,13 @@ use Supra\Controller\Pages\Entity\Theme\Parameter\ArrayParameter;
 class ArrayParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
 
+	public function getEditorType()
+	{
+		return 'Array';
+	}
+	
 	protected function getParameterClass()
 	{
 		return ArrayParameter::CN();
 	}
-
 }

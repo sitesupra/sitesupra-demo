@@ -19,12 +19,16 @@ class BackgroundParameter extends ThemeParameterAbstraction
 		$configuration = $this->getConfiguration();
 
 		$value = $parameterValue->getValue();
+		
+		if (empty($value)) {
+			return null;
+		}
 
 		$outputValue = null;
 
 		foreach ($configuration->values as $backgroundData) {
 
-			if ($backgroundData['id'] == $value) {
+			if ($backgroundData['id'] === $value) {
 
 				$backgroundData['icon'] = str_replace('//', '/', "'" . $backgroundData['icon'] . "'");
 

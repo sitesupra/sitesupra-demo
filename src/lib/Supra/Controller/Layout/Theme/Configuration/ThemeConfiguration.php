@@ -12,8 +12,8 @@ use Supra\Controller\Layout\Theme\ThemeProvider;
 use Supra\Controller\Pages\Entity\Theme\ThemeParameterSet;
 use Supra\Controller\Pages\Entity\Theme\Parameter\ThemeParameterAbstraction;
 use Doctrine\Common\Collections\ArrayCollection;
-
-use Supra\Controller\Pages\Entity\Theme as ThemeEntity;
+use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
+use Supra\Controller\Layout\Theme\Configuration\Parameter\GroupConfiguration;
 
 class ThemeConfiguration extends ThemeConfigurationAbstraction
 {
@@ -93,6 +93,10 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 */
 	public $layouts;
 	
+	/**
+	 * @var array
+	 */
+	protected $storableParameters;
 	
 	/**
 	 * 
@@ -125,7 +129,71 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 
 		$this->processParameterSets();
 	}
+	
+	/**
+	 * @param array $configurations
+	 */
+	private function collectStorableParameterConfiguration($configurations)
+	{
+		$storableParameters = array();
+		
+		foreach ($configurations as $configuration) {	
+			if ($configuration instanceof ThemeParameterConfigurationAbstraction) {
+				$storableParameters[$configuration->id] = $configuration;
+			}
+			else if ($configuration instanceof GroupConfiguration) {
+				$subParameters = $this->collectStorableParameterConfiguration($configuration->parameters);
+				$storableParameters = $storableParameters + $subParameters;
+			}
+		}
+		
+		return $storableParameters;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getFontList()
+	{
+		$list = array();
+		
+		$configurations = $this->getStorableParameterConfigurations();
+	
+		foreach ($configurations as $configuration) {
+			if ($configuration instanceof Parameter\FontParameterConfiguration) {
+				foreach($configuration->values as $value) {
+					$list[$value['id']] = $value;
+				}
+			}
+		}
+		
+		return $list;
+	}
 
+	/**
+	 * @param string $name
+	 * @return ThemeStorableParameterConfiguration
+	 */
+	public function getConfigurationForParameter($name)
+	{
+		$configurations = $this->getStorableParameterConfigurations();
+		
+		if (isset($configurations[$name])) {
+			return $configurations[$name];
+		}
+		
+		return null;
+	}
+	
+	public function getStorableParameterConfigurations()
+	{
+		if ($this->storableParameters === null) {
+			$this->storableParameters = $this->collectStorableParameterConfiguration($this->parameters);
+		}
+		
+		return $this->storableParameters;
+	}
+	
 	/**
 	 * 
 	 */
@@ -137,9 +205,12 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		$parameterNamesBefore = $parametersBefore->getKeys();
 
 		$parametersAfter = new ArrayCollection();
-		if ( ! empty($this->parameters)) {
+		
+		$parameterConfigurations = $this->getStorableParameterConfigurations();
+		
+		if ( ! empty($parameterConfigurations)) {
 
-			foreach ($this->parameters as $parameterConfiguration) {
+			foreach ($parameterConfigurations as $parameterConfiguration) {
 				/* @var $parameterConfiguration ThemeParameterConfigurationAbstraction */
 
 				$parameter = $parameterConfiguration->getParameter();

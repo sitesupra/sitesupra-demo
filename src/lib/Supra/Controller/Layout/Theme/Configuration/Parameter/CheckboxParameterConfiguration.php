@@ -3,29 +3,30 @@
 namespace Supra\Controller\Layout\Theme\Configuration\Parameter;
 
 use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
-use Supra\Controller\Pages\Entity\Theme\Parameter\ColorParameter;
+use Supra\Controller\Pages\Entity\Theme\Parameter\CheckboxParameter;
 
-class ColorParameterConfiguration extends ThemeParameterConfigurationAbstraction
+class CheckboxParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
+	
 	/**
-	 * @var boolean
+	 * @var array
 	 */
-	public $allowUnset;
+	public $labels = array();
 	
 	protected function getParameterClass()
 	{
-		return ColorParameter::CN();
+		return CheckboxParameter::CN();
 	}
-	
+
 	public function getEditorType()
 	{
-		return 'Color';
+		return 'Checkbox';
 	}
 	
 	public function getAdditionalProperties() 
 	{
 		return array(
-			'allowUnset' => $this->allowUnset,
+			'labels' => $this->labels,
 		);
 	}
 

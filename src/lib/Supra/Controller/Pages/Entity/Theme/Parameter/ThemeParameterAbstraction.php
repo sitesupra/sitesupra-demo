@@ -4,7 +4,7 @@ namespace Supra\Controller\Pages\Entity\Theme\Parameter;
 
 use Supra\Database;
 use Supra\Controller\Pages\Entity\Theme;
-use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstraction;
+use Supra\Controller\Layout\Theme\Configuration\ThemeStorableParameterConfigurationAbstraction;
 
 /**
  * @Entity
@@ -18,7 +18,8 @@ use Supra\Controller\Layout\Theme\Configuration\ThemeParameterConfigurationAbstr
  *  "color" = "ColorParameter",
  *  "font" = "FontParameter",
  *  "image" = "ImageParameter",
- *  "menu" = "MenuParameter"
+ *  "menu" = "MenuParameter",
+ *  "checkbox" = "CheckboxParameter"
  * })
  */
 abstract class ThemeParameterAbstraction extends Database\Entity
@@ -30,11 +31,11 @@ abstract class ThemeParameterAbstraction extends Database\Entity
 	 */
 	protected $name;
 
-	/**
-	 * @Column(type="string")
-	 * @var string
-	 */
-	protected $title;
+//	/**
+//	 * @Column(type="string")
+//	 * @var string
+//	 */
+//	protected $title;
 
 	/**
 	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Theme\Theme", inversedBy="parameters")
@@ -44,7 +45,7 @@ abstract class ThemeParameterAbstraction extends Database\Entity
 	protected $theme;
 
 	/**
-	 * @var ThemeParameterConfigurationAbstraction
+	 * @var ThemeStorableParameterConfigurationAbstraction
 	 */
 	protected $configuration;
 
@@ -69,7 +70,7 @@ abstract class ThemeParameterAbstraction extends Database\Entity
 	 */
 	public function getTitle()
 	{
-		return $this->title;
+//		return $this->title;
 	}
 
 	/**
@@ -77,7 +78,7 @@ abstract class ThemeParameterAbstraction extends Database\Entity
 	 */
 	public function setTitle($title)
 	{
-		$this->title = $title;
+//		$this->title = $title;
 	}
 
 	/**
@@ -103,25 +104,14 @@ abstract class ThemeParameterAbstraction extends Database\Entity
 	{
 		if (empty($this->configuration)) {
 
-			$themeConfiguration = $this->getTheme()->getConfiguration();
-
-			$parameterConfiguration = null;
-
-			foreach ($themeConfiguration->parameters as $someParameterConfiguration) {
-				/* @var $someParameterConfiguration ThemeParameterConfigurationAbstraction */
-				
-				if ($someParameterConfiguration->id == $this->name) {
-					$parameterConfiguration = $someParameterConfiguration;
-					break;
-				}
-			}
-
-			$this->configuration = $parameterConfiguration;
+			$this->configuration = $this->getTheme()
+					->getConfiguration()
+					->getConfigurationForParameter($this->name);
 		}
 
-		if (empty($this->configuration)) {
-			throw new Exception\RuntimeException('Could not find configuration for parameter "' . $this->getName() . '" in theme "' . $this->getTheme()->getName() . '".');
-		}
+//		if (empty($this->configuration)) {
+//			throw new Exception\RuntimeException('Could not find configuration for parameter "' . $this->getName() . '" in theme "' . $this->getTheme()->getName() . '".');
+//		}
 
 		return $this->configuration;
 	}
@@ -161,7 +151,13 @@ abstract class ThemeParameterAbstraction extends Database\Entity
 	 */
 	public function getLessOuptutValueFromParameterValue(Theme\ThemeParameterValue $parameterValue)
 	{
-		return $this->getOuptutValueFromParameterValue($parameterValue);
+		$value = $this->getOuptutValueFromParameterValue($parameterValue);
+		
+		if (empty($value)) {
+			return null;
+		}
+		
+		return $value;
 	}
 
 	/**
