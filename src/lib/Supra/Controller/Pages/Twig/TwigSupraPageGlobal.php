@@ -28,6 +28,11 @@ class TwigSupraPageGlobal extends TwigSupraGlobal
 	 * @var ThemeInterface
 	 */
 	protected $theme;
+	
+	/**
+	 *
+	 */
+	protected $themeProvider;
 
 	/**
 	 * Returns if in CMS mode
@@ -36,6 +41,19 @@ class TwigSupraPageGlobal extends TwigSupraGlobal
 	public function isCmsRequest()
 	{
 		return ($this->request instanceof PageRequestEdit);
+	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function themePreviewRequest()
+	{
+		if ($this->themeProvider === null) {
+			$this->themeProvider = ObjectRepository::getThemeProvider($this);
+		}
+		
+		return $this->themeProvider
+				->isThemePreviewActive();
 	}
 
 	/**
