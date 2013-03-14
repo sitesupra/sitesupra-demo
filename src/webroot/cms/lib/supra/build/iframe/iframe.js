@@ -314,6 +314,8 @@ YUI().add('supra.iframe', function (Y) {
 		
 		/**
 		 * After URL change get win and doc objects
+		 * 
+		 * @private
 		 */
 		afterSetURL: function () {
 			//Save document & window instances
@@ -326,6 +328,15 @@ YUI().add('supra.iframe', function (Y) {
 			
 			this.afterWriteHTML();
 		},
+		
+		/**
+		 * Before URL change we may need to do something
+		 * 
+		 * @private
+		 */
+		beforeSetURL: function () {
+		},
+		
 		
 		/*
 		 * ---------------------------------- PRIVATE: HTML CONTENT ---------------------------------
@@ -496,6 +507,14 @@ YUI().add('supra.iframe', function (Y) {
 		handleContentLinkClick: function (e) {
 			if (this.get('preventNavigation')) {
 				e.preventDefault();
+			} else {
+				var target = e.target.closest('a'),
+					href = target.getAttribute('href');
+				
+				if (href) {
+					this.set('url', href);
+					e.preventDefault();
+				}
 			}
 		},
 		
@@ -570,6 +589,9 @@ YUI().add('supra.iframe', function (Y) {
 			if (url) {
 				//Clean up
 				this.contentDestructor();
+				
+				//
+				this.beforeSetURL();
 				
 				//
 				var iframe = this.get('contentBox');
