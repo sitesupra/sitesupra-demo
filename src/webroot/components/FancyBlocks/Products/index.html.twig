@@ -113,9 +113,7 @@
 						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
 							
 							<span class="img">
-								{% if design == 'icon' %}
-									{{ output.imageHtmlTag( product ) }}
-								{% endif %}
+								{{ output.imageHtmlTag( product ) }}
 								{% if link == 'overlay' %}
 									{{ output.link(product, link) }}
 								{% endif %}
