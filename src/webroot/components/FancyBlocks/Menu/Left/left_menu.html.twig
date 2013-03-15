@@ -1,11 +1,19 @@
-<div class="sidebar-menu desktop tablet">
+<div class="sidebar-menu desktop tablet block">
 	<div class="background"></div>
 	<div class="inner">
-		<h3 class="heading"><span>{{ supraBlock.property('menuLabel')|e }}</span></h3>
-		<ul class="content">
+		
+		{% set heading_class = 'no-heading' %}
+		{% if not supraBlock.isEmpty('menuLabel') %}
+		<h3 class="heading block-title"><div>
+			{{ supraBlock.property('menuLabel') }}
+			{% set heading_class = 'has-heading' %}
+		</div></h3>
+		{% endif %}
+		
+		<ul class="content {{ heading_class }}">
 			{% for menu_item in menu_items %}
 				{% if(menu_item.items) %} 
-					<li class="active" >
+					<li class="has-children active" >
 						<a href="{{ menu_item.path }}">{{ menu_item.title }}</a>
 						<ul>
 						{% for sub_menu_item in menu_item.items %}
