@@ -22,6 +22,10 @@ class GroupConfiguration extends ThemeConfigurationAbstraction
 	 */
 	public $parameters = array();
 	
+	/**
+	 * @var string
+	 */
+	public $visibleFor = 'all';
 	
 	/**
 	 * 

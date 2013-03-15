@@ -26,6 +26,11 @@ abstract class ThemeParameterConfigurationAbstraction extends ThemeConfiguration
 	 * @var mixed
 	 */
 	public $values = null;
+	
+	/**
+	 * @var string
+	 */
+	public $visibleFor = 'all';
 
 	/**
 	 * @var ThemeParameterAbstraction
@@ -90,6 +95,7 @@ abstract class ThemeParameterConfigurationAbstraction extends ThemeConfiguration
 			'label' => $this->label,
 			'noLess' => $this->noLess,
 			'values' => $this->values,
+			'visibleFor' => $this->visibleFor,
 		);
 	}
 	
