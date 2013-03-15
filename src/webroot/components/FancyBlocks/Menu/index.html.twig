@@ -28,7 +28,7 @@
 	{% set active = supra.isActive(child.path, true) %}
 	<li{% if active %} class="active"{% endif %}>
 	
-	<a href="/{{ supra.locale.id }}{{ child.path }}">{{ child.title }}</a>
+	<a href="{{ child.path }}">{{ child.title }}</a>
 		
 	{% set prevLevel = level %}
 
@@ -55,7 +55,7 @@
 				{% set child = data.localization %}
 				{% set active = supra.isActive(child.path, true) %}
 				{% if active %}
-					<input type="hidden" value="/{{ supra.locale.id }}{{ child.path }}" />
+					<input type="hidden" value="{{ child.path }}" />
 					<span>{{ child.title }}</span>
 					<i></i>
 					{% set has_title = true %}
@@ -93,7 +93,7 @@
 
 				<li>
 
-				<a href="/{{ supra.locale.id }}{{ child.path }}">{{ child.title }}</a>
+				<a href="{{ child.path }}">{{ child.title }}</a>
 
 				{% set prevLevel = level %}
 

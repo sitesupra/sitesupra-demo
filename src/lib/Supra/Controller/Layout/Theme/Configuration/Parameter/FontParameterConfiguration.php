@@ -7,10 +7,14 @@ use Supra\Controller\Pages\Entity\Theme\Parameter\FontParameter;
 
 class FontParameterConfiguration extends ThemeParameterConfigurationAbstraction
 {
-
+	
 	protected function getParameterClass()
 	{
 		return FontParameter::CN();
 	}
-
+	
+	public function getEditorType()
+	{
+		return 'Fonts';
+	}
 }

@@ -31,11 +31,16 @@ abstract class ThemeParameterConfigurationAbstraction extends ThemeConfiguration
 	 * @var ThemeParameterAbstraction
 	 */
 	protected $parameter;
-
+	
 	/**
 	 * @return string
 	 */
 	abstract protected function getParameterClass();
+	
+	/**
+	 * @return string
+	 */
+	abstract public function getEditorType();
 
 	/**
 	 * @return ThemeParameterAbstraction
@@ -72,6 +77,28 @@ abstract class ThemeParameterConfigurationAbstraction extends ThemeConfiguration
 		$parameter->setTitle($this->label);
 
 		$this->parameter = $parameter;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function toArray()
+	{
+		return array (
+			'type' => $this->getEditorType(),
+			'id' => $this->id,
+			'label' => $this->label,
+			'noLess' => $this->noLess,
+			'values' => $this->values,
+		);
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getAdditionalProperties()
+	{
+		return array();
 	}
 
 }

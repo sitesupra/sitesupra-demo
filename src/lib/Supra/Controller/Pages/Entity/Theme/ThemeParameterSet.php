@@ -192,6 +192,10 @@ class ThemeParameterSet extends Database\Entity
 
 			$parameterValue = $this->getParameterValueForParameter($parameter);
 
+			if ($parameterValue === null) {
+				continue;
+			}
+			
 			$outputValues[$parameter->getName()] = $parameter->getOuptutValueFromParameterValue($parameterValue);
 		}
 
@@ -218,17 +222,28 @@ class ThemeParameterSet extends Database\Entity
 	{
 		$theme = $this->getTheme();
 		$parameters = $theme->getParameters();
-
+		
 		foreach ($parameters as $parameter) {
 			/* @var $parameter ThemeParameterAbstraction */
 
+			$configuration = $parameter->getConfiguration();
+			
+			$parameterName = $parameter->getName();
+
+			if ($configuration === null) {
+				\Log::info("Missing configuration for stored parameter {$parameterName}");
+				continue;
+			}
+			
 			if ($parameter->hasValueForLess()) {
-
+				
 				$parameterValue = $this->getParameterValueForParameter($parameter);
-
 				$outputValueForLess = $parameter->getLessOuptutValueFromParameterValue($parameterValue);
-				$parameterName = $parameter->getName();
-
+				
+				if ($outputValueForLess === null) {
+					continue;
+				}
+				
 				if (is_array($outputValueForLess)) {
 
 					foreach ($outputValueForLess as $key => $value) {
