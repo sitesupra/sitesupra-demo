@@ -218,7 +218,24 @@ class HistoryPageRequestEdit extends PageRequest
 
 		$draftPage = $draftEm->merge($page);
 		/* @var $draftPage AbstractPage */
-
+		
+		
+		// Find the repository
+		$entityName = $draftPage->getNestedSetRepositoryClassName();
+		$repository = $draftEm->getRepository($entityName);
+		
+		
+		// In case of refresh it already exists..
+		$doctrineNode = $draftPage->getNestedSetNode();
+			
+		// .. create new if doesn't
+		if (is_null($doctrineNode)) {
+			// Initialize the doctrine nested set node
+			$doctrineNode = new \Supra\NestedSet\Node\DoctrineNode($repository);
+			$draftPage->setNestedSetNode($doctrineNode);
+		}
+		$doctrineNode->belongsTo($draftPage);
+		
 		$draftEm->getRepository(AbstractPage::CN())
 				->getNestedSetRepository()
 				->add($draftPage);
