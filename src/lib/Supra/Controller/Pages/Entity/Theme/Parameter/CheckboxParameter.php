@@ -15,7 +15,7 @@ class CheckboxParameter extends ThemeParameterAbstraction
 	 */
 	public function getOuptutValueFromParameterValue(ThemeParameterValue $parameterValue)
 	{
-		$outputValue = (bool) $parameterValue->getValue();
+		$outputValue = $parameterValue->getValue();
 
 		return $outputValue;
 	}
@@ -26,6 +26,9 @@ class CheckboxParameter extends ThemeParameterAbstraction
 	 */
 	public function updateParameterValue(ThemeParameterValue $parameterValue, $input)
 	{
-		$parameterValue->setValue( (bool) $input);
+		$boolType = new \Supra\Validator\Type\BooleanType();
+		$boolType->validate($input);
+		
+		$parameterValue->setValue($input);
 	}
 }
