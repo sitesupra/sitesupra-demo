@@ -566,7 +566,7 @@ YUI().add('supra.iframe', function (Y) {
 			}
 			
 			// Change iframe URL
-			if (href) {
+			if (href && href[0] !== '#') {
 				// URL must be absolute, not relative
 				path = '';
 				if (!regex_absolute.test(href)) {
