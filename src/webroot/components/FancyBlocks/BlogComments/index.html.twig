@@ -53,11 +53,15 @@
 </div>
 <div class="block blog-comments-form">
 	
+	{% set heading_class = 'no-heading' %}
+	{% if not supraBlock.isEmpty('form_title') %}
 	<h2 class="block-title"><div>
 		{{ supraBlock.property('form_title') }}
+		{% set heading_class = 'has-heading' %}
 	</div></h2>
+	{% endif %}
 	
-	<form class="form" method="post">
+	<form class="form {{ heading_class }}" method="post">
 		
 		<div class="clearfix">
 			<div class="one_third grid_item alpha">
@@ -77,8 +81,8 @@
 			<label for="comment">{{ supraBlock.property('label_comment') }}<sup class="required">*</sup></label>
 			<textarea class="input-text" placeholder="{{ supraBlock.property('label_comment')|e }}" name="comment" id="comment" required></textarea>
 		</div>
-		<div class="row">
-			<input type="submit" class="button small" value="{{ supraBlock.property('label_submit')|e }}">
+		<div class="row form-footer">
+			<button type="submit" class="button-2">{{ supraBlock.property('label_submit')|e }}</button>
 		</div>
 		
 	</form>
