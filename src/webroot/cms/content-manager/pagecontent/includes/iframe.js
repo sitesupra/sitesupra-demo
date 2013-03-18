@@ -10,21 +10,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 		Action = Manager.PageContent,
 		Root = Manager.getAction('Root');
 	
-	//List of fonts, which doesn't need to be loaded from Google Web Fonts
-	var SAFE_FONTS = [
-		"Arial", "Tahoma", "Helvetica", "sans-serif", "Arial Black", "Impact",
-		"Trebuchet MS", "MS Sans Serif", "MS Serif", "Geneva", "Comic Sans MS" /* trololol.... */,
-		"Palatino Linotype", "Book Antiqua", "Palatino", "Monaco", "Charcoal",
-		"Courier New", "Georgia", "Times New Roman", "Times",
-		"Lucida Console", "Lucida Sans Unicode", "Lucida Grande", "Gadget",
-		"monospace"
-	];
-	
-	//Map function to lowercase all array items
-	var LOWERCASE_MAP = function (str) {
-		return String(str || '').toLowerCase();
-	};
-	
 	var GOOGLE_FONT_API_URI = document.location.protocol + "//fonts.googleapis.com/css?family=";
 	
 	
@@ -640,29 +625,17 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * @param {String} html HTML in which will be inserted <link />, if this is document then link is added to DOM <head />
 		 */
 		includeGoogleFonts: function (html) {
-			var uri = this.getGoogleFontsURI(Supra.data.get(['supra.htmleditor', 'fonts']));
+			var fonts = Supra.data.get(['supra.htmleditor', 'fonts']);
 			
 			if (typeof html === "string") {
-				
-				var replaced = false,
-					regex = new RegExp('(<link[^>]+href=)["\'][^"\']' + Y.Escape.regex(GOOGLE_FONT_API_URI) + '[^"\']*?["\']', 'i'),
-					html = html.replace(regex, function (all, pre) {
-						replaced = true;
-						return pre + '"' + uri + '"';
-					});
-				
-				if (!replaced) {
-					//Insert
-					html = html.replace(/<\/\s*head/i, '<link rel="stylesheet" href="' + uri + '" /></head');
-				}
-				
-				return html;
+				return Supra.GoogleFonts.addFontsToHTML(html, fonts);
 			} else {
 				var doc = html;
 				if (!doc) return;
 				
 				//
-				var head = Y.Node(doc).one("head"),
+				var uri  = Supra.GoogleFonts.getURI(fonts),
+					head = Y.Node(doc).one("head"),
 					link = head.one('link[href^="' + GOOGLE_FONT_API_URI + '"]');
 				
 				if (uri) {
@@ -688,47 +661,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 */
 		getGoogleFontsURI: function (fonts) {
 			if (this.fontsURI) return this.fontsURI;
-			
-			var fonts = Y.Lang.isArray(fonts) ? fonts : [],
-				i = 0, ii = fonts.length,
-				
-				//Get all safe fonts in lowercase
-				safe  = Y.Array(SAFE_FONTS).map(LOWERCASE_MAP),
-				apis  = [],
-				
-				parts = [], k = 0, kk = 0,
-				
-				load  = [],
-				temp  = '',
-				uri   = GOOGLE_FONT_API_URI;
-			
-			//Find which ones are not in the safe font list
-			for (; i<ii; i++) {
-				//Split "Arial, Verdana" into two items
-				if (fonts[i].family || (fonts[i].title && !fonts[i].apis)) {
-					parts = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').split(',');
-				} else {
-					parts = fonts[i].apis.replace(/:[^|]+/g, '').replace(/\+/g, ' ').split('|');
-				}
-				
-				for (k=0,kk=parts.length; k<kk; k++) {
-					//If any of the part is not in the safe list, then load from Google Fonts
-					if (parts[k] && safe.indexOf(parts[k].toLowerCase()) == -1) {
-						
-						//Convert into format which is valid for uri
-						if (fonts[i].apis) {
-							load.push(fonts[i].apis);
-						} else {
-							temp = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').replace(/\s+/g, '+').replace(/,/g, '|');
-							if (temp) load.push(temp);
-						}
-						
-						break;
-					}
-				}
-			}
-			
-			return this.fontsURI = (load.length ? uri + load.join('|') : '');
+			return this.fontsURI = GoogleFonts.getURI(fonts);
 		},
 		
 		/**
