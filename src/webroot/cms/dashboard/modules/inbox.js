@@ -18,8 +18,8 @@ YUI.add("dashboard.inbox", function (Y) {
 	
 	var TEMPLATE_ITEM = '\
 			<li class="item {% if new %}new{% endif %}">\
-				<!-- {% if new and buy %}<button>{{ "dashboard.inbox.buy_now"|intl }}</button>{% endif %} -->\
 				<p>{{ title|escape }}</p>\
+				{% if new and buy %}<button>{{ "dashboard.inbox.buy_now"|intl }}</button>{% endif %}\
 			</li>';
 	
 	/**
@@ -35,7 +35,16 @@ YUI.add("dashboard.inbox", function (Y) {
 	Inbox.CSS_PREFIX = 'su-' + Inbox.NAME;
 	Inbox.CLASS_NAME = Y.ClassNameManager.getClassName(Inbox.NAME);
  
-	Inbox.ATTRS = {};
+	Inbox.ATTRS = {
+		'requestUri': {
+			'value': ''
+		},
+		//Title
+		'title': {
+			"value": Supra.Intl.get(["dashboard", "inbox", "title"]),
+			"setter": "_setTitle"
+		},
+	};
 	
 	Inbox.HTML_PARSER = {};
  
@@ -55,6 +64,17 @@ YUI.add("dashboard.inbox", function (Y) {
 		buttons: null,
 		
 		
+		/**
+		 * Render UI
+		 * 
+		 * @private
+		 */
+		renderUI: function () {
+			Inbox.superclass.renderUI.apply(this, arguments);
+			
+			this.loadData();
+		},
+		
 		destructor: function () {
 			var buttons = this.buttons;
 			
@@ -71,6 +91,21 @@ YUI.add("dashboard.inbox", function (Y) {
 		 * ---------------------------- LIST -------------------------
 		 */
 		
+		
+		/**
+		 * Load data
+		 * 
+		 * @private
+		 */
+		loadData: function () {
+			Supra.io(this.get('requestUri'))
+				.always(function () {
+					this.get('boundingBox').one('.data-list').removeClass('loading');
+				}, this)
+				.done(function (data) {
+					this.renderData(data);
+				}, this);
+		},
 		
 		/**
 		 * Render data
@@ -91,8 +126,6 @@ YUI.add("dashboard.inbox", function (Y) {
 				}
 			}
 			
-			this.set("title", has_new_messages ? Supra.Intl.get(["dashboard", "inbox", "new_mail"]) : Supra.Intl.get(["dashboard", "inbox", "title"]));
-			
 			//Render buttons
 			var container = this.nodes.body.one("ul"),
 				buttons = container.all("button"),
@@ -102,7 +135,7 @@ YUI.add("dashboard.inbox", function (Y) {
 			for (var i=0, ii=buttons.size(); i<ii; i++) {
 				button = new Supra.Button({
 					"srcNode": buttons.item(i),
-					"style": "small-blue"
+					"style": "mid-blue"
 				});
 				button.render();
 				list.push(button);

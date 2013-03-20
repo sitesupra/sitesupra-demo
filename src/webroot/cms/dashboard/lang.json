@@ -14,9 +14,8 @@
 			},
 			
 			"inbox": {
-				"title": "Inbox",
-				"new_mail": "You've got mail!",
-				"buy_now": "Buy now"
+				"title": "Messages",
+				"buy_now": "Subscribe now"
 			},
 			
 			"visitors": {

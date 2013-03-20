@@ -2,14 +2,35 @@
  * Inbox module
  */
 .su-inbox {
+	background-color: #1c1b32;
+	border-top-color: #2d2c41;
 	
-	li {
-		&.new > p {
-			font-weight: bold;
-			color: #7AD2FF;
+	.su-block-heading {
+		h2 {
+			color: #acb1cc;
+		}
+	}
+	.su-block-content {
+		min-height: 230px;
+	}
+	
+	.data-list {
+		padding: 10px 10px 0 11px;
+		
+		li.item {
+			padding: 10px 3px;
+			border-top-color: #2b2a42;
 			
-			a {
-				color: #7AD2FF;
+			> p {
+				padding-left: 2px;
+				
+				b {
+					color: #348cda;
+					font-weight: normal;
+				}
+			}
+			.su-button {
+				margin-top: 5px;
 			}
 		}
 	}

@@ -86,7 +86,12 @@ YUI.add('dashboard.stats', function (Y) {
 				'visitorsStats': null,
 				'sourcesStats': null
 			};
-			
+		},
+		
+		/**
+		 * Render children widgets
+		 */
+		render: function () {
 			this._loadStats();
 			//Y.later(750, this, this.test);
 		},
