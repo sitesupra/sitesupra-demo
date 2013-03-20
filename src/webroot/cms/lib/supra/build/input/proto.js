@@ -26,6 +26,9 @@ YUI.add('supra.input-proto', function (Y) {
 		'descriptionNode': {
 			value: null
 		},
+		'errorNode': {
+			value: null
+		},
 		'value': {
 			value: '',
 			setter: '_setValue',
@@ -263,14 +266,29 @@ YUI.add('supra.input-proto', function (Y) {
 		 * @param {String} message
 		 */
 		showError: function (message) {
-			
+			if (typeof message === 'string') {
+				var node = this.get('errorNode');
+				
+				if (!node) {
+					node = Y.Node.create('<div class="yui3-input-error-message"></div>');
+					this.get('boundingBox').append(node);
+					this.set('errorNode', node);
+				} else {
+					node.removeClass('hidden');
+				}
+				
+				node.set('text', message);
+			}
 		},
 		
 		/**
 		 * Hide error message
 		 */
 		hideError: function () {
-			
+			var node = this.get('errorNode');
+			if (node) {
+				node.addClass('hidden');
+			}
 		},
 		
 		/**
@@ -285,11 +303,11 @@ YUI.add('supra.input-proto', function (Y) {
 			
 			if (typeof error == 'string' && error) {
 				this.showError(error);
-				return error;
 			} else {
 				this.hideError();
-				return false;
 			}
+			
+			return error;
 		},
 		
 		/**

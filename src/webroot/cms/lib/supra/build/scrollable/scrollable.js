@@ -41,6 +41,13 @@ YUI.add('supra.scrollable', function (Y) {
 		 */
 		'axis': {
 			'value': 'y'
+		},
+		
+		/**
+		 * Minimal size of the handle
+		 */
+		'minHandleSize': {
+			'value': 15
 		}
 	};
 	
@@ -330,7 +337,7 @@ YUI.add('supra.scrollable', function (Y) {
 			
 			var scrollbarAreaSize = viewSize - padding,
 				scrollPos = null,
-				scrollbarSize = ~~(viewSize / scrollSize * scrollbarAreaSize),
+				scrollbarSize = Math.max(this.get('minHandleSize'), ~~(viewSize / scrollSize * scrollbarAreaSize)),
 				pxRatio = (scrollSize - viewSize) / (scrollbarAreaSize - scrollbarSize);
 			
 			if (axis == 'y') {
