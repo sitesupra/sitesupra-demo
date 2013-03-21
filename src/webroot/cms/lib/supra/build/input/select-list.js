@@ -407,6 +407,8 @@ YUI.add('supra.input-select-list', function (Y) {
 			// Convert boolean values to string
 			if (typeof value == 'boolean') {
 				value = value ? "1" : "0";
+			} else if (value && typeof value === 'object' && 'id' in value) {
+				value = value.id;
 			}
 			
 			if (!this.get('rendered')) {

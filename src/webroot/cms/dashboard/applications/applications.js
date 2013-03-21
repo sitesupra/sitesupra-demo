@@ -85,7 +85,7 @@ Supra([
 	"dashboard.app-list",
 	"transition",
 	
-	//Supra.data.get(["site", "portal"]) ? "dashboard.inbox" : null,
+	Supra.data.get(["site", "portal"]) ? "dashboard.inbox" : null,
 	Supra.data.get(["site", "portal"]) ? "dashboard.stats" : null
 	
 ], function (Y) {
@@ -158,6 +158,9 @@ Supra([
 			
 			// If stats module is loaded
 			if (Supra.DashboardStats) {
+				this.widgets.inbox = new Supra.DashboardInbox({
+					"requestUri": this.getDataPath("../inbox/inbox")
+				});
 				this.widgets.stats = new Supra.DashboardStats({
 					"statsRequestUri": this.getDataPath("../stats/stats"),
 					"profilesRequestUri": this.getDataPath("../stats/profiles"),
@@ -188,6 +191,13 @@ Supra([
 			
 			this.widgets.apps.render();
 			this.widgets.apps.on("appmove", this.onAppsSort, this);
+			
+			if (this.widgets.inbox) {
+				this.widgets.inbox.render(this.one("div.inbox"));
+			}
+			if (this.widgets.stats) {
+				this.widgets.stats.render();
+			}
 			
 			this.renderHeader();
 			

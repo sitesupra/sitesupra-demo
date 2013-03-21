@@ -7175,6 +7175,9 @@ YUI().add("supra.io-css", function (Y) {
 		'descriptionNode': {
 			value: null
 		},
+		'errorNode': {
+			value: null
+		},
 		'value': {
 			value: '',
 			setter: '_setValue',
@@ -7412,14 +7415,29 @@ YUI().add("supra.io-css", function (Y) {
 		 * @param {String} message
 		 */
 		showError: function (message) {
-			
+			if (typeof message === 'string') {
+				var node = this.get('errorNode');
+				
+				if (!node) {
+					node = Y.Node.create('<div class="yui3-input-error-message"></div>');
+					this.get('boundingBox').append(node);
+					this.set('errorNode', node);
+				} else {
+					node.removeClass('hidden');
+				}
+				
+				node.set('text', message);
+			}
 		},
 		
 		/**
 		 * Hide error message
 		 */
 		hideError: function () {
-			
+			var node = this.get('errorNode');
+			if (node) {
+				node.addClass('hidden');
+			}
 		},
 		
 		/**
@@ -7434,11 +7452,11 @@ YUI().add("supra.io-css", function (Y) {
 			
 			if (typeof error == 'string' && error) {
 				this.showError(error);
-				return error;
 			} else {
 				this.hideError();
-				return false;
 			}
+			
+			return error;
 		},
 		
 		/**
@@ -21565,6 +21583,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			// Convert boolean values to string
 			if (typeof value == 'boolean') {
 				value = value ? "1" : "0";
+			} else if (value && typeof value === 'object' && 'id' in value) {
+				value = value.id;
 			}
 			
 			if (!this.get('rendered')) {
@@ -25197,6 +25217,13 @@ YUI.add('supra.uploader', function (Y) {
 		 */
 		'axis': {
 			'value': 'y'
+		},
+		
+		/**
+		 * Minimal size of the handle
+		 */
+		'minHandleSize': {
+			'value': 15
 		}
 	};
 	
@@ -25486,7 +25513,7 @@ YUI.add('supra.uploader', function (Y) {
 			
 			var scrollbarAreaSize = viewSize - padding,
 				scrollPos = null,
-				scrollbarSize = ~~(viewSize / scrollSize * scrollbarAreaSize),
+				scrollbarSize = Math.max(this.get('minHandleSize'), ~~(viewSize / scrollSize * scrollbarAreaSize)),
 				pxRatio = (scrollSize - viewSize) / (scrollbarAreaSize - scrollbarSize);
 			
 			if (axis == 'y') {
@@ -26371,7 +26398,8 @@ YUI.add('supra.uploader', function (Y) {
 			if (inputNode) {
 				var domNode = Y.Node.getDOMNode(inputNode),
 					value = this.get("value"),
-					text_node = this.get("textNode");
+					text_node = this.get("textNode"),
+					has_value = false;
 				
 				//Remove all options
 				for(var i = domNode.options.length - 1; i>=0; i--) {
@@ -26382,6 +26410,19 @@ YUI.add('supra.uploader', function (Y) {
 					contentNode.empty();
 				}
 				
+				//Check if value is in new values list
+				for(var i=0,ii=values.length; i<ii; i++) {
+					if (values[i].id == value) {
+						has_value = true;
+						break;
+					}
+				}
+				
+				if (values.length && !has_value) {
+					value = values[0].id;
+				}
+				
+				//Render
 				for(var i=0,ii=values.length; i<ii; i++) {
 					
 					//Check if title is localized
@@ -26413,6 +26454,9 @@ YUI.add('supra.uploader', function (Y) {
 						}
 					}
 				}
+				
+				// Set correct value
+				inputNode.set('value', value);
 			}
 			
 			return values;
@@ -26493,6 +26537,29 @@ YUI.add('supra.uploader', function (Y) {
 				node.set("text", title);
 			}
 			return this;
+		},
+		
+		/**
+		 * Returns full data for value
+		 * If value is an array of values then returns array of data
+		 * 
+		 * @param {String} value Optional, value for which to return full data
+		 * @returns {Object} Value data
+		 */
+		getValueData: function (value) {
+			var value  = value === null || typeof value === 'undefined' ? this.get('value') : value,
+				values = this.get('values'),
+				i = 0,
+				ii = values.length;
+			
+			// Single value
+			for (; i<ii; i++) {
+				if (values[i].id == value) {
+					return values[i];
+				}
+			}
+			
+			return null;
 		},
 		
 		/**

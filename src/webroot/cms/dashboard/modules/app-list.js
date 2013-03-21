@@ -49,12 +49,12 @@ YUI.add("dashboard.app-list", function (Y) {
 		
 		//Single item width
 		"itemWidth": {
-			"value": 138
+			"value": 136
 		},
 		
 		//Single item width
 		"itemHeight": {
-			"value": 138
+			"value": 136
 		},
 		
 		// Current application id

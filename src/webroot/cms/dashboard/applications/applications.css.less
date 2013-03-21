@@ -13,7 +13,7 @@
 	
 	.apps {
 		.apps-scrollable {
-			padding-right: 50px !important;
+			padding-right: 0px !important;
 		}
 	}
 }
@@ -130,6 +130,11 @@
 		.loopGrid (@index - 1);
 	}
 	.loopGrid (7); // 1 to 7
+	
+	.grid-5:first-child + .grid-2 {
+		margin-top: 46px;
+		height: 272px;
+	}
 }
 
 /**
@@ -179,3 +184,8 @@
  * Statistics
  */
 @import "../modules/stats.less";
+
+/**
+ * Inbox
+ */
+@import "../modules/inbox.less";

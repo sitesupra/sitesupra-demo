@@ -559,7 +559,8 @@ YUI.add("supra.input-select", function (Y) {
 			if (inputNode) {
 				var domNode = Y.Node.getDOMNode(inputNode),
 					value = this.get("value"),
-					text_node = this.get("textNode");
+					text_node = this.get("textNode"),
+					has_value = false;
 				
 				//Remove all options
 				for(var i = domNode.options.length - 1; i>=0; i--) {
@@ -570,6 +571,19 @@ YUI.add("supra.input-select", function (Y) {
 					contentNode.empty();
 				}
 				
+				//Check if value is in new values list
+				for(var i=0,ii=values.length; i<ii; i++) {
+					if (values[i].id == value) {
+						has_value = true;
+						break;
+					}
+				}
+				
+				if (values.length && !has_value) {
+					value = values[0].id;
+				}
+				
+				//Render
 				for(var i=0,ii=values.length; i<ii; i++) {
 					
 					//Check if title is localized
@@ -601,6 +615,9 @@ YUI.add("supra.input-select", function (Y) {
 						}
 					}
 				}
+				
+				// Set correct value
+				inputNode.set('value', value);
 			}
 			
 			return values;
@@ -681,6 +698,29 @@ YUI.add("supra.input-select", function (Y) {
 				node.set("text", title);
 			}
 			return this;
+		},
+		
+		/**
+		 * Returns full data for value
+		 * If value is an array of values then returns array of data
+		 * 
+		 * @param {String} value Optional, value for which to return full data
+		 * @returns {Object} Value data
+		 */
+		getValueData: function (value) {
+			var value  = value === null || typeof value === 'undefined' ? this.get('value') : value,
+				values = this.get('values'),
+				i = 0,
+				ii = values.length;
+			
+			// Single value
+			for (; i<ii; i++) {
+				if (values[i].id == value) {
+					return values[i];
+				}
+			}
+			
+			return null;
 		},
 		
 		/**
