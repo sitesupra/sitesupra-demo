@@ -9,51 +9,41 @@ use Supra\ObjectRepository\ObjectRepository;
 class ThemePreviewPreFilterController extends Controller\ControllerAbstraction implements Controller\PreFilterInterface
 {
 
-	const COOKIE_THEME_NAME = '__themeName';
-	const COOKIE_DISABLE_PREVIEW = '__themeDisablePreview';
+	const KEY = '__previewKey';
+	const THEME_NAME = '__previewThemeName';
 
+	/**
+	 * 
+	 */
 	public function execute()
 	{
 		$request = $this->getRequest();
 
 		if ($request instanceof HttpRequest) {
-
-			$disablePreviewTheme = $request->getCookie(self::COOKIE_DISABLE_PREVIEW, false);
-
-			if ($disablePreviewTheme) {
-
-				$cookies = $request->getCookies();
-				unset($cookies[self::COOKIE_DISABLE_PREVIEW], $cookies[self::COOKIE_THEME_NAME]);
-				$request->setCookies($cookies);
-				
-				$response = $this->getResponse();
-				
-				$cookie = new \Supra\Http\Cookie();
-				$cookie->setName(self::COOKIE_THEME_NAME);
-				
-				$response->removeCookie($cookie);
-				
-				$cookie = new \Supra\Http\Cookie();
-				$cookie->setName(self::COOKIE_DISABLE_PREVIEW);
-				
-				$response->removeCookie($cookie);
-			}
-
-			$previewThemeName = $request->getCookie(self::COOKIE_THEME_NAME, null);
 			
-			if ( ! empty($previewThemeName)) {
+			$key = $request->getQueryValue(self::KEY, null);
+			
+			if ( ! empty($key)) {
 				
 				$userProvider = ObjectRepository::getUserProvider($this);
 				$signedUser = $userProvider->getSignedInUser();
 				
 				if ($signedUser instanceof \Supra\User\Entity\User) {
 
-					$themeProvider = ObjectRepository::getThemeProvider($this);
-					$previewTheme = $themeProvider->getThemeByName($previewThemeName);
+					$sessionSpace = $userProvider->getSessionSpace();
+					$sessionKey = $sessionSpace->__get(self::KEY);
+					$previewThemeName = $sessionSpace->__get(self::THEME_NAME);
+					
+					if ($sessionKey === $key && ! empty($previewThemeName)) {
+						
+						$themeProvider = ObjectRepository::getThemeProvider($this);
+						$previewTheme = $themeProvider->getThemeByName($previewThemeName);
 				
-					$themeProvider->useThemeAsPreviewTheme($previewTheme);
+						$themeProvider->useThemeAsPreviewTheme($previewTheme);
+					}
 				}
 			}
 		}
+		
 	}
 }
