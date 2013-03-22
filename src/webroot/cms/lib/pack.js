@@ -999,7 +999,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.imageresizer': {
 		path: 'imageresizer/imageresizer.js',
-		requires: ['supra.panel', 'supra.slider', 'dd-plugin', 'supra.datatype-image'],
+		requires: ['supra.panel', 'supra.slider', 'dd-plugin', 'supra.datatype-image', 'supra.datatype-icon'],
 		skinnable: true
 	},
 	
@@ -1254,6 +1254,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['supra.input-proto', 'supra.uploader', 'supra.datatype-image']
 	},
 	
+	'supra.input-string-clear': {
+		path: 'input/string.js',
+		requires: ['supra.input-string', 'plugin']
+	},
+	
 	'supra.form': {
 		path: 'input/form.js',
 		requires: [
@@ -1288,7 +1293,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-group',
 			'supra.input-media-inline',
 			
-			'supra.button-plugin-input'
+			'supra.button-plugin-input',
+			'supra.input-string-clear'
 		]
 	},
 	'supra.input': {
@@ -1346,6 +1352,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.datatype-image': {
 		path: 'datatype/datatype-image.js'
+	},
+	
+	/**
+	 * Icon
+	 */
+	'supra.datatype-icon': {
+		path: 'datatype/datatype-icon.js'
 	},
 	
 	/**
@@ -2959,8 +2972,26 @@ YUI.add('supra.event', function (Y) {
 		if (!Y.Lang.isObject(obj) && !Y.Lang.isArray(obj)) return obj;
 		var o = {}, name = null;
 		
+		// Advanced encoding
+		if (obj && typeof obj.toURIComponent === 'function') {
+			obj = obj.toURIComponent();
+			
+			if (obj === undefined) {
+				return {}; // do not convert
+			}
+		}
+		
 		for(var i in obj) {
 			if (obj.hasOwnProperty(i)) {
+				// Advanced encoding
+				if (obj[i] && typeof obj[i].toURIComponent === 'function') {
+					obj[i] = obj[i].toURIComponent();
+					
+					if (obj[i] === undefined) {
+						continue; // do not convert
+					}
+				}
+				
 				name = (prefix ? prefix + '[' + encodeURIComponent(i) + ']' : encodeURIComponent(i));
 				
 				if (Y.Lang.isDate(obj[i])) {
@@ -3743,6 +3774,242 @@ YUI.add('supra.datatype-image', function(Y) {
 			'size_width': size_width,
 			'size_height': size_height
 		});
+	};
+	
+}, YUI.version);/*
+ * Add color parsing and formatting
+ */
+YUI.add('supra.datatype-icon', function(Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	var Icon = Y.namespace("DataType.Icon");
+	
+	/**
+	 * Icon data object
+	 * 
+	 * @param {Object} data Icon data or icon instance which should be cloned
+	 */
+	Y.DataType.Icon = Icon = function (data) {
+		if (data instanceof Icon) {
+			this.set(data.toJSON());
+		} else if (data) {
+			this.set(data);
+		}
+	};
+	
+	Icon.prototype = {
+		
+		/**
+		 * Icon id
+		 * @type {String}
+		 */
+		id: null,
+		
+		/**
+		 * Icon width
+		 * @type {Number}
+		 */
+		width: 64,
+		
+		/**
+		 * Icon height
+		 * @type {Number}
+		 */
+		height: 64,
+		
+		/**
+		 * Icon color
+		 * @type {String}
+		 */
+		color: '',
+		
+		/**
+		 * Icon align position
+		 * @type {String}
+		 */
+		align: '',
+		
+		
+		// Data properties
+		
+		/**
+		 * Icon SVG source
+		 * @type {String}
+		 */
+		svg: '',
+		
+		/**
+		 * Icon title
+		 * @type {String}
+		 */
+		title: '',
+		
+		/**
+		 * Icon keywords for search
+		 * @type {String}
+		 */
+		keywords: '',
+		
+		/**
+		 * Icon category
+		 * @type {String}
+		 */
+		category: '',
+		
+		
+		// Private
+		
+		/**
+		 * SVG icon DOM element
+		 * @type {Object}
+		 * @private
+		 */
+		_domNode: null,
+		
+		
+		/**
+		 * Returns true if all icon data is set
+		 * 
+		 * @returns {Boolean} True if all icon data is set, otherwise false
+		 */
+		isDataComplete: function () {
+			return !!this.svg;
+		},
+		
+		/**
+		 * Update icon properties
+		 * 
+		 * @param {Object} data Icon data
+		 * @private
+		 */
+		set: function (key, value) {
+			if (key && typeof key === 'object') {
+				Supra.mix(this, key);
+				
+				if ('svg' in key) {
+					// SVG changed, DOM node is not valid representation of it anymore
+					this._domNode = null;
+				}
+			} else if (typeof key === 'string') {
+				this[key] = value;
+				
+				if (key === 'svg') {
+					// SVG changed, DOM node is not valid representation of it anymore
+					this._domNode = null;
+				}
+			}
+		},
+		
+		/**
+		 * Render icon into DOM
+		 * 
+		 * @param {Object} node Container node into which to render or SVG node which to replace
+		 * @returns {Object} SVG element or null if nothing was rendered
+		 */
+		render: function (node) {
+			if (!node) return null;
+			if (node.tagName) {
+				node = Y.Node(node);
+			}
+			if (node.test) {
+				var svg = this.getDOMNode(),
+					ysvg = null;
+				
+				if (!svg) return null;
+				
+				if (node.get('tagName') === 'SVG') {
+					node.empty();
+					node.append(svg.firstChild); // append <g /> element
+					svg = node;
+				} else {
+					svg = svg.cloneNode();
+					node.append(svg);
+				}
+				
+				// Style
+				svg.style.width = (this.width ? this.width + 'px' : '');
+				svg.style.height = (this.height ? this.height + 'px' : '');
+				svg.style.fill = (this.color ? this.color : '');
+				
+				// ClassName
+				ysvg = Y.Node(svg);
+				ysvg.removeClass('align-left')
+					.removeClass('align-right')
+					.removeClass('align-middle');
+				
+				if (this.align) {
+					ysvg.addClass('align-' + this.align);
+				}
+				
+				return svg;
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns SVG DOM node
+		 */
+		getDOMNode: function () {
+			if (this._domNode) return this._domNode;
+			if (!this.svg) return null;
+			
+			var div = document.createElement('div');
+			div.innerHTML = this.svg;
+			
+			this._domNode = div.firstChild; // SVG element
+			return this._domNode;
+		},
+		
+		/**
+		 * Returns only data which should be encoded§
+		 * 
+		 * @returns {Object} All properties which should be encoded
+		 */
+		toURIComponent: function () {
+			if (!this.id) {
+				// Icon is not set, send empty string
+				return '';
+			} else {
+				return {
+					'id': this.id,
+					'width': this.width,
+					'height': this.height,
+					'color': this.color,
+					'align': this.align
+				};
+			}
+		},
+		
+		/**
+		 * Returns JSON object
+		 * 
+		 * @returns {Object} All properties which should be JSON encoded
+		 */
+		toJSON: function () {
+			return {
+				'id': this.id,
+				'width': this.width,
+				'height': this.height,
+				'color': this.color,
+				'align': this.align,
+				
+				'svg': this.svg,
+				'title': this.title,
+				'keywords': this.keywords,
+				'category': this.category
+			};
+		}
+		
+	};
+	
+	Icon.parse = function (value) {
+		return new Icon(value);
+	};
+	
+	Icon.format = function (value) {
+		return new Icon(value);
 	};
 	
 }, YUI.version);/*
@@ -8255,7 +8522,82 @@ YUI.add('supra.input-text', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-string']});YUI().add("supra.iframe-stylesheet-parser", function (Y) {
+}, YUI.version, {requires:['supra.input-string']});//Invoke strict mode
+"use strict";
+
+YUI().add('supra.input-string-clear', function (Y) {
+	
+	/**
+	 * Plugin for String input to clear content on icon click
+	 */
+	function InputStringClear () {
+		InputStringClear.superclass.constructor.apply(this, arguments);
+	};
+	
+	InputStringClear.NAME = 'InputStringClear';
+	InputStringClear.NS = 'clear';
+	
+	Y.extend(InputStringClear, Y.Plugin.Base, {
+		
+		/**
+		 * Clear icon/button
+		 * 
+		 * @type {Object}
+		 * @private 
+		 */
+		nodeClear: null,
+		
+		/**
+		 * Attach to event listeners, etc.
+		 * 
+		 * @constructor
+		 * @private
+		 */
+		'initializer': function () {
+			this.nodeClear = Y.Node.create('<a class="clear"></a>');
+			this.nodeClear.on('click', this.clearInputValue, this);
+			
+			var host = this.get('host'),
+				node = host.get('inputNode');
+			
+			if (node) {
+				this.appendClearNode();
+			} else {
+				this.inputNodeEvt = host.after('inputNodeChange', this.appendClearNode, this);
+			}
+		},
+		
+		/**
+		 * Add clear node to the input
+		 * 
+		 * @private
+		 */
+		'appendClearNode': function () {
+			var host = this.get('host'),
+				node = host.get('inputNode');
+			
+			if (node) {
+				this.get('host').get('inputNode').insert(this.nodeClear, 'after');
+			}
+		},
+		
+		/**
+		 * Clear input value
+		 * 
+		 * @private
+		 */
+		'clearInputValue': function () {
+			this.get('host').set('value', '');
+		}
+	});
+	
+	Supra.Input.String.Clear = InputStringClear;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {'requires': ['supra.form', 'plugin']});YUI().add("supra.iframe-stylesheet-parser", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -17138,6 +17480,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		'SiteMapRecycle': '/content-manager',
 		'MediaLibrary': '/media-library',
 		'MediaSidebar': '/media-library',
+		'IconSidebar': '/media-library',
 		'PageToolbar': '/content-manager',
 		'PageButtons': '/content-manager',
 		'EditorToolbar': '/content-manager',
@@ -25463,6 +25806,8 @@ YUI.add('supra.uploader', function (Y) {
 				this.get('contentBox').setStyle('marginLeft', -scroll);
 				this.get('draggableNode').setStyle('left', pos);
 			}
+			
+			this.fire('drag');
 		},
 		
 		/**

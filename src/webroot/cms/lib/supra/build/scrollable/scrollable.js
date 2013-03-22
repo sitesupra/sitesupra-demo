@@ -287,6 +287,8 @@ YUI.add('supra.scrollable', function (Y) {
 				this.get('contentBox').setStyle('marginLeft', -scroll);
 				this.get('draggableNode').setStyle('left', pos);
 			}
+			
+			this.fire('drag');
 		},
 		
 		/**

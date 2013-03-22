@@ -10,14 +10,6 @@
 	
 	Supra.setModuleGroupPath('blog', STATIC_PATH + APP_PATH + '/modules');
 	
-	// Input plugin to clear input value on icon click
-	Supra.addModule('blog.input-string-clear', {
-		path: 'input-string-clear.js',
-		requires: [
-			'supra.form', 'plugin'
-		]
-	});
-	
 	// Datagrid plugin to enable drag and drop post restore
 	Supra.addModule('blog.datagrid-restore', {
 		path: 'datagrid-plugin-restore.js',
@@ -39,7 +31,6 @@ Supra(
 	'supra.datagrid-sortable',
 	
 	'blog.datagrid-restore',
-	'blog.input-string-clear',
 	
 function (Y) {
 	//Invoke strict mode
@@ -200,6 +191,7 @@ function (Y) {
 			filter.on('submit', this.filterPosts, this);
 			
 			input = filter.getInput('filterQuery');
+			input.addClass('search');
 			input.on('input', this.onFilterInputEvent, this);
 			input.plug(Supra.Input.String.Clear);
 			

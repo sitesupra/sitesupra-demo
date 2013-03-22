@@ -529,8 +529,26 @@ YUI().add("supra.io", function (Y) {
 		if (!Y.Lang.isObject(obj) && !Y.Lang.isArray(obj)) return obj;
 		var o = {}, name = null;
 		
+		// Advanced encoding
+		if (obj && typeof obj.toURIComponent === 'function') {
+			obj = obj.toURIComponent();
+			
+			if (obj === undefined) {
+				return {}; // do not convert
+			}
+		}
+		
 		for(var i in obj) {
 			if (obj.hasOwnProperty(i)) {
+				// Advanced encoding
+				if (obj[i] && typeof obj[i].toURIComponent === 'function') {
+					obj[i] = obj[i].toURIComponent();
+					
+					if (obj[i] === undefined) {
+						continue; // do not convert
+					}
+				}
+				
 				name = (prefix ? prefix + '[' + encodeURIComponent(i) + ']' : encodeURIComponent(i));
 				
 				if (Y.Lang.isDate(obj[i])) {

@@ -14,6 +14,7 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'SiteMapRecycle': '/content-manager',
 		'MediaLibrary': '/media-library',
 		'MediaSidebar': '/media-library',
+		'IconSidebar': '/media-library',
 		'PageToolbar': '/content-manager',
 		'PageButtons': '/content-manager',
 		'EditorToolbar': '/content-manager',

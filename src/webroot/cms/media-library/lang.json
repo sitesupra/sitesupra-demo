@@ -75,6 +75,12 @@
 			}
 		},
 		
+		"iconsidebar": {
+			"insert_icon": "Icons",
+			
+			"search": "Search"			
+		},
+		
 		"mediasidebar": {
 			"insert_image": "Files",
 			"open_app": "Open Files App"

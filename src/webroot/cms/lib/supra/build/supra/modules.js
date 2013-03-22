@@ -522,7 +522,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.imageresizer': {
 		path: 'imageresizer/imageresizer.js',
-		requires: ['supra.panel', 'supra.slider', 'dd-plugin', 'supra.datatype-image'],
+		requires: ['supra.panel', 'supra.slider', 'dd-plugin', 'supra.datatype-image', 'supra.datatype-icon'],
 		skinnable: true
 	},
 	
@@ -777,6 +777,11 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['supra.input-proto', 'supra.uploader', 'supra.datatype-image']
 	},
 	
+	'supra.input-string-clear': {
+		path: 'input/string.js',
+		requires: ['supra.input-string', 'plugin']
+	},
+	
 	'supra.form': {
 		path: 'input/form.js',
 		requires: [
@@ -811,7 +816,8 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-group',
 			'supra.input-media-inline',
 			
-			'supra.button-plugin-input'
+			'supra.button-plugin-input',
+			'supra.input-string-clear'
 		]
 	},
 	'supra.input': {
@@ -869,6 +875,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.datatype-image': {
 		path: 'datatype/datatype-image.js'
+	},
+	
+	/**
+	 * Icon
+	 */
+	'supra.datatype-icon': {
+		path: 'datatype/datatype-icon.js'
 	},
 	
 	/**
