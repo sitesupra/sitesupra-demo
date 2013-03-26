@@ -134,8 +134,8 @@ YUI.add('gallerymanager.itemlist-order', function (Y) {
 			var dragDelegate = this.dragDelegate;
 			
 			if (dragDelegate) {
-				this.dragDelegate = null;
 				dragDelegate.destroy(true);
+				this.dragDelegate = null;
 			}
 		},
 		

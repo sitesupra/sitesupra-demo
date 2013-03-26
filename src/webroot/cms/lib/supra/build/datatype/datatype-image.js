@@ -69,7 +69,7 @@ YUI.add('supra.datatype-image', function(Y) {
 			// Node which to use for calculations
 			'node': null,
 			// If node matches filter value then traverse up the tree to find correct node
-			'nodeFilter': '.supra-image, .supra-image-inner, img',
+			'nodeFilter': '.supra-image, .supra-icon, .supra-image-inner, img',
 			
 			// If node is not set then this will be used
 			'maxCropWidth': 0,

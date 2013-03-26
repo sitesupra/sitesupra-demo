@@ -360,6 +360,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-toolbar',
 			
 			'supra.htmleditor-plugin-image',
+			'supra.htmleditor-plugin-icon',
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-video',
@@ -437,6 +438,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-image': {
 			path: 'htmleditor/plugins/plugin-image.js',
+			requires: ['supra.htmleditor-base', 'supra.imageresizer', 'supra.manager']
+		},
+		'supra.htmleditor-plugin-icon': {
+			path: 'htmleditor/plugins/plugin-icon.js',
 			requires: ['supra.htmleditor-base', 'supra.imageresizer', 'supra.manager']
 		},
 		'supra.htmleditor-plugin-table': {
@@ -756,6 +761,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/image-inline.js',
 		requires: ['supra.input-block-background']
 	},
+	'supra.input-icon-inline': {
+		path: 'input/icon-inline.js',
+		requires: ['supra.input-proto']
+	},
 	'supra.input-video': {
 		path: 'input/video.js',
 		requires: ['supra.input-hidden']
@@ -808,6 +817,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-date',
 			'supra.input-block-background',
 			'supra.input-image-inline',
+			'supra.input-icon-inline',
 			'supra.input-inline-html',
 			'supra.input-inline-string',
 			'supra.input-video',

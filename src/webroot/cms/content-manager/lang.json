@@ -69,7 +69,13 @@
 				"set_image": "Set image",
 				"change_image": "Change image",
 				"edit_image": "Edit image",
-				"remove_image": "Remove image"
+				"remove_image": "Remove image",
+				
+				"custom_icon": "Set icon",
+				"set_icon": "Set icon",
+				"change_icon": "Change icon",
+				"edit_icon": "Edit icon",
+				"remove_icon": "Remove icon"
 			}
 		},
 		
@@ -125,6 +131,7 @@
 			
 			"insert": "Insert",
 			"insertimage": "Image",
+			"inserticon": "Icon",
 			"insertlink": "Link",
 			"inserttable": "Table",
 			"insertvideo": "Video",
@@ -196,6 +203,7 @@
 			"backcolor": "Background color",
 			
 			"image_properties": "Image properties",
+			"icon_properties": "Icon properties",
 			"image_size": "Image size",
 			"size_custom": "Custom",
 			"size_original": "Original",
@@ -211,6 +219,10 @@
 			"alignment_right": "Align right",
 			"image_style": "Style",
 			"image_style_none": "No style",
+			
+			"icon_color": "Color",
+			"icon_replace": "Replace icon",
+			"icon_delete": "Delete icon",
 			
 			"video_properties": "Video properties",
 			"video_source": "Paste the URL of a video or embed code",
@@ -450,6 +462,7 @@
 			
 			"insert": "Insert",
 			"manage": "Manage image",
+			"manage_icon": "Manage icon",
 			"design": "Design",
 			"animation": "Animation",
 			

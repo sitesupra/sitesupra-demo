@@ -144,6 +144,10 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 						value = property.defaultValue || '';
 						model.property[id] = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
 						break;
+					case 'InlineIcon':
+						value = property.defaultValue || '';
+						model.property[id] = '<span class="supra-icon" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
+						break;
 					case 'InlineMedia':
 						value = property.defaultValue || '';
 						model.property[id] = '<div class="supra-media" unselectable="on" contenteditable="false" data-supra-item-property="' + id + '"></div>';

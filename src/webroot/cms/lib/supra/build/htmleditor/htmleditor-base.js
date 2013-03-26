@@ -416,12 +416,18 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			var oldSel = this.selection,
 				newSel = this.getSelection(),
 				fireSelectionEvent = false,
-				fireNodeEvent = false;
+				fireNodeEvent = false,
+				node = null;
 			
 			//On mouse click / mouse down check if user clicked on image
 			if (event && event.type && (event.type == 'mouseup' || event.type == 'click')) {
 				if (event.target.test('img')) {
-					newSel = this._handleImageClick(event.target);
+					node = event.target;
+				} else {
+					node = event.target.closest('svg');
+				}
+				if (node) {
+					newSel = this._handleSelectableClick(node);
 				}
 			}
 			
@@ -471,7 +477,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		 * Handle click on image
 		 * @private
 		 */
-		_handleImageClick: function (target) {
+		_handleSelectableClick: function (target) {
 			var node = target.getDOMNode(),
 				selection = {
 					'start': node,

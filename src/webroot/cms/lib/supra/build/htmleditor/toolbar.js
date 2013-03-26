@@ -82,6 +82,8 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"controls": [
 						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
 					{"type": "separator"},
+						{"id": "inserticon", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-icon.png", "command": "inserticon"},
+					{"type": "separator"},
 						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo"},
 					{"type": "separator"},
 						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}

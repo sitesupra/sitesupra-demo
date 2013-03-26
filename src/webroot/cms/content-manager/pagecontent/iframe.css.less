@@ -578,6 +578,7 @@
 	}
 	
 	.supra-image,
+	.supra-icon,
 	.supra-video {
 		cursor: pointer;
 	}
@@ -597,7 +598,8 @@
 /**
  * = Image resize
  */
-.supra-image {
+.supra-image,
+.supra-icon {
 	&,
 	.supra-image-inner {
 		position: relative !important;
@@ -639,15 +641,18 @@
 		.box-shadow (none !important);
 	}
 	
-	&.supra-image-selected {
+	&.supra-image-selected,
+	&.supra-icon-selected {
 		/* Any style when image is selected? */
 	}
-	&.supra-image-editing {
+	&.supra-image-editing,
+	&.supra-icon-editing {
 		overflow: visible !important;
 	}
 }
 
 .supra-image.supra-image-editing .tooltip,
+.supra-icon.supra-icon-editing .tooltip,
 .supra-background-editing .tooltip {
 	left: 50%;
 	width: 50px;
@@ -655,6 +660,7 @@
 }
 
 .supra-image.supra-image-editing .supra-image-resize,
+.supra-icon.supra-icon-editing .supra-image-resize,
 .supra-background-editing .supra-image-resize {
 	display: block;
 	position: absolute;
@@ -669,28 +675,35 @@
 				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
 }
-.supra-image.supra-image-editing .supra-image-resize-nw {
+.supra-icon.supra-icon-editing .supra-image-resize {
+	cursor: default !important;
+}
+.supra-image.supra-image-editing .supra-image-resize-nw,
+.supra-icon.supra-icon-editing .supra-image-resize-nw {
 	cursor: nw-resize !important;
 	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw-active.gif) 0 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
 }
-.supra-image.supra-image-editing .supra-image-resize-ne {
+.supra-image.supra-image-editing .supra-image-resize-ne,
+.supra-icon.supra-icon-editing .supra-image-resize-ne {
 	cursor: ne-resize !important;
 	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-ne-active.gif) 100% 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
 }
-.supra-image.supra-image-editing .supra-image-resize-sw {
+.supra-image.supra-image-editing .supra-image-resize-sw,
+.supra-icon.supra-icon-editing .supra-image-resize-sw {
 	cursor: sw-resize !important;
 	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-sw-active.gif) 0 100% no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
 }
-.supra-image.supra-image-editing .supra-image-resize-se {
+.supra-image.supra-image-editing .supra-image-resize-se,
+.supra-icon.supra-icon-editing .supra-image-resize-se {
 	cursor: se-resize !important;
 	background: url(/cms/lib/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
 				url(/cms/lib/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
@@ -698,6 +711,7 @@
 				url(/cms/lib/supra/img/htmleditor/resize-handle-se-active.gif) 100% 100% no-repeat;
 }
 .supra-image.supra-image-editing .supra-image-resize-move,
+.supra-icon.supra-icon-editing .supra-image-resize-move,
 .supra-background-editing .supra-image-resize-move {
 	background: rgba(0,0,0,0);
 	z-index: 102;

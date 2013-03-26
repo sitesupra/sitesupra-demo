@@ -67,8 +67,8 @@ YUI.add('gallerymanager.itemlist-drop', function (Y) {
 			var dropPlugin = this.dropPlugin;
 			
 			if (dropPlugin) {
-				this.dropPlugin = null;
 				dropPlugin.destroy(true);
+				this.dropPlugin = null;
 			}
 			
 			this.listDragOver = 'none';

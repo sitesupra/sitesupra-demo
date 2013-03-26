@@ -538,6 +538,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 					// There is cropping and size information, leave it intact
 					// only replace image info with id
 					image.image.image = image.image.image.id;
+					image.image.type = 'image';
+				} else if (image.image && image.image.svg) {
+					// Icon, convert to object
+					image.image = new Y.DataType.Icon(image.image);
+					image.image.type = 'icon';
 				} else {
 					// No cropping or size information
 					delete(image.image);

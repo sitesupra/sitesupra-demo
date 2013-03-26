@@ -20,6 +20,6 @@ Plugin:
 			Process HTML and replace all nodes with macros {supra.PLUGIN_NAME id="ID"}
 			Called before HTML is saved
 			
-		processData(id, data)
+		getProcessedData(id, data)
 			Remove all unneeded data before it's sent to server
 			Called before HTML is saved

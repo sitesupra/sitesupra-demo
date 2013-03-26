@@ -113,7 +113,20 @@
 						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
 							
 							<span class="img">
-								{{ output.imageHtmlTag( product ) }}
+								{% if design == 'icon' %}
+									{# SVG IMAGE HERE #}
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px"
+										 height="32px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><g id="1b1c9b208ed950244c86edd4d2014b29"><path display="inline" d="M362.438,66.158c53.25,0,106.479,53.454,106.479,124.203c0,95.395-97.788,153.145-199.626,248.538
+											c0,0-7.128,6.943-13.536,6.943c-6.404,0-13.174-7.078-13.174-7.078C140.938,343.551,43.083,285.594,43.083,190.361
+											c0-71.454,53.229-124.203,106.458-124.203C238.26,66.158,256,119.387,256,119.387S273.74,66.158,362.438,66.158 M362.438,23.575
+											c-48.131,0-82.738,13.501-106.439,30.784c-23.706-17.283-58.319-30.784-106.457-30.784C68.752,23.575,0.5,99.955,0.5,190.361
+											c0,93.944,69.161,153.688,149.243,222.862c20.539,17.744,41.771,36.084,63.112,56.045c6.535,6.52,21.913,19.158,42.899,19.158
+											c20.963,0,36.711-12.758,42.87-18.66c21.554-20.182,42.986-38.682,63.713-56.576C442.377,344.078,511.5,284.396,511.5,190.361
+											C511.5,99.955,443.237,23.575,362.438,23.575L362.438,23.575z"></path></g></svg>
+								{% else %}
+									{{ output.imageHtmlTag( product ) }}
+								{% endif %}
+								
 								{% if link == 'overlay' %}
 									{{ output.link(product, link) }}
 								{% endif %}
@@ -138,9 +151,16 @@
 			<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item" data-supra-image-selector="li > img">
 				
 				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
-					<span class="img">
-						<img src="about:blank" alt="" />
-					</span>
+					{% if design == 'icon' %}
+						<span class="img">
+							<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px"
+										 height="32px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"></svg>
+						</span>
+					{% else %}
+						<span class="img">
+							<img src="about:blank" alt="" />
+						</span>
+					{% endif %}
 					
 					{% if design != 'only' %}
 						<div class="inner-text">

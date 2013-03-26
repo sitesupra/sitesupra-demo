@@ -133,7 +133,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("minImageHeight", 32);
-			imageResizer.set("minImageHeight", 32);
+			imageResizer.set("minImageWidth", 32);
 			imageResizer.set("image", node);
 			
 			this.focus();
@@ -184,7 +184,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 			
 			//Start editing image
 			if (this.get("editImageAutomatically")) {
-				//Small delay to allow media library to close before doing anything
+				//Small delay to allow icon sidebar to close before doing anything (eg. opening settings sidebar)
 				Y.later(100, this, function () {
 					if (this._hasImage()) {
 						this.startEditing();

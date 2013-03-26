@@ -837,6 +837,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-toolbar',
 			
 			'supra.htmleditor-plugin-image',
+			'supra.htmleditor-plugin-icon',
 			'supra.htmleditor-plugin-gallery',
 			'supra.htmleditor-plugin-link',
 			'supra.htmleditor-plugin-video',
@@ -914,6 +915,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-image': {
 			path: 'htmleditor/plugins/plugin-image.js',
+			requires: ['supra.htmleditor-base', 'supra.imageresizer', 'supra.manager']
+		},
+		'supra.htmleditor-plugin-icon': {
+			path: 'htmleditor/plugins/plugin-icon.js',
 			requires: ['supra.htmleditor-base', 'supra.imageresizer', 'supra.manager']
 		},
 		'supra.htmleditor-plugin-table': {
@@ -1233,6 +1238,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/image-inline.js',
 		requires: ['supra.input-block-background']
 	},
+	'supra.input-icon-inline': {
+		path: 'input/icon-inline.js',
+		requires: ['supra.input-proto']
+	},
 	'supra.input-video': {
 		path: 'input/video.js',
 		requires: ['supra.input-hidden']
@@ -1285,6 +1294,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-date',
 			'supra.input-block-background',
 			'supra.input-image-inline',
+			'supra.input-icon-inline',
 			'supra.input-inline-html',
 			'supra.input-inline-string',
 			'supra.input-video',
@@ -3664,7 +3674,7 @@ YUI.add('supra.datatype-image', function(Y) {
 			// Node which to use for calculations
 			'node': null,
 			// If node matches filter value then traverse up the tree to find correct node
-			'nodeFilter': '.supra-image, .supra-image-inner, img',
+			'nodeFilter': '.supra-image, .supra-icon, .supra-image-inner, img',
 			
 			// If node is not set then this will be used
 			'maxCropWidth': 0,
@@ -3840,6 +3850,18 @@ YUI.add('supra.datatype-icon', function(Y) {
 		svg: '',
 		
 		/**
+		 * Icon SVG source path
+		 * @type {String}
+		 */
+		svg_path: '',
+		
+		/**
+		 * Icon Image path
+		 * @type {String}
+		 */
+		icon_path: '',
+		
+		/**
 		 * Icon title
 		 * @type {String}
 		 */
@@ -3867,6 +3889,45 @@ YUI.add('supra.datatype-icon', function(Y) {
 		 */
 		_domNode: null,
 		
+		/**
+		 * Promise object
+		 * @type {Object}
+		 * @private
+		 */
+		_promise: null,
+		
+		
+		/**
+		 * Load icon SVG data
+		 * Returns deferred object, to which when resolved is passed SVG data
+		 * 
+		 * @returns {Object} Deferred object
+		 */
+		load: function () {
+			if (!this._promise) {
+				var deferred = new Supra.Deferred(),
+					promise = this._promise = deferred.promise();
+				
+				if (this.svg) {
+					deferred.resolveWith(this, [this.svg]);
+				} else if (this.svg_path) {
+					Supra.io(this.svg_path, {
+						'type': 'html'
+					})
+						.done(function (svg) {
+							this.svg = svg;
+							deferred.resolveWith(this, [svg]);
+						}, this)
+						.fail(function () {
+							deferred.rejectWith(this, [null]);
+						});
+				} else {
+					deferred.rejectWith(this, [null]);
+				}
+			}
+			
+			return this._promise;
+		},
 		
 		/**
 		 * Returns true if all icon data is set
@@ -3885,7 +3946,13 @@ YUI.add('supra.datatype-icon', function(Y) {
 		 */
 		set: function (key, value) {
 			if (key && typeof key === 'object') {
-				Supra.mix(this, key);
+				
+				// Don't copy functions if passed in object with them
+				for (var k in key) {
+					if (typeof key[k] !== 'function') {
+						this[k] = key[k];
+					}
+				}
 				
 				if ('svg' in key) {
 					// SVG changed, DOM node is not valid representation of it anymore
@@ -3905,10 +3972,17 @@ YUI.add('supra.datatype-icon', function(Y) {
 		 * Render icon into DOM
 		 * 
 		 * @param {Object} node Container node into which to render or SVG node which to replace
-		 * @returns {Object} SVG element or null if nothing was rendered
+		 * @returns {Object} Promise object, on resolve SVG element element is passed as argument
 		 */
 		render: function (node) {
-			if (!node) return null;
+			var deferred = new Supra.Deferred(),
+				promise  = deferred.promise();
+			
+			if (!node) {
+				deferred.rejectWith(this, []);
+				return promise;
+			}
+			
 			if (node.tagName) {
 				node = Y.Node(node);
 			}
@@ -3916,36 +3990,113 @@ YUI.add('supra.datatype-icon', function(Y) {
 				var svg = this.getDOMNode(),
 					ysvg = null;
 				
-				if (!svg) return null;
-				
-				if (node.get('tagName') === 'SVG') {
-					node.empty();
-					node.append(svg.firstChild); // append <g /> element
-					svg = node;
+				if (!svg) {
+					// Load SVG data and then call render again
+					this.load()
+						.done(function (svg) {
+							this.render(node)
+								.done(function (svg) {
+									deferred.resolveWith(this, [svg]);
+								}, this)
+								.fail(function () {
+									deferred.rejectWith(this, []);
+								});
+						}, this)
+						.fail(function () {
+							deferred.rejectWith(this, []);
+						});
+					
 				} else {
-					svg = svg.cloneNode();
-					node.append(svg);
+					// We have SVG element, render
+					if (node.get('tagName').toUpperCase() === 'SVG') {
+						node.empty();
+						
+						// append <g /> element
+						this._renderAppend(svg.childNodes, node);
+						 
+						svg = node.getDOMNode();
+					} else {
+						svg = svg.cloneNode();
+						this._renderAppend([svg], node);
+					}
+					
+					// Style
+					svg.setAttribute('width', (this.width ? this.width + 'px' : ''));
+					svg.setAttribute('height', (this.height ? this.height + 'px' : ''));
+					svg.style.fill = (this.color ? this.color : '');
+					
+					// ClassName
+					ysvg = Y.Node(svg);
+					ysvg.removeClass('align-left')
+						.removeClass('align-right')
+						.removeClass('align-middle');
+					
+					if (this.align) {
+						ysvg.addClass('align-' + this.align);
+					}
+					
+					deferred.resolveWith(this, [svg]);
 				}
-				
-				// Style
-				svg.style.width = (this.width ? this.width + 'px' : '');
-				svg.style.height = (this.height ? this.height + 'px' : '');
-				svg.style.fill = (this.color ? this.color : '');
-				
-				// ClassName
-				ysvg = Y.Node(svg);
-				ysvg.removeClass('align-left')
-					.removeClass('align-right')
-					.removeClass('align-middle');
-				
-				if (this.align) {
-					ysvg.addClass('align-' + this.align);
-				}
-				
-				return svg;
+			} else {
+				deferred.rejectWith(this, []);
 			}
 			
-			return null;
+			return promise;
+		},
+		
+		/**
+		 * Returns SVG HTML
+		 * 
+		 * @param {Object} attr Additional attributes
+		 * @param {Boolean} force Returns empty SVG even if there is not SVG data
+		 * @returns {String} HTML
+		 */
+		toHTML: function (attr, force) {
+			if (!this.svg && !force) return '';
+			attr = attr || {};
+			
+			var svg = this.svg || '',
+				attrs_str = '',
+				html = '',
+				key = null;
+			
+			attr.width = attr.width || this.width;
+			attr.height = attr.height || this.height;
+			attr.style = (attr.style || '') + (this.color ? ' fill: ' + this.color + ';' : '');
+			attr.classname = (attr.classname || '') + (this.align ? ' align-' + this.align : '');
+			
+			for (key in attr) {
+				attrs_str += key + '="' + attr[key] + '" ';
+			}
+			
+			return '<svg ' + attrs_str + 'version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">' + svg + '</svg>';
+		},
+		
+		/**
+		 * @private
+		 */
+		_renderAppend: function (nodes, target) {
+			var i = 0,
+				ii = nodes.length,
+				cloned = null;
+			
+			for (; i<ii; i++) {
+				if (nodes[i].cloneNode) {
+					cloned = nodes[i].cloneNode();
+					
+					if (target.append) {
+						// Y.Node
+						target.append(cloned);
+					} else {
+						// HTMLElement
+						target.appendChild(cloned);
+					}
+					
+					if (nodes[i].childNodes && nodes[i].childNodes.length) {
+						this._renderAppend(nodes[i].childNodes, cloned);
+					}
+				}
+			}
 		},
 		
 		/**
@@ -3956,7 +4107,7 @@ YUI.add('supra.datatype-icon', function(Y) {
 			if (!this.svg) return null;
 			
 			var div = document.createElement('div');
-			div.innerHTML = this.svg;
+			div.innerHTML = this.toHTML();
 			
 			this._domNode = div.firstChild; // SVG element
 			return this._domNode;
@@ -3998,7 +4149,10 @@ YUI.add('supra.datatype-icon', function(Y) {
 				'svg': this.svg,
 				'title': this.title,
 				'keywords': this.keywords,
-				'category': this.category
+				'category': this.category,
+				
+				'svg_path': this.svg_path,
+				'icon_path': this.icon_path
 			};
 		}
 		
@@ -9379,12 +9533,18 @@ YUI().add('supra.input-string-clear', function (Y) {
 			var oldSel = this.selection,
 				newSel = this.getSelection(),
 				fireSelectionEvent = false,
-				fireNodeEvent = false;
+				fireNodeEvent = false,
+				node = null;
 			
 			//On mouse click / mouse down check if user clicked on image
 			if (event && event.type && (event.type == 'mouseup' || event.type == 'click')) {
 				if (event.target.test('img')) {
-					newSel = this._handleImageClick(event.target);
+					node = event.target;
+				} else {
+					node = event.target.closest('svg');
+				}
+				if (node) {
+					newSel = this._handleSelectableClick(node);
 				}
 			}
 			
@@ -9434,7 +9594,7 @@ YUI().add('supra.input-string-clear', function (Y) {
 		 * Handle click on image
 		 * @private
 		 */
-		_handleImageClick: function (target) {
+		_handleSelectableClick: function (target) {
 			var node = target.getDOMNode(),
 				selection = {
 					'start': node,
@@ -9473,10 +9633,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	"use strict";
 	
 	/* Tag white list, all other tags will be removed. <font> tag is added if "fonts" plugin is enabled */
-	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span'];
+	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span', 'svg', 'g', 'path'];
 	
 	/* List of inline elements */
-	Supra.HTMLEditor.ELEMENTS_INLINE = {'b': 'b', 'i': 'i', 'span': 'span', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong': 'strong', 's': 's', 'strike': 'strike', 'a': 'a', 'u': 'u', 'img': 'img', 'br': 'br', 'q': 'q', 'big': 'big', 'mark': 'mark', 'rp': 'rp', 'rt': 'rt', 'ruby': 'ruby', 'summary': 'summary', 'time': 'time'};
+	Supra.HTMLEditor.ELEMENTS_INLINE = {'b': 'b', 'i': 'i', 'span': 'span', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong': 'strong', 's': 's', 'strike': 'strike', 'a': 'a', 'u': 'u', 'img': 'img', 'br': 'br', 'q': 'q', 'big': 'big', 'mark': 'mark', 'rp': 'rp', 'rt': 'rt', 'ruby': 'ruby', 'summary': 'summary', 'time': 'time', 'svg': 'svg', 'g': 'g', 'path': 'path'};
 	
 	/* List of tags which doesn't need to be closed */
 	Supra.HTMLEditor.NOT_CLOSED_TAGS = {'img': 'img', 'br': 'br', 'param': 'param', 'col': 'col', 'embed': 'embed'};
@@ -9672,9 +9832,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove empty UL and OL tags
 				html = html.replace(/<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi, '');
 				
-				//Remove style attribute, except background-color
+				//Remove style attribute, except background-color and fill
 				html = html.replace(/\s+style=["']([^'"]*)["']/gi, function (all, styles) {
-					styles = styles.match(/background-color:[^;]+/);
+					styles = styles.match(/(fill|background-color):[^;]+/);
 					if (styles && styles.length) {
 						return ' style="' + styles[0] + '"';
 					}
@@ -11153,6 +11313,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"controls": [
 						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
 					{"type": "separator"},
+						{"id": "inserticon", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-icon.png", "command": "inserticon"},
+					{"type": "separator"},
 						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo"},
 					{"type": "separator"},
 						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
@@ -11842,6 +12004,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	
 	ImageResizer.MODE_IMAGE = 0;
 	ImageResizer.MODE_BACKGROUND = 1;
+	ImageResizer.MODE_ICON = 2;
 	
 	ImageResizer.NAME = "imageresizer";
 	ImageResizer.CSS_PREFIX = "su-" + ImageResizer.NAME;
@@ -11911,7 +12074,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		"autoClose": {
 			value: true
 		},
-		// Mode: 0 - image, 1 - background
+		// Mode: 0 - image, 1 - background, 2 - icon
 		"mode": {
 			value: ImageResizer.MODE_IMAGE
 		},
@@ -12211,7 +12374,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				case 3:
 					return "supra-image-resize-sw";
 				default:
-					return this.get("mode") == ImageResizer.MODE_IMAGE ? "" : "supra-image-resize-move";
+					var mode = this.get("mode");
+					return mode == ImageResizer.MODE_IMAGE || mode == ImageResizer.MODE_ICON ? "" : "supra-image-resize-move";
 			}
 		},
 		
@@ -12262,10 +12426,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			zoomOut.render(contentBox);
 			
 			zoomIn.on('click', function () {
-				this.set('value', (this.get('value') + this.get('majorStep')));
+				this.set('value', Math.min(100, this.get('value') + this.get('majorStep')));
 			}, slider);
 			zoomOut.on('click', function () {
-				this.set('value', (this.get('value') - this.get('majorStep')));
+				this.set('value', Math.max(0, this.get('value') - this.get('majorStep')));
 			}, slider);
 			
 			boundingBox.addClass("su-imageresizer");
@@ -12350,6 +12514,20 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				});
 				image.setAttribute("width", this.imageWidth);
 				image.setAttribute("height", this.imageHeight);
+			} else if (this.get('mode') == ImageResizer.MODE_ICON) {
+				this.cropWidth = this.imageWidth;
+				this.cropHeight = this.imageHeight;
+				
+				this.get("imageContainerNode").setStyles({
+					"width": this.imageWidth + "px",
+					"height": this.imageHeight + "px"
+				});
+				image.setStyles({
+					"width": this.imageWidth + "px",
+					"height": this.imageHeight + "px"
+				});
+				image.setAttribute("width", this.imageWidth);
+				image.setAttribute("height", this.imageHeight);
 			} else {
 				this.cropWidth = this.imageWidth - this.cropLeft;
 				this.cropHeight = this.imageHeight - this.cropTop;
@@ -12383,8 +12561,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		sizeToZoom: function (width, height) {
 			var minImageWidth = 0,
 				minImageHeight = 0;
-				
-			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND) {
+			
+			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND || this.get('mode') == ImageResizer.MODE_ICON) {
 				minImageWidth = this.minImageWidth;
 				minImageHeight = this.minImageHeight;
 			} else {
@@ -12413,7 +12591,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				minImageWidth = 0,
 				minImageHeight = 0;
 			
-			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND) {
+			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND || this.get('mode') == ImageResizer.MODE_ICON) {
 				minImageWidth = this.minImageWidth;
 				minImageHeight = this.minImageHeight;
 			} else {
@@ -12460,11 +12638,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (this.get("cursor") < 4) {
 				//Resize
 				this.resizeActive = true;
-				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragResize, this);
+				
+				if (this.get("mode") == ImageResizer.MODE_ICON) {
+					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragIconResize, this);
+				} else {
+					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragResize, this);
+				}
 				
 				this.dragStartW = this.dragW = this.cropWidth;
 				this.dragStartH = this.dragH = this.cropHeight;
-			} else {
+			} else if (this.get("mode") != ImageResizer.MODE_ICON) {
 				//Move
 				this.moveActive = true;
 				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragMove, this);
@@ -12597,6 +12780,73 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		},
 		
 		/**
+		 * Handle mouse move while resizing icon
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		dragIconResize: function (e) {
+			var cursor = this.get("cursor"),
+				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+				delta  = Math.max(deltaX, deltaY),
+				sizeX  = this.dragStartW + delta,
+				sizeY  = this.dragStartH + delta;
+			
+			if (this.resizeActive) {
+				var node = this.get("imageContainerNode"),
+					image = this.get("image"),
+					minW = this.get("minCropWidth"),
+					maxW = this.get("maxCropWidth"),
+					minH = this.get("minCropHeight"),
+					maxH = this.get("maxCropHeight"),
+					imageHeight = this.imageHeight,
+					imageWidth = this.imageWidth,
+					ratio = (maxW && maxH ? maxW / maxH : (minW && minH ? minW / minH : imageWidth / imageHeight));
+				
+				if (!node) return;
+				
+				if (sizeX < minW) {
+					sizeX = minW;
+					sizeY = Math.round(sizeX / ratio);
+				}
+				if (sizeY < minH) {
+					sizeY = minH;
+					sizeX = Math.round(sizeY * ratio);
+				}
+				if (maxW && sizeX > maxW) {
+					sizeX = maxW;
+					sizeY = Math.round(sizeX / ratio);
+				}
+				if (maxH && sizeY > maxH) {
+					sizeY = maxH;
+					sizeX = Math.round(sizeY * ratio);
+				}
+				
+				if (this.dragW != sizeX || this.dragH != sizeY) {
+					this.dragW = sizeX;
+					this.dragH = sizeY;
+					
+					node.setStyles({
+						"width": sizeX,
+						"height": sizeY
+					});
+					
+					image.setStyles({
+						"width": sizeX,
+						"height": sizeY
+					});
+					
+					image.setAttribute("width", sizeX + "px");
+					image.setAttribute("height", sizeY + "px");
+					
+					//Update label
+					this.set("sizeLabel", [sizeX, sizeY]);
+				}
+			}
+		},
+		
+		/**
 		 * Stop drag
 		 * 
 		 * @param {Event} e Event facade object
@@ -12615,6 +12865,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.cropTop = this.dragCropTop;
 					this.cropWidth = this.dragW;
 					this.cropHeight = this.dragH;
+					
+					if (this.get("mode") == ImageResizer.MODE_ICON) {
+						this.cropLeft = this.cropTop = 0;
+						this.imageWidth = this.cropWidth;
+						this.imageHeight = this.cropHeight;
+					}
 					
 					//Update label
 					this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
@@ -12642,7 +12898,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		documentClick: function (e) {
 			var image = this.get("image");
-			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
+			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-icon") && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
 				this.set("image", null);
 			}
 		},
@@ -12893,6 +13149,130 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		},
 		
 		
+		/* --------------------------------- Icon --------------------------------- */
+		
+		
+		/**
+		 * Set up needed elements for background resizing
+		 * 
+		 * @param {Y.Node} image Node which background is resized
+		 * @private
+		 */
+		setUpIcon: function (image) {
+			var doc = this.get("doc"),
+				resizeHandleNode = Y.Node(doc.createElement("SPAN")), // create in correct document
+				imageContainerNode = Y.Node(doc.createElement("SPAN")),
+				sizeLabelNode = Y.Node(doc.createElement("SPAN")),
+				containerNode = image.ancestor(),
+				width = containerNode.get("offsetWidth"),
+				height = containerNode.get("offsetHeight");
+			
+			resizeHandleNode.addClass("supra-image-resize");
+			containerNode.append(resizeHandleNode);
+			resizeHandleNode.on("mousemove", this.setMouseCursor, this);
+			resizeHandleNode.on("mouseleave", this.unsetMouseCursor, this);
+			resizeHandleNode.on("mousedown", this.dragStart, this);
+			this.set("resizeHandleNode", resizeHandleNode);
+			
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			containerNode.append(sizeLabelNode);
+			this.set("sizeLabelNode", sizeLabelNode);
+			
+			imageContainerNode.addClass("supra-image-inner");
+			containerNode.append(imageContainerNode);
+			imageContainerNode.append(image);
+			this.set("imageContainerNode", imageContainerNode);
+			
+			imageContainerNode.setStyles({
+				"width": width,
+				"height": height
+			});
+			containerNode.setStyles({
+				"width": "auto",
+				"height": "auto"
+			});
+			
+			image.setAttribute("unselectable", "on");
+			containerNode.setAttribute("contentEditable", "false");
+			containerNode.addClass("supra-icon-editing");
+			
+			this.cropWidth = this.imageWidth = image.get("offsetWidth");
+			this.cropHeight = this.imageHeight = image.get("offsetHeight");
+			this.cropLeft = this.cropTop = 0;
+			
+			//Set size label
+			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
+			
+			//Calculate min image width and height for zoom
+			var maxImageWidth = this.get("maxImageWidth"),
+				maxImageHeight = this.get("maxImageHeight"),
+				minImageWidth = this.get("minCropWidth"),
+				minImageHeight = this.get("minCropHeight"),
+				ratio = maxImageWidth / maxImageHeight;
+			
+			if (minImageWidth / ratio < minImageHeight) {
+				minImageWidth = Math.ceil(minImageHeight * ratio);
+			}
+			if (minImageHeight * ratio < minImageWidth) {
+				minImageHeight = Math.ceil(minImageWidth / ratio);
+			}
+			
+			this.minImageWidth = minImageWidth;
+			this.minImageHeight = minImageHeight;
+			
+			this.setUpPanel();
+		},
+		
+		/**
+		 * Remove all created elements and events
+		 * 
+		 * @param {Y.Node} image Node which background was resized
+		 * @param {Boolean} silent Image is removed, but another will be set shortly
+		 * @private
+		 */
+		tearDownIcon: function (image, silent) {
+			if (!image) return;
+			
+			if (!this.get("imageContainerNode")) {
+				// Already teared down, 'resize' event triggered this again
+				return;
+			}
+			
+			var imageContainerNode = this.get("imageContainerNode"),
+				resizeHandleNode = this.get("resizeHandleNode"),
+				sizeLabelNode = this.get("sizeLabelNode"),
+				containerNode = imageContainerNode.ancestor();
+			
+			image.removeAttribute("unselectable");
+			containerNode.append(image);
+			containerNode.removeClass("supra-icon-editing");
+			containerNode.setStyles({
+				"width": this.imageWidth,
+				"height": this.imageHeight
+			});
+			
+			resizeHandleNode.remove(true);
+			this.set("resizeHandleNode", null);
+			
+			sizeLabelNode.remove(true);
+			this.set("sizeLabelNode", null);
+			
+			imageContainerNode.remove(true);
+			this.set("imageContainerNode", null);
+			
+			if (this.zoomPanel) {
+				this.zoomPanel.hide();
+			}
+			
+			this.fire("resize", {
+				"image": image,
+				"imageWidth": this.imageWidth,
+				"imageHeight": this.imageHeight,
+				"silent": !!silent
+			});
+		},
+		
+		
 		/* --------------------------------- Attributes --------------------------------- */
 		
 		
@@ -12912,6 +13292,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				
 				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
 					this.tearDownImage(this.get("image"), silent);
+				} else if (this.get("mode") == ImageResizer.MODE_ICON) {
+					this.tearDownIcon(this.get("image"), silent);
 				} else {
 					this.tearDownBackground(this.get("image"), silent);
 				}
@@ -12927,6 +13309,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				
 				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
 					this.setUpImage(image);
+				} else if (this.get("mode") == ImageResizer.MODE_ICON) {
+					this.setUpIcon(image);
 				} else {
 					this.setUpBackground(image);
 				}
@@ -14115,6 +14499,916 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		processData: function (id, data) {
 			data.image = data.image.id;
+			return data;
+		}
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {"requires": ["supra.htmleditor-base", "supra.input-proto"]});
+YUI().add("supra.htmleditor-plugin-icon", function (Y) {
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+	};
+	
+	var Manager = Supra.Manager;
+	
+	Supra.HTMLEditor.addPlugin("icon", defaultConfiguration, {
+		
+		settings_form: null,
+		selected_icon: null,
+		selected_icon_id: null,
+		original_data: null,
+		silent: false,
+		
+		/**
+		 * DropTarget object for editor srcNode
+		 * @type {Object}
+		 * @private
+		 */
+		drop: null,
+		
+		/**
+		 * Manage image
+		 * @type {Object}
+		 * @private
+		 */
+		resizer: null,
+		
+		/**
+		 * Click event
+		 * @type {Object}
+		 * @private
+		 */
+		clickEvent: null,
+		
+		
+		/**
+		 * Generate settings form
+		 */
+		createSettingsForm: function () {
+			//Get form placeholder
+			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
+			if (!content) return;
+			
+			//Properties form
+			var form_config = {
+				"inputs": [
+					{"id": "align", "style": "minimal", "type": "SelectList", "label": Supra.Intl.get(["htmleditor", "image_alignment"]), "value": "right", "values": [
+						{"id": "left", "title": Supra.Intl.get(["htmleditor", "alignment_left"]), "icon": "/cms/lib/supra/img/htmleditor/align-left-button.png"},
+						{"id": "middle", "title": Supra.Intl.get(["htmleditor", "alignment_center"]), "icon": "/cms/lib/supra/img/htmleditor/align-center-button.png"},
+						{"id": "right", "title": Supra.Intl.get(["htmleditor", "alignment_right"]), "icon": "/cms/lib/supra/img/htmleditor/align-right-button.png"}
+					]},
+					{"id": "color", "type": "Color", "label": Supra.Intl.get(["htmleditor", "icon_color"]), "value": "#000000"}
+				],
+				"style": "vertical"
+			};
+			
+			var form = new Supra.Form(form_config);
+				form.render(content);
+				form.hide();
+			
+			//On title, description, etc. change update image data
+			for(var i=0,ii=form_config.inputs.length; i<ii; i++) {
+				form.getInput(form_config.inputs[i].id).on("change", this.onPropertyChange, this);
+			}
+			
+			//Add "Delete", "Edit" and "Replace buttons"
+			//Replace button
+			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "icon_replace"]), "style": "small-gray"});
+				btn.render(form.get("contentBox"));
+				btn.addClass("button-section");
+				btn.on("click", this.replaceSelectedIcon, this);
+				
+				//Move into correct place
+				form.get("contentBox").prepend(btn.get("boundingBox"));
+			
+			//Delete button
+			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "icon_delete"]), "style": "small-red"});
+				btn.render(form.get("contentBox"));
+				btn.addClass("su-button-delete");
+				btn.on("click", this.removeSelectedIcon, this);
+			
+			this.settings_form = form;
+			return form;
+		},
+		
+		/**
+		 * Returns true if form is visible, otherwise false
+		 */
+		hideSettingsForm: function () {
+			if (this.settings_form && this.settings_form.get("visible")) {
+				Manager.PageContentSettings.hide();
+			}
+		},
+		
+		/**
+		 * Apply settings changes
+		 */
+		settingsFormApply: function () {
+			if (this.selected_icon) {
+				this.stopEditIcon();
+				
+				var ancestor = this.getIconWrapperNode(this.selected_icon);
+				ancestor.removeClass("supra-icon-selected");
+				
+				this.selected_icon = null;
+				this.selected_icon_id = null;
+				this.original_data = null;
+				
+				this.hideSettingsForm();
+				this.hideIconSidebar();
+				
+				//Property changed, update editor "changed" state
+				this.htmleditor._changed();
+			}
+		},
+		
+		/**
+		 * Replace selected image with another one from media library
+		 * 
+		 * @private
+		 */
+		replaceSelectedIcon: function () {
+			//Open Media library on "Replace"
+			if (this.selected_icon) {
+				var icon = this.selected_icon,
+					icon_id = this.selected_icon_id,
+					data = this.original_data;
+				
+				//Open settings form and open IconSidebar
+				this.stopEditIcon();
+				this.hideSettingsForm();
+				
+				Manager.getAction("IconSidebar").execute({
+					onselect: Y.bind(function (data) {
+						// Restore selection
+						this.selected_icon = icon;
+						this.selected_icon_id = icon_id;
+						this.original_data = data;
+						
+						this.insertIcon(data);
+					}, this)
+				});
+			}
+		},
+		
+		/**
+		 * Remove selected i
+		 * 
+		 * @private
+		 */
+		removeSelectedIcon: function () {
+			if (this.selected_icon_id) {
+				this.removeIcon(this.selected_icon_id);
+			}
+		},
+		
+		/**
+		 * Remove icon
+		 * 
+		 * @private
+		 */
+		removeIcon: function (id) {
+			var current = this.selected_icon && this.selected_icon_id == id;
+			if (current) {
+				this.stopEditIcon();
+			}
+			
+			var image = current ? this.selected_icon : this.htmleditor.one('#' + id),
+				container = image ? image.ancestor() : null;
+			
+			if (container) {
+				if (container.test(".supra-icon")) {
+					container.remove();
+				} else {
+					image.remove();
+				}
+			}
+			
+			if (current) {
+				this.selected_icon = null;
+				this.selected_icon_id = null;
+				this.original_data = null;
+				this.htmleditor.refresh(true);
+				this.hideSettingsForm();
+			}
+		},
+		
+		/**
+		 * Handle property input value change
+		 * Save data and update UI
+		 * 
+		 * @param {Object} event Event
+		 */
+		onPropertyChange: function (event) {
+			if (this.silent || !this.selected_icon) return;
+			
+			var target = event.target,
+				id = target.get("id"),
+				icon_id = this.selected_icon_id,
+				data = this.htmleditor.getData(icon_id),
+				value = (event.value !== undefined ? event.value : target.getValue());
+			
+			//Update image data
+			if (icon_id) {
+				data[id] = value;
+				this.htmleditor.setData(icon_id, data);
+			}
+			
+			this.setIconProperty(id, value);
+		},
+		
+		/**
+		 * Update image tag property
+		 * 
+		 * @param {String} id Property ID
+		 * @param {String} value Property value
+		 */
+		setIconProperty: function (id, value, node) {
+			if (!node) node = this.selected_icon;
+			var ancestor = this.getIconWrapperNode(node);
+			
+			if (id == "align") {
+				ancestor.removeClass("align-left").removeClass("align-right").removeClass("align-middle");
+				node.removeClass("align-left").removeClass("align-right").removeClass("align-middle");
+				
+				if (value) {
+					ancestor.addClass("align-" + value);
+					node.addClass("align-" + value);
+				}
+			} else if (id == "width") {
+				
+				value = parseInt(value) || 0;
+				var data = this.htmleditor.getData(this.selected_icon_id),
+					ratio = data.width / data.height,
+					height = value ? Math.round(value / ratio) : data.height,
+					width = value || data.width;
+				
+				data.width = width;
+				data.height = height;
+				
+				node.setAttribute('width', width + 'px');
+				node.setAttribute('height', height + 'px');
+				
+				node.setStyles({
+					'width': width + 'px',
+					'height': height + 'px'
+				});
+				
+			} else if (id == "height") {
+				
+				value = parseInt(value) || 0;
+				var data = this.htmleditor.getData(this.selected_icon_id),
+					ratio = data.width / data.height,
+					width = value ? Math.round(value * ratio) : data.width,
+					height = value || data.height;
+				
+				data.width = width;
+				data.height = height;
+				
+				node.setAttribute('width', width + 'px');
+				node.setAttribute('height', height + 'px');
+				
+				node.setStyles({
+					'width': width + 'px',
+					'height': height + 'px'
+				});
+			} else if (id == "color") {
+				
+				var data = this.htmleditor.getData(this.selected_icon_id);
+				data.color = value;
+				node.setStyle("fill", value);
+				
+			} else if (id == "icon") {
+				value.render(node);
+			}
+		},
+		
+		/**
+		 * Returns icon wrapper node
+		 * If node doesn't exist then creates it
+		 * 
+		 * @param {HTMLElement} image Image element
+		 * @return Image wrapper node
+		 */
+		getIconWrapperNode: function (icon) {
+			var ancestor = icon.ancestor();
+			
+			if (ancestor) {
+				if (!ancestor.test("span.supra-icon")) {
+					ancestor = ancestor.ancestor();
+					if (ancestor && !ancestor.test("span.supra-icon")) {
+						ancestor = null;
+					}
+				}
+			}
+			
+			if (!ancestor) {
+				//Wrap image in <span class="supra-icon">
+				ancestor = Y.Node(this.htmleditor.get("doc").createElement("SPAN"));
+				ancestor.addClass("supra-icon");
+				ancestor.setAttribute("contenteditable", false);
+				ancestor.setAttribute("unselectable", "on");
+				
+				var data = this.getIconDataFromNode(icon);
+				if (!data) {
+					// This icon is not associated with any data,
+					// there's nothing we can do about it
+					return;
+				}
+				
+				if (data.align) {
+					ancestor.addClass("align-" + data.align);
+				}
+				
+				var width  = data.width || parseInt(Y.DOM.getStyle(icon, 'width') || 0, 10),
+					height = data.height || parseInt(Y.DOM.getStyle(icon, 'height') || 0, 10);
+				
+				ancestor.setStyles({
+					"width": width + "px",
+					"height": height + "px"
+				});
+				
+				icon.insert(ancestor, "before");
+				ancestor.append(icon);
+			}
+			
+			return ancestor;
+		},
+		
+		/**
+		 * Returns image data from node
+		 * 
+		 * @param {HTMLElement} node Node
+		 * @return Image data
+		 * @type {Object}
+		 */
+		getIconDataFromNode: function (node) {
+			var data = this.htmleditor.getData(node);
+			return data;
+		},
+		
+		/**
+		 * Show icon settings bar
+		 */
+		showIconSettings: function (target) {
+			if (target.test(".gallery")) return false;
+			
+			var data = this.getIconDataFromNode(target),
+				ancestor = this.getIconWrapperNode(target); // creates wrapper if it doesn't exist
+			
+			if (!data) {
+				Y.log("Missing image data for image " + target.getAttribute("src"), "debug");
+				return false;
+			}
+			
+			//Make sure PageContentSettings is rendered
+			var form = this.settings_form || this.createSettingsForm(),
+				action = Manager.getAction("PageContentSettings");
+			
+			if (!form) {
+				if (action.get("loaded")) {
+					if (!action.get("created")) {
+						action.renderAction();
+						this.showIconSettings(target);
+					}
+				} else {
+					action.once("loaded", function () {
+						this.showIconSettings(target);
+					}, this);
+					action.load();
+				}
+				return false;
+			}
+			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
+			action.execute(form, {
+				"hideCallback": Y.bind(this.settingsFormApply, this),
+				"title": Supra.Intl.get(["htmleditor", "icon_properties"]),
+				"scrollable": true,
+				"toolbarActionName": "htmleditor-plugin"
+			});
+			
+			//
+			this.selected_icon = target;
+			this.selected_icon_id = this.selected_icon.getAttribute("id");
+			
+			var ancestor = this.getIconWrapperNode(this.selected_icon);
+				ancestor.addClass("supra-icon-selected");
+			
+			this.silent = true;			
+			this.settings_form.resetValues()
+							  .setValues({"align": data.align, "color": data.color}, "id");
+			this.silent = false;
+			
+			//Clone data because data properties will change and orginal properties should stay intact
+			this.original_data = data;
+			
+			//Start editing image immediatelly
+			this.editIcon();
+			
+			return true;
+		},
+		
+		/**
+		 * Show/hide media library bar
+		 */
+		toggleIconSidebar: function () {
+			var button = this.htmleditor.get("toolbar").getButton("inserticon");
+			if (button.get("down")) {
+				Manager.executeAction("IconSidebar", {
+					"onselect": Y.bind(this.insertIcon, this),
+					"hideToolbar": true
+				});
+			} else {
+				this.hideIconSidebar();
+			}
+		},
+		
+		/**
+		 * Hide media library bar
+		 */
+		hideIconSidebar: function () {
+			Manager.getAction("IconSidebar").hide();
+		},
+		
+		
+		/* ------------------------------- Manage image --------------------------- */
+		
+		
+		/**
+		 * Open image management
+		 * 
+		 * @private
+		 */
+		editIcon: function () {
+			var node = this.selected_icon,
+				ancestor = null,
+				data  = this.original_data,
+				size = null,
+				resizer = this.resizer,
+				max_size = 0,
+				min_size = 16,
+				ratio = 0;
+			
+			if (node) {
+				if (!resizer) {
+					this.resizer = resizer = new Supra.ImageResizer({
+						"autoClose": false,
+						"mode": Supra.ImageResizer.MODE_ICON,
+						"allowZoomResize": true,
+						"minCropWidth": min_size,
+						"minCropHeight": min_size
+					});
+					resizer.on("resize", this.onEditIconResize, this);
+				}
+				
+				//Find content width
+				ancestor = node.ancestor();
+				if (ancestor.test(".supra-icon")) ancestor = ancestor.ancestor();
+				max_size = Math.max(min_size, ancestor.get("offsetWidth") || 220);
+				ratio = data.width / data.height;
+				
+				resizer.set("maxCropWidth", max_size);
+				resizer.set("maxCropHeight", Math.round(max_size / ratio));
+				resizer.set("maxImageWidth", max_size);
+				resizer.set("maxImageHeight", Math.round(max_size / ratio));
+				resizer.set("minImageWidth", min_size);
+				resizer.set("minImageHeight", Math.round(min_size / ratio));
+				resizer.set("image", node);
+			}
+		},
+		
+		/**
+		 * Handle image resize
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		onEditIconResize: function (event) {
+			//Preserve image data
+			var node = event.image,
+				id = node.getAttribute("id"),
+				data  = this.getIconDataFromNode(node);
+			
+			if (!data) {
+				//Can't find image data, where this image appeared from?
+				return;
+			}
+			
+			data.width = event.imageWidth;
+			data.height = event.imageHeight;
+			
+			this.htmleditor.setData(id, data);
+			
+			//Property changed, update editor 'changed' state
+			this.htmleditor._changed();
+		},
+		
+		/**
+		 * Stop image management
+		 * 
+		 * @private
+		 */
+		stopEditIcon: function () {
+			if (this.resizer && this.resizer.get("image")) {
+				this.resizer.set("image", null);
+			}
+		},
+		
+		
+		/* ------------------------------- Image insert/drop -------------------------- */
+		
+		
+		/**
+		 * Insert image into HTMLEditor content
+		 * 
+		 * @param {Object} event
+		 */
+		insertIcon: function (event) {
+			var htmleditor = this.htmleditor;
+			
+			var locale = Supra.data.get("locale");
+			
+			if (!htmleditor.get("disabled") && htmleditor.isSelectionEditable(htmleditor.getSelection())) {
+				var icon = event.icon;
+				
+				if (this.selected_icon) {
+					//If icon in content is already selected, then replace
+					var iconId = this.selected_icon_id,
+						iconData = this.htmleditor.getData(iconId),
+						data = icon;
+					
+					icon.width = iconData.width;
+					icon.height = iconData.height;
+					icon.align = iconData.align;
+					icon.color = iconData.color;
+					icon.type = this.NAME;
+					
+					//Preserve image data
+					this.htmleditor.setData(iconId, data);
+					
+					//Update icon attributes
+					this.setIconProperty("icon", data);
+					this.setIconProperty("width", data.width);
+					this.setIconProperty("height", data.height);
+					
+					this.editIcon();
+				} else {
+					//Calculate icon size so that it fills container
+					var container_width = htmleditor.get("srcNode").get("offsetWidth");
+					
+					if (container_width < icon.width) {
+						icon.height = Math.round(container_width / icon.width * icon.height);
+						icon.width  = container_width;
+					}
+					
+					//Icon data
+					icon.type = this.NAME;
+					
+					//Generate unique ID for image element, to which data will be attached
+					var uid = htmleditor.generateDataUID(),
+						html = icon.toHTML({'id': uid}, true);
+					
+					htmleditor.replaceSelection('<span class="supra-icon' + (icon.align ? ' align-' + icon.align : '') + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + html + '</span>');
+					htmleditor.setData(uid, icon);
+					
+					if (!icon.isDataComplete()) {
+						// Load
+						icon.load()
+							.done(function () {
+								var node = htmleditor.one('#' + uid);
+								icon.render(node);
+							}, this)
+							.fail(function () {
+								// Couldn't load icon SVG data, remove
+								this.removeIcon(uid);
+							}, this);
+					}
+				}
+				
+				this.hideIconSidebar();
+			}
+		},
+		
+		/**
+		 * Update image after it was dropped using HTML5 drag & drop
+		 * 
+		 * @param {Object} event
+		 */
+		dropImage: function (target, image_id) {
+			//@TODO
+			
+			//If dropped on un-editable element
+			if (!this.htmleditor.isEditable(target)) return true;
+			if (!Manager.MediaSidebar) return true;
+			
+			var htmleditor = this.htmleditor,
+				dataObject = Manager.MediaSidebar.dataObject(),
+				image_data = dataObject.cache.one(image_id);
+			
+			if (image_data.type != Supra.MediaLibraryList.TYPE_IMAGE) {
+				//Only handling images; folders should be handled by gallery plugin 
+				return false;
+			}
+			
+			if (dataObject.has(image_id) != 2) {
+				// Load full data for image
+				dataObject.one(image_id, true).done(function () {
+					this.dropImage(target, image_id);
+				}, this);
+				return true;
+			}
+			
+			var uid = htmleditor.generateDataUID(),
+				size_data = this.getImageDataBySize(image_data, "original"),
+				src = this.getImageURLBySize(image_data),
+				img = null;
+			
+			var locale = Supra.data.get("locale");
+			
+			//Calculate image size so that it fills container
+			var container_width = htmleditor.get("srcNode").get("offsetWidth"),
+				size_width = size_data.width,
+				size_height = size_data.height;
+			
+			if (container_width < size_width) {
+				size_height = Math.round(container_width / size_width * size_height);
+				size_width = container_width;
+			}
+			
+			//Set additional image properties
+			var data = Supra.mix({}, {
+				"type": this.NAME,
+				"title": (image_data.title && image_data.title[locale]) ? image_data.title[locale] : "",
+				"description": (image_data.description && image_data.description[locale]) ? image_data.description[locale] : "",
+				"image": image_data,	//Original image data
+				"size_width": size_width,
+				"size_height": size_height,
+				"crop_left": 0,
+				"crop_top": 0,
+				"crop_width": size_width,
+				"crop_height": size_height
+			});
+			
+			img = Y.Node.create('<span class="supra-icon align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
+			
+			//If droping on inline element then insert image before it, otherwise append to element
+			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
+				target.insert(img, "before");
+			} else {
+				target.prepend(img);
+			}
+			
+			//Save into HTML editor data about image
+			htmleditor.setData(uid, data);
+			
+			return true;
+		},
+		
+		/**
+		 * On node change check if selected node is image and show settings
+		 * 
+		 * @private
+		 */
+		onNodeChange: function () {
+			var element = this.htmleditor.getSelectedElement("svg");
+			if (element) {
+				if (!this.showIconSettings(Y.Node(element))) {
+					this.settingsFormApply();
+				}
+			}
+		},
+		
+		/**
+		 * If clicking outside image then hide settings form
+		 * 
+		 * @private
+		 */
+		documentClick: function (e) {
+			if (e.target && !e.target.closest("span.supra-icon")) {
+				this.settingsFormApply();
+			}
+		},
+			
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			var iconsidebar = Manager.getAction("IconSidebar"),
+				toolbar = htmleditor.get("toolbar"),
+				button = toolbar ? toolbar.getButton("inserticon") : null;
+			
+			// When HTML changes make sure images has wrapper elements
+			htmleditor.on("afterSetHTML", this.afterSetHTML, this);
+			
+			// Add command
+			htmleditor.addCommand("inserticon", Y.bind(this.toggleIconSidebar, this));
+			
+			// When clicking outside icon hide icon settings
+			this.clickEvent = Y.Node(htmleditor.get("doc")).on("mousedown", this.documentClick, this)
+			
+			// When clicking on icon show icon settings
+			htmleditor.on("nodeChange", this.onNodeChange, this);
+			
+			if (button) {
+				//When icon library is shown/hidden make button selected/unselected
+				iconsidebar.after("visibleChange", function (evt) {
+					button.set("down", evt.newVal);
+				});
+				
+				//When un-editable node is selected disable iconsidebar toolbar button
+				htmleditor.on("editingAllowedChange", function (event) {
+					button.set("disabled", !event.allowed);
+				});
+			}
+			
+			if (!Manager.getAction('PageToolbar').hasActionButtons("htmleditor-plugin")) {
+				Manager.getAction('PageToolbar').addActionButtons("htmleditor-plugin", []);
+				Manager.getAction('PageButtons').addActionButtons("htmleditor-plugin", []);
+			}
+			
+			//When media library is hidden show settings form if image is selected
+			iconsidebar.on("hide", function () {
+				if (this.selected_icon) {
+					Manager.executeAction("PageContentSettings", this.settings_form, {
+						"doneCallback": Y.bind(this.settingsFormApply, this),
+						
+						"title": Supra.Intl.get(["htmleditor", "icon_properties"]),
+						"scrollable": true,
+						"toolbarActionName": "htmleditor-plugin"
+					});
+				}
+			}, this);
+			
+			//Hide media library when editor is closed
+			htmleditor.on("disable", this.hideIconSidebar, this);
+			htmleditor.on("disable", this.settingsFormApply, this);
+			htmleditor.on("disable", this.stopEditIcon, this);
+			
+			//this.bindUIDnD(htmleditor);
+		},
+		
+		bindUIDnD: function (htmleditor) {
+			//@TODO
+			var srcNode = htmleditor.get("srcNode"),
+				doc = htmleditor.get("doc");
+			
+			//On drop insert image
+			srcNode.on("dataDrop", this.onDrop, this);
+			
+			//Enable drag & drop
+			if (Manager.PageContent) {
+				this.drop = new Manager.PageContent.PluginDropTarget({
+					"srcNode": srcNode,
+					"doc": doc
+				});
+			}
+		},
+		
+		/**
+		 * Handle drop
+		 * 
+		 * @param {Object} e Event
+		 */
+		onDrop: function (e) {
+			//@TODO			
+			var image_id = e.drag_id;
+			if (!image_id) return;
+			
+			//Only if dropped from gallery
+			if (image_id.match(/^\d[a-z0-9]+$/i) && e.drop) {
+				if (this.dropImage(e.drop, image_id)) {
+					//If image drop was successful then prevent other plugins
+					//from doing anything
+					if (e.halt) e.halt();
+					return false;
+				}
+			}
+		},
+		
+		/**
+		 * Clean up node
+		 * Remove all styles and data about node
+		 */
+		cleanUp: function (target, data) {
+			if (target.test("svg") && data && data.type == this.NAME) {
+				this.htmleditor.removeData(target);
+				this.setIconProperty("align", "", target);
+			}
+		},
+		
+		/**
+		 * Unclean HTML, add wrapper node around it
+		 */
+		afterSetHTML: function (event) {
+			var htmleditor = this.htmleditor,
+				node = htmleditor.get("srcNode"),
+				icons = node.all("svg"),
+				i = 0,
+				ii = icons.size(),
+				data = null;
+			
+			for (; i<ii; i++) {
+				data = htmleditor.getData(icons.item(i));
+				if (data && data.type == "icon") {
+					this.getIconWrapperNode(icons.item(i));
+				}
+			}
+		},
+		
+		/**
+		 * Clean up after plugin
+		 * Called when editor instance is destroyed
+		 */
+		destroy: function () {
+			if (this.clickEvent) this.clickEvent.detach();
+			this.clickEvent = null;
+		},
+		
+		/**
+		 * Process HTML and replace all nodes with supra tags {supra.icon id="..."}
+		 * Called before HTML is saved
+		 * 
+		 * @param {String} html
+		 * @return Processed HTML
+		 * @type {String}
+		 */
+		tagHTML: function (html) {
+			var htmleditor = this.htmleditor,
+				NAME = this.NAME;
+			
+			html = html.replace(/<svg [^>]*id="([^"]+)"[\s\S]*?<\/svg>/ig, function (html, id) {
+				if (!id) return html;
+				var data = htmleditor.getData(id);
+				
+				if (data && data.type == NAME) {
+					return "{supra." + NAME + " id=\"" + id + "\"}";
+				} else {
+					return html;
+				}
+			});
+			return html;
+		},
+		
+		/**
+		 * Process HTML and replace all supra tags with nodes
+		 * Called before HTML is set
+		 * 
+		 * @param {String} html HTML
+		 * @param {Object} data Data
+		 * @return Processed HTML
+		 * @type {String}
+		 */
+		untagHTML: function (html, data) {
+			var NAME = this.NAME,
+				self = this;
+			
+			html = html.replace(/{supra\.icon id="([^"]+)"}/ig, function (tag, id) {
+				if (!id || !data[id] || data[id].type != NAME) return "";
+				
+				var item = data[id],
+					icon = new Y.DataType.Icon(item);
+				
+				if (icon.isDataComplete()) {
+					var style = 'width: ' + icon.width + 'px; height: ' + icon.height + '; fill: ' + icon.color + ';';					
+					var classname = (icon.align ? "align-" + icon.align : "");
+					var svg = icon.svg.replace('<svg ', '<svg style="' + style + '" id="' + id + '" ').replace(/width="[^"]"/, 'width="' + icon.width + 'px"').replace(/height="[^"]"/, 'height="' + icon.height + 'px"');
+					var html = '<span class="supra-icon ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + svg + '</span>';
+					
+					return html;
+				}
+				
+				return "";
+			});
+			
+			return html;
+		},
+		
+		/**
+		 * Process data and remove all unneeded before it's sent to server
+		 * Called before save
+		 * 
+		 * @param {String} id Data ID
+		 * @param {Object} data Data
+		 * @return Processed data
+		 * @type {Object}
+		 */
+		processData: function (id, data) {
 			return data;
 		}
 	});
@@ -31635,7 +32929,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("minImageHeight", 32);
-			imageResizer.set("minImageHeight", 32);
+			imageResizer.set("minImageWidth", 32);
 			imageResizer.set("image", node);
 			
 			this.focus();
@@ -31686,7 +32980,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			//Start editing image
 			if (this.get("editImageAutomatically")) {
-				//Small delay to allow media library to close before doing anything
+				//Small delay to allow icon sidebar to close before doing anything (eg. opening settings sidebar)
 				Y.later(100, this, function () {
 					if (this._hasImage()) {
 						this.startEditing();
@@ -31890,7 +33184,737 @@ YUI.add('supra.datatype-color', function(Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-block-background"]});YUI.add('supra.input-video', function (Y) {
+}, YUI.version, {requires:["supra.input-block-background"]});YUI.add("supra.input-icon-inline", function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	// Shortcuts
+	var Manager = Supra.Manager;
+	
+	/*
+	 * Block background input, should be used only in block properties
+	 */
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
+	Input.NAME = "input-icon-inline";
+	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
+	Input.ATTRS = {
+		// Node to which should be applied background
+		"targetNode": {
+			value: null
+		},
+		// Tag name used to identify styles for block
+		"selectorTagName": {
+			value: "BLOCK"
+		},
+		
+		"editImageAutomatically": {
+			value: true,
+			setter: "_setEditImageAutomatically"
+		},
+		"allowRemoveImage": {
+			value: true,
+			setter: "_setAllowRemoveImage"
+		},
+		/**
+		 * Render widget into separate slide and add
+		 * button to the place where this widget should be
+		 */
+		"separateSlide": {
+			value: true
+		},
+		
+		// Resize image crop to smaller size on zoom if needed
+		"allowZoomResize": {
+			value: true
+		},
+		// Stop editing when clicked outside image
+		"autoClose": {
+			value: true
+		},
+		// Max crop width is fixed and container can't increase in size
+		"fixedMaxCropWidth": {
+			value: true
+		}
+	};
+	
+	Y.extend(Input, Supra.Input.Proto, {
+		INPUT_TEMPLATE: '<input type="hidden" value="" />',
+		
+		/**
+		 * List of supporting widgets:
+		 *   selectList
+		 *   buttonCustom
+		 *   buttonSet
+		 *   buttonEdit
+		 *   buttonRemove
+		 *   imageResizer
+		 * @type {Object}
+		 * @private
+		 */
+		widgets: null,
+		
+		/**
+		 * Selected icon info
+		 * @type {Object}
+		 * @private
+		 */
+		icon: null,
+		
+		/**
+		 * Slideshow slide containing "Set", "Manage", "Remove" buttons
+		 * @type {Object}
+		 * @private
+		 */
+		slide: null,
+		
+		
+		/**
+		 * Render needed widgets
+		 */
+		renderUI: function () {
+			Input.superclass.renderUI.apply(this, arguments);
+			
+			this.widgets = {};
+			this.icon = null;
+			
+			var inputNode = this.get("inputNode"),
+				renderTarget = inputNode.get("parentNode"),
+				value = this.get("value");
+			
+			// Button "Custom image"
+			if (this.get('separateSlide')) {
+				var buttonCustom = new Supra.Button({
+					"label": Supra.Intl.get(["form", "block", "custom_icon"]),
+					"style": "small-gray"
+				});
+				buttonCustom.addClass("button-section");
+				buttonCustom.on("click", this.openSlide, this);
+				buttonCustom.render(renderTarget);
+				inputNode.insert(buttonCustom.get("boundingBox"), "before");
+				
+				this.widgets.buttonCustom = buttonCustom;
+			} else {
+				this.openSlide();
+			}
+		},
+		
+		/**
+		 * Attach event listeners
+		 */
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+		},
+		
+		/**
+		 * Update inline editable style
+		 */
+		syncUI: function () {
+			this._applyStyle(this.get('value'));
+		},
+		
+		/**
+		 * Returns parent widget by class name
+		 * 
+		 * @param {String} classname Parent widgets class name
+		 * @return Widget instance or null if not found
+		 * @private
+		 */
+		getParentWidget: function (classname) {
+			var parent = this.get("parent");
+			while (parent) {
+				if (parent.isInstanceOf(classname)) return parent;
+				parent = parent.get("parent");
+			}
+			return null;
+		},
+		
+		/**
+		 * Returns properties widget
+		 */
+		getPropertiesWidget: function () {
+			var form = this.getParentWidget("form"),
+				parent = form ? form.get("parent") : null;
+			
+			if (parent && parent.isInstanceOf('page-content-properties')) {
+				return parent
+			}
+			
+			return null;
+		},
+		
+		
+		/* ------------------------------ Sidebar -------------------------------- */
+		
+		
+		/**
+		 * Show settings form
+		 */
+		showSettingsSidebar: function () {
+			var form = this.getParentWidget("form"), 
+				properties = this.getPropertiesWidget(),
+				group = null;
+			
+			if (form && properties) {
+				//We can get input group from input definition
+				group = (form.getConfig(this.get("id")) || {}).group || "";
+				
+				properties.showPropertiesForm(group);
+			} else {
+				//Not part of block properties, search for Action
+				var parent = this.getParentWidget("ActionBase");
+				if (parent && parent.plugins.getPlugin("PluginSidebar")) {
+					//Has sidebar plugin, so this action is in sidebar
+					if (parent.get("frozen")) {
+						//In frozen state show/execute are not called, so we have to
+						//force it to show content
+						parent.showFrozen();
+						parent.set("frozen", false);
+					} else {
+						parent.execute();
+					}
+				}
+			}
+			
+			if (this.icon) {
+				this.startEditing();
+			}
+		},
+		
+		
+		/* ----------------------------- Image edit ------------------------------- */
+		
+		
+		/**
+		 * Start image editing
+		 */
+		startEditing: function () {
+			if (!this.icon || !this.icon.isDataComplete()) {
+				// No data for image to edit
+				return;
+			}
+			
+			var imageResizer = this.widgets.imageResizer,
+				node = this.get("targetNode"),
+				
+				ratio = this.icon.width / this.icon.height,
+				min_width = 16,
+				min_height = Math.round(min_width / ratio),
+				max_width = 940,
+				max_height = Math.round(max_width / ratio);
+			
+			if (!node) {
+				return;
+			}
+			
+			if (!imageResizer) {
+				imageResizer = this.widgets.imageResizer = new Supra.ImageResizer({
+					"mode": Supra.ImageResizer.MODE_ICON,
+					"allowZoomResize": this.get("allowZoomResize"),
+					"autoClose": this.get("autoClose"),
+					"minCropWidth": min_width,
+					"minCropHeight": min_height
+				});
+				imageResizer.on("resize", function (event) {
+					var value = this.get("value");
+					
+					//Update size
+					value.width = event.imageWidth;
+					value.height = event.imageHeight;
+					
+					this.set("value", value);
+					
+					if (!event.silent) {
+						this.blur();
+					}
+				}, this);
+			}
+			
+			if (this.get('fixedMaxCropWidth')) {
+				max_width = Math.min(max_width, this._getContainerWidth());
+				max_height = Math.round(max_width / ratio);
+			}
+			
+			imageResizer.set("maxImageHeight", max_height);
+			imageResizer.set("maxImageWidth", max_width);
+			imageResizer.set("minImageHeight", min_height);
+			imageResizer.set("minImageWidth", min_width);
+			imageResizer.set("image", node);
+			
+			this.focus();
+		},
+		
+		/**
+		 * Stop editing image
+		 */
+		stopEditing: function () {
+			var imageResizer = this.widgets.imageResizer;
+			if (imageResizer) {
+				imageResizer.set("image", null);
+				this.blur();
+			}
+		},
+		
+		/**
+		 * Remove selected image
+		 */
+		removeImage: function () {
+			this.stopEditing();
+			
+			this.set("value", {
+				"classname": "",
+				"image": null
+			});
+			
+			this.closeSlide();
+		},
+		
+		
+		/* ---------------------------- Media sidebar ------------------------------ */
+		
+		
+		/**
+		 * Set image
+		 */
+		openIconSidebar: function () {
+			// Close settings form
+			var properties = this.getPropertiesWidget();
+			if (properties) {
+				properties.hidePropertiesForm({
+					"keepToolbarButtons": true // we keep them because settings sidebar is hidden temporary
+				});
+			} else {
+				// Not part of block properties, search for Action
+				var parent = this.getParentWidget("ActionBase");
+				if (parent && parent.plugins.getPlugin("PluginSidebar")) {
+					// Freeze to prevent from closing, so that we can restore the state
+					// after media sidebar is closed
+					parent.set("frozen", true);
+				}
+			}
+			
+			// Stop editing image
+			this.stopEditing();
+			
+			//Open MediaSidebar
+			var iconsidebar = Supra.Manager.getAction("IconSidebar"),
+				form = this.getParentWidget("form");
+			
+			iconsidebar.execute({
+				"onselect": Y.bind(this.insertIcon, this),
+				"onclose": Y.bind(this.showSettingsSidebar, this),
+				"hideToolbar": true,
+				"item": [this.icon ? this.icon.id || 0 : 0],
+				"dndEnabled": false
+			});
+		},
+		
+		/**
+		 * On image insert change input value
+		 * 
+		 * @private
+		 */
+		insertIcon: function (data) {
+			var container_width = this._getContainerWidth(),
+				width  = data.width,
+				height = data.height,
+				ratio = width / height,
+				
+				min_width = 16,
+				min_height = Math.round(min_width / ratio),
+				max_width = 940,
+				max_height = Math.round(max_width / ratio);
+				
+			if (!this.get('fixedMaxCropWidth') && container_width < min_width) {
+				container_width = min_width;
+			}
+			
+			if (container_width && width > container_width) {
+				ratio = width / height;
+				width = container_width;
+				height = Math.round(width / ratio);
+			}
+			
+			data.width = width;
+			data.height = height;
+			this.set("value", data);
+			
+			//Start editing image
+			if (this.get("editImageAutomatically")) {
+				//Small delay to allow icon sidebar to close before doing anything (eg. opening settings sidebar)
+				Y.later(100, this, function () {
+					if (this._hasIcon()) {
+						this.startEditing();
+					}
+				});
+			}
+		},
+		
+		
+		/* ------------------------------ Slideshow -------------------------------- */
+		
+		
+		/**
+		 * Open slideshow slide
+		 */
+		openSlide: function () {
+			var slideshow = this.getSlideshow(),
+				slide = this.getSlideshowSlide();
+			
+			if (!this.get('separateSlide')) {
+				
+				if (this.get("editImageAutomatically") && this._hasIcon()) {
+					this.startEditing();
+				}
+				
+			} else if (slideshow && slide) {
+				
+				slideshow.set("slide", this.get("id") + "_slide");
+				
+				if (this.get("editImageAutomatically") && this._hasIcon()) {
+					this.startEditing();
+				}
+				
+			}
+		},
+		
+		/**
+		 * Close slideshow slide
+		 */
+		closeSlide: function () {
+			var slideshow = this.getSlideshow();
+			if (slideshow && slideshow.get("slide") == this.get("id") + "_slide") {
+				slideshow.scrollBack();
+			}
+		},
+		
+		/**
+		 * When slideshow slide changes back then stop editing
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		onSlideshowSlideChange: function (event) {
+			var slide_id = this.get("id") + "_slide";
+			
+			if (event.newVal != event.prevVal) {
+				if (event.prevVal == slide_id) {
+					this.stopEditing();
+				}
+			}
+		},
+		
+		/**
+		 * Returns slideshow slide for image controls
+		 * 
+		 * @return Slideshow slide
+		 * @type {Object}
+		 * @private
+		 */
+		getSlideshowSlide: function () {
+			if (this.slide) return this.slide;
+			
+			var slideshow = this.getSlideshow(),
+				has_icon = this._hasIcon(),
+				slide = null,
+				slide_id = this.get("id") + "_slide",
+				button = null,
+				separate = this.get("separateSlide"),
+				
+				container = null,
+				boundingBox = null;
+			
+			if (slideshow || !separate) {
+				if (separate) {
+					slide = this.slide = slideshow.addSlide(slide_id);
+					container = slide.one(".su-slide-content");
+					slideshow.on("slideChange", this.onSlideshowSlideChange, this);
+				} else {
+					boundingBox = this.get('boundingBox');
+					container = boundingBox.ancestor();
+				}
+				
+				//Set button
+				button = this.widgets.buttonSet = (new Supra.Button({
+					"label": Supra.Intl.get(["form", "block", "set_icon"]),
+					"style": "small"
+				}));
+				button.on("click", this.openIconSidebar, this);
+				button.addClass("su-button-fill");
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
+				
+				//Edit button
+				button = this.widgets.buttonEdit = (new Supra.Button({
+					"label": Supra.Intl.get(["form", "block", "edit_icon"]),
+					"style": "small"
+				}));
+				button.on("click", this.startEditing, this);
+				button.addClass("su-button-fill");
+				button.set("disabled", !has_icon);
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
+				
+				if (this.get("editImageAutomatically")) {
+					button.hide();
+				}
+				
+				//Remove button
+				button = this.widgets.buttonRemove = (new Supra.Button({
+					"label": Supra.Intl.get(["form", "block", "remove_icon"]),
+					"style": "small-red"
+				}));
+				button.on("click", this.removeImage, this);
+				button.addClass("su-button-fill");
+				button.set("disabled", !has_icon);
+				button.set("visible", this.get("allowRemoveImage"));
+				button.render(container);
+				
+				if (boundingBox) {
+					boundingBox.insert(button.get('boundingBox'), 'before');
+				}
+				
+				//When slide is hidden stop editing image
+				if (separate) {
+					slideshow.on("slideChange", function (evt) {
+						if (evt.prevVal == slide_id && this.widgets.imageResizer) {
+							this.widgets.imageResizer.set("image", null);
+							this.blur();
+						}
+					}, this);
+				}
+				
+				return slide;
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns slideshow
+		 * 
+		 * @return Slideshow
+		 * @type {Object}
+		 * @private
+		 */
+		getSlideshow: function () {
+			var form = this.getParentWidget("form");
+			return form ? form.get("slideshow") : null;
+		},
+		
+		
+		/* ------------------------------ Attributes -------------------------------- */
+		
+		
+		/**
+		 * Returns true if image is selected, otherwise false
+		 * 
+		 * @return True if image is selected
+		 * @type {Boolean}
+		 * @private
+		 */
+		_hasIcon: function () {
+			var value = this.get("value");
+			return value;
+		},
+		
+		/**
+		 * Value attribute setter
+		 * 
+		 * @param {Object} value Value
+		 * @return New value
+		 * @type {Object}
+		 * @private
+		 */
+		_setValue: function (value) {
+			value = (value === undefined || value === null || typeof value !== "object" ? "" : value);
+			
+			if (value && !(value instanceof Y.DataType.Icon)) {
+				value = new Y.DataType.Icon(value);
+			}
+			
+			this.icon = value ? value : "";
+			
+			if (this.widgets) {
+				//Update UI
+				if (this.widgets.buttonSet) {
+					if (this.icon) {
+						this.widgets.buttonSet.set("label", Supra.Intl.get(["form", "block", "change_icon"]));
+					} else {
+						this.widgets.buttonSet.set("label", Supra.Intl.get(["form", "block", "set_icon"]));
+					}
+				}
+				if (this.widgets.buttonRemove) {
+					if (this.icon) {
+						this.widgets.buttonRemove.set("disabled", false);
+					} else {
+						this.widgets.buttonRemove.set("disabled", true);
+					}
+				}
+				if (this.widgets.buttonEdit) {
+					if (this.icon) {
+						this.widgets.buttonEdit.set("disabled", false);
+					} else {
+						this.widgets.buttonEdit.set("disabled", true);
+					}
+				}
+			}
+			
+			this._applyStyle(value);
+			
+			/*
+			 * value == "" // or Y.DataType.Icon
+			 * 
+			 */
+			this._original_value = value;
+			return value;
+		},
+		
+		/**
+		 * Value attribute getter
+		 * Returns input value
+		 * 
+		 * @return {Object}
+		 * @private
+		 */
+		_getValue: function () {
+			return this.icon ? this.icon : "";
+			/*
+			 * value == "" // or Y.DataType.Icon
+			 */
+		},
+		
+		/**
+		 * Returns value for saving
+		 * 
+		 * @return {Object}
+		 * @private
+		 */
+		_getSaveValue: function () {
+			return this.get("value");
+		},
+		
+		/**
+		 * Apply style
+		 * 
+		 * @private
+		 */
+		_applyStyle: function (value) {
+			var node = this.get("targetNode"),
+				container = null;
+			
+			if (!node || !node.getDOMNode()) return;
+			container = node.ancestor();
+			
+			if (value) {
+				if (this.get('fixedMaxCropWidth')) {
+					value.width = Math.min(value.width, this._getContainerWidth());
+				}
+				
+				if (!container.hasClass("supra-icon")) {
+					var doc = node.getDOMNode().ownerDocument;
+					container = Y.Node(doc.createElement("span"));
+					
+					node.insert(container, "after");
+					container.addClass("supra-icon");
+					container.append(node);
+				}
+				
+				value.render(node);
+				
+				container.setStyle('display', '');
+				
+				container.setStyles({
+					"width": value.width,
+					"height": value.height
+				});
+				
+			} else {
+				container.setStyle('display', 'none');
+			}
+		},
+		
+		/**
+		 * After value change trigger event
+		 * @param {Object} evt
+		 */
+		_afterValueChange: function (evt) {
+			this.fire("change", {"value": this.get("value")});
+		},
+		
+		/**
+		 * When slide is opened start editing instead of waiting for user to click "Edit" button
+		 * @param {Boolean} value Attribute value
+		 * @return {Boolean} New attribute value
+		 */
+		_setEditImageAutomatically: function (value) {
+			var button = this.widgets.buttonEdit;
+			if (button) {
+				button.set("visible", !value);
+			}
+			return value;
+		},
+		
+		/**
+		 * Allow removing image / allow having no image
+		 * @param {Boolean} value Attribute value
+		 * @return {Boolean} New attribute value
+		 */
+		_setAllowRemoveImage: function (value) {
+			var button = this.widgets.buttonRemove;
+			if (button) {
+				button.set("visible", value);
+			}
+			return value;
+		},
+		
+		/**
+		 * Returns container node width / max crop width
+		 * 
+		 * @private
+		 */
+		_getContainerWidth: function () {
+			var node = this.get("targetNode"),
+				container = null,
+				width = 0;
+			
+			if (!node) return 0;
+			
+			container = node.ancestor();
+			if (!container) return 0;
+			
+			// Find container width to calculate max possible width
+			while (container.test('.supra-icon, .supra-image-inner')) {
+				container = container.ancestor();
+			}
+			
+			return container.get("offsetWidth");
+		}
+		
+	});
+	
+	Supra.Input.InlineIcon = Input;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:["supra.input-proto"]});YUI.add('supra.input-video', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	

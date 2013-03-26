@@ -113,8 +113,8 @@ YUI.add('gallerymanager.itemlist-uploader', function (Y) {
 			var uploader = this.uploader;
 			
 			if (uploader) {
-				this.uploader = null;
 				uploader.destroy(true);
+				this.uploader = null;
 			}
 		},
 			

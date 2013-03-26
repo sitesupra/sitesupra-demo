@@ -289,7 +289,9 @@ Supra('anim', 'dd-drag', 'iconsidebar.data', 'iconsidebar.iconlist', function (Y
 			this.get('backButton').hide();
 		},
 		
+		
 		/* -------------------- Icon list -------------------- */
+		
 		
 		/**
 		 * Create icon library list
@@ -367,6 +369,19 @@ Supra('anim', 'dd-drag', 'iconsidebar.data', 'iconsidebar.iconlist', function (Y
 			} else {
 				this.widgets.list.set('active', null);
 			}
+		},
+		
+		
+		/* -------------------- API -------------------- */
+		
+		
+		/**
+		 * Returns icon data object
+		 * 
+		 * @returns {Object} Data object
+		 */
+		dataObject: function () {
+			return this.widgets.data;
 		},
 		
 		

@@ -3,10 +3,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	"use strict";
 	
 	/* Tag white list, all other tags will be removed. <font> tag is added if "fonts" plugin is enabled */
-	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span'];
+	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span', 'svg', 'g', 'path'];
 	
 	/* List of inline elements */
-	Supra.HTMLEditor.ELEMENTS_INLINE = {'b': 'b', 'i': 'i', 'span': 'span', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong': 'strong', 's': 's', 'strike': 'strike', 'a': 'a', 'u': 'u', 'img': 'img', 'br': 'br', 'q': 'q', 'big': 'big', 'mark': 'mark', 'rp': 'rp', 'rt': 'rt', 'ruby': 'ruby', 'summary': 'summary', 'time': 'time'};
+	Supra.HTMLEditor.ELEMENTS_INLINE = {'b': 'b', 'i': 'i', 'span': 'span', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong': 'strong', 's': 's', 'strike': 'strike', 'a': 'a', 'u': 'u', 'img': 'img', 'br': 'br', 'q': 'q', 'big': 'big', 'mark': 'mark', 'rp': 'rp', 'rt': 'rt', 'ruby': 'ruby', 'summary': 'summary', 'time': 'time', 'svg': 'svg', 'g': 'g', 'path': 'path'};
 	
 	/* List of tags which doesn't need to be closed */
 	Supra.HTMLEditor.NOT_CLOSED_TAGS = {'img': 'img', 'br': 'br', 'param': 'param', 'col': 'col', 'embed': 'embed'};
@@ -202,9 +202,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove empty UL and OL tags
 				html = html.replace(/<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi, '');
 				
-				//Remove style attribute, except background-color
+				//Remove style attribute, except background-color and fill
 				html = html.replace(/\s+style=["']([^'"]*)["']/gi, function (all, styles) {
-					styles = styles.match(/background-color:[^;]+/);
+					styles = styles.match(/(fill|background-color):[^;]+/);
 					if (styles && styles.length) {
 						return ' style="' + styles[0] + '"';
 					}

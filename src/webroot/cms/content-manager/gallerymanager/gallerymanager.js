@@ -245,8 +245,19 @@ function (Y) {
 				}
 			}
 			
+			//Mode
+			var manage_label = '';
+			
+			if (this.data.design && this.data.design == 'icon') {
+				// Icons
+				manage_label = Supra.Intl.get(['gallerymanager', 'manage_icon']);
+			} else {
+				// Images
+				manage_label = Supra.Intl.get(['gallerymanager', 'manage']);
+			}
+			
 			//Manage button
-			var btn = this.widgets.manageButton = new Supra.Button({'label': Supra.Intl.get(['gallerymanager', 'manage']), 'style': 'small'});
+			var btn = this.widgets.manageButton = new Supra.Button({'label': manage_label, 'style': 'small'});
 				btn.render(form.get('contentBox'));
 				btn.addClass('su-button-fill');
 				btn.on('click', this.openMediaLibraryForReplace, this);
@@ -482,16 +493,26 @@ function (Y) {
 			// Style
 			this.itemlist.get('listNode').addClass('supra-gallerymanager-drop');
 			
-			var mediaSidebar = Manager.getAction('MediaSidebar');
-			mediaSidebar.execute({
+			// Execute action
+			var action = null;
+			
+			if (this.data.design && this.data.design == 'icon') {
+				// Icon
+				action = Manager.getAction('IconSidebar');
+			} else {
+				// Image
+				action = Manager.getAction('MediaSidebar');
+			}
+			
+			action.execute({
 				'onselect': Y.bind(function (event) {
-					if (!this.replaceImage(id, event.image)) {
+					if (!this.replaceImage(id, event.image || event.icon)) {
 						// Image wasn't added, blur!
 						this.itemlist.blurInlineEditor();
 					}
 				}, this),
 				'onclose': Y.bind(function (event) {
-					if (!event.image) {
+					if (!event.image && !event.icon) {
 						// Image wasn't added, blur!
 						this.itemlist.blurInlineEditor();
 					}
@@ -499,7 +520,7 @@ function (Y) {
 				'item': path
 			});
 			
-			mediaSidebar.once('hide', function () {
+			action.once('hide', function () {
 				this.itemlist.get('listNode').removeClass('supra-gallerymanager-drop');
 			}, this);
 			
@@ -519,7 +540,13 @@ function (Y) {
 		 * @private
 		 */
 		replaceImage: function (id, image) {
-			return this.itemlist.replaceItem(id, image);
+			if (image instanceof Y.DataType.Icon) {
+				image.load().done(function () {
+					return this.itemlist.replaceItem(id, image);
+				}, this);
+			} else {
+				return this.itemlist.replaceItem(id, image);
+			}
 		},
 		
 		/**
@@ -529,7 +556,13 @@ function (Y) {
 		 * @private
 		 */
 		addImage: function (image_data) {
-			return this.itemlist.addImage(image_data);
+			if (image_data instanceof Y.DataType.Icon) {
+				image_data.load().done(function () {
+					return this.itemlist.addImage(image_data);
+				}, this);
+			} else {
+				return this.itemlist.addImage(image_data);
+			}
 		},
 		
 		

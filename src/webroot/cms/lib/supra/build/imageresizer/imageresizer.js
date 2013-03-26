@@ -16,6 +16,7 @@ YUI().add("supra.imageresizer", function (Y) {
 	
 	ImageResizer.MODE_IMAGE = 0;
 	ImageResizer.MODE_BACKGROUND = 1;
+	ImageResizer.MODE_ICON = 2;
 	
 	ImageResizer.NAME = "imageresizer";
 	ImageResizer.CSS_PREFIX = "su-" + ImageResizer.NAME;
@@ -85,7 +86,7 @@ YUI().add("supra.imageresizer", function (Y) {
 		"autoClose": {
 			value: true
 		},
-		// Mode: 0 - image, 1 - background
+		// Mode: 0 - image, 1 - background, 2 - icon
 		"mode": {
 			value: ImageResizer.MODE_IMAGE
 		},
@@ -385,7 +386,8 @@ YUI().add("supra.imageresizer", function (Y) {
 				case 3:
 					return "supra-image-resize-sw";
 				default:
-					return this.get("mode") == ImageResizer.MODE_IMAGE ? "" : "supra-image-resize-move";
+					var mode = this.get("mode");
+					return mode == ImageResizer.MODE_IMAGE || mode == ImageResizer.MODE_ICON ? "" : "supra-image-resize-move";
 			}
 		},
 		
@@ -436,10 +438,10 @@ YUI().add("supra.imageresizer", function (Y) {
 			zoomOut.render(contentBox);
 			
 			zoomIn.on('click', function () {
-				this.set('value', (this.get('value') + this.get('majorStep')));
+				this.set('value', Math.min(100, this.get('value') + this.get('majorStep')));
 			}, slider);
 			zoomOut.on('click', function () {
-				this.set('value', (this.get('value') - this.get('majorStep')));
+				this.set('value', Math.max(0, this.get('value') - this.get('majorStep')));
 			}, slider);
 			
 			boundingBox.addClass("su-imageresizer");
@@ -524,6 +526,20 @@ YUI().add("supra.imageresizer", function (Y) {
 				});
 				image.setAttribute("width", this.imageWidth);
 				image.setAttribute("height", this.imageHeight);
+			} else if (this.get('mode') == ImageResizer.MODE_ICON) {
+				this.cropWidth = this.imageWidth;
+				this.cropHeight = this.imageHeight;
+				
+				this.get("imageContainerNode").setStyles({
+					"width": this.imageWidth + "px",
+					"height": this.imageHeight + "px"
+				});
+				image.setStyles({
+					"width": this.imageWidth + "px",
+					"height": this.imageHeight + "px"
+				});
+				image.setAttribute("width", this.imageWidth);
+				image.setAttribute("height", this.imageHeight);
 			} else {
 				this.cropWidth = this.imageWidth - this.cropLeft;
 				this.cropHeight = this.imageHeight - this.cropTop;
@@ -557,8 +573,8 @@ YUI().add("supra.imageresizer", function (Y) {
 		sizeToZoom: function (width, height) {
 			var minImageWidth = 0,
 				minImageHeight = 0;
-				
-			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND) {
+			
+			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND || this.get('mode') == ImageResizer.MODE_ICON) {
 				minImageWidth = this.minImageWidth;
 				minImageHeight = this.minImageHeight;
 			} else {
@@ -587,7 +603,7 @@ YUI().add("supra.imageresizer", function (Y) {
 				minImageWidth = 0,
 				minImageHeight = 0;
 			
-			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND) {
+			if (this.get('allowZoomResize') || this.get('mode') == ImageResizer.MODE_BACKGROUND || this.get('mode') == ImageResizer.MODE_ICON) {
 				minImageWidth = this.minImageWidth;
 				minImageHeight = this.minImageHeight;
 			} else {
@@ -634,11 +650,16 @@ YUI().add("supra.imageresizer", function (Y) {
 			if (this.get("cursor") < 4) {
 				//Resize
 				this.resizeActive = true;
-				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragResize, this);
+				
+				if (this.get("mode") == ImageResizer.MODE_ICON) {
+					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragIconResize, this);
+				} else {
+					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragResize, this);
+				}
 				
 				this.dragStartW = this.dragW = this.cropWidth;
 				this.dragStartH = this.dragH = this.cropHeight;
-			} else {
+			} else if (this.get("mode") != ImageResizer.MODE_ICON) {
 				//Move
 				this.moveActive = true;
 				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragMove, this);
@@ -771,6 +792,73 @@ YUI().add("supra.imageresizer", function (Y) {
 		},
 		
 		/**
+		 * Handle mouse move while resizing icon
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		dragIconResize: function (e) {
+			var cursor = this.get("cursor"),
+				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+				delta  = Math.max(deltaX, deltaY),
+				sizeX  = this.dragStartW + delta,
+				sizeY  = this.dragStartH + delta;
+			
+			if (this.resizeActive) {
+				var node = this.get("imageContainerNode"),
+					image = this.get("image"),
+					minW = this.get("minCropWidth"),
+					maxW = this.get("maxCropWidth"),
+					minH = this.get("minCropHeight"),
+					maxH = this.get("maxCropHeight"),
+					imageHeight = this.imageHeight,
+					imageWidth = this.imageWidth,
+					ratio = (maxW && maxH ? maxW / maxH : (minW && minH ? minW / minH : imageWidth / imageHeight));
+				
+				if (!node) return;
+				
+				if (sizeX < minW) {
+					sizeX = minW;
+					sizeY = Math.round(sizeX / ratio);
+				}
+				if (sizeY < minH) {
+					sizeY = minH;
+					sizeX = Math.round(sizeY * ratio);
+				}
+				if (maxW && sizeX > maxW) {
+					sizeX = maxW;
+					sizeY = Math.round(sizeX / ratio);
+				}
+				if (maxH && sizeY > maxH) {
+					sizeY = maxH;
+					sizeX = Math.round(sizeY * ratio);
+				}
+				
+				if (this.dragW != sizeX || this.dragH != sizeY) {
+					this.dragW = sizeX;
+					this.dragH = sizeY;
+					
+					node.setStyles({
+						"width": sizeX,
+						"height": sizeY
+					});
+					
+					image.setStyles({
+						"width": sizeX,
+						"height": sizeY
+					});
+					
+					image.setAttribute("width", sizeX + "px");
+					image.setAttribute("height", sizeY + "px");
+					
+					//Update label
+					this.set("sizeLabel", [sizeX, sizeY]);
+				}
+			}
+		},
+		
+		/**
 		 * Stop drag
 		 * 
 		 * @param {Event} e Event facade object
@@ -789,6 +877,12 @@ YUI().add("supra.imageresizer", function (Y) {
 					this.cropTop = this.dragCropTop;
 					this.cropWidth = this.dragW;
 					this.cropHeight = this.dragH;
+					
+					if (this.get("mode") == ImageResizer.MODE_ICON) {
+						this.cropLeft = this.cropTop = 0;
+						this.imageWidth = this.cropWidth;
+						this.imageHeight = this.cropHeight;
+					}
 					
 					//Update label
 					this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
@@ -816,7 +910,7 @@ YUI().add("supra.imageresizer", function (Y) {
 		 */
 		documentClick: function (e) {
 			var image = this.get("image");
-			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
+			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-icon") && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
 				this.set("image", null);
 			}
 		},
@@ -1067,6 +1161,130 @@ YUI().add("supra.imageresizer", function (Y) {
 		},
 		
 		
+		/* --------------------------------- Icon --------------------------------- */
+		
+		
+		/**
+		 * Set up needed elements for background resizing
+		 * 
+		 * @param {Y.Node} image Node which background is resized
+		 * @private
+		 */
+		setUpIcon: function (image) {
+			var doc = this.get("doc"),
+				resizeHandleNode = Y.Node(doc.createElement("SPAN")), // create in correct document
+				imageContainerNode = Y.Node(doc.createElement("SPAN")),
+				sizeLabelNode = Y.Node(doc.createElement("SPAN")),
+				containerNode = image.ancestor(),
+				width = containerNode.get("offsetWidth"),
+				height = containerNode.get("offsetHeight");
+			
+			resizeHandleNode.addClass("supra-image-resize");
+			containerNode.append(resizeHandleNode);
+			resizeHandleNode.on("mousemove", this.setMouseCursor, this);
+			resizeHandleNode.on("mouseleave", this.unsetMouseCursor, this);
+			resizeHandleNode.on("mousedown", this.dragStart, this);
+			this.set("resizeHandleNode", resizeHandleNode);
+			
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			containerNode.append(sizeLabelNode);
+			this.set("sizeLabelNode", sizeLabelNode);
+			
+			imageContainerNode.addClass("supra-image-inner");
+			containerNode.append(imageContainerNode);
+			imageContainerNode.append(image);
+			this.set("imageContainerNode", imageContainerNode);
+			
+			imageContainerNode.setStyles({
+				"width": width,
+				"height": height
+			});
+			containerNode.setStyles({
+				"width": "auto",
+				"height": "auto"
+			});
+			
+			image.setAttribute("unselectable", "on");
+			containerNode.setAttribute("contentEditable", "false");
+			containerNode.addClass("supra-icon-editing");
+			
+			this.cropWidth = this.imageWidth = image.get("offsetWidth");
+			this.cropHeight = this.imageHeight = image.get("offsetHeight");
+			this.cropLeft = this.cropTop = 0;
+			
+			//Set size label
+			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
+			
+			//Calculate min image width and height for zoom
+			var maxImageWidth = this.get("maxImageWidth"),
+				maxImageHeight = this.get("maxImageHeight"),
+				minImageWidth = this.get("minCropWidth"),
+				minImageHeight = this.get("minCropHeight"),
+				ratio = maxImageWidth / maxImageHeight;
+			
+			if (minImageWidth / ratio < minImageHeight) {
+				minImageWidth = Math.ceil(minImageHeight * ratio);
+			}
+			if (minImageHeight * ratio < minImageWidth) {
+				minImageHeight = Math.ceil(minImageWidth / ratio);
+			}
+			
+			this.minImageWidth = minImageWidth;
+			this.minImageHeight = minImageHeight;
+			
+			this.setUpPanel();
+		},
+		
+		/**
+		 * Remove all created elements and events
+		 * 
+		 * @param {Y.Node} image Node which background was resized
+		 * @param {Boolean} silent Image is removed, but another will be set shortly
+		 * @private
+		 */
+		tearDownIcon: function (image, silent) {
+			if (!image) return;
+			
+			if (!this.get("imageContainerNode")) {
+				// Already teared down, 'resize' event triggered this again
+				return;
+			}
+			
+			var imageContainerNode = this.get("imageContainerNode"),
+				resizeHandleNode = this.get("resizeHandleNode"),
+				sizeLabelNode = this.get("sizeLabelNode"),
+				containerNode = imageContainerNode.ancestor();
+			
+			image.removeAttribute("unselectable");
+			containerNode.append(image);
+			containerNode.removeClass("supra-icon-editing");
+			containerNode.setStyles({
+				"width": this.imageWidth,
+				"height": this.imageHeight
+			});
+			
+			resizeHandleNode.remove(true);
+			this.set("resizeHandleNode", null);
+			
+			sizeLabelNode.remove(true);
+			this.set("sizeLabelNode", null);
+			
+			imageContainerNode.remove(true);
+			this.set("imageContainerNode", null);
+			
+			if (this.zoomPanel) {
+				this.zoomPanel.hide();
+			}
+			
+			this.fire("resize", {
+				"image": image,
+				"imageWidth": this.imageWidth,
+				"imageHeight": this.imageHeight,
+				"silent": !!silent
+			});
+		},
+		
+		
 		/* --------------------------------- Attributes --------------------------------- */
 		
 		
@@ -1086,6 +1304,8 @@ YUI().add("supra.imageresizer", function (Y) {
 				
 				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
 					this.tearDownImage(this.get("image"), silent);
+				} else if (this.get("mode") == ImageResizer.MODE_ICON) {
+					this.tearDownIcon(this.get("image"), silent);
 				} else {
 					this.tearDownBackground(this.get("image"), silent);
 				}
@@ -1101,6 +1321,8 @@ YUI().add("supra.imageresizer", function (Y) {
 				
 				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
 					this.setUpImage(image);
+				} else if (this.get("mode") == ImageResizer.MODE_ICON) {
+					this.setUpIcon(image);
 				} else {
 					this.setUpBackground(image);
 				}

@@ -114,7 +114,11 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			// Widgets / plugins
 			if (this.order) {
 				this.order.set('disabled', shared);
-				this.order.resetAll();
+				
+				try {
+					//FIXME
+					this.order.resetAll();
+				} catch (err) {}
 			}
 			
 			if (this.highlight) {
@@ -327,26 +331,34 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * @private
 		 */
 		normalizeItemData: function (data) {
-			if (data.image && data.image.crop_width) {
-				// Image has crop and size properties
-				if (!data.image.image) {
-					data.broken = true;
+			if (this.get('host').data.design == 'icon') {
+				// Icon
+				if (!data.image) {
+					data.image = new Y.DataType.Icon();
 				}
-			} else if (!data.image || data.image.id) {
-				// No crop or size properties, add default ones
-				var image = data.image;
-				data.image = {
-					'image': image && image.sizes ? image : null,
-					'size_width': 0,
-					'size_height': 0,
-					'crop_left': 0,
-					'crop_top': 0,
-					'crop_width': 0,
-					'crop_height': 0
-				};
-				
-				if (!image) {
-					data.broken = true;
+			} else {
+				// Image
+				if (data.image && data.image.crop_width) {
+					// Image has crop and size properties
+					if (!data.image.image) {
+						data.broken = true;
+					}
+				} else if (!data.image || data.image.id) {
+					// No crop or size properties, add default ones
+					var image = data.image;
+					data.image = {
+						'image': image && image.sizes ? image : null,
+						'size_width': 0,
+						'size_height': 0,
+						'crop_left': 0,
+						'crop_top': 0,
+						'crop_width': 0,
+						'crop_height': 0
+					};
+					
+					if (!image) {
+						data.broken = true;
+					}
 				}
 			}
 			
@@ -598,7 +610,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * @private
 		 */
 		processItemImageProperty: function (itemId, itemNode, data) {
-			var imageNode = itemNode.one('img'),
+			var imageNode = itemNode.one('img, svg'),
 				input = null,
 				
 				size = null,
@@ -610,49 +622,90 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				crop_width = 0,
 				crop_height = 0,
 				
-				value = data.image;
-			
-			// New items don't have image
-			if (value.image) {
+				value = data.image,
 				
-				// Size and crop properties not set yet
-				if (!value.size_width) {
-					size = value.image.sizes.original;
+				mode = 0;
+			
+			if (this.get('host').data.design == 'icon') {
+				// New items don't have image
+				if (value && value.svg) {
 					
-					node_width = parseInt(imageNode.getAttribute('width') || imageNode.get('offsetWidth'), 10) || imageNode.ancestor().get('offsetWidth');
-					node_height = parseInt(imageNode.getAttribute('height') || imageNode.get('offsetHeight'), 10) || imageNode.ancestor().get('offsetHeight');
+					// Size and crop properties not set yet
+					if (!value.width) {
+						node_width = parseInt(imageNode.get('offsetWidth') || imageNode.getAttribute('width'), 10) || imageNode.ancestor().get('offsetWidth') || 32;
+						node_height = parseInt(imageNode.get('offsetHeight') || imageNode.getAttribute('height'), 10) || imageNode.ancestor().get('offsetHeight') || 32;
+						
+						value.width = width;
+						value.height = height;
+					}
 					
-					ratio = size.width / size.height;
-					width = Math.min(size.width, node_width || 99999);
-					height = ~~(width / ratio);
-					crop_width = width;
-					crop_height = Math.min(size.height, height, node_height || 99999);
+					input = new Supra.GalleryManagerImageEditor({
+						'srcNode': imageNode,
+						'value': value,
+						'disabled': this.get('shared'),
+						'mode': Supra.GalleryManagerImageEditor.MODE_ICON
+					});
 					
-					value.size_width = width;
-					value.size_height = height;
-					value.crop_width = crop_width;
-					value.crop_height = crop_height;
+					imageNode.setStyle('visibility', 'visible');
+					
+					// When image is resized save data
+					input.on('change', this.updateData, this);
+					
+					// When image is resized automatically (not user input), then save data
+					// without validating UI state (eg. if user is editing)
+					input.on('resize', this.updateImageDataAuto, this, itemId);
+					
+					input.render();
+				} else {
+					imageNode.setStyle('visibility', 'hidden');
 				}
 				
-				input = new Supra.GalleryManagerImageEditor({
-					'srcNode': imageNode,
-					'value': value,
-					'disabled': this.get('shared')
-				});
-				
-				// When image is resized save data
-				input.on('change', this.updateData, this);
-				
-				// When image is resized automatically (not user input), then save data
-				// without validating UI state (eg. if user is editing)
-				input.on('resize', this.updateImageDataAuto, this, itemId);
-				
-				input.render();
 			} else {
-				imageNode.setAttribute('src', '/cms/lib/supra/img/px.gif');
-				imageNode.setStyles({
-					'background': '#e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat'
-				});
+				
+				// New items don't have image
+				if (value.image) {
+					
+					// Size and crop properties not set yet
+					if (!value.size_width) {
+						size = value.image.sizes.original;
+						
+						node_width = parseInt(imageNode.getAttribute('width') || imageNode.get('offsetWidth'), 10) || imageNode.ancestor().get('offsetWidth');
+						node_height = parseInt(imageNode.getAttribute('height') || imageNode.get('offsetHeight'), 10) || imageNode.ancestor().get('offsetHeight');
+						
+						ratio = size.width / size.height;
+						width = Math.min(size.width, node_width || 99999);
+						height = ~~(width / ratio);
+						crop_width = width;
+						crop_height = Math.min(size.height, height, node_height || 99999);
+						
+						value.size_width = width;
+						value.size_height = height;
+						value.crop_width = crop_width;
+						value.crop_height = crop_height;
+					}
+					
+					input = new Supra.GalleryManagerImageEditor({
+						'srcNode': imageNode,
+						'value': value,
+						'disabled': this.get('shared'),
+						'mode': Supra.GalleryManagerImageEditor.MODE_IMAGE
+					});
+					
+					// When image is resized save data
+					input.on('change', this.updateData, this);
+					
+					// When image is resized automatically (not user input), then save data
+					// without validating UI state (eg. if user is editing)
+					input.on('resize', this.updateImageDataAuto, this, itemId);
+					
+					input.render();
+				} else {
+					imageNode.setAttribute('src', '/cms/lib/supra/img/px.gif');
+					imageNode.setStyles({
+						'background': '#e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat'
+					});
+				}
+				
 			}
 			
 			imageNode.setData('item-property', 'image');
