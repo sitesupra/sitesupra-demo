@@ -11326,7 +11326,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"controls": [
 						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
 					{"type": "separator"},
-						{"id": "inserticon", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-icon.png", "command": "inserticon"},
+						{"id": "inserticon", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-icon.png", "command": "inserticon", "visible": false},
 					{"type": "separator"},
 						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo"},
 					{"type": "separator"},
@@ -14531,6 +14531,9 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 	
 	var Manager = Supra.Manager;
 	
+	/**
+	 * Icon plugin, PORTAL ONLY!!!
+	 */
 	Supra.HTMLEditor.addPlugin("icon", defaultConfiguration, {
 		
 		settings_form: null,
@@ -15222,6 +15225,9 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 * @constructor
 		 */
 		init: function (htmleditor, configuration) {
+			// If not portal, then don't do anything
+			if (!Supra.data.get(['site', 'portal'])) return;
+			
 			var iconsidebar = Manager.getAction("IconSidebar"),
 				toolbar = htmleditor.get("toolbar"),
 				button = toolbar ? toolbar.getButton("inserticon") : null;
@@ -15239,6 +15245,9 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			htmleditor.on("nodeChange", this.onNodeChange, this);
 			
 			if (button) {
+				//Show button
+				button.show();
+				
 				//When icon library is shown/hidden make button selected/unselected
 				iconsidebar.after("visibleChange", function (evt) {
 					button.set("down", evt.newVal);
