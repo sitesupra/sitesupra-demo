@@ -1,0 +1,15 @@
+
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\PageTitle\PageTitleBlock
+    title: Page title
+    groupId: features
+    description: Page title
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
