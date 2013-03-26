@@ -24,6 +24,11 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 	 * @var string
 	 */
 	public $filename;
+	
+	/**
+	 * @var string
+	 */
+	public $icon;
 
 	/**
 	 * @var ThemeLayout

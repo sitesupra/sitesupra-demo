@@ -627,14 +627,26 @@ class PageAction extends PageManagerAction
 
 		$themeLayouts = $currentTheme->getLayouts();
 
+		$themeConfiguration = $currentTheme->getConfiguration();
+		
+		$defaultIcon = '/cms/lib/supra/img/sitemap/preview/layout.png';
+
 		foreach ($themeLayouts as $themeLayout) {
 			/* @var $themeLayout ThemeLayout */
-
+			
+			$themeLayoutName = $themeLayout->getName();
+			
+			$icon = null;
+			foreach ($themeConfiguration->layouts as $layoutConfig) {
+				if ($layoutConfig->name == $themeLayoutName) {
+					$icon = $layoutConfig->icon;
+				}
+			}
+			
 			$layouts[] = array(
-				'id' => $themeLayout->getName(),
+				'id' => $themeLayoutName, 
 				'title' => $themeLayout->getTitle(),
-                // @FIXME: hardcoded value
-                'icon' => '/cms/lib/supra/img/sitemap/preview/layout.png',
+                'icon' => ($icon !== null ? $icon : $defaultIcon),
 			);
 		}
 
