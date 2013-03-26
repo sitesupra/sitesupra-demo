@@ -38,6 +38,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			'form': null,
 			/* Form container panel */
 			'panel': null,
+			/* Layout list container node */
+			'layoutList': null,
+			/* Scrollable widget for layout list */
+			'layoutScrollable': null,
 			/* Template list container node */
 			'templateList': null,
 			/* Scrollable widget for template list */
@@ -46,6 +50,8 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			'buttonCreate': null,
 			/* Cancel button */
 			'buttonCancel': null,
+			/* Layout button */
+			'buttonLayout': null,
 			/* Template button */
 			'buttonTemplate': null
 		},
@@ -96,6 +102,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 */
 		
 		'_layouts': null,
+		
+		/**
+		 * Layouts currently are being loaded
+		 * 
+		 * @type {Boolean}
+		 * @private
+		 */
+		'_layoutsLoading': false,
 		
 		/**
 		 * Default page title when panel is opened
@@ -192,14 +206,17 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		'_createForm': function (container) {
 			var widgets = this._widgets,
 				buttons = container.all('.middle button'),
-				button_tpl = container.one('.template-section button');
+				button_tpl = container.one('.template-section button'),
+				button_lay = container.one('.layout-section button');
 			
 			//Buttons
 			widgets.buttonTemplate = new Supra.Button({'srcNode': button_tpl});
+			widgets.buttonLayout = new Supra.Button({'srcNode': button_lay});
 			widgets.buttonCreate = new Supra.Button({'srcNode': buttons.item(0)});
 			widgets.buttonCancel = new Supra.Button({'srcNode': buttons.item(1)});
 			
 			widgets.buttonTemplate.on('click', this.showTemplates, this);
+			widgets.buttonLayout.on('click', this.showLayouts, this);
 			widgets.buttonCreate.on('click', this.createPage, this);
 			widgets.buttonCancel.on('click', this.hide, this);
 			
@@ -238,11 +255,15 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			
 			inputs.title.on('focus', this._onTitleFocus, this);
 			inputs.title.on('input', this._onPagePropertyChange, this);
-			inputs.template.on('change', this.hideTemplates, this);
+			inputs.template.on('valueChange', this.hideTemplates, this);
+			inputs.layout.on('valueChange', this.hideLayouts, this);
 			
 			//Fill template list and on template change update button
 			this._widgets.buttonTemplate.plug(Supra.Button.PluginInput, {'input': inputs.template});
 			this._fillTemplates();
+			
+			//On layout change update button
+			this._widgets.buttonLayout.plug(Supra.Button.PluginInput, {'input': inputs.layout});
 		},
 		
 		/**
@@ -531,6 +552,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			var uri = Manager.getAction('PageSettings').getDataPath('templates');
 			
 			this._templates = null;
+			this._templatesLoading = true;
 			
 			//Loading icon
 			if (this._widgets.form && this._widgets.form.getInput('template')) {
@@ -551,27 +573,6 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			});
 			
 			this._loadLayouts();
-		},
-		
-		'_loadLayouts': function () {
-			var layoutsPath = Supra.Manager.Page.getDataPath('layouts');
-					
-			// Fetching all layouts from database
-			Supra.io(layoutsPath, {
-				'method': 'get',
-				'context': this,
-				'on': {
-					'success': function (data) {
-						var fetchedDataCount = data.length;
-
-						if(fetchedDataCount != 0) {
-							this._layouts = data;
-							var select_layout_title = Supra.Intl.get(['settings', 'select_layout']);
-							this._layouts.unshift({id:'', title: select_layout_title});
-						}
-					}
-				}
-			});
 		},
 		
 		/**
@@ -687,6 +688,48 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			return template;
 		},
 		
+		'_loadLayouts': function () {
+			if (this._layoutsLoading || this._layouts) return false;
+			var layoutsPath = Supra.Manager.Page.getDataPath('layouts');
+			
+			this._layouts = null;
+			this._layoutsLoading = true;
+			
+			//Loading icon
+			if (this._widgets.form && this._widgets.form.getInput('layout')) {
+				this._widgets.form.getInput('layout').set('loading', true);
+			}
+			if (this._widgets.buttonLayout) {
+				this._widgets.buttonLayout.set('loading', true);
+			}		
+
+			// Fetching all layouts from database
+			Supra.io(layoutsPath, {
+				'method': 'get',
+				'context': this,
+				'on': {
+					'success': this._loadLayoutsComplete
+				}
+			});
+		},
+		
+		/**
+		 * Layouts finished loading
+		 * 
+		 * @param {Array} data Layouts data
+		 * @param {Boolean} status Response status
+		 * @private
+		 */
+		'_loadLayoutsComplete': function (data, status) {
+			if (status) {
+				// Title and icon are fixed in fillLayoutList
+				data.unshift({'id': '', 'title': '', 'icon': ''});
+				
+				this._layouts = data;
+				this._layoutsLoading = false;
+			}
+		},
+		
 		
 		/**
 		 * ------------------------------ API ------------------------------
@@ -709,16 +752,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				index = 0,
 				is_tree_node = node.isInstanceOf('TreeNode'),
 				is_row_node = node.isInstanceOf('DataGridRow'),
-				layoutInput = form.getInput('layout'),
-				buttonTemplateNode = this._widgets.buttonTemplate.get('boundingBox').ancestor();
-				
-			layoutInput.set('showEmptyValue', false);
+				buttonTemplateNode = this._widgets.buttonTemplate.get('boundingBox').ancestor(),
+				buttonLayoutNode = this._widgets.buttonLayout.get('boundingBox').ancestor();
 			
 			if (this.get('host').get('mode') == 'pages') {
 				form.getInput('title').set('label', Supra.Intl.get(['sitemap', 'new_page_label_title']));
-				layoutInput.hide();
 				
 				buttonTemplateNode.removeClass('hidden');
+				buttonLayoutNode.addClass('hidden');
 				
 				if (node.get('root')) {
 					//Root page doesn't have a path
@@ -734,16 +775,17 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				form.getInput('path').hide();
 				
 				buttonTemplateNode.addClass('hidden');
+				buttonLayoutNode.removeClass('hidden');
 				
 				//Layouts
-				this.fillLayoutList(layoutInput, node);
+				this.fillLayoutList(node);
 				
 			}
 			
 			if (data.type == 'group') {
 				form.getInput('path').hide();
-				layoutInput.hide();
 				buttonTemplateNode.addClass('hidden');
+				buttonLayoutNode.addClass('hidden');
 			}
 			
 			//Find unique title and path which doesn't exist for any of the siblings
@@ -815,8 +857,10 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 		 * @param {Object} node Tree node
 		 * @private
 		 */
-		'fillLayoutList': function (input, node) {
-			var layouts = this._layouts;
+		'fillLayoutList': function (node) {
+			var layouts = this._layouts,
+				button  = this._widgets.buttonLayout,
+				input   = this._widgets.form.getInput('layout');
 			
 			if(layouts.length == 0) {
 				// throwing an error message
@@ -827,21 +871,86 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 						'label': 'OK'
 					}]
 				});
-
-				// Hide layout node
-				input.set('visible', false);
 			} else {
 				if (node.get('root')) {
-					layouts[0] = {id: '', title: Supra.Intl.get(['settings', 'select_layout'])};
+					layouts[0] = {
+						'id': '',
+						'title': Supra.Intl.get(['settings', 'select_layout']),
+						'icon': '/cms/lib/supra/img/sitemap/preview/layout.png'
+					};
 					input.set('showEmptyValue', false);
 				} else {
-					layouts[0] = {id: '', title: Supra.Intl.get(['settings', 'use_parent_layout'])};
+					layouts[0] = {
+						'id': '',
+						'title': Supra.Intl.get(['settings', 'use_parent_layout']),
+						'icon': '/cms/lib/supra/img/sitemap/preview/layout.png'
+					};
 					input.set('showEmptyValue', true);
 				}
 				
 				input.set('values', layouts);
 				input.set('value', '');
-				input.set('visible', true);
+			}
+		},
+		
+		/**
+		 * Show layout list
+		 */
+		'showLayouts': function () {
+			var panel = this._widgets.panel,
+				form = panel.get('contentBox'),
+				container = this._widgets.layoutList,
+				scrollable = this._widgets.layoutScrollable;
+			
+			if (!container) {
+				form = panel.get('contentBox');
+				container = this._widgets.layoutList = form.one('div.su-sitemap-layout-list');
+				
+				scrollable = this._widgets.layoutScrollable = new Supra.Scrollable({
+					'srcNode': container.one('div.su-sitemap-layout-list-scrollable')
+				});
+				scrollable.render();
+				
+				form.insert(container, 'before');
+			}
+			
+			if (container.hasClass('hidden')) {
+				
+				//  6 -> 259
+				form.transition({
+					'easing': 'ease-out',
+					'duration': 0.3,
+					'marginRight': '259px'
+				});
+				
+				container.removeClass('hidden');
+				scrollable.syncUI();
+			}
+		},
+		
+		/**
+		 * Hide layout list
+		 */
+		'hideLayouts': function (quick) {
+			var panel = this._widgets.panel,
+				form = panel ? panel.get('contentBox') : null,
+				container = this._widgets.layoutList;
+			
+			if (container && !container.hasClass('hidden')) {
+				
+				if (quick === true) {
+					form.setStyle('marginRight', '6px');
+					container.addClass('hidden');
+				} else {
+					//  259 -> 6
+					form.transition({
+						'easing': 'ease-out',
+						'duration': 0.3,
+						'marginRight': '6px'
+					}, Y.bind(function () {
+						container.addClass('hidden');
+					}, this));
+				}
 			}
 		},
 		
@@ -961,14 +1070,6 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					out.template = data.template = form.getInput('template').get('value');
 				} else {
 					out.layout = data.layout = form.getInput('layout').get('value');
-//					
-//					//Only for root templates can be set layout
-//					if (node.get('root')) {
-//						out.layout = data.layout = form.getInput('layout').get('value');
-//					} else {
-//						//Inherit from parent
-//						out.layout = node.get('parent').get('data').layout;
-//					}
 				}
 			}
 			
@@ -1095,6 +1196,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 			}
 			
 			this.hideTemplates(true /* quick */);
+			this.hideLayouts(true /* quick */);
 		}
 	});
 	

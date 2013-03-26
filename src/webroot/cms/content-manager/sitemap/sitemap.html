@@ -54,9 +54,20 @@
 				</div>
 			</div>
 			
-			<label for="layout">{# sitemap.new_template_label_layout #}</label>
-			<select name="layout" id="layout" value="" suType="Select">
-			</select>
+			<div class="yui3-input layout-section">
+				<label>{# sitemap.new_template_label_layout #}</label>
+				<button type="button" suStyle="item"><p></p></button>
+				<input type="hidden" name="layout[id]" />
+				<input type="hidden" name="layout[img]" />
+				<input type="hidden" name="layout[title]" />
+			</div>
+			
+			<label for="layout" class="hidden"></label>
+			<div class="su-sitemap-layout-list hidden">
+				<div class="su-sitemap-layout-list-scrollable">
+					<select name="layout" suStyle="items" suType="SelectList"></select>
+				</div>
+			</div>
 			
 			<div class="middle">
 				<button type="button" suStyle="small-blue">{# sitemap.create_page #}</button><br />

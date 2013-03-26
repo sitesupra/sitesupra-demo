@@ -66,14 +66,16 @@
 		}
 	}
 	
-	// Template list button
-	.template-section .su-button-item .su-button-content {
+	// Template/Layout list button
+	.template-section .su-button-item .su-button-content,
+	.layout-section .su-button-item .su-button-content {
 		// To match template preview height while no templates has been loaded yet
 		min-height: 82px;
 	}
 }
 
-.su-sitemap-template-list {
+.su-sitemap-template-list,
+.su-sitemap-layout-list {
 	background: #9296ac;
 	overflow: hidden;
 	padding: 0 0 0 10px;
@@ -90,19 +92,23 @@
 	}
 }
 
-.su-sitemap-template-list + .su-sitemap-add {
+.su-sitemap-template-list + .su-sitemap-add,
+.su-sitemap-layout-list + .su-sitemap-add {
 	.box-shadow (1px, 0, 0, rgba(99, 102, 116, 0.2));
 	border-right: 1px solid #636674;
 	margin-right: 259px;
 }
-.su-sitemap-template-list.hidden + .su-sitemap-add {
+.su-sitemap-template-list.hidden + .su-sitemap-add,
+.su-sitemap-layout-list.hidden + .su-sitemap-add {
 	border-right: 0;
 	margin-right: 6px;
 }
 
-.su-panel.su-panel-arrow-right .su-sitemap-template-list + .su-sitemap-add .su-panel-arrow {
+.su-panel.su-panel-arrow-right .su-sitemap-template-list + .su-sitemap-add .su-panel-arrow,
+.su-panel.su-panel-arrow-right .su-sitemap-layout-list + .su-sitemap-add .su-panel-arrow {
 	display: none;
 }
-.su-panel.su-panel-arrow-right .su-sitemap-template-list.hidden + .su-sitemap-add .su-panel-arrow {
+.su-panel.su-panel-arrow-right .su-sitemap-template-list.hidden + .su-sitemap-add .su-panel-arrow,
+.su-panel.su-panel-arrow-right .su-sitemap-layout-list.hidden + .su-sitemap-add .su-panel-arrow {
 	display: block;
 }

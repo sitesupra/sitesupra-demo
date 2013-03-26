@@ -632,7 +632,9 @@ class PageAction extends PageManagerAction
 
 			$layouts[] = array(
 				'id' => $themeLayout->getName(),
-				'title' => $themeLayout->getTitle()
+				'title' => $themeLayout->getTitle(),
+                // @FIXME: hardcoded value
+                'icon' => '/cms/lib/supra/img/sitemap/preview/layout.png',
 			);
 		}
 
@@ -879,6 +881,7 @@ class PageAction extends PageManagerAction
 		// defaults
 		$pathPart = null;
 		$pathPrefix = null;
+		$layoutArray = array();
 		$templateArray = array();
 		$scheduledDate = null;
 		$scheduledTime = null;
@@ -893,7 +896,6 @@ class PageAction extends PageManagerAction
 		$locked = false;
 		$changeFrequency = null;
 		$priority = null;
-		$layoutName = null;
 		$layouts = null;
 		
 		if ( ! $isTemplateInstance) {
@@ -909,8 +911,7 @@ class PageAction extends PageManagerAction
 					$templateArray = array(
 						'id' => $template->getId(),
 						'title' => $templateLocalization->getTitle(),
-						// @FIXME: hardcoded value
-						'img' => '/cms/lib/supra/img/templates/template-3-small.png',
+						'img' => '',
 					);
 				} else {
 					$templateError = new \RuntimeException("No template localization was found");
@@ -972,7 +973,11 @@ class PageAction extends PageManagerAction
 		if ($isTemplateInstance) {
 			if ($page->hasLayout($this->getMedia())) {
 				$layout = $page->getLayout($this->getMedia());
-				$layoutName = $layout->getName();
+				$layoutArray = array(
+				    'id'    => $layout->getName(),
+				    'title' => $layout->getTitle(),
+				    'icon'  => ''
+				);
 			}
 			$layouts = $this->getLayouts();
 		}
@@ -1043,7 +1048,7 @@ class PageAction extends PageManagerAction
 			'tree_path' => $ancestorIds,
 			'page_change_frequency' => $changeFrequency,
 			'page_priority' => $priority,
-			'layout' => $layoutName,
+			'layout' => $layoutArray,
 			'layouts' => $layouts,
 			
 			'internal_html' => null,

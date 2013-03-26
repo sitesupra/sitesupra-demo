@@ -73,9 +73,16 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		button_delete: null,
 
 		/**
-		 * 
+		 * Template section button
+		 * @type {Object}
 		 */
 		button_template: null,
+
+		/**
+		 * Layout section button
+		 * @type {Object}
+		 */
+		button_layout: null,
 
 		/**
 		 * "Created" button
@@ -88,6 +95,12 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		 * @type {Object}
 		 */
 		template_list: null,
+		
+		/**
+		 * Layout list object
+		 * @type {Object}
+		 */
+		layout_list: null,
 
 		/**
 		 * Page data
@@ -330,6 +343,43 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 				this.template_list.set('value', this.page_data.template.id);
 			}
 		},
+		
+		/**
+		 * When "slideLayout" slide is shown create widget, bind listeners
+		 */
+		onSlideLayout: function (node) {
+			if (!this.layout_list) {
+				var layouts = this.page_data.layouts,
+					select_layout_title = Supra.Intl.get(['settings', 'use_parent_layout']);
+				
+				layouts.unshift({
+					'id': '',
+					'title': select_layout_title,
+					'icon': '/cms/lib/supra/img/sitemap/preview/layout.png'
+				});
+				
+				this.layout_list = new Supra.Input.SelectList({
+					'value': this.page_data.layout.id,
+					'values': layouts,
+					'style': 'items'
+				});
+				
+				this.layout_list.render('div.layout-list');
+				
+				this.layout_list.on('change', function (e) {
+					var data = this.layout_list.getValueData(e.value);
+					if (data && (!this.page_data.layout || this.page_data.layout.id)) {
+						this.page_data.layout = data;
+						
+						this.setFormValue('layout', this.page_data);
+						this.slideshow.scrollBack();
+						this.saveSettingsChanges(); // save immediatelly to show layout change
+					}
+				}, this);
+			} else {
+				this.layout_list.set('value', this.page_data.layout.id);
+			}
+		},
 
 		onSlideAdvanced: function (node, init) {
 			//Update button label
@@ -471,6 +521,10 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 			//Template button
 			this.button_template = new Supra.Button({'srcNode': buttons.filter('.button-template').item(0), 'style': 'small-gray'});
 			this.button_template.render().on('click', function () { this.slideshow.set('slide', 'slideTemplate'); }, this);
+			
+			//Template button
+			this.button_layout = new Supra.Button({'srcNode': buttons.filter('.button-layout').item(0), 'style': 'small-gray'});
+			this.button_layout.render().on('click', function () { this.slideshow.set('slide', 'slideLayout'); }, this);
 
 			// Redirect section button value
 			this.redirect_title = this.one('span.redirect-target');
@@ -569,6 +623,7 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 				this.get('backButton').set('disabled', evt.newVal);
 				this.button_delete.set('disabled', evt.newVal);
 				this.button_template.set('disabled', evt.newVal);
+				this.button_layout.set('disabled', evt.newVal);
 				this.button_created.set('disabled', evt.newVal);
 			}
 		},
@@ -689,6 +744,9 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 				this.auto_update_path_from_title = (page_data.path && page_data.path.indexOf('new-page') == 0);
 			} else {
 				this.auto_update_path_from_title = false;
+
+				//Set template info
+				this.setFormValue('layout', page_data);
 			}
 
 			//Keywords
@@ -714,6 +772,10 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 				case 'template':
 					//Set template info
 					this.button_template.set('label', page_data.template.title);
+					break;
+				case 'layout':
+					//Set layout info
+					this.button_layout.set('label', page_data.layout.title);
 					break;
 				case 'redirect':
 					//Update button label
@@ -777,17 +839,23 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 			//Get data
 			var page_data = this.page_data,
 				form_data = this.form.getValuesObject(),
-				template_changed = false;
+				template_changed = false,
+				layout_changed = false;
 			
 			if (this.getType() == 'page') {	//Page
 				if (Manager.Page.getPageData().template.id != page_data.template.id) {
 					template_changed = true;
+				}
+			} else { //Template
+				if (Manager.Page.getPageData().layout.id != page_data.layout.id) {
+					layout_changed = true;
 				}
 			}
 
 			//Remove unneeded form data for save request
 			//Scheduled and created date/time are in page_data
 			delete(form_data.template);
+			delete(form_data.layout);
 			delete(form_data.scheduled_time);
 			delete(form_data.scheduled_date);
 			delete(form_data.schedule_hours);
@@ -803,6 +871,7 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 			var post_data = Supra.mix({}, page_data);
 			post_data.page_id = post_data.id;
 			post_data.template = post_data.template.id;
+			post_data.layout = post_data.layout.id;
 
 			if (this.getType() == 'page') {	//Page
 
@@ -814,6 +883,8 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 				if (page_data.has_limited_parent) {
 					delete(post_data.is_limited);
 				}
+				
+				delete(post_data.layout);
 
 			} else { //Template
 				//Remove template, path, meta, status
@@ -848,7 +919,7 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 					'success': function () {
 						Manager.Page.setPageData(page_data);
 
-						if (template_changed) {
+						if (template_changed || layout_changed) {
 							//Reload page content
 							Manager.Page.reloadPage();
 						} else {
@@ -914,6 +985,11 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 					['template', '.button-meta'],
 					['template', form.getInput('description')],
 					['template', form.getInput('keywords')],
+
+					['page', '.layout-section'],
+					['page', form.getInput('layout[id]')],
+					['page', form.getInput('layout[img]')],
+					['page', form.getInput('layout[title]')],
 
 					['template', '.template-section'],
 					['template', form.getInput('template[id]')],
@@ -981,13 +1057,11 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 			form.getInput('title').set('label', label_title);
 
 			//Layout input
-			if (type != 'template') {
+			/*
+			if (type == 'template') {
 				form.getInput('layout').hide();
 				form.getInput('layout').set('disabled', true);
 			} else {
-				form.getInput('layout').show();
-
-
 				var values = form.getInput('layout').get('values');
 				if(values && values.length) {
 					form.getInput('layout').set('disabled', false);
@@ -1001,6 +1075,7 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 					form.getInput('layout').set('value', this.page_data.layout);
 				}
 			}
+			*/
 		},
 
 		/**

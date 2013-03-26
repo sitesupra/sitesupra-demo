@@ -30,9 +30,13 @@
 					<label for="path">{#settings.page_url#}</label>
 					<input type="text" name="path" id="path" value="" suValueMask="^[^\\\/\?\#\s\%]*$" />
 					
-					<label for="layout">{#settings.page_layout#}</label>
-					<select name="layout" id="layout" value="" suType="Select">
-					</select>
+					<div class="yui3-input layout-section">
+						<label>{#settings.page_layout#}</label>
+						<button type="button" class="button-layout button-section"><p></p></button>
+						<input type="hidden" name="layout[id]" />
+						<input type="hidden" name="layout[img]" />
+						<input type="hidden" name="layout[title]" />
+					</div>
 					
 					<div class="yui3-input template-section">
 						<label>{#settings.template#}</label>
@@ -109,6 +113,11 @@
 						<option value="0.9">0.9</option>
 						<option value="1">1</option>
 					</select>
+				
+				</div><div id="slideLayout" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-layout.png" data-title="{#settings.page_layout#}">
+				
+					<div class="layout-list"></div>
+					<div class="clear"><!-- --></div>
 				
 				</div><div id="slideTemplate" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-template.png" data-title="{#settings.template_title#}">
 				
