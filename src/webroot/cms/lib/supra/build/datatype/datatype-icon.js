@@ -29,6 +29,12 @@ YUI.add('supra.datatype-icon', function(Y) {
 		id: null,
 		
 		/**
+		 * Type, should be used only when same property name is used for image and icon
+		 * @type {String}
+		 */
+		type: null,
+		
+		/**
 		 * Icon width
 		 * @type {Number}
 		 */
@@ -331,18 +337,23 @@ YUI.add('supra.datatype-icon', function(Y) {
 		 * @returns {Object} All properties which should be encoded
 		 */
 		toURIComponent: function () {
-			if (!this.id) {
-				// Icon is not set, send empty string
-				return '';
-			} else {
-				return {
+			// Icon is not set, then send empty string
+			var obj = '';
+			
+			if (this.id) {
+				obj = {
 					'id': this.id,
 					'width': this.width,
 					'height': this.height,
 					'color': this.color,
 					'align': this.align
 				};
+				if (this.type) {
+					obj['type'] = this.type;
+				}
 			}
+			
+			return obj;
 		},
 		
 		/**
@@ -353,6 +364,8 @@ YUI.add('supra.datatype-icon', function(Y) {
 		toJSON: function () {
 			return {
 				'id': this.id,
+				'type': this.type,
+				
 				'width': this.width,
 				'height': this.height,
 				'color': this.color,
