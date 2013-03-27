@@ -907,6 +907,7 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 			delete(post_data.internal_html);
 			delete(post_data.contents);
 			delete(post_data.has_limited_parent);
+			delete(post_data.layouts);
 
 			post_data.locale = Supra.data.get('locale');
 

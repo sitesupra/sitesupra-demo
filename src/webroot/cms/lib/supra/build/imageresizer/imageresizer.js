@@ -339,17 +339,17 @@ YUI().add("supra.imageresizer", function (Y) {
 					handleSize = RESIZE_HANDLE_SIZE,
 					cursor = 4;
 				
-				if (x < handleSize) {
-					if (y < handleSize) {
-						cursor = 0;
-					} else if (y > h - handleSize) {
-						cursor = 3;
-					}
-				} else if (x > w - handleSize) {
-					if (y < handleSize) {
-						cursor = 1;
-					} else if (y > h - handleSize) {
+				if (x > w - handleSize) {
+					if (y > h - handleSize) {
 						cursor = 2;
+					} else if (y < handleSize) {
+						cursor = 1;
+					}
+				} else if (x < handleSize) {
+					if (y > h - handleSize) {
+						cursor = 3;
+					} else if (y < handleSize) {
+						cursor = 0;
 					}
 				}
 				
