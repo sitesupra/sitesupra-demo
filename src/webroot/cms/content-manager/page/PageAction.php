@@ -1005,10 +1005,10 @@ class PageAction extends PageManagerAction
 		// Collecting all available localizations
 		$localizationsData = array();
 		$localizations = $page->getLocalizations();
-		foreach ($localizations as $localization) {
+		foreach ($localizations as $localizationEntity) {
 			/* @var $localization Entity\Abstraction\Localization */
-			$localizationsData[$localization->getLocale()] = array(
-				'page_id' => $localization->getId()
+			$localizationsData[$localizationEntity->getLocale()] = array(
+				'page_id' => $localizationEntity->getId()
 			);
 		}
 
