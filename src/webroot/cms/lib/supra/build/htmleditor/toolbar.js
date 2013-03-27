@@ -496,6 +496,22 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		
 		
 		/**
+		 * Returns true if group is visible, otherwise false
+		 * 
+		 * @param {String} group_id Group ID
+		 * @returns {Boolean} True if group is visible, otherwise false
+		 */
+		isGroupVisible: function (group_id) {
+			var group = this.groups[group_id];
+			
+			if (group) {
+				return group.visible;
+			} else {
+				return false;
+			}
+		},
+		
+		/**
 		 * Show group
 		 * 
 		 * @param {String} group_id Group ID
