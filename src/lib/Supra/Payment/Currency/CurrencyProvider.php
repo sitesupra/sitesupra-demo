@@ -53,22 +53,32 @@ class CurrencyProvider
 		return $currency;
 	}
 	
+	/**
+	 * @return array
+	 */
+	public function getAll()
+	{
+		return $this->currencyRepository->findAll();
+	}
+	
 
 	/**
 	 * @param string $iso4217Code 
 	 */
 	private function createDummyCurrency($iso4217Code)
 	{
-		$currency = new Currency();
-		$currency->setIso4217Code($iso4217Code);
-		$currency->setAbbreviation($iso4217Code . '-ABBREV');
-		$currency->setSymbol($iso4217Code . '-SYMBOL');
-		$currency->setEnabled(true);
+		throw new \RuntimeException("This method is obsolete, use the real currencies!");
 		
-		$this->em->persist($currency);
-		$this->em->flush();
-		
-		return $currency;
+//		$currency = new Currency();
+//		$currency->setIso4217Code($iso4217Code);
+//		$currency->setAbbreviation($iso4217Code . '-ABBREV');
+//		$currency->setSymbol($iso4217Code . '-SYMBOL');
+//		$currency->setEnabled(true);
+//		
+//		$this->em->persist($currency);
+//		$this->em->flush();
+//		
+//		return $currency;
 	}
 
 }
