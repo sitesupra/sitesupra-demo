@@ -342,6 +342,8 @@ YUI.add('slideshowmanager.view', function (Y) {
 			this._activePropertyId = null;
 			
 			// Stop editing
+			// No need for this anymore?
+			/*
 			if (this.get('host').settings.widgets.form) {
 				var inputs = this.get('host').settings.widgets.form.getInputs(),
 					key = null;
@@ -350,6 +352,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 					inputs[key].stopEditing();
 				}
 			}
+			*/
 		},
 		
 		/**
