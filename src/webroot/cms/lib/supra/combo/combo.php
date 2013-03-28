@@ -203,6 +203,7 @@ function getFileContent($file)
 			$lessPhp = __DIR__ . '/../lessphp/SupraLessC.php';
 			require_once $lessPhp;
 			$less = new SupraLessC($lessFile);
+			$less->formatterName = 'compressed';
 			$less->setRootDir($webrootDir);
 			$outFile = $less->parse();
 		}
