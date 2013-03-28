@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra;
+namespace Supra\Exception;
 
 class CommandException extends \RuntimeException
 {

@@ -58,6 +58,11 @@ class Currency extends Database\Entity
 		$this->symbol = $symbol;
 	}
 
+	public function getSymbol()
+	{
+		return $this->symbol;
+	}
+	
 	public function setEnabled($enabled)
 	{
 		$this->enabled = $enabled;

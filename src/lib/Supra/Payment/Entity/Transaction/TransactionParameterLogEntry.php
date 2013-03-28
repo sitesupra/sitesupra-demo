@@ -2,8 +2,6 @@
 
 namespace Supra\Payment\Entity\Transaction;
 
-use Supra\Payment\Entity\Abstraction\PaymentEntityParameter;
-use \DateTime;
 use Supra\Payment\Entity\Abstraction\LogEntry;
 
 /**
@@ -16,7 +14,7 @@ class TransactionParameterLogEntry extends TransactionParameter implements LogEn
 {
 	/**
 	 * @Column(type="datetime", nullable=false)
-	 * @var DateTime;
+	 * @var \DateTime;
 	 */
 	protected $logTime;
 
@@ -34,7 +32,7 @@ class TransactionParameterLogEntry extends TransactionParameter implements LogEn
 		$this->copy($transactionParameter);
 		parent::__construct();
 
-		$this->logTime = new DateTime('now');
+		$this->logTime = new \DateTime('now');
 		$this->transactionParameterId = $transactionParameter->getId();
 	}
 

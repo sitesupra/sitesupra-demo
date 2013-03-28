@@ -755,6 +755,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		\Log::debug('TRANSACT INIT TRANSACTION RESULT: ', $result);
 
+		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_TRANSACTION, $postData);
 		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_TRANSACTION, $result);
 
 		return $result;
@@ -940,6 +941,8 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		\Log::debug('TRANSACT INIT RECURRENT TRANSACTION RESULT: ', $result);
 
+		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $postData);
+		
 		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $result);
 
 		return $result;

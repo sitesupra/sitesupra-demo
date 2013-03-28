@@ -74,6 +74,19 @@ abstract class Order extends Database\Entity
 	 * @var string
 	 */
 	protected $localeId;
+	
+	/**
+	 * @Column(type="integer", nullable=true)
+	 * @var integer
+	 */
+	protected $vat;
+	
+	/**
+	 * @Column(type="integer", nullable=true)
+	 * @var integer
+	 */
+	protected $invoiceSequenceNr;
+	
 
 	function __construct()
 	{
@@ -185,6 +198,12 @@ abstract class Order extends Database\Entity
 
 			$total = $total + $item->getPrice();
 		}
+		
+		// Value added tax
+		if ($this->vat > 0) {
+			$tax = ($total * $this->vat) / 100;
+			$total = $total + $tax;
+		}
 
 		return $total;
 	}
@@ -201,6 +220,12 @@ abstract class Order extends Database\Entity
 			if ($item instanceof OrderProductItem) {
 				$total = $total + $item->getPrice();
 			}
+		}
+		
+		// Value added tax
+		if ($this->vat > 0) {
+			$tax = ($total * $this->vat) / 100;
+			$total = $total + $tax;
 		}
 
 		return $total;
@@ -329,6 +354,37 @@ abstract class Order extends Database\Entity
 		}
 	}
 
+	/**
+	 * @param integer $vatAmount
+	 * @throws \LogicException
+	 */
+	public function setVat($vatRate) 
+	{
+		$vat = (int) $vatRate;
+		
+		if ($vat < 0) {
+			throw new \LogicException("Negative VAT rate value passed");
+		}
+		
+		$this->vat = $vat;
+	}
+
+	/**
+	 * @return integer
+	 */
+	public function getVat()
+	{
+		return $this->vat;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getInvoiceNumber()
+	{
+		return sprintf('%s-%i', $this->creationTime->format('dmY'), $this->invoiceSequenceNr);
+	}
+	
 	/**
 	 * @return array
 	 */
