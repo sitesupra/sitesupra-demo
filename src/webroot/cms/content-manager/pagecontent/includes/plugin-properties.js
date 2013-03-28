@@ -500,7 +500,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 						'srcNode': srcNode,
 						'contentBox': srcNode,
 						'boundingBox': srcNode,
-						'targetNode': srcNode
+						'targetNode': srcNode,
+						'parent': form,
+						'root': this.get('host')
 					}, property, {
 						'value': value ? value : property.value
 					});

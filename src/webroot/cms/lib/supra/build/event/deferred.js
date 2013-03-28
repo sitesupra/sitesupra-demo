@@ -332,7 +332,7 @@ YUI.add('supra.deferred', function (Y) {
 	Deferred.when = function () {
 		var args = [].splice.call(arguments);
 		
-		// If first arugment is array then use it as deferred list
+		// If first argument is array then use it as deferred list
 		if (args.length === 1 && Y.Lang.isArray(args[0])) { 
 			args = args[0];
 		}
@@ -341,40 +341,49 @@ YUI.add('supra.deferred', function (Y) {
 		if (args.length === 1) {
 			if (Y.Lang.isFunction(args[0].promise)) {
 				return args[0].promise();
+			} else {
+				var deferred = new Deferred();
+				deferred.resolveWith(deferred, args[0]);
+				return deferred.promise();
 			}
 		} else {
-			var args = [],
+			var results = [],
 				count = args.length,
 				waiting = 0,
 				deferred = new Deferred();
 			
 			for (var i=0; i<count; i++) {
-				if (Y.Lang.isFunction(args[i].then)) {
+				if (args[i] && Y.Lang.isFunction(args[i].then)) {
+					// Promise
 					waiting++;
 					(function (index, src) {
 						src.then(function () {
 							// On success update argument list and check if all has been resolved
-							args[index] = [].splice.call(arguments);
+							results[index] = [].splice.call(arguments);
 							waiting--;
-							if (!waiting) deferred.resolveWith(args);
+							if (!waiting) deferred.resolveWith(results);
 						}, function () {
-							// On failure reject immediatelly
+							// On failure reject immediately
 							waiting--;
 							deferred.reject();
 						});
 					})(i, args[i]);
+				} else {
+					results[i] = args[i];
+					waiting--;
+					if (!waiting) deferred.resolveWith(results);
 				}
 			}
 			
 			if (!waiting) {
-				// No deferreds
+				// No deferred's
 				deferred.resolve();
 			}
 			
 			return deferred;
 		}
 		
-		// Blank promise, which is resolved immediatelly
+		// Blank promise, which is resolved immediately
 		return (new Deferred()).resolve().promise();
 	};
 	

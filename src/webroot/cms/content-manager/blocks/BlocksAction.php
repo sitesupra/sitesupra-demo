@@ -212,6 +212,7 @@ class BlocksAction extends PageManagerAction
             td.w-12 { width: 100%; }
             td.w-9  { width: 75%; }
             td.w-6  { width: 50%; }
+            td.w-8  { width: 66.6%; }
             td.w-4  { width: 33.3%; }
             td.w-3  { width: 25%; }
             

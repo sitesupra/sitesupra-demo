@@ -11740,6 +11740,22 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		
 		
 		/**
+		 * Returns true if group is visible, otherwise false
+		 * 
+		 * @param {String} group_id Group ID
+		 * @returns {Boolean} True if group is visible, otherwise false
+		 */
+		isGroupVisible: function (group_id) {
+			var group = this.groups[group_id];
+			
+			if (group) {
+				return group.visible;
+			} else {
+				return false;
+			}
+		},
+		
+		/**
 		 * Show group
 		 * 
 		 * @param {String} group_id Group ID
@@ -12340,17 +12356,17 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					handleSize = RESIZE_HANDLE_SIZE,
 					cursor = 4;
 				
-				if (x < handleSize) {
-					if (y < handleSize) {
-						cursor = 0;
-					} else if (y > h - handleSize) {
-						cursor = 3;
-					}
-				} else if (x > w - handleSize) {
-					if (y < handleSize) {
-						cursor = 1;
-					} else if (y > h - handleSize) {
+				if (x > w - handleSize) {
+					if (y > h - handleSize) {
 						cursor = 2;
+					} else if (y < handleSize) {
+						cursor = 1;
+					}
+				} else if (x < handleSize) {
+					if (y > h - handleSize) {
+						cursor = 3;
+					} else if (y < handleSize) {
+						cursor = 0;
 					}
 				}
 				
@@ -17427,22 +17443,24 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var toolbar = this.htmleditor.get('toolbar'),
 				orientation = this.getOptions().orientation;
 			
-			toolbar.showGroup(HTMLEDITOR_TOOLBAR);
-			
-			if (orientation == 'horizontal') {
-				toolbar.getButton('itemlist-row-before').hide();
-				toolbar.getButton('itemlist-row-delete').hide();
-				toolbar.getButton('itemlist-row-after').hide();
-				toolbar.getButton('itemlist-column-before').show();
-				toolbar.getButton('itemlist-column-delete').show();
-				toolbar.getButton('itemlist-column-after').show();
-			} else {
-				toolbar.getButton('itemlist-row-before').show();
-				toolbar.getButton('itemlist-row-delete').show();
-				toolbar.getButton('itemlist-row-after').show();
-				toolbar.getButton('itemlist-column-before').hide();
-				toolbar.getButton('itemlist-column-delete').hide();
-				toolbar.getButton('itemlist-column-after').hide();
+			if (!toolbar.isGroupVisible(HTMLEDITOR_TOOLBAR)) {
+				toolbar.showGroup(HTMLEDITOR_TOOLBAR);
+				
+				if (orientation == 'horizontal') {
+					toolbar.getButton('itemlist-row-before').hide();
+					toolbar.getButton('itemlist-row-delete').hide();
+					toolbar.getButton('itemlist-row-after').hide();
+					toolbar.getButton('itemlist-column-before').show();
+					toolbar.getButton('itemlist-column-delete').show();
+					toolbar.getButton('itemlist-column-after').show();
+				} else {
+					toolbar.getButton('itemlist-row-before').show();
+					toolbar.getButton('itemlist-row-delete').show();
+					toolbar.getButton('itemlist-row-after').show();
+					toolbar.getButton('itemlist-column-before').hide();
+					toolbar.getButton('itemlist-column-delete').hide();
+					toolbar.getButton('itemlist-column-after').hide();
+				}
 			}
 		},
 		
@@ -17451,7 +17469,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		hideToolbar: function () {
 			var toolbar = this.htmleditor.get('toolbar');
-			toolbar.hideGroup(HTMLEDITOR_TOOLBAR);
+			
+			if (toolbar.isGroupVisible(HTMLEDITOR_TOOLBAR)) {
+				toolbar.hideGroup(HTMLEDITOR_TOOLBAR);
+			}
 		},
 		
 		
@@ -17849,7 +17870,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		init: function (htmleditor) {
 			// Find options
 			var options = this.getOptions();
-			 
+			
 			if (options) {
 				// Add commands
 				htmleditor.addCommand('itemlist-before', Y.bind(this.cmdInsertBefore, this));
@@ -17861,6 +17882,15 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			htmleditor.on('editingAllowedChange', this.purgeCache, this);
 			
 			//When un-editable node is selected hide toolbar
+			htmleditor.on('disabledChange', function (event) {
+				if (event.newVal !== event.prevVal) {
+					if (event.newVal || !options) {
+						this.hideToolbar();
+					} else {
+						this.showToolbar();
+					}
+				}
+			}, this);
 			htmleditor.on('editingAllowedChange', function (event) {
 				if (!event.allowed || !options) {
 					this.hideToolbar();
@@ -41328,7 +41358,7 @@ YUI.add('supra.deferred', function (Y) {
 	Deferred.when = function () {
 		var args = [].splice.call(arguments);
 		
-		// If first arugment is array then use it as deferred list
+		// If first argument is array then use it as deferred list
 		if (args.length === 1 && Y.Lang.isArray(args[0])) { 
 			args = args[0];
 		}
@@ -41337,40 +41367,49 @@ YUI.add('supra.deferred', function (Y) {
 		if (args.length === 1) {
 			if (Y.Lang.isFunction(args[0].promise)) {
 				return args[0].promise();
+			} else {
+				var deferred = new Deferred();
+				deferred.resolveWith(deferred, args[0]);
+				return deferred.promise();
 			}
 		} else {
-			var args = [],
+			var results = [],
 				count = args.length,
 				waiting = 0,
 				deferred = new Deferred();
 			
 			for (var i=0; i<count; i++) {
-				if (Y.Lang.isFunction(args[i].then)) {
+				if (args[i] && Y.Lang.isFunction(args[i].then)) {
+					// Promise
 					waiting++;
 					(function (index, src) {
 						src.then(function () {
 							// On success update argument list and check if all has been resolved
-							args[index] = [].splice.call(arguments);
+							results[index] = [].splice.call(arguments);
 							waiting--;
-							if (!waiting) deferred.resolveWith(args);
+							if (!waiting) deferred.resolveWith(results);
 						}, function () {
-							// On failure reject immediatelly
+							// On failure reject immediately
 							waiting--;
 							deferred.reject();
 						});
 					})(i, args[i]);
+				} else {
+					results[i] = args[i];
+					waiting--;
+					if (!waiting) deferred.resolveWith(results);
 				}
 			}
 			
 			if (!waiting) {
-				// No deferreds
+				// No deferred's
 				deferred.resolve();
 			}
 			
 			return deferred;
 		}
 		
-		// Blank promise, which is resolved immediatelly
+		// Blank promise, which is resolved immediately
 		return (new Deferred()).resolve().promise();
 	};
 	

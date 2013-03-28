@@ -173,14 +173,14 @@ class LeftMenuBlock extends MenuBlock
 			$rootLocalizations = $localizationFinder->getResult();
 
 			if (count($rootLocalizations) > 1) {
-				throw new Exception\RuntimeException('More than one root localization found.');
+				throw new \RuntimeException('More than one root localization found.');
 			}
 
 			$rootLocalization = current($rootLocalizations);
 		}
 
 		if (empty($rootLocalization)) {
-			throw new Exception\RuntimeException('Root localization not found.');
+			throw new \RuntimeException('Root localization not found.');
 		}
 
 		return $rootLocalization;

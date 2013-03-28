@@ -2,6 +2,14 @@
 {% set design = supraBlock.property('design') %}
 
 <div class="block">
+
+	{% if not supraBlock.isEmpty('block_title') %}
+	<h2 class="block-title"><div>
+		{{ supraBlock.property('block_title') }}
+		{% set heading_class = 'has-heading' %}
+	</div></h2>
+	{% endif %}
+	
 	<div data-refresh-event="text" class="text {% if design %}{{ design }}{% endif %}">
 		<div class="text-inner clearfix">
 	

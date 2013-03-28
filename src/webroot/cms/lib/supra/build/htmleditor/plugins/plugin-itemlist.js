@@ -25,22 +25,24 @@ YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
 			var toolbar = this.htmleditor.get('toolbar'),
 				orientation = this.getOptions().orientation;
 			
-			toolbar.showGroup(HTMLEDITOR_TOOLBAR);
-			
-			if (orientation == 'horizontal') {
-				toolbar.getButton('itemlist-row-before').hide();
-				toolbar.getButton('itemlist-row-delete').hide();
-				toolbar.getButton('itemlist-row-after').hide();
-				toolbar.getButton('itemlist-column-before').show();
-				toolbar.getButton('itemlist-column-delete').show();
-				toolbar.getButton('itemlist-column-after').show();
-			} else {
-				toolbar.getButton('itemlist-row-before').show();
-				toolbar.getButton('itemlist-row-delete').show();
-				toolbar.getButton('itemlist-row-after').show();
-				toolbar.getButton('itemlist-column-before').hide();
-				toolbar.getButton('itemlist-column-delete').hide();
-				toolbar.getButton('itemlist-column-after').hide();
+			if (!toolbar.isGroupVisible(HTMLEDITOR_TOOLBAR)) {
+				toolbar.showGroup(HTMLEDITOR_TOOLBAR);
+				
+				if (orientation == 'horizontal') {
+					toolbar.getButton('itemlist-row-before').hide();
+					toolbar.getButton('itemlist-row-delete').hide();
+					toolbar.getButton('itemlist-row-after').hide();
+					toolbar.getButton('itemlist-column-before').show();
+					toolbar.getButton('itemlist-column-delete').show();
+					toolbar.getButton('itemlist-column-after').show();
+				} else {
+					toolbar.getButton('itemlist-row-before').show();
+					toolbar.getButton('itemlist-row-delete').show();
+					toolbar.getButton('itemlist-row-after').show();
+					toolbar.getButton('itemlist-column-before').hide();
+					toolbar.getButton('itemlist-column-delete').hide();
+					toolbar.getButton('itemlist-column-after').hide();
+				}
 			}
 		},
 		
@@ -49,7 +51,10 @@ YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
 		 */
 		hideToolbar: function () {
 			var toolbar = this.htmleditor.get('toolbar');
-			toolbar.hideGroup(HTMLEDITOR_TOOLBAR);
+			
+			if (toolbar.isGroupVisible(HTMLEDITOR_TOOLBAR)) {
+				toolbar.hideGroup(HTMLEDITOR_TOOLBAR);
+			}
 		},
 		
 		
@@ -447,7 +452,7 @@ YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
 		init: function (htmleditor) {
 			// Find options
 			var options = this.getOptions();
-			 
+			
 			if (options) {
 				// Add commands
 				htmleditor.addCommand('itemlist-before', Y.bind(this.cmdInsertBefore, this));
@@ -459,6 +464,15 @@ YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
 			htmleditor.on('editingAllowedChange', this.purgeCache, this);
 			
 			//When un-editable node is selected hide toolbar
+			htmleditor.on('disabledChange', function (event) {
+				if (event.newVal !== event.prevVal) {
+					if (event.newVal || !options) {
+						this.hideToolbar();
+					} else {
+						this.showToolbar();
+					}
+				}
+			}, this);
 			htmleditor.on('editingAllowedChange', function (event) {
 				if (!event.allowed || !options) {
 					this.hideToolbar();

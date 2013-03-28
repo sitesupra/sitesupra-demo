@@ -40,14 +40,6 @@
 
 {% set ratio = 0.7 %}
 
-{% if layout == 'columns_3' %}
-	{% set columns = 3 %}
-{% elseif layout == 'columns_2' %}
-	{% set columns = 2 %}
-{% else %}
-	{% set columns = 4 %}
-{% endif %}
-
 {# Macro for outputing links #}
 	{% macro link(product, link_type) %}
 		{% if product.property.link %}
@@ -110,7 +102,7 @@
 							<li class="clear"></li>
 						{% endif %}
 						
-						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
+						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}one_half{% elseif layout == 'columns_1' %}one_half{% else %}one_fourth{% endif %} clearfix">
 							
 							<span class="img">
 								{% if design == 'icon' %}
@@ -150,7 +142,7 @@
 		{% if supra.cmsRequest %}{% raw %}
 			<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item" data-supra-image-selector="li > img">
 				
-				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}grid_8{% else %}grid_4{% endif %} clearfix">
+				<li class="{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}one_half{% elseif layout == 'columns_1' %}one_half{% else %}one_fourth{% endif %} clearfix">
 					{% if design == 'icon' %}
 						<span class="img">
 							<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px"
