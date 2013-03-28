@@ -2,6 +2,17 @@ YUI.add("supra.input-select", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	var LOOKUP_BLACKLIST = {
+		9: true,  // Tab
+		13: true, // Returns
+		16: true, // Shift
+		27: true, // Escape
+		37: true, // Arrows
+		38: true,
+		39: true,
+		40: true 
+	};
+	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
 		this.init.apply(this, arguments);
@@ -288,7 +299,7 @@ YUI.add("supra.input-select", function (Y) {
 			if (!this.get("opened")) {
 				if (key == 13 || key == 40) {
 					//Return key or arrow down, open dropdown
-					this.set("opened", true);
+					this.set("opened", true);;
 				}
 			} else {
 				if (key == 27 || key == 9) {
@@ -314,6 +325,9 @@ YUI.add("supra.input-select", function (Y) {
 					
 					//Style
 					if (item) {
+						this._highlightItem(item);
+						
+						/*
 						if (prev) {
 							prev.removeClass("selected");
 						}
@@ -324,6 +338,7 @@ YUI.add("supra.input-select", function (Y) {
 						if (this.scrollable) {
 							this.scrollable.scrollInView(item);
 						}
+						*/
 					}
 				} else if (key == 13) {
 					if (this.highlight_id !== null) {
@@ -331,6 +346,46 @@ YUI.add("supra.input-select", function (Y) {
 					}
 					
 					this.set("opened", false);
+				}
+			}
+			
+			if (!(key in LOOKUP_BLACKLIST)) {
+				var character = String.fromCharCode((96 <= key && key <= 105)? key-48 : key);
+				if (character) {
+					this._updateLookupString(character);
+				}
+			}
+		},
+		
+		/**
+		 * Highlight list item
+		 * 
+		 * @param {String} id Item id
+		 * @private
+		 */
+		_highlightItem: function (id) {
+			var node = this.get("dropdownNode"),
+				prev_item = node.one(".selected"),
+				new_item = null;
+			
+			if (id instanceof Y.Node) {	
+				new_item = id;
+				id = new_item.getAttribute('data-id');
+			} else {
+				new_item = node.one('[data-id="' + id + '"]');
+			}
+			
+			if (new_item) {
+				if (prev_item) {
+					prev_item.removeClass('selected');
+				}
+				new_item.addClass('selected');
+				
+				this.highlight_id = id;
+				
+				//Update scroll position
+				if (this.scrollable) {
+					this.scrollable.scrollInView(new_item);
 				}
 			}
 		},
@@ -407,6 +462,9 @@ YUI.add("supra.input-select", function (Y) {
 				
 				this.set("contentNode", this.scrollable.get("contentBox"));
 			}
+			
+			//Highlight selected value
+			this._highlightItem(this.get('value'));
 		},
 		
 		/**
@@ -762,6 +820,82 @@ YUI.add("supra.input-select", function (Y) {
 			}
 			
 			this.get("innerNode").destroy(true);
+		},
+		
+		
+		/* -------------------------- Find item matching entered string  -------------------------- */
+		
+		
+		/**
+		 * Timer to clear lookup string
+		 * @type {Object}
+		 * @private
+		 */
+		_lookupCooldownTimer: null,
+		
+		/**
+		 * Lookup string
+		 * @type {String}
+		 * @private
+		 */
+		_lookupString: '',
+		
+		
+		/**
+		 * Find matching value
+		 * 
+		 * @param {String} str
+		 */
+		_findMatchingValue: function (str) {
+			var values = this.get('values'),
+				i = 0,
+				ii = values.length;
+			
+			str = str.toUpperCase();
+			
+			for (; i<ii; i++) {
+				if (values[i].title.toUpperCase().indexOf(str) === 0) {
+					return values[i].id;
+				}
+		 	}
+		 	
+		 	return null;
+		},
+		
+		/**
+		 * Update lookup string
+		 * @param {Object} character
+		 */
+		_updateLookupString: function (character) {
+			if (this._lookupCooldownTimer) {
+				this._lookupCooldownTimer.cancel();
+			}
+			this._lookupCooldownTimer = Y.later(500, this, this._clearLookupString);
+			
+			this._lookupString += character;
+			
+			var value = this._findMatchingValue(this._lookupString);
+			if (value) {
+				if (this.get('opened')) {
+					this._highlightItem(value);
+				} else {
+					this.set('value', value);
+				}
+			}
+		},
+		
+		/**
+		 * Clear lookup string
+		 * 
+		 * @private
+		 */
+		_clearLookupString: function () {
+			if (this._lookupCooldownTimer) {
+				this._lookupCooldownTimer.cancel();
+				this._lookupCooldownTimer = null;
+			}
+			
+			this._lookupString = '';
 		}
 		
 	});
