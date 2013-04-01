@@ -15242,7 +15242,7 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 */
 		init: function (htmleditor, configuration) {
 			// If not portal, then don't do anything
-			if (!Supra.data.get(['site', 'portal'])) return;
+			//if (!Supra.data.get(['site', 'portal'])) return;
 			
 			var iconsidebar = Manager.getAction("IconSidebar"),
 				toolbar = htmleditor.get("toolbar"),
