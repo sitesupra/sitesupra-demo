@@ -32,5 +32,6 @@ abstract class VersionedTableMetadataListener
 		'Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement',
 		'Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement',
 		'Supra\Controller\Pages\Entity\ReferencedElement\VideoReferencedElement',
+		'Supra\Controller\Pages\Entity\ReferencedElement\IconReferencedElement',
 	);
 }

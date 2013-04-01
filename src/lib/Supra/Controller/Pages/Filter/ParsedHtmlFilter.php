@@ -184,6 +184,72 @@ class ParsedHtmlFilter implements FilterInterface
 	}
 
 	/**
+	 * Parse supra.icon
+	 */
+	private function parseSupraIcon(Entity\ReferencedElement\IconReferencedElement $iconData)
+	{
+		$html = null;
+		
+		$iconId = $iconData->getIconId();
+		
+		// @FIXME: handle with FileStorage instead of Theme
+		//		or with something else?
+		$themeConfiguration = ObjectRepository::getThemeProvider($this)
+				->getCurrentTheme()
+				->getConfiguration();
+		
+		$iconConfiguration = $themeConfiguration->getIconConfiguration();
+		
+		if ( ! $iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
+			$this->log->warn("No icons configuration object found");
+			return null;
+		}
+		
+		$svgContent = $iconConfiguration->getIconSvgContent($iconId);
+		
+		if ( ! empty($svgContent)) {
+			
+			$tag = new \Supra\Html\HtmlTag('svg');
+			
+			$tag->setContent($svgContent);
+			
+			$tag->setAttribute('version', '1.1');
+			$tag->setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+			$tag->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+			$tag->setAttribute('x', '0px');
+			$tag->setAttribute('y', '0px');
+			$tag->setAttribute('viewBox', '0 0 512 512', true);
+			$tag->setAttribute('enable-background', 'new 0 0 512 512');
+			$tag->setAttribute('xml:space', 'preserve');
+
+			$color = $iconData->getColor();
+			if ( ! empty($color)) {
+				$tag->setAttribute('style', "fill: {$color}");
+			}
+
+			$align = $iconData->getAlign();
+			if ( ! empty($align)) {
+				$tag->addClass('align-' . $align);
+			}
+
+			$width = $iconData->getWidth();
+			if ( ! empty($width)) {
+				$tag->setAttribute('width', $width);
+			}
+
+			$height = $iconData->getHeight();
+			if ( ! empty($height)) {
+				$tag->setAttribute('height', $height);
+			}
+			
+			$html = $tag->toHtml();
+		}
+
+		return $html;
+	}
+	
+	
+	/**
 	 * Replace image/link supra tags with real elements
 	 * @param string $value
 	 * @param array $metadataElements
@@ -213,6 +279,18 @@ class ParsedHtmlFilter implements FilterInterface
 					$result[] = $this->parseSupraImage($image);
 				}
 			}
+			
+			else if ($element instanceof Markup\SupraMarkupIcon) {
+				if ( ! isset($metadataElements[$element->getId()])) {
+					$this->log->warn("Referenced icon element " . get_class($element) . "-" . $element->getId() . " not found for {$this->property}");
+				}
+				else {
+
+					$icon = $metadataElements[$element->getId()];
+					$result[] = $this->parseSupraIcon($icon);
+				}
+			}
+			
 			else if ($element instanceof Markup\SupraMarkupVideo) {
 
 				if ( ! isset($metadataElements[$element->getId()])) {

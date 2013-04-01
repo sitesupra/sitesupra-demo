@@ -661,6 +661,21 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 		
+		else if ($element instanceof ReferencedElement\IconReferencedElement) {
+			
+			$iconId = $element->getIconId();
+			
+			$themeConfiguration = \Supra\ObjectRepository\ObjectRepository::getThemeProvider($this)
+					->getCurrentTheme()
+					->getConfiguration();
+			
+			$iconConfiguration = $themeConfiguration->getIconConfiguration();
+			if ($iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
+				$fileData['svg'] = $iconConfiguration->getIconSvgContent($iconId);
+			}
+	
+		}
+		
 		$data = $fileData + $element->toArray();
 
 		return $data;

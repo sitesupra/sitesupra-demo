@@ -99,12 +99,18 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	protected $storableParameters;
 	
 	/**
+	 * @var array
+	 */
+	protected $iconConfiguration;
+	/**
 	 * 
 	 */
 	protected function fetchConfiguration()
 	{
 		$theme = $this->getTheme();
 		$theme->setConfiguration($this);
+		
+		$this->loader->setThemeConfiguration($this);
 	}
 
 	/**
@@ -112,6 +118,8 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 */
 	protected function readConfiguration()
 	{
+		$this->loader->setThemeConfiguration($this);
+		
 		$theme = $this->getTheme();
 
 		$theme->setTitle($this->title);
@@ -135,6 +143,10 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 */
 	private function collectStorableParameterConfiguration($configurations)
 	{
+		if (empty($configurations)) {
+			return array();
+		}
+		
 		$storableParameters = array();
 		
 		foreach ($configurations as $configuration) {	
@@ -374,4 +386,19 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		}
 	}
 
+	/**
+	 * @param ThemeIconSetConfiguration $configuration
+	 */
+	public function setIconConfiguration($configuration)
+	{
+		$this->iconConfiguration = $configuration;
+	}
+	
+	/**
+	 * @return ThemeIconSetConfiguration
+	 */
+	public function getIconConfiguration()
+	{
+		return $this->iconConfiguration;
+	}
 }

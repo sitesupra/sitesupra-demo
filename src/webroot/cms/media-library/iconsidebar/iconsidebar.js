@@ -320,7 +320,7 @@ Supra('anim', 'dd-drag', 'iconsidebar.data', 'iconsidebar.iconlist', function (Y
 		 * @private
 		 */
 		loadIconList: function () {
-			Supra.io(this.getDataPath('dev/load')).done(this.loadIconListComplete, this);
+			Supra.io(this.getDataPath('load')).done(this.loadIconListComplete, this);
 		},
 		
 		/**

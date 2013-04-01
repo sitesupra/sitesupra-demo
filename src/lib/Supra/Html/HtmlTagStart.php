@@ -14,10 +14,12 @@ class HtmlTagStart extends HtmlTagAbstraction
 	 * @param string $name
 	 * @param string $value
 	 */
-	public function setAttribute($name, $value)
+	public function setAttribute($name, $value, $forceNoNormalization = false)
 	{
 		//TODO: name validation
-		$name = $this->normalizeName($name);
+		if ( ! $forceNoNormalization) {
+			$name = $this->normalizeName($name);
+		}
 		$this->attributes[$name] = $value;
 	}
 

@@ -15,6 +15,7 @@ use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
  *		"link" = "LinkReferencedElement", 
  *		"image" = "ImageReferencedElement",
  *		"video" = "VideoReferencedElement",
+ *		"icon" = "IconReferencedElement",
  * })
  */
 abstract class ReferencedElementAbstract extends Entity implements AuditedEntityInterface
@@ -44,6 +45,10 @@ abstract class ReferencedElementAbstract extends Entity implements AuditedEntity
 			
 			case VideoReferencedElement::TYPE_ID:
 				$element = new VideoReferencedElement();
+				break;
+			
+			case IconReferencedElement::TYPE_ID:
+				$element = new IconReferencedElement();
 				break;
 			
 			default:

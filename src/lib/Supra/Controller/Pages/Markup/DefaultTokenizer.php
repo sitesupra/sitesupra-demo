@@ -12,6 +12,7 @@ class DefaultTokenizer extends TokenizerAbstraction
 		$this->markupElements = array(
 				SupraMarkupImage::SIGNATURE => SupraMarkupImage::CN(),
 				SupraMarkupVideo::SIGNATURE => SupraMarkupVideo::CN(),
+				SupraMarkupIcon::SIGNATURE => SupraMarkupIcon::CN(),
 				SupraMarkupLinkConstructor::SIGNATURE => SupraMarkupLinkConstructor::CN(),
 		);
 	}

@@ -65,3 +65,8 @@
         title: Four columns
         filename: placeholder-layouts/four.html.twig
         iconHtml: <table><tr><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td><td class="h-2 w-3">1</td></tr></table>
+        
+    
+- _class: Supra\Configuration\IncludeLoaderConfiguration
+  files:
+    - ${__DIR__}/icons.yml

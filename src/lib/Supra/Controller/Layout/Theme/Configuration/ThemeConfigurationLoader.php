@@ -52,5 +52,21 @@ class ThemeConfigurationLoader extends ComponentConfigurationLoader
 	{
 		$this->theme = $theme;
 	}
+	
+	/**
+	 * @return ThemeConfiguration
+	 */
+	public function getThemeConfiguration()
+	{
+		return $this->themeConfiguration;
+	}
+	
+	/**
+	 * @param ThemeConfiguration $configuration
+	 */
+	public function setThemeConfiguration($configuration)
+	{
+		$this->themeConfiguration = $configuration;
+	}
 
 }
