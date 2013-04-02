@@ -672,6 +672,12 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 						node_width = parseInt(imageNode.getAttribute('width') || imageNode.get('offsetWidth'), 10) || imageNode.ancestor().get('offsetWidth');
 						node_height = parseInt(imageNode.getAttribute('height') || imageNode.get('offsetHeight'), 10) || imageNode.ancestor().get('offsetHeight');
 						
+						if (node_height < 18) {
+							// Additional padding due to inline-block style will cause several pixels "margin"
+							// which is not actual height set
+							node_height = 0;
+						}
+						
 						ratio = size.width / size.height;
 						width = Math.min(size.width, node_width || 99999);
 						height = ~~(width / ratio);

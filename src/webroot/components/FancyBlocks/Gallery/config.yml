@@ -45,18 +45,3 @@
             - id: slideshow
               title: Slideshow
               icon: icons/style-slideshow.png
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: design
-          editable: Supra\Editable\SelectVisual
-          label: Design
-          default: simple
-          values:
-            - id: simple
-              title: Plain
-              icon: icons/design-simple.png
-            - id: border
-              title: Frame
-              icon: icons/design-border.png
-            - id: box
-              title: Shadow
-              icon: icons/design-boxes.png
