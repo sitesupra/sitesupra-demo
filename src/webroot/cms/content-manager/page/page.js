@@ -368,7 +368,8 @@ Supra(function (Y) {
 				//When called from Supra.Manager.Template context should still be Page
 				'context': Manager.Page,
 				'on': {
-					'success': Manager.Page.onPublishPage
+					'success': Manager.Page.onPublishPage,
+					'failure': Manager.Page.onPublicFailure
 				}
 			});
 		},
@@ -387,6 +388,17 @@ Supra(function (Y) {
 			
 			//Change page version title
 			Supra.Manager.getAction('PageHeader').setVersionTitle('published');
+		},
+		
+		/**
+		 * On publish failure re-enable button
+		 */
+		onPublicFailure: function () {
+			this.onUnlockPage();
+			
+			//Change "Edit" button style to normal
+			var button_edit = Supra.Manager.PageButtons.buttons.Root[0];
+			button_edit.set('loading', false);
 		},
 		
 		/**

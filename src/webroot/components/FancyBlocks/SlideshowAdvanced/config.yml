@@ -99,6 +99,8 @@
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left.html.twig
             - id: bg_text_img_right
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right.html.twig
+            - id: bg_text_img_top
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_top.html.twig
           
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -122,6 +124,9 @@
                   - id: bg_text_img_right
                     title: Text on right side
                     icon: icons/layout/bg-text-img-right.png
+                  - id: bg_text_img_top
+                    title: Text on top
+                    icon: icons/layout/bg-text-img-top.png
                 additionalParameters:
                   style: mid
                   iconStyle: center

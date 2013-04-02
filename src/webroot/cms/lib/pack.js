@@ -4018,13 +4018,15 @@ YUI.add('supra.datatype-icon', function(Y) {
 						node.empty();
 						
 						// append <g /> element
-						this._renderAppend(svg.childNodes, node);
+						this._renderAppend(svg.childNodes, node, true);
 						 
 						svg = node.getDOMNode();
 					} else {
 						svg = svg.cloneNode();
-						this._renderAppend([svg], node);
+						this._renderAppend([svg], node, false);
 					}
+					
+					console.log('SVG', svg);
 					
 					// Style
 					svg.setAttribute('width', (this.width ? this.width + 'px' : ''));
@@ -4081,14 +4083,18 @@ YUI.add('supra.datatype-icon', function(Y) {
 		/**
 		 * @private
 		 */
-		_renderAppend: function (nodes, target) {
+		_renderAppend: function (nodes, target, clone_children) {
 			var i = 0,
 				ii = nodes.length,
 				cloned = null;
 			
 			for (; i<ii; i++) {
 				if (nodes[i].cloneNode) {
-					cloned = nodes[i].cloneNode();
+					if (clone_children !== false) {
+						cloned = nodes[i].cloneNode();
+					} else {
+						cloned = nodes[i];
+					}
 					
 					if (target.append) {
 						// Y.Node
@@ -4099,7 +4105,7 @@ YUI.add('supra.datatype-icon', function(Y) {
 					}
 					
 					if (nodes[i].childNodes && nodes[i].childNodes.length) {
-						this._renderAppend(nodes[i].childNodes, cloned);
+						this._renderAppend(nodes[i].childNodes, cloned, true);
 					}
 				}
 			}
@@ -14896,7 +14902,7 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 				ancestor = this.getIconWrapperNode(target); // creates wrapper if it doesn't exist
 			
 			if (!data) {
-				Y.log("Missing image data for image " + target.getAttribute("src"), "debug");
+				Y.log("Missing image data for icon " + target.getAttribute("src"), "debug");
 				return false;
 			}
 			
@@ -15242,7 +15248,7 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 */
 		init: function (htmleditor, configuration) {
 			// If not portal, then don't do anything
-			if (!Supra.data.get(['site', 'portal'])) return;
+			//if (!Supra.data.get(['site', 'portal'])) return;
 			
 			var iconsidebar = Manager.getAction("IconSidebar"),
 				toolbar = htmleditor.get("toolbar"),
@@ -15423,9 +15429,8 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 					icon = new Y.DataType.Icon(item);
 				
 				if (icon.isDataComplete()) {
-					var style = 'width: ' + icon.width + 'px; height: ' + icon.height + '; fill: ' + icon.color + ';';					
 					var classname = (icon.align ? "align-" + icon.align : "");
-					var svg = icon.svg.replace('<svg ', '<svg style="' + style + '" id="' + id + '" ').replace(/width="[^"]"/, 'width="' + icon.width + 'px"').replace(/height="[^"]"/, 'height="' + icon.height + 'px"');
+					var svg = icon.toHTML({'id': id});
 					var html = '<span class="supra-icon ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + svg + '</span>';
 					
 					return html;
