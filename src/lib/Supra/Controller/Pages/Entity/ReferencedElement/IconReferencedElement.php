@@ -40,10 +40,10 @@ class IconReferencedElement extends ReferencedElementAbstract
 	 */
 	protected $align;
 	
-//	/**
-//	 * @var string
-//	 */
-//	protected $svgContent;
+	/**
+	 * @var string
+	 */
+	protected $svgContent;
 
 	/**
 	 * @return string
@@ -181,26 +181,26 @@ class IconReferencedElement extends ReferencedElementAbstract
 		$this->width = $array['width'];
 		$this->height = $array['height'];
 	
-//		$this->svgContent = null;
+		$this->svgContent = null;
 	}
 	
-//	protected function getIconSvgContent()
-//	{
-//		if ($this->svgContent === null) {
-//			
-//			$this->svgContent = false;
-//			
-//			$themeConfiguration = \Supra\ObjectRepository\ObjectRepository::getThemeProvider($this)
-//					->getCurrentTheme()
-//					->getConfiguration();
-//			
-//			$iconConfiguration = $themeConfiguration->getIconConfiguration();
-//			if ($iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
-//				$this->svgContent = $iconConfiguration->getIconSvgContent($this->iconId);
-//			}
-//		}
-//		
-//		return $this->svgContent;
-//	}
+	public function getIconSvgContent()
+	{
+		if ($this->svgContent === null) {
+			
+			$this->svgContent = false;
+			
+			$themeConfiguration = \Supra\ObjectRepository\ObjectRepository::getThemeProvider($this)
+					->getCurrentTheme()
+					->getConfiguration();
+			
+			$iconConfiguration = $themeConfiguration->getIconConfiguration();
+			if ($iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
+				$this->svgContent = $iconConfiguration->getIconSvgContent($this->iconId);
+			}
+		}
+		
+		return $this->svgContent;
+	}
 
 }

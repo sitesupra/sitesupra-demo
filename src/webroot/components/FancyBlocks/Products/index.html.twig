@@ -1,34 +1,37 @@
-{# <!-- Macro for outputing images --> #}
-	{% macro imageHtmlTag (image, width, height) %}
-		
-		{% if not width %}{% set width = image.crop_width %}{% endif %}
-		{% if not height %}{% set height = image.crop_height %}{% endif %}
-		
-		{% set tag = supraBlock.imageHtmlTag( image.imageId, width, height, true, image.size_name )|raw %}
-		{% set width = tag.getAttribute('width') %}
-		{% set height = tag.getAttribute('height') %}
-		{% set ratio = width / height %}
-		
-		{% if width < 420 %}
-			{# <!-- Larger image for table and mobile --> #}
-			{% set width_mobile = 420 %}
-			{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, width_mobile, width_mobile / ratio, true )|raw %}
-		{% endif %}
-		
-		{% if tag.getAttribute('src') %}
-			<img src="{{ tag.getAttribute('src') }}" width="{{ width }}" height="{{ height }}" {% if width < 420 %}
-				 data-src-desktop="{{ tag.getAttribute('src') }}" data-height-desktop="{{ height }}"
-				 data-src-mobile-all="{{ tag_mobile.getAttribute('src') }}" data-height-mobile-all="{{ tag_mobile.getAttribute('tag_mobile') }}"
-				 class="responsive"
-				 {% endif %}alt="" />
-		{% endif %}
-		
-	{% endmacro %}
-	{% import _self as output %}
+{% macro imageHtmlTag (image, width, height) %}
 
+	{% if not width %}{% set width = image.crop_width %}{% endif %}
+	{% if not height %}{% set height = image.crop_height %}{% endif %}
 
+	{% set tag = supraBlock.imageHtmlTag( image.imageId, width, height, true, image.size_name )|raw %}
+	{% set width = tag.getAttribute('width') %}
+	{% set height = tag.getAttribute('height') %}
+	{% set ratio = width / height %}
 
+	{% if width < 420 %}
+		{# <!-- Larger image for table and mobile --> #}
+		{% set width_mobile = 420 %}
+		{% set tag_mobile = supraBlock.imageHtmlTag( image.imageId, width_mobile, width_mobile / ratio, true )|raw %}
+	{% endif %}
 
+	{% if tag.getAttribute('src') %}
+		<img src="{{ tag.getAttribute('src') }}" width="{{ width }}" height="{{ height }}" {% if width < 420 %}
+			 data-src-desktop="{{ tag.getAttribute('src') }}" data-height-desktop="{{ height }}"
+			 data-src-mobile-all="{{ tag_mobile.getAttribute('src') }}" data-height-mobile-all="{{ tag_mobile.getAttribute('tag_mobile') }}"
+			 class="responsive"
+			 {% endif %}alt="" />
+	{% endif %}
+{% endmacro %}
+{% import _self as output %}
+
+{# <!-- Macro for outputing icons/images --> #}
+{% macro imageElement(element, width, height, allowedType) %}
+	{% if element.type == 'icon' and allowedType == 'icon' %}
+		{{ element.tag | raw  }}
+	{% elseif element.type == 'image' and allowedType != 'icon' %}
+		{{ output.imageHtmlTag (image, width, height) }}
+	{% endif %}
+{% endmacro %}
 
 {% set navigation = supraBlock.property('navigation')|default('scrollbar') %}
 {% set design = supraBlock.property('design')|default('all') %}
@@ -105,8 +108,8 @@
 						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}one_half{% elseif layout == 'columns_1' %}one_half{% else %}one_fourth{% endif %} clearfix">
 							
 							<span class="img">
+{#								
 								{% if design == 'icon' %}
-									{# SVG IMAGE HERE #}
 									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="32px"
 										 height="32px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><g id="1b1c9b208ed950244c86edd4d2014b29"><path display="inline" d="M362.438,66.158c53.25,0,106.479,53.454,106.479,124.203c0,95.395-97.788,153.145-199.626,248.538
 											c0,0-7.128,6.943-13.536,6.943c-6.404,0-13.174-7.078-13.174-7.078C140.938,343.551,43.083,285.594,43.083,190.361
@@ -118,7 +121,9 @@
 								{% else %}
 									{{ output.imageHtmlTag( product ) }}
 								{% endif %}
-								
+#}								
+								{{ output.imageElement(product, null, null, design) }}
+									
 								{% if link == 'overlay' %}
 									{{ output.link(product, link) }}
 								{% endif %}
