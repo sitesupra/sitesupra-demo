@@ -531,19 +531,19 @@ class PageLocalization extends Abstraction\Localization
 		return self::getPreviewFilenameForTypeAndLocalizationAndRevision('p', $localizationId, $revisionId);
 	}
 	
-	/**
-	 * 
-	 */
-	public function getPlaceHolderGroups()
-	{
-		$templateLocalization = $this->template
-				->getLocalization($this->locale);
-		
-		if ( ! is_null($templateLocalization)) {
-			return $templateLocalization->getPlaceHolderGroups();
-		}
-		
-		return new \Doctrine\Common\Collections\ArrayCollection();
-	}
+//	/**
+//	 * 
+//	 */
+//	public function getPlaceHolderGroups()
+//	{
+//		$templateLocalization = $this->template
+//				->getLocalization($this->locale);
+//		
+//		if ( ! is_null($templateLocalization)) {
+//			return $templateLocalization->getPlaceHolderGroups();
+//		}
+//		
+//		return new \Doctrine\Common\Collections\ArrayCollection();
+//	}
 
 }

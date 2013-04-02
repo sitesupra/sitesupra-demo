@@ -368,12 +368,7 @@ class PagecontentAction extends PageManagerAction
 				
 				if ($input->has('locked')) {
 					$locked = $input->getValid('locked', 'boolean');
-					$placeHolders = $group->getPlaceholders();
-					foreach($placeHolders as $placeHolder) {
-						if ($placeHolder instanceof Entity\TemplatePlaceHolder) {
-							$placeHolder->setLocked($locked);
-						}
-					}
+					$group->setLocked($locked);
 				}
 				
 				$this->entityManager->flush();

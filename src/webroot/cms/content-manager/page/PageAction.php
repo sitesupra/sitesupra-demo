@@ -116,14 +116,14 @@ class PageAction extends PageManagerAction
 			if ( ! is_null($group)) {
 				
 				$groupName = $group->getName();
-				$groupLayout = $group->getGroupLayout();
+				$groupLayout = $group->getGroupLayoutName();
 				
 				if ( ! isset($groupsData[$groupName])) {
 					$groupData = array(
 						'id' => $groupName,
 						'closed' => false,
-						'locked' => false,
-						'editable' => true,
+						'locked' => $group->getLocked(),
+						'editable' => ($group->getLocked() ? false : true),
 						'title' => $group->getTitle(),
 						'type' => 'list_one',
 						'allow' => array(),
@@ -138,6 +138,10 @@ class PageAction extends PageManagerAction
 						'contents' => array(),
 					);
 					
+					if ($group->getLocalization()->equals($localization)) {
+						$groupData['editable'] = true;
+					}
+
 					$groupsData[$groupName] = $groupData;
 				}
 			}
@@ -204,12 +208,6 @@ class PageAction extends PageManagerAction
 			}
 
 			if ( ! empty($groupName)) {
-				// TODO: move locked parameter to group config
-				if ($placeHolderData['locked']) {
-					$groupsData[$groupName]['locked'] = true;
-					$groupsData[$groupName]['editable'] = false;
-				}
-				
 				$placeHolderData['type'] = 'list_one';
 				$placeHolderData['editable'] = false;
 				$groupsData[$groupName]['contents'][] = $placeHolderData;

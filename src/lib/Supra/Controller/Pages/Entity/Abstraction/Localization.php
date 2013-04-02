@@ -14,6 +14,7 @@ use Supra\Controller\Pages\Entity\GroupLocalization;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\AuditLog\TitleTrackingItemInterface;
 use Supra\Controller\Pages\Exception\RuntimeException;
+use Supra\Controller\Pages\Entity\PlaceHolderGroup;
 
 /**
  * @Entity
@@ -161,6 +162,12 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * @var int
 	 */
 	protected $creationMonth;
+	
+	/**
+	 * @OneToMany(targetEntity="\Supra\Controller\Pages\Entity\PlaceHolderGroup", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
+	 * @var Collection
+	 */
+	protected $placeHolderGroups;
 
 	/**
 	 * Construct
@@ -171,6 +178,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		parent::__construct();
 		$this->setLocale($locale);
 		$this->placeHolders = new ArrayCollection();
+		$this->placeHolderGroups = new ArrayCollection();
 	}
 
 	/**
@@ -809,6 +817,24 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	public function getPreviewFilename()
 	{
 		return static::getPreviewFilenameForLocalizationAndRevision($this->getId(), $this->getRevisionId());
+	}
+	
+		
+	/**
+	 * @return \Doctrine\Common\Collections\ArrayCollection
+	 */
+	public function getPlaceHolderGroups()
+	{
+		return $this->placeHolderGroups;
+	}
+	
+	/**
+	 * @param \Supra\Controller\Pages\Entity\PlaceHolderGroup $group
+	 */
+	public function addPlaceHolderGroup(PlaceHolderGroup $group)
+	{
+		$group->setLocalization($this);
+		$this->placeHolderGroups->set($group->getName(), $group);
 	}
 
 }

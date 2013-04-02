@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * @Entity
  */
-class TemplatePlaceHolderGroup extends Abstraction\Entity implements Abstraction\AuditedEntityInterface
+class PlaceHolderGroup extends Abstraction\Entity implements Abstraction\AuditedEntityInterface
 {
 	/**
 	 * @Column(name="name", type="string")
@@ -34,13 +34,18 @@ class TemplatePlaceHolderGroup extends Abstraction\Entity implements Abstraction
 	protected $placeholders;	
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\TemplateLocalization", inversedBy="placeHolderGroups")
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\Abstraction\Localization", inversedBy="placeHolderGroups")
 	 * @JoinColumn(name="localization_id", referencedColumnName="id", nullable=false)
 	 * @var Localization
 	 */
 	protected $localization;
-
 	
+	/**
+	 * @Column(type="boolean")
+	 * @var
+	 */
+	protected $locked = false;
+
 	/**
 	 * Constructor
 	 * @param string $name
@@ -84,7 +89,7 @@ class TemplatePlaceHolderGroup extends Abstraction\Entity implements Abstraction
 	/**
 	 * @param Localization $localization
 	 */
-	public function setLocalization(\Supra\Controller\Pages\Entity\TemplateLocalization $localization)
+	public function setLocalization(\Supra\Controller\Pages\Entity\Abstraction\Localization $localization)
 	{
 //		$this->matchDiscriminator($localization);
 //		if ($this->writeOnce($this->localization, $localization)) {
@@ -117,8 +122,70 @@ class TemplatePlaceHolderGroup extends Abstraction\Entity implements Abstraction
 		$this->groupLayout = $layout->getName();
 	}
 	
+	/**
+	 * @param string $name
+	 */
+	public function setGroupLayoutName($name)
+	{
+		$this->groupLayout = $name;
+	}
+	
+	/**
+	 * @return string
+	 */
 	public function getGroupLayout()
 	{
+		return $this->getGroupLayoutName();
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getGroupLayoutName()
+	{
 		return $this->groupLayout;
+	}
+	
+	/**
+	 * 
+	 * @param boolean $locked
+	 */
+	public function setLocked($locked)
+	{
+		$this->locked = $locked;
+	}
+	
+	/**
+	 * @var boolean
+	 */
+	public function getLocked()
+	{
+		return (bool) $this->locked;
+	}
+	
+	public static function factory($sourceGroup)
+	{
+		$layoutName = null;
+		$locked = false;
+		
+		if ($sourceGroup instanceof Theme\ThemeLayoutPlaceholderGroup) {
+			$layoutName = $sourceGroup->getDefaultLayout()
+					->getName();
+		}
+		else if ($sourceGroup instanceof PlaceHolderGroup) {
+			$layoutName = $sourceGroup->getGroupLayoutName();
+			$locked = $sourceGroup->getLocked();
+		}
+		else {
+			throw new \InvalidArgumentException("Source group must be an instance of ThemeLayoutPlaceHolderGroup or PlaceHolderGroup object");
+		}
+		
+		$group = new self($sourceGroup->getName());
+		
+		$group->setGroupLayoutName($layoutName);
+		$group->setLocked($locked);
+		$group->setTitle($sourceGroup->getTitle());
+		
+		return $group;
 	}
 }

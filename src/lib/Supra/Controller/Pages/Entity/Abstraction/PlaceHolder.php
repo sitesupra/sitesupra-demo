@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\PagePlaceHolder;
 use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
-use Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup;
+use Supra\Controller\Pages\Entity\PlaceHolderGroup;
 
 /**
  * Page and template place holder data abstraction
@@ -35,8 +35,8 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	protected $name;
 	
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup", inversedBy="placeholders", cascade={"persist"})
-	 * @var \Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup
+	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\PlaceHolderGroup", inversedBy="placeholders", cascade={"persist"})
+	 * @var \Supra\Controller\Pages\Entity\PlaceHolderGroup
 	 */
 	protected $group;
 	
@@ -206,7 +206,7 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 		
 		if ( ! is_null($source)) {
 			$group = $source->getGroup();
-			if ($group instanceof TemplatePlaceHolderGroup) {
+			if ($group instanceof PlaceHolderGroup) {
 				$placeHolder->setGroup($group);
 			}
 			
@@ -300,7 +300,7 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	}
 	
 	/**
-	 * @return \Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup
+	 * @return \Supra\Controller\Pages\Entity\PlaceHolderGroup
 	 */
 	public function getGroup()
 	{
@@ -308,9 +308,9 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 	}
 	
 	/**
-	 * @param \Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup $group
+	 * @param \Supra\Controller\Pages\Entity\PlaceHolderGroup $group
 	 */
-	public function setGroup(\Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup $group)
+	public function setGroup(\Supra\Controller\Pages\Entity\PlaceHolderGroup $group)
 	{
 		$this->group = $group;
 		$group->addPlaceholder($this);

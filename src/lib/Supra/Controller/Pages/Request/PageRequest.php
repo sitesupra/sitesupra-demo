@@ -834,30 +834,32 @@ abstract class PageRequest extends HttpRequest
 					// TODO: should move to recursive clone
 					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
 					$placeHolder->setMaster($localization);
-					
+
+					$sourceGroup = null;
 					if (is_null($parentPlaceHolder)) {
-						$layoutPlaceHolderGroup = $layoutPlaceHolder->getGroup();
-						if ( ! is_null($layoutPlaceHolderGroup)) {
-							
-							$name = $layoutPlaceHolderGroup->getName();
-							$localizationGroups = $localization->getPlaceholderGroups();
-								
-							$group = $localizationGroups->get($name);
-							if ( ! is_null($group)) {
-								$placeHolder->setGroup($group);
-							}
-						}
+						$sourceGroup = $layoutPlaceHolder->getGroup();
 					} else {
-						$group = $parentPlaceHolder->getGroup();
-						if ( ! is_null($group)) {
-							$groupName = $group->getName();
-							$localizationGroups = $localization->getPlaceholderGroups();
-							
-							if ($localizationGroups->containsKey($groupName)) {
-								$placeHolder->setGroup($localizationGroups->get($groupName));
-							}
-						}
+						$sourceGroup = $parentPlaceHolder->getGroup();
 					}
+					
+					if ($sourceGroup !== null) {
+						
+						$sourceGroupName = $sourceGroup->getName();
+						
+						$localizationGroups = $localization->getPlaceHolderGroups();
+						if ($localizationGroups->offsetExists($sourceGroupName)) {
+							
+//							$localizationGroup = new Entity\PlaceHolderGroup($sourceGroupName);
+//							$localization->addPlaceHolderGroup($localizationGroup);
+							
+							$localizationGroup = $localizationGroups->get($sourceGroupName);
+							$localizationGroup->addPlaceholder($placeHolder);
+							$placeHolder->setGroup($localizationGroup);
+							
+//							$layoutName = $sourceGroup->getGroupLayoutName();
+//							$localizationGroup->setGroupLayoutName($layoutName);
+						}
+					}	
 				}
 			
 				// Persist only for draft connection with ID generation
@@ -880,35 +882,66 @@ abstract class PageRequest extends HttpRequest
 	 */
 	protected function createMissingPlaceHolderGroups()
 	{
+		$em = $this->getDoctrineEntityManager();
+		
 		$localization = $this->getPageLocalization();
 		
+		$currentGroups = $localization->getPlaceHolderGroups();
+		$currentGroupKeys = $currentGroups->getKeys();
+		
 		if ($localization instanceof Entity\TemplateLocalization) {
-			$groupsInTemplate = $localization->getPlaceholderGroups();
-			$groupInTemplateNames = $groupsInTemplate->getKeys();
+
+			$layout = $this->getLayout();
+			$layoutGroups = $layout->getPlaceHolderGroups();
+			
+			foreach ($layoutGroups as $layoutGroup) {
+				/* @var $layoutGroup Entity\Theme\ThemeLayoutPlaceholderGroup */
+				$groupName = $layoutGroup->getName();
+
+				if ( ! in_array($groupName, $currentGroupKeys)) {
+					
+					$templateGroup = Entity\PlaceHolderGroup::factory($layoutGroup);
+					$localization->addPlaceHolderGroup($templateGroup);
+				
+					if ($this instanceof PageRequestEdit) {
+						$em->persist($templateGroup);
+					}
+				}
+			}
+		}
+		else if ($localization instanceof Entity\PageLocalization) {
+
+			$templateLocalization = $localization->getTemplate()
+					->getLocalization($localization->getLocale());
+			
+			$groupsInTemplate = $templateLocalization->getPlaceHolderGroups();
 			
 			$layout = $this->getLayout();
-		
-			$groups = $layout->getPlaceholderGroups();
-			$em = $this->getDoctrineEntityManager();
+			$layoutGroups = $layout->getPlaceHolderGroups();			
 			
-			foreach ($groups as $group) {
-				/* @var $layoutGroup Entity\Theme\ThemeLayoutPlaceholderGroup */
-				$groupName = $group->getName();
-
-
-				if ( ! in_array($groupName, $groupInTemplateNames)) {
-					$groupInTemplate = new Entity\TemplatePlaceHolderGroup($groupName);
-					
-					$groupInTemplate->setTitle($group->getTitle());
+			foreach ($layoutGroups as $layoutGroup) {
+				$groupName = $layoutGroup->getName();
 				
-					$defaultLayout = $group->getDefaultLayout();
-					$groupInTemplate->setGroupLayout($defaultLayout);
+				if ( ! in_array($groupName, $currentGroupKeys)) {
 					
-					$localization->addPlaceholderGroup($groupInTemplate);
+					$sourceGroup = $layoutGroup;
+					if ($groupsInTemplate->offsetExists($groupName)) {
+						$sourceGroup = $groupsInTemplate->get($groupName);
+						
+						//
+						if ($sourceGroup->getLocked()) {
+							continue;
+						}
+					}
+					
+					$newGroup = Entity\PlaceHolderGroup::factory($sourceGroup);
+					
+					$localization->addPlaceHolderGroup($newGroup);
 					
 					if ($this instanceof PageRequestEdit) {
-						$em->persist($groupInTemplate);
+						$em->persist($newGroup);
 					}
+					
 				}
 			}
 		}

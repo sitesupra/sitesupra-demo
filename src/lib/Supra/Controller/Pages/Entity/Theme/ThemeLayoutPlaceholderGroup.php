@@ -26,7 +26,7 @@ class ThemeLayoutPlaceholderGroup extends \Supra\Database\Entity
 	protected $title;
 		
 	/**
-	 * @ManyToOne(targetEntity="ThemeLayout", inversedBy="placeholderGroup")
+	 * @ManyToOne(targetEntity="ThemeLayout", inversedBy="placeHolderGroup")
 	 * @JoinColumn(name="layout_id", referencedColumnName="id")
 	 * @var ThemeLayout
 	 */

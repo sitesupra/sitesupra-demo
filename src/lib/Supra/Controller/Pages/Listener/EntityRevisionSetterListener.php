@@ -262,7 +262,12 @@ class EntityRevisionSetterListener implements EventSubscriber
 
 			$revision = new PageRevisionData();
 
-			$revision->setElementName($entity::CN());
+			$className = $entity::CN();
+			if ($entity instanceof \Doctrine\ORM\Proxy\Proxy) {
+				$className = \Doctrine\Common\Util\ClassUtils::getRealClass($entity::CN());
+			}
+			
+			$revision->setElementName($className);
 			$revision->setElementId($entity->getId());
 
 			$revision->setType($type);
