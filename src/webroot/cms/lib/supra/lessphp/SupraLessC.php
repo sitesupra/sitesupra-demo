@@ -34,6 +34,22 @@ class SupraLessC extends lessc
 		
 		return parent::findImport($url);
 	}
+    
+    // Returns from all parameters first color which is not transparent
+    protected function lib_firstcolor($args) {
+        if ($args[0] != 'list' || count($args[2]) < 1) {
+            return array(array('color', 0, 0, 0), 0);
+        }
+        
+        foreach ($args[2] as $color) {
+            $coerced = $this->coerceColor($color);
+            if ($coerced && $this->toBool($coerced) && $color[1] != 'transparent') {
+                return $color;
+            }
+        }
+        
+        return array(array('color', 0, 0, 0), 0);
+    }
 }
 
 /**
