@@ -356,7 +356,7 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 				ancestor = this.getIconWrapperNode(target); // creates wrapper if it doesn't exist
 			
 			if (!data) {
-				Y.log("Missing image data for image " + target.getAttribute("src"), "debug");
+				Y.log("Missing image data for icon " + target.getAttribute("src"), "debug");
 				return false;
 			}
 			
@@ -883,9 +883,8 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 					icon = new Y.DataType.Icon(item);
 				
 				if (icon.isDataComplete()) {
-					var style = 'width: ' + icon.width + 'px; height: ' + icon.height + '; fill: ' + icon.color + ';';					
 					var classname = (icon.align ? "align-" + icon.align : "");
-					var svg = icon.svg.replace('<svg ', '<svg style="' + style + '" id="' + id + '" ').replace(/width="[^"]"/, 'width="' + icon.width + 'px"').replace(/height="[^"]"/, 'height="' + icon.height + 'px"');
+					var svg = icon.toHTML({'id': id});
 					var html = '<span class="supra-icon ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + svg + '</span>';
 					
 					return html;

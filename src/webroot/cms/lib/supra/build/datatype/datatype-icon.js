@@ -230,13 +230,15 @@ YUI.add('supra.datatype-icon', function(Y) {
 						node.empty();
 						
 						// append <g /> element
-						this._renderAppend(svg.childNodes, node);
+						this._renderAppend(svg.childNodes, node, true);
 						 
 						svg = node.getDOMNode();
 					} else {
 						svg = svg.cloneNode();
-						this._renderAppend([svg], node);
+						this._renderAppend([svg], node, false);
 					}
+					
+					console.log('SVG', svg);
 					
 					// Style
 					svg.setAttribute('width', (this.width ? this.width + 'px' : ''));
@@ -293,14 +295,18 @@ YUI.add('supra.datatype-icon', function(Y) {
 		/**
 		 * @private
 		 */
-		_renderAppend: function (nodes, target) {
+		_renderAppend: function (nodes, target, clone_children) {
 			var i = 0,
 				ii = nodes.length,
 				cloned = null;
 			
 			for (; i<ii; i++) {
 				if (nodes[i].cloneNode) {
-					cloned = nodes[i].cloneNode();
+					if (clone_children !== false) {
+						cloned = nodes[i].cloneNode();
+					} else {
+						cloned = nodes[i];
+					}
 					
 					if (target.append) {
 						// Y.Node
@@ -311,7 +317,7 @@ YUI.add('supra.datatype-icon', function(Y) {
 					}
 					
 					if (nodes[i].childNodes && nodes[i].childNodes.length) {
-						this._renderAppend(nodes[i].childNodes, cloned);
+						this._renderAppend(nodes[i].childNodes, cloned, true);
 					}
 				}
 			}
