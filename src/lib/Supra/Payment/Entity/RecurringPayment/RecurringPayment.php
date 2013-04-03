@@ -122,7 +122,7 @@ class RecurringPayment extends PaymentEntity
     {
         return $this->lastTransaction;
     }
-
+	
     /**
      * @param RecurringPaymentTransaction $lastTransaction 
      */

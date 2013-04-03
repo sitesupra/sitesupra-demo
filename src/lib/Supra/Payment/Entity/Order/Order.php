@@ -13,7 +13,6 @@ use Supra\Payment\Entity\Order\OrderProductItem;
 use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Payment\Entity\Abstraction\PaymentEntity;
 
 /**
  * @Entity
@@ -79,15 +78,11 @@ abstract class Order extends Database\Entity
 	 * @Column(type="integer", nullable=true)
 	 * @var integer
 	 */
-	protected $vat;
-	
-	/**
-	 * @Column(type="integer", nullable=true)
-	 * @var integer
-	 */
-	protected $invoiceSequenceNr;
-	
+	protected $vatRate;
 
+	/**
+	 * 
+	 */
 	function __construct()
 	{
 		parent::__construct();
@@ -200,8 +195,8 @@ abstract class Order extends Database\Entity
 		}
 		
 		// Value added tax
-		if ($this->vat > 0) {
-			$tax = ($total * $this->vat) / 100;
+		if ($this->vatRate > 0) {
+			$tax = ($total * $this->vatRate) / 100;
 			$total = $total + $tax;
 		}
 
@@ -223,8 +218,8 @@ abstract class Order extends Database\Entity
 		}
 		
 		// Value added tax
-		if ($this->vat > 0) {
-			$tax = ($total * $this->vat) / 100;
+		if ($this->vatRate > 0) {
+			$tax = ($total * $this->vatRate) / 100;
 			$total = $total + $tax;
 		}
 
@@ -358,31 +353,23 @@ abstract class Order extends Database\Entity
 	 * @param integer $vatAmount
 	 * @throws \LogicException
 	 */
-	public function setVat($vatRate) 
+	public function setVatRate($rate) 
 	{
-		$vat = (int) $vatRate;
+		$vatRate = (int) $rate;
 		
-		if ($vat < 0) {
+		if ($vatRate < 0) {
 			throw new \LogicException("Negative VAT rate value passed");
 		}
 		
-		$this->vat = $vat;
+		$this->vatRate = $vatRate;
 	}
 
 	/**
 	 * @return integer
 	 */
-	public function getVat()
+	public function getVatRate()
 	{
-		return $this->vat;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getInvoiceNumber()
-	{
-		return sprintf('%s-%i', $this->creationTime->format('dmY'), $this->invoiceSequenceNr);
+		return $this->vatRate;
 	}
 	
 	/**
