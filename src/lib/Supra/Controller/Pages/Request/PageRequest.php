@@ -803,7 +803,7 @@ abstract class PageRequest extends HttpRequest
 			return;
 		}
 
-		$this->createMissingPlaceHolderGroups();
+//		$this->createMissingPlaceHolderGroups();
 		
 		$placeHolderSet = $this->getPlaceHolderSet();
 
@@ -812,21 +812,24 @@ abstract class PageRequest extends HttpRequest
 
 		$finalPlaceHolders = $placeHolderSet->getFinalPlaceHolders();
 		$parentPlaceHolders = $placeHolderSet->getParentPlaceHolders();
+		
+		$localizationGroups = $localization->getPlaceHolderGroups();
 
 		foreach ($layoutPlaceHolders as $layoutPlaceHolder) {
 			
+			$placeHolder = null;
 			$name = $layoutPlaceHolder->getName();
 			
 			if ( ! $finalPlaceHolders->offsetExists($name)) {
 
 				// Check if page doesn't have it already set locally
-				$placeHolder = null;
+				//$placeHolder = null;
 				$knownPlaceHolders = $localization->getPlaceHolders();
 
 				if ($knownPlaceHolders->offsetExists($name)) {
 					$placeHolder = $knownPlaceHolders->offsetGet($name);
 				}
-
+				
 				if (empty($placeHolder)) {
 					// Copy unlocked blocks from the parent template
 					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
@@ -834,32 +837,6 @@ abstract class PageRequest extends HttpRequest
 					// TODO: should move to recursive clone
 					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
 					$placeHolder->setMaster($localization);
-
-					$sourceGroup = null;
-					if (is_null($parentPlaceHolder)) {
-						$sourceGroup = $layoutPlaceHolder->getGroup();
-					} else {
-						$sourceGroup = $parentPlaceHolder->getGroup();
-					}
-					
-					if ($sourceGroup !== null) {
-						
-						$sourceGroupName = $sourceGroup->getName();
-						
-						$localizationGroups = $localization->getPlaceHolderGroups();
-						if ($localizationGroups->offsetExists($sourceGroupName)) {
-							
-//							$localizationGroup = new Entity\PlaceHolderGroup($sourceGroupName);
-//							$localization->addPlaceHolderGroup($localizationGroup);
-							
-							$localizationGroup = $localizationGroups->get($sourceGroupName);
-							$localizationGroup->addPlaceholder($placeHolder);
-							$placeHolder->setGroup($localizationGroup);
-							
-//							$layoutName = $sourceGroup->getGroupLayoutName();
-//							$localizationGroup->setGroupLayoutName($layoutName);
-						}
-					}	
 				}
 			
 				// Persist only for draft connection with ID generation
@@ -869,6 +846,43 @@ abstract class PageRequest extends HttpRequest
 
 				$placeHolderSet->append($placeHolder);
 			}
+			
+			if ($placeHolder === null) {
+				$placeHolder = $finalPlaceHolders->offsetGet($name);
+				
+				if ( ! $placeHolder->getLocalization()->equals($localization)) {
+					continue;
+				}
+			} 			
+			
+			if ($placeHolder->getGroup() === null) {
+				
+				$sourceGroup = null;
+				if ($parentPlaceHolder === null) {
+					$sourceGroup = $layoutPlaceHolder->getGroup();
+				} else {
+					$sourceGroup = $parentPlaceHolder->getGroup();
+				}
+				
+				if ($sourceGroup !== null) {
+						
+					$sourceGroupName = $sourceGroup->getName();	
+					
+					if ($localizationGroups->offsetExists($sourceGroupName)) {
+						$localizationGroup = $localizationGroups->get($sourceGroupName);
+					} else {
+						$localizationGroup = Entity\PlaceHolderGroup::factory($sourceGroup);
+						$localization->addPlaceHolderGroup($localizationGroup);
+								
+						if ($this instanceof PageRequestEdit) {
+							$entityManager->persist($localizationGroup);
+						}
+					}
+					
+					$localizationGroup->addPlaceholder($placeHolder);
+					$placeHolder->setGroup($localizationGroup);
+				}	
+			}	
 		}
 
 		// Flush only for draft connection with ID generation

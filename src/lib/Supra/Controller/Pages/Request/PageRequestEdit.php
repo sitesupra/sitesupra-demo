@@ -168,6 +168,11 @@ class PageRequestEdit extends PageRequest
 		$placeHolderGroups = $draftData->getPlaceHolderGroups();
 		foreach ($placeHolderGroups as $group) {
 			$publicEm->merge($group);
+			
+			$placeHolders = $group->getPlaceholders();
+			foreach ($placeHolders as $placeHolder) {
+				$publicEm->merge($placeHolder);
+			}
 		}
 		
 		// 1. Get all blocks to be copied
@@ -176,7 +181,7 @@ class PageRequestEdit extends PageRequest
 		// 2. Get all blocks existing in public
 		$existentBlocks = $this->getBlocksInPage($publicEm, $publicData);
 
-		// 3. Remove blocks in 2, not in 1, remove all referencing block properties first
+		// 3. Remove blocks in 2, not in 1, Plaremove all referencing block properties first
 		$draftBlockIdList = Entity\Abstraction\Entity::collectIds($draftBlocks);
 		$existentBlockIdList = Entity\Abstraction\Entity::collectIds($existentBlocks);
 		$removedBlockIdList = array_diff($existentBlockIdList, $draftBlockIdList);

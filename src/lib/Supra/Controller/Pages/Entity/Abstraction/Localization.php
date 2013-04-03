@@ -819,7 +819,7 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		return static::getPreviewFilenameForLocalizationAndRevision($this->getId(), $this->getRevisionId());
 	}
 	
-		
+	
 	/**
 	 * @return \Doctrine\Common\Collections\ArrayCollection
 	 */

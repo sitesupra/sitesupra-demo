@@ -205,11 +205,7 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 		}
 		
 		if ( ! is_null($source)) {
-			$group = $source->getGroup();
-			if ($group instanceof PlaceHolderGroup) {
-				$placeHolder->setGroup($group);
-			}
-			
+		
 			$blocks = $source->getBlocks();
 
 			/* @var $block Block */
