@@ -18,18 +18,11 @@ class TemplateLocalization extends Abstraction\Localization
 
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 	
-	/**
-	 * @OneToMany(targetEntity="\Supra\Controller\Pages\Entity\TemplatePlaceHolderGroup", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
-	 * @var Collection
-	 */
-	protected $placeHolderGroups;
-
-	
 	public function __construct($locale)
 	{
 		parent::__construct($locale);
 		
-		$this->placeHolderGroups = new \Doctrine\Common\Collections\ArrayCollection();
+//		$this->placeHolderGroups = new \Doctrine\Common\Collections\ArrayCollection();
 	}
 	
 	/**
@@ -66,23 +59,6 @@ class TemplateLocalization extends Abstraction\Localization
 	public static function getPreviewFilenameForLocalizationAndRevision($localizationId, $revisionId)
 	{
 		return static::getPreviewFilenameForTypeAndLocalizationAndRevision('t', $localizationId, $revisionId);
-	}
-	
-	/**
-	 * @return \Doctrine\Common\Collections\ArrayCollection
-	 */
-	public function getPlaceHolderGroups()
-	{
-		return $this->placeHolderGroups;
-	}
-	
-	/**
-	 * @param \Supra\Controller\Pages\Entity\TemplatePlaceholderGroup $group
-	 */
-	public function addPlaceHolderGroup(TemplatePlaceholderGroup $group)
-	{
-		$group->setLocalization($this);
-		$this->placeHolderGroups->set($group->getName(), $group);
 	}
 
 }

@@ -368,12 +368,7 @@ class PagecontentAction extends PageManagerAction
 				
 				if ($input->has('locked')) {
 					$locked = $input->getValid('locked', 'boolean');
-					$placeHolders = $group->getPlaceholders();
-					foreach($placeHolders as $placeHolder) {
-						if ($placeHolder instanceof Entity\TemplatePlaceHolder) {
-							$placeHolder->setLocked($locked);
-						}
-					}
+					$group->setLocked($locked);
 				}
 				
 				$this->entityManager->flush();
@@ -748,22 +743,28 @@ class PagecontentAction extends PageManagerAction
 				$element = $metaItem->getReferencedElement();
 				
 			} else {
-				// new element added
-				$element = new Entity\ReferencedElement\ImageReferencedElement();	
-				$metaItem = new Entity\BlockPropertyMetadata($index, $property, $element);
+				if ( ! $metaItemInput->hasChild('image')) {
+					continue;
+				}
+					
+				$imageData = $metaItemInput->getChild('image')
+						->getArrayCopy();
+					
+				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($imageData);
+				$metaItem = new Entity\BlockPropertyMetadata($index, $property, $element);				
 			}
 			
 			$metaItem->setName($index);
 			
-			if ($metaItemInput->hasChild('image')) {
-				$imageData = $metaItemInput->getChild('image')
-						->getArrayCopy();
-
-				$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
-				$element->fillArray($imageData);
-			}
+//			if ($metaItemInput->hasChild('image')) {
+//				$imageData = $metaItemInput->getChild('image')
+//						->getArrayCopy();
+//
+//				$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
+//				$element->fillArray($imageData);
+//			}
 			
-			$element->setImageId($imageId);
+//			$element->setImageId($imageId);
 			
 			$metaItem->setReferencedElement($element);
 			

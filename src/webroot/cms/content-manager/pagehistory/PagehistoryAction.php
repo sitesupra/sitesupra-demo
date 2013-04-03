@@ -150,6 +150,10 @@ class PagehistoryAction extends PageManagerAction
 						$action = self::ACTION_CHANGE;
 						
 						break;
+						
+//					case Entity\PlaceHolderGroup::CN():
+//						$title = "Layout settings";
+//						break;
 					
 					case Entity\BlockProperty::CN():
 						$blockName = $this->getRevisionedEntityBlockName($revision);

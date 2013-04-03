@@ -31,6 +31,10 @@ class TemplatePlaceHolder extends Abstraction\PlaceHolder
 	 */
 	public function setLocked($locked = true)
 	{
+		if ($this->group instanceof PlaceHolderGroup) {
+			$this->group->setLocked($locked);
+		}
+		
 		$this->locked = (bool) $locked;
 	}
 
@@ -40,6 +44,10 @@ class TemplatePlaceHolder extends Abstraction\PlaceHolder
 	 */
 	public function getLocked()
 	{
+		if ($this->group instanceof PlaceHolderGroup) {
+			return $this->group->getLocked();
+		}
+		
 		return $this->locked;
 	}
 

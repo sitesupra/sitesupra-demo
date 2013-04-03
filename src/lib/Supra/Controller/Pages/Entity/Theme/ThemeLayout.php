@@ -49,7 +49,7 @@ class ThemeLayout extends Database\Entity
 	 * @OneToMany(targetEntity="ThemeLayoutPlaceholderGroup", mappedBy="layout", cascade={"all"}, orphanRemoval=true, indexBy="name")
 	 * @var ArrayCollection
 	 */
-	protected $placeholderGroups;
+	protected $placeHolderGroups;
 	
 	
 	/**
@@ -60,7 +60,7 @@ class ThemeLayout extends Database\Entity
 		parent::__construct();
 
 		$this->placeholders = new ArrayCollection();
-		$this->placeholderGroups = new ArrayCollection();
+		$this->placeHolderGroups = new ArrayCollection();
 	}
 
 	/**
@@ -167,21 +167,21 @@ class ThemeLayout extends Database\Entity
 	/**
 	 * @return ArrayCollection
 	 */
-	public function getPlaceholderGroups()
+	public function getPlaceHolderGroups()
 	{
-		return $this->placeholderGroups;
+		return $this->placeHolderGroups;
 	}
 
 	public function addPlaceholderGroup(ThemeLayoutPlaceholderGroup $placeholderGroup)
 	{
 		$placeholderGroup->setLayout($this);
-		$this->placeholderGroups->set($placeholderGroup->getName(), $placeholderGroup);
+		$this->placeHolderGroups->set($placeholderGroup->getName(), $placeholderGroup);
 	}
 	
 	public function removePlaceholderGroup(ThemeLayoutPlaceholderGroup $placeholderGroup)
 	{
 		$placeholderGroup->setLayout(null);
-		$this->placeholderGroups->removeElement($placeholderGroup);
+		$this->placeHolderGroups->removeElement($placeholderGroup);
 	}
 
 	/**
