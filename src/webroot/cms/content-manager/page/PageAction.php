@@ -144,7 +144,8 @@ class PageAction extends PageManagerAction
 						'editable' => ($group->getLocked() ? false : true),
 						'title' => $group->getTitle(),
 						'type' => 'list_one',
-						'allow' => $allowedLayouts,
+						'allow' => array(),
+						'allow_layouts' => $allowedLayouts,
 						'properties' => array(
 							'layout' => array(
 								'value' => $groupLayout, 
