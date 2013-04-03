@@ -96,13 +96,17 @@
 							<span class="img">
 								{{ output.imageHtmlTag(product) }}
 								
-								<a class="overlay" rel="lightbox"
+								<a class="overlay" rel="lightbox-galleryimg"
 									href="{{ tag_full.getAttribute('src') }}"
 							    	title="{{ product.property.title }}"></a>
 							</span>
 							
 							<div class="inner-text">
-								<h2>{{ product.property.title }}</h2>
+								<h2>
+									<a rel="lightbox-gallerytitle" href="{{ tag_full.getAttribute('src') }}" title="{{ product.property.title }}">
+								    	{{ product.property.title }}
+								    </a>
+								</h2>
 								<p>{{ product.property.description }}</p>
 							</div>
 						</span>
