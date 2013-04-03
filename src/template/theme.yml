@@ -1,6 +1,7 @@
 - _version: 2
 
 - _use: Supra\Controller\Layout\Theme\Configuration
+- _use: Supra\Controller\Layout\Theme\Configuration\GroupAdditionalConfiguration
 
 - Configuration\ThemeConfiguration:
     name: default
@@ -21,7 +22,12 @@
         name: sets
         title: Manageable placeholders
         filename: sets.html.twig
-     
+        
+        groupsAdditionalConfiguration:
+          - _class: GroupAdditionalConfiguration
+            name: body_group_one
+            layouts: [ single, three_one ]
+              
     groupLayouts: 
       # single column | much the same as simple placeholder
       - _class: Configuration\ThemePlaceholderGroupLayoutConfiguration

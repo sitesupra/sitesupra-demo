@@ -29,17 +29,16 @@ class ThemeLayoutConfiguration extends ThemeConfigurationAbstraction
 	 * @var string
 	 */
 	public $icon;
+	
+	/**
+	 * @var array
+	 */
+	public $groupsAdditionalConfiguration = array();
 
 	/**
 	 * @var ThemeLayout
 	 */
 	protected $layout;
-	
-	/**
-	 * @var array
-	 */
-	public $placeHolderContainers = array();
-
 	
 	/**
 	 * @return ThemeLayout

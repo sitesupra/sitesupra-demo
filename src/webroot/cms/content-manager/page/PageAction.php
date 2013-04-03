@@ -104,7 +104,10 @@ class PageAction extends PageManagerAction
 		}          
 		
 		$groupsData = array();
-
+		
+		$layout = $request->getLayout();
+		$layoutConfiguration = $this->getConfigurationForLayout($layout);
+		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
 			
@@ -112,12 +115,27 @@ class PageAction extends PageManagerAction
 			
 			$groupName = null;
 			$group = $placeHolder->getGroup();
-
+			
 			if ( ! is_null($group)) {
 				
 				$groupName = $group->getName();
 				$groupLayout = $group->getGroupLayoutName();
 				
+				$groupConfig = null;
+				if ( ! empty($layoutConfiguration) && ! empty($layoutConfiguration->groupsAdditionalConfiguration)) {
+					foreach ($layoutConfiguration->groupsAdditionalConfiguration as $groupConfiguration) {
+						if ($groupConfiguration->name == $groupName) {
+							$groupConfig = $groupConfiguration;
+							break;
+						}
+					}
+				}
+				
+				$allowedLayouts = null;
+				if ($groupConfig !== null) {
+					$allowedLayouts = $groupConfig->layouts;
+				}
+	
 				if ( ! isset($groupsData[$groupName])) {
 					$groupData = array(
 						'id' => $groupName,
@@ -126,8 +144,7 @@ class PageAction extends PageManagerAction
 						'editable' => ($group->getLocked() ? false : true),
 						'title' => $group->getTitle(),
 						'type' => 'list_one',
-						'allow' => array(),
-						'layout_limit' => 4,
+						'allow' => $allowedLayouts,
 						'properties' => array(
 							'layout' => array(
 								'value' => $groupLayout, 
@@ -1066,5 +1083,24 @@ class PageAction extends PageManagerAction
 		);
 		
 		return $array;
+	}
+	
+	/*
+	 * 
+	 */
+	private function getConfigurationForLayout($layout)
+	{
+		$themeConfiguration = ObjectRepository::getThemeProvider($this)
+				->getCurrentTheme()
+				->getConfiguration();
+	
+		$name = $layout->getName();
+		foreach ($themeConfiguration->layouts as $layoutConfiguration) {
+			if ($layoutConfiguration->name == $name) {
+				return $layoutConfiguration;
+			}
+		}
+		
+		return null;
 	}
 }
