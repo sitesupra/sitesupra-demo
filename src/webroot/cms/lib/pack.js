@@ -33321,7 +33321,8 @@ YUI.add('supra.datatype-color', function(Y) {
 				node.setStyle("margin", -value.crop_top + "px 0 0 -" + value.crop_left + "px");
 				node.setAttribute("width", value.size_width);
 				node.setAttribute("height", value.size_height);
-				node.setAttribute("src", value.image.sizes.original.external_path);
+				node.setAttribute("src", Supra.getObjectValue(value, ['image', 'sizes', 'original', 'external_path']) || this.get('blankImageUrl'));
+				
 				container.setStyles({
 					"width": value.crop_width,
 					"height": value.crop_height

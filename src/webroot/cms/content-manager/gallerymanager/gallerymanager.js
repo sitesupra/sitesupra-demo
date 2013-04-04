@@ -712,6 +712,29 @@ function (Y) {
 		},
 		
 		/**
+		 * Validate ids and create dummy ones if missing
+		 * 
+		 * @param {Object} data Gallery data
+		 * @returns {Object} Data with fixed ids
+		 * @private
+		 */
+		transformData: function (data) {
+			data = Supra.mix({}, data, true);
+			
+			var images = data.images || [],
+				i = 0,
+				ii = images.length;
+			
+			for (; i<ii; i++) {
+				if (!images[i].id && images[i].image) {
+					images[i].id = images[i].image.id || Y.guid();
+				}
+			}
+			
+			return data;
+		},
+		
+		/**
 		 * Execute action
 		 * 
 		 * @param {Object} options Gallery options: data, callback, context, block
@@ -736,7 +759,7 @@ function (Y) {
 			
 			this.callback = options.callback ? (options.context ? Y.bind(options.callback, options.context) : options.callback) : null;
 			
-			this.data = options.data;
+			this.data = this.transformData(options.data);
 			this.image_properties = options.properties || [];
 			this.image_upload_folder = options.imageUploadFolder || 0;
 			

@@ -1,5 +1,4 @@
 {% macro imageHtmlTag (image, width, height) %}
-
 	{% if not width %}{% set width = image.crop_width %}{% endif %}
 	{% if not height %}{% set height = image.crop_height %}{% endif %}
 
@@ -22,14 +21,13 @@
 			 {% endif %}alt="" />
 	{% endif %}
 {% endmacro %}
-{% import _self as output %}
 
 {# <!-- Macro for outputing icons/images --> #}
 {% macro imageElement(element, width, height, allowedType) %}
 	{% if element.type == 'icon' and allowedType == 'icon' %}
 		{{ element.tag | raw  }}
 	{% elseif element.type == 'image' and allowedType != 'icon' %}
-		{{ output.imageHtmlTag (image, width, height) }}
+		{{ _self.imageHtmlTag (element, width, height) }}
 	{% endif %}
 {% endmacro %}
 

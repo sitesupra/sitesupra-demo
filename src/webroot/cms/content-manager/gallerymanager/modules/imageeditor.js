@@ -407,9 +407,17 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 		 * @returns {Object} New value attribute value
 		 */
 		_setValue: function (value) {
+			// Convert to Icon object
+			if (value && this.get('mode') == ImageEditor.MODE_ICON) {
+				if (!(value instanceof Y.DataType.Icon)) {
+					value = new Y.DataType.Icon(value);
+				}
+			}
+			
 			if (value) {
 				this._applyStyle(value);
 			}
+			
 			return value;
 		},
 		

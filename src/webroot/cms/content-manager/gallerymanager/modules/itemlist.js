@@ -708,7 +708,8 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				} else {
 					imageNode.setAttribute('src', '/cms/lib/supra/img/px.gif');
 					imageNode.setStyles({
-						'background': '#e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat'
+						'background': '#e5e5e5 url(/cms/lib/supra/img/medialibrary/icon-broken-plain.png) 50% 50% no-repeat',
+						'min-width': '100%'
 					});
 				}
 				
@@ -734,17 +735,23 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				old_node = this.getNodeById(id),
 				new_node = this.getNodeById(image.id),
 				properties = this.get('host').image_properties,
-				property = null;
+				property = null,
+				item = this.items[image.id],
+				input = null;
 			
 			for (var i=0, ii=properties.length; i<ii; i++) {
 				property = properties[i].id;
-				if (old_data.properties[property]) {
+				
+				// Replace title, description, etc. with old value if old value was not default
+				if (old_data.properties[property] && old_data.properties[property] != properties[i].value) {
 					new_data.properties[property] = old_data.properties[property];
+					
+					// Update input value
+					input = Supra.getObjectValue(item, ['properties', property, 'input']);
+					if (input) {
+						input.set('value', new_data.properties[property]);
+					}
 				}
-				// Replace only if isn't default value
-				//if (properties[i].label != old_data.properties[property]) {
-				//	new_data.properties[property] = old_data.properties[property];
-				//}
 			}
 			
 			old_node.insert(new_node, 'before');

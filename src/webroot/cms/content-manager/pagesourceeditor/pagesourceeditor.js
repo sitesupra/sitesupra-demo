@@ -104,6 +104,7 @@ Supra(function (Y) {
 			
 			this.editor.render();
 			this.editor.setHTML(this.html);
+			this.editor.focus();
 		},
 		
 		/**
@@ -154,6 +155,7 @@ Supra(function (Y) {
 			//Set content
 			if (this.editor) {
 				this.editor.setHTML(this.html);
+				this.editor.focus();
 			}
 		}
 	});

@@ -12,6 +12,10 @@
         groups:
           - Supra\FileStorage
           - Supra\Controller\Pages
+    propertyGroups:
+      - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+          id: navigation
+          label: Navigation
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: block_title

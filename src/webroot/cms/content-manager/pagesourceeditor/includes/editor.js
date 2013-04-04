@@ -173,6 +173,18 @@ YUI.add('supra.source-editor', function (Y) {
 		},
 		
 		/**
+		 * Focus input
+		 */
+		focus: function () {
+			Editor.superclass.focus.apply(this, arguments);
+			
+			var node = this.get('contentBox');
+			if (node) {
+				node.getDOMNode().focus();
+			}
+		},
+		
+		/**
 		 * Add needed elements
 		 * 
 		 * @private
