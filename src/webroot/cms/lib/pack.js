@@ -4020,6 +4020,14 @@ YUI.add('supra.datatype-icon', function(Y) {
 						// append <g /> element
 						this._renderAppend(svg.childNodes, node, true);
 						 
+						node.setAttribute('version', '1.1');
+						node.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+						node.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+						node.setAttribute('x', '0px');
+						node.setAttribute('y', '0px');
+						node.setAttribute('viewBox', '0 0 512 512');
+						node.setAttribute('enable-background', 'new 0 0 512 512');
+						node.setAttribute('xml:space', 'preserve');
 						svg = node.getDOMNode();
 					} else {
 						svg = svg.cloneNode();
@@ -9652,7 +9660,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	"use strict";
 	
 	/* Tag white list, all other tags will be removed. <font> tag is added if "fonts" plugin is enabled */
-	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span', 'svg', 'g', 'path'];
+	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'b', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'embed', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span', 'svg'];
 	
 	/* List of inline elements */
 	Supra.HTMLEditor.ELEMENTS_INLINE = {'b': 'b', 'i': 'i', 'span': 'span', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong': 'strong', 's': 's', 'strike': 'strike', 'a': 'a', 'u': 'u', 'img': 'img', 'br': 'br', 'q': 'q', 'big': 'big', 'mark': 'mark', 'rp': 'rp', 'rt': 'rt', 'ruby': 'ruby', 'summary': 'summary', 'time': 'time', 'svg': 'svg', 'g': 'g', 'path': 'path'};
@@ -9845,6 +9853,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				}
 				html = this.stripTags(html, white_list_tags);
 				
+				//Remove unneeded attributes from <SVG>
+				html = html.replace(/<svg [^>]+>/g, function (str) {
+					return str.replace(/ ([a-zA-Z0-9\-\:]+)=("[^"]+")/g, function (m, property) {
+						return property === 'id' ? m : '';
+					});
+				});
+				
 				//Convert <_ into <
 				html = html.replace(/<(\/?)_/g, '<$1');
 				
@@ -10002,11 +10017,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @type {String}
 		 */
 		stripTags: function (html, whiteList) {
-			whiteList = Supra.Y.Lang.isArray(whiteList) ? whiteList.join(',') : typeof whiteList == 'string' ? whiteList : '';
+			whiteList = Supra.Y.Lang.isArray(whiteList) ? whiteList.join(',') : typeof whiteList == 'string' ? ',' + whiteList + ',' : '';
 			whiteList = whiteList.toLowerCase();
 			
 			return html.replace(REGEXP_FIND_TAGS, function(match, tagName){
-				return whiteList.indexOf(tagName.toLowerCase()) != -1 ? match : '';
+				return whiteList.indexOf(',' + tagName.toLowerCase() + ',') != -1 ? match : '';
 			});
 		},
 		
@@ -15365,11 +15380,15 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 				icons = node.all("svg"),
 				i = 0,
 				ii = icons.size(),
-				data = null;
+				data = null,
+				data_icon = null;
 			
 			for (; i<ii; i++) {
 				data = htmleditor.getData(icons.item(i));
 				if (data && data.type == "icon") {
+					data_icon = new Y.DataType.Icon(data);
+					data_icon.render(icons.item(i));
+					
 					this.getIconWrapperNode(icons.item(i));
 				}
 			}

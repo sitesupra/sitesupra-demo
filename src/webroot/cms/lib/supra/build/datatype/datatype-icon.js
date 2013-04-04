@@ -232,13 +232,19 @@ YUI.add('supra.datatype-icon', function(Y) {
 						// append <g /> element
 						this._renderAppend(svg.childNodes, node, true);
 						 
+						node.setAttribute('version', '1.1');
+						node.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+						node.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+						node.setAttribute('x', '0px');
+						node.setAttribute('y', '0px');
+						node.setAttribute('viewBox', '0 0 512 512');
+						node.setAttribute('enable-background', 'new 0 0 512 512');
+						node.setAttribute('xml:space', 'preserve');
 						svg = node.getDOMNode();
 					} else {
 						svg = svg.cloneNode();
 						this._renderAppend([svg], node, false);
 					}
-					
-					console.log('SVG', svg);
 					
 					// Style
 					svg.setAttribute('width', (this.width ? this.width + 'px' : ''));

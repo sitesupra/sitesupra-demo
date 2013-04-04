@@ -819,11 +819,15 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 				icons = node.all("svg"),
 				i = 0,
 				ii = icons.size(),
-				data = null;
+				data = null,
+				data_icon = null;
 			
 			for (; i<ii; i++) {
 				data = htmleditor.getData(icons.item(i));
 				if (data && data.type == "icon") {
+					data_icon = new Y.DataType.Icon(data);
+					data_icon.render(icons.item(i));
+					
 					this.getIconWrapperNode(icons.item(i));
 				}
 			}
