@@ -4034,8 +4034,6 @@ YUI.add('supra.datatype-icon', function(Y) {
 						this._renderAppend([svg], node, false);
 					}
 					
-					console.log('SVG', svg);
-					
 					// Style
 					svg.setAttribute('width', (this.width ? this.width + 'px' : ''));
 					svg.setAttribute('height', (this.height ? this.height + 'px' : ''));
@@ -29104,69 +29102,6 @@ YUI.add('supra.input-slider', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
-	//Map manager
-	var MapManager = Supra.Input.MapManager = {
-		/**
-		 * Map API is being loaded
-		 * @type {Boolean}
-		 */
-		loading: false,
-		
-		/**
-		 * Map API is loaded
-		 * @type {Boolean}
-		 */
-		loaded: false,
-		
-		/**
-		 * List of event listeners
-		 * @type {Array}
-		 */
-		listeners: [],
-		
-		/**
-		 * 
-		 */
-		prepare: function (callback, context) {
-			if (this.loaded || this.loading) {
-				if (this.loaded && callback) {
-					callback.call(context || window);
-				} else if (this.loading && callback) {
-					this.listeners.push({'fn': callback, 'obj': context || window});
-				}
-				
-				//Already loading or loaded
-				return;
-			}
-			
-			this.loading = true;
-			
-			if (callback) {
-				this.listeners.push({'fn': callback, 'obj': context || window});
-			}
-			
-			var script = document.createElement('script');
-				script.type = 'text/javascript';
-				script.src  = 'http://maps.googleapis.com/maps/api/js?sensor=true&callback=Supra.Input.MapManager.ready';
-			
-			document.body.appendChild(script);
-		},
-		
-		ready: function () {
-			var listeners = MapManager.listeners,
-				i = 0,
-				ii = listeners.length;
-			
-			MapManager.listeners = [];
-			MapManager.loading = false;
-			MapManager.loaded = true;
-			
-			for(; i<ii; i++) {
-				listeners[i].fn.call(listeners[i].obj);
-			}
-		}
-	};
-	
 	//Shortcuts
 	var Manager = Supra.Manager;
 	
@@ -29232,7 +29167,7 @@ YUI.add('supra.input-slider', function (Y) {
 			this.get('boundingBox').append(node);
 			this.node = node.getDOMNode();
 			
-			MapManager.prepare(this.createMap, this); 
+			Supra.Input.MapManager.prepare(document, window, this.createMap, this); 
 		},
 		
 		/**
