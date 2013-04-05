@@ -104,7 +104,7 @@ YUI().add('supra.help', function (Y) {
 		 * @private
 		 */
 		_saveTipState: function (id) {
-			var url = Supra.Manager.getAction('Tips').getDataPath('dev/save');
+			var url = Supra.Manager.getAction('Tips').getDataPath('save');
 			
 			Supra.io(url, {
 				'method': 'post',
