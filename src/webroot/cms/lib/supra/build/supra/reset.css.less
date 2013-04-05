@@ -123,3 +123,8 @@ input, select, textarea {
 	-moz-box-sizing: border-box;		/* FF */
 	-ms-box-sizing: border-box;			/* IE8 */
 }
+input::-ms-clear {
+	display: none; /* IE 10*/
+	width: 0;
+	height: 0;
+}
