@@ -514,6 +514,13 @@
 			"open_library_app": "Open Library app",
 			
 			"remove_link": "Remove link"
+		},
+		
+		"helpnotes": {
+			"slideshow_order": {
+				"title": "Tip",
+				"description": "Re-order the slides by dragging and dropping icons"
+			}
 		}
 	}
 }

@@ -327,6 +327,13 @@ YUI.add('slideshowmanager.list', function (Y) {
 			return this._count;
 		},
 		
+		/**
+		 * Update scroll position
+		 */
+		syncScroll: function () {
+			this._scrollable.syncUI();
+		},
+		
 		
 		/* ---------------------------- ATTRIBUTES --------------------------- */
 		

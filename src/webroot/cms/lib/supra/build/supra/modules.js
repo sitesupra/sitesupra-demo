@@ -933,6 +933,24 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Help
+	 */
+	'supra.help': {
+		path: 'help/help.js',
+		skinnable: true,
+		requires: [
+			'supra.help-tip'
+		]
+	},
+	
+	'supra.help-tip': {
+		path: 'help/tip.js',
+		requires: [
+			'widget'
+		]
+	},
+	
+	/**
 	 * Manager
 	 */
 	'supra.manager': {

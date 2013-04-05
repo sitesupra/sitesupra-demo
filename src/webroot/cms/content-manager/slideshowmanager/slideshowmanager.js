@@ -45,7 +45,8 @@ Supra([
 	'slideshowmanager.settings',
 	'slideshowmanager.view',
 	'slideshowmanager.plugin-inline-button',
-	'slideshowmanager.input-resizer'
+	'slideshowmanager.input-resizer',
+	'supra.help'
 ], function (Y) {
 	//Invoke strict mode
 	"use strict";
@@ -177,6 +178,31 @@ Supra([
 				if ('background' in newData || 'media' in newData) {
 					this.list.redrawItem(id);
 				}
+			}, this);
+			
+			this.createTips();
+		},
+		
+		createTips: function () {
+			var target = this.one('.su-slideshow-manager-list');
+			
+			Supra.Help.tip('slideshow_order', {
+				'before': target,
+				'width': 150,
+				'height': 100,
+				'xPosition': 20,
+				'yPosition': ['bottom', 24],
+				'zIndex': 2
+			}).done(function (widget, data) {
+				target.transition({'left': '170px', 'duration': 0.35}, Y.bind(function () {
+					this.list.syncScroll();
+				}, this));
+				
+				widget.on('close', function () {
+					target.transition({'left': '0px', 'duration': 0.35}, Y.bind(function () {
+						this.list.syncScroll();
+					}, this));
+				}, this)
 			}, this);
 		},
 		

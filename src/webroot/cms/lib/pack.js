@@ -1410,6 +1410,24 @@ Supra.YUI_BASE.groups.supra.modules = {
 	},
 	
 	/**
+	 * Help
+	 */
+	'supra.help': {
+		path: 'help/help.js',
+		skinnable: true,
+		requires: [
+			'supra.help-tip'
+		]
+	},
+	
+	'supra.help-tip': {
+		path: 'help/tip.js',
+		requires: [
+			'widget'
+		]
+	},
+	
+	/**
 	 * Manager
 	 */
 	'supra.manager': {
@@ -4033,8 +4051,6 @@ YUI.add('supra.datatype-icon', function(Y) {
 						svg = svg.cloneNode();
 						this._renderAppend([svg], node, false);
 					}
-					
-					console.log('SVG', svg);
 					
 					// Style
 					svg.setAttribute('width', (this.width ? this.width + 'px' : ''));
@@ -18848,9 +18864,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		'Header': '/content-manager',
 		'SiteMap': '/content-manager',
 		'SiteMapRecycle': '/content-manager',
-		'MediaLibrary': '/media-library',
-		'MediaSidebar': '/media-library',
-		'IconSidebar': '/media-library',
 		'PageToolbar': '/content-manager',
 		'PageButtons': '/content-manager',
 		'EditorToolbar': '/content-manager',
@@ -18859,14 +18872,24 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		'PageSourceEditor': '/content-manager',
 		'LayoutContainers': '/content-manager',
 		'Confirmation': '/content-manager',
+		'LinkManager': '/content-manager',
+		
+		'MediaLibrary': '/media-library',
+		'MediaSidebar': '/media-library',
+		'IconSidebar': '/media-library',
+		
 		'Login': '/login',
 		'MyPassword': '/login',
-		'LinkManager': '/content-manager',
+		
 		'UserAvatar': '/internal-user-manager',
+		
 		'Applications': '/dashboard',
 		'BrowserSupport': '/dashboard',
+		'Sites': '-local/site-list-manager', // This is rather hacky.
+		
 		'Blog': '/blog-manager',
-		'Sites': '-local/site-list-manager' // This is rather hacky.
+		
+		'Tips': '/help'
 	});
 
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

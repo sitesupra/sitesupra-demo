@@ -12,9 +12,6 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'Header': '/content-manager',
 		'SiteMap': '/content-manager',
 		'SiteMapRecycle': '/content-manager',
-		'MediaLibrary': '/media-library',
-		'MediaSidebar': '/media-library',
-		'IconSidebar': '/media-library',
 		'PageToolbar': '/content-manager',
 		'PageButtons': '/content-manager',
 		'EditorToolbar': '/content-manager',
@@ -23,14 +20,24 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'PageSourceEditor': '/content-manager',
 		'LayoutContainers': '/content-manager',
 		'Confirmation': '/content-manager',
+		'LinkManager': '/content-manager',
+		
+		'MediaLibrary': '/media-library',
+		'MediaSidebar': '/media-library',
+		'IconSidebar': '/media-library',
+		
 		'Login': '/login',
 		'MyPassword': '/login',
-		'LinkManager': '/content-manager',
+		
 		'UserAvatar': '/internal-user-manager',
+		
 		'Applications': '/dashboard',
 		'BrowserSupport': '/dashboard',
+		'Sites': '-local/site-list-manager', // This is rather hacky.
+		
 		'Blog': '/blog-manager',
-		'Sites': '-local/site-list-manager' // This is rather hacky.
+		
+		'Tips': '/help'
 	});
 
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

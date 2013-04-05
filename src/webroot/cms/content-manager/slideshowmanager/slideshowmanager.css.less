@@ -18,14 +18,18 @@
 	
 	// Iframe
 	.su-iframe.fullscreen {
-		.box-sizing (border-box);
-		padding-bottom: 144px; // space for list
+		position: absolute;
+		height: auto;
+		top: 0;
+		left: 0;
+		bottom: 144px;
 	}
 }
 
 .su-slideshow-manager-list {
 	.layout-fullscreen();
 	top: auto;
+	z-index: 1;
 	
 	ul {
 		width: 110px;
