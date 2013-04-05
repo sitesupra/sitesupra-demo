@@ -7220,7 +7220,9 @@ YUI().add("supra.io-css", function (Y) {
 								   .replace(/</g, '&lt;')
 								   .replace(/>/g, '&gt;')
 								   .replace(/"/g, '&quot;')
-								   .replace(/'/g, '&#39;');	
+								   .replace(/'/g, '&#39;');
+				} else if (type == 'html_attr') {
+					return (''+str).replace(/[^a-zA-Z0-9,\.\-_]/g, escape_html_attr);
 				} else if (type == 'js') {
 					return (''+str).replace(/\\/g, '\\\\')
 								   .replace(/"/g, '\\"')
@@ -7507,7 +7509,27 @@ YUI().add("supra.io-css", function (Y) {
 		REG_FOR				= /\s*([a-z0-9_]+)(\s*,\s*([a-z0-9_]+))?\s+in\s+(.*)/i,
 		
 		FN_IS_ARRAY			= function (arr) { return arr && arr instanceof Array; },
-		FN_TO_ARRAY			= function (obj) { var arr = []; for(var i in obj) if (obj.hasOwnProperty(i)) arr.push(obj[i]); return arr; };
+		FN_TO_ARRAY			= function (obj) { var arr = []; for(var i in obj) if (obj.hasOwnProperty(i)) arr.push(obj[i]); return arr; },
+		
+		// Escape HTML attribute character
+		escape_html_attr    = function (matches) {
+			var chr = matches[0],
+				ord = chr.charCodeAt(0),
+				hex = '',
+				entities = {34: 'quot', 38: 'amp', 60: 'lt', 62: 'gt'};
+			
+			if (entities[ord]) {
+				return '&' + entities[ord] + ';';
+			}
+			
+			// Characters undefined in HTML
+			if ((ord <= 0x1f && chr != "\t" && chr != "\n" && chr != "\r") || (ord >= 0x7f && ord <= 0x9f)) {
+				return '&#xFFFD;';
+			}
+		    
+			hex = ('00' + ord.toString(16)).substr(-2).toUpperCase();
+			return '&#x' + hex + ';';
+		};
 	
 	C.filters.e = C.filters.escape;
 	

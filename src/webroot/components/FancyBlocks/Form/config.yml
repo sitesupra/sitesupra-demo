@@ -1,0 +1,76 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\Form\FormBlock
+    title: Form
+    icon: icon.png
+    groupId: features
+    description: Customizable form
+    cmsClassname: Editable
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\String
+          label: Title
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: email
+          editable: Supra\Editable\String
+          label: Send data to email
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: submit
+          editable: Supra\Editable\String
+          label: Button title
+          default: Submit
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: submit
+          editable: Supra\Editable\String
+          label: Button title
+          default: Submit
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: fields
+          editable: Supra\Editable\PropertySet
+          label: Fields
+          properties:
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: title
+                label: Field title
+                editable: Supra\Editable\String
+                default: Lorem ipsum
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: required
+                editable: Supra\Editable\Checkbox
+                label: Mandatory
+                default: 0
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: type
+                editable: Supra\Editable\SelectList
+                label: Type
+                default: string
+                values:
+                  - id: string
+                    title: String
+                    icon: /components/FancyBlocks/Form/icons/type-string.png
+                  - id: textarea
+                    title: Text
+                    icon: /components/FancyBlocks/Form/icons/type-text.png
+          additionalParameters:
+            separateSlide: true
+            labelAdd: Add field
+            labelRemove: Remove field
+            labelItem: "Field %s"
+            labelButton: Manage fields
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: captcha
+          editable: Supra\Editable\Checkbox
+          label: Captcha
+          default: 0
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: error
+          editable: Supra\Editable\String
+          label: Error message
+          default: Please fill out this field

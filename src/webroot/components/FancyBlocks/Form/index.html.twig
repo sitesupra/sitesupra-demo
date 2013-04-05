@@ -1,0 +1,92 @@
+{% set fields  = supraBlock.property('fields') %}
+{% set submit  = supraBlock.property('submit') %}
+{% set captcha = supraBlock.property('captcha') %}
+{% set error   = supraBlock.property('error') %}
+
+<div class="block">
+
+	{% set heading_class = 'no-heading' %}
+	{% if supra.cmsRequest or not supraBlock.isEmpty('block_title') %}
+	<h2 class="block-title {% if supraBlock.isEmpty('block_title') %}hidden{% endif %}"><div>
+		{{ supraBlock.property('block_title') }}
+		{% set heading_class = 'has-heading' %}
+	</div></h2>
+	{% endif %}
+	
+	<form class="form {{ heading_class }}" method="post" data-refresh-event="form" data-error-message="{{ error|escape('html_attr') }}">
+		
+		{# Unique ID to differentiate multiple forms #}
+		<input type="hidden" id="{{ supraBlock.getBlock().getId() }}" />
+		
+		<div class="form-content">
+			{% for field in fields %}
+				
+				<div class="row">
+				{% if field.type == 'string' %}
+					<label for="field_{{ loop.index }}">
+						{{ field.title|e }}
+						{% if field.required %}
+							<sup class="required">*</sup>
+						{% endif %}
+					</label>
+					<input type="text" class="input-text" value="" placeholder="{{ field.title|escape('html_attr') }}" name="{{ field.title|escape('html_attr') }}" id="field_{{ loop.index }}" {% if field.required %}required{% endif %} />
+				{% elseif field.type == 'textarea' %}
+					<label for="field_{{ loop.index }}">
+						{{ field.title|e }}
+						{% if field.required %}
+							<sup class="required">*</sup>
+						{% endif %}
+					</label>
+					<textarea class="input-text" placeholder="{{ field.title|escape('html_attr') }}" name="{{ field.title|escape('html_attr') }}" id="field_{{ loop.index }}" {% if field.required %}required{% endif %}></textarea>
+				{% endif %}
+				</div>
+				
+			{% endfor %}
+		</div>
+		
+		{% if captcha or supra.cmsRequest %}
+			<div class="row {% if not captcha %}hidden{% endif %}">
+				<span class="input-captcha">@TODO Implement captcha</span>
+			</div>
+		{% endif %}
+		 
+		{% if submit or supra.cmsRequest %}
+			<div class="row form-footer {% if not submit %}hidden{% endif %}">
+				<button type="submit" class="button-2">{{ submit }}</button>
+			</div>
+		{% endif %}
+		
+		<div class="row">
+			<input type="text" required>
+		</div>
+		
+		{# Javascript input field templates for live input rendering in CMS mode. Except "raw" this is exact copy of above code #}
+		{% if supra.cmsRequest %}{% raw %}
+			<script type="text/supra-template" data-supra-container-selector="div.form-content" data-supra-id="form-input">
+				
+				<div class="row">
+				{% if field.type == 'string' %}
+					<label for="field_{{ loop.index }}">
+						{{ field.title|e }}
+						{% if field.required %}
+							<sup class="required">*</sup>
+						{% endif %}
+					</label>
+					<input type="text" class="input-text" value="" placeholder="{{ field.title|escape('html_attr') }}" name="{{ field.title|escape('html_attr') }}" id="field_{{ loop.index }}" {% if field.required %}required{% endif %} />
+				{% elseif field.type == 'textarea' %}
+					<label for="field_{{ loop.index }}">
+						{{ field.title|e }}
+						{% if field.required %}
+							<sup class="required">*</sup>
+						{% endif %}
+					</label>
+					<textarea class="input-text" placeholder="{{ field.title|escape('html_attr') }}" name="{{ field.title|escape('html_attr') }}" id="field_{{ loop.index }}" {% if field.required %}required{% endif %}></textarea>
+				{% endif %}
+				</div>
+
+			</script>
+		{% endraw %}{% endif %}
+		
+	</form>
+
+</div>

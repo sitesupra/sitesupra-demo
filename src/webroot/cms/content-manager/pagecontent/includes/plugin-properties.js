@@ -618,7 +618,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				values = input.get('values') || null, // all values
 				result = null;
 			
-			result = host.fireContentEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value, 'propertyValueList': values});
+			result = host.fireContentEvent('update', host.getNode().getDOMNode(), {'propertyName': id, 'propertyValue': value, 'propertyValueList': values, 'supra': Supra});
 			
 			// On list layout change automatically reload content
 			if (id === 'layout' && host.isInstanceOf('page-content-list')) {

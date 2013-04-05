@@ -548,7 +548,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 			}
 			
 			//Clean up
-			this.fireContentEvent('cleanup', this.getNode().getDOMNode());
+			this.fireContentEvent('cleanup', this.getNode().getDOMNode(), {'supra': Supra});
 			
 			//Traverse children
 			for (id in children) {
@@ -585,7 +585,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 			delete(this._beforeSetHTMLActiveInlineProperty);
 			
 			//Trigger refresh
-			this.fireContentEvent('refresh', this.getNode().getDOMNode());
+			this.fireContentEvent('refresh', this.getNode().getDOMNode(), {'supra': Supra});
 			
 			if (this.properties) {
 				//Recreate inline inputs

@@ -789,7 +789,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 				this.get('parent').getNode().append(node);
 				
 				//Trigger refresh
-				this.fireContentEvent('refresh', node.getDOMNode());
+				this.fireContentEvent('refresh', node.getDOMNode(), {'supra': Supra});
 			}
 			
 			if (!permission_edit) {
