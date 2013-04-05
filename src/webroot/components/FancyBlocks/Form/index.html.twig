@@ -8,6 +8,7 @@
 	</div></h2>
 	{% endif %}
 	
+	{% set error   = supraBlock.property('error') %}
 	<form class="form {{ heading_class }}" method="post" data-refresh-event="form" data-error-message="{{ error|escape('html_attr') }}">
 		
 		{% if confirmation %}
@@ -22,7 +23,6 @@
 			{% set fields  = supraBlock.property('fields') %}
 			{% set submit  = supraBlock.property('submit') %}
 			{% set captcha = supraBlock.property('captcha') %}
-			{% set error   = supraBlock.property('error') %}
 			
 			{# Unique ID to differentiate multiple forms #}
 			<input type="hidden" id="{{ supraBlock.getBlock().getId() }}" />
