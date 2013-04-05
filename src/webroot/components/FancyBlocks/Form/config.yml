@@ -32,6 +32,16 @@
           label: Button title
           default: Submit
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: confirmation_message
+          editable: Supra\Editable\String
+          label: Confirmation message
+          default: Thank You!
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: error
+          editable: Supra\Editable\String
+          label: Empty field error message
+          default: Please fill out this field
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: fields
           editable: Supra\Editable\PropertySet
           label: Fields
@@ -69,8 +79,3 @@
           editable: Supra\Editable\Checkbox
           label: Captcha
           default: 0
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: error
-          editable: Supra\Editable\String
-          label: Error message
-          default: Please fill out this field
