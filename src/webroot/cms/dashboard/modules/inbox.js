@@ -44,6 +44,9 @@ YUI.add("dashboard.inbox", function (Y) {
 			"value": Supra.Intl.get(["dashboard", "inbox", "title"]),
 			"setter": "_setTitle"
 		},
+		'visible': {
+			"value": false
+		}
 	};
 	
 	Inbox.HTML_PARSER = {};
@@ -111,9 +114,9 @@ YUI.add("dashboard.inbox", function (Y) {
 		 * Render data
 		 */
 		renderData: function (data) {
-			data = Inbox.superclass.renderData.apply(this, arguments);
+			data = Inbox.superclass.renderData.call(this, data);
 			
-			if (!this.nodes.body) return data;
+			if (!this.nodes.body || !data || !data.length) return data;
 			
 			//Title
 			var has_new_messages = false;
@@ -142,6 +145,7 @@ YUI.add("dashboard.inbox", function (Y) {
 			}
 			
 			this.buttons = list;
+			this.show();
 			
 			return data;
 		}
