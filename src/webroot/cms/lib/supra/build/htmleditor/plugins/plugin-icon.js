@@ -674,8 +674,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 * @private
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement("svg");
-			if (element) {
+			var element = this.htmleditor.getSelectedElement("svg"),
+				container = this.htmleditor.get('srcNode');
+			
+			if (element && Y.Node(element).closest(container)) {
 				if (!this.showIconSettings(Y.Node(element))) {
 					this.settingsFormApply();
 				}
