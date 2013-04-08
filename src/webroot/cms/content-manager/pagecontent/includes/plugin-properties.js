@@ -344,6 +344,11 @@ YUI.add('supra.page-content-properties', function (Y) {
 						group_node = this.createGroup(group, form_config);
 					}
 					
+					// Filter layout properties
+					if (properties[i].id === 'layout' && host.isInstanceOf('page-content-list')) {
+						this.filterLayoutPropertyValue(properties[i]);
+					}
+					
 					//Set input container node to that slide
 					properties[i].containerNode = group_nodes[group];
 					form_config.inputs.push(properties[i]);
@@ -914,6 +919,38 @@ YUI.add('supra.page-content-properties', function (Y) {
 			var info = Supra.mix({'localeTitle': localeTitle}, list[name]);
 
 			return info;
+		},
+		
+		/**
+		 * Filter layout property values to have only those which are in 'allow_layouts' list
+		 * 
+		 * @param {Object} property Layout property info
+		 * @private
+		 */
+		filterLayoutPropertyValue: function (property) {
+			var data = this.get('host').get('data'),
+				
+				values = property.values,
+				k = 0,
+				kk = values ? values.length : 0,
+				
+				layouts = data.allow_layouts,
+				i = 0,
+				ii = layouts ? layouts.length : 0,
+				
+				new_values = [];
+			
+			if (ii && kk) {
+				for (; i<ii; i++) {
+					for (k=0; k<kk; k++) {
+						if (layouts[i] == values[k].id) {
+							new_values.push(values[k]);
+						}
+					}
+				}
+				
+				property.values = new_values;
+			}
 		},
 		
 		
