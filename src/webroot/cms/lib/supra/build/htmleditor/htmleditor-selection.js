@@ -81,7 +81,8 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		
 		/**
 		 * Returns element in which cursor is positioned
-		 * Optionally searching for closest (parent) element matching selector
+		 * Optionally searching for closest (parent) element matching selector or 
+		 * if function is provided then uses it for testing element
 		 * 
 		 * @param {String} selector Optional. Will return first element matching selector
 		 * @return HTMLElement or null
@@ -89,18 +90,32 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		 */
 		getSelectedElement: function (selector) {
 			if (this.selectedElement) {
-				//Find closest element matching selector
 				if (selector) {
-					var node = new Y.Node(this.selectedElement),
-						container = Y.Node.getDOMNode(this.get('srcNode'));
-					
-					//Don't traverse up more than container	
-					while (node && !node.compareTo(container)) {
-						if (node.test(selector)) return Y.Node.getDOMNode(node);
-						node = node.get('parentNode');
+					if (typeof selector === 'string') {
+						//Find closest element matching selector
+						var node = new Y.Node(this.selectedElement),
+							container = Y.Node.getDOMNode(this.get('srcNode'));
+						
+						//Don't traverse up more than container	
+						while (node && !node.compareTo(container)) {
+							if (node.test(selector)) return Y.Node.getDOMNode(node);
+							node = node.get('parentNode');
+						}
+						
+						return null;
+					} else {
+						//Find closest element which returns true for element
+						var node = new Y.Node(this.selectedElement),
+							container = Y.Node.getDOMNode(this.get('srcNode'));
+						
+						//Don't traverse up more than container	
+						while (node && !node.compareTo(container)) {
+							if (selector(node)) return Y.Node.getDOMNode(node);
+							node = node.get('parentNode');
+						}
+						
+						return null;
 					}
-					
-					return null;
 				}
 				
 				return this.selectedElement;

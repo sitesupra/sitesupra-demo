@@ -261,8 +261,12 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		openExternalManager: function (force) {
 			//Since toolbar is created by single instance of gallery
 			//keyword "this" may have incorrect reference
-			var self = Manager.PageContent.getContent().get('activeChild'),
-				shared = self.properties.isPropertyShared('slides'),
+			var self = Manager.PageContent.getContent().get('activeChild');
+			
+			//Self doesn't exist if user is not editing block
+			if (!self) return;
+			
+			var shared = self.properties.isPropertyShared('slides'),
 				slideProperties = self.getSlideProperties();
 			
 			// If block is shared and there are no slide properties, then it's pointless to open

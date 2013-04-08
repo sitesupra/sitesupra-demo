@@ -344,8 +344,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		openExternalManager: function (force) {
 			//Since toolbar is created by single instance of gallery
 			//keyword "this" may have incorrect reference
-			var self = Manager.PageContent.getContent().get('activeChild'),
-				shared = self.properties.isPropertyShared('images'),
+			var self = Manager.PageContent.getContent().get('activeChild');
+			
+			//Self doesn't exist if user is not editing block
+			if (!self) return;
+			
+			var shared = self.properties.isPropertyShared('images'),
 				imageProperties = self.getImageProperties();
 				
 			if ( ! imageProperties.length && shared) {

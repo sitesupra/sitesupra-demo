@@ -282,6 +282,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 */
 		onSidebarDone: function () {
 			// Stop editing
+			this.hideForm();
 			this.get('host').close();
 		},
 		

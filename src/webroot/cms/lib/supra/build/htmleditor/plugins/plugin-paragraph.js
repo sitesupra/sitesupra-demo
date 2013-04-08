@@ -65,11 +65,27 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 						//this.htmleditor.insertHTML('<P></P>');
 						//@TODO
 					} else if (Y.UA.webkit) {
-						//var tagName = node
-						//@TODO
+						
+						// Cursor is at the end of the inline node?
+						// Create block level element, not inline (eg. <a class="button" />)
+						var selected  = this.htmleditor.getSelectedElement(),
+							inline    = Supra.HTMLEditor.ELEMENTS_INLINE;
+						
+						if (selected && selected.tagName.toLowerCase() in inline) {
+							var selection = this.htmleditor.selection,
+								end       = selection.end,
+								length    = end.nodeType == 1 ? end.childNodes.length : end.length,
+								tagname   = null;
+							
+							if (selection.end_offset == length) {
+								tagname = this.htmleditor.getSelectedElement('p, li');
+								tagname = tagname ? tagname.tagName : 'P';
+								
+								this.insertHTML('<' + tagname + '></'+ tagname + '>');
+								event.halt();
+							}
+						}
 					}
-					
-					//event.halt();
 				}
 			}
 		},
@@ -78,31 +94,37 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		/**
 		 * Insert after selection
 		 * @param {Object} html
+		 * @private
 		 */
 		insertHTML: function (html) {
-			if (!html || this.get('disabled')) return;
+			if (!html || this.htmleditor.get('disabled')) return;
 			
+			var selected  = this.htmleditor.selection.end,
+				reference = null,
+				inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
+				srcNode   = this.htmleditor.get('srcNode').getDOMNode(),
+				node      = Y.Node.create(html).getDOMNode();
 			
-			/*
-			var target = this.selection.end,
-			    html = Y.Node.create(html),
-				nodes = Y.Node.getDOMNode(html),
-				inline = false;
-			
-			nodes = nodes.nodeType != 11 ? [nodes] : nodes.childNodes;
-			
-			if (target.nextSibling) {
-				target = target.nextSibling;
-				for(var i=nodes.length-1; i>=0; i--) {
-					target.parentNode.insertBefore(nodes[i],target);
+			// Find first non-inline element
+			while (selected && selected !== srcNode) {
+				if (selected.nodeType == 1) {
+					// If element is not inline and tags are different (P, LI, UL)
+					if (!inline[selected.tagName.toLowerCase()] && selected.tagName != node.tagName) {
+						break;
+					}
 				}
-			} else {
-				target = target.parentNode;
-				for(var i=0,ii=nodes.length; i<ii; i++) {
-					target.appendChild(nodes[i]);
-				}
+				reference = selected;
+				selected = selected.parentNode;
 			}
-			*/
+			
+			// Insert node
+			if (reference && reference.nextSibling) {
+				selected.insertBefore(node, reference.nextSibling);
+			} else {
+				selected.appendChild(node);
+			}
+			
+			this.htmleditor.selectNode(node);
 		},
 		
 		
