@@ -15742,8 +15742,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				//Insert link
 				var uid = htmleditor.generateDataUID(),
 					text = this.htmleditor.getSelectionText(),
-					href = this.normalizeHref(data.href),
-					html = '<a id="' + uid + '"' + (data.classname ? ' class="' + data.classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '" href="' + href + '">' + text + '</a>';
+					html = '<a id="' + uid + '"' + (data.classname ? ' class="' + data.classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '">' + text + '</a>';
 				
 				data.type = this.NAME;
 				htmleditor.setData(uid, data)
@@ -15788,7 +15787,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		},
 		
 		/**
-		 * After user changed link save data into htmleditor and update href
+		 * After user changed link save data into htmleditor and update html
 		 * 
 		 * @param {Object} event
 		 */
@@ -15796,10 +15795,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (data && data.href) {
 				data.type = this.NAME;
 				this.htmleditor.setData(target, data);
-				
-				//HREF attribute
-				var href = this.normalizeHref(data.href);
-				target.setAttribute('href', href);
 				
 				//Title attribute
 				target.setAttribute('title', data.title || '');
@@ -16007,6 +16002,11 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				
 				htmleditor.setData(id, data, true);
 				
+				// Remove 'href' because it prevents entering another symbol after last/before first in Chrome
+				if ('href' in attrs) {
+					attrs_html = attrs_html.replace(/href="?'?[^\s"'>]+'?"?/i, '');
+				}
+				
 				if (attrs.id) {
 					return '<a' + attrs_html.replace(/id="?'?[a-z0-9\_]+'?"?/i, 'id="' + id + '"') + '>';
 				} else {
@@ -16027,14 +16027,19 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		untagHTML: function (html, data) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME,
-				self = this;
+				self = this,
+				tmp  = {'html': html};
+			
+			//Save data and process normal <a> tags
+			this.tagPastedHTML(null, tmp);
+			html = tmp.html;
 			
 			//Opening tags
 			html = html.replace(/{supra\.link id="([^"]+)"}/ig, function (tag, id) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
 				
 				var href = self.normalizeHref(data[id].href);
-				return '<a id="' + id + '"' + (data[id].classname ? ' class="' + data[id].classname + '"' : '') + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '" href="' + href + '">';
+				return '<a id="' + id + '"' + (data[id].classname ? ' class="' + data[id].classname + '"' : '') + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '">';
 			});
 			
 			//Closing tags
