@@ -1,10 +1,10 @@
 <div class="sidebar-menu block">
 	<div class="background"></div>
 	<div class="inner">
-		
+	
 		{% set heading_class = 'no-heading' %}
-		{% if not supraBlock.isEmpty('menuLabel') %}
-		<h3 class="heading block-title"><div>
+		{% if supra.cmsRequest or not supraBlock.isEmpty('menuLabel') %}
+		<h3 class="heading block-title {% if supraBlock.isEmpty('menuLabel') %}hidden{% endif %}"><div>
 			{{ supraBlock.property('menuLabel') }}
 			{% set heading_class = 'has-heading' %}
 		</div></h3>

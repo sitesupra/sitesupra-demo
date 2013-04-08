@@ -5,7 +5,7 @@
 		{{ supraBlock.property('list_title') }}
 	</div></h2>
 	
-	<div class="comments-list">
+	<div class="comments-list has-heading">
 		
 		{# Comment #}
 		<article {% if supra.cmsRequest %}data-attach="$.app.Comments" data-id="{{ supraBlock.block.id }}_1" data-url="{{ supra.request.pageLocalization.path }}?block_id={{ supraBlock.block.id }}&comment_id=1&action=remove_comment"{% endif %}>
@@ -54,8 +54,8 @@
 <div class="block blog-comments-form">
 	
 	{% set heading_class = 'no-heading' %}
-	{% if not supraBlock.isEmpty('form_title') %}
-	<h2 class="block-title"><div>
+	{% if supra.cmsRequest or not supraBlock.isEmpty('form_title') %}
+	<h2 class="block-title {% if supraBlock.isEmpty('form_title') %}hidden{% endif %}"><div>
 		{{ supraBlock.property('form_title') }}
 		{% set heading_class = 'has-heading' %}
 	</div></h2>

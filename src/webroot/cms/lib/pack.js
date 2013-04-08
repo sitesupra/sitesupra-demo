@@ -11330,8 +11330,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"controls": [
 					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"},
 					{"type": "separator"},
-					{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
-					{"type": "separator"},
+					//{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
+					//{"type": "separator"},
 					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-settings.png", "command": "settings"}
 				]
 			},
@@ -17896,6 +17896,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			}
 			
 			this.resetItemPropertiesByIndex(active);
+			this.htmleditor._changed();
 		},
 		
 		cmdInsertAfter: function () {
@@ -17917,6 +17918,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			this.resetItemPropertiesByIndex(active + 1);
 			this.setActiveItemByIndex(active + 1);
+			this.htmleditor._changed();
 		},
 		
 		cmdDelete: function () {
@@ -17941,6 +17943,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			}
 			
 			this.resetItemPropertiesByIndex(this._count);
+			this.htmleditor._changed();
 		},
 		
 		
@@ -17967,6 +17970,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//When un-editable node is selected hide toolbar
 			htmleditor.on('disabledChange', function (event) {
+				console.log('disabledChange!', event.prevVal, '->', event.newVal);
 				if (event.newVal !== event.prevVal) {
 					if (event.newVal || !options) {
 						this.hideToolbar();
@@ -17976,6 +17980,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				}
 			}, this);
 			htmleditor.on('editingAllowedChange', function (event) {
+				console.log('editingAllowedChange!', event.allowed || !options ? 'hide' : 'show');
 				if (!event.allowed || !options) {
 					this.hideToolbar();
 				} else {

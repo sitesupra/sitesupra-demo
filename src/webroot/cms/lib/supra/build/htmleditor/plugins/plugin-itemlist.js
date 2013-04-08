@@ -394,6 +394,7 @@ YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
 			}
 			
 			this.resetItemPropertiesByIndex(active);
+			this.htmleditor._changed();
 		},
 		
 		cmdInsertAfter: function () {
@@ -415,6 +416,7 @@ YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
 			
 			this.resetItemPropertiesByIndex(active + 1);
 			this.setActiveItemByIndex(active + 1);
+			this.htmleditor._changed();
 		},
 		
 		cmdDelete: function () {
@@ -439,6 +441,7 @@ YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
 			}
 			
 			this.resetItemPropertiesByIndex(this._count);
+			this.htmleditor._changed();
 		},
 		
 		
