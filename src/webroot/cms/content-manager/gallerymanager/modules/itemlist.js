@@ -846,6 +846,12 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				id = container.getData('item-id');
 			}
 			
+			// Blur non-inline editor
+			var active = Y.Node(document.activeElement);
+			if (active.test('input, textarea')) {
+				active.blur();
+			}
+			
 			if (this.editingId == id && this.editingProperty == property) {
 				if (property === 'image') {
 					// Image input may loose focus and is closed, while 
