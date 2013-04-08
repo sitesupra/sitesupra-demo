@@ -10055,10 +10055,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @type {String}
 		 */
 		stripTags: function (html, whiteList) {
-			whiteList = Supra.Y.Lang.isArray(whiteList) ? whiteList.join(',') : typeof whiteList == 'string' ? ',' + whiteList + ',' : '';
+			whiteList = ',' + (Supra.Y.Lang.isArray(whiteList) ? whiteList.join(',') : typeof whiteList == 'string' ? whiteList : '') + ',';
 			whiteList = whiteList.toLowerCase();
 			
+			console.log('WHITE LIST:', whiteList);
 			return html.replace(REGEXP_FIND_TAGS, function(match, tagName){
+				console.log(',' + tagName.toLowerCase() + ',');
 				return whiteList.indexOf(',' + tagName.toLowerCase() + ',') != -1 ? match : '';
 			});
 		},
