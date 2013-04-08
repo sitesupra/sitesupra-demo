@@ -16,6 +16,7 @@
 	{% if tag.getAttribute('src') %}
 		<img src="{{ tag.getAttribute('src') }}" width="{{ width }}" height="{{ height }}" {% if width < 420 %}
 			 data-src-desktop="{{ tag.getAttribute('src') }}" data-height-desktop="{{ height }}"
+			 data-src-tablet="{{ tag_mobile.getAttribute('src') }}" data-height-tablet="{{ tag_mobile.getAttribute('tag_mobile') }}"
 			 data-src-mobile-all="{{ tag_mobile.getAttribute('src') }}" data-height-mobile-all="{{ tag_mobile.getAttribute('tag_mobile') }}"
 			 class="responsive"
 			 {% endif %}alt="" />

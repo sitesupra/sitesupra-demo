@@ -16,9 +16,11 @@
 			<{{ tag }} class="txt">{{ supraBlock.property('text') }}</{{ tag }}>
 		{% endif %}
 		
+		{% if image or supra.cmsRequest %}
 		<{{ tag }} class="img">
-			{{ supraBlock.property('image') | raw }}
+			{{ image | raw }}
 		</{{ tag }}>
+		{% endif %}
 		
 		{% if layout == 'text_right' or layout == 'text_bottom' %}
 			<{{ tag }} class="txt">{{ supraBlock.property('text') }}</{{ tag }}>
