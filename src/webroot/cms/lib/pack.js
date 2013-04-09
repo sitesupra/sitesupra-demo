@@ -1652,7 +1652,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 		var hasClassResults = window.hasClassResults = [];
 		
 		Y.DOM.hasClass = function (node, className) {
-			if (node && className) {
+			if (node && node.classList && className) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -1666,7 +1666,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 			return true;
 		};
 		Y.DOM.addClass = function (node, className) {
-			if (node && className) {
+			if (node && node.classList && className) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -1678,7 +1678,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 			}
 		};
 		Y.DOM.removeClass = function (node, className) {
-			if (node && className) {
+			if (node && node.classList && className) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -12537,6 +12537,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					h = this.cropHeight + 6 * 2,
 					handleSize = RESIZE_HANDLE_SIZE,
 					cursor = 4;
+				
+				console.dir(e);
+				for (key in e) {
+					console.log(key + ': ', e[key]);
+				}
+				console.log('x: ', x, ' y: ', y, ' w: ', w, ' h: ', h);
 				
 				if (x > w - handleSize) {
 					if (y > h - handleSize) {

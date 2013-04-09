@@ -48,7 +48,7 @@ YUI.add('supra.dom', function(Y) {
 		var hasClassResults = window.hasClassResults = [];
 		
 		Y.DOM.hasClass = function (node, className) {
-			if (node && className) {
+			if (node && node.classList && className) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -62,7 +62,7 @@ YUI.add('supra.dom', function(Y) {
 			return true;
 		};
 		Y.DOM.addClass = function (node, className) {
-			if (node && className) {
+			if (node && node.classList && className) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -74,7 +74,7 @@ YUI.add('supra.dom', function(Y) {
 			}
 		};
 		Y.DOM.removeClass = function (node, className) {
-			if (node && className) {
+			if (node && node.classList && className) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
