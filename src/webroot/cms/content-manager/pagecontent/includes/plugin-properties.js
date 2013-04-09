@@ -816,7 +816,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 				this._updating_values = false;
 
 				var input = null,
-					template = SU.Intl.get(['form', 'shared_property_description']),
+					template = Supra.Intl.get(['form', 'shared_property_description']),
 					list = this._shared_properties,
 					inputs = form.inputs,
 					info;

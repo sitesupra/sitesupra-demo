@@ -113,15 +113,19 @@ YUI().add('supra.htmleditor-editable', function (Y) {
 		 * Used after setHTML call
 		 */
 		restoreEditableStates: function () {
-			var nodes = [].slice.call(this.get('doc').body.getElementsByTagName('*'), 0),
-				node;
-			for(var i=0,ii=nodes.length; i<ii; i++) {
-				node = nodes[i];
-				if (Y.DOM.hasClass(node, 'su-uneditable')) {
-					node.editable = false;
-				} else if (Y.DOM.hasClass(node, 'su-editable')) {
-					node.editable = true;
-				}
+			var srcNode = this.get('srcNode').getDOMNode(),
+				nodes = null,
+				i = 0,
+				ii = 0;
+			
+			nodes = srcNode.querySelectorAll('.su-uneditable');
+			for (i=0, ii=nodes.length; i<ii; i++) {
+				nodes[i].editable = false;
+			}
+			
+			nodes = srcNode.querySelectorAll('.su-editable');
+			for (i=0, ii=nodes.length; i<ii; i++) {
+				nodes[i].editable = true;
 			}
 		},
 		

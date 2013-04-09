@@ -33,7 +33,7 @@ if(c&&c.style){b=!("MozTransition" in c.style||"WebkitTransition" in c.style);}r
 "use strict";
 
 if (typeof Supra === "undefined") {	
-(function () {
+(function (window) {
 	/*
 	 * Invoke strict mode because using combo may be
 	 * loaded with script which doesn't have strict mode
@@ -55,19 +55,21 @@ if (typeof Supra === "undefined") {
 	 * @param {String} require Optional. Module which will be loaded before calling ready function
 	 * @param {Function} fn Required. Ready callback function
 	 */
-	var Supra = window.Supra = window.SU = function () {
-		var base = null;
-		var args = [].concat(Supra.useModules);
+	var Supra = window.Supra = function () {
+		var base = null,
+			args = [].concat(Supra.useModules),
+			cache_errors = Supra.data.catchNativeErrors,
+			type = null;
 		
 		for(var i=0, ii=arguments.length; i<ii; i++) {
-			var type = Y.Lang.type(arguments[i]);
+			type = Y.Lang.type(arguments[i]);
 			
 			if (type == 'function') {	// Callback function
 				
 				// catch errors in callback function
 				var fn = arguments[i];
 				
-				if (Supra.data.get('catchNativeErrors')) {
+				if (cache_errors) {
 					args.push(function () {
 						try {
 							fn.apply(this, arguments);
@@ -303,7 +305,7 @@ if (typeof Supra === "undefined") {
 		return obj;
 	};
 	
-})();
+})(window);
 }
 (function () {
 	
@@ -1600,7 +1602,117 @@ Licensed under the BSD License.
 http://yuilibrary.com/license/
 */
 YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tagName",a="ownerDocument",c="",n=b.Features.add,k=b.Features.test;b.mix(g,{getText:(o.textContent!==undefined)?function(s){var r="";if(s){r=s.textContent;}return r||"";}:function(s){var r="";if(s){r=s.innerText||s.nodeValue;}return r||"";},setText:(o.textContent!==undefined)?function(r,s){if(r){r.textContent=s;}}:function(r,s){if("innerText" in r){r.innerText=s;}else{if("nodeValue" in r){r.nodeValue=s;}}},CUSTOM_ATTRIBUTES:(!o.hasAttribute)?{"for":"htmlFor","class":"className"}:{"htmlFor":"for","className":"class"},setAttribute:function(t,r,u,s){if(t&&r&&t.setAttribute){r=g.CUSTOM_ATTRIBUTES[r]||r;t.setAttribute(r,u,s);}},getAttribute:function(u,r,t){t=(t!==undefined)?t:2;var s="";if(u&&r&&u.getAttribute){r=g.CUSTOM_ATTRIBUTES[r]||r;s=u.getAttribute(r,t);if(s===null){s="";}}return s;},VALUE_SETTERS:{},VALUE_GETTERS:{},getValue:function(t){var s="",r;if(t&&t[m]){r=g.VALUE_GETTERS[t[m].toLowerCase()];if(r){s=r(t);}else{s=t.value;}}if(s===c){s=c;}return(typeof s==="string")?s:"";},setValue:function(r,s){var t;if(r&&r[m]){t=g.VALUE_SETTERS[r[m].toLowerCase()];if(t){t(r,s);}else{r.value=s;}}},creators:{}});n("value-set","select",{test:function(){var r=b.config.doc.createElement("select");r.innerHTML="<option>1</option><option>2</option>";r.value="2";return(r.value&&r.value==="2");}});if(!k("value-set","select")){g.VALUE_SETTERS.select=function(u,v){for(var s=0,r=u.getElementsByTagName("option"),t;t=r[s++];){if(g.getValue(t)===v){t.selected=true;break;}}};}b.mix(g.VALUE_GETTERS,{button:function(r){return(r.attributes&&r.attributes.value)?r.attributes.value.value:"";}});b.mix(g.VALUE_SETTERS,{button:function(s,t){var r=s.attributes.value;if(!r){r=s[a].createAttribute("value");s.setAttributeNode(r);}r.value=t;}});b.mix(g.VALUE_GETTERS,{option:function(s){var r=s.attributes;return(r.value&&r.value.specified)?s.value:s.text;},select:function(s){var t=s.value,r=s.options;if(r&&r.length){if(s.multiple){}else{if(s.selectedIndex>-1){t=g.getValue(r[s.selectedIndex]);}}}return t;}});var h,f,q;b.mix(b.DOM,{hasClass:function(t,s){var r=b.DOM._getRegExp("(?:^|\\s+)"+s+"(?:\\s+|$)");return r.test(t.className);},addClass:function(s,r){if(!b.DOM.hasClass(s,r)){s.className=b.Lang.trim([s.className,r].join(" "));}},removeClass:function(s,r){if(r&&f(s,r)){s.className=b.Lang.trim(s.className.replace(b.DOM._getRegExp("(?:^|\\s+)"+r+"(?:\\s+|$)")," "));if(f(s,r)){q(s,r);}}},replaceClass:function(s,r,t){q(s,r);h(s,t);},toggleClass:function(s,r,t){var u=(t!==undefined)?t:!(f(s,r));if(u){h(s,r);}else{q(s,r);}}});f=b.DOM.hasClass;q=b.DOM.removeClass;h=b.DOM.addClass;var e=/<([a-z]+)/i,g=b.DOM,n=b.Features.add,k=b.Features.test,j={},i=function(t,r){var u=b.config.doc.createElement("div"),s=true;u.innerHTML=t;if(!u.firstChild||u.firstChild.tagName!==r.toUpperCase()){s=false;}return s;},p=/(?:\/(?:thead|tfoot|tbody|caption|col|colgroup)>)+\s*<tbody/,d="<table>",l="</table>";b.mix(b.DOM,{_fragClones:{},_create:function(s,t,r){r=r||"div";var u=g._fragClones[r];if(u){u=u.cloneNode(false);}else{u=g._fragClones[r]=t.createElement(r);}u.innerHTML=s;return u;},_children:function(v,r){var t=0,s=v.children,w,u,x;if(s&&s.tags){if(r){s=v.children.tags(r);}else{u=s.tags("!").length;}}if(!s||(!s.tags&&r)||u){w=s||v.childNodes;s=[];while((x=w[t++])){if(x.nodeType===1){if(!r||r===x.tagName){s.push(x);}}}}return s||[];},create:function(v,y){if(typeof v==="string"){v=b.Lang.trim(v);}y=y||b.config.doc;var u=e.exec(v),w=g._create,s=j,x=null,t,z,r;if(v!=undefined){if(u&&u[1]){t=s[u[1].toLowerCase()];if(typeof t==="function"){w=t;}else{z=t;}}r=w(v,y,z).childNodes;if(r.length===1){x=r[0].parentNode.removeChild(r[0]);}else{if(r[0]&&r[0].className==="yui3-big-dummy"){if(r.length===2){x=r[0].nextSibling;}else{r[0].parentNode.removeChild(r[0]);x=g._nl2frag(r,y);}}else{x=g._nl2frag(r,y);}}}return x;},_nl2frag:function(s,v){var t=null,u,r;if(s&&(s.push||s.item)&&s[0]){v=v||s[0].ownerDocument;t=v.createDocumentFragment();if(s.item){s=b.Array(s,0,true);}for(u=0,r=s.length;u<r;u++){t.appendChild(s[u]);}}return t;},addHTML:function(y,x,t){var r=y.parentNode,v=0,w,s=x,u;if(x!=undefined){if(x.nodeType){u=x;}else{if(typeof x=="string"||typeof x=="number"){s=u=g.create(x);}else{if(x[0]&&x[0].nodeType){u=b.config.doc.createDocumentFragment();while((w=x[v++])){u.appendChild(w);}}}}}if(t){if(u&&t.parentNode){t.parentNode.insertBefore(u,t);}else{switch(t){case"replace":while(y.firstChild){y.removeChild(y.firstChild);}if(u){y.appendChild(u);}break;case"before":if(u){r.insertBefore(u,y);}break;case"after":if(u){if(y.nextSibling){r.insertBefore(u,y.nextSibling);}else{r.appendChild(u);}}break;default:if(u){y.appendChild(u);}}}}else{if(u){y.appendChild(u);}}return s;},wrap:function(u,s){var t=(s&&s.nodeType)?s:b.DOM.create(s),r=t.getElementsByTagName("*");if(r.length){t=r[r.length-1];}if(u.parentNode){u.parentNode.replaceChild(t,u);}t.appendChild(u);},unwrap:function(u){var s=u.parentNode,t=s.lastChild,r=u,v;if(s){v=s.parentNode;if(v){u=s.firstChild;while(u!==t){r=u.nextSibling;v.insertBefore(u,s);u=r;}v.replaceChild(t,s);}else{s.removeChild(u);}}}});n("innerhtml","table",{test:function(){var r=b.config.doc.createElement("table");try{r.innerHTML="<tbody></tbody>";}catch(s){return false;}return(r.firstChild&&r.firstChild.nodeName==="TBODY");}});n("innerhtml-div","tr",{test:function(){return i("<tr></tr>","tr");}});n("innerhtml-div","script",{test:function(){return i("<script><\/script>","script");}});if(!k("innerhtml","table")){j.tbody=function(s,t){var u=g.create(d+s+l,t),r=b.DOM._children(u,"tbody")[0];if(u.children.length>1&&r&&!p.test(s)){r.parentNode.removeChild(r);}return u;};}if(!k("innerhtml-div","script")){j.script=function(r,s){var t=s.createElement("div");t.innerHTML="-"+r;t.removeChild(t.firstChild);return t;};j.link=j.style=j.script;}if(!k("innerhtml-div","tr")){b.mix(j,{option:function(r,s){return g.create('<select><option class="yui3-big-dummy" selected></option>'+r+"</select>",s);
-},tr:function(r,s){return g.create("<tbody>"+r+"</tbody>",s);},td:function(r,s){return g.create("<tr>"+r+"</tr>",s);},col:function(r,s){return g.create("<colgroup>"+r+"</colgroup>",s);},tbody:"table"});b.mix(j,{legend:"fieldset",th:j.td,thead:j.tbody,tfoot:j.tbody,caption:j.tbody,colgroup:j.tbody,optgroup:j.option});}g.creators=j;b.mix(b.DOM,{setWidth:function(s,r){b.DOM._setSize(s,"width",r);},setHeight:function(s,r){b.DOM._setSize(s,"height",r);},_setSize:function(s,u,t){t=(t>0)?t:0;var r=0;s.style[u]=t+"px";r=(u==="height")?s.offsetHeight:s.offsetWidth;if(r>t){t=t-(r-t);if(t<0){t=0;}s.style[u]=t+"px";}}});},"3.5.0",{requires:["dom-core"]});/*
+},tr:function(r,s){return g.create("<tbody>"+r+"</tbody>",s);},td:function(r,s){return g.create("<tr>"+r+"</tr>",s);},col:function(r,s){return g.create("<colgroup>"+r+"</colgroup>",s);},tbody:"table"});b.mix(j,{legend:"fieldset",th:j.td,thead:j.tbody,tfoot:j.tbody,caption:j.tbody,colgroup:j.tbody,optgroup:j.option});}g.creators=j;b.mix(b.DOM,{setWidth:function(s,r){b.DOM._setSize(s,"width",r);},setHeight:function(s,r){b.DOM._setSize(s,"height",r);},_setSize:function(s,u,t){t=(t>0)?t:0;var r=0;s.style[u]=t+"px";r=(u==="height")?s.offsetHeight:s.offsetWidth;if(r>t){t=t-(r-t);if(t<0){t=0;}s.style[u]=t+"px";}}});},"3.5.0",{requires:["dom-core"]});YUI.add('supra.dom', function(Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	//If already defined, then exit
+	if (Y.DOM.removeFromDOM) return;
+	
+	/**
+	 * Removes element from DOM to restore its position later
+	 * 
+	 * @param {Object} node
+	 * @return Point information aboute node and its position
+	 * @type {Object}
+	 */
+	Y.DOM.removeFromDOM = function (node) {
+		var node = (node.nodeType ? new Y.Node(node) : node);
+		var where = '';
+		var ref = node.ancestor();
+		var tmp = node.previous();
+		
+		if (tmp) {
+			ref = tmp;
+			where = 'after';
+		} else {
+			tmp = node.next();
+			if (tmp) {
+				where = 'before';
+				ref = tmp;
+			}
+		}
+		
+		tmp = Y.Node.getDOMNode(node);
+		tmp.parentNode.removeChild(tmp);
+		
+		return {
+			'node': node,
+			'where': where,
+			'ref': ref
+		}
+	};
+	
+	Y.DOM.restoreInDOM = function (point) {
+		point.ref.insert(point.node, point.where);
+	};
+	
+	if (document.body.classList) {
+		var addClass, removeClass, hasClass;
+		var hasClassResults = window.hasClassResults = [];
+		
+		Y.DOM.hasClass = function (node, className) {
+			if (node && className) {
+				if (className.indexOf(' ') !== -1) {
+					className = className.split(' ');
+					for (var i=0, ii=className.length; i<ii; i++) {
+						if (!node.classList.contains(className[i])) return false;
+					}
+					return true;
+				} else {
+					return node.classList.contains(className);
+				}
+			}
+			return true;
+		};
+		Y.DOM.addClass = function (node, className) {
+			if (node && className) {
+				if (className.indexOf(' ') !== -1) {
+					className = className.split(' ');
+					for (var i=0, ii=className.length; i<ii; i++) {
+						if (className[i]) node.classList.add(className[i]);
+					}
+				} else {
+					node.classList.add(className);
+				}
+			}
+		};
+		Y.DOM.removeClass = function (node, className) {
+			if (node && className) {
+				if (className.indexOf(' ') !== -1) {
+					className = className.split(' ');
+					for (var i=0, ii=className.length; i<ii; i++) {
+						if (className[i]) node.classList.remove(className[i]);
+					}
+				} else {
+					node.classList.remove(className);
+				}
+			}
+		};
+		Y.DOM.replaceClass = function (node, oldC, newC) {
+			Y.DOM.removeClass(node, oldC);
+			Y.DOM.addClass(node, newC);
+		};
+		Y.DOM.toggleClass = function (node, className, force) {
+			var add = (force !== undefined) ? force :
+	                !(hasClass(node, className));
+	
+	        if (add) {
+	            addClass(node, className);
+	        } else {
+	            removeClass(node, className);
+	        }
+		};
+		
+		hasClass = Y.DOM.hasClass;
+		addClass = Y.DOM.addClass;
+		removeClass = Y.DOM.removeClass;
+	}
+	
+}, YUI.version ,{requires:['dom-core']});
+
+YUI.Env.mods['dom-base'].details.requires.push('supra.dom');
+/*
 YUI 3.5.0 (build 5089)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
@@ -6743,52 +6855,7 @@ YUI().add("supra.io-css", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ["supra.io"]});YUI.add('supra.dom', function(Y) {
-	//Invoke strict mode
-	"use strict";
-	
-	//If already defined, then exit
-	if (Y.DOM.removeFromDOM) return;
-	
-	/**
-	 * Removes element from DOM to restore its position later
-	 * 
-	 * @param {Object} node
-	 * @return Point information aboute node and its position
-	 * @type {Object}
-	 */
-	Y.DOM.removeFromDOM = function (node) {
-		var node = (node.nodeType ? new Y.Node(node) : node);
-		var where = '';
-		var ref = node.ancestor();
-		var tmp = node.previous();
-		
-		if (tmp) {
-			ref = tmp;
-			where = 'after';
-		} else {
-			tmp = node.next();
-			if (tmp) {
-				where = 'before';
-				ref = tmp;
-			}
-		}
-		
-		tmp = Y.Node.getDOMNode(node);
-		tmp.parentNode.removeChild(tmp);
-		
-		return {
-			'node': node,
-			'where': where,
-			'ref': ref
-		}
-	};
-	
-	Y.DOM.restoreInDOM = function (point) {
-		point.ref.insert(point.node, point.where);
-	};
-	
-}, YUI.version);YUI.add('supra.template-compiler', function (Y) {
+}, YUI.version, {requires: ["supra.io"]});YUI.add('supra.template-compiler', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -9732,6 +9799,45 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		['S', /text-decoration:[^"']*line-through/i]
 	];
 	
+	/* */
+	var REGEX_FIND_I = /<(\/?)i((\s[^>]+)?)>/ig,
+		REGEX_FIND_B = /<(\/?)b((\s[^>]+)?)>/ig,
+		REGEX_FIND_S = /<(\/?)s((\s[^>]+)?)>/ig,
+		REGEX_FIND_STRONG = /<(\/?)strong([^>]*)>/g,
+		
+		REGEX_FIND_A_START = /(<a [^>]+>)\s/g,
+		REGEX_FIND_A_END   = /\s(<\/a[^>]*>)/g,
+		REGEX_A_BR         = /<br\s*\/?>\s*(<\/a[^>]*>)/gi,
+		
+		REGEX_SVG          = /<svg [^>]+>/g,
+		REGEX_ATTR         = / ([a-zA-Z0-9\-\:]+)=("[^"]+")/g,
+		
+		REGEX_TAG_START    = /<(\/?)([a-z]+)/,
+		REGEX_STRONG_START = /<(\/?)strong/ig,
+		REGEX_STRIKE_START = /<(\/?)strike/ig,
+		REGEX_NODE_ID_ATTR = /\s+id="yui_[^"]*"/gi,
+		REGEX_NODE_UNEDITABLE = /su\-(un)?editable/gi,
+		
+		REGEX_FIND_STYLE  = /style=("[^"]*"|'[^']*')/,
+		
+		REGEX_EMPTY_UL_OL = /<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi,
+		REGEX_ATTR_STYLE  = /\s+style=["']([^'"]*)["']/gi,
+		REGEX_STYLE_BG    = /(fill|background-color):[^;]+/,
+		REGEX_EMPTY_CLASS = /class="\s*"/g,
+		REGEX_YUI_CLASS   = /(yui3\-table\-selected|yui3\-cell\-selected)/g,
+		
+		REGEX_LT           = /<(\/?)_/g,
+		
+		REGEX_TAG_ATTRIBUTES = /([a-z0-9\-]+)=("[^"]*"|'[^']*'|[^\s]*)/ig,
+		REGEX_STRIP_QUOTES   = /(^'|^"|"$|'$)/g,
+		
+		TAG_TO_SPAN = [
+			['b',  'font-weight: bold', /<b(\s[^>]*)?(\sclass="[^"]+")?(\s[^>]*)?>/ig, /<\/b(\s[^>]*)?>/ig],
+			['em', 'font-style: italic', /<em(\s[^>]*)?(\sclass="[^"]+")?(\s[^>]*)?>/ig, /<\/em(\s[^>]*)?>/ig],
+			['u',  'text-decoration: underline', /<u(\s[^>]*)?(\sclass="[^"]+")?(\s[^>]*)?>/ig, /<\/u(\s[^>]*)?>/ig],
+			['s',  'text-decoration: line-through', /<s(\s[^>]*)?(\sclass="[^"]+")?(\s[^>]*)?>/ig, /<\/s(\s[^>]*)?>/ig]
+		];
+	
 	Y.mix(Supra.HTMLEditor.prototype, {
 		/**
 		 * Converts html into browser compatible format
@@ -9739,34 +9845,26 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		uncleanHTML: function (html) {
 			//Convert <i> into <em>
-			html = html.replace(/<(\/?)i((\s[^>]+)?)>/ig, '<$1em$2>');
+			html = html.replace(REGEX_FIND_I, '<$1em$2>');
 			
 			if (Y.UA.ie) {
 				//IE uses STRONG, EM, U, STRIKE instead of SPAN
-				html = html.replace(/<(\/?)b((\s[^>]+)?)>/ig, '<$1strong$2>');
-				html = html.replace(/<(\/?)s((\s[^>]+)?)>/ig, '<$1strike$2>');
+				html = html.replace(REGEX_FIND_I, '<$1strong$2>');
+				html = html.replace(REGEX_FIND_S, '<$1strike$2>');
 			} else {
 				//Convert <strong> into <b>
-				html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
+				html = html.replace(REGEX_FIND_STRONG, '<$1b$2>');
 				
 				//Convert B, EM, U, S into SPAN
-				var tagToSpan = [
-						['b',  'font-weight: bold'],
-						['em', 'font-style: italic'],
-						['u',  'text-decoration: underline'],
-						['s',  'text-decoration: line-through']
-					],
+				var tagToSpan = TAG_TO_SPAN,
 					tag,
 					expression;
 				
 				for(var i=0,ii=tagToSpan.length; i<ii; i++) {
 					tag = tagToSpan[i][0];
 					
-					expression = new RegExp("<" + tag + "(\s[^>]*)?(\\sclass=\"[^\"]+\")?(\\s[^>]*)?>", "ig");
-					html = html.replace(expression, '<span style="' + tagToSpan[i][1] + ';" $2>');
-					
-					expression = new RegExp("<\/" + tag + "(\\s[^>]*)?>", "ig");
-					html = html.replace(expression, '</span>');
+					html = html.replace(tagToSpan[i][2], '<span style="' + tagToSpan[i][1] + ';" $2>');
+					html = html.replace(tagToSpan[i][3], '</span>');
 				}
 			}
 			
@@ -9798,18 +9896,19 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			} else {
 				//IE creates STRONG, EM, U, STRIKE instead of SPAN
 				if (Y.UA.ie) {
-					html = html.replace(/<(\/?)strong/ig, '<$1b');
-					html = html.replace(/<(\/?)strike/ig, '<$1s');
+					html = html.replace(REGEX_STRONG_START, '<$1b');
+					html = html.replace(REGEX_STRIKE_START, '<$1s');
 				}
 				
 				//Remove YUI ids from nodes
-				html = html.replace(/\s+id="yui_[^"]*"/gi, '');
+				html = html.replace(REGEX_NODE_ID_ATTR, '');
 				
 				//Remove un-editable classnames
-				html = html.replace(/su\-(un)?editable/gi, '');
+				html = html.replace(REGEX_NODE_UNEDITABLE, '');
 				
 				//Replace styles with tags
-				var regexTag = /<(\/?)([a-z]+)/,
+				var regexTag = REGEX_TAG_START,
+					regexStyle = REGEX_FIND_STYLE,
 					tagOpenIndex = html.indexOf('<'),
 					tagCloseIndex = -1,
 					tag = null,
@@ -9854,7 +9953,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 									tagOpenIndex += tag[1].length - 1;
 								} else {
 									//Keep existing tag
-									var tmp = html.substr(tagOpenIndex, tagCloseIndex + 1 - tagOpenIndex).replace(/style=("[^"]*"|'[^']*')/, '');
+									var tmp = html.substr(tagOpenIndex, tagCloseIndex + 1 - tagOpenIndex).replace(regexStyle, '');
 									
 									html =  html.substr(0, tagOpenIndex) +
 											tmp +
@@ -9872,17 +9971,17 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				}
 				
 				//Convert <strong> into <b>
-				html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
+				html = html.replace(REGEX_FIND_STRONG, '<$1b$2>');
 				
 				//Convert <i> into <em>
-				html = html.replace(/<(\/?)i((\s[^>]+)?)>/g, '<$1em$2>');
+				html = html.replace(REGEX_FIND_I, '<$1em$2>');
 				
 				//Moves whitespaces outside <A> tags
-				html = html.replace(/(<a [^>]+>)\s/g, ' $1');
-				html = html.replace(/\s(<\/a[^>]*>)/g, '$1 ');
+				html = html.replace(REGEX_FIND_A_START, ' $1');
+				html = html.replace(REGEX_FIND_A_END, '$1 ');
 				
 				//Moves <BR> outside <A> tags
-				html = html.replace(/<br\s*\/?>\s*(<\/a[^>]*>)/gi, ' $1<br />');
+				html = html.replace(REGEX_A_BR, ' $1<br />');
 				
 				//Remove tags, which are not white-listed (SPAN is also removed)
 				var white_list_tags = Supra.HTMLEditor.WHITE_LIST_TAGS;
@@ -9892,21 +9991,23 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				html = this.stripTags(html, white_list_tags);
 				
 				//Remove unneeded attributes from <SVG>
-				html = html.replace(/<svg [^>]+>/g, function (str) {
-					return str.replace(/ ([a-zA-Z0-9\-\:]+)=("[^"]+")/g, function (m, property) {
+				var regex_attr = REGEX_ATTR;
+				html = html.replace(REGEX_SVG, function (str) {
+					return str.replace(regex_attr, function (m, property) {
 						return property === 'id' ? m : '';
 					});
 				});
 				
 				//Convert <_ into <
-				html = html.replace(/<(\/?)_/g, '<$1');
+				html = html.replace(REGEX_LT, '<$1');
 				
 				//Remove empty UL and OL tags
-				html = html.replace(/<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi, '');
+				html = html.replace(REGEX_EMPTY_UL_OL, '');
 				
 				//Remove style attribute, except background-color and fill
-				html = html.replace(/\s+style=["']([^'"]*)["']/gi, function (all, styles) {
-					styles = styles.match(/(fill|background-color):[^;]+/);
+				var regex_style_bg = REGEX_STYLE_BG;
+				html = html.replace(REGEX_ATTR_STYLE, function (all, styles) {
+					styles = styles.match(regex_style_bg);
 					if (styles && styles.length) {
 						return ' style="' + styles[0] + '"';
 					}
@@ -9914,10 +10015,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				});
 				
 				//Remove empty class attributes
-				html = html.replace(/class="\s*"/g, '');
+				html = html.replace(REGEX_EMPTY_CLASS, '');
 				
 				//Remove YUI classnames
-				html = html.replace(/(yui3\-table\-selected|yui3\-cell\-selected)/g, '');
+				html = html.replace(REGEX_YUI_CLASS, '');
 			}
 			
 			//Fire event to allow plugins to clean up after themselves
@@ -10001,6 +10102,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				tags = [],
 				tag_name = '',
 				tag_inline = false,
+				regex_tagname = /\/?([a-z]+)/i,
 				inline = Supra.HTMLEditor.ELEMENTS_INLINE,
 				not_closed = Supra.HTMLEditor.NOT_CLOSED_TAGS;
 			
@@ -10013,7 +10115,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			for(; i<len; i++) {
 				chr = html.charAt(i);
 				if (chr == '<') {
-					tag_name = html.substr(i+1).match(/\/?([a-z]+)/i);
+					tag_name = html.substr(i+1).match(regex_tagname);
 					tag_name = tag_name ? tag_name[1] : '';
 					tag_inline = !!inline[tag_name] || !!not_closed[tag_name];
 					tags.push(tag_inline);
@@ -10071,9 +10173,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @type {Object}
 		 */
 		parseTagAttributes: function (html) {
-			var parts = {};
-			html.replace(/([a-z0-9\-]+)=("[^"]*"|'[^']*'|[^\s]*)/ig, function (all, key, val) {
-				parts[key] = decodeURIComponent(val.replace(/(^'|^"|"$|'$)/g, ''));
+			var parts = {},
+				regexStripQuotes = REGEX_STRIP_QUOTES;
+			
+			html.replace(REGEX_TAG_ATTRIBUTES, function (all, key, val) {
+				parts[key] = decodeURIComponent(val.replace(regexStripQuotes, ''));
 				return '';
 			});
 			return parts;
@@ -10790,15 +10894,19 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * Used after setHTML call
 		 */
 		restoreEditableStates: function () {
-			var nodes = [].slice.call(this.get('doc').body.getElementsByTagName('*'), 0),
-				node;
-			for(var i=0,ii=nodes.length; i<ii; i++) {
-				node = nodes[i];
-				if (Y.DOM.hasClass(node, 'su-uneditable')) {
-					node.editable = false;
-				} else if (Y.DOM.hasClass(node, 'su-editable')) {
-					node.editable = true;
-				}
+			var srcNode = this.get('srcNode').getDOMNode(),
+				nodes = null,
+				i = 0,
+				ii = 0;
+			
+			nodes = srcNode.querySelectorAll('.su-uneditable');
+			for (i=0, ii=nodes.length; i<ii; i++) {
+				nodes[i].editable = false;
+			}
+			
+			nodes = srcNode.querySelectorAll('.su-editable');
+			for (i=0, ii=nodes.length; i<ii; i++) {
+				nodes[i].editable = true;
 			}
 		},
 		

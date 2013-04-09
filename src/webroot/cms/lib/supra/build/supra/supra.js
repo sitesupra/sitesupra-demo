@@ -2,7 +2,7 @@
 "use strict";
 
 if (typeof Supra === "undefined") {	
-(function () {
+(function (window) {
 	/*
 	 * Invoke strict mode because using combo may be
 	 * loaded with script which doesn't have strict mode
@@ -24,19 +24,21 @@ if (typeof Supra === "undefined") {
 	 * @param {String} require Optional. Module which will be loaded before calling ready function
 	 * @param {Function} fn Required. Ready callback function
 	 */
-	var Supra = window.Supra = window.SU = function () {
-		var base = null;
-		var args = [].concat(Supra.useModules);
+	var Supra = window.Supra = function () {
+		var base = null,
+			args = [].concat(Supra.useModules),
+			cache_errors = Supra.data.catchNativeErrors,
+			type = null;
 		
 		for(var i=0, ii=arguments.length; i<ii; i++) {
-			var type = Y.Lang.type(arguments[i]);
+			type = Y.Lang.type(arguments[i]);
 			
 			if (type == 'function') {	// Callback function
 				
 				// catch errors in callback function
 				var fn = arguments[i];
 				
-				if (Supra.data.get('catchNativeErrors')) {
+				if (cache_errors) {
 					args.push(function () {
 						try {
 							fn.apply(this, arguments);
@@ -272,5 +274,5 @@ if (typeof Supra === "undefined") {
 		return obj;
 	};
 	
-})();
+})(window);
 }

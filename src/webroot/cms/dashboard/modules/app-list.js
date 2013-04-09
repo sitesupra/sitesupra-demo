@@ -382,7 +382,8 @@ YUI.add("dashboard.app-list", function (Y) {
 			var applications = null,
 				rows = this.get("rows"),
 				info = [],
-				current = this.get("value");
+				current = this.get("value"),
+				content = null;
 			
 			applications = Y.Array.map(data, function (app, index) {
 				info[index] = {"ready": false, "slide": -1, "index": index, "animating": false};
@@ -401,7 +402,19 @@ YUI.add("dashboard.app-list", function (Y) {
 			this.applications = applications;
 			this.applications_info = info;
 			
+			this.resizeSlideshow();
+			
+			content = this.widgets.slideshow.getSlide('slide_0')
+			content.setStyle("opacity", 0);
+			
 			this.moveApplications();
+			
+			// Animate in all icons
+			content
+				.transition({
+					"opacity": 1,
+					"duration": 0.35
+				});
 		},
 		
 		/**

@@ -43,4 +43,68 @@ YUI.add('supra.dom', function(Y) {
 		point.ref.insert(point.node, point.where);
 	};
 	
-}, YUI.version);
+	if (document.body.classList) {
+		var addClass, removeClass, hasClass;
+		var hasClassResults = window.hasClassResults = [];
+		
+		Y.DOM.hasClass = function (node, className) {
+			if (node && className) {
+				if (className.indexOf(' ') !== -1) {
+					className = className.split(' ');
+					for (var i=0, ii=className.length; i<ii; i++) {
+						if (!node.classList.contains(className[i])) return false;
+					}
+					return true;
+				} else {
+					return node.classList.contains(className);
+				}
+			}
+			return true;
+		};
+		Y.DOM.addClass = function (node, className) {
+			if (node && className) {
+				if (className.indexOf(' ') !== -1) {
+					className = className.split(' ');
+					for (var i=0, ii=className.length; i<ii; i++) {
+						if (className[i]) node.classList.add(className[i]);
+					}
+				} else {
+					node.classList.add(className);
+				}
+			}
+		};
+		Y.DOM.removeClass = function (node, className) {
+			if (node && className) {
+				if (className.indexOf(' ') !== -1) {
+					className = className.split(' ');
+					for (var i=0, ii=className.length; i<ii; i++) {
+						if (className[i]) node.classList.remove(className[i]);
+					}
+				} else {
+					node.classList.remove(className);
+				}
+			}
+		};
+		Y.DOM.replaceClass = function (node, oldC, newC) {
+			Y.DOM.removeClass(node, oldC);
+			Y.DOM.addClass(node, newC);
+		};
+		Y.DOM.toggleClass = function (node, className, force) {
+			var add = (force !== undefined) ? force :
+	                !(hasClass(node, className));
+	
+	        if (add) {
+	            addClass(node, className);
+	        } else {
+	            removeClass(node, className);
+	        }
+		};
+		
+		hasClass = Y.DOM.hasClass;
+		addClass = Y.DOM.addClass;
+		removeClass = Y.DOM.removeClass;
+	}
+	
+}, YUI.version ,{requires:['dom-core']});
+
+YUI.Env.mods['dom-base'].details.requires.push('supra.dom');
