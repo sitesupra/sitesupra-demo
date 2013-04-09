@@ -98,7 +98,6 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			
 			//Get current value
 			var data = this.htmleditor.getData(target);
-			
 			if (!data) {
 				data = {
 					'type': this.NAME,
@@ -319,7 +318,11 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			//Opening tag
 			data.html = data.html.replace(/<a([^>]*)>/gi, function (html, attrs_html) {
 				var attrs = htmleditor.parseTagAttributes(attrs_html),
-					id = htmleditor.generateDataUID(),
+					id = attrs.id || htmleditor.generateDataUID(),
+					data = null;
+				
+				if (!id || !htmleditor.getData(id)) {
+					// Only if there isn't already data
 					data = {
 						'href': attrs.href || '',
 						'resource': 'link',
@@ -328,8 +331,8 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 						'classname': attrs['class'] || '',
 						'type': 'link'
 					};
-				
-				htmleditor.setData(id, data, true);
+					htmleditor.setData(id, data, true);
+				}
 				
 				// Remove 'href' because it prevents entering another symbol after last/before first in Chrome
 				if ('href' in attrs) {

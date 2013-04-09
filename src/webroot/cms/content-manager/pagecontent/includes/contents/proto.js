@@ -839,7 +839,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 			if (this.overlay) {
 				var node = this.getNode();
 				var w = node.get('offsetWidth'), h = node.get('offsetHeight');
-			
+				
 				this.overlay.setStyles({
 					width: w + 'px',
 					height: h + 'px'

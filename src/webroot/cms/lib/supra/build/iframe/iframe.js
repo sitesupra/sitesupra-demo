@@ -207,9 +207,11 @@ YUI().add('supra.iframe', function (Y) {
 			//Loading is done, remove loading style
 			this.set('loading', false);
 			
-			//Trigger ready event
-			this.fire('ready', {'iframe': this, 'body': body, 'doc': doc});
-			this.get('contentBox').fire('ready');
+			//Trigger ready event when everything is actually ready
+			this.get('win').addEventListener('load', Y.bind(function () {
+				this.fire('ready', {'iframe': this, 'body': body, 'doc': doc});
+				this.get('contentBox').fire('ready');
+			}, this), false);
 			
 			//Register document with DDM
 			if (this.get('initDndListeners') && Y.DD) {

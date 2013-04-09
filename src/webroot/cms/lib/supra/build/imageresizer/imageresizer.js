@@ -1212,6 +1212,12 @@ YUI().add("supra.imageresizer", function (Y) {
 			this.cropHeight = this.imageHeight = image.get("offsetHeight");
 			this.cropLeft = this.cropTop = 0;
 			
+			//SVGAnimateLength object
+			if (!this.cropWidth && !this.cropHeight) {
+				this.cropWidth = this.imageWidth = Supra.getObjectValue(image.get('width'), ['baseVal', 'value']) || 0;
+				this.cropHeight = this.imageHeight = Supra.getObjectValue(image.get('height'), ['baseVal', 'value']) || 0;
+			}
+			
 			//Set size label
 			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
 			

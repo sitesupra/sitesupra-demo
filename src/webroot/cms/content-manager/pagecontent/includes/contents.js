@@ -215,7 +215,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			//Fix context
 			var win = this.get('iframe').get('win');
-			this.resizeOverlays = Y.throttle(Y.bind(this.resizeOverlays, this), 50);
+			this.resizeOverlays = Supra.throttle(this.resizeOverlays, 50, this);
 			Y.on('resize', this.resizeOverlays, win);
 		},
 		
@@ -236,6 +236,8 @@ YUI.add('supra.iframe-contents', function (Y) {
 					});
 				}
 			}
+			
+			this.resizeOverlays();
 		},
 		
 		/**

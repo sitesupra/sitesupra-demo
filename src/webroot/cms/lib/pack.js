@@ -13303,6 +13303,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			this.cropHeight = this.imageHeight = image.get("offsetHeight");
 			this.cropLeft = this.cropTop = 0;
 			
+			//SVGAnimateLength object
+			if (!this.cropWidth && !this.cropHeight) {
+				this.cropWidth = this.imageWidth = Supra.getObjectValue(image.get('width'), ['baseVal', 'value']) || 0;
+				this.cropHeight = this.imageHeight = Supra.getObjectValue(image.get('height'), ['baseVal', 'value']) || 0;
+			}
+			
 			//Set size label
 			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
 			
@@ -14177,7 +14183,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
+					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
 					htmleditor.setData(uid, data);
 				}
 				
@@ -14243,7 +14249,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"crop_height": size_height
 			});
 			
-			img = Y.Node.create('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
+			img = Y.Node.create('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
 			
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
@@ -14443,7 +14449,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * 
 		 * @param {Object} e Event
 		 */
-		onDrop: function (e) {			
+		onDrop: function (e) {
+			//If image was from content, then prevent
+			if (e.drag && e.drag.closest(this.htmleditor.get('srcNode'))) {
+				if (e.halt) e.halt();
+				return false;
+			}
+			
 			var image_id = e.drag_id;
 			if (!image_id) return;
 			
@@ -14575,7 +14587,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 
 					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));					
 					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
-					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' id="' + id + '" style="margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
+					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
 
 					if (item.type == 'lightbox') {
 						//For lightbox add link around image
@@ -15784,7 +15796,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//Get current value
 			var data = this.htmleditor.getData(target);
-			
 			if (!data) {
 				data = {
 					'type': this.NAME,
@@ -16005,7 +16016,11 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Opening tag
 			data.html = data.html.replace(/<a([^>]*)>/gi, function (html, attrs_html) {
 				var attrs = htmleditor.parseTagAttributes(attrs_html),
-					id = htmleditor.generateDataUID(),
+					id = attrs.id || htmleditor.generateDataUID(),
+					data = null;
+				
+				if (!id || !htmleditor.getData(id)) {
+					// Only if there isn't already data
 					data = {
 						'href': attrs.href || '',
 						'resource': 'link',
@@ -16014,8 +16029,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 						'classname': attrs['class'] || '',
 						'type': 'link'
 					};
-				
-				htmleditor.setData(id, data, true);
+					htmleditor.setData(id, data, true);
+				}
 				
 				// Remove 'href' because it prevents entering another symbol after last/before first in Chrome
 				if ('href' in attrs) {
@@ -17970,7 +17985,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//When un-editable node is selected hide toolbar
 			htmleditor.on('disabledChange', function (event) {
-				console.log('disabledChange!', event.prevVal, '->', event.newVal);
 				if (event.newVal !== event.prevVal) {
 					if (event.newVal || !options) {
 						this.hideToolbar();
@@ -17980,7 +17994,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				}
 			}, this);
 			htmleditor.on('editingAllowedChange', function (event) {
-				console.log('editingAllowedChange!', event.allowed || !options ? 'hide' : 'show');
 				if (!event.allowed || !options) {
 					this.hideToolbar();
 				} else {

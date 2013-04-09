@@ -198,15 +198,17 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//Loading is done, remove loading style
 			this.set('loading', false);
 			
-			//Trigger ready event
-			this.fire('ready', {'iframe': this, 'body': body});
-			this.get('nodeIframe').fire('ready');
-			
 			//Bind to layout
 			if (this.layout && !this.layoutBinded) {
 				this.layoutBinded = true;
 				this.layout.on('sync', this.onLayoutSync, this);
 			}
+			
+			//Trigger ready event when everything is actually ready
+			this.get('win').addEventListener('load', Y.bind(function () {
+				this.fire('ready', {'iframe': this, 'body': body});
+				this.get('nodeIframe').fire('ready');
+			}, this), false);
 		},
 		
 		/**

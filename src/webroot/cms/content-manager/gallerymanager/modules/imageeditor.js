@@ -194,7 +194,7 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 				wrap = (node.closest('.supra-image, .supra-icon') || node),
 				ancestor = wrap.ancestor(),
 				width = null,
-				size = this.get('value').image.sizes.original,
+				size = null,
 				mode = this.get('mode'),
 				
 				resizer_mode = 0,
@@ -205,9 +205,12 @@ YUI.add('gallerymanager.imageeditor', function (Y) {
 				resizer_mode = Supra.ImageResizer.MODE_IMAGE;
 				allow_zoom_resize = false;
 			} else {
-				size = this.get('value');
-				resizer_mode = Supra.ImageResizer.MODE_ICON;
-				allow_zoom_resize = true;
+				//size = this.get('value');
+				//resizer_mode = Supra.ImageResizer.MODE_ICON;
+				//allow_zoom_resize = true;
+				
+				// Icon size is defined by theme, not by user!!!
+				return;
 			}
 			
 			if (ancestor.test('.yui3-widget')) {
