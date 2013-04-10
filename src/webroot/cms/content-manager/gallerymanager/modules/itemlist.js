@@ -382,6 +382,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			container = this.get('iframe').one(this.listNodeSelector);
 			container.addClass('su-gallerymanager-editing');
 			container.addClass('supra-gallerymanager-empty');
+			
 			this.set('listNode', container);
 			
 			// Remove old elements
@@ -794,7 +795,11 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				// Destroy inputs
 				for (key in properties) {
 					if (properties[key].input) {
-						properties[key].input.destroy();
+						try {
+							properties[key].input.destroy();
+						} catch (err) {
+							// IE error
+						}
 					}
 				}
 				
@@ -844,6 +849,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 				container = id.target;
 				property = container.getData('item-property');
 				id = container.getData('item-id');
+			}
+			
+			if (!id || !property) {
+				return;
 			}
 			
 			// Blur non-inline editor

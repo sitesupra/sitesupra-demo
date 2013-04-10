@@ -2,6 +2,9 @@ YUI.add('supra.form', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	//Shortcuts
+	var QueryString = Y.QueryString;
+	
 	//Input configuration defaults
 	var INPUT_DEFINITION = {
 		'id': null,

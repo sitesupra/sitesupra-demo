@@ -154,13 +154,12 @@ YUI().add('supra.htmleditor-editable', function (Y) {
 		 * Disable object resizing using handles
 		 */
 		disableObjectResizing: function () {
-			if (!Y.UA.ie) {
-				try {
-					this.get('doc').execCommand("enableInlineTableEditing", false, false);
-					this.get("doc").execCommand("enableObjectResizing", false, false);
-				} catch (err) {	
-				}
-			} else {
+			try {
+				this.get('doc').execCommand("enableInlineTableEditing", false, false);
+				this.get("doc").execCommand("enableObjectResizing", false, false);
+			} catch (err) {}
+			
+			if (Y.UA.ie) {
 				//Prevent resizestart event
 				this.get("srcNode").getDOMNode().onresizestart = function (e) {
 					return false;

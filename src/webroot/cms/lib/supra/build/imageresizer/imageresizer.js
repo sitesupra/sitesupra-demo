@@ -332,8 +332,9 @@ YUI().add("supra.imageresizer", function (Y) {
 			//Resize is available only if resizing image
 			//If currently resizing, then don't change cursor
 			if (!this.resizeActive && !this.moveActive) {
-				var x = e._event.layerX,
-					y = e._event.layerY,
+				var xy = this.get('resizeHandleNode').getXY(),
+					x = e.pageX - xy[0],
+					y = e.pageY - xy[1],
 					w = this.cropWidth + 6 * 2,
 					h = this.cropHeight + 6 * 2,
 					handleSize = RESIZE_HANDLE_SIZE,
