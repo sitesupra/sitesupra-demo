@@ -19,6 +19,7 @@
 /cms/lib/yui.3.5.0/build/base-build/base-build-min.js
 /cms/lib/yui.3.5.0/build/dom-core/dom-core-min.js
 /cms/lib/yui.3.5.0/build/dom-base/dom-base-min.js
+/cms/lib/supra/build/dom/dom.js
 /cms/lib/yui.3.5.0/build/selector-native/selector-native-min.js
 /cms/lib/yui.3.5.0/build/selector/selector-min.js
 /cms/lib/yui.3.5.0/build/node-core/node-core-min.js
@@ -122,7 +123,6 @@
 /cms/lib/supra/build/permission/permission.js
 /cms/lib/supra/build/io/session.js
 /cms/lib/supra/build/io/css.js
-/cms/lib/supra/build/dom/dom.js
 /cms/lib/supra/build/template/template-compiler.js
 /cms/lib/supra/build/template/template.js
 /cms/lib/supra/build/input/proto.js

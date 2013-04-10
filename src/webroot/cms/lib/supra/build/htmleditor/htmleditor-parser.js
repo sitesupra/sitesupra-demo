@@ -37,6 +37,45 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		['S', /text-decoration:[^"']*line-through/i]
 	];
 	
+	/* */
+	var REGEX_FIND_I = /<(\/?)i((\s[^>]+)?)>/ig,
+		REGEX_FIND_B = /<(\/?)b((\s[^>]+)?)>/ig,
+		REGEX_FIND_S = /<(\/?)s((\s[^>]+)?)>/ig,
+		REGEX_FIND_STRONG = /<(\/?)strong([^>]*)>/g,
+		
+		REGEX_FIND_A_START = /(<a [^>]+>)\s/g,
+		REGEX_FIND_A_END   = /\s(<\/a[^>]*>)/g,
+		REGEX_A_BR         = /<br\s*\/?>\s*(<\/a[^>]*>)/gi,
+		
+		REGEX_SVG          = /<svg [^>]+>/g,
+		REGEX_ATTR         = / ([a-zA-Z0-9\-\:]+)=("[^"]+")/g,
+		
+		REGEX_TAG_START    = /<(\/?)([a-z]+)/,
+		REGEX_STRONG_START = /<(\/?)strong/ig,
+		REGEX_STRIKE_START = /<(\/?)strike/ig,
+		REGEX_NODE_ID_ATTR = /\s+id="yui_[^"]*"/gi,
+		REGEX_NODE_UNEDITABLE = /su\-(un)?editable/gi,
+		
+		REGEX_FIND_STYLE  = /style=("[^"]*"|'[^']*')/,
+		
+		REGEX_EMPTY_UL_OL = /<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi,
+		REGEX_ATTR_STYLE  = /\s+style=["']([^'"]*)["']/gi,
+		REGEX_STYLE_BG    = /(fill|background-color):[^;]+/,
+		REGEX_EMPTY_CLASS = /class="\s*"/g,
+		REGEX_YUI_CLASS   = /(yui3\-table\-selected|yui3\-cell\-selected)/g,
+		
+		REGEX_LT           = /<(\/?)_/g,
+		
+		REGEX_TAG_ATTRIBUTES = /([a-z0-9\-]+)=("[^"]*"|'[^']*'|[^\s]*)/ig,
+		REGEX_STRIP_QUOTES   = /(^'|^"|"$|'$)/g,
+		
+		TAG_TO_SPAN = [
+			['b',  'font-weight: bold', /<b(\s[^>]*)?(\sclass="[^"]+")?(\s[^>]*)?>/ig, /<\/b(\s[^>]*)?>/ig],
+			['em', 'font-style: italic', /<em(\s[^>]*)?(\sclass="[^"]+")?(\s[^>]*)?>/ig, /<\/em(\s[^>]*)?>/ig],
+			['u',  'text-decoration: underline', /<u(\s[^>]*)?(\sclass="[^"]+")?(\s[^>]*)?>/ig, /<\/u(\s[^>]*)?>/ig],
+			['s',  'text-decoration: line-through', /<s(\s[^>]*)?(\sclass="[^"]+")?(\s[^>]*)?>/ig, /<\/s(\s[^>]*)?>/ig]
+		];
+	
 	Y.mix(Supra.HTMLEditor.prototype, {
 		/**
 		 * Converts html into browser compatible format
@@ -44,34 +83,26 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		uncleanHTML: function (html) {
 			//Convert <i> into <em>
-			html = html.replace(/<(\/?)i((\s[^>]+)?)>/ig, '<$1em$2>');
+			html = html.replace(REGEX_FIND_I, '<$1em$2>');
 			
 			if (Y.UA.ie) {
 				//IE uses STRONG, EM, U, STRIKE instead of SPAN
-				html = html.replace(/<(\/?)b((\s[^>]+)?)>/ig, '<$1strong$2>');
-				html = html.replace(/<(\/?)s((\s[^>]+)?)>/ig, '<$1strike$2>');
+				html = html.replace(REGEX_FIND_I, '<$1strong$2>');
+				html = html.replace(REGEX_FIND_S, '<$1strike$2>');
 			} else {
 				//Convert <strong> into <b>
-				html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
+				html = html.replace(REGEX_FIND_STRONG, '<$1b$2>');
 				
 				//Convert B, EM, U, S into SPAN
-				var tagToSpan = [
-						['b',  'font-weight: bold'],
-						['em', 'font-style: italic'],
-						['u',  'text-decoration: underline'],
-						['s',  'text-decoration: line-through']
-					],
+				var tagToSpan = TAG_TO_SPAN,
 					tag,
 					expression;
 				
 				for(var i=0,ii=tagToSpan.length; i<ii; i++) {
 					tag = tagToSpan[i][0];
 					
-					expression = new RegExp("<" + tag + "(\s[^>]*)?(\\sclass=\"[^\"]+\")?(\\s[^>]*)?>", "ig");
-					html = html.replace(expression, '<span style="' + tagToSpan[i][1] + ';" $2>');
-					
-					expression = new RegExp("<\/" + tag + "(\\s[^>]*)?>", "ig");
-					html = html.replace(expression, '</span>');
+					html = html.replace(tagToSpan[i][2], '<span style="' + tagToSpan[i][1] + ';" $2>');
+					html = html.replace(tagToSpan[i][3], '</span>');
 				}
 			}
 			
@@ -103,18 +134,19 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			} else {
 				//IE creates STRONG, EM, U, STRIKE instead of SPAN
 				if (Y.UA.ie) {
-					html = html.replace(/<(\/?)strong/ig, '<$1b');
-					html = html.replace(/<(\/?)strike/ig, '<$1s');
+					html = html.replace(REGEX_STRONG_START, '<$1b');
+					html = html.replace(REGEX_STRIKE_START, '<$1s');
 				}
 				
 				//Remove YUI ids from nodes
-				html = html.replace(/\s+id="yui_[^"]*"/gi, '');
+				html = html.replace(REGEX_NODE_ID_ATTR, '');
 				
 				//Remove un-editable classnames
-				html = html.replace(/su\-(un)?editable/gi, '');
+				html = html.replace(REGEX_NODE_UNEDITABLE, '');
 				
 				//Replace styles with tags
-				var regexTag = /<(\/?)([a-z]+)/,
+				var regexTag = REGEX_TAG_START,
+					regexStyle = REGEX_FIND_STYLE,
 					tagOpenIndex = html.indexOf('<'),
 					tagCloseIndex = -1,
 					tag = null,
@@ -159,7 +191,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 									tagOpenIndex += tag[1].length - 1;
 								} else {
 									//Keep existing tag
-									var tmp = html.substr(tagOpenIndex, tagCloseIndex + 1 - tagOpenIndex).replace(/style=("[^"]*"|'[^']*')/, '');
+									var tmp = html.substr(tagOpenIndex, tagCloseIndex + 1 - tagOpenIndex).replace(regexStyle, '');
 									
 									html =  html.substr(0, tagOpenIndex) +
 											tmp +
@@ -177,17 +209,17 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				}
 				
 				//Convert <strong> into <b>
-				html = html.replace(/<(\/?)strong([^>]*)>/g, '<$1b$2>');
+				html = html.replace(REGEX_FIND_STRONG, '<$1b$2>');
 				
 				//Convert <i> into <em>
-				html = html.replace(/<(\/?)i((\s[^>]+)?)>/g, '<$1em$2>');
+				html = html.replace(REGEX_FIND_I, '<$1em$2>');
 				
 				//Moves whitespaces outside <A> tags
-				html = html.replace(/(<a [^>]+>)\s/g, ' $1');
-				html = html.replace(/\s(<\/a[^>]*>)/g, '$1 ');
+				html = html.replace(REGEX_FIND_A_START, ' $1');
+				html = html.replace(REGEX_FIND_A_END, '$1 ');
 				
 				//Moves <BR> outside <A> tags
-				html = html.replace(/<br\s*\/?>\s*(<\/a[^>]*>)/gi, ' $1<br />');
+				html = html.replace(REGEX_A_BR, ' $1<br />');
 				
 				//Remove tags, which are not white-listed (SPAN is also removed)
 				var white_list_tags = Supra.HTMLEditor.WHITE_LIST_TAGS;
@@ -197,21 +229,23 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				html = this.stripTags(html, white_list_tags);
 				
 				//Remove unneeded attributes from <SVG>
-				html = html.replace(/<svg [^>]+>/g, function (str) {
-					return str.replace(/ ([a-zA-Z0-9\-\:]+)=("[^"]+")/g, function (m, property) {
+				var regex_attr = REGEX_ATTR;
+				html = html.replace(REGEX_SVG, function (str) {
+					return str.replace(regex_attr, function (m, property) {
 						return property === 'id' ? m : '';
 					});
 				});
 				
 				//Convert <_ into <
-				html = html.replace(/<(\/?)_/g, '<$1');
+				html = html.replace(REGEX_LT, '<$1');
 				
 				//Remove empty UL and OL tags
-				html = html.replace(/<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi, '');
+				html = html.replace(REGEX_EMPTY_UL_OL, '');
 				
 				//Remove style attribute, except background-color and fill
-				html = html.replace(/\s+style=["']([^'"]*)["']/gi, function (all, styles) {
-					styles = styles.match(/(fill|background-color):[^;]+/);
+				var regex_style_bg = REGEX_STYLE_BG;
+				html = html.replace(REGEX_ATTR_STYLE, function (all, styles) {
+					styles = styles.match(regex_style_bg);
 					if (styles && styles.length) {
 						return ' style="' + styles[0] + '"';
 					}
@@ -219,10 +253,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				});
 				
 				//Remove empty class attributes
-				html = html.replace(/class="\s*"/g, '');
+				html = html.replace(REGEX_EMPTY_CLASS, '');
 				
 				//Remove YUI classnames
-				html = html.replace(/(yui3\-table\-selected|yui3\-cell\-selected)/g, '');
+				html = html.replace(REGEX_YUI_CLASS, '');
 			}
 			
 			//Fire event to allow plugins to clean up after themselves
@@ -306,6 +340,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				tags = [],
 				tag_name = '',
 				tag_inline = false,
+				regex_tagname = /\/?([a-z]+)/i,
 				inline = Supra.HTMLEditor.ELEMENTS_INLINE,
 				not_closed = Supra.HTMLEditor.NOT_CLOSED_TAGS;
 			
@@ -318,7 +353,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			for(; i<len; i++) {
 				chr = html.charAt(i);
 				if (chr == '<') {
-					tag_name = html.substr(i+1).match(/\/?([a-z]+)/i);
+					tag_name = html.substr(i+1).match(regex_tagname);
 					tag_name = tag_name ? tag_name[1] : '';
 					tag_inline = !!inline[tag_name] || !!not_closed[tag_name];
 					tags.push(tag_inline);
@@ -376,9 +411,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @type {Object}
 		 */
 		parseTagAttributes: function (html) {
-			var parts = {};
-			html.replace(/([a-z0-9\-]+)=("[^"]*"|'[^']*'|[^\s]*)/ig, function (all, key, val) {
-				parts[key] = decodeURIComponent(val.replace(/(^'|^"|"$|'$)/g, ''));
+			var parts = {},
+				regexStripQuotes = REGEX_STRIP_QUOTES;
+			
+			html.replace(REGEX_TAG_ATTRIBUTES, function (all, key, val) {
+				parts[key] = decodeURIComponent(val.replace(regexStripQuotes, ''));
 				return '';
 			});
 			return parts;
