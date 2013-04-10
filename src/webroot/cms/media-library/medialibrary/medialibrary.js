@@ -173,6 +173,13 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			//Add buttons to toolbar
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, TOOLBAR_BUTTONS);
 			
+			//In portal site "Private" and "Public" buttons shouldn't be available
+			if (Supra.data.get(['site', 'portal'])) {
+				var buttons = Manager.getAction('PageToolbar').buttons;
+				buttons.mlprivate.set('visible', false);
+				buttons.mlpublic.set('visible', false);
+			}
+			
 			//Add side buttons
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
 				'id': 'done',
@@ -373,33 +380,35 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 				id = data.id;
 			}
 			
-			if (data && Supra.MediaLibraryList.TYPE_FOLDER == data.type) {
-				if (data['private']) {
-					if (data.parent) {
-						if (this.medialist.isFolderPrivate(data.parent)) {
-							//If parent is private, can't change folder state
-							//Disable buttons
-							buttons.mlprivate.set('disabled', true);
-							buttons.mlpublic.set('disabled', true);
-							return;
+			if (!Supra.data.get(['site', 'portal'])) {
+				if (data && Supra.MediaLibraryList.TYPE_FOLDER == data.type) {
+					if (data['private']) {
+						if (data.parent) {
+							if (this.medialist.isFolderPrivate(data.parent)) {
+								//If parent is private, can't change folder state
+								//Disable buttons
+								buttons.mlprivate.set('disabled', true);
+								buttons.mlpublic.set('disabled', true);
+								return;
+							}
 						}
+						
+						//Show "Make public" button
+						buttons.mlprivate.set('visible', false);
+						buttons.mlpublic.set('visible', true);
+					} else {
+						//Show "Make private" button
+						buttons.mlprivate.set('visible', true);
+						buttons.mlpublic.set('visible', false);
 					}
 					
-					//Show "Make public" button
-					buttons.mlprivate.set('visible', false);
-					buttons.mlpublic.set('visible', true);
+					buttons.mlprivate.set('disabled', false);
+					buttons.mlpublic.set('disabled', false);
 				} else {
-					//Show "Make private" button
-					buttons.mlprivate.set('visible', true);
-					buttons.mlpublic.set('visible', false);
+					//Disable buttons
+					buttons.mlprivate.set('disabled', true);
+					buttons.mlpublic.set('disabled', true);
 				}
-				
-				buttons.mlprivate.set('disabled', false);
-				buttons.mlpublic.set('disabled', false);
-			} else {
-				//Disable buttons
-				buttons.mlprivate.set('disabled', true);
-				buttons.mlpublic.set('disabled', true);
 			}
 		},
 		
