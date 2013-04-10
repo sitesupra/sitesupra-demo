@@ -12538,12 +12538,6 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					handleSize = RESIZE_HANDLE_SIZE,
 					cursor = 4;
 				
-				console.dir(e);
-				for (key in e) {
-					console.log(key + ': ', e[key]);
-				}
-				console.log('x: ', x, ' y: ', y, ' w: ', w, ' h: ', h);
-				
 				if (x > w - handleSize) {
 					if (y > h - handleSize) {
 						cursor = 2;
@@ -29814,7 +29808,6 @@ YUI.add('supra.input-slider', function (Y) {
 				point = marker.getPosition();
 				value.latitude = point.lat();
 				value.longitude = point.lng();
-				value.zoom = map.getZoom();
 			}
 			
 			return value;
