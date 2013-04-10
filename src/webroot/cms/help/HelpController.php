@@ -12,12 +12,6 @@ class HelpController extends \Supra\Cms\CmsAction
 	/**
 	 * 
 	 */
-	const TIP_NAME_PREFIX = 'helptip__';
-	
-	
-	/**
-	 * 
-	 */
 	public function tipsSaveAction()
 	{
 		$tipId = $this->getRequest()
@@ -60,7 +54,7 @@ class HelpController extends \Supra\Cms\CmsAction
 	{
 		$id = trim(substr($tipId, 0, 20));
 		
-		return self::TIP_NAME_PREFIX . $id;
+		return $id;
 	}
 	
 }
