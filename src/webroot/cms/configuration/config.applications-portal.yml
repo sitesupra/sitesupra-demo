@@ -87,26 +87,26 @@
 #      Supra\Cms\CrudManager\CrudManagerAuthorizationAccessPolicy:
 #        applicationNamespace: Supra\Cms\CrudManager
 
-- _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
-  id: news
-  className: Supra\Controller\Pages\News\NewsApplication
-  title: News
-  icon: /cms/content-manager/sitemap/images/apps/news.png
-  newChildrenFirst: true
+# - _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
+  # id: news
+  # className: Supra\Controller\Pages\News\NewsApplication
+  # title: News
+  # icon: /cms/content-manager/sitemap/images/apps/news.png
+  # newChildrenFirst: true
 
-- _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
-  id: glossary
-  className: Supra\Controller\Pages\Glossary\GlossaryApplication
-  title: Glossary
-  icon: /cms/content-manager/sitemap/images/apps/forum.png
-  newChildrenFirst: true
+# - _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
+  # id: glossary
+  # className: Supra\Controller\Pages\Glossary\GlossaryApplication
+  # title: Glossary
+  # icon: /cms/content-manager/sitemap/images/apps/forum.png
+  # newChildrenFirst: true
 
-- _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
-  id: blog
-  className: Supra\Controller\Pages\Blog\BlogApplication
-  title: Blog
-  icon: /cms/content-manager/sitemap/images/apps/forum.png
-  newChildrenFirst: true
+# - _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
+  # id: blog
+  # className: Supra\Controller\Pages\Blog\BlogApplication
+  # title: Blog
+  # icon: /cms/content-manager/sitemap/images/apps/forum.png
+  # newChildrenFirst: true
   
 # Implement this configuration to project-specific location if needed
 #- Supra\BannerMachine\Configuration\ProviderConfiguration:
