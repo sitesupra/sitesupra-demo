@@ -559,8 +559,20 @@ abstract class CmsAction extends SimpleController
 			'id' => $this->user->getId(),
 			'name' => $this->user->getName(),
 			'login' => $this->user->getLogin(),
-			'avatar' => $this->user->getGravatarUrl(32)
+			'avatar' => $this->user->getGravatarUrl(32),
 		);
+		
+		$provider = ObjectRepository::getUserProvider($this);
+		$settings = $provider->getUserPreferences($this->user);
+		
+		$closedTips = array();
+		if (isset($settings['closed_tips'])) {
+			foreach ($settings['closed_tips'] as $tipId) {
+				$closedTips[$tipId] = true;
+			}
+		}
+		
+		$response['closedTips'] = $closedTips;
 
 		/* if ($this->user->hasPersonalAvatar()) {
 
