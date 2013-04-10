@@ -87,9 +87,9 @@
 			"edit": "Edit page",
 			"publish": "Publish",
 			
-			"version_draft": ", Draft.",
-			"version_autosaved": ", Draft autosaved.",
-			"version_published": ", Published.",
+			"version_draft": "Draft",
+			"version_autosaved": "Draft autosaved",
+			"version_published": "Published",
 			
 			"unlock_notification": "Information is successfully saved!",
 			"publish_notification": "Information is successfully published!",

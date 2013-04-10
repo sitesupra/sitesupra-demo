@@ -425,7 +425,7 @@ YUI.add('supra.panel', function (Y) {
 			if (target.nodeType) target = new Y.Node(target);
 			
 			//If widgets then get bounding box 
-			else if (!(target instanceof Y.Node) && 'hasClass' in target && target.hasClass(Y.Widget)) target = target.get('boundingBox');
+			else if (!(target instanceof Y.Node) && 'isInstanceOf' in target && target.isInstanceOf('widget')) target = target.get('boundingBox');
 			
 			var position = this.get('arrowPosition'), box = this.get('boundingBox'),
 				host_offset = 0, host_size = 0,

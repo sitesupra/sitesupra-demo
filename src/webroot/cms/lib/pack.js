@@ -389,6 +389,11 @@ if (typeof Supra === "undefined") {
 				if (typeof ret == 'object' && keys[i] in ret) {
 					ret = ret[keys[i]];
 				} else {
+					// Look for getter if there is no such key
+					if (keys.length == 1 && typeof keys[0] === 'string') {
+						var fn = '_' + keys[0] + 'Getter';
+						if (this[fn] && typeof this[fn] === 'function') return this[fn]();
+					}
 					return default_value;
 				}
 			}
@@ -471,7 +476,39 @@ if (typeof Supra === "undefined") {
 					Supra.session.cancelPing();
 				}
 			}
-		}
+		},
+		
+		/**
+		 * Returns true if language features are enabled, otherwise false
+		 * 
+		 * @returns {Boolean} True if enabled, otherwise false
+		 */
+		_languageFeaturesEnabledGetter: (function () {
+			var supported = null;
+			
+			function checkSupport () {
+				// Only in portal language features may not be visible to user
+				// if (!Supra.data.get(["site", "portal"])) return false;
+				
+				var contexts = Supra.data.get('contexts') || [],
+					count = 0;
+			
+				for(var i=0,ii=contexts.length; i<ii; i++) count += contexts[i].languages.length;
+				
+				// There is only one language and this is portal site, don't show any language related features
+				if (count <= 1) return false;
+				
+				// More than one language, show features
+				return true;
+			}
+			
+			return function () {
+				if (supported === null) {
+					supported = checkSupport();
+				}
+				return supported;
+			}
+		})()
 	};
 	
 	//Update YUI configuration on load
@@ -1653,7 +1690,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 		var hasClassResults = window.hasClassResults = [];
 		
 		Y.DOM.hasClass = function (node, className) {
-			if (node && node.classList && className) {
+			if (node && node.classList && className && className.indexOf) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -1667,7 +1704,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 			return true;
 		};
 		Y.DOM.addClass = function (node, className) {
-			if (node && node.classList && className) {
+			if (node && node.classList && className && className.indexOf) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -1679,7 +1716,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 			}
 		};
 		Y.DOM.removeClass = function (node, className) {
-			if (node && node.classList && className) {
+			if (node && node.classList && className && className.indexOf) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -6039,7 +6076,7 @@ YUI.add('supra.button-plugin-input', function (Y) {
 			if (target.nodeType) target = new Y.Node(target);
 			
 			//If widgets then get bounding box 
-			else if (!(target instanceof Y.Node) && 'hasClass' in target && target.hasClass(Y.Widget)) target = target.get('boundingBox');
+			else if (!(target instanceof Y.Node) && 'isInstanceOf' in target && target.isInstanceOf('widget')) target = target.get('boundingBox');
 			
 			var position = this.get('arrowPosition'), box = this.get('boundingBox'),
 				host_offset = 0, host_size = 0,
@@ -40422,9 +40459,9 @@ YUI.add('supra.plugin-layout', function (Y) {
 	/*
 	 * Templates
 	 */
-	var TEMPLATE_CONTENT = '<div class="yui3-languagebar-content">\
-								<span class="label"></span> <a class="selected"><span class="title"></span><img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" /></a>\
-							</div>';
+	var TEMPLATE_CONTENT = '<div class="yui3-languagebar-content">' +
+								'<span class="label"></span> <a class="selected"><span class="title"></span><img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" /></a>' +
+							'</div>';
 	
 	/* Language list template */
 	var TEMPLATE = Template.compile(

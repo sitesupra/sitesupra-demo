@@ -424,7 +424,7 @@ Supra([
 			});
 			
 			// Disable page header
-			if (Supra.Manager.PageHeader) {
+			if (Supra.Manager.PageHeader && Supra.Manager.PageHeader.languagebar) {
 				Supra.Manager.PageHeader.languagebar.set("disabled", true);
 			}
 		},

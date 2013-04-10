@@ -115,6 +115,12 @@
 	.box-shadow (0, 2px, 3px, rgba(0, 0, 0, 0.75) inset);
 	background: rgba(35, 33, 42, 0.5);
 	z-index: 3;
+	
+	&.yui3-dd-drop-over {
+		.border-radius (0px);
+		.box-shadow (none);
+		background: url(images/tree-block-inset-over.png) 0 0 no-repeat;
+	}
 }
 
 // Fake tree node proxy which is being dragged

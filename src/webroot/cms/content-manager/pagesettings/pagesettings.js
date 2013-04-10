@@ -567,6 +567,7 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 				// Redirect -> Relative "Last child" button
 				this.relative_redirect_select.buttons.last.on('click', function() { this.onRelativeRedirectClick(); }, this);
 			
+			// Global or local page check-box
 			this.global_checkbox = form.getInput('global');
 				this.global_checkbox.render();
 				this.global_checkbox.on('valueChange', function (evt) {
@@ -575,6 +576,10 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 						Manager.getAction('PageHeader').setAvailableLocalizations(page.localizations, evt.newVal);
 					}
 				});
+				
+				if (!Supra.data.get('languageFeaturesEnabled')) {
+					this.global_checkbox.hide();
+				}
 			
 			// When title changes path may need to be updated
 			form.getInput('title').on('input', this.onTitleInput, this);
