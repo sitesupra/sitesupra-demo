@@ -251,8 +251,8 @@ class ProxyAction extends ProxyActionAbstraction
 				'cc',
 				'cvv',
 				'expire',
-				'bin_name',
-				'bin_phone',
+//				'bin_name',
+//				'bin_phone',
 			);
 		}
 

@@ -388,6 +388,39 @@ class PaymentProvider extends PaymentProviderAbstraction
 		
 		return $response;
 	}
+	
+
+	/**
+	 * @param Order\ShopOrder $order
+	 * @param array $paymentCredentials
+	 * @param ResponseInterface $response 
+	 */
+	public function processRecurringOrderDirect(Order\RecurringOrder $order, $paymentCredentials)
+	{
+		$response = new \Supra\Response\HttpResponse();
+		
+		parent::processRecurringOrder($order, $response);
+		
+		$proxyActionQueryData = array(
+			self::REQUEST_KEY_ORDER_ID => $order->getId(),
+			Action\ProxyAction::REQUEST_KEY_RETURN_FROM_FORM => true
+		);		
+		
+		$request = new \Supra\Request\HttpRequest();
+		$request->setPost($paymentCredentials);
+		$request->setQuery($proxyActionQueryData);
+		
+		$lastRouter = new \Supra\Payment\PaymentProviderUriRouter();
+		$lastRouter->setPaymentProvider($this);
+		
+		$request->setLastRouter($lastRouter);
+
+		$proxyActionController = FrontController::getInstance()->runController(Action\ProxyAction::CN(), $request);
+		
+		$response = $proxyActionController->getResponse();
+		
+		return $response;
+	}
 
 	/**
 	 * @param Order\RecurringOrder $order
@@ -941,8 +974,8 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		\Log::debug('TRANSACT INIT RECURRENT TRANSACTION RESULT: ', $result);
 
-		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $postData);
-		
+		$recurringPayment->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $postData);
+
 		$transaction->addToParameters(self::PHASE_NAME_INITIALIZE_RECURRING_TRANSACTION, $result);
 
 		return $result;
