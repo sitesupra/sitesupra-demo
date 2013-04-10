@@ -1273,6 +1273,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.form': {
 		path: 'input/form.js',
 		requires: [
+			'querystring',
 			'widget',
 			'supra.input-proto',
 			'supra.input-hidden',
@@ -10935,13 +10936,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * Disable object resizing using handles
 		 */
 		disableObjectResizing: function () {
-			if (!Y.UA.ie) {
-				try {
-					this.get('doc').execCommand("enableInlineTableEditing", false, false);
-					this.get("doc").execCommand("enableObjectResizing", false, false);
-				} catch (err) {	
-				}
-			} else {
+			try {
+				this.get('doc').execCommand("enableInlineTableEditing", false, false);
+				this.get("doc").execCommand("enableObjectResizing", false, false);
+			} catch (err) {}
+			
+			if (Y.UA.ie) {
 				//Prevent resizestart event
 				this.get("srcNode").getDOMNode().onresizestart = function (e) {
 					return false;
@@ -12531,8 +12531,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			//Resize is available only if resizing image
 			//If currently resizing, then don't change cursor
 			if (!this.resizeActive && !this.moveActive) {
-				var x = e._event.layerX,
-					y = e._event.layerY,
+				var xy = this.get('resizeHandleNode').getXY(),
+					x = e.pageX - xy[0],
+					y = e.pageY - xy[1],
 					w = this.cropWidth + 6 * 2,
 					h = this.cropHeight + 6 * 2,
 					handleSize = RESIZE_HANDLE_SIZE,
@@ -38935,6 +38936,9 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 }, YUI.version, {requires:["supra.input-inline-html"]});YUI.add('supra.form', function (Y) {
 	//Invoke strict mode
 	"use strict";
+	
+	//Shortcuts
+	var QueryString = Y.QueryString;
 	
 	//Input configuration defaults
 	var INPUT_DEFINITION = {

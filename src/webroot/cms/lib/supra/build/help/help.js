@@ -74,9 +74,9 @@ YUI().add('supra.help', function (Y) {
 		 * @param {Object} event Event facade object
 		 * @private
 		 */
-		_handleTipClose: function (event) {
-			this._saveTipState(event.id);
-			this._removeTip(event.id);
+		_handleTipClose: function (event, details) {
+			this._saveTipState(details.id);
+			this._removeTip(details.id);
 		},
 		
 		/**

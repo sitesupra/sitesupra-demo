@@ -83,20 +83,10 @@ YUI.add('gallerymanager.itemlist-highlight', function (Y) {
 		 */
 		initializer: function(config) {
 			var itemlist = this.get('host'),
-				container = itemlist.get('listNode'),
-				nodes = null;
+				container = itemlist.get('listNode');
 			
 			this.listeners = [];
 			this.listeners.push(itemlist.after('listNodeChange', this.reattachListeners, this));
-			
-			// Create node
-			nodes = new Y.NodeList([
-				Y.Node.create(TEMPLATE_HIGHLIGHT_T),
-				Y.Node.create(TEMPLATE_HIGHLIGHT_R),
-				Y.Node.create(TEMPLATE_HIGHLIGHT_B),
-				Y.Node.create(TEMPLATE_HIGHLIGHT_L)
-			]);
-			this.set('highlightNodes', nodes);
 			
 			// Initialize?
 			if (container) {
@@ -127,7 +117,8 @@ YUI.add('gallerymanager.itemlist-highlight', function (Y) {
 		reattachListeners: function () {
 			var itemlist = this.get('host'),
 				container = itemlist.get('listNode'),
-				childSelector = null;
+				childSelector = null,
+				nodes = null;
 			
 			if (!container) {
 				// Nothing to attach listeneres to
@@ -146,7 +137,16 @@ YUI.add('gallerymanager.itemlist-highlight', function (Y) {
 			container.delegate('mouseenter', this.mouseEnter, childSelector, this);
 			container.delegate('mouseleave', this.hideHighlight, childSelector, this);
 			
-			Y.Node(itemlist.getDocument().body).append(this.get('highlightNodes'));
+			// Create node
+			nodes = new Y.NodeList([
+				Y.Node.create(TEMPLATE_HIGHLIGHT_T),
+				Y.Node.create(TEMPLATE_HIGHLIGHT_R),
+				Y.Node.create(TEMPLATE_HIGHLIGHT_B),
+				Y.Node.create(TEMPLATE_HIGHLIGHT_L)
+			]);
+			this.set('highlightNodes', nodes);
+			
+			Y.Node(itemlist.getDocument().body).append(nodes);
 			this.set('childSelector', childSelector);
 		},
 		
@@ -239,7 +239,11 @@ YUI.add('gallerymanager.itemlist-highlight', function (Y) {
 		 * Reset cache, clean up
 		 */
 		resetAll: function () {
-			this.get('highlightNodes').remove();
+			var nodes = this.get('highlightNodes');
+			if (nodes) {
+				nodes.remove();
+				this.set('highlightNodes', false);
+			}
 		}
 		
 	});

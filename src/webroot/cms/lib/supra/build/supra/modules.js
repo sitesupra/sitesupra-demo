@@ -794,6 +794,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.form': {
 		path: 'input/form.js',
 		requires: [
+			'querystring',
 			'widget',
 			'supra.input-proto',
 			'supra.input-hidden',

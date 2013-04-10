@@ -208,10 +208,16 @@ YUI().add('supra.iframe', function (Y) {
 			this.set('loading', false);
 			
 			//Trigger ready event when everything is actually ready
-			this.get('win').addEventListener('load', Y.bind(function () {
+			if (doc.readyState == 'complete' || doc.readyState == 'loaded') {
 				this.fire('ready', {'iframe': this, 'body': body, 'doc': doc});
 				this.get('contentBox').fire('ready');
-			}, this), false);
+			} else {
+				this.get('win').addEventListener('load', Y.bind(function () {
+					this.loadEventTriggered = true;
+					this.fire('ready', {'iframe': this, 'body': body, 'doc': doc});
+					this.get('contentBox').fire('ready');
+				}, this), false);
+			}
 			
 			//Register document with DDM
 			if (this.get('initDndListeners') && Y.DD) {
