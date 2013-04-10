@@ -3,7 +3,6 @@
 namespace Supra\User\Entity;
 
 use Supra\Database\Entity;
-use Supra\User\Exception;
 use Doctrine\Common\Collections;
 
 /**

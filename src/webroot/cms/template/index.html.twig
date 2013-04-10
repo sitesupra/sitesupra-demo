@@ -96,10 +96,7 @@
 				},
 
 				//Help notes, tips
-				'helpnotes': {
-					// @FIXME
-					//'slideshow_order': true // if false, 0 or null only then note will not be shown
-				},
+				'helpnotes': {{ action.currentUserArray.closedTips | json_encode | raw }},
 				
 				//CMS Internationalization
 				'lang': 'en'

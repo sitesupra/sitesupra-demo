@@ -32,7 +32,7 @@ YUI().add('supra.help', function (Y) {
 				data = Supra.mix({}, data, Supra.Intl.get(['helpnotes', id]), options || {}, true);
 				
 				widget = new Supra.HelpTip(data);
-				widget.on('close', this._handleTipClose, this);
+				widget.on('close', this._handleTipClose, this, {'id': id});
 				
 				if (data.prepend || data.append || data.before || data.after) {
 					// Node
