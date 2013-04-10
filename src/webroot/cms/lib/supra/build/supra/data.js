@@ -80,6 +80,11 @@
 				if (typeof ret == 'object' && keys[i] in ret) {
 					ret = ret[keys[i]];
 				} else {
+					// Look for getter if there is no such key
+					if (keys.length == 1 && typeof keys[0] === 'string') {
+						var fn = '_' + keys[0] + 'Getter';
+						if (this[fn] && typeof this[fn] === 'function') return this[fn]();
+					}
 					return default_value;
 				}
 			}
@@ -162,7 +167,39 @@
 					Supra.session.cancelPing();
 				}
 			}
-		}
+		},
+		
+		/**
+		 * Returns true if language features are enabled, otherwise false
+		 * 
+		 * @returns {Boolean} True if enabled, otherwise false
+		 */
+		_languageFeaturesEnabledGetter: (function () {
+			var supported = null;
+			
+			function checkSupport () {
+				// Only in portal language features may not be visible to user
+				// if (!Supra.data.get(["site", "portal"])) return false;
+				
+				var contexts = Supra.data.get('contexts') || [],
+					count = 0;
+			
+				for(var i=0,ii=contexts.length; i<ii; i++) count += contexts[i].languages.length;
+				
+				// There is only one language and this is portal site, don't show any language related features
+				if (count <= 1) return false;
+				
+				// More than one language, show features
+				return true;
+			}
+			
+			return function () {
+				if (supported === null) {
+					supported = checkSupport();
+				}
+				return supported;
+			}
+		})()
 	};
 	
 	//Update YUI configuration on load

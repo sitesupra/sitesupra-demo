@@ -13,9 +13,9 @@ YUI.add("supra.languagebar", function (Y) {
 	/*
 	 * Templates
 	 */
-	var TEMPLATE_CONTENT = '<div class="yui3-languagebar-content">\
-								<span class="label"></span> <a class="selected"><span class="title"></span><img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" /></a>\
-							</div>';
+	var TEMPLATE_CONTENT = '<div class="yui3-languagebar-content">' +
+								'<span class="label"></span> <a class="selected"><span class="title"></span><img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" /></a>' +
+							'</div>';
 	
 	/* Language list template */
 	var TEMPLATE = Template.compile(

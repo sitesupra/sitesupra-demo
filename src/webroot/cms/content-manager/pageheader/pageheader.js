@@ -73,7 +73,8 @@ Supra('supra.languagebar', function (Y) {
 			//Create language bar
 			this.languagebar = new Supra.LanguageBar({
 				'locale': Supra.data.get('locale'),
-				'contexts': Supra.data.get('contexts')
+				'contexts': Supra.data.get('contexts'),
+				'visible': Supra.data.get('languageFeaturesEnabled')
 			});
 			
 			//Set available localizations
@@ -175,6 +176,10 @@ Supra('supra.languagebar', function (Y) {
 		 */
 		render: function () {
 			this.languagebar.render(this.one('.languages'));
+			
+			if (!Supra.data.get('languageFeaturesEnabled')) {
+				this.one('.languages').addClass('hidden');
+			}
 		},
 		
 		/**
@@ -206,6 +211,11 @@ Supra('supra.languagebar', function (Y) {
 			}
 			
 			var version = Supra.Intl.get(['page', 'version_' + title]);
+			
+			if (Supra.data.get('languageFeaturesEnabled')) {
+				version = ', ' + version + '.';
+			}
+			
 			this.one('.version').set('text', version);
 		},
 		

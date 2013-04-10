@@ -261,21 +261,16 @@ function (Y) {
 			//Get locales
 			var contexts = Supra.data.get('contexts'),
 				values = [],
-				widget = null,
-				visible = true;
+				widget = null;
 			
 			for(var i=0,ii=contexts.length; i<ii; i++) values = values.concat(contexts[i].languages);
-			
-			if (values.length <= 1 && Supra.data.get(["site", "portal"])) {
-				visible = false;
-			}
 			
 			//Create widget
 			widget = new Supra.Input.SelectList({
 				'label': Supra.Intl.get(['sitemap', 'select_language']),
 				'values': values,
 				'value': this.locale,
-				'visible': visible
+				'visible': Supra.data.get('languageFeaturesEnabled')
 			});
 			
 			widget.render(this.one('div.su-sitemap-languages'));
