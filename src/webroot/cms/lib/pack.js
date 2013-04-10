@@ -1653,7 +1653,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 		var hasClassResults = window.hasClassResults = [];
 		
 		Y.DOM.hasClass = function (node, className) {
-			if (node && node.classList && className) {
+			if (node && node.classList && className && className.indexOf) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -1667,7 +1667,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 			return true;
 		};
 		Y.DOM.addClass = function (node, className) {
-			if (node && node.classList && className) {
+			if (node && node.classList && className && className.indexOf) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -1679,7 +1679,7 @@ YUI.add("dom-base",function(b){var o=b.config.doc.documentElement,g=b.DOM,m="tag
 			}
 		};
 		Y.DOM.removeClass = function (node, className) {
-			if (node && node.classList && className) {
+			if (node && node.classList && className && className.indexOf) {
 				if (className.indexOf(' ') !== -1) {
 					className = className.split(' ');
 					for (var i=0, ii=className.length; i<ii; i++) {
@@ -6039,7 +6039,7 @@ YUI.add('supra.button-plugin-input', function (Y) {
 			if (target.nodeType) target = new Y.Node(target);
 			
 			//If widgets then get bounding box 
-			else if (!(target instanceof Y.Node) && 'hasClass' in target && target.hasClass(Y.Widget)) target = target.get('boundingBox');
+			else if (!(target instanceof Y.Node) && 'isInstanceOf' in target && target.isInstanceOf('widget')) target = target.get('boundingBox');
 			
 			var position = this.get('arrowPosition'), box = this.get('boundingBox'),
 				host_offset = 0, host_size = 0,
