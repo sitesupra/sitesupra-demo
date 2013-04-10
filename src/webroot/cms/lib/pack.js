@@ -29700,6 +29700,7 @@ YUI.add('supra.input-slider', function (Y) {
 				point = marker.getPosition();
 				value.latitude = point.lat();
 				value.longitude = point.lng();
+				value.zoom = map.getZoom();
 			}
 			
 			return value;
