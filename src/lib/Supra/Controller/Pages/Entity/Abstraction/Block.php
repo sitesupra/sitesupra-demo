@@ -55,7 +55,7 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 	 * @var boolean
 	 */
 	protected $locked = false;
-
+	
 	/**
 	 * Create block properties collection
 	 */
@@ -157,6 +157,11 @@ abstract class Block extends Entity implements AuditedEntityInterface, OwnedEnti
 		return $this->blockProperties;
 	}
 
+	public function clearPropertyCollection()
+	{
+		$this->blockProperties = new ArrayCollection();
+	}
+	
 	/**
 	 * Whether the block is inside one of place holder Ids provided
 	 * @param array $placeHolderIds

@@ -466,8 +466,8 @@ abstract class PageRequest extends HttpRequest
 		
 		$placeHolderSet = $this->getPlaceHolderSet();
 
-		$allFinalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
-				->collectIds();
+//		$allFinalPlaceHolderIds = $placeHolderSet->getFinalPlaceHolders()
+//				->collectIds();
 
 		// Filter out the locally managed placeholders (history)
 		foreach ($placeHolderSet->getFinalPlaceHolders() as $placeHolder) {
@@ -491,6 +491,7 @@ abstract class PageRequest extends HttpRequest
 			$qb->select('b')
 					->from(Entity\Abstraction\Block::CN(), 'b')
 					->join('b.placeHolder', 'ph')
+					->andWhere('b.inactive = FALSE')
 					->orderBy('b.position', 'ASC');
 
 			$expr = $qb->expr();
@@ -537,6 +538,14 @@ abstract class PageRequest extends HttpRequest
 		foreach ($blocks as $blockKey => $block) {
 			if ($block instanceof Entity\TemplateBlock) {
 				if ($block->getTemporary()) {
+					unset($blocks[$blockKey]);
+				}
+			}
+		}
+		
+		foreach ($blocks as $blockKey => $block) {
+			if ($block instanceof Entity\PageBlock) {
+				if ($block->isInactive()) {
 					unset($blocks[$blockKey]);
 				}
 			}
@@ -795,7 +804,7 @@ abstract class PageRequest extends HttpRequest
 	/**
 	 * 
 	 */
-	public function createMissingPlaceHolders()
+	public function createMissingPlaceHolders($forceUseTemplateBlocks = false)
 	{
 		$layoutPlaceHolders = $this->getLayoutPlaceHolders();
 
@@ -884,82 +893,86 @@ abstract class PageRequest extends HttpRequest
 				}	
 			}	
 		}
+		
+		if ($this instanceof PageRequestEdit && $forceUseTemplateBlocks) {
+			$this->copyBlocksFromTemplate();
+		}
 
 		// Flush only for draft connection with ID generation
 		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
 			$entityManager->flush();
 		}
 	}
-
-	/**
-	 * 
-	 */
-	protected function createMissingPlaceHolderGroups()
-	{
-		$em = $this->getDoctrineEntityManager();
-		
-		$localization = $this->getPageLocalization();
-		
-		$currentGroups = $localization->getPlaceHolderGroups();
-		$currentGroupKeys = $currentGroups->getKeys();
-		
-		if ($localization instanceof Entity\TemplateLocalization) {
-
-			$layout = $this->getLayout();
-			$layoutGroups = $layout->getPlaceHolderGroups();
-			
-			foreach ($layoutGroups as $layoutGroup) {
-				/* @var $layoutGroup Entity\Theme\ThemeLayoutPlaceholderGroup */
-				$groupName = $layoutGroup->getName();
-
-				if ( ! in_array($groupName, $currentGroupKeys)) {
-					
-					$templateGroup = Entity\PlaceHolderGroup::factory($layoutGroup);
-					$localization->addPlaceHolderGroup($templateGroup);
-				
-					if ($this instanceof PageRequestEdit) {
-						$em->persist($templateGroup);
-					}
-				}
-			}
-		}
-		else if ($localization instanceof Entity\PageLocalization) {
-
-			$templateLocalization = $localization->getTemplate()
-					->getLocalization($localization->getLocale());
-			
-			$groupsInTemplate = $templateLocalization->getPlaceHolderGroups();
-			
-			$layout = $this->getLayout();
-			$layoutGroups = $layout->getPlaceHolderGroups();			
-			
-			foreach ($layoutGroups as $layoutGroup) {
-				$groupName = $layoutGroup->getName();
-				
-				if ( ! in_array($groupName, $currentGroupKeys)) {
-					
-					$sourceGroup = $layoutGroup;
-					if ($groupsInTemplate->offsetExists($groupName)) {
-						$sourceGroup = $groupsInTemplate->get($groupName);
-						
-						//
-						if ($sourceGroup->getLocked()) {
-							continue;
-						}
-					}
-					
-					$newGroup = Entity\PlaceHolderGroup::factory($sourceGroup);
-					
-					$localization->addPlaceHolderGroup($newGroup);
-					
-					if ($this instanceof PageRequestEdit) {
-						$em->persist($newGroup);
-					}
-					
-				}
-			}
-		}
-	}
+	
+//	/**
+//	 * 
+//	 */
+//	protected function createMissingPlaceHolderGroups()
+//	{
+//		$em = $this->getDoctrineEntityManager();
+//		
+//		$localization = $this->getPageLocalization();
+//		
+//		$currentGroups = $localization->getPlaceHolderGroups();
+//		$currentGroupKeys = $currentGroups->getKeys();
+//		
+//		if ($localization instanceof Entity\TemplateLocalization) {
+//
+//			$layout = $this->getLayout();
+//			$layoutGroups = $layout->getPlaceHolderGroups();
+//			
+//			foreach ($layoutGroups as $layoutGroup) {
+//				/* @var $layoutGroup Entity\Theme\ThemeLayoutPlaceholderGroup */
+//				$groupName = $layoutGroup->getName();
+//
+//				if ( ! in_array($groupName, $currentGroupKeys)) {
+//					
+//					$templateGroup = Entity\PlaceHolderGroup::factory($layoutGroup);
+//					$localization->addPlaceHolderGroup($templateGroup);
+//				
+//					if ($this instanceof PageRequestEdit) {
+//						$em->persist($templateGroup);
+//					}
+//				}
+//			}
+//		}
+//		else if ($localization instanceof Entity\PageLocalization) {
+//
+//			$templateLocalization = $localization->getTemplate()
+//					->getLocalization($localization->getLocale());
+//			
+//			$groupsInTemplate = $templateLocalization->getPlaceHolderGroups();
+//			
+//			$layout = $this->getLayout();
+//			$layoutGroups = $layout->getPlaceHolderGroups();			
+//			
+//			foreach ($layoutGroups as $layoutGroup) {
+//				$groupName = $layoutGroup->getName();
+//				
+//				if ( ! in_array($groupName, $currentGroupKeys)) {
+//					
+//					$sourceGroup = $layoutGroup;
+//					if ($groupsInTemplate->offsetExists($groupName)) {
+//						$sourceGroup = $groupsInTemplate->get($groupName);
+//						
+//						//
+//						if ($sourceGroup->getLocked()) {
+//							continue;
+//						}
+//					}
+//					
+//					$newGroup = Entity\PlaceHolderGroup::factory($sourceGroup);
+//					
+//					$localization->addPlaceHolderGroup($newGroup);
+//					
+//					if ($this instanceof PageRequestEdit) {
+//						$em->persist($newGroup);
+//					}
+//					
+//				}
+//			}
+//		}
+//	}
 
 	/**
 	 * 

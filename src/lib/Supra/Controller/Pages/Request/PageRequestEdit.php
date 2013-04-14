@@ -456,7 +456,134 @@ class PageRequestEdit extends PageRequest
 				->setParameters(array($localizationId))
 				->getResult();
 		
+		foreach ($blocks as $key => $block) {
+			if ($block instanceof Entity\PageBlock) {
+				if ($block->isInactive()) {
+					unset($blocks[$key]);
+				}
+			}
+		}
+		
 		return $blocks;
+	}
+	
+	/**
+	 * @FIXME: merge with createMissingPlaceHolders() method
+	 */
+	protected function copyBlocksFromTemplate()
+	{
+		$localization = $this->getPageLocalization();
+		
+		if ( ! $localization instanceof Entity\PageLocalization) {
+			return;
+		}
+	
+		$locale = $localization->getLocale();
+		
+		$templateLocalization = $localization->getTemplate()
+				->getLocalization($locale);
+
+		$templatePlaceHolders = $templateLocalization->getPlaceHolders();
+		$placeHolders = $localization->getPlaceHolders();
+		
+		$em = $this->getDoctrineEntityManager();
+		
+		foreach ($placeHolders as $placeHolder) {
+			
+			$name = $placeHolder->getName();
+			
+			// 0. searching for the same placeholder in template localization
+			if ( ! $templatePlaceHolders->offsetExists($name)) {
+				continue;
+			}
+			
+			// 1. copy template blocks
+			$templatePlaceHolder = $templatePlaceHolders->offsetGet($name);
+			$templateBlocks = $templatePlaceHolder->getBlocks();
+			
+			$blocksFromTemplate = array();
+			
+			$classes = array();
+			foreach ($templateBlocks as $block) {
+				
+				$newBlock = Entity\Abstraction\Block::factoryClone($localization, $block);
+				$em->persist($newBlock);
+//				$newBlock->setPlaceHolder($placeHolder);
+				
+				$classes[] = $block->getComponentClass();
+				$blocksFromTemplate[] = $newBlock;
+			}
+			
+			// 2. maintain blocks associations
+			//$blocks = $placeHolder->getBlocks();
+			
+			$blockCn = Entity\PageBlock::CN();
+			$blocks = $em->createQuery("SELECT b FROM {$blockCn} b WHERE b.placeHolder = :id ORDER by b.position ASC")
+					->setParameter('id', $placeHolder->getId())
+					->getResult();
+			
+			
+			$usedBlocks = array();
+			
+			foreach ($blocks as $block) {
+				
+				$matchedBlocks = array();
+				
+				$blockClass = $block->getComponentClass();
+				
+				// 2.1. if there is no such block in template, hide it and skip
+				if ( ! in_array($blockClass, $classes)) {
+					$block->setInactive(true);
+					continue;
+				}
+				
+				// 2.2. find the most suitable block in template
+				foreach ($blocksFromTemplate as $templateBlock) {
+					
+					if (in_array($templateBlock->getId(), $usedBlocks)) {
+						continue;
+					}
+					
+					if ($templateBlock->getComponentClass() != $blockClass) {
+						continue;
+					}
+					
+					$positionMatch = null;
+					$oldPosition = $block->getPosition();
+					$positionInTemplate = $templateBlock->getPosition();
+					
+					if ($oldPosition == $positionInTemplate) {
+						$positionMatch = 0;
+					}
+					else {
+						$positionMatch = abs($oldPosition - $positionInTemplate);
+					}
+					
+					$matchedBlocks[$positionMatch] = $templateBlock;
+				}
+				
+				if (empty($matchedBlocks)) {
+					$block->setInactive(true);
+					continue;
+				}
+				
+				krsort($matchedBlocks);
+				$matchedBlock = array_shift($matchedBlocks);
+				
+				$properties = $block->getBlockProperties();
+				foreach ($properties as $property) {
+					$property->setBlock($matchedBlock);
+				}
+				
+				$block->clearPropertyCollection();
+				$em->remove($block);
+				$usedBlocks[] = $matchedBlock->getId();
+			}
+			
+			foreach ($blocksFromTemplate as $block) {
+				$block->setPlaceHolder($placeHolder);
+			}
+		}
 	}
 	
 //	/**
