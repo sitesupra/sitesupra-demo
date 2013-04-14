@@ -250,10 +250,12 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 				
 				// Block properties are loaded from the block and filtered manually now
 				$blockProperties = $block->getBlockProperties();
-
+								
+				$metadataMap = array();
+				$clonedProperties = array();
+				
 				/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
 				foreach ($blockProperties as $blockProperty) {
-					
 					// We are interested only in the properties belonging to the current localization
 //					if ($blockProperty->getLocalization()->equals($localization)) {
 						$metadataCollection = $blockProperty->getMetadata();
@@ -267,14 +269,17 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 						
 						$blockProperty->setLocalization($localization);
 						$blockProperty->setBlock($newBlock);
-
+						
+						$clonedProperties[] = $blockProperty;
 
 						foreach ($metadataCollection as $metadata) {
 							/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
 
-							$metadata = clone($metadata);
-							$metadata->setBlockProperty($blockProperty);
-							$em->persist($metadata);
+							$newMetadata = clone($metadata);
+							$newMetadata->setBlockProperty($blockProperty);
+							$em->persist($newMetadata);
+							
+							$metadataMap[$metadata->getId()] = $newMetadata;
 						}
 //					}
 
@@ -283,6 +288,15 @@ abstract class PlaceHolder extends Entity implements AuditedEntityInterface, Own
 //					if ($this instanceof PageRequestEdit) {
 						$em->persist($blockProperty);
 //					}
+				}
+				
+				foreach ($clonedProperties as $property) {
+					if ($property->getMasterMetadataId() !== null) {
+						$metaId = $property->getMasterMetadataId();
+						if (isset($metadataMap[$metaId])) {
+							$property->setMasterMetadata($metadataMap[$metaId]);
+						}
+					}
 				}
 			}
 		}
