@@ -729,7 +729,8 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		replaceItem: function (id, image) {
 			//Image image with which user is trying to replace already
 			//exists in the list, then skip
-			if (!this.addItem(image)) return false;
+			image = this.addItem(image);
+			if (!image) return false;
 			
 			var old_data = this.getDataById(id),
 				new_data = this.getDataById(image.id),
