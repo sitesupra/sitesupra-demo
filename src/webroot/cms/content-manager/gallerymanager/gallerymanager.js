@@ -480,8 +480,18 @@ function (Y) {
 			}
 			
 			if (data.image) {
-				path = [].concat(data.image.path);
-				path.push(data.image.id);
+				path = [];
+				if (data.image.image) {
+					if (data.image.image.path) {
+						path = [].concat(data.image.image.path);
+					}
+					path.push(data.image.image.id);
+				} else {
+					if (data.image.path) {
+						path = [].concat(data.image.path);
+					}
+					path.push(data.image.id);
+				}
 			}
 			
 			// Close image editing
@@ -722,12 +732,22 @@ function (Y) {
 			data = Supra.mix({}, data, true);
 			
 			var images = data.images || [],
-				i = 0,
-				ii = images.length;
+				i = images.length - 1,
+				id = null,
+				unique = {};
 			
-			for (; i<ii; i++) {
+			for (; i >= 0; i--) {
 				if (!images[i].id && images[i].image) {
 					images[i].id = images[i].image.id || Y.guid();
+				}
+				
+				// Filter out unique items only
+				id = images[i].id;
+				if (id in unique) {
+					// Already exists, remove
+					images.splice(i, 1);
+				} else {
+					unique[id] = true;
 				}
 			}
 			

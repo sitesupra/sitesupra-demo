@@ -320,6 +320,10 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 * Deatcivate input: disable content editing and show sidebar
 		 */
 		stopEditing: function (preserveToolbar) {
+			// Input blur triggers stopEditing, prevent infinite loop
+			if (this._stopEditingLoop) return;
+			this._stopEditingLoop = true;
+			
 			var input = this._activeInput;
 			
 			if (input && !input.get('disabled')) {
@@ -333,26 +337,15 @@ YUI.add('slideshowmanager.view', function (Y) {
 					
 				} else if (input.isInstanceOf('input-media-inline')) {
 					
+					input.stopEditing();
 					this.get('host').settings.show();
 					
 				}
 			}
 			
+			this._stopEditingLoop = false;
 			this._activeInput = null;
 			this._activePropertyId = null;
-			
-			// Stop editing
-			// No need for this anymore?
-			/*
-			if (this.get('host').settings.widgets.form) {
-				var inputs = this.get('host').settings.widgets.form.getInputs(),
-					key = null;
-				
-				for (key in inputs) {
-					inputs[key].stopEditing();
-				}
-			}
-			*/
 		},
 		
 		/**

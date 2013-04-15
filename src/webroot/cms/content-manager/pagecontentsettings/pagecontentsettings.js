@@ -10,7 +10,7 @@ Supra(function (Y) {
 			<div class="sidebar block-settings">\
 				<div class="sidebar-header">\
 					<button class="button-back hidden"><p></p></button>\
-					<img src="/cms/lib/supra/img/sidebar/icons/settings.png" alt="" />\
+					<img src="" class="hidden" alt="" />\
 					<button type="button" class="button-control"><p>{#buttons.done#}</p></button>\
 					<h2></h2>\
 				</div>\
@@ -195,7 +195,7 @@ Supra(function (Y) {
 					'properties': null,		//Properties class instance
 					'scrollable': false,
 					'title': null,
-					'icon': '/cms/lib/supra/img/sidebar/icons/settings.png',
+					'icon': null, //'/cms/lib/supra/img/sidebar/icons/settings.png',
 					
 					'first_init': false
 				}, cache, options || {});

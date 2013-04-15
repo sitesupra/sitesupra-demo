@@ -96,9 +96,9 @@ YUI().add('supra.help-tip', function (Y) {
 			content.addClass(this.getClassName('inner'));
 			close.addClass(this.getClassName('close'));
 			
-			box.append(close);
 			box.append(heading);
 			box.append(content);
+			box.append(close);
 			
 			close.on('click', this._eventClose, this);
 		},
@@ -312,7 +312,7 @@ YUI().add('supra.help-tip', function (Y) {
 			}
 			
 			var node = this.get('boundingBox');
-			node.setStyle('width', value);
+			node.setStyle('width', value || 'auto');
 		},
 		
 		/**
@@ -328,7 +328,7 @@ YUI().add('supra.help-tip', function (Y) {
 			}
 			
 			var node = this.get('boundingBox');
-			node.setStyle('height', value);
+			node.setStyle('height', value || 'auto');
 		},
 		
 		/**
