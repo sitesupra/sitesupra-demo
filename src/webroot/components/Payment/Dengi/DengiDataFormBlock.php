@@ -10,8 +10,10 @@ use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Order\OrderProvider;
 use Doctrine\ORM\EntityManager;
+use Project\User\Authorization\AuthorizedUserRequiredInterface;
+use Project\Entity;
 
-class DengiDataFormBlock extends BlockController
+class DengiDataFormBlock extends BlockController implements AuthorizedUserRequiredInterface
 {
 
 	/**
@@ -28,7 +30,31 @@ class DengiDataFormBlock extends BlockController
 	 * @var Order\Order
 	 */
 	protected $order;
+	
+	/**
+	 * @var Entity\User
+	 */
+	private $user;
+	
+	/**
+	 * @return array
+	 */
+	public function getAllowedUserTypes()
+	{
+		return array(
+			Entity\User::TYPE_DEVELOPER,
+			Entity\User::TYPE_USER,
+			// Do we need?
+			Entity\User::TYPE_MODERATOR,
+		);
+	}
 
+	public function setAuthenticatedUser(Entity\User $user)
+	{
+		$this->user = $user;
+	}
+	
+	
 	/**
 	 * @return OrderProvider
 	 */
@@ -151,9 +177,11 @@ class DengiDataFormBlock extends BlockController
 	{
 		$response = $this->getResponse();
 
-		$response->assign('formElements', array());
-		$response->assign('action', '#');
-		$response->assign('errorMessages', array());
+		$response
+			->assign('formElements', array())
+			->assign('action', '#')
+			->assign('orderStatus', null)
+			->assign('errorMessages', array());
 	}
 
 	/**
@@ -165,28 +193,67 @@ class DengiDataFormBlock extends BlockController
 
 		$request = $this->getRequest();
 		$response = $this->getResponse();
-
+		
 		$order = $this->getOrder();
-		$response->assign('order', $order);
+		$status = $order->getStatus();
+		
+		if ($status == \Supra\Payment\Order\OrderStatus::FINALIZED) {
+			$response->assign('order', $order);
 
-		$session = $paymentProvider->getSessionForOrder($order);
+			$session = $paymentProvider->getSessionForOrder($order);
 
-		$postData = $request->getPost()->getArrayCopy();
+			$postData = $request->getPost()->getArrayCopy();
 
-		$response->assign('formElements', $this->buildFormElements($postData));
+			$response->assign('formElements', $this->buildFormElements($postData));
 
-		if ( ! empty($session->errorMessages)) {
+			if ( ! empty($session->errorMessages)) {
 
-			$response->assign('errorMessages', $session->errorMessages);
-			unset($session->errorMessages);
-		} else {
+				$response->assign('errorMessages', $session->errorMessages);
+				unset($session->errorMessages);
+			} else {
+
+				$response->assign('errorMessages', array());
+			}
+
+			$returnUrl = $paymentProvider->getDataFormReturnUrl($order);
+
+			$response->assign('action', $returnUrl);
 			
-			$response->assign('errorMessages', array());
+			
+			if ($order instanceof \Supra\Payment\Entity\Order\ShopOrder) {
+				
+				/* @var $order \Supra\Payment\Entity\Order\ShopOrder */
+				$items = $order->getProductItems();
+				$productItem = $items[0];
+				
+				if ($productItem instanceof \Supra\Payment\Entity\Order\OrderProductItem) {
+					
+					$product = $productItem->getProduct();
+					
+					if ($product instanceof \Project\Entity\Operation\OperationInstallByPayment) {
+						
+						$lm = ObjectRepository::getLocaleManager($this);
+						$locale = $lm->getCurrent();
+						
+						/* @var $product \Project\Entity\Operation\OperationInstallByPayment */
+						$appName = $product->getApplicationName($locale);
+						$appPrice = $productItem->getPrice();
+						$currency = $order->getCurrency();
+						
+						if ($currency instanceof \Supra\Payment\Entity\Currency\Currency) {
+							$appCurrency = $currency->getIso4217Code();
+							
+							$response
+								->assign('appName', $appName)
+								->assign('appPrice', $appPrice)
+								->assign('appCurrency', $appCurrency);
+						}
+					}
+				}
+			}
 		}
-
-		$returnUrl = $paymentProvider->getDataFormReturnUrl($order);
-
-		$response->assign('action', $returnUrl);
+		
+		$response->assign('orderStatus', $status);
 	}
 
 	/**
@@ -223,6 +290,12 @@ class DengiDataFormBlock extends BlockController
 		$contents = array();
 
 		return $contents;
+	}
+	
+	
+	public function redirectIfNotAuthenticated()
+	{
+		return true;
 	}
 
 }
