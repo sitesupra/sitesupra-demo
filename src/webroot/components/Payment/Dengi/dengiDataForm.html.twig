@@ -1,41 +1,41 @@
-<!-- <form action="http://www.onlinedengi.ru/wmpaycheck.php" method="post">
-	<input type="hidden" name="project" value="1898">
-	<input type="hidden" name="source" value="1898">
-	<input type="hidden" name="order_id" value="111222333">
-	Ваш ник: <input type="text" name="nickname" value="mumu">
-	Сумма к оплате, в валюте платёжной системы: 
+{% if orderStatus is not null and orderStatus == 200 %}
+	<div>
+		<div class="pathBar">
+			{% if appName is defined %}
+				<h1 class="heading">{{ 'Покупка приложения'|trans }} {{ appName }}</h1>
+			{% else %}
+				<h1 class="heading">{{ 'Пополнить счёт'|trans }}</h1>
+			{% endif %}
+		</div>
 
-	<input type="text" name="amount" value="55.10">
-	Способ оплаты: <select name="mode_type">
-	<option value="4">WebMoney WMB</option>
-	<option value="3">WebMoney WME</option>
-</select>
-<input type="submit" value="Оплатить!">
-</form> -->
-<section>
-	<h2>{{ 'Выберите вид платежа'|trans }}:</h2>
+		<form class="form-payup form-required" action="{{ action }}" method="post" enctype="application/x-www-form-urlencoded">
+			{% if errorMessages %}
+			<ul> 
+				{% for errorMessage in errorMessages %}
+					<li>{{ errorMessage | raw }}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
 
-	{# Form with class "payment-method" labels will trigger submit on click #}
-	<form action ="{{ action }}" method="post" enctype="application/x-www-form-urlencoded" class="payment-method">
+			<p class="fp-cards">
+				<label class="radio" for="mode_type_57">
+					{{ 'Банковская карта'|trans }}<span class="visa">VISA</span> <span class="mastercard">MasterCard</span>
+					<input type="radio" name="mode_type" checked="checked" value="57" id="mode_type_57" />
+				</label>
+			</p>
 
-	{% if errorMessages %}
-	<ul> 
-		{% for errorMessage in errorMessages %}
-			<li>{{ errorMessage | raw }}</li>
-		{% endfor %}
-	</ul>
-	{% endif %}
-
-	{% for formElement in formElements %} 
-
-		{{ formElement | raw }}
-
-	{% endfor %} 
-
-	<img src="/assets/images/payment-card-mastercard.png" alt="MasterCard" class="payment-icon" />
-	<img src="/assets/images/payment-card-visa.png" alt="VISA" class="payment-icon" />
-
-	<input type="submit" value="Send" />
+			<p class="fp-pay">
+				{% if appName is defined %}
+					<span class="price">{{ appPrice }} {{ appCurrency }}</span>
+					<button type="submit" class="button button-min">{{ 'Оплатить'|trans }}</button>
+				{% else %}
+					<input class="textInput required" type="text" value="" name="amount" placeholder="{{ 'Сумма' | trans }}"/>
+					<button type="submit" class="button button-min">{{ 'Пополнить'|trans }}</button>
+				{% endif %}
+			</p>
 
 		</form>
-</section>
+	</div>
+{% else %}
+	<p>Dengi Form Block</p>
+{% endif %}

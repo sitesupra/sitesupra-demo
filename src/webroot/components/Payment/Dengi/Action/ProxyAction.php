@@ -142,6 +142,7 @@ class ProxyAction extends ProxyActionAbstraction
 
 		// Mark order payment as started.
 		$order->setStatus(OrderStatus::PAYMENT_STARTED);
+
 		$orderProvider->store($order);
 
 		// Intialize Transact transaction with supplied post data.
@@ -179,12 +180,20 @@ class ProxyAction extends ProxyActionAbstraction
 	private function validateShopOrderFormData($formData)
 	{
 		$paymentProvider = $this->getPaymentProvider();
+		$amount = null;
 
 		$providerBackend = $paymentProvider->getBackend($formData['mode_type']);
+		
+		if (isset($formData['amount'])) {
+			$amount = 0;
+			if ($formData['amount'] > 0) {
+				$amount = $formData['amount'];
+			}
+		}
 
 		$errorMessages = $providerBackend->validateForm($formData);
 
-		if ( ! empty($errorMessages)) {
+		if ( ! empty($errorMessages) || (!is_null($amount) && $amount == 0)) {
 
 			$order = $this->getOrder();
 
@@ -192,6 +201,42 @@ class ProxyAction extends ProxyActionAbstraction
 			$session->errorMessages = $errorMessages;
 
 			return false;
+		}
+		
+		if ($amount > 0) {
+			$order = $this->getOrder();
+			/* @var $order \Supra\Payment\Entity\Order\ShopOrder */
+			$items = $order->getItems();
+			$orderItem = $items->get(0);
+			
+			/* @var $orderItem \Supra\Payment\Entity\Order\OrderProductItem */
+			if (!($orderItem instanceof \Supra\Payment\Entity\Order\OrderProductItem)) {
+				throw new Exception\RuntimeException('OrderItem item is not an instance of OrderProductItem');
+			}
+			
+			$orderItem->setPrice($amount);
+			
+			$transaction = $order->getTransaction();
+			$transaction->setAmount($amount);
+			
+			
+			$em = ObjectRepository::getEntityManager($this);
+			$em->persist($order);
+			
+			$or = $em->getRepository(\Project\Entity\Operation\OperationAddFunds::CN());
+			$operation = $or->findOneBy(array(
+				'paymentOrder' => $order->getId()
+			));
+			
+			if ($operation instanceof \Project\Entity\Operation\OperationAddFunds) {
+				/* @var $operation \Project\Entity\Operation\OperationAddFunds */
+				$operation->setAmount($amount);
+				$em->persist($operation);
+			}
+			
+			$em->flush();
+			
+			$this->setOrder($order);
 		}
 
 		return true;
