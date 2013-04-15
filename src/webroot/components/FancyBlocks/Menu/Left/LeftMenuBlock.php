@@ -13,6 +13,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
+use Supra\Controller\Pages\Entity;
 
 /**
  * LeftMenuBlock
@@ -91,9 +92,19 @@ class LeftMenuBlock extends MenuBlock
 	 */
 	protected function getMenuData()
 	{
-		$rootLocalization = $this->getRootLocalization();
-
-		$menuData = $this->getMenuLevelData($rootLocalization);
+		$localization = $this->getRequest()
+				->getPageLocalization();
+		
+		if ($localization instanceof Entity\TemplateLocalization) {
+			$localization = $this->getRootLocalization();
+		}
+		
+		// this will happen when there will be no any page
+		if ( ! $localization instanceof Entity\PageLocalization) {
+			return array();
+		}
+	
+		$menuData = $this->getMenuLevelData($localization);
 
 		return $menuData;
 	}
@@ -156,42 +167,33 @@ class LeftMenuBlock extends MenuBlock
 	{
 		$em = $this->getEntityManager();
 
-		$rootLocalization = null;
+//		$rootLocalization = null;
+//
+//		$rootLink = $this->getPropertyValue('rootLink');
+//
+//		if ( ! empty($rootLink)) {
+//			/* @var $rootPageLink LinkReferencedElement */
+//			$rootLocalization = $rootLink->getPage();
+//		} else {
 
-		$rootLink = $this->getPropertyValue('rootLink');
+		$pageFinder = new PageFinder($em);
+		$pageFinder->addLevelFilter(0, 0);
 
-		if ( ! empty($rootLink)) {
-			/* @var $rootPageLink LinkReferencedElement */
-			$rootLocalization = $rootLink->getPage();
-		} else {
+		$localizationFinder = new LocalizationFinder($pageFinder);
 
-			$pageFinder = new PageFinder($em);
-			$pageFinder->addLevelFilter(0, 0);
+		$rootLocalizations = $localizationFinder->getResult();
 
-			$localizationFinder = new LocalizationFinder($pageFinder);
-
-			$rootLocalizations = $localizationFinder->getResult();
-
-			if (count($rootLocalizations) > 1) {
-				throw new \RuntimeException('More than one root localization found.');
-			}
-
-			$rootLocalization = current($rootLocalizations);
+		if (count($rootLocalizations) > 1) {
+			throw new \RuntimeException('More than one root localization found.');
 		}
 
-		if (empty($rootLocalization)) {
-			throw new \RuntimeException('Root localization not found.');
-		}
+		$rootLocalization = current($rootLocalizations);
+//		}
+
+//		if (empty($rootLocalization)) {
+//			throw new \RuntimeException('Root localization not found.');
+//		}
 
 		return $rootLocalization;
 	}
-
-	/**
-	 * @return type 
-	 */
-	public static function getPropertyDefinition()
-	{
-		return array();
-	}
-
 }
