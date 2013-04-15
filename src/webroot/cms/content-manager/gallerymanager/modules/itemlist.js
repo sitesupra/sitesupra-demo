@@ -420,9 +420,18 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			
 			// Check if image doesn't exist in data already
 			if (image_data) {
-				/*for (var i=0, ii=images.length; i<ii; i++) {
-					if (images[i].id == image_data.id) return false;
-				}*/
+				for (var i=0, ii=images.length; i<ii; i++) {
+					if (images[i].id == image_data.id) {
+						// Such image is already in the list, show error
+						Supra.Manager.executeAction('Confirmation', {
+							'message': Supra.Intl.get(['gallerymanager', 'error_duplicate_image']),
+							'buttons': [
+								{'id': 'error', 'label': 'Ok'},
+							]
+						});
+						return false;
+					}
+				}
 			} else {
 				image_data = {};
 			}

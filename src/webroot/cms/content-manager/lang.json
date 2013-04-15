@@ -481,6 +481,7 @@
 			"label": "Items",
 			"label_button": "Manage items",
 			
+			"error_duplicate_image": "At this moment you can't use the same image twice for this block. Please select another image.",
 			"error_template": "Error occured in {block} block"
 		},
 		
