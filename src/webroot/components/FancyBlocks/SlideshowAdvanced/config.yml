@@ -17,12 +17,12 @@
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: navigation
           type: sidebar
-          icon: /cms/lib/supra/img/toolbar/icon-navigation.png
+          icon: /cms/lib/supra/img/sidebar/icons/button-navigation.png
           label: Navigation
       - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
           id: animation
           type: sidebar
-          icon: /cms/lib/supra/img/toolbar/icon-animation.png
+          icon: /cms/lib/supra/img/sidebar/icons/button-animation.png
           label: Animation
     
     properties:

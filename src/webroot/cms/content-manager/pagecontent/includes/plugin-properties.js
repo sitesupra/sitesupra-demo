@@ -10,7 +10,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			'<div class="sidebar block-settings">' +
 			'	<div class="sidebar-header">' +
 			'		<button class="button-back hidden"><p></p></button>' +
-			'		<img src="/cms/lib/supra/img/sidebar/icons/settings.png" alt="" />' +
+			'		<img src="" class="hidden" alt="" />' +
 			'		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>' +
 			'		<h2></h2>' +
 			'	</div>' +
@@ -1065,7 +1065,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 						definition = {
 							'id': definition,
 							'type': 'top',
-							'icon': '/cms/lib/supra/img/htmleditor/icon-settings.png',
+							'icon': null, //'/cms/lib/supra/img/htmleditor/icon-settings.png',
 							'label': Supra.Intl.get(['htmleditor', 'settings'])
 						};
 					} else {
@@ -1123,7 +1123,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 							'type': 'Button',
 							'slideshow': slideshow,
 							'slideId': slide_id,
-							'containerNode': this.getGroupContentNode('default')
+							'containerNode': this.getGroupContentNode('default'),
+							'icon': definition.icon
 						});
 					}
 					
