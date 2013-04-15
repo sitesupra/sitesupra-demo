@@ -17,6 +17,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			'	<div class="sidebar-content has-header"></div>' +
 			'</div>';
 	
+	var SLIDESHOW_MAIN_SLIDE = 'propertySlideMain';
+	
 	/*
 	 * Properties plugin
 	 */
@@ -395,7 +397,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			//Slideshow is used for grouping properties
 			var slideshow = new Supra.Slideshow(),
 				slide_id = null,
-				slide = slideshow.addSlide({'id': 'propertySlideMain'}),
+				slide = slideshow.addSlide({'id': SLIDESHOW_MAIN_SLIDE}),
 				slide_main = slide;
 			
 			this.set('slideshow', slideshow);
@@ -432,6 +434,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 			form.setValues(data, 'id');
 			this._updating_values = false;
 			
+			// Show tooltip if it exists
+			var block_type = this.get('host').getBlockType();
+			if (Supra.Help.tipExists(block_type)) {
+				Supra.Help.tip(block_type, {
+					'append': slideshow.getSlide(SLIDESHOW_MAIN_SLIDE).one('.su-slide-content'),
+					'position': 'relative'
+				});
+			}
+			
 			this.set('form', form);
 			return form;
 		},
@@ -440,7 +451,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * On Slideshow slide change show
 		 */
 		onSlideshowSlideChange: function (evt) {
-			if (evt.newVal == 'propertySlideMain') {
+			if (evt.newVal == SLIDESHOW_MAIN_SLIDE) {
 				this.get('action').get('backButton').set('visible', false);
 			} else {
 				this.get('action').get('backButton').set('visible', true);
@@ -651,7 +662,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.get('action').hide();
 			
 			//Reset slideshow position
-			this.get('slideshow').set('slide', 'propertySlideMain');
+			this.get('slideshow').set('slide', SLIDESHOW_MAIN_SLIDE);
 			
 			// Property which affects inline content may have
 			// changed, need to reload block content.
@@ -1085,7 +1096,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			if (!this._group_nodes[definition.id]) {
 				var slideshow = this.get('slideshow'),
-					slide_main = slideshow.getSlide('propertySlideMain').one('.su-slide-content'),
+					slide_main = slideshow.getSlide(SLIDESHOW_MAIN_SLIDE).one('.su-slide-content'),
 					
 					slide_id = null,
 					slide = null,
