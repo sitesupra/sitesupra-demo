@@ -210,6 +210,7 @@ class ParsedHtmlFilter implements FilterInterface
 		if ( ! empty($svgContent)) {
 			
 			$tag = new \Supra\Html\HtmlTag('svg');
+			$style = '';
 			
 			$tag->setContent($svgContent);
 			
@@ -224,7 +225,7 @@ class ParsedHtmlFilter implements FilterInterface
 
 			$color = $iconData->getColor();
 			if ( ! empty($color)) {
-				$tag->setAttribute('style', "fill: {$color}");
+				$style = "fill: {$color};";
 			}
 
 			$align = $iconData->getAlign();
@@ -235,12 +236,18 @@ class ParsedHtmlFilter implements FilterInterface
 			$width = $iconData->getWidth();
 			if ( ! empty($width)) {
 				$tag->setAttribute('width', $width);
+                $style .= "width: {$width}px;";
 			}
 
 			$height = $iconData->getHeight();
 			if ( ! empty($height)) {
 				$tag->setAttribute('height', $height);
+                $style .= "height: {$height}px;";
 			}
+                        
+            if ( ! empty($style)) {
+                $tag->setAttribute('style', $style);
+            }
 			
 			$html = $tag->toHtml();
 		}

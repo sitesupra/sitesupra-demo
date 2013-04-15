@@ -726,6 +726,13 @@ class PagecontentAction extends PageManagerAction
 			
 			$imageId = $metaItemInput->get('id');
 			
+			if ( ! $metaItemInput->hasChild('image')) {
+				continue;
+			}
+			
+			$imageData = $metaItemInput->getChild('image')
+					->getArrayCopy();
+			
 			if ($metaItemInput->has('__meta__')) {
 				
 				$id = $metaItemInput->get('__meta__');
@@ -746,15 +753,17 @@ class PagecontentAction extends PageManagerAction
 				if ( ! $metaItemInput->hasChild('image')) {
 					continue;
 				}
-					
-				$imageData = $metaItemInput->getChild('image')
-						->getArrayCopy();
+				
+//				$imageData = $metaItemInput->getChild('image')
+//						->getArrayCopy();
 					
 				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($imageData);
 				$metaItem = new Entity\BlockPropertyMetadata($index, $property, $element);				
 			}
 			
 			$metaItem->setName($index);
+								
+			$element->fillArray($imageData);
 			
 //			if ($metaItemInput->hasChild('image')) {
 //				$imageData = $metaItemInput->getChild('image')

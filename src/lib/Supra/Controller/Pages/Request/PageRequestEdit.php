@@ -456,7 +456,232 @@ class PageRequestEdit extends PageRequest
 				->setParameters(array($localizationId))
 				->getResult();
 		
+		foreach ($blocks as $key => $block) {
+			if ($block instanceof Entity\PageBlock) {
+				if ($block->isInactive()) {
+					unset($blocks[$key]);
+				}
+			}
+		}
+		
 		return $blocks;
+	}
+	
+	/**
+	 * @FIXME: merge with createMissingPlaceHolders() method
+	 */
+	protected function copyBlocksFromTemplate()
+	{
+		$localization = $this->getPageLocalization();
+		
+		if ( ! $localization instanceof Entity\PageLocalization) {
+			return;
+		}
+	
+		$locale = $localization->getLocale();
+		
+		$templateLocalization = $localization->getTemplate()
+				->getLocalization($locale);
+
+		$templatePlaceHolders = $templateLocalization->getPlaceHolders();
+		$placeHolders = $localization->getPlaceHolders();
+		
+		$em = $this->getDoctrineEntityManager();
+		
+		foreach ($placeHolders as $placeHolder) {
+			
+			$name = $placeHolder->getName();
+			
+			// 0. searching for the same placeholder in template localization
+			if ( ! $templatePlaceHolders->offsetExists($name)) {
+				continue;
+			}
+						
+			// 1. copy template blocks
+			$templatePlaceHolder = $templatePlaceHolders->offsetGet($name);
+			$templateBlocks = $templatePlaceHolder->getBlocks();
+			
+			// Z. apply template placeholder group settings
+			$templatePlaceHolderGroup = $templatePlaceHolder->getGroup();
+			if ($templatePlaceHolderGroup !== null) {
+				$placeHolderGroup = $placeHolder->getGroup();
+				if ($placeHolderGroup !== null) {
+					$placeHolderGroup->setGroupLayoutName($templatePlaceHolderGroup->getGroupLayoutName());
+				}
+			}
+			
+			$blocksFromTemplate = array();
+			
+			$classes = array();
+			$oldTemplateBlockMap = array();
+			
+			foreach ($templateBlocks as $block) {
+				
+				$newBlock = Entity\Abstraction\Block::factoryClone($localization, $block);
+				
+				$classes[] = $block->getComponentClass();
+				$blocksFromTemplate[] = $newBlock;
+				
+				$oldTemplateBlockMap[$newBlock->getId()] = $block;
+			}
+			
+			// 2. maintain blocks associations
+			//$blocks = $placeHolder->getBlocks();
+			
+			$blockCn = Entity\PageBlock::CN();
+			$blocks = $em->createQuery("SELECT b FROM {$blockCn} b WHERE b.placeHolder = :id ORDER by b.position ASC")
+					->setParameter('id', $placeHolder->getId())
+					->getResult();
+			
+			
+			$usedBlocks = array();
+			
+			foreach ($blocks as $block) {
+				
+				$matchedBlocks = array();
+				
+				$blockClass = $block->getComponentClass();
+				
+				// 2.1. if there is no such block in template, hide it and skip
+				if ( ! in_array($blockClass, $classes)) {
+					$block->setInactive(true);
+					continue;
+				}
+				
+				// 2.2. find the most suitable block in template
+				foreach ($blocksFromTemplate as $templateBlock) {
+					
+					if (in_array($templateBlock->getId(), $usedBlocks)) {
+						continue;
+					}
+					
+					if ($templateBlock->getComponentClass() != $blockClass) {
+						continue;
+					}
+					
+					$positionMatch = null;
+					$oldPosition = $block->getPosition();
+					$positionInTemplate = $templateBlock->getPosition();
+					
+					if ($oldPosition == $positionInTemplate) {
+						$positionMatch = 0;
+					}
+					else {
+						$positionMatch = abs($oldPosition - $positionInTemplate);
+					}
+					
+					$matchedBlocks[$positionMatch] = $templateBlock;
+				}
+				
+				if (empty($matchedBlocks)) {
+					$block->setInactive(true);
+					continue;
+				}
+				
+				krsort($matchedBlocks);
+				$matchedBlock = array_shift($matchedBlocks);
+				
+				$properties = $block->getBlockProperties();
+				
+				$metadataMap = array();
+				$clonedProperties = array();
+				
+				foreach ($properties as $property) {
+					
+					/* @var $property \Supra\Controller\Pages\Entity\BlockProperty */		
+					$metadataCollection = $property->getMetadata();
+					$blockProperty = clone($property);
+					
+					$blockProperty->resetLocalization();
+					$blockProperty->resetBlock();
+						
+					$blockProperty->setLocalization($localization);
+					$blockProperty->setBlock($matchedBlock);
+
+					$clonedProperties[] = $blockProperty;
+					
+					foreach ($metadataCollection as $metadata) {
+						/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
+
+						$newMetadata = clone($metadata);
+						$newMetadata->setBlockProperty($blockProperty);
+						$em->persist($newMetadata);
+							
+						$metadataMap[$metadata->getId()] = $newMetadata;
+					}
+						
+					$em->persist($blockProperty);
+					$em->remove($property);
+				}
+				
+				foreach ($clonedProperties as $property) {
+					if ($property->getMasterMetadataId() !== null) {
+						$metaId = $property->getMasterMetadataId();
+						if (isset($metadataMap[$metaId])) {
+							$property->setMasterMetadata($metadataMap[$metaId]);
+						}
+					}
+				}	
+				
+				$em->remove($block);
+				$usedBlocks[] = $matchedBlock->getId();
+			}
+			
+			foreach ($blocksFromTemplate as $block) {
+				if ( ! in_array($block->getId(), $usedBlocks)) {
+					
+					$sourceBlock = $oldTemplateBlockMap[$block->getId()];
+					
+					$properties = $sourceBlock->getBlockProperties();
+				
+					$metadataMap = array();
+					$clonedProperties = array();
+
+					foreach ($properties as $property) {
+
+						/* @var $property \Supra\Controller\Pages\Entity\BlockProperty */		
+						$metadataCollection = $property->getMetadata();
+						$blockProperty = clone($property);
+
+						$blockProperty->resetLocalization();
+						$blockProperty->resetBlock();
+
+						$blockProperty->setLocalization($localization);
+						$blockProperty->setBlock($block);
+
+						$clonedProperties[] = $blockProperty;
+
+						foreach ($metadataCollection as $metadata) {
+							/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
+
+							$newMetadata = clone($metadata);
+							$newMetadata->setBlockProperty($blockProperty);
+							$em->persist($newMetadata);
+
+							$metadataMap[$metadata->getId()] = $newMetadata;
+						}
+
+						$em->persist($blockProperty);
+					}
+
+					foreach ($clonedProperties as $property) {
+						if ($property->getMasterMetadataId() !== null) {
+							$metaId = $property->getMasterMetadataId();
+							if (isset($metadataMap[$metaId])) {
+								$property->setMasterMetadata($metadataMap[$metaId]);
+							}
+						}
+					}
+				
+					
+				}
+			}
+			
+			foreach ($blocksFromTemplate as $block) {
+				$em->persist($block);
+				$block->setPlaceHolder($placeHolder);
+			}
+		}
 	}
 	
 //	/**

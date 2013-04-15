@@ -76,6 +76,7 @@ class GalleryFilter implements FilterInterface
 					if ( ! empty($svgContent)) {
 
 						$tag = new \Supra\Html\HtmlTag('svg');
+						$style = '';
 
 						$tag->setContent($svgContent);
 
@@ -90,7 +91,7 @@ class GalleryFilter implements FilterInterface
 
 						$color = $referencedElement->getColor();
 						if ( ! empty($color)) {
-							$tag->setAttribute('style', "fill: {$color}");
+							$style = "fill: {$color};";
 						}
 
 						$align = $referencedElement->getAlign();
@@ -101,11 +102,17 @@ class GalleryFilter implements FilterInterface
 						$width = $referencedElement->getWidth();
 						if ( ! empty($width)) {
 							$tag->setAttribute('width', $width);
+                            $style .= "width: {$width}px;";
 						}
 
 						$height = $referencedElement->getHeight();
 						if ( ! empty($height)) {
 							$tag->setAttribute('height', $height);
+                              $style .= "height: {$height}px;";
+						}
+						
+						if ( ! empty($style)) {
+                            $tag->setAttribute('style', $style);
 						}
 					}
 					

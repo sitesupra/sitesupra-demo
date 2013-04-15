@@ -163,7 +163,17 @@ class PagesettingsAction extends PageManagerAction
 
 				/* @var $template Entity\Template */
 				$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
-				$pageData->setTemplate($template);
+				
+				$currentTemplate = $pageData->getTemplate();
+				
+				if ( ! $template->equals($currentTemplate)) {
+				
+					$pageData->setTemplate($template);
+
+					$request = $this->getPageRequest();
+					
+					$request->createMissingPlaceHolders(true);
+				}
 			}
 
 			if ($input->has('active')) {
