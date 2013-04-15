@@ -92,10 +92,10 @@ class LeftMenuBlock extends MenuBlock
 	 */
 	protected function getMenuData()
 	{
-		$localization = $this->getRequest()
-				->getPageLocalization();
+		//$localization = $this->getRequest()
+		//		->getPageLocalization();
 		
-		if ($localization instanceof Entity\TemplateLocalization) {
+		if ( ! $localization instanceof Entity\PageLocalization) {
 			$localization = $this->getRootLocalization();
 		}
 		
