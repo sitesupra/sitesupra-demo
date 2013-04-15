@@ -480,8 +480,18 @@ function (Y) {
 			}
 			
 			if (data.image) {
-				path = [].concat(data.image.path);
-				path.push(data.image.id);
+				path = [];
+				if (data.image.image) {
+					if (data.image.image.path) {
+						path = [].concat(data.image.image.path);
+					}
+					path.push(data.image.image.id);
+				} else {
+					if (data.image.path) {
+						path = [].concat(data.image.path);
+					}
+					path.push(data.image.id);
+				}
 			}
 			
 			// Close image editing
