@@ -37166,6 +37166,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
 				var value = this.fontInput.get("value");
 				this.exec(value, "fontname");
+				this.htmleditor._changed();
 			}
 		},
 		
@@ -37178,6 +37179,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
 				var value = this.colorInput.get("value");
 				this.exec(value, this.colorType + "color");
+				this.htmleditor._changed();
 			}
 		},
 		
@@ -37190,6 +37192,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
 				var value = this.fontSizeInput.get("value");
 				this.exec(value, "fontsize");
+				this.htmleditor._changed();
 			}
 		},
 		
