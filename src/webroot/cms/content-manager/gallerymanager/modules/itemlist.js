@@ -411,7 +411,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			var images = this.get('host').data.images,
 				properties = this.get('host').image_properties,
 				property = null,
-				image_id = image_data ? image_data.id : Supra.Y.guid(),
+				image_id = Supra.Y.guid(),
 				image = this.normalizeItemData({
 					'image': image_data,
 					'id': image_id,
@@ -420,9 +420,9 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			
 			// Check if image doesn't exist in data already
 			if (image_data) {
-				for (var i=0, ii=images.length; i<ii; i++) {
+				/*for (var i=0, ii=images.length; i<ii; i++) {
 					if (images[i].id == image_data.id) return false;
-				}
+				}*/
 			} else {
 				image_data = {};
 			}
