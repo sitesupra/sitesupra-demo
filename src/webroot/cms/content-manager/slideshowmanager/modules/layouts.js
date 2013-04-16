@@ -151,6 +151,7 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 					case 'InlineMedia':
 						value = property.defaultValue || '';
 						model.property[id] = '<div class="supra-media" unselectable="on" contenteditable="false" data-supra-item-property="' + id + '"></div>';
+						model.property[id + 'Type'] = 'type-media';
 						break;
 				}
 			}

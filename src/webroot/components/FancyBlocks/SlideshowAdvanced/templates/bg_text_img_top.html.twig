@@ -9,8 +9,8 @@
 				{{ property.buttons|raw }}
 			</div>
 		</div>
-		<div class="as-layer as-layer-center as-layer-bottom">
-			{{ property.media }}
+		<div class="as-layer as-layer-center as-layer-bottom as-layer-{{ property.mediaType|raw }}">
+			{{ property.media|raw }}
 		</div>
 	</div>
 </li>
