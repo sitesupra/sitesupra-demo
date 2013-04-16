@@ -92,14 +92,8 @@ class LeftMenuBlock extends MenuBlock
 	 */
 	protected function getMenuData()
 	{
-		$localization = $this->getRequest()
-				->getPageLocalization();
+		$localization = $this->getCurrentFirstLevelLocalization();
 		
-		if ( ! $localization instanceof Entity\PageLocalization) {
-			$localization = $this->getRootLocalization();
-		}
-		
-		// this will happen when there will be no any page
 		if ( ! $localization instanceof Entity\PageLocalization) {
 			return array();
 		}
@@ -160,24 +154,69 @@ class LeftMenuBlock extends MenuBlock
 		);
 	}
 
+//	/**
+//	 * @return Localization
+//	 */
+//	protected function getRootLocalization()
+//	{
+//		$em = $this->getEntityManager();
+//
+////		$rootLocalization = null;
+////
+////		$rootLink = $this->getPropertyValue('rootLink');
+////
+////		if ( ! empty($rootLink)) {
+////			/* @var $rootPageLink LinkReferencedElement */
+////			$rootLocalization = $rootLink->getPage();
+////		} else {
+//
+//		$pageFinder = new PageFinder($em);
+//		$pageFinder->addLevelFilter(0, 0);
+//
+//		$localizationFinder = new LocalizationFinder($pageFinder);
+//
+//		$rootLocalizations = $localizationFinder->getResult();
+//
+//		if (count($rootLocalizations) > 1) {
+//			throw new \RuntimeException('More than one root localization found.');
+//		}
+//
+//		$rootLocalization = current($rootLocalizations);
+////		}
+//
+////		if (empty($rootLocalization)) {
+////			throw new \RuntimeException('Root localization not found.');
+////		}
+//
+//		return $rootLocalization;
+//	}
+	
 	/**
-	 * @return Localization
+	 * 
 	 */
-	protected function getRootLocalization()
+	protected function getCurrentFirstLevelLocalization()
 	{
+		$currentPage = $this->getPage();
+				
+		if ( ! $currentPage instanceof Entity\Page) {
+			return null;
+		}
+		
+		$currentLevel = $currentPage->getLevel();
+		
+		if ($currentLevel == 0) {
+			return null;
+		}
+	
+		if ($currentPage->getLevel() == 1) {
+			return $this->getRequest()
+					->getPageLocalization();
+		}
+		
 		$em = $this->getEntityManager();
 
-//		$rootLocalization = null;
-//
-//		$rootLink = $this->getPropertyValue('rootLink');
-//
-//		if ( ! empty($rootLink)) {
-//			/* @var $rootPageLink LinkReferencedElement */
-//			$rootLocalization = $rootLink->getPage();
-//		} else {
-
 		$pageFinder = new PageFinder($em);
-		$pageFinder->addLevelFilter(0, 0);
+		$pageFinder->addFilterByChild($currentPage, 1, 1);
 
 		$localizationFinder = new LocalizationFinder($pageFinder);
 
@@ -187,13 +226,6 @@ class LeftMenuBlock extends MenuBlock
 			throw new \RuntimeException('More than one root localization found.');
 		}
 
-		$rootLocalization = current($rootLocalizations);
-//		}
-
-//		if (empty($rootLocalization)) {
-//			throw new \RuntimeException('Root localization not found.');
-//		}
-
-		return $rootLocalization;
+		return current($rootLocalizations);
 	}
 }

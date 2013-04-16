@@ -6,10 +6,10 @@
     description: Sweet Left Menu Block
     cmsClassname: Editable
     properties:
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-         name: rootLink
-         editable: Supra\Editable\Link
-         label: Menu Root
+#      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+#         name: rootLink
+#         editable: Supra\Editable\Link
+#         label: Menu Root
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
          name: menuLabel
          editable: Supra\Editable\String
