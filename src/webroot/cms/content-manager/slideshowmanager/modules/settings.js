@@ -126,6 +126,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				if (properties[i].type == 'InlineMedia') {
 					properties[i].autoClose = false;
 					properties[i].separateSlide = false;
+					properties[i].allowZoomResize = true;
+					properties[i].allowCropZooming = true;
 				}
 				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);
@@ -282,6 +284,13 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 */
 		onSidebarDone: function () {
 			// Stop editing
+			var view = this.get('host').view,
+				input = view._activeInput;
+			
+			if (input && input.isInstanceOf('input-media-inline')) {
+				input.stopEditing();
+			}
+			
 			this.hideForm();
 			this.get('host').close();
 		},

@@ -94,6 +94,10 @@ YUI().add("supra.imageresizer", function (Y) {
 		// Resize crop region to smaller on image zoom change if needed
 		"allowZoomResize": {
 			value: false
+		},
+		// Change zoom on crop resize if needed
+		"allowCropZooming": {
+			value: false
 		}
 	};
 	
@@ -744,7 +748,8 @@ YUI().add("supra.imageresizer", function (Y) {
 				mode   = this.get("mode");
 			
 			if (this.resizeActive) {
-				var node = this.get("imageContainerNode"),
+				var image = this.get("image"),
+					node = this.get("imageContainerNode"),
 					minW = this.get("minCropWidth"),
 					maxW = this.get("maxCropWidth"),
 					minH = this.get("minCropHeight"),
@@ -752,7 +757,8 @@ YUI().add("supra.imageresizer", function (Y) {
 					cropTop = this.dragCropTop,
 					cropLeft = this.dragCropLeft,
 					imageHeight = this.imageHeight,
-					imageWidth = this.imageWidth;
+					imageWidth = this.imageWidth,
+					allowCropZooming = this.get('allowCropZooming');
 				
 				if (!node) return;
 				
@@ -760,6 +766,21 @@ YUI().add("supra.imageresizer", function (Y) {
 				if (maxW && sizeX > maxW) sizeX = maxW;
 				if (sizeY < minH) sizeY = minH;
 				if (maxH && sizeY > maxH) sizeY = maxH;
+				
+				if (allowCropZooming) {
+					var maxImageWidth = this.get('maxImageWidth'),
+						maxImageHeight = this.get('maxImageHeight'),
+						ratio = maxImageWidth / maxImageHeight;
+					
+					if (sizeX > imageWidth) {
+						sizeX = imageWidth = Math.min(sizeX, maxImageWidth);
+						imageHeight = Math.min(Math.round(sizeX / ratio));
+					}
+					if (sizeY > imageHeight) {
+						sizeY = imageHeight = Math.min(sizeY, maxImageHeight);
+						imageWidth = Math.min(Math.round(sizeY * ratio));
+					}
+				}
 				
 				if (sizeY > imageHeight - cropTop) {
 					cropTop = Math.max(0, imageHeight - sizeY);
@@ -781,6 +802,18 @@ YUI().add("supra.imageresizer", function (Y) {
 					
 					//Update label
 					this.set("sizeLabel", [sizeX, sizeY]);
+				}
+				
+				if (allowCropZooming && this.imageWidth != imageWidth && this.imageHeight != imageHeight) {
+					this.imageWidth = imageWidth;
+					this.imageHeight = imageHeight;
+					
+					image.setStyles({
+						"width": imageWidth + "px",
+						"height": imageHeight + "px"
+					});
+					image.setAttribute("width", imageWidth);
+					image.setAttribute("height", imageHeight);
 				}
 				
 				if (this.dragCropTop != cropTop || this.dragCropLeft != cropLeft) {
