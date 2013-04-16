@@ -12330,6 +12330,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		// Resize crop region to smaller on image zoom change if needed
 		"allowZoomResize": {
 			value: false
+		},
+		// Change zoom on crop resize if needed
+		"allowCropZooming": {
+			value: false
 		}
 	};
 	
@@ -12980,7 +12984,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				mode   = this.get("mode");
 			
 			if (this.resizeActive) {
-				var node = this.get("imageContainerNode"),
+				var image = this.get("image"),
+					node = this.get("imageContainerNode"),
 					minW = this.get("minCropWidth"),
 					maxW = this.get("maxCropWidth"),
 					minH = this.get("minCropHeight"),
@@ -12988,7 +12993,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					cropTop = this.dragCropTop,
 					cropLeft = this.dragCropLeft,
 					imageHeight = this.imageHeight,
-					imageWidth = this.imageWidth;
+					imageWidth = this.imageWidth,
+					allowCropZooming = this.get('allowCropZooming');
 				
 				if (!node) return;
 				
@@ -12996,6 +13002,21 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				if (maxW && sizeX > maxW) sizeX = maxW;
 				if (sizeY < minH) sizeY = minH;
 				if (maxH && sizeY > maxH) sizeY = maxH;
+				
+				if (allowCropZooming) {
+					var maxImageWidth = this.get('maxImageWidth'),
+						maxImageHeight = this.get('maxImageHeight'),
+						ratio = maxImageWidth / maxImageHeight;
+					
+					if (sizeX > imageWidth) {
+						sizeX = imageWidth = Math.min(sizeX, maxImageWidth);
+						imageHeight = Math.min(Math.round(sizeX / ratio));
+					}
+					if (sizeY > imageHeight) {
+						sizeY = imageHeight = Math.min(sizeY, maxImageHeight);
+						imageWidth = Math.min(Math.round(sizeY * ratio));
+					}
+				}
 				
 				if (sizeY > imageHeight - cropTop) {
 					cropTop = Math.max(0, imageHeight - sizeY);
@@ -13017,6 +13038,18 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					
 					//Update label
 					this.set("sizeLabel", [sizeX, sizeY]);
+				}
+				
+				if (allowCropZooming && this.imageWidth != imageWidth && this.imageHeight != imageHeight) {
+					this.imageWidth = imageWidth;
+					this.imageHeight = imageHeight;
+					
+					image.setStyles({
+						"width": imageWidth + "px",
+						"height": imageHeight + "px"
+					});
+					image.setAttribute("width", imageWidth);
+					image.setAttribute("height", imageHeight);
 				}
 				
 				if (this.dragCropTop != cropTop || this.dragCropLeft != cropLeft) {
@@ -33228,6 +33261,10 @@ YUI.add('supra.datatype-color', function(Y) {
 		"allowZoomResize": {
 			value: false
 		},
+		// Change zoom on crop resize if needed
+		"allowCropZooming": {
+			value: false
+		},
 		// Stop editing when clicked outside image
 		"autoClose": {
 			value: true
@@ -33304,6 +33341,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				imageResizer = this.widgets.imageResizer = new Supra.ImageResizer({
 					"mode": Supra.ImageResizer.MODE_IMAGE,
 					"allowZoomResize": this.get("allowZoomResize"),
+					"allowCropZooming": this.get("allowCropZooming"),
 					"autoClose": this.get("autoClose")
 				});
 				imageResizer.on("resize", function (event) {
@@ -34642,6 +34680,15 @@ YUI.add('supra.datatype-color', function(Y) {
 		// Max crop width is fixed to container width and container can't increase 
 		'fixedMaxCropWidth': {
 			value: true
+		},
+		
+		// Resize image crop to smaller size on zoom if needed
+		'allowZoomResize': {
+			value: false
+		},
+		// Change zoom on crop
+		'allowCropZooming': {
+			value: false
 		}
 	};
 	
@@ -34751,7 +34798,9 @@ YUI.add('supra.datatype-color', function(Y) {
 				'separateSlide': false,
 				'allowRemoveImage': false,
 				'autoClose': this.get('autoClose'),
-				'fixedMaxCropWidth': this.get('fixedMaxCropWidth')
+				'fixedMaxCropWidth': this.get('fixedMaxCropWidth'),
+				'allowZoomResize': this.get('allowZoomResize'),
+				'allowCropZooming': this.get('allowCropZooming')
 			});
 			
 			input_video = new Supra.Input.Video({
@@ -37545,7 +37594,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 					for (var i=0; i<ii; i++) {
 						if (face.toLowerCase().indexOf(fonts[i].search) !== -1) {
 							if (fonts[i].apis) {
-								used.push(face);
+								used.push(fonts[i].id);
 							}
 							return;
 						}
@@ -37577,27 +37626,16 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
 			if (!content) return;
 			
-			//Properties form
-			var fonts = this.fonts = Y.Array.map(this.getAllFonts(), function (item) {
-									return {
-										"id": item.family,
-										"title": item.title,
-										"family": item.family,
-										"apis": item.apis,
-										// used to search for matches
-										"search": item.family.replace(/,.*/, "").toLowerCase() 
-									};
-							 	});
-			
-			var form_config = {
-				"inputs": [{
-					"id": "font",
-					"type": "Fonts",
-					"label": "",
-					"values": fonts
-				}],
-				"style": "vertical"
-			};
+			var fonts = this.fonts,
+				form_config = {
+					"inputs": [{
+						"id": "font",
+						"type": "Fonts",
+						"label": "",
+						"values": fonts
+					}],
+					"style": "vertical"
+				};
 			
 			var form = new Supra.Form(form_config);
 				form.render(content);
@@ -37790,6 +37828,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			htmleditor.addCommand("forecolor", Y.bind(this.showTextColorSidebar, this));
 			htmleditor.addCommand("backcolor", Y.bind(this.showBackColorSidebar, this));
 			
+			// Collect all font info
+			var fonts = this.fonts = Y.Array.map(this.getAllFonts(), function (item) {
+				return {
+					"id": item.id || item.family,
+					"title": item.title,
+					"family": item.family,
+					"apis": item.apis,
+					// used to search for matches
+					"search": item.family.replace(/,.*/, "").replace(/(^\s*["']|["']\s*$)/g, '').toLowerCase() 
+				};
+		 	});
+		 	
 			// Show inputs / buttons
 			var inputs = ["fonts", "fontsize", "forecolor", "backcolor"],
 				i = 0,
