@@ -5115,8 +5115,8 @@ YUI.add('supra.base', function (Y) {
 					this.set('nodeLabel', p);
 				}
 				
-				//Buttons with group style doesn't have labels, use "title" attribute
-				if (this.get('style') == 'group' && this.get('icon')) {
+				//Buttons with group or toolbar style doesn't have labels, use "title" attribute
+				if ((this.get('style') == 'group' || this.get('style') == 'toolbar') && this.get('icon')) {
 					btn.setAttribute('title', this.get('label') || '');
 				}
 				
