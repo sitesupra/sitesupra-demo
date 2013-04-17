@@ -24020,10 +24020,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		decorateButton: function (definition, button) {
 			
 			button.after('render', function () {
-				console.log(definition, definition.backgroundColor);
 				if (definition.backgroundColor) {
 					var nodes = button.get('boundingBox').all('.su-button-bg div');
-					console.log(nodes.size());
 					nodes.setStyle('backgroundColor', definition.backgroundColor);
 				}
 			});
