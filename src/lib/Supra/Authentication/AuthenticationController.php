@@ -69,6 +69,11 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * @var boolean
 	 */
 	protected $skipRedirect = false;
+	
+	/**
+     *
+	 */
+	protected $signedInUser;
 
 	/**
 	 * Public URL list
@@ -248,6 +253,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 					$auditLog = ObjectRepository::getAuditLogger($this);
 					$auditLog->info($this, "User '{$user->getEmail()}' logged in", $user);
 
+					// @TODO: move below the password validation?
 					$eventManager->fire(Event\EventArgs::onAuthenticationSuccess, $eventArgs);
 					
 					$passwordPolicy = $userProvider->getPasswordPolicy();
@@ -261,7 +267,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 						$this->response->output('1');
 					} else {
 						if ( ! $this->skipRedirect) {
-							$successUri = $this->getSuccessRedirectUrl();
+							$successUri = $this->getSuccessRedirectUrl($user);
 							$this->response->redirect($successUri);
 						} else {
 							return;
@@ -411,7 +417,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 			
 			// Redirect from login form if the session is active
 			if ($path->equals($loginPath) || $path->startsWith($passwordChangePath)) {
-				$redirect = $this->getSuccessRedirectUrl();
+				$redirect = $this->getSuccessRedirectUrl($user);
 				$this->response->redirect($redirect);
 
 				throw new StopRequestException("Session is already active");
@@ -468,7 +474,7 @@ abstract class AuthenticationController extends ControllerAbstraction implements
 	 * Returns redirect url or cms path
 	 * @return string
 	 */
-	protected function getSuccessRedirectUrl()
+	protected function getSuccessRedirectUrl($user)
 	{
 		$redirectTo = $this->getRequest()->getQueryValue('redirect_to');
 
