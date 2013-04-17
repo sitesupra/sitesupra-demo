@@ -282,10 +282,15 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		onSidebarDone: function () {
 			// Stop editing
 			var view = this.get('host').view,
-				input = view._activeInput;
+				inputs = this.widgets.form.getInputs(),
+				key = null,
+				input = null;
 			
-			if (input && input.isInstanceOf('input-media-inline')) {
-				input.stopEditing();
+			for (key in inputs) {
+				input = inputs[key];
+				if (input.get('focused') && input.isInstanceOf('input-media-inline') || input.isInstanceOf('block-background')) {
+					input.stopEditing();
+				}
 			}
 			
 			this.hideForm();

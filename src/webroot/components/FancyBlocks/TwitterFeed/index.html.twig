@@ -1,0 +1,26 @@
+<div class="block">
+
+	{% set heading_class = 'no-heading' %}
+	{% if supra.cmsRequest or not supraBlock.isEmpty('block_title') %}
+	<h2 class="block-title {% if supraBlock.isEmpty('block_title') %}hidden{% endif %}"><div>
+		{{ supraBlock.property('block_title') }}
+		{% set heading_class = 'has-heading' %}
+	</div></h2>
+	{% endif %}
+	
+	<div class="twitter-feed {{ heading_class }}" data-refresh-event="twitterFeed" data-account="{{ supraBlock.property('account') }}" data-limit="{{ supraBlock.property('limit')|default('5') }}">
+		
+		<ul class="twitter-feed-list">
+			
+		</ul>
+		
+	</div>
+	
+	{% if not supra.cmsRequest and supraBlock.property('account') and supraBlock.property('follow') %}
+		<div class="twitter-follow">
+			<a href="https://twitter.com/{{ supraBlock.property('account') }}" class="twitter-follow-button" data-show-count="false">Follow {{ supraBlock.property('account') }}</a>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+		</div>
+	{% endif %}
+
+</div>
