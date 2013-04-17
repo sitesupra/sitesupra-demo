@@ -44,6 +44,7 @@
           additionalParameters:
             allowVideo: false
             fixedMaxCropWidth: false
+            allowCropZooming: true
             autoClose: false
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: text
