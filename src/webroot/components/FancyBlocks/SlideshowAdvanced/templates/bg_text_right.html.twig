@@ -2,7 +2,8 @@
 	{% if property.background %}
 		<img class="as-layer absolute as-background" src="{{ property.background }}" />
 	{% endif %}
-	<div class="as-wrapper" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %} data-supra-item-height="true">
+	<div class="as-wrapper clearfix" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %} data-supra-item-height="true">
+		<div class="as-layer as-layer-left-large as-layer-type-empty">&nbsp;</div>
 		<div class="as-center" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %} data-supra-item-height="true"></div>
 		<div class="as-layer as-layer-right-small">
 			{{ property.text_main|raw }}
@@ -10,6 +11,5 @@
 				{{ property.buttons|raw }}
 			</div>
 		</div>
-		<div class="as-layer as-layer-left-large">&nbsp;</div>
 	</div>
 </li>

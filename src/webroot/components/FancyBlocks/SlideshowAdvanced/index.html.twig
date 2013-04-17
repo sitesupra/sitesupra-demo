@@ -12,6 +12,7 @@
 					{% for slide in slides %}
 						{% set property = {
 							'hidden': loop.index,
+							'mediaType': slideshow.mediaType(slide['media']),
 							'media': slideshow.media(slide['media']), 
 							'text_main': slide['text_main'],
 							'text_top': slide['text_top'],
@@ -31,6 +32,16 @@
 	</div>
 </div>
 {% endif %}
+
+{% macro mediaType(mediaData) %}
+{% spaceless %}
+	{% if mediaData.type == 'image' %}
+		type-image
+	{% elseif mediaData.type == 'video' %}
+		type-video
+	{% endif %}
+{% endspaceless %}
+{% endmacro %}
 
 {% macro media(mediaData) %}
 {% spaceless %}

@@ -323,7 +323,16 @@ YUI.add('supra.input-select-visual', function (Y) {
 		 * @param {Object} button Button
 		 * @private
 		 */
-		decorateButton: function (definition, button) {},
+		decorateButton: function (definition, button) {
+			
+			button.after('render', function () {
+				if (definition.backgroundColor) {
+					var nodes = button.get('boundingBox').all('.su-button-bg div');
+					nodes.setStyle('backgroundColor', definition.backgroundColor);
+				}
+			});
+			
+		},
 		
 		
 		/*
