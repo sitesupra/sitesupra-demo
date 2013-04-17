@@ -1,8 +1,13 @@
 <?php
+
 namespace Supra\Editable;
 
+/**
+ * 
+ */
 class SelectList extends Select
 {
+	
 	const EDITOR_TYPE = 'SelectList';
 	
 	/**
@@ -20,27 +25,34 @@ class SelectList extends Select
      */
     protected $multiple = false;
 
-
 	/**
-	 *
+	 * @return array
 	 */
 	public function getAdditionalParameters()
 	{
 		return array(
 			'values' => $this->values,
-			'iconStyle' => $this->iconStyle, 
 			'style' => $this->style,
+			'iconStyle' => $this->iconStyle, 
 			'multiple' => $this->multiple,
 		);
 	}
 
 	/**
 	 * Set Select visual box values
-	 * @example $values = array(array('id' => 'id','title' => 'value','icon' => 'icon'));
 	 * @param array $values 
 	 */
 	public function setValues($values)
 	{
+		/* 
+		array(
+			array(
+				'id' => '#id',
+				'title' => 'Title',
+				'icon' => 'Icon',
+			),
+		);	
+		*/		
 		$this->values = $values;
 	}
 

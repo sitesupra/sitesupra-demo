@@ -102,4 +102,65 @@ class PropertySet extends EditableAbstraction
     {
         $this->separateSlide = (bool)$separateSlide;
     }
+	
+	/**
+	 * @return string
+	 */
+	public function getContent()
+	{
+		return $this->content;
+	}
+	
+	/**
+	 * This value is coming from BlockProperty
+	 * @param mixed $content
+	 */
+	public function setContent($content)
+	{
+		$value = null;
+		
+		if ( ! empty($content)) {
+			$value = unserialize($content);
+			if ($value === false) {
+				$value = null;
+			}
+		}
+		
+		$this->content = $value;
+	}
+	
+	/**
+	 * Return serialized value to store as BlockPropertyValue
+	 * @return string
+	 */
+	public function getStorableContent() 
+	{
+		if ( ! empty($this->content)) {
+			return serialize($this->content);
+		}
+				
+		return null;
+	}
+	
+	/**
+	 * Expecting something like array
+	 * @param mixed $content
+	 */
+	public function setContentFromEdit($content)
+	{
+		if (empty($content)) {
+			$this->content = null;
+		}
+		
+		$this->content = $content;
+	}
+	
+	/**
+	 * Return as is
+	 * @return array
+	 */
+	public function getContentForEdit()
+	{
+		return $this->content;
+	}
 }

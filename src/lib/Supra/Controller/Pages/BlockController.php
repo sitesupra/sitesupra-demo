@@ -405,12 +405,12 @@ abstract class BlockController extends ControllerAbstraction
 			$editable->addFilter($filter);
 		}
 		
-		else if ($editable instanceof Editable\InlineMap) {
-			$filter = new Filter\InlineMapFilter();
-			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
+//		else if ($editable instanceof Editable\InlineMap) {
+//			$filter = new Filter\InlineMapFilter();
+//			ObjectRepository::setCallerParent($filter, $this);
+//			$filter->property = $property;
+//			$editable->addFilter($filter);
+//		}
 		
 		else if ($editable instanceof Editable\Slideshow) {
 			$filter = new Filter\SlideshowFilter();

@@ -8,10 +8,10 @@
 	</div></h2>
 	{% endif %}
 	
-	{% set error   = supraBlock.property('error') %}
+	{% set error = supraBlock.property('error') %}
 	<form class="form {{ heading_class }}" method="post" data-refresh-event="form" data-error-message="{{ error|escape('html_attr') }}">
 		
-		{% if confirmation %}
+		{% if confirmation is defined and confirmation %}
 			
 			{# CONFIRMATION MESSAGE #}
 			<div class="text promo_3 confirmation"><p>
@@ -20,12 +20,11 @@
 			
 		{% else %}
 			{# FORM #}
-			{% set fields  = supraBlock.property('fields') %}
 			{% set submit  = supraBlock.property('submit') %}
 			{% set captcha = supraBlock.property('captcha') %}
 			
 			{# Unique ID to differentiate multiple forms #}
-			<input type="hidden" id="{{ supraBlock.getBlock().getId() }}" />
+			<input type="hidden" name="{{ supraBlock.getBlock().getId() }}" />
 			
 			<div class="form-content">
 				{% for field in fields %}
@@ -38,7 +37,7 @@
 								<sup class="required">*</sup>
 							{% endif %}
 						</label>
-						<input type="text" class="input-text" value="" placeholder="{{ field.title|escape('html_attr') }}" name="{{ field.title|escape('html_attr') }}" id="field_{{ loop.index }}" {% if field.required %}required{% endif %} />
+						<input type="text" class="input-text" value="" placeholder="{{ field.title|escape('html_attr')|raw }}" name="{{ field.hash }}" id="field_{{ loop.index }}" {% if field.required %}required{% endif %} />
 					{% elseif field.type == 'textarea' %}
 						<label for="field_{{ loop.index }}">
 							{{ field.title|e }}
@@ -46,19 +45,25 @@
 								<sup class="required">*</sup>
 							{% endif %}
 						</label>
-						<textarea class="input-text" placeholder="{{ field.title|escape('html_attr') }}" name="{{ field.title|escape('html_attr') }}" id="field_{{ loop.index }}" {% if field.required %}required{% endif %}></textarea>
+						<textarea class="input-text" placeholder="{{ field.title|escape('html_attr')|raw }}" name="{{ field.hash }}" id="field_{{ loop.index }}" {% if field.required %}required{% endif %}></textarea>
 					{% endif %}
 					</div>
 					
 				{% endfor %}
 			</div>
-			
+{#			
 			{% if captcha or supra.cmsRequest %}
 				<div class="row {% if not captcha %}hidden{% endif %}">
-					<span class="input-captcha">@TODO Implement captcha</span>
+					<span class="input-captcha">
+						<label for="field_captcha">
+							Captcha<sup class="required">*</sup>
+						</label>
+						<input type="text" class="input-text" value="" placeholder="Captcha code" name="captcha" id="field_captcha" required />
+						<img src="?block_id={{ supraBlock.block.id }}&captcha">
+					</span>
 				</div>
 			{% endif %}
-			 
+#}			 
 			{% if submit or supra.cmsRequest %}
 				<div class="row form-footer {% if not submit %}hidden{% endif %}">
 					<button type="submit" class="button-2">{{ submit }}</button>
