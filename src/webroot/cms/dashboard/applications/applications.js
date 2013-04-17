@@ -157,7 +157,7 @@ Supra([
 		initialize: function () {
 			
 			// If stats module is loaded
-			if (Supra.DashboardStats) {
+			if (Supra.DashboardStats && Supra.DashboardInbox) {
 				this.widgets.inbox = new Supra.DashboardInbox({
 					"requestUri": this.getDataPath("../inbox/inbox")
 				});

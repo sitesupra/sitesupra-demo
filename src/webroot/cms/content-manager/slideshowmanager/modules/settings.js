@@ -126,6 +126,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				if (properties[i].type == 'InlineMedia') {
 					properties[i].autoClose = false;
 					properties[i].separateSlide = false;
+					properties[i].allowZoomResize = true;
+					properties[i].allowCropZooming = true;
 				}
 				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);
@@ -197,15 +199,12 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			for (; i<ii; i++) {
 				input = form.getInput(properties[i].id);
 				input.after('valueChange', this._firePropertyChangeEvent, this, properties[i].id, input);
+				
+				if (properties[i].type == 'InlineMedia') {
+					input.after('valueChange', this._updateMediaTypeClassName, this, properties[i].id);
+					input.after('render',      this._updateMediaTypeClassName, this, properties[i].id);
+				}
 			}
-			
-			/*
-			//Manage button
-			var btn = this.widgets.manageButton = new Supra.Button({'label': Supra.Intl.get(['gallerymanager', 'manage']), 'style': 'small'});
-				btn.render(form.get('contentBox'));
-				btn.addClass('su-button-fill');
-				btn.on('click', this.openMediaLibraryForReplace, this);
-			*/
 			
 			//Delete button
 			var button = this.widgets.deleteButton = new Supra.Button({'label': Supra.Intl.get(['slideshowmanager', 'delete_slide']), 'style': 'small-red'});
@@ -282,6 +281,13 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		 */
 		onSidebarDone: function () {
 			// Stop editing
+			var view = this.get('host').view,
+				input = view._activeInput;
+			
+			if (input && input.isInstanceOf('input-media-inline')) {
+				input.stopEditing();
+			}
+			
 			this.hideForm();
 			this.get('host').close();
 		},
@@ -377,6 +383,42 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				}
 				
 				data.changeSlide(id, save);
+			}
+		},
+		
+		/**
+		 * Update media input classnames
+		 * 
+		 * @TODO FIXME this is very dirty solution
+		 * @param {String} name Property name
+		 * @private
+		 */
+		_updateMediaTypeClassName: function (event, name) {
+			if (!this.widgets.form) return;
+			
+			var input = this.widgets.form.getInput(name),
+				value = input.get('value'),
+				
+				type = (value && value.type) || 'media',
+				node = input.get('targetNode'),
+				classname_old = '',
+				classname_new = '';
+			
+			if (node) {
+				node = node.closest('*[class*="type-media"], *[class*="type-image"], *[class*="type-video"]');
+				
+				if (node) {
+					classname_old = node.getDOMNode().className.match(/[^\s]*type-(image|media|video)[^\s]*/i)[0];
+					
+					if (classname_old) {
+						classname_new = classname_old
+											.replace('type-image', 'type-' + type)
+											.replace('type-video', 'type-' + type)
+											.replace('type-media', 'type-' + type);
+						
+						node.removeClass(classname_old).addClass(classname_new);
+					}
+				}
 			}
 		},
 		

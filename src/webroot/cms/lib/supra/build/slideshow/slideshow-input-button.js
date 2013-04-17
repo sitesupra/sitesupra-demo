@@ -35,6 +35,13 @@ YUI.add("supra.slideshow-input-button", function (Y) {
 		 */
 		'slideId': {
 			'value': null
+		},
+		
+		/**
+		 * Icon
+		 */
+		'icon': {
+			'value': null
 		}
 	};
 	
@@ -47,6 +54,8 @@ YUI.add("supra.slideshow-input-button", function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
+			var icon = this.get('icon');
+			
 			this.get('boundingBox')
 					.addClass('input-group')
 					.addClass('input-group-button')
@@ -54,7 +63,8 @@ YUI.add("supra.slideshow-input-button", function (Y) {
 			
 			var button = new Supra.Button({
 				'label': this.get('label'),
-				'style': 'small-gray'
+				'style': icon ? 'icon' : 'small-gray',
+				'icon': icon
 			});
 			button.render(this.get('boundingBox'));
 			this.set('button', button);

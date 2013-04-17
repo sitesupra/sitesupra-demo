@@ -43,6 +43,7 @@ class SlideshowAdvancedBlock extends BlockController
 					'text_main' => null,
 					'text_top' => null,
 					'media' => null,
+					'mediaType' => null,
 					'image' => null,
 					'background' => null,
 					'layout' => null,
@@ -54,6 +55,7 @@ class SlideshowAdvancedBlock extends BlockController
 					'text_main' => $this->filterHtml($slide['text_main']),
 					'text_top' => $this->filterHtml($slide['text_top']),
 					'media' => $this->filterMedia($slide['media']),
+					'mediaType' => $this->getMediaType($slide['media']),
 					'image' => $slide['image'],
 					'background' => $this->filterBackground($slide['background']),
 					'layout' => $slide['layout'],
@@ -173,6 +175,15 @@ class SlideshowAdvancedBlock extends BlockController
 		
 		return $mediaData;
 	}
+	
+	private function getMediaType($mediaData)
+    {
+        if (isset($mediaData['type'])) {
+            return 'type-' . $mediaData['type'];
+        }
+        
+        return null;
+    }
 	
 	/**
 	 * @TODO: performance?

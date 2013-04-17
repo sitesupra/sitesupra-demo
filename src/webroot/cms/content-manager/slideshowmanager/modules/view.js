@@ -338,21 +338,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 				}
 			}
 			
+			this._stopEditingLoop = false;
 			this._activeInput = null;
 			this._activePropertyId = null;
-			
-			// Stop editing
-			// No need for this anymore?
-			/*
-			if (this.get('host').settings.widgets.form) {
-				var inputs = this.get('host').settings.widgets.form.getInputs(),
-					key = null;
-				
-				for (key in inputs) {
-					inputs[key].stopEditing();
-				}
-			}
-			*/
 		},
 		
 		/**

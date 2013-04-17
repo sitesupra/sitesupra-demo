@@ -475,12 +475,13 @@
 			"empty": "You have no items<br />in the list yet",
 			"drag_and_drop": "Drag and drop<br />folder or files here",
 			"add_item": "Add item",
-			"just_drag_and_drop": "or just drag-and-drop<br />file here",
+			"just_drag_and_drop": "or just drag-and-drop file here",
 			
 			"settings_title": "Item properties",
 			"label": "Items",
 			"label_button": "Manage items",
 			
+			"error_duplicate_image": "At this moment you can't use the same image twice for this block. Please select another image.",
 			"error_template": "Error occured in {block} block"
 		},
 		
@@ -520,6 +521,10 @@
 			"slideshow_order": {
 				"title": "Tip",
 				"description": "Re-order the slides by dragging and dropping icons"
+			},
+			"Project_FancyBlocks_GoogleMap_GoogleMapBlock": {
+				"title": "Tip",
+				"description": "To re-locate the marker drag and drop it to desired location"
 			}
 		}
 	}

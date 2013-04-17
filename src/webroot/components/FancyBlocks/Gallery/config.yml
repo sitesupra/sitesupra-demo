@@ -45,3 +45,6 @@
             - id: slideshow
               title: Slideshow
               icon: icons/style-slideshow.png
+          additionalParameters:
+            style: mid
+            iconStyle: center

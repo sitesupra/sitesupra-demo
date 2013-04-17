@@ -13,6 +13,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
+use Supra\Controller\Pages\Entity;
 
 /**
  * LeftMenuBlock
@@ -91,9 +92,13 @@ class LeftMenuBlock extends MenuBlock
 	 */
 	protected function getMenuData()
 	{
-		$rootLocalization = $this->getRootLocalization();
-
-		$menuData = $this->getMenuLevelData($rootLocalization);
+		$localization = $this->getCurrentFirstLevelLocalization();
+		
+		if ( ! $localization instanceof Entity\PageLocalization) {
+			return array();
+		}
+	
+		$menuData = $this->getMenuLevelData($localization);
 
 		return $menuData;
 	}
@@ -149,49 +154,78 @@ class LeftMenuBlock extends MenuBlock
 		);
 	}
 
+//	/**
+//	 * @return Localization
+//	 */
+//	protected function getRootLocalization()
+//	{
+//		$em = $this->getEntityManager();
+//
+////		$rootLocalization = null;
+////
+////		$rootLink = $this->getPropertyValue('rootLink');
+////
+////		if ( ! empty($rootLink)) {
+////			/* @var $rootPageLink LinkReferencedElement */
+////			$rootLocalization = $rootLink->getPage();
+////		} else {
+//
+//		$pageFinder = new PageFinder($em);
+//		$pageFinder->addLevelFilter(0, 0);
+//
+//		$localizationFinder = new LocalizationFinder($pageFinder);
+//
+//		$rootLocalizations = $localizationFinder->getResult();
+//
+//		if (count($rootLocalizations) > 1) {
+//			throw new \RuntimeException('More than one root localization found.');
+//		}
+//
+//		$rootLocalization = current($rootLocalizations);
+////		}
+//
+////		if (empty($rootLocalization)) {
+////			throw new \RuntimeException('Root localization not found.');
+////		}
+//
+//		return $rootLocalization;
+//	}
+	
 	/**
-	 * @return Localization
+	 * 
 	 */
-	protected function getRootLocalization()
+	protected function getCurrentFirstLevelLocalization()
 	{
+		$currentPage = $this->getPage();
+				
+		if ( ! $currentPage instanceof Entity\Page) {
+			return null;
+		}
+		
+		$currentLevel = $currentPage->getLevel();
+		
+		if ($currentLevel == 0) {
+			return null;
+		}
+	
+		if ($currentPage->getLevel() == 1) {
+			return $this->getRequest()
+					->getPageLocalization();
+		}
+		
 		$em = $this->getEntityManager();
 
-		$rootLocalization = null;
+		$pageFinder = new PageFinder($em);
+		$pageFinder->addFilterByChild($currentPage, 1, 1);
 
-		$rootLink = $this->getPropertyValue('rootLink');
+		$localizationFinder = new LocalizationFinder($pageFinder);
 
-		if ( ! empty($rootLink)) {
-			/* @var $rootPageLink LinkReferencedElement */
-			$rootLocalization = $rootLink->getPage();
-		} else {
+		$rootLocalizations = $localizationFinder->getResult();
 
-			$pageFinder = new PageFinder($em);
-			$pageFinder->addLevelFilter(0, 0);
-
-			$localizationFinder = new LocalizationFinder($pageFinder);
-
-			$rootLocalizations = $localizationFinder->getResult();
-
-			if (count($rootLocalizations) > 1) {
-				throw new \RuntimeException('More than one root localization found.');
-			}
-
-			$rootLocalization = current($rootLocalizations);
+		if (count($rootLocalizations) > 1) {
+			throw new \RuntimeException('More than one root localization found.');
 		}
 
-		if (empty($rootLocalization)) {
-			throw new \RuntimeException('Root localization not found.');
-		}
-
-		return $rootLocalization;
+		return current($rootLocalizations);
 	}
-
-	/**
-	 * @return type 
-	 */
-	public static function getPropertyDefinition()
-	{
-		return array();
-	}
-
 }

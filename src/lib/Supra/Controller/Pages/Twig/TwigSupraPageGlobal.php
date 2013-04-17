@@ -160,6 +160,9 @@ class TwigSupraPageGlobal extends TwigSupraGlobal
 
 		if (is_null($this->currentThemeParameterValues)) {
 			$this->currentThemeParameterValues = $this->theme->getCurrentParameterSetOutputValues();
+			
+			// @FIXME
+			$this->currentThemeParameterValues['object'] = $this->theme;
 		}
 
 		return $this->currentThemeParameterValues;

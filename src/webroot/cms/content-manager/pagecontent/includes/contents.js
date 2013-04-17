@@ -705,7 +705,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 	
 }, YUI.version, {requires: (function () {
 	var blocks = Supra.Manager.getAction('PageContent').BLOCK_PROTOTYPES,
-		list = ['widget', 'supra.page-content-ordering'];
+		list = ['widget', 'supra.help', 'supra.page-content-ordering'];
 	
 	for(var i=0,ii=blocks.length; i<ii; i++) {
 		list.push('supra.page-content-' + blocks[i].toLowerCase());

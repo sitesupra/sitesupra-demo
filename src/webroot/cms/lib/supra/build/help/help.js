@@ -69,6 +69,16 @@ YUI().add('supra.help', function (Y) {
 		},
 		
 		/**
+		 * Returns true if tip title and description for given id exists
+		 * 
+		 * @param {String} id Tip id
+		 * @returns {Boolean} True if such tip exists
+		 */
+		tipExists: function (id) {
+			return !!Supra.Intl.get(['helpnotes', id]);
+		},
+		
+		/**
 		 * Handle tip close event
 		 * 
 		 * @param {Object} event Event facade object

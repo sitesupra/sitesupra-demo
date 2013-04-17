@@ -411,7 +411,7 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			var images = this.get('host').data.images,
 				properties = this.get('host').image_properties,
 				property = null,
-				image_id = image_data ? image_data.id : Supra.Y.guid(),
+				image_id = Supra.Y.guid(),
 				image = this.normalizeItemData({
 					'image': image_data,
 					'id': image_id,
@@ -421,7 +421,16 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 			// Check if image doesn't exist in data already
 			if (image_data) {
 				for (var i=0, ii=images.length; i<ii; i++) {
-					if (images[i].id == image_data.id) return false;
+					if (images[i].id == image_data.id) {
+						// Such image is already in the list, show error
+						Supra.Manager.executeAction('Confirmation', {
+							'message': Supra.Intl.get(['gallerymanager', 'error_duplicate_image']),
+							'buttons': [
+								{'id': 'error', 'label': 'Ok'},
+							]
+						});
+						return false;
+					}
 				}
 			} else {
 				image_data = {};
@@ -727,9 +736,13 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		},
 		
 		replaceItem: function (id, image) {
+			//Don't replace if user choose same image
+			if (id == image.id) return false;
+			
 			//Image image with which user is trying to replace already
 			//exists in the list, then skip
-			if (!this.addItem(image)) return false;
+			image = this.addItem(image);
+			if (!image) return false;
 			
 			var old_data = this.getDataById(id),
 				new_data = this.getDataById(image.id),

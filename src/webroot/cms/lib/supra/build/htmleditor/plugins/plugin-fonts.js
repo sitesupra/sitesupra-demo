@@ -432,7 +432,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 					for (var i=0; i<ii; i++) {
 						if (face.toLowerCase().indexOf(fonts[i].search) !== -1) {
 							if (fonts[i].apis) {
-								used.push(face);
+								used.push(fonts[i].id);
 							}
 							return;
 						}
@@ -464,27 +464,16 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
 			if (!content) return;
 			
-			//Properties form
-			var fonts = this.fonts = Y.Array.map(this.getAllFonts(), function (item) {
-									return {
-										"id": item.family,
-										"title": item.title,
-										"family": item.family,
-										"apis": item.apis,
-										// used to search for matches
-										"search": item.family.replace(/,.*/, "").toLowerCase() 
-									};
-							 	});
-			
-			var form_config = {
-				"inputs": [{
-					"id": "font",
-					"type": "Fonts",
-					"label": "",
-					"values": fonts
-				}],
-				"style": "vertical"
-			};
+			var fonts = this.fonts,
+				form_config = {
+					"inputs": [{
+						"id": "font",
+						"type": "Fonts",
+						"label": "",
+						"values": fonts
+					}],
+					"style": "vertical"
+				};
 			
 			var form = new Supra.Form(form_config);
 				form.render(content);
@@ -677,6 +666,18 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			htmleditor.addCommand("forecolor", Y.bind(this.showTextColorSidebar, this));
 			htmleditor.addCommand("backcolor", Y.bind(this.showBackColorSidebar, this));
 			
+			// Collect all font info
+			var fonts = this.fonts = Y.Array.map(this.getAllFonts(), function (item) {
+				return {
+					"id": item.id || item.family,
+					"title": item.title,
+					"family": item.family,
+					"apis": item.apis,
+					// used to search for matches
+					"search": item.family.replace(/,.*/, "").replace(/(^\s*["']|["']\s*$)/g, '').toLowerCase() 
+				};
+		 	});
+		 	
 			// Show inputs / buttons
 			var inputs = ["fonts", "fontsize", "forecolor", "backcolor"],
 				i = 0,

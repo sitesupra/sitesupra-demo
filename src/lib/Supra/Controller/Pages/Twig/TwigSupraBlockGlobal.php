@@ -113,7 +113,7 @@ class TwigSupraBlockGlobal
 		$qb = $em->createQueryBuilder()
 				->select('s')
 				->from(ImageSize::CN(), 's')
-				->andWhere('s.master IN (?0) AND s.targetWidth = ?1 AND s.targetHeight = ?2 AND s.cropMode = ?3')
+				->andWhere('s.master IN (?0) AND s.width = ?1 AND s.height = ?2 AND s.cropMode = ?3')
 				->setParameters(array($imageIds, $width, $height, $cropped));
 		
 		if ( ! is_null($fromSize)) {
@@ -121,9 +121,9 @@ class TwigSupraBlockGlobal
 					->setParameter(4, $fromSize);
 		}
 		
-		$sizes = $qb->getQuery()->getResult();
+		$result = $qb->getQuery()->getResult();
 		
-		foreach ($sizes as $key => $size) {
+		foreach ($result as $size) {
 			$sizes[$size->getMaster()->getId()] = $size;
 		}
 		

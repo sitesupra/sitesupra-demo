@@ -81,6 +81,15 @@ YUI.add('supra.input-media-inline', function (Y) {
 		// Max crop width is fixed to container width and container can't increase 
 		'fixedMaxCropWidth': {
 			value: true
+		},
+		
+		// Resize image crop to smaller size on zoom if needed
+		'allowZoomResize': {
+			value: false
+		},
+		// Change zoom on crop
+		'allowCropZooming': {
+			value: false
 		}
 	};
 	
@@ -190,7 +199,9 @@ YUI.add('supra.input-media-inline', function (Y) {
 				'separateSlide': false,
 				'allowRemoveImage': false,
 				'autoClose': this.get('autoClose'),
-				'fixedMaxCropWidth': this.get('fixedMaxCropWidth')
+				'fixedMaxCropWidth': this.get('fixedMaxCropWidth'),
+				'allowZoomResize': this.get('allowZoomResize'),
+				'allowCropZooming': this.get('allowCropZooming')
 			});
 			
 			input_video = new Supra.Input.Video({
