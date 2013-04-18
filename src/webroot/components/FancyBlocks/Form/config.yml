@@ -90,4 +90,6 @@
       Configuration\BlockControllerCacheConfiguration:
         enabled: true
         enabledByContext: __FormBlockCache
+        groups:
+          - Supra\Controller\Pages
           
