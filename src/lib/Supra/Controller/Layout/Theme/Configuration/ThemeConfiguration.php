@@ -52,6 +52,11 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	 * @var string
 	 */
 	public $urlBase;
+	
+	/**
+	 * @var string
+	 */
+	public $previewUrl;
 
 	/**
 	 * @var array
