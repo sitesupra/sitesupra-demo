@@ -5,10 +5,13 @@
 <div class="block">
 	
 	{% set heading_class = 'no-heading' %}
-	{% if supra.cmsRequest or not supraBlock.isEmpty('block_title') %}
-	<h2 class="block-title {% if supraBlock.isEmpty('block_title') %}hidden{% endif %}"><div>
+	{% set title_empty = supraBlock.isEmpty('block_title') %}
+	{% if supra.cmsRequest or not title_empty %}
+	<h2 class="block-title {% if title_empty %}hidden{% endif %}"><div>
 		{{ supraBlock.property('block_title') }}
-		{% set heading_class = 'has-heading' %}
+		{% if not title_empty %}
+			{% set heading_class = 'has-heading' %}
+		{% endif %}
 	</div></h2>
 	{% endif %}
 	
