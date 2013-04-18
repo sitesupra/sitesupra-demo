@@ -383,6 +383,14 @@ class DefaultThemeProvider extends ThemeProviderAbstraction
 	}
 	
 	/**
+	 * @param boolean $active
+	 */
+	public function setThemePreviewActive($active)
+	{
+		$this->isThemePreviewActive = $active;
+	}
+	
+	/**
 	 * @return boolean
 	 */
 	public function isThemePreviewActive()
