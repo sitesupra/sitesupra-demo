@@ -255,7 +255,8 @@ class BlockProperty extends Entity implements AuditedEntityInterface, OwnedEntit
 	public function setValue($value)
 	{
 		$this->editable->setContent($value);
-		$this->value = $this->editable->getContent();
+//		$this->value = $this->editable->getContent();
+		$this->value = $this->editable->getStorableContent();
 	}
 	
 	/**

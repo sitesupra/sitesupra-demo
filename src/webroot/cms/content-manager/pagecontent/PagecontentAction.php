@@ -604,13 +604,20 @@ class PagecontentAction extends PageManagerAction
 					}
 				} else if ($editable instanceof Editable\InlineMap) {
 					if ($input->hasChild($propertyName)) {
+
+						$mapData = $input->getChild($propertyName)
+								->getArrayCopy();
 						
-						$mapInput = $input->getChild($propertyName);
+						$editable->setContentFromEdit($mapData);
+						$value = $editable->getContent();
 						
-						$latitude = (float)$mapInput->get('latitude');
-						$longitude = (float)$mapInput->get('longitude');
-						
-						$value = "{$latitude}|{$longitude}";
+//						$map = $input->getChild($propertyName);
+//						
+//						$latitude = (float)$mapInput->get('latitude');
+//						$longitude = (float)$mapInput->get('longitude');
+//						$longitude = (float)$mapInput->get('zoom');
+//						
+//						$value = "{$latitude}|{$longitude}|{$zoom}";
 					}
 				} else if ($editable instanceof Editable\InlineMedia) {
 					
@@ -624,6 +631,34 @@ class PagecontentAction extends PageManagerAction
 						if ( ! empty($metaElement)) {
 							$referencedElementsData[0] = $metaElement->toArray();
 						}
+					}
+				} else if ($editable instanceof Editable\PropertySet) {
+					
+					if ($input->hasChild($propertyName)) {
+						
+						$data = $input->getChild($propertyName)
+								->getArrayCopy();
+						
+						$storableData = array();
+						
+						foreach ($data as $offset => $setItemData) {
+							foreach ($configuration->properties as $propertyConfiguration) {
+
+								$setPropertyName = $propertyConfiguration->name;
+								$setPropertyEditable = $propertyConfiguration->editableInstance;
+
+								$setPropertyValue = $setPropertyEditable->getDefaultValue();
+								if (isset($setItemData[$setPropertyName])) {
+									$setPropertyValue = $setItemData[$setPropertyName];
+								}
+
+								$setPropertyEditable->setContentFromEdit($setPropertyValue);
+								$storableData[$offset][$setPropertyName] = $setPropertyEditable->getStorableContent();
+							}
+						}
+
+						$editable->setContentFromEdit($storableData);
+						$value = $editable->getStorableContent();
 					}
 				}
 				else {

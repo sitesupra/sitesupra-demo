@@ -3,6 +3,7 @@ namespace Supra\Editable;
 
 class SelectVisual extends Select
 {
+
 	const EDITOR_TYPE = 'SelectVisual';
 	
 	/**

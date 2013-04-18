@@ -274,5 +274,10 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		return get_called_class();
 	}
+	
+	public function getStorableContent()
+	{
+		return $this->getContent();
+	}
 
 }
