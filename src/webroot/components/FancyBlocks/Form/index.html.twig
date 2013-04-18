@@ -62,7 +62,7 @@
 							{{ supraBlock.property('captcha_label')|e }}<sup class="required">*</sup>
 						</label>
 						<input type="text" class="input-text" value="" placeholder="{{ supraBlock.property('captcha_label')|escape('html_attr')|raw }}" name="captcha" id="field_captcha" required />
-						<img src="{{ supra.page.path }}?block_id={{ supraBlock.block.id }}&captcha" alt="" />
+							<img src="{{ supra.localization.path }}?block_id={{ supraBlock.block.id }}&captcha" alt="" />
 					</span>
 				</div>
 			{% endif %}
