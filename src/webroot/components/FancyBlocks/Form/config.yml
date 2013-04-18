@@ -1,63 +1,60 @@
-- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+- _use: Supra\Controller\Pages\Configuration
+
+- Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Form\FormBlock
     title: Form
     icon: icon.png
     groupId: features
     description: Customizable form
-    cmsClassname: Editable
-    cache:
-      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
-        enabled: false
-        global: false
-          
+    cmsClassname: Editable   
     properties:
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+      - Configuration\BlockPropertyConfiguration:
           name: block_title
           editable: Supra\Editable\String
           label: Title
           
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+      - Configuration\BlockPropertyConfiguration:
           name: email
           editable: Supra\Editable\String
           label: Send data to email
           
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+      - Configuration\BlockPropertyConfiguration:
           name: submit
           editable: Supra\Editable\String
           label: Button title
           default: Submit
           
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+      - Configuration\BlockPropertyConfiguration:
           name: confirmation_message
           editable: Supra\Editable\String
           label: Confirmation message
           default: Thank You!
           
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+      - Configuration\BlockPropertyConfiguration:
           name: error
           editable: Supra\Editable\String
           label: Empty field error message
           default: Please fill out this field
           
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+      - Configuration\BlockPropertyConfiguration:
           name: fields
           editable: Supra\Editable\PropertySet
           label: Fields
 
           properties:
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+            - Configuration\BlockPropertyConfiguration:
                 name: title
                 label: Field title
                 editable: Supra\Editable\String
                 default: Lorem ipsum
                 
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+            - Configuration\BlockPropertyConfiguration:
                 name: required
                 editable: Supra\Editable\Checkbox
                 label: Mandatory
                 default: false
                 
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+            - Configuration\BlockPropertyConfiguration:
                 name: type
                 editable: Supra\Editable\SelectList
                 label: Type
@@ -88,4 +85,9 @@
           editable: Supra\Editable\String
           label: Captcha field title
           default: Captcha code
+   ## Cache is mandatory for Blocks used in portal
+    cache:
+      Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        enabledByContext: __FormBlockCache
           

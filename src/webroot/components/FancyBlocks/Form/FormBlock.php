@@ -5,6 +5,10 @@ namespace Project\FancyBlocks\Form;
 use Supra\Controller\Pages\BlockController;
 use Supra\Validator\FilteredInput;
 use Supra\Validator\Type\AbstractType;
+use Supra\Controller\Pages\Request\PageRequest;
+use Supra\Request\HttpRequest;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Mailer\Message\TwigMessage;
 
 /**
  * @FIXME: kill this code with fire
@@ -12,31 +16,56 @@ use Supra\Validator\Type\AbstractType;
  */
 class FormBlock extends BlockController
 {
-
-	public function doExecute()
+	/**
+	 * 
+	 */
+	const CAPTCHA_SPACE_PARAMETER = 'captcha_%s';
+	
+	/**
+	 * @var array
+	 */
+	private $formFields;
+	
+	/**
+	 *
+	 */
+	protected function doPrepare()
+	{
+		$request = $this->getRequest();
+		$context = $this->getResponse()
+				->getContext();
+		
+		$cache = true;
+		
+		if ($this->isThisBlockPostRequest($request)
+				|| $this->isCaptchaRequest($request)) {
+			
+			$cache = false;
+		}
+		
+		$context->setValue('__FormBlockCache', $cache);
+	}
+	
+	/**
+	 * 
+	 */
+	protected function doExecute()
     {
 		$request = $this->getRequest();
-		/* @var $request \Supra\Request\HttpRequest */
-		if ($request->getQuery()
-				->offsetExists('captcha')) {
-			
-			$this->renderCaptcha();
+		
+		if ($this->isCaptchaRequest($request)) {
+			$this->renderImage();
 			return;
 		}
 		
-		$fields = $this->getPropertyValue('fields');
-		foreach ($fields as $offset => &$field) {
-			$hash = $this->getFieldHash($offset, $field);
-			$field['hash'] = $hash;
-		}
+		$response = $this->getResponse();
 		
-        $response = $this->getResponse();
-		$response->assign('fields', $fields);
+		$formFields = $this->getFormFieldData();
+		$response->assign('fields', $formFields);
 		
-		
-		if ($this->getRequest()->isPost()) {
+		if ($this->isThisBlockPostRequest($request)) {
 			$this->handleFormPost();
-		}
+		}		
 		
         $response->outputTemplate('index.html.twig');
     }
@@ -48,50 +77,41 @@ class FormBlock extends BlockController
 	{
 		$response = $this->getResponse();
 				
-		$post = $this->getRequest()
-				->getPost();
+		$postData = $this->getRequest()
+				->getPost()
+				->getArrayCopy();
 		
-		$blockId = $this->getBlock()
-				->getId();
-			
-		if ( ! $post->offsetExists($blockId)) {
-			return;
-		}
+
+		$mandatoryFieldsErrors = $this->collectEmptyRequiredFields($postData);
 		
-		$postArray = $post->getArrayCopy();
-		
-		
-		$mandatoryFieldsErrors = $this->collectRequiredFieldErrors($postArray);
 		if ( ! empty($mandatoryFieldsErrors)) {
 			$response->assign('errors', $mandatoryFieldsErrors);
 			return;
 		}
 		
-//		$captcha = $post->get('captcha');
-//		if ( ! $this->isCaptchaValid($captcha)) {
-//			$response->assign('invalidCaptcha')
-//				->outputTemplate('index.html.twig');
-//			
-//			return;
-//		}
+		$captcha = $this->getRequest()->getPost()->get('captcha', null);
+		if ( ! $this->isCaptchaValid($captcha)) {
+			$response->assign('invalidCaptcha');
+			return;
+		}
 		
-		$fieldsData = $this->collectFieldsData($postArray);
+		$receiver = $this->getValidReceiverEmail();
 		
-		$receiverEmail = $this->getValidReceiverEmail();
-		
-		if ( ! empty($receiverEmail)) {
-		
-			$mailer = \Supra\ObjectRepository\ObjectRepository::getMailer($this);
+		if ( ! empty($receiver)) {
 
-			$message = new \Supra\Mailer\Message\TwigMessage('text/html');
+			$mailer = ObjectRepository::getMailer($this);
+
+			$message = new TwigMessage('text/html');
 			$message->setContext(__CLASS__);
 
-			$siteName = \Supra\ObjectRepository\ObjectRepository::getSystemInfo($this)
+			$siteName = ObjectRepository::getSystemInfo($this)
 					->getName();
 			
-			$message->setTo($receiverEmail)
+			$fieldValues = $this->collectFieldValuesFromPost($postData);
+			
+			$message->setTo($receiver)
 					->setSubject("New message from \"{$siteName}\" project")
-					->setBody('mail.html.twig', array('postedFields' => $fieldsData));
+					->setBody('mail.html.twig', array('postedFields' => $fieldValues));
 			
 			$mailer->send($message);
 		}
@@ -115,70 +135,70 @@ class FormBlock extends BlockController
 		return $email;
 	}
 	
-	protected function renderCaptcha()
+	/**
+	 * @param array $postData
+	 * @return array
+	 */
+	protected function collectFieldValuesFromPost($postData)
 	{
-		$captcha = new \SupraSite\Captcha\Captcha();
+		$values = array();
 		
-		$captcha->setKeyPrefix($this->getBlock()->getId());
+		$fields = $this->getFormFieldData();
 		
-		$captcha->setBackgroundColor(0x00FFFFFF);
-		$captcha->setFontColor(0x004B4232);
-		
-		$captcha->renderAndOutput();
-	}
-	
-	protected function isCaptchaValid($key)
-	{
-		$isRequired = $this->getPropertyValue('captcha');
-		
-		if ($isRequired) {
-			$captcha = new \SupraSite\Captcha\Captcha();
-			$captcha->setKeyPrefix($this->getBlock()->getId());
-			
-			if ($captcha->validateKey($key)) {
-				return true;
-			}
-			
-			return false;
-		}
-		
-		return true;
-	}
-	
-	protected function collectFieldsData($postData)
-	{
-		$fieldsData = array();
-		
-		$fields = $this->getPropertyValue('fields');
-		
-		foreach ($fields as $key => $field) {
-			
-			$hash = $this->getFieldHash($key, $field);
-			
+		foreach ($fields as $fieldData) {
+
+			$hash = $fieldData['hash'];
 			if (isset($postData[$hash])) {
-				$fieldsData[$field['title']] = $postData[$hash];
+				$values[$fieldData['title']] = $postData[$hash];
 			}		
 		}
 		
-		return $fieldsData;
+		return $values;
 	}
 	
-	protected function collectRequiredFieldErrors($postData)
+	/**
+	 * @param array $postData
+	 * @return array
+	 */
+	private function collectEmptyRequiredFields($postData)
 	{
-		$errors = array();
+		$emptyFields = array();
 		
-		$fields = $this->getPropertyValue('fields');
-		
-		foreach ($fields as $key => $field) {
-		
-			$hash = $this->getFieldHash($key, $field);
-			
-			if ($field['required'] && ( ! isset($postData[$hash]) || empty($postData[$hash]))) {
-				$errors[$hash] = true;
-			}	
+		$fields = $this->getFormFieldData();
+		foreach ($fields as $fieldData) {
+			if ($fieldData['required']) {
+				
+				$hash = $fieldData['hash'];
+				if (empty($postData[$fieldData[$hash]])) {
+					$emptyFields[] = $hash;
+				}
+			}
 		}
 		
-		return $errors;
+		return $emptyFields;
+	}
+	
+	/**
+	 * 
+	 */
+	protected function getFormFieldData()
+	{
+		if ($this->formFields === null) {
+			
+			$this->formFields = array();
+			
+			$fieldSet = $this->getPropertyValue('fields');
+			
+			if ( ! empty($fieldSet)) {
+				foreach ($fieldSet as $offset => &$field) {
+					$hash = $this->getFieldHash($offset, $field);
+					$field['hash'] = $hash;
+				}
+				$this->formFields = $fieldSet;
+			}
+		}
+		
+		return $this->formFields;
 	}
 	
 	/**
@@ -194,6 +214,94 @@ class FormBlock extends BlockController
 			$definition['title'],
 			$definition['type'],
 		)));
+	}
+	
+	/**
+	 * @param \Project\FancyBlocks\Form\HttpRequest $request
+	 * @return boolean
+	 */
+	private function isThisBlockPostRequest(HttpRequest $request)
+	{
+		if ($request->isPost() && $request->getPost()
+				->offsetExists($this->getBlock()->getId())) {
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @param \Supra\Request\HttpRequest $request
+	 * @return boolean
+	 */
+	private function isCaptchaRequest(HttpRequest $request)
+	{
+		if ($request instanceof PageRequest
+				&& $request->isBlockRequest()
+				&& $request->getQuery()->offsetExists('captcha')) {
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Hardcoded and temporary solution for SupraSite
+	 */
+	protected function renderImage()
+	{
+		$captcha = new \SupraSite\Captcha\Captcha();
+		
+		$parameterSet = ObjectRepository::getThemeProvider($this)
+				->getCurrentTheme()
+				->getActiveParameterSet()
+				->getValues();
+		
+		if ($parameterSet->containsKey('captchaColor')) {
+			$color = $parameterSet->get('captchaColor')
+					->getValue();
+			
+			$captcha->setFontColor($color);
+		}
+
+		$hash = $captcha->generateKeyAndGetHash();
+		$parameterName = sprintf(self::CAPTCHA_SPACE_PARAMETER, $this->getBlock()->getId());
+		
+		$sessionManager = ObjectRepository::getSessionManager($this);
+		$space = $sessionManager->getSessionNamespace(__NAMESPACE__);
+		
+		$space->__set($parameterName, $hash);
+		
+		$captcha->renderAndOutput();
+		$sessionManager->close();
+	}
+	
+	private function isCaptchaValid($code = null)
+	{
+		$isRequired = $this->getPropertyValue('captcha');
+		
+		if ($isRequired) {
+			
+			$parameterName = sprintf(self::CAPTCHA_SPACE_PARAMETER, $this->getBlock()->getId());
+
+			$sessionManager = ObjectRepository::getSessionManager($this);
+			$space = $sessionManager->getSessionNamespace(__NAMESPACE__);
+
+			$storedHash = $space->__get($parameterName);
+			if ( ! empty($storedHash) && sha1(strtolower($code)) == $storedHash) {
+				$space->__unset($parameterName);
+				$space->close();
+				return true;
+			}
+			
+			$space->__unset($parameterName);
+			$space->close();
+			return false;
+		}
+		
+		return true;
 	}
 	
 }

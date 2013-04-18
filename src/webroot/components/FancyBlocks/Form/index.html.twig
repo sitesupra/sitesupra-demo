@@ -24,7 +24,6 @@
 		{% else %}
 			{# FORM #}
 			{% set submit  = supraBlock.property('submit') %}
-{#			{% set captcha = supraBlock.property('captcha') %} #}
 			
 			{# Unique ID to differentiate multiple forms #}
 			<input type="hidden" name="{{ supraBlock.getBlock().getId() }}" />
@@ -63,8 +62,7 @@
 							{{ supraBlock.property('captcha_label')|e }}<sup class="required">*</sup>
 						</label>
 						<input type="text" class="input-text" value="" placeholder="{{ supraBlock.property('captcha_label')|escape('html_attr')|raw }}" name="captcha" id="field_captcha" required />
-						{#<img src="?block_id={{ supraBlock.block.id }}&captcha">#}
-						<img src="/resources/img/sample/captcha.png" alt="" />
+						<img src="{{ supra.page.path }}?block_id={{ supraBlock.block.id }}&captcha" alt="" />
 					</span>
 				</div>
 			{% endif %}
