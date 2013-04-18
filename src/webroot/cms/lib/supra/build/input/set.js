@@ -575,9 +575,12 @@ YUI.add('supra.input-set', function (Y) {
 				container = this.get('contentBox');
 			}
 			
-			container = container.closest('.su-scrollable-content');
 			if (container) {
-				container.fire('contentResize');
+				container = container.closest('.su-scrollable-content');
+				
+				if (container) {
+					container.fire('contentResize');
+				}
 			}
 		},
 		
@@ -638,7 +641,11 @@ YUI.add('supra.input-set', function (Y) {
 				this._addSet(value[i]);
 			}
 			
-			this._fireResizeEvent();
+			if (value) {
+				// Value is missing when resetting form, not need to
+				// fire resize event in that case
+				this._fireResizeEvent();
+			}
 			
 			return value;
 		},

@@ -16189,7 +16189,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				addresses = [];
 				
 				while(match = regex.exec(html)) {
-					console.log(k, match);
 					ok = true;
 					search = true;
 					pos_match = (match.index || regex.lastIndex);
@@ -36621,9 +36620,12 @@ YUI.add('supra.input-set', function (Y) {
 				container = this.get('contentBox');
 			}
 			
-			container = container.closest('.su-scrollable-content');
 			if (container) {
-				container.fire('contentResize');
+				container = container.closest('.su-scrollable-content');
+				
+				if (container) {
+					container.fire('contentResize');
+				}
 			}
 		},
 		
@@ -36684,7 +36686,11 @@ YUI.add('supra.input-set', function (Y) {
 				this._addSet(value[i]);
 			}
 			
-			this._fireResizeEvent();
+			if (value) {
+				// Value is missing when resetting form, not need to
+				// fire resize event in that case
+				this._fireResizeEvent();
+			}
 			
 			return value;
 		},
