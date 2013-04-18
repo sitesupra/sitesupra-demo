@@ -81,6 +81,7 @@
               icon: icons/animation/fade.png
           additionalParameters:
               iconStyle: center
+              style: mid
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: slides
           editable: Supra\Editable\Slideshow
