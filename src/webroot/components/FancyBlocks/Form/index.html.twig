@@ -54,19 +54,21 @@
 					
 				{% endfor %}
 			</div>
-{#			
+
+			{% set captcha = supraBlock.property('captcha') %}
 			{% if captcha or supra.cmsRequest %}
 				<div class="row {% if not captcha %}hidden{% endif %}">
 					<span class="input-captcha">
 						<label for="field_captcha">
-							Captcha<sup class="required">*</sup>
+							{{ supraBlock.property('captcha_label')|e }}<sup class="required">*</sup>
 						</label>
-						<input type="text" class="input-text" value="" placeholder="Captcha code" name="captcha" id="field_captcha" required />
-						<img src="?block_id={{ supraBlock.block.id }}&captcha">
+						<input type="text" class="input-text" value="" placeholder="{{ supraBlock.property('captcha_label')|escape('html_attr')|raw }}" name="captcha" id="field_captcha" required />
+						{#<img src="?block_id={{ supraBlock.block.id }}&captcha">#}
+						<img src="/resources/img/sample/captcha.png" alt="" />
 					</span>
 				</div>
 			{% endif %}
-#}			 
+
 			{% if submit or supra.cmsRequest %}
 				<div class="row form-footer {% if not submit %}hidden{% endif %}">
 					<button type="submit" class="button-2">{{ submit }}</button>

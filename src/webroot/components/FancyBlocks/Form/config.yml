@@ -77,8 +77,15 @@
             labelItem: "Field %s"
             labelButton: Manage fields
             
-#      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-#          name: captcha
-#          editable: Supra\Editable\Checkbox
-#          label: Captcha
-#          default: false
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: captcha
+          editable: Supra\Editable\Checkbox
+          label: Captcha
+          default: false
+          
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: captcha_label
+          editable: Supra\Editable\String
+          label: Captcha field title
+          default: Captcha code
+          
