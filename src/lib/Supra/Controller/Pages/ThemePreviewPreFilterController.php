@@ -23,13 +23,6 @@ class ThemePreviewPreFilterController extends Controller\ControllerAbstraction i
 			
 			$key = $request->getQueryValue(self::KEY, null);
 			
-			$info = ObjectRepository::getSystemInfo($this);
-			if (method_exists($info, 'isDemoSite') && $info->isDemoSite()){
-				$themeProvider = ObjectRepository::getThemeProvider($this);
-				$themeProvider->setThemePreviewActive(true);
-				return;
-			}
-			
 			if ( ! empty($key)) {
 				
 				$userProvider = ObjectRepository::getUserProvider($this);
