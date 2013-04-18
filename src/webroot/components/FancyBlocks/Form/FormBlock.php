@@ -259,8 +259,8 @@ class FormBlock extends BlockController
 				->getActiveParameterSet()
 				->getValues();
 		
-		if ($parameterSet->containsKey('captchaColor')) {
-			$color = $parameterSet->get('captchaColor')
+		if ($parameterSet->containsKey('primaryColor')) {
+			$color = $parameterSet->get('primaryColor')
 					->getValue();
 			
 			$captcha->setFontColor($color);
