@@ -90,7 +90,7 @@ class InlineMap extends EditableAbstraction
 	 */
 	public function setContentFromEdit($content)
 	{
-		if (empty($content['latitude']) || empty($content['longitude']) || empty($content['zoom'])) {
+		if ( ! (isset($content['latitude']) && isset($content['longitude']) && isset($content['zoom']))) {
 			throw new \InvalidArgumentException('Received content is not valid map data array');
 		}
 		
