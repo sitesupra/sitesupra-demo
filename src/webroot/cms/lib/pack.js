@@ -15879,7 +15879,19 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
+		
+		/* String replacements */
+		replacements: [
+			[
+				/[a-z]+:\/\/[a-z0-9\-\.@:]+[a-z0-9](\/[a-z0-9\?#&%\-\_=\(\)\\\/\$\!:,]*)?/ig,
+				function (url) { return '<a href="' + url + '" target="_blank">' + url + '</a>'; }
+			],
+			[
+				/([a-z0-9]([a-z0-9\.\-\_]*[a-z0-9])?@[a-z0-9][a-z0-9\-\_]*([\.]([a-z0-9][a-z0-9\-\_]?)?[a-z0-9])*)/ig,
+				function (email) { return '<a href="mailto:' + email + '">' + email + '</a>'; }
+			]
+		]
 	};
 	
 	Supra.HTMLEditor.addPlugin('link', defaultConfiguration, {
@@ -16149,6 +16161,89 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		
 		
 		/**
+		 * Parse HTML and replace all email addresses with links
+		 */
+		parseStrings: function (html) {
+			var replacements = this.configuration.replacements,
+				k = 0,
+				kk = replacements.length,
+			
+				regex = null,
+				replacement = null,
+				
+				addresses = [],
+				match = null,
+				pos_match = 0,
+				pos_tag_end = 0,
+				pos_tag_start = 0,
+				tag = null,
+				ok = false,
+				search = true,
+				
+				i = 0;
+			
+			for (; k<kk; k++) {
+				regex = replacements[k][0];
+				replacement = replacements[k][1];
+				
+				addresses = [];
+				
+				while(match = regex.exec(html)) {
+					console.log(k, match);
+					ok = true;
+					search = true;
+					pos_match = (match.index || regex.lastIndex);
+					pos_tag_start = pos_match + 1;
+					
+					while (search && pos_tag_start > 0) {
+						pos_tag_end = html.lastIndexOf('>', pos_tag_start - 1);
+						pos_tag_start = html.lastIndexOf('<', pos_tag_start - 1);
+						
+						if (pos_tag_start != -1) {
+							if (pos_tag_end == -1 || pos_tag_end < pos_tag_start) {
+								// email address is an attribute
+								ok = false;
+								search = false;
+							} else {
+								// check if it is inside <a> tag
+								tag = html.substr(pos_tag_start + 1, 2);
+								if (tag == '/a') {
+									// Found closing a tag, there is no open link tag before email address
+									search = false;
+								} else if (tag == 'a ') {
+									// There is open a before email address, skip
+									ok = false;
+									search = false;
+								} else {
+									// continue searching
+								}
+							}
+						} else {
+							// No opening tags found
+							search = false;
+						}
+					}
+					
+					if (ok) {
+						addresses.push([pos_match, pos_match + match[0].length, match[0]]);
+					}
+				}
+				
+				// Reset, is this even needed?
+				regex.lastIndex = 0;
+				
+				// Replace with <a> tags
+				for (i = addresses.length - 1; i >= 0; i--) {
+					html = html.substr(0, addresses[i][0]) +
+						   replacement(addresses[i][2]) +
+						   html.substr(addresses[i][1]);
+				}
+			}
+			
+			return html;
+		},
+		
+		/**
 		 * Process HTML and replace all nodes with supra tags {supra.link id="..."}
 		 * Called before HTML is saved
 		 * 
@@ -16159,6 +16254,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		tagHTML: function (html) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME;
+			
+			//Add links to email addresses
+			html = this.parseStrings(html);
 			
 			//Opening tag
 			html = html.replace(/<a [^>]*id="([^"]+)"[^>]*>/gi, function (html, id) {
@@ -16191,6 +16289,11 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		tagPastedHTML: function (event, data) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME;
+			
+			//Extract email addresses
+			if (event) {
+				data.html = this.parseStrings(data.html);
+			}
 			
 			//Opening tag
 			data.html = data.html.replace(/<a([^>]*)>/gi, function (html, attrs_html) {
@@ -16253,6 +16356,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//Closing tags
 			html = html.replace(/{\/supra\.link}/g, '</a>');
+			
+			//Process email addresses
+			html = this.parseStrings(html);
 			
 			return html;
 		},
