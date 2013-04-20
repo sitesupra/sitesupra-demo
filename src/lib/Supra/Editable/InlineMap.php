@@ -96,7 +96,7 @@ class InlineMap extends EditableAbstraction
 		
 		$zoom = (int) $content['zoom'];
 		
-		if ($zoom < 0 || $zoom > 14) {
+		if ($zoom < 0) {
 			throw new \InvalidArgumentException("Zoom level {$zoom} is out of range");
 		}
 		
