@@ -17717,15 +17717,15 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					for (k=0, kk=cells.length; k<kk; k++) {
 						colspan = cells[k].match(regex_colspan);
 						if (colspan) {
-							cells[k] = cells[k].replace(colspan, '');
-							colspan = parseInt(colspan, 10) || 1;
+							cells[k] = cells[k].replace(colspan[0], '');
+							colspan = parseInt(colspan[1], 10) || 1;
 						} else {
 							colspan = 1;
 						}
 						
 						html += '<tr class="' + (i % 2 ? classname_even : classname_odd) + '">';
-						html += headings[index];
-						html += cells[k];
+						html += headings[index] || '';
+						html += cells[k] || '';
 						html += '</tr>';
 						
 						index += colspan;
@@ -17756,12 +17756,12 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				ii = matches.length;
 			
 			for (; i<ii; i++) {
-				heading = matches[i];
+				heading = matches[i] || '';
 				colspan = heading.match(regex_colspan);
 				
 				if (colspan) {
-					heading = heading.replace(colspan, '');
-					colspan = parseInt(colspan, 10) || 1;
+					heading = heading.replace(colspan[0], '');
+					colspan = parseInt(colspan[1], 10) || 1;
 				} else {
 					colspan = 1;
 				}

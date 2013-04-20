@@ -48,6 +48,7 @@ Supra("transition", function (Y) {
 		render: function () {
 			//Set domain
 			this.one("h2 .site-title").set("text", document.location.host);
+			this.one("h1 .username").set("text", Supra.data.get(['user', 'name']));
 			
 			//Create button
 			var button = this.widgets.button = new Supra.Button({
