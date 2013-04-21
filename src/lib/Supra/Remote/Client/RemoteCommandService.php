@@ -39,6 +39,11 @@ class RemoteCommandService
 	protected $user;
 
 	/**
+	 * @var array
+	 */
+	private $configuration;
+	
+	/**
 	 * @return Log
 	 */
 	public function getLog()
@@ -151,7 +156,7 @@ class RemoteCommandService
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $this->getConfigurationValue('request_timeout', 20));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HEADER, false);
 		curl_setopt($ch, CURLOPT_USERAGENT, 'cURL/PHP');
@@ -256,5 +261,25 @@ class RemoteCommandService
 
 		return new Exception\RuntimeException($message);
 	}
-
+	
+	/**
+	 * @param string $name
+	 * @param mixed $default
+	 * @return mixed
+	 */
+	private function getConfigurationValue($name, $default = null)
+	{
+		if ($this->configuration === null) {
+			
+			$ini = ObjectRepository::getIniConfigurationLoader($this);
+			
+			$this->configuration = $ini->getSection('remote_api', array());
+		}
+		
+		if (isset($this->configuration[$name])) {
+			return $this->configuration[$name];
+		}
+		
+		return $default;
+	}
 }
