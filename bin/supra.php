@@ -34,6 +34,7 @@ $cliCommandClasses = array(
 	//'Supra\Controller\Pages\Command\UpgradeLinkReferencedElements',
 	'Supra\Remote\Command\RemoteCommand',
 	'Supra\User\Command\CreateUserCommand',
+	'Supra\User\Command\ClearAllUserSessionsCommand',
 	'Supra\FileStorage\Command\RegenerateFilePathCommand',
 	'Supra\NestedSet\Command\ValidateNestedSetCommand',
 	'Supra\Locale\Command\AddLocaleCommand',
