@@ -5,6 +5,7 @@ namespace Supra\Cms;
 use Supra\User\Event\UserEventArgs;
 use Supra\User\Entity\UserSession;
 use Supra\Authentication\Exception\ExistingSessionLimitation;
+use Supra\Database\Doctrine\Type\UtcDateTimeType;
 
 /**
  * Checks if only one session exists per user 
@@ -39,8 +40,9 @@ class CmsUserSingleSessionListener
 		
 		// Don't allow sign in if activity is too recent
 		if ( ! empty($lastActivity)) {
+			
 			$now = new \DateTime();
-			$lastActivityTime = new \DateTime($lastActivity);
+			$lastActivityTime = UtcDateTimeType::staticConvertToPHPValue($lastActivity);
 			
 			$diff = time() - $lastActivityTime->getTimestamp();
 			
