@@ -169,7 +169,7 @@ class FormBlock extends BlockController
 			if ($fieldData['required']) {
 				
 				$hash = $fieldData['hash'];
-				if (empty($postData[$fieldData[$hash]])) {
+				if (empty($postData[$hash])) {
 					$emptyFields[] = $hash;
 				}
 			}
