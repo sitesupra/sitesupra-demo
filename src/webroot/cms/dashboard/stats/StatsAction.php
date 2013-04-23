@@ -22,10 +22,10 @@ class StatsAction extends DasboardAbstractAction
 		$cache = ObjectRepository::getCacheAdapter($this);
 		
 		if ( ! empty($profileId)) {
-			$cacheKey = get_class($this) . $profileId;
+			$cacheKey = get_class($this) . "_{$profileId}";
 			$responseData = $cache->fetch($cacheKey);		
 		}
-		
+
 		if ($responseData === false) {
 
 			$provider = $this->getGoogleAnalyticsProvider();
@@ -285,6 +285,12 @@ class StatsAction extends DasboardAbstractAction
 			}
 		}
 		
+		if ( ! empty($keywordsData)) {
+			// @FIXME: not nice
+			usort($keywordsData, array($this, 'feedSortCmp'));
+			$keywordsData = array_slice($keywordsData, 0, 7);
+		}
+		
 		$sourceVisitsData = array();
 		
 		$sourcesByDay = $provider->getTopSourcesByDay();
@@ -335,6 +341,12 @@ class StatsAction extends DasboardAbstractAction
 				}
 			}
 		}
+
+		if ( ! empty($sourcesData)) {
+			// @FIXME: not nice
+			usort($sourcesData, array($this, 'feedSortCmp'));
+			$sourcesData = array_slice($sourcesData, 0, 7);
+		}
 		
 		return array(
 			'keywords' => array_values($keywordsData),
@@ -349,5 +361,14 @@ class StatsAction extends DasboardAbstractAction
 	protected function getGoogleAnalyticsProvider()
 	{
 		return ObjectRepository::getObject($this, 'Supra\Statistics\GoogleAnalytics\GoogleAnalyticsDataProvider');
+	}
+	
+	private function feedSortCmp($a, $b)
+	{
+		if ($a['amount'] == $b['amount']) {
+			return 0;
+		}
+		
+		 return ($a['amount'] < $b['amount']) ? 1 : -1;
 	}
 }
