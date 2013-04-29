@@ -5,6 +5,7 @@ namespace Supra\Cms\AuditLog\Auditlog;
 use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\LogEvent;
+use Supra\Database\Doctrine\Type\UtcDateTimeType;
 
 class AuditlogAction extends CmsAction
 {	
@@ -92,14 +93,19 @@ class AuditlogAction extends CmsAction
 			$components[$config->class] = $config->title;
 		}
 		
+		$utcTimeZone = new \DateTimeZone('UTC');
 		
 		foreach($results as $result) {
+			
+			$time = UtcDateTimeType::staticConvertToPHPValue($result['datetime']);
+			$time->setTimeZone($utcTimeZone);
+			
 			$array[] = array(
 				'id'	=>	$result['id'],
 				'component' => (isset($components[$result['component']]) ? $components[$result['component']] : $result['component']),
 				'level'		=> LogEvent::$levels[strtoupper($result['level'])],
 				'user'		=> $result['user'],
-				'time'		=> $result['datetime'],
+				'time'		=> $time->format('Y-m-d H:i:s e'),
 				'subject'	=> $result['message'],
 				// FIXME: hardcoded value - is bad value
 				'icon' => '/cms/audit-log/images/datagrid/icon-audit-log.png',

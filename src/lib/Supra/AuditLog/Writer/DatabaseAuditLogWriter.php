@@ -5,24 +5,58 @@ namespace Supra\AuditLog\Writer;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Configuration\ComponentConfiguration;
 use Supra\User\Entity\User as UserEntity;
+use Supra\Database\Doctrine\Type\UtcDateTimeType;
 
 /**
  * Database audit log writer
- * 
  */
 class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 {
-
+	
 	const AUDIT_TABLE = 'su_AuditLog';
 	
+	/**
+	 * @var array
+	 */
 	private $connectionOptions;
+	
+	/**
+	 * @var \Doctrine\DBAL\Connection
+	 */
 	private $dbConnection;
+	
+	/**
+	 * @var \Supra\Database\Doctrine\Type\UtcDateTimeType
+	 */
+	private $dateTimeType;
 
+	/**
+	 * @param array $connectionOptions
+	 */
 	public function __construct($connectionOptions)
 	{
 		$this->connectionOptions = $connectionOptions;
 	}
+	
+	/**
+	 * @return \Supra\Database\Doctrine\Type\UtcDateTimeType
+	 */
+	private function getUtcDateTimeDatabaseType()
+	{
+		if ($this->dateTimeType === null) {
+			$this->dateTimeType = UtcDateTimeType::getType(UtcDateTimeType::DATETIME);
+		}
+		
+		return $this->dateTimeType;
+	}
 
+	/**
+	 * @param string $level
+	 * @param mixed $component
+	 * @param string $message
+	 * @param mixed $user
+	 * @param array $data
+	 */
 	public function write($level, $component, $message = '', $user = null, $data = array())
 	{
 		$tableName = self::AUDIT_TABLE;
@@ -71,15 +105,22 @@ class DatabaseAuditLogWriter extends AuditLogWriterAbstraction
 		} else {
 			$data = null;
 		}
-
-		$query = "INSERT INTO {$tableName} (level, component, message, user, data) 
-			VALUES (:level, :component, :message, :user, :data)";
+		
+		$date = new \DateTime('now');
+		
+		$platform = $this->dbConnection->getDatabasePlatform();
+		$dateTimeType = $this->getUtcDateTimeDatabaseType();
+				
+		$query = "INSERT INTO {$tableName} (level, component, message, user, data, datetime) 
+			VALUES (:level, :component, :message, :user, :data, :datetime)";
 
 		$params = array('level' => $level,
 			'component' => $component,
 			'message' => $message,
 			'user' => $user,
-			'data' => $data);
+			'data' => $data,
+			'datetime' => $dateTimeType->convertToDatabaseValue($date, $platform),
+		);
 
 		try {
 			$this->dbConnection->executeQuery($query, $params);

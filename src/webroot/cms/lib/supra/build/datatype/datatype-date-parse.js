@@ -164,7 +164,13 @@ YUI.add('supra.datatype-date-parse', function(Y) {
 		
 	    if(LANG.isDate(data)) {
 	        return data;
-	    }
+	    } else {
+			// Allow simple values
+			var raw = new Date(data);
+			if(LANG.isDate(raw)) {
+				return raw;
+			}
+		}
 	
 		oConfig = oConfig || {};
 		var format = oConfig.format || Y.config.dateFormat  || "%Y-%m-%d",
