@@ -1,0 +1,77 @@
+{% macro p(attributes, styles) %}{% spaceless %}
+	<p {{ attributes }} style="margin: 1em 0;{{ styles }}">
+{% endspaceless %}{% endmacro %}
+
+{% macro pEnd() %}{% spaceless %}
+	</p>
+{% endspaceless %}{% endmacro %}
+
+{% macro table(padding, align, width, background) %}{% spaceless %}
+	<table width="{% if width %}{{ width }}{% else %}100%{% endif %}" {% if background %}bgcolor="{{ background }}"{% endif %} style="{% if background %}background: {{ background }}{% endif %} border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;" cellpadding="{% if padding %}{{ padding }}{% else %}0{% endif %}" cellspacing="0" border="0" align="{% if align %}{{ align }}{% else %}left{% endif %}">
+{% endspaceless %}{% endmacro %}
+
+{% macro tableEnd() %}{% spaceless %}
+	</table>
+{% endspaceless %}{% endmacro %}
+
+{% macro row(padding, align, width, background) %}{% spaceless %}
+	<table width="{% if width %}{{ width }}{% else %}100%{% endif %}" {% if background %}bgcolor="{{ background }}"{% endif %} style="{% if background %}background: {{ background }}{% endif %} border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;" cellpadding="{% if padding %}{{ padding }}{% else %}0{% endif %}" cellspacing="0" border="0" align="{% if align %}{{ align }}{% else %}left{% endif %}">
+	<tr>
+{% endspaceless %}{% endmacro %}
+			
+{% macro rowEnd() %}{% spaceless %}
+	</tr>
+	</table>
+{% endspaceless %}{% endmacro %}
+
+{% macro col(padding, align, width) %}{% spaceless %}
+	<td valign="top" {% if align %}align="{{ align }}"{% endif %} style="{% if padding %}padding: {{ padding }};{% endif %} {% if align %}text-align: {{ align }};{% endif %} vertical-align: top; {% if width %}width: {{ width }}px;{% endif %}">
+{% endspaceless %}{% endmacro %}
+			
+{% macro colEnd() %}{% spaceless %}
+	</td>
+{% endspaceless %}{% endmacro %}
+
+{% macro img(src, alt, width, height) %}{% spaceless %}
+	<img src="{{ basePath }}{{ src }}" style="outline:none; text-decoration:none; -ms-interpolation-mode: bicubic; border: none;" {% if width %}width="{{ width }}"{% endif %} {% if height %}height="{{ height }}"{% endif %} alt="{{ alt }}" />
+{% endspaceless %}{% endmacro %}
+
+{% macro imgBlock(src, alt, width, height) %}{% spaceless %}
+	<img src="{{ basePath }}{{ src }}" class="image_fix" style="display: block; outline:none; text-decoration:none; -ms-interpolation-mode: bicubic; border: none;" {% if width %}width="{{ width }}"{% endif %} {% if height %}height="{{ height }}"{% endif %} alt="{{ alt }}" />
+{% endspaceless %}{% endmacro %}
+
+{% macro a(href, color) %}{% spaceless %}
+	<a target="_blank" href="{{ href }}" style="color: {% if color %}{{ color }}{% endif %};">
+{% endspaceless %}{% endmacro %}
+
+{% macro aEnd() %}{% spaceless %}
+	</a>
+{% endspaceless %}{% endmacro %}
+
+{% macro background(color) %}{% spaceless %}
+	<table {% if color %}bgcolor="{{ color }}"{% endif %} style="{% if color %}background: {{ color }}; {% endif %}border-collapse:collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;" cellpadding="0" cellspacing="0" border="0" align="center" id="backgroundTable">
+		<tr>
+			<td valign="top" style="text-align: center; vertical-align: top;">
+{% endspaceless %}{% endmacro %}
+
+{% macro backgroundEnd() %}{% spaceless %}
+			</td>
+		</tr>
+	</table>
+{% endspaceless %}{% endmacro %}
+
+{% macro colText(padding, align, styles, width) %}{% spaceless %}
+	<td valign="top" {% if align %}align="{{ align }}"{% endif %} style="vertical-align: top; {% if styles %}{{ styles }}{%endif %} {% if padding %}padding: {{ padding }};{% endif %} {% if align %}text-align: {{ align }};{% endif %} {% if width %}width: {{ width }}px;{% endif %}">
+{% endspaceless %}{% endmacro %}
+
+{% macro colTextEnd() %}{% spaceless %}
+	</td>
+{% endspaceless %}{% endmacro %}
+
+{% macro text(styles) %}{% spaceless %}
+	<div style="{{ styles }}">
+{% endspaceless %}{% endmacro %}
+
+{% macro textEnd() %}{% spaceless %}
+	</div>
+{% endspaceless %}{% endmacro %}
