@@ -177,7 +177,7 @@ class ProxyAction extends ProxyActionAbstraction
 	 * @param array $formData
 	 * @return boolean 
 	 */
-	private function validateShopOrderFormData($formData)
+	protected function validateShopOrderFormData($formData)
 	{
 		$paymentProvider = $this->getPaymentProvider();
 		$amount = null;
