@@ -25,7 +25,8 @@ YUI.add('supra.input-string', function (Y) {
 			value: false
 		},
 		'valueMask': {
-			value: null
+			value: null,
+			setter: '_setValueMask'
 		},
 		'valueSource': {
 			value: null
@@ -342,6 +343,20 @@ YUI.add('supra.input-string', function (Y) {
 			if (evt.prevVal != evt.newVal) {
 				this.fire('change', {'value': evt.newVal});
 			}
+		},
+		
+		/**
+		 * Mask attribute setter
+		 * 
+		 * @param {String|RegExp} mask New value mask
+		 * @returns {RegExp} New attribute value
+		 * @private
+		 */
+		_setValueMask: function (mask) {
+			if (typeof mask === 'string') {
+				mask = new RegExp(mask);
+			}
+			return mask;
 		},
 		
 		/**
