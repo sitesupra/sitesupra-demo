@@ -10,10 +10,8 @@ use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Order\OrderProvider;
 use Doctrine\ORM\EntityManager;
-use Project\User\Authorization\AuthorizedUserRequiredInterface;
-use Project\Entity;
 
-class DengiDataFormBlock extends BlockController implements AuthorizedUserRequiredInterface
+class DengiDataFormBlock extends BlockController
 {
 
 	/**
@@ -30,30 +28,6 @@ class DengiDataFormBlock extends BlockController implements AuthorizedUserRequir
 	 * @var Order\Order
 	 */
 	protected $order;
-	
-	/**
-	 * @var Entity\User
-	 */
-	private $user;
-	
-	/**
-	 * @return array
-	 */
-	public function getAllowedUserTypes()
-	{
-		return array(
-			Entity\User::TYPE_DEVELOPER,
-			Entity\User::TYPE_USER,
-			// Do we need?
-			Entity\User::TYPE_MODERATOR,
-		);
-	}
-
-	public function setAuthenticatedUser(Entity\User $user)
-	{
-		$this->user = $user;
-	}
-	
 	
 	/**
 	 * @return OrderProvider
@@ -177,10 +151,8 @@ class DengiDataFormBlock extends BlockController implements AuthorizedUserRequir
 	{
 		$response = $this->getResponse();
 
-		$response
-			->assign('formElements', array())
+		$response->assign('formElements', array())
 			->assign('action', '#')
-			->assign('orderStatus', null)
 			->assign('errorMessages', array());
 	}
 
@@ -280,22 +252,6 @@ class DengiDataFormBlock extends BlockController implements AuthorizedUserRequir
 		}
 
 		return $formElements;
-	}
-
-	/**
-	 * @return array
-	 */
-	public static function getPropertyDefinition()
-	{
-		$contents = array();
-
-		return $contents;
-	}
-	
-	
-	public function redirectIfNotAuthenticated()
-	{
-		return true;
 	}
 
 }
