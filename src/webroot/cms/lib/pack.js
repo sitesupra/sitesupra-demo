@@ -4525,7 +4525,13 @@ YUI.add('supra.datatype-date-parse', function(Y) {
 		
 	    if(LANG.isDate(data)) {
 	        return data;
-	    }
+	    } else {
+			// Allow simple values
+			var raw = new Date(data);
+			if(LANG.isDate(raw)) {
+				return raw;
+			}
+		}
 	
 		oConfig = oConfig || {};
 		var format = oConfig.format || Y.config.dateFormat  || "%Y-%m-%d",
@@ -8513,6 +8519,9 @@ YUI().add("supra.io-css", function (Y) {
 		'valueMask': {
 			value: null
 		},
+		'valueSource': {
+			value: null
+		},
 		'blurOnReturn': {
 			value: false
 		}
@@ -8550,12 +8559,25 @@ YUI().add("supra.io-css", function (Y) {
 		KEY_ESCAPE_ALLOW: true,
 		
 		/**
+		 * Character which is used instead of invalid characters
+		 */
+		MASK_REPLACEMENT_CHARACTER: '',
+		
+		/**
 		 * Last known value, used to restore input value if new value doesn't
 		 * pass mask validation
 		 * @type {String}
 		 * @private
 		 */
 		_last_value: null,
+		
+		/**
+		 * Value source target input event listener
+		 * @type {Object}
+		 * @private
+		 */
+		_value_source_listener: null,
+		
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
@@ -8588,6 +8610,13 @@ YUI().add("supra.io-css", function (Y) {
 			}
 			
 			this.on('input', this._onWidgetInputEvent, this);
+			
+			// Value source
+			this.after('valueSourceChange', this._afterValueSourceChange, this);
+			
+			if (this.get('valueSource')) {
+				this._afterValueSourceChange({'prevVal': undefined, 'newVal': this.get('valueSource')});
+			}
 		},
 		
 		/**
@@ -8766,6 +8795,14 @@ YUI().add("supra.io-css", function (Y) {
 					this.set('valueMask', new RegExp(mask));
 				}
 			}
+			
+			//Value source
+			if (!this.get('valueSource')) {
+				var mask = this.get('inputNode').getAttribute('suValueSource');
+				if (mask) {
+					this.set('valueSource');
+				}
+			}
 		},
 		
 		_setValue: function (value) {
@@ -8797,6 +8834,64 @@ YUI().add("supra.io-css", function (Y) {
 			if (evt.prevVal != evt.newVal) {
 				this.fire('change', {'value': evt.newVal});
 			}
+		},
+		
+		/**
+		 * After value source change rebind listeners
+		 * 
+		 * @param {Object} evt valueSource attribute value change event object
+		 * @private 
+		 */
+		_afterValueSourceChange: function (evt) {
+			var form = this.getParentWidget("form"),
+				input = null;
+			
+			if (!form || evt.prevVal == evt.newVal) return;
+			
+			if (this._value_source_listener) {
+				this._value_source_listener.detach();
+				this._value_source_listener = null;
+			}
+			
+			if (evt.newVal) {
+				input = form.getInput(evt.newVal);
+				
+				if (input) {
+					this._value_source_listener = input.on('input', this._afterValueSourceInputChange, this);
+				}
+			}
+		},
+		
+		/**
+		 * After value source input value change update this input value
+		 * 
+		 * @param {Object} evt
+		 * @private
+		 */
+		_afterValueSourceInputChange: function (evt) {
+			var value = evt.value,
+				mask  = this.get('valueMask'),
+				out   = '',
+				i     = 0,
+				ii    = value.length,
+				repl  = this.MASK_REPLACEMENT_CHARACTER;
+			
+			if (mask) {
+				for (; i<ii; i++) {
+					if (mask.test(value[i])) {
+						out += value[i];
+					} else {
+						out += repl;
+					}
+				}
+				
+				value = out;
+				/*if (repl) {
+					out = out.replace(new RegExp('[' + Y.Escape.regex(repl) + ']{2,}', repl));
+				}*/
+			}
+			
+			this.set('value', value);
 		}
 		
 	});
@@ -24817,6 +24912,11 @@ YUI.add("supra.input-number", function (Y) {
 	
 	Y.extend(Input, Supra.Input.String, {
 		
+		/**
+		 * Character which is used instead of invalid characters
+		 */
+		MASK_REPLACEMENT_CHARACTER: '-',
+		
 		_setPath: function (value) {
 			var node = this.get('pathNode'),
 				input = this.get('inputNode'),
@@ -24888,6 +24988,43 @@ YUI.add("supra.input-number", function (Y) {
 			}
 			
 			return r;
+		},
+		
+		/**
+		 * After value source input value change update this input value
+		 * Overwrite String implementation for correct path value
+		 * 
+		 * @param {Object} evt
+		 * @private
+		 */
+		_afterValueSourceInputChange: function (evt) {
+			var value = evt.value,
+				mask  = this.get('valueMask'),
+				out   = '',
+				i     = 0,
+				ii    = value.length,
+				repl  = this.MASK_REPLACEMENT_CHARACTER;
+			
+			if (mask) {
+				for (; i<ii; i++) {
+					if (mask.test(value[i])) {
+						out += value[i];
+					} else {
+						out += repl;
+					}
+				}
+				
+				// Remove repeated characters
+				if (repl) {
+					out = out.replace(new RegExp('[' + Y.Escape.regex(repl) + ']{2,}', 'ig'), repl);
+					out = out.replace(new RegExp('(^' + Y.Escape.regex(repl) + '|' + Y.Escape.regex(repl) + '$)', 'ig'), '');
+				}
+				
+				// Path is lower case
+				value = out.toLowerCase();
+			}
+			
+			this.set('value', value);
 		}
 		
 	});
