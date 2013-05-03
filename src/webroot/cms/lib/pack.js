@@ -9498,6 +9498,9 @@ YUI().add('supra.input-string-clear', function (Y) {
 				this.get('srcNode').on('keyup', this._handleKeyUp, this)
 			);
 			this.events.push(
+				this.get('srcNode').on('keydown', this._handleKeyDown, this)
+			);
+			this.events.push(
 				this.get('srcNode').on('keypress', this._handleKeyPress, this)
 			);
 			this.events.push(
@@ -9771,7 +9774,7 @@ YUI().add('supra.input-string-clear', function (Y) {
 				navKey = this.navigationCharCode(charCode);
 			
 			if (this.editingAllowed || navKey) {
-				if (this.fire('keyUp', event) !== false) {
+				if (this.fire('keyUp', event, event) !== false) {
 					setTimeout(Y.bind(function () {
 						this._handleNodeChange(event);
 					}, this), 0);
@@ -9779,6 +9782,22 @@ YUI().add('supra.input-string-clear', function (Y) {
 					if (!navKey && !event.ctrlKey) {
 						this._changed();
 					}
+				}
+			}
+		},
+		
+		/**
+		 * Trigger keydown event on editor
+		 * 
+		 * @param {Object} event
+		 */
+		_handleKeyDown: function (event) {
+			var charCode = event.charCode,
+				navKey = this.navigationCharCode(charCode);
+			
+			if (this.editingAllowed || navKey) {
+				if (this.fire('keyDown', event, event) === false) {
+					event.preventDefault();
 				}
 			}
 		},
@@ -22151,6 +22170,32 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 		},
 		
 		/**
+		 * Enable ctrl+b, ctrl+i, etc. shortcuts
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		handleShortcut: function (_, evt) {
+			var htmleditor = this.htmleditor,
+				allowEditing = htmleditor.editingAllowed && !htmleditor.selection.collapsed,
+				res = false;
+			
+			if (allowEditing && !evt.altKey && !evt.shiftKey && (evt.ctrlKey || evt.metaKey)) {
+				if (evt.keyCode == 66) { // B
+					res = this.exec(null, 'bold');
+				} else if (evt.keyCode == 73) { // I
+					res = this.exec(null, 'italic');
+				} else if (evt.keyCode == 85) { // U
+					res = this.exec(null, 'underline');
+				}
+				
+				if (res) {
+					evt.preventDefault();
+				}
+			}
+		},
+		
+		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
@@ -22183,6 +22228,9 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 			
 			//When selection changes update buttons
 			htmleditor.on('selectionChange', this.handleSelectionChange, this);
+			
+			//Handle key shortcuts
+			htmleditor.on('keyDown', this.handleShortcut, this);
 		},
 		
 		/**

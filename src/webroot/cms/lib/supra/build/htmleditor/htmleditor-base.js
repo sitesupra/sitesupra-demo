@@ -101,6 +101,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				this.get('srcNode').on('keyup', this._handleKeyUp, this)
 			);
 			this.events.push(
+				this.get('srcNode').on('keydown', this._handleKeyDown, this)
+			);
+			this.events.push(
 				this.get('srcNode').on('keypress', this._handleKeyPress, this)
 			);
 			this.events.push(
@@ -374,7 +377,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 				navKey = this.navigationCharCode(charCode);
 			
 			if (this.editingAllowed || navKey) {
-				if (this.fire('keyUp', event) !== false) {
+				if (this.fire('keyUp', event, event) !== false) {
 					setTimeout(Y.bind(function () {
 						this._handleNodeChange(event);
 					}, this), 0);
@@ -382,6 +385,22 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					if (!navKey && !event.ctrlKey) {
 						this._changed();
 					}
+				}
+			}
+		},
+		
+		/**
+		 * Trigger keydown event on editor
+		 * 
+		 * @param {Object} event
+		 */
+		_handleKeyDown: function (event) {
+			var charCode = event.charCode,
+				navKey = this.navigationCharCode(charCode);
+			
+			if (this.editingAllowed || navKey) {
+				if (this.fire('keyDown', event, event) === false) {
+					event.preventDefault();
 				}
 			}
 		},
