@@ -164,7 +164,7 @@ YUI.add('supra.datatype-date-parse', function(Y) {
 		
 	    if(LANG.isDate(data)) {
 	        return data;
-	    } else if (typeof data === 'string' && (data.indexOf('UTC') !== -1 ||  && data.indexOf('GMT') !== -1)){
+	    } else if (typeof data === 'string' && (data.indexOf('UTC') !== -1 || data.indexOf('GMT') !== -1)) {
 			// Allow simple UTC or GMT values
 			var raw = new Date(data);
 			if(LANG.isDate(raw)) {
