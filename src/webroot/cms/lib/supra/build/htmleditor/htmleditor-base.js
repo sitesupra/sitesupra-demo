@@ -26,7 +26,7 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			setter: '_setDisabled'
 		},
 		'nativeSpellCheck': {
-			value: false,
+			value: true,
 			setter: '_setNativeSpellCheck'
 		},
 		'toolbar': {

@@ -9423,7 +9423,7 @@ YUI().add('supra.input-string-clear', function (Y) {
 			setter: '_setDisabled'
 		},
 		'nativeSpellCheck': {
-			value: false,
+			value: true,
 			setter: '_setNativeSpellCheck'
 		},
 		'toolbar': {
