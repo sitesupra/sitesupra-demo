@@ -887,6 +887,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-formats',
 			'supra.htmleditor-plugin-lists',
 			'supra.htmleditor-plugin-textstyle',
+			'supra.htmleditor-plugin-shortcuts',
 			'supra.htmleditor-plugin-styles',
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph',
@@ -978,6 +979,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-textstyle': {
 			path: 'htmleditor/plugins/plugin-textstyle.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-shortcuts': {
+			path: 'htmleditor/plugins/plugin-shortcuts.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-formats': {
@@ -11169,10 +11174,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 							this.fire('nodeChange');
 						};
 						
-						break;
+						return true;
 					}
 				}
 			}
+			
+			return false;
 		}
 	});
 
@@ -14316,6 +14323,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			} else {
 				this.hideMediaSidebar();
 			}
+			
+			//return true;
 		},
 		
 		/**
@@ -16212,12 +16221,13 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * Show or hide link manager based on toolbar button state
 		 */
 		toggleLinkManager: function () {
-			var button = this.htmleditor.get('toolbar').getButton('insertlink');
-			if (button.get('down')) {
+			if (!this.visible) {
 				this.insertLink();
 			} else {
 				this.hideLinkManager();
 			}
+			
+			//return true;
 		},
 		
 		/**
@@ -22170,32 +22180,6 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 		},
 		
 		/**
-		 * Enable ctrl+b, ctrl+i, etc. shortcuts
-		 * 
-		 * @param {Object} event Event facade object
-		 * @private
-		 */
-		handleShortcut: function (_, evt) {
-			var htmleditor = this.htmleditor,
-				allowEditing = htmleditor.editingAllowed && !htmleditor.selection.collapsed,
-				res = false;
-			
-			if (allowEditing && !evt.altKey && !evt.shiftKey && (evt.ctrlKey || evt.metaKey)) {
-				if (evt.keyCode == 66) { // B
-					res = this.exec(null, 'bold');
-				} else if (evt.keyCode == 73) { // I
-					res = this.exec(null, 'italic');
-				} else if (evt.keyCode == 85) { // U
-					res = this.exec(null, 'underline');
-				}
-				
-				if (res) {
-					evt.preventDefault();
-				}
-			}
-		},
-		
-		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
@@ -22228,9 +22212,6 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 			
 			//When selection changes update buttons
 			htmleditor.on('selectionChange', this.handleSelectionChange, this);
-			
-			//Handle key shortcuts
-			htmleditor.on('keyDown', this.handleShortcut, this);
 		},
 		
 		/**
@@ -22238,6 +22219,78 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 		 * Called when editor instance is destroyed
 		 */
 		destroy: function () {}
+		
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI().add('supra.htmleditor-plugin-shortcuts', function (Y) {
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+	};
+	
+	Supra.HTMLEditor.addPlugin('shortcuts', defaultConfiguration, {
+		
+		/**
+		 * Execute command
+		 * 
+		 * @param {Object} data
+		 * @param {String} command
+		 * @return True on success, false on failure
+		 * @type {Boolean}
+		 */
+		exec: function (data, command) {
+			var res = this.htmleditor.get('doc').execCommand(command, null, false);
+			this.htmleditor._changed();
+			this.htmleditor.refresh(true);
+			return res;
+		},
+		
+		/**
+		 * Enable ctrl+b, ctrl+i, etc. shortcuts
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		handleShortcut: function (_, evt) {
+			var htmleditor = this.htmleditor,
+				allowEditing = htmleditor.editingAllowed && !htmleditor.selection.collapsed,
+				res = false;
+			
+			if (allowEditing && !evt.altKey && (evt.ctrlKey || evt.metaKey)) {
+				
+				if (evt.keyCode == 66) {
+					res = htmleditor.exec('bold');			// CTRL + B
+				} else if (evt.keyCode == 73) {
+					res = htmleditor.exec('italic');		// CTRL + I
+				} else if (evt.keyCode == 85) {
+					res = htmleditor.exec('underline');		// CTRL + U
+				}/* else if (evt.keyCode == 76) {
+					res = htmleditor.exec('insertlink');	// CTRL + L
+				}*/
+				
+				if (res) {
+					evt.preventDefault();
+				}
+			}
+		},
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			//Handle key shortcuts
+			htmleditor.on('keyDown', this.handleShortcut, this);
+		}
 		
 	});
 	

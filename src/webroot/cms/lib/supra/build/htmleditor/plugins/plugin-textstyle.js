@@ -89,32 +89,6 @@ YUI().add('supra.htmleditor-plugin-textstyle', function (Y) {
 		},
 		
 		/**
-		 * Enable ctrl+b, ctrl+i, etc. shortcuts
-		 * 
-		 * @param {Object} event Event facade object
-		 * @private
-		 */
-		handleShortcut: function (_, evt) {
-			var htmleditor = this.htmleditor,
-				allowEditing = htmleditor.editingAllowed && !htmleditor.selection.collapsed,
-				res = false;
-			
-			if (allowEditing && !evt.altKey && !evt.shiftKey && (evt.ctrlKey || evt.metaKey)) {
-				if (evt.keyCode == 66) { // B
-					res = this.exec(null, 'bold');
-				} else if (evt.keyCode == 73) { // I
-					res = this.exec(null, 'italic');
-				} else if (evt.keyCode == 85) { // U
-					res = this.exec(null, 'underline');
-				}
-				
-				if (res) {
-					evt.preventDefault();
-				}
-			}
-		},
-		
-		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
@@ -147,9 +121,6 @@ YUI().add('supra.htmleditor-plugin-textstyle', function (Y) {
 			
 			//When selection changes update buttons
 			htmleditor.on('selectionChange', this.handleSelectionChange, this);
-			
-			//Handle key shortcuts
-			htmleditor.on('keyDown', this.handleShortcut, this);
 		},
 		
 		/**

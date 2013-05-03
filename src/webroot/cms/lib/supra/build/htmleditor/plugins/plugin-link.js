@@ -206,12 +206,13 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		 * Show or hide link manager based on toolbar button state
 		 */
 		toggleLinkManager: function () {
-			var button = this.htmleditor.get('toolbar').getButton('insertlink');
-			if (button.get('down')) {
+			if (!this.visible) {
 				this.insertLink();
 			} else {
 				this.hideLinkManager();
 			}
+			
+			//return true;
 		},
 		
 		/**
