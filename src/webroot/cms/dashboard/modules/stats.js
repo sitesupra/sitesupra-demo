@@ -115,7 +115,11 @@ YUI.add('dashboard.stats', function (Y) {
 					this._showProfilesListView([
 						{'id': '1', 'title': 'domain1.example.tld'},
 						{'id': '2', 'title': 'domain2.example.tld'},
-						{'id': '3', 'title': 'domain3.example.tld'}
+						{'id': '3', 'title': 'domain3.example.tld'},
+						{'id': '4', 'title': 'domain2.example.tld'},
+						{'id': '5', 'title': 'domain3.example.tld'},
+						{'id': '6', 'title': 'domain2.example.tld'},
+						{'id': '7', 'title': 'domain3.example.tld'}
 					]);
 					
 					this._widgets.profilesButton.detach('click');
