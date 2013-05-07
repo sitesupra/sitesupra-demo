@@ -887,6 +887,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-formats',
 			'supra.htmleditor-plugin-lists',
 			'supra.htmleditor-plugin-textstyle',
+			'supra.htmleditor-plugin-shortcuts',
 			'supra.htmleditor-plugin-styles',
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph',
@@ -978,6 +979,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-textstyle': {
 			path: 'htmleditor/plugins/plugin-textstyle.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-shortcuts': {
+			path: 'htmleditor/plugins/plugin-shortcuts.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-formats': {
@@ -4525,7 +4530,13 @@ YUI.add('supra.datatype-date-parse', function(Y) {
 		
 	    if(LANG.isDate(data)) {
 	        return data;
-	    }
+	    } else if (typeof data === 'string' && (data.indexOf('UTC') !== -1 || data.indexOf('GMT') !== -1)) {
+			// Allow simple UTC or GMT values
+			var raw = new Date(data);
+			if(LANG.isDate(raw)) {
+				return raw;
+			}
+		}
 	
 		oConfig = oConfig || {};
 		var format = oConfig.format || Y.config.dateFormat  || "%Y-%m-%d",
@@ -8511,6 +8522,10 @@ YUI().add("supra.io-css", function (Y) {
 			value: false
 		},
 		'valueMask': {
+			value: null,
+			setter: '_setValueMask'
+		},
+		'valueSource': {
 			value: null
 		},
 		'blurOnReturn': {
@@ -8550,12 +8565,25 @@ YUI().add("supra.io-css", function (Y) {
 		KEY_ESCAPE_ALLOW: true,
 		
 		/**
+		 * Character which is used instead of invalid characters
+		 */
+		MASK_REPLACEMENT_CHARACTER: '',
+		
+		/**
 		 * Last known value, used to restore input value if new value doesn't
 		 * pass mask validation
 		 * @type {String}
 		 * @private
 		 */
 		_last_value: null,
+		
+		/**
+		 * Value source target input event listener
+		 * @type {Object}
+		 * @private
+		 */
+		_value_source_listener: null,
+		
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
@@ -8588,6 +8616,13 @@ YUI().add("supra.io-css", function (Y) {
 			}
 			
 			this.on('input', this._onWidgetInputEvent, this);
+			
+			// Value source
+			this.after('valueSourceChange', this._afterValueSourceChange, this);
+			
+			if (this.get('valueSource')) {
+				this._afterValueSourceChange({'prevVal': undefined, 'newVal': this.get('valueSource')});
+			}
 		},
 		
 		/**
@@ -8766,6 +8801,14 @@ YUI().add("supra.io-css", function (Y) {
 					this.set('valueMask', new RegExp(mask));
 				}
 			}
+			
+			//Value source
+			if (!this.get('valueSource')) {
+				var mask = this.get('inputNode').getAttribute('suValueSource');
+				if (mask) {
+					this.set('valueSource');
+				}
+			}
 		},
 		
 		_setValue: function (value) {
@@ -8797,6 +8840,78 @@ YUI().add("supra.io-css", function (Y) {
 			if (evt.prevVal != evt.newVal) {
 				this.fire('change', {'value': evt.newVal});
 			}
+		},
+		
+		/**
+		 * Mask attribute setter
+		 * 
+		 * @param {String|RegExp} mask New value mask
+		 * @returns {RegExp} New attribute value
+		 * @private
+		 */
+		_setValueMask: function (mask) {
+			if (typeof mask === 'string') {
+				mask = new RegExp(mask);
+			}
+			return mask;
+		},
+		
+		/**
+		 * After value source change rebind listeners
+		 * 
+		 * @param {Object} evt valueSource attribute value change event object
+		 * @private 
+		 */
+		_afterValueSourceChange: function (evt) {
+			var form = this.getParentWidget("form"),
+				input = null;
+			
+			if (!form || evt.prevVal == evt.newVal) return;
+			
+			if (this._value_source_listener) {
+				this._value_source_listener.detach();
+				this._value_source_listener = null;
+			}
+			
+			if (evt.newVal) {
+				input = form.getInput(evt.newVal);
+				
+				if (input) {
+					this._value_source_listener = input.on('input', this._afterValueSourceInputChange, this);
+				}
+			}
+		},
+		
+		/**
+		 * After value source input value change update this input value
+		 * 
+		 * @param {Object} evt
+		 * @private
+		 */
+		_afterValueSourceInputChange: function (evt) {
+			var value = evt.value,
+				mask  = this.get('valueMask'),
+				out   = '',
+				i     = 0,
+				ii    = value.length,
+				repl  = this.MASK_REPLACEMENT_CHARACTER;
+			
+			if (mask) {
+				for (; i<ii; i++) {
+					if (mask.test(value[i])) {
+						out += value[i];
+					} else {
+						out += repl;
+					}
+				}
+				
+				value = out;
+				/*if (repl) {
+					out = out.replace(new RegExp('[' + Y.Escape.regex(repl) + ']{2,}', repl));
+				}*/
+			}
+			
+			this.set('value', value);
 		}
 		
 	});
@@ -9313,7 +9428,7 @@ YUI().add('supra.input-string-clear', function (Y) {
 			setter: '_setDisabled'
 		},
 		'nativeSpellCheck': {
-			value: false,
+			value: true,
 			setter: '_setNativeSpellCheck'
 		},
 		'toolbar': {
@@ -9386,6 +9501,9 @@ YUI().add('supra.input-string-clear', function (Y) {
 			
 			this.events.push(
 				this.get('srcNode').on('keyup', this._handleKeyUp, this)
+			);
+			this.events.push(
+				this.get('srcNode').on('keydown', this._handleKeyDown, this)
 			);
 			this.events.push(
 				this.get('srcNode').on('keypress', this._handleKeyPress, this)
@@ -9661,7 +9779,7 @@ YUI().add('supra.input-string-clear', function (Y) {
 				navKey = this.navigationCharCode(charCode);
 			
 			if (this.editingAllowed || navKey) {
-				if (this.fire('keyUp', event) !== false) {
+				if (this.fire('keyUp', event, event) !== false) {
 					setTimeout(Y.bind(function () {
 						this._handleNodeChange(event);
 					}, this), 0);
@@ -9669,6 +9787,22 @@ YUI().add('supra.input-string-clear', function (Y) {
 					if (!navKey && !event.ctrlKey) {
 						this._changed();
 					}
+				}
+			}
+		},
+		
+		/**
+		 * Trigger keydown event on editor
+		 * 
+		 * @param {Object} event
+		 */
+		_handleKeyDown: function (event) {
+			var charCode = event.charCode,
+				navKey = this.navigationCharCode(charCode);
+			
+			if (this.editingAllowed || navKey) {
+				if (this.fire('keyDown', event, event) === false) {
+					event.preventDefault();
 				}
 			}
 		},
@@ -11040,10 +11174,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 							this.fire('nodeChange');
 						};
 						
-						break;
+						return true;
 					}
 				}
 			}
+			
+			return false;
 		}
 	});
 
@@ -16083,12 +16219,13 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * Show or hide link manager based on toolbar button state
 		 */
 		toggleLinkManager: function () {
-			var button = this.htmleditor.get('toolbar').getButton('insertlink');
-			if (button.get('down')) {
+			if (!this.visible) {
 				this.insertLink();
 			} else {
 				this.hideLinkManager();
 			}
+			
+			//return true;
 		},
 		
 		/**
@@ -22088,6 +22225,78 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
+}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI().add('supra.htmleditor-plugin-shortcuts', function (Y) {
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+	};
+	
+	Supra.HTMLEditor.addPlugin('shortcuts', defaultConfiguration, {
+		
+		/**
+		 * Execute command
+		 * 
+		 * @param {Object} data
+		 * @param {String} command
+		 * @return True on success, false on failure
+		 * @type {Boolean}
+		 */
+		exec: function (data, command) {
+			var res = this.htmleditor.get('doc').execCommand(command, null, false);
+			this.htmleditor._changed();
+			this.htmleditor.refresh(true);
+			return res;
+		},
+		
+		/**
+		 * Enable ctrl+b, ctrl+i, etc. shortcuts
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		handleShortcut: function (_, evt) {
+			var htmleditor = this.htmleditor,
+				allowEditing = htmleditor.editingAllowed && !htmleditor.selection.collapsed,
+				res = false;
+			
+			if (allowEditing && !evt.altKey && (evt.ctrlKey || evt.metaKey)) {
+				
+				if (evt.keyCode == 66) {
+					res = htmleditor.exec('bold');			// CTRL + B
+				} else if (evt.keyCode == 73) {
+					res = htmleditor.exec('italic');		// CTRL + I
+				} else if (evt.keyCode == 85) {
+					res = htmleditor.exec('underline');		// CTRL + U
+				}/* else if (evt.keyCode == 76) {
+					res = htmleditor.exec('insertlink');	// CTRL + L
+				}*/
+				
+				if (res) {
+					evt.preventDefault();
+				}
+			}
+		},
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			//Handle key shortcuts
+			htmleditor.on('keyDown', this.handleShortcut, this);
+		}
+		
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
 }, YUI.version, {'requires': ['supra.htmleditor-base']});/**
  * Style sidebar
  */
@@ -24817,6 +25026,11 @@ YUI.add("supra.input-number", function (Y) {
 	
 	Y.extend(Input, Supra.Input.String, {
 		
+		/**
+		 * Character which is used instead of invalid characters
+		 */
+		MASK_REPLACEMENT_CHARACTER: '-',
+		
 		_setPath: function (value) {
 			var node = this.get('pathNode'),
 				input = this.get('inputNode'),
@@ -24888,6 +25102,43 @@ YUI.add("supra.input-number", function (Y) {
 			}
 			
 			return r;
+		},
+		
+		/**
+		 * After value source input value change update this input value
+		 * Overwrite String implementation for correct path value
+		 * 
+		 * @param {Object} evt
+		 * @private
+		 */
+		_afterValueSourceInputChange: function (evt) {
+			var value = evt.value,
+				mask  = this.get('valueMask'),
+				out   = '',
+				i     = 0,
+				ii    = value.length,
+				repl  = this.MASK_REPLACEMENT_CHARACTER;
+			
+			if (mask) {
+				for (; i<ii; i++) {
+					if (mask.test(value[i])) {
+						out += value[i];
+					} else {
+						out += repl;
+					}
+				}
+				
+				// Remove repeated characters
+				if (repl) {
+					out = out.replace(new RegExp('[' + Y.Escape.regex(repl) + ']{2,}', 'ig'), repl);
+					out = out.replace(new RegExp('(^' + Y.Escape.regex(repl) + '|' + Y.Escape.regex(repl) + '$)', 'ig'), '');
+				}
+				
+				// Path is lower case
+				value = out.toLowerCase();
+			}
+			
+			this.set('value', value);
 		}
 		
 	});

@@ -371,6 +371,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-formats',
 			'supra.htmleditor-plugin-lists',
 			'supra.htmleditor-plugin-textstyle',
+			'supra.htmleditor-plugin-shortcuts',
 			'supra.htmleditor-plugin-styles',
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph',
@@ -462,6 +463,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-textstyle': {
 			path: 'htmleditor/plugins/plugin-textstyle.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-shortcuts': {
+			path: 'htmleditor/plugins/plugin-shortcuts.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-plugin-formats': {

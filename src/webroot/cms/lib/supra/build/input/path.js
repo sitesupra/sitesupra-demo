@@ -33,6 +33,11 @@ YUI.add('supra.input-path', function (Y) {
 	
 	Y.extend(Input, Supra.Input.String, {
 		
+		/**
+		 * Character which is used instead of invalid characters
+		 */
+		MASK_REPLACEMENT_CHARACTER: '-',
+		
 		_setPath: function (value) {
 			var node = this.get('pathNode'),
 				input = this.get('inputNode'),
@@ -104,6 +109,43 @@ YUI.add('supra.input-path', function (Y) {
 			}
 			
 			return r;
+		},
+		
+		/**
+		 * After value source input value change update this input value
+		 * Overwrite String implementation for correct path value
+		 * 
+		 * @param {Object} evt
+		 * @private
+		 */
+		_afterValueSourceInputChange: function (evt) {
+			var value = evt.value,
+				mask  = this.get('valueMask'),
+				out   = '',
+				i     = 0,
+				ii    = value.length,
+				repl  = this.MASK_REPLACEMENT_CHARACTER;
+			
+			if (mask) {
+				for (; i<ii; i++) {
+					if (mask.test(value[i])) {
+						out += value[i];
+					} else {
+						out += repl;
+					}
+				}
+				
+				// Remove repeated characters
+				if (repl) {
+					out = out.replace(new RegExp('[' + Y.Escape.regex(repl) + ']{2,}', 'ig'), repl);
+					out = out.replace(new RegExp('(^' + Y.Escape.regex(repl) + '|' + Y.Escape.regex(repl) + '$)', 'ig'), '');
+				}
+				
+				// Path is lower case
+				value = out.toLowerCase();
+			}
+			
+			this.set('value', value);
 		}
 		
 	});

@@ -142,12 +142,12 @@
 /**
  * Authorization
  */
-.dashboard-analytics {
+.dashboard .dashboard-analytics {
 	min-height: @statsBlockHeight;
 	background-color: #348cda;
 	border-top-color: #78b3e6;
 }
-.dashboard-authorization {
+.dashboard .dashboard-authorization {
 	.su-block-content {
 		text-align: center;
 		padding: 0 20%;
@@ -160,13 +160,19 @@
 		> .yui3-form {
 			margin-top: 70px;
 		}
+		
+		.yui3-input-select .yui3-input-select-inner .su-scrollable {
+			&, .su-scrollable-content {
+				max-height: 89px;
+			}
+		}
 	}
 }
 
 /**
  * Visitors
  */
-.dashboard-visitors {
+.dashboard .dashboard-visitors {
 	min-height: @statsBlockHeight;
 	background-color: #348cda;
 	border-top-color: #78b3e6;
@@ -175,7 +181,7 @@
 /**
  * Keywords
  */
-.dashboard-keywords {
+.dashboard .dashboard-keywords {
 	min-height: @statsBlockHeight;
 	border-top-color: #fff;
 	background-color: #fff;
@@ -210,6 +216,6 @@
 /**
  * Referrers
  */
-.dashboard-referrers {
+.dashboard .dashboard-referrers {
 	min-height: @statsBlockHeight;
 }

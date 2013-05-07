@@ -167,6 +167,7 @@
 /cms/lib/supra/build/htmleditor/plugins/plugin-formats.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-lists.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-textstyle.js
+/cms/lib/supra/build/htmleditor/plugins/plugin-shortcuts.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-styles.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-paste.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-paragraph.js

@@ -111,7 +111,7 @@ class FormBlock extends BlockController
 			
 			$message->setTo($receiver)
 					->setSubject("New message from \"{$siteName}\" project")
-					->setBody('mail.html.twig', array('postedFields' => $fieldValues));
+					->setBody('mail.html.twig', array('title' => "New message from \"{$siteName}\" project", 'postedFields' => $fieldValues));
 			
 			$mailer->send($message);
 		}

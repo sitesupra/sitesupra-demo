@@ -45,10 +45,12 @@ YUI().add('supra.htmleditor-commands', function (Y) {
 							this.fire('nodeChange');
 						};
 						
-						break;
+						return true;
 					}
 				}
 			}
+			
+			return false;
 		}
 	});
 
