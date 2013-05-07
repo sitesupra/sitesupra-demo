@@ -16,7 +16,7 @@ class GroupConfiguration extends ThemeConfigurationAbstraction
 	 * @var string
 	 */
 	public $label;
-
+	
 	/**
 	 * @var array
 	 */
@@ -26,6 +26,13 @@ class GroupConfiguration extends ThemeConfigurationAbstraction
 	 * @var string
 	 */
 	public $visibleFor = 'all';
+	
+	/**
+	 * Contains the JS element selector value which will define,
+	 * which element should be highlighted when you hover parameter group
+	 * @var string
+	 */
+	public $highlightElement;
 	
 	/**
 	 * 
