@@ -148,7 +148,11 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @return string
 	 */
 	public function getTitle()
-	{
+	{	
+		if (empty($this->title)) {
+			return $this->getElementTitle();
+		}
+		
 		return $this->title;
 	}
 
