@@ -258,6 +258,21 @@
 		display: none;
 	}
 	
+	&.expandable > .su-tree-node-content .item:before {
+		content: "";
+		position: absolute;
+		display: block;
+		width: 23px;
+		height: 23px;
+		display: block;
+		background: url(images/icon-children.png) 0 0 no-repeat;
+		bottom: -8px;
+		left: 40px;
+	}
+	&.expanded > .su-tree-node-content .item:before {
+		display: none;
+	}
+	
 	&.root {
 		height: 141px;
 		padding-top: 0;
