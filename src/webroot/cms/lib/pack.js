@@ -9246,7 +9246,7 @@ YUI().add('supra.input-string-clear', function (Y) {
 			var result = [],
 				rules,
 				doc = new Y.Node(this.get('doc')),
-				links = doc.all('link[rel="stylesheet"]'),
+				links = doc.all('link[rel="stylesheet"], style[type="text/css"]'),
 				link = null,
 				prefix = this.get("selectorPrefix");
 			
@@ -30847,8 +30847,15 @@ YUI.add('supra.datatype-color', function(Y) {
 	var Color = Y.DataType.Color;
 	
 	var TEMPLATE = Supra.Template.compile('\
-						{% if allowUnset %}\
-							<div class="unset"><a></a><label>{{ labelUnset|escape }}</label></div>\
+						{% if allowUnset or presets %}\
+							<div class="presets">\
+								{% if presets %}{% for preset in presets %}\
+									<a class="preset" style="background-color: {{ preset }};" data-color="{{ preset|upper }}"></a>\
+								{% endfor %}{% endif %}\
+								{% if allowUnset %}\
+									<a class="unset"></a><label>{{ labelUnset|escape }}</label>\
+								{% endif %}\
+							</div>\
 						{% endif %}\
 						<div class="input-content">\
 							<div class="map"><div class="handle"></div><div class="cursor hidden"></div></div>\
@@ -30945,6 +30952,14 @@ YUI.add('supra.datatype-color', function(Y) {
 		//Shim node
 		"nodeShim": {
 			"value": null
+		},
+		//Preset list of colors
+		"presets": {
+			"value": null
+		},
+		//Color preset nodes
+		"nodePresets": {
+			"value": null
 		}
 	};
 	
@@ -30954,6 +30969,12 @@ YUI.add('supra.datatype-color', function(Y) {
 				unset = srcNode.getAttribute("suAllowUnset") == "true" || (input && input.getAttribute("suAllowUnset") == "true");
 			
 			return unset === true ? true : null;
+		},
+		"presets": function (srcNode) {
+			var input = this.get("inputNode"),
+				presets = srcNode.getAttribute("suPresets") || (input && input.getAttribute("suPresets"));
+			
+			return presets ? presets.split(',') : null;
 		}
 	};
 	
@@ -30967,6 +30988,13 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		unset: false,
+		
+		/**
+		 * Preset index which is choosen
+		 * @type {Number}
+		 * @private
+		 */
+		preset: -1,
 		
 		/**
 		 * Value as HEX
@@ -31050,7 +31078,8 @@ YUI.add('supra.datatype-color', function(Y) {
 			var contentBox = this.get("contentBox"),
 				template = Y.Node.create(TEMPLATE({
 					"allowUnset": this.get("allowUnset"),
-					"labelUnset": this.get("labelUnset")
+					"labelUnset": this.get("labelUnset"),
+					"presets": this.get("presets")
 				}));
 			
 			//Attributes
@@ -31066,7 +31095,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			this.set("nodeInputBlue", template.one("input[name=\"blue\"]"));
 			
 			if (this.get("allowUnset")) {
-				this.set("nodeUnset", template.one("div.unset a"));
+				this.set("nodeUnset", template.one("div.presets a.unset"));
+			}
+			if (this.get("presets")) {
+				this.set("nodePresets", template.all("div.presets a.preset"));
 			}
 			
 			//Render template
@@ -31079,7 +31111,8 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			//Value
 			var value = this.get('value'),
-				fixed = (value || "#000000").toUpperCase();
+				fixed = (value || "#000000").toUpperCase(),
+				presets = this.get('presets');
 			
 			this.hex = fixed;
 			this.rgb = Color.convert.HEXtoRGB(fixed);
@@ -31087,6 +31120,18 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (this.get("allowUnset") && !value) {
 				this.unset = true;
+			}
+			
+			if (presets && presets.length) {
+				var i   = 0,
+					ii  = presets.length,
+					hex = this.hex;
+				
+				for (; i<ii; i++) {
+					if (presets[i].toUpperCase() == hex) {
+						this.preset = i; break;
+					}
+				}
 			}
 		},
 		
@@ -31117,6 +31162,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (this.get("allowUnset")) {
 				this.get("nodeUnset").on("mousedown", this._onUnset, this);
+			}
+			if (this.get("presets")) {
+				this.get("nodePresets").on("mousedown", this._onPreset, this);
 			}
 			
 			//Handle value attribute change
@@ -31201,7 +31249,8 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		syncUIPreview: function () {
 			if (this.get("nodePreview") && !this.uiFrozen) {
-				var nodeUnset = this.get("nodeUnset");
+				var nodeUnset = this.get("nodeUnset"),
+					nodePresets = this.get("nodePresets");
 				
 				if (this.unset) {
 					if (nodeUnset) nodeUnset.addClass("active");
@@ -31211,6 +31260,13 @@ YUI.add('supra.datatype-color', function(Y) {
 					if (nodeUnset) nodeUnset.removeClass("active");
 					this.get("nodePreview").removeClass("preview-unset");
 					this.get("nodePreview").setStyle("backgroundColor", this.hex);
+				}
+				
+				if (nodePresets) {
+					nodePresets.removeClass("active");
+					if (this.preset >= 0) {
+						nodePresets.item(this.preset).addClass("active");
+					}
 				}
 			}
 		},
@@ -31313,10 +31369,27 @@ YUI.add('supra.datatype-color', function(Y) {
 		
 		/**
 		 * On unset update color
+		 * 
+		 * @private
 		 */
 		_onUnset: function () {
 			this.setRGB(255, 255, 255);
 			this.set("value", "");
+		},
+		
+		/**
+		 * On preset update color
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		_onPreset: function (e) {
+			var target = Y.Node(e.target),
+				color  = target.getAttribute("data-color");
+			
+			if (color) {
+				this.set("value", color);
+			}
 		},
 		
 		
@@ -31334,6 +31407,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		_downBarCursor: function (e) {
 			this.barCursorDown = true;
 			this.unset = false;
+			this.preset = -1;
 			e.halt();
 			
 			var doc = Y.Node(document);
@@ -31498,6 +31572,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		_downMapCursor: function (e) {
 			this.mapCursorDown = true;
 			this.unset = false;
+			this.preset = -1;
 			e.halt();
 			
 			var doc = Y.Node(document);
@@ -31736,6 +31811,22 @@ YUI.add('supra.datatype-color', function(Y) {
 			} else {
 				fixed = this.hex;
 				this.unset = false;
+			}
+			
+			// Check if any preset is choosen
+			this.preset = -1;
+			
+			var presets = this.get("presets"),
+				hex     = this.hex,
+				i       = 0,
+				ii      = 0;
+			
+			if (presets && hex) {
+				for (ii=presets.length; i<ii; i++) {
+					if (presets[i].toUpperCase() == hex) {
+						this.preset = i; break;
+					}
+				}
 			}
 			
 			//Super
@@ -38071,13 +38162,27 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
 			if (!content) return;
 			
+			//Find presets
+			var presets = [],
+				container = this.htmleditor.get("srcNode"),
+				styles = this.htmleditor.get("stylesheetParser").getSelectorsByNodeMatch(container)["COLOR"],
+				i = 0,
+				ii = styles.length;
+			
+			for (; i<ii; i++) {
+				if (styles[i].attributes.color) {
+					presets.push(styles[i].attributes.color);
+				}
+			}
+			
 			//Properties form
 			var form_config = {
 				"inputs": [{
 					"id": "color",
 					"type": "Color",
 					"label": "",
-					"allowUnset": true
+					"allowUnset": true,
+					"presets": presets
 				}],
 				"style": "vertical"
 			};
