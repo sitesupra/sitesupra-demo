@@ -2,12 +2,21 @@
 @layout-padding: 0;
 @header-height: 48px;
 
+.layout-transition () {
+	-o-transition: 0.35s left, 0.35s right, 0.35s -o-transform;
+	-moz-transition: 0.35s left, 0.35s right, 0.35s -moz-transform;
+  -webkit-transition: 0.35s left, 0.35s right, 0.35s -webkit-transform;
+  -ms-transition: 0.35s left, 0.35s right, 0.35s -ms-transform;
+  transition: 0.35s left, 0.35s right, 0.35s transform;
+}
 .layout-fullscreen () {
 	position: absolute;
 	top: @header-height;
 	left: @layout-padding;
 	right: @layout-padding;
 	bottom: @layout-padding;
+	
+	.layout-transition ();
 }
 
 .clear-fix () {

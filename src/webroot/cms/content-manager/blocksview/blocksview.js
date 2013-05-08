@@ -73,6 +73,14 @@ Supra(function (Y) {
 			
 			container.delegate('click', this.itemOnClick, 'li', this);
 			
+			//When a block is selected hide blockview
+			var content = Manager.PageContent.getContent();
+			content.before('activeChildChange', function (event) {
+				if (event.newVal && !event.prevVal && this.get('visible')) {
+					this.hide();
+				}
+			}, this);
+			
 			//Control button
 			this.get('controlButton').on('click', this.close, this);
 		},

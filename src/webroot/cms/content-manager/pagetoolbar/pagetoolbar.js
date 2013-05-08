@@ -322,7 +322,8 @@ Supra(function (Y) {
 		handleButtonClick: function (event) {
 			var target_id = event.target.get('topbarButtonId'),
 				group_id = this.active_group,
-				buttons = this.buttons;
+				buttons = this.buttons,
+				button = this.getActionButton(target_id);
 			
 			var config = this.get('buttons')[group_id];
 			
@@ -356,9 +357,15 @@ Supra(function (Y) {
 							//Call function
 							action[config.actionFunction](config.id);
 						} else {
+							if (button) {
+								button.set('loading', true);
+							}
 							//Call after action is executed
 							action.once('executedChange', function (e) {
 								if (e.newVal != e.prevVal && e.newVal) {
+									if (button) {
+										button.set('loading', false);
+									}
 									action[config.actionFunction](config.id, config);
 								}
 							});
@@ -370,6 +377,19 @@ Supra(function (Y) {
 					}
 				} else {
 					if (action && action.execute) {
+						if (!action.get('loaded') && button) {
+							button.set('loading', true);
+						}
+						
+						//Call after action is executed
+						action.once('executedChange', function (e) {
+							if (e.newVal != e.prevVal && e.newVal) {
+								if (button) {
+									button.set('loading', false);
+								}
+							}
+						});
+						
 						action.execute();
 					}
 				}

@@ -10,7 +10,6 @@
 
 .right-container,
 .left-container {
-	width: 25%;
 	max-width: 400px;
 	min-width: 250px;
 	position: absolute;
@@ -24,6 +23,7 @@
 }
 .left-container {
 	left: 0;
+	width: 25%;
 	border-right: 1px solid #000;
 }
 
@@ -33,6 +33,22 @@
 	left: 0;
 	right: 0;
 	top: 0;
+}
+
+.center-container,
+.right-container,
+.left-container {
+	.layout-transition ();
+}
+
+
+.hidden {
+	// Disable transition for hidden elements
+  -o-transition: color 0 ease-in !important;
+	-moz-transition: none !important;
+  -webkit-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
 }
 
 /**

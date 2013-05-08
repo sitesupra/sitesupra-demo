@@ -603,49 +603,77 @@ function (Y) {
 			var node = this.one(),
 				width = Y.DOM.viewportRegion().width;
 			
-			// Update styles to allow 'left' animation
-			node.setStyles({
-				'width': width,
-				'right': 'auto',
-				'left': '100%'
-			});
-			
-			node.removeClass('hidden');
-			
-			// Animate position
-			node.transition({
-				'duration': 0.5,
-				'left': '0%'
-			}, Y.bind(function () {
-				node.setStyles({
-					'width': 'auto',
-					'left': '0px',
-					'right': '0px'
+			if (Supra.Y.Transition.useNative) {
+				// Use CSS transforms + transition
+				node.addClass('hidden');
+				node.setStyle('transform', 'translate(' + width + 'px, 0px)');
+				
+				Y.later(1, this, function () {
+					// Only now remove hidden to prevent unneeded animation
+					node.removeClass('hidden');
 				});
 				
-				this.itemlist.set('visible', true);
-			}, this));
+				// Use CSS
+				Y.later(32, this, function () {
+					// Animate
+					node.setStyle('transform', 'translate(0px, 0px)');
+					
+					Y.later(500, this, function () {
+						this.itemlist.set('visible', true);
+					});
+				});
+			} else {
+				// Fallback for IE9
+				// Update styles to allow 'left' animation
+				node.setStyles({
+					'width': width + 'px',
+					'right': 'auto',
+					'left': width + 'px'
+				});
+				
+				// Animate position using JS
+				node.transition({
+					'duration': 0.5,
+					'left': '0px'
+				}, Y.bind(function () {
+					node.setStyles({
+						'width': 'auto',
+						'left': '0px',
+						'right': '0px'
+					});
+					
+					this.itemlist.set('visible', true);
+				}, this));
+			}
 		},
 		
 		animateOut: function () {
 			var node = this.one(),
 				width = Y.DOM.viewportRegion().width;
 			
-			// Update styles to allow 'left' animation
-			node.setStyles({
-				'width': width,
-				'right': 'auto',
-				'left': '0%'
-			});
-			
-			// Animate position
-			node.transition({
-				'duration': 0.5,
-				'left': '100%'
-			}, Y.bind(function () {
-				node.addClass('hidden');
-				this.set('visible', false);
-			}, this));
+			if (Supra.Y.Transition.useNative) {
+				// Use CSS transforms + transition
+				node.setStyle('transform', 'translate(' + width + 'px, 0px)');
+				Y.later(350, this, function () {
+					this.set('visible', false);
+				});
+			} else {
+				// Update styles to allow 'left' animation
+				// IE9 fallback
+				node.setStyles({
+					'width': width + 'px',
+					'right': 'auto',
+					'left': '0px'
+				});
+				
+				// Animate position using JS
+				node.transition({
+					'duration': 0.5,
+					'left': width + 'px'
+				}, Y.bind(function () {
+					this.set('visible', false);
+				}, this));	
+			}
 		},
 		
 		
