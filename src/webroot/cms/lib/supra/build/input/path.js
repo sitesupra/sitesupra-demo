@@ -62,6 +62,7 @@ YUI.add('supra.input-path', function (Y) {
 			if (node) {
 				this.set('pathNode', node);
 				node.set('innerHTML', Y.Escape.html(value));
+				node.toggleClass('empty', !value);
 			}
 			
 			return value;

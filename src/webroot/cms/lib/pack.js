@@ -9486,6 +9486,8 @@ YUI().add('supra.input-string-clear', function (Y) {
 	HTMLEditor.MODE_SIMPLE	= 2;
 	HTMLEditor.MODE_RICH	= 3;
 	
+	HTMLEditor.TYPE_STANDALONE = 1;
+	HTMLEditor.TYPE_INLINE = 2;
 	
 	Y.extend(HTMLEditor, Y.Base, {
 		
@@ -11205,7 +11207,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			this.plugins = {};
 			var plugins = Supra.HTMLEditor.PLUGINS,
 				configuration = null,
-				mode = this.get('mode');
+				mode = this.get('mode'),
+				default_modes = [],
+				
+				type = this.get('standalone') ? Supra.HTMLEditor.TYPE_STANDALONE : Supra.HTMLEditor.TYPE_INLINE,
+				default_type = [Supra.HTMLEditor.TYPE_STANDALONE, Supra.HTMLEditor.TYPE_INLINE];
 			
 			for(var id in plugins) {
 				configuration = this.getPluginConfiguration(id);
@@ -11214,7 +11220,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					
 					//If plugin doesn't support this mode then skip it
 					if (configuration) {
-						if (Y.Array.indexOf(configuration.modes || [], mode) == -1) {
+						if (Y.Array.indexOf(configuration.modes || default_modes, mode) == -1) {
+							continue;
+						}
+						if (Y.Array.indexOf(configuration.types || default_type, type) == -1) {
 							continue;
 						}
 					}
@@ -15871,6 +15880,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
 		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
+		
+		/* Supported HTML editor use types */
+		types: [Supra.HTMLEditor.TYPE_INLINE],
 		
 		/* Default image size */
 		size: '200x200',
@@ -22861,11 +22873,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				if (action.get('loaded')) {
 					if (!action.get('created')) {
 						action.renderAction();
-						this.showStylesSidebar(target);
+						this.showStylesSidebar();
 					}
 				} else {
 					action.once('loaded', function () {
-						this.showStylesSidebar(target);
+						this.showStylesSidebar();
 					}, this);
 					action.load();
 				}
@@ -25055,6 +25067,7 @@ YUI.add("supra.input-number", function (Y) {
 			if (node) {
 				this.set('pathNode', node);
 				node.set('innerHTML', Y.Escape.html(value));
+				node.toggleClass('empty', !value);
 			}
 			
 			return value;
