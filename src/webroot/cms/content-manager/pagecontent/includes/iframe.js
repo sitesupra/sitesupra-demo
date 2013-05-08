@@ -205,10 +205,16 @@ YUI.add('supra.iframe-handler', function (Y) {
 			}
 			
 			//Trigger ready event when everything is actually ready
-			this.get('win').addEventListener('load', Y.bind(function () {
+			var onready = Y.bind(function () {
 				this.fire('ready', {'iframe': this, 'body': body});
 				this.get('nodeIframe').fire('ready');
-			}, this), false);
+			}, this);
+			
+			if (doc.readyState == 'complete' || doc.readyState == 'loaded') {
+				onready();
+			} else {
+				this.get('win').addEventListener('load', onready, false);
+			}
 		},
 		
 		/**
