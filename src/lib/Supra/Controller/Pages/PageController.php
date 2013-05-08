@@ -525,10 +525,15 @@ class PageController extends ControllerAbstraction
 	{
 		$request = $this->getRequest();
 
-		$responseContext = new ResponseContext();
-
-		$this->getResponse()
+		$responseContext = $this->getResponse()
+				->getContext();
+		
+		if ( ! $responseContext instanceof ResponseContext) {
+			$responseContext = new ResponseContext();
+			
+			$this->getResponse()
 				->setContext($responseContext);
+		}
 
 		$blockContentCache = $this->blockContentCache;
 		$blockCacheRequests = $this->blockCacheRequests;
