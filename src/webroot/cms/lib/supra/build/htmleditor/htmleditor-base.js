@@ -84,6 +84,8 @@ YUI().add('supra.htmleditor-base', function (Y) {
 	HTMLEditor.MODE_SIMPLE	= 2;
 	HTMLEditor.MODE_RICH	= 3;
 	
+	HTMLEditor.TYPE_STANDALONE = 1;
+	HTMLEditor.TYPE_INLINE = 2;
 	
 	Y.extend(HTMLEditor, Y.Base, {
 		

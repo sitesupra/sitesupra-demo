@@ -562,11 +562,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				if (action.get('loaded')) {
 					if (!action.get('created')) {
 						action.renderAction();
-						this.showStylesSidebar(target);
+						this.showStylesSidebar();
 					}
 				} else {
 					action.once('loaded', function () {
-						this.showStylesSidebar(target);
+						this.showStylesSidebar();
 					}, this);
 					action.load();
 				}

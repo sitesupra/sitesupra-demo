@@ -7,6 +7,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		/* Modes which plugin supports */
 		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
 		
+		/* Supported HTML editor use types */
+		types: [Supra.HTMLEditor.TYPE_INLINE],
+		
 		/* Default image size */
 		size: '200x200',
 		

@@ -16,7 +16,11 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 			this.plugins = {};
 			var plugins = Supra.HTMLEditor.PLUGINS,
 				configuration = null,
-				mode = this.get('mode');
+				mode = this.get('mode'),
+				default_modes = [],
+				
+				type = this.get('standalone') ? Supra.HTMLEditor.TYPE_STANDALONE : Supra.HTMLEditor.TYPE_INLINE,
+				default_type = [Supra.HTMLEditor.TYPE_STANDALONE, Supra.HTMLEditor.TYPE_INLINE];
 			
 			for(var id in plugins) {
 				configuration = this.getPluginConfiguration(id);
@@ -25,7 +29,10 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 					
 					//If plugin doesn't support this mode then skip it
 					if (configuration) {
-						if (Y.Array.indexOf(configuration.modes || [], mode) == -1) {
+						if (Y.Array.indexOf(configuration.modes || default_modes, mode) == -1) {
+							continue;
+						}
+						if (Y.Array.indexOf(configuration.types || default_type, type) == -1) {
 							continue;
 						}
 					}
