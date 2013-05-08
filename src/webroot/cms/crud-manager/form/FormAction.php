@@ -167,7 +167,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 	 * @param \Supra\Cms\CrudManager\CrudEntityInterface $record
 	 * @param string $recordBefore
 	 */
-	protected function move(CrudEntityInterface $record, $recordBefore, $writeLog = true)
+	protected function move(CrudManager\CrudEntityInterface $record, $recordBefore, $writeLog = true)
 	{
 		$configuration = $this->getConfiguration();
 		$em = ObjectRepository::getEntityManager($this);
