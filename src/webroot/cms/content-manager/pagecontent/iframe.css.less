@@ -180,8 +180,8 @@
 	.su-overlay-name {
 		display: none;
 		position: absolute;
-		margin: -15px 0 0 0;
-		padding: 0 8px;
+		margin: -20px 0 0 0;
+		padding: 5px 10px;
 		background: #009DF8;
 		left: 20px;
 		top: 50%;
@@ -197,6 +197,7 @@
 		white-space: nowrap !important;
 		
 		small {
+			display: none;
 			font-size: 13px;
 		}
 	}
@@ -209,16 +210,22 @@
 		background: #555;
 	}
 	
-	// Editable block overlay (non-list)
-	&.su-overlay-editable .su-overlay-name {
-		line-height: 24px !important;
-		padding: 10px 70px 10px 10px;
-		left: 50%;
-		margin: -35px 0 0 -118px; // assume width is ~236px
-		
-		.su-overlay-icon {
-			left: auto;
-			right: 5px;
+	// When icon is not visible don't show "Drag to sort, click to edit"
+	&.su-overlay-editable.su-overlay-icon-visible,
+	&.su-overlay-editable.su-overlay-icon-visible-hover {
+		.su-overlay-name {
+			line-height: 24px !important;
+			padding: 10px 70px 10px 10px;
+			left: 50%;
+			margin: -35px 0 0 -118px; // assume width is ~236px
+			
+			small {
+				display: inline;
+			}
+			.su-overlay-icon {
+				left: auto;
+				right: 5px;
+			}
 		}
 	}
 	&.su-overlay-editable.su-overlay-closed .su-overlay-name {
