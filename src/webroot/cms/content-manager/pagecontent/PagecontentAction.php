@@ -31,10 +31,31 @@ class PagecontentAction extends PageManagerAction
 		$data = $this->getPageLocalization();
 		$page = $data->getMaster();
 		$request = $this->getPageRequest();
-
+		
 		$placeHolderName = $this->getRequestParameter('placeholder_id');
 		$blockType = $this->getRequestParameter('type');
 
+		// Generate block according the page type provided
+		$newBlock = Entity\Abstraction\Block::factory($page);
+		$newBlock->setComponentName($blockType);
+		
+		$class = $newBlock->getComponentClass();
+		$configuration = ObjectRepository::getComponentConfiguration($class);
+		
+		if ( ! $configuration instanceof BlockControllerConfiguration) {
+			throw new \RuntimeException("Failed to get configuration for specified block type {$blockType}");
+		}
+		
+		if ($configuration->unique) {
+			$blockSet = $request->getBlockSet();
+			foreach ($blockSet as $block) {
+				/* @var $block Supra\Controller\Pages\Entity\Abstraction\Block */
+				if ($block->getComponentClass() === $class) {
+					throw new CmsException(null, "Only one instance of \"{$configuration->title}\" can be placed on the page");
+				}
+			}
+		}
+		
 		$insertBeforeBlockId = $this->getRequestInput()->get('reference_id', null);
 
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
@@ -45,11 +66,6 @@ class PagecontentAction extends PageManagerAction
 		//foreach ($placeHolder->getBlocks() as $someBlock) {
 		//	\Log::debug('0 BLOCK ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
 		//}
-
-		// Generate block according the page type provided
-		$newBlock = Entity\Abstraction\Block::factory($page);
-
-		$newBlock->setComponentName($blockType);
 
 		// This is also a fall-through case if no valid positionin block is found.
 		$newBlock->setPosition($placeHolder->getMaxBlockPosition() + 1);
