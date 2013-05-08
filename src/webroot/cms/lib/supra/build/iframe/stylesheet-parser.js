@@ -208,7 +208,7 @@ YUI().add("supra.iframe-stylesheet-parser", function (Y) {
 			var result = [],
 				rules,
 				doc = new Y.Node(this.get('doc')),
-				links = doc.all('link[rel="stylesheet"]'),
+				links = doc.all('link[rel="stylesheet"], style[type="text/css"]'),
 				link = null,
 				prefix = this.get("selectorPrefix");
 			

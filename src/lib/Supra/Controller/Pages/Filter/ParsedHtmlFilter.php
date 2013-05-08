@@ -367,7 +367,7 @@ class ParsedHtmlFilter implements FilterInterface
 			}
 			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
 				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
-				<iframe src=\"http://player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				<iframe src=\"http://player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 				</div>";
 			}
 		}

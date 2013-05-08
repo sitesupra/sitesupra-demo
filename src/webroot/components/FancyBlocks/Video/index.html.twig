@@ -41,7 +41,8 @@
 			</div>
 		{% elseif video.service == 'vimeo' %}
 			<div class="block video {{ heading_class }}" data-attach="$.fn.resize">
-				<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				{% set player_id = random() %}
+				<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&api=1&player_id=player{{ player_id }}" id="player{{ player_id }}" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 			</div>
 		{% endif %}
 

@@ -715,13 +715,24 @@ YUI.add('slideshowmanager.view', function (Y) {
 				
 				linkHrefExtra  = '',
 				
+				styles = Y.Node(doc).all('style[type="text/css"]'),
+				s = 0,
+				ss = styles.size(),
+				
+				styleMedia = '',
+				
 				stylesheets = [];
 			
 			for (; i<ii; i++) {
 				linkHref = links.item(i).getAttribute('href') || '';
-				linkMedia = links.item(i).getAttribute('media') || '';
+				linkMedia = links.item(i).getAttribute('media') || 'all';
 				
 				stylesheets.push('<link rel="stylesheet" type="text/css" href="' + linkHref + '" media="' + linkMedia + '" />');
+			}
+			
+			for (; s<ss; s++) {
+				styleMedia = styles.item(s).getAttribute('media') || 'all';
+				stylesheets.push('<style type="text/css" media="' + linkMedia + '">' + styles.item(s).get('innerHTML') + '</style>');
 			}
 			
 			// Gallery manager stylesheet for new item, drag and drop, etc. styles

@@ -121,6 +121,12 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		last_content_disabled_state: false,
 		
 		/**
+		 * Highlight mode of page content before settings was shown
+		 * @type {String}
+		 */
+		last_content_highlight_state: 'edit',
+		
+		/**
 		 * Update path when title changes
 		 * @type {Boolean}
 		 */
@@ -961,7 +967,6 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		 * Render widgets and add event listeners
 		 */
 		render: function () {
-
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
 
@@ -1088,10 +1093,14 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		 * On settings block hiden re-enable content editing
 		 */
 		hide: function () {
-			Action.Base.prototype.hide.apply(this, arguments);
-
-			//Restore disabled state as it was before PageSettings was shown
-			Manager.PageContent.getContent().set('disabled', this.last_content_disabled_state);
+			if (this.get('visible')) {
+				Action.Base.prototype.hide.apply(this, arguments);
+	
+				//Restore disabled state as it was before PageSettings was shown
+				var content = Manager.PageContent.getContent();
+				content.set('disabled', this.last_content_disabled_state);
+				content.set('highlightMode', this.last_content_highlight_state);
+			}
 		},
 
 		/**
@@ -1112,8 +1121,12 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 
 			//Disable content editing
 			var content = Manager.PageContent.getContent();
+			
 			this.last_content_disabled_state = content.get('disabled');
+			this.last_content_highlight_state = content.get('highlightMode');
+			
 			content.set('disabled', true);
+			content.set('highlightMode', 'disabled');
 		}
 	});
 
