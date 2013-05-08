@@ -11,3 +11,4 @@
       - Text/config.yml
       - Form/config.yml
       - NewsList/config.yml
+      - Unique/config.yml
