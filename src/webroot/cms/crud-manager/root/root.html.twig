@@ -16,11 +16,12 @@
 	{% if manager.standaloneHtmlEditorParameters is not empty %}
 		{{ manager.standaloneHtmlEditorParameters | json_encode | raw }} 
 	{% else %} 
-	{# default values #}
+	{# default values #} {
 		'stylesheets': [
 			'/assets/css/normalize.css',
 			'/assets/css/main.css'
 		]
+	}
 	{% endif %}
 	{% endspaceless %},
 	'stylesheets': {
