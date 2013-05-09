@@ -20290,6 +20290,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			} else {
 				this.fire('execute', args);
 				this.set('executed', true);
+				this.fire('executed', args);
 			}
 		},
 		
@@ -38689,8 +38690,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			//Toolbar needs to exist
 			var action = Manager.getAction('EditorToolbar');
 			if (!action.get('created')) {
-				action.once('executedChange', function () {
-					action = Manager.getAction('PageContentSettings');
+				action.once('executed', function () {
+					var action = Manager.getAction('PageContentSettings');
 					if (!action.get('loaded')) {
 						action.once('loaded', this.createEditor, this);
 					} else {
@@ -38698,7 +38699,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					}
 				}, this);
 				
-				action.execute(true);
+				Manager.executeAction('EditorToolbar', true);
 			} else {
 				this.createEditor();
 			}
