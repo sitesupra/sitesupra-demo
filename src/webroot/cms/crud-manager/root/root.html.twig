@@ -12,12 +12,17 @@
 	'sort': {{path | json_encode | raw}} + 'form/sort.json'
 },
 'supra.htmleditor': {
-	'standalone': {
+	'standalone': {% spaceless %}
+	{% if manager.standaloneHtmlEditorParameters is not empty %}
+		{{ manager.standaloneHtmlEditorParameters | json_encode | raw }} 
+	{% else %} 
+	{# default values #}
 		'stylesheets': [
 			'/assets/css/normalize.css',
 			'/assets/css/main.css'
 		]
-	},
+	{% endif %}
+	{% endspaceless %},
 	'stylesheets': {
 		'skip_default': false
 	},
