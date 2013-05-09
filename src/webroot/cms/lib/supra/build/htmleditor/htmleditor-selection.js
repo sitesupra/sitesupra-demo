@@ -137,7 +137,11 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 					node = node.parentNode;
 				} else {
 					this.selectedElement = node;
-					return node;
+					if (selector) {
+						return this.getSelectedElement(selector);
+					} else {
+						return node;
+					}
 				}
 			}
 			

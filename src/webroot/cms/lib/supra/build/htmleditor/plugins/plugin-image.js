@@ -871,6 +871,8 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			htmleditor.on("nodeChange", this.onNodeChange, this);
 			
 			if (button) {
+				button.show();
+				
 				//When media library is shown/hidden make button selected/unselected
 				mediasidebar.after("visibleChange", function (evt) {
 					button.set("down", evt.newVal);

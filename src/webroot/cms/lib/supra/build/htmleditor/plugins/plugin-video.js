@@ -349,6 +349,7 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			var toolbar = htmleditor.get('toolbar');
 			var button = toolbar ? toolbar.getButton('insertvideo') : null;
 			if (button) {
+				button.show();
 				
 				//When un-editable node is selected disable toolbar button
 				htmleditor.on('editingAllowedChange', function (event) {
