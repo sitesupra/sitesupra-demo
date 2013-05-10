@@ -98,11 +98,32 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 				values = this._values,
 				mixed = null;
 			
-			if (id in layouts && id in values) {
-				return this._mixed[id] = Supra.mix({}, layouts[id], values[id]);
+			if (id in layouts) {
+				return this._mixed[id] = Supra.mix({}, layouts[id], id in values ? values[id] : null);
 			} else {
 				return null;
 			}
+		},
+		
+		/**
+		 * Returns layout data for first layout in the list
+		 * 
+		 * @returns {Object} Layout data or null
+		 */
+		getDefaultLayout: function () {
+			var mixed   = this._mixed,
+				layouts = this._layouts,
+				values  = this._values,
+				id      = null;
+			
+			for (id in mixed) {
+				return mixed[id];
+			}
+			for (id in layouts) {
+				return mixed[id] = Supra.mix({}, layouts[id], id in values ? values[id] : null);
+			}
+			
+			return null;
 		},
 		
 		/**
@@ -112,7 +133,7 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 		 * @returns {String} HTML for given layout
 		 */
 		getLayoutHtml: function (id) {
-			var layout = this.getLayoutById(id),
+			var layout = this.getLayoutById(id) || this.getDefaultLayout(),
 				template = Supra.Template.compile(layout.html, 'layout_' + id),
 				model = {'property': {}},
 				
@@ -140,6 +161,10 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 						value = property.defaultValue || '';
 						model.property[id] = value + '" data-supra-item-property="' + id;
 						break;
+					case 'Image':
+						value = property.defaultValue || '';
+						model.property[id] = value + 'about:blank)" data-supra-item-property="' + id + '" data-tmp="(';
+						break;
 					case 'InlineImage':
 						value = property.defaultValue || '';
 						model.property[id] = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
@@ -158,37 +183,6 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 			
 			return template(model);
 		},
-		
-		/**
-		 * Returns default layout data or first layout
-		 * if defaultValue for 'layout' input is not set
-		 * 
-		 * @returns {Object} Layout data
-		 * @deprecated Instead should be used SlideData method 'getNewSlideData'
-		 */
-		/*
-		getDefaultLayout: function () {
-			var layouts = this._layouts,
-				id = this._defaultLayoutId,
-				layout = null;
-			
-			if (id) {
-				layout = this.getLayoutById(id);
-				if (layout) {
-					return layout;
-				}
-			}
-			
-			for (id in layouts) {
-				layout = this.getLayoutById(id);
-				if (layout) {
-					return layout;
-				}
-			}
-			
-			return null;
-		},
-		*/
 		
 		
 		/* ---------------------------- ATTRIBUTES --------------------------- */

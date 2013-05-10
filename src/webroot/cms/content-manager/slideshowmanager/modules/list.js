@@ -196,7 +196,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 				list = this.get('listNode'),
 				new_item = this.get('newItemControl'),
 				node = null,
-				layout = this.get('host').layouts.getLayoutById(data.layout),
+				layout = this.get('host').layouts.getLayoutById(data.layout) || this.get('host').layouts.getDefaultLayout(),
 				image_bg = null,
 				image_img = null,
 				background = null;
@@ -211,12 +211,12 @@ YUI.add('slideshowmanager.list', function (Y) {
 			node = Y.Node.create(ITEM_TEMPLATE(
 				Supra.mix({}, data, {
 					'background': background,
-					'title': layout.label
+					'title': layout.label || ''
 				})
 			));
 			
 			list.setStyles({
-				// +2 because we have "+" and newly created item
+				// +2 because we have "Add item" and newly created item
 				'width': (this._count + 2) * 110 + 'px'
 			});
 			list.append(node);

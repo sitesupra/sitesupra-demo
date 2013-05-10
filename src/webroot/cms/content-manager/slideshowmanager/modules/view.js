@@ -63,7 +63,8 @@ YUI.add('slideshowmanager.view', function (Y) {
 		 */
 		initializer: function(config) {
 			this.widgets = {
-				'inputs': []
+				'inputs': [],
+				'events': []
 			};
 			this.renderIframe();
 		},
@@ -430,11 +431,18 @@ YUI.add('slideshowmanager.view', function (Y) {
 			var inputs = this.widgets.inputs,
 				ii = inputs.length,
 				i = 0,
-				values = {};
+				values = {},
+				events = this.widgets.events,
+				ee = events.length,
+				e = 0;
 			
 			if (this._activeInput) {
 				this._firePropertyChangeEvent({}, {'id': this._activePropertyId}, this._activeInput);
-				
+			}
+			
+			// Remove contained input event listeners
+			for (; e<ee; e++) {
+				events[e].detach();
 			}
 			
 			// Remove inline inputs
@@ -443,6 +451,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 				inputs[i].destroy();
 			}
 			
+			this.widgets.events = [];
 			this.widgets.inputs = [];
 			this.inputValues = values;
 			this._activeInput = null;
@@ -553,6 +562,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 				srcNode = null,
 				contNode = null,
 				inputs = this.widgets.inputs,
+				events = this.widgets.events,
 				iframe = this.get('iframe'),
 				
 				active = this._activePropertyId,
@@ -608,10 +618,52 @@ YUI.add('slideshowmanager.view', function (Y) {
 							input.getEditor().addCommand('manage', Y.bind(this.stopEditing, this));
 						}
 					}
+				} else if (!is_inline && is_contained) {
+					// Image
+					
+					if (property.type == 'Image') {
+						node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+						
+						if (node) {
+							value = data[property.id] || values[property.id];
+							input = this.get('host').settings.getForm().getInput(property.id);
+							
+							events.push(
+								input.on('valueChange', this._onContainerInputChange, this)
+							);
+							
+							input.set('value', value);
+							
+						}
+					}
 				}
 			}
 			
 			this.inputValues = {};
+		},
+		
+		/**
+		 * Handle container input value change
+		 * 
+		 * @param {Object} evt Event facade object
+		 */
+		_onContainerInputChange: function (evt) {
+			var input    = evt.target,
+				id       = evt.target.get('name') || evt.target.get('id'),
+				property = this.get('host').settings.getProperty(id),
+				node     = this.get('iframe').one('*[data-supra-item-property="' + property.id + '"]'),
+				value    = null;
+			
+			if (property.type == 'Image') {
+				value = (evt.newVal ? evt.newVal.file_web_path : '') || '';
+				if (node.test('img')) {
+					// Update src
+					node.setAttribute('src', value);
+				} else {
+					// Update background image
+					node.setStyle('background-image', 'url(' + value + ')');
+				}
+			}
 		},
 		
 		/**
