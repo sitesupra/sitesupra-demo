@@ -191,7 +191,7 @@ YUI.add("supra.input-checkbox", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			value = (value === true || value == '1');
+			value = (value === true || value == '1' || value === 'true');
 			
 			//Check
 			this.get('inputNode').set('value', value ? '1' : '0');
