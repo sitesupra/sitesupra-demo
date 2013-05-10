@@ -10527,7 +10527,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					node = node.parentNode;
 				} else {
 					this.selectedElement = node;
-					return node;
+					if (selector) {
+						return this.getSelectedElement(selector);
+					} else {
+						return node;
+					}
 				}
 			}
 			
@@ -11676,7 +11680,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
 						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
-						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
+						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink", "visible": false},
 					{"type": "separator"},
 						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert"}
 				]
@@ -11688,11 +11692,11 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"animate": true,
 				"height": 42,
 				"controls": [
-						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
+						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage", "visible": false},
 					{"type": "separator"},
 						{"id": "inserticon", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-icon.png", "command": "inserticon", "visible": false},
 					{"type": "separator"},
-						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo"},
+						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo", "visible": false},
 					{"type": "separator"},
 						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
 				]
@@ -14671,6 +14675,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			htmleditor.on("nodeChange", this.onNodeChange, this);
 			
 			if (button) {
+				button.show();
+				
 				//When media library is shown/hidden make button selected/unselected
 				mediasidebar.after("visibleChange", function (evt) {
 					button.set("down", evt.newVal);
@@ -16259,6 +16265,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var toolbar = htmleditor.get('toolbar');
 			var button = toolbar ? toolbar.getButton('insertlink') : null;
 			if (button) {
+				button.show();
 				
 				//When un-editable node is selected disable toolbar button
 				htmleditor.on('editingAllowedChange', function (event) {
@@ -16888,6 +16895,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var toolbar = htmleditor.get('toolbar');
 			var button = toolbar ? toolbar.getButton('insertvideo') : null;
 			if (button) {
+				button.show();
 				
 				//When un-editable node is selected disable toolbar button
 				htmleditor.on('editingAllowedChange', function (event) {
@@ -20290,6 +20298,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			} else {
 				this.fire('execute', args);
 				this.set('executed', true);
+				this.fire('executed', args);
 			}
 		},
 		
@@ -38689,8 +38698,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			//Toolbar needs to exist
 			var action = Manager.getAction('EditorToolbar');
 			if (!action.get('created')) {
-				action.once('executedChange', function () {
-					action = Manager.getAction('PageContentSettings');
+				action.once('executed', function () {
+					var action = Manager.getAction('PageContentSettings');
 					if (!action.get('loaded')) {
 						action.once('loaded', this.createEditor, this);
 					} else {
@@ -38698,7 +38707,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					}
 				}, this);
 				
-				action.execute(true);
+				Manager.executeAction('EditorToolbar', true);
 			} else {
 				this.createEditor();
 			}

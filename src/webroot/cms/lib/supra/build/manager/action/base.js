@@ -745,6 +745,7 @@ YUI.add('supra.manager-action-base', function (Y) {
 			} else {
 				this.fire('execute', args);
 				this.set('executed', true);
+				this.fire('executed', args);
 			}
 		},
 		

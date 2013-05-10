@@ -234,6 +234,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			var toolbar = htmleditor.get('toolbar');
 			var button = toolbar ? toolbar.getButton('insertlink') : null;
 			if (button) {
+				button.show();
 				
 				//When un-editable node is selected disable toolbar button
 				htmleditor.on('editingAllowedChange', function (event) {

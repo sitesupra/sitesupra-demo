@@ -68,7 +68,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
 						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
-						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink"},
+						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink", "visible": false},
 					{"type": "separator"},
 						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert"}
 				]
@@ -80,11 +80,11 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"animate": true,
 				"height": 42,
 				"controls": [
-						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage"},
+						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage", "visible": false},
 					{"type": "separator"},
 						{"id": "inserticon", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-icon.png", "command": "inserticon", "visible": false},
 					{"type": "separator"},
-						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo"},
+						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo", "visible": false},
 					{"type": "separator"},
 						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
 				]
