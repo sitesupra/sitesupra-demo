@@ -87,6 +87,11 @@ abstract class CmsAction extends SimpleController
 					if ($ini->getValue('system', 'supraportal_site', false)) {
 						$response->assign('siteTitle', $ini->getValue('system', 'host'));
 					}
+					
+					$createSiteUri = $ini->getValue('cms', 'new_site_uri', null);
+					if ($createSiteUri) {
+						$response->assign('createNewSiteUri', $createSiteUri);
+					}
 
 					$response->assign('currentLocale', $localeId);
 				}

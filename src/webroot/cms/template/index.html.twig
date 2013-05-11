@@ -76,8 +76,9 @@
 				
 				'site': {
 					'portal': {% if siteTitle is defined and siteTitle %}true{% else %}false{% endif %},
-					'title': {% if siteTitle is defined %}{{ siteTitle|json_encode|raw }}{% else %}null{% endif %}, //'www.videinfra.com'
-					'password_reset_uri': {% if passwordResetUri is defined and passwordResetUri %}{{ passwordResetUri|json_encode|raw }}{% else %}null{% endif %}
+					'title': {% if siteTitle is defined %}{{ siteTitle|json_encode|raw }}{% else %}null{% endif %},
+					'password_reset_uri': {% if passwordResetUri is defined and passwordResetUri %}{{ passwordResetUri|json_encode|raw }}{% else %}null{% endif %},
+					'new_site_uri': {% if createNewSiteUri is defined and createNewSiteUri %}{{ createNewSiteUri|json_encode|raw }}{% else %}null{% endif %}
 				},
 				
 				{% block jsSupraDataSet %}{% endblock %}
