@@ -115,6 +115,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @var string
 	 */
 	protected $userIpOverride;
+	
+	/**
+	 * @var string
+	 */
+	protected $terminalId;
 
 	/**
 	 * @param string $merchantGuid 
@@ -264,6 +269,16 @@ class PaymentProvider extends PaymentProviderAbstraction
 	public function getReturnUrl()
 	{
 		return $this->getReturnHost() . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_URL_POSTFIX;
+	}
+	
+	public function setTerminalId($terminalId)
+	{
+		$this->terminalId = $terminalId;
+	}
+
+	public function getTerminalId()
+	{
+		return $this->terminalId;
 	}
 
 	/**
@@ -814,6 +829,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$apiData['cc'] = $postData['cc'];
 		$apiData['cvv'] = $postData['cvv'];
 		$apiData['expire'] = $postData['expire'];
+		
+		$terminalId = $this->getTerminalId();
+		if ( ! empty($terminalId)) {
+			$apiData['direct_terminal_selection'] = $terminalId;
+		}
 
 		$result = $this->callTransactApi('charge', $apiData);
 
@@ -1081,6 +1101,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		$apiData['init_transaction_id'] = $recurringTransactTransactionId;
 		$apiData['f_extended'] = 5;
+		
+		$terminalId = $this->getTerminalId();
+		if ( ! empty($terminalId)) {
+			$apiData['direct_terminal_selection'] = $terminalId;
+		}
 
 		$result = $this->callTransactApi('charge_recurrent', $apiData);
 

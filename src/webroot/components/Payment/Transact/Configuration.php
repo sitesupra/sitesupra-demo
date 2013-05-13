@@ -15,6 +15,7 @@ class Configuration extends Payment\ConfigurationAbstraction
 	const INI_KEY_API_URL = 'api_url';
 	const INI_KEY_USER_IP_OVERRIDE = 'user_ip_override';
 	const INI_KEY_RECURRENT_ROUTING_STRING = 'recurrent_routing_string';
+	const INI_KEY_TERMINAL_ID = 'terminal_id';
 
 	/**
 	 * @var string
@@ -78,7 +79,7 @@ class Configuration extends Payment\ConfigurationAbstraction
 
 			$userIpOverride = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_USER_IP_OVERRIDE, null);
 			$this->paymentProvider->setUserIpOverride($userIpOverride);
-
+			
 			$this->paymentProvider->setIs3dAccount((boolean) $this->is3dAccount);
 			$this->paymentProvider->setGatewayCollects((boolean) $this->gatewayCollects);
 
@@ -86,6 +87,9 @@ class Configuration extends Payment\ConfigurationAbstraction
 			$this->paymentProvider->setCallbackHost($this->callbackHost);
 			$this->paymentProvider->setDataFormPath($this->dataFormPath);
 
+			$terminalId = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_TERMINAL_ID, null);
+			$this->paymentProvider->setTerminalId($terminalId);
+			
 			parent::configure();
 		}
 	}
