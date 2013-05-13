@@ -133,7 +133,7 @@ class FormBlock extends BlockController
 		
 		if (mb_strtolower(trim($email)) == self::MACRO_EMAIL) {
 			$ini = ObjectRepository::getIniConfigurationLoader($this);
-			$ini->getValue('email', 'owner_email', null);
+			$email = $ini->getValue('email', 'owner_email', null);
 		}
 		
 		try {
