@@ -22,6 +22,11 @@ class FormBlock extends BlockController
 	const CAPTCHA_SPACE_PARAMETER = 'captcha_%s';
 	
 	/**
+	 * 
+	 */
+	const MACRO_EMAIL = '{email}';
+	
+	/**
 	 * @var array
 	 */
 	private $formFields;
@@ -125,6 +130,11 @@ class FormBlock extends BlockController
 	protected function getValidReceiverEmail()
 	{
 		$email = $this->getPropertyValue('email');
+		
+		if (mb_strtolower(trim($email)) == self::MACRO_EMAIL) {
+			$ini = ObjectRepository::getIniConfigurationLoader($this);
+			$ini->getValue('email', 'owner_email', null);
+		}
 		
 		try {
 			FilteredInput::validate($email, AbstractType::EMAIL);
