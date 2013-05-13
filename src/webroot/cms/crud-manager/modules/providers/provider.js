@@ -533,7 +533,9 @@ YUI.add('website.provider', function (Y) {
 			if (state == 'edit') {
 				var filters = Supra.Manager.getAction('Filters');
 				if (filters.get('visible')) {
+					Supra.Manager.LayoutContainers.setInstantResize(true);
 					filters.hide();
+					Supra.Manager.LayoutContainers.setInstantResize(false);
 				}
 				
 				if (!this.form) {

@@ -335,6 +335,20 @@ Supra('supra.plugin-layout', 'supra.manager-action-plugin-layout-sidebar', funct
 			this.addChildAction('LayoutRightContainer');
 		},
 		
+		/**
+		 * Instant layout resize without CSS animation
+		 */
+		setInstantResize: function (instant) {
+			var nodes = Y.all('div.center-container, div.left-container, div.right-container'),
+				fn    = instant ? 'addClass' : 'removeClass',
+				i     = 0,
+				ii    = nodes.size();
+			
+			for (; i<ii; i++) {
+				nodes.item(i)[fn]('no-transitions');
+			}
+		},
+		
 		
 		/**
 		 * Bind layouts together
