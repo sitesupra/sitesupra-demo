@@ -128,7 +128,8 @@ YUI.add("supra.input-html", function (Y) {
 			var doc = this.get('doc'),
 				win = this.get('win'),
 				src = this.get('srcNode'),
-				toolbar = Manager.EditorToolbar.getToolbar();
+				toolbar = Manager.EditorToolbar.getToolbar(),
+				value = this.get('value');
 			
 			if (doc && win && src) {
 				this.htmleditor = new Supra.HTMLEditor({
@@ -144,6 +145,11 @@ YUI.add("supra.input-html", function (Y) {
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
+				
+				if (value && 'html' in value) {
+					this.htmleditor.setAllData(value.data);
+					this.htmleditor.setHTML(value.html);
+				}
 				
 				Y.Node(doc).one('html').on('click', this.onIframeClick, this);
 			}
