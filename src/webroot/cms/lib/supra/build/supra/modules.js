@@ -499,7 +499,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-fonts': {
 			path: 'htmleditor/plugins/plugin-fonts.js',
-			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts']
+			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts', 'supra.google-fonts']
 		},
 		'supra.htmleditor-plugin-align': {
 			path: 'htmleditor/plugins/plugin-align.js',

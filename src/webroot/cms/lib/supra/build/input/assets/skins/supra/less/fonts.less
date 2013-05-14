@@ -1,78 +1,67 @@
 //This file is included from customizesidebar/customizesidebar.css.less
 
 /**
- * Fonts input
+ * Fonts button
  */
-.yui3-input-fonts-content {
-	padding: 10px 0;
-	background: #fff;
-}
-
-.yui3-input-fonts .su-button {
-	width: 100% !important;
-	
-	&,
-	.su-button-content,
-	button,
-	.su-button-bg,
-	p {
-		display: block;
-	}
-	
-	.su-button-bg {
-		background: none;
-		
-		div {
-			display: none;
-		}
-	}
-	p {
-		color: #333;
-		font-size: 16px;
-		font-weight: bold;
-		line-height: 22px;
-		padding: 0 7px 0 11px;
-		text-align: left;
-		text-shadow: none;
-	}
-	
-	&.su-button-down {
-		background: url("/cms/lib/supra/build/htmleditor/assets/skins/supra/dropdown-selected-item.png") 5px 8px no-repeat;
-	}
-}
-.yui3-input-fonts .su-button + .su-button {
-	margin-top: 0;
+.yui3-input-fonts-slide-button.button-section .su-button-bg p {
+	display: block;
+	width: 95%;
+	top: 3px;
+	left: 7px;
+	font-size: 14px;
+	font-weight: normal;
+	line-height: 30px;
 }
 
 /**
- * Separate slide button
- */ 
-.yui3-input-fonts-slide-button.su-button-group {
-	.su-button-bg p {
-		display: block;
-		padding: 0 7px;
-		
-		color: #777f90;
-		font-size: 14px;
-		line-height: 32px;
-		text-align: left;
-		text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-		white-space: nowrap;
-		
-		top: 5px;
+ * Fonts input
+ */
+.yui3-input-fonts .yui3-input-fonts-content {
+	& > .loading-icon {
+		display: none;
 	}
-	
-	&.su-button-mouse-hover,
-	&.su-button-down {
-		.su-button-bg p {
-			color: #00b1f5;
+	&.yui3-input-fonts-loading {
+		position: relative;
+		
+		& > .loading-icon {
+			display: block;
 		}
 	}
 	
-	&.su-button-group-no-labels .su-button-bg p {
-		top: 2px;
+	.yui3-input-string {
+		margin: 0;
 	}
-	&.su-button-group-mid .su-button-bg p {
-		top: 13px;
+	
+	.su-slideshow {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 43px;
+		bottom: 10px;
+		height: auto;
+	}
+	
+	.yui3-input-font-list {
+		background: #fff;
+		border-radius: 3px;
+		
+		a {
+			display: block;
+			overflow: hidden;
+			padding: 10px 0 10px 10px;
+			height: 20px;
+			margin: 0 10px 0 0;
+			color: #333;
+			cursor: pointer;
+			font-size: 18px;
+			line-height: 20px;
+			text-decoration: none;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			
+			&.active {
+				color: #009df8;
+			}
+		}
 	}
 }

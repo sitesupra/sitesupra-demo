@@ -82,10 +82,10 @@ YUI.add('supra.input-video', function (Y) {
 				
 				switch (data.service) {
 					case 'youtube':
-						data.source = 'http://' + data.service + '.com/?v=' + data.id;
+						data.source = document.location.protocol + '//' + data.service + '.com/?v=' + data.id;
 						break;
 					case 'vimeo':
-						data.source = 'http://' + data.service + '.com/' + data.id;
+						data.source = document.location.protocol + '//' + data.service + '.com/' + data.id;
 						break;
 				}
 				
@@ -213,7 +213,7 @@ YUI.add('supra.input-video', function (Y) {
 			deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
 		} else if (service == 'vimeo') {
 			//
-			var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
+			var url = document.location.protocol + '//vimeo.com/api/v2/video/' + video_id + '.json';
 			Supra.io(url, {
 				'suppress_errors': true, // don't display errors
 				'context': this,

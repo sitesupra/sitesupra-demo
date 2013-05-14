@@ -1015,7 +1015,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-fonts': {
 			path: 'htmleditor/plugins/plugin-fonts.js',
-			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts']
+			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts', 'supra.google-fonts']
 		},
 		'supra.htmleditor-plugin-align': {
 			path: 'htmleditor/plugins/plugin-align.js',
@@ -9036,7 +9036,441 @@ YUI().add('supra.input-string-clear', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.form', 'plugin']});YUI().add("supra.iframe-stylesheet-parser", function (Y) {
+}, YUI.version, {'requires': ['supra.form', 'plugin']});YUI().add('supra.google-fonts', function (Y) {
+	//Invoke strict mode
+	'use strict';
+	
+	//Map function to lowercase all array items
+	var LOWERCASE_MAP = function (str) {
+		return String(str || '').toLowerCase();
+	};
+	
+	
+	/**
+	 * Iframe content widget
+	 */
+	function GoogleFonts (config) {
+		GoogleFonts.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	GoogleFonts.NAME = 'google-fonts';
+	
+	// Google font API uri
+	GoogleFonts.API_URI = document.location.protocol + '//fonts.googleapis.com/css?family=';
+	
+	// URI to load list of google fonts
+	GoogleFonts.SUPRA_FONT_URI = '/cms/lib/supra/tests/fonts/webfonts.json';
+	
+	//List of fonts, which doesn't need to be loaded from Google Web Fonts
+	GoogleFonts.SAFE_FONTS = [
+		'Arial', 'Tahoma', 'Helvetica', 'sans-serif', 'Arial Black', 'Impact',
+		'Trebuchet MS', 'MS Sans Serif', 'MS Serif', 'Geneva', 'Comic Sans MS' /* trololol.... */,
+		'Palatino Linotype', 'Book Antiqua', 'Palatino', 'Monaco', 'Charcoal',
+		'Courier New', 'Georgia', 'Times New Roman', 'Times',
+		'Lucida Console', 'Lucida Sans Unicode', 'Lucida Grande', 'Gadget',
+		'monospace'
+	];
+	
+	// List of non-google fonts for fonts list
+	GoogleFonts.STANDARD_FONTS = [
+		{'title': 'Arial, Helvetica',							'family': 'Arial, Helvetica, sans-serif'},
+		{'title': 'Times New Roman, Times, serif',				'family': '"Times New Roman", Times, serif'},
+		{'title': 'Georgia', 									'family': 'Georgia, serif'},
+		{'title': 'Palatino Linotype, Book Antiqua, Palatino',	'family': '"Palatino Linotype", "Book Antiqua", Palatino, serif'},
+		{'title': 'Impact, Charcoal', 							'family': 'Impact, Charcoal, sans-serif'},
+		{'title': 'Lucida Sans Unicode, Lucida Grande',			'family': '"Lucida Sans Unicode", "Lucida Grande", sans-serif'},
+		{'title': 'Tahoma, Geneva',								'family': 'Tahoma, Geneva, sans-serif'},
+		{'title': 'Trebuchet MS, Helvetica',					'family': '"Trebuchet MS", Helvetica, sans-serif'},
+		{'title': 'Verdana, Geneva',							'family': 'Verdana, Geneva, sans-serif'}
+	];
+	
+	// List of google font subsets
+	GoogleFonts.SUBSETS = [
+		'latin', 'cyrillic-ext', 'latin-ext', 'cyrillic'
+	];
+	
+	GoogleFonts.ATTRS = {
+		//Document element to which add fonts to
+		'doc': {
+			'value': document,
+			'setter': '_setDoc'
+		},
+		
+		//Google APIs font list
+		'fonts': {
+			'value': [],
+			'setter': '_setFonts'
+		}
+	};
+	
+	Y.extend(GoogleFonts, Y.Base, {
+		
+		
+		/**
+		 * Initialization life cycle method
+		 */
+		initializer: function () {
+			this.addFonts(this.get('fonts'));
+		},
+		
+		/**
+		 * Destruction life cycle method
+		 */
+		destructor: function () {
+			// Nothing, leave LINK in document
+		},
+		
+		
+		/* ------------------------------------------- FONTS ------------------------------------------- */
+		
+		
+		/**
+		 * Load fonts from Google Fonts
+		 * 
+		 * @param {String} html HTML in which will be inserted <link />, if this is document then link is added to DOM <head />
+		 * @private
+		 */
+		addFonts: function (fonts) {
+			if (!fonts || !fonts.length) {
+				return;
+			}
+			
+			var new_uris = [],
+				data = null,
+				i = 0, ii = 0;
+			
+			data = this.getExistingLinkData();
+			new_uris = GoogleFonts.getURI(fonts, {'exclude': data.fonts, 'split': true});
+			
+			if (new_uris.length) {
+				for (i=0,ii=new_uris.length; i<ii; i++) {
+					this.createLinkNode(new_uris[i]);
+				}
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------- DOM ---------------------------------
+		 */
+		
+		
+		/**
+		 * Returns link node
+		 * 
+		 * @param {Boolean} create Create link node if it doesn't exist
+		 * @returns {Object} Google fonts link node
+		 */
+		getLinkNodes: function () {
+			var doc = doc || this.get('doc'),
+				head = null,
+				links = null;
+			
+			if (!doc) return null;
+			
+			head = Y.Node(doc).one('head');
+			if (!head) return null;
+			
+			links = head.all('link[href^="' + GoogleFonts.API_URI + '"]');
+			return links ? links.getDOMNodes() : [];
+		},
+		
+		/**
+		 * Creates link node
+		 */
+		createLinkNode: function (uri) {
+			var doc = doc || this.get('doc'),
+				head = null,
+				link = null;
+			
+			if (!doc) return null;
+			
+			head = Y.Node(doc).one('head');
+			if (!head) return null;
+			
+			link = Y.Node.create('<link rel="stylesheet" type="text/css" href="' + (uri || '') + '" />');
+			head.append(link);
+			
+			return link;
+		},
+		
+		/**
+		 * Returns existing data extracted from link
+		 * Extracts fonts and subset from link
+		 * 
+		 * @returns {Object} Parsed link node
+		 */
+		getExistingLinkData: function () {
+			var nodes = this.getLinkNodes(),
+				uri  = '',
+				subset = GoogleFonts.SUBSETS.join(','),
+				fonts = [],
+				i = 0,
+				ii = nodes.length;
+			
+			for (; i<ii; i++) {
+				uri = nodes[i].getAttribute('href');
+				if (uri) {
+					// Remove url, subset and styles
+					uri = uri.replace(GoogleFonts.API_URI, '');
+					uri = uri.replace(/&subset=([^&]+)/, '');
+					//uri = uri.replace(/:[^|&?]*/g, '');
+					
+					// Fonts
+					fonts = fonts.concat(uri.split('|'));
+				}
+			}
+			
+			return {'fonts': fonts, 'subset': subset};
+		},
+		
+		
+		/*
+		 * ---------------------------------- ATTRIBUTES ---------------------------------
+		 */
+		
+		
+		/**
+		 * Document object setter
+		 * 
+		 * @param {Object} doc Document object
+		 * @returns {Object} New attribute value
+		 * @private
+		 */
+		_setDoc: function (doc) {
+			this._node = null;
+			
+			if (doc) {
+				this.addFonts(this.get('fonts'));
+			}
+			
+			return doc;
+		},
+		
+		
+		/**
+		 * Load fonts from Google Fonts
+		 * 
+		 * @param {Array} fonts List of fonts
+		 * @returns {Array} New attribute value
+		 * @private
+		 */
+		_setFonts: function (fonts) {
+			var fonts = (this.get('fonts') || []).concat(fonts),
+				i = 0,
+				ii = fonts.length,
+				unique_arr = [],
+				unique_hash = {},
+				id = null;
+			
+			// Find unique
+			for (; i<ii; i++) {
+				id = fonts[i].apis || fonts[i].family;
+				if (!(id in unique_hash)) {
+					unique_hash[id] = true;
+					unique_arr.push(fonts[i]);
+				}
+			}
+			
+			fonts = unique_arr;
+			
+			// Set
+			this.addFonts(fonts);
+			
+			return fonts;
+		}
+	});
+	
+	Supra.GoogleFonts = GoogleFonts;
+	
+	
+	/**
+	 * Load list of all fonts
+	 * 
+	 * @returns {Object} Supra.Deferred object
+	 * @private
+	 */
+	GoogleFonts.loadFonts = function () {
+		if (GoogleFonts.loadFonts._deferred) {
+			return GoogleFonts.loadFonts._promise;
+		}
+		
+		var deferred = new Supra.Deferred(),
+			promise  = deferred.promise();
+		
+		Supra.io(GoogleFonts.SUPRA_FONT_URI).then(
+			function (fonts) {
+				// Success, return standard + google fonts
+				var formatted = [],
+					i = 0,
+					ii = fonts.length,
+					family = '';
+				
+				for (; i<ii; i++) {
+					family = fonts[i];
+					formatted.push({
+						'title': family,
+						'family': family, //amily.indexOf(' ') != -1 ? '"' + family + '"' : family,
+						'apis': family.replace(/ /g, '+') + ':300,300italic,regular,italic,700,700italic'
+					});
+				}
+				
+				deferred.resolve([[
+					{
+						'title': 'Standard fonts',
+						'fonts': GoogleFonts.STANDARD_FONTS,
+					},
+					{
+						'title': 'Google fonts',
+						'fonts': formatted
+					}
+				]]);
+			}, function () {
+				// Failure, return only standard fonts
+				deferred.resolve([[
+					{
+						'title': 'Standard fonts',
+						'fonts': GoogleFonts.STANDARD_FONTS,
+					}
+				]]);
+			});
+		
+		GoogleFonts.loadFonts._promise = promise;
+		return promise;
+	};
+	
+	/**
+	 * Returns URI with all fonts
+	 * 
+	 * @return URI for <link /> element which will load all fonts
+	 * @private
+	 */
+	GoogleFonts.getURI = function (fonts, options) {
+		
+		var fonts = Y.Lang.isArray(fonts) ? fonts : [],
+			i = 0,
+			ii = fonts.length,
+			
+			exclude = options && options.exclude ? options.exclude : [],
+			e = 0,
+			ee = exclude.length,
+			
+			//Get all safe fonts in lowercase
+			safe  = Y.Array(GoogleFonts.SAFE_FONTS).map(LOWERCASE_MAP),
+			apis  = [],
+			
+			parts = [], k = 0, kk = 0,
+			
+			load  = [],
+			temp  = '',
+			uri   = GoogleFonts.API_URI,
+			subset = '&subset=' + GoogleFonts.SUBSETS.join(','),
+			
+			index = 0,
+			
+			include = false;
+		
+		//Find which ones are not in the safe font list
+		for (; i<ii; i++) {
+			include = true;
+			
+			// API name instead of object?
+			if (typeof fonts[i] === 'string') {
+				for (e=0; e<ee; e++) {
+					if (exclude[e] == fonts[i]) {
+						include = false;
+						break;
+					}
+				}
+				if (include) {
+					load.push(fonts[i]);
+				}
+				
+				continue;
+			}
+			
+			for (e=0; e<ee; e++) {
+				if (exclude[e] == fonts[i].apis || exclude[e] == (fonts[i].family || fonts[i].title).replace(/["']/, '').replace(/\s+/g, '+')) {
+					include = false;
+					break;
+				}
+			}
+			
+			if (!include) {
+				continue;
+			}
+			
+			//Split "Arial, Verdana" into two items
+			if (fonts[i].family || (fonts[i].title && !fonts[i].apis)) {
+				parts = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').split(',');
+			} else {
+				parts = fonts[i].apis.replace(/:[^|]+/g, '').replace(/\+/g, ' ').split('|');
+			}
+			
+			for (k=0,kk=parts.length; k<kk; k++) {
+				//If any of the part is not in the safe list, then load from Google Fonts
+				if (parts[k] && safe.indexOf(parts[k].toLowerCase()) == -1) {
+					
+					//Convert into format which is valid for uri
+					if (fonts[i].apis) {
+						temp = fonts[i].apis;
+					} else {
+						temp = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').replace(/\s+/g, '+').replace(/,/g, '|');
+					}
+					
+					if (temp) {
+						index = temp.indexOf('&subset=');
+						if (index !== -1) {
+							temp = temp.substr(0, index);
+						}
+						
+						load.push(temp);
+					}
+					
+					break;
+				}
+			}
+		}
+		
+		// Font list
+		load = Y.Array.unique(load).sort();
+		
+		if (options && options.split) {
+			var split = [];
+			
+			for (i=0, ii=Math.ceil(load.length/10); i<ii; i++) {
+				split.push(uri + load.slice(i*10, i*10+10).join('|') + subset);
+			}
+			
+			return split;
+		} else {
+			return (load.length ? uri + load.join('|') + subset : '');
+		}
+	}
+	
+	GoogleFonts.addFontsToHTML = function (html, fonts) {
+		var uri = GoogleFonts.getURI(fonts),
+			replaced = false,
+			regex = new RegExp('(<link[^>]+href=)["\'][^"\']*?' + Y.Escape.regex(GoogleFonts.API_URI) + '[^"\']*?["\']', 'i'),
+			html = html.replace(regex, function (all, pre) {
+				replaced = true;
+				return pre + '"' + uri + '"';
+			});
+		
+		if (!replaced) {
+			//Insert
+			html = html.replace(/<\/\s*head/i, '<link rel="stylesheet" href="' + uri + '" /></head');
+		}
+		
+		return html;
+	};
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:['base']});YUI().add("supra.iframe-stylesheet-parser", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -21511,7 +21945,7 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 			var back = this.host.get('backButton');
 			if (back) {
 				back.hide();
-				back.on('click', this.onBackButtonClick, this);
+				back.after('click', this.onBackButtonClick, this);
 			}
 			
 			/*
@@ -21571,9 +22005,9 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 		/**
 		 * Handle back button click
 		 */
-		onBackButtonClick: function () {
+		onBackButtonClick: function (event) {
 			var slideshow = this.host.get('slideshow');
-			if (slideshow) {
+			if (slideshow && !event.stoped && !event.prevented) {
 				slideshow.scrollBack();
 			}
 		},
@@ -24672,103 +25106,758 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	
 	Input.ATTRS = {
+		
 		/**
-		 * Style:
-		 * "" or "no-labels", "mid"
+		 * Loading state
 		 */
-		'style': {
-			value: 'no-labels',
-			setter: '_setStyle'
+		'loading': {
+			value: false,
+			setter: '_setLoading'
+		},
+		
+		/**
+		 * Loading icon
+		 */
+		'nodeLoading': {
+			value: null
+		},
+		
+		/**
+		 * Button label in case of separate slide
+		 */
+		'labelButton': {
+			value: ''
+		},
+		
+		/**
+		 * List of all fonts
+		 */
+		'values': {
+			value: [],
+			setter: '_setValues'
+		},
+		
+		/**
+		 * Fonts preview object
+		 */
+		'previewGoogleFonts': {
+			value: null
+		},
+		
+		/**
+		 * Render widget into separate slide and add
+		 * button to the place where this widget should be
+		 */
+		'separateSlide': {
+			value: true
 		}
+		
 	};
 	
-	Y.extend(Input, Supra.Input.SelectVisual, {
+	Y.extend(Input, Supra.Input.Proto, {
 		
-		/**
-		 * Google fonts object, used to load fonts into current document for live preview of fonts
-		 * Supra.GoogleFonts instance
-		 * @type {Object}
-		 * @private
-		 */
-		googleFonts: null,
+		INPUT_TEMPLATE: '<select class="hidden"></select>',
+		LABEL_TEMPLATE: '<label></label>',
 		
-		/**
-		 * Decorate button
-		 * 
-		 * @param {Object} definition Option definition, configuration
-		 * @param {Object} button Button
-		 * @private
-		 */
-		decorateButton: function (definition, button) {
-			var font_style = this.getButtonFontStyle(definition);
-			
-			button._getLabelTemplate = function () {
-				return '<div class="su-button-bg"><div style="' + this._getButtonBackgroundStyle(this.get('icon')) + '"></div><p style="' + font_style + '"></p></div></div>';
+		FONT_ITEM_HEIGHT: 40,
+		
+		widgets: {
+		},
+		
+		backButtonInitiallyVisible: null,
+		
+		renderUI: function () {
+			this.widgets = {
+				// Separate slide
+				'slide': null,
+				'button': null,
+				
+				// Form
+				'search': null,
+				
+				// Slideshow for font list
+				'slideshow': null,
+				
+				// Scrollable groups
+				'groups': {},
+				
+				// Container for label and button
+				'separateContainer': null
 			};
-			button.after('render', function () {
-				button.removeClass('su-button-group');
-			});
-		},
-		
-		/**
-		 * Returns button font style
-		 * 
-		 * @param {Object} definition Button definition
-		 * @return Font CSS style
-		 * @type {String}
-		 * @private
-		 */
-		getButtonFontStyle: function (definition) {
-			var family = (definition.family || definition.title || '');
-			return family ? 'font-family: ' + family + ';' : '';
-		},
-		
-		
-		/* ------------------------------ FONTS ------------------------------ */
-		
-		
-		/**
-		 * Load all fonts from all values
-		 */
-		loadFonts: function (values) {
-			var google_fonts = this.googleFonts,
-				fonts = [],
-				i = 0,
-				ii = values.length;
 			
-			for (; i<ii; i++) {
-				if (values[i].apis) {
-					fonts.push(values[i]);
+			Input.superclass.renderUI.apply(this, arguments);
+			
+			if (this.get('separateSlide')) {
+				var slideshow = this.getSlideshow(),
+					slide = null,
+					button = null;
+				
+				if (slideshow) {
+					var value = this.getValueData(this.get('value')),
+						label = (value ? value.title || value.family : '') || this.get('labelButton') || '';
+					
+					this.widgets.button = button = new Supra.Button({
+						'label': label,
+						'style': 'group',
+						'groupStyle': 'no-labels',
+						'iconStyle': 'center',
+						'icon': ''
+					});
+					
+					this.widgets.slide = slide = slideshow.addSlide({
+						'id': 'propertySlide' + this.get('id'),
+						'scrollable': false,
+						'title': this.get('label')
+					});
+					
+					slide = slide.one('.su-slide-content');
+					
+					button.render();
+					button.addClass('button-section');
+					button.addClass(this.getClassName('slide', 'button'));
+					button.on('click', this._slideshowChangeSlide, this);
+					
+					var labelNode = this.get('labelNode'),
+						boundingBox = this.get('boundingBox'),
+						container = this.widgets.separateContainer = Y.Node.create('<div class="yui3-widget yui3-input"></div>');
+					
+					if (labelNode) {
+						container.append(labelNode, 'before');
+					}
+					
+					container.append(button.get('boundingBox'));
+					boundingBox.insert(container, 'before');
+					 
+					slide.append(boundingBox);
+				} else {
+					this.set('separateSlide', false);
 				}
 			}
 			
-			if (google_fonts) {
-				google_fonts.set('fonts', fonts);
+			// Value
+			var values = this.get('values'),
+				promise = null,
+				preview = new Supra.GoogleFonts();
+			
+			this.set('previewGoogleFonts', preview);
+			
+			if (values && values.length) {
+				// Render fonts
+				this._renderFontList(values);
 			} else {
-				google_fonts = this.googleFonts = new Supra.GoogleFonts({
-					'fonts': fonts,
-					'doc': document
-				});
+				// Load fonts
+				promise = Supra.GoogleFonts.loadFonts();
+				
+				if (promise.state() == 'pending') {
+					this.set('loading', true);
+				}
+				
+				promise.done(function (fonts) {
+					this.set('loading', false);
+					this.set('values', fonts);
+				}, this);
+			}
+		},
+		
+		bindUI: function () {
+			this.get('contentBox').delegate('click', this._onItemClick, 'a', this);
+			this.after('valueChange', this._afterValueChange, this);
+		},
+		
+		
+		/*
+		 * ---------------------------------------- EVENT LISTENERS ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Handle item click
+		 */
+		_onItemClick: function (e) {
+			var target = e.target.closest('a'),
+				family = target.getAttribute('data-family');
+			
+			if (family) {
+				this.set('value', family);
+			}
+		},
+		
+		/**
+		 * Change slideshow slide to values list
+		 * 
+		 * @private
+		 */
+		_slideshowChangeSlide: function (event, id) {
+			var slideshow = this.getSlideshow(),
+				slide_id  = 'propertySlide' + this.get('id');
+			
+			if (id) {
+				slide_id += id;
+			}
+			
+			slideshow.set('slide', slide_id);
+		},
+		
+		/**
+		 * After value change
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+				
+				var inputs = this.widgets.inputs,
+					content = this.get('contentBox'),
+					nodes = null,
+					i = 0,
+					ii = 0;
+				
+				nodes = evt.prevVal ? content.all('a[data-family="' + evt.prevVal.replace(/"/g, '') + '"]') : null;
+				if (nodes) {
+					for (i=0, ii=nodes.size(); i<ii; i++) {
+						nodes.item(i).removeClass('active');
+					}
+				}
+				
+				nodes = evt.newVal ? content.all('a[data-family="' + evt.newVal.replace(/"/g, '') + '"]') : null;
+				if (nodes) {
+					for (i=0, ii=nodes.size(); i<ii; i++) {
+						nodes.item(i).addClass('active');
+					}
+				}
 			}
 		},
 		
 		
-		/* ------------------------------ ATTRIBUTES ------------------------------ */
+		/*
+		 * ---------------------------------------- SLIDESHOW ----------------------------------------
+		 */
 		
+		
+		/**
+		 * Returns parent widget by class name
+		 * 
+		 * @param {String} classname Parent widgets class name
+		 * @return Widget instance or null if not found
+		 * @private
+		 */
+		getParentWidget: function (classname) {
+			var parent = this.get("parent");
+			while (parent) {
+				if (parent.isInstanceOf(classname)) return parent;
+				parent = parent.get("parent");
+			}
+			return null;
+		},
+		
+		/**
+		 * Returns slideshow
+		 * 
+		 * @return Slideshow
+		 * @type {Object}
+		 * @private
+		 */
+		getSlideshow: function () {
+			var form = this.getParentWidget("form");
+			return form ? form.get("slideshow") : null;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- API ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Returns full data for value
+		 * 
+		 * @param {String} value Optional, value for which to return full data
+		 * @returns {Object} Value data
+		 */
+		getValueData: function (value) {
+			var value  = value === null || typeof value === 'undefined' ? this.get('value') : value,
+				groups = this.get('values'),
+				i  = 0,
+				ii = groups ? groups.length : 0,
+				values = null,
+				k  = 0,
+				kk = 0;
+			
+			for (; i<ii; i++) {
+				values = groups[i].fonts;
+				
+				for (k=0,kk=values.length; k<kk; k++) {
+					if (values[k].family === value || values[k].apis === value) {
+						return values[k];
+					}
+				}
+			}
+			
+			return null;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- FONT LIST ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Render font list
+		 * 
+		 * @param {Array} fonts List of fonts grouped by categories
+		 * @private
+		 */
+		_renderFontList: function (fonts) {
+			var search = this.widgets.search,
+				slideshow = this.widgets.slideshow,
+				slide = null,
+				id = null,
+				i = 0,
+				ii = fonts.length,
+				button = null;
+			
+			if (!search) {
+				search = new Supra.Input.String();
+				search.render(this.get('contentBox'));
+				search.addClass('search');
+				
+				window.font = this;
+				search.on('input', this._onSearchInput, this);
+				
+				this.widgets.search = search;
+			}
+			
+			if (!slideshow) {
+				slideshow = new Supra.Slideshow();
+				slideshow.render(this.get('contentBox'));
+				slideshow.on('slideChange', this._updateBackButtonVisibility, this);
+				this.widgets.slideshow = slideshow;
+				
+				// Main / root
+				id = 'main' + this.get('id');
+				slide = slideshow.addSlide({'id': id});
+				this.widgets.groups['main'] = {
+					id: id,
+					node: slide.one('.su-slide-content, .su-multiview-slide-content'),
+					buttons: []
+				};
+				
+				// Search
+				id = 'search' + this.get('id');
+				this._renderFontGroup({
+					'id': id,
+					'title': 'search',
+					'fonts': [],
+					'visible': false,
+					'namespace': 'search'
+				});
+			}
+			
+			// Create main slides
+			slide = this.widgets.groups['main'].node;
+			
+			for (; i<ii; i++) {
+				this._renderFontGroup(fonts[i]);
+			}
+		},
+		
+		/**
+		 * Render font group
+		 * 
+		 * @param {String} title Group title
+		 * @private
+		 */
+		_renderFontGroup: function (group) {
+			var slideshow = this.widgets.slideshow,
+				main = this.widgets.groups['main'].node,
+				button = null,
+				node = null,
+				scrollable = null,
+				id = group.id ? group.id : group.title + this.get('id'),
+				slide = slideshow.addSlide({
+					'id': id
+				});
+			
+			// Button on main slide
+			if (group.visible !== false) {
+				button = new Supra.Button({
+					style: 'small',
+					label: group.title
+				});
+				button.addClass('button-section');
+				button.render(main);
+				
+				button.on('click', this._handleFontGroupButtonClick, this, id);
+			}
+			
+			// Slide content
+			node = Y.Node.create('<div class="yui3-input-font-list" style="height: ' + (group.fonts.length * this.FONT_ITEM_HEIGHT) + 'px;"></div>');
+			slide.one('.su-slide-content, .su-multiview-slide-content').append(node);
+			
+			scrollable = slide.getData('scrollable');
+			
+			this.widgets.groups[group.namespace || id] = {
+				id: id,
+				
+				button: button,
+				slide: slide,
+				node: node,
+				
+				fonts: group.fonts,
+				count: group.fonts.length,
+				rendered: 0
+			};
+			
+			scrollable.on('sync', this._updateFontList, this);
+			
+			window.font = this;
+		},
+		
+		/**
+		 * Render font list
+		 * 
+		 * @param {Object} group Font group
+		 * @private
+		 */
+		_renderFontItems: function (group, from, to) {
+			var fonts = group.fonts,
+				node  = null,
+				i = from,
+				container = group.node,
+				preview_fonts = [],
+				preview = this.get('previewGoogleFonts'),
+				value = this.get('value');
+			
+			for (; i < to; i++) {
+				if (fonts[i].apis) {
+					preview_fonts.push(fonts[i]);
+				}
+				
+				node = Y.Node.create('<a ' + (fonts[i].family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
+				node.setStyle('font-family', fonts[i].family);
+				node.setAttribute('data-family', fonts[i].family.replace(/"/g, ''));
+				container.append(node);
+			}
+			
+			preview.addFonts(preview_fonts);
+			
+			group.rendered = to;
+		},
+		
+		/**
+		 * Draw additional fonts if needed
+		 * 
+		 * @private
+		 */
+		_updateFontList: function (group) {
+			// Prevent loop caused by 'sync'
+			if (this._isUpdatingFontList) return;
+			this._isUpdatingFontList = true;
+			
+			var group = typeof group == 'string' ? group : this.widgets.slideshow.get('slide'),
+				groups = this.widgets.groups,
+				from = 0,
+				to = 0,
+				scroll = 0,
+				view = 0,
+				scrollable = null;
+			
+			if (group in groups) {
+				group = groups[group];
+				from = group.rendered;
+				
+				if (group.count > group.rendered) {
+					// Check if we need to render more fonts
+					scrollable = group.slide.getData('scrollable');
+					scrollable.syncUI();
+					scroll = scrollable.getScrollPosition();
+					view = scrollable.getViewSize();
+					
+					if (scroll + view > group.rendered * this.FONT_ITEM_HEIGHT) {
+						to = Math.min(Math.ceil((scroll + view * 2) / this.FONT_ITEM_HEIGHT), group.count);
+						
+						if (from != to) {
+							this._renderFontItems(group, from, to);
+						}
+					}
+				}
+			}
+			
+			this._isUpdatingFontList = false;
+		},
+		
+		/**
+		 * On group button click open specific slideshow slide
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} data Additional event data
+		 * @private
+		 */
+		_handleFontGroupButtonClick: function (event, data) {
+			this.widgets.slideshow.set('slide', data);
+			this._updateFontList();
+		},
+		
+		/**
+		 * Handle back button click
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		_handleBackButtonClick: function (event) {
+			var slideshow = this.widgets.slideshow,
+				slide = slideshow.get('slide'),
+				main = this.widgets.groups.main.id,
+				search = this.widgets.groups.search.id;
+			
+			if (slide != main) {
+				slideshow.scrollBack();
+				
+				if (slide == search) {
+					this.widgets.search.set('value', '');
+				}
+				
+				event.halt();
+			}
+		},
+		
+		/**
+		 * On slide change update back button visibility
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		_updateBackButtonVisibility: function (event) {
+			var was_visible = this.backButtonInitiallyVisible,
+				sidebar = null,
+				button = null;
+			
+			if (was_visible === null) {
+				// Find if back button is visible and bind linstener
+				sidebar = this.getParentWidget('ActionBase');
+				was_visible = this.backButtonInitiallyVisible = false;
+				
+				if (sidebar) {
+					button = sidebar.get('backButton');
+					if (button) {
+						was_visible = this.backButtonInitiallyVisible = button.get('visible');
+						button.before('click', this._handleBackButtonClick, this);
+					}
+				}
+			}
+			
+			if (!was_visible) {
+				// It was not visible, so for main slide button shouldn't be visible
+				sidebar = this.getParentWidget('ActionBase');
+				
+				if (sidebar) {
+					button = sidebar.get('backButton');
+					
+					if (!event.newVal || !this.widgets.groups.main || event.newVal == this.widgets.groups.main.id) {
+						button.hide();
+					} else {
+						button.show();
+					}
+				}
+				
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------------- SEARCH ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Handle search input event
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		_onSearchInput: function (event) {
+			var slideshow = this.widgets.slideshow,
+				slide = slideshow.get('slide'),
+				groups = this.widgets.groups,
+				animate = false,
+				scrollable = null,
+				search = groups.search;
+			
+			if (event.value) {
+				if (slide != search.id) {
+					
+					if (slide != groups.main.id) {
+						// Inside one of the groups, don't animate slideshow
+						slideshow
+							.set('noAnimations', true)
+							.set('slide', groups.main.id)
+							.set('slide', search.id)
+							.set('noAnimations', false);
+					} else {
+						// Main view, animate slideshow
+						slideshow.set('slide', search.id);
+					}
+				}
+				
+				if (search.query != event.value) {
+					search.query = event.value;
+					search.fonts = this._filterFonts(event.value);
+					search.count = search.fonts.length;
+					search.rendered = 0;
+					search.node.empty();
+					search.node.setStyle('height', search.fonts.length * this.FONT_ITEM_HEIGHT + 'px');
+					
+					scrollable = search.slide.getData('scrollable');
+					scrollable.syncUI();
+					
+					this._updateFontList('search');
+				}
+			} else {
+				if (slide != groups.main.id) {
+					slideshow.set('slide', groups.main.id);
+				}
+			}
+		},
+		
+		/**
+		 * Filter font list to find fonts which match query string
+		 * 
+		 * @param {String} query Query string
+		 * @returns {Array} List of match fonts
+		 * @private
+		 */
+		_filterFonts: function (query) {
+			var groups = this.get('values'),
+				i = 0,
+				ii = groups.length,
+				fonts = null,
+				f = 0,
+				ff = 0,
+				matches = [];
+			
+			// Lower case and trim
+			query = Y.Lang.trim(query.toLowerCase());
+			
+			for (; i<ii; i++) {
+				fonts = groups[i].fonts;
+				for (f=0,ff=fonts.length; f<ff; f++) {
+					if (fonts[f].title.toLowerCase().indexOf(query) != -1) {
+						matches.push(fonts[f]);
+					}
+				}
+			}
+			
+			return matches;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- ATTRIBUTES ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Value attribute setter
+		 * 
+		 * @param {String} value Value id
+		 * @returns {String} New value
+		 * @private
+		 */
+		_setValue: function (value) {
+			if (typeof value !== 'string') {
+				value = '';
+			}
+			
+			if (this.widgets && this.widgets.button) {
+				var data = this.getValueData(value),
+					label = (data ? data.title || data.family : '') || this.get('labelButton') || '';
+				
+				this.widgets.button.set('icon', data && data.icon ? data.icon : '');
+				this.widgets.button.set('label', label);
+			}
+			
+			return value;
+		},
+		
+		/**
+		 * Value attribute getter
+		 * 
+		 * @param {String} value Previous value
+		 * @return New value
+		 * @type {String}
+		 * @private
+		 */
+		_getValue: function (value) {
+			return value;
+		},
 		
 		/**
 		 * Values attribute setter
 		 * 
+		 * @param {Array} values List of values
+		 * @returns {Array} New values list
 		 * @private
 		 */
 		_setValues: function (values) {
-			values = Input.superclass._setValues.apply(this, arguments);
-			
-			this.loadFonts(values);
-			
+			if (this.get('rendered')) {
+				this._renderFontList(values);
+			}
 			return values;
-		}
+		},
 		
+		/**
+		 * Disabled attribute setter
+		 * Disable / enable HTMLEditor
+		 * 
+		 * @param {Boolean} value New state value
+		 * @return New state value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setDisabled: function (value) {
+			var button = this.widgets.button,
+				search = this.widgets.search;
+			
+			if (button) {
+				button.set('disabled', !!value);
+			}
+			
+			if (search) {
+				search.set('disabled', !!value);
+			}
+			
+			this.get('boundingBox').toggleClass('yui3-input-disabled', value);
+			
+			return !!value;
+		},
+		
+		/**
+		 * Loading attribute setter
+		 * 
+		 * @param {Boolean} loading Loading attribute value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setLoading: function (loading) {
+			var box = this.get('contentBox');
+			
+			if (box) {
+				if (loading && !this.get('nodeLoading')) {
+					var node = Y.Node.create('<span class="loading-icon"></span>');
+					box.append(node);
+					this.set('nodeLoading', node);
+				}
+				
+				box.toggleClass(this.getClassName('loading'), loading);
+			}
+			
+			this.set('disabled', loading);
+			return loading;
+		},
 		
 	});
 	
@@ -24778,8 +25867,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version);
-YUI.add("supra.input-number", function (Y) {
+}, YUI.version, {requires: ['supra.google-fonts']});YUI.add("supra.input-number", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -27612,7 +28700,7 @@ YUI.add('supra.uploader', function (Y) {
 		 * Minimal size of the handle
 		 */
 		'minHandleSize': {
-			'value': 15
+			'value': 50
 		}
 	};
 	
@@ -34918,10 +36006,10 @@ YUI.add('supra.datatype-color', function(Y) {
 				
 				switch (data.service) {
 					case 'youtube':
-						data.source = 'http://' + data.service + '.com/?v=' + data.id;
+						data.source = document.location.protocol + '//' + data.service + '.com/?v=' + data.id;
 						break;
 					case 'vimeo':
-						data.source = 'http://' + data.service + '.com/' + data.id;
+						data.source = document.location.protocol + '//' + data.service + '.com/' + data.id;
 						break;
 				}
 				
@@ -35049,7 +36137,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
 		} else if (service == 'vimeo') {
 			//
-			var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
+			var url = document.location.protocol + '//vimeo.com/api/v2/video/' + video_id + '.json';
 			Supra.io(url, {
 				'suppress_errors': true, // don't display errors
 				'context': this,
@@ -37667,7 +38755,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 	Supra.HTMLEditor.addPlugin("fonts", defaultConfiguration, {
 		
 		// Font input
-		fontFnput: null,
+		fontInput: null,
 		
 		// Font button
 		fontFamilyInput: null,
@@ -37693,6 +38781,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		// Font size input change listener
 		toolbarFontSizeChangeListener: null,
 		
+		googleFonts: null,
+		
 		
 		/**
 		 * Update selected element font
@@ -37700,8 +38790,21 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @private
 		 */
 		updateFont: function () {
-			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
-				var value = this.fontInput.get("value");
+			if (!this.silentUpdating && !this.htmleditor.get("disabled")) {
+				var value = this.fontInput.get("value"),
+					data  = value ? this.fontInput.getValueData(value) : null,
+					fonts = this.googleFonts;
+				
+				if (data) {
+					if (!fonts) {
+						fonts = new Supra.GoogleFonts({
+							"doc": this.htmleditor.get("doc")
+						});
+					}
+					
+					fonts.addFonts([data]);
+				}
+				
 				this.exec(value, "fontname");
 				this.htmleditor._changed();
 			}
@@ -37783,15 +38886,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				} else {
 					//Try finding font from the list, which matches selected font
 					face = Y.Node(element).getStyle("fontFamily") || "";
-					var fonts = this.fonts,
-						i = 0,
-						ii = fonts.length;
-					
-					for (; i<ii; i++) {
-						if (face && face.toLowerCase().indexOf(fonts[i].search) !== -1) {
-							face = fonts[i].family;
-						}
-					}
 				}
 				this.fontInput.set("value", face);
 			}
@@ -38068,25 +39162,14 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @return List of font API ids
 		 */
 		getUsedFonts: function () {
-			if (!this.fonts) return [];
-			
 			var editor = this.htmleditor,
 				nodes = this.htmleditor.get("srcNode").all("font"),
-				used = [],
-				fonts = this.fonts,
-				ii = fonts.length;
+				used = [];
 			
 			nodes.each(function (node) {
 				var face = node.getAttribute("face");
 				if (face) {
-					for (var i=0; i<ii; i++) {
-						if (face.toLowerCase().indexOf(fonts[i].search) !== -1) {
-							if (fonts[i].apis) {
-								used.push(fonts[i].id);
-							}
-							return;
-						}
-					}
+					used.push(face);
 				}
 			});
 			
@@ -38114,13 +39197,12 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
 			if (!content) return;
 			
-			var fonts = this.fonts,
-				form_config = {
+			var form_config = {
 					"inputs": [{
 						"id": "font",
 						"type": "Fonts",
 						"label": "",
-						"values": fonts
+						"values": []
 					}],
 					"style": "vertical"
 				};
@@ -38330,18 +39412,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			htmleditor.addCommand("forecolor", Y.bind(this.showTextColorSidebar, this));
 			htmleditor.addCommand("backcolor", Y.bind(this.showBackColorSidebar, this));
 			
-			// Collect all font info
-			var fonts = this.fonts = Y.Array.map(this.getAllFonts(), function (item) {
-				return {
-					"id": item.id || item.family,
-					"title": item.title,
-					"family": item.family,
-					"apis": item.apis,
-					// used to search for matches
-					"search": item.family.replace(/,.*/, "").replace(/(^\s*["']|["']\s*$)/g, '').toLowerCase() 
-				};
-		 	});
-		 	
 			// Show inputs / buttons
 			var inputs = ["fonts", "fontsize", "forecolor", "backcolor"],
 				i = 0,
@@ -38404,7 +39474,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {"requires": ["supra.htmleditor-base", "supra.template"]});/**
+}, YUI.version, {"requires": ["supra.htmleditor-base", "supra.template", "supra.google-fonts"]});/**
  * Font sidebar
  */
 YUI().add("supra.htmleditor-plugin-align", function (Y) {

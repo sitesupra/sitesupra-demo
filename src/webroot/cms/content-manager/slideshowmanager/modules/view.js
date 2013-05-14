@@ -793,10 +793,12 @@ YUI.add('slideshowmanager.view', function (Y) {
 			
 			// Google fonts
 			google_fonts = new Supra.GoogleFonts({'doc': doc});
-			fonts_node = google_fonts.getLinkNode();
+			fonts_nodes = google_fonts.getLinkNodes();
 			
-			if (fonts_node) {
-				stylesheets.push('<link rel="stylesheet" type="text/css" href="' + fonts_node.getAttribute('href') + '" />');
+			if (fonts_nodes.length) {
+				for (var i=0,ii=fonts_nodes.length; i<ii; i++) {
+					stylesheets.push('<link rel="stylesheet" type="text/css" href="' + fonts_nodes[i].getAttribute('href') + '" />');
+				}
 			}
 			
 			return stylesheets.join('');

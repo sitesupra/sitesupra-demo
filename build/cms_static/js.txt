@@ -130,6 +130,7 @@
 /cms/lib/supra/build/input/string.js
 /cms/lib/supra/build/input/text.js
 /cms/lib/supra/build/input/string-clear.js
+/cms/lib/supra/build/google-fonts/google-fonts.js
 /cms/lib/supra/build/iframe/stylesheet-parser.js
 /cms/lib/supra/build/htmleditor/htmleditor-base.js
 /cms/lib/supra/build/htmleditor/htmleditor-parser.js

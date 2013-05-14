@@ -2,22 +2,10 @@ YUI().add('supra.google-fonts', function (Y) {
 	//Invoke strict mode
 	'use strict';
 	
-	//List of fonts, which doesn't need to be loaded from Google Web Fonts
-	var SAFE_FONTS = [
-		'Arial', 'Tahoma', 'Helvetica', 'sans-serif', 'Arial Black', 'Impact',
-		'Trebuchet MS', 'MS Sans Serif', 'MS Serif', 'Geneva', 'Comic Sans MS' /* trololol.... */,
-		'Palatino Linotype', 'Book Antiqua', 'Palatino', 'Monaco', 'Charcoal',
-		'Courier New', 'Georgia', 'Times New Roman', 'Times',
-		'Lucida Console', 'Lucida Sans Unicode', 'Lucida Grande', 'Gadget',
-		'monospace'
-	];
-	
 	//Map function to lowercase all array items
 	var LOWERCASE_MAP = function (str) {
 		return String(str || '').toLowerCase();
 	};
-	
-	var GOOGLE_FONT_API_URI = document.location.protocol + '//fonts.googleapis.com/css?family=';
 	
 	
 	/**
@@ -29,6 +17,40 @@ YUI().add('supra.google-fonts', function (Y) {
 	}
 	
 	GoogleFonts.NAME = 'google-fonts';
+	
+	// Google font API uri
+	GoogleFonts.API_URI = document.location.protocol + '//fonts.googleapis.com/css?family=';
+	
+	// URI to load list of google fonts
+	GoogleFonts.SUPRA_FONT_URI = '/cms/lib/supra/tests/fonts/webfonts.json';
+	
+	//List of fonts, which doesn't need to be loaded from Google Web Fonts
+	GoogleFonts.SAFE_FONTS = [
+		'Arial', 'Tahoma', 'Helvetica', 'sans-serif', 'Arial Black', 'Impact',
+		'Trebuchet MS', 'MS Sans Serif', 'MS Serif', 'Geneva', 'Comic Sans MS' /* trololol.... */,
+		'Palatino Linotype', 'Book Antiqua', 'Palatino', 'Monaco', 'Charcoal',
+		'Courier New', 'Georgia', 'Times New Roman', 'Times',
+		'Lucida Console', 'Lucida Sans Unicode', 'Lucida Grande', 'Gadget',
+		'monospace'
+	];
+	
+	// List of non-google fonts for fonts list
+	GoogleFonts.STANDARD_FONTS = [
+		{'title': 'Arial, Helvetica',							'family': 'Arial, Helvetica, sans-serif'},
+		{'title': 'Times New Roman, Times, serif',				'family': '"Times New Roman", Times, serif'},
+		{'title': 'Georgia', 									'family': 'Georgia, serif'},
+		{'title': 'Palatino Linotype, Book Antiqua, Palatino',	'family': '"Palatino Linotype", "Book Antiqua", Palatino, serif'},
+		{'title': 'Impact, Charcoal', 							'family': 'Impact, Charcoal, sans-serif'},
+		{'title': 'Lucida Sans Unicode, Lucida Grande',			'family': '"Lucida Sans Unicode", "Lucida Grande", sans-serif'},
+		{'title': 'Tahoma, Geneva',								'family': 'Tahoma, Geneva, sans-serif'},
+		{'title': 'Trebuchet MS, Helvetica',					'family': '"Trebuchet MS", Helvetica, sans-serif'},
+		{'title': 'Verdana, Geneva',							'family': 'Verdana, Geneva, sans-serif'}
+	];
+	
+	// List of google font subsets
+	GoogleFonts.SUBSETS = [
+		'latin', 'cyrillic-ext', 'latin-ext', 'cyrillic'
+	];
 	
 	GoogleFonts.ATTRS = {
 		//Document element to which add fonts to
@@ -76,23 +98,17 @@ YUI().add('supra.google-fonts', function (Y) {
 				return;
 			}
 			
-			var existing = {},
-				new_uri = '',
-				old_uri = '',
-				node = this.getLinkNode(true),
-				data = null;
-			
-			if (!node) {
-				return;
-			}
+			var new_uris = [],
+				data = null,
+				i = 0, ii = 0;
 			
 			data = this.getExistingLinkData();
-			new_uri = GoogleFonts.getURI(fonts.concat(data.fonts), data.subset);
+			new_uris = GoogleFonts.getURI(fonts, {'exclude': data.fonts, 'split': true});
 			
-			old_uri = node.getAttribute('href');
-			
-			if (old_uri != new_uri) {
-				node.setAttribute('href', new_uri);
+			if (new_uris.length) {
+				for (i=0,ii=new_uris.length; i<ii; i++) {
+					this.createLinkNode(new_uris[i]);
+				}
 			}
 		},
 		
@@ -103,19 +119,29 @@ YUI().add('supra.google-fonts', function (Y) {
 		
 		
 		/**
-		 * Link node
-		 */
-		_node: null,
-		
-		/**
 		 * Returns link node
 		 * 
 		 * @param {Boolean} create Create link node if it doesn't exist
 		 * @returns {Object} Google fonts link node
 		 */
-		getLinkNode: function (create) {
-			if (this._node) return this._node;
+		getLinkNodes: function () {
+			var doc = doc || this.get('doc'),
+				head = null,
+				links = null;
 			
+			if (!doc) return null;
+			
+			head = Y.Node(doc).one('head');
+			if (!head) return null;
+			
+			links = head.all('link[href^="' + GoogleFonts.API_URI + '"]');
+			return links ? links.getDOMNodes() : [];
+		},
+		
+		/**
+		 * Creates link node
+		 */
+		createLinkNode: function (uri) {
 			var doc = doc || this.get('doc'),
 				head = null,
 				link = null;
@@ -125,18 +151,10 @@ YUI().add('supra.google-fonts', function (Y) {
 			head = Y.Node(doc).one('head');
 			if (!head) return null;
 			
-			link = head.one('link[href^="' + GOOGLE_FONT_API_URI + '"]');
+			link = Y.Node.create('<link rel="stylesheet" type="text/css" href="' + (uri || '') + '" />');
+			head.append(link);
 			
-			if (link) {
-				return this._node = link;
-			} else if (!!create) {
-				// Create link node
-				link = this._node = Y.Node.create('<link rel="stylesheet" type="text/css" />');
-				head.append(link);
-				return link;
-			}
-			
-			return null;
+			return link;
 		},
 		
 		/**
@@ -146,31 +164,27 @@ YUI().add('supra.google-fonts', function (Y) {
 		 * @returns {Object} Parsed link node
 		 */
 		getExistingLinkData: function () {
-			var node = this.getLinkNode(),
+			var nodes = this.getLinkNodes(),
 				uri  = '',
-				subset = '',
-				fonts = [];
+				subset = GoogleFonts.SUBSETS.join(','),
+				fonts = [],
+				i = 0,
+				ii = nodes.length;
 			
-			if (!node) {
-				return {'node': null, 'fonts': fonts, 'subset': subset};
+			for (; i<ii; i++) {
+				uri = nodes[i].getAttribute('href');
+				if (uri) {
+					// Remove url, subset and styles
+					uri = uri.replace(GoogleFonts.API_URI, '');
+					uri = uri.replace(/&subset=([^&]+)/, '');
+					//uri = uri.replace(/:[^|&?]*/g, '');
+					
+					// Fonts
+					fonts = fonts.concat(uri.split('|'));
+				}
 			}
 			
-			uri = node.getAttribute('href');
-			if (!uri) {
-				return {'node': node, 'fonts': fonts, 'subset': subset};
-			}
-			
-			// Find subset
-			uri = uri.replace(GOOGLE_FONT_API_URI, '');
-			uri = uri.replace(/&subset=([^&]+)/, function (all, str) {
-				subset = str;
-				return '';
-			});
-			
-			// Fonts
-			fonts = uri.split('|');
-			
-			return {'node': node, 'fonts': fonts, 'subset': subset};
+			return {'fonts': fonts, 'subset': subset};
 		},
 		
 		
@@ -234,33 +248,118 @@ YUI().add('supra.google-fonts', function (Y) {
 	
 	
 	/**
+	 * Load list of all fonts
+	 * 
+	 * @returns {Object} Supra.Deferred object
+	 * @private
+	 */
+	GoogleFonts.loadFonts = function () {
+		if (GoogleFonts.loadFonts._deferred) {
+			return GoogleFonts.loadFonts._promise;
+		}
+		
+		var deferred = new Supra.Deferred(),
+			promise  = deferred.promise();
+		
+		Supra.io(GoogleFonts.SUPRA_FONT_URI).then(
+			function (fonts) {
+				// Success, return standard + google fonts
+				var formatted = [],
+					i = 0,
+					ii = fonts.length,
+					family = '';
+				
+				for (; i<ii; i++) {
+					family = fonts[i];
+					formatted.push({
+						'title': family,
+						'family': family, //amily.indexOf(' ') != -1 ? '"' + family + '"' : family,
+						'apis': family.replace(/ /g, '+') + ':300,300italic,regular,italic,700,700italic'
+					});
+				}
+				
+				deferred.resolve([[
+					{
+						'title': 'Standard fonts',
+						'fonts': GoogleFonts.STANDARD_FONTS,
+					},
+					{
+						'title': 'Google fonts',
+						'fonts': formatted
+					}
+				]]);
+			}, function () {
+				// Failure, return only standard fonts
+				deferred.resolve([[
+					{
+						'title': 'Standard fonts',
+						'fonts': GoogleFonts.STANDARD_FONTS,
+					}
+				]]);
+			});
+		
+		GoogleFonts.loadFonts._promise = promise;
+		return promise;
+	};
+	
+	/**
 	 * Returns URI with all fonts
 	 * 
 	 * @return URI for <link /> element which will load all fonts
 	 * @private
 	 */
-	GoogleFonts.getURI = function (fonts, subset) {
+	GoogleFonts.getURI = function (fonts, options) {
+		
 		var fonts = Y.Lang.isArray(fonts) ? fonts : [],
-			i = 0, ii = fonts.length,
+			i = 0,
+			ii = fonts.length,
+			
+			exclude = options && options.exclude ? options.exclude : [],
+			e = 0,
+			ee = exclude.length,
 			
 			//Get all safe fonts in lowercase
-			safe  = Y.Array(SAFE_FONTS).map(LOWERCASE_MAP),
+			safe  = Y.Array(GoogleFonts.SAFE_FONTS).map(LOWERCASE_MAP),
 			apis  = [],
 			
 			parts = [], k = 0, kk = 0,
 			
 			load  = [],
 			temp  = '',
-			uri   = GOOGLE_FONT_API_URI,
+			uri   = GoogleFonts.API_URI,
+			subset = '&subset=' + GoogleFonts.SUBSETS.join(','),
 			
 			index = 0,
-			subsets = subset ? subset.split(',') : [];
+			
+			include = false;
 		
 		//Find which ones are not in the safe font list
 		for (; i<ii; i++) {
+			include = true;
+			
 			// API name instead of object?
 			if (typeof fonts[i] === 'string') {
-				load.push(fonts[i]);
+				for (e=0; e<ee; e++) {
+					if (exclude[e] == fonts[i]) {
+						include = false;
+						break;
+					}
+				}
+				if (include) {
+					load.push(fonts[i]);
+				}
+				
+				continue;
+			}
+			
+			for (e=0; e<ee; e++) {
+				if (exclude[e] == fonts[i].apis || exclude[e] == (fonts[i].family || fonts[i].title).replace(/["']/, '').replace(/\s+/g, '+')) {
+					include = false;
+					break;
+				}
+			}
+			
+			if (!include) {
 				continue;
 			}
 			
@@ -285,7 +384,6 @@ YUI().add('supra.google-fonts', function (Y) {
 					if (temp) {
 						index = temp.indexOf('&subset=');
 						if (index !== -1) {
-							subsets = subsets.concat(temp.substr(index + 8).split(','));
 							temp = temp.substr(0, index);
 						}
 						
@@ -297,24 +395,26 @@ YUI().add('supra.google-fonts', function (Y) {
 			}
 		}
 		
-		// Unique subsets
-		if (subsets.length) {
-			subsets = Y.Array.unique(subsets);
-			subsets = '&subset=' + subsets.join(',');
-		} else {
-			subsets = '';
-		}
-		
 		// Font list
 		load = Y.Array.unique(load).sort();
 		
-		return (load.length ? uri + load.join('|') : '') + subsets;
+		if (options && options.split) {
+			var split = [];
+			
+			for (i=0, ii=Math.ceil(load.length/10); i<ii; i++) {
+				split.push(uri + load.slice(i*10, i*10+10).join('|') + subset);
+			}
+			
+			return split;
+		} else {
+			return (load.length ? uri + load.join('|') + subset : '');
+		}
 	}
 	
 	GoogleFonts.addFontsToHTML = function (html, fonts) {
 		var uri = GoogleFonts.getURI(fonts),
 			replaced = false,
-			regex = new RegExp('(<link[^>]+href=)["\'][^"\']*?' + Y.Escape.regex(GOOGLE_FONT_API_URI) + '[^"\']*?["\']', 'i'),
+			regex = new RegExp('(<link[^>]+href=)["\'][^"\']*?' + Y.Escape.regex(GoogleFonts.API_URI) + '[^"\']*?["\']', 'i'),
 			html = html.replace(regex, function (all, pre) {
 				replaced = true;
 				return pre + '"' + uri + '"';

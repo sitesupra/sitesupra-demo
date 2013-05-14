@@ -7,23 +7,6 @@ YUI().add('supra.iframe', function (Y) {
 		REGEX_FIND_COLOR = /(#[0-9ABCDEF]+|rgb(a)?\([0-9\.\,\s]+\))/gi,
 		REGEX_FIND_SCRIPT = /<script [^>]*src="?'?([^\s"']+).*?<\/script[^>]*>/gi;
 	
-	//List of fonts, which doesn't need to be loaded from Google Web Fonts
-	var SAFE_FONTS = [
-		'Arial', 'Tahoma', 'Helvetica', 'sans-serif', 'Arial Black', 'Impact',
-		'Trebuchet MS', 'MS Sans Serif', 'MS Serif', 'Geneva', 'Comic Sans MS' /* trololol.... */,
-		'Palatino Linotype', 'Book Antiqua', 'Palatino', 'Monaco', 'Charcoal',
-		'Courier New', 'Georgia', 'Times New Roman', 'Times',
-		'Lucida Console', 'Lucida Sans Unicode', 'Lucida Grande', 'Gadget',
-		'monospace'
-	];
-	
-	//Map function to lowercase all array items
-	var LOWERCASE_MAP = function (str) {
-		return String(str || '').toLowerCase();
-	};
-	
-	var GOOGLE_FONT_API_URI = document.location.protocol + '//fonts.googleapis.com/css?family=';
-	
 	
 	/**
 	 * Iframe content widget
@@ -485,7 +468,7 @@ YUI().add('supra.iframe', function (Y) {
 				type = elements.item(i).getAttribute('type');
 				
 				// Not google font stylesheets and not .less files
-				if ((!href || href.indexOf(GOOGLE_FONT_API_URI) === -1) && (!type || type === 'text/css')) {
+				if ((!href || href.indexOf(Supra.GoogleFonts.API_URI) === -1) && (!type || type === 'text/css')) {
 					links.push(Y.Node.getDOMNode(elements.item(i)));
 				}
 			}
@@ -513,13 +496,23 @@ YUI().add('supra.iframe', function (Y) {
 		 */
 		observeStylesheetLoad: function (links) {
 			var timer = Y.later(50, this, function () {
-				var loaded = true;
+				var loaded = true,
+					protocol = document.location.protocol,
+					secure = (protocol == 'https:'),
+					href = '';
+				
 				for(var i=0,ii=links.length; i<ii; i++) {
 					if (!links[i].sheet) {
-						//If there is no href, then there will never be a sheet
-						if (links[i].getAttribute('href')) {
-							loaded = false;
-							break;
+						//If there is no href or href is http while cms is in https, then there will never be a sheet
+						href = links[i].getAttribute('href');
+						if (href) {
+							if (secure && href.indexOf('http:') != -1) {
+								// Link href is http while CMS is in https, we can't access such links
+								// so skip it
+							} else {
+								loaded = false;
+								break;
+							}
 						}
 					}
 				}
