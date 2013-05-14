@@ -756,7 +756,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			// Recreate styles
 			var doc = this.getOriginalDocument(),
 				google_fonts = null,
-				fonts_node = null,
+				fonts_nodes = null,
 				
 				links = Y.Node(doc).all('link[rel="stylesheet"]'),
 				i = 0,

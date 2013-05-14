@@ -25167,6 +25167,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		backButtonInitiallyVisible: null,
 		
 		renderUI: function () {
+			this.backButtonInitiallyVisible = null;
+			
 			this.widgets = {
 				// Separate slide
 				'slide': null,
@@ -25597,6 +25599,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @private
 		 */
 		_handleFontGroupButtonClick: function (event, data) {
+			this._initView();
 			this.widgets.slideshow.set('slide', data);
 			this._updateFontList();
 		},
@@ -25624,6 +25627,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 		},
 		
+		
 		/**
 		 * On slide change update back button visibility
 		 * 
@@ -25635,21 +25639,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				sidebar = null,
 				button = null;
 			
-			if (was_visible === null) {
-				// Find if back button is visible and bind linstener
-				sidebar = this.getParentWidget('ActionBase');
-				was_visible = this.backButtonInitiallyVisible = false;
-				
-				if (sidebar) {
-					button = sidebar.get('backButton');
-					if (button) {
-						was_visible = this.backButtonInitiallyVisible = button.get('visible');
-						button.before('click', this._handleBackButtonClick, this);
-					}
-				}
-			}
-			
-			if (!was_visible) {
+			if (was_visible === false) {
 				// It was not visible, so for main slide button shouldn't be visible
 				sidebar = this.getParentWidget('ActionBase');
 				
@@ -25660,9 +25650,71 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						button.hide();
 					} else {
 						button.show();
+						this._viewActive = true;
 					}
 				}
 				
+			}
+		},
+		
+		
+		_viewActive: false,
+		
+		/**
+		 * Check back button initial state
+		 * Attach to form visible event to observe when sidebar is hidden
+		 */
+		_initView: function () {
+			var was_visible = this.backButtonInitiallyVisible,
+				sidebar = null,
+				button = null,
+				form = null;
+			
+			if (was_visible === null) {
+				// Find if back button is visible and bind linstener
+				sidebar = this.getParentWidget('ActionBase');
+				was_visible = this.backButtonInitiallyVisible = false;
+				
+				if (sidebar) {
+					// Back button
+					button = sidebar.get('backButton');
+					if (button) {
+						was_visible = this.backButtonInitiallyVisible = button.get('visible');
+						button.before('click', this._handleBackButtonClick, this);
+					}
+					
+					// Control button
+					button = sidebar.get('controlButton');
+					if (button) {
+						button.before('click', this._resetView, this);
+					}
+				}
+				
+				// When form is hidden reset 
+				form = this.getParentWidget('form');
+				form.on('visibleChange', function (event) {
+					if (!event.newVal && event.prevVal) {
+						this._resetView();
+					}
+				}, this);
+			}
+		},
+		
+		/**
+		 * Reset view to inital state,
+		 * set slideshow to first main slide, which will
+		 * hide back button if needed
+		 */
+		_resetView: function (event) {
+			if (this._viewActive) {
+				this._viewActive = false;
+				
+				if (this.widgets.slideshow) {
+					this.widgets.slideshow
+							.set('noAnimations', true)
+							.set('slide', this.widgets.groups.main.id)
+							.set('noAnimations', false);
+				}
 			}
 		},
 		
