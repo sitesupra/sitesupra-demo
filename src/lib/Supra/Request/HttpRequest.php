@@ -423,5 +423,19 @@ class HttpRequest implements RequestInterface
 	{
 		$this->lastRouter = $lastRouter;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getProcotol()
+	{
+		$httpsStatus = $this->getServerValue('HTTPS', 'off');
+		
+		if ( ! empty($httpsStatus) && $httpsStatus != 'off') {
+			return 'https';
+		}
+		
+		return 'http';
+	}
 
 }
