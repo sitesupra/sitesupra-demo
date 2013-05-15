@@ -14660,8 +14660,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					ancestor.addClass("align-" + data.align);
 				}
 				
-				var crop_left   = data.crop_left   || image.getAttribute("data-crop-left"),
-					crop_top    = data.crop_top    || image.getAttribute("data-crop-top"),
+				var crop_left   = data.crop_left   || image.getAttribute("data-crop-left")   || 0,
+					crop_top    = data.crop_top    || image.getAttribute("data-crop-top")    || 0,
 					crop_width  = data.crop_width  || image.getAttribute("data-crop-width")  || image.width,
 					crop_height = data.crop_height || image.getAttribute("data-crop-height") || image.height,
 					data_width  = data.size_width  || image.getAttribute("data-width")       || image.width,
@@ -15364,8 +15364,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					src = self.getImageURLBySize(item.image);
 				
 				if (src) {
-					//@TODO Remove these when server is supporting croping
 					item.image.crop_left = item.image.crop_left || 0;
+					item.image.crop_top = item.image.crop_top || 0;
 					item.image.crop_width = item.image.crop_width || (item.image.size_width - item.image.crop_left);
 					item.image.crop_height = item.image.crop_height || (item.image.size_height - item.image.crop_top);
 					
@@ -15390,9 +15390,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						}
 					}
 
-					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));					
+					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));
+					var img_style = (item.size_width && item.size_height ? 'width: ' + item.size_width + 'px; height:' + item.size_height + ';' : '');					
 					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
-					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
+					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="' + img_style + 'margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
 
 					if (item.type == 'lightbox') {
 						//For lightbox add link around image
