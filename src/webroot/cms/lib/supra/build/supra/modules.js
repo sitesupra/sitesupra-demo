@@ -95,6 +95,7 @@ Supra.useModules = [
 	'escape',
 	'cookie',
 	'transition',
+	'router',
 	
 	'supra.dd-ddm',
 	'supra.event',
