@@ -193,10 +193,20 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 */
 		replaceSelectedImage: function () {
 			//Open Media library on "Replace"
-			if (this.selected_image) {
+			var image = this.selected_image,
+				image_id = this.selected_image_id,
+				data = this.original_data;
+			
+			if (image) {
 				//Open settings form and open MediaSidebar
 				this.stopEditImage();
 				this.hideSettingsForm();
+				
+				//Restore selected image reference, which was removed in hideSettingsForm
+				this.selected_image = image;
+				this.selected_image_id = image_id;
+				this.original_data = data;
+				
 				Manager.getAction("MediaSidebar").execute({
 					onselect: Y.bind(this.insertImage, this)
 				});
