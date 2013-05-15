@@ -60,7 +60,11 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			
 			//Toolbar buttons
 			Manager.getAction('PageToolbar').addActionButtons(Settings.NAME, []);
-			Manager.getAction('PageButtons').addActionButtons(Settings.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(Settings.NAME, [{
+				'id': 'done',
+				'context': this,
+				'callback': this.onSidebarDone
+			}]);
 		},
 		
 		/**
@@ -261,7 +265,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			action.execute(form, {
-				'doneCallback': Y.bind(this.onSidebarDone, this),
+				//'doneCallback': Y.bind(this.onSidebarDone, this),
+				'hideDoneButton': true,
 				'toolbarActionName': Settings.NAME,
 				
 				'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title']),
