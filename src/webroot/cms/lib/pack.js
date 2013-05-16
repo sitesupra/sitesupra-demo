@@ -23543,10 +23543,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				
 			var srcNode		= Y.Node.getDOMNode(htmleditor.get('srcNode')),		// editor content node
 				doc			= htmleditor.get('doc'),							// editor iframe document
+				win			= htmleditor.get('win'),							// editor iframe window
 				body		= doc.body,											// editor iframe body
 				node		= doc.createElement('DIV'),							// temporary node
-				selected	= htmleditor.getSelectedElement(),					// selected element
-				pos			= Y.DOM.getXY(selected);							// selected element position
+				scroll		= win.pageYOffset || doc.body.scrollTop ||
+							  doc.documentElement.scrollTop || 0;				// scroll position
 			
 			/* Create node, which will be used as temporary storage for pasted value
 			 * make sure it's outside the screen to prevent flickering
@@ -23554,7 +23555,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			node.style.position = 'absolute';
 			node.style.width = '2000px';
 			node.style.left = '-9000px';
-			node.style.top = pos[1] + 'px';
+			node.style.top = scroll + 'px';
 			node.style.opacity = 0;
 			node.innerHTML = '&nbsp;';
 			
