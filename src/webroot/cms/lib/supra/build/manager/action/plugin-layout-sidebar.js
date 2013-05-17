@@ -117,7 +117,7 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 			var back = this.host.get('backButton');
 			if (back) {
 				back.hide();
-				back.on('click', this.onBackButtonClick, this);
+				back.after('click', this.onBackButtonClick, this);
 			}
 			
 			/*
@@ -177,9 +177,9 @@ YUI.add('supra.manager-action-plugin-layout-sidebar', function (Y) {
 		/**
 		 * Handle back button click
 		 */
-		onBackButtonClick: function () {
+		onBackButtonClick: function (event) {
 			var slideshow = this.host.get('slideshow');
-			if (slideshow) {
+			if (slideshow && !event.stoped && !event.prevented) {
 				slideshow.scrollBack();
 			}
 		},

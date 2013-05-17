@@ -149,12 +149,21 @@ Supra([
 		 */
 		loaded: false,
 		
+		/**
+		 * Dashboard router path
+		 * @type {String}
+		 * @private
+		 */
+		dashboard_router_path: null,
+		
 		
 		
 		/**
 		 * @constructor
 		 */
 		initialize: function () {
+			
+			this.initializeRouter();
 			
 			// If stats module is loaded
 			if (Supra.DashboardStats && Supra.DashboardInbox) {
@@ -340,6 +349,69 @@ Supra([
 		},
 		
 		
+		/* ------------------------------------ Router  ------------------------------------ */
+		
+		
+		/**
+		 * Initialize router, so that when dashboard app opens URL changes to /cms/dashboard and is returned
+		 * to original when dashboard is closed
+		 * 
+		 * @private
+		 */
+		initializeRouter: function () {
+			this.dashboard_router_path = Manager.Loader.getDynamicPath() + Manager.Loader.getActionBasePath(this.NAME);
+			
+			this.router = new Y.Router({
+				'root': '/'
+			});
+			
+			//Overwrite routing save to make sure paths are not written twice
+			this.router.save = function (path) {
+				//Get route path without trailing slash
+				var router_path = this.getPath();
+				if (router_path.substr(-1, 1) == '/') router_path = router_path.substr(0, router_path.length - 1);
+				
+				if (router_path != path) {
+					return Y.Router.prototype.save.apply(this, arguments);
+				}
+			};
+			
+			//Routes
+			this.router.route(this.dashboard_router_path, this.bind(this.execute));
+			this.router.route('*', this.bind(this.routeNonDashboard));
+		},
+		
+		/**
+		 * Change route to dashboard
+		 * 
+		 * @private
+		 */
+		routeDashboard: function () {
+			var path = this.router.getPath();
+			
+			if (path != this.dashboard_router_path) {
+				this.root_router_path = path;
+			}
+			
+			this.router.save(this.dashboard_router_path);
+		},
+		
+		/**
+		 * Route changed, if it's not /cms/dashboard then close dashboard
+		 * and restore original route
+		 * 
+		 * @private
+		 */
+		routeNonDashboard: function () {
+			var path = this.router.getPath(),
+				route = this.dashboard_router_path;
+			
+			if (path.indexOf(route) == -1 && this.get('visible')) {
+				this.hide();
+			}
+		},
+		
+		
 		/* ------------------------------------ Action  ------------------------------------ */
 		
 		
@@ -350,7 +422,16 @@ Supra([
 			//Dashboard application is opened, can't close it
 			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") return;
 			
-			this.set("visible", false);
+			if (this.get("visible")) {
+				// Restore original path
+				if (this.root_router_path != this.dashboard_router_path) {
+					this.router.save(this.root_router_path);
+				}
+				
+				this.set("visible", false);
+			} else {
+				return;
+			}
 			
 			var transition = {
 				"transform": "scale(2)",
@@ -433,7 +514,10 @@ Supra([
 		 * Execute action
 		 */
 		execute: function () {
-			this.show();
+			if (!this.get('visible')) {
+				this.routeDashboard();
+				this.show();
+			}
 		}
 	});
 	

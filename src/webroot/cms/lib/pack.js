@@ -611,6 +611,7 @@ Supra.useModules = [
 	'escape',
 	'cookie',
 	'transition',
+	'router',
 	
 	'supra.dd-ddm',
 	'supra.event',
@@ -1015,7 +1016,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-plugin-fonts': {
 			path: 'htmleditor/plugins/plugin-fonts.js',
-			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts']
+			requires: ['supra.manager', 'supra.htmleditor-base', 'supra.input-fonts', 'supra.google-fonts']
 		},
 		'supra.htmleditor-plugin-align': {
 			path: 'htmleditor/plugins/plugin-align.js',
@@ -2279,7 +2280,37 @@ Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
 http://yuilibrary.com/license/
 */
-YUI.add("jsonp-url",function(d){var a=d.JSONPRequest,c=d.Object.getValue,b=function(){};d.mix(a.prototype,{_pattern:/\bcallback=(.*?)(?=&|$)/i,_template:"callback={callback}",_defaultCallback:function(g){var f=g.match(this._pattern),j=[],h=0,e,k,l;if(f){e=f[1].replace(/\[(['"])(.*?)\1\]/g,function(m,i,n){j[h]=n;return".@"+(h++);}).replace(/\[(\d+)\]/g,function(m,i){j[h]=parseInt(i,10)|0;return".@"+(h++);}).replace(/^\./,"");if(!/[^\w\.\$@]/.test(e)){k=e.split(".");for(h=k.length-1;h>=0;--h){if(k[h].charAt(0)==="@"){k[h]=j[parseInt(k[h].substr(1),10)];}}l=c(d.config.win,k)||c(d,k)||c(d,k.slice(1));}}return l||b;},_format:function(e,g){var h=this._template.replace(/\{callback\}/,g),f;if(this._pattern.test(e)){return e.replace(this._pattern,h);}else{f=e.slice(-1);if(f!=="&"&&f!=="?"){e+=(e.indexOf("?")>-1)?"&":"?";}return e+h;}}},true);},"3.5.0",{requires:["jsonp"]});YUI.add('supra.dd-ddm', function (Y) {
+YUI.add("jsonp-url",function(d){var a=d.JSONPRequest,c=d.Object.getValue,b=function(){};d.mix(a.prototype,{_pattern:/\bcallback=(.*?)(?=&|$)/i,_template:"callback={callback}",_defaultCallback:function(g){var f=g.match(this._pattern),j=[],h=0,e,k,l;if(f){e=f[1].replace(/\[(['"])(.*?)\1\]/g,function(m,i,n){j[h]=n;return".@"+(h++);}).replace(/\[(\d+)\]/g,function(m,i){j[h]=parseInt(i,10)|0;return".@"+(h++);}).replace(/^\./,"");if(!/[^\w\.\$@]/.test(e)){k=e.split(".");for(h=k.length-1;h>=0;--h){if(k[h].charAt(0)==="@"){k[h]=j[parseInt(k[h].substr(1),10)];}}l=c(d.config.win,k)||c(d,k)||c(d,k.slice(1));}}return l||b;},_format:function(e,g){var h=this._template.replace(/\{callback\}/,g),f;if(this._pattern.test(e)){return e.replace(this._pattern,h);}else{f=e.slice(-1);if(f!=="&"&&f!=="?"){e+=(e.indexOf("?")>-1)?"&":"?";}return e+h;}}},true);},"3.5.0",{requires:["jsonp"]});/*
+YUI 3.5.0 (build 5089)
+Copyright 2012 Yahoo! Inc. All rights reserved.
+Licensed under the BSD License.
+http://yuilibrary.com/license/
+*/
+YUI.add("history-base",function(b){var i=b.Lang,e=b.Object,l=YUI.namespace("Env.History"),m=b.Array,n=b.config.doc,f=n.documentMode,j=b.config.win,c={merge:true},h="change",a="add",g="replace";function d(){this._init.apply(this,arguments);}b.augment(d,b.EventTarget,null,null,{emitFacade:true,prefix:"history",preventable:false,queueable:true});if(!l._state){l._state={};}function k(o){return i.type(o)==="object";}d.NAME="historyBase";d.SRC_ADD=a;d.SRC_REPLACE=g;d.html5=!!(j.history&&j.history.pushState&&j.history.replaceState&&("onpopstate" in j||b.UA.gecko>=2)&&(!b.UA.android||b.UA.android>=2.4));d.nativeHashChange=("onhashchange" in j||"onhashchange" in n)&&(!f||f>7);b.mix(d.prototype,{_init:function(p){var o;p=this._config=p||{};this.force=!!p.force;o=this._initialState=this._initialState||p.initialState||null;this.publish(h,{broadcast:2,defaultFn:this._defChangeFn});if(o){this.replace(o);}},add:function(){var o=m(arguments,0,true);o.unshift(a);return this._change.apply(this,o);},addValue:function(p,r,o){var q={};q[p]=r;return this._change(a,q,o);},get:function(p){var q=l._state,o=k(q);if(p){return o&&e.owns(q,p)?q[p]:undefined;}else{return o?b.mix({},q,true):q;}},replace:function(){var o=m(arguments,0,true);o.unshift(g);return this._change.apply(this,o);},replaceValue:function(p,r,o){var q={};q[p]=r;return this._change(g,q,o);},_change:function(q,p,o){o=o?b.merge(c,o):c;if(o.merge&&k(p)&&k(l._state)){p=b.merge(l._state,p);}this._resolveChanges(q,p,o);return this;},_fireEvents:function(q,p,o){this.fire(h,{_options:o,changed:p.changed,newVal:p.newState,prevVal:p.prevState,removed:p.removed,src:q});e.each(p.changed,function(s,r){this._fireChangeEvent(q,r,s);},this);e.each(p.removed,function(s,r){this._fireRemoveEvent(q,r,s);},this);},_fireChangeEvent:function(q,o,p){this.fire(o+"Change",{newVal:p.newVal,prevVal:p.prevVal,src:q});},_fireRemoveEvent:function(q,o,p){this.fire(o+"Remove",{prevVal:p,src:q});},_resolveChanges:function(u,s,p){var t={},o,r=l._state,q={};s||(s={});p||(p={});if(k(s)&&k(r)){e.each(s,function(v,w){var x=r[w];if(v!==x){t[w]={newVal:v,prevVal:x};o=true;}},this);e.each(r,function(w,v){if(!e.owns(s,v)||s[v]===null){delete s[v];q[v]=w;o=true;}},this);}else{o=s!==r;}if(o||this.force){this._fireEvents(u,{changed:t,newState:s,prevState:r,removed:q},p);}},_storeState:function(p,o){l._state=o||{};},_defChangeFn:function(o){this._storeState(o.src,o.newVal,o._options);}},true);b.HistoryBase=d;},"3.5.0",{requires:["event-custom-complex"]});/*
+YUI 3.5.0 (build 5089)
+Copyright 2012 Yahoo! Inc. All rights reserved.
+Licensed under the BSD License.
+http://yuilibrary.com/license/
+*/
+YUI.add("history-html5",function(g){var b=g.HistoryBase,c=g.Lang,f=g.config.win,d=g.config.useHistoryHTML5,h="popstate",e=b.SRC_REPLACE;function a(){a.superclass.constructor.apply(this,arguments);}g.extend(a,b,{_init:function(i){var j=f.history.state;i||(i={});if(i.initialState&&c.type(i.initialState)==="object"&&c.type(j)==="object"){this._initialState=g.merge(i.initialState,j);}else{this._initialState=j;}g.on("popstate",this._onPopState,f,this);a.superclass._init.apply(this,arguments);},_storeState:function(k,j,i){if(k!==h){f.history[k===e?"replaceState":"pushState"](j,i.title||g.config.doc.title||"",i.url||null);}a.superclass._storeState.apply(this,arguments);},_onPopState:function(i){this._resolveChanges(h,i._event.state||null);}},{NAME:"historyhtml5",SRC_POPSTATE:h});if(!g.Node.DOM_EVENTS.popstate){g.Node.DOM_EVENTS.popstate=1;}g.HistoryHTML5=a;if(d===true||(d!==false&&b.html5)){g.History=a;}},"3.5.0",{optional:["json"],requires:["event-base","history-base","node-base"]});/*
+YUI 3.5.0 (build 5089)
+Copyright 2012 Yahoo! Inc. All rights reserved.
+Licensed under the BSD License.
+http://yuilibrary.com/license/
+*/
+YUI.add("history-hash",function(a){var c=a.HistoryBase,f=a.Lang,l=a.Array,j=a.Object,k=YUI.namespace("Env.HistoryHash"),b="hash",e,d,i,h=a.config.win,m=a.config.useHistoryHTML5;function g(){g.superclass.constructor.apply(this,arguments);}a.extend(g,c,{_init:function(n){var o=g.parseHash();n=n||{};this._initialState=n.initialState?a.merge(n.initialState,o):o;a.after("hashchange",a.bind(this._afterHashChange,this),h);g.superclass._init.apply(this,arguments);},_change:function(p,o,n){j.each(o,function(r,q){if(f.isValue(r)){o[q]=r.toString();}});return g.superclass._change.call(this,p,o,n);},_storeState:function(q,p){var o=g.decode,n=g.createHash(p);g.superclass._storeState.apply(this,arguments);if(q!==b&&o(g.getHash())!==o(n)){g[q===c.SRC_REPLACE?"replaceHash":"setHash"](n);}},_afterHashChange:function(n){this._resolveChanges(b,g.parseHash(n.newHash),{});}},{NAME:"historyHash",SRC_HASH:b,hashPrefix:"",_REGEX_HASH:/([^\?#&]+)=([^&]+)/g,createHash:function(p){var n=g.encode,o=[];j.each(p,function(r,q){if(f.isValue(r)){o.push(n(q)+"="+n(r));}});return o.join("&");},decode:function(n){return decodeURIComponent(n.replace(/\+/g," "));},encode:function(n){return encodeURIComponent(n).replace(/%20/g,"+");},getHash:(a.UA.gecko?function(){var n=a.getLocation(),p=/#(.*)$/.exec(n.href),q=p&&p[1]||"",o=g.hashPrefix;return o&&q.indexOf(o)===0?q.replace(o,""):q;}:function(){var n=a.getLocation(),p=n.hash.substring(1),o=g.hashPrefix;return o&&p.indexOf(o)===0?p.replace(o,""):p;}),getUrl:function(){return location.href;},parseHash:function(q){var n=g.decode,r,u,s,o,p={},t=g.hashPrefix,v;q=f.isValue(q)?q:g.getHash();if(t){v=q.indexOf(t);if(v===0||(v===1&&q.charAt(0)==="#")){q=q.replace(t,"");}}s=q.match(g._REGEX_HASH)||[];for(r=0,u=s.length;r<u;++r){o=s[r].split("=");p[n(o[0])]=n(o[1]);}return p;},replaceHash:function(p){var n=a.getLocation(),o=n.href.replace(/#.*$/,"");if(p.charAt(0)==="#"){p=p.substring(1);}n.replace(o+"#"+(g.hashPrefix||"")+p);},setHash:function(o){var n=a.getLocation();if(o.charAt(0)==="#"){o=o.substring(1);}n.hash=(g.hashPrefix||"")+o;}});e=k._notifiers;if(!e){e=k._notifiers=[];}a.Event.define("hashchange",{on:function(p,n,o){if(p.compareTo(h)||p.compareTo(a.config.doc.body)){e.push(o);}},detach:function(q,o,p){var n=l.indexOf(e,p);if(n!==-1){e.splice(n,1);}}});d=g.getHash();i=g.getUrl();if(c.nativeHashChange){a.Event.attach("hashchange",function(p){var n=g.getHash(),o=g.getUrl();l.each(e.concat(),function(q){q.fire({_event:p,oldHash:d,oldUrl:i,newHash:n,newUrl:o});});d=n;i=o;},h);}else{if(!k._hashPoll){k._hashPoll=a.later(50,null,function(){var o=g.getHash(),n,p;if(d!==o){p=g.getUrl();n={oldHash:d,oldUrl:i,newHash:o,newUrl:p};d=o;i=p;l.each(e.concat(),function(q){q.fire(n);});}},null,true);}}a.HistoryHash=g;if(m===false||(!a.History&&m!==true&&(!c.html5||!a.HistoryHTML5))){a.History=g;}},"3.5.0",{requires:["event-synthetic","history-base","yui-later"]});/*
+YUI 3.5.0 (build 5089)
+Copyright 2012 Yahoo! Inc. All rights reserved.
+Licensed under the BSD License.
+http://yuilibrary.com/license/
+*/
+YUI.add("history-hash-ie",function(f){if(f.UA.ie&&!f.HistoryBase.nativeHashChange){var b=f.Do,c=YUI.namespace("Env.HistoryHash"),a=f.HistoryHash,d=c._iframe,e=f.config.win;a.getIframeHash=function(){if(!d||!d.contentWindow){return"";}var g=a.hashPrefix,h=d.contentWindow.location.hash.substr(1);return g&&h.indexOf(g)===0?h.replace(g,""):h;};a._updateIframe=function(h,g){var i=d&&d.contentWindow&&d.contentWindow.document,j=i&&i.location;if(!i||!j){return;}if(g){j.replace(h.charAt(0)==="#"?h:"#"+h);}else{i.open().close();j.hash=h;}};b.before(a._updateIframe,a,"replaceHash",a,true);if(!d){f.on("domready",function(){var g=a.getHash();d=c._iframe=f.Node.getDOMNode(f.Node.create('<iframe src="javascript:0" style="display:none" height="0" width="0" tabindex="-1" title="empty"/>'));f.config.doc.documentElement.appendChild(d);a._updateIframe(g||"#");f.on("hashchange",function(h){g=h.newHash;if(a.getIframeHash()!==g){a._updateIframe(g);}},e);f.later(50,null,function(){var h=a.getIframeHash();if(h!==g){a.setHash(h);}},null,true);});}}},"3.5.0",{requires:["history-hash","node-base"]});/*
+YUI 3.5.0 (build 5089)
+Copyright 2012 Yahoo! Inc. All rights reserved.
+Licensed under the BSD License.
+http://yuilibrary.com/license/
+*/
+YUI.add("router",function(h){var c=h.HistoryHash,b=h.QueryString,f=h.Array,g=h.config.win,e=[],d="ready";function a(){a.superclass.constructor.apply(this,arguments);}h.Router=h.extend(a,h.Base,{_regexPathParam:/([:*])([\w\-]+)?/g,_regexUrlQuery:/\?([^#]*).*$/,_regexUrlOrigin:/^(?:[^\/#?:]+:\/\/|\/\/)[^\/]*/,initializer:function(j){var i=this;i._html5=i.get("html5");i._routes=[];i._url=i._getURL();i._setRoutes(j&&j.routes?j.routes:i.get("routes"));if(i._html5){i._history=new h.HistoryHTML5({force:true});h.after("history:change",i._afterHistoryChange,i);}else{h.on("hashchange",i._afterHistoryChange,g,i);}i.publish(d,{defaultFn:i._defReadyFn,fireOnce:true,preventable:false});i.once("initializedChange",function(){h.once("load",function(){setTimeout(function(){i.fire(d,{dispatched:!!i._dispatched});},20);});});},destructor:function(){if(this._html5){h.detach("history:change",this._afterHistoryChange,this);}else{h.detach("hashchange",this._afterHistoryChange,g);}},dispatch:function(){this.once(d,function(){this._ready=true;if(this._html5&&this.upgrade()){return;}else{this._dispatch(this._getPath(),this._getURL());}});return this;},getPath:function(){return this._getPath();},hasRoute:function(i){if(!this._hasSameOrigin(i)){return false;}return !!this.match(this.removeRoot(i)).length;},match:function(i){return f.filter(this._routes,function(j){return i.search(j.regex)>-1;});},removeRoot:function(j){var i=this.get("root");j=j.replace(this._regexUrlOrigin,"");if(i&&j.indexOf(i)===0){j=j.substring(i.length);}return j.charAt(0)==="/"?j:"/"+j;},replace:function(i){return this._queue(i,true);},route:function(j,k){var i=[];this._routes.push({callback:k,keys:i,path:j,regex:this._getRegex(j,i)});return this;},save:function(i){return this._queue(i);},upgrade:function(){if(!this._html5){return false;}var i=c.getHash();if(i&&i.charAt(0)==="/"){this.once(d,function(){this.replace(i);});return true;}return false;},_decode:function(i){return decodeURIComponent(i.replace(/\+/g," "));},_dequeue:function(){var i=this,j;if(!YUI.Env.windowLoaded){h.once("load",function(){i._dequeue();});return this;}j=e.shift();return j?j():this;},_dispatch:function(n,k,o){var j=this,i=j.match(n),m,l;j._dispatching=j._dispatched=true;if(!i||!i.length){j._dispatching=false;return j;}m=j._getRequest(n,k,o);l=j._getResponse(m);m.next=function(q){var s,r,p;if(q){h.error(q);}else{if((p=i.shift())){r=p.regex.exec(n);s=typeof p.callback==="string"?j[p.callback]:p.callback;if(r.length===p.keys.length+1){m.params=f.hash(p.keys,r.slice(1));}else{m.params=r.concat();}s.call(j,m,l,m.next);}}};m.next();j._dispatching=false;return j._dequeue();},_getHashPath:function(){return c.getHash().replace(this._regexUrlQuery,"");},_getOrigin:function(){var i=h.getLocation();return i.origin||(i.protocol+"//"+i.host);},_getPath:function(){var i=(!this._html5&&this._getHashPath())||h.getLocation().pathname;return this.removeRoot(i);},_getQuery:function(){var i=h.getLocation(),k,j;if(this._html5){return i.search.substring(1);}k=c.getHash();j=k.match(this._regexUrlQuery);return k&&j?j[1]:i.search.substring(1);},_getRegex:function(j,i){if(j instanceof RegExp){return j;}if(j==="*"){return(/.*/);}j=j.replace(this._regexPathParam,function(l,k,m){if(!m){return k==="*"?".*":l;}i.push(m);return k==="*"?"(.*?)":"([^/]*)";});return new RegExp("^"+j+"$");},_getRequest:function(j,i,k){return{path:j,query:this._parseQuery(this._getQuery()),url:i,src:k};},_getResponse:function(j){var i=function(){return j.next.apply(this,arguments);};i.req=j;return i;},_getRoutes:function(){return this._routes.concat();},_getURL:function(){return h.getLocation().toString();},_hasSameOrigin:function(j){var i=((j&&j.match(this._regexUrlOrigin))||[])[0];if(i&&i.indexOf("//")===0){i=h.getLocation().protocol+i;}return !i||i===this._getOrigin();},_joinURL:function(j){var i=this.get("root");j=this.removeRoot(j);if(j.charAt(0)==="/"){j=j.substring(1);}return i&&i.charAt(i.length-1)==="/"?i+j:i+"/"+j;},_parseQuery:b&&b.parse?b.parse:function(m){var n=this._decode,p=m.split("&"),l=0,k=p.length,j={},o;for(;l<k;++l){o=p[l].split("=");if(o[0]){j[n(o[0])]=n(o[1]||"");}}return j;},_queue:function(){var j=arguments,i=this;e.push(function(){if(i._html5){if(h.UA.ios&&h.UA.ios<5){i._save.apply(i,j);}else{setTimeout(function(){i._save.apply(i,j);},1);}}else{i._dispatching=true;i._save.apply(i,j);}return i;});return !this._dispatching?this._dequeue():this;},_save:function(j,k){var i=typeof j==="string";if(i&&!this._hasSameOrigin(j)){h.error("Security error: The new URL must be of the same origin as the current URL.");return this;}this._ready=true;if(this._html5){this._history[k?"replace":"add"](null,{url:i?this._joinURL(j):j});}else{i&&(j=this.removeRoot(j));if(j===c.getHash()){this._dispatch(this._getPath(),this._getURL());}else{c[k?"replaceHash":"setHash"](j);}}return this;},_setRoutes:function(i){this._routes=[];f.each(i,function(j){this.route(j.path,j.callback);},this);return this._routes.concat();},_afterHistoryChange:function(k){var i=this,m=k.src,j=i._url,l=i._getURL();i._url=l;if(m==="popstate"&&(!i._ready||j.replace(/#.*$/,"")===l.replace(/#.*$/,""))){return;}i._dispatch(i._getPath(),l,m);},_defReadyFn:function(i){this._ready=true;}},{NAME:"router",ATTRS:{html5:{valueFn:function(){return h.Router.html5;},writeOnce:"initOnly"},root:{value:""},routes:{value:[],getter:"_getRoutes",setter:"_setRoutes"}},html5:h.HistoryBase.html5&&(!h.UA.android||h.UA.android>=3)});h.Controller=h.Router;},"3.5.0",{optional:["querystring-parse"],requires:["array-extras","base-build","history"]});YUI.add('supra.dd-ddm', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -9036,7 +9067,441 @@ YUI().add('supra.input-string-clear', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {'requires': ['supra.form', 'plugin']});YUI().add("supra.iframe-stylesheet-parser", function (Y) {
+}, YUI.version, {'requires': ['supra.form', 'plugin']});YUI().add('supra.google-fonts', function (Y) {
+	//Invoke strict mode
+	'use strict';
+	
+	//Map function to lowercase all array items
+	var LOWERCASE_MAP = function (str) {
+		return String(str || '').toLowerCase();
+	};
+	
+	
+	/**
+	 * Iframe content widget
+	 */
+	function GoogleFonts (config) {
+		GoogleFonts.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	GoogleFonts.NAME = 'google-fonts';
+	
+	// Google font API uri
+	GoogleFonts.API_URI = document.location.protocol + '//fonts.googleapis.com/css?family=';
+	
+	// URI to load list of google fonts
+	GoogleFonts.SUPRA_FONT_URI = '/cms/lib/supra/tests/fonts/webfonts.json';
+	
+	//List of fonts, which doesn't need to be loaded from Google Web Fonts
+	GoogleFonts.SAFE_FONTS = [
+		'Arial', 'Tahoma', 'Helvetica', 'sans-serif', 'Arial Black', 'Impact',
+		'Trebuchet MS', 'MS Sans Serif', 'MS Serif', 'Geneva', 'Comic Sans MS' /* trololol.... */,
+		'Palatino Linotype', 'Book Antiqua', 'Palatino', 'Monaco', 'Charcoal',
+		'Courier New', 'Georgia', 'Times New Roman', 'Times',
+		'Lucida Console', 'Lucida Sans Unicode', 'Lucida Grande', 'Gadget',
+		'monospace'
+	];
+	
+	// List of non-google fonts for fonts list
+	GoogleFonts.STANDARD_FONTS = [
+		{'title': 'Arial, Helvetica',							'family': 'Arial, Helvetica, sans-serif'},
+		{'title': 'Times New Roman, Times, serif',				'family': '"Times New Roman", Times, serif'},
+		{'title': 'Georgia', 									'family': 'Georgia, serif'},
+		{'title': 'Palatino Linotype, Book Antiqua, Palatino',	'family': '"Palatino Linotype", "Book Antiqua", Palatino, serif'},
+		{'title': 'Impact, Charcoal', 							'family': 'Impact, Charcoal, sans-serif'},
+		{'title': 'Lucida Sans Unicode, Lucida Grande',			'family': '"Lucida Sans Unicode", "Lucida Grande", sans-serif'},
+		{'title': 'Tahoma, Geneva',								'family': 'Tahoma, Geneva, sans-serif'},
+		{'title': 'Trebuchet MS, Helvetica',					'family': '"Trebuchet MS", Helvetica, sans-serif'},
+		{'title': 'Verdana, Geneva',							'family': 'Verdana, Geneva, sans-serif'}
+	];
+	
+	// List of google font subsets
+	GoogleFonts.SUBSETS = [
+		'latin', 'cyrillic-ext', 'latin-ext', 'cyrillic'
+	];
+	
+	GoogleFonts.ATTRS = {
+		//Document element to which add fonts to
+		'doc': {
+			'value': document,
+			'setter': '_setDoc'
+		},
+		
+		//Google APIs font list
+		'fonts': {
+			'value': [],
+			'setter': '_setFonts'
+		}
+	};
+	
+	Y.extend(GoogleFonts, Y.Base, {
+		
+		
+		/**
+		 * Initialization life cycle method
+		 */
+		initializer: function () {
+			this.addFonts(this.get('fonts'));
+		},
+		
+		/**
+		 * Destruction life cycle method
+		 */
+		destructor: function () {
+			// Nothing, leave LINK in document
+		},
+		
+		
+		/* ------------------------------------------- FONTS ------------------------------------------- */
+		
+		
+		/**
+		 * Load fonts from Google Fonts
+		 * 
+		 * @param {String} html HTML in which will be inserted <link />, if this is document then link is added to DOM <head />
+		 * @private
+		 */
+		addFonts: function (fonts) {
+			if (!fonts || !fonts.length) {
+				return;
+			}
+			
+			var new_uris = [],
+				data = null,
+				i = 0, ii = 0;
+			
+			data = this.getExistingLinkData();
+			new_uris = GoogleFonts.getURI(fonts, {'exclude': data.fonts, 'split': true});
+			
+			if (new_uris.length) {
+				for (i=0,ii=new_uris.length; i<ii; i++) {
+					this.createLinkNode(new_uris[i]);
+				}
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------- DOM ---------------------------------
+		 */
+		
+		
+		/**
+		 * Returns link node
+		 * 
+		 * @param {Boolean} create Create link node if it doesn't exist
+		 * @returns {Object} Google fonts link node
+		 */
+		getLinkNodes: function () {
+			var doc = doc || this.get('doc'),
+				head = null,
+				links = null;
+			
+			if (!doc) return null;
+			
+			head = Y.Node(doc).one('head');
+			if (!head) return null;
+			
+			links = head.all('link[href^="' + GoogleFonts.API_URI + '"]');
+			return links ? links.getDOMNodes() : [];
+		},
+		
+		/**
+		 * Creates link node
+		 */
+		createLinkNode: function (uri) {
+			var doc = doc || this.get('doc'),
+				head = null,
+				link = null;
+			
+			if (!doc) return null;
+			
+			head = Y.Node(doc).one('head');
+			if (!head) return null;
+			
+			link = Y.Node.create('<link rel="stylesheet" type="text/css" href="' + (uri || '') + '" />');
+			head.append(link);
+			
+			return link;
+		},
+		
+		/**
+		 * Returns existing data extracted from link
+		 * Extracts fonts and subset from link
+		 * 
+		 * @returns {Object} Parsed link node
+		 */
+		getExistingLinkData: function () {
+			var nodes = this.getLinkNodes(),
+				uri  = '',
+				subset = GoogleFonts.SUBSETS.join(','),
+				fonts = [],
+				i = 0,
+				ii = nodes.length;
+			
+			for (; i<ii; i++) {
+				uri = nodes[i].getAttribute('href');
+				if (uri) {
+					// Remove url, subset and styles
+					uri = uri.replace(GoogleFonts.API_URI, '');
+					uri = uri.replace(/&subset=([^&]+)/, '');
+					//uri = uri.replace(/:[^|&?]*/g, '');
+					
+					// Fonts
+					fonts = fonts.concat(uri.split('|'));
+				}
+			}
+			
+			return {'fonts': fonts, 'subset': subset};
+		},
+		
+		
+		/*
+		 * ---------------------------------- ATTRIBUTES ---------------------------------
+		 */
+		
+		
+		/**
+		 * Document object setter
+		 * 
+		 * @param {Object} doc Document object
+		 * @returns {Object} New attribute value
+		 * @private
+		 */
+		_setDoc: function (doc) {
+			this._node = null;
+			
+			if (doc) {
+				this.addFonts(this.get('fonts'));
+			}
+			
+			return doc;
+		},
+		
+		
+		/**
+		 * Load fonts from Google Fonts
+		 * 
+		 * @param {Array} fonts List of fonts
+		 * @returns {Array} New attribute value
+		 * @private
+		 */
+		_setFonts: function (fonts) {
+			var fonts = (this.get('fonts') || []).concat(fonts),
+				i = 0,
+				ii = fonts.length,
+				unique_arr = [],
+				unique_hash = {},
+				id = null;
+			
+			// Find unique
+			for (; i<ii; i++) {
+				id = fonts[i].apis || fonts[i].family;
+				if (!(id in unique_hash)) {
+					unique_hash[id] = true;
+					unique_arr.push(fonts[i]);
+				}
+			}
+			
+			fonts = unique_arr;
+			
+			// Set
+			this.addFonts(fonts);
+			
+			return fonts;
+		}
+	});
+	
+	Supra.GoogleFonts = GoogleFonts;
+	
+	
+	/**
+	 * Load list of all fonts
+	 * 
+	 * @returns {Object} Supra.Deferred object
+	 * @private
+	 */
+	GoogleFonts.loadFonts = function () {
+		if (GoogleFonts.loadFonts._deferred) {
+			return GoogleFonts.loadFonts._promise;
+		}
+		
+		var deferred = new Supra.Deferred(),
+			promise  = deferred.promise();
+		
+		Supra.io(GoogleFonts.SUPRA_FONT_URI).then(
+			function (fonts) {
+				// Success, return standard + google fonts
+				var formatted = [],
+					i = 0,
+					ii = fonts.length,
+					family = '';
+				
+				for (; i<ii; i++) {
+					family = fonts[i];
+					formatted.push({
+						'title': family,
+						'family': family, //amily.indexOf(' ') != -1 ? '"' + family + '"' : family,
+						'apis': family.replace(/ /g, '+') + ':300,300italic,regular,italic,700,700italic'
+					});
+				}
+				
+				deferred.resolve([[
+					{
+						'title': 'Standard fonts',
+						'fonts': GoogleFonts.STANDARD_FONTS,
+					},
+					{
+						'title': 'Google fonts',
+						'fonts': formatted
+					}
+				]]);
+			}, function () {
+				// Failure, return only standard fonts
+				deferred.resolve([[
+					{
+						'title': 'Standard fonts',
+						'fonts': GoogleFonts.STANDARD_FONTS,
+					}
+				]]);
+			});
+		
+		GoogleFonts.loadFonts._promise = promise;
+		return promise;
+	};
+	
+	/**
+	 * Returns URI with all fonts
+	 * 
+	 * @return URI for <link /> element which will load all fonts
+	 * @private
+	 */
+	GoogleFonts.getURI = function (fonts, options) {
+		
+		var fonts = Y.Lang.isArray(fonts) ? fonts : [],
+			i = 0,
+			ii = fonts.length,
+			
+			exclude = options && options.exclude ? options.exclude : [],
+			e = 0,
+			ee = exclude.length,
+			
+			//Get all safe fonts in lowercase
+			safe  = Y.Array(GoogleFonts.SAFE_FONTS).map(LOWERCASE_MAP),
+			apis  = [],
+			
+			parts = [], k = 0, kk = 0,
+			
+			load  = [],
+			temp  = '',
+			uri   = GoogleFonts.API_URI,
+			subset = '&subset=' + GoogleFonts.SUBSETS.join(','),
+			
+			index = 0,
+			
+			include = false;
+		
+		//Find which ones are not in the safe font list
+		for (; i<ii; i++) {
+			include = true;
+			
+			// API name instead of object?
+			if (typeof fonts[i] === 'string') {
+				for (e=0; e<ee; e++) {
+					if (exclude[e] == fonts[i]) {
+						include = false;
+						break;
+					}
+				}
+				if (include) {
+					load.push(fonts[i]);
+				}
+				
+				continue;
+			}
+			
+			for (e=0; e<ee; e++) {
+				if (exclude[e] == fonts[i].apis || exclude[e] == (fonts[i].family || fonts[i].title).replace(/["']/, '').replace(/\s+/g, '+')) {
+					include = false;
+					break;
+				}
+			}
+			
+			if (!include) {
+				continue;
+			}
+			
+			//Split "Arial, Verdana" into two items
+			if (fonts[i].family || (fonts[i].title && !fonts[i].apis)) {
+				parts = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').split(',');
+			} else {
+				parts = fonts[i].apis.replace(/:[^|]+/g, '').replace(/\+/g, ' ').split('|');
+			}
+			
+			for (k=0,kk=parts.length; k<kk; k++) {
+				//If any of the part is not in the safe list, then load from Google Fonts
+				if (parts[k] && safe.indexOf(parts[k].toLowerCase()) == -1) {
+					
+					//Convert into format which is valid for uri
+					if (fonts[i].apis) {
+						temp = fonts[i].apis;
+					} else {
+						temp = (fonts[i].family || fonts[i].title || '').replace(/\s*,\s*/g, ',').replace(/["']/, '').replace(/\s+/g, '+').replace(/,/g, '|');
+					}
+					
+					if (temp) {
+						index = temp.indexOf('&subset=');
+						if (index !== -1) {
+							temp = temp.substr(0, index);
+						}
+						
+						load.push(temp);
+					}
+					
+					break;
+				}
+			}
+		}
+		
+		// Font list
+		load = Y.Array.unique(load).sort();
+		
+		if (options && options.split) {
+			var split = [];
+			
+			for (i=0, ii=Math.ceil(load.length/10); i<ii; i++) {
+				split.push(uri + load.slice(i*10, i*10+10).join('|') + subset);
+			}
+			
+			return split;
+		} else {
+			return (load.length ? uri + load.join('|') + subset : '');
+		}
+	}
+	
+	GoogleFonts.addFontsToHTML = function (html, fonts) {
+		var uri = GoogleFonts.getURI(fonts),
+			replaced = false,
+			regex = new RegExp('(<link[^>]+href=)["\'][^"\']*?' + Y.Escape.regex(GoogleFonts.API_URI) + '[^"\']*?["\']', 'i'),
+			html = html.replace(regex, function (all, pre) {
+				replaced = true;
+				return pre + '"' + uri + '"';
+			});
+		
+		if (!replaced) {
+			//Insert
+			html = html.replace(/<\/\s*head/i, '<link rel="stylesheet" href="' + uri + '" /></head');
+		}
+		
+		return html;
+	};
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:['base']});YUI().add("supra.iframe-stylesheet-parser", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -13997,10 +14462,20 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		replaceSelectedImage: function () {
 			//Open Media library on "Replace"
-			if (this.selected_image) {
+			var image = this.selected_image,
+				image_id = this.selected_image_id,
+				data = this.original_data;
+			
+			if (image) {
 				//Open settings form and open MediaSidebar
 				this.stopEditImage();
 				this.hideSettingsForm();
+				
+				//Restore selected image reference, which was removed in hideSettingsForm
+				this.selected_image = image;
+				this.selected_image_id = image_id;
+				this.original_data = data;
+				
 				Manager.getAction("MediaSidebar").execute({
 					onselect: Y.bind(this.insertImage, this)
 				});
@@ -14185,8 +14660,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					ancestor.addClass("align-" + data.align);
 				}
 				
-				var crop_left   = data.crop_left   || image.getAttribute("data-crop-left"),
-					crop_top    = data.crop_top    || image.getAttribute("data-crop-top"),
+				var crop_left   = data.crop_left   || image.getAttribute("data-crop-left")   || 0,
+					crop_top    = data.crop_top    || image.getAttribute("data-crop-top")    || 0,
 					crop_width  = data.crop_width  || image.getAttribute("data-crop-width")  || image.width,
 					crop_height = data.crop_height || image.getAttribute("data-crop-height") || image.height,
 					data_width  = data.size_width  || image.getAttribute("data-width")       || image.width,
@@ -14889,8 +15364,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					src = self.getImageURLBySize(item.image);
 				
 				if (src) {
-					//@TODO Remove these when server is supporting croping
 					item.image.crop_left = item.image.crop_left || 0;
+					item.image.crop_top = item.image.crop_top || 0;
 					item.image.crop_width = item.image.crop_width || (item.image.size_width - item.image.crop_left);
 					item.image.crop_height = item.image.crop_height || (item.image.size_height - item.image.crop_top);
 					
@@ -14915,9 +15390,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						}
 					}
 
-					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));					
+					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));
+					var img_style = (item.size_width && item.size_height ? 'width: ' + item.size_width + 'px; height:' + item.size_height + ';' : '');					
 					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
-					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
+					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="' + img_style + 'margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
 
 					if (item.type == 'lightbox') {
 						//For lightbox add link around image
@@ -21511,7 +21987,7 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 			var back = this.host.get('backButton');
 			if (back) {
 				back.hide();
-				back.on('click', this.onBackButtonClick, this);
+				back.after('click', this.onBackButtonClick, this);
 			}
 			
 			/*
@@ -21571,9 +22047,9 @@ YUI.add('supra.manager-action-plugin-maincontent', function (Y) {
 		/**
 		 * Handle back button click
 		 */
-		onBackButtonClick: function () {
+		onBackButtonClick: function (event) {
 			var slideshow = this.host.get('slideshow');
-			if (slideshow) {
+			if (slideshow && !event.stoped && !event.prevented) {
 				slideshow.scrollBack();
 			}
 		},
@@ -23067,10 +23543,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				
 			var srcNode		= Y.Node.getDOMNode(htmleditor.get('srcNode')),		// editor content node
 				doc			= htmleditor.get('doc'),							// editor iframe document
+				win			= htmleditor.get('win'),							// editor iframe window
 				body		= doc.body,											// editor iframe body
 				node		= doc.createElement('DIV'),							// temporary node
-				selected	= htmleditor.getSelectedElement(),					// selected element
-				pos			= Y.DOM.getXY(selected);							// selected element position
+				scroll		= win.pageYOffset || doc.body.scrollTop ||
+							  doc.documentElement.scrollTop || 0;				// scroll position
 			
 			/* Create node, which will be used as temporary storage for pasted value
 			 * make sure it's outside the screen to prevent flickering
@@ -23078,7 +23555,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			node.style.position = 'absolute';
 			node.style.width = '2000px';
 			node.style.left = '-9000px';
-			node.style.top = pos[1] + 'px';
+			node.style.top = scroll + 'px';
 			node.style.opacity = 0;
 			node.innerHTML = '&nbsp;';
 			
@@ -24672,103 +25149,810 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	
 	Input.ATTRS = {
+		
 		/**
-		 * Style:
-		 * "" or "no-labels", "mid"
+		 * Loading state
 		 */
-		'style': {
-			value: 'no-labels',
-			setter: '_setStyle'
+		'loading': {
+			value: false,
+			setter: '_setLoading'
+		},
+		
+		/**
+		 * Loading icon
+		 */
+		'nodeLoading': {
+			value: null
+		},
+		
+		/**
+		 * Button label in case of separate slide
+		 */
+		'labelButton': {
+			value: ''
+		},
+		
+		/**
+		 * List of all fonts
+		 */
+		'values': {
+			value: [],
+			setter: '_setValues'
+		},
+		
+		/**
+		 * Fonts preview object
+		 */
+		'previewGoogleFonts': {
+			value: null
+		},
+		
+		/**
+		 * Render widget into separate slide and add
+		 * button to the place where this widget should be
+		 */
+		'separateSlide': {
+			value: true
 		}
+		
 	};
 	
-	Y.extend(Input, Supra.Input.SelectVisual, {
+	Y.extend(Input, Supra.Input.Proto, {
 		
-		/**
-		 * Google fonts object, used to load fonts into current document for live preview of fonts
-		 * Supra.GoogleFonts instance
-		 * @type {Object}
-		 * @private
-		 */
-		googleFonts: null,
+		INPUT_TEMPLATE: '<select class="hidden"></select>',
+		LABEL_TEMPLATE: '<label></label>',
 		
-		/**
-		 * Decorate button
-		 * 
-		 * @param {Object} definition Option definition, configuration
-		 * @param {Object} button Button
-		 * @private
-		 */
-		decorateButton: function (definition, button) {
-			var font_style = this.getButtonFontStyle(definition);
+		FONT_ITEM_HEIGHT: 40,
+		
+		widgets: {
+		},
+		
+		backButtonInitiallyVisible: null,
+		
+		renderUI: function () {
+			this.backButtonInitiallyVisible = null;
 			
-			button._getLabelTemplate = function () {
-				return '<div class="su-button-bg"><div style="' + this._getButtonBackgroundStyle(this.get('icon')) + '"></div><p style="' + font_style + '"></p></div></div>';
+			this.widgets = {
+				// Separate slide
+				'slide': null,
+				'button': null,
+				
+				// Form
+				'search': null,
+				
+				// Slideshow for font list
+				'slideshow': null,
+				
+				// Scrollable groups
+				'groups': {},
+				
+				// Container for label and button
+				'separateContainer': null
 			};
-			button.after('render', function () {
-				button.removeClass('su-button-group');
-			});
-		},
-		
-		/**
-		 * Returns button font style
-		 * 
-		 * @param {Object} definition Button definition
-		 * @return Font CSS style
-		 * @type {String}
-		 * @private
-		 */
-		getButtonFontStyle: function (definition) {
-			var family = (definition.family || definition.title || '');
-			return family ? 'font-family: ' + family + ';' : '';
-		},
-		
-		
-		/* ------------------------------ FONTS ------------------------------ */
-		
-		
-		/**
-		 * Load all fonts from all values
-		 */
-		loadFonts: function (values) {
-			var google_fonts = this.googleFonts,
-				fonts = [],
-				i = 0,
-				ii = values.length;
 			
-			for (; i<ii; i++) {
-				if (values[i].apis) {
-					fonts.push(values[i]);
+			Input.superclass.renderUI.apply(this, arguments);
+			
+			if (this.get('separateSlide')) {
+				var slideshow = this.getSlideshow(),
+					slide = null,
+					button = null;
+				
+				if (slideshow) {
+					var value = this.getValueData(this.get('value')),
+						label = (value ? value.title || value.family : '') || this.get('labelButton') || '';
+					
+					this.widgets.button = button = new Supra.Button({
+						'label': label,
+						'style': 'group',
+						'groupStyle': 'no-labels',
+						'iconStyle': 'center',
+						'icon': ''
+					});
+					
+					this.widgets.slide = slide = slideshow.addSlide({
+						'id': 'propertySlide' + this.get('id'),
+						'scrollable': false,
+						'title': this.get('label')
+					});
+					
+					slide = slide.one('.su-slide-content');
+					
+					button.render();
+					button.addClass('button-section');
+					button.addClass(this.getClassName('slide', 'button'));
+					button.on('click', this._slideshowChangeSlide, this);
+					
+					var labelNode = this.get('labelNode'),
+						boundingBox = this.get('boundingBox'),
+						container = this.widgets.separateContainer = Y.Node.create('<div class="yui3-widget yui3-input"></div>');
+					
+					if (labelNode) {
+						container.append(labelNode, 'before');
+					}
+					
+					container.append(button.get('boundingBox'));
+					boundingBox.insert(container, 'before');
+					 
+					slide.append(boundingBox);
+				} else {
+					this.set('separateSlide', false);
 				}
 			}
 			
-			if (google_fonts) {
-				google_fonts.set('fonts', fonts);
+			// Value
+			var values = this.get('values'),
+				promise = null,
+				preview = new Supra.GoogleFonts();
+			
+			this.set('previewGoogleFonts', preview);
+			
+			if (values && values.length) {
+				// Render fonts
+				this._renderFontList(values);
 			} else {
-				google_fonts = this.googleFonts = new Supra.GoogleFonts({
-					'fonts': fonts,
-					'doc': document
-				});
+				// Load fonts
+				promise = Supra.GoogleFonts.loadFonts();
+				
+				if (promise.state() == 'pending') {
+					this.set('loading', true);
+				}
+				
+				promise.done(function (fonts) {
+					this.set('loading', false);
+					this.set('values', fonts);
+				}, this);
+			}
+		},
+		
+		bindUI: function () {
+			this.get('contentBox').delegate('click', this._onItemClick, 'a', this);
+			this.after('valueChange', this._afterValueChange, this);
+		},
+		
+		
+		/*
+		 * ---------------------------------------- EVENT LISTENERS ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Handle item click
+		 */
+		_onItemClick: function (e) {
+			var target = e.target.closest('a'),
+				family = target.getAttribute('data-family');
+			
+			if (family) {
+				this.set('value', family);
+			}
+		},
+		
+		/**
+		 * Change slideshow slide to values list
+		 * 
+		 * @private
+		 */
+		_slideshowChangeSlide: function (event, id) {
+			var slideshow = this.getSlideshow(),
+				slide_id  = 'propertySlide' + this.get('id');
+			
+			if (id) {
+				slide_id += id;
+			}
+			
+			slideshow.set('slide', slide_id);
+		},
+		
+		/**
+		 * After value change
+		 * 
+		 * @param {Object} evt Event facade object
+		 * @private
+		 */
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+				
+				var inputs = this.widgets.inputs,
+					content = this.get('contentBox'),
+					nodes = null,
+					i = 0,
+					ii = 0;
+				
+				nodes = evt.prevVal ? content.all('a[data-family="' + evt.prevVal.replace(/"/g, '') + '"]') : null;
+				if (nodes) {
+					for (i=0, ii=nodes.size(); i<ii; i++) {
+						nodes.item(i).removeClass('active');
+					}
+				}
+				
+				nodes = evt.newVal ? content.all('a[data-family="' + evt.newVal.replace(/"/g, '') + '"]') : null;
+				if (nodes) {
+					for (i=0, ii=nodes.size(); i<ii; i++) {
+						nodes.item(i).addClass('active');
+					}
+				}
 			}
 		},
 		
 		
-		/* ------------------------------ ATTRIBUTES ------------------------------ */
+		/*
+		 * ---------------------------------------- SLIDESHOW ----------------------------------------
+		 */
 		
+		
+		/**
+		 * Returns parent widget by class name
+		 * 
+		 * @param {String} classname Parent widgets class name
+		 * @return Widget instance or null if not found
+		 * @private
+		 */
+		getParentWidget: function (classname) {
+			var parent = this.get("parent");
+			while (parent) {
+				if (parent.isInstanceOf(classname)) return parent;
+				parent = parent.get("parent");
+			}
+			return null;
+		},
+		
+		/**
+		 * Returns slideshow
+		 * 
+		 * @return Slideshow
+		 * @type {Object}
+		 * @private
+		 */
+		getSlideshow: function () {
+			var form = this.getParentWidget("form");
+			return form ? form.get("slideshow") : null;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- API ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Returns full data for value
+		 * 
+		 * @param {String} value Optional, value for which to return full data
+		 * @returns {Object} Value data
+		 */
+		getValueData: function (value) {
+			var value  = value === null || typeof value === 'undefined' ? this.get('value') : value,
+				groups = this.get('values'),
+				i  = 0,
+				ii = groups ? groups.length : 0,
+				values = null,
+				k  = 0,
+				kk = 0;
+			
+			for (; i<ii; i++) {
+				values = groups[i].fonts;
+				
+				for (k=0,kk=values.length; k<kk; k++) {
+					if (values[k].family === value || values[k].apis === value) {
+						return values[k];
+					}
+				}
+			}
+			
+			return null;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- FONT LIST ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Render font list
+		 * 
+		 * @param {Array} fonts List of fonts grouped by categories
+		 * @private
+		 */
+		_renderFontList: function (fonts) {
+			var search = this.widgets.search,
+				slideshow = this.widgets.slideshow,
+				slide = null,
+				id = null,
+				i = 0,
+				ii = fonts.length,
+				button = null;
+			
+			if (!search) {
+				search = new Supra.Input.String();
+				search.render(this.get('contentBox'));
+				search.addClass('search');
+				
+				window.font = this;
+				search.on('input', this._onSearchInput, this);
+				
+				this.widgets.search = search;
+			}
+			
+			if (!slideshow) {
+				slideshow = new Supra.Slideshow();
+				slideshow.render(this.get('contentBox'));
+				slideshow.on('slideChange', this._updateBackButtonVisibility, this);
+				this.widgets.slideshow = slideshow;
+				
+				// Main / root
+				id = 'main' + this.get('id');
+				slide = slideshow.addSlide({'id': id});
+				this.widgets.groups['main'] = {
+					id: id,
+					node: slide.one('.su-slide-content, .su-multiview-slide-content'),
+					buttons: []
+				};
+				
+				// Search
+				id = 'search' + this.get('id');
+				this._renderFontGroup({
+					'id': id,
+					'title': 'search',
+					'fonts': [],
+					'visible': false,
+					'namespace': 'search'
+				});
+			}
+			
+			// Create main slides
+			slide = this.widgets.groups['main'].node;
+			
+			for (; i<ii; i++) {
+				this._renderFontGroup(fonts[i]);
+			}
+		},
+		
+		/**
+		 * Render font group
+		 * 
+		 * @param {String} title Group title
+		 * @private
+		 */
+		_renderFontGroup: function (group) {
+			var slideshow = this.widgets.slideshow,
+				main = this.widgets.groups['main'].node,
+				button = null,
+				node = null,
+				scrollable = null,
+				id = group.id ? group.id : group.title + this.get('id'),
+				slide = slideshow.addSlide({
+					'id': id
+				});
+			
+			// Button on main slide
+			if (group.visible !== false) {
+				button = new Supra.Button({
+					style: 'small',
+					label: group.title
+				});
+				button.addClass('button-section');
+				button.render(main);
+				
+				button.on('click', this._handleFontGroupButtonClick, this, id);
+			}
+			
+			// Slide content
+			node = Y.Node.create('<div class="yui3-input-font-list" style="height: ' + (group.fonts.length * this.FONT_ITEM_HEIGHT) + 'px;"></div>');
+			slide.one('.su-slide-content, .su-multiview-slide-content').append(node);
+			
+			scrollable = slide.getData('scrollable');
+			
+			this.widgets.groups[group.namespace || id] = {
+				id: id,
+				
+				button: button,
+				slide: slide,
+				node: node,
+				
+				fonts: group.fonts,
+				count: group.fonts.length,
+				rendered: 0
+			};
+			
+			scrollable.on('sync', this._updateFontList, this);
+			
+			window.font = this;
+		},
+		
+		/**
+		 * Render font list
+		 * 
+		 * @param {Object} group Font group
+		 * @private
+		 */
+		_renderFontItems: function (group, from, to) {
+			var fonts = group.fonts,
+				node  = null,
+				i = from,
+				container = group.node,
+				preview_fonts = [],
+				preview = this.get('previewGoogleFonts'),
+				value = this.get('value');
+			
+			for (; i < to; i++) {
+				if (fonts[i].apis) {
+					preview_fonts.push(fonts[i]);
+				}
+				
+				node = Y.Node.create('<a ' + (fonts[i].family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
+				node.setStyle('font-family', fonts[i].family);
+				node.setAttribute('data-family', fonts[i].family.replace(/"/g, ''));
+				container.append(node);
+			}
+			
+			preview.addFonts(preview_fonts);
+			
+			group.rendered = to;
+		},
+		
+		/**
+		 * Draw additional fonts if needed
+		 * 
+		 * @private
+		 */
+		_updateFontList: function (group) {
+			// Prevent loop caused by 'sync'
+			if (this._isUpdatingFontList) return;
+			this._isUpdatingFontList = true;
+			
+			var group = typeof group == 'string' ? group : this.widgets.slideshow.get('slide'),
+				groups = this.widgets.groups,
+				from = 0,
+				to = 0,
+				scroll = 0,
+				view = 0,
+				scrollable = null;
+			
+			if (group in groups) {
+				group = groups[group];
+				from = group.rendered;
+				
+				if (group.count > group.rendered) {
+					// Check if we need to render more fonts
+					scrollable = group.slide.getData('scrollable');
+					scrollable.syncUI();
+					scroll = scrollable.getScrollPosition();
+					view = scrollable.getViewSize();
+					
+					if (scroll + view > group.rendered * this.FONT_ITEM_HEIGHT) {
+						to = Math.min(Math.ceil((scroll + view * 2) / this.FONT_ITEM_HEIGHT), group.count);
+						
+						if (from != to) {
+							this._renderFontItems(group, from, to);
+						}
+					}
+				}
+			}
+			
+			this._isUpdatingFontList = false;
+		},
+		
+		/**
+		 * On group button click open specific slideshow slide
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} data Additional event data
+		 * @private
+		 */
+		_handleFontGroupButtonClick: function (event, data) {
+			this._initView();
+			this.widgets.slideshow.set('slide', data);
+			this._updateFontList();
+		},
+		
+		/**
+		 * Handle back button click
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		_handleBackButtonClick: function (event) {
+			var slideshow = this.widgets.slideshow,
+				slide = slideshow.get('slide'),
+				main = this.widgets.groups.main.id,
+				search = this.widgets.groups.search.id;
+			
+			if (slide != main) {
+				slideshow.scrollBack();
+				
+				if (slide == search) {
+					this.widgets.search.set('value', '');
+				}
+				
+				event.halt();
+			}
+		},
+		
+		
+		/**
+		 * On slide change update back button visibility
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		_updateBackButtonVisibility: function (event) {
+			var was_visible = this.backButtonInitiallyVisible,
+				sidebar = null,
+				button = null;
+			
+			if (was_visible === false) {
+				// It was not visible, so for main slide button shouldn't be visible
+				sidebar = this.getParentWidget('ActionBase');
+				
+				if (sidebar) {
+					button = sidebar.get('backButton');
+					
+					if (!event.newVal || !this.widgets.groups.main || event.newVal == this.widgets.groups.main.id) {
+						button.hide();
+					} else {
+						button.show();
+						this._viewActive = true;
+					}
+				}
+				
+			}
+		},
+		
+		
+		_viewActive: false,
+		
+		/**
+		 * Check back button initial state
+		 * Attach to form visible event to observe when sidebar is hidden
+		 */
+		_initView: function () {
+			var was_visible = this.backButtonInitiallyVisible,
+				sidebar = null,
+				button = null,
+				form = null;
+			
+			if (was_visible === null) {
+				// Find if back button is visible and bind linstener
+				sidebar = this.getParentWidget('ActionBase');
+				was_visible = this.backButtonInitiallyVisible = false;
+				
+				if (sidebar) {
+					// Back button
+					button = sidebar.get('backButton');
+					if (button) {
+						was_visible = this.backButtonInitiallyVisible = button.get('visible');
+						button.before('click', this._handleBackButtonClick, this);
+					}
+					
+					// Control button
+					button = sidebar.get('controlButton');
+					if (button) {
+						button.before('click', this._resetView, this);
+					}
+				}
+				
+				// When form is hidden reset 
+				form = this.getParentWidget('form');
+				form.on('visibleChange', function (event) {
+					if (!event.newVal && event.prevVal) {
+						this._resetView();
+					}
+				}, this);
+			}
+		},
+		
+		/**
+		 * Reset view to inital state,
+		 * set slideshow to first main slide, which will
+		 * hide back button if needed
+		 */
+		_resetView: function (event) {
+			if (this._viewActive) {
+				this._viewActive = false;
+				
+				if (this.widgets.slideshow) {
+					this.widgets.slideshow
+							.set('noAnimations', true)
+							.set('slide', this.widgets.groups.main.id)
+							.set('noAnimations', false);
+				}
+			}
+		},
+		
+		
+		/*
+		 * ---------------------------------------- SEARCH ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Handle search input event
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		_onSearchInput: function (event) {
+			var slideshow = this.widgets.slideshow,
+				slide = slideshow.get('slide'),
+				groups = this.widgets.groups,
+				animate = false,
+				scrollable = null,
+				search = groups.search;
+			
+			if (event.value) {
+				if (slide != search.id) {
+					
+					if (slide != groups.main.id) {
+						// Inside one of the groups, don't animate slideshow
+						slideshow
+							.set('noAnimations', true)
+							.set('slide', groups.main.id)
+							.set('slide', search.id)
+							.set('noAnimations', false);
+					} else {
+						// Main view, animate slideshow
+						slideshow.set('slide', search.id);
+					}
+				}
+				
+				if (search.query != event.value) {
+					search.query = event.value;
+					search.fonts = this._filterFonts(event.value);
+					search.count = search.fonts.length;
+					search.rendered = 0;
+					search.node.empty();
+					search.node.setStyle('height', search.fonts.length * this.FONT_ITEM_HEIGHT + 'px');
+					
+					scrollable = search.slide.getData('scrollable');
+					scrollable.syncUI();
+					
+					this._updateFontList('search');
+				}
+			} else {
+				if (slide != groups.main.id) {
+					slideshow.set('slide', groups.main.id);
+				}
+			}
+		},
+		
+		/**
+		 * Filter font list to find fonts which match query string
+		 * 
+		 * @param {String} query Query string
+		 * @returns {Array} List of match fonts
+		 * @private
+		 */
+		_filterFonts: function (query) {
+			var groups = this.get('values'),
+				i = 0,
+				ii = groups.length,
+				fonts = null,
+				f = 0,
+				ff = 0,
+				matches = [];
+			
+			// Lower case and trim
+			query = Y.Lang.trim(query.toLowerCase());
+			
+			for (; i<ii; i++) {
+				fonts = groups[i].fonts;
+				for (f=0,ff=fonts.length; f<ff; f++) {
+					if (fonts[f].title.toLowerCase().indexOf(query) != -1) {
+						matches.push(fonts[f]);
+					}
+				}
+			}
+			
+			return matches;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- ATTRIBUTES ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Value attribute setter
+		 * 
+		 * @param {String} value Value id
+		 * @returns {String} New value
+		 * @private
+		 */
+		_setValue: function (value) {
+			if (typeof value !== 'string') {
+				value = '';
+			}
+			
+			if (this.widgets && this.widgets.button) {
+				var data = this.getValueData(value),
+					label = (data ? data.title || data.family : '') || this.get('labelButton') || '';
+				
+				this.widgets.button.set('icon', data && data.icon ? data.icon : '');
+				this.widgets.button.set('label', label);
+			}
+			
+			return value;
+		},
+		
+		/**
+		 * Value attribute getter
+		 * 
+		 * @param {String} value Previous value
+		 * @return New value
+		 * @type {String}
+		 * @private
+		 */
+		_getValue: function (value) {
+			return value;
+		},
 		
 		/**
 		 * Values attribute setter
 		 * 
+		 * @param {Array} values List of values
+		 * @returns {Array} New values list
 		 * @private
 		 */
 		_setValues: function (values) {
-			values = Input.superclass._setValues.apply(this, arguments);
-			
-			this.loadFonts(values);
-			
+			if (this.get('rendered')) {
+				this._renderFontList(values);
+			}
 			return values;
-		}
+		},
 		
+		/**
+		 * Disabled attribute setter
+		 * Disable / enable HTMLEditor
+		 * 
+		 * @param {Boolean} value New state value
+		 * @return New state value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setDisabled: function (value) {
+			var button = this.widgets.button,
+				search = this.widgets.search;
+			
+			if (button) {
+				button.set('disabled', !!value);
+			}
+			
+			if (search) {
+				search.set('disabled', !!value);
+			}
+			
+			this.get('boundingBox').toggleClass('yui3-input-disabled', value);
+			
+			return !!value;
+		},
+		
+		/**
+		 * Loading attribute setter
+		 * 
+		 * @param {Boolean} loading Loading attribute value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setLoading: function (loading) {
+			var box = this.get('contentBox');
+			
+			if (box) {
+				if (loading && !this.get('nodeLoading')) {
+					var node = Y.Node.create('<span class="loading-icon"></span>');
+					box.append(node);
+					this.set('nodeLoading', node);
+				}
+				
+				box.toggleClass(this.getClassName('loading'), loading);
+			}
+			
+			this.set('disabled', loading);
+			return loading;
+		},
 		
 	});
 	
@@ -24778,8 +25962,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version);
-YUI.add("supra.input-number", function (Y) {
+}, YUI.version, {requires: ['supra.google-fonts']});YUI.add("supra.input-number", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -27612,7 +28795,7 @@ YUI.add('supra.uploader', function (Y) {
 		 * Minimal size of the handle
 		 */
 		'minHandleSize': {
-			'value': 15
+			'value': 50
 		}
 	};
 	
@@ -34918,10 +36101,10 @@ YUI.add('supra.datatype-color', function(Y) {
 				
 				switch (data.service) {
 					case 'youtube':
-						data.source = 'http://' + data.service + '.com/?v=' + data.id;
+						data.source = document.location.protocol + '//' + data.service + '.com/?v=' + data.id;
 						break;
 					case 'vimeo':
-						data.source = 'http://' + data.service + '.com/' + data.id;
+						data.source = document.location.protocol + '//' + data.service + '.com/' + data.id;
 						break;
 				}
 				
@@ -35049,7 +36232,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			deferred.resolveWith(this, [document.location.protocol + '//img.youtube.com/vi/' + video_id + '/0.jpg']);
 		} else if (service == 'vimeo') {
 			//
-			var url = 'http://vimeo.com/api/v2/video/' + video_id + '.json';
+			var url = document.location.protocol + '//vimeo.com/api/v2/video/' + video_id + '.json';
 			Supra.io(url, {
 				'suppress_errors': true, // don't display errors
 				'context': this,
@@ -37667,7 +38850,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 	Supra.HTMLEditor.addPlugin("fonts", defaultConfiguration, {
 		
 		// Font input
-		fontFnput: null,
+		fontInput: null,
 		
 		// Font button
 		fontFamilyInput: null,
@@ -37693,6 +38876,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		// Font size input change listener
 		toolbarFontSizeChangeListener: null,
 		
+		googleFonts: null,
+		
 		
 		/**
 		 * Update selected element font
@@ -37700,8 +38885,21 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @private
 		 */
 		updateFont: function () {
-			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
-				var value = this.fontInput.get("value");
+			if (!this.silentUpdating && !this.htmleditor.get("disabled")) {
+				var value = this.fontInput.get("value"),
+					data  = value ? this.fontInput.getValueData(value) : null,
+					fonts = this.googleFonts;
+				
+				if (data) {
+					if (!fonts) {
+						fonts = new Supra.GoogleFonts({
+							"doc": this.htmleditor.get("doc")
+						});
+					}
+					
+					fonts.addFonts([data]);
+				}
+				
 				this.exec(value, "fontname");
 				this.htmleditor._changed();
 			}
@@ -37783,15 +38981,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				} else {
 					//Try finding font from the list, which matches selected font
 					face = Y.Node(element).getStyle("fontFamily") || "";
-					var fonts = this.fonts,
-						i = 0,
-						ii = fonts.length;
-					
-					for (; i<ii; i++) {
-						if (face && face.toLowerCase().indexOf(fonts[i].search) !== -1) {
-							face = fonts[i].family;
-						}
-					}
 				}
 				this.fontInput.set("value", face);
 			}
@@ -38068,25 +39257,14 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @return List of font API ids
 		 */
 		getUsedFonts: function () {
-			if (!this.fonts) return [];
-			
 			var editor = this.htmleditor,
 				nodes = this.htmleditor.get("srcNode").all("font"),
-				used = [],
-				fonts = this.fonts,
-				ii = fonts.length;
+				used = [];
 			
 			nodes.each(function (node) {
 				var face = node.getAttribute("face");
 				if (face) {
-					for (var i=0; i<ii; i++) {
-						if (face.toLowerCase().indexOf(fonts[i].search) !== -1) {
-							if (fonts[i].apis) {
-								used.push(fonts[i].id);
-							}
-							return;
-						}
-					}
+					used.push(face);
 				}
 			});
 			
@@ -38114,13 +39292,12 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
 			if (!content) return;
 			
-			var fonts = this.fonts,
-				form_config = {
+			var form_config = {
 					"inputs": [{
 						"id": "font",
 						"type": "Fonts",
 						"label": "",
-						"values": fonts
+						"values": []
 					}],
 					"style": "vertical"
 				};
@@ -38330,18 +39507,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			htmleditor.addCommand("forecolor", Y.bind(this.showTextColorSidebar, this));
 			htmleditor.addCommand("backcolor", Y.bind(this.showBackColorSidebar, this));
 			
-			// Collect all font info
-			var fonts = this.fonts = Y.Array.map(this.getAllFonts(), function (item) {
-				return {
-					"id": item.id || item.family,
-					"title": item.title,
-					"family": item.family,
-					"apis": item.apis,
-					// used to search for matches
-					"search": item.family.replace(/,.*/, "").replace(/(^\s*["']|["']\s*$)/g, '').toLowerCase() 
-				};
-		 	});
-		 	
 			// Show inputs / buttons
 			var inputs = ["fonts", "fontsize", "forecolor", "backcolor"],
 				i = 0,
@@ -38404,7 +39569,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {"requires": ["supra.htmleditor-base", "supra.template"]});/**
+}, YUI.version, {"requires": ["supra.htmleditor-base", "supra.template", "supra.google-fonts"]});/**
  * Font sidebar
  */
 YUI().add("supra.htmleditor-plugin-align", function (Y) {

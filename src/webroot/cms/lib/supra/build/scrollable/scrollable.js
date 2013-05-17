@@ -47,7 +47,7 @@ YUI.add('supra.scrollable', function (Y) {
 		 * Minimal size of the handle
 		 */
 		'minHandleSize': {
-			'value': 15
+			'value': 50
 		}
 	};
 	

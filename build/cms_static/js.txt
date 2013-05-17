@@ -106,6 +106,11 @@
 /cms/lib/yui.3.5.0/build/dd-delegate/dd-delegate-min.js
 /cms/lib/yui.3.5.0/build/jsonp/jsonp-min.js
 /cms/lib/yui.3.5.0/build/jsonp-url/jsonp-url-min.js
+/cms/lib/yui.3.5.0/build/history-base/history-base-min.js
+/cms/lib/yui.3.5.0/build/history-html5/history-html5-min.js
+/cms/lib/yui.3.5.0/build/history-hash/history-hash-min.js
+/cms/lib/yui.3.5.0/build/history-hash-ie/history-hash-ie-min.js
+/cms/lib/yui.3.5.0/build/router/router-min.js
 /cms/lib/supra/build/dd-ddm/dd-ddm.js
 /cms/lib/supra/build/event/event.js
 /cms/lib/supra/build/io/io.js
@@ -130,6 +135,7 @@
 /cms/lib/supra/build/input/string.js
 /cms/lib/supra/build/input/text.js
 /cms/lib/supra/build/input/string-clear.js
+/cms/lib/supra/build/google-fonts/google-fonts.js
 /cms/lib/supra/build/iframe/stylesheet-parser.js
 /cms/lib/supra/build/htmleditor/htmleditor-base.js
 /cms/lib/supra/build/htmleditor/htmleditor-parser.js

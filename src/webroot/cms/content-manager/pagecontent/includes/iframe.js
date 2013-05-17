@@ -546,13 +546,23 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 */
 		_onStylesheetLoad: function (links) {
 			var timer = Y.later(50, this, function () {
-				var loaded = true;
+				var loaded = true,
+					protocol = document.location.protocol,
+					secure = (protocol == 'https:'),
+					href = '';
+				
 				for(var i=0,ii=links.length; i<ii; i++) {
 					if (!links[i].sheet) {
-						//If there is no href, then there will never be a sheet
-						if (links[i].getAttribute('href')) {
-							loaded = false;
-							break;
+						//If there is no href or href is http while cms is in https, then there will never be a sheet
+						href = links[i].getAttribute('href');
+						if (href) {
+							if (secure && href.indexOf('http:') != -1) {
+								// Link href is http while CMS is in https, we can't access such links
+								// so skip it
+							} else {
+								loaded = false;
+								break;
+							}
 						}
 					}
 				}

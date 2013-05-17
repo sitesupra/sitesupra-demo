@@ -29,10 +29,13 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 	var COLORS = {
 			'pageviews': 'rgba(0, 0, 0, 0.07)',
 			'pageviews_line': '#25ca85',
+			'pageviews_tooltip': '#25ca85',
 			'visits': 'rgba(0, 0, 0, 0.07)',
 			'visits_line': '#ffffff',
+			'visits_tooltip': '#ffffff',
 			'visitors': 'rgba(0, 0, 0, 0.07)',
-			'visitors_line': '#faab02'
+			'visitors_line': '#faab02',
+			'visitors_tooltip': '#faab02'
 		};
 	
 	var LABEL_FORMAT = '%b %e',
@@ -279,7 +282,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 					// Format values
 					for (var i=0, ii=valueItems.length; i<ii; i++) {
 						name = valueItems[i].displayName;
-						label += '<span class="tooltip-label" style="color: ' + COLORS[name] + '">' + Supra.Intl.get(['dashboard', 'visitors', name]) + ':</span> <span class="tooltip-value">' + valueItems[i].value + '</span><br />';
+						label += '<span class="tooltip-label" style="color: ' + COLORS[name + '_tooltip'] + '">' + Supra.Intl.get(['dashboard', 'visitors', name]) + ':</span> <span class="tooltip-value">' + valueItems[i].value + '</span><br />';
 					}
 					return label;
 				}
@@ -407,7 +410,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 				}
 			});
 			
-			//chart._showTooltip = this._showChartTooltip;
+			chart._showTooltip = this._showChartTooltip;
 			
 			chart.render(container);
 		},
@@ -420,7 +423,6 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		 * @param {Number} y Tooltip y coordinate
 		 * @private
 		 */
-		/*
 		_showChartTooltip: function (msg, x, y) {
 			var tt = this.get("tooltip"),
 		        node = tt.node,
@@ -429,7 +431,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		        offsetX = x,
 		        tooltipWidth = parseFloat(node.getComputedStyle('width'));
 		    
-		    if (x + tooltipWidth > cbW && (x - tooltipWidth) > 0) {     
+		    if (x + tooltipWidth + 10 > cbW && (x - tooltipWidth) > 0) {     
 		        x = x - 30 - tooltipWidth; 
 		    }
 		    
@@ -442,7 +444,6 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 		        node.setStyle("visibility", "visible");
 		    }
 		},
-		*/
 		
 		
 		/**

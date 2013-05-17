@@ -17,7 +17,7 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 	Supra.HTMLEditor.addPlugin("fonts", defaultConfiguration, {
 		
 		// Font input
-		fontFnput: null,
+		fontInput: null,
 		
 		// Font button
 		fontFamilyInput: null,
@@ -43,6 +43,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		// Font size input change listener
 		toolbarFontSizeChangeListener: null,
 		
+		googleFonts: null,
+		
 		
 		/**
 		 * Update selected element font
@@ -50,8 +52,21 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @private
 		 */
 		updateFont: function () {
-			if (!this.silentUpdating && !this.htmleditor.get('disabled')) {
-				var value = this.fontInput.get("value");
+			if (!this.silentUpdating && !this.htmleditor.get("disabled")) {
+				var value = this.fontInput.get("value"),
+					data  = value ? this.fontInput.getValueData(value) : null,
+					fonts = this.googleFonts;
+				
+				if (data) {
+					if (!fonts) {
+						fonts = new Supra.GoogleFonts({
+							"doc": this.htmleditor.get("doc")
+						});
+					}
+					
+					fonts.addFonts([data]);
+				}
+				
 				this.exec(value, "fontname");
 				this.htmleditor._changed();
 			}
@@ -133,15 +148,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				} else {
 					//Try finding font from the list, which matches selected font
 					face = Y.Node(element).getStyle("fontFamily") || "";
-					var fonts = this.fonts,
-						i = 0,
-						ii = fonts.length;
-					
-					for (; i<ii; i++) {
-						if (face && face.toLowerCase().indexOf(fonts[i].search) !== -1) {
-							face = fonts[i].family;
-						}
-					}
 				}
 				this.fontInput.set("value", face);
 			}
@@ -418,25 +424,14 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 * @return List of font API ids
 		 */
 		getUsedFonts: function () {
-			if (!this.fonts) return [];
-			
 			var editor = this.htmleditor,
 				nodes = this.htmleditor.get("srcNode").all("font"),
-				used = [],
-				fonts = this.fonts,
-				ii = fonts.length;
+				used = [];
 			
 			nodes.each(function (node) {
 				var face = node.getAttribute("face");
 				if (face) {
-					for (var i=0; i<ii; i++) {
-						if (face.toLowerCase().indexOf(fonts[i].search) !== -1) {
-							if (fonts[i].apis) {
-								used.push(fonts[i].id);
-							}
-							return;
-						}
-					}
+					used.push(face);
 				}
 			});
 			
@@ -464,13 +459,12 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
 			if (!content) return;
 			
-			var fonts = this.fonts,
-				form_config = {
+			var form_config = {
 					"inputs": [{
 						"id": "font",
 						"type": "Fonts",
 						"label": "",
-						"values": fonts
+						"values": []
 					}],
 					"style": "vertical"
 				};
@@ -680,18 +674,6 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			htmleditor.addCommand("forecolor", Y.bind(this.showTextColorSidebar, this));
 			htmleditor.addCommand("backcolor", Y.bind(this.showBackColorSidebar, this));
 			
-			// Collect all font info
-			var fonts = this.fonts = Y.Array.map(this.getAllFonts(), function (item) {
-				return {
-					"id": item.id || item.family,
-					"title": item.title,
-					"family": item.family,
-					"apis": item.apis,
-					// used to search for matches
-					"search": item.family.replace(/,.*/, "").replace(/(^\s*["']|["']\s*$)/g, '').toLowerCase() 
-				};
-		 	});
-		 	
 			// Show inputs / buttons
 			var inputs = ["fonts", "fontsize", "forecolor", "backcolor"],
 				i = 0,
@@ -754,4 +736,4 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {"requires": ["supra.htmleditor-base", "supra.template"]});
+}, YUI.version, {"requires": ["supra.htmleditor-base", "supra.template", "supra.google-fonts"]});
