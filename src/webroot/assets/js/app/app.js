@@ -1,5 +1,5 @@
 /*
- * @version 1.0.1
+ * @version 1.0.2
  */
 "use strict";
 
@@ -46,7 +46,8 @@
 					i			= 0,
 					ii			= 0,
 					require_ns  = '',
-					require_fn  = null;
+					require_fn  = null,
+					modules     = [];
 				
 				$.extend(this.options, options || {});
 				
@@ -55,7 +56,20 @@
 					if (instance) instances.push(instance);
 				}
 				
-				//Function for requirejs amd module
+				//Require all modules
+				if (typeof define == 'function' && define.amd) {
+					element.find('[data-' + this.options.require + ']').each($.proxy(function (index, element) {
+						var mod = $(element).data(this.options.require).split(',');
+						modules = modules.concat(mod);
+					}, this));
+					
+					modules = $.unique(modules);
+					if (modules.length) {
+						require(modules, function () {});
+					}
+				}
+				
+				//Function for requirejs amd module loading
 				require_fn = $.proxy(function (modules, element) {
 					var self = this;
 					
@@ -72,9 +86,10 @@
 				elements = element.find('[data-' + this.options.namespace + ']');
 				ii = elements.length;
 				
-				for(; i<ii; i++) {
+				for(i=0; i<ii; i++) {
 					require_ns = elements.eq(i).data(this.options.require);
 					if (require_ns) {
+						// If 'data-require' attribute is set then load module before instantiating it
 						require_fn(require_ns, elements.eq(i));
 					} else {
 						instance = this.factory(elements.eq(i));
