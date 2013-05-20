@@ -7,7 +7,6 @@ Supra('dd-drag', function (Y) {
 		'Editable',
 		'List',
 		'Gallery',
-		'Gallery2',
 		'Slideshow',
         'Facebook'
 	];
