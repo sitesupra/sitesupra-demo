@@ -12,13 +12,25 @@ use Supra\Uri\Path;
 
 class GenerateSitemapCommand extends Command
 {
+	const OPTION_DIRECTORY = 'directory';
+	
+	/**
+	 * @var string
+	 */
+	protected $host;
+	
+	/**
+	 * @var string
+	 */
+	protected $directory;
+	
 
-	private $host;
-//	private $notIncludedInSearch = array();
-
+	/**
+	 */
 	protected function configure()
 	{
 		$this->setName('su:seo:generate_sitemap')
+				->addOption(self::OPTION_DIRECTORY, 'd', Console\Input\InputOption::VALUE_REQUIRED)
 				->setDescription('Generates sitemap.xml and robots.txt.')
 				->setHelp('Generates sitemap.xml and robots.txt.
 					Includes only records which are included in search and visible in sitemap');
@@ -31,12 +43,15 @@ class GenerateSitemapCommand extends Command
 		$systemInfo = ObjectRepository::getSystemInfo($this);
 		$this->host = $systemInfo->getHostName(Info::WITH_SCHEME);
 		
+		$optionalDirectoryValue = $this->getOptionalDirectoryValueFromInput($input);
+		$this->directory =  ! empty($optionalDirectoryValue) ? $optionalDirectoryValue : SUPRA_WEBROOT_PATH;
+		
 		$records = $this->prepareSitemap($output);
 
 		$this->generateSitemapXml($records);
 		$this->generateRobotsTxt();
 
-		$output->writeln('Generated sitemap.xml and robots.txt in webroot');
+		$output->writeln("Generated sitemap.xml and robots.txt in {$this->directory}");
 	}
 
 	/**
@@ -98,7 +113,7 @@ class GenerateSitemapCommand extends Command
 	}
 
 	/**
-	 * Generates sitemap and stores to webroot folder
+	 * Generates and stores the sitemap file
 	 * @param array $records
 	 * @throws FilesystemPermissionException
 	 */
@@ -118,15 +133,17 @@ class GenerateSitemapCommand extends Command
 			}
 		}
 
-		$xmlData = $xml->asXML(SUPRA_WEBROOT_PATH . 'sitemap.xml');
+		$xmlData = $xml->asXML($this->directory . 'sitemap.xml');
 		if ( ! $xmlData) {
-			throw new FilesystemPermissionException('Failed to create/overwrite sitemap.xml in ' . SUPRA_WEBROOT_PATH);
+			throw new FilesystemPermissionException('Failed to create/overwrite sitemap.xml in ' . $this->directory);
 		}
 	}
 
+	/**
+	 */
 	private function generateRobotsTxt()
 	{
-		$path = SUPRA_WEBROOT_PATH . 'robots.txt';
+		$path = $this->directory . 'robots.txt';
 		
 		$content = 'User-agent: *' . PHP_EOL;
 
@@ -143,6 +160,31 @@ class GenerateSitemapCommand extends Command
 		}
 
 		fclose($fp);
+	}
+	
+	/**
+	 * @param Console\Input\InputInterface $input
+	 * @return string|null
+	 * @throws FilesystemPermissionException
+	 */
+	protected function getOptionalDirectoryValueFromInput($input)
+	{
+		$directoryOptionValue = $input->getOption(self::OPTION_DIRECTORY);
+		
+		if ( ! empty($directoryOptionValue)) {
+			
+			$directoryOptionValue = rtrim($directoryOptionValue, '/') . '/';
+			
+			if ( ! is_writable($directoryOptionValue) 
+					|| is_file($directoryOptionValue)) {
+				
+				throw new FilesystemPermissionException('Specified directory does not exists, is not writable or is a file');
+			}
+						
+			return $directoryOptionValue;
+		}
+
+		return null;
 	}
 
 }
