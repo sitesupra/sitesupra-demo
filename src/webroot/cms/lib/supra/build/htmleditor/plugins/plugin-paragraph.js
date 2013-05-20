@@ -58,8 +58,9 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		 */
 		_insertParagraph: function (event) {
 			if (!event.stopped && event.keyCode == 13 && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
-				var node = new Y.Node(this.htmleditor.getSelectedElement());
-				if (!node.test('LI') && !node.ancestor('LI')) {
+				
+				//var node = new Y.Node(this.htmleditor.getSelectedElement());
+				//if (!node.test('LI') && !node.ancestor('LI')) {
 					
 					if (Y.UA.gecko) {
 						//this.htmleditor.insertHTML('<P></P>');
@@ -69,24 +70,72 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 						// Cursor is at the end of the inline node?
 						// Create block level element, not inline (eg. <a class="button" />)
 						var selected  = this.htmleditor.getSelectedElement(),
-							inline    = Supra.HTMLEditor.ELEMENTS_INLINE;
+							inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
+							tagName   = '',
+							node      = null,
+							length    = 0;
 						
-						if (selected && selected.tagName.toLowerCase() in inline) {
-							var selection = this.htmleditor.selection,
-								end       = selection.end,
-								length    = end.nodeType == 1 ? end.childNodes.length : end.length,
-								tagname   = null;
-							
-							if (selection.end_offset == length) {
-								tagname = this.htmleditor.getSelectedElement('p, li');
-								tagname = tagname ? tagname.tagName : 'P';
+						if (selected) {
+							if (this.htmleditor.isCursorAtTheEndOf()) {
+								node    = this.htmleditor.getSelectedElement('p, li, td, th');
+								tagname = node ? node.tagName : 'P';
 								
-								this.insertHTML('<' + tagname + '></'+ tagname + '>');
-								event.halt();
+								if (tagname == 'TD' || tagname == 'TH') {
+									// If inside TD or TH then insert <br />
+									this._onBrKeyDown(event);
+								} else if (tagname == 'LI') {
+									// If inside LI then insert new li if there is non-selected content
+									// inside this li, otherwise insert P after content
+									 
+									if (this.htmleditor.isNodeEmpty(node)) {
+										if (this.htmleditor.getLastChild(node.parentNode) === node) {
+											// Empty LI and it's last in the list, insert paragraph after list 
+											this.insertHTML('P', node.parentNode);
+											node.parentNode.removeChild(node);
+											event.halt();
+										} else {
+											// Empty LI, but not last in the list, split list into two
+											var doc  = this.htmleditor.get('doc'),
+												list = doc.createElement(node.parentNode.tagName),
+												p    = doc.createElement('P'),
+												tmp  = null;
+											
+											this.htmleditor.insertAfter(list, node.parentNode);
+											this.htmleditor.insertAfter(p, node.parentNode);
+											
+											while (node.nextSibling) {
+												list.appendChild(node.nextSibling);
+											}
+											
+											node.parentNode.removeChild(node);
+											
+											// Move cursor to P
+											this.htmleditor.setSelection({'start': p, 'end': p, 'start_offset': 0, 'end_offset': 0});
+											
+											event.halt();
+										}
+									} else if (this.htmleditor.isAllNodeSelected(node)) {
+										// All LI is selected, remove it and insert P after list
+										this.insertHTML('P', node.parentNode);
+										node.parentNode.removeChild(node);
+										event.halt();
+									} else {
+										// Not empty LI, default behaviour of inserting LI is ok
+									}
+								} else {
+									if (!this.htmleditor.selection.collapsed) {
+										this.htmleditor.replaceSelection('');
+									}
+									this.insertHTML(tagname);
+									event.halt();
+								}
+							} else {
+								console.log('NOT AT THE END!');
 							}
 						}
 					}
-				}
+				
+				//}
 			}
 		},
 		
@@ -96,10 +145,11 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		 * @param {Object} html
 		 * @private
 		 */
-		insertHTML: function (html) {
-			if (!html || this.htmleditor.get('disabled')) return;
+		insertHTML: function (tagname, target) {
+			if (!tagname || this.htmleditor.get('disabled')) return;
 			
-			var selected  = this.htmleditor.selection.end,
+			var html      = '<' + tagname + '></' + tagname + '>',
+				selected  = target ? target : this.htmleditor.selection.end,
 				reference = null,
 				inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
 				srcNode   = this.htmleditor.get('srcNode').getDOMNode(),
@@ -118,13 +168,33 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 			}
 			
 			// Insert node
-			if (reference && reference.nextSibling) {
-				selected.insertBefore(node, reference.nextSibling);
+			var SUP_BLOCK = {'P': 'P', 'H1': 'H1', 'H2': 'H2', 'H3': 'H3', 'H4': 'H4', 'H5': 'H5', 'UL': 'UL', 'OL': 'OL'},
+				PAR_BLOCK = {'P': 'P', 'H1': 'H1', 'H2': 'H2', 'H3': 'H3', 'H4': 'H4', 'H5': 'H5', 'UL': 'UL', 'OL': 'OL', 'DIV': 'DIV'};
+			
+			if (SUP_BLOCK[tagname] && PAR_BLOCK[selected.tagName] && selected !== srcNode) {
+				// Trying to insert P into H1, H1 into P, etc.
+				// Don't allow that, insert this tag after selected element
+				if (selected.nextSibling) {
+					selected.parentNode.insertBefore(node, selected.nextSibling);
+				} else {
+					selected.parentNode.appendChild(node);
+				}
 			} else {
-				selected.appendChild(node);
+				if (reference && reference.nextSibling) {
+					selected.insertBefore(node, reference.nextSibling);
+				} else {
+					selected.appendChild(node);
+				}
 			}
 			
-			this.htmleditor.selectNode(node);
+			//this.htmleditor.selectNode(node);
+			
+			this.htmleditor.setSelection({
+				'start': node,
+				'end': node,
+				'start_offset': 0,
+				'end_offset': node.childNodes.length
+			});
 		},
 		
 		
@@ -136,6 +206,8 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		 * @constructor
 		 */
 		init: function (htmleditor, configuration) {
+			window.htmleditor = htmleditor;
+			
 			if (configuration.insertBrOnReturn) {
 	            try {
 	                htmleditor.get('doc').execCommand('insertbronreturn', null, true);

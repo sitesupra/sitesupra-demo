@@ -353,6 +353,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-base',
 			'supra.htmleditor-parser',
 			'supra.htmleditor-selection',
+			'supra.htmleditor-dom',
 			'supra.htmleditor-traverse',
 			'supra.htmleditor-editable',
 			'supra.htmleditor-commands',
@@ -394,6 +395,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		},
 		'supra.htmleditor-selection': {
 			path: 'htmleditor/htmleditor-selection.js',
+			requires: ['supra.htmleditor-base']
+		},
+		'supra.htmleditor-dom': {
+			path: 'htmleditor/htmleditor-dom.js',
 			requires: ['supra.htmleditor-base']
 		},
 		'supra.htmleditor-traverse': {
