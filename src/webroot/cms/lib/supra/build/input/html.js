@@ -463,7 +463,7 @@ YUI.add("supra.input-html", function (Y) {
 	Input.lipsum = function () {
 		return {
 			'data': {},
-			'html': Supra.Limsum.html()
+			'html': Supra.Lipsum.html()
 		};
 	};
 	

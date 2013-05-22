@@ -448,18 +448,6 @@ YUI.add('gallery.view', function (Y) {
 		},
 		
 		/**
-		 * DEBUG
-		 */
-		startEditing: function (property) {
-			var id = this.get('host').get('activeSlideId'),
-				input = this.get('host').settings.getForm().getInput(property);
-			
-			if (input) {
-				this._startEditing({}, property, input, id);
-			}
-		},
-		
-		/**
 		 * Deatcivate input: disable content editing and show sidebar
 		 */
 		stopEditing: function (preserveToolbar) {

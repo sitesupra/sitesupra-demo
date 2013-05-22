@@ -577,7 +577,6 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 					}
 					
 					while (end && end !== srcNode) {
-						// @TODO Check if end is last child of parent
 						if (end === node) return true;
 						if (this.getLastChild(end.parentNode) !== end) return false;
 						end = end.parentNode;

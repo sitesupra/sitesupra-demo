@@ -3806,7 +3806,7 @@ YUI.add('supra.event', function (Y) {
 		
 	};
 	
-	Supra.Limsum = Lipsum;
+	Supra.Lipsum = Lipsum;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
@@ -8957,7 +8957,7 @@ YUI().add("supra.io-css", function (Y) {
 	});
 	
 	Input.lipsum = function () {
-		return Supra.Limsum.sentence({'count': 4, 'variation': 1});
+		return Supra.Lipsum.sentence({'count': 4, 'variation': 1});
 	};
 	
 	Supra.Input.String = Input;
@@ -8992,7 +8992,7 @@ YUI.add('supra.input-text', function (Y) {
 	});
 	
 	Input.lipsum = function () {
-		return Supra.Limsum.paragraph({'count': 4});
+		return Supra.Lipsum.paragraph({'count': 4});
 	};
 	
 	Supra.Input.Text = Input;
@@ -11446,7 +11446,6 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					}
 					
 					while (end && end !== srcNode) {
-						// @TODO Check if end is last child of parent
 						if (end === node) return true;
 						if (this.getLastChild(end.parentNode) !== end) return false;
 						end = end.parentNode;
@@ -37407,7 +37406,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		renderContent: function (node, data) {
-			var node = node, // || this.get('targetNode'),
+			var node = node,
 				type = data.type || this.type;
 			
 			if (!node) {
@@ -40798,7 +40797,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	Input.lipsum = function () {
 		return {
 			'data': {},
-			'html': Supra.Limsum.html()
+			'html': Supra.Lipsum.html()
 		};
 	};
 	
@@ -41063,7 +41062,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	Input.lipsum = function () {
 		return {
 			'data': {},
-			'html': Supra.Limsum.html()
+			'html': Supra.Lipsum.html()
 		};
 	};
 	
@@ -41276,7 +41275,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	});
 	
 	Input.lipsum = function () {
-		return Supra.Limsum.sentence({'count': 4, 'variation': 1});
+		return Supra.Lipsum.sentence({'count': 4, 'variation': 1});
 	};
 	
 	Supra.Input.InlineString = Input;
