@@ -31,7 +31,7 @@ $fileStorage->addFileUploadFilter($imageSizeFilter);
 $fileStorage->addFolderUploadFilter($fileNameFilter);
 $fileStorage->addFolderUploadFilter($existingFileNameFilter);
 
-//$imageProcessorAdapter = new \Supra\FileStorage\ImageProcessor\Adapter\Gd2Adapter();
-//$fileStorage->setImageProcessorAdapter($imageProcessorAdapter);
+$imageProcessorAdapter = new \Supra\FileStorage\ImageProcessor\Adapter\ImageMagickAdapter;
+$fileStorage->setImageProcessorAdapter($imageProcessorAdapter);
 
 ObjectRepository::setDefaultFileStorage($fileStorage);
