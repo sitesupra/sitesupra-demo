@@ -7099,8 +7099,8 @@ YUI().add("supra.io-css", function (Y) {
 		 */
 		'compileExpression': function (identifier, expr, fn) {
 			if (typeof fn == 'function') {
-				//Convert " and " to " && ", " or " to " || ", " ~ " to concatanation
-				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ').replace(REG_CAT, ' + "" + ');
+				//Convert " and " to " && ", " not " to "!", " or " to " || ", " ~ " to concatanation
+				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ').replace(REG_NOT, '!').replace(REG_CAT, ' + "" + ');
 				return fn(expr);
 			}
 			return '';
@@ -7657,6 +7657,7 @@ YUI().add("supra.io-css", function (Y) {
 		
 		REG_CAT				= /\s*~\s*/g,
 		REG_AND				= /\s+and\s+/g,
+		REG_NOT				= /\s+not\s+/g,
 		REG_OR				= /\s+or\s+/g,
 		REG_FOR				= /\s*([a-z0-9_]+)(\s*,\s*([a-z0-9_]+))?\s+in\s+(.*)/i,
 		
@@ -8356,6 +8357,9 @@ YUI().add("supra.io-css", function (Y) {
 		startEditing: function () {
 			if (!this.get('disabled')) {
 				this.focus();
+				return true;
+			} else {
+				return false;
 			}
 		},
 		
@@ -13417,11 +13421,25 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		eventMove: null,
 		
 		/**
+		 * Event listener object for mouse move event on main document
+		 * @type {Object}
+		 * @private
+		 */
+		eventMoveMain: null,
+		
+		/**
 		 * Event listener object for mouse up event
 		 * @type {Object}
 		 * @private
 		 */
 		eventDrop: null,
+		
+		/**
+		 * Event listener object for mouse up event on main document
+		 * @type {Object}
+		 * @private
+		 */
+		eventDropMain: null,
 		
 		/**
 		 * Event listener object for document click event
@@ -13807,26 +13825,45 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		dragStart: function (e) {
+			this.resetPointerCache();
+			
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				doc = this.get("doc");
+			
 			if (this.resizeActive || this.moveActive) {
 				//If user released mouse outside browser
 				this.dragEnd(e);
 			}
 			
-			this.eventDrop = Y.Node(this.get("doc")).on("mouseup", this.dragEnd, this);
+			this.eventDrop = Y.Node(doc).on("mouseup", this.dragEnd, this);
+			
+			if (document !== doc) {
+				this.eventDropMain = Y.Node(document).on("mouseup", this.dragEnd, this);
+			}
 			
 			this.dragCropLeft = this.cropLeft;
 			this.dragCropTop = this.cropTop;
-			this.mouseStartX = e.clientX;
-			this.mouseStartY = e.clientY;
+			this.mouseStartX = clientX;
+			this.mouseStartY = clientY;
 			
 			if (this.get("cursor") < 4) {
 				//Resize
 				this.resizeActive = true;
 				
 				if (this.get("mode") == ImageResizer.MODE_ICON) {
-					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragIconResize, this);
+					this.eventMove = Y.Node(doc).on("mousemove", this.dragIconResize, this);
+					
+					if (document !== doc) {
+						this.eventMoveMain = Y.Node(document).on("mousemove", this.dragIconResize, this);
+					}
 				} else {
-					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragResize, this);
+					this.eventMove = Y.Node(doc).on("mousemove", this.dragResize, this);
+					
+					if (document !== doc) {
+						this.eventMoveMain = Y.Node(document).on("mousemove", this.dragResize, this);
+					}
 				}
 				
 				this.dragStartW = this.dragW = this.cropWidth;
@@ -13835,6 +13872,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Move
 				this.moveActive = true;
 				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragMove, this);
+				
+				if (document !== doc) {
+					this.eventMoveMain = Y.Node(document).on("mousemove", this.dragMove, this);
+				}
 				
 				this.dragStartW = this.dragW = this.cropLeft;
 				this.dragStartH = this.dragH = this.cropTop;
@@ -13850,9 +13891,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		dragMove: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
 				sizeY  = this.dragStartH + deltaY,
 				mode   = this.get("mode");
@@ -13907,9 +13952,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		dragResize: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
 				sizeY  = this.dragStartH + deltaY,
 				mode   = this.get("mode");
@@ -13999,9 +14048,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		dragIconResize: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				delta  = Math.max(deltaX, deltaY),
 				sizeX  = this.dragStartW + delta,
 				sizeY  = this.dragStartH + delta;
@@ -14073,6 +14126,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.eventMove.detach();
 				this.eventMove = null;
 				
+				if (this.eventDropMain) {
+					this.eventDropMain.detach();
+					this.eventDropMain = null;	
+				}
+				
+				if (this.eventMoveMain) {
+					this.eventMoveMain.detach();
+					this.eventMoveMain = null;	
+				}
+				
 				if (this.resizeActive) { // resize
 					this.cropLeft = this.dragCropLeft;
 					this.cropTop = this.dragCropTop;
@@ -14114,6 +14177,70 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-icon") && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
 				this.set("image", null);
 			}
+		},
+		
+		/**
+		 * Returns pointer position relative to the window of attribute doc 
+		 * 
+		 * @param {Event} e Event facade object
+		 * @returns {Array} Array with x and y coordinates of pointer
+		 * @private
+		 */
+		getPointerPosition: function (e) {
+			var x          = 0,
+				y          = 0,
+				target     = e.target.getDOMNode(),
+				doc_target = target.ownerDocument,
+				doc        = this.get('doc'),
+				offset     = this._iframeOffset,
+				iframes    = null,
+				iframe     = null,
+				i          = 0,
+				ii         = 0,
+				tmp        = null;
+			
+			if (e.type.indexOf('touch') == -1) {
+				// Mouse cursor
+				x = e.clientX;
+				y = e.clientY;
+			} else {
+				// Touch
+				// @TODO In the future
+				// x = e.touches[0].clientX;
+				// y = e.touches[0].clientY;
+			}
+			
+			if (doc !== doc_target) {
+				// Adjust position by removing iframe position
+				if (!offset) {
+					// Find iframe
+					iframes = Y.all('iframe');
+					
+					for (ii=iframes.size(); i<ii; i++) {
+						tmp = iframes.item(i).getDOMNode();
+						if ((tmp.contentDocument || tmp.contentWindow.document) === doc) {
+							iframe = tmp; break;
+						}
+					}
+					
+					// Get offset
+					offset = this._iframeOffset = (iframe ? Y.DOM.getXY(iframe) : [0, 0]);
+				}
+				
+				x -= offset[0];
+				y -= offset[1];
+			}
+			
+			return [x, y];
+		},
+		
+		/**
+		 * Reset pointer cache
+		 * 
+		 * @private
+		 */
+		resetPointerCache: function () {
+			this._iframeOffset = null;
 		},
 		
 		
@@ -24151,10 +24278,10 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				//var node = new Y.Node(this.htmleditor.getSelectedElement());
 				//if (!node.test('LI') && !node.ancestor('LI')) {
 					
-					if (Y.UA.gecko) {
+					//if (Y.UA.gecko) {
 						//this.htmleditor.insertHTML('<P></P>');
 						//@TODO
-					} else if (Y.UA.webkit) {
+					//} else if (Y.UA.webkit) {
 						
 						// Cursor is at the end of the inline node?
 						// Create block level element, not inline (eg. <a class="button" />)
@@ -24222,7 +24349,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 								console.log('NOT AT THE END!');
 							}
 						}
-					}
+					//}
 				
 				//}
 			}
@@ -25093,6 +25220,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						boundingBox = this.get('boundingBox'),
 						container = this.widgets.separateContainer = Y.Node.create('<div class="yui3-widget yui3-input"></div>');
 					
+					if (!this.get('visible')) {
+						container.addClass('hidden');
+					}
 					if (labelNode) {
 						container.append(labelNode, 'before');
 					}
@@ -25506,6 +25636,22 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Visible attribute setter
+		 * 
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			visible = Input.superclass._uiSetVisible.apply(this, arguments);
+			
+			var separateContainer = this.widgets.separateContainer;
+			if (separateContainer) {
+				separateContainer.toggleClass('hidden', !visible);
+			}
+			
+			return visible;
 		}
 		
 	});
@@ -31640,7 +31786,7 @@ YUI.add('supra.input-slider', function (Y) {
 				this.bindMapEvents();
 			}
 			
-			Input.superclass.startEditing.apply(this, arguments);
+			return Input.superclass.startEditing.apply(this, arguments);
 		},
 		
 		stopEditing: function () {
@@ -34707,7 +34853,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (!node) {
 				// There are no nodes for this block
-				return;
+				return false;
 			}
 			
 			if (!imageResizer) {
@@ -34739,6 +34885,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			imageResizer.set("image", node);
 			
 			this.focus();
+			return true;
 		},
 		
 		/**
@@ -34843,7 +34990,9 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		openMediaSidebar: function () {
 			// Close settings form
-			var properties = this.getPropertiesWidget();
+			var properties = this.getPropertiesWidget(),
+				deferred = new Supra.Deferred();
+			
 			if (properties) {
 				properties.hidePropertiesForm({
 					"keepToolbarButtons": true // we keep them because settings sidebar is hidden temporary
@@ -34867,12 +35016,20 @@ YUI.add('supra.datatype-color', function(Y) {
 				path = this.image && this.image.image ? [].concat(this.image.image.path).concat(this.image.image.id) : 0;
 			
 			mediasidebar.execute({
-				"onselect": Y.bind(this.insertImage, this),
-				"onclose": Y.bind(this.showSettingsSidebar, this),
+				"onselect": Y.bind(function (data) {
+					this.insertImage(data);
+					deferred.resolve([data]);
+				}, this),
+				"onclose": Y.bind(function () {
+					this.showSettingsSidebar();
+					deferred.resolve([this.get('value')]);
+				}, this),
 				"hideToolbar": true,
 				"item": path,
 				"dndEnabled": false
 			});
+			
+			return deferred.promise();
 		},
 		
 		/**
@@ -35379,7 +35536,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		startEditing: function () {
 			if (!this.image || !this.image.image) {
 				// No data for image to edit
-				return;
+				return false;
 			}
 			
 			var imageResizer = this.widgets.imageResizer,
@@ -35387,7 +35544,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				size = this.image.image.sizes.original;
 			
 			if (!node) {
-				return;
+				return false;
 			}
 			
 			if (!imageResizer) {
@@ -35424,6 +35581,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			imageResizer.set("image", node);
 			
 			this.focus();
+			return true;
 		},
 		
 		/**
@@ -35892,7 +36050,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		startEditing: function () {
 			if (!this.icon || !this.icon.isDataComplete()) {
 				// No data for image to edit
-				return;
+				return false;
 			}
 			
 			var imageResizer = this.widgets.imageResizer,
@@ -35905,7 +36063,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				max_height = Math.round(max_width / ratio);
 			
 			if (!node) {
-				return;
+				return false;
 			}
 			
 			if (!imageResizer) {
@@ -35943,6 +36101,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			imageResizer.set("image", node);
 			
 			this.focus();
+			return true;
 		},
 		
 		/**
@@ -36842,6 +37001,9 @@ YUI.add('supra.datatype-color', function(Y) {
 				});
 			}
 			
+			// Since we are using InlineImage and Video we don't need to show this input
+			this.get('boundingBox').addClass('hidden');
+			
 			// Inputs
 			input_image = new Supra.Input.InlineImage({
 				'id': this.get('id') + '_input_image',
@@ -37137,25 +37299,36 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * Start editing input
 		 */
 		startEditing: function () {
-			if (!this.get('disabled')) {
-				this.focus();
-				this.set('editing', true);
-				
+			var state = false;
+			
+			if (!this.get('disabled') && !this.get('editing')) {
 				if (this.type === 'video' || this.type === 'image') {
+					this.set('editing', true);
+					this.focus();
+					
 					this.showSettingsSidebar();
 					
 					if (this.type === 'video') {
-						this.widgets.input_video.startEditing();
+						state = this.widgets.input_video.startEditing();
 					} else {
-						this.widgets.input_image.startEditing();
+						state = this.widgets.input_image.startEditing();
 						
 						if (!this.get('value').image) {
 							// Open media library to choose image
-							this.widgets.input_image.openMediaSidebar();
+							var promise = this.widgets.input_image.openMediaSidebar();
+							promise.done(function (value) {
+								if (!value) {
+									// Image isn't selected, show "Image" / "Video" choice
+									this.removeMedia();
+									this.stopEditing();
+								}
+							}, this);
 						}
 					}
 				}
 			}
+			
+			return state;
 		},
 		
 		/**
@@ -37234,7 +37407,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		renderContent: function (node, data) {
-			var node = node || this.get('targetNode'),
+			var node = node, // || this.get('targetNode'),
 				type = data.type || this.type;
 			
 			if (!node) {
@@ -37442,6 +37615,15 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		getValueType: function () {
 			var value = this.get('value');
+		},
+		
+		/**
+		 * Visible attribute setter
+		 * 
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			return visible;
 		}
 		
 	});
@@ -40173,10 +40355,22 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	
 	Input.NAME = "input-html";
 	Input.ATTRS = {
-		'doc': null,
-		'win': null,
-		'toolbar': null,
-		'nodeIframe': null
+		'doc': {
+			value: null
+		},
+		'win': {
+			value: null
+		},
+		'toolbar': {
+			value: null
+		},
+		'nodeIframe': {
+			value: null
+		},
+		// HTML plugin information
+		'plugins': {
+			value: null
+		}
 	};
 	
 	/**
@@ -40294,7 +40488,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					'mode': Supra.HTMLEditor.MODE_RICH,
 					'standalone': true,
 					'parent': this,
-					'root': this.get('root') || this
+					'root': this.get('root') || this,
+					'plugins': this.get('plugins')
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -40399,7 +40594,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					
 					this.htmleditor.set('disabled', false);
 					
-					Manager.EditorToolbar.once('visibleChange', this.onIframeBlur, this);
+					Manager.EditorToolbar.once('afterVisibleChange', this.onIframeBlur, this);
 				}
 			}
 		},
@@ -40642,6 +40837,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		'inline': {
 			value: true,
 			readOnly: true
+		},
+		// HTML plugin information
+		'plugins': {
+			value: null
 		}
 	};
 	
@@ -40708,7 +40907,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					'mode': Supra.HTMLEditor.MODE_RICH,
 					'parent': this,
 					'root': this.get('root') || this,
-					'disabled': true
+					'disabled': true,
+					'plugins': this.get('plugins')
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -43342,6 +43542,21 @@ YUI.add('supra.plugin-layout', function (Y) {
 		scrollBack: function () {
 			if (this.history.length > 1) {
 				var slideId = this.history[this.history.length - 2];
+				this.set('slide', slideId);
+				return slideId;
+			} else {
+				return this.history.length ? this.history[0] : null;
+			}
+		},
+		
+		/**
+		 * Scroll to root slide
+		 * 
+		 * @returns {String} New slide ID
+		 */
+		scrollRoot: function () {
+			if (this.history.length > 1) {
+				var slideId = this.history[0];
 				this.set('slide', slideId);
 				return slideId;
 			} else {

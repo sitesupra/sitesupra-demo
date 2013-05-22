@@ -551,9 +551,16 @@
 		.box-shadow (0, 0, 4px, #39f);
 	}
 }
-.non-ie .editing .yui3-input-html-inline p {
-	// Cross-browser normalize, except for IE which adds handles if element has 'layout'
-	min-height: 1em;
+.non-ie .editing,
+.non-ie .su-slideshowmanager-editing,
+.non-ie .supra-gallery-editing {
+	.yui3-input-html-inline p,
+	.yui3-input-html-inline-content p,
+	.yui3-input-html-inline-content,
+	.yui3-input-string-inline-content {
+		// Cross-browser normalize, except for IE which adds handles if element has 'layout'
+		min-height: 1em;
+	}
 }
 
 .yui3-highlight .yui3-highlight-list {
@@ -622,6 +629,9 @@
 		border: 0;        
 		width: auto;
 		height: auto;
+		/* We set minimal size to prevent element not being clickable */
+		min-width: 12px;
+		min-height: 12px;
 	}
 	
 	.supra-image-inner {
@@ -803,7 +813,6 @@
 	// height: 560px / (16 / 9 ratio)
 	height: 315px !important;
 	background: #f5f5f5 url(/cms/lib/supra/img/htmleditor/video-placeholder.png) 50% 50% no-repeat !important;
-	border: 1px solid #ccc !important;
 	cursor: pointer !important;
 	
 	> * {
@@ -861,4 +870,52 @@ body.yui3-fullscreen > * {
 body.yui3-fullscreen > .yui3-fullscreen {
 	display: block;
 	margin: 10px 0 0 !important;
+}
+
+
+/**
+ * = Supra buttons
+ */  
+.supra-button,
+.supra-button-small {
+	color: #fff !important;
+	cursor: pointer !important;
+	font: 14px/35px "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial !important;
+	font-style: normal !important;
+	font-weight: bold !important;
+	text-decoration: none !important;
+	text-shadow: 0px 1px 0px rgba(0, 19, 52, 0.4) !important;
+	text-transform: none !important;
+	white-space: nowrap !important;
+	
+	display: inline-block !important;
+	height: 35px !important;
+	min-width: 67px !important;
+	padding: 0 5px !important;
+	
+	border: 1px solid #1b1b2a !important;
+	border-top-color: #131222 !important;
+	border-bottom-color: #202133 !important;
+	border-radius: 4px !important;
+	box-shadow: 0 1px 0 #48b5f4 inset, 0 1px 0 rgba(0,0,0,0.15) !important;
+	.linear-gradient(#3a9bf0, 0%, #1672c5, 100%);
+	
+	&:hover {
+		box-shadow: 0 1px 0 #90cefd inset !important;
+		.linear-gradient(#6bb3fc, 0%, #4c8ed8, 100%);
+	}
+}
+
+.supra-button-small {
+	border-radius: 3px !important;
+	height: 23px !important;
+	font-size: 12px !important;
+	line-height: 23px !important;
+}
+
+.supra-button + .supra-button,
+.supra-button-small + .supra-button,
+.supra-button + .supra-button-small,
+.supra-button-small + .supra-button-small {
+	margin-left: 5px;
 }

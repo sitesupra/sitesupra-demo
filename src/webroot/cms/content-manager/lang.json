@@ -61,6 +61,8 @@
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_slideshow_unavailable": "Images for the this slideshow have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_slideshow_notice": "This slideshow has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
+			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
+			"shared_gallery_notice": "This gallery has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
 			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 			
 			"block": {
@@ -495,6 +497,26 @@
 			"delete_slide": "Delete slide",
 			
 			"add_new": "Add New",
+			
+			"error_template": "Error occured in {block} block"
+		},
+		
+		"gallery": {
+			"title": "Edit gallery items",
+			
+			"label": "Items",
+			"label_button": "Edit items",
+			
+			"sidebar_title": "Edit item",
+			"delete_slide": "Delete item",
+			
+			"edit_move": "Click to edit<br />or drag to move",
+			
+			"empty": "You have no items<br />in the list yet",
+			"drag_and_drop": "Drag and drop<br />folder or files here",
+			"add_item": "Add item",
+			"add": "Add ",
+			"just_drag_and_drop": "or just drag-and-drop file here",
 			
 			"error_template": "Error occured in {block} block"
 		},

@@ -1,4 +1,4 @@
-YUI.add('slideshowmanager.layouts', function (Y) {
+YUI.add('gallery.layouts', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -13,13 +13,14 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 		SlideLayouts.superclass.constructor.apply(this, arguments);
 	}
 	
-	SlideLayouts.NAME = 'slideshowmanager-layouts';
+	SlideLayouts.NAME = 'gallery-layouts';
 	SlideLayouts.NS = 'layouts';
 	
 	SlideLayouts.ATTRS = {
 		'layouts': {
 			value: null,
-			setter: '_setLayouts'
+			setter: '_setLayouts',
+			getter: '_getLayouts'
 		},
 		'properties': {
 			value: null,
@@ -35,6 +36,13 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 		 * @private
 		 */
 		_layouts: null,
+		
+		/**
+		 * List of layouts
+		 * @type {Array}
+		 * @private
+		 */
+		_layoutsArr: null,
 		
 		/**
 		 * List of 'layout' property values
@@ -61,6 +69,7 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 			this._mixed = {};
 			this._values = {};
 			this._layouts = {};
+			this._layoutsArr = {};
 		},
 		
 		/**
@@ -77,11 +86,21 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 			this._mixed = {};
 			this._values = {};
 			this._layouts = {};
+			this._layoutsArr = {};
 		},
 		
 		
 		/* ---------------------------- GETTERS --------------------------- */
 		
+		
+		/**
+		 * Returns list of all layouts
+		 * 
+		 * @returns {Array} List of all layouts
+		 */
+		getAllLayouts: function () {
+			return this._layoutsArr || [];
+		},
 		
 		/**
 		 * Returns layout data by id
@@ -162,11 +181,11 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 				switch (property.type) {
 					case 'InlineHTML':
 						value = property.defaultValue || {'html': ''};
-						model.property[id] = '<div class="yui3-content yui3-box-reset" data-supra-item-property="' + id + '">' + (value.html || '') + '</div>';
+						model.property[id] = '<div class="yui3-content-inline yui3-box-reset" data-supra-item-property="' + id + '">' + (value.html || '') + '</div>';
 						break;
 					case 'InlineString':
 						value = property.defaultValue || '';
-						model.property[id] = '<span class="yui3-inline-reset" data-supra-item-property="' + id + '">' + value + '</span>';
+						model.property[id] = '<span class="yui3-content-inline yui3-inline-reset" data-supra-item-property="' + id + '">' + value + '</span>';
 						break;
 					case 'BlockBackground':
 						value = property.defaultValue || '';
@@ -178,11 +197,11 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 						break;
 					case 'InlineImage':
 						value = property.defaultValue || '';
-						model.property[id] = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
+						model.property[id] = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
 						break;
 					case 'InlineIcon':
 						value = property.defaultValue || '';
-						model.property[id] = '<span class="supra-icon" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img class="as-layer" src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
+						model.property[id] = '<span class="supra-icon" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
 						break;
 					case 'InlineMedia':
 						value = property.defaultValue || '';
@@ -216,7 +235,19 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 			}
 			
 			this._layouts = indexed;
+			this._layoutsArr = layouts;
+			
 			return null;
+		},
+		
+		/**
+		 * Layouts attribute getter
+		 * 
+		 * @returns {Obect} Layouts
+		 * @private
+		 */
+		_getLayouts: function () {
+			return this._layouts;
 		},
 		
 		/**
@@ -272,7 +303,7 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 		
 	});
 	
-	Supra.SlideshowManagerLayouts = SlideLayouts;
+	Supra.GalleryLayouts = SlideLayouts;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

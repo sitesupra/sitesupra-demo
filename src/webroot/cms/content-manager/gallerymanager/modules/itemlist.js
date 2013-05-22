@@ -1217,8 +1217,20 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * @private
 		 */
 		getItemRenderData: function (data) {
-			var model = Supra.mix({}, this.get('host').data),
+			var model = {
+					'supra': {
+						'cmsRequest': true
+					},
+					'supraBlock': {
+						'property': Y.bind(function (name) {
+							var data = this.get('host').data;
+							return name in data ? data[name] : '';
+						}, this)
+					}
+				},
 				key;
+			
+			model = Supra.mix(model, this.get('host').data);
 			
 			if (data) {
 				model.id = data.id;

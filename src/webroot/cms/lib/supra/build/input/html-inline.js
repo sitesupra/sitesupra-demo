@@ -27,6 +27,10 @@ YUI.add("supra.input-inline-html", function (Y) {
 		'inline': {
 			value: true,
 			readOnly: true
+		},
+		// HTML plugin information
+		'plugins': {
+			value: null
 		}
 	};
 	
@@ -93,7 +97,8 @@ YUI.add("supra.input-inline-html", function (Y) {
 					'mode': Supra.HTMLEditor.MODE_RICH,
 					'parent': this,
 					'root': this.get('root') || this,
-					'disabled': true
+					'disabled': true,
+					'plugins': this.get('plugins')
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);

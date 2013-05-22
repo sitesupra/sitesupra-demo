@@ -214,7 +214,7 @@ YUI.add("supra.input-icon-inline", function (Y) {
 		startEditing: function () {
 			if (!this.icon || !this.icon.isDataComplete()) {
 				// No data for image to edit
-				return;
+				return false;
 			}
 			
 			var imageResizer = this.widgets.imageResizer,
@@ -227,7 +227,7 @@ YUI.add("supra.input-icon-inline", function (Y) {
 				max_height = Math.round(max_width / ratio);
 			
 			if (!node) {
-				return;
+				return false;
 			}
 			
 			if (!imageResizer) {
@@ -265,6 +265,7 @@ YUI.add("supra.input-icon-inline", function (Y) {
 			imageResizer.set("image", node);
 			
 			this.focus();
+			return true;
 		},
 		
 		/**

@@ -62,10 +62,10 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 				//var node = new Y.Node(this.htmleditor.getSelectedElement());
 				//if (!node.test('LI') && !node.ancestor('LI')) {
 					
-					if (Y.UA.gecko) {
+					//if (Y.UA.gecko) {
 						//this.htmleditor.insertHTML('<P></P>');
 						//@TODO
-					} else if (Y.UA.webkit) {
+					//} else if (Y.UA.webkit) {
 						
 						// Cursor is at the end of the inline node?
 						// Create block level element, not inline (eg. <a class="button" />)
@@ -133,7 +133,7 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 								console.log('NOT AT THE END!');
 							}
 						}
-					}
+					//}
 				
 				//}
 			}
