@@ -42698,6 +42698,38 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	});
 	
 	/**
+	 * Validation functions 
+	 */
+	Form.validate = {
+		/**
+		 * Regular expression to test email validity
+		 * @type {Object}
+		 */
+		REGEX_EMAIL: /^\s*([a-z0-9]([a-z0-9\.\-\_]*[a-z0-9])?@[a-z0-9][a-z0-9\-\_]*([\.]([a-z0-9][a-z0-9\-\_]?)?[a-z0-9])*)\s*$/ig,
+		
+		/**
+		 * Returns true if str parammeter is not empty
+		 * 
+		 * @param {String} str String to validate
+		 * @returns {Boolean} True if string is not empty, otherwise false
+		 */
+		required: function (str) {
+			str = String(str);
+			return !!Y.Lang.trim(str).length;
+		},
+		
+		/**
+		 * Validate email address validity
+		 * 
+		 * @param {String} str String to validate
+		 * @returns {Boolean} True if string is valid email address, otherwise false
+		 */
+		email: function (str) {
+			return Form.validate.REGEX_EMAIL.test(String(str));
+		}
+	}
+	
+	/**
 	 * Returns lipsum data for inputs
 	 * 
 	 * @param {Object} inputs List of input definitions
