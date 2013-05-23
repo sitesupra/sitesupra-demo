@@ -92,6 +92,12 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 			if (this.selectedElement) {
 				if (selector) {
 					if (typeof selector === 'string') {
+						if (selector == ':block') {
+							selector = Supra.HTMLEditor.ELEMENTS_BLOCK_ARR.join(',');
+						} else if (selector == ':inline') {
+							selector = Supra.HTMLEditor.ELEMENTS_INLINE_ARR.join(',');
+						}
+						
 						//Find closest element matching selector
 						var node = new Y.Node(this.selectedElement),
 							container = Y.Node.getDOMNode(this.get('srcNode'));
@@ -212,15 +218,15 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				//(with offset 0), which is incosistent with FF where parent node is reported
 				//if (Y.UA.webkit) {
 					/*
-					if (this._getNodeLength(start_container) == start_offset) {
+					if (this.getNodeLength(start_container) == start_offset) {
 						if (start_container.nextSibling) {
-							start_offset = this._getChildIndex(start_container) + 1;
+							start_offset = this.getChildNodeIndex(start_container) + 1;
 							start_container = start_container.parentNode;
 						}
 					}
 					if (end_offset == 0) {
 						if (end_container.previousSibling) {
-							end_offset = this._getChildIndex(end_container);
+							end_offset = this.getChildNodeIndex(end_container);
 							end_container = end_container.parentNode;
 						}
 					}
@@ -266,7 +272,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 					//Text node
 					if (selection.start_offset == 0) {
 						tmp_start = selection.start.parentNode;
-						tmp_start_offset = this._getChildIndex(selection.start);
+						tmp_start_offset = this.getChildNodeIndex(selection.start);
 					} else if (selection.start_offset == selection.start.length) {
 						tmp_start = selection.start.nextSibling;
 						tmp_start_offset = 0;
@@ -280,14 +286,14 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 					//Text node
 					if (selection.end_offset == 0) {
 						tmp_end = selection.end.previousSibling;
-						tmp_end_offset = tmp_end ? this._getNodeLength(tmp_end) : 0;
+						tmp_end_offset = tmp_end ? this.getNodeLength(tmp_end) : 0;
 						if (!tmp_end) {
 							tmp_end = selection.end.parentNode;
-							tmp_end_offset = tmp_end ? this._getNodeLength(tmp_end) : 0;
+							tmp_end_offset = tmp_end ? this.getNodeLength(tmp_end) : 0;
 						}
 					} else if (selection.end_offset == selection.end.length) {
 						tmp_end = selection.end.parentNode;
-						tmp_end_offset = this._getChildIndex(selection.end) + 1;
+						tmp_end_offset = this.getChildNodeIndex(selection.end) + 1;
 					}
 				}
 				
@@ -394,7 +400,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 			
 			if (win.getSelection) {
 				//Standard compatible browsers
-				var str = (str ? str : win.getSelection().toString());
+				var str = (str ? str : wrapTagName ? win.getSelection().toString() : '');
 				var node, nodelist;
 				
 				if (wrapTagName) {
@@ -411,21 +417,31 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				var range = sel.getRangeAt(0);
 				range.deleteContents();
 				
-				if (node) {
-					range.insertNode(node);
-					range.setStartAfter(node);
-				} else if (nodelist) {
-					var first = null;
-					while(nodelist.lastChild) {
-						node = nodelist.lastChild;
-						first = nodelist.lastChild;
-						range.insertNode(nodelist.lastChild);
+				if (str) {
+					// If we replaced with something, then select it
+					if (node) {
+						range.insertNode(node);
+						range.setStartAfter(node);
+					} else if (nodelist) {
+						var first = null,
+							block_elements = Supra.HTMLEditor.ELEMENTS_BLOCK,
+							selected = this.getSelectedElement(Supra.HTMLEditor.ELEMENTS_BLOCK_ARR.join(',')),
+							tag = selected ? selected.tagName : null;
+						
+						// @TODO FIX H1, H2, P, etc. being inserted into other H1, H2, P, etc. elements
+						while(nodelist.lastChild) {
+							first = nodelist.lastChild;
+							
+							if (first.nodeType)
+							
+							range.insertNode(first);
+						}
+						if (first) range.setStartAfter(first);
 					}
-					if (first) range.setStartAfter(first);
+					
+					sel.removeAllRanges();
+					sel.addRange(range);
 				}
-				
-				sel.removeAllRanges();
-				sel.addRange(range);
 				
 				this.resetSelectionCache();
 				
@@ -476,42 +492,112 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		},
 		
 		/**
-		 * Returns text length if node is textNode, otherwise children count
-		 * @param {Object} node
-		 */
-		_getNodeLength: function (node) {
-			if (node.nodeType == 3) return node.length;
-			return node.childNodes.length;
-		},
-		
-		/**
-		 * Returns index of child in childNodes 
-		 * @param {Object} child
-		 * @return Child index
-		 * @type {Number}
-		 */
-		_getChildIndex: function (child) {
-			var p = child.parentNode;
-			if (p) {
-				for(var i=0,ii=p.childNodes.length; i<ii; i++) {
-					if (p.childNodes[i] === child) return i;
-				}
-			}
-			return null;
-		},
-		
-		/**
-		 * Remove node from dom without removing its content
+		 * Returns true if cursor is at the begining of given node
 		 * 
-		 * @param {Object} node Node to remove
+		 * @param {HTMLElement} node Node to check
+		 * @returns {Boolean} True if cursor is at the begining of node
 		 */
-		unwrapNode: function (node) {
-			if (node && node.nodeType == 1 && node.parentNode) {
-				while(node.firstChild) {
-					node.parentNode.insertBefore(node.firstChild, node);
-				}
-				node.parentNode.removeChild(node);
+		isCursorAtTheBeginingOf: function (node) {
+			var selection = this.selection,
+				start     = selection.start,
+				length    = this.getNodeLength(start),
+				tagname   = null,
+				srcNode   = null,
+				match     = null;
+			
+			if (selection.start_offset == 0) {
+				return true;
 			}
+			
+			if (start.nodeType == 3) {
+				// Text node
+				if (start.textContent.match(/^[\r\n\s]*/)[0].length < selection.start_offset) {
+					// There is something before selection
+					return false;
+				}
+			} else {
+				// Element
+				var children = start.childNodes,
+					i = 0,
+					ii = selection.start_offset;
+				
+				for (; i<ii; i++) {
+					if (this.getNodeLength(children[i]) != 0) {
+						// There is non-empty node before selection
+						return false;
+					}
+				}
+			}
+			
+			if (node) {
+				// Traverse up the tree till we find the node
+				srcNode = this.get('srcNode').getDOMNode();
+				
+				while (start && start !== srcNode) {
+					if (start === node) return true;
+					if (this.getFirstChild(start.parentNode) !== start) return false;
+					start = start.parentNode;
+				}
+			} else {
+				return true;
+			}
+			
+			return false;
+		},
+		
+		/**
+		 * Returns true if cursor is at the end of given node
+		 * 
+		 * @param {HTMLElement} node Node to check
+		 * @returns {Boolean} True if cursor is at the end of node
+		 */
+		isCursorAtTheEndOf: function (node) {
+			var selection = this.selection,
+				end       = selection.end,
+				length    = this.getNodeLength(end),
+				tagname   = null,
+				srcNode   = null;
+			
+			if (selection.end_offset < length) {
+				return false;
+			}
+				// Is at the end, but of what?
+				
+			if (node) {
+				if (node.nodeType == 3) {
+					// Text node
+					return node === end;
+				} else {
+					// Element
+					srcNode = this.get('srcNode').getDOMNode();
+					
+					if (node === srcNode) {
+						// Selection always will be inside source node
+						return true;
+					}
+					
+					while (end && end !== srcNode) {
+						if (end === node) return true;
+						if (this.getLastChild(end.parentNode) !== end) return false;
+						end = end.parentNode;
+					}
+				}
+			} else {
+				return true;
+			}
+			
+			return false;
+		},
+		
+		/**
+		 * Returns true if all node content is selected, otherwise false
+		 * 
+		 * @param {HTMLElement} node Node to check
+		 * @returns {Boolean} True if all node content is selected
+		 */
+		isAllNodeSelected: function (node) {
+			return this.isCursorAtTheBeginingOf(node) &&
+				   this.isCursorAtTheEndOf(node);
 		},
 		
 		/**

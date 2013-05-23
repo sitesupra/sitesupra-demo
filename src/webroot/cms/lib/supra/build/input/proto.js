@@ -569,6 +569,9 @@ YUI.add('supra.input-proto', function (Y) {
 		startEditing: function () {
 			if (!this.get('disabled')) {
 				this.focus();
+				return true;
+			} else {
+				return false;
 			}
 		},
 		

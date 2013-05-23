@@ -294,7 +294,8 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
 			//Retore editor toolbar
-			if (this.options.retoreEditorToolbar) {
+			if (this.options.restoreEditorToolbar) {
+				this.options.restoreEditorToolbar = false;
 				Manager.getAction('EditorToolbar').execute();
 			}
 			
@@ -953,7 +954,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			if (this.options.hideToolbar) {
 				//Hide editor toolbar
 				if (Manager.getAction('EditorToolbar').get('visible')) {
-					this.options.retoreEditorToolbar = true;
+					this.options.restoreEditorToolbar = true;
 					Manager.getAction('EditorToolbar').hide();
 				}
 				

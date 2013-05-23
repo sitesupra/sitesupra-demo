@@ -67,7 +67,7 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 		 * @type {Object}
 		 * @private
 		 */
-		hide_timer: null,
+		visibility_timer: null,
 		
 		
 		
@@ -112,11 +112,7 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 			this.toolbar.get('boundingBox').addClass('yui3-editor-toolbar-html');
 			this.toolbar.hide();
 			
-			this.on('visibleChange', function (evt) {
-				if (evt.prevVal != evt.newVal) {
-					this.toolbar.set('visible', evt.newVal);
-				}
-			}, this);
+			this.on('visibleChange', this._uiVisibleChange, this);
 			
 			this.on('disabledChange', function (evt) {
 				if (this.toolbar.get('disabled') != evt.newVal) {
@@ -146,33 +142,55 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 		},
 		
 		/**
+		 * Handle toolbar visibility change
+		 * @private
+		 */
+		_uiVisibleChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.toolbar.set('visible', evt.newVal);
+				
+				if (this.visibility_timer) {
+					this.visibility_timer.cancel();
+					this.visibility_timer = null;
+				}
+				
+				if (!evt.newVal) {
+					// Hide, trigger 'afterVisibleChange' event when toolbar is trully hidden
+					this.visibility_timer = Y.later(515, this, function () {
+						this._uiAfterVisibleChange(true, false);
+					});
+				} else {
+					// Show, trigger 'afterVisibleChange' immediatelly
+					this._uiAfterVisibleChange(false, true);
+				}
+			}
+		},
+		
+		/**
+		 * After toolbar is shown or fully hidden trigger event 'afterVisibleChange'
+		 * 
+		 * @private
+		 */
+		_uiAfterVisibleChange: function (prevVal, newVal) {
+			if (this.visibility_timer) {
+				this.visibility_timer.cancel();
+				this.visibility_timer = null;
+			}
+			
+			this.fire('afterVisibleChange', {'prevVal': prevVal, 'newVal': newVal});
+		},
+		
+		/**
 		 * Hide
 		 */
 		hide: function () {
 			if (!this.get('created') || !this.toolbar.get('visible')) return;
 			
-			if (this.hide_timer) {
-				this.hide_timer.cancel();
-			}
-			
-			this.hide_timer = Y.later(515, this, this.afterHide);
-			
 			//Removed toolbar buttons
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			
-			//Hide toolbar
-			this.toolbar.hide();
-			
 			//Hide "Done", "Close" buttons
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
-		},
-		
-		/**
-		 * After small delay actually hide toolbar
-		 */
-		afterHide: function () {
-			//Unset timer
-			this.hide_timer = null;
 			
 			//When animation ends hide toolbar
 			Action.Base.prototype.hide.call(this);
@@ -185,9 +203,9 @@ Supra('transition', 'supra.htmleditor', function (Y) {
 			if (dontShow) return;
 			
 			//Cancel timer
-			if (this.hide_timer) {
-				this.hide_timer.cancel();
-				this.hide_timer = null;
+			if (this.visibility_timer) {
+				this.visibility_timer.cancel();
+				this.visibility_timer = null;
 			}
 			
 			//Show toolbar

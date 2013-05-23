@@ -20,10 +20,22 @@ YUI.add("supra.input-html", function (Y) {
 	
 	Input.NAME = "input-html";
 	Input.ATTRS = {
-		'doc': null,
-		'win': null,
-		'toolbar': null,
-		'nodeIframe': null
+		'doc': {
+			value: null
+		},
+		'win': {
+			value: null
+		},
+		'toolbar': {
+			value: null
+		},
+		'nodeIframe': {
+			value: null
+		},
+		// HTML plugin information
+		'plugins': {
+			value: null
+		}
 	};
 	
 	/**
@@ -141,7 +153,8 @@ YUI.add("supra.input-html", function (Y) {
 					'mode': Supra.HTMLEditor.MODE_RICH,
 					'standalone': true,
 					'parent': this,
-					'root': this.get('root') || this
+					'root': this.get('root') || this,
+					'plugins': this.get('plugins')
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -246,7 +259,7 @@ YUI.add("supra.input-html", function (Y) {
 					
 					this.htmleditor.set('disabled', false);
 					
-					Manager.EditorToolbar.once('visibleChange', this.onIframeBlur, this);
+					Manager.EditorToolbar.once('afterVisibleChange', this.onIframeBlur, this);
 				}
 			}
 		},
@@ -450,7 +463,7 @@ YUI.add("supra.input-html", function (Y) {
 	Input.lipsum = function () {
 		return {
 			'data': {},
-			'html': Supra.Limsum.html()
+			'html': Supra.Lipsum.html()
 		};
 	};
 	

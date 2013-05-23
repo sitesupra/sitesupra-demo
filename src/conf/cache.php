@@ -28,5 +28,7 @@ if (class_exists('Memcache')) {
 	$cache = new Supra\Cache\FileCache();
 }
 
+//$cache = new Doctrine\Common\Cache\ArrayCache();
+
 $cache->setNamespace($systemInfo->getSystemId());
 ObjectRepository::setDefaultCacheAdapter($cache);

@@ -250,11 +250,25 @@ YUI().add("supra.imageresizer", function (Y) {
 		eventMove: null,
 		
 		/**
+		 * Event listener object for mouse move event on main document
+		 * @type {Object}
+		 * @private
+		 */
+		eventMoveMain: null,
+		
+		/**
 		 * Event listener object for mouse up event
 		 * @type {Object}
 		 * @private
 		 */
 		eventDrop: null,
+		
+		/**
+		 * Event listener object for mouse up event on main document
+		 * @type {Object}
+		 * @private
+		 */
+		eventDropMain: null,
 		
 		/**
 		 * Event listener object for document click event
@@ -640,26 +654,45 @@ YUI().add("supra.imageresizer", function (Y) {
 		 * @private
 		 */
 		dragStart: function (e) {
+			this.resetPointerCache();
+			
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				doc = this.get("doc");
+			
 			if (this.resizeActive || this.moveActive) {
 				//If user released mouse outside browser
 				this.dragEnd(e);
 			}
 			
-			this.eventDrop = Y.Node(this.get("doc")).on("mouseup", this.dragEnd, this);
+			this.eventDrop = Y.Node(doc).on("mouseup", this.dragEnd, this);
+			
+			if (document !== doc) {
+				this.eventDropMain = Y.Node(document).on("mouseup", this.dragEnd, this);
+			}
 			
 			this.dragCropLeft = this.cropLeft;
 			this.dragCropTop = this.cropTop;
-			this.mouseStartX = e.clientX;
-			this.mouseStartY = e.clientY;
+			this.mouseStartX = clientX;
+			this.mouseStartY = clientY;
 			
 			if (this.get("cursor") < 4) {
 				//Resize
 				this.resizeActive = true;
 				
 				if (this.get("mode") == ImageResizer.MODE_ICON) {
-					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragIconResize, this);
+					this.eventMove = Y.Node(doc).on("mousemove", this.dragIconResize, this);
+					
+					if (document !== doc) {
+						this.eventMoveMain = Y.Node(document).on("mousemove", this.dragIconResize, this);
+					}
 				} else {
-					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragResize, this);
+					this.eventMove = Y.Node(doc).on("mousemove", this.dragResize, this);
+					
+					if (document !== doc) {
+						this.eventMoveMain = Y.Node(document).on("mousemove", this.dragResize, this);
+					}
 				}
 				
 				this.dragStartW = this.dragW = this.cropWidth;
@@ -668,6 +701,10 @@ YUI().add("supra.imageresizer", function (Y) {
 				//Move
 				this.moveActive = true;
 				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragMove, this);
+				
+				if (document !== doc) {
+					this.eventMoveMain = Y.Node(document).on("mousemove", this.dragMove, this);
+				}
 				
 				this.dragStartW = this.dragW = this.cropLeft;
 				this.dragStartH = this.dragH = this.cropTop;
@@ -683,9 +720,13 @@ YUI().add("supra.imageresizer", function (Y) {
 		 * @private
 		 */
 		dragMove: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
 				sizeY  = this.dragStartH + deltaY,
 				mode   = this.get("mode");
@@ -740,9 +781,13 @@ YUI().add("supra.imageresizer", function (Y) {
 		 * @private
 		 */
 		dragResize: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
 				sizeY  = this.dragStartH + deltaY,
 				mode   = this.get("mode");
@@ -832,9 +877,13 @@ YUI().add("supra.imageresizer", function (Y) {
 		 * @private
 		 */
 		dragIconResize: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				delta  = Math.max(deltaX, deltaY),
 				sizeX  = this.dragStartW + delta,
 				sizeY  = this.dragStartH + delta;
@@ -906,6 +955,16 @@ YUI().add("supra.imageresizer", function (Y) {
 				this.eventMove.detach();
 				this.eventMove = null;
 				
+				if (this.eventDropMain) {
+					this.eventDropMain.detach();
+					this.eventDropMain = null;	
+				}
+				
+				if (this.eventMoveMain) {
+					this.eventMoveMain.detach();
+					this.eventMoveMain = null;	
+				}
+				
 				if (this.resizeActive) { // resize
 					this.cropLeft = this.dragCropLeft;
 					this.cropTop = this.dragCropTop;
@@ -947,6 +1006,70 @@ YUI().add("supra.imageresizer", function (Y) {
 			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-icon") && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
 				this.set("image", null);
 			}
+		},
+		
+		/**
+		 * Returns pointer position relative to the window of attribute doc 
+		 * 
+		 * @param {Event} e Event facade object
+		 * @returns {Array} Array with x and y coordinates of pointer
+		 * @private
+		 */
+		getPointerPosition: function (e) {
+			var x          = 0,
+				y          = 0,
+				target     = e.target.getDOMNode(),
+				doc_target = target.ownerDocument,
+				doc        = this.get('doc'),
+				offset     = this._iframeOffset,
+				iframes    = null,
+				iframe     = null,
+				i          = 0,
+				ii         = 0,
+				tmp        = null;
+			
+			if (e.type.indexOf('touch') == -1) {
+				// Mouse cursor
+				x = e.clientX;
+				y = e.clientY;
+			} else {
+				// Touch
+				// @TODO In the future
+				// x = e.touches[0].clientX;
+				// y = e.touches[0].clientY;
+			}
+			
+			if (doc !== doc_target) {
+				// Adjust position by removing iframe position
+				if (!offset) {
+					// Find iframe
+					iframes = Y.all('iframe');
+					
+					for (ii=iframes.size(); i<ii; i++) {
+						tmp = iframes.item(i).getDOMNode();
+						if ((tmp.contentDocument || tmp.contentWindow.document) === doc) {
+							iframe = tmp; break;
+						}
+					}
+					
+					// Get offset
+					offset = this._iframeOffset = (iframe ? Y.DOM.getXY(iframe) : [0, 0]);
+				}
+				
+				x -= offset[0];
+				y -= offset[1];
+			}
+			
+			return [x, y];
+		},
+		
+		/**
+		 * Reset pointer cache
+		 * 
+		 * @private
+		 */
+		resetPointerCache: function () {
+			this._iframeOffset = null;
 		},
 		
 		

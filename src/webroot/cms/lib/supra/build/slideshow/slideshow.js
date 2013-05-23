@@ -359,6 +359,21 @@ YUI.add('supra.slideshow', function (Y) {
 		},
 		
 		/**
+		 * Scroll to root slide
+		 * 
+		 * @returns {String} New slide ID
+		 */
+		scrollRoot: function () {
+			if (this.history.length > 1) {
+				var slideId = this.history[0];
+				this.set('slide', slideId);
+				return slideId;
+			} else {
+				return this.history.length ? this.history[0] : null;
+			}
+		},
+		
+		/**
 		 * Adds slide to the slideshow
 		 * 
 		 * @param {Object} options Slide options

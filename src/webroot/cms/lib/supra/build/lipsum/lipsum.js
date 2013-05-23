@@ -175,7 +175,7 @@ YUI.add('supra.lipsum', function (Y) {
 		
 	};
 	
-	Supra.Limsum = Lipsum;
+	Supra.Lipsum = Lipsum;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once

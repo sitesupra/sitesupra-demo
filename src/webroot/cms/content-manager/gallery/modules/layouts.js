@@ -1,0 +1,312 @@
+YUI.add('gallery.layouts', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	//Shortcut
+	var Manager = Supra.Manager,
+		Action = Manager.PageContent;
+	
+	/**
+	 * Layout data functions
+	 */
+	function SlideLayouts (config) {
+		SlideLayouts.superclass.constructor.apply(this, arguments);
+	}
+	
+	SlideLayouts.NAME = 'gallery-layouts';
+	SlideLayouts.NS = 'layouts';
+	
+	SlideLayouts.ATTRS = {
+		'layouts': {
+			value: null,
+			setter: '_setLayouts',
+			getter: '_getLayouts'
+		},
+		'properties': {
+			value: null,
+			setter: '_setProperties' 
+		}
+	};
+	
+	Y.extend(SlideLayouts, Y.Plugin.Base, {
+		
+		/**
+		 * List of layouts indexed by id
+		 * @type {Object}
+		 * @private
+		 */
+		_layouts: null,
+		
+		/**
+		 * List of layouts
+		 * @type {Array}
+		 * @private
+		 */
+		_layoutsArr: null,
+		
+		/**
+		 * List of 'layout' property values
+		 * @type {Object}
+		 * @private
+		 */
+		_values: null,
+		
+		/**
+		 * Full layout info, a mix of property value and layout
+		 * @type {Object}
+		 * @private
+		 */
+		_mixed: null,
+		
+		
+		/**
+		 * Automatically called by Base, during construction
+		 * 
+		 * @param {Object} config
+		 * @private
+		 */
+		initializer: function(config) {
+			this._mixed = {};
+			this._values = {};
+			this._layouts = {};
+			this._layoutsArr = {};
+		},
+		
+		/**
+		 * Automatically called by Base, during destruction
+		 */
+		destructor: function () {
+			this.resetAll();
+		},
+		
+		/**
+		 * Reset cache, clean up
+		 */
+		resetAll: function () {
+			this._mixed = {};
+			this._values = {};
+			this._layouts = {};
+			this._layoutsArr = {};
+		},
+		
+		
+		/* ---------------------------- GETTERS --------------------------- */
+		
+		
+		/**
+		 * Returns list of all layouts
+		 * 
+		 * @returns {Array} List of all layouts
+		 */
+		getAllLayouts: function () {
+			return this._layoutsArr || [];
+		},
+		
+		/**
+		 * Returns layout data by id
+		 * 
+		 * @param {String} id Layout id
+		 * @returns {Object} Layout data or null
+		 */
+		getLayoutById: function (id) {
+			if (this._mixed[id]) {
+				return this._mixed[id];
+			}
+			
+			var layouts = this._layouts,
+				values = this._values,
+				mixed = null;
+			
+			if (id in layouts) {
+				return this._mixed[id] = Supra.mix({}, layouts[id], id in values ? values[id] : null);
+			} else {
+				return null;
+			}
+		},
+		
+		/**
+		 * Returns layout data for first layout in the list
+		 * 
+		 * @returns {Object} Layout data or null
+		 */
+		getDefaultLayout: function () {
+			var mixed   = this._mixed,
+				layouts = this._layouts,
+				values  = this._values,
+				id      = null;
+			
+			for (id in mixed) {
+				return mixed[id];
+			}
+			for (id in layouts) {
+				return mixed[id] = Supra.mix({}, layouts[id], id in values ? values[id] : null);
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns layout HTML
+		 * 
+		 * @param {String} id Layout id
+		 * @returns {String} HTML for given layout
+		 */
+		getLayoutHtml: function (id) {
+			var layout = this.getLayoutById(id) || this.getDefaultLayout(),
+				template = Supra.Template.compile(layout.html, 'layout_' + id),
+				model = {
+					'property': {},
+					'supra': {
+						'cmsRequest': true
+					},
+					'supraBlock': {
+						'property': Y.bind(function (name) {
+							var data = this.get('host').options.data;
+							return name in data ? data[name] : '';
+						}, this)
+					}
+				},
+				
+				properties = this.get('host').options.properties,
+				i = 0,
+				ii = properties.length,
+				property = null,
+				id = null,
+				value = null;
+			
+			for (; i<ii; i++) {
+				property = properties[i];
+				id = property.id;
+				
+				switch (property.type) {
+					case 'InlineHTML':
+						value = property.defaultValue || {'html': ''};
+						model.property[id] = '<div class="yui3-content-inline yui3-box-reset" data-supra-item-property="' + id + '">' + (value.html || '') + '</div>';
+						break;
+					case 'InlineString':
+						value = property.defaultValue || '';
+						model.property[id] = '<span class="yui3-content-inline yui3-inline-reset" data-supra-item-property="' + id + '">' + value + '</span>';
+						break;
+					case 'BlockBackground':
+						value = property.defaultValue || '';
+						model.property[id] = value + '" data-supra-item-property="' + id;
+						break;
+					case 'Image':
+						value = property.defaultValue || '';
+						model.property[id] = value + 'about:blank)" data-supra-item-property="' + id + '" data-tmp="(';
+						break;
+					case 'InlineImage':
+						value = property.defaultValue || '';
+						model.property[id] = '<span class="supra-image" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
+						break;
+					case 'InlineIcon':
+						value = property.defaultValue || '';
+						model.property[id] = '<span class="supra-icon" unselectable="on" contenteditable="false" style="width: auto; height: auto;"><img src="' + value + '" data-supra-item-property="' + id + '" alt="" /></span>';
+						break;
+					case 'InlineMedia':
+						value = property.defaultValue || '';
+						model.property[id] = '<div class="supra-media" unselectable="on" contenteditable="false" data-supra-item-property="' + id + '"></div>';
+						model.property[id + 'Type'] = 'type-media';
+						break;
+				}
+			}
+			
+			return template(model);
+		},
+		
+		
+		/* ---------------------------- ATTRIBUTES --------------------------- */
+		
+		/**
+		 * Layouts attribute setter
+		 * 
+		 * @param {Object} layouts Layouts
+		 * @private
+		 */
+		_setLayouts: function (layouts) {
+			layouts = layouts || [];
+			
+			var indexed = {},
+				i = 0,
+				ii = layouts.length;
+			
+			for (; i<ii; i++) {
+				indexed[layouts[i].id] = layouts[i];
+			}
+			
+			this._layouts = indexed;
+			this._layoutsArr = layouts;
+			
+			return null;
+		},
+		
+		/**
+		 * Layouts attribute getter
+		 * 
+		 * @returns {Obect} Layouts
+		 * @private
+		 */
+		_getLayouts: function () {
+			return this._layouts;
+		},
+		
+		/**
+		 * Properties attribute setter
+		 * 
+		 * @param {Object} properties Properties
+		 * @private
+		 */
+		_setProperties: function (properties) {
+			properties = properties || [];
+			
+			var i = 0,
+				ii = properties.length,
+				output = {},
+				values = null,
+				j = 0,
+				jj = 0,
+				subvalues = null,
+				k = 0,
+				kk = 0;
+			
+			// Search for layout property and extract values
+			for (; i<ii; i++) {
+				if (properties[i].id === 'layout') {
+					values = properties[i].values;
+					j = 0;
+					jj = values.length;
+					
+					for (; j<jj; j++) {
+						
+						subvalues = values[j].values;
+						if (subvalues) {
+							k = 0;
+							kk = subvalues.length;
+							
+							for (; k<kk; k++) {
+								output[subvalues[k].id] = subvalues[k];
+							}
+							
+						} else {
+							output[values[j].id] = values[j];
+						}
+						
+					}
+					
+					break;
+				}
+			}
+			
+			this._values = output;
+			return null;
+		}
+		
+	});
+	
+	Supra.GalleryLayouts = SlideLayouts;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires: ['plugin', 'supra.template']});

@@ -198,6 +198,9 @@ YUI.add('supra.input-select-visual', function (Y) {
 						boundingBox = this.get('boundingBox'),
 						container = this.widgets.separateContainer = Y.Node.create('<div class="yui3-widget yui3-input"></div>');
 					
+					if (!this.get('visible')) {
+						container.addClass('hidden');
+					}
 					if (labelNode) {
 						container.append(labelNode, 'before');
 					}
@@ -611,6 +614,22 @@ YUI.add('supra.input-select-visual', function (Y) {
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Visible attribute setter
+		 * 
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			visible = Input.superclass._uiSetVisible.apply(this, arguments);
+			
+			var separateContainer = this.widgets.separateContainer;
+			if (separateContainer) {
+				separateContainer.toggleClass('hidden', !visible);
+			}
+			
+			return visible;
 		}
 		
 	});

@@ -818,7 +818,7 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 				
 			} else {
 				input = form.getInput('layout');
-				input.set('value', ''); //@TODO Set layout from parent
+				input.set('value', ''); // Empty value is for "Use parent layout"
 			}
 		},
 		

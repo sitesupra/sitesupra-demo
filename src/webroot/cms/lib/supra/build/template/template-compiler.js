@@ -157,8 +157,8 @@ YUI.add('supra.template-compiler', function (Y) {
 		 */
 		'compileExpression': function (identifier, expr, fn) {
 			if (typeof fn == 'function') {
-				//Convert " and " to " && ", " or " to " || ", " ~ " to concatanation
-				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ').replace(REG_CAT, ' + "" + ');
+				//Convert " and " to " && ", " not " to "!", " or " to " || ", " ~ " to concatanation
+				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ').replace(REG_NOT, '!').replace(REG_CAT, ' + "" + ');
 				return fn(expr);
 			}
 			return '';
@@ -715,6 +715,7 @@ YUI.add('supra.template-compiler', function (Y) {
 		
 		REG_CAT				= /\s*~\s*/g,
 		REG_AND				= /\s+and\s+/g,
+		REG_NOT				= /\s+not\s+/g,
 		REG_OR				= /\s+or\s+/g,
 		REG_FOR				= /\s*([a-z0-9_]+)(\s*,\s*([a-z0-9_]+))?\s+in\s+(.*)/i,
 		
