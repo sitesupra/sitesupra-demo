@@ -194,6 +194,7 @@
 		font-style: normal !important;
 		color: #fff !important;
 		text-shadow: none;
+		text-transform: none;
 		white-space: nowrap !important;
 		
 		small {
@@ -263,6 +264,13 @@
 			left: 50%;
 		}
 		
+	}
+	
+	// Global block, but editable on this page
+	&.su-overlay-editable.su-overlay-external {
+		.su-overlay-name {
+			margin-left: -112px;
+		}
 	}
 	
 }
