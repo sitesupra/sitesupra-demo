@@ -268,12 +268,14 @@ function (Y) {
 			//Load page after execute
 			this.on('render', function () {
 				//Search in path "/r/page/:page_id"
-				var page_id = this.getRoutePath().match(this.ROUTE_PAGE_R);
+				var page_id = this.getRoutePath().match(this.ROUTE_PAGE_R),
+					is_site = Supra.data.get(['site', 'portal']);
+				
 				if (page_id) {
 					//Extracted from path
 					page_id = {'id': page_id[1]};
-				} else {
-					//From data
+				} else if (!is_site) {
+					//From data, but only if not portal site
 					page_id = Supra.data.get(['page', 'id'], null);
 					if (page_id) page_id = {'id': page_id};
 				}
