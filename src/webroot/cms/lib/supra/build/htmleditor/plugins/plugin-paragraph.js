@@ -14,7 +14,12 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 	/*
 	 * Regular expression to remove whitespace, BR and empty P tags from beginning of HTML
 	 */
-	var WHITESPACE_REGEX = /^(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<p[^>]*>(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<\/p>/i;
+	var WHITESPACE_REGEX = /^(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<p[^>]*>(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<\/p>/i,
+	
+		KEY_RETURN         = 13,
+		KEY_BACKSPACE      = 8,
+		KEY_DELETE         = 46;
+	
 	
 	Supra.HTMLEditor.addPlugin('paragraph', defaultConfiguration, {
 		
@@ -22,7 +27,7 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		 * Handle keyDown in IE and WebKit browsers to insert BR
 		 */
 		_onBrKeyDown: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
 				var editor = this.htmleditor,
 					node = new Y.Node(editor.getSelectedElement());
 				
@@ -57,85 +62,140 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		 * On return key insert paragraph
 		 */
 		_insertParagraph: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
 				
-				//var node = new Y.Node(this.htmleditor.getSelectedElement());
-				//if (!node.test('LI') && !node.ancestor('LI')) {
-					
-					//if (Y.UA.gecko) {
-						//this.htmleditor.insertHTML('<P></P>');
-						//@TODO
-					//} else if (Y.UA.webkit) {
+				// Cursor is at the end of the inline node?
+				// Create block level element, not inline (eg. <a class="button" />)
+				var selected  = this.htmleditor.getSelectedElement(),
+					inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
+					tagName   = '',
+					node      = null,
+					length    = 0;
+				
+				if (selected) {
+					if (this.htmleditor.isCursorAtTheEndOf()) {
+						node    = this.htmleditor.getSelectedElement('p, li, td, th');
+						tagname = node ? node.tagName : 'P';
 						
-						// Cursor is at the end of the inline node?
-						// Create block level element, not inline (eg. <a class="button" />)
-						var selected  = this.htmleditor.getSelectedElement(),
-							inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
-							tagName   = '',
-							node      = null,
-							length    = 0;
-						
-						if (selected) {
-							if (this.htmleditor.isCursorAtTheEndOf()) {
-								node    = this.htmleditor.getSelectedElement('p, li, td, th');
-								tagname = node ? node.tagName : 'P';
-								
-								if (tagname == 'TD' || tagname == 'TH') {
-									// If inside TD or TH then insert <br />
-									this._onBrKeyDown(event);
-								} else if (tagname == 'LI') {
-									// If inside LI then insert new li if there is non-selected content
-									// inside this li, otherwise insert P after content
-									 
-									if (this.htmleditor.isNodeEmpty(node)) {
-										if (this.htmleditor.getLastChild(node.parentNode) === node) {
-											// Empty LI and it's last in the list, insert paragraph after list 
-											this.insertHTML('P', node.parentNode);
-											node.parentNode.removeChild(node);
-											event.halt();
-										} else {
-											// Empty LI, but not last in the list, split list into two
-											var doc  = this.htmleditor.get('doc'),
-												list = doc.createElement(node.parentNode.tagName),
-												p    = doc.createElement('P'),
-												tmp  = null;
-											
-											this.htmleditor.insertAfter(list, node.parentNode);
-											this.htmleditor.insertAfter(p, node.parentNode);
-											
-											while (node.nextSibling) {
-												list.appendChild(node.nextSibling);
-											}
-											
-											node.parentNode.removeChild(node);
-											
-											// Move cursor to P
-											this.htmleditor.setSelection({'start': p, 'end': p, 'start_offset': 0, 'end_offset': 0});
-											
-											event.halt();
-										}
-									} else if (this.htmleditor.isAllNodeSelected(node)) {
-										// All LI is selected, remove it and insert P after list
-										this.insertHTML('P', node.parentNode);
-										node.parentNode.removeChild(node);
-										event.halt();
-									} else {
-										// Not empty LI, default behaviour of inserting LI is ok
-									}
+						if (tagname == 'TD' || tagname == 'TH') {
+							// If inside TD or TH then insert <br />
+							this._onBrKeyDown(event);
+						} else if (tagname == 'LI') {
+							// If inside LI then insert new li if there is non-selected content
+							// inside this li, otherwise insert P after content
+							 
+							if (this.htmleditor.isNodeEmpty(node)) {
+								if (this.htmleditor.getLastChild(node.parentNode) === node) {
+									// Empty LI and it's last in the list, insert paragraph after list 
+									this.insertHTML('P', node.parentNode);
+									node.parentNode.removeChild(node);
+									event.halt();
 								} else {
-									if (!this.htmleditor.selection.collapsed) {
-										this.htmleditor.replaceSelection('');
+									// Empty LI, but not last in the list, split list into two
+									var doc  = this.htmleditor.get('doc'),
+										list = doc.createElement(node.parentNode.tagName),
+										p    = doc.createElement('P'),
+										tmp  = null;
+									
+									this.htmleditor.insertAfter(list, node.parentNode);
+									this.htmleditor.insertAfter(p, node.parentNode);
+									
+									while (node.nextSibling) {
+										list.appendChild(node.nextSibling);
 									}
-									this.insertHTML(tagname);
+									
+									node.parentNode.removeChild(node);
+									
+									// Move cursor to P
+									this.htmleditor.setSelection({'start': p, 'end': p, 'start_offset': 0, 'end_offset': 0});
+									
 									event.halt();
 								}
+							} else if (this.htmleditor.isAllNodeSelected(node)) {
+								// All LI is selected, remove it and insert P after list
+								this.insertHTML('P', node.parentNode);
+								node.parentNode.removeChild(node);
+								event.halt();
 							} else {
-								console.log('NOT AT THE END!');
+								// Not empty LI, default behaviour of inserting LI is ok
 							}
+						} else {
+							if (!this.htmleditor.selection.collapsed) {
+								this.htmleditor.replaceSelection('');
+							}
+							this.insertHTML(tagname);
+							event.halt();
 						}
-					//}
+					} else {
+						console.log('NOT AT THE END!');
+					}
+				}
 				
-				//}
+			}
+		},
+		
+		/**
+		 * On backspace key if at the begining of the tag or on delete key if at the end of the tag
+		 * Content merge should result in not styles being applied
+		 * 
+		 * @private
+		 */
+		_mergeContent: function (event) {
+			if (!event.stopped && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+				
+				if (event.keyCode == KEY_BACKSPACE) {
+					if (this.htmleditor.isCursorAtTheBeginingOf()) {
+						Y.later(0, this, this._afterMergeContent);
+					}
+					
+				} else if (event.keyCode == KEY_DELETE) {
+					if (this.htmleditor.isCursorAtTheEndOf()) {
+						Y.later(0, this, this._afterMergeContent);
+					}
+				}
+				
+			}
+		},
+		
+		/**
+		 * Clean up after merge
+		 * 
+		 * @private
+		 */
+		_afterMergeContent: function () {
+			this.htmleditor.resetSelectionCache();
+			var node  = this.htmleditor.getSelectedElement(),
+				nodes = null,
+				i     = 0,
+				style = '';
+			
+			if (!node) {
+				// Outside the bounds, not editable element
+				// In theory this should never happen
+				Y.log('After backspace or delete key can\'t find selected element for cleanup.', 'warn');
+				return;
+			}
+			
+			// Get parent element of node
+			node = Y.Node(node);
+			if (node.test('SPAN')) {
+				node = node.ancestor();
+			}
+			
+			nodes = node.all(Supra.HTMLEditor.ELEMENTS_INLINE_ARR.join(',')).getDOMNodes();
+			
+			if (nodes) {
+				for (i=nodes.length-1; i>=0; i--) {
+					node = nodes[i];
+					
+					if (!Y.Lang.trim(node.className) && node.tagName == 'SPAN') {
+						// No special styling using classname, remove element
+						this.htmleditor.unwrapNode(node);
+					} else {
+						// Remove styles, but leave element
+						node.removeAttribute('style');
+					}
+				}
 			}
 		},
 		
@@ -222,6 +282,11 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 				 */
 				htmleditor.get('srcNode').on('keydown', Y.bind(this._insertParagraph, this));
 			}
+			
+			/*
+			 * After backspace/delete keys remove merge formatting
+			 */
+			htmleditor.get('srcNode').on('keydown', Y.bind(this._mergeContent, this));
 			
 			/*
 			 * Remove whitespace from HTML

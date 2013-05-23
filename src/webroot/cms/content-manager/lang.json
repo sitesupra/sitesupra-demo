@@ -175,12 +175,12 @@
 			"group_image": "Image",
 			
 			"tags": {
-				"P": "Text Body",
-				"H1": "H1 Heading",
-				"H2": "H2 Heading",
-				"H3": "H3 Heading",
-				"H4": "H4 Heading",
-				"H5": "H5 Heading",
+				"P": "Normal Text",
+				"H1": "Heading 1",
+				"H2": "Heading 2",
+				"H3": "Heading 3",
+				"H4": "Heading 4",
+				"H5": "Heading 5",
 				
 				"B": "Bold",
 				"EM": "Italic",

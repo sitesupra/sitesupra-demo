@@ -22,6 +22,8 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 		removeAttributes: ['xmlns', 'style', 'lang', 'id', 'name', 'class', 'width', 'height', 'v:[a-z0-9\\-\\_]+', 'w:[a-z0-9\\-\\_]+']
 	};
 	
+	var REMOVABLE_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote', 'q', 'li', 'div', 'article', 'aside', 'details', 'figcaption', 'footer', 'header', 'hgroup', 'nav', 'section'];
+	
 	Supra.HTMLEditor.addPlugin('paste', defaultConfiguration, {
 		
 		/**
@@ -106,15 +108,51 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 		 * it into content
 		 */
 		afterPaste: function () {
-			if (this.previousSelection && this.placeHolder) {
-				var htmleditor	= this.htmleditor,
-					html		= this.placeHolder.innerHTML;
+			var placeHolder = this.placeHolder,
+				nodes = null,
+				node  = null,
+				tag   = null,
+				
+				htmleditor = null,
+				html = null,
+				
+				children = null,
+				
+				split = true;
+			
+			if (this.previousSelection && placeHolder) {
+				htmleditor	= this.htmleditor,
+				html		= placeHolder.innerHTML;
 				
 				//Process HTML to make sure there is no garbage code
 				html = this.cleanPastedHTML(html);
 				
 				//Convert into format browser can understand and work with
 				html = html ? htmleditor.uncleanHTML(html) : html;
+				
+				//Check if we need to unwrap tag
+				placeHolder.innerHTML = html;
+				nodes = Y.Node(placeHolder).get('childNodes');
+				
+				if (nodes.size() == 1) {
+					//If there is only a single tag in the list then unwrap it
+					//if tag is in REMOVABLE_TAGS list
+					if (nodes.item(0).get('nodeType') == 1) {
+						tag = nodes.item(0).get('tagName').toLowerCase();
+						
+						if (Y.Array.indexOf(REMOVABLE_TAGS, tag) != -1) {
+							htmleditor.unwrapNode(nodes.item(0).getDOMNode());
+							html = placeHolder.innerHTML;
+							split = false;
+						}
+					}
+				}
+				
+				if (split && nodes.size()) {
+					//If there are multiple tags then split existing tag and insert nodes where they should be
+					this.afterPasteInsert(nodes);
+					return;
+				}
 				
 				//Restore previous selection
 				htmleditor.setSelection(this.previousSelection);
@@ -129,19 +167,75 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 						//In webkit selection is set only after timeout
 						Y.later(16, this, function () {
 							htmleditor.replaceSelection(html, null);
+							this.afterPasteFinalize();
 						});
 					} else {
 						htmleditor.replaceSelection(html, null);
+						this.afterPasteFinalize();
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Insert content by splitting existing tag into two parts at cursor position
+		 * and insert pasted content between them
+		 */
+		afterPasteInsert: function (nodes) {
+			var htmleditor	= this.htmleditor,
+				insert = null;
+			
+			// 
+			insert = Y.bind(function () {
+				htmleditor.replaceSelection('');
+				
+				var parent = htmleditor.splitAt(this.previousSelection.start, this.previousSelection.start_offset),
+					dom = nodes.getDOMNodes(),
+					i = 0,
+					ii = dom.length;
+				
+				if (parent.tagName == 'LI' && dom[0].tagName != 'LI') {
+					// List item, add to the beginning of it because pasting non-list items
+					for (i=ii-1; i>=0; i--) {
+						htmleditor.insertPrepend(dom[i], parent);
+					}
+				} else {
+					for (; i<ii; i++) {
+						htmleditor.insertBefore(dom[i], parent);
 					}
 				}
 				
-				//Remove placeholder since it's not needed anymore
-				this.placeHolder.parentNode.removeChild(this.placeHolder);
-				delete(this.placeHolder);
+				// If reference node is empty then remove it
+				if (htmleditor.isNodeEmpty(parent)) {
+					parent.parentNode.removeChild(parent);
+				}
 				
-				//Content was changed
-				this.htmleditor._changed();
+				this.previousSelection = null;
+			}, this);
+			
+			
+			//R estore previous selection
+			htmleditor.setSelection(this.previousSelection);
+			
+			if (Y.UA.webkit) {
+				//In webkit selection is set only after timeout
+				Y.later(16, this, insert);
+			} else {
+				insert();
 			}
+		},
+		
+		/**
+		 * Clean up after paste
+		 * @private
+		 */
+		afterPasteFinalize: function () {
+			//Remove placeholder since it's not needed anymore
+			this.placeHolder.parentNode.removeChild(this.placeHolder);
+			delete(this.placeHolder);
+			
+			//Content was changed
+			this.htmleditor._changed();
 		},
 		
 		/**

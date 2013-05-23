@@ -64,7 +64,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		REGEX_FIND_STYLE  = /style=("[^"]*"|'[^']*')/,
 		
 		REGEX_EMPTY_UL_OL = /<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi,
-		REGEX_ATTR_STYLE  = /\s+style=["']([^'"]*)["']/gi,
+		REGEX_ATTR_STYLE  = /\s+style=("[^"]*"|'[^']*')/gi,
 		REGEX_STYLE_BG    = /(fill|background-color):[^;]+/,
 		REGEX_EMPTY_CLASS = /class="\s*"/g,
 		REGEX_YUI_CLASS   = /(yui3\-table\-selected|yui3\-cell\-selected)/g,
@@ -250,6 +250,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove style attribute, except background-color and fill
 				var regex_style_bg = REGEX_STYLE_BG;
 				html = html.replace(REGEX_ATTR_STYLE, function (all, styles) {
+					styles = styles.replace(/(^['"]|['"]$)/g, ''); // trim
 					styles = styles.match(regex_style_bg);
 					if (styles && styles.length) {
 						return ' style="' + styles[0] + '"';

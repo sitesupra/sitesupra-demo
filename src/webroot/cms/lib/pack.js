@@ -10474,7 +10474,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		REGEX_FIND_STYLE  = /style=("[^"]*"|'[^']*')/,
 		
 		REGEX_EMPTY_UL_OL = /<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi,
-		REGEX_ATTR_STYLE  = /\s+style=["']([^'"]*)["']/gi,
+		REGEX_ATTR_STYLE  = /\s+style=("[^"]*"|'[^']*')/gi,
 		REGEX_STYLE_BG    = /(fill|background-color):[^;]+/,
 		REGEX_EMPTY_CLASS = /class="\s*"/g,
 		REGEX_YUI_CLASS   = /(yui3\-table\-selected|yui3\-cell\-selected)/g,
@@ -10660,6 +10660,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove style attribute, except background-color and fill
 				var regex_style_bg = REGEX_STYLE_BG;
 				html = html.replace(REGEX_ATTR_STYLE, function (all, styles) {
+					styles = styles.replace(/(^['"]|['"]$)/g, ''); // trim
 					styles = styles.match(regex_style_bg);
 					if (styles && styles.length) {
 						return ' style="' + styles[0] + '"';
@@ -11522,6 +11523,78 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		},
 		
 		/**
+		 * Insert node as first child of parent
+		 * 
+		 * @param {HTMLElement|Text} node Node to insert
+		 * @param {HTMLElement} parent Parent element
+		 */
+		insertPrepend: function (node, parent) {
+			if (parent && parent.nodeType == 1) {
+				var reference = parent.firstChild;
+				if (reference) {
+					parent.insertBefore(node, reference);
+				} else {
+					parent.appendChild(node);
+				}
+			}
+		},
+		
+		/**
+		 * Returns node or closest ancestor matching selector
+		 * Will not look further than editor srcNode
+		 * 
+		 * @param {String} selector CSS selector
+		 * @return Y.Node matching selector
+		 * @type {Object}
+		 */
+		closest: function (node, selector) {
+			if (typeof selector == 'string') {
+				var node = Y.Node(node),
+					src  = this.get('srcNode');
+				
+				while(node && !node.compareTo(src)) {
+					if (node.test(selector)) return node.getDOMNode();
+					node = node.ancestor();
+				}
+				
+				return null;
+			} else {
+				var node   = Y.Node(node),
+					target = Y.Node(selector),
+					src    = this.get('srcNode');
+				
+				if (!target) return null;
+				
+				while(node && !node.compareTo(src)) {
+					if (node.compareTo(target)) return node.getDOMNode();
+					node = node.ancestor();
+				}
+				
+				return null;
+			}
+		},
+		
+		/**
+		 * Returns all child elements of node
+		 * 
+		 * @param {HTMLElement} node Node to check
+		 */
+		getChildElements: function (node) {
+			var children = node.childNodes,
+				i = 0,
+				ii = children.length,
+				out = [];
+			
+			for (; i<ii; i++) {
+				if (children[i].nodeType == 1) {
+					out.push(children[i]);
+				}
+			}
+			
+			return out;
+		},
+		
+		/**
 		 * Returns last non-empty child of node
 		 * 
 		 * @param {HTMLElement} node Node to check
@@ -11698,6 +11771,76 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				}
 				node.parentNode.removeChild(node);
 			}
+		},
+		
+		/**
+		 * Split element into two elements at given position, returns second element
+		 * 
+		 * @returns {HTMLElement} Returns second element
+		 */
+		splitAt: function (node, offset) {
+			var siblings = null,
+				clone = null,
+				tmp = null,
+				i = 0,
+				ii = 0,
+				srcNode = this.get('srcNode').getDOMNode(),
+				
+				insertAfter = this.insertAfter,
+				
+				moveSiblings = function (node) {
+					if (!node.parentNode) return null;
+					
+					var ref_parent = node.parentNode,
+						
+						parent = node.parentNode.cloneNode(),
+						next = node.nextSibling,
+						tmp = node;
+					
+					while (tmp) {
+						parent.appendChild(tmp);
+						tmp  = next;
+						next = tmp ? tmp.nextSibling : null;
+					}
+					
+					insertAfter(parent, ref_parent);
+					
+					return parent;
+				};
+			
+			var SPLIT_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote', 'q', 'li', 'div', 'article', 'aside', 'details', 'figcaption', 'footer', 'header', 'hgroup', 'nav', 'section'];
+			
+			if (offset && node.nodeType == 3) {
+				// Text node
+				tmp = this.get('doc').createTextNode();
+				tmp.textContent = node.textContent.substr(offset);
+				node.textContent = node.textContent.substr(0, offset);
+				
+				insertAfter(tmp, node);
+				node = tmp;
+			} else if (node.nodeType == 1) {
+				if (offset) {
+					tmp = node.childNodes[offset];
+					if (tmp) node = tmp.nextSibling;
+				} else if (node.childNodes.length) {
+					tmp = node.childNodes[0];
+				}
+			}
+			
+			while (node) {
+				if (node === srcNode || node.parentNode === srcNode) {
+					return node;
+				}
+				
+				node = moveSiblings(node);
+				
+				if (node.tagName && Y.Array.indexOf(SPLIT_TAGS, node.tagName.toLowerCase()) != -1) {
+					// Element which is split parent found, stop
+					return node;
+				}
+				
+			}
+			
 		}
 		
 	});
@@ -23580,7 +23723,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			var node = element ? Y.Node(element) : null;
 			if (node) {
 				if (!this.highlightNode) {
-					this.highlightNode = Y.Node.create('<div class="yui3-element-overlay"></div>');
+					this.highlightNode = Y.Node.create('<div class="su-element-overlay"></div>');
 					
 					var doc = Y.Node(this.htmleditor.get('doc'));
 					doc.one('body').append(this.highlightNode);
@@ -23700,20 +23843,29 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.highlightElement(null);
 			
 			if (!target) {
-				//No matching elements were found, user has selected simple text
-				//Create P element
-				this.htmleditor.exec('p');
-				this.htmleditor.refresh(true);
+				target = this.htmleditor.getSelectedElement();
+				target = target ? this.htmleditor.closest(target, 'H1, H2, H3, H4, H5, P, LI') : null;
 				
-				//Style newly created element
-				if (classname) {
-					var node = this.htmleditor.getSelectedElement();
-					if (node) {
-						node = Y.Node(node).closest('H1, H2, H3, H4, H5, P');
-						
-						//Set new class
+				if (target && target.tagName == 'LI') {
+					//List item is selected, wrap all inner nodes
+					this.wrapContents(Y.Lang.toArray(target.childNodes), tag, classname);
+					this.htmleditor.refresh(true);
+				} else {
+					//No matching elements were found, user has selected simple text
+					//Create P element
+					this.htmleditor.exec((tag || 'p').toLowerCase());
+					this.htmleditor.refresh(true);
+					
+					//Style newly created element
+					if (classname) {
+						var node = this.htmleditor.getSelectedElement();
 						if (node) {
-							node.addClass(classname);
+							node = Y.Node(node).closest('H1, H2, H3, H4, H5, P');
+							
+							//Set new class
+							if (node) {
+								node.addClass(classname);
+							}
 						}
 					}
 				}
@@ -23746,6 +23898,114 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				if (node && classname) {
 					node.addClass(classname);
 				}
+			}
+		},
+		
+		/**
+		 * Wrap 'node' inside a node
+		 * Block level elements are traversed and their inline children and text are wrapped
+		 * Heading and paragraph tags are replaced with 'tag'
+		 * 
+		 * @param {HTMLElement|Text} node Node to wrap
+		 * @param {String} tag Tag name to wrap content inside
+		 * @param {String} className Optional class to add to wrapped tag
+		 * @private
+		 */
+		wrapContents: function (node, tag, className) {
+			var replace    = {'h1': true, 'h2': true, 'h3': true, 'h4': true, 'h5': true, 'p': true},
+				inline     = Supra.HTMLEditor.ELEMENTS_INLINE,
+				htmleditor = this.htmleditor,
+				selected   = null,
+				
+				createNode = function (content, replace) {
+					var node = document.createElement(tag),
+						old_node = null;
+					
+					if (className) {
+						node.className = className;
+					}
+					if (content) {
+						if (replace) {
+							htmleditor.insertBefore(node, content);
+							old_node = content;
+							content = content.childNodes ? Y.Lang.toArray(content.childNodes) : [content];
+						}
+						if (Y.Lang.isArray(content)) {
+							if (content.length) {
+								if (!replace) {
+									htmleditor.insertBefore(node, content[0]);
+								}
+								for (var i=0,ii=content.length; i<ii; i++) {
+									node.appendChild(content[i]);
+								}
+							}
+						} else {
+							htmleditor.insertBefore(node, content);
+							node.appendChild(content);
+						}
+						if (replace) {
+							old_node.parentNode.removeChild(old_node);
+						}
+					}
+					
+					return node;
+				},
+				
+				traverse = function (nodes) {
+					var i = 0,
+						ii = nodes.length,
+						first = null,
+						node = null,
+						tagName = null;
+					
+					for (; i<ii; i++) {
+						if (nodes[i].nodeType == 1) {
+							tagName = nodes[i].tagName.toLowerCase();
+							if (tagName in replace) {
+								// Replace tag
+								node = createNode(nodes[i], true);
+								first = first || node;
+							} else if (!(tagName in inline)) {
+								// Traverse children, if tag is not inline
+								traverse(Y.Lang.toArray(nodes[i].childNodes));
+								// Reset node, so that it's created for next matching item
+								// to preserve correct tag order
+								node = null;
+							} else {
+								// Inline node, wrap inside a tag
+								if (node) {
+									// We already have a tag, append content to it
+									node.appendChild(nodes[i]);
+								} else {
+									// Create a tag
+									node = createNode(nodes[i]);
+									first = first || node;
+								}
+							}
+						} else if (nodes[i].nodeType == 3 && htmleditor.getNodeLength(nodes[i])){
+							// Non empty text node
+							if (node) {
+								// We already have a tag, append content to it
+								node.appendChild(nodes[i]);
+							} else {
+								// Create a tag
+								node = createNode(nodes[i]);
+								first = first || node;
+							}
+						}
+					}
+					
+					return node;
+				};
+			
+			if (Y.Lang.isArray(node)) {
+				selected = traverse(node);
+			} else {
+				selected = traverse([node]);
+			}
+			
+			if (selected) {
+				htmleditor.selectNode(selected);
 			}
 		},
 		
@@ -23939,6 +24199,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		removeAttributes: ['xmlns', 'style', 'lang', 'id', 'name', 'class', 'width', 'height', 'v:[a-z0-9\\-\\_]+', 'w:[a-z0-9\\-\\_]+']
 	};
 	
+	var REMOVABLE_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote', 'q', 'li', 'div', 'article', 'aside', 'details', 'figcaption', 'footer', 'header', 'hgroup', 'nav', 'section'];
+	
 	Supra.HTMLEditor.addPlugin('paste', defaultConfiguration, {
 		
 		/**
@@ -24023,15 +24285,51 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * it into content
 		 */
 		afterPaste: function () {
-			if (this.previousSelection && this.placeHolder) {
-				var htmleditor	= this.htmleditor,
-					html		= this.placeHolder.innerHTML;
+			var placeHolder = this.placeHolder,
+				nodes = null,
+				node  = null,
+				tag   = null,
+				
+				htmleditor = null,
+				html = null,
+				
+				children = null,
+				
+				split = true;
+			
+			if (this.previousSelection && placeHolder) {
+				htmleditor	= this.htmleditor,
+				html		= placeHolder.innerHTML;
 				
 				//Process HTML to make sure there is no garbage code
 				html = this.cleanPastedHTML(html);
 				
 				//Convert into format browser can understand and work with
 				html = html ? htmleditor.uncleanHTML(html) : html;
+				
+				//Check if we need to unwrap tag
+				placeHolder.innerHTML = html;
+				nodes = Y.Node(placeHolder).get('childNodes');
+				
+				if (nodes.size() == 1) {
+					//If there is only a single tag in the list then unwrap it
+					//if tag is in REMOVABLE_TAGS list
+					if (nodes.item(0).get('nodeType') == 1) {
+						tag = nodes.item(0).get('tagName').toLowerCase();
+						
+						if (Y.Array.indexOf(REMOVABLE_TAGS, tag) != -1) {
+							htmleditor.unwrapNode(nodes.item(0).getDOMNode());
+							html = placeHolder.innerHTML;
+							split = false;
+						}
+					}
+				}
+				
+				if (split && nodes.size()) {
+					//If there are multiple tags then split existing tag and insert nodes where they should be
+					this.afterPasteInsert(nodes);
+					return;
+				}
 				
 				//Restore previous selection
 				htmleditor.setSelection(this.previousSelection);
@@ -24046,19 +24344,75 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						//In webkit selection is set only after timeout
 						Y.later(16, this, function () {
 							htmleditor.replaceSelection(html, null);
+							this.afterPasteFinalize();
 						});
 					} else {
 						htmleditor.replaceSelection(html, null);
+						this.afterPasteFinalize();
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Insert content by splitting existing tag into two parts at cursor position
+		 * and insert pasted content between them
+		 */
+		afterPasteInsert: function (nodes) {
+			var htmleditor	= this.htmleditor,
+				insert = null;
+			
+			// 
+			insert = Y.bind(function () {
+				htmleditor.replaceSelection('');
+				
+				var parent = htmleditor.splitAt(this.previousSelection.start, this.previousSelection.start_offset),
+					dom = nodes.getDOMNodes(),
+					i = 0,
+					ii = dom.length;
+				
+				if (parent.tagName == 'LI' && dom[0].tagName != 'LI') {
+					// List item, add to the beginning of it because pasting non-list items
+					for (i=ii-1; i>=0; i--) {
+						htmleditor.insertPrepend(dom[i], parent);
+					}
+				} else {
+					for (; i<ii; i++) {
+						htmleditor.insertBefore(dom[i], parent);
 					}
 				}
 				
-				//Remove placeholder since it's not needed anymore
-				this.placeHolder.parentNode.removeChild(this.placeHolder);
-				delete(this.placeHolder);
+				// If reference node is empty then remove it
+				if (htmleditor.isNodeEmpty(parent)) {
+					parent.parentNode.removeChild(parent);
+				}
 				
-				//Content was changed
-				this.htmleditor._changed();
+				this.previousSelection = null;
+			}, this);
+			
+			
+			//R estore previous selection
+			htmleditor.setSelection(this.previousSelection);
+			
+			if (Y.UA.webkit) {
+				//In webkit selection is set only after timeout
+				Y.later(16, this, insert);
+			} else {
+				insert();
 			}
+		},
+		
+		/**
+		 * Clean up after paste
+		 * @private
+		 */
+		afterPasteFinalize: function () {
+			//Remove placeholder since it's not needed anymore
+			this.placeHolder.parentNode.removeChild(this.placeHolder);
+			delete(this.placeHolder);
+			
+			//Content was changed
+			this.htmleditor._changed();
 		},
 		
 		/**
@@ -24229,7 +24583,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	/*
 	 * Regular expression to remove whitespace, BR and empty P tags from beginning of HTML
 	 */
-	var WHITESPACE_REGEX = /^(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<p[^>]*>(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<\/p>/i;
+	var WHITESPACE_REGEX = /^(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<p[^>]*>(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<\/p>/i,
+	
+		KEY_RETURN         = 13,
+		KEY_BACKSPACE      = 8,
+		KEY_DELETE         = 46;
+	
 	
 	Supra.HTMLEditor.addPlugin('paragraph', defaultConfiguration, {
 		
@@ -24237,7 +24596,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * Handle keyDown in IE and WebKit browsers to insert BR
 		 */
 		_onBrKeyDown: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
 				var editor = this.htmleditor,
 					node = new Y.Node(editor.getSelectedElement());
 				
@@ -24272,85 +24631,140 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * On return key insert paragraph
 		 */
 		_insertParagraph: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
 				
-				//var node = new Y.Node(this.htmleditor.getSelectedElement());
-				//if (!node.test('LI') && !node.ancestor('LI')) {
-					
-					//if (Y.UA.gecko) {
-						//this.htmleditor.insertHTML('<P></P>');
-						//@TODO
-					//} else if (Y.UA.webkit) {
+				// Cursor is at the end of the inline node?
+				// Create block level element, not inline (eg. <a class="button" />)
+				var selected  = this.htmleditor.getSelectedElement(),
+					inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
+					tagName   = '',
+					node      = null,
+					length    = 0;
+				
+				if (selected) {
+					if (this.htmleditor.isCursorAtTheEndOf()) {
+						node    = this.htmleditor.getSelectedElement('p, li, td, th');
+						tagname = node ? node.tagName : 'P';
 						
-						// Cursor is at the end of the inline node?
-						// Create block level element, not inline (eg. <a class="button" />)
-						var selected  = this.htmleditor.getSelectedElement(),
-							inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
-							tagName   = '',
-							node      = null,
-							length    = 0;
-						
-						if (selected) {
-							if (this.htmleditor.isCursorAtTheEndOf()) {
-								node    = this.htmleditor.getSelectedElement('p, li, td, th');
-								tagname = node ? node.tagName : 'P';
-								
-								if (tagname == 'TD' || tagname == 'TH') {
-									// If inside TD or TH then insert <br />
-									this._onBrKeyDown(event);
-								} else if (tagname == 'LI') {
-									// If inside LI then insert new li if there is non-selected content
-									// inside this li, otherwise insert P after content
-									 
-									if (this.htmleditor.isNodeEmpty(node)) {
-										if (this.htmleditor.getLastChild(node.parentNode) === node) {
-											// Empty LI and it's last in the list, insert paragraph after list 
-											this.insertHTML('P', node.parentNode);
-											node.parentNode.removeChild(node);
-											event.halt();
-										} else {
-											// Empty LI, but not last in the list, split list into two
-											var doc  = this.htmleditor.get('doc'),
-												list = doc.createElement(node.parentNode.tagName),
-												p    = doc.createElement('P'),
-												tmp  = null;
-											
-											this.htmleditor.insertAfter(list, node.parentNode);
-											this.htmleditor.insertAfter(p, node.parentNode);
-											
-											while (node.nextSibling) {
-												list.appendChild(node.nextSibling);
-											}
-											
-											node.parentNode.removeChild(node);
-											
-											// Move cursor to P
-											this.htmleditor.setSelection({'start': p, 'end': p, 'start_offset': 0, 'end_offset': 0});
-											
-											event.halt();
-										}
-									} else if (this.htmleditor.isAllNodeSelected(node)) {
-										// All LI is selected, remove it and insert P after list
-										this.insertHTML('P', node.parentNode);
-										node.parentNode.removeChild(node);
-										event.halt();
-									} else {
-										// Not empty LI, default behaviour of inserting LI is ok
-									}
+						if (tagname == 'TD' || tagname == 'TH') {
+							// If inside TD or TH then insert <br />
+							this._onBrKeyDown(event);
+						} else if (tagname == 'LI') {
+							// If inside LI then insert new li if there is non-selected content
+							// inside this li, otherwise insert P after content
+							 
+							if (this.htmleditor.isNodeEmpty(node)) {
+								if (this.htmleditor.getLastChild(node.parentNode) === node) {
+									// Empty LI and it's last in the list, insert paragraph after list 
+									this.insertHTML('P', node.parentNode);
+									node.parentNode.removeChild(node);
+									event.halt();
 								} else {
-									if (!this.htmleditor.selection.collapsed) {
-										this.htmleditor.replaceSelection('');
+									// Empty LI, but not last in the list, split list into two
+									var doc  = this.htmleditor.get('doc'),
+										list = doc.createElement(node.parentNode.tagName),
+										p    = doc.createElement('P'),
+										tmp  = null;
+									
+									this.htmleditor.insertAfter(list, node.parentNode);
+									this.htmleditor.insertAfter(p, node.parentNode);
+									
+									while (node.nextSibling) {
+										list.appendChild(node.nextSibling);
 									}
-									this.insertHTML(tagname);
+									
+									node.parentNode.removeChild(node);
+									
+									// Move cursor to P
+									this.htmleditor.setSelection({'start': p, 'end': p, 'start_offset': 0, 'end_offset': 0});
+									
 									event.halt();
 								}
+							} else if (this.htmleditor.isAllNodeSelected(node)) {
+								// All LI is selected, remove it and insert P after list
+								this.insertHTML('P', node.parentNode);
+								node.parentNode.removeChild(node);
+								event.halt();
 							} else {
-								console.log('NOT AT THE END!');
+								// Not empty LI, default behaviour of inserting LI is ok
 							}
+						} else {
+							if (!this.htmleditor.selection.collapsed) {
+								this.htmleditor.replaceSelection('');
+							}
+							this.insertHTML(tagname);
+							event.halt();
 						}
-					//}
+					} else {
+						console.log('NOT AT THE END!');
+					}
+				}
 				
-				//}
+			}
+		},
+		
+		/**
+		 * On backspace key if at the begining of the tag or on delete key if at the end of the tag
+		 * Content merge should result in not styles being applied
+		 * 
+		 * @private
+		 */
+		_mergeContent: function (event) {
+			if (!event.stopped && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+				
+				if (event.keyCode == KEY_BACKSPACE) {
+					if (this.htmleditor.isCursorAtTheBeginingOf()) {
+						Y.later(0, this, this._afterMergeContent);
+					}
+					
+				} else if (event.keyCode == KEY_DELETE) {
+					if (this.htmleditor.isCursorAtTheEndOf()) {
+						Y.later(0, this, this._afterMergeContent);
+					}
+				}
+				
+			}
+		},
+		
+		/**
+		 * Clean up after merge
+		 * 
+		 * @private
+		 */
+		_afterMergeContent: function () {
+			this.htmleditor.resetSelectionCache();
+			var node  = this.htmleditor.getSelectedElement(),
+				nodes = null,
+				i     = 0,
+				style = '';
+			
+			if (!node) {
+				// Outside the bounds, not editable element
+				// In theory this should never happen
+				Y.log('After backspace or delete key can\'t find selected element for cleanup.', 'warn');
+				return;
+			}
+			
+			// Get parent element of node
+			node = Y.Node(node);
+			if (node.test('SPAN')) {
+				node = node.ancestor();
+			}
+			
+			nodes = node.all(Supra.HTMLEditor.ELEMENTS_INLINE_ARR.join(',')).getDOMNodes();
+			
+			if (nodes) {
+				for (i=nodes.length-1; i>=0; i--) {
+					node = nodes[i];
+					
+					if (!Y.Lang.trim(node.className) && node.tagName == 'SPAN') {
+						// No special styling using classname, remove element
+						this.htmleditor.unwrapNode(node);
+					} else {
+						// Remove styles, but leave element
+						node.removeAttribute('style');
+					}
+				}
 			}
 		},
 		
@@ -24437,6 +24851,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				 */
 				htmleditor.get('srcNode').on('keydown', Y.bind(this._insertParagraph, this));
 			}
+			
+			/*
+			 * After backspace/delete keys remove merge formatting
+			 */
+			htmleditor.get('srcNode').on('keydown', Y.bind(this._mergeContent, this));
 			
 			/*
 			 * Remove whitespace from HTML

@@ -341,7 +341,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			var node = element ? Y.Node(element) : null;
 			if (node) {
 				if (!this.highlightNode) {
-					this.highlightNode = Y.Node.create('<div class="yui3-element-overlay"></div>');
+					this.highlightNode = Y.Node.create('<div class="su-element-overlay"></div>');
 					
 					var doc = Y.Node(this.htmleditor.get('doc'));
 					doc.one('body').append(this.highlightNode);
@@ -461,20 +461,29 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.highlightElement(null);
 			
 			if (!target) {
-				//No matching elements were found, user has selected simple text
-				//Create P element
-				this.htmleditor.exec('p');
-				this.htmleditor.refresh(true);
+				target = this.htmleditor.getSelectedElement();
+				target = target ? this.htmleditor.closest(target, 'H1, H2, H3, H4, H5, P, LI') : null;
 				
-				//Style newly created element
-				if (classname) {
-					var node = this.htmleditor.getSelectedElement();
-					if (node) {
-						node = Y.Node(node).closest('H1, H2, H3, H4, H5, P');
-						
-						//Set new class
+				if (target && target.tagName == 'LI') {
+					//List item is selected, wrap all inner nodes
+					this.wrapContents(Y.Lang.toArray(target.childNodes), tag, classname);
+					this.htmleditor.refresh(true);
+				} else {
+					//No matching elements were found, user has selected simple text
+					//Create P element
+					this.htmleditor.exec((tag || 'p').toLowerCase());
+					this.htmleditor.refresh(true);
+					
+					//Style newly created element
+					if (classname) {
+						var node = this.htmleditor.getSelectedElement();
 						if (node) {
-							node.addClass(classname);
+							node = Y.Node(node).closest('H1, H2, H3, H4, H5, P');
+							
+							//Set new class
+							if (node) {
+								node.addClass(classname);
+							}
 						}
 					}
 				}
@@ -507,6 +516,114 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				if (node && classname) {
 					node.addClass(classname);
 				}
+			}
+		},
+		
+		/**
+		 * Wrap 'node' inside a node
+		 * Block level elements are traversed and their inline children and text are wrapped
+		 * Heading and paragraph tags are replaced with 'tag'
+		 * 
+		 * @param {HTMLElement|Text} node Node to wrap
+		 * @param {String} tag Tag name to wrap content inside
+		 * @param {String} className Optional class to add to wrapped tag
+		 * @private
+		 */
+		wrapContents: function (node, tag, className) {
+			var replace    = {'h1': true, 'h2': true, 'h3': true, 'h4': true, 'h5': true, 'p': true},
+				inline     = Supra.HTMLEditor.ELEMENTS_INLINE,
+				htmleditor = this.htmleditor,
+				selected   = null,
+				
+				createNode = function (content, replace) {
+					var node = document.createElement(tag),
+						old_node = null;
+					
+					if (className) {
+						node.className = className;
+					}
+					if (content) {
+						if (replace) {
+							htmleditor.insertBefore(node, content);
+							old_node = content;
+							content = content.childNodes ? Y.Lang.toArray(content.childNodes) : [content];
+						}
+						if (Y.Lang.isArray(content)) {
+							if (content.length) {
+								if (!replace) {
+									htmleditor.insertBefore(node, content[0]);
+								}
+								for (var i=0,ii=content.length; i<ii; i++) {
+									node.appendChild(content[i]);
+								}
+							}
+						} else {
+							htmleditor.insertBefore(node, content);
+							node.appendChild(content);
+						}
+						if (replace) {
+							old_node.parentNode.removeChild(old_node);
+						}
+					}
+					
+					return node;
+				},
+				
+				traverse = function (nodes) {
+					var i = 0,
+						ii = nodes.length,
+						first = null,
+						node = null,
+						tagName = null;
+					
+					for (; i<ii; i++) {
+						if (nodes[i].nodeType == 1) {
+							tagName = nodes[i].tagName.toLowerCase();
+							if (tagName in replace) {
+								// Replace tag
+								node = createNode(nodes[i], true);
+								first = first || node;
+							} else if (!(tagName in inline)) {
+								// Traverse children, if tag is not inline
+								traverse(Y.Lang.toArray(nodes[i].childNodes));
+								// Reset node, so that it's created for next matching item
+								// to preserve correct tag order
+								node = null;
+							} else {
+								// Inline node, wrap inside a tag
+								if (node) {
+									// We already have a tag, append content to it
+									node.appendChild(nodes[i]);
+								} else {
+									// Create a tag
+									node = createNode(nodes[i]);
+									first = first || node;
+								}
+							}
+						} else if (nodes[i].nodeType == 3 && htmleditor.getNodeLength(nodes[i])){
+							// Non empty text node
+							if (node) {
+								// We already have a tag, append content to it
+								node.appendChild(nodes[i]);
+							} else {
+								// Create a tag
+								node = createNode(nodes[i]);
+								first = first || node;
+							}
+						}
+					}
+					
+					return node;
+				};
+			
+			if (Y.Lang.isArray(node)) {
+				selected = traverse(node);
+			} else {
+				selected = traverse([node]);
+			}
+			
+			if (selected) {
+				htmleditor.selectNode(selected);
 			}
 		},
 		

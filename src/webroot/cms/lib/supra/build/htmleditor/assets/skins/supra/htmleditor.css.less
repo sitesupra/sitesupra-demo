@@ -212,17 +212,18 @@
 /* Sidebar style plugin */
 .sidebar-content .style-list {
 	background: #fff;
-	padding: 5px 5px 13px;
+	padding: 5px;
+	border-radius: 3px;
 	
 	.style-item {
 		cursor: pointer;
-		padding-top: 8px;
+		padding: 8px 0;
 		
 		&.style-class {
-			padding: 4px 0 0 24px;
+			padding: 4px 0 4px 24px;
 			
 			&.current {
-				background: url(dropdown-selected-item.png) 10px 100% no-repeat;
+				background: url(dropdown-selected-item.png) 12px 50% no-repeat;
 			}
 		}
 		&.style-main + .style-class {
@@ -231,9 +232,9 @@
 		&.style-main {
 			padding-left: 14px;
 			&.H1 { font-size: 20px; font-weight: bold; line-height: 20px; }
-			&.H2 { font-size: 16px; font-weight: bold; line-height: 16px; }
-			&.H3 { font-size: 14px; line-height: 14px; }
-			&.H4 { font-size: 14px; font-style: italic; line-height: 14px; }
+			&.H2 { font-size: 18px; font-weight: bold; line-height: 18px; }
+			&.H3 { font-size: 16px; font-weight: bold; line-height: 16px; }
+			&.H4 { font-size: 14px; font-weight: bold; line-height: 14px; }
 			&.B  { font-weight: bold; }
 			&.EM { font-style: italic; }
 			&.S  { text-decoration: line-through; }
@@ -241,7 +242,8 @@
 			&.A  { text-decoration: underline; }
 			
 			&.current {
-				background: url(dropdown-selected-item.png) 0 100% no-repeat;
+				background: url(dropdown-selected-item.png) 2px 50% no-repeat;
+				color: #009df8;
 			}
 		}
 	}
