@@ -37,9 +37,10 @@
 	};
 	
 	/**
-	 * Set path to modules with 'website' prefix
+	 * Set path to modules with group prefix
 	 * 
-	 * @param {String} path
+	 * @param {String} group Module group
+	 * @param {String} path Path to modules
 	 */
 	Supra.setModuleGroupPath = function (group, path) {
 		var config = Supra.YUI_BASE.groups[group];
@@ -65,6 +66,21 @@
 		
 		//Reset configuration state
 		Supra.yui_base_set = false;
+	};
+	
+	/**
+	 * Returns path to modules with group prefix
+	 * 
+	 * @param {String} group Module group
+	 * @returns {String} Path to modules
+	 */
+	Supra.getModuleGroupPath = function (group) {
+		var config = Supra.YUI_BASE.groups[group];
+		if (config) {
+			return config.root;
+		} else {
+			return null;
+		}
 	};
 	
 	/**

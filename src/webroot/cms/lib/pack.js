@@ -553,9 +553,10 @@ if (typeof Supra === "undefined") {
 	};
 	
 	/**
-	 * Set path to modules with 'website' prefix
+	 * Set path to modules with group prefix
 	 * 
-	 * @param {String} path
+	 * @param {String} group Module group
+	 * @param {String} path Path to modules
 	 */
 	Supra.setModuleGroupPath = function (group, path) {
 		var config = Supra.YUI_BASE.groups[group];
@@ -581,6 +582,21 @@ if (typeof Supra === "undefined") {
 		
 		//Reset configuration state
 		Supra.yui_base_set = false;
+	};
+	
+	/**
+	 * Returns path to modules with group prefix
+	 * 
+	 * @param {String} group Module group
+	 * @returns {String} Path to modules
+	 */
+	Supra.getModuleGroupPath = function (group) {
+		var config = Supra.YUI_BASE.groups[group];
+		if (config) {
+			return config.root;
+		} else {
+			return null;
+		}
 	};
 	
 	/**
@@ -20450,7 +20466,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		
 		'Applications': '/dashboard',
 		'BrowserSupport': '/dashboard',
+		
 		'Sites': '-local/site-list-manager', // This is rather hacky.
+		'DesignCustomize': '-local/design-manager', // This is rather hacky.
+		'DesignSidebar': '-local/design-manager', // This is rather hacky.
 		
 		'Blog': '/blog-manager',
 		
@@ -24695,8 +24714,6 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 							this.insertHTML(tagname);
 							event.halt();
 						}
-					} else {
-						console.log('NOT AT THE END!');
 					}
 				}
 				

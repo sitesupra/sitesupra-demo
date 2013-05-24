@@ -126,8 +126,6 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 							this.insertHTML(tagname);
 							event.halt();
 						}
-					} else {
-						console.log('NOT AT THE END!');
 					}
 				}
 				

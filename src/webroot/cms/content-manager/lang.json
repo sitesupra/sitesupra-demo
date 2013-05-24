@@ -539,6 +539,10 @@
 			"remove_link": "Remove link"
 		},
 		
+		"designmanager": {
+			"button": "Design"
+		},
+		
 		"helpnotes": {
 			"slideshow_order": {
 				"title": "Tip",

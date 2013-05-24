@@ -148,6 +148,10 @@ YUI().add('supra.iframe', function (Y) {
 			
 			// Loading icon
 			this.get('boundingBox').append(Y.Node.create('<div class="loading-icon"></div>'));
+			
+			if (this.get('loading')) {
+				this._setLoading(true);
+			}
 		},
 		
 		/**
@@ -651,10 +655,13 @@ YUI().add('supra.iframe', function (Y) {
 			if (url) {
 				this.contentChangeTrigger = 'url';
 				
-				//Clean up
+				// Clean up
 				this.contentDestructor();
 				
-				//
+				// Style
+				this.set('loading', true);
+				
+				// Allow settings
 				this.beforeSetURL();
 				
 				//
