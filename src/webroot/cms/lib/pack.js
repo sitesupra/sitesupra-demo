@@ -12458,6 +12458,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			var id;
 			if (typeof node == 'string') {
 				id = node;
+				node = Y.Node(this.get('doc')).one('#' + node);
 			} else {
 				node = new Y.Node(node);
 				id = node.getAttribute('id');
@@ -17113,6 +17114,12 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		/* Modes which plugin supports */
 		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
 		
+		/* Search for plain text email addresses and replace them with links */
+		parseEmails: true,
+		
+		/* Classname to use for button style */
+		buttonClassName: 'button',
+		
 		/* String replacements */
 		replacements: [
 			[
@@ -17184,15 +17191,23 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		insertLinkConfirmed: function (data, selection) {
 			if (data && data.href) {
-				var htmleditor = this.htmleditor;
+				var htmleditor = this.htmleditor,
+					classname = data.classname || '';
 				
 				//Restore selection
 				htmleditor.setSelection(selection);
 				
+				//Button class
+				if (data.button) {
+					if (classname.indexOf(this.configuration.buttonClassName) == -1) {
+						classname = (classname ? ' ' : '') + this.configuration.buttonClassName;
+					}
+				}
+				
 				//Insert link
 				var uid = htmleditor.generateDataUID(),
 					text = this.htmleditor.getSelectionText(),
-					html = '<a id="' + uid + '"' + (data.classname ? ' class="' + data.classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '">' + text + '</a>';
+					html = '<a id="' + uid + '"' + (classname ? ' class="' + classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '">' + text + '</a>';
 				
 				data.type = this.NAME;
 				htmleditor.setData(uid, data)
@@ -17253,6 +17268,13 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					target.setAttribute('target', data.target);
 				} else {
 					target.removeAttribute('target');
+				}
+				
+				//Button
+				if (data.button) {
+					target.addClass(this.configuration.buttonClassName);
+				} else {
+					target.removeClass(this.configuration.buttonClassName);
 				}
 			} else {
 				//Insert all link children nodes before link and remove <A>
@@ -17398,6 +17420,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * Parse HTML and replace all email addresses with links
 		 */
 		parseStrings: function (html) {
+			if (!this.configuration.parseEmails) return html;
+			
 			var replacements = this.configuration.replacements,
 				k = 0,
 				kk = replacements.length,
@@ -17486,7 +17510,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		tagHTML: function (html) {
 			var htmleditor = this.htmleditor,
-				NAME = this.NAME;
+				NAME = this.NAME,
+				self = this;
 			
 			//Add links to email addresses
 			html = this.parseStrings(html);
@@ -17500,6 +17525,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					//Extract classname
 					var classname = html.match(/class="([^"]+)"/);
 					data.classname = classname ? classname[1] : '';
+					
+					//Does link has button style
+					data.button = data.classname.indexOf(self.configuration.buttonClassName) != -1;
 					
 					return '{supra.' + NAME + ' id="' + id + '"}';
 				} else {
@@ -17521,7 +17549,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		tagPastedHTML: function (event, data) {
 			var htmleditor = this.htmleditor,
-				NAME = this.NAME;
+				NAME = this.NAME,
+				self = this;
 			
 			//Extract email addresses
 			if (event) {
@@ -17542,6 +17571,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 						'target': attrs.target || '',
 						'title': attrs.title || '',
 						'classname': attrs['class'] || '',
+						'button': (attrs['class'] || '').indexOf(self.configuration.buttonClassName) != -1,
 						'type': 'link'
 					};
 					htmleditor.setData(id, data, true);
@@ -17583,8 +17613,16 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			html = html.replace(/{supra\.link id="([^"]+)"}/ig, function (tag, id) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
 				
-				var href = self.normalizeHref(data[id].href);
-				return '<a id="' + id + '"' + (data[id].classname ? ' class="' + data[id].classname + '"' : '') + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '">';
+				var href = self.normalizeHref(data[id].href),
+					classname = data[id].classname || '';
+				
+				if (data[id].button) {
+					if (classname.indexOf(self.configuration.buttonClassName) == -1) {
+						classname = (classname ? ' ' : '') + self.configuration.buttonClassName;
+					}
+				}
+				
+				return '<a id="' + id + '"' + (classname ? ' class="' + classname + '"' : '') + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '">';
 			});
 			
 			//Closing tags
@@ -17609,8 +17647,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Remove unneeded data
 			delete(data.file_path);
 			
-			//HREF is needed for external links
-			if (data.resource != 'link') delete(data.href);
+			//HREF is needed for external links and email (optional)
+			if (data.resource != 'link' && data.resource != 'email') delete(data.href);
 			
 			return data;
 		}

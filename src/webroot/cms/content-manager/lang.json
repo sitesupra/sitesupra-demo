@@ -525,14 +525,18 @@
 			"title": "Link to",
 			"title_page": "page",
 			"title_file": "file",
+			"title_email": "email",
 			
 			"select": "Select what you want to link",
 			"link_to_file": "Link to file",
 			"link_to_page": "Link to page",
+			"link_to_email": "Link to email",
 			"link_internal": "Internal",
 			"link_external": "External",
 			"link_address": "Link address",
+			"link_email": "Email address",
 			"new_window": "Open link in new window",
+			"button": "Make a button",
 			"link_title": "Link title",
 			"open_library_app": "Open Library app",
 			

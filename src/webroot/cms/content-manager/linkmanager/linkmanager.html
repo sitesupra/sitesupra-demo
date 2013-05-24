@@ -29,6 +29,7 @@
 				<div class="select">
 					<a data-slideshow="linkToFile" class="file"><span><img src="/cms/content-manager/linkmanager/images/file.png" alt="" /><span>{#linkmanager.link_to_file#}</span></span></a>
 					<a data-slideshow="linkToPage" class="page"><span><img src="/cms/content-manager/linkmanager/images/page.png" alt="" /><span>{#linkmanager.link_to_page#}</span></span></a>
+					<a data-slideshow="linkToEmail" class="email"><span><img src="/cms/content-manager/linkmanager/images/email.png" alt="" /><span>{#linkmanager.link_to_email#}</span></span></a>
 				</div>
 				
 			</div>
@@ -61,6 +62,12 @@
 				
 				<div class="link-controls">
 					
+					<label for="linkManagerButton">{#linkmanager.button#}</label>
+					<select id="linkManagerButton" name="button" suType="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
 					<label for="linkManagerTarget">{#linkmanager.new_window#}</label>
 					<select id="linkManagerTarget" name="target" suType="Checkbox">
 						<option value="1">{#buttons.on#}</option>
@@ -81,6 +88,18 @@
 				
 				<div class="link-controls">
 					
+					<label for="linkManagerFileButton">{#linkmanager.button#}</label>
+					<select id="linkManagerFileButton" name="file_button" suType="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
+					<label for="linkManagerFileTarget">{#linkmanager.new_window#}</label>
+					<select id="linkManagerFileTarget" name="file_target" suType="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
 					<label for="linkManagerFileTitle">{#linkmanager.link_title#}</label>
 					<input type="text" id="linkManagerFileTitle" name="file_title" value="" />
 					
@@ -91,6 +110,30 @@
 				</div>
 				
 			</div>
+			
+			<!-- Link to email -->
+			<div id="linkToEmail" class="hidden" suScrollable="false">
+				
+				<!-- Properties -->
+				<div id="linkToEmailForm">
+						
+					<label for="linkManagerEmail">{#linkmanager.link_email#}</label>
+					<input type="text" name="email" id="linkManagerEmail" />
+					
+				</div>
+				
+				<div class="link-controls">
+					
+					<label for="linkManagerEmailButton">{#linkmanager.button#}</label>
+					<select id="linkManagerEmailButton" name="email_button" suType="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
+				</div>
+				
+			</div>
+			
 		</div>
 		
 	</form></div>
