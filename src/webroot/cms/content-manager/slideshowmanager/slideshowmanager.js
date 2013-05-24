@@ -133,7 +133,12 @@ Supra([
 				this.set('activeSlideId', id);
 			}, this);
 			this.list.on('itemClick', function (event) {
-				this.set('activeSlideId', event.data.id);
+				if (this.get('activeSlideId') != event.data.id) {
+					this.set('activeSlideId', event.data.id);
+				} else {
+					// This slide is already opened, show settings
+					this.view.refocusSlide();
+				}
 			}, this);
 			this.list.on('order', function (event) {
 				this.data.swapSlideIndex(event.indexDrag, event.indexDrop);
@@ -213,7 +218,11 @@ Supra([
 		render: function () {
 			//Add buttons
 			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
-			Manager.getAction('PageButtons').addActionButtons(this.NAME, []);
+			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
+				'id': 'done',
+				'context': this,
+				'callback': this.close
+			}]);
 		},
 		
 		/**

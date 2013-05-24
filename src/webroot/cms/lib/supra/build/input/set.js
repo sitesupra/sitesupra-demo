@@ -271,6 +271,8 @@ YUI.add('supra.input-set', function (Y) {
 			
 			this._valuesRendered = true;
 			this._fireResizeEvent();
+			
+			this.fire('setRender');
 		},
 		
 		/**
@@ -352,6 +354,10 @@ YUI.add('supra.input-set', function (Y) {
 			
 			if (animate) {
 				this._animateIn(node);
+			}
+			
+			if (this._valuesRendered) {
+				this.fire('setRender', {'data': data});
 			}
 		},
 		
@@ -463,9 +469,24 @@ YUI.add('supra.input-set', function (Y) {
 		
 		/**
 		 * On input focus save set index
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
 		 */
 		_onInputFocus: function (event) {
 			this._focusedSetIndex = this._getSetIndex(event.target.get('srcNode'));
+		},
+		
+		/**
+		 * Returns widgets for set
+		 * 
+		 * @param {Number} index Set index
+		 * @returns {Object} List of all widgets for set
+		 */
+		getSetWidgets: function (index) {
+			if (index >= 0 && index < this._count) {
+				return this._inputs[index];
+			}
 		},
 		
 		
@@ -533,12 +554,15 @@ YUI.add('supra.input-set', function (Y) {
 		 * @private
 		 */
 		_createSlide: function () {
-			var slideshow = this.getSlideshow(),
-				slide_id = this.get('id') + '_' + Y.guid(),
-				slide = slideshow.addSlide(slide_id),
+			var label = this.get('label'),
+				labelButton = this.get('labelButton'),
 				
-				label = this.get('label'),
-				labelButton = this.get('labelButton');
+				slideshow = this.getSlideshow(),
+				slide_id = this.get('id') + '_' + Y.guid(),
+				slide = slideshow.addSlide({
+					'id': slide_id,
+					'title': label || labelButton
+				});
 			
 			this._slideContent = slide.one('.su-slide-content');
 			this._slideId = slide_id;

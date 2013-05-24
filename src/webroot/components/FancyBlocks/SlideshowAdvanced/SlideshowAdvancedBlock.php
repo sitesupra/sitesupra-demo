@@ -132,6 +132,8 @@ class SlideshowAdvancedBlock extends BlockController
 					$linkElement = new \Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 					$linkElement->fillArray($button['link']);
 					
+					$button['target'] = $linkElement->getTarget();
+					\Log::error($button['target']);
 					$button['link'] = $linkElement;
 				}
 			}

@@ -183,6 +183,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 			}
 		},
 		
+		
 		/* ---------------------------- Items --------------------------- */
 		
 		

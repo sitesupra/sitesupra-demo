@@ -278,6 +278,16 @@ YUI.add('slideshowmanager.view', function (Y) {
 		},
 		
 		/**
+		 * Focus called, if not editing any input, then show sidebar
+		 */
+		refocusSlide: function () {
+			var input = this._activeInput;
+			if (!input) {
+				this.get('host').settings.showForm();
+			}
+		},
+		
+		/**
 		 * Active input: start editing content, close sidebar
 		 * 
 		 * @param {Object} event Event facade object
@@ -312,8 +322,15 @@ YUI.add('slideshowmanager.view', function (Y) {
 				this._activeInput = input;
 				this._activePropertyId = property.id;
 				
+				this.fire('focusItem', {'input': input, 'property': property.id});
+				
 				input.set('disabled', false);
-				input.startEditing();
+				
+				if (!input.startEditing()) {
+					// Input rejected editing, just show form instead
+					// This will happen if input MediaInline value is empty (nether video nor image)
+					this.get('host').settings.showForm();
+				}
 			}
 		},
 		
@@ -329,15 +346,15 @@ YUI.add('slideshowmanager.view', function (Y) {
 					input.set('disabled', true);
 					if (preserveToolbar !== true) {
 						Supra.Manager.EditorToolbar.hide();
-						this.get('host').settings.show();
 					}
 					
 				} else if (input.isInstanceOf('input-media-inline')) {
-					
+					this.get('host').settings.reset();
 					this.get('host').settings.show();
-					
 				}
 			}
+			
+			this.fire('blurItem', {'input': input, 'property': this._activePropertyId});
 			
 			this._stopEditingLoop = false;
 			this._activeInput = null;
@@ -615,7 +632,10 @@ YUI.add('slideshowmanager.view', function (Y) {
 						input.on('change', this._firePropertyChangeEvent, this, property, input);
 						
 						if (input.getEditor) {
-							input.getEditor().addCommand('manage', Y.bind(this.stopEditing, this));
+							input.getEditor().addCommand('manage', Y.bind(function () {
+								this.stopEditing();
+								this.get('host').settings.show();
+							}, this));
 						}
 					}
 				} else if (!is_inline && is_contained) {

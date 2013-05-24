@@ -511,7 +511,10 @@ YUI.add("supra.input-block-background", function (Y) {
 			
 			if (slideshow || !separate) {
 				if (separate) {
-					slide = this.slide = slideshow.addSlide(slide_id);
+					slide = this.slide = slideshow.addSlide({
+						'id': slide_id,
+						'title': this.get('label')
+					});
 					container = slide.one(".su-slide-content");
 					slideshow.on("slideChange", this.onSlideshowSlideChange, this);
 				} else {

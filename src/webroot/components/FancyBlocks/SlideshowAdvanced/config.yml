@@ -102,6 +102,8 @@
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right.html.twig
             - id: bg_text_img_top
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_top.html.twig
+            - id: bg_video
+              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_video.html.twig
           
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -128,6 +130,9 @@
                   - id: bg_text_img_top
                     title: Text on top
                     icon: icons/layout/bg-text-img-top.png
+                  - id: bg_video
+                    title: Video
+                    icon: icons/layout/bg-video.png
                 additionalParameters:
                   style: mid
                   iconStyle: center
@@ -156,6 +161,10 @@
                 editable: Supra\Editable\PropertySet
                 label: Buttons
                 properties:
+                  - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                      name: overlay
+                      label: Whole slide is linked
+                      editable: Supra\Editable\Checkbox
                   - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                       name: title
                       label: Title

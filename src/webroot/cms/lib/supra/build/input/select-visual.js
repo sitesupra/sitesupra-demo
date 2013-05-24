@@ -186,7 +186,10 @@ YUI.add('supra.input-select-visual', function (Y) {
 						'icon': value && value.icon ? value.icon : ''
 					});
 					
-					this.widgets.slide = slide = slideshow.addSlide('propertySlide' + this.get('id'));
+					this.widgets.slide = slide = slideshow.addSlide({
+						'id': 'propertySlide' + this.get('id'),
+						'title': this.get('label') || this.get('labelButton')
+					});
 					slide = slide.one('.su-slide-content');
 					
 					button.render();
@@ -624,10 +627,12 @@ YUI.add('supra.input-select-visual', function (Y) {
 		_uiSetVisible: function (visible) {
 			visible = Input.superclass._uiSetVisible.apply(this, arguments);
 			
+			/*
 			var separateContainer = this.widgets.separateContainer;
 			if (separateContainer) {
 				separateContainer.toggleClass('hidden', !visible);
 			}
+			*/
 			
 			return visible;
 		}

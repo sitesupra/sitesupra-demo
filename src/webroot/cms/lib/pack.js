@@ -25643,7 +25643,10 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						'icon': value && value.icon ? value.icon : ''
 					});
 					
-					this.widgets.slide = slide = slideshow.addSlide('propertySlide' + this.get('id'));
+					this.widgets.slide = slide = slideshow.addSlide({
+						'id': 'propertySlide' + this.get('id'),
+						'title': this.get('label') || this.get('labelButton')
+					});
 					slide = slide.one('.su-slide-content');
 					
 					button.render();
@@ -26081,10 +26084,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		_uiSetVisible: function (visible) {
 			visible = Input.superclass._uiSetVisible.apply(this, arguments);
 			
+			/*
 			var separateContainer = this.widgets.separateContainer;
 			if (separateContainer) {
 				separateContainer.toggleClass('hidden', !visible);
 			}
+			*/
 			
 			return visible;
 		}
@@ -34795,7 +34800,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			this.widgets.slideId = Y.guid();
 			
 			var slideshow = this.get("slideshow"),
-				slide = this.widgets.slide = slideshow.addSlide(this.widgets.slideId);
+				slide = this.widgets.slide = slideshow.addSlide({
+					'id': this.widgets.slideId,
+					'title': this.get('label')
+				});
 			
 			//If slideshow is in sidebar we want an icon and title changed
 			slide.setAttribute("data-icon", "/cms/lib/supra/img/sidebar/icons/settings-schedule.png");
@@ -35573,7 +35581,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (slideshow || !separate) {
 				if (separate) {
-					slide = this.slide = slideshow.addSlide(slide_id);
+					slide = this.slide = slideshow.addSlide({
+						'id': slide_id,
+						'title': this.get('label')
+					});
 					container = slide.one(".su-slide-content");
 					slideshow.on("slideChange", this.onSlideshowSlideChange, this);
 				} else {
@@ -37412,8 +37423,8 @@ YUI.add('supra.datatype-color', function(Y) {
 				slideshow = this.getSlideshow(),
 				input_image = null,
 				input_video = null,
-				slide_image = slideshow.addSlide(this.get('id') + '_slide_image'),
-				slide_video = slideshow.addSlide(this.get('id') + '_slide_video'),
+				slide_image = slideshow.addSlide({'id': this.get('id') + '_slide_image', 'title': this.get('label')}),
+				slide_video = slideshow.addSlide({'id': this.get('id') + '_slide_video'}),
 				delete_image = null,
 				delete_video = null,
 				uploader = null,
@@ -38872,6 +38883,8 @@ YUI.add('supra.input-set', function (Y) {
 			
 			this._valuesRendered = true;
 			this._fireResizeEvent();
+			
+			this.fire('setRender');
 		},
 		
 		/**
@@ -38953,6 +38966,10 @@ YUI.add('supra.input-set', function (Y) {
 			
 			if (animate) {
 				this._animateIn(node);
+			}
+			
+			if (this._valuesRendered) {
+				this.fire('setRender', {'data': data});
 			}
 		},
 		
@@ -39064,9 +39081,24 @@ YUI.add('supra.input-set', function (Y) {
 		
 		/**
 		 * On input focus save set index
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
 		 */
 		_onInputFocus: function (event) {
 			this._focusedSetIndex = this._getSetIndex(event.target.get('srcNode'));
+		},
+		
+		/**
+		 * Returns widgets for set
+		 * 
+		 * @param {Number} index Set index
+		 * @returns {Object} List of all widgets for set
+		 */
+		getSetWidgets: function (index) {
+			if (index >= 0 && index < this._count) {
+				return this._inputs[index];
+			}
 		},
 		
 		
@@ -39134,12 +39166,15 @@ YUI.add('supra.input-set', function (Y) {
 		 * @private
 		 */
 		_createSlide: function () {
-			var slideshow = this.getSlideshow(),
-				slide_id = this.get('id') + '_' + Y.guid(),
-				slide = slideshow.addSlide(slide_id),
+			var label = this.get('label'),
+				labelButton = this.get('labelButton'),
 				
-				label = this.get('label'),
-				labelButton = this.get('labelButton');
+				slideshow = this.getSlideshow(),
+				slide_id = this.get('id') + '_' + Y.guid(),
+				slide = slideshow.addSlide({
+					'id': slide_id,
+					'title': label || labelButton
+				});
 			
 			this._slideContent = slide.one('.su-slide-content');
 			this._slideId = slide_id;
