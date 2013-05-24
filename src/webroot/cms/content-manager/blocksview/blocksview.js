@@ -102,7 +102,8 @@ Supra(function (Y) {
 				is_placeholder = false,
 				title = '',
 				icon = '',
-				type = this.type;
+				type = this.type,
+				has_permissions = true;
 			
 			//Update heaidng
 			var heading = this.one('h2');
@@ -114,12 +115,19 @@ Supra(function (Y) {
 			
 			//Filter blocks
 			for(var id in blocks) {
+				block = blocks[id];
+				has_permissions = true;
+				
+				if (block.isClosed() && !block.get('data').owner_id) {
+					has_permissions = false;
+				}
+				
 				//Show only blocks which are not closed and are editable
-				if (!blocks[id].isClosed() && blocks[id].get('editable')) {
-					is_placeholder = blocks[id].isList();
+				if (has_permissions && block.get('editable')) {
+					is_placeholder = block.isList();
 					
 					if ((type == 'blocks' && !is_placeholder) || (type != 'blocks' && is_placeholder)) {
-						filtered.push(blocks[id]);
+						filtered.push(block);
 					}
 				}
 			}
