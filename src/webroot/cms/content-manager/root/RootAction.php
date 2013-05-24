@@ -56,6 +56,7 @@ class RootAction extends PageManagerAction
 			$allowLimitedOption = 'true';
 		}
 		$response->assign('allowLimitedAccessPages', $allowLimitedOption);
+		$response->assign('themeName', '');
 		
 
 		$response->outputTemplate('content-manager/root/index.html.twig');
