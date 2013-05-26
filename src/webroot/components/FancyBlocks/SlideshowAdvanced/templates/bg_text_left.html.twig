@@ -11,5 +11,8 @@
 		</div>
 		<div class="as-center" {% if property.height %}style="min-height: {{ property.height }}px;"{% endif %} data-supra-item-height="true"></div>
 		<div class="as-layer as-layer-right-large as-layer-type-empty">&nbsp;</div>
+		{% if property.buttons_overlay %}
+			{{ property.buttons_overlay|raw }}
+		{% endif %}
 	</div>
 </li>

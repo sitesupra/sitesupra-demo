@@ -23,7 +23,7 @@ YUI.add('supra.input-text', function (Y) {
 	});
 	
 	Input.lipsum = function () {
-		return Supra.Limsum.paragraph({'count': 4});
+		return Supra.Lipsum.paragraph({'count': 4});
 	};
 	
 	Supra.Input.Text = Input;

@@ -261,7 +261,10 @@ YUI.add("supra.input-date", function (Y) {
 			this.widgets.slideId = Y.guid();
 			
 			var slideshow = this.get("slideshow"),
-				slide = this.widgets.slide = slideshow.addSlide(this.widgets.slideId);
+				slide = this.widgets.slide = slideshow.addSlide({
+					'id': this.widgets.slideId,
+					'title': this.get('label')
+				});
 			
 			//If slideshow is in sidebar we want an icon and title changed
 			slide.setAttribute("data-icon", "/cms/lib/supra/img/sidebar/icons/settings-schedule.png");

@@ -173,7 +173,8 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		if (is_array($this->properties)) {
 			foreach ($this->properties as $property) {
 				
-				if ($property->editableInstance instanceof \Supra\Editable\Slideshow) {
+				if ($property->editableInstance instanceof \Supra\Editable\Slideshow
+                        || $property->editableInstance instanceof \Supra\Editable\GalleryAdvanced) {
 					foreach ($property->properties as $subProperty) {
 
 						$subEditable = $subProperty->editableInstance;

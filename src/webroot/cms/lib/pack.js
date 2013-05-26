@@ -553,9 +553,10 @@ if (typeof Supra === "undefined") {
 	};
 	
 	/**
-	 * Set path to modules with 'website' prefix
+	 * Set path to modules with group prefix
 	 * 
-	 * @param {String} path
+	 * @param {String} group Module group
+	 * @param {String} path Path to modules
 	 */
 	Supra.setModuleGroupPath = function (group, path) {
 		var config = Supra.YUI_BASE.groups[group];
@@ -581,6 +582,21 @@ if (typeof Supra === "undefined") {
 		
 		//Reset configuration state
 		Supra.yui_base_set = false;
+	};
+	
+	/**
+	 * Returns path to modules with group prefix
+	 * 
+	 * @param {String} group Module group
+	 * @returns {String} Path to modules
+	 */
+	Supra.getModuleGroupPath = function (group) {
+		var config = Supra.YUI_BASE.groups[group];
+		if (config) {
+			return config.root;
+		} else {
+			return null;
+		}
 	};
 	
 	/**
@@ -3806,7 +3822,7 @@ YUI.add('supra.event', function (Y) {
 		
 	};
 	
-	Supra.Limsum = Lipsum;
+	Supra.Lipsum = Lipsum;
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
 	//Make sure this constructor function is called only once
@@ -7099,8 +7115,8 @@ YUI().add("supra.io-css", function (Y) {
 		 */
 		'compileExpression': function (identifier, expr, fn) {
 			if (typeof fn == 'function') {
-				//Convert " and " to " && ", " or " to " || ", " ~ " to concatanation
-				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ').replace(REG_CAT, ' + "" + ');
+				//Convert " and " to " && ", " not " to "!", " or " to " || ", " ~ " to concatanation
+				expr = expr.replace(REG_AND, ' && ').replace(REG_OR, ' || ').replace(REG_NOT, '!').replace(REG_CAT, ' + "" + ');
 				return fn(expr);
 			}
 			return '';
@@ -7657,6 +7673,7 @@ YUI().add("supra.io-css", function (Y) {
 		
 		REG_CAT				= /\s*~\s*/g,
 		REG_AND				= /\s+and\s+/g,
+		REG_NOT				= /\s+not\s+/g,
 		REG_OR				= /\s+or\s+/g,
 		REG_FOR				= /\s*([a-z0-9_]+)(\s*,\s*([a-z0-9_]+))?\s+in\s+(.*)/i,
 		
@@ -8356,6 +8373,9 @@ YUI().add("supra.io-css", function (Y) {
 		startEditing: function () {
 			if (!this.get('disabled')) {
 				this.focus();
+				return true;
+			} else {
+				return false;
 			}
 		},
 		
@@ -8953,7 +8973,7 @@ YUI().add("supra.io-css", function (Y) {
 	});
 	
 	Input.lipsum = function () {
-		return Supra.Limsum.sentence({'count': 4, 'variation': 1});
+		return Supra.Lipsum.sentence({'count': 4, 'variation': 1});
 	};
 	
 	Supra.Input.String = Input;
@@ -8988,7 +9008,7 @@ YUI.add('supra.input-text', function (Y) {
 	});
 	
 	Input.lipsum = function () {
-		return Supra.Limsum.paragraph({'count': 4});
+		return Supra.Lipsum.paragraph({'count': 4});
 	};
 	
 	Supra.Input.Text = Input;
@@ -10409,7 +10429,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	"use strict";
 	
 	/* Tag white list, all other tags will be removed. <font> tag is added if "fonts" plugin is enabled */
-	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span', 'svg'];
+	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span', 'svg'];
 	
 	/* List of block elements */
 	Supra.HTMLEditor.ELEMENTS_BLOCK = {'h1': 'h1', 'h2': 'h2', 'h3': 'h3', 'h4': 'h4', 'h5': 'h5', 'h6': 'h6', 'p': 'p', 'blockquote': 'blockquote', 'q': 'q', 'table': 'table', 'tbody': 'tbody', 'tr': 'tr', 'td': 'td', 'thead': 'thead', 'th': 'th', 'ul': 'ul', 'ol': 'ol', 'li': 'li', 'div': 'div', 'dl': 'dl', 'dt': 'dt', 'dd': 'dd', 'col': 'col', 'colgroup': 'colgroup', 'caption': 'caption', 'object': 'object', 'param': 'param', 'embed': 'embed', 'article': 'article', 'aside': 'aside', 'details': 'details', 'figcaption': 'figcaption', 'figure': 'figure', 'footer': 'footer', 'header': 'header', 'hgroup': 'hgroup', 'nav': 'nav', 'section': 'section'};
@@ -10420,7 +10440,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	Supra.HTMLEditor.ELEMENTS_INLINE_ARR = Y.Lang.toArray(Supra.HTMLEditor.ELEMENTS_INLINE);
 	
 	/* List of tags which doesn't need to be closed */
-	Supra.HTMLEditor.NOT_CLOSED_TAGS = {'img': 'img', 'br': 'br', 'param': 'param', 'col': 'col', 'embed': 'embed'};
+	Supra.HTMLEditor.NOT_CLOSED_TAGS = {'img': 'img', 'br': 'br', 'param': 'param', 'col': 'col', 'embed': 'embed', 'hr': 'hr'};
 	
 	/* Elements which should be checked for inline style */
 	Supra.HTMLEditor.STYLED_INLINE   = {'span': 'span', 'b': 'b', 'i': 'i', 'em': 'em', 'sub': 'sub', 'sup': 'sup', 'small': 'small', 'strong':'strong', 's':'s', 'strike': 'strike', 'a': 'a', 'u': 'u', 'q': 'q', 'big': 'big'};
@@ -10470,7 +10490,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		REGEX_FIND_STYLE  = /style=("[^"]*"|'[^']*')/,
 		
 		REGEX_EMPTY_UL_OL = /<(ul|ol)>[\s\r\n]*?<\/(ul|ol)>/gi,
-		REGEX_ATTR_STYLE  = /\s+style=["']([^'"]*)["']/gi,
+		REGEX_ATTR_STYLE  = /\s+style=("[^"]*"|'[^']*')/gi,
 		REGEX_STYLE_BG    = /(fill|background-color):[^;]+/,
 		REGEX_EMPTY_CLASS = /class="\s*"/g,
 		REGEX_YUI_CLASS   = /(yui3\-table\-selected|yui3\-cell\-selected)/g,
@@ -10656,6 +10676,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Remove style attribute, except background-color and fill
 				var regex_style_bg = REGEX_STYLE_BG;
 				html = html.replace(REGEX_ATTR_STYLE, function (all, styles) {
+					styles = styles.replace(/(^['"]|['"]$)/g, ''); // trim
 					styles = styles.match(regex_style_bg);
 					if (styles && styles.length) {
 						return ' style="' + styles[0] + '"';
@@ -11442,7 +11463,6 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					}
 					
 					while (end && end !== srcNode) {
-						// @TODO Check if end is last child of parent
 						if (end === node) return true;
 						if (this.getLastChild(end.parentNode) !== end) return false;
 						end = end.parentNode;
@@ -11516,6 +11536,78 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			} else {
 				parent.appendChild(node);
 			}
+		},
+		
+		/**
+		 * Insert node as first child of parent
+		 * 
+		 * @param {HTMLElement|Text} node Node to insert
+		 * @param {HTMLElement} parent Parent element
+		 */
+		insertPrepend: function (node, parent) {
+			if (parent && parent.nodeType == 1) {
+				var reference = parent.firstChild;
+				if (reference) {
+					parent.insertBefore(node, reference);
+				} else {
+					parent.appendChild(node);
+				}
+			}
+		},
+		
+		/**
+		 * Returns node or closest ancestor matching selector
+		 * Will not look further than editor srcNode
+		 * 
+		 * @param {String} selector CSS selector
+		 * @return Y.Node matching selector
+		 * @type {Object}
+		 */
+		closest: function (node, selector) {
+			if (typeof selector == 'string') {
+				var node = Y.Node(node),
+					src  = this.get('srcNode');
+				
+				while(node && !node.compareTo(src)) {
+					if (node.test(selector)) return node.getDOMNode();
+					node = node.ancestor();
+				}
+				
+				return null;
+			} else {
+				var node   = Y.Node(node),
+					target = Y.Node(selector),
+					src    = this.get('srcNode');
+				
+				if (!target) return null;
+				
+				while(node && !node.compareTo(src)) {
+					if (node.compareTo(target)) return node.getDOMNode();
+					node = node.ancestor();
+				}
+				
+				return null;
+			}
+		},
+		
+		/**
+		 * Returns all child elements of node
+		 * 
+		 * @param {HTMLElement} node Node to check
+		 */
+		getChildElements: function (node) {
+			var children = node.childNodes,
+				i = 0,
+				ii = children.length,
+				out = [];
+			
+			for (; i<ii; i++) {
+				if (children[i].nodeType == 1) {
+					out.push(children[i]);
+				}
+			}
+			
+			return out;
 		},
 		
 		/**
@@ -11695,6 +11787,76 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				}
 				node.parentNode.removeChild(node);
 			}
+		},
+		
+		/**
+		 * Split element into two elements at given position, returns second element
+		 * 
+		 * @returns {HTMLElement} Returns second element
+		 */
+		splitAt: function (node, offset) {
+			var siblings = null,
+				clone = null,
+				tmp = null,
+				i = 0,
+				ii = 0,
+				srcNode = this.get('srcNode').getDOMNode(),
+				
+				insertAfter = this.insertAfter,
+				
+				moveSiblings = function (node) {
+					if (!node.parentNode) return null;
+					
+					var ref_parent = node.parentNode,
+						
+						parent = node.parentNode.cloneNode(),
+						next = node.nextSibling,
+						tmp = node;
+					
+					while (tmp) {
+						parent.appendChild(tmp);
+						tmp  = next;
+						next = tmp ? tmp.nextSibling : null;
+					}
+					
+					insertAfter(parent, ref_parent);
+					
+					return parent;
+				};
+			
+			var SPLIT_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote', 'q', 'li', 'div', 'article', 'aside', 'details', 'figcaption', 'footer', 'header', 'hgroup', 'nav', 'section'];
+			
+			if (offset && node.nodeType == 3) {
+				// Text node
+				tmp = this.get('doc').createTextNode();
+				tmp.textContent = node.textContent.substr(offset);
+				node.textContent = node.textContent.substr(0, offset);
+				
+				insertAfter(tmp, node);
+				node = tmp;
+			} else if (node.nodeType == 1) {
+				if (offset) {
+					tmp = node.childNodes[offset];
+					if (tmp) node = tmp.nextSibling;
+				} else if (node.childNodes.length) {
+					tmp = node.childNodes[0];
+				}
+			}
+			
+			while (node) {
+				if (node === srcNode || node.parentNode === srcNode) {
+					return node;
+				}
+				
+				node = moveSiblings(node);
+				
+				if (node.tagName && Y.Array.indexOf(SPLIT_TAGS, node.tagName.toLowerCase()) != -1) {
+					// Element which is split parent found, stop
+					return node;
+				}
+				
+			}
+			
 		}
 		
 	});
@@ -12296,6 +12458,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			var id;
 			if (typeof node == 'string') {
 				id = node;
+				node = Y.Node(this.get('doc')).one('#' + node);
 			} else {
 				node = new Y.Node(node);
 				id = node.getAttribute('id');
@@ -13417,11 +13580,25 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		eventMove: null,
 		
 		/**
+		 * Event listener object for mouse move event on main document
+		 * @type {Object}
+		 * @private
+		 */
+		eventMoveMain: null,
+		
+		/**
 		 * Event listener object for mouse up event
 		 * @type {Object}
 		 * @private
 		 */
 		eventDrop: null,
+		
+		/**
+		 * Event listener object for mouse up event on main document
+		 * @type {Object}
+		 * @private
+		 */
+		eventDropMain: null,
 		
 		/**
 		 * Event listener object for document click event
@@ -13807,26 +13984,45 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		dragStart: function (e) {
+			this.resetPointerCache();
+			
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				doc = this.get("doc");
+			
 			if (this.resizeActive || this.moveActive) {
 				//If user released mouse outside browser
 				this.dragEnd(e);
 			}
 			
-			this.eventDrop = Y.Node(this.get("doc")).on("mouseup", this.dragEnd, this);
+			this.eventDrop = Y.Node(doc).on("mouseup", this.dragEnd, this);
+			
+			if (document !== doc) {
+				this.eventDropMain = Y.Node(document).on("mouseup", this.dragEnd, this);
+			}
 			
 			this.dragCropLeft = this.cropLeft;
 			this.dragCropTop = this.cropTop;
-			this.mouseStartX = e.clientX;
-			this.mouseStartY = e.clientY;
+			this.mouseStartX = clientX;
+			this.mouseStartY = clientY;
 			
 			if (this.get("cursor") < 4) {
 				//Resize
 				this.resizeActive = true;
 				
 				if (this.get("mode") == ImageResizer.MODE_ICON) {
-					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragIconResize, this);
+					this.eventMove = Y.Node(doc).on("mousemove", this.dragIconResize, this);
+					
+					if (document !== doc) {
+						this.eventMoveMain = Y.Node(document).on("mousemove", this.dragIconResize, this);
+					}
 				} else {
-					this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragResize, this);
+					this.eventMove = Y.Node(doc).on("mousemove", this.dragResize, this);
+					
+					if (document !== doc) {
+						this.eventMoveMain = Y.Node(document).on("mousemove", this.dragResize, this);
+					}
 				}
 				
 				this.dragStartW = this.dragW = this.cropWidth;
@@ -13835,6 +14031,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				//Move
 				this.moveActive = true;
 				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragMove, this);
+				
+				if (document !== doc) {
+					this.eventMoveMain = Y.Node(document).on("mousemove", this.dragMove, this);
+				}
 				
 				this.dragStartW = this.dragW = this.cropLeft;
 				this.dragStartH = this.dragH = this.cropTop;
@@ -13850,9 +14050,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		dragMove: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
 				sizeY  = this.dragStartH + deltaY,
 				mode   = this.get("mode");
@@ -13907,9 +14111,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		dragResize: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
 				sizeY  = this.dragStartH + deltaY,
 				mode   = this.get("mode");
@@ -13999,9 +14207,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		dragIconResize: function (e) {
-			var cursor = this.get("cursor"),
-				deltaX = (e.clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
-				deltaY = (e.clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
+			var pointer = this.getPointerPosition(e),
+				clientX = pointer[0],
+				clientY = pointer[1],
+				
+				cursor = this.get("cursor"),
+				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
+				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				delta  = Math.max(deltaX, deltaY),
 				sizeX  = this.dragStartW + delta,
 				sizeY  = this.dragStartH + delta;
@@ -14073,6 +14285,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.eventMove.detach();
 				this.eventMove = null;
 				
+				if (this.eventDropMain) {
+					this.eventDropMain.detach();
+					this.eventDropMain = null;	
+				}
+				
+				if (this.eventMoveMain) {
+					this.eventMoveMain.detach();
+					this.eventMoveMain = null;	
+				}
+				
 				if (this.resizeActive) { // resize
 					this.cropLeft = this.dragCropLeft;
 					this.cropTop = this.dragCropTop;
@@ -14114,6 +14336,70 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-icon") && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
 				this.set("image", null);
 			}
+		},
+		
+		/**
+		 * Returns pointer position relative to the window of attribute doc 
+		 * 
+		 * @param {Event} e Event facade object
+		 * @returns {Array} Array with x and y coordinates of pointer
+		 * @private
+		 */
+		getPointerPosition: function (e) {
+			var x          = 0,
+				y          = 0,
+				target     = e.target.getDOMNode(),
+				doc_target = target.ownerDocument,
+				doc        = this.get('doc'),
+				offset     = this._iframeOffset,
+				iframes    = null,
+				iframe     = null,
+				i          = 0,
+				ii         = 0,
+				tmp        = null;
+			
+			if (e.type.indexOf('touch') == -1) {
+				// Mouse cursor
+				x = e.clientX;
+				y = e.clientY;
+			} else {
+				// Touch
+				// @TODO In the future
+				// x = e.touches[0].clientX;
+				// y = e.touches[0].clientY;
+			}
+			
+			if (doc !== doc_target) {
+				// Adjust position by removing iframe position
+				if (!offset) {
+					// Find iframe
+					iframes = Y.all('iframe');
+					
+					for (ii=iframes.size(); i<ii; i++) {
+						tmp = iframes.item(i).getDOMNode();
+						if ((tmp.contentDocument || tmp.contentWindow.document) === doc) {
+							iframe = tmp; break;
+						}
+					}
+					
+					// Get offset
+					offset = this._iframeOffset = (iframe ? Y.DOM.getXY(iframe) : [0, 0]);
+				}
+				
+				x -= offset[0];
+				y -= offset[1];
+			}
+			
+			return [x, y];
+		},
+		
+		/**
+		 * Reset pointer cache
+		 * 
+		 * @private
+		 */
+		resetPointerCache: function () {
+			this._iframeOffset = null;
 		},
 		
 		
@@ -16828,6 +17114,12 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		/* Modes which plugin supports */
 		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
 		
+		/* Search for plain text email addresses and replace them with links */
+		parseEmails: true,
+		
+		/* Classname to use for button style */
+		buttonClassName: 'button',
+		
 		/* String replacements */
 		replacements: [
 			[
@@ -16899,15 +17191,23 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		insertLinkConfirmed: function (data, selection) {
 			if (data && data.href) {
-				var htmleditor = this.htmleditor;
+				var htmleditor = this.htmleditor,
+					classname = data.classname || '';
 				
 				//Restore selection
 				htmleditor.setSelection(selection);
 				
+				//Button class
+				if (data.button) {
+					if (classname.indexOf(this.configuration.buttonClassName) == -1) {
+						classname = (classname ? ' ' : '') + this.configuration.buttonClassName;
+					}
+				}
+				
 				//Insert link
 				var uid = htmleditor.generateDataUID(),
 					text = this.htmleditor.getSelectionText(),
-					html = '<a id="' + uid + '"' + (data.classname ? ' class="' + data.classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '">' + text + '</a>';
+					html = '<a id="' + uid + '"' + (classname ? ' class="' + classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '">' + text + '</a>';
 				
 				data.type = this.NAME;
 				htmleditor.setData(uid, data)
@@ -16968,6 +17268,13 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					target.setAttribute('target', data.target);
 				} else {
 					target.removeAttribute('target');
+				}
+				
+				//Button
+				if (data.button) {
+					target.addClass(this.configuration.buttonClassName);
+				} else {
+					target.removeClass(this.configuration.buttonClassName);
 				}
 			} else {
 				//Insert all link children nodes before link and remove <A>
@@ -17113,6 +17420,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * Parse HTML and replace all email addresses with links
 		 */
 		parseStrings: function (html) {
+			if (!this.configuration.parseEmails) return html;
+			
 			var replacements = this.configuration.replacements,
 				k = 0,
 				kk = replacements.length,
@@ -17201,7 +17510,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		tagHTML: function (html) {
 			var htmleditor = this.htmleditor,
-				NAME = this.NAME;
+				NAME = this.NAME,
+				self = this;
 			
 			//Add links to email addresses
 			html = this.parseStrings(html);
@@ -17215,6 +17525,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					//Extract classname
 					var classname = html.match(/class="([^"]+)"/);
 					data.classname = classname ? classname[1] : '';
+					
+					//Does link has button style
+					data.button = data.classname.indexOf(self.configuration.buttonClassName) != -1;
 					
 					return '{supra.' + NAME + ' id="' + id + '"}';
 				} else {
@@ -17236,7 +17549,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		tagPastedHTML: function (event, data) {
 			var htmleditor = this.htmleditor,
-				NAME = this.NAME;
+				NAME = this.NAME,
+				self = this;
 			
 			//Extract email addresses
 			if (event) {
@@ -17257,6 +17571,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 						'target': attrs.target || '',
 						'title': attrs.title || '',
 						'classname': attrs['class'] || '',
+						'button': (attrs['class'] || '').indexOf(self.configuration.buttonClassName) != -1,
 						'type': 'link'
 					};
 					htmleditor.setData(id, data, true);
@@ -17298,8 +17613,16 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			html = html.replace(/{supra\.link id="([^"]+)"}/ig, function (tag, id) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
 				
-				var href = self.normalizeHref(data[id].href);
-				return '<a id="' + id + '"' + (data[id].classname ? ' class="' + data[id].classname + '"' : '') + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '">';
+				var href = self.normalizeHref(data[id].href),
+					classname = data[id].classname || '';
+				
+				if (data[id].button) {
+					if (classname.indexOf(self.configuration.buttonClassName) == -1) {
+						classname = (classname ? ' ' : '') + self.configuration.buttonClassName;
+					}
+				}
+				
+				return '<a id="' + id + '"' + (classname ? ' class="' + classname + '"' : '') + (data[id].target ? ' target="' + data[id].target + '"' : '') + ' title="' + Y.Escape.html(data[id].title || '') + '">';
 			});
 			
 			//Closing tags
@@ -17324,8 +17647,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//Remove unneeded data
 			delete(data.file_path);
 			
-			//HREF is needed for external links
-			if (data.resource != 'link') delete(data.href);
+			//HREF is needed for external links and email (optional)
+			if (data.resource != 'link' && data.resource != 'email') delete(data.href);
 			
 			return data;
 		}
@@ -20181,7 +20504,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		
 		'Applications': '/dashboard',
 		'BrowserSupport': '/dashboard',
+		
 		'Sites': '-local/site-list-manager', // This is rather hacky.
+		'DesignCustomize': '-local/design-manager', // This is rather hacky.
+		'DesignSidebar': '-local/design-manager', // This is rather hacky.
 		
 		'Blog': '/blog-manager',
 		
@@ -23454,7 +23780,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			var node = element ? Y.Node(element) : null;
 			if (node) {
 				if (!this.highlightNode) {
-					this.highlightNode = Y.Node.create('<div class="yui3-element-overlay"></div>');
+					this.highlightNode = Y.Node.create('<div class="su-element-overlay"></div>');
 					
 					var doc = Y.Node(this.htmleditor.get('doc'));
 					doc.one('body').append(this.highlightNode);
@@ -23574,20 +23900,29 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.highlightElement(null);
 			
 			if (!target) {
-				//No matching elements were found, user has selected simple text
-				//Create P element
-				this.htmleditor.exec('p');
-				this.htmleditor.refresh(true);
+				target = this.htmleditor.getSelectedElement();
+				target = target ? this.htmleditor.closest(target, 'H1, H2, H3, H4, H5, P, LI') : null;
 				
-				//Style newly created element
-				if (classname) {
-					var node = this.htmleditor.getSelectedElement();
-					if (node) {
-						node = Y.Node(node).closest('H1, H2, H3, H4, H5, P');
-						
-						//Set new class
+				if (target && target.tagName == 'LI') {
+					//List item is selected, wrap all inner nodes
+					this.wrapContents(Y.Lang.toArray(target.childNodes), tag, classname);
+					this.htmleditor.refresh(true);
+				} else {
+					//No matching elements were found, user has selected simple text
+					//Create P element
+					this.htmleditor.exec((tag || 'p').toLowerCase());
+					this.htmleditor.refresh(true);
+					
+					//Style newly created element
+					if (classname) {
+						var node = this.htmleditor.getSelectedElement();
 						if (node) {
-							node.addClass(classname);
+							node = Y.Node(node).closest('H1, H2, H3, H4, H5, P');
+							
+							//Set new class
+							if (node) {
+								node.addClass(classname);
+							}
 						}
 					}
 				}
@@ -23620,6 +23955,114 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				if (node && classname) {
 					node.addClass(classname);
 				}
+			}
+		},
+		
+		/**
+		 * Wrap 'node' inside a node
+		 * Block level elements are traversed and their inline children and text are wrapped
+		 * Heading and paragraph tags are replaced with 'tag'
+		 * 
+		 * @param {HTMLElement|Text} node Node to wrap
+		 * @param {String} tag Tag name to wrap content inside
+		 * @param {String} className Optional class to add to wrapped tag
+		 * @private
+		 */
+		wrapContents: function (node, tag, className) {
+			var replace    = {'h1': true, 'h2': true, 'h3': true, 'h4': true, 'h5': true, 'p': true},
+				inline     = Supra.HTMLEditor.ELEMENTS_INLINE,
+				htmleditor = this.htmleditor,
+				selected   = null,
+				
+				createNode = function (content, replace) {
+					var node = document.createElement(tag),
+						old_node = null;
+					
+					if (className) {
+						node.className = className;
+					}
+					if (content) {
+						if (replace) {
+							htmleditor.insertBefore(node, content);
+							old_node = content;
+							content = content.childNodes ? Y.Lang.toArray(content.childNodes) : [content];
+						}
+						if (Y.Lang.isArray(content)) {
+							if (content.length) {
+								if (!replace) {
+									htmleditor.insertBefore(node, content[0]);
+								}
+								for (var i=0,ii=content.length; i<ii; i++) {
+									node.appendChild(content[i]);
+								}
+							}
+						} else {
+							htmleditor.insertBefore(node, content);
+							node.appendChild(content);
+						}
+						if (replace) {
+							old_node.parentNode.removeChild(old_node);
+						}
+					}
+					
+					return node;
+				},
+				
+				traverse = function (nodes) {
+					var i = 0,
+						ii = nodes.length,
+						first = null,
+						node = null,
+						tagName = null;
+					
+					for (; i<ii; i++) {
+						if (nodes[i].nodeType == 1) {
+							tagName = nodes[i].tagName.toLowerCase();
+							if (tagName in replace) {
+								// Replace tag
+								node = createNode(nodes[i], true);
+								first = first || node;
+							} else if (!(tagName in inline)) {
+								// Traverse children, if tag is not inline
+								traverse(Y.Lang.toArray(nodes[i].childNodes));
+								// Reset node, so that it's created for next matching item
+								// to preserve correct tag order
+								node = null;
+							} else {
+								// Inline node, wrap inside a tag
+								if (node) {
+									// We already have a tag, append content to it
+									node.appendChild(nodes[i]);
+								} else {
+									// Create a tag
+									node = createNode(nodes[i]);
+									first = first || node;
+								}
+							}
+						} else if (nodes[i].nodeType == 3 && htmleditor.getNodeLength(nodes[i])){
+							// Non empty text node
+							if (node) {
+								// We already have a tag, append content to it
+								node.appendChild(nodes[i]);
+							} else {
+								// Create a tag
+								node = createNode(nodes[i]);
+								first = first || node;
+							}
+						}
+					}
+					
+					return node;
+				};
+			
+			if (Y.Lang.isArray(node)) {
+				selected = traverse(node);
+			} else {
+				selected = traverse([node]);
+			}
+			
+			if (selected) {
+				htmleditor.selectNode(selected);
 			}
 		},
 		
@@ -23813,6 +24256,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		removeAttributes: ['xmlns', 'style', 'lang', 'id', 'name', 'class', 'width', 'height', 'v:[a-z0-9\\-\\_]+', 'w:[a-z0-9\\-\\_]+']
 	};
 	
+	var REMOVABLE_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote', 'q', 'li', 'div', 'article', 'aside', 'details', 'figcaption', 'footer', 'header', 'hgroup', 'nav', 'section'];
+	
 	Supra.HTMLEditor.addPlugin('paste', defaultConfiguration, {
 		
 		/**
@@ -23897,15 +24342,51 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * it into content
 		 */
 		afterPaste: function () {
-			if (this.previousSelection && this.placeHolder) {
-				var htmleditor	= this.htmleditor,
-					html		= this.placeHolder.innerHTML;
+			var placeHolder = this.placeHolder,
+				nodes = null,
+				node  = null,
+				tag   = null,
+				
+				htmleditor = null,
+				html = null,
+				
+				children = null,
+				
+				split = true;
+			
+			if (this.previousSelection && placeHolder) {
+				htmleditor	= this.htmleditor,
+				html		= placeHolder.innerHTML;
 				
 				//Process HTML to make sure there is no garbage code
 				html = this.cleanPastedHTML(html);
 				
 				//Convert into format browser can understand and work with
 				html = html ? htmleditor.uncleanHTML(html) : html;
+				
+				//Check if we need to unwrap tag
+				placeHolder.innerHTML = html;
+				nodes = Y.Node(placeHolder).get('childNodes');
+				
+				if (nodes.size() == 1) {
+					//If there is only a single tag in the list then unwrap it
+					//if tag is in REMOVABLE_TAGS list
+					if (nodes.item(0).get('nodeType') == 1) {
+						tag = nodes.item(0).get('tagName').toLowerCase();
+						
+						if (Y.Array.indexOf(REMOVABLE_TAGS, tag) != -1) {
+							htmleditor.unwrapNode(nodes.item(0).getDOMNode());
+							html = placeHolder.innerHTML;
+							split = false;
+						}
+					}
+				}
+				
+				if (split && nodes.size()) {
+					//If there are multiple tags then split existing tag and insert nodes where they should be
+					this.afterPasteInsert(nodes);
+					return;
+				}
 				
 				//Restore previous selection
 				htmleditor.setSelection(this.previousSelection);
@@ -23920,19 +24401,75 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						//In webkit selection is set only after timeout
 						Y.later(16, this, function () {
 							htmleditor.replaceSelection(html, null);
+							this.afterPasteFinalize();
 						});
 					} else {
 						htmleditor.replaceSelection(html, null);
+						this.afterPasteFinalize();
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Insert content by splitting existing tag into two parts at cursor position
+		 * and insert pasted content between them
+		 */
+		afterPasteInsert: function (nodes) {
+			var htmleditor	= this.htmleditor,
+				insert = null;
+			
+			// 
+			insert = Y.bind(function () {
+				htmleditor.replaceSelection('');
+				
+				var parent = htmleditor.splitAt(this.previousSelection.start, this.previousSelection.start_offset),
+					dom = nodes.getDOMNodes(),
+					i = 0,
+					ii = dom.length;
+				
+				if (parent.tagName == 'LI' && dom[0].tagName != 'LI') {
+					// List item, add to the beginning of it because pasting non-list items
+					for (i=ii-1; i>=0; i--) {
+						htmleditor.insertPrepend(dom[i], parent);
+					}
+				} else {
+					for (; i<ii; i++) {
+						htmleditor.insertBefore(dom[i], parent);
 					}
 				}
 				
-				//Remove placeholder since it's not needed anymore
-				this.placeHolder.parentNode.removeChild(this.placeHolder);
-				delete(this.placeHolder);
+				// If reference node is empty then remove it
+				if (htmleditor.isNodeEmpty(parent)) {
+					parent.parentNode.removeChild(parent);
+				}
 				
-				//Content was changed
-				this.htmleditor._changed();
+				this.previousSelection = null;
+			}, this);
+			
+			
+			//R estore previous selection
+			htmleditor.setSelection(this.previousSelection);
+			
+			if (Y.UA.webkit) {
+				//In webkit selection is set only after timeout
+				Y.later(16, this, insert);
+			} else {
+				insert();
 			}
+		},
+		
+		/**
+		 * Clean up after paste
+		 * @private
+		 */
+		afterPasteFinalize: function () {
+			//Remove placeholder since it's not needed anymore
+			this.placeHolder.parentNode.removeChild(this.placeHolder);
+			delete(this.placeHolder);
+			
+			//Content was changed
+			this.htmleditor._changed();
 		},
 		
 		/**
@@ -24103,7 +24640,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	/*
 	 * Regular expression to remove whitespace, BR and empty P tags from beginning of HTML
 	 */
-	var WHITESPACE_REGEX = /^(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<p[^>]*>(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<\/p>/i;
+	var WHITESPACE_REGEX = /^(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<p[^>]*>(&nbsp;|\n|\r|\s|<\/?\s?br\s?\/?>)*<\/p>/i,
+	
+		KEY_RETURN         = 13,
+		KEY_BACKSPACE      = 8,
+		KEY_DELETE         = 46;
+	
 	
 	Supra.HTMLEditor.addPlugin('paragraph', defaultConfiguration, {
 		
@@ -24111,7 +24653,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * Handle keyDown in IE and WebKit browsers to insert BR
 		 */
 		_onBrKeyDown: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
 				var editor = this.htmleditor,
 					node = new Y.Node(editor.getSelectedElement());
 				
@@ -24146,85 +24688,138 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * On return key insert paragraph
 		 */
 		_insertParagraph: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
 				
-				//var node = new Y.Node(this.htmleditor.getSelectedElement());
-				//if (!node.test('LI') && !node.ancestor('LI')) {
-					
-					if (Y.UA.gecko) {
-						//this.htmleditor.insertHTML('<P></P>');
-						//@TODO
-					} else if (Y.UA.webkit) {
+				// Cursor is at the end of the inline node?
+				// Create block level element, not inline (eg. <a class="button" />)
+				var selected  = this.htmleditor.getSelectedElement(),
+					inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
+					tagName   = '',
+					node      = null,
+					length    = 0;
+				
+				if (selected) {
+					if (this.htmleditor.isCursorAtTheEndOf()) {
+						node    = this.htmleditor.getSelectedElement('p, li, td, th');
+						tagname = node ? node.tagName : 'P';
 						
-						// Cursor is at the end of the inline node?
-						// Create block level element, not inline (eg. <a class="button" />)
-						var selected  = this.htmleditor.getSelectedElement(),
-							inline    = Supra.HTMLEditor.ELEMENTS_INLINE,
-							tagName   = '',
-							node      = null,
-							length    = 0;
-						
-						if (selected) {
-							if (this.htmleditor.isCursorAtTheEndOf()) {
-								node    = this.htmleditor.getSelectedElement('p, li, td, th');
-								tagname = node ? node.tagName : 'P';
-								
-								if (tagname == 'TD' || tagname == 'TH') {
-									// If inside TD or TH then insert <br />
-									this._onBrKeyDown(event);
-								} else if (tagname == 'LI') {
-									// If inside LI then insert new li if there is non-selected content
-									// inside this li, otherwise insert P after content
-									 
-									if (this.htmleditor.isNodeEmpty(node)) {
-										if (this.htmleditor.getLastChild(node.parentNode) === node) {
-											// Empty LI and it's last in the list, insert paragraph after list 
-											this.insertHTML('P', node.parentNode);
-											node.parentNode.removeChild(node);
-											event.halt();
-										} else {
-											// Empty LI, but not last in the list, split list into two
-											var doc  = this.htmleditor.get('doc'),
-												list = doc.createElement(node.parentNode.tagName),
-												p    = doc.createElement('P'),
-												tmp  = null;
-											
-											this.htmleditor.insertAfter(list, node.parentNode);
-											this.htmleditor.insertAfter(p, node.parentNode);
-											
-											while (node.nextSibling) {
-												list.appendChild(node.nextSibling);
-											}
-											
-											node.parentNode.removeChild(node);
-											
-											// Move cursor to P
-											this.htmleditor.setSelection({'start': p, 'end': p, 'start_offset': 0, 'end_offset': 0});
-											
-											event.halt();
-										}
-									} else if (this.htmleditor.isAllNodeSelected(node)) {
-										// All LI is selected, remove it and insert P after list
-										this.insertHTML('P', node.parentNode);
-										node.parentNode.removeChild(node);
-										event.halt();
-									} else {
-										// Not empty LI, default behaviour of inserting LI is ok
-									}
+						if (tagname == 'TD' || tagname == 'TH') {
+							// If inside TD or TH then insert <br />
+							this._onBrKeyDown(event);
+						} else if (tagname == 'LI') {
+							// If inside LI then insert new li if there is non-selected content
+							// inside this li, otherwise insert P after content
+							 
+							if (this.htmleditor.isNodeEmpty(node)) {
+								if (this.htmleditor.getLastChild(node.parentNode) === node) {
+									// Empty LI and it's last in the list, insert paragraph after list 
+									this.insertHTML('P', node.parentNode);
+									node.parentNode.removeChild(node);
+									event.halt();
 								} else {
-									if (!this.htmleditor.selection.collapsed) {
-										this.htmleditor.replaceSelection('');
+									// Empty LI, but not last in the list, split list into two
+									var doc  = this.htmleditor.get('doc'),
+										list = doc.createElement(node.parentNode.tagName),
+										p    = doc.createElement('P'),
+										tmp  = null;
+									
+									this.htmleditor.insertAfter(list, node.parentNode);
+									this.htmleditor.insertAfter(p, node.parentNode);
+									
+									while (node.nextSibling) {
+										list.appendChild(node.nextSibling);
 									}
-									this.insertHTML(tagname);
+									
+									node.parentNode.removeChild(node);
+									
+									// Move cursor to P
+									this.htmleditor.setSelection({'start': p, 'end': p, 'start_offset': 0, 'end_offset': 0});
+									
 									event.halt();
 								}
+							} else if (this.htmleditor.isAllNodeSelected(node)) {
+								// All LI is selected, remove it and insert P after list
+								this.insertHTML('P', node.parentNode);
+								node.parentNode.removeChild(node);
+								event.halt();
 							} else {
-								console.log('NOT AT THE END!');
+								// Not empty LI, default behaviour of inserting LI is ok
 							}
+						} else {
+							if (!this.htmleditor.selection.collapsed) {
+								this.htmleditor.replaceSelection('');
+							}
+							this.insertHTML(tagname);
+							event.halt();
 						}
 					}
+				}
 				
-				//}
+			}
+		},
+		
+		/**
+		 * On backspace key if at the begining of the tag or on delete key if at the end of the tag
+		 * Content merge should result in not styles being applied
+		 * 
+		 * @private
+		 */
+		_mergeContent: function (event) {
+			if (!event.stopped && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+				
+				if (event.keyCode == KEY_BACKSPACE) {
+					if (this.htmleditor.isCursorAtTheBeginingOf()) {
+						Y.later(0, this, this._afterMergeContent);
+					}
+					
+				} else if (event.keyCode == KEY_DELETE) {
+					if (this.htmleditor.isCursorAtTheEndOf()) {
+						Y.later(0, this, this._afterMergeContent);
+					}
+				}
+				
+			}
+		},
+		
+		/**
+		 * Clean up after merge
+		 * 
+		 * @private
+		 */
+		_afterMergeContent: function () {
+			this.htmleditor.resetSelectionCache();
+			var node  = this.htmleditor.getSelectedElement(),
+				nodes = null,
+				i     = 0,
+				style = '';
+			
+			if (!node) {
+				// Outside the bounds, not editable element
+				// In theory this should never happen
+				Y.log('After backspace or delete key can\'t find selected element for cleanup.', 'warn');
+				return;
+			}
+			
+			// Get parent element of node
+			node = Y.Node(node);
+			if (node.test('SPAN')) {
+				node = node.ancestor();
+			}
+			
+			nodes = node.all(Supra.HTMLEditor.ELEMENTS_INLINE_ARR.join(',')).getDOMNodes();
+			
+			if (nodes) {
+				for (i=nodes.length-1; i>=0; i--) {
+					node = nodes[i];
+					
+					if (!Y.Lang.trim(node.className) && node.tagName == 'SPAN') {
+						// No special styling using classname, remove element
+						this.htmleditor.unwrapNode(node);
+					} else {
+						// Remove styles, but leave element
+						node.removeAttribute('style');
+					}
+				}
 			}
 		},
 		
@@ -24311,6 +24906,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				 */
 				htmleditor.get('srcNode').on('keydown', Y.bind(this._insertParagraph, this));
 			}
+			
+			/*
+			 * After backspace/delete keys remove merge formatting
+			 */
+			htmleditor.get('srcNode').on('keydown', Y.bind(this._mergeContent, this));
 			
 			/*
 			 * Remove whitespace from HTML
@@ -25081,7 +25681,10 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						'icon': value && value.icon ? value.icon : ''
 					});
 					
-					this.widgets.slide = slide = slideshow.addSlide('propertySlide' + this.get('id'));
+					this.widgets.slide = slide = slideshow.addSlide({
+						'id': 'propertySlide' + this.get('id'),
+						'title': this.get('label') || this.get('labelButton')
+					});
 					slide = slide.one('.su-slide-content');
 					
 					button.render();
@@ -25093,6 +25696,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						boundingBox = this.get('boundingBox'),
 						container = this.widgets.separateContainer = Y.Node.create('<div class="yui3-widget yui3-input"></div>');
 					
+					if (!this.get('visible')) {
+						container.addClass('hidden');
+					}
 					if (labelNode) {
 						container.append(labelNode, 'before');
 					}
@@ -25506,6 +26112,24 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Visible attribute setter
+		 * 
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			visible = Input.superclass._uiSetVisible.apply(this, arguments);
+			
+			/*
+			var separateContainer = this.widgets.separateContainer;
+			if (separateContainer) {
+				separateContainer.toggleClass('hidden', !visible);
+			}
+			*/
+			
+			return visible;
 		}
 		
 	});
@@ -31640,7 +32264,7 @@ YUI.add('supra.input-slider', function (Y) {
 				this.bindMapEvents();
 			}
 			
-			Input.superclass.startEditing.apply(this, arguments);
+			return Input.superclass.startEditing.apply(this, arguments);
 		},
 		
 		stopEditing: function () {
@@ -34214,7 +34838,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			this.widgets.slideId = Y.guid();
 			
 			var slideshow = this.get("slideshow"),
-				slide = this.widgets.slide = slideshow.addSlide(this.widgets.slideId);
+				slide = this.widgets.slide = slideshow.addSlide({
+					'id': this.widgets.slideId,
+					'title': this.get('label')
+				});
 			
 			//If slideshow is in sidebar we want an icon and title changed
 			slide.setAttribute("data-icon", "/cms/lib/supra/img/sidebar/icons/settings-schedule.png");
@@ -34707,7 +35334,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (!node) {
 				// There are no nodes for this block
-				return;
+				return false;
 			}
 			
 			if (!imageResizer) {
@@ -34739,6 +35366,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			imageResizer.set("image", node);
 			
 			this.focus();
+			return true;
 		},
 		
 		/**
@@ -34843,7 +35471,9 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		openMediaSidebar: function () {
 			// Close settings form
-			var properties = this.getPropertiesWidget();
+			var properties = this.getPropertiesWidget(),
+				deferred = new Supra.Deferred();
+			
 			if (properties) {
 				properties.hidePropertiesForm({
 					"keepToolbarButtons": true // we keep them because settings sidebar is hidden temporary
@@ -34867,12 +35497,20 @@ YUI.add('supra.datatype-color', function(Y) {
 				path = this.image && this.image.image ? [].concat(this.image.image.path).concat(this.image.image.id) : 0;
 			
 			mediasidebar.execute({
-				"onselect": Y.bind(this.insertImage, this),
-				"onclose": Y.bind(this.showSettingsSidebar, this),
+				"onselect": Y.bind(function (data) {
+					this.insertImage(data);
+					deferred.resolve([data]);
+				}, this),
+				"onclose": Y.bind(function () {
+					this.showSettingsSidebar();
+					deferred.resolve([this.get('value')]);
+				}, this),
 				"hideToolbar": true,
 				"item": path,
 				"dndEnabled": false
 			});
+			
+			return deferred.promise();
 		},
 		
 		/**
@@ -34981,7 +35619,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (slideshow || !separate) {
 				if (separate) {
-					slide = this.slide = slideshow.addSlide(slide_id);
+					slide = this.slide = slideshow.addSlide({
+						'id': slide_id,
+						'title': this.get('label')
+					});
 					container = slide.one(".su-slide-content");
 					slideshow.on("slideChange", this.onSlideshowSlideChange, this);
 				} else {
@@ -35379,7 +36020,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		startEditing: function () {
 			if (!this.image || !this.image.image) {
 				// No data for image to edit
-				return;
+				return false;
 			}
 			
 			var imageResizer = this.widgets.imageResizer,
@@ -35387,7 +36028,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				size = this.image.image.sizes.original;
 			
 			if (!node) {
-				return;
+				return false;
 			}
 			
 			if (!imageResizer) {
@@ -35424,6 +36065,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			imageResizer.set("image", node);
 			
 			this.focus();
+			return true;
 		},
 		
 		/**
@@ -35892,7 +36534,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		startEditing: function () {
 			if (!this.icon || !this.icon.isDataComplete()) {
 				// No data for image to edit
-				return;
+				return false;
 			}
 			
 			var imageResizer = this.widgets.imageResizer,
@@ -35905,7 +36547,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				max_height = Math.round(max_width / ratio);
 			
 			if (!node) {
-				return;
+				return false;
 			}
 			
 			if (!imageResizer) {
@@ -35943,6 +36585,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			imageResizer.set("image", node);
 			
 			this.focus();
+			return true;
 		},
 		
 		/**
@@ -36818,8 +37461,8 @@ YUI.add('supra.datatype-color', function(Y) {
 				slideshow = this.getSlideshow(),
 				input_image = null,
 				input_video = null,
-				slide_image = slideshow.addSlide(this.get('id') + '_slide_image'),
-				slide_video = slideshow.addSlide(this.get('id') + '_slide_video'),
+				slide_image = slideshow.addSlide({'id': this.get('id') + '_slide_image', 'title': this.get('label')}),
+				slide_video = slideshow.addSlide({'id': this.get('id') + '_slide_video'}),
 				delete_image = null,
 				delete_video = null,
 				uploader = null,
@@ -36841,6 +37484,9 @@ YUI.add('supra.datatype-color', function(Y) {
 
 				});
 			}
+			
+			// Since we are using InlineImage and Video we don't need to show this input
+			this.get('boundingBox').addClass('hidden');
 			
 			// Inputs
 			input_image = new Supra.Input.InlineImage({
@@ -37137,25 +37783,36 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * Start editing input
 		 */
 		startEditing: function () {
-			if (!this.get('disabled')) {
-				this.focus();
-				this.set('editing', true);
-				
+			var state = false;
+			
+			if (!this.get('disabled') && !this.get('editing')) {
 				if (this.type === 'video' || this.type === 'image') {
+					this.set('editing', true);
+					this.focus();
+					
 					this.showSettingsSidebar();
 					
 					if (this.type === 'video') {
-						this.widgets.input_video.startEditing();
+						state = this.widgets.input_video.startEditing();
 					} else {
-						this.widgets.input_image.startEditing();
+						state = this.widgets.input_image.startEditing();
 						
 						if (!this.get('value').image) {
 							// Open media library to choose image
-							this.widgets.input_image.openMediaSidebar();
+							var promise = this.widgets.input_image.openMediaSidebar();
+							promise.done(function (value) {
+								if (!value) {
+									// Image isn't selected, show "Image" / "Video" choice
+									this.removeMedia();
+									this.stopEditing();
+								}
+							}, this);
 						}
 					}
 				}
 			}
+			
+			return state;
 		},
 		
 		/**
@@ -37234,7 +37891,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		renderContent: function (node, data) {
-			var node = node || this.get('targetNode'),
+			var node = node,
 				type = data.type || this.type;
 			
 			if (!node) {
@@ -37442,6 +38099,15 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		getValueType: function () {
 			var value = this.get('value');
+		},
+		
+		/**
+		 * Visible attribute setter
+		 * 
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			return visible;
 		}
 		
 	});
@@ -38255,6 +38921,8 @@ YUI.add('supra.input-set', function (Y) {
 			
 			this._valuesRendered = true;
 			this._fireResizeEvent();
+			
+			this.fire('setRender');
 		},
 		
 		/**
@@ -38336,6 +39004,10 @@ YUI.add('supra.input-set', function (Y) {
 			
 			if (animate) {
 				this._animateIn(node);
+			}
+			
+			if (this._valuesRendered) {
+				this.fire('setRender', {'data': data});
 			}
 		},
 		
@@ -38447,9 +39119,24 @@ YUI.add('supra.input-set', function (Y) {
 		
 		/**
 		 * On input focus save set index
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
 		 */
 		_onInputFocus: function (event) {
 			this._focusedSetIndex = this._getSetIndex(event.target.get('srcNode'));
+		},
+		
+		/**
+		 * Returns widgets for set
+		 * 
+		 * @param {Number} index Set index
+		 * @returns {Object} List of all widgets for set
+		 */
+		getSetWidgets: function (index) {
+			if (index >= 0 && index < this._count) {
+				return this._inputs[index];
+			}
 		},
 		
 		
@@ -38517,12 +39204,15 @@ YUI.add('supra.input-set', function (Y) {
 		 * @private
 		 */
 		_createSlide: function () {
-			var slideshow = this.getSlideshow(),
-				slide_id = this.get('id') + '_' + Y.guid(),
-				slide = slideshow.addSlide(slide_id),
+			var label = this.get('label'),
+				labelButton = this.get('labelButton'),
 				
-				label = this.get('label'),
-				labelButton = this.get('labelButton');
+				slideshow = this.getSlideshow(),
+				slide_id = this.get('id') + '_' + Y.guid(),
+				slide = slideshow.addSlide({
+					'id': slide_id,
+					'title': label || labelButton
+				});
 			
 			this._slideContent = slide.one('.su-slide-content');
 			this._slideId = slide_id;
@@ -40173,10 +40863,22 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	
 	Input.NAME = "input-html";
 	Input.ATTRS = {
-		'doc': null,
-		'win': null,
-		'toolbar': null,
-		'nodeIframe': null
+		'doc': {
+			value: null
+		},
+		'win': {
+			value: null
+		},
+		'toolbar': {
+			value: null
+		},
+		'nodeIframe': {
+			value: null
+		},
+		// HTML plugin information
+		'plugins': {
+			value: null
+		}
 	};
 	
 	/**
@@ -40294,7 +40996,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					'mode': Supra.HTMLEditor.MODE_RICH,
 					'standalone': true,
 					'parent': this,
-					'root': this.get('root') || this
+					'root': this.get('root') || this,
+					'plugins': this.get('plugins')
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -40399,7 +41102,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					
 					this.htmleditor.set('disabled', false);
 					
-					Manager.EditorToolbar.once('visibleChange', this.onIframeBlur, this);
+					Manager.EditorToolbar.once('afterVisibleChange', this.onIframeBlur, this);
 				}
 			}
 		},
@@ -40603,7 +41306,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	Input.lipsum = function () {
 		return {
 			'data': {},
-			'html': Supra.Limsum.html()
+			'html': Supra.Lipsum.html()
 		};
 	};
 	
@@ -40642,6 +41345,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		'inline': {
 			value: true,
 			readOnly: true
+		},
+		// HTML plugin information
+		'plugins': {
+			value: null
 		}
 	};
 	
@@ -40708,7 +41415,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					'mode': Supra.HTMLEditor.MODE_RICH,
 					'parent': this,
 					'root': this.get('root') || this,
-					'disabled': true
+					'disabled': true,
+					'plugins': this.get('plugins')
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -40863,7 +41571,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	Input.lipsum = function () {
 		return {
 			'data': {},
-			'html': Supra.Limsum.html()
+			'html': Supra.Lipsum.html()
 		};
 	};
 	
@@ -41076,7 +41784,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	});
 	
 	Input.lipsum = function () {
-		return Supra.Limsum.sentence({'count': 4, 'variation': 1});
+		return Supra.Lipsum.sentence({'count': 4, 'variation': 1});
 	};
 	
 	Supra.Input.InlineString = Input;
@@ -42078,6 +42786,38 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			return disabled;
 		}
 	});
+	
+	/**
+	 * Validation functions 
+	 */
+	Form.validate = {
+		/**
+		 * Regular expression to test email validity
+		 * @type {Object}
+		 */
+		REGEX_EMAIL: /^\s*([a-z0-9]([a-z0-9\.\-\_]*[a-z0-9])?@[a-z0-9][a-z0-9\-\_]*([\.]([a-z0-9][a-z0-9\-\_]?)?[a-z0-9])*)\s*$/ig,
+		
+		/**
+		 * Returns true if str parammeter is not empty
+		 * 
+		 * @param {String} str String to validate
+		 * @returns {Boolean} True if string is not empty, otherwise false
+		 */
+		required: function (str) {
+			str = String(str);
+			return !!Y.Lang.trim(str).length;
+		},
+		
+		/**
+		 * Validate email address validity
+		 * 
+		 * @param {String} str String to validate
+		 * @returns {Boolean} True if string is valid email address, otherwise false
+		 */
+		email: function (str) {
+			return Form.validate.REGEX_EMAIL.test(String(str));
+		}
+	}
 	
 	/**
 	 * Returns lipsum data for inputs
@@ -43342,6 +44082,21 @@ YUI.add('supra.plugin-layout', function (Y) {
 		scrollBack: function () {
 			if (this.history.length > 1) {
 				var slideId = this.history[this.history.length - 2];
+				this.set('slide', slideId);
+				return slideId;
+			} else {
+				return this.history.length ? this.history[0] : null;
+			}
+		},
+		
+		/**
+		 * Scroll to root slide
+		 * 
+		 * @returns {String} New slide ID
+		 */
+		scrollRoot: function () {
+			if (this.history.length > 1) {
+				var slideId = this.history[0];
 				this.set('slide', slideId);
 				return slideId;
 			} else {

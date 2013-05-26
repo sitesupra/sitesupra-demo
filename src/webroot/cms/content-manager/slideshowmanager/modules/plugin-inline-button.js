@@ -45,6 +45,7 @@ YUI.add('slideshowmanager.plugin-inline-button', function (Y) {
 			
 			input.after('valueChange', this._updateUI, this);
 			this.after('targetNodeChange', this._updateUI, this);
+			input.after('setRender', this._updateUI, this);
 			input.on('input', this._updateButtonTitle, this);
 			
 			this._updateUI();
@@ -72,25 +73,39 @@ YUI.add('slideshowmanager.plugin-inline-button', function (Y) {
 		 */
 		_updateUI: function () {
 			var target = this.get('targetNode');
+			
 			if (!target) {
 				this._buttons = [];
 				return;
 			}
 			
 			var buttons = this._buttons,
-				values = this.get('host').get('value'),
+				input   = this.get('host'),
+				values  = input.get('value'),
 				i = 0,
 				ii = Math.max(buttons.length, values.length),
 				index = 0,
-				template = this.get('template');
+				template = this.get('template'),
+				widgets = null;
 			
 			for (; i<ii; i++) {
 				if (!buttons[index]) {
 					// Add button
 					buttons[index] = {
 						'node': Y.Node.create(template(values[i])),
-						'title': values[i].title
+						'title': values[i].title,
+						'overlay': values[i].overlay
 					};
+					
+					if (values[i].overlay) {
+						buttons[index].node.addClass('hidden');
+						
+						widgets = input.getSetWidgets(i);
+						if (widgets && widgets.title) {
+							widgets.title.hide();
+						}
+					}
+					
 					target.append(buttons[index].node);
 					index++;
 				} else if (!values[i]) {
@@ -103,6 +118,22 @@ YUI.add('slideshowmanager.plugin-inline-button', function (Y) {
 						buttons[index].node.set('text', values[i].title);
 						buttons[index].title = values[i].title;
 					}
+					
+					// Overlay is for button
+					if (values[i].overlay != buttons[index].overlay) {
+						buttons[index].node.toggleClass('hidden', values[i].overlay);
+						buttons[index].overlay = values[i].overlay;
+						
+						widgets = input.getSetWidgets(i);
+						if (widgets && widgets.title) {
+							if (values[i].overlay) {
+								widgets.title.hide();
+							} else {
+								widgets.title.show();
+							}
+						}
+					}
+					
 					index++;
 				}
 			}

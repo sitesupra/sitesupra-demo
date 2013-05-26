@@ -81,7 +81,8 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		// @FIXME: not nice
 		if ($this->editableInstance instanceof Editable\Select
 				|| $this->editableInstance instanceof Editable\SelectVisual
-				|| $this->editableInstance instanceof Editable\Slideshow) {
+				|| $this->editableInstance instanceof Editable\Slideshow
+                || $this->editableInstance instanceof Editable\MediaGallery) {
 			
 			if (method_exists($this->editableInstance, 'setValues')) {
 				$this->editableInstance->setValues($this->values);

@@ -411,8 +411,7 @@ function (Y) {
 				'context': this,
 				'on': {
 					'failure': function () {
-						//Revert changes
-						//@TODO
+						//@TODO Revert UI changes
 					}
 				}
 			});

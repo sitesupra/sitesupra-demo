@@ -420,7 +420,7 @@ YUI.add('supra.input-string', function (Y) {
 	});
 	
 	Input.lipsum = function () {
-		return Supra.Limsum.sentence({'count': 4, 'variation': 1});
+		return Supra.Lipsum.sentence({'count': 4, 'variation': 1});
 	};
 	
 	Supra.Input.String = Input;

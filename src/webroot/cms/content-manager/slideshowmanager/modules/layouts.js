@@ -135,7 +135,18 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 		getLayoutHtml: function (id) {
 			var layout = this.getLayoutById(id) || this.getDefaultLayout(),
 				template = Supra.Template.compile(layout.html, 'layout_' + id),
-				model = {'property': {}},
+				model = {
+					'property': {},
+					'supra': {
+						'cmsRequest': true
+					},
+					'supraBlock': {
+						'property': Y.bind(function (name) {
+							var data = this.get('host').options.data;
+							return name in data ? data[name] : '';
+						}, this)
+					}
+				},
 				
 				properties = this.get('host').options.properties,
 				i = 0,

@@ -104,6 +104,7 @@ YUI().add('supra.htmleditor-data', function (Y) {
 			var id;
 			if (typeof node == 'string') {
 				id = node;
+				node = Y.Node(this.get('doc')).one('#' + node);
 			} else {
 				node = new Y.Node(node);
 				id = node.getAttribute('id');

@@ -60,11 +60,11 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			
 			//Toolbar buttons
 			Manager.getAction('PageToolbar').addActionButtons(Settings.NAME, []);
-			Manager.getAction('PageButtons').addActionButtons(Settings.NAME, [{
+			Manager.getAction('PageButtons').addActionButtons(Settings.NAME, []); /*{
 				'id': 'done',
 				'context': this,
 				'callback': this.onSidebarDone
-			}]);
+			}]);*/
 		},
 		
 		/**
@@ -265,8 +265,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			action.execute(form, {
-				//'doneCallback': Y.bind(this.onSidebarDone, this),
-				'hideDoneButton': true,
+				'doneCallback': Y.bind(this.onSidebarDone, this),
+				//'hideDoneButton': true,
 				'toolbarActionName': Settings.NAME,
 				
 				'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title']),
@@ -299,7 +299,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			this.hideForm();
-			this.get('host').close();
+			
+			//this.get('host').close();
 		},
 		
 		/**
@@ -452,6 +453,13 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			if (this.get('visible')) {
 				this.set('visible', false);
 			}
+		},
+		
+		/**
+		 * Reset panel to root
+		 */
+		reset: function () {
+			this.getForm().get('slideshow').scrollRoot();
 		},
 		
 		/**

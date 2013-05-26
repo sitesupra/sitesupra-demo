@@ -33,7 +33,10 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		
 		'Applications': '/dashboard',
 		'BrowserSupport': '/dashboard',
+		
 		'Sites': '-local/site-list-manager', // This is rather hacky.
+		'DesignCustomize': '-local/design-manager', // This is rather hacky.
+		'DesignSidebar': '-local/design-manager', // This is rather hacky.
 		
 		'Blog': '/blog-manager',
 		

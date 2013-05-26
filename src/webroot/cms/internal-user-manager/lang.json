@@ -44,6 +44,8 @@
 			"reset_password": "Reset password",
 			"delete_user": "Delete user",
 			
+			"required_message": "Please provide both user's name and email",
+			
 			"delete_message": "Are you sure you want to delete selected user?",
 			"reset_message": "Are you sure you want to reset password for selected user?",
 			

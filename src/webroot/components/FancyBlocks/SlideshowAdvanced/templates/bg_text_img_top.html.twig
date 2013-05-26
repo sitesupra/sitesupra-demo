@@ -12,5 +12,8 @@
 		<div class="as-layer as-layer-center as-layer-bottom as-layer-{{ property.mediaType|raw }}">
 			{{ property.media|raw }}
 		</div>
+		{% if property.buttons_overlay %}
+			{{ property.buttons_overlay|raw }}
+		{% endif %}
 	</div>
 </li>

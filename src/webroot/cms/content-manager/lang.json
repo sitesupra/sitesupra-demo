@@ -61,6 +61,8 @@
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_slideshow_unavailable": "Images for the this slideshow have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_slideshow_notice": "This slideshow has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
+			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
+			"shared_gallery_notice": "This gallery has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
 			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 			
 			"block": {
@@ -173,12 +175,12 @@
 			"group_image": "Image",
 			
 			"tags": {
-				"P": "Text Body",
-				"H1": "H1 Heading",
-				"H2": "H2 Heading",
-				"H3": "H3 Heading",
-				"H4": "H4 Heading",
-				"H5": "H5 Heading",
+				"P": "Normal Text",
+				"H1": "Heading 1",
+				"H2": "Heading 2",
+				"H3": "Heading 3",
+				"H4": "Heading 4",
+				"H5": "Heading 5",
 				
 				"B": "Bold",
 				"EM": "Italic",
@@ -499,22 +501,50 @@
 			"error_template": "Error occured in {block} block"
 		},
 		
+		"gallery": {
+			"title": "Edit gallery items",
+			
+			"label": "Items",
+			"label_button": "Edit items",
+			
+			"sidebar_title": "Edit item",
+			"delete_slide": "Delete item",
+			
+			"edit_move": "Click to edit<br />or drag to move",
+			
+			"empty": "You have no items<br />in the list yet",
+			"drag_and_drop": "Drag and drop<br />folder or files here",
+			"add_item": "Add item",
+			"add": "Add ",
+			"just_drag_and_drop": "or just drag-and-drop file here",
+			
+			"error_template": "Error occured in {block} block"
+		},
+		
 		"linkmanager": {
 			"title": "Link to",
 			"title_page": "page",
 			"title_file": "file",
+			"title_email": "email",
 			
 			"select": "Select what you want to link",
 			"link_to_file": "Link to file",
 			"link_to_page": "Link to page",
+			"link_to_email": "Link to email",
 			"link_internal": "Internal",
 			"link_external": "External",
 			"link_address": "Link address",
+			"link_email": "Email address",
 			"new_window": "Open link in new window",
+			"button": "Make a button",
 			"link_title": "Link title",
 			"open_library_app": "Open Library app",
 			
 			"remove_link": "Remove link"
+		},
+		
+		"designmanager": {
+			"button": "Design"
 		},
 		
 		"helpnotes": {

@@ -136,7 +136,7 @@ YUI.add('supra.input-map-inline', function (Y) {
 				this.bindMapEvents();
 			}
 			
-			Input.superclass.startEditing.apply(this, arguments);
+			return Input.superclass.startEditing.apply(this, arguments);
 		},
 		
 		stopEditing: function () {

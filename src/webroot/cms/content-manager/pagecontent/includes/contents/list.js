@@ -162,13 +162,26 @@ YUI.add('supra.page-content-list', function (Y) {
 		afterSetHTMLHost: function () {
 			var data = this.get('data'),
 				permission_order = true,
-				permission_edit = true;
+				permission_edit = true,
+				permission_block_order = true,
+				permission_block_edit = true;
 			
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
+					
+					permission_block_edit = true;
+					permission_block_order = true;
+					
+					if (data.contents[i].closed && !data.contents[i].owner_id) {
+						permission_block_edit = false;
+					}
+					if (data.contents[i].closed) {
+						permission_block_order = false;
+					}
+					
 					this.createChild(data.contents[i], {
-						'draggable': !data.contents[i].closed && !this.isClosed() && permission_order,
-						'editable': !data.contents[i].closed && permission_edit && data.contents[i].editable !== false
+						'draggable': !this.isClosed() && permission_order && permission_block_order,
+						'editable': permission_edit && permission_block_edit && data.contents[i].editable !== false
 					}, true);
 				}
 			}

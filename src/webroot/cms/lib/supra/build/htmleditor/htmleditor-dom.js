@@ -33,6 +33,78 @@ YUI().add('supra.htmleditor-dom', function (Y) {
 		},
 		
 		/**
+		 * Insert node as first child of parent
+		 * 
+		 * @param {HTMLElement|Text} node Node to insert
+		 * @param {HTMLElement} parent Parent element
+		 */
+		insertPrepend: function (node, parent) {
+			if (parent && parent.nodeType == 1) {
+				var reference = parent.firstChild;
+				if (reference) {
+					parent.insertBefore(node, reference);
+				} else {
+					parent.appendChild(node);
+				}
+			}
+		},
+		
+		/**
+		 * Returns node or closest ancestor matching selector
+		 * Will not look further than editor srcNode
+		 * 
+		 * @param {String} selector CSS selector
+		 * @return Y.Node matching selector
+		 * @type {Object}
+		 */
+		closest: function (node, selector) {
+			if (typeof selector == 'string') {
+				var node = Y.Node(node),
+					src  = this.get('srcNode');
+				
+				while(node && !node.compareTo(src)) {
+					if (node.test(selector)) return node.getDOMNode();
+					node = node.ancestor();
+				}
+				
+				return null;
+			} else {
+				var node   = Y.Node(node),
+					target = Y.Node(selector),
+					src    = this.get('srcNode');
+				
+				if (!target) return null;
+				
+				while(node && !node.compareTo(src)) {
+					if (node.compareTo(target)) return node.getDOMNode();
+					node = node.ancestor();
+				}
+				
+				return null;
+			}
+		},
+		
+		/**
+		 * Returns all child elements of node
+		 * 
+		 * @param {HTMLElement} node Node to check
+		 */
+		getChildElements: function (node) {
+			var children = node.childNodes,
+				i = 0,
+				ii = children.length,
+				out = [];
+			
+			for (; i<ii; i++) {
+				if (children[i].nodeType == 1) {
+					out.push(children[i]);
+				}
+			}
+			
+			return out;
+		},
+		
+		/**
 		 * Returns last non-empty child of node
 		 * 
 		 * @param {HTMLElement} node Node to check
@@ -209,6 +281,76 @@ YUI().add('supra.htmleditor-dom', function (Y) {
 				}
 				node.parentNode.removeChild(node);
 			}
+		},
+		
+		/**
+		 * Split element into two elements at given position, returns second element
+		 * 
+		 * @returns {HTMLElement} Returns second element
+		 */
+		splitAt: function (node, offset) {
+			var siblings = null,
+				clone = null,
+				tmp = null,
+				i = 0,
+				ii = 0,
+				srcNode = this.get('srcNode').getDOMNode(),
+				
+				insertAfter = this.insertAfter,
+				
+				moveSiblings = function (node) {
+					if (!node.parentNode) return null;
+					
+					var ref_parent = node.parentNode,
+						
+						parent = node.parentNode.cloneNode(),
+						next = node.nextSibling,
+						tmp = node;
+					
+					while (tmp) {
+						parent.appendChild(tmp);
+						tmp  = next;
+						next = tmp ? tmp.nextSibling : null;
+					}
+					
+					insertAfter(parent, ref_parent);
+					
+					return parent;
+				};
+			
+			var SPLIT_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote', 'q', 'li', 'div', 'article', 'aside', 'details', 'figcaption', 'footer', 'header', 'hgroup', 'nav', 'section'];
+			
+			if (offset && node.nodeType == 3) {
+				// Text node
+				tmp = this.get('doc').createTextNode();
+				tmp.textContent = node.textContent.substr(offset);
+				node.textContent = node.textContent.substr(0, offset);
+				
+				insertAfter(tmp, node);
+				node = tmp;
+			} else if (node.nodeType == 1) {
+				if (offset) {
+					tmp = node.childNodes[offset];
+					if (tmp) node = tmp.nextSibling;
+				} else if (node.childNodes.length) {
+					tmp = node.childNodes[0];
+				}
+			}
+			
+			while (node) {
+				if (node === srcNode || node.parentNode === srcNode) {
+					return node;
+				}
+				
+				node = moveSiblings(node);
+				
+				if (node.tagName && Y.Array.indexOf(SPLIT_TAGS, node.tagName.toLowerCase()) != -1) {
+					// Element which is split parent found, stop
+					return node;
+				}
+				
+			}
+			
 		}
 		
 	});

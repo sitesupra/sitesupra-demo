@@ -226,7 +226,7 @@ YUI.add("supra.input-block-background", function (Y) {
 			
 			if (!node) {
 				// There are no nodes for this block
-				return;
+				return false;
 			}
 			
 			if (!imageResizer) {
@@ -258,6 +258,7 @@ YUI.add("supra.input-block-background", function (Y) {
 			imageResizer.set("image", node);
 			
 			this.focus();
+			return true;
 		},
 		
 		/**
@@ -362,7 +363,9 @@ YUI.add("supra.input-block-background", function (Y) {
 		 */
 		openMediaSidebar: function () {
 			// Close settings form
-			var properties = this.getPropertiesWidget();
+			var properties = this.getPropertiesWidget(),
+				deferred = new Supra.Deferred();
+			
 			if (properties) {
 				properties.hidePropertiesForm({
 					"keepToolbarButtons": true // we keep them because settings sidebar is hidden temporary
@@ -386,12 +389,20 @@ YUI.add("supra.input-block-background", function (Y) {
 				path = this.image && this.image.image ? [].concat(this.image.image.path).concat(this.image.image.id) : 0;
 			
 			mediasidebar.execute({
-				"onselect": Y.bind(this.insertImage, this),
-				"onclose": Y.bind(this.showSettingsSidebar, this),
+				"onselect": Y.bind(function (data) {
+					this.insertImage(data);
+					deferred.resolve([data]);
+				}, this),
+				"onclose": Y.bind(function () {
+					this.showSettingsSidebar();
+					deferred.resolve([this.get('value')]);
+				}, this),
 				"hideToolbar": true,
 				"item": path,
 				"dndEnabled": false
 			});
+			
+			return deferred.promise();
 		},
 		
 		/**
@@ -500,7 +511,10 @@ YUI.add("supra.input-block-background", function (Y) {
 			
 			if (slideshow || !separate) {
 				if (separate) {
-					slide = this.slide = slideshow.addSlide(slide_id);
+					slide = this.slide = slideshow.addSlide({
+						'id': slide_id,
+						'title': this.get('label')
+					});
 					container = slide.one(".su-slide-content");
 					slideshow.on("slideChange", this.onSlideshowSlideChange, this);
 				} else {

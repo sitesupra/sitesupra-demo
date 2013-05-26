@@ -340,19 +340,36 @@ Supra('supra.slideshow', function (Y) {
 		
 		/**
 		 * Save user data
+		 * 
+		 * @returns {Boolean} False if there was an error, otherwise true
 		 */
 		save: function (callback) {
 			var data = Supra.mix({}, this.data),
 				uri = null;
 			
 			if (this.isUser()) {
-				if (!data.name) {
-					//Cancel if 'name' is missing
-					return;					
+				if (!data.name && !data.email) {
+					// Don't save anything, act as 'cancel'
+					return true;
+				}
+				
+				if (!data.name || !data.email || !Supra.Form.validate.email(data.email)) {
+					// If 'name' or 'email' is missing show error message
+					var message = Supra.Intl.get(['userdetails', 'required_message']);
+						message = Y.substitute(message, this.data);
+						
+						Manager.executeAction('Confirmation', {
+							'message': message,
+							'buttons': [{
+								'id': 'ok'
+							}]
+						});
+					return false;
 				}
 				
 				if (!data.canUpdate) {
-					return;
+					// Can't update, but that's not an error
+					return true;
 				}
 				
 				uri = data.user_id ? this.getDataPath('save') : this.getDataPath('insert');
@@ -390,6 +407,8 @@ Supra('supra.slideshow', function (Y) {
 					}
 				}
 			});
+			
+			return true;
 		},
 		
 		/**
@@ -397,10 +416,10 @@ Supra('supra.slideshow', function (Y) {
 		 */
 		hide: function () {
 			if (this.get('visible')) {
-				this.set('visible', false);
-				Manager.getAction('UserList').execute();
-				
-				this.save();
+				if (this.save()) {
+					this.set('visible', false);
+					Manager.getAction('UserList').execute();	
+				}
 			}
 			
 			return this;

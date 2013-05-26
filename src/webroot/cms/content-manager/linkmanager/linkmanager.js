@@ -44,21 +44,32 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			'group_pages': false,
 			'external': true,
 			'images': true,
-			'files': true
+			'files': true,
+			'email': true
 		},
 		'page': {
 			'pages': true,
 			'group_pages': false,
 			'external': true,
 			'images': false,
-			'files': false
+			'files': false,
+			'email': false
 		},
 		'image': {
 			'pages': false,
 			'group_pages': false,
 			'external': false,
 			'images': true,
-			'files': false
+			'files': false,
+			'email': false
+		},
+		'email': {
+			'pages': false,
+			'group_pages': false,
+			'external': false,
+			'images': false,
+			'files': false,
+			'email': true
 		}
 	};
 	
@@ -270,8 +281,12 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				}
 				
 			//Update title
-				if (this.slideshow.history.length > 1) {
-					title += ' ' + Supra.Intl.get(['linkmanager', slide_id == 'linkToPage' ? 'title_page' : 'title_file']);
+				if (slide_id == 'linkToPage') {
+					title += ' ' + Supra.Intl.get(['linkmanager', 'title_page']);
+				} else if (slide_id == 'linkToFile') {
+					title += ' ' + Supra.Intl.get(['linkmanager', 'title_file']);
+				} else if (slide_id == 'linkToEmail') {
+					title += ' ' + Supra.Intl.get(['linkmanager', 'title_email']);
 				}
 				
 				this.set('title', title);
@@ -294,7 +309,8 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
 			//Retore editor toolbar
-			if (this.options.retoreEditorToolbar) {
+			if (this.options.restoreEditorToolbar) {
+				this.options.restoreEditorToolbar = false;
 				Manager.getAction('EditorToolbar').execute();
 			}
 			
@@ -362,7 +378,8 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						}, this);
 						
 						//On href change update button label
-						this.form.getInput('href').on('change', this.updateInsertButton, this);
+						this.form.getInput('href').after('input', this.updateInsertButton, this);
+						this.form.getInput('href').after('change', this.updateInsertButton, this);
 						
 						this.link_slideshow.on('slideChange', this.updateInsertButton, this);
 						
@@ -457,6 +474,20 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						this.medialist.slideshow.syncUI();
 				}
 			},
+			
+			/**
+			 * When "Link to email" slide is opened create widgets
+			 * 
+			 * @param {Object} node
+			 */
+			linkToEmail: function (node) {
+				if (!this.link_email) {
+					//On href change update button label
+					this.form.getInput('email').after('input', this.updateInsertButton, this);
+					this.form.getInput('email').after('change', this.updateInsertButton, this);
+					this.link_email = true;
+				}
+			}
 		},
 		
 		/**
@@ -512,6 +543,12 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						show_insert = true;
 					}
 					break;
+				case 'linkToEmail':
+					//Email tab
+					if (Y.Lang.trim(this.form.getInput('email').get('value'))) {
+						show_insert = true;
+					}
+					break;
 			}
 			
 			var button = this.get('controlButton');
@@ -546,7 +583,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			//Update settings
 			Supra.mix(this.selectable, selectable);
 			
-			if (!selectable.files && !selectable.images) {
+			if (!selectable.files && !selectable.images && !selectable.email) {
 				//Only pages can be selected
 				this.slideshow.set('noAnimations', true);
 				this.slideshow.scrollBack();
@@ -572,11 +609,17 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					this.link_slideshow.set('noAnimations', false);
 				}
 				
-			} else if (!selectable.pages && !selectable.external) {
+			} else if (!selectable.pages && !selectable.external && !selectable.email) {
 				//Only files or images can be selected
 				this.slideshow.set('noAnimations', true);
 				this.slideshow.scrollBack();
 				this.slideshow.set('slide', 'linkToFile');
+				this.slideshow.set('noAnimations', false);
+			} else if (!selectable.pages && !selectable.external && !selectable.files && !selectable.images) {
+				// Only email can be selected
+				this.slideshow.set('noAnimations', true);
+				this.slideshow.scrollBack();
+				this.slideshow.set('slide', 'linkToEmail');
 				this.slideshow.set('noAnimations', false);
 			} else {
 				this.form.getInput('linktype').show();
@@ -595,18 +638,23 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			data = Supra.mix({
 				'type': '',
 				'target': '',
+				'button': false,
 				'title': '',
 				'href': '',
+				'email': '',
+				'email_button': false,
 				'page_id': null,
 				'page_master_id': null,
 				'file_id': null,
 				'file_path': [],
 				'file_title': '',
+				'file_target': '',
+				'file_button': false,
 				'linktype': 'internal'
 			}, data || {});
 			
 			//Show footer for existing link and hide for new link
-			var hide_footer = (this.mode == 'link' && !data.page_id && !data.file_id && !data.href);
+			var hide_footer = (this.mode == 'link' && !data.page_id && !data.file_id && !data.href && !data.email);
 			
 			this.one('.sidebar-footer').toggleClass('hidden', hide_footer);
 			this.one('.sidebar-content').toggleClass('has-footer', !hide_footer);
@@ -614,11 +662,16 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			//Hide link controls?
 			this.one('.sidebar-content').toggleClass('has-link-controls', !this.options.hideLinkControls);
 			
-			//Since file title is different input 'title' is used to transfer data
+			//Since file title, button and file target is different input then 'title', 'button' and 'target' are used to transfer data
 			//reverse it
 			if (data.title && !data.file_title) {
 				data.file_title = data.title;
 			}
+			if (data.target && !data.file_target) {
+				data.file_target = data.target;
+			}
+			
+			data.file_button = data.email_button = data.button;
 			
 			if (this.link_slideshow) {
 				this.link_slideshow.set('noAnimations', true);
@@ -718,15 +771,21 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					this.medialist.set('noAnimations', false);
 					
 					break;
+				case 'email':
+					this.slideshow.set('slide', 'linkToEmail');
+					break;
 				default:
 						
-					if (!this.selectable.pages && !this.selectable.external) {
+					if (!this.selectable.pages && !this.selectable.external && !this.selectable.email) {
 						//Only media library
 						if (this.medialist) this.medialist.open(null);
 						this.slideshow.set('slide', 'linkToFile');
-					} else if (!this.selectable.images && !this.selectable.files) {
+					} else if (!this.selectable.images && !this.selectable.files && !this.selectable.email) {
 						//Only pages
 						this.slideshow.set('slide', 'linkToPage');
+					} else if (!this.selectable.pages && !this.selectable.external && !this.selectable.images && !this.selectable.files) {
+						//Only email
+						this.slideshow.set('slide', 'linkToEmail');
 					} else {
 						//All, open root folder
 						this.slideshow.set('slide', 'linkToRoot');
@@ -782,6 +841,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						'page_master_id': page_master_id,
 						'href': page_path,
 						'target': data.target ? '_blank' : '',
+						'button': data.button || false,
 						'title': page_title
 					};
 				} else {
@@ -802,6 +862,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						'resource': 'link',
 						'href': page_href,
 						'target': data.target ? '_blank' : '',
+						'button': data.button || false,
 						'title': page_title
 					};
 				}
@@ -819,10 +880,23 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				return {
 					'resource': 'file',
 					'href': file_path,
-					'target': '',
+					'target': data.file_target || data.target,
+					'button': data.file_button || data.button,
 					'title': data.file_title || data.title,
 					'file_id': item_data.id,
 					'file_path': item_data.path
+				};
+			} else if (slide_id == 'linkToEmail') {
+				var email = data.email,
+					href  = 'mailto:' + data.email;
+				
+				return {
+					'resource': 'email',
+					'href': href,
+					'target': '',
+					'button': data.email_button || data.button,
+					'title': '',
+					'email': email
 				};
 			}
 		},
@@ -953,7 +1027,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			if (this.options.hideToolbar) {
 				//Hide editor toolbar
 				if (Manager.getAction('EditorToolbar').get('visible')) {
-					this.options.retoreEditorToolbar = true;
+					this.options.restoreEditorToolbar = true;
 					Manager.getAction('EditorToolbar').hide();
 				}
 				

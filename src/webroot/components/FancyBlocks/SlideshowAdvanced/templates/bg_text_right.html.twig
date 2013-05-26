@@ -11,5 +11,8 @@
 				{{ property.buttons|raw }}
 			</div>
 		</div>
+		{% if property.buttons_overlay %}
+			{{ property.buttons_overlay|raw }}
+		{% endif %}
 	</div>
 </li>

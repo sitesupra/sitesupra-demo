@@ -65,6 +65,17 @@ function (Y) {
 		]
 	};
 	
+	// In portal site we need 'Design manager' button
+	if (Supra.data.get(['site', 'portal']) && Supra.data.get(['design'])) {
+		DEFAULT_TOOLBAR.Page.unshift({
+			'id': 'design',
+			'type': 'button',
+			'title': Supra.Intl.get(['designmanager', 'button']),
+			'icon': '/cms/lib/supra/img/toolbar/icon-design.png',
+			'action': 'PageDesignManager'
+		});
+	}
+	
 	/**
 	 * Default buttons
 	 * @type {Object}
@@ -268,12 +279,16 @@ function (Y) {
 			//Load page after execute
 			this.on('render', function () {
 				//Search in path "/r/page/:page_id"
-				var page_id = this.getRoutePath().match(this.ROUTE_PAGE_R);
+				var is_site = Supra.data.get(['site', 'portal']),
+					page_id = this.getRoutePath().match(this.ROUTE_PAGE_R) ||
+							  this.getRoutePath().match(this.ROUTE_PAGE_EDIT_R) ||
+							  this.getRoutePath().match(this.ROUTE_PAGE_CONT_R);
+				
 				if (page_id) {
 					//Extracted from path
 					page_id = {'id': page_id[1]};
-				} else {
-					//From data
+				} else if (!is_site) {
+					//From data, but only if not portal site
 					page_id = Supra.data.get(['page', 'id'], null);
 					if (page_id) page_id = {'id': page_id};
 				}

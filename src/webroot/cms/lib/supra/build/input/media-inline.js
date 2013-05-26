@@ -166,8 +166,8 @@ YUI.add('supra.input-media-inline', function (Y) {
 				slideshow = this.getSlideshow(),
 				input_image = null,
 				input_video = null,
-				slide_image = slideshow.addSlide(this.get('id') + '_slide_image'),
-				slide_video = slideshow.addSlide(this.get('id') + '_slide_video'),
+				slide_image = slideshow.addSlide({'id': this.get('id') + '_slide_image', 'title': this.get('label')}),
+				slide_video = slideshow.addSlide({'id': this.get('id') + '_slide_video'}),
 				delete_image = null,
 				delete_video = null,
 				uploader = null,
@@ -189,6 +189,9 @@ YUI.add('supra.input-media-inline', function (Y) {
 
 				});
 			}
+			
+			// Since we are using InlineImage and Video we don't need to show this input
+			this.get('boundingBox').addClass('hidden');
 			
 			// Inputs
 			input_image = new Supra.Input.InlineImage({
@@ -485,25 +488,36 @@ YUI.add('supra.input-media-inline', function (Y) {
 		 * Start editing input
 		 */
 		startEditing: function () {
-			if (!this.get('disabled')) {
-				this.focus();
-				this.set('editing', true);
-				
+			var state = false;
+			
+			if (!this.get('disabled') && !this.get('editing')) {
 				if (this.type === 'video' || this.type === 'image') {
+					this.set('editing', true);
+					this.focus();
+					
 					this.showSettingsSidebar();
 					
 					if (this.type === 'video') {
-						this.widgets.input_video.startEditing();
+						state = this.widgets.input_video.startEditing();
 					} else {
-						this.widgets.input_image.startEditing();
+						state = this.widgets.input_image.startEditing();
 						
 						if (!this.get('value').image) {
 							// Open media library to choose image
-							this.widgets.input_image.openMediaSidebar();
+							var promise = this.widgets.input_image.openMediaSidebar();
+							promise.done(function (value) {
+								if (!value) {
+									// Image isn't selected, show "Image" / "Video" choice
+									this.removeMedia();
+									this.stopEditing();
+								}
+							}, this);
 						}
 					}
 				}
 			}
+			
+			return state;
 		},
 		
 		/**
@@ -582,7 +596,7 @@ YUI.add('supra.input-media-inline', function (Y) {
 		 * @private
 		 */
 		renderContent: function (node, data) {
-			var node = node || this.get('targetNode'),
+			var node = node,
 				type = data.type || this.type;
 			
 			if (!node) {
@@ -790,6 +804,15 @@ YUI.add('supra.input-media-inline', function (Y) {
 		 */
 		getValueType: function () {
 			var value = this.get('value');
+		},
+		
+		/**
+		 * Visible attribute setter
+		 * 
+		 * @private
+		 */
+		_uiSetVisible: function (visible) {
+			return visible;
 		}
 		
 	});

@@ -183,6 +183,9 @@ Supra('supra.input', function (Y) {
 			if (!data.email) {
 				input_email.set('error', true);
 				error = true;
+			} else if (!Supra.Form.validate.email(data.email)) {
+				input_email.set('error', true);
+				error = true;
 			} else {
 				input_email.set('error', false);
 			}
@@ -202,6 +205,17 @@ Supra('supra.input', function (Y) {
 						Manager.PageToolbar.buttons.details.set('down', false);
 					}
 				}, this));
+			} else {
+				
+				var message = Supra.Intl.get(['userdetails', 'required_message']);
+					message = Y.substitute(message, data);
+
+					Manager.executeAction('Confirmation', {
+						'message': message,
+						'buttons': [{
+							'id': 'ok'
+						}]
+					});
 			}
 		},
 		
