@@ -131,6 +131,19 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		
 		$page = new Entity\Page();
 		$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
+		
+		// Blog Application specific
+		$blogApp = $this->getBlogApplication();
+		
+		$blogPostLocalization = new Entity\Blog\BlogApplicationPostLocalization($blogApp);
+		$blogPostLocalization->setPageLocalization($pageData);
+		
+		$supraUser = $this->getUser();
+		
+		$blogUser = $blogApp->findUserBySupraUserId($supraUser->getId());
+		$blogPostLocalization->setAuthor($blogUser);
+		
+		$this->entityManager->persist($blogPostLocalization);
 
 		$this->entityManager->persist($page);
 		
@@ -189,61 +202,6 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		$this->outputPage($pageData);
 	}
 	
-	/**
-	 *
-	 */
-	public function settingsAction()
-	{
-		$blogApplication = $this->getBlogApplication();
-		
-		$responseData = array(
-			'authors' => array(),
-			'tags' => array(),
-		);
-		
-		$users = $blogApplication->getAllBlogApplicationUsers();
-		/* @var $users \Supra\Controller\Pages\Entity\Blog\BlogApplicationUser[] */
-
-		foreach ($users as $user) {
-			$responseData['authors'][] = array(
-				'id' => $user->getSupraUserId(),
-				'name' => $user->getName(),
-				'avatar' => $user->getAvatar(),
-				'about' => $user->getAboutText(),
-			);
-		}
-		
-		$responseData['tags'] = $blogApplication->getAllTagsArray();
-			
-		$this->getResponse()
-				->setResponseData($responseData);
-	}
-	
-	/**
-	 * Stores Blog application settings
-	 * 
-	 * @FIXME
-	 */
-	public function saveSettingsAction()
-	{
-		$this->isPostRequest();
-		$input = $this->getRequestInput();
-		
-		if ($input->hasChild('author')) {
-			
-			$application = $this->getBlogApplication();
-			
-			$aboutAuthor = $input->getChild('author')
-					->get('about');
-			
-			$application->setAuthorDescription($aboutAuthor);
-			
-			$this->entityManager->flush();
-		}
-		
-		$this->getResponse()
-				->setResponseData(true);
-	}
 	
 	/**
 	 * @return \Supra\Controller\Pages\Entity\ApplicationLocalization
@@ -285,5 +243,10 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		}
 		
 		return $this->application;
+	}
+	
+	public function deleteComment()
+	{
+		
 	}
 }

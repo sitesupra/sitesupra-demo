@@ -29,19 +29,19 @@ class BlogCommentsBlock extends BlockController
 			$this->handleCommentPostRequest();
 		}
 		
-		// @FIXME: remove comment action must request for blog app manager, not blocks
-		// current implementation does not checks user permissions
-		if ($request->isBlockRequest()) {
-			
-			$query = $request->getQuery();
-			
-			if ($query->has('comment_id') 
-					&& $query->get('action', null) == 'remove_comment') {
-			
-				$commentId = $query->get('comment_id');
-				$blogApplication->removeCommentById($commentId);
-			}
-		}
+//		// @FIXME: remove comment action must request for blog app manager, not blocks
+//		// current implementation does not checks user permissions
+//		if ($request->isBlockRequest()) {
+//			
+//			$query = $request->getQuery();
+//			
+//			if ($query->has('comment_id') 
+//					&& $query->get('action', null) == 'remove_comment') {
+//			
+//				$commentId = $query->get('comment_id');
+//				$blogApplication->removeCommentById($commentId);
+//			}
+//		}
         	
 		$postComments = array();
 		

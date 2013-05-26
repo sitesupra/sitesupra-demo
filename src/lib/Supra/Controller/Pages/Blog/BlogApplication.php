@@ -47,6 +47,14 @@ class BlogApplication implements PageApplicationInterface
 	}
 
 	/**
+	 * @return \Doctrine\ORM\EntityManager
+	 */
+	public function getEntityManager()
+	{
+		return $this->em;
+	}
+	
+	/**
 	 * {@inheritdoc}
 	 * @param Entity\ApplicationLocalization $localization
 	 */
@@ -324,22 +332,6 @@ class BlogApplication implements PageApplicationInterface
 	}
 
 	/**
-	 * @param string $commentId
-	 * @throws Exception\RuntimeException
-	 */
-	public function removeCommentById($commentId)
-	{
-		$comment = $this->findCommentById($commentId);
-	
-		if (empty($comment)) {
-			throw new Exception\RuntimeException("Comment #{$commentId} is missing or does not belongs to #{$this->applicationLocalization->getId()} blog application");
-		}
-		
-		$this->em->remove($comment);
-		$this->em->flush();
-	}
-	
-	/**
 	 * Searches for BlogApplicationUser object by Supra User ID
 	 * @param string $userId
 	 * @return \Supra\Controller\Pages\Entity\Blog\BlogApplicationUser | null
@@ -368,7 +360,7 @@ class BlogApplication implements PageApplicationInterface
 		
 		$blogPostLocalizations = $this->em->createQuery("SELECT bpl FROM {$postLocalizationCn} bpl WHERE bpl.pageLocalizationId IN (:ids)")
 				->setParameter('ids', $localizationIds)
-				->getArrayResult();
+				->getResult();
 		
 		$localizationAuthors = array();
 		
@@ -452,6 +444,8 @@ class BlogApplication implements PageApplicationInterface
 	}
 	
 	/**
+	 * @TODO: do we need this? 
+	 * 
 	 * @param \Supra\Controller\Pages\Entity\Blog\BlogApplicationComment $comment
 	 */
 	public function storeComment(Entity\Blog\BlogApplicationComment $comment)
@@ -483,5 +477,6 @@ class BlogApplication implements PageApplicationInterface
 		$parameter->setValue($enabled);
 		
 		$this->em->persist($parameter);
+		$this->em->flush($parameter);
 	}
 }
