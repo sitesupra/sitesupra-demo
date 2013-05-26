@@ -63,7 +63,7 @@ class SitemaprecycleAction extends PageManagerAction
 			'locale' => $localeId,
 			'type' => PageRevisionData::TYPE_TRASH,
 		);
-
+		
 		$qb = $auditEm->createQueryBuilder()
 				->from($entity, 'l')
 				->from(PageRevisionData::CN(), 'r')
@@ -75,6 +75,13 @@ class SitemaprecycleAction extends PageManagerAction
 
 		if ($entity == Entity\PageLocalization::CN()) {
 			$qb->addSelect('l.pathPart, l.template');
+			
+			// limit by application type
+			$typeFilter = $this->getRequestParameter('filter');
+			if ( ! empty($typeFilter)) {
+				$qb->andWhere('l.parentPageApplicationId = :applicationType');
+				$searchCriteria['applicationType'] = $typeFilter;
+			}
 		}
 
 		$localizationDataList = $qb->getQuery()

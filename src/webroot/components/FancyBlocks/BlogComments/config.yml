@@ -7,12 +7,11 @@
     icon: icon.png
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
-        enabled: true
+        enabled: false
         global: false
         groups:
           - Supra\FileStorage
           - Supra\Controller\Pages
-        lifetime: 60 seconds
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: list_title

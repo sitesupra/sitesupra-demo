@@ -22,7 +22,7 @@
           default: Volutpat nunc aliquet amet duis duis ultrices egestas ac ipsum sit arcu ac sagittis consectetur id adipiscing eu
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: tags
-          editable: Supra\Editable\Keywords
+          editable: Supra\Editable\PageKeywords
           label: Tags
           description: Use comma, semicolon or return key to separate tags 
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:

@@ -1,53 +1,39 @@
 <div class="block blog-comments">
 	
 	<h2 class="block-title"><div>
-		{% if not supra.cmsRequest %}{{ commentCount }}{% endif %}
-		{{ supraBlock.property('list_title') }}
+		{% set length = comments | length %}
+		{% if length > 1 %}{% set pluralEnding = 's' %}{% else %}{% set pluralEnding = '' %}{% endif %}
+		{% set title = supraBlock.property('list_title') %}
+		{{ title | replace({'%count': length, '%plural': pluralEnding}) |raw }}
 	</div></h2>
 	
 	<div class="comments-list has-heading">
-		
 		{# Comment #}
-		<article {% if supra.cmsRequest %}data-attach="$.app.Comments" data-id="{{ supraBlock.block.id }}_1" data-url="{{ supra.request.pageLocalization.path }}?block_id={{ supraBlock.block.id }}&comment_id=1&action=remove_comment"{% endif %}>
+		{% for comment in comments %}
+		<article {% if supra.cmsRequest %}data-attach="$.app.Comments" data-id="{{ supraBlock.block.id }}_{{ loop.index }}" data-url="{{ supra.request.pageLocalization.path }}?block_id={{ supraBlock.block.id }}&comment_id={{ comment.id }}&action=remove_comment"{% endif %}>
 			<div class="comment">
 				<div class="avatar">
 					<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
 				</div>
 				<div class="meta-info">
-					<span class="author">Admin</span>
-					<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
+					<span class="author">{{ comment.authorName }}</span>
+					<time datetime="{{ comment.creationTime | date('Y-m-d') }}">{{ comment.creationTime | date("F j,Y \\a\\t g:i a") }}</time>
 					
 					{% if supra.cmsRequest %}
 						<a class="button tiny supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_1')" href="javascript://">Delete comment</a>
+						
+						{% if comment.approved %}
+							<a class="button tiny supra-button" href="#">Unapprove</a>
+						{% else %}
+							<a class="button tiny supra-button" href="#">Approve</a>
+						{% endif %}
+						
 					{% endif %}
 				</div>
-				<p>
-					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.<br />
-					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.<br />
-					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.
-				</p>
+				<p>{{ comment.comment | nl2br }}</p>
 			</div>
 		</article>
-		<article {% if supra.cmsRequest %}data-attach="$.app.Comments" data-id="{{ supraBlock.block.id }}_2" data-url="{{ supra.request.pageLocalization.path }}?block_id={{ supraBlock.block.id }}&comment_id=2&action=remove_comment"{% endif %}>
-			<div class="comment">
-				<div class="avatar">
-					<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
-				</div>
-				<div class="meta-info">
-					<a class="author" rel="author" href="http://www.google.com" target="_blank">Admin</a>
-					<time datetime="2013-02-07T13:38">February 7, 2013 at 1:38 pm</time>
-					
-					{% if supra.cmsRequest %}
-						<a class="button tiny supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_2')" href="javascript://">Delete comment</a>
-					{% endif %}
-				</div>
-				<p>
-					<em>Your comment is awaiting moderation.</em><br />
-					This is a test … Quisque ligulas ipsum, euismod atras vulputate iltricies etri elit.
-				</p>
-			</div>
-		</article>
-		
+		{% endfor %}
 	</div>
 	
 </div>
@@ -64,8 +50,8 @@
 	</div></h2>
 	{% endif %}
 	
-	<form class="form {{ heading_class }}" method="post">
-		
+	<form class="form {{ heading_class }}" method="post" action="{{ supra.localization.path }}?postComment">
+				
 		<div class="clearfix">
 			<div class="one_third grid_item alpha">
 				<label for="name">{{ supraBlock.property('label_name') }}<sup class="required">*</sup></label>
@@ -76,7 +62,7 @@
 				<input type="email" class="input-text" value="" placeholder="{{ supraBlock.property('label_email')|e }}" name="email" id="email" required />
 			</div>
 			<div class="one_third grid_item omega">
-				<label for="url">{{ supraBlock.property('label_website') }}<sup class="required">*</sup></label>
+				<label for="url">{{ supraBlock.property('label_website') }}</label>
 				<input type="url" class="input-text" value="" placeholder="{{ supraBlock.property('label_website')|e }}" name="url" id="url" />
 			</div>
 		</div>

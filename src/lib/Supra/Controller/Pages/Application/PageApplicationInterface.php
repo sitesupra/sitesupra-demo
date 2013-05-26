@@ -36,7 +36,7 @@ interface PageApplicationInterface
 	 * @param string $filter
 	 * @return array
 	 */
-	public function getFilterFolders(QueryBuilder $queryBuilder, $filter);
+	public function getFilterFolders(QueryBuilder $queryBuilder, $filterName);
 	
 	/**
 	 * Apply application filter

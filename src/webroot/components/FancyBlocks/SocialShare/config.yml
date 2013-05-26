@@ -12,7 +12,6 @@
         groups:
           - Supra\FileStorage
           - Supra\Controller\Pages
-        lifetime: 60 seconds
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: share_title

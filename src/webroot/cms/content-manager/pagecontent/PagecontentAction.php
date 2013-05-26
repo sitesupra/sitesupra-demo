@@ -528,6 +528,38 @@ class PagecontentAction extends PageManagerAction
 
 				$value = null;
 				$referencedElementsData = array();
+				
+				// @TODO: another solution?
+				if ($editable instanceof Editable\PageKeywords) {
+					
+					$localization = $this->getPageLocalization();
+					$tagsArray = $localization->getTagArray();
+					
+					$newTagArray = array();
+					
+					$keywordString = $input->get($propertyName);
+					$keywordArray = explode(';', $keywordString);
+					foreach ($keywordArray as $keyword) {
+						
+						if ( ! in_array($keyword, $tagsArray)) {
+							$tag = new Entity\LocalizationTag();
+							$tag->setName($keyword);
+							
+							$localization->addTag($tag);
+							$this->entityManager->persist($tag);
+						}
+						
+						$newTagArray[] = $keyword;
+					}
+					
+					$tagsToRemove = array_diff($tagsArray, $newTagArray);
+					$tagCollection = $localization->getTagCollection();
+					
+					foreach ($tagsToRemove as $tagToRemove) {
+						$tag = $tagCollection->offsetGet($tagToRemove);
+						$this->entityManager->remove($tag);
+					}
+				}
 
 				// Specific result received from CMS for HTML
 				if ($editable instanceof Editable\Html) {
