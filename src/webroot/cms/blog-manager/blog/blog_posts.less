@@ -70,6 +70,9 @@
 		.row-status {
 			padding-right: 10px;
 		}
+		.row-delete {
+			text-align: right;
+		}
 		.status-icon {
 			text-align: right;
 			
@@ -116,6 +119,19 @@
 		&.su-datagrid-disabled .delete-icon {
 			cursor: default;
 			background-position: 0 -180px;
+		}
+		
+		&.su-datagrid-dark {
+			.delete-icon {
+				background-position: 0 -220px;
+				
+				&:hover {
+					background-position: 0 -240px;
+				}
+			}
+			&.su-datagrid-disabled .delete-icon {
+				background-position: 0 -220px;
+			}
 		}
 		
 	}

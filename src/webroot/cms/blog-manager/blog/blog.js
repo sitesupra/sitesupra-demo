@@ -109,12 +109,20 @@ function (Y) {
 			'settingsTabs': null,
 			'settingsSlideshow': null,
 			
-			'formAuthor': null,
-			'footerAuthor': null,
+			'formsAuthor': null,
+			'footersAuthor': null,
 			
-			'formTags': null,
-			'footerTags': null
+			'formComments': null,
+			
+			'datagridTags': null,
+			
+			'formTemplates': null
 		},
+		
+		/**
+		 * Last loaded data info
+		 */
+		data: null,
 		
 		/**
 		 * Selected locale
@@ -218,6 +226,7 @@ function (Y) {
 			
 			this.widgets.settingsTabs.on('selectionChange', function (evt) {
 				this.widgets.settingsSlideshow.set('slide', evt.newVal[0].id);
+				this.widgets.settingsSlideshow.syncUI();
 			}, this);
 		},
 		
@@ -303,6 +312,7 @@ function (Y) {
 				// Data properties which doesn't have column
 				'dataColumns': [
 					{'id': 'id'},
+					{'id': 'page_id'},
 					{'id': 'localized'},
 					{'id': 'scheduled'},
 					{'id': 'published'}
@@ -360,7 +370,7 @@ function (Y) {
 			this.widgets.datagrid.on('row:click', function (event) {
 				//On delete click...
 				if (event.element.test('a.delete-icon')) {
-					this.deleteBlogPost(event.row.id);
+					this.deleteBlogPost(event.row.page_id);
 					return false;
 				}
 				
@@ -475,8 +485,10 @@ function (Y) {
 				'srcNode': this.one('div.blog-settings div.slideshow')
 			});
 			
-			this.renderForm('Author');
-			this.renderForm('Tags');
+			this.renderFormTags();
+			this.renderFormTemplates();
+			this.renderFormComments();
+			
 		},
 		
 		/**
@@ -485,39 +497,180 @@ function (Y) {
 		 * @private
 		 */
 		renderForm: function (name) {
-			var container = Y.one('#tabContent' + name);
+			var container = Y.one('#tabContent' + name),
+				node = null;
 			
-			var form = this.widgets['form' + name] = new Supra.Form({
-				'srcNode': container.one('form')
+			node = container.one('form');
+			if (node) {
+				var form = this.widgets['form' + name] = new Supra.Form({
+					'srcNode': node
+				});
+				
+				form.render();
+				form.on('submit', this.saveForm, this, {'name': name});
+			}
+			
+			node = container.one('div.footer');
+			if (node) {
+				var footer = this.widgets['footer' + name] = new Supra.Footer({
+					'srcNode': node
+				});
+				
+				footer.render();
+			}
+		},
+		
+		/**
+		 * Render tags form
+		 * 
+		 * @private
+		 */
+		renderFormTags: function () {
+			var datasource = new Y.DataSource.Function({
+				'source': Y.bind(function () {
+					var data = this.data,
+						tags = [],
+						i    = 0,
+						ii   = 0;
+					
+					if (data.tags) {
+						for (ii = data.tags.length; i<ii; i++) {
+							tags.push({'name': data.tags[i]});
+						}
+					}
+					
+					return tags;
+				}, this)
 			});
 			
-			var footer = this.widgets['footer' + name] = new Supra.Footer({
-				'srcNode': container.one('div.footer')
+			datasource.plug(Y.Plugin.DataSourceArraySchema, {
+				schema: {
+					resultFields: ['name']
+				}
 			});
 			
-			form.render();
-			footer.render();
+			var datagrid = new Supra.DataGrid({
+				
+				'dataSource': datasource,
+				
+				'clickable': false,
+				
+				// Not scrollable, this is controlled by slideshow
+				'scrollable': false,
+				
+				// ID column
+				'idColumn': ['name'],
+				
+				// All columns
+				'columns': [
+					{
+						'id': 'name',
+						'title': Supra.Intl.get(['blog', 'settings', 'tags', 'name']),
+					}, {
+						'id': 'delete',
+						'title': '',
+						'formatter': this.formatColumnDelete
+					}
+				],
+				
+				'srcNode': this.one('div.taggrid'),
+				'style': 'list'
+			});
 			
-			form.on('submit', this.saveForm, this, {'name': name});
+			datagrid.render();
+			datagrid.addClass('su-datagrid-dark');
+			
+			datagrid.on('row:click', function (event) {
+				//On delete click...
+				if (event.element.test('a.delete-icon')) {
+					this.deleteBlogTag(event.row.data.name);
+					return false;
+				}
+			}, this);
+			
+			this.widgets.datagridTags = datagrid;
+		},
+		
+		/**
+		 * Render comments form
+		 * 
+		 * @private
+		 */
+		renderFormComments: function () {
+			this.renderForm('Comments');
+			this.widgets.formComments.getInput('moderation_enabled').on('change', function () {
+				this.saveForm({
+					'target': this.widgets.formComments
+				}, {
+					'uri': this.getDataPath('../settings/save-comments'),
+					'name': null
+				});
+			}, this);
+		},
+		
+		/**
+		 * Render templates form
+		 * 
+		 * @private
+		 */
+		renderFormTemplates: function () {
+			this.renderForm('Templates');
+			
+			var uri = Supra.Manager.getAction('PageSettings').getDataPath('templates'),
+				form = this.widgets.formTemplates,
+				input = form.getInput('template');
+			
+			input.set('loading', true);
+			
+			Supra.io(uri).done(function (templates) {
+				this.updatingUI = true;
+				
+				var form = this.widgets.formTemplates,
+					input = form.getInput('template');
+				
+				input.set('loading', false);
+				input.set('showEmptyValue', false);
+				input.set('values', templates);
+				
+				this.updatingUI = false;
+			}, this);
+			
+			input.on('change', function () {
+				this.saveForm({
+					'target': this.widgets.formTemplates
+				}, {
+					'uri': this.getDataPath('../settings/save-templates'),
+					'name': null
+				});
+			}, this);
 		},
 		
 		/**
 		 * Save form values
 		 */
 		saveForm: function (e, params) {
+			if (this.updatingUI) return;
+			
 			var name	= params.name,
 				form	= e.target,
 				footer	= this.widgets['footer' + name],
 				
-				uri		= this.getDataPath('save-settings'),
+				uri		= params.uri || this.getDataPath('../settings/save'),
 				data	= {
 					'parent_id': this.options.parent_id
 				};
 			
-			data[name.toLowerCase()] = form.getSaveValues('name');
+			if (name) {
+				data[name.toLowerCase()] = form.getSaveValues('name');
+			} else {
+				Supra.mix(data, form.getSaveValues('name'));
+			}
 			
 			form.set('disabled', true);
-			footer.getButton('save').set('loading', true);
+			
+			if (footer) {
+				footer.getButton('save').set('loading', true);
+			}
 			
 			Supra.io(uri, {
 				'method': 'post',
@@ -526,10 +679,153 @@ function (Y) {
 				'on': {
 					'complete': function () {
 						form.set('disabled', false);
-						footer.getButton('save').set('loading', false);
+						
+						if (footer) {
+							footer.getButton('save').set('loading', false);
+						}
 					}
 				}
 			});
+		},
+		
+		/**
+		 * Save author form values
+		 */
+		saveAuthorForm: function (e, params) {
+			if (this.updatingUI) return;
+			
+			var index  = params.index,
+				form   = this.widgets.formsAuthor[index],
+				footer = this.widgets.footersAuthor[index],
+				
+				uri    = this.getDataPath('../settings/save-authors'),
+				data   = null;
+			
+			// Data
+			data = Supra.mix({
+				'parent_id': this.options.parent_id
+			}, form.getSaveValues('name'));
+			
+			delete(data.avatar);
+			
+			// Disable form to prevent multiple calls
+			form.set('disabled', true);
+			
+			if (footer) {
+				footer.getButton('save').set('loading', true);
+			}
+			
+			Supra.io(uri, {
+				'method': 'post',
+				'data': data,
+				'context': this,
+				'on': {
+					'complete': function () {
+						form.set('disabled', false);
+						
+						if (footer) {
+							footer.getButton('save').set('loading', false);
+						}
+					},
+					'success': function () {
+						if (footer) {
+							footer.hide();
+						}	
+					}
+				}
+			});
+		},
+		
+		/**
+		 * Render author forms, for each author one form
+		 * 
+		 * @param {Array} authors List of authors
+		 * @private
+		 */
+		renderAuthorForms: function (authors) {
+			var forms = this.widgets.formsAuthor || [],
+				form = null,
+				footers = this.widgets.footersAuthor || [],
+				footer = null,
+				node = null,
+				input = null,
+				i = 0,
+				ii = forms.length,
+				count = authors.length,
+				
+				template = this.one('#tabContentAuthor form.hidden');
+			
+			if (count < ii) {
+				// Destroy unneeded forms
+				for (i=count; i<ii; i++) {
+					node = forms[i].get('boundingBox');
+					footers[i].destroy();
+					forms[i].destroy();
+					forms[i] = null;
+					node.remove(true);
+				}
+				
+				forms = forms.slice(0, count);
+				footers = footers.slice(0, count);
+			} else if (count > ii) {
+				// Create new forms
+				for (i=ii; i<count; i++) {
+					node = template.cloneNode(true);
+					node.removeClass('hidden');
+					template.ancestor().appendChild(node);
+					
+					node.all('[for], [name]').each(function (node, index) {
+						var attr = node.getAttribute('for');
+						if (attr) {
+							node.setAttribute('for', attr + '_' + i);
+						}
+						attr = node.getAttribute('name');
+						if (attr) {
+							node.setAttribute('id', attr + '_' + i);
+						}
+					});
+					
+					form = new Supra.Form({
+						'srcNode': node
+					});
+					
+					footer = new Supra.Footer({
+						'srcNode': node.one('div.footer')
+					});
+					
+					form.render();
+					footer.render();
+					
+					input = form.getInput('name');
+					input.addClass('input-name');
+					input.on('input', footer.show, footer);
+					
+					input = form.getInput('about');
+					input.addClass('input-about');
+					input.on('input', footer.show, footer);
+					
+					form.on('submit', this.saveAuthorForm, this, {'index': i});
+					
+					forms.push(form);
+					footers.push(footer);
+				}
+			}
+			
+			// Set values
+			for (i=0, ii=authors.length; i<ii; i++) {
+				forms[i].setValues(authors[i], 'name');
+				footers[i].hide();
+				
+				// Avatar
+				node = forms[i].get('boundingBox').one('em.avatar img');
+				node.setAttribute('src', authors[i].avatar || '/cms/lib/supra/img/avatar-default-48x48.png');
+			}
+			
+			this.widgets.formsAuthor = forms;
+			this.widgets.footersAuthor = footers;
+			
+			// Update scroll
+			this.widgets.settingsSlideshow.syncUI();
 		},
 		
 		
@@ -542,9 +838,13 @@ function (Y) {
 		 * @private 
 		 */
 		loadData: function () {
-			var uri = this.getDataPath('settings');
+			var uri = this.getDataPath('../settings/load');
 			
-			Supra.io(uri).done(this.setSettingsData, this);
+			Supra.io(uri, {
+				'data': {
+					'parent_id': this.options.parent_id
+				}
+			}).done(this.setSettingsData, this);
 		},
 		
 		/**
@@ -553,14 +853,24 @@ function (Y) {
 		 * @private
 		 */
 		setSettingsData: function (data) {
-			// Author
-			this.widgets.formAuthor.setValues(data.author);
+			this.updatingUI = true;
 			
-			// Avatar
-			this.one('em.avatar img').setAttribute('src', data.author.avatar || '/cms/lib/supra/img/avatar-default-48x48.png');
+			this.data = data;
+			
+			// Author
+			this.renderAuthorForms(data.authors);
 			
 			// Tags
-			this.widgets.formTags.setValues(data.tags);
+			this.widgets.datagridTags.reset();
+			
+			// Comments
+			this.widgets.formComments.setValues(data.comments);
+			
+			// Templates
+			this.widgets.formTemplates.setValues(data.templates);
+			
+			this.widgets.settingsSlideshow.syncUI();
+			this.updatingUI = false;
 		},
 		
 		/**
@@ -588,13 +898,66 @@ function (Y) {
 				'context': this,
 				'on': {
 					'success': function (data) {
-						this.openBlogPost(data.id);
+						this.openBlogPost(data);
 					},
 					'complete': function () {
 						this.widgets.buttonNewPost.set('loading', false);
 					}
 				}
 			});
+		},
+		
+		/**
+		 * Delete blog tag
+		 * 
+		 * @param {String} name Tag name
+		 */
+		deleteBlogTag: function (name) {
+			Manager.executeAction('Confirmation', {
+				'message': Supra.Intl.get(['blog', 'settings', 'tags', 'delete_tag']),
+				'useMask': true,
+				'buttons': [
+					{
+						'id': 'delete',
+						'label': Supra.Intl.get(['buttons', 'yes']),
+						'click': function () { this.deleteBlogTagConfirmed(name); },
+						'context': this
+					},
+					{
+						'id': 'no',
+						'label': Supra.Intl.get(['buttons', 'no'])
+					}
+				]
+			});
+		},
+		
+		/**
+		 * Delete post after confirmation
+		 * 
+		 * @param {String} name Blog tag name
+		 * @private
+		 */
+		deleteBlogTagConfirmed: function (name) {
+			//Delete record
+			if (name) {
+				var uri = this.getDataPath('../settings/delete-tag'),
+					post_data = {
+						'name': name,
+						'parent_id': this.options.parent_id
+					};
+				
+				Supra.io(uri, {
+					'data': post_data,
+					'method': 'post',
+					'context': this,
+					'on': {
+						'success': function () {
+							this.widgets.datagridTags.remove(name);
+						}
+					}
+				});
+			}
+			
 		},
 		
 		/**
@@ -634,7 +997,8 @@ function (Y) {
 					post_data = {
 						'id': record_id,
 						'locale': this.locale,
-						'action': 'delete'
+						'action': 'delete',
+						'parent_id': this.options.parent_id
 					};
 				
 				Supra.io(uri, {
@@ -658,6 +1022,15 @@ function (Y) {
 		 * @param {Object} record_id
 		 */
 		openBlogPost: function (record_id) {
+			var data = null;
+			
+			if (typeof record_id === 'string') {
+				data = this.widgets.datagrid.getRowByID(record_id).getData();
+			} else {
+				data = record_id;
+				record_id = data.id;
+			}
+			
 			if (this.options.standalone) {
 				// Open content manager action
 				var url = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('SiteMap') + '/h/page/' + record_id;
@@ -665,8 +1038,6 @@ function (Y) {
 				Y.Cookie.set('supra_language', this.locale);
 				document.location = url;
 			} else {
-				var data = this.widgets.datagrid.getRowByID(record_id).getData();
-				
 				// Close recycle bin
 				this.hideRecycleBin();
 				
@@ -744,6 +1115,11 @@ function (Y) {
 			
 			//Add buttons to toolbar
 			this.widgets.slideshow.set('slide', id);
+			
+			//Make sure scrollbar is correct
+			if (id == 'blog_settings') {
+				this.widgets.settingsSlideshow.syncUI();
+			}
 		},
 		
 		/**
@@ -800,9 +1176,9 @@ function (Y) {
 				action  = Supra.Manager.getAction('SiteMapRecycle'),
 				buttonNewPost = this.widgets.buttonNewPost;
 			
-			toolbar.getActionButton('blog_posts').set('disabled', true);
-			toolbar.getActionButton('blog_settings').set('disabled', true);
-				
+			toolbar.getActionButton('blog_posts').set('disabled', false);
+			toolbar.getActionButton('blog_settings').set('disabled', false);
+			
 			action.hide();
 			buttonNewPost.show();
 		},
@@ -878,6 +1254,9 @@ function (Y) {
 			this.widgets.datagrid.requestParams.set('locale', this.locale);
 			this.widgets.datagrid.requestParams.set('parent_id', this.options.parent_id);
 			this.widgets.datagrid.reset();
+			
+			// Settings
+			this.loadData();
 		}
 	});
 	

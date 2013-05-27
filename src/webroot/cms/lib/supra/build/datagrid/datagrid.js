@@ -1091,6 +1091,30 @@ YUI.add("supra.datagrid", function (Y) {
 		'destructor': function () {
 			this.scrollable.destroy();
 			this.set('scrollable', null);
+		},
+		
+		'addClass': function () {
+			var box = this.get('boundingBox');
+			if (box) box.addClass.apply(box, arguments);
+			return this;
+		},
+		
+		'removeClass': function () {
+			var box = this.get('boundingBox');
+			if (box) box.removeClass.apply(box, arguments);
+			return this;
+		},
+		
+		'toggleClass': function () {
+			var box = this.get('boundingBox');
+			if (box) box.toggleClass.apply(box, arguments);
+			return this;
+		},
+		
+		'hasClass': function () {
+			var box = this.get('boundingBox');
+			if (box) return box.hasClass.apply(box, arguments);
+			return false;
 		}
 	});
 	
