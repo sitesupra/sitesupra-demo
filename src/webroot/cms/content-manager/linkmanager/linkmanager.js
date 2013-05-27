@@ -716,8 +716,6 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			//to make it compatible with checkbox
 			data.target = (data.target == '_blank' ? true : false);
 			
-			console.log('data', data);
-			
 			//Set values by input name
 			this.form.setValues(data, 'name');
 			
