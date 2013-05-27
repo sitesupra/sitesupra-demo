@@ -137,7 +137,7 @@ class BlogCommentsBlock extends BlockController
 		
 		$blogComment->setPageLocalization($localization);
 		
-		$blogApp->storeComment($comment);
+		$blogApp->storeComment($blogComment);
 	}
 	
 }
