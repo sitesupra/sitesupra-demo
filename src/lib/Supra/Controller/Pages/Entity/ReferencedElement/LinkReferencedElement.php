@@ -491,6 +491,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function isButton()
 	{
-		return strpos($this->classname, ' button') !== false;
+		return $this->classname == 'button' 
+				|| strpos($this->classname, ' button') !== false;
 	}
 }
