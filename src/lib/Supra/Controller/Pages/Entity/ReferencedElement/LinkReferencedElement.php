@@ -6,7 +6,6 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\FileStorage\Entity\File;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
-use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\Entity\PageLocalization;
@@ -20,13 +19,15 @@ class LinkReferencedElement extends ReferencedElementAbstract
 {
 	const TYPE_ID = 'link';
 	
-	const RESOURCE_PAGE = 'page';
-	const RESOURCE_FILE = 'file';
-	const RESOURCE_LINK = 'link';
-	const RESOURCE_RELATIVE_PAGE = 'relative';
+	const RESOURCE_PAGE = 'page',
+			RESOURCE_RELATIVE_PAGE = 'relative',
+			
+			RESOURCE_FILE = 'file',
+			RESOURCE_LINK = 'link',
+			RESOURCE_EMAIL = 'email';
 	
-	const RELATIVE_LAST = 'last';
-	const RELATIVE_FIRST = 'first';
+	const RELATIVE_LAST = 'last',
+			RELATIVE_FIRST = 'first';
 	
 	/**
 	 * @Column(type="string")
@@ -205,6 +206,13 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				
 				break;
 			
+			case self::RESOURCE_EMAIL:
+				if ( ! empty($this->title)) {
+					$title = $this->title;
+				} else {
+					$title = str_replace('mailto:', '', $this->getHref());
+				}
+			
 			case self::RESOURCE_RELATIVE_PAGE:
 				$href = $this->getHref();
 				if ($href == self::RELATIVE_FIRST) {
@@ -279,6 +287,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			'file_id' => $this->fileId,
 			'href' => $this->href,
 			'classname' => $this->classname,
+			'button' => $this->isButton(),
 		);
 		
 		return $array;
@@ -382,6 +391,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				break;
 				
 			case self::RESOURCE_LINK:
+			case self::RESOURCE_EMAIL:
 				$url = $this->getHref();
 				break;
 			
@@ -471,5 +481,16 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		$this->pageLocalization = $pageData;
 		
 		return $pageData;
+	}
+	
+	/**
+	 * It's not the best way to detect, should we show link as button,
+	 *  but is the one to do this without having additional property
+	 * 
+	 * @return string
+	 */
+	public function isButton()
+	{
+		return strpos($this->classname, ' button') !== false;
 	}
 }
