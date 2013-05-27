@@ -82,6 +82,17 @@ class PageLocalization extends Abstraction\Localization
 	 * @var boolean
 	 */
 	protected $publishTimeSet = false;
+	
+	/**
+	 * @TODO: check for another solution to detect, was this page related to 
+	 *			one of the page application or not
+	 * 
+	 * Contains id of page application under which the page was created
+	 * 
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $parentPageApplicationId;
 
 	/**
 	 * Additionally set creation time
@@ -546,4 +557,8 @@ class PageLocalization extends Abstraction\Localization
 //		return new \Doctrine\Common\Collections\ArrayCollection();
 //	}
 
+	public function setParentPageApplicationId($applicationId)
+	{
+		$this->parentPageApplicationId = $applicationId;
+	}
 }

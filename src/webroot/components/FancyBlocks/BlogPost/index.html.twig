@@ -17,17 +17,15 @@
 	</div>
 	
 	<div class="meta-info">
-		{# if date is object with format function like in news then uncomment following line #}
-		{# <time datetime="{{ date|date('Y-m-d') }}">{{ date.format('F j, Y') }}</time> #}
-		
-		{# if date is timestamp then uncomment following line #}
-		<time datetime="{{ date|date('Y-m-d') }}">{{ date|date('F j, Y') }}</time>
-		
+		{% set date = supra.localization.getCreationTime() %}
+		<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('F j, Y') }}</time>
+
+		{% set tags = supra.localization.getTagArray() %}
 		{% if tags|length %}
 		<span class="separator">|</span>
 		<span class="tags">
 			{% for tag in tags %}
-				<a class="tag" href="@TODO/{{ tag.url }}">{{ tag.title|e }}</a>{% if not loop.last %}, {% endif %}
+				<a class="tag" href="?tag={{ tag|url_encode }}">{{ tag|e }}</a>{% if not loop.last %}, {% endif %}
 			{% endfor %}
 		</span>
 		{% endif %}

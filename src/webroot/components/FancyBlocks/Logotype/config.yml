@@ -12,7 +12,6 @@
         groups:
           - Supra\FileStorage
           - Supra\Controller\Pages
-
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: layout

@@ -3,9 +3,6 @@
 namespace Supra\Controller\Pages\Entity\Abstraction;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Supra\Controller\Pages\Entity\BlockProperty;
-use Supra\Authorization\AuthorizedEntityInterface;
-use Supra\Authorization\PermissionType;
 use Supra\Controller\Pages\Entity\LockData;
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Entity\TemplateLocalization;
@@ -168,7 +165,13 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	 * @var Collection
 	 */
 	protected $placeHolderGroups;
-
+	
+	/**
+	 * @OneToMany(targetEntity="\Supra\Controller\Pages\Entity\LocalizationTag", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name", fetch="EXTRA_LAZY")
+	 * @var Collection
+	 */
+	protected $tags;
+	
 	/**
 	 * Construct
 	 * @param string $locale
@@ -179,6 +182,8 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$this->setLocale($locale);
 		$this->placeHolders = new ArrayCollection();
 		$this->placeHolderGroups = new ArrayCollection();
+		
+		$this->tags = new ArrayCollection();
 	}
 
 	/**
@@ -836,5 +841,38 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 		$group->setLocalization($this);
 		$this->placeHolderGroups->set($group->getName(), $group);
 	}
+	
+	/**
+	 * @return Collection
+	 */
+	public function getTagCollection()
+	{
+		return $this->tags;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getTagArray()
+	{
+		$tagArray = array();
 
+		foreach ($this->tags as $tag) {
+			/* @var $tag \Supra\Controller\Pages\Entity\LocalizationTag */
+			$tagArray[] = $tag->getName();
+		}
+		
+		return $tagArray;
+	}
+	
+	/**
+	 * @param string $name
+	 */
+	public function addTag($tag)
+	{
+		$name = $tag->getName();
+		$tag->setLocalization($this);
+		
+		$this->tags->set($name, $tag);
+	}
 }

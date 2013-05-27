@@ -384,7 +384,7 @@ abstract class CmsAction extends SimpleController
 
 		$ap = ObjectRepository::getAuthorizationProvider($this);
 		$appConfig = ObjectRepository::getApplicationConfiguration($this);
-
+		
 		if ($appConfig->authorizationAccessPolicy->isApplicationAllAccessGranted($user)) {
 			return true;
 		}

@@ -17,6 +17,7 @@
       - NewsList/config.yml
       - NewsText/config.yml
       - BlogPost/config.yml
+      - BlogComments/config.yml
       - Testimonials/config.yml
       - SlideshowAdvanced/config.yml
       - GoogleMap/config.yml

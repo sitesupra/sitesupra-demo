@@ -716,6 +716,12 @@ class PageAction extends PageManagerAction
 		}
 
 		$propertyData = $propertyValue;
+		
+		
+		if ($editable instanceof Editable\PageKeywords) {
+			$localization = $this->getPageLocalization();
+			$propertyData = implode(';', $localization->getTagArray());
+		}
 
 		if ($editable instanceof Editable\Html) {
 			$propertyData = array(

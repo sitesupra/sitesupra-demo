@@ -5,6 +5,14 @@
     groupId: features
     description: Sweet Left Menu Block
     cmsClassname: Editable
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+      enabled: true
+      global: false
+      groups:
+        - Supra\FileStorage
+        - Supra\Controller\Pages
+        
     properties:
 #      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
 #         name: rootLink

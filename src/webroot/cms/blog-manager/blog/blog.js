@@ -285,7 +285,7 @@ function (Y) {
 		renderPostsView: function () {
 			this.widgets.datagrid = new Supra.DataGrid({
 				// Url
-				'requestURI': this.getDataPath('dev/posts.php'),
+				'requestURI': this.getDataPath('posts'),
 				
 				// Url params (GET parameters)
 				'requestParams': {
@@ -509,8 +509,10 @@ function (Y) {
 				form	= e.target,
 				footer	= this.widgets['footer' + name],
 				
-				uri		= this.getDataPath('dev/save'),
-				data	= {};
+				uri		= this.getDataPath('save-settings'),
+				data	= {
+					'parent_id': this.options.parent_id
+				};
 			
 			data[name.toLowerCase()] = form.getSaveValues('name');
 			
@@ -540,7 +542,7 @@ function (Y) {
 		 * @private 
 		 */
 		loadData: function () {
-			var uri = this.getDataPath('dev/settings');
+			var uri = this.getDataPath('settings');
 			
 			Supra.io(uri).done(this.setSettingsData, this);
 		},
@@ -567,7 +569,8 @@ function (Y) {
 		addBlogPost: function () {
 			this.widgets.buttonNewPost.set('loading', true);
 			
-			var uri = Manager.getAction('Page').getDataPath('create');
+			//var uri = Manager.getAction('Page').getDataPath('create');
+			var uri = this.getDataPath('create');
 			
 			Supra.io(uri, {
 				'data': {
@@ -627,7 +630,7 @@ function (Y) {
 		deleteBlogPostConfirmed: function (record_id) {
 			//Delete record
 			if (record_id) {
-				var uri = this.getDataPath('dev/delete'),
+				var uri = Manager.getAction('Page').getDataPath('delete'),
 					post_data = {
 						'id': record_id,
 						'locale': this.locale,
