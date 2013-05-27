@@ -22,8 +22,8 @@
 					{% if supra.cmsRequest %}
 						<a class="button tiny supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'confirmRemoveComment')" href="javascript://">Delete comment</a>
 						
-						<a class="button tiny supra-button button-approve {% if not comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'approveComment')" href="javascript://">Approve</a>
-						<a class="button tiny supra-button button-unapprove {% if comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'unapproveComment')" href="javascript://">Unapprove</a>
+						<a class="button tiny supra-button button-approve {% if comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'approveComment')" href="javascript://">Approve</a>
+						<a class="button tiny supra-button button-unapprove {% if not comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'unapproveComment')" href="javascript://">Unapprove</a>
 					{% endif %}
 				</div>
 				<p>{{ comment.comment | nl2br }}</p>
