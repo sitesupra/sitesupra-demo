@@ -296,6 +296,9 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					var node = this.slideshow.getSlide(slide_id);
 					this.slide[slide_id].call(this, node);
 				}
+			
+			//Update "Insert" / "Close" button label 
+				this.updateInsertButton();
 		},
 		
 		/**
@@ -483,8 +486,8 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			linkToEmail: function (node) {
 				if (!this.link_email) {
 					//On href change update button label
-					this.form.getInput('email').after('input', this.updateInsertButton, this);
-					this.form.getInput('email').after('change', this.updateInsertButton, this);
+					this.form.getInput('email_title').after('input', this.updateInsertButton, this);
+					this.form.getInput('email_title').after('change', this.updateInsertButton, this);
 					this.link_email = true;
 				}
 			}
@@ -545,7 +548,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					break;
 				case 'linkToEmail':
 					//Email tab
-					if (Y.Lang.trim(this.form.getInput('email').get('value'))) {
+					if (Y.Lang.trim(this.form.getInput('email_title').get('value'))) {
 						show_insert = true;
 					}
 					break;
@@ -641,7 +644,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				'button': false,
 				'title': '',
 				'href': '',
-				'email': '',
+				'email_title': '',
 				'email_button': false,
 				'page_id': null,
 				'page_master_id': null,
@@ -654,7 +657,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			}, data || {});
 			
 			//Show footer for existing link and hide for new link
-			var hide_footer = (this.mode == 'link' && !data.page_id && !data.file_id && !data.href && !data.email);
+			var hide_footer = (this.mode == 'link' && !data.page_id && !data.file_id && !data.href && !data.email_title);
 			
 			this.one('.sidebar-footer').toggleClass('hidden', hide_footer);
 			this.one('.sidebar-content').toggleClass('has-footer', !hide_footer);
@@ -666,6 +669,9 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			//reverse it
 			if (data.title && !data.file_title) {
 				data.file_title = data.title;
+			}
+			if (data.title && !data.email_title) {
+				data.email_title = data.title;
 			}
 			if (data.target && !data.file_target) {
 				data.file_target = data.target;
@@ -715,6 +721,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			
 			this.data = data;
 			this.slideshow.set('noAnimations', true);
+			this.slideshow.scrollRoot();
 			
 			switch (data.resource) {
 				case 'page':
@@ -799,6 +806,8 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				this.link_slideshow.set('noAnimations', false);
 			}
 			this.slideshow.set('noAnimations', false);
+			
+			this.updateInsertButton();
 		},
 		
 		/**
@@ -880,23 +889,22 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				return {
 					'resource': 'file',
 					'href': file_path,
-					'target': data.file_target || data.target,
-					'button': data.file_button || data.button,
-					'title': data.file_title || data.title,
+					'target': data.file_target,
+					'button': data.file_button || false,
+					'title': data.file_title,
 					'file_id': item_data.id,
 					'file_path': item_data.path
 				};
 			} else if (slide_id == 'linkToEmail') {
-				var email = data.email,
-					href  = 'mailto:' + data.email;
+				var email = data.email_title,
+					href  = 'mailto:' + email;
 				
 				return {
 					'resource': 'email',
 					'href': href,
 					'target': '',
-					'button': data.email_button || data.button,
-					'title': '',
-					'email': email
+					'button': data.email_button || false,
+					'title': email
 				};
 			}
 		},
