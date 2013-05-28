@@ -41,7 +41,6 @@
 		 * Show confirmation window before removing comment
 		 */
 		'confirmRemoveComment': function () {
-			console.log('confirmRemoveComment');
 			// Supra is not defined -> not CMS mode
 			if (!Supra) return;
 			
