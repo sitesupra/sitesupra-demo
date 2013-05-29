@@ -515,52 +515,19 @@ class PagecontentAction extends PageManagerAction
 
 			$propertyName = $configuration->name;
 
-			if ($input->offsetExists($propertyName)) {
+			if ($input->offsetExists($propertyName) || $propertyName == 'media') {
 
 				$property = $blockController->getProperty($propertyName);
 
-				$editable = $property->getEditable();
-				
-				if ( ! $property instanceof Entity\SharedBlockProperty
-						&& ! $editable instanceof Editable\PageKeywords) {
+				if ( ! $property instanceof Entity\SharedBlockProperty) {
 					$this->entityManager->persist($property);
 					/* @var $property Entity\BlockProperty */
 				}
 
+				$editable = $property->getEditable();
+
 				$value = null;
 				$referencedElementsData = array();
-				
-				// @TODO: another solution?
-				if ($editable instanceof Editable\PageKeywords) {
-					
-					$localization = $this->getPageLocalization();
-					$tagsArray = $localization->getTagArray();
-					
-					$newTagArray = array();
-					
-					$keywordString = $input->get($propertyName);
-					$keywordArray = explode(';', $keywordString);
-					foreach ($keywordArray as $keyword) {
-						
-						if ( ! in_array($keyword, $tagsArray)) {
-							$tag = new Entity\LocalizationTag();
-							$tag->setName($keyword);
-							
-							$localization->addTag($tag);
-							$this->entityManager->persist($tag);
-						}
-						
-						$newTagArray[] = $keyword;
-					}
-					
-					$tagsToRemove = array_diff($tagsArray, $newTagArray);
-					$tagCollection = $localization->getTagCollection();
-					
-					foreach ($tagsToRemove as $tagToRemove) {
-						$tag = $tagCollection->offsetGet($tagToRemove);
-						$this->entityManager->remove($tag);
-					}
-				}
 
 				// Specific result received from CMS for HTML
 				if ($editable instanceof Editable\Html) {
@@ -710,6 +677,75 @@ class PagecontentAction extends PageManagerAction
 						$value = $editable->getStorableContent();
 					}
 				}
+				
+				else if ($editable instanceof Editable\MediaGallery) {
+					
+					$data =  array(
+			0 => array(
+				'layout' => 'link',
+				'text' => array(
+					'html' => '<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam cursus. Morbi ut mi. Nullam enim leo, egestas id, condimentum at, laoreet mattis, massa. Sed eleifend nonummy diam. Praesent mauris ante, elementum et, bibendum at, posuere sit amet, nibh. Duis tincidunt lectus quis dui viverra vestibulum. Suspendisse vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam vehicula mi at maurismm</p>
+<h2>{supra.link id="su1"}Fusce id felis{/supra.link}. Vivamus sollicitudin metus meget eros.</h2><p>{supra.image id="su2"}</p>
+<p>Mauris vel lacus vitae felis vestibulum volutpat. Etiam est nunc, venenatis in, tristique eu, imperdiet ac, nisl. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In iaculis facilisis massa. Etiam eu urna. Sed porta. Suspendisse quam leo, molestie sed, luctus quis, feugiat in, pede. Fusce tellus. Sed metus augue, convallis et, vehicula ut, pulvinar eu, ante. Integer orci tellus, tristique vitae, consequat nec, porta vel, lectus. Nulla sit amet diam. Duis non nunc. Nulla rhoncus dictum metus.</p>',
+					'data' => array(
+						'su1' => array(
+							'type' => 'link',
+							'resource' => 'link',
+							'title' => '',
+							'target' => '',
+							'page_master_id' => '',
+							'file_id' => '',
+							'href' => 'http://www.ss.lv/',
+							'classname' => '',
+						)
+				),
+			),
+				'image' => '',
+				'video' => '',
+				'id' => 'yui_3_5_0_1_1369834754839_10126',
+				'title' => '12424',
+			),
+			
+			1 => array(
+				'layout' => 'image',
+				'title' => 'Some picture!',
+				'text' => 'Lorem_inpusm dolor sit amet',
+				'image' => array(
+					'type' => 'image',
+					'image' => '00l1fwj7j0108o0sogw0',
+					'crop_left' => 244,
+					'crop_top' => 49,
+					'crop_width' => 280,
+					'crop_height' => 179,
+					'size_width' => 600,
+					'size_height' => 228,
+				),
+				'video' => '',
+				'id' => 'yui_3_5_0_1_1369834754839_11840',
+			),
+			
+			2 => array(
+				'layout' => 'video',
+				'title' => 'Hadouken! - Bad Signal (Official Video)',
+				'text' => 'Lorem ipsum dolor sit amet',
+				'image' => '',
+				'video' => array(
+					'type' => 'video',
+					'resource' => 'source',
+					'source' => 'http://www.youtube.com/watch?v=K1-QW20ge98',
+				),
+				'id' => 'yui_3_5_0_1_1369834754839_19524',
+			),
+		);
+					
+					$listInput = new \Supra\Request\RequestData($data);
+					
+					
+					//$listInput = $input->getChild($propertyName);
+					$propertyArray = $this->handleMediaGalleryInput($listInput, $configuration);
+					$value = serialize($propertyArray);
+				}
+				
 				else {
 					$propertyData = $input->get($propertyName);
 					$value = $propertyData;
@@ -1068,5 +1104,49 @@ class PagecontentAction extends PageManagerAction
 		}
 		
 		return $slideshowData;
+	}
+	
+	/**
+	 * 
+	 */
+	private function handleMediaGalleryInput($input, $propertyConfiguration)
+	{
+		$values = array();
+		
+		while ($input->valid()) {
+			
+			$offset = $input->key();
+			$itemInput = $input->getNextChild();
+			
+			$itemData = array();
+			
+			foreach ($propertyConfiguration->properties as $configuration) {
+				
+				$name = $configuration->name;
+				$editable = clone $configuration->editableInstance;
+				
+				if ($itemInput->offsetExists($name)) {
+					
+					$content = $itemInput->offsetGet($name);
+					if ( ! empty($content)) {
+						try {
+							$editable->setContentFromEdit($content);
+						} catch (\Supra\Editable\Exception\RuntimeException $e) {
+							throw new CmsException(null, $e->getMessage());
+						}
+
+						$itemData[$name] = $editable->getContentForEdit();
+					} else {
+						$itemData[$name] = $editable->getDefaultValue();
+					}
+				} else {
+					$itemData[$name] = $editable->getDefaultValue();
+				}
+			}
+			
+			$values[$offset] = $itemData;
+		}
+		
+		return $values;
 	}
 }

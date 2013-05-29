@@ -3,9 +3,6 @@
 namespace Supra\Controller\Pages\Configuration;
 
 use Supra\Configuration\ConfigurationInterface;
-use Supra\Loader\Loader;
-use Supra\Editable\EditableInterface;
-use Supra\Controller\Pages\BlockPropertyGroupCollection;
 
 /**
  * Block Property Group Configuration

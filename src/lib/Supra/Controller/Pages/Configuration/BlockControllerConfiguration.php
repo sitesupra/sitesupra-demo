@@ -84,12 +84,12 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	public $cache;
 
 	/**
-	 * @var array of block properties
+	 * @var BlockPropertyConfiguration[]
 	 */
 	public $properties = array();
 
 	/**
-	 * @var array of block property groups
+	 * @var BlockPropertyGroupConfiguration[]
 	 */
 	public $propertyGroups = array();
 	
@@ -99,27 +99,23 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	 */
 	public $plugins = array();
 
+	
 	/**
 	 * Adds block configuration to block controller collection
 	 */
 	public function configure()
 	{
-		if (empty($this->class)) {
-			\Log::warn("Configuration property BlockControllerConfiguration::controllerClass deprecated; use class instead.");
-			$this->class = $this->controllerClass;
-		}
-
 		if (empty($this->id)) {
 			$id = $this->prepareClassId($this->class);
 			$this->id = $id;
 		}
 
 		if ( ! empty($this->icon)) {
-			$this->iconWebPath = $this->getIconWebPath($this->icon);
+			$this->iconWebPath = $this->getFileWebPath($this->icon);
 		}
 
-		$this->processProperties();
-		$this->processPropertyGroups();
+		$this->processPropertyConfigurations();
+		$this->processPropertyGroupConfigurations();
 		
 		BlockControllerCollection::getInstance()
 				->addBlockConfiguration($this);
@@ -127,23 +123,57 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		parent::configure();
 	}
 
-	protected function processPropertyGroups()
+	/**
+	 * 
+	 */
+	protected function processPropertyConfigurations()
+	{
+		$context = $this->class;
+		
+		$properties = array();
+
+		foreach ($this->properties as $propertyConfiguration) {
+			
+			if ( ! $propertyConfiguration instanceof BlockPropertyConfiguration) {
+				\Log::warn("Property configuration should be instance of BlockPropertyConfiguration", $propertyConfiguration);
+				continue;
+			}
+			
+			if (isset($properties[$propertyConfiguration->name])) {
+				\Log::warn("Property with name \"{$propertyConfiguration->name}\" already exist configuration, skipping");
+				ontinue;
+			}
+			
+			$propertyConfiguration->configurePathsUsingContext($context);
+			
+			$properties[$propertyConfiguration->name] = $propertyConfiguration;
+		}
+		
+		$this->properties = array_values($properties);
+	}
+	
+	/**
+	 * 
+	 */
+	protected function processPropertyGroupConfigurations()
 	{
 		$propertyGroups = array();
 
 		foreach ($this->propertyGroups as $group) {
-			/* @var $group BlockPropertyGroupConfiguration */
+		
 			if ($group instanceof BlockPropertyGroupConfiguration) {
 
 				if (isset($propertyGroups[$group->id])) {
 					\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
 					continue;
 				}
+				
 				if ( ! empty($group->icon)) {
-					$group->icon = $this->getIconWebPath($group->icon);
+					$group->icon = $this->getFileWebPath($group->icon);
 				}
 
 				$propertyGroups[$group->id] = $group;
+				
 			} else {
 				\Log::warn('Group should be instance of BlockPropertyGroupConfiguration ', $group);
 			}
@@ -151,83 +181,7 @@ class BlockControllerConfiguration extends ComponentConfiguration
 
 		$this->propertyGroups = array_values($propertyGroups);
 	}
-
-	protected function processProperties()
-	{
-		$class = $this->class;
-
-		// TODO: might be removed later
-		if (Loader::classExists($class)) {
-			if (method_exists($class, 'getPropertyDefinition')) {
-				$editables = (array) $class::getPropertyDefinition();
-
-				foreach ($editables as $name => $editable) {
-					/* @var $editable \Supra\Editable\EditableInterface */
-					$this->properties[] = $property = new BlockPropertyConfiguration();
-					$property->fillFromEditable($editable, $name);
-				}
-			}
-		}
-
-		// generating new icon path for SelectVisual
-		if (is_array($this->properties)) {
-			foreach ($this->properties as $property) {
-				
-				if ($property->editableInstance instanceof \Supra\Editable\Slideshow
-                        || $property->editableInstance instanceof \Supra\Editable\GalleryAdvanced) {
-					foreach ($property->properties as $subProperty) {
-
-						$subEditable = $subProperty->editableInstance;
-						if ($subEditable instanceof \Supra\Editable\SelectVisual) {
-							$this->processSelectVisual($subProperty);
-						}
-					}
-				}
-
-				if ($property->editableInstance instanceof \Supra\Editable\SelectVisual) {
-					$this->processSelectVisual($property);
-				}
-			}
-		}
-	}
 	
-	private function processSelectVisual($property)
-	{
-		foreach ($property->values as &$value) {
-			if ( ! empty($value['icon'])) {
-				$value['icon'] = $this->getIconWebPath($value['icon']);
-			}
-			
-			if ( ! empty($value['values'])) {
-				foreach ($value['values'] as &$subValue) {
-					$subValue['icon'] = $this->getIconWebPath($subValue['icon']);
-				}
-			}
-		}
-		
-		$property->editableInstance->setValues($property->values);
-	}
-	
-	/**
-	 * Return icon webpath
-	 * @return string
-	 */
-	private function getIconWebPath($icon = null)
-	{
-		$context = null;
-		
-		// Relative path
-		if ( ! empty($icon) && strpos($icon, '/') !== 0) {
-			$context = $this->class;
-		} else {
-			$icon = SUPRA_WEBROOT_PATH . $icon;
-		}
-		
-		$path = PathConverter::getWebPath($icon, $context);
-
-		return $path;
-	}
-
 	/**
 	 * @param string $name
 	 * @return BlockPropertyConfiguration
@@ -270,6 +224,18 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		}
 		
 		return $controller;
+	}
+	
+	protected function getFileWebPath($file)
+	{
+		$context = $this->class;
+		
+		if (strpos($file, '/') !== 0) {
+			return PathConverter::getWebPath($file, $context);
+		} else {
+			$file = SUPRA_WEBROOT_PATH . $file;
+			return PathConverter::getWebPath($file);
+		}
 	}
 
 }

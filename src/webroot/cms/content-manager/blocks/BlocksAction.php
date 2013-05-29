@@ -150,7 +150,14 @@ class BlocksAction extends PageManagerAction
 				if ( ! empty($property->properties) && is_array($property->properties)) {
 					$propertyData['properties'] = $this->gatherPropertyArray($property->properties);
 				}
-
+				
+//				
+//				if ($editable instanceof Editable\Media) {
+//					$propertyConfigurations = $editable->getItemProperties();
+//					$propertyData['properties'] = $this->gatherPropertyArray($propertyConfigurations);
+//				}
+				
+				
 				$response[] = $propertyData;
 			}
 		}

@@ -6,6 +6,7 @@ use Supra\Configuration\ConfigurationInterface;
 use Supra\Loader\Loader;
 use Supra\Editable\EditableInterface;
 use Supra\Editable;
+use Supra\Uri\PathConverter;
 
 /**
  * Block Property Configuration
@@ -59,7 +60,7 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 	 * @var array
 	 */
 	public $properties = array();
-
+	
 	/**
 	 * @var string
 	 */
@@ -81,8 +82,7 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		// @FIXME: not nice
 		if ($this->editableInstance instanceof Editable\Select
 				|| $this->editableInstance instanceof Editable\SelectVisual
-				|| $this->editableInstance instanceof Editable\Slideshow
-                || $this->editableInstance instanceof Editable\MediaGallery) {
+				|| $this->editableInstance instanceof Editable\Slideshow) {
 			
 			if (method_exists($this->editableInstance, 'setValues')) {
 				$this->editableInstance->setValues($this->values);
@@ -126,6 +126,82 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		$this->group = $editable->getGroupId();
 
 		return $this;
+	}
+	
+	public function configurePathsUsingContext($context)
+	{
+		$editable = $this->editableInstance;
+		
+		if ($editable instanceof Editable\SelectVisual) {
+			$this->processSelectVisual($this, $context);
+		}
+		
+		else if ($editable instanceof Editable\Slideshow) {
+			
+			foreach ($this->properties as $subProperty) {
+				
+				$subEditable = $subProperty->editableInstance;
+
+				if ($subEditable instanceof \Supra\Editable\SelectVisual) {
+					$this->processSelectVisual($subProperty, $context);
+				}
+			}
+		}
+		
+		else if ($editable instanceof Editable\MediaGallery) {
+		
+			if (isset($this->additionalParameters['layouts']) 
+					&& ! empty($this->additionalParameters['layouts'])) {
+			
+				
+				$layoutConfigurations = $this->additionalParameters['layouts'];
+				foreach ($layoutConfigurations as $layoutConfiguration) {
+					$layoutConfiguration->file = $this->getFileFullPath($layoutConfiguration->file, $context);
+				}
+			}
+		}
+	}
+	
+	private function processSelectVisual($configuration, $context)
+	{
+		foreach ($configuration->values as &$value) {
+			if ( ! empty($value['icon'])) {
+				$value['icon'] = $this->getFileWebPath($value['icon'], $context);
+			}
+
+			if ( ! empty($value['values'])) {
+				foreach ($value['values'] as &$subValue) {
+					$subValue['icon'] = $this->getFileWebPath($subValue['icon'], $context);
+				}
+			}
+		}
+		
+		$configuration->editableInstance->setValues($configuration->values);
+	}
+	
+	/**
+	 * 
+	 * @param string $file
+	 * @param string $context
+	 * @return string
+	 */
+	protected function getFileWebPath($file, $context = null)
+	{
+		if (strpos($file, '/') !== 0) {
+			return PathConverter::getWebPath($file, $context);
+		} else {
+			$file = SUPRA_WEBROOT_PATH . $file;
+			return PathConverter::getWebPath($file);
+		}
+	}
+	
+	protected function getFileFullPath($file, $context = null)
+	{
+		if (strpos($file, '/') !== 0) {
+			return SUPRA_WEBROOT_PATH . PathConverter::getWebPath($file, $context);
+		} else {
+			return $file;
+		}
 	}
 
 }

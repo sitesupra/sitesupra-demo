@@ -686,118 +686,86 @@ class PageAction extends PageManagerAction
 	 */
 	protected function gatherPropertyData($blockController, $property)
 	{
-		$propertyName = $property->name;
-
-		$blockProperty = $blockController->getProperty($propertyName);
+		$blockProperty = $blockController->getProperty($property->name);
 
 		$editable = $blockProperty->getEditable();
-		$propertyValue = $editable->getContentForEdit();
-		$metadataCollection = $blockProperty->getMetadata();
-		$data = array();
 		
-		/* @var $metadata Entity\BlockPropertyMetadata */
-		foreach ($metadataCollection as $name => $metadata) {
-
-			$data[$name] = array();
-
-			$referencedElement = $metadata->getReferencedElement();
+		$propertyContent = $editable->getContentForEdit();
+		$metaCollection = $blockProperty->getMetadata();
+		
+		// Handle special case for Slideshow editable
+		if ($editable instanceof Editable\Slideshow) {
+			$propertyContent = $this->prepareSlideshowProperties($blockProperty, $property);
+		}
+		
+//		// HTML has "data" array with info about links/images/icons etc.
+//		if ($editable instanceof Editable\Html) {
+//			foreach ($metaCollection as $name => $metaItem) {
+//				$element = $metaItem->getReferencedElement();
+//				$propertyContent['data'][$name] = $this->convertReferencedElementToArray($element); 
+//			}
+//		}
+		
+		// @TODO: move to editables?
+		if ($editable instanceof Editable\Link
+				|| $editable instanceof Editable\Video
+				|| $editable instanceof Editable\InlineMedia) {
 			
-			$elementData = $this->convertReferencedElementToArray($referencedElement);
-			if ($editable instanceof Editable\Gallery) {
-				$data[$name] = array(
-					'id' => $elementData['imageId'],
-					'image' => $elementData,
-				);
-			} else {
-				$data[$name] = $elementData;
-			}
-
-			$data[$name]['__meta__'] = $metadata->getId();
-		}
-
-		$propertyData = $propertyValue;
-		
-		
-		if ($editable instanceof Editable\PageKeywords) {
-			$localization = $this->getPageLocalization();
-			$propertyData = implode(';', $localization->getTagArray());
-		}
-
-		if ($editable instanceof Editable\Html) {
-			$propertyData = array(
-				'html' => $propertyValue['html'],
-				'data' => $data
-			);
-		}
-
-		if ($editable instanceof Editable\Link || $editable instanceof Editable\Video) {
-			if (isset($data[0])) {
-				$propertyData = $data[0];
+			if ($propertyContent instanceof Entity\ReferencedElement\ReferencedElementAbstract) {
+				$propertyContent = $this->convertReferencedElementToArray($propertyContent);
 			}
 		}
 		
-		if ($editable instanceof Editable\InlineMedia) {
-			if (isset($data[0])) {
-				$propertyData = $data[0];
-			}
-		}
-
-		if ($editable instanceof Editable\Image) {
-			if ($propertyValue) {
-				$fileStorage = ObjectRepository::getFileStorage($this);
-				$image = $fileStorage->getDoctrineEntityManager()
-						->find(\Supra\FileStorage\Entity\Image::CN(), $propertyValue);
-
-				if ($image instanceof \Supra\FileStorage\Entity\Image) {
-					$propertyData = $fileStorage->getFileInfo($image);
-				}
-			}
-		}
-
-		if ($editable instanceof Editable\File) {
-			if ($propertyValue) {
-				$fileStorage = ObjectRepository::getFileStorage($this);
-				$file = $fileStorage->getDoctrineEntityManager()
-						->find(\Supra\FileStorage\Entity\File::CN(), $propertyValue);
-				if ($file instanceof \Supra\FileStorage\Entity\File) {
-					$propertyData = $fileStorage->getFileInfo($file);
-				}
-			}
-		}
+//		// In case of File or Image entity, block property contains the entity ID
+//		// what can be used to load file/image from the storage
+//		if ($editable instanceof Editable\Image
+//				|| $editable instanceof Editable\File) {
+//			
+//			$fileStorage = ObjectRepository::getFileStorage($this);
+//			$file = $fileStorage->find($propertyContent);
+//			
+//			if ($file instanceof \Supra\FileStorage\Entity\Abstraction\File) {
+//				$propertyContent = $fileStorage->getFileInfo($file);
+//			}
+//		}
 		
-		if ($editable instanceof Editable\BlockBackground) {
-
-			$classname = null;
-			$imageData = null;
-
-			if ($blockProperty->getMetadata()->containsKey('image')) {
-
-				$imageReferencedElement = $blockProperty->getMetadata()->get('image')->getReferencedElement();
-
-				$imageId = $imageReferencedElement->getImageId();
-
-				$fileStorage = ObjectRepository::getFileStorage($this);
-
-				$image = $fileStorage->getDoctrineEntityManager()
-						->find(\Supra\FileStorage\Entity\Image::CN(), $imageId);
-
-				if ( ! empty($image)) {
-					$imageData = $imageReferencedElement->toArray();
-					$imageData['image'] = $fileStorage->getFileInfo($image);
-				}
-			} else {
-				$classname = $blockProperty->getValue();
-			}
-
-			$propertyData = array('image' => $imageData, 'classname' => $classname);
-		}
-
+//		if ($editable instanceof Editable\BlockBackground) {
+//
+//			$classname = null;
+//			$imageData = null;
+//
+//			if ($blockProperty->getMetadata()->containsKey('image')) {
+//
+//				$imageReferencedElement = $blockProperty->getMetadata()->get('image')->getReferencedElement();
+//
+//				$imageId = $imageReferencedElement->getImageId();
+//
+//				$fileStorage = ObjectRepository::getFileStorage($this);
+//
+//				$image = $fileStorage->getDoctrineEntityManager()
+//						->find(\Supra\FileStorage\Entity\Image::CN(), $imageId);
+//
+//				if ( ! empty($image)) {
+//					$imageData = $imageReferencedElement->toArray();
+//					$imageData['image'] = $fileStorage->getFileInfo($image);
+//				}
+//			} else {
+//				$classname = $blockProperty->getValue();
+//			}
+//
+//			$propertyContent = array('image' => $imageData, 'classname' => $classname);
+//		}
+		
+		// Gallery handling
+		// @TODO: must be rewrited
 		if ($editable instanceof Editable\Gallery) {
 
 			$galleryController = $editable->getDummyBlockController();
 			$galleryController->setRequest($this->getPageRequest());
 
-			foreach ($metadataCollection as $name => $metadata) {
+			$data = array();
+			
+			foreach ($metaCollection as $name => $metadata) {
 
 				$subProperties = array();
 				$galleryController->setParentMetadata($metadata);
@@ -811,32 +779,155 @@ class PageAction extends PageManagerAction
 			}
 
 			ksort($data);
-			$propertyData = array_values($data);
+			$propertyContent = array_values($data);
 		}
 		
 		//
-		if ($editable instanceof Editable\Slideshow) {
-			$propertyData = $this->prepareSlideshowProperties($blockProperty, $property);
-		}
-		
 		$propertyInfo = array(
+			'value' => $propertyContent,
+			
+			// "Shared block" feature's default values
+			'locale' => null,
 			'__shared__' => false,
-			'value' => $propertyData,
-			'language' => null,
 		);
-
+		
 		if ($blockProperty instanceof Entity\SharedBlockProperty) {
 			$propertyInfo['__shared__'] = true;
 			$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
 					->getLocale();
 		}
-
-		//TODO: sub-properties are not prepared to be non-/shared
-		if ($blockController instanceof \Supra\Controller\Pages\GalleryBlockController) {
-			$propertyInfo = $propertyData;
-		}
-
+		
 		return $propertyInfo;
+		
+		/*
+		 * @FIXME: gallery broken
+		 * @FIXME: slideshow, broken?
+		 * @FIXME: links
+		 * @FIXME: html
+		 * @FIXME: Editable\InlineMedia
+		 * @FIXME: Editable\BackgroundBlock
+		 */
+		
+		
+//		
+//		$metadataCollection = $blockProperty->getMetadata();
+//		$data = array();
+//		
+//		/* @var $metadata Entity\BlockPropertyMetadata */
+//		foreach ($metadataCollection as $name => $metadata) {
+//
+//			$data[$name] = array();
+//
+//			$referencedElement = $metadata->getReferencedElement();
+//			
+//			$elementData = $this->convertReferencedElementToArray($referencedElement);
+//			if ($editable instanceof Editable\Gallery) {
+//				$data[$name] = array(
+//					'id' => $elementData['imageId'],
+//					'image' => $elementData,
+//				);
+//			} else {
+//				$data[$name] = $elementData;
+//			}
+//
+//			$data[$name]['__meta__'] = $metadata->getId();
+//		}
+
+//		$propertyData = $propertyValue;
+//
+//		if ($editable instanceof Editable\Html) {
+//			$propertyData = array(
+//				'html' => $propertyValue['html'],
+//				'data' => $data
+//			);
+//		}
+//
+//		if ($editable instanceof Editable\Link || $editable instanceof Editable\Video) {
+//			if (isset($data[0])) {
+//				$propertyData = $data[0];
+//			}
+//		}
+//		
+//		if ($editable instanceof Editable\InlineMedia) {
+//			if (isset($data[0])) {
+//				$propertyData = $data[0];
+//			}
+//		}
+//
+//		if ($editable instanceof Editable\Image) {
+//			if ($propertyValue) {
+//				$fileStorage = ObjectRepository::getFileStorage($this);
+//				$image = $fileStorage->getDoctrineEntityManager()
+//						->find(\Supra\FileStorage\Entity\Image::CN(), $propertyValue);
+//
+//				if ($image instanceof \Supra\FileStorage\Entity\Image) {
+//					$propertyData = $fileStorage->getFileInfo($image);
+//				}
+//			}
+//		}
+//
+//		if ($editable instanceof Editable\File) {
+//			if ($propertyValue) {
+//				$fileStorage = ObjectRepository::getFileStorage($this);
+//				$file = $fileStorage->getDoctrineEntityManager()
+//						->find(\Supra\FileStorage\Entity\File::CN(), $propertyValue);
+//				if ($file instanceof \Supra\FileStorage\Entity\File) {
+//					$propertyData = $fileStorage->getFileInfo($file);
+//				}
+//			}
+//		}
+//		
+//		if ($editable instanceof Editable\BlockBackground) {
+//
+//			$classname = null;
+//			$imageData = null;
+//
+//			if ($blockProperty->getMetadata()->containsKey('image')) {
+//
+//				$imageReferencedElement = $blockProperty->getMetadata()->get('image')->getReferencedElement();
+//
+//				$imageId = $imageReferencedElement->getImageId();
+//
+//				$fileStorage = ObjectRepository::getFileStorage($this);
+//
+//				$image = $fileStorage->getDoctrineEntityManager()
+//						->find(\Supra\FileStorage\Entity\Image::CN(), $imageId);
+//
+//				if ( ! empty($image)) {
+//					$imageData = $imageReferencedElement->toArray();
+//					$imageData['image'] = $fileStorage->getFileInfo($image);
+//				}
+//			} else {
+//				$classname = $blockProperty->getValue();
+//			}
+//
+//			$propertyData = array('image' => $imageData, 'classname' => $classname);
+//		}
+//
+//		if ($editable instanceof Editable\Gallery) {
+//
+//			$galleryController = $editable->getDummyBlockController();
+//			$galleryController->setRequest($this->getPageRequest());
+//
+//			foreach ($metadataCollection as $name => $metadata) {
+//
+//				$subProperties = array();
+//				$galleryController->setParentMetadata($metadata);
+//
+//				foreach ($property->properties as $subPropertyDefinition) {
+//					$subProperties[$subPropertyDefinition->name] = $this->gatherPropertyData($galleryController, $subPropertyDefinition);
+//				}
+//
+//				$data[$name] = $data[$name]
+//						+ array('properties' => $subProperties);
+//			}
+//
+//			ksort($data);
+//			$propertyData = array_values($data);
+//		}
+		
+		//
+		
 	}
 	
 	/**
