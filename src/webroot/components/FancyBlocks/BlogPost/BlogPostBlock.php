@@ -13,12 +13,25 @@ class BlogPostBlock extends BlockController
 	 */
 	protected $blogApplication;
 	
+    
+    protected function doPrepare()
+    {
+        $response = $this->getResponse();
+        /* @var $response \Supra\Response\TwigResponse */
+        $context = $response->getContext();
+        /* @var $context \Supra\Response\ResponseContext */
+        
+        $description = $this->getPropertyValue('description');
+        if ($description) {
+            $context->setValue('metaDescription', $description->__toString());
+        }    
+    }
 	
 	protected function doExecute()
 	{
 		$response = $this->getResponse();
 		/* @var $response \Supra\Response\TwigResponse */
-		
+        
 		$response->outputTemplate('index.html.twig');
 	}
 }
