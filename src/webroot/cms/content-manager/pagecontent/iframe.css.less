@@ -4,11 +4,6 @@
  * This stylesheet is added to iframe content
  */
 
-.yui3-hidden,
-.supra-hidden {
-	display: none !important;
-}
-
 .yui3-content {
 	.clear-fix ();
 	min-height: 60px;
@@ -618,6 +613,11 @@
 }
 .yui3-content.editing .supra-button {
 	display: inline-block !important;
+	
+	&.supra-hidden,
+	&.yui3-hidden {
+		display: none !important;
+	}
 }
 
 /**
@@ -892,6 +892,7 @@ body.yui3-fullscreen > .yui3-fullscreen {
 	font: 14px/35px "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial !important;
 	font-style: normal !important;
 	font-weight: bold !important;
+	text-align: center !important;
 	text-decoration: none !important;
 	text-shadow: 0px 1px 0px rgba(0, 19, 52, 0.4) !important;
 	text-transform: none !important;
@@ -927,4 +928,12 @@ body.yui3-fullscreen > .yui3-fullscreen {
 .supra-button + .supra-button-small,
 .supra-button-small + .supra-button-small {
 	margin-left: 5px;
+}
+
+/**
+ * 	= Hidden
+ */
+.yui3-hidden,
+.supra-hidden {
+	display: none !important;
 }

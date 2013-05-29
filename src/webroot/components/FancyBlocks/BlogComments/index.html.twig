@@ -10,7 +10,7 @@
 	<div class="comments-list has-heading">
 		{# Comment #}
 		{% for comment in comments %}
-		<article {% if supra.cmsRequest %}data-attach="$.app.Comments" data-id="{{ supraBlock.block.id }}_{{ loop.index }}" data-url="{{ supra.request.pageLocalization.path }}?block_id={{ supraBlock.block.id }}&comment_id={{ comment.id }}&action=remove_comment"{% endif %}>
+		<article {% if supra.cmsRequest %}data-attach="$.app.Comments" data-id="{{ supraBlock.block.id }}_{{ loop.index }}" data-comment-id="{{ comment.id }}" data-parent-id="{{ blogApplicationLocalizationId }}"{% endif %}>
 			<div class="comment">
 				<div class="avatar">
 					<img src="/themes/primo/assets/img/temp/avatar.jpg" alt="" />
@@ -20,14 +20,10 @@
 					<time datetime="{{ comment.creationTime | date('Y-m-d') }}">{{ comment.creationTime | date("F j,Y \\a\\t g:i a") }}</time>
 					
 					{% if supra.cmsRequest %}
-						<a class="button tiny supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_1')" href="javascript://">Delete comment</a>
+						<a class="button tiny supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'confirmRemoveComment')" href="javascript://">Delete comment</a>
 						
-						{% if comment.approved %}
-							<a class="button tiny supra-button" href="#">Unapprove</a>
-						{% else %}
-							<a class="button tiny supra-button" href="#">Approve</a>
-						{% endif %}
-						
+						<a class="button tiny supra-button button-approve {% if comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'approveComment')" href="javascript://">Approve</a>
+						<a class="button tiny supra-button button-unapprove {% if not comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'unapproveComment')" href="javascript://">Unapprove</a>
 					{% endif %}
 				</div>
 				<p>{{ comment.comment | nl2br }}</p>

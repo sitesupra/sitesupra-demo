@@ -12,6 +12,7 @@ class CommentsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 	 */
 	public function deleteAction()
 	{
+		$this->isPostRequest();    
 		$id = $this->getRequestParameter('id');
 		
 		$blogApplication = $this->getBlogApplication();
@@ -49,6 +50,7 @@ class CommentsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 	 */
 	protected function changeCommentApproveStatus($status)
 	{
+		$this->isPostRequest();
 		$id = $this->getRequestParameter('id');
 		$blogApplication = $this->getBlogApplication();
 		

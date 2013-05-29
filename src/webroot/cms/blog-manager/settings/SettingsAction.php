@@ -17,6 +17,9 @@ class SettingsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 		$responseData = array(
 			'authors' => array(),
 			'tags' => array(),
+			'templates' => array(
+			     'template' => '',
+            ),
 			'comments' => array(
 				'moderation_enabled' => $blogApplication->isCommentModerationEnabled(),
 			),
@@ -39,6 +42,24 @@ class SettingsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 		$this->getResponse()
 				->setResponseData($responseData);
 	}
+	
+	/**
+	 *
+	 */
+	public function deleteTagAction()
+	{
+	    $this->getResponse()
+                ->setResponseData(true);
+	}
+    
+    /**
+     *
+     */
+    public function saveTemplatesAction()
+    {
+        $this->getResponse()
+                ->setResponseData(true);
+    }
 
 	/**
 	 *

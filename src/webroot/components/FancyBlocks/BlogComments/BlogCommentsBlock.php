@@ -51,8 +51,11 @@ class BlogCommentsBlock extends BlockController
 			$postComments = $blogApplication->getCommentsForLocalization($localization, $request instanceof PageRequestEdit);
 		}
 			
-		$response->assign('comments', $postComments)
-				->outputTemplate('index.html.twig');
+		$applicationLocalizationId = $blogApplication->getApplicationLocalization()->getId();
+        
+        $response->assign('comments', $postComments)
+                ->assign('blogApplicationLocalizationId', $applicationLocalizationId)
+                ->outputTemplate('index.html.twig');
 	}
 	
 	/**

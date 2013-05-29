@@ -53,6 +53,11 @@
 	<script src="/assets/js/carousel.js"></script>
 	<script src="/assets/js/selectors.js"></script>
 	<script src="/assets/js/common.js"></script>
+	
+	{% if supra.cmsRequest %}
+		<script src="/assets/js/app/ajaxcontent.js"></script>
+		<script src="/assets/js/cms/plugin.comments.js"></script>
+	{% endif %}
 
 	{{ supra.responseContext.getLayoutSnippetContents('js') | raw }}
 		

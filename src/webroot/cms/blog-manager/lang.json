@@ -29,12 +29,23 @@
 			},
 			
 			"settings": {
+				"comments": {
+					"title": "Comments",
+					"moderation": "Comment Moderation"
+				},
+				"template": {
+					"title": "Template",
+					"template": "Template"
+				},
 				"author": {
 					"title": "About author",
+					"name": "Name",
 					"about": "About text"
 				},
 				"tags": {
-					"title": "Tags"
+					"title": "Tags",
+					"name": "Tag",
+					"delete_tag": "Are you sure you want to remove selected tag from all posts?"
 				}
 			}
 			

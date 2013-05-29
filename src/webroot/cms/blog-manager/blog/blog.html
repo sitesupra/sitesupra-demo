@@ -18,21 +18,27 @@
 			<div class="nav-content ui-center-darker-background">
 				
 				<div class="nav-tabs" suStyle="tab" suType="radio">
-					<button suIcon="/cms/blog-manager/images/groups/author.png" suId="tabContentAuthor" suDown="true">{# blog.settings.author.title #}</button>
-					<button suIcon="/cms/blog-manager/images/groups/tags.png"   suId="tabContentTags">{# blog.settings.tags.title #}</button>
+					<button suIcon="/cms/blog-manager/images/groups/author.png"   suId="tabContentAuthor" suDown="true">{# blog.settings.author.title #}</button>
+					<button suIcon="/cms/blog-manager/images/groups/comments.png" suId="tabContentComments">{# blog.settings.comments.title #}</button>
+					<button suIcon="/cms/blog-manager/images/groups/tags.png"     suId="tabContentTags">{# blog.settings.tags.title #}</button>
+					<button suIcon="/cms/blog-manager/images/groups/template.png" suId="tabContentTemplates">{# blog.settings.template.title #}</button>
 				</div>
 				
 			</div>
 			<div class="main-content ui-center-dark ui-center-dark-background">
 				
 				<div class="slideshow">
-					<div id="tabContentAuthor">
+					<div id="tabContentAuthor" class="authors">
 						
-						<em class="avatar">
-							<img src="/cms/lib/supra/img/avatar-default-48x48.png" alt="" />
-						</em>
+						<form suStyle="vertical" class="hidden">
+							<em class="avatar">
+								<img src="/cms/lib/supra/img/avatar-default-48x48.png" alt="" />
+							</em>
 							
-						<form suStyle="vertical">
+							<input type="hidden" name="id" value="" />
+							
+							<label for="name">{# blog.settings.author.name #}</label>
+							<input type="text" name="name" />
 							
 							<label for="about">{# blog.settings.author.about #}</label>
 							<textarea name="about"></textarea>
@@ -43,13 +49,28 @@
 						</form>
 						
 					</div>
-					<div id="tabContentTags" class="hidden">
+					<div id="tabContentComments" class="comments hidden">
 						
 						<form suStyle="vertical">
-							TODO
-							<div class="footer">
-								<button type="submit" class="save">{# buttons.done #}</button>
-							</div>
+							
+							<label for="moderation_enabled">{# blog.settings.comments.moderation #}</label>
+							<input type="checkbox" name="moderation_enabled" id="moderation_enabled" value="" />
+							
+						</form>
+						
+					</div>
+					<div id="tabContentTags" class="tags hidden">
+						
+						<div class="taggrid"></div>
+						
+					</div>
+					<div id="tabContentTemplates" class="template hidden">
+						
+						<form suStyle="vertical">
+							
+							<label for="template">{# blog.settings.template.template #}</label>
+							<select name="template" suStyle="items" suType="SelectList"></select>
+							
 						</form>
 						
 					</div>

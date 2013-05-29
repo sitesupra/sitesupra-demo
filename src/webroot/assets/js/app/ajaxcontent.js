@@ -36,6 +36,12 @@
 			'method': 'get',
 			
 			/**
+			 * Request response data type
+			 * @type {String}
+			 */
+			'reload_response_type': 'html',
+			
+			/**
 			 * Initialize module
 			 * 
 			 * @param {Object} element
@@ -62,7 +68,7 @@
 					'cache': false,
 					'type': this.method,
 					'data': params,
-					'dataType': 'html'
+					'dataType': this.reload_response_type
 				}).done(this.proxy(this.onReload));
 				
 				//Prevent default behaviour
