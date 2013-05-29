@@ -27,4 +27,23 @@ class Image extends EditableAbstraction
 	{
 		return static::EDITOR_INLINE_EDITABLE;
 	}
+	
+	/**
+	 * @return array | null
+	 */
+	public function getContentForEdit()
+	{
+		$fileData = null;
+		
+		if ( ! empty($this->content)) {
+			$fileStorage = \Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
+			$file = $fileStorage->find($this->content, \Supra\FileStorage\Entity\Image::CN());
+			
+			if ($file !== null) {
+				$fileData = $fileStorage->getFileInfo($file);
+			}
+		}
+		
+		return $fileData;
+	}
 }

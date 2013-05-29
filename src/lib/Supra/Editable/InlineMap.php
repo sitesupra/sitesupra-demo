@@ -106,12 +106,18 @@ class InlineMap extends EditableAbstraction
 	}
 	
 	/**
+	 * Filtered value consists from the array of 
+	 * latitude, longitude and zoom
 	 * 
+	 * @return array
 	 */
 	public function getFilteredValue()
 	{
-		// @FIXME
-		return $this->getContentForEdit();
+		return array(
+			'latitude' => $this->latitude,
+			'longitude' => $this->longitude,
+			'zoom' => $this->zoom,
+		);
 	}
     
 }

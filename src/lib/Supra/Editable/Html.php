@@ -35,10 +35,23 @@ class Html extends String
 	 */
 	public function getContentForEdit()
 	{
+		$metaArray = array();
+		
+		foreach ($this->contentMetadata as $key => $metaItem) {
+			
+			if ($metaItem instanceof \Supra\Controller\Pages\Entity\BlockPropertyMetadata) {
+			
+				$element = $metaItem->getReferencedElement();
+				$metaArray[$key] = $this->convertReferencedElementToArray($element);
+			} else {
+				$metaArray[$key] = $metaItem;
+			}
+		}
+		
 		return array(
 			'html' => $this->content,
-			'data' => $this->contentMetadata,
+			'data' => $metaArray,
 		);
 	}
-
+	
 }

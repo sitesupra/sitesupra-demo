@@ -2,7 +2,10 @@
 
 namespace Supra\Editable;
 
-use Supra\Loader;
+use Supra\Controller\Pages\Entity\ReferencedElement;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\FileStorage\Entity\File;
+use Supra\FileStorage\Entity\Image;
 
 /**
  * Abstract class for editable content classes
@@ -275,9 +278,77 @@ abstract class EditableAbstraction implements EditableInterface
 		return get_called_class();
 	}
 	
+	
+	/**
+	 * @return mixed
+	 */
 	public function getStorableContent()
 	{
 		return $this->getContent();
 	}
+	
+	
+	/**
+	 * Converts referenced element to JS array
+	 * @param ReferencedElement\ReferencedElementAbstract $element
+	 * @return array
+	 */
+	protected function convertReferencedElementToArray(ReferencedElement\ReferencedElementAbstract $element)
+	{
+		$fileData = array();
 
+		$storage = ObjectRepository::getFileStorage($this);
+		
+		if ($element instanceof ReferencedElement\LinkReferencedElement) {
+			
+			if ($element->getResource() == ReferencedElement\LinkReferencedElement::RESOURCE_FILE) {
+
+				$fileId = $element->getFileId();
+
+				if ( ! empty($fileId)) {
+					
+					$file = $storage->find($fileId, File::CN());
+
+					if ( ! is_null($file)) {
+						$fileInfo = $storage->getFileInfo($file);
+						$fileData['file_path'] = $fileInfo['path'];
+					}
+				}
+			}
+		}
+		
+		else if ($element instanceof ReferencedElement\ImageReferencedElement) {
+
+			$imageId = $element->getImageId();
+
+			if ( ! empty($imageId)) {
+				$image = $storage->find($imageId, Image::CN());
+
+				if ( !is_null($image)) {
+					$info = $storage->getFileInfo($image);
+					$fileData['image'] = $info;
+				}
+			}
+		}
+		
+		else if ($element instanceof ReferencedElement\IconReferencedElement) {
+			
+			$iconId = $element->getIconId();
+			
+			$themeConfiguration = ObjectRepository::getThemeProvider($this)
+					->getCurrentTheme()
+					->getConfiguration();
+			
+			$iconConfiguration = $themeConfiguration->getIconConfiguration();
+			if ($iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
+				$fileData['svg'] = $iconConfiguration->getIconSvgContent($iconId);
+			}
+	
+		}
+		
+		$data = $fileData + $element->toArray();
+
+		return $data;
+	}
+	
 }
