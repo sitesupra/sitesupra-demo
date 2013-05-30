@@ -816,6 +816,11 @@ class PageAction extends PageManagerAction
 					->getLocale();
 		}
 		
+		 //TODO: sub-properties are not prepared to be non-/shared
+		if ($blockController instanceof \Supra\Controller\Pages\GalleryBlockController) {
+			$propertyInfo = $propertyContent;
+		}	
+				
 		return $propertyInfo;
 		
 		/*
