@@ -266,13 +266,14 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 			//Self doesn't exist if user is not editing block
 			if (!self) return;
 			
-			var shared = self.properties.isPropertyShared('slides'),
+			var property = this.getPropertyName(),
+				shared = self.properties.isPropertyShared(property),
 				slideProperties = self.getSlideProperties();
 			
 			// If block is shared and there are no slide properties, then it's pointless to open
 			// slide manager
 			if ( ! slideProperties.length && shared) {
-				var localeId = self.properties._shared_properties.slides.locale,
+				var localeId = self.properties._shared_properties[property].locale,
 					locale = Supra.data.getLocale(localeId),
 					localeTitle = locale ? locale.title : localeId;
 
@@ -328,6 +329,7 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 			Supra.Manager.executeAction('Gallery', {
 				'data': data,
 				'properties': self.getSlideProperties(),
+				'propertyName': self.getPropertyName(),
 				'layouts': self.getSlideLayouts(),
 				'context': self,
 				'shared': shared,
@@ -415,6 +417,10 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 		 * @private
 		 */
 		getPropertyName: function () {
+			if (this._property_name) {
+				return this._property_name;
+			}
+			
 			var block = this.getBlockInfo(),
 				properties = block.properties,
 				i = 0,
@@ -423,7 +429,8 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 			
 			for (; i<ii; i++) {
 				if (properties[i].type === type) {
-					return properties[i].id || '';
+					this._property_name = properties[i].id || '';
+					return this._property_name;
 				}
 			}
 			

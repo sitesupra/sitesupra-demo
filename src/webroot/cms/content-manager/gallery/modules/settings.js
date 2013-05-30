@@ -192,10 +192,6 @@ YUI.add('gallery.settings', function (Y) {
 			for (; i<ii; i++) {
 				input = form.getInput(properties[i].id);
 				input.after('valueChange', this._firePropertyChangeEvent, this, properties[i].id, input);
-					
-				if (properties[i].id == 'layout') {
-					input.set('visible', false);
-				}
 			}
 			
 			//Delete button

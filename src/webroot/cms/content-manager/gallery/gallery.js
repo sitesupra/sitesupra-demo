@@ -414,7 +414,10 @@ Supra([
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
 			
 			if (this.options.callback) {
-				var data = Supra.mix({}, this.options.data, {'slides': this.data.get('data')});
+				var slide_data = {};
+				slide_data[this.options.propertyName] = this.data.get('data');
+				
+				var data = Supra.mix({}, this.options.data, slide_data);
 				this.options.callback(data, true);
 			}
 			
@@ -440,6 +443,8 @@ Supra([
 				'data': {},
 				'properties': [],
 				'layouts': [],
+				
+				'propertyName': 'media',
 				
 				'callback': null,
 				'context': null,
@@ -474,8 +479,8 @@ Supra([
 				}
 			}
 			
-			if (!Y.Lang.isArray(options.data.slides)) {
-				options.data.slides = [];
+			if (!Y.Lang.isArray(options.data[options.propertyName])) {
+				options.data[options.propertyName] = [];
 			}
 			
 			if (options.callback && options.context) {
@@ -499,7 +504,7 @@ Supra([
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 			
-			this.data.set('data', options.data.slides);
+			this.data.set('data', options.data[options.propertyName]);
 			
 			this.layouts.set('layouts', options.layouts);
 			this.layouts.set('properties', options.properties);
