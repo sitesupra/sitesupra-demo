@@ -775,8 +775,7 @@ class PageAction extends PageManagerAction
 				}
 
 				if ( ! empty($subProperties)) {
-					$data[$name] = $data[$name]
-							+ array('properties' => $subProperties);
+					$data[$name] = array('properties' => $subProperties);
 				}
 			}
 
