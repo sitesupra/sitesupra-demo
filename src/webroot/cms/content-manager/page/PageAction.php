@@ -759,12 +759,31 @@ class PageAction extends PageManagerAction
 		// Gallery handling
 		// @TODO: must be rewrited
 		if ($editable instanceof Editable\Gallery) {
+			
+			$data = array();
+			
+			foreach ($metaCollection as $name => $metadata) {
 
+				$data[$name] = array();
+
+				$referencedElement = $metadata->getReferencedElement();
+
+				$elementData = $this->convertReferencedElementToArray($referencedElement);
+				if ($editable instanceof Editable\Gallery) {
+					$data[$name] = array(
+						'id' => $elementData['imageId'],
+						'image' => $elementData,
+					);
+				} else {
+					$data[$name] = $elementData;
+				}
+
+				$data[$name]['__meta__'] = $metadata->getId();
+			}
+			
 			$galleryController = $editable->getDummyBlockController();
 			$galleryController->setRequest($this->getPageRequest());
 
-			$data = array();
-			
 			foreach ($metaCollection as $name => $metadata) {
 
 				$subProperties = array();
@@ -774,10 +793,8 @@ class PageAction extends PageManagerAction
 					$subProperties[$subPropertyDefinition->name] = $this->gatherPropertyData($galleryController, $subPropertyDefinition);
 				}
 
-				if ( ! empty($subProperties)) {
-					$data[$name] = $data[$name]
-							+ array('properties' => $subProperties);
-				}
+				$data[$name] = $data[$name]
+						+ array('properties' => $subProperties);
 			}
 
 			ksort($data);
