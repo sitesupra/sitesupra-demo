@@ -774,8 +774,10 @@ class PageAction extends PageManagerAction
 					$subProperties[$subPropertyDefinition->name] = $this->gatherPropertyData($galleryController, $subPropertyDefinition);
 				}
 
-				$data[$name] = $data[$name]
-						+ array('properties' => $subProperties);
+				if ( ! empty($subProperties)) {
+					$data[$name] = $data[$name]
+							+ array('properties' => $subProperties);
+				}
 			}
 
 			ksort($data);
