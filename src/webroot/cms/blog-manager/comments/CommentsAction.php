@@ -13,6 +13,8 @@ class CommentsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 	public function deleteAction()
 	{
 		$this->isPostRequest();    
+		$this->checkEditPermissions();
+		
 		$id = $this->getRequestParameter('id');
 		
 		$blogApplication = $this->getBlogApplication();
@@ -24,8 +26,8 @@ class CommentsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 		
 		$em = $blogApplication->getEntityManager();
 		
-		$em->persist($comment);
-		$em->flush($comment);
+		$em->remove($comment);
+		$em->flush();
 	}
 	
 	/**
@@ -51,6 +53,8 @@ class CommentsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 	protected function changeCommentApproveStatus($status)
 	{
 		$this->isPostRequest();
+		$this->checkEditPermissions();
+		
 		$id = $this->getRequestParameter('id');
 		$blogApplication = $this->getBlogApplication();
 		

@@ -164,6 +164,21 @@ class PageRequestEdit extends PageRequest
 			$newRedirect = $publicData->getRedirect();
 		}
 		
+		// Tags
+		$tagCollection = $draftData->getTagCollection();
+		$oldTagCollection = $publicData->getTagCollection();
+		
+		foreach ($tagCollection as $tag) {
+			$publicEm->merge($tag);
+		}
+		
+		foreach ($oldTagCollection as $tag) {
+			$name = $tag->getName();
+			if ( ! $tagCollection->offsetExists($name)) {
+				$publicEm->remove($tag);
+			}
+		}
+		
 		// 0. Copy placeHolder groups
 		$placeHolderGroups = $draftData->getPlaceHolderGroups();
 		foreach ($placeHolderGroups as $group) {

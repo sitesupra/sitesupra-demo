@@ -535,7 +535,7 @@ function (Y) {
 					
 					if (data.tags) {
 						for (ii = data.tags.length; i<ii; i++) {
-							tags.push({'name': data.tags[i]});
+							tags.push({'name': data.tags[i].name, 'total': data.tags[i].total});
 						}
 					}
 					
@@ -545,7 +545,7 @@ function (Y) {
 			
 			datasource.plug(Y.Plugin.DataSourceArraySchema, {
 				schema: {
-					resultFields: ['name']
+					resultFields: ['name', 'total']
 				}
 			});
 			
@@ -565,8 +565,13 @@ function (Y) {
 				'columns': [
 					{
 						'id': 'name',
-						'title': Supra.Intl.get(['blog', 'settings', 'tags', 'name']),
-					}, {
+						'title': Supra.Intl.get(['blog', 'settings', 'tags', 'name'])
+					},
+					{
+						'id': 'total',
+						'title': Supra.Intl.get(['blog', 'settings', 'tags', 'total_posts'])
+					}, 
+					{
 						'id': 'delete',
 						'title': '',
 						'formatter': this.formatColumnDelete
@@ -623,6 +628,9 @@ function (Y) {
 			input.set('loading', true);
 			
 			Supra.io(uri).done(function (templates) {
+				
+				console.log(templates);
+				
 				this.updatingUI = true;
 				
 				var form = this.widgets.formTemplates,

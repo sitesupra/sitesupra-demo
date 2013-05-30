@@ -6,7 +6,6 @@ use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Tools\ToolEvents;
-use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 
 /**
@@ -25,6 +24,7 @@ class TableDraftSuffixAppender extends VersionedTableMetadataListener implements
 	 */
 	protected static $versionedEntities = array(
 		'Supra\Controller\Pages\Entity\PageLocalizationPath',
+		'Supra\Controller\Pages\Entity\LocalizationTag',
 	);
 	
 	public static function getVersionedEntities()

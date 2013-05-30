@@ -698,6 +698,11 @@ class PageAction extends PageManagerAction
 			$propertyContent = $this->prepareSlideshowProperties($blockProperty, $property);
 		}
 		
+		if ($editable instanceof Editable\PageKeywords) {
+			$localization = $this->getPageLocalization();
+			$propertyContent = implode(';', $localization->getTagArray());
+		}
+		
 //		// HTML has "data" array with info about links/images/icons etc.
 //		if ($editable instanceof Editable\Html) {
 //			foreach ($metaCollection as $name => $metaItem) {

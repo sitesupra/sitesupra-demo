@@ -35,7 +35,7 @@
 				},
 				"template": {
 					"title": "Template",
-					"template": "Template"
+					"template": "Post template"
 				},
 				"author": {
 					"title": "About author",
@@ -45,6 +45,7 @@
 				"tags": {
 					"title": "Tags",
 					"name": "Tag",
+					"total_posts": "Posts",
 					"delete_tag": "Are you sure you want to remove selected tag from all posts?"
 				}
 			}

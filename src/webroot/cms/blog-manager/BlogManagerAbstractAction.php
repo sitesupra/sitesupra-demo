@@ -86,4 +86,17 @@ class BlogManagerAbstractAction extends CmsAction
 		return $this->application;
 	}
 	
+	/**
+	 * @throws CmsException
+	 */
+	protected function checkEditPermissions()
+	{
+		$blogApplication = $this->getBlogApplication();
+		$user = $this->getUser();
+
+		if ( ! $blogApplication->doesUserHaveEditPermissions($user)) {
+			throw new CmsException(null, "Sorry, but seems that you have no edit rights for this blog application");
+		}
+	}
+	
 }

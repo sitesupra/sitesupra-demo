@@ -11,11 +11,17 @@ use Supra\Controller\Pages\Entity\ApplicationLocalization;
  */
 class ApplicationLocalizationParameter extends Abstraction\Entity
 {
+//	/**
+//	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\ApplicationLocalization", inversedBy="parameters", cascade={"persist"})
+//	 * @var \Supra\Controller\Pages\Entity\ApplicationLocalization
+//	 */
+//	protected $localization;
+	
 	/**
-	 * @ManyToOne(targetEntity="Supra\Controller\Pages\Entity\ApplicationLocalization", inversedBy="parameters", cascade={"persist"})
-	 * @var \Supra\Controller\Pages\Entity\ApplicationLocalization
+	 * @Column(type="supraId20", name="localization_id")
+	 * @var string
 	 */
-	protected $localization;
+	protected $localizationId;
 	
 	/**
 	 * @Column(type="string")
@@ -75,15 +81,25 @@ class ApplicationLocalizationParameter extends Abstraction\Entity
 	 */
 	public function setApplicationLocalization(ApplicationLocalization $localization)
 	{
-		$this->localization = $localization;
-		$localization->addParameterToCollection($this);
+//		$this->localization = $localization;
+//		$localization->addParameterToCollection($this);
+		
+		$this->localizationId = $localization->getId();
 	}
 	
+//	/**
+//	 * @return \Supra\Controller\Pages\Entity\ApplicationLocalization
+//	 */
+//	public function getApplicationLocalization()
+//	{
+//		return $this->localization;
+//	}
+	
 	/**
-	 * @return \Supra\Controller\Pages\Entity\ApplicationLocalization
+	 * @return string
 	 */
-	public function getApplicationLocalization()
+	public function getApplicationLocalizationId()
 	{
-		return $this->localization;
+		return $this->localizationId;
 	}
 }

@@ -18,8 +18,8 @@ class SettingsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 			'authors' => array(),
 			'tags' => array(),
 			'templates' => array(
-			     'template' => '',
-            ),
+				'post_template' => $blogApplication->getPostDefaultTemplateId(),
+			),
 			'comments' => array(
 				'moderation_enabled' => $blogApplication->isCommentModerationEnabled(),
 			),
@@ -42,12 +42,22 @@ class SettingsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 		$this->getResponse()
 				->setResponseData($responseData);
 	}
-	
+		
 	/**
 	 *
 	 */
 	public function deleteTagAction()
 	{
+		$this->isPostRequest();
+		$this->checkEditPermissions();
+		
+		$tagName = $this->getRequestParameter('name');
+		
+		if ( ! empty($tagName)) {
+			$blogApplication = $this->getBlogApplication();
+			$blogApplication->deleteTagByName($tagName);
+		}
+		
 	    $this->getResponse()
                 ->setResponseData(true);
 	}
@@ -57,6 +67,15 @@ class SettingsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
      */
     public function saveTemplatesAction()
     {
+		$this->isPostRequest();
+		$this->checkEditPermissions();
+		
+		$templateId = $this->getRequestParameter('template');
+		if ( ! empty($templateId)) {
+			$this->getBlogApplication()
+					->setPostDefaultTemplateId($templateId);
+		}
+		
         $this->getResponse()
                 ->setResponseData(true);
     }
@@ -70,20 +89,20 @@ class SettingsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 		$input = $this->getRequestInput();
 		
 		$blogApplication = $this->getBlogApplication();
-		$knownAuthors = $blogApplication->getAllBlogApplicationUsers();
-		
-		while($input->valid()) {
-			$authorInput = $input->getNext();
+
+		$userId = $input->get('id');
+		$blogUser = $blogApplication->findUserBySupraUserId($userId);
 			
-			$id = $authorInput->get('id');
+		if ($blogUser !== null) {
+			$blogUser->setName($input->get('name'));
+			$blogUser->setAboutText($input->get('about'));
 			
-			if (isset($knownAuthors[$id])) {
-				$author = $knownAuthors[$id];
-				
-				$author->setName($authorInput->get('name'));
-				$author->setAvatar($authorInput->get('avatar'));
-				$author->setAboutText($authorInput->get('about'));
-			}
+//			// @TODO: avatar is not editable now
+//			$author->setAvatar($input->get('avatar'));
+			
+			$em = $blogApplication->getEntityManager();
+			$em->merge($blogUser);
+			$em->flush();
 		}
 		
 		$this->getResponse()

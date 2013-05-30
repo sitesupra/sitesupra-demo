@@ -155,22 +155,6 @@ class BlogApplication implements PageApplicationInterface
 	}
 	
 	/**
-	 * @return string
-	 */
-	public function getNewPostTemplate()
-	{
-		return $this->applicationLocalization->getParameterValue(self::PARAMETER_POST_TEMPLATE_ID);
-	}
-	
-	public function setNewPostTemplate($templateLocalization)
-	{
-		$parameter = $this->applicationLocalization->getOrCreateParameter(self::PARAMETER_POST_TEMPLATE_ID);
-		$parameter->setValue($templateLocalization->getId());
-		
-		$this->em->persist($parameter);
-	}
-	
-	/**
 	 * @FIXME: optimize? create PageApplicationUser? 
 	 */
 	public function getAllBlogApplicationUsers()
@@ -183,15 +167,16 @@ class BlogApplication implements PageApplicationInterface
 
 			$blogUserCn = BlogApplicationUser::CN();
 			$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
-			$blogUsers = $em->createQuery("SELECT bu FROM {$blogUserCn} bu WHERE bu.id IN (:ids)")
+			$blogUsers = $em->createQuery("SELECT bu FROM {$blogUserCn} bu WHERE bu.supraUserId IN (:ids)")
 					->setParameter('ids', $userIds)
-					->getArrayResult();
+					->getResult();
 
 			$userMap = array();
 
 			foreach ($blogUsers as $blogUser) {
 				/* @var $blogUser BlogApplicationUser */
-				$userMap[$blogUser->getSupraUserId()] = $blogUser;
+				$supraUserId = $blogUser->getSupraUserId();
+				$userMap[$supraUserId] = $blogUser;
 			}
 
 			$this->blogApplicationUsers = array();
@@ -241,12 +226,52 @@ class BlogApplication implements PageApplicationInterface
 		if ( ! empty($localizationIds)) {
 			
 			$tagCn = Entity\LocalizationTag::CN();
-			$tagArray = $this->em->createQuery("SELECT t.name AS name, count(t.id) as amount FROM {$tagCn} t WHERE t.localization IN (:ids) GROUP BY t.name ORDER BY amount DESC")
+			$tagArray = $this->em->createQuery("SELECT t.name AS name, count(t.id) as total FROM {$tagCn} t WHERE t.localization IN (:ids) GROUP BY t.name ORDER BY total DESC")
 					->setParameter('ids', $localizationIds)
 					->getScalarResult();
 		} 
 		
 		return $tagArray;
+	}
+	
+	public function deleteTagByName($name)
+	{
+		$pageFinder = new \Supra\Controller\Pages\Finder\PageFinder($this->em);
+		
+		$localizationFinder = new \Supra\Controller\Pages\Finder\LocalizationFinder($pageFinder);
+		$localizationFinder->addFilterByParent($this->applicationLocalization, 1, 1);
+		
+		$result = $localizationFinder->getQueryBuilder()
+				->select('l.id')
+				->getQuery()
+				->getScalarResult();
+	
+		$localizationIds = array();
+		foreach ($result as $idRecord) {
+			$localizationIds[] = $idRecord['id'];
+		}
+	
+		if ( ! empty($localizationIds)) {
+			
+			$tagCn = Entity\LocalizationTag::CN();
+			$this->em->createQuery("DELETE FROM {$tagCn} t WHERE t.localization IN (:ids) AND t.name = :name")
+					->setParameter('ids', $localizationIds)
+					->setParameter('name', $name)
+					->execute();
+			
+			$this->em->flush();
+			
+			// Clear the public schema also
+			// @FIXME: looks wrong
+			// @FIXME: what about cache?
+			$publicEm = ObjectRepository::getEntityManager('#public');
+			$publicEm->createQuery("DELETE FROM {$tagCn} t WHERE t.localization IN (:ids) AND t.name = :name")
+					->setParameter('ids', $localizationIds)
+					->setParameter('name', $name)
+					->execute();
+		
+			$publicEm->flush();
+		}
 	}
 	
 	/**
@@ -459,8 +484,10 @@ class BlogApplication implements PageApplicationInterface
 	 */
 	public function isCommentModerationEnabled()
 	{
-		$value = $this->applicationLocalization
-				->getParameterValue(self::PARAMETER_COMMENT_MODERATION_ENABLED, false);
+//		$value = $this->applicationLocalization
+//				->getParameterValue(self::PARAMETER_COMMENT_MODERATION_ENABLED, false);
+		
+		$value = $this->getParameterValue(self::PARAMETER_COMMENT_MODERATION_ENABLED, false);
 		
 		$boolType = new \Supra\Validator\Type\BooleanType();
 		$boolType->validate($value);
@@ -473,10 +500,88 @@ class BlogApplication implements PageApplicationInterface
 	 */
 	public function setCommentModerationEnabled($enabled)
 	{
-		$parameter = $this->applicationLocalization->getOrCreateParameter(self::PARAMETER_COMMENT_MODERATION_ENABLED);
+//		$parameter = $this->applicationLocalization->getOrCreateParameter(self::PARAMETER_COMMENT_MODERATION_ENABLED);
+		$parameter = $this->getOrCreateParameter(self::PARAMETER_COMMENT_MODERATION_ENABLED);
 		$parameter->setValue($enabled);
 		
 		$this->em->persist($parameter);
 		$this->em->flush($parameter);
+	}
+	
+	/**
+	 * @param string $templateId
+	 */
+	public function setPostDefaultTemplateId($templateId)
+	{
+//		$parameter = $this->applicationLocalization->getOrCreateParameter(self::PARAMETER_POST_TEMPLATE_ID);
+		$parameter = $this->getOrCreateParameter(self::PARAMETER_POST_TEMPLATE_ID);
+		$parameter->setValue($templateId);
+		
+		$this->em->persist($parameter);
+		$this->em->flush($parameter);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getPostDefaultTemplateId()
+	{
+//		$value = $this->applicationLocalization
+//				->getParameterValue(self::PARAMETER_POST_TEMPLATE_ID, null);
+		
+		$value = $this->getParameterValue(self::PARAMETER_POST_TEMPLATE_ID, null);
+
+		return $value;
+	}
+	
+	/**
+	 * @return array
+	 */
+	protected function getApplicationLocalizationParameters()
+	{
+		$em = $this->getEntityManager();
+		$parameterCn = \Supra\Controller\Pages\Entity\ApplicationLocalizationParameter::CN();
+		
+		$parameters = $em->createQuery("SELECT p FROM {$parameterCn} p WHERE p.localizationId = :id")
+					->setParameter('id', $this->applicationLocalization->getId())
+					->getResult();
+		
+		return $parameters;
+	}
+	
+	protected function findParameter($name)
+	{
+		$em = $this->getEntityManager();
+		$parameterCn = Entity\ApplicationLocalizationParameter::CN();
+		
+		$parameter = $em->createQuery("SELECT p FROM {$parameterCn} p WHERE p.localizationId = :id AND p.name = :name")
+					->setParameter('id', $this->applicationLocalization->getId())
+					->setParameter('name', $name)
+					->getOneOrNullResult();
+		
+		return $parameter;
+	}
+	
+	protected function getOrCreateParameter($name)
+	{
+		$parameter = $this->findParameter($name);
+		
+		if ($parameter === null) {
+			$parameter = new Entity\ApplicationLocalizationParameter();
+			$parameter->setName($name);
+			$parameter->setApplicationLocalization($this->applicationLocalization);
+		}
+		
+		return $parameter;
+	}
+
+	protected function getParameterValue($name, $default = null)
+	{
+		$parameter = $this->findParameter($name);
+		if ($parameter !== null) {
+			return $parameter->getValue();
+		}
+		
+		return $default;
 	}
 }

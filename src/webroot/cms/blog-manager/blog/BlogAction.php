@@ -2,16 +2,14 @@
 
 namespace Supra\Cms\BlogManager\Blog;
 
-use Supra\Cms\CmsAction;
-use Supra\Request;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 
 use Supra\Controller\Pages\Entity;
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Blog\BlogApplication;
 use Supra\Controller\Pages\Finder;
+use Supra\Cms\Exception\CmsException;
 
 class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 {
@@ -51,7 +49,7 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 					->andWhere('l_.id IS NOT NULL OR e.global = true OR (e.level = 0 AND e.global = false)');
 		
 		$blogApp->applyFilters($qb, 'list');
-				
+			
 		$offset = $input->getValidIfExists('offset', 'smallint');
 		$limit = $input->getValidIfExists('resultsPerRequest', 'smallint');
 		
@@ -59,10 +57,13 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		$query->setFirstResult($offset);
 		$query->setMaxResults($limit);
 		
+		$paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
+		$total = $paginator->count();
+		
 		$result = $query->getResult();
 		$responseData = array(
 			'offset' => $offset,
-			'total' => 200,
+			'total' => $total,
 			'results' => array(),
 		);
 		
@@ -72,43 +73,47 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 			$localizations[] = $postPage->getLocalization($localeId);
 		}
 		
-		$ids = Entity\Abstraction\Entity::collectIds($localizations);
+		if ( ! empty($localizations)) {
 		
-		$localizationAuthors = $blogApp->getAuthorsForLocalizationIds($ids);
-		$localizationCommentsData = $blogApp->getCommentDataForLocalizationIds($ids);
-		
-		
-		$publicEm = ObjectRepository::getEntityManager('#public');
-		$localizationCn = Entity\Abstraction\Localization::CN();
-		$revisionResult = $publicEm->createQuery("SELECT l.id, l.revision FROM {$localizationCn} l WHERE l.id in (:ids)")
-					->setParameter('ids', $ids)
-					->getScalarResult();
-		
-		$publicRevisionMap = array();
-		foreach ($revisionResult as $resultRow) {
-			$publicRevisionMap[$resultRow['id']] = $resultRow['revision'];
-		}
-		
-		
-		/* @var $localizations \Supra\Controller\Pages\Entity\PageLocalization[] */
-		foreach ($localizations as $localization) {
-			
-			$id = $localization->getId();
-			
-			$responseData['results'][] = array(
-				'id' => $localization->getId(),
-				'time' => $localization->getCreationTime()->format("Y-m-d H:i:s"),
-				'title' => $localization->getTitle(),
-				'author' =>	isset($localizationAuthors[$id]) ? $localizationAuthors[$id]->getName() : null,
-				'comments' => isset($localizationCommentsData[$id]) ? $localizationCommentsData[$id] : array('total' => 0, 'has_new' => false, 'has_unapproved' => false),
-				
-				'published' => isset($publicRevisionMap[$id]) && $publicRevisionMap[$id] == $localization->getRevisionId() ? true : false,
-				
-				// @FIXME
-				'localized' => true,
-				
-				'scheduled' => ($localization->getScheduleTime() instanceof \DateTime),
-			);
+			$ids = Entity\Abstraction\Entity::collectIds($localizations);
+
+			$localizationAuthors = $blogApp->getAuthorsForLocalizationIds($ids);
+			$localizationCommentsData = $blogApp->getCommentDataForLocalizationIds($ids);
+
+
+			$publicEm = ObjectRepository::getEntityManager('#public');
+			$localizationCn = Entity\Abstraction\Localization::CN();
+			$revisionResult = $publicEm->createQuery("SELECT l.id, l.revision FROM {$localizationCn} l WHERE l.id in (:ids)")
+						->setParameter('ids', $ids)
+						->getScalarResult();
+
+			$publicRevisionMap = array();
+			foreach ($revisionResult as $resultRow) {
+				$publicRevisionMap[$resultRow['id']] = $resultRow['revision'];
+			}
+
+
+			/* @var $localizations \Supra\Controller\Pages\Entity\PageLocalization[] */
+			foreach ($localizations as $localization) {
+
+				$id = $localization->getId();
+
+				$responseData['results'][] = array(
+					'id' => $localization->getId(),
+					'page_id' => $postPage->getId(),
+					'time' => $localization->getCreationTime()->format("Y-m-d H:i:s"),
+					'title' => $localization->getTitle(),
+					'author' =>	isset($localizationAuthors[$id]) ? $localizationAuthors[$id]->getName() : null,
+					'comments' => isset($localizationCommentsData[$id]) ? $localizationCommentsData[$id] : array('total' => 0, 'has_new' => false, 'has_unapproved' => false),
+
+					'published' => isset($publicRevisionMap[$id]) && $publicRevisionMap[$id] == $localization->getRevisionId() ? true : false,
+
+					// @FIXME
+					'localized' => true,
+
+					'scheduled' => ($localization->getScheduleTime() instanceof \DateTime),
+				);
+			}
 		}
 		
 		$this->getResponse()
@@ -132,8 +137,21 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		$page = new Entity\Page();
 		$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
 		
-		// Blog Application specific
 		$blogApp = $this->getBlogApplication();
+		
+		$templateId = $blogApp->getPostDefaultTemplateId();
+		if (empty($templateId)) {
+			throw new CmsException(null, "Please specify the new post template inside Blog Application settings");
+		}
+		
+		$template = $this->entityManager->find(Entity\Template::CN(), $templateId);
+		if ( ! empty($templateId)) {
+			$templateLocalization = $template->getLocalization($localeId);
+		}
+		
+		if (empty($templateLocalization)) {
+			throw new CmsException(null, "Post template is missing, please configure it inside Blog Application settings");
+		}
 		
 		$blogPostLocalization = new Entity\Blog\BlogApplicationPostLocalization($blogApp);
 		$blogPostLocalization->setPageLocalization($pageData);
@@ -146,15 +164,6 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		$this->entityManager->persist($blogPostLocalization);
 
 		$this->entityManager->persist($page);
-		
-		// @FIXME: load template from "Blog settings"
-		$parentLocalization = $parent->getLocalization($localeId);
-		$template = $parentLocalization->getTemplate();
-		$templateLocalization = $template->getLocalization($localeId);
-		
-		if (empty($template)) {
-			throw new CmsException(null, "Template not specified or found");
-		}
 		
 		$pageData->setIncludedInSearch($templateLocalization->isIncludedInSearch());
 		$pageData->setVisibleInMenu($templateLocalization->isVisibleInMenu());
@@ -243,10 +252,5 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		}
 		
 		return $this->application;
-	}
-	
-	public function deleteComment()
-	{
-		
 	}
 }
