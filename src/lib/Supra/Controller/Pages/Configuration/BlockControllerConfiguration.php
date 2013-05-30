@@ -132,6 +132,20 @@ class BlockControllerConfiguration extends ComponentConfiguration
 		
 		$properties = array();
 
+		 // TODO: might be removed later
+		$class = $this->class;
+		if (Loader::classExists($class)) {
+			if (method_exists($class, 'getPropertyDefinition')) {
+				$editables = (array) $class::getPropertyDefinition();
+				
+				foreach ($editables as $name => $editable) {
+					/* @var $editable \Supra\Editable\EditableInterface */
+					$this->properties[] = $property = new BlockPropertyConfiguration();
+					$property->fillFromEditable($editable, $name);
+				}
+			}
+		}
+		
 		foreach ($this->properties as $propertyConfiguration) {
 			
 			if ( ! $propertyConfiguration instanceof BlockPropertyConfiguration) {
