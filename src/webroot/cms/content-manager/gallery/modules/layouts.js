@@ -21,10 +21,6 @@ YUI.add('gallery.layouts', function (Y) {
 			value: null,
 			setter: '_setLayouts',
 			getter: '_getLayouts'
-		},
-		'properties': {
-			value: null,
-			setter: '_setProperties' 
 		}
 	};
 	
@@ -44,20 +40,6 @@ YUI.add('gallery.layouts', function (Y) {
 		 */
 		_layoutsArr: null,
 		
-		/**
-		 * List of 'layout' property values
-		 * @type {Object}
-		 * @private
-		 */
-		_values: null,
-		
-		/**
-		 * Full layout info, a mix of property value and layout
-		 * @type {Object}
-		 * @private
-		 */
-		_mixed: null,
-		
 		
 		/**
 		 * Automatically called by Base, during construction
@@ -66,8 +48,6 @@ YUI.add('gallery.layouts', function (Y) {
 		 * @private
 		 */
 		initializer: function(config) {
-			this._mixed = {};
-			this._values = {};
 			this._layouts = {};
 			this._layoutsArr = {};
 		},
@@ -83,8 +63,6 @@ YUI.add('gallery.layouts', function (Y) {
 		 * Reset cache, clean up
 		 */
 		resetAll: function () {
-			this._mixed = {};
-			this._values = {};
 			this._layouts = {};
 			this._layoutsArr = {};
 		},
@@ -109,16 +87,8 @@ YUI.add('gallery.layouts', function (Y) {
 		 * @returns {Object} Layout data or null
 		 */
 		getLayoutById: function (id) {
-			if (this._mixed[id]) {
-				return this._mixed[id];
-			}
-			
-			var layouts = this._layouts,
-				values = this._values,
-				mixed = null;
-			
-			if (id in layouts) {
-				return this._mixed[id] = Supra.mix({}, layouts[id], id in values ? values[id] : null);
+			if (this._layouts[id]) {
+				return this._layouts[id];
 			} else {
 				return null;
 			}
@@ -130,16 +100,11 @@ YUI.add('gallery.layouts', function (Y) {
 		 * @returns {Object} Layout data or null
 		 */
 		getDefaultLayout: function () {
-			var mixed   = this._mixed,
-				layouts = this._layouts,
-				values  = this._values,
+			var layouts = this._layouts,
 				id      = null;
 			
-			for (id in mixed) {
-				return mixed[id];
-			}
 			for (id in layouts) {
-				return mixed[id] = Supra.mix({}, layouts[id], id in values ? values[id] : null);
+				return layouts[id];
 			}
 			
 			return null;
@@ -248,57 +213,6 @@ YUI.add('gallery.layouts', function (Y) {
 		 */
 		_getLayouts: function () {
 			return this._layouts;
-		},
-		
-		/**
-		 * Properties attribute setter
-		 * 
-		 * @param {Object} properties Properties
-		 * @private
-		 */
-		_setProperties: function (properties) {
-			properties = properties || [];
-			
-			var i = 0,
-				ii = properties.length,
-				output = {},
-				values = null,
-				j = 0,
-				jj = 0,
-				subvalues = null,
-				k = 0,
-				kk = 0;
-			
-			// Search for layout property and extract values
-			for (; i<ii; i++) {
-				if (properties[i].id === 'layout') {
-					values = properties[i].values;
-					j = 0;
-					jj = values.length;
-					
-					for (; j<jj; j++) {
-						
-						subvalues = values[j].values;
-						if (subvalues) {
-							k = 0;
-							kk = subvalues.length;
-							
-							for (; k<kk; k++) {
-								output[subvalues[k].id] = subvalues[k];
-							}
-							
-						} else {
-							output[values[j].id] = values[j];
-						}
-						
-					}
-					
-					break;
-				}
-			}
-			
-			this._values = output;
-			return null;
 		}
 		
 	});

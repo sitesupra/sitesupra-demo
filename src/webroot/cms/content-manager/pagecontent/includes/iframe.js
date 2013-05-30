@@ -221,7 +221,8 @@ YUI.add('supra.iframe-handler', function (Y) {
 		 * Destroy contents object
 		 */
 		destroyContent: function () {
-			var doc = this.get('doc');
+			var doc = this.get('doc'),
+				iframe = this.get('nodeIframe');
 			
 			if (doc) {
 				// Remove document from DDM
@@ -266,25 +267,28 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//Clean up
 			this.destroyContent();
 			
-			//Set attribute
-			this.set('html', html);
-			
-			//Change iframe HTML
-			this.writeHTML(html);
-			
-			//Save document & window instances
-			var win = this.get('nodeIframe').getDOMNode().contentWindow;
-			var doc = win.document;
-			this.set('win', win);
-			this.set('doc', doc);
-			
-			//Small delay before continue
-			var timer = Y.later(50, this, function () {
-				if (this.get('doc').body) {
-					timer.cancel();
-					this._afterSetHTML(preview_only);
-				}
-			}, [], true);
+			//Small delay to make sure everything is clean up (Chrome issue)
+			Y.later(16, this, function () {
+				//Set attribute
+				this.set('html', html);
+				
+				//Change iframe HTML
+				this.writeHTML(html);
+				
+				//Save document & window instances
+				var win = this.get('nodeIframe').getDOMNode().contentWindow;
+				var doc = win.document;
+				this.set('win', win);
+				this.set('doc', doc);
+				
+				//Small delay before continue
+				var timer = Y.later(50, this, function () {
+					if (this.get('doc').body) {
+						timer.cancel();
+						this._afterSetHTML(preview_only);
+					}
+				}, [], true);
+			});
 			
 			return html;
 		},
