@@ -688,8 +688,11 @@ YUI().add('supra.iframe', function (Y) {
 			//Clean up
 			this.contentDestructor();
 			
-			//Change iframe HTML
-			this.writeHTML(html);
+			//Change iframe HTML, small delay to make sure
+			//all JS is really cleaned up (Chrome issue)
+			Y.later(16, this, function () {
+				this.writeHTML(html);
+			});
 			
 			return html;
 		},
