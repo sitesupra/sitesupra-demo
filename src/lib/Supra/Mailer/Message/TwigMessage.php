@@ -39,12 +39,14 @@ class TwigMessage extends SimpleMessage
 		
 		$host = ObjectRepository::getSystemInfo($this)->getHostName();	
 		$defaultEmail = "no-reply@{$host}";
+        $defaultName = 'SiteSupra support';
 		
 		try {
+            $defaultName = ObjectRepository::getIniConfigurationLoader($this)->getValue('mail', 'default_name');
 			$defaultEmail = ObjectRepository::getIniConfigurationLoader($this)->getValue('mail', 'default_email');
 		} catch (ConfigurationMissing $exc) {}
 
-		$this->setFrom($defaultEmail);
+		$this->setFrom($defaultEmail, $defaultName);
 		
 		//TODO: move this validation to ObjectRepository
 		if ( ! $this->twig instanceof Twig) {
