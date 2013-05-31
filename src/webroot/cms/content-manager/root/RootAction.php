@@ -35,12 +35,14 @@ class RootAction extends PageManagerAction
 		}
 
 		$appConfig = ObjectRepository::getApplicationConfiguration($this);
-
+		$ini = ObjectRepository::getIniConfigurationLoader($this);
+		
+		$activeTheme = ObjectRepository::getThemeProvider($this)
+				->getActiveTheme();
+		
 		$response->assign('config', $appConfig);
 
-		$fontList = ObjectRepository::getThemeProvider($this)
-				->getActiveTheme()
-				->getConfiguration()
+		$fontList = $activeTheme->getConfiguration()
 				->getFontList();
 		
 		$response->assign('fonts', array_values($fontList));
@@ -50,14 +52,11 @@ class RootAction extends PageManagerAction
 			$response->assign('galleryBlockId', $blockId);
 		}
 		
-		if ($appConfig->allowLimitedPageOption == false) {
-			$allowLimitedOption = 'false';
-		} else {
-			$allowLimitedOption = 'true';
-		}
-		$response->assign('allowLimitedAccessPages', $allowLimitedOption);
-		$response->assign('themeName', '');
+		$response->assign('allowLimitedAccessPages', $appConfig->allowLimitedPageOption);
 		
+		if ($ini->getValue('system', 'supraportal_site', false)) {
+			$response->assign('themeName', $activeTheme->getName());
+		}
 
 		$response->outputTemplate('content-manager/root/index.html.twig');
 	}

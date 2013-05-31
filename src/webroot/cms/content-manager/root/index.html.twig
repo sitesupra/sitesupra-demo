@@ -33,6 +33,6 @@
 	'design': '{{ themeName }}',
 	
 	// Allow/disallow "Limited access" toggle option inside page settings
-	'allowLimitedAccessPages': {{ allowLimitedAccessPages }},
+	'allowLimitedAccessPages': {{ allowLimitedAccessPages | json_encode | raw }},
 	
 {% endblock %}
