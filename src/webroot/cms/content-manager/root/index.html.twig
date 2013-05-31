@@ -29,8 +29,10 @@
 		}
 	},
 	
+	{% if themeName is defined %}
 	//Design manager
 	'design': '{{ themeName }}',
+	{% endif %}
 	
 	// Allow/disallow "Limited access" toggle option inside page settings
 	'allowLimitedAccessPages': {{ allowLimitedAccessPages | json_encode | raw }},
