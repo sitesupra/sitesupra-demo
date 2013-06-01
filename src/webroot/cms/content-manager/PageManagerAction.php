@@ -44,6 +44,9 @@ use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
 use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
 
+use Supra\RemoteHttp\Request\RemoteHttpRequest;
+use Supra\RemoteHttp\RemoteHttpRequestService;
+
 /**
  * Controller containing common methods
  */
