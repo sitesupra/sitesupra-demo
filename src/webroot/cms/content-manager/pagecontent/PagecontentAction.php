@@ -564,10 +564,25 @@ class PagecontentAction extends PageManagerAction
 
 				// Specific result received from CMS for HTML
 				if ($editable instanceof Editable\Html) {
-
+					
 					$propertyData = $input->getChild($propertyName);
-					$value = $propertyData->get('html');
-
+					
+					if ($propertyData->hasChild('fonts')) {
+						$fonts = $propertyData->getChild('fonts')
+								->getArrayCopy();
+						
+						if ( ! empty($fonts)) {
+							$knownFontNames = $this->getGoogleCssFontList();
+							foreach ($fonts as $fontName) {
+								if ( ! in_array($fontName, $knownFontNames)) {
+									throw new CmsException(null, "Unknown font name {$fontName}");
+								}
+							}
+						}
+					}
+					
+					$value = $propertyData->getArrayCopy();
+					
 					if ($propertyData->hasChild('data')) {
 						$referencedElementsData = $propertyData['data'];
 					}
@@ -784,7 +799,10 @@ class PagecontentAction extends PageManagerAction
 					$value = $propertyData;
 				}
 
-				$property->setValue($value);
+				$editable->setContentFromEdit($value);
+				$storableValue = $editable->getContent();
+				
+				$property->setValue($storableValue);
 
 				$metadataCollection = $property->getMetadata();
 

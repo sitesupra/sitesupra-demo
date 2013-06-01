@@ -44,12 +44,17 @@ use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
 use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
 
+use Supra\RemoteHttp\Request\RemoteHttpRequest;
+use Supra\RemoteHttp\RemoteHttpRequestService;
+
 /**
  * Controller containing common methods
  */
 abstract class PageManagerAction extends CmsAction
 {
-
+	
+	const GOOGLEAPIS_FONTS_URI = 'https://www.googleapis.com/webfonts/v1/webfonts';
+	
 	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
 	const PAGE_CONTROLLER_CLASS = 'Supra\Controller\Pages\PageController';
 
@@ -1510,5 +1515,70 @@ abstract class PageManagerAction extends CmsAction
 		/* @var $nestedSetRepo \Supra\NestedSet\DoctrineRepository */
 		$nestedSetRepo->unlock();
 	}
+	
+	/**
+	 */
+	protected function getGoogleCssFontList()
+	{
+		$ini = ObjectRepository::getIniConfigurationLoader($this);
+		$apiKey = $ini->getValue('google_fonts', 'api_key', null);
+		
+		if ($apiKey === null) {
+			\Log::info("Google Fonts service API key is not configured, skipping");
+			return array();
+		}
+		
+		$cache = ObjectRepository::getCacheAdapter($this);
+	
+		$fontList = $cache->fetch(__CLASS__);
+		
+		if ($fontList === false) {
 
+			// @TODO: move service object to ObjectRepository
+			$service = new RemoteHttpRequestService();
+
+			$request = new RemoteHttpRequest(self::GOOGLEAPIS_FONTS_URI, RemoteHttpRequest::TYPE_GET,
+					array(
+						'key' => $apiKey,
+						'sort' => 'popularity',
+					));
+
+			\Log::info("Requesting Google Fonts API");
+
+			$response = $service->makeRequest($request);
+
+			$responseCode = $response->getCode();
+
+			if ($responseCode !== \Supra\Response\HttpResponse::STATUS_OK) {
+				throw new \RuntimeException("Request to Google Fonts API failed, error code {$responseCode}");
+			}
+
+			$list = json_decode($response->getBody(), true);
+
+			if ($list === false) {
+				throw new \RuntimeException("Failed to decode Google Fonts API response");
+			}
+
+			if (empty($list) || ! isset($list['items'])) {
+				throw new \RuntimeException("Received Google Fonts API response is invalid");
+			}
+
+			// collecting only font families, other data isn't required
+			$fontList = array();
+
+			foreach ($list['items'] as $fontData) {
+				if ( ! isset($fontData['family']) || empty($fontData['family'])) {
+					\Log::warn("Missing font family property in array", $fontData);
+				}
+
+				$fontList[] = $fontData['family']; 
+			}
+			
+			$cacheTime = $ini->getValue('google_fonts', 'cache_time', 86400);
+			$cache->save(__CLASS__, $fontList, $cacheTime);
+
+		}
+	
+		return $fontList;
+	}	
 }

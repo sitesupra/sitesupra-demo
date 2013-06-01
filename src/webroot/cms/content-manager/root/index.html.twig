@@ -13,7 +13,9 @@
 			'skip_default': false
 		},
 		
+		{% if fonts is defined %}
 		'fonts': {{ fonts | json_encode | raw }},
+		{% endif %}
 		
 		'plugins': {
 			'image': {

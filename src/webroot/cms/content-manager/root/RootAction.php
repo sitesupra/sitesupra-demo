@@ -42,10 +42,10 @@ class RootAction extends PageManagerAction
 		
 		$response->assign('config', $appConfig);
 
-		$fontList = $activeTheme->getConfiguration()
-				->getFontList();
-		
-		$response->assign('fonts', array_values($fontList));
+//		$fontList = $activeTheme->getConfiguration()
+//				->getFontList();
+//		
+//		$response->assign('fonts', array_values($fontList));
 		
 		if ( ! empty($appConfig->galleryBlockId)) {
 			$blockId = str_replace('\\', '_', $appConfig->galleryBlockId);

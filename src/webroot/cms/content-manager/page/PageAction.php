@@ -716,8 +716,13 @@ class PageAction extends PageManagerAction
 				|| $editable instanceof Editable\Video
 				|| $editable instanceof Editable\InlineMedia) {
 			
-			if ($propertyContent instanceof Entity\ReferencedElement\ReferencedElementAbstract) {
-				$propertyContent = $this->convertReferencedElementToArray($propertyContent);
+			$meta = $metaCollection->get(0);
+			if ($meta instanceof Entity\BlockPropertyMetadata) {
+				$element = $meta->getReferencedElement();
+				
+				if ($element instanceof Entity\ReferencedElement\ReferencedElementAbstract) {
+					$propertyContent = $this->convertReferencedElementToArray($element);
+				}
 			}
 		}
 		

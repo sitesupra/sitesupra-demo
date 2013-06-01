@@ -8,10 +8,10 @@ use Supra\Controller\Pages\Entity\ReferencedElement\VideoReferencedElement;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Controller\Pages\Entity;
-use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Markup;
 use Supra\FileStorage\Entity\Image;
 use Twig_Markup;
+use Supra\Response\ResponseContext;
 
 /**
  * Parses supra markup tags inside the HTML content
@@ -33,9 +33,18 @@ class ParsedHtmlFilter implements FilterInterface
 	private $log;
 
 	/**
+	 * Response context object
+	 * Used to pass somehow the list of HTML fonts to templates
+	 * 
+	 * @var \Supra\Response\ResponseContext
+	 */
+	protected $responseContext;
+	
+	/**
 	 * @var int
 	 */
 	protected $requestType;
+	
 	
 	/**
 	 * Create log instance
@@ -43,6 +52,14 @@ class ParsedHtmlFilter implements FilterInterface
 	public function __construct()
 	{
 		$this->log = ObjectRepository::getLogger($this);
+	}
+	
+	/**
+	 * @param \Supra\Response\ResponseContext $context
+	 */
+	public function setResponseContext(ResponseContext $context)
+	{
+		$this->responseContext = $context;
 	}
 	
 	/**
@@ -406,16 +423,18 @@ class ParsedHtmlFilter implements FilterInterface
 	 * @return Twig_Markup
 	 */
 	public function filter($content)
-	{
-		$value = $this->property->getValue();
+	{		
+//		$value = $this->property->getValue();
 		$metadata = $this->property->getMetadata();
+		
+		$this->addCssFontNamesToResponseContext($content['fonts']);
 		
 		$elements = array();
 		foreach ($metadata as $key => $metadataItem) {
 			$elements[$key] = $metadataItem->getReferencedElement();
 		}
 				
-		return $this->doFilter($value, $elements);
+		return $this->doFilter($content['html'], $elements);
 	}
 
 	/**
@@ -429,6 +448,15 @@ class ParsedHtmlFilter implements FilterInterface
 		$markup = new Twig_Markup($filteredValue, 'UTF-8');
 		
 		return $markup;
+	}
+	
+	protected function addCssFontNamesToResponseContext($fontNames)
+	{
+		if ($this->responseContext instanceof ResponseContext) {
+			foreach($fontNames as $fontName) {
+				$this->responseContext->registerCssFontUse($fontName);
+			}
+		}
 	}
 		
 }

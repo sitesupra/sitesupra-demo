@@ -13,7 +13,7 @@ class RemoteHttpRequestService
 	
 	/**
 	 * @param \Supra\RemoteHttp\Request\RemoteHttpRequest $request
-	 * @return \Supra\Remote\Http\Response\RemoteHttpResponse
+	 * @return \Supra\RemoteHttp\Response\RemoteHttpResponse
 	 */
 	public function makeRequest(Request\RemoteHttpRequest $request)
 	{

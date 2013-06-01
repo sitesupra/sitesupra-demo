@@ -28,8 +28,7 @@ class EditableHtml extends ParsedHtmlFilter
 	 * @return string
 	 */
 	public function filter($content)
-	{
-		$value = $this->property->getValue();
+	{		
 		$metadata = $this->property->getMetadata();
 		
 		$elements = array();
@@ -37,19 +36,18 @@ class EditableHtml extends ParsedHtmlFilter
 			$elements[$key] = $metadataItem->getReferencedElement();
 		}
 		
-		$content = $this->parseSupraMarkup($value, $elements);
+		$htmlContent = $this->parseSupraMarkup($content['html'], $elements);
+
+		$this->addCssFontNamesToResponseContext($content['fonts']);
 		
 		$propertyName = $this->property->getName();
 			
 		$block = $this->property->getBlock();
 		$blockId = $block->getId();
 
-		// Normalize block name
-		$blockName = $block->getComponentName();
-
 		$html = '<div id="content_' . $blockId . '_' . $propertyName 
 				. '" class="yui3-content-inline yui3-input-html-inline-content">';
-		$html .= $content;
+		$html .= $htmlContent;
 		$html .= '</div>';
 		
 		$markup = new Twig_Markup($html, 'UTF-8');
