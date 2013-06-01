@@ -11,7 +11,13 @@ class ResponseContext extends FilteredInput
 	 * @var array
 	 */
 	protected $layoutSnippetResponses = array();
-
+	
+	/**
+	 * @var array
+	 */
+	protected $usedFontNames = array();
+	
+	
 	public function __construct($iterator = array())
 	{
 		parent::__construct($iterator);
@@ -119,6 +125,18 @@ class ResponseContext extends FilteredInput
 		return $this;
 	}
 	
+	public function registerCssFontUse($fontName)
+	{
+		if ( ! in_array($fontName, $this->usedFontNames)) {
+			$this->usedFontNames[] = $fontName;
+		}
+	}
+	
+	public function getUsedCssFontList()
+	{
+		return $this->usedFontNames;
+	}
+	
 	/**
 	 * Flushes all data to another response context
 	 * @param ResponseContext $mainContext
@@ -131,6 +149,10 @@ class ResponseContext extends FilteredInput
 		
 		foreach ($this->layoutSnippetResponses as $key => $value) {
 			$mainContext->addToLayoutSnippet($key, $value);
+		}
+		
+		foreach ($this->usedFontNames as $fontName) {
+			$mainContext->registerFontUse($fontName);
 		}
 	}
 
