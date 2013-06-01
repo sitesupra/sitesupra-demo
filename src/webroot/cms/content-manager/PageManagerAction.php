@@ -1519,14 +1519,20 @@ abstract class PageManagerAction extends CmsAction
 	/**
 	 */
 	protected function getGoogleCssFontList()
-	{	
+	{
+		$ini = ObjectRepository::getIniConfigurationLoader($this);
+		$apiKey = $ini->getValue('google_fonts', 'api_key', null);
+		
+		if ($apiKey === null) {
+			\Log::info("Google Fonts service API key is not configured, skipping");
+			return array();
+		}
+		
 		$cache = ObjectRepository::getCacheAdapter($this);
 	
 		$fontList = $cache->fetch(__CLASS__);
 		
 		if ($fontList === false) {
-			$ini = ObjectRepository::getIniConfigurationLoader($this);
-			$apiKey = $ini->getValue('google_fonts', 'api_key');
 
 			// @TODO: move service object to ObjectRepository
 			$service = new RemoteHttpRequestService();
