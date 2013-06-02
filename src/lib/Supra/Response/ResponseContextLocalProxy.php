@@ -25,6 +25,7 @@ class ResponseContextLocalProxy extends ResponseContext
 	{
 		parent::__construct($mainContext);
 		$this->layoutSnippetResponses = &$mainContext->layoutSnippetResponses;
+		$this->usedFontNames = &$mainContext->usedFontNames;
 		
 		$this->localContext = new ResponseContext();
 	}
@@ -81,6 +82,14 @@ class ResponseContextLocalProxy extends ResponseContext
 	{
 		$this->localContext->addToLayoutSnippet($key, $snippet);
 		return parent::addToLayoutSnippet($key, $snippet);
+	}
+	
+	/**
+	 */
+	public function registerCssFontUse($fontName)
+	{
+		$this->localContext->registerCssFontUse($fontName);
+		return parent::registerCssFontUse($fontName);
 	}
 	
 	/**
