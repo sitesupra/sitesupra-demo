@@ -593,7 +593,7 @@ class PagecontentAction extends PageManagerAction
 					$propertyData['fonts'] = $fontsData;
 					$value = $propertyData;
 					
-					if ($propertyData->hasChild('data')) {
+					if (isset($propertyData['data'])) {
 						$referencedElementsData = $propertyData['data'];
 					}
 				} elseif ($editable instanceof Editable\Link) {
