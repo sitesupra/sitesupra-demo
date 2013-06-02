@@ -49,12 +49,13 @@ class ThemeParameterSet extends Database\Entity
 	protected $type = self::TYPE_PRESET;
 	
 	/**
-	 * Hash map of standart fonts
-	 * @FIXME
-	 * 
+	 * Hash map of known web fonts
+	 * @FIXME: duplicate code
+	 * @FIXME: JS contains hardcoded values in google-fonts.js
+	 *  
 	 * @var array
 	 */
-	private $standartFontFamilies = array(
+	private $webSafeFonts = array(
 			'Arial, Helvetica, sans-serif' => true,
 			'"Times New Roman", Times, serif' => true,
 			'Georgia, serif' => true,
@@ -248,7 +249,7 @@ class ThemeParameterSet extends Database\Entity
 					// which are not recognized by Google
 					// must be implemented in another way?
 					$fontFamily = $value['family'];
-					if ( ! isset($this->standartFontFamilies[$fontFamily])) {
+					if ( ! isset($this->webSafeFonts[$fontFamily])) {
 						$fontFamilies[] = $fontFamily;
 					}
 				}
