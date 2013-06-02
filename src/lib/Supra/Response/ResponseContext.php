@@ -152,7 +152,7 @@ class ResponseContext extends FilteredInput
 		}
 		
 		foreach ($this->usedFontNames as $fontName) {
-			$mainContext->registerFontUse($fontName);
+			$mainContext->registerCssFontUse($fontName);
 		}
 	}
 
