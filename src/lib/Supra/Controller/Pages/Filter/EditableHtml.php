@@ -38,7 +38,7 @@ class EditableHtml extends ParsedHtmlFilter
 		
 		$htmlContent = $this->parseSupraMarkup($content['html'], $elements);
 
-		$this->addCssFontNamesToResponseContext($content['fonts']);
+		$this->registerUsedFonts($content['fonts']);
 		
 		$propertyName = $this->property->getName();
 			

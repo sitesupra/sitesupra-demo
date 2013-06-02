@@ -427,7 +427,7 @@ class HttpRequest implements RequestInterface
 	/**
 	 * @return string
 	 */
-	public function getProcotol()
+	public function getProtocol()
 	{
 		$httpsStatus = $this->getServerValue('HTTPS', 'off');
 		
