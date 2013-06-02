@@ -427,7 +427,7 @@ class ParsedHtmlFilter implements FilterInterface
 //		$value = $this->property->getValue();
 		$metadata = $this->property->getMetadata();
 		
-		$this->addCssFontNamesToResponseContext($content['fonts']);
+		$this->registerUsedFonts($content['fonts']);
 		
 		$elements = array();
 		foreach ($metadata as $key => $metadataItem) {
@@ -450,12 +450,10 @@ class ParsedHtmlFilter implements FilterInterface
 		return $markup;
 	}
 	
-	protected function addCssFontNamesToResponseContext($fontNames)
+	protected function registerUsedFonts($fontFamilies)
 	{
 		if ($this->responseContext instanceof ResponseContext) {
-			foreach($fontNames as $fontName) {
-				$this->responseContext->registerCssFontUse($fontName);
-			}
+			$this->responseContext->registerGoogleFontFamilies($fontFamilies);
 		}
 	}
 		

@@ -300,6 +300,8 @@ class Theme extends Database\Entity implements ThemeInterface
 			$outputValues['generatedCssUrl'] = $this->getCurrentGeneratedCssUrl();
 
 			$outputValues['parameterSetName'] = $currentParameterSet->getName();
+			
+			$outputValues['googleFonts'] = $currentParameterSet->collectGoogleFontFamilies();
 
 			$this->currentParameterSetOuptutValues = $outputValues;
 		}

@@ -7,6 +7,8 @@ use Supra\Validator\FilteredInput;
 
 class ResponseContext extends FilteredInput
 {
+	const SNIPPET_KEY_GOOGLE_FONTS = 'google_fonts';
+	
 	/**
 	 * @var array
 	 */
@@ -15,7 +17,7 @@ class ResponseContext extends FilteredInput
 	/**
 	 * @var array
 	 */
-	protected $usedFontNames = array();
+	protected $usedFontFamilies = array();
 	
 	
 	public function __construct($iterator = array())
@@ -125,18 +127,31 @@ class ResponseContext extends FilteredInput
 		return $this;
 	}
 	
-	public function registerCssFontUse($fontName)
+	/**
+	 * Registers used Google Font families in global font list
+	 * @param string | array $fontFamilies
+	 */
+	public function registerGoogleFontFamilies($fontFamilies)
 	{
-		if ( ! in_array($fontName, $this->usedFontNames)) {
-			$this->usedFontNames[] = $fontName;
+		if ( ! is_array($fontFamilies)) {
+			$fontFamilies = array($fontFamilies);
+		}
+		
+		foreach($fontFamilies as $fontFamily) {
+			if ( ! in_array($fontFamily, $this->usedFontFamilies)) {
+				$this->usedFontFamilies[] = $fontFamily;
+			}
 		}
 	}
 	
-	public function getUsedCssFontList()
+	/**
+	 * @return array
+	 */
+	public function getRegisteredGoogleFonts()
 	{
-		return $this->usedFontNames;
+		return $this->usedFontFamilies;
 	}
-	
+
 	/**
 	 * Flushes all data to another response context
 	 * @param ResponseContext $mainContext
@@ -151,9 +166,7 @@ class ResponseContext extends FilteredInput
 			$mainContext->addToLayoutSnippet($key, $value);
 		}
 		
-		foreach ($this->usedFontNames as $fontName) {
-			$mainContext->registerCssFontUse($fontName);
-		}
+		$mainContext->registerGoogleFontFamilies($this->usedFontFamilies);
 	}
 
 }
