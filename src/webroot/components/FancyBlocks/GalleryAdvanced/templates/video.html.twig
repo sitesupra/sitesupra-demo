@@ -1,0 +1,38 @@
+{% set columns  = supraBlock.property('columns') %}
+{% set columns_class = "" %}
+
+{% if columns == 'columns_4' %}
+	{% set columns_class = "one_fourth" %}
+{% elseif columns == 'columns_3' %}
+	{% set columns_class = "one_third" %}
+{% elseif columns == 'columns_2' %}
+	{% set columns_class = "one_half" %}
+{% elseif columns == 'columns_1' %}{% endif %}
+
+<li class="{{ columns_class }} type-video {% if first|default(false) %}alpha{% endif %} {% if last|default(false) %}omega{% endif %}">
+	<div class="media-wrapper">
+		<div class="media-video">
+			{{ property.video|raw }}
+		</div>
+		{% if supra.cmsRequest or property.title %}
+			<h2 class="title">
+				{{ property.title|raw  }}
+			</h2>
+		{% endif %}
+		<span class="icon icon-video"></span>
+		{% if not supra.cmsRequest and property.video_raw and columns != 'columns_1'  %}
+			{% set video = property.video_raw %}
+			
+			{% if video.resource == 'source' %}
+				<a rel="lightbox" class="overlay" href="{{ video.src }}"></a>
+			{% elseif video.resource == 'link' and video.id %}
+				{% if video.service == 'youtube' %}
+					<a rel="lightbox-iframe" class="overlay" href="http://www.youtube.com/embed/{{ video.id }}?hd=1&autoplay=1"></a>
+				{% elseif video.service == 'vimeo' %}
+					<a rel="lightbox-iframe" class="overlay" href="http://player.vimeo.com/video/{{ video.id }}?autoplay=1"></a>
+				{% endif %}
+			{% endif %}
+			
+		{% endif %}
+	</div>
+</li>

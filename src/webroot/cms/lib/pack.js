@@ -18918,8 +18918,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	};
 	
 	//Regular expressions
-	var REGEX_TABLE = /<table(.|\n|\r)*<\/table>/ig,
-		REGEX_MOBILE_TABLE = /<table[^>]+class="?'?[^"'>]*mobile(.|\n|\r)*<\/table>/ig,
+	var REGEX_TABLE = /<table(.|\n|\r)*?<\/table>/ig,
+		REGEX_MOBILE_TABLE = /<table[^>]+class=("[^"]*"|'[^']*'|[^\s>]*)(.|\n|\r)*?<\/table>/ig,
 		REGEX_TABLE_START = /<table[^>]*>/i,
 		REGEX_HEADINGS = /<th[^>]*>((.|\r|\n)*?)<\/th[^>]*>/ig,
 		REGEX_ROWS = /<tr[^>]*>((.|\r|\n)*?)<\/tr[^>]*>/ig,
@@ -18978,14 +18978,21 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					cells = null,
 					colspan = null,
 					i = 0,
-					ii = rows.length,
+					ii = rows ? rows.length : 0,
 					k = 0,
 					kk = 0,
-					index = 0;
+					index = 0,
+					transform = true;
 				
 				for (; i<ii; i++) {
 					cells = rows[i].match(regex_cells) || [];
 					index = 0;
+					
+					if (i == 0 && cells.length < 3 && headings.length == 0) {
+						// Don't transform table
+						transform = false;
+						break;
+					}
 					
 					for (k=0, kk=cells.length; k<kk; k++) {
 						colspan = cells[k].match(regex_colspan);
@@ -19005,7 +19012,11 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					}
 				}
 				
-				return match.replace(/<table[^>]*(class="?'?[^"']*"?'?)?/i, '<table class="desktop tablet"') + html + '</table>';
+				if (transform) {
+					return match.replace(/<table[^>]*(class="?'?[^"']*"?'?)?/i, '<table class="desktop tablet"') + html + '</table>';
+				} else {
+					return match.replace(/<table[^>]*(class="?'?[^"']*"?'?)?/i, '<table');
+				}
 			});
 			
 			return html;
@@ -19026,7 +19037,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				colspan = 1,
 				matches = html.match(regex_headings),
 				i = 0,
-				ii = matches.length;
+				ii = matches ? matches.length : 0;
 			
 			for (; i<ii; i++) {
 				heading = matches[i] || '';
@@ -19061,7 +19072,21 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * @type {String}
 		 */
 		untagHTML: function (html, data) {
-			html = html.replace(REGEX_MOBILE_TABLE, '');
+			html = html.replace(REGEX_MOBILE_TABLE, function (html, classname) {
+				console.log('MOBILE TABLE', html);
+				
+				if (classname.indexOf('mobile') != -1) {
+					if (classname.indexOf('desktop') == -1 && classname.indexOf('tablet') == -1) {
+						// classname is "mobile"
+						return '';
+					} else {
+						// clasname is "mobile mobile-portrait desktop tablet"
+						return html.replace(classname, '""');
+					}
+				}
+				
+				return html;
+			});
 			return html;
 		}
 		
@@ -24445,6 +24470,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				}
 				
 				this.previousSelection = null;
+				
+				this.afterPasteFinalize();
 			}, this);
 			
 			
@@ -36148,6 +36175,11 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		_setValue: function (value) {
 			value = (value === undefined || value === null || typeof value !== "object" ? "" : value);
+			
+			if (value) {
+				value.crop_left = value.crop_left || 0;
+				value.crop_top = value.crop_top || 0;
+			}
 			
 			this.image = value ? value : "";
 			

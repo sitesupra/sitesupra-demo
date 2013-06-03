@@ -211,6 +211,8 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				}
 				
 				this.previousSelection = null;
+				
+				this.afterPasteFinalize();
 			}, this);
 			
 			

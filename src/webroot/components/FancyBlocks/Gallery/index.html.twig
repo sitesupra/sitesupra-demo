@@ -1,4 +1,4 @@
-{% set width_full = 960 %}
+{% set width_full = 940 %}
 {% set height_full = 600 %}
 {% set width_small = 420 %}
 
@@ -25,7 +25,7 @@
 
 			<img src="{{ tag.getAttribute('src') }}" width="{{ width }}" height="{{ height }}" {% if width < 420 %}
 				 data-src-desktop="{{ tag.getAttribute('src') }}" data-height-desktop="{{ height }}"
-				 data-src-mobile-all="{{ tag_mobile.getAttribute('src') }}" data-height-mobile-all="{{ tag_mobile.getAttribute('tag_mobile') }}"
+				 data-src-mobile-all="{{ tag_mobile.getAttribute('src') }}" data-height-mobile-all="{{ tag_mobile.getAttribute('height') }}"
 				 class="responsive"
 				 {% endif %}alt="" />
 		{% endif %}
@@ -88,7 +88,7 @@
 	
 	{% elseif style == "grid" %}
 	
-		<div class="gallery-inner">
+		<div class="gallery-inner columns_4">
 			<ul class="clearfix">
 				{% for index, product in images %}
 					<li class="one_fourth {% if index % 4 == 0 %}alpha{% elseif index % 4 == 3 %}omega{% endif %}">

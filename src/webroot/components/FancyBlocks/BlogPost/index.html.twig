@@ -1,16 +1,15 @@
 <div class="block blog-post">
 	
-	<div class="page-title">
-		{{ supra.pageTitleHtmlTag('h1') | raw }}
-	</div>
-	
 	{% set media = supraBlock.property('media') %}
 	{% if media or supra.cmsRequest %}
 	<figure class="media">
-		<div id="content_{{ supraBlock.getBlock().getId() }}_media" class="yui3-content-inline yui3-input-media-inline-content"></div>
-		{#   {{ media }}   #}
+		{{ media }}
 	</figure>
 	{% endif %}
+	
+	<div class="page-title">
+		{{ supra.pageTitleHtmlTag('h1') | raw }}
+	</div>
 	
 	<div data-refresh-event="text" class="text">
 		{{ supraBlock.property('content') }}
@@ -21,7 +20,7 @@
 		<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('F j, Y') }}</time>
 
 		{% set tags = supra.localization.getTagArray() %}
-		{% if tags|length %}
+		{% if tags|length and tags[0] %}
 		<span class="separator">|</span>
 		<span class="tags">
 			{% for tag in tags %}
@@ -30,5 +29,9 @@
 		</span>
 		{% endif %}
 	</div>
+	
+	<hr />
+	
+	<a class="top" href="#header"></a>
 	
 </div>

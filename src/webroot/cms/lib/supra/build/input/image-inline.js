@@ -226,6 +226,11 @@ YUI.add('supra.input-image-inline', function (Y) {
 		_setValue: function (value) {
 			value = (value === undefined || value === null || typeof value !== "object" ? "" : value);
 			
+			if (value) {
+				value.crop_left = value.crop_left || 0;
+				value.crop_top = value.crop_top || 0;
+			}
+			
 			this.image = value ? value : "";
 			
 			if (this.widgets) {
