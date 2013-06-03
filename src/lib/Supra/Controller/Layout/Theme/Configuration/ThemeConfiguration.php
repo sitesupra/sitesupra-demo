@@ -167,25 +167,25 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		return $storableParameters;
 	}
 	
-	/**
-	 * @return array
-	 */
-	public function getFontList()
-	{
-		$list = array();
-		
-		$configurations = $this->getStorableParameterConfigurations();
-	
-		foreach ($configurations as $configuration) {
-			if ($configuration instanceof Parameter\FontParameterConfiguration) {
-				foreach($configuration->values as $value) {
-					$list[$value['id']] = $value;
-				}
-			}
-		}
-		
-		return $list;
-	}
+//	/**
+//	 * @return array
+//	 */
+//	public function getFontList()
+//	{
+//		$list = array();
+//		
+//		$configurations = $this->getStorableParameterConfigurations();
+//	
+//		foreach ($configurations as $configuration) {
+//			if ($configuration instanceof Parameter\FontParameterConfiguration) {
+//				foreach($configuration->values as $value) {
+//					$list[$value['id']] = $value;
+//				}
+//			}
+//		}
+//		
+//		return $list;
+//	}
 
 	/**
 	 * @param string $name

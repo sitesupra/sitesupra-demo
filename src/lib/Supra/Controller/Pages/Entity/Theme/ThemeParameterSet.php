@@ -47,6 +47,25 @@ class ThemeParameterSet extends Database\Entity
 	 * @var boolean
 	 */
 	protected $type = self::TYPE_PRESET;
+	
+	/**
+	 * Hash map of known web fonts
+	 * @FIXME: duplicate code
+	 * @FIXME: JS contains hardcoded values in google-fonts.js
+	 *  
+	 * @var array
+	 */
+	private $webSafeFonts = array(
+			'Arial, Helvetica, sans-serif' => true,
+			'"Times New Roman", Times, serif' => true,
+			'Georgia, serif' => true,
+			'"Palatino Linotype", "Book Antiqua", Palatino, serif' => true,
+			'Impact, Charcoal, sans-serif' => true,
+			'"Lucida Sans Unicode", "Lucida Grande", sans-serif' => true,
+			'Tahoma, Geneva, sans-serif' => true,
+			'"Trebuchet MS", Helvetica, sans-serif' => true,
+			'Verdana, Geneva, sans-serif' => true,
+	);
 
 	/**
 	 * @OneToMany(targetEntity="ThemeParameterValue", mappedBy="set", cascade={"all"}, orphanRemoval=true, indexBy="parameterName")
@@ -200,6 +219,44 @@ class ThemeParameterSet extends Database\Entity
 		}
 
 		return $outputValues;
+	}
+	
+	/**
+	 * Returns used family names of "FontParameter" parameters
+	 * @return array
+	 */
+	public function collectGoogleFontFamilies()
+	{		
+		$parameters = $this->getTheme()
+				->getParameters();
+		
+		$fontFamilies = array();
+		foreach ($parameters as $parameter) {
+			if ($parameter instanceof Parameter\FontParameter) {
+				
+				$parameterValue = $this->getParameterValueForParameter($parameter);
+				
+				if ($parameterValue === null) {
+					continue;
+				}
+			
+				$value = $parameter->getOuptutValueFromParameterValue($parameterValue);
+				
+				if (isset($value['family']) && ! empty($value['family'])) {
+					
+					// @FIXME
+					// this step helps to skip standart (and hardcoded in JS) fonts
+					// which are not recognized by Google
+					// must be implemented in another way?
+					$fontFamily = $value['family'];
+					if ( ! isset($this->webSafeFonts[$fontFamily])) {
+						$fontFamilies[] = $fontFamily;
+					}
+				}
+			}
+		}
+		
+		return $fontFamilies;
 	}
 
 	/**

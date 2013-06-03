@@ -21,20 +21,40 @@ class MenuBlock extends BlockController
 	protected function doExecute()
 	{
 		$pageFinder = $this->getPageFinder();
-
+        $pageFinder->addLevelFilter(1, 1);
+        
 		$localizationFinder = $this->getLocalizationFinder($pageFinder);
-
+        
 		$qb = $localizationFinder->getQueryBuilder();
 		$qb->andWhere('l.visibleInMenu = true');
 
 		$results = $qb->getQuery()->getResult();
-		$items = $this->buildStructure($results);
+        $children = $this->findAllVisibleChildren($results);
+		$items = $this->buildStructure($children);
 
 		$response = $this->getResponse();
 		/* @var $response \Supra\Response\TwigResponse */
 		$response->assign('items', $items);
 		$response->outputTemplate('index.html.twig');
 	}
+    
+    
+    protected function findAllVisibleChildren($pages)
+    {
+        $children = array();
+        
+        foreach($pages as $page) {
+            if ($page->isVisibleInMenu()) {
+                $children[] = $page;
+                $data = $page->getChildren()->toArray();
+                if ($data) {
+                    $children = array_merge($children, $this->findAllVisibleChildren($data));
+                }
+            }
+        }
+        return $children;
+    }
+    
 
 	protected function getPageFinder()
 	{

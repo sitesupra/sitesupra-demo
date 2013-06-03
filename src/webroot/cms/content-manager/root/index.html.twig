@@ -13,7 +13,9 @@
 			'skip_default': false
 		},
 		
+		{% if fonts is defined %}
 		'fonts': {{ fonts | json_encode | raw }},
+		{% endif %}
 		
 		'plugins': {
 			'image': {
@@ -29,10 +31,12 @@
 		}
 	},
 	
+	{% if themeName is defined %}
 	//Design manager
 	'design': '{{ themeName }}',
+	{% endif %}
 	
 	// Allow/disallow "Limited access" toggle option inside page settings
-	'allowLimitedAccessPages': {{ allowLimitedAccessPages }},
+	'allowLimitedAccessPages': {{ allowLimitedAccessPages | json_encode | raw }},
 	
 {% endblock %}

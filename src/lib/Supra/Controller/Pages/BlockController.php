@@ -355,7 +355,10 @@ abstract class BlockController extends ControllerAbstraction
 		if ($editable instanceof Editable\Html) {
 			// Editable action
 			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-				$filter = new Filter\EditableHtml();
+				
+				
+				
+				$filter = new Filter\EditableHtml($context);
 				$filter->property = $property;
 				$editable->addFilter($filter);
 				// View
@@ -365,6 +368,11 @@ abstract class BlockController extends ControllerAbstraction
 				$filter->property = $property;
 				$editable->addFilter($filter);
 			}
+			
+			$context = $this->response->getContext();
+			
+			// HTML filter specific
+			$filter->setResponseContext($context);
 		}
 
 		else if ($editable instanceof Editable\Link) {

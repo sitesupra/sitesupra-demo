@@ -7,11 +7,19 @@ use Supra\Validator\FilteredInput;
 
 class ResponseContext extends FilteredInput
 {
+	const SNIPPET_KEY_GOOGLE_FONTS = 'google_fonts';
+	
 	/**
 	 * @var array
 	 */
 	protected $layoutSnippetResponses = array();
-
+	
+	/**
+	 * @var array
+	 */
+	protected $usedFontFamilies = array();
+	
+	
 	public function __construct($iterator = array())
 	{
 		parent::__construct($iterator);
@@ -120,6 +128,31 @@ class ResponseContext extends FilteredInput
 	}
 	
 	/**
+	 * Registers used Google Font families in global font list
+	 * @param string | array $fontFamilies
+	 */
+	public function registerGoogleFontFamilies($fontFamilies)
+	{
+		if ( ! is_array($fontFamilies)) {
+			$fontFamilies = array($fontFamilies);
+		}
+		
+		foreach($fontFamilies as $fontFamily) {
+			if ( ! in_array($fontFamily, $this->usedFontFamilies)) {
+				$this->usedFontFamilies[] = $fontFamily;
+			}
+		}
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getRegisteredGoogleFonts()
+	{
+		return $this->usedFontFamilies;
+	}
+
+	/**
 	 * Flushes all data to another response context
 	 * @param ResponseContext $mainContext
 	 */
@@ -132,6 +165,8 @@ class ResponseContext extends FilteredInput
 		foreach ($this->layoutSnippetResponses as $key => $value) {
 			$mainContext->addToLayoutSnippet($key, $value);
 		}
+		
+		$mainContext->registerGoogleFontFamilies($this->usedFontFamilies);
 	}
 
 }
