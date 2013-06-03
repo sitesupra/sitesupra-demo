@@ -356,11 +356,12 @@ function (Y) {
 			this.widgets.datagrid.plug(Supra.DataGrid.LoaderPlugin, {
 				'recordHeight': 40
 			});
-			this.widgets.datagrid.plug(Supra.DataGrid.SortablePlugin, {
+			// Temporarily disabled https://red.videinfra.com/issues/10802#note-12
+			/*this.widgets.datagrid.plug(Supra.DataGrid.SortablePlugin, {
 				'columns': ['time', 'title', 'author', 'comments'],
 				'column': 'time',
 				'order': 'desc'
-			});
+			});*/
 			this.widgets.datagrid.plug(Supra.DataGrid.RestorePlugin, {
 			});
 			
@@ -603,7 +604,7 @@ function (Y) {
 		 */
 		renderFormComments: function () {
 			this.renderForm('Comments');
-			this.widgets.formComments.getInput('moderation_enabled').on('change', function () {
+			this.widgets.formComments.getInput('moderation_enabled').after('valueChange', function () {
 				this.saveForm({
 					'target': this.widgets.formComments
 				}, {
@@ -628,9 +629,6 @@ function (Y) {
 			input.set('loading', true);
 			
 			Supra.io(uri).done(function (templates) {
-				
-				console.log(templates);
-				
 				this.updatingUI = true;
 				
 				var form = this.widgets.formTemplates,
@@ -643,7 +641,7 @@ function (Y) {
 				this.updatingUI = false;
 			}, this);
 			
-			input.on('change', function () {
+			input.after('valueChange', function (e) {
 				this.saveForm({
 					'target': this.widgets.formTemplates
 				}, {
