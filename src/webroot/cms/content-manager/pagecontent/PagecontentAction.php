@@ -577,11 +577,6 @@ class PagecontentAction extends PageManagerAction
 
 						$knownGoogleFonts = $this->getGoogleCssFontList();
 						foreach ($fonts as $fontFamily) {
-							// skipping standard fonts
-							if (isset($this->webSafeFonts[$fontFamily])) {
-								continue;
-							}
-							
 							if ( ! in_array($fontFamily, $knownGoogleFonts)) {
 								throw new CmsException(null, "Unknown font name {$fontFamily}");
 							}

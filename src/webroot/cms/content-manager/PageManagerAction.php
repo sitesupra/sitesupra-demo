@@ -79,22 +79,6 @@ abstract class PageManagerAction extends CmsAction
 	private $lockTransactionOpened = false;
 	
 	/**
-	 * Hash map of standard fonts
-	 * @var array
-	 */
-	protected $webSafeFonts = array(
-			'Arial, Helvetica, sans-serif' => true,
-			'"Times New Roman", Times, serif' => true,
-			'Georgia, serif' => true,
-			'"Palatino Linotype", "Book Antiqua", Palatino, serif' => true,
-			'Impact, Charcoal, sans-serif' => true,
-			'"Lucida Sans Unicode", "Lucida Grande", sans-serif' => true,
-			'Tahoma, Geneva, sans-serif' => true,
-			'"Trebuchet MS", Helvetica, sans-serif' => true,
-			'Verdana, Geneva, sans-serif' => true,
-	);
-	
-	/**
 	 * Assign entity manager
 	 */
 	public function __construct()
