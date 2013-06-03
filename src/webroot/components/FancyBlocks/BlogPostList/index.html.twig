@@ -11,101 +11,92 @@
 	</div></h2>
 	{% endif %}
 	
+	{% if posts %}
 	<section>
 	
-		{# 
-			Promoted post (first two items are 'promoted')
-			Note: date format for 'promoted' items is slightly different!!!
-		#}
-		<article class="promoted clearfix">
-			<header> {# Heading #}
-				<time datetime="2013-05-26"><b>26</b>05.2013</time> {# Time, promoted items has different date format #}
-				<h3><a href="#">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ultricies eros sed augue bibendum rhoncus.</a></h3> {# Title #}
-			</header>
-			{# Description #}
-			<p>Aliquam erat volutpat. Nunc egestas purus sit amet nisl tempus fermentum. Sed vitae lectus quam. Pellentesque sit amet tellus risus. Pellentesque et nunc nec turpis hendrerit viverra. Cras dictum lacus in nulla pellentesque porta.</p>
-		</article>
-		
-		{# Promoted post with image #}
-		<article class="promoted clearfix">
-			<figure class="media">
-				<img src="/themes/barca/assets/img/temp/blog-post-image.jpg" alt="" />
-			</figure>
-			<header> {# Heading #}
-				<time datetime="2013-05-26"><b>26</b>05.2013</time> {# Time, promoted items has different date format #}
-				<h3><a href="#">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ultricies eros sed augue bibendum rhoncus.</a></h3> {# Title #}
-			</header>
-			{# Description #}
-			<p>Aliquam erat volutpat. Nunc egestas purus sit amet nisl tempus fermentum. Sed vitae lectus quam. Pellentesque sit amet tellus risus. Pellentesque et nunc nec turpis hendrerit viverra. Cras dictum lacus in nulla pellentesque porta.</p>
-		</article>
-		
-		{# Normal post with image #}
-		<article class="clearfix">
-			{# Heading #}
-			<header>
-				{# Time #}
-				<time datetime="2013-05-26">26/05/2013</time>
-				{# Title #}
-				<h3><a href="#">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ultricies eros sed augue bibendum rhoncus.</a></h3>
-			</header>
+		{% for post in posts %}
 			
-			{# Description #}
-			<figure class="media">
-				<img src="/themes/barca/assets/img/temp/blog-post-image-list.jpg" alt="" />
-			</figure>
-			<p>Aliquam erat volutpat. Nunc egestas purus sit amet nisl tempus fermentum. Sed vitae lectus quam. Pellentesque sit amet tellus risus. Pellentesque et nunc nec turpis hendrerit viverra. Cras dictum lacus in nulla pellentesque porta.</p>
-		</article>
-		
-		{# Normal post #}
-		<article class="clearfix">
-			{# Heading #}
-			<header>
-				{# Time #}
-				<time datetime="2013-05-26">26/05/2013</time>
-				{# Title #}
-				<h3><a href="#">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ultricies eros sed augue bibendum rhoncus.</a></h3>
-			</header>
-			
-			{# Description #}
-			<p>Aliquam erat volutpat. Nunc egestas purus sit amet nisl tempus fermentum. Sed vitae lectus quam. Pellentesque sit amet tellus risus. Pellentesque et nunc nec turpis hendrerit viverra. Cras dictum lacus in nulla pellentesque porta.</p>
-		</article>
-	</section>
-	
-	{# Pagination #}
-	<nav class="pagination">{% spaceless %}
-		{% if currentPage > 1 %}
-			<a class="prev" rel="prev" href="?page={{ currentPage - 1 }}">{{ supraBlock.property('previous_page') }}</a>
-		{% else %}
-			<span class="prev">{{ supraBlock.property('previous_page') }}</span>
-		{% endif %}
-		
-		{% set from = currentPage - 4 %}
-		{% if from < 0 %}{% set from = 0 %}{% endif %}
-		
-		{% set to = from + 7 %}
-		{% if to > totalPages - 1 %}
-			{% set to = totalPages - 1 %}
-			{% set from = to - 7 %}
-			{% if from < 0 %}{% set from = 0 %}{% endif %}
-		{% endif %}
-		
-		{% if from > 0 %}<span class="dots">...</span>{% endif %}
-		
-		{% for i in from..to %}
-			{% if i == currentPage %}
-				<span class="item active">{{ i + 1 }}</span>
-			{% else %}
-				<a class="item" href="?page={{ i }}">{{ i + 1 }}</a>
+			{# Promoted posts are first two items #}
+			{% set promoted = false %}
+			{% if loop.index < 3 and currentPage == 0 %}
+				{% set promoted = true %}
 			{% endif %}
+			
+			<article class="{% if promoted %}promoted{% endif %} clearfix">
+				
+				{# Image or video #}
+				{% if promoted and post.media %}
+					<figure class="media">
+						{{ post.media }}
+					</figure>
+				{% endif %}
+				
+				{# Heading #}
+				<header>
+					{# Date, for 'promoted' items it is slightly different #}
+					{% if promoted %}
+						<time datetime="{{ post.date.format('Y-m-d') }}"><b>{{ post.date.format('j') }}</b>{{ post.date.format('m.Y') }}</time>
+					{% else %}
+						<time datetime="{{ post.date.format('Y-m-d') }}">{{ post.date.format('d/m/Y') }}</time>
+					{% endif %}
+					
+					{# Title #}
+					<h3><a href="/{{ supra.locale.id }}{{ post.path }}">{{ post.title }}</a></h3>
+				</header>
+				
+				{# Image or video #}
+				{% if not promoted and post.media %}
+					<figure class="media">
+						{{ post.media }}
+					</figure>
+				{% endif %}
+				
+				{# Description #}
+				<p>{{ post.description }}</p>
+			</article>
+			
 		{% endfor %}
 		
-		{% if to < totalPages - 1 %}<span class="dots">...</span>{% endif %}
-		
-		{% if currentPage < totalPages - 1 %}
-			<a class="next" rel="next" href="?page={{ currentPage + 1 }}">{{ supraBlock.property('next_page') }}</a>
-		{% else %}
-			<span class="next">{{ supraBlock.property('next_page') }}</span>
-		{% endif %}
-	{% endspaceless %}</nav>
+	</section>
+	{% endif %}
+	
+	{# Pagination #}
+	{% if totalPages > 1 %}
+		<nav class="pagination">{% spaceless %}
+			{% if currentPage > 0 %}
+				<a class="prev" rel="prev" href="?page={{ currentPage - 1 }}">{{ supraBlock.property('previous_page') }}</a>
+			{% else %}
+				<span class="prev">{{ supraBlock.property('previous_page') }}</span>
+			{% endif %}
+			
+			{% set from = currentPage - 4 %}
+			{% if from < 0 %}{% set from = 0 %}{% endif %}
+			
+			{% set to = from + 7 %}
+			{% if to > totalPages - 1 %}
+				{% set to = totalPages - 1 %}
+				{% set from = to - 7 %}
+				{% if from < 0 %}{% set from = 0 %}{% endif %}
+			{% endif %}
+			
+			{% if from > 0 %}<span class="dots">...</span>{% endif %}
+			
+			{% for i in from..to %}
+				{% if i == currentPage %}
+					<span class="item active">{{ i + 1 }}</span>
+				{% else %}
+					<a class="item" href="?page={{ i }}">{{ i + 1 }}</a>
+				{% endif %}
+			{% endfor %}
+			
+			{% if to < totalPages - 1 %}<span class="dots">...</span>{% endif %}
+			
+			{% if currentPage < totalPages - 1 %}
+				<a class="next" rel="next" href="?page={{ currentPage + 1 }}">{{ supraBlock.property('next_page') }}</a>
+			{% else %}
+				<span class="next">{{ supraBlock.property('next_page') }}</span>
+			{% endif %}
+		{% endspaceless %}</nav>
+	{% endif %}
 	
 </div>
