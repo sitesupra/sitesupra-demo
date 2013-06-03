@@ -31830,6 +31830,10 @@ YUI.add('supra.input-slider', function (Y) {
 	Input.ATTRS = {
 		'label_set': {
 			'value': '{#form.set_image#}'
+		},
+		'allowRemoveImage': {
+			value: true,
+			setter: "_setAllowRemoveImage"
 		}
 	};
 	
@@ -31869,6 +31873,14 @@ YUI.add('supra.input-slider', function (Y) {
 		 * @private
 		 */
 		image_was_selected: false,
+		
+		/**
+		 * Button to remove image
+		 * @type {Object}
+		 * @private
+		 */
+		button_remove: null,
+		
 		
 		/**
 		 * Open link manager for redirect
@@ -31949,9 +31961,38 @@ YUI.add('supra.input-slider', function (Y) {
 			this.button.render(this.get('contentBox'));
 			this.button.on('click', this.openMediaSidebar, this);
 			
+			//Remove button
+			var button = this.button_remove = new Supra.Button({
+				"label": Supra.Intl.get(["form", "block", "remove_image"]),
+				"style": "small-red"
+			});
+			button.on("click", function () { this.set('value', null)}, this);
+			button.addClass("su-button-fill");
+			button.set("disabled", !this._hasImage());
+			button.set("visible", this.get('allowRemoveImage'));
+			button.render(this.get('boundingBox'));
+			
+			this.button.get('boundingBox').insert(button.get('boundingBox'), 'after');
+			
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			this.set('value', this.get('value'));
+		},
+		
+		
+		/* ------------------------------ Attributes -------------------------------- */
+		
+		
+		/**
+		 * Returns true if image is selected, otherwise false
+		 * 
+		 * @return True if image is selected
+		 * @type {Boolean}
+		 * @private
+		 */
+		_hasImage: function () {
+			var value = this.get("value");
+			return value && value.image;
 		},
 		
 		_setValue: function (data) {
@@ -31965,6 +32006,10 @@ YUI.add('supra.input-slider', function (Y) {
 			}
 			
 			this.button.set('label', title);
+			
+			if (this.button_remove) {
+				this.button_remove.set('disabled', !data || !data.id);
+			}
 			
 			return data;
 		},
@@ -31993,6 +32038,19 @@ YUI.add('supra.input-slider', function (Y) {
 			if (evt.prevVal != evt.newVal) {
 				this.fire('change', {'value': evt.newVal});
 			}
+		},
+		
+		/**
+		 * Allow removing image / allow having no image
+		 * @param {Boolean} value Attribute value
+		 * @return {Boolean} New attribute value
+		 */
+		_setAllowRemoveImage: function (value) {
+			var button = this.button_remove;
+			if (button) {
+				button.set("visible", value);
+			}
+			return value;
 		}
 		
 	});
