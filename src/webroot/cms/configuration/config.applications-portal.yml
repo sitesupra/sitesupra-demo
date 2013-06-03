@@ -45,14 +45,14 @@
 #    _class: Supra\Cms\Settings\SettingsAuthorizationAccessPolicy
 #    applicationNamespace: Supra\Cms\Settings
 
-# - _class: Supra\Cms\BlogManager\ApplicationConfiguration
-  # id: Supra\Cms\BlogManager
-  # title: Blog
-  # url: blog-manager
-  # icon: /cms/lib/supra/img/apps/blog
-  # authorizationAccessPolicy:
-    # _class: Supra\Cms\BlogManager\BlogManagerAuthorizationAccessPolicy
-    # applicationNamespace: Supra\Cms\BlogManager
+- _class: Supra\Cms\BlogManager\ApplicationConfiguration
+  id: Supra\Cms\BlogManager
+  title: Blog
+  url: blog-manager
+  icon: /cms/lib/supra/img/apps/blog
+  authorizationAccessPolicy:
+    _class: Supra\Cms\BlogManager\BlogManagerAuthorizationAccessPolicy
+    applicationNamespace: Supra\Cms\BlogManager
 
 - _class: Supra\Cms\MediaLibrary\ApplicationConfiguration
   id: Supra\Cms\MediaLibrary
@@ -101,12 +101,12 @@
   # icon: /cms/content-manager/sitemap/images/apps/forum.png
   # newChildrenFirst: true
 
-# - _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
-  # id: blog
-  # className: Supra\Controller\Pages\Blog\BlogApplication
-  # title: Blog
-  # icon: /cms/content-manager/sitemap/images/apps/forum.png
-  # newChildrenFirst: true
+- _class: Supra\Controller\Pages\Configuration\PageApplicationConfiguration
+  id: blog
+  className: Supra\Controller\Pages\Blog\BlogApplication
+  title: Blog
+  icon: /cms/content-manager/sitemap/images/apps/forum.png
+  newChildrenFirst: true
   
 # Implement this configuration to project-specific location if needed
 #- Supra\BannerMachine\Configuration\ProviderConfiguration:

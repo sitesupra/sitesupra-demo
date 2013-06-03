@@ -429,8 +429,20 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				used = [];
 			
 			nodes.each(function (node) {
-				var face = node.getAttribute("face");
+				var face  = node.getAttribute("face"),
+					fonts = null,
+					i     = 0,
+					ii    = 0,
+					safe  = Supra.GoogleFonts.SAFE_FONTS;
+				
 				if (face) {
+					fonts = face.split(/\s*,\s*/g);
+					for (ii=fonts.length; i<ii; i++) {
+						if (Y.Array.indexOf(safe, fonts[i]) !== -1) {
+							// Font is in the safe list, don't send it to server
+							return;
+						}
+					}
 					used.push(face);
 				}
 			});

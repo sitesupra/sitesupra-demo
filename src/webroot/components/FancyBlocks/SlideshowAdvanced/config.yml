@@ -138,6 +138,19 @@
                   iconStyle: center
                   separateSlide: true
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: active
+                editable: Supra\Editable\Checkbox
+                label: Active
+                default: true
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: period_from
+                editable: Supra\Editable\Date
+                label: Published from
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: period_to
+                editable: Supra\Editable\Date
+                label: Published till
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background
                 editable: Supra\Editable\BlockBackground
                 label: Background image
