@@ -15275,7 +15275,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				image.setAttribute("height", data_height);
 				image.setStyles({
 					"margin-left": crop_left ? -crop_left + "px" : "0px",
-					"margin-top": crop_top ? -crop_top + "px" : "0px"
+					"margin-top": crop_top ? -crop_top + "px" : "0px",
+					"width": data_width ? data_width + "px" : "",
+					"height": data_height ? data_height + "px" : ""
 				});
 				ancestor.setStyles({
 					"width": crop_width ? crop_width + "px" : "auto",
@@ -15998,7 +16000,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					var img_style = (item.size_width && item.size_height ? 'width: ' + item.size_width + 'px; height:' + item.size_height + ';' : '');					
 					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
 					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="' + img_style + 'margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
-
+					
 					if (item.type == 'lightbox') {
 						//For lightbox add link around image
 						return '<a class="lightbox" href="' + self.getImageURLBySize(item.image, "original") + '" rel="lightbox"></a>' + html + '</a>';
