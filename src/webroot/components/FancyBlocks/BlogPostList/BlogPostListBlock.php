@@ -19,6 +19,7 @@ class BlogPostListBlock extends BlockController
 		$response = $this->getResponse();
 		/* @var $response \Supra\Response\TwigResponse */
 		
+		$response->assign('posts', array());
 		$response->assign('totalPages', 20);
 		$response->assign('currentPage', 19); // 0 index
 		$response->outputTemplate('index.html.twig');
