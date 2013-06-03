@@ -15,6 +15,12 @@ class SocialBlock extends BlockController
 	{
 		$properties = array();
 
+        $youtubeLink = new Editable\Link('Youtube link');
+        $properties['youtube'] = $youtubeLink;
+
+        $twitterLink = new Editable\Link('Twitter link');
+        $properties['twitter'] = $twitterLink;
+
 		$rssLink = new Editable\Link('Rss link');
 		$properties['rss'] = $rssLink;
 
@@ -23,9 +29,6 @@ class SocialBlock extends BlockController
 
 		$flickrLink = new Editable\Link('Flickr link');
 		$properties['flickr'] = $flickrLink;
-
-		$youtubeLink = new Editable\Link('Youtube link');
-		$properties['youtube'] = $youtubeLink;
 
 		return $properties;
 	}

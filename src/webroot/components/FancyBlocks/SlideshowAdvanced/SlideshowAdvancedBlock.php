@@ -34,36 +34,46 @@ class SlideshowAdvancedBlock extends BlockController
 		if ( ! empty($slidesArray)) {
 			
 			foreach ($slidesArray as $slide) {
-				
-				if ( ! isset($layouts[$slide['layout']])) {
-					continue;
-				}
-				
-				$slide = $slide + array(
-					'text_main' => null,
-					'text_top' => null,
-					'media' => null,
-					'mediaType' => null,
-					'image' => null,
-					'background' => null,
-					'layout' => null,
-					'buttons' => null,
-					'height' => null,
-				);
-				
-				$slideData = array(
-					'text_main' => $this->filterHtml($slide['text_main']),
-					'text_top' => $this->filterHtml($slide['text_top']),
-					'media' => $this->filterMedia($slide['media']),
-					'mediaType' => $this->getMediaType($slide['media']),
-					'image' => $slide['image'],
-					'background' => $this->filterBackground($slide['background']),
-					'layout' => $slide['layout'],
-					'buttons' => $this->filterButtons($slide['buttons']),
-					'height' => $slide['height'],
-				);
-				
-				$slidesResponse[] = $slideData;
+
+                if ($slide[active] == 'true') {
+
+                    $startDate = strtotime($slide[period_from]);
+                    $endDate = strtotime($slide[period_to]);
+                    $now = strtotime(date('Y-m-d H:i'));
+
+                    if ((!$startDate || $startDate <= $now) && (!$endDate || $now <= $endDate))
+                    {
+        				if ( ! isset($layouts[$slide['layout']])) {
+        					continue;
+        				}
+        				
+        				$slide = $slide + array(
+        					'text_main' => null,
+        					'text_top' => null,
+        					'media' => null,
+        					'mediaType' => null,
+        					'image' => null,
+        					'background' => null,
+        					'layout' => null,
+        					'buttons' => null,
+        					'height' => null,
+        				);
+        				
+        				$slideData = array(
+        					'text_main' => $this->filterHtml($slide['text_main']),
+        					'text_top' => $this->filterHtml($slide['text_top']),
+        					'media' => $this->filterMedia($slide['media']),
+        					'mediaType' => $this->getMediaType($slide['media']),
+        					'image' => $slide['image'],
+        					'background' => $this->filterBackground($slide['background']),
+        					'layout' => $slide['layout'],
+        					'buttons' => $this->filterButtons($slide['buttons']),
+        					'height' => $slide['height'],
+        				);
+        				
+        				$slidesResponse[] = $slideData;
+        			}
+        		}
 			}
 		}
 		
