@@ -1,0 +1,31 @@
+- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\BlogPostList\BlogPostListBlock
+    title: Blog Post List
+    groupId: features
+    description: Description
+    cmsClassname: Editable
+    icon: icon.png
+    cache:
+      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
+        enabled: true
+        global: false
+        groups:
+          - Supra\FileStorage
+          - Supra\Controller\Pages
+        lifetime: 60 seconds
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\String
+          label: Title
+          default: Blog
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: previous_page
+          editable: Supra\Editable\String
+          label: Previous page label
+          default: Previous page
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: next_page
+          editable: Supra\Editable\String
+          label: Next page label
+          default: Next page
