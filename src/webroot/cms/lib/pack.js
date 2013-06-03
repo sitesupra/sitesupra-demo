@@ -26905,6 +26905,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (typeof value === 'object' && value.family) {
+				value = value.family;
+			}
 			if (typeof value !== 'string') {
 				value = '';
 			}
@@ -31952,14 +31955,12 @@ YUI.add('supra.input-slider', function (Y) {
 		},
 		
 		_setValue: function (data) {
-			var url = '',
-				title = '';
+			var title = '';
 			
 			if (!data || !data.id) {
 				data = '';
 				title = Supra.Intl.replace(this.get('label_set'));
 			} else {
-				url = (data.sizes[this.PREVIEW_SIZE] || data.sizes.original).external_path;
 				title = data.filename;
 			}
 			

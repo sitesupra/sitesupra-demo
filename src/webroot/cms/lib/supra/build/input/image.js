@@ -147,14 +147,12 @@ YUI.add('supra.input-image', function (Y) {
 		},
 		
 		_setValue: function (data) {
-			var url = '',
-				title = '';
+			var title = '';
 			
 			if (!data || !data.id) {
 				data = '';
 				title = Supra.Intl.replace(this.get('label_set'));
 			} else {
-				url = (data.sizes[this.PREVIEW_SIZE] || data.sizes.original).external_path;
 				title = data.filename;
 			}
 			
