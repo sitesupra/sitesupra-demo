@@ -22,7 +22,7 @@ YUI().add('supra.google-fonts', function (Y) {
 	GoogleFonts.API_URI = document.location.protocol + '//fonts.googleapis.com/css?family=';
 	
 	// URI to load list of google fonts
-	GoogleFonts.SUPRA_FONT_URI = '/cms/lib/supra/tests/fonts/webfonts.json';
+	GoogleFonts.SUPRA_FONT_URI = /* dynamic url + */ '/content-manager/fonts/list.json';
 	
 	//List of fonts, which doesn't need to be loaded from Google Web Fonts
 	GoogleFonts.SAFE_FONTS = [
@@ -259,9 +259,10 @@ YUI().add('supra.google-fonts', function (Y) {
 		}
 		
 		var deferred = new Supra.Deferred(),
-			promise  = deferred.promise();
+			promise  = deferred.promise(),
+			uri      = Supra.Manager.Loader.getDynamicPath() + GoogleFonts.SUPRA_FONT_URI;
 		
-		Supra.io(GoogleFonts.SUPRA_FONT_URI).then(
+		Supra.io(uri).then(
 			function (fonts) {
 				// Success, return standard + google fonts
 				var formatted = [],

@@ -9116,7 +9116,7 @@ YUI().add('supra.input-string-clear', function (Y) {
 	GoogleFonts.API_URI = document.location.protocol + '//fonts.googleapis.com/css?family=';
 	
 	// URI to load list of google fonts
-	GoogleFonts.SUPRA_FONT_URI = '/cms/lib/supra/tests/fonts/webfonts.json';
+	GoogleFonts.SUPRA_FONT_URI = /* dynamic url + */ '/content-manager/fonts/list.json';
 	
 	//List of fonts, which doesn't need to be loaded from Google Web Fonts
 	GoogleFonts.SAFE_FONTS = [
@@ -9353,9 +9353,10 @@ YUI().add('supra.input-string-clear', function (Y) {
 		}
 		
 		var deferred = new Supra.Deferred(),
-			promise  = deferred.promise();
+			promise  = deferred.promise(),
+			uri      = Supra.Manager.Loader.getDynamicPath() + GoogleFonts.SUPRA_FONT_URI;
 		
-		Supra.io(GoogleFonts.SUPRA_FONT_URI).then(
+		Supra.io(uri).then(
 			function (fonts) {
 				// Success, return standard + google fonts
 				var formatted = [],
@@ -40373,8 +40374,20 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				used = [];
 			
 			nodes.each(function (node) {
-				var face = node.getAttribute("face");
+				var face  = node.getAttribute("face"),
+					fonts = null,
+					i     = 0,
+					ii    = 0,
+					safe  = Supra.GoogleFonts.SAFE_FONTS;
+				
 				if (face) {
+					fonts = face.split(/\s*,\s*/g);
+					for (ii=fonts.length; i<ii; i++) {
+						if (Y.Array.indexOf(safe, fonts[i]) !== -1) {
+							// Font is in the safe list, don't send it to server
+							return;
+						}
+					}
 					used.push(face);
 				}
 			});
