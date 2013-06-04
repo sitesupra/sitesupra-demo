@@ -20,7 +20,8 @@ class ImageParameter extends ThemeParameterAbstraction
 	public function updateParameterValue(ThemeParameterValue $parameterValue, $input)
 	{
 		$filestorage = ObjectRepository::getFileStorage($this);
-
+        
+        /*
 		if (isset($input['image'])) {
 
 			$image = $filestorage->find($input['image']);
@@ -34,6 +35,7 @@ class ImageParameter extends ThemeParameterAbstraction
 				$input['variant_name'] = $variantName;
 			}
 		}
+		*/
 
 		$parameterValue->setValue(serialize($input));
 	}
@@ -52,13 +54,37 @@ class ImageParameter extends ThemeParameterAbstraction
 
 		if ( ! empty($image)) {
 			/* @var $image Image */
-			$outputValue['image'] = $filestorage->getFileInfo($image);
-			$outputValue['url'] = $filestorage->getWebPath($image, $outputValue['variant_name']);
+			$outputValue = $filestorage->getFileInfo($image);
+			// $outputValue['id'] = $image->id;
+			// $outputValue['filename'] = $image->getFileName();
+			// $outputValue['url'] = '"' . $filestorage->getWebPath($image, $outputValue['variant_name']) . '"';
 		} else {
 			$outputValue = null;
 		}
 
 		return $outputValue;
 	}
+
+    /**
+     * @param ThemeParameterValue $parameterValue
+     * @return mixed
+     */
+    public function getLessOuptutValueFromParameterValue(ThemeParameterValue $parameterValue)
+    {
+        $outputValue = unserialize($parameterValue->getValue());
+
+        $filestorage = ObjectRepository::getFileStorage($this);
+
+        $image = $filestorage->find($outputValue['image']);
+
+        if ( ! empty($image)) {
+            /* @var $image Image */
+            $outputValue['url'] = '"' . $filestorage->getWebPath($image, $outputValue['variant_name']) . '"';
+        } else {
+            $outputValue = null;
+        }
+
+        return $outputValue;
+    }
 
 }

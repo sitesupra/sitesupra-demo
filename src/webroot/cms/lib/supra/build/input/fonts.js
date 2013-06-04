@@ -733,6 +733,9 @@ YUI.add('supra.input-fonts', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (typeof value === 'object' && value.family) {
+				value = value.family;
+			}
 			if (typeof value !== 'string') {
 				value = '';
 			}
