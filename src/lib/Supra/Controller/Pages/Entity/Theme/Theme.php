@@ -618,14 +618,24 @@ class Theme extends Database\Entity implements ThemeInterface
 	{
 		if (empty($this->configuration)) {
 
-			$yamlParser = new YamlParser();
-			$configurationLoader = new ThemeConfigurationLoader();
-			$configurationLoader->setParser($yamlParser);
-			$configurationLoader->setTheme($this);
-			$configurationLoader->setMode(ThemeConfigurationLoader::MODE_FETCH_CONFIGURATION);
-			$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_EXPIRE_BY_MODIFICATION);
+			$cache = \Supra\ObjectRepository\ObjectRepository::getCacheAdapter($this);
+			$key = $this->getConfigurationCacheKey();
+			
+			$this->configuration = $cache->fetch($key);
+			
+			if ($this->configuration === false ) { 
+						
+				$yamlParser = new YamlParser();
+				$configurationLoader = new ThemeConfigurationLoader();
+				$configurationLoader->setParser($yamlParser);
+				$configurationLoader->setTheme($this);
+				$configurationLoader->setMode(ThemeConfigurationLoader::MODE_FETCH_CONFIGURATION);
+				$configurationLoader->setCacheLevel(ThemeConfigurationLoader::CACHE_LEVEL_EXPIRE_BY_MODIFICATION);
 
-			$configurationLoader->loadFile($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.yml');
+				$configurationLoader->loadFile($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.yml');
+				
+				$cache->save($key, $this->configuration);
+			}
 		}
 
 		return $this->configuration;
@@ -698,5 +708,10 @@ class Theme extends Database\Entity implements ThemeInterface
 	{
 		$layout->setTheme(null);
 		$this->placeholderGroupLayouts->removeElement($layout);
+	}
+	
+	private function getConfigurationCacheKey()
+	{
+		return __CLASS__ . '_' . $this->name . '_' . $this->configMd5;
 	}
 }

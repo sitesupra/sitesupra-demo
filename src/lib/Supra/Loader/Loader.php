@@ -192,6 +192,14 @@ class Loader
 	 * Autoload method, try loading class by it's name
 	 * @param string $className
 	 * @return boolean
+	 * 
+	 * 
+	 * @TODO
+	 * @FIXME
+	 *    Add the possiblity to configure, 
+	 *    what to use - "include" or "include_once",
+	 *    as the first option could fail, but gives some additional
+	 *    performance @ SupraPortal project
 	 */
 	public function autoload($className)
 	{
@@ -212,13 +220,13 @@ class Loader
 				$classPath = $this->findClassPath($className);
 
 				if ( ! empty($classPath)) {
-					$loaded = include_once $classPath;
+					$loaded = include $classPath;
 				} else {
 					$loaded = false;
 				}
 			} else {
 
-				$loaded = include_once $classPath;
+				$loaded = include $classPath;
 			}
 
 			//if ($loaded) {
@@ -229,7 +237,7 @@ class Loader
 			$classPath = $this->findClassPath($className);
 
 			if ( ! empty($classPath)) {
-				$loaded = include_once $classPath;
+				$loaded = include $classPath;
 			} else {
 				$loaded = false;
 			}
