@@ -623,7 +623,7 @@ class Theme extends Database\Entity implements ThemeInterface
 			 * theme's configuration object cache which significantly increases the performance
 			 * but this option raises segmentation faults when PHP's Xdebug extension is used
 			 */
-			if (defined('USE_THEME_CONF_CACHE') && USE_THEME_CONF_CACHE === true) {
+			if (defined('CACHE_THEME_CONFIGURATION') && CACHE_THEME_CONFIGURATION === true) {
 				$cache = \Supra\ObjectRepository\ObjectRepository::getCacheAdapter($this);
 				$key = $this->getConfigurationCacheKey();
 
@@ -641,7 +641,7 @@ class Theme extends Database\Entity implements ThemeInterface
 
 				$configurationLoader->loadFile($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.yml');
 				
-				if (defined('USE_THEME_CONF_CACHE') && USE_THEME_CONF_CACHE === true) {
+				if (defined('CACHE_THEME_CONFIGURATION') && CACHE_THEME_CONFIGURATION === true) {
 					$key = $this->getConfigurationCacheKey();
 					$cache->save($key, $this->configuration);
 				}
