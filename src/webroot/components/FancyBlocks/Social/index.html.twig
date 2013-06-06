@@ -1,5 +1,17 @@
 <div class="socials block">
-	<div class="socials-inner">
+
+	{% set heading_class = 'no-heading' %}
+	{% set title_empty = supraBlock.isEmpty('block_title') %}
+	{% if supra.cmsRequest or not title_empty %}
+	<h2 class="block-title {% if title_empty %}hidden{% endif %}"><div>
+		{{ supraBlock.property('block_title') }}
+		{% if not title_empty %}
+			{% set heading_class = 'has-heading' %}
+		{% endif %}
+	</div></h2>
+	{% endif %}
+
+	<div class="socials-inner {{ heading_class }}">
 		{% set link = supraBlock.property('youtube') %}
 		{% if link %}<a href="{{link.getUrl()}}" class="social social-youtube" {% if link.target %}target="{{ link.target }}"{%endif%}></a>{%endif%}
 		{% set link = supraBlock.property('twitter') %}

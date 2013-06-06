@@ -48,6 +48,19 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			var content = Manager.getAction("PageContentSettings").get("contentInnerNode");
 			if (!content) return;
 			
+			//Find color presets
+			var presets = [],
+				container = this.htmleditor.get("srcNode"),
+				styles = this.htmleditor.get("stylesheetParser").getSelectorsByNodeMatch(container)["COLOR"],
+				i = 0,
+				ii = styles.length;
+			
+			for (; i<ii; i++) {
+				if (styles[i].attributes.color) {
+					presets.push(styles[i].attributes.color);
+				}
+			}
+			
 			//Properties form
 			var form_config = {
 				"inputs": [
@@ -56,7 +69,7 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 						{"id": "middle", "title": Supra.Intl.get(["htmleditor", "alignment_center"]), "icon": "/cms/lib/supra/img/htmleditor/align-center-button.png"},
 						{"id": "right", "title": Supra.Intl.get(["htmleditor", "alignment_right"]), "icon": "/cms/lib/supra/img/htmleditor/align-right-button.png"}
 					]},
-					{"id": "color", "type": "Color", "label": Supra.Intl.get(["htmleditor", "icon_color"]), "value": "#000000"}
+					{"id": "color", "type": "Color", "label": Supra.Intl.get(["htmleditor", "icon_color"]), "value": "#000000", "presets": presets}
 				],
 				"style": "vertical"
 			};

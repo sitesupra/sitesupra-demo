@@ -1,6 +1,6 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\FancyBlocks\BlogPostList\BlogPostListBlock
-    title: Blog Post List
+    class: Project\FancyBlocks\BlogPostListShort\BlogPostListShortBlock
+    title: Blog Post Short List
     groupId: blog
     description: Description
     cmsClassname: Editable
@@ -19,13 +19,3 @@
           editable: Supra\Editable\String
           label: Title
           default: Blog
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: previous_page
-          editable: Supra\Editable\String
-          label: Previous page label
-          default: Previous page
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: next_page
-          editable: Supra\Editable\String
-          label: Next page label
-          default: Next page

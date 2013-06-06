@@ -55,6 +55,14 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			'files': false,
 			'email': false
 		},
+		'page-internal': {
+			'pages': true,
+			'group_pages': false,
+			'external': false,
+			'images': false,
+			'files': false,
+			'email': false
+		},
 		'image': {
 			'pages': false,
 			'group_pages': false,
