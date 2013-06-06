@@ -618,13 +618,20 @@ class Theme extends Database\Entity implements ThemeInterface
 	{
 		if (empty($this->configuration)) {
 
-			$cache = \Supra\ObjectRepository\ObjectRepository::getCacheAdapter($this);
-			$key = $this->getConfigurationCacheKey();
+			/**
+			 * define('USE_THEME_CONF_CACHE', true) will enable 
+			 * theme's configuration object cache which significantly increases the performance
+			 * but this option raises segmentation faults when PHP's Xdebug extension is used
+			 */
+			if (defined('CACHE_THEME_CONFIGURATION') && CACHE_THEME_CONFIGURATION === true) {
+				$cache = \Supra\ObjectRepository\ObjectRepository::getCacheAdapter($this);
+				$key = $this->getConfigurationCacheKey();
+
+				$this->configuration = $cache->fetch($key);
+			}
 			
-			$this->configuration = $cache->fetch($key);
-			
-			if ($this->configuration === false ) { 
-						
+			if (empty($this->configuration)) {
+				
 				$yamlParser = new YamlParser();
 				$configurationLoader = new ThemeConfigurationLoader();
 				$configurationLoader->setParser($yamlParser);
@@ -634,7 +641,10 @@ class Theme extends Database\Entity implements ThemeInterface
 
 				$configurationLoader->loadFile($this->getRootDir() . DIRECTORY_SEPARATOR . 'theme.yml');
 				
-				$cache->save($key, $this->configuration);
+				if (defined('CACHE_THEME_CONFIGURATION') && CACHE_THEME_CONFIGURATION === true) {
+					$key = $this->getConfigurationCacheKey();
+					$cache->save($key, $this->configuration);
+				}
 			}
 		}
 

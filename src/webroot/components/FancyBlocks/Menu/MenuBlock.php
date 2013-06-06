@@ -3,20 +3,12 @@
 namespace Project\FancyBlocks\Menu;
 
 use Supra\Controller\Pages\BlockController;
-use Supra\Editable;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Finder;
 use Supra\Controller\Pages\Entity;
 
 class MenuBlock extends BlockController
 {
-
-	public static function getPropertyDefinition()
-	{
-		$properties = array();
-
-		return $properties;
-	}
 
 	protected function doExecute()
 	{
