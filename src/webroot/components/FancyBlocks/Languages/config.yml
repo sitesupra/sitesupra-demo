@@ -4,4 +4,10 @@
     groupId: system
     description: 
     cmsClassname: Editable
-    icon: icon.png
+    icon: icon.png 
+    properties:
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\String
+          label: Title
+          default: Select language
