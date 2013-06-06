@@ -1,9 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Menu\Left\LeftMenuBlock
-    title: Left Menu
+    title: Side Menu
     icon: left_menu.png
     groupId: features
-    description: Sweet Left Menu Block
+#    description: Sweet Left Menu Block
     cmsClassname: Editable
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
@@ -14,10 +14,10 @@
         - Supra\Controller\Pages
         
     properties:
-#      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-#         name: rootLink
-#         editable: Supra\Editable\Link
-#         label: Menu Root
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+         name: rootLink
+         editable: Supra\Editable\Link
+         label: Menu Root
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
          name: menuLabel
          editable: Supra\Editable\String
