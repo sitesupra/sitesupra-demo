@@ -51,7 +51,8 @@
 					
 					{% if not supraBlock.isEmpty('menuLabel') %}
 						<span>{{ supraBlock.property('menuLabel') }}</span><i></i>
-					{% endif %}
+						{% set has_title = true %}
+					{% else %}
 					
 					{% if not has_title %}
 						{% for data in menu_items %}
