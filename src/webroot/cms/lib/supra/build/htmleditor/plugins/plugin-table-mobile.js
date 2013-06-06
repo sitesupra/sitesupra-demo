@@ -6,7 +6,7 @@ YUI().add('supra.htmleditor-plugin-table-mobile', function (Y) {
 	};
 	
 	//Regular expressions
-	var REGEX_TABLE = /<table(.|\n|\r)*?<\/table>/ig,
+	var REGEX_TABLE = /<table[^>]*>(.|\n|\r)*?<\/table>/ig,
 		REGEX_MOBILE_TABLE = /<table[^>]+class=("[^"]*"|'[^']*'|[^\s>]*)(.|\n|\r)*?<\/table>/ig,
 		REGEX_TABLE_START = /<table[^>]*>/i,
 		REGEX_HEADINGS = /<th[^>]*>((.|\r|\n)*?)<\/th[^>]*>/ig,
@@ -60,7 +60,7 @@ YUI().add('supra.htmleditor-plugin-table-mobile', function (Y) {
 			
 			//Regex are dirty, but quick and does the job done
 			html = html.replace(regex_table, function (match) {
-				var html = match.match(regex_table_start)[0].replace(/<table/i, '\n<table class="mobile mobile-portrait"'),
+				var html = '<table class="mobile mobile-portrait">',
 					headings = extractHeadings(match),
 					rows = match.match(regex_rows),
 					cells = null,
@@ -161,7 +161,6 @@ YUI().add('supra.htmleditor-plugin-table-mobile', function (Y) {
 		 */
 		untagHTML: function (html, data) {
 			html = html.replace(REGEX_MOBILE_TABLE, function (html, classname) {
-				
 				if (classname.indexOf('mobile') != -1) {
 					if (classname.indexOf('desktop') == -1 && classname.indexOf('tablet') == -1) {
 						// classname is "mobile"
