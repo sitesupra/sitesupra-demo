@@ -15,11 +15,11 @@
         
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+         name: menuLabel
+         editable: Supra\Editable\String
+         label: Title
+         default: Menu
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
          name: rootLink
          editable: Supra\Editable\Link
          label: Menu Root
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-         name: menuLabel
-         editable: Supra\Editable\String
-         label: Menu Label
-         default: Menu
