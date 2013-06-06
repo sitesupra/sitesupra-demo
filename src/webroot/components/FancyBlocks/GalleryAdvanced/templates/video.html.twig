@@ -13,6 +13,21 @@
 	<div class="media-wrapper">
 		<div class="media-video">
 			{{ property.video|raw }}
+			
+			{% if not supra.cmsRequest and property.video_raw and columns != 'columns_1'  %}
+				{% set video = property.video_raw %}
+				
+				{% if video.resource == 'source' %}
+					<a rel="lightbox" class="overlay" href="{{ video.src }}"></a>
+				{% elseif video.resource == 'link' and video.id %}
+					{% if video.service == 'youtube' %}
+						<a rel="lightbox-iframe" class="overlay" href="http://www.youtube.com/embed/{{ video.id }}?hd=1&autoplay=1"></a>
+					{% elseif video.service == 'vimeo' %}
+						<a rel="lightbox-iframe" class="overlay" href="http://player.vimeo.com/video/{{ video.id }}?autoplay=1"></a>
+					{% endif %}
+				{% endif %}
+				
+			{% endif %}
 		</div>
 		{% if supra.cmsRequest or property.title %}
 			<h2 class="title">
@@ -20,19 +35,5 @@
 			</h2>
 		{% endif %}
 		<span class="icon icon-video"></span>
-		{% if not supra.cmsRequest and property.video_raw and columns != 'columns_1'  %}
-			{% set video = property.video_raw %}
-			
-			{% if video.resource == 'source' %}
-				<a rel="lightbox" class="overlay" href="{{ video.src }}"></a>
-			{% elseif video.resource == 'link' and video.id %}
-				{% if video.service == 'youtube' %}
-					<a rel="lightbox-iframe" class="overlay" href="http://www.youtube.com/embed/{{ video.id }}?hd=1&autoplay=1"></a>
-				{% elseif video.service == 'vimeo' %}
-					<a rel="lightbox-iframe" class="overlay" href="http://player.vimeo.com/video/{{ video.id }}?autoplay=1"></a>
-				{% endif %}
-			{% endif %}
-			
-		{% endif %}
 	</div>
 </li>

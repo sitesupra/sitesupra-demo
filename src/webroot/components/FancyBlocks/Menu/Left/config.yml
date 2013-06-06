@@ -18,6 +18,8 @@
 #         name: rootLink
 #         editable: Supra\Editable\Link
 #         label: Menu Root
+#         additionalParameters:
+#           managerMode: page-internal
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
          name: menuLabel
          editable: Supra\Editable\String

@@ -306,9 +306,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			doc.open("text/html", "replace");
 			
-			//All link for Google fonts
-			html = this.includeGoogleFonts(html);
-			
 			//IE freezes when trying to insert <script> with src attribute using writeln
 			if (Supra.Y.UA.ie) {
 				html = html.replace(/<script [^>]*src="?'?([^\s"']+).*?<\/script[^>]*>/gi, function (m, src) {
@@ -394,8 +391,6 @@ YUI.add('supra.iframe-handler', function (Y) {
 			
 			this.setHTML(this.get('html'));
 			cont.removeClass('hidden');
-			
-			this.includeGoogleFonts(document);
 		},
 		
 		/**
@@ -638,53 +633,8 @@ YUI.add('supra.iframe-handler', function (Y) {
 		},
 		
 		
-		/* ------------------------------------------- FONTS ------------------------------------------- */
+		/* ------------------------------------------- Layout ------------------------------------------- */
 		
-		
-		/**
-		 * Load fonts from Google Fonts
-		 * 
-		 * @param {String} html HTML in which will be inserted <link />, if this is document then link is added to DOM <head />
-		 */
-		includeGoogleFonts: function (html) {
-			var fonts = Supra.data.get(['supra.htmleditor', 'fonts']);
-			
-			if (typeof html === "string") {
-				return Supra.GoogleFonts.addFontsToHTML(html, fonts);
-			} else {
-				var doc = html;
-				if (!doc) return;
-				
-				//
-				var uri  = Supra.GoogleFonts.getURI(fonts),
-					head = Y.Node(doc).one("head"),
-					link = head.one('link[href^="' + GOOGLE_FONT_API_URI + '"]');
-				
-				if (uri) {
-					if (link) {
-						//Update
-						link.setAttribute("href", uri);
-					} else {
-						//Add
-						link = Y.Node.create('<link href="' + uri + '" rel="stylesheet" type="text/css" />');
-						head.append(link);
-					}
-				} else if (link) {
-					//We don't have any fonts, remove link
-					link.remove();
-				}
-			}
-		},
-		
-		/**
-		 * Returns URI with all fonts
-		 * 
-		 * @return URI for <link /> element which will load all fonts
-		 */
-		getGoogleFontsURI: function (fonts) {
-			if (this.fontsURI) return this.fontsURI;
-			return this.fontsURI = GoogleFonts.getURI(fonts);
-		},
 		
 		/**
 		 * On layout sync update content scroll to match new offset

@@ -13,6 +13,11 @@
 	<div class="media-wrapper">
 		<div class="media-image">
 			{{ property.image|raw }}
+			
+			{% if not supra.cmsRequest and columns != 'columns_1' %}
+				{% set image = supraBlock.imageHtmlTag(property.image_raw.imageId, 960, 700) %}
+				<a rel="lightbox" class="overlay" href="{{ image.getAttribute('src') }}"></a>
+			{% endif %}
 		</div>
 		{% if supra.cmsRequest or property.title %}
 			<h2 class="title">
@@ -20,9 +25,5 @@
 			</h2>
 		{% endif %}
 		<span class="icon icon-image"></span>
-		{% if not supra.cmsRequest and columns != 'columns_1' %}
-			{% set image = supraBlock.imageHtmlTag(property.image_raw.imageId, 960, 700) %}
-			<a rel="lightbox" class="overlay" href="{{ image.getAttribute('src') }}"></a>
-		{% endif %}
 	</div>
 </li>

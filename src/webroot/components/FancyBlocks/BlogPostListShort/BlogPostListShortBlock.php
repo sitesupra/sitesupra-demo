@@ -1,12 +1,12 @@
 <?php
 
-namespace Project\FancyBlocks\BlogPostList;
+namespace Project\FancyBlocks\BlogPostListShort;
 
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Entity\ApplicationPage;
 use Supra\Controller\Pages\Blog\BlogApplication;
 
-class BlogPostListBlock extends BlockController
+class BlogPostListShortBlock extends BlockController
 {
 	/**
 	 * @var \Supra\Controller\Pages\Blog\BlogApplication
@@ -20,8 +20,6 @@ class BlogPostListBlock extends BlockController
 		/* @var $response \Supra\Response\TwigResponse */
 		
 		$response->assign('posts', array());
-		$response->assign('totalPages', 20);
-		$response->assign('currentPage', 18); // 0 index
 		$response->outputTemplate('index.html.twig');
 	}
 }
