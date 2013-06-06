@@ -5,7 +5,7 @@ namespace Supra\Cms\Dashboard\Stats;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Statistics\GoogleAnalytics\GoogleAnalyticsDataProvider;
 use Supra\Cms\Dashboard\DasboardAbstractAction;
-use Supra\Statistics\GoogleAnalytics\Authentication\Exception\InvalidGrantException;
+use Supra\Statistics\GoogleAnalytics\Exception\UnauthorizedAccessException;
 
 class StatsAction extends DasboardAbstractAction
 {
@@ -63,8 +63,8 @@ class StatsAction extends DasboardAbstractAction
 					
 					try {
 						$stats = $this->loadStatsCollection();
-					} catch (InvalidGrantException $e) {
-						throw new \Supra\Cms\Exception\CmsException("Request to Google Services has failed. Seems that you have revoked the access for SiteSupra application");
+					} catch (UnauthorizedAccessException $e) {
+						throw new \Supra\Cms\Exception\CmsException(null, "Request to Google Services has failed. Seems that you have revoked the access for SiteSupra application");
 					}
 					
 					$responseData['stats'] = $stats;
