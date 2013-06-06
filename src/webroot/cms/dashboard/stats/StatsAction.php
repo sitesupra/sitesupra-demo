@@ -5,6 +5,7 @@ namespace Supra\Cms\Dashboard\Stats;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Statistics\GoogleAnalytics\GoogleAnalyticsDataProvider;
 use Supra\Cms\Dashboard\DasboardAbstractAction;
+use Supra\Statistics\GoogleAnalytics\Authentication\Exception\InvalidGrantException;
 
 class StatsAction extends DasboardAbstractAction
 {
@@ -60,7 +61,12 @@ class StatsAction extends DasboardAbstractAction
 					
 					$provider->setProfileId($profileId);
 					
-					$stats = $this->loadStatsCollection();
+					try {
+						$stats = $this->loadStatsCollection();
+					} catch (InvalidGrantException $e) {
+						throw new \Supra\Cms\Exception\CmsException("Request to Google Services has failed. Seems that you have revoked the access for SiteSupra application");
+					}
+					
 					$responseData['stats'] = $stats;
 					
 					$cache->save($cacheKey, $responseData, 60*60*24); // 24h
@@ -169,7 +175,11 @@ class StatsAction extends DasboardAbstractAction
 			$isAuthenticated = $provider->isAuthenticated();
 
 			if ($isAuthenticated) {
-				$profilesList =  $provider->listProfiles();
+				try {
+					$profilesList =  $provider->listProfiles();
+				} catch (InvalidGrantException $e) {
+					throw new \Supra\Cms\Exception\CmsException("Request to Google Services has failed. Seems that you have revoked the access for SiteSupra application");
+				}
 
 				foreach($profilesList as $profile) {
 					$profiles[] = array(
