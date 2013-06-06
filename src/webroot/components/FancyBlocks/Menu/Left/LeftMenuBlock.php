@@ -92,7 +92,7 @@ class LeftMenuBlock extends MenuBlock
 	 */
 	protected function getMenuData()
 	{
-		$localization = $this->getCurrentFirstLevelLocalization();
+		$localization = $this->getMenuRootLocalization();
 		
 		if ( ! $localization instanceof Entity\PageLocalization) {
 			return array();
@@ -192,40 +192,54 @@ class LeftMenuBlock extends MenuBlock
 //	}
 	
 	/**
-	 * 
+	 * @return Entity\PageLocalization | null
+	 * @throws \RuntimeException
 	 */
-	protected function getCurrentFirstLevelLocalization()
+	protected function getMenuRootLocalization()
 	{
-		$currentPage = $this->getPage();
+		$rootLink = $this->getPropertyValue('rootLink');
+		
+		$menuRootLocalization = null;
+		
+		if ($rootLink instanceof LinkReferencedElement
+				&& $rootLink->getResource() === LinkReferencedElement::RESOURCE_PAGE) {
+		
+			$menuRootLocalization = $rootLink->getPageLocalization();
+		} else {
+			
+			$currentPage = $this->getPage();
 				
-		if ( ! $currentPage instanceof Entity\Page) {
-			return null;
-		}
+			if ( ! $currentPage instanceof Entity\Page) {
+				return null;
+			}
 		
-		$currentLevel = $currentPage->getLevel();
+			$currentLevel = $currentPage->getLevel();
 		
-		if ($currentLevel == 0) {
-			return null;
-		}
+			if ($currentLevel == 0) {
+				return null;
+			}
 	
-		if ($currentPage->getLevel() == 1) {
-			return $this->getRequest()
-					->getPageLocalization();
+			if ($currentPage->getLevel() == 1) {
+				return $this->getRequest()
+						->getPageLocalization();
+			}
+		
+			$em = $this->getEntityManager();
+
+			$pageFinder = new PageFinder($em);
+			$pageFinder->addFilterByChild($currentPage, 1, 1);
+
+			$localizationFinder = new LocalizationFinder($pageFinder);
+
+			$rootLocalizations = $localizationFinder->getResult();
+
+			if (count($rootLocalizations) > 1) {
+				throw new \RuntimeException('More than one root localization found');
+			}
+
+			$menuRootLocalization = current($rootLocalizations);
 		}
 		
-		$em = $this->getEntityManager();
-
-		$pageFinder = new PageFinder($em);
-		$pageFinder->addFilterByChild($currentPage, 1, 1);
-
-		$localizationFinder = new LocalizationFinder($pageFinder);
-
-		$rootLocalizations = $localizationFinder->getResult();
-
-		if (count($rootLocalizations) > 1) {
-			throw new \RuntimeException('More than one root localization found.');
-		}
-
-		return current($rootLocalizations);
+		return $menuRootLocalization;
 	}
 }

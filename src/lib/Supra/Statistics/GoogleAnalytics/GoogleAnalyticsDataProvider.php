@@ -11,14 +11,6 @@ use Supra\RemoteHttp\Response\RemoteHttpResponse;
  */
 class GoogleAnalyticsDataProvider 
 {
-	/**
-	 * SiteSupra oAuth2 web-application configuration
-	 * @TODO: move values to ...? 
-	 */
-	const SUPRA_CLIENT_SECRET = '4fkvgHQIqsXjrYt_UjN_U8kS';
-	const SUPRA_CLIENT_ID = '833104259663.apps.googleusercontent.com';
-	const SUPRA_REDIRECT_URI = 'http://sitesupra.net/oauth2callback';
-	
 	const URL_FEED_DATA = 'https://www.googleapis.com/analytics/v2.4/data';
 	const URL_BASE_FEED_MANAGEMENT = 'https://www.googleapis.com/analytics/v2.4/management/';
 	

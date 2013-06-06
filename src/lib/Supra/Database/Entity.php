@@ -107,7 +107,7 @@ abstract class Entity
 	 */
 	public function equals(Entity $entity = null)
 	{
-		if (is_null($entity)) {
+		if ($entity === null) {
 			return false;
 		}
 
@@ -118,7 +118,7 @@ abstract class Entity
 
 		$id = $this->getId();
 
-		if ( ! empty($id) && $entity->getId() == $id) {
+		if ( ! empty($id) && $entity->getId() === $id) {
 			return true;
 		}
 

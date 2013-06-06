@@ -1,7 +1,7 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogPost\BlogPostBlock
     title: Blog Post
-    groupId: features
+    groupId: blog
     description: Description
     cmsClassname: Editable
     icon: icon.png

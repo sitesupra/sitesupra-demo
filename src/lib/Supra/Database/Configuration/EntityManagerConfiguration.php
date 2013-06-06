@@ -118,6 +118,11 @@ class EntityManagerConfiguration implements ConfigurationInterface
 	public $tableNamePrefixNamespace = 'Supra';
 
 	/**
+	 * @var boolean
+	 */
+	public $useSqlLogger = true;
+	
+	/**
 	 * 
 	 */
 	public function configure()
@@ -247,8 +252,10 @@ class EntityManagerConfiguration implements ConfigurationInterface
 
 	protected function configureSqlLogger(Configuration $config)
 	{
-		$sqlLogger = new EventsSqlLogger();
-		$config->setSQLLogger($sqlLogger);
+		if ($this->useSqlLogger) {
+			$sqlLogger = new EventsSqlLogger();
+			$config->setSQLLogger($sqlLogger);
+		}
 	}
 
 	protected function configureCustomFunctions(Configuration $config)

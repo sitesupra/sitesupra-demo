@@ -161,7 +161,6 @@ YUI().add('supra.htmleditor-plugin-table-mobile', function (Y) {
 		 */
 		untagHTML: function (html, data) {
 			html = html.replace(REGEX_MOBILE_TABLE, function (html, classname) {
-				console.log('MOBILE TABLE', html);
 				
 				if (classname.indexOf('mobile') != -1) {
 					if (classname.indexOf('desktop') == -1 && classname.indexOf('tablet') == -1) {

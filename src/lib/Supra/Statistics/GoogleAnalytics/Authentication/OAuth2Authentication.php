@@ -3,9 +3,7 @@
 namespace Supra\Statistics\GoogleAnalytics\Authentication;
 
 use Supra\RemoteHttp\Request\RemoteHttpRequest;
-use Supra\RemoteHttp\Response\RemoteHttpResponse;
 use Supra\RemoteHttp\RemoteHttpRequestService;
-
 
 /**
  * 
@@ -180,8 +178,24 @@ class OAuth2Authentication implements AuthenticationInterface
 		
 		$response = $this->doRequest(self::URL_OAUTH2_TOKEN, 'POST', $requestParams);
 		
-		if ($response->getCode() !== 200) {
-			throw new \RuntimeException('Failed to refresh access token token');
+		$responseCode = $response->getCode();
+		if ($responseCode !== 200) {
+			
+			// trying to identify some known issues
+			if ($responseCode === 400) {
+				$errorCode = $this->getErrorCodeFromErrorResponse($response->getBody());
+				
+				switch ($errorCode) {
+					// user revoked the access for this refresh token
+					case 'invalid_grant':
+						$this->unauthorize();
+						throw new Exception\InvalidGrantException;
+					default:
+						throw new \RuntimeException("Failed to refresh access token, error {$errorCode} received"); 
+				}
+			}
+			
+			throw new \RuntimeException("Failed to make token refresh request, service returned {$responseCode} code");
 		}
 		
 		$responseBody = $response->getBody();
@@ -211,7 +225,7 @@ class OAuth2Authentication implements AuthenticationInterface
 		
 		$response = $this->doRequest(self::URL_OAUTH2_USERINFO, 'GET', $requestParams);
 		if ($response->getCode() !== 200) {
-			throw new \RuntimeException('Failed to refresh access token token');
+			throw new \RuntimeException("Failed to load user info, response code {$response->getCode()}");
 		}
 		
 		$responseBody = $response->getBody();
@@ -352,5 +366,23 @@ class OAuth2Authentication implements AuthenticationInterface
 	public function getCurrentAccountName()
 	{
 		return $this->tokensOwnerAccountEmail;
+	}
+	
+	/**
+	 * @param string $errorResponse
+	 */
+	private function getErrorCodeFromErrorResponse($errorResponse)
+	{
+		$responseArray = json_decode($errorResponse, true);
+		
+		if ($responseArray === null) {
+			throw new \RuntimeException('Failed to decode error response');
+		}
+		
+		if (isset($responseArray['error'])) {
+			return $responseArray['error'];
+		}
+		
+		return null;
 	}
 }

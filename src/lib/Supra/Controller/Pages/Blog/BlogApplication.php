@@ -93,6 +93,8 @@ class BlogApplication implements PageApplicationInterface
 
 		if ($filterName == 'list') {
 			$folders = array();
+		} else if ($filterName == 'group') {
+            $folders = array();
 		} else if ($filterName == '') {
 			$folders = $this->getDefaultFilterFolders();
 		} else {
@@ -126,6 +128,9 @@ class BlogApplication implements PageApplicationInterface
 		
 		if ($filterName == 'list') {
 			$this->applyListFilter($queryBuilder);
+			
+        } else if ($filterName == 'group') {
+            $this->applyListFilter($queryBuilder);   
 
 		} else if ($filterName == '') {
 			$this->applyDefaultFilter($queryBuilder);
