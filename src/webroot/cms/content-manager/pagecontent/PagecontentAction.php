@@ -658,10 +658,18 @@ class PagecontentAction extends PageManagerAction
 
 					if ($input->hasChild($propertyName)) {
 
-						$videoData = $input->getChild($propertyName)
+						$elementData = $input->getChild($propertyName)
 								->getArrayCopy();
 						
-						$videoData['type'] = Entity\ReferencedElement\VideoReferencedElement::TYPE_ID;
+						$elementData['type'] = Entity\ReferencedElement\VideoReferencedElement::TYPE_ID;
+						
+						$videoData = Entity\ReferencedElement\VideoReferencedElement::parseVideoSourceInput($elementData['source']);
+
+						if ($videoData === false) {
+							throw new CmsException(null, "Video link you provided is invalid or this video service is not supported. Sorry about that.");
+						}
+									
+						$videoData = $videoData + $elementData;
 						$referencedElementsData[0] = $videoData;
 					} else {
 						// Scalar sent if need to empty the link
@@ -753,17 +761,6 @@ class PagecontentAction extends PageManagerAction
 
 					if ( ! isset($referencedElementData['href'])) {
 						$referencedElementData['href'] = null;
-					}
-					
-					if ($referencedElementData['type'] == Entity\ReferencedElement\VideoReferencedElement::TYPE_ID) {
-
-						$videoData = Entity\ReferencedElement\VideoReferencedElement::parseVideoSourceInput($referencedElementData['source']);
-
-						if ($videoData === false) {
-							throw new CmsException(null, "Video link you provided is invalid or this video service is not supported. Sorry about that.");
-						}
-									
-						$referencedElementData = $videoData + $referencedElementData;
 					}
 						
 					$referencedElementFound = false;
