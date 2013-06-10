@@ -12,7 +12,7 @@
         groups:
           - Supra\FileStorage
           - Supra\Controller\Pages
-        lifetime: 60 seconds
+        context: [__blogListPage, __blogListTag]
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: block_title
@@ -29,3 +29,12 @@
           editable: Supra\Editable\String
           label: Next page label
           default: Next page
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: posts_per_page
+          editable: Supra\Editable\Number
+          label: Posts per page
+          default: 5
+          additionalParameters:
+            minValue: 1
+            # some reasonable value should be placed here
+            maxValue: 25
