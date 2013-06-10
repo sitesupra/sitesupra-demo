@@ -154,8 +154,6 @@
                 name: background
                 editable: Supra\Editable\BlockBackground
                 label: Background image
-                additionalParameters:
-                  labelButton: Set image
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: media
                 editable: Supra\Editable\InlineMedia
