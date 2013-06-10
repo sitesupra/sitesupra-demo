@@ -105,6 +105,15 @@
                 editable: Supra\Editable\InlineMedia
                 additionalParameters:
                   allowImage: false
+            - SerializablePropertyConfiguration:
+                name: link
+                editable: Supra\Editable\Link
+                label: Link
+            - SerializablePropertyConfiguration:
+                name: link_title
+                editable: Supra\Editable\String
+                label: Link title
+                default: Visit site
           additionalParameters:
             layouts:
               - MediaGalleryLayoutConfiguration: 

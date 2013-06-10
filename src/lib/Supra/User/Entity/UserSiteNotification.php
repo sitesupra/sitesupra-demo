@@ -17,9 +17,9 @@ use \DateTime;
  * })
  * @HasLifecycleCallbacks
  */
-class UserNotification extends Database\Entity
+class UserSiteNotification extends Database\Entity
 {
-
+    
 	/**
 	 * @Column(type="string", nullable=false)
 	 * @var string
@@ -27,16 +27,22 @@ class UserNotification extends Database\Entity
 	protected $userId;
 
 	/**
+	 * @Column(type="string", nullable=false)
+	 * @var string
+	 */
+	protected $siteId;
+    
+	/**
 	 * @Column(type="boolean", nullable=true)
 	 * @var boolean
 	 */
-	protected $isRead;
+	protected $isRead = false;
 
 	/**
 	 * @Column(type="boolean", nullable=true)
 	 * @var boolean
 	 */
-	protected $isVisible;
+	protected $isVisible = true;
 
 	/**
 	 * @Column(type="integer", nullable=true)
@@ -51,18 +57,6 @@ class UserNotification extends Database\Entity
 	protected $message;
 
 	/**
-	 * @Column(type="string", nullable=true)
-	 * @var string
-	 */
-	protected $link;
-
-	/**
-	 * @Column(type="string", nullable=true)
-	 * @var string
-	 */
-	protected $sender;
-
-	/**
 	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
@@ -73,13 +67,24 @@ class UserNotification extends Database\Entity
 	 * @var DateTime
 	 */
 	protected $modificationTime;
+    
+    
+	/**
+	 * @return string
+	 */
+	public function getSiteId()
+	{
+		return $this->siteId;
+	}
 
 	/**
-	 * @Column(type="datetime", nullable=true)
-	 * @var DateTime
+	 * @param string $userId 
 	 */
-	protected $readTime;
-
+	public function setSiteId($siteId)
+	{
+		$this->siteId = $siteId;
+	}
+    
 	/**
 	 * @return string
 	 */
@@ -95,23 +100,7 @@ class UserNotification extends Database\Entity
 	{
 		$this->userId = $userId;
 	}
-
-	/**
-	 * @return string
-	 */
-	public function getSender()
-	{
-		return $this->sender;
-	}
-
-	/**
-	 * @param string $sender 
-	 */
-	public function setSender($sender)
-	{
-		$this->sender = $sender;
-	}
-
+    
 	/**
 	 * @return boolean
 	 */
@@ -135,23 +124,9 @@ class UserNotification extends Database\Entity
 
 	public function setIsRead($isRead)
 	{
-		if ( ! $this->isRead) {
-			$this->readTime = new DateTime('now');
-		}
-
 		$this->isRead = $isRead;
 	}
-
-	public function getLink()
-	{
-		return $this->link;
-	}
-
-	public function setLink($link)
-	{
-		$this->link = $link;
-	}
-
+    
 	/**
 	 * @return DateTime
 	 */
@@ -168,20 +143,6 @@ class UserNotification extends Database\Entity
 		return $this->modificationTime;
 	}
 
-	/**
-
-	 * @return DateTime
-	 */
-	public function getReadTime()
-	{
-		return $this->readTime;
-	}
-
-	public function setReadTime($readTime)
-	{
-		$this->readTime = $readTime;
-	}
-
 	public function getType()
 	{
 		return $this->type;
@@ -191,7 +152,7 @@ class UserNotification extends Database\Entity
 	{
 		$this->type = $type;
 	}
-
+    
 	public function getMessage()
 	{
 		return $this->message;
@@ -201,7 +162,7 @@ class UserNotification extends Database\Entity
 	{
 		$this->message = $message;
 	}
-
+    
 	/**
 	 * @preUpdate
 	 * @prePersist
@@ -218,5 +179,5 @@ class UserNotification extends Database\Entity
 	{
 		$this->creationTime = new DateTime('now');
 	}
-
+    
 }
