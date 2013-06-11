@@ -4,6 +4,7 @@ namespace Project\FancyBlocks\BlogPost;
 
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Entity\ApplicationPage;
+use Supra\Controller\Pages\Blog\BlogApplication;
 
 class BlogPostBlock extends BlockController
 {
@@ -12,7 +13,8 @@ class BlogPostBlock extends BlockController
 	 */
 	protected $blogApplication;
 	
-    
+	/**
+	 */
     protected function doPrepare()
     {
         $response = $this->getResponse();
@@ -32,6 +34,11 @@ class BlogPostBlock extends BlockController
 		/* @var $response \Supra\Response\TwigResponse */
         
 		$application = $this->getBlogApplication();
+		if ( ! $application instanceof BlogApplication) {
+			$response->outputTemplate('application-missing.html.twig');
+			return null;
+		}
+		
 		$appLocalizationPath = $application->getApplicationLocalization()
 				->getPath();
 		
