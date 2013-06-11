@@ -724,7 +724,7 @@ YUI.add('supra.form', function (Y) {
 				var input = this.inputs[id];
 				var val = input.get(prop);
 				if (val !== undefined) {
-					values[key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key)] = val;
+					values[key == 'id' || key == 'name' ? (id in definitions ? definitions[id][key] : id) : input.getAttribute(key)] = val;
 				}
 			}
 			
@@ -761,7 +761,7 @@ YUI.add('supra.form', function (Y) {
 			
 			for(var id in this.inputs) {
 				input = this.inputs[id];
-				key_value = (key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key));
+				key_value = (key == 'id' || key == 'name' ? (id in definitions ? definitions[id][key] : id) : input.getAttribute(key));
 				
 				if (key_value in data) {
 					input.set('value', data[key_value]);
