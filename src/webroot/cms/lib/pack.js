@@ -10182,6 +10182,41 @@ YUI().add('supra.input-string-clear', function (Y) {
 		},
 		
 		/**
+		 * Focus editor
+		 */
+		focus: function () {
+			var srcNode = this.get('srcNode').getDOMNode(),
+				node = srcNode.lastChild;
+			
+			// Find last text node
+			while (node && node.nodeType == 1) {
+				node = node.lastChild;
+			}
+			
+			// Focus
+			if (Y.UA.webkit) {
+				this.get('win').focus();
+				this.get('srcNode').focus();
+			} else {
+				this.get('srcNode').focus();
+			}
+			
+			// Place cursor at the end
+			Y.later(16, this, function () {
+				if (node) {
+					this.setSelection({
+						start: node,
+						start_offset: node.length,
+						end: node,
+						end_offset: node.length
+					});
+				} else {
+					this.selectNode(srcNode);
+				}
+			});
+		},
+		
+		/**
 		 * Enable/disable editor
 		 * 
 		 * @param {Boolean} value
@@ -10202,14 +10237,8 @@ YUI().add('supra.input-string-clear', function (Y) {
 			} else {
 				this.get('srcNode').setAttribute('contentEditable', true);
 				
-				if (Y.UA.webkit) {
-					//Focus and deselect all text
-					/* @TODO
-					this._setSelection(null); */
-				} else {
-					//Focus
-					this.get('srcNode').focus();
-				}
+				// Focus
+				this.focus();
 				
 				//Prevent object resizing
 				this.disableObjectResizing();
@@ -14429,7 +14458,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			containerNode.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			
@@ -14564,7 +14593,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			image.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			image.addClass("supra-background-editing");
@@ -14674,7 +14703,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			containerNode.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			
