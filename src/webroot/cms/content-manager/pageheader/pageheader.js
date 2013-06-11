@@ -51,6 +51,13 @@ Supra('supra.languagebar', function (Y) {
 		languagebar: null,
 		
 		/**
+		 * Back button
+		 * @type {Object}
+		 * @private
+		 */
+		back_button: null,
+		
+		/**
 		 * Has anything changed
 		 * @type {Boolean}
 		 * @private
@@ -82,6 +89,15 @@ Supra('supra.languagebar', function (Y) {
 			if (page && page.localizations) {
 				this.setAvailableLocalizations(page.localizations, page.global);
 			}
+			
+			// Add back button
+			this.back_button = new Supra.Button({
+				'label': Supra.Intl.get(['page', 'back_to_sitemap']),
+				'style': 'mid'
+			});
+			
+			// On back button click open sitemap
+			this.back_button.on('click', this._openSiteMap, this);
 			
 			//On change reload page
 			this.languagebar.on('localeChange', function (evt) {
@@ -122,6 +138,84 @@ Supra('supra.languagebar', function (Y) {
 					}
 				}
 			}, this);
+		},
+		
+		/**
+		 * Open sitemap
+		 * 
+		 * @private
+		 */
+		_openSiteMap: function () {
+			var test  = null,
+				tests = [
+				{
+					'test': function () { return Supra.Manager.getAction('Dashboard').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('Dashboard').hide(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('PageSettings').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('PageSettings').onDoneButton(); },
+					'delay': 250
+				},
+				{
+					'name': 'PageSourceEditor'
+				},
+				{
+					'name': 'PageHistory'
+				},
+				{
+					'name': 'PageInsertBlock'
+				},
+				{
+					'name': 'BlocksView'
+				},
+				{
+					'name': 'PageDesignManager'
+				},
+				{
+					'name': 'MediaLibrary'
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('SlideshowManager').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('SlideshowManager').close(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('GalleryManager').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('GalleryManager').applyChanges(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('Gallery').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('Gallery').close(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('PageContent').isEditing(); },
+					'close': function () { return Supra.Manager.getAction('PageContent').stopEditing(); },
+					'delay': 100
+				}
+			];
+			
+			for (var i=0,ii=tests.length; i<ii; i++) {
+				test = tests[i];
+				
+				if (typeof test.name === 'string') {
+					test = {
+						'test': function () { return Supra.Manager.getAction(tests[i]).get('visible'); },
+						'close': function () { return Supra.Manager.getAction(tests[i]).hide(); },
+						'delay': test.delay || 250
+					};
+				}
+				if (test.test()) {
+					test.close();
+					Y.later(test.delay, this, this._openSiteMap);
+					return;
+				}
+			}
+			
+			Supra.Manager.Root.routeSiteMapSave();
 		},
 		
 		/**
@@ -176,6 +270,8 @@ Supra('supra.languagebar', function (Y) {
 		 */
 		render: function () {
 			this.languagebar.render(this.one('.languages'));
+			
+			this.back_button.render(this.one('.back'));
 			
 			if (!Supra.data.get('languageFeaturesEnabled')) {
 				this.one('.languages').addClass('hidden');

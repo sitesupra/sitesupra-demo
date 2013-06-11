@@ -108,6 +108,8 @@
 			
 			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language. Copy from the current language?",
 			
+			"back_to_sitemap": "All pages",
+			
 			"unsaved_changed": "There are unsaved changes. Are you sure you want to leave this page?",
 			"follow_redirect": "Page has redirect. Do you want to follow redirect?",
 			"error": {
