@@ -55,7 +55,8 @@ YUI.add('gallery.settings', function (Y) {
 		initializer: function(config) {
 			this.widgets = {
 				'form': null,
-				'deleteButton': null
+				'deleteButton': null,
+				'buttons': {}
 			};
 			
 			//Toolbar buttons
@@ -131,6 +132,26 @@ YUI.add('gallery.settings', function (Y) {
 		},
 		
 		/**
+		 * Returns inline-only properties
+		 * 
+		 * @returns {Array} List of inline-only properties
+		 */
+		getInlineProperties: function () {
+			var properties = this.get('host').options.properties,
+				filtered = [],
+				i = 0,
+				ii = properties.length;
+			
+			for (; i<ii; i++) {
+				if (Supra.Input.isInline(properties[i].type)) {
+					filtered.push(properties[i]);
+				}
+			}
+			
+			return filtered;
+		},
+		
+		/**
 		 * Returns property by id
 		 * 
 		 * @param {String} id Property id
@@ -176,6 +197,8 @@ YUI.add('gallery.settings', function (Y) {
 				form.hide();
 				form.addClass('yui3-form-fill'),
 				input = null;
+				
+			this.widgets.form = form;
 			
 			//Buttons input plugin
 			input = form.getInput('buttons');
@@ -194,13 +217,15 @@ YUI.add('gallery.settings', function (Y) {
 				input.after('valueChange', this._firePropertyChangeEvent, this, properties[i].id, input);
 			}
 			
+			// Render buttons for inline inputs
+			this.renderInputButtons();
+			
 			//Delete button
 			var button = this.widgets.deleteButton = new Supra.Button({'label': Supra.Intl.get(['gallery', 'delete_slide']), 'style': 'small-red'});
 				button.render(form.getContentNode());
 				button.addClass('su-button-delete');
 				button.on('click', this.fireRemoveEvent, this);
 			
-			this.widgets.form = form;
 			return form;
 		},
 		
@@ -225,9 +250,9 @@ YUI.add('gallery.settings', function (Y) {
 		 */
 		showForm: function () {
 			//Make sure PageContentSettings is rendered
-			var form = this.getForm(),
+			var form      = this.getForm(),
 				slideshow = form.get('slideshow'),
-				action = Manager.getAction('PageContentSettings');
+				action    = Manager.getAction('PageContentSettings');
 			
 			if (!form) {
 				if (action.get('loaded')) {
@@ -279,6 +304,119 @@ YUI.add('gallery.settings', function (Y) {
 			}
 		},
 		
+		/**
+		 * Start editing inline input
+		 * 
+		 * @param {Object} property Property data
+		 * @private
+		 */
+		startEditing: function (property) {
+			var id     = this.get('host').view.get('activeItemId'),
+				view   = this.get('host').view,
+				
+				form   = this.widgets.form,
+				
+				input  = null,
+				inputs = view.widgets.inputs[id],
+				i      = 0,
+				ii     = inputs.length;
+			
+			if (inputs) {
+				for (; i<ii; i++) {
+					// Inline input?
+					if (inputs[i].get('name') === property.id) {
+						input = inputs[i];
+						break;
+					}
+				}
+				if (!input) {
+					// Partial inline input?
+					input = form.getInput(property.id);
+				}
+				
+				if (input) {
+					view._startEditing({}, property, input, id);
+				}
+			}
+		},
+		
+		renderInputButtons: function () {
+			//Add buttons for inline inputs
+			var form = this.getForm(),
+				content = form.getContentNode(),
+				
+				buttons = this.widgets.buttons = [],
+				button  = null,
+				
+				inline  = this.getInlineProperties(),
+				i       = inline.length - 1;
+			
+			for (; i>=0; i--) {
+				button = new Supra.Button({
+					'style': 'icon',
+					'label': inline[i].label,
+					'icon': '/cms/lib/supra/img/sidebar/icons/button-layout.png'
+				});
+				
+				button.render(content);
+				content.prepend(button.get('boundingBox'));
+				
+				button.addClass('su-button-fill');
+				button.set('name', inline[i].id);
+				buttons.push(button);
+				
+				button.on('click', function (event, property) {
+					this.startEditing(property);
+				}, this, inline[i]);
+			}
+		},
+		
+		/**
+		 * Show buttons for which there are inline editables and hide for
+		 * those for which there aren't
+		 */
+		showHideButtons: function () {
+			var buttons = this.widgets.buttons,
+				i       = 0,
+				ii      = buttons.length,
+				name    = '',
+				
+				form    = this.getForm(),
+				
+				id      = this.get('host').view.get('activeItemId'),
+				view    = this.get('host').view,
+				
+				inputs  = view.widgets.inputs[id],
+				input   = null,
+				k       = 0,
+				kk      = inputs.length;
+			
+			for (; i<ii; i++) {
+				name = buttons[i].get('name');
+				input = null;
+				
+				for (k=0; k<kk; k++) {
+					if (inputs[k].get('name') == name) {
+						input = inputs[k];
+						break;
+					}
+				}
+				
+				if (!input) {
+					input = form.getInput(name);
+					if (input && !input.get('targetNode')) {
+						input = null;
+					}
+				}
+				
+				if (input) {
+					buttons[i].show();
+				} else {
+					buttons[i].hide();
+				}
+			}
+		},
+		
 		
 		/* ---------------------------- Data --------------------------- */
 		
@@ -310,6 +448,8 @@ YUI.add('gallery.settings', function (Y) {
 			
 			if (!id) {
 				this.hideForm();
+			} else {
+				this.showHideButtons();
 			}
 			
 			return id;

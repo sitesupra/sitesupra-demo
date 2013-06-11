@@ -1098,7 +1098,7 @@ YUI().add("supra.imageresizer", function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			containerNode.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			
@@ -1233,7 +1233,7 @@ YUI().add("supra.imageresizer", function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			image.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			image.addClass("supra-background-editing");
@@ -1343,7 +1343,7 @@ YUI().add("supra.imageresizer", function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			containerNode.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			

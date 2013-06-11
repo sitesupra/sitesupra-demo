@@ -24,9 +24,17 @@ body, html {
 	min-width: 100%;
 }
 
-.supra-media .supra-video,
-.supra-media img {
-	cursor: pointer !important;
+.supra-media {
+	.supra-video,
+	img {
+		cursor: pointer !important;
+	}
+	
+	// No need for titles in gallery
+	// because we already have them in sidebar
+	h2 {
+		display: none !important;
+	}
 }
 
 .supra-gallery .supra-gallery-editing li.supra-gallery-new {
@@ -163,7 +171,7 @@ body, html {
 				box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15) !important;
 				background: url(/cms/lib/supra/img/htmleditor/editable-background-small.gif) 100% 0 no-repeat !important;
 				width: 30px !important;
-				height: 30px !important;
+				height: 30px !important;s
 			}
 		}
 	}
@@ -173,10 +181,33 @@ body, html {
 }
 
 /*
+ * Item
+ */
+.supra-gallery-item {
+	position: relative;
+	cursor: pointer;
+	
+	// Overlay
+	&:before {
+		content: "";
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 1000;
+		background: #fff;
+		opacity: 0;
+		cursor: pointer;
+	}
+}
+
+/*
  * Item edit highlight
  */
 .supra-gallery-item-focused {
 	outline: 2px solid #009DF8 !important;
+	cursor: inherit;
 	
 	// Input outline when item is focused
 	.yui3-input-string-inline-content,
@@ -186,10 +217,9 @@ body, html {
 		outline: 2px solid rgba(0, 157, 248, 0.25) !important;
 	}
 	
-	.yui3-input-string-inline-focused .yui3-input-string-inline-content,
-	.yui3-input-html-inline-focused .yui3-input-html-inline-content,
-	.supra-image-editing {
-		outline: none !important;
+	// Hide overlay
+	&:before {
+		display: none;
 	}
 }
 
