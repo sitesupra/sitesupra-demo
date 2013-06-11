@@ -2,7 +2,7 @@
 
 namespace Supra\Statistics\GoogleAnalytics\Authentication\Exception;
 
-class InvalidGrantException extends \RuntimeException
+class InvalidGrantException extends \Supra\Statistics\GoogleAnalytics\Exception\UnauthorizedAccessException
 {
 	
 }
