@@ -146,7 +146,8 @@ Supra('supra.languagebar', function (Y) {
 		 * @private
 		 */
 		_openSiteMap: function () {
-			var tests = [
+			var test  = null,
+				tests = [
 				{
 					'test': function () { return Supra.Manager.getAction('Dashboard').get('visible'); },
 					'close': function () { return Supra.Manager.getAction('Dashboard').hide(); },
@@ -158,24 +159,37 @@ Supra('supra.languagebar', function (Y) {
 					'delay': 250
 				},
 				{
-					'test': function () { return Supra.Manager.getAction('PageHistory').get('visible'); },
-					'close': function () { return Supra.Manager.getAction('PageHistory').hide(); },
-					'delay': 250
+					'name': 'PageSourceEditor'
 				},
 				{
-					'test': function () { return Supra.Manager.getAction('PageInsertBlock').get('visible'); },
-					'close': function () { return Supra.Manager.getAction('PageInsertBlock').hide(); },
-					'delay': 250
+					'name': 'PageHistory'
 				},
 				{
-					'test': function () { return Supra.Manager.getAction('BlocksView').get('visible'); },
-					'close': function () { return Supra.Manager.getAction('BlocksView').hide(); },
-					'delay': 250
+					'name': 'PageInsertBlock'
 				},
 				{
-					'test': function () { return Supra.Manager.getAction('PageDesignManager').get('visible'); },
-					'close': function () { return Supra.Manager.getAction('PageDesignManager').hide(); },
-					'delay': 250
+					'name': 'BlocksView'
+				},
+				{
+					'name': 'PageDesignManager'
+				},
+				{
+					'name': 'MediaLibrary'
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('SlideshowManager').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('SlideshowManager').close(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('GalleryManager').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('GalleryManager').applyChanges(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('Gallery').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('Gallery').close(); },
+					'delay': 350
 				},
 				{
 					'test': function () { return Supra.Manager.getAction('PageContent').isEditing(); },
@@ -185,9 +199,18 @@ Supra('supra.languagebar', function (Y) {
 			];
 			
 			for (var i=0,ii=tests.length; i<ii; i++) {
-				if (tests[i].test()) {
-					tests[i].close();
-					Y.later(tests[i].delay, this, this._openSiteMap);
+				test = tests[i];
+				
+				if (typeof test.name === 'string') {
+					test = {
+						'test': function () { return Supra.Manager.getAction(tests[i]).get('visible'); },
+						'close': function () { return Supra.Manager.getAction(tests[i]).hide(); },
+						'delay': test.delay || 250
+					};
+				}
+				if (test.test()) {
+					test.close();
+					Y.later(test.delay, this, this._openSiteMap);
 					return;
 				}
 			}
