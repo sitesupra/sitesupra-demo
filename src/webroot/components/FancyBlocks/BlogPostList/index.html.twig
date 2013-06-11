@@ -83,11 +83,12 @@
 				
 				{# Heading #}
 				<header>
+					{% set date = post.localization.creationTime %}
 					{# Date, for 'promoted' items it is slightly different #}
 					{% if promoted %}
-						<time datetime="{{ post.localization.creationTime.format('Y-m-d') }}"><span class="date-no-zero">{{ post.localization.creationTime.format('F') }}</span> <span class="date-zero">{{ post.localization.creationTime.format('jS') }}, </span>{{ post.localization.creationTime.format('Y') }}</time>
+						<time datetime="{{ date.format('Y-m-d') }}"><span class="date-no-zero">{{ date.format('j') }}</span><span class="date-zero">{{ date.format('d') }}/</span>{{ date.format('m/Y') }}</time>
 					{% else %}
-						<time datetime="{{ post.localization.creationTime.format('Y-m-d') }}">{{ post.localization.creationTime.format('d/m/Y') }}</time>
+						<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('d/m/Y') }}</time>
 					{% endif %}
 					
 					{# Title #}
