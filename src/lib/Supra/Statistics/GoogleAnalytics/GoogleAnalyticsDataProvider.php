@@ -131,9 +131,9 @@ class GoogleAnalyticsDataProvider
 				throw new Exception\UnauthorizedAccessException('Authorization token is invalid or expired');				
 
 			case 403:
+				$this->authAdapter->unauthorize();
 				// this could be exceeded quota, non authorized user, or insufficient permissions
 				throw new RuntimeException('User has no access to Google Services');
-
 			case 503:
 				throw new RuntimeException('Google Services server returned an error');
 
