@@ -108,9 +108,12 @@ YUI.add('slideshowmanager.plugin-mask', function (Y) {
 		 */
 		getMaskImageURL: function (theme, color) {
 			if (theme && color && this.themeValueIsMask(theme)) {
-				var url = Supra.Manager.SlideshowManager.MASK_IMAGE_REQUEST_URL;
+				var url = Supra.Manager.SlideshowManager.MASK_IMAGE_REQUEST_URL,
+					block_id = Supra.Manager.PageContent.getContent().get('activeChild').getId();
+				
 				return url.replace(/\{\{\s*theme\s*\}\}/, encodeURIComponent(theme))
-						  .replace(/\{\{\s*color\s*\}\}/, encodeURIComponent(color));
+						  .replace(/\{\{\s*color\s*\}\}/, encodeURIComponent(color))
+						  .replace(/\{\{\s*block_id\s*\}\}/, encodeURIComponent(block_id));
 			} else {
 				return '';
 			}
