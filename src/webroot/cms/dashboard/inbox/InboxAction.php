@@ -75,15 +75,8 @@ class InboxAction extends DasboardAbstractAction
 
 		$commandResult = $this->executeSupraPortalCommand($commandParameters);
         $data = $commandResult->getData();
-        foreach($data['data'] as $item) {
-            if ($item instanceof UserSiteNotification) {
-                $response[] = array(
-                    'title' => $item->getMessage(),
-                    'buy' => false,
-                    'new' => ( ! $item->getIsRead()),
-                );
-            }
-        }
+        
+        $response = $response + $data['data'];
 
 		$this->getResponse()
 				->setResponseData($response);	
