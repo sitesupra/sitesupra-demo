@@ -25255,7 +25255,13 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'icon': definition.icon, 'type': 'toggle', 'style': ''}),
+				button = new Supra.Button({
+					'label': definition.title,
+					'icon': definition.icon,
+					'type': 'toggle',
+					'style': '',
+					'disabled': !!definition.disabled
+				}),
 				value = this._getInternalValue(),
 				has_value_match = false;
 			
@@ -25310,11 +25316,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @param {String} value Optional, value for which to return full data
 		 * @returns {Object} Value data
 		 */
-		getValueData: function (value) {
+		getValueData: function (value, values) {
 			var value  = value === null || typeof value === 'undefined' ? this._getInternalValue() : value,
-				values = this.get('values'),
+				values = values || this.get('values'),
 				i = 0,
-				ii = values.length;
+				ii = values.length,
+				tmp = null;
 			
 			if (Y.Lang.isArray(value)) {
 				// Multiple values
@@ -25323,6 +25330,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					if (Y.Array.indexOf(value, values[i].id) != -1) {
 						out.push(values[i]);
 					}
+					if (values[i].values) {
+						out = out.concat(this.getValueData(value, values[i].values));
+					}
 				}
 				return out;
 			} else {
@@ -25330,6 +25340,13 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				for (; i<ii; i++) {
 					if (values[i].id == value) {
 						return values[i];
+					}
+					if (values[i].values) {
+						// Go through sub-values
+						tmp = this.getValueData(value, values[i].values);
+						if (tmp) {
+							return tmp;
+						}
 					}
 				}
 			}
@@ -25748,7 +25765,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						'style': 'group',
 						'groupStyle': this.get('style'),
 						'iconStyle': this.get('iconStyle'),
-						'icon': value && value.icon ? value.icon : ''
+						'icon': value && value.icon ? value.icon : '',
+						'disabled': this.get('disabled')
 					});
 					
 					this.widgets.slide = slide = slideshow.addSlide({
@@ -25803,7 +25821,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				'groupStyle': this.get('style'),
 				'iconStyle': this.get('iconStyle'),
 				'icon': definition.icon,
-				'iconHTML': definition.html
+				'iconHTML': definition.html,
+				'disabled': !!definition.disabled
 			});
 			
 			//Decorate button style
@@ -25867,6 +25886,16 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 			
 			button.render(contentBox);
+			
+			//Render description
+			if (definition.description) {
+				var description = Y.Node.create(this.DESCRIPTION_TEMPLATE);
+				description.set('text', definition.description);
+				description.insert()
+				
+				//button.get('boundingBox').insert(description, 'after');
+				contentBox.append(description);
+			}
 			
 			//Set button width
 			button.get('boundingBox').setStyle('width', button_width + '%');
@@ -26001,6 +26030,24 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * ---------------------------------------- ATTRIBUTES ----------------------------------------
 		 */
 		
+		
+		/**
+		 * Disabled attribute setter
+		 * 
+		 * @param {Array} values
+		 * @return New values
+		 * @type {Array}
+		 * @private
+		 */
+		_setDisabled: function (value) {
+			value = Input.superclass._setDisabled.apply(this, arguments);
+			
+			if (this.widgets && this.widgets.button) {
+				this.widgets.button.set('disabled', value);
+			}
+			
+			return value;
+		},
 		
 		/**
 		 * Value attribute setter

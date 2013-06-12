@@ -12,11 +12,15 @@
 					{% for slide in slides %}
 						{% set property = {
 							'hidden': loop.index,
+							'theme': slide['theme'],
+							'mask_image': slide['mask_image'],
+							'mask_color': slide['mask_color'],
 							'mediaType': slideshow.mediaType(slide['media']),
 							'media': slideshow.media(slide['media']), 
 							'text_main': slide['text_main'],
 							'text_top': slide['text_top'],
 							'background': slideshow.background(slide['background']),
+							'background_color': slide['background_color'],
 							'buttons': slideshow.buttons(slide['buttons']),
 							'buttons_overlay': slideshow.buttons_overlay(slide['buttons']),
 							'height': slide['height'],

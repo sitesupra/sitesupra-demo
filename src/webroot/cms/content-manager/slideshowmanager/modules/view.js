@@ -4,7 +4,9 @@ YUI.add('slideshowmanager.view', function (Y) {
 	
 	//Shortcut
 	var Manager = Supra.Manager,
-		Action = Manager.PageContent;
+		Action = Manager.PageContent,
+		
+		BLANK_IMAGE_URL = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 	
 	/**
 	 * Settings form
@@ -518,7 +520,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			for (; i<ii; i++) {
 				property = properties[i];
 				if (property.type == 'InlineImage' || property.type == 'InlineMedia') {
-					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					node = iframe.one('*[data-supra-item-property~="' + property.id + '"]');
 					if (node) {
 						input = form.getInput(property.id);
 						
@@ -529,7 +531,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 						input.on('focus', this._onInputFocus, this, property, input);
 					}
 				} else if (property.type == 'BlockBackground') {
-					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					node = iframe.one('*[data-supra-item-property~="' + property.id + '"]');
 					if (node) {
 						input = form.getInput(property.id);
 						
@@ -540,7 +542,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 						input.set('value', data[property.id]);
 					}
 				} else if (property.type == 'Set') {
-					node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					node = iframe.one('*[data-supra-item-property~="' + property.id + '"]');
 					if (node) {
 						input = form.getInput(property.id);
 						
@@ -598,7 +600,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 						contNode = node = iframe.one('*[data-supra-container]');
 						srcNode = null;
 					} else {
-						srcNode = node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+						srcNode = node = iframe.one('*[data-supra-item-property~="' + property.id + '"]');
 						contNode = null;
 					}
 					
@@ -640,9 +642,13 @@ YUI.add('slideshowmanager.view', function (Y) {
 					}
 				} else if (!is_inline && is_contained) {
 					// Image
-					
-					if (property.type == 'Image') {
-						node = iframe.one('*[data-supra-item-property="' + property.id + '"]');
+					if (
+						property.type == 'Image' ||
+						property.type == 'SelectVisual' ||
+						property.type == 'Color' ||
+						property.id   == 'mask_image'
+					) {
+						node = iframe.one('*[data-supra-item-property~="' + property.id + '"]');
 						
 						if (node) {
 							value = data[property.id] || values[property.id];
@@ -671,11 +677,38 @@ YUI.add('slideshowmanager.view', function (Y) {
 			var input    = evt.target,
 				id       = evt.target.get('name') || evt.target.get('id'),
 				property = this.get('host').settings.getProperty(id),
-				node     = this.get('iframe').one('*[data-supra-item-property="' + property.id + '"]'),
+				node     = this.get('iframe').one('*[data-supra-item-property~="' + property.id + '"]'),
 				value    = null;
 			
 			if (property.type == 'Image') {
+				// Update image src attribute
 				value = (evt.newVal ? evt.newVal.file_web_path : '') || '';
+				if (node.test('img')) {
+					// Update src
+					node.setAttribute('src', value);
+				} else {
+					// Update background image
+					node.setStyle('background-image', 'url(' + value + ')');
+				}
+			
+			} else if (property.type == 'Color') {
+				// Update background color
+				value = (evt.newVal ? evt.newVal : '') || 'transparent';
+				node.setStyle('background-color', value);
+			
+			} else if (property.type == 'SelectVisual') {
+				// Update classname
+				if (evt.prevVal) {
+					node.removeClass(evt.prevVal);
+				}
+				if (evt.newVal) {
+					node.addClass(evt.newVal);
+				}
+			
+			} else if (property.id == 'mask_image') {
+				// Update image src attribute or background-image style
+				value = evt.newVal || BLANK_IMAGE_URL;
+				
 				if (node.test('img')) {
 					// Update src
 					node.setAttribute('src', value);
