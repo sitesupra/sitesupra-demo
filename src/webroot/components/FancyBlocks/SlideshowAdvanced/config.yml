@@ -104,7 +104,12 @@
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_top.html.twig
             - id: bg_video
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_video.html.twig
-          
+              
+          propertyGroups:
+            - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+                id: advanced
+                label: Advanced
+                
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: layout
@@ -137,19 +142,6 @@
                   style: mid
                   iconStyle: center
                   separateSlide: true
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                name: active
-                editable: Supra\Editable\Checkbox
-                label: Active
-                default: true
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                name: period_from
-                editable: Supra\Editable\Date
-                label: Published from
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                name: period_to
-                editable: Supra\Editable\Date
-                label: Published till
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background
                 editable: Supra\Editable\BlockBackground
@@ -190,3 +182,19 @@
                   labelRemove: Remove button
                   labelItem: "Button %s"
                   labelButton: Set buttons
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: active
+                editable: Supra\Editable\Checkbox
+                label: Active
+                default: true
+                group: advanced
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: period_from
+                editable: Supra\Editable\Date
+                label: Published from
+                group: advanced
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: period_to
+                editable: Supra\Editable\Date
+                label: Published till
+                group: advanced
