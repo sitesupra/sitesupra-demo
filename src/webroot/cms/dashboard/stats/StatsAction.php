@@ -29,48 +29,48 @@ class StatsAction extends DasboardAbstractAction
 
 		if ($responseData === false) {
 
-			$provider = $this->getGoogleAnalyticsProvider();
-			if ( ! $provider instanceof GoogleAnalyticsDataProvider) {
-				return;
-			}
-			
-			$isAuthenticated = $provider->isAuthenticated();
-			$siteId = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'id', null);
-			
-			$serverName = $this->getRequest()
-					->getServerValue('HTTP_HOST');
-			
-			$state = implode(',', array($siteId, $serverName));
-			
-			$responseData = array(
-				'account_name' => $provider->getAuthAdapter()->getCurrentAccountName(),
-				'profile_id' => $profileId,
-				'profile_title' => $profileTitle,
-				'is_authenticated' => $isAuthenticated,
-				'authorization_url' => $provider->getAuthAdapter()
-					->createAuthorizationUrl($state),
-				'stats' => null,
-			);
-
-			if ( ! empty($profileId)) {
-
-				$noStatistics = $this->getRequest()
-						->getQueryValue('no_statistics', false);
-				
-				if ($isAuthenticated && ! $noStatistics) {
-					
-					$provider->setProfileId($profileId);
-					
-					try {
-						$stats = $this->loadStatsCollection();
-					} catch (UnauthorizedAccessException $e) {
-						throw new \Supra\Cms\Exception\CmsException(null, "Request to Google Services has failed. Seems that you have revoked the access for SiteSupra application");
-					}
-					
-					$responseData['stats'] = $stats;
-					
-					$cache->save($cacheKey, $responseData, 60*60*24); // 24h
+			try {
+				$provider = $this->getGoogleAnalyticsProvider();
+				if ( ! $provider instanceof GoogleAnalyticsDataProvider) {
+					return;
 				}
+
+				$isAuthenticated = $provider->isAuthenticated();
+				$siteId = ObjectRepository::getIniConfigurationLoader($this)->getValue('system', 'id', null);
+
+				$serverName = $this->getRequest()
+						->getServerValue('HTTP_HOST');
+
+				$state = implode(',', array($siteId, $serverName));
+
+				$responseData = array(
+					'account_name' => $provider->getAuthAdapter()->getCurrentAccountName(),
+					'profile_id' => $profileId,
+					'profile_title' => $profileTitle,
+					'is_authenticated' => $isAuthenticated,
+					'authorization_url' => $provider->getAuthAdapter()
+						->createAuthorizationUrl($state),
+					'stats' => null,
+				);
+
+				if ( ! empty($profileId)) {
+
+					$noStatistics = $this->getRequest()
+							->getQueryValue('no_statistics', false);
+
+					if ($isAuthenticated && ! $noStatistics) {
+
+						$provider->setProfileId($profileId);
+
+						$stats = $this->loadStatsCollection();
+
+						$responseData['stats'] = $stats;
+
+						$cache->save($cacheKey, $responseData, 60*60*24); // 24h
+					}
+				}
+			} catch (UnauthorizedAccessException $e) {
+				throw new \Supra\Cms\Exception\CmsException(null, "Request to Google Services has failed. Seems that you have revoked the access for SiteSupra application");
 			}
 		}		
 		
@@ -170,27 +170,28 @@ class StatsAction extends DasboardAbstractAction
 		
 		if ($profiles === false) {
 			
-			$profiles = array();
+			try {
+				$profiles = array();
 
-			$isAuthenticated = $provider->isAuthenticated();
+				$isAuthenticated = $provider->isAuthenticated();
 
-			if ($isAuthenticated) {
-				try {
+				if ($isAuthenticated) {
+
 					$profilesList =  $provider->listProfiles();
-				} catch (InvalidGrantException $e) {
-					throw new \Supra\Cms\Exception\CmsException("Request to Google Services has failed. Seems that you have revoked the access for SiteSupra application");
+
+					foreach($profilesList as $profile) {
+						$profiles[] = array(
+							'id' => $profile['profileId'],
+							'web_property_id' => $profile['webPropertyId'],
+							'title' => $profile['profileName'],
+						);
+					}
 				}
 
-				foreach($profilesList as $profile) {
-					$profiles[] = array(
-						'id' => $profile['profileId'],
-						'web_property_id' => $profile['webPropertyId'],
-						'title' => $profile['profileName'],
-					);
-				}
+				$cache->save($cacheKey, $profiles, 600);
+			} catch (UnauthorizedAccessException $e) {
+				throw new \Supra\Cms\Exception\CmsException("Request to Google Services has failed. Seems that you have revoked the access for SiteSupra application");
 			}
-			
-			$cache->save($cacheKey, $profiles, 600);
 		}
 		
 		return $profiles;
