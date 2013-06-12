@@ -67,6 +67,7 @@ class GenerateSitemapCommand extends Command
 		$localizationFinder->isActive(true);
 		$localizationFinder->isPublic(true);
 		$localizationFinder->isRedirect(false);
+		$localizationFinder->isVisibleInSitemap(true);
 		$localizationFinder->addCustomCondition('l.includedInSearch = true OR e.level = 0');
 
 		$result = $localizationFinder->getResult();
