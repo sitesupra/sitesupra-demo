@@ -228,9 +228,38 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				this.slideshow.render();
 				this.slideshow.after('slideChange', this.onMainSlideChange, this);
 				
-				//On main slide link click open specific slide
-				var links = this.all('#linkToRoot a[data-slideshow]');
-					links.on('click', this.openTargetSlide, this);
+				//Main slide buttons
+				var content = this.one('#linkToRoot .select'),
+					path    = Supra.Manager.Loader.getActionInfo('LinkManager').folder,
+					button;
+				
+				button = new Supra.Button({
+					'style': 'link-type',
+					'icon': path + 'images/page.png',
+					'label': Supra.Intl.get(['linkmanager', 'link_to_page'])
+				});
+				button.render(content);
+				button.addClass(button.getClassName('fill'));
+				button.on('click', this.openTargetSlide, this, 'linkToPage');
+				
+				button = new Supra.Button({
+					'style': 'link-type',
+					'icon': path + 'images/file.png',
+					'label': Supra.Intl.get(['linkmanager', 'link_to_file'])
+				});
+				button.render(content);
+				button.addClass(button.getClassName('fill'));
+				button.on('click', this.openTargetSlide, this, 'linkToFile');
+				
+				button = new Supra.Button({
+					'style': 'link-type',
+					'icon': path + 'images/email.png',
+					'label': Supra.Intl.get(['linkmanager', 'link_to_email'])
+				});
+				button.render(content);
+				button.addClass(button.getClassName('fill'));
+				button.on('click', this.openTargetSlide, this, 'linkToEmail');
+				
 			
 			//Back and Close buttons
 				this.get('backButton')
@@ -348,9 +377,9 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 		/**
 		 * On slideshow link click navigate to slide
 		 */
-		openTargetSlide: function (e) {
-			var target = e.target.closest('a'),
-				id = target.getAttribute('data-slideshow');
+		openTargetSlide: function (e, id) {
+			//var target = e.target.closest('a'),
+			//	id = target.getAttribute('data-slideshow');
 			
 			if (id) {
 				this.slideshow.set('slide', id);
