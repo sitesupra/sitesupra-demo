@@ -47,7 +47,9 @@ class ExceptionController extends ControllerAbstraction
 
 			if ($this->exception instanceof Exception\ResourceNotFoundException) {
 				$response->setCode(404);
-				$response->output("404 PAGE NOT FOUND\n");
+                $errorPage = file_get_contents('404.html');
+                $response->header('Content-Type', 'text/html', true);
+				$response->output($errorPage);
 			} else if ($this->exception instanceof MethodNotAllowedException) {
 				$response->setCode(405);
 				$response->output("405 METHOD NOT ALLOWED\n");
@@ -55,11 +57,10 @@ class ExceptionController extends ControllerAbstraction
 				$response->setCode(403);
 				$response->output("403 FORBIDDEN\n");
 			} else {
-
-				$exceptionIdentifier = md5((string) $this->exception);
-
 				$response->setCode(500);
-				$response->output(SUPRA_ERROR_MESSAGE . ' #' . $exceptionIdentifier . "\n");
+                $errorPage = file_get_contents('500.html');
+                $response->header('Content-Type', 'text/html', true);
+				$response->output($errorPage);
 
 				$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
 
