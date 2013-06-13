@@ -476,7 +476,7 @@ Supra([
 			// Extract color presets
 			var iframe  = Supra.Manager.PageContent.getIframeHandler(),
 				parser  = iframe.get('stylesheetParser'),
-				styles  = parser.getSelectorsByNodeMatch(iframe.get('doc').body)["COLOR"],
+				styles  = parser.getSelectorsByNodeMatch(iframe.get('doc').body)["COLOR"] || [],
 				presets = [],
 				i = 0,
 				ii = styles.length;

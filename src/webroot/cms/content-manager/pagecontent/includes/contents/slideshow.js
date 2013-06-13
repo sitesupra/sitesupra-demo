@@ -478,8 +478,11 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 						if (prop && prop.image && prop.image.image) {
 							prop.image.image = prop.image.image.id;
 						}
-						
-						//item[properties[k].id] = item[properties[k].id] || '';
+					} else if (properties[k].type === 'Image') {
+						prop = item[properties[k].id];
+						if (prop && prop.id && prop.size) {
+							item[properties[k].id] = prop.id;
+						}
 					}
 				}
 			}
