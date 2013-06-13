@@ -487,7 +487,7 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 						}
 					} else if (properties[k].type === 'Image') {
 						prop = item[properties[k].id];
-						if (prop && prop.id && prop.size) {
+						if (prop && prop.id && prop.sizes) {
 							item[properties[k].id] = prop.id;
 						}
 					}
