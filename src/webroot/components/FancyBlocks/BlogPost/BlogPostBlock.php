@@ -13,7 +13,8 @@ class BlogPostBlock extends BlockController
 	 */
 	protected $blogApplication;
 	
-    
+	/**
+	 */
     protected function doPrepare()
     {
         $response = $this->getResponse();
@@ -23,7 +24,7 @@ class BlogPostBlock extends BlockController
         
         $description = $this->getPropertyValue('description');
         if ($description) {
-            $context->setValue('metaDescription', $description->__toString());
+            $context->setValue('metaDescription', $description);
         }    
     }
 	
@@ -32,6 +33,41 @@ class BlogPostBlock extends BlockController
 		$response = $this->getResponse();
 		/* @var $response \Supra\Response\TwigResponse */
         
-		$response->outputTemplate('index.html.twig');
+		$application = $this->getBlogApplication();
+		if ( ! $application instanceof BlogApplication) {
+			$response->outputTemplate('application-missing.html.twig');
+			return null;
+		}
+		
+		$appLocalizationPath = $application->getApplicationLocalization()
+				->getPath();
+		
+		$response->assign('applicationPagePath', $appLocalizationPath)
+				->outputTemplate('index.html.twig');
+	}
+	
+	/**
+	 * @return \Supra\Controller\Pages\Blog\BlogApplication
+	 */
+	private function getBlogApplication()
+	{
+		$request = $this->getRequest();
+		
+		$parentPage = $request->getPageLocalization()
+				->getMaster()
+				->getParent();
+		
+		if ($parentPage instanceof ApplicationPage) {
+			
+			$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
+			$localization = $parentPage->getLocalization($request->getLocale());
+			
+			$application = \Supra\Controller\Pages\Application\PageApplicationCollection::getInstance()
+					->createApplication($localization, $em);
+			
+			return $application;
+		}
+
+		return null;
 	}
 }

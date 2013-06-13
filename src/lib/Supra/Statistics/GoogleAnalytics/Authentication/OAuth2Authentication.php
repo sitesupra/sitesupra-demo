@@ -185,11 +185,16 @@ class OAuth2Authentication implements AuthenticationInterface
 			if ($responseCode === 400) {
 				$errorCode = $this->getErrorCodeFromErrorResponse($response->getBody());
 				
+				$this->unauthorize();
+				
 				switch ($errorCode) {
 					// user revoked the access for this refresh token
 					case 'invalid_grant':
-						$this->unauthorize();
 						throw new Exception\InvalidGrantException;
+					case 'unauthorized_client':
+						// should we log this case
+						// seems, that Supra has lost access to GoogleAuth service
+						throw new Exception\UnauthorizedClientException;
 					default:
 						throw new \RuntimeException("Failed to refresh access token, error {$errorCode} received"); 
 				}

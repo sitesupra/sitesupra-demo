@@ -12,7 +12,7 @@
 	{% if level != 1 and level > prevLevel %}
 		{% set diff = level-prevLevel %}
 		{% for i in 1..diff %}
-			<ul style="display:none">
+			<ul class="hidden">
 		{% endfor %}
 	{% elseif level < prevLevel %}
 		{% set diff = prevLevel-level %}
@@ -25,7 +25,7 @@
 		</li>
 	{% endif %}
 
-	{% set active = supra.isActive(child.path, true) %}
+	{% set active = supra.isActive(child.path) %}
 	<li{% if active %} class="active"{% endif %}>
 	
 	<a href="{{ child.path }}">{{ child.title }}</a>
@@ -46,7 +46,7 @@
 </ul>
 </nav>
 
-<nav class="header-menu mobile"><div class="form">
+<nav class="header-menu mobile">
 
 	<div class="selector" data-toggle="selectors" data-default-behaviour="true">
 		<a>
@@ -113,5 +113,5 @@
 	</div>
 
 	<div class="trim"></div>
-</div></nav>
+</nav>
 <div class="clear"><!--  --></div>

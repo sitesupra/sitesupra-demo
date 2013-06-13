@@ -125,17 +125,18 @@ class GoogleAnalyticsDataProvider
 				break;
 			case 400:
 				throw new RuntimeException('Wrong request query');
-				break;
+
 			case 401:
-				throw new RuntimeException('Authorization token is invalid or expired');
-				break;
+				$this->authAdapter->unauthorize();
+				throw new Exception\UnauthorizedAccessException('Authorization token is invalid or expired');				
+
 			case 403:
+				$this->authAdapter->unauthorize();
 				// this could be exceeded quota, non authorized user, or insufficient permissions
 				throw new RuntimeException('User has no access to Google Services');
-				break;
 			case 503:
 				throw new RuntimeException('Google Services server returned an error');
-				break;
+
 			default:
 				throw new RuntimeException("Unknown response code {$responseCode} received");
 		}

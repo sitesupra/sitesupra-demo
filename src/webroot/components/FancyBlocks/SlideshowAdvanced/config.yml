@@ -104,8 +104,42 @@
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_top.html.twig
             - id: bg_video
               fileName: FancyBlocks/SlideshowAdvanced/templates/bg_video.html.twig
-          
+              
+          propertyGroups:
+            - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+                id: advanced
+                label: Advanced
+                
           properties:
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: mask_color
+                editable: Supra\Editable\Color
+                label: Mask color
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: theme
+                editable: Supra\Editable\SelectVisual
+                label: Slide theme
+                default: theme-background
+                values:
+                  - id: theme-text
+                    title: Clean text
+                    icon: icons/theme/text.png
+                  - id: theme-background
+                    title: Text with background
+                    icon: icons/theme/background.png
+                  - id: mask
+                    title: Mask
+                    values:
+                      - id: theme-mask-option-1
+                        title: Option 1
+                        icon: icons/theme/mask-option-1.png
+                      - id: theme-mask-option-2
+                        title: Option 2
+                        icon: icons/theme/mask-option-2.png
+                additionalParameters:
+                  style: mid
+                  iconStyle: center
+                  separateSlide: true
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: layout
                 editable: Supra\Editable\SelectVisual
@@ -138,24 +172,15 @@
                   iconStyle: center
                   separateSlide: true
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                name: active
-                editable: Supra\Editable\Checkbox
-                label: Active
-                default: true
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                name: period_from
-                editable: Supra\Editable\Date
-                label: Published from
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-                name: period_to
-                editable: Supra\Editable\Date
-                label: Published till
-            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background
                 editable: Supra\Editable\BlockBackground
                 label: Background image
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: background_color
+                editable: Supra\Editable\Color
+                label: Background color
                 additionalParameters:
-                  labelButton: Set image
+                  allowUnset: true
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: media
                 editable: Supra\Editable\InlineMedia
@@ -192,3 +217,19 @@
                   labelRemove: Remove button
                   labelItem: "Button %s"
                   labelButton: Set buttons
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: active
+                editable: Supra\Editable\Checkbox
+                label: Active
+                default: true
+                group: advanced
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: period_from
+                editable: Supra\Editable\Date
+                label: Published from
+                group: advanced
+            - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+                name: period_to
+                editable: Supra\Editable\Date
+                label: Published till
+                group: advanced

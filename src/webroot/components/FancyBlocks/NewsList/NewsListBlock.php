@@ -22,15 +22,6 @@ use Doctrine\ORM\QueryBuilder;
 
 class NewsListBlock extends BlockController
 {
-
-	/**
-	 * @return array
-	 */
-	public static function getPropertyDefinition()
-	{
-		return array();
-	}
-
 	/**
 	 * 
 	 */

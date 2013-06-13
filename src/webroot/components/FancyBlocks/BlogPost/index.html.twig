@@ -24,7 +24,7 @@
 		<span class="separator">|</span>
 		<span class="tags">
 			{% for tag in tags %}
-				<a class="tag" href="?tag={{ tag|url_encode }}">{{ tag|e }}</a>{% if not loop.last %}, {% endif %}
+				<a class="tag" href="{{ applicationPagePath }}?tag={{ tag|url_encode }}">{{ tag|e }}</a>{% if not loop.last %}, {% endif %}
 			{% endfor %}
 		</span>
 		{% endif %}
@@ -32,6 +32,6 @@
 	
 	<hr />
 	
-	<a class="top" href="#header"></a>
+	<a class="link-top" href="#header"></a>
 	
 </div>

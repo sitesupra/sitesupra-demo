@@ -6,7 +6,6 @@ use Supra\Database;
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\Database\Doctrine\Listener\Timestampable;
-use Supra\FileStorage\Entity\Image as ImageFile;
 use \DateTime;
 
 /**
@@ -28,29 +27,22 @@ class UserNotification extends Database\Entity
 	protected $userId;
 
 	/**
-	 * @Column(type="boolean", nullable=false)
+	 * @Column(type="boolean", nullable=true)
 	 * @var boolean
 	 */
 	protected $isRead;
 
 	/**
-	 * @Column(type="boolean", nullable=false)
+	 * @Column(type="boolean", nullable=true)
 	 * @var boolean
 	 */
 	protected $isVisible;
 
 	/**
-	 * @Column(type="integer", nullable=false)
+	 * @Column(type="integer", nullable=true)
 	 * @var integer
 	 */
 	protected $type;
-
-	/**
-	 * @ManyToOne(targetEntity="Supra\FileStorage\Entity\Image")
-	 * @JoinColumn(name="image_file_id", referencedColumnName="id")
-	 * @var ImageFile
-	 */
-	protected $image;
 
 	/**
 	 * @Column(type="string", nullable=false)
@@ -59,31 +51,31 @@ class UserNotification extends Database\Entity
 	protected $message;
 
 	/**
-	 * @Column(type="string", nullable=false)
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $link;
 
 	/**
-	 * @Column(type="string", nullable=false)
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $sender;
 
 	/**
-	 * @Column(type="datetime", nullable=false)
+	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
 	protected $creationTime;
 
 	/**
-	 * @Column(type="datetime", nullable=false)
+	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
 	protected $modificationTime;
 
 	/**
-	 * @Column(type="datetime", nullable=false)
+	 * @Column(type="datetime", nullable=true)
 	 * @var DateTime
 	 */
 	protected $readTime;
@@ -198,16 +190,6 @@ class UserNotification extends Database\Entity
 	public function setType($type)
 	{
 		$this->type = $type;
-	}
-
-	public function getImage()
-	{
-		return $this->image;
-	}
-
-	public function setImage($image)
-	{
-		$this->image = $image;
 	}
 
 	public function getMessage()

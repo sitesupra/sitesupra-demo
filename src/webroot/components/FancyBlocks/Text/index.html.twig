@@ -1,4 +1,3 @@
-<!-- {{ comment }} -->
 {% set design = supraBlock.property('design') %}
 
 <div class="block">
@@ -14,7 +13,7 @@
 	</div></h2>
 	{% endif %}
 	
-	<div data-refresh-event="text" class="text {{ heading_class}} {% if design %}{{ design }}{% endif %}">
+	<div data-refresh-event="text" class="text {{ heading_class }} {% if design %}{{ design }}{% endif %}">
 		<div class="text-inner clearfix">
 	
 			{% if design == "simple" or design == "promo_3" %}

@@ -10182,6 +10182,41 @@ YUI().add('supra.input-string-clear', function (Y) {
 		},
 		
 		/**
+		 * Focus editor
+		 */
+		focus: function () {
+			var srcNode = this.get('srcNode').getDOMNode(),
+				node = srcNode.lastChild;
+			
+			// Find last text node
+			while (node && node.nodeType == 1) {
+				node = node.lastChild;
+			}
+			
+			// Focus
+			if (Y.UA.webkit) {
+				this.get('win').focus();
+				this.get('srcNode').focus();
+			} else {
+				this.get('srcNode').focus();
+			}
+			
+			// Place cursor at the end
+			Y.later(16, this, function () {
+				if (node) {
+					this.setSelection({
+						start: node,
+						start_offset: node.length,
+						end: node,
+						end_offset: node.length
+					});
+				} else {
+					this.selectNode(srcNode);
+				}
+			});
+		},
+		
+		/**
 		 * Enable/disable editor
 		 * 
 		 * @param {Boolean} value
@@ -10202,14 +10237,8 @@ YUI().add('supra.input-string-clear', function (Y) {
 			} else {
 				this.get('srcNode').setAttribute('contentEditable', true);
 				
-				if (Y.UA.webkit) {
-					//Focus and deselect all text
-					/* @TODO
-					this._setSelection(null); */
-				} else {
-					//Focus
-					this.get('srcNode').focus();
-				}
+				// Focus
+				this.focus();
 				
 				//Prevent object resizing
 				this.disableObjectResizing();
@@ -14429,7 +14458,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			containerNode.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			
@@ -14564,7 +14593,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			image.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			image.addClass("supra-background-editing");
@@ -14674,7 +14703,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			resizeHandleNode.on("mousedown", this.dragStart, this);
 			this.set("resizeHandleNode", resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("bottom");
+			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
 			containerNode.append(sizeLabelNode);
 			this.set("sizeLabelNode", sizeLabelNode);
 			
@@ -18934,7 +18963,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	};
 	
 	//Regular expressions
-	var REGEX_TABLE = /<table(.|\n|\r)*?<\/table>/ig,
+	var REGEX_TABLE = /<table[^>]*>(.|\n|\r)*?<\/table>/ig,
 		REGEX_MOBILE_TABLE = /<table[^>]+class=("[^"]*"|'[^']*'|[^\s>]*)(.|\n|\r)*?<\/table>/ig,
 		REGEX_TABLE_START = /<table[^>]*>/i,
 		REGEX_HEADINGS = /<th[^>]*>((.|\r|\n)*?)<\/th[^>]*>/ig,
@@ -18988,7 +19017,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//Regex are dirty, but quick and does the job done
 			html = html.replace(regex_table, function (match) {
-				var html = match.match(regex_table_start)[0].replace(/<table/i, '\n<table class="mobile mobile-portrait"'),
+				var html = '<table class="mobile mobile-portrait">',
 					headings = extractHeadings(match),
 					rows = match.match(regex_rows),
 					cells = null,
@@ -19089,7 +19118,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 */
 		untagHTML: function (html, data) {
 			html = html.replace(REGEX_MOBILE_TABLE, function (html, classname) {
-				
 				if (classname.indexOf('mobile') != -1) {
 					if (classname.indexOf('desktop') == -1 && classname.indexOf('tablet') == -1) {
 						// classname is "mobile"
@@ -25227,7 +25255,13 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'icon': definition.icon, 'type': 'toggle', 'style': ''}),
+				button = new Supra.Button({
+					'label': definition.title,
+					'icon': definition.icon,
+					'type': 'toggle',
+					'style': '',
+					'disabled': !!definition.disabled
+				}),
 				value = this._getInternalValue(),
 				has_value_match = false;
 			
@@ -25282,11 +25316,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @param {String} value Optional, value for which to return full data
 		 * @returns {Object} Value data
 		 */
-		getValueData: function (value) {
+		getValueData: function (value, values) {
 			var value  = value === null || typeof value === 'undefined' ? this._getInternalValue() : value,
-				values = this.get('values'),
+				values = values || this.get('values'),
 				i = 0,
-				ii = values.length;
+				ii = values.length,
+				tmp = null;
 			
 			if (Y.Lang.isArray(value)) {
 				// Multiple values
@@ -25295,6 +25330,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					if (Y.Array.indexOf(value, values[i].id) != -1) {
 						out.push(values[i]);
 					}
+					if (values[i].values) {
+						out = out.concat(this.getValueData(value, values[i].values));
+					}
 				}
 				return out;
 			} else {
@@ -25302,6 +25340,13 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				for (; i<ii; i++) {
 					if (values[i].id == value) {
 						return values[i];
+					}
+					if (values[i].values) {
+						// Go through sub-values
+						tmp = this.getValueData(value, values[i].values);
+						if (tmp) {
+							return tmp;
+						}
 					}
 				}
 			}
@@ -25720,7 +25765,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 						'style': 'group',
 						'groupStyle': this.get('style'),
 						'iconStyle': this.get('iconStyle'),
-						'icon': value && value.icon ? value.icon : ''
+						'icon': value && value.icon ? value.icon : '',
+						'disabled': this.get('disabled')
 					});
 					
 					this.widgets.slide = slide = slideshow.addSlide({
@@ -25775,7 +25821,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				'groupStyle': this.get('style'),
 				'iconStyle': this.get('iconStyle'),
 				'icon': definition.icon,
-				'iconHTML': definition.html
+				'iconHTML': definition.html,
+				'disabled': !!definition.disabled
 			});
 			
 			//Decorate button style
@@ -25839,6 +25886,16 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 			
 			button.render(contentBox);
+			
+			//Render description
+			if (definition.description) {
+				var description = Y.Node.create(this.DESCRIPTION_TEMPLATE);
+				description.set('text', definition.description);
+				description.insert()
+				
+				//button.get('boundingBox').insert(description, 'after');
+				contentBox.append(description);
+			}
 			
 			//Set button width
 			button.get('boundingBox').setStyle('width', button_width + '%');
@@ -25973,6 +26030,24 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * ---------------------------------------- ATTRIBUTES ----------------------------------------
 		 */
 		
+		
+		/**
+		 * Disabled attribute setter
+		 * 
+		 * @param {Array} values
+		 * @return New values
+		 * @type {Array}
+		 * @private
+		 */
+		_setDisabled: function (value) {
+			value = Input.superclass._setDisabled.apply(this, arguments);
+			
+			if (this.widgets && this.widgets.button) {
+				this.widgets.button.set('disabled', value);
+			}
+			
+			return value;
+		},
 		
 		/**
 		 * Value attribute setter
@@ -42637,7 +42712,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 				var input = this.inputs[id];
 				var val = input.get(prop);
 				if (val !== undefined) {
-					values[key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key)] = val;
+					values[key == 'id' || key == 'name' ? (id in definitions ? definitions[id][key] : id) : input.getAttribute(key)] = val;
 				}
 			}
 			
@@ -42674,7 +42749,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			
 			for(var id in this.inputs) {
 				input = this.inputs[id];
-				key_value = (key == 'id' || key == 'name' ? definitions[id][key] : input.getAttribute(key));
+				key_value = (key == 'id' || key == 'name' ? (id in definitions ? definitions[id][key] : id) : input.getAttribute(key));
 				
 				if (key_value in data) {
 					input.set('value', data[key_value]);

@@ -5,6 +5,7 @@ namespace Supra\Controller\Pages\Filter;
 use Supra\Controller\Pages\Entity\BlockProperty;
 use Supra\Controller\Pages\Entity;
 use Twig_Markup;
+use Supra\Controller\Pages\Entity\ReferencedElement;
 
 /**
  *
@@ -15,6 +16,13 @@ class EditableInlineMedia extends InlineMediaFilter
 	 * @var BlockProperty
 	 */
 	public $property;
+	
+	/**
+	 */
+	public function __construct()
+	{
+		$this->isEditRequest = true;
+	}
 	
 	/**
 	 * @param mixed $content
@@ -32,10 +40,10 @@ class EditableInlineMedia extends InlineMediaFilter
 	
 			if ($element instanceof Entity\ReferencedElement\ReferencedElementAbstract) {
 
-				if ($element instanceof VideoReferencedElement) {
+				if ($element instanceof ReferencedElement\VideoReferencedElement) {
 					$filteredValue = $this->parseSupraVideo($element);
 				}
-				else if ($element instanceof Entity\ReferencedElement\ImageReferencedElement) {
+				else if ($element instanceof ReferencedElement\ImageReferencedElement) {
 					$filteredValue = $this->parseSupraImage($element);
 				}
 			}

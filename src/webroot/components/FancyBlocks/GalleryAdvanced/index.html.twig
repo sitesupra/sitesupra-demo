@@ -39,6 +39,15 @@
 				{% if slides %}
 				
 					{% for slide in slides %}
+						{% if slide['link'] and slide['link'].href %}
+							{% set link = {
+								'href': slide['link'].href,
+								'target': slide['link'].target,
+								'title': slide['link'].title
+							} %}
+						{% else %}
+							{% set link = false %}
+						{% endif %}
 						{% set property = {
 							'first': false,
 							'last': false,
@@ -47,7 +56,9 @@
 							'image_raw': slide['image'] | default(''),
 							'video_raw': slide['video'] | default(''), 
 							'title': slide['title'] | default(''),
-							'text': slide['text'] | default('')
+							'text': slide['text'] | default(''),
+							'link_title': slide['link_title'] | default(''),
+							'link': link
 						} %}
 						
 						{# WORKAROUND FOR MISSING "layout" property #}
@@ -89,7 +100,9 @@
 							'image_raw': slide['image'] | default(''),
 							'video_raw': slide['video'] | default(''), 
 							'title': slide['title'] | default(''),
-							'text': slide['text'] | default('')
+							'text': slide['text'] | default(''),
+							'link_title': slide['link_title'] | default(''),
+							'link': slide['link'] | default('')
 						} %}
 						
 						{# WORKAROUND FOR MISSING "layout" property #}

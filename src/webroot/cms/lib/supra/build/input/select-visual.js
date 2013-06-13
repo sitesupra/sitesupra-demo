@@ -183,7 +183,8 @@ YUI.add('supra.input-select-visual', function (Y) {
 						'style': 'group',
 						'groupStyle': this.get('style'),
 						'iconStyle': this.get('iconStyle'),
-						'icon': value && value.icon ? value.icon : ''
+						'icon': value && value.icon ? value.icon : '',
+						'disabled': this.get('disabled')
 					});
 					
 					this.widgets.slide = slide = slideshow.addSlide({
@@ -238,7 +239,8 @@ YUI.add('supra.input-select-visual', function (Y) {
 				'groupStyle': this.get('style'),
 				'iconStyle': this.get('iconStyle'),
 				'icon': definition.icon,
-				'iconHTML': definition.html
+				'iconHTML': definition.html,
+				'disabled': !!definition.disabled
 			});
 			
 			//Decorate button style
@@ -302,6 +304,16 @@ YUI.add('supra.input-select-visual', function (Y) {
 			}
 			
 			button.render(contentBox);
+			
+			//Render description
+			if (definition.description) {
+				var description = Y.Node.create(this.DESCRIPTION_TEMPLATE);
+				description.set('text', definition.description);
+				description.insert()
+				
+				//button.get('boundingBox').insert(description, 'after');
+				contentBox.append(description);
+			}
 			
 			//Set button width
 			button.get('boundingBox').setStyle('width', button_width + '%');
@@ -436,6 +448,24 @@ YUI.add('supra.input-select-visual', function (Y) {
 		 * ---------------------------------------- ATTRIBUTES ----------------------------------------
 		 */
 		
+		
+		/**
+		 * Disabled attribute setter
+		 * 
+		 * @param {Array} values
+		 * @return New values
+		 * @type {Array}
+		 * @private
+		 */
+		_setDisabled: function (value) {
+			value = Input.superclass._setDisabled.apply(this, arguments);
+			
+			if (this.widgets && this.widgets.button) {
+				this.widgets.button.set('disabled', value);
+			}
+			
+			return value;
+		},
 		
 		/**
 		 * Value attribute setter

@@ -72,37 +72,39 @@
 				{% set promoted = true %}
 			{% endif %}
 			
-			<article class="{% if promoted %}promoted{% endif %} {% if post.media %}has-media{% endif %} clearfix">
+			<article class="{% if promoted %}promoted{% endif %} {% if post.properties.media %}has-media{% endif %} clearfix">
 				
 				{# Image or video #}
-				{% if promoted and post.media %}
+				{% if promoted and post.properties.media %}
 					<figure class="media">
-						{{ post.media }}
+						{{ post.properties.media }}
 					</figure>
 				{% endif %}
 				
 				{# Heading #}
 				<header>
+					{% set date = post.localization.creationTime %}
 					{# Date, for 'promoted' items it is slightly different #}
 					{% if promoted %}
-						<time datetime="{{ post.date.format('Y-m-d') }}"><span class="date-no-zero">{{ post.date.format('j') }}</span><span class="date-zero">{{ post.date.format('d') }}/</span>{{ post.date.format('m.Y') }}</time>
+						<time datetime="{{ date.format('Y-m-d') }}"><span class="date-no-zero">{{ date.format('j') }}</span><span class="date-zero">{{ date.format('d') }}/</span>{{ date.format('m/Y') }}</time>
 					{% else %}
-						<time datetime="{{ post.date.format('Y-m-d') }}">{{ post.date.format('d/m/Y') }}</time>
+						<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('d/m/Y') }}</time>
 					{% endif %}
 					
 					{# Title #}
-					<h3><a href="/{{ supra.locale.id }}{{ post.path }}">{{ post.title }}</a></h3>
+					{#<h3><a href="/{{ supra.locale.id }}{{ post.localization.path }}">{{ post.localization.title }}</a></h3>#}
+					<h3><a href="{{ post.localization.path }}">{{ post.localization.title }}</a></h3>
 				</header>
 				
 				{# Image or video #}
-				{% if not promoted and post.media %}
+				{% if not promoted and post.properties.media %}
 					<figure class="media">
-						{{ post.media }}
+						{{ post.properies.media }}
 					</figure>
 				{% endif %}
 				
 				{# Description #}
-				<p>{{ post.description }}</p>
+				<p>{{ post.properties.description }}</p>
 			</article>
 			
 		{% endfor %}
@@ -112,9 +114,15 @@
 	
 	{# Pagination #}
 	{% if totalPages > 1 %}
+	
+		{% set pathPrefix = '?' %}
+		{% if currentTag is not empty %}
+			{% set pathPrefix = '?tag=' ~ (currentTag | url_encode ) ~ '&' %}
+		{% endif %}
+	
 		<nav class="pagination">{% spaceless %}
 			{% if currentPage > 0 %}
-				<a class="prev" rel="prev" href="?page={{ currentPage - 1 }}">{{ supraBlock.property('previous_page') }}</a>
+				<a class="prev" rel="prev" href="{{ pathPrefix }}page={{ currentPage - 1 }}">{{ supraBlock.property('previous_page') }}</a>
 			{% else %}
 				<span class="prev">{{ supraBlock.property('previous_page') }}</span>
 			{% endif %}
@@ -135,14 +143,14 @@
 				{% if i == currentPage %}
 					<span class="item active">{{ i + 1 }}</span>
 				{% else %}
-					<a class="item" href="?page={{ i }}">{{ i + 1 }}</a>
+					<a class="item" href="{{ pathPrefix }}page={{ i }}">{{ i + 1 }}</a>
 				{% endif %}
 			{% endfor %}
 			
 			{% if to < totalPages - 1 %}<span class="dots">...</span>{% endif %}
 			
 			{% if currentPage < totalPages - 1 %}
-				<a class="next" rel="next" href="?page={{ currentPage + 1 }}">{{ supraBlock.property('next_page') }}</a>
+				<a class="next" rel="next" href="{{ pathPrefix }}page={{ currentPage + 1 }}">{{ supraBlock.property('next_page') }}</a>
 			{% else %}
 				<span class="next">{{ supraBlock.property('next_page') }}</span>
 			{% endif %}

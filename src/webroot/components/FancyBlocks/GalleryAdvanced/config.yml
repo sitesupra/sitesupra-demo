@@ -97,14 +97,25 @@
                 default: Lorem ipsum dolor sit amet
             - SerializablePropertyConfiguration:
                 name: image
+                label: Image
                 editable: Supra\Editable\InlineMedia
                 additionalParameters:
                   allowVideo: false
             - SerializablePropertyConfiguration:
                 name: video
+                label: Video
                 editable: Supra\Editable\InlineMedia
                 additionalParameters:
                   allowImage: false
+            - SerializablePropertyConfiguration:
+                name: link
+                editable: Supra\Editable\Link
+                label: Link
+            - SerializablePropertyConfiguration:
+                name: link_title
+                editable: Supra\Editable\String
+                label: Link title
+                default: Visit site
           additionalParameters:
             layouts:
               - MediaGalleryLayoutConfiguration: 

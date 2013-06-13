@@ -24,6 +24,11 @@
 				{{ property.title|raw  }}
 			</h2>
 		{% endif %}
+		{% if property.link %}
+			<span class="link">
+				<a href="{{ property.link.href }}" target="{{ property.link.target }}">{{ property.link_title|default(property.link.title) }}</a>
+			</span>
+		{% endif %}
 		<span class="icon icon-image"></span>
 	</div>
 </li>

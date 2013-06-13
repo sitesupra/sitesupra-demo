@@ -21,6 +21,11 @@ class InlineMediaFilter implements FilterInterface
 	public $property;
 
 	/**
+	 * @var boolean
+	 */
+	protected $isEditRequest = false;
+	
+	/**
 	 * Parse supra.image
 	 * @param Entity\ReferencedElement\ImageReferencedElement $imageData
 	 * @return string
@@ -109,7 +114,7 @@ class InlineMediaFilter implements FilterInterface
 			$videoId = $element->getExternalId();
 			
 			$wmodeParam = null;
-			if ($this->requestType == self::REQUEST_TYPE_EDIT) {
+			if ($this->isEditRequest) {
 				$wmodeParam = 'wmode="opaque"';
 			}
 			
@@ -143,7 +148,7 @@ class InlineMediaFilter implements FilterInterface
 			else if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_EMBED) {
 				
 				$wmodeParam = null;
-				if ($this->requestType == self::REQUEST_TYPE_EDIT) {
+				if ($this->isEditRequest) {
 					$wmodeParam = 'wmode="opaque"';
 				}
 				

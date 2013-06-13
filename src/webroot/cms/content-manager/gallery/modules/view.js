@@ -242,9 +242,21 @@ YUI.add('gallery.view', function (Y) {
 			
 			if (html) {
 				iframe.once('ready', this.renderItems, this);
-	 			iframe.set('html', html);
+				iframe.once('ready', this.bindIframeListeners, this);
+				iframe.set('html', html);
 	 			// Note: renderItems is event listener, so it will be called after HTML is set, not before!
 		 	}
+		},
+		
+		/**
+		 * Attach listeners to iframe document click event
+		 * which will stop editing current item
+		 * 
+		 * @private
+		 */
+		bindIframeListeners: function () {
+			var doc = Y.Node(this.get('iframe').get('doc'));
+			doc.on('mousedown', this._onDocumentClick, this);
 		},
 		
 		
@@ -309,6 +321,26 @@ YUI.add('gallery.view', function (Y) {
 		 */
 		_activePropertyId: null,
 		
+		
+		/**
+		 * If user clicked outside all items then stop editing
+		 * current item
+		 * 
+		 * @param {Object} event Event facade object
+		 * @private
+		 */
+		_onDocumentClick: function (event) {
+			var element = event.target.closest('.supra-gallery-item'),
+				last    = null,
+				in_doc   = event.target.inDoc(this.getDocument());
+			
+			// If there is no element and target was not removed before we captured
+			// event, then assument user clicked outside any item
+			if (!element && in_doc && !event._event.defaultPrevented) {
+				this.stopEditing();
+				this.get('host').set('activeSlideId', null);
+			}
+		},
 		
 		/**
 		 * On input focus change Gallery state to item editing
@@ -445,6 +477,8 @@ YUI.add('gallery.view', function (Y) {
 			this.get('host').settings.showForm();
 			
 			this.fire('focusItem', {'input': null, 'id': id, 'property': null});
+			
+			event.preventDefault();
 		},
 		
 		/**
@@ -586,15 +620,9 @@ YUI.add('gallery.view', function (Y) {
 				attr_arr = null;
 			
 			for (var i=0, ii=data.length; i<ii; i++) {
-				tmp = layouts.getLayoutById(data[i].id).html.match(/<([a-z]+)([^>]*)/);
+				tmp = layouts.getLayoutById(data[i].id).html.match(/<([a-z]+)/);
 				if (tmp) {
 					tag = tmp[1];
-					
-					// Parse attributes
-					if (tmp[2] && tmp[2].indexOf('class="') != -1) {
-						attrs['class'] = tmp[2].match(/class="([^"]*)"/)[1].split(' ');
-					}
-					
 					break;
 				}
 			}
@@ -1112,6 +1140,8 @@ YUI.add('gallery.view', function (Y) {
 							'value': value,
 							'plugins': property.plugins
 						});
+						
+						input.set('name', property.id);
 						
 						inputs.push(input);
 						input.render(contNode);

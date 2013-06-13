@@ -48,24 +48,32 @@ class SlideshowAdvancedBlock extends BlockController
         				}
         				
         				$slide = $slide + array(
+        				    'theme' => null,
+        				    'mask_image' => null,
+        				    'mask_color' => null,
         					'text_main' => null,
         					'text_top' => null,
         					'media' => null,
         					'mediaType' => null,
         					'image' => null,
         					'background' => null,
+        					'background_color' => null,
         					'layout' => null,
         					'buttons' => null,
         					'height' => null,
         				);
         				
         				$slideData = array(
+        					'theme' => $slide['theme'],
+        					'mask_image' => '/resources/img/sample/slideshow-mask.png',
+                            'mask_color' => null,
         					'text_main' => $this->filterHtml($slide['text_main']),
         					'text_top' => $this->filterHtml($slide['text_top']),
         					'media' => $this->filterMedia($slide['media']),
         					'mediaType' => $this->getMediaType($slide['media']),
         					'image' => $slide['image'],
         					'background' => $this->filterBackground($slide['background']),
+                            'background_color' => $slide['background_color'],
         					'layout' => $slide['layout'],
         					'buttons' => $this->filterButtons($slide['buttons']),
         					'height' => $slide['height'],

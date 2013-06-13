@@ -153,7 +153,9 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 				ii = properties.length,
 				property = null,
 				id = null,
-				value = null;
+				value = null,
+				
+				html = '';
 			
 			for (; i<ii; i++) {
 				property = properties[i];
@@ -189,10 +191,48 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 						model.property[id] = '<div class="supra-media" unselectable="on" contenteditable="false" data-supra-item-property="' + id + '"></div>';
 						model.property[id + 'Type'] = 'type-media';
 						break;
+					case 'SelectVisual':
+						// Classname
+						value = property.defaultValue || '';
+						model.property[id] = value + '" data-supra-item-property="' + id;
+						break;
+					case 'Color':
+						// Background color
+						value = property.defaultValue || 'transparent';
+						model.property[id] = value + ';" data-supra-item-property="' + id;
+						break;
+				}
+				
+				// Mask
+				switch (id) {
+					case 'mask_image':
+						// Background image
+						value = property.defaultValue || 'about:blank';
+						model.property[id] =  value + ')" data-supra-item-property="mask_image" data-tmp="(';
+						break;
 				}
 			}
 			
-			return template(model);
+			html = template(model);
+			
+			// Merge multiple data-supra-item-property attributes into one for single attribute
+			html = html.replace(/(<[^>]+data-supra-item-property[^>]*?)(\/?>)/g, function (all, tag, end) {
+				var regex   = /data-supra-item-property="([^"]*)"/g,
+					item    = null,
+					html    = tag,
+					out     = [];
+				
+				while (item = regex.exec(tag)) {
+					html = html.replace(item[0], '');
+					if (item[1]) {
+						out.push(item[1]);
+					}
+				}
+				
+				return html + ' data-supra-item-property="' + out.join(' ') + '"' + end;
+			});
+			
+			return html;
 		},
 		
 		

@@ -12,11 +12,15 @@
 					{% for slide in slides %}
 						{% set property = {
 							'hidden': loop.index,
+							'theme': slide['theme'],
+							'mask_image': slide['mask_image'],
+							'mask_color': slide['mask_color'],
 							'mediaType': slideshow.mediaType(slide['media']),
 							'media': slideshow.media(slide['media']), 
 							'text_main': slide['text_main'],
 							'text_top': slide['text_top'],
 							'background': slideshow.background(slide['background']),
+							'background_color': slide['background_color'],
 							'buttons': slideshow.buttons(slide['buttons']),
 							'buttons_overlay': slideshow.buttons_overlay(slide['buttons']),
 							'height': slide['height'],
@@ -36,50 +40,54 @@
 
 {% macro mediaType(mediaData) %}
 {% spaceless %}
-	{% if mediaData.type == 'image' %}
-		type-image
-	{% elseif mediaData.type == 'video' %}
-		type-video
+	{% if mediaData %}
+		{% if mediaData.type == 'image' %}
+			type-image
+		{% elseif mediaData.type == 'video' %}
+			type-video
+		{% endif %}
 	{% endif %}
 {% endspaceless %}
 {% endmacro %}
 
 {% macro media(mediaData) %}
 {% spaceless %}
-	{% if mediaData.type == 'image' %}
-		{{ supraBlock.imageHtmlTag(mediaData.id, mediaData.size_width, mediaData.size_height, true, mediaData.size_name) | raw }}
-	{% elseif mediaData.type == 'video' %}
-		{% set video = mediaData %}
-
-		{# Default width and height, resizing is done by javascript #}
-		{% set width = 500 %}
-		{% set ratio = 16/9 %}
-		{% set height = width/ratio %}
-
-		{% if video.resource == 'source' %}
-			{# HTML #}
-			<div class="video" data-attach="$.fn.resize">
-				{% if video.source_type == 'iframe' %}
-					<iframe src="{{ video.src }}" width="{{ video.width }}" height="{{ video.height }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-				{% elseif video.source_type == 'embed' %}
-					<object width="{{ video.width }}" height="{{ video.height }}">
-						<param name="movie" value="{{ video.src }} "></param>
-						<param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param>
-						<embed{% if supra.isCmsRequest %} wmode="opaque"{%endif%} src="{{ video.src }}" type="application/x-shockwave-flash" width="{{ video.width }}" height="{{ video.height }}" allowscriptaccess="always" allowfullscreen="true"></embed>
-					</object>
+	{% if mediaData %}
+		{% if mediaData.type == 'image' %}
+			{{ supraBlock.imageHtmlTag(mediaData.id, mediaData.size_width, mediaData.size_height, true, mediaData.size_name) | raw }}
+		{% elseif mediaData.type == 'video' %}
+			{% set video = mediaData %}
+	
+			{# Default width and height, resizing is done by javascript #}
+			{% set width = 500 %}
+			{% set ratio = 16/9 %}
+			{% set height = width/ratio %}
+	
+			{% if video.resource == 'source' %}
+				{# HTML #}
+				<div class="video" data-attach="$.fn.resize">
+					{% if video.source_type == 'iframe' %}
+						<iframe src="{{ video.src }}" width="{{ video.width }}" height="{{ video.height }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+					{% elseif video.source_type == 'embed' %}
+						<object width="{{ video.width }}" height="{{ video.height }}">
+							<param name="movie" value="{{ video.src }} "></param>
+							<param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param>
+							<embed{% if supra.isCmsRequest %} wmode="opaque"{%endif%} src="{{ video.src }}" type="application/x-shockwave-flash" width="{{ video.width }}" height="{{ video.height }}" allowscriptaccess="always" allowfullscreen="true"></embed>
+						</object>
+					{% endif %}
+				</div>
+	
+			{% elseif video.resource == 'link' and video.id %}
+				{% if video.service == 'youtube' %}
+					<div class="video" data-attach="$.fn.resize">
+						<iframe src="http://www.youtube.com/embed/{{ video.id }}?hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+					</div>
+				{% elseif video.service == 'vimeo' %}
+					<div class="video" data-attach="$.fn.resize">
+						{% set player_id = random() %}
+						<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&player_id=player{{ player_id }}" id="player{{ player_id }}" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+					</div>
 				{% endif %}
-			</div>
-
-		{% elseif video.resource == 'link' and video.id %}
-			{% if video.service == 'youtube' %}
-				<div class="video" data-attach="$.fn.resize">
-					<iframe src="http://www.youtube.com/embed/{{ video.id }}?hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-				</div>
-			{% elseif video.service == 'vimeo' %}
-				<div class="video" data-attach="$.fn.resize">
-					{% set player_id = random() %}
-					<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&player_id=player{{ player_id }}" id="player{{ player_id }}" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-				</div>
 			{% endif %}
 		{% endif %}
 	{% endif %}

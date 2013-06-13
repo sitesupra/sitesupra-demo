@@ -142,6 +142,56 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		},
 		
 		/**
+		 * Returns non-inline properties grouped by 'group' attribute
+		 * 
+		 * @returns {Array} List of non-inline properties grouped
+		 */
+		getGoupedProperties: function () {
+			var properties = this.getProperties(),
+				i = 0,
+				ii = properties.length,
+				
+				groups = {},
+				group_inputs = {},
+				groups_arr = this.get('host').options.property_groups || [],
+				g = 0,
+				gg = groups_arr.length,
+				
+				grouped = [],
+				
+				id = null;
+			
+			// Index all groups
+			for (; g<gg; g++) {
+				groups[groups_arr[g].id] = groups_arr[g];
+			}
+			
+			for (; i<ii; i++) {
+				id = properties[i].group;
+				if (id && id in groups) {
+					// Add property to the group
+					if (!group_inputs[id]) {
+						// Create input for group
+						group_inputs[id] = {
+							'id': groups[id].id,
+							'properties': [],
+							'labelButton': groups[id].label,
+							'type': 'Group'
+						};
+						grouped.push(group_inputs[id]);
+					}
+					
+					group_inputs[id].properties.push(properties[i]);
+				} else {
+					// Add property to the output
+					grouped.push(properties[i]);
+				}
+			}
+			
+			return grouped;
+		},
+		
+		/**
 		 * Returns property by id
 		 * 
 		 * @param {String} id Property id
@@ -175,7 +225,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			if (!content) return;
 			
 			//Properties form
-			var properties = this.getProperties(),
+			var properties = this.getGoupedProperties(),
 				form_config = {
 					'inputs': properties,
 					'style': 'vertical',
@@ -192,6 +242,16 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			input = form.getInput('buttons');
 			if (input) {
 				input.plug(Supra.SlideshowManagerViewButton, {});
+			}
+			
+			//Mask form plugin, used to add color to the "mask" theme property
+			input = form.getInput('theme');
+			if (input) {
+				form.plug(Supra.SlideshowManagerMaskPlugin, {
+					'themeInputName': 'theme',
+					'colorInputName': 'mask_color',
+					'maskInputName': 'mask_image'
+				});
 			}
 			
 			//On input value change update inline inputs
