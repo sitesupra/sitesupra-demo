@@ -14,36 +14,6 @@
 	
 	<section class="{{ heading_class }}" {% if supra.cmsRequest %}data-refresh-event="blog"{% endif %}>
 		
-		{#
-		<article class="clearfix has-media">
-			<figure class="media">
-				<img src="/themes/feira/assets/img/temp/text-small-1.jpg" alt="" />
-			</figure>
-			<header>
-				<time datetime="2013-05-12">12/05/2013</time>
-				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
-			</header>
-			<p>Suspendisse vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam vehicula mi at mauris. Maecenas placerat, nisl at consequat</p>
-		</article>
-		<article class="clearfix has-media">
-			<figure class="media">
-				<img src="/themes/feira/assets/img/temp/text-small-1.jpg" alt="" />
-			</figure>
-			<header>
-				<time datetime="2013-05-12">12/05/2013</time>
-				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
-			</header>
-			<p>Suspendisse vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam vehicula mi at mauris. Maecenas placerat, nisl at consequat</p>
-		</article>
-		<article class="clearfix">
-			<header>
-				<time datetime="2013-05-12">12/05/2013</time>
-				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
-			</header>
-			<p>Suspendisse vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam vehicula mi at mauris. Maecenas placerat, nisl at consequat</p>
-		</article>
-		#}
-	
 		{% for post in posts %}
 			
 			<article class="clearfix {% if post.media %}has-media{% endif %}">
