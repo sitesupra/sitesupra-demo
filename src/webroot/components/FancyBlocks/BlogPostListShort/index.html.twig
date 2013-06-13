@@ -14,33 +14,63 @@
 	
 	<section class="{{ heading_class }}" {% if supra.cmsRequest %}data-refresh-event="blog"{% endif %}>
 		
+        
+		{#<article class="clearfix has-media">
+			<figure class="media">
+				<img src="/themes/feira/assets/img/temp/text-small-1.jpg" alt="" />
+			</figure>
+			<header>
+				<time datetime="2013-05-12">12/05/2013</time>
+				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
+			</header>
+			<p>Suspendisse vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam vehicula mi at mauris. Maecenas placerat, nisl at consequat</p>
+		</article>
+		<article class="clearfix has-media">
+			<figure class="media">
+				<img src="/themes/feira/assets/img/temp/text-small-1.jpg" alt="" />
+			</figure>
+			<header>
+				<time datetime="2013-05-12">12/05/2013</time>
+				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
+			</header>
+			<p>Suspendisse vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam vehicula mi at mauris. Maecenas placerat, nisl at consequat</p>
+		</article>
+		<article class="clearfix">
+			<header>
+				<time datetime="2013-05-12">12/05/2013</time>
+				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
+			</header>
+			<p>Suspendisse vulputate aliquam dui. Nulla elementum dui ut augue. Aliquam vehicula mi at mauris. Maecenas placerat, nisl at consequat</p>
+		</article>#}
+		
+	
 		{% for post in posts %}
 			
-			<article class="clearfix {% if post.media %}has-media{% endif %}">
+			<article class="clearfix {% if post.properties.media %}has-media{% endif %}">
 				
 				{# Image or video #}
-				{% if post.media %}
+				{% if post.properties.media %}
 					<figure class="media">
-						{{ post.media }}
+						{{ post.properties.media }}
 					</figure>
 				{% endif %}
 				
 				{# Heading #}
 				<header>
 					{# Date #}
-					<time datetime="{{ post.date.format('Y-m-d') }}">{{ post.date.format('d/m/Y') }}</time>
+                    {% set date = post.localization.creationTime %}
+					<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('d.m.Y') }}</time>
 					
 					{# Title #}
-					<h3><a href="/{{ supra.locale.id }}{{ post.path }}">{{ post.title }}</a></h3>
+					<h3><a href="{{ post.localization.path }}">{{ post.localization.title }}</a></h3>
 				</header>
 				
 				{# Description #}
-				<p>{{ post.description }}</p>
+				<p>{{ post.properties.description }}</p>
 			</article>
 			
 		{% endfor %}
-		
-	</section>
-	
+        
+	</section>	
 </div>
 {% endif %}
