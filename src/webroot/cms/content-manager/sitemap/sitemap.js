@@ -166,6 +166,15 @@ function (Y) {
 		 */
 		animation: null,
 		
+		/**
+		 * Mode is being changed from pages to templates or 
+		 * vice versa. This is needed to prevent locale overewrite, because
+		 * mode change triggers execute
+		 * @type {String}
+		 * @private
+		 */
+		changingMode: false,
+		
 		
 		
 		/**
@@ -563,6 +572,8 @@ function (Y) {
 				Manager.getAction('PageToolbar').getActionButton('mode_templates').set('down', false);
 				
 				if (silent !== true) {
+					this.changingMode = true;
+					
 					//Update URI
 					var Root = Supra.Manager.Root;
 					Root.router.save(Root.ROUTE_SITEMAP);
@@ -586,6 +597,8 @@ function (Y) {
 				Manager.getAction('PageToolbar').getActionButton('mode_templates').set('down', true);
 				
 				if (silent !== true) {
+					this.changingMode = true;
+					
 					//Update URI
 					var Root = Supra.Manager.Root;
 					Root.router.save(Root.ROUTE_TEMPLATES);
@@ -718,12 +731,19 @@ function (Y) {
 				this.firstExec = false;
 				Y.one('body').removeClass('loading');
 			} else {
-				page_locale = page_data ? page_data.locale : this.languageSelector.get('value');
+				// This execute was caused by mode change, don't check opened page locale
+				if (this.changingMode) {
+					this.changingMode = false;
+					page_locale = this.languageSelector.get('value');
+				} else {
+					page_locale = page_data ? page_data.locale : this.languageSelector.get('value');
+				}
 				
 				//Open sitemap in same language as currently opened page
 				if (page_locale != this.languageSelector.get('value')) {
 					//Change locale without triggering reload
 					this.languageSelector.set('value', page_locale, {'silent': true});
+					this.tree.set('locale', page_locale, {'silent': true});
 				}
 			}
 			
