@@ -4,7 +4,7 @@
 <div class="block">
 	{% set animation = supraBlock.property('animation')|default('horizontal') %}
 	{% set navigation = supraBlock.property('navigation')|default('arrows') %}
-	<div class="slideshow-advanced" data-refresh-event="slideshowAdvanced" {% if supraBlock.property('scrollTimerEnabled') %}data-scroll-timer="{{ supraBlock.property('scrollTimerDelay') }}"{% endif %} data-animation="{{ animation }}" data-navigation="{{ navigation }}">
+	<div class="slideshow-advanced as-nav-{{ navigation }}" data-refresh-event="slideshowAdvanced" {% if supraBlock.property('scrollTimerEnabled') %}data-scroll-timer="{{ supraBlock.property('scrollTimerDelay') }}"{% endif %} data-animation="{{ animation }}" data-navigation="{{ navigation }}">
 		<div class="as-inner">
 			<ul class="as-container" data-supra-container="true">
 				{% if slides %}
@@ -108,7 +108,7 @@
 {% spaceless %}
 	{% if buttonsData %}
 		{% for button in buttonsData %}
-			{% if not button.overlay %}
+			{% if not button.overlay or button.overlay == "false" %}
 				<a class="button" {% if button.link %}href="{{ button.link.href }}"{% endif %}>{{ button.title }}</a>
 			{% endif %}
 		{% endfor %}
@@ -120,7 +120,7 @@
 {% spaceless %}
 	{% if buttonsData %}
 		{% for button in buttonsData %}
-			{% if button.overlay %}
+			{% if not button.overlay or button.overlay == "true" %}
 				<a class="overlay" {% if button.target %}target="{{ button.target }}"{% endif %} {% if button.link %}href="{{ button.link.href }}"{% endif %}></a>
 			{% endif %}
 		{% endfor %}
