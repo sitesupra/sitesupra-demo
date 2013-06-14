@@ -4,7 +4,6 @@ namespace Supra\Template\Parser\Twig;
 
 use Twig_Environment;
 use Twig_LoaderInterface;
-use Twig_TemplateInterface;
 use Supra\Template\Parser\TemplateParser;
 
 /**
@@ -19,7 +18,9 @@ class Twig extends Twig_Environment implements TemplateParser
 		$oldLoader = null;
 		
 		if ( ! is_null($loader)) {
-			$oldLoader = $this->getLoader();
+			if ($this->loader !== null) {
+				$oldLoader = $this->getLoader();
+			}
 
 			$this->setLoader($loader);
 		}

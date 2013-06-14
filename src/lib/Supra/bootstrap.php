@@ -1,5 +1,13 @@
 <?php
 
+function outputInternalServerError()
+{
+    header('Content-Type: text/html; charset=utf-8');
+    $errorPage = file_get_contents('500.html');
+    echo $errorPage;
+    die();
+}
+
 use Supra\Loader\Loader;
 use Supra\Loader\Strategy\NamespaceLoaderStrategy;
 use Supra\Loader\Strategy\SupraProxyLoadStrategy;
