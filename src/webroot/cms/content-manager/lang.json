@@ -500,6 +500,8 @@
 			
 			"add_new": "Add New",
 			
+			"wide_layout_mask_description": "Masks are available only for Boxed designs",
+			
 			"error_template": "Error occured in {block} block"
 		},
 		

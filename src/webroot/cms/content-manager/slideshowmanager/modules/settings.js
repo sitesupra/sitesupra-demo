@@ -244,6 +244,16 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				input.plug(Supra.SlideshowManagerViewButton, {});
 			}
 			
+			//Mask form plugin, used to add color to the "mask" theme property
+			input = form.getInput('theme');
+			if (input) {
+				form.plug(Supra.SlideshowManagerMaskPlugin, {
+					'themeInputName': 'theme',
+					'colorInputName': 'mask_color',
+					'maskInputName': 'mask_image'
+				});
+			}
+			
 			//On input value change update inline inputs
 			var ii = properties.length,
 				i = 0,

@@ -26,13 +26,58 @@
  */
 #linkToRoot {
 	.title {
-		padding: 20px;
+		padding: 20px 19px 10px;
 		font-weight: bold;
 	}
 	.select {
 		text-align: left;
-		padding: 0 14px;
+		padding: 0 19px;
 	}
+	
+	.su-button-link-type {
+		margin-bottom: 10px;
+		
+		.su-button-content {
+			background: url('images/button-background.png') 0 0 no-repeat, url('images/button-background.png') 100% -100px no-repeat;
+			padding: 0 20px 0 5px;
+			height: 50px;
+		}
+		button {
+			background: url('images/button-background.png') 0 -50px repeat-x;
+			padding: 8px 3px 7px;
+			text-align: left;
+		}
+		p {
+			line-height: 35px;
+			height: 35px;
+		}
+		img {
+			margin-right: 7px;
+		}
+		img, p {
+			vertical-align: middle;
+		}
+		
+		&.su-button-mouse-hover {
+			.su-button-content {
+				background-position: 0 -150px, 100% -250px;
+			}
+			button {
+				background-position: 0 -200px;
+			}
+		}
+		&.su-button-mouse-down,
+		&.su-button-down {
+			.su-button-content {
+				background-position: 0 -300px, 100% -400px;
+			}
+			button {
+				background-position: 0 -350px;
+			}
+		}
+	}
+	
+	/*
 	.select a {
 		.border-radius (3px);
 		border: 1px solid #A5A8B9;
@@ -76,7 +121,7 @@
 		&:hover > span > span {
 			text-decoration: underline;
 		}
-	}
+	}*/
 }
 
 /**

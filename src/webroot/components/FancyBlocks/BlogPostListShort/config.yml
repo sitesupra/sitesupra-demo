@@ -19,3 +19,12 @@
           editable: Supra\Editable\String
           label: Title
           default: Blog
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: posts_per_page
+          editable: Supra\Editable\Number
+          label: Posts per page
+          default: 3
+          additionalParameters:
+            minValue: 1
+            # some reasonable value should be placed here
+            maxValue: 25

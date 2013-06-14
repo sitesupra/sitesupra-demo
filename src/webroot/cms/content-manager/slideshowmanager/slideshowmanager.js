@@ -31,6 +31,10 @@ Supra.addModules({
 		path: 'plugin-inline-button.js',
 		requires: ['supra.input-proto', 'plugin', 'supra.template']
 	},
+	'slideshowmanager.plugin-mask': {
+		path: 'plugin-mask.js',
+		requires: ['supra.input-proto', 'plugin']
+	},
 	'slideshowmanager.input-resizer': {
 		path: 'input-resizer.js',
 		requires: ['supra.input-proto']
@@ -45,6 +49,7 @@ Supra([
 	'slideshowmanager.settings',
 	'slideshowmanager.view',
 	'slideshowmanager.plugin-inline-button',
+	'slideshowmanager.plugin-mask',
 	'slideshowmanager.input-resizer',
 	'supra.help'
 ], function (Y) {
@@ -83,11 +88,26 @@ Supra([
 		HAS_TEMPLATE: true,
 		
 		/**
+		 * URL to request mask image painted with given color
+		 * @TODO Replace with correct path
+		 * @type {String}
+		 * @private
+		 */
+		MASK_IMAGE_REQUEST_URL: '/resources/img/sample/slideshow-mask.png?theme={{ theme }}&color={{ color }}&block_id={{ block_id }}',
+		
+		/**
 		 * Slideshow manager options
 		 * @type {Object}
 		 * @private
 		 */
 		options: {},
+		
+		/**
+		 * Page layout is wide, detected by checking "wide" class on BODY element
+		 * @type {Boolean}
+		 * @private
+		 */
+		page_layout_wide: null,
 		
 		
 		/**
@@ -442,6 +462,151 @@ Supra([
 		
 		
 		/*
+		 * ---------------------------------- DATA ------------------------------------
+		 */
+		
+		
+		/**
+		 * Returns list of color presets for Color input
+		 * 
+		 * @returns {Array} List of color presets
+		 * @private
+		 */
+		getColorPresets: function () {
+			// Extract color presets
+			var iframe  = Supra.Manager.PageContent.getIframeHandler(),
+				parser  = iframe.get('stylesheetParser'),
+				styles  = parser.getSelectorsByNodeMatch(iframe.get('doc').body)["COLOR"] || [],
+				presets = [],
+				i = 0,
+				ii = styles.length;
+			
+			for (; i<ii; i++) {
+				if (styles[i].attributes.color) {
+					presets.push(styles[i].attributes.color);
+				}
+			}
+			
+			return presets;
+		},
+		
+		/**
+		 * Normalize options
+		 * 
+		 * @param {Object} options
+		 * @returns {Object} Normalized options
+		 * @private
+		 */
+		normalizeOptions: function (options) {
+			this.options = options = Supra.mix({
+				'data': {},
+				'properties': [],
+				'layouts': [],
+				
+				'callback': null,
+				'context': null,
+				
+				'shared': false,
+				'imageUploadFolder': 0
+			}, options || {});
+			
+			if (!Y.Lang.isArray(options.data.slides)) {
+				options.data.slides = [];
+			}
+			
+			if (options.callback && options.context) {
+				options.callback = Y.bind(options.callback, options.context);
+			}
+			
+			var has_theme_property = false,
+				has_mask_color_property = false,
+				presets = this.getColorPresets(),
+				page_layout_wide = this.isPageLayoutWide();
+			
+			// Update properties
+			for (var property, i=0, ii=options.properties.length; i<ii; i++) {
+				property = options.properties[i];
+				
+				if (property.type == 'Color') {
+					// Add presets for color inputs
+					property.presets = presets;
+				}
+				
+				if (property.id == 'height') {
+					// Change 'height' property to editable
+					property.type = 'SlideshowInputResizer';
+					property.inline = true;
+					
+				} else if (property.id == 'theme') {
+					has_theme_property = true;
+					
+					if (page_layout_wide) {
+						// In wide page layout mask is disabled
+						for (var k=0, kk=property.values.length; k<kk; k++) {
+							if (property.values[k].id == 'mask') {
+								//property.values.splice(k, 1);
+								property.values[k].disabled = true;
+								property.values[k].description = Supra.Intl.get(['slideshowmanager', 'wide_layout_mask_description']);
+								break;
+							}
+						}
+					}
+					
+				} else if (property.id == 'mask_color') {
+					has_mask_color_property = true;
+					
+					if (page_layout_wide) {
+						// In wide page layout mask is disabled
+						property.visible = false;
+					}
+				}
+			}
+			
+			// If there is theme and mask_color properties, then add
+			// mask_image property, which we will use to change
+			// mask
+			if (!page_layout_wide && has_theme_property && has_mask_color_property) {
+				options.properties.push({
+					'id': 'mask_image',
+					'type': 'Hidden',
+					'value': ''
+				});
+				
+				// Add mask_image values to the slides
+				var mask = this.settings.getForm().mask;
+				for (var slide, i=0, ii=options.data.slides.length; i<ii; i++) {
+					slide = options.data.slides[i];
+					slide.mask_image = mask.getMaskImageURL(slide.theme, slide.mask_color);
+				}
+			}
+			
+          	return options;
+		},
+		
+		/**
+		 * Returns true if page layout is wide, otherwise false
+		 * 
+		 * @returns {Boolean} True if page layout is wide, otherwise false
+		 */
+		isPageLayoutWide: function () {
+			var wide   = this.page_layout_wide,
+				iframe = null,
+				body   = null;
+			
+			if (wide === null) {
+				wide = false;
+				iframe = Supra.Manager.PageContent.getIframeHandler();
+				body = Y.Node(iframe.get('doc').body);
+				
+				wide = body.hasClass('wide');
+				this.page_layout_wide = wide;
+			}
+			
+			return wide;
+		},
+		
+		
+		/*
 		 * ---------------------------------- OPEN/SAVE/CLOSE ------------------------------------
 		 */
 		
@@ -475,53 +640,14 @@ Supra([
 		},
 		
 		/**
-		 * Normalize options
-		 * 
-		 * @param {Object} options
-		 * @returns {Object} Normalized options
-		 * @private
-		 */
-		normalizeOptions: function (options) {
-			options = Supra.mix({
-				'data': {},
-				'properties': [],
-				'layouts': [],
-				
-				'callback': null,
-				'context': null,
-				
-				'shared': false,
-				'imageUploadFolder': 0
-			}, options || {});
-			
-			if (!Y.Lang.isArray(options.data.slides)) {
-				options.data.slides = [];
-			}
-			
-			if (options.callback && options.context) {
-				options.callback = Y.bind(options.callback, options.context);
-			}
-			
-			// Change 'height' property to editable
-			for (var property, i=0, ii=options.properties.length; i<ii; i++) {
-				property = options.properties[i];
-				if (property.id == 'height') {
-					property.type = 'SlideshowInputResizer';
-					property.inline = true;
-				}
-			}
-			
-          	return options;
-		},
-		
-		/**
 		 * Execute action
 		 * 
 		 * @param {Object} options Slideshow options: data, callback, context, block
 		 */
 		execute: function (options) {
-			options = this.normalizeOptions(options);
-			this.options = options;
+			this.page_layout_wide = null;
+			
+			this.normalizeOptions(options);
 			
 			if (!Manager.getAction('PageToolbar').inHistory(this.NAME)) {
 				Manager.getAction('PageToolbar').setActiveAction(this.NAME);

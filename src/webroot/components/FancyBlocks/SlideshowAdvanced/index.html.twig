@@ -12,11 +12,15 @@
 					{% for slide in slides %}
 						{% set property = {
 							'hidden': loop.index,
+							'theme': slide['theme'],
+							'mask_image': slide['mask_image'],
+							'mask_color': slide['mask_color'],
 							'mediaType': slideshow.mediaType(slide['media']),
 							'media': slideshow.media(slide['media']), 
 							'text_main': slide['text_main'],
 							'text_top': slide['text_top'],
 							'background': slideshow.background(slide['background']),
+							'background_color': slide['background_color'],
 							'buttons': slideshow.buttons(slide['buttons']),
 							'buttons_overlay': slideshow.buttons_overlay(slide['buttons']),
 							'height': slide['height'],
@@ -76,7 +80,7 @@
 			{% elseif video.resource == 'link' and video.id %}
 				{% if video.service == 'youtube' %}
 					<div class="video" data-attach="$.fn.resize">
-						<iframe src="http://www.youtube.com/embed/{{ video.id }}?hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+						<iframe src="http://www.youtube.com/embed/{{ video.id }}?enablejsapi=1&version=3&hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 					</div>
 				{% elseif video.service == 'vimeo' %}
 					<div class="video" data-attach="$.fn.resize">

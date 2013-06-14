@@ -14,56 +14,6 @@
 	{% if posts %}
 	<section class="{{ heading_class }}" {% if supra.cmsRequest %}data-refresh-event="blog"{% endif %}>
 		
-		{#
-		<article class="promoted clearfix has-media">
-			<figure class="media">
-				<img src="/themes/wela/assets/img/temp/news-large-1.jpg" alt="" />
-			</figure>
-			<header>
-				<time datetime="2013-05-12"><span class="date-no-zero">12</span><span class="date-zero">12/</span>05/2013</time>
-				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
-			</header>
-			<p>Leo velit odio massa nullam id ut at. Interdum donec ultrices vitae feugiat at amet sollicitudin. Et duis in vitae nisi eu nunc quisque id et molestie. Adipiscing vitae, amet maecenas massa non at eu mi convallis. Vitae interdum in dui pharetra turpis. Pellentesque habitasse morbi consectetur pretium adipiscing. Quis elementum fermentum tincidunt imperdiet semper vitae malesuada pellentesque in interdum. </p>
-		</article>
-		<article class="promoted clearfix has-media">
-			<figure class="media">
-				<img src="/themes/wela/assets/img/temp/news-large-2.jpg" alt="" />
-			</figure>
-			<header>
-				<time datetime="2013-05-12"><span class="date-no-zero">12</span><span class="date-zero">12/</span>05/2013</time>
-				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
-			</header>
-			<p>Leo velit odio massa nullam id ut at. Interdum donec ultrices vitae feugiat at amet sollicitudin. Et duis in vitae nisi eu nunc quisque id et molestie. Adipiscing vitae, amet maecenas massa non at eu mi convallis. Vitae interdum in dui pharetra turpis. Pellentesque habitasse morbi consectetur pretium adipiscing. Quis elementum fermentum tincidunt imperdiet semper vitae malesuada pellentesque in interdum. </p>
-		</article>
-		<article class="clearfix has-media">
-			<header>
-				<time datetime="2013-05-12">12/05/2013</time>
-				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
-			</header>
-			<figure class="media">
-				<img src="/themes/wela/assets/img/temp/news-medium-2.jpg" alt="" />
-			</figure>
-			<p>Leo velit odio massa nullam id ut at. Interdum donec ultrices vitae feugiat at amet sollicitudin. Et duis in vitae nisi eu nunc quisque id et molestie. Adipiscing vitae, amet maecenas massa non at eu mi convallis. Vitae interdum in dui pharetra turpis. Pellentesque habitasse morbi consectetur pretium adipiscing. Quis elementum fermentum tincidunt imperdiet semper vitae malesuada pellentesque in interdum. </p>
-		</article>
-		<article class="clearfix">
-			<header>
-				<time datetime="2013-05-12">12/05/2013</time>
-				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
-			</header>
-			<p>Leo velit odio massa nullam id ut at. Interdum donec ultrices vitae feugiat at amet sollicitudin. Et duis in vitae nisi eu nunc quisque id et molestie. Adipiscing vitae, amet maecenas massa non at eu mi convallis. Vitae interdum in dui pharetra turpis. Pellentesque habitasse morbi consectetur pretium adipiscing. Quis elementum fermentum tincidunt imperdiet semper vitae malesuada pellentesque in interdum. </p>
-		</article>
-		<article class="clearfix has-media">
-			<header>
-				<time datetime="2013-05-12">12/05/2013</time>
-				<h3><a href="/">Lorem ipsum dolor sit amet</a></h3>
-			</header>
-			<figure class="media">
-				<img src="/themes/wela/assets/img/temp/news-medium-3.jpg" alt="" />
-			</figure>
-			<p>Leo velit odio massa nullam id ut at. Interdum donec ultrices vitae feugiat at amet sollicitudin. Et duis in vitae nisi eu nunc quisque id et molestie. Adipiscing vitae, amet maecenas massa non at eu mi convallis. Vitae interdum in dui pharetra turpis. Pellentesque habitasse morbi consectetur pretium adipiscing. Quis elementum fermentum tincidunt imperdiet semper vitae malesuada pellentesque in interdum. </p>
-		</article>
-		#}
-		
 		{% for post in posts %}
 			
 			{# Promoted posts are first two items #}
@@ -76,9 +26,7 @@
 				
 				{# Image or video #}
 				{% if promoted and post.properties.media %}
-					<figure class="media">
-						{{ post.properties.media }}
-					</figure>
+					<figure class="media">{{ post.properties.media }}</figure>
 				{% endif %}
 				
 				{# Heading #}
@@ -98,9 +46,7 @@
 				
 				{# Image or video #}
 				{% if not promoted and post.properties.media %}
-					<figure class="media">
-						{{ post.properies.media }}
-					</figure>
+					<figure class="media">{{ post.properties.media }}</figure>
 				{% endif %}
 				
 				{# Description #}

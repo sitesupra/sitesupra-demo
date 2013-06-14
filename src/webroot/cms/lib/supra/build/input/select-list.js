@@ -209,7 +209,13 @@ YUI.add('supra.input-select-list', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
-				button = new Supra.Button({'label': definition.title, 'icon': definition.icon, 'type': 'toggle', 'style': ''}),
+				button = new Supra.Button({
+					'label': definition.title,
+					'icon': definition.icon,
+					'type': 'toggle',
+					'style': '',
+					'disabled': !!definition.disabled
+				}),
 				value = this._getInternalValue(),
 				has_value_match = false;
 			
@@ -264,11 +270,12 @@ YUI.add('supra.input-select-list', function (Y) {
 		 * @param {String} value Optional, value for which to return full data
 		 * @returns {Object} Value data
 		 */
-		getValueData: function (value) {
+		getValueData: function (value, values) {
 			var value  = value === null || typeof value === 'undefined' ? this._getInternalValue() : value,
-				values = this.get('values'),
+				values = values || this.get('values'),
 				i = 0,
-				ii = values.length;
+				ii = values.length,
+				tmp = null;
 			
 			if (Y.Lang.isArray(value)) {
 				// Multiple values
@@ -277,6 +284,9 @@ YUI.add('supra.input-select-list', function (Y) {
 					if (Y.Array.indexOf(value, values[i].id) != -1) {
 						out.push(values[i]);
 					}
+					if (values[i].values) {
+						out = out.concat(this.getValueData(value, values[i].values));
+					}
 				}
 				return out;
 			} else {
@@ -284,6 +294,13 @@ YUI.add('supra.input-select-list', function (Y) {
 				for (; i<ii; i++) {
 					if (values[i].id == value) {
 						return values[i];
+					}
+					if (values[i].values) {
+						// Go through sub-values
+						tmp = this.getValueData(value, values[i].values);
+						if (tmp) {
+							return tmp;
+						}
 					}
 				}
 			}
