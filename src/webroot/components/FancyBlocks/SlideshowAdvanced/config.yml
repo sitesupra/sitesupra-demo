@@ -133,15 +133,14 @@
                   - id: theme-background
                     title: Text with background
                     icon: icons/theme/background.png
-                  - id: mask
-                    title: Mask
-                    values:
-                      - id: theme-mask-option-1
-                        title: Option 1
-                        icon: icons/theme/mask-option-1.png
-                      - id: theme-mask-option-2
-                        title: Option 2
-                        icon: icons/theme/mask-option-2.png
+                  - id: theme-mask-option-1
+                    title: Option 1
+                    icon: icons/theme/mask-option-1.png
+                    isMask: true
+                  - id: theme-mask-option-2
+                    title: Option 2
+                    icon: icons/theme/mask-option-2.png
+                    isMask: true
                 additionalParameters:
                   style: mid
                   iconStyle: center

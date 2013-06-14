@@ -21,7 +21,7 @@ YUI.add('slideshowmanager.plugin-mask', function (Y) {
 		
 		// Theme input value to which color should be added to
 		'themeSlideValue': {
-			value: 'mask'
+			value: ''
 		},
 		
 		// Mask image input name
@@ -58,10 +58,16 @@ YUI.add('slideshowmanager.plugin-mask', function (Y) {
 			
 			if (!theme || !color) return;
 			
-			slide = theme.widgets.slides[this.get('themeSlideValue')];
-			if (!slide) return;
+			if (this.get('themeSlideValue')) {
+				slide = theme.widgets.slides[this.get('themeSlideValue')];
+			}
+			if (!slide) {
+				slide = theme.widgets.slide;
+			}
 			
-			slide.one('.su-slide-content').append(color.get('boundingBox'));
+			if (slide) {
+				slide.one('.su-slide-content').append(color.get('boundingBox'));
+			}
 			
 			this.widgets = {
 				'theme': theme,
@@ -147,10 +153,17 @@ YUI.add('slideshowmanager.plugin-mask', function (Y) {
 				kk     = 0;
 			
 			for (; i<ii; i++) {
+				if (values[i].id == value && values[i].isMask) {
+					return true;
+				}
+				
+				// Sub values
 				sub = values[i].values;
 				if (sub) {
 					for (k=0, kk=sub.length; k<kk; k++) {
-						if (sub[k].id == value) return true;
+						if (sub[k].id == value && sub[k].isMask) {
+							return true;
+						}
 					}
 				}
 			}

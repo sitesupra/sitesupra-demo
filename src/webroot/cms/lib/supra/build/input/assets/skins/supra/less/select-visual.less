@@ -267,6 +267,10 @@
 		}
 	}
 	
+	&.su-button-disabled {
+		opacity: 0.5;
+	}
+	
 	&.button-section {
 		button {
 			background-position: 100% -810px;
@@ -287,6 +291,14 @@
 		div {
 			height: 52px;
 		}
+	}
+	
+}
+
+.yui3-form {
+	.su-button-group.su-button-group-mid+.description,
+	.yui3-input-select-visual-mid .su-button-group+.description {
+		padding-top: 5px;
 	}
 }
 
