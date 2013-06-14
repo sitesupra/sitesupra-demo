@@ -42,6 +42,9 @@
             - id: dots
               title: Dots
               icon: icons/navigation/dots.png
+            - id: numbers
+              title: 1-2-3
+              icon: icons/navigation/numbers.png
             - id: progress
               title: Progress bar
               icon: icons/navigation/progress.png
@@ -109,6 +112,9 @@
             - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
                 id: advanced
                 label: Advanced
+            - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+                id: background_color
+                label: Background color
                 
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -177,6 +183,7 @@
                 label: Background image
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background_color
+                group: background_color
                 editable: Supra\Editable\Color
                 label: Background color
                 additionalParameters:
