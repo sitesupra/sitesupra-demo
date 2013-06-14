@@ -1,13 +1,5 @@
 <?php
 
-function outputInternalServerError()
-{
-    header('Content-Type: text/html; charset=utf-8');
-    $errorPage = file_get_contents('500.html');
-    echo $errorPage;
-    die();
-}
-
 use Supra\Loader\Loader;
 use Supra\Loader\Strategy\NamespaceLoaderStrategy;
 use Supra\Loader\Strategy\SupraProxyLoadStrategy;
@@ -36,6 +28,15 @@ define('SUPRA_COMPONENT_PATH', SUPRA_WEBROOT_PATH . 'components' . DIRECTORY_SEP
 define('SUPRA_DATA_PATH', SUPRA_PATH . 'data' . DIRECTORY_SEPARATOR);
 define('SUPRA_TEMPLATE_PATH', SUPRA_PATH . 'template' . DIRECTORY_SEPARATOR);
 define('SUPRA_TMP_PATH', SUPRA_PATH . 'tmp' . DIRECTORY_SEPARATOR);
+
+function outputInternalServerError()
+{
+    header('Content-Type: text/html; charset=utf-8');
+    $webrootDir = SUPRA_LIBRARY_PATH . '../webroot/';
+    $errorPage = file_get_contents($webrootDir.'500.html');
+    echo $errorPage;
+    die();
+}
 
 // This is not required for currently used libraries
 //set_include_path(SUPRA_LIBRARY_PATH . PATH_SEPARATOR . get_include_path());
