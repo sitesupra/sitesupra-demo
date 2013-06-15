@@ -93,7 +93,8 @@ Supra([
 		 * @type {String}
 		 * @private
 		 */
-		MASK_IMAGE_REQUEST_URL: '/resources/img/sample/slideshow-mask.png?theme={{ theme }}&color={{ color }}&block_id={{ block_id }}',
+		//MASK_IMAGE_REQUEST_URL: '/resources/img/sample/slideshow-mask.png?theme={{ theme }}&color={{ color }}&block_id={{ block_id }}',
+		MASK_IMAGE_REQUEST_URL: '/cms-local/mask-colorizer?mask={{ theme }}&color={{ color }}&block_id={{ block_id }}',
 		
 		/**
 		 * Slideshow manager options
