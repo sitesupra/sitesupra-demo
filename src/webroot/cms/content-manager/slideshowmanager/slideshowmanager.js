@@ -521,7 +521,8 @@ Supra([
 			var has_theme_property = false,
 				has_mask_color_property = false,
 				presets = this.getColorPresets(),
-				page_layout_wide = this.isPageLayoutWide();
+				page_layout_wide = this.isPageLayoutWide(),
+				last_mask_item = null;
 			
 			// Update properties
 			for (var property, i=0, ii=options.properties.length; i<ii; i++) {
@@ -543,12 +544,25 @@ Supra([
 					if (page_layout_wide) {
 						// In wide page layout mask is disabled
 						for (var k=0, kk=property.values.length; k<kk; k++) {
-							if (property.values[k].id == 'mask') {
-								//property.values.splice(k, 1);
+							if (property.values[k].isMask) {
 								property.values[k].disabled = true;
-								property.values[k].description = Supra.Intl.get(['slideshowmanager', 'wide_layout_mask_description']);
-								break;
+								
+								last_mask_item = property.values[k];
+							} else if (property.values[k].values) {
+								// Traverse sub-properties
+								for (var sub=property.values[k].values, s=0, ss=sub.length; s<ss; s++) {
+									if (sub[s].isMask) {
+										sub[s].disabled = true;
+								
+										last_mask_item = sub[s];
+									}
+								}
 							}
+						}
+						
+						// Add description to the last mask item
+						if (last_mask_item) {
+							last_mask_item.description = Supra.Intl.get(['slideshowmanager', 'wide_layout_mask_description']);
 						}
 					}
 					
