@@ -2,11 +2,30 @@
 
 namespace Project\FancyBlocks\SlideshowAdvanced;
 
-use Supra\Controller\Pages\BlockController,
-	Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
+use Supra\Controller\Pages\BlockController;
+use	Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
+use Supra\Editable\Slideshow;
 
 class SlideshowAdvancedBlock extends BlockController
 {
+	const PROPERTY_SLIDES = 'slides';
+	const DIRECTORY_SLIDESHOW_GENERATED_IMAGES = '__slide-generated';
+	
+	/**
+	 * @var string
+	 */
+	private $generatedImagesFolderPath;
+	
+	/**
+	 * @var string
+	 */
+	private $generatedImagesBaseUrl;
+	
+	/**
+	 * @var ImageColorizer
+	 */
+	private $imageColorizer;
+	
 	/**
 	 * 
 	 */
@@ -24,90 +43,105 @@ class SlideshowAdvancedBlock extends BlockController
 	 */
 	protected function prepareSlides()
 	{
-		$slidesResponse = array();
+		$slidesData = array();
 		
+		$slides = $this->getPropertyValue(self::PROPERTY_SLIDES);
 		
-		$slidesArray = $this->getPropertyValue('slides');
-		
-		$layouts = $this->getAvailableLayouts();
-		
-		if ( ! empty($slidesArray)) {
+		if ( ! empty($slides)) {
 			
-			foreach ($slidesArray as $slide) {
-
-                if ($slide[active] == 'true') {
-
-                    $startDate = strtotime($slide[period_from]);
-                    $endDate = strtotime($slide[period_to]);
-                    $now = strtotime(date('Y-m-d H:i'));
-
-                    if ((!$startDate || $startDate <= $now) && (!$endDate || $now <= $endDate))
-                    {
-        				if ( ! isset($layouts[$slide['layout']])) {
-        					continue;
-        				}
-        				
-        				$slide = $slide + array(
-        				    'theme' => null,
-        				    'mask_image' => null,
-        				    'mask_color' => null,
-        					'text_main' => null,
-        					'text_top' => null,
-        					'media' => null,
-        					'mediaType' => null,
-        					'image' => null,
-        					'background' => null,
-        					'background_color' => null,
-        					'layout' => null,
-        					'buttons' => null,
-        					'height' => null,
-        				);
-        				
-        				$slideData = array(
-        					'theme' => $slide['theme'],
-        					'mask_image' => '/resources/img/sample/slideshow-mask.png',
-                            'mask_color' => null,
-        					'text_main' => $this->filterHtml($slide['text_main']),
-        					'text_top' => $this->filterHtml($slide['text_top']),
-        					'media' => $this->filterMedia($slide['media']),
-        					'mediaType' => $this->getMediaType($slide['media']),
-        					'image' => $slide['image'],
-        					'background' => $this->filterBackground($slide['background']),
-                            'background_color' => $slide['background_color'],
-        					'layout' => $slide['layout'],
-        					'buttons' => $this->filterButtons($slide['buttons']),
-        					'height' => $slide['height'],
-        				);
-        				
-        				$slidesResponse[] = $slideData;
-        			}
+			$layouts = $this->getSlideLayouts();
+			$now = time();
+			
+			foreach ($slides as $key => $slide) {
+				
+				$layoutId = $slide['layout'];
+				// skip slides without valid layout file
+				if ( ! isset($layouts[$layoutId])) {
+        			continue;
         		}
-			}
+
+				// skip slides, that are inactive
+				if (isset($slide['active']) && $slide['active'] != 'true') {
+					continue;
+				}
+				
+				// skip slides, if it is expired or should be showed later
+				$startDate = (isset($slide['period_from']) && ! empty($slide['period_from'])) ? strtotime($slide['period_from']) : null;
+				$endDate = (isset($slide['period_to']) && ! empty($slide['period_to'])) ? strtotime($slide['period_to']) : null;
+				
+				if (($startDate && $now < $startDate) 
+						|| ($endDate && $now > $endDate)) {
+					
+					continue;
+				}
+				
+				$slide = $slide + array(
+					'theme' => null,
+					'mask_image' => null,
+					'mask_color' => null,
+					'text_main' => null,
+					'text_top' => null,
+					'media' => null,
+					'mediaType' => null,
+					'image' => null,
+					'background' => null,
+					'background_color' => null,
+					'layout' => null,
+					'buttons' => null,
+					'height' => null,
+				);
+				
+				// Background mask handling
+				$maskImage = null;
+				if ( ! empty($slide['theme']) && ! empty($slide['mask_color'])) {
+					
+					$hexColor = ltrim($slide['mask_color'], '#');
+					
+					$backgroundMasks = $this->getBackgroundMasks();
+					
+					// Slide "theme" property acts as possible mask id (there is themes which uses mask)
+					$maskId = $slide['theme'];
+					if (isset($backgroundMasks[$maskId])) {
+						
+						$maskSourceFile = $backgroundMasks[$maskId];
+						
+						$targetDirectory = $this->getGeneratedImagesFolderPath();
+						$targetName = $this->getUniquePngMaskName($maskId, $hexColor);
+						
+						$targetFilePath = $targetDirectory . $targetName;
+						
+						if ( ! file_exists($targetName)) {
+							\Log::info("Missing mask \"{$maskId}\" for color \"#{$hexColor}\", attempting to create");
+						
+							$colorizer = $this->getImageColorizer();
+							$colorizer->colorizePngImage($maskSourceFile, $targetFilePath, $hexColor);
+						}
+											
+						$maskImage = $this->getGeneratedImagesBaseUrl() . $targetName;
+					}
+				}
+
+        		$slideData = array(
+					'theme' => $slide['theme'],
+					'mask_image' => $maskImage,
+					'text_main' => $this->filterHtml($slide['text_main']),
+					'text_top' => $this->filterHtml($slide['text_top']),
+					'media' => $this->filterMedia($slide['media']),
+					'mediaType' => $this->getMediaType($slide['media']),
+					'image' => $slide['image'],
+					'background' => $this->filterBackground($slide['background']),
+					'background_color' => $slide['background_color'],
+					'layout' => $slide['layout'],
+					'buttons' => $this->filterButtons($slide['buttons']),
+					'height' => $slide['height'],
+					'layout_file' => $layouts[$layoutId],
+				);
+				
+				$slidesData[] = $slideData;
+			}	
 		}
 		
-		return $slidesResponse;
-	}
-	
-	/**
-	 * @FIXME: this is wrooong
-	 */
-	private function getAvailableLayouts()
-	{
-		$configuration = $this->getConfiguration();
-		$layouts = null;
-		foreach ($configuration->properties as $propertyConfiguration) {
-			if ($propertyConfiguration->editableInstance instanceof \Supra\Editable\Slideshow) {
-				$layouts = $propertyConfiguration->values;
-				break;
-			}
-		}
-		
-		$layoutsArray = array();
-		foreach ($layouts as $layout) {
-			$layoutsArray[$layout['id']] = $layout['fileName'];
-		}
-		
-		return $layoutsArray;
+		return $slidesData;
 	}
 	
 	/**
@@ -250,5 +284,116 @@ class SlideshowAdvancedBlock extends BlockController
 		
 		return $this->fileStorage;
 	}
+	
+	
+//	private function getTemporaryDirectoryName()
+//	{
+//		$directoryName = SUPRA_TMP_PATH . 'cms-masks' . DIRECTORY_SEPARATOR;
+//		if ( ! file_exists($directoryName)) {
+//			if ( ! @mkdir($directoryName, SITESUPRA_FOLDER_PERMISSION_MODE)) {
+//				throw new \RuntimeException('Failed to create temporary directory for png mask images');
+//			}
+//		}
+//		
+//		return $directoryName;
+//	}
 
+	/**
+	 * @return \Supra\Editable\Slideshow
+	 */
+	private function getSlideshowPropertyEditable()
+	{
+		$propertyConfiguration = $this->getConfiguration()
+				->getProperty(self::PROPERTY_SLIDES);
+		
+		if ($propertyConfiguration === null) {
+			throw new \RuntimeException('No configuration found for Slideshow property');
+		}
+		
+		if ( ! $propertyConfiguration->editableInstance instanceof Slideshow) {
+			throw new \RuntimeException('Slideshow property must have Slideshow editable');
+		}
+		
+		return $propertyConfiguration->editableInstance;
+	}
+	
+	/**
+	 * @return array
+	 */
+	private function getSlideLayouts()
+	{
+		$layouts = $this->getSlideshowPropertyEditable()
+				->getLayouts();
+
+		$layoutsArray = array();
+		
+		$classPath = \Supra\Loader\Loader::getInstance()
+				->findClassPath(self::CN());
+		
+		$currentDirectory = dirname($classPath);
+		
+		foreach ($layouts as $layout) {
+			// strip part of absolute path
+			$layoutsArray[$layout['id']] = str_replace($currentDirectory, '', $layout['fileName']);
+		}
+		
+		return $layoutsArray;
+	}
+	
+	private function getBackgroundMasks()
+	{
+		$editable = $this->getSlideshowPropertyEditable();
+		$masks = $editable->getBackgroundMasks();
+		
+		return $masks;
+	}
+	
+	private function getUniquePngMaskName($maskId, $color)
+	{
+		return md5( $this->getBlock()->getId() . $maskId . $color ) . '.png';
+	}
+	
+	/**
+	 * 
+	 * @return string
+	 * @throws \RuntimeException
+	 */
+	private function getGeneratedImagesFolderPath()
+	{
+		if ($this->generatedImagesFolderPath === null) {
+			$storage = \Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
+
+			$path = $storage->getExternalPath() . self::DIRECTORY_SLIDESHOW_GENERATED_IMAGES;
+			if ( ! file_exists($path)) {
+				if ( ! @mkdir($path, SITESUPRA_FOLDER_PERMISSION_MODE)) {
+					throw new \RuntimeException("Failed to create directory {$path} to store Slideshow masks");
+				}
+			}
+			
+			$this->generatedImagesFolderPath = $path . DIRECTORY_SEPARATOR;
+			
+		}
+		
+		return $this->generatedImagesFolderPath;
+	}
+	
+	private function getGeneratedImagesBaseUrl()
+	{
+		if ($this->generatedImagesBaseUrl === null) {
+			$storage = \Supra\ObjectRepository\ObjectRepository::getFileStorage($this);
+			$this->generatedImagesBaseUrl = $storage->getExternalUrlBase() . '/'
+					. self::DIRECTORY_SLIDESHOW_GENERATED_IMAGES . '/';
+		}
+		
+		return $this->generatedImagesBaseUrl;
+	}
+	
+	private function getImageColorizer()
+	{
+		if ($this->imageColorizer === null) {
+			$this->imageColorizer = new \SupraSite\ImageEditor\ImageColorizer;
+		}
+		
+		return $this->imageColorizer;
+	}
 }

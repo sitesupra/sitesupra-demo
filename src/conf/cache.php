@@ -17,7 +17,7 @@ if (class_exists('Memcache')) {
 
 	if ($status === false) {
 		\Log::fatal("Memcached server $memcachedHost:$memcachedPort not accessible");
-		die(SUPRA_ERROR_MESSAGE);
+		outputInternalServerError();
 	}
 
 	$cache = new MemcacheCache();

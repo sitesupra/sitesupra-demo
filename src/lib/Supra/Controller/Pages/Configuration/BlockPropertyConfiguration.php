@@ -7,6 +7,7 @@ use Supra\Loader\Loader;
 use Supra\Editable\EditableInterface;
 use Supra\Editable;
 use Supra\Uri\PathConverter;
+use Supra\Editable\SelectVisual;
 
 /**
  * Block Property Configuration
@@ -81,8 +82,7 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		// setting predefined values for select boxes
 		// @FIXME: not nice
 		if ($this->editableInstance instanceof Editable\Select
-				|| $this->editableInstance instanceof Editable\SelectVisual
-				|| $this->editableInstance instanceof Editable\Slideshow) {
+				|| $this->editableInstance instanceof Editable\SelectVisual) {
 			
 			if (method_exists($this->editableInstance, 'setValues')) {
 				$this->editableInstance->setValues($this->values);
@@ -162,16 +162,25 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		}
 	}
 	
+	/**
+	 * SelectVisual Editable's icon paths must be rewrited
+	 * with proper webroot + current-component-folder paths
+	 */
 	private function processSelectVisual($configuration, $context)
 	{
 		foreach ($configuration->values as &$value) {
-			if ( ! empty($value['icon'])) {
-				$value['icon'] = $this->getFileWebPath($value['icon'], $context);
+			if ( ! empty($value[SelectVisual::PROPERTY_ICON])) {
+				$value[SelectVisual::PROPERTY_ICON] = $this->getFileWebPath($value[SelectVisual::PROPERTY_ICON], $context);
 			}
-
-			if ( ! empty($value['values'])) {
-				foreach ($value['values'] as &$subValue) {
-					$subValue['icon'] = $this->getFileWebPath($subValue['icon'], $context);
+			
+			// SelectVisual values can be nested, 
+			// but for now, only two levels are supported
+			if (isset($value[SelectVisual::PROPERTY_TYPE]) 
+					&& $value[SelectVisual::PROPERTY_TYPE] == SelectVisual::TYPE_GROUP) {
+				if ( ! empty($value['values'])) {
+					foreach ($value['values'] as &$subValue) {
+						$subValue[SelectVisual::PROPERTY_ICON] = $this->getFileWebPath($subValue[SelectVisual::PROPERTY_ICON], $context);
+					}
 				}
 			}
 		}

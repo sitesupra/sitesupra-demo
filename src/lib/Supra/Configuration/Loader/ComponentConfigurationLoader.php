@@ -185,12 +185,16 @@ class ComponentConfigurationLoader
 			$className = $item[self::KEY_NAME_CLASS];
 
 			unset($item[self::KEY_NAME_CLASS]);
-
+			
 			$object = $this->processObject($className, $item);
 
 			if (is_object($object)) {
 				$return = $object;
 			}
+			
+		/**
+		 * @TODO: the condition below fails in cases, when there is need to configure single sub
+		 */
 		} elseif (is_array($item) && (count($item) == 1)) {
 
 			$value = end($item);
@@ -223,9 +227,11 @@ class ComponentConfigurationLoader
 						$this->uses[$name] = $value;
 					}
 				}
-			} else if (is_string($key) && is_array($value)) {
+			} else if (is_string($key) 
+					&& is_array($value)
+					&& array_diff_key($value, array_keys(array_keys($value)))) {
 				// try to setup config object
-
+				
 				$object = $this->processObject($key, $value);
 
 				if (is_object($object)) {

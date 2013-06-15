@@ -86,30 +86,42 @@
           name: slides
           editable: Supra\Editable\Slideshow
           label: Slides
-          # predefined Layout values
-          values:
-            ## layouts with text   
-            - id: bg_text_left
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_left.html.twig
-            - id: bg_text_right
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_right.html.twig
-            - id: bg_text_center
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_center.html.twig
-            ## layouts with media
-            - id: bg_text_img_left
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_left.html.twig
-            - id: bg_text_img_right
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_right.html.twig
-            - id: bg_text_img_top
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_text_img_top.html.twig
-            - id: bg_video
-              fileName: FancyBlocks/SlideshowAdvanced/templates/bg_video.html.twig
-              
+          # Slideshow additional parameters are: "backgroundMasks" and "layouts"
+          additionalParameters:
+            backgroundMasks:
+              - id: theme-mask-option-1
+                fileName: ${__DIR__}/masks/mask-option-1.png
+              - id: theme-mask-option-2
+                fileName: ${__DIR__}/masks/mask-option-2.png
+              - id: theme-mask-option-3
+                fileName: ${__DIR__}/masks/mask-option-3.png
+              - id: theme-mask-option-4
+                fileName: ${__DIR__}/masks/mask-option-4.png
+            ## FIXME: absolute/relative paths
+            ## need to create some kind ComponentConfigurationFileParameter object
+            layouts:
+               ## layouts with text   
+              - id: bg_text_left
+                fileName: ${__DIR__}/templates/bg_text_left.html.twig
+              - id: bg_text_right
+                fileName: ${__DIR__}/templates/bg_text_right.html.twig
+              - id: bg_text_center
+                fileName: ${__DIR__}/templates/bg_text_center.html.twig
+              ## layouts with media
+              - id: bg_text_img_left
+                fileName: ${__DIR__}/templates/bg_text_img_left.html.twig
+              - id: bg_text_img_right
+                fileName: ${__DIR__}/templates/bg_text_img_right.html.twig
+              - id: bg_text_img_top
+                fileName: ${__DIR__}/templates/bg_text_img_top.html.twig
+              - id: bg_video
+                fileName: ${__DIR__}/templates/bg_video.html.twig
+          # FIXME: Property groups currently are not supported
           propertyGroups:
             - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
                 id: advanced
                 label: Advanced
-                
+          # Each slide available properties
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: mask_color
@@ -121,21 +133,13 @@
                 label: Slide theme
                 default: theme-background
                 values:
-                  - id: theme-text
-                    title: Clean text
-                    icon: icons/theme/text.png
-                  - id: theme-background
-                    title: Text with background
-                    icon: icons/theme/background.png
-                  - id: mask
-                    title: Mask
-                    values:
-                      - id: theme-mask-option-1
-                        title: Option 1
-                        icon: icons/theme/mask-option-1.png
-                      - id: theme-mask-option-2
-                        title: Option 2
-                        icon: icons/theme/mask-option-2.png
+                  - { id: theme-text, title: "Clean text", icon: "icons/theme/text.png" }
+                  - { id: theme-background, title: "Text with background", icon: "icons/theme/background.png" }
+                  - { id: theme-mask-option-1, title: "Option 1", icon: "icons/theme/mask-option-1.png", isMask: true }
+                  - { id: theme-mask-option-2, title: "Option 2", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-3, title: "Option 3", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-4, title: "Option 4", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  
                 additionalParameters:
                   style: mid
                   iconStyle: center
