@@ -333,7 +333,7 @@ YUI().add('supra.htmleditor-dom', function (Y) {
 					tmp = node.childNodes[offset];
 					if (tmp) node = tmp.nextSibling;
 				} else if (node.childNodes.length) {
-					tmp = node.childNodes[0];
+					//tmp = node.childNodes[0];
 				}
 			}
 			
@@ -345,12 +345,11 @@ YUI().add('supra.htmleditor-dom', function (Y) {
 				node = moveSiblings(node);
 				
 				if (node.tagName && Y.Array.indexOf(SPLIT_TAGS, node.tagName.toLowerCase()) != -1) {
-					// Element which is split parent found, stop
+					// Element which can be split parent found, stop
 					return node;
 				}
 				
 			}
-			
 		}
 		
 	});
