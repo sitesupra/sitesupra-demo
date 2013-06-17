@@ -15,6 +15,8 @@ use Supra\Controller\Pages\Filter\EditableInlineMedia;
 
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Finder;
+use Supra\Controller\Pages\Application\PageApplicationCollection;
+use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
 class BlogPostListShortBlock extends BlogPostListBlock
 {
@@ -110,4 +112,31 @@ class BlogPostListShortBlock extends BlogPostListBlock
 		$response->assign('posts', $postData)
                 ->outputTemplate('index.html.twig');
 	}
+    
+    
+    protected function getBlogApplication()
+    {
+            
+		if ($this->blogApplication === null) {
+            
+            $blogPage = $this->getPropertyValue('blog_page');
+            
+            if ($blogPage instanceof LinkReferencedElement) {
+                $localization = $blogPage->getPageLocalization();
+                
+                if ($localization instanceof ApplicationLocalization) {
+
+                    $em = \Supra\ObjectRepository\ObjectRepository::getEntityManager($this);
+                    $application = PageApplicationCollection::getInstance()
+                        ->createApplication($localization, $em);
+
+                    if ($application instanceof BlogApplication) {
+                        $this->blogApplication = $application;
+                    }
+                }
+            }
+		}
+		
+		return $this->blogApplication;
+    }
 }
