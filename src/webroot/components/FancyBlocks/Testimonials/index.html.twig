@@ -25,7 +25,7 @@
 					<span class="deco"></span>"{{ testimony.property.testimony|trim }}"
 				{% endspaceless %}</q>
 				
-				<span class="who">
+				<span class="who clearfix">
 					<span class="photo">
 						{% set tag = supraBlock.imageHtmlTag( testimony.imageId, 50, 50, true, testimony.size_name ) | raw %}
 						{% if testimony.imageId %}
@@ -59,7 +59,7 @@
 				<div>{{ property.testimony }}</div>
 			</div>
 			
-			<div class="who">
+			<div class="who clearfix">
 				<div class="photo"><img src="about:blank" alt="" width="50" height="50" /></div>
 				<div class="reviewer"><div class="valign"></div><div>{{ property.name }}</div></div>
 			</div>

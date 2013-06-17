@@ -42,6 +42,9 @@
             - id: dots
               title: Dots
               icon: icons/navigation/dots.png
+            - id: numbers
+              title: 1-2-3
+              icon: icons/navigation/numbers.png
             - id: progress
               title: Progress bar
               icon: icons/navigation/progress.png

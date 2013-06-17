@@ -185,7 +185,6 @@ class SlideshowAdvancedBlock extends BlockController
 					$linkElement->fillArray($button['link']);
 					
 					$button['target'] = $linkElement->getTarget();
-					\Log::error($button['target']);
 					$button['link'] = $linkElement;
 				}
 			}
