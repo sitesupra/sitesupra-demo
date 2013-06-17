@@ -982,12 +982,23 @@ class PageAction extends PageManagerAction
 				$propertyEditable = $propertyConfiguration->editableInstance;
 
 				if (isset($slideData[$name])) {
+					
+					if ($propertyEditable instanceof Editable\Image
+							&& ! empty($slideData[$name])) {
+						
+						$propertyEditable->setContent($slideData[$name]['id']);
+						$editableContent = $propertyEditable->getContentForEdit();
+						
+						$slideData[$name] = $editableContent;
+						continue;
+					}
+					
 					/* @var $propertyEditable \Supra\Editable\EditableInterface */
 					$propertyEditable->setContent($slideData[$name]);
 					$editableContent = $propertyEditable->getContentForEdit();
 					
 					if ($propertyEditable instanceof Editable\InlineMedia
-							|| $propertyEditable instanceof Editable\Image
+							//|| $propertyEditable instanceof Editable\Image
 							|| $propertyEditable instanceof Editable\BlockBackground) {
 						
 						$slideData[$name] = $editableContent;
