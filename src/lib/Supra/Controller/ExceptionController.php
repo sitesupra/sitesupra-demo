@@ -47,7 +47,7 @@ class ExceptionController extends ControllerAbstraction
 
 			if ($this->exception instanceof Exception\ResourceNotFoundException) {
 				$response->setCode(404);
-                $webrootDir = SUPRA_LIBRARY_PATH . '../webroot/';
+                $webrootDir = SUPRA_ERROR_PAGE_PATH;
                 $errorPage = file_get_contents($webrootDir.'404.html');
                 $response->header('Content-Type', 'text/html', true);
 				$response->output($errorPage);
@@ -60,8 +60,9 @@ class ExceptionController extends ControllerAbstraction
 			} else {
 				$response->setCode(500);
                 $response->header('Content-Type', 'text/html', true);
-                $webrootDir = SUPRA_LIBRARY_PATH . '../webroot/';
+                $webrootDir = SUPRA_ERROR_PAGE_PATH;
                 $errorPage = file_get_contents($webrootDir.'500.html');
+				$response->output($errorPage);
 
 				$iniConfiguration = ObjectRepository::getIniConfigurationLoader($this);
 

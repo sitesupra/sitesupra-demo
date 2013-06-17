@@ -20,6 +20,10 @@
           label: Title
           default: Blog
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: blog_page
+          editable: Supra\Editable\Link
+          label: Blog page
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: posts_per_page
           editable: Supra\Editable\Number
           label: Posts per page
