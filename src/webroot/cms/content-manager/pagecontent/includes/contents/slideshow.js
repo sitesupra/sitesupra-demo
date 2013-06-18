@@ -328,6 +328,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			Supra.Manager.executeAction('SlideshowManager', {
 				'data': data,
 				'properties': self.getSlideProperties(),
+				'property_groups': self.getSlidePropertyGroups(),
 				'layouts': self.getSlideLayouts(),
 				'context': self,
 				'shared': shared,
@@ -384,6 +385,17 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			}
 			
 			return properties;
+		},
+		
+		/**
+		 * Returns slide property groups
+		 * 
+		 * @returns {Array} Slide property groups
+		 * @private
+		 */
+		getSlidePropertyGroups: function () {
+			var block = this.getBlockInfo();
+			return block.property_groups || [];
 		},
 		
 		/**
