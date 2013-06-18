@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ interfaceLanguage }}">
 <head>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
 	<meta name="robots" content="noindex,nofollow" />
@@ -103,7 +103,7 @@
 				'helpnotes': {{ action.currentUserArray.closedTips | json_encode | raw }},
 				
 				//CMS Internationalization
-				'lang': 'en'
+				'lang': {{ interfaceLanguage | json_encode | raw }}
 			});
 			
 			//IE not supported at the moment
