@@ -135,6 +135,7 @@ class SlideshowAdvancedBlock extends BlockController
 					'buttons' => $this->filterButtons($slide['buttons']),
 					'height' => $slide['height'],
 					'layout_file' => $layouts[$layoutId],
+					'mask_color' => $slide['mask_color'],
 				);
 				
 				$slidesData[] = $slideData;
