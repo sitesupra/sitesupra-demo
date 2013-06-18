@@ -16,7 +16,9 @@
 		
 		"list": {
 			"new": "New",
-			"viewing_banners": "Viewing banners for"
+			"viewing_banners": "Viewing banners for",
+			"next": "Next",
+			"previous": "Prev"
 		},
 		
 		"edit": {
