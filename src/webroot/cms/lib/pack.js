@@ -3305,7 +3305,14 @@ YUI.add('supra.event', function (Y) {
 		 * @type {String}
 		 * @private
 		 */
-		FILENAME: 'lang.json',
+		FILENAME: 'lang',
+		
+		/**
+		 * Default locale which filename shouldn't have a prefix
+		 * @type {String}
+		 * @private
+		 */
+		DEFAULT_NON_PREFIXED_LOCALE: 'en',
 		
 		/**
 		 * Internationalized data
@@ -3373,9 +3380,6 @@ YUI.add('supra.event', function (Y) {
 		 */
 		load: function (app_path /* Application path*/, requestURI /* Request URI */, callback /* Callback */, context /* Context */) {
 			Supra.io(requestURI, {
-				'data': {
-					'lang': Supra.data.get('lang', '')
-				},
 				'context': this,
 				'on': {
 					'complete': function (data, status) {
@@ -3425,7 +3429,16 @@ YUI.add('supra.event', function (Y) {
 			if (this.loading[app_path]) return;
 			this.loading[app_path] = true;
 			
-			var uri = app_path + '/' + this.FILENAME;
+			var locale = Supra.data.get('lang', ''),
+				prefix = '',
+				uri    = app_path + '/';
+			
+			if (locale && locale != this.DEFAULT_NON_PREFIXED_LOCALE) {
+				prefix = '-' + locale;
+			}
+			
+			uri += this.FILENAME + prefix + '.json';
+			
 			this.load(app_path, uri, callback ,context);
 		},
 		
@@ -24320,7 +24333,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		removeAttributes: ['xmlns', 'style', 'lang', 'id', 'name', 'class', 'width', 'height', 'v:[a-z0-9\\-\\_]+', 'w:[a-z0-9\\-\\_]+']
 	};
 	
-	var REMOVABLE_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote', 'q', 'li', 'div', 'article', 'aside', 'details', 'figcaption', 'footer', 'header', 'hgroup', 'nav', 'section', 'pre', 'code'];
+	var REMOVABLE_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'blockquote', 'q', 'li', 'div', 'article', 'aside', 'details', 'figcaption', 'footer', 'header', 'hgroup', 'nav', 'section', 'pre', 'code', 'font', 'b', 'strong', 'em', 'i', 'u', 'a'];
 	
 	Supra.HTMLEditor.addPlugin('paste', defaultConfiguration, {
 		
@@ -24456,25 +24469,28 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					}
 				}
 				*/
+				/*
+				if (nodes.size() == 1 && nodes.item(0).test('table')) {
+					// We are pasting table
+					// Is user pasting inside another table?
+					var sel_from = this.previousSelection.start,
+						sel_end  = this.previousSelection.end;
+					
+					console.log(sel_from, sel_to);
+				}
+				*/
 				
 				//List with one item shouldn't be a list, unwrap
 				//list leaving only content
-				if (nodes.size() == 1) {
+				if (nodes.size() == 1 && nodes.item(0).test('ol, ul')) {
 					node = nodes.item(0);
+					children = node.get('childNodes'); // List of LI
 					
-					if (node.get('nodeType') == 1) {
-						tag = node.get('tagName').toLowerCase();
-						
-						if (tag == 'ul' || tag == 'ol') {
-							children = node.get('childNodes');
-							
-							if (children.size() == 1){
-								nodes = children.item(0).get('childNodes');
-								htmleditor.unwrapNode(children.item(0).getDOMNode());
-								htmleditor.unwrapNode(node.getDOMNode());
-								html = placeHolder.innerHTML;
-							}
-						}
+					if (children.size() == 1){
+						nodes = children.item(0).get('childNodes');
+						htmleditor.unwrapNode(children.item(0).getDOMNode());
+						htmleditor.unwrapNode(node.getDOMNode());
+						html = placeHolder.innerHTML;
 					} 
 				}
 				
