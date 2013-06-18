@@ -119,7 +119,6 @@
                 fileName: ${__DIR__}/templates/bg_text_img_top.html.twig
               - id: bg_video
                 fileName: ${__DIR__}/templates/bg_video.html.twig
-          # FIXME: Property groups currently are not supported
           propertyGroups:
             - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
                 id: advanced

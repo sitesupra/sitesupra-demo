@@ -63,6 +63,11 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 	public $properties = array();
 	
 	/**
+	 * @var array
+	 */
+	public $propertyGroups = array();
+	
+	/**
 	 * @var string
 	 */
 	public $description;
@@ -211,6 +216,36 @@ class BlockPropertyConfiguration implements ConfigurationInterface
 		} else {
 			return $file;
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	protected function processPropertyGroupConfigurations()
+	{
+		$propertyGroups = array();
+
+		foreach ($this->propertyGroups as $group) {
+		
+			if ($group instanceof BlockPropertyGroupConfiguration) {
+
+				if (isset($propertyGroups[$group->id])) {
+					\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
+					continue;
+				}
+				
+				if ( ! empty($group->icon)) {
+					$group->icon = $this->getFileWebPath($group->icon);
+				}
+
+				$propertyGroups[$group->id] = $group;
+				
+			} else {
+				\Log::warn('Group should be instance of BlockPropertyGroupConfiguration ', $group);
+			}
+		}
+
+		$this->propertyGroups = array_values($propertyGroups);
 	}
 
 }
