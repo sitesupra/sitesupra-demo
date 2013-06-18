@@ -3434,7 +3434,7 @@ YUI.add('supra.event', function (Y) {
 				uri    = app_path + '/';
 			
 			if (locale && locale != this.DEFAULT_NON_PREFIXED_LOCALE) {
-				prefix = '-' + locale;
+				prefix = '.' + locale;
 			}
 			
 			uri += this.FILENAME + prefix + '.json';
