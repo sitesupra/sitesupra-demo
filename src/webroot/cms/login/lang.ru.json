@@ -22,8 +22,8 @@
 
 			"error_current": "Current пароль you have entered is invalid",
 
-			"error_fields_required": "These fields are required!",
-			"error_field_required": "This field is required!",
+			"error_fields_required": "Эти поля являются обязательными!",
+			"error_field_required": "Эти поля являются обязательными!",
 
 			"requirements_title": "Password rules:"
 		}
