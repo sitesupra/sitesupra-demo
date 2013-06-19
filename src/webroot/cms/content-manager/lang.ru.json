@@ -99,7 +99,7 @@
 			"delete_block_shared_confirmation": "Блок используется в других языковых версиях сайта. Если вы удалите блок, то содержание блока в других языковых версиях пропадёт. Вы уверены, что хотите удалить блок?",
 
 			"click_to_edit": "Кликните для редактирования",
-			"click_to_edit_drag_to_move": "Кликните для редактирования<br />ли перетащите в другое место",
+			"click_to_edit_drag_to_move": "Кликните для редактирования<br />или перетащите в другое место",
 
 			"locked_message": "Странца заблокирована пользователем {{ username|escape }} { datetime|escape }}",
 			"unlock": "Разблокировать",
@@ -481,7 +481,7 @@
 			"empty": "You have no items<br />in the list yet",
 			"drag_and_drop": "Drag and drop<br />folder or files here",
 			"add_item": "Добавить",
-			"just_drag_and_drop": "or just drag-and-drop file here",
+			"just_drag_and_drop": "или перетащите сюда файл",
 
 			"settings_title": "Свойства объекта",
 			"label": "Объекты",
@@ -504,7 +504,7 @@
 			"add_new": "Добавить",
 
 			"error_template": "Error occured in {block} block",
-			
+
 			"slide_label": "Слайд {nr}"
 		},
 
