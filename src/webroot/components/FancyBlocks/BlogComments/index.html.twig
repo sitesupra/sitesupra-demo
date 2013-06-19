@@ -20,10 +20,10 @@
 					<time datetime="{{ comment.creationTime | date('Y-m-d') }}">{{ comment.creationTime | date("F j,Y \\a\\t g:i a") }}</time>
 					
 					{% if supra.cmsRequest %}
-						<a class="button tiny supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'confirmRemoveComment')" href="javascript://">Delete comment</a>
+						<a class="supra-button" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'confirmRemoveComment')" href="javascript://">Delete comment</a>
 						
-						<a class="button tiny supra-button button-approve {% if comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'approveComment')" href="javascript://">Approve</a>
-						<a class="button tiny supra-button button-unapprove {% if not comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'unapproveComment')" href="javascript://">Unapprove</a>
+						<a class="supra-button button-approve {% if comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'approveComment')" href="javascript://">Approve</a>
+						<a class="supra-button button-unapprove {% if not comment.approved %}supra-hidden{% endif %}" onclick="$.app.trigger('{{ supraBlock.block.id }}_{{ loop.index }}', 'unapproveComment')" href="javascript://">Unapprove</a>
 					{% endif %}
 				</div>
 				<p>{{ comment.comment | nl2br }}</p>
@@ -49,15 +49,15 @@
 	<form class="form {{ heading_class }}" method="post" action="{{ supra.localization.path }}?postComment" data-refresh-event="form">
 				
 		<div class="clearfix">
-			<div class="one_third grid_item alpha">
+			<div class="one_third_perc grid_item alpha">
 				<label for="name">{{ supraBlock.property('label_name') }}<sup class="required">*</sup></label>
 				<input type="text" class="input-text" value="" placeholder="{{ supraBlock.property('label_name')|e }}" name="name" id="name" required />
 			</div>
-			<div class="one_third grid_item">
+			<div class="one_third_perc grid_item">
 				<label for="email">{{ supraBlock.property('label_email') }}<sup class="required">*</sup></label>
 				<input type="email" class="input-text" value="" placeholder="{{ supraBlock.property('label_email')|e }}" name="email" id="email" required />
 			</div>
-			<div class="one_third grid_item omega">
+			<div class="one_third_perc grid_item omega">
 				<label for="url">{{ supraBlock.property('label_website') }}</label>
 				<input type="url" class="input-text" value="" placeholder="{{ supraBlock.property('label_website')|e }}" name="url" id="url" />
 			</div>
