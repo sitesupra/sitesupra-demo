@@ -100,6 +100,8 @@
                 fileName: ${__DIR__}/masks/mask-option-3.png
               - id: theme-mask-option-4
                 fileName: ${__DIR__}/masks/mask-option-4.png
+              - id: theme-mask-option-5
+                fileName: ${__DIR__}/masks/mask-option-5.png
             ## FIXME: absolute/relative paths
             ## need to create some kind ComponentConfigurationFileParameter object
             layouts:
@@ -141,6 +143,7 @@
                   - { id: theme-mask-option-2, title: "Option 2", icon: "icons/theme/mask-option-2.png", isMask: true }
                   - { id: theme-mask-option-3, title: "Option 3", icon: "icons/theme/mask-option-2.png", isMask: true }
                   - { id: theme-mask-option-4, title: "Option 4", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-5, title: "Option 5", icon: "icons/theme/mask-option-2.png", isMask: true }
                   
                 additionalParameters:
                   style: mid

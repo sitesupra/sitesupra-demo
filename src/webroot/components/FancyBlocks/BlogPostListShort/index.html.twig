@@ -58,8 +58,8 @@
 				{# Heading #}
 				<header>
 					{# Date #}
-                    {% set date = post.localization.creationTime %}
-					<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('d.m.Y') }}</time>
+					{% set date = post.localization.creationTime %}
+					<time datetime="{{ date.format('Y-m-d') }}"><span class="date-no-zero">{{ date.format('j') }}</span><span class="date-zero">{{ date.format('d') }}.</span>{{ date.format('m.Y') }}</time>
 					
 					{# Title #}
 					<h3><a href="{{ post.localization.path }}">{{ post.localization.title }}</a></h3>
