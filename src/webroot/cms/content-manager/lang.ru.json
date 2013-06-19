@@ -63,7 +63,7 @@
 			"shared_slideshow_notice": "This slideshow has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_gallery_notice": "This gallery has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
-			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?"},
+			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 
 			"block": {
 				"no_image": "Нет картинки",
