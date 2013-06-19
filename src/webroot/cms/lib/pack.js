@@ -13877,14 +13877,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					if (this.cropTop + this.cropHeight > this.imageHeight) {
 						this.cropTop = this.imageHeight - this.cropHeight;
 						if (this.cropTop < 0) {
-							this.cropHeight += this.cropTop;
+							this.cropHeight = Math.max(this.cropHeight + this.cropTop, 0);
 							this.cropTop = 0;
 						}
 					}
 					if (this.cropLeft + this.cropWidth > this.imageWidth) {
 						this.cropLeft = this.imageWidth - this.cropWidth;
 						if (this.cropLeft < 0) {
-							this.cropWidth += this.cropLeft;
+							this.cropWidth = Math.max(this.cropWidth + this.cropLeft, 0);
 							this.cropLeft = 0;
 						}
 					}
@@ -13929,8 +13929,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				image.setAttribute("width", this.imageWidth);
 				image.setAttribute("height", this.imageHeight);
 			} else {
-				this.cropWidth = this.imageWidth - this.cropLeft;
-				this.cropHeight = this.imageHeight - this.cropTop;
+				this.cropWidth = Math.max(0, this.imageWidth - this.cropLeft);
+				this.cropHeight = Math.max(0, this.imageHeight - this.cropTop);
 				
 				image.setStyles({
 					"backgroundSize": this.imageWidth + "px " + this.imageHeight + "px"
@@ -14115,10 +14115,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				if (mode == ImageResizer.MODE_IMAGE) {
 					// Image
 					if (sizeX + cropWidth > imageWidth) {
-						sizeX = imageWidth - cropWidth;
+						sizeX = Math.max(0, imageWidth - cropWidth);
 					}
 					if (sizeY + cropHeight > imageHeight) {
-						sizeY = imageHeight - cropHeight;
+						sizeY = Math.max(0, imageHeight - cropHeight);
 					}
 				} else {
 					// Background
@@ -14493,8 +14493,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			this.imageHeight = image.get("offsetHeight");
 			this.cropWidth = width;
 			this.cropHeight = height;
-			this.cropLeft = - parseInt(image.getStyle("marginLeft"), 10) || 0;
-			this.cropTop = - parseInt(image.getStyle("marginTop"), 10) || 0;
+			this.cropLeft = Math.max(0, - parseInt(image.getStyle("marginLeft"), 10) || 0);
+			this.cropTop  = Math.max(0, - parseInt(image.getStyle("marginTop"), 10) || 0);
 			
 			//If image is not loaded, then width and height could be 0
 			if (!this.imageWidth || !this.imageHeight) {
@@ -14620,8 +14620,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			
 			var backgroundPosition = image.getStyle("backgroundPosition").match(/(\-?\d+)px\s+(\-?\d+)px/);
 			if (backgroundPosition) {
-				this.cropLeft = - parseInt(backgroundPosition[1], 10) || 0;
-				this.cropTop = - parseInt(backgroundPosition[2], 10) || 0;
+				this.cropLeft = Math.max(0, - parseInt(backgroundPosition[1], 10) || 0);
+				this.cropTop = Math.max(0, - parseInt(backgroundPosition[2], 10) || 0);
 				this.cropWidth -= this.cropLeft;
 				this.cropHeight -= this.cropTop;
 			}
