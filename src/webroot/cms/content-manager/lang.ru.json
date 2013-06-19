@@ -498,11 +498,14 @@
 			"label_button": "Редактировать слайды",
 
 			"sidebar_title": "Редактировать слайд",
+			"sidebar_title_numbered": "Редактировать слайд {nr}",
 			"delete_slide": "Удалить слайд",
 
 			"add_new": "Добавить",
 
-			"error_template": "Error occured in {block} block"
+			"error_template": "Error occured in {block} block",
+			
+			"slide_label": "Слайд {nr}"
 		},
 
 		"linkmanager": {
