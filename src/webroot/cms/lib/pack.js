@@ -27783,9 +27783,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 */
 		_setValue: function (value) {
 			if (typeof value === 'string') {
-				value = value === 'true' ? true : false;
+				value = value === 'true' || value === '1' ? true : false;
 			}
-			value = !!(value === true || value == '1');
 			
 			//Check
 			this.get('inputNode').set('value', value ? '1' : '0');
