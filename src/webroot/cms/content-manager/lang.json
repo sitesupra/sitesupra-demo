@@ -502,13 +502,16 @@
 			"label_button": "Edit slides",
 			
 			"sidebar_title": "Edit slide",
+			"sidebar_title_numbered": "Edit slide {nr}",
 			"delete_slide": "Delete slide",
 			
 			"add_new": "Add New",
 			
 			"wide_layout_mask_description": "Masks are available only for Boxed design",
 			
-			"error_template": "Error occured in {block} block"
+			"error_template": "Error occured in {block} block",
+			
+			"slide_label": "Slide {nr}"
 		},
 		
 		"gallery": {

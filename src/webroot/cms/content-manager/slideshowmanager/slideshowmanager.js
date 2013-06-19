@@ -163,6 +163,12 @@ Supra([
 			}, this);
 			this.list.on('order', function (event) {
 				this.data.swapSlideIndex(event.indexDrag, event.indexDrop);
+				
+				// Update settings title, which includes current item index
+				var id    = this.settings.get('activeItemId'),
+					index = this.data.getIndexById(id) || 0;
+				
+				this.settings.set('activeItemIndex', index);
 			}, this);
 			
 			// Update UI when data changes
@@ -223,7 +229,6 @@ Supra([
 				target.transition({'left': '170px', 'duration': 0.35}, Y.bind(function () {
 					this.list.syncScroll();
 				}, this));
-				
 				widget.on('close', function () {
 					target.transition({'left': '0px', 'duration': 0.35}, Y.bind(function () {
 						this.list.syncScroll();
@@ -251,7 +256,8 @@ Supra([
 		 */
 		onActiveSlideChange: function (event) {
 			if (event.newVal != event.prevVal) {
-				var id = event.newVal;
+				var id    = event.newVal,
+					index = this.data.getIndexById(id) || 0;
 				
 				this.list.set('activeItemId', id);
 				
@@ -259,6 +265,7 @@ Supra([
 				this.view.set('activeItemId', id);
 				
 				this.settings.set('activeItemId', id);
+				this.settings.set('activeItemIndex', index);
 				
 				if (event.newVal) {
 					// Show form only if there is an item to edit,
@@ -604,6 +611,8 @@ Supra([
 		 * @returns {Boolean} True if page layout is wide, otherwise false
 		 */
 		isPageLayoutWide: function () {
+			return this.page_layout_wide = false;
+			/*
 			var wide   = this.page_layout_wide,
 				iframe = null,
 				body   = null;
@@ -618,6 +627,7 @@ Supra([
 			}
 			
 			return wide;
+			*/
 		},
 		
 		

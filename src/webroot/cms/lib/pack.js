@@ -27783,9 +27783,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 */
 		_setValue: function (value) {
 			if (typeof value === 'string') {
-				value = value === 'true' ? true : false;
+				value = value === 'true' || value === '1' ? true : false;
 			}
-			value = !!(value === true || value == '1');
 			
 			//Check
 			this.get('inputNode').set('value', value ? '1' : '0');
@@ -43090,7 +43089,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * Regular expression to test email validity
 		 * @type {Object}
 		 */
-		REGEX_EMAIL: /^\s*([a-z0-9]([a-z0-9\.\-\_]*[a-z0-9])?@[a-z0-9][a-z0-9\-\_]*([\.]([a-z0-9][a-z0-9\-\_]?)?[a-z0-9])*)\s*$/ig,
+		REGEX_EMAIL: /^\s*([a-z0-9]([a-z0-9\.\-\_]*[a-z0-9])?@[a-z0-9][a-z0-9\-\_]*([\.]([a-z0-9][a-z0-9\-\_]?)?[a-z0-9])*)\s*$/i,
 		
 		/**
 		 * Returns true if str parammeter is not empty
@@ -43110,7 +43109,11 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @returns {Boolean} True if string is valid email address, otherwise false
 		 */
 		email: function (str) {
-			return Form.validate.REGEX_EMAIL.test(String(str));
+			if (Form.validate.REGEX_EMAIL.test(String(str)) === false) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 	}
 	
