@@ -11,6 +11,17 @@ class TwitterFeedBlock extends BlockController
     
     /*
      * @var string
+     */    
+    protected $cacheId = 'twitter_feed_cache';
+    
+    /*
+     * Cache lifetime, 15 minutes by default
+     * @var integer
+     */
+    protected $cacheLifeTime = 900;
+    
+    /*
+     * @var string
      */
     protected $consumerKey = null;
     
@@ -51,8 +62,16 @@ class TwitterFeedBlock extends BlockController
         $request = $this->getRequest();
         
         if ($this->loadConfiguration()) {
-            $this->getAccessToken();
-            $tweets = $this->getTwitterFeed();
+            
+            $cacheAdapter = ObjectRepository::getCacheAdapter($this);
+            if ($cacheAdapter->contains($this->cacheId)) {
+                $tweets = $cacheAdapter->fetch($this->cacheId);
+            } else {
+                $this->getAccessToken();
+                $tweets = $this->getTwitterFeed();
+                $cacheAdapter->delete($this->cacheId);
+                $cacheAdapter->save($this->cacheId, $tweets, $this->cacheLifeTime);
+            }
             
             $response->assign('tweets', $tweets)
                     ->outputTemplate('index.html.twig');
