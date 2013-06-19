@@ -61,7 +61,9 @@
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_slideshow_unavailable": "Images for the this slideshow have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_slideshow_notice": "This slideshow has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
-			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
+			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
+			"shared_gallery_notice": "This gallery has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
+			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?"},
 
 			"block": {
 				"no_image": "Нет картинки",
@@ -508,18 +510,42 @@
 			"slide_label": "Слайд {nr}"
 		},
 
+		"gallery": {
+			"title": "Редактировать галерею",
+
+			"label": "Объекты",
+			"label_button": "Редактировать объекты",
+
+			"sidebar_title": "Редактировать",
+			"delete_slide": "Удалить",
+
+			"edit_move": "Нажмите, чтобы редактировать<br />или перетащите в другое место",
+
+			"empty": "Галерея пуста",
+			"drag_and_drop": "Перетащите сюда <br />папки или файлы",
+			"add_item": "Добавить",
+			"add": "Добавить ",
+			"just_drag_and_drop": "или преретащите файлы сюда",
+
+			"error_template": "Error occured in {block} block"
+		},
+
 		"linkmanager": {
-			"title": "Ссыдка на",
+			"title": "Ссылка на",
 			"title_page": "страницу",
 			"title_file": "файл",
+			"title_email": "email",
 
 			"select": "Выберите тип ссылки",
 			"link_to_file": "ссылка на файл",
 			"link_to_page": "ссылка на страницу",
+			"link_to_email": "ссылка на email",
 			"link_internal": "внутрненняя",
 			"link_external": "внешняя",
 			"link_address": "Ссылка на адрес",
+			"link_email": "Адрекс email",
 			"new_window": "Открывать в новом окне",
+			"button": "Сделать кнопку",
 			"link_title": "Заголовок ссылки",
 			"open_library_app": "Открыть библиотеку",
 
