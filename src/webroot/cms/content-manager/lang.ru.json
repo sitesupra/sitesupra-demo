@@ -63,7 +63,7 @@
 			"shared_slideshow_notice": "This slideshow has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_gallery_notice": "This gallery has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
-			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?"},
+			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 
 			"block": {
 				"no_image": "Нет картинки",
@@ -478,10 +478,10 @@
 			"click_here_edit": "Нажмите сюда, чтобы редактировать",
 			"drop_replace": "Drop here to replace image",
 
-			"edit_move": "Нажмите сюда, чтобы редактировать<br />или перетащите",
+			"edit_move": "Нажмите сюда, чтобы редактировать<br />или перетащите в другое место",
 
-			"empty": "You have no items<br />in the list yet",
-			"drag_and_drop": "Drag and drop<br />folder or files here",
+			"empty": "У вас ещё нет добавленных объектов",
+			"drag_and_drop": "Перетащите сюда<br />папку или файлы",
 			"add_item": "Добавить",
 			"just_drag_and_drop": "или перетащите сюда файл",
 
