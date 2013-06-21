@@ -198,6 +198,9 @@
                 name: media
                 editable: Supra\Editable\InlineMedia
                 label: 
+                additionalParameters:
+                  labelAddVideo: "Add top video"
+                  labelAddImage: "Add top image"
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: height
                 editable: Supra\Editable\Number

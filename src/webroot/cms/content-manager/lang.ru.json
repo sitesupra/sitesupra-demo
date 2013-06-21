@@ -507,7 +507,12 @@
 
 			"error_template": "Error occured in {block} block",
 
-			"slide_label": "Слайд {nr}"
+			"slide_label": "Слайд {nr}",
+			
+			"media": {
+				"add_image": "Добавить картинку",
+				"add_video": "Добавить видео"
+			}
 		},
 
 		"gallery": {

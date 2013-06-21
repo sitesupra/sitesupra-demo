@@ -207,7 +207,8 @@ Supra([
 						this.view.renderItem(id);
 					}
 				}
-				if ('background' in newData || 'media' in newData) {
+				
+				if ('background' in newData || 'media' in newData || 'active' in newData || 'period_from' in newData || 'period_to' in newData) {
 					this.list.redrawItem(id);
 				}
 			}, this);
@@ -679,7 +680,7 @@ Supra([
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 			
-			this.data.set('data', options.data.slides);
+			this.data.set('data', options.data.slides || []);
 			
 			this.layouts.set('layouts', options.layouts);
 			this.layouts.set('properties', options.properties);

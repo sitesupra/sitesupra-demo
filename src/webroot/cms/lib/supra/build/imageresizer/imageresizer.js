@@ -865,7 +865,7 @@ YUI().add("supra.imageresizer", function (Y) {
 					this.dragCropTop = cropTop;
 					this.dragCropLeft = cropLeft;
 					
-					this.get("image").setStyle("margin", - cropTop + "px 0 0 -" + cropLeft + "px");
+					image.setStyle("margin", - cropTop + "px 0 0 -" + cropLeft + "px");
 				}
 			}
 		},

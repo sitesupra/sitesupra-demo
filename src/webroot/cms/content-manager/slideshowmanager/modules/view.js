@@ -524,7 +524,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 					if (node) {
 						input = form.getInput(property.id);
 						
-						node.on('mousedown', this._startEditing, this, property, input);
+						node.on('click', this._startEditing, this, property, input);
 						input.set('targetNode', node);
 						input.set('value', data[property.id]);
 						input.on('blur', this._onInputBlur, this, property, input);

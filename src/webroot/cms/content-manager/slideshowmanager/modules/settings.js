@@ -136,6 +136,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 					properties[i].separateSlide = false;
 					properties[i].allowZoomResize = true;
 					properties[i].allowCropZooming = true;
+					properties[i].labelAddVideo = Supra.Intl.get(['slideshowmanager', 'media', 'add_video']);
+					properties[i].labelAddImage = Supra.Intl.get(['slideshowmanager', 'media', 'add_image']);
 				}
 				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);
@@ -259,18 +261,20 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			//On input value change update inline inputs
-			var ii = properties.length,
-				i = 0,
-				type = null,
-				input = null;
+			var id       = null,
+				inputs   = form.getInputs(),
+				input    = null,
+				property = null;
 			
-			for (; i<ii; i++) {
-				input = form.getInput(properties[i].id);
-				input.after('valueChange', this._firePropertyChangeEvent, this, properties[i].id, input);
+			for (id in inputs) {
+				property = Y.Array.find(properties, function (item) { return item.id == id; });
+				input = inputs[id];
 				
-				if (properties[i].type == 'InlineMedia') {
-					input.after('valueChange', this._updateMediaTypeClassName, this, properties[i].id);
-					input.after('render',      this._updateMediaTypeClassName, this, properties[i].id);
+				input.after('valueChange', this._firePropertyChangeEvent, this, id, input);
+				
+				if (property && property.type == 'InlineMedia') {
+					input.after('valueChange', this._updateMediaTypeClassName, this, id);
+					input.after('render',      this._updateMediaTypeClassName, this, id);
 				}
 			}
 			
