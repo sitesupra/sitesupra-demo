@@ -511,7 +511,12 @@
 			
 			"error_template": "Error occured in {block} block",
 			
-			"slide_label": "Slide {nr}"
+			"slide_label": "Slide {nr}",
+			
+			"media": {
+				"add_image": "Add top image",
+				"add_video": "Add top video"
+			}
 		},
 		
 		"gallery": {

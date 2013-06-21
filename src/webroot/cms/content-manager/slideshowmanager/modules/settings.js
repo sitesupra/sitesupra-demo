@@ -136,6 +136,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 					properties[i].separateSlide = false;
 					properties[i].allowZoomResize = true;
 					properties[i].allowCropZooming = true;
+					properties[i].labelAddVideo = Supra.Intl.get(['slideshowmanager', 'media', 'add_video']);
+					properties[i].labelAddImage = Supra.Intl.get(['slideshowmanager', 'media', 'add_image']);
 				}
 				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);

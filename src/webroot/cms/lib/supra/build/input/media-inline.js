@@ -534,6 +534,7 @@ YUI.add('supra.input-media-inline', function (Y) {
 			
 			if (this.get('editing')) {
 				this.hideSettingsSidebar();
+				this.set('editing', false);
 			}
 		},
 		
@@ -586,6 +587,7 @@ YUI.add('supra.input-media-inline', function (Y) {
 		removeMedia: function () {
 			this.set('value', {'type': ''});
 			this.hideSettingsSidebar();
+			this.set('editing', false);
 		},
 		
 		/**

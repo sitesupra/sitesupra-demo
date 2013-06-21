@@ -342,18 +342,24 @@ YUI.add('supra.input-image-inline', function (Y) {
 					container.append(node);
 				}
 				
-				node.setStyle("margin", -value.crop_top + "px 0 0 -" + value.crop_left + "px");
+				node.setStyles({
+					"margin": -value.crop_top + "px 0 0 -" + value.crop_left + "px",
+					"width": value.size_width + "px",
+					"height": value.size_height + "px"
+				});
 				node.setAttribute("width", value.size_width);
 				node.setAttribute("height", value.size_height);
 				node.setAttribute("src", Supra.getObjectValue(value, ['image', 'sizes', 'original', 'external_path']) || this.get('blankImageUrl'));
 				
 				container.setStyles({
-					"width": value.crop_width,
-					"height": value.crop_height
+					"width": value.crop_width + "px",
+					"height": value.crop_height + "px"
 				});
 			} else {
 				node.setStyles({
-					"margin": "0"
+					"margin": "0",
+					"width": "",
+					"height": ""
 				});
 				
 				node.setAttribute("src", this.get("blankImageUrl"));
