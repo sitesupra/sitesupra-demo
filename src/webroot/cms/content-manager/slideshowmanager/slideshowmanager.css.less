@@ -67,6 +67,23 @@
 			display: block;
 		}
 		
+		// Status message
+		.status {
+			position: absolute;
+			left: -2px;
+			bottom: -1px;
+			width: 104px;
+			height: 30px;
+			z-index: 5;
+			
+			&.status-scheduled {
+				background: url(/cms/content-manager/sitemap/images/tree-item-status-scheduled.png) 0 0 no-repeat;
+			}
+			&.status-inactive {
+				background: url(/cms/content-manager/sitemap/images/tree-item-status-inactive.png) 0 0 no-repeat;
+			}
+		}
+		
 		// Text, image
 		.content {
 			position: relative;

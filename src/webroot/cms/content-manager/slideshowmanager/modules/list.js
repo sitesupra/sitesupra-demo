@@ -17,6 +17,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 		'<li>\
 			<div class="background"></div>\
 			<div class="marker"></div>\
+			<div class="status {% if inactive %}status-inactive{% endif %} {% if period_from or period_to %}status-scheduled{% endif %}"></div>\
 			<div class="content click-target" {% if background %}style="background-image: {{ background }};"{% endif %}>\
 				{% if !background %}\
 					<span class="center"></span><span class="title">{{ title }}</span>\
@@ -204,7 +205,8 @@ YUI.add('slideshowmanager.list', function (Y) {
 				layout = this.get('host').layouts.getLayoutById(data.layout) || this.get('host').layouts.getDefaultLayout(),
 				image_bg = null,
 				image_img = null,
-				background = null;
+				background = null,
+				inactive = false;
 			
 			image_bg  = Supra.getObjectValue(data, ['background', 'image', 'image', 'sizes', 'original', 'external_path']);
 			image_img = Supra.getObjectValue(data, ['media', 'image', 'sizes', 'original', 'external_path']);
@@ -213,11 +215,20 @@ YUI.add('slideshowmanager.list', function (Y) {
 				background = (image_img ? 'url(' + image_img + ')' : 'none') + ', ' + (image_bg ? 'url(' + image_bg + ')' : 'none');
 			}
 			
+			if ('active' in data) {
+				if (!data.active || data.active === '0' || data.active === 'false') {
+					inactive = true;
+				}
+			}
+			
 			node = Y.Node.create(ITEM_TEMPLATE(
 				Supra.mix({}, data, {
 					'background': background,
 					'title': layout.label || '',
-					'label': Supra.Intl.get(['slideshowmanager', 'slide_label']).replace('{nr}', this._count + 1)
+					'label': Supra.Intl.get(['slideshowmanager', 'slide_label']).replace('{nr}', this._count + 1),
+					'inactive': inactive,
+					'period_from': data.period_from || null,
+					'period_to': data.period_to || null
 				})
 			));
 			
@@ -309,11 +320,13 @@ YUI.add('slideshowmanager.list', function (Y) {
 			var data = this.get('host').data.getSlideById(id),
 				node = this._items[id],
 				node_bg = node.one('.content'),
+				node_status = node.one('.status'),
 				
 				image_bg = null,
 				image_img = null,
 				background = null;
 			
+			// Background
 			image_bg  = Supra.getObjectValue(data, ['background', 'image', 'image', 'sizes', 'original', 'external_path']);
 			image_img = Supra.getObjectValue(data, ['media', 'image', 'sizes', 'original', 'external_path']);
 			
@@ -322,6 +335,21 @@ YUI.add('slideshowmanager.list', function (Y) {
 			}
 			
 			node_bg.setStyle('backgroundImage', background || 'none');
+			
+			// Status message
+			if ('active' in data) {
+				if (!data.active || data.active === '0' || data.active === 'false') {
+					node_status.addClass('status-inactive');
+				} else {
+					node_status.removeClass('status-inactive');
+				}
+			}
+			
+			if (data.period_from || data.period_to) {
+				node_status.addClass('status-scheduled');
+			} else {
+				node_status.removeClass('status-scheduled');
+			}
 		},
 		
 		/**

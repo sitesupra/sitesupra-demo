@@ -207,7 +207,8 @@ Supra([
 						this.view.renderItem(id);
 					}
 				}
-				if ('background' in newData || 'media' in newData) {
+				
+				if ('background' in newData || 'media' in newData || 'active' in newData || 'period_from' in newData || 'period_to' in newData) {
 					this.list.redrawItem(id);
 				}
 			}, this);
