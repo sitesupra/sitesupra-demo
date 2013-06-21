@@ -125,6 +125,9 @@
             - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
                 id: advanced
                 label: Advanced
+            - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
+                id: background_color
+                label: Background color
           # Each slide available properties
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -186,6 +189,7 @@
                 label: Background image
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background_color
+                group: background_color
                 editable: Supra\Editable\Color
                 label: Background color
                 additionalParameters:
