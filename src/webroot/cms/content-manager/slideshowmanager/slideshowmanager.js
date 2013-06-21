@@ -679,7 +679,7 @@ Supra([
 				Manager.getAction('PageButtons').setActiveAction(this.NAME);
 			}
 			
-			this.data.set('data', options.data.slides);
+			this.data.set('data', options.data.slides || []);
 			
 			this.layouts.set('layouts', options.layouts);
 			this.layouts.set('properties', options.properties);
