@@ -22,6 +22,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 					<span class="center"></span><span class="title">{{ title }}</span>\
 				{% endif %}\
 			</div>\
+			<label>{{ label }}</label>\
 		 </li>');
 	
 	var NEW_ITEM_TEMPLATE = Supra.Template.compile(
@@ -134,6 +135,9 @@ YUI.add('slideshowmanager.list', function (Y) {
 			this._scrollable = scrollable;
 			
 			this.plug(Supra.SlideshowManagerListOrder);
+			
+			// After slide order update labels
+			this.after('order', this.redrawItemLabels, this);
 		},
 		
 		/**
@@ -212,7 +216,8 @@ YUI.add('slideshowmanager.list', function (Y) {
 			node = Y.Node.create(ITEM_TEMPLATE(
 				Supra.mix({}, data, {
 					'background': background,
-					'title': layout.label || ''
+					'title': layout.label || '',
+					'label': Supra.Intl.get(['slideshowmanager', 'slide_label']).replace('{nr}', this._count + 1)
 				})
 			));
 			
@@ -320,6 +325,27 @@ YUI.add('slideshowmanager.list', function (Y) {
 		},
 		
 		/**
+		 * Redraw all item labels
+		 */
+		redrawItemLabels: function () {
+			var data  = this.get('host').data.get('data'),
+				nodes = this._items,
+				node  = null,
+				i     = 0,
+				ii    = data.length,
+				label = '';
+			
+			for (; i<ii; i++) {
+				node = nodes[data[i].id];
+				if (node) {
+					node = node.one('label');
+					label = Supra.Intl.get(['slideshowmanager', 'slide_label']).replace('{nr}', i + 1);
+					node.set('text', label);
+				}
+			}
+		},
+		
+		/**
 		 * Returns item count
 		 * 
 		 * @returns {Number} Item count
@@ -334,6 +360,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 		syncScroll: function () {
 			this._scrollable.syncUI();
 		},
+		
 		
 		
 		/* ---------------------------- ATTRIBUTES --------------------------- */

@@ -9,7 +9,14 @@ YUI.add('supra.intl', function (Y) {
 		 * @type {String}
 		 * @private
 		 */
-		FILENAME: 'lang.json',
+		FILENAME: 'lang',
+		
+		/**
+		 * Default locale which filename shouldn't have a prefix
+		 * @type {String}
+		 * @private
+		 */
+		DEFAULT_NON_PREFIXED_LOCALE: 'en',
 		
 		/**
 		 * Internationalized data
@@ -77,9 +84,6 @@ YUI.add('supra.intl', function (Y) {
 		 */
 		load: function (app_path /* Application path*/, requestURI /* Request URI */, callback /* Callback */, context /* Context */) {
 			Supra.io(requestURI, {
-				'data': {
-					'lang': Supra.data.get('lang', '')
-				},
 				'context': this,
 				'on': {
 					'complete': function (data, status) {
@@ -129,7 +133,16 @@ YUI.add('supra.intl', function (Y) {
 			if (this.loading[app_path]) return;
 			this.loading[app_path] = true;
 			
-			var uri = app_path + '/' + this.FILENAME;
+			var locale = Supra.data.get('lang', ''),
+				prefix = '',
+				uri    = app_path + '/';
+			
+			if (locale && locale != this.DEFAULT_NON_PREFIXED_LOCALE) {
+				prefix = '.' + locale;
+			}
+			
+			uri += this.FILENAME + prefix + '.json';
+			
 			this.load(app_path, uri, callback ,context);
 		},
 		

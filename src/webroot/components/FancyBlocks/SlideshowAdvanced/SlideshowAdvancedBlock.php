@@ -135,6 +135,7 @@ class SlideshowAdvancedBlock extends BlockController
 					'buttons' => $this->filterButtons($slide['buttons']),
 					'height' => $slide['height'],
 					'layout_file' => $layouts[$layoutId],
+					'mask_color' => $slide['mask_color'],
 				);
 				
 				$slidesData[] = $slideData;
@@ -148,7 +149,7 @@ class SlideshowAdvancedBlock extends BlockController
 	 * @param array $htmlData
 	 * @return string
 	 */
-	private function filterHtml($htmlData)
+	protected function filterHtml($htmlData)
 	{
 		$html = $htmlData['html'];
 		$data = (isset($htmlData['data']) ? $htmlData['data'] : array());
@@ -175,7 +176,7 @@ class SlideshowAdvancedBlock extends BlockController
 	 * @param array $buttonsData
 	 * @return array
 	 */
-	private function filterButtons($buttonsData)
+	protected function filterButtons($buttonsData)
 	{
 		if ( ! empty($buttonsData)) {
 			foreach ($buttonsData as &$button) {
@@ -185,7 +186,6 @@ class SlideshowAdvancedBlock extends BlockController
 					$linkElement->fillArray($button['link']);
 					
 					$button['target'] = $linkElement->getTarget();
-					\Log::error($button['target']);
 					$button['link'] = $linkElement;
 				}
 			}
@@ -198,7 +198,7 @@ class SlideshowAdvancedBlock extends BlockController
 	 * @param array $backgroundData
 	 * @return array|null
 	 */
-	private function filterBackground($backgroundData)
+	protected function filterBackground($backgroundData)
 	{		
 		if ( ! empty($backgroundData) && isset($backgroundData['image'])) {
 			
@@ -215,7 +215,7 @@ class SlideshowAdvancedBlock extends BlockController
 		return null;
 	}
 	
-	private function filterMedia($mediaData)
+	protected function filterMedia($mediaData)
 	{
 		if (isset($mediaData['type']) && $mediaData['type'] == 'image') {
 			
@@ -230,7 +230,7 @@ class SlideshowAdvancedBlock extends BlockController
 		return $mediaData;
 	}
 	
-	private function getMediaType($mediaData)
+	protected function getMediaType($mediaData)
     {
         if (isset($mediaData['type'])) {
             return 'type-' . $mediaData['type'];
@@ -320,7 +320,7 @@ class SlideshowAdvancedBlock extends BlockController
 	/**
 	 * @return array
 	 */
-	private function getSlideLayouts()
+	protected function getSlideLayouts()
 	{
 		$layouts = $this->getSlideshowPropertyEditable()
 				->getLayouts();

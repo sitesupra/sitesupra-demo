@@ -201,6 +201,13 @@ abstract class CmsAction extends SimpleController
 		$response = new TwigResponse(__CLASS__);
 		$managerConfiguration = ObjectRepository::getApplicationConfiguration($this);
 		$response->assign('manager', $managerConfiguration);
+		
+		$ini = ObjectRepository::getIniConfigurationLoader($this);
+		$interfaceLanguage = $ini->getValue('cms', 'language', null);
+		
+		if ($interfaceLanguage) {
+			$response->assign('interfaceLanguage', $interfaceLanguage);
+		}
 
 		// No request object yet. Still -- do managers need to know the current locale?
 //		// Current locale ID

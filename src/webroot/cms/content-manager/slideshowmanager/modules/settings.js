@@ -26,6 +26,10 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		'activeItemId': {
 			'value': null,
 			'setter': '_setActiveItemId'
+		},
+		'activeItemIndex': {
+			'value': null,
+			'setter': '_setActiveItemIndex'
 		}
 	};
 	
@@ -307,7 +311,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			//Make sure PageContentSettings is rendered
 			var form = this.getForm(),
 				slideshow = form.get('slideshow'),
-				action = Manager.getAction('PageContentSettings');
+				action = Manager.getAction('PageContentSettings'),
+				index = this.get('activeItemIndex');
 			
 			if (!form) {
 				if (action.get('loaded')) {
@@ -329,7 +334,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				//'hideDoneButton': true,
 				'toolbarActionName': Settings.NAME,
 				
-				'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title']),
+				'title': this._uiGetTitle(index),
 				'scrollable': false // we are using form slideshow, which will have scrollable
 			});
 			
@@ -423,6 +428,55 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			return id;
+		},
+		
+		/**
+		 * Returns sidebar title from index
+		 * 
+		 * @param {Number} index Active item index
+		 * @returns {String} Sidebar title
+		 * @private
+		 */
+		_uiGetTitle: function (index) {
+			var action = Manager.getAction('PageContentSettings'),
+				title  = '';
+			
+			if (index >= 0) {
+				title = Supra.Intl.get(['slideshowmanager', 'sidebar_title_numbered']).replace('{nr}', index + 1);
+			} else if (action.options) {
+				title = action.options.title;
+			}
+			
+			return title;
+		},
+		
+		/**
+		 * Update sidebar title
+		 * 
+		 * @param {Number} index Active item index
+		 * @private
+		 */
+		_uiUpdateTitle: function (index) {
+			var action = Manager.getAction('PageContentSettings'),
+				title  = this._uiGetTitle(index);
+			
+			if (action.get('created')) {
+				if (title) {
+					action.set('title', title);
+				}
+			}
+		},
+		
+		/**
+		 * Active item index attribute setter
+		 * 
+		 * @param {Number} index Active item index
+		 * @returns {Number} New attribute value
+		 * @private
+		 */
+		_setActiveItemIndex: function (index) {
+			this._uiUpdateTitle(index);
+			return index;
 		},
 		
 		/**

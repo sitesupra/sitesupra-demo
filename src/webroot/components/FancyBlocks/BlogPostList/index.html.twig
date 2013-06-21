@@ -32,15 +32,9 @@
 				{# Heading #}
 				<header>
 					{% set date = post.localization.creationTime %}
-					{# Date, for 'promoted' items it is slightly different #}
-					{% if promoted %}
-						<time datetime="{{ date.format('Y-m-d') }}"><span class="date-no-zero">{{ date.format('j') }}</span><span class="date-zero">{{ date.format('d') }}/</span>{{ date.format('m/Y') }}</time>
-					{% else %}
-						<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('d/m/Y') }}</time>
-					{% endif %}
+					<time datetime="{{ date.format('Y-m-d') }}"><span class="date-no-zero">{{ date.format('j') }}</span><span class="date-zero">{{ date.format('d') }}/</span>{{ date.format('m/Y') }}</time>
 					
 					{# Title #}
-					{#<h3><a href="/{{ supra.locale.id }}{{ post.localization.path }}">{{ post.localization.title }}</a></h3>#}
 					<h3><a href="{{ post.localization.path }}">{{ post.localization.title }}</a></h3>
 				</header>
 				

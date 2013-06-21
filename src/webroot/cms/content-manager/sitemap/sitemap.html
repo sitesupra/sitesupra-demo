@@ -19,7 +19,7 @@
 		<form class="yui3-form-vertical">
 			
 			<input type="text" name="title" suUseReplacement="true" value="{# sitemap.page_title #}" />
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" suUseReplacement="true" value="products" suPath="http://videinfra.com/" />
+			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" suUseReplacement="true" value="products" suPath="http://sitesupra.com/" />
 			
 			<div class="middle">
 				<button type="button">{# sitemap.duplicate_page #}</button><br />
@@ -37,7 +37,7 @@
 			<input type="text" name="title" value="" />
 			
 			<label for="path">{# sitemap.new_page_label_path #}</label>
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="products" suPath="http://videinfra.com/" />
+			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="products" suPath="http://sitesupra.com/" />
 			
 			<div class="yui3-input template-section">
 				<label>{# sitemap.new_page_label_template #}</label>
@@ -81,8 +81,8 @@
 	<div class="su-sitemap-global ui-light hidden">
 		<form class="yui3-form-vertical">
 			
-			<p class="txt"><b>Choose language to use as a source for translation.</b></p>
-			<p class="txt">Page will be created with text in source language.</p>
+			<p class="txt"><b>{# sitemap.translate.title #}</b></p>
+			<p class="txt">{# sitemap.translate.description #}</p>
 			
 			<select name="locale"></select>
 			
@@ -90,10 +90,10 @@
 			<input type="text" name="title" value="" />
 			
 			<label for="path">{# sitemap.new_page_label_path #}</label>
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="" suPath="http://videinfra.com/" />
+			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="" suPath="http://sitesupra.com/" />
 			
 			<div class="middle">
-				<button type="button">Create</button>
+				<button type="button">{# sitemap.translate.create #}</button>
 			</div>
 		</form>
 	</div>

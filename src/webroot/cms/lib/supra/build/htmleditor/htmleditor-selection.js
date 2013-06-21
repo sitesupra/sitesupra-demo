@@ -431,10 +431,7 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 						// @TODO FIX H1, H2, P, etc. being inserted into other H1, H2, P, etc. elements
 						while(nodelist.lastChild) {
 							first = nodelist.lastChild;
-							
-							if (first.nodeType)
-							
-							range.insertNode(first);
+							if (first.nodeType) range.insertNode(first);
 						}
 						if (first) range.setStartAfter(first);
 					}

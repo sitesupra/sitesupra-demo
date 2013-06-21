@@ -148,16 +148,15 @@ class BlocksAction extends PageManagerAction
 						+ $editable->getAdditionalParameters();
 
 				if ( ! empty($property->properties) && is_array($property->properties)) {
-					$propertyData['properties'] = $this->gatherPropertyArray($property->properties);
+					
+					$propertyAdditionalData = array(
+						'properties' => $this->gatherPropertyArray($property->properties),
+						'property_groups' => $property->propertyGroups,
+					);					
+					
+					$propertyData = $propertyData + $propertyAdditionalData;
 				}
-				
-//				
-//				if ($editable instanceof Editable\Media) {
-//					$propertyConfigurations = $editable->getItemProperties();
-//					$propertyData['properties'] = $this->gatherPropertyArray($propertyConfigurations);
-//				}
-				
-				
+			
 				$response[] = $propertyData;
 			}
 		}

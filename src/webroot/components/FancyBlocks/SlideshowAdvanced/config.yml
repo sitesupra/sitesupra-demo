@@ -42,6 +42,9 @@
             - id: dots
               title: Dots
               icon: icons/navigation/dots.png
+            - id: numbers
+              title: 1-2-3
+              icon: icons/navigation/numbers.png
             - id: progress
               title: Progress bar
               icon: icons/navigation/progress.png
@@ -97,6 +100,8 @@
                 fileName: ${__DIR__}/masks/mask-option-3.png
               - id: theme-mask-option-4
                 fileName: ${__DIR__}/masks/mask-option-4.png
+              - id: theme-mask-option-5
+                fileName: ${__DIR__}/masks/mask-option-5.png
             ## FIXME: absolute/relative paths
             ## need to create some kind ComponentConfigurationFileParameter object
             layouts:
@@ -116,7 +121,6 @@
                 fileName: ${__DIR__}/templates/bg_text_img_top.html.twig
               - id: bg_video
                 fileName: ${__DIR__}/templates/bg_video.html.twig
-          # FIXME: Property groups currently are not supported
           propertyGroups:
             - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
                 id: advanced
@@ -139,6 +143,7 @@
                   - { id: theme-mask-option-2, title: "Option 2", icon: "icons/theme/mask-option-2.png", isMask: true }
                   - { id: theme-mask-option-3, title: "Option 3", icon: "icons/theme/mask-option-2.png", isMask: true }
                   - { id: theme-mask-option-4, title: "Option 4", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-5, title: "Option 5", icon: "icons/theme/mask-option-2.png", isMask: true }
                   
                 additionalParameters:
                   style: mid
