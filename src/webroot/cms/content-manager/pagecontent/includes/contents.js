@@ -272,8 +272,9 @@ YUI.add('supra.iframe-contents', function (Y) {
 								'parent': null,
 								'super': this,
 								'draggable': !data[i].closed,
-								'editable': !data[i].closed && data[i].editable !== false
-
+								// Can edit if 'editable' and either not 'closed' or has 'owner_id', which means
+								// we can edit this block in this page even though this block doesn't belong to this page 
+								'editable': (!data[i].closed || data[i].owner_id) && data[i].editable !== false
 							});
 							block.render();
 						} else {
