@@ -743,6 +743,12 @@ class FileStorage
 
 		$croppedVariantName = $this->getImageSizeNameForCrop($width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight);
 
+		$variant = $file->findImageSize($croppedVariantName);
+		if ($variant !== null) {
+			// already exists, nothing to do
+			return $variant->getName();
+		}
+		
 		$variant = $file->getImageSize($croppedVariantName);
 
 		$variant->setQuality($quality);
@@ -766,7 +772,6 @@ class FileStorage
 			return $resizedVariantName;
 		}
 		
-
 		$cropper = $this->getImageCropper();
 
 		$cropper->setSourceFile($resizedVariantFilename);
@@ -790,7 +795,7 @@ class FileStorage
 
 		$croppedVariantFilename = $variantFileDir . DIRECTORY_SEPARATOR . $file->getFileName();
 		$cropper->setOutputFile($croppedVariantFilename);
-		$cropper->process();
+		//$cropper->process();
 
 		$entityManager = $this->getDoctrineEntityManager();
 

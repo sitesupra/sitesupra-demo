@@ -367,6 +367,14 @@ abstract class ImageProcessor
 			throw new ImageProcessorException('Cannot process as source filename is not set');
 		}
 		
+		if ( ! empty($this->targetFilename)
+				&& is_link($this->targetFilename)) {
+			
+			// this might be not good solution, but sometimes, ImageProcessor trying to process already existing
+			// image variant, and in case when it's a symlink, processing could fail
+			@unlink($this->targetFilename);
+		}
+		
 		// in case of symlinks, attempting to create the local copy
 		if (is_link($this->sourceFilename)) {
 			
