@@ -394,8 +394,19 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 		 * @private
 		 */
 		getSlidePropertyGroups: function () {
-			var block = this.getBlockInfo();
-			return block.property_groups || [];
+			var block = this.getBlockInfo(),
+				properties = block.properties,
+				i = 0,
+				ii = properties.length,
+				type = PROPERTY_TYPE;
+			
+			for (; i<ii; i++) {
+				if (properties[i].type === type) {
+					return properties[i].property_groups || [];
+				}
+			}
+			
+			return block.property_groups;
 		},
 		
 		/**
