@@ -100,7 +100,7 @@ class ImageCropper extends ImageProcessor
 	 * Process
 	 * 
 	 */
-	public function process()
+	protected function doProcess()
 	{
 		// parameter check
 		if (empty($this->sourceFilename)) {
