@@ -1,0 +1,20 @@
+- _use: Supra\Controller\Pages\Configuration
+
+- Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\BlogArchive\BlogArchiveBlock
+    title: Blog Archive
+    icon: icon.png
+    groupId: blog
+    description: Blog Archive
+    cmsClassname: Editable   
+    properties:
+      - Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\String
+          label: Title
+          default: Archive
+      - Configuration\BlockPropertyConfiguration:
+          name: view_all_title
+          editable: Supra\Editable\String
+          label: View all
+          default: View all archives

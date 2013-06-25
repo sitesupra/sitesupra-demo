@@ -1,0 +1,28 @@
+<div class="block blog-archive">
+	
+	{% set heading_class = 'no-heading' %}
+	{% if supra.cmsRequest or not supraBlock.isEmpty('block_title') %}
+	<h3 class="heading block-title {% if supraBlock.isEmpty('block_title') %}hidden{% endif %}"><div>
+		{{ supraBlock.property('block_title') }}
+		{% set heading_class = 'has-heading' %}
+	</div></h3>
+	{% endif %}
+	
+	<ul class="content clearfix {{ heading_class }}" {% if supra.cmsRequest %}data-refresh-event="menu"{% endif %}>
+		{% for item in archiveLastYear %}
+			<li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="{{ item.path }}">{{ item.title }}</a></li>
+		{% endfor %}
+	</ul>
+	
+	<div class="selector" data-toggle="selectors" data-default-behaviour="true">
+		<a>{{ supraBlock.property('view_all_title') | default(currentPeriod) | default('&nbsp;') | raw }}</a>
+		<div class="selector-dropdown"><div class="selector-inner">
+			<ul>
+				{% for item in archiveAll %}
+					<li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="{{ item.path }}">{{ item.title }}</a></li>
+				{% endfor %}
+			</ul>
+		</div></div>
+	</div>
+	
+</div>
