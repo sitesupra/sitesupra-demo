@@ -379,6 +379,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if block is placeholder
+		 * Placeholder is a list, which is a child of another list
 		 * 
 		 * @returns {Boolean} True if block is placeholder, otherwise false
 		 */
@@ -390,6 +391,24 @@ YUI.add('supra.page-content-proto', function (Y) {
 				return true;
 			} else {
 				return false;
+			}
+		},
+		
+		/**
+		 * Returns true if block is placeholder, but without
+		 * parent or children lists 
+		 */
+		isStandalonePlaceholder: function () {
+			if (this.isList() && !this.isPlaceholder()) {
+				// Check all children
+				var id = null,
+					children = this.children;
+				
+				for (id in children) {
+					if (children[id].isList()) return false;
+				}
+				
+				return true;
 			}
 		},
 		
@@ -1141,6 +1160,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 					// List edit mode
 					
 					if (is_placeholder) {
+						overlay_classname = 'overlay-visible';
+						icon_classname = 'icon-hidden';
+						name_classname = 'name-hidden';
+					} else if (this.isStandalonePlaceholder()) {
 						overlay_classname = 'overlay-visible';
 						icon_classname = 'icon-hidden';
 						name_classname = 'name-hidden';
