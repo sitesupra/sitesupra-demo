@@ -766,25 +766,13 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var data = this.get('data');
 			var permission_order = true; //Supra.Permission.get('block', 'order', null, true);
 			var permission_edit = true;  //Supra.Permission.get('block', 'edit', null, true);
-			var permission_block_order = true;
-			var permission_block_edit = true;
 			var node = this.getNode();
 			
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
-					permission_block_edit = true;
-					permission_block_order = true;
-					
-					if (data.contents[i].closed && !data.contents[i].owner_id) {
-						permission_block_edit = false;
-					}
-					if (data.contents[i].closed) {
-						permission_block_order = false;
-					}
-					
 					this.createChild(data.contents[i], {
-						'draggable': !this.isClosed() && permission_order && permission_block_order,
-						'editable':  permission_edit && permission_block_edit && data.contents[i].editable !== false
+						'draggable': !data.contents[i].closed && !this.isClosed() && permission_order,
+						'editable': !data.contents[i].closed && permission_edit && data.contents[i].editable !== false
 					}, true);
 				}
 			}
@@ -896,11 +884,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 			} else {
 				if (this.get('editable')) {
 					this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
-					
-					if (this.isClosed()) {
-						// Global block, but editable
-						this.overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
-					}
 				} else {
 					// User has permissions to edit template?
 					var has_permissions = !!this.get('data').owner_id;
@@ -911,8 +894,6 @@ YUI.add('supra.page-content-proto', function (Y) {
 				
 				if (!this.get('editable')) {
 					title = 'Global Block<br /><small>Click to edit on Template</small>';
-				} else if (this.isClosed()) {
-					title = 'Global Block<br /><small>Changes affect all pages</small>';
 				} else if (this.isParentClosed()) {
 					title += '<br /><small>' + Supra.Intl.get(['page', 'click_to_edit']) + '</small>';
 				} else {
