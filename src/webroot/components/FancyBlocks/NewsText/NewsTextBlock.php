@@ -24,7 +24,6 @@ class NewsTextBlock extends BlockController
             $fileStorage = ObjectRepository::getFileStorage($this);
             $image = $fileStorage->find($imageId);
             if ($image instanceof Image) {
-                $image->getId();
                 $context->setValue('metaImage', $imageId);    
             }
         }
