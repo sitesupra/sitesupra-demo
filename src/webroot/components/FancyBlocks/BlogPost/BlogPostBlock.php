@@ -5,6 +5,10 @@ namespace Project\FancyBlocks\BlogPost;
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Entity\ApplicationPage;
 use Supra\Controller\Pages\Blog\BlogApplication;
+use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\FileStorage\Entity\Image;
 
 class BlogPostBlock extends BlockController
 {
@@ -25,7 +29,27 @@ class BlogPostBlock extends BlockController
         $description = $this->getPropertyValue('description');
         if ($description) {
             $context->setValue('metaDescription', $description);
-        }    
+        }
+        
+        $mediaProperty = $this->getProperty('media');
+        $metaData = $mediaProperty->getMetadata();
+        
+        if ($metaData instanceof ArrayCollection) {
+            $item = $metaData[0];
+            $mediaProperty = $item->getReferencedElement();
+            
+            if ($mediaProperty instanceof ImageReferencedElement) {
+                $imageId = $mediaProperty->getImageId();
+                
+                if ($imageId) {
+                    $fileStorage = ObjectRepository::getFileStorage($this);
+                    $image = $fileStorage->find($imageId);
+                    if ($image instanceof Image) {
+                        $context->setValue('metaImage', $imageId);    
+                    }
+                }
+            }
+        }
     }
 	
 	protected function doExecute()
