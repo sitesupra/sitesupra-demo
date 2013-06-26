@@ -14,6 +14,7 @@ use Supra\Uri\Path;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Entity;
+use Supra\Controller\Pages;
 
 /**
  * LeftMenuBlock
@@ -114,9 +115,25 @@ class LeftMenuBlock extends MenuBlock
 		$localizationFinder = $this->getLocalizationFinder($pageFinder);
 		$localizationFinder->addFilterByParent($rootLocalization, 1, 1);
 		$localizationFinder->addCustomCondition('l.visibleInMenu = true');
+				
+		$qb = $localizationFinder->getQueryBuilder();
+		
+		if ($rootLocalization instanceof ApplicationLocalization) {
+			$application = Pages\Application\PageApplicationCollection::getInstance()
+					->createApplication($rootLocalization, $em);
+			
+			if ($application instanceof Pages\Blog\BlogApplication
+					|| $application instanceof Pages\News\NewsApplication) {
+				
+				
+				$qb->orderBy('l.creationTime', 'DESC');
+			}
+		}
 
-		$localizations = $localizationFinder->getResult();
-
+		//$localizations = $localizationFinder->getResult();
+		$localizations = $qb->getQuery()
+				->getResult();
+		
 		$menuLevelData = array();
 
 		foreach ($localizations as $localization) {
