@@ -314,6 +314,30 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
+		 * Returns current property value
+		 * 
+		 * @param {String} property Property name
+		 */
+		getPropertyValue: function (property) {
+			var object = this.properties || this,
+				data = object.get('data'),
+				properties = data.properties,
+				name = property;
+			
+			if (name == 'locked') {
+				name = '__locked__';
+			}
+			
+			if (properties && name in properties) {
+				return properties[name].value;
+			} else if (property in data) {
+				return data[property]
+			} else {
+				return null;
+			}
+		},
+		
+		/**
 		 * Returns if specific child type is allowed
 		 * If is closed then child is not allowed
 		 * 
@@ -740,6 +764,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			//Handle block save / cancel
 			this.on('block:save', function () {
+				// Update overlay
+				this.updateOverlayClassNames();
 				// Unset active content
 				if (this.get('super').get('activeChild') === this) {
 					this.get('super').set('activeChild', null);
@@ -903,6 +929,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 			} else {
 				if (this.get('editable')) {
 					this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
+					
+					if (this.getPropertyValue('locked')) {
+						this.overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
+					}
 				} else {
 					// User has permissions to edit template?
 					var has_permissions = !!this.get('data').owner_id;
@@ -928,6 +958,24 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			this.overlay.set('innerHTML', html);
 			this.getNode().insert(div, 'before');
+		},
+		
+		/**
+		 * Update overlay classname to reflect "locked" state
+		 * 
+		 * @private
+		 */
+		updateOverlayClassNames: function () {
+			var locked = this.getPropertyValue('locked'),
+				overlay = this.overlay;
+				
+			if (!this.isList() && this.get('editable') && overlay) {
+				if (locked) {
+					overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
+				} else {
+					overlay.removeClass(CLASSNAME_OVERLAY_EXTERNAL);
+				}
+			}
 		},
 		
 		/**
