@@ -151,6 +151,10 @@ class SlideshowAdvancedBlock extends BlockController
 	 */
 	protected function filterHtml($htmlData)
 	{
+        if ( ! is_array($htmlData)) {
+            $htmlData = array('html' => $htmlData);
+        }
+        
 		$html = $htmlData['html'];
 		$data = (isset($htmlData['data']) ? $htmlData['data'] : array());
 		
