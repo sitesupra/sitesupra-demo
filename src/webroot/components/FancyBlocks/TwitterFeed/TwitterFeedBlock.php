@@ -73,6 +73,8 @@ class TwitterFeedBlock extends BlockController
                 $cacheAdapter->save($this->cacheId, $tweets, $this->cacheLifeTime);
             }
             
+            $tweets = $this->formatTweets($tweets);
+            
             $response->assign('tweets', $tweets)
                     ->outputTemplate('index.html.twig');
         }
@@ -191,5 +193,88 @@ class TwitterFeedBlock extends BlockController
         }
 
         return $result;
+    }
+    
+    
+    protected function formatTweets($tweets)
+    {
+        foreach($tweets as &$tweet) {
+            $tweet->created_at = $this->formatTweetDate($tweet->created_at);
+            $tweet->text = $this->formatTweetText($tweet->text);
+        }
+        
+        return $tweets;
+    }
+    
+    
+    private function formatTweetDate($date)
+    {
+        $tweetTimeStamp = strtotime($date);
+        $now = time();
+        
+        $seconds = $now - $tweetTimeStamp;
+
+        if ($seconds <= 1) {
+            return 'just now';
+        } else if ($seconds < 20) {
+            return $seconds . ' seconds ago';
+        } else if ($seconds < 40) {
+            return 'half a minute ago';
+        } else if ($seconds < 60) {
+            return 'less than a minute ago';
+        } else if ($seconds <= 90) {
+            return 'one minute ago';
+        } else if ($seconds <= 3540) {
+            return round($seconds / 60) . ' minutes ago';
+        } else if ($seconds <= 5400) {
+            return '1 hour ago';
+        } else if ($seconds <= 86400) {
+            return round($seconds / 3600) . ' hours ago';
+        } else if ($seconds <= 129600) {
+            return '1 day ago';
+        } else if ($seconds < 604800) {
+            return round($seconds / 86400) . ' days ago';
+        } else if ($seconds <= 777600) {
+            return '1 week ago';
+        }
+        
+        //Format %d %m %y
+        $now = new \DateTime('now');
+        $tweetDate = new \DateTime();
+        $tweetDate->setTimestamp($tweetTimeStamp);
+        
+        $diff = $now->diff($tweetDate);
+        if ($diff->y > 1) {
+            return $tweetDate->format('d F Y');
+        } else {
+            return $tweetDate->format('d F');
+        }
+    }
+    
+    
+    private function formatTweetText($text)
+    {
+        $temp = $text;
+        
+        //http link
+        $temp = preg_replace_callback('/(\b(https?|ftp|file):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/i', function($matches) { 
+            $result = '<a href="' . $matches[0] . '" target="_blank">' . $matches[0] . '</a>';
+            return $result;
+        }, $temp);
+        
+        //@username
+        $temp = preg_replace_callback('/(^|\s)@(\w+)/', function($matches) {
+            $username = trim(str_replace("@", "", $matches[0]));
+            $result = '<a href="http://twitter.com/' . $username . '" target="_blank">' . $matches[0] . '</a>';
+            return $result;
+        }, $temp);
+        
+        // #hashtag
+        $temp = preg_replace_callback('/(^|\s)#(\w+)/', function($matches) {
+            $hashtag = trim(str_replace("#","%23", $matches[0]));
+            return '<a href="http://search.twitter.com/search/' . $hashtag . '" target="_blank">' . $matches[0] . '</a>';
+        }, $temp);
+    
+        return $temp;
     }
 }
