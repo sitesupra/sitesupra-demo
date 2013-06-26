@@ -95,7 +95,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				'end_offset': node.childNodes.length
 			});
 			
-			setTimeout(this.afterPaste, 0);
+			Supra.immediate(this.afterPaste);
 			
 			this.placeHolder = node;
 			this.previousSelection = selection;
@@ -309,7 +309,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			}, this);
 			
 			
-			//R estore previous selection
+			//Restore previous selection
 			htmleditor.setSelection(this.previousSelection);
 			
 			if (Y.UA.webkit) {

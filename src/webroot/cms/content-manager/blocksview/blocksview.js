@@ -265,8 +265,6 @@ Supra(function (Y) {
 		 * @private
 		 */
 		itemOnClick: function (evt) {
-			this.hide();
-			
 			var target = evt.target.closest('LI'),
 				content_id = target.getAttribute('data-id'),
 				contents = null;

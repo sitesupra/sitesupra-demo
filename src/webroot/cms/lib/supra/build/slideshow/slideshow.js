@@ -309,7 +309,7 @@ YUI.add('supra.slideshow', function (Y) {
 				this.anim.run();
 				
 				//Update Supra.Scrollable
-				Y.later(16, this, function () {
+				Supra.immediate(this, function () {
 					if (this.slides[slideId]) {
 						var content = this.slides[slideId].one('.su-slide-content, .su-multiview-slide-content');
 						if (content) {
@@ -330,7 +330,7 @@ YUI.add('supra.slideshow', function (Y) {
 				this.get('contentBox').setStyle('left', to);
 				
 				//Make sure it's in correct position
-				Y.later(16, this, this.syncUI);
+				Supra.immediate(this, this.syncUI);
 				
 				//Execute callback
 				if (Y.Lang.isFunction(callback)) {

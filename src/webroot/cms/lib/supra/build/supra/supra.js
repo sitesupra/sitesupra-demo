@@ -249,6 +249,85 @@ if (typeof Supra === "undefined") {
 	};
 	
 	/**
+	 * Immediatelly call a callback on next cycle
+	 * Similar to Y.later, but executes callback as soon as possible, but still is async
+	 * 
+	 * @param {Object} context Optional, callback execution context
+	 * @param {Function} callback Callback function
+	 */
+	Supra.immediate = (function () {
+		var callbacks = [],
+			channel = null,
+			transmit = null,
+			receive =  null,
+			attach = null;
+		
+		receive = function () {
+			var c  = callbacks,
+				i  = 0,
+				ii = c.length;
+			
+			for (; i<ii; i++) {
+				callbacks[i]();
+			}
+			
+			callbacks = [];
+		};
+		
+		if (window.setImmediate) {
+			// No browser support for now
+			transmit = function () {
+				window.setImmediate(receive);
+			};
+		} else if (window.msSetImmediate) {
+			// IE10+
+			transmit = function () {
+				window.msSetImmediate(receive);
+			};
+		} else if (window.postMessage) {
+			// FF, Chrome, Safari, Opera, IE8+
+			window.addEventListener('message', function (event) {
+				if (event.source === window && event.data.indexOf('supra.immediate') === 0) {
+					receive();
+				}
+			}, false);
+			
+			transmit = function () {
+				postMessage('supra.immediate', '*');
+			};
+		} else if (window.MessageChannel) {
+			// 
+			channel = new MessageChannel();
+			channel.port1.onmessage = function (event) {
+				if (event.data == 'supra.immediate') {
+					receive();
+				}
+			};
+			
+			transmit = function () {
+				channel.port2.postMessage('supra.immediate');
+			};
+		} else {
+			transmit = function () {
+				setTimeout(receive, 0);
+			};
+		}
+		
+		attach = function (context, callback) {
+			if (Y.Lang.isFunction(context)) {
+				callback = context;
+			} else {
+				callback = Y.bind(callback, context);
+			}
+			
+			callbacks.push(callback);
+			transmit();
+		};
+		
+		return attach;
+	})();
+	
+	/**
 	 * Retrieves the sub value at the provided path, from the value object provided.
 	 * 
 	 * @param {Object} obj The object from which to extract the property value.
