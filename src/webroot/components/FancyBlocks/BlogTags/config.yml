@@ -1,0 +1,25 @@
+- _use: Supra\Controller\Pages\Configuration
+
+- Configuration\BlockControllerConfiguration:
+    class: Project\FancyBlocks\BlogTags\BlogTagsBlock
+    title: Blog Tags
+    icon: icon.png
+    groupId: blog
+    description: Blog Tags
+    cmsClassname: Editable   
+    properties:
+      - Configuration\BlockPropertyConfiguration:
+          name: block_title
+          editable: Supra\Editable\String
+          label: Title
+          default: Tags
+      - Configuration\BlockPropertyConfiguration:
+          name: popular_title
+          editable: Supra\Editable\String
+          label: Popular tags
+          default: Popular
+      - Configuration\BlockPropertyConfiguration:
+          name: all_title
+          editable: Supra\Editable\String
+          label: All tags
+          default: All
