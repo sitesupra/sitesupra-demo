@@ -550,7 +550,7 @@ YUI.add('supra.panel', function (Y) {
 				this._handleStyleChange({'newVal': this.get('style'), 'prevVal': ''});
 			}
 			
-			Y.later(1, this, this.syncUI);
+			Supra.immediate(this, this.syncUI);
 		},
 		
 		bindUI: function () {
@@ -658,7 +658,7 @@ YUI.add('supra.panel', function (Y) {
 			
 			this.syncUI();
 			
-			Y.later(16, this, function () {
+			Supra.immediate(this, function () {
 				this.syncUI();
 				
 				//Auto hide when clicked outside panel

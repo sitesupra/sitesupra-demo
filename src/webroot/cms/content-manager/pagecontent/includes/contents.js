@@ -231,7 +231,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 				if (block) {
 					//Need delay to make sure editing state is correctly set
 					//needed only if settings immediately after load
-					Y.later(1, this, function () {
+					Supra.immediate(this, function () {
 						this.set('activeChild', block);
 					});
 				}

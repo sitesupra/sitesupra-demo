@@ -724,8 +724,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			this.renderUI();
 			this.bindUI();
 			
-			//Use timeout to make sure everything is styled before doing sync
-			setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+			//Delay to make sure everything is styled before doing sync
+			Supra.immediate(this, this.syncOverlayPosition);
 		},
 		
 		/**

@@ -210,7 +210,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.get('host').on('block:cancel', this.onBlockSaveCancel, this);
 			
 			//Start editing immediatelly
-			setTimeout(Y.bind(this.handleEditingStart, this), 50);
+			//setTimeout(Y.bind(this.handleEditingStart, this), 50);
+			//Supra.immediate(this, this.handleEditingStart);
+			this.handleEditingStart();
 		},
 		
 		/**

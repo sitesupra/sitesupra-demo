@@ -400,12 +400,12 @@ YUI.add('supra.tree-node', function(Y) {
 			this.get('boundingBox').one('div').toggleClass(classname, value);
 			
 			if (value) {
-				setTimeout(Y.bind(function () {
+				Supra.immediate(this, function () {
 					var tree = this.getTree();
 					if (tree.get('selectedNode') !== this) {
 						this.getTree().set('selectedNode', this);
 					}
-				}, this), 1);
+				});
 			}
 			
 			return !!value;
