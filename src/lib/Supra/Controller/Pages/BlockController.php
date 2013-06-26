@@ -314,8 +314,18 @@ abstract class BlockController extends ControllerAbstraction
 
 				/* @var $request Request\HttpRequest */
 
-				$default = $editable->getDefaultValue($localeId);
-				$property->setValue($default);
+				$defaultValue = array();
+				if ( ! empty($propertyDefinition->properties)) {
+					foreach ($propertyDefinition->properties as $subProperty) {                        
+						$defaultValue[$subProperty->name] = $subProperty->editableInstance->getDefaultValue();
+					}
+					$defaultValue = array($defaultValue);
+				} else {
+					
+					$defaultValue = $editable->getDefaultValue($localeId);
+				}
+
+				$property->setValue($defaultValue);
 				$property->setBlock($this->getBlock());
 
 				// Must set some DATA object. Where to get this? And why data is set to property not block?
