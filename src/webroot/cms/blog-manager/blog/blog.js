@@ -1253,7 +1253,13 @@ function (Y) {
 			this.show();
 			
 			if (!this.options.standalone) {
-				this.locale = Manager.getAction('SiteMap').languageSelector.get('value');
+				var languageSelector = Manager.getAction('SiteMap').languageSelector;
+				if (languageSelector) {
+					this.locale = languageSelector.get('value');
+				} else {
+					this.locale = Manager.Page.getPageData().locale;
+				}
+				
 				this.widgets.languageSelector.set('value', this.locale, {'silent': true});
 			}
 			
