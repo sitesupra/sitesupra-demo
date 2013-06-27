@@ -795,7 +795,7 @@ class FileStorage
 
 		$croppedVariantFilename = $variantFileDir . DIRECTORY_SEPARATOR . $file->getFileName();
 		$cropper->setOutputFile($croppedVariantFilename);
-		//$cropper->process();
+		$cropper->process();
 
 		$entityManager = $this->getDoctrineEntityManager();
 
