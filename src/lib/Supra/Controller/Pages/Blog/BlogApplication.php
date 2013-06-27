@@ -20,6 +20,7 @@ class BlogApplication implements PageApplicationInterface
 {
 	const PARAMETER_POST_TEMPLATE_ID = 'post_template_id';
 	const PARAMETER_COMMENT_MODERATION_ENABLED = 'comment_moderation_enabled';
+    const POPULAR_TAG_LIMIT = 20;
 			
 	/**
 	 * @var EntityManager
@@ -211,6 +212,18 @@ class BlogApplication implements PageApplicationInterface
 	 */
 	public function getAllTagsArray()
 	{
+        return $this->getTagArray();
+	}
+    
+    
+    public function getPopularTagsArray()
+    {
+        return $this->getTagArray(self::POPULAR_TAG_LIMIT);
+    }
+    
+    
+    private function getTagArray($limit = null)
+    {
 		$pageFinder = new \Supra\Controller\Pages\Finder\PageFinder($this->em);
 		
 		$localizationFinder = new \Supra\Controller\Pages\Finder\LocalizationFinder($pageFinder);
@@ -230,14 +243,19 @@ class BlogApplication implements PageApplicationInterface
 		
 		if ( ! empty($localizationIds)) {
 			
-			$tagCn = Entity\LocalizationTag::CN();
-			$tagArray = $this->em->createQuery("SELECT t.name AS name, count(t.id) as total FROM {$tagCn} t WHERE t.localization IN (:ids) GROUP BY t.name ORDER BY total DESC")
-					->setParameter('ids', $localizationIds)
-					->getScalarResult();
+			$tagCn = Entity\LocalizationTag::CN(); 
+            $query = $this->em->createQuery("SELECT t.name AS name, count(t.id) as total FROM {$tagCn} t WHERE t.localization IN (:ids) GROUP BY t.name ORDER BY total DESC")
+					->setParameter('ids', $localizationIds);
+					
+            if($limit) {
+                $query->setMaxResults($limit);
+            }
+            
+            $tagArray = $query->getScalarResult();
 		} 
 		
 		return $tagArray;
-	}
+    }
 	
 	public function deleteTagByName($name)
 	{
