@@ -215,7 +215,17 @@ Supra('supra.languagebar', function (Y) {
 				}
 			}
 			
-			Supra.Manager.Root.routeSiteMapSave();
+			
+			
+			var page = Manager.Page.getPageData();
+			if (page.application_id == 'blog') {
+				// Open blog
+				Supra.Manager.executeAction('Blog', {
+					'parent_id': page.application_page_id
+				});
+			} else {
+				Supra.Manager.Root.routeSiteMapSave();
+			}
 		},
 		
 		/**
@@ -380,6 +390,26 @@ Supra('supra.languagebar', function (Y) {
 		},
 		
 		/**
+		 * Change back button label depending on current application
+		 * 
+		 * @param {String} id Application Id
+		 */
+		setApplicationId: function (id) {
+			var label  = '',
+				app    = 'ContentManager',
+				header = Manager.Header;
+			
+			if (id == 'blog') {
+				label = Supra.Intl.get(['page', 'back_to_blog']);
+				app = 'BlogManager';
+			} else {
+				label = Supra.Intl.get(['page', 'back_to_sitemap']);
+			}
+			
+			this.back_button.set('label', label);
+		},
+		
+		/**
 		 * Unset title
 		 * 
 		 * @param {String} id Title group ID
@@ -415,6 +445,7 @@ Supra('supra.languagebar', function (Y) {
 			var page = Manager.Page.getPageData();
 			
 			this.setTitle("page", page ? page.title : '');
+			this.setApplicationId(page ? page.application_id : null);
 			this.setVersionTitle(page && page.published ? 'published' : 'draft');
 			this.has_changes = false;
 		}
