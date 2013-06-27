@@ -371,7 +371,7 @@ function (Y) {
 			this.widgets.datagrid.on('row:click', function (event) {
 				//On delete click...
 				if (event.element.test('a.delete-icon')) {
-					this.deleteBlogPost(event.row.page_id);
+					this.deleteBlogPost(event.data.page_id);
 					return false;
 				}
 				
@@ -997,6 +997,7 @@ function (Y) {
 		 * @private
 		 */
 		deleteBlogPostConfirmed: function (record_id) {
+			console.log(arguments);
 			//Delete record
 			if (record_id) {
 				var uri = Manager.getAction('Page').getDataPath('delete'),
