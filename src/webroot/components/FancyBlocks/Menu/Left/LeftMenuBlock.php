@@ -122,13 +122,30 @@ class LeftMenuBlock extends MenuBlock
 			$application = Pages\Application\PageApplicationCollection::getInstance()
 					->createApplication($rootLocalization, $em);
 			
-			if ($application instanceof Pages\Blog\BlogApplication
-					|| $application instanceof Pages\News\NewsApplication) {
-				
-				
+			if ($application instanceof Pages\News\NewsApplication) {
 				$qb->orderBy('l.creationTime', 'DESC');
 			}
-		}
+            
+            if ($application instanceof Pages\Blog\BlogApplication) {
+                
+                $selectedPeriod = $this->getRequest()->getQueryValue('period', null);
+
+                if ($selectedPeriod) {
+                    $thisMonth = new \DateTime();
+                    $timeStamp = strtotime($selectedPeriod);
+                    if ($timeStamp) {
+                        $thisMonth->setTimestamp($timeStamp);
+                        $nextMonth = clone $thisMonth;
+                        $nextMonth->modify('+1 month');
+                        $qb->andWhere('l.creationTime >= :monthStart')
+                                ->andWhere('l.creationTime <= :monthEnd')
+                                ->setParameter('monthStart', $thisMonth)
+                                ->setParameter('monthEnd', $nextMonth);
+                    }
+                }
+                $qb->orderBy('l.creationTime', 'DESC');
+            }
+        }
 
 		//$localizations = $localizationFinder->getResult();
 		$localizations = $qb->getQuery()

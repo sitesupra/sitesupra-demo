@@ -22,6 +22,7 @@ class BlogPostListBlock extends BlockController
 	
 	const CONTEXT_PARAMETER_PAGE = '__blogListPage';
 	const CONTEXT_PARAMETER_TAG = '__blogListTag';
+    const CONTEXT_PARAMETER_PERIOD = '__blogArchivePeriod';
 	
 	/**
 	 * @var \Supra\Controller\Pages\Blog\BlogApplication
@@ -40,9 +41,11 @@ class BlogPostListBlock extends BlockController
 		$pageIndex = ( ! empty($page) ? $page : 0);
 		
 		$tag = $request->getQueryValue('tag', null);
+        $period = $request->getQueryValue('period', null);
 		
 		$context->setValue(self::CONTEXT_PARAMETER_PAGE, $pageIndex);
 		$context->setValue(self::CONTEXT_PARAMETER_TAG, $tag);
+        $context->setValue(self::CONTEXT_PARAMETER_PERIOD, $period);
 	}
 	
 	/**
@@ -86,11 +89,26 @@ class BlogPostListBlock extends BlockController
 		$postsPerPage = $this->getPropertyValue('posts_per_page');
 		
 		$pageIndex = $context->getValue(self::CONTEXT_PARAMETER_PAGE, 0);
+        $selectedPeriod = $context->getValue(self::CONTEXT_PARAMETER_PERIOD, null);
 		
 		$postData = array();
 		
 		if ($postsCount > 0) {
-
+            
+            if ($selectedPeriod) {
+                $thisMonth = new \DateTime();
+                $timeStamp = strtotime($selectedPeriod);
+                if ($timeStamp) {
+                    $thisMonth->setTimestamp($timeStamp);
+                    $nextMonth = clone $thisMonth;
+                    $nextMonth->modify('+1 month');
+                    $qb->andWhere('l.creationTime >= :monthStart')
+                            ->andWhere('l.creationTime <= :monthEnd')
+                            ->setParameter('monthStart', $thisMonth)
+                            ->setParameter('monthEnd', $nextMonth);
+                }
+            }
+            
 			$offset = $postsPerPage * $pageIndex;
 			
 			$qb->setFirstResult($offset);
@@ -98,8 +116,10 @@ class BlogPostListBlock extends BlockController
 			
 			$qb->orderBy('l.creationTime', 'DESC');
 			
-			$localizations = $qb->getQuery()
-					->getResult();
+            $query = $qb->getQuery();
+            $sql = $query->getSQL();
+            
+			$localizations = $query->getResult();
 			
 			$localizationIds = \Supra\Database\Entity::collectIds($localizations);
 

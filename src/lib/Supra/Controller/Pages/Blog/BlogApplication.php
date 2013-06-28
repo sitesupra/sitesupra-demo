@@ -92,18 +92,59 @@ class BlogApplication implements PageApplicationInterface
 	{
 		$folders = null;
 
-		if ($filterName == 'list') {
-			$folders = array();
-		} else if ($filterName == 'group') {
-            $folders = array();
-		} else if ($filterName == '') {
-			$folders = $this->getDefaultFilterFolders();
-		} else {
-			throw new \RuntimeException("Filter $filterName is not recognized");
-		}
+        switch ($filterName) {
+            case 'list':
+                $folders = array();
+                return $folders;
+                break;
+            case 'group':
+                $folders = array();
+				$queryBuilder = clone($queryBuilder);
 
-		return $folders;
-		
+				$queryBuilder->select('p.creationYear AS year, p.creationMonth AS month, COUNT(p.id) AS childrenCount')
+                        ->addSelect('p.creationTime as HIDDEN ct')
+						->groupBy('year, month')
+						->orderBy('ct', 'DESC');
+
+				$months = $queryBuilder->getQuery()
+						->getResult();
+
+				foreach ($months as $monthData) {
+
+					$year = $monthData['year'];
+					$month = $monthData['month'];
+					$numberChildren = $monthData['childrenCount'];
+
+					if ($year <= 0 || $month <= 0) {
+						$yearMonth = '0000-00';
+						$yearMonthTitle = $yearMonth; //'Unknown';
+					} else {
+						$yearMonth = str_pad($year, 4, '0', STR_PAD_LEFT) . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+                        $yearMonthTitle = date("F", mktime(0, 0, 0, $month, 10));
+                        $yearMonthTitle .= ' ' . $year;
+					}
+
+					$group = new Entity\TemporaryGroupPage();
+					$group->setTitle($yearMonthTitle);
+					$group->setNumberChildren($numberChildren);
+
+					$id = $this->applicationLocalization->getId()
+							. '_' . $yearMonth;
+					$group->setId($id);
+
+					$folders[] = $group;
+
+				}
+                return $folders;
+                break;
+            case '':
+                $folders = $this->getDefaultFilterFolders();
+                return $folders;
+                break;
+            default:
+                throw new \RuntimeException("Filter $filterName is not recognized");
+                break;
+        }		
 	}
 
 	/**
@@ -136,7 +177,7 @@ class BlogApplication implements PageApplicationInterface
 		} else if ($filterName == '') {
 			$this->applyDefaultFilter($queryBuilder);
 			
-		} else {
+        } else {
 			throw new \RuntimeException("Filter $filterName is not recognized");
 		}
 	}
