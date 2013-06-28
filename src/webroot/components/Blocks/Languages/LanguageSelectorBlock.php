@@ -1,6 +1,6 @@
 <?php
 
-namespace Project\Blocks\Languages;
+namespace Project\FancyBlocks\Languages;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\BlockController;
@@ -22,7 +22,7 @@ class LanguageSelectorBlock extends BlockController
 		
 		$localeManager = ObjectRepository::getLocaleManager($this);
 		$currentLocale = $localeManager->getCurrent();
-		$locales = $localeManager->getActiveLocales();
+		$locales = $localeManager->getLocales();
 		
 		$url = array();
 		
@@ -34,14 +34,13 @@ class LanguageSelectorBlock extends BlockController
 			
 			$pageLocalization = null;
 			
-			foreach ($pageAncestors as $_page) {
-				/* @var $_page Entity\Abstraction\AbstractPage */
-				//TODO: fix this somehow inside the entity not the request object with some override
+			foreach ($pageAncestors as $page) {
+//				/* @var $_page Entity\Abstraction\AbstractPage */
 //				if ($request instanceof HistoryPageRequestEdit) {
 //					// Fetch available draft localizations
 //					$pageLocalization = $request->getDraftLocalization($localeId);
 //				} else {
-					$pageLocalization = $_page->getLocalization($localeId);
+					$pageLocalization = $page->getLocalization($localeId);
 //				}
 				
 				if ($pageLocalization instanceof Entity\PageLocalization) {
