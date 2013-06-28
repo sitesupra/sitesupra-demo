@@ -8,13 +8,13 @@
 	</div></h3>
 	{% endif %}
 	
-	<div class="tags" data-attach="$.fn.tabs" data-refresh-event="tabs-accordion">
+	<div class="tags" data-attach="$.fn.blogTags" data-refresh-event="tabs-accordion" data-current-tag="{{ currentTag | escape('html_attr') }}">
 		<ul class="tabs-headings clearfix">
 			<li class="tabs-heading active">
 				<a href="#tab_popular">{{ supraBlock.property("popular_title") }}</a>
 			</li>
 			<li class="tabs-heading">
-				<a href="#tab_all" data-all-tag-href="?block_id={{ blogTagsBlock }}&getAllTags">{{ supraBlock.property("all_title") }}</a>
+				<a href="#tab_all" data-href="?block_id={{ blogTagsBlock }}&getAllTags">{{ supraBlock.property("all_title") }}</a>
 			</li>
 		</ul>
 		<div class="tabs-container">
@@ -33,5 +33,10 @@
 			</div>
 		</div>
 	</div>
+	
+	{# Template which will be used to generate "All tags" content #}
+	<script type="text/template">{% verbatim %}
+		<a class="tag {{ active }}" href="{% endverbatim %}{{ pathPrefix }}{% verbatim %}tag={{ tag.url }}">{{ tag.name }}</a>
+	{% endverbatim %}</script>
 	
 </div>
