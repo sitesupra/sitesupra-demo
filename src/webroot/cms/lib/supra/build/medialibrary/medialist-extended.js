@@ -59,6 +59,12 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 							<span class="info-label">{{ "medialibrary.created"|intl }}</span>\
 							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
 						</div>\
+					{% endif %}\\n\
+                    {% if modified and created != modified %}\
+						<div>\\n\
+                            <span class="info-label">{{ "medialibrary.modified"|intl }}</span>\
+							<span class="info-data">{{ modified|datetime_short|default("&nbsp;") }}</span>\
+						</div>\
 					{% endif %}\
 				</div>\
 				\
@@ -101,6 +107,12 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 						<div>\
 							<span class="info-label">{{ "medialibrary.created"|intl }}</span>\
 							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
+						</div>\
+					{% endif %}\\n\
+                    {% if modified and created != modified %}\
+						<div>\\n\
+                            <span class="info-label">{{ "medialibrary.modified"|intl }}</span>\
+							<span class="info-data">{{ modified|datetime_short|default("&nbsp;") }}</span>\
 						</div>\
 					{% endif %}\
 					{% if sizes %}\

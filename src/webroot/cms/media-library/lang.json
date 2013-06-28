@@ -53,6 +53,7 @@
 			"kind": "Kind",
 			"size": "Size",
 			"created": "Created",
+            "modified": "Modified",
 			"dimensions": "Dimensions",
 			"image": "Image",
 			"file": "File",
