@@ -50,7 +50,7 @@ class BlogTagsBlock extends BlockController
 
             $response->assign('tags', $tags)
                     ->assign('currentTag', $tag)
-                    ->assign('blogTagsBlock', BlogTagsBlock::CN())
+                    ->assign('blogTagsBlock', $this->getBlock()->getId())
                     ->outputTemplate('index.html.twig');    
             }
     }
