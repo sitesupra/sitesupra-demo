@@ -9,8 +9,10 @@
 	{% endif %}
 	
 	<ul class="content clearfix {{ heading_class }}" {% if supra.cmsRequest %}data-refresh-event="menu"{% endif %}>
-		{% for item in archiveLastYear %}
-			<li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="{{ item.path }}">{{ item.title }}</a></li>
+		{% for item in archive %}
+            {% if loop.index < 12 %}
+                <li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="?period={{ item.title }}">{{ item.title }}</a></li>
+            {% endif %}
 		{% endfor %}
 	</ul>
 	
@@ -18,8 +20,8 @@
 		<a>{{ supraBlock.property('view_all_title') | default(currentPeriod) | default('&nbsp;') | raw }}</a>
 		<div class="selector-dropdown"><div class="selector-inner">
 			<ul>
-				{% for item in archiveAll %}
-					<li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="{{ item.path }}">{{ item.title }}</a></li>
+				{% for item in archive %}
+					<li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="?period={{ item.title }}">{{ item.title }}</a></li>
 				{% endfor %}
 			</ul>
 		</div></div>
