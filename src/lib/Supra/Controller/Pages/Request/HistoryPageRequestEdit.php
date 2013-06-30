@@ -345,4 +345,35 @@ class HistoryPageRequestEdit extends PageRequest
 		}
 	}
 	
+	/**
+	 * @return \Supra\Controller\Pages\Set\BlockSet
+	 */
+	public function getBlockSet()
+	{
+		if (isset($this->blockSet)) {
+			return $this->blockSet;
+		}
+		
+		$blockSet = parent::getBlockSet();
+
+		$uniqueBlockArray = array();
+		
+		foreach($blockSet as $block) {
+			
+			$blockId = $block->getId();
+			if ( ! isset($uniqueBlockArray[$blockId])) {
+				$uniqueBlockArray[$blockId] = $block;
+				continue;
+			}
+			
+			if ($uniqueBlockArray[$blockId]->getRevisionId() < $block->getRevisionId()) {
+				$uniqueBlockArray[$blockId] = $block;
+			}
+		}
+		
+		$this->blockSet->exchangeArray($uniqueBlockArray);
+
+		return $this->blockSet;
+	}
+	
 }
