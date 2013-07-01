@@ -179,6 +179,24 @@ class PagecontentAction extends PageManagerAction
 				$block->setLocked($locked);
 			}
 		}
+		
+		if ($block instanceof Entity\TemplateBlock
+				&& ! $pageData->isBlockEditable($block)) {
+				
+			$eventArgs = new \Supra\Controller\Pages\Event\PageEventArgs();
+			
+			$eventArgs->setProperty('referenceId', $pageData->getId());
+			
+			//TODO: This can be sent by JS, actually
+			$blockLocalizationId = $block->getPlaceHolder()
+					->getLocalization()
+					->getId();
+			
+			$eventArgs->setProperty('globalElementReferenceId', $blockLocalizationId);
+				
+			$this->entityManager->getEventManager()
+				->dispatchEvent(\Supra\Controller\Pages\Event\AuditEvents::pagePreEditEvent, $eventArgs);
+		}
 
 		// Load received property values and data from the POST
 		$propertyInput = $input->getChild('properties', true);
@@ -241,7 +259,33 @@ class PagecontentAction extends PageManagerAction
 		if (empty($block)) {
 			throw new CmsException(null, 'Block was not found');
 		}
+		
+		// 
+		if ($block instanceof Entity\TemplateBlock) {
+			
+			$localization = $this->getPageLocalization();
+			
+			if ( ! $localization->isBlockManageable($block)) {
+				$this->getConfirmation("If you delete this block it would disappear from all pages it was placed on. 
+					If you want to delete this block from current page only try using a different page template or create a new one.");
+			
+				
+				$eventArgs = new \Supra\Controller\Pages\Event\PageEventArgs();
+			
+				$eventArgs->setProperty('referenceId', $localization->getId());
+			
+				//TODO: This can be sent by JS, actually
+				$blockLocalizationId = $block->getPlaceHolder()
+						->getLocalization()
+						->getId();
+			
+				$eventArgs->setProperty('globalElementReferenceId', $blockLocalizationId);
 
+				$this->entityManager->getEventManager()
+					->dispatchEvent(\Supra\Controller\Pages\Event\AuditEvents::pagePreEditEvent, $eventArgs);
+			}
+		}
+		
 		$this->checkBlockSharedProperties($block);
 
 		$this->entityManager->remove($block);
@@ -252,7 +296,7 @@ class PagecontentAction extends PageManagerAction
 		// OK response
 		$this->getResponse()->setResponseData(true);
 	}
-
+	
 	/**
 	 * Will confirm the removal if shared properties exist
 	 * @param Entity\Abstraction\Block $block
@@ -494,6 +538,15 @@ class PagecontentAction extends PageManagerAction
 		//foreach ($targetPlaceholder->getBlocks() as $someBlock) {
 		//	\Log::debug('1 target placeholder BLOCK: ' . $someBlock->getId() . ', POSITION: ' . $someBlock->getPosition());
 		//}
+		
+		// Fire event to notify Audit/RevisionSetter listeners about MOVE action happened
+		// otherwise it will be tracked as block edit action (block has "placeHolder" property that changed)
+		$eventArgs = new PageEventArgs();
+		$eventArgs->setRevisionInfo(self::ACTION_BLOCK_MOVE);
+		$this->entityManager
+				->getEventManager()
+				->dispatchEvent(AuditEvents::pageContentEditEvent, $eventArgs);
+
 
 		$this->entityManager->persist($sourcePlaceholder);
 		$this->entityManager->persist($targetPlaceholder);

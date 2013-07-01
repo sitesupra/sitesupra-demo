@@ -364,8 +364,8 @@ abstract class BlockController extends ControllerAbstraction
 		// Html content additional filters
 		if ($editable instanceof Editable\Html) {
 			// Editable action
-			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-				
+//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+			if ($this->request instanceof PageRequestEdit) {	
 				
 				
 				$filter = new Filter\EditableHtml($context);
@@ -393,7 +393,8 @@ abstract class BlockController extends ControllerAbstraction
 		}
 		
 		else if ($editable instanceof Editable\InlineString) {
-			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+			if ($this->request instanceof PageRequestEdit) {	
 				$filter = new Filter\EditableString();
 				ObjectRepository::setCallerParent($filter, $this);
 				$filter->property = $property;
@@ -445,7 +446,8 @@ abstract class BlockController extends ControllerAbstraction
 		}
 		
 		else if ($editable instanceof Editable\InlineMedia) {
-			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+			if ($this->request instanceof PageRequestEdit) {
 				$filter = new Filter\EditableInlineMedia();
 			} else {
 				$filter = new Filter\InlineMediaFilter();

@@ -70,6 +70,9 @@ class PagehistoryAction extends PageManagerAction
 		}
 	
 		$historyRevisions = $this->getRevisionList();
+						
+		// user names hash map
+		$userNames = array();
 		
 		foreach ($historyRevisions as $revision) {
 			
@@ -80,12 +83,18 @@ class PagehistoryAction extends PageManagerAction
 				continue;
 			}
 			
-			// 8 characters is enough if user was not found
-			$userName = '#' . substr($userId, 0 ,8);
-			$user = $userProvider->findUserById($userId);
-			if ($user instanceof User) {
-				$userName = $user->getName();
+			if ( ! isset($userNames[$userId])) {
+
+				$user = $userProvider->findUserById($userId);
+				
+				if ($user instanceof User) {
+					$userNames[$userId] = $user->getName();
+				} else {
+					$userNames[$userId] = '#' . substr($userId, 0 ,8);
+				}
 			}
+			
+			$userName = $userNames[$userId];
 			
 			$title = null;
 			$action = null;
@@ -94,7 +103,7 @@ class PagehistoryAction extends PageManagerAction
 			$revisionType = $revision->getType();
 		
 			switch ($revisionType) {
-				case PageRevisionData::TYPE_CHANGE_DELETE:
+				case PageRevisionData::TYPE_ELEMENT_DELETE:
 					$action = self::ACTION_DELETE;
 					break;
 
@@ -126,7 +135,7 @@ class PagehistoryAction extends PageManagerAction
 					$action = self::ACTION_CHANGE;
 			}
 			
-			if ( ! isset($title) && $revisionType & (PageRevisionData::TYPE_CHANGE | PageRevisionData::TYPE_CHANGE_DELETE | PageRevisionData::TYPE_INSERT)) {
+			if ( ! isset($title) && $revisionType & (PageRevisionData::TYPE_ELEMENT_EDIT | PageRevisionData::TYPE_ELEMENT_DELETE | PageRevisionData::TYPE_INSERT)) {
 				
 				$blockName = null;
 				switch($revisionElementName) {
@@ -141,16 +150,16 @@ class PagehistoryAction extends PageManagerAction
 					case Entity\ReferencedElement\LinkReferencedElement::CN():
 					case Entity\ReferencedElement\ImageReferencedElement::CN():
 					case Entity\BlockPropertyMetadata::CN():
-						if ($revisionType == PageRevisionData::TYPE_REMOVED) {
+						if ($revisionType == PageRevisionData::TYPE_ELEMENT_DELETE) {
 							continue;
 						}
 						
-						$blockName = $this->getRevisionedEntityBlockName($revision);
-						$title = "{$blockName} block settings";
-						$action = self::ACTION_CHANGE;
-						
-						break;
-						
+//						$blockName = $this->getRevisionedEntityBlockName($revision);
+//						$title = "{$blockName} block settings";
+//						$action = self::ACTION_CHANGE;
+//						
+//						break;
+//						
 //					case Entity\PlaceHolderGroup::CN():
 //						$title = "Layout settings";
 //						break;
@@ -176,7 +185,8 @@ class PagehistoryAction extends PageManagerAction
 									continue;
 								}
 								
-								$title = "{$blockName} block settings";
+								//$title = "{$blockName} block settings";
+								$title = "{$blockName} block";
 							}
 						} else {
 							$blockName = $this->getRevisionedEntityBlockName($revision);
@@ -221,6 +231,12 @@ class PagehistoryAction extends PageManagerAction
 	 */
 	private function getRevisionedEntityBlockName(PageRevisionData $revision) 
 	{
+		$globalReference = $revision->getGlobalElementReferenceId();
+		
+		if ($globalReference !== null && $globalReference != $this->getRequestParameter('page_id')) {
+			return "Global " . $revision->getElementTitle();
+		}
+		
 		return $revision->getElementTitle();
 	}
 	
@@ -255,7 +271,7 @@ class PagehistoryAction extends PageManagerAction
 		$qb = $this->entityManager->createQueryBuilder();
 		$qb->select('r')
 				->from(PageRevisionData::CN(), 'r')
-				->where('r.reference = :reference AND r.type NOT IN (:skipTypes)')
+				->where('(r.reference = :reference OR r.globalReference = :reference) AND r.type NOT IN (:skipTypes)')
 				->orderBy('r.id', 'ASC')
 				->setParameters($params);
 				;
