@@ -315,7 +315,7 @@ abstract class BlockController extends ControllerAbstraction
 				/* @var $request Request\HttpRequest */
 
 				$defaultValue = array();
-				if ( ! empty($propertyDefinition->properties)) {
+				if ( ! empty($propertyDefinition->properties) && ! $editable instanceof Editable\Gallery) {
 					foreach ($propertyDefinition->properties as $subProperty) {                        
 						$defaultValue[$subProperty->name] = $subProperty->editableInstance->getDefaultValue();
 					}
