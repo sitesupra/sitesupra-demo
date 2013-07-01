@@ -57,7 +57,7 @@ class InboxAction extends DasboardAbstractAction
     
 	public function inboxAction()
 	{        
-        /*$result = array();
+        $result = array();
         $system = ObjectRepository::getSystemInfo($this);
         $siteId = $system->getSiteId();
         $user = $this->getUser();
@@ -98,7 +98,7 @@ class InboxAction extends DasboardAbstractAction
             } else {
                 $result = $cachedData;
             }
-        }*/
+        }
 
         $result = array(
             array(
