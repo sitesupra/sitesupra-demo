@@ -262,8 +262,9 @@ class PageRequestEdit extends PageRequest
 
 		// 6. Get properties to be copied (of a. self and b. template)
 		$draftProperties = $this->getBlockPropertySet()
-				->getPageProperties($draftData);
-		
+				//->getPageProperties($draftData);
+				;
+				
 		$draftPropertyIds = $draftProperties->collectIds();
 		
 		$existentProperties = $this->getPageBlockProperties($publicEm, $publicData);

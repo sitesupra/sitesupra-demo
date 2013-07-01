@@ -385,7 +385,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.set('buttonDelete', btn);
 			
 			//Don't show delete button if block is closed or this is placeholder
-			if (host.isClosed() || host.isParentClosed() || host.isInstanceOf('page-content-list')) {
+			//if (host.isClosed() ||  || host.isInstanceOf('page-content-list')) {
+			if (host.isParentClosed() || host.isInstanceOf('page-content-list')) {	
 				btn.hide();
 			}
 		},

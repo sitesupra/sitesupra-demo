@@ -409,8 +409,6 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function outputPage(Entity\Abstraction\Localization $pageData)
 	{
-		$data = null;
-
 		$data = $this->loadNodeMainData($pageData);
 
 		// Add missing parent page data ID

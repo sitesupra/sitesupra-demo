@@ -213,13 +213,13 @@ class PageAction extends PageManagerAction
 
 					/* @var $property BlockPropertyConfiguration */
 					$propertyName = $property->name;
-					$blockProperty = $controller->getProperty($propertyName);
+//					$blockProperty = $controller->getProperty($propertyName);
 
-					if ($page->isBlockPropertyEditable($blockProperty)) {
+//					if ($page->isBlockPropertyEditable($blockProperty)) {
 
 						$propertyData = $this->gatherPropertyData($controller, $property);
 						$blockData['properties'][$propertyName] = $propertyData;
-					}
+//					}
 				}
 				
 				$placeHolderData['contents'][] = $blockData;

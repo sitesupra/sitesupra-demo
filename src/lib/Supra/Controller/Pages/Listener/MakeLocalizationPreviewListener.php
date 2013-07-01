@@ -34,9 +34,9 @@ class MakeLocalizationPreviewListener
 			'revisionId' => $args->localization->getRevisionId(),
 		);
 
-		$gearmanClient = new \GearmanClient();
-		$gearmanClient->addServers($gearmanServerHost);
-		$gearmanClient->doBackground('makeLocalizationPreview', json_encode($jobData));
+//		$gearmanClient = new \GearmanClient();
+//		$gearmanClient->addServers($gearmanServerHost);
+//		$gearmanClient->doBackground('makeLocalizationPreview', json_encode($jobData));
 	}
 
 }
