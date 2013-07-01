@@ -17,8 +17,13 @@ YUI.add("dashboard.inbox", function (Y) {
 			</div>';
 	
 	var TEMPLATE_ITEM = '\
-			<li class="item {% if new %}new{% endif %}">\
-				<p>{{ title|escape }}</p>\
+			<li class="item {% if new %}new{% endif %} {% if urgent %}urgent{% endif %} {%if date %}has-date{% endif %}">\
+				{% if date %}<p class="date">{{ date|escape }}</p>{% endif %}\
+				<p>\
+					{% if link %}<a href="{{ link }}">{% endif %}\
+					{{ title|default("")|escape|default(message) }}\
+					{% if link %}</a>{% endif %}\
+				</p>\
 				{% if new and buy %}<button>{{ "dashboard.inbox.buy_now"|intl }}</button>{% endif %}\
 			</li>';
 	
@@ -117,17 +122,6 @@ YUI.add("dashboard.inbox", function (Y) {
 			data = Inbox.superclass.renderData.call(this, data);
 			
 			if (!this.nodes.body || !data || !data.length) return data;
-			
-			//Title
-			var has_new_messages = false;
-			if (data) {
-				for (var i=0, ii=data.length; i<ii; i++) {
-					if (data[i]["new"]) {
-						has_new_messages = true;
-						break;
-					}
-				}
-			}
 			
 			//Render buttons
 			var container = this.nodes.body.one("ul"),

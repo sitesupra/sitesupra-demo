@@ -57,7 +57,7 @@ class InboxAction extends DasboardAbstractAction
     
 	public function inboxAction()
 	{        
-        $result = array();
+        /*$result = array();
         $system = ObjectRepository::getSystemInfo($this);
         $siteId = $system->getSiteId();
         $user = $this->getUser();
@@ -98,15 +98,16 @@ class InboxAction extends DasboardAbstractAction
             } else {
                 $result = $cachedData;
             }
-        }
+        }*/
 
         $result = array(
-            'website_status' => array(
+            array(
                 'date' => null,
                 'message' => 'Your subscription expires in <em>12 days</em>',
                 'urgent' => true,
+                'link' => '/cms-local/cashier'
             ),
-            'payment_status' => array(
+            array(
                 'date' => 'June 12',
                 'message' => 'Your payment failed',
                 'urgent' => true,
