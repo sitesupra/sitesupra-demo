@@ -99,9 +99,19 @@ class InboxAction extends DasboardAbstractAction
                 $result = $cachedData;
             }
         }
-        
 
-        
+        $result = array(
+            'website_status' => array(
+                'date' => null,
+                'message' => 'Your subscription expires in 12 days',
+                'urgent' => true,
+            ),
+            'payment_status' => array(
+                'date' => 'June 12',
+                'message' => 'Your payment failed',
+                'urgent' => true,
+            ),
+        );
 
 		$this->getResponse()
 				->setResponseData($result);
