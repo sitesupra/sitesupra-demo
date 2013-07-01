@@ -103,7 +103,7 @@ class InboxAction extends DasboardAbstractAction
         $result = array(
             'website_status' => array(
                 'date' => null,
-                'message' => 'Your subscription expires in 12 days',
+                'message' => 'Your subscription expires in <em>12 days</em>',
                 'urgent' => true,
             ),
             'payment_status' => array(
