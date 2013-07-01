@@ -3,14 +3,12 @@
 namespace Supra\Cms\Dashboard\Inbox;
 
 use Supra\Cms\Dashboard\DasboardAbstractAction;
-use Supra\User\Notification\UserNotificationService;
 use Supra\Remote\Client\RemoteCommandService;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Console\Output\ArrayOutputWithData;
 use Symfony\Component\Console\Input\ArrayInput;
-use Supra\Controller\Pages\Entity\Blog\BlogApplicationComment;
-use Supra\User\Entity\User;
 use Supra\Translation\Translator;
+use Doctrine\Common\Cache\MemcacheCache;
 
 
 class InboxAction extends DasboardAbstractAction
@@ -25,6 +23,16 @@ class InboxAction extends DasboardAbstractAction
 	 * @var string
 	 */
 	protected $remoteApiEndpointId = 'portal';
+    
+	/**
+	 * @var string
+	 */
+	protected $cacheId = '__InboxActionCache';
+    
+	/**
+	 * @var string
+	 */
+	protected $cacheTimeout = 60;
 
     
 	/**
@@ -49,6 +57,7 @@ class InboxAction extends DasboardAbstractAction
     
 	public function inboxAction()
 	{        
+        $result = array();
         $system = ObjectRepository::getSystemInfo($this);
         $siteId = $system->getSiteId();
         $user = $this->getUser();
@@ -60,29 +69,42 @@ class InboxAction extends DasboardAbstractAction
             'site' => $siteId,
 		);
 
-		$commandResult = $this->executeSupraPortalCommand($commandParameters);
-        
-        $translator = $this->getTranslator();
+        $cacheAdapter = ObjectRepository::getCacheAdapter($this);
+        if ($cacheAdapter instanceof MemcacheCache) {
+            $cachedData = $cacheAdapter->fetch($this->cacheId);
+            if (!$cachedData) {
+                $commandResult = $this->executeSupraPortalCommand($commandParameters);
 
-        $data = $commandResult->getData();
-        if ($translator instanceof Translator) {
-            if ($data['data']) {
-                foreach($data['data'] as &$item) {
-                    if ($item['valid_for']) {
-                        $item['message'] = $translator->trans($item['message_code'], array('%count%' => $item['valid_for']), 'messages', 'en');
-                    } else {
-                        $item['message'] = $translator->trans($item['message_code'], array(), 'messages', 'en');
-                    }
+                $translator = $this->getTranslator();
+
+                $data = $commandResult->getData();
+                if ($translator instanceof Translator) {
+                    if ($data['data']) {
+                        foreach($data['data'] as &$item) {
+                            if ($item['valid_for']) {
+                                $item['message'] = $translator->trans($item['message_code'], array('%count%' => $item['valid_for']), 'messages', 'en');
+                            } else {
+                                $item['message'] = $translator->trans($item['message_code'], array(), 'messages', 'en');
+                            }
+                        }
+                    }    
+                } else {
+                    $log = $this->getLog();
+                    $log->warn('Could not load Symfony\Component\Translation\Translator, unable to translate site statuses.');
                 }
-            }    
-        } else {
-            $log = $this->getLog();
-            $log->warn('Could not load Symfony\Component\Translation\Translator, unable to translate site statuses.');
+                
+                $result = $data['data'];
+                $cacheAdapter->save($this->cacheId, $result, $this->cacheTimeout);
+            } else {
+                $result = $cachedData;
+            }
         }
         
 
+        
+
 		$this->getResponse()
-				->setResponseData($data['data']);	
+				->setResponseData($result);
 	}
     
     
