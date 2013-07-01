@@ -74,6 +74,7 @@ class PagehistoryAction extends PageManagerAction
 		// user names hash map
 		$userNames = array();
 		
+		/* @var $historyRevisions \Supra\Controller\Pages\Entity\PageRevisionData[] */
 		foreach ($historyRevisions as $revision) {
 			
 			$userId = $revision->getUser();
@@ -204,12 +205,22 @@ class PagehistoryAction extends PageManagerAction
 				continue;
 			}
 			
+			$globalElementLocalizationId = $revision->getGlobalElementReferenceId();
+			$isRevisionOfGlobalElement = false;
+			if ( ! empty($globalElementLocalizationId) 
+					&& $localization->getId() !== $globalElementLocalizationId) {
+				
+				$isRevisionOfGlobalElement = true;
+			}
+			
 			$pageInfo = array(
 				'version_id' => $revision->getId(),
 				'date' => $revision->getCreationTime()->format('c'),
 				'author_fullname' => $userName,
 				'action' => $action,
 				'title' => $title,
+				'global_element' => $isRevisionOfGlobalElement,
+				'global_element_localization_id' => $globalElementLocalizationId,
 			);
 			
 			$timestamp = $revision->getCreationTime()->format('U');
