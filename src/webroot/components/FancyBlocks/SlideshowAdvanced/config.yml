@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\SlideshowAdvanced\SlideshowAdvancedBlock
-    title: Advanced slideshow
+    title: Slideshow
     icon: icon.png
-    groupId: features
+#    group: features
     description: Description
     cmsClassname: Slideshow
     cache:

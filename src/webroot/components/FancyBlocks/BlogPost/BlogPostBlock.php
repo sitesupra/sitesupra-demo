@@ -18,13 +18,20 @@ class BlogPostBlock extends BlockController
 	protected $blogApplication;
 	
 	/**
+	 * 
 	 */
-    protected function doPrepare()
-    {
-        $response = $this->getResponse();
+	protected function doExecute()
+	{
+		$response = $this->getResponse();
         /* @var $response \Supra\Response\TwigResponse */
-        $context = $response->getContext();
-        /* @var $context \Supra\Response\ResponseContext */
+		
+		$application = $this->getBlogApplication();
+		if ( ! $application instanceof BlogApplication) {
+			$response->outputTemplate('application-missing.html.twig');
+			return null;
+		}
+		
+		$context = $response->getContext();
         
         $description = $this->getPropertyValue('description');
         if ($description) {
@@ -32,14 +39,15 @@ class BlogPostBlock extends BlockController
         }
         
         $mediaProperty = $this->getProperty('media');
-        $metaData = $mediaProperty->getMetadata();
-        
-        if ($metaData instanceof ArrayCollection) {
-            $item = $metaData[0];
-            $mediaProperty = $item->getReferencedElement();
+        $metaCollection = $mediaProperty->getMetadata();
+
+		if ( ! $metaCollection->isEmpty()) {
             
-            if ($mediaProperty instanceof ImageReferencedElement) {
-                $imageId = $mediaProperty->getImageId();
+			$referencedElement = $metaCollection->first()
+				->getReferencedElement();
+			
+            if ($referencedElement instanceof ImageReferencedElement) {
+                $imageId = $referencedElement->getImageId();
                 
                 if ($imageId) {
                     $fileStorage = ObjectRepository::getFileStorage($this);
@@ -50,18 +58,6 @@ class BlogPostBlock extends BlockController
                 }
             }
         }
-    }
-	
-	protected function doExecute()
-	{
-		$response = $this->getResponse();
-		/* @var $response \Supra\Response\TwigResponse */
-        
-		$application = $this->getBlogApplication();
-		if ( ! $application instanceof BlogApplication) {
-			$response->outputTemplate('application-missing.html.twig');
-			return null;
-		}
 		
 		$appLocalizationPath = $application->getApplicationLocalization()
 				->getPath();
