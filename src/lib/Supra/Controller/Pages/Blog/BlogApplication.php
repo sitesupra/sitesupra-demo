@@ -94,11 +94,12 @@ class BlogApplication implements PageApplicationInterface
 
         switch ($filterName) {
             case 'list':
-                $folders = array();
                 return $folders;
                 break;
             case 'group':
-                $folders = array();
+                return $folders;
+                break;
+            case 'byYear':
 				$queryBuilder = clone($queryBuilder);
 
 				$queryBuilder->select('p.creationYear AS year, p.creationMonth AS month, COUNT(p.id) AS childrenCount')
