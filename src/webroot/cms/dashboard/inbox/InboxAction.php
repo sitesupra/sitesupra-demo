@@ -81,10 +81,19 @@ class InboxAction extends DasboardAbstractAction
                 if ($translator instanceof Translator) {
                     if ($data['data']) {
                         foreach($data['data'] as &$item) {
-                            if ($item['valid_for']) {
-                                $item['message'] = $translator->trans($item['message_code'], array('%count%' => $item['valid_for']), 'messages', 'en');
-                            } else {
-                                $item['message'] = $translator->trans($item['message_code'], array(), 'messages', 'en');
+                            if (($item)) {
+                                if ($item['valid_for']) {
+                                    $item['message'] = $translator->trans($item['message_code'], array('%count%' => $item['valid_for']), 'messages', 'en');
+                                } else {
+                                    $item['message'] = $translator->trans($item['message_code'], array(), 'messages', 'en');
+                                }
+                                $result[] = array(
+                                    'message' => $item['message'],
+                                    'link' => $item['link'],
+                                    'urgent' => $item['urgent'],
+                                    'date' => $item['date'],
+                                    'valid_for' => $item['valid_for'],
+                                );
                             }
                         }
                     }    
@@ -93,26 +102,11 @@ class InboxAction extends DasboardAbstractAction
                     $log->warn('Could not load Symfony\Component\Translation\Translator, unable to translate site statuses.');
                 }
                 
-                $result = $data['data'];
                 $cacheAdapter->save($this->cacheId, $result, $this->cacheTimeout);
             } else {
                 $result = $cachedData;
             }
         }
-
-        $result = array(
-            array(
-                'date' => null,
-                'message' => 'Your subscription expires in <em>12 days</em>',
-                'urgent' => true,
-                'link' => '/cms-local/cashier'
-            ),
-            array(
-                'date' => 'June 12',
-                'message' => 'Your payment failed',
-                'urgent' => true,
-            ),
-        );
 
 		$this->getResponse()
 				->setResponseData($result);

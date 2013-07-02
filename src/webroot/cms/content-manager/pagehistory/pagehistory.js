@@ -125,8 +125,32 @@ Supra('anim', function (Y) {
 				version_id = target.getAttribute('data-id'),
 				prev_target = null,
 				controlButton = this.get('controlButton'),
-				restoreButton = this.getRestoreButton();
+				restoreButton = this.getRestoreButton(),
+				data = this.getVersionData(version_id);
+			
+			if (data.global_element) {
+				// Global block was edited, show confirmation message
 				
+				Supra.Manager.executeAction('Confirmation', {
+					'message': Supra.Intl.get(['history', 'restore_message_global']),
+					'buttons': [
+						{
+							'id': 'ok',
+							'label': Supra.Intl.get(['history', 'restore_open_global']),
+							'click': function () {
+								this.openVersionTemplate(data.global_element_localization_id);
+							},
+							'context': this
+						},
+						{
+							'id': 'cancel'
+						}
+					]
+				});
+				
+				return;
+			}
+			
 			if (this.current_version != version_id) {
 				prev_target = this.timeline.all('.active');
 				if (prev_target) prev_target.removeClass('active');
@@ -221,6 +245,43 @@ Supra('anim', function (Y) {
 			this.current_version = null;
 		},
 		
+		/**
+		 * Open specific page
+		 * 
+		 * @param {String} page_id Page ID
+		 */
+		openVersionTemplate: function (page_id) {
+			this.hide();
+			Supra.Manager.getAction('PageContent').stopEditing();
+			
+			Y.later(100, this, function () {
+				//Reload page data
+				Manager.Page.loadPage(page_id);
+				
+				this.current_version = null;
+			});
+		},
+		
+		/**
+		 * Returns version data
+		 * 
+		 * @param {String} version_id Version ID
+		 * @returns {Object} Version data
+		 */
+		getVersionData: function (version_id) {
+			var data = this.data || [],
+				i    = 0,
+				ii   = data.length;
+			
+			for (; i<ii; i++) {
+				if (data[i].version_id == version_id) {
+					return data[i];
+				}
+			}
+			
+			return null;
+		},
+		
 		
 		/* ------------------------------------ LIST ------------------------------------ */
 		
@@ -237,19 +298,17 @@ Supra('anim', function (Y) {
 				'data': {
 					'page_id': Manager.getAction('Page').getPageData().id,
 					'locale': Supra.data.get('locale')
-				},
-				'context': this,
-				'on': {
-					'success': this.renderData
 				}
-			});
-			
+			})
+				.done(this.renderData, this)
+				.fail(this.hide, this);
 		},
 		
 		/**
 		 * Draw data
 		 */
 		renderData: function (data, status) {
+			this.data = data;
 			data = this.parseData(data);
 			
 			this.get('contentNode').removeClass('loading');
