@@ -64,7 +64,7 @@ class BlogArchiveBlock extends BlockController
                 ->setParameter('ids', $ids);
 
         /* @var $application \Supra\Controller\Pages\Blog\BlogApplication */
-        $archives = $application->getFilterFolders($qb, 'group');
+        $archives = $application->getFilterFolders($qb, 'byYear');
         
         $currentPeriod = $context->getValue(self::CONTEXT_PARAMETER_PERIOD, null);
         
