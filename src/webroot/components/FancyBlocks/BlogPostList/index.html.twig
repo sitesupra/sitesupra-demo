@@ -16,16 +16,10 @@
 		
 		{% for post in posts %}
 			
-			{# Promoted posts are first two items #}
-			{% set promoted = false %}
-			{% if loop.index < 3 and currentPage == 0 %}
-				{% set promoted = true %}
-			{% endif %}
-			
-			<article class="{% if promoted %}promoted{% endif %} {% if post.properties.media %}has-media{% endif %} clearfix">
+			<article class="{% if post.properties.style == 'promoted' %}promoted{% endif %} {% if post.properties.media %}has-media{% endif %} clearfix">
 				
 				{# Image or video #}
-				{% if promoted and post.properties.media %}
+				{% if post.properties.style == 'promoted' and post.properties.media %}
 					<figure class="media">{{ post.properties.media }}</figure>
 				{% endif %}
 				
@@ -39,7 +33,7 @@
 				</header>
 				
 				{# Image or video #}
-				{% if not promoted and post.properties.media %}
+				{% if not post.properties.style == 'promoted' and post.properties.media %}
 					<figure class="media">{{ post.properties.media }}</figure>
 				{% endif %}
 				
