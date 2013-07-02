@@ -983,12 +983,14 @@ YUI.add('supra.page-content-proto', function (Y) {
 		updateOverlayClassNames: function () {
 			var locked = this.getPropertyValue('locked'),
 				overlay = this.overlay;
-				
-			if (!this.isList() && this.get('editable') && overlay) {
-				if (locked) {
-					overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
-				} else {
-					overlay.removeClass(CLASSNAME_OVERLAY_EXTERNAL);
+			
+			if (!this.isList() && overlay) {
+				if (this.get('editable')) {
+					if (locked || this.isClosed()) {
+						overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
+					} else {
+						overlay.removeClass(CLASSNAME_OVERLAY_EXTERNAL);
+					}
 				}
 			}
 		},
