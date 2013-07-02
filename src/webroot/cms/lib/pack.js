@@ -17405,7 +17405,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		editLinkConfirmed: function (data, target) {
 			if (data && data.href) {
 				data.type = this.NAME;
-				this.htmleditor.setData(target, data);
+				
+				//Silently update data, we will trigger change manually
+				this.htmleditor.setData(target, data, true);
 				
 				//Title attribute
 				target.setAttribute('title', data.title || '');
