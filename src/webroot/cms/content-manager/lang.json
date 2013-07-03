@@ -451,7 +451,7 @@
 			"restore_button_label": "Restore",
 			"restore_message": "Are you sure?",
 			
-			"restore_message_global": "You can revert Global block on it's original template. It will reinstall the block on all pages it was present.",
+			"restore_message_global": "This change affected a Global block. To revert the change use History on the Global block's template.",
 			"restore_open_global": "Open template"
 		},
 		

@@ -448,7 +448,10 @@
 			"this_month": "В этом месяце",
 
 			"restore_button_label": "Восстановить",
-			"restore_message": "Вы уверены?"
+			"restore_message": "Вы уверены?",
+			
+			"restore_message_global": "This change affected a Global block. To revert the change use History on the Global block's template.",
+			"restore_open_global": "Open template"
 		},
 
 		"timeline": {
