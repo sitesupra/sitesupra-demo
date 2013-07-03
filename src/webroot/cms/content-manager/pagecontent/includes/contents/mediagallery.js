@@ -494,6 +494,12 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 				}
 			}
 			
+			//If there are no items, then instead of empty array
+			//send false, because empty array is not actually sent
+			if (!items.length) {
+				items = false;
+			}
+			
 			data[property] = items;
 			
 			return data;
