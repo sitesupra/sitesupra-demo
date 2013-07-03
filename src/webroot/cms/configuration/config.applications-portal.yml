@@ -4,6 +4,7 @@
   title: Backoffice Users
   url: internal-user-manager
   icon: /cms/lib/supra/img/apps/backoffice_users
+  sortIndex: 400
   authorizationAccessPolicy:
     _class: Supra\Cms\InternalUserManager\InternalUserManagerAuthorizationAccessPolicy
     applicationNamespace: Supra\Cms\InternalUserManager\InternalUserManagerController
@@ -22,6 +23,7 @@
   title: Audit log
   url: audit-log
   icon: /cms/lib/supra/img/apps/audit
+  sortIndex: 500
   authorizationAccessPolicy:
     _class: Supra\Cms\AuditLog\AuditLogAuthorizationAccessPolicy
     applicationNamespace: Supra\Cms\AuditLog
@@ -32,6 +34,7 @@
   hidden: true
   url: dashboard
   icon: /cms/lib/supra/img/apps/dashboard
+  sortIndex: 300
 #  authorizationAccessPolicy:
 #    _class: Supra\Cms\Dashboard\DashboardAuthorizationAccessPolicy
 #    applicationNamespace: Supra\Cms\Dashboard
@@ -50,6 +53,7 @@
   title: Blog
   url: blog-manager
   icon: /cms/lib/supra/img/apps/blog
+  sortIndex: 200
   authorizationAccessPolicy:
     _class: Supra\Cms\BlogManager\BlogManagerAuthorizationAccessPolicy
     applicationNamespace: Supra\Cms\BlogManager
@@ -59,6 +63,7 @@
   title: Files
   url: media-library
   icon: /cms/lib/supra/img/apps/media_library
+  sortIndex: 300
 
 ##possible values: "full", "partial" and "none"
 ## - "none" will disable any existence check
