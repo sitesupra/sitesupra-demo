@@ -416,7 +416,7 @@
 			},
 			
 			"confirmation": {
-				"duplicate_path": "'Page with the same path already exists. Do you want server to regenerate path automatically?"
+				"duplicate_path": "Page with the same path already exists. Do you want server to regenerate path automatically?"
 			}
 		},
 		
