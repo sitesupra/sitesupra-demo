@@ -803,7 +803,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 
 		$output['timestamp'] = $file->getModificationTime()->getTimestamp();
-
+        
 		return $output;
 	}
 

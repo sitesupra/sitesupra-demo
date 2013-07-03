@@ -409,9 +409,9 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			
 			if (this.editingAllowed || navKey) {
 				if (this.fire('keyUp', event, event) !== false) {
-					setTimeout(Y.bind(function () {
+					Supra.immediate(this, function () {
 						this._handleNodeChange(event);
-					}, this), 0);
+					});
 					
 					if (!navKey && !event.ctrlKey) {
 						this._changed();

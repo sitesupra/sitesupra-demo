@@ -220,7 +220,13 @@ YUI().add('website.sitemap-tree-node-list', function (Y) {
 						'id': 'delete',
 						'title': '',
 						'formatter': function (col_id, value, data) {
-							return '<a class="delete-icon"></div>';
+							if (data.type == 'page' && data.state == "temporary") {
+								return '';
+							} else if ( ! data.localized) {
+								return '';
+							} else {
+								return '<a class="delete-icon"></div>';
+							}
 						}
 					}
 				]

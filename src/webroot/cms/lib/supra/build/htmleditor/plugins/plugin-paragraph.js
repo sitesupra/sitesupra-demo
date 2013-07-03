@@ -143,12 +143,12 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 				
 				if (event.keyCode == KEY_BACKSPACE) {
 					if (this.htmleditor.isCursorAtTheBeginingOf()) {
-						Y.later(0, this, this._afterMergeContent);
+						Supra.immediate(this, this._afterMergeContent);
 					}
 					
 				} else if (event.keyCode == KEY_DELETE) {
 					if (this.htmleditor.isCursorAtTheEndOf()) {
-						Y.later(0, this, this._afterMergeContent);
+						Supra.immediate(this, this._afterMergeContent);
 					}
 				}
 				

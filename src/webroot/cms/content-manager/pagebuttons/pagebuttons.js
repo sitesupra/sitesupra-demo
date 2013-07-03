@@ -327,7 +327,7 @@ Supra('anim', function (Y) {
 				 * If next animation which will be added is the same as this, then
 				 * ignore
 				 */
-				setTimeout(Y.bind(this.animate, this), 10);
+				setTimeout(Y.bind(this.animate, this), 60);
 			}
 		},
 		

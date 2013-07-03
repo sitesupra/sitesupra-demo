@@ -110,7 +110,7 @@ class SlideshowAdvancedBlock extends BlockController
 						
 						$targetFilePath = $targetDirectory . $targetName;
 						
-						if ( ! file_exists($targetName)) {
+						if ( ! file_exists($targetFilePath)) {
 							\Log::info("Missing mask \"{$maskId}\" for color \"#{$hexColor}\", attempting to create");
 						
 							$colorizer = $this->getImageColorizer();
@@ -151,6 +151,10 @@ class SlideshowAdvancedBlock extends BlockController
 	 */
 	protected function filterHtml($htmlData)
 	{
+        if ( ! is_array($htmlData)) {
+            $htmlData = array('html' => $htmlData);
+        }
+        
 		$html = $htmlData['html'];
 		$data = (isset($htmlData['data']) ? $htmlData['data'] : array());
 		

@@ -145,8 +145,15 @@
 		}
 	}
 	
+	&.su-overlay-external {
+		// Global block, but editable on this page
+		.su-overlay-icon {
+			background-image: url(/cms/lib/supra/img/htmleditor/editable-external-background.gif);
+		}
+	}
 	&.su-overlay-list,
-	&.su-overlay-closed {
+	&.su-overlay-closed,
+	&.su-overlay-external {
 		.su-overlay-icon {
 			background-image: url(/cms/lib/supra/img/htmleditor/editable-closed-background.gif);
 		}
@@ -257,12 +264,15 @@
 			line-height: 24px !important;
 			margin: -31px 0 0 -81px;
 			left: 50%;
-			
-			small {
-				display: inline;
-			}
 		}
 		
+	}
+	
+	// Global block, but editable on this page
+	&.su-overlay-editable.su-overlay-external {
+		.su-overlay-name {
+			margin-left: -112px;
+		}
 	}
 	
 }

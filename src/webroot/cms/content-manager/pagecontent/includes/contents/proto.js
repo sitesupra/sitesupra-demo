@@ -314,6 +314,30 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
+		 * Returns current property value
+		 * 
+		 * @param {String} property Property name
+		 */
+		getPropertyValue: function (property) {
+			var object = this.properties || this,
+				data = object.get('data'),
+				properties = data.properties,
+				name = property;
+			
+			if (name == 'locked') {
+				name = '__locked__';
+			}
+			
+			if (properties && name in properties) {
+				return properties[name].value;
+			} else if (property in data) {
+				return data[property]
+			} else {
+				return null;
+			}
+		},
+		
+		/**
 		 * Returns if specific child type is allowed
 		 * If is closed then child is not allowed
 		 * 
@@ -379,6 +403,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if block is placeholder
+		 * Placeholder is a list, which is a child of another list
 		 * 
 		 * @returns {Boolean} True if block is placeholder, otherwise false
 		 */
@@ -390,6 +415,24 @@ YUI.add('supra.page-content-proto', function (Y) {
 				return true;
 			} else {
 				return false;
+			}
+		},
+		
+		/**
+		 * Returns true if block is placeholder, but without
+		 * parent or children lists 
+		 */
+		isStandalonePlaceholder: function () {
+			if (this.isList() && !this.isPlaceholder()) {
+				// Check all children
+				var id = null,
+					children = this.children;
+				
+				for (id in children) {
+					if (children[id].isList()) return false;
+				}
+				
+				return true;
 			}
 		},
 		
@@ -705,8 +748,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			this.renderUI();
 			this.bindUI();
 			
-			//Use timeout to make sure everything is styled before doing sync
-			setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+			//Delay to make sure everything is styled before doing sync
+			Supra.immediate(this, this.syncOverlayPosition);
 		},
 		
 		/**
@@ -721,6 +764,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			//Handle block save / cancel
 			this.on('block:save', function () {
+				// Update overlay
+				this.updateOverlayClassNames();
 				// Unset active content
 				if (this.get('super').get('activeChild') === this) {
 					this.get('super').set('activeChild', null);
@@ -766,13 +811,25 @@ YUI.add('supra.page-content-proto', function (Y) {
 			var data = this.get('data');
 			var permission_order = true; //Supra.Permission.get('block', 'order', null, true);
 			var permission_edit = true;  //Supra.Permission.get('block', 'edit', null, true);
+			var permission_block_order = true;
+			var permission_block_edit = true;
 			var node = this.getNode();
 			
 			if ('contents' in data) {
 				for(var i=0,ii=data.contents.length; i<ii; i++) {
+					permission_block_edit = true;
+					permission_block_order = true;
+					
+					if (data.contents[i].closed && !data.contents[i].owner_id) {
+						permission_block_edit = false;
+					}
+					if (data.contents[i].closed) {
+						permission_block_order = false;
+					}
+					
 					this.createChild(data.contents[i], {
-						'draggable': !data.contents[i].closed && !this.isClosed() && permission_order,
-						'editable': !data.contents[i].closed && permission_edit && data.contents[i].editable !== false
+						'draggable': !this.isClosed() && permission_order && permission_block_order,
+						'editable':  permission_edit && permission_block_edit && data.contents[i].editable !== false
 					}, true);
 				}
 			}
@@ -884,6 +941,11 @@ YUI.add('supra.page-content-proto', function (Y) {
 			} else {
 				if (this.get('editable')) {
 					this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
+					
+					if (this.isClosed()) {
+						// Global block, but editable
+						this.overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
+					}
 				} else {
 					// User has permissions to edit template?
 					var has_permissions = !!this.get('data').owner_id;
@@ -894,6 +956,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 				
 				if (!this.get('editable')) {
 					title = 'Global Block<br /><small>Click to edit on Template</small>';
+				} else if (this.isClosed()) {
+					title = 'Global Block<br /><small>Changes affect all pages</small>';
 				} else if (this.isParentClosed()) {
 					title += '<br /><small>' + Supra.Intl.get(['page', 'click_to_edit']) + '</small>';
 				} else {
@@ -909,6 +973,26 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			this.overlay.set('innerHTML', html);
 			this.getNode().insert(div, 'before');
+		},
+		
+		/**
+		 * Update overlay classname to reflect "locked" state
+		 * 
+		 * @private
+		 */
+		updateOverlayClassNames: function () {
+			var locked = this.getPropertyValue('locked'),
+				overlay = this.overlay;
+			
+			if (!this.isList() && overlay) {
+				if (this.get('editable')) {
+					if (locked || this.isClosed()) {
+						overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
+					} else {
+						overlay.removeClass(CLASSNAME_OVERLAY_EXTERNAL);
+					}
+				}
+			}
 		},
 		
 		/**
@@ -1141,6 +1225,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 					// List edit mode
 					
 					if (is_placeholder) {
+						overlay_classname = 'overlay-visible';
+						icon_classname = 'icon-hidden';
+						name_classname = 'name-hidden';
+					} else if (this.isStandalonePlaceholder()) {
 						overlay_classname = 'overlay-visible';
 						icon_classname = 'icon-hidden';
 						name_classname = 'name-hidden';

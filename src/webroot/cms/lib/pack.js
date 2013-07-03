@@ -280,6 +280,85 @@ if (typeof Supra === "undefined") {
 	};
 	
 	/**
+	 * Immediatelly call a callback on next cycle
+	 * Similar to Y.later, but executes callback as soon as possible, but still is async
+	 * 
+	 * @param {Object} context Optional, callback execution context
+	 * @param {Function} callback Callback function
+	 */
+	Supra.immediate = (function () {
+		var callbacks = [],
+			channel = null,
+			transmit = null,
+			receive =  null,
+			attach = null;
+		
+		receive = function () {
+			var c  = callbacks,
+				i  = 0,
+				ii = c.length;
+			
+			for (; i<ii; i++) {
+				callbacks[i]();
+			}
+			
+			callbacks = [];
+		};
+		
+		if (window.setImmediate) {
+			// No browser support for now
+			transmit = function () {
+				window.setImmediate(receive);
+			};
+		} else if (window.msSetImmediate) {
+			// IE10+
+			transmit = function () {
+				window.msSetImmediate(receive);
+			};
+		} else if (window.postMessage) {
+			// FF, Chrome, Safari, Opera, IE8+
+			window.addEventListener('message', function (event) {
+				if (event.source === window && event.data.indexOf('supra.immediate') === 0) {
+					receive();
+				}
+			}, false);
+			
+			transmit = function () {
+				postMessage('supra.immediate', '*');
+			};
+		} else if (window.MessageChannel) {
+			// 
+			channel = new MessageChannel();
+			channel.port1.onmessage = function (event) {
+				if (event.data == 'supra.immediate') {
+					receive();
+				}
+			};
+			
+			transmit = function () {
+				channel.port2.postMessage('supra.immediate');
+			};
+		} else {
+			transmit = function () {
+				setTimeout(receive, 0);
+			};
+		}
+		
+		attach = function (context, callback) {
+			if (Y.Lang.isFunction(context)) {
+				callback = context;
+			} else {
+				callback = Y.bind(callback, context);
+			}
+			
+			callbacks.push(callback);
+			transmit();
+		};
+		
+		return attach;
+	})();
+	
+	/**
 	 * Retrieves the sub value at the provided path, from the value object provided.
 	 * 
 	 * @param {Object} obj The object from which to extract the property value.
@@ -6277,7 +6356,7 @@ YUI.add('supra.button-plugin-input', function (Y) {
 				this._handleStyleChange({'newVal': this.get('style'), 'prevVal': ''});
 			}
 			
-			Y.later(1, this, this.syncUI);
+			Supra.immediate(this, this.syncUI);
 		},
 		
 		bindUI: function () {
@@ -6385,7 +6464,7 @@ YUI.add('supra.button-plugin-input', function (Y) {
 			
 			this.syncUI();
 			
-			Y.later(16, this, function () {
+			Supra.immediate(this, function () {
 				this.syncUI();
 				
 				//Auto hide when clicked outside panel
@@ -10315,9 +10394,9 @@ YUI().add('supra.input-string-clear', function (Y) {
 			
 			if (this.editingAllowed || navKey) {
 				if (this.fire('keyUp', event, event) !== false) {
-					setTimeout(Y.bind(function () {
+					Supra.immediate(this, function () {
 						this._handleNodeChange(event);
-					}, this), 0);
+					});
 					
 					if (!navKey && !event.ctrlKey) {
 						this._changed();
@@ -17326,7 +17405,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		editLinkConfirmed: function (data, target) {
 			if (data && data.href) {
 				data.type = this.NAME;
-				this.htmleditor.setData(target, data);
+				
+				//Silently update data, we will trigger change manually
+				this.htmleditor.setData(target, data, true);
 				
 				//Title attribute
 				target.setAttribute('title', data.title || '');
@@ -24420,7 +24501,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				'end_offset': node.childNodes.length
 			});
 			
-			setTimeout(this.afterPaste, 0);
+			Supra.immediate(this.afterPaste);
 			
 			this.placeHolder = node;
 			this.previousSelection = selection;
@@ -24634,7 +24715,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}, this);
 			
 			
-			//R estore previous selection
+			//Restore previous selection
 			htmleditor.setSelection(this.previousSelection);
 			
 			if (Y.UA.webkit) {
@@ -24955,12 +25036,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				
 				if (event.keyCode == KEY_BACKSPACE) {
 					if (this.htmleditor.isCursorAtTheBeginingOf()) {
-						Y.later(0, this, this._afterMergeContent);
+						Supra.immediate(this, this._afterMergeContent);
 					}
 					
 				} else if (event.keyCode == KEY_DELETE) {
 					if (this.htmleditor.isCursorAtTheEndOf()) {
-						Y.later(0, this, this._afterMergeContent);
+						Supra.immediate(this, this._afterMergeContent);
 					}
 				}
 				
@@ -43433,10 +43514,10 @@ YUI.add('supra.plugin-layout', function (Y) {
 		},
 		
 		/**
-		 * Use throttle
+		 * Number of ms for throttle
 		 */
 		'throttle': {
-			'value': 100
+			'value': 0
 		}
 	};
 	
@@ -43466,47 +43547,20 @@ YUI.add('supra.plugin-layout', function (Y) {
 			
 			var throttle = this.get('throttle');
 			if (throttle) {
-				this.sync_function = this._sync_fn = this.throttle(this.syncUI, throttle, this);
+				this.sync_function = Supra.throttle(this.syncUI, throttle, this);
 			} else {
-				this.sync_function = Y.bind(this.syncUI, this);
+				this.sync_function = Y.bind(function () {
+					// We still want small delay to prevent non-smooth animations when
+					// two different components change layout, for example one block
+					// calls to hide sidebar and another one right after that to show it
+					Supra.immediate(this, this.syncUI);
+				}, this);
 			}
 			
 			this.sync_function();
 			
 			//On window resize sync position
 			Y.on('resize', this.sync_function);
-		},
-		
-		/**
-		 * Throttle function call
-		 * 
-		 * @param {Function} fn
-		 * @param {Number} ms
-		 * @param {Object} context
-		 */
-		throttle: function (fn, ms, context) {
-			ms = (ms) ? ms : 150;
-			
-			if (true || ms === -1) {
-				return (function() {
-					fn.apply(context, arguments);
-				});
-			}
-			
-			var last = (new Date()).getTime();
-			var t = null;
-			
-			return (function() {
-				var now = (new Date()).getTime();
-				if (now - last > ms) {
-					last = now;
-					fn.apply(context, arguments);
-					clearTimeout(t);
-				} else {
-					clearTimeout(t);
-					t = setTimeout(arguments.callee, ms);
-				}
-			});
 		},
 		
 		/**
@@ -44360,7 +44414,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 				this.anim.run();
 				
 				//Update Supra.Scrollable
-				Y.later(16, this, function () {
+				Supra.immediate(this, function () {
 					if (this.slides[slideId]) {
 						var content = this.slides[slideId].one('.su-slide-content, .su-multiview-slide-content');
 						if (content) {
@@ -44381,7 +44435,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 				this.get('contentBox').setStyle('left', to);
 				
 				//Make sure it's in correct position
-				Y.later(16, this, this.syncUI);
+				Supra.immediate(this, this.syncUI);
 				
 				//Execute callback
 				if (Y.Lang.isFunction(callback)) {

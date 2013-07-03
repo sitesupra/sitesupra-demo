@@ -258,6 +258,11 @@ YUI().add('website.sitemap-tree', function (Y) {
 				
 				view = this.get('view');
 			
+			//Page/template styles
+			boundingBox.removeClass('templates');
+			boundingBox.removeClass('pages');
+			boundingBox.addClass(this.get('mode'));
+			
 			//Create tree
 			contentBox.empty();
 			

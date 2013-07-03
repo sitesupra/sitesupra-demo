@@ -433,7 +433,7 @@ Supra('dd-drag', function (Y) {
 					if (!ret) {
 						//Event was stopped == successful drop
 						//delay to allow draged item to reset it's position if needed
-						Y.later(15, this, function () {
+						Supra.immediate(this, function () {
 							Manager.PageInsertBlock.hide();
 							this.getContent().set('highlightMode', 'edit');
 						});

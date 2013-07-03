@@ -431,7 +431,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 							
 							// Small delay because sidebar will be shown and input may need
 							// to show its own sidebar
-							Y.later(16, this, function () {
+							Supra.immediate(this, function () {
 								var old_property_id = this.get('active_inline_property'),
 									editing_disabled = this.get('super').get('disabled'),
 									disabled = this.inline_inputs[property_id].get('disabled');
@@ -628,7 +628,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 		afterSetHTMLHost: function () {
 			//Update overlay position
 			//Use timeout to make sure everything is styled before doing sync
-			setTimeout(Y.bind(function () {
+			Supra.immediate(this, function () {
 				var children = this.children,
 					id = null;
 				
@@ -640,7 +640,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 				
 				this.setHighlightMode();
 				this.syncOverlayPosition(true);
-			}, this), 1);
+			});
 		},
 		
 		/**

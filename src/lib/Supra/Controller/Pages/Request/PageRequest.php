@@ -441,7 +441,9 @@ abstract class PageRequest extends HttpRequest
 		}
 		
 		// Create missing place holders automatically
-		$this->createMissingPlaceHolders();
+		if ( ! $this instanceof HistoryPageRequestEdit) {
+			$this->createMissingPlaceHolders();
+		}
 
 		\Log::debug('Count of place holders found: ' . count($this->placeHolderSet));
 
@@ -827,6 +829,8 @@ abstract class PageRequest extends HttpRequest
 		foreach ($layoutPlaceHolders as $layoutPlaceHolder) {
 			
 			$placeHolder = null;
+			$parentPlaceHolder = null;
+			
 			$name = $layoutPlaceHolder->getName();
 			
 			if ( ! $finalPlaceHolders->offsetExists($name)) {

@@ -52,6 +52,11 @@ class ApplicationConfiguration extends ComponentConfiguration
 	 * @var boolean
 	 */
 	public $hidden = false;
+	
+	/**
+	 * @var integer
+	 */
+	public $sortIndex = 9999;
 
 	/**
 	 * @var string

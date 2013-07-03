@@ -11,7 +11,7 @@
 					{# Slide data here #}
 					{% for slide in slides %}
 						{% set property = {
-							'hidden': loop.index,
+							'hidden': loop.index0,
 							'theme': slide['theme'],
 							'mask_image': slide['mask_image'],
 							'mask_color': slide['mask_color'],

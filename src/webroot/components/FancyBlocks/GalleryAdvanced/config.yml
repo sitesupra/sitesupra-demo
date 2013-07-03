@@ -34,7 +34,7 @@
           group: columns
           editable: Supra\Editable\SelectVisual
           label: Layout
-          default: columns_4
+          default: columns_2
           values:
             - id: columns_1
               title: 1 column

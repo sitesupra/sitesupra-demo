@@ -122,7 +122,8 @@ class MakeLocalizationPreviewCommand extends Command
 		$temporaryFilename = tempnam(sys_get_temp_dir(), 'preview-' . basename($previewFilename));
 
 		$command = array(
-			$wkhtmltoimagePath . ' --format jpg --width 1280 --height 1280 --crop-h 1280 ' . escapeshellarg($sourceUrl) . ' ' . escapeshellarg($temporaryFilename),
+			//$wkhtmltoimagePath . ' --format jpg --width 1280 --height 1280 --crop-h 1280 ' . escapeshellarg($sourceUrl) . ' ' . escapeshellarg($temporaryFilename),
+			$wkhtmltoimagePath . ' --format jpg --width 1280 --crop-h 1280 ' . escapeshellarg($sourceUrl) . ' ' . escapeshellarg($temporaryFilename),
 			'; ',
 			$gmPath . ' mogrify -resize ' . escapeshellarg($geometry) . ' ' . escapeshellarg($temporaryFilename),
 		);

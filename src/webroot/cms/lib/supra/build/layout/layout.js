@@ -21,10 +21,10 @@ YUI.add('supra.plugin-layout', function (Y) {
 		},
 		
 		/**
-		 * Use throttle
+		 * Number of ms for throttle
 		 */
 		'throttle': {
-			'value': 100
+			'value': 0
 		}
 	};
 	
@@ -54,47 +54,20 @@ YUI.add('supra.plugin-layout', function (Y) {
 			
 			var throttle = this.get('throttle');
 			if (throttle) {
-				this.sync_function = this._sync_fn = this.throttle(this.syncUI, throttle, this);
+				this.sync_function = Supra.throttle(this.syncUI, throttle, this);
 			} else {
-				this.sync_function = Y.bind(this.syncUI, this);
+				this.sync_function = Y.bind(function () {
+					// We still want small delay to prevent non-smooth animations when
+					// two different components change layout, for example one block
+					// calls to hide sidebar and another one right after that to show it
+					Supra.immediate(this, this.syncUI);
+				}, this);
 			}
 			
 			this.sync_function();
 			
 			//On window resize sync position
 			Y.on('resize', this.sync_function);
-		},
-		
-		/**
-		 * Throttle function call
-		 * 
-		 * @param {Function} fn
-		 * @param {Number} ms
-		 * @param {Object} context
-		 */
-		throttle: function (fn, ms, context) {
-			ms = (ms) ? ms : 150;
-			
-			if (true || ms === -1) {
-				return (function() {
-					fn.apply(context, arguments);
-				});
-			}
-			
-			var last = (new Date()).getTime();
-			var t = null;
-			
-			return (function() {
-				var now = (new Date()).getTime();
-				if (now - last > ms) {
-					last = now;
-					fn.apply(context, arguments);
-					clearTimeout(t);
-				} else {
-					clearTimeout(t);
-					t = setTimeout(arguments.callee, ms);
-				}
-			});
 		},
 		
 		/**

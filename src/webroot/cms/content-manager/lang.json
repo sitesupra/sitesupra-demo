@@ -31,6 +31,7 @@
 			
 			"advanced": "Advanced",
 			"locked": "Global block",
+			"locked_list": "Global cell",
 			
 			"image_label": "Edit image",
 			
@@ -109,6 +110,7 @@
 			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language. Copy from the current language?",
 			
 			"back_to_sitemap": "All pages",
+			"back_to_blog": "Blog",
 			
 			"unsaved_changed": "There are unsaved changes. Are you sure you want to leave this page?",
 			"follow_redirect": "Page has redirect. Do you want to follow redirect?",
@@ -446,7 +448,10 @@
 			"this_month": "This month",
 			
 			"restore_button_label": "Restore",
-			"restore_message": "Are you sure?"
+			"restore_message": "Are you sure?",
+			
+			"restore_message_global": "You can revert Global block on it's original template. It will reinstall the block on all pages it was present.",
+			"restore_open_global": "Open template"
 		},
 		
 		"timeline": {

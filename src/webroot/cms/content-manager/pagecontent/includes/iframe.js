@@ -268,7 +268,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.destroyContent();
 			
 			//Small delay to make sure everything is clean up (Chrome issue)
-			Y.later(16, this, function () {
+			Supra.immediate(this, function () {
 				//Set attribute
 				this.set('html', html);
 				
@@ -652,10 +652,11 @@ YUI.add('supra.iframe-handler', function (Y) {
 					doc = this.get('doc'),
 					body = doc.body,
 					html = doc.querySelector('HTML'),
-					scroll = (html ? html.scrollTop : 0) || (body ? body.scrollTop : 0) + diff;
+					scroll = (html ? html.scrollTop : 0) || (body ? body.scrollTop : 0),
+					scroll_to = scroll + diff;
 				
-				html.scrollTop = scroll;
-				body.scrollTop = scroll;
+				html.scrollTop = scroll_to;
+				body.scrollTop = scroll_to;
 				
 				this.layoutOffsetTop = event.offset.top;
 			}

@@ -22,22 +22,26 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	
 	const TYPE_HISTORY_RESTORE = 101;
 	
+	// page has been moved to trashbin
 	const TYPE_TRASH = 2;
-	
+		
+	// localization has beed restored
 	// when page is restored from trash, revision data is marked as 'restored'
 	// and will not be shown at recycle bin anymore
 	const TYPE_RESTORED = 3;
 	
-	// page element change
-	const TYPE_CHANGE = 4;
+	// one of the page elements has been edited
+	const TYPE_ELEMENT_EDIT = 4;
+	// one of the page elements has been deleted
+	const TYPE_ELEMENT_DELETE = 5;
 	
-	// page element removed
-	const TYPE_REMOVED = 5;
-	const TYPE_CHANGE_DELETE = 5;
-	
+	// new localization has been created
 	const TYPE_CREATE = 6;
+	
+	// localization has been duplicated
 	const TYPE_DUPLICATE = 8;
 	
+	// 
 	const TYPE_INSERT = 7;
 	
 	/**
@@ -65,6 +69,14 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	 * @var string
 	 */
 	protected $reference;
+	
+	/**
+	 * Contains page or page localization ID
+	 * 
+	 * @Column(type="supraId20", nullable=true)
+	 * @var string
+	 */
+	protected $globalReference;
 	
 	/**
 	 * @Column(type="string", nullable=true)
@@ -178,6 +190,19 @@ class PageRevisionData extends Abstraction\Entity implements Timestampable
 	public function setReferenceId($referenceId)
 	{
 		$this->reference = $referenceId;
+	}
+	
+	/**
+	 * @param string $localizationId
+	 */
+	public function setGlobalElementReferenceId($referenceId)
+	{
+		$this->globalReference = $referenceId;
+	}
+	
+	public function getGlobalElementReferenceId()
+	{
+		return $this->globalReference;
 	}
 	
 	/**
