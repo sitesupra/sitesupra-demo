@@ -3,6 +3,8 @@
 	
 	<div class="blog-slideshow">
 		<div id="blog_posts" suScrollable="false" class="ui-light ui-light-background">
+			
+			<!-- Blog post list toolbar -->
 			<div class="datagrid-toolbar">
 				<button type="button" suStyle="mid-blue">{# blog.posts.new_post #}</button>
 				
@@ -11,7 +13,27 @@
 				<div class="filters"></div>
 			</div>
 			
+			<!-- Blog post list -->
 			<div class="datagrid"></div>
+			
+			<!-- Blog new item form -->
+			<div class="blog-add ui-light hidden">
+				<form class="yui3-form-vertical">
+					
+					<label for="title">{# sitemap.new_page_label_title #}</label>
+					<input type="text" name="title" value="" />
+					
+					<label for="path">{# sitemap.new_page_label_path #}</label>
+					<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="products" suPath="http://sitesupra.com/" />
+					
+					<div class="middle">
+						<button type="button" suStyle="small-blue">{# sitemap.create_page #}</button><br />
+						<button type="button" suStyle="small">{# sitemap.cancel #}</button>
+					</div>
+					
+				</form>
+			</div>
+			
 		</div>
 		<div id="blog_settings" class="blog-settings hidden" suScrollable="false">
 			
