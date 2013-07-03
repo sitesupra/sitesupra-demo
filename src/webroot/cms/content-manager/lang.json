@@ -100,6 +100,7 @@
 			"delete_block": "Delete block",
 			"delete_block_confirmation": "Are you sure you want to delete selected block",
 			"delete_block_shared_confirmation": "The block may contain data that is shared among other page localizations. By deleting the block you may lose this data. Do you wish to proceed?",
+			"delete_block_global_confirmation": "If you delete this Global block it would disappear from all pages it was placed on. To remove this block from the current page only try selecting a different page template from page settings or create a new page template. Remove the block anyway?",
 			
 			"click_to_edit": "Click to edit",
 			"click_to_edit_drag_to_move": "Click to edit, Drag to move",
