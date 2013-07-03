@@ -124,6 +124,15 @@ class ApplicationsAction extends DasboardAbstractAction
 
 		foreach ($configurationArray as $index => $configuration) {
 			
+            //Check if site has any blogs
+            if ($configuration instanceof \Supra\Cms\BlogManager\ApplicationConfiguration) {
+                
+                $rootAction = new \Supra\Cms\BlogManager\Root\RootAction();
+                if (!$rootAction->findBlogApplication()) {
+                    continue;
+                }
+            }
+            
 			// if application is hidden by configuration
 			if ($configuration->hidden) {
 				continue;
