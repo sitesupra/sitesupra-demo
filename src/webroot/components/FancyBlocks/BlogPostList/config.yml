@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogPostList\BlogPostListBlock
-    title: Blog Post List
+    title: Blog roll
     groupId: blog
-    description: Description
+    description: A list of blog posts. Designed to be placed on the blog’s main page.
     cmsClassname: Editable
     icon: icon.png
     cache:

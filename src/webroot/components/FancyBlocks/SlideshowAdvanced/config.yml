@@ -3,7 +3,7 @@
     title: Slideshow
     icon: icon.png
 #    group: features
-    description: Description
+    description: Animated images, text, video and graphic elements, image masks.
     cmsClassname: Slideshow
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:

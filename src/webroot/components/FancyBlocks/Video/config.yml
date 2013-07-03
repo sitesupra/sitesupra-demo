@@ -2,7 +2,7 @@
     class: Project\FancyBlocks\Video\VideoBlock
     title: Video
     groupId: features
-    description: Embed video from popular video sharing services
+    description: Embeds video from popular video sharing websites.
     cmsClassname: Editable
     icon: icon.png
     cache:

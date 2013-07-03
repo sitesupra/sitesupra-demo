@@ -2,7 +2,7 @@
     class: Project\FancyBlocks\GoogleMap\GoogleMapBlock
     title: Google Maps
     groupId: features
-    description: The Google Map block allows you to embed a Google Maps map in your page. 
+    description: Embed Google Maps into your pages. 
     cmsClassname: Editable
     icon: icon.png
     cache:

@@ -2,10 +2,10 @@
 
 - Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogArchive\BlogArchiveBlock
-    title: Blog Archive
+    title: Blog archive
     icon: icon.png
     groupId: blog
-    description: Blog Archive
+    description: A side-menu that shows blog posts grouped by time period – months and years.
     cmsClassname: Editable   
     properties:
       - Configuration\BlockPropertyConfiguration:

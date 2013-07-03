@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogComments\BlogCommentsBlock
-    title: Blog Comments
+    title: Blog comments
     groupId: blog
-    description: Description
+    description: Enables users to leave comments to blog posts.
     cmsClassname: Editable
     icon: icon.png
     cache:

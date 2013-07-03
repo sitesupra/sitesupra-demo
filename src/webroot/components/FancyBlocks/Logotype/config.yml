@@ -1,9 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Logotype\LogotypeBlock
-    title: Logotype
+    title: Logo
     icon: icon.png
     groupId: features
-    description: Description
+    description: Place text or graphic logo or combine the two.
     cmsClassname: Editable
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:

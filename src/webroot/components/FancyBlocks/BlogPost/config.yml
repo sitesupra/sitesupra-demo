@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogPost\BlogPostBlock
-    title: Blog Post
+    title: Blog post
     groupId: blog
-    description: Description
+    description: A blog post with the option of adding a main illustration – graphics or video that would be used for a blog roll and latest posts section.
     cmsClassname: Editable
     icon: icon.png
     cache:

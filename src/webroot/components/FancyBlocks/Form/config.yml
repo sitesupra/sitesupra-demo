@@ -2,10 +2,10 @@
 
 - Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Form\FormBlock
-    title: Form
+    title: Simple form
     icon: icon.png
     groupId: features
-    description: Customizable form
+    description: A simple few-fields form.
     cmsClassname: Editable   
     properties:
       - Configuration\BlockPropertyConfiguration:
