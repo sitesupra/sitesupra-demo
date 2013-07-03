@@ -23,3 +23,7 @@
           editable: Supra\Editable\String
           label: All tags
           default: All
+      - Configuration\BlockPropertyConfiguration:
+          name: blog_page
+          editable: Supra\Editable\Link
+          label: Blog page
