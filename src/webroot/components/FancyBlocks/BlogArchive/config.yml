@@ -18,3 +18,7 @@
           editable: Supra\Editable\String
           label: View all
           default: View all archives
+      - Configuration\BlockPropertyConfiguration:
+          name: blog_page
+          editable: Supra\Editable\Link
+          label: Blog page

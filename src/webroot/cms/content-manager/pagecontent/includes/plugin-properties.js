@@ -687,8 +687,18 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Delete content
 		 */
 		deleteContent: function () {
+			var message = '',
+				host    = this.get('host'),
+				locked  = host.getPropertyValue('locked');
+			
+			if (locked || host.isClosed()) {
+				message = Supra.Intl.get(['page', 'delete_block_global_confirmation']);
+			} else {
+				message = Supra.Intl.get(['page', 'delete_block_confirmation']);
+			}
+			
 			Supra.Manager.executeAction('Confirmation', {
-				'message': Supra.Intl.get(['page', 'delete_block_confirmation']),
+				'message': message,
 				'useMask': true,
 				'buttons': [
 					{'id': 'delete', 'label': Supra.Intl.get(['buttons', 'yes']), 'context': this, 'click': function () {
