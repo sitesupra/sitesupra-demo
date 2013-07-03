@@ -142,11 +142,11 @@
                 values:
                   - { id: theme-text, title: "Clean text", icon: "icons/theme/text.png" }
                   - { id: theme-background, title: "Text with background", icon: "icons/theme/background.png" }
-                  - { id: theme-mask-option-1, title: "Option 1", icon: "icons/theme/mask-option-1.png", isMask: true }
-                  - { id: theme-mask-option-2, title: "Option 2", icon: "icons/theme/mask-option-2.png", isMask: true }
-                  - { id: theme-mask-option-3, title: "Option 3", icon: "icons/theme/mask-option-2.png", isMask: true }
-                  - { id: theme-mask-option-4, title: "Option 4", icon: "icons/theme/mask-option-2.png", isMask: true }
-                  - { id: theme-mask-option-5, title: "Option 5", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-1, title: "Mask 1", icon: "icons/theme/mask-option-1.png", isMask: true }
+                  - { id: theme-mask-option-2, title: "Mask 2", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-3, title: "Mask 3", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-4, title: "Mask 4", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-5, title: "Mask 5", icon: "icons/theme/mask-option-2.png", isMask: true }
                   
                 additionalParameters:
                   style: mid
