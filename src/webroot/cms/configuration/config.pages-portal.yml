@@ -2,6 +2,7 @@
   id: Supra\Cms\ContentManager
   title: Pages
   icon: /cms/lib/supra/img/apps/pages
+  sortIndex: 0
   url: content-manager
   allowLimitedPageOption: false
   galleryBlockId: Project\FancyBlocks\Gallery\GalleryBlock
