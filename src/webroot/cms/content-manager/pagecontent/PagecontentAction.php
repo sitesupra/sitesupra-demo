@@ -266,10 +266,7 @@ class PagecontentAction extends PageManagerAction
 			$localization = $this->getPageLocalization();
 			
 			if ( ! $localization->isBlockManageable($block)) {
-				$this->getConfirmation("If you delete this block it would disappear from all pages it was placed on. 
-					If you want to delete this block from current page only try using a different page template or create a new one.");
-			
-				
+							
 				$eventArgs = new \Supra\Controller\Pages\Event\PageEventArgs();
 			
 				$eventArgs->setProperty('referenceId', $localization->getId());
