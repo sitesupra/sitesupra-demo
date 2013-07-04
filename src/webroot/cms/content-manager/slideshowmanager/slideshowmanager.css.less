@@ -93,6 +93,10 @@
 			text-align: center;
 			cursor: pointer;
 			overflow: hidden;
+			
+			&.blank {
+				background: url(/cms/content-manager/slideshowmanager/images/preview-blank.png) 10px 10px no-repeat;
+			}
 		}
 		
 		.click-target {
@@ -105,6 +109,10 @@
 			background-size: 60px, cover;
 			border-radius: 4px;
 			box-shadow: 0 1px 0 rgba(255,255,255,0.24) inset;
+			
+			&.blank {
+				background-position: 0 0;
+			}
 		}
 		
 		.center {
@@ -113,6 +121,7 @@
 			height: 100px;
 			vertical-align: middle;
 		}
+		
 		.title {
 			color: #ffffff;
 			font-size: 12px;
