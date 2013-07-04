@@ -1285,8 +1285,8 @@ function (Y) {
 			this.loadData();
 			
 			// New item form
-			if (this.options.show_new_item_form) {
-				// @TODO
+			if (this.options.show_new_item_form && this.post_add) {
+				this.post_add.show();
 			}
 		}
 	});
