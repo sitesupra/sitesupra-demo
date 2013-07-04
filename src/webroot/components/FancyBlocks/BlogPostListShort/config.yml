@@ -2,7 +2,7 @@
     class: Project\FancyBlocks\BlogPostListShort\BlogPostListShortBlock
     title: Latest posts 
     groupId: blog
-    description: Displays a short
+    description: Displays a short preview of the latest posts from the blog.
     cmsClassname: Editable
     icon: icon.png
     cache:
