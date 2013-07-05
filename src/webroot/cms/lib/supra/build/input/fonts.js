@@ -292,9 +292,9 @@ YUI.add('supra.input-fonts', function (Y) {
 		 * @param {String} value Optional, value for which to return full data
 		 * @returns {Object} Value data
 		 */
-		getValueData: function (value) {
+		getValueData: function (value, groups) {
 			var value  = value === null || typeof value === 'undefined' ? this.get('value') : value,
-				groups = this.get('values'),
+				groups = groups || this.get('values'),
 				i  = 0,
 				ii = groups ? groups.length : 0,
 				values = null,
@@ -333,7 +333,7 @@ YUI.add('supra.input-fonts', function (Y) {
 				id = null,
 				i = 0,
 				ii = fonts.length,
-				button = null;
+				button = this.widgets.button;
 			
 			if (!search) {
 				search = new Supra.Input.String();
@@ -377,6 +377,15 @@ YUI.add('supra.input-fonts', function (Y) {
 			
 			for (; i<ii; i++) {
 				this._renderFontGroup(fonts[i]);
+			}
+			
+			
+			if (button) {
+				var data = this.getValueData(this.get('value'), fonts),
+					label = (data ? data.title || data.family : '') || this.get('labelButton') || '';
+				
+				button.set('icon', data && data.icon ? data.icon : '');
+				button.set('label', label);
 			}
 		},
 		
