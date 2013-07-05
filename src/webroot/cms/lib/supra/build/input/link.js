@@ -14,7 +14,7 @@ YUI.add('supra.input-link', function (Y) {
 	Input.NAME = 'input-link';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		'label_set': {
+		'labelSet': {
 			'value': '{#form.set_link#}'
 		},
 		'mode': {
@@ -109,11 +109,14 @@ YUI.add('supra.input-link', function (Y) {
 		
 		renderUI: function () {
 			//Create button
-			this.button = new Supra.Button({'label': this.get('label_set')});
+			this.button = new Supra.Button({'label': this.get('labelSet')});
 			this.button.render(this.get('contentBox'));
 			this.button.on('click', this.openLinkManager, this);
 			
 			Input.superclass.renderUI.apply(this, arguments);
+			
+			//Insert button before input
+			this.get('inputNode') .insert(this.button.get('boundingBox'), 'before');
 			
 			this.set('value', this.get('value'));
 		},
@@ -123,7 +126,7 @@ YUI.add('supra.input-link', function (Y) {
 				data = '';
 			}
 			
-			var title = (data && data.href ? data.title || data.href : Supra.Intl.replace(this.get('label_set')));
+			var title = (data && data.href ? data.title || data.href : Supra.Intl.replace(this.get('labelSet')));
 			this.button.set('label', title);
 			
 			return data;

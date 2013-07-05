@@ -2,10 +2,10 @@
 
 - Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogTags\BlogTagsBlock
-    title: Blog Tags
+    title: Blog tags
     icon: icon.png
     groupId: blog
-    description: Blog Tags
+    description: A side-menu that allows visitors to filter blog posts by tags.
     cmsClassname: Editable   
     properties:
       - Configuration\BlockPropertyConfiguration:
@@ -23,3 +23,7 @@
           editable: Supra\Editable\String
           label: All tags
           default: All
+      - Configuration\BlockPropertyConfiguration:
+          name: blog_page
+          editable: Supra\Editable\Link
+          label: Blog page

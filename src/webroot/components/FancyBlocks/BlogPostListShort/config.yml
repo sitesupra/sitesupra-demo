@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogPostListShort\BlogPostListShortBlock
-    title: Blog Post Short List
+    title: Latest posts 
     groupId: blog
-    description: Description
+    description: Displays a short preview of the latest posts from the blog.
     cmsClassname: Editable
     icon: icon.png
     cache:

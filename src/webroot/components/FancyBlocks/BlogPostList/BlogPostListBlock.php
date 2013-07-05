@@ -18,8 +18,7 @@ class BlogPostListBlock extends BlockController
 {	
 	
 	const PROPERTY_DESCRIPTION = 'description',
-	       PROPERTY_MEDIA = 'media',
-           PROPERTY_STYLE = 'style';
+	       PROPERTY_MEDIA = 'media';
 	
 	const CONTEXT_PARAMETER_PAGE = '__blogListPage';
 	const CONTEXT_PARAMETER_TAG = '__blogListTag';
@@ -127,7 +126,7 @@ class BlogPostListBlock extends BlockController
 			$propertyMap = array();
 			
 			$propertyFinder = new Finder\BlockPropertyFinder($localizationFinder);
-			$propertyFinder->addFilterByComponent(BlogPostBlock::CN(), array(self::PROPERTY_DESCRIPTION, self::PROPERTY_MEDIA, self::PROPERTY_STYLE));
+			$propertyFinder->addFilterByComponent(BlogPostBlock::CN(), array(self::PROPERTY_DESCRIPTION, self::PROPERTY_MEDIA));
 
 			$propertyQb = $propertyFinder->getQueryBuilder();
 			$propertyQb->andWhere('l.id IN (:ids)')

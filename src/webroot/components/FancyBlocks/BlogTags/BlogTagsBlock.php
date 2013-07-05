@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
 class BlogTagsBlock extends BlockController
 {
@@ -58,27 +59,29 @@ class BlogTagsBlock extends BlockController
     
 	/**
 	 */
-	protected function getBlogApplication()
-	{
+    protected function getBlogApplication()
+    {
+            
 		if ($this->blogApplication === null) {
-			$request = $this->getRequest();
-			/* @var $request PageRequest */
-			
-			$localization = $request->getPageLocalization();			
-			
-			if ($localization instanceof ApplicationLocalization) {
-				
-				$em = ObjectRepository::getEntityManager($this);
-				
-				$application = PageApplicationCollection::getInstance()
-					->createApplication($localization, $em);
-				
-				if ($application instanceof BlogApplication) {
-					$this->blogApplication = $application;
-				}
-			}
+            
+            $blogPage = $this->getPropertyValue('blog_page');
+            
+            if ($blogPage instanceof LinkReferencedElement) {
+                $localization = $blogPage->getPageLocalization();
+                
+                if ($localization instanceof ApplicationLocalization) {
+
+                    $em = ObjectRepository::getEntityManager($this);
+                    $application = PageApplicationCollection::getInstance()
+                        ->createApplication($localization, $em);
+
+                    if ($application instanceof BlogApplication) {
+                        $this->blogApplication = $application;
+                    }
+                }
+            }
 		}
 		
 		return $this->blogApplication;
-	}
+    }
 }

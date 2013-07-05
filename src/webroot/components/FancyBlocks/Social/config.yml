@@ -1,9 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Social\SocialBlock
-    title: Social
+    title: Links to social pages
     icon: icon.png
     groupId: features
-    description: Description
+    description: Allows you to link your pages in social networks. Useful for a footer or similar contact info related areas.
     cmsClassname: Editable
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:

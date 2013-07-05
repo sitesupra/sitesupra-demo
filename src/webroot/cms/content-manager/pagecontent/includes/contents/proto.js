@@ -925,7 +925,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			var div = new Y.Node(this.get('doc').createElement('DIV')),
 				title = Y.Escape.html(this.getBlockTitle()),
-				html = '';
+				html = '',
+				locked = null;
 			
 			this.overlay = div;
 			
@@ -942,7 +943,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 				if (this.get('editable')) {
 					this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
 					
-					if (this.isClosed()) {
+					locked = this.getPropertyValue('locked');
+					if (locked || this.isClosed()) {
 						// Global block, but editable
 						this.overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
 					}

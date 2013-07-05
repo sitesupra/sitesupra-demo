@@ -1,9 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Products\ProductsBlock
-    title: Products
+    title: Latest project slider
     icon: icon.png
     groupId: features
-    description: Products gallery #1
+    description: Displays a slider with several latest project or product images. Could be linked to pages with detailed description.
     cmsClassname: Gallery
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:

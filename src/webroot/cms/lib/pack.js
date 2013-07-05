@@ -20659,6 +20659,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		'PageButtons': '/content-manager',
 		'EditorToolbar': '/content-manager',
 		'Page': '/content-manager',
+		'PageSettings': '/content-manager',
 		'PageContentSettings': '/content-manager',
 		'PageSourceEditor': '/content-manager',
 		'LayoutContainers': '/content-manager',
@@ -26748,9 +26749,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @param {String} value Optional, value for which to return full data
 		 * @returns {Object} Value data
 		 */
-		getValueData: function (value) {
+		getValueData: function (value, groups) {
 			var value  = value === null || typeof value === 'undefined' ? this.get('value') : value,
-				groups = this.get('values'),
+				groups = groups || this.get('values'),
 				i  = 0,
 				ii = groups ? groups.length : 0,
 				values = null,
@@ -26789,7 +26790,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				id = null,
 				i = 0,
 				ii = fonts.length,
-				button = null;
+				button = this.widgets.button;
 			
 			if (!search) {
 				search = new Supra.Input.String();
@@ -26833,6 +26834,15 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			
 			for (; i<ii; i++) {
 				this._renderFontGroup(fonts[i]);
+			}
+			
+			
+			if (button) {
+				var data = this.getValueData(this.get('value'), fonts),
+					label = (data ? data.title || data.family : '') || this.get('labelButton') || '';
+				
+				button.set('icon', data && data.icon ? data.icon : '');
+				button.set('label', label);
 			}
 		},
 		
@@ -31952,7 +31962,7 @@ YUI.add('supra.input-slider', function (Y) {
 	Input.NAME = 'input-link';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		'label_set': {
+		'labelSet': {
 			'value': '{#form.set_link#}'
 		},
 		'mode': {
@@ -32047,11 +32057,14 @@ YUI.add('supra.input-slider', function (Y) {
 		
 		renderUI: function () {
 			//Create button
-			this.button = new Supra.Button({'label': this.get('label_set')});
+			this.button = new Supra.Button({'label': this.get('labelSet')});
 			this.button.render(this.get('contentBox'));
 			this.button.on('click', this.openLinkManager, this);
 			
 			Input.superclass.renderUI.apply(this, arguments);
+			
+			//Insert button before input
+			this.get('inputNode') .insert(this.button.get('boundingBox'), 'before');
 			
 			this.set('value', this.get('value'));
 		},
@@ -32061,7 +32074,7 @@ YUI.add('supra.input-slider', function (Y) {
 				data = '';
 			}
 			
-			var title = (data && data.href ? data.title || data.href : Supra.Intl.replace(this.get('label_set')));
+			var title = (data && data.href ? data.title || data.href : Supra.Intl.replace(this.get('labelSet')));
 			this.button.set('label', title);
 			
 			return data;
@@ -32111,7 +32124,7 @@ YUI.add('supra.input-slider', function (Y) {
 	Input.NAME = 'input-image';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		'label_set': {
+		'labelSet': {
 			'value': '{#form.set_image#}'
 		},
 		'allowRemoveImage': {
@@ -32240,7 +32253,7 @@ YUI.add('supra.input-slider', function (Y) {
 		
 		renderUI: function () {
 			//Create button
-			this.button = new Supra.Button({'label': this.get('label_set')});
+			this.button = new Supra.Button({'label': this.get('labelSet')});
 			this.button.render(this.get('contentBox'));
 			this.button.on('click', this.openMediaSidebar, this);
 			
@@ -32283,7 +32296,7 @@ YUI.add('supra.input-slider', function (Y) {
 			
 			if (!data || !data.id) {
 				data = '';
-				title = Supra.Intl.replace(this.get('label_set'));
+				title = Supra.Intl.replace(this.get('labelSet'));
 			} else {
 				title = data.filename;
 			}

@@ -16,6 +16,7 @@ YUI.add('supra.manager-loader-actions', function (Y) {
 		'PageButtons': '/content-manager',
 		'EditorToolbar': '/content-manager',
 		'Page': '/content-manager',
+		'PageSettings': '/content-manager',
 		'PageContentSettings': '/content-manager',
 		'PageSourceEditor': '/content-manager',
 		'LayoutContainers': '/content-manager',

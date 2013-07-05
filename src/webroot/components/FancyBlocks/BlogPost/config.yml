@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogPost\BlogPostBlock
-    title: Blog Post
+    title: Blog post
     groupId: blog
-    description: Description
+    description: A blog post with the option of adding a main illustration – graphics or video that would be used for a blog roll and latest posts section.
     cmsClassname: Editable
     icon: icon.png
     cache:
@@ -25,21 +25,6 @@
           editable: Supra\Editable\PageKeywords
           label: Tags
           description: Use comma, semicolon or return key to separate tags 
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: style
-          editable: Supra\Editable\SelectVisual
-          label: Style in post list
-          default: normal
-          values:
-            - id: normal
-              title: Small thumbnail
-              icon: icons/style-normal.png
-            - id: promoted
-              title: Full size image or video
-              icon: icons/style-promoted.png
-          additionalParameters:
-            style: mid
-            iconStyle: center
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: media
           editable: Supra\Editable\InlineMedia

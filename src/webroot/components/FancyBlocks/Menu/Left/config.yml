@@ -1,9 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Menu\Left\LeftMenuBlock
-    title: Side Menu
+    title: Side menu
     icon: left_menu.png
     groupId: features
-#    description: Sweet Left Menu Block
+    description: Places a menu in the sidebar and allows you to create a select-box (drop-down menu).
     cmsClassname: Editable
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
@@ -22,4 +22,8 @@
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
          name: rootLink
          editable: Supra\Editable\Link
-         label: Menu Root
+         label: Show menu for the folder
+         description: Leave blank to show contents of the current folder.
+         additionalParameters:
+           managerMode: page-internal
+           labelSet: Select folder

@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\TabsAccordion\TabsAccordionBlock
-    title: Tabs and Accordion
+    title: Tabs and accordions 
     groupId: features
-    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    description: Allows you to format text in tabs and collapsible blocks (accordion). 
     cmsClassname: Editable
     icon: icon.png
     cache:

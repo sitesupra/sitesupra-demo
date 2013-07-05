@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\BlogPostList\BlogPostListBlock
-    title: Blog Post List
+    title: Blog roll
     groupId: blog
-    description: Description
+    description: A list of blog posts. Designed to be placed on the blog’s main page.
     cmsClassname: Editable
     icon: icon.png
     cache:
@@ -38,3 +38,18 @@
             minValue: 1
             # some reasonable value should be placed here
             maxValue: 25
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: style
+          editable: Supra\Editable\SelectVisual
+          label: Style in post list
+          default: promoted
+          values:
+            - id: normal
+              title: Small thumbnail
+              icon: icons/style-normal.png
+            - id: promoted
+              title: Full size image or video
+              icon: icons/style-promoted.png
+          additionalParameters:
+            style: mid
+            iconStyle: center

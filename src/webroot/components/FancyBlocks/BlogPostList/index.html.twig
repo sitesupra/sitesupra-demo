@@ -1,4 +1,6 @@
 <div class="block blog-list">
+
+	{% set style = supraBlock.property('style') %}
 	
 	{% set heading_class = 'no-heading' %}
 	{% set title_empty = supraBlock.isEmpty('block_title') %}
@@ -16,10 +18,10 @@
 		
 		{% for post in posts %}
 			
-			<article class="{% if post.properties.style == 'promoted' %}promoted{% endif %} {% if post.properties.media %}has-media{% endif %} clearfix">
+			<article class="{% if style == 'promoted' %}promoted{% endif %} {% if post.properties.media %}has-media{% endif %} clearfix">
 				
 				{# Image or video #}
-				{% if post.properties.style == 'promoted' and post.properties.media %}
+				{% if style == 'promoted' and post.properties.media %}
 					<figure class="media">{{ post.properties.media }}</figure>
 				{% endif %}
 				
@@ -33,7 +35,7 @@
 				</header>
 				
 				{# Image or video #}
-				{% if not post.properties.style == 'promoted' and post.properties.media %}
+				{% if style != 'promoted' and post.properties.media %}
 					<figure class="media">{{ post.properties.media }}</figure>
 				{% endif %}
 				

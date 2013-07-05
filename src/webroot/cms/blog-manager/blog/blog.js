@@ -17,6 +17,14 @@
 			'plugin', 'dd-drop', 'supra.datagrid'
 		]
 	});
+	
+	// Blog plugin to enable popup for new post creation
+	Supra.addModule('blog.plugin-add-post', {
+		path: 'plugin-post-add.js',
+		requires: [
+			'supra.input', 'transition'
+		]
+	});
 })();
 
 /**
@@ -31,6 +39,7 @@ Supra(
 	'supra.datagrid-sortable',
 	
 	'blog.datagrid-restore',
+	'blog.plugin-add-post',
 	
 function (Y) {
 	//Invoke strict mode
@@ -356,6 +365,7 @@ function (Y) {
 			this.widgets.datagrid.plug(Supra.DataGrid.LoaderPlugin, {
 				'recordHeight': 40
 			});
+			
 			// Temporarily disabled https://red.videinfra.com/issues/10802#note-12
 			/*this.widgets.datagrid.plug(Supra.DataGrid.SortablePlugin, {
 				'columns': ['time', 'title', 'author', 'comments'],
@@ -365,9 +375,12 @@ function (Y) {
 			this.widgets.datagrid.plug(Supra.DataGrid.RestorePlugin, {
 			});
 			
-			//Bind event listeners
-			this.widgets.buttonNewPost.on('click', this.addBlogPost, this);
+			//Add plugin for handling new post popup
+			this.plug(this.PluginPostAdd, {
+				'target': this.widgets.buttonNewPost
+			});
 			
+			//Bind event listeners
 			this.widgets.datagrid.on('row:click', function (event) {
 				//On delete click...
 				if (event.element.test('a.delete-icon')) {
@@ -882,14 +895,14 @@ function (Y) {
 		/**
 		 * Add new blog post
 		 */
-		addBlogPost: function () {
+		addBlogPost: function (data) {
 			this.widgets.buttonNewPost.set('loading', true);
 			
 			//var uri = Manager.getAction('Page').getDataPath('create');
 			var uri = this.getDataPath('create');
 			
-			Supra.io(uri, {
-				'data': {
+			return Supra.io(uri, {
+				'data': Supra.mix({
 					'locale': this.locale,
 					'published': false,
 					'scheduled': false,
@@ -899,7 +912,7 @@ function (Y) {
 					'title': '',
 					'template': '',
 					'path': ''
-				},
+				}, data || {}),
 				'method': 'post',
 				'context': this,
 				'on': {
@@ -1247,7 +1260,8 @@ function (Y) {
 			this.options = Supra.mix({
 				'standalone': false,
 				'parent_id': '',
-				'sitemap_element': null
+				'sitemap_element': null,
+				'show_new_item_form': false
 			}, options || {});
 			
 			this.show();
@@ -1269,6 +1283,11 @@ function (Y) {
 			
 			// Settings
 			this.loadData();
+			
+			// New item form
+			if (this.options.show_new_item_form && this.post_add) {
+				this.post_add.show();
+			}
 		}
 	});
 	

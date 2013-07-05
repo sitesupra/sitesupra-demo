@@ -18,7 +18,7 @@ YUI.add('slideshowmanager.list', function (Y) {
 			<div class="background"></div>\
 			<div class="marker"></div>\
 			<div class="status {% if inactive %}status-inactive{% endif %} {% if period_from or period_to %}status-scheduled{% endif %}"></div>\
-			<div class="content click-target" {% if background %}style="background-image: {{ background }};"{% endif %}>\
+			<div class="content click-target {% if !background %}blank{% endif %}" {% if background %}style="background-image: {{ background }};"{% endif %}>\
 				{% if !background %}\
 					<span class="center"></span><span class="title">{{ title }}</span>\
 				{% endif %}\

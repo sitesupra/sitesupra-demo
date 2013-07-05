@@ -14,6 +14,7 @@ class Link extends EditableAbstraction
 	
 	private $groupsSelectable = false;
 	private $managerMode = 'link';
+	private $labelSet = false;
 	
 	/**
 	 * Return editor type
@@ -46,6 +47,11 @@ class Link extends EditableAbstraction
 	{
 		$this->managerMode = $mode;
 	}
+    
+    public function setLabelSet($labelSet)
+    {
+        $this->labelSet = $labelSet;
+    }
 	
 	/**
 	 * @return array
@@ -55,6 +61,7 @@ class Link extends EditableAbstraction
 		return array(
 			'groupsSelectable' => $this->groupsSelectable,
 			'mode' => $this->managerMode,
+            'labelSet' => $this->labelSet,
 		);
 	}
 }

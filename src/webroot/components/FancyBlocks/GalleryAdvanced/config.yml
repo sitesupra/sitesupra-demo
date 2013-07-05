@@ -3,10 +3,10 @@
 
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\GalleryAdvanced\GalleryAdvancedBlock
-    title: Gallery
+    title: Media gallery
     icon: icon.png
     groupId: features
-    description: Description
+    description: Show images, videos and text elements.
     cmsClassname: MediaGallery
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
