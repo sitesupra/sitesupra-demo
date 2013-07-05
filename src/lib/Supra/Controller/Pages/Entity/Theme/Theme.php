@@ -371,7 +371,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	 * @param string $parameterSetName
 	 * @return string
 	 */
-	protected function getGeneratedCssFilename(ThemeParameterSet $parameterSet)
+	public function getGeneratedCssFilename(ThemeParameterSet $parameterSet)
 	{
 		return $this->getGeneratedCssDir() . DIRECTORY_SEPARATOR . $this->getGeneratedCssBasename($parameterSet);
 	}
