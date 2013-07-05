@@ -22,4 +22,8 @@
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
          name: rootLink
          editable: Supra\Editable\Link
-         label: Menu Root
+         label: Show menu for the folder
+         description: Leave blank to show contents of the current folder.
+         additionalParameters:
+           managerMode: page-internal
+           labelSet: Select folder

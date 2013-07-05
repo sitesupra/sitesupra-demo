@@ -20,7 +20,7 @@ YUI.add('supra.input-file', function (Y) {
 	Input.NAME = 'input-file';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		'label_set': {
+		'labelSet': {
 			'value': '{#form.set_file#}'
 		}
 	};
@@ -131,11 +131,14 @@ YUI.add('supra.input-file', function (Y) {
 		
 		renderUI: function () {
 			//Create button
-			this.button = new Supra.Button({'label': this.get('label_set')});
+			this.button = new Supra.Button({'label': this.get('labelSet')});
 			this.button.render(this.get('contentBox'));
 			this.button.on('click', this.openMediaSidebar, this);
 			
 			Input.superclass.renderUI.apply(this, arguments);
+			
+			//Insert button before input
+			this.get('inputNode') .insert(this.button.get('boundingBox'), 'before');
 			
 			this.set('value', this.get('value'));
 		},
@@ -145,7 +148,7 @@ YUI.add('supra.input-file', function (Y) {
 			
 			if (!data || !data.id) {
 				data = '';
-				title = Supra.Intl.replace(this.get('label_set'));
+				title = Supra.Intl.replace(this.get('labelSet'));
 			} else {
 				title = data.filename;
 			}
