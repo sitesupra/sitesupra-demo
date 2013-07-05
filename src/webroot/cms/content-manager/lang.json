@@ -520,8 +520,8 @@
 			"slide_label": "Slide {nr}",
 			
 			"media": {
-				"add_image": "Add top image",
-				"add_video": "Add top video"
+				"add_image": "Add overlay image",
+				"add_video": "Add overlay video"
 			}
 		},
 		
