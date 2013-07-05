@@ -49,6 +49,12 @@ class ThemeParameterSet extends Database\Entity
 	protected $type = self::TYPE_PRESET;
 	
 	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $lessParameterValuesHash;
+	
+	/**
 	 * Hash map of known web fonts
 	 * @FIXME: duplicate code
 	 * @FIXME: JS contains hardcoded values in google-fonts.js
@@ -330,6 +336,27 @@ class ThemeParameterSet extends Database\Entity
 	public function setType($type)
 	{
 		$this->type = $type;
+	}
+	
+	/**
+	 */
+	public function recalculateParameterValuesHash()
+	{
+		$outputValues = $this->getOutputValuesForLess();
+		$valueString = serialize($outputValues);
+		
+		$this->lessParameterValuesHash = crc32($valueString);
+	}
+	
+	/**
+	 * Returns pre-generated parameter collection values hash
+	 * When parameter values changes this parameter must be re-calculated
+	 * 
+	 * @return string
+	 */
+	public function getLessParameterValuesHash()
+	{
+		return $this->lessParameterValuesHash;
 	}
 
 }
