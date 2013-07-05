@@ -174,12 +174,16 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		// @FIXME: hardcoded and not nice
 		$pageData->setParentPageApplicationId('blog');
 		
-		// if isset title -> setTitle()
-		
-		// if isset pathPart -> setPathPart()
-		$pathPart = time();
-		$pageData->setPathPart($pathPart);	
-		$pageData->setTitle('New post');
+        $request = $this->getRequest();
+        /* @var $request \Supra\Request\HttpRequest */
+        $title = $request->getPostValue('title');
+        $path = $request->getPostValue('path');
+
+        $title = $title ? $title : 'New post';
+        $path = $path ? $path : time();
+
+        $pageData->setTitle($title);
+        $pageData->setPathPart($path);
 		
 		try {
 			$page->moveAsLastChildOf($parent);	
