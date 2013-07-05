@@ -1229,10 +1229,20 @@ class PageAction extends PageManagerAction
 			'page_priority' => $priority,
 			'layout' => $layoutArray,
 			'layouts' => $layouts,
-			
+            
 			'internal_html' => null,
 			'contents' => array(),
 		);
+        
+        if(!empty($ancestors)) {
+            foreach($ancestors as $ancestor) {
+                if ($ancestor instanceof Entity\ApplicationLocalization) {
+                    $array['application_id'] = 'blog';
+                    $array['application_page_id'] = $ancestor->getId();
+                    break;
+                }
+            }
+        }
 		
 		return $array;
 	}
