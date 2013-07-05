@@ -822,6 +822,12 @@ class PageRequestEdit extends PageRequest
 			foreach($placeHolders as $placeHolder) {
 				$publicEm->remove($placeHolder);
 			}
+			
+			$placeHolderGroups = $this->getPlaceHolderGroups($publicEm);
+			foreach($placeHolderGroups as $placeHolderGroup) {
+				$publicEm->remove($placeHolderGroup);
+			}
+			
 			$publicEm->flush();
 
 		} catch (\Exception $e) {
@@ -902,7 +908,7 @@ class PageRequestEdit extends PageRequest
 		$localizationId = $this->getPageLocalization()
 				->getId();
 
-		$dql = "SELECT ph FROM $placeHolderEntity ph 
+		$dql = "SELECT ph FROM $placeHolderEntity ph
 				WHERE ph.localization = ?0";
 		
 		$placeHolders = $em->createQuery($dql)
@@ -910,6 +916,27 @@ class PageRequestEdit extends PageRequest
 				->getResult();
 		
 		return $placeHolders;
+	}
+	
+	/**
+	 * 
+	 * @param EntityManager $em
+	 * @return array
+	 */
+	private function getPlaceHolderGroups($em)
+	{
+		$placeHolderGroupEntity = Entity\PlaceHolderGroup::CN();
+		$localizationId = $this->getPageLocalization()
+				->getId();
+
+		$dql = "SELECT phg FROM $placeHolderGroupEntity phg
+				WHERE phg.localization = ?0";
+		
+		$placeHolderGroups = $em->createQuery($dql)
+				->setParameters(array($localizationId))
+				->getResult();
+		
+		return $placeHolderGroups;
 	}
 
 	/**
