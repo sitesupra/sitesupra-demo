@@ -49,7 +49,7 @@ class ThemeParameterSet extends Database\Entity
 	protected $type = self::TYPE_PRESET;
 	
 	/**
-	 * @Column(type="string")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $lessParameterValuesHash;
