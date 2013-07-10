@@ -18937,7 +18937,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				}
 				
 				var html_row = '<tr><td>' + cell_html + '</td><td>' + cell_html + '</td><td>' + cell_html + '</td></tr>',
-					html_table = '<table><tbody><tr><th>' + cell_html + '</th><th>' + cell_html + '</th><th>' + cell_html + '</th></tr>' + html_row + html_row + '</tbody></table>';
+					html_table = '<table class="desktop"><tbody><tr><th>' + cell_html + '</th><th>' + cell_html + '</th><th>' + cell_html + '</th></tr>' + html_row + html_row + '</tbody></table>';
 				
 				//Replace selection with table
 				var node = htmleditor.replaceSelection(html_table);
@@ -19085,13 +19085,33 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	Supra.HTMLEditor.addPlugin('table-mobile', defaultConfiguration, {
 		
 		/**
+		 * On table insert add 'desktop' class to the table
+		 * 
+		 * @private
+		 */
+		onTableInsert: function () {
+			console.log('INSERT!');
+			var plugin = this.htmleditor.getPlugin('table'),
+				table;
+			
+			if (plugin) {
+				table = plugin.selected_table;
+				if (table) {
+					table.addClass('desktop');
+				}
+			}
+		},
+		
+		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
 		 * @param {Object} htmleditor HTMLEditor instance
 		 * @constructor
 		 */
-		init: function (htmleditor) {},
+		init: function (htmleditor) {
+			htmleditor.addCommand('inserttable', Y.bind(this.onTableInsert, this));
+		},
 		
 		/**
 		 * Clean up after plugin
