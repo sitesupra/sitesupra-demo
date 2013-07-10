@@ -45,7 +45,7 @@
 	{% else %}
 		
 		<div class="block sidebar-menu">
-			<div class="selector" data-toggle="selectors" data-default-behaviour="true">
+			<div class="selector" data-toggle="selectors" data-default-behaviour="true" {% if supra.cmsRequest %}data-refresh-event="menu"{% endif %}>
 				<a>
 					{% set has_title = false %}
 					
