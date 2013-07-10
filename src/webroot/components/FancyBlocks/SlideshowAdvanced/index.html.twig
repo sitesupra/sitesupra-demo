@@ -66,9 +66,9 @@
 				{# HTML #}
 				<div class="video" data-attach="$.fn.resize">
 					{% if video.source_type == 'iframe' %}
-						<iframe src="{{ video.src }}" width="{{ video.width }}" height="{{ video.height }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+						<iframe src="{{ video.src }}" width="{{ video.width }}" height="{{ video.height }}" data-responsive-size="false" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 					{% elseif video.source_type == 'embed' %}
-						<object width="{{ video.width }}" height="{{ video.height }}">
+						<object width="{{ video.width }}" height="{{ video.height }}" data-responsive-size="false">
 							<param name="movie" value="{{ video.src }} "></param>
 							<param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param>
 							<embed{% if supra.isCmsRequest %} wmode="opaque"{%endif%} src="{{ video.src }}" type="application/x-shockwave-flash" width="{{ video.width }}" height="{{ video.height }}" allowscriptaccess="always" allowfullscreen="true"></embed>
@@ -79,12 +79,12 @@
 			{% elseif video.resource == 'link' and video.id %}
 				{% if video.service == 'youtube' %}
 					<div class="video" data-attach="$.fn.resize">
-						<iframe src="http://www.youtube.com/embed/{{ video.id }}?enablejsapi=1&version=3&hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+						<iframe src="http://www.youtube.com/embed/{{ video.id }}?enablejsapi=1&version=3&hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" data-responsive-size="false" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 					</div>
 				{% elseif video.service == 'vimeo' %}
 					<div class="video" data-attach="$.fn.resize">
 						{% set player_id = random() %}
-						<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&player_id=player{{ player_id }}" id="player{{ player_id }}" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+						<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&player_id=player{{ player_id }}" data-responsive-size="false" id="player{{ player_id }}" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 					</div>
 				{% endif %}
 			{% endif %}

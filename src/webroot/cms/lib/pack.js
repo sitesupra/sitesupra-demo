@@ -26756,13 +26756,17 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				ii = groups ? groups.length : 0,
 				values = null,
 				k  = 0,
-				kk = 0;
+				kk = 0,
+				family = '';
 			
 			for (; i<ii; i++) {
 				values = groups[i].fonts;
 				
 				for (k=0,kk=values.length; k<kk; k++) {
-					if (values[k].family === value || values[k].apis === value) {
+					// When setting data-family attribute quotes are removed, here we have to do the same
+					family = values[k].family.replace(/"/g, '');
+					
+					if (family === value || values[k].apis === value) {
 						return values[k];
 					}
 				}
@@ -26911,16 +26915,19 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				container = group.node,
 				preview_fonts = [],
 				preview = this.get('previewGoogleFonts'),
-				value = this.get('value');
+				value = this.get('value'),
+				family = '';
 			
 			for (; i < to; i++) {
 				if (fonts[i].apis) {
 					preview_fonts.push(fonts[i]);
 				}
 				
-				node = Y.Node.create('<a ' + (fonts[i].family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
+				family = fonts[i].family.replace(/"/g, '');
+				
+				node = Y.Node.create('<a ' + (family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
 				node.setStyle('font-family', fonts[i].family);
-				node.setAttribute('data-family', fonts[i].family.replace(/"/g, ''));
+				node.setAttribute('data-family', family);
 				container.append(node);
 			}
 			
