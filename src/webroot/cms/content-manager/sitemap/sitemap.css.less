@@ -664,6 +664,12 @@
 		right: 0;
 		height: 100px;
 	}
+	
+	.su-tree-node .edit {
+		// Disable edit box while any item is highlighted
+		display: none !important;
+	}
+	
 	.su-tree-node > .su-tree-node-content {
 		.item:hover .edit,
 		.item:hover .translate {
@@ -675,6 +681,19 @@
 		}
 		label {
 			color: #BDB8C4;
+		}
+		.item:before {
+			display: none;
+		}
+	}
+	.su-tree-node.highlighted > .su-tree-node-content {
+		// Show edit box for highlighted element
+		.item.hover .edit {
+			display: block !important;
+		}
+		// Hide status message
+		.status-not-published {
+			display: none;
 		}
 	}
 }

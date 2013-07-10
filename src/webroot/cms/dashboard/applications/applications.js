@@ -156,6 +156,13 @@ Supra([
 		 */
 		dashboard_router_path: null,
 		
+		/**
+		 * Header back button was visible when opened dashboard
+		 * @type {Boolean}
+		 * @private
+		 */
+		back_button_was_visible: false,
+		
 		
 		
 		/**
@@ -451,8 +458,15 @@ Supra([
 				
 				// Enable page header
 				var header = Supra.Manager.PageHeader;
-				if (header && header.languagebar) {
-					header.languagebar.set("disabled", false);
+				if (header) {
+					if (header.languagebar) {
+						header.languagebar.set("disabled", false);
+					}
+					
+					if (this.back_button_was_visible) {
+						this.back_button_was_visible = false;
+						header.back_button.set("visible", true);
+					}
 				}
 			}, this));
 		},
@@ -505,8 +519,14 @@ Supra([
 			});
 			
 			// Disable page header
-			if (Supra.Manager.PageHeader && Supra.Manager.PageHeader.languagebar) {
-				Supra.Manager.PageHeader.languagebar.set("disabled", true);
+			if (Supra.Manager.PageHeader) {
+				if (Supra.Manager.PageHeader.languagebar) {
+					Supra.Manager.PageHeader.languagebar.set("disabled", true);
+				}
+				if (Supra.Manager.PageHeader.back_button) {
+					Supra.Manager.PageHeader.back_button.set("visible", false);
+					this.back_button_was_visible = true;
+				}
 			}
 		},
 		
