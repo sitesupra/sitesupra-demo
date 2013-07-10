@@ -24,7 +24,7 @@
 			<div class="line"></div>
 			
 			{% for period in data %}
-			<div class="item">
+			<div class="item {% if period.latest %}expanded{% endif %}">
 				<div class="icon"></div>
 				<div class="line"><div></div></div>
 				<p class="title"><span>{{ period.title|e }}</span></p>
