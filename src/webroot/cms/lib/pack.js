@@ -19090,7 +19090,6 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * @private
 		 */
 		onTableInsert: function () {
-			console.log('INSERT!');
 			var plugin = this.htmleditor.getPlugin('table'),
 				table;
 			
@@ -44815,6 +44814,10 @@ YUI.add('supra.deferred', function (Y) {
 			
 			context = context || global;
 			args = args || [];
+			
+			if (!Y.Lang.isArray(args)) {
+				args = [args];
+			}
 			
 			for (; i<ii; i++) {
 				listeners[i].apply(context, args);

@@ -156,7 +156,7 @@
                 name: layout
                 editable: Supra\Editable\SelectVisual
                 label: Slide layout
-                default: bg_text_img_left
+                default: bg_text_center
                 values:
                   - id: bg_text_left
                     title: Text on left side

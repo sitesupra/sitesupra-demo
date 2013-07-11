@@ -94,7 +94,7 @@
                 name: text
                 editable: Supra\Editable\Html
                 label: Text
-                default: Lorem ipsum dolor sit amet
+                default: <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed cursus, sapien ac rhoncus suscipit, enim ligula laoreet arcu, eget tempus mauris nisi vel lacus.</p>
             - SerializablePropertyConfiguration:
                 name: image
                 label: Image
