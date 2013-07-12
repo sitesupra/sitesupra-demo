@@ -34,7 +34,12 @@ function outputInternalServerError()
 {
     header('Content-Type: text/html; charset=utf-8');
     $webrootDir = SUPRA_ERROR_PAGE_PATH;
-    $errorPage = file_get_contents($webrootDir.'500.html');
+    $errorFile = $webrootDir.'500.html';
+    if (file_exists($errorFile)) {
+        $errorPage = file_get_contents($errorFile);
+    } else {
+        $errorPage = SUPRA_ERROR_MESSAGE;
+    }
     echo $errorPage;
     die();
 }
