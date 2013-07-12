@@ -23,17 +23,17 @@ class TwitterFeedBlock extends BlockController
     /*
      * @var string
      */
-    protected $consumerKey = null;
-    
-    /*
-     * @var string
-     */
-    protected $consumerSecret = null;
-    
-    /*
-     * @var string
-     */
     protected $accessToken = null;
+    
+    /*
+     * @var string
+     */
+    protected $accessTokenSecret = null;
+        
+    /*
+     * @var \SupraSite\Twitter\TwitterDataProvider
+     */
+    protected $twitterProvider;
     
     /*
      * @var string
@@ -49,150 +49,98 @@ class TwitterFeedBlock extends BlockController
         'exclude_replies' => true,
     );
     
-    /*
-     * @var string
-     */
-    protected $tokenUrl = 'https://api.twitter.com/oauth2/token';
-    
         
 	public function doExecute()
     {
         $tweets = array();
+        $hasErrors = true;
         $response = $this->getResponse();
         $request = $this->getRequest();
         
-        if ($this->loadConfiguration()) {
+        $result = $this->loadConfiguration();
+        
+        if ($result['success']) {
             
-            $cacheAdapter = ObjectRepository::getCacheAdapter($this);
-            if ($cacheAdapter->contains($this->cacheId)) {
-                $tweets = $cacheAdapter->fetch($this->cacheId);
+            $tweets = $this->getTwitterfeed($tweets);
+            
+            if(is_object($tweets) && $tweets->errors) {
+               $errorMessage = 'Unable to get Twitter feed. Please try generating another PIN code in Twitter Settings.';
             } else {
-                $this->getAccessToken();
-                $tweets = $this->getTwitterFeed();
-                $cacheAdapter->delete($this->cacheId);
-                $cacheAdapter->save($this->cacheId, $tweets, $this->cacheLifeTime);
+                $hasErrors = false;
             }
-            
-            $tweets = $this->formatTweets($tweets);
-            
-            $response->assign('tweets', $tweets)
-                    ->outputTemplate('index.html.twig');
+        } else {
+            $errorMessage = $result['error'];
         }
-        else {
+        
+        
+        if ($hasErrors) {
             if ($request instanceof PageRequestEdit) {
-                $response->outputTemplate('configuration-missing.html.twig');                
-            }
+                $response
+                        ->assign('error', $errorMessage)
+                        ->outputTemplate('configuration-missing.html.twig');
+            }            
+        } else {
+                $response
+                        ->assign('tweets', $tweets)
+                        ->outputTemplate('index.html.twig');         
         }
     }
     
     
     protected function loadConfiguration()
     {
-        $result = true;
+        $data = array(
+            'success' => true,
+        );
         
-        $ini = ObjectRepository::getIniConfigurationLoader($this);
-        $this->consumerKey = $ini->getValue('twitter', 'consumer_key');
-        $this->consumerSecret = $ini->getValue('twitter', 'consumer_secret');
+        $writeableIni = ObjectRepository::getIniConfigurationLoader('#twitter');        
+        $this->accessToken = $writeableIni->getValue('twitter', 'access_token');
+        $this->accessTokenSecret = $writeableIni->getValue('twitter', 'access_token_secret');
         
-        if (!$this->consumerKey || !$this->consumerSecret) {
-            throw new Exception('Could not find Twitter application keys in supra.ini');
+        if (!$this->accessToken || !$this->accessTokenSecret) {
+            $data['result'] = false;
+            $data['error'] = 'Twitter is not properly configured. Please set up it in Site Settings';
         }
+        
+        $this->twitterProvider = ObjectRepository::getObject($this, 'SupraSite\Twitter\TwitterDataProvider');
+        $this->twitterProvider->setTokens($this->accessToken, $this->accessTokenSecret);
         
         $twitterAccount = $this->getPropertyValue('account');
         if (!$twitterAccount) {
-            $result = false;
+            $data['result'] = false;
+            $data['error'] = 'Please set Twitter account in Twitter Feed Block Properties.';
         } else {
             $this->feedParameters['screen_name'] = $twitterAccount;
         }
         
-        return $result;
-    }
-    
-    
-    protected function buildUrl()
-    {
-        $url = $this->feedUrl;
-        
-        $limit = $this->getPropertyValue('limit');
-        if ($limit) {
-            $this->feedParameters['count'] = $limit;
-        }
-        
-        $query = http_build_query($this->feedParameters);
-        $url .= '?' . $query;
-        
-        return $url;
-    }
-    
-    
-    protected function getAccessToken()
-    {
-        $encoded_consumer_key = urlencode($this->consumerKey);
-        $encoded_consumer_secret = urlencode($this->consumerSecret);
-        $bearer_token = base64_encode($encoded_consumer_key.':'.$encoded_consumer_secret);
-
-        $url = $this->tokenUrl;
-        $headers = array( 
-            "POST /oauth2/token HTTP/1.1", 
-            "Host: api.twitter.com", 
-            "User-Agent: my Twitter App v.1",
-            "Authorization: Basic ".$bearer_token."",
-            "Content-Type: application/x-www-form-urlencoded;charset=UTF-8",
-            "Content-Length: 29",
-        ); 
-
-        $curl = curl_init();
-        $options = array(
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_HEADER => false,
-            CURLOPT_URL => $url,
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => "grant_type=client_credentials",
-            CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_RETURNTRANSFER => 1,
-        );
-        
-        curl_setopt_array($curl, $options);
-        $json = curl_exec($curl);
-        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-        
-        if ($status == 200) {
-            $result = json_decode($json);
-            $this->accessToken = $result->access_token;
-        } else {
-            throw new Exception('Could not get access token for Twitter API');
-        }
+        return $data;
     }
     
     
     protected function getTwitterFeed()
     {
-        $result = array();
-        $header = array('Authorization: Bearer '.$this->accessToken);
+        $tweets = array();
+        $cacheAdapter = ObjectRepository::getCacheAdapter($this);
         
-        $url = $this->buildUrl();
-        
-        $options = array(
-            CURLOPT_SSLVERSION => 3,
-            CURLOPT_URL => $url,
-            CURLOPT_HTTPHEADER => $header,
-            CURLOPT_RETURNTRANSFER => true,
-        );
-        
-        $feed = curl_init();
-        curl_setopt_array($feed, $options);
-        
-        $json = curl_exec($feed);
-        $status = curl_getinfo($feed, CURLINFO_HTTP_CODE);
-        
-        curl_close($feed);
-        
-        if ($status == 200) {
-            $result = json_decode($json);
+        if ($cacheAdapter->contains($this->cacheId)) {
+            $tweets = $cacheAdapter->fetch($this->cacheId);
+            $tweets = $this->formatTweets($tweets);
+        } else {
+            $tweets = $this->twitterProvider->get($this->feedUrl, $this->feedParameters);
+            if (is_array($tweets)) {
+                
+                $limit = $this->getPropertyValue('limit');
+                if ($limit) {
+                    $tweets = array_slice($tweets, 0, $limit);
+                }
+                                
+                $cacheAdapter->delete($this->cacheId);
+                $cacheAdapter->save($this->cacheId, $tweets, $this->cacheLifeTime);
+                $tweets = $this->formatTweets($tweets);
+            }
         }
 
-        return $result;
+        return $tweets;
     }
     
     
