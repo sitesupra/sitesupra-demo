@@ -469,7 +469,7 @@ YUI.add('supra.input-fonts', function (Y) {
 				family = fonts[i].family.replace(/"/g, '');
 				
 				node = Y.Node.create('<a ' + (family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
-				node.setStyle('font-family', fonts[i].family);
+				node.setStyle('fontFamily', fonts[i].family);
 				node.setAttribute('data-family', family);
 				container.append(node);
 			}
