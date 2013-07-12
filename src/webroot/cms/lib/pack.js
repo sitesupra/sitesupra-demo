@@ -13957,7 +13957,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			var image = this.get("image"),
 				zoom = e.newVal,
 				size = this.zoomToSize(zoom),
-				ratio = null;
+				ratio = null,
+				containerNode = null,
+				imageContainerNode = null;
 			
 			this.imageWidth = ~~size[0];
 			this.imageHeight = ~~size[1];
@@ -13982,7 +13984,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						}
 					}
 					
-					this.get("imageContainerNode").setStyles({
+					imageContainerNode = this.get("imageContainerNode");
+					containerNode = imageContainerNode.ancestor();
+					
+					imageContainerNode.setStyles({
+						"width": this.cropWidth + "px",
+						"height": this.cropHeight + "px"
+					});
+					containerNode.setStyles({
 						"width": this.cropWidth + "px",
 						"height": this.cropHeight + "px"
 					});
@@ -14011,7 +14020,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.cropWidth = this.imageWidth;
 				this.cropHeight = this.imageHeight;
 				
-				this.get("imageContainerNode").setStyles({
+				imageContainerNode = this.get("imageContainerNode");
+				containerNode = imageContainerNode.ancestor();
+				
+				imageContainerNode.setStyles({
+					"width": this.imageWidth + "px",
+					"height": this.imageHeight + "px"
+				});
+				containerNode.setStyles({
 					"width": this.imageWidth + "px",
 					"height": this.imageHeight + "px"
 				});
@@ -14019,6 +14035,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					"width": this.imageWidth + "px",
 					"height": this.imageHeight + "px"
 				});
+				
 				image.setAttribute("width", this.imageWidth);
 				image.setAttribute("height", this.imageHeight);
 			} else {
@@ -14265,7 +14282,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					cropLeft = this.dragCropLeft,
 					imageHeight = this.imageHeight,
 					imageWidth = this.imageWidth,
-					allowCropZooming = this.get('allowCropZooming');
+					allowCropZooming = this.get('allowCropZooming'),
+					containerNode = node.ancestor();
 				
 				if (!node) return;
 				
@@ -14303,6 +14321,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.dragH = sizeY;
 					
 					node.setStyles({
+						"width": sizeX,
+						"height": sizeY
+					});
+					containerNode.setStyles({
 						"width": sizeX,
 						"height": sizeY
 					});
@@ -14359,7 +14381,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					maxH = this.get("maxCropHeight"),
 					imageHeight = this.imageHeight,
 					imageWidth = this.imageWidth,
-					ratio = (maxW && maxH ? maxW / maxH : (minW && minH ? minW / minH : imageWidth / imageHeight));
+					ratio = (maxW && maxH ? maxW / maxH : (minW && minH ? minW / minH : imageWidth / imageHeight)),
+					containerNode = node.ancestor();
 				
 				if (!node) return;
 				
@@ -14388,7 +14411,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						"width": sizeX,
 						"height": sizeY
 					});
-					
+					containerNode.setStyles({
+						"width": sizeX,
+						"height": sizeY
+					});
 					image.setStyles({
 						"width": sizeX,
 						"height": sizeY
@@ -14574,8 +14600,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"height": height
 			});
 			containerNode.setStyles({
-				"width": "auto",
-				"height": "auto"
+				"width": width,
+				"height": height
 			});
 			
 			image.setAttribute("unselectable", "on");
@@ -14819,8 +14845,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"height": height
 			});
 			containerNode.setStyles({
-				"width": "auto",
-				"height": "auto"
+				"width": width,
+				"height": height
 			});
 			
 			image.setAttribute("unselectable", "on");
