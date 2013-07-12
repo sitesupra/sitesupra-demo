@@ -102,7 +102,7 @@ class TwitterFeedBlock extends BlockController
             $data['error'] = 'Twitter is not properly configured. Please set up it in Site Settings';
         }
         
-        $this->twitterProvider = ObjectRepository::getObject($this, 'Project\Twitter\TwitterDataProvider');
+        $this->twitterProvider = ObjectRepository::getObject($this, 'Supra\Social\Twitter\TwitterDataProvider');
         $this->twitterProvider->setTokens($this->accessToken, $this->accessTokenSecret);
         
         $twitterAccount = $this->getPropertyValue('account');
@@ -121,7 +121,7 @@ class TwitterFeedBlock extends BlockController
     {
         $tweets = array();
         $cacheAdapter = ObjectRepository::getCacheAdapter($this);
-        
+
         if ($cacheAdapter->contains($this->cacheId)) {
             $tweets = $cacheAdapter->fetch($this->cacheId);
             $tweets = $this->formatTweets($tweets);
