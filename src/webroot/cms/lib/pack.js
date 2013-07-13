@@ -13957,7 +13957,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			var image = this.get("image"),
 				zoom = e.newVal,
 				size = this.zoomToSize(zoom),
-				ratio = null;
+				ratio = null,
+				containerNode = null,
+				imageContainerNode = null;
 			
 			this.imageWidth = ~~size[0];
 			this.imageHeight = ~~size[1];
@@ -13982,7 +13984,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						}
 					}
 					
-					this.get("imageContainerNode").setStyles({
+					imageContainerNode = this.get("imageContainerNode");
+					containerNode = imageContainerNode.ancestor();
+					
+					imageContainerNode.setStyles({
+						"width": this.cropWidth + "px",
+						"height": this.cropHeight + "px"
+					});
+					containerNode.setStyles({
 						"width": this.cropWidth + "px",
 						"height": this.cropHeight + "px"
 					});
@@ -14011,7 +14020,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.cropWidth = this.imageWidth;
 				this.cropHeight = this.imageHeight;
 				
-				this.get("imageContainerNode").setStyles({
+				imageContainerNode = this.get("imageContainerNode");
+				containerNode = imageContainerNode.ancestor();
+				
+				imageContainerNode.setStyles({
+					"width": this.imageWidth + "px",
+					"height": this.imageHeight + "px"
+				});
+				containerNode.setStyles({
 					"width": this.imageWidth + "px",
 					"height": this.imageHeight + "px"
 				});
@@ -14019,6 +14035,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					"width": this.imageWidth + "px",
 					"height": this.imageHeight + "px"
 				});
+				
 				image.setAttribute("width", this.imageWidth);
 				image.setAttribute("height", this.imageHeight);
 			} else {
@@ -14265,7 +14282,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					cropLeft = this.dragCropLeft,
 					imageHeight = this.imageHeight,
 					imageWidth = this.imageWidth,
-					allowCropZooming = this.get('allowCropZooming');
+					allowCropZooming = this.get('allowCropZooming'),
+					containerNode = node.ancestor();
 				
 				if (!node) return;
 				
@@ -14303,6 +14321,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.dragH = sizeY;
 					
 					node.setStyles({
+						"width": sizeX,
+						"height": sizeY
+					});
+					containerNode.setStyles({
 						"width": sizeX,
 						"height": sizeY
 					});
@@ -14359,7 +14381,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					maxH = this.get("maxCropHeight"),
 					imageHeight = this.imageHeight,
 					imageWidth = this.imageWidth,
-					ratio = (maxW && maxH ? maxW / maxH : (minW && minH ? minW / minH : imageWidth / imageHeight));
+					ratio = (maxW && maxH ? maxW / maxH : (minW && minH ? minW / minH : imageWidth / imageHeight)),
+					containerNode = node.ancestor();
 				
 				if (!node) return;
 				
@@ -14388,7 +14411,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						"width": sizeX,
 						"height": sizeY
 					});
-					
+					containerNode.setStyles({
+						"width": sizeX,
+						"height": sizeY
+					});
 					image.setStyles({
 						"width": sizeX,
 						"height": sizeY
@@ -14574,8 +14600,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"height": height
 			});
 			containerNode.setStyles({
-				"width": "auto",
-				"height": "auto"
+				"width": width,
+				"height": height
 			});
 			
 			image.setAttribute("unselectable", "on");
@@ -14819,8 +14845,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"height": height
 			});
 			containerNode.setStyles({
-				"width": "auto",
-				"height": "auto"
+				"width": width,
+				"height": height
 			});
 			
 			image.setAttribute("unselectable", "on");
@@ -18937,7 +18963,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				}
 				
 				var html_row = '<tr><td>' + cell_html + '</td><td>' + cell_html + '</td><td>' + cell_html + '</td></tr>',
-					html_table = '<table><tbody><tr><th>' + cell_html + '</th><th>' + cell_html + '</th><th>' + cell_html + '</th></tr>' + html_row + html_row + '</tbody></table>';
+					html_table = '<table class="desktop"><tbody><tr><th>' + cell_html + '</th><th>' + cell_html + '</th><th>' + cell_html + '</th></tr>' + html_row + html_row + '</tbody></table>';
 				
 				//Replace selection with table
 				var node = htmleditor.replaceSelection(html_table);
@@ -19085,13 +19111,32 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	Supra.HTMLEditor.addPlugin('table-mobile', defaultConfiguration, {
 		
 		/**
+		 * On table insert add 'desktop' class to the table
+		 * 
+		 * @private
+		 */
+		onTableInsert: function () {
+			var plugin = this.htmleditor.getPlugin('table'),
+				table;
+			
+			if (plugin) {
+				table = plugin.selected_table;
+				if (table) {
+					table.addClass('desktop');
+				}
+			}
+		},
+		
+		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
 		 * @param {Object} htmleditor HTMLEditor instance
 		 * @constructor
 		 */
-		init: function (htmleditor) {},
+		init: function (htmleditor) {
+			htmleditor.addCommand('inserttable', Y.bind(this.onTableInsert, this));
+		},
 		
 		/**
 		 * Clean up after plugin
@@ -26756,13 +26801,17 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				ii = groups ? groups.length : 0,
 				values = null,
 				k  = 0,
-				kk = 0;
+				kk = 0,
+				family = '';
 			
 			for (; i<ii; i++) {
 				values = groups[i].fonts;
 				
 				for (k=0,kk=values.length; k<kk; k++) {
-					if (values[k].family === value || values[k].apis === value) {
+					// When setting data-family attribute quotes are removed, here we have to do the same
+					family = values[k].family.replace(/"/g, '');
+					
+					if (family === value || values[k].apis === value) {
 						return values[k];
 					}
 				}
@@ -26911,16 +26960,19 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				container = group.node,
 				preview_fonts = [],
 				preview = this.get('previewGoogleFonts'),
-				value = this.get('value');
+				value = this.get('value'),
+				family = '';
 			
 			for (; i < to; i++) {
 				if (fonts[i].apis) {
 					preview_fonts.push(fonts[i]);
 				}
 				
-				node = Y.Node.create('<a ' + (fonts[i].family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
-				node.setStyle('font-family', fonts[i].family);
-				node.setAttribute('data-family', fonts[i].family.replace(/"/g, ''));
+				family = fonts[i].family.replace(/"/g, '');
+				
+				node = Y.Node.create('<a ' + (family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
+				node.setStyle('fontFamily', fonts[i].family);
+				node.setAttribute('data-family', family);
 				container.append(node);
 			}
 			
@@ -44788,6 +44840,10 @@ YUI.add('supra.deferred', function (Y) {
 			
 			context = context || global;
 			args = args || [];
+			
+			if (!Y.Lang.isArray(args)) {
+				args = [args];
+			}
 			
 			for (; i<ii; i++) {
 				listeners[i].apply(context, args);

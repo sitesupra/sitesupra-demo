@@ -22,6 +22,8 @@ class ParsedHtmlFilter implements FilterInterface
 	const REQUEST_TYPE_VIEW = 0;
 	const REQUEST_TYPE_EDIT = 1;
 	
+	const ALIGN_MIDDLE = 'middle';
+	
 	/**
 	 * @var BlockProperty
 	 */
@@ -147,7 +149,7 @@ class ParsedHtmlFilter implements FilterInterface
 			}
 			
 			$tag = new \Supra\Html\HtmlTag('img');
-			$src = $width = $height = null;
+			$width = $height = null;
 			
 			if ($size->isCropped()) {
 				$width = $size->getCropWidth();
@@ -174,6 +176,10 @@ class ParsedHtmlFilter implements FilterInterface
 			$align = $imageData->getAlign();
 			if ( ! empty($align)) {
 				$tag->addClass('align-' . $align);
+				
+				if ($align == self::ALIGN_MIDDLE) {
+					$tag->setAttribute('style', "width: {$width}px;");
+				}
 			}
 
 			$tag->addClass($imageData->getStyle());

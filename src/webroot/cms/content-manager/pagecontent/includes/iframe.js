@@ -444,18 +444,17 @@ YUI.add('supra.iframe-handler', function (Y) {
 		_handleContentLinkClick: function (e) {
 			//External links should be opened in new window
 			//Internal links should be opened as page
-			//Javascript,hash and mail links should be ignored
+			//Javascript,hash,relative and mail links should be ignored
 			var target = e.target.closest('a'),
 				href = null,
-				local_links = new RegExp('^mailto:|^javascript:|' + document.location.pathname + '#', 'i');
+				local_links = new RegExp('^\\?|^mailto:|^javascript:|^#|' + document.location.pathname + '#', 'i');
 
 			if (target.test('.editing a')) {
 				//If clicked on link inside content which is beeing edited, then don't do anything
 				e.preventDefault();
 				return;
 			}
-			if (target && (href = target.get('href')) && !local_links.test(href)) {
-
+			if (target && (href = target.get('href')) && !local_links.test(href) && href.indexOf(document.location.pathname) == -1) {
 				var regExp = new RegExp('^' + document.location.protocol 
 					+ '//' 
 					+ document.location.host.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")

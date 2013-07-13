@@ -1,3 +1,7 @@
 <div class="block">
-    Please set twitter account in Twitter Feed Block Properties.
+    {% if error %}
+        {{ error }}
+    {% else %}
+        Please set twitter account in Twitter Feed Block Properties.
+    {% endif %}
 </div>

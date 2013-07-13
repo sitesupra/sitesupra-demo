@@ -344,6 +344,11 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 		hide: function () {
 			Action.Base.prototype.hide.apply(this, arguments);
 			
+			//Reset widget state
+			if (this.tree) {
+				this.tree.resetAll();
+			}
+			
 			//Show previous buttons
 			Manager.getAction('PageToolbar').unsetActiveAction(this.NAME);
 			Manager.getAction('PageButtons').unsetActiveAction(this.NAME);
@@ -450,6 +455,11 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						
 						//On node change update button label
 						this.tree.after('selectedNodeChange', this.updateInsertButton, this);
+				} else {
+					if (!this.tree.getData()) {
+						this.tree.set('loading', true);
+						this.tree.reload();
+					}
 				}
 				
 				this.updateBackButton();

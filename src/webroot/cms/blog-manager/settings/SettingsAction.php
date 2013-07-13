@@ -18,7 +18,7 @@ class SettingsAction extends \Supra\Cms\BlogManager\BlogManagerAbstractAction
 			'authors' => array(),
 			'tags' => array(),
 			'templates' => array(
-				'post_template' => $blogApplication->getPostDefaultTemplateId(),
+				'template' => $blogApplication->getPostDefaultTemplateId(),
 			),
 			'comments' => array(
 				'moderation_enabled' => $blogApplication->isCommentModerationEnabled(),

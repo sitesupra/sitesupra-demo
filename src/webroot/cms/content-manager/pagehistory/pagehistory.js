@@ -316,7 +316,7 @@ Supra('anim', function (Y) {
 			this.revision_id = Manager.Page.getPageData().revision_id;
 			
 			this.timeline.set('innerHTML', Supra.Template('timeline', {'revision_id': this.revision_id, 'data': data}));
-			
+			console.log(Supra.Template('timeline'));
 			this.updateScrollbars();
 			
 			this.get('controlButton').set('label', '{#buttons.close#}');

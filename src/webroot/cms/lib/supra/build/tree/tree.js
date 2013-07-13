@@ -331,6 +331,15 @@ YUI.add('supra.tree', function(Y) {
 		},
 		
 		/**
+		 * Remove all children and data
+		 */
+		resetAll: function () {
+			this.empty();
+			this._data = null;
+			this._data_indexed = null;
+		},
+		
+		/**
 		 * Set loading style
 		 */
 		_setLoading: function (value) {

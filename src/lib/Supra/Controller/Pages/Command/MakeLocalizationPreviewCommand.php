@@ -147,6 +147,10 @@ class MakeLocalizationPreviewCommand extends Command
 			\Log::error('OUTPUT: ', $output);
 			throw new Exception\RuntimeException('Intermediate file not image.');
 		}
+		
+		if (is_link($previewFilename)) {
+			@unlink($previewFilename);
+		}
 
 		if ( ! rename($temporaryFilename, $previewFilename)) {
 			\Log::error('COMMAND: ', $command);
