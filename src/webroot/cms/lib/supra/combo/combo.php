@@ -43,6 +43,11 @@ $baseDir = $srcDir . '../';
 $cacheDir = $srcDir . '/tmp';
 
 $version = __FILE__ . '/' . @file_get_contents($baseDir . '/VERSION');
+$versionId = @file_get_contents($baseDir . '/VERSION');
+if (empty($versionId)) {
+	$versionId = '';
+}
+$versionKey = base_convert(substr(md5($versionId), 0, 8), 16, 36);
 
 foreach ($files as &$file) {
 
@@ -191,7 +196,7 @@ function getFileMtime($file)
 
 function getFileContent($file)
 {
-	global $css, $webrootDir, $lessCss;
+	global $css, $webrootDir, $lessCss, $versionKey;
 
 	$outFile = null;
 
@@ -205,6 +210,9 @@ function getFileContent($file)
 			$less = new SupraLessC($lessFile);
 			$less->formatterName = 'compressed';
 			$less->setRootDir($webrootDir);
+			
+			$less->setVariables(array('version' => $versionKey));
+			
 			$outFile = $less->parse();
 		}
 	}
