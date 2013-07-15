@@ -241,124 +241,6 @@ if (typeof Supra === "undefined") {
 	};
 	
 	/**
-	 * Throttle function call
-	 * 
-	 * @param {Function} fn
-	 * @param {Number} ms
-	 * @param {Object} context
-	 * @private
-	 */
-	Supra.throttle = function (fn, ms, context) {
-		var ms = ms || 50;
-		var last_time = 0;
-		var timeout = null;
-		var args = [];
-		
-		if (ms === -1) {
-			return (function() {
-				fn.apply(context, arguments);
-			});
-		}
-		
-		function call () {
-			fn.apply(context || window, args);
-			last_time = +new Date();
-			clearTimeout(timeout);
-			timeout = null;
-		}
-		
-		return function () {
-			//Save arguments
-			args = [].slice.call(arguments, 0);
-			
-			if ((+new Date()) - last_time > ms) {
-				call();
-			} else if (!timeout) {
-				timeout = setTimeout(call, ms);
-			}
-		};
-	};
-	
-	/**
-	 * Immediatelly call a callback on next cycle
-	 * Similar to Y.later, but executes callback as soon as possible, but still is async
-	 * 
-	 * @param {Object} context Optional, callback execution context
-	 * @param {Function} callback Callback function
-	 */
-	Supra.immediate = (function () {
-		var callbacks = [],
-			channel = null,
-			transmit = null,
-			receive =  null,
-			attach = null;
-		
-		receive = function () {
-			var c  = callbacks,
-				i  = 0,
-				ii = c.length;
-			
-			for (; i<ii; i++) {
-				callbacks[i]();
-			}
-			
-			callbacks = [];
-		};
-		
-		if (window.setImmediate) {
-			// No browser support for now
-			transmit = function () {
-				window.setImmediate(receive);
-			};
-		} else if (window.msSetImmediate) {
-			// IE10+
-			transmit = function () {
-				window.msSetImmediate(receive);
-			};
-		} else if (window.postMessage) {
-			// FF, Chrome, Safari, Opera, IE8+
-			window.addEventListener('message', function (event) {
-				if (event.source === window && event.data.indexOf('supra.immediate') === 0) {
-					receive();
-				}
-			}, false);
-			
-			transmit = function () {
-				postMessage('supra.immediate', '*');
-			};
-		} else if (window.MessageChannel) {
-			// 
-			channel = new MessageChannel();
-			channel.port1.onmessage = function (event) {
-				if (event.data == 'supra.immediate') {
-					receive();
-				}
-			};
-			
-			transmit = function () {
-				channel.port2.postMessage('supra.immediate');
-			};
-		} else {
-			transmit = function () {
-				setTimeout(receive, 0);
-			};
-		}
-		
-		attach = function (context, callback) {
-			if (Y.Lang.isFunction(context)) {
-				callback = context;
-			} else {
-				callback = Y.bind(callback, context);
-			}
-			
-			callbacks.push(callback);
-			transmit();
-		};
-		
-		return attach;
-	})();
-	
-	/**
 	 * Retrieves the sub value at the provided path, from the value object provided.
 	 * 
 	 * @param {Object} obj The object from which to extract the property value.
@@ -708,6 +590,7 @@ Supra.useModules = [
 	'transition',
 	'router',
 	
+	'supra.timer',
 	'supra.dd-ddm',
 	'supra.event',
 	'supra.deferred',
@@ -749,6 +632,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.base': {
 		path: 'base/base.js'
+	},
+	
+	/**
+	 * Timer functions
+	 */
+	'supra.timer': {
+		path: 'timer/timer.js'
 	},
 	
 	/**
@@ -1647,7 +1537,141 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['supra.manager-action-plugin-base', 'supra.input', 'supra.scrollable']
 	}
 	
-};/*
+};YUI.add('supra.timer', function(Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	/**
+	 * Throttle function call
+	 * If delay argument is true, then instead of calling function every 'ms'
+	 * milliseconds it's called once if in last 'ms' function wasn't called 
+	 * 
+	 * @param {Function} fn
+	 * @param {Number} ms
+	 * @param {Object} context
+	 * @param {Boolean} delay I
+	 * @private
+	 */
+	Supra.throttle = function (fn, ms, context, delay) {
+		var ms = ms || 50;
+		var last_time = 0;
+		var timeout = null;
+		var args = [];
+		
+		if (ms === -1) {
+			return (function() {
+				fn.apply(context, arguments);
+			});
+		}
+		
+		function call () {
+			fn.apply(context || window, args);
+			last_time = +new Date();
+			clearTimeout(timeout);
+			timeout = null;
+		}
+		
+		return function () {
+			//Save arguments
+			args = [].slice.call(arguments, 0);
+			
+			if (delay) {
+				if (timeout) clearTimeout(timeout);
+				timeout = setTimeout(call, ms);
+			} else {
+				if ((+new Date()) - last_time > ms) {
+					call();
+				} else if (!timeout) {
+					timeout = setTimeout(call, ms);
+				}
+			}
+		};
+	};
+	
+	/**
+	 * Immediatelly call a callback on next cycle
+	 * Similar to Y.later, but executes callback as soon as possible, but still is async
+	 * 
+	 * @param {Object} context Optional, callback execution context
+	 * @param {Function} callback Callback function
+	 */
+	Supra.immediate = (function () {
+		var callbacks = [],
+			channel = null,
+			transmit = null,
+			receive =  null,
+			attach = null;
+		
+		receive = function () {
+			var c  = callbacks,
+				i  = 0,
+				ii = c.length;
+			
+			for (; i<ii; i++) {
+				callbacks[i]();
+			}
+			
+			callbacks = [];
+		};
+		
+		if (window.setImmediate) {
+			// No browser support for now
+			transmit = function () {
+				window.setImmediate(receive);
+			};
+		} else if (window.msSetImmediate) {
+			// IE10+
+			transmit = function () {
+				window.msSetImmediate(receive);
+			};
+		} else if (window.postMessage) {
+			// FF, Chrome, Safari, Opera, IE8+
+			window.addEventListener('message', function (event) {
+				if (event.source === window && event.data.indexOf('supra.immediate') === 0) {
+					receive();
+				}
+			}, false);
+			
+			transmit = function () {
+				postMessage('supra.immediate', '*');
+			};
+		} else if (window.MessageChannel) {
+			// 
+			channel = new MessageChannel();
+			channel.port1.onmessage = function (event) {
+				if (event.data == 'supra.immediate') {
+					receive();
+				}
+			};
+			
+			transmit = function () {
+				channel.port2.postMessage('supra.immediate');
+			};
+		} else {
+			transmit = function () {
+				setTimeout(receive, 0);
+			};
+		}
+		
+		attach = function (context, callback) {
+			if (Y.Lang.isFunction(context)) {
+				callback = context;
+			} else {
+				callback = Y.bind(callback, context);
+			}
+			
+			callbacks.push(callback);
+			transmit();
+		};
+		
+		return attach;
+	})();
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version);/*
 YUI 3.5.0 (build 5089)
 Copyright 2012 Yahoo! Inc. All rights reserved.
 Licensed under the BSD License.
@@ -5016,6 +5040,10 @@ YUI.add('supra.base', function (Y) {
 			value: '',
 			setter: '_setLabel'
 		},
+		title: {
+			value: '',
+			setter: '_setTitle'
+		},
 		type: {
 			value: 'push'		// Valid types are 'push', 'toggle'
 		},
@@ -5270,9 +5298,12 @@ YUI.add('supra.base', function (Y) {
 					this.set('nodeLabel', p);
 				}
 				
+				//Title attribute
+				btn.setAttribute('title', this.get('title') || '');
+				
 				//Buttons with group or toolbar style doesn't have labels, use "title" attribute
 				if ((this.get('style') == 'group' || this.get('style') == 'toolbar') && this.get('icon')) {
-					btn.setAttribute('title', this.get('label') || '');
+					this.set('title', this.get('title') || this.get('label') || '');
 				}
 				
 				if (!btn.getAttribute('type')) {
@@ -5501,12 +5532,18 @@ YUI.add('supra.base', function (Y) {
 				
 				//Buttons with group style doesn't have labels, use "title" attribute
 				if (this.get('style') == 'group' && this.get('icon')) {
-					node = this.get('buttonNode');
-					if (node) {
-						node.setAttribute('title', label);
-					}
+					this.set('title', label);
 				}
 			}
+		},
+		
+		_setTitle: function (title) {
+			var btn = this.get('nodeButton');
+			if (btn) {
+				btn.setAttribute('title', title || '');
+			}
+			
+			return title || '';
 		},
 		
 		_setVisible: function (visible) {
@@ -13460,7 +13497,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 
-}, YUI.version, {'requires': ['range-slider']});YUI().add("supra.imageresizer", function (Y) {
+}, YUI.version, {'requires': ['range-slider']});YUI().add('supra.imageresizer', function (Y) {
 	
 	// Resize handle size
 	var RESIZE_HANDLE_SIZE = 16;
@@ -13480,86 +13517,85 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	ImageResizer.MODE_BACKGROUND = 1;
 	ImageResizer.MODE_ICON = 2;
 	
-	ImageResizer.NAME = "imageresizer";
-	ImageResizer.CSS_PREFIX = "su-" + ImageResizer.NAME;
+	ImageResizer.NAME = 'imageresizer';
+	ImageResizer.CSS_PREFIX = 'su-' + ImageResizer.NAME;
 	ImageResizer.CLASS_NAME = Y.ClassNameManager.getClassName(ImageResizer.NAME);
 	
 	ImageResizer.ATTRS = {
 		// Image element
-		"image": {
+		'image': {
 			value: null,
-			setter: "_setImageAttr"
+			setter: '_setImageAttr'
 		},
 		
 		// Maximal image width (original image width)
-		"maxImageWidth": {
+		'maxImageWidth': {
 			value: 0
 		},
 		// Maximal image height (original image height)
-		"maxImageHeight": {
+		'maxImageHeight': {
 			value: 0
 		},
 		
 		// Minimal width
-		"minCropWidth": {
+		'minCropWidth': {
 			value: 32
 		},
 		// Maximal width
-		"maxCropWidth": {
+		'maxCropWidth': {
 			value: 0
 		},
 		// Minimal height
-		"minCropHeight": {
+		'minCropHeight': {
 			value: 32
 		},
 		// Maximal height
-		"maxCropHeight": {
+		'maxCropHeight': {
 			value: 0
 		},
 		
 		// Image document element
-		"doc": {
+		'doc': {
 			value: null
 		},
 		// Node used for resize handles
-		"resizeHandleNode": {
+		'resizeHandleNode': {
 			value: null
 		},
 		// Image container node
-		"imageContainerNode": {
+		'imageContainerNode': {
 			value: null,
 		},
-		// Image size label node
-		"sizeLabelNode": {
-			value: null
-		},
-		// Image size label text
-		"sizeLabel": {
-			value: [0, 0],
-			setter: "_setSizeLabelAttr"
-		},
 		// Cursor:  0 - nw, 1 - ne, 2 - se, 3 - sw, 4 - move
-		"cursor": {
+		'cursor': {
 			value: 4,
-			setter: "_setCursorAttr"
+			setter: '_setCursorAttr'
 		},
 		
 		// Stop editing when clicked outside
-		"autoClose": {
+		'autoClose': {
 			value: true
 		},
 		// Mode: 0 - image, 1 - background, 2 - icon
-		"mode": {
-			value: ImageResizer.MODE_IMAGE
+		'mode': {
+			value: ImageResizer.MODE_IMAGE,
+			setter: '_setMode'
 		},
 		
 		// Resize crop region to smaller on image zoom change if needed
-		"allowZoomResize": {
+		'allowZoomResize': {
 			value: false
 		},
 		// Change zoom on crop resize if needed
-		"allowCropZooming": {
+		'allowCropZooming': {
 			value: false
+		},
+		
+		// Width and height ratio is locked
+		// when changing width or height input other one changes too
+		'ratioLocked': {
+			value: false,
+			setter: '_setRatioLocked'
 		}
 	};
 	
@@ -13740,12 +13776,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		eventClick: null,
 		
 		/**
-		 * Zoom panel
+		 * Zoom and size panel
 		 * Supra.Panel instance
 		 * @type {Object}
 		 * @private
 		 */
-		zoomPanel: null,
+		adjustmentPanel: null,
 		
 		/**
 		 * Zoom slider
@@ -13771,6 +13807,37 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		buttonZoomOut: null,
 		
+		/**
+		 * Width input
+		 * Supra.Input.String instance
+		 * @type {Object}
+		 * @private
+		 */
+		inputWidth: null,
+		
+		/**
+		 * Height input
+		 * Supra.Input.String instance
+		 * @type {Object}
+		 * @private
+		 */
+		inputHeight: null,
+		
+		/**
+		 * Width/height ratio lock button
+		 * Supra.Button instance
+		 * @type {Object}
+		 * @private
+		 */
+		buttonRatio: null,
+		
+		/**
+		 * Size input values are changed by something other than
+		 * direct input.
+		 * @type {Boolean}
+		 * @private
+		 */
+		sizeInputValuesChanging: false,
 		
 		
 		/**
@@ -13779,14 +13846,23 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		destructor: function () {
-			if (this.get("image")) {
-				this.set("image", null);
+			if (this.get('image')) {
+				this.set('image', null);
 			}
 			if (this.zoomSlider) {
 				this.zoomSlider.destroy();
 			}
-			if (this.zoomPanel) {
-				this.zoomPanel.destroy();
+			if (this.inputWidth) {
+				this.inputWidth.destroy();
+			}
+			if (this.inputHeight) {
+				this.inputHeight.destroy();
+			}
+			if (this.buttonRatio) {
+				this.buttonRatio.destroy();
+			}
+			if (this.adjustmentPanel) {
+				this.adjustmentPanel.destroy();
 			}
 			if (this.buttonZoomIn) {
 				this.buttonZoomIn.destroy();
@@ -13796,7 +13872,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			}
 			
 			this.zoomSlider = null;
-			this.zoomPanel = null;
+			this.inputWidth = null;
+			this.inputHeight = null;
+			this.buttonRatio = null;
+			this.adjustmentPanel = null;
 			this.buttonZoomIn = null;
 			this.buttonZoomOut = null;
 		},
@@ -13834,8 +13913,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					}
 				}
 				
-				if (this.get("cursor") != cursor) {
-					this.set("cursor", cursor);
+				if (this.get('cursor') != cursor) {
+					this.set('cursor', cursor);
 				}
 			}
 		},
@@ -13844,8 +13923,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * Unset mouse cursor
 		 */
 		unsetMouseCursor: function (e) {
-			if (!this.resizeActive && !this.moveActive && this.get("cursor") != 4) {
-				this.set("cursor", 4);
+			if (!this.resizeActive && !this.moveActive && this.get('cursor') != 4) {
+				this.set('cursor', 4);
 			}
 		},
 		
@@ -13859,16 +13938,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		getCursorClassName: function (cursor) {
 			switch (cursor) {
 				case 0:
-					return "supra-image-resize-nw";
+					return 'supra-image-resize-nw';
 				case 1:
-					return "supra-image-resize-ne";
+					return 'supra-image-resize-ne';
 				case 2:
-					return "supra-image-resize-se";
+					return 'supra-image-resize-se';
 				case 3:
-					return "supra-image-resize-sw";
+					return 'supra-image-resize-sw';
 				default:
-					var mode = this.get("mode");
-					return mode == ImageResizer.MODE_IMAGE || mode == ImageResizer.MODE_ICON ? "" : "supra-image-resize-move";
+					var mode = this.get('mode');
+					return mode == ImageResizer.MODE_IMAGE || mode == ImageResizer.MODE_ICON ? '' : 'supra-image-resize-move';
 			}
 		},
 		
@@ -13882,39 +13961,63 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		createPanel: function () {
-			if (this.zoomPanel) return;
+			if (this.adjustmentPanel) return;
 			
-			var panel = this.zoomPanel = new Supra.Panel({
-				"zIndex": 100,
-				"plugins": [ Y.Plugin.Drag ],
-				"style": "dark"
-				/*"alignPosition": "T",
-				"arrowVisible": true*/
+			var panel = this.adjustmentPanel = new Supra.Panel({
+				'zIndex': 100,
+				'plugins': [ Y.Plugin.Drag ],
+				'style': 'dark'
+				/*'alignPosition': 'T',
+				'arrowVisible': true*/
 			});
 			panel.render();
 			
-			var boundingBox = panel.get("boundingBox"),
-				contentBox = panel.get("contentBox"),
-				slider = this.zoomSlider = new Supra.Slider({
-					"axis": "x",
-					"min": 0,
-					"max": 100,
-					"value": 100,
-					"length": 250
+			var boundingBox = panel.get('boundingBox'),
+				contentBox = panel.get('contentBox'),
+				sizeBox = Y.Node.create('<div class="clearfix su-imageresizer-sizebox"></div>'),
+				slider = new Supra.Slider({
+					'axis': 'x',
+					'min': 0,
+					'max': 100,
+					'value': 100,
+					'length': 250
 				}),
-				zoomIn = this.buttonZoomIn = new Supra.Button({
-					"label": "",
-					"style": "zoom-in"
+				zoomIn = new Supra.Button({
+					'label': '',
+					'style': 'zoom-in'
 				}),
-				zoomOut = this.buttonZoomOut = new Supra.Button({
-					"label": "",
-					"style": "zoom-out"
+				zoomOut = new Supra.Button({
+					'label': '',
+					'style': 'zoom-out'
+				}),
+				inputWidth = new Supra.Input.String({
+					'label': Supra.Intl.get(['inputs', 'resize_width']),
+					'style': 'size',
+					'valueMask': /^[0-9]*$/,
+					'value': this.imageWidth
+				}),
+				inputHeight = new Supra.Input.String({
+					'label': Supra.Intl.get(['inputs', 'resize_height']),
+					'style': 'size',
+					'valueMask': /^[0-9]*$/,
+					'value': this.imageHeight
+				}),
+				buttonRatio = new Supra.Button({
+					'label': '',
+					'style': 'small-gray'
 				});
 			
-			slider.render(contentBox);
-			slider.on("valueChange", this.zoomChange, this);
+			this.zoomSlider = slider;
+			this.buttonZoomIn = zoomIn;
+			this.buttonZoomOut = zoomOut;
+			this.inputWidth = inputWidth;
+			this.inputHeight = inputHeight;
+			this.buttonRatio = buttonRatio;
 			
-			// 
+			slider.render(contentBox);
+			slider.on('valueChange', this.zoomChange, this);
+			
+			// Zoom in, zoom out buttons
 			zoomIn.render(contentBox);
 			zoomOut.render(contentBox);
 			
@@ -13925,24 +14028,85 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.set('value', Math.max(0, this.get('value') - this.get('majorStep')));
 			}, slider);
 			
-			boundingBox.addClass("su-imageresizer");
+			// Width and height
+			contentBox.append(sizeBox);
+			
+			sizeBox.append('<p class="label">' + Supra.Intl.get(['inputs', 'resize_frame_size']) + '</label>');
+			
+			inputWidth.render(sizeBox);
+			
+			buttonRatio.render(sizeBox);
+			buttonRatio.addClass('su-button-ratio');
+			
+			if (this.get('mode') !== ImageResizer.MODE_IMAGE) {
+				this.set('ratioLocked', true);
+				buttonRatio.set('disabled', true);
+			}
+			if (this.get('ratioLocked')) {
+				buttonRatio.addClass('su-button-locked');
+			}
+			
+			inputHeight.render(sizeBox);
+			
+			inputWidth.on('input', Supra.throttle(function (e) {
+				if (this.inputWidth.get('focused')) {
+					this.widthChange(e, 'width');
+				}
+			}, 250, this, true), this);
+			inputHeight.on('input', Supra.throttle(function (e) {
+				if (this.inputHeight.get('focused')) {
+					this.heightChange(e, 'height');
+				}
+			}, 250, this, true), this);
+			
+			// On blur change value
+			inputWidth.on('blur', function () {
+				var value = this.cropWidth;
+				if (this.get('mode') == ImageResizer.MODE_BACKGROUND) {
+					value = this.imageWidth;
+				}
+				if (this.inputWidth.get('value') != value) {
+					this.inputWidth.set('value', value);
+				}
+			}, this);
+			inputHeight.on('blur', function () {
+				var value = this.cropHeight;
+				if (this.get('mode') == ImageResizer.MODE_BACKGROUND) {
+					value = this.imageHeight;
+				}
+				if (this.inputHeight.get('value') != value) {
+					this.inputHeight.set('value', value);
+				}
+			}, this);
+			
+			//inputWidth.on('input', this.widthChange, this);
+			//inputHeight.on('input', this.heightChange, this);
+			inputWidth.on('valueChange', this.widthChange, this);
+			inputHeight.on('valueChange', this.heightChange, this);
+			
+			buttonRatio.on('click', this.toggleRatioLock, this)
+			buttonRatio.set('title', Supra.Intl.get(['inputs', 'resize_button_title']));
+			
+			// Panel style
+			boundingBox.addClass('su-imageresizer');
+			boundingBox.addClass('ui-dark');
 		},
 		
 		/**
 		 * Position panel, set current zoom value
 		 */
 		setUpPanel: function () {
-			if (!this.zoomPanel) {
+			if (!this.adjustmentPanel) {
 				this.createPanel();
 			}
 			
-			this.zoomPanel.set("alignTarget", this.get("image"));
-			this.zoomPanel.show();
-			this.zoomPanel.centered();
+			this.adjustmentPanel.set('alignTarget', this.get('image'));
+			this.adjustmentPanel.show();
+			this.adjustmentPanel.centered();
 			
 			//Set zoom value
 			var zoom = this.sizeToZoom(this.imageWidth, this.imageHeight);
-			this.zoomSlider.set("value", zoom);
+			this.zoomSlider.set('value', zoom);
 		},
 		
 		/**
@@ -13952,9 +14116,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		zoomChange: function (e) {
-			if (e.silent || !this.get("image")) return;
+			if (e.silent || !this.get('image')) return;
 			
-			var image = this.get("image"),
+			var image = this.get('image'),
 				zoom = e.newVal,
 				size = this.zoomToSize(zoom),
 				ratio = null,
@@ -13964,10 +14128,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			this.imageWidth = ~~size[0];
 			this.imageHeight = ~~size[1];
 			
-			if (this.get("mode") == ImageResizer.MODE_IMAGE) {
-				ratio = (this.get("maxImageWidth") / this.get("maxImageHeight"));
+			if (this.get('mode') == ImageResizer.MODE_IMAGE) {
+				ratio = (this.get('maxImageWidth') / this.get('maxImageHeight'));
 				
-				if (this.get("allowZoomResize")) {
+				if (this.get('allowZoomResize')) {
 					//Resize crop if needed
 					if (this.cropTop + this.cropHeight > this.imageHeight) {
 						this.cropTop = this.imageHeight - this.cropHeight;
@@ -13984,16 +14148,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						}
 					}
 					
-					imageContainerNode = this.get("imageContainerNode");
+					imageContainerNode = this.get('imageContainerNode');
 					containerNode = imageContainerNode.ancestor();
 					
 					imageContainerNode.setStyles({
-						"width": this.cropWidth + "px",
-						"height": this.cropHeight + "px"
+						'width': this.cropWidth + 'px',
+						'height': this.cropHeight + 'px'
 					});
 					containerNode.setStyles({
-						"width": this.cropWidth + "px",
-						"height": this.cropHeight + "px"
+						'width': this.cropWidth + 'px',
+						'height': this.cropHeight + 'px'
 					});
 				} else {
 					//Crop resize not allowed, validate new size against crop
@@ -14010,45 +14174,51 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				}
 				
 				image.setStyles({
-					"margin": - this.cropTop + "px 0 0 -" + this.cropLeft + "px",
-					"width": this.imageWidth + "px",
-					"height": this.imageHeight + "px"
+					'margin': - this.cropTop + 'px 0 0 -' + this.cropLeft + 'px',
+					'width': this.imageWidth + 'px',
+					'height': this.imageHeight + 'px'
 				});
-				image.setAttribute("width", this.imageWidth);
-				image.setAttribute("height", this.imageHeight);
+				image.setAttribute('width', this.imageWidth);
+				image.setAttribute('height', this.imageHeight);
+				
+				//Update size input values
+				this._uiSetSizeInputValues(this.cropWidth, this.cropHeight);
 			} else if (this.get('mode') == ImageResizer.MODE_ICON) {
 				this.cropWidth = this.imageWidth;
 				this.cropHeight = this.imageHeight;
 				
-				imageContainerNode = this.get("imageContainerNode");
+				imageContainerNode = this.get('imageContainerNode');
 				containerNode = imageContainerNode.ancestor();
 				
 				imageContainerNode.setStyles({
-					"width": this.imageWidth + "px",
-					"height": this.imageHeight + "px"
+					'width': this.imageWidth + 'px',
+					'height': this.imageHeight + 'px'
 				});
 				containerNode.setStyles({
-					"width": this.imageWidth + "px",
-					"height": this.imageHeight + "px"
+					'width': this.imageWidth + 'px',
+					'height': this.imageHeight + 'px'
 				});
 				image.setStyles({
-					"width": this.imageWidth + "px",
-					"height": this.imageHeight + "px"
+					'width': this.imageWidth + 'px',
+					'height': this.imageHeight + 'px'
 				});
 				
-				image.setAttribute("width", this.imageWidth);
-				image.setAttribute("height", this.imageHeight);
+				image.setAttribute('width', this.imageWidth);
+				image.setAttribute('height', this.imageHeight);
+				
+				//Update size input values
+				this._uiSetSizeInputValues(this.imageWidth, this.imageHeight);
 			} else {
 				this.cropWidth = Math.max(0, this.imageWidth - this.cropLeft);
 				this.cropHeight = Math.max(0, this.imageHeight - this.cropTop);
 				
 				image.setStyles({
-					"backgroundSize": this.imageWidth + "px " + this.imageHeight + "px"
+					'backgroundSize': this.imageWidth + 'px ' + this.imageHeight + 'px'
 				});
+				
+				//Update size input values
+				this._uiSetSizeInputValues(this.imageWidth, this.imageHeight);
 			}
-			
-			//Update image size label
-			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
 		},
 		
 		/**
@@ -14057,7 +14227,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		fixZoom: function () {
-			this.zoomSlider.set("value", this.sizeToZoom(this.imageWidth, this.imageHeight), {silent: true});
+			this.zoomSlider.set('value', this.sizeToZoom(this.imageWidth, this.imageHeight), {silent: true});
 		},
 		
 		/**
@@ -14080,10 +14250,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				minImageHeight = this.cropHeight;
 			}
 			
-			if (this.get("maxImageWidth") - minImageWidth < this.get("maxImageHeight") - minImageHeight) {
-				return Math.round((width - minImageWidth) / (this.get("maxImageWidth") - minImageWidth) * 100);
+			if (this.get('maxImageWidth') - minImageWidth < this.get('maxImageHeight') - minImageHeight) {
+				return Math.round((width - minImageWidth) / (this.get('maxImageWidth') - minImageWidth) * 100);
 			} else {
-				return Math.round((height - minImageHeight) / (this.get("maxImageHeight") - minImageHeight) * 100);
+				return Math.round((height - minImageHeight) / (this.get('maxImageHeight') - minImageHeight) * 100);
 			}
 		},
 		
@@ -14110,16 +14280,357 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			}
 			
 			if (this.imageWidth > this.imageHeight) {
-				ratio = (this.get("maxImageWidth") / this.get("maxImageHeight"));
-				width = (this.get("maxImageWidth") - minImageWidth) * zoom / 100 + minImageWidth;
+				ratio = (this.get('maxImageWidth') / this.get('maxImageHeight'));
+				width = (this.get('maxImageWidth') - minImageWidth) * zoom / 100 + minImageWidth;
 				height = width / ratio;
 			} else {
-				ratio = (this.get("maxImageHeight") / this.get("maxImageWidth"));
-				height = (this.get("maxImageHeight") - minImageHeight) * zoom / 100 + minImageHeight;
+				ratio = (this.get('maxImageHeight') / this.get('maxImageWidth'));
+				height = (this.get('maxImageHeight') - minImageHeight) * zoom / 100 + minImageHeight;
 				width = height / ratio;
 			}
 			
 			return [Math.round(width), Math.round(height)];
+		},
+		
+		
+		/* ------------------------ Width & height change ------------------------- */
+		
+		
+		/**
+		 * Handle width change
+		 * 
+		 * @private
+		 */
+		widthChange: function (e, type) {
+			if (this.sizeInputValuesChanging) return;
+			
+			var height = 0,
+				width  = parseInt(e.newVal || e.value, 10),
+				mode   = this.get('mode');
+			
+			if (mode == ImageResizer.MODE_IMAGE) {
+				if (width == this.cropWidth) return;
+				width = width || this.cropWidth;
+				
+				if (this.get('ratioLocked')) {
+					height = Math.round(width * this.cropHeight / this.cropWidth);
+				} else {
+					height  = this.cropHeight;
+				}
+				
+				this.sizeChangeImage(width, height, type);
+			} else if (mode == ImageResizer.MODE_BACKGROUND) {
+				if (width == this.imageWidth) return;
+				width = width || this.imageWidth;
+				this.sizeChangeBackground(width, null, type);
+			} else {
+				if (width == this.cropWidth) return;
+				this.sizeChangeIcon(width || this.cropWidth, null, type);
+			}
+		},
+		
+		/**
+		 * Handle height change
+		 * 
+		 * @private
+		 */
+		heightChange: function (e, type) {
+			if (this.sizeInputValuesChanging) return;
+			
+			var height = parseInt(e.newVal || e.value, 10),
+				width  = 0,
+				mode   = this.get('mode');
+			
+			if (mode == ImageResizer.MODE_IMAGE) {
+				if (height == this.cropHeight) return;
+				height = height || this.cropHeight;
+				
+				if (this.get('ratioLocked')) {
+					width = Math.round(height * this.cropWidth / this.cropHeight);
+				} else {
+					width  = this.cropWidth;
+				}
+				
+				this.sizeChangeImage(width, height, type);
+			} else if (mode == ImageResizer.MODE_BACKGROUND) {
+				if (height == this.imageHeight) return;
+				height = height || this.imageHeight;
+				this.sizeChangeBackground(null, height, type);
+			} else {
+				if (height == this.cropHeight) return;
+				this.sizeChangeIcon(null, height || this.cropHeight, type)
+			}
+		},
+		
+		/**
+		 * Handle width and height change for image
+		 * 
+		 * @private
+		 */
+		sizeChangeImage: function (sizeX, sizeY, input_type) {
+			this.sizeInputValuesChanging = true;
+			
+			var image = this.get('image'),
+				node = this.get('imageContainerNode'),
+				containerNode = node.ancestor(),
+				
+				imageWidth = this.imageWidth,
+				imageHeight = this.imageHeight,
+				
+				cropTop = this.cropTop,
+				cropLeft = this.cropLeft,
+				
+				cropWidth = this.cropWidth,
+				cropHeight = this.cropHeight,
+				
+				minW = this.get('minCropWidth'),
+				maxW = this.get('maxCropWidth'),
+				minH = this.get('minCropHeight'),
+				maxH = this.get('maxCropHeight'),
+				
+				locked = this.get('ratioLocked'),
+				lock_ratio  = 0,
+				changed_x = true,
+				changed_y = true,
+				itt = 2;
+		
+			// Image
+			lock_ratio  = cropWidth / cropHeight;
+		
+			while ((changed_x || changed_y) && itt) {
+				changed_x = false;
+				changed_y = false;
+				
+				// Update X
+				if (sizeX < minW) {
+					sizeX = minW;
+					changed_x = true;
+				}
+				if (maxW && sizeX > maxW) {
+					sizeX = maxW;
+					changed_x = true;
+				}
+				if (sizeX > imageWidth - cropLeft) {
+					cropLeft = Math.max(0, imageWidth - sizeX);
+					sizeX = imageWidth - cropLeft;
+					changed_x = true;
+				}
+				
+				if (changed_x && locked) {
+					sizeY = Math.round(sizeX / lock_ratio);
+				}
+				
+				// Update Y
+				if (sizeY < minH) {
+					sizeY = minH;
+					changed_y = true;
+				}
+				if (maxH && sizeY > maxH) {
+					sizeY = maxH;
+					changed_y = true;
+				}
+				if (sizeY > imageHeight - cropTop) {
+					cropTop = Math.max(0, imageHeight - sizeY);
+					sizeY = imageHeight - cropTop;
+					changed_y = true;
+				}
+				
+				if (changed_y && locked) {
+					sizeX = Math.round(sizeY * lock_ratio);
+				}
+				
+				if (!locked) {
+					changed_x = false;
+					changed_y = false;
+				}
+				
+				itt--;
+			}
+			
+			if (this.cropTop != cropTop || this.cropLeft != cropLeft) {
+				this.cropTop = cropTop;
+				this.cropLeft = cropLeft;
+				
+				image.setStyle('margin', - cropTop + 'px 0 0 -' + cropLeft + 'px');
+			}
+			
+			if (this.cropWidth != sizeX || this.cropHeight != sizeY) {
+				this.cropWidth = sizeX;
+				this.cropHeight = sizeY;
+				
+				node.setStyles({
+					'width': sizeX,
+					'height': sizeY
+				});
+				containerNode.setStyles({
+					'width': sizeX,
+					'height': sizeY
+				});
+				
+				// Update size input values
+				if (input_type !== 'width') {
+					this.inputWidth.set('value', sizeX);
+				}
+				if (input_type !== 'height') {
+					this.inputHeight.set('value', sizeY);
+				}
+				
+				this.fixZoom();
+			}
+			
+			this.sizeInputValuesChanging = false;
+		},
+		
+		/**
+		 * Handle width and height change for icon
+		 * 
+		 * @private
+		 */
+		sizeChangeIcon: function (sizeX, sizeY, input_type) {
+			this.sizeInputValuesChanging = true;
+			
+			var node = this.get('imageContainerNode'),
+				image = this.get('image'),
+				minW = this.get('minCropWidth'),
+				maxW = this.get('maxCropWidth'),
+				minH = this.get('minCropHeight'),
+				maxH = this.get('maxCropHeight'),
+				imageHeight = this.imageHeight,
+				imageWidth = this.imageWidth,
+				ratio = (maxW && maxH ? maxW / maxH : (minW && minH ? minW / minH : imageWidth / imageHeight)),
+				containerNode = node.ancestor();
+			
+			if (!sizeX) {
+				sizeX = sizeY * ratio;
+			} else if (!sizeY) {
+				sizeY = sizeX / ratio;
+			}
+			
+			if (!node) return;
+			
+			if (sizeX < minW) {
+				sizeX = minW;
+				sizeY = Math.round(sizeX / ratio);
+			}
+			if (sizeY < minH) {
+				sizeY = minH;
+				sizeX = Math.round(sizeY * ratio);
+			}
+			if (maxW && sizeX > maxW) {
+				sizeX = maxW;
+				sizeY = Math.round(sizeX / ratio);
+			}
+			if (maxH && sizeY > maxH) {
+				sizeY = maxH;
+				sizeX = Math.round(sizeY * ratio);
+			}
+			
+			if (this.cropWidth != sizeX || this.cropHeight != sizeY) {
+				this.cropWidth = this.imageWidth = sizeX;
+				this.cropHeight = this.imageHeight = sizeY;
+				
+				// Update size input values
+				this.inputWidth.set('value', sizeX);
+				this.inputHeight.set('value', sizeY);
+				
+				node.setStyles({
+					'width': sizeX,
+					'height': sizeY
+				});
+				containerNode.setStyles({
+					'width': sizeX,
+					'height': sizeY
+				});
+				image.setStyles({
+					'width': sizeX,
+					'height': sizeY
+				});
+				
+				image.setAttribute('width', sizeX + 'px');
+				image.setAttribute('height', sizeY + 'px');
+				
+				// Update size input values
+				if (input_type !== 'width') {
+					this.inputWidth.set('value', sizeX);
+				}
+				if (input_type !== 'height') {
+					this.inputHeight.set('value', sizeY);
+				}
+				
+				this.fixZoom();
+			}
+			
+			this.sizeInputValuesChanging = false;
+		},
+		
+		/**
+		 * Handle width and height change for background image
+		 * 
+		 * @private
+		 */
+		sizeChangeBackground: function (sizeX, sizeY, input_type) {
+			var image  = this.get('image'),
+				width  = sizeX,
+				height = sizeY,
+				maxImageWidth = this.get('maxImageWidth'),
+				maxImageHeight = this.get('maxImageHeight'),
+				minImageWidth = this.minImageWidth,
+				minImageHeight = this.minImageHeight,
+				ratio = (maxImageWidth / maxImageHeight);
+			
+			if (!width) {
+				width = Math.round(height * ratio);
+			} else if (!height) {
+				height = Math.round(width / ratio);
+			}
+			
+			if (width < minImageWidth) {
+				width = minImageWidth;
+				height = Math.round(width / ratio);
+			}
+			if (height < minImageHeight) {
+				height = minImageHeight;
+				width = Math.round(height * ratio);
+			}
+			if (width > maxImageWidth) {
+				width = maxImageWidth;
+				height = Math.round(width / ratio);
+			}
+			if (height > maxImageHeight) {
+				height = maxImageHeight;
+				width = Math.round(height * ratio);
+			}
+			
+			if (width != this.imageWidth || height != this.imageHeight) {
+				this.imageWidth = width;
+				this.imageHeight = height;
+				
+				this.cropWidth = Math.max(0, width - this.cropLeft);
+				this.cropHeight = Math.max(0, height - this.cropTop);
+				
+				image.setStyles({
+					'backgroundSize': this.imageWidth + 'px ' + this.imageHeight + 'px'
+				});
+				
+				// Update size input values
+				if (input_type !== 'width') {
+					this.inputWidth.set('value', width);
+				}
+				if (input_type !== 'height') {
+					this.inputHeight.set('value', height);
+				}
+				
+				this.fixZoom();
+			}
+		},
+		
+		/**
+		 * Toggle ratio lock state
+		 * 
+		 * @private
+		 */
+		toggleRatioLock: function () {
+			this.set('ratioLocked', !this.get('ratioLocked'));
 		},
 		
 		
@@ -14138,17 +14649,17 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			var pointer = this.getPointerPosition(e),
 				clientX = pointer[0],
 				clientY = pointer[1],
-				doc = this.get("doc");
+				doc = this.get('doc');
 			
 			if (this.resizeActive || this.moveActive) {
 				//If user released mouse outside browser
 				this.dragEnd(e);
 			}
 			
-			this.eventDrop = Y.Node(doc).on("mouseup", this.dragEnd, this);
+			this.eventDrop = Y.Node(doc).on('mouseup', this.dragEnd, this);
 			
 			if (document !== doc) {
-				this.eventDropMain = Y.Node(document).on("mouseup", this.dragEnd, this);
+				this.eventDropMain = Y.Node(document).on('mouseup', this.dragEnd, this);
 			}
 			
 			this.dragCropLeft = this.cropLeft;
@@ -14156,33 +14667,33 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			this.mouseStartX = clientX;
 			this.mouseStartY = clientY;
 			
-			if (this.get("cursor") < 4) {
+			if (this.get('cursor') < 4) {
 				//Resize
 				this.resizeActive = true;
 				
-				if (this.get("mode") == ImageResizer.MODE_ICON) {
-					this.eventMove = Y.Node(doc).on("mousemove", this.dragIconResize, this);
+				if (this.get('mode') == ImageResizer.MODE_ICON) {
+					this.eventMove = Y.Node(doc).on('mousemove', this.dragIconResize, this);
 					
 					if (document !== doc) {
-						this.eventMoveMain = Y.Node(document).on("mousemove", this.dragIconResize, this);
+						this.eventMoveMain = Y.Node(document).on('mousemove', this.dragIconResize, this);
 					}
 				} else {
-					this.eventMove = Y.Node(doc).on("mousemove", this.dragResize, this);
+					this.eventMove = Y.Node(doc).on('mousemove', this.dragResize, this);
 					
 					if (document !== doc) {
-						this.eventMoveMain = Y.Node(document).on("mousemove", this.dragResize, this);
+						this.eventMoveMain = Y.Node(document).on('mousemove', this.dragResize, this);
 					}
 				}
 				
 				this.dragStartW = this.dragW = this.cropWidth;
 				this.dragStartH = this.dragH = this.cropHeight;
-			} else if (this.get("mode") != ImageResizer.MODE_ICON) {
+			} else if (this.get('mode') != ImageResizer.MODE_ICON) {
 				//Move
 				this.moveActive = true;
-				this.eventMove = Y.Node(this.get("doc")).on("mousemove", this.dragMove, this);
+				this.eventMove = Y.Node(this.get('doc')).on('mousemove', this.dragMove, this);
 				
 				if (document !== doc) {
-					this.eventMoveMain = Y.Node(document).on("mousemove", this.dragMove, this);
+					this.eventMoveMain = Y.Node(document).on('mousemove', this.dragMove, this);
 				}
 				
 				this.dragStartW = this.dragW = this.cropLeft;
@@ -14203,15 +14714,15 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				clientX = pointer[0],
 				clientY = pointer[1],
 				
-				cursor = this.get("cursor"),
+				cursor = this.get('cursor'),
 				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
 				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
 				sizeY  = this.dragStartH + deltaY,
-				mode   = this.get("mode");
+				mode   = this.get('mode');
 			
 			if (this.moveActive) {
-				var node = this.get("image"),
+				var node = this.get('image'),
 					cropWidth = this.cropWidth,
 					cropHeight = this.cropHeight,
 					imageHeight = this.imageHeight,
@@ -14245,9 +14756,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.dragCropTop  = sizeY;
 					
 					if (mode == ImageResizer.MODE_IMAGE) {
-						node.setStyle("margin", - sizeY + "px 0 0 -" + sizeX + "px");
+						node.setStyle('margin', - sizeY + 'px 0 0 -' + sizeX + 'px');
 					} else {
-						node.setStyle("backgroundPosition", - sizeX + "px -" + sizeY + "px");
+						node.setStyle('backgroundPosition', - sizeX + 'px -' + sizeY + 'px');
 					}
 				}
 			}
@@ -14264,20 +14775,20 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				clientX = pointer[0],
 				clientY = pointer[1],
 				
-				cursor = this.get("cursor"),
+				cursor = this.get('cursor'),
 				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
 				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				sizeX  = this.dragStartW + deltaX,
 				sizeY  = this.dragStartH + deltaY,
-				mode   = this.get("mode");
+				mode   = this.get('mode');
 			
 			if (this.resizeActive) {
-				var image = this.get("image"),
-					node = this.get("imageContainerNode"),
-					minW = this.get("minCropWidth"),
-					maxW = this.get("maxCropWidth"),
-					minH = this.get("minCropHeight"),
-					maxH = this.get("maxCropHeight"),
+				var image = this.get('image'),
+					node = this.get('imageContainerNode'),
+					minW = this.get('minCropWidth'),
+					maxW = this.get('maxCropWidth'),
+					minH = this.get('minCropHeight'),
+					maxH = this.get('maxCropHeight'),
 					cropTop = this.dragCropTop,
 					cropLeft = this.dragCropLeft,
 					imageHeight = this.imageHeight,
@@ -14321,16 +14832,16 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.dragH = sizeY;
 					
 					node.setStyles({
-						"width": sizeX,
-						"height": sizeY
+						'width': sizeX,
+						'height': sizeY
 					});
 					containerNode.setStyles({
-						"width": sizeX,
-						"height": sizeY
+						'width': sizeX,
+						'height': sizeY
 					});
 					
-					//Update label
-					this.set("sizeLabel", [sizeX, sizeY]);
+					//Update size input values
+					this._uiSetSizeInputValues(sizeX, sizeY);
 				}
 				
 				if (allowCropZooming && this.imageWidth != imageWidth && this.imageHeight != imageHeight) {
@@ -14338,18 +14849,18 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.imageHeight = imageHeight;
 					
 					image.setStyles({
-						"width": imageWidth + "px",
-						"height": imageHeight + "px"
+						'width': imageWidth + 'px',
+						'height': imageHeight + 'px'
 					});
-					image.setAttribute("width", imageWidth);
-					image.setAttribute("height", imageHeight);
+					image.setAttribute('width', imageWidth);
+					image.setAttribute('height', imageHeight);
 				}
 				
 				if (this.dragCropTop != cropTop || this.dragCropLeft != cropLeft) {
 					this.dragCropTop = cropTop;
 					this.dragCropLeft = cropLeft;
 					
-					image.setStyle("margin", - cropTop + "px 0 0 -" + cropLeft + "px");
+					image.setStyle('margin', - cropTop + 'px 0 0 -' + cropLeft + 'px');
 				}
 			}
 		},
@@ -14365,7 +14876,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				clientX = pointer[0],
 				clientY = pointer[1],
 				
-				cursor = this.get("cursor"),
+				cursor = this.get('cursor'),
 				deltaX = (clientX - this.mouseStartX) * (cursor == 0 || cursor == 3 || cursor == 4 ? -1 : 1),
 				deltaY = (clientY - this.mouseStartY) * (cursor == 0 || cursor == 1 || cursor == 4 ? -1 : 1),
 				delta  = Math.max(deltaX, deltaY),
@@ -14373,12 +14884,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				sizeY  = this.dragStartH + delta;
 			
 			if (this.resizeActive) {
-				var node = this.get("imageContainerNode"),
-					image = this.get("image"),
-					minW = this.get("minCropWidth"),
-					maxW = this.get("maxCropWidth"),
-					minH = this.get("minCropHeight"),
-					maxH = this.get("maxCropHeight"),
+				var node = this.get('imageContainerNode'),
+					image = this.get('image'),
+					minW = this.get('minCropWidth'),
+					maxW = this.get('maxCropWidth'),
+					minH = this.get('minCropHeight'),
+					maxH = this.get('maxCropHeight'),
 					imageHeight = this.imageHeight,
 					imageWidth = this.imageWidth,
 					ratio = (maxW && maxH ? maxW / maxH : (minW && minH ? minW / minH : imageWidth / imageHeight)),
@@ -14408,23 +14919,23 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.dragH = sizeY;
 					
 					node.setStyles({
-						"width": sizeX,
-						"height": sizeY
+						'width': sizeX,
+						'height': sizeY
 					});
 					containerNode.setStyles({
-						"width": sizeX,
-						"height": sizeY
+						'width': sizeX,
+						'height': sizeY
 					});
 					image.setStyles({
-						"width": sizeX,
-						"height": sizeY
+						'width': sizeX,
+						'height': sizeY
 					});
 					
-					image.setAttribute("width", sizeX + "px");
-					image.setAttribute("height", sizeY + "px");
+					image.setAttribute('width', sizeX + 'px');
+					image.setAttribute('height', sizeY + 'px');
 					
-					//Update label
-					this.set("sizeLabel", [sizeX, sizeY]);
+					//Update size input values
+					this._uiSetSizeInputValues(sizeX, sizeY);
 				}
 			}
 		},
@@ -14459,14 +14970,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.cropWidth = this.dragW;
 					this.cropHeight = this.dragH;
 					
-					if (this.get("mode") == ImageResizer.MODE_ICON) {
+					if (this.get('mode') == ImageResizer.MODE_ICON) {
 						this.cropLeft = this.cropTop = 0;
 						this.imageWidth = this.cropWidth;
 						this.imageHeight = this.cropHeight;
 					}
 					
-					//Update label
-					this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
+					//Update size input values
+					this._uiSetSizeInputValues(this.cropWidth, this.cropHeight);
 				} else { // move
 					this.cropLeft = this.dragCropLeft;
 					this.cropTop = this.dragCropTop;
@@ -14475,7 +14986,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				e.preventDefault();
 				
 				//Reset cursor
-				this.set("cursor", 4);
+				this.set('cursor', 4);
 			}
 			
 			this.resizeActive = false;
@@ -14490,9 +15001,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		documentClick: function (e) {
-			var image = this.get("image");
-			if (this.get("autoClose") && image && e.target && !e.target.closest("span.supra-icon") && !e.target.closest("span.supra-image") && !e.target.closest(".supra-background-editing")) {
-				this.set("image", null);
+			var image = this.get('image');
+			if (this.get('autoClose') && image && e.target && !e.target.closest('span.supra-icon') && !e.target.closest('span.supra-image') && !e.target.closest('.supra-background-editing')) {
+				this.set('image', null);
 			}
 		},
 		
@@ -14571,66 +15082,61 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		setUpImage: function (image) {
-			var doc = this.get("doc"),
-				resizeHandleNode = Y.Node(doc.createElement("SPAN")), // create in correct document
-				imageContainerNode = Y.Node(doc.createElement("SPAN")),
-				sizeLabelNode = Y.Node(doc.createElement("SPAN")),
+			var doc = this.get('doc'),
+				resizeHandleNode = Y.Node(doc.createElement('SPAN')), // create in correct document
+				imageContainerNode = Y.Node(doc.createElement('SPAN')),
 				containerNode = image.ancestor(),
-				width = containerNode.get("offsetWidth"),
-				height = containerNode.get("offsetHeight");
+				width = containerNode.get('offsetWidth'),
+				height = containerNode.get('offsetHeight');
 			
-			resizeHandleNode.addClass("supra-image-resize");
+			resizeHandleNode.addClass('supra-image-resize');
 			containerNode.append(resizeHandleNode);
-			resizeHandleNode.on("mousemove", this.setMouseCursor, this);
-			resizeHandleNode.on("mouseleave", this.unsetMouseCursor, this);
-			resizeHandleNode.on("mousedown", this.dragStart, this);
-			this.set("resizeHandleNode", resizeHandleNode);
+			resizeHandleNode.on('mousemove', this.setMouseCursor, this);
+			resizeHandleNode.on('mouseleave', this.unsetMouseCursor, this);
+			resizeHandleNode.on('mousedown', this.dragStart, this);
+			this.set('resizeHandleNode', resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
-			containerNode.append(sizeLabelNode);
-			this.set("sizeLabelNode", sizeLabelNode);
-			
-			imageContainerNode.addClass("supra-image-inner");
+			imageContainerNode.addClass('supra-image-inner');
 			containerNode.append(imageContainerNode);
 			imageContainerNode.append(image);
-			this.set("imageContainerNode", imageContainerNode);
+			this.set('imageContainerNode', imageContainerNode);
 			
 			imageContainerNode.setStyles({
-				"width": width,
-				"height": height
+				'width': width,
+				'height': height
 			});
 			containerNode.setStyles({
-				"width": width,
-				"height": height
+				'width': width,
+				'height': height
 			});
 			
-			image.setAttribute("unselectable", "on");
-			containerNode.setAttribute("contentEditable", "false");
-			containerNode.addClass("supra-image-editing");
+			image.setAttribute('unselectable', 'on');
+			containerNode.setAttribute('contentEditable', 'false');
+			containerNode.addClass('supra-image-editing');
 			
-			this.imageWidth = image.get("offsetWidth");
-			this.imageHeight = image.get("offsetHeight");
+			this.imageWidth = image.get('offsetWidth');
+			this.imageHeight = image.get('offsetHeight');
 			this.cropWidth = width;
 			this.cropHeight = height;
-			this.cropLeft = Math.max(0, - parseInt(image.getStyle("marginLeft"), 10) || 0);
-			this.cropTop  = Math.max(0, - parseInt(image.getStyle("marginTop"), 10) || 0);
+			this.cropLeft = Math.max(0, - parseInt(image.getStyle('marginLeft'), 10) || 0);
+			this.cropTop  = Math.max(0, - parseInt(image.getStyle('marginTop'), 10) || 0);
 			
 			//If image is not loaded, then width and height could be 0
 			if (!this.imageWidth || !this.imageHeight) {
 				image.on('load', function (event, image) {
-					this.imageWidth = image.get("offsetWidth");
-					this.imageHeight = image.get("offsetHeight");
+					this.imageWidth = image.get('offsetWidth');
+					this.imageHeight = image.get('offsetHeight');
 				}, this, image);
 			}
 			
-			//Set size label
-			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
+			//Update size input values
+			this._uiSetSizeInputValues(this.cropWidth, this.cropHeight);
 			
 			//Calculate min image width and height for zoom
-			var maxImageWidth = this.get("maxImageWidth"),
-				maxImageHeight = this.get("maxImageHeight"),
-				minImageWidth = this.get("minCropWidth"),
-				minImageHeight = this.get("minCropHeight"),
+			var maxImageWidth = this.get('maxImageWidth'),
+				maxImageHeight = this.get('maxImageHeight'),
+				minImageWidth = this.get('minCropWidth'),
+				minImageHeight = this.get('minCropHeight'),
 				ratio = maxImageWidth / maxImageHeight;
 			
 			if (minImageWidth / ratio < minImageHeight) {
@@ -14656,46 +15162,42 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		tearDownImage: function (image, silent) {
 			if (!image) return;
 			
-			if (!this.get("imageContainerNode")) {
+			if (!this.get('imageContainerNode')) {
 				// Already teared down, 'resize' event triggered this again
 				return;
 			}
 			
-			var imageContainerNode = this.get("imageContainerNode"),
-				resizeHandleNode = this.get("resizeHandleNode"),
-				sizeLabelNode = this.get("sizeLabelNode"),
+			var imageContainerNode = this.get('imageContainerNode'),
+				resizeHandleNode = this.get('resizeHandleNode'),
 				containerNode = imageContainerNode.ancestor();
 			
-			image.removeAttribute("unselectable");
+			image.removeAttribute('unselectable');
 			containerNode.append(image);
-			containerNode.removeClass("supra-image-editing");
+			containerNode.removeClass('supra-image-editing');
 			containerNode.setStyles({
-				"width": this.cropWidth,
-				"height": this.cropHeight
+				'width': this.cropWidth,
+				'height': this.cropHeight
 			});
 			
 			resizeHandleNode.remove(true);
-			this.set("resizeHandleNode", null);
-			
-			sizeLabelNode.remove(true);
-			this.set("sizeLabelNode", null);
+			this.set('resizeHandleNode', null);
 			
 			imageContainerNode.remove(true);
-			this.set("imageContainerNode", null);
+			this.set('imageContainerNode', null);
 			
-			if (this.zoomPanel) {
-				this.zoomPanel.hide();
+			if (this.adjustmentPanel) {
+				this.adjustmentPanel.hide();
 			}
 			
-			this.fire("resize", {
-				"image": image,
-				"cropLeft": this.cropLeft,
-				"cropTop": this.cropTop,
-				"cropWidth": this.cropWidth,
-				"cropHeight": this.cropHeight,
-				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight,
-				"silent": !!silent
+			this.fire('resize', {
+				'image': image,
+				'cropLeft': this.cropLeft,
+				'cropTop': this.cropTop,
+				'cropWidth': this.cropWidth,
+				'cropHeight': this.cropHeight,
+				'imageWidth': this.imageWidth,
+				'imageHeight': this.imageHeight,
+				'silent': !!silent
 			});
 		},
 		
@@ -14710,34 +15212,30 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		setUpBackground: function (image) {
-			var doc = this.get("doc"),
-				resizeHandleNode = Y.Node(doc.createElement("SPAN")), // create in correct document
-				sizeLabelNode = Y.Node(doc.createElement("SPAN")),
+			var doc = this.get('doc'),
+				resizeHandleNode = Y.Node(doc.createElement('SPAN')), // create in correct document
 				containerNode = image;
 			
-			resizeHandleNode.addClass("supra-image-resize");
-			resizeHandleNode.addClass("supra-image-resize-move");
+			resizeHandleNode.addClass('supra-image-resize');
+			resizeHandleNode.addClass('supra-image-resize-move');
 			image.append(resizeHandleNode);
-			resizeHandleNode.on("mousedown", this.dragStart, this);
-			this.set("resizeHandleNode", resizeHandleNode);
+			resizeHandleNode.on('mousedown', this.dragStart, this);
+			this.set('resizeHandleNode', resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
-			image.append(sizeLabelNode);
-			this.set("sizeLabelNode", sizeLabelNode);
-			image.addClass("supra-background-editing");
+			image.addClass('supra-background-editing');
 			
-			this.imageWidth = this.cropWidth = this.get("maxImageWidth");
-			this.imageHeight = this.cropHeight = this.get("maxImageHeight");
+			this.imageWidth = this.cropWidth = this.get('maxImageWidth');
+			this.imageHeight = this.cropHeight = this.get('maxImageHeight');
 			this.cropLeft = 0;
 			this.cropTop = 0;
 			
-			var backgroundSize = image.getStyle("backgroundSize").match(/(\d+)px\s+(\d+)px/);
+			var backgroundSize = image.getStyle('backgroundSize').match(/(\d+)px\s+(\d+)px/);
 			if (backgroundSize) {
 				this.cropWidth = this.imageWidth = parseInt(backgroundSize[1], 10) || this.cropWidth;
 				this.cropHeight = this.imageHeight = parseInt(backgroundSize[2], 10) || this.cropHeight;
 			}
 			
-			var backgroundPosition = image.getStyle("backgroundPosition").match(/(\-?\d+)px\s+(\-?\d+)px/);
+			var backgroundPosition = image.getStyle('backgroundPosition').match(/(\-?\d+)px\s+(\-?\d+)px/);
 			if (backgroundPosition) {
 				this.cropLeft = Math.max(0, - parseInt(backgroundPosition[1], 10) || 0);
 				this.cropTop = Math.max(0, - parseInt(backgroundPosition[2], 10) || 0);
@@ -14745,14 +15243,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.cropHeight -= this.cropTop;
 			}
 			
-			//Set size label
-			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
+			//Update size input values
+			this._uiSetSizeInputValues(this.cropWidth, this.cropHeight);
 			
 			//Calculate min image width and height for zoom
-			var maxImageWidth = this.get("maxImageWidth"),
-				maxImageHeight = this.get("maxImageHeight"),
-				minImageWidth = this.get("minCropWidth"),
-				minImageHeight = this.get("minCropHeight"),
+			var maxImageWidth = this.get('maxImageWidth'),
+				maxImageHeight = this.get('maxImageHeight'),
+				minImageWidth = this.get('minCropWidth'),
+				minImageHeight = this.get('minCropHeight'),
 				ratio = maxImageWidth / maxImageHeight;
 			
 			if (minImageWidth / ratio < minImageHeight) {
@@ -14778,30 +15276,26 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		tearDownBackground: function (image, silent) {
 			if (!image) return;
 			
-			var resizeHandleNode = this.get("resizeHandleNode"),
-				sizeLabelNode = this.get("sizeLabelNode");
+			var resizeHandleNode = this.get('resizeHandleNode');
 			
-			image.removeClass("supra-background-editing");
+			image.removeClass('supra-background-editing');
 			
 			resizeHandleNode.remove(true);
-			this.set("resizeHandleNode", null);
+			this.set('resizeHandleNode', null);
 			
-			sizeLabelNode.remove(true);
-			this.set("sizeLabelNode", null);
-			
-			this.fire("resize", {
-				"image": image,
-				"cropLeft": this.cropLeft,
-				"cropTop": this.cropTop,
-				"cropWidth": this.cropWidth,
-				"cropHeight": this.cropHeight,
-				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight,
-				"silent": !!silent
+			this.fire('resize', {
+				'image': image,
+				'cropLeft': this.cropLeft,
+				'cropTop': this.cropTop,
+				'cropWidth': this.cropWidth,
+				'cropHeight': this.cropHeight,
+				'imageWidth': this.imageWidth,
+				'imageHeight': this.imageHeight,
+				'silent': !!silent
 			});
 			
-			if (this.zoomPanel) {
-				this.zoomPanel.hide();
+			if (this.adjustmentPanel) {
+				this.adjustmentPanel.hide();
 			}
 		},
 		
@@ -14816,45 +15310,40 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		setUpIcon: function (image) {
-			var doc = this.get("doc"),
-				resizeHandleNode = Y.Node(doc.createElement("SPAN")), // create in correct document
-				imageContainerNode = Y.Node(doc.createElement("SPAN")),
-				sizeLabelNode = Y.Node(doc.createElement("SPAN")),
+			var doc = this.get('doc'),
+				resizeHandleNode = Y.Node(doc.createElement('SPAN')), // create in correct document
+				imageContainerNode = Y.Node(doc.createElement('SPAN')),
 				containerNode = image.ancestor(),
-				width = containerNode.get("offsetWidth"),
-				height = containerNode.get("offsetHeight");
+				width = containerNode.get('offsetWidth'),
+				height = containerNode.get('offsetHeight');
 			
-			resizeHandleNode.addClass("supra-image-resize");
+			resizeHandleNode.addClass('supra-image-resize');
 			containerNode.append(resizeHandleNode);
-			resizeHandleNode.on("mousemove", this.setMouseCursor, this);
-			resizeHandleNode.on("mouseleave", this.unsetMouseCursor, this);
-			resizeHandleNode.on("mousedown", this.dragStart, this);
-			this.set("resizeHandleNode", resizeHandleNode);
+			resizeHandleNode.on('mousemove', this.setMouseCursor, this);
+			resizeHandleNode.on('mouseleave', this.unsetMouseCursor, this);
+			resizeHandleNode.on('mousedown', this.dragStart, this);
+			this.set('resizeHandleNode', resizeHandleNode);
 			
-			sizeLabelNode.addClass("tooltip").addClass("visible").addClass("align-bottom");
-			containerNode.append(sizeLabelNode);
-			this.set("sizeLabelNode", sizeLabelNode);
-			
-			imageContainerNode.addClass("supra-image-inner");
+			imageContainerNode.addClass('supra-image-inner');
 			containerNode.append(imageContainerNode);
 			imageContainerNode.append(image);
-			this.set("imageContainerNode", imageContainerNode);
+			this.set('imageContainerNode', imageContainerNode);
 			
 			imageContainerNode.setStyles({
-				"width": width,
-				"height": height
+				'width': width,
+				'height': height
 			});
 			containerNode.setStyles({
-				"width": width,
-				"height": height
+				'width': width,
+				'height': height
 			});
 			
-			image.setAttribute("unselectable", "on");
-			containerNode.setAttribute("contentEditable", "false");
-			containerNode.addClass("supra-icon-editing");
+			image.setAttribute('unselectable', 'on');
+			containerNode.setAttribute('contentEditable', 'false');
+			containerNode.addClass('supra-icon-editing');
 			
-			this.cropWidth = this.imageWidth = image.get("offsetWidth");
-			this.cropHeight = this.imageHeight = image.get("offsetHeight");
+			this.cropWidth = this.imageWidth = image.get('offsetWidth');
+			this.cropHeight = this.imageHeight = image.get('offsetHeight');
 			this.cropLeft = this.cropTop = 0;
 			
 			//SVGAnimateLength object
@@ -14863,14 +15352,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.cropHeight = this.imageHeight = Supra.getObjectValue(image.get('height'), ['baseVal', 'value']) || 0;
 			}
 			
-			//Set size label
-			this.set("sizeLabel", [this.cropWidth, this.cropHeight]);
+			//Update size input values
+			this._uiSetSizeInputValues(this.cropWidth, this.cropHeight);
 			
 			//Calculate min image width and height for zoom
-			var maxImageWidth = this.get("maxImageWidth"),
-				maxImageHeight = this.get("maxImageHeight"),
-				minImageWidth = this.get("minCropWidth"),
-				minImageHeight = this.get("minCropHeight"),
+			var maxImageWidth = this.get('maxImageWidth'),
+				maxImageHeight = this.get('maxImageHeight'),
+				minImageWidth = this.get('minCropWidth'),
+				minImageHeight = this.get('minCropHeight'),
 				ratio = maxImageWidth / maxImageHeight;
 			
 			if (minImageWidth / ratio < minImageHeight) {
@@ -14896,42 +15385,38 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		tearDownIcon: function (image, silent) {
 			if (!image) return;
 			
-			if (!this.get("imageContainerNode")) {
+			if (!this.get('imageContainerNode')) {
 				// Already teared down, 'resize' event triggered this again
 				return;
 			}
 			
-			var imageContainerNode = this.get("imageContainerNode"),
-				resizeHandleNode = this.get("resizeHandleNode"),
-				sizeLabelNode = this.get("sizeLabelNode"),
+			var imageContainerNode = this.get('imageContainerNode'),
+				resizeHandleNode = this.get('resizeHandleNode'),
 				containerNode = imageContainerNode.ancestor();
 			
-			image.removeAttribute("unselectable");
+			image.removeAttribute('unselectable');
 			containerNode.append(image);
-			containerNode.removeClass("supra-icon-editing");
+			containerNode.removeClass('supra-icon-editing');
 			containerNode.setStyles({
-				"width": this.imageWidth,
-				"height": this.imageHeight
+				'width': this.imageWidth,
+				'height': this.imageHeight
 			});
 			
 			resizeHandleNode.remove(true);
-			this.set("resizeHandleNode", null);
-			
-			sizeLabelNode.remove(true);
-			this.set("sizeLabelNode", null);
+			this.set('resizeHandleNode', null);
 			
 			imageContainerNode.remove(true);
-			this.set("imageContainerNode", null);
+			this.set('imageContainerNode', null);
 			
-			if (this.zoomPanel) {
-				this.zoomPanel.hide();
+			if (this.adjustmentPanel) {
+				this.adjustmentPanel.hide();
 			}
 			
-			this.fire("resize", {
-				"image": image,
-				"imageWidth": this.imageWidth,
-				"imageHeight": this.imageHeight,
-				"silent": !!silent
+			this.fire('resize', {
+				'image': image,
+				'imageWidth': this.imageWidth,
+				'imageHeight': this.imageHeight,
+				'silent': !!silent
 			});
 		},
 		
@@ -14951,14 +15436,14 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				doc = image ? image.getDOMNode().ownerDocument : null,
 				silent = !!image;
 			
-			if (this.get("image")) {
+			if (this.get('image')) {
 				
-				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
-					this.tearDownImage(this.get("image"), silent);
-				} else if (this.get("mode") == ImageResizer.MODE_ICON) {
-					this.tearDownIcon(this.get("image"), silent);
+				if (this.get('mode') == ImageResizer.MODE_IMAGE) {
+					this.tearDownImage(this.get('image'), silent);
+				} else if (this.get('mode') == ImageResizer.MODE_ICON) {
+					this.tearDownIcon(this.get('image'), silent);
 				} else {
-					this.tearDownBackground(this.get("image"), silent);
+					this.tearDownBackground(this.get('image'), silent);
 				}
 			}
 			
@@ -14968,37 +15453,20 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			}
 			
 			if (image) {
-				this.set("doc", doc);
+				this.set('doc', doc);
 				
-				if (this.get("mode") == ImageResizer.MODE_IMAGE) {
+				if (this.get('mode') == ImageResizer.MODE_IMAGE) {
 					this.setUpImage(image);
-				} else if (this.get("mode") == ImageResizer.MODE_ICON) {
+				} else if (this.get('mode') == ImageResizer.MODE_ICON) {
 					this.setUpIcon(image);
 				} else {
 					this.setUpBackground(image);
 				}
 				
-				this.eventClick = Y.Node(doc).on("mousedown", this.documentClick, this);
+				this.eventClick = Y.Node(doc).on('mousedown', this.documentClick, this);
 			}
 			
 			return image;
-		},
-		
-		/**
-		 * Set image size label
-		 * 
-		 * @param {Array} size Image size, array with width and height
-		 * @return New attribute value
-		 * @type {Array}
-		 */
-		_setSizeLabelAttr: function (size) {
-			//Set size label
-			var node = this.get("sizeLabelNode");
-			if (node) {
-				node.set("text", size[0] + " x " + size[1]);
-			}
-			
-			return size;
 		},
 		
 		/**
@@ -15010,15 +15478,74 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @type {Number}
 		 */
 		_setCursorAttr: function (cursor) {
-			var node = this.get("resizeHandleNode");
+			var node = this.get('resizeHandleNode');
 			if (node) {
 				node.replaceClass(
-					this.getCursorClassName(this.get("cursor")),
+					this.getCursorClassName(this.get('cursor')),
 					this.getCursorClassName(cursor)
 				);
 			}
 			return cursor;
-		}
+		},
+		
+		/**
+		 * Mode attribute setter
+		 * 
+		 * @param {String} cursor
+		 * @returns {String} New attribute value
+		 */
+		_setMode: function (mode) {
+			var button = this.buttonRatio;
+			
+			// Width/height ratio should be locked
+			if (button) {
+				if (mode == ImageResizer.MODE_IMAGE) {
+					button.set('disabled', false);
+				} else {
+					this.set('ratioLocked', true);
+					button.set('disabled', true);
+				}
+			}
+			
+			return mode;
+		},
+		
+		/**
+		 * Ratio locked attribute setter
+		 * 
+		 * @param {Boolean} locked
+		 * @returns {Boolean} New attribute value
+		 */
+		_setRatioLocked: function (locked) {
+			locked = !!locked;
+			
+			var button = this.buttonRatio;
+			if (button) {
+				button.toggleClass('su-button-locked', locked);
+			}
+			
+			return locked;
+		},
+		
+		/**
+		 * Set size input values
+		 * 
+		 * @param {Object} width
+		 * @param {Object} height
+		 */
+		_uiSetSizeInputValues: function (width, height) {
+			this.sizeInputValuesChanging = true;
+			
+			//Update size input values
+			if (this.inputWidth) {
+				this.inputWidth.set('value', width);
+				this.inputHeight.set('value', height);
+			}
+			
+			this.sizeInputValuesChanging = false;
+		},
+		
+		
 		
 	});
 	
@@ -15028,7 +15555,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires: ["supra.panel", "supra.slider", "dd-plugin"]});YUI().add("supra.htmleditor-plugin-image", function (Y) {
+}, YUI.version, {requires: ['supra.panel', 'supra.slider', 'dd-plugin']});YUI().add("supra.htmleditor-plugin-image", function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */

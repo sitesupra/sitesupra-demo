@@ -3,6 +3,7 @@
 /cms/lib/supra/build/supra/supra.js
 /cms/lib/supra/build/supra/data.js
 /cms/lib/supra/build/supra/modules.js
+/cms/lib/supra/build/timer/timer.js
 /cms/lib/yui.3.5.0/build/attribute-core/attribute-core-min.js
 /cms/lib/yui.3.5.0/build/base-core/base-core-min.js
 /cms/lib/yui.3.5.0/build/oop/oop-min.js

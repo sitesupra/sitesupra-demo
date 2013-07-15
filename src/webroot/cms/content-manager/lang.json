@@ -43,7 +43,12 @@
 				"add_video": "Add video",
 				"delete_image": "Remove image",
 				"delete_video": "Remove video"
-			}
+			},
+			
+			"resize_frame_size": "Image frame size",
+			"resize_button_title": "Maintain aspect ratio",
+			"resize_width": "W",
+			"resize_height": "H"
 		},
 		
 		"error": {

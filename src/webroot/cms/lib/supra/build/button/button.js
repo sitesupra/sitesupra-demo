@@ -30,6 +30,10 @@ YUI.add('supra.button', function (Y) {
 			value: '',
 			setter: '_setLabel'
 		},
+		title: {
+			value: '',
+			setter: '_setTitle'
+		},
 		type: {
 			value: 'push'		// Valid types are 'push', 'toggle'
 		},
@@ -284,9 +288,12 @@ YUI.add('supra.button', function (Y) {
 					this.set('nodeLabel', p);
 				}
 				
+				//Title attribute
+				btn.setAttribute('title', this.get('title') || '');
+				
 				//Buttons with group or toolbar style doesn't have labels, use "title" attribute
 				if ((this.get('style') == 'group' || this.get('style') == 'toolbar') && this.get('icon')) {
-					btn.setAttribute('title', this.get('label') || '');
+					this.set('title', this.get('title') || this.get('label') || '');
 				}
 				
 				if (!btn.getAttribute('type')) {
@@ -515,12 +522,18 @@ YUI.add('supra.button', function (Y) {
 				
 				//Buttons with group style doesn't have labels, use "title" attribute
 				if (this.get('style') == 'group' && this.get('icon')) {
-					node = this.get('buttonNode');
-					if (node) {
-						node.setAttribute('title', label);
-					}
+					this.set('title', label);
 				}
 			}
+		},
+		
+		_setTitle: function (title) {
+			var btn = this.get('nodeButton');
+			if (btn) {
+				btn.setAttribute('title', title || '');
+			}
+			
+			return title || '';
 		},
 		
 		_setVisible: function (visible) {

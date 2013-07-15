@@ -113,6 +113,7 @@ Supra.useModules = [
 	'transition',
 	'router',
 	
+	'supra.timer',
 	'supra.dd-ddm',
 	'supra.event',
 	'supra.deferred',
@@ -154,6 +155,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.base': {
 		path: 'base/base.js'
+	},
+	
+	/**
+	 * Timer functions
+	 */
+	'supra.timer': {
+		path: 'timer/timer.js'
 	},
 	
 	/**
