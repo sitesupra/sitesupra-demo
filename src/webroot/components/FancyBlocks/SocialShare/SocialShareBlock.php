@@ -3,6 +3,7 @@
 namespace Project\FancyBlocks\SocialShare;
 
 use Supra\Controller\Pages\BlockController;
+use Supra\ObjectRepository\ObjectRepository;
 
 class SocialShareBlock extends BlockController
 {
@@ -18,11 +19,19 @@ class SocialShareBlock extends BlockController
 	}
 
 	protected function doExecute()
-	{
-		$response = $this->getResponse();
-		/* @var $response \Supra\Response\TwigResponse */
+	{        
+        $localization = $this->getRequest()->getPageLocalization();
+        /* @var $request \Supra\Controller\Pages\Request\PageRequestView */
+        $pathPart = $localization->getPathPart();
+        
+        $sysInfo = ObjectRepository::getSystemInfo($this);
+        $hostName = $sysInfo->getHostName();
+        
+        $pagePath = 'http://' . $hostName . '/' . $pathPart;
 
-		$response->outputTemplate('index.html.twig');
+		$this->getResponse()
+                ->assign('pagePath', $pagePath)
+                ->outputTemplate('index.html.twig');
 	}
 	
 }
