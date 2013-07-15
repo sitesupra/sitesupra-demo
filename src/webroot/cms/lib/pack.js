@@ -14079,8 +14079,6 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				}
 			}, this);
 			
-			//inputWidth.on('input', this.widthChange, this);
-			//inputHeight.on('input', this.heightChange, this);
 			inputWidth.on('valueChange', this.widthChange, this);
 			inputHeight.on('valueChange', this.heightChange, this);
 			
@@ -18371,6 +18369,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	
 	var Manager = Supra.Manager;
 	
+	var DEFAULT_ALIGN = 'middle';
+	
 	Supra.HTMLEditor.addPlugin('video', defaultConfiguration, {
 		
 		/**
@@ -18392,7 +18392,10 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			return {
 				'type': this.NAME,
 				'resource': 'source',
-				'source': ''
+				'source': '',
+				'width': 0,
+				'height': 0,
+				'align': DEFAULT_ALIGN
 			};
 		},
 		
@@ -18422,13 +18425,14 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			} else if (htmleditor.isSelectionEditable(selection)) {
 				// Insert video element
 				var uid = htmleditor.generateDataUID(),
-					html = '<div id="' + uid + '" class="supra-video yui3-box-reset su-uneditable" tabindex="0"></div>',
+					html = '<div id="' + uid + '" class="supra-video su-uneditable" tabindex="0"></div>',
 					data = this.getBlankData();
 				
 				htmleditor.setData(uid, data);
 				htmleditor.replaceSelection(html, null);
 				
 				node = htmleditor.one('#' + uid);
+				node.addClass('align-' + data.align);
 				htmleditor.disableNodeEditing(node.getDOMNode());
 				
 				// Trigger selection change event
@@ -18482,13 +18486,24 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		onVideoEditingDone: function () {
 			if (!this.selected_video) return;
 			
-			var data = this.settings_form.getValues('id'),
-				id   = this.selected_video_id;
+			var data  = this.settings_form.getValues('id'),
+				id    = this.selected_video_id,
+				video = null;
 			
 			if (data && data.video) {
-				// 'video' is input name
-				this.htmleditor.setData(id, Supra.mix({'type': this.NAME}, data.video));
-				this.updateVideoPreview(this.selected_video, data.video);
+				video = data.video;
+				
+				if (!video.width) {
+					video.width = parseInt(this.selected_video.get('offsetWidth'), 10);
+					video.height = ~~(video.width / Supra.Input.Video.getVideoSizeRatio(video));
+				}
+				
+				// Update data
+				this.htmleditor.setData(id, Supra.mix({'type': this.NAME}, video));
+				
+				// Update preview
+				this.updateVideoPreview(this.selected_video, video);
+				this.selected_video.removeClass('align-left').removeClass('align-right').removeClass('align-middle').addClass('align-' + video.align);
 			}
 			
 			//
@@ -18507,6 +18522,46 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		},
 		
 		/**
+		 * On video input change update UI
+		 */
+		updatePreview: function (e) {
+			// Triggered because we are setting form values
+			if (this._setValueTrigger || !e.value) return;
+			
+
+			var input = this.settings_form.getInput('video'),
+				value = e.value,
+				node  = this.selected_video;
+			
+			node.removeClass('align-left').removeClass('align-right').removeClass('align-middle').addClass('align-' + value.align);
+			this.updateVideoPreview(node, value);
+			
+		},
+		
+		/**
+		 * Update video preview size
+		 * 
+		 * @param {Object} node Video element
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoSize: function (node, data) {
+			var Input = Supra.Input.Video,
+				width = parseInt(data.width, 10) || node.get('offsetWidth'),
+				height = ~~(width / Input.getVideoSizeRatio(data));
+			
+			if (data.width != width) {
+				data.width = width;
+				data.height = height;
+			}
+			
+			node.setStyles({
+				'width': data.width + 'px',
+				'height': data.height + 'px'
+			});
+		},
+		
+		/**
 		 * Update video preview image
 		 * 
 		 * @param {Object} node Video element
@@ -18522,6 +18577,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				} else {
 					node.removeAttribute('style');
 				}
+				
+				this.updateVideoSize(node, data);
 			}, this);
 		},
 		
@@ -18594,7 +18651,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 						"type": "Video",
 						"label": Supra.Intl.get(["htmleditor", "video_source"]),
 						"description": Supra.Intl.get(["htmleditor", "video_description"]),
-						"value": ""
+						"value": "",
+						"allowAlign": true
 					}
 				],
 				"style": "vertical"
@@ -18603,6 +18661,8 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			var form = new Supra.Form(form_config);
 				form.render(content);
 				form.hide();
+			
+			form.getInput('video').on('change', this.updatePreview, this);
 			
 			//Delete button
 			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "video_delete"]), "style": "small-red"});
@@ -18628,7 +18688,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			//Make sure PageContentSettings is rendered
 			var form = this.settings_form || this.createSettingsForm(),
-				action = Manager.getAction("PageContentSettings");
+				action = Manager.getAction("PageContentSettings"),
+				width = 0,
+				max_width = 0;
 			
 			if (!form) {
 				if (action.get("loaded")) {
@@ -18661,9 +18723,24 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			this.selected_video = target;
 			this.selected_video_id = this.selected_video.getAttribute("id");
 			
-			this.settings_form
-					.resetValues()
-					.setValues({'video': data}, 'id', true);
+			// Initial width
+			max_width = parseInt(this.selected_video.ancestor().get('offsetWidth'), 10);
+			width = parseInt(data.width || this.selected_video.get('offsetWidth'), 10);
+			
+			if (!data.width || data.width != width) {
+				data.width = width;
+				data.height = ~~(width / Supra.Input.Video.getVideoSizeRatio(data));
+			}
+			
+			this._setValueTrigger = true;
+			
+			form.getInput('video').set('maxWidth', max_width);
+			
+			form.resetValues()
+				.setValues({'video': data}, 'id', true);
+			
+			this._setValueTrigger = false;
+			
 			
 			return true;
 		},
@@ -18809,7 +18886,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			
 			html = html.replace(/{supra\.video id="([^"]+)"}/ig, function (tag, id) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
-				return '<div id="' + id + '" class="supra-video yui3-box-reset su-uneditable" tabindex="0"></div>';
+				return '<div id="' + id + '" class="supra-video su-uneditable align-' + (data[id].align || DEFAULT_ALIGN) + '" tabindex="0"></div>';
 			});
 			
 			return html;
@@ -38028,6 +38105,10 @@ YUI.add('supra.datatype-color', function(Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	var REGEX_YOUTUBE  = /(http(s)?:)?\/\/(www\.)?(youtu\.be|youtube.[a-z]+)(\/embed\/|\/v\/|\/.*\&v=|\/.*\?v=|\/)([a-z0-9_\-]+)/i,
+		REGEX_VIMEO    = /(http(s)?:)?\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+		REGEX_FACEBOOK = /(http(s)?:)?\/\/(www\.)?(facebook.com)(\/.*video_id=)([a-z0-9_\-]+)/i;
+	
 	/**
 	 * Video input type
 	 * 
@@ -38053,7 +38134,18 @@ YUI.add('supra.datatype-color', function(Y) {
 	
 	Input.NAME = 'input-video';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
-	Input.ATTRS = {};
+	Input.ATTRS = {
+		'allowAlign': {
+			'value': false,
+			'setter': '_setAllowAlign'
+		},
+		'minWidth': {
+			value: 160
+		},
+		'maxWidth': {
+			value: 0
+		}
+	};
 	
 	Y.extend(Input, Supra.Input.Proto, {
 		
@@ -38081,6 +38173,59 @@ YUI.add('supra.datatype-color', function(Y) {
 			});
 			
 			source.render(this.get('contentBox'));
+			
+			// Align box
+			var align = this.widgets.align = new Supra.Input.SelectList({
+				"style": "minimal",
+				"type": "SelectList",
+				"label": Supra.Intl.get(["htmleditor", "video_alignment"]),
+				"value": "middle",
+				"values": [
+					{"id": "left", "title": Supra.Intl.get(["htmleditor", "alignment_left"]), "icon": "/cms/lib/supra/img/htmleditor/align-left-button.png"},
+					{"id": "middle", "title": Supra.Intl.get(["htmleditor", "alignment_center"]), "icon": "/cms/lib/supra/img/htmleditor/align-center-button.png"},
+					{"id": "right", "title": Supra.Intl.get(["htmleditor", "alignment_right"]), "icon": "/cms/lib/supra/img/htmleditor/align-right-button.png"}
+				]
+			});
+			
+			align.render(this.get('contentBox'));
+			
+			if (!this.get('allowAlign')) {
+				align.hide();
+			}
+			
+			// Size box
+			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-video-sizebox"></div>');
+			sizeBox.append('<p class="label">' + Supra.Intl.get(["inputs", "resize_video"]) + '</p>');
+			
+			// Width
+			var width = this.widgets.width = new Supra.Input.String({
+				'type': 'String',
+				'style': 'size',
+				'valueMask': /^[0-9]*$/,
+				'label': Supra.Intl.get(['inputs', 'resize_width']),
+				'value': 0
+			});
+			
+			width.render(sizeBox);
+			
+			// Size button
+			var btn = new Supra.Button({"label": "", "style": "small-gray"});
+				btn.render(sizeBox);
+				btn.set("disabled", true);
+				btn.addClass("su-button-ratio");
+				btn.addClass("su-button-locked");
+			
+			// Height
+			var height = this.widgets.height = new Supra.Input.String({
+				'type': 'String',
+				'style': 'size',
+				'valueMask': /^[0-9]*$/,
+				'label': Supra.Intl.get(['inputs', 'resize_height']),
+				'value': 0
+			});
+			
+			height.render(sizeBox);
+			this.get('contentBox').append(sizeBox);
 		},
 		
 		bindUI: function () {
@@ -38089,8 +38234,11 @@ YUI.add('supra.datatype-color', function(Y) {
 			//Handle value attribute change
 			this.on('valueChange', this._afterValueChange, this);
 			
-			//On source change update this widget too
-			this.widgets.source.on('change', this._onWidgetsChange, this);
+			//On inputs change update this widget too
+			this.widgets.source.after('valueChange', this._onWidgetsChange, this, 'source');
+			this.widgets.width.after('valueChange', this._onWidgetsChange, this, 'width');
+			this.widgets.height.after('valueChange', this._onWidgetsChange, this, 'height');
+			this.widgets.align.after('valueChange', this._onWidgetsChange, this, 'align');
 		},
 		
 		/**
@@ -38101,7 +38249,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		normalizeData: function (data) {
 			if (!data || !data.resource) {
-				data = {'resource': 'source', 'source': ''};
+				data = {'resource': 'source', 'source': '', 'width': 0, 'height': 0};
 			} else if (data.resource == 'link'){
 				data = Supra.mix({}, data);
 				data.resource = 'source';
@@ -38119,6 +38267,24 @@ YUI.add('supra.datatype-color', function(Y) {
 				delete(data.service);
 			}
 			
+			if (this.get('allowAlign')) {
+				if (data.align != 'left' && data.align != 'right' && data.align != 'middle') {
+					data.align = 'middle';
+				}
+			}
+			
+			var ratio    = Input.getVideoSizeRatio(data),
+				minWidth = this.get('minWidth'),
+				maxWidth = this.get('maxWidth');
+			
+			if (data.width < minWidth) {
+				data.width = minWidth;
+				data.height = ~~(minWidth / ratio);
+			} else if (maxWidth && data.width > maxWidth) {
+				data.width = maxWidth;
+				data.height = ~~(maxWidth / ratio);
+			}
+			
 			return data;
 		},
 		
@@ -38130,8 +38296,14 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_setValue: function (data) {
-			var value = '',
-				input = this.widgets ? this.widgets.source : null; // May not be rendered yet
+			this._setValueTrigger = true;
+			
+			var value  = '',
+				// May not be rendered yet
+				input  = this.widgets ? this.widgets.source : null,
+				width  = this.widgets ? this.widgets.width : null,
+				height = this.widgets ? this.widgets.height : null,
+				align  = this.widgets ? this.widgets.align : null;
 			
 			data = this.normalizeData(data);
 			value = data.source || '';
@@ -38139,7 +38311,17 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (input && input.get('value') !== value) {
 				input.set('value', value);
 			}
+			if (width && width.get('value') !== data.width) {
+				width.set('value', data.width);
+			}
+			if (height && height.get('value') !== data.height) {
+				height.set('value', data.height);
+			}
+			if (align && align.get('value') !== data.align) {
+				align.set('value', data.align);
+			}
 			
+			this._setValueTrigger = false;
 			return data;
 		},
 		
@@ -38151,12 +38333,24 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_getValue: function (data) {
-			var input = this.widgets ? this.widgets.source : null; // May not be rendered yet
+			var source = this.widgets ? this.widgets.source : null,
+				width  = this.widgets ? this.widgets.width : null,
+				height = this.widgets ? this.widgets.height : null,
+				align  = this.widgets ? this.widgets.align : null,
+				value  = null; // May not be rendered yet
 			
-			return {
+			value = {
 				'resource': data && data.resource ? data.resource : 'source',
-				'source': input ? input.get('value') : data.source || ''
+				'source': source ? source.get('value') : data.source || '',
+				'width': parseInt(width ? width.get('value') : data.width, 10) || data.width || 0,
+				'height': parseInt(height ? height.get('value') : data.height, 10) || data.height || 0
 			};
+			
+			if (align && this.get('allowAlign')) {
+				value.align = this.widgets.align.get('value');
+			}
+			
+			return value;
 		},
 		
 		/**
@@ -38187,18 +38381,118 @@ YUI.add('supra.datatype-color', function(Y) {
 		},
 		
 		/**
+		 * Align property attribute setter
+		 * 
+		 * @param {Boolean} allow Allow align property setting
+		 * @returns {Boolean} New attribute value
+		 * @private
+		 */
+		_setAllowAlign: function (allow) {
+			allow = !!allow;
+			
+			if (this.widgets && this.widgets.align) {
+				if (allow) {
+					this.widgets.align.show();
+				} else {
+					this.widgets.align.hide();
+				}
+			}
+			
+			return allow;
+		},
+		
+		/**
 		 * When widgets value changes update value for self
 		 * 
 		 * @param {Object} evt Event facade object
 		 * @private
 		 */
-		_onWidgetsChange: function (evt) {
-			if (evt.prevVal != evt.newVal) {
-				this.set('value', this.get('value'));
+		_onWidgetsChange: function (evt, name) {
+			if (this._setValueTrigger) return;
+			
+			if (name !== 'align') {
+				this._setValueTrigger = true;
+				
+				var source = this.widgets.source.get('value'),
+					match  = null,
+					width  = 0,
+					height = 0,
+					
+					ratio  = Input.getVideoSizeRatio({
+						'resource': 'source',
+						'source': source
+					});
+				
+				if (name == 'height') {
+					height = parseInt(this.widgets.height.get('value'), 10) || 0;
+					width = ~~(height * ratio);
+					this.widgets.width.set('value', width);
+				} else {
+					width = parseInt(this.widgets.width.get('value'), 10) || 0;
+					height = ~~(width / ratio);
+					this.widgets.height.set('value', height);
+				}
+				
+				if (name == 'source') {
+					match = source.match(/width="?([\d]+)/);
+					if (match) {
+						width = parseInt(match[1], 10) || width;
+						height = ~~(width / ratio); // we use original service ratio
+						
+						this.widgets.width.set('value', width);
+						this.widgets.height.set('value', height);
+					}
+				}
+				
+				this._setValueTrigger = false;
 			}
+			
+			this.set('value', this.get('value'));
 		}
 		
 	});
+	
+	/**
+	 * Returns video width / height ratio
+	 * 
+	 * @param {Object} data Video data
+	 * @returns {Number} Size ratio
+	 */
+	Input.getVideoSizeRatio = function (data) {
+		var service = null,
+			match = null,
+			
+			// http://youtu.be/...
+			// http://www.youtube.com/v/...
+			// http://www.youtube.com/...?v=...
+			regex_youtube = REGEX_YOUTUBE,
+			// http://vimeo.com/...
+			regex_vimeo = REGEX_VIMEO,
+			
+			ratio_youtube = 16/9,
+			ratio_vimeo   = 7/3;
+		
+		if (data) {
+			if (data.resource == "link") {
+				service = data.service;
+			} else if (data.resource == "source") {
+				if (match = data.source.match(regex_youtube)) {
+					service = 'youtube';
+				} else if (match = data.source.match(regex_vimeo)) {
+					service = 'vimeo';
+				}
+			}
+		}
+		
+		if (service == 'youtube') {
+			return ratio_youtube;
+		} else if (service == 'vimeo') {
+			return ratio_vimeo;
+		} else {
+			// Default
+			return ratio_youtube;
+		}
+	};
 	
 	/**
 	 * Extract image url from video data
@@ -38214,9 +38508,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			// http://youtu.be/...
 			// http://www.youtube.com/v/...
 			// http://www.youtube.com/...?v=...
-			regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be|youtube.[a-z]+)(\/embed\/|\/v\/|\/.*\&v=|\/.*\?v=|\/)([a-z0-9_\-]+)/i,
+			regex_youtube = REGEX_YOUTUBE,
 			// http://vimeo.com/...
-			regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+			regex_vimeo = REGEX_VIMEO,
 			
 			deferred = new Supra.Deferred();
 		
@@ -38227,10 +38521,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			} else if (data.resource == "source") {
 				if (match = data.source.match(regex_youtube)) {
 					service = 'youtube';
-					video_id = match[5];
+					video_id = match[6];
 				} else if (match = data.source.match(regex_vimeo)) {
 					service = 'vimeo';
-					video_id = match[5];
+					video_id = match[6];
 				}
 			}
 		}
@@ -38538,7 +38832,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			// Video input events
 			input_video.on('focus', this.focus, this);
-			input_video.on('blur', this.blur, this);
+			//input_video.on('blur', this.blur, this); // any sub-input blur causes this, we can't use it!
 			
 			input_video.on('change', function () {
 				this.updateVideoPreviewImage();
@@ -38750,6 +39044,15 @@ YUI.add('supra.datatype-color', function(Y) {
 					uploader.set('dropTarget', this._getDropTargetNode(node));
 					uploader.set('disabled', this.get('disabled'));
 				}
+				
+				var input = this.widgets.input_video;
+				if (input) {
+					if (this.get('fixedMaxCropWidth') && node) {
+						input.set('maxWidth', node.get('offsetWidth'));
+					} else {
+						input.set('maxWidth', 0);
+					}
+				}
 			}
 			return node;
 		},
@@ -38768,6 +39071,12 @@ YUI.add('supra.datatype-color', function(Y) {
 					this.showSettingsSidebar();
 					
 					if (this.type === 'video') {
+						if (this.get('fixedMaxCropWidth')) {
+							this.widgets.input_video.set('maxWidth', this.get('targetNode').get('offsetWidth'));
+						} else {
+							this.widgets.input_video.set('maxWidth', 0);
+						}
+						
 						state = this.widgets.input_video.startEditing();
 					} else {
 						state = this.widgets.input_image.startEditing();
@@ -38840,10 +39149,17 @@ YUI.add('supra.datatype-color', function(Y) {
 		},
 		
 		insertVideo: function () {
+			var node   = this.get('targetNode'),
+				ratio  = Supra.Input.Video.getVideoSizeRatio(),
+				width  = node.get('offsetWidth'),
+				height = ~~(width / ratio);
+			
 			this.set('value', {
 				'type': 'video',
 				'resource': 'source',
-				'source': ''
+				'source': '',
+				'width': width,
+				'height': height
 			});
 			
 			this.startEditing();
@@ -38890,9 +39206,11 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 			
 			if (data && type == 'video') {
-				var width = node.get('offsetWidth'),
-					height = ~~(width * 9 / 16),
-					html = '<div class="supra-video" style="height: ' + height + 'px !important;"></div>';
+				var Input = Supra.Input.Video,
+					width = data.width || node.get('offsetWidth'),
+					height = ~~(width / Input.getVideoSizeRatio(data)),
+					html = '<div class="supra-video" style="width: ' + width + 'px; height: ' + height + 'px;"></div>';
+				
 				node.set('innerHTML', html);
 				this.updateVideoPreviewImage(data);
 			}
@@ -38927,6 +39245,30 @@ YUI.add('supra.datatype-color', function(Y) {
 		},
 		
 		/**
+		 * Update video preview image size
+		 * 
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoSize: function (node, data) {
+			if (!node) return;
+			
+			var Input = Supra.Input.Video,
+				width = parseInt(data.width, 10) || node.get('offsetWidth'),
+				height = ~~(width / Input.getVideoSizeRatio(data));
+			
+			if (data.width != width) {
+				data.width = width;
+				data.height = height;
+			}
+			
+			node.setStyles({
+				'width': data.width + 'px',
+				'height': data.height + 'px'
+			});
+		},
+		
+		/**
 		 * Update video preview image
 		 * 
 		 * @param {Object} data Video data
@@ -38942,15 +39284,14 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (node) {
 				Input.getVideoPreviewUrl(data).always(function (url) {
-					var width = node.get('offsetWidth'),
-						height = ~~(width * 9 / 16);
-					
 					if (url) {
 						// Using setAttribute because it's not possible to use !important in styles
-						node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important; height: ' + height + 'px !important;')
+						node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important;')
 					} else {
-						node.setAttribute('style', 'height: ' + height + 'px !important;')
+						node.removeAttribute('style')
 					}
+					
+					this.updateVideoSize(node, data);
 				}, this);
 			}
 		},
@@ -38997,6 +39338,14 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 			
 			if (type == 'video') {
+				if (data && !data.width) {
+					var node = this.get('targetNode');
+					if (node) {
+						data.width = node.get('offsetWidth');
+						data.height = ~~(data.width / Supra.Input.Video.getVideoSizeRatio(data));
+					}
+				}
+				
 				this.widgets.input_video.set('value', data);
 			} else {
 				this.widgets.input_video.set('value', null);

@@ -2,6 +2,10 @@ YUI.add('supra.input-video', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	var REGEX_YOUTUBE  = /(http(s)?:)?\/\/(www\.)?(youtu\.be|youtube.[a-z]+)(\/embed\/|\/v\/|\/.*\&v=|\/.*\?v=|\/)([a-z0-9_\-]+)/i,
+		REGEX_VIMEO    = /(http(s)?:)?\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+		REGEX_FACEBOOK = /(http(s)?:)?\/\/(www\.)?(facebook.com)(\/.*video_id=)([a-z0-9_\-]+)/i;
+	
 	/**
 	 * Video input type
 	 * 
@@ -27,7 +31,18 @@ YUI.add('supra.input-video', function (Y) {
 	
 	Input.NAME = 'input-video';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
-	Input.ATTRS = {};
+	Input.ATTRS = {
+		'allowAlign': {
+			'value': false,
+			'setter': '_setAllowAlign'
+		},
+		'minWidth': {
+			value: 160
+		},
+		'maxWidth': {
+			value: 0
+		}
+	};
 	
 	Y.extend(Input, Supra.Input.Proto, {
 		
@@ -55,6 +70,59 @@ YUI.add('supra.input-video', function (Y) {
 			});
 			
 			source.render(this.get('contentBox'));
+			
+			// Align box
+			var align = this.widgets.align = new Supra.Input.SelectList({
+				"style": "minimal",
+				"type": "SelectList",
+				"label": Supra.Intl.get(["htmleditor", "video_alignment"]),
+				"value": "middle",
+				"values": [
+					{"id": "left", "title": Supra.Intl.get(["htmleditor", "alignment_left"]), "icon": "/cms/lib/supra/img/htmleditor/align-left-button.png"},
+					{"id": "middle", "title": Supra.Intl.get(["htmleditor", "alignment_center"]), "icon": "/cms/lib/supra/img/htmleditor/align-center-button.png"},
+					{"id": "right", "title": Supra.Intl.get(["htmleditor", "alignment_right"]), "icon": "/cms/lib/supra/img/htmleditor/align-right-button.png"}
+				]
+			});
+			
+			align.render(this.get('contentBox'));
+			
+			if (!this.get('allowAlign')) {
+				align.hide();
+			}
+			
+			// Size box
+			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-video-sizebox"></div>');
+			sizeBox.append('<p class="label">' + Supra.Intl.get(["inputs", "resize_video"]) + '</p>');
+			
+			// Width
+			var width = this.widgets.width = new Supra.Input.String({
+				'type': 'String',
+				'style': 'size',
+				'valueMask': /^[0-9]*$/,
+				'label': Supra.Intl.get(['inputs', 'resize_width']),
+				'value': 0
+			});
+			
+			width.render(sizeBox);
+			
+			// Size button
+			var btn = new Supra.Button({"label": "", "style": "small-gray"});
+				btn.render(sizeBox);
+				btn.set("disabled", true);
+				btn.addClass("su-button-ratio");
+				btn.addClass("su-button-locked");
+			
+			// Height
+			var height = this.widgets.height = new Supra.Input.String({
+				'type': 'String',
+				'style': 'size',
+				'valueMask': /^[0-9]*$/,
+				'label': Supra.Intl.get(['inputs', 'resize_height']),
+				'value': 0
+			});
+			
+			height.render(sizeBox);
+			this.get('contentBox').append(sizeBox);
 		},
 		
 		bindUI: function () {
@@ -63,8 +131,11 @@ YUI.add('supra.input-video', function (Y) {
 			//Handle value attribute change
 			this.on('valueChange', this._afterValueChange, this);
 			
-			//On source change update this widget too
-			this.widgets.source.on('change', this._onWidgetsChange, this);
+			//On inputs change update this widget too
+			this.widgets.source.after('valueChange', this._onWidgetsChange, this, 'source');
+			this.widgets.width.after('valueChange', this._onWidgetsChange, this, 'width');
+			this.widgets.height.after('valueChange', this._onWidgetsChange, this, 'height');
+			this.widgets.align.after('valueChange', this._onWidgetsChange, this, 'align');
 		},
 		
 		/**
@@ -75,7 +146,7 @@ YUI.add('supra.input-video', function (Y) {
 		 */
 		normalizeData: function (data) {
 			if (!data || !data.resource) {
-				data = {'resource': 'source', 'source': ''};
+				data = {'resource': 'source', 'source': '', 'width': 0, 'height': 0};
 			} else if (data.resource == 'link'){
 				data = Supra.mix({}, data);
 				data.resource = 'source';
@@ -93,6 +164,24 @@ YUI.add('supra.input-video', function (Y) {
 				delete(data.service);
 			}
 			
+			if (this.get('allowAlign')) {
+				if (data.align != 'left' && data.align != 'right' && data.align != 'middle') {
+					data.align = 'middle';
+				}
+			}
+			
+			var ratio    = Input.getVideoSizeRatio(data),
+				minWidth = this.get('minWidth'),
+				maxWidth = this.get('maxWidth');
+			
+			if (data.width < minWidth) {
+				data.width = minWidth;
+				data.height = ~~(minWidth / ratio);
+			} else if (maxWidth && data.width > maxWidth) {
+				data.width = maxWidth;
+				data.height = ~~(maxWidth / ratio);
+			}
+			
 			return data;
 		},
 		
@@ -104,8 +193,14 @@ YUI.add('supra.input-video', function (Y) {
 		 * @private
 		 */
 		_setValue: function (data) {
-			var value = '',
-				input = this.widgets ? this.widgets.source : null; // May not be rendered yet
+			this._setValueTrigger = true;
+			
+			var value  = '',
+				// May not be rendered yet
+				input  = this.widgets ? this.widgets.source : null,
+				width  = this.widgets ? this.widgets.width : null,
+				height = this.widgets ? this.widgets.height : null,
+				align  = this.widgets ? this.widgets.align : null;
 			
 			data = this.normalizeData(data);
 			value = data.source || '';
@@ -113,7 +208,17 @@ YUI.add('supra.input-video', function (Y) {
 			if (input && input.get('value') !== value) {
 				input.set('value', value);
 			}
+			if (width && width.get('value') !== data.width) {
+				width.set('value', data.width);
+			}
+			if (height && height.get('value') !== data.height) {
+				height.set('value', data.height);
+			}
+			if (align && align.get('value') !== data.align) {
+				align.set('value', data.align);
+			}
 			
+			this._setValueTrigger = false;
 			return data;
 		},
 		
@@ -125,12 +230,24 @@ YUI.add('supra.input-video', function (Y) {
 		 * @private
 		 */
 		_getValue: function (data) {
-			var input = this.widgets ? this.widgets.source : null; // May not be rendered yet
+			var source = this.widgets ? this.widgets.source : null,
+				width  = this.widgets ? this.widgets.width : null,
+				height = this.widgets ? this.widgets.height : null,
+				align  = this.widgets ? this.widgets.align : null,
+				value  = null; // May not be rendered yet
 			
-			return {
+			value = {
 				'resource': data && data.resource ? data.resource : 'source',
-				'source': input ? input.get('value') : data.source || ''
+				'source': source ? source.get('value') : data.source || '',
+				'width': parseInt(width ? width.get('value') : data.width, 10) || data.width || 0,
+				'height': parseInt(height ? height.get('value') : data.height, 10) || data.height || 0
 			};
+			
+			if (align && this.get('allowAlign')) {
+				value.align = this.widgets.align.get('value');
+			}
+			
+			return value;
 		},
 		
 		/**
@@ -161,18 +278,118 @@ YUI.add('supra.input-video', function (Y) {
 		},
 		
 		/**
+		 * Align property attribute setter
+		 * 
+		 * @param {Boolean} allow Allow align property setting
+		 * @returns {Boolean} New attribute value
+		 * @private
+		 */
+		_setAllowAlign: function (allow) {
+			allow = !!allow;
+			
+			if (this.widgets && this.widgets.align) {
+				if (allow) {
+					this.widgets.align.show();
+				} else {
+					this.widgets.align.hide();
+				}
+			}
+			
+			return allow;
+		},
+		
+		/**
 		 * When widgets value changes update value for self
 		 * 
 		 * @param {Object} evt Event facade object
 		 * @private
 		 */
-		_onWidgetsChange: function (evt) {
-			if (evt.prevVal != evt.newVal) {
-				this.set('value', this.get('value'));
+		_onWidgetsChange: function (evt, name) {
+			if (this._setValueTrigger) return;
+			
+			if (name !== 'align') {
+				this._setValueTrigger = true;
+				
+				var source = this.widgets.source.get('value'),
+					match  = null,
+					width  = 0,
+					height = 0,
+					
+					ratio  = Input.getVideoSizeRatio({
+						'resource': 'source',
+						'source': source
+					});
+				
+				if (name == 'height') {
+					height = parseInt(this.widgets.height.get('value'), 10) || 0;
+					width = ~~(height * ratio);
+					this.widgets.width.set('value', width);
+				} else {
+					width = parseInt(this.widgets.width.get('value'), 10) || 0;
+					height = ~~(width / ratio);
+					this.widgets.height.set('value', height);
+				}
+				
+				if (name == 'source') {
+					match = source.match(/width="?([\d]+)/);
+					if (match) {
+						width = parseInt(match[1], 10) || width;
+						height = ~~(width / ratio); // we use original service ratio
+						
+						this.widgets.width.set('value', width);
+						this.widgets.height.set('value', height);
+					}
+				}
+				
+				this._setValueTrigger = false;
 			}
+			
+			this.set('value', this.get('value'));
 		}
 		
 	});
+	
+	/**
+	 * Returns video width / height ratio
+	 * 
+	 * @param {Object} data Video data
+	 * @returns {Number} Size ratio
+	 */
+	Input.getVideoSizeRatio = function (data) {
+		var service = null,
+			match = null,
+			
+			// http://youtu.be/...
+			// http://www.youtube.com/v/...
+			// http://www.youtube.com/...?v=...
+			regex_youtube = REGEX_YOUTUBE,
+			// http://vimeo.com/...
+			regex_vimeo = REGEX_VIMEO,
+			
+			ratio_youtube = 16/9,
+			ratio_vimeo   = 7/3;
+		
+		if (data) {
+			if (data.resource == "link") {
+				service = data.service;
+			} else if (data.resource == "source") {
+				if (match = data.source.match(regex_youtube)) {
+					service = 'youtube';
+				} else if (match = data.source.match(regex_vimeo)) {
+					service = 'vimeo';
+				}
+			}
+		}
+		
+		if (service == 'youtube') {
+			return ratio_youtube;
+		} else if (service == 'vimeo') {
+			return ratio_vimeo;
+		} else {
+			// Default
+			return ratio_youtube;
+		}
+	};
 	
 	/**
 	 * Extract image url from video data
@@ -188,9 +405,9 @@ YUI.add('supra.input-video', function (Y) {
 			// http://youtu.be/...
 			// http://www.youtube.com/v/...
 			// http://www.youtube.com/...?v=...
-			regex_youtube = /http(s)?:\/\/(www\.)?(youtu\.be|youtube.[a-z]+)(\/embed\/|\/v\/|\/.*\&v=|\/.*\?v=|\/)([a-z0-9_\-]+)/i,
+			regex_youtube = REGEX_YOUTUBE,
 			// http://vimeo.com/...
-			regex_vimeo = /http(s)?:\/\/(www\.)?(vimeo.com)(\/)([a-z0-9_\-]+)/i,
+			regex_vimeo = REGEX_VIMEO,
 			
 			deferred = new Supra.Deferred();
 		
@@ -201,10 +418,10 @@ YUI.add('supra.input-video', function (Y) {
 			} else if (data.resource == "source") {
 				if (match = data.source.match(regex_youtube)) {
 					service = 'youtube';
-					video_id = match[5];
+					video_id = match[6];
 				} else if (match = data.source.match(regex_vimeo)) {
 					service = 'vimeo';
-					video_id = match[5];
+					video_id = match[6];
 				}
 			}
 		}

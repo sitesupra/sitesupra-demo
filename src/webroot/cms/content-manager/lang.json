@@ -45,6 +45,7 @@
 				"delete_video": "Remove video"
 			},
 			
+			"resize_video": "Video size",
 			"resize_frame_size": "Image frame size",
 			"resize_button_title": "Maintain aspect ratio",
 			"resize_width": "W",
@@ -219,6 +220,7 @@
 			"image_size": "Image size",
 			"size_custom": "Custom",
 			"size_original": "Original",
+			"video_alignment": "Align",
 			"image_title": "Image title",
 			"image_description": "Alt text",
 			"image_alignment": "Align",
@@ -227,7 +229,7 @@
 			"image_replace": "Replace image",
 			"image_delete": "Delete image",
 			"alignment_left": "Align left",
-			"alignment_center": "Align inline",
+			"alignment_center": "Align middle",
 			"alignment_right": "Align right",
 			"image_style": "Style",
 			"image_style_none": "No style",

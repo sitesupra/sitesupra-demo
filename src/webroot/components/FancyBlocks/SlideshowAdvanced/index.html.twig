@@ -58,10 +58,10 @@
 			{% set video = mediaData %}
 	
 			{# Default width and height, resizing is done by javascript #}
-			{% set width = 500 %}
+			{% set width = video.width|default(580) %}
 			{% set ratio = 16/9 %}
-			{% set height = width/ratio %}
-	
+			{% set height = video.height|default(width/ratio) %}
+			
 			{% if video.resource == 'source' %}
 				{# HTML #}
 				<div class="video" data-attach="$.fn.resize">
