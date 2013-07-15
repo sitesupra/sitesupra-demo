@@ -173,20 +173,35 @@ YUI.add('supra.page-content-editable', function (Y) {
 					Manager.EditorToolbar.execute();
 				}
 				
-				var first_id = false;
-				for(var id in this.inline_inputs) {
-					//Will enable only first editor
-					if (!first_id) {
+				var first_id = false,
+					first_html_id = false,
+					inline_inputs = this.inline_inputs;
+				
+				for(var id in inline_inputs) {
+					// Will enable only first editor
+					// but preffer InlineHTML over other inline inputs
+					
+					if (!first_html_id && inline_inputs[id] instanceof Supra.Input.InlineHTML) {
+						first_html_id = id;
+						
+						if (!first_id) {
+							first_id = id;
+						}
+					} else if (!first_id) {
 						first_id = id;
 					} else {
 						//Disable all editors, except first
-						this.inline_inputs[id].set('disabled', true);
+						inline_inputs[id].set('disabled', true);
 					}
 				}
 				
-				if (first_id) {
+				if (first_html_id || first_id) {
+					if (first_html_id && first_id && first_html_id != first_id) {
+						inline_inputs[first_id].set('disabled', true);
+					}
+					
 					//Set first editor as active
-					this.set('active_inline_property', first_id);
+					this.set('active_inline_property', first_html_id || first_id);
 				}
 			}
 			
