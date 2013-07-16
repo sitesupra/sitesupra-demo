@@ -313,7 +313,7 @@ YUI.add('gallery.view-uploader', function (Y) {
 				old_id   = this.ids[e.old_id],
 				
 				title_prop = this.get('host').get('host').settings.getProperty('title'),
-				title      = (image.filename || '').replace(/.[^.]*$/, '').replace(/[_-]+/, ' '),
+				title      = (image.filename || '').replace(/.[^.]*$/, '').replace(/[_-]+/g, ' '),
 				
 				active   = false;
 			
