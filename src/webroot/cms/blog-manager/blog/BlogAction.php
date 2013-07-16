@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Blog\BlogApplication;
 use Supra\Controller\Pages\Finder;
 use Supra\Cms\Exception\CmsException;
+use Supra\Controller\Pages\Event\AuditEvents;
 
 class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 {
@@ -128,12 +129,12 @@ class BlogAction extends \Supra\Cms\ContentManager\PageManagerAction
 		$parent = $this->getPageByRequestKey('parent_id');
 
 		$this->checkActionPermission($parent, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-
-//		$eventManager = $this->entityManager->getEventManager();
-//		$eventManager->dispatchEvent(AuditEvents::pagePreCreateEvent);
 		
 		$localeId = $this->getLocale()->getId();
 		
+		$eventManager = $this->entityManager->getEventManager();
+		$eventManager->dispatchEvent(AuditEvents::pagePreCreateEvent);
+        
 		$page = new Entity\Page();
 		$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
 		
