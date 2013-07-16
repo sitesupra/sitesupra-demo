@@ -68,7 +68,7 @@ YUI.add('gallery.data', function (Y) {
 		 * @param {Object} data Slide data
 		 * @returns {String} Slide id
 		 */
-		addSlide: function (slide) {
+		addSlide: function (slide, silent) {
 			var data = this._data,
 				length = data.length,
 				id = slide.id;
@@ -78,7 +78,7 @@ YUI.add('gallery.data', function (Y) {
 			}
 			
 			data.push(slide);
-			this.fire('add', {'data': slide});
+			this.fire('add', {'data': slide, 'silent': silent});
 			
 			return id;
 		},

@@ -286,6 +286,8 @@ Supra([
 				this.set('layoutDisabled', true);
 				this.set('visible', true);
 				this.animateIn();
+				
+				Supra.Manager.PageHeader.back_button.hide();
 			}
 		},
 		
@@ -299,6 +301,8 @@ Supra([
 				}
 				
 				this.animateOut();
+				
+				Supra.Manager.PageHeader.back_button.show();
 			}
 		},
 		

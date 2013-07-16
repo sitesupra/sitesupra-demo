@@ -867,6 +867,7 @@ YUI().add('supra.imageresizer', function (Y) {
 		 * @private
 		 */
 		sizeChangeImage: function (sizeX, sizeY, input_type) {
+			if (!this.get('imageContainerNode')) return;
 			this.sizeInputValuesChanging = true;
 			
 			var image = this.get('image'),

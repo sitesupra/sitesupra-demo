@@ -154,6 +154,13 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 		 */
 		editor_toolbar_visible: false,
 		
+		/**
+		 * Key listeners
+		 * @type {Array}
+		 * @private
+		 */
+		key_listeners: [],
+		
 		
 		/**
 		 * Initialize
@@ -412,6 +419,38 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			}
 		},
 		
+		
+		/* --------------------------- KEYS --------------------------- */
+		
+		
+		addKeyListeners: function () {
+			var listeners = this.key_listeners;
+			
+			listeners.push(
+				Y.one("doc").on("key", Y.bind(function (e) {
+					// Delete key
+					this.handleToolbarButton("mldelete");
+					e.preventDefault();
+				}, this), "down:46")
+			);
+		},
+		
+		removeKeyListeners: function () {
+			var listeners = this.key_listeners,
+				i = 0,
+				ii = listeners ? listeners.length : 0;
+				
+			for (; i<ii; i++) {
+				listeners[i].detach();
+			}
+			
+			this.key_listeners = [];
+		},
+		
+		
+		/* --------------------------- OPEN / CLOSE --------------------------- */
+		
+		
 		/**
 		 * Hide
 		 */
@@ -432,6 +471,8 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			//Disable upload (otherwise all media library instances
 			//will be affected by HTML5 drag and drop)
 			this.medialist.upload.set('disabled', true);
+			
+			this.removeKeyListeners();
 		},
 		
 		/**
@@ -458,6 +499,7 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			this.medialist.upload.set('disabled', false);
 			
 			this.show();
+			this.addKeyListeners();
 		}
 	});
 	

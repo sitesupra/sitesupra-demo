@@ -585,6 +585,7 @@ function (Y) {
 			if (!this.get('visible')) {
 				this.set('visible', true);
 				this.animateIn();
+				Supra.Manager.PageHeader.back_button.hide();
 			}
 		},
 		
@@ -596,6 +597,7 @@ function (Y) {
 				}
 				
 				this.animateOut();
+				Supra.Manager.PageHeader.back_button.show();
 			}
 		},
 		

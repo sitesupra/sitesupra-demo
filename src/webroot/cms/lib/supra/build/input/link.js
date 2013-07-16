@@ -3,7 +3,8 @@ YUI.add('supra.input-link', function (Y) {
 	"use strict";
 	
 	//Shortcuts
-	var Manager = Supra.Manager;
+	var Manager = Supra.Manager,
+		DEFAULT_LABEL_SET = '{#form.set_link#}';
 	
 	
 	function Input (config) {
@@ -15,7 +16,8 @@ YUI.add('supra.input-link', function (Y) {
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
 		'labelSet': {
-			'value': '{#form.set_link#}'
+			'value': DEFAULT_LABEL_SET,
+			'validator': Y.Lang.isString
 		},
 		'mode': {
 			'value': 'link'
@@ -144,6 +146,16 @@ YUI.add('supra.input-link', function (Y) {
 			if (evt.prevVal != evt.newVal) {
 				this.fire('change', {'value': evt.newVal});
 			}
+		},
+		
+		_setLabelSet: function (label) {
+			if (typeof label !== 'string') {
+				label = this.get('labelSet');
+			}
+			if (typeof label !== 'string') {
+				label = DEFAULT_LABEL_SET;
+			}
+			return label;
 		}
 		
 	});
