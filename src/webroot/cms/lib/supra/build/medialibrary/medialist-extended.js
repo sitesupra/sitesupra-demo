@@ -52,7 +52,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					{% endif %}\
 					<div>\
 						<span class="info-label">{{ "medialibrary.size"|intl }}</span>\
-						<span class="info-data">{{ Math.round(size/1000)|default("0") }} KB</span>\
+						<span class="info-data" data-update="size">{{ Math.round(size/1000)|default("0") }} KB</span>\
 					</div>\
 					{% if created %}\
 						<div>\
@@ -60,12 +60,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
 						</div>\
 					{% endif %}\\n\
-                    {% if modified and created != modified %}\
-						<div>\\n\
-                            <span class="info-label">{{ "medialibrary.modified"|intl }}</span>\
-							<span class="info-data">{{ modified|datetime_short|default("&nbsp;") }}</span>\
-						</div>\
-					{% endif %}\
+					<div {% if !modified or created == modified %}class="hidden"{% endif %}>\\n\
+                        <span class="info-label">{{ "medialibrary.modified"|intl }}</span>\
+						<span class="info-data" data-update="modified">{% if modified %}{{ modified|datetime_short|default("&nbsp;") }}{% endif %}</span>\
+					</div>\
 				</div>\
 				\
 				<div class="input-group"><button type="button" class="download">{{ "medialibrary.download"|intl }}</button></div>\
@@ -101,7 +99,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					{% endif %}\
 					<div>\
 						<span class="info-label">{{ "medialibrary.size"|intl }}</span>\
-						<span class="info-data">{{ Math.round(size/1000)|default("0") }} KB</span>\
+						<span class="info-data" data-update="size">{{ Math.round(size/1000)|default("0") }} KB</span>\
 					</div>\
 					{% if created %}\
 						<div>\
@@ -109,16 +107,14 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
 						</div>\
 					{% endif %}\\n\
-                    {% if modified and created != modified %}\
-						<div>\\n\
-                            <span class="info-label">{{ "medialibrary.modified"|intl }}</span>\
-							<span class="info-data">{{ modified|datetime_short|default("&nbsp;") }}</span>\
-						</div>\
-					{% endif %}\
+					<div {% if !modified or created == modified %}class="hidden"{% endif %}>\\n\
+                        <span class="info-label">{{ "medialibrary.modified"|intl }}</span>\
+						<span class="info-data" data-update="modified">{% if modified %}{{ modified|datetime_short|default("&nbsp;") }}{% endif %}</span>\
+					</div>\
 					{% if sizes %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.dimensions"|intl }}</span>\
-							<span class="info-data">{{ sizes.original.width }} x {{ sizes.original.height }}</span>\
+							<span class="info-data" data-update="dimensions">{{ sizes.original.width }} x {{ sizes.original.height }}</span>\
 						</div>\
 					{% endif %}\
 				</div>\
@@ -578,6 +574,8 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			var img_node = this.getImageNode(),
 				src = null;
 			
+			console.log('New image data:', data);
+			
 			// Reload image source in preview
 			if (img_node) {
 				var preview_size = this.get('previewSize');
@@ -626,6 +624,43 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				}
 				
 			}
+			
+			// Update image/file data
+			var slide_node = this.getSlideNode(),
+				text_node  = null,
+				size       = null,
+				modified   = null,
+				sizes      = null;
+			
+			if (slide_node) {
+				// Update size
+				text_node = slide_node.one('[data-update="size"]');
+				if (text_node) {
+					size = Math.round(data.size/1000) || '0';
+					text_node.set('innerHTML', size + ' KB');
+				}
+				
+				// Update modified time
+				text_node = slide_node.one('[data-update="modified"]');
+				if (text_node) {
+					modified = data.modified ? Y.DataType.Date.reformat(data.modified, 'in_datetime_short', 'out_datetime_short') : null;
+					
+					if (modified) {
+						text_node.set('innerHTML', modified);
+						text_node.ancestor().removeClass('hidden');
+					}
+				}
+				
+				// Update image size
+				text_node = slide_node.one('[data-update="dimensions"]');
+				if (text_node) {
+					sizes = data.sizes && data.sizes.original ? data.sizes.original.width + ' x ' + data.sizes.original.height : '';
+					if (sizes) {
+						text_node.set('innerHTML', sizes);
+					}
+				}
+			}
+			
 		},
 		
 		/**
@@ -668,6 +703,22 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				if (slide) {
 					return slide.one('div.preview img');
 				}
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns item slide node
+		 * 
+		 * @private
+		 */
+		getSlideNode: function () {
+			var item = this.getSelectedItem(),
+				slide = null;
+			
+			if (item) {
+				return this.slideshow.getSlide('slide_' + item.id);
 			}
 			
 			return null;
