@@ -351,7 +351,17 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				//Calling, because plugins could be using 'cleanHTML' event
 				html = htmleditor.cleanHTML(html);
 			} else if (mode == Supra.HTMLEditor.MODE_TEXT) {
-				// Remove tags
+				
+				if (html.indexOf('<') !== -1) {
+					// Replace all block level ending tags with new lines
+					var regex = new RegExp('(<br[^>]*>|<\\/(' + Supra.HTMLEditor.ELEMENTS_BLOCK_ARR.join('|') + ')[^>]*>)', 'ig');
+					 
+					// There are no new lines, 
+					html = html.replace(/\n/g, '');
+					html = html.replace(regex, '\n');
+				}
+				
+				// Remove all tags
 				html = html.replace(/<[^>]+>/g, '');
 				
 				// Remove whitespaces at the begining and at the end
