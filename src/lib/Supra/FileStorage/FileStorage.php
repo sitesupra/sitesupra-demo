@@ -23,7 +23,7 @@ class FileStorage
 	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
 	const MISSING_IMAGE_PATH = '/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/broken-image.png';
 	const FILE_INFO_EXTERNAL = 1;
-	const FILE_INFO_INTERNAL = 2;
+	const FILE_INFO_INTERNAL = 2;    
 
 	/**
 	 * File Storage internal path
@@ -1683,4 +1683,24 @@ class FileStorage
 	{
 		return new ImageProcessor\ImageRotator($this->getImageProcessorAdapter());
 	}
+    
+	/**
+	 * @return integer
+	 */
+    public function getTotalUploadedFilesSize()
+    {
+        $totalSize = 0;
+        
+        $em = $this->getDoctrineEntityManager();
+        $fileClass = Entity\File::CN();
+        $dql = 'SELECT SUM(f.fileSize) as total_size FROM ' . $fileClass . ' f';
+        $query = $em->createQuery($dql);
+        $result = $query->getResult();
+        
+        if (is_array($result)) {
+            $totalSize = $result[0]['total_size'];
+        }
+        
+        return $totalSize;
+    }
 }
