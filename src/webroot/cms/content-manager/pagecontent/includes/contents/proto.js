@@ -47,6 +47,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_MARKER_NAME = 'su-visual-cue-name',
 		
 		CLASSNAME_HIGHLIGHT = 'su-content-highlight',
+		CLASSNAME_HIGHLIGHT_NAME = 'su-content-highlight-name',
 		
 		CLASSNAME_EDITING = 'editing';												// editing
 	

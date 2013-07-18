@@ -526,6 +526,46 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					node.toggleClass('type-broken', item.broken);
 				}
 			}
+			
+			// Update image/file data
+			var slide_node = this.getSlideNode(),
+				text_node  = null,
+				text       = null;
+			
+			if (slide_node) {
+				if ('size' in changes) {
+					// Update size
+					text_node = slide_node.one('[data-update="size"]');
+					if (text_node) {
+						text = Math.round(item.size/1000) || '0';
+						text_node.set('innerHTML', text + ' KB');
+					}
+				}
+				
+				// Update image size
+				if ('sizes' in changes) {
+					text_node = slide_node.one('[data-update="dimensions"]');
+					if (text_node) {
+						text = item.sizes && item.sizes.original ? item.sizes.original.width + ' x ' + item.sizes.original.height : '';
+						if (text) {
+							text_node.set('innerHTML', text);
+						}
+					}
+				}
+				
+				// Update modified time if there is something else besides ID
+				if (Y.Object.size(changes) > 1) {
+					text_node = slide_node.one('[data-update="modified"]');
+					if (text_node) {
+						text = item.modified ? Y.DataType.Date.reformat(item.modified, 'in_datetime_short', 'out_datetime_short') : null;
+						
+						if (text) {
+							text_node.set('innerHTML', text);
+							text_node.ancestor().removeClass('hidden');
+						}
+					}
+				}
+			}
 		},
 		
 		renderUISortSwitch: function () {
