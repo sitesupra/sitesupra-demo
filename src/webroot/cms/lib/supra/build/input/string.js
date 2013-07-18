@@ -33,10 +33,19 @@ YUI.add('supra.input-string', function (Y) {
 		},
 		'blurOnReturn': {
 			value: false
+		},
+		'maxLength': {
+			value: 0,
+			setter: '_setMaxLength'
 		}
 	};
 	
 	Input.HTML_PARSER = {
+		'maxLength': function (srcNode) {
+			if (srcNode.hasAttribute('maxlength')) {
+				return parseInt(srcNode.getAttribute('maxlength'), 10) || 0;
+			}
+		},
 		'useReplacement': function (srcNode) {
 			var use_replacement = srcNode.hasClass('input-label-replacement');
 			this.set('useReplacement', use_replacement);
@@ -95,6 +104,12 @@ YUI.add('supra.input-string', function (Y) {
 			
 			input.on('focus', this._onFocus, this);
 			input.on('blur', this._onBlur, this);
+			
+			//Max length
+			var maxlength = this.get('maxLength');
+			if (maxlength) {
+				input.setAttribute('maxlength', maxlength);
+			}
 			
 			//Clicking on replacement node triggers focuses
 			var node = this.get('replacementNode');
@@ -357,6 +372,28 @@ YUI.add('supra.input-string', function (Y) {
 				mask = new RegExp(mask);
 			}
 			return mask;
+		},
+		
+		/**
+		 * Max length attribute setter
+		 * 
+		 * @param {Number|String} maxlength New maxlength value
+		 * @returns {Number} New attribute value
+		 * @private
+		 */
+		_setMaxLength: function (maxlength) {
+			maxlength = parseInt(maxlength, 10) || 0;
+			
+			var input = this.get('inputNode');
+			if (input) {
+				if (maxlength) {
+					input.setAttribute('maxlength', maxlength);
+				} else {
+					input.removeAttribute('maxlength');
+				}
+			}
+			
+			return maxlength;
 		},
 		
 		/**

@@ -337,7 +337,7 @@ YUI.add('gallery.view-uploader', function (Y) {
 				item[property.id] = image;
 			}
 			
-			if (title_prop && (title_prop.type == 'InlineString' || title_prop.type == 'String')) {
+			if (title_prop && (title_prop.type == 'InlineText' || title_prop.type == 'InlineString' || title_prop.type == 'String')) {
 				item.title = title;
 			}
 			

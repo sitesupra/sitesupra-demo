@@ -134,7 +134,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		cleanHTML: function (html) {
 			var mode = this.get('mode');
 			
-			if (mode == Supra.HTMLEditor.MODE_STRING) {
+			if (mode == Supra.HTMLEditor.MODE_STRING || mode == Supra.HTMLEditor.MODE_TEXT) {
 				//In string mode there is nothing to clean up
 			} else {
 				//IE creates STRONG, EM, U, STRIKE instead of SPAN
@@ -465,7 +465,26 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			}
 			
 			return (tagNames.length ? tagNames : ['SPAN']);
-		}
+		},
+		
+		/**
+		 * Returns content character count
+		 * 
+		 * @returns {Number} Character count
+		 */
+		getContentCharacterCount: function (node) {
+			var node = node || this.get('srcNode'),
+				text = '',
+				brs  = 0;
+			
+			if (!(node instanceof Y.Node)) node = Y.Node(node);
+			 
+			 brs = node.all('br').size();
+			 text = node.get('text').replace(/[\r\n]/g, '');
+			 
+			 // Each BR is one character
+			 return text.length + brs;
+		},
 	});
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

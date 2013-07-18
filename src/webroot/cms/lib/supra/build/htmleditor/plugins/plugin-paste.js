@@ -329,6 +329,9 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			this.placeHolder.parentNode.removeChild(this.placeHolder);
 			delete(this.placeHolder);
 			
+			//
+			this.htmleditor.fire('afterPaste');
+			
 			//Content was changed
 			this.htmleditor._changed();
 		},
@@ -347,7 +350,18 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				
 				//Calling, because plugins could be using 'cleanHTML' event
 				html = htmleditor.cleanHTML(html);
-			
+			} else if (mode == Supra.HTMLEditor.MODE_TEXT) {
+				// Remove tags
+				html = html.replace(/<[^>]+>/g, '');
+				
+				// Remove whitespaces at the begining and at the end
+				html = html.replace(/(^[\r\n\s]*|[\r\n\s]*$)/g, '');
+				
+				// Replace new lines with BRs
+				html = html.replace(/\n/g, '<br />');
+				
+				//Calling, because plugins could be using 'cleanHTML' event
+				html = htmleditor.cleanHTML(html);
 			} else {
 				
 				//If content was pasted from MS Word, remove all MS tags/styles/comments

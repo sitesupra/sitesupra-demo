@@ -159,6 +159,7 @@
 /cms/lib/supra/build/htmleditor/plugins/plugin-table-mobile.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-itemlist.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-insert.js
+/cms/lib/supra/build/htmleditor/plugins/plugin-maxlength.js
 /cms/lib/supra/build/manager/base.js
 /cms/lib/supra/build/manager/loader.js
 /cms/lib/supra/build/manager/loader-common-actions.js
@@ -180,6 +181,7 @@
 /cms/lib/supra/build/htmleditor/plugins/plugin-paste.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-paragraph.js
 /cms/lib/supra/build/htmleditor/plugins/plugin-paragraph-string.js
+/cms/lib/supra/build/htmleditor/plugins/plugin-paragraph-text.js
 /cms/lib/supra/build/input/select-list.js
 /cms/lib/supra/build/input/select-visual.js
 /cms/lib/supra/build/input/fonts.js
@@ -221,6 +223,7 @@
 /cms/lib/supra/build/input/html.js
 /cms/lib/supra/build/input/html-inline.js
 /cms/lib/supra/build/input/string-inline.js
+/cms/lib/supra/build/input/text-inline.js
 /cms/lib/supra/build/input/form.js
 /cms/lib/supra/build/header/appdock.js
 /cms/lib/supra/build/header/header.js

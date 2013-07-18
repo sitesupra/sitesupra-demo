@@ -23,7 +23,9 @@
 			
 			<div class="tabs-content clearfix active" name="tab_popular">
 				{% for tag in tags %}
-					<a class="tag {% if tag.name == currentTag %}active{% endif %}" href="{{ pathPrefix }}tag={{ tag.name | url_encode }}">{{ tag.name }}</a>
+					{% if tag.name %}
+						<a class="tag {% if tag.name == currentTag %}active{% endif %}" href="{{ pathPrefix }}tag={{ tag.name | url_encode }}">{{ tag.name }}</a>
+					{% endif %}
 				{% endfor %}
 			</div>
 			<div class="tabs-content clearfix" name="tab_all">

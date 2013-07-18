@@ -6,6 +6,14 @@ YUI().add('supra.htmleditor-base', function (Y) {
 		HTMLEditor.superclass.constructor.apply(this, arguments);
 	}
 	
+	HTMLEditor.MODE_STRING	= 1;
+	HTMLEditor.MODE_TEXT	= 4;
+	HTMLEditor.MODE_SIMPLE	= 2;
+	HTMLEditor.MODE_RICH	= 3;
+	
+	HTMLEditor.TYPE_STANDALONE = 1;
+	HTMLEditor.TYPE_INLINE = 2;
+	
 	HTMLEditor.NAME = 'editor';
 	HTMLEditor.CLASS_NAME = Y.ClassNameManager.getClassName(HTMLEditor.NAME);
 	HTMLEditor.ATTRS = {
@@ -33,10 +41,16 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			value: null
 		},
 		/**
+		 * Max content length in STRING or TEXT modes
+		 */
+		'maxLength': {
+			value: 0
+		},
+		/**
 		 * HTMLEditor mode: Supra.HTMLEditor.MODE_SIMPLE or Supra.HTMLEditor.MODE_RICH
 		 */
 		'mode': {
-			value: 3
+			value: HTMLEditor.MODE_RICH
 		},
 		/**
 		 * Plugin configuration
@@ -79,13 +93,6 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			value: false
 		}
 	};
-	
-	HTMLEditor.MODE_STRING	= 1;
-	HTMLEditor.MODE_SIMPLE	= 2;
-	HTMLEditor.MODE_RICH	= 3;
-	
-	HTMLEditor.TYPE_STANDALONE = 1;
-	HTMLEditor.TYPE_INLINE = 2;
 	
 	Y.extend(HTMLEditor, Y.Base, {
 		

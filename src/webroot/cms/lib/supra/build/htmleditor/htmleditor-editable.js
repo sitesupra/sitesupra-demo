@@ -151,6 +151,31 @@ YUI().add('supra.htmleditor-editable', function (Y) {
 		},
 		
 		/**
+		 * Returns true if key pressed will insert new character and will modify
+		 * content
+		 * 
+		 * @param {Number} charCode
+		 * @return If key will modify content by adding something
+		 * @type {Boolean}
+		 */
+		insertCharacterCharCode: function (charCode) {
+			//32 - Space, 8 - backspace, 13 - return, 46 - delete
+			if (charCode == 8 || charCode == 46) {
+				return false;
+			} else if (charCode == 32 || charCode == 13) {
+				return true;
+			}
+			
+			// before 40 are navigation keys
+			// 91	- Left windows
+			// 92	- Right windows
+			// 93	- Context
+			if (charCode <= 40 || charCode == 91 || charCode == 92 || charCode == 93) return false;
+			
+			return true;
+		},
+		
+		/**
 		 * Disable object resizing using handles
 		 */
 		disableObjectResizing: function () {

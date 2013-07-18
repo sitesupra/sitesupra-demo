@@ -29,12 +29,14 @@ body, html {
 }
 
 .yui3-input-html-inline-disabled,
-.yui3-input-string-inline-disabled {
+.yui3-input-string-inline-disabled,
+.yui3-input-text-inline-disabled {
 	&, * {
 		cursor: text !important;
 	} 
 }
-.yui3-input-string-inline-content {
+.yui3-input-string-inline-content,
+.yui3-input-text-inline-content {
 	display: inline-block !important;
 	min-width: 100%;
 }
@@ -239,6 +241,7 @@ body, html {
 	
 	// Input outline when item is focused
 	.yui3-input-string-inline-content,
+	.yui3-input-text-inline-content,
 	.yui3-input-html-inline-content,
 	.supra-image,
 	.supra-video {

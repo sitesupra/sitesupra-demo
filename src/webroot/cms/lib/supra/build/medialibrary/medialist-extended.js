@@ -574,8 +574,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			var img_node = this.getImageNode(),
 				src = null;
 			
-			console.log('New image data:', data);
-			
 			// Reload image source in preview
 			if (img_node) {
 				var preview_size = this.get('previewSize');

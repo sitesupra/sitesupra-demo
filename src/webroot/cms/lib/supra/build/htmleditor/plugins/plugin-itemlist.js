@@ -5,7 +5,7 @@ YUI().add('supra.htmleditor-plugin-itemlist', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
 	};
 	
 	//Shortcuts

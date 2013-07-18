@@ -879,10 +879,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph',
 			'supra.htmleditor-plugin-paragraph-string',
+			'supra.htmleditor-plugin-paragraph-text',
 			'supra.htmleditor-plugin-source',
 			'supra.htmleditor-plugin-fonts',
 			'supra.htmleditor-plugin-align',
-			'supra.htmleditor-plugin-insert'
+			'supra.htmleditor-plugin-insert',
+			'supra.htmleditor-plugin-maxlength'
 		],
 		skinnable: true
 	},
@@ -1000,6 +1002,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 			path: 'htmleditor/plugins/plugin-paragraph-string.js',
 			requires: ['supra.htmleditor-base']
 		},
+		'supra.htmleditor-plugin-paragraph-text': {
+			path: 'htmleditor/plugins/plugin-paragraph-text.js',
+			requires: ['supra.htmleditor-base']
+		},
 		'supra.htmleditor-plugin-source': {
 			path: 'htmleditor/plugins/plugin-source.js',
 			requires: ['supra.manager', 'supra.htmleditor-base']
@@ -1011,6 +1017,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		'supra.htmleditor-plugin-align': {
 			path: 'htmleditor/plugins/plugin-align.js',
 			requires: ['supra.manager', 'supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-maxlength': {
+			path: 'htmleditor/plugins/plugin-maxlength.js',
+			requires: ['supra.htmleditor-base']
 		},
 	
 	/**
@@ -1333,6 +1343,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-icon-inline',
 			'supra.input-inline-html',
 			'supra.input-inline-string',
+			'supra.input-inline-text',
 			'supra.input-video',
 			'supra.input-keywords',
 			'supra.input-set',
@@ -1365,6 +1376,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.input-inline-string': {
 		path: 'input/string-inline.js',
 		requires: ['supra.input-inline-html']
+	},
+	
+	//In-line text editor
+	'supra.input-inline-text': {
+		path: 'input/text-inline.js',
+		requires: ['supra.input-inline-string']
 	},
 	
 	/**
@@ -8715,10 +8732,19 @@ YUI().add("supra.io-css", function (Y) {
 		},
 		'blurOnReturn': {
 			value: false
+		},
+		'maxLength': {
+			value: 0,
+			setter: '_setMaxLength'
 		}
 	};
 	
 	Input.HTML_PARSER = {
+		'maxLength': function (srcNode) {
+			if (srcNode.hasAttribute('maxlength')) {
+				return parseInt(srcNode.getAttribute('maxlength'), 10) || 0;
+			}
+		},
 		'useReplacement': function (srcNode) {
 			var use_replacement = srcNode.hasClass('input-label-replacement');
 			this.set('useReplacement', use_replacement);
@@ -8777,6 +8803,12 @@ YUI().add("supra.io-css", function (Y) {
 			
 			input.on('focus', this._onFocus, this);
 			input.on('blur', this._onBlur, this);
+			
+			//Max length
+			var maxlength = this.get('maxLength');
+			if (maxlength) {
+				input.setAttribute('maxlength', maxlength);
+			}
 			
 			//Clicking on replacement node triggers focuses
 			var node = this.get('replacementNode');
@@ -9039,6 +9071,28 @@ YUI().add("supra.io-css", function (Y) {
 				mask = new RegExp(mask);
 			}
 			return mask;
+		},
+		
+		/**
+		 * Max length attribute setter
+		 * 
+		 * @param {Number|String} maxlength New maxlength value
+		 * @returns {Number} New attribute value
+		 * @private
+		 */
+		_setMaxLength: function (maxlength) {
+			maxlength = parseInt(maxlength, 10) || 0;
+			
+			var input = this.get('inputNode');
+			if (input) {
+				if (maxlength) {
+					input.setAttribute('maxlength', maxlength);
+				} else {
+					input.removeAttribute('maxlength');
+				}
+			}
+			
+			return maxlength;
 		},
 		
 		/**
@@ -10028,6 +10082,14 @@ YUI().add('supra.input-string-clear', function (Y) {
 		HTMLEditor.superclass.constructor.apply(this, arguments);
 	}
 	
+	HTMLEditor.MODE_STRING	= 1;
+	HTMLEditor.MODE_TEXT	= 4;
+	HTMLEditor.MODE_SIMPLE	= 2;
+	HTMLEditor.MODE_RICH	= 3;
+	
+	HTMLEditor.TYPE_STANDALONE = 1;
+	HTMLEditor.TYPE_INLINE = 2;
+	
 	HTMLEditor.NAME = 'editor';
 	HTMLEditor.CLASS_NAME = Y.ClassNameManager.getClassName(HTMLEditor.NAME);
 	HTMLEditor.ATTRS = {
@@ -10055,10 +10117,16 @@ YUI().add('supra.input-string-clear', function (Y) {
 			value: null
 		},
 		/**
+		 * Max content length in STRING or TEXT modes
+		 */
+		'maxLength': {
+			value: 0
+		},
+		/**
 		 * HTMLEditor mode: Supra.HTMLEditor.MODE_SIMPLE or Supra.HTMLEditor.MODE_RICH
 		 */
 		'mode': {
-			value: 3
+			value: HTMLEditor.MODE_RICH
 		},
 		/**
 		 * Plugin configuration
@@ -10101,13 +10169,6 @@ YUI().add('supra.input-string-clear', function (Y) {
 			value: false
 		}
 	};
-	
-	HTMLEditor.MODE_STRING	= 1;
-	HTMLEditor.MODE_SIMPLE	= 2;
-	HTMLEditor.MODE_RICH	= 3;
-	
-	HTMLEditor.TYPE_STANDALONE = 1;
-	HTMLEditor.TYPE_INLINE = 2;
 	
 	Y.extend(HTMLEditor, Y.Base, {
 		
@@ -10719,7 +10780,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		cleanHTML: function (html) {
 			var mode = this.get('mode');
 			
-			if (mode == Supra.HTMLEditor.MODE_STRING) {
+			if (mode == Supra.HTMLEditor.MODE_STRING || mode == Supra.HTMLEditor.MODE_TEXT) {
 				//In string mode there is nothing to clean up
 			} else {
 				//IE creates STRONG, EM, U, STRIKE instead of SPAN
@@ -11050,7 +11111,26 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			}
 			
 			return (tagNames.length ? tagNames : ['SPAN']);
-		}
+		},
+		
+		/**
+		 * Returns content character count
+		 * 
+		 * @returns {Number} Character count
+		 */
+		getContentCharacterCount: function (node) {
+			var node = node || this.get('srcNode'),
+				text = '',
+				brs  = 0;
+			
+			if (!(node instanceof Y.Node)) node = Y.Node(node);
+			 
+			 brs = node.all('br').size();
+			 text = node.get('text').replace(/[\r\n]/g, '');
+			 
+			 // Each BR is one character
+			 return text.length + brs;
+		},
 	});
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
@@ -12223,6 +12303,31 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		},
 		
 		/**
+		 * Returns true if key pressed will insert new character and will modify
+		 * content
+		 * 
+		 * @param {Number} charCode
+		 * @return If key will modify content by adding something
+		 * @type {Boolean}
+		 */
+		insertCharacterCharCode: function (charCode) {
+			//32 - Space, 8 - backspace, 13 - return, 46 - delete
+			if (charCode == 8 || charCode == 46) {
+				return false;
+			} else if (charCode == 32 || charCode == 13) {
+				return true;
+			}
+			
+			// before 40 are navigation keys
+			// 91	- Left windows
+			// 92	- Right windows
+			// 93	- Context
+			if (charCode <= 40 || charCode == 91 || charCode == 92 || charCode == 93) return false;
+			
+			return true;
+		},
+		
+		/**
 		 * Disable object resizing using handles
 		 */
 		disableObjectResizing: function () {
@@ -12465,7 +12570,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				// Configuration from html editor configuration
 				attrConfig    = this.get('plugins'),
 				// Default modes
-				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
+				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
 			
 			if (attrConfig) {
 				attrConfig = attrConfig[pluginId];
@@ -19901,7 +20006,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
 	};
 	
 	//Shortcuts
@@ -20527,7 +20632,114 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {"requires": ["supra.htmleditor-base"]});YUI.add('supra.manager-base', function (Y) {
+}, YUI.version, {"requires": ["supra.htmleditor-base"]});YUI().add('supra.htmleditor-plugin-maxlength', function (Y) {
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT]
+	};
+	
+	Supra.HTMLEditor.addPlugin('paragraph-maxlength', defaultConfiguration, {
+		
+		/**
+		 * Prevent keys if new content will be added and maxlength has been reached
+		 * 
+		 * @private
+		 */
+		_onKey: function (event) {
+			var keyCode = event.keyCode,
+				charCode = event.charCode || event.keyCode,
+				editor = this.htmleditor,
+				maxLength = editor.get('maxLength');
+			
+			if (maxLength && !event.stopped && !event.alyKey && !event.ctrlKey && !event.metaKey) {
+				if (editor.insertCharacterCharCode(charCode)) {
+              		if (editor.getContentCharacterCount() >= maxLength) {
+              			event.halt();
+              		}
+              	} 
+			}
+		},
+		
+		/**
+		 * Check content length after paste
+		 * and remove characters if content length exceeds maxLength 
+		 * 
+		 * @private 
+		 */
+		_afterPaste: function (event) {
+			var editor    = this.htmleditor,
+				maxlength = editor.get('maxLength'),
+				srcNode   = null,
+				nodes     = null,
+				count     = 0,
+				remove    = 0,
+				text      = '';
+			
+			if (maxlength) {
+				srcNode = editor.get('srcNode');
+				count = editor.getContentCharacterCount();
+				
+				if (count >= maxlength) {
+					remove = count - maxlength;
+					nodes = srcNode.get('childNodes').getDOMNodes();
+					
+					for (var i=nodes.length-1; i>=0; i--) {
+						if (nodes[i].nodeType == 1) {
+							// BR tag, remove it
+							nodes[i].parentNode.removeChild(nodes[i]);
+							remove--;
+						} else if (nodes[i].nodeType == 3) {
+							// Text node
+							text = nodes[i].textContent;
+							if (text.length) {
+								if (text.length > remove) {
+									// Truncate text
+									nodes[i].textContent = text.substr(0, text.length - remove);
+									remove = 0;
+								} else {
+									// Remove node
+									remove -= text.length;
+									nodes[i].parentNode.removeChild(nodes[i]);
+								}
+							}
+						}
+						
+						if (remove == 0) {
+							// We have removed needed amount of characters
+							return;
+						}
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			htmleditor.on('keyDown', this._onKey, this);
+			htmleditor.on('afterPaste', this._afterPaste, this);
+		},
+		
+		/**
+		 * Clean up after plugin
+		 * Called when editor instance is destroyed
+		 */
+		destroy: function () {}
+		
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI.add('supra.manager-base', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -25386,6 +25598,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.placeHolder.parentNode.removeChild(this.placeHolder);
 			delete(this.placeHolder);
 			
+			//
+			this.htmleditor.fire('afterPaste');
+			
 			//Content was changed
 			this.htmleditor._changed();
 		},
@@ -25404,7 +25619,18 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				
 				//Calling, because plugins could be using 'cleanHTML' event
 				html = htmleditor.cleanHTML(html);
-			
+			} else if (mode == Supra.HTMLEditor.MODE_TEXT) {
+				// Remove tags
+				html = html.replace(/<[^>]+>/g, '');
+				
+				// Remove whitespaces at the begining and at the end
+				html = html.replace(/(^[\r\n\s]*|[\r\n\s]*$)/g, '');
+				
+				// Replace new lines with BRs
+				html = html.replace(/\n/g, '<br />');
+				
+				//Calling, because plugins could be using 'cleanHTML' event
+				html = htmleditor.cleanHTML(html);
 			} else {
 				
 				//If content was pasted from MS Word, remove all MS tags/styles/comments
@@ -25877,6 +26103,55 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 */
 		init: function (htmleditor, configuration) {
 			htmleditor.get('srcNode').on('keydown', Y.bind(this._onReturnKey, this));
+		},
+		
+		/**
+		 * Clean up after plugin
+		 * Called when editor instance is destroyed
+		 */
+		destroy: function () {}
+		
+	});
+	
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {'requires': ['supra.htmleditor-base']});YUI().add('supra.htmleditor-plugin-paragraph-text', function (Y) {
+	
+	var defaultConfiguration = {
+		/* Modes which plugin supports */
+		modes: [Supra.HTMLEditor.MODE_TEXT]
+	};
+	
+	Supra.HTMLEditor.addPlugin('paragraph-text', defaultConfiguration, {
+		
+		/**
+		 * Prevent return key
+		 */
+		_onReturnKey: function (event) {
+			if (!event.stopped && event.keyCode == 13 && !event.alyKey && !event.ctrlKey) {
+				// Insert BR
+				var editor = this.htmleditor,
+					maxlength = editor.get('maxLength');
+				
+				if (!maxlength || maxlength > editor.getContentCharacterCount()) {
+					editor.get('doc').execCommand('insertlinebreak', null);
+				}
+                event.halt();
+			}
+		},
+		
+		/**
+		 * Initialize plugin for editor,
+		 * Called when editor instance is initialized
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 * @constructor
+		 */
+		init: function (htmleditor, configuration) {
+			htmleditor.on('keyDown', Y.bind(this._onReturnKey, this));
 		},
 		
 		/**
@@ -42999,13 +43274,18 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	Input.NAME = "input-string-inline";
 	Input.ATTRS = {
 		'doc': null,
-		'win': null
+		'win': null,
+		'maxLength': {
+			value: 0,
+			setter: '_setMaxLength'
+		}
 	};
 	
 	Input.HTML_PARSER = {};
 	
 	Y.extend(Input, Supra.Input.InlineHTML, {
-		/*CONTENT_TEMPLATE: null,*/
+		
+		EDITOR_MODE: Supra.HTMLEditor.MODE_STRING,
 		
 		renderUI: function () {
 			//We overwrite InlineHTML.renderUI and it shouldn't be called, that's why
@@ -43024,9 +43304,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					'win': win,
 					'srcNode': src,
 					'toolbar': this.get('toolbar'),
-					'mode': Supra.HTMLEditor.MODE_STRING,
+					'mode': this.EDITOR_MODE,
 					'parent': this,
-					'root': this.get('root') || this
+					'root': this.get('root') || this,
+					'maxLength': this.get('maxLength')
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -43064,6 +43345,16 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			}
 			
 			return value;
+		},
+		
+		_setMaxLength: function (maxlength) {
+			maxlength = parseInt(maxlength, 10) || 0;
+			
+			if (this.htmleditor) {
+				this.htmleditor.set('maxLength', maxlength);
+			}
+			
+			return maxlength;
 		},
 		
 		/**
@@ -43144,7 +43435,128 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:["supra.input-inline-html"]});YUI.add('supra.form', function (Y) {
+}, YUI.version, {requires:["supra.input-inline-html"]});YUI.add("supra.input-inline-text", function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	/**
+	 * Helper functions for escaping/unescaping strings
+	 */
+	var HTML_CHARS = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        ' ': '&nbsp;'
+    }
+	
+	var HTML_CHARS_INVERSE = {};
+	var HTML_CHARS_REGEXP = '';
+	
+	for (var i in HTML_CHARS) {
+		HTML_CHARS_INVERSE[HTML_CHARS[i].toLowerCase()] = i;
+		
+		if (i != ' ') {
+			// We escaping characters leave whitespace as is
+			HTML_CHARS_REGEXP += '\\' + i;
+		}
+	}
+	
+	HTML_CHARS_REGEXP = new RegExp('[' + HTML_CHARS_REGEXP + ']', 'g');
+	
+	/**
+	 * Escape HTML character for safe use in HTML
+	 * Used in 'value' attribute setter / when setting value
+	 */
+	function escapeHtml (chr) {
+		return HTML_CHARS[chr] || chr;
+	}
+	
+	/**
+	 * Unescape HTML character for string
+	 * Used in 'value' and 'saveValue' attribute getter / when getting value
+	 */
+	function unescapeHtml (ent) {
+		return HTML_CHARS_INVERSE[ent.toLowerCase()] || ent;
+	}
+	
+	
+	
+	/**
+	 * Inline text input widget
+	 */
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+		this.init.apply(this, arguments);
+	}
+	
+	// Input is inline
+	Input.IS_INLINE = true;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = false;
+	
+	Input.NAME = "input-text-inline";
+	
+	Y.extend(Input, Supra.Input.InlineString, {
+		
+		EDITOR_MODE: Supra.HTMLEditor.MODE_TEXT,
+		
+		_getValue: function (value) {
+			if (this.htmleditor) {
+				value = this.htmleditor.getHTML();
+				
+				value = value.replace(/\n/g, '');
+				value = value.replace(/<br\s*\/?>/ig, '\n');
+				value = value.replace(/<[^>]+>/g, '');
+				value = value.replace(/&.*?;/g, unescapeHtml);
+			}
+			
+			return value;
+		},
+		
+		_getSaveValue: function (value) {
+			if (this.htmleditor) {
+				value = this.htmleditor.getProcessedHTML();
+				
+				// Remove all tags
+				value = value.replace(/\n/g, '');
+				value = value.replace(/<\/?br\s*>/ig, '\n');
+				value = value.replace(/<[^>]+>/g, '');
+				// Unescape characters
+				value = value.replace(/&.*?;/g, unescapeHtml);
+			}
+			
+			return value;
+		},
+		
+		_setValue: function (value) {
+			value = value || '';
+			value = value.replace(HTML_CHARS_REGEXP, escapeHtml);
+			value = value.replace(/\n/g, '<br />');
+			if (this.htmleditor) {
+				this.htmleditor.setHTML(value);
+			}
+			
+			return value;
+		}
+		
+	});
+	
+	Input.lipsum = function () {
+		return Supra.Lipsum.sentence({'count': 4, 'variation': 1});
+	};
+	
+	Supra.Input.InlineText = Input;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:["supra.input-inline-string"]});YUI.add('supra.form', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
