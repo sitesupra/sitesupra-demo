@@ -36,6 +36,9 @@ class SitemaprecycleAction extends PageManagerAction
 
 	public function restoreAction()
 	{
+        $eventManager = $this->entityManager->getEventManager();
+        $eventManager->dispatchEvent(AuditEvents::pageLimitValidationEvent);
+        
 		$this->lock();
 
 		// Main

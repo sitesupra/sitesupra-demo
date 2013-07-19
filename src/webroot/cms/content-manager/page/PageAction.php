@@ -248,6 +248,9 @@ class PageAction extends PageManagerAction
 	 */
 	public function createAction()
 	{
+        $eventManager = $this->entityManager->getEventManager();
+        $eventManager->dispatchEvent(AuditEvents::pageLimitValidationEvent);
+        
 		$this->lock();
 
 		$this->isPostRequest();
@@ -259,7 +262,6 @@ class PageAction extends PageManagerAction
 
 		$this->checkActionPermission($parent, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 
-		$eventManager = $this->entityManager->getEventManager();
 		$eventManager->dispatchEvent(AuditEvents::pagePreCreateEvent);
 
 		$page = null;
@@ -547,7 +549,10 @@ class PageAction extends PageManagerAction
 	 */
 	public function duplicateAction()
 	{
-		$this->lock();
+        $eventManager = $this->entityManager->getEventManager();
+        $eventManager->dispatchEvent(AuditEvents::pageLimitValidationEvent);
+        
+        $this->lock();
 
 		$this->isPostRequest();
 		$localization = $this->getPageLocalization();
