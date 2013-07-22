@@ -59,6 +59,14 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		$users = $this->userProvider
 				->findAllUsers();
 		
+        $isHttps = false;
+        $request = $this->getRequest();
+        /* @var $request \Supra\Request\HttpRequest */
+        $httpsValue = $request->getServerValue('HTTPS');
+        if ($httpsValue && $httpsValue !== 'off') {
+            $isHttps = true;
+        }
+        
 		/* @var $user Entity\User */
 		foreach ($users as $user) {
 			
@@ -72,7 +80,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			$result[] = array(
 				'id' => $user->getId(),
 				//'avatar' => $this->getAvatarExternalPath($user, '48x48'),
-				'avatar' => $user->getGravatarUrl(),
+				'avatar' => $user->getGravatarUrl(48, $isHttps),
 				'name' => $user->getName(),
 				'group' => $this->groupToDummyId($user->getGroup())
 			);
