@@ -567,11 +567,19 @@ abstract class CmsAction extends SimpleController
 
 	public function getCurrentUserArray()
 	{
+        $isHttps = false;
+        $request = $this->getRequest();
+        /* @var $request \Supra\Request\HttpRequest */
+        $httpsValue = $request->getServerValue('HTTPS');
+        if ($httpsValue && $httpsValue !== 'off') {
+            $isHttps = true;
+        }
+        
 		$response = array(
 			'id' => $this->user->getId(),
 			'name' => $this->user->getName(),
 			'login' => $this->user->getLogin(),
-			'avatar' => $this->user->getGravatarUrl(32),
+			'avatar' => $this->user->getGravatarUrl(32, $isHttps),
 		);
 		
 		$provider = ObjectRepository::getUserProvider($this);
