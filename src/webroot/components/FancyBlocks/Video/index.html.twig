@@ -7,6 +7,10 @@
 {% set heading_class = 'no-heading' %}
 
 {% if video %}
+	
+	{% if video.align is not empty %}
+		{% set elementAlign = 'align-' ~ video.align %}
+	{% endif %}
 
 	{% set heading_class = 'no-heading' %}
 	{% set title_empty = supraBlock.isEmpty('block_title') %}
@@ -21,7 +25,7 @@
 
 	{% if video.resource == 'source' %}
 		{# HTML #}
-		<div class="block video {{ heading_class }}" data-attach="$.fn.resize">
+		<div class="block video {{ heading_class }} {% if elementAlign %}{{ elementAlign }}{% endif %}" data-attach="$.fn.resize">
 			{% if video.source_type == 'iframe' %}
 				<iframe src="{{ video.src }}" width="{{ video.width }}" height="{{ video.height }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 			{% elseif video.source_type == 'embed' %}
@@ -36,13 +40,13 @@
 	{% elseif video.resource == 'link' and video.id %}
 
 		{% if video.service == 'youtube' %}
-			<div class="block video {{ heading_class }}" data-attach="$.fn.resize">
-				<iframe src="http://www.youtube.com/embed/{{ video.id }}?hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+			<div class="block video {{ heading_class }} {% if elementAlign %}{{ elementAlign }}{% endif %}" data-attach="$.fn.resize">
+				<iframe src="//www.youtube.com/embed/{{ video.id }}?hd=1&wmode=opaque&controls=1&showinfo=0;rel=0" width="{{ video.width }}" height="{{ video.height }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 			</div>
 		{% elseif video.service == 'vimeo' %}
-			<div class="block video {{ heading_class }}" data-attach="$.fn.resize">
+			<div class="block video {{ heading_class }} {% if elementAlign %}{{ elementAlign }}{% endif %}" data-attach="$.fn.resize">
 				{% set player_id = random() %}
-				<iframe src="http://player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&api=1&player_id=player{{ player_id }}" id="player{{ player_id }}" width="{{ width }}" height="{{ height|number_format }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				<iframe src="//player.vimeo.com/video/{{ video.id }}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&api=1&player_id=player{{ player_id }}" id="player{{ player_id }}" width="{{ video.width }}" height="{{ video.height }}" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 			</div>
 		{% endif %}
 

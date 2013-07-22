@@ -366,7 +366,7 @@ class EntityAuditListener implements EventSubscriber
 			
 			$rootClass = $this->auditEm->getClassMetadata($class->rootEntityName);
 			$rootClass->discriminatorValue = $class->discriminatorValue;
-			$this->saveRevisionEntityData($rootClass, $entityData, $revisionType);
+			$this->saveRevisionEntityData($rootClass, $entityData, $revisionType, $entity);
 		}
 
 		foreach ($classFields as $columnName => $field) {
