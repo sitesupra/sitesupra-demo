@@ -652,41 +652,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		},
 		
 		/**
-		 * Returns image preview node
-		 * 
-		 * @private
-		 */
-		getImageNode: function () {
-			var item = this.getSelectedItem(),
-				slide = null;
-			
-			if (item) {
-				slide = this.slideshow.getSlide('slide_' + item.id);
-				if (slide) {
-					return slide.one('div.preview img');
-				}
-			}
-			
-			return null;
-		},
-		
-		/**
-		 * Returns item slide node
-		 * 
-		 * @private
-		 */
-		getSlideNode: function () {
-			var item = this.getSelectedItem(),
-				slide = null;
-			
-			if (item) {
-				return this.slideshow.getSlide('slide_' + item.id);
-			}
-			
-			return null;
-		},
-		
-		/**
 		 * When image or file is rendered create inputs, etc.
 		 * 
 		 * @param {Object} event Event

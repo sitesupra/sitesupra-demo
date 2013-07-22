@@ -863,6 +863,22 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		},
 		
 		/**
+		 * Returns item slide node
+		 * 
+		 * @private
+		 */
+		getSlideNode: function () {
+			var item = this.getSelectedItem(),
+				slide = null;
+			
+			if (item) {
+				return this.slideshow.getSlide('slide_' + item.id);
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Set selected item
 		 * Chainable
 		 * 

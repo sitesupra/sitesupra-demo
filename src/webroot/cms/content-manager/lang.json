@@ -429,7 +429,7 @@
 		
 		"insertblock": {
 			"title": "Insert block",
-			"button": "Insert",
+			"button": "Insert block",
 			"no_description": "No description",
 			"drag_n_drop": "Drag-and-drop",
 			"drop_to_insert": "Drop to insert {block} here"

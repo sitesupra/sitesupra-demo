@@ -7,8 +7,8 @@ YUI.add('supra.input-map-inline', function (Y) {
 	
 	//Default value
 	var DEFAULT_VALUE = {
-		'latitude': 0,
-		'longitude': 0,
+		'latitude': 56.95,
+		'longitude': 24.1,
 		'zoom': 14
 	};
 	
@@ -310,6 +310,11 @@ YUI.add('supra.input-map-inline', function (Y) {
 				global = this.get('win');
 			
 			value = Supra.mix({}, DEFAULT_VALUE, this.get('defaultValue'), value);
+			
+			// Validate values
+			value.zoom = parseInt(value.zoom, 10) || DEFAULT_VALUE.zoom;
+			value.latitude = parseFloat(value.latitude) || 0;
+			value.longitude = parseFloat(value.longitude) || 0; 
 			
 			if (map && marker) {
 				latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
