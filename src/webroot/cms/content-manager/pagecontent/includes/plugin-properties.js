@@ -296,10 +296,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 				is_inline = false,
 				is_contained = false;
 			
+			//Create default group
+			default_group_node = this.createGroup('default', form_config);
+			
 			//Find inline properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
 				is_inline = Supra.Input.isInline(properties[i].type);
 				is_contained = Supra.Input.isContained(properties[i].type);
+				
+				// Save index for sorting
+				properties[i]._sort_order = i+1;
 				
 				if (is_inline) {
 					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
@@ -310,13 +316,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 							host_properties.srcNode = host_properties.targetNode;
 							host_properties.contentBox = host_properties.targetNode;
 							host_properties.boundingBox = host_properties.targetNode;
+							host_properties.containerNode = null;
 							
 							// If it's contained then don't consider as inline
 							this._has_inline_properties = true;
 						} else {
+							// Find a group node for contained+inline input
+							group = properties[i].group || 'default';
+							group_node = group_nodes[group];
+							
+							if (!group_node) {
+								group_node = this.createGroup(group, form_config, i+1);
+							}
+							
 							host_properties.srcNode = null;
 							host_properties.contentBox = null;
 							host_properties.boundingBox = null;
+							host_properties.containerNode = group_node;
 						}
 						
 						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
@@ -330,9 +346,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 			}
 			
-			//Create default group
-			default_group_node = this.createGroup('default', form_config);
-			
 			//Process non-inline properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
 				is_inline = Supra.Input.isInline(properties[i].type);
@@ -345,7 +358,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					
 					if (!group_node) {
 						//createGroup adds node to the group_nodes
-						group_node = this.createGroup(group, form_config);
+						group_node = this.createGroup(group, form_config, i+1);
 					}
 					
 					// Filter layout properties
@@ -357,12 +370,27 @@ YUI.add('supra.page-content-properties', function (Y) {
 					properties[i].containerNode = group_nodes[group];
 					form_config.inputs.push(properties[i]);
 				} else if (properties[i].group) {
-					//Create groups
+					//Create a group node if needed
+					group = properties[i].group || 'default';
+					
 					if (!group_nodes[properties[i].group]) {
-						this.createGroup(properties[i].group, form_config);
+						//createGroup adds node to the group_nodes
+						this.createGroup(group, form_config, i+1);
 					}
 				}
 			}
+			
+			// Sort all inputs and group buttons to keep order as it was in configuration
+			form_config.inputs.sort(function (a, b) {
+				if (!a._sort_order || !b._sort_order || a._sort_order == b._sort_order) {
+					return 0;
+				}
+				if (a._sort_order > b._sort_order) {
+					return 1;
+				} else {
+					return -1;
+				}
+			});
 			
 			//On slideshow slide change update "Back" button
 			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
@@ -1077,8 +1105,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * 
 		 * @param {Object} definition Group definition
 		 * @param {Object} form_config Form configuration to which add button to
+		 * @param {Number} sort_order Sort order comparing to other inputs
 		 */
-		createGroup: function (definition, form_config) {
+		createGroup: function (definition, form_config, sort_order) {
 			//Backward compatibility
 			if (typeof definition === 'string') {
 				var groups = this.get('property_groups'),
@@ -1148,7 +1177,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 							'slideshow': slideshow,
 							'slideId': slide_id,
 							'containerNode': this.getGroupContentNode('default'),
-							'icon': definition.icon
+							'icon': definition.icon,
+							'_sort_order': sort_order
 						});
 					}
 					

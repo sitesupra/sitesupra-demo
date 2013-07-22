@@ -50,7 +50,7 @@
 
 // Size
 .su-imageresizer-sizebox,
-.su-video-sizebox {
+.su-sizebox {
 	padding: 0 0 10px 24px;
 	
 	p.label {
@@ -93,8 +93,12 @@
 	}
 }
 
-.su-video-sizebox {
+.su-sizebox {
 	padding: 20px 0 0;
+	
+	&:first-child {
+		padding-top: 0;
+	}
 	
 	p.label {
 		text-align: left;

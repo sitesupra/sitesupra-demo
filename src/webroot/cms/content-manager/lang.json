@@ -45,6 +45,7 @@
 				"delete_video": "Remove video"
 			},
 			
+			"resize_map": "Google map size",
 			"resize_video": "Video size",
 			"resize_frame_size": "Image frame size",
 			"resize_button_title": "Maintain aspect ratio",

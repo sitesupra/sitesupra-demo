@@ -68,6 +68,8 @@ YUI.add('supra.input-string', function (Y) {
 		 */
 		KEY_RETURN: 13,
 		KEY_ESCAPE: 27,
+		KEY_UP: 38,
+		KEY_DOWN: 40,
 		
 		/**
 		 * If keys are allowed, overwriten when String class
@@ -195,13 +197,29 @@ YUI.add('supra.input-string', function (Y) {
 		 * @private
 		 */
 		_onKeyDown: function (e) {
-			var keyCode = e._event.keyCode || e._event.which || e._event.charCode,
-				input = this.get('inputNode');
+			var keyCode   = e._event.keyCode || e._event.which || e._event.charCode,
+				input     = this.get('inputNode'),
+				inputNode = input.getDOMNode(),
+				value     = inputNode.value,
+				isNumber  = (value == parseInt(value)),
+				mask      = this.get('valueMask');
 			
 			if (keyCode == this.KEY_RETURN && this.KEY_RETURN_ALLOW) {
 				if (this.get('replacementNode') || this.get('blurOnReturn')) {
 					//If using replacement node then show it
 					input.blur();
+				}
+			} else if ((keyCode == this.KEY_UP || keyCode == this.KEY_DOWN) && isNumber) {
+				//On up or down arrow press if content is a number, then add or subtract 1
+				//if shift/meta key is pressed then add or subtract 10
+				value = parseInt(value) + (keyCode == this.KEY_UP ? 1 : -1) * (e.shiftKey || e.metaKey ? 10 : 1);
+				if (mask && !mask.test(String(value))) return;
+				
+				//Trigger input event
+				if (this._last_value != value) {
+					inputNode.value = value;
+					this._last_value = value;
+					this.fire('input', {'value': value});
 				}
 			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
 				input.set('value', this._original_value);

@@ -19,12 +19,12 @@
           label: Title
           default: Google Map
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
-          name: map
-          editable: Supra\Editable\InlineMap
-          label: Google Map
-      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: marker_text
           editable: Supra\Editable\Textarea
           label: Tooltip text
           description: Address or description which will be shown in tooltip
           default: Volutpat nunc aliquet amet duis duis ultrices egestas ac ipsum sit arcu ac sagittis consectetur id adipiscing eu
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: map
+          editable: Supra\Editable\InlineMap
+          label: Google Map

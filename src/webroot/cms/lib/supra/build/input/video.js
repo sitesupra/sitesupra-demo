@@ -91,7 +91,7 @@ YUI.add('supra.input-video', function (Y) {
 			}
 			
 			// Size box
-			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-video-sizebox"></div>');
+			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-sizebox"></div>');
 			sizeBox.append('<p class="label">' + Supra.Intl.get(["inputs", "resize_video"]) + '</p>');
 			
 			// Width
