@@ -842,6 +842,19 @@ class PagecontentAction extends PageManagerAction
 
 						$property->addMetadata($metadataItem);
 					}
+					
+					if ($referencedElement instanceof Entity\ReferencedElement\VideoReferencedElement) {
+						
+						$videoElementData = $referencedElement->parseVideoSourceInput($referencedElementData['source']);
+						
+						if (empty($videoElementData)) {
+							throw new CmsException(null, "Failed to parse video element data");
+						}
+						
+						$videoElementData = $videoElementData + $referencedElementData;
+						
+						$referencedElement->fillArray($videoElementData);
+					}
 				}
 
 				// Delete removed metadata

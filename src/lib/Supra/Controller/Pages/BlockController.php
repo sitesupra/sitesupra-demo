@@ -368,7 +368,7 @@ abstract class BlockController extends ControllerAbstraction
 			if ($this->request instanceof PageRequestEdit) {	
 				
 				
-				$filter = new Filter\EditableHtml($context);
+				$filter = new Filter\EditableHtml();
 				$filter->property = $property;
 				$editable->addFilter($filter);
 				// View
