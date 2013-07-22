@@ -410,13 +410,13 @@ class User extends AbstractUser
 	/**
 	 * @return string
 	 */
-	public function getGravatarUrl($size = 48, $isHttps = false)
+	public function getGravatarUrl($size = 48, $protocol = 'http')
 	{
 		$defaultImageset = 'identicon'; // [ 404 | mm | identicon | monsterid | wavatar ]
 		//$size = 48; // Size in pixels
 		$maxAllowedDecencyRating = 'g'; // [ g | pg | r | x ]
         
-        $url = ($isHttps ? 'https' : 'http') . '://www.gravatar.com/avatar/';
+        $url = $protocol . '://www.gravatar.com/avatar/';
 		$url .= md5(strtolower(trim($this->getEmail())));
 		$url .= "?s=$size&d=$defaultImageset&r=$maxAllowedDecencyRating";
 
