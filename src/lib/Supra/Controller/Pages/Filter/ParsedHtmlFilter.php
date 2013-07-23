@@ -404,7 +404,7 @@ class ParsedHtmlFilter implements FilterInterface
 			
 			if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_IFRAME) {
 				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
-					<iframe src=\"{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+					<iframe src=\"//{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 					</div>";
 			}			
 			else if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_EMBED) {
@@ -416,9 +416,9 @@ class ParsedHtmlFilter implements FilterInterface
 				
 				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
 					<object width=\"{$width}\" height=\"{$height}\">
-					<param name=\"movie\" value=\"{$src}\"></param>
+					<param name=\"movie\" value=\"//{$src}\"></param>
 					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-					<embed {$wmodeParam} src=\"{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+					<embed {$wmodeParam} src=\"//{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
 				</object></div>";
 			}
 		}

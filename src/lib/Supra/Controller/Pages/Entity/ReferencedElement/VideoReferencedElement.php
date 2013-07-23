@@ -196,7 +196,7 @@ class VideoReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getExternalPath()
 	{
-		return $this->externalPath;
+		return str_replace(array('http://', 'https://'), '', $this->externalPath);
 	}
 
 	/**
@@ -406,10 +406,10 @@ class VideoReferencedElement extends ReferencedElementAbstract
 //			$width = (int) $node->getAttribute('width');
 //			$height = (int) $node->getAttribute('height');
 			$src = $node->getAttribute('src');
-			
+
 			// only known sources (youtube, vimeo, facebook) are allowed
 			$urlMatch = array();
-			if ( ! preg_match('/(?:https?:\/\/)?(?:(www|player)\.)?(?:youtu\.be\/|(youtube|vimeo|facebook)\.com)(.*)+/', $src, $urlMatch) || ! isset($urlMatch[0])) {
+			if ( ! preg_match('/(?:(www|player)\.)?(?:youtu\.be\/|(youtube|vimeo|facebook)\.com)(.*)+/', $src, $urlMatch) || ! isset($urlMatch[0])) {
 				return false;
 			}
 			

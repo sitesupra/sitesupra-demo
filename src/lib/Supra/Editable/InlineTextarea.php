@@ -5,9 +5,9 @@ namespace Supra\Editable;
 /**
  * String editable content
  */
-class InlineString extends EditableAbstraction
+class InlineTextarea extends EditableAbstraction
 {
-	const EDITOR_TYPE = 'InlineString';
+	const EDITOR_TYPE = 'InlineText';
 	const EDITOR_INLINE_EDITABLE = true;
 	
 	private $maxLength;
@@ -29,7 +29,7 @@ class InlineString extends EditableAbstraction
 	{
 		return static::EDITOR_INLINE_EDITABLE;
 	}
-		
+	
 	/*
 	 * @return integer
 	 */
