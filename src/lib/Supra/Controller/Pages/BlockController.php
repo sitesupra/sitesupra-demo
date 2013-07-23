@@ -408,6 +408,13 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
+		
+		else if ($editable instanceof Editable\InlineTextarea) {
+			$filter = new Filter\InlineTextareaFilter();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
+		}
 
 		else if ($editable instanceof Editable\Gallery) {
 			$filter = new Filter\GalleryFilter();
