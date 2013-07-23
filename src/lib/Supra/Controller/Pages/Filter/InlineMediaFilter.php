@@ -99,64 +99,66 @@ class InlineMediaFilter implements FilterInterface
 	 * @param \Supra\Controller\Pages\Entity\ReferencedElement\VideoReferencedElement $videoData
 	 * @return string
 	 */
-	protected function parseSupraVideo(VideoReferencedElement $element)
+	private function parseSupraVideo(VideoReferencedElement $element)
 	{
 		$html = null;
 		
 		$resource = $element->getResource();
-			
+		
+		$width = $element->getWidth();
+		$height = $element->getHeight();
+		
+		$align = $element->getAlign();
+		$alignCssClass = ! empty($align) ? "align-$align" : '';
+		
 		if ($resource == VideoReferencedElement::RESOURCE_LINK) {
 			
 			$service = $element->getExternalService();
-			$width = 560;
-			$height = 315;
 			
 			$videoId = $element->getExternalId();
 			
 			$wmodeParam = null;
-			if ($this->isEditRequest) {
+			if ($this->requestType == self::REQUEST_TYPE_EDIT) {
 				$wmodeParam = 'wmode="opaque"';
 			}
 			
 			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
-				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
+				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
 				<object width=\"{$width}\" height=\"{$height}\">
-					<param name=\"movie\" value=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\"></param>
+					<param name=\"movie\" value=\"//www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\"></param>
 					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
 					
-					<embed {$wmodeParam} src=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+					<embed {$wmodeParam} src=\"//www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
 				</object>
 			</div>";		
 			}
 			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
-				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
-				<iframe src=\"http://player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				$html = "<div class=\"video\ $alignCssClass\" data-attach=\"$.fn.resize\">
+				<iframe src=\"//player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 				</div>";
 			}
 		}
 		else if ($resource == VideoReferencedElement::RESOURCE_SOURCE) {
 			
-			$width = $element->getWidth();
-			$height = $element->getHeight();
 			$src = $element->getExternalPath();
 			
 			if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_IFRAME) {
-				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
-					<iframe src=\"{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
+					<iframe src=\"//{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 					</div>";
 			}			
 			else if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_EMBED) {
 				
 				$wmodeParam = null;
-				if ($this->isEditRequest) {
+				if ($this->requestType == self::REQUEST_TYPE_EDIT) {
 					$wmodeParam = 'wmode="opaque"';
 				}
 				
-				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
+				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
 					<object width=\"{$width}\" height=\"{$height}\">
-					<param name=\"movie\" value=\"{$src}\"></param>
+					<param name=\"movie\" value=\"//{$src}\"></param>
 					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-					<embed {$wmodeParam} src=\"{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+					<embed {$wmodeParam} src=\"//{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
 				</object></div>";
 			}
 		}

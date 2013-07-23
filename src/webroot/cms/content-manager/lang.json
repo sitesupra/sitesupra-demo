@@ -45,6 +45,7 @@
 				"delete_video": "Remove video"
 			},
 			
+			"resize_map": "Google map size",
 			"resize_video": "Video size",
 			"resize_frame_size": "Image frame size",
 			"resize_button_title": "Maintain aspect ratio",
@@ -429,7 +430,7 @@
 		
 		"insertblock": {
 			"title": "Insert block",
-			"button": "Insert",
+			"button": "Insert block",
 			"no_description": "No description",
 			"drag_n_drop": "Drag-and-drop",
 			"drop_to_insert": "Drop to insert {block} here"

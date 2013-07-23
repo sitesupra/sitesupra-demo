@@ -50,9 +50,9 @@
 				
 				{# Image or video #}
 				{% if post.properties.media %}
-					<figure class="media">
+					<figure class="media"><a class="media-link" href="{{ post.localization.path }}">
 						{{ post.properties.media }}
-					</figure>
+					</a></figure>
 				{% endif %}
 				
 				{# Heading #}

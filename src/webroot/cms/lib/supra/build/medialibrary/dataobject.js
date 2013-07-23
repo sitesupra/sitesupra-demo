@@ -202,7 +202,7 @@ YUI.add('supra.medialibrary-data-object', function (Y) {
 				})
 					.done(function (item) {
 						if (typeof item === 'object') {
-							item = Supra.mix(this.cache.one(id), item);
+							item = Supra.mix({}, this.cache.one(id), item);
 							this.saveCache(item);
 						}
 						

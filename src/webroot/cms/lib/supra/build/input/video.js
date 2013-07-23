@@ -56,6 +56,13 @@ YUI.add('supra.input-video', function (Y) {
 		 */
 		widgets: null,
 		
+		/**
+		 * Last known value
+		 * @type {Object}
+		 * @private
+		 */
+		_last_value: null,
+		
 		
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
@@ -91,7 +98,7 @@ YUI.add('supra.input-video', function (Y) {
 			}
 			
 			// Size box
-			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-video-sizebox"></div>');
+			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-sizebox"></div>');
 			sizeBox.append('<p class="label">' + Supra.Intl.get(["inputs", "resize_video"]) + '</p>');
 			
 			// Width
@@ -136,6 +143,30 @@ YUI.add('supra.input-video', function (Y) {
 			this.widgets.width.after('valueChange', this._onWidgetsChange, this, 'width');
 			this.widgets.height.after('valueChange', this._onWidgetsChange, this, 'height');
 			this.widgets.align.after('valueChange', this._onWidgetsChange, this, 'align');
+			
+			this.widgets.width.on('input', Supra.throttle(function (e) {
+				if (this.widgets.width.get('focused')) {
+					this._onWidthWidgetChange(e.value);
+				}
+			}, 250, this, true));
+			
+			this.widgets.height.on('input', Supra.throttle(function (e) {
+				if (this.widgets.height.get('focused')) {
+					this._onHeightWidgetChange(e.value);
+				}
+			}, 250, this, true));
+			
+			this.widgets.height.on('blur', function () {
+				this._setValueTrigger = true;
+				this.widgets.height.set('value', this._last_value.height); 
+				this._setValueTrigger = false;
+			}, this);
+			
+			this.widgets.width.on('blur', function () {
+				this._setValueTrigger = true;
+				this.widgets.width.set('value', this._last_value.width); 
+				this._setValueTrigger = false;
+			}, this);
 		},
 		
 		/**
@@ -208,17 +239,19 @@ YUI.add('supra.input-video', function (Y) {
 			if (input && input.get('value') !== value) {
 				input.set('value', value);
 			}
-			if (width && width.get('value') !== data.width) {
+			if (width && width.get('value') !== data.width && !width.get('focused')) {
 				width.set('value', data.width);
 			}
-			if (height && height.get('value') !== data.height) {
+			if (height && height.get('value') !== data.height && !height.get('focused')) {
 				height.set('value', data.height);
 			}
 			if (align && align.get('value') !== data.align) {
 				align.set('value', data.align);
 			}
 			
+			this._last_value = data;
 			this._setValueTrigger = false;
+			
 			return data;
 		},
 		
@@ -242,6 +275,13 @@ YUI.add('supra.input-video', function (Y) {
 				'width': parseInt(width ? width.get('value') : data.width, 10) || data.width || 0,
 				'height': parseInt(height ? height.get('value') : data.height, 10) || data.height || 0
 			};
+			
+			if (width && width.get('focused')) {
+				value.width = data.width;
+			}
+			if (height && height.get('focused')) {
+				value.height = data.height;
+			}
 			
 			if (align && this.get('allowAlign')) {
 				value.align = this.widgets.align.get('value');
@@ -314,6 +354,7 @@ YUI.add('supra.input-video', function (Y) {
 					match  = null,
 					width  = 0,
 					height = 0,
+					value  = {},
 					
 					ratio  = Input.getVideoSizeRatio({
 						'resource': 'source',
@@ -323,18 +364,27 @@ YUI.add('supra.input-video', function (Y) {
 				if (name == 'height') {
 					height = parseInt(this.widgets.height.get('value'), 10) || 0;
 					width = ~~(height * ratio);
+					value.width = width;
+					value.height = height;
 					this.widgets.width.set('value', width);
 				} else {
 					width = parseInt(this.widgets.width.get('value'), 10) || 0;
 					height = ~~(width / ratio);
+					value.width = width;
+					value.height = height;
 					this.widgets.height.set('value', height);
 				}
 				
 				if (name == 'source') {
 					match = source.match(/width="?([\d]+)/);
+					value.source = source;
+					
 					if (match) {
 						width = parseInt(match[1], 10) || width;
 						height = ~~(width / ratio); // we use original service ratio
+						
+						value.width = width;
+						value.height = height;
 						
 						this.widgets.width.set('value', width);
 						this.widgets.height.set('value', height);
@@ -344,7 +394,27 @@ YUI.add('supra.input-video', function (Y) {
 				this._setValueTrigger = false;
 			}
 			
-			this.set('value', this.get('value'));
+			this.set('value', Supra.mix(this.get('value'), value));
+		},
+		
+		_onWidthWidgetChange: function (width) {
+			var ratio = Input.getVideoSizeRatio({
+					'resource': 'source',
+					'source': this.widgets.source.get('value')
+				}),
+				height = ~~(width / ratio);
+			
+			this.set('value', Supra.mix(this.get('value'), {'width': width, 'height': height}));
+		},
+		
+		_onHeightWidgetChange: function (height) {
+			var ratio = Input.getVideoSizeRatio({
+					'resource': 'source',
+					'source': this.widgets.source.get('value')
+				}),
+				width = ~~(height * ratio);
+			
+			this.set('value', Supra.mix(this.get('value'), {'width': width, 'height': height}));
 		}
 		
 	});

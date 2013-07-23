@@ -22,7 +22,7 @@
 				
 				{# Image or video #}
 				{% if style == 'promoted' and post.properties.media %}
-					<figure class="media">{{ post.properties.media }}</figure>
+					<figure class="media"><a class="media-link" href="{{ post.localization.path }}">{{ post.properties.media }}</a></figure>
 				{% endif %}
 				
 				{# Heading #}
@@ -36,7 +36,7 @@
 				
 				{# Image or video #}
 				{% if style != 'promoted' and post.properties.media %}
-					<figure class="media">{{ post.properties.media }}</figure>
+					<figure class="media"><a class="media-link" href="{{ post.localization.path }}">{{ post.properties.media }}</a></figure>
 				{% endif %}
 				
 				{# Description #}

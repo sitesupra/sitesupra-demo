@@ -732,11 +732,11 @@ class PagecontentAction extends PageManagerAction
 				} else if ($editable instanceof Editable\InlineMap) {
 					if ($input->hasChild($propertyName)) {
 
-						$mapData = $input->getChild($propertyName)
+						$value = $input->getChild($propertyName)
 								->getArrayCopy();
 						
-						$editable->setContentFromEdit($mapData);
-						$value = $editable->getContent();
+//						$editable->setContentFromEdit($mapData);
+//						$value = $editable->getContent();
 						
 //						$map = $input->getChild($propertyName);
 //						
@@ -841,6 +841,19 @@ class PagecontentAction extends PageManagerAction
 						$metadataItem = new Entity\BlockPropertyMetadata($referencedElementName, $property, $referencedElement);
 
 						$property->addMetadata($metadataItem);
+					}
+					
+					if ($referencedElement instanceof Entity\ReferencedElement\VideoReferencedElement) {
+						
+						$videoElementData = $referencedElement->parseVideoSourceInput($referencedElementData['source']);
+						
+						if (empty($videoElementData)) {
+							throw new CmsException(null, "Failed to parse video element data");
+						}
+						
+						$videoElementData = $videoElementData + $referencedElementData;
+						
+						$referencedElement->fillArray($videoElementData);
 					}
 				}
 

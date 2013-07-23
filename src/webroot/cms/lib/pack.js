@@ -8767,6 +8767,8 @@ YUI().add("supra.io-css", function (Y) {
 		 */
 		KEY_RETURN: 13,
 		KEY_ESCAPE: 27,
+		KEY_UP: 38,
+		KEY_DOWN: 40,
 		
 		/**
 		 * If keys are allowed, overwriten when String class
@@ -8894,13 +8896,29 @@ YUI().add("supra.io-css", function (Y) {
 		 * @private
 		 */
 		_onKeyDown: function (e) {
-			var keyCode = e._event.keyCode || e._event.which || e._event.charCode,
-				input = this.get('inputNode');
+			var keyCode   = e._event.keyCode || e._event.which || e._event.charCode,
+				input     = this.get('inputNode'),
+				inputNode = input.getDOMNode(),
+				value     = inputNode.value,
+				isNumber  = (value == parseInt(value)),
+				mask      = this.get('valueMask');
 			
 			if (keyCode == this.KEY_RETURN && this.KEY_RETURN_ALLOW) {
 				if (this.get('replacementNode') || this.get('blurOnReturn')) {
 					//If using replacement node then show it
 					input.blur();
+				}
+			} else if ((keyCode == this.KEY_UP || keyCode == this.KEY_DOWN) && isNumber) {
+				//On up or down arrow press if content is a number, then add or subtract 1
+				//if shift/meta key is pressed then add or subtract 10
+				value = parseInt(value) + (keyCode == this.KEY_UP ? 1 : -1) * (e.shiftKey || e.metaKey ? 10 : 1);
+				if (mask && !mask.test(String(value))) return;
+				
+				//Trigger input event
+				if (this._last_value != value) {
+					inputNode.value = value;
+					this._last_value = value;
+					this.fire('input', {'value': value});
 				}
 			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
 				input.set('value', this._original_value);
@@ -33474,11 +33492,14 @@ YUI.add('supra.input-slider', function (Y) {
 	
 	//Default value
 	var DEFAULT_VALUE = {
-		'latitude': 0,
-		'longitude': 0,
-		'zoom': 14
+		'latitude': 56.95,
+		'longitude': 24.1,
+		'zoom': 14,
+		'height': 0
 	};
 	
+	//Minimal map height
+	var MAP_MIN_HEIGHT = 80;
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
@@ -33489,7 +33510,7 @@ YUI.add('supra.input-slider', function (Y) {
 	Input.IS_INLINE = true;
 	
 	// Input is inside form
-	Input.IS_CONTAINED = false;
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = 'input-map-inline';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -33513,9 +33534,8 @@ YUI.add('supra.input-slider', function (Y) {
 		/**
 		 * Constants
 		 */
-		INPUT_TEMPLATE: '',
 		LABEL_TEMPLATE: '',
-		CONTENT_TEMPLATE: '',
+		INPUT_TEMPLATE: '<input type="hidden" value="" />',
 		
 		/**
 		 * Map instance
@@ -33587,12 +33607,36 @@ YUI.add('supra.input-slider', function (Y) {
 		 */
 		zoomChangeListener: null,
 		
+		/**
+		 * Size content box
+		 * @type {Object}
+		 * @private
+		 */
+		sizeBox: null,
+		
+		/**
+		 * Width input
+		 * @type {Object}
+		 * @private
+		 */
+		inputWidth: null,
+		
+		/**
+		 * Height input
+		 * @type {Object}
+		 * @private
+		 */
+		inputHeight: null,
+		
 		
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			//Bind to context
 			this._afterValueChange = Y.bind(this._afterValueChange, this);
+			
+			//Create size input
+			this.createSizeInput();
 			
 			//MapManager.prepare(this.createMap, this);
 			this.createMap(this.get('targetNode'));
@@ -33682,6 +33726,23 @@ YUI.add('supra.input-slider', function (Y) {
 				MapManager.prepare(this.get('doc'), this.get('win'), function () {
 					this._createMap(targetNode);
 				}, this);
+				
+				
+				var input_height = this.inputHeight,
+					input_width = this.inputWidth,
+					value = this.get('value');
+				
+				if (input_height) {
+					if (value && value.height) {
+						input_height.set('value', targetNode.get('offsetHeight'));
+					} else {
+						input_height.set('value', targetNode.get('offsetHeight'));
+					}
+				}
+				
+				if (input_width) {
+					input_width.set('value', targetNode.get('offsetWidth'));
+				}
 			}
 			return targetNode;
 		},
@@ -33740,6 +33801,143 @@ YUI.add('supra.input-slider', function (Y) {
 			this.mapSourceSelf = true;
 		},
 		
+		_handleMapResize: function () {
+			var win = this.get('win'),
+				map = this.map;
+			
+			if (win && map) {
+				win.google.maps.event.trigger(this.map, "resize");
+			}
+		},
+		
+		
+		/* -------------------------------------- SIZE -------------------------------------- */
+		
+		
+		createSizeInput: function () {
+			var properties = this.getParentWidget('page-content-properties'),
+				contentBox = this.get('contentBox'),
+				label      = Supra.Intl.get(['inputs', 'resize_map']),
+				sizeBox    = this.sizeBox = Y.Node.create('<div class="clearfix su-sizebox"><p class="label">' + label + '</p></div>');
+			
+			this.sizeBox = Y.Node.create();
+			
+			// Width
+			var width = this.inputWidth = new Supra.Input.String({
+				'type': 'String',
+				'style': 'size',
+				'valueMask': /^[0-9]*$/,
+				'label': Supra.Intl.get(['inputs', 'resize_width']),
+				'value': 0
+			});
+			
+			width.render(sizeBox);
+			width.set('disabled', true);
+			
+			// Size button
+			var btn = new Supra.Button({"label": "", "style": "small-gray"});
+				btn.render(sizeBox);
+				btn.set("disabled", true);
+				btn.addClass("su-button-ratio");
+			
+			// Height
+			var height = this.inputHeight = new Supra.Input.String({
+				'type': 'String',
+				'style': 'size',
+				'valueMask': /^[0-9]*$/,
+				'label': Supra.Intl.get(['inputs', 'resize_height']),
+				'value': 0
+			});
+			
+			height.render(sizeBox);
+			contentBox.prepend(sizeBox);
+			
+			height.after('valueChange', this._uiOnHeightInputChange, this);
+			height.on('input', Supra.throttle(function (e) {
+				if (this.inputHeight.get('focused')) {
+					this._uiOnHeightInputInput(e.value);
+				}
+			}, 250, this, true), this);
+		},
+		
+		_uiSetMapHeight: function (height) {
+			var targetNode   = this.get('targetNode'),
+				height       = Math.max(MAP_MIN_HEIGHT, height),
+				input_width  = this.inputWidth,
+				input_height = this.inputHeight,
+				prev         = this._uiSilentHeightUpdate;
+			
+			if (targetNode) {
+				if (height != targetNode.get('offsetHeight')) {
+					targetNode.setStyle('height', height + 'px');
+					this._handleMapResize();
+				}
+			}
+			if (input_height && input_height.get('value') != height) {
+				this._uiSilentHeightUpdate = true;
+				input_height.set('value', height);
+				this._uiSilentHeightUpdate = prev;
+				
+				if (targetNode) {
+					input_width.set('value', targetNode.get('offsetWidth'));
+				}
+			}
+		},
+		
+		/**
+		 * Returns map height from target node or input
+		 * 
+		 * @returns {Number} Map height in pixels
+		 * @private
+		 */
+		_uiGetMapHeight: function () {
+			var targetNode = this.get('targetNode'),
+				input      = this.inputHeight,
+				height     = 0;
+			
+			if (targetNode) {
+				height = targetNode.get('offsetHeight');
+			}
+			if (input && !height) {
+				height = parseInt(input.get('value'), 10) || 0;
+			}
+			
+			return Math.max(height, MAP_MIN_HEIGHT); 
+		},
+		
+		_uiGetMapWidth: function (targetNode) {
+			var targetNode = targetNode || this.get('targetNode');
+			if (targetNode) {
+				return targetNode.get('offsetHeight');
+			} else {
+				return 0;
+			}
+		},
+		
+		_uiOnHeightInputChange: function () {
+			if (this._uiSilentHeightUpdate) return;
+			this._uiSilentHeightUpdate = true;
+			
+			var value  = parseInt(this.inputHeight.get('value'), 10) || 0,
+				height = Math.max(value, MAP_MIN_HEIGHT);
+			
+			this._uiSetMapHeight(height);
+			this._afterValueChange();
+			
+			this._uiSilentHeightUpdate = false;
+		},
+		
+		_uiOnHeightInputInput: function (value) {
+			var value  = parseInt(this.inputHeight.get('value'), 10) || 0,
+				height = Math.max(value, MAP_MIN_HEIGHT),
+				targetNode = this.get('targetNode');
+			
+			if (targetNode) {
+				targetNode.setStyle('height', height + 'px');
+				this._handleMapResize();
+			}
+		},
+		
 		
 		/* -------------------------------------- ATTRIBUTES -------------------------------------- */
 		
@@ -33774,9 +33972,16 @@ YUI.add('supra.input-slider', function (Y) {
 			var latlng = null,
 				map = this.map,
 				marker = this.marker,
-				global = this.get('win');
+				global = this.get('win'),
+				input_height = this.inputHeight;
 			
 			value = Supra.mix({}, DEFAULT_VALUE, this.get('defaultValue'), value);
+			
+			// Validate values
+			value.zoom = parseInt(value.zoom, 10) || DEFAULT_VALUE.zoom;
+			value.latitude = parseFloat(value.latitude) || 0;
+			value.longitude = parseFloat(value.longitude) || 0; 
+			value.height = parseInt(value.height, 10) || 0;
 			
 			if (map && marker) {
 				latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
@@ -33784,6 +33989,13 @@ YUI.add('supra.input-slider', function (Y) {
 				map.setZoom(value.zoom || DEFAULT_VALUE.zoom);
 				marker.setPosition(latlng);
 			}
+			
+			if (!value.height) {
+				// Old version didn't had height, for compatibiliy take it from content
+				value.height = this._uiGetMapHeight();
+			}
+			
+			this._uiSetMapHeight(value.height);
 			
 			return value;
 		},
@@ -33798,12 +34010,16 @@ YUI.add('supra.input-slider', function (Y) {
 			var value = Supra.mix({}, DEFAULT_VALUE, this.get('defaultValue'), value),
 				point = null,
 				map = this.map,
-				marker = this.marker;
+				marker = this.marker,
+				input = this.inputHeight;
 			
 			if (map && marker) {
 				point = marker.getPosition();
 				value.latitude = point.lat();
 				value.longitude = point.lng();
+			}
+			if (input) {
+				value.height = Math.max(parseInt(input.get('value'), 10) || 0, MAP_MIN_HEIGHT);
 			}
 			
 			return value;
@@ -38457,6 +38673,13 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		widgets: null,
 		
+		/**
+		 * Last known value
+		 * @type {Object}
+		 * @private
+		 */
+		_last_value: null,
+		
 		
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
@@ -38492,7 +38715,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 			
 			// Size box
-			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-video-sizebox"></div>');
+			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-sizebox"></div>');
 			sizeBox.append('<p class="label">' + Supra.Intl.get(["inputs", "resize_video"]) + '</p>');
 			
 			// Width
@@ -38537,6 +38760,30 @@ YUI.add('supra.datatype-color', function(Y) {
 			this.widgets.width.after('valueChange', this._onWidgetsChange, this, 'width');
 			this.widgets.height.after('valueChange', this._onWidgetsChange, this, 'height');
 			this.widgets.align.after('valueChange', this._onWidgetsChange, this, 'align');
+			
+			this.widgets.width.on('input', Supra.throttle(function (e) {
+				if (this.widgets.width.get('focused')) {
+					this._onWidthWidgetChange(e.value);
+				}
+			}, 250, this, true));
+			
+			this.widgets.height.on('input', Supra.throttle(function (e) {
+				if (this.widgets.height.get('focused')) {
+					this._onHeightWidgetChange(e.value);
+				}
+			}, 250, this, true));
+			
+			this.widgets.height.on('blur', function () {
+				this._setValueTrigger = true;
+				this.widgets.height.set('value', this._last_value.height); 
+				this._setValueTrigger = false;
+			}, this);
+			
+			this.widgets.width.on('blur', function () {
+				this._setValueTrigger = true;
+				this.widgets.width.set('value', this._last_value.width); 
+				this._setValueTrigger = false;
+			}, this);
 		},
 		
 		/**
@@ -38609,17 +38856,19 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (input && input.get('value') !== value) {
 				input.set('value', value);
 			}
-			if (width && width.get('value') !== data.width) {
+			if (width && width.get('value') !== data.width && !width.get('focused')) {
 				width.set('value', data.width);
 			}
-			if (height && height.get('value') !== data.height) {
+			if (height && height.get('value') !== data.height && !height.get('focused')) {
 				height.set('value', data.height);
 			}
 			if (align && align.get('value') !== data.align) {
 				align.set('value', data.align);
 			}
 			
+			this._last_value = data;
 			this._setValueTrigger = false;
+			
 			return data;
 		},
 		
@@ -38643,6 +38892,13 @@ YUI.add('supra.datatype-color', function(Y) {
 				'width': parseInt(width ? width.get('value') : data.width, 10) || data.width || 0,
 				'height': parseInt(height ? height.get('value') : data.height, 10) || data.height || 0
 			};
+			
+			if (width && width.get('focused')) {
+				value.width = data.width;
+			}
+			if (height && height.get('focused')) {
+				value.height = data.height;
+			}
 			
 			if (align && this.get('allowAlign')) {
 				value.align = this.widgets.align.get('value');
@@ -38715,6 +38971,7 @@ YUI.add('supra.datatype-color', function(Y) {
 					match  = null,
 					width  = 0,
 					height = 0,
+					value  = {},
 					
 					ratio  = Input.getVideoSizeRatio({
 						'resource': 'source',
@@ -38724,18 +38981,27 @@ YUI.add('supra.datatype-color', function(Y) {
 				if (name == 'height') {
 					height = parseInt(this.widgets.height.get('value'), 10) || 0;
 					width = ~~(height * ratio);
+					value.width = width;
+					value.height = height;
 					this.widgets.width.set('value', width);
 				} else {
 					width = parseInt(this.widgets.width.get('value'), 10) || 0;
 					height = ~~(width / ratio);
+					value.width = width;
+					value.height = height;
 					this.widgets.height.set('value', height);
 				}
 				
 				if (name == 'source') {
 					match = source.match(/width="?([\d]+)/);
+					value.source = source;
+					
 					if (match) {
 						width = parseInt(match[1], 10) || width;
 						height = ~~(width / ratio); // we use original service ratio
+						
+						value.width = width;
+						value.height = height;
 						
 						this.widgets.width.set('value', width);
 						this.widgets.height.set('value', height);
@@ -38745,7 +39011,27 @@ YUI.add('supra.datatype-color', function(Y) {
 				this._setValueTrigger = false;
 			}
 			
-			this.set('value', this.get('value'));
+			this.set('value', Supra.mix(this.get('value'), value));
+		},
+		
+		_onWidthWidgetChange: function (width) {
+			var ratio = Input.getVideoSizeRatio({
+					'resource': 'source',
+					'source': this.widgets.source.get('value')
+				}),
+				height = ~~(width / ratio);
+			
+			this.set('value', Supra.mix(this.get('value'), {'width': width, 'height': height}));
+		},
+		
+		_onHeightWidgetChange: function (height) {
+			var ratio = Input.getVideoSizeRatio({
+					'resource': 'source',
+					'source': this.widgets.source.get('value')
+				}),
+				width = ~~(height * ratio);
+			
+			this.set('value', Supra.mix(this.get('value'), {'width': width, 'height': height}));
 		}
 		
 	});
@@ -45532,6 +45818,13 @@ YUI.add('supra.plugin-layout', function (Y) {
 		 */
 		'animationDuration': {
 			value: 0.5
+		},
+		
+		/**
+		 * Animation units, px or %
+		 */
+		'animationUnitType': {
+			value: 'px'
 		}
 	};
 	
@@ -45682,12 +45975,13 @@ YUI.add('supra.plugin-layout', function (Y) {
 		
 		syncUI: function () {
 			var slideId = this.get('slide'),
-				index = Y.Array.indexOf(this.history, slideId);
+				index = Y.Array.indexOf(this.history, slideId),
+				unit = this.get('animationUnitType');
 			
 			this.slide_width = null;
 			this.slide_width = this._getWidth();
 			
-			this.get('contentBox').setStyle('left', - index * this.slide_width);
+			this.get('contentBox').setStyle('left', - index * this.slide_width + unit);
 			
 			//Update scrollbar position
 			if (this.slides[slideId]) {
@@ -45744,13 +46038,14 @@ YUI.add('supra.plugin-layout', function (Y) {
 			var index = Y.Array.indexOf(this.history, slideId),
 				oldIndex = Y.Array.indexOf(this.history, oldSlideId),
 				slideWidth = this._getWidth(),
-				to = - index * slideWidth,
-				from = - oldIndex * slideWidth,
+				unit = this.get('animationUnitType'),
+				to = - index * slideWidth + unit,
+				from = - oldIndex * slideWidth + unit,
 				boxNode = this.get('boundingBox');
 			
 			if (index == -1) {
 				index = this.history.length;
-				to = - index * slideWidth;
+				to = - index * slideWidth + unit;
 				this.history[index] = slideId;
 			}
 			
@@ -45992,7 +46287,12 @@ YUI.add('supra.plugin-layout', function (Y) {
 		 */
 		_getWidth: function () {
 			if (!this.slide_width) {
-				this.slide_width = this.get('boundingBox').get('offsetWidth');
+				var unit = this.get('animationUnitType');
+				if (unit == '%') {
+					this.slide_width = 100; // 100%
+				} else {
+					this.slide_width = this.get('boundingBox').get('offsetWidth');
+				}
 			}
 			return this.slide_width;
 		}
