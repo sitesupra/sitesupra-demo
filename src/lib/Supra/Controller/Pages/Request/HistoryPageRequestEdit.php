@@ -69,10 +69,15 @@ class HistoryPageRequestEdit extends PageRequest
 		$auditPlaceHolders = $auditLocalization->getPlaceHolders();
 		foreach ($auditPlaceHolders as $placeHolder) {
 			
+			$placeHolderGroup = $placeHolder->getGroup();
+			if ($placeHolderGroup !== null) {
+				$draftEntityManager->merge($placeHolderGroup);
+			}
+			
 			if ( ! $this->isLocalResource($placeHolder)) {
 				continue;
 			}
-			
+						
 			$draftEntityManager->merge($placeHolder);
 		}
 		
@@ -261,10 +266,21 @@ class HistoryPageRequestEdit extends PageRequest
 			$this->setPageLocalization($localization);
 
 			$placeHolders = $localization->getPlaceHolders();
+	
+			// Groups must be merged before, because of Doctrine's internal entity handling
+			foreach ($placeHolders as $placeHolder) {
+				$placeHolderGroup = $placeHolder->getGroup();
+				if ($placeHolderGroup !== null) {
+					if ($this->isLocalResource($placeHolderGroup)) {
+						$draftEm->merge($placeHolderGroup);
+					}
+				}
+			}
+			
 			foreach ($placeHolders as $placeHolder) {
 				/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 				$draftEm->merge($placeHolder);
-				
+					
 				$blocks = $placeHolder->getBlocks();
 				
 				foreach ($blocks as $block) {

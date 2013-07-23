@@ -24,7 +24,6 @@ use Supra\Cms\Exception\CmsException;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
-use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
 use Supra\Loader\Loader;
 use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
@@ -33,19 +32,17 @@ use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\Page;
 use Supra\Controller\Pages\Entity\Template;
 use Supra\AuditLog\AuditLogEvent;
-use Supra\Controller\Pages\Event\CmsPageDeleteEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Listener\EntityRevisionSetterListener;
-use Supra\Controller\Pages\Event\CmsPageEventArgs;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
 use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
-
 use Supra\RemoteHttp\Request\RemoteHttpRequest;
 use Supra\RemoteHttp\RemoteHttpRequestService;
+use Supra\Controller\Pages\Event;
 
 /**
  * Controller containing common methods
@@ -612,13 +609,7 @@ abstract class PageManagerAction extends CmsAction
 
 		$publicEm->transactional($copyContent);
 
-		// If all went well, fire the post-publish event for published page localization.
-		$eventArgs = new CmsPagePublishEventArgs($this);
-		$eventArgs->user = $this->getUser();
-		$eventArgs->localization = $this->getPageLocalization();
-
-		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire(CmsPageEventArgs::postPagePublish, $eventArgs);
+		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostPublish);
 	}
 
 	/**
@@ -685,7 +676,7 @@ abstract class PageManagerAction extends CmsAction
 	}
 
 	/**
-	 * Move page at trash 
+	 * Page delete action
 	 */
 	protected function delete()
 	{
@@ -719,25 +710,27 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 
-		$pageRequest = $this->getPageRequest();
-
+		// EVENTS:
+		// 1. Sets the revision setter listener and audit listener into specific state
 		$this->entityManager->getEventManager()
 				->dispatchEvent(EntityRevisionSetterListener::pagePreDeleteEvent);
+		
+		// 2. Supra's event manager listeners
+		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePreRemove);
 
+		// page remove action
+		$pageRequest = $this->getPageRequest();
 		$pageRequest->delete();
 
+		// 3. Resets audit/revision listeners back to normal state
 		$this->entityManager->getEventManager()
 				->dispatchEvent(EntityRevisionSetterListener::pagePostDeleteEvent);
 
-		$eventManager = ObjectRepository::getEventManager($this);
+		// 4. Again, the Supra's event manager listeners
+		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostRemove);
 
-		$eventArgs = new CmsPageDeleteEventArgs($this);
-		$eventArgs->localization = $this->getPageLocalization();
-		$eventArgs->user = $this->getUser();
-		$eventManager->fire(CmsPageEventArgs::postPageDelete, $eventArgs);
-
-		$this->getResponse()
-				->setResponseData(true);
+		// Respond with success
+		$this->getResponse()->setResponseData(true);
 	}
 
 	/**
@@ -960,11 +953,7 @@ abstract class PageManagerAction extends CmsAction
 			}
 		}
 
-		$eventManager = ObjectRepository::getEventManager();
-		$eventArgs = new CmsPageEventArgs();
-		$eventArgs->localization = $pageData;
-		$eventArgs->user = $this->getUser();
-		$eventManager->fire(CmsPageEventArgs::postPageUnlock, $eventArgs);
+		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostUnlock);
 	}
 
 	/**
@@ -1399,12 +1388,7 @@ abstract class PageManagerAction extends CmsAction
 	 */
 	protected function savePostTrigger()
 	{
-		$eventArgs = new CmsPageEventArgs();
-		$eventArgs->user = $this->getUser();
-		$eventArgs->localization = $this->getPageLocalization();
-
-		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire(CmsPageEventArgs::postPageChange, $eventArgs);
+		$this->triggerPageCmsEvent(Event\PageCmsEvents::pageContentPostSave);
 	}
 
 	/**
@@ -1578,5 +1562,20 @@ abstract class PageManagerAction extends CmsAction
 		}
 	
 		return $fontList;
+	}
+	
+	/**
+	 * @param string $eventName
+	 */
+	protected function triggerPageCmsEvent($eventName)
+	{
+		$eventManager = ObjectRepository::getEventManager($this);
+		
+		$eventArgs = new Event\PageCmsEventArgs();
+		
+		$eventArgs->localization = $this->getPageLocalization();
+		$eventArgs->user = $this->getUser();
+		
+		$eventManager->fire($eventName, $eventArgs);
 	}
 }

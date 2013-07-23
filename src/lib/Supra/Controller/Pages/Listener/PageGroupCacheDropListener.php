@@ -3,15 +3,12 @@
 namespace Supra\Controller\Pages\Listener;
 
 use Doctrine\Common\EventSubscriber;
-use Supra\Controller\Pages\Event\CmsPageEventArgs;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
-use Supra\Controller\Pages\Event\CmsPageDeleteEventArgs;
 use Supra\Cache\CacheGroupManager;
 use Supra\Controller\Pages\PageController;
 use Supra\NestedSet\Event\NestedSetEventArgs;
 use Supra\NestedSet\Event\NestedSetEvents;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
+use Supra\Controller\Pages\Event;
 
 /**
  * Drops page group cache when page/template is moved or published or deteled
@@ -24,7 +21,11 @@ class PageGroupCacheDropListener implements EventSubscriber
 	 */
 	public function getSubscribedEvents()
 	{
-		return array(NestedSetEvents::nestedSetPostMove, CmsPageEventArgs::postPagePublish, CmsPageEventArgs::postPageDelete);
+		return array(
+			NestedSetEvents::nestedSetPostMove, 
+			Event\PageCmsEvents::pagePostPublish,
+			Event\PageCmsEvents::pagePostRemove,
+		);
 	}
 	
 	public function nestedSetPostMove(NestedSetEventArgs $eventArgs)
@@ -34,12 +35,12 @@ class PageGroupCacheDropListener implements EventSubscriber
 		}
 	}
 	
-	public function postPagePublish(CmsPagePublishEventArgs $eventArgs)
+	public function pagePostPublish(Event\PageCmsEventArgs $eventArgs)
 	{
 		$this->dropCache();
 	}
 	
-	public function postPageDelete(CmsPageDeleteEventArgs $eventArgs)
+	public function pagePostRemove(Event\PageCmsEventArgs $eventArgs)
 	{
 		$this->dropCache();
 	}

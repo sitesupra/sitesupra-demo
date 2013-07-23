@@ -130,8 +130,6 @@ class EntityAuditListener implements EventSubscriber
 			
 			AuditEvents::localizationPreRestoreEvent,
 			AuditEvents::localizationPostRestoreEvent,
-            
-            AuditEvents::pageLimitValidationEvent,
 		);
 	}
 	
@@ -815,34 +813,4 @@ class EntityAuditListener implements EventSubscriber
 		
 		return $blockName;
 	}
-    
-    
-    public function pageLimitValidationEvent()
-    {
-
-        $iniLoader = ObjectRepository::getIniConfigurationLoader($this);
-        if($iniLoader->hasKey('system', 'max_pages')) {
-            
-            $maxPages = $iniLoader->getValue('system', 'max_pages');            
-            $em = ObjectRepository::getEntityManager($this);
-            
-            $qb = $em->createQueryBuilder();
-            $qb->select('count(distinct p.id) as pageCount')
-                    ->from(Page::CN(), 'p');
-            
-            $pageResult = $qb->getQuery()->getOneOrNullResult();
-            $count = $pageResult['pageCount'];
-            
-            $qb = $em->createQueryBuilder();
-            $qb->select('count(distinct ap.id) as pageCount')
-                    ->from(Entity\ApplicationPage::CN(), 'ap');
-            
-            $appPageResult = $qb->getQuery()->getOneOrNullResult();
-            $count += $appPageResult['pageCount'] + 1;
-            
-            if ($count > $maxPages)  {
-                throw new \Supra\Cms\Exception\CmsException(null, 'Page limit exceeded');
-            }
-        }
-    }
 }

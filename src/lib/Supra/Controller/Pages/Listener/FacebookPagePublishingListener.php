@@ -3,22 +3,19 @@
 namespace Supra\Controller\Pages\Listener;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
-use Supra\Controller\Pages\Event\CmsPageDeleteEventArgs;
-use Supra\Controller\Pages\PageController;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\PageBlock;
 use Supra\Social\Facebook;
 use Supra\Social\Facebook\Entity\UserFacebookPage;
 use Supra\Controller\Pages\Entity\PageLocalization;
-use Supra\Controller\Pages\Event\CmsPageEventArgs;
 use Supra\User\Entity\User;
 use Supra\Social\Facebook\Entity\UserFacebookData;
+use Supra\Controller\Pages\Event;
 
+/**
+ */
 class FacebookPagePublishingListener implements EventSubscriber
 {
-
 	/**
 	 * @var \Supra\Log\Writer\WriterAbstraction
 	 */
@@ -35,37 +32,27 @@ class FacebookPagePublishingListener implements EventSubscriber
 	 */
 	public function getSubscribedEvents()
 	{
-		return array(CmsPageEventArgs::postPageDelete, CmsPageEventArgs::postPagePublish);
+		return array(
+			Event\PageCmsEvents::pagePostRemove,
+			Event\PageCmsEvents::pagePostPublish,
+		);
 	}
 
-//	public function postPageMove(LifecycleEventArgs $eventArgs)
-//	{
-//		// will fail
-//		$localization = $eventArgs->localization;
-//		/* @var $localization Supra\Controller\Pages\Entity\ApplicationLocalization */
-//		if ( ! $localization->isPublic()) {
-//			$this->togglePageOnFacebook($eventArgs, false);
-//		}
-//	}
-
-	/**
-	 * @param CmsPagePublishEventArgs $eventArgs 
-	 */
-	public function postPagePublish(CmsPagePublishEventArgs $eventArgs)
+	public function pagePostPublish(Event\PageCmsEventArgs $eventArgs)
 	{
 		$this->togglePageOnFacebook($eventArgs, true);
 	}
 
-	public function postPageDelete(CmsPageDeleteEventArgs $eventArgs)
+	public function pagePostRemove(Event\PageCmsEventArgs $eventArgs)
 	{
 		$this->togglePageOnFacebook($eventArgs, false);
 	}
 
 	/**
-	 * @param CmsPageEventArgs $eventArgs
+	 * @param Event\PageCmsEventArgs $eventArgs
 	 * @param boolean $publish
 	 */
-	private function togglePageOnFacebook(CmsPageEventArgs $eventArgs, $publish)
+	private function togglePageOnFacebook(Event\PageCmsEventArgs $eventArgs, $publish)
 	{
 		$user = $eventArgs->user;
 		
@@ -181,7 +168,7 @@ class FacebookPagePublishingListener implements EventSubscriber
 		return $properties;
 	}
 
-	private function getFacebookBlock(CmsPageEventArgs $eventArgs)
+	private function getFacebookBlock(Event\PageCmsEventArgs $eventArgs)
 	{
 		// fetch FB page block ids and then check if block was removed
 		$values = $eventArgs->localization->getPlaceHolders()->getValues();

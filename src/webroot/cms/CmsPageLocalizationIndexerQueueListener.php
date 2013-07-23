@@ -2,26 +2,29 @@
 
 namespace Supra\Cms;
 
-use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
-use Supra\Controller\Pages\Event\CmsPageDeleteEventArgs;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Entity\PageLocalizationIndexerQueueItem;
 use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Entity\PageLocalization;
-use Supra\Search\IndexerService;
-use Supra\Search\SearchService;
-use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Search\Solarium\Configuration;
+use Supra\Controller\Pages\Event;
 
-class CmsPageLocalizationIndexerQueueListener
+
+class CmsPageLocalizationIndexerQueueListener implements \Doctrine\Common\EventSubscriber
 {
+
+	public function getSubscribedEvents() 
+	{
+		return array(
+			Event\PageCmsEvents::pagePostPublish,
+			Event\PageCmsEvents::pagePostRemove,
+		);
+	}
 
 	/**
 	 * Will add published pages into search indexer queue
-	 * @param CmsPagePublishEventArgs $eventArgs
 	 */
-	public function postPagePublish(CmsPagePublishEventArgs $eventArgs)
+	public function pagePostPublish(Event\PageCmsEventArgs $eventArgs)
 	{
 		if ( ! ObjectRepository::isSolariumConfigured($this)) {
 			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
@@ -39,9 +42,8 @@ class CmsPageLocalizationIndexerQueueListener
 
 	/**
 	 * Will remove indexed pages from search indexer 
-	 * @param CmsPageDeleteEventArgs $eventArgs
 	 */
-	public function postPageDelete(CmsPageDeleteEventArgs $eventArgs)
+	public function pagePostRemove(Event\PageCmsEventArgs $eventArgs)
 	{
 		if ( ! ObjectRepository::isSolariumConfigured($this)) {
 			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
@@ -56,5 +58,4 @@ class CmsPageLocalizationIndexerQueueListener
 			$indexerQueue->addRemoval($localization);
 		}
 	}
-
 }

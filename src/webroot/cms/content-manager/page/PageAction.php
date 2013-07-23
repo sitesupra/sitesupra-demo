@@ -20,6 +20,7 @@ use Supra\Uri\Path;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
+use Supra\Controller\Pages\Event;
 
 /**
  * 
@@ -248,9 +249,6 @@ class PageAction extends PageManagerAction
 	 */
 	public function createAction()
 	{
-        $eventManager = $this->entityManager->getEventManager();
-        $eventManager->dispatchEvent(AuditEvents::pageLimitValidationEvent);
-        
 		$this->lock();
 
 		$this->isPostRequest();
@@ -262,8 +260,9 @@ class PageAction extends PageManagerAction
 
 		$this->checkActionPermission($parent, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
 
+		$eventManager = $this->entityManager->getEventManager();		
 		$eventManager->dispatchEvent(AuditEvents::pagePreCreateEvent);
-
+	
 		$page = null;
 		$pathPart = null;
 
@@ -283,6 +282,15 @@ class PageAction extends PageManagerAction
 
 		$pageData = Entity\Abstraction\Localization::factory($page, $localeId);
 
+		$supraEventManager = ObjectRepository::getEventManager($this);
+		
+		$eventArgs = new Event\PageCmsEventArgs;
+		
+		$eventArgs->localization = $pageData;
+		$eventArgs->user = $this->getUser();
+		
+		$supraEventManager->fire(Event\PageCmsEvents::pagePrePersist, $eventArgs);
+		
 		$this->entityManager->persist($page);
 
 		// Template ID
