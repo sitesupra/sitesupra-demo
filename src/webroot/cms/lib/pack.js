@@ -45818,6 +45818,13 @@ YUI.add('supra.plugin-layout', function (Y) {
 		 */
 		'animationDuration': {
 			value: 0.5
+		},
+		
+		/**
+		 * Animation units, px or %
+		 */
+		'animationUnitType': {
+			value: 'px'
 		}
 	};
 	
@@ -45968,12 +45975,13 @@ YUI.add('supra.plugin-layout', function (Y) {
 		
 		syncUI: function () {
 			var slideId = this.get('slide'),
-				index = Y.Array.indexOf(this.history, slideId);
+				index = Y.Array.indexOf(this.history, slideId),
+				unit = this.get('animationUnitType');
 			
 			this.slide_width = null;
 			this.slide_width = this._getWidth();
 			
-			this.get('contentBox').setStyle('left', - index * this.slide_width);
+			this.get('contentBox').setStyle('left', - index * this.slide_width + unit);
 			
 			//Update scrollbar position
 			if (this.slides[slideId]) {
@@ -46030,13 +46038,14 @@ YUI.add('supra.plugin-layout', function (Y) {
 			var index = Y.Array.indexOf(this.history, slideId),
 				oldIndex = Y.Array.indexOf(this.history, oldSlideId),
 				slideWidth = this._getWidth(),
-				to = - index * slideWidth,
-				from = - oldIndex * slideWidth,
+				unit = this.get('animationUnitType'),
+				to = - index * slideWidth + unit,
+				from = - oldIndex * slideWidth + unit,
 				boxNode = this.get('boundingBox');
 			
 			if (index == -1) {
 				index = this.history.length;
-				to = - index * slideWidth;
+				to = - index * slideWidth + unit;
 				this.history[index] = slideId;
 			}
 			
@@ -46278,7 +46287,12 @@ YUI.add('supra.plugin-layout', function (Y) {
 		 */
 		_getWidth: function () {
 			if (!this.slide_width) {
-				this.slide_width = this.get('boundingBox').get('offsetWidth');
+				var unit = this.get('animationUnitType');
+				if (unit == '%') {
+					this.slide_width = 100; // 100%
+				} else {
+					this.slide_width = this.get('boundingBox').get('offsetWidth');
+				}
 			}
 			return this.slide_width;
 		}
