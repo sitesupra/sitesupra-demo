@@ -24,6 +24,11 @@ class InlineMap extends EditableAbstraction
 	 * @var integer
 	 */
 	protected $zoom = 0;
+	
+	/**
+	 * @var integer
+	 */
+	protected $height = null;
  
 	
     /**
@@ -56,10 +61,15 @@ class InlineMap extends EditableAbstraction
 		
 		// normalize
 		if (is_string($content)) {
-			$content = explode(';', $content, 3);
+			$content = explode(';', $content, 4);
 		}
 		
 		list($this->latitude, $this->longitude, $this->zoom) = $content;
+		
+		// old values can be without the "height" parameter
+		if (count($content) > 3) {
+			$this->height = $content[3];
+		}
 		
 		parent::setContent($content);
 	}
@@ -70,7 +80,7 @@ class InlineMap extends EditableAbstraction
 	 */
 	public function getContent()
 	{
-		return implode(';', array($this->latitude, $this->longitude, $this->zoom));
+		return implode(';', array($this->latitude, $this->longitude, $this->zoom, $this->height));
 	}
 	
 	/**
@@ -82,6 +92,7 @@ class InlineMap extends EditableAbstraction
 			'latitude' => $this->latitude,
 			'longitude' => $this->longitude,
 			'zoom' => $this->zoom,
+			'heigh' => $this->height,
 		);
 	}
 	
@@ -103,6 +114,7 @@ class InlineMap extends EditableAbstraction
 		$this->latitude = (float) $content['latitude'];
 		$this->longitude = (float) $content['longitude'];
 		$this->zoom = $zoom;
+		$this->height = $content['height'];
 	}
 	
 	/**
@@ -117,6 +129,7 @@ class InlineMap extends EditableAbstraction
 			'latitude' => $this->latitude,
 			'longitude' => $this->longitude,
 			'zoom' => $this->zoom,
+			'height' => $this->height,
 		);
 	}
     
