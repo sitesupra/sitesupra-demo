@@ -241,7 +241,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 				Y.Node(doc).destroy(true);
 				
 				// Set to blank to remove all JS
-				doc.location = "about:blank";
+				doc.location.replace("about:blank");
 			}
 		},
 		

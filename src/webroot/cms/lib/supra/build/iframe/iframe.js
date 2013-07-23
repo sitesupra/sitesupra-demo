@@ -230,7 +230,7 @@ YUI().add('supra.iframe', function (Y) {
 				
 				//Remove all listeners
 				Y.Node(doc).destroy(true);
-				doc.location = 'about:blank';
+				doc.location.replace('about:blank');
 				
 				this.set('doc', null);
 				this.set('win', null);
