@@ -153,7 +153,10 @@ function (Y) {
 			Y.one('body').removeClass('loading');
 			
 			//Create slideshow
-			this.slideshow = new Supra.Slideshow();
+			this.slideshow = new Supra.Slideshow({
+				'animationUnitType': '%'
+			});
+			
 			this.slideshow.render(this.one());
 			
 			//Set active provider
@@ -171,6 +174,9 @@ function (Y) {
 			
 			this.slideshow.syncUI();
 			this.one().after('contentResize', this.slideshow.syncUI, this.slideshow);
+			
+			Manager.LayoutRightContainer.on('contentResize', this.slideshow.syncUI, this.slideshow);
+			Manager.LayoutLeftContainer.on('contentResize', this.slideshow.syncUI, this.slideshow);
 		},
 		
 		/**

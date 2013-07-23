@@ -124,14 +124,14 @@ class ImageInfo
 		$this->height = $imageInfo[1];
 		$this->type = $imageInfo[2];
 		$this->bits = $imageInfo['bits'];
-		$this->channels = $imageInfo['channels'];
+		$this->channels = (isset($imageInfo['channels']) ? $imageInfo['channels'] : null);
 		$this->mime = $imageInfo['mime'];
 		$this->path = $filePath;
 		$this->size = filesize($filePath);
 		$pathInfo = pathinfo($filePath);
 		$this->name = $pathInfo['basename'];
 		$this->directory = $pathInfo['dirname'];
-		$this->extension = $pathInfo['extension'];
+		$this->extension = (isset($pathInfo['extension']) ? $pathInfo['extension'] : null);
 	}
 
 	/**
