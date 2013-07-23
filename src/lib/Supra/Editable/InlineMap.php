@@ -92,7 +92,7 @@ class InlineMap extends EditableAbstraction
 			'latitude' => $this->latitude,
 			'longitude' => $this->longitude,
 			'zoom' => $this->zoom,
-			'heigh' => $this->height,
+			'height' => $this->height,
 		);
 	}
 	
@@ -101,7 +101,11 @@ class InlineMap extends EditableAbstraction
 	 */
 	public function setContentFromEdit($content)
 	{
-		if ( ! (isset($content['latitude']) && isset($content['longitude']) && isset($content['zoom']))) {
+		if ( ! (isset($content['latitude'])
+				&& isset($content['longitude'])
+				&& isset($content['zoom'])
+				&& isset($content['height']))
+		){
 			throw new \InvalidArgumentException('Received content is not valid map data array');
 		}
 		
@@ -114,7 +118,7 @@ class InlineMap extends EditableAbstraction
 		$this->latitude = (float) $content['latitude'];
 		$this->longitude = (float) $content['longitude'];
 		$this->zoom = $zoom;
-		$this->height = $content['height'];
+		$this->height = ( ! empty($content['height']) ? (int) $content['height'] : '');
 	}
 	
 	/**

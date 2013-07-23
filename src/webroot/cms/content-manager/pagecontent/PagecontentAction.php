@@ -732,11 +732,11 @@ class PagecontentAction extends PageManagerAction
 				} else if ($editable instanceof Editable\InlineMap) {
 					if ($input->hasChild($propertyName)) {
 
-						$mapData = $input->getChild($propertyName)
+						$value = $input->getChild($propertyName)
 								->getArrayCopy();
 						
-						$editable->setContentFromEdit($mapData);
-						$value = $editable->getContent();
+//						$editable->setContentFromEdit($mapData);
+//						$value = $editable->getContent();
 						
 //						$map = $input->getChild($propertyName);
 //						
