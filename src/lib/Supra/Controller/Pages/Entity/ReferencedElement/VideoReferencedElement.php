@@ -281,7 +281,7 @@ class VideoReferencedElement extends ReferencedElementAbstract
 	 */
 	public function setAlign($align)
 	{
-		if ( ! in_array($align, array('middle', 'left', 'right'))) {
+		if ( ! empty($align) && ! in_array($align, array('middle', 'left', 'right'))) {
 			throw new \InvalidArgumentException("Unknown align value \"{$align}\" received");
 		}
 		
