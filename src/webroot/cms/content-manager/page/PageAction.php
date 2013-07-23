@@ -108,6 +108,8 @@ class PageAction extends PageManagerAction
 		
 		$layout = $request->getLayout();
 		$layoutConfiguration = $this->getConfigurationForLayout($layout);
+
+		$layoutPlaceHolderGroups = $layout->getPlaceHolderGroups();
 		
 		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 		foreach ($placeHolderSet as $placeHolder) {
@@ -137,13 +139,20 @@ class PageAction extends PageManagerAction
 					$allowedLayouts = $groupConfig->layouts;
 				}
 	
+				$groupTitle = $group->getTitle();
+				
+				$layoutGroup = $layoutPlaceHolderGroups->get($groupName);
+				if ($layoutGroup !== null) {
+					$groupTitle = $layoutGroup->getTitle();
+				}
+				
 				if ( ! isset($groupsData[$groupName])) {
 					$groupData = array(
 						'id' => $groupName,
 						'closed' => false,
 						'locked' => $group->getLocked(),
 						'editable' => ($group->getLocked() ? false : true),
-						'title' => $group->getTitle(),
+						'title' => $groupTitle,
 						'type' => 'list_one',
 						'allow' => array(),
 						'allow_layouts' => $allowedLayouts,
