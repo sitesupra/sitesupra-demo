@@ -289,19 +289,6 @@ class SlideshowAdvancedBlock extends BlockController
 		return $this->fileStorage;
 	}
 	
-	
-//	private function getTemporaryDirectoryName()
-//	{
-//		$directoryName = SUPRA_TMP_PATH . 'cms-masks' . DIRECTORY_SEPARATOR;
-//		if ( ! file_exists($directoryName)) {
-//			if ( ! @mkdir($directoryName, SITESUPRA_FOLDER_PERMISSION_MODE)) {
-//				throw new \RuntimeException('Failed to create temporary directory for png mask images');
-//			}
-//		}
-//		
-//		return $directoryName;
-//	}
-
 	/**
 	 * @return \Supra\Editable\Slideshow
 	 */
