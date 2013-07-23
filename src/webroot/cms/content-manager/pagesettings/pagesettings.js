@@ -188,7 +188,8 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 				var calendar = this.calendar_schedule = new Supra.Calendar({
 					'srcNode': node.one('.calendar'),
 					'date': date,
-					'dates': []
+					'dates': [],
+					'minDate': new Date()
 				});
 				calendar.render();
 
@@ -221,18 +222,23 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		 */
 		onSlideScheduleClose: function () {
 			//Save date
-			this.page_data.scheduled_date = Y.DataType.Date.reformat(this.calendar_schedule.get('date'), 'out_date', 'in_date');
-
-			//Save time
-			var inp_h = this.form.getInput('schedule_hours'),
+			var date = Y.DataType.Date.reformat(this.calendar_schedule.get('date'), 'out_date', 'raw'),
+				inp_h = this.form.getInput('schedule_hours'),
 				inp_m = this.form.getInput('schedule_minutes'),
-				date = new Date();
-
+				min = this.calendar_schedule.get('minDate');
+			
 			date.setHours(parseInt(inp_h.getValue(), 10) || 0);
 			date.setMinutes(parseInt(inp_m.getValue(), 10) || 0);
 			date.setSeconds(0);
-
-			this.page_data.scheduled_time = Y.DataType.Date.reformat(date, 'raw', 'out_time');
+			
+			if (min.getTime() >= date.getTime()) {
+				// Date is in the past, remove schedule
+				this.page_data.scheduled_date = "";
+				this.page_data.scheduled_time = "";
+			} else {
+				this.page_data.scheduled_date = Y.DataType.Date.reformat(date, 'raw', 'in_date');
+				this.page_data.scheduled_time = Y.DataType.Date.reformat(date, 'raw', 'out_time');
+			}			
 		},
 
 		/**

@@ -10,6 +10,8 @@ class String extends EditableAbstraction
 
 	const EDITOR_TYPE = 'String';
 	const EDITOR_INLINE_EDITABLE = false;
+	
+	private $maxLength;
 
 	/**
 	 * If editable is read only.
@@ -75,13 +77,32 @@ class String extends EditableAbstraction
 	{
 		return static::EDITOR_INLINE_EDITABLE;
 	}
+	
+	/*
+	 * @return integer
+	 */
+	public function getMaxLength()
+	{
+		return $this->maxLength;
+	}
 
+	/*
+	 * @param integer $maxLength
+	 */
+	public function setMaxLength($maxLength)
+	{
+		$this->maxLength = $maxLength;
+	}
+	
 	/**
 	 * @return array
 	 */
 	public function getAdditionalParameters()
-	{
-		return array('disabled' => $this->getDisabled());
+	{				
+		return array(
+			'disabled' => $this->getDisabled(),
+			'maxLength' => $this->getMaxLength(),
+		);
 	}
 
 }
