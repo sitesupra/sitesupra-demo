@@ -1685,22 +1685,13 @@ class FileStorage
 	}
     
 	/**
+	 * @param string $entityClassname
 	 * @return integer
 	 */
-    public function getTotalUploadedFilesSize()
-    {
-        $totalSize = 0;
-        
-        $em = $this->getDoctrineEntityManager();
-        $fileClass = Entity\File::CN();
-        $dql = 'SELECT SUM(f.fileSize) as total_size FROM ' . $fileClass . ' f';
-        $query = $em->createQuery($dql);
-        $result = $query->getResult();
-        
-        if (is_array($result)) {
-            $totalSize = $result[0]['total_size'];
-        }
-        
-        return $totalSize;
-    }
+	public function getFileSizeTotalForEntity($entityClassname)
+	{
+		return (int) $this->getDoctrineEntityManager()
+				->createQuery("SELECT SUM(f.fileSize) as total FROM {$entityClassname} f")
+				->getSingleScalarResult();
+	}
 }
