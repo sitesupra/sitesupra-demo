@@ -575,9 +575,31 @@
 				"title": "Tip",
 				"description": "Вы можете изменить порядок картинок перетащив их мышкой"
 			},
-			"Project_FancyBlocks_GoogleMap_GoogleMapBlock": {
+			"GoogleMapBlock": {
 				"title": "Tip",
 				"description": "To re-locate the marker drag and drop it to desired location"
+			},
+			"MenuBlock": {
+				"title": "Tip",
+				"description": "Links are added to the menu automatically after a new page is created in the Sitemap",
+				"buttons": [
+					{
+						"label": "Open Sitemap",
+						"action": "Page",
+						"actionFunction": "openSiteMap"
+					}
+				]
+			},
+			"LeftMenuBlock": {
+				"title": "Tip",
+				"description": "Links are added to the menu automatically after a new page is created in the Sitemap",
+				"buttons": [
+					{
+						"label": "Open Sitemap",
+						"action": "Page",
+						"actionFunction": "openSiteMap"
+					}
+				]
 			}
 		}
 	}

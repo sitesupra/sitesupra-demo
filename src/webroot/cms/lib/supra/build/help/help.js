@@ -29,7 +29,7 @@ YUI().add('supra.help', function (Y) {
 			
 			if (data || typeof data === 'undefined') {
 				// We take data from Supra.data and internationalization file
-				data = Supra.mix({}, data, Supra.Intl.get(['helpnotes', id]), options || {}, true);
+				data = Supra.mix({}, data, this.getTip(id), options || {}, true);
 				
 				widget = new Supra.HelpTip(data);
 				widget.on('close', this._handleTipClose, this, {'id': id});
@@ -75,7 +75,34 @@ YUI().add('supra.help', function (Y) {
 		 * @returns {Boolean} True if such tip exists
 		 */
 		tipExists: function (id) {
-			return !!Supra.Intl.get(['helpnotes', id]);
+			return !!this.getTip(id);
+		},
+		
+		/**
+		 * Returns tip configuration from id
+		 * 
+		 * @param {String} id Tip id
+		 * @returns {Object} Tip configuration
+		 */
+		getTip: function (id) {
+			var helpnotes = Supra.Intl.get(['helpnotes']),
+				key       = null,
+				id        = String(id);
+			
+			// Full match
+			if (helpnotes && helpnotes[id]) {
+				return helpnotes[id];
+			}
+			
+			// Partial match, help tip key may be shorter than id, because
+			// for blocks path is not included
+			for (key in helpnotes) {
+				if (id.indexOf(key) == id.length - key.length) {
+					return helpnotes[key];
+				}
+			}
+			
+			return null;
 		},
 		
 		/**

@@ -20,6 +20,11 @@ YUI().add('supra.help-tip', function (Y) {
 			'validator': Y.Lang.isString
 		},
 		
+		'buttons': {
+			'value': [],
+			'validator': Y.Lang.isArray
+		},
+		
 		'width': {
 			// Allows to specify fixed width
 			'value': 0,
@@ -80,6 +85,20 @@ YUI().add('supra.help-tip', function (Y) {
 		 */
 		_nodeClose: null,
 		
+		/**
+		 * Buttons node
+		 * @type {Object}
+		 * @private
+		 */
+		_nodeButtons: null,
+		
+		/**
+		 * Buttons
+		 * @type {Array}
+		 * @private
+		 */
+		_widgetsButtons: null,
+		
 		
 		/**
 		 * Render UI
@@ -89,15 +108,18 @@ YUI().add('supra.help-tip', function (Y) {
 		renderUI: function () {
 			var heading = this._nodeHeading = Y.Node.create('<h2></h2>'),
 				content = this._nodeContent = Y.Node.create('<div></div>'),
+				buttons = this._nodeButtons = Y.Node.create('<div></div>'),
 				close   = this._nodeClose   = Y.Node.create('<a></a>'),
 				box     = this.get('contentBox');
 			
 			heading.addClass(this.getClassName('heading'));
 			content.addClass(this.getClassName('inner'));
+			buttons.addClass(this.getClassName('buttons'));
 			close.addClass(this.getClassName('close'));
 			
 			box.append(heading);
 			box.append(content);
+			box.append(buttons);
 			box.append(close);
 			
 			close.on('click', this._eventClose, this);
@@ -135,6 +157,7 @@ YUI().add('supra.help-tip', function (Y) {
 			this._uiSetHeight(this.get('height'));
 			this._uiSetPosition(this.get('position'));
 			this._uiSetZIndex(this.get('zIndex'));
+			this._uiSetButtons(this.get('buttons'));
 		},
 		
 		/**
@@ -168,6 +191,63 @@ YUI().add('supra.help-tip', function (Y) {
 		_eventClose: function (event) {
 			this.fire('close');
 			this.hide();
+		},
+		
+		/**
+		 * Handle content button click
+		 * Call action or action function or widget function
+		 * 
+		 * @param {Object} event Event facade object
+		 * @param {Object} button Button widget
+		 * @param {Object} config Button configuration
+		 * @private
+		 */
+		_eventButtonClick: function (event, button, config) {
+			var action = config.action ? (Y.Lang.isWidget(config.action) ? config.action : Supra.Manager.getAction(config.action)) : null,
+				action_id = action ? (action.NAME || action.constructor.NAME) : null;
+			
+			if (config.actionFunction) {
+				if (action.NAME) {
+					if (action.get('executed')) {
+						//Call function
+						action[config.actionFunction](config.id, config);
+					} else {
+						if (button) {
+							button.set('loading', true);
+						}
+						//Call after action is executed
+						action.once('executedChange', function (e) {
+							if (e.newVal != e.prevVal && e.newVal) {
+								if (button) {
+									button.set('loading', false);
+								}
+								action[config.actionFunction](config.id, config);
+							}
+						});
+						action.execute();
+					}
+				} else {
+					//Widget instance, not an action
+					action[config.actionFunction](config.id, config);
+				}
+			} else {
+				if (action && action.execute) {
+					if (!action.get('loaded') && button) {
+						button.set('loading', true);
+					}
+					
+					//Call after action is executed
+					action.once('executedChange', function (e) {
+						if (e.newVal != e.prevVal && e.newVal) {
+							if (button) {
+								button.set('loading', false);
+							}
+						}
+					});
+					
+					action.execute();
+				}
+			}
 		},
 		
 		
@@ -297,6 +377,48 @@ YUI().add('supra.help-tip', function (Y) {
 			if (Y.Lang.type(value) !== 'string') return;
 			
 			this._nodeContent.set('text', value);
+		},
+		
+		/**
+		 * Update buttons
+		 * 
+		 * @param {Array} buttons List of buttons
+		 * @private
+		 */
+		_uiSetButtons: function (buttons) {
+			var widgets = this._widgetsButtons,
+				widget  = null,
+				node    = this._nodeButtons,
+				i, ii;
+			
+			// Remove old buttons
+			if (widgets) {
+				for (i=0, ii=buttons.length; i<ii; i++) {
+					buttons[i].destroy();
+				}
+			}
+			
+			widgets = this._widgetsButtons = [];
+			node.empty();
+			
+			if (buttons.length) {
+				node.removeClass('hidden');
+			} else {
+				node.addClass('hidden');
+			}
+			
+			// Create buttons
+			for (i=0, ii=buttons.length; i<ii; i++) {
+				widget = new Supra.Button(Supra.mix({
+					'style': 'small'
+				}, buttons[i]));
+				
+				widget.render(node);
+				widget.on('click', this._eventButtonClick, this, widget, buttons[i]);
+				widget.addClass('su-button-fill');
+				
+				widgets.push(widget);
+			}
 		},
 		
 		/**
