@@ -1067,63 +1067,73 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * Chainable.
 		 * 
 		 * @param {Number} id File or folder ID
+		 * @param {Boolean} markFile Mark file as selected instead of opening it
 		 * @returns {Object} Deferred objects promise
 		 */
-		open: function (id /* File or folder ID */) {
+		open: function (id /* File or folder ID */, markFile /* Mark file instead of opening it */) {
 			//If no folder specified open root folder
 			if (!id) id = this.get('rootFolderId');
 			
 			//Open file or folder using path to item
-			if (Y.Lang.isArray(id)) return this.openPath(id);
+			if (Y.Lang.isArray(id)) return this.openPath(id, markFile);
 			
 			var deferred = null,
 				data_object = this.get('data'),
 				slide = this.slideshow.getSlide('slide_' + id),
 				data = data_object.cache.one(id),
-				load = false;
+				load = false,
+				mark = false;
 			
-			//Create slide
-			if (!slide) {
-				//File and image slides should be removed when not visible anymore
-				var remove_on_hide = data_object.isFolder(id) === false;
-				slide = this.slideshow.addSlide({
-					'id': 'slide_' + id,
-					'removeOnHide': remove_on_hide
-				});
-				
-				//Need to load data
-				load = true;
-			
-			} else {
-				//Remove 'selected' from elements
-				slide.all('li').removeClass('selected');
-				
-				if (!data) {
-					//Need to load data
-					load = true;
-				} else {
-					deferred = new Supra.Deferred();
-					deferred.resolve();
-				}
+			if (markFile && data && data.type != List.TYPE_FOLDER) {
+				mark = true;
+				deferred = new Supra.Deferred();
+				deferred.resolve();
 			}
 			
-			if (load) {
-				// Loading icon
-				var slide_content = slide.one('.su-slide-content, .su-multiview-slide-content');
-			
-				slide_content
-					.empty()
-					.append(this.renderTemplate(data, this.get('templateLoading')));
+			//Create slide
+			if (!mark) {
+				if (!slide) {
+					//File and image slides should be removed when not visible anymore
+					var remove_on_hide = data_object.isFolder(id) === false;
+					slide = this.slideshow.addSlide({
+						'id': 'slide_' + id,
+						'removeOnHide': remove_on_hide
+					});
+					
+					//Need to load data
+					load = true;
 				
-				slide_content.fire('contentResize');
+				} else {
+					//Remove 'selected' from elements
+					slide.all('li').removeClass('selected');
+					
+					if (!data) {
+						//Need to load data
+						load = true;
+					} else {
+						deferred = new Supra.Deferred();
+						deferred.resolve();
+					}
+				}
 				
-				// Load data and render
-				deferred = this.load(id).done(function (data, id) {
-					this.renderItem(id, data);
-				}, this).fail(function () {
-					//Failure, go back to previous slide
-					this.slideshow.scrollBack();
-				}, this);
+				if (load) {
+					// Loading icon
+					var slide_content = slide.one('.su-slide-content, .su-multiview-slide-content');
+				
+					slide_content
+						.empty()
+						.append(this.renderTemplate(data, this.get('templateLoading')));
+					
+					slide_content.fire('contentResize');
+					
+					// Load data and render
+					deferred = this.load(id).done(function (data, id) {
+						this.renderItem(id, data);
+					}, this).fail(function () {
+						//Failure, go back to previous slide
+						this.slideshow.scrollBack();
+					}, this);
+				}
 			}
 			
 			//Mark item in parent slide as selected
@@ -1134,17 +1144,23 @@ YUI.add('supra.medialibrary-list', function (Y) {
 					if (node) {
 						node.siblings().removeClass('selected');
 						node.addClass('selected');
+						
+						if (mark) {
+							node.addClass('marked');
+						}
 					}
 				}
 			}
 			
-			//Scroll to slide
-			if (this.slideshow.isInHistory('slide_' + id)) {
-				//Show slide
-				this.slideshow.scrollTo('slide_' + id);
-			} else {
-				//Open slide and hide all slides under parent
-				this.slideshow.scrollTo('slide_' + id, null, data ? 'slide_' + data.parent : null);
+			if (!mark) {
+				//Scroll to slide
+				if (this.slideshow.isInHistory('slide_' + id)) {
+					//Show slide
+					this.slideshow.scrollTo('slide_' + id);
+				} else {
+					//Open slide and hide all slides under parent
+					this.slideshow.scrollTo('slide_' + id, null, data ? 'slide_' + data.parent : null);
+				}
 			}
 			
 			return deferred;
@@ -1154,10 +1170,11 @@ YUI.add('supra.medialibrary-list', function (Y) {
 		 * Open item which may not be loaded yet using path to it
 		 * 
 		 * @param {Array} path Path
+		 * @param {Boolean} markFile Mark file as selected instead of opening it
 		 * @returns {Object} Deferred object
 		 * @private
 		 */
-		openPath: function (path /* Path to open */) {
+		openPath: function (path /* Path to open */, markFile /* Mark file instead of opening it */) {
 			var slideshow = this.slideshow,
 				from = 0,
 				stack = path,
@@ -1186,7 +1203,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 							attr = this.get('noAnimations');
 						
 						this.set('noAnimations', noAnimations)
-						this.open(id).always(next);
+						this.open(id, markFile).always(next);
 						this.set('noAnimations', attr)
 					} else {
 						deferred.resolve();
@@ -1195,7 +1212,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				next(true);
 			} else if (path.length) {
 				//Last item is already opened, only need to show it
-				return this.open(path[path.length - 1]);
+				return this.open(path[path.length - 1], markFile);
 			}
 			
 			return deferred.promise();
