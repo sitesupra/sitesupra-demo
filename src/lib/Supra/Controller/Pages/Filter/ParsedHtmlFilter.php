@@ -12,6 +12,7 @@ use Supra\Controller\Pages\Markup;
 use Supra\FileStorage\Entity\Image;
 use Twig_Markup;
 use Supra\Response\ResponseContext;
+use Supra\Email\EmailEncoder;
 
 /**
  * Parses supra markup tags inside the HTML content
@@ -69,7 +70,7 @@ class ParsedHtmlFilter implements FilterInterface
 	 * @param Entity\ReferencedElement\LinkReferencedElement $link
 	 * @return string
 	 */
-	private function parseSupraLinkStart(Entity\ReferencedElement\LinkReferencedElement $link)
+	private function parseSupraLinkStart(Entity\ReferencedElement\LinkReferencedElement $link, $linkContent = null)
 	{
 		$attributes = array(
 				'target' => $link->getTarget(),
@@ -77,19 +78,12 @@ class ParsedHtmlFilter implements FilterInterface
 				'href' => $link->getUrl(),
 				'class' => $link->getClassName(),
 		);  
-
-		$tag = new \Supra\Html\HtmlTagStart('a');
-
-		foreach ($attributes as $attributeName => $attributeValue) {
-
-			if ($attributeValue != '') {
-				$tag->setAttribute($attributeName, $attributeValue);
-			}
-		}
 		
+		$tag = new \Supra\Html\HtmlTagStart('a');
+			
 		if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_FILE) {
 			
-			$tag->setAttribute('target', '_blank');
+			$attributes['target'] = '_blank';
 			
 			$file = $link->getFile();
 		
@@ -99,11 +93,46 @@ class ParsedHtmlFilter implements FilterInterface
 
 				$modificationTime = $file->getModificationTime();
 				
-				if ( ! empty($modificationTime)) {
-					$tag->setAttribute('data-modification-date', $modificationTime->format('d'));
-					$tag->setAttribute('data-modification-month', $modificationTime->format('m'));
-					$tag->setAttribute('data-modification-year', $modificationTime->format('Y'));
+				if (!empty($modificationTime)) {
+					$attributes['data-modification-date'] = $modificationTime->format('d');
+					$attributes['data-modification-month'] = $modificationTime->format('m');
+					$attributes['data-modification-year'] = $modificationTime->format('Y');
 				}
+			}
+		} else if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_EMAIL) {
+
+			$emailEncoder = new EmailEncoder();	
+			
+			$title = $link->getTitle();
+			if (filter_var($title, FILTER_VALIDATE_EMAIL)) {
+				$attributes['title'] = $emailEncoder->encode($title);
+			}
+			
+			$href = $link->getUrl();
+			if (filter_var(str_replace('mailto:', '', $href), FILTER_VALIDATE_EMAIL)) {
+				$attributes['href'] = $emailEncoder->encode($href);
+			}
+			
+			/* @var $linkContent \Supra\Controller\Pages\Markup\HtmlElement */
+			if ($linkContent instanceof Markup\HtmlElement) {
+				
+				$linkContentText = $linkContent->getContent();
+				
+				if (filter_var($linkContentText, FILTER_VALIDATE_EMAIL)) {					
+					$linkContentText = $emailEncoder->encode($linkContentText);
+					$linkContent->setContent($linkContentText);
+					$attributes['data-email'] = 'href,text';					
+				} else {
+					$attributes['data-email'] = 'href';
+				}	
+			}
+		}
+		
+		
+		foreach ($attributes as $attributeName => $attributeValue) {
+
+			if ($attributeValue != '') {
+				$tag->setAttribute($attributeName, $attributeValue);
 			}
 		}
 
@@ -111,7 +140,7 @@ class ParsedHtmlFilter implements FilterInterface
 		
 		return $html;
 	}
-
+	
 	/**
 	 * Returns closing tag for referenced link element.
 	 * @return string 
@@ -292,9 +321,11 @@ class ParsedHtmlFilter implements FilterInterface
 		$tokenizer->tokenize();
 
 		$result = array();
+		$elements = $tokenizer->getElements();
+		$c = 0;
 
-		foreach ($tokenizer->getElements() as $element) {
-
+		foreach ($elements as $element) {
+			
 			if ($element instanceof Markup\HtmlElement) {
 				$result[] = $element->getContent();
 			}
@@ -342,13 +373,16 @@ class ParsedHtmlFilter implements FilterInterface
 					$link = $metadataElements[$element->getId()];
 					// Overwriting in case of duplicate markup tag usage
 					ObjectRepository::setCallerParent($link, $this, true);
-					$result[] = $this->parseSupraLinkStart($link);
+					$nextElement = $elements[$c + 1];
+					$result[] = $this->parseSupraLinkStart($link, $nextElement);
 				}
 			}
 			else if ($element instanceof Markup\SupraMarkupLinkEnd) {
 
 				$result[] = $this->parseSupraLinkEnd();
 			}
+			
+			$c++;
 		}
 
 		return join('', $result);
@@ -364,16 +398,12 @@ class ParsedHtmlFilter implements FilterInterface
 		$html = null;
 		
 		$resource = $element->getResource();
-		
-		$width = $element->getWidth();
-		$height = $element->getHeight();
-		
-		$align = $element->getAlign();
-		$alignCssClass = ! empty($align) ? "align-$align" : '';
-		
+			
 		if ($resource == VideoReferencedElement::RESOURCE_LINK) {
 			
 			$service = $element->getExternalService();
+			$width = 560;
+			$height = 315;
 			
 			$videoId = $element->getExternalId();
 			
@@ -383,28 +413,30 @@ class ParsedHtmlFilter implements FilterInterface
 			}
 			
 			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
-				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
+				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
 				<object width=\"{$width}\" height=\"{$height}\">
-					<param name=\"movie\" value=\"//www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\"></param>
+					<param name=\"movie\" value=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\"></param>
 					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
 					
-					<embed {$wmodeParam} src=\"//www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+					<embed {$wmodeParam} src=\"http://www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
 				</object>
 			</div>";		
 			}
 			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
-				$html = "<div class=\"video\ $alignCssClass\" data-attach=\"$.fn.resize\">
-				<iframe src=\"//player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
+				<iframe src=\"http://player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 				</div>";
 			}
 		}
 		else if ($resource == VideoReferencedElement::RESOURCE_SOURCE) {
 			
+			$width = $element->getWidth();
+			$height = $element->getHeight();
 			$src = $element->getExternalPath();
 			
 			if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_IFRAME) {
-				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
-					<iframe src=\"//{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
+					<iframe src=\"{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 					</div>";
 			}			
 			else if ($element->getExternalSourceType() == VideoReferencedElement::SOURCE_EMBED) {
@@ -414,11 +446,11 @@ class ParsedHtmlFilter implements FilterInterface
 					$wmodeParam = 'wmode="opaque"';
 				}
 				
-				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
+				$html = "<div class=\"video\" data-attach=\"$.fn.resize\">
 					<object width=\"{$width}\" height=\"{$height}\">
-					<param name=\"movie\" value=\"//{$src}\"></param>
+					<param name=\"movie\" value=\"{$src}\"></param>
 					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-					<embed {$wmodeParam} src=\"//{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+					<embed {$wmodeParam} src=\"{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
 				</object></div>";
 			}
 		}
