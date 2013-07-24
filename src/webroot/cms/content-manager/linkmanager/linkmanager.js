@@ -63,6 +63,14 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			'files': false,
 			'email': false
 		},
+		'page-external': {
+			'pages': false,
+			'group_pages': false,
+			'external': true,
+			'images': false,
+			'files': false,
+			'email': false
+		},
 		'image': {
 			'pages': false,
 			'group_pages': false,
@@ -441,7 +449,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						this.tree = new Supra.Tree({
 							'srcNode': node.one('.tree'),
 							'requestUri': sitemap_data_path,
-							'groupNodesSelectable': this.options.selectable.group_pages,
+							'groupNodesSelectable': this.selectable.group_pages,
 							'defaultChildType': Supra.LinkMapTreeNode
 						});
 						this.tree.plug(Supra.Tree.ExpandHistoryPlugin);
@@ -456,7 +464,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 						//On node change update button label
 						this.tree.after('selectedNodeChange', this.updateInsertButton, this);
 				} else {
-					if (!this.tree.getData()) {
+					if (!this.tree.getData() && this.selectable.pages) {
 						this.tree.set('loading', true);
 						this.tree.reload();
 					}
@@ -737,10 +745,10 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			}
 			
 			//If some option changed, then reload tree also
-			if (this.tree) {
+			if (this.tree && this.selectable.pages) {
 				//If some option changed, then reload tree also
-				if (this.options.selectable.group_pages != this.tree.get('groupNodesSelectable')) {
-					this.tree.set('groupNodesSelectable', this.options.selectable.group_pages);
+				if (this.selectable.group_pages != this.tree.get('groupNodesSelectable')) {
+					this.tree.set('groupNodesSelectable', this.selectable.group_pages);
 					reloading_tree = true;
 				}
 				
@@ -837,6 +845,15 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					} else if (!this.selectable.images && !this.selectable.files && !this.selectable.email) {
 						//Only pages
 						this.slideshow.set('slide', 'linkToPage');
+						
+						this.link_slideshow.set('noAnimations', true);
+						if (!this.selectable.pages && this.selectable.external) {
+							this.link_slideshow.set('slide', 'linkManagerExternal');	
+						} else if (this.selectable.pages && !this.selectable.external) {
+							this.link_slideshow.set('slide', 'linkManagerInternal');
+						}
+						this.link_slideshow.set('noAnimations', false);
+						
 					} else if (!this.selectable.pages && !this.selectable.external && !this.selectable.images && !this.selectable.files) {
 						//Only email
 						this.slideshow.set('slide', 'linkToEmail');
