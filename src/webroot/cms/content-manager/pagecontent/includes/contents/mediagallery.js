@@ -151,7 +151,7 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 				
 				content = form.get('boundingBox').one('.su-slide-content > div') || form.get('contentBox'),
 				button = new Supra.Button({
-											'style': 'small-gray',
+											'style': 'mid-blue',
 											'label': Supra.Intl.get(['gallery', 'label_button'])
 										 });
 			
@@ -174,7 +174,7 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 			}
 			
 			button.render(content);
-			button.addClass('button-section');
+			button.addClass('su-button-fill');
 			
 			if (reference && has_reference) {
 				// Add after reference element
