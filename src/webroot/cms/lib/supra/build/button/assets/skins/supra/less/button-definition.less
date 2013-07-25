@@ -23,6 +23,7 @@ button::-moz-focus-inner {
 		background-repeat: no-repeat;
 		
 		color: #fff;
+		cursor: pointer;
 		font-size: 12px;
 		font-weight: bold;
 		cursor: pointer;
@@ -91,6 +92,14 @@ button::-moz-focus-inner {
 		}
 		button {
 			width: 100%;
+		}
+	}
+	&.su-button-disabled {
+		&,
+		div,
+		button,
+		p {
+			cursor: default;
 		}
 	}
 }
