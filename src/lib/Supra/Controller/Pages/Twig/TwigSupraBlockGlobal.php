@@ -157,6 +157,8 @@ class TwigSupraBlockGlobal
 			$img->setAttribute('width', $realWidth);
 			$img->setAttribute('height', $realHeight);
 			
+			$img->setAttribute('alt', '');
+			
 			$this->preloadedImages[$width][$height][$cropped][$fromSize][$imageId] = $img;
 		}
 		
