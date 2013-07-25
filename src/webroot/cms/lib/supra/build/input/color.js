@@ -651,7 +651,8 @@ YUI.add("supra.input-color", function (Y) {
 					"bottom": 0,
 					"left": 0,
 					"background": "#fff",
-					"opacity": 0
+					"opacity": 0,
+					"cursor": "none"
 				});
 				this.set("nodeShim", shim);
 			}

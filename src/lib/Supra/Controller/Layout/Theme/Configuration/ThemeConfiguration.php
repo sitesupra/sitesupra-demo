@@ -436,6 +436,7 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 				'labelButton' => $configuration->label,
 				'type' => 'Group',
 				'visibleFor' => $configuration->visibleFor,
+				'icon' => $configuration->icon,
 				'properties' => array(),
 				'highlightElementSelector' => $configuration->highlightElement
 			);

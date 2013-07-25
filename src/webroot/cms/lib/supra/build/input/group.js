@@ -37,7 +37,12 @@ YUI.add('supra.input-group', function (Y) {
 		// Slide button label
 		'labelButton': {
 			value: ''
-		}	
+		},
+		
+		// Slide button icon
+		'icon': {
+			value: ''
+		}
 		
 	};
 	
@@ -117,6 +122,7 @@ YUI.add('supra.input-group', function (Y) {
 			this._inputs = {};
 			this._createSlide();
 			this._createInputs();
+			this._createButton();
 		},
 		
 		/**
@@ -132,12 +138,14 @@ YUI.add('supra.input-group', function (Y) {
 				var slideshow = this.getSlideshow();
 				
 				// On button click open slide
-				this._slideButton.on('click', this._openSlide, this);
-				
-				// Disabled change
-				this.on('disabledChange', function (event) {
-					this._slideButton.set('disabled', event.newVal);
-				}, this);
+				if (this._slideButton) {
+					this._slideButton.on('click', this._openSlide, this);
+					
+					// Disabled change
+					this.on('disabledChange', function (event) {
+						this._slideButton.set('disabled', event.newVal);
+					}, this);
+				}
 			}
 		},
 		
@@ -216,14 +224,31 @@ YUI.add('supra.input-group', function (Y) {
 			
 			this._slideContent = slide.one('.su-slide-content');
 			this._slideId = slide_id;
+		},
+		
+		/**
+		 * Add button to the main slide
+		 * 
+		 * @private
+		 */
+		_createButton: function () {
+			var label = this.get('label'),
+				labelButton = this.get('labelButton'),
+				icon = this.get('icon');
 			
 			// Button
 			var button = new Supra.Button({
-				'style': 'small',
-				'label': labelButton || label
+				'style': icon ? 'icon' : 'small', // style should be a string "icon"
+				'label': labelButton || label,
+				'icon': icon ? icon : null
 			});
 			
-			button.addClass('button-section');
+			if (!icon) {
+				button.addClass('button-section');
+			} else {
+				button.addClass('su-button-fill');
+			}
+			
 			button.render(this.get('contentBox'));
 			
 			this._slideButton = button;

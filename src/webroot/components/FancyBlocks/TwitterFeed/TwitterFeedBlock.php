@@ -5,6 +5,7 @@ namespace Project\FancyBlocks\TwitterFeed;
 use Supra\Controller\Pages\BlockController;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Request\PageRequestEdit;
+use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
 
 class TwitterFeedBlock extends BlockController
 {
@@ -64,19 +65,19 @@ class TwitterFeedBlock extends BlockController
             $tweets = $this->getTwitterfeed($tweets);
             
             if(is_object($tweets) && $tweets->errors) {
-               $errorMessage = 'Unable to get Twitter feed. Please try generating another PIN code in Twitter Settings.';
+               $errorMessages[] = 'Unable to get Twitter feed. Please try generating another PIN code in Twitter Settings.';
             } else {
                 $hasErrors = false;
             }
         } else {
-            $errorMessage = $result['error'];
+            $errorMessages = $result['errors'];
         }
         
         
         if ($hasErrors) {
             if ($request instanceof PageRequestEdit) {
                 $response
-                        ->assign('error', $errorMessage)
+                        ->assign('errors', $errorMessages)
                         ->outputTemplate('configuration-missing.html.twig');
             }            
         } else {
@@ -93,13 +94,22 @@ class TwitterFeedBlock extends BlockController
             'success' => true,
         );
         
-        $writeableIni = ObjectRepository::getIniConfigurationLoader('#twitter');        
-        $this->accessToken = $writeableIni->getValue('twitter', 'access_token');
-        $this->accessTokenSecret = $writeableIni->getValue('twitter', 'access_token_secret');
-        
+        $writeableIni = ObjectRepository::getIniConfigurationLoader('#twitter');
+		if (!($writeableIni instanceof WriteableIniConfigurationLoader)) {
+			throw new \RuntimeException('Twitter configuration loader is missing');
+		}
+		
+		if (
+			$writeableIni->hasKey('twitter', 'access_token') && 
+			$writeableIni->hasKey('twitter', 'access_token_secret')
+		) {
+			$this->accessToken = $writeableIni->getValue('twitter', 'access_token');
+			$this->accessTokenSecret = $writeableIni->getValue('twitter', 'access_token_secret');
+		}
+		
         if (!$this->accessToken || !$this->accessTokenSecret) {
-            $data['result'] = false;
-            $data['error'] = 'Twitter is not properly configured. Please set up it in Site Settings';
+            $data['success'] = false;
+            $data['errors'][] = 'Twitter is not properly configured. Please set it up in Site Settings';
         }
         
         $this->twitterProvider = ObjectRepository::getObject($this, 'Supra\Social\Twitter\TwitterDataProvider');
@@ -107,8 +117,8 @@ class TwitterFeedBlock extends BlockController
         
         $twitterAccount = $this->getPropertyValue('account');
         if (!$twitterAccount) {
-            $data['result'] = false;
-            $data['error'] = 'Please set Twitter account in Twitter Feed Block Properties.';
+            $data['success'] = false;
+            $data['errors'][] = 'Please set Twitter account in Twitter Feed Block Properties.';
         } else {
             $this->feedParameters['screen_name'] = $twitterAccount;
         }

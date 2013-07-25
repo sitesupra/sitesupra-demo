@@ -1,6 +1,8 @@
 <div class="block">
-    {% if error %}
-        {{ error }}
+    {% if errors %}
+		{% for error in errors %}
+		<p>{{ error }}</p>
+		{% endfor %}
     {% else %}
         Please set twitter account in Twitter Feed Block Properties.
     {% endif %}

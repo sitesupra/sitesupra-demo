@@ -392,7 +392,7 @@ Supra(function (Y) {
 					if (action.NAME) {
 						if (action.get('executed')) {
 							//Call function
-							action[config.actionFunction](config.id);
+							action[config.actionFunction](config.id, config);
 						} else {
 							if (button) {
 								button.set('loading', true);

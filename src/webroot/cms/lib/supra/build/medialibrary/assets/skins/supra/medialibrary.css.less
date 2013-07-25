@@ -81,13 +81,20 @@
 	padding: 0;
 	
 	&:hover,
-	&.selected {
+	&.selected,
+	&.marked {
 		background: url(images/item-hover-selected.png) 0 4px repeat-x;
+		border-radius: 3px;
 		
 		span {
 			color: #fff;
 			.text-shadow (0, 1px, 0, rgba(54, 53, 71, 0.6));
 		}
+	}
+	&.marked {
+		box-shadow: 0 1px 1px rgba(4,1,17,0.6) inset, 0 -1px 0 #afb0c0 inset;
+		background: url(/cms/lib/supra/img/blocks/background-hover.gif) 0 0 repeat;
+		border-radius: 3px;
 	}
 	
 	a {

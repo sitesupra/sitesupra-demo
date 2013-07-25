@@ -15874,7 +15874,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			//Open Media library on "Replace"
 			var image = this.selected_image,
 				image_id = this.selected_image_id,
-				data = this.original_data;
+				data = this.original_data,
+				path = null;
 			
 			if (image) {
 				//Open settings form and open MediaSidebar
@@ -15886,8 +15887,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.selected_image_id = image_id;
 				this.original_data = data;
 				
+				if (data && data.image && data.image.id) {
+					path = [].concat(data.image.path || []).concat([data.image.id]);
+				}
+				
 				Manager.getAction("MediaSidebar").execute({
-					onselect: Y.bind(this.insertImage, this)
+					onselect: Y.bind(this.insertImage, this),
+					item: path
 				});
 			}
 		},
@@ -16366,6 +16372,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					this.settings_form.getInput("title").setValue(data.title);
 					this.settings_form.getInput("description").setValue(data.description);
 					
+					this.original_data = data;
 					this.editImage();
 				} else {
 					//Find image by size and set initial image properties
@@ -18341,21 +18348,52 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			html = this.parseStrings(html);
 			
 			//Opening tag
-			html = html.replace(/<a [^>]*id="([^"]+)"[^>]*>/gi, function (html, id) {
-				if (!id) return html;
-				var data = htmleditor.getData(id);
+			html = html.replace(/<a([^>]*)>/gi, function (html, attrs_html) {
+				var attrs = htmleditor.parseTagAttributes(attrs_html),
+					id = attrs.id || htmleditor.generateDataUID(),
+					data = htmleditor.getData(id);
 				
-				if (data && data.type == NAME) {
-					//Extract classname
-					var classname = html.match(/class="([^"]+)"/);
-					data.classname = classname ? classname[1] : '';
+				if (!id || !data) {
+					// Only if there isn't data
 					
-					//Does link has button style
-					data.button = data.classname.indexOf(self.configuration.buttonClassName) != -1;
+					if (attrs.href.indexOf('mailto:') == 0) {
+						data = {
+							'href': attrs.href || '',
+							'resource': 'email',
+							'target': attrs.target || '',
+							'title': attrs.title || attrs.href.replace('mailto:', ''),
+							'classname': attrs['class'] || '',
+							'button': (attrs['class'] || '').indexOf(self.configuration.buttonClassName) != -1,
+							'type': NAME
+						};
+					} else {
+						data = {
+							'href': attrs.href || '',
+							'resource': 'link',
+							'target': attrs.target || '',
+							'title': attrs.title || '',
+							'classname': attrs['class'] || '',
+							'button': (attrs['class'] || '').indexOf(self.configuration.buttonClassName) != -1,
+							'type': NAME
+						};
+					}
 					
+					htmleditor.setData(id, data, true);
 					return '{supra.' + NAME + ' id="' + id + '"}';
 				} else {
-					return html;
+					data = htmleditor.getData(id);
+				
+					if (data && data.type == NAME) {
+						//Extract classname
+						data.classname = attrs['class'] || '';
+						
+						//Does link has button style
+						data.button = data.classname.indexOf(self.configuration.buttonClassName) != -1;
+						
+						return '{supra.' + NAME + ' id="' + id + '"}';
+					} else {
+						return html;
+					}
 				}
 			});
 			
@@ -18389,15 +18427,29 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				
 				if (!id || !htmleditor.getData(id)) {
 					// Only if there isn't already data
-					data = {
-						'href': attrs.href || '',
-						'resource': 'link',
-						'target': attrs.target || '',
-						'title': attrs.title || '',
-						'classname': attrs['class'] || '',
-						'button': (attrs['class'] || '').indexOf(self.configuration.buttonClassName) != -1,
-						'type': 'link'
-					};
+					
+					if (attrs.href.indexOf('mailto:') == 0) {
+						data = {
+							'href': attrs.href || '',
+							'resource': 'email',
+							'target': attrs.target || '',
+							'title': attrs.title || attrs.href.replace('mailto:', ''),
+							'classname': attrs['class'] || '',
+							'button': (attrs['class'] || '').indexOf(self.configuration.buttonClassName) != -1,
+							'type': NAME
+						};
+					} else {
+						data = {
+							'href': attrs.href || '',
+							'resource': 'link',
+							'target': attrs.target || '',
+							'title': attrs.title || '',
+							'classname': attrs['class'] || '',
+							'button': (attrs['class'] || '').indexOf(self.configuration.buttonClassName) != -1,
+							'type': NAME
+						};
+					}
+					
 					htmleditor.setData(id, data, true);
 				}
 				
@@ -35269,7 +35321,8 @@ YUI.add('supra.datatype-color', function(Y) {
 					"bottom": 0,
 					"left": 0,
 					"background": "#fff",
-					"opacity": 0
+					"opacity": 0,
+					"cursor": "none"
 				});
 				this.set("nodeShim", shim);
 			}
@@ -41321,7 +41374,12 @@ YUI.add('supra.input-group', function (Y) {
 		// Slide button label
 		'labelButton': {
 			value: ''
-		}	
+		},
+		
+		// Slide button icon
+		'icon': {
+			value: ''
+		}
 		
 	};
 	
@@ -41401,6 +41459,7 @@ YUI.add('supra.input-group', function (Y) {
 			this._inputs = {};
 			this._createSlide();
 			this._createInputs();
+			this._createButton();
 		},
 		
 		/**
@@ -41416,12 +41475,14 @@ YUI.add('supra.input-group', function (Y) {
 				var slideshow = this.getSlideshow();
 				
 				// On button click open slide
-				this._slideButton.on('click', this._openSlide, this);
-				
-				// Disabled change
-				this.on('disabledChange', function (event) {
-					this._slideButton.set('disabled', event.newVal);
-				}, this);
+				if (this._slideButton) {
+					this._slideButton.on('click', this._openSlide, this);
+					
+					// Disabled change
+					this.on('disabledChange', function (event) {
+						this._slideButton.set('disabled', event.newVal);
+					}, this);
+				}
 			}
 		},
 		
@@ -41500,14 +41561,31 @@ YUI.add('supra.input-group', function (Y) {
 			
 			this._slideContent = slide.one('.su-slide-content');
 			this._slideId = slide_id;
+		},
+		
+		/**
+		 * Add button to the main slide
+		 * 
+		 * @private
+		 */
+		_createButton: function () {
+			var label = this.get('label'),
+				labelButton = this.get('labelButton'),
+				icon = this.get('icon');
 			
 			// Button
 			var button = new Supra.Button({
-				'style': 'small',
-				'label': labelButton || label
+				'style': icon ? 'icon' : 'small', // style should be a string "icon"
+				'label': labelButton || label,
+				'icon': icon ? icon : null
 			});
 			
-			button.addClass('button-section');
+			if (!icon) {
+				button.addClass('button-section');
+			} else {
+				button.addClass('su-button-fill');
+			}
+			
 			button.render(this.get('contentBox'));
 			
 			this._slideButton = button;
