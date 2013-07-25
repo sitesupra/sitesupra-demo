@@ -579,10 +579,6 @@
 		width: 400px;
 		display: inline-block;
 	}
-	.yui3-input-image .su-button + .su-button,
-	.yui3-input-file .su-button + .su-button {
-		margin-left: 175px;
-	}
 	
 	.yui3-input span.replacement {
 		min-width: 390px;
@@ -631,6 +627,12 @@
  * Labels on the left side of inputs
  */
 .yui3-form-default {
+	/* File and image */
+	.yui3-input-image .su-button + .su-button,
+	.yui3-input-file .su-button + .su-button {
+		margin-left: 175px;
+	}
+	
 	/* Checkbox */
 	.yui3-input-checkbox .yui3-input-checkbox-bg {
 		margin-right: 100px;
