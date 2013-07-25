@@ -434,6 +434,7 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 			$data = array(
 				'id' => $configuration->id,
 				'labelButton' => $configuration->label,
+				'buttonStyle' => $configuration->buttonStyle,
 				'type' => 'Group',
 				'visibleFor' => $configuration->visibleFor,
 				'icon' => $configuration->icon,

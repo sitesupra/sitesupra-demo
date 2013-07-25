@@ -34,6 +34,11 @@ YUI.add('supra.input-group', function (Y) {
 			readOnly: true
 		},
 		
+		// Slide button style
+		'buttonStyle': {
+			value: 'small'
+		},
+		
 		// Slide button label
 		'labelButton': {
 			value: ''
@@ -234,16 +239,17 @@ YUI.add('supra.input-group', function (Y) {
 		_createButton: function () {
 			var label = this.get('label'),
 				labelButton = this.get('labelButton'),
-				icon = this.get('icon');
+				icon = this.get('icon'),
+				style = this.get('buttonStyle');
 			
 			// Button
 			var button = new Supra.Button({
-				'style': icon ? 'icon' : 'small', // style should be a string "icon"
+				'style': style,
 				'label': labelButton || label,
 				'icon': icon ? icon : null
 			});
 			
-			if (!icon) {
+			if (style == 'small' || style == 'small-gray') {
 				button.addClass('button-section');
 			} else {
 				button.addClass('su-button-fill');
