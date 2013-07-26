@@ -15,6 +15,11 @@ class Application extends SymfonyConsoleApplication
 {
 
 	/**
+	 * @var array
+	 */
+	protected $jobCollection = array();
+	
+	/**
 	 * Instance
 	 *
 	 * @var Application
@@ -55,7 +60,18 @@ class Application extends SymfonyConsoleApplication
 		$em = ObjectRepository::getEntityManager($this);
 		$repo = $em->getRepository(Cron\Entity\CronJob::CN());
 		/* @var $repo CronJobRepository */
-		$repo->addJob($input, $period);
+		
+		$jobEntity = $repo->addJob($input, $period);
+		
+		$this->jobCollection[$jobEntity->getId()] = $jobEntity;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getDefinedCronJobs()
+	{
+		return $this->jobCollection;
 	}
 
 	/**

@@ -18,6 +18,7 @@ class CronJob extends Entity
 		STATUS_NEW = 1,
 		STATUS_LOCKED = 2,
 		STATUS_FAILED = 3,
+		STATUS_DISABLED = 4,
 		STATUS_MASTER = 10;
 
 	/**
