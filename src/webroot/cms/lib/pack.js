@@ -45704,12 +45704,6 @@ YUI.add('supra.plugin-layout', function (Y) {
 		sync_function: null,
 		
 		/**
-		 * Sync was caused by browser resize event
-		 * @type {Boolean}
-		 */
-		resize_introduced_sync: false,
-		
-		/**
 		 * Initialize plugin
 		 * 
 		 * @constructor
@@ -45724,8 +45718,6 @@ YUI.add('supra.plugin-layout', function (Y) {
 				this.sync_function = Supra.throttle(this.syncUI, throttle, this);
 			} else {
 				this.sync_function = Y.bind(function () {
-					this.resize_introduced_sync = true;
-					
 					// We still want small delay to prevent non-smooth animations when
 					// two different components change layout, for example one block
 					// calls to hide sidebar and another one right after that to show it
