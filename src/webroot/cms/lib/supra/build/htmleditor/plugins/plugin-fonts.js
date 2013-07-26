@@ -587,7 +587,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			//Make sure PageContentSettings is rendered
 			var form = this.color_settings_form || this.createColorSidebar(),
 				action = Manager.getAction("PageContentSettings"),
-				toolbarName = "htmleditor-plugin";
+				toolbarName = "htmleditor-plugin",
+				label = Supra.Intl.get(["htmleditor", this.colorType + "color"]);
 			
 			if (!form) {
 				if (action.get("loaded")) {
@@ -609,11 +610,15 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				Manager.getAction('PageButtons').addActionButtons(toolbarName, []);
 			}
 			
+			//Change color input label
+			form.getInput('color').set('label', label) 
+			
+			//Show form
 			action.execute(form, {
 				"doneCallback": Y.bind(this.hideSidebar, this),
 				"hideCallback": Y.bind(this.onSidebarHide, this),
 				
-				"title": Supra.Intl.get(["htmleditor", this.colorType + "color"]),
+				"title": label,
 				"scrollable": true,
 				"toolbarActionName": toolbarName
 			});
