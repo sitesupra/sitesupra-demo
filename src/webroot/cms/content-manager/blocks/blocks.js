@@ -106,7 +106,7 @@ Supra(function (Y) {
 								'id': 'advanced',
 								'label': Supra.Intl.get(['inputs', 'advanced']),
 								'type': 'sidebar',
-								'icon': null
+								'icon': '/cms/lib/supra/img/sidebar/icons/button-advanced.png'
 							});
 						}
 						

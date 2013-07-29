@@ -182,7 +182,9 @@ YUI.add('slideshowmanager.settings', function (Y) {
 							'id': groups[id].id,
 							'properties': [],
 							'labelButton': groups[id].label,
-							'type': 'Group'
+							'type': 'Group',
+							'icon': groups[id].icon,
+							'buttonStyle': groups[id].icon ? 'icon' : undefined
 						};
 						grouped.push(group_inputs[id]);
 					}

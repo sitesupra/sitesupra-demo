@@ -25,11 +25,14 @@
 			"continue": "Continue"
 		},
 		"inputs": {
-			"red": "Red",
-			"green": "Green",
-			"blue": "Blue",
+			"red": "R",
+			"green": "G",
+			"blue": "B",
 			
-			"advanced": "Advanced",
+			"color_new": "new",
+			"color_current": "current",
+			
+			"advanced": "More settings",
 			"locked": "Global block",
 			"locked_list": "Global cell",
 			
