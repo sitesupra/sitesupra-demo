@@ -56,6 +56,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		'overlay-visible': 'su-overlay-visible',
 		'overlay-visible-hover': 'su-overlay-visible-hover',
 		'overlay-hidden': '',
+		'overlay-transparent': 'su-overlay-transparent',
 		
 		'icon-visible': 'su-overlay-icon-visible',
 		'icon-visible-hover': 'su-overlay-icon-visible-hover',
@@ -1124,10 +1125,17 @@ YUI.add('supra.page-content-proto', function (Y) {
 						if (this.isChildTypeAllowed(filter)) {
 							// This list can have this child
 							highlight_container = true;
+							
+							if (is_placeholder) {
+								overlay_classname = 'overlay-transparent';
+								icon_classname = 'icon-hidden';
+								name_classname = 'name-visible';
+							} else {
+								overlay_classname = 'overlay-hidden';
+							}
+						} else {
+							overlay_classname = 'overlay-hidden';
 						}
-						
-						overlay_classname = 'overlay-hidden';
-						
 					} else {
 						if (is_editable && this.get('parent').isChildTypeAllowed(filter)) {
 							// Parent can have that child, show overlay to allowed order, insert

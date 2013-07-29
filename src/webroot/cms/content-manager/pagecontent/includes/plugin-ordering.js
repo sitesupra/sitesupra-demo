@@ -127,11 +127,25 @@ YUI.add("supra.page-content-ordering", function (Y) {
 		dragBlockRegion: null,
 		
 		/**
+		 * Dragging is active
+		 * @type {Boolean}
+		 * @private
+		 */
+		dragBlockActive: false,
+		
+		/**
 		 * Highlight mode before user started dragging
 		 * @type {String}
 		 * @private
 		 */
 		highlightModeBeforeDrag: null,
+		
+		/**
+		 * Scroll offset created by highlight mode change
+		 * @type {Number}
+		 * @private
+		 */
+		highlightScrollOffset: 0,
 		
 		
 		/**
@@ -144,6 +158,7 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				selector = "div." + CLASSNAME_DRAGGABLE;
 			
 			this.dragSelector = selector;
+			this.dragBlockActive = false;
 			
 			var del = this.dragDelegate = new Y.DD.Delegate({
 				"container": container,
@@ -183,7 +198,19 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			var listRegions = this.getListRegions(),
 				i = 0,
 				ii = listRegions.length,
-				block;
+				block,
+				
+				overlay = e.target.get("node"),
+				node = e.target.get("node").next(),
+				xy = node.getXY(),
+				
+				iframe   = this.get('host').get('iframe'),
+				scroll   = iframe.getScroll(),
+				position = [0, 0];
+			
+			//Save element position relative to screen position
+			position[0] = xy[0] - scroll[0];
+			position[1] = xy[1] - scroll[1];
 			
 			//Add classname to lists
 			for (; i<ii; i++) {
@@ -203,9 +230,6 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			
 			//Add classname to item which is dragged (not proxy)
 			//to mark item which is dragged
-			var overlay = e.target.get("node"),
-				node = e.target.get("node").next();
-			
 			node.addClass(CLASSNAME_DRAGING);
 			
 			this.resetRegionsCache();
@@ -247,6 +271,25 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			this.dragBlockRegion = blockRegion;
 			this.dragBlockIndex = this.dragOriginalBlockIndex = blockIndex;
 			this.dragOriginalList = this.dragTargetList = listId;
+			
+			// After small delay enable dragging, because we don't want swap to happen
+			// immediatelly on drag start
+			Y.later(250, this, function () {
+				this.dragBlockActive = true;
+			});
+			
+			// Change scroll position to make sure element is relatively to screen at
+			// the same position as it was before
+			xy = node.getXY();
+			position[0] = xy[0] - position[0];
+			position[1] = xy[1] - position[1];
+			
+			this.highlightScrollOffset = [
+				position[0] - scroll[0],
+				position[1] - scroll[1]
+			];
+			
+			iframe.setScroll(position);
 		},
 		
 		/**
@@ -259,7 +302,10 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			var listRegions = this.getListRegions(),
 				i = 0,
 				ii = listRegions.length,
-				block = null;
+				block = null,
+				
+				iframe   = this.get('host').get('iframe'),
+				scroll = null;
 			
 			//Remove classname from lists
 			for (; i<ii; i++) {
@@ -304,6 +350,15 @@ YUI.add("supra.page-content-ordering", function (Y) {
 				});
 			}
 			
+			this.dragBlockActive = false;
+			
+			//Update scroll position to compensate for placeholder size change due to
+			//highlight mode change
+			scroll = iframe.getScroll();
+			scroll[0] -= this.highlightScrollOffset[0];
+			scroll[1] -= this.highlightScrollOffset[1];
+			iframe.setScroll(scroll);
+			
 			//Clean up
 			this.resetRegionsCache();
 		},
@@ -315,6 +370,8 @@ YUI.add("supra.page-content-ordering", function (Y) {
 		 * @private
 		 */
 		onDragDrag: function (e) {
+			if (!this.dragBlockActive) return;
+			
 			var dragOverlay = e.target.get("node"),
 				dragContent = dragOverlay.next(),
 				
@@ -483,6 +540,8 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			}
 			
 			newList.addChildToList(block, index);
+			
+			host.resizeOverlays();
 		},
 		
 		
@@ -644,6 +703,8 @@ YUI.add("supra.page-content-ordering", function (Y) {
 			for (id in children) {
 				children[id].resetBlockPositionCache();
 			}
+			
+			this.get('host').resizeOverlays();
 		},
 		
 		/**
