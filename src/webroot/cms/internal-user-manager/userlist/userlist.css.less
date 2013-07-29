@@ -139,3 +139,16 @@
 	//Only 1 item per group
 	display: none;
 }
+
+.userlist-groups.group-mode .userlist-group {
+	// Admin user group is not visible, so there are only 2 groups
+	width: 50%;
+	
+	&[data-group="1"] {
+		display: none;
+	}
+}
+
+.su-list-new-item-hidden {
+	display: none;
+}
