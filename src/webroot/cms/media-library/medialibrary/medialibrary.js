@@ -26,7 +26,8 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			'icon': '/cms/lib/supra/img/toolbar/icon-media-delete.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
-			'type': 'button'
+			'type': 'button',
+			'disabled': true
 	    }/*,
 		{
 	        'id': 'mlundo',
@@ -416,6 +417,13 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 					buttons.mlprivate.set('disabled', true);
 					buttons.mlpublic.set('disabled', true);
 				}
+			}
+			
+			if (data) {
+				buttons.mldelete.set('disabled', false);
+			} else {
+				// No file or folder selected
+				buttons.mldelete.set('disabled', true);
 			}
 		},
 		
