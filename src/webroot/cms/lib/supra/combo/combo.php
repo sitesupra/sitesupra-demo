@@ -49,7 +49,12 @@ if (empty($versionId)) {
 }
 $versionKey = base_convert(substr(md5($versionId), 0, 8), 16, 36);
 
-foreach ($files as &$file) {
+foreach ($files as $key => &$file) {
+	
+	if (strpos($file, 'version=') === 0) {
+		unset($files[$key]);
+		continue;
+	}
 
 	$file = str_replace(array('Y$', 'S$'), array('/cms/lib/yui.3.5.0/build/', '/cms/lib/supra/build/'), $file);
 
