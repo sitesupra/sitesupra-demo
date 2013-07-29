@@ -285,11 +285,23 @@ YUI.add('supra.input-map-inline', function (Y) {
 				g_instance = g_node.data('map');
 				
 				if (g_instance && g_instance.map) {
-					// We can get existing map instance
+					// We can get existing map instance created by $.fn.map plugin
+					latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
+					
 					this.map = g_instance.map;
 					this.marker = g_instance.marker;
 					this.info = g_instance.info;
 					this.mapSourceSelf = false;
+					
+					this.map.set('center', latlng);
+					this.map.set('zoom', value.zoom);
+					this.marker.set('position', latlng);
+					this.marker.set('draggable', true);
+					
+					if (this.info) {
+						// Hide info while editing
+						this.info.close();
+					}
 					
 					return;
 				}
@@ -639,15 +651,45 @@ YUI.add('supra.input-map-inline', function (Y) {
 					win.google.load("maps", "3",  {callback: win[fn], other_params:"sensor=false"});
 				}
 			} else {
-				// Load Google Maps
-				var script = document.createElement('script');
-					script.type = 'text/javascript';
-					script.src  = document.location.protocol + '//maps.googleapis.com/maps/api/js?sensor=false&callback=' + fn;
-				
-				doc.body.appendChild(script);
+				// Check if there already is script included
+				if (Y.Node(doc).one('script[src*="//maps.googleapis.com/maps/api/js"]')) {
+					// We don't have access to callback (we shouldn't touch it),
+					// so we use timeout to check when it's loaded
+					this.checkReadyRetries = 50;
+					this.checkReadyTimer = Y.later(100, this, this.checkReady, [doc, win, guid], true);
+				} else {
+					// Load Google Maps
+					var script = doc.createElement('script');
+						script.type = 'text/javascript';
+						script.src  = document.location.protocol + '//maps.googleapis.com/maps/api/js?sensor=false&callback=' + fn;
+					
+					doc.body.appendChild(script);
+				}
 			}
 			
 			return guid;
+		},
+		
+		/**
+		 * Continuously check if google maps has been loaded
+		 * 
+		 * @param {Object} doc Document element
+		 * @param {Object} win Window element
+		 * @param {Object} guid Map unique ID
+		 * @private
+		 */
+		checkReady: function (doc, win, guid) {
+			if (win.google && win.google.maps) {
+				// Google Maps loaded
+				this.checkReadyTimer.cancel();
+				this.ready(guid);
+			} else {
+				// Check if we need to stop trying
+				this.checkReadyRetries--;
+				if (!this.checkReadyRetries) {
+					this.checkReadyTimer.cancel();
+				}
+			}
 		},
 		
 		ready: function (guid) {
