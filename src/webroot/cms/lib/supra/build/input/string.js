@@ -216,6 +216,8 @@ YUI.add('supra.input-string', function (Y) {
 				if (mask && !mask.test(String(value))) return;
 				
 				//Trigger input event
+				value = this._onKeyDownNumberChange(value);
+				
 				if (this._last_value != value) {
 					inputNode.value = value;
 					this._last_value = value;
@@ -227,6 +229,17 @@ YUI.add('supra.input-string', function (Y) {
 				this.fire('input', {'value': this._original_value});
 				this.fire('reset');
 			}
+		},
+		
+		/**
+		 * Handle number value change using keys
+		 * 
+		 * @param {String} value New value
+		 * @returns {String} New value
+		 * @private
+		 */
+		_onKeyDownNumberChange: function (value) {
+			return value;
 		},
 		
 		/**

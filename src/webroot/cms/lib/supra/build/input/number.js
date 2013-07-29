@@ -92,6 +92,37 @@ YUI.add("supra.input-number", function (Y) {
 		},
 		
 		/**
+		 * Handle number value change using keys
+		 * 
+		 * @param {String} value New value
+		 * @returns {String} New value
+		 * @private
+		 */
+		_onKeyDownNumberChange: function (value) {
+			value = this._validateValue(value);
+			this._uiUpdateButtonStates(value);
+			return value;
+		},
+		
+		/**
+		 * Update button states
+		 * 
+		 * @param {String} value Value
+		 * @private
+		 */
+		_uiUpdateButtonStates: function (value) {
+			var min   = this.get('minValue'),
+				max   = this.get('maxValue');
+			
+			if (this.button_add) {
+				this.button_add.set('disabled', max !== null && max == value);
+			}
+			if (this.button_sub) {
+				this.button_sub.set('disabled', min !== null && min == value);
+			}
+		},
+		
+		/**
 		 * Value setter.
 		 * 
 		 * @param {String} value Value
@@ -100,9 +131,7 @@ YUI.add("supra.input-number", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			var value = this._validateValue(value),
-				min   = this.get('minValue'),
-				max   = this.get('maxValue');
+			var value = this._validateValue(value);
 			
 			this.get('inputNode').set('value', value);
 			
@@ -111,13 +140,7 @@ YUI.add("supra.input-number", function (Y) {
 				node.set('innerHTML', Y.Escape.html(value) || '0');
 			}
 			
-			if (this.button_add) {
-				this.button_add.set('disabled', max !== null && max == value);
-			}
-			if (this.button_sub) {
-				this.button_sub.set('disabled', min !== null && min == value);
-			}
-			
+			this._uiUpdateButtonStates(value);
 			
 			this._original_value = value;
 			return value;
@@ -204,10 +227,16 @@ YUI.add("supra.input-number", function (Y) {
 		 */
 		_addOne: function () {
 			var value = this.get('value'),
-				max = this.get('maxValue');
+				max   = this.get('maxValue'),
+				next  = value + this.get('step');
 			
-			if (max !== null && max == value) return;
-			this.set('value', value + this.get('step'));
+			if (max !== null) {
+				next = Math.min(next, max);
+			}
+			
+			if (next != value) {
+				this.set('value', next);
+			}
 		},
 		
 		/**
@@ -217,10 +246,16 @@ YUI.add("supra.input-number", function (Y) {
 		 */
 		_subOne: function () {
 			var value = this.get('value'),
-				min = this.get('minValue');
+				min = this.get('minValue'),
+				prev  = value - this.get('step');
 			
-			if (min !== null && min == value) return;
-			this.set('value', value - this.get('step'));
+			if (min !== null) {
+				prev = Math.max(prev, min);
+			}
+			
+			if (prev != value) {
+				this.set('value', prev);
+			}
 		}
 		
 	});
