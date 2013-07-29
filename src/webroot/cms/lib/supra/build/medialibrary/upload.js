@@ -335,6 +335,10 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 						host.addFile(folder, data.folder);
 					} else if (old_data) {
 						data_object.cache.save(data.folder);
+					} else if (all_files_completed) {
+						// Files were inside folder which was inside another folder
+						// Update children count
+						data_object.cache.one(folder).children_count++;
 					}
 				}
 				if (node && temp_file) {
@@ -362,11 +366,16 @@ YUI.add('supra.medialibrary-upload', function (Y) {
 				}
 				
 				if (!evt.node) {
-					//If request was for replace and image is still opened then
-					//reload image source
-					var item = host.getOpenedItem();
-					if (item && file_id == item.id) {
-						host.reloadImageSource(data);
+					if (temp_file) {
+						//Item doesn't have a node, just add data
+						data_object.cache.add(data);
+					} else {
+						//If request was for replace and image is still opened then
+						//reload image source
+						var item = host.getOpenedItem();
+						if (item && file_id == item.id) {
+							host.reloadImageSource(data);
+						}
 					}
 					
 					return;
