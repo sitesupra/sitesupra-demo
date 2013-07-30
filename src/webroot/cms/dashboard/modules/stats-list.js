@@ -56,7 +56,7 @@ YUI.add("dashboard.stats-list", function (Y) {
 	
 	Stats.HTML_PARSER = {
 		"title": function (srcNode) {
-			var attr = srcNode.getAttribute("suTitle");
+			var attr = srcNode.getAttribute("data-title");
 			if (attr) return attr;
 		}
 	};

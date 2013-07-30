@@ -162,13 +162,13 @@ YUI.add("supra.input-color", function (Y) {
 	Input.HTML_PARSER = {
 		"allowUnset": function (srcNode) {
 			var input = this.get("inputNode"),
-				unset = srcNode.getAttribute("suAllowUnset") == "true" || (input && input.getAttribute("suAllowUnset") == "true");
+				unset = srcNode.getAttribute("data-allow-unset") == "true" || (input && input.getAttribute("data-allow-unset") == "true");
 			
 			return unset === true ? true : null;
 		},
 		"presets": function (srcNode) {
 			var input = this.get("inputNode"),
-				presets = srcNode.getAttribute("suPresets") || (input && input.getAttribute("suPresets"));
+				presets = srcNode.getAttribute("data-presets") || (input && input.getAttribute("data-presets"));
 			
 			return presets ? presets.split(',') : null;
 		}

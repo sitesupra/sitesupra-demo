@@ -146,7 +146,7 @@ YUI.add('supra.slideshow', function (Y) {
 					}
 					
 					//Add scrollbar
-					if (this.getAttribute('suScrollable') != 'false') {
+					if (this.getAttribute('data-scrollable') != 'false') {
 						var scrollable = new Supra.Scrollable({
 							'srcNode': this
 						});

@@ -39,7 +39,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</div>\
 			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
-				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' suUseReplacement="true" />\
+				<input type="text" name="filename" value="{{ filename|escape }}" data-value-mask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' data-use-replacement="true" />\
 			</span>\
 			\
 			<div class="group">\
@@ -86,7 +86,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</div>\
 			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
-				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' suUseReplacement="true" />\
+				<input type="text" name="filename" value="{{ filename|escape }}" data-value-mask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' data-use-replacement="true" />\
 			</span>\
 			\
 			<div class="group">\
@@ -689,13 +689,13 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				
 				//Create form
 				node.all('input,textarea,select').each(function (item) {
-					if (item.getAttribute('suIgnore')) return;
+					if (item.getAttribute('data-supra-ignore')) return;
 					
 					var tag = item.get('tagName').toLowerCase(),
 						name = item.getAttribute('name'),
 						props = {
 							'srcNode': item,
-							'useReplacement': !!item.getAttribute('suUseReplacement'),
+							'useReplacement': !!item.getAttribute('data-use-replacement'),
 							'type': (tag == 'input' ? 'String' : (tag == 'textarea' ? 'Text' : 'SelectList')),
 							'value': item.get('value')
 						};

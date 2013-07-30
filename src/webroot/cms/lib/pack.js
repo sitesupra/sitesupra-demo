@@ -5228,7 +5228,7 @@ YUI.add('supra.base', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suStyle');
+				style = button.getAttribute('data-style');
 			}
 			
 			return style || 'small';
@@ -5238,7 +5238,7 @@ YUI.add('supra.base', function (Y) {
 				type = null;
 			
 			if (button) {
-				type = button.getAttribute('suType');
+				type = button.getAttribute('data-type');
 			}
 			
 			return type || 'push';
@@ -5248,7 +5248,7 @@ YUI.add('supra.base', function (Y) {
 				icon = null;
 			
 			if (button) {
-				icon = button.getAttribute('suIcon');
+				icon = button.getAttribute('data-icon');
 			}
 			
 			return icon;
@@ -5258,7 +5258,7 @@ YUI.add('supra.base', function (Y) {
 				down = false;
 			
 			if (button) {
-				down = (button.getAttribute('suDown') === 'true');
+				down = (button.getAttribute('data-state-down') === 'true');
 			}
 			
 			return down;
@@ -5269,7 +5269,7 @@ YUI.add('supra.base', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suIconStyle') || undefined;
+				style = button.getAttribute('data-icon-style') || undefined;
 			}
 		},
 		
@@ -5278,13 +5278,13 @@ YUI.add('supra.base', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suGroupStyle') || '';
+				style = button.getAttribute('data-group-style') || '';
 			}
 		},
 		
 		iconBackgroundColor: function (srcNode) {
 			var button = this.get('nodeButton'),
-				style = button.getAttribute('suIconBackgroundColor');
+				style = button.getAttribute('data-icon-background-color');
 			
 			if (button && style) {
 				return style;
@@ -8104,7 +8104,7 @@ YUI().add("supra.io-css", function (Y) {
 			return !!val;
 		},
 		'style': function (srcNode) {
-			return srcNode.getAttribute('suStyle') || null;
+			return srcNode.getAttribute('data-style') || null;
 		}
 	};
 	
@@ -9022,7 +9022,7 @@ YUI().add("supra.io-css", function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
-			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('suUseReplacement') == 'true') {
+			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('data-use-replacement') == 'true') {
 				this.set('useReplacement', true);
 				var labelNode = this.get('labelNode');
 				if (labelNode) {
@@ -9030,7 +9030,7 @@ YUI().add("supra.io-css", function (Y) {
 				}
 			}
 			
-			if (this.get('srcNode').getAttribute('suBlurOnReturn') == 'true') {
+			if (this.get('srcNode').getAttribute('data-blur-on-return') == 'true') {
 				this.set('blurOnReturn', true);
 			}
 			
@@ -9070,7 +9070,7 @@ YUI().add("supra.io-css", function (Y) {
 			
 			//Value mask
 			if (!this.get('valueMask')) {
-				var mask = this.get('inputNode').getAttribute('suValueMask');
+				var mask = this.get('inputNode').getAttribute('data-value-mask');
 				if (mask) {
 					this.set('valueMask', new RegExp(mask));
 				}
@@ -9078,7 +9078,7 @@ YUI().add("supra.io-css", function (Y) {
 			
 			//Value source
 			if (!this.get('valueSource')) {
-				var mask = this.get('inputNode').getAttribute('suValueSource');
+				var mask = this.get('inputNode').getAttribute('data-value-source');
 				if (mask) {
 					this.set('valueSource');
 				}
@@ -26359,8 +26359,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			return values;
 		},
 		'style': function (srcNode) {
-			if (srcNode.getAttribute('suStyle')) {
-				return srcNode.getAttribute('suStyle') || '';
+			if (srcNode.getAttribute('data-style')) {
+				return srcNode.getAttribute('data-style') || '';
 			}
 		}
 	};
@@ -26914,11 +26914,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	Input.HTML_PARSER = {
 		'backgroundColor': function (srcNode) {
-			return srcNode.getAttribute('suBackgroundColor') || 'transparent';
+			return srcNode.getAttribute('data-background-color') || 'transparent';
 		},
 		'iconStyle': function (srcNode) {
-			if (srcNode.getAttribute('suIconStyle')) {
-				return srcNode.getAttribute('suIconStyle') || '';
+			if (srcNode.getAttribute('data-icon-style')) {
+				return srcNode.getAttribute('data-icon-style') || '';
 			}
 		}
 	};
@@ -28650,7 +28650,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	Input.HTML_PARSER = {
 		'path': function (srcNode) {
-			return srcNode.getAttribute('suPath') || '';
+			return srcNode.getAttribute('data-path') || '';
 		}
 	};
 	
@@ -28870,8 +28870,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	Input.HTML_PARSER = {
 		'labels': function (srcNode) {
-			var a = srcNode.getAttribute('suLabelA'),
-				b = srcNode.getAttribute('suLabelB');
+			var a = srcNode.getAttribute('data-label-a'),
+				b = srcNode.getAttribute('data-label-b');
 			
 			if (a && b) {
 				return [a, b];
@@ -29725,8 +29725,8 @@ YUI.add('supra.uploader', function (Y) {
 			
 			iframe = Y.Node.create('<iframe class="offscreen" id="' + node_id + '" name="' + node_id + '" src="' + uri + '" />');
 			form   = Y.Node.create('<form target="' + node_id + '" class="legacy-file-upload-form" method="post" action="" enctype="multipart/form-data">' +
-										'<input suIgnore="true" type="file" name="file" class="upload-file-input" />' +
-										'<button suIgnore="true" type="submit">Upload</button>' +
+										'<input data-supra-ignore="true" type="file" name="file" class="upload-file-input" />' +
+										'<button data-supra-ignore="true" type="submit">Upload</button>' +
 								  '</form>');
 			
 			input = form.one('input');
@@ -30774,7 +30774,7 @@ YUI.add('supra.uploader', function (Y) {
 		 */
 		'data': function (srcNode) {
 			var input = this.get('inputNode'),
-				data = input.getAttribute('suData');
+				data = input.getAttribute('data-request-parameters');
 				
 			if (data) {
 				return Y.QueryString.parse(data);
@@ -30795,7 +30795,7 @@ YUI.add('supra.uploader', function (Y) {
 				uri = this.get('requestUri'),
 				attr = null;
 			
-			if (input && (attr = input.getAttribute('suRequestUri'))) {
+			if (input && (attr = input.getAttribute('data-request-uri'))) {
 				return attr;
 			} else {
 				return uri;
@@ -32812,15 +32812,15 @@ YUI.add('supra.input-slider', function (Y) {
 		},
 		'length': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLength') || 200;
+			return input.getAttribute('data-length') || 200;
 		},
 		'labelLess': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLabelLess') || '';
+			return input.getAttribute('data-label-less') || '';
 		},
 		'labelMore': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLabelMore') || '';
+			return input.getAttribute('data-label-more') || '';
 		}
 	};
 	
@@ -34948,13 +34948,13 @@ YUI.add('supra.datatype-color', function(Y) {
 	Input.HTML_PARSER = {
 		"allowUnset": function (srcNode) {
 			var input = this.get("inputNode"),
-				unset = srcNode.getAttribute("suAllowUnset") == "true" || (input && input.getAttribute("suAllowUnset") == "true");
+				unset = srcNode.getAttribute("data-allow-unset") == "true" || (input && input.getAttribute("data-allow-unset") == "true");
 			
 			return unset === true ? true : null;
 		},
 		"presets": function (srcNode) {
 			var input = this.get("inputNode"),
-				presets = srcNode.getAttribute("suPresets") || (input && input.getAttribute("suPresets"));
+				presets = srcNode.getAttribute("data-presets") || (input && input.getAttribute("data-presets"));
 			
 			return presets ? presets.split(',') : null;
 		}
@@ -36764,27 +36764,27 @@ YUI.add('supra.datatype-color', function(Y) {
 	};
 	
 	Input.HTML_PARSER = {
-		// suMinDate attribute for minDate
+		// data-min-date attribute for minDate
 		"minDate": function (srcNode) {
-			var date = srcNode.getAttribute("suMinDate");
+			var date = srcNode.getAttribute("data-min-date");
 			if (date) return date;
 		},
 		
-		// suMaxDate attribute for maxDate
+		// data-max-date attribute for maxDate
 		"maxDate": function (srcNode) {
-			var date = srcNode.getAttribute("suMaxDate");
+			var date = srcNode.getAttribute("data-max-date");
 			if (date) return date;
 		},
 		
 		// Label when no date is selected
 		"labelSet": function (srcNode) {
-			var label = srcNode.getAttribute("suLabelSet");
+			var label = srcNode.getAttribute("data-label-set");
 			if (label) return label;
 		},
 		
 		// Label to clear selection
 		"labelClear": function (srcNode) {
-			var label = srcNode.getAttribute("suLabelClear");
+			var label = srcNode.getAttribute("data-label-clear");
 			if (label) return label;
 		}
 	};
@@ -37064,13 +37064,13 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (this.get("time")) {
 				var html = '<div class="yui3-input-date-time">\
-								<input type="text" name="hours" value="00" suValueMask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />\
+								<input type="text" name="hours" value="00" data-value-mask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />\
 								<span>:</span>\
-								<input type="text" name="minutes" value="00" suValueMask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />\
+								<input type="text" name="minutes" value="00" data-value-mask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />\
 								\
 								<br />\
 								\
-								<button type="button" suStyle="small"><p>' + this.get("labelClear") + '</p></button>\
+								<button type="button" data-style="small"><p>' + this.get("labelClear") + '</p></button>\
 							</div>';
 				
 				var node	= this.widgets.time    = Y.Node.create(html),
@@ -37084,7 +37084,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				
 			} else {
 				var html = '<div class="yui3-input-date-time">\
-								<button type="button" suStyle="small"><p>' + this.get("labelClear") + '</p></button>\
+								<button type="button" data-style="small"><p>' + this.get("labelClear") + '</p></button>\
 							</div>';
 				
 				var node	= this.widgets.time    = Y.Node.create(html);
@@ -40665,7 +40665,7 @@ YUI.add("supra.input-keywords", function (Y) {
 	
 	Input.HTML_PARSER = {
 		'suggestionsEnabled': function (srcNode) {
-			var value = srcNode.getAttribute('suSuggestionsEnabled');
+			var value = srcNode.getAttribute('data-suggestions-enabled');
 			if (value === "true" || value === true || value === 1) {
 				return true;
 			} else {
@@ -44600,8 +44600,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			for(var i=0,ii=inputs.size(); i<ii; i++) {
 				var input = inputs.item(i);
 				
-				//suIgnore allows to skip inputs
-				if (input.getAttribute('suIgnore')) continue;
+				//data-supra-ignore allows to skip inputs
+				if (input.getAttribute('data-supra-ignore')) continue;
 				
 				var id = input.getAttribute('id') || input.getAttribute('name');
 				var name = input.getAttribute('name') || input.getAttribute('id');
@@ -44623,9 +44623,9 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 				}
 				
 				//Detect type
-				var suType = input.getAttribute('suType');
-				if (suType) {
-					type = suType;
+				var typeAttribute = input.getAttribute('data-type');
+				if (typeAttribute) {
+					type = typeAttribute;
 				} else {
 					switch(tagName) {
 						case 'textarea':
@@ -44978,7 +44978,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			this.inputs = inputs;
 			this.inputs_definition = definitions;
 			
-			var style = this.get('style') || this.get('srcNode').getAttribute('suStyle') || 'default';
+			var style = this.get('style') || this.get('srcNode').getAttribute('data-style') || 'default';
 			this.setStyle(style);
 		},
 		
@@ -46535,7 +46535,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 					}
 					
 					//Add scrollbar
-					if (this.getAttribute('suScrollable') != 'false') {
+					if (this.getAttribute('data-scrollable') != 'false') {
 						var scrollable = new Supra.Scrollable({
 							'srcNode': this
 						});

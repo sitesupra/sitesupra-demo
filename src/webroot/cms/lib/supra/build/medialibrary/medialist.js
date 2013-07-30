@@ -172,7 +172,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			</div>\
 			{% if allowInsert %}\
 			<div class="insert">\
-				<button data-id="insert" suStyle="small-blue" type="button">{{ "medialibrary.insert"|intl }}</button>\
+				<button data-id="insert" data-style="small-blue" type="button">{{ "medialibrary.insert"|intl }}</button>\
 			</div>\
 			{% endif %}\
 		</div>');
@@ -226,7 +226,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 			</div>\
 			{% if allowInsert %}\
 			<div class="insert">\
-				<button data-id="insert" suStyle="small-blue" type="button">{{ "medialibrary.insert"|intl }}</button>\
+				<button data-id="insert" data-style="small-blue" type="button">{{ "medialibrary.insert"|intl }}</button>\
 			</div>\
 			{% endif %}\
 		</div>');

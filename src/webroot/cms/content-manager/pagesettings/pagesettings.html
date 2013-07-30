@@ -17,7 +17,7 @@
 	
 	<!-- Content -->
 	<div class="sidebar-content has-header">
-		<form class="yui3-form-vertical" suStyle="vertical">
+		<form class="yui3-form-vertical" data-style="vertical">
 			
 			<!-- Slideshow -->
 			<div class="slideshow">
@@ -28,7 +28,7 @@
 					<input type="text" name="title" id="title" value="" />
 					
 					<label for="path">{#settings.page_url#}</label>
-					<input type="text" name="path" id="path" value="" suValueMask="^[^\\\/\?\#\s\%]*$" />
+					<input type="text" name="path" id="path" value="" data-value-mask="^[^\\\/\?\#\s\%]*$" />
 					
 					<div class="yui3-input layout-section">
 						<label>{#settings.page_layout#}</label>
@@ -83,7 +83,7 @@
 				</div><div id="slideMeta" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-seo.png" data-title="{#settings.meta_title#}">
 					
 					<label for="keywords">{#settings.keywords#}</label>
-					<input type="text" name="keywords" id="keywords" value="" suType="Keywords" suSuggestionsEnabled="true" />
+					<input type="text" name="keywords" id="keywords" value="" data-type="Keywords" data-suggestions-enabled="true" />
 					
 					<label for="description">{#settings.description#}</label>
 					<textarea name="description" id="description"></textarea>
@@ -132,19 +132,19 @@
 					<div class="time">
 						<p class="label">{#settings.select_time#}</p>
 						
-						<input type="text" name="schedule_hours" value="" suValueMask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />
+						<input type="text" name="schedule_hours" value="" data-value-mask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />
 						<span>:</span>
-						<input type="text" name="schedule_minutes" value="" suValueMask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />
+						<input type="text" name="schedule_minutes" value="" data-value-mask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />
 						
 						<br />
 						
-						<button type="button" suStyle="small"><p>{#settings.calendar_clear#}</p></button>
+						<button type="button" data-style="small"><p>{#settings.calendar_clear#}</p></button>
 					</div>
 				
 				</div><div id="slideRedirect" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-redirect.png" data-title="{#settings.redirect_title#}">
 			
 					<label for="redirect_type" class="hidden"></label>
-					<select name="redirect_type" id="redirect_type" value="" suType="SelectList">
+					<select name="redirect_type" id="redirect_type" value="" data-type="SelectList">
 						<option value="off">{#settings.redirect_off#}</option>
 						<option value="relative">{#settings.redirect_relative#}</option>
 						<option value="fixed">{#settings.redirect_fixed#}</option>
@@ -153,7 +153,7 @@
 				</div><div id="slideRedirectRelative" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-redirect.png" data-title="{#settings.redirect_relative_title#}">
 			
 					<label for="relative_redirect" class="hidden"></label>
-					<select name="relative_redirect" id="relative_redirect" value="" suType="SelectList">
+					<select name="relative_redirect" id="relative_redirect" value="" data-type="SelectList">
 						<option value="first">{#settings.redirect_first#}</option>
 						<option value="last">{#settings.redirect_last#}</option>
 					</select>
@@ -169,39 +169,39 @@
 				</div><div id="slideAdvanced" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-advanced.png" data-title="{#settings.advanced_title#}">
 				
 					<label for="active">{#settings.is_active#}</label>
-					<select name="active" id="active" value="" suType="Checkbox">
+					<select name="active" id="active" value="" data-type="Checkbox">
 						<option value="1">{#buttons.on#}</option>
 						<option value="0">{#buttons.off#}</option>
 					</select>
 					
 					<label for="is_limited">{#settings.is_limited#}</label>
-					<select name="is_limited" id="is_limited" value="" suType="Checkbox" class="hidden">
+					<select name="is_limited" id="is_limited" value="" data-type="Checkbox" class="hidden">
 						<option value="1">{#buttons.on#}</option>
 						<option value="0">{#buttons.off#}</option>
 					</select>
 					<p class="description isLimited-description hidden">{#settings.is_limited_description#}</p>
 					
 					<label for="include_in_search">{#settings.include_in_search#}</label>
-					<select name="include_in_search" id="include_in_search" value="" suType="Checkbox">
+					<select name="include_in_search" id="include_in_search" value="" data-type="Checkbox">
 						<option value="1">{#buttons.on#}</option>
 						<option value="0">{#buttons.off#}</option>
 					</select>
 					<p class="description">{#settings.include_in_search_description#}</p>
 					
 					<label for="is_visible_in_menu">{#settings.is_visible_in_menu#}</label>
-					<select name="is_visible_in_menu" id="is_visible_in_menu" value="" suType="Checkbox">
+					<select name="is_visible_in_menu" id="is_visible_in_menu" value="" data-type="Checkbox">
 						<option value="1">{#buttons.on#}</option>
 						<option value="0">{#buttons.off#}</option>
 					</select>
 
 					<label for="is_visible_in_sitemap">{#settings.is_visible_in_sitemap#}</label>
-					<select name="is_visible_in_sitemap" id="is_visible_in_sitemap" value="" suType="Checkbox">
+					<select name="is_visible_in_sitemap" id="is_visible_in_sitemap" value="" data-type="Checkbox">
 						<option value="1">{#buttons.on#}</option>
 						<option value="0">{#buttons.off#}</option>
 					</select>
 					
 					<label for="global">{#settings.allow_translate#}</label>
-					<select name="global" id="global" value="" suType="Checkbox">
+					<select name="global" id="global" value="" data-type="Checkbox">
 						<option value="1">{#buttons.on#}</option>
 						<option value="0">{#buttons.off#}</option>
 					</select>
@@ -228,13 +228,13 @@
 					<div class="time">
 						<p class="label">{#settings.select_time#}</p>
 						
-						<input type="text" name="created_hours" value="" suValueMask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />
+						<input type="text" name="created_hours" value="" data-value-mask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />
 						<span>:</span>
-						<input type="text" name="created_minutes" value="" suValueMask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />
+						<input type="text" name="created_minutes" value="" data-value-mask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />
 						
 						<br />
 						
-						<button type="button" suStyle="small"><p>{#settings.calendar_clear#}</p></button>
+						<button type="button" data-style="small"><p>{#settings.calendar_clear#}</p></button>
 					</div>
 				
 				</div>

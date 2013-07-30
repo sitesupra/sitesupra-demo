@@ -12,7 +12,7 @@
 		
 		<fieldset class="input-group">
 			<label for="banner_priority">{#edit.priority#}</label>
-			<select name="priority" id="banner_priority" suType="Slider" suLength="200" suLabelLess="{#edit.priority_less#}" suLabelMore="{#edit.priority_more#}">
+			<select name="priority" id="banner_priority" data-type="Slider" data-length="200" data-label-less="{#edit.priority_less#}" data-label-more="{#edit.priority_more#}">
 				<option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option>
 			</select>
 		</fieldset>
@@ -25,7 +25,7 @@
 		
 		<fieldset class="input-group">
 			<label for="banner_status">{#edit.status#}</label>
-			<select name="status" id="banner_status" value="" suType="SelectList">
+			<select name="status" id="banner_status" value="" data-type="SelectList">
 				<option value="1">{#buttons.on#}</option>
 				<option value="0">{#buttons.off#}</option>
 			</select>

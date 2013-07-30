@@ -314,8 +314,8 @@ YUI.add('supra.uploader', function (Y) {
 			
 			iframe = Y.Node.create('<iframe class="offscreen" id="' + node_id + '" name="' + node_id + '" src="' + uri + '" />');
 			form   = Y.Node.create('<form target="' + node_id + '" class="legacy-file-upload-form" method="post" action="" enctype="multipart/form-data">' +
-										'<input suIgnore="true" type="file" name="file" class="upload-file-input" />' +
-										'<button suIgnore="true" type="submit">Upload</button>' +
+										'<input data-supra-ignore="true" type="file" name="file" class="upload-file-input" />' +
+										'<button data-supra-ignore="true" type="submit">Upload</button>' +
 								  '</form>');
 			
 			input = form.one('input');

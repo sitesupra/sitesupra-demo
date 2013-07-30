@@ -175,7 +175,7 @@ YUI.add('supra.button', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suStyle');
+				style = button.getAttribute('data-style');
 			}
 			
 			return style || 'small';
@@ -185,7 +185,7 @@ YUI.add('supra.button', function (Y) {
 				type = null;
 			
 			if (button) {
-				type = button.getAttribute('suType');
+				type = button.getAttribute('data-type');
 			}
 			
 			return type || 'push';
@@ -195,7 +195,7 @@ YUI.add('supra.button', function (Y) {
 				icon = null;
 			
 			if (button) {
-				icon = button.getAttribute('suIcon');
+				icon = button.getAttribute('data-icon');
 			}
 			
 			return icon;
@@ -205,7 +205,7 @@ YUI.add('supra.button', function (Y) {
 				down = false;
 			
 			if (button) {
-				down = (button.getAttribute('suDown') === 'true');
+				down = (button.getAttribute('data-state-down') === 'true');
 			}
 			
 			return down;
@@ -216,7 +216,7 @@ YUI.add('supra.button', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suIconStyle') || undefined;
+				style = button.getAttribute('data-icon-style') || undefined;
 			}
 		},
 		
@@ -225,13 +225,13 @@ YUI.add('supra.button', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suGroupStyle') || '';
+				style = button.getAttribute('data-group-style') || '';
 			}
 		},
 		
 		iconBackgroundColor: function (srcNode) {
 			var button = this.get('nodeButton'),
-				style = button.getAttribute('suIconBackgroundColor');
+				style = button.getAttribute('data-icon-background-color');
 			
 			if (button && style) {
 				return style;

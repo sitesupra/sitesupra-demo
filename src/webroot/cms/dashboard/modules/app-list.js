@@ -65,7 +65,7 @@ YUI.add("dashboard.app-list", function (Y) {
 	
 	AppList.HTML_PARSER = {
 		"title": function (srcNode) {
-			var attr = srcNode.getAttribute("suTitle");
+			var attr = srcNode.getAttribute("data-title");
 			if (attr) return attr;
 		}
 	};

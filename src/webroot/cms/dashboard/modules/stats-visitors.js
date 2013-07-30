@@ -7,8 +7,8 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 				<h2>\
 					<span>{{ title|escape }}</span>\
 					<small>{{ website|escape }}</small>\
-					<button suStyle="small" class="button-settings"></button>\
-					<button suStyle="small-blue" class="button-done"></button>\
+					<button data-style="small" class="button-settings"></button>\
+					<button data-style="small-blue" class="button-done"></button>\
 				</h2>\
 			</div>';
 	
@@ -78,7 +78,7 @@ YUI.add('dashboard.stats-visitors', function (Y) {
 	
 	Visitors.HTML_PARSER = {
 		'title': function (srcNode) {
-			var attr = srcNode.getAttribute('suTitle');
+			var attr = srcNode.getAttribute('data-title');
 			if (attr) return attr;
 		}
 	};
