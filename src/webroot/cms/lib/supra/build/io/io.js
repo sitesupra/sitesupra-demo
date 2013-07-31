@@ -268,6 +268,10 @@ YUI().add("supra.io", function (Y) {
 			responseText = Supra.Intl.replace(responseText, 'json');
 		}
 		
+		if (responseText.indexOf && responseText.indexOf('{%') !== -1) {
+			responseText = Supra.Template.extractTemplates(responseText);
+		}
+		
 		try {
 			switch((cfg.type || '').toLowerCase()) {
 				case 'json':

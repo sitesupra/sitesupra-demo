@@ -10,18 +10,20 @@
 	<a class="prev">{# list.prev #}</a>
 	
 	<div class="list-banners"></div>
-	
-	<!-- User template -->
-	<script type="text/html" id="listBannersItem">
-		{% for banner in children %}
-			<div class="list-banner hidden" data-banner="{{ banner.banner_id|escape }}">
-				<div><img src="{{ banner.external_path|escape }}" alt="" /></div>
-				<br />
-				<a>{{ banner.title|escape }}</a>
-				{% if banner.scheduled %}
-					<span class="scheduled">{{ banner.scheduled }}</span>
-				{% endif %}
-			</div>
-		{% endfor %}
-	</script>
 </div>
+
+<!-- User template -->
+{% template listBannersItem %}
+
+	{% for banner in children %}
+		<div class="list-banner hidden" data-banner="{{ banner.banner_id|escape }}">
+			<div><img src="{{ banner.external_path|escape }}" alt="" /></div>
+			<br />
+			<a>{{ banner.title|escape }}</a>
+			{% if banner.scheduled %}
+				<span class="scheduled">{{ banner.scheduled }}</span>
+			{% endif %}
+		</div>
+	{% endfor %}
+
+{% endtemplate %}

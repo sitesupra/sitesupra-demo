@@ -27,42 +27,40 @@
 		
 	</div>
 	
-	
-	<!-- Templates -->
-	<script type="text/template" id="blockGroupTemplate">
-		<a class="button-section" tabindex="0" data-target="{{ id }}">
-			<img src="/cms/lib/supra/img/blocks/icons-groups/{{ id }}-inactive.png" class="inactive" />
-			<img src="/cms/lib/supra/img/blocks/icons-groups/{{ id }}.png" class="active" />
-			<span>{{ title }}</span>
-		</a>
-	</script>
-	<script type="text/template" id="blockDragTemplate">
-		<div class="drag-icon">
-			<span>{# insertblock.drag_n_drop #}</span>
-			<span class="icon"></span>
-		</div>
-	</script>
-	<script type="text/template" id="blockItemTemplate">
-		<div class="button-item" tabindex="0" data="{{ id }}" data-target="{{ id }}">
-			<span class="img">
-				<img src="{{ icon }}" alt="" />
-			</span>
-			<p class="title">{{ title|e }}</p>
-			<p class="description">
-				{% set description_default = "insertblock.no_description"|intl %}
-				{{ description|default(description_default)|e }}
-			</p>
-		</div>
-	</script>
-	<script type="text/template" id="blockPreviewTemplate">
-		<div class="item">
-			{% include "blockDragTemplate" %}
-			{% include "blockItemTemplate" %}
-			<div class="item-description">
-				{{ html|default("") }}
-			</div>
-		</div>
-	</script>
-	
-	
 </div>
+
+<!-- Templates -->
+{% template blockGroupTemplate %}
+	<a class="button-section" tabindex="0" data-target="{{ id }}">
+		<img src="/cms/lib/supra/img/blocks/icons-groups/{{ id }}-inactive.png" class="inactive" />
+		<img src="/cms/lib/supra/img/blocks/icons-groups/{{ id }}.png" class="active" />
+		<span>{{ title }}</span>
+	</a>
+{% endtemplate %}
+{% template blockDragTemplate %}
+	<div class="drag-icon">
+		<span>{# insertblock.drag_n_drop #}</span>
+		<span class="icon"></span>
+	</div>
+{% endtemplate %}
+{% template blockItemTemplate %}
+	<div class="button-item" tabindex="0" data="{{ id }}" data-target="{{ id }}">
+		<span class="img">
+			<img src="{{ icon }}" alt="" />
+		</span>
+		<p class="title">{{ title|e }}</p>
+		<p class="description">
+			{% set description_default = "insertblock.no_description"|intl %}
+			{{ description|default(description_default)|e }}
+		</p>
+	</div>
+{% endtemplate %}
+{% template blockPreviewTemplate %}
+	<div class="item">
+		{% include "blockDragTemplate" %}
+		{% include "blockItemTemplate" %}
+		<div class="item-description">
+			{{ html|default("") }}
+		</div>
+	</div>
+{% endtemplate %}

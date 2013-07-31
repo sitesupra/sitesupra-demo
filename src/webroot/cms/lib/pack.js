@@ -3066,6 +3066,10 @@ YUI.add('supra.event', function (Y) {
 			responseText = Supra.Intl.replace(responseText, 'json');
 		}
 		
+		if (responseText.indexOf && responseText.indexOf('{%') !== -1) {
+			responseText = Supra.Template.extractTemplates(responseText);
+		}
+		
 		try {
 			switch((cfg.type || '').toLowerCase()) {
 				case 'json':
@@ -7962,7 +7966,32 @@ YUI().add("supra.io-css", function (Y) {
 	 */
 	Template.purgeCache = function (id) {
 		if (id && cache[id]) delete(cache[id]);
-	}
+	};
+	
+	/**
+	 * Extract {% template %} tags from HTML and cache them
+	 * 
+	 * @param {String} html Source HTML
+	 * @returns {String} HTML without templates in them 
+	 */
+	Template.extractTemplates = function (html) {
+		// Check if in html is '{%' followed by 'template'
+		// for quick validation 
+		var check_index = html.indexOf('{%'),
+			check_name  = check_index != -1 ? html.indexOf('template ', check_index) : -1;
+		
+		if (check_name != -1) {
+			var regex_start = /{%\s*template\s+([a-zA-Z0-9_\-]+)\s*%}([\s\S]*?){%\s*endtemplate\s*%}/g,
+				regex_end   = /{%\s*endtemplate\s*%}/;
+			
+			html = html.replace(regex_start, function (match, id, template) {
+				Template.compile(template, id);
+				return '';
+			});
+		}
+		
+		return html;
+	};
 	
 	
 	Supra.Template = Template;

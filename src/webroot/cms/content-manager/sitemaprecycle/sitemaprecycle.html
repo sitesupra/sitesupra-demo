@@ -24,38 +24,38 @@
 		<div class="empty"></div>
 		
 		<div class="timeline"></div>
-
-		<script type="text/html" id="recycle-timeline">
-			<div class="line"></div>
-			
-			{% for period in data %}
-			<div class="item {% if loop.first%}expanded{%endif%}">
-				<div class="icon"></div>
-				<div class="line"><div></div></div>
-				<p class="title"><span>{{ period.title|e }}</span></p>
-				
-				<div class="section {% if period.latest %}latest{% endif %}">
-					{% for group in period.groups %}
-					<div class="group">
-						<div class="icon">{{ group.datetime }}</div>
-						{% for page in group.pages %}
-							<p data-id="{{ page.id|e }}">
-								<span class="img-restore"><img src="/cms/content-manager/sitemap/images/apps/page.png" alt="" /></span>
-								<span class="title">
-								{{ page.datetime }} {{ page.title|default('')|e }}
-								<em>{# timeline.by #} {{ page.author|e }}</em>
-							</span></p>
-						{% endfor %}
-					</div>
-					{% endfor %}
-				</div>
-			</div>
-			{% endfor %}
-		</script>
-		
-		<script type="text/html" id="recycleItemEmpty">
-			<h3>{# sitemap.recycle_bin.empty #}</h3>
-		</script>
 		
 	</div>
 </div>
+
+{% template recycle-timeline %}
+	<div class="line"></div>
+	
+	{% for period in data %}
+	<div class="item {% if loop.first%}expanded{%endif%}">
+		<div class="icon"></div>
+		<div class="line"><div></div></div>
+		<p class="title"><span>{{ period.title|e }}</span></p>
+		
+		<div class="section {% if period.latest %}latest{% endif %}">
+			{% for group in period.groups %}
+			<div class="group">
+				<div class="icon">{{ group.datetime }}</div>
+				{% for page in group.pages %}
+					<p data-id="{{ page.id|e }}">
+						<span class="img-restore"><img src="/cms/content-manager/sitemap/images/apps/page.png" alt="" /></span>
+						<span class="title">
+						{{ page.datetime }} {{ page.title|default('')|e }}
+						<em>{# timeline.by #} {{ page.author|e }}</em>
+					</span></p>
+				{% endfor %}
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+{% endtemplate %}
+
+{% template recycleItemEmpty %}
+	<h3>{# sitemap.recycle_bin.empty #}</h3>
+{% endtemplate %}
