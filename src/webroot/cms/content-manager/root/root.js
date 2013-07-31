@@ -296,13 +296,17 @@ function (Y) {
 				//If there is no page ID or /h/sitemap is in path, then open SiteMap
 				var router_path = this.getRoutePath();
 				
-				if (!page_id || router_path == this.ROUTE_SITEMAP || router_path == this.ROUTE_TEMPLATES) {
+				if (router_path == this.ROUTE_SITEMAP || router_path == this.ROUTE_TEMPLATES) {
 					var mode = 'pages';
 					if (router_path == this.ROUTE_TEMPLATES) {
 						mode = 'templates';
 					}
 					
 					Supra.Manager.executeAction('SiteMap', {'mode': mode});
+				} else if (!page_id) {
+					// Save path to /h/sitemap, otherwise /cms/content-manager path is visible
+					// for sitemap, which will break Site Map when for example dashboard is closed
+					this.router.save(this.ROUTE_SITEMAP);
 				} else {
 					Supra.Manager.executeAction('Page', page_id);
 					Supra.Manager.executeAction('Template');
