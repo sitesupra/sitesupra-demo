@@ -65,9 +65,15 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		 * @type {Object}
 		 */
 		slideshow: null,
+		
+		/**
+		 * Main slide buttons
+		 * @type {Object}
+		 */
+		buttons: {},
 
 		/**
-		 * Buttons
+		 * Delete button
 		 * @type {Object}
 		 */
 		button_delete: null,
@@ -525,6 +531,19 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 
 			//Control button
 			this.get('controlButton').on('click', this.onDoneButton, this);
+			
+			//Buttons
+			buttons.filter('[data-target]').each(function (node) {
+				var button = new Supra.Button({'srcNode': node}),
+					target = node.getAttribute('data-target');
+				
+				button.render();
+				button.on('click', function () {
+					this.slideshow.set('slide', target);
+				}, this);
+				
+				this.buttons[target] = button;
+			}, this);
 
 			//Delete button
 			this.button_delete = new Supra.Button({'srcNode': buttons.filter('.button-delete').item(0), 'style': 'small-red'});
@@ -739,7 +758,8 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		 * Set form values
 		 */
 		setFormValues: function () {
-			var page_data = this.page_data;
+			var page_data = this.page_data,
+				schedule_button = this.buttons['slideSchedule'];
 			
 			this.form.resetValues();
 			
@@ -771,9 +791,9 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 
 			//If user doesn't have publish rights, then disable "Schedule publish" button 
 			if (!Supra.Permission.get('page', page_data.id, 'supervise_page', false)) {
-				this.one('a[data-target="slideSchedule"]').addClass('disabled');
+				schedule_button.set('disabled', true);
 			} else {
-				this.one('a[data-target="slideSchedule"]').removeClass('disabled');
+				schedule_button.set('disabled', false);
 			}
 			
 		},
@@ -995,11 +1015,12 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 		updateTypeUI: function () {
 			var type = this.getType(),
 				form = this.form,
+				buttons = this.buttons,
 				inputs = [
 					['template', form.getInput('path')],
 					['template', form.getInput('active')],
 
-					['template', '.button-meta'],
+					['template', this.buttons.slideMeta],
 					['template', form.getInput('description')],
 					['template', form.getInput('keywords')],
 
@@ -1013,7 +1034,7 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 					['template', form.getInput('template[img]')],
 					['template', form.getInput('template[title]')],
 
-					['template', '.button-redirect'],
+					['template', this.buttons.slideRedirect],
 					['page', '.template-hint']
 				];
 

@@ -71,8 +71,8 @@ YUI.add('supra.input-select-list', function (Y) {
 			return values;
 		},
 		'style': function (srcNode) {
-			if (srcNode.getAttribute('suStyle')) {
-				return srcNode.getAttribute('suStyle') || '';
+			if (srcNode.getAttribute('data-style')) {
+				return srcNode.getAttribute('data-style') || '';
 			}
 		}
 	};

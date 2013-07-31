@@ -124,8 +124,8 @@ YUI.add('supra.form', function (Y) {
 			for(var i=0,ii=inputs.size(); i<ii; i++) {
 				var input = inputs.item(i);
 				
-				//suIgnore allows to skip inputs
-				if (input.getAttribute('suIgnore')) continue;
+				//data-supra-ignore allows to skip inputs
+				if (input.getAttribute('data-supra-ignore')) continue;
 				
 				var id = input.getAttribute('id') || input.getAttribute('name');
 				var name = input.getAttribute('name') || input.getAttribute('id');
@@ -147,9 +147,9 @@ YUI.add('supra.form', function (Y) {
 				}
 				
 				//Detect type
-				var suType = input.getAttribute('suType');
-				if (suType) {
-					type = suType;
+				var typeAttribute = input.getAttribute('data-type');
+				if (typeAttribute) {
+					type = typeAttribute;
 				} else {
 					switch(tagName) {
 						case 'textarea':
@@ -502,7 +502,7 @@ YUI.add('supra.form', function (Y) {
 			this.inputs = inputs;
 			this.inputs_definition = definitions;
 			
-			var style = this.get('style') || this.get('srcNode').getAttribute('suStyle') || 'default';
+			var style = this.get('style') || this.get('srcNode').getAttribute('data-style') || 'default';
 			this.setStyle(style);
 		},
 		

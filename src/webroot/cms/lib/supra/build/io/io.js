@@ -268,6 +268,10 @@ YUI().add("supra.io", function (Y) {
 			responseText = Supra.Intl.replace(responseText, 'json');
 		}
 		
+		if (responseText.indexOf && responseText.indexOf('{%') !== -1) {
+			responseText = Supra.Template.extractTemplates(responseText);
+		}
+		
 		try {
 			switch((cfg.type || '').toLowerCase()) {
 				case 'json':
@@ -485,9 +489,35 @@ YUI().add("supra.io", function (Y) {
 		
 		// Wrong answer, do nothing
 		if (response.confirmation.answer != null && response.confirmation.answer != answer) {
-			if (cfg.on._complete) {
+			
+			//Call callbacks
+			var fn  = response.status ? cfg.on._success : cfg.on._failure,
+				ret = null,
+				deferred = cfg.deferred;
+			
+			if (Y.Lang.isFunction(cfg.on._complete)) {
 				cfg.on._complete.apply(cfg.context, [null, false]);
 			}
+			
+			if (Y.Lang.isFunction(fn)) {
+				ret = fn.apply(cfg.context, [null, false]);
+			}
+			
+			//Deferred
+			deferred.rejectWith(cfg.context, [null, false]);
+			
+			//Clean up
+			delete(cfg.permissions);
+			delete(cfg._data);
+			delete(cfg.data);
+			delete(cfg.on._success);
+			delete(cfg.on._failure);
+			delete(cfg.on.success);
+			delete(cfg.on.failure);
+			delete(cfg.on._complete);
+			delete(cfg.on.complete);
+			delete(cfg.deferred);
+			
 			return;
 		}
 		

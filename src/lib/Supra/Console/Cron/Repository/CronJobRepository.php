@@ -36,8 +36,15 @@ class CronJobRepository extends \Doctrine\ORM\EntityRepository
 //			$job->setPeriodParameter($period->getParameter());
 //			$job->setNextExecutionTime($period->getNext());
 		}
+		
+		// re-enable job
+		if ($job->getStatus() == CronJob::STATUS_DISABLED) {
+			$job->setStatus(CronJob::STATUS_NEW);
+		}
 
 		$this->_em->flush();
+		
+		return $job;
 	}
 
 	/**
@@ -52,11 +59,14 @@ class CronJobRepository extends \Doctrine\ORM\EntityRepository
 		$qb = $this->_em->createQueryBuilder();
 		$qb->select('cj')
 				->from('Supra\Console\Cron\Entity\CronJob', 'cj')
-				->where('cj.nextExecutionTime > :start')
+				->where('cj.status <> :disabledStatus AND cj.nextExecutionTime > :start')
 				->andWhere('cj.nextExecutionTime <= :end')
-				->setParameter('start', $startTime)
-				->setParameter('end', $endTime)
-				;
+				->setParameters(array(
+					'start' => $startTime,
+					'end' => $endTime,
+					'disabledStatus' => CronJob::STATUS_DISABLED,
+				));
+		
 		$result = $qb->getQuery()->getResult();
 		
 		return $result;

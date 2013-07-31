@@ -36,12 +36,16 @@ class Command extends SymfonyCommand
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-
 		require_once SUPRA_CONF_PATH . '/cron.php';
+		
+		$this->disableUndefinedJobs();
 		
 		$em = ObjectRepository::getEntityManager($this);
 		$masterCronJob = $this->getMasterCronEntity();
 
+		$repo = $em->getRepository(CronJob::CN());
+		/* @var $repo Repository\CronJobRepository */
+		
 		$this->fixBrokenCronJobs($em);
 		
 		$em->getConnection()->beginTransaction();
@@ -49,9 +53,7 @@ class Command extends SymfonyCommand
 		
 		$lastTime = $masterCronJob->getLastExecutionTime();
 		$thisTime = new \DateTime();
-
-		$repo = $em->getRepository(CronJob::CN());
-		/* @var $repo Repository\CronJobRepository */
+		
 		$jobs = $repo->findScheduled($lastTime, $thisTime);
 
 		$cli = Application::getInstance();
@@ -210,6 +212,28 @@ class Command extends SymfonyCommand
 		if ( ! empty($jobList)) {
 			$em->flush();
 		}
+	}
+	
+	protected function disableUndefinedJobs()
+	{
+		$definedJobs = Application::getInstance()
+				->getDefinedCronJobs();
+		
+		$definedJobIds = array_keys($definedJobs);
+		
+		$em = ObjectRepository::getEntityManager($this);
+		$qb = $em->createQueryBuilder();
+		
+		$qb->update(CronJob::CN(), 'cj')
+				->set('cj.status', CronJob::STATUS_DISABLED);
+		
+		if ( ! empty($definedJobIds)) {
+			$qb->where('cj.id NOT IN (:ids)')
+					->setParameter('ids', $definedJobIds);
+		}
+		
+		$qb->getQuery()
+				->execute();
 	}
 	
 }

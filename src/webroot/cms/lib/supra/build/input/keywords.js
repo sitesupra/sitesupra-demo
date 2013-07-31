@@ -56,7 +56,7 @@ YUI.add("supra.input-keywords", function (Y) {
 	
 	Input.HTML_PARSER = {
 		'suggestionsEnabled': function (srcNode) {
-			var value = srcNode.getAttribute('suSuggestionsEnabled');
+			var value = srcNode.getAttribute('data-suggestions-enabled');
 			if (value === "true" || value === true || value === 1) {
 				return true;
 			} else {

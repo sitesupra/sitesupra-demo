@@ -605,7 +605,7 @@ YUI.add('supra.medialibrary-data-object', function (Y) {
 			var is_new_item = !item.id;
 			
 			// Make sure we have ID and parent
-			item.parent = item.parent || 0;
+			item.parent = item.parent || (item.path ? item.path[item.path.length - 1] : 0) || 0;
 			item.id = item.id || this.guid();
 			
 			var parent  = item.parent || 0,

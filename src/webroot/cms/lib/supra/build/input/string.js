@@ -216,6 +216,8 @@ YUI.add('supra.input-string', function (Y) {
 				if (mask && !mask.test(String(value))) return;
 				
 				//Trigger input event
+				value = this._onKeyDownNumberChange(value);
+				
 				if (this._last_value != value) {
 					inputNode.value = value;
 					this._last_value = value;
@@ -227,6 +229,17 @@ YUI.add('supra.input-string', function (Y) {
 				this.fire('input', {'value': this._original_value});
 				this.fire('reset');
 			}
+		},
+		
+		/**
+		 * Handle number value change using keys
+		 * 
+		 * @param {String} value New value
+		 * @returns {String} New value
+		 * @private
+		 */
+		_onKeyDownNumberChange: function (value) {
+			return value;
 		},
 		
 		/**
@@ -284,7 +297,7 @@ YUI.add('supra.input-string', function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
-			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('suUseReplacement') == 'true') {
+			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('data-use-replacement') == 'true') {
 				this.set('useReplacement', true);
 				var labelNode = this.get('labelNode');
 				if (labelNode) {
@@ -292,7 +305,7 @@ YUI.add('supra.input-string', function (Y) {
 				}
 			}
 			
-			if (this.get('srcNode').getAttribute('suBlurOnReturn') == 'true') {
+			if (this.get('srcNode').getAttribute('data-blur-on-return') == 'true') {
 				this.set('blurOnReturn', true);
 			}
 			
@@ -332,7 +345,7 @@ YUI.add('supra.input-string', function (Y) {
 			
 			//Value mask
 			if (!this.get('valueMask')) {
-				var mask = this.get('inputNode').getAttribute('suValueMask');
+				var mask = this.get('inputNode').getAttribute('data-value-mask');
 				if (mask) {
 					this.set('valueMask', new RegExp(mask));
 				}
@@ -340,7 +353,7 @@ YUI.add('supra.input-string', function (Y) {
 			
 			//Value source
 			if (!this.get('valueSource')) {
-				var mask = this.get('inputNode').getAttribute('suValueSource');
+				var mask = this.get('inputNode').getAttribute('data-value-source');
 				if (mask) {
 					this.set('valueSource');
 				}

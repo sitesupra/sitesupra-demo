@@ -378,6 +378,28 @@ YUI.add('supra.iframe-handler', function (Y) {
 		},
 		
 		/**
+		 * Change scroll position
+		 * 
+		 * @param {Array} scroll Array with X and Y scroll position
+		 */
+		setScroll: function (scroll) {
+			var doc = this.get('doc'),
+				body = doc.body,
+				html = doc.getElementsByTagName('HTML')[0];
+			
+			if (Y.Lang.isArray(scroll)) {
+				if (typeof scroll[0] == 'number') {
+					html.scrollLeft = scroll[0];
+					body.scrollLeft = scroll[0];
+				}
+				if (typeof scroll[1] == 'number') {
+					html.scrollTop = scroll[1];
+					body.scrollTop = scroll[1];
+				}
+			}
+		},
+		
+		/**
 		 * Render UI
 		 */
 		renderUI: function () {

@@ -45,11 +45,11 @@ YUI.add('supra.button-group', function (Y) {
 	
 	ButtonGroup.HTML_PARSER = {
 		'type': function (srcNode) {
-			var type = srcNode.getAttribute('suType');
+			var type = srcNode.getAttribute('data-type');
 			return type || '';
 		},
 		'style': function (srcNode) {
-			var style = srcNode.getAttribute('suStyle');
+			var style = srcNode.getAttribute('data-style');
 			return style|| '';
 		}
 	};
@@ -189,7 +189,7 @@ YUI.add('supra.button-group', function (Y) {
 		
 		/**
 		 * Returns hopefully unique ID for button
-		 * Searches 'id', 'suId' and 'suButtonId' and 'class' node attributes and buttonId Supra.Button attribute
+		 * Searches 'id', 'data-id' and 'data-button-id' and 'class' node attributes and buttonId Supra.Button attribute
 		 * 
 		 * @param {Object} button
 		 */
@@ -209,7 +209,7 @@ YUI.add('supra.button-group', function (Y) {
 					id = node.get('buttonId');
 					
 					if (!id) {
-						id = node.getAttribute('suButtonId') || node.getAttribute('suId');
+						id = node.getAttribute('data-button-id') || node.getAttribute('data-id');
 						
 						if (!id) {
 							var classnames	= node.getAttribute('class').split(/\s+/g),
@@ -339,7 +339,7 @@ YUI.add('supra.button-group', function (Y) {
 					if (button.isInstanceOf('Node')) {
 						config = {'srcNode': button};
 						
-						if (!button.getAttribute('suType')) {
+						if (!button.getAttribute('su-button-type')) {
 							config.type = btype;
 						}
 						

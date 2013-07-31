@@ -128,7 +128,7 @@ YUI.add('supra.input-proto', function (Y) {
 			return !!val;
 		},
 		'style': function (srcNode) {
-			return srcNode.getAttribute('suStyle') || null;
+			return srcNode.getAttribute('data-style') || null;
 		}
 	};
 	

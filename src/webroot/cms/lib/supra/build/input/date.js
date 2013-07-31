@@ -53,27 +53,27 @@ YUI.add("supra.input-date", function (Y) {
 	};
 	
 	Input.HTML_PARSER = {
-		// suMinDate attribute for minDate
+		// data-min-date attribute for minDate
 		"minDate": function (srcNode) {
-			var date = srcNode.getAttribute("suMinDate");
+			var date = srcNode.getAttribute("data-min-date");
 			if (date) return date;
 		},
 		
-		// suMaxDate attribute for maxDate
+		// data-max-date attribute for maxDate
 		"maxDate": function (srcNode) {
-			var date = srcNode.getAttribute("suMaxDate");
+			var date = srcNode.getAttribute("data-max-date");
 			if (date) return date;
 		},
 		
 		// Label when no date is selected
 		"labelSet": function (srcNode) {
-			var label = srcNode.getAttribute("suLabelSet");
+			var label = srcNode.getAttribute("data-label-set");
 			if (label) return label;
 		},
 		
 		// Label to clear selection
 		"labelClear": function (srcNode) {
-			var label = srcNode.getAttribute("suLabelClear");
+			var label = srcNode.getAttribute("data-label-clear");
 			if (label) return label;
 		}
 	};
@@ -353,13 +353,13 @@ YUI.add("supra.input-date", function (Y) {
 			
 			if (this.get("time")) {
 				var html = '<div class="yui3-input-date-time">\
-								<input type="text" name="hours" value="00" suValueMask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />\
+								<input type="text" name="hours" value="00" data-value-mask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />\
 								<span>:</span>\
-								<input type="text" name="minutes" value="00" suValueMask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />\
+								<input type="text" name="minutes" value="00" data-value-mask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />\
 								\
 								<br />\
 								\
-								<button type="button" suStyle="small"><p>' + this.get("labelClear") + '</p></button>\
+								<button type="button" data-style="small"><p>' + this.get("labelClear") + '</p></button>\
 							</div>';
 				
 				var node	= this.widgets.time    = Y.Node.create(html),
@@ -373,7 +373,7 @@ YUI.add("supra.input-date", function (Y) {
 				
 			} else {
 				var html = '<div class="yui3-input-date-time">\
-								<button type="button" suStyle="small"><p>' + this.get("labelClear") + '</p></button>\
+								<button type="button" data-style="small"><p>' + this.get("labelClear") + '</p></button>\
 							</div>';
 				
 				var node	= this.widgets.time    = Y.Node.create(html);

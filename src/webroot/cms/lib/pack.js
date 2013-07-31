@@ -3066,6 +3066,10 @@ YUI.add('supra.event', function (Y) {
 			responseText = Supra.Intl.replace(responseText, 'json');
 		}
 		
+		if (responseText.indexOf && responseText.indexOf('{%') !== -1) {
+			responseText = Supra.Template.extractTemplates(responseText);
+		}
+		
 		try {
 			switch((cfg.type || '').toLowerCase()) {
 				case 'json':
@@ -3283,9 +3287,35 @@ YUI.add('supra.event', function (Y) {
 		
 		// Wrong answer, do nothing
 		if (response.confirmation.answer != null && response.confirmation.answer != answer) {
-			if (cfg.on._complete) {
+			
+			//Call callbacks
+			var fn  = response.status ? cfg.on._success : cfg.on._failure,
+				ret = null,
+				deferred = cfg.deferred;
+			
+			if (Y.Lang.isFunction(cfg.on._complete)) {
 				cfg.on._complete.apply(cfg.context, [null, false]);
 			}
+			
+			if (Y.Lang.isFunction(fn)) {
+				ret = fn.apply(cfg.context, [null, false]);
+			}
+			
+			//Deferred
+			deferred.rejectWith(cfg.context, [null, false]);
+			
+			//Clean up
+			delete(cfg.permissions);
+			delete(cfg._data);
+			delete(cfg.data);
+			delete(cfg.on._success);
+			delete(cfg.on._failure);
+			delete(cfg.on.success);
+			delete(cfg.on.failure);
+			delete(cfg.on._complete);
+			delete(cfg.on.complete);
+			delete(cfg.deferred);
+			
 			return;
 		}
 		
@@ -5202,7 +5232,7 @@ YUI.add('supra.base', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suStyle');
+				style = button.getAttribute('data-style');
 			}
 			
 			return style || 'small';
@@ -5212,7 +5242,7 @@ YUI.add('supra.base', function (Y) {
 				type = null;
 			
 			if (button) {
-				type = button.getAttribute('suType');
+				type = button.getAttribute('data-type');
 			}
 			
 			return type || 'push';
@@ -5222,7 +5252,7 @@ YUI.add('supra.base', function (Y) {
 				icon = null;
 			
 			if (button) {
-				icon = button.getAttribute('suIcon');
+				icon = button.getAttribute('data-icon');
 			}
 			
 			return icon;
@@ -5232,7 +5262,7 @@ YUI.add('supra.base', function (Y) {
 				down = false;
 			
 			if (button) {
-				down = (button.getAttribute('suDown') === 'true');
+				down = (button.getAttribute('data-state-down') === 'true');
 			}
 			
 			return down;
@@ -5243,7 +5273,7 @@ YUI.add('supra.base', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suIconStyle') || undefined;
+				style = button.getAttribute('data-icon-style') || undefined;
 			}
 		},
 		
@@ -5252,13 +5282,13 @@ YUI.add('supra.base', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suGroupStyle') || '';
+				style = button.getAttribute('data-group-style') || '';
 			}
 		},
 		
 		iconBackgroundColor: function (srcNode) {
 			var button = this.get('nodeButton'),
-				style = button.getAttribute('suIconBackgroundColor');
+				style = button.getAttribute('data-icon-background-color');
 			
 			if (button && style) {
 				return style;
@@ -7936,7 +7966,32 @@ YUI().add("supra.io-css", function (Y) {
 	 */
 	Template.purgeCache = function (id) {
 		if (id && cache[id]) delete(cache[id]);
-	}
+	};
+	
+	/**
+	 * Extract {% template %} tags from HTML and cache them
+	 * 
+	 * @param {String} html Source HTML
+	 * @returns {String} HTML without templates in them 
+	 */
+	Template.extractTemplates = function (html) {
+		// Check if in html is '{%' followed by 'template'
+		// for quick validation 
+		var check_index = html.indexOf('{%'),
+			check_name  = check_index != -1 ? html.indexOf('template ', check_index) : -1;
+		
+		if (check_name != -1) {
+			var regex_start = /{%\s*template\s+([a-zA-Z0-9_\-]+)\s*%}([\s\S]*?){%\s*endtemplate\s*%}/g,
+				regex_end   = /{%\s*endtemplate\s*%}/;
+			
+			html = html.replace(regex_start, function (match, id, template) {
+				Template.compile(template, id);
+				return '';
+			});
+		}
+		
+		return html;
+	};
 	
 	
 	Supra.Template = Template;
@@ -8078,7 +8133,7 @@ YUI().add("supra.io-css", function (Y) {
 			return !!val;
 		},
 		'style': function (srcNode) {
-			return srcNode.getAttribute('suStyle') || null;
+			return srcNode.getAttribute('data-style') || null;
 		}
 	};
 	
@@ -8915,6 +8970,8 @@ YUI().add("supra.io-css", function (Y) {
 				if (mask && !mask.test(String(value))) return;
 				
 				//Trigger input event
+				value = this._onKeyDownNumberChange(value);
+				
 				if (this._last_value != value) {
 					inputNode.value = value;
 					this._last_value = value;
@@ -8926,6 +8983,17 @@ YUI().add("supra.io-css", function (Y) {
 				this.fire('input', {'value': this._original_value});
 				this.fire('reset');
 			}
+		},
+		
+		/**
+		 * Handle number value change using keys
+		 * 
+		 * @param {String} value New value
+		 * @returns {String} New value
+		 * @private
+		 */
+		_onKeyDownNumberChange: function (value) {
+			return value;
 		},
 		
 		/**
@@ -8983,7 +9051,7 @@ YUI().add("supra.io-css", function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
-			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('suUseReplacement') == 'true') {
+			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('data-use-replacement') == 'true') {
 				this.set('useReplacement', true);
 				var labelNode = this.get('labelNode');
 				if (labelNode) {
@@ -8991,7 +9059,7 @@ YUI().add("supra.io-css", function (Y) {
 				}
 			}
 			
-			if (this.get('srcNode').getAttribute('suBlurOnReturn') == 'true') {
+			if (this.get('srcNode').getAttribute('data-blur-on-return') == 'true') {
 				this.set('blurOnReturn', true);
 			}
 			
@@ -9031,7 +9099,7 @@ YUI().add("supra.io-css", function (Y) {
 			
 			//Value mask
 			if (!this.get('valueMask')) {
-				var mask = this.get('inputNode').getAttribute('suValueMask');
+				var mask = this.get('inputNode').getAttribute('data-value-mask');
 				if (mask) {
 					this.set('valueMask', new RegExp(mask));
 				}
@@ -9039,7 +9107,7 @@ YUI().add("supra.io-css", function (Y) {
 			
 			//Value source
 			if (!this.get('valueSource')) {
-				var mask = this.get('inputNode').getAttribute('suValueSource');
+				var mask = this.get('inputNode').getAttribute('data-value-source');
 				if (mask) {
 					this.set('valueSource');
 				}
@@ -26320,8 +26388,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			return values;
 		},
 		'style': function (srcNode) {
-			if (srcNode.getAttribute('suStyle')) {
-				return srcNode.getAttribute('suStyle') || '';
+			if (srcNode.getAttribute('data-style')) {
+				return srcNode.getAttribute('data-style') || '';
 			}
 		}
 	};
@@ -26875,11 +26943,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	Input.HTML_PARSER = {
 		'backgroundColor': function (srcNode) {
-			return srcNode.getAttribute('suBackgroundColor') || 'transparent';
+			return srcNode.getAttribute('data-background-color') || 'transparent';
 		},
 		'iconStyle': function (srcNode) {
-			if (srcNode.getAttribute('suIconStyle')) {
-				return srcNode.getAttribute('suIconStyle') || '';
+			if (srcNode.getAttribute('data-icon-style')) {
+				return srcNode.getAttribute('data-icon-style') || '';
 			}
 		}
 	};
@@ -28408,6 +28476,37 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		},
 		
 		/**
+		 * Handle number value change using keys
+		 * 
+		 * @param {String} value New value
+		 * @returns {String} New value
+		 * @private
+		 */
+		_onKeyDownNumberChange: function (value) {
+			value = this._validateValue(value);
+			this._uiUpdateButtonStates(value);
+			return value;
+		},
+		
+		/**
+		 * Update button states
+		 * 
+		 * @param {String} value Value
+		 * @private
+		 */
+		_uiUpdateButtonStates: function (value) {
+			var min   = this.get('minValue'),
+				max   = this.get('maxValue');
+			
+			if (this.button_add) {
+				this.button_add.set('disabled', max !== null && max == value);
+			}
+			if (this.button_sub) {
+				this.button_sub.set('disabled', min !== null && min == value);
+			}
+		},
+		
+		/**
 		 * Value setter.
 		 * 
 		 * @param {String} value Value
@@ -28416,9 +28515,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			var value = this._validateValue(value),
-				min   = this.get('minValue'),
-				max   = this.get('maxValue');
+			var value = this._validateValue(value);
 			
 			this.get('inputNode').set('value', value);
 			
@@ -28427,13 +28524,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				node.set('innerHTML', Y.Escape.html(value) || '0');
 			}
 			
-			if (this.button_add) {
-				this.button_add.set('disabled', max !== null && max == value);
-			}
-			if (this.button_sub) {
-				this.button_sub.set('disabled', min !== null && min == value);
-			}
-			
+			this._uiUpdateButtonStates(value);
 			
 			this._original_value = value;
 			return value;
@@ -28520,10 +28611,16 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 */
 		_addOne: function () {
 			var value = this.get('value'),
-				max = this.get('maxValue');
+				max   = this.get('maxValue'),
+				next  = value + this.get('step');
 			
-			if (max !== null && max == value) return;
-			this.set('value', value + this.get('step'));
+			if (max !== null) {
+				next = Math.min(next, max);
+			}
+			
+			if (next != value) {
+				this.set('value', next);
+			}
 		},
 		
 		/**
@@ -28533,10 +28630,16 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 */
 		_subOne: function () {
 			var value = this.get('value'),
-				min = this.get('minValue');
+				min = this.get('minValue'),
+				prev  = value - this.get('step');
 			
-			if (min !== null && min == value) return;
-			this.set('value', value - this.get('step'));
+			if (min !== null) {
+				prev = Math.max(prev, min);
+			}
+			
+			if (prev != value) {
+				this.set('value', prev);
+			}
 		}
 		
 	});
@@ -28576,7 +28679,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	Input.HTML_PARSER = {
 		'path': function (srcNode) {
-			return srcNode.getAttribute('suPath') || '';
+			return srcNode.getAttribute('data-path') || '';
 		}
 	};
 	
@@ -28796,8 +28899,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	Input.HTML_PARSER = {
 		'labels': function (srcNode) {
-			var a = srcNode.getAttribute('suLabelA'),
-				b = srcNode.getAttribute('suLabelB');
+			var a = srcNode.getAttribute('data-label-a'),
+				b = srcNode.getAttribute('data-label-b');
 			
 			if (a && b) {
 				return [a, b];
@@ -29651,8 +29754,8 @@ YUI.add('supra.uploader', function (Y) {
 			
 			iframe = Y.Node.create('<iframe class="offscreen" id="' + node_id + '" name="' + node_id + '" src="' + uri + '" />');
 			form   = Y.Node.create('<form target="' + node_id + '" class="legacy-file-upload-form" method="post" action="" enctype="multipart/form-data">' +
-										'<input suIgnore="true" type="file" name="file" class="upload-file-input" />' +
-										'<button suIgnore="true" type="submit">Upload</button>' +
+										'<input data-supra-ignore="true" type="file" name="file" class="upload-file-input" />' +
+										'<button data-supra-ignore="true" type="submit">Upload</button>' +
 								  '</form>');
 			
 			input = form.one('input');
@@ -30700,7 +30803,7 @@ YUI.add('supra.uploader', function (Y) {
 		 */
 		'data': function (srcNode) {
 			var input = this.get('inputNode'),
-				data = input.getAttribute('suData');
+				data = input.getAttribute('data-request-parameters');
 				
 			if (data) {
 				return Y.QueryString.parse(data);
@@ -30721,7 +30824,7 @@ YUI.add('supra.uploader', function (Y) {
 				uri = this.get('requestUri'),
 				attr = null;
 			
-			if (input && (attr = input.getAttribute('suRequestUri'))) {
+			if (input && (attr = input.getAttribute('data-request-uri'))) {
 				return attr;
 			} else {
 				return uri;
@@ -32738,15 +32841,15 @@ YUI.add('supra.input-slider', function (Y) {
 		},
 		'length': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLength') || 200;
+			return input.getAttribute('data-length') || 200;
 		},
 		'labelLess': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLabelLess') || '';
+			return input.getAttribute('data-label-less') || '';
 		},
 		'labelMore': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLabelMore') || '';
+			return input.getAttribute('data-label-more') || '';
 		}
 	};
 	
@@ -33822,11 +33925,23 @@ YUI.add('supra.input-slider', function (Y) {
 				g_instance = g_node.data('map');
 				
 				if (g_instance && g_instance.map) {
-					// We can get existing map instance
+					// We can get existing map instance created by $.fn.map plugin
+					latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
+					
 					this.map = g_instance.map;
 					this.marker = g_instance.marker;
 					this.info = g_instance.info;
 					this.mapSourceSelf = false;
+					
+					this.map.set('center', latlng);
+					this.map.set('zoom', value.zoom);
+					this.marker.set('position', latlng);
+					this.marker.set('draggable', true);
+					
+					if (this.info) {
+						// Hide info while editing
+						this.info.close();
+					}
 					
 					return;
 				}
@@ -34176,15 +34291,45 @@ YUI.add('supra.input-slider', function (Y) {
 					win.google.load("maps", "3",  {callback: win[fn], other_params:"sensor=false"});
 				}
 			} else {
-				// Load Google Maps
-				var script = document.createElement('script');
-					script.type = 'text/javascript';
-					script.src  = document.location.protocol + '//maps.googleapis.com/maps/api/js?sensor=false&callback=' + fn;
-				
-				doc.body.appendChild(script);
+				// Check if there already is script included
+				if (Y.Node(doc).one('script[src*="//maps.googleapis.com/maps/api/js"]')) {
+					// We don't have access to callback (we shouldn't touch it),
+					// so we use timeout to check when it's loaded
+					this.checkReadyRetries = 50;
+					this.checkReadyTimer = Y.later(100, this, this.checkReady, [doc, win, guid], true);
+				} else {
+					// Load Google Maps
+					var script = doc.createElement('script');
+						script.type = 'text/javascript';
+						script.src  = document.location.protocol + '//maps.googleapis.com/maps/api/js?sensor=false&callback=' + fn;
+					
+					doc.body.appendChild(script);
+				}
 			}
 			
 			return guid;
+		},
+		
+		/**
+		 * Continuously check if google maps has been loaded
+		 * 
+		 * @param {Object} doc Document element
+		 * @param {Object} win Window element
+		 * @param {Object} guid Map unique ID
+		 * @private
+		 */
+		checkReady: function (doc, win, guid) {
+			if (win.google && win.google.maps) {
+				// Google Maps loaded
+				this.checkReadyTimer.cancel();
+				this.ready(guid);
+			} else {
+				// Check if we need to stop trying
+				this.checkReadyRetries--;
+				if (!this.checkReadyRetries) {
+					this.checkReadyTimer.cancel();
+				}
+			}
 		},
 		
 		ready: function (guid) {
@@ -34675,28 +34820,40 @@ YUI.add('supra.datatype-color', function(Y) {
 	var Color = Y.DataType.Color;
 	
 	var TEMPLATE = Supra.Template.compile('\
-						{% if allowUnset or presets %}\
-							<div class="presets">\
-								{% if presets %}{% for preset in presets %}\
-									<a class="preset" style="background-color: {{ preset }};" data-color="{{ preset|upper }}"></a>\
-								{% endfor %}{% endif %}\
-								{% if allowUnset %}\
-									<a class="unset"></a><label>{{ labelUnset|escape }}</label>\
-								{% endif %}\
-							</div>\
-						{% endif %}\
+						<div class="input-heading">\
+							<div class="color"></div>\
+						</div>\
 						<div class="input-content">\
-							<div class="map"><div class="handle"></div><div class="cursor hidden"></div></div>\
-							<div class="bar"><div class="handle"></div></div>\
-							<div class="preview"></div>\
-							<span>#</span>\
-							<input type="text" name="hex" maxlength="6" /><br />\
-							<span>{{ "{# inputs.red #}"|default("R") }}</span>\
-							<input type="text" name="red" maxlength="3" class="rgb" /><br />\
-							<span>{{ "{# inputs.green #}"|default("G") }}</span>\
-							<input type="text" name="green" maxlength="3" class="rgb" /><br />\
-							<span>{{ "{# inputs.blue #}"|default("B") }}</span>\
-							<input type="text" name="blue" maxlength="3" class="rgb" />\
+							{% if allowUnset or presets %}\
+								<div class="presets clearfix">\
+									{% if presets %}{% for preset in presets %}\
+										<a class="preset" style="background-color: {{ preset }};" data-color="{{ preset|upper }}"></a>\
+									{% endfor %}{% endif %}\
+									{% if allowUnset %}\
+										<a class="unset" title="{{ labelUnset|escape }}"></a>\
+									{% endif %}\
+								</div>\
+							{% endif %}\
+							<div class="picker">\
+								<div class="map"><div class="handle"></div><div class="cursor hidden"></div></div>\
+								<div class="bar"><div class="handle"></div></div>\
+								<div class="right-side">\
+									<label>{{ "inputs.color_new"|intl|default("new") }}</label>\
+									<div class="preview-new"></div>\
+									<div class="preview-old"></div>\
+									<label>{{ "inputs.color_current"|intl|default("current") }}</label>\
+									\
+									<span>#</span>\
+									<input type="text" name="hex" maxlength="6" /><br />\
+								</div>\
+								<div class="clear"></div>\
+								<span>{{ "inputs.red"|intl|default("R") }}</span>\
+								<input type="text" name="red" maxlength="3" class="rgb" />\
+								<span>{{ "inputs.green"|intl|default("G") }}</span>\
+								<input type="text" name="green" maxlength="3" class="rgb" />\
+								<span>{{ "inputs.blue"|intl|default("B") }}</span>\
+								<input type="text" name="blue" maxlength="3" class="rgb" />\
+							</div>\
 						</div>\
 					');
 	
@@ -34725,6 +34882,18 @@ YUI.add('supra.datatype-color', function(Y) {
 		"value": {
 			"value": ""
 		},
+		// Heading node
+		"nodeHeading": {
+			"value": null
+		},
+		// Heading current color node
+		"nodeHeadingColor": {
+			"value": null
+		},
+		// Content node
+		"nodeContent": {
+			"value": null
+		},
 		// Map node
 		"nodeMap": {
 			"value": null
@@ -34745,8 +34914,12 @@ YUI.add('supra.datatype-color', function(Y) {
 		"nodeBarHandle": {
 			"value": null
 		},
-		// Preview node
-		"nodePreview": {
+		// New color preview node
+		"nodePreviewNew": {
+			"value": null
+		},
+		// Old color preview node
+		"nodePreviewOld": {
 			"value": null
 		},
 		//HEX input
@@ -34788,19 +34961,29 @@ YUI.add('supra.datatype-color', function(Y) {
 		//Color preset nodes
 		"nodePresets": {
 			"value": null
+		},
+		
+		//Color picker is expanded
+		"expanded": {
+			"value": false
+		},
+		
+		//Don't use animations for expand/collapse
+		"noAnimation": {
+			"value": false
 		}
 	};
 	
 	Input.HTML_PARSER = {
 		"allowUnset": function (srcNode) {
 			var input = this.get("inputNode"),
-				unset = srcNode.getAttribute("suAllowUnset") == "true" || (input && input.getAttribute("suAllowUnset") == "true");
+				unset = srcNode.getAttribute("data-allow-unset") == "true" || (input && input.getAttribute("data-allow-unset") == "true");
 			
 			return unset === true ? true : null;
 		},
 		"presets": function (srcNode) {
 			var input = this.get("inputNode"),
-				presets = srcNode.getAttribute("suPresets") || (input && input.getAttribute("suPresets"));
+				presets = srcNode.getAttribute("data-presets") || (input && input.getAttribute("data-presets"));
 			
 			return presets ? presets.split(',') : null;
 		}
@@ -34818,6 +35001,14 @@ YUI.add('supra.datatype-color', function(Y) {
 		unset: false,
 		
 		/**
+		 * Old unset value
+		 * Value which was set when color widget was expanded
+		 * @type {Boolean}
+		 * @private
+		 */
+		unset_old: false,
+		
+		/**
 		 * Preset index which is choosen
 		 * @type {Number}
 		 * @private
@@ -34830,6 +35021,14 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		hex: "#000000",
+		
+		/**
+		 * Old value as HEX
+		 * Value which was set when color widget was expanded
+		 * @type {String}
+		 * @private
+		 */
+		hex_old: "#000000",
 		
 		/**
 		 * Values as RGB
@@ -34875,6 +35074,20 @@ YUI.add('supra.datatype-color', function(Y) {
 		cursorMoveEvent: null,
 		cursorUpEvent: null,
 		
+		/**
+		 * Map width and height
+		 * @type {Number}
+		 * @private
+		 */
+		mapSize: -1,
+		
+		/**
+		 * Bar height
+		 * @type {Number}
+		 * @private
+		 */
+		barSize: -1,
+		
 		
 		/**
 		 * Bar node position relative to the page
@@ -34897,6 +35110,13 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		uiFrozen: false,
 		
+		/**
+		 * While frozen previous value will not be updated
+		 * @type {Boolean}
+		 * @private
+		 */
+		uiPrevFrozen: false,
+		
 		
 		
 		
@@ -34908,10 +35128,16 @@ YUI.add('supra.datatype-color', function(Y) {
 					"allowUnset": this.get("allowUnset"),
 					"labelUnset": this.get("labelUnset"),
 					"presets": this.get("presets")
-				}));
+				})),
+				heading = template.one(".input-heading");
 			
 			//Attributes
-			this.set("nodePreview", template.one(".preview"));
+			this.set("nodeHeading", heading);
+			this.set("nodeHeadingColor", heading.one(".color"));
+			this.set("nodeContent", template.one(".input-content"));
+			
+			this.set("nodePreviewNew", template.one(".preview-new"));
+			this.set("nodePreviewOld", template.one(".preview-old"));
 			this.set("nodeMap", template.one(".map"));
 			this.set("nodeMapHandle", template.one(".map .handle"));
 			this.set("nodeMapCursor", template.one(".map .cursor"));
@@ -34936,6 +35162,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			} else {
 				contentBox.append(template.size ? template.get("children") : template);
 			}
+			
+			//Label
+			heading.prepend(this.get("labelNode"));
 			
 			//Value
 			var value = this.get('value'),
@@ -34967,7 +35196,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			Input.superclass.bindUI.apply(this, arguments);
 			
 			var nodeMap = this.get("nodeMap"),
-				nodeBar = this.get("nodeBar");
+				nodeBar = this.get("nodeBar"),
+				heading = this.get("nodeHeading"),
+				slideshow = this.getSlideshow();
 			
 			nodeMap.on("mouseenter", this._showMapCursor, this);
 			nodeMap.on("mouseleave", this._hideMapCursor, this);
@@ -34977,6 +35208,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			nodeBar.on("mousedown", this._downBarCursor, this);
 			nodeBar.on("mouseup", this._upBarCursor, this);
+			
+			heading.on("mousedown", this._toggle, this);
+			
+			this.after("expandedChange", this._uiExpandedChange, this);
 			
 			this.get("nodeInputHEX").on("blur", this._onBlurHEX, this);
 			this.get("nodeInputRed").on("blur", this._onBlurRGB, this);
@@ -34995,8 +35230,17 @@ YUI.add('supra.datatype-color', function(Y) {
 				this.get("nodePresets").on("mousedown", this._onPreset, this);
 			}
 			
+			this.get('nodePreviewOld').on('mousedown', this._onReset, this);
+			
 			//Handle value attribute change
 			this.on('valueChange', this._afterValueChange, this);
+			
+			this.after('visibleChange', this._afterVisibleChange, this);
+			
+			// On slideshow slide change reset old value
+			if (slideshow) {
+				slideshow.after('slideChange', this._afterSlideChange, this);
+			}
 			
 			this.syncUI();
 		},
@@ -35007,6 +35251,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			this.syncUIRGB();
 			this.syncUIHEX();
 			this.syncUIPreview();
+			this.syncUIPreviewOld();
 		},
 		
 		/**
@@ -35016,13 +35261,15 @@ YUI.add('supra.datatype-color', function(Y) {
 		syncUIMap: function () {
 			if (this.get("nodeMap") && !this.uiFrozen) {
 				//Background color
-				var background = {'hue': this.hsb.hue, 'saturation': 100, 'brightness': 100};
+				var size = this.mapSize,
+					background = {'hue': this.hsb.hue, 'saturation': 100, 'brightness': 100};
+				
 				this.get("nodeMap").setStyle("backgroundColor", Color.convert.HSBtoHEX(background));
 				
 				//Handle position
 				this.get("nodeMapHandle").setStyles({
-					"left": Math.round(this.hsb.saturation / 100 * 110) + "px",
-					"top": 110 - Math.round(this.hsb.brightness / 100 * 110) + "px"
+					"left": Math.round(this.hsb.saturation / 100 * size) + "px",
+					"top": size - Math.round(this.hsb.brightness / 100 * size) + "px"
 				});
 				
 				//
@@ -35042,7 +35289,8 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		syncUIBar: function () {
 			if (this.get("nodeBarHandle") && !this.uiFrozen) {
-				var pos = 110 - Math.round(this.hsb.hue / 359 * 110),
+				var size = this.barSize,
+					pos = size - Math.round(this.hsb.hue / 359 * size),
 					cur = parseInt(this.get("nodeBarHandle").getStyle("top"), 10);
 				
 				if (pos != cur) {
@@ -35076,18 +35324,27 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		syncUIPreview: function () {
-			if (this.get("nodePreview") && !this.uiFrozen) {
+			var nodePreview = this.get("nodePreviewNew");
+			
+			if (nodePreview && !this.uiFrozen) {
 				var nodeUnset = this.get("nodeUnset"),
-					nodePresets = this.get("nodePresets");
+					nodePresets = this.get("nodePresets"),
+					nodeHeading = this.get("nodeHeadingColor");
 				
 				if (this.unset) {
 					if (nodeUnset) nodeUnset.addClass("active");
-					this.get("nodePreview").addClass("preview-unset");
-					this.get("nodePreview").setStyle("backgroundColor", this.hex);
+					nodePreview.addClass("preview-unset");
+					nodePreview.setStyle("backgroundColor", this.hex);
+					
+					nodeHeading.addClass("preview-unset");
+					nodeHeading.setStyle("backgroundColor", this.hex);
 				} else {
 					if (nodeUnset) nodeUnset.removeClass("active");
-					this.get("nodePreview").removeClass("preview-unset");
-					this.get("nodePreview").setStyle("backgroundColor", this.hex);
+					nodePreview.removeClass("preview-unset");
+					nodePreview.setStyle("backgroundColor", this.hex);
+					
+					nodeHeading.removeClass("preview-unset");
+					nodeHeading.setStyle("backgroundColor", this.hex);
 				}
 				
 				if (nodePresets) {
@@ -35096,6 +35353,273 @@ YUI.add('supra.datatype-color', function(Y) {
 						nodePresets.item(this.preset).addClass("active");
 					}
 				}
+			}
+		},
+		
+		/**
+		 * Update preview UI for previous color
+		 * @private
+		 */
+		syncUIPreviewOld: function () {
+			if (!this.uiPrevFrozen) {
+				var nodePreview = this.get("nodePreviewOld");
+				this.hex_old = this.hex;
+				this.unset_old = this.unset;
+				
+				if (nodePreview) {
+					
+					if (this.unset_old) {
+						nodePreview.addClass("preview-unset");
+						nodePreview.setStyle("backgroundColor", this.hex_old);
+					} else {
+						nodePreview.removeClass("preview-unset");
+						nodePreview.setStyle("backgroundColor", this.hex_old);
+					}
+					
+				}
+			}
+		},
+		
+		/**
+		 * Prevent ui from changing when input value changes
+		 * 
+		 * @private
+		 */
+		uiFreeze: function () {
+			this.uiFrozen = true;
+			this.uiPrevFrozen = true;
+		},
+		
+		/**
+		 * Allow ui to change when input value changes
+		 * 
+		 * @private
+		 */
+		uiUnfreeze: function () {
+			this.uiFrozen = false;
+			this.uiPrevFrozen = false;
+		},
+		
+		/**
+		 * Prevent previous value from changing when input value changes
+		 * 
+		 * @private
+		 */
+		uiFreezePreviousValue: function () {
+			this.uiPrevFrozen = true;
+		},
+		
+		/**
+		 * Allow previous value to change when input value changes
+		 * 
+		 * @private
+		 */
+		uiUnfreezePreviousValue: function () {
+			this.uiPrevFrozen = false;
+		},
+		
+		
+		/**
+		 * -------------------------------- EXPAND / COLLAPSE -----------------------------
+		 */
+		
+		
+		/**
+		 * Toggle expanded state
+		 * 
+		 * @private
+		 */
+		_toggle: function (e) {
+			this.set('expanded', !this.get('expanded'));
+			e.preventDefault();
+		},
+		
+		/**
+		 * Animate expand or collapse
+		 * 
+		 * @private
+		 */
+		_uiExpandedChange: function (e) {
+			if (e.newVal != e.prevVal) {
+				var box     = this.get("boundingBox"),
+					content = this.get("nodeContent"),
+					height  = 0,
+					anim    = !this.get("noAnimation") && this.get("visible"),
+					timer   = this._toggleTimer;
+				
+				// If there is animation running, then stop it
+				if (timer) {
+					timer.cancel();
+					this._toggleTimer = null;
+				}
+				
+				if (!anim) {
+					// Don't animate
+					
+					if (e.newVal) {
+						box.addClass("expanded");
+						content.setStyles({
+							"display": "block",
+							"height": "auto"
+						});
+						
+						// Update preview
+						this.syncUIPreviewOld();
+						
+						if (this._uiResizeMapAndBar()) {
+							// If size was updated then update scrollbar
+							this._uiAfterResize();
+						}
+					} else {
+						box.removeClass("expanded");
+						content.setStyles({
+							"display": "none",
+							"height": "0px"
+						});
+						
+						// Trigger resize to update scrollbars if there are any
+						this._uiAfterResize();
+					}
+				} else {
+					// Animate
+					
+					if (e.newVal) {
+						// Calculate new height
+						content.setStyles({
+							"display": "block",
+							"height": "auto"
+						});
+						
+						this._uiResizeMapAndBar();
+						
+						height = content.get("offsetHeight") + "px";
+						
+						// Expand
+						content.setStyles({
+							"height": "0px"
+						});
+						
+						box.addClass("expanded");
+						
+						content.transition({
+							"easing": "ease-out",
+							"duration": 0.35,
+							"height": height + "px"
+						});
+						content.setStyles({
+							"height": height
+						});
+						
+						// Trigger resize to update scrollbars if there are any
+						this._toggleTimer = Y.later(350, this, function () {
+							this._toggleTimer = null;
+							this._uiAfterResize();
+							content.setStyles({
+								"transition": "none",
+								"height": "auto"
+							});
+						});
+						
+						// Update preview
+						this.syncUIPreviewOld();
+					} else {
+						// Collapse
+						content.setStyles({
+							"height": content.get("offsetHeight") + "px"
+						});
+						
+						Y.later(1, this, function (){
+							content.transition({
+								"easing": "ease-out",
+								"duration": 0.35,
+								"height": "0px"
+							}); 
+						});
+						
+						this._toggleTimer = Y.later(350, this, function () {
+							box.removeClass("expanded");
+							content.setStyles({
+								"display": "none"
+							});
+							
+							// Trigger resize to update scrollbars if there are any
+							this._toggleTimer = null;
+							this._uiAfterResize();
+						});
+					}
+					
+				}
+				
+				if (e.newVal) {
+					// On window resize update map and bar size
+					this.eventResize = Y.on('resize', Supra.throttle(function () {
+						if (this._uiResizeMapAndBar()) {
+							// If size was updated then update scrollbar
+							this._uiAfterResize();
+						}
+					}, 200, this));
+				} else {
+					if (this.eventResize) {
+						this.eventResize.detach();
+						this.eventResize = null;
+					}
+				}
+			}
+		},
+		
+		_uiResizeMapAndBar: function () {
+			var map = this.get("nodeMap"),
+				bar = this.get("nodeBar"),
+				height = map.get("offsetWidth");
+			
+			if (height && height != this.mapSize) {
+				map.setStyle("height", height + "px");
+				bar.setStyle("height", height + "px");
+				
+				this.mapSize = height;
+				this.barSize = height;
+				
+				this.syncUIMap();
+				this.syncUIBar();
+				
+				return true;
+			} else {
+				return false;
+			}
+		},
+		
+		_uiAfterResize: function () {
+			var box = this.get('boundingBox'),
+				scrollable = box.closest('.su-scrollable');
+			
+			if (scrollable) {
+				scrollable.fire('contentResize');
+			}
+		},
+		
+		/**
+		 * When widget becomes visible update map and bar size
+		 * if it's expanded
+		 * 
+		 * @private
+		 */
+		_afterVisibleChange: function (e) {
+			if (e.newVal && this.get('expanded')) {
+				this._uiResizeMapAndBar();
+				this._uiAfterResize();
+			}
+		},
+		
+		/**
+		 * After parent slideshow change old value to current value
+		 * 
+		 * @private
+		 */
+		_afterSlideChange: function () {
+			if (this.hex_old != this.hex || this.unset_old != this.unset) {
+				this.hex_old = this.hex;
+				this.unset_old = this.unset;
+				this.syncUIPreviewOld();
 			}
 		},
 		
@@ -35119,7 +35643,9 @@ YUI.add('supra.datatype-color', function(Y) {
 					if (!m[1]) value = "#" + value[1] + value[1] + value[2] + value[2] + value[3] + value[3];
 					
 					//Update value
+					this.uiFreezePreviousValue();
 					this.set("value", value);
+					this.uiUnfreezePreviousValue();
 				} else {
 					//Error
 					node.set("value", this.hex.replace('#', ''));
@@ -35170,8 +35696,10 @@ YUI.add('supra.datatype-color', function(Y) {
 			blue = parseInt(blue, 10);
 			
 			if (this.rgb.red != red || this.rgb.green != green || this.rgb.blue != blue) {
+				this.uiFreezePreviousValue();
 				this.setRGB(red, green, blue);
 				this.set("value", this.hex);
+				this.uiUnfreezePreviousValue();
 			}
 		},
 		
@@ -35201,8 +35729,10 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_onUnset: function () {
+			this.uiFreezePreviousValue();
 			this.setRGB(255, 255, 255);
 			this.set("value", "");
+			this.uiUnfreezePreviousValue();
 		},
 		
 		/**
@@ -35216,8 +35746,29 @@ YUI.add('supra.datatype-color', function(Y) {
 				color  = target.getAttribute("data-color");
 			
 			if (color) {
+				this.uiFreezePreviousValue();
 				this.set("value", color);
+				this.uiUnfreezePreviousValue();
 			}
+		},
+		
+		/**
+		 * On reset set color to initial value
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		_onReset: function () {
+			this.uiFreezePreviousValue();
+			
+			if (this.unset_old) {
+				this.setRGB(255, 255, 255);
+				this.set("value", "");
+			} else {
+				this.set("value", this.hex_old);
+			}
+			
+			this.uiUnfreezePreviousValue();
 		},
 		
 		
@@ -35266,9 +35817,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			//Save HSB
 			var hsb = this.hsb;
 			
-			this.uiFrozen = true;
+			this.uiFreeze();
 			this.set("value", this.hex);
-			this.uiFrozen = false;
+			this.uiUnfreeze();
 			
 			this.hsb = hsb;
 			
@@ -35291,8 +35842,9 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_updateBarColor: function (e) {
-			var y = Math.min(110, Math.max(0, e.pageY - this.barPosition)),
-				h = ~~(359 - (y / 110) * 359),
+			var size = this.barSize,
+				y = Math.min(size, Math.max(0, e.pageY - this.barPosition)),
+				h = ~~(359 - (y / size) * 359),
 				node = this.get("nodeBarHandle");
 			
 			this.setHue(h);
@@ -35376,9 +35928,10 @@ YUI.add('supra.datatype-color', function(Y) {
 		_moveMapCursor: function (e) {
 			if (!this.mapPosition) return;
 			
-			var x = Math.min(110, Math.max(0, e.pageX - this.mapPosition[0])),
-				y = Math.min(110, Math.max(0, e.pageY - this.mapPosition[1])),
-				dark = ((x + y) < 55),
+			var size = this.mapSize,
+				x = Math.min(size, Math.max(0, e.pageX - this.mapPosition[0])),
+				y = Math.min(size, Math.max(0, e.pageY - this.mapPosition[1])),
+				dark = ((x + y) < size / 2),
 				node = this.get("nodeMapCursor");
 			
 			if (dark != this.mapCursorDark) {
@@ -35431,9 +35984,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			//Save HSB
 			var hsb = this.hsb;
 			
-			this.uiFrozen = true;
+			this.uiFreeze();
 			this.set("value", this.hex);
-			this.uiFrozen = false;
+			this.uiUnfreeze();
 			
 			//Restore HSB, because changing hex will invalidate HSB
 			this.hsb = hsb;
@@ -35459,13 +36012,15 @@ YUI.add('supra.datatype-color', function(Y) {
 		_updateMapColor: function (e) {
 			if (!this.mapPosition) return;
 			
-			var x = Math.min(110, Math.max(0, e.pageX - this.mapPosition[0])),
-				y = Math.min(110, Math.max(0, e.pageY - this.mapPosition[1])),
-				dark = (x + y) < 55,
+			var size = this.mapSize,
+				ratio = size / 100,
+				x = Math.min(size, Math.max(0, e.pageX - this.mapPosition[0])),
+				y = Math.min(size, Math.max(0, e.pageY - this.mapPosition[1])),
+				dark = (x + y) < size / 2,
 				
-				s = x / 1.1,
-				b = 100 - y / 1.1,
-				
+				s = x / ratio,
+				b = 100 - y / ratio,
+					
 				node = this.get("nodeMapHandle");
 			
 			this.setSaturationBrightness(s, b);
@@ -36238,27 +36793,27 @@ YUI.add('supra.datatype-color', function(Y) {
 	};
 	
 	Input.HTML_PARSER = {
-		// suMinDate attribute for minDate
+		// data-min-date attribute for minDate
 		"minDate": function (srcNode) {
-			var date = srcNode.getAttribute("suMinDate");
+			var date = srcNode.getAttribute("data-min-date");
 			if (date) return date;
 		},
 		
-		// suMaxDate attribute for maxDate
+		// data-max-date attribute for maxDate
 		"maxDate": function (srcNode) {
-			var date = srcNode.getAttribute("suMaxDate");
+			var date = srcNode.getAttribute("data-max-date");
 			if (date) return date;
 		},
 		
 		// Label when no date is selected
 		"labelSet": function (srcNode) {
-			var label = srcNode.getAttribute("suLabelSet");
+			var label = srcNode.getAttribute("data-label-set");
 			if (label) return label;
 		},
 		
 		// Label to clear selection
 		"labelClear": function (srcNode) {
-			var label = srcNode.getAttribute("suLabelClear");
+			var label = srcNode.getAttribute("data-label-clear");
 			if (label) return label;
 		}
 	};
@@ -36538,13 +37093,13 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			if (this.get("time")) {
 				var html = '<div class="yui3-input-date-time">\
-								<input type="text" name="hours" value="00" suValueMask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />\
+								<input type="text" name="hours" value="00" data-value-mask="^([0-1][0-9]|2[0-4]|[0-9])$" maxlength="2" />\
 								<span>:</span>\
-								<input type="text" name="minutes" value="00" suValueMask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />\
+								<input type="text" name="minutes" value="00" data-value-mask="^([0-5][0-9]|60|[0-9])$" maxlength="2" />\
 								\
 								<br />\
 								\
-								<button type="button" suStyle="small"><p>' + this.get("labelClear") + '</p></button>\
+								<button type="button" data-style="small"><p>' + this.get("labelClear") + '</p></button>\
 							</div>';
 				
 				var node	= this.widgets.time    = Y.Node.create(html),
@@ -36558,7 +37113,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				
 			} else {
 				var html = '<div class="yui3-input-date-time">\
-								<button type="button" suStyle="small"><p>' + this.get("labelClear") + '</p></button>\
+								<button type="button" data-style="small"><p>' + this.get("labelClear") + '</p></button>\
 							</div>';
 				
 				var node	= this.widgets.time    = Y.Node.create(html);
@@ -40139,7 +40694,7 @@ YUI.add("supra.input-keywords", function (Y) {
 	
 	Input.HTML_PARSER = {
 		'suggestionsEnabled': function (srcNode) {
-			var value = srcNode.getAttribute('suSuggestionsEnabled');
+			var value = srcNode.getAttribute('data-suggestions-enabled');
 			if (value === "true" || value === true || value === 1) {
 				return true;
 			} else {
@@ -40667,6 +41222,11 @@ YUI.add('supra.input-set', function (Y) {
 			value: ''
 		},
 		
+		// Button icon to use
+		'icon': {
+			value: null
+		},
+		
 		// Minimal set count
 		'minCount': {
 			value: 0
@@ -41169,6 +41729,7 @@ YUI.add('supra.input-set', function (Y) {
 		_createSlide: function () {
 			var label = this.get('label'),
 				labelButton = this.get('labelButton'),
+				icon = this.get('icon'),
 				
 				slideshow = this.getSlideshow(),
 				slide_id = this.get('id') + '_' + Y.guid(),
@@ -41182,8 +41743,9 @@ YUI.add('supra.input-set', function (Y) {
 			
 			// Button
 			var button = new Supra.Button({
-				'style': 'small',
-				'label': labelButton || label
+				'style': icon ? 'icon' : 'small',
+				'label': labelButton || label,
+				'icon': icon
 			});
 			
 			button.addClass('button-section');
@@ -42493,7 +43055,8 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 			//Make sure PageContentSettings is rendered
 			var form = this.color_settings_form || this.createColorSidebar(),
 				action = Manager.getAction("PageContentSettings"),
-				toolbarName = "htmleditor-plugin";
+				toolbarName = "htmleditor-plugin",
+				label = Supra.Intl.get(["htmleditor", this.colorType + "color"]);
 			
 			if (!form) {
 				if (action.get("loaded")) {
@@ -42515,11 +43078,15 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 				Manager.getAction('PageButtons').addActionButtons(toolbarName, []);
 			}
 			
+			//Change color input label
+			form.getInput('color').set('label', label) 
+			
+			//Show form
 			action.execute(form, {
 				"doneCallback": Y.bind(this.hideSidebar, this),
 				"hideCallback": Y.bind(this.onSidebarHide, this),
 				
-				"title": Supra.Intl.get(["htmleditor", this.colorType + "color"]),
+				"title": label,
 				"scrollable": true,
 				"toolbarActionName": toolbarName
 			});
@@ -44062,8 +44629,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			for(var i=0,ii=inputs.size(); i<ii; i++) {
 				var input = inputs.item(i);
 				
-				//suIgnore allows to skip inputs
-				if (input.getAttribute('suIgnore')) continue;
+				//data-supra-ignore allows to skip inputs
+				if (input.getAttribute('data-supra-ignore')) continue;
 				
 				var id = input.getAttribute('id') || input.getAttribute('name');
 				var name = input.getAttribute('name') || input.getAttribute('id');
@@ -44085,9 +44652,9 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 				}
 				
 				//Detect type
-				var suType = input.getAttribute('suType');
-				if (suType) {
-					type = suType;
+				var typeAttribute = input.getAttribute('data-type');
+				if (typeAttribute) {
+					type = typeAttribute;
 				} else {
 					switch(tagName) {
 						case 'textarea':
@@ -44440,7 +45007,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			this.inputs = inputs;
 			this.inputs_definition = definitions;
 			
-			var style = this.get('style') || this.get('srcNode').getAttribute('suStyle') || 'default';
+			var style = this.get('style') || this.get('srcNode').getAttribute('data-style') || 'default';
 			this.setStyle(style);
 		},
 		
@@ -45997,7 +46564,7 @@ YUI.add('supra.plugin-layout', function (Y) {
 					}
 					
 					//Add scrollbar
-					if (this.getAttribute('suScrollable') != 'false') {
+					if (this.getAttribute('data-scrollable') != 'false') {
 						var scrollable = new Supra.Scrollable({
 							'srcNode': this
 						});

@@ -54,6 +54,11 @@ YUI.add('supra.input-set', function (Y) {
 			value: ''
 		},
 		
+		// Button icon to use
+		'icon': {
+			value: null
+		},
+		
 		// Minimal set count
 		'minCount': {
 			value: 0
@@ -556,6 +561,7 @@ YUI.add('supra.input-set', function (Y) {
 		_createSlide: function () {
 			var label = this.get('label'),
 				labelButton = this.get('labelButton'),
+				icon = this.get('icon'),
 				
 				slideshow = this.getSlideshow(),
 				slide_id = this.get('id') + '_' + Y.guid(),
@@ -569,8 +575,9 @@ YUI.add('supra.input-set', function (Y) {
 			
 			// Button
 			var button = new Supra.Button({
-				'style': 'small',
-				'label': labelButton || label
+				'style': icon ? 'icon' : 'small',
+				'label': labelButton || label,
+				'icon': icon
 			});
 			
 			button.addClass('button-section');

@@ -6,7 +6,7 @@
 
 .yui3-content {
 	.clear-fix ();
-	min-height: 60px;
+	min-height: 45px;
 }
 .yui3-content-inline {
 	clear: both;
@@ -104,6 +104,7 @@
 	.box-shadow (none);
 	.transition-property (opacity);
 	.transition-duration (0.35s);
+	.user-select (none);
 	
 	&.su-overlay-list {
 		border-style: dashed;
@@ -301,6 +302,13 @@
 
 .su-overlay-draggable {
 	
+}
+
+// Overlay visible, but transparent
+.su-overlay-transparent,
+.su-overlay-transparent.su-overlay-list {
+	display: block;
+	border-color: transparent;
 }
 
 /**

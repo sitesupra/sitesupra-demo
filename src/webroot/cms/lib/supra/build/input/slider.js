@@ -65,15 +65,15 @@ YUI.add('supra.input-slider', function (Y) {
 		},
 		'length': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLength') || 200;
+			return input.getAttribute('data-length') || 200;
 		},
 		'labelLess': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLabelLess') || '';
+			return input.getAttribute('data-label-less') || '';
 		},
 		'labelMore': function (srcNode) {
 			var input = this.get('inputNode');
-			return input.getAttribute('suLabelMore') || '';
+			return input.getAttribute('data-label-more') || '';
 		}
 	};
 	

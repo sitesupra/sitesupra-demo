@@ -124,10 +124,9 @@
           propertyGroups:
             - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
                 id: advanced
-                label: Advanced
-            - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
-                id: background_color
-                label: Background color
+                label: More settings
+                icon: "/cms/lib/supra/img/sidebar/icons/button-advanced.png"
+                
           # Each slide available properties
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -189,7 +188,6 @@
                 label: Background image
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: background_color
-                group: background_color
                 editable: Supra\Editable\Color
                 label: Background color
                 additionalParameters:
@@ -213,7 +211,6 @@
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: buttons
                 editable: Supra\Editable\PropertySet
-                label: Buttons
                 properties:
                   - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                       name: overlay
@@ -232,7 +229,9 @@
                   labelAdd: Add more buttons
                   labelRemove: Remove button
                   labelItem: "Button %s"
-                  labelButton: Set buttons
+                  labelButton: Buttons
+                  icon: "/cms/lib/supra/img/sidebar/icons/button-buttons.png"
+            
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: active
                 editable: Supra\Editable\Checkbox
