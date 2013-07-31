@@ -358,6 +358,9 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			//"Edit" button
 			this._widgets.buttonEdit.on('click', this.edit, this);
 			
+			//Context menu / left mouse button click
+			this.get('itemBox').on('contextmenu', this._onItemContextMenu, this);
+			
 			//Child change
 			this.on('child:add', this.syncChildrenPosition, this);
 			this.on('child:remove', this.syncChildrenPosition, this);
@@ -459,6 +462,17 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 				
 				view.set('disabled', false);
 			}
+		},
+		
+		/**
+		 * On context menu open edit window
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		'_onItemContextMenu': function (e) {
+			this.edit();
+			e.preventDefault();
 		},
 		
 		/**
