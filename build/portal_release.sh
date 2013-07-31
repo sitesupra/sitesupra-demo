@@ -25,6 +25,10 @@ rsync -r --delete \
   --exclude /supra7 \
   ${WORKSPACE}/ .
 
+php ./build/less_combo.php
+
+rm -rf ./build
+
 rm -rf ./tests
 rm -rf ./tmp
 rm -rf ./src/webroot/dev
