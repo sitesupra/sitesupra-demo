@@ -50,35 +50,19 @@
 						{#settings.pages_will_inherit_these_values#}
 					</p>
 					
-					<a class="button-section button-meta" tabindex="0" data-target="slideMeta">
-						<img src="/cms/lib/supra/img/sidebar/icons/settings-seo-inactive.png" class="inactive" />
-						<img src="/cms/lib/supra/img/sidebar/icons/settings-seo.png" class="active" />
-						<span>{#settings.meta#}</span>
-					</a>
+					<button data-target="slideMeta" data-style="icon" data-icon="/cms/lib/supra/img/sidebar/icons/button-seo.png" class="su-button-fill">{#settings.meta#}</button>
 					
-					<a class="button-section" tabindex="0" data-target="slideSchedule">
-						<img src="/cms/lib/supra/img/sidebar/icons/settings-schedule-inactive.png" class="inactive" />
-						<img src="/cms/lib/supra/img/sidebar/icons/settings-schedule.png" class="active" />
-						<span>{#settings.schedule#}</span>
-					</a>
+					<button data-target="slideSchedule" data-style="icon" data-icon="/cms/lib/supra/img/sidebar/icons/button-schedule.png" class="su-button-fill">{#settings.schedule#}</button>
 					
-					<a class="button-section button-redirect" tabindex="0" data-target="slideRedirect">
-						<img src="/cms/lib/supra/img/sidebar/icons/settings-redirect-inactive.png" class="inactive" />
-						<img src="/cms/lib/supra/img/sidebar/icons/settings-redirect.png" class="active" />
-						<span>{#settings.redirect_title#}</span>
-						<input type="hidden" name="redirect" />
-					</a>
+					<button data-target="slideRedirect" data-style="icon" data-icon="/cms/lib/supra/img/sidebar/icons/button-redirect.png" class="su-button-fill">{#settings.redirect_title#}</button>
 					<span class="redirect-target hidden">
+						<input type="hidden" name="redirect" />
 						<span class="icon"></span>
 						<a class="title" tarbindex="0" data-target="slideRedirect">Redirect target page name</a>
 						<a class="remove"></a>
 					</span>
 					
-					<a class="button-section" tabindex="0" data-target="slideAdvanced">
-						<img src="/cms/lib/supra/img/sidebar/icons/settings-advanced-inactive.png" class="inactive" />
-						<img src="/cms/lib/supra/img/sidebar/icons/settings-advanced.png" class="active" />
-						<span>{#settings.advanced#}</span>
-					</a>
+					<button data-target="slideAdvanced" data-style="icon" data-icon="/cms/lib/supra/img/sidebar/icons/button-advanced.png" class="su-button-fill">{#settings.advanced#}</button>
 					
 				</div><div id="slideMeta" class="hidden" data-icon="/cms/lib/supra/img/sidebar/icons/settings-seo.png" data-title="{#settings.meta_title#}">
 					
