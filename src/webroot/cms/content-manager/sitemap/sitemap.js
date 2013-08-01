@@ -333,7 +333,6 @@ function (Y) {
 		 * @private
 		 */
 		triggerPageSelect: function (evt) {
-			
 			evt.data = Supra.mix({}, evt.data);
 			if(evt.data.redirect && evt.data.localized && evt.data.redirect_page_id != '') {
 				Supra.Manager.executeAction('Confirmation', {
@@ -357,6 +356,9 @@ function (Y) {
 			
 				return;
 			}
+			
+			// Save selected page id for correct 'hide' animation
+			this.selected_page_id = evt.data.id;
 			
 			this.fire('page:select', {
 				'data': evt.data,
@@ -544,6 +546,8 @@ function (Y) {
 				
 				deferred.resolve();
 			}, this);
+			 
+			this.selected_page_id = null;
 			
 			return deferred.promise();
 		},
@@ -652,7 +656,7 @@ function (Y) {
 		 * @type {Object}
 		 */
 		getSelectedNode: function () {
-			var page_id = Supra.data.get(['page', 'id'], null),
+			var page_id = this.selected_page_id || Supra.data.get(['page', 'id'], null),
 				node = null;
 			
 			if (page_id) {
@@ -670,8 +674,7 @@ function (Y) {
 			if (this.hiding) return this;
 			this.hiding = true;
 			
-			var page_id = Supra.data.get(['page', 'id'], null),
-				node = this.getSelectedNode();
+			var node = this.getSelectedNode();
 			
 			if (node) {
 				this.animate(node.get('itemBox'));
