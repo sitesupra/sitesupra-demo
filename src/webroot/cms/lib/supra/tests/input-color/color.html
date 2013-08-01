@@ -67,7 +67,7 @@
 					color.on("valueChange", function (e) {
 						testChange.setStyle("backgroundColor", e.newVal);
 					});
-					color.on(["valueChange", "colorChange"], function (e) {
+					color.on(["valueChange", "input"], function (e) {
 						testDrag.setStyle("backgroundColor", e.newVal);
 					});
 					
@@ -84,7 +84,7 @@
 					color.on("valueChange", function (e) {
 						testChange2.setStyle("backgroundColor", e.newVal);
 					});
-					color.on(["valueChange", "colorChange"], function (e) {
+					color.on(["valueChange", "input"], function (e) {
 						testDrag2.setStyle("backgroundColor", e.newVal);
 					});
 				

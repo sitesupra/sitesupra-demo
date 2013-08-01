@@ -35073,6 +35073,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		cursorMoveEvent: null,
 		cursorUpEvent: null,
+		cursorHandleMoveEvent: null,
 		
 		/**
 		 * Map width and height
@@ -35795,6 +35796,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (this.cursorMoveEvent) this.cursorMoveEvent.detach();
 			this.cursorMoveEvent = doc.on("mousemove", Supra.throttle(this._updateBarColor, 40, this));
 			
+			if (this.cursorHandleMoveEvent) this.cursorHandleMoveEvent.detach();
+			this.cursorHandleMoveEvent = doc.on("mousemove", this._updateBarHandle, this);
+			
 			if (this.cursorUpEvent) this.cursorUpEvent.detach();
 			this.cursorUpEvent = doc.on("mouseup", this._upBarCursor, this);
 			
@@ -35831,6 +35835,10 @@ YUI.add('supra.datatype-color', function(Y) {
 				this.cursorMoveEvent.detach();
 				this.cursorMoveEvent = null;
 			}
+			if (this.cursorHandleMoveEvent) {
+				this.cursorHandleMoveEvent.detach();
+				this.cursorHandleMoveEvent = null;
+			}
 			
 			this._hideShim();
 		},
@@ -35844,16 +35852,28 @@ YUI.add('supra.datatype-color', function(Y) {
 		_updateBarColor: function (e) {
 			var size = this.barSize,
 				y = Math.min(size, Math.max(0, e.pageY - this.barPosition)),
-				h = ~~(359 - (y / size) * 359),
-				node = this.get("nodeBarHandle");
+				h = ~~(359 - (y / size) * 359);
 			
 			this.setHue(h);
+			this.fire("input", {"newVal": this.hex});
+		},
+		
+		/**
+		 * Update handle position
+		 * This is not done in _updateBarColor, because it's throttled and we want
+		 * illusion of more responsive UI
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		_updateBarHandle: function (e) {
+			var size = this.barSize,
+				y = Math.min(size, Math.max(0, e.pageY - this.barPosition)),
+				node = this.get("nodeBarHandle");
 			
 			node.setStyles({
 				"top": y
 			});
-			
-			this.fire("input", {"newVal": this.hex});
 		},
 		
 		/**
@@ -35962,6 +35982,9 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (this.cursorMoveEvent) this.cursorMoveEvent.detach();
 			this.cursorMoveEvent = doc.on("mousemove", Supra.throttle(this._updateMapColor, 40, this));
 			
+			if (this.cursorHandleMoveEvent) this.cursorHandleMoveEvent.detach();
+			this.cursorHandleMoveEvent = doc.on("mousemove", this._updateMapHandle, this);
+			
 			if (this.cursorUpEvent) this.cursorUpEvent.detach();
 			this.cursorUpEvent = doc.on("mouseup", this._upMapCursor, this);
 			
@@ -35977,6 +36000,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		_upMapCursor: function (e) {
 			if (this.mapCursorDown) {
 				this._updateMapColor(e);
+				this._updateMapHandle(e);
 			}
 			
 			this.mapCursorDown = false;
@@ -35999,6 +36023,10 @@ YUI.add('supra.datatype-color', function(Y) {
 				this.cursorMoveEvent.detach();
 				this.cursorMoveEvent = null;
 			}
+			if (this.cursorHandleMoveEvent) {
+				this.cursorHandleMoveEvent.detach();
+				this.cursorHandleMoveEvent = null;
+			}
 			
 			this._hideShim();
 		},
@@ -36019,11 +36047,29 @@ YUI.add('supra.datatype-color', function(Y) {
 				dark = (x + y) < size / 2,
 				
 				s = x / ratio,
-				b = 100 - y / ratio,
-					
-				node = this.get("nodeMapHandle");
+				b = 100 - y / ratio;
 			
 			this.setSaturationBrightness(s, b);
+			this.fire("input", {"newVal": this.hex});
+		},
+		
+		/**
+		 * Update handle position
+		 * This is not done in _updateMapColor, because it's throttled and we want
+		 * illusion of more responsive UI
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		_updateMapHandle: function (e) {
+			if (!this.mapPosition) return;
+			
+			var size = this.mapSize,
+				x = Math.min(size, Math.max(0, e.pageX - this.mapPosition[0])),
+				y = Math.min(size, Math.max(0, e.pageY - this.mapPosition[1])),
+				dark = (x + y) < size / 2,
+					
+				node = this.get("nodeMapHandle");
 			
 			node.setStyles({
 				"left": x,
@@ -36034,8 +36080,6 @@ YUI.add('supra.datatype-color', function(Y) {
 				node.toggleClass("light", !dark);
 				this.mapHandleDark = dark;
 			}
-			
-			this.fire("input", {"newVal": this.hex});
 		},
 		
 		
