@@ -25478,8 +25478,6 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				
 			var srcNode		= Y.Node.getDOMNode(htmleditor.get('srcNode')),		// editor content node
 				doc			= htmleditor.get('doc'),							// editor iframe document
-				win			= htmleditor.get('win'),							// editor iframe window
-				body		= doc.body,											// editor iframe body
 				node		= doc.createElement('DIV');							// temporary node
 			
 			/* Create node, which will be used as temporary storage for pasted value
@@ -25492,7 +25490,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			node.style.opacity = 0;
 			node.innerHTML = '&nbsp;';
 			
-			body.appendChild(node);
+			srcNode.appendChild(node);
 			
 			//Change selection to new element (content will be pasted inside it)
 			htmleditor.setSelection({
