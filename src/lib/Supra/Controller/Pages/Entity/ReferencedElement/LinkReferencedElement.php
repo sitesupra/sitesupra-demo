@@ -299,6 +299,16 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function fillArray(array $array)
 	{
+		$array = $array + array(
+			'recource' => null,
+			'title' => null,
+			'target' => null,
+			'page_master_id' => null,
+			'file_id' => null,
+			'href' => null,
+			'classname' => null,
+		);
+		
 		$this->resource = $array['resource'];
 		$this->title = $array['title'];
 		$this->target = $array['target'];
