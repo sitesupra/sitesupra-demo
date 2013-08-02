@@ -848,7 +848,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			google_fonts = new Supra.GoogleFonts({'doc': doc});
 			fonts_nodes = google_fonts.getLinkNodes();
 			
-			if (fonts_nodes.length) {
+			if (fonts_nodes && fonts_nodes.length) {
 				for (var i=0,ii=fonts_nodes.length; i<ii; i++) {
 					stylesheets.push('<link rel="stylesheet" type="text/css" href="' + fonts_nodes[i].getAttribute('href') + '" />');
 				}
