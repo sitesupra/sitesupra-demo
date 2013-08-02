@@ -790,9 +790,13 @@ class PagecontentAction extends PageManagerAction
 				}
 				
 				else if ($editable instanceof Editable\MediaGallery) {
-					$listInput = $input->getChild($propertyName);
-					$propertyArray = $this->handleMediaGalleryInput($listInput, $configuration);
-					$value = serialize($propertyArray);
+					
+					if ($input->hasChild($propertyName)) {
+					
+						$listInput = $input->getChild($propertyName);
+						$propertyArray = $this->handleMediaGalleryInput($listInput, $configuration);
+						$value = serialize($propertyArray);
+					}
 				}
 				
 				else {
@@ -928,9 +932,6 @@ class PagecontentAction extends PageManagerAction
 					continue;
 				}
 				
-//				$imageData = $metaItemInput->getChild('image')
-//						->getArrayCopy();
-					
 				$element = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($imageData);
 				$metaItem = new Entity\BlockPropertyMetadata($index, $property, $element);				
 			}
@@ -938,17 +939,7 @@ class PagecontentAction extends PageManagerAction
 			$metaItem->setName($index);
 								
 			$element->fillArray($imageData);
-			
-//			if ($metaItemInput->hasChild('image')) {
-//				$imageData = $metaItemInput->getChild('image')
-//						->getArrayCopy();
-//
-//				$imageData['type'] = Entity\ReferencedElement\ImageReferencedElement::TYPE_ID;
-//				$element->fillArray($imageData);
-//			}
-			
-//			$element->setImageId($imageId);
-			
+						
 			$metaItem->setReferencedElement($element);
 			
 			/* @var $property Entity\BlockProperty */
@@ -1161,7 +1152,6 @@ class PagecontentAction extends PageManagerAction
 	}
 	
 	/**
-	 * 
 	 */
 	private function handleMediaGalleryInput($input, $propertyConfiguration)
 	{
@@ -1182,17 +1172,14 @@ class PagecontentAction extends PageManagerAction
 				if ($itemInput->offsetExists($name)) {
 					
 					$content = $itemInput->offsetGet($name);
-					if ( ! empty($content)) {
-						try {
-							$editable->setContentFromEdit($content);
-						} catch (\Supra\Editable\Exception\RuntimeException $e) {
-							throw new CmsException(null, $e->getMessage());
-						}
-
-						$itemData[$name] = $editable->getContentForEdit();
-					} else {
-						$itemData[$name] = $editable->getDefaultValue();
+					try {
+						$editable->setContentFromEdit($content);
+					} catch (\Supra\Editable\Exception\RuntimeException $e) {
+						throw new CmsException(null, $e->getMessage());
 					}
+				
+					$itemData[$name] = $editable->getContentForEdit();
+					
 				} else {
 					$itemData[$name] = $editable->getDefaultValue();
 				}
