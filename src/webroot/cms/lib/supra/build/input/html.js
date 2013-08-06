@@ -265,10 +265,13 @@ YUI.add("supra.input-html", function (Y) {
 		},
 		
 		/**
-		 * On blur disable editor and 
+		 * On blur disable editor
+		 * if source editor in not opened, because it's part of HTML editor 
 		 */
 		onIframeBlur: function (e) {
-			if (!this.htmleditor.get('disabled') && !e.silent) {
+			var source_editor = Manager.getAction('PageSourceEditor');
+			
+			if (!source_editor.get('visible') && !this.htmleditor.get('disabled') && !e.silent) {
 				Y.Node(this.get('doc')).one('html').addClass('standalone-disabled');
 				
 				this.htmleditor.set('disabled', true);
