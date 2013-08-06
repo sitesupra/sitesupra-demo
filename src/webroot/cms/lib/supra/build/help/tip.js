@@ -417,7 +417,7 @@ YUI().add('supra.help-tip', function (Y) {
 			// Create buttons
 			for (i=0, ii=buttons.length; i<ii; i++) {
 				widget = new Supra.Button(Supra.mix({
-					'style': 'small'
+					'style': 'mid-blue'
 				}, buttons[i]));
 				
 				widget.render(node);
