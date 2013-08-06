@@ -366,8 +366,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if block is closed
-		 * If block is closed, then user is prevented from adding children, ordering or removing
-		 * this block
+		 * If block is closed, then user is prevented from adding children and ordering this block
 		 * 
 		 * @returns {Boolean} True if block is closed, otherwise false
 		 */

@@ -331,7 +331,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 					doc.body.appendChild(node);
 				};
 				
-				doc.body.onload = loadNextScript;
+				Supra.immediate(this, loadNextScript);
 			}
 		},
 		

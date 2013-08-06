@@ -422,7 +422,7 @@ YUI().add('supra.iframe', function (Y) {
 					doc.body.appendChild(node);
 				};
 				
-				doc.body.onload = loadNextScript;
+				Supra.immediate(this, loadNextScript);
 			}
 			
 			//Save document & window instances
