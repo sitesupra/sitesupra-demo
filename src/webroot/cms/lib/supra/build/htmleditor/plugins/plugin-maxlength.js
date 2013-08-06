@@ -18,7 +18,7 @@ YUI().add('supra.htmleditor-plugin-maxlength', function (Y) {
 				editor = this.htmleditor,
 				maxLength = editor.get('maxLength');
 			
-			if (maxLength && !event.stopped && !event.alyKey && !event.ctrlKey && !event.metaKey) {
+			if (maxLength && !event.stopped && !event.altKey && !event.ctrlKey && !event.metaKey) {
 				if (editor.insertCharacterCharCode(charCode)) {
               		if (editor.getContentCharacterCount() >= maxLength) {
               			event.halt();

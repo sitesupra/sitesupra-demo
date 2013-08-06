@@ -19854,6 +19854,108 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			}
 		},
 		
+		
+		/* --------------------------------- Key board input --------------------------------- */
+		
+		
+		/**
+		 * On tab key navigate between table cells
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		_onTabKey: function (event) {
+			var table   = this.selected_table,
+				cell    = this.selected_cell,
+				node    = cell,
+				offset  = 0,
+				test    = null,
+				filter  = null,
+				KEY_TAB = 9;
+			
+			test = function (node) {
+				return node.get('nodeType') == 1;
+			};
+			
+			if (table && cell && !event.stopped && event.keyCode == KEY_TAB && !event.altKey && !event.ctrlKey) {
+				
+				if (event.shiftKey) {
+					node = node.previous(test);
+					
+					if (!node) {
+						node = cell.ancestor().previous(test);
+						
+						if (node) {
+							// last child
+							node = node.get('childNodes').filter('td,th');
+							node = node.item(node.size() - 1);
+						}
+					}
+				} else {
+					node = node.next(test);
+					
+					if (!node) {
+						node = cell.ancestor().next(test);
+						
+						if (node) {
+							// first child
+							node = node.get('childNodes').filter('td,th');
+							node = node.item(0);
+						}
+					}
+				}
+				
+				if (node) {
+					cell   = node;
+					node   = node.getDOMNode();
+					offset = node.childNodes.length;
+					
+					// Focus that node
+					this.htmleditor.setSelection({
+						'start': node,
+						'start_offset': offset,
+						'end': node,
+						'end_offset': offset
+					});
+					
+					this.focusTable(cell);
+				}
+					
+				event.halt();
+			}
+		},
+		
+		/**
+		 * On CTRL+A / Command+A select only cell content, not all content in HTMLEditor
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		_onSelectAllKey: function (event) {
+			var table  = this.selected_table,
+				cell   = this.selected_cell,
+				KEY_A  = 65;
+			
+			if (table && cell && !event.stopped && event.keyCode == KEY_A && (event.ctrlKey || event.metaKey) && !event.altKey) {
+				cell   = cell.getDOMNode();
+				offset = cell.childNodes.length;
+				
+				// Focus that node
+				this.htmleditor.setSelection({
+					'start': cell,
+					'start_offset': 0,
+					'end': cell,
+					'end_offset': offset
+				});
+					
+				event.halt();
+			}
+		},
+		
+		
+		/* --------------------------------- Initialize --------------------------------- */
+		
+		
 		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
@@ -19885,6 +19987,12 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					button.set('disabled', !event.allowed);
 				}, this);
 			}
+			
+			// On tab key navigate between cells
+			htmleditor.on('keyDown', Y.bind(this._onTabKey, this));
+			
+			// On select-all key selec only cell content
+			htmleditor.on('keyDown', Y.bind(this._onSelectAllKey, this));
 			
 			//When image looses focus hide settings form
 			htmleditor.on('nodeChange', this.onNodeChange, this);
@@ -20790,7 +20898,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				editor = this.htmleditor,
 				maxLength = editor.get('maxLength');
 			
-			if (maxLength && !event.stopped && !event.alyKey && !event.ctrlKey && !event.metaKey) {
+			if (maxLength && !event.stopped && !event.altKey && !event.ctrlKey && !event.metaKey) {
 				if (editor.insertCharacterCharCode(charCode)) {
               		if (editor.getContentCharacterCount() >= maxLength) {
               			event.halt();
@@ -25943,7 +26051,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * Handle keyDown in IE and WebKit browsers to insert BR
 		 */
 		_onBrKeyDown: function (event) {
-			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.altKey && !event.ctrlKey) {
 				var editor = this.htmleditor,
 					node = new Y.Node(editor.getSelectedElement());
 				
@@ -25978,7 +26086,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * On return key insert paragraph
 		 */
 		_insertParagraph: function (event) {
-			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.altKey && !event.ctrlKey) {
 				
 				// Cursor is at the end of the inline node?
 				// Create block level element, not inline (eg. <a class="button" />)
@@ -26055,7 +26163,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @private
 		 */
 		_mergeContent: function (event) {
-			if (!event.stopped && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && !event.shiftKey && !event.altKey && !event.ctrlKey) {
 				
 				if (event.keyCode == KEY_BACKSPACE) {
 					if (this.htmleditor.isCursorAtTheBeginingOf()) {
@@ -26235,7 +26343,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * Prevent return key
 		 */
 		_onReturnKey: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == 13 && !event.altKey && !event.ctrlKey) {
 				event.preventDefault();
 			}
 		},
@@ -26277,7 +26385,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * Prevent return key
 		 */
 		_onReturnKey: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == 13 && !event.altKey && !event.ctrlKey) {
 				// Insert BR
 				var editor = this.htmleditor,
 					maxlength = editor.get('maxLength');

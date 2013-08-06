@@ -27,7 +27,7 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		 * Handle keyDown in IE and WebKit browsers to insert BR
 		 */
 		_onBrKeyDown: function (event) {
-			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.altKey && !event.ctrlKey) {
 				var editor = this.htmleditor,
 					node = new Y.Node(editor.getSelectedElement());
 				
@@ -62,7 +62,7 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		 * On return key insert paragraph
 		 */
 		_insertParagraph: function (event) {
-			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == KEY_RETURN && !event.shiftKey && !event.altKey && !event.ctrlKey) {
 				
 				// Cursor is at the end of the inline node?
 				// Create block level element, not inline (eg. <a class="button" />)
@@ -139,7 +139,7 @@ YUI().add('supra.htmleditor-plugin-paragraph', function (Y) {
 		 * @private
 		 */
 		_mergeContent: function (event) {
-			if (!event.stopped && !event.shiftKey && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && !event.shiftKey && !event.altKey && !event.ctrlKey) {
 				
 				if (event.keyCode == KEY_BACKSPACE) {
 					if (this.htmleditor.isCursorAtTheBeginingOf()) {

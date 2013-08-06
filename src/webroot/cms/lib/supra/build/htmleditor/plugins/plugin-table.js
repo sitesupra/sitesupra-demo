@@ -709,6 +709,108 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			}
 		},
 		
+		
+		/* --------------------------------- Key board input --------------------------------- */
+		
+		
+		/**
+		 * On tab key navigate between table cells
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		_onTabKey: function (event) {
+			var table   = this.selected_table,
+				cell    = this.selected_cell,
+				node    = cell,
+				offset  = 0,
+				test    = null,
+				filter  = null,
+				KEY_TAB = 9;
+			
+			test = function (node) {
+				return node.get('nodeType') == 1;
+			};
+			
+			if (table && cell && !event.stopped && event.keyCode == KEY_TAB && !event.altKey && !event.ctrlKey) {
+				
+				if (event.shiftKey) {
+					node = node.previous(test);
+					
+					if (!node) {
+						node = cell.ancestor().previous(test);
+						
+						if (node) {
+							// last child
+							node = node.get('childNodes').filter('td,th');
+							node = node.item(node.size() - 1);
+						}
+					}
+				} else {
+					node = node.next(test);
+					
+					if (!node) {
+						node = cell.ancestor().next(test);
+						
+						if (node) {
+							// first child
+							node = node.get('childNodes').filter('td,th');
+							node = node.item(0);
+						}
+					}
+				}
+				
+				if (node) {
+					cell   = node;
+					node   = node.getDOMNode();
+					offset = node.childNodes.length;
+					
+					// Focus that node
+					this.htmleditor.setSelection({
+						'start': node,
+						'start_offset': offset,
+						'end': node,
+						'end_offset': offset
+					});
+					
+					this.focusTable(cell);
+				}
+					
+				event.halt();
+			}
+		},
+		
+		/**
+		 * On CTRL+A / Command+A select only cell content, not all content in HTMLEditor
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private
+		 */
+		_onSelectAllKey: function (event) {
+			var table  = this.selected_table,
+				cell   = this.selected_cell,
+				KEY_A  = 65;
+			
+			if (table && cell && !event.stopped && event.keyCode == KEY_A && (event.ctrlKey || event.metaKey) && !event.altKey) {
+				cell   = cell.getDOMNode();
+				offset = cell.childNodes.length;
+				
+				// Focus that node
+				this.htmleditor.setSelection({
+					'start': cell,
+					'start_offset': 0,
+					'end': cell,
+					'end_offset': offset
+				});
+					
+				event.halt();
+			}
+		},
+		
+		
+		/* --------------------------------- Initialize --------------------------------- */
+		
+		
 		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
@@ -740,6 +842,12 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 					button.set('disabled', !event.allowed);
 				}, this);
 			}
+			
+			// On tab key navigate between cells
+			htmleditor.on('keyDown', Y.bind(this._onTabKey, this));
+			
+			// On select-all key selec only cell content
+			htmleditor.on('keyDown', Y.bind(this._onSelectAllKey, this));
 			
 			//When image looses focus hide settings form
 			htmleditor.on('nodeChange', this.onNodeChange, this);

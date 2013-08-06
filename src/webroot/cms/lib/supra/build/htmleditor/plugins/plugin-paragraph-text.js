@@ -11,7 +11,7 @@ YUI().add('supra.htmleditor-plugin-paragraph-text', function (Y) {
 		 * Prevent return key
 		 */
 		_onReturnKey: function (event) {
-			if (!event.stopped && event.keyCode == 13 && !event.alyKey && !event.ctrlKey) {
+			if (!event.stopped && event.keyCode == 13 && !event.altKey && !event.ctrlKey) {
 				// Insert BR
 				var editor = this.htmleditor,
 					maxlength = editor.get('maxLength');
