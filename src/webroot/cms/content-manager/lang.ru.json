@@ -42,7 +42,7 @@
 				"add_video": "Добавить видео",
 				"delete_image": "Удалить картинку",
 				"delete_video": "Удалить видео"
-			}
+			},
 			
 			"resize_frame_size": "Image frame size",
 			"resize_button_title": "Maintain aspect ratio",
