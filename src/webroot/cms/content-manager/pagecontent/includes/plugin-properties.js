@@ -75,6 +75,14 @@ YUI.add('supra.page-content-properties', function (Y) {
 			'value': null
 		},
 		
+		/**
+		 * Show global block message 
+		 */
+		'showGlobalBlockMessage': {
+			'value': false,
+			'setter': '_uiShowGlobalBlockMessage'
+		},
+		
 		/*
 		 * Automatically show form when content is being edited
 		 */
@@ -116,6 +124,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 	Y.extend(Properties, Y.Plugin.Base, {
 		
 		_node_content: null,
+		
+		_global_block_message_node: null,
 		
 		_original_values: null,
 		
@@ -419,6 +429,13 @@ YUI.add('supra.page-content-properties', function (Y) {
 			if (host.isParentClosed() || host.isInstanceOf('page-content-list')) {	
 				btn.hide();
 			}
+			
+			//Show message if this is a block and it's global
+			if (!host.isInstanceOf('page-content-list')) {
+				if (host.getPropertyValue('locked') || host.isClosed()) {
+					this.set('showGlobalBlockMessage', true);
+				}
+			}
 		},
 		
 		/**
@@ -600,6 +617,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @param {Object} evt
 		 */
 		onPropertyChange: function (evt) {
+			
 			// If settings initial values, then we should trigger events
 			if (this._updating_values) return;
 			
@@ -612,6 +630,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 				properties = this.get('properties');
 			
 			Y.later(60, this, this.onPropertyChangeTriggerContentChange, [input, null, false]);
+			
+			//If Global block property changed, then show/hide global block message
+			if (id == '__locked__') {
+				var host = this.get('host');
+				// Message should be visible only for blocks
+				if (!host.isInstanceOf('page-content-list')) {
+					this.set('showGlobalBlockMessage', evt.newVal || evt.value || host.isClosed());
+				}
+			}
 			
 			//Update attributes
 			if (normalChanged && inlineChanged) return;
@@ -855,7 +882,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					//Pages don't have "locked" input
 					locked_input.set('disabled', true).set('visible', false);
 					
-					//If only input is '__locked__' then hide button
+					//If '__locked__'  is only input in the form then hide button
 					if (!advanced_inputs.length || (advanced_inputs.length == 1 && advanced_inputs[0].id == '__locked__')) {
 						advanced_button.set('visible', false);
 					} else {
@@ -1458,6 +1485,28 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Show/hide global block message
+		 * 
+		 * @param {Boolean} show
+		 */
+		_uiShowGlobalBlockMessage: function (show) {
+			var message = this._global_block_message_node;
+			
+			if (!message) {
+				message = Y.Node.create('<p class="description block-description">' + Supra.Intl.get(['page', 'description_block_global']) + '</p>');
+				this._global_block_message_node = message;
+			}
+			
+			if (show) {
+				this.getGroupContentNode().appendChild(message);
+			} else {
+				message.remove();
+			}
+			
+			return show;
 		}
 		
 	});
