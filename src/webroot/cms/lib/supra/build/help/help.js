@@ -87,7 +87,8 @@ YUI().add('supra.help', function (Y) {
 		getTip: function (id) {
 			var helpnotes = Supra.Intl.get(['helpnotes']),
 				key       = null,
-				id        = String(id);
+				id        = String(id),
+				index     = -1;
 			
 			// Full match
 			if (helpnotes && helpnotes[id]) {
@@ -97,7 +98,8 @@ YUI().add('supra.help', function (Y) {
 			// Partial match, help tip key may be shorter than id, because
 			// for blocks path is not included
 			for (key in helpnotes) {
-				if (id.indexOf(key) == id.length - key.length) {
+				index = id.indexOf(key);
+				if (index != -1 && index == id.length - key.length) {
 					return helpnotes[key];
 				}
 			}

@@ -596,6 +596,7 @@
 			"MenuBlock": {
 				"title": "Tip",
 				"description": "Links are added to the menu automatically after a new page is created in the Sitemap",
+				"closeButtonVisible": false,
 				"buttons": [
 					{
 						"label": "Open Sitemap",
@@ -607,6 +608,7 @@
 			"LeftMenuBlock": {
 				"title": "Tip",
 				"description": "Links are added to the menu automatically after a new page is created in the Sitemap",
+				"closeButtonVisible": false,
 				"buttons": [
 					{
 						"label": "Open Sitemap",

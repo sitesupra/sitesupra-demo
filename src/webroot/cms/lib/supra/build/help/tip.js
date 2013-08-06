@@ -59,6 +59,11 @@ YUI().add('supra.help-tip', function (Y) {
 			// CSS z-index value
 			'value': 1,
 			'validator': Y.Lang.isNumber
+		},
+		
+		'closeButtonVisible': {
+			// Show close button
+			'value': true
 		}
 	};
 	
@@ -143,6 +148,7 @@ YUI().add('supra.help-tip', function (Y) {
 			
 			
 			this.after('visibleChange', this._uiSetVisible, this);
+			this.after('closeButtonVisible', this._uiSetCloseButtonVisible, this);
 		},
 		
 		/**
@@ -158,6 +164,7 @@ YUI().add('supra.help-tip', function (Y) {
 			this._uiSetPosition(this.get('position'));
 			this._uiSetZIndex(this.get('zIndex'));
 			this._uiSetButtons(this.get('buttons'));
+			this._uiSetCloseButtonVisible(this.get('closeButtonVisible'));
 		},
 		
 		/**
@@ -464,6 +471,17 @@ YUI().add('supra.help-tip', function (Y) {
 			
 			var node = this.get('boundingBox');
 			node.toggleClass('hidden', !value);
+		},
+		
+		/**
+		 * Show/hiden close button
+		 * 
+		 * @param {Boolean|Object} value Visible state or attribute change event
+		 * @private
+		 */
+		_uiSetCloseButtonVisible: function (value) {
+			if (Y.Lang.type(value) === 'object' && 'newVal' in value) value = value.newVal;
+			this._nodeClose.toggleClass('hidden', !value);
 		}
 		
 	});
