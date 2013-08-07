@@ -1144,7 +1144,7 @@ YUI.add('gallery.view', function (Y) {
 					if (node) {
 						value = data[property.id];
 						
-						input = new Supra.Input[property.type]({
+						input = new Supra.Input[property.type](Supra.mix({}, property, {
 							'doc': iframe.get('doc'),
 							'win': iframe.get('win'),
 							'toolbar': Manager.EditorToolbar.getToolbar(),
@@ -1152,7 +1152,7 @@ YUI.add('gallery.view', function (Y) {
 							'targetNode': node,
 							'value': value,
 							'plugins': property.plugins
-						});
+						}));
 						
 						input.set('name', property.id);
 						

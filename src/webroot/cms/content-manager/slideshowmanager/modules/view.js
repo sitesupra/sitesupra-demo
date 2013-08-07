@@ -607,14 +607,14 @@ YUI.add('slideshowmanager.view', function (Y) {
 					if (node) {
 						value = data[property.id] || values[property.id];
 						
-						input = new Supra.Input[property.type]({
+						input = new Supra.Input[property.type](Supra.mix({}, property, {
 							'doc': iframe.get('doc'),
 							'win': iframe.get('win'),
 							'toolbar': Manager.EditorToolbar.getToolbar(),
 							'srcNode': srcNode,
 							'targetNode': node,
 							'value': value
-						});
+						}));
 						
 						inputs.push(input);
 						input.render(contNode);
