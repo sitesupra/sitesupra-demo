@@ -484,11 +484,39 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			// Show tooltip if it exists
 			var block_type = this.get('host').getBlockType();
+			
 			if (Supra.Help.tipExists(block_type)) {
 				Supra.Help.tip(block_type, {
 					'append': slideshow.getSlide(SLIDESHOW_MAIN_SLIDE).one('.su-slide-content'),
 					'position': 'relative'
 				});
+			}
+			
+			// Show tooltip from block configuration
+			var configuration = this.get('host').getBlockInfo(),
+				tooltip       = configuration.tooltip,
+				buttons       = [],
+				widget        = null;
+			
+			if (tooltip) {
+				if (tooltip.button) {
+					buttons.push({
+						'label': tooltip.button.label || '',
+						'action': tooltip.button.javascriptAction || ''
+					});
+				}
+				
+				widget = new Supra.HelpTip({
+					'title': tooltip.title || '',
+					'description': tooltip.text || '',
+					'buttons': buttons,
+					'style': tooltip.style || '',
+					'closeButtonVisible': false,
+					'position': 'relative'
+				});
+				
+				widget.render();
+				slideshow.getSlide(SLIDESHOW_MAIN_SLIDE).one('.su-slide-content').append(widget.get('boundingBox'));
 			}
 			
 			this.set('form', form);

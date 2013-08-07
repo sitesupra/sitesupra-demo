@@ -64,6 +64,11 @@ YUI().add('supra.help-tip', function (Y) {
 		'closeButtonVisible': {
 			// Show close button
 			'value': true
+		},
+		
+		'style': {
+			// Tooltip style
+			'value': 'bright'
 		}
 	};
 	
@@ -146,9 +151,9 @@ YUI().add('supra.help-tip', function (Y) {
 			this.after('yPositionChange', this._uiSetPositionY, this);
 			this.after('zIndexChange', this._uiSetZIndex, this);
 			
-			
 			this.after('visibleChange', this._uiSetVisible, this);
 			this.after('closeButtonVisible', this._uiSetCloseButtonVisible, this);
+			this.after('styleChange', this._uiSetStyle, this);
 		},
 		
 		/**
@@ -165,6 +170,7 @@ YUI().add('supra.help-tip', function (Y) {
 			this._uiSetZIndex(this.get('zIndex'));
 			this._uiSetButtons(this.get('buttons'));
 			this._uiSetCloseButtonVisible(this.get('closeButtonVisible'));
+			this._uiSetStyle(this.get('style'));
 		},
 		
 		/**
@@ -210,14 +216,28 @@ YUI().add('supra.help-tip', function (Y) {
 		 * @private
 		 */
 		_eventButtonClick: function (event, button, config) {
-			var action = config.action ? (Y.Lang.isWidget(config.action) ? config.action : Supra.Manager.getAction(config.action)) : null,
-				action_id = action ? (action.NAME || action.constructor.NAME) : null;
+			var action = config.action,
+				action_id = null,
+				action_fn = config.actionFunction,
+				
+				index = -1;
 			
-			if (config.actionFunction) {
+			// Allow 'actionName.actionFunction' format for action
+			if (action && typeof action === 'string' && action.indexOf('.') !== -1) {
+				index = action.indexOf('.');
+				
+				action_fn = action.substr(index + 1);
+				action = action.substr(0, index);
+			}
+			
+			action = action ? (Y.Lang.isWidget(action) ? action : Supra.Manager.getAction(action)) : null,
+			action_id = action ? (action.NAME || action.constructor.NAME) : null;
+			
+			if (action_fn) {
 				if (action.NAME) {
 					if (action.get('executed')) {
 						//Call function
-						action[config.actionFunction](config.id, config);
+						action[action_fn](config.id, config);
 					} else {
 						if (button) {
 							button.set('loading', true);
@@ -228,14 +248,14 @@ YUI().add('supra.help-tip', function (Y) {
 								if (button) {
 									button.set('loading', false);
 								}
-								action[config.actionFunction](config.id, config);
+								action[action_fn](config.id, config);
 							}
 						});
 						action.execute();
 					}
 				} else {
 					//Widget instance, not an action
-					action[config.actionFunction](config.id, config);
+					action[action_fn](config.id, config);
 				}
 			} else {
 				if (action && action.execute) {
@@ -370,7 +390,15 @@ YUI().add('supra.help-tip', function (Y) {
 			if (Y.Lang.type(value) === 'object' && 'newVal' in value) value = value.newVal;
 			if (Y.Lang.type(value) !== 'string') return;
 			
-			this._nodeHeading.set('text', value);
+			var node = this._nodeHeading;
+			
+			if (value) {
+				node.set('text', value);
+				node.removeClass('hidden');
+			} else {
+				node.set('text', '');
+				node.addClass('hidden');
+			}
 		},
 		
 		/**
@@ -383,7 +411,15 @@ YUI().add('supra.help-tip', function (Y) {
 			if (Y.Lang.type(value) === 'object' && 'newVal' in value) value = value.newVal;
 			if (Y.Lang.type(value) !== 'string') return;
 			
-			this._nodeContent.set('text', value);
+			var node = this._nodeContent;
+			
+			if (value) {
+				node.set('text', value);
+				node.removeClass('hidden');
+			} else {
+				node.set('text', '');
+				node.addClass('hidden');
+			}
 		},
 		
 		/**
@@ -482,6 +518,32 @@ YUI().add('supra.help-tip', function (Y) {
 		_uiSetCloseButtonVisible: function (value) {
 			if (Y.Lang.type(value) === 'object' && 'newVal' in value) value = value.newVal;
 			this._nodeClose.toggleClass('hidden', !value);
+		},
+		
+		/**
+		 * Style attribute setter
+		 * 
+		 * @param {String|Object} value Style or attribute change event
+		 */
+		_uiSetStyle: function (value) {
+			var old_value = '';
+			
+			if (Y.Lang.type(value) === 'object' && 'newVal' in value) {
+				value = value.newVal;
+				old_value = value.oldVal;
+			}
+			if (Y.Lang.type(value) !== 'string') {
+				return;
+			}
+			
+			if (old_value != value) {
+				if (old_value) {
+					this.get('boundingBox').removeClass(this.getClassName(old_value));
+				}
+			}
+			if (value) {
+				this.get('boundingBox').addClass(this.getClassName(value));
+			}
 		}
 		
 	});
