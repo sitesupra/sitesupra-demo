@@ -101,6 +101,12 @@ class ParsedHtmlFilter implements FilterInterface
 			}
 		} else if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_EMAIL) {
 
+			$context = $this->responseContext;
+			if (!$context->has('addedDecipher')) {
+				$context->addJsUrlToLayoutSnippet('js', '/cms/lib/public/decipher-email.js');
+				$context->setValue('addedDecipher', true);
+			}
+			
 			$emailEncoder = new EmailEncoder();	
 			
 			$title = $link->getTitle();
