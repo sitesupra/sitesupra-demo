@@ -109,7 +109,8 @@ class TwitterFeedBlock extends BlockController
 		
         if (!$this->accessToken || !$this->accessTokenSecret) {
             $data['success'] = false;
-            $data['errors'][] = 'Twitter is not properly configured. Please set it up in Site Settings';
+            $data['errors'][] = "Ooops, seems that you haven't yet configured Twitter to work with your website. "
+					. "Don't worry, it's easy to set up! Select Settings app on the dashboard and configure Twitter.";
         }
         
         $this->twitterProvider = ObjectRepository::getObject($this, 'Supra\Social\Twitter\TwitterDataProvider');
@@ -118,7 +119,7 @@ class TwitterFeedBlock extends BlockController
         $twitterAccount = $this->getPropertyValue('account');
         if (!$twitterAccount) {
             $data['success'] = false;
-            $data['errors'][] = 'Please set Twitter account in Twitter Feed Block Properties.';
+            $data['errors'][] = 'Please specify Twitter account to feed from in the Twitter feed block properties.';
         } else {
             $this->feedParameters['screen_name'] = $twitterAccount;
         }
