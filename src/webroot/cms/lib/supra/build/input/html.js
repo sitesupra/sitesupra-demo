@@ -269,9 +269,11 @@ YUI.add("supra.input-html", function (Y) {
 		 * if source editor in not opened, because it's part of HTML editor 
 		 */
 		onIframeBlur: function (e) {
-			var source_editor = Manager.getAction('PageSourceEditor');
+			var source_editor = Manager.getAction('PageSourceEditor'),
+				link_manager = Manager.getAction('LinkManager'),
+				link_manager_loading = Supra.Manager.Loader.isLoading('LinkManager');
 			
-			if (!source_editor.get('visible') && !this.htmleditor.get('disabled') && !e.silent) {
+			if (!link_manager.get('visible') && !link_manager_loading && !source_editor.get('visible') && !this.htmleditor.get('disabled') && !e.silent) {
 				Y.Node(this.get('doc')).one('html').addClass('standalone-disabled');
 				
 				this.htmleditor.set('disabled', true);

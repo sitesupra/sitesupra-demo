@@ -316,17 +316,8 @@ YUI().add('supra.htmleditor-base', function (Y) {
 			}
 			
 			// Place cursor at the end
-			Y.later(16, this, function () {
-				if (node) {
-					this.setSelection({
-						start: node,
-						start_offset: node.length,
-						end: node,
-						end_offset: node.length
-					});
-				} else {
-					this.selectNode(srcNode);
-				}
+			Supra.immediate(this, function () {
+				this.deselect();
 			});
 		},
 		
