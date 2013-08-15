@@ -57,7 +57,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 		html_inputs: null,
 		
 		/**
-		 * Inline HTML input count
+		 * Inline HTML and Inline String input count
 		 * @type {Number}
 		 * @private
 		 */
@@ -267,35 +267,75 @@ YUI.add('supra.page-content-editable', function (Y) {
 			this.findInlineInputs();
 			
 			//When properties form is hidden, unset "Settings" button down state
-			if (has_html_properties) {
-				
-				this.properties.get('form').on('visibleChange', function (evt) {
-					if (evt.newVal != evt.prevVal && !evt.newVal) {
+			this.properties.get('form').on('visibleChange', this.onFormVisibleChange, this);
+			
+			//If there are no inline html properties, then 
+			//on properties form save / cancel trigger block save / cancel 
+			this.on('properties:save', function () {
+				if (!this.html_inputs_count && !this.properties.hasTopGroups()) {
+					this.fire('block:save');
+					
+					// If previously there were html inputs and after some property
+					// change it was removed, then make sure editor toolbar is closed
+					var actionButtons = Manager.PageButtons,
+						actionToolbar = Manager.PageToolbar;
+					
+					if (actionToolbar.inHistory('EditorToolbar')) {
+						actionToolbar.unsetActiveAction('EditorToolbar');
+						actionButtons.unsetActiveAction('EditorToolbar');
+						
+						//Unset settings button 'down' state
 						var toolbar = Manager.EditorToolbar.getToolbar();
 						toolbar.getButton('settings').set('down', false);
 					}
-				}, this);
-				
-			} else if (this.properties.hasTopGroups()) {
-				
-				// No need to do anything
-				
-			} else {
-				
-				//If there are no inline html properties, then 
-				//on properties form save / cancel trigger block save / cancel 
-				this.on('properties:save', function () {
-					this.fire('block:save');
-				});
-				this.on('properties:cancel', function () {
+				}
+			});
+			this.on('properties:cancel', function () {
+				if (!this.html_inputs_count && !this.properties.hasTopGroups()) {
 					this.fire('block:cancel');
-				});
-				
-			}
+				}
+			});
 			
 			//Handle block save / cancel
 			this.on('block:save', this.savePropertyChanges, this);
 			this.on('block:cancel', this.cancelPropertyChanges, this);
+		},
+		
+		/**
+		 * When properties form is hidden, unset "Settings" button down state
+		 */
+		onFormVisibleChange: function (evt) {
+			if (this.html_inputs_count) {
+				if (evt.newVal != evt.prevVal && !evt.newVal) {
+					var action  = Manager.EditorToolbar,
+						toolbar = action.getToolbar();
+					
+					toolbar.getButton('settings').set('down', false);
+					
+					if (!action.get('visible')) {
+						// Some properties may have changed and now there are inline html inputs
+						// so we show toolbar manually if it's not visible
+						action.execute();
+					}
+				}
+			}
+		},
+		
+		/**
+		 * Returns true if there are any HTML properties, otherwise false
+		 */
+		hasHTMLProperties: function () {
+			//Find if there are any HTML properties
+			var properties = this.getProperties(),
+				has_html_properties = false;
+			
+			for(var i=0,ii=properties.length; i<ii; i++) {
+				if (properties[i].type == 'InlineHTML') {
+					return true;
+				}
+			}
+			
+			return false;
 		},
 		
 		/**
@@ -367,6 +407,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 			
 			this.inline_inputs = {};
 			this.html_inputs = {};
+			this.inline_inputs_count = 0;
+			this.html_inputs_count = 0;
 			
 			for(var i=0,ii=properties.length; i<ii; i++) {
 				id = properties[i].id;

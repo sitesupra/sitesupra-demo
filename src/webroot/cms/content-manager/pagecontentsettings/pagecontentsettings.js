@@ -258,6 +258,9 @@ Supra(function (Y) {
 					this.set('slideshow', slideshow);
 					slideshow.syncUI(); 
 				}
+				
+				// Layout
+				Supra.Manager[this.LAYOUT_CONTAINER].syncLayout();
 			}
 		}
 	});

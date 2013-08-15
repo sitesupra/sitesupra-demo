@@ -31,6 +31,9 @@
             - id: text_top
               title: Text at the top
               icon: icons/layout/text-top.png
+            - id: graphics
+              title: Graphics only
+              icon: icons/layout/graphics.png
           additionalParameters:
             style: mid
             iconStyle: center
