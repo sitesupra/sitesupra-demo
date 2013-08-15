@@ -633,6 +633,11 @@ YUI.add('supra.page-content-mediagallery', function (Y) {
 									image = images.item(0);
 									width = image.ancestor().getInnerWidth();
 									
+									if (!width) {
+										// Possibly slideshow
+										width = node.getInnerWidth();
+									}
+									
 									old_val = values[i][key],
 									new_val = null;
 									
