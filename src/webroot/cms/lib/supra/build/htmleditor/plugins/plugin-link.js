@@ -417,7 +417,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				if (!id || !data) {
 					// Only if there isn't data
 					
-					if (attrs.href.indexOf('mailto:') == 0) {
+					if (attrs.href && attrs.href.indexOf('mailto:') == 0) {
 						data = {
 							'href': attrs.href || '',
 							'resource': 'email',
@@ -489,7 +489,7 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				if (!id || !htmleditor.getData(id)) {
 					// Only if there isn't already data
 					
-					if (attrs.href.indexOf('mailto:') == 0) {
+					if (attrs.href && attrs.href.indexOf('mailto:') == 0) {
 						data = {
 							'href': attrs.href || '',
 							'resource': 'email',
