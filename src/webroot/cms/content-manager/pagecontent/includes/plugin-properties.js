@@ -9,9 +9,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 	var ACTION_TEMPLATE = 
 			'<div class="sidebar block-settings">' +
 			'	<div class="sidebar-header">' +
-			'		<button class="button-back hidden"><p></p></button>' +
+			'		<button class="button-back hidden"><p>{# buttons.back #}</p></button>' +
 			'		<img src="" class="hidden" alt="" />' +
-			'		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>' +
+			'		<button type="button" class="button-control"><p>{# buttons.done #}</p></button>' +
 			'		<h2></h2>' +
 			'	</div>' +
 			'	<div class="sidebar-content has-header"></div>' +
@@ -75,6 +75,14 @@ YUI.add('supra.page-content-properties', function (Y) {
 			'value': null
 		},
 		
+		/**
+		 * Show global block message 
+		 */
+		'showGlobalBlockMessage': {
+			'value': false,
+			'setter': '_uiShowGlobalBlockMessage'
+		},
+		
 		/*
 		 * Automatically show form when content is being edited
 		 */
@@ -116,6 +124,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 	Y.extend(Properties, Y.Plugin.Base, {
 		
 		_node_content: null,
+		
+		_global_block_message_node: null,
 		
 		_original_values: null,
 		
@@ -210,7 +220,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.get('host').on('block:cancel', this.onBlockSaveCancel, this);
 			
 			//Start editing immediatelly
-			setTimeout(Y.bind(this.handleEditingStart, this), 50);
+				//this.handleEditingStart();  // <- causes new block to loose editor toolbar after sidebar close
+				//Supra.immediate(this, this.handleEditingStart); // <- causes invisible sidebar
+				setTimeout(Y.bind(this.handleEditingStart, this), 50);
 		},
 		
 		/**
@@ -294,10 +306,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 				is_inline = false,
 				is_contained = false;
 			
+			//Create default group
+			default_group_node = this.createGroup('default', form_config);
+			
 			//Find inline properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
 				is_inline = Supra.Input.isInline(properties[i].type);
 				is_contained = Supra.Input.isContained(properties[i].type);
+				
+				// Save index for sorting
+				properties[i]._sort_order = i+1;
 				
 				if (is_inline) {
 					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
@@ -308,13 +326,23 @@ YUI.add('supra.page-content-properties', function (Y) {
 							host_properties.srcNode = host_properties.targetNode;
 							host_properties.contentBox = host_properties.targetNode;
 							host_properties.boundingBox = host_properties.targetNode;
+							host_properties.containerNode = null;
 							
 							// If it's contained then don't consider as inline
 							this._has_inline_properties = true;
 						} else {
+							// Find a group node for contained+inline input
+							group = properties[i].group || 'default';
+							group_node = group_nodes[group];
+							
+							if (!group_node) {
+								group_node = this.createGroup(group, form_config, i+1);
+							}
+							
 							host_properties.srcNode = null;
 							host_properties.contentBox = null;
 							host_properties.boundingBox = null;
+							host_properties.containerNode = group_node;
 						}
 						
 						form_config.inputs.push(Supra.mix({}, host_properties, properties[i]));
@@ -328,9 +356,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 				}
 			}
 			
-			//Create default group
-			default_group_node = this.createGroup('default', form_config);
-			
 			//Process non-inline properties
 			for(var i=0, ii=properties.length; i<ii; i++) {
 				is_inline = Supra.Input.isInline(properties[i].type);
@@ -343,7 +368,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					
 					if (!group_node) {
 						//createGroup adds node to the group_nodes
-						group_node = this.createGroup(group, form_config);
+						group_node = this.createGroup(group, form_config, i+1);
 					}
 					
 					// Filter layout properties
@@ -355,12 +380,27 @@ YUI.add('supra.page-content-properties', function (Y) {
 					properties[i].containerNode = group_nodes[group];
 					form_config.inputs.push(properties[i]);
 				} else if (properties[i].group) {
-					//Create groups
+					//Create a group node if needed
+					group = properties[i].group || 'default';
+					
 					if (!group_nodes[properties[i].group]) {
-						this.createGroup(properties[i].group, form_config);
+						//createGroup adds node to the group_nodes
+						this.createGroup(group, form_config, i+1);
 					}
 				}
 			}
+			
+			// Sort all inputs and group buttons to keep order as it was in configuration
+			form_config.inputs.sort(function (a, b) {
+				if (!a._sort_order || !b._sort_order || a._sort_order == b._sort_order) {
+					return 0;
+				}
+				if (a._sort_order > b._sort_order) {
+					return 1;
+				} else {
+					return -1;
+				}
+			});
 			
 			//On slideshow slide change update "Back" button
 			slideshow.on('slideChange', this.onSlideshowSlideChange, this);
@@ -385,8 +425,16 @@ YUI.add('supra.page-content-properties', function (Y) {
 			this.set('buttonDelete', btn);
 			
 			//Don't show delete button if block is closed or this is placeholder
-			if (host.isClosed() || host.isParentClosed() || host.isInstanceOf('page-content-list')) {
+			//if (host.isClosed() ||  || host.isInstanceOf('page-content-list')) {
+			if (host.isInstanceOf('page-content-list')) {	
 				btn.hide();
+			}
+			
+			//Show message if this is a block and it's global
+			if (!host.isInstanceOf('page-content-list')) {
+				if (host.getPropertyValue('locked') || host.isClosed()) {
+					this.set('showGlobalBlockMessage', true);
+				}
 			}
 		},
 		
@@ -436,11 +484,39 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			// Show tooltip if it exists
 			var block_type = this.get('host').getBlockType();
+			
 			if (Supra.Help.tipExists(block_type)) {
 				Supra.Help.tip(block_type, {
 					'append': slideshow.getSlide(SLIDESHOW_MAIN_SLIDE).one('.su-slide-content'),
 					'position': 'relative'
 				});
+			}
+			
+			// Show tooltip from block configuration
+			var configuration = this.get('host').getBlockInfo(),
+				tooltip       = configuration.tooltip,
+				buttons       = [],
+				widget        = null;
+			
+			if (tooltip) {
+				if (tooltip.button) {
+					buttons.push({
+						'label': tooltip.button.label || '',
+						'action': tooltip.button.javascriptAction || ''
+					});
+				}
+				
+				widget = new Supra.HelpTip({
+					'title': tooltip.title || '',
+					'description': tooltip.text || '',
+					'buttons': buttons,
+					'style': tooltip.style || '',
+					'closeButtonVisible': false,
+					'position': 'relative'
+				});
+				
+				widget.render();
+				slideshow.getSlide(SLIDESHOW_MAIN_SLIDE).one('.su-slide-content').append(widget.get('boundingBox'));
 			}
 			
 			this.set('form', form);
@@ -569,6 +645,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * @param {Object} evt
 		 */
 		onPropertyChange: function (evt) {
+			
 			// If settings initial values, then we should trigger events
 			if (this._updating_values) return;
 			
@@ -581,6 +658,15 @@ YUI.add('supra.page-content-properties', function (Y) {
 				properties = this.get('properties');
 			
 			Y.later(60, this, this.onPropertyChangeTriggerContentChange, [input, null, false]);
+			
+			//If Global block property changed, then show/hide global block message
+			if (id == '__locked__') {
+				var host = this.get('host');
+				// Message should be visible only for blocks
+				if (!host.isInstanceOf('page-content-list')) {
+					this.set('showGlobalBlockMessage', evt.newVal || evt.value || host.isClosed());
+				}
+			}
 			
 			//Update attributes
 			if (normalChanged && inlineChanged) return;
@@ -684,8 +770,18 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * Delete content
 		 */
 		deleteContent: function () {
+			var message = '',
+				host    = this.get('host'),
+				locked  = host.getPropertyValue('locked');
+			
+			if (locked || host.isClosed()) {
+				message = Supra.Intl.get(['page', 'delete_block_global_confirmation']);
+			} else {
+				message = Supra.Intl.get(['page', 'delete_block_confirmation']);
+			}
+			
 			Supra.Manager.executeAction('Confirmation', {
-				'message': Supra.Intl.get(['page', 'delete_block_confirmation']),
+				'message': message,
 				'useMask': true,
 				'buttons': [
 					{'id': 'delete', 'label': Supra.Intl.get(['buttons', 'yes']), 'context': this, 'click': function () {
@@ -814,7 +910,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					//Pages don't have "locked" input
 					locked_input.set('disabled', true).set('visible', false);
 					
-					//If only input is '__locked__' then hide button
+					//If '__locked__'  is only input in the form then hide button
 					if (!advanced_inputs.length || (advanced_inputs.length == 1 && advanced_inputs[0].id == '__locked__')) {
 						advanced_button.set('visible', false);
 					} else {
@@ -1064,8 +1160,9 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 * 
 		 * @param {Object} definition Group definition
 		 * @param {Object} form_config Form configuration to which add button to
+		 * @param {Number} sort_order Sort order comparing to other inputs
 		 */
-		createGroup: function (definition, form_config) {
+		createGroup: function (definition, form_config, sort_order) {
 			//Backward compatibility
 			if (typeof definition === 'string') {
 				var groups = this.get('property_groups'),
@@ -1135,7 +1232,8 @@ YUI.add('supra.page-content-properties', function (Y) {
 							'slideshow': slideshow,
 							'slideId': slide_id,
 							'containerNode': this.getGroupContentNode('default'),
-							'icon': definition.icon
+							'icon': definition.icon,
+							'_sort_order': sort_order
 						});
 					}
 					
@@ -1415,6 +1513,28 @@ YUI.add('supra.page-content-properties', function (Y) {
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Show/hide global block message
+		 * 
+		 * @param {Boolean} show
+		 */
+		_uiShowGlobalBlockMessage: function (show) {
+			var message = this._global_block_message_node;
+			
+			if (!message) {
+				message = Y.Node.create('<p class="description block-description">' + Supra.Intl.get(['page', 'description_block_global']) + '</p>');
+				this._global_block_message_node = message;
+			}
+			
+			if (show) {
+				this.getGroupContentNode().appendChild(message);
+			} else {
+				message.remove();
+			}
+			
+			return show;
 		}
 		
 	});

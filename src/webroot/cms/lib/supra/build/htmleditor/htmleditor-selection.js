@@ -44,8 +44,8 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		 * 
 		 * @param {Object} selection
 		 */
-		setSelection: function (selection) {
-			if (this.get('disabled')) return;
+		setSelection: function (selection, force) {
+			if (this.get('disabled') || force) return;
 			
 			var doc = this.get('doc');
 			var win = this.get('win');
@@ -66,6 +66,34 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 				}
 				
 				this.resetSelectionCache(selection);
+			}
+		},
+		
+		/**
+		 * Move cursor to the end of the content
+		 */
+		deselect: function () {
+			var content = this.get('srcNode').getDOMNode(),
+				children = content.childNodes,
+				child = children.length ? children[children.length - 1] : null;
+			
+			while (child && child.nodeType != 3) {
+				while (child && child.nodeType != 3 && (child.nodeType != 1 || !child.childNodes.length)) {
+					child = child.previousSibling;
+				}
+				
+				if (child && child.nodeType == 1) {
+					child = child.childNodes[child.childNodes.length - 1];
+				}
+			}
+			
+			if (child && child.nodeType == 3) {
+				this.setSelection({
+					'start': child,
+					'start_offset': child.textContent.length,
+					'end': child,
+					'end_offset': child.textContent.length
+				}, true);
 			}
 		},
 		

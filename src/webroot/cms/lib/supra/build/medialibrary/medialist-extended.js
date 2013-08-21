@@ -39,7 +39,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</div>\
 			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
-				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' suUseReplacement="true" />\
+				<input type="text" name="filename" value="{{ filename|escape }}" data-value-mask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' data-use-replacement="true" />\
 			</span>\
 			\
 			<div class="group">\
@@ -52,14 +52,18 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					{% endif %}\
 					<div>\
 						<span class="info-label">{{ "medialibrary.size"|intl }}</span>\
-						<span class="info-data">{{ Math.round(size/1000)|default("0") }} KB</span>\
+						<span class="info-data" data-update="size">{{ Math.round(size/1000)|default("0") }} KB</span>\
 					</div>\
 					{% if created %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.created"|intl }}</span>\
 							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
 						</div>\
-					{% endif %}\
+					{% endif %}\\n\
+					<div {% if !modified or created == modified %}class="hidden"{% endif %}>\\n\
+                        <span class="info-label">{{ "medialibrary.modified"|intl }}</span>\
+						<span class="info-data" data-update="modified">{% if modified %}{{ modified|datetime_short|default("&nbsp;") }}{% endif %}</span>\
+					</div>\
 				</div>\
 				\
 				<div class="input-group"><button type="button" class="download">{{ "medialibrary.download"|intl }}</button></div>\
@@ -82,7 +86,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			</div>\
 			\
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
-				<input type="text" name="filename" value="{{ filename|escape }}" suValueMask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' suUseReplacement="true" />\
+				<input type="text" name="filename" value="{{ filename|escape }}" data-value-mask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' data-use-replacement="true" />\
 			</span>\
 			\
 			<div class="group">\
@@ -95,18 +99,22 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 					{% endif %}\
 					<div>\
 						<span class="info-label">{{ "medialibrary.size"|intl }}</span>\
-						<span class="info-data">{{ Math.round(size/1000)|default("0") }} KB</span>\
+						<span class="info-data" data-update="size">{{ Math.round(size/1000)|default("0") }} KB</span>\
 					</div>\
 					{% if created %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.created"|intl }}</span>\
 							<span class="info-data">{{ created|datetime_short|default("&nbsp;") }}</span>\
 						</div>\
-					{% endif %}\
+					{% endif %}\\n\
+					<div {% if !modified or created == modified %}class="hidden"{% endif %}>\\n\
+                        <span class="info-label">{{ "medialibrary.modified"|intl }}</span>\
+						<span class="info-data" data-update="modified">{% if modified %}{{ modified|datetime_short|default("&nbsp;") }}{% endif %}</span>\
+					</div>\
 					{% if sizes %}\
 						<div>\
 							<span class="info-label">{{ "medialibrary.dimensions"|intl }}</span>\
-							<span class="info-data">{{ sizes.original.width }} x {{ sizes.original.height }}</span>\
+							<span class="info-data" data-update="dimensions">{{ sizes.original.width }} x {{ sizes.original.height }}</span>\
 						</div>\
 					{% endif %}\
 				</div>\
@@ -614,6 +622,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				}
 				
 			}
+			
 		},
 		
 		/**
@@ -640,25 +649,6 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			this.open(folder, Y.bind(function () {
 				this.slideshow.set('noAnimations', old_value);
 			}, this));
-		},
-		
-		/**
-		 * Returns image preview node
-		 * 
-		 * @private
-		 */
-		getImageNode: function () {
-			var item = this.getSelectedItem(),
-				slide = null;
-			
-			if (item) {
-				slide = this.slideshow.getSlide('slide_' + item.id);
-				if (slide) {
-					return slide.one('div.preview img');
-				}
-			}
-			
-			return null;
 		},
 		
 		/**
@@ -699,13 +689,13 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				
 				//Create form
 				node.all('input,textarea,select').each(function (item) {
-					if (item.getAttribute('suIgnore')) return;
+					if (item.getAttribute('data-supra-ignore')) return;
 					
 					var tag = item.get('tagName').toLowerCase(),
 						name = item.getAttribute('name'),
 						props = {
 							'srcNode': item,
-							'useReplacement': !!item.getAttribute('suUseReplacement'),
+							'useReplacement': !!item.getAttribute('data-use-replacement'),
 							'type': (tag == 'input' ? 'String' : (tag == 'textarea' ? 'Text' : 'SelectList')),
 							'value': item.get('value')
 						};

@@ -25,12 +25,16 @@
 			"continue": "Continue"
 		},
 		"inputs": {
-			"red": "Red",
-			"green": "Green",
-			"blue": "Blue",
+			"red": "R",
+			"green": "G",
+			"blue": "B",
 			
-			"advanced": "Advanced",
+			"color_new": "new", 
+			"color_current": "current",
+			
+			"advanced": "More settings",
 			"locked": "Global block",
+			"locked_list": "Global cell",
 			
 			"image_label": "Edit image",
 			
@@ -42,7 +46,14 @@
 				"add_video": "Add video",
 				"delete_image": "Remove image",
 				"delete_video": "Remove video"
-			}
+			},
+			
+			"resize_map": "Google map size",
+			"resize_video": "Video size",
+			"resize_frame_size": "Image frame size",
+			"resize_button_title": "Maintain aspect ratio",
+			"resize_width": "W",
+			"resize_height": "H"
 		},
 		
 		"error": {
@@ -99,6 +110,9 @@
 			"delete_block": "Delete block",
 			"delete_block_confirmation": "Are you sure you want to delete selected block",
 			"delete_block_shared_confirmation": "The block may contain data that is shared among other page localizations. By deleting the block you may lose this data. Do you wish to proceed?",
+			"delete_block_global_confirmation": "If you delete this Global block it would disappear from all pages it was placed on. To remove this block from the current page only try selecting a different page template from page settings or create a new page template. Remove the block anyway?",
+			
+			"description_block_global": "This is a Global block. Changes to a Global block affect all pages it is placed on.",
 			
 			"click_to_edit": "Click to edit",
 			"click_to_edit_drag_to_move": "Click to edit, Drag to move",
@@ -109,6 +123,7 @@
 			"page_doesnt_exist_in_locale": "Page doesn't exist in your choosen language. Copy from the current language?",
 			
 			"back_to_sitemap": "All pages",
+			"back_to_blog": "Blog",
 			
 			"unsaved_changed": "There are unsaved changes. Are you sure you want to leave this page?",
 			"follow_redirect": "Page has redirect. Do you want to follow redirect?",
@@ -211,6 +226,7 @@
 			"image_size": "Image size",
 			"size_custom": "Custom",
 			"size_original": "Original",
+			"video_alignment": "Align",
 			"image_title": "Image title",
 			"image_description": "Alt text",
 			"image_alignment": "Align",
@@ -219,7 +235,7 @@
 			"image_replace": "Replace image",
 			"image_delete": "Delete image",
 			"alignment_left": "Align left",
-			"alignment_center": "Align inline",
+			"alignment_center": "Align middle",
 			"alignment_right": "Align right",
 			"image_style": "Style",
 			"image_style_none": "No style",
@@ -413,13 +429,13 @@
 			},
 			
 			"confirmation": {
-				"duplicate_path": "'Page with the same path already exists. Do you want server to regenerate path automatically?"
+				"duplicate_path": "Page with the same path already exists. Do you want server to regenerate path automatically?"
 			}
 		},
 		
 		"insertblock": {
 			"title": "Insert block",
-			"button": "Insert",
+			"button": "Insert block",
 			"no_description": "No description",
 			"drag_n_drop": "Drag-and-drop",
 			"drop_to_insert": "Drop to insert {block} here"
@@ -446,7 +462,10 @@
 			"this_month": "This month",
 			
 			"restore_button_label": "Restore",
-			"restore_message": "Are you sure?"
+			"restore_message": "Are you sure?",
+			
+			"restore_message_global": "This change affected a Global block. To revert the change use History on the Global block's template.",
+			"restore_open_global": "Open template"
 		},
 		
 		"timeline": {
@@ -502,13 +521,21 @@
 			"label_button": "Edit slides",
 			
 			"sidebar_title": "Edit slide",
+			"sidebar_title_numbered": "Edit slide {nr}",
 			"delete_slide": "Delete slide",
 			
 			"add_new": "Add New",
 			
 			"wide_layout_mask_description": "Masks are available only for Boxed design",
 			
-			"error_template": "Error occured in {block} block"
+			"error_template": "Error occured in {block} block",
+			
+			"slide_label": "Slide {nr}",
+			
+			"media": {
+				"add_image": "Add overlay image",
+				"add_video": "Add overlay video"
+			}
 		},
 		
 		"gallery": {
@@ -562,7 +589,7 @@
 				"title": "Tip",
 				"description": "Re-order the slides by dragging and dropping icons"
 			},
-			"Project_FancyBlocks_GoogleMap_GoogleMapBlock": {
+			"GoogleMapBlock": {
 				"title": "Tip",
 				"description": "To re-locate the marker drag and drop it to desired location"
 			}

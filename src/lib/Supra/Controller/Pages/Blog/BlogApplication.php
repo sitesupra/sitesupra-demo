@@ -20,6 +20,7 @@ class BlogApplication implements PageApplicationInterface
 {
 	const PARAMETER_POST_TEMPLATE_ID = 'post_template_id';
 	const PARAMETER_COMMENT_MODERATION_ENABLED = 'comment_moderation_enabled';
+    const POPULAR_TAG_LIMIT = 20;
 			
 	/**
 	 * @var EntityManager
@@ -91,18 +92,60 @@ class BlogApplication implements PageApplicationInterface
 	{
 		$folders = null;
 
-		if ($filterName == 'list') {
-			$folders = array();
-		} else if ($filterName == 'group') {
-            $folders = array();
-		} else if ($filterName == '') {
-			$folders = $this->getDefaultFilterFolders();
-		} else {
-			throw new \RuntimeException("Filter $filterName is not recognized");
-		}
+        switch ($filterName) {
+            case 'list':
+                return $folders;
+                break;
+            case 'group':
+                return $folders;
+                break;
+            case 'byYear':
+				$queryBuilder = clone($queryBuilder);
 
-		return $folders;
-		
+				$queryBuilder->select('p.creationYear AS year, p.creationMonth AS month, COUNT(p.id) AS childrenCount')
+                        ->addSelect('p.creationTime as HIDDEN ct')
+						->groupBy('year, month')
+						->orderBy('ct', 'DESC');
+
+				$months = $queryBuilder->getQuery()
+						->getResult();
+
+				foreach ($months as $monthData) {
+
+					$year = $monthData['year'];
+					$month = $monthData['month'];
+					$numberChildren = $monthData['childrenCount'];
+
+					if ($year <= 0 || $month <= 0) {
+						$yearMonth = '0000-00';
+						$yearMonthTitle = $yearMonth; //'Unknown';
+					} else {
+						$yearMonth = str_pad($year, 4, '0', STR_PAD_LEFT) . '-' . str_pad($month, 2, '0', STR_PAD_LEFT);
+                        $yearMonthTitle = date("F", mktime(0, 0, 0, $month, 10));
+                        $yearMonthTitle .= ' ' . $year;
+					}
+
+					$group = new Entity\TemporaryGroupPage();
+					$group->setTitle($yearMonthTitle);
+					$group->setNumberChildren($numberChildren);
+
+					$id = $this->applicationLocalization->getId()
+							. '_' . $yearMonth;
+					$group->setId($id);
+
+					$folders[] = $group;
+
+				}
+                return $folders;
+                break;
+            case '':
+                $folders = $this->getDefaultFilterFolders();
+                return $folders;
+                break;
+            default:
+                throw new \RuntimeException("Filter $filterName is not recognized");
+                break;
+        }		
 	}
 
 	/**
@@ -135,7 +178,7 @@ class BlogApplication implements PageApplicationInterface
 		} else if ($filterName == '') {
 			$this->applyDefaultFilter($queryBuilder);
 			
-		} else {
+        } else {
 			throw new \RuntimeException("Filter $filterName is not recognized");
 		}
 	}
@@ -211,6 +254,18 @@ class BlogApplication implements PageApplicationInterface
 	 */
 	public function getAllTagsArray()
 	{
+        return $this->getTagArray();
+	}
+    
+    
+    public function getPopularTagsArray()
+    {
+        return $this->getTagArray(self::POPULAR_TAG_LIMIT);
+    }
+    
+    
+    private function getTagArray($limit = null)
+    {
 		$pageFinder = new \Supra\Controller\Pages\Finder\PageFinder($this->em);
 		
 		$localizationFinder = new \Supra\Controller\Pages\Finder\LocalizationFinder($pageFinder);
@@ -230,14 +285,19 @@ class BlogApplication implements PageApplicationInterface
 		
 		if ( ! empty($localizationIds)) {
 			
-			$tagCn = Entity\LocalizationTag::CN();
-			$tagArray = $this->em->createQuery("SELECT t.name AS name, count(t.id) as total FROM {$tagCn} t WHERE t.localization IN (:ids) GROUP BY t.name ORDER BY total DESC")
-					->setParameter('ids', $localizationIds)
-					->getScalarResult();
+			$tagCn = Entity\LocalizationTag::CN(); 
+            $query = $this->em->createQuery("SELECT t.name AS name, count(t.id) as total FROM {$tagCn} t WHERE t.localization IN (:ids) GROUP BY t.name ORDER BY total DESC")
+					->setParameter('ids', $localizationIds);
+					
+            if($limit) {
+                $query->setMaxResults($limit);
+            }
+            
+            $tagArray = $query->getScalarResult();
 		} 
 		
 		return $tagArray;
-	}
+    }
 	
 	public function deleteTagByName($name)
 	{

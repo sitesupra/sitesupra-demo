@@ -33,10 +33,19 @@ YUI.add('supra.input-string', function (Y) {
 		},
 		'blurOnReturn': {
 			value: false
+		},
+		'maxLength': {
+			value: 0,
+			setter: '_setMaxLength'
 		}
 	};
 	
 	Input.HTML_PARSER = {
+		'maxLength': function (srcNode) {
+			if (srcNode.hasAttribute('maxlength')) {
+				return parseInt(srcNode.getAttribute('maxlength'), 10) || 0;
+			}
+		},
 		'useReplacement': function (srcNode) {
 			var use_replacement = srcNode.hasClass('input-label-replacement');
 			this.set('useReplacement', use_replacement);
@@ -59,6 +68,8 @@ YUI.add('supra.input-string', function (Y) {
 		 */
 		KEY_RETURN: 13,
 		KEY_ESCAPE: 27,
+		KEY_UP: 38,
+		KEY_DOWN: 40,
 		
 		/**
 		 * If keys are allowed, overwriten when String class
@@ -95,6 +106,12 @@ YUI.add('supra.input-string', function (Y) {
 			
 			input.on('focus', this._onFocus, this);
 			input.on('blur', this._onBlur, this);
+			
+			//Max length
+			var maxlength = this.get('maxLength');
+			if (maxlength) {
+				input.setAttribute('maxlength', maxlength);
+			}
 			
 			//Clicking on replacement node triggers focuses
 			var node = this.get('replacementNode');
@@ -180,13 +197,31 @@ YUI.add('supra.input-string', function (Y) {
 		 * @private
 		 */
 		_onKeyDown: function (e) {
-			var keyCode = e._event.keyCode || e._event.which || e._event.charCode,
-				input = this.get('inputNode');
+			var keyCode   = e._event.keyCode || e._event.which || e._event.charCode,
+				input     = this.get('inputNode'),
+				inputNode = input.getDOMNode(),
+				value     = inputNode.value,
+				isNumber  = (value == parseInt(value)),
+				mask      = this.get('valueMask');
 			
 			if (keyCode == this.KEY_RETURN && this.KEY_RETURN_ALLOW) {
 				if (this.get('replacementNode') || this.get('blurOnReturn')) {
 					//If using replacement node then show it
 					input.blur();
+				}
+			} else if ((keyCode == this.KEY_UP || keyCode == this.KEY_DOWN) && isNumber) {
+				//On up or down arrow press if content is a number, then add or subtract 1
+				//if shift/meta key is pressed then add or subtract 10
+				value = parseInt(value) + (keyCode == this.KEY_UP ? 1 : -1) * (e.shiftKey || e.metaKey ? 10 : 1);
+				if (mask && !mask.test(String(value))) return;
+				
+				//Trigger input event
+				value = this._onKeyDownNumberChange(value);
+				
+				if (this._last_value != value) {
+					inputNode.value = value;
+					this._last_value = value;
+					this.fire('input', {'value': value});
 				}
 			} else if (keyCode == this.KEY_ESCAPE && this.KEY_ESCAPE_ALLOW) {
 				input.set('value', this._original_value);
@@ -194,6 +229,17 @@ YUI.add('supra.input-string', function (Y) {
 				this.fire('input', {'value': this._original_value});
 				this.fire('reset');
 			}
+		},
+		
+		/**
+		 * Handle number value change using keys
+		 * 
+		 * @param {String} value New value
+		 * @returns {String} New value
+		 * @private
+		 */
+		_onKeyDownNumberChange: function (value) {
+			return value;
 		},
 		
 		/**
@@ -251,7 +297,7 @@ YUI.add('supra.input-string', function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
-			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('suUseReplacement') == 'true') {
+			if (!this.get('useReplacement') && this.get('srcNode').getAttribute('data-use-replacement') == 'true') {
 				this.set('useReplacement', true);
 				var labelNode = this.get('labelNode');
 				if (labelNode) {
@@ -259,7 +305,7 @@ YUI.add('supra.input-string', function (Y) {
 				}
 			}
 			
-			if (this.get('srcNode').getAttribute('suBlurOnReturn') == 'true') {
+			if (this.get('srcNode').getAttribute('data-blur-on-return') == 'true') {
 				this.set('blurOnReturn', true);
 			}
 			
@@ -299,7 +345,7 @@ YUI.add('supra.input-string', function (Y) {
 			
 			//Value mask
 			if (!this.get('valueMask')) {
-				var mask = this.get('inputNode').getAttribute('suValueMask');
+				var mask = this.get('inputNode').getAttribute('data-value-mask');
 				if (mask) {
 					this.set('valueMask', new RegExp(mask));
 				}
@@ -307,7 +353,7 @@ YUI.add('supra.input-string', function (Y) {
 			
 			//Value source
 			if (!this.get('valueSource')) {
-				var mask = this.get('inputNode').getAttribute('suValueSource');
+				var mask = this.get('inputNode').getAttribute('data-value-source');
 				if (mask) {
 					this.set('valueSource');
 				}
@@ -357,6 +403,28 @@ YUI.add('supra.input-string', function (Y) {
 				mask = new RegExp(mask);
 			}
 			return mask;
+		},
+		
+		/**
+		 * Max length attribute setter
+		 * 
+		 * @param {Number|String} maxlength New maxlength value
+		 * @returns {Number} New attribute value
+		 * @private
+		 */
+		_setMaxLength: function (maxlength) {
+			maxlength = parseInt(maxlength, 10) || 0;
+			
+			var input = this.get('inputNode');
+			if (input) {
+				if (maxlength) {
+					input.setAttribute('maxlength', maxlength);
+				} else {
+					input.removeAttribute('maxlength');
+				}
+			}
+			
+			return maxlength;
 		},
 		
 		/**

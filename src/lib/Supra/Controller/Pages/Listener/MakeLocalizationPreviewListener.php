@@ -2,16 +2,15 @@
 
 namespace Supra\Controller\Pages\Listener;
 
-use Doctrine\Common\EventSubscriber;
-use Supra\Controller\Pages\Event\CmsPageEventArgs;
+use Supra\Controller\Pages\Event;
 use Supra\ObjectRepository\ObjectRepository;
 
 class MakeLocalizationPreviewListener
 {
 	/**
-	 * @param CmsPageEventArgs $args
+	 * @param Event\PageCmsEventArgs $args
 	 */
-	public function postPageChange(CmsPageEventArgs $args)
+	public function pageContentPostSave(Event\PageCmsEventArgs $args)
 	{
 		$ini = ObjectRepository::getIniConfigurationLoader($this);
 		$systemInfo = ObjectRepository::getSystemInfo($this);

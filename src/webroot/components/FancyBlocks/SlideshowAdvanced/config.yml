@@ -1,9 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\SlideshowAdvanced\SlideshowAdvancedBlock
-    title: Advanced slideshow
+    title: Slideshow
     icon: icon.png
-    groupId: features
-    description: Description
+#    group: features
+    description: Animated images, text, video and graphic elements, image masks.
     cmsClassname: Slideshow
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
@@ -100,6 +100,8 @@
                 fileName: ${__DIR__}/masks/mask-option-3.png
               - id: theme-mask-option-4
                 fileName: ${__DIR__}/masks/mask-option-4.png
+              - id: theme-mask-option-5
+                fileName: ${__DIR__}/masks/mask-option-5.png
             ## FIXME: absolute/relative paths
             ## need to create some kind ComponentConfigurationFileParameter object
             layouts:
@@ -122,7 +124,9 @@
           propertyGroups:
             - Supra\Controller\Pages\Configuration\BlockPropertyGroupConfiguration:
                 id: advanced
-                label: Advanced
+                label: More settings
+                icon: "/cms/lib/supra/img/sidebar/icons/button-advanced.png"
+                
           # Each slide available properties
           properties:
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
@@ -137,10 +141,11 @@
                 values:
                   - { id: theme-text, title: "Clean text", icon: "icons/theme/text.png" }
                   - { id: theme-background, title: "Text with background", icon: "icons/theme/background.png" }
-                  - { id: theme-mask-option-1, title: "Option 1", icon: "icons/theme/mask-option-1.png", isMask: true }
-                  - { id: theme-mask-option-2, title: "Option 2", icon: "icons/theme/mask-option-2.png", isMask: true }
-                  - { id: theme-mask-option-3, title: "Option 3", icon: "icons/theme/mask-option-2.png", isMask: true }
-                  - { id: theme-mask-option-4, title: "Option 4", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-1, title: "Mask 1", icon: "icons/theme/mask-option-3.png", isMask: true }
+                  - { id: theme-mask-option-2, title: "Mask 2", icon: "icons/theme/mask-option-1.png", isMask: true }
+                  - { id: theme-mask-option-3, title: "Mask 3", icon: "icons/theme/mask-option-4.png", isMask: true }
+                  - { id: theme-mask-option-4, title: "Mask 4", icon: "icons/theme/mask-option-2.png", isMask: true }
+                  - { id: theme-mask-option-5, title: "Mask 5", icon: "icons/theme/mask-option-5.png", isMask: true }
                   
                 additionalParameters:
                   style: mid
@@ -150,7 +155,7 @@
                 name: layout
                 editable: Supra\Editable\SelectVisual
                 label: Slide layout
-                default: bg_text_img_left
+                default: bg_text_center
                 values:
                   - id: bg_text_left
                     title: Text on left side
@@ -191,6 +196,9 @@
                 name: media
                 editable: Supra\Editable\InlineMedia
                 label: 
+                additionalParameters:
+                  labelAddVideo: "Add top video"
+                  labelAddImage: "Add top image"
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: height
                 editable: Supra\Editable\Number
@@ -203,7 +211,6 @@
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: buttons
                 editable: Supra\Editable\PropertySet
-                label: Buttons
                 properties:
                   - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                       name: overlay
@@ -222,7 +229,9 @@
                   labelAdd: Add more buttons
                   labelRemove: Remove button
                   labelItem: "Button %s"
-                  labelButton: Set buttons
+                  labelButton: Buttons
+                  icon: "/cms/lib/supra/img/sidebar/icons/button-buttons.png"
+            
             - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
                 name: active
                 editable: Supra\Editable\Checkbox

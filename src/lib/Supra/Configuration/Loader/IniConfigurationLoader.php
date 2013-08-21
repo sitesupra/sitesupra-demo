@@ -114,6 +114,23 @@ class IniConfigurationLoader
 
 		return false;
 	}
+    
+    
+	/**
+	 * @param string $section
+     * @param string $key
+	 * @return boolean
+	 */
+	public function hasKey($section, $key)
+	{        
+		$data = $this->getData();
+
+		if (isset($data[$section][$key])) {
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * @param string $section

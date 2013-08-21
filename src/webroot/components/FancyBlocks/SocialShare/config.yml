@@ -1,8 +1,8 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\SocialShare\SocialShareBlock
-    title: Social Share
+    title: Social share
     groupId: features
-    description: Description
+    description: Allows visitors to publish a link to the page in popular social networks.
     cmsClassname: Editable
     icon: icon.png
     cache:

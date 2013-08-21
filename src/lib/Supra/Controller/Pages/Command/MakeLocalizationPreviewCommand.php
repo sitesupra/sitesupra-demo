@@ -122,7 +122,8 @@ class MakeLocalizationPreviewCommand extends Command
 		$temporaryFilename = tempnam(sys_get_temp_dir(), 'preview-' . basename($previewFilename));
 
 		$command = array(
-			$wkhtmltoimagePath . ' --format jpg --width 1280 --height 1280 --crop-h 1280 ' . escapeshellarg($sourceUrl) . ' ' . escapeshellarg($temporaryFilename),
+			//$wkhtmltoimagePath . ' --format jpg --width 1280 --height 1280 --crop-h 1280 ' . escapeshellarg($sourceUrl) . ' ' . escapeshellarg($temporaryFilename),
+			$wkhtmltoimagePath . ' --format jpg --width 1280 --crop-h 1280 ' . escapeshellarg($sourceUrl) . ' ' . escapeshellarg($temporaryFilename),
 			'; ',
 			$gmPath . ' mogrify -resize ' . escapeshellarg($geometry) . ' ' . escapeshellarg($temporaryFilename),
 		);
@@ -145,6 +146,10 @@ class MakeLocalizationPreviewCommand extends Command
 			\Log::error('COMMAND: ', $command);
 			\Log::error('OUTPUT: ', $output);
 			throw new Exception\RuntimeException('Intermediate file not image.');
+		}
+		
+		if (is_link($previewFilename)) {
+			@unlink($previewFilename);
 		}
 
 		if ( ! rename($temporaryFilename, $previewFilename)) {

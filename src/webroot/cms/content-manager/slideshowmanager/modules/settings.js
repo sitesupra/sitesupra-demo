@@ -26,6 +26,10 @@ YUI.add('slideshowmanager.settings', function (Y) {
 		'activeItemId': {
 			'value': null,
 			'setter': '_setActiveItemId'
+		},
+		'activeItemIndex': {
+			'value': null,
+			'setter': '_setActiveItemIndex'
 		}
 	};
 	
@@ -132,6 +136,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 					properties[i].separateSlide = false;
 					properties[i].allowZoomResize = true;
 					properties[i].allowCropZooming = true;
+					properties[i].labelAddVideo = Supra.Intl.get(['slideshowmanager', 'media', 'add_video']);
+					properties[i].labelAddImage = Supra.Intl.get(['slideshowmanager', 'media', 'add_image']);
 				}
 				if (Supra.Input.isContained(properties[i].type)) {
 					filtered.push(properties[i]);
@@ -176,7 +182,9 @@ YUI.add('slideshowmanager.settings', function (Y) {
 							'id': groups[id].id,
 							'properties': [],
 							'labelButton': groups[id].label,
-							'type': 'Group'
+							'type': 'Group',
+							'icon': groups[id].icon,
+							'buttonStyle': groups[id].icon ? 'icon' : undefined
 						};
 						grouped.push(group_inputs[id]);
 					}
@@ -255,18 +263,20 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			//On input value change update inline inputs
-			var ii = properties.length,
-				i = 0,
-				type = null,
-				input = null;
+			var id       = null,
+				inputs   = form.getInputs(),
+				input    = null,
+				property = null;
 			
-			for (; i<ii; i++) {
-				input = form.getInput(properties[i].id);
-				input.after('valueChange', this._firePropertyChangeEvent, this, properties[i].id, input);
+			for (id in inputs) {
+				property = Y.Array.find(properties, function (item) { return item.id == id; });
+				input = inputs[id];
 				
-				if (properties[i].type == 'InlineMedia') {
-					input.after('valueChange', this._updateMediaTypeClassName, this, properties[i].id);
-					input.after('render',      this._updateMediaTypeClassName, this, properties[i].id);
+				input.after('valueChange', this._firePropertyChangeEvent, this, id, input);
+				
+				if (property && property.type == 'InlineMedia') {
+					input.after('valueChange', this._updateMediaTypeClassName, this, id);
+					input.after('render',      this._updateMediaTypeClassName, this, id);
 				}
 			}
 			
@@ -307,7 +317,8 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			//Make sure PageContentSettings is rendered
 			var form = this.getForm(),
 				slideshow = form.get('slideshow'),
-				action = Manager.getAction('PageContentSettings');
+				action = Manager.getAction('PageContentSettings'),
+				index = this.get('activeItemIndex');
 			
 			if (!form) {
 				if (action.get('loaded')) {
@@ -329,7 +340,7 @@ YUI.add('slideshowmanager.settings', function (Y) {
 				//'hideDoneButton': true,
 				'toolbarActionName': Settings.NAME,
 				
-				'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title']),
+				'title': this._uiGetTitle(index),
 				'scrollable': false // we are using form slideshow, which will have scrollable
 			});
 			
@@ -423,6 +434,55 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			}
 			
 			return id;
+		},
+		
+		/**
+		 * Returns sidebar title from index
+		 * 
+		 * @param {Number} index Active item index
+		 * @returns {String} Sidebar title
+		 * @private
+		 */
+		_uiGetTitle: function (index) {
+			var action = Manager.getAction('PageContentSettings'),
+				title  = '';
+			
+			if (index >= 0) {
+				title = Supra.Intl.get(['slideshowmanager', 'sidebar_title_numbered']).replace('{nr}', index + 1);
+			} else if (action.options) {
+				title = action.options.title;
+			}
+			
+			return title;
+		},
+		
+		/**
+		 * Update sidebar title
+		 * 
+		 * @param {Number} index Active item index
+		 * @private
+		 */
+		_uiUpdateTitle: function (index) {
+			var action = Manager.getAction('PageContentSettings'),
+				title  = this._uiGetTitle(index);
+			
+			if (action.get('created')) {
+				if (title) {
+					action.set('title', title);
+				}
+			}
+		},
+		
+		/**
+		 * Active item index attribute setter
+		 * 
+		 * @param {Number} index Active item index
+		 * @returns {Number} New attribute value
+		 * @private
+		 */
+		_setActiveItemIndex: function (index) {
+			this._uiUpdateTitle(index);
+			return index;
 		},
 		
 		/**

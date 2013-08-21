@@ -132,7 +132,7 @@ YUI.add("supra.input-file-upload", function (Y) {
 		 */
 		'data': function (srcNode) {
 			var input = this.get('inputNode'),
-				data = input.getAttribute('suData');
+				data = input.getAttribute('data-request-parameters');
 				
 			if (data) {
 				return Y.QueryString.parse(data);
@@ -153,7 +153,7 @@ YUI.add("supra.input-file-upload", function (Y) {
 				uri = this.get('requestUri'),
 				attr = null;
 			
-			if (input && (attr = input.getAttribute('suRequestUri'))) {
+			if (input && (attr = input.getAttribute('data-request-uri'))) {
 				return attr;
 			} else {
 				return uri;

@@ -305,9 +305,9 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		// when changing image private attribute, previews and thumbs will change their paths
 		// so we will output new image info
-		if ($file instanceof Entity\Image) {
+		if ($file instanceof Entity\File) {
 			$response = $this->imageAndFileOutput($file);
-		}
+        }
 
 		$this->getResponse()
 				->setResponseData($response);
@@ -803,7 +803,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 
 		$output['timestamp'] = $file->getModificationTime()->getTimestamp();
-
+        
 		return $output;
 	}
 

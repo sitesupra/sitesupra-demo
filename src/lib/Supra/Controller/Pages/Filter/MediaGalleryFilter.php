@@ -30,7 +30,7 @@ class MediaGalleryFilter implements FilterInterface
 		$blockController = $block->createController();
 		
 		$configuration = $blockController->getConfiguration();
-		$propertyConfiguration = $configuration->getProperty($this->property->getName(name));
+		$propertyConfiguration = $configuration->getProperty($this->property->getName('name'));
 		
 		$editable = $propertyConfiguration->editableInstance;
 		/* @var $editable \Supra\Editable\MediaGallery */

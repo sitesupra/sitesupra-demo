@@ -69,10 +69,15 @@ class HistoryPageRequestEdit extends PageRequest
 		$auditPlaceHolders = $auditLocalization->getPlaceHolders();
 		foreach ($auditPlaceHolders as $placeHolder) {
 			
+			$placeHolderGroup = $placeHolder->getGroup();
+			if ($placeHolderGroup !== null) {
+				$draftEntityManager->merge($placeHolderGroup);
+			}
+			
 			if ( ! $this->isLocalResource($placeHolder)) {
 				continue;
 			}
-			
+						
 			$draftEntityManager->merge($placeHolder);
 		}
 		
@@ -261,10 +266,21 @@ class HistoryPageRequestEdit extends PageRequest
 			$this->setPageLocalization($localization);
 
 			$placeHolders = $localization->getPlaceHolders();
+	
+			// Groups must be merged before, because of Doctrine's internal entity handling
+			foreach ($placeHolders as $placeHolder) {
+				$placeHolderGroup = $placeHolder->getGroup();
+				if ($placeHolderGroup !== null) {
+					if ($this->isLocalResource($placeHolderGroup)) {
+						$draftEm->merge($placeHolderGroup);
+					}
+				}
+			}
+			
 			foreach ($placeHolders as $placeHolder) {
 				/* @var $placeHolder Entity\Abstraction\PlaceHolder */
 				$draftEm->merge($placeHolder);
-				
+					
 				$blocks = $placeHolder->getBlocks();
 				
 				foreach ($blocks as $block) {
@@ -343,6 +359,37 @@ class HistoryPageRequestEdit extends PageRequest
 		} else {
 			return parent::getTemplateTemplateHierarchy($template);
 		}
+	}
+	
+	/**
+	 * @return \Supra\Controller\Pages\Set\BlockSet
+	 */
+	public function getBlockSet()
+	{
+		if (isset($this->blockSet)) {
+			return $this->blockSet;
+		}
+		
+		$blockSet = parent::getBlockSet();
+
+		$uniqueBlockArray = array();
+		
+		foreach($blockSet as $block) {
+			
+			$blockId = $block->getId();
+			if ( ! isset($uniqueBlockArray[$blockId])) {
+				$uniqueBlockArray[$blockId] = $block;
+				continue;
+			}
+			
+			if ($uniqueBlockArray[$blockId]->getRevisionId() < $block->getRevisionId()) {
+				$uniqueBlockArray[$blockId] = $block;
+			}
+		}
+		
+		$this->blockSet->exchangeArray($uniqueBlockArray);
+
+		return $this->blockSet;
 	}
 	
 }

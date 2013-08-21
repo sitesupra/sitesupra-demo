@@ -406,4 +406,64 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 	{
 		return $this->iconConfiguration;
 	}
+	
+	/**
+	 * @return array
+	 */
+	public function getParameterConfigurationDataArray()
+	{
+		$parametersData = array();
+		
+		foreach ($this->parameters as $parameterConfiguration) {
+			$parametersData[] = $this->convertConfigurationToArray($parameterConfiguration);
+		}
+		
+		return $parametersData;
+	}
+	
+	/**
+	 * 
+	 * @param mixed $configuration
+	 */
+	private function convertConfigurationToArray(ThemeConfigurationAbstraction $configuration)
+	{
+		$data = array();
+		
+		if ($configuration instanceof Parameter\GroupConfiguration) {
+
+			$data = array(
+				'id' => $configuration->id,
+				'labelButton' => $configuration->label,
+				'buttonStyle' => $configuration->buttonStyle,
+				'type' => 'Group',
+				'visibleFor' => $configuration->visibleFor,
+				'icon' => $configuration->icon,
+				'properties' => array(),
+				'highlightElementSelector' => $configuration->highlightElement
+			);
+			
+			foreach ($configuration->parameters as $parameterConfiguration) {
+				$data['properties'][] = $this->convertConfigurationToArray($parameterConfiguration);
+			}
+		} 
+		else if ($configuration instanceof Parameter\ParameterPresetGroupConfiguration) {
+			
+			$data = array(
+				'id' => $configuration->id,
+				'label' => $configuration->label,
+				'type' => 'Patch',
+				'values' => array(),
+			);
+			
+			foreach ($configuration->presets as $presetConfiguration) {
+				$data['values'][] = $this->convertConfigurationToArray($presetConfiguration);
+			}
+					
+		} else {
+			$data = $configuration->toArray()
+					+ $configuration->getAdditionalProperties();
+		}
+		
+		return $data;
+	}
 }

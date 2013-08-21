@@ -371,7 +371,7 @@ class Theme extends Database\Entity implements ThemeInterface
 	 * @param string $parameterSetName
 	 * @return string
 	 */
-	protected function getGeneratedCssFilename(ThemeParameterSet $parameterSet)
+	public function getGeneratedCssFilename(ThemeParameterSet $parameterSet)
 	{
 		return $this->getGeneratedCssDir() . DIRECTORY_SEPARATOR . $this->getGeneratedCssBasename($parameterSet);
 	}
@@ -382,7 +382,10 @@ class Theme extends Database\Entity implements ThemeInterface
 	 */
 	protected function getGeneratedCssUrl(ThemeParameterSet $parameterSet)
 	{
-		return $this->getGeneratedCssUrlBase() . $this->getGeneratedCssBasename($parameterSet);
+		$url = $this->getGeneratedCssUrlBase() . $this->getGeneratedCssBasename($parameterSet);
+		$valuesHash = $parameterSet->getLessParameterValuesHash();
+		
+		return $url . ( ! empty($valuesHash) ? '?' . $valuesHash : '');
 	}
 
 	/**

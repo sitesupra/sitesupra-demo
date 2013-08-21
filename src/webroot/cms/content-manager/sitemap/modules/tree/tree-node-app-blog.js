@@ -60,33 +60,15 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 			this.on('child:before-add', function (e, setter) {
 				var data = setter.data;
 				
-				//Only page can be added as child
+				// Only page can be added as child, templates doesn't make sense
+				// as blog application sub-pages. Also this should never happen
+				// since it's not possible to create applications in templates mode (yet?)
 				if (data.type == 'page') {
 					
-					// Create page
-					Supra.Manager.Page.createPage({
-						'locale': this.get('tree').get('locale'),
-						'published': false,
-						'scheduled': false,
-						'type': 'page',
-						'parent_id': this.get('data').id,
-						
-						'title': '',
-						'template': '',
-						'path': ''
-					}, function (data) {
-						
-						// Open page
-						var params = {
-							'data': data,
-							'node': this
-						};
-						
-						if (this.get('tree').fire('page:select', params)) {
-							this.set('selected', true);
-						}
-						
-					}, this);
+					this._openBlogManager(this, {
+						'show_new_item_form': true
+					});
+					
 				}
 				
 				// Prevent page from actually beeing added
@@ -103,28 +85,39 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 		 */
 		'_onToggleClick': function (e) {
 			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
-				// Open blog manager
-				var data = this.get('data'),
-					deferred = null;
-				
-				// Start loading immediately
-				Supra.Manager.loadAction('Blog');
-				 
-				// Arguments:
-				//		node
-				//		reverse animation
-				//		origin
-				deferred = Supra.Manager.SiteMap.animate(this.get('itemBox'), false, 'blog');
-				
-				deferred.done(function () {
-					// Show blog when animation is done
-					Supra.Manager.executeAction('Blog', {
-						'parent_id': data.id,
-						'node': this,
-						'sitemap_element': this.get('itemBox')
-					});
-				}, this);
+				this._openBlogManager(this);
 			}
+		},
+		
+		/**
+		 * Open blog manager
+		 * 
+		 * @param {Object} tree_node Tree node to use for animation
+		 * @param {Object} params Additional parameters to send to blog manager
+		 * @private
+		 */
+		'_openBlogManager': function (tree_node, params) {
+			// Open blog manager
+			var data = tree_node.get('data'),
+				deferred = null;
+			
+			// Start loading immediately
+			Supra.Manager.loadAction('Blog');
+			 
+			// Arguments:
+			//		node
+			//		reverse animation
+			//		origin
+			deferred = Supra.Manager.SiteMap.animate(tree_node.get('itemBox'), false, 'blog');
+			
+			deferred.done(function () {
+				// Show blog when animation is done
+				Supra.Manager.executeAction('Blog', Supra.mix({
+					'parent_id': data.id,
+					'node': tree_node,
+					'sitemap_element': tree_node.get('itemBox')
+				}, params));
+			}, this);
 		},
 		
 		/**

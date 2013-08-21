@@ -65,13 +65,18 @@ YUI.add("supra.input-inline-string", function (Y) {
 	Input.NAME = "input-string-inline";
 	Input.ATTRS = {
 		'doc': null,
-		'win': null
+		'win': null,
+		'maxLength': {
+			value: 0,
+			setter: '_setMaxLength'
+		}
 	};
 	
 	Input.HTML_PARSER = {};
 	
 	Y.extend(Input, Supra.Input.InlineHTML, {
-		/*CONTENT_TEMPLATE: null,*/
+		
+		EDITOR_MODE: Supra.HTMLEditor.MODE_STRING,
 		
 		renderUI: function () {
 			//We overwrite InlineHTML.renderUI and it shouldn't be called, that's why
@@ -90,9 +95,10 @@ YUI.add("supra.input-inline-string", function (Y) {
 					'win': win,
 					'srcNode': src,
 					'toolbar': this.get('toolbar'),
-					'mode': Supra.HTMLEditor.MODE_STRING,
+					'mode': this.EDITOR_MODE,
 					'parent': this,
-					'root': this.get('root') || this
+					'root': this.get('root') || this,
+					'maxLength': this.get('maxLength')
 				});
 				this.htmleditor.render();
 				this.htmleditor.set('disabled', true);
@@ -130,6 +136,16 @@ YUI.add("supra.input-inline-string", function (Y) {
 			}
 			
 			return value;
+		},
+		
+		_setMaxLength: function (maxlength) {
+			maxlength = parseInt(maxlength, 10) || 0;
+			
+			if (this.htmleditor) {
+				this.htmleditor.set('maxLength', maxlength);
+			}
+			
+			return maxlength;
 		},
 		
 		/**

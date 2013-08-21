@@ -76,8 +76,18 @@ Supra(function (Y) {
 						this.data_array = data.blocks;
 						this.data = {};
 						
+						var block,
+							label;
+						
 						for(var i=0,ii=data.blocks.length; i<ii; i++) {
-							var block = data.blocks[i];
+							block = data.blocks[i];
+							
+							if (block.classname == 'List') {
+								label = Supra.Intl.get(['inputs', 'locked_list']);
+							} else {
+								label = Supra.Intl.get(['inputs', 'locked']);
+							}
+							
 							this.data[block.id] = block;
 							
 							//When user will be editing template, then will need possibility to lock blocks;
@@ -89,14 +99,14 @@ Supra(function (Y) {
 							block.properties.push({
 								'id': '__locked__',
 								'type': 'Checkbox',
-								'label': Supra.Intl.get(['inputs', 'locked']),
+								'label': label,
 								'group': 'advanced'
 							});
 							block.property_groups.push({
 								'id': 'advanced',
 								'label': Supra.Intl.get(['inputs', 'advanced']),
 								'type': 'sidebar',
-								'icon': null
+								'icon': '/cms/lib/supra/img/sidebar/icons/button-advanced.png'
 							});
 						}
 						

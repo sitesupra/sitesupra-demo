@@ -255,6 +255,7 @@ abstract class ImageProcessor
 		if ( ! file_exists($filename)) {
 			throw new ImageProcessorException('Source image does not exist');
 		}
+
 		$this->sourceFilename = $filename;
 
 		return $this;
@@ -360,5 +361,48 @@ abstract class ImageProcessor
 	/**
 	 * Process
 	 */
-	abstract public function process();
+	final public function process()
+	{		
+		if (empty($this->sourceFilename)) {
+			throw new ImageProcessorException('Cannot process as source filename is not set');
+		}
+		
+		if ( ! empty($this->targetFilename)
+				&& is_link($this->targetFilename)) {
+			
+			// this might be not good solution, but sometimes, ImageProcessor trying to process already existing
+			// image variant, and in case when it's a symlink, processing could fail
+			@unlink($this->targetFilename);
+		}
+		
+		// in case of symlinks, attempting to create the local copy
+		if (is_link($this->sourceFilename)) {
+			
+			$temporaryName = $this->sourceFilename . uniqid();
+			
+			$copyResult = copy($this->sourceFilename, $temporaryName);
+			if ($copyResult !== true) {
+				throw new ImageProcessorException("Failed to create temporary copy {$temporaryName} of symlink'ed file $this->sourceFilename");
+			}
+			
+			$unlinkResult = unlink($this->sourceFilename);
+			if ($unlinkResult !== true) {
+				
+				//trying to remove useless tmp copy 
+				@unlink($temporaryName);
+				
+				throw new ImageProcessorException("Failed to unlink symlink \"{$this->sourceFilename}\"");
+			}
+				
+			$renameResult = rename($temporaryName, $this->sourceFilename);
+
+			if ($renameResult !== true) {
+				throw new ImageProcessorException("Failed to rename temporary file {$temporaryName} into original file $this->sourceFilename");
+			}
+		}
+		
+		$this->doProcess();
+	}
+	
+	abstract protected function doProcess();
 }

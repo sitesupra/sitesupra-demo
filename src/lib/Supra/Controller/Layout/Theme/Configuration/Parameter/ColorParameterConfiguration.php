@@ -11,6 +11,11 @@ class ColorParameterConfiguration extends ThemeParameterConfigurationAbstraction
 	 * @var boolean
 	 */
 	public $allowUnset;
+
+    /**
+     * @var array
+     */
+    public $customization = array();
 	
 	protected function getParameterClass()
 	{
@@ -26,6 +31,7 @@ class ColorParameterConfiguration extends ThemeParameterConfigurationAbstraction
 	{
 		return array(
 			'allowUnset' => $this->allowUnset,
+            'customization' => $this->customization,
 		);
 	}
 

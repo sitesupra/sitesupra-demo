@@ -71,8 +71,6 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				
 			var srcNode		= Y.Node.getDOMNode(htmleditor.get('srcNode')),		// editor content node
 				doc			= htmleditor.get('doc'),							// editor iframe document
-				win			= htmleditor.get('win'),							// editor iframe window
-				body		= doc.body,											// editor iframe body
 				node		= doc.createElement('DIV');							// temporary node
 			
 			/* Create node, which will be used as temporary storage for pasted value
@@ -85,7 +83,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			node.style.opacity = 0;
 			node.innerHTML = '&nbsp;';
 			
-			body.appendChild(node);
+			srcNode.appendChild(node);
 			
 			//Change selection to new element (content will be pasted inside it)
 			htmleditor.setSelection({
@@ -95,7 +93,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				'end_offset': node.childNodes.length
 			});
 			
-			setTimeout(this.afterPaste, 0);
+			Supra.immediate(this.afterPaste);
 			
 			this.placeHolder = node;
 			this.previousSelection = selection;
@@ -309,7 +307,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			}, this);
 			
 			
-			//R estore previous selection
+			//Restore previous selection
 			htmleditor.setSelection(this.previousSelection);
 			
 			if (Y.UA.webkit) {
@@ -329,6 +327,9 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 			this.placeHolder.parentNode.removeChild(this.placeHolder);
 			delete(this.placeHolder);
 			
+			//
+			this.htmleditor.fire('afterPaste');
+			
 			//Content was changed
 			this.htmleditor._changed();
 		},
@@ -347,7 +348,28 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				
 				//Calling, because plugins could be using 'cleanHTML' event
 				html = htmleditor.cleanHTML(html);
-			
+			} else if (mode == Supra.HTMLEditor.MODE_TEXT) {
+				
+				if (html.indexOf('<') !== -1) {
+					// Replace all block level ending tags with new lines
+					var regex = new RegExp('(<br[^>]*>|<\\/(' + Supra.HTMLEditor.ELEMENTS_BLOCK_ARR.join('|') + ')[^>]*>)', 'ig');
+					 
+					// There are no new lines, 
+					html = html.replace(/\n/g, '');
+					html = html.replace(regex, '\n');
+				}
+				
+				// Remove all tags
+				html = html.replace(/<[^>]+>/g, '');
+				
+				// Remove whitespaces at the begining and at the end
+				html = html.replace(/(^[\r\n\s]*|[\r\n\s]*$)/g, '');
+				
+				// Replace new lines with BRs
+				html = html.replace(/\n/g, '<br />');
+				
+				//Calling, because plugins could be using 'cleanHTML' event
+				html = htmleditor.cleanHTML(html);
 			} else {
 				
 				//If content was pasted from MS Word, remove all MS tags/styles/comments

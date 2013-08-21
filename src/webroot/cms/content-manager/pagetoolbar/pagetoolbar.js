@@ -223,7 +223,9 @@ Supra(function (Y) {
 				 * If next animation which will be added is the same as this, then
 				 * ignore
 				 */
-				setTimeout(Y.bind(this.animate, this), 10);
+				setTimeout(Y.bind(this.animate, this), 60);
+				
+				this.normalizeAnimationQueue();
 			}
 			
 			return this;
@@ -235,6 +237,40 @@ Supra(function (Y) {
 			}
 			
 			return this;
+		},
+		
+		/**
+		 * Check animation queue and remove actions which are shown and then hidden
+		 * to prevent unneeded animations
+		 */
+		normalizeAnimationQueue: function () {
+			var queue = this.animationQueue,
+				size  = 0,
+				i     = 0,
+				k     = 0,
+				match = true;
+			
+			while (match) {
+				size = queue.length;
+				match = false;
+				
+				for (i=0; i<size; i++) {
+					if (queue[i].visible) {
+						// Search for same item with visible==false
+						for (k=i+1; k<size; k++) {
+							if (queue[i].action_id == queue[k].action_id && !queue[k].visible) {
+								match = true;
+								queue.splice(k, 1);
+								queue.splice(i, 1);
+								break;
+							}
+						}
+					}
+					if (match) {
+						break;
+					}
+				}
+			}
 		},
 		
 		/**
@@ -289,7 +325,8 @@ Supra(function (Y) {
 			
 			(hideAnim || showAnim).on('end', function () {
 				this.animationRunning = false;
-				this.animate();
+				//this.animate();
+				Supra.immediate(this, this.animate);
 			}, this);
 			
 			if (hideAnim) hideAnim.run();
@@ -355,7 +392,7 @@ Supra(function (Y) {
 					if (action.NAME) {
 						if (action.get('executed')) {
 							//Call function
-							action[config.actionFunction](config.id);
+							action[config.actionFunction](config.id, config);
 						} else {
 							if (button) {
 								button.set('loading', true);

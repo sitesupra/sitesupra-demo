@@ -98,13 +98,23 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	 * @var array
 	 */
 	public $plugins = array();
-
+	
+	/**
+	 * Block tooltip data
+	 * @var array | null
+	 */
+	public $tooltip;
 	
 	/**
 	 * Adds block configuration to block controller collection
 	 */
 	public function configure()
 	{
+		if ($this->tooltip != null){
+			1+1;
+		}
+		
+		
 		if (empty($this->id)) {
 			$id = $this->prepareClassId($this->class);
 			$this->id = $id;

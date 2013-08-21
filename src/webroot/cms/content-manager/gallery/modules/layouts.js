@@ -149,6 +149,7 @@ YUI.add('gallery.layouts', function (Y) {
 						model.property[id] = '<div class="yui3-content-inline yui3-box-reset" data-supra-item-property="' + id + '">' + (value.html || '') + '</div>';
 						break;
 					case 'InlineString':
+					case 'InlineText':
 						value = property.defaultValue || '';
 						model.property[id] = '<span class="yui3-content-inline yui3-inline-reset" data-supra-item-property="' + id + '">' + value + '</span>';
 						break;
@@ -177,6 +178,41 @@ YUI.add('gallery.layouts', function (Y) {
 			}
 			
 			return template(model);
+		},
+		
+		/**
+		 * Returns layout which has property with given type
+		 * 
+		 * @param {String} type Property type
+		 * @returns {Object} Layout data or null
+		 */
+		getLayoutByPropertyType: function (type, filter) {
+			var property = this.get('host').settings.getPropertyByType(type, filter),
+				is_inline = (type in Supra.Input && Supra.Input[type].IS_INLINE);
+			
+			if (!property) {
+				// There are no properties with given type
+				return null;
+			}
+			
+			var layouts = this._layouts,
+				id      = null,
+				regex   = new RegExp('\{\{[^\}]*property\\.' + property.id + '[^a-zA-Z0-9]');
+			
+			if (is_inline) {
+				// Go through all layouts and check if it's actually there
+				for (id in layouts) {
+					// Search property.NAME in html
+					if (regex.test(layouts[id].html)) {
+						return layouts[id];
+					}
+				}
+			} else {
+				// All layouts has same non-inline properties
+				return this.getDefaultLayout();
+			}
+			
+			return null;
 		},
 		
 		

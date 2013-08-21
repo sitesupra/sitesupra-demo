@@ -116,6 +116,7 @@ YUI.add('gallerymanager.itemlist-order', function (Y) {
 			
 			// Inline editable shouldn't trigger drag
 			del.dd.addInvalid('.yui3-input-string-inline-focused');
+			del.dd.addInvalid('.yui3-input-text-inline-focused');
 			del.dd.addInvalid('.yui3-imageeditor-focused');
 			
 			del.on('drag:drag', fnDragDrag);

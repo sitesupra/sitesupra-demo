@@ -42,7 +42,12 @@
 				"add_video": "Добавить видео",
 				"delete_image": "Удалить картинку",
 				"delete_video": "Удалить видео"
-			}
+			},
+			
+			"resize_frame_size": "Image frame size",
+			"resize_button_title": "Maintain aspect ratio",
+			"resize_width": "W",
+			"resize_height": "H"
 		},
 
 		"error": {
@@ -61,6 +66,8 @@
 			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_slideshow_unavailable": "Images for the this slideshow have been taken from {{ localeTitle }} localization. Go there to manage them.",
 			"shared_slideshow_notice": "This slideshow has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
+			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
+			"shared_gallery_notice": "This gallery has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
 			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 
 			"block": {
@@ -97,14 +104,20 @@
 			"delete_block": "Удалить блок",
 			"delete_block_confirmation": "Вы уверены, что хотите удалить блок?",
 			"delete_block_shared_confirmation": "Блок используется в других языковых версиях сайта. Если вы удалите блок, то содержание блока в других языковых версиях пропадёт. Вы уверены, что хотите удалить блок?",
-
+			"delete_block_global_confirmation": "If you delete this Global block it would disappear from all pages it was placed on. To remove this block from the current page only try selecting a different page template from page settings or create a new page template. Remove the block anyway?",
+			
+			"description_block_global": "This is a Global block. Changes to a Global block affect all pages it is placed on.",
+			
 			"click_to_edit": "Кликните для редактирования",
-			"click_to_edit_drag_to_move": "Кликните для редактирования<br />ли перетащите в другое место",
+			"click_to_edit_drag_to_move": "Кликните для редактирования<br />или перетащите в другое место",
 
 			"locked_message": "Странца заблокирована пользователем {{ username|escape }} { datetime|escape }}",
 			"unlock": "Разблокировать",
 
 			"page_doesnt_exist_in_locale": "Этой страницы не сущесвует в данной языковой версии. Скопировать из текущей языковой версии?",
+			
+			"back_to_sitemap": "Карта сайта",
+			"back_to_blog": "Blog",
 
 			"unsaved_changed": "На странице есть несохранённые изменение. Вы уверены, что хотите закрыть страницу без сохранения?",
 			"follow_redirect": "У страницы установлена переадресация. Вы хотите последовать за переадресацией?",
@@ -207,6 +220,7 @@
 			"image_size": "Размер картинки",
 			"size_custom": "Настройки",
 			"size_original": "Original",
+			"video_alignment": "Выравнивание",
 			"image_title": "Название картинки",
 			"image_description": "Альтернативный текст",
 			"image_alignment": "Выравнивание",
@@ -442,7 +456,10 @@
 			"this_month": "В этом месяце",
 
 			"restore_button_label": "Восстановить",
-			"restore_message": "Вы уверены?"
+			"restore_message": "Вы уверены?",
+			
+			"restore_message_global": "This change affected a Global block. To revert the change use History on the Global block's template.",
+			"restore_open_global": "Open template"
 		},
 
 		"timeline": {
@@ -476,12 +493,12 @@
 			"click_here_edit": "Нажмите сюда, чтобы редактировать",
 			"drop_replace": "Drop here to replace image",
 
-			"edit_move": "Нажмите сюда, чтобы редактировать<br />или перетащите",
+			"edit_move": "Нажмите сюда, чтобы редактировать<br />или перетащите в другое место",
 
-			"empty": "You have no items<br />in the list yet",
-			"drag_and_drop": "Drag and drop<br />folder or files here",
+			"empty": "У вас ещё нет добавленных объектов",
+			"drag_and_drop": "Перетащите сюда<br />папку или файлы",
 			"add_item": "Добавить",
-			"just_drag_and_drop": "or just drag-and-drop file here",
+			"just_drag_and_drop": "или перетащите сюда файл",
 
 			"settings_title": "Свойства объекта",
 			"label": "Объекты",
@@ -498,25 +515,57 @@
 			"label_button": "Редактировать слайды",
 
 			"sidebar_title": "Редактировать слайд",
+			"sidebar_title_numbered": "Редактировать слайд {nr}",
 			"delete_slide": "Удалить слайд",
 
 			"add_new": "Добавить",
+
+			"error_template": "Error occured in {block} block",
+
+			"slide_label": "Слайд {nr}",
+			
+			"media": {
+				"add_image": "Добавить картинку",
+				"add_video": "Добавить видео"
+			}
+		},
+
+		"gallery": {
+			"title": "Редактировать галерею",
+
+			"label": "Объекты",
+			"label_button": "Редактировать объекты",
+
+			"sidebar_title": "Редактировать",
+			"delete_slide": "Удалить",
+
+			"edit_move": "Нажмите, чтобы редактировать<br />или перетащите в другое место",
+
+			"empty": "Галерея пуста",
+			"drag_and_drop": "Перетащите сюда <br />папки или файлы",
+			"add_item": "Добавить",
+			"add": "Добавить ",
+			"just_drag_and_drop": "или преретащите файлы сюда",
 
 			"error_template": "Error occured in {block} block"
 		},
 
 		"linkmanager": {
-			"title": "Ссыдка на",
+			"title": "Ссылка на",
 			"title_page": "страницу",
 			"title_file": "файл",
+			"title_email": "email",
 
 			"select": "Выберите тип ссылки",
 			"link_to_file": "ссылка на файл",
 			"link_to_page": "ссылка на страницу",
+			"link_to_email": "ссылка на email",
 			"link_internal": "внутрненняя",
 			"link_external": "внешняя",
 			"link_address": "Ссылка на адрес",
+			"link_email": "Адрекс email",
 			"new_window": "Открывать в новом окне",
+			"button": "Сделать кнопку",
 			"link_title": "Заголовок ссылки",
 			"open_library_app": "Открыть библиотеку",
 
@@ -528,9 +577,31 @@
 				"title": "Tip",
 				"description": "Вы можете изменить порядок картинок перетащив их мышкой"
 			},
-			"Project_FancyBlocks_GoogleMap_GoogleMapBlock": {
+			"GoogleMapBlock": {
 				"title": "Tip",
 				"description": "To re-locate the marker drag and drop it to desired location"
+			},
+			"MenuBlock": {
+				"title": "Tip",
+				"description": "Links are added to the menu automatically after a new page is created in the Sitemap",
+				"buttons": [
+					{
+						"label": "Open Sitemap",
+						"action": "Page",
+						"actionFunction": "openSiteMap"
+					}
+				]
+			},
+			"LeftMenuBlock": {
+				"title": "Tip",
+				"description": "Links are added to the menu automatically after a new page is created in the Sitemap",
+				"buttons": [
+					{
+						"label": "Open Sitemap",
+						"action": "Page",
+						"actionFunction": "openSiteMap"
+					}
+				]
 			}
 		}
 	}

@@ -167,8 +167,9 @@ YUI.add('slideshowmanager.layouts', function (Y) {
 						model.property[id] = '<div class="yui3-content yui3-box-reset" data-supra-item-property="' + id + '">' + (value.html || '') + '</div>';
 						break;
 					case 'InlineString':
+					case 'InlineText':
 						value = property.defaultValue || '';
-						model.property[id] = '<span class="yui3-inline-reset" data-supra-item-property="' + id + '">' + value + '</span>';
+						model.property[id] = '<div class="yui3-box-reset" data-supra-item-property="' + id + '">' + value + '</div>';
 						break;
 					case 'BlockBackground':
 						value = property.defaultValue || '';

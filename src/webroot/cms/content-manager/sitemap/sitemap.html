@@ -18,8 +18,8 @@
 	<div class="su-sitemap-edit ui-light hidden">
 		<form class="yui3-form-vertical">
 			
-			<input type="text" name="title" suUseReplacement="true" value="{# sitemap.page_title #}" />
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" suUseReplacement="true" value="products" suPath="http://sitesupra.com/" />
+			<input type="text" name="title" data-use-replacement="true" value="{# sitemap.page_title #}" />
+			<input type="text" name="path" data-value-mask="^[^\\\/\?\#\s\%]*$" data-type="Path" data-use-replacement="true" value="products" data-path="http://sitesupra.com/" />
 			
 			<div class="middle">
 				<button type="button">{# sitemap.duplicate_page #}</button><br />
@@ -37,11 +37,11 @@
 			<input type="text" name="title" value="" />
 			
 			<label for="path">{# sitemap.new_page_label_path #}</label>
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="products" suPath="http://sitesupra.com/" />
+			<input type="text" name="path" data-value-mask="^[^\\\/\?\#\s\%]*$" data-type="Path" value="products" data-path="http://sitesupra.com/" />
 			
 			<div class="yui3-input template-section">
 				<label>{# sitemap.new_page_label_template #}</label>
-				<button type="button" suStyle="item"><p></p></button>
+				<button type="button" data-style="item"><p></p></button>
 				<input type="hidden" name="template[id]" />
 				<input type="hidden" name="template[img]" />
 				<input type="hidden" name="template[title]" />
@@ -50,13 +50,13 @@
 			<label for="template" class="hidden"></label>
 			<div class="su-sitemap-template-list hidden">
 				<div class="su-sitemap-template-list-scrollable">
-					<select name="template" suStyle="items" suType="SelectList"></select>
+					<select name="template" data-style="items" data-type="SelectList"></select>
 				</div>
 			</div>
 			
 			<div class="yui3-input layout-section">
 				<label>{# sitemap.new_template_label_layout #}</label>
-				<button type="button" suStyle="item"><p></p></button>
+				<button type="button" data-style="item"><p></p></button>
 				<input type="hidden" name="layout[id]" />
 				<input type="hidden" name="layout[img]" />
 				<input type="hidden" name="layout[title]" />
@@ -65,13 +65,13 @@
 			<label for="layout" class="hidden"></label>
 			<div class="su-sitemap-layout-list hidden">
 				<div class="su-sitemap-layout-list-scrollable">
-					<select name="layout" suStyle="items" suType="SelectList"></select>
+					<select name="layout" data-style="items" data-type="SelectList"></select>
 				</div>
 			</div>
 			
 			<div class="middle">
-				<button type="button" suStyle="small-blue">{# sitemap.create_page #}</button><br />
-				<button type="button" suStyle="small">{# sitemap.cancel #}</button>
+				<button type="button" data-style="small-blue">{# sitemap.create_page #}</button><br />
+				<button type="button" data-style="small">{# sitemap.cancel #}</button>
 			</div>
 			
 		</form>
@@ -90,7 +90,7 @@
 			<input type="text" name="title" value="" />
 			
 			<label for="path">{# sitemap.new_page_label_path #}</label>
-			<input type="text" name="path" suValueMask="^[^\\\/\?\#\s\%]*$" suType="Path" value="" suPath="http://sitesupra.com/" />
+			<input type="text" name="path" data-value-mask="^[^\\\/\?\#\s\%]*$" data-type="Path" value="" data-path="http://sitesupra.com/" />
 			
 			<div class="middle">
 				<button type="button">{# sitemap.translate.create #}</button>

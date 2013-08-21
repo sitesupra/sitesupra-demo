@@ -3,7 +3,8 @@ YUI.add('supra.input-link', function (Y) {
 	"use strict";
 	
 	//Shortcuts
-	var Manager = Supra.Manager;
+	var Manager = Supra.Manager,
+		DEFAULT_LABEL_SET = '{#form.set_link#}';
 	
 	
 	function Input (config) {
@@ -14,8 +15,9 @@ YUI.add('supra.input-link', function (Y) {
 	Input.NAME = 'input-link';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		'label_set': {
-			'value': '{#form.set_link#}'
+		'labelSet': {
+			'value': DEFAULT_LABEL_SET,
+			'validator': Y.Lang.isString
 		},
 		'mode': {
 			'value': 'link'
@@ -109,11 +111,14 @@ YUI.add('supra.input-link', function (Y) {
 		
 		renderUI: function () {
 			//Create button
-			this.button = new Supra.Button({'label': this.get('label_set')});
+			this.button = new Supra.Button({'label': this.get('labelSet')});
 			this.button.render(this.get('contentBox'));
 			this.button.on('click', this.openLinkManager, this);
 			
 			Input.superclass.renderUI.apply(this, arguments);
+			
+			//Insert button before input
+			this.get('inputNode') .insert(this.button.get('boundingBox'), 'before');
 			
 			this.set('value', this.get('value'));
 		},
@@ -123,7 +128,7 @@ YUI.add('supra.input-link', function (Y) {
 				data = '';
 			}
 			
-			var title = (data && data.href ? data.title || data.href : Supra.Intl.replace(this.get('label_set')));
+			var title = (data && data.href ? data.title || data.href : Supra.Intl.replace(this.get('labelSet')));
 			this.button.set('label', title);
 			
 			return data;
@@ -141,6 +146,16 @@ YUI.add('supra.input-link', function (Y) {
 			if (evt.prevVal != evt.newVal) {
 				this.fire('change', {'value': evt.newVal});
 			}
+		},
+		
+		_setLabelSet: function (label) {
+			if (typeof label !== 'string') {
+				label = this.get('labelSet');
+			}
+			if (typeof label !== 'string') {
+				label = DEFAULT_LABEL_SET;
+			}
+			return label;
 		}
 		
 	});

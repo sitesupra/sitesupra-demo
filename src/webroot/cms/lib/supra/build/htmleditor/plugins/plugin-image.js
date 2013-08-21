@@ -195,7 +195,8 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			//Open Media library on "Replace"
 			var image = this.selected_image,
 				image_id = this.selected_image_id,
-				data = this.original_data;
+				data = this.original_data,
+				path = null;
 			
 			if (image) {
 				//Open settings form and open MediaSidebar
@@ -207,8 +208,13 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				this.selected_image_id = image_id;
 				this.original_data = data;
 				
+				if (data && data.image && data.image.id) {
+					path = [].concat(data.image.path || []).concat([data.image.id]);
+				}
+				
 				Manager.getAction("MediaSidebar").execute({
-					onselect: Y.bind(this.insertImage, this)
+					onselect: Y.bind(this.insertImage, this),
+					item: path
 				});
 			}
 		},
@@ -687,6 +693,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					this.settings_form.getInput("title").setValue(data.title);
 					this.settings_form.getInput("description").setValue(data.description);
 					
+					this.original_data = data;
 					this.editImage();
 				} else {
 					//Find image by size and set initial image properties

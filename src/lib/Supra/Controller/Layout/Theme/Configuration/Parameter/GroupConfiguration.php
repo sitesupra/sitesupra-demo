@@ -16,6 +16,16 @@ class GroupConfiguration extends ThemeConfigurationAbstraction
 	 * @var string
 	 */
 	public $label;
+    
+    /**
+     * @var string
+     */
+    public $icon = '';
+    
+    /**
+     * @var string
+     */
+    public $buttonStyle = '';
 	
 	/**
 	 * @var array

@@ -30,6 +30,10 @@ YUI.add('supra.button', function (Y) {
 			value: '',
 			setter: '_setLabel'
 		},
+		title: {
+			value: '',
+			setter: '_setTitle'
+		},
 		type: {
 			value: 'push'		// Valid types are 'push', 'toggle'
 		},
@@ -171,7 +175,7 @@ YUI.add('supra.button', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suStyle');
+				style = button.getAttribute('data-style');
 			}
 			
 			return style || 'small';
@@ -181,7 +185,7 @@ YUI.add('supra.button', function (Y) {
 				type = null;
 			
 			if (button) {
-				type = button.getAttribute('suType');
+				type = button.getAttribute('data-type');
 			}
 			
 			return type || 'push';
@@ -191,7 +195,7 @@ YUI.add('supra.button', function (Y) {
 				icon = null;
 			
 			if (button) {
-				icon = button.getAttribute('suIcon');
+				icon = button.getAttribute('data-icon');
 			}
 			
 			return icon;
@@ -201,7 +205,7 @@ YUI.add('supra.button', function (Y) {
 				down = false;
 			
 			if (button) {
-				down = (button.getAttribute('suDown') === 'true');
+				down = (button.getAttribute('data-state-down') === 'true');
 			}
 			
 			return down;
@@ -212,7 +216,7 @@ YUI.add('supra.button', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suIconStyle') || undefined;
+				style = button.getAttribute('data-icon-style') || undefined;
 			}
 		},
 		
@@ -221,13 +225,13 @@ YUI.add('supra.button', function (Y) {
 				style = null;
 			
 			if (button) {
-				style = button.getAttribute('suGroupStyle') || '';
+				style = button.getAttribute('data-group-style') || '';
 			}
 		},
 		
 		iconBackgroundColor: function (srcNode) {
 			var button = this.get('nodeButton'),
-				style = button.getAttribute('suIconBackgroundColor');
+				style = button.getAttribute('data-icon-background-color');
 			
 			if (button && style) {
 				return style;
@@ -284,9 +288,12 @@ YUI.add('supra.button', function (Y) {
 					this.set('nodeLabel', p);
 				}
 				
+				//Title attribute
+				btn.setAttribute('title', this.get('title') || '');
+				
 				//Buttons with group or toolbar style doesn't have labels, use "title" attribute
 				if ((this.get('style') == 'group' || this.get('style') == 'toolbar') && this.get('icon')) {
-					btn.setAttribute('title', this.get('label') || '');
+					this.set('title', this.get('title') || this.get('label') || '');
 				}
 				
 				if (!btn.getAttribute('type')) {
@@ -515,12 +522,18 @@ YUI.add('supra.button', function (Y) {
 				
 				//Buttons with group style doesn't have labels, use "title" attribute
 				if (this.get('style') == 'group' && this.get('icon')) {
-					node = this.get('buttonNode');
-					if (node) {
-						node.setAttribute('title', label);
-					}
+					this.set('title', label);
 				}
 			}
+		},
+		
+		_setTitle: function (title) {
+			var btn = this.get('nodeButton');
+			if (btn) {
+				btn.setAttribute('title', title || '');
+			}
+			
+			return title || '';
 		},
 		
 		_setVisible: function (visible) {

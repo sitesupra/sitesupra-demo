@@ -59,6 +59,9 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		$users = $this->userProvider
 				->findAllUsers();
 		
+		$protocol = $this->getRequest()
+				->getProtocol();
+		
 		/* @var $user Entity\User */
 		foreach ($users as $user) {
 			
@@ -72,7 +75,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 			$result[] = array(
 				'id' => $user->getId(),
 				//'avatar' => $this->getAvatarExternalPath($user, '48x48'),
-				'avatar' => $user->getGravatarUrl(),
+				'avatar' => $user->getGravatarUrl(48, $protocol),
 				'name' => $user->getName(),
 				'group' => $this->groupToDummyId($user->getGroup())
 			);

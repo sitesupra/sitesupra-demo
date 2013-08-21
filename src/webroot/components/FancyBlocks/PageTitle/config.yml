@@ -3,7 +3,7 @@
     class: Project\FancyBlocks\PageTitle\PageTitleBlock
     title: Page title
     groupId: features
-    description: Page title
+    description: Automatically places page title taken from the page name.
     cmsClassname: Editable
     icon: icon.png
     cache:

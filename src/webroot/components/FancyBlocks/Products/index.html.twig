@@ -40,6 +40,8 @@
 {% set link_title = '' %}
 {% set heading_class = 'no-heading' %}
 
+
+
 {% set ratio = 0.7 %}
 
 {# Macro for outputing links #}
@@ -104,11 +106,7 @@
 			<div class="products-slider-inner clearfix">
 				<ul class="clearfix">
 					{% for index, product in products %}
-						{% if index and index % 4 == 0 %}
-							<li class="clear"></li>
-						{% endif %}
-						
-						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}one_half{% elseif layout == 'columns_1' %}one_half{% else %}one_fourth{% endif %} clearfix">
+						<li class="{% if loop.first %}alpha {% endif %}{% if loop.last %}omega {% endif %}{% if layout == 'columns_3' %}one_third{% elseif layout == 'columns_2' %}one_half{% elseif layout == 'columns_1' %}one_half{% else %}one_fourth{% endif %} {% if product.property.link %}has-link{% endif %} clearfix">
 							
 							<span class="img">
 {#								

@@ -232,6 +232,8 @@ Supra('anim', 'dd-drag', 'iconsidebar.data', 'iconsidebar.iconlist', function (Y
 				button.render(node);
 				button.on('click', this.openCategory, this, categories[i].id);
 			}
+			
+			this.widgets.slideshow.syncUI();
 		},
 		
 		/**

@@ -258,6 +258,11 @@ YUI().add('website.sitemap-tree', function (Y) {
 				
 				view = this.get('view');
 			
+			//Page/template styles
+			boundingBox.removeClass('templates');
+			boundingBox.removeClass('pages');
+			boundingBox.addClass(this.get('mode'));
+			
 			//Create tree
 			contentBox.empty();
 			
@@ -817,11 +822,18 @@ YUI().add('website.sitemap-tree', function (Y) {
 			
 			var added = true;
 			
-			//Trigger event
+			// Trigger event to allow subscribers to implement custom
+			// functionality
 			var setter = {'target': target, 'where': where, 'data': data},
-				res = target.fire('child:before-add', setter, setter);
+				res = null;
 			
-			if (res === false) return; // event was canceled
+			if (where == 'inside') {
+				res = target.fire('child:before-add', setter, setter);
+			}
+			
+			// event was canceled by callback, meaning that insert was taken
+			// care of
+			if (res === false) return;
 			
 			where = setter.where;
 			if (setter.target !== target) target = setter.target;
@@ -831,7 +843,8 @@ YUI().add('website.sitemap-tree', function (Y) {
 				
 				target.set('expandable', true);
 				
-				//Expand list
+				//Expand list - show list with all items, needed to show new item popup in correct
+				//place
 				target.expand();
 				
 				//Add TreeNodeList row

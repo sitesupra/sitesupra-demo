@@ -27,7 +27,7 @@ YUI.add('supra.input-path', function (Y) {
 	
 	Input.HTML_PARSER = {
 		'path': function (srcNode) {
-			return srcNode.getAttribute('suPath') || '';
+			return srcNode.getAttribute('data-path') || '';
 		}
 	};
 	

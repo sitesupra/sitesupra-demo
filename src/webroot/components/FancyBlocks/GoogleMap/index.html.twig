@@ -22,6 +22,9 @@
 		{% else %}
 			class="map {{ heading_class }}"
 		{% endif %}
+		{% if map.height %}
+			style="height: {{ map.height }}px"
+		{% endif %}
 		data-refresh-event="googleMap" data-latitude="{{ map.latitude }}" data-longitude="{{ map.longitude }}" data-zoom="{{ map.zoom }}" data-marker-text="{{ markerText }}"></div>
 	{% endspaceless %}
 </div>

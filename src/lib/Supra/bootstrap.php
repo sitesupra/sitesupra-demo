@@ -28,13 +28,18 @@ define('SUPRA_COMPONENT_PATH', SUPRA_WEBROOT_PATH . 'components' . DIRECTORY_SEP
 define('SUPRA_DATA_PATH', SUPRA_PATH . 'data' . DIRECTORY_SEPARATOR);
 define('SUPRA_TEMPLATE_PATH', SUPRA_PATH . 'template' . DIRECTORY_SEPARATOR);
 define('SUPRA_TMP_PATH', SUPRA_PATH . 'tmp' . DIRECTORY_SEPARATOR);
-define('SUPRA_ERROR_PAGE_PATH', SUPRA_PATH . '..' . DIRECTORY_SEPARATOR . 'supra7' . DIRECTORY_SEPARATOR . 'src' .DIRECTORY_SEPARATOR . 'webroot' . DIRECTORY_SEPARATOR);
+define('SUPRA_ERROR_PAGE_PATH', SUPRA_WEBROOT_PATH);
 
 function outputInternalServerError()
 {
     header('Content-Type: text/html; charset=utf-8');
     $webrootDir = SUPRA_ERROR_PAGE_PATH;
-    $errorPage = file_get_contents($webrootDir.'500.html');
+    $errorFile = $webrootDir.'500.html';
+    if (file_exists($errorFile)) {
+        $errorPage = file_get_contents($errorFile);
+    } else {
+        $errorPage = SUPRA_ERROR_MESSAGE;
+    }
     echo $errorPage;
     die();
 }

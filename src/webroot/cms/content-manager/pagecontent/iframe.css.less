@@ -6,7 +6,7 @@
 
 .yui3-content {
 	.clear-fix ();
-	min-height: 60px;
+	min-height: 45px;
 }
 .yui3-content-inline {
 	clear: both;
@@ -104,6 +104,7 @@
 	.box-shadow (none);
 	.transition-property (opacity);
 	.transition-duration (0.35s);
+	.user-select (none);
 	
 	&.su-overlay-list {
 		border-style: dashed;
@@ -145,6 +146,12 @@
 		}
 	}
 	
+	&.su-overlay-external {
+		// Global block, but editable on this page
+		.su-overlay-icon {
+			background-image: url(/cms/lib/supra/img/htmleditor/editable-external-background.gif);
+		}
+	}
 	&.su-overlay-list,
 	&.su-overlay-closed,
 	&.su-overlay-external {
@@ -295,6 +302,13 @@
 
 .su-overlay-draggable {
 	
+}
+
+// Overlay visible, but transparent
+.su-overlay-transparent,
+.su-overlay-transparent.su-overlay-list {
+	display: block;
+	border-color: transparent;
 }
 
 /**
@@ -473,7 +487,8 @@
 		.clear-fix ();
 	}
 	
-	.yui3-input-string-inline.yui3-content-inline {
+	.yui3-input-string-inline.yui3-content-inline,
+	.yui3-input-text-inline.yui3-content-inline {
 		min-height: 1em;
 	}
 }
@@ -561,7 +576,8 @@
 	.yui3-input-html-inline p,
 	.yui3-input-html-inline-content p,
 	.yui3-input-html-inline-content,
-	.yui3-input-string-inline-content {
+	.yui3-input-string-inline-content,
+	.yui3-input-text-inline-content {
 		// Cross-browser normalize, except for IE which adds handles if element has 'layout'
 		min-height: 1em;
 	}
@@ -588,6 +604,13 @@
 .yui3-input-media-inline-content.yui3-input-media-inline-empty {
 	// Empty box not visible while not editing
 	display: none;
+}
+.yui3-input-media-inline-content {
+	.supra-image,
+	.supra-icon,
+	.supra-video {
+		vertical-align: top !important;
+	}
 }
 .editing .yui3-input-media-inline-content {
 	
@@ -820,7 +843,7 @@
 .supra-video {
 	// Default embed width is 560px, so
 	// height: 560px / (16 / 9 ratio)
-	height: 315px !important;
+	height: 315px;
 	background: #f5f5f5 url(/cms/lib/supra/img/htmleditor/video-placeholder.png) 50% 50% no-repeat !important;
 	cursor: pointer !important;
 	

@@ -257,7 +257,7 @@ function (Y) {
 			}
 			
 			//Manage button
-			var btn = this.widgets.manageButton = new Supra.Button({'label': manage_label, 'style': 'small'});
+			var btn = this.widgets.manageButton = new Supra.Button({'label': manage_label, 'style': 'mid-blue'});
 				btn.render(form.get('contentBox'));
 				btn.addClass('su-button-fill');
 				btn.on('click', this.openMediaLibraryForReplace, this);
@@ -371,7 +371,7 @@ function (Y) {
 					'doneCallback': Y.bind(this.settingsFormApply, this),
 					'toolbarActionName': this.NAME + 'Settings',
 					
-					'title': Supra.Intl.get(['gallerymanager', 'imagesettings_title']),
+					'title': Supra.Intl.get(['gallerymanager', 'settings_title']),
 					'scrollable': true
 				});
 				
@@ -585,6 +585,7 @@ function (Y) {
 			if (!this.get('visible')) {
 				this.set('visible', true);
 				this.animateIn();
+				Supra.Manager.PageHeader.back_button.hide();
 			}
 		},
 		
@@ -596,6 +597,7 @@ function (Y) {
 				}
 				
 				this.animateOut();
+				Supra.Manager.PageHeader.back_button.show();
 			}
 		},
 		

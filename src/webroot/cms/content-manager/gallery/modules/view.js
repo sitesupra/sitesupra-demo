@@ -736,6 +736,16 @@ YUI.add('gallery.view', function (Y) {
 		},
 		
 		/**
+		 * Returns node by ID
+		 * 
+		 * @param {String} id Item id
+		 * @returns {Object} Node for item
+		 */
+		getNodeById: function (id) {
+			return this.widgets.nodes[id];
+		},
+		
+		/**
 		 * Render all items
 		 */
 		renderItems: function () {
@@ -750,6 +760,10 @@ YUI.add('gallery.view', function (Y) {
 			
 			// Remove old items
 			container.empty();
+			
+			if (!container.compareTo(this.get('listNode'))) {
+				this.set('listNode', container);
+			}
 			
 			this.silentUpdatingValues = true;
 			this.get('host').settings.silentUpdatingValues = true;
@@ -792,19 +806,12 @@ YUI.add('gallery.view', function (Y) {
 				this.get('host').settings.silentUpdatingValues = true;
 			}
 			
-			var container = null,
+			var container = this.get('listNode'),
 				new_item_control = this.newItemControl,
 				active = this.get('activeItemId'),
 				id = (typeof id === 'string' ? id : active),
 				iframe = this.get('iframe'),
 				data = this.get('host').data.getSlideById(id);
-			
-			// Find container node
-			container = iframe.one('*[data-supra-container]');
-			
-			if (!container.compareTo(this.get('listNode'))) {
-				this.set('listNode', container);
-			}
 			
 			if (!data) {
 				// Nothing to render
@@ -814,6 +821,12 @@ YUI.add('gallery.view', function (Y) {
 			// Render new item
 			var html = Y.Node.create(this.get('host').layouts.getLayoutHtml(data.layout));
 			html.addClass('supra-gallery-item');
+			
+			if (data.temporary) {
+				// This item is shown while image is beeing uploaded
+				html.addClass('loading');
+				html.append('<div class="loading-icon"></div>');
+			}
 			
 			if (new_item_control) {
 				new_item_control.insert(html, 'before');
@@ -1131,7 +1144,7 @@ YUI.add('gallery.view', function (Y) {
 					if (node) {
 						value = data[property.id];
 						
-						input = new Supra.Input[property.type]({
+						input = new Supra.Input[property.type](Supra.mix({}, property, {
 							'doc': iframe.get('doc'),
 							'win': iframe.get('win'),
 							'toolbar': Manager.EditorToolbar.getToolbar(),
@@ -1139,7 +1152,7 @@ YUI.add('gallery.view', function (Y) {
 							'targetNode': node,
 							'value': value,
 							'plugins': property.plugins
-						});
+						}));
 						
 						input.set('name', property.id);
 						

@@ -9,9 +9,9 @@ Supra(function (Y) {
 	var ACTION_TEMPLATE = '\
 			<div class="sidebar block-settings">\
 				<div class="sidebar-header">\
-					<button class="button-back hidden"><p></p></button>\
+					<button class="button-back hidden"><p>{# buttons.back #}</p></button>\
 					<img src="" class="hidden" alt="" />\
-					<button type="button" class="button-control"><p>{#buttons.done#}</p></button>\
+					<button type="button" class="button-control"><p>{# buttons.done #}</p></button>\
 					<h2></h2>\
 				</div>\
 				<div class="sidebar-content has-header"></div>\
@@ -258,6 +258,9 @@ Supra(function (Y) {
 					this.set('slideshow', slideshow);
 					slideshow.syncUI(); 
 				}
+				
+				// Layout
+				Supra.Manager[this.LAYOUT_CONTAINER].syncLayout();
 			}
 		}
 	});

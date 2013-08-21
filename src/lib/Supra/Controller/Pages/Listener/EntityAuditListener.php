@@ -92,6 +92,11 @@ class EntityAuditListener implements EventSubscriber
 	private $referenceId;
 	
 	/**
+	 * @var string
+	 */
+	private $globalElementReferenceId;
+	
+	/**
 	 * @var PageRevisionData
 	 */
 	private $revision;
@@ -283,7 +288,7 @@ class EntityAuditListener implements EventSubscriber
 		
 		$originalEntityData = $this->uow->getOriginalEntityData($entity);
 		
-		$this->saveRevisionEntityData($class, $originalEntityData, $revisionType);
+		$this->saveRevisionEntityData($class, $originalEntityData, $revisionType, $entity);
 	}
 
 	/**
@@ -307,7 +312,7 @@ class EntityAuditListener implements EventSubscriber
 	 * @param array $entityData
 	 * @param string $revisionType
 	 */
-	private function saveRevisionEntityData(ClassMetadata $class, $entityData, $revisionType)
+	private function saveRevisionEntityData(ClassMetadata $class, $entityData, $revisionType, $entity)
 	{
 		$names = $params = $types = array();
 		
@@ -326,22 +331,23 @@ class EntityAuditListener implements EventSubscriber
 			if ($revisionType == self::REVISION_TYPE_DELETE) {
 				
 				if ( ! isset($this->revision)) {
-									
-					$revision = new PageRevisionData();
-					$revision->setElementName($class->name);
-					$revision->setElementId($entityData['id']);
-
-					$revision->setType(PageRevisionData::TYPE_REMOVED);
-					$revision->setReferenceId($this->referenceId);
-
-					$revision->setUser($this->getCurrentUserId());
-	
-					$em = ObjectRepository::getEntityManager('#public');
-
-					$em->persist($revision);
-					$em->flush();
 					
-					$this->revision = $revision;
+					$revisionData = $this->createRevisionData(PageRevisionData::TYPE_ELEMENT_DELETE, false);
+					
+					$revisionData->setElementName($class->name);
+					$revisionData->setElementId($entityData['id']);
+
+					// TODO: not nice as this is the duplicate of EntityRevisionSetterListener::findBlockName();
+					$blockName = $this->findBlockName($entity);
+					if ( ! empty($blockName)) {
+						$revisionData->setElementTitle($blockName);
+					}
+					
+					$em = ObjectRepository::getEntityManager('#public');
+					$em->persist($revisionData);
+					$em->flush($revisionData);
+					
+					$this->revision = $revisionData;
 				}
 				
 				$params[] = $this->revision->getId();
@@ -358,7 +364,7 @@ class EntityAuditListener implements EventSubscriber
 			
 			$rootClass = $this->auditEm->getClassMetadata($class->rootEntityName);
 			$rootClass->discriminatorValue = $class->discriminatorValue;
-			$this->saveRevisionEntityData($rootClass, $entityData, $revisionType);
+			$this->saveRevisionEntityData($rootClass, $entityData, $revisionType, $entity);
 		}
 
 		foreach ($classFields as $columnName => $field) {
@@ -486,6 +492,7 @@ class EntityAuditListener implements EventSubscriber
 	public function pagePreEditEvent(PageEventArgs $eventArgs)
 	{
 		$this->referenceId = $eventArgs->getProperty('referenceId');
+		$this->globalElementReferenceId = $eventArgs->getProperty('globalElementReferenceId');
 	}
 	
 	/**
@@ -631,16 +638,22 @@ class EntityAuditListener implements EventSubscriber
 	 * 
 	 * @param string $type
 	 */
-	private function createRevisionData($type) 
+	private function createRevisionData($type, $store = true) 
 	{
 		$revisionData = new PageRevisionData();
 		$revisionData->setUser($this->getCurrentUserId());
 		$revisionData->setType($type);
 		$revisionData->setReferenceId($this->referenceId);
 		
-		$this->em->persist($revisionData);
-		$this->em->flush();
+		if ( ! empty($this->globalElementReferenceId)) {
+			$revisionData->setGlobalElementReferenceId($this->globalElementReferenceId);
+		}
 		
+		if ($store) {
+			$this->em->persist($revisionData);
+			$this->em->flush($revisionData);
+		}
+			
 		return $revisionData;
 	}
 	
@@ -759,4 +772,45 @@ class EntityAuditListener implements EventSubscriber
 		return $names;
 	}
 	
+	/**
+	 * @param \Supra\Database\Entity $entity
+	 * @return string
+	 */
+	private function findBlockName($entity)
+	{
+		$block = null;
+		
+		switch (true) {
+			case ($entity instanceof Entity\BlockPropertyMetadata):
+				$block = $entity->getBlockProperty()
+						->getBlock();
+				break;
+			
+			case ($entity instanceof Entity\BlockProperty):
+				$block = $entity->getBlock();
+				break;
+			
+			case ($entity instanceof Block):
+				$block = $entity;
+				break;
+		}
+		
+		if ($block === null) {
+			return;
+		}
+		
+		$blockName = null;
+		$entity = null;
+		
+		if ( ! is_null($block)) {
+			$componentClass = $block->getComponentClass();
+			$componentConfiguration = ObjectRepository::getComponentConfiguration($componentClass);
+
+			if ($componentConfiguration instanceof \Supra\Controller\Pages\Configuration\BlockControllerConfiguration) {
+				$blockName = $componentConfiguration->title;
+			}
+		}
+		
+		return $blockName;
+	}
 }

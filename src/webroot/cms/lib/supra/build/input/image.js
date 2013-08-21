@@ -20,7 +20,7 @@ YUI.add('supra.input-image', function (Y) {
 	Input.NAME = 'input-image';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
-		'label_set': {
+		'labelSet': {
 			'value': '{#form.set_image#}'
 		},
 		'allowRemoveImage': {
@@ -149,7 +149,7 @@ YUI.add('supra.input-image', function (Y) {
 		
 		renderUI: function () {
 			//Create button
-			this.button = new Supra.Button({'label': this.get('label_set')});
+			this.button = new Supra.Button({'label': this.get('labelSet')});
 			this.button.render(this.get('contentBox'));
 			this.button.on('click', this.openMediaSidebar, this);
 			
@@ -192,7 +192,7 @@ YUI.add('supra.input-image', function (Y) {
 			
 			if (!data || !data.id) {
 				data = '';
-				title = Supra.Intl.replace(this.get('label_set'));
+				title = Supra.Intl.replace(this.get('labelSet'));
 			} else {
 				title = data.filename;
 			}

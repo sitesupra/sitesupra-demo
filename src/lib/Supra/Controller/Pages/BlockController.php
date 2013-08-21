@@ -314,8 +314,18 @@ abstract class BlockController extends ControllerAbstraction
 
 				/* @var $request Request\HttpRequest */
 
-				$default = $editable->getDefaultValue($localeId);
-				$property->setValue($default);
+				$defaultValue = array();
+				if ( ! empty($propertyDefinition->properties) && ! $editable instanceof Editable\Gallery) {
+					foreach ($propertyDefinition->properties as $subProperty) {                        
+						$defaultValue[$subProperty->name] = $subProperty->editableInstance->getDefaultValue();
+					}
+					$defaultValue = array($defaultValue);
+				} else {
+					
+					$defaultValue = $editable->getDefaultValue($localeId);
+				}
+
+				$property->setValue($defaultValue);
 				$property->setBlock($this->getBlock());
 
 				// Must set some DATA object. Where to get this? And why data is set to property not block?
@@ -354,11 +364,11 @@ abstract class BlockController extends ControllerAbstraction
 		// Html content additional filters
 		if ($editable instanceof Editable\Html) {
 			// Editable action
-			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+			if ($this->request instanceof PageRequestEdit) {	
 				
 				
-				
-				$filter = new Filter\EditableHtml($context);
+				$filter = new Filter\EditableHtml();
 				$filter->property = $property;
 				$editable->addFilter($filter);
 				// View
@@ -383,7 +393,8 @@ abstract class BlockController extends ControllerAbstraction
 		}
 		
 		else if ($editable instanceof Editable\InlineString) {
-			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+			if ($this->request instanceof PageRequestEdit) {	
 				$filter = new Filter\EditableString();
 				ObjectRepository::setCallerParent($filter, $this);
 				$filter->property = $property;
@@ -393,6 +404,13 @@ abstract class BlockController extends ControllerAbstraction
 
 		else if ($editable instanceof Editable\Textarea) {
 			$filter = new Filter\EditableTextarea();
+			ObjectRepository::setCallerParent($filter, $this);
+			$filter->property = $property;
+			$editable->addFilter($filter);
+		}
+		
+		else if ($editable instanceof Editable\InlineTextarea) {
+			$filter = new Filter\InlineTextareaFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);
@@ -435,7 +453,8 @@ abstract class BlockController extends ControllerAbstraction
 		}
 		
 		else if ($editable instanceof Editable\InlineMedia) {
-			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+			if ($this->request instanceof PageRequestEdit) {
 				$filter = new Filter\EditableInlineMedia();
 			} else {
 				$filter = new Filter\InlineMediaFilter();

@@ -241,7 +241,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 				Y.Node(doc).destroy(true);
 				
 				// Set to blank to remove all JS
-				doc.location = "about:blank";
+				doc.location.replace("about:blank");
 			}
 		},
 		
@@ -268,7 +268,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			this.destroyContent();
 			
 			//Small delay to make sure everything is clean up (Chrome issue)
-			Y.later(16, this, function () {
+			Supra.immediate(this, function () {
 				//Set attribute
 				this.set('html', html);
 				
@@ -331,7 +331,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 					doc.body.appendChild(node);
 				};
 				
-				doc.body.onload = loadNextScript;
+				Supra.immediate(this, loadNextScript);
 			}
 		},
 		
@@ -375,6 +375,28 @@ YUI.add('supra.iframe-handler', function (Y) {
 					(html ? html.scrollLeft : 0) || (body ? body.scrollLeft : 0),
 					(html ? html.scrollTop : 0) || (body ? body.scrollTop : 0) 
 				];
+		},
+		
+		/**
+		 * Change scroll position
+		 * 
+		 * @param {Array} scroll Array with X and Y scroll position
+		 */
+		setScroll: function (scroll) {
+			var doc = this.get('doc'),
+				body = doc.body,
+				html = doc.getElementsByTagName('HTML')[0];
+			
+			if (Y.Lang.isArray(scroll)) {
+				if (typeof scroll[0] == 'number') {
+					html.scrollLeft = scroll[0];
+					body.scrollLeft = scroll[0];
+				}
+				if (typeof scroll[1] == 'number') {
+					html.scrollTop = scroll[1];
+					body.scrollTop = scroll[1];
+				}
+			}
 		},
 		
 		/**
@@ -444,18 +466,17 @@ YUI.add('supra.iframe-handler', function (Y) {
 		_handleContentLinkClick: function (e) {
 			//External links should be opened in new window
 			//Internal links should be opened as page
-			//Javascript,hash and mail links should be ignored
+			//Javascript,hash,relative and mail links should be ignored
 			var target = e.target.closest('a'),
 				href = null,
-				local_links = new RegExp('^mailto:|^javascript:|' + document.location.pathname + '#', 'i');
+				local_links = new RegExp('^\\?|^mailto:|^javascript:|^#|' + document.location.pathname + '#', 'i');
 
 			if (target.test('.editing a')) {
 				//If clicked on link inside content which is beeing edited, then don't do anything
 				e.preventDefault();
 				return;
 			}
-			if (target && (href = target.get('href')) && !local_links.test(href)) {
-
+			if (target && (href = target.get('href')) && !local_links.test(href) && href.indexOf(document.location.pathname) == -1) {
 				var regExp = new RegExp('^' + document.location.protocol 
 					+ '//' 
 					+ document.location.host.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
@@ -652,10 +673,11 @@ YUI.add('supra.iframe-handler', function (Y) {
 					doc = this.get('doc'),
 					body = doc.body,
 					html = doc.querySelector('HTML'),
-					scroll = (html ? html.scrollTop : 0) || (body ? body.scrollTop : 0) + diff;
+					scroll = (html ? html.scrollTop : 0) || (body ? body.scrollTop : 0),
+					scroll_to = scroll + diff;
 				
-				html.scrollTop = scroll;
-				body.scrollTop = scroll;
+				html.scrollTop = scroll_to;
+				body.scrollTop = scroll_to;
 				
 				this.layoutOffsetTop = event.offset.top;
 			}

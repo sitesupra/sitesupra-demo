@@ -475,6 +475,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 			'filename' => $this->getFileName(),
 			'type' => static::TYPE_ID,
 			'created' => $this->getCreationTime()->format('c'),
+			'modified' => $this->getModificationTime()->format('c'),
 		);
 
 		return $info;

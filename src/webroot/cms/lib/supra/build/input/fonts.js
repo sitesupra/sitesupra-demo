@@ -292,20 +292,24 @@ YUI.add('supra.input-fonts', function (Y) {
 		 * @param {String} value Optional, value for which to return full data
 		 * @returns {Object} Value data
 		 */
-		getValueData: function (value) {
+		getValueData: function (value, groups) {
 			var value  = value === null || typeof value === 'undefined' ? this.get('value') : value,
-				groups = this.get('values'),
+				groups = groups || this.get('values'),
 				i  = 0,
 				ii = groups ? groups.length : 0,
 				values = null,
 				k  = 0,
-				kk = 0;
+				kk = 0,
+				family = '';
 			
 			for (; i<ii; i++) {
 				values = groups[i].fonts;
 				
 				for (k=0,kk=values.length; k<kk; k++) {
-					if (values[k].family === value || values[k].apis === value) {
+					// When setting data-family attribute quotes are removed, here we have to do the same
+					family = values[k].family.replace(/"/g, '');
+					
+					if (family === value || values[k].apis === value) {
 						return values[k];
 					}
 				}
@@ -333,7 +337,7 @@ YUI.add('supra.input-fonts', function (Y) {
 				id = null,
 				i = 0,
 				ii = fonts.length,
-				button = null;
+				button = this.widgets.button;
 			
 			if (!search) {
 				search = new Supra.Input.String();
@@ -377,6 +381,15 @@ YUI.add('supra.input-fonts', function (Y) {
 			
 			for (; i<ii; i++) {
 				this._renderFontGroup(fonts[i]);
+			}
+			
+			
+			if (button) {
+				var data = this.getValueData(this.get('value'), fonts),
+					label = (data ? data.title || data.family : '') || this.get('labelButton') || '';
+				
+				button.set('icon', data && data.icon ? data.icon : '');
+				button.set('label', label);
 			}
 		},
 		
@@ -445,16 +458,19 @@ YUI.add('supra.input-fonts', function (Y) {
 				container = group.node,
 				preview_fonts = [],
 				preview = this.get('previewGoogleFonts'),
-				value = this.get('value');
+				value = this.get('value'),
+				family = '';
 			
 			for (; i < to; i++) {
 				if (fonts[i].apis) {
 					preview_fonts.push(fonts[i]);
 				}
 				
-				node = Y.Node.create('<a ' + (fonts[i].family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
-				node.setStyle('font-family', fonts[i].family);
-				node.setAttribute('data-family', fonts[i].family.replace(/"/g, ''));
+				family = fonts[i].family.replace(/"/g, '');
+				
+				node = Y.Node.create('<a ' + (family == value ? 'class="active" ' : '') + '>' + fonts[i].title + '</a>');
+				node.setStyle('fontFamily', fonts[i].family);
+				node.setAttribute('data-family', family);
 				container.append(node);
 			}
 			

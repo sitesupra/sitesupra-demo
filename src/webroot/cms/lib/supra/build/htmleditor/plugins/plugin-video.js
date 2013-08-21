@@ -7,6 +7,8 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 	
 	var Manager = Supra.Manager;
 	
+	var DEFAULT_ALIGN = 'middle';
+	
 	Supra.HTMLEditor.addPlugin('video', defaultConfiguration, {
 		
 		/**
@@ -28,7 +30,10 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			return {
 				'type': this.NAME,
 				'resource': 'source',
-				'source': ''
+				'source': '',
+				'width': 0,
+				'height': 0,
+				'align': DEFAULT_ALIGN
 			};
 		},
 		
@@ -58,13 +63,14 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			} else if (htmleditor.isSelectionEditable(selection)) {
 				// Insert video element
 				var uid = htmleditor.generateDataUID(),
-					html = '<div id="' + uid + '" class="supra-video yui3-box-reset su-uneditable" tabindex="0"></div>',
+					html = '<div id="' + uid + '" class="supra-video su-uneditable" tabindex="0"></div>',
 					data = this.getBlankData();
 				
 				htmleditor.setData(uid, data);
 				htmleditor.replaceSelection(html, null);
 				
 				node = htmleditor.one('#' + uid);
+				node.addClass('align-' + data.align);
 				htmleditor.disableNodeEditing(node.getDOMNode());
 				
 				// Trigger selection change event
@@ -118,13 +124,24 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 		onVideoEditingDone: function () {
 			if (!this.selected_video) return;
 			
-			var data = this.settings_form.getValues('id'),
-				id   = this.selected_video_id;
+			var data  = this.settings_form.getValues('id'),
+				id    = this.selected_video_id,
+				video = null;
 			
 			if (data && data.video) {
-				// 'video' is input name
-				this.htmleditor.setData(id, Supra.mix({'type': this.NAME}, data.video));
-				this.updateVideoPreview(this.selected_video, data.video);
+				video = data.video;
+				
+				if (!video.width) {
+					video.width = parseInt(this.selected_video.get('offsetWidth'), 10);
+					video.height = ~~(video.width / Supra.Input.Video.getVideoSizeRatio(video));
+				}
+				
+				// Update data
+				this.htmleditor.setData(id, Supra.mix({'type': this.NAME}, video));
+				
+				// Update preview
+				this.updateVideoPreview(this.selected_video, video);
+				this.selected_video.removeClass('align-left').removeClass('align-right').removeClass('align-middle').addClass('align-' + video.align);
 			}
 			
 			//
@@ -143,6 +160,46 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 		},
 		
 		/**
+		 * On video input change update UI
+		 */
+		updatePreview: function (e) {
+			// Triggered because we are setting form values
+			if (this._setValueTrigger || !e.value) return;
+			
+
+			var input = this.settings_form.getInput('video'),
+				value = e.value,
+				node  = this.selected_video;
+			
+			node.removeClass('align-left').removeClass('align-right').removeClass('align-middle').addClass('align-' + value.align);
+			this.updateVideoPreview(node, value);
+			
+		},
+		
+		/**
+		 * Update video preview size
+		 * 
+		 * @param {Object} node Video element
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoSize: function (node, data) {
+			var Input = Supra.Input.Video,
+				width = parseInt(data.width, 10) || node.get('offsetWidth'),
+				height = ~~(width / Input.getVideoSizeRatio(data));
+			
+			if (data.width != width) {
+				data.width = width;
+				data.height = height;
+			}
+			
+			node.setStyles({
+				'width': data.width + 'px',
+				'height': data.height + 'px'
+			});
+		},
+		
+		/**
 		 * Update video preview image
 		 * 
 		 * @param {Object} node Video element
@@ -158,6 +215,8 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 				} else {
 					node.removeAttribute('style');
 				}
+				
+				this.updateVideoSize(node, data);
 			}, this);
 		},
 		
@@ -230,7 +289,8 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 						"type": "Video",
 						"label": Supra.Intl.get(["htmleditor", "video_source"]),
 						"description": Supra.Intl.get(["htmleditor", "video_description"]),
-						"value": ""
+						"value": "",
+						"allowAlign": true
 					}
 				],
 				"style": "vertical"
@@ -239,6 +299,8 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			var form = new Supra.Form(form_config);
 				form.render(content);
 				form.hide();
+			
+			form.getInput('video').on('change', this.updatePreview, this);
 			
 			//Delete button
 			var btn = new Supra.Button({"label": Supra.Intl.get(["htmleditor", "video_delete"]), "style": "small-red"});
@@ -264,7 +326,9 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			
 			//Make sure PageContentSettings is rendered
 			var form = this.settings_form || this.createSettingsForm(),
-				action = Manager.getAction("PageContentSettings");
+				action = Manager.getAction("PageContentSettings"),
+				width = 0,
+				max_width = 0;
 			
 			if (!form) {
 				if (action.get("loaded")) {
@@ -297,9 +361,24 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			this.selected_video = target;
 			this.selected_video_id = this.selected_video.getAttribute("id");
 			
-			this.settings_form
-					.resetValues()
-					.setValues({'video': data}, 'id', true);
+			// Initial width
+			max_width = parseInt(this.selected_video.ancestor().get('offsetWidth'), 10);
+			width = parseInt(data.width || this.selected_video.get('offsetWidth'), 10);
+			
+			if (!data.width || data.width != width) {
+				data.width = width;
+				data.height = ~~(width / Supra.Input.Video.getVideoSizeRatio(data));
+			}
+			
+			this._setValueTrigger = true;
+			
+			form.getInput('video').set('maxWidth', max_width);
+			
+			form.resetValues()
+				.setValues({'video': data}, 'id', true);
+			
+			this._setValueTrigger = false;
+			
 			
 			return true;
 		},
@@ -445,7 +524,7 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			
 			html = html.replace(/{supra\.video id="([^"]+)"}/ig, function (tag, id) {
 				if (!id || !data[id] || data[id].type != NAME) return '';
-				return '<div id="' + id + '" class="supra-video yui3-box-reset su-uneditable" tabindex="0"></div>';
+				return '<div id="' + id + '" class="supra-video su-uneditable align-' + (data[id].align || DEFAULT_ALIGN) + '" tabindex="0"></div>';
 			});
 			
 			return html;

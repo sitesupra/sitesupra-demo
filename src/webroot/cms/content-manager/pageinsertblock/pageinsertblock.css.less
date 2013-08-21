@@ -47,7 +47,7 @@
 			font-size: 14px;
 			font-weight: bold;
 			text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
-			padding: 0 0 7px;
+			padding: 7px 0;
 		}
 		p.description {
 			color: #262137;
@@ -145,11 +145,66 @@
  * Block style while dragging
  */
 .su-blocks-block {
+	padding: 10px 50px 10px 96px;
+	height: auto !important;
+	width: auto !important;
+	min-height: 65px;
+	max-width: 220px;
+	
+	&:before {
+		display: block;
+		position: absolute;
+		content: "";
+		background: url(/cms/lib/supra/img/sidebar/left-bg.gif) 0 0 repeat;
+		border: 2px solid #646479;
+		border-radius: 5px;
+		opacity: 0.8;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+	
+	.img {
+		display: block;
+		position: absolute;
+		left: 0;
+		top: 10px;
+		width: 96px;
+		height: 64px;
+		text-align: center;
+		overflow: hidden;
+		
+		img {
+			display: inline-block;
+			position: relative;
+			cursor: move;
+		}
+	}
+	
+	p.title {
+		position: relative;
+		color: #040010;
+		font-size: 14px;
+		font-weight: bold;
+		text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+		padding: 7px 0;
+	}
+	p.description {
+		position: relative;
+		color: #262137;
+		font-size: 11px;
+		line-height: 14px;
+		text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+	}
+	
+	/*
 	.img {
 		left: auto;
 		top: auto;
 		position: static;
 		height: 64px;
+		width: 96px;
 		overflow: hidden;
 		display: block;
 		
@@ -158,6 +213,7 @@
 		}
 	}
 	p {
-		display: none;
+		
 	}
+	*/
 }

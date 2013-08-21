@@ -567,11 +567,14 @@ abstract class CmsAction extends SimpleController
 
 	public function getCurrentUserArray()
 	{
+        $requestProtocol = $this->getRequest()
+				->getProtocol();
+        
 		$response = array(
 			'id' => $this->user->getId(),
 			'name' => $this->user->getName(),
 			'login' => $this->user->getLogin(),
-			'avatar' => $this->user->getGravatarUrl(32),
+			'avatar' => $this->user->getGravatarUrl(32, $requestProtocol),
 		);
 		
 		$provider = ObjectRepository::getUserProvider($this);

@@ -24,13 +24,32 @@ YUI().add('supra.htmleditor-plugin-table-mobile', function (Y) {
 	Supra.HTMLEditor.addPlugin('table-mobile', defaultConfiguration, {
 		
 		/**
+		 * On table insert add 'desktop' class to the table
+		 * 
+		 * @private
+		 */
+		onTableInsert: function () {
+			var plugin = this.htmleditor.getPlugin('table'),
+				table;
+			
+			if (plugin) {
+				table = plugin.selected_table;
+				if (table) {
+					table.addClass('desktop');
+				}
+			}
+		},
+		
+		/**
 		 * Initialize plugin for editor,
 		 * Called when editor instance is initialized
 		 * 
 		 * @param {Object} htmleditor HTMLEditor instance
 		 * @constructor
 		 */
-		init: function (htmleditor) {},
+		init: function (htmleditor) {
+			htmleditor.addCommand('inserttable', Y.bind(this.onTableInsert, this));
+		},
 		
 		/**
 		 * Clean up after plugin

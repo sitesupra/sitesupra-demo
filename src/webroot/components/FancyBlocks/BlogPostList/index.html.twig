@@ -1,4 +1,6 @@
 <div class="block blog-list">
+
+	{% set style = supraBlock.property('style') %}
 	
 	{% set heading_class = 'no-heading' %}
 	{% set title_empty = supraBlock.isEmpty('block_title') %}
@@ -16,37 +18,25 @@
 		
 		{% for post in posts %}
 			
-			{# Promoted posts are first two items #}
-			{% set promoted = false %}
-			{% if loop.index < 3 and currentPage == 0 %}
-				{% set promoted = true %}
-			{% endif %}
-			
-			<article class="{% if promoted %}promoted{% endif %} {% if post.properties.media %}has-media{% endif %} clearfix">
+			<article class="{% if style == 'promoted' %}promoted{% endif %} {% if post.properties.media %}has-media{% endif %} clearfix">
 				
 				{# Image or video #}
-				{% if promoted and post.properties.media %}
-					<figure class="media">{{ post.properties.media }}</figure>
+				{% if style == 'promoted' and post.properties.media %}
+					<figure class="media"><a class="media-link" href="{{ post.localization.path }}">{{ post.properties.media }}</a></figure>
 				{% endif %}
 				
 				{# Heading #}
 				<header>
 					{% set date = post.localization.creationTime %}
-					{# Date, for 'promoted' items it is slightly different #}
-					{% if promoted %}
-						<time datetime="{{ date.format('Y-m-d') }}"><span class="date-no-zero">{{ date.format('j') }}</span><span class="date-zero">{{ date.format('d') }}/</span>{{ date.format('m/Y') }}</time>
-					{% else %}
-						<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('d/m/Y') }}</time>
-					{% endif %}
+					<time datetime="{{ date.format('Y-m-d') }}"><span class="date-no-zero">{{ date.format('j') }}</span><span class="date-zero">{{ date.format('d') }}/</span>{{ date.format('m/Y') }}</time>
 					
 					{# Title #}
-					{#<h3><a href="/{{ supra.locale.id }}{{ post.localization.path }}">{{ post.localization.title }}</a></h3>#}
 					<h3><a href="{{ post.localization.path }}">{{ post.localization.title }}</a></h3>
 				</header>
 				
 				{# Image or video #}
-				{% if not promoted and post.properties.media %}
-					<figure class="media">{{ post.properties.media }}</figure>
+				{% if style != 'promoted' and post.properties.media %}
+					<figure class="media"><a class="media-link" href="{{ post.localization.path }}">{{ post.properties.media }}</a></figure>
 				{% endif %}
 				
 				{# Description #}

@@ -70,7 +70,7 @@ class BlockBackground extends EditableAbstraction {
 			
 			if (is_null($image)) {
 				\Log::warn("Failed to find image #{$imageId} for referenced element");
-				return $data;
+				return null;
 			}
 			
 			$data['image']['image'] = $storage->getFileInfo($image);

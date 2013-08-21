@@ -5,6 +5,10 @@ namespace Project\FancyBlocks\BlogPost;
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Entity\ApplicationPage;
 use Supra\Controller\Pages\Blog\BlogApplication;
+use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\FileStorage\Entity\Image;
 
 class BlogPostBlock extends BlockController
 {
@@ -14,30 +18,46 @@ class BlogPostBlock extends BlockController
 	protected $blogApplication;
 	
 	/**
+	 * 
 	 */
-    protected function doPrepare()
-    {
-        $response = $this->getResponse();
-        /* @var $response \Supra\Response\TwigResponse */
-        $context = $response->getContext();
-        /* @var $context \Supra\Response\ResponseContext */
-        
-        $description = $this->getPropertyValue('description');
-        if ($description) {
-            $context->setValue('metaDescription', $description);
-        }    
-    }
-	
 	protected function doExecute()
 	{
 		$response = $this->getResponse();
-		/* @var $response \Supra\Response\TwigResponse */
-        
+        /* @var $response \Supra\Response\TwigResponse */
+		
 		$application = $this->getBlogApplication();
 		if ( ! $application instanceof BlogApplication) {
 			$response->outputTemplate('application-missing.html.twig');
 			return null;
 		}
+		
+		$context = $response->getContext();
+        
+        $description = $this->getPropertyValue('description');
+        if ($description) {
+            $context->setValue('metaDescription', $description);
+        }
+        
+        $mediaProperty = $this->getProperty('media');
+        $metaCollection = $mediaProperty->getMetadata();
+
+		if ( ! $metaCollection->isEmpty()) {
+            
+			$referencedElement = $metaCollection->first()
+				->getReferencedElement();
+			
+            if ($referencedElement instanceof ImageReferencedElement) {
+                $imageId = $referencedElement->getImageId();
+                
+                if ($imageId) {
+                    $fileStorage = ObjectRepository::getFileStorage($this);
+                    $image = $fileStorage->find($imageId);
+                    if ($image instanceof Image) {
+                        $context->setValue('metaImage', $imageId);    
+                    }
+                }
+            }
+        }
 		
 		$appLocalizationPath = $application->getApplicationLocalization()
 				->getPath();

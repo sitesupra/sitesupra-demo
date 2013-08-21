@@ -12,6 +12,8 @@ class ApplicationsAction extends DasboardAbstractAction
 
 	const ICON_100 = '_100x100.png';
 	const ICON_90 = '_90x90.png';
+	
+	const PARAM_APPLICATION_LIST = 'aplication_list';
 
 	/**
 	 * Overriden so PHP <= 5.3.2 doesn't treat applicationsAction() as a constructor
@@ -27,176 +29,79 @@ class ApplicationsAction extends DasboardAbstractAction
 	 */
 	public function applicationsAction()
 	{
-		$applications = array();
+		$applicationData = array();
 
-		$config = \Supra\Cms\CmsApplicationConfiguration::getInstance();
-		$appConfigs = $config->getArray(true);
+		$applicationList = $this->getCurrentUserApplicationList();
 
 		$defaultUrlBase = '/' . SUPRA_CMS_URL . '/';
-
-		$favorites = array();
-		$favoritesResponse = array();
-
-		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
-		if (
-				isset($userPreferences['favourite_apps']) &&
-				is_array($userPreferences['favourite_apps'])
-		) {
-
-			$favorites = $userPreferences['favourite_apps'];
-		}
-
-		foreach ($appConfigs as $config) {
-			/* @var $config ApplicationConfiguration */
-
-			if ($config->hidden 
-					|| ! $this->applicationIsVisible($this->currentUser, $config)) {
-				
-				continue;
-			}
-
-			if (empty($config->urlBase)) {
+		
+		foreach ($applicationList as $appConfiguration) {
+	
+			if (empty($appConfiguration->urlBase)) {
 				$urlBase = $defaultUrlBase;
 			} else {
-				$urlBase = $config->urlBase;
+				$urlBase = $appConfiguration->urlBase;
 			}
 
-			$applications[$config->id] = array(
-				'title' => $config->title,
-				'id' => $config->class,
-				'icon' => $config->icon . self::ICON_90,
-				'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $config->url)
+			$applicationData[] = array(
+				'title' =>	$appConfiguration->title,
+				'id' =>		$appConfiguration->class,
+				'icon' =>	$appConfiguration->icon . self::ICON_90,
+				'path' => preg_replace('@[//]+@', '/', '/' . $urlBase . '/' . $appConfiguration->url)
 			);
 			
 		}
-		
-		foreach($favorites as $favoriteApp) {
-			if (isset($applications[$favoriteApp])) {
-				array_push($favoritesResponse, $favoriteApp);
-			}
-		}
-				
-		$response = array(
-			'favourites' => $favoritesResponse,
-			'applications' => array_values($applications),
-		);
 
 		$this->getResponse()
-				->setResponseData($response);
+				->setResponseData(array('applications' => $applicationData));
 	}
 
 	/**
-	 * Add/remove favourite application
-	 */
-	public function favouriteAction()
-	{
-		$this->isPostRequest();
-
-		$appId = $this->getRequestParameter('id');
-
-		$config = \Supra\Cms\CmsApplicationConfiguration::getInstance();
-		$appConfig = $config->getConfiguration($appId);
-
-		if (empty($appConfig) || ! $this->applicationIsVisible($this->currentUser, $appConfig)) {
-			throw new CmsException(null, 'Wrong application id');
-		}
-
-		$input = $this->getRequestInput();
-		$isFavourite = $input->getValid('favourite', AbstractType::BOOLEAN);
-
-		$favouriteApps = array();
-		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
-		if (isset($userPreferences['favourite_apps'])
-				&& is_array($userPreferences['favourite_apps'])) {
-
-			$favouriteApps = $userPreferences['favourite_apps'];
-		}
-
-		if ($isFavourite) {
-			if ($this->hasRequestParameter('before')) {
-
-				$beforeId = $this->getRequestParameter('before');
-				$key = array_search($beforeId, $favouriteApps);
-				if ($key !== false) {
-					$favouriteApps = array_merge(
-							array_slice($favouriteApps, 0, $key), array($appId), array_slice($favouriteApps, $key)
-					);
-				}
-			} else {
-				array_push($favouriteApps, $appId);
-			}
-		} else {
-			$key = array_search($appId, $favouriteApps);
-			if ($key !== false) {
-				unset($favouriteApps[$key]);
-			}
-		}
-
-		// perform cleanup to array
-		$existingApps = $config->getArray(true);
-		foreach ($favouriteApps as $key => $appName) {
-			if ( ! isset($existingApps[$appName])) {
-				unset($existingApps[$key]);
-			}
-
-			$duplicates = array_keys($favouriteApps, $appName);
-			if (count($duplicates) > 1) {
-				$count = count($duplicates);
-				for ($i = 1; $i < $count; $i ++ ) {
-					unset($favouriteApps[$duplicates[$i]]);
-				}
-			}
-		}
-
-		$this->userProvider->setUserPreference($this->currentUser, 'favourite_apps', array_values($favouriteApps));
-	}
-
-	/**
-	 * Action to handle move in favourite application list
+	 *
 	 */
 	public function sortAction()
 	{
 		$this->isPostRequest();
 
-		$appId = $this->getRequestParameter('id');
+		$applicationId = $this->getRequestParameter('id');
 
-		$config = \Supra\Cms\CmsApplicationConfiguration::getInstance();
-		$appConfig = $config->getConfiguration($appId);
-
-		if (empty($appConfig)) {
-			throw new CmsException(null, 'Wrong application id');
+		$applicationList = $this->getCurrentUserApplicationList();
+		
+		if ( ! isset($applicationList[$applicationId])) {
+			throw new CmsException('dasboard.applications.unknownId', "Unknown application id {$applicationId}");
 		}
-
-		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
-		if ( ! isset($userPreferences['favourite_apps']) || ! is_array($userPreferences['favourite_apps'])) {
-			throw new CmsException(null, 'User has no any favourite app');
-		}
-
-		$favouriteApps = $userPreferences['favourite_apps'];
-
-		$key = array_search($appId, $favouriteApps);
+		
+		$sortedKeysList = array_keys($applicationList);
+		
+		$key = array_search($applicationId, $sortedKeysList);
 		if ($key !== false) {
-			unset($favouriteApps[$key]);
+			unset($applicationList[$key]);
 		}
-
+		
 		if ($this->hasRequestParameter('before')) {
+			
 			$beforeId = $this->getRequestParameter('before');
-			$key = array_search($beforeId, $favouriteApps);
+			$key = array_search($beforeId, $sortedKeysList);
 			if ($key !== false) {
-				$favouriteApps = array_merge(
-						array_slice($favouriteApps, 0, $key), array($appId), array_slice($favouriteApps, $key)
+				$sortedKeysList = array_merge(
+					array_slice($sortedKeysList, 0, $key), array($applicationId), array_slice($sortedKeysList, $key)
 				);
+			} else {
+				array_push($sortedKeysList, $beforeId);
 			}
 		} else {
-			array_push($favouriteApps, $appId);
+			array_push($sortedKeysList, $applicationId);
 		}
-
-		$this->userProvider->setUserPreference($this->currentUser, 'favourite_apps', array_values($favouriteApps));
+		
+		$this->userProvider->setUserPreference(
+						$this->currentUser,
+						self::PARAM_APPLICATION_LIST,
+						array_values($sortedKeysList)
+		);
 	}
 
 	/**
-	 * @param type $applicationConfiguration
-	 * @return integer
+	 *
 	 */
 	private function applicationIsVisible($user, $appConfig)
 	{
@@ -205,6 +110,89 @@ class ApplicationsAction extends DasboardAbstractAction
 		} else {
 			return true;
 		}
+	}
+	
+	/**
+	 * @return array
+	 */
+	protected function getVisibleApplicationConfigurations()
+	{
+		$applications = array();
+
+		$applicationConfiguration = \Supra\Cms\CmsApplicationConfiguration::getInstance();
+		$configurationArray = $applicationConfiguration->getArray();
+
+		foreach ($configurationArray as $index => $configuration) {
+			
+            //Check if site has any blogs
+            if ($configuration instanceof \Supra\Cms\BlogManager\ApplicationConfiguration) {
+                
+                $rootAction = new \Supra\Cms\BlogManager\Root\RootAction();
+                if (!$rootAction->findBlogApplication()) {
+                    continue;
+                }
+            }
+            
+			// if application is hidden by configuration
+			if ($configuration->hidden) {
+				continue;
+			}
+			
+			// if user have no enough permissions
+			if ( ! $this->applicationIsVisible($this->currentUser, $configuration)) {
+				continue;
+			}
+						
+			/* @var $configuration \Supra\Cms\ApplicationConfiguration */
+			$applications[ (int) $configuration->sortIndex . '_' . $index] = $configuration; 
+		}
+		
+		ksort($applications);
+		
+		// looping again to get id => value collection
+		$applicationList = array();
+		
+		foreach ($applications as $application) {
+			$applicationList[$application->id] = $application;
+		}
+		
+		return $applicationList;
+	}
+	
+	/**
+	 * @return array
+	 */
+	protected function getCurrentUserApplicationList()
+	{
+		$userPreferences = $this->userProvider->getUserPreferences($this->currentUser);
+
+		if ( ! isset($userPreferences[self::PARAM_APPLICATION_LIST])
+				|| ! is_array($userPreferences[self::PARAM_APPLICATION_LIST])) {
+			
+			$userApplicationList = array();
+		}
+		
+		$userApplicationList = $userPreferences[self::PARAM_APPLICATION_LIST];
+				
+		$applications = $this->getVisibleApplicationConfigurations();
+		
+		$sortedList = array();
+		
+		// sorted apps goes first
+		foreach ($userApplicationList as $applicationId) {
+			if (isset($applications[$applicationId])) {
+				
+				$sortedList[$applicationId] = $applications[$applicationId];
+				unset($applications[$applicationId]);
+			}
+		}
+		
+		// populate list with all others apps
+		foreach ($applications as $id => $configuration) {
+			$sortedList[$id] = $configuration;
+		}
+		
+		return $sortedList;
 	}
 
 }

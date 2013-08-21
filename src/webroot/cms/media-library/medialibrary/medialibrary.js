@@ -26,7 +26,8 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			'icon': '/cms/lib/supra/img/toolbar/icon-media-delete.png',
 			'action': 'MediaLibrary',
 			'actionFunction': 'handleToolbarButton',
-			'type': 'button'
+			'type': 'button',
+			'disabled': true
 	    }/*,
 		{
 	        'id': 'mlundo',
@@ -153,6 +154,13 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 		 * Previous editor toolbar state
 		 */
 		editor_toolbar_visible: false,
+		
+		/**
+		 * Key listeners
+		 * @type {Array}
+		 * @private
+		 */
+		key_listeners: [],
 		
 		
 		/**
@@ -410,7 +418,46 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 					buttons.mlpublic.set('disabled', true);
 				}
 			}
+			
+			if (data) {
+				buttons.mldelete.set('disabled', false);
+			} else {
+				// No file or folder selected
+				buttons.mldelete.set('disabled', true);
+			}
 		},
+		
+		
+		/* --------------------------- KEYS --------------------------- */
+		
+		
+		addKeyListeners: function () {
+			var listeners = this.key_listeners;
+			
+			listeners.push(
+				Y.one("doc").on("key", Y.bind(function (e) {
+					// Delete key
+					this.handleToolbarButton("mldelete");
+					e.preventDefault();
+				}, this), "down:46")
+			);
+		},
+		
+		removeKeyListeners: function () {
+			var listeners = this.key_listeners,
+				i = 0,
+				ii = listeners ? listeners.length : 0;
+				
+			for (; i<ii; i++) {
+				listeners[i].detach();
+			}
+			
+			this.key_listeners = [];
+		},
+		
+		
+		/* --------------------------- OPEN / CLOSE --------------------------- */
+		
 		
 		/**
 		 * Hide
@@ -432,6 +479,8 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			//Disable upload (otherwise all media library instances
 			//will be affected by HTML5 drag and drop)
 			this.medialist.upload.set('disabled', true);
+			
+			this.removeKeyListeners();
 		},
 		
 		/**
@@ -458,6 +507,7 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 			this.medialist.upload.set('disabled', false);
 			
 			this.show();
+			this.addKeyListeners();
 		}
 	});
 	

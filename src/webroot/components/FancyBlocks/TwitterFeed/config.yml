@@ -1,9 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\TwitterFeed\TwitterFeedBlock
-    title: Twitter Feed
+    title: Twitter feed
     icon: icon.png
     groupId: features
-    description: Display Twitter feeds from specific account
+    description: Displays twitter feed from specific account.
     cmsClassname: Editable
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:

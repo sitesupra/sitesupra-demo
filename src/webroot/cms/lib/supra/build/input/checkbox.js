@@ -88,8 +88,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 	
 	Input.HTML_PARSER = {
 		'labels': function (srcNode) {
-			var a = srcNode.getAttribute('suLabelA'),
-				b = srcNode.getAttribute('suLabelB');
+			var a = srcNode.getAttribute('data-label-a'),
+				b = srcNode.getAttribute('data-label-b');
 			
 			if (a && b) {
 				return [a, b];
@@ -192,9 +192,8 @@ YUI.add("supra.input-checkbox", function (Y) {
 		 */
 		_setValue: function (value) {
 			if (typeof value === 'string') {
-				value = value === 'true' ? true : false;
+				value = value === 'true' || value === '1' ? true : false;
 			}
-			value = !!(value === true || value == '1');
 			
 			//Check
 			this.get('inputNode').set('value', value ? '1' : '0');

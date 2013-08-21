@@ -1,9 +1,9 @@
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\Menu\MenuBlock
-    title: Menu
+    title: Main menu
     icon: icon.png
     groupId: features
-    description: Description
+    description: Main horizontal menu of the site.
     cmsClassname: Editable
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:

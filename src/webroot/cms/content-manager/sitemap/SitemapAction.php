@@ -2,22 +2,13 @@
 
 namespace Supra\Cms\ContentManager\Sitemap;
 
-use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;
-use Supra\Controller\Pages\Request\PageRequest;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
-use Supra\Uri\Path;
-use Supra\Controller\Pages\Application\PageApplicationInterface;
-use Supra\Controller\Pages\Configuration\PageApplicationConfiguration;
-use Supra\Controller\Pages\PageController;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Supra\Controller\Pages\Listener\PagePathGenerator;
-use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Event\CmsPageEventArgs;
+use Supra\Controller\Pages\Event;
 
 /**
  * Sitemap
@@ -117,11 +108,12 @@ class SitemapAction extends PageManagerAction
 
 		foreach ($page->getLocalizations() as $localization) {
 
-			$eventArgs = new CmsPagePublishEventArgs($this);
+			$eventArgs = new Event\PageCmsEventArgs();
+			
 			$eventArgs->user = $this->getUser();
 			$eventArgs->localization = $localization;
 
-			$eventManager->fire(CmsPageEventArgs::postPagePublish, $eventArgs);
+			$eventManager->fire(Event\PageCmsEvents::pagePostPublish, $eventArgs);
 		}
 
 		$this->writeAuditLog('%item% moved', $page);

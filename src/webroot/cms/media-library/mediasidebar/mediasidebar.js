@@ -273,7 +273,7 @@ Supra('anim', 'dd-drag', 'supra.medialibrary-list-dd', 'supra.medialibrary-uploa
 			
 			this.medialist.reset();
 			this.medialist.set('noAnimations', true);
-			this.medialist.open(this.options.item || 0);
+			this.medialist.open(this.options.item || 0, true /* Mark file instead of opening it */);
 			this.medialist.set('noAnimations', false);
 			
 			//Enable upload

@@ -128,7 +128,7 @@ YUI().add("supra.medialibrary-list-folder-dd", function (Y) {
 					if (parent === '0') {
 						parent = 0;
 					}
-					Y.later(1, this, function () {
+					Supra.immediate(this, function () {
 						if (this.get('host').moveFolder(id, parent)) {
 							var path = this.get('host').get('data').getPath(parent);
 							path.push(parent);

@@ -31,4 +31,6 @@ final class AuditEvents
 	
 	const pagePreDuplicateEvent = 'pagePreDuplicateEvent';
 	const pagePostDuplicateEvent = 'pagePostDuplicateEvent';
+    
+    const pageLimitValidationEvent = 'pageLimitValidationEvent';
 }

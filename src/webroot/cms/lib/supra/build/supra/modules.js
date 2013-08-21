@@ -113,6 +113,7 @@ Supra.useModules = [
 	'transition',
 	'router',
 	
+	'supra.timer',
 	'supra.dd-ddm',
 	'supra.event',
 	'supra.deferred',
@@ -154,6 +155,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 	 */
 	'supra.base': {
 		path: 'base/base.js'
+	},
+	
+	/**
+	 * Timer functions
+	 */
+	'supra.timer': {
+		path: 'timer/timer.js'
 	},
 	
 	/**
@@ -394,10 +402,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugin-paste',
 			'supra.htmleditor-plugin-paragraph',
 			'supra.htmleditor-plugin-paragraph-string',
+			'supra.htmleditor-plugin-paragraph-text',
 			'supra.htmleditor-plugin-source',
 			'supra.htmleditor-plugin-fonts',
 			'supra.htmleditor-plugin-align',
-			'supra.htmleditor-plugin-insert'
+			'supra.htmleditor-plugin-insert',
+			'supra.htmleditor-plugin-maxlength'
 		],
 		skinnable: true
 	},
@@ -515,6 +525,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 			path: 'htmleditor/plugins/plugin-paragraph-string.js',
 			requires: ['supra.htmleditor-base']
 		},
+		'supra.htmleditor-plugin-paragraph-text': {
+			path: 'htmleditor/plugins/plugin-paragraph-text.js',
+			requires: ['supra.htmleditor-base']
+		},
 		'supra.htmleditor-plugin-source': {
 			path: 'htmleditor/plugins/plugin-source.js',
 			requires: ['supra.manager', 'supra.htmleditor-base']
@@ -526,6 +540,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		'supra.htmleditor-plugin-align': {
 			path: 'htmleditor/plugins/plugin-align.js',
 			requires: ['supra.manager', 'supra.htmleditor-base']
+		},
+		'supra.htmleditor-plugin-maxlength': {
+			path: 'htmleditor/plugins/plugin-maxlength.js',
+			requires: ['supra.htmleditor-base']
 		},
 	
 	/**
@@ -848,6 +866,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-icon-inline',
 			'supra.input-inline-html',
 			'supra.input-inline-string',
+			'supra.input-inline-text',
 			'supra.input-video',
 			'supra.input-keywords',
 			'supra.input-set',
@@ -880,6 +899,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.input-inline-string': {
 		path: 'input/string-inline.js',
 		requires: ['supra.input-inline-html']
+	},
+	
+	//In-line text editor
+	'supra.input-inline-text': {
+		path: 'input/text-inline.js',
+		requires: ['supra.input-inline-string']
 	},
 	
 	/**

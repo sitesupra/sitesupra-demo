@@ -23,7 +23,7 @@ class FileStorage
 	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
 	const MISSING_IMAGE_PATH = '/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/broken-image.png';
 	const FILE_INFO_EXTERNAL = 1;
-	const FILE_INFO_INTERNAL = 2;
+	const FILE_INFO_INTERNAL = 2;    
 
 	/**
 	 * File Storage internal path
@@ -743,6 +743,12 @@ class FileStorage
 
 		$croppedVariantName = $this->getImageSizeNameForCrop($width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight);
 
+		$variant = $file->findImageSize($croppedVariantName);
+		if ($variant !== null) {
+			// already exists, nothing to do
+			return $variant->getName();
+		}
+		
 		$variant = $file->getImageSize($croppedVariantName);
 
 		$variant->setQuality($quality);
@@ -766,7 +772,6 @@ class FileStorage
 			return $resizedVariantName;
 		}
 		
-
 		$cropper = $this->getImageCropper();
 
 		$cropper->setSourceFile($resizedVariantFilename);
@@ -1677,5 +1682,16 @@ class FileStorage
 	public function getImageRotator()
 	{
 		return new ImageProcessor\ImageRotator($this->getImageProcessorAdapter());
+	}
+    
+	/**
+	 * @param string $entityClassname
+	 * @return integer
+	 */
+	public function getFileSizeTotalForEntity($entityClassname)
+	{
+		return (int) $this->getDoctrineEntityManager()
+				->createQuery("SELECT SUM(f.fileSize) as total FROM {$entityClassname} f")
+				->getSingleScalarResult();
 	}
 }

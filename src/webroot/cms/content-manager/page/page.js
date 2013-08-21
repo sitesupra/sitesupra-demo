@@ -816,6 +816,90 @@ Supra(function (Y) {
 		getType: function () {
 			var data = Manager.Page.data;
 			return data ? data.type : 'page';
+		},
+		
+		/**
+		 * Close editing and open sitemap
+		 */
+		openSiteMap: function () {
+			var test  = null,
+				tests = [
+				{
+					'test': function () { return Supra.Manager.getAction('Dashboard').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('Dashboard').hide(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('PageSettings').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('PageSettings').onDoneButton(); },
+					'delay': 250
+				},
+				{
+					'name': 'PageSourceEditor'
+				},
+				{
+					'name': 'PageHistory'
+				},
+				{
+					'name': 'PageInsertBlock'
+				},
+				{
+					'name': 'BlocksView'
+				},
+				{
+					'name': 'PageDesignManager'
+				},
+				{
+					'name': 'MediaLibrary'
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('SlideshowManager').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('SlideshowManager').close(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('GalleryManager').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('GalleryManager').applyChanges(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('Gallery').get('visible'); },
+					'close': function () { return Supra.Manager.getAction('Gallery').close(); },
+					'delay': 350
+				},
+				{
+					'test': function () { return Supra.Manager.getAction('PageContent').isEditing(); },
+					'close': function () { return Supra.Manager.getAction('PageContent').stopEditing(); },
+					'delay': 100
+				}
+			];
+			
+			for (var i=0,ii=tests.length; i<ii; i++) {
+				test = tests[i];
+				
+				if (typeof test.name === 'string') {
+					test = {
+						'test': function () { return Supra.Manager.getAction(tests[i]).get('visible'); },
+						'close': function () { return Supra.Manager.getAction(tests[i]).hide(); },
+						'delay': test.delay || 250
+					};
+				}
+				if (test.test()) {
+					test.close();
+					Y.later(test.delay, this, this.openSiteMap);
+					return;
+				}
+			}
+			
+			var page = Manager.Page.getPageData();
+			if (page.application_id == 'blog') {
+				// Open blog
+				Supra.Manager.executeAction('Blog', {
+					'parent_id': page.application_page_id
+				});
+			} else {
+				Supra.Manager.Root.routeSiteMapSave();
+			}
 		}
 	});
 	

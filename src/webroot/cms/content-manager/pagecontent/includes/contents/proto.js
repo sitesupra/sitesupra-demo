@@ -47,6 +47,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		CLASSNAME_MARKER_NAME = 'su-visual-cue-name',
 		
 		CLASSNAME_HIGHLIGHT = 'su-content-highlight',
+		CLASSNAME_HIGHLIGHT_NAME = 'su-content-highlight-name',
 		
 		CLASSNAME_EDITING = 'editing';												// editing
 	
@@ -55,6 +56,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		'overlay-visible': 'su-overlay-visible',
 		'overlay-visible-hover': 'su-overlay-visible-hover',
 		'overlay-hidden': '',
+		'overlay-transparent': 'su-overlay-transparent',
 		
 		'icon-visible': 'su-overlay-icon-visible',
 		'icon-visible-hover': 'su-overlay-icon-visible-hover',
@@ -314,6 +316,30 @@ YUI.add('supra.page-content-proto', function (Y) {
 		},
 		
 		/**
+		 * Returns current property value
+		 * 
+		 * @param {String} property Property name
+		 */
+		getPropertyValue: function (property) {
+			var object = this.properties || this,
+				data = object.get('data'),
+				properties = data.properties,
+				name = property;
+			
+			if (name == 'locked') {
+				name = '__locked__';
+			}
+			
+			if (properties && name in properties) {
+				return properties[name].value;
+			} else if (property in data) {
+				return data[property]
+			} else {
+				return null;
+			}
+		},
+		
+		/**
 		 * Returns if specific child type is allowed
 		 * If is closed then child is not allowed
 		 * 
@@ -340,8 +366,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if block is closed
-		 * If block is closed, then user is prevented from adding children, ordering or removing
-		 * this block
+		 * If block is closed, then user is prevented from adding children and ordering this block
 		 * 
 		 * @returns {Boolean} True if block is closed, otherwise false
 		 */
@@ -379,6 +404,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 		
 		/**
 		 * Returns if block is placeholder
+		 * Placeholder is a list, which is a child of another list
 		 * 
 		 * @returns {Boolean} True if block is placeholder, otherwise false
 		 */
@@ -390,6 +416,24 @@ YUI.add('supra.page-content-proto', function (Y) {
 				return true;
 			} else {
 				return false;
+			}
+		},
+		
+		/**
+		 * Returns true if block is placeholder, but without
+		 * parent or children lists 
+		 */
+		isStandalonePlaceholder: function () {
+			if (this.isList() && !this.isPlaceholder()) {
+				// Check all children
+				var id = null,
+					children = this.children;
+				
+				for (id in children) {
+					if (children[id].isList()) return false;
+				}
+				
+				return true;
 			}
 		},
 		
@@ -705,8 +749,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			this.renderUI();
 			this.bindUI();
 			
-			//Use timeout to make sure everything is styled before doing sync
-			setTimeout(Y.bind(this.syncOverlayPosition, this), 1);
+			//Delay to make sure everything is styled before doing sync
+			Supra.immediate(this, this.syncOverlayPosition);
 		},
 		
 		/**
@@ -721,6 +765,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			//Handle block save / cancel
 			this.on('block:save', function () {
+				// Update overlay
+				this.updateOverlayClassNames();
 				// Unset active content
 				if (this.get('super').get('activeChild') === this) {
 					this.get('super').set('activeChild', null);
@@ -880,7 +926,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			var div = new Y.Node(this.get('doc').createElement('DIV')),
 				title = Y.Escape.html(this.getBlockTitle()),
-				html = '';
+				html = '',
+				locked = null;
 			
 			this.overlay = div;
 			
@@ -897,7 +944,8 @@ YUI.add('supra.page-content-proto', function (Y) {
 				if (this.get('editable')) {
 					this.overlay.addClass(CLASSNAME_OVERLAY_EDITABLE);
 					
-					if (this.isClosed()) {
+					locked = this.getPropertyValue('locked');
+					if (locked || this.isClosed()) {
 						// Global block, but editable
 						this.overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
 					}
@@ -928,6 +976,26 @@ YUI.add('supra.page-content-proto', function (Y) {
 			
 			this.overlay.set('innerHTML', html);
 			this.getNode().insert(div, 'before');
+		},
+		
+		/**
+		 * Update overlay classname to reflect "locked" state
+		 * 
+		 * @private
+		 */
+		updateOverlayClassNames: function () {
+			var locked = this.getPropertyValue('locked'),
+				overlay = this.overlay;
+			
+			if (!this.isList() && overlay) {
+				if (this.get('editable')) {
+					if (locked || this.isClosed()) {
+						overlay.addClass(CLASSNAME_OVERLAY_EXTERNAL);
+					} else {
+						overlay.removeClass(CLASSNAME_OVERLAY_EXTERNAL);
+					}
+				}
+			}
 		},
 		
 		/**
@@ -1056,10 +1124,17 @@ YUI.add('supra.page-content-proto', function (Y) {
 						if (this.isChildTypeAllowed(filter)) {
 							// This list can have this child
 							highlight_container = true;
+							
+							if (is_placeholder) {
+								overlay_classname = 'overlay-transparent';
+								icon_classname = 'icon-hidden';
+								name_classname = 'name-visible';
+							} else {
+								overlay_classname = 'overlay-hidden';
+							}
+						} else {
+							overlay_classname = 'overlay-hidden';
 						}
-						
-						overlay_classname = 'overlay-hidden';
-						
 					} else {
 						if (is_editable && this.get('parent').isChildTypeAllowed(filter)) {
 							// Parent can have that child, show overlay to allowed order, insert
@@ -1160,6 +1235,10 @@ YUI.add('supra.page-content-proto', function (Y) {
 					// List edit mode
 					
 					if (is_placeholder) {
+						overlay_classname = 'overlay-visible';
+						icon_classname = 'icon-hidden';
+						name_classname = 'name-hidden';
+					} else if (this.isStandalonePlaceholder()) {
 						overlay_classname = 'overlay-visible';
 						icon_classname = 'icon-hidden';
 						name_classname = 'name-hidden';

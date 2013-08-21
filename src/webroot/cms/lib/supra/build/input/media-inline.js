@@ -268,7 +268,7 @@ YUI.add('supra.input-media-inline', function (Y) {
 			
 			// Video input events
 			input_video.on('focus', this.focus, this);
-			input_video.on('blur', this.blur, this);
+			//input_video.on('blur', this.blur, this); // any sub-input blur causes this, we can't use it!
 			
 			input_video.on('change', function () {
 				this.updateVideoPreviewImage();
@@ -480,6 +480,15 @@ YUI.add('supra.input-media-inline', function (Y) {
 					uploader.set('dropTarget', this._getDropTargetNode(node));
 					uploader.set('disabled', this.get('disabled'));
 				}
+				
+				var input = this.widgets.input_video;
+				if (input) {
+					if (this.get('fixedMaxCropWidth') && node) {
+						input.set('maxWidth', node.get('offsetWidth'));
+					} else {
+						input.set('maxWidth', 0);
+					}
+				}
 			}
 			return node;
 		},
@@ -498,6 +507,12 @@ YUI.add('supra.input-media-inline', function (Y) {
 					this.showSettingsSidebar();
 					
 					if (this.type === 'video') {
+						if (this.get('fixedMaxCropWidth')) {
+							this.widgets.input_video.set('maxWidth', this.get('targetNode').get('offsetWidth'));
+						} else {
+							this.widgets.input_video.set('maxWidth', 0);
+						}
+						
 						state = this.widgets.input_video.startEditing();
 					} else {
 						state = this.widgets.input_image.startEditing();
@@ -534,6 +549,7 @@ YUI.add('supra.input-media-inline', function (Y) {
 			
 			if (this.get('editing')) {
 				this.hideSettingsSidebar();
+				this.set('editing', false);
 			}
 		},
 		
@@ -569,10 +585,17 @@ YUI.add('supra.input-media-inline', function (Y) {
 		},
 		
 		insertVideo: function () {
+			var node   = this.get('targetNode'),
+				ratio  = Supra.Input.Video.getVideoSizeRatio(),
+				width  = node.get('offsetWidth'),
+				height = ~~(width / ratio);
+			
 			this.set('value', {
 				'type': 'video',
 				'resource': 'source',
-				'source': ''
+				'source': '',
+				'width': width,
+				'height': height
 			});
 			
 			this.startEditing();
@@ -586,6 +609,7 @@ YUI.add('supra.input-media-inline', function (Y) {
 		removeMedia: function () {
 			this.set('value', {'type': ''});
 			this.hideSettingsSidebar();
+			this.set('editing', false);
 		},
 		
 		/**
@@ -618,9 +642,11 @@ YUI.add('supra.input-media-inline', function (Y) {
 			}
 			
 			if (data && type == 'video') {
-				var width = node.get('offsetWidth'),
-					height = ~~(width * 9 / 16),
-					html = '<div class="supra-video" style="height: ' + height + 'px !important;"></div>';
+				var Input = Supra.Input.Video,
+					width = data.width || node.get('offsetWidth'),
+					height = ~~(width / Input.getVideoSizeRatio(data)),
+					html = '<div class="supra-video" style="width: ' + width + 'px; height: ' + height + 'px;"></div>';
+				
 				node.set('innerHTML', html);
 				this.updateVideoPreviewImage(data);
 			}
@@ -655,6 +681,30 @@ YUI.add('supra.input-media-inline', function (Y) {
 		},
 		
 		/**
+		 * Update video preview image size
+		 * 
+		 * @param {Object} data Video data
+		 * @private
+		 */
+		updateVideoSize: function (node, data) {
+			if (!node) return;
+			
+			var Input = Supra.Input.Video,
+				width = parseInt(data.width, 10) || node.get('offsetWidth'),
+				height = ~~(width / Input.getVideoSizeRatio(data));
+			
+			if (data.width != width) {
+				data.width = width;
+				data.height = height;
+			}
+			
+			node.setStyles({
+				'width': data.width + 'px',
+				'height': data.height + 'px'
+			});
+		},
+		
+		/**
 		 * Update video preview image
 		 * 
 		 * @param {Object} data Video data
@@ -670,15 +720,14 @@ YUI.add('supra.input-media-inline', function (Y) {
 			
 			if (node) {
 				Input.getVideoPreviewUrl(data).always(function (url) {
-					var width = node.get('offsetWidth'),
-						height = ~~(width * 9 / 16);
-					
 					if (url) {
 						// Using setAttribute because it's not possible to use !important in styles
-						node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important; height: ' + height + 'px !important;')
+						node.setAttribute('style', 'background: #000000 url("' + url + '") no-repeat scroll center center !important; background-size: 100% !important;')
 					} else {
-						node.setAttribute('style', 'height: ' + height + 'px !important;')
+						node.removeAttribute('style')
 					}
+					
+					this.updateVideoSize(node, data);
 				}, this);
 			}
 		},
@@ -725,6 +774,14 @@ YUI.add('supra.input-media-inline', function (Y) {
 			}
 			
 			if (type == 'video') {
+				if (data && !data.width) {
+					var node = this.get('targetNode');
+					if (node) {
+						data.width = node.get('offsetWidth');
+						data.height = ~~(data.width / Supra.Input.Video.getVideoSizeRatio(data));
+					}
+				}
+				
 				this.widgets.input_video.set('value', data);
 			} else {
 				this.widgets.input_video.set('value', null);

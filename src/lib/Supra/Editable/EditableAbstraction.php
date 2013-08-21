@@ -23,6 +23,9 @@ abstract class EditableAbstraction implements EditableInterface
 	 */
 	protected $content;
 	
+	/**
+	 * @var array
+	 */
 	protected $contentMetadata = array();
 
 	/**

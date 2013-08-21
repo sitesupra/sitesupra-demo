@@ -524,7 +524,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 					if (node) {
 						input = form.getInput(property.id);
 						
-						node.on('mousedown', this._startEditing, this, property, input);
+						node.on('click', this._startEditing, this, property, input);
 						input.set('targetNode', node);
 						input.set('value', data[property.id]);
 						input.on('blur', this._onInputBlur, this, property, input);
@@ -607,14 +607,14 @@ YUI.add('slideshowmanager.view', function (Y) {
 					if (node) {
 						value = data[property.id] || values[property.id];
 						
-						input = new Supra.Input[property.type]({
+						input = new Supra.Input[property.type](Supra.mix({}, property, {
 							'doc': iframe.get('doc'),
 							'win': iframe.get('win'),
 							'toolbar': Manager.EditorToolbar.getToolbar(),
 							'srcNode': srcNode,
 							'targetNode': node,
 							'value': value
-						});
+						}));
 						
 						inputs.push(input);
 						input.render(contNode);
@@ -848,7 +848,7 @@ YUI.add('slideshowmanager.view', function (Y) {
 			google_fonts = new Supra.GoogleFonts({'doc': doc});
 			fonts_nodes = google_fonts.getLinkNodes();
 			
-			if (fonts_nodes.length) {
+			if (fonts_nodes && fonts_nodes.length) {
 				for (var i=0,ii=fonts_nodes.length; i<ii; i++) {
 					stylesheets.push('<link rel="stylesheet" type="text/css" href="' + fonts_nodes[i].getAttribute('href') + '" />');
 				}

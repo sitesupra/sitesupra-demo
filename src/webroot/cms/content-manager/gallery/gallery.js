@@ -30,6 +30,10 @@ Supra.addModules({
 	'gallery.plugin-inline-button': {
 		path: 'plugin-inline-button.js',
 		requires: ['supra.input-proto', 'plugin', 'supra.template']
+	},
+	'gallery.view-uploader': {
+		path: 'view-uploader.js',
+		requires: ['plugin', 'dd-delegate']
 	}
 });
 
@@ -40,6 +44,7 @@ Supra([
 	'gallery.view',
 	'gallery.view-highlight',
 	'gallery.view-order',
+	'gallery.view-uploader',
 	'gallery.plugin-inline-button'
 ], function (Y) {
 	//Invoke strict mode
@@ -111,6 +116,7 @@ Supra([
 			
 			this.view.plug(Supra.GalleryViewOrder);
 			this.view.plug(Supra.GalleryViewHighlight);
+			this.view.plug(Supra.GalleryViewUploader);
 			
 			// Attach event listeners
 			// Update data on user action
@@ -124,8 +130,11 @@ Supra([
 					id = data.id;
 				
 				this.view.renderItem(id);
-				this.set('activeSlideId', id);
-				this.settings.showForm();
+				
+				if (!event.silent) {
+					this.set('activeSlideId', id);
+					this.settings.showForm();
+				}
 			}, this);
 			
 			this.data.on('remove', function (event) {
@@ -184,6 +193,7 @@ Supra([
 				this.set('layoutDisabled', true);
 				this.set('visible', true);
 				this.animateIn();
+				Supra.Manager.PageHeader.back_button.hide();
 			}
 		},
 		
@@ -197,6 +207,7 @@ Supra([
 				}
 				
 				this.animateOut();
+				Supra.Manager.PageHeader.back_button.show();
 			}
 		},
 		

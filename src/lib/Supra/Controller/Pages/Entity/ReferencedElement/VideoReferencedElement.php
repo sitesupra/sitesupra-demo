@@ -84,6 +84,12 @@ class VideoReferencedElement extends ReferencedElementAbstract
 	 * @var integer
 	 */
 	protected $height;
+	
+	/**
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $align;
 
 		
 	/**
@@ -190,7 +196,7 @@ class VideoReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getExternalPath()
 	{
-		return $this->externalPath;
+		return str_replace(array('http://', 'https://'), '', $this->externalPath);
 	}
 
 	/**
@@ -260,6 +266,27 @@ class VideoReferencedElement extends ReferencedElementAbstract
 
 		$this->height = $height;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getAlign()
+	{
+		return $this->align;
+	}
+
+	/**
+	 * @param string $align
+	 * @throws \InvalidArgumentException
+	 */
+	public function setAlign($align)
+	{
+		if ( ! empty($align) && ! in_array($align, array('middle', 'left', 'right'))) {
+			throw new \InvalidArgumentException("Unknown align value \"{$align}\" received");
+		}
+		
+		$this->align = $align;
+	}
 
 	/**
 	 * {@inheritdoc}
@@ -277,6 +304,7 @@ class VideoReferencedElement extends ReferencedElementAbstract
 			'source_type' => $this->externalSourceType,
 			'width' => $this->width,
 			'height' => $this->height,
+			'align' => $this->align,
 		);
 
 		return $array;
@@ -297,14 +325,16 @@ class VideoReferencedElement extends ReferencedElementAbstract
 			'height' => null,
 			'source' => null,
 			'source_type' => null,
+			'align' => null,
 		);
 		
 		$this->setResource($array['resource']);
+		$this->setAlign($array['align']);
+		$this->setWidth($array['width']);
+		$this->setHeight($array['height']);
 				
 		if ($this->resource == self::RESOURCE_SOURCE) {
-			
-			$this->setWidth($array['width']);
-			$this->setHeight($array['height']);
+
 			$this->setExternalPath($array['src']);
 			$this->setExternalSource($array['source']);
 			$this->setExternalSourceType($array['source_type']);
@@ -319,8 +349,6 @@ class VideoReferencedElement extends ReferencedElementAbstract
 			$this->externalPath = null;
 			$this->externalSource = null;
 			$this->externalSourceType = null;
-			$this->width = null;
-			$this->height = null;
 		}
 		else if ($this->resource == self::RESOURCE_FILE) {
 			
@@ -329,8 +357,6 @@ class VideoReferencedElement extends ReferencedElementAbstract
 			$this->externalService = null;
 			$this->externalId = null;
 			$this->externalPath = null;
-			$this->width = null;
-			$this->height = null;
 			$this->externalSource = null;
 			$this->externalSourceType = null;
 		}
@@ -377,25 +403,26 @@ class VideoReferencedElement extends ReferencedElementAbstract
 				return false;	
 			}
 			
-			$width = (int) $node->getAttribute('width');
-			$height = (int) $node->getAttribute('height');
+//			$width = (int) $node->getAttribute('width');
+//			$height = (int) $node->getAttribute('height');
 			$src = $node->getAttribute('src');
-			
+
 			// only known sources (youtube, vimeo, facebook) are allowed
 			$urlMatch = array();
-			if ( ! preg_match('/(?:https?:\/\/)?(?:(www|player)\.)?(?:youtu\.be\/|(youtube|vimeo|facebook)\.com)(.*)+/', $src, $urlMatch) || ! isset($urlMatch[0])) {
+			if ( ! preg_match('/(?:(www|player)\.)?(?:youtu\.be\/|(youtube|vimeo|facebook)\.com)(.*)+/', $src, $urlMatch) || ! isset($urlMatch[0])) {
 				return false;
 			}
 			
 			$filteredSrc = $urlMatch[0];
 			
-			if ( ! (empty($width) || empty($height) || empty($src))) {
+//			if ( ! (empty($width) || empty($height) || empty($src))) {
+			if ( ! empty($src)) {
 				return array(
 					'resource' => self::RESOURCE_SOURCE,
 					'source' => $string,
 					'source_type' => $externalSourceType,
-					'width' => $width,
-					'height' => $height,
+//					'width' => $width,
+//					'height' => $height,
 					'src' => $filteredSrc
 				);
 			}

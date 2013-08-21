@@ -2,15 +2,11 @@
 
 namespace Supra\Cms\ContentManager\Sitemaprecycle;
 
-use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Controller\Pages\Entity;
-use Supra\Controller\Pages\Request\PageRequest;
-use Supra\Controller\Pages\Exception\DuplicatePagePathException;
-use Supra\Cms\Exception\CmsException;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Entity\PageRevisionData;
-use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
+use Supra\Controller\Pages\Event;
 
 /**
  * Sitemap
@@ -37,14 +33,23 @@ class SitemaprecycleAction extends PageManagerAction
 	public function restoreAction()
 	{
 		$this->lock();
-
+		
+		$eventArgs = new Event\PageCmsEventArgs;
+		$eventArgs->user = $this->getUser();
+		
+		$eventManager = ObjectRepository::getEventManager($this);
+		$eventManager->fire(Event\PageCmsEvents::pagePreRestore, $eventArgs);
+		
 		// Main
 		$this->restorePageVersion();
 
 		$this->unlock();
 
-		// Audit log
 		$pageData = $this->getPageLocalization();
+		
+		$eventArgs->localization = $pageData;
+		$eventManager->fire(Event\PageCmsEvents::pagePostRestore, $eventArgs);
+		
 		$this->writeAuditLog('%item% restored', $pageData);
 	}
 

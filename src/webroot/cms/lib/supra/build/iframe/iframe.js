@@ -230,7 +230,7 @@ YUI().add('supra.iframe', function (Y) {
 				
 				//Remove all listeners
 				Y.Node(doc).destroy(true);
-				doc.location = 'about:blank';
+				doc.location.replace('about:blank');
 				
 				this.set('doc', null);
 				this.set('win', null);
@@ -422,7 +422,7 @@ YUI().add('supra.iframe', function (Y) {
 					doc.body.appendChild(node);
 				};
 				
-				doc.body.onload = loadNextScript;
+				Supra.immediate(this, loadNextScript);
 			}
 			
 			//Save document & window instances
@@ -563,7 +563,8 @@ YUI().add('supra.iframe', function (Y) {
 				href = target.getAttribute('href'),
 				path = null,
 				doc = this.get('doc'),
-				regex_absolute = /^([a-z]:\/\/|\/)/i;
+				regex_absolute = /^([a-z]:\/\/|\/)/i,
+				regex_pathname = /^[^?]+/i;
 			
 			if (this.get('preventExternalNavigation')) {
 				if (href.indexOf(doc.location.hostname) == -1 && href.match(/^[a-z]+:\/\//i)) {
@@ -574,7 +575,14 @@ YUI().add('supra.iframe', function (Y) {
 			}
 			
 			// Change iframe URL
-			if (href && href[0] !== '#') {
+			if (href && (href[0] == '?')) {
+				// Relative link starting with ?, we need to add at least / at the begining
+				// otherwise page will go to /cms?...
+				path = this.get('url').replace(/\?.*/, '');
+				
+				this.set('url', path + href);
+				e.preventDefault();
+			} else if (href && href[0] !== '#') {
 				// URL must be absolute, not relative
 				path = '';
 				if (!regex_absolute.test(href)) {

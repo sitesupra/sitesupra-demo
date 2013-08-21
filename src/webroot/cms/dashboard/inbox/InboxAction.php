@@ -3,12 +3,12 @@
 namespace Supra\Cms\Dashboard\Inbox;
 
 use Supra\Cms\Dashboard\DasboardAbstractAction;
-use Supra\User\Notification\UserNotificationService;
 use Supra\Remote\Client\RemoteCommandService;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Console\Output\ArrayOutputWithData;
 use Symfony\Component\Console\Input\ArrayInput;
-use Supra\User\Entity\UserSiteNotification;
+use Supra\Translation\Translator;
+use Doctrine\Common\Cache\MemcacheCache;
 
 
 class InboxAction extends DasboardAbstractAction
@@ -23,6 +23,16 @@ class InboxAction extends DasboardAbstractAction
 	 * @var string
 	 */
 	protected $remoteApiEndpointId = 'portal';
+    
+	/**
+	 * @var string
+	 */
+	protected $cacheId = '__InboxActionCache';
+    
+	/**
+	 * @var string
+	 */
+	protected $cacheTimeout = 60;
 
     
 	/**
@@ -46,43 +56,61 @@ class InboxAction extends DasboardAbstractAction
     
     
 	public function inboxAction()
-	{
-		
-		$notificationService = new UserNotificationService();
-		$userNotifications = $notificationService->getUserNotifications($this->currentUser, null);
-		
-		$response = array();
-		
-		foreach($userNotifications as $notification) {
-			/* @var $notification \Supra\User\Entity\UserNotification */
-			$response[] = array(
-				'title' => $notification->getMessage(),
-				'buy' => false,
-				'new' => ( ! $notification->getIsRead()),
-			);
-		}
-        
-        
+	{        
+        $result = array();
         $system = ObjectRepository::getSystemInfo($this);
-        $siteId = $system->getSiteId();        
-        $userId = $this->getUser()->getId();
+        $siteId = $system->getSiteId();
+        $user = $this->getUser();
+        $userId = $user->getId();
         
 		$commandParameters = array(
-            'command' => 'su:portal:get_user_site_notifications',
+            'command' => 'su:portal:get_user_site_statuses',
 			'user' => $userId,
             'site' => $siteId,
 		);
 
-		$commandResult = $this->executeSupraPortalCommand($commandParameters);
-        $data = $commandResult->getData();
-        
-        $response = $response + $data['data'];
+        $cacheAdapter = ObjectRepository::getCacheAdapter($this);
+        if ($cacheAdapter instanceof MemcacheCache) {
+            $cachedData = $cacheAdapter->fetch($this->cacheId);
+            if (!$cachedData) {
+                $commandResult = $this->executeSupraPortalCommand($commandParameters);
+
+                $translator = $this->getTranslator();
+
+                $data = $commandResult->getData();
+                if ($translator instanceof Translator) {
+                    if ($data['data']) {
+                        foreach($data['data'] as &$item) {
+                            if (($item)) {
+                                if ($item['valid_for']) {
+                                    $item['message'] = $translator->trans($item['message_code'], array('%count%' => $item['valid_for']), 'messages', 'en');
+                                } else {
+                                    $item['message'] = $translator->trans($item['message_code'], array(), 'messages', 'en');
+                                }
+                                $result[] = array(
+                                    'message' => $item['message'],
+                                    'link' => $item['link'],
+                                    'urgent' => $item['urgent'],
+                                    'date' => $item['date'],
+                                    'valid_for' => $item['valid_for'],
+                                );
+                            }
+                        }
+                    }    
+                } else {
+                    $log = $this->getLog();
+                    $log->warn('Could not load Symfony\Component\Translation\Translator, unable to translate site statuses.');
+                }
+                
+                $cacheAdapter->save($this->cacheId, $result, $this->cacheTimeout);
+            } else {
+                $result = $cachedData;
+            }
+        }
 
 		$this->getResponse()
-				->setResponseData($response);	
+				->setResponseData($result);
 	}
-    
-    
     
     
     public function executeSupraPortalCommand($parameters)
@@ -99,5 +127,14 @@ class InboxAction extends DasboardAbstractAction
         
         return $output;
     }
-	
+    
+    
+	/**
+	 * @return \Symfony\Component\Translation\Translator
+	 */
+	protected function getTranslator()
+	{
+		$translator = ObjectRepository::getObject($this, 'Symfony\Component\Translation\Translator');
+		return $translator;
+	}
 }

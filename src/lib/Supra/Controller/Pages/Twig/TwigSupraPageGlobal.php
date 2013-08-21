@@ -55,6 +55,14 @@ class TwigSupraPageGlobal extends TwigSupraGlobal
 		return $this->themeProvider
 				->isThemePreviewActive();
 	}
+	
+	/**
+	 * @return boolean
+	 */
+	public function isPreviewViewRequest()
+	{
+		return $this->request instanceof \Supra\Controller\Pages\Request\ViewRequest;
+	}
 
 	/**
 	 * Whether the passed link is actual - is some descendant opened currently

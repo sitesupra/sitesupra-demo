@@ -4,18 +4,12 @@ namespace Supra\Controller\Pages\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Entity\Layout;
-use Supra\Controller\Layout\Processor\TwigProcessor;
-use Supra\Controller\Pages\Task\LayoutProcessorTask;
-use Supra\Controller\Layout\Exception\LayoutException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Request\PageRequestEdit;
 use Supra\Controller\Pages\Entity\PageLocalization;
-use Supra\Log\Log;
-use Supra\Controller\Pages\Event\CmsPagePublishEventArgs;
-use Supra\Controller\Pages\Event\CmsPageEventArgs;
+use Supra\Controller\Pages\Event;
 
 /**
  *
@@ -55,9 +49,10 @@ class ProcessScheduledPagesCommand extends Command
 			
 			//$publicEm->getConnection()->beginTransaction();
 			try {
+				
 				$request->publish();
 				
-				$eventArgs = new CmsPagePublishEventArgs($this);
+				$eventArgs = new Event\PageCmsEventArgs($this);
 				$eventArgs->localization = $localization;
 				
 				// Keep for triggers after flush
@@ -87,7 +82,7 @@ class ProcessScheduledPagesCommand extends Command
 		
 		// Trigger post publish events
 		foreach ($events as $eventArgs) {
-			$eventManager->fire(CmsPageEventArgs::postPagePublish, $eventArgs);
+			$eventManager->fire(Event\PageCmsEvents::pagePostPublish, $eventArgs);
 		}
     }
 	

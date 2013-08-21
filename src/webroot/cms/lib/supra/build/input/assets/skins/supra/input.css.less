@@ -71,6 +71,8 @@
 		.ui-center-dark .yui3-form p.label {
 			color: #FFF;
 			text-shadow: none;
+			font-weight: normal;
+			padding-bottom: 12px;
 		}
 	
 	.yui3-input .description,
@@ -83,13 +85,17 @@
 		font-size: 11px;
 		line-height: 13px;
 	}
+	.yui3-form .block-description {
+		padding: 10px 0 12px 2px;
+	}
 	.yui3-input .description {
 		padding-right: 10px;
 		width: 120px;
 	}
 		.yui3-input-select-list .description,
-		.yui3-input-select-visual .description {
-			/* Select list 100% wide */
+		.yui3-input-select-visual .description,
+		.yui3-input-link .description {
+			/* Input is 100% wide */
 			width: auto;
 			padding-right: 0;
 		}
@@ -98,7 +104,7 @@
 		.yui3-input-set .description,
 		.yui3-input-text .description,
 		.yui3-input-video .description {
-			/* String, text and video and 100% wide */
+			/* String, text, etc. are 100% wide */
 			width: auto;
 			padding-right: 0;
 			padding-top: 4px;
@@ -618,6 +624,30 @@
 	.su-button-edit,
 	.su-button-save {
 		margin-right: 10px;
+	}
+}
+
+/**
+ * Labels on the left side of inputs
+ */
+.yui3-form-default {
+	/* File and image */
+	.yui3-input-image .su-button + .su-button,
+	.yui3-input-file .su-button + .su-button {
+		margin-left: 175px;
+	}
+	
+	/* Checkbox */
+	.yui3-input-checkbox .yui3-input-checkbox-bg {
+		margin-right: 100px;
+		
+		.label-a,
+		.label-b {
+			width: 90px;
+		}
+		.label-a {
+			text-align: right;
+		}
 	}
 }
 

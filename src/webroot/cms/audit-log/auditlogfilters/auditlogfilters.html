@@ -3,13 +3,13 @@
 	<!-- Header -->
 	<div class="sidebar-header">
 		<!-- Back -->
-		<button class="button-back hidden"><p></p></button>
+		<button class="button-back hidden"><p>{# buttons.back #}</p></button>
 		
 		<!-- Icon -->
 		<img src="" alt="" />
 		
 		<!-- Control button -->
-		<button type="button" class="button-control"><p>{#buttons.done#}</p></button>
+		<button type="button" class="button-control"><p>{# buttons.done #}</p></button>
 		
 		<!-- Title -->
 		<h2>{# audit.filter.title #}</h2>
@@ -27,10 +27,10 @@
 				<div id="slideMain" data-title="{# audit.filter.title #}">
 					
 					<label for="start_date">{# audit.filter.start_date #}:</label>
-					<input type="text" name="start_date" suType="Date" suLabelSet="{# audit.filter.set_date #}" suLabelClear="{# audit.filter.clear_date #}" />
+					<input type="text" name="start_date" data-type="Date" data-label-set="{# audit.filter.set_date #}" data-label-clear="{# audit.filter.clear_date #}" />
 					
 					<label for="end_date">{# audit.filter.end_date #}:</label>
-					<input type="text" name="end_date" suType="Date" suLabelSet="{# audit.filter.set_date #}" suLabelClear="{# audit.filter.clear_date #}" />
+					<input type="text" name="end_date" data-type="Date" data-label-set="{# audit.filter.set_date #}" data-label-clear="{# audit.filter.clear_date #}" />
 					
 					<label for="user_id">{# audit.filter.user_id #}:</label>
 					<input type="text" name="user_id" />

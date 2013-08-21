@@ -3,10 +3,10 @@
 
 - Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
     class: Project\FancyBlocks\GalleryAdvanced\GalleryAdvancedBlock
-    title: Gallery
+    title: Media gallery
     icon: icon.png
     groupId: features
-    description: Description
+    description: Show images, videos and text elements.
     cmsClassname: MediaGallery
     cache:
       Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
@@ -34,7 +34,7 @@
           group: columns
           editable: Supra\Editable\SelectVisual
           label: Layout
-          default: columns_4
+          default: columns_2
           values:
             - id: columns_1
               title: 1 column
@@ -94,7 +94,7 @@
                 name: text
                 editable: Supra\Editable\Html
                 label: Text
-                default: Lorem ipsum dolor sit amet
+                default: <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed cursus, sapien ac rhoncus suscipit, enim ligula laoreet arcu, eget tempus mauris nisi vel lacus.</p>
             - SerializablePropertyConfiguration:
                 name: image
                 label: Image

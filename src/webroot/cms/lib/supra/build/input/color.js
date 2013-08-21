@@ -5,28 +5,40 @@ YUI.add("supra.input-color", function (Y) {
 	var Color = Y.DataType.Color;
 	
 	var TEMPLATE = Supra.Template.compile('\
-						{% if allowUnset or presets %}\
-							<div class="presets">\
-								{% if presets %}{% for preset in presets %}\
-									<a class="preset" style="background-color: {{ preset }};" data-color="{{ preset|upper }}"></a>\
-								{% endfor %}{% endif %}\
-								{% if allowUnset %}\
-									<a class="unset"></a><label>{{ labelUnset|escape }}</label>\
-								{% endif %}\
-							</div>\
-						{% endif %}\
+						<div class="input-heading">\
+							<div class="color"></div>\
+						</div>\
 						<div class="input-content">\
-							<div class="map"><div class="handle"></div><div class="cursor hidden"></div></div>\
-							<div class="bar"><div class="handle"></div></div>\
-							<div class="preview"></div>\
-							<span>#</span>\
-							<input type="text" name="hex" maxlength="6" /><br />\
-							<span>{{ "{# inputs.red #}"|default("R") }}</span>\
-							<input type="text" name="red" maxlength="3" class="rgb" /><br />\
-							<span>{{ "{# inputs.green #}"|default("G") }}</span>\
-							<input type="text" name="green" maxlength="3" class="rgb" /><br />\
-							<span>{{ "{# inputs.blue #}"|default("B") }}</span>\
-							<input type="text" name="blue" maxlength="3" class="rgb" />\
+							{% if allowUnset or presets %}\
+								<div class="presets clearfix">\
+									{% if presets %}{% for preset in presets %}\
+										<a class="preset" style="background-color: {{ preset }};" data-color="{{ preset|upper }}"></a>\
+									{% endfor %}{% endif %}\
+									{% if allowUnset %}\
+										<a class="unset" title="{{ labelUnset|escape }}"></a>\
+									{% endif %}\
+								</div>\
+							{% endif %}\
+							<div class="picker">\
+								<div class="map"><div class="handle"></div><div class="cursor hidden"></div></div>\
+								<div class="bar"><div class="handle"></div></div>\
+								<div class="right-side">\
+									<label>{{ "inputs.color_new"|intl|default("new") }}</label>\
+									<div class="preview-new"></div>\
+									<div class="preview-old"></div>\
+									<label>{{ "inputs.color_current"|intl|default("current") }}</label>\
+									\
+									<span>#</span>\
+									<input type="text" name="hex" maxlength="6" /><br />\
+								</div>\
+								<div class="clear"></div>\
+								<span>{{ "inputs.red"|intl|default("R") }}</span>\
+								<input type="text" name="red" maxlength="3" class="rgb" />\
+								<span>{{ "inputs.green"|intl|default("G") }}</span>\
+								<input type="text" name="green" maxlength="3" class="rgb" />\
+								<span>{{ "inputs.blue"|intl|default("B") }}</span>\
+								<input type="text" name="blue" maxlength="3" class="rgb" />\
+							</div>\
 						</div>\
 					');
 	
@@ -55,6 +67,18 @@ YUI.add("supra.input-color", function (Y) {
 		"value": {
 			"value": ""
 		},
+		// Heading node
+		"nodeHeading": {
+			"value": null
+		},
+		// Heading current color node
+		"nodeHeadingColor": {
+			"value": null
+		},
+		// Content node
+		"nodeContent": {
+			"value": null
+		},
 		// Map node
 		"nodeMap": {
 			"value": null
@@ -75,8 +99,12 @@ YUI.add("supra.input-color", function (Y) {
 		"nodeBarHandle": {
 			"value": null
 		},
-		// Preview node
-		"nodePreview": {
+		// New color preview node
+		"nodePreviewNew": {
+			"value": null
+		},
+		// Old color preview node
+		"nodePreviewOld": {
 			"value": null
 		},
 		//HEX input
@@ -118,19 +146,29 @@ YUI.add("supra.input-color", function (Y) {
 		//Color preset nodes
 		"nodePresets": {
 			"value": null
+		},
+		
+		//Color picker is expanded
+		"expanded": {
+			"value": false
+		},
+		
+		//Don't use animations for expand/collapse
+		"noAnimation": {
+			"value": false
 		}
 	};
 	
 	Input.HTML_PARSER = {
 		"allowUnset": function (srcNode) {
 			var input = this.get("inputNode"),
-				unset = srcNode.getAttribute("suAllowUnset") == "true" || (input && input.getAttribute("suAllowUnset") == "true");
+				unset = srcNode.getAttribute("data-allow-unset") == "true" || (input && input.getAttribute("data-allow-unset") == "true");
 			
 			return unset === true ? true : null;
 		},
 		"presets": function (srcNode) {
 			var input = this.get("inputNode"),
-				presets = srcNode.getAttribute("suPresets") || (input && input.getAttribute("suPresets"));
+				presets = srcNode.getAttribute("data-presets") || (input && input.getAttribute("data-presets"));
 			
 			return presets ? presets.split(',') : null;
 		}
@@ -148,6 +186,14 @@ YUI.add("supra.input-color", function (Y) {
 		unset: false,
 		
 		/**
+		 * Old unset value
+		 * Value which was set when color widget was expanded
+		 * @type {Boolean}
+		 * @private
+		 */
+		unset_old: false,
+		
+		/**
 		 * Preset index which is choosen
 		 * @type {Number}
 		 * @private
@@ -160,6 +206,14 @@ YUI.add("supra.input-color", function (Y) {
 		 * @private
 		 */
 		hex: "#000000",
+		
+		/**
+		 * Old value as HEX
+		 * Value which was set when color widget was expanded
+		 * @type {String}
+		 * @private
+		 */
+		hex_old: "#000000",
 		
 		/**
 		 * Values as RGB
@@ -204,6 +258,21 @@ YUI.add("supra.input-color", function (Y) {
 		 */
 		cursorMoveEvent: null,
 		cursorUpEvent: null,
+		cursorHandleMoveEvent: null,
+		
+		/**
+		 * Map width and height
+		 * @type {Number}
+		 * @private
+		 */
+		mapSize: -1,
+		
+		/**
+		 * Bar height
+		 * @type {Number}
+		 * @private
+		 */
+		barSize: -1,
 		
 		
 		/**
@@ -227,6 +296,13 @@ YUI.add("supra.input-color", function (Y) {
 		 */
 		uiFrozen: false,
 		
+		/**
+		 * While frozen previous value will not be updated
+		 * @type {Boolean}
+		 * @private
+		 */
+		uiPrevFrozen: false,
+		
 		
 		
 		
@@ -238,10 +314,16 @@ YUI.add("supra.input-color", function (Y) {
 					"allowUnset": this.get("allowUnset"),
 					"labelUnset": this.get("labelUnset"),
 					"presets": this.get("presets")
-				}));
+				})),
+				heading = template.one(".input-heading");
 			
 			//Attributes
-			this.set("nodePreview", template.one(".preview"));
+			this.set("nodeHeading", heading);
+			this.set("nodeHeadingColor", heading.one(".color"));
+			this.set("nodeContent", template.one(".input-content"));
+			
+			this.set("nodePreviewNew", template.one(".preview-new"));
+			this.set("nodePreviewOld", template.one(".preview-old"));
 			this.set("nodeMap", template.one(".map"));
 			this.set("nodeMapHandle", template.one(".map .handle"));
 			this.set("nodeMapCursor", template.one(".map .cursor"));
@@ -266,6 +348,9 @@ YUI.add("supra.input-color", function (Y) {
 			} else {
 				contentBox.append(template.size ? template.get("children") : template);
 			}
+			
+			//Label
+			heading.prepend(this.get("labelNode"));
 			
 			//Value
 			var value = this.get('value'),
@@ -297,7 +382,9 @@ YUI.add("supra.input-color", function (Y) {
 			Input.superclass.bindUI.apply(this, arguments);
 			
 			var nodeMap = this.get("nodeMap"),
-				nodeBar = this.get("nodeBar");
+				nodeBar = this.get("nodeBar"),
+				heading = this.get("nodeHeading"),
+				slideshow = this.getSlideshow();
 			
 			nodeMap.on("mouseenter", this._showMapCursor, this);
 			nodeMap.on("mouseleave", this._hideMapCursor, this);
@@ -307,6 +394,10 @@ YUI.add("supra.input-color", function (Y) {
 			
 			nodeBar.on("mousedown", this._downBarCursor, this);
 			nodeBar.on("mouseup", this._upBarCursor, this);
+			
+			heading.on("mousedown", this._toggle, this);
+			
+			this.after("expandedChange", this._uiExpandedChange, this);
 			
 			this.get("nodeInputHEX").on("blur", this._onBlurHEX, this);
 			this.get("nodeInputRed").on("blur", this._onBlurRGB, this);
@@ -325,8 +416,17 @@ YUI.add("supra.input-color", function (Y) {
 				this.get("nodePresets").on("mousedown", this._onPreset, this);
 			}
 			
+			this.get('nodePreviewOld').on('mousedown', this._onReset, this);
+			
 			//Handle value attribute change
 			this.on('valueChange', this._afterValueChange, this);
+			
+			this.after('visibleChange', this._afterVisibleChange, this);
+			
+			// On slideshow slide change reset old value
+			if (slideshow) {
+				slideshow.after('slideChange', this._afterSlideChange, this);
+			}
 			
 			this.syncUI();
 		},
@@ -337,6 +437,7 @@ YUI.add("supra.input-color", function (Y) {
 			this.syncUIRGB();
 			this.syncUIHEX();
 			this.syncUIPreview();
+			this.syncUIPreviewOld();
 		},
 		
 		/**
@@ -346,13 +447,15 @@ YUI.add("supra.input-color", function (Y) {
 		syncUIMap: function () {
 			if (this.get("nodeMap") && !this.uiFrozen) {
 				//Background color
-				var background = {'hue': this.hsb.hue, 'saturation': 100, 'brightness': 100};
+				var size = this.mapSize,
+					background = {'hue': this.hsb.hue, 'saturation': 100, 'brightness': 100};
+				
 				this.get("nodeMap").setStyle("backgroundColor", Color.convert.HSBtoHEX(background));
 				
 				//Handle position
 				this.get("nodeMapHandle").setStyles({
-					"left": Math.round(this.hsb.saturation / 100 * 110) + "px",
-					"top": 110 - Math.round(this.hsb.brightness / 100 * 110) + "px"
+					"left": Math.round(this.hsb.saturation / 100 * size) + "px",
+					"top": size - Math.round(this.hsb.brightness / 100 * size) + "px"
 				});
 				
 				//
@@ -372,7 +475,8 @@ YUI.add("supra.input-color", function (Y) {
 		 */
 		syncUIBar: function () {
 			if (this.get("nodeBarHandle") && !this.uiFrozen) {
-				var pos = 110 - Math.round(this.hsb.hue / 359 * 110),
+				var size = this.barSize,
+					pos = size - Math.round(this.hsb.hue / 359 * size),
 					cur = parseInt(this.get("nodeBarHandle").getStyle("top"), 10);
 				
 				if (pos != cur) {
@@ -406,18 +510,27 @@ YUI.add("supra.input-color", function (Y) {
 		 * @private
 		 */
 		syncUIPreview: function () {
-			if (this.get("nodePreview") && !this.uiFrozen) {
+			var nodePreview = this.get("nodePreviewNew");
+			
+			if (nodePreview && !this.uiFrozen) {
 				var nodeUnset = this.get("nodeUnset"),
-					nodePresets = this.get("nodePresets");
+					nodePresets = this.get("nodePresets"),
+					nodeHeading = this.get("nodeHeadingColor");
 				
 				if (this.unset) {
 					if (nodeUnset) nodeUnset.addClass("active");
-					this.get("nodePreview").addClass("preview-unset");
-					this.get("nodePreview").setStyle("backgroundColor", this.hex);
+					nodePreview.addClass("preview-unset");
+					nodePreview.setStyle("backgroundColor", this.hex);
+					
+					nodeHeading.addClass("preview-unset");
+					nodeHeading.setStyle("backgroundColor", this.hex);
 				} else {
 					if (nodeUnset) nodeUnset.removeClass("active");
-					this.get("nodePreview").removeClass("preview-unset");
-					this.get("nodePreview").setStyle("backgroundColor", this.hex);
+					nodePreview.removeClass("preview-unset");
+					nodePreview.setStyle("backgroundColor", this.hex);
+					
+					nodeHeading.removeClass("preview-unset");
+					nodeHeading.setStyle("backgroundColor", this.hex);
 				}
 				
 				if (nodePresets) {
@@ -426,6 +539,273 @@ YUI.add("supra.input-color", function (Y) {
 						nodePresets.item(this.preset).addClass("active");
 					}
 				}
+			}
+		},
+		
+		/**
+		 * Update preview UI for previous color
+		 * @private
+		 */
+		syncUIPreviewOld: function () {
+			if (!this.uiPrevFrozen) {
+				var nodePreview = this.get("nodePreviewOld");
+				this.hex_old = this.hex;
+				this.unset_old = this.unset;
+				
+				if (nodePreview) {
+					
+					if (this.unset_old) {
+						nodePreview.addClass("preview-unset");
+						nodePreview.setStyle("backgroundColor", this.hex_old);
+					} else {
+						nodePreview.removeClass("preview-unset");
+						nodePreview.setStyle("backgroundColor", this.hex_old);
+					}
+					
+				}
+			}
+		},
+		
+		/**
+		 * Prevent ui from changing when input value changes
+		 * 
+		 * @private
+		 */
+		uiFreeze: function () {
+			this.uiFrozen = true;
+			this.uiPrevFrozen = true;
+		},
+		
+		/**
+		 * Allow ui to change when input value changes
+		 * 
+		 * @private
+		 */
+		uiUnfreeze: function () {
+			this.uiFrozen = false;
+			this.uiPrevFrozen = false;
+		},
+		
+		/**
+		 * Prevent previous value from changing when input value changes
+		 * 
+		 * @private
+		 */
+		uiFreezePreviousValue: function () {
+			this.uiPrevFrozen = true;
+		},
+		
+		/**
+		 * Allow previous value to change when input value changes
+		 * 
+		 * @private
+		 */
+		uiUnfreezePreviousValue: function () {
+			this.uiPrevFrozen = false;
+		},
+		
+		
+		/**
+		 * -------------------------------- EXPAND / COLLAPSE -----------------------------
+		 */
+		
+		
+		/**
+		 * Toggle expanded state
+		 * 
+		 * @private
+		 */
+		_toggle: function (e) {
+			this.set('expanded', !this.get('expanded'));
+			e.preventDefault();
+		},
+		
+		/**
+		 * Animate expand or collapse
+		 * 
+		 * @private
+		 */
+		_uiExpandedChange: function (e) {
+			if (e.newVal != e.prevVal) {
+				var box     = this.get("boundingBox"),
+					content = this.get("nodeContent"),
+					height  = 0,
+					anim    = !this.get("noAnimation") && this.get("visible"),
+					timer   = this._toggleTimer;
+				
+				// If there is animation running, then stop it
+				if (timer) {
+					timer.cancel();
+					this._toggleTimer = null;
+				}
+				
+				if (!anim) {
+					// Don't animate
+					
+					if (e.newVal) {
+						box.addClass("expanded");
+						content.setStyles({
+							"display": "block",
+							"height": "auto"
+						});
+						
+						// Update preview
+						this.syncUIPreviewOld();
+						
+						if (this._uiResizeMapAndBar()) {
+							// If size was updated then update scrollbar
+							this._uiAfterResize();
+						}
+					} else {
+						box.removeClass("expanded");
+						content.setStyles({
+							"display": "none",
+							"height": "0px"
+						});
+						
+						// Trigger resize to update scrollbars if there are any
+						this._uiAfterResize();
+					}
+				} else {
+					// Animate
+					
+					if (e.newVal) {
+						// Calculate new height
+						content.setStyles({
+							"display": "block",
+							"height": "auto"
+						});
+						
+						this._uiResizeMapAndBar();
+						
+						height = content.get("offsetHeight") + "px";
+						
+						// Expand
+						content.setStyles({
+							"height": "0px"
+						});
+						
+						box.addClass("expanded");
+						
+						content.transition({
+							"easing": "ease-out",
+							"duration": 0.35,
+							"height": height + "px"
+						});
+						content.setStyles({
+							"height": height
+						});
+						
+						// Trigger resize to update scrollbars if there are any
+						this._toggleTimer = Y.later(350, this, function () {
+							this._toggleTimer = null;
+							this._uiAfterResize();
+							content.setStyles({
+								"transition": "none",
+								"height": "auto"
+							});
+						});
+						
+						// Update preview
+						this.syncUIPreviewOld();
+					} else {
+						// Collapse
+						content.setStyles({
+							"height": content.get("offsetHeight") + "px"
+						});
+						
+						Y.later(1, this, function (){
+							content.transition({
+								"easing": "ease-out",
+								"duration": 0.35,
+								"height": "0px"
+							}); 
+						});
+						
+						this._toggleTimer = Y.later(350, this, function () {
+							box.removeClass("expanded");
+							content.setStyles({
+								"display": "none"
+							});
+							
+							// Trigger resize to update scrollbars if there are any
+							this._toggleTimer = null;
+							this._uiAfterResize();
+						});
+					}
+					
+				}
+				
+				if (e.newVal) {
+					// On window resize update map and bar size
+					this.eventResize = Y.on('resize', Supra.throttle(function () {
+						if (this._uiResizeMapAndBar()) {
+							// If size was updated then update scrollbar
+							this._uiAfterResize();
+						}
+					}, 200, this));
+				} else {
+					if (this.eventResize) {
+						this.eventResize.detach();
+						this.eventResize = null;
+					}
+				}
+			}
+		},
+		
+		_uiResizeMapAndBar: function () {
+			var map = this.get("nodeMap"),
+				bar = this.get("nodeBar"),
+				height = map.get("offsetWidth");
+			
+			if (height && height != this.mapSize) {
+				map.setStyle("height", height + "px");
+				bar.setStyle("height", height + "px");
+				
+				this.mapSize = height;
+				this.barSize = height;
+				
+				this.syncUIMap();
+				this.syncUIBar();
+				
+				return true;
+			} else {
+				return false;
+			}
+		},
+		
+		_uiAfterResize: function () {
+			var box = this.get('boundingBox'),
+				scrollable = box.closest('.su-scrollable');
+			
+			if (scrollable) {
+				scrollable.fire('contentResize');
+			}
+		},
+		
+		/**
+		 * When widget becomes visible update map and bar size
+		 * if it's expanded
+		 * 
+		 * @private
+		 */
+		_afterVisibleChange: function (e) {
+			if (e.newVal && this.get('expanded')) {
+				this._uiResizeMapAndBar();
+				this._uiAfterResize();
+			}
+		},
+		
+		/**
+		 * After parent slideshow change old value to current value
+		 * 
+		 * @private
+		 */
+		_afterSlideChange: function () {
+			if (this.hex_old != this.hex || this.unset_old != this.unset) {
+				this.hex_old = this.hex;
+				this.unset_old = this.unset;
+				this.syncUIPreviewOld();
 			}
 		},
 		
@@ -449,7 +829,9 @@ YUI.add("supra.input-color", function (Y) {
 					if (!m[1]) value = "#" + value[1] + value[1] + value[2] + value[2] + value[3] + value[3];
 					
 					//Update value
+					this.uiFreezePreviousValue();
 					this.set("value", value);
+					this.uiUnfreezePreviousValue();
 				} else {
 					//Error
 					node.set("value", this.hex.replace('#', ''));
@@ -500,8 +882,10 @@ YUI.add("supra.input-color", function (Y) {
 			blue = parseInt(blue, 10);
 			
 			if (this.rgb.red != red || this.rgb.green != green || this.rgb.blue != blue) {
+				this.uiFreezePreviousValue();
 				this.setRGB(red, green, blue);
 				this.set("value", this.hex);
+				this.uiUnfreezePreviousValue();
 			}
 		},
 		
@@ -531,8 +915,10 @@ YUI.add("supra.input-color", function (Y) {
 		 * @private
 		 */
 		_onUnset: function () {
+			this.uiFreezePreviousValue();
 			this.setRGB(255, 255, 255);
 			this.set("value", "");
+			this.uiUnfreezePreviousValue();
 		},
 		
 		/**
@@ -546,8 +932,29 @@ YUI.add("supra.input-color", function (Y) {
 				color  = target.getAttribute("data-color");
 			
 			if (color) {
+				this.uiFreezePreviousValue();
 				this.set("value", color);
+				this.uiUnfreezePreviousValue();
 			}
+		},
+		
+		/**
+		 * On reset set color to initial value
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		_onReset: function () {
+			this.uiFreezePreviousValue();
+			
+			if (this.unset_old) {
+				this.setRGB(255, 255, 255);
+				this.set("value", "");
+			} else {
+				this.set("value", this.hex_old);
+			}
+			
+			this.uiUnfreezePreviousValue();
 		},
 		
 		
@@ -574,6 +981,9 @@ YUI.add("supra.input-color", function (Y) {
 			if (this.cursorMoveEvent) this.cursorMoveEvent.detach();
 			this.cursorMoveEvent = doc.on("mousemove", Supra.throttle(this._updateBarColor, 40, this));
 			
+			if (this.cursorHandleMoveEvent) this.cursorHandleMoveEvent.detach();
+			this.cursorHandleMoveEvent = doc.on("mousemove", this._updateBarHandle, this);
+			
 			if (this.cursorUpEvent) this.cursorUpEvent.detach();
 			this.cursorUpEvent = doc.on("mouseup", this._upBarCursor, this);
 			
@@ -596,9 +1006,9 @@ YUI.add("supra.input-color", function (Y) {
 			//Save HSB
 			var hsb = this.hsb;
 			
-			this.uiFrozen = true;
+			this.uiFreeze();
 			this.set("value", this.hex);
-			this.uiFrozen = false;
+			this.uiUnfreeze();
 			
 			this.hsb = hsb;
 			
@@ -609,6 +1019,10 @@ YUI.add("supra.input-color", function (Y) {
 			if (this.cursorMoveEvent) {
 				this.cursorMoveEvent.detach();
 				this.cursorMoveEvent = null;
+			}
+			if (this.cursorHandleMoveEvent) {
+				this.cursorHandleMoveEvent.detach();
+				this.cursorHandleMoveEvent = null;
 			}
 			
 			this._hideShim();
@@ -621,17 +1035,30 @@ YUI.add("supra.input-color", function (Y) {
 		 * @private
 		 */
 		_updateBarColor: function (e) {
-			var y = Math.min(110, Math.max(0, e.pageY - this.barPosition)),
-				h = ~~(359 - (y / 110) * 359),
-				node = this.get("nodeBarHandle");
+			var size = this.barSize,
+				y = Math.min(size, Math.max(0, e.pageY - this.barPosition)),
+				h = ~~(359 - (y / size) * 359);
 			
 			this.setHue(h);
+			this.fire("input", {"newVal": this.hex});
+		},
+		
+		/**
+		 * Update handle position
+		 * This is not done in _updateBarColor, because it's throttled and we want
+		 * illusion of more responsive UI
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		_updateBarHandle: function (e) {
+			var size = this.barSize,
+				y = Math.min(size, Math.max(0, e.pageY - this.barPosition)),
+				node = this.get("nodeBarHandle");
 			
 			node.setStyles({
 				"top": y
 			});
-			
-			this.fire("input", {"newVal": this.hex});
 		},
 		
 		/**
@@ -651,7 +1078,8 @@ YUI.add("supra.input-color", function (Y) {
 					"bottom": 0,
 					"left": 0,
 					"background": "#fff",
-					"opacity": 0
+					"opacity": 0,
+					"cursor": "none"
 				});
 				this.set("nodeShim", shim);
 			}
@@ -705,9 +1133,10 @@ YUI.add("supra.input-color", function (Y) {
 		_moveMapCursor: function (e) {
 			if (!this.mapPosition) return;
 			
-			var x = Math.min(110, Math.max(0, e.pageX - this.mapPosition[0])),
-				y = Math.min(110, Math.max(0, e.pageY - this.mapPosition[1])),
-				dark = ((x + y) < 55),
+			var size = this.mapSize,
+				x = Math.min(size, Math.max(0, e.pageX - this.mapPosition[0])),
+				y = Math.min(size, Math.max(0, e.pageY - this.mapPosition[1])),
+				dark = ((x + y) < size / 2),
 				node = this.get("nodeMapCursor");
 			
 			if (dark != this.mapCursorDark) {
@@ -738,6 +1167,9 @@ YUI.add("supra.input-color", function (Y) {
 			if (this.cursorMoveEvent) this.cursorMoveEvent.detach();
 			this.cursorMoveEvent = doc.on("mousemove", Supra.throttle(this._updateMapColor, 40, this));
 			
+			if (this.cursorHandleMoveEvent) this.cursorHandleMoveEvent.detach();
+			this.cursorHandleMoveEvent = doc.on("mousemove", this._updateMapHandle, this);
+			
 			if (this.cursorUpEvent) this.cursorUpEvent.detach();
 			this.cursorUpEvent = doc.on("mouseup", this._upMapCursor, this);
 			
@@ -753,6 +1185,7 @@ YUI.add("supra.input-color", function (Y) {
 		_upMapCursor: function (e) {
 			if (this.mapCursorDown) {
 				this._updateMapColor(e);
+				this._updateMapHandle(e);
 			}
 			
 			this.mapCursorDown = false;
@@ -760,9 +1193,9 @@ YUI.add("supra.input-color", function (Y) {
 			//Save HSB
 			var hsb = this.hsb;
 			
-			this.uiFrozen = true;
+			this.uiFreeze();
 			this.set("value", this.hex);
-			this.uiFrozen = false;
+			this.uiUnfreeze();
 			
 			//Restore HSB, because changing hex will invalidate HSB
 			this.hsb = hsb;
@@ -774,6 +1207,10 @@ YUI.add("supra.input-color", function (Y) {
 			if (this.cursorMoveEvent) {
 				this.cursorMoveEvent.detach();
 				this.cursorMoveEvent = null;
+			}
+			if (this.cursorHandleMoveEvent) {
+				this.cursorHandleMoveEvent.detach();
+				this.cursorHandleMoveEvent = null;
 			}
 			
 			this._hideShim();
@@ -788,16 +1225,36 @@ YUI.add("supra.input-color", function (Y) {
 		_updateMapColor: function (e) {
 			if (!this.mapPosition) return;
 			
-			var x = Math.min(110, Math.max(0, e.pageX - this.mapPosition[0])),
-				y = Math.min(110, Math.max(0, e.pageY - this.mapPosition[1])),
-				dark = (x + y) < 55,
+			var size = this.mapSize,
+				ratio = size / 100,
+				x = Math.min(size, Math.max(0, e.pageX - this.mapPosition[0])),
+				y = Math.min(size, Math.max(0, e.pageY - this.mapPosition[1])),
+				dark = (x + y) < size / 2,
 				
-				s = x / 1.1,
-				b = 100 - y / 1.1,
-				
-				node = this.get("nodeMapHandle");
+				s = x / ratio,
+				b = 100 - y / ratio;
 			
 			this.setSaturationBrightness(s, b);
+			this.fire("input", {"newVal": this.hex});
+		},
+		
+		/**
+		 * Update handle position
+		 * This is not done in _updateMapColor, because it's throttled and we want
+		 * illusion of more responsive UI
+		 * 
+		 * @param {Event} e Event facade object
+		 * @private
+		 */
+		_updateMapHandle: function (e) {
+			if (!this.mapPosition) return;
+			
+			var size = this.mapSize,
+				x = Math.min(size, Math.max(0, e.pageX - this.mapPosition[0])),
+				y = Math.min(size, Math.max(0, e.pageY - this.mapPosition[1])),
+				dark = (x + y) < size / 2,
+					
+				node = this.get("nodeMapHandle");
 			
 			node.setStyles({
 				"left": x,
@@ -808,8 +1265,6 @@ YUI.add("supra.input-color", function (Y) {
 				node.toggleClass("light", !dark);
 				this.mapHandleDark = dark;
 			}
-			
-			this.fire("input", {"newVal": this.hex});
 		},
 		
 		

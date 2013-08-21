@@ -7,11 +7,14 @@ YUI.add('supra.input-map-inline', function (Y) {
 	
 	//Default value
 	var DEFAULT_VALUE = {
-		'latitude': 0,
-		'longitude': 0,
-		'zoom': 14
+		'latitude': 56.95,
+		'longitude': 24.1,
+		'zoom': 14,
+		'height': 0
 	};
 	
+	//Minimal map height
+	var MAP_MIN_HEIGHT = 80;
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
@@ -22,7 +25,7 @@ YUI.add('supra.input-map-inline', function (Y) {
 	Input.IS_INLINE = true;
 	
 	// Input is inside form
-	Input.IS_CONTAINED = false;
+	Input.IS_CONTAINED = true;
 	
 	Input.NAME = 'input-map-inline';
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
@@ -46,9 +49,8 @@ YUI.add('supra.input-map-inline', function (Y) {
 		/**
 		 * Constants
 		 */
-		INPUT_TEMPLATE: '',
 		LABEL_TEMPLATE: '',
-		CONTENT_TEMPLATE: '',
+		INPUT_TEMPLATE: '<input type="hidden" value="" />',
 		
 		/**
 		 * Map instance
@@ -120,12 +122,36 @@ YUI.add('supra.input-map-inline', function (Y) {
 		 */
 		zoomChangeListener: null,
 		
+		/**
+		 * Size content box
+		 * @type {Object}
+		 * @private
+		 */
+		sizeBox: null,
+		
+		/**
+		 * Width input
+		 * @type {Object}
+		 * @private
+		 */
+		inputWidth: null,
+		
+		/**
+		 * Height input
+		 * @type {Object}
+		 * @private
+		 */
+		inputHeight: null,
+		
 		
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			//Bind to context
 			this._afterValueChange = Y.bind(this._afterValueChange, this);
+			
+			//Create size input
+			this.createSizeInput();
 			
 			//MapManager.prepare(this.createMap, this);
 			this.createMap(this.get('targetNode'));
@@ -215,6 +241,23 @@ YUI.add('supra.input-map-inline', function (Y) {
 				MapManager.prepare(this.get('doc'), this.get('win'), function () {
 					this._createMap(targetNode);
 				}, this);
+				
+				
+				var input_height = this.inputHeight,
+					input_width = this.inputWidth,
+					value = this.get('value');
+				
+				if (input_height) {
+					if (value && value.height) {
+						input_height.set('value', targetNode.get('offsetHeight'));
+					} else {
+						input_height.set('value', targetNode.get('offsetHeight'));
+					}
+				}
+				
+				if (input_width) {
+					input_width.set('value', targetNode.get('offsetWidth'));
+				}
 			}
 			return targetNode;
 		},
@@ -242,11 +285,23 @@ YUI.add('supra.input-map-inline', function (Y) {
 				g_instance = g_node.data('map');
 				
 				if (g_instance && g_instance.map) {
-					// We can get existing map instance
+					// We can get existing map instance created by $.fn.map plugin
+					latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
+					
 					this.map = g_instance.map;
 					this.marker = g_instance.marker;
 					this.info = g_instance.info;
 					this.mapSourceSelf = false;
+					
+					this.map.set('center', latlng);
+					this.map.set('zoom', value.zoom);
+					this.marker.set('position', latlng);
+					this.marker.set('draggable', true);
+					
+					if (this.info) {
+						// Hide info while editing
+						this.info.close();
+					}
 					
 					return;
 				}
@@ -271,6 +326,143 @@ YUI.add('supra.input-map-inline', function (Y) {
 			marker = this.marker = new global.google.maps.Marker({'position': latlng, 'map': map, 'draggable': true});
 			
 			this.mapSourceSelf = true;
+		},
+		
+		_handleMapResize: function () {
+			var win = this.get('win'),
+				map = this.map;
+			
+			if (win && map) {
+				win.google.maps.event.trigger(this.map, "resize");
+			}
+		},
+		
+		
+		/* -------------------------------------- SIZE -------------------------------------- */
+		
+		
+		createSizeInput: function () {
+			var properties = this.getParentWidget('page-content-properties'),
+				contentBox = this.get('contentBox'),
+				label      = Supra.Intl.get(['inputs', 'resize_map']),
+				sizeBox    = this.sizeBox = Y.Node.create('<div class="clearfix su-sizebox"><p class="label">' + label + '</p></div>');
+			
+			this.sizeBox = Y.Node.create();
+			
+			// Width
+			var width = this.inputWidth = new Supra.Input.String({
+				'type': 'String',
+				'style': 'size',
+				'valueMask': /^[0-9]*$/,
+				'label': Supra.Intl.get(['inputs', 'resize_width']),
+				'value': 0
+			});
+			
+			width.render(sizeBox);
+			width.set('disabled', true);
+			
+			// Size button
+			var btn = new Supra.Button({"label": "", "style": "small-gray"});
+				btn.render(sizeBox);
+				btn.set("disabled", true);
+				btn.addClass("su-button-ratio");
+			
+			// Height
+			var height = this.inputHeight = new Supra.Input.String({
+				'type': 'String',
+				'style': 'size',
+				'valueMask': /^[0-9]*$/,
+				'label': Supra.Intl.get(['inputs', 'resize_height']),
+				'value': 0
+			});
+			
+			height.render(sizeBox);
+			contentBox.prepend(sizeBox);
+			
+			height.after('valueChange', this._uiOnHeightInputChange, this);
+			height.on('input', Supra.throttle(function (e) {
+				if (this.inputHeight.get('focused')) {
+					this._uiOnHeightInputInput(e.value);
+				}
+			}, 250, this, true), this);
+		},
+		
+		_uiSetMapHeight: function (height) {
+			var targetNode   = this.get('targetNode'),
+				height       = Math.max(MAP_MIN_HEIGHT, height),
+				input_width  = this.inputWidth,
+				input_height = this.inputHeight,
+				prev         = this._uiSilentHeightUpdate;
+			
+			if (targetNode) {
+				if (height != targetNode.get('offsetHeight')) {
+					targetNode.setStyle('height', height + 'px');
+					this._handleMapResize();
+				}
+			}
+			if (input_height && input_height.get('value') != height) {
+				this._uiSilentHeightUpdate = true;
+				input_height.set('value', height);
+				this._uiSilentHeightUpdate = prev;
+				
+				if (targetNode) {
+					input_width.set('value', targetNode.get('offsetWidth'));
+				}
+			}
+		},
+		
+		/**
+		 * Returns map height from target node or input
+		 * 
+		 * @returns {Number} Map height in pixels
+		 * @private
+		 */
+		_uiGetMapHeight: function () {
+			var targetNode = this.get('targetNode'),
+				input      = this.inputHeight,
+				height     = 0;
+			
+			if (targetNode) {
+				height = targetNode.get('offsetHeight');
+			}
+			if (input && !height) {
+				height = parseInt(input.get('value'), 10) || 0;
+			}
+			
+			return Math.max(height, MAP_MIN_HEIGHT); 
+		},
+		
+		_uiGetMapWidth: function (targetNode) {
+			var targetNode = targetNode || this.get('targetNode');
+			if (targetNode) {
+				return targetNode.get('offsetHeight');
+			} else {
+				return 0;
+			}
+		},
+		
+		_uiOnHeightInputChange: function () {
+			if (this._uiSilentHeightUpdate) return;
+			this._uiSilentHeightUpdate = true;
+			
+			var value  = parseInt(this.inputHeight.get('value'), 10) || 0,
+				height = Math.max(value, MAP_MIN_HEIGHT);
+			
+			this._uiSetMapHeight(height);
+			this._afterValueChange();
+			
+			this._uiSilentHeightUpdate = false;
+		},
+		
+		_uiOnHeightInputInput: function (value) {
+			var value  = parseInt(this.inputHeight.get('value'), 10) || 0,
+				height = Math.max(value, MAP_MIN_HEIGHT),
+				targetNode = this.get('targetNode');
+			
+			if (targetNode) {
+				targetNode.setStyle('height', height + 'px');
+				this._handleMapResize();
+			}
 		},
 		
 		
@@ -307,9 +499,16 @@ YUI.add('supra.input-map-inline', function (Y) {
 			var latlng = null,
 				map = this.map,
 				marker = this.marker,
-				global = this.get('win');
+				global = this.get('win'),
+				input_height = this.inputHeight;
 			
 			value = Supra.mix({}, DEFAULT_VALUE, this.get('defaultValue'), value);
+			
+			// Validate values
+			value.zoom = parseInt(value.zoom, 10) || DEFAULT_VALUE.zoom;
+			value.latitude = parseFloat(value.latitude) || 0;
+			value.longitude = parseFloat(value.longitude) || 0; 
+			value.height = parseInt(value.height, 10) || 0;
 			
 			if (map && marker) {
 				latlng = new global.google.maps.LatLng(value.latitude, value.longitude);
@@ -317,6 +516,13 @@ YUI.add('supra.input-map-inline', function (Y) {
 				map.setZoom(value.zoom || DEFAULT_VALUE.zoom);
 				marker.setPosition(latlng);
 			}
+			
+			if (!value.height) {
+				// Old version didn't had height, for compatibiliy take it from content
+				value.height = this._uiGetMapHeight();
+			}
+			
+			this._uiSetMapHeight(value.height);
 			
 			return value;
 		},
@@ -331,12 +537,16 @@ YUI.add('supra.input-map-inline', function (Y) {
 			var value = Supra.mix({}, DEFAULT_VALUE, this.get('defaultValue'), value),
 				point = null,
 				map = this.map,
-				marker = this.marker;
+				marker = this.marker,
+				input = this.inputHeight;
 			
 			if (map && marker) {
 				point = marker.getPosition();
 				value.latitude = point.lat();
 				value.longitude = point.lng();
+			}
+			if (input) {
+				value.height = Math.max(parseInt(input.get('value'), 10) || 0, MAP_MIN_HEIGHT);
 			}
 			
 			return value;
@@ -441,15 +651,45 @@ YUI.add('supra.input-map-inline', function (Y) {
 					win.google.load("maps", "3",  {callback: win[fn], other_params:"sensor=false"});
 				}
 			} else {
-				// Load Google Maps
-				var script = document.createElement('script');
-					script.type = 'text/javascript';
-					script.src  = document.location.protocol + '//maps.googleapis.com/maps/api/js?sensor=false&callback=' + fn;
-				
-				doc.body.appendChild(script);
+				// Check if there already is script included
+				if (Y.Node(doc).one('script[src*="//maps.googleapis.com/maps/api/js"]')) {
+					// We don't have access to callback (we shouldn't touch it),
+					// so we use timeout to check when it's loaded
+					this.checkReadyRetries = 50;
+					this.checkReadyTimer = Y.later(100, this, this.checkReady, [doc, win, guid], true);
+				} else {
+					// Load Google Maps
+					var script = doc.createElement('script');
+						script.type = 'text/javascript';
+						script.src  = document.location.protocol + '//maps.googleapis.com/maps/api/js?sensor=false&callback=' + fn;
+					
+					doc.body.appendChild(script);
+				}
 			}
 			
 			return guid;
+		},
+		
+		/**
+		 * Continuously check if google maps has been loaded
+		 * 
+		 * @param {Object} doc Document element
+		 * @param {Object} win Window element
+		 * @param {Object} guid Map unique ID
+		 * @private
+		 */
+		checkReady: function (doc, win, guid) {
+			if (win.google && win.google.maps) {
+				// Google Maps loaded
+				this.checkReadyTimer.cancel();
+				this.ready(guid);
+			} else {
+				// Check if we need to stop trying
+				this.checkReadyRetries--;
+				if (!this.checkReadyRetries) {
+					this.checkReadyTimer.cancel();
+				}
+			}
 		},
 		
 		ready: function (guid) {

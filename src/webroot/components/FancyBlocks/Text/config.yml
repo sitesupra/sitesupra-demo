@@ -2,7 +2,7 @@
     class: Project\FancyBlocks\Text\TextController
     title: Text
     groupId: features
-    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    description: Allows you to enter and manage text. Look into the block settings for several view options – select a standard view or chose from several promo boxes.
     cmsClassname: Editable
     icon: icon.png
     cache:

@@ -1,3 +1,18 @@
+@import "/cms/lib/supra/less/common.less";
+
+@-moz-keyframes spin {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(360deg); }
+}
+@-webkit-keyframes spin {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(360deg); }
+}
+@keyframes spin {
+	0% { transform:rotate(0deg); }
+	100% { transform:rotate(360deg); }
+}
+
 /*
  * Content wrapper node
  * Needed for HTML5 drag and drop to work correctly
@@ -14,12 +29,14 @@ body, html {
 }
 
 .yui3-input-html-inline-disabled,
-.yui3-input-string-inline-disabled {
+.yui3-input-string-inline-disabled,
+.yui3-input-text-inline-disabled {
 	&, * {
 		cursor: text !important;
 	} 
 }
-.yui3-input-string-inline-content {
+.yui3-input-string-inline-content,
+.yui3-input-text-inline-content {
 	display: inline-block !important;
 	min-width: 100%;
 }
@@ -200,6 +217,19 @@ body, html {
 		opacity: 0;
 		cursor: pointer;
 	}
+	
+	&.loading {
+		* {
+			visibility: hidden !important;
+		}
+		.loading-icon {
+			visibility: visible !important;
+		}
+	}
+	.loading-icon {
+		.loading-icon-mixin(30px);
+		.loading-icon-minxin-light();
+	}
 }
 
 /*
@@ -211,6 +241,7 @@ body, html {
 	
 	// Input outline when item is focused
 	.yui3-input-string-inline-content,
+	.yui3-input-text-inline-content,
 	.yui3-input-html-inline-content,
 	.supra-image,
 	.supra-video {

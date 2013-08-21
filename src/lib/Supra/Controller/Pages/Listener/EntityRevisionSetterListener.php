@@ -64,6 +64,11 @@ class EntityRevisionSetterListener implements EventSubscriber
 	/**
 	 * @var string
 	 */
+	private $globalElementReferenceId;
+	
+	/**
+	 * @var string
+	 */
 	private $revision;
 	
 	/**
@@ -76,6 +81,7 @@ class EntityRevisionSetterListener implements EventSubscriber
 	{
 		return array(
 			Events::onFlush,
+			
 			AuditEvents::pagePreRestoreEvent,
 			AuditEvents::pagePostRestoreEvent,
 			AuditEvents::pagePreEditEvent,
@@ -142,7 +148,7 @@ class EntityRevisionSetterListener implements EventSubscriber
 				$revision = $this->createRevisionData($entity);
 				$revisionId = $revision->getId();
 				
-				$this->_setRevisionId($entity, $revisionId);
+				$this->setRevisionId($entity, $revisionId);
 			}
 		}
 		
@@ -155,7 +161,7 @@ class EntityRevisionSetterListener implements EventSubscriber
 			$revision = $this->createRevisionData($entity, PageRevisionData::TYPE_INSERT);
 			$revisionId = $revision->getId();
 						
-			$this->_setRevisionId($entity, $revisionId);
+			$this->setRevisionId($entity, $revisionId);
 				
 		}
 	}
@@ -168,17 +174,17 @@ class EntityRevisionSetterListener implements EventSubscriber
 	 * @param Entity $entity
 	 * @param string $newRevisionId 
 	 */
-	private function _setRevisionId($entity, $newRevisionId, $nestedCall = false) 
+	private function setRevisionId($entity, $newRevisionId, $nestedCall = false) 
 	{
-		// helps to avoid useless revision overwriting
-		if (in_array(spl_object_hash($entity), $this->visitedEntities)) {
+		$splHash = spl_object_hash($entity);
+		
+		if (isset($this->visitedEntities[$splHash])) {
 			return;
 		}
 		
-		$oldRevisionId = $entity->getRevisionId();
+		$currentRevisionId = $entity->getRevisionId();
 		
-		//
-		if ($oldRevisionId === $newRevisionId) {
+		if ($newRevisionId === $currentRevisionId) {
 			return;
 		} 
 		
@@ -188,10 +194,11 @@ class EntityRevisionSetterListener implements EventSubscriber
 		
 		$entity->setRevisionId($newRevisionId);
 		
-		$this->visitedEntities[] = spl_object_hash($entity);
+		// remember this entity, and skip it next time 
+		$this->visitedEntities[$splHash] = true;
 		
 		// let know to UoW, that we manually changed entity revision property
-		$this->uow->propertyChanged($entity, 'revision', $oldRevisionId, $newRevisionId);
+		$this->uow->propertyChanged($entity, 'revision', $currentRevisionId, $newRevisionId);
 		
 		// this will update originalEntityData
 		$class = $this->em->getClassMetadata($entity::CN());
@@ -206,7 +213,7 @@ class EntityRevisionSetterListener implements EventSubscriber
 		if ($entity instanceof OwnedEntityInterface) {
 			$parentEntity = $entity->getOwner();
 			if ( ! is_null($parentEntity)) {
-				$this->_setRevisionId($parentEntity, $newRevisionId, true);
+				$this->setRevisionId($parentEntity, $newRevisionId, true);
 			}
 		}
 	}
@@ -244,9 +251,10 @@ class EntityRevisionSetterListener implements EventSubscriber
 	public function pagePreEditEvent(PageEventArgs $eventArgs)
 	{
 		$this->referenceId = $eventArgs->getProperty('referenceId');
+		$this->globalElementReferenceId = $eventArgs->getProperty('globalElementReferenceId');
 	}
 	
-	private function createRevisionData($entity, $type = PageRevisionData::TYPE_CHANGE)
+	private function createRevisionData($entity, $type = PageRevisionData::TYPE_ELEMENT_EDIT)
 	{
 		$blockName = null;
 		
@@ -273,7 +281,11 @@ class EntityRevisionSetterListener implements EventSubscriber
 			$revision->setType($type);
 			$revision->setReferenceId($this->referenceId);
 			$revision->setAdditionalInfo($this->revisionInfo);
-
+			
+			if ( ! empty($this->globalElementReferenceId)) {
+				$revision->setGlobalElementReferenceId($this->globalElementReferenceId);
+			}
+			
 			$userId = null;
 			if ($this->user instanceof \Supra\User\Entity\User) {
 				$userId = $this->user->getId();

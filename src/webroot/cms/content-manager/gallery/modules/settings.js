@@ -173,6 +173,34 @@ YUI.add('gallery.settings', function (Y) {
 		},
 		
 		/**
+		 * Returns property by type
+		 * 
+		 * @param {String} type Input type
+		 * @param {Function} filter Filter function, optional
+		 * @returns {Object} Property
+		 */
+		getPropertyByType: function (type, filter) {
+			var properties = this.get('host').options.properties,
+				i          = 0,
+				ii         = properties ? properties.length : null,
+				filter     = Y.Lang.isFunction(filter) ? filter : null;
+			
+			for (; i<ii; i++) {
+				if (properties[i].type == type) {
+					if (filter) {
+						if (!filter(properties[i])) {
+							continue;
+						}
+					}
+					
+					return properties[i];
+				}
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Create settigns form
 		 * 
 		 * @private

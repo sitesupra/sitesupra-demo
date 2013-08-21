@@ -151,7 +151,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 				
 				content = form.get('boundingBox').one('.su-slide-content > div') || form.get('contentBox'),
 				button = new Supra.Button({
-											'style': 'small-gray',
+											'style': 'mid-blue',
 											'label': Supra.Intl.get(['slideshowmanager', 'label_button'])
 										 });
 			
@@ -174,7 +174,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			}
 			
 			button.render(content);
-			button.addClass('button-section');
+			button.addClass('su-button-fill');
 			
 			if (reference && has_reference) {
 				// Add after reference element
@@ -328,6 +328,7 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			Supra.Manager.executeAction('SlideshowManager', {
 				'data': data,
 				'properties': self.getSlideProperties(),
+				'property_groups': self.getSlidePropertyGroups(),
 				'layouts': self.getSlideLayouts(),
 				'context': self,
 				'shared': shared,
@@ -384,6 +385,28 @@ YUI.add('supra.page-content-slideshow', function (Y) {
 			}
 			
 			return properties;
+		},
+		
+		/**
+		 * Returns slide property groups
+		 * 
+		 * @returns {Array} Slide property groups
+		 * @private
+		 */
+		getSlidePropertyGroups: function () {
+			var block = this.getBlockInfo(),
+				properties = block.properties,
+				i = 0,
+				ii = properties.length,
+				type = PROPERTY_TYPE;
+			
+			for (; i<ii; i++) {
+				if (properties[i].type === type) {
+					return properties[i].property_groups || [];
+				}
+			}
+			
+			return block.property_groups;
 		},
 		
 		/**

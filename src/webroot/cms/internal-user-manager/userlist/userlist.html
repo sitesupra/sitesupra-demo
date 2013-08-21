@@ -28,8 +28,9 @@
 		</div>
 	</div>
 	
-	<!-- User template -->
-	<script type="text/html" id="userListItem">
-		<li data-id="{{ id }}" {% if id != user_id %}class="draggable"{% endif %}><em><img src="{{ avatar }}" alt="" /></em><a>{{ name }}</a></li>
-	</script>
 </div>
+
+<!-- User template -->
+{% template userListItem %}
+	<li data-id="{{ id }}" {% if id != user_id %}class="draggable"{% endif %}><em><img src="{{ avatar }}" alt="" /></em><a>{{ name }}</a></li>
+{% endtemplate %}

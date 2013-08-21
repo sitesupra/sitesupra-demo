@@ -109,6 +109,7 @@ class BlocksAction extends PageManagerAction
 				'properties' => $properties,
 				'hidden' => $conf->hidden,
 				'html' => $conf->html,
+				'tooltip' => $conf->tooltip,
 			);
 			
 			$titles[] = $conf->title;

@@ -119,6 +119,9 @@
 			top: 22px;
 			left: -40px;
 		}
+		.templates & .background {
+			background-image: url(images/tree-item-template.png);
+		}
 		
 		.item {
 			.user-select (none);
@@ -266,12 +269,12 @@
 		height: 23px;
 		display: block;
 		background: url(images/icon-children.png) 0 0 no-repeat;
-		bottom: -8px;
-		left: 40px;
+		bottom: -10px;
+		right: -10px;
 		z-index: 2;
 	}
 	&.expanded > .su-tree-node-content .item:before {
-		display: none;
+		background-position: 0 -23px;
 	}
 	
 	&.root {
@@ -661,6 +664,12 @@
 		right: 0;
 		height: 100px;
 	}
+	
+	.su-tree-node .edit {
+		// Disable edit box while any item is highlighted
+		display: none !important;
+	}
+	
 	.su-tree-node > .su-tree-node-content {
 		.item:hover .edit,
 		.item:hover .translate {
@@ -672,6 +681,19 @@
 		}
 		label {
 			color: #BDB8C4;
+		}
+		.item:before {
+			display: none;
+		}
+	}
+	.su-tree-node.highlighted > .su-tree-node-content {
+		// Show edit box for highlighted element
+		.item.hover .edit {
+			display: block !important;
+		}
+		// Hide status message
+		.status-not-published {
+			display: none;
 		}
 	}
 }

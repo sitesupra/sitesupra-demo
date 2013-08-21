@@ -90,11 +90,11 @@ YUI.add('supra.input-select-visual', function (Y) {
 	
 	Input.HTML_PARSER = {
 		'backgroundColor': function (srcNode) {
-			return srcNode.getAttribute('suBackgroundColor') || 'transparent';
+			return srcNode.getAttribute('data-background-color') || 'transparent';
 		},
 		'iconStyle': function (srcNode) {
-			if (srcNode.getAttribute('suIconStyle')) {
-				return srcNode.getAttribute('suIconStyle') || '';
+			if (srcNode.getAttribute('data-icon-style')) {
+				return srcNode.getAttribute('data-icon-style') || '';
 			}
 		}
 	};

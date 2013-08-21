@@ -1,7 +1,5 @@
-<div class="block social-share clearfix">
-	
-	{% set pagePath = supra.request.getBaseUrl() ~ supra.request.pageLocalization.path %}
-	
+<div class="block social-share clearfix">	
+    
 	<h4>{{ supraBlock.property('share_title') }}</h4>
 	<ul>
 		<li class="facebook">
@@ -11,7 +9,6 @@
 			<div class="tooltip">Facebook</div>
 		</li>
 		<li class="twitter">
-			{#<a href="http://twitthis.com/twit?url={{ pagePath }}" target="_blank">#}
 			<a href="http://twitter.com/home?status={{ pagePath }}" target="_blank">
 				Twitter
 			</a>
