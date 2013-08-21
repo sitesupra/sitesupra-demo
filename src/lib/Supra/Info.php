@@ -40,7 +40,7 @@ class Info implements Configuration\ConfigurationInterface
 	 * Webserver port
 	 * @var string
 	 */
-	public $webserevrPort;
+	public $webserverPort;
 
 	public function configure()
 	{
