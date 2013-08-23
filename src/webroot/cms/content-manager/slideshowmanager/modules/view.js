@@ -290,6 +290,15 @@ YUI.add('slideshowmanager.view', function (Y) {
 		},
 		
 		/**
+		 * Returns true if currently editing something
+		 * 
+		 * @returns {Boolean} True if some input is beeing edited, otherwise false
+		 */
+		isEditing: function () {
+			return !!this._activeInput;
+		},
+		
+		/**
 		 * Active input: start editing content, close sidebar
 		 * 
 		 * @param {Object} event Event facade object
@@ -422,6 +431,12 @@ YUI.add('slideshowmanager.view', function (Y) {
 				// Nothing to render
 				return;
 			}
+			
+			// Attach events
+			if (this._emptySpaceEventHandle) {
+				this._emptySpaceEventHandle.detach();
+			}
+			this._emptySpaceEventHandle = Y.Node(iframe.get('doc')).on('click', this._onEmptySpaceClick, this);
 			
 			// Render new item
 			var html = this.get('host').layouts.getLayoutHtml(data.layout);
@@ -717,6 +732,19 @@ YUI.add('slideshowmanager.view', function (Y) {
 					node.setStyle('background-image', 'url(' + value + ')');
 				}
 			}
+		},
+		
+		/**
+		 * Check if user clicked outside 
+		 */
+		_onEmptySpaceClick: function (e) {
+			var node = e.target;
+			
+			Y.later(60, this, function () {
+				if (!this._activeInput) {
+					this.get('host').showSettings();
+				}
+			});
 		},
 		
 		/**

@@ -524,7 +524,6 @@ YUI.add('supra.input-media-inline', function (Y) {
 								if (!value) {
 									// Image isn't selected, show "Image" / "Video" choice
 									this.removeMedia();
-									this.stopEditing();
 								}
 							}, this);
 						}
@@ -608,8 +607,7 @@ YUI.add('supra.input-media-inline', function (Y) {
 		 */
 		removeMedia: function () {
 			this.set('value', {'type': ''});
-			this.hideSettingsSidebar();
-			this.set('editing', false);
+			this.stopEditing();
 		},
 		
 		/**

@@ -244,7 +244,15 @@ Supra([
 		 */
 		render: function () {
 			//Add buttons
-			Manager.getAction('PageToolbar').addActionButtons(this.NAME, []);
+			Manager.getAction('PageToolbar').addActionButtons(this.NAME, [{
+				'id': 'manage',
+				'type': 'button',
+				'buttonType': 'button',
+				'icon': '/cms/lib/supra/img/htmleditor/icon-settings.png',
+				'title': Supra.Intl.get(['slideshowmanager', 'sidebar_title']),
+				'action': this,
+				'actionFunction': 'showSettings'
+			}]);
 			Manager.getAction('PageButtons').addActionButtons(this.NAME, [{
 				'id': 'done',
 				'context': this,
@@ -275,6 +283,7 @@ Supra([
 				}
 			}
 		},
+		
 		
 		/*
 		 * ---------------------------------- SHOW/HIDE USING ANIMATION ------------------------------------

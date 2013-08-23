@@ -364,14 +364,13 @@ YUI.add('slideshowmanager.settings', function (Y) {
 			
 			for (key in inputs) {
 				input = inputs[key];
-				if (input.get('focused') && input.isInstanceOf('input-media-inline') || input.isInstanceOf('block-background')) {
+				if ((input.get('focused') || !input.get('value')) && input.isInstanceOf('input-media-inline') || input.isInstanceOf('block-background')) {
 					input.stopEditing();
+					this.get('host').view.stopEditing();
 				}
 			}
 			
 			this.hideForm();
-			
-			//this.get('host').close();
 		},
 		
 		/**
