@@ -17,6 +17,8 @@ use Supra\Controller\Layout\Theme\ThemeInterface;
 class TwigProcessor extends HtmlProcessor
 {
 
+	protected $loader;
+	
 	/**
 	 *
 	 * @var ThemeInterface
@@ -73,13 +75,24 @@ class TwigProcessor extends HtmlProcessor
 			$helper->setResponseContext(new ResponseContext());
 		}
 
-
 		$twig->addGlobal('supra', $helper);
 
-		$loader = new Twig_Loader_Filesystem($this->layoutDir);
-		$contents = $twig->parseTemplate($layoutSrc, array(), $loader);
+		if ($this->loader === null) {
+			
+			$paths = array();
+			
+			$currentLoader = $twig->getLoader();
+			if ($currentLoader instanceof Twig_Loader_Filesystem) {
+				$paths = $currentLoader->getPaths();
+			}
+			
+			$paths[] = $this->layoutDir;
+			
+			$this->loader = new Twig_Loader_Filesystem($paths);	
+		}
+		
+		$contents = $twig->parseTemplate($layoutSrc, array(), $this->loader);
 
 		return $contents;
 	}
-
 }
