@@ -4,12 +4,11 @@ namespace Supra\Search\Solarium;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\SearchServiceAdapter;
-
 use Supra\Search\SearchService;
-
 use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
+use Supra\Search\Result\DefaultSearchResultSet;
 
 use Solarium_Client;
 use Solarium_Exception;
@@ -68,7 +67,7 @@ class Adapter extends SearchServiceAdapter {
 	{
 		if ( ! ObjectRepository::isSolariumConfigured($this)) {
 			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
-			return new Result\DefaultSearchResultSet();
+			return new DefaultSearchResultSet();
 		}
 
 		$solariumClient = ObjectRepository::getSolariumClient($this);

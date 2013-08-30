@@ -8,7 +8,6 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
 use Supra\Search\Result\DefaultSearchResultSet;
-use Doctrine\ORM\Query\ResultSetMapping;
 
 use Supra\Search\Mysql\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Entity\PageLocalization;
@@ -137,7 +136,7 @@ class Adapter extends SearchServiceAdapter {
 		$results->addPostprocesser($pageLocalizationPostProcesser);
 
 		$results->runPostprocessers();
-
+		
 		return $results;
 	}
 

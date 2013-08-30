@@ -9,6 +9,7 @@ use Supra\Search\Request\Abstraction\SearchRequestAbstraction;
 use Supra\ObjectRepository\ObjectRepository;
 use \Supra\Search\Result\DefaultSearchResultSet;
 use \Supra\Search\Solarium;
+use Supra\Search\Solarium\PageLocalizationSearchResultItem;
 
 class PageLocalizationKeywordsRequest extends SearchRequestAbstraction
 {

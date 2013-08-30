@@ -55,7 +55,8 @@ class IndexerService extends IndexerServiceAbstract
 							pageTitle, 
 							entityClass,
 							createDate,
-							updateDate
+							updateDate,
+							ancestorId
 						) VALUES (
 							:localizationId, 
 							:pageContent, 
@@ -65,7 +66,8 @@ class IndexerService extends IndexerServiceAbstract
 							:pageTitle, 
 							:entityClass,
 							:date,
-							:date
+							:date,
+							:ancestorId
 						)";
 				}
 				else
@@ -75,7 +77,8 @@ class IndexerService extends IndexerServiceAbstract
 						pageWebPath = :pageWebPath, 
 						pageTitle = :pageTitle, 
 						entityClass = :entityClass,
-						updateDate = :date
+						updateDate = :date,
+						ancestorId = :ancestorId
 						WHERE 
 							localizationId = :localizationId 
 							AND localeId = :localeId 
@@ -91,6 +94,7 @@ class IndexerService extends IndexerServiceAbstract
 					':pageTitle' => $document->title_general,
 					':entityClass' => $document->class,
 					':date' => date( 'Y-m-d H:i:s', time() ),
+					':ancestorId' => serialize($document->ancestorIds),
 				);
 				
 				$query = $em->getConnection()->prepare( $sql );
