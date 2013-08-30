@@ -40449,7 +40449,6 @@ YUI.add('supra.datatype-color', function(Y) {
 								if (!value) {
 									// Image isn't selected, show "Image" / "Video" choice
 									this.removeMedia();
-									this.stopEditing();
 								}
 							}, this);
 						}
@@ -40533,8 +40532,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		removeMedia: function () {
 			this.set('value', {'type': ''});
-			this.hideSettingsSidebar();
-			this.set('editing', false);
+			this.stopEditing();
 		},
 		
 		/**

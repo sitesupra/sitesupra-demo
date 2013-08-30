@@ -242,6 +242,9 @@ YUI.add('supra.iframe-handler', function (Y) {
 				
 				// Set to blank to remove all JS
 				doc.location.replace("about:blank");
+				
+				this.set('doc', null);
+				this.set('win', null);
 			}
 		},
 		
@@ -267,7 +270,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//Clean up
 			this.destroyContent();
 			
-			//Small delay to make sure everything is clean up (Chrome issue)
+			//Small delay to make sure everything is clean up (Chrome & IE issue)
 			Supra.immediate(this, function () {
 				//Set attribute
 				this.set('html', html);
@@ -278,6 +281,7 @@ YUI.add('supra.iframe-handler', function (Y) {
 				//Save document & window instances
 				var win = this.get('nodeIframe').getDOMNode().contentWindow;
 				var doc = win.document;
+				
 				this.set('win', win);
 				this.set('doc', doc);
 				
