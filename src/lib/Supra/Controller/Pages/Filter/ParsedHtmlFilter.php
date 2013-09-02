@@ -12,7 +12,7 @@ use Supra\Controller\Pages\Markup;
 use Supra\FileStorage\Entity\Image;
 use Twig_Markup;
 use Supra\Response\ResponseContext;
-use Supra\Email\EmailEncoder;
+use Supra\Email;
 
 /**
  * Parses supra markup tags inside the HTML content
@@ -106,7 +106,7 @@ class ParsedHtmlFilter implements FilterInterface
 		} else if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_EMAIL) {
 
 		
-			$emailEncoder = new EmailEncoder();	
+			$emailEncoder = new Email\EmailEncoder();	
 			
 			$title = $link->getTitle();
 			if (filter_var($title, FILTER_VALIDATE_EMAIL)) {
@@ -132,7 +132,7 @@ class ParsedHtmlFilter implements FilterInterface
 				}	
 			}
 			
-			$this->triggerEmailEncoderEvent();
+			$this->responseContext->setValue(Email\EmailEncoderListener::ENCODER_CONTEXT_KEY, true);
 		}
 		
 		
@@ -504,15 +504,4 @@ class ParsedHtmlFilter implements FilterInterface
 			$this->responseContext->registerGoogleFontFamilies($fontFamilies);
 		}
 	}
-	
-	private function triggerEmailEncoderEvent()
-	{
-		if ( ! $this->encoderEventTriggered) {
-			$eventManager = ObjectRepository::getEventManager();
-			$eventManager->fire(\Supra\Email\EmailEncoderListener::EVENT_POST_ENCODER_USE);
-			
-			$this->encoderEventTriggered = true;
-		}
-	}
-		
 }

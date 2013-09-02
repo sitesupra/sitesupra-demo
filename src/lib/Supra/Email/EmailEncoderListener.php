@@ -7,18 +7,11 @@ use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
 
 class EmailEncoderListener implements \Doctrine\Common\EventSubscriber
 {	
-	/**
-	 */
-	const DECODER_JAVASCRIPT_FILE_URI = '/cms/lib/public/decipher-email.min.js';
+	const ENCODER_CONTEXT_KEY = '__hasEncodedEmails';
 	
 	/**
 	 */
-	const EVENT_POST_ENCODER_USE = 'postEncoderUse';
-		
-	/**
-	 * @var use
-	 */
-	private $encoderUsed = false;
+	const DECODER_JAVASCRIPT_FILE_URI = '/cms/lib/public/decipher-email.min.js';
 	
 	/**
 	 * @var boolean
@@ -32,22 +25,18 @@ class EmailEncoderListener implements \Doctrine\Common\EventSubscriber
 	{
 		return array(
 			\Supra\Controller\Pages\PageController::EVENT_POST_PREPARE_CONTENT,
-			self::EVENT_POST_ENCODER_USE,
 		);
-	}
-	
-	public function postEncoderUse(\Supra\Event\EventArgs $eventArgs)
-	{
-		$this->encoderUsed = true;
 	}
 
 	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
 	{
-		if ($this->encoderUsed && ! $this->decoderJsAttached) {
+		if ( ! $this->decoderJsAttached) {
 			
-			$eventArgs->response
-					->getContext()
-					->addJsUrlToLayoutSnippet('js', self::DECODER_JAVASCRIPT_FILE_URI);
+			$context = $eventArgs->response->getContext();
+			
+			if ($context->getValue(self::ENCODER_CONTEXT_KEY, false)) {
+				$context->addJsUrlToLayoutSnippet('js', self::DECODER_JAVASCRIPT_FILE_URI);
+			}
 			
 			$this->decoderJsAttached = true;
 		}
