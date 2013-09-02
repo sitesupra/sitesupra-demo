@@ -144,11 +144,11 @@
 	if (state == 'complete' || state == 'interactive') {
 		traverseDOMForEmails();
 	} else {
-		// Wait till body is loaded
-		if (body.addEventListener) {
-			body.addEventListener('load', traverseDOMForEmails, false);
+		// Wait till everything is loaded
+		if (win.addEventListener) {
+			win.addEventListener('load', traverseDOMForEmails, false);
 		} else if (body.attachEvent) {
-			body.attachEvent('onload', traverseDOMForEmails);
+			win.attachEvent('onload', traverseDOMForEmails);
 		}
 	}
 	
