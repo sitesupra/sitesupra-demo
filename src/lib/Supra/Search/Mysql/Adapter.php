@@ -8,12 +8,10 @@ use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
 use Supra\Search\Result\DefaultSearchResultSet;
-
 use Supra\Search\Mysql\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Entity\PageLocalization;
 
 class Adapter extends SearchServiceAdapter {
-	
 	/**
 	 * MATCH-AGAINST IN NATURAL LANGUAGE MODE (default)
 	 */
@@ -28,19 +26,20 @@ class Adapter extends SearchServiceAdapter {
 	const TYPE_QUERY_EXPANSION = 2;
 
 	protected $defaultMode = Adapter::TYPE_DEFAULT;
+
 	const TABLE_NAME = SEARCH_SERVICE_FULLTEXT_TABLE;
+
 	protected $text;
 	protected $startRows = 0;
 	protected $maxRows = 10;
 
 	public function configure() {
 		static $isConfigured = FALSE;
-		
-		if ( $isConfigured )
-		{
+
+		if ($isConfigured) {
 			return TRUE;
 		}
-		
+
 		$this->defaultMode = SEARCH_SERVICE_FULLTEXT_DEFAULT_MODE;
 		$isConfigured = TRUE;
 	}
@@ -49,33 +48,32 @@ class Adapter extends SearchServiceAdapter {
 	 * @param array $data
 	 * @return \Supra\Search\Result\DefaultSearchResultSet
 	 */
-	public function processResults(array $data)
-	{
+	public function processResults(array $data) {
 		// Show only this page results
 		$data = array_slice($data, $this->getStartRow(), $this->getMaxRows());
-		
+
 		$resultSet = new DefaultSearchResultSet();
 
 		/** for highlight */
-		$searchWords = explode( ' ', $this->getText() );
-		
+		$searchWords = explode(' ', $this->getText());
+
 		foreach ($data as $row) {
 			// Make highlight
-			$row['pageContent'] = preg_replace( "#(" . implode( '|', $searchWords ) . ")#is", "<b>$1</b>", $row['pageContent'] );
-			
+			$row['pageContent'] = preg_replace("#(" . implode('|', $searchWords) . ")#is", "<b>$1</b>", $row['pageContent']);
+
 			$item = new PageLocalizationSearchResultItem($row);
-			
+
 			if ($row['entityClass'] == PageLocalization::CN()) {
 				$resultSet->add($item);
 			}
 		}
-		
+
 		return $resultSet;
 	}
-	
+
 	/**
 	 * @param Request\SearchRequestInterface $request
-	 * @return Result\SearchResultSetInterface
+	 * @return processResults
 	 */
 	public function processRequest(\Supra\Search\Request\SearchRequestInterface $request) {
 		$lm = ObjectRepository::getLocaleManager($this);
@@ -85,14 +83,14 @@ class Adapter extends SearchServiceAdapter {
 			':query' => $this->text,
 			':locale' => $locale->getId(),
 		);
-		
+
 		/** @Object EntityManager */
 		$em = ObjectRepository::getEntityManager($this);
 
-		$queryCount = $em->getConnection()->prepare( $this->getSqlCount() );
+		$queryCount = $em->getConnection()->prepare($this->getSqlCount());
 		$queryCount->execute($sqlParams);
 		$queryCount = $queryCount->fetch();
-		
+
 		/** Prepare SQL Query */
 		$sql = $this->getSql();
 
@@ -101,7 +99,7 @@ class Adapter extends SearchServiceAdapter {
 
 		// Get all data
 		$data = $query->fetchAll();
-	
+
 		$resultSet = $this->processResults($data);
 
 		// Total found results
@@ -112,7 +110,7 @@ class Adapter extends SearchServiceAdapter {
 
 	/**
 	 * @param string $text
-	 * @return Result\DefaultSearchResultSet
+	 * @return Supra\Search\DefaultSearchResultSet
 	 */
 	public function doSearch($text, $maxRows, $startRow) {
 		$lm = ObjectRepository::getLocaleManager($this);
@@ -121,22 +119,16 @@ class Adapter extends SearchServiceAdapter {
 		$this->setText($text);
 		$this->setMaxRows($maxRows);
 		$this->setStartRow($startRow);
-		
+
 		$searchRequest = new PageLocalizationSearchRequest();
-		/*
-		  $searchRequest->setResultMaxRows($maxRows);
-		  $searchRequest->setResultStartRow($startRow);
-		  $searchRequest->setText($text);
-		  $searchRequest->setLocale($locale);
-		  $searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
-		 */
+
 		$results = $this->processRequest($searchRequest);
 
 		$pageLocalizationPostProcesser = new PageLocalizationSearchResultPostProcesser();
 		$results->addPostprocesser($pageLocalizationPostProcesser);
 
 		$results->runPostprocessers();
-		
+
 		return $results;
 	}
 
@@ -147,10 +139,10 @@ class Adapter extends SearchServiceAdapter {
 	 */
 	public function getSql() {
 		$sql = "SELECT * FROM " . Adapter::TABLE_NAME . " WHERE";
-		
+
 		// Where conditions
 		$sql .= $this->getSqlWhere();
-		
+
 		// Search in current localization
 		$sql .= "ORDER BY updateDate DESC, createDate DESC LIMIT " . intval($this->getStartRow()) . "," . intval($this->getMaxRows());
 
@@ -162,23 +154,21 @@ class Adapter extends SearchServiceAdapter {
 	 * 
 	 * @return string
 	 */
-	public function getSqlCount()
-	{
+	public function getSqlCount() {
 		$sql = "SELECT COUNT(contentId) AS count FROM " . Adapter::TABLE_NAME . " WHERE" . $this->getSqlWhere();
-		
+
 		return $sql;
 	}
-	
+
 	/**
 	 * Build SQL Where conditions
 	 * FULLTEXT INDEX ft1(pageContent,pageTitle)
 	 * 
 	 * @return string
 	 */
-	public function getSqlWhere()
-	{
+	public function getSqlWhere() {
 		$sql = " ";
-		
+
 		if ($this->defaultMode == Adapter::TYPE_DEFAULT) {
 			$sql .= "MATCH (pageContent,pageTitle) AGAINST (:query)";
 		} elseif ($this->defaultMode == Adapter::TYPE_BOOLEAN) {
@@ -188,10 +178,10 @@ class Adapter extends SearchServiceAdapter {
 		}
 		// Search in current localization
 		$sql .= " AND localeId = :locale ";
-		
+
 		return $sql;
 	}
-	
+
 	/**
 	 * Set search text
 	 * 

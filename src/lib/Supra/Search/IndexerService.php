@@ -34,7 +34,7 @@ class IndexerService
 	}
 	
 	/**
-	 * 
+	 * Call adapter functions through this class
 	 * @param type $method
 	 * @param type $arguments
 	 * @return boolean
@@ -52,8 +52,7 @@ class IndexerService
 			}
 			catch( Exception\BadSchemaException $e )
 			{
-				//@TODO Write log
-				throw $e;
+				\Log::error($e->getMessage());
 				return FALSE;
 			}
 		}
@@ -79,7 +78,7 @@ class IndexerService
 			}
 			catch ( Exception\BadSchemaException $e )
 			{
-				// @TODO write log
+				\Log::error($e->getMessage());
 				throw $e;
 			}
 		}

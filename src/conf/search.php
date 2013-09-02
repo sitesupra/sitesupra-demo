@@ -1,4 +1,27 @@
 <?php
 
-$search = new \Supra\Search\Solarium\Configuration();
-$search->configure();
+define( 'SEARCH_SERVICE_ADAPTER_SOLARIUM', 'Solarium' );
+define( 'SEARCH_SERVICE_ADAPTER_MYSQL', 'Mysql' );
+
+// Adapter by Default
+define( 'SEARCH_SERVICE_ADAPTER', SEARCH_SERVICE_ADAPTER_SOLARIUM );
+
+/**
+ * MySQL FULLTEXT MODE LIST:
+ * 
+ * MATCH-AGAINST IN NATURAL LANGUAGE MODE
+ * - TYPE_DEFAULT
+ * 
+ * MATCH-AGAINST IN BOOLEAN MODE
+ * - TYPE_BOOLEAN
+ * 
+ * MATCH-AGAINST IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION
+ * - TYPE_QUERY_EXPANSION
+ */
+// Mysql Fulltext default mode
+define( 'SEARCH_SERVICE_FULLTEXT_DEFAULT_MODE', Supra\Search\Mysql\Adapter::TYPE_BOOLEAN );
+
+// Mysql MyISAM Table
+define( 'SEARCH_SERVICE_FULLTEXT_TABLE', 'search_content' );
+
+\Supra\Search\SearchService::getAdapter()->configure();

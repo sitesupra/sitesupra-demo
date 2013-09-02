@@ -4,6 +4,8 @@ namespace Supra\Search;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Search\IndexerQueueItemStatus;
+use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
+use Supra\Controller\Pages\PageController;
 
 abstract class IndexerServiceAbstract {
 	
@@ -28,11 +30,9 @@ abstract class IndexerServiceAbstract {
 
 	abstract public function processItem(\Supra\Search\Entity\Abstraction\IndexerQueueItem $queueItem);
 	
-	//abstract public function processQueue(IndexerQueue $queue);
-	
 	abstract public function removeFromIndex($uniqueId);
 	
 	abstract public function getDocumentCount();
 	
-	//abstract public function remove();
+	abstract public function remove($localizationId);
 }

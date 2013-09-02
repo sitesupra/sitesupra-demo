@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Search\Result\SearchResultPostprocesserInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\Result\SearchResultSetInterface;
+use Supra\Search\Solarium\PageLocalizationSearchResultItem;
 
 class PageLocalizationSearchResultPostProcesser implements SearchResultPostprocesserInterface
 {

@@ -7,6 +7,7 @@ use Supra\Controller\Pages\PageController;
 use Supra\Search\IndexerServiceAbstract;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Search\IndexerQueueItemStatus;
+use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 
 class IndexerService extends IndexerServiceAbstract
 {
@@ -134,6 +135,7 @@ class IndexerService extends IndexerServiceAbstract
 	 */
 	public function removeFromIndex($localizationId)
 	{
+		//var_dump($localizationId);
 		/** @Object EntityManager */
 		$em = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
 				

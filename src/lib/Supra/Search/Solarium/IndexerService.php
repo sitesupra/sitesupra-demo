@@ -10,6 +10,9 @@ use Supra\Search\Solarium\Configuration;
 use Supra\Search\IndexerServiceAbstract;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Search\IndexerQueueItemStatus;
+use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
+use Supra\Controller\Pages\PageController;
+use Supra\Search\SearchService;
 
 class IndexerService extends IndexerServiceAbstract
 {
@@ -151,8 +154,6 @@ class IndexerService extends IndexerServiceAbstract
 			if ($item instanceof PageLocalizationSearchResultItem) {
 
 				if ($item->getPageLocalizationId() == $pageLocalizationId) {
-
-					//$indexerService = new IndexerService();
 					$this->removeFromIndex($item->getUniqueId());
 				}
 			}
