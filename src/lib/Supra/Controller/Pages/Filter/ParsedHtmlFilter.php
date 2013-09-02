@@ -48,6 +48,10 @@ class ParsedHtmlFilter implements FilterInterface
 	 */
 	protected $requestType;
 	
+	/**
+	 * @var boolean
+	 */
+	private $encoderEventTriggered;
 	
 	/**
 	 * Create log instance
@@ -101,12 +105,7 @@ class ParsedHtmlFilter implements FilterInterface
 			}
 		} else if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_EMAIL) {
 
-			$context = $this->responseContext;
-			if (!$context->has('addedDecipher')) {
-				$context->addJsUrlToLayoutSnippet('js', '/cms/lib/public/decipher-email.js');
-				$context->setValue('addedDecipher', true);
-			}
-			
+		
 			$emailEncoder = new EmailEncoder();	
 			
 			$title = $link->getTitle();
@@ -132,6 +131,8 @@ class ParsedHtmlFilter implements FilterInterface
 					$attributes['data-email'] = 'href';
 				}	
 			}
+			
+			$this->triggerEmailEncoderEvent();
 		}
 		
 		
@@ -501,6 +502,16 @@ class ParsedHtmlFilter implements FilterInterface
 	{
 		if ($this->responseContext instanceof ResponseContext) {
 			$this->responseContext->registerGoogleFontFamilies($fontFamilies);
+		}
+	}
+	
+	private function triggerEmailEncoderEvent()
+	{
+		if ( ! $this->encoderEventTriggered) {
+			$eventManager = ObjectRepository::getEventManager();
+			$eventManager->fire(\Supra\Email\EmailEncoderListener::EVENT_POST_ENCODER_USE);
+			
+			$this->encoderEventTriggered = true;
 		}
 	}
 		
