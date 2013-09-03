@@ -50,23 +50,28 @@ class PageLocalizationSearchResultItem extends SearchResultItemAbstraction {
 	 */
 	public function highlightText($text, $query) {
 		$searchWords = explode(' ', $query);
-		$searchWords = array_map('preg_quote', $searchWords);
+		
+		if (preg_match( "#(" . implode( '|', $searchWords ) . ")#ius", $text)) {
+			$searchWords = array_map('preg_quote', $searchWords);
 
-		$posQuery = intval(mb_stripos($text, $query));
+			$posQuery = intval(mb_stripos($text, $query));
 
-		$lenQuery = mb_strlen($query);
-		$lenText = mb_strlen($text);
+			$lenQuery = mb_strlen($query);
+			$lenText = mb_strlen($text);
 
-		$posFrom = ($posQuery - SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH);
-		if ($posFrom < 0) {
-			$posFrom = 0;
+			$posFrom = ($posQuery - SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH);
+			if ($posFrom < 0) {
+				$posFrom = 0;
+			}
+
+			$posTo = ($posQuery + $lenQuery + SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH);
+
+			// Cut text
+			$text = mb_substr($text, $posFrom, $posTo);
+		} else {
+			$text = mb_substr($text, 0, SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH);
 		}
-
-		$posTo = ($posQuery + $lenQuery + SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH);
-
-		// Cut text
-		$text = mb_substr($text, $posFrom, $posTo);
-
+		
 		// Make highlight
 		$text = preg_replace("#(" . implode('|', $searchWords) . ")#ius", "<b>$1</b>", $text);
 

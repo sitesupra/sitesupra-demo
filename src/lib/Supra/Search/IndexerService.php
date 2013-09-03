@@ -39,7 +39,7 @@ class IndexerService {
 	 * @return boolean
 	 */
 	public function __call($method, $arguments = array()) {
-		if (function_exists($this, $method)) {
+		if (method_exists($this, $method)) {
 			return call_user_func_array(array($this, $method), $arguments);
 		} else {
 			try {
