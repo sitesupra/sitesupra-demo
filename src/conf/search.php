@@ -25,6 +25,6 @@ define( 'SEARCH_SERVICE_FULLTEXT_DEFAULT_MODE', Supra\Search\Mysql\Adapter::TYPE
 define( 'SEARCH_SERVICE_FULLTEXT_TABLE', 'search_content' );
 
 // How much letters cut before and after search query
-define( 'SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH', 200 );
+define( 'SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH', 400 );
 
 \Supra\Search\SearchService::getAdapter()->configure();
