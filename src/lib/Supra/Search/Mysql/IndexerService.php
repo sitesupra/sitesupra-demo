@@ -135,7 +135,6 @@ class IndexerService extends IndexerServiceAbstract
 	 */
 	public function removeFromIndex($localizationId)
 	{
-		//var_dump($localizationId);
 		/** @Object EntityManager */
 		$em = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
 				

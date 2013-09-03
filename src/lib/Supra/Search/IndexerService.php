@@ -2,14 +2,13 @@
 
 namespace Supra\Search;
 
-class IndexerService
-{
+class IndexerService {
+
 	/**
 	 * Takes all FRESH items from $queue and adds them to Solr.
 	 * @param IndexerQueue $queue 
 	 */
-	public function processQueue(IndexerQueue $queue)
-	{
+	public function processQueue(IndexerQueue $queue) {
 //		$indexedQueueItems = array();
 
 		$documentCount = 0;
@@ -32,26 +31,20 @@ class IndexerService
 
 		return $documentCount;
 	}
-	
+
 	/**
 	 * Call adapter functions through this class
 	 * @param type $method
 	 * @param type $arguments
 	 * @return boolean
 	 */
-	public function __call( $method, $arguments = array() )
-	{
-		if ( function_exists( $this, $method ) )
-		{
-			return call_user_func_array( array( $this, $method ), $arguments );
-		}
-		else
-		{
+	public function __call($method, $arguments = array()) {
+		if (function_exists($this, $method)) {
+			return call_user_func_array(array($this, $method), $arguments);
+		} else {
 			try {
-				return call_user_func_array( array( IndexerService::getAdapter(), $method ), $arguments );
-			}
-			catch( Exception\BadSchemaException $e )
-			{
+				return call_user_func_array(array(IndexerService::getAdapter(), $method), $arguments);
+			} catch (Exception\BadSchemaException $e) {
 				\Log::error($e->getMessage());
 				return FALSE;
 			}
@@ -62,28 +55,24 @@ class IndexerService
 	 * @var Singelton
 	 */
 	protected static $adapter = array();
-	
+
 	/**
 	 * @return \Supra\Search\{Adapter}\IndexerService
 	 */
-	public static function getAdapter( $adapter = NULL )
-	{
+	public static function getAdapter($adapter = NULL) {
 		$adapter = ( $adapter == NULL ) ? SEARCH_SERVICE_ADAPTER : $adapter;
 		$adapterClass = '\\Supra\\Search\\' . $adapter . '\\IndexerService';
-		
-		if ( !isset( IndexerService::$adapter[$adapter] ) )
-		{
+
+		if (!isset(IndexerService::$adapter[$adapter])) {
 			try {
 				IndexerService::$adapter[$adapter] = new $adapterClass();
-			}
-			catch ( Exception\BadSchemaException $e )
-			{
+			} catch (Exception\BadSchemaException $e) {
 				\Log::error($e->getMessage());
 				throw $e;
 			}
 		}
-		
+
 		return IndexerService::$adapter[$adapter];
 	}
-	
+
 }

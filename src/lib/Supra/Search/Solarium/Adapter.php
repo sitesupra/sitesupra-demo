@@ -9,7 +9,6 @@ use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
 use Supra\Search\Result\DefaultSearchResultSet;
-
 use Solarium_Client;
 use Solarium_Exception;
 use Solarium_Document_ReadWrite;
@@ -19,23 +18,21 @@ use Supra\Log\Writer\WriterAbstraction;
 use \Solarium_Result_Select;
 
 class Adapter extends SearchServiceAdapter {
-	
+
 	const FAILED_TO_GET_CLIENT_MESSAGE = 'Solr search engine is not configured.';
 
 	public $defaultAdapterClass = '\Solarium_Client_Adapter_Http';
 
-	public function configure()
-	{
+	public function configure() {
 		static $isConfigured = FALSE;
-		
-		if ( $isConfigured )
-		{
+
+		if ($isConfigured) {
 			return TRUE;
 		}
-		
+
 		$ini = ObjectRepository::getIniConfigurationLoader('');
 
-		if ( ! $ini->hasSection('solarium')) {
+		if (!$ini->hasSection('solarium')) {
 			\Log::debug(self::FAILED_TO_GET_CLIENT_MESSAGE);
 			return;
 		}
@@ -44,7 +41,7 @@ class Adapter extends SearchServiceAdapter {
 
 		$adapterClass = $this->defaultAdapterClass;
 
-		if ( ! empty($searchParams['adapter'])) {
+		if (!empty($searchParams['adapter'])) {
 			$adapterClass = $searchParams['adapter'];
 		}
 
@@ -58,14 +55,13 @@ class Adapter extends SearchServiceAdapter {
 		ObjectRepository::setDefaultSolariumClient($solariumClient);
 		$isConfigured = TRUE;
 	}
-	
+
 	/**
 	 * @param Request\SearchRequestInterface $request
 	 * @return Result\SearchResultSetInterface
 	 */
-	public function processRequest(\Supra\Search\Request\SearchRequestInterface $request)
-	{
-		if ( ! ObjectRepository::isSolariumConfigured($this)) {
+	public function processRequest(\Supra\Search\Request\SearchRequestInterface $request) {
+		if (!ObjectRepository::isSolariumConfigured($this)) {
 			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return new DefaultSearchResultSet();
 		}
@@ -78,9 +74,9 @@ class Adapter extends SearchServiceAdapter {
 		$request->applyParametersToSelectQuery($selectQuery);
 
 		$this->log->debug('SOLARIUM QUERY: ', $selectQuery->getQuery());
-		
+
 		$filters = array();
-		foreach($selectQuery->getFilterQueries() as $filterQuery) {
+		foreach ($selectQuery->getFilterQueries() as $filterQuery) {
 			$filters[] = $filterQuery->getQuery();
 		}
 		$this->log->debug('SOLARIUM QUERY FILTER: ', join(' AND ', $filters));
@@ -91,18 +87,17 @@ class Adapter extends SearchServiceAdapter {
 
 		return $requestResults;
 	}
-	
+
 	/**
 	 * @param string $text
 	 * @return Result\DefaultSearchResultSet
 	 */
-	public function doSearch($text, $maxRows, $startRow)
-	{
+	public function doSearch($text, $maxRows, $startRow) {
 		$lm = ObjectRepository::getLocaleManager($this);
 		$locale = $lm->getCurrent();
 
 		$searchRequest = new PageLocalizationSearchRequest();
-		
+
 		$searchRequest->setResultMaxRows($maxRows);
 		$searchRequest->setResultStartRow($startRow);
 		$searchRequest->setText($text);
@@ -110,12 +105,13 @@ class Adapter extends SearchServiceAdapter {
 		$searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 
 		$results = $this->processRequest($searchRequest);
-		
+
 		$pageLocalizationPostProcesser = new PageLocalizationSearchResultPostProcesser();
 		$results->addPostprocesser($pageLocalizationPostProcesser);
 
 		$results->runPostprocessers();
-		
+
 		return $results;
 	}
+
 }

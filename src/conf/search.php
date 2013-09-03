@@ -4,7 +4,7 @@ define( 'SEARCH_SERVICE_ADAPTER_SOLARIUM', 'Solarium' );
 define( 'SEARCH_SERVICE_ADAPTER_MYSQL', 'Mysql' );
 
 // Adapter by Default
-define( 'SEARCH_SERVICE_ADAPTER', SEARCH_SERVICE_ADAPTER_SOLARIUM );
+define( 'SEARCH_SERVICE_ADAPTER', SEARCH_SERVICE_ADAPTER_MYSQL );
 
 /**
  * MySQL FULLTEXT MODE LIST:
@@ -23,5 +23,8 @@ define( 'SEARCH_SERVICE_FULLTEXT_DEFAULT_MODE', Supra\Search\Mysql\Adapter::TYPE
 
 // Mysql MyISAM Table
 define( 'SEARCH_SERVICE_FULLTEXT_TABLE', 'search_content' );
+
+// How much letters cut before and after search query
+define( 'SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH', 200 );
 
 \Supra\Search\SearchService::getAdapter()->configure();

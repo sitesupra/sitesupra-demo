@@ -15,6 +15,7 @@ class Adapter extends SearchServiceAdapter {
 	/**
 	 * MATCH-AGAINST IN NATURAL LANGUAGE MODE (default)
 	 */
+
 	const TYPE_DEFAULT = 0;
 	/**
 	 * MATCH-AGAINST IN BOOLEAN MODE
@@ -49,20 +50,11 @@ class Adapter extends SearchServiceAdapter {
 	 * @return \Supra\Search\Result\DefaultSearchResultSet
 	 */
 	public function processResults(array $data) {
-		// Show only this page results
-		$data = array_slice($data, $this->getStartRow(), $this->getMaxRows());
-
 		$resultSet = new DefaultSearchResultSet();
 
-		/** for highlight */
-		$searchWords = explode(' ', $this->getText());
-
 		foreach ($data as $row) {
-			// Make highlight
-			$row['pageContent'] = preg_replace("#(" . implode('|', $searchWords) . ")#is", "<b>$1</b>", $row['pageContent']);
-
-			$item = new PageLocalizationSearchResultItem($row);
-
+			$item = new PageLocalizationSearchResultItem($row, $this->getText());
+			
 			if ($row['entityClass'] == PageLocalization::CN()) {
 				$resultSet->add($item);
 			}
@@ -80,9 +72,14 @@ class Adapter extends SearchServiceAdapter {
 		$locale = $lm->getCurrent();
 
 		$sqlParams = array(
-			':query' => $this->text,
+			':query' => $this->getText(),
 			':locale' => $locale->getId(),
 		);
+
+		/** Add asterisk in BOOLEAN MODE */
+		if ($this->defaultMode == Adapter::TYPE_BOOLEAN && !empty($this->text)) {
+			$sqlParams[':query'] = $sqlParams[':query'] . '*';
+		}
 
 		/** @Object EntityManager */
 		$em = ObjectRepository::getEntityManager($this);
@@ -95,6 +92,7 @@ class Adapter extends SearchServiceAdapter {
 		$sql = $this->getSql();
 
 		$query = $em->getConnection()->prepare($sql);
+
 		$query->execute($sqlParams);
 
 		// Get all data
@@ -103,7 +101,7 @@ class Adapter extends SearchServiceAdapter {
 		$resultSet = $this->processResults($data);
 
 		// Total found results
-		$resultSet->setTotalResultCount($queryCount['count']);
+		$resultSet->setTotalResultCount(intval($queryCount['count']));
 
 		return $resultSet;
 	}
@@ -120,10 +118,13 @@ class Adapter extends SearchServiceAdapter {
 		$this->setMaxRows($maxRows);
 		$this->setStartRow($startRow);
 
-		$searchRequest = new PageLocalizationSearchRequest();
-
-		$results = $this->processRequest($searchRequest);
-
+		if (empty($text)) {
+			$results = new DefaultSearchResultSet();
+		} else {
+			$searchRequest = new PageLocalizationSearchRequest();
+			$results = $this->processRequest($searchRequest);
+		}
+		
 		$pageLocalizationPostProcesser = new PageLocalizationSearchResultPostProcesser();
 		$results->addPostprocesser($pageLocalizationPostProcesser);
 
