@@ -4,23 +4,24 @@ namespace Supra\Search\Mysql;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\SearchServiceAdapter;
-use Supra\Controller\Pages\PageController;
 use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
 use Supra\Search\Result\DefaultSearchResultSet;
 use Supra\Search\Mysql\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Entity\PageLocalization;
 
-class Adapter extends SearchServiceAdapter {
+class Adapter extends SearchServiceAdapter
+{
 	/**
 	 * MATCH-AGAINST IN NATURAL LANGUAGE MODE (default)
 	 */
-
 	const TYPE_DEFAULT = 0;
+	
 	/**
 	 * MATCH-AGAINST IN BOOLEAN MODE
 	 */
 	const TYPE_BOOLEAN = 1;
+	
 	/**
 	 * MATCH-AGAINST IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION
 	 */
@@ -34,22 +35,24 @@ class Adapter extends SearchServiceAdapter {
 	protected $startRows = 0;
 	protected $maxRows = 10;
 
-	public function configure() {
-		static $isConfigured = FALSE;
+	public function configure()
+	{
+		static $isConfigured = false;
 
 		if ($isConfigured) {
-			return TRUE;
+			return true;
 		}
 
 		$this->defaultMode = SEARCH_SERVICE_FULLTEXT_DEFAULT_MODE;
-		$isConfigured = TRUE;
+		$isConfigured = true;
 	}
 
 	/**
 	 * @param array $data
 	 * @return \Supra\Search\Result\DefaultSearchResultSet
 	 */
-	public function processResults(array $data) {
+	public function processResults(array $data)
+	{
 		$resultSet = new DefaultSearchResultSet();
 
 		foreach ($data as $row) {
@@ -67,7 +70,8 @@ class Adapter extends SearchServiceAdapter {
 	 * @param Request\SearchRequestInterface $request
 	 * @return processResults
 	 */
-	public function processRequest(\Supra\Search\Request\SearchRequestInterface $request) {
+	public function processRequest(\Supra\Search\Request\SearchRequestInterface $request)
+	{
 		$lm = ObjectRepository::getLocaleManager($this);
 		$locale = $lm->getCurrent();
 
@@ -77,7 +81,7 @@ class Adapter extends SearchServiceAdapter {
 		);
 
 		/** Add asterisk in BOOLEAN MODE */
-		if ($this->defaultMode == Adapter::TYPE_BOOLEAN && !empty($this->text)) {
+		if ($this->defaultMode == Adapter::TYPE_BOOLEAN && ! empty($this->text)) {
 			$sqlParams[':query'] = $sqlParams[':query'] . '*';
 		}
 
@@ -110,9 +114,10 @@ class Adapter extends SearchServiceAdapter {
 	 * @param string $text
 	 * @return Supra\Search\DefaultSearchResultSet
 	 */
-	public function doSearch($text, $maxRows, $startRow) {
-		$lm = ObjectRepository::getLocaleManager($this);
-		$locale = $lm->getCurrent();
+	public function doSearch($text, $maxRows, $startRow)
+	{
+//		$lm = ObjectRepository::getLocaleManager($this);		
+//		$locale = $lm->getCurrent();
 
 		$this->setText($text);
 		$this->setMaxRows($maxRows);
@@ -138,7 +143,8 @@ class Adapter extends SearchServiceAdapter {
 	 * 
 	 * @return string
 	 */
-	public function getSql() {
+	public function getSql()
+	{
 		$sql = "SELECT * FROM " . Adapter::TABLE_NAME . " WHERE";
 
 		// Where conditions
@@ -155,7 +161,8 @@ class Adapter extends SearchServiceAdapter {
 	 * 
 	 * @return string
 	 */
-	public function getSqlCount() {
+	public function getSqlCount()
+	{
 		$sql = "SELECT COUNT(contentId) AS count FROM " . Adapter::TABLE_NAME . " WHERE" . $this->getSqlWhere();
 
 		return $sql;
@@ -167,7 +174,8 @@ class Adapter extends SearchServiceAdapter {
 	 * 
 	 * @return string
 	 */
-	public function getSqlWhere() {
+	public function getSqlWhere()
+	{
 		$sql = " ";
 
 		if ($this->defaultMode == Adapter::TYPE_DEFAULT) {
@@ -189,9 +197,10 @@ class Adapter extends SearchServiceAdapter {
 	 * @param type $text
 	 * @return boolean
 	 */
-	public function setText($text) {
+	public function setText($text)
+	{
 		$this->text = $text;
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -199,7 +208,8 @@ class Adapter extends SearchServiceAdapter {
 	 * 
 	 * @return string
 	 */
-	public function getText() {
+	public function getText()
+	{
 		return $this->text;
 	}
 
@@ -209,9 +219,10 @@ class Adapter extends SearchServiceAdapter {
 	 * @param type $maxRows
 	 * @return boolean
 	 */
-	public function setMaxRows($maxRows) {
+	public function setMaxRows($maxRows)
+	{
 		$this->maxRows = $maxRows;
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -219,7 +230,8 @@ class Adapter extends SearchServiceAdapter {
 	 * 
 	 * @return integer
 	 */
-	public function getMaxRows() {
+	public function getMaxRows()
+	{
 		return $this->maxRows;
 	}
 
@@ -229,9 +241,10 @@ class Adapter extends SearchServiceAdapter {
 	 * @param type $startRow
 	 * @return boolean
 	 */
-	public function setStartRow($startRow) {
+	public function setStartRow($startRow)
+	{
 		$this->startRow = $startRow;
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -239,7 +252,8 @@ class Adapter extends SearchServiceAdapter {
 	 * 
 	 * @return type
 	 */
-	public function getStartRow() {
+	public function getStartRow()
+	{
 		return $this->startRow;
 	}
 
