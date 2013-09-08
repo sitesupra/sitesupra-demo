@@ -49,7 +49,4 @@ define( 'SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH', 400 );
  * 
  */
 
-$service = new \Supra\Search\Solarium\IndexerService();
-$cl = $service->getSolariumClient($service);
-
 \Supra\Search\SearchService::getAdapter()->configure();
