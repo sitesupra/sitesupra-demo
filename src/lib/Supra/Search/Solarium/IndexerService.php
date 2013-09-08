@@ -2,9 +2,6 @@
 
 namespace Supra\Search\Solarium;
 
-use Solarium_Client;
-use Solarium_Exception;
-use Solarium_Document_ReadWrite;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\Solarium\Configuration;
 use Supra\Search\IndexerServiceAbstract;
@@ -17,12 +14,17 @@ use Supra\Search\SearchService;
 class IndexerService extends IndexerServiceAbstract
 {
 	/**
+	 * @var \Solarium_Client
+	 */
+	protected $solariumClient;
+
+	/**
 	 * Adds $queueItem to Solr.
 	 * @param IndexerQueueItem $queueItem 
 	 */
 	public function processItem(\Supra\Search\Entity\Abstraction\IndexerQueueItem $queueItem)
 	{
-		$solariumClient = $this->getSolariumClient($this);
+		$solariumClient = $this->getSolariumClient();
 		
 		if ( ! $solariumClient instanceof \Solarium_Client) {
 			
@@ -93,7 +95,7 @@ class IndexerService extends IndexerServiceAbstract
 	 */
 	public function getDocumentCount()
 	{
-		$solariumClient = $this->getSolariumClient($this);
+		$solariumClient = $this->getSolariumClient();
 		
 		if ( ! $solariumClient instanceof \Solarium_Client) {
 			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
@@ -115,7 +117,7 @@ class IndexerService extends IndexerServiceAbstract
 	 */
 	public function removeFromIndex($uniqueId)
 	{
-		$solariumClient = $this->getSolariumClient($this);
+		$solariumClient = $this->getSolariumClient();
 		
 		if ( ! $solariumClient instanceof \Solarium_Client) {
 			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
