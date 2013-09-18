@@ -73,7 +73,7 @@
 			overflow: hidden;
 		}
 		&.blank .content {
-			background: url(/cms/content-manager/slideshowmanager/images/preview-blank.png) 10px 10px no-repeat;
+			background: url(icons/images-preview-blank.png) 10px 10px no-repeat;
 		}
 		
 		.click-target {
@@ -111,5 +111,20 @@
 			height: 166px;
 		}
 	}
-	
+}
+
+/*
+ * Disabled state
+ */
+.su-input-image-list-disabled {
+	li {
+		.content,
+		.click-target {
+			cursor: default;
+		}
+		
+		&:hover .remove {
+			display: none;
+		}
+	}
 }

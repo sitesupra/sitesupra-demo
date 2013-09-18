@@ -491,6 +491,8 @@ YUI.add('supra.input-image-list', function (Y) {
 		 * @private
 		 */
 		_onAddNewItem: function (e) {
+			if (this.get('disabled')) return;
+			
 			var item = this._uiAddItem(null, true);
 			
 			if (item) {
@@ -505,6 +507,8 @@ YUI.add('supra.input-image-list', function (Y) {
 		 * Handle item click
 		 */
 		_onItemClick: function (e) {
+			if (this.get('disabled')) return;
+			
 			var node = e.target.closest('li'),
 				item_id = node.getAttribute('data-id'),
 				item = this._listGetItem(item_id);
@@ -845,6 +849,22 @@ YUI.add('supra.input-image-list', function (Y) {
 			
 			return out;
 		},
+		
+		/**
+		 * Disabled attribute setter
+		 * 
+		 * @param {Boolean} disabled Attribute value
+		 * @returns {Boolean} Attribute value
+		 */
+		_setDisabled: function (disabled) {
+			Input.superclass._setDisabled.apply(this, arguments);
+			
+			if (this.orderDelegate) {
+				this.orderDelegate.dd.set('lock', !!disabled);
+			}
+			
+			return disabled;
+		}
 		
 		
 	});
