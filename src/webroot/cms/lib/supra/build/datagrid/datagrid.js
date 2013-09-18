@@ -150,8 +150,11 @@ YUI.add("supra.datagrid", function (Y) {
 				node = Y.Node.create('<table></table>');
 				srcNode.append(node);
 			}
-			this.tableNode = node;
-			return node;
+			
+			if (node) {
+				this.tableNode = node;
+				return node;
+			}
 		},
 		'tableHeadingNode': function (srcNode) {
 			var table = this.tableNode;
@@ -161,8 +164,11 @@ YUI.add("supra.datagrid", function (Y) {
 				table.append(node);
 				node = table.one('tr');
 			}
-			this.tableHeadingNode = node;
-			return node;
+			
+			if (node) {
+				this.tableHeadingNode = node;
+				return node;
+			}
 		},
 		'nodeScrollable': function (srcNode) {
 			return this.get('scrollable') ? srcNode.closest('.su-scrollable') : null;
@@ -300,9 +306,11 @@ YUI.add("supra.datagrid", function (Y) {
 		'initializer': function () {
 			this.rows = [];
 			
-			if (this.get('scrollable')) {
+			var scrollable = this.get('scrollable');
+			if (scrollable) {
 				this.scrollable = new Supra.Scrollable({
-					'srcNode': this.get('contentBox')
+					'srcNode': this.get('contentBox'),
+					'axis': scrollable == 'x' ? 'x' : 'y' 
 				});
 			}
 		},

@@ -74,6 +74,9 @@ YUI().add("supra.htmleditor-plugin-insert", function (Y) {
 			var toolbar = htmleditor.get("toolbar"),
 				button = toolbar ? toolbar.getButton("insert") : null;
 			
+			// Show button
+			button.set("visible", true);
+			
 			// Add command
 			htmleditor.addCommand("insert", Y.bind(this.toggleInsertToolbar, this));
 			

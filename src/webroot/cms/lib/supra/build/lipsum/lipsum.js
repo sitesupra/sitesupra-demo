@@ -171,6 +171,32 @@ YUI.add('supra.lipsum', function (Y) {
 			min = min || 0;
 			var r = Math.random();
 			return Math.round(r * (max - min) + min);
+		},
+		
+		/**
+		 * Renerates random SKU number
+		 * 
+		 * @returns {String} SKU number
+		 */
+		sku: function (prefix) {
+			var chr = '',
+				num = '';
+			
+			// We are removing o, i and l, because they might be mistaken for 0 and 1
+			prefix = prefix ? prefix.replace(/[^a-z0-9]/ig, '').replace(/[oil]/ig, '') : null;
+			
+			// 3 character string as prefix
+			if (!prefix || typeof prefix !== 'string') {
+				chr = 'abcdefghjkmnprstuvzqxyw';
+				prefix = '';
+				
+				while (prefix.length < 3) {
+					prefix += chr.charAt(Math.floor(Math.random() * chr.length));
+				}
+			}
+			
+			num = String(+new Date()).substr(3, 8);
+			return prefix.toUpperCase() + num;
 		}
 		
 	};

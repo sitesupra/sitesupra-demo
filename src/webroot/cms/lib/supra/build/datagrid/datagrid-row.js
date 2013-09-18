@@ -110,7 +110,7 @@ YUI.add("supra.datagrid-row", function (Y) {
 		remove: function () {
 			this.host.remove(this.getID(), true);
 			
-			this.node.remove();
+			this.node.remove(true);
 			this.host = null;
 			this.id = null;
 			this.id_components = null;

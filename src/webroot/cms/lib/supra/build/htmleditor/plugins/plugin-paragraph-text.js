@@ -2,7 +2,7 @@ YUI().add('supra.htmleditor-plugin-paragraph-text', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_TEXT]
+		modes: [Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_BASIC]
 	};
 	
 	Supra.HTMLEditor.addPlugin('paragraph-text', defaultConfiguration, {

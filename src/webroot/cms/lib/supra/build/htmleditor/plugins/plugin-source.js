@@ -49,6 +49,9 @@ YUI().add('supra.htmleditor-plugin-source', function (Y) {
 				toolbar = htmleditor.get('toolbar'),
 				button = toolbar ? toolbar.getButton('source') : null;
 			
+			// Toolbar button
+			button.set("visible", true);
+			
 			// Add command
 			htmleditor.addCommand('source', Y.bind(this.showSourceEditor, this));
 			

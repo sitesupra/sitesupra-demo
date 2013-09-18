@@ -830,7 +830,6 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/media-inline.js',
 		requires: ['supra.input-proto', 'supra.uploader', 'supra.datatype-image']
 	},
-	
 	'supra.input-string-clear': {
 		path: 'input/string.js',
 		requires: ['supra.input-string', 'plugin']
@@ -905,6 +904,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.input-inline-text': {
 		path: 'input/text-inline.js',
 		requires: ['supra.input-inline-string']
+	},
+	
+	//Image list, standalone
+	'supra.input-image-list': {
+		path: 'input/image-list.js',
+		requires: ['supra.input-image', 'supra.datatype-image']
 	},
 	
 	/**

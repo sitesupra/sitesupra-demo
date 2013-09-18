@@ -114,11 +114,21 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 			var lists = ['indent', 'outdent'].concat(this.lists),
 				i = 0,
 				imax = lists.length,
-				execCallback = Y.bind(this.exec, this);
-				
+				execCallback = Y.bind(this.exec, this),
+				button;
+			
 			for(; i < imax; i++) {
 				this.htmleditor.addCommand(lists[i], execCallback);
 				this.bindButton(lists[i]);
+			}
+			
+			// Show buttons
+			lists = this.lists;
+			for (i=0, imax=lists.length; i<imax; i++) {
+				button = this.buttons[lists[i].toUpperCase()];
+				if (button) {
+					button.set('visible', true);
+				}
 			}
 			
 			//When un-editable node is selected disable toolbar button
