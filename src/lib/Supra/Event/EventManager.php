@@ -181,4 +181,17 @@ class EventManager
 		
 		return $removed;
 	}
+	
+	/**
+	 * @param string $eventType
+	 * @return array
+	 */
+	public function getListeners($eventType)
+	{
+		if (isset($this->listeners[$eventType])) {
+			return array_values($this->listeners[$eventType]);
+		}
+		
+		return array();
+	}
 }

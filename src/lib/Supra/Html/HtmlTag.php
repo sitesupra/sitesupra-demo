@@ -43,6 +43,8 @@ class HtmlTag extends HtmlTagStart
 	public function setContent($content)
 	{
 		$this->content = $content;
+		
+		return $this;
 	}
 
 	/**

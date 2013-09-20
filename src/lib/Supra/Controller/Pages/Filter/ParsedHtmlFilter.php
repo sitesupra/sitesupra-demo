@@ -12,14 +12,14 @@ use Supra\Controller\Pages\Markup;
 use Supra\FileStorage\Entity\Image;
 use Twig_Markup;
 use Supra\Response\ResponseContext;
-use Supra\Email;
+use Supra\Controller\Pages\Email;
+use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
 /**
  * Parses supra markup tags inside the HTML content
  */
 class ParsedHtmlFilter implements FilterInterface
 {
-
 	const REQUEST_TYPE_VIEW = 0;
 	const REQUEST_TYPE_EDIT = 1;
 	
@@ -49,11 +49,6 @@ class ParsedHtmlFilter implements FilterInterface
 	protected $requestType;
 	
 	/**
-	 * @var boolean
-	 */
-	private $encoderEventTriggered;
-	
-	/**
 	 * Create log instance
 	 */
 	public function __construct()
@@ -74,78 +69,86 @@ class ParsedHtmlFilter implements FilterInterface
 	 * @param Entity\ReferencedElement\LinkReferencedElement $link
 	 * @return string
 	 */
-	private function parseSupraLinkStart(Entity\ReferencedElement\LinkReferencedElement $link, $linkContent = null)
+	private function parseSupraLinkStart(LinkReferencedElement $link)
 	{
-		$attributes = array(
-				'target' => $link->getTarget(),
-				'title' => $link->getTitle(),
-				'href' => $link->getUrl(),
-				'class' => $link->getClassName(),
-		);  
-		
 		$tag = new \Supra\Html\HtmlTagStart('a');
-			
-		if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_FILE) {
-			
-			$attributes['target'] = '_blank';
-			
-			$file = $link->getFile();
 		
-			if ( ! empty($file)) {
-				$extension = $file->getExtension();
-				$tag->addClass('file-' . mb_strtolower($extension));
-
-				$modificationTime = $file->getModificationTime();
+		$tag->setAttribute('target', $link->getTarget())
+				->setAttribute('title', $link->getTitle())
+				->setAttribute('href', $link->getUrl())
+				->setAttribute('class', $link->getClassName())
+		;
+		
+		switch ($link->getResource()) {
+			
+			// Case when link points to MediaLibrary's file
+			case LinkReferencedElement::RESOURCE_FILE:
 				
-				if (!empty($modificationTime)) {
-					$attributes['data-modification-date'] = $modificationTime->format('d');
-					$attributes['data-modification-month'] = $modificationTime->format('m');
-					$attributes['data-modification-year'] = $modificationTime->format('Y');
+				$tag->setAttribute('target', '_blank');
+				
+				$file = $link->getFile();
+				
+				if ($file instanceof File) {
+					
+					// e.g. class="file-pdf"
+					$tag->addClass("file-{$file->getExtension()}");
+					
+					// Special case for Gjensidige project
+					/** @TODO: add possibility to attach project-specific filters and remove this? */
+					$modTime = $file->getModificationTime();
+					if ( ! empty($modTime)) {
+						$attrs['data-mod-d'] = $modTime->format('d');
+						$attrs['data-mod-m'] = $modTime->format('m');
+						$attrs['data-mod-y'] = $modTime->format('Y');
+					}
 				}
-			}
-		} else if ($link->getResource() == Entity\ReferencedElement\LinkReferencedElement::RESOURCE_EMAIL) {
-
-		
-			$emailEncoder = new Email\EmailEncoder();	
-			
-			$title = $link->getTitle();
-			if (filter_var($title, FILTER_VALIDATE_EMAIL)) {
-				$attributes['title'] = $emailEncoder->encode($title);
-			}
-			
-			$href = $link->getUrl();
-			if (filter_var(str_replace('mailto:', '', $href), FILTER_VALIDATE_EMAIL)) {
-				$attributes['href'] = $emailEncoder->encode($href);
-			}
-			
-			/* @var $linkContent \Supra\Controller\Pages\Markup\HtmlElement */
-			if ($linkContent instanceof Markup\HtmlElement) {
 				
-				$linkContentText = $linkContent->getContent();
+				break;
 				
-				if (filter_var($linkContentText, FILTER_VALIDATE_EMAIL)) {					
-					$linkContentText = $emailEncoder->encode($linkContentText);
-					$linkContent->setContent($linkContentText);
-					$attributes['data-email'] = 'href,text';					
-				} else {
-					$attributes['data-email'] = 'href';
-				}	
-			}
-			
-			$this->responseContext->setValue(Email\EmailEncoderListener::ENCODER_CONTEXT_KEY, true);
+			case LinkReferencedElement::RESOURCE_EMAIL:
+				throw new \RuntimeException("Emails should be handled with another method");
+				break;
 		}
 		
+		return $tag->toHtml();
+	}
+	
+	/**
+	 * Special case for links with emails
+	 */
+	private function parseSupraEmailLinkStart(LinkReferencedElement $link, Markup\HtmlElement &$contentElement = null)
+	{
+		$tag = new \Supra\Html\HtmlTagStart('a');
 		
-		foreach ($attributes as $attributeName => $attributeValue) {
-
-			if ($attributeValue != '') {
-				$tag->setAttribute($attributeName, $attributeValue);
+		$tag->setAttribute('target', $link->getTarget())
+				->setAttribute('title', $link->getTitle())
+				->setAttribute('href', $link->getUrl())
+				->setAttribute('class', $link->getClassName())
+		;
+		
+		$encoder = Email\EmailEncoder::getInstance();
+			
+		$title = $link->getTitle();
+		$href = $link->getUrl();
+				
+		$tag->setAttribute('title', $encoder->encode($title));	
+		$tag->setAttribute('href', $encoder->encode($href));
+		
+		$tag->setAttribute('data-email', 'href');
+		
+		if ($contentElement instanceof Markup\HtmlElement) {
+				
+			$content = $contentElement->getContent();
+		
+			if (\filter_var($content, FILTER_VALIDATE_EMAIL)) {
+				$contentElement->setContent($encoder->encode($content));
+				$tag->setAttribute('data-email', 'href,text');
 			}
 		}
-
-		$html = $tag->toHtml();
 		
-		return $html;
+		$this->responseContext->setValue(Email\EncoderEventListener::CONTEXT_PERSISTENCE_OFFSET, true);
+				
+		return $tag->toHtml();
 	}
 	
 	/**
@@ -327,15 +330,16 @@ class ParsedHtmlFilter implements FilterInterface
 
 		$tokenizer->tokenize();
 
-		$result = array();
 		$elements = $tokenizer->getElements();
-		$c = 0;
+		
+		$result = array();
 
-		foreach ($elements as $element) {
-			
+		foreach ($elements as $offset => $element) {
+	
 			if ($element instanceof Markup\HtmlElement) {
 				$result[] = $element->getContent();
 			}
+			
 			else if ($element instanceof Markup\SupraMarkupImage) {
 
 				if ( ! isset($metadataElements[$element->getId()])) {
@@ -370,26 +374,47 @@ class ParsedHtmlFilter implements FilterInterface
 					$result[] = $this->parseSupraVideo($video);
 				}
 			}
+			
 			else if ($element instanceof Markup\SupraMarkupLinkStart) {
-
+				
 				if ( ! isset($metadataElements[$element->getId()])) {
 					$this->log->warn("Referenced link element " . get_class($element) . "-" . $element->getId() . " not found for {$this->property}");
+					continue;
 				}
-				else {
+				
+				$metaElement = $metadataElements[$element->getId()];
 
-					$link = $metadataElements[$element->getId()];
-					// Overwriting in case of duplicate markup tag usage
-					ObjectRepository::setCallerParent($link, $this, true);
-					$nextElement = $elements[$c + 1];
-					$result[] = $this->parseSupraLinkStart($link, $nextElement);
+				if ( ! $metaElement instanceof LinkReferencedElement) {
+					$this->log->warn("Referenced element seems to be not LinkReferencedElement");
+					continue;
+				}
+				
+				// Overwriting in case of duplicate markup tag usage
+				ObjectRepository::setCallerParent($metaElement, $this, true);
+				
+				// Emails needs to be handled in especial way
+				if ($metaElement->getResource() === LinkReferencedElement::RESOURCE_EMAIL) {
+					
+					// pass the next element, assuming it's a link content
+					/** @TODO: will work nasty when someone decides to place media element inside */
+					$contentElement = null;
+					$nextOffset = $offset + 1;
+					if (isset($elements[$nextOffset])
+							&& $elements[$nextOffset] instanceof Markup\HtmlElement) {
+						
+						$contentElement = &$elements[$nextOffset];
+					}
+					
+					$result[] = $this->parseSupraEmailLinkStart($metaElement, $contentElement);
+				} else {
+					
+					$result[] = $this->parseSupraLinkStart($metaElement);
 				}
 			}
 			else if ($element instanceof Markup\SupraMarkupLinkEnd) {
-
+				
 				$result[] = $this->parseSupraLinkEnd();
 			}
-			
-			$c++;
 		}
 
 		return join('', $result);

@@ -21,8 +21,10 @@ class HtmlTagStart extends HtmlTagAbstraction
 			$name = $this->normalizeName($name);
 		}
 		$this->attributes[$name] = $value;
+		
+		return $this;
 	}
-
+	
 	/**
 	 * @param string $name
 	 * @return string
@@ -47,6 +49,8 @@ class HtmlTagStart extends HtmlTagAbstraction
 		else {
 			$this->attributes['class'] .= ' ' . $class;
 		}
+		
+		return $this;
 	}
 
 	/**

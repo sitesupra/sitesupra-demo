@@ -24,6 +24,7 @@ abstract class HtmlTagAbstraction
 	public function setTagName($tagName)
 	{
 		$this->tagName = $this->normalizeName($tagName);
+		return $this;
 	}	
 	
 	/**
