@@ -1,16 +1,10 @@
-/*
- * Keywords input
- */
-.ui-dark .yui3-input-keywords {
+.yui3-input-keywords {
 	.input-list,
 	.suggestions-list {
-		color: #fff;
 		cursor: text;
 		font-size: 11px;
-		line-height: 15px;
+		line-height: 22px;
 
-		background: #090613;
-		box-shadow: 0 1px 1px rgba(4,1,17,0.6) inset, 0 1px 0 rgba(255, 255, 255, 0.15);
 		padding: 8px 16px 0 0;
 		
 		border: 0;
@@ -28,7 +22,6 @@
 			margin: 0 0 8px 8px;
 			overflow: hidden;
 			
-			background: #36333E url(icons/icon-remove.gif) 100% 0 no-repeat;
 			.border-radius (5px);
 			.box-sizing (border-box);
 
@@ -36,8 +29,8 @@
 
 			a {
 				display: inline-block;
-				width: 15px;
-				height: 15px;
+				width: 18px;
+				height: 22px;
 
 				position: absolute;
 				top: 0;
@@ -57,7 +50,6 @@
 			margin: 0 0 8px 8px;
 			width: 100%;
 			
-			color: #fff;
 			line-height: 15px;
 		}
 
@@ -74,27 +66,141 @@
 			.border-radius (none);
 
 			span {
-				background: #393846;
 				padding: 0 8px;
 				margin: 0 4px 8px 0;
 				cursor: pointer;
 			}
 
 			.suggestion-msg {
-				background: transparent;
 				padding: 0;
 				margin: 0 4px 4px 0;
 			}
 		}
 
 		a.link-clear-all {
-			color: #8C8CA1;
 			font-size: 11px;
+		}
+	}
+	
+	.description {
+		padding-top: 4px !important;
+	}
+}
+
+
+/*
+ * Keywords input, light theme
+ */
+.ui-light .yui3-input-keywords {
+	.input-list,
+	.suggestions-list {
+		color: #000;
+
+		background: url("/cms/lib/supra/build/input/assets/skins/supra/input-bg.png") 0 0 repeat;
+		box-shadow: 0 1px 1px rgba(4,1,17,0.6) inset, 0 1px 0 rgba(255,255,255,0.15);
+		
+		span {
+			background: url(/cms/lib/supra/img/sidebar/left-bg.gif) 0 0 repeat;
+			box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+
+			a {
+				background: url(icons/icon-remove-light.png) 100% 50% no-repeat;
+			}
+		}
+		
+		input {
+			color: #58586c;
+		}
+
+	}
+	
+	&.yui3-input-keywords-focused,
+	&:hover {
+		input {
+			color: #000;
+		}
+	}
+
+	.suggestions {
+		.suggestions-list {
+			span {
+				background: url(/cms/lib/supra/img/sidebar/left-bg.gif) 0 0 repeat;
+				box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+				margin: 0 0 8px 8px;
+			}
+			.suggestion-msg {
+				background: transparent;
+				box-shadow: none;
+			}
+		}
+
+		a.link-clear-all {
+			color: #8C8CA1;
+		}
+	}
+	
+	&.yui3-input-keywords-auto-suggestions {
+		.input-list {
+			.border-radius (3px, 3px, 0, 0);
+		}
+		.suggestions {
+			overflow: hidden;
+			padding-top: 0;
+			margin-top: 0;
+		}
+		.suggestions-list {
+			position: relative;
+			margin-top: -1px;
+			.border-radius (0, 0, 3px, 3px);
+		}
+	}
+}
+
+/*
+ * Keywords input, dark theme
+ */
+.ui-dark .yui3-input-keywords {
+	.input-list,
+	.suggestions-list {
+		color: #fff;
+		line-height: 15px;
+
+		background: #090613;
+		box-shadow: 0 1px 1px rgba(4, 1, 17, 0.6) inset, 0 1px 0 rgba(255, 255, 255, 0.15);
+		
+		span {
+			background: #36333E url(icons/icon-remove.gif) 100% 0 no-repeat;
+
+			a {
+				width: 15px;
+				height: 15px;
+			}
+		}
+		
+		input {
+			color: #fff;
+		}
+
+	}
+
+	.suggestions {
+		.suggestions-list {
+			span {
+				background: #393846;
+			}
+			.suggestion-msg {
+				background: transparent;
+			}
+		}
+
+		a.link-clear-all {
+			color: #8C8CA1;
 		}
 	}
 }
 
 // Disabled state
+.ui-light .yui3-input-keywords-disabled,
 .ui-dark .yui3-input-keywords-disabled {
 	.input-list,
 	.suggestions-list,

@@ -124,7 +124,6 @@
 	.yui3-input input,
 	.yui3-input textarea,
 	.yui3-input iframe,
-	.yui3-input iframe,
 	.yui3-input select {
 		font-size: 11px;
 		height: 24px;
@@ -138,6 +137,10 @@
 		border: 1px solid #999;
 		.border-radius (3px);
 		border-radius: 3px 3px 3px 3.1px;	/* 3.1px is for IE9 fix */
+	}
+	.yui3-input .yui3-editor-toolbar + iframe {
+		.border-radius (0, 0, 3px, 3px);
+		border-radius: 0 0 3px 3.1px;	/* 3.1px is for IE9 fix */
 	}
 	
 	.yui3-input input,
@@ -538,6 +541,9 @@
 
 /* Inline image */
 @import "less/image-inline.less";
+
+/* Image list */
+@import "less/image-list.less";
 
 /* Keywords */
 @import "less/keywords.less";

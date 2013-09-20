@@ -8,8 +8,17 @@ YUI().add('supra.htmleditor-base', function (Y) {
 	
 	HTMLEditor.MODE_STRING	= 1;
 	HTMLEditor.MODE_TEXT	= 4;
+	HTMLEditor.MODE_BASIC	= 5;
 	HTMLEditor.MODE_SIMPLE	= 2;
 	HTMLEditor.MODE_RICH	= 3;
+	
+	HTMLEditor.MODE_NAMES   = {
+		'string': HTMLEditor.MODE_STRING,
+		'text':   HTMLEditor.MODE_TEXT,
+		'basic':  HTMLEditor.MODE_BASIC,
+		'simple': HTMLEditor.MODE_SIMPLE,
+		'rich':   HTMLEditor.MODE_RICH
+	};
 	
 	HTMLEditor.TYPE_STANDALONE = 1;
 	HTMLEditor.TYPE_INLINE = 2;

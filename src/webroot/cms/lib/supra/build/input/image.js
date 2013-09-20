@@ -148,9 +148,24 @@ YUI.add('supra.input-image', function (Y) {
 		},
 		
 		renderUI: function () {
+			// Content and bounding boxes
+			var contentBox = this.get('contentBox');
+			
+			if (contentBox.test('input')) {
+				var className = this.getClassName('content');
+				
+				contentBox.removeClass(className);
+				
+				contentBox = Y.Node.create(this.CONTENT_TEMPLATE);
+				contentBox.addClass(className);
+				
+				this.get('boundingBox').append(contentBox);
+				this.set('contentBox', contentBox);
+			}
+			
 			//Create button
 			this.button = new Supra.Button({'label': this.get('labelSet')});
-			this.button.render(this.get('contentBox'));
+			this.button.render(contentBox);
 			this.button.on('click', this.openMediaSidebar, this);
 			
 			//Remove button

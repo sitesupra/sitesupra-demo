@@ -348,7 +348,7 @@ YUI().add('supra.htmleditor-plugin-paste', function (Y) {
 				
 				//Calling, because plugins could be using 'cleanHTML' event
 				html = htmleditor.cleanHTML(html);
-			} else if (mode == Supra.HTMLEditor.MODE_TEXT) {
+			} else if (mode == Supra.HTMLEditor.MODE_TEXT || mode == Supra.HTMLEditor.MODE_BASIC) {
 				
 				if (html.indexOf('<') !== -1) {
 					// Replace all block level ending tags with new lines

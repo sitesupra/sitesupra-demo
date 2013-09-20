@@ -72,6 +72,9 @@
 	display: none;
 }
 
+/*
+ * Simple list
+ */
 .su-datagrid-list {
 	color: #323144;
 	font-size: 13px;
@@ -131,6 +134,9 @@
 	}
 }
 
+/*
+ * Grid
+ */
 .su-datagrid-grid {
 	
 	table {
@@ -240,6 +246,45 @@
 	}
 }
 
+// Dark theme for grid
+.ui-light .su-datagrid-grid {
+	background: url("/cms/lib/supra/build/input/assets/skins/supra/input-bg.png") 0 0 repeat;
+	box-shadow: 0 1px 1px rgba(4,1,17,0.6) inset, 0 1px 0 rgba(255,255,255,0.15);
+	border-radius: 3px;
+	
+	.su-datagrid-content {
+		
+	}
+	table {
+		border: 0;
+	}
+	thead {
+		border: 0;
+	}
+	th {
+		border: 0;
+		background: none;
+		padding-top: 10px;
+		padding-bottom: 9px;
+	}
+	td {
+		border: 0;
+	}
+	
+	tbody {
+		background: none;
+		
+		tr:nth-child(odd) td {
+			border-top: 1px solid #6d6d82;
+			border-bottom: 1px solid #6d6d82;
+		}
+	}
+}
+
+
+/*
+ * Dark style datagrid
+ */
 .su-datagrid-dark {
 	height: auto;
 	

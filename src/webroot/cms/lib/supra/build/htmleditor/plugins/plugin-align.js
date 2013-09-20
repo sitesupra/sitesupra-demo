@@ -157,6 +157,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			
 			// Font size input
 			var input = this.alignInput = toolbar.getButton("align");
+			input.set("visible", true);
 			input.set("value", "left");
 			input.after("valueChange", this.handleAlignChange, this);
 			

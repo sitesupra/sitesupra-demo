@@ -6,10 +6,6 @@ YUI.add("supra.input-html", function (Y) {
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
-		
-		Manager.Loader.loadAction('EditorToolbar');
-		Manager.Loader.loadAction('PageContentSettings');
 	}
 	
 	// Input is inline
@@ -26,8 +22,8 @@ YUI.add("supra.input-html", function (Y) {
 		'win': {
 			value: null
 		},
-		'toolbar': {
-			value: null
+		'toolbarInline': {
+			value: false
 		},
 		'nodeIframe': {
 			value: null
@@ -35,13 +31,34 @@ YUI.add("supra.input-html", function (Y) {
 		// HTML plugin information
 		'plugins': {
 			value: null
+		},
+		// HTML editor mode
+		'mode': {
+			value: null
 		}
 	};
 	
 	/**
 	 * Parse
 	 */
-	Input.HTML_PARSER = {};
+	Input.HTML_PARSER = {
+		'mode': function (srcNode) {
+			var mode = srcNode.getAttribute('data-mode'),
+				names = Supra.HTMLEditor.MODE_NAMES;
+			
+			if (mode && mode in names) {
+				return names[mode];
+			}
+		},
+		'toolbarInline': function (srcNode) {
+			var inline = srcNode.getAttribute('data-toolbar-inline');
+			if (inline === 'true' || inline === '1') {
+				return true;
+			} else if (inline === 'false' || inline === '0') {
+				return false;
+			}
+		}
+	};
 	
 	Y.extend(Input, Supra.Input.Proto, {
 		/**
@@ -77,6 +94,8 @@ YUI.add("supra.input-html", function (Y) {
 					this.fire('change');
 				}, this);
 			}
+			
+			this.after('disabledChange', this._afterDisabledChange, this);
 		},
 		
 		/**
@@ -88,6 +107,12 @@ YUI.add("supra.input-html", function (Y) {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			this.set('boundingBox', this.get('srcNode'));
+			
+			if (!this.get('toolbarInline')) {
+				Manager.Loader.loadActions(['EditorToolbar', 'PageContentSettings']);
+			} else {
+				Manager.Loader.loadActions(['PageContentSettings']);
+			}
 			
 			this.createIframe();
 		},
@@ -111,21 +136,49 @@ YUI.add("supra.input-html", function (Y) {
 		 * @private
 		 */
 		loadDependancies: function () {
-			//Toolbar needs to exist
-			var action = Manager.getAction('EditorToolbar');
-			if (!action.get('created')) {
-				action.once('executed', function () {
-					var action = Manager.getAction('PageContentSettings');
-					if (!action.get('loaded')) {
-						action.once('loaded', this.createEditor, this);
-					} else {
-						this.createEditor();
-					}
-				}, this);
-				
-				Manager.executeAction('EditorToolbar', true);
-			} else {
+			if (this.get('toolbarInline')) {
 				this.createEditor();
+			} else {
+				// We need EditorToolbar action
+				var action = Manager.getAction('EditorToolbar');
+				if (!action.get('created')) {
+					action.once('executed', function () {
+						var action = Manager.getAction('PageContentSettings');
+						if (!action.get('loaded')) {
+							action.once('loaded', this.createEditor, this);
+						} else {
+							this.createEditor();
+						}
+					}, this);
+					
+					Manager.executeAction('EditorToolbar', true);
+				} else {
+					this.createEditor();
+				}
+			}
+		},
+		
+		createEditorToolbar: function () {
+			if (this.get('toolbarInline')) {
+				var iframe   = this.get('nodeIframe'),
+					toolbar  = null,
+					controls = Supra.mix([], Supra.HTMLEditorToolbar.CONTROLS, true),
+					i = controls.groups.length-1;
+				
+				for (; i>=0; i--) {
+					if (controls.groups[i].id == 'main') {
+						// We can't have main group, while toolbar is inline
+						controls.groups.splice(i, 1);
+					}
+				}
+				
+				toolbar = new Supra.HTMLEditorToolbar({'controls': controls});
+				toolbar.render(this.get('boundingBox'));
+				iframe.insert(toolbar.get('boundingBox'), 'before');
+				
+				return toolbar;
+			} else {
+				return Manager.EditorToolbar.getToolbar();
 			}
 		},
 		
@@ -140,24 +193,41 @@ YUI.add("supra.input-html", function (Y) {
 			var doc = this.get('doc'),
 				win = this.get('win'),
 				src = this.get('srcNode'),
-				toolbar = Manager.EditorToolbar.getToolbar(),
-				value = this.get('value');
+				toolbar = this.createEditorToolbar(),
+				value = this.get('value'),
+				iframe = this.get('nodeIframe'),
+				controls = null;
 			
 			if (doc && win && src) {
 				this.htmleditor = new Supra.HTMLEditor({
 					'doc': doc,
 					'win': win,
 					'srcNode': Y.Node(doc).one('.editing'),
-					'iframeNode': this.get('nodeIframe'),
+					'iframeNode': iframe,
 					'toolbar': toolbar,
-					'mode': Supra.HTMLEditor.MODE_RICH,
+					'mode': this.get('mode') || Supra.HTMLEditor.MODE_RICH,
 					'standalone': true,
 					'parent': this,
 					'root': this.get('root') || this,
 					'plugins': this.get('plugins')
 				});
 				this.htmleditor.render();
-				this.htmleditor.set('disabled', true);
+				
+				if (this.get('disabled') || !this.get('toolbarInline')) {
+					// Disable
+					this.htmleditor.set('disabled', true);
+				} else {
+					// Enable
+					Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
+				}
+				
+				// Normalize value
+				if (typeof value === 'string') {
+					value = {
+						'html': value,
+						'data': {}
+					};
+				}
 				
 				if (value && 'html' in value) {
 					this.htmleditor.setAllData(value.data);
@@ -249,17 +319,21 @@ YUI.add("supra.input-html", function (Y) {
 		 */
 		onIframeClick: function () {
 			if (!this.get('disabled')) {
-				if (this.htmleditor.get('disabled') && !Manager.EditorToolbar.get('visible')) {
-					
-					Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
-					
-					//Show toolbar without "Settings" button
-					Manager.EditorToolbar.execute();
-					Manager.EditorToolbar.getToolbar().getButton('settings').set('visible', false);
-					
-					this.htmleditor.set('disabled', false);
-					
-					Manager.EditorToolbar.once('afterVisibleChange', this.onIframeBlur, this);
+				if (this.htmleditor.get('disabled')) {
+					if (this.get('toolbarInline')) {
+						Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
+						this.htmleditor.set('disabled', false);
+					} else if (!Manager.EditorToolbar.get('visible')) {
+						Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
+						
+						//Show toolbar without "Settings" button
+						Manager.EditorToolbar.execute();
+						Manager.EditorToolbar.getToolbar().getButton('settings').set('visible', false);
+						
+						this.htmleditor.set('disabled', false);
+						
+						Manager.EditorToolbar.once('afterVisibleChange', this.onIframeBlur, this);
+					}
 				}
 			}
 		},
@@ -455,12 +529,28 @@ YUI.add("supra.input-html", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (typeof value === 'string') {
+				value = {
+					'html': value,
+					'data': {}
+				};
+			}
+			
 			if (this.htmleditor) {
 				this.htmleditor.setAllData(value.data);
 				this.htmleditor.setHTML(value.html);
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Handle disabled change event
+		 * 
+		 * @param {Object} e
+		 */
+		_afterDisabledChange: function (e) {
+			this.htmleditor.set('disabled', e.newVal);
 		}
 		
 	});

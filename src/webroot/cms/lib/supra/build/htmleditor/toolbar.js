@@ -2,7 +2,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
-	var BUTTONS_DEFAULT = {
+	var CONTROLS = {
 		groups: [
 			{
 				"id": "main",
@@ -10,7 +10,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"animate": false, // never animate slide in/slide out
 				"height": 48,
 				"controls": [
-					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"},
+					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source", "visible": false},
 					{"type": "separator"},
 					//{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
 					//{"type": "separator"},
@@ -23,7 +23,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"animate": true,
 				"height": 42,
 				"controls": [
-						{"id": "style", "type": "button", "command": "style", "icon": "/cms/lib/supra/img/htmleditor/icon-style.png"},
+						{"id": "style", "type": "button", "command": "style", "icon": "/cms/lib/supra/img/htmleditor/icon-style.png", "visible": false},
 					{"type": "separator"},
 						{"id": "fonts", "type": "button", "command": "fonts", "icon": "/cms/lib/supra/img/htmleditor/icon-fonts.png", "visible": false},
 					{"type": "separator"},
@@ -55,22 +55,22 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 						{"id": "underline", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-underline.png", "command": "underline"},
 						{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/cms/lib/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
 					{"type": "separator"},
-						{"id": "align", "type": "dropdown", "command": "align", "style": "icons-text", "values": [
+						{"id": "align", "type": "dropdown", "command": "align", "style": "icons-text", "visible": false, "values": [
 							{"id": "left", "title": "Left", "icon": "/cms/lib/supra/img/htmleditor/align-left.png"},
 							{"id": "center", "title": "Center", "icon": "/cms/lib/supra/img/htmleditor/align-center.png"},
 							{"id": "right", "title": "Right", "icon": "/cms/lib/supra/img/htmleditor/align-right.png"},
 							{"id": "justify", "title": "Justify", "icon": "/cms/lib/supra/img/htmleditor/align-justify.png"}
 						]},
 					{"type": "separator"},
-						{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul"},
-						{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol"},
+						{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul", "visible": false},
+						{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol", "visible": false},
 					{"type": "separator"},
 						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
 						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
 						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink", "visible": false},
 					{"type": "separator"},
-						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert"}
+						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert", "visible": false}
 				]
 			},
 			{
@@ -145,12 +145,19 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 	HTMLEditorToolbar.NAME = 'editor-toolbar';
 	HTMLEditorToolbar.CLASS_NAME = Y.ClassNameManager.getClassName(HTMLEditorToolbar.NAME);
 	HTMLEditorToolbar.ATTRS = {
-		'editor': null,
+		'editor': {
+			value: null
+		},
 		'disabled': {
 			value: false,
 			setter: '_setDisabled'
+		},
+		'controls': {
+			value: CONTROLS
 		}
 	};
+	
+	HTMLEditorToolbar.CONTROLS = CONTROLS;
 	
 	Y.extend(HTMLEditorToolbar, Y.Widget, {
 		
@@ -275,7 +282,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		 * @returns {Array} List of group controls
 		 */
 		getControlsInGroup: function (group_id) {
-			var groups = BUTTONS_DEFAULT.groups,
+			var groups = this.get('controls').groups,
 				i = 0,
 				ii = groups.length,
 				controls = null,
@@ -400,7 +407,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 		renderUI: function () {
 			HTMLEditorToolbar.superclass.renderUI.apply(this, arguments);
 			
-			var groups = BUTTONS_DEFAULT.groups,
+			var groups = this.get('controls').groups,
 				groupList = this.groups = {},
 				id = null,
 				index = 0;
@@ -611,7 +618,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 			if (visible) {
 				this.get('boundingBox').removeClass(this.getClassName('hidden'));
 				
-				var group_proto = BUTTONS_DEFAULT.groups,
+				var group_proto = this.get('controls').groups,
 					groups = this.groups,
 					id = null,
 					i = 0,

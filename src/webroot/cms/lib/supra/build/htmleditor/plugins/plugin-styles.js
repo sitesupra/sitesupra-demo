@@ -747,6 +747,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		init: function (htmleditor) {
 			var toolbar = htmleditor.get('toolbar');
 			
+			toolbar.getButton('style').set('visible', true);
+			
 			this.pluginFormats = htmleditor.getPlugin('formats');
 			this.excludeList = {};
 			this.targetNodes = [];

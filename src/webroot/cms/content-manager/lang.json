@@ -53,7 +53,9 @@
 			"resize_frame_size": "Image frame size",
 			"resize_button_title": "Maintain aspect ratio",
 			"resize_width": "W",
-			"resize_height": "H"
+			"resize_height": "H",
+			
+			"suggestions": "Suggested:"
 		},
 		
 		"error": {

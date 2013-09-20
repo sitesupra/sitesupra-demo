@@ -8,11 +8,10 @@ YUI.add("supra.input-keywords", function (Y) {
 	/*
 	 * Template
 	 */
-	var TEMPLATE_VALUES = Supra.Template.compile('<span class="suggestion-msg">Suggested:</span>\
-				{% for value in values %}\
-					<span data-value="{{ value|e }}">{{ value|e }}</span>\
-				{% endfor %}\
-			');
+	var TEMPLATE_VALUES = Supra.Template.compile('{% if label %}<span class="suggestion-msg">{{ label|e }}</span>{% endif %}' +
+				'{% for value in values %}' +
+					'<span data-value="{{ value|e }}">{{ value|e }}</span>' +
+				'{% endfor %}');
 	
 	
 	function Input (config) {
@@ -35,6 +34,11 @@ YUI.add("supra.input-keywords", function (Y) {
 		"inputListNode": {
 			value: null
 		},
+		
+		"suggestedLabel": {
+			value: null
+		},
+		
 		"suggestionsNode": {
 			value: null
 		},
@@ -44,17 +48,45 @@ YUI.add("supra.input-keywords", function (Y) {
 		"suggestionRequestUri": {
 			value: null
 		},
+		
+		/*
+		 * Suggestion are automatically visible
+		 */
+		"suggestionAutoVisible": {
+			value: false,
+		},
+		
+		/*
+		 * Suggestions are enabled
+		 */
+		"suggestionsEnabled": {
+			value: false,
+			setter: '_setSuggestionsEnabled'
+		},
+		
+		/*
+		 * Array of values
+		 */
 		"values": {
 			value: null
 		},
 		
-		"suggestionsEnabled": {
-			value: false,
-			setter: '_setSuggestionsEnabled'
+		/*
+		 * Maximum number of keywords
+		 */
+		"maxCount": {
+			value: null,
+			setter: '_setMaxCount'
 		}
 	};
 	
 	Input.HTML_PARSER = {
+		'suggestedLabel': function (srcNode) {
+			var value = srcNode.getAttribute('data-suggestions-label');
+			if (value) {
+				return value;
+			}
+		},
 		'suggestionsEnabled': function (srcNode) {
 			var value = srcNode.getAttribute('data-suggestions-enabled');
 			if (value === "true" || value === true || value === 1) {
@@ -62,7 +94,26 @@ YUI.add("supra.input-keywords", function (Y) {
 			} else {
 				return false;
 			}
-		}
+		},
+		'suggestionRequestUri': function (srcNode) {
+			var value = srcNode.getAttribute('data-suggestions-uri');
+			if (value) {
+				return value;
+			}
+		},
+		'suggestionAutoVisible': function (srcNode) {
+			var value = srcNode.getAttribute('data-suggestions-visible');
+			if (value && value === "true" || value === "1") {
+				return true;
+			}
+		},
+		'maxCount': function (srcNode) {
+			var value = srcNode.getAttribute('data-max-count');
+			if (value) {
+				value = parseInt(value, 10);
+				if (value) return value;
+			}
+		},
 	};
 	
 	Y.extend(Input, Supra.Input.Proto, {
@@ -120,9 +171,17 @@ YUI.add("supra.input-keywords", function (Y) {
 			
 			if (!suggestionsEnabled) {
 				suggestionsNode.addClass('hidden');
+			} else {
+				suggestionsButton.hide();
+				clearAllLink.addClass('hidden');
 			}
+			
 			if (this.get('disabled')) {
 				suggestionsButton.set('disabled', true);
+			}
+			
+			if (this.get('suggestionAutoVisible')) {
+				this.loadItems();
 			}
 		},
 		
@@ -192,6 +251,8 @@ YUI.add("supra.input-keywords", function (Y) {
 					tempNode.setAttribute('data-value', values[i]);
 					tempNode.appendChild('<a></a>');
 					inputListNode.prepend(tempNode);
+					
+					this.hideSuggestion(values[i]);
 				}
 			}
 			
@@ -228,12 +289,18 @@ YUI.add("supra.input-keywords", function (Y) {
 		 */
 		onLoadItems: function (data, status) {
 			var suggestionsListNode = this.get('suggestionsListNode'),
-				clearAllLink = this.get('clearAllLink'),
-				values = this.get('values');
-				
+				values = this.get('values'),
+				label = this.get('suggestedLabel');
+			
 			if (status && data.length) {
+				data = this._normalizeValue(data);
+				
+				if (typeof label !== 'string') {
+					label = Supra.Intl.get(['inputs', 'suggestions']);
+				}
+				
 				this.suggestions = data;
-				suggestionsListNode.set('innerHTML', TEMPLATE_VALUES({'values': data}));
+				suggestionsListNode.set('innerHTML', TEMPLATE_VALUES({'values': data, 'label': label}));
 				
 				this.showSuggestionList();
 				
@@ -372,9 +439,14 @@ YUI.add("supra.input-keywords", function (Y) {
 		 * @private
 		 */
 		showSuggestionList: function () {
-			this.get('suggestionsButton').hide();
-			this.get('suggestionsListNode').removeClass('hidden');
-			this.get('clearAllLink').removeClass('hidden');
+			if (this.get('suggestionAutoVisible')) {
+				this.get('boundingBox').addClass(this.getClassName('auto-suggestions'));
+				this.get('suggestionsListNode').removeClass('hidden');
+			} else {
+				this.get('suggestionsButton').hide();
+				this.get('suggestionsListNode').removeClass('hidden');
+				this.get('clearAllLink').removeClass('hidden');
+			}
 		},
 
 		/**
@@ -383,11 +455,12 @@ YUI.add("supra.input-keywords", function (Y) {
 		 * @private
 		 */
 		closeSuggestionsList: function () {
-			if (this.get('disabled')) return;
+			if (this.get('disabled') || this.get('suggestionAutoVisible')) return;
 			
 			var suggestionsButton = this.get('suggestionsButton'),
 				suggestionsListNode = this.get('suggestionsListNode'),
-				clearAllLink = this.get('clearAllLink');
+				clearAllLink = this.get('clearAllLink'),
+				boundingBox = this.get('boundingBox');
 
 			if (suggestionsListNode) {
 				suggestionsListNode.addClass('hidden');
@@ -397,6 +470,9 @@ YUI.add("supra.input-keywords", function (Y) {
 			}
 			if (suggestionsButton) {
 				suggestionsButton.show();	
+			}
+			if (boundingBox) {
+				boundingBox.removeClass(this.getClassName('auto-suggestions'));
 			}
 			
 			this.updateScrollbars();
@@ -412,7 +488,10 @@ YUI.add("supra.input-keywords", function (Y) {
 			var values = this.get('values'),
 				index = -1,
 				inputNode = this.get('inputNode'),
-				tempNode = Y.Node.create('<span></span>');
+				listNode = this.get('inputListNode'),
+				tempNode = Y.Node.create('<span></span>'),
+				limit = this.get('maxCount'),
+				node = null;
 							
 			if (!values) {
 				values = [];
@@ -434,15 +513,29 @@ YUI.add("supra.input-keywords", function (Y) {
 				return;
 			}
 			
-			//Add item
-			values.push(value);
-			
-			//Add node
+			// Create node
 			tempNode.set('text', value);
 			tempNode.setAttribute('data-value', value);
 			tempNode.appendChild('<a></a>');
 			
-			inputNode.insert(tempNode, 'before');
+			
+			if (limit && values.length >= limit) {
+				//If limit has been reached, then replace last item with this
+				values[limit - 1] = value;
+				
+				//Replace node
+				var nodes = listNode.all('span');
+				node = nodes.item(nodes.size() - 1);
+				
+				this.showSuggestion(node.getAttribute('data-value'));
+				node.replace(tempNode);
+			} else {
+				//Add item
+				values.push(value);
+				
+				//Add node
+				inputNode.insert(tempNode, 'before');
+			}
 			
 			this.updateScrollbars();
 			
@@ -466,15 +559,71 @@ YUI.add("supra.input-keywords", function (Y) {
 		/* ------------------------------- ATTRIBUTES ------------------------------- */
 		
 		
+		/**
+		 * Normalize value to array with strings
+		 * 
+		 * @param {Array|String} value Value
+		 * @returns {Array} Array with keywords
+		 * @private
+		 */
+		_normalizeValue: function (value) {
+			if (Y.Lang.isArray(value)) {
+				var out = [],
+					i   = 0,
+					ii  = value.length;
+				
+				for (; i<ii; i++) {
+					if (typeof value[i] === 'string') {
+						out.push(value[i]);
+					} else if (Y.Lang.isObject(value[i])) {
+						if ('title' in value[i]) {
+							out.push(value[i].title);
+						} else if ('name' in value[i]) {
+							out.push(value[i].name);
+						}
+					}
+				}
+				
+				return out;
+			} else if (typeof value === 'string') {
+				return value ? value.split(';') : [];
+			}
+			
+			return [];
+		},
+		
+		/**
+		 * Value attribute setter
+		 * 
+		 * @param {String|Array} value List of keywords
+		 * @returns {String} New value
+		 * @private 
+		 */
 		_setValue: function (value) {
-			this.get('inputNode').set('value', value);
-			this.set('values', value ? value.split(';') : []);
+			var value = this._normalizeValue(value),
+				value_str = '',
+				limit = this.get('maxCount');
+			
+			if (limit && value.length >= limit) {
+				value = value.slice(0, limit);
+			}
+			
+			value_str = value.join(';');
+			
+			this.get('inputNode').set('value', value_str);
+			this.set('values', value);
 			this.closeSuggestionsList();
 			
 			this.syncUI();
-			return value;
+			return value_str;
 		},
 		
+		/**
+		 * Value attribute getter
+		 * 
+		 * @returns {String} Value
+		 * @private
+		 */
 		_getValue: function () {
 			return (this.get('values') || []).join(';');
 		},
@@ -492,6 +641,10 @@ YUI.add("supra.input-keywords", function (Y) {
 			
 			if (enabled) {
 				this.get('suggestionsNode').removeClass('hidden');
+				
+				if (this.get('suggestionAutoVisible')) {
+					this.loadItems();
+				}
 			} else {
 				this.closeSuggestionsList();
 				this.get('suggestionsNode').addClass('hidden');
@@ -518,6 +671,32 @@ YUI.add("supra.input-keywords", function (Y) {
 			
 			return value;
 		},
+		
+		/**
+		 * Max count attribute setter
+		 * 
+		 * @param {Number|Null} value
+		 * @returns {Number} New value
+		 * @private
+		 */
+		_setMaxCount: function (value) {
+			if (!value) return null;
+			var values = this.get('values'),
+				list   = this.get('inputListNode'),
+				nodes  = null;
+			
+			if (values && values.length > value) {
+				this.set('values', values.slice(0, value));
+				
+				if (list) {
+					nodes = list.all('span');
+					
+					for (var i=nodes.size - 1; i >= value; i--) {
+						nodes.item(i).remove();
+					}
+				}
+			}
+		}
 	
 	});
 	

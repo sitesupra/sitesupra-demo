@@ -1307,7 +1307,6 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/media-inline.js',
 		requires: ['supra.input-proto', 'supra.uploader', 'supra.datatype-image']
 	},
-	
 	'supra.input-string-clear': {
 		path: 'input/string.js',
 		requires: ['supra.input-string', 'plugin']
@@ -1382,6 +1381,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.input-inline-text': {
 		path: 'input/text-inline.js',
 		requires: ['supra.input-inline-string']
+	},
+	
+	//Image list, standalone
+	'supra.input-image-list': {
+		path: 'input/image-list.js',
+		requires: ['supra.input-image', 'supra.datatype-image']
 	},
 	
 	/**
@@ -3981,6 +3986,32 @@ YUI.add('supra.event', function (Y) {
 			min = min || 0;
 			var r = Math.random();
 			return Math.round(r * (max - min) + min);
+		},
+		
+		/**
+		 * Renerates random SKU number
+		 * 
+		 * @returns {String} SKU number
+		 */
+		sku: function (prefix) {
+			var chr = '',
+				num = '';
+			
+			// We are removing o, i and l, because they might be mistaken for 0 and 1
+			prefix = prefix ? prefix.replace(/[^a-z0-9]/ig, '').replace(/[oil]/ig, '') : null;
+			
+			// 3 character string as prefix
+			if (!prefix || typeof prefix !== 'string') {
+				chr = 'abcdefghjkmnprstuvzqxyw';
+				prefix = '';
+				
+				while (prefix.length < 3) {
+					prefix += chr.charAt(Math.floor(Math.random() * chr.length));
+				}
+			}
+			
+			num = String(+new Date()).substr(3, 8);
+			return prefix.toUpperCase() + num;
 		}
 		
 	};
@@ -4046,6 +4077,90 @@ YUI.add('supra.datatype-image', function(Y) {
 		}
 		
 		return value;
+	};
+	
+	/**
+	 * Returns size name which matches criteria
+	 * 
+	 * @param {Object} data Image data
+	 * @param {Object} options Criteria
+	 * @returns {String|Null} Size name or null if none of the sizes matches
+	 */
+	Image.getSizeName = function (data, options) {
+		options = Supra.mix({
+			'minWidth': null,
+			'maxWidth': null,
+			'minHeight': null,
+			'maxHeight': null,
+			'width': null,
+			'height': null
+		}, options);
+		
+		var sizes     = data.sizes,		// All sizes
+			name      = null,			// Name of the current size
+			match     = "",				// Last match name
+			diff      = 99999,			// Difference between criteria and image for last match
+			tmp_diff  = 0,				// Difference between criteria and image for given size
+			satisfied = false,			// All criteria are satisfied for given image
+			criteria  = null,			// Criteria name which is beeing checked
+			value     = null;			// Criteria value
+		
+		for (name in sizes) {
+			satisfied = true;
+			tmp_diff = 0;
+			
+			for (criteria in options) {
+				value = options[criteria];
+				
+				if (value !== null) {
+					if (criteria === 'width') {
+						tmp_diff += Math.abs(sizes[name].width - value);
+					}
+					if (criteria === 'minWidth') {
+						if (sizes[name].width >= value) {
+							tmp_diff += sizes[name].width - value;
+						} else {
+							satisfied = false;
+							break;
+						}
+					}
+					if (criteria === 'maxWidth') {
+						if (sizes[name].width < value) {
+							tmp_diff += value - sizes[name].width;
+						} else {
+							satisfied = false;
+							break;
+						}
+					}
+					if (criteria === 'height') {
+						tmp_diff += Math.abs(sizes[name].height - value);
+					}
+					if (criteria === 'minHeight') {
+						if (sizes[name].height >= value) {
+							tmp_diff += sizes[name].height - value;
+						} else {
+							satisfied = false;
+							break;
+						}
+					}
+					if (criteria === 'maxHeight') {
+						if (sizes[name].height < value) {
+							tmp_diff += value - sizes[name].height;
+						} else {
+							satisfied = false;
+							break;
+						}
+					}
+				}
+			}
+			
+			if (satisfied && tmp_diff < diff) {
+				diff = tmp_diff;
+				match = name;
+			}
+		}
+		
+		return match;
 	};
 	
 	/**
@@ -10170,8 +10285,17 @@ YUI().add('supra.input-string-clear', function (Y) {
 	
 	HTMLEditor.MODE_STRING	= 1;
 	HTMLEditor.MODE_TEXT	= 4;
+	HTMLEditor.MODE_BASIC	= 5;
 	HTMLEditor.MODE_SIMPLE	= 2;
 	HTMLEditor.MODE_RICH	= 3;
+	
+	HTMLEditor.MODE_NAMES   = {
+		'string': HTMLEditor.MODE_STRING,
+		'text':   HTMLEditor.MODE_TEXT,
+		'basic':  HTMLEditor.MODE_BASIC,
+		'simple': HTMLEditor.MODE_SIMPLE,
+		'rich':   HTMLEditor.MODE_RICH
+	};
 	
 	HTMLEditor.TYPE_STANDALONE = 1;
 	HTMLEditor.TYPE_INLINE = 2;
@@ -12675,7 +12799,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				// Configuration from html editor configuration
 				attrConfig    = this.get('plugins'),
 				// Default modes
-				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
+				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_BASIC, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
 			
 			if (attrConfig) {
 				attrConfig = attrConfig[pluginId];
@@ -12938,7 +13062,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
-	var BUTTONS_DEFAULT = {
+	var CONTROLS = {
 		groups: [
 			{
 				"id": "main",
@@ -12946,7 +13070,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"animate": false, // never animate slide in/slide out
 				"height": 48,
 				"controls": [
-					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source"},
+					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source", "visible": false},
 					{"type": "separator"},
 					//{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
 					//{"type": "separator"},
@@ -12959,7 +13083,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"animate": true,
 				"height": 42,
 				"controls": [
-						{"id": "style", "type": "button", "command": "style", "icon": "/cms/lib/supra/img/htmleditor/icon-style.png"},
+						{"id": "style", "type": "button", "command": "style", "icon": "/cms/lib/supra/img/htmleditor/icon-style.png", "visible": false},
 					{"type": "separator"},
 						{"id": "fonts", "type": "button", "command": "fonts", "icon": "/cms/lib/supra/img/htmleditor/icon-fonts.png", "visible": false},
 					{"type": "separator"},
@@ -12991,22 +13115,22 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 						{"id": "underline", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-underline.png", "command": "underline"},
 						{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/cms/lib/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
 					{"type": "separator"},
-						{"id": "align", "type": "dropdown", "command": "align", "style": "icons-text", "values": [
+						{"id": "align", "type": "dropdown", "command": "align", "style": "icons-text", "visible": false, "values": [
 							{"id": "left", "title": "Left", "icon": "/cms/lib/supra/img/htmleditor/align-left.png"},
 							{"id": "center", "title": "Center", "icon": "/cms/lib/supra/img/htmleditor/align-center.png"},
 							{"id": "right", "title": "Right", "icon": "/cms/lib/supra/img/htmleditor/align-right.png"},
 							{"id": "justify", "title": "Justify", "icon": "/cms/lib/supra/img/htmleditor/align-justify.png"}
 						]},
 					{"type": "separator"},
-						{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul"},
-						{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol"},
+						{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul", "visible": false},
+						{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol", "visible": false},
 					{"type": "separator"},
 						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
 						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
 						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink", "visible": false},
 					{"type": "separator"},
-						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert"}
+						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert", "visible": false}
 				]
 			},
 			{
@@ -13081,12 +13205,19 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	HTMLEditorToolbar.NAME = 'editor-toolbar';
 	HTMLEditorToolbar.CLASS_NAME = Y.ClassNameManager.getClassName(HTMLEditorToolbar.NAME);
 	HTMLEditorToolbar.ATTRS = {
-		'editor': null,
+		'editor': {
+			value: null
+		},
 		'disabled': {
 			value: false,
 			setter: '_setDisabled'
+		},
+		'controls': {
+			value: CONTROLS
 		}
 	};
+	
+	HTMLEditorToolbar.CONTROLS = CONTROLS;
 	
 	Y.extend(HTMLEditorToolbar, Y.Widget, {
 		
@@ -13211,7 +13342,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @returns {Array} List of group controls
 		 */
 		getControlsInGroup: function (group_id) {
-			var groups = BUTTONS_DEFAULT.groups,
+			var groups = this.get('controls').groups,
 				i = 0,
 				ii = groups.length,
 				controls = null,
@@ -13336,7 +13467,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		renderUI: function () {
 			HTMLEditorToolbar.superclass.renderUI.apply(this, arguments);
 			
-			var groups = BUTTONS_DEFAULT.groups,
+			var groups = this.get('controls').groups,
 				groupList = this.groups = {},
 				id = null,
 				index = 0;
@@ -13547,7 +13678,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (visible) {
 				this.get('boundingBox').removeClass(this.getClassName('hidden'));
 				
-				var group_proto = BUTTONS_DEFAULT.groups,
+				var group_proto = this.get('controls').groups,
 					groups = this.groups,
 					id = null,
 					i = 0,
@@ -20271,7 +20402,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_BASIC, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
 	};
 	
 	//Shortcuts
@@ -20866,6 +20997,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		init: function (htmleditor, configuration) {
 			var toolbar = htmleditor.get("toolbar"),
 				button = toolbar ? toolbar.getButton("insert") : null;
+			
+			// Show button
+			button.set("visible", true);
 			
 			// Add command
 			htmleditor.addCommand("insert", Y.bind(this.toggleInsertToolbar, this));
@@ -24502,11 +24636,21 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 			var lists = ['indent', 'outdent'].concat(this.lists),
 				i = 0,
 				imax = lists.length,
-				execCallback = Y.bind(this.exec, this);
-				
+				execCallback = Y.bind(this.exec, this),
+				button;
+			
 			for(; i < imax; i++) {
 				this.htmleditor.addCommand(lists[i], execCallback);
 				this.bindButton(lists[i]);
+			}
+			
+			// Show buttons
+			lists = this.lists;
+			for (i=0, imax=lists.length; i<imax; i++) {
+				button = this.buttons[lists[i].toUpperCase()];
+				if (button) {
+					button.set('visible', true);
+				}
 			}
 			
 			//When un-editable node is selected disable toolbar button
@@ -24531,7 +24675,7 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
+		modes: [Supra.HTMLEditor.MODE_BASIC, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
 		
 		/* List of document commands */
 		commands: ['bold', 'italic', 'underline', 'strikethrough']
@@ -25486,6 +25630,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		init: function (htmleditor) {
 			var toolbar = htmleditor.get('toolbar');
 			
+			toolbar.getButton('style').set('visible', true);
+			
 			this.pluginFormats = htmleditor.getPlugin('formats');
 			this.excludeList = {};
 			this.targetNodes = [];
@@ -25882,7 +26028,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				
 				//Calling, because plugins could be using 'cleanHTML' event
 				html = htmleditor.cleanHTML(html);
-			} else if (mode == Supra.HTMLEditor.MODE_TEXT) {
+			} else if (mode == Supra.HTMLEditor.MODE_TEXT || mode == Supra.HTMLEditor.MODE_BASIC) {
 				
 				if (html.indexOf('<') !== -1) {
 					// Replace all block level ending tags with new lines
@@ -26395,7 +26541,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_TEXT]
+		modes: [Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_BASIC]
 	};
 	
 	Supra.HTMLEditor.addPlugin('paragraph-text', defaultConfiguration, {
@@ -31782,6 +31928,22 @@ YUI.add('supra.uploader', function (Y) {
 		},
 		
 		/**
+		 * Set scroll position
+		 */
+		setScrollPosition: function (position) {
+			var axis = this.get('axis'),
+				contentBox = this.get('boxContent');
+			
+			if (axis == 'y') {
+				contentBox.set('scrollY', pos);
+			} else {
+				contentBox.setStyle('marginLeft', -pos + 'px');
+			}
+			
+			this.syncUIPosition();
+		},
+		
+		/**
 		 * Returns max scroll position
 		 * 
 		 * @return Max scroll position
@@ -31825,21 +31987,21 @@ YUI.add('supra.uploader', function (Y) {
 			
 			var axis = this.get('axis'),
 				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
-				axisPosProperty  = (axis == 'y' ? 'Top' : 'Left'),
+				axisOffsetFn     = (axis == 'y' ? 'getY' : 'getX'),
 				
 				contentBox = this.get('contentBox'),
-				scrollPos = contentBox.get('scroll' + axisPosProperty),
+				scrollPos = this.getScrollPosition(),
 				viewSize = this.viewSize,
 				
-				size = node.get('offset' + axisSizeProperty),
-				pos = node.get('offset' + axisPosProperty);
+				contPos = contentBox[axisOffsetFn](),
 				
+				size = node.get('offset' + axisSizeProperty),
+				pos = node[axisOffsetFn]() - contPos;
+			
 			if (pos < scrollPos) {
-				contentBox.set('scroll' + axisPosProperty, pos);
-				this.syncUIPosition();
+				this.setScrollPosition(pos);
 			} else if ((pos + size) > (scrollPos + viewSize)) {
-				contentBox.set('scroll' + axisPosProperty, pos + size - viewSize);
-				this.syncUIPosition();
+				this.setScrollPosition(pos + size - viewSize);
 			} else {
 				return false;
 			}
@@ -31852,24 +32014,26 @@ YUI.add('supra.uploader', function (Y) {
 		 * @return True if scrolled to the node, false if node was already in view
 		 * @type {Boolean}
 		 */
-		animateInView: function (node) {
+		animateInView: function (node, duration) {
 			if (this.get('disabled')) return;
 			
 			var axis = this.get('axis'),
 				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
-				axisPosProperty  = (axis == 'y' ? 'Top' : 'Left'),
+				axisOffsetFn     = (axis == 'y' ? 'getY' : 'getX'),
 				
 				contentBox = this.get('contentBox'),
 				scrollPos = this.getScrollPosition(),
 				viewSize = this.viewSize,
 				
+				contPos = contentBox[axisOffsetFn](),
+				
 				size = node.get('offset' + axisSizeProperty),
-				pos = node.get('offset' + axisPosProperty);
+				pos = node[axisOffsetFn]() - contPos;
 			
 			if (pos < scrollPos) {
-				this.animateTo( pos );
+				this.animateTo(pos, duration);
 			} else if ((pos + size) > (scrollPos + viewSize)) {
-				this.animateTo( pos + size - viewSize );
+				this.animateTo(pos + size - viewSize, duration);
 			} else {
 				return false;
 			}
@@ -31880,7 +32044,7 @@ YUI.add('supra.uploader', function (Y) {
 		 * 
 		 * @param {Number} pos Position
 		 */
-		animateTo: function (pos) {
+		animateTo: function (pos, duration) {
 			if (this.get('disabled')) return;
 			
 			var animContent   = this.animContent,
@@ -31914,11 +32078,13 @@ YUI.add('supra.uploader', function (Y) {
 			}
 			
 			animContent.stop();
+			animContent.set('duration', duration || 0.35);
 			animContent.set('to', toContent);
 			animContent.once('end', this.syncUI, this);
 			animContent.run();
 			
 			animScrollBar.stop();
+			animScrollBar.set('duration', duration || 0.35);
 			animScrollBar.set('to', toScrollBar);
 			animScrollBar.run();
 		},
@@ -33504,9 +33670,24 @@ YUI.add('supra.input-slider', function (Y) {
 		},
 		
 		renderUI: function () {
+			// Content and bounding boxes
+			var contentBox = this.get('contentBox');
+			
+			if (contentBox.test('input')) {
+				var className = this.getClassName('content');
+				
+				contentBox.removeClass(className);
+				
+				contentBox = Y.Node.create(this.CONTENT_TEMPLATE);
+				contentBox.addClass(className);
+				
+				this.get('boundingBox').append(contentBox);
+				this.set('contentBox', contentBox);
+			}
+			
 			//Create button
 			this.button = new Supra.Button({'label': this.get('labelSet')});
-			this.button.render(this.get('contentBox'));
+			this.button.render(contentBox);
 			this.button.on('click', this.openMediaSidebar, this);
 			
 			//Remove button
@@ -40813,11 +40994,10 @@ YUI.add("supra.input-keywords", function (Y) {
 	/*
 	 * Template
 	 */
-	var TEMPLATE_VALUES = Supra.Template.compile('<span class="suggestion-msg">Suggested:</span>\
-				{% for value in values %}\
-					<span data-value="{{ value|e }}">{{ value|e }}</span>\
-				{% endfor %}\
-			');
+	var TEMPLATE_VALUES = Supra.Template.compile('{% if label %}<span class="suggestion-msg">{{ label|e }}</span>{% endif %}' +
+				'{% for value in values %}' +
+					'<span data-value="{{ value|e }}">{{ value|e }}</span>' +
+				'{% endfor %}');
 	
 	
 	function Input (config) {
@@ -40840,6 +41020,11 @@ YUI.add("supra.input-keywords", function (Y) {
 		"inputListNode": {
 			value: null
 		},
+		
+		"suggestedLabel": {
+			value: null
+		},
+		
 		"suggestionsNode": {
 			value: null
 		},
@@ -40849,17 +41034,45 @@ YUI.add("supra.input-keywords", function (Y) {
 		"suggestionRequestUri": {
 			value: null
 		},
+		
+		/*
+		 * Suggestion are automatically visible
+		 */
+		"suggestionAutoVisible": {
+			value: false,
+		},
+		
+		/*
+		 * Suggestions are enabled
+		 */
+		"suggestionsEnabled": {
+			value: false,
+			setter: '_setSuggestionsEnabled'
+		},
+		
+		/*
+		 * Array of values
+		 */
 		"values": {
 			value: null
 		},
 		
-		"suggestionsEnabled": {
-			value: false,
-			setter: '_setSuggestionsEnabled'
+		/*
+		 * Maximum number of keywords
+		 */
+		"maxCount": {
+			value: null,
+			setter: '_setMaxCount'
 		}
 	};
 	
 	Input.HTML_PARSER = {
+		'suggestedLabel': function (srcNode) {
+			var value = srcNode.getAttribute('data-suggestions-label');
+			if (value) {
+				return value;
+			}
+		},
 		'suggestionsEnabled': function (srcNode) {
 			var value = srcNode.getAttribute('data-suggestions-enabled');
 			if (value === "true" || value === true || value === 1) {
@@ -40867,7 +41080,26 @@ YUI.add("supra.input-keywords", function (Y) {
 			} else {
 				return false;
 			}
-		}
+		},
+		'suggestionRequestUri': function (srcNode) {
+			var value = srcNode.getAttribute('data-suggestions-uri');
+			if (value) {
+				return value;
+			}
+		},
+		'suggestionAutoVisible': function (srcNode) {
+			var value = srcNode.getAttribute('data-suggestions-visible');
+			if (value && value === "true" || value === "1") {
+				return true;
+			}
+		},
+		'maxCount': function (srcNode) {
+			var value = srcNode.getAttribute('data-max-count');
+			if (value) {
+				value = parseInt(value, 10);
+				if (value) return value;
+			}
+		},
 	};
 	
 	Y.extend(Input, Supra.Input.Proto, {
@@ -40925,9 +41157,17 @@ YUI.add("supra.input-keywords", function (Y) {
 			
 			if (!suggestionsEnabled) {
 				suggestionsNode.addClass('hidden');
+			} else {
+				suggestionsButton.hide();
+				clearAllLink.addClass('hidden');
 			}
+			
 			if (this.get('disabled')) {
 				suggestionsButton.set('disabled', true);
+			}
+			
+			if (this.get('suggestionAutoVisible')) {
+				this.loadItems();
 			}
 		},
 		
@@ -40997,6 +41237,8 @@ YUI.add("supra.input-keywords", function (Y) {
 					tempNode.setAttribute('data-value', values[i]);
 					tempNode.appendChild('<a></a>');
 					inputListNode.prepend(tempNode);
+					
+					this.hideSuggestion(values[i]);
 				}
 			}
 			
@@ -41033,12 +41275,18 @@ YUI.add("supra.input-keywords", function (Y) {
 		 */
 		onLoadItems: function (data, status) {
 			var suggestionsListNode = this.get('suggestionsListNode'),
-				clearAllLink = this.get('clearAllLink'),
-				values = this.get('values');
-				
+				values = this.get('values'),
+				label = this.get('suggestedLabel');
+			
 			if (status && data.length) {
+				data = this._normalizeValue(data);
+				
+				if (typeof label !== 'string') {
+					label = Supra.Intl.get(['inputs', 'suggestions']);
+				}
+				
 				this.suggestions = data;
-				suggestionsListNode.set('innerHTML', TEMPLATE_VALUES({'values': data}));
+				suggestionsListNode.set('innerHTML', TEMPLATE_VALUES({'values': data, 'label': label}));
 				
 				this.showSuggestionList();
 				
@@ -41177,9 +41425,14 @@ YUI.add("supra.input-keywords", function (Y) {
 		 * @private
 		 */
 		showSuggestionList: function () {
-			this.get('suggestionsButton').hide();
-			this.get('suggestionsListNode').removeClass('hidden');
-			this.get('clearAllLink').removeClass('hidden');
+			if (this.get('suggestionAutoVisible')) {
+				this.get('boundingBox').addClass(this.getClassName('auto-suggestions'));
+				this.get('suggestionsListNode').removeClass('hidden');
+			} else {
+				this.get('suggestionsButton').hide();
+				this.get('suggestionsListNode').removeClass('hidden');
+				this.get('clearAllLink').removeClass('hidden');
+			}
 		},
 
 		/**
@@ -41188,11 +41441,12 @@ YUI.add("supra.input-keywords", function (Y) {
 		 * @private
 		 */
 		closeSuggestionsList: function () {
-			if (this.get('disabled')) return;
+			if (this.get('disabled') || this.get('suggestionAutoVisible')) return;
 			
 			var suggestionsButton = this.get('suggestionsButton'),
 				suggestionsListNode = this.get('suggestionsListNode'),
-				clearAllLink = this.get('clearAllLink');
+				clearAllLink = this.get('clearAllLink'),
+				boundingBox = this.get('boundingBox');
 
 			if (suggestionsListNode) {
 				suggestionsListNode.addClass('hidden');
@@ -41202,6 +41456,9 @@ YUI.add("supra.input-keywords", function (Y) {
 			}
 			if (suggestionsButton) {
 				suggestionsButton.show();	
+			}
+			if (boundingBox) {
+				boundingBox.removeClass(this.getClassName('auto-suggestions'));
 			}
 			
 			this.updateScrollbars();
@@ -41217,7 +41474,10 @@ YUI.add("supra.input-keywords", function (Y) {
 			var values = this.get('values'),
 				index = -1,
 				inputNode = this.get('inputNode'),
-				tempNode = Y.Node.create('<span></span>');
+				listNode = this.get('inputListNode'),
+				tempNode = Y.Node.create('<span></span>'),
+				limit = this.get('maxCount'),
+				node = null;
 							
 			if (!values) {
 				values = [];
@@ -41239,15 +41499,29 @@ YUI.add("supra.input-keywords", function (Y) {
 				return;
 			}
 			
-			//Add item
-			values.push(value);
-			
-			//Add node
+			// Create node
 			tempNode.set('text', value);
 			tempNode.setAttribute('data-value', value);
 			tempNode.appendChild('<a></a>');
 			
-			inputNode.insert(tempNode, 'before');
+			
+			if (limit && values.length >= limit) {
+				//If limit has been reached, then replace last item with this
+				values[limit - 1] = value;
+				
+				//Replace node
+				var nodes = listNode.all('span');
+				node = nodes.item(nodes.size() - 1);
+				
+				this.showSuggestion(node.getAttribute('data-value'));
+				node.replace(tempNode);
+			} else {
+				//Add item
+				values.push(value);
+				
+				//Add node
+				inputNode.insert(tempNode, 'before');
+			}
 			
 			this.updateScrollbars();
 			
@@ -41271,15 +41545,71 @@ YUI.add("supra.input-keywords", function (Y) {
 		/* ------------------------------- ATTRIBUTES ------------------------------- */
 		
 		
+		/**
+		 * Normalize value to array with strings
+		 * 
+		 * @param {Array|String} value Value
+		 * @returns {Array} Array with keywords
+		 * @private
+		 */
+		_normalizeValue: function (value) {
+			if (Y.Lang.isArray(value)) {
+				var out = [],
+					i   = 0,
+					ii  = value.length;
+				
+				for (; i<ii; i++) {
+					if (typeof value[i] === 'string') {
+						out.push(value[i]);
+					} else if (Y.Lang.isObject(value[i])) {
+						if ('title' in value[i]) {
+							out.push(value[i].title);
+						} else if ('name' in value[i]) {
+							out.push(value[i].name);
+						}
+					}
+				}
+				
+				return out;
+			} else if (typeof value === 'string') {
+				return value ? value.split(';') : [];
+			}
+			
+			return [];
+		},
+		
+		/**
+		 * Value attribute setter
+		 * 
+		 * @param {String|Array} value List of keywords
+		 * @returns {String} New value
+		 * @private 
+		 */
 		_setValue: function (value) {
-			this.get('inputNode').set('value', value);
-			this.set('values', value ? value.split(';') : []);
+			var value = this._normalizeValue(value),
+				value_str = '',
+				limit = this.get('maxCount');
+			
+			if (limit && value.length >= limit) {
+				value = value.slice(0, limit);
+			}
+			
+			value_str = value.join(';');
+			
+			this.get('inputNode').set('value', value_str);
+			this.set('values', value);
 			this.closeSuggestionsList();
 			
 			this.syncUI();
-			return value;
+			return value_str;
 		},
 		
+		/**
+		 * Value attribute getter
+		 * 
+		 * @returns {String} Value
+		 * @private
+		 */
 		_getValue: function () {
 			return (this.get('values') || []).join(';');
 		},
@@ -41297,6 +41627,10 @@ YUI.add("supra.input-keywords", function (Y) {
 			
 			if (enabled) {
 				this.get('suggestionsNode').removeClass('hidden');
+				
+				if (this.get('suggestionAutoVisible')) {
+					this.loadItems();
+				}
 			} else {
 				this.closeSuggestionsList();
 				this.get('suggestionsNode').addClass('hidden');
@@ -41323,6 +41657,32 @@ YUI.add("supra.input-keywords", function (Y) {
 			
 			return value;
 		},
+		
+		/**
+		 * Max count attribute setter
+		 * 
+		 * @param {Number|Null} value
+		 * @returns {Number} New value
+		 * @private
+		 */
+		_setMaxCount: function (value) {
+			if (!value) return null;
+			var values = this.get('values'),
+				list   = this.get('inputListNode'),
+				nodes  = null;
+			
+			if (values && values.length > value) {
+				this.set('values', values.slice(0, value));
+				
+				if (list) {
+					nodes = list.all('span');
+					
+					for (var i=nodes.size - 1; i >= value; i--) {
+						nodes.item(i).remove();
+					}
+				}
+			}
+		}
 	
 	});
 	
@@ -42606,6 +42966,9 @@ YUI().add('supra.htmleditor-plugin-fullscreen', function (Y) {
 				toolbar = htmleditor.get('toolbar'),
 				button = toolbar ? toolbar.getButton('source') : null;
 			
+			// Toolbar button
+			button.set("visible", true);
+			
 			// Add command
 			htmleditor.addCommand('source', Y.bind(this.showSourceEditor, this));
 			
@@ -43547,6 +43910,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			
 			// Font size input
 			var input = this.alignInput = toolbar.getButton("align");
+			input.set("visible", true);
 			input.set("value", "left");
 			input.after("valueChange", this.handleAlignChange, this);
 			
@@ -43589,10 +43953,6 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
-		
-		Manager.Loader.loadAction('EditorToolbar');
-		Manager.Loader.loadAction('PageContentSettings');
 	}
 	
 	// Input is inline
@@ -43609,8 +43969,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		'win': {
 			value: null
 		},
-		'toolbar': {
-			value: null
+		'toolbarInline': {
+			value: false
 		},
 		'nodeIframe': {
 			value: null
@@ -43618,13 +43978,34 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		// HTML plugin information
 		'plugins': {
 			value: null
+		},
+		// HTML editor mode
+		'mode': {
+			value: null
 		}
 	};
 	
 	/**
 	 * Parse
 	 */
-	Input.HTML_PARSER = {};
+	Input.HTML_PARSER = {
+		'mode': function (srcNode) {
+			var mode = srcNode.getAttribute('data-mode'),
+				names = Supra.HTMLEditor.MODE_NAMES;
+			
+			if (mode && mode in names) {
+				return names[mode];
+			}
+		},
+		'toolbarInline': function (srcNode) {
+			var inline = srcNode.getAttribute('data-toolbar-inline');
+			if (inline === 'true' || inline === '1') {
+				return true;
+			} else if (inline === 'false' || inline === '0') {
+				return false;
+			}
+		}
+	};
 	
 	Y.extend(Input, Supra.Input.Proto, {
 		/**
@@ -43660,6 +44041,8 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 					this.fire('change');
 				}, this);
 			}
+			
+			this.after('disabledChange', this._afterDisabledChange, this);
 		},
 		
 		/**
@@ -43671,6 +44054,12 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			this.set('boundingBox', this.get('srcNode'));
+			
+			if (!this.get('toolbarInline')) {
+				Manager.Loader.loadActions(['EditorToolbar', 'PageContentSettings']);
+			} else {
+				Manager.Loader.loadActions(['PageContentSettings']);
+			}
 			
 			this.createIframe();
 		},
@@ -43694,21 +44083,49 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @private
 		 */
 		loadDependancies: function () {
-			//Toolbar needs to exist
-			var action = Manager.getAction('EditorToolbar');
-			if (!action.get('created')) {
-				action.once('executed', function () {
-					var action = Manager.getAction('PageContentSettings');
-					if (!action.get('loaded')) {
-						action.once('loaded', this.createEditor, this);
-					} else {
-						this.createEditor();
-					}
-				}, this);
-				
-				Manager.executeAction('EditorToolbar', true);
-			} else {
+			if (this.get('toolbarInline')) {
 				this.createEditor();
+			} else {
+				// We need EditorToolbar action
+				var action = Manager.getAction('EditorToolbar');
+				if (!action.get('created')) {
+					action.once('executed', function () {
+						var action = Manager.getAction('PageContentSettings');
+						if (!action.get('loaded')) {
+							action.once('loaded', this.createEditor, this);
+						} else {
+							this.createEditor();
+						}
+					}, this);
+					
+					Manager.executeAction('EditorToolbar', true);
+				} else {
+					this.createEditor();
+				}
+			}
+		},
+		
+		createEditorToolbar: function () {
+			if (this.get('toolbarInline')) {
+				var iframe   = this.get('nodeIframe'),
+					toolbar  = null,
+					controls = Supra.mix([], Supra.HTMLEditorToolbar.CONTROLS, true),
+					i = controls.groups.length-1;
+				
+				for (; i>=0; i--) {
+					if (controls.groups[i].id == 'main') {
+						// We can't have main group, while toolbar is inline
+						controls.groups.splice(i, 1);
+					}
+				}
+				
+				toolbar = new Supra.HTMLEditorToolbar({'controls': controls});
+				toolbar.render(this.get('boundingBox'));
+				iframe.insert(toolbar.get('boundingBox'), 'before');
+				
+				return toolbar;
+			} else {
+				return Manager.EditorToolbar.getToolbar();
 			}
 		},
 		
@@ -43723,24 +44140,41 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 			var doc = this.get('doc'),
 				win = this.get('win'),
 				src = this.get('srcNode'),
-				toolbar = Manager.EditorToolbar.getToolbar(),
-				value = this.get('value');
+				toolbar = this.createEditorToolbar(),
+				value = this.get('value'),
+				iframe = this.get('nodeIframe'),
+				controls = null;
 			
 			if (doc && win && src) {
 				this.htmleditor = new Supra.HTMLEditor({
 					'doc': doc,
 					'win': win,
 					'srcNode': Y.Node(doc).one('.editing'),
-					'iframeNode': this.get('nodeIframe'),
+					'iframeNode': iframe,
 					'toolbar': toolbar,
-					'mode': Supra.HTMLEditor.MODE_RICH,
+					'mode': this.get('mode') || Supra.HTMLEditor.MODE_RICH,
 					'standalone': true,
 					'parent': this,
 					'root': this.get('root') || this,
 					'plugins': this.get('plugins')
 				});
 				this.htmleditor.render();
-				this.htmleditor.set('disabled', true);
+				
+				if (this.get('disabled') || !this.get('toolbarInline')) {
+					// Disable
+					this.htmleditor.set('disabled', true);
+				} else {
+					// Enable
+					Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
+				}
+				
+				// Normalize value
+				if (typeof value === 'string') {
+					value = {
+						'html': value,
+						'data': {}
+					};
+				}
 				
 				if (value && 'html' in value) {
 					this.htmleditor.setAllData(value.data);
@@ -43832,17 +44266,21 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 */
 		onIframeClick: function () {
 			if (!this.get('disabled')) {
-				if (this.htmleditor.get('disabled') && !Manager.EditorToolbar.get('visible')) {
-					
-					Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
-					
-					//Show toolbar without "Settings" button
-					Manager.EditorToolbar.execute();
-					Manager.EditorToolbar.getToolbar().getButton('settings').set('visible', false);
-					
-					this.htmleditor.set('disabled', false);
-					
-					Manager.EditorToolbar.once('afterVisibleChange', this.onIframeBlur, this);
+				if (this.htmleditor.get('disabled')) {
+					if (this.get('toolbarInline')) {
+						Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
+						this.htmleditor.set('disabled', false);
+					} else if (!Manager.EditorToolbar.get('visible')) {
+						Y.Node(this.get('doc')).one('html').removeClass('standalone-disabled');
+						
+						//Show toolbar without "Settings" button
+						Manager.EditorToolbar.execute();
+						Manager.EditorToolbar.getToolbar().getButton('settings').set('visible', false);
+						
+						this.htmleditor.set('disabled', false);
+						
+						Manager.EditorToolbar.once('afterVisibleChange', this.onIframeBlur, this);
+					}
 				}
 			}
 		},
@@ -44038,12 +44476,28 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (typeof value === 'string') {
+				value = {
+					'html': value,
+					'data': {}
+				};
+			}
+			
 			if (this.htmleditor) {
 				this.htmleditor.setAllData(value.data);
 				this.htmleditor.setHTML(value.html);
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Handle disabled change event
+		 * 
+		 * @param {Object} e
+		 */
+		_afterDisabledChange: function (e) {
+			this.htmleditor.set('disabled', e.newVal);
 		}
 		
 	});

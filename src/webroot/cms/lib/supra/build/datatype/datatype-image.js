@@ -56,6 +56,90 @@ YUI.add('supra.datatype-image', function(Y) {
 	};
 	
 	/**
+	 * Returns size name which matches criteria
+	 * 
+	 * @param {Object} data Image data
+	 * @param {Object} options Criteria
+	 * @returns {String|Null} Size name or null if none of the sizes matches
+	 */
+	Image.getSizeName = function (data, options) {
+		options = Supra.mix({
+			'minWidth': null,
+			'maxWidth': null,
+			'minHeight': null,
+			'maxHeight': null,
+			'width': null,
+			'height': null
+		}, options);
+		
+		var sizes     = data.sizes,		// All sizes
+			name      = null,			// Name of the current size
+			match     = "",				// Last match name
+			diff      = 99999,			// Difference between criteria and image for last match
+			tmp_diff  = 0,				// Difference between criteria and image for given size
+			satisfied = false,			// All criteria are satisfied for given image
+			criteria  = null,			// Criteria name which is beeing checked
+			value     = null;			// Criteria value
+		
+		for (name in sizes) {
+			satisfied = true;
+			tmp_diff = 0;
+			
+			for (criteria in options) {
+				value = options[criteria];
+				
+				if (value !== null) {
+					if (criteria === 'width') {
+						tmp_diff += Math.abs(sizes[name].width - value);
+					}
+					if (criteria === 'minWidth') {
+						if (sizes[name].width >= value) {
+							tmp_diff += sizes[name].width - value;
+						} else {
+							satisfied = false;
+							break;
+						}
+					}
+					if (criteria === 'maxWidth') {
+						if (sizes[name].width < value) {
+							tmp_diff += value - sizes[name].width;
+						} else {
+							satisfied = false;
+							break;
+						}
+					}
+					if (criteria === 'height') {
+						tmp_diff += Math.abs(sizes[name].height - value);
+					}
+					if (criteria === 'minHeight') {
+						if (sizes[name].height >= value) {
+							tmp_diff += sizes[name].height - value;
+						} else {
+							satisfied = false;
+							break;
+						}
+					}
+					if (criteria === 'maxHeight') {
+						if (sizes[name].height < value) {
+							tmp_diff += value - sizes[name].height;
+						} else {
+							satisfied = false;
+							break;
+						}
+					}
+				}
+			}
+			
+			if (satisfied && tmp_diff < diff) {
+				diff = tmp_diff;
+				match = name;
+			}
+		}
+		
+		return match;
+	};
+	
+	/**
 	 * Recalculate crop and image size
 	 * 
 	 * @param {Object} data Image data

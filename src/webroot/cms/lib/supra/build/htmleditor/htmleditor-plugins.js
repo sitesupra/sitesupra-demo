@@ -157,7 +157,7 @@ YUI().add('supra.htmleditor-plugins', function (Y) {
 				// Configuration from html editor configuration
 				attrConfig    = this.get('plugins'),
 				// Default modes
-				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
+				defaultModes = [Supra.HTMLEditor.MODE_STRING, Supra.HTMLEditor.MODE_TEXT, Supra.HTMLEditor.MODE_BASIC, Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH];
 			
 			if (attrConfig) {
 				attrConfig = attrConfig[pluginId];

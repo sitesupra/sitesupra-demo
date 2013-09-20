@@ -455,6 +455,22 @@ YUI.add('supra.scrollable', function (Y) {
 		},
 		
 		/**
+		 * Set scroll position
+		 */
+		setScrollPosition: function (position) {
+			var axis = this.get('axis'),
+				contentBox = this.get('boxContent');
+			
+			if (axis == 'y') {
+				contentBox.set('scrollY', pos);
+			} else {
+				contentBox.setStyle('marginLeft', -pos + 'px');
+			}
+			
+			this.syncUIPosition();
+		},
+		
+		/**
 		 * Returns max scroll position
 		 * 
 		 * @return Max scroll position
@@ -498,21 +514,21 @@ YUI.add('supra.scrollable', function (Y) {
 			
 			var axis = this.get('axis'),
 				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
-				axisPosProperty  = (axis == 'y' ? 'Top' : 'Left'),
+				axisOffsetFn     = (axis == 'y' ? 'getY' : 'getX'),
 				
 				contentBox = this.get('contentBox'),
-				scrollPos = contentBox.get('scroll' + axisPosProperty),
+				scrollPos = this.getScrollPosition(),
 				viewSize = this.viewSize,
 				
-				size = node.get('offset' + axisSizeProperty),
-				pos = node.get('offset' + axisPosProperty);
+				contPos = contentBox[axisOffsetFn](),
 				
+				size = node.get('offset' + axisSizeProperty),
+				pos = node[axisOffsetFn]() - contPos;
+			
 			if (pos < scrollPos) {
-				contentBox.set('scroll' + axisPosProperty, pos);
-				this.syncUIPosition();
+				this.setScrollPosition(pos);
 			} else if ((pos + size) > (scrollPos + viewSize)) {
-				contentBox.set('scroll' + axisPosProperty, pos + size - viewSize);
-				this.syncUIPosition();
+				this.setScrollPosition(pos + size - viewSize);
 			} else {
 				return false;
 			}
@@ -525,24 +541,26 @@ YUI.add('supra.scrollable', function (Y) {
 		 * @return True if scrolled to the node, false if node was already in view
 		 * @type {Boolean}
 		 */
-		animateInView: function (node) {
+		animateInView: function (node, duration) {
 			if (this.get('disabled')) return;
 			
 			var axis = this.get('axis'),
 				axisSizeProperty = (axis == 'y' ? 'Height' : 'Width'),
-				axisPosProperty  = (axis == 'y' ? 'Top' : 'Left'),
+				axisOffsetFn     = (axis == 'y' ? 'getY' : 'getX'),
 				
 				contentBox = this.get('contentBox'),
 				scrollPos = this.getScrollPosition(),
 				viewSize = this.viewSize,
 				
+				contPos = contentBox[axisOffsetFn](),
+				
 				size = node.get('offset' + axisSizeProperty),
-				pos = node.get('offset' + axisPosProperty);
+				pos = node[axisOffsetFn]() - contPos;
 			
 			if (pos < scrollPos) {
-				this.animateTo( pos );
+				this.animateTo(pos, duration);
 			} else if ((pos + size) > (scrollPos + viewSize)) {
-				this.animateTo( pos + size - viewSize );
+				this.animateTo(pos + size - viewSize, duration);
 			} else {
 				return false;
 			}
@@ -553,7 +571,7 @@ YUI.add('supra.scrollable', function (Y) {
 		 * 
 		 * @param {Number} pos Position
 		 */
-		animateTo: function (pos) {
+		animateTo: function (pos, duration) {
 			if (this.get('disabled')) return;
 			
 			var animContent   = this.animContent,
@@ -587,11 +605,13 @@ YUI.add('supra.scrollable', function (Y) {
 			}
 			
 			animContent.stop();
+			animContent.set('duration', duration || 0.35);
 			animContent.set('to', toContent);
 			animContent.once('end', this.syncUI, this);
 			animContent.run();
 			
 			animScrollBar.stop();
+			animScrollBar.set('duration', duration || 0.35);
 			animScrollBar.set('to', toScrollBar);
 			animScrollBar.run();
 		},
