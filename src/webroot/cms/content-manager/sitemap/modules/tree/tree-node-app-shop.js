@@ -1,21 +1,21 @@
 //Invoke strict mode
 "use strict";
 
-YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
+YUI().add('website.sitemap-tree-node-app-shop', function (Y) {
 	
 	//Shortcuts
 	var Action = Supra.Manager.getAction('SiteMap');
 	
 	
 	/**
-	 * Blog application tree node
+	 * Shop application tree node
 	 */
 	function Node(config) {
 		Node.superclass.constructor.apply(this, arguments);
 	}
 	
-	Node.NAME = 'TreeNodeAppBlog';
-	Node.APP = 'blog';
+	Node.NAME = 'TreeNodeAppShop';
+	Node.APP = 'shop';
 	Node.CSS_PREFIX = 'su-tree-node';
 	Node.ATTRS = {};
 	
@@ -61,12 +61,12 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 				var data = setter.data;
 				
 				// Only page can be added as child, templates doesn't make sense
-				// as blog application sub-pages. Also this should never happen
+				// as shop application sub-pages. Also this should never happen
 				// since it's not possible to create applications in templates mode (yet?)
 				if (data.type == 'page') {
 					
-					this._openBlogManager(this, {
-						'show_new_item_form': true
+					this.openShopManager(this, {
+						'new': true
 					});
 					
 				}
@@ -85,39 +85,37 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 		 */
 		'handleToggle': function (e) {
 			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
-				this._openBlogManager(this);
+				this.openShopManager(this);
 			}
 		},
 		
 		/**
-		 * Open blog manager
+		 * Open shop manager
 		 * 
 		 * @param {Object} tree_node Tree node to use for animation
-		 * @param {Object} params Additional parameters to send to blog manager
+		 * @param {Object} params Additional parameters to send to shop manager
 		 * @private
 		 */
-		'_openBlogManager': function (tree_node, params) {
-			// Open blog manager
-			var data = tree_node.get('data'),
-				deferred = null;
+		'openShopManager': function (tree_node, params) {
+			var static_path = Supra.Manager.Loader.getStaticPath(),
+				app_path = '-local/shop',
+				params_url = '',
+				key,
+				
+				app = Supra.Manager.SiteMap.getApplicationData(this.constructor.APP),
+				url = '';
 			
-			// Start loading immediately
-			Supra.Manager.loadAction('Blog');
-			 
-			// Arguments:
-			//		node
-			//		reverse animation
-			//		origin
-			deferred = Supra.Manager.SiteMap.animate(tree_node.get('itemBox'), false, 'blog');
+			for (key in params) {
+				params_url += key + (params[key] && params[key] !== true ? '=' + params[key] : '');
+			}
 			
-			deferred.done(function () {
-				// Show blog when animation is done
-				Supra.Manager.executeAction('Blog', Supra.mix({
-					'parent_id': data.id,
-					'node': tree_node,
-					'sitemap_element': tree_node.get('itemBox')
-				}, params));
-			}, this);
+			if (app && app.url) {
+				url = app.url;
+			} else {
+				url = static_path + app_path;
+			}
+			
+			document.location = url + (params_url ? '#' + params_url : '');
 		},
 		
 		/**
@@ -126,15 +124,16 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 		 * @private
 		 */
 		'_renderChildren': function () {
-			// Blog doesn't have children in SiteMap, to see blog children
-			// user must visit Blog manager
+			// Shop doesn't have children in SiteMap, to see shop products
+			// user must visit Shop manager
+			
 			if (this.get('childrenRendered')) return;
 			this.set('childrenRendered', true);
 		}
 	});
 	
 	
-	Action.TreeNodeApp.Blog = Node;
+	Action.TreeNodeApp.Shop = Node;
 	
 	
 	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance

@@ -347,19 +347,19 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @private
 		 */
 		'bindUI': function () {
-			this.get('itemBox').on('click', this._onToggleClick, this);
+			this.get('itemBox').on('click', this.handleToggle, this);
 			
 			//"Open" button
-			this._widgets.buttonOpen.on('click', this._onSelectClick, this);
+			this._widgets.buttonOpen.on('click', this.handleSelect, this);
 			
 			//"Translate" button
-			this._widgets.buttonTranslate.on('click', this._onSelectClick, this);
+			this._widgets.buttonTranslate.on('click', this.handleSelect, this);
 			
 			//"Edit" button
 			this._widgets.buttonEdit.on('click', this.edit, this);
 			
 			//Context menu / left mouse button click
-			this.get('itemBox').on('contextmenu', this._onItemContextMenu, this);
+			this.get('itemBox').on('contextmenu', this.handleContentMenu, this);
 			
 			//Child change
 			this.on('child:add', this.syncChildrenPosition, this);
@@ -448,7 +448,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		'_onToggleClick': function (e) {
+		'handleToggle': function (e) {
 			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
 				
 				var view = this.get('tree').get('view');
@@ -470,7 +470,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		'_onItemContextMenu': function (e) {
+		'handleContentMenu': function (e) {
 			this.edit();
 			e.preventDefault();
 		},
@@ -482,7 +482,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @param {Event} e Event facade object
 		 * @private
 		 */
-		'_onSelectClick': function (e) {
+		'handleSelect': function (e) {
 			if (this.get('selectable') && this.get('editable') && this.get('state') != 'temporary') {
 				var params = {
 					'data': this.get('data'),

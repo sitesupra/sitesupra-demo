@@ -31,6 +31,10 @@ Supra.addModule('website.sitemap-tree-node-app-blog', {
 	path: 'sitemap/modules/tree/tree-node-app-blog.js',
 	requires: ['website.sitemap-tree-node-app']
 });
+Supra.addModule('website.sitemap-tree-node-app-shop', {
+	path: 'sitemap/modules/tree/tree-node-app-shop.js',
+	requires: ['website.sitemap-tree-node-app']
+});
 
 Supra.addModule('website.sitemap-tree-view', {
 	path: 'sitemap/modules/tree/tree-view.js',
@@ -72,7 +76,8 @@ Supra.addModule('website.sitemap-delete-page', {
 Supra(
 	'anim', 'transition',
 	'website.sitemap-tree',
-	'website.sitemap-tree-node', 'website.sitemap-tree-node-fake', 'website.sitemap-tree-node-list', 'website.sitemap-tree-node-app', 'website.sitemap-tree-node-app-news', 'website.sitemap-tree-node-app-blog',
+	'website.sitemap-tree-node', 'website.sitemap-tree-node-fake', 'website.sitemap-tree-node-list',
+	'website.sitemap-tree-node-app', 'website.sitemap-tree-node-app-news', 'website.sitemap-tree-node-app-blog', 'website.sitemap-tree-node-app-shop',
 	'website.sitemap-tree-view', 'website.sitemap-tree-data', 'website.sitemap-tree-util',
 	'website.sitemap-plugin-page-edit', 'website.sitemap-plugin-page-add', 'website.sitemap-plugin-page-global',
 	'website.sitemap-new-page', 'website.sitemap-delete-page',
@@ -665,6 +670,20 @@ function (Y) {
 			}
 			
 			return null;
+		},
+		
+		/**
+		 * Returns application data by ID
+		 * 
+		 * @param {String} id Application ID
+		 * @returns {Object|Null} Data or null
+		 */
+		getApplicationData: function (id) {
+			if (this.newPage) {
+				return this.newPage.getApplicationData(id);
+			} else {
+				return null;
+			}
 		},
 		
 		/**

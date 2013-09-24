@@ -207,6 +207,7 @@ YUI().add('website.sitemap-new-page', function (Y) {
 				target.append(node);
 			}
 			
+			this.data = data;
 			this._application_count = data.length + 1; //1 because we have also folder
 			this._bindDnD(data);
 		},
@@ -297,6 +298,21 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		 * ------------------------------ API ------------------------------
 		 */
 		
+		
+		/**
+		 * Returns application data by ID
+		 */
+		'getApplicationData': function (id) {
+			var data = this.data,
+				i    = 0,
+				ii   = data ? data.length : 0;
+			
+			for (; i<ii; i++) {
+				if (data[i].id == id) return data[i];
+			}
+			
+			return null;
+		},
 		
 		/**
 		 * Toggle list collapsed/expanded state
