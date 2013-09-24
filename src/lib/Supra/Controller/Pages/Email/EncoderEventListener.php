@@ -8,7 +8,6 @@ use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
  */
 class EncoderEventListener
 {	
-	const CONTEXT_PERSISTENCE_OFFSET = '__encoderContextKey';
 	const DECODER_JAVASCRIPT_FILE_URI = '/cms/lib/public/decipher-email.min.js';
 	
 	/**
@@ -22,10 +21,8 @@ class EncoderEventListener
 			
 			$context = $eventArgs->response->getContext();
 			
-			if ($context->getValue(self::CONTEXT_PERSISTENCE_OFFSET, false)) {
-				$context->addJsUrlToLayoutSnippet('js', self::DECODER_JAVASCRIPT_FILE_URI);
-				$this->flushed = true;
-			}
+			$context->addJsUrlToLayoutSnippet('js', self::DECODER_JAVASCRIPT_FILE_URI);
+			$this->flushed = true;
 		}
 	}
 }

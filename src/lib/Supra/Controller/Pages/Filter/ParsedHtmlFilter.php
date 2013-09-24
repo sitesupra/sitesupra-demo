@@ -145,8 +145,6 @@ class ParsedHtmlFilter implements FilterInterface
 				$tag->setAttribute('data-email', 'href,text');
 			}
 		}
-		
-		$this->responseContext->setValue(Email\EncoderEventListener::CONTEXT_PERSISTENCE_OFFSET, true);
 				
 		return $tag->toHtml();
 	}
