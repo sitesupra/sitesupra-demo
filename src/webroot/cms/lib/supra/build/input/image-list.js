@@ -12,7 +12,7 @@ YUI.add('supra.input-image-list', function (Y) {
 				<div class="remove">\
 					<button class="su-button-fill">{{ "buttons.delete"|intl }}</button>\
 				</div>\
-				<div class="content click-target"></div>\
+				<div class="content click-target" {% if size %}style="background-image: url({{ sizes[size].external_path }})"{% endif %}></div>\
 			 </li>'
 		),
 		NEW_ITEM_TEMPLATE = Supra.Template.compile(
@@ -126,7 +126,7 @@ YUI.add('supra.input-image-list', function (Y) {
 			this.set('newItemControls', node);
 			
 			if (this.value) {
-				this._uiRenderItems({'newVal': this.value});
+				this._uiRenderItems();
 			}
 		},
 		
@@ -553,7 +553,7 @@ YUI.add('supra.input-image-list', function (Y) {
 		_uiRenderItems: function (e) {
 			if (this._uiFrozen) return;
 			
-			var value = e.newVal,
+			var value = this.value,
 				i     = 0,
 				ii    = value ? value.length : 0;
 			
@@ -596,8 +596,17 @@ YUI.add('supra.input-image-list', function (Y) {
 			if (!data) {
 				data = {
 					'id': Y.guid(),
-					'temporary': true
+					'temporary': true,
+					'size': null
 				};
+			} else {
+				data.size = Y.DataType.Image.getSizeName(data, {
+					'minWidth': 100,
+					'minHeight': 100
+				}) || Y.DataType.Image.getSizeName(data, {
+					'width': 100,
+					'height': 100
+				});
 			}
 			
 			var node = Y.Node.create(ITEM_TEMPLATE(data)),
