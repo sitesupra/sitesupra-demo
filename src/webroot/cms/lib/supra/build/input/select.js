@@ -326,19 +326,6 @@ YUI.add("supra.input-select", function (Y) {
 					//Style
 					if (item) {
 						this._highlightItem(item);
-						
-						/*
-						if (prev) {
-							prev.removeClass("selected");
-						}
-						item.addClass("selected");
-						this.highlight_id = item.getAttribute("data-id");
-						
-						//Update scroll position
-						if (this.scrollable) {
-							this.scrollable.scrollInView(item);
-						}
-						*/
 					}
 				} else if (key == 13) {
 					if (this.highlight_id !== null) {
@@ -700,6 +687,16 @@ YUI.add("supra.input-select", function (Y) {
 			}
 			
 			return obj;
+		},
+		
+		/**
+		 * Returns element for item with id
+		 * 
+		 * @return Dropdown element
+		 * @type {Object}
+		 */
+		getValueNode: function (id) {
+			return this.get("contentNode").one("." + this.getClassName("item") + "[data-id=\"" + id + "\"]") || null;
 		},
 		
 		/**

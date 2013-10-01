@@ -49,6 +49,27 @@ YUI.add("supra.input-keywords", function (Y) {
 			value: null
 		},
 		
+		"suggestionsSelectNode": {
+			value: null
+		},
+		
+		/*
+		 * Only allow selecting values from suggestions
+		 * User input is not allowed
+		 */
+		"suggestionsStrict": {
+			value: false,
+			setter: '_setSuggestionsStrict'
+		},
+		
+		"suggestionsStrictNode": {
+			value: null
+		},
+		
+		"suggestionsStrictLabel": {
+			value: "Please select"
+		},
+		
 		/*
 		 * Suggestion are automatically visible
 		 */
@@ -107,6 +128,18 @@ YUI.add("supra.input-keywords", function (Y) {
 				return true;
 			}
 		},
+		'suggestionsStrict': function (srcNode) {
+			var value = srcNode.getAttribute('data-suggestions-strict');
+			if (value && value === "true" || value === "1") {
+				return true;
+			}
+		},
+		'suggestionsStrictLabel': function (srcNode) {
+			var value = srcNode.getAttribute('data-suggestions-strict-label');
+			if (value) {
+				return value;
+			}
+		},
 		'maxCount': function (srcNode) {
 			var value = srcNode.getAttribute('data-max-count');
 			if (value) {
@@ -151,9 +184,12 @@ YUI.add("supra.input-keywords", function (Y) {
 				suggestionsButton = new Supra.Button({'label': '{#settings.suggestions#}', 'style': 'small', 'id': 'button-suggestions'}),
 				suggestionsListNode = Y.Node.create('<div class="suggestions-list hidden"></div>'),
 				suggestionsEnabled = this.get('suggestionsEnabled'),
+				suggestionsStrict = this.get('suggestionsStrict'),
 				
 				clearAllLabel = Supra.Intl.get(['settings', 'clear_all']),
-				clearAllLink = new Y.Node.create('<a class="link-clear-all hidden">' + clearAllLabel + '</div>');
+				clearAllLink = new Y.Node.create('<a class="link-clear-all hidden">' + clearAllLabel + '</div>'),
+				
+				suggestionsSelectNode;
 
 			inputNode.insert(inputListNode, 'after');
 			inputListNode.append(inputNode);
@@ -174,6 +210,10 @@ YUI.add("supra.input-keywords", function (Y) {
 			} else {
 				suggestionsButton.hide();
 				clearAllLink.addClass('hidden');
+			}
+			
+			if (suggestionsStrict) {
+				this._uiSetSuggestionsStrict(suggestionsStrict);
 			}
 			
 			if (this.get('disabled')) {
@@ -304,7 +344,18 @@ YUI.add("supra.input-keywords", function (Y) {
 				
 				this.showSuggestionList();
 				
-				if(values) {
+				var select = this.get('suggestionsStrictNode');
+				if (select) {
+					select.set('values', 
+						[
+							{'id': '', 'title': this.get('suggestionsStrictLabel')}
+						].concat(Y.Array.map(this.suggestions, function (value) {
+							return {'id': value, 'title': value};
+						}))
+					);
+				}
+				
+				if (values) {
 					//Traverse all kewords and hide which are in suggestions list
 					for(var j=0; j<=values.length-1; j++) {
 						
@@ -360,6 +411,7 @@ YUI.add("supra.input-keywords", function (Y) {
 		 * @private
 		 */
 		_onRemoveItem: function (e) {
+			if (e.target.closest('.yui3-input-select')) return;
 			if (this.get('disabled')) return;
 			
 			var target = e.target.closest('span'),
@@ -407,10 +459,18 @@ YUI.add("supra.input-keywords", function (Y) {
 		hideSuggestion: function (suggestion) {
 			//check if suggestion is in items
 			var escaped = Y.Escape.html(suggestion),
-				node = Y.one('.suggestions-list span[data-value="' + escaped + '"]');
+				node = Y.one('.suggestions-list span[data-value="' + escaped + '"]'),
+				select = this.get('suggestionsStrictNode');
 			
 			if (node) {
 				node.addClass('hidden');
+			}
+			if (select) {
+				node = select.getValueNode(suggestion);
+				
+				if (node) {
+					node.addClass('hidden');
+				}
 			}
 			
 			this.updateScrollbars();
@@ -424,10 +484,18 @@ YUI.add("supra.input-keywords", function (Y) {
 		showSuggestion: function (suggestion) {
 			//check if suggestion is in items
 			var escaped = Y.Escape.html(suggestion),
-				node = Y.one('.suggestions-list span[data-value="' + escaped + '"]');
+				node = Y.one('.suggestions-list span[data-value="' + escaped + '"]'),
+				select = this.get('suggestionsStrictNode');
 			
 			if (node) {
 				node.removeClass('hidden');
+			}
+			if (select) {
+				node = select.getValueNode(suggestion);
+				
+				if (node) {
+					node.addClass('hidden');
+				}
 			}
 			
 			this.updateScrollbars();
@@ -559,6 +627,66 @@ YUI.add("supra.input-keywords", function (Y) {
 		/* ------------------------------- ATTRIBUTES ------------------------------- */
 		
 		
+		_uiSetSuggestionsStrict: function (strict) {
+			if (strict) {
+				var select = this.get('suggestionsStrictNode') || this._uiRenderSuggestionsStrict();
+				
+				this.get('suggestionsNode').addClass('hidden');
+				this.get('inputNode').hide();
+			} else {
+				this.get('inputNode').show();
+				
+				if (this.get('suggestionsEnabled')) {
+					this.get('suggestionsNode').removeClass('hidden');
+				}
+				
+				this.get('suggestionsNode').addClass('hidden');
+			}
+		},
+		
+		/**
+		 * Render suggestion dropdown
+		 * 
+		 * @returns {Object} Node
+		 * @private
+		 */
+		_uiRenderSuggestionsStrict: function () {
+			var values,
+				node;
+			
+			values = [
+					{'id': '', 'title': this.get('suggestionsStrictLabel')}
+				].concat(Y.Array.map(this.suggestions, function (value) {
+					return {'id': value, 'title': value};
+				}));
+			
+			var node = new Supra.Input.Select({
+				values: values
+			});
+			
+			node.render(this.get('contentBox'));
+			this.set('suggestionsStrictNode', node);
+			this.get('inputListNode').insert(node.get('boundingBox'), 'after');
+			
+			node.after('valueChange', this._uiSuggestionsStrictChange, this);
+			
+			return node;
+		},
+		
+		_uiSuggestionsStrictChange: function (e) {
+			if (this._uiStrictFrozen) return;
+			this._uiStrictFrozen = true;
+			
+			this.addItem(e.newVal);
+			this.get('suggestionsStrictNode').set('value', '');
+			
+			this._uiStrictFrozen = false;
+		},
+		
+		
+		/* ------------------------------- ATTRIBUTES ------------------------------- */
+		
+		
 		/**
 		 * Normalize value to array with strings
 		 * 
@@ -640,10 +768,14 @@ YUI.add("supra.input-keywords", function (Y) {
 			if (!this.get('rendered')) return !!enabled;
 			
 			if (enabled) {
-				this.get('suggestionsNode').removeClass('hidden');
-				
-				if (this.get('suggestionAutoVisible')) {
+				if (this.get('suggestionsStrict')) {
 					this.loadItems();
+				} else {
+					this.get('suggestionsNode').removeClass('hidden');
+					
+					if (this.get('suggestionAutoVisible')) {
+						this.loadItems();
+					}
 				}
 			} else {
 				this.closeSuggestionsList();
@@ -651,6 +783,24 @@ YUI.add("supra.input-keywords", function (Y) {
 			}
 			
 			return !!enabled;
+		},
+		
+		/**
+		 * suggestionsStrict attribute setter
+		 * 
+		 * @param {Boolean} value
+		 * @return New value
+		 * @type {Boolean}
+		 * @private
+		 */
+		_setSuggestionsStrict: function (strict) {
+			strict = !!strict;
+			
+			if (!this.get('rendered')) return strict;
+			
+			this._uiSetSuggestionsStrict(strict);
+			
+			return strict;
 		},
 		
 		/**

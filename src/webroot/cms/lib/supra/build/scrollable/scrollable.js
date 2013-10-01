@@ -457,12 +457,12 @@ YUI.add('supra.scrollable', function (Y) {
 		/**
 		 * Set scroll position
 		 */
-		setScrollPosition: function (position) {
+		setScrollPosition: function (pos) {
 			var axis = this.get('axis'),
-				contentBox = this.get('boxContent');
+				contentBox = this.get('contentBox');
 			
 			if (axis == 'y') {
-				contentBox.set('scrollY', pos);
+				contentBox.set('scrollTop', pos);
 			} else {
 				contentBox.setStyle('marginLeft', -pos + 'px');
 			}
@@ -523,11 +523,11 @@ YUI.add('supra.scrollable', function (Y) {
 				contPos = contentBox[axisOffsetFn](),
 				
 				size = node.get('offset' + axisSizeProperty),
-				pos = node[axisOffsetFn]() - contPos;
+				pos = node[axisOffsetFn]() - contPos + scrollPos;
 			
 			if (pos < scrollPos) {
 				this.setScrollPosition(pos);
-			} else if ((pos + size) > (scrollPos + viewSize)) {
+			} else if ((pos + size - viewSize) > scrollPos) {
 				this.setScrollPosition(pos + size - viewSize);
 			} else {
 				return false;

@@ -39,6 +39,17 @@ YUI.add("supra.input-checkbox", function (Y) {
 		'pinNode': function (srcNode) {
 			var background_node = this.get('backgroundNode');
 			return background_node ? background_node.one('.pin') : null;
+		},
+		
+		'labels': function (srcNode) {
+			var a = srcNode.getAttribute('data-label-a'),
+				b = srcNode.getAttribute('data-label-b');
+			
+			if (a && b) {
+				return [a, b];
+			} else {
+				return;
+			}
 		}
 	};
 	Input.ATTRS = {
@@ -83,19 +94,6 @@ YUI.add("supra.input-checkbox", function (Y) {
 		 */
 		'defaultValue': {
 			value: true
-		}
-	};
-	
-	Input.HTML_PARSER = {
-		'labels': function (srcNode) {
-			var a = srcNode.getAttribute('data-label-a'),
-				b = srcNode.getAttribute('data-label-b');
-			
-			if (a && b) {
-				return [a, b];
-			} else {
-				return;
-			}
 		}
 	};
 	

@@ -131,16 +131,21 @@ YUI.add("supra.footer", function (Y) {
 		 * @type {Object}
 		 */
 		discoverButtons: function () {
-			var buttons = this.get("srcNode").all("input[type='button'],input[type='submit'],button");
-			var config = {};
-			var styles = BUTTON_STYLES;
+			var buttons = this.get("srcNode").all("input[type='button'],input[type='submit'],button"),
+				config = {},
+				styles = BUTTON_STYLES,
+				style,
+				button,
+				id,
+				disabled,
+				label;
 			
 			for(var i=0,ii=buttons.size(); i<ii; i++) {
-				var button = buttons.item(i);
+				button = buttons.item(i);
 				
-				var id = button.getAttribute("id");
+				id = button.getAttribute("id");
 				if (!id) {
-					for(var style in styles) {
+					for(style in styles) {
 						if (button.hasClass(style)) {
 							id = style;
 							break;
@@ -150,14 +155,16 @@ YUI.add("supra.footer", function (Y) {
 				
 				if (!id) continue;
 				
-				var disabled = button.getAttribute("disabled") ? true : false;
-				var label = button.test("input") ? button.get("value") : button.get("innerHTML");
+				disabled = button.getAttribute("disabled") ? true : false;
+				label = button.test("input") ? button.get("value") : button.get("innerHTML");
+				style = button.test("button") ? button.getAttribute('data-style') : null;
 				
 				config[id] = {
 					"id": id,
 					"label": label,
 					"srcNode": button,
-					"disabled": disabled
+					"disabled": disabled,
+					"style": style
 				};
 			}
 			
@@ -178,7 +185,7 @@ YUI.add("supra.footer", function (Y) {
 				"label": ""
 			};
 			
-			if (config.id && config.id in BUTTON_STYLES) {
+			if (config.id && config.id in BUTTON_STYLES && !config.style) {
 				style_definition.style = BUTTON_STYLES[config.id];
 			}
 			
