@@ -7481,6 +7481,7 @@ YUI().add("supra.io-css", function (Y) {
 				for(var i in replacements) {
 					str = str.split(i).join(replacements[i]);
 				}
+				
 				return str;
 			},
 			
@@ -7955,7 +7956,7 @@ YUI().add("supra.io-css", function (Y) {
 		REG_VAR				= new RegExp(ESC_VAR_OPEN + '(.*?)' + ESC_VAR_CLOSE, 'g'),
 		REG_VAR_STRING		= /("[^"]*"|'[^']*')/g,
 		REG_VAR_TRIM		= /\s*(,|:|{|}|\(|\))\s*/g,
-		REG_VAR_DATA		= /(^|\s|\[|\(|\!|\&|\-|\+|\*|\/|\%|,)([a-z])/gi,
+		REG_VAR_DATA		= /(^|\s|\[|\(|\!|\&|\-|\+|\*|\/|\%|:|,)([a-z])/gi,
 		REG_VAR_FN			= /(^|\s|\[|\(|\!|\&)([a-z0-9_]+\()/gi,
 		REG_VAR_MODIFIERS	= /([a-z0-9\$_'"\.\,\[\]\(\)\:\{\}]+)\|([a-z0-9_]+)(\(([^)]+)\))?/i,
 		REG_EXPR			= new RegExp(ESC_EXPR_OPEN + '\\s*([a-z0-9\\\_]+)(\\s(.*?))?' + TAG_EXPR_CLOSE, 'g'),
@@ -28664,9 +28665,11 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
+	var MASK_INTEGER = /^\-?[0-9]*$/,
+		MASK_REAL    = /^\-?([0-9]*|[0-9]+[.,][0-9]*)$/;
+	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
 	}
 	
 	// Input is inline
@@ -28676,8 +28679,31 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-number";
-	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
-	Input.HTML_PARSER = {};
+	Input.CLASS_NAME = Input.CSS_PREFIX = 'su-' + Input.NAME;
+	
+	Input.HTML_PARSER = {
+		
+		'minValue': function (srcNode) {
+			var attr = parseFloat(srcNode.getAttribute('data-min-value'));
+			if (!isNaN(attr)) return attr;
+		},
+		
+		'maxValue': function (srcNode) {
+			var attr = parseFloat(srcNode.getAttribute('data-max-value'));
+			if (!isNaN(attr)) return attr;
+		},
+		
+		'showButtons': function (srcNode) {
+			var attr = srcNode.getAttribute('data-show-buttons');
+			if (attr === 'true' || attr === '1') return true;
+		},
+		
+		'allowRealNumbers': function (srcNode) {
+			var attr = srcNode.getAttribute('data-allow-real-numbers');
+			if (attr === 'true' || attr === '1') return true;
+		}
+		
+	};
 	Input.ATTRS = {
 		/**
 		 * Min value
@@ -28699,7 +28725,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * Value mask to allow only numbers
 		 */
 		'valueMask': {
-			value: /^\-?[0-9]*$/
+			value: MASK_INTEGER
 		},
 		
 		/**
@@ -28714,6 +28740,30 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 */
 		'step': {
 			value: 1
+		},
+		
+		/**
+		 * Show add/subtract buttons
+		 */
+		'showButtons': {
+			value: true,
+			setter: '_setAttrShowButtons'
+		},
+		
+		/**
+		 * Allow real numbers, not only integeres
+		 */
+		'allowRealNumbers': {
+			value: false,
+			setter: '_setAttrAllowRealNumbers'
+		},
+		
+		/**
+		 * Default value
+		 */
+		'getDefaultValue': {
+			value: null,
+			getter: '_getDefaultValue'
 		}
 	};
 	
@@ -28741,16 +28791,40 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		renderUI: function () {
 			Input.superclass.renderUI.apply(this, arguments);
 			
+			var contentBox = this.get('contentBox'),
+				tmp = null;
+			
+			if (contentBox.test('input')) {
+				tmp = Y.Node.create('<div></div>');
+				tmp.addClass(this.getClassName('content'));
+				contentBox.removeClass(this.getClassName('content'));
+				contentBox.insert(tmp, 'before');
+				tmp.append(contentBox);
+				
+				contentBox = tmp;
+			}
+			
 			//Add +/- buttons
 			this.button_add = new Supra.Button({'label': '+', 'style': 'small'});
-			this.button_add.render(this.get('contentBox'));
+			this.button_add.render(contentBox);
 			this.button_add.addClass('button-add');
 			this.button_add.on('click', this._addOne, this);
 			
 			this.button_sub = new Supra.Button({'label': '-', 'style': 'small'});
-			this.button_sub.render(this.get('contentBox'));
+			this.button_sub.render(contentBox);
 			this.button_sub.addClass('button-sub');
 			this.button_sub.on('click', this._subOne, this);
+			
+			if (!this.get('showButtons')) {
+				this.button_add.hide();
+				this.button_sub.hide();
+			} else {
+				this.addClass(this.getClassName('buttons-visible'));
+			}
+			
+			if (this.get('allowRealNumbers')) {
+				this.set('valueMask', MASK_REAL);
+			}
 		},
 		
 		/**
@@ -28829,7 +28903,12 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @private
 		 */
 		_validateValue: function (value) {
-			var value = parseInt(value, 10),
+			if (typeof value === 'string') {
+				// Decimal point must be dot for parseFloat to work
+				value = value.replace(',', '.');
+			}
+			
+			var value = this.get('allowRealNumbers') ? parseFloat(value) : parseInt(value, 10),
 				min   = this.get('minValue'),
 				max   = this.get('maxValue');
 			
@@ -28853,13 +28932,13 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * To remove min value validation set to null
 		 * 
 		 * @param {Number} min Min value
-		 * @return Min value
-		 * @type {Number}
+		 * @returns {Number} Min value
+		 * @private
 		 */
 		_setMinValue: function (min) {
 			var value = this.get('value');
 			if (min !== null) {
-				min = parseInt(min, 10);
+				min = parseFloat(min);
 				if (value < min) this.set('value', min);
 			}
 			return min;
@@ -28870,16 +28949,66 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * To remove max value validation set to null
 		 * 
 		 * @param {Number} min Max value
-		 * @return Max value
-		 * @type {Number}
+		 * @returns {Number} Max value
+		 * @private
 		 */
 		_setMaxValue: function (max) {
 			var value = this.get('value');
 			if (max !== null) {
-				max = parseInt(max, 10);
+				max = parseFloat(max);
 				if (value > max) this.set('value', max);
 			}
 			return max;
+		},
+		
+		/**
+		 * allowRealNumbers attribute setter
+		 * 
+		 * @param {Boolean} allow Allow real numbers
+		 * @returns {Boolean} Attribute value
+		 * @private
+		 */
+		_setAttrAllowRealNumbers: function (allow) {
+			if (allow) {
+				this.set('valueMask', MASK_REAL);
+			} else {
+				this.set('valueMask', MASK_INTEGER);
+			}
+			
+			return allow;
+		},
+		
+		/**
+		 * Show buttons attribute setter
+		 * 
+		 * @param {Boolean} show Attribute value
+		 * @returns {Boolean} Attribute value
+		 * @private
+		 */
+		_setAttrShowButtons: function (show) {
+			if (this.button_sub) {
+				if (show) {
+					this.button_add.show();
+					this.button_sub.show();
+					this.addClass(this.getClassName('buttons-visible'));
+				} else {
+					this.button_add.hide();
+					this.button_sub.hide();
+					this.removeClass(this.getClassName('buttons-visible'));
+				}
+			}
+			return show;
+		},
+		
+		/**
+		 * Default value attribute getter
+		 * 
+		 * @returns {String} Default value
+		 * @private
+		 */
+		_getDefaultValue: function () {
+			var min = this.get('minValue');
+			return min !== null ? min : 0;
 		},
 		
 		/**
