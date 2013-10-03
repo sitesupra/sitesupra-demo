@@ -223,14 +223,15 @@ YUI.add('supra.input-select-list', function (Y) {
 				contentBox = this.get('boundingBox');
 			}
 			
+			button.after('visibleChange', this._uiAfterButtonVisibleChange, this);
 			button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 			this.buttons[definition.id] = button;
 			
 			if (first) {
-				button.get('boundingBox').addClass('su-button-first');
+				button.addClass('su-button-first');
 			}
 			if (last) {
-				button.get('boundingBox').addClass('su-button-last');
+				button.addClass('su-button-last');
 			}
 			
 			if (input && input.options) {
@@ -255,6 +256,86 @@ YUI.add('supra.input-select-list', function (Y) {
 			button.on('click', this._onClick, this, definition.id);
 			
 			return has_value_match;
+		},
+		
+		
+		/*
+		 * ---------------------------------------- Buttons ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Returns button by options value
+		 * 
+		 * @param {String} value Option value
+		 * @returns {Object} Supra.Button instance for given value
+		 */
+		getButton: function (value) {
+			var buttons = this.buttons;
+			return buttons && value in buttons ? buttons[value] : null;
+		},
+		
+		/**
+		 * After button visible change update first and last classnames
+		 * 
+		 * @private
+		 */
+		_uiAfterButtonVisibleChange: function () {
+			var buttons = this.buttons,
+				first_visible = null,
+				last_visible = null,
+				tmp = null,
+				visible_count = 0,
+				button_width;
+			
+			for (tmp in buttons) {
+				buttons[tmp].removeClass('su-button-first').removeClass('su-button-last');
+				if (buttons[tmp].get('visible')) {
+					first_visible = last_visible = buttons[tmp];
+					visible_count++;
+				}
+			}
+			
+			// First first and last visible button
+			tmp = first_visible;
+			while (tmp) {
+				if (tmp.get('visible')) first_visible = tmp;
+				tmp = tmp.get('boundingBox').previous();
+				
+				if (tmp && tmp.test('.su-button')) {
+					tmp = Y.Widget.getByNode(tmp);
+				} else {
+					tmp = null;
+				}
+			}
+			
+			tmp = last_visible;
+			while (tmp) {
+				if (tmp.get('visible')) last_visible = tmp;
+				tmp = tmp.get('boundingBox').next();
+				
+				if (tmp && tmp.test('.su-button')) {
+					tmp = Y.Widget.getByNode(tmp);
+				} else {
+					tmp = null;
+				}
+			}
+			
+			if (first_visible) {
+				first_visible.addClass('su-button-first');
+			}
+			if (last_visible) {
+				last_visible.addClass('su-button-last');
+			}
+			
+			// Update button width
+			if (this.get('style') != 'items') {
+				button_width = 100 / visible_count;
+				
+				for (tmp in buttons) {
+					buttons[tmp].get('boundingBox').setStyle('width', button_width + '%');
+				}
+			}
 		},
 		
 		
@@ -371,10 +452,11 @@ YUI.add('supra.input-select-list', function (Y) {
 		 */
 		_onClick: function (event, id) {
 			if (this.get('multiple')) {
-				this.set('value', this.get('value'));
-			} else {
-				this.set('value', id);
+				id = this.get('value');
 			}
+			
+			this.set('value', id);
+			this.fire('itemClick', {'value': id});
 		},
 		
 		/**

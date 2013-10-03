@@ -106,6 +106,16 @@ YUI.add('supra.template', function (Y) {
 		return html;
 	};
 	
+	/**
+	 * Add custom filter
+	 * 
+	 * @param {String} name Filter name
+	 * @param {Function} fn Filter function
+	 */
+	Template.addFilter = function (name, fn) {
+		return Supra.TemplateCompiler.addFilter.apply(Supra.TemplateCompiler, arguments);
+	};
+	
 	
 	Supra.Template = Template;
 	

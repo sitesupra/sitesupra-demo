@@ -31,7 +31,9 @@ button::-moz-focus-inner {
 	}
 	
 	p {
-		.transition (color 0.2s, text-shadow 0.2s);
+		// Transition causes problems in Chrome, when color and text shadow
+		// is not applied for down, hover, etc. state
+		//.transition (color 0.2s, text-shadow 0.2s);
 	}
 	
 	div {

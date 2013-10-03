@@ -48,6 +48,9 @@ YUI.add("supra.input-keywords", function (Y) {
 		"suggestionRequestUri": {
 			value: null
 		},
+		"suggestions": {
+			value: null
+		},
 		
 		"suggestionsSelectNode": {
 			value: null
@@ -263,6 +266,9 @@ YUI.add("supra.input-keywords", function (Y) {
 			//On blur update item list
 			inputNode.on('blur', this._onBlur, this);
 			
+			//After suggestions change update UI
+			this.after('suggestionsChange', this.loadItems, this);
+			
 			//Update value
 			this.syncUI();
 		},
@@ -308,16 +314,26 @@ YUI.add("supra.input-keywords", function (Y) {
 		 * @private
 		 */
 		loadItems: function () {
-			this.get('suggestionsButton').set('loading', true);
+			var uri = this.get('suggestionRequestUri');
 			
-			Supra.io(this.get('suggestionRequestUri'), {
-				'data': {
-					'page_id': Supra.data.get(['page', 'id'])
-				},
-				'on': {
-					'complete': this.onLoadItems
+			if (uri) {
+				this.get('suggestionsButton').set('loading', true);
+				
+				Supra.io(this.get('suggestionRequestUri'), {
+					'data': {
+						'page_id': Supra.data.get(['page', 'id'])
+					},
+					'on': {
+						'complete': this.onLoadItems
+					}
+				}, this);
+			} else {
+				this.suggestions = this.get('suggestions') || [];
+				
+				if (this.get('rendered')) {
+					this.onLoadItems(this.suggestions, 1);
 				}
-			}, this);
+			}
 		},
 		
 		/**
@@ -332,7 +348,7 @@ YUI.add("supra.input-keywords", function (Y) {
 				values = this.get('values'),
 				label = this.get('suggestedLabel');
 			
-			if (status && data.length) {
+			if (status && data && data.length) {
 				data = this._normalizeValue(data);
 				
 				if (typeof label !== 'string') {

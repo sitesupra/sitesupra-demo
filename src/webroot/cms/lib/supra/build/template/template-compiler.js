@@ -9,6 +9,16 @@ YUI.add('supra.template-compiler', function (Y) {
 	var C = {
 		
 		/**
+		 * Add custom filter
+		 * 
+		 * @param {String} name Filter name
+		 * @param {Function} fn Filter function
+		 */
+		'addFilter': function (name, fn) {
+			C.filters[name] = fn;
+		},
+		
+		/**
 		 * Compile template string into function
 		 */
 		'compile': function (tpl, opt) {
