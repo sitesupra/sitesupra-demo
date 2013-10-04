@@ -4,7 +4,9 @@
 		doc  = win.document,
 		body = doc.body,
 		state = document.readyState,
-		$ = win.jQuery;
+		
+		// HTMLElement is for IE8+, Element is for IE8
+		ELEMENT_CONSTRUCTOR = typeof HTMLElement !== 'undefined' ? HTMLElement : Element;
 	
 	/**
 	 * Create character map for rot13
@@ -73,15 +75,10 @@
 	 * @param {String} attr Assume this as data-email attribute value
 	 */
 	function decipherEmail (node, attr) {
-		if (node instanceof HTMLElement) {
+		if (node instanceof ELEMENT_CONSTRUCTOR) {
 			// Single node
 			var attr = attr || node.getAttribute('data-email');
 			if (!attr) return;
-			
-			// Href
-			if (attr.indexOf('href') !== -1) {
-				node.setAttribute('href', rot13(node.getAttribute('href')));
-			}
 			
 			// Text
 			if (attr.indexOf('text') !== -1) {
@@ -94,8 +91,15 @@
 						texts[i].textContent = rot13(texts[i].textContent);
 					} else if (texts[i].innerText) {
 						texts[i].innerText = rot13(texts[i].innerText);
-					}
+					} else if (texts[i].nodeValue) { // IE8
+						texts[i].nodeValue = rot13(texts[i].nodeValue);
+					} 
 				}
+			}
+			
+			// Href
+			if (attr.indexOf('href') !== -1) {
+				node.setAttribute('href', rot13(node.getAttribute('href')));
 			}
 			
 		} else if (node && node.length) {
@@ -119,6 +123,8 @@
 	 * Traverse tree and look for nodes with data-email attribute
 	 */
 	function traverseDOMForEmails () {
+		var $ = win.jQuery;
+		
 		if ($) {
 			decipherEmail($('[data-email]'));
 		} else if (doc.querySelectorAll) {
