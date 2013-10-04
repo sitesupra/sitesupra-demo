@@ -270,8 +270,9 @@ YUI.add('supra.iframe-handler', function (Y) {
 			//Clean up
 			this.destroyContent();
 			
-			//Small delay to make sure everything is clean up (Chrome & IE issue)
-			Supra.immediate(this, function () {
+			//Change iframe HTML, small delay to make sure
+			//all JS is really cleaned up (Chrome & IE issue)
+			Y.later(16, this, function () {
 				//Set attribute
 				this.set('html', html);
 				
