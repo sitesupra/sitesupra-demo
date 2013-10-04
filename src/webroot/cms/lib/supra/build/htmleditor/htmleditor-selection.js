@@ -73,8 +73,13 @@ YUI().add('supra.htmleditor-selection', function (Y) {
 		 * Move cursor to the end of the content
 		 */
 		deselect: function () {
-			var content = this.get('srcNode').getDOMNode(),
-				children = content.childNodes,
+			var content = this.get('srcNode').getDOMNode();
+			if (!content) {
+				// Was called after editor is destroyed
+				return;
+			}
+			
+			var children = content.childNodes,
 				child = children.length ? children[children.length - 1] : null;
 			
 			while (child && child.nodeType != 3) {
