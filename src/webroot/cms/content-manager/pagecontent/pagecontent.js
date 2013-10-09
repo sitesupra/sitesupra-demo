@@ -431,10 +431,11 @@ Supra('dd-drag', function (Y) {
 					});
 					
 					if (!ret) {
+						Manager.PageInsertBlock.hide();
+						
 						//Event was stopped == successful drop
 						//delay to allow draged item to reset it's position if needed
 						Supra.immediate(this, function () {
-							Manager.PageInsertBlock.hide();
 							this.getContent().set('highlightMode', 'edit');
 						});
 					}
