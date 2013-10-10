@@ -15,6 +15,7 @@ YUI.add("supra.input-html", function (Y) {
 	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-html";
+	
 	Input.ATTRS = {
 		'doc': {
 			value: null
@@ -35,6 +36,10 @@ YUI.add("supra.input-html", function (Y) {
 		// HTML editor mode
 		'mode': {
 			value: null
+		},
+		// Default value
+		'defaultValue': {
+			value: ''
 		}
 	};
 	

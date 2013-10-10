@@ -55,6 +55,9 @@
 		display: block;
 		width: 24px;
 		height: 26px;
+		
+		// Because of the large shadow this element will cover the next input
+		pointer-events: none;
 	}
 	&.active span.pin {
 		background-position: -24px -17px;

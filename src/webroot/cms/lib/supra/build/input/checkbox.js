@@ -140,6 +140,26 @@ YUI.add("supra.input-checkbox", function (Y) {
 			this.on('valueChange', this._afterValueChange, this);
 		},
 		
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+			
+			var lbl = this.get('labelNode');
+			if (lbl) {
+				lbl.on('click', this.toggle, this);
+			}
+		},
+		
+		/**
+		 * Toggle value 
+		 */
+		toggle: function (e) {
+			this._animateValueToggle();
+			
+			if (e) {
+				e.preventDefault();
+			}
+		},
+		
 		/**
 		 * On label change update values
 		 * 
