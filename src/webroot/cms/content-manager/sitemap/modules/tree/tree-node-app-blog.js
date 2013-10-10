@@ -84,7 +84,7 @@ YUI().add('website.sitemap-tree-node-app-blog', function (Y) {
 		 * @private
 		 */
 		'handleToggle': function (e) {
-			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
+			if (!e.target.closest('.translate') && !e.target.closest('.edit') && !e.target.closest('.highlight')) {
 				this._openBlogManager(this);
 			}
 		},

@@ -449,7 +449,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 		 * @private
 		 */
 		'handleToggle': function (e) {
-			if (!e.target.closest('.edit') && !e.target.closest('.highlight')) {
+			if (!e.target.closest('.translate') && !e.target.closest('.edit') && !e.target.closest('.highlight')) {
 				
 				var view = this.get('tree').get('view');
 				
