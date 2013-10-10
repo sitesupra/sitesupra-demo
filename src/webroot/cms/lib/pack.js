@@ -29465,6 +29465,26 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			this.on('valueChange', this._afterValueChange, this);
 		},
 		
+		bindUI: function () {
+			Input.superclass.bindUI.apply(this, arguments);
+			
+			var lbl = this.get('labelNode');
+			if (lbl) {
+				lbl.on('click', this.toggle, this);
+			}
+		},
+		
+		/**
+		 * Toggle value 
+		 */
+		toggle: function (e) {
+			this._animateValueToggle();
+			
+			if (e) {
+				e.preventDefault();
+			}
+		},
+		
 		/**
 		 * On label change update values
 		 * 
@@ -44366,6 +44386,7 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 	Input.IS_CONTAINED = true;
 	
 	Input.NAME = "input-html";
+	
 	Input.ATTRS = {
 		'doc': {
 			value: null
@@ -44386,6 +44407,10 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		// HTML editor mode
 		'mode': {
 			value: null
+		},
+		// Default value
+		'defaultValue': {
+			value: ''
 		}
 	};
 	
