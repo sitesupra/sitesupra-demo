@@ -2,6 +2,9 @@
 
 namespace Project\Payment\Paypal;
 
+use PayPal\Auth\Oauth\AuthSignature;
+use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
+use Supra\Payment\Provider\Exception\ConfigurationException;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
 use Supra\Payment\Entity\Order\Order;
@@ -15,34 +18,102 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Transaction\TransactionType;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
-use Supra\Payment\Entity\Order\RecurringPayment;
+
+//use Supra\Payment\Entity\Order\RecurringPayment;
 use Supra\Payment\Entity\RecurringPayment\RecurringPaymentProductItem;
 use Supra\Payment\Entity\RecurringPayment\RecurringPaymentPaymentProviderItem;
 use Supra\Response\ResponseInterface;
 use Supra\Payment\Order\RecurringOrderPeriodDimension;
 
+/**
+ * Class PaymentProvider
+ * @package Project\Payment\Paypal
+ */
 class PaymentProvider extends PaymentProviderAbstraction
 {
+	/**
+	 *
+	 */
 	const REQUEST_KEY_TOKEN = 'TOKEN';
+
+	/**
+	 *
+	 */
 	const TRANSACTION_PARAMETER_NAME_TOKEN = 'TOKEN';
+
+	/**
+	 *
+	 */
 	const TRANSACTION_PARAMETER_TRANSACTIONID = 'PAYMENTINFO_0_TRANSACTIONID';
+
+	/**
+	 *
+	 */
 	const TRANSACTION_PARAMETER_PROFILEID = 'PROFILEID';
 
+	/**
+	 *
+	 */
 	const PHASE_NAME_PAYPAL_SET_EXPRESS_CHECKOUT = 'paypal-SetExpressCheckout';
+
+	/**
+	 *
+	 */
 	const PHASE_NAME_CHECKOUT_DETAILS = 'paypal-CheckoutDetails';
-	const PHASE_NAME_DO_PAYMENT= 'paypal-DoPayment';
+
+	/**
+	 *
+	 */
+	const PHASE_NAME_DO_PAYMENT = 'paypal-DoPayment';
+
+	/**
+	 *
+	 */
 	const PHASE_NAME_CREATE_RECURRING_PAYMENT = 'paypal-CreateRecurringPaymentsProfile';
+
+	/**
+	 *
+	 */
 	const PHASE_NAME_IPN = 'paypal-ipn-';
 
+	/**
+	 *
+	 */
 	const CUSTOMER_RETURN_ACTION = 'return';
+
+	/**
+	 *
+	 */
 	const CUSTOMER_RETURN_ACTION_RETURN = 'return';
+
+	/**
+	 *
+	 */
 	const CUSTOMER_RETURN_ACTION_CANCEL = 'cancel';
+
+	/**
+	 *
+	 */
 	const CUSTOMER_RETURN_SUFFIX_SHOP = 'shop';
+
+	/**
+	 *
+	 */
 	const CUSTOMER_RETURN_SUFFIX_RECURRING = 'recurring';
 
+	/**
+	 *
+	 */
 	const EVENT_PAYER_CHECKOUT_DETAILS = 'paypalPayerCheckoutDetails';
 
+	/**
+	 *
+	 */
 	const REQUEST_KEY_SHOP_ORDER_ID = 'shopo';
+
+	/**
+	 *
+	 */
 	const REQUEST_KEY_RECURRING_ORDER_ID = 'recurro';
 
 	/**
@@ -63,25 +134,59 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @var string
 	 */
+	protected $xPaypalAuthorizationHeaderValue;
+
+	/**
+	 * @var string
+	 */
+	protected $useXPaypalAuthorizationHeader;
+
+	/**
+	 * @var string
+	 */
+	protected $accessToken;
+
+	/**
+	 * @var string
+	 */
+	protected $accessTokenSecret;
+
+	/**
+	 * @var string
+	 */
 	protected $paypalApiUrl;
 
 	/**
 	 * @var string
 	 */
 	protected $paypalRedirectUrl;
+
+	/**
+	 * @var
+	 */
 	protected $returnHost;
+
+	/**
+	 * @var
+	 */
 	protected $callbackHost;
 
 	/**
-	 * @param string $apiUsername 
+	 * @var string
+	 */
+	protected $applicationId;
+
+	/**
+	 * @param string $apiUsername
 	 */
 	public function setApiUsername($apiUsername)
 	{
 		$this->apiUsername = $apiUsername;
 	}
 
+
 	/**
-	 * @param string $apiUsername 
+	 * @param string $apiPassword
 	 */
 	public function setApiPassword($apiPassword)
 	{
@@ -89,7 +194,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param string $apiUsername 
+	 * @param string $apiSignature
 	 */
 	public function setApiSignature($apiSignature)
 	{
@@ -97,7 +202,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param string $paypalServiceUrl 
+	 * @param $paypalApiUrl
 	 */
 	public function setPaypalApiUrl($paypalApiUrl)
 	{
@@ -113,6 +218,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param $queryData
 	 * @return string
 	 */
 	public function getPaypalRedirectUrl($queryData)
@@ -123,7 +229,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param string $paypalRedirectUrl 
+	 * @param string $paypalRedirectUrl
 	 */
 	public function setPaypalRedirectUrl($paypalRedirectUrl)
 	{
@@ -131,7 +237,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param string $returnHost 
+	 * @param string $returnHost
 	 */
 	public function setReturnHost($returnHost)
 	{
@@ -139,12 +245,61 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param string $callbackHost 
+	 * @param string $callbackHost
 	 */
 	public function setCallbackHost($callbackHost)
 	{
 		$this->callbackHost = $callbackHost;
 	}
+
+	/**
+	 * @param string $applicationId
+	 */
+	public function setApplicationId($applicationId)
+	{
+		$this->applicationId = $applicationId;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getUseXPaypalAuthorizationHeader()
+	{
+		return $this->useXPaypalAuthorizationHeader;
+	}
+
+	/**
+	 * @param bool $value
+	 */
+	public function setUseXPaypalAuthorizationHeader($value)
+	{
+		$this->useXPaypalAuthorizationHeader = $value;
+	}
+
+	/**
+	 * @throws ConfigurationException
+	 */
+	protected function getAccessToken()
+	{
+		if (empty($this->accessToken)) {
+			throw new ConfigurationException('PayPal Authorization Access Token Not Set');
+		}
+
+		return $this->accessToken;
+	}
+
+	/**
+	 * @throws ConfigurationException
+	 */
+	protected function getAccessTokenSecret()
+	{
+		if (empty($this->accessTokenSecret)) {
+			throw new ConfigurationException('PayPal Authorization Access Token Secret Not Set');
+		}
+
+		return $this->accessTokenSecret;
+	}
+
 
 	/**
 	 * @return array
@@ -153,6 +308,10 @@ class PaymentProvider extends PaymentProviderAbstraction
 	{
 		$apiData = array();
 		$apiData['VERSION'] = '82.0';
+
+		if ($this->getUseXPaypalAuthorizationHeader()) {
+			$apiData['___HEADERS']['X-PAYPAL-AUTHORIZATION'] = $this->getXPaypalAuthorizationHeaderValue();
+		}
 
 		$apiData['USER'] = $this->apiUsername;
 		$apiData['PWD'] = $this->apiPassword;
@@ -172,6 +331,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @param Order $order
 	 * @return array
+	 * @throws Exception\RuntimeException
 	 */
 	protected function getSetExpressCheckoutApiData(Order $order)
 	{
@@ -206,6 +366,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 			$itemData = array();
 
 			if ($orderItem instanceof OrderProductItem) {
+				/* @var $orderItem OrderProductItem */
 
 				$counter = intval($counter);
 
@@ -225,7 +386,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 				$apiData['PAYMENTREQUEST_0_HANDLINGAMT'] = $orderItem->getPrice();
 			}
 
-			$counter ++;
+			$counter++;
 
 			$apiData = $apiData + $itemData;
 		}
@@ -257,8 +418,180 @@ class PaymentProvider extends PaymentProviderAbstraction
 		return $result;
 	}
 
+
 	/**
-	 * @param type $token
+	 * @param $returnUrl
+	 * @return array
+	 */
+	public function makeRequestPermissionsCall($returnUrl)
+	{
+		$apiData = $this->getRequestPermissionsApiData($returnUrl);
+
+		$result = $this->callPaypalApi($apiData);
+
+		return $result;
+	}
+
+
+	/**
+	 * @param string $returnUrl
+	 * @return string
+	 */
+	public function getGrantPermissionsUrl($returnUrl)
+	{
+		$requestPermissionsCallResult = $this->makeRequestPermissionsCall($returnUrl);
+
+		$queryData = array(
+			'cmd' => '_grant-permission',
+			'request_token' => $requestPermissionsCallResult['TOKEN']
+		);
+
+		$url = $this->getPaypalRedirectUrl($queryData);
+
+		return $url;
+	}
+
+	/**
+	 * @param $returnUrl
+	 * @return array
+	 */
+	protected function getRequestPermissionsApiData($returnUrl)
+	{
+		$apiData = $this->getBaseApiData();
+
+		unset($apiData['USER']);
+		unset($apiData['PWD']);
+		unset($apiData['SIGNATURE']);
+
+		$apiData['___URL'] = $this->getPaypalApiUrl() . '/Permissions/RequestPermissions';
+
+		$apiData['___HEADERS']['X-PAYPAL-SECURITY-USERID'] = $this->apiUsername;
+		$apiData['___HEADERS']['X-PAYPAL-SECURITY-PASSWORD'] = $this->apiPassword;
+		$apiData['___HEADERS']['X-PAYPAL-SECURITY-SIGNATURE'] = $this->apiSignature;
+		$apiData['___HEADERS']['X-PAYPAL-REQUEST-DATA-FORMAT'] = 'NV';
+		$apiData['___HEADERS']['X-PAYPAL-RESPONSE-DATA-FORMAT'] = 'NV';
+		$apiData['___HEADERS']['X-PAYPAL-APPLICATION-ID'] = $this->applicationId;
+
+		$apiData['requestEnvelope.errorLanguage'] = 'en_US';
+		$apiData['scope(0)'] = 'EXPRESS_CHECKOUT';
+		$apiData['scope(1)'] = 'ACCESS_BASIC_PERSONAL_DATA';
+		$apiData['callback'] = $returnUrl;
+
+		return $apiData;
+	}
+
+	protected function getGetBasicPersonalDataApiData()
+	{
+		/**
+		 * -H "X-PAYPAL-AUTHORIZATION: token=...,signature=..., timeStamp=..." ^
+		-H "X-PAYPAL-REQUEST-DATA-FORMAT:NV" ^
+		-H "X-PAYPAL-RESPONSE-DATA-FORMAT:NV" ^
+		-H "X-PAYPAL-APPLICATION-ID:APP-1JE4291016473214C" ^
+		-d "attributeList.attribute(0)=http://axschema.org/contact/email^
+		&attributeList.attribute(1)=http://schema.openid.net/contact/fullname^
+		&requestEnvelope.errorLanguage=en_US" https://svcs.paypal.com/Permissions/GetBasicPersonalData
+		 */
+
+		$apiData = $this->getBaseApiData();
+
+		unset($apiData['USER']);
+		unset($apiData['PWD']);
+		unset($apiData['SIGNATURE']);
+
+		$apiData['___URL'] = $this->getPaypalApiUrl() . '/Permissions/GetBasicPersonalData';
+
+//		$apiData['___HEADERS']['X-PAYPAL-SECURITY-USERID'] = $this->apiUsername;
+//		$apiData['___HEADERS']['X-PAYPAL-SECURITY-PASSWORD'] = $this->apiPassword;
+//		$apiData['___HEADERS']['X-PAYPAL-SECURITY-SIGNATURE'] = $this->apiSignature;
+		$apiData['___HEADERS']['X-PAYPAL-REQUEST-DATA-FORMAT'] = 'NV';
+		$apiData['___HEADERS']['X-PAYPAL-RESPONSE-DATA-FORMAT'] = 'NV';
+		$apiData['___HEADERS']['X-PAYPAL-APPLICATION-ID'] = $this->applicationId;
+
+		$apiData['requestEnvelope.errorLanguage'] = 'en_US';
+		$apiData['attributeList.attribute(0)'] = 'http://axschema.org/contact/email';
+		$apiData['attributeList.attribute(1)'] = 'http://schema.openid.net/contact/fullname';
+
+		return $apiData;
+	}
+
+
+	/**
+	 *
+	 */
+	protected function makeGetBasicPersonalDataCall()
+	{
+		$apiData = $this->getGetBasicPersonalDataApiData();
+
+		$result = $this->callPaypalApi($apiData);
+
+		return $result;
+	}
+
+
+	/**
+	 * @return array
+	 */
+	public function getGetBasicPersonalData()
+	{
+		$z = $this->makeGetBasicPersonalDataCall();
+
+		return $z;
+	}
+
+	/**
+	 *
+	 */
+	public function makeGetAccessTokenCall($requestToken, $verificationCode)
+	{
+		$apiData = $this->getGetAccessTokenApiData($requestToken, $verificationCode);
+
+		$result = $this->callPaypalApi($apiData);
+
+		return $result;
+	}
+
+	/**
+	 *
+	 */
+	protected function getGetAccessTokenApiData($requestToken, $verificationCode)
+	{
+		$apiData = $this->getBaseApiData();
+
+		unset($apiData['USER']);
+		unset($apiData['PWD']);
+		unset($apiData['SIGNATURE']);
+		unset($apiData['VERSION']);
+
+		$apiData['___URL'] = $this->getPaypalApiUrl() . '/Permissions/GetAccessToken';
+
+		$apiData['___HEADERS']['X-PAYPAL-SECURITY-USERID'] = $this->apiUsername;
+		$apiData['___HEADERS']['X-PAYPAL-SECURITY-PASSWORD'] = $this->apiPassword;
+		$apiData['___HEADERS']['X-PAYPAL-SECURITY-SIGNATURE'] = $this->apiSignature;
+		$apiData['___HEADERS']['X-PAYPAL-REQUEST-DATA-FORMAT'] = 'NV';
+		$apiData['___HEADERS']['X-PAYPAL-RESPONSE-DATA-FORMAT'] = 'NV';
+		$apiData['___HEADERS']['X-PAYPAL-APPLICATION-ID'] = $this->applicationId;
+
+		$apiData['requestEnvelope.errorLanguage'] = 'en_US';
+		$apiData['token'] = $requestToken;
+		$apiData['verifier'] = $verificationCode;
+
+		return $apiData;
+	}
+
+	/**
+	 * @param string $requestToken
+	 * @param string $verificationCode
+	 * @return array
+	 */
+	public function getRequestedPermissionsAccessTokenAndSecret($requestToken, $verificationCode)
+	{
+		$result = $this->makeGetAccessTokenCall($requestToken, $verificationCode);
+
+		return array($result['TOKEN'], $result['TOKENSECRET']);
+	}
+
+	/**
+	 * @param string $token
 	 * @return array
 	 */
 	protected function getGetExpressCheckoutDetailsApiData($token)
@@ -273,7 +606,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param type $token
+	 * @param string $token
 	 * @return array
 	 */
 	public function makeGetExpressCheckoutDetailsCall($token)
@@ -287,12 +620,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 	/**
 	 * @param Order $order
-	 * @param type $checkoutDetails
+	 * @param array $checkoutDetails
 	 * @return array
 	 */
 	protected function getDoExpressCheckoutPaymentApiData(Order $order, $checkoutDetails)
 	{
-
 		$apiData = $this->getBaseApiData();
 
 		$apiData['METHOD'] = 'DoExpressCheckoutPayment';
@@ -308,7 +640,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 	/**
 	 * @param Order $order
-	 * @param array $checkoutDetails 
+	 * @param array $checkoutDetails
 	 * @return array
 	 */
 	public function makeDoExpressCheckoutPaymentCall(Order $order, $checkoutDetails)
@@ -320,17 +652,18 @@ class PaymentProvider extends PaymentProviderAbstraction
 		return $result;
 	}
 
+
 	/**
 	 * @param RecurringOrder $recurringOrder
-	 * @param type $checkoutDetails
+	 * @param $checkoutDetails
 	 * @return array
+	 * @throws Exception\RuntimeException
 	 */
 	public function getCreateRecurringPaymentsProfileApiData(RecurringOrder $recurringOrder, $checkoutDetails)
 	{
 		$apiData = $this->getBaseApiData();
-		
+
 		$now = new \DateTime();
-		
 
 		$apiData['METHOD'] = 'CreateRecurringPaymentsProfile';
 		$apiData['TOKEN'] = $checkoutDetails['TOKEN'];
@@ -340,23 +673,27 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$periodDimension = $recurringOrder->getPeriodDimension();
 		$billingPeriod = null;
 		switch ($periodDimension) {
-			case RecurringOrderPeriodDimension::DAY: {
-					$billingPeriod = 'Day';
-					break;
-				}
-			case RecurringOrderPeriodDimension::MONTH: {
-					$billingPeriod = 'Month';
-					break;
-				}
-			case RecurringOrderPeriodDimension::WEEK: {
-					$billingPeriod = 'Week';
-					break;
-				}
-			default: {
-					throw new Paypal\Exception\RuntimeException('Do not know how to convert period dimension "' . $periodDimension . '" to Paypal billing period value.');
+			case RecurringOrderPeriodDimension::DAY:
+			{
+				$billingPeriod = 'Day';
+				break;
+			}
+			case RecurringOrderPeriodDimension::MONTH:
+			{
+				$billingPeriod = 'Month';
+				break;
+			}
+			case RecurringOrderPeriodDimension::WEEK:
+			{
+				$billingPeriod = 'Week';
+				break;
+			}
+			default:
+				{
+				throw new Exception\RuntimeException('Do not know how to convert period dimension "' . $periodDimension . '" to Paypal billing period value.');
 				}
 		}
-		
+
 		$apiData['NOTIFYURL'] = $this->getNotificationUrl() . '/' . self::CUSTOMER_RETURN_SUFFIX_RECURRING;
 
 		$apiData['BILLINGPERIOD'] = $billingPeriod;
@@ -383,11 +720,10 @@ class PaymentProvider extends PaymentProviderAbstraction
 					'L_PAYMENTREQUEST_0_QTY' . $counter => $item->getQuantity()
 				);
 			} else if ($item instanceof RecurringPaymentPaymentProviderItem) {
-
 				//$apiData['HANDLINGAMT'] = $item->getPrice();
 			}
 
-			$counter ++;
+			$counter++;
 
 			$apiData = $apiData + $itemData;
 		}
@@ -396,9 +732,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param RecurringPayment $recurringPayment
-	 * @param array $checkoutDetails
-	 * @return array 
+	 * @param RecurringOrder $recurringPayment
+	 * @param $checkoutDetails
+	 * @return array
 	 */
 	public function makeCreateRecurringPaymentsProfileCall(RecurringOrder $recurringPayment, $checkoutDetails)
 	{
@@ -410,17 +746,37 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param type $apiData
+	 * @param array $apiData
 	 * @return array
 	 */
 	protected function callPaypalApi($apiData)
 	{
 		$apiUrl = $this->getPaypalApiUrl();
 
-		\Log::debug('callPaypalApi POST: ', $apiData);
+		if ($apiData['___URL']) {
+			$apiUrl = $apiData['___URL'];
+			unset($apiData['___URL']);
+		}
+
+		\Log::debug('callPaypalApi URL: ', $apiUrl);
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $apiUrl);
+
+		if (isset($apiData['___HEADERS'])) {
+			$headers = $apiData['___HEADERS'];
+			unset($apiData['___HEADERS']);
+			foreach ($headers as $name => &$value) {
+				$value = $name . ': ' . $value;
+			}
+
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+			\Log::debug('callPaypalApi HEADERS: ', $headers);
+		}
+
+		\Log::debug('callPaypalApi POST: ', $apiData);
+
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($apiData));
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -431,7 +787,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		$rawResponse = curl_exec($ch);
 
+		\Log::debug('callPaypalApi RAW RESPONSE: ', $rawResponse);
+
 		$response = $this->decodePaypalResponse($rawResponse);
+
+		\Log::debug('callPaypalApi RESPONSE: ', $response);
 
 		return $response;
 	}
@@ -457,15 +817,23 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param array|null $queryData
 	 * @return string
 	 */
-	public function getReturnUrl()
+	public function getReturnUrl($queryData = null)
 	{
-		return $this->returnHost . $this->getBaseUrl();
+		$url = $this->returnHost . $this->getBaseUrl();
+
+		if ($queryData) {
+			$url = $url . '?' . http_build_query($queryData);
+		}
+
+		return $url;
 	}
 
+
 	/**
-	 * @param Order $order 
+	 * @param ShopOrder $order
 	 */
 	public function updateShopOrder(ShopOrder $order)
 	{
@@ -482,8 +850,9 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
-	 * @param ShopOrder $order 
-	 * @return boolean
+	 * @param ShopOrder $order
+	 * @return bool
+	 * @throws Exception\RuntimeException
 	 */
 	public function validateShopOrder(ShopOrder $order)
 	{
@@ -496,7 +865,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 	/**
 	 * @param ShopOrder $order
-	 * @param ResponseInterface $response 
+	 * @param ResponseInterface $response
 	 */
 	public function processShopOrder(ShopOrder $order, ResponseInterface $response)
 	{
@@ -512,7 +881,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 	/**
 	 * @param RecurringOrder $order
-	 * @param ResponseInterface $response 
+	 * @param ResponseInterface $response
 	 */
 	public function processRecurringOrder(RecurringOrder $order, ResponseInterface $response)
 	{
@@ -538,7 +907,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 	/**
 	 * @param array $ipnData
-	 * @return string 
+	 * @return string
 	 */
 	public function validateIpn($ipnData)
 	{
@@ -566,6 +935,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param $queryData
 	 * @return string
 	 */
 	public function getCustomerReturnActionUrl($queryData)
@@ -576,6 +946,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param $queryData
 	 * @return string
 	 */
 	public function getProviderNotificationActionUrl($queryData)
@@ -585,4 +956,34 @@ class PaymentProvider extends PaymentProviderAbstraction
 		return $this->getBaseUrl() . '/' . self::PROVIDER_NOTIFICATION_URL_POSTFIX . '?' . $query;
 	}
 
+	/**
+	 * @param string $accessTokenSecret
+	 */
+	public function setAccessTokenSecret($accessTokenSecret)
+	{
+		$this->accessTokenSecret = $accessTokenSecret;
+	}
+
+	/**
+	 * @param string $accessToken
+	 */
+	public function setAccessToken($accessToken)
+	{
+		$this->accessToken = $accessToken;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getXPaypalAuthorizationHeaderValue()
+	{
+		return AuthSignature::generateFullAuthString(
+			$this->apiUsername,
+			$this->apiPassword,
+			$this->getAccessToken(),
+			$this->getAccessTokenSecret(),
+			'POST',
+			'https://svcs.sandbox.paypal.com/Permissions/GetBasicPersonalData'
+		);
+	}
 }

@@ -6,13 +6,37 @@ use Supra\Payment;
 use Project\Payment\Paypal;
 use Supra\ObjectRepository\ObjectRepository;
 
+/**
+ * Class Configuration
+ * @package Project\Payment\Paypal
+ */
 class Configuration extends Payment\ConfigurationAbstraction
 {
+	/**
+	 *
+	 */
 	const INI_KEY_API_USERNAME = 'api_username';
+	/**
+	 *
+	 */
 	const INI_KEY_API_PASSWORD = 'api_password';
+	/**
+	 *
+	 */
 	const INI_KEY_API_SIGNATURE = 'api_signature';
+	/**
+	 *
+	 */
 	const INI_KEY_PAYPAL_REDIRECT_URL = 'paypal_redirect_url';
+	/**
+	 *
+	 */
 	const INI_KEY_PAYPAL_API_URL = 'paypal_api_url';
+
+	/**
+	 * 
+	 */
+	const INI_KEY_APPLICATION_ID = 'application_id';
 
 	/**
 	 * @var string
@@ -29,6 +53,14 @@ class Configuration extends Payment\ConfigurationAbstraction
 	 */
 	public $callbackHost;
 
+	/**
+	 * @var
+	 */
+	public $useXAuthorizationHeader = false;
+	
+	/**
+	 *
+	 */
 	function configure()
 	{
 		// Skip configuratin if INI section does not exist
@@ -53,6 +85,9 @@ class Configuration extends Payment\ConfigurationAbstraction
 
 			$paypalRedirectUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PAYPAL_REDIRECT_URL);
 			$this->paymentProvider->setPaypalRedirectUrl($paypalRedirectUrl);
+			
+			$applicationId = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_APPLICATION_ID);
+			$this->paymentProvider->setApplicationId($applicationId);
 
 			$this->paymentProvider->setReturnHost($this->returnHost);
 			$this->paymentProvider->setCallbackHost($this->callbackHost);
