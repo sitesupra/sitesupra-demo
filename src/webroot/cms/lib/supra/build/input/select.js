@@ -15,7 +15,6 @@ YUI.add("supra.input-select", function (Y) {
 	
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
 	}
 	
 	// Input is inline
@@ -729,6 +728,20 @@ YUI.add("supra.input-select", function (Y) {
 			}
 			
 			return value;
+		},
+		
+		/**
+		 * Returns input value
+		 * 
+		 * @returns {String} Value
+		 * @private
+		 */
+		_getValue: function () {
+			if (this.get('rendered')) {
+				return Input.superclass._getValue.apply(this, arguments);
+			} else {
+				return this._original_value;
+			}
 		},
 		
 		/**
