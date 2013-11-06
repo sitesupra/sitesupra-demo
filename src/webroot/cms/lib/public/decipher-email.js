@@ -1,4 +1,6 @@
 (function (win) {
+	// If script has already been runned, then skip, because otherwise
+	// it will traverse the DOM again reverting previous changes
 	if (win.decipherEmail) return;
 	
 	var rot_map = null,
