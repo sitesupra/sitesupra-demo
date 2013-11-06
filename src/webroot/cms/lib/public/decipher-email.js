@@ -1,9 +1,12 @@
 (function (win) {
+	if (win.decipherEmail) return;
 	
 	var rot_map = null,
 		doc  = win.document,
 		body = doc.body,
 		state = document.readyState,
+		
+		dom_traversed = false,
 		
 		// HTMLElement is for IE8+, Element is for IE8
 		ELEMENT_CONSTRUCTOR = typeof HTMLElement !== 'undefined' ? HTMLElement : Element;
@@ -95,6 +98,10 @@
 						texts[i].nodeValue = rot13(texts[i].nodeValue);
 					} 
 				}
+				
+				if (node.getAttribute('title').match(/^([a-z]+:)?[a-z0-9\.\-_]+@[a-z0-9_\-\.]+$/i)) {
+					node.setAttribute('title', rot13(node.getAttribute('title')));
+				}
 			}
 			
 			// Href
@@ -123,6 +130,9 @@
 	 * Traverse tree and look for nodes with data-email attribute
 	 */
 	function traverseDOMForEmails () {
+		if (dom_traversed) return;
+		dom_traversed = true;
+		
 		var $ = win.jQuery;
 		
 		if ($) {
