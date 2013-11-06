@@ -8,7 +8,6 @@ YUI.add('supra.input-set', function (Y) {
 	 */
 	function Input (config) {
 		Input.superclass.constructor.apply(this, arguments);
-		this.init.apply(this, arguments);
 	}
 	
 	// Input is inline
@@ -67,6 +66,11 @@ YUI.add('supra.input-set', function (Y) {
 		// Maximal set count
 		'maxCount': {
 			value: 0
+		},
+		
+		// Default value
+		'defaultValue': {
+			value: []
 		}
 	};
 	
@@ -217,6 +221,12 @@ YUI.add('supra.input-set', function (Y) {
 			} else {
 				this._createSlide();
 				button.render(this._slideContent);
+			}
+			
+			// Set inital value
+			var value = this.get('value');
+			if (value && value.length) {
+				this.set('value', value);
 			}
 		},
 		
