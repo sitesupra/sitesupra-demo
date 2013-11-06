@@ -33,14 +33,14 @@ class ProxyAction extends CommonProxyActionAbstraction
 
 		$recurringOrderId = $request->getParameter(Paypal\PaymentProvider::REQUEST_KEY_RECURRING_ORDER_ID, null);
 
-		if ( ! empty($shopOrderId)) {
+		if (!empty($shopOrderId)) {
 
 			$order = $this->fetchOrder($shopOrderId);
 			$this->setOrder($order);
 
 			$this->executeShopOrderProxyAction();
 		} else {
-			if ( ! empty($recurringOrderId)) {
+			if (!empty($recurringOrderId)) {
 
 				$order = $this->fetchOrder($recurringOrderId);
 				$this->setOrder($order);
@@ -65,7 +65,7 @@ class ProxyAction extends CommonProxyActionAbstraction
 	}
 
 	/**
-	 * @param Order $order 
+	 * @param Order $order
 	 */
 	public function setOrder(Order $order)
 	{
@@ -76,9 +76,18 @@ class ProxyAction extends CommonProxyActionAbstraction
 	{
 		$orderProvider = $this->getOrderProvider();
 		$paymentProvider = $this->getPaymentProvider();
+		/* @var $paymentProvider Paypal\PaymentProvider */
 
 		/* @var $order ShopOrder */
 		$order = $this->getOrder();
+
+		$paymentProviderOptions = $order->getExtraOptionsForPaymentProvider();
+
+		if ($paymentProviderOptions['useXPaypalAuthorizationHeader']) {
+			$paymentProvider->setUseXPaypalAuthorizationHeader(true);
+			$paymentProvider->setAccessToken($paymentProviderOptions['token']);
+			$paymentProvider->setAccessTokenSecret($paymentProviderOptions['tokenSecret']);
+		}
 
 		$setExpressCheckoutResult = $paymentProvider->makeSetExpressCheckoutCall($order);
 
@@ -119,7 +128,7 @@ class ProxyAction extends CommonProxyActionAbstraction
 
 		$order->addToPaymentEntityParameters(Paypal\PaymentProvider::PHASE_NAME_PAYPAL_SET_EXPRESS_CHECKOUT, $setExpressCheckoutResult);
 		$orderProvider->store($order);
-		
+
 		\Log::debug('Paypal setExpressCheckout API call result: ', $setExpressCheckoutResult);
 
 		if (empty($setExpressCheckoutResult[Paypal\PaymentProvider::REQUEST_KEY_TOKEN])) {
@@ -160,7 +169,7 @@ class ProxyAction extends CommonProxyActionAbstraction
 	}
 
 	/**
-	 * @return ProxyEventArgs 
+	 * @return ProxyEventArgs
 	 */
 	protected function getProxyEventArgs()
 	{
@@ -172,5 +181,4 @@ class ProxyAction extends CommonProxyActionAbstraction
 
 		return $args;
 	}
-
 }

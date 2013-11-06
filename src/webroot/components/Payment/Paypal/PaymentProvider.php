@@ -3,6 +3,9 @@
 namespace Project\Payment\Paypal;
 
 use PayPal\Auth\Oauth\AuthSignature;
+use Supra\Payment\Entity\Currency\Currency;
+use Supra\Payment\Entity\Order\ShippingOrderItem;
+use Supra\Payment\Entity\Order\TaxOrderItem;
 use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
 use Supra\Payment\Provider\Exception\ConfigurationException;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
@@ -16,6 +19,7 @@ use Supra\Payment\Entity\Order\OrderProductItem;
 use Supra\Locale\LocaleInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Entity\Transaction\Transaction;
+use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Payment\Transaction\TransactionType;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 
@@ -75,6 +79,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 *
 	 */
 	const PHASE_NAME_IPN = 'paypal-ipn-';
+
+	/**
+	 *
+	 */
+	const PHASE_NAME_REFUND_TRANSACTION = 'paypal-RefundTransaction';
 
 	/**
 	 *
@@ -159,6 +168,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @var string
 	 */
+	protected $paypalApiUrl2;
+
+	/**
+	 * @var string
+	 */
 	protected $paypalRedirectUrl;
 
 	/**
@@ -216,6 +230,23 @@ class PaymentProvider extends PaymentProviderAbstraction
 	{
 		return $this->paypalApiUrl;
 	}
+
+	/**
+	 * @param string $paypalApiUrl2
+	 */
+	public function setPaypalApiUrl2($paypalApiUrl2)
+	{
+		$this->paypalApiUrl2 = $paypalApiUrl2;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPaypalApiUrl2()
+	{
+		return $this->paypalApiUrl2;
+	}
+
 
 	/**
 	 * @param $queryData
@@ -300,17 +331,17 @@ class PaymentProvider extends PaymentProviderAbstraction
 		return $this->accessTokenSecret;
 	}
 
-
 	/**
+	 * @param string|null $urlForAuthString
 	 * @return array
 	 */
-	protected function getBaseApiData()
+	protected function getBaseApiData($urlForAuthString = null)
 	{
 		$apiData = array();
 		$apiData['VERSION'] = '82.0';
 
 		if ($this->getUseXPaypalAuthorizationHeader()) {
-			$apiData['___HEADERS']['X-PAYPAL-AUTHORIZATION'] = $this->getXPaypalAuthorizationHeaderValue();
+			$apiData['___HEADERS']['X-PAYPAL-AUTHORIZATION'] = $this->getXPaypalAuthorizationHeaderValue($urlForAuthString);
 		}
 
 		$apiData['USER'] = $this->apiUsername;
@@ -335,9 +366,13 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	protected function getSetExpressCheckoutApiData(Order $order)
 	{
-		$apiData = $this->getBaseApiData();
+		$url = 'https://api-3t.sandbox.paypal.com/nvp';
+
+		$apiData = $this->getBaseApiData($url);
 
 		$apiData['METHOD'] = 'SetExpressCheckout';
+
+		$apiData['___URL'] = $url;
 
 		$urlSuffix = null;
 
@@ -384,6 +419,12 @@ class PaymentProvider extends PaymentProviderAbstraction
 			} else if ($orderItem instanceof OrderPaymentProviderItem) {
 
 				$apiData['PAYMENTREQUEST_0_HANDLINGAMT'] = $orderItem->getPrice();
+			} else if ($orderItem instanceof ShippingOrderItem) {
+
+				$apiData['PAYMENTREQUEST_0_SHIPPINGAMT'] = $orderItem->getPrice();
+			} else if ($orderItem instanceof TaxOrderItem) {
+
+				$apiData['PAYMENTREQUEST_0_TAXAMT'] = $orderItem->getPrice();
 			}
 
 			$counter++;
@@ -457,13 +498,15 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	protected function getRequestPermissionsApiData($returnUrl)
 	{
-		$apiData = $this->getBaseApiData();
+		$url = $this->getPaypalApiUrl2() . '/Permissions/RequestPermissions';
+
+		$apiData = $this->getBaseApiData($url);
 
 		unset($apiData['USER']);
 		unset($apiData['PWD']);
 		unset($apiData['SIGNATURE']);
 
-		$apiData['___URL'] = $this->getPaypalApiUrl() . '/Permissions/RequestPermissions';
+		$apiData['___URL'] = $url;
 
 		$apiData['___HEADERS']['X-PAYPAL-SECURITY-USERID'] = $this->apiUsername;
 		$apiData['___HEADERS']['X-PAYPAL-SECURITY-PASSWORD'] = $this->apiPassword;
@@ -475,34 +518,27 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$apiData['requestEnvelope.errorLanguage'] = 'en_US';
 		$apiData['scope(0)'] = 'EXPRESS_CHECKOUT';
 		$apiData['scope(1)'] = 'ACCESS_BASIC_PERSONAL_DATA';
+		$apiData['scope(2)'] = 'REFUND';
 		$apiData['callback'] = $returnUrl;
 
 		return $apiData;
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function getGetBasicPersonalDataApiData()
 	{
-		/**
-		 * -H "X-PAYPAL-AUTHORIZATION: token=...,signature=..., timeStamp=..." ^
-		-H "X-PAYPAL-REQUEST-DATA-FORMAT:NV" ^
-		-H "X-PAYPAL-RESPONSE-DATA-FORMAT:NV" ^
-		-H "X-PAYPAL-APPLICATION-ID:APP-1JE4291016473214C" ^
-		-d "attributeList.attribute(0)=http://axschema.org/contact/email^
-		&attributeList.attribute(1)=http://schema.openid.net/contact/fullname^
-		&requestEnvelope.errorLanguage=en_US" https://svcs.paypal.com/Permissions/GetBasicPersonalData
-		 */
+		$url = $this->getPaypalApiUrl2() . '/Permissions/GetBasicPersonalData';
 
-		$apiData = $this->getBaseApiData();
+		$apiData = $this->getBaseApiData($url);
 
 		unset($apiData['USER']);
 		unset($apiData['PWD']);
 		unset($apiData['SIGNATURE']);
 
-		$apiData['___URL'] = $this->getPaypalApiUrl() . '/Permissions/GetBasicPersonalData';
+		$apiData['___URL'] = $url;
 
-//		$apiData['___HEADERS']['X-PAYPAL-SECURITY-USERID'] = $this->apiUsername;
-//		$apiData['___HEADERS']['X-PAYPAL-SECURITY-PASSWORD'] = $this->apiPassword;
-//		$apiData['___HEADERS']['X-PAYPAL-SECURITY-SIGNATURE'] = $this->apiSignature;
 		$apiData['___HEADERS']['X-PAYPAL-REQUEST-DATA-FORMAT'] = 'NV';
 		$apiData['___HEADERS']['X-PAYPAL-RESPONSE-DATA-FORMAT'] = 'NV';
 		$apiData['___HEADERS']['X-PAYPAL-APPLICATION-ID'] = $this->applicationId;
@@ -562,7 +598,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 		unset($apiData['SIGNATURE']);
 		unset($apiData['VERSION']);
 
-		$apiData['___URL'] = $this->getPaypalApiUrl() . '/Permissions/GetAccessToken';
+		$apiData['___URL'] = $this->getPaypalApiUrl2() . '/Permissions/GetAccessToken';
 
 		$apiData['___HEADERS']['X-PAYPAL-SECURITY-USERID'] = $this->apiUsername;
 		$apiData['___HEADERS']['X-PAYPAL-SECURITY-PASSWORD'] = $this->apiPassword;
@@ -753,7 +789,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	{
 		$apiUrl = $this->getPaypalApiUrl();
 
-		if ($apiData['___URL']) {
+		if (isset($apiData['___URL'])) {
 			$apiUrl = $apiData['___URL'];
 			unset($apiData['___URL']);
 		}
@@ -973,9 +1009,10 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param $urlForAuthString
 	 * @return string
 	 */
-	protected function getXPaypalAuthorizationHeaderValue()
+	protected function getXPaypalAuthorizationHeaderValue($urlForAuthString)
 	{
 		return AuthSignature::generateFullAuthString(
 			$this->apiUsername,
@@ -983,7 +1020,84 @@ class PaymentProvider extends PaymentProviderAbstraction
 			$this->getAccessToken(),
 			$this->getAccessTokenSecret(),
 			'POST',
-			'https://svcs.sandbox.paypal.com/Permissions/GetBasicPersonalData'
+			$urlForAuthString
 		);
+	}
+
+	/**
+	 * @param $transactionId
+	 * @param null $amount
+	 * @param Currency $currency
+	 * @param string $note
+	 * @param null $invoiceId
+	 * @return array
+	 */
+	protected function getRefundTransactionApiData(
+		$transactionId,
+		$amount = null,
+		Currency $currency = null,
+		$note = '',
+		$invoiceId = null
+	)
+	{
+		$refundType = 'Full';
+
+		$apiData = $this->getBaseApiData();
+
+		$apiData['METHOD'] = 'RefundTransaction';
+		$apiData['TRANSACTIONID'] = $transactionId;
+		$apiData['REFUNDTYPE'] = $refundType;
+
+		if ($refundType != 'Full') {
+			$apiData['AMT'] = $amount;
+			$apiData['CURRENCYCODE'] = $currency->getIso4217Code();
+		}
+
+		$apiData['NOTE'] = $note;
+		if (!empty($invoiceId)) {
+			$apiData['INVOICEID'] = $invoiceId;
+		}
+
+		return $apiData;
+	}
+
+	/**
+	 * @param Order $order
+	 * @param string $note
+	 * @return array
+	 * @throws \RuntimeException
+	 */
+	public function makeRefundTransactionCall(Order $order, $note = '')
+	{
+		if ($order instanceof ShopOrder) {
+
+			if ($order->getTransaction()->getStatus() == TransactionStatus::SUCCESS) {
+
+				$apiData = $this->getRefundTransactionApiData(
+					$order->getTransaction()->getParameterValue(self::PHASE_NAME_DO_PAYMENT, 'PAYMENTINFO_0_TRANSACTIONID'),
+					null,
+					$order->getCurrency(),
+					$note,
+					$order->getId()
+				);
+
+				$result = $this->callPaypalApi($apiData);
+
+				$order->getTransaction()->addToParameters(self::PHASE_NAME_REFUND_TRANSACTION, $result);
+
+				if ($result['ACK'] == 'Success') {
+					$order->getTransaction()->setStatus(TransactionStatus::REFUNDED);
+				}
+
+				$this->getOrderProvider()->store($order);
+			} else {
+
+				throw new \RuntimeException('Only successful transactions can be refunded.');
+			}
+		} else {
+			throw new \RuntimeException(sprintf('Do not know how to refund "%s" orders yet.', get_class($order)));
+		}
+
+		return $result;
 	}
 }

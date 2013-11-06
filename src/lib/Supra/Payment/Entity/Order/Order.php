@@ -81,6 +81,12 @@ abstract class Order extends Database\Entity
 	protected $vatRate;
 
 	/**
+	 * @Column(type="array")
+	 * @var array
+	 */
+	protected $extraOptionsForPaymentProvider = array();
+
+	/**
 	 * 
 	 */
 	function __construct()
@@ -398,4 +404,21 @@ abstract class Order extends Database\Entity
 	abstract public function addToPaymentEntityParameters($phaseName, $data);
 
 	abstract public function getPaymentEntityParameterValue($phaseName, $name);
+
+
+	/**
+	 * @param array $extraOptionsForPaymentProvider
+	 */
+	public function setExtraOptionsForPaymentProvider(array $extraOptionsForPaymentProvider)
+	{
+		$this->extraOptionsForPaymentProvider = $extraOptionsForPaymentProvider;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getExtraOptionsForPaymentProvider()
+	{
+		return $this->extraOptionsForPaymentProvider;
+	}	
 }

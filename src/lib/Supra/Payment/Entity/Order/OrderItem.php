@@ -7,9 +7,14 @@ use Supra\Payment\Entity\Abstraction\PricedItemAbstraction;
 
 /**
  * @Entity
-  * @InheritanceType("SINGLE_TABLE")
+ * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"product" = "OrderProductItem", "paymentProvider" = "OrderPaymentProviderItem"})
+ * @DiscriminatorMap({
+ * 	"product" = "OrderProductItem",
+ *	"shipping" = "ShippingOrderItem",
+ *	"tax" = "TaxOrderItem", 
+ * 	"paymentProvider" = "OrderPaymentProviderItem"
+ * })
  */
 abstract class OrderItem extends PricedItemAbstraction
 {

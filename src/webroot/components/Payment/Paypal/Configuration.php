@@ -34,6 +34,11 @@ class Configuration extends Payment\ConfigurationAbstraction
 	const INI_KEY_PAYPAL_API_URL = 'paypal_api_url';
 
 	/**
+	 *
+	 */
+	const INI_KEY_PAYPAL_API_URL_2 = 'paypal_api_url_2';
+
+	/**
 	 * 
 	 */
 	const INI_KEY_APPLICATION_ID = 'application_id';
@@ -82,6 +87,9 @@ class Configuration extends Payment\ConfigurationAbstraction
 
 			$paypalApiUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PAYPAL_API_URL);
 			$this->paymentProvider->setPaypalApiUrl($paypalApiUrl);
+
+			$paypalApiUrl2 = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PAYPAL_API_URL_2);
+			$this->paymentProvider->setPaypalApiUrl2($paypalApiUrl2);
 
 			$paypalRedirectUrl = $iniLoader->getValue($this->iniSectionName, self::INI_KEY_PAYPAL_REDIRECT_URL);
 			$this->paymentProvider->setPaypalRedirectUrl($paypalRedirectUrl);

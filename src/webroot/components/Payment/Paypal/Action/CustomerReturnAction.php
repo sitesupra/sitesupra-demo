@@ -143,6 +143,7 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	protected function processShopOrder(ShopOrder $order)
 	{
 		$paymentProvider = $this->getPaymentProvider();
+		/* @var $paymentProvider Paypal\PaymentProvider */
 		$orderProvider = $this->getOrderProvider();
 
 		// Fetch checkout details from Paypal.
