@@ -1119,15 +1119,13 @@ class PageAction extends PageManagerAction
 			'contents' => array(),
 		);
         
-        if(!empty($ancestors)) {
-            foreach($ancestors as $ancestor) {
-                if ($ancestor instanceof Entity\ApplicationLocalization) {
-                    $array['application_id'] = 'blog';
-                    $array['application_page_id'] = $ancestor->getId();
-                    break;
-                }
-            }
-        }
+        if ( ! $page->isRoot()) {
+			$parent = $page->getParent();
+			if ($parent instanceof Entity\ApplicationPage) {
+				$array['application_id'] = $parent->getApplicationId();
+				$array['application_page_id'] = $parent->getId();
+			}
+		}
 		
 		return $array;
 	}
