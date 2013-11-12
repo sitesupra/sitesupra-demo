@@ -47,7 +47,7 @@ class ProxyAction extends CommonProxyActionAbstraction
 
 				$this->executeRecurringOrderProxyAction();
 			} else {
-				throw new Exception\RuntimeException('Could not determine order type.');
+				throw new \RuntimeException('Could not determine order type.');
 			}
 		}
 	}
@@ -58,7 +58,7 @@ class ProxyAction extends CommonProxyActionAbstraction
 	public function getOrder()
 	{
 		if (empty($this->order)) {
-			throw new Exception\RuntimeException('Order not set.');
+			throw new \RuntimeException('Order not set.');
 		}
 
 		return $this->order;
@@ -87,6 +87,7 @@ class ProxyAction extends CommonProxyActionAbstraction
 			$paymentProvider->setUseXPaypalAuthorizationHeader(true);
 			$paymentProvider->setAccessToken($paymentProviderOptions['token']);
 			$paymentProvider->setAccessTokenSecret($paymentProviderOptions['tokenSecret']);
+			$paymentProvider->setAccessSubject($paymentProviderOptions['account_email']);
 		}
 
 		$setExpressCheckoutResult = $paymentProvider->makeSetExpressCheckoutCall($order);

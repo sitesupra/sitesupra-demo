@@ -163,6 +163,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 	/**
 	 * @var string
 	 */
+	protected $accessSubject;
+
+	/**
+	 * @var string
+	 */
 	protected $paypalApiUrl;
 
 	/**
@@ -332,6 +337,24 @@ class PaymentProvider extends PaymentProviderAbstraction
 	}
 
 	/**
+	 * @param string $accessSubject
+	 */
+	public function setAccessSubject($accessSubject)
+	{
+		$this->accessSubject = $accessSubject;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAccessSubject()
+	{
+		return $this->accessSubject;
+	}
+	
+	
+
+	/**
 	 * @param string|null $urlForAuthString
 	 * @return array
 	 */
@@ -339,14 +362,23 @@ class PaymentProvider extends PaymentProviderAbstraction
 	{
 		$apiData = array();
 		$apiData['VERSION'] = '82.0';
-
-		if ($this->getUseXPaypalAuthorizationHeader()) {
-			$apiData['___HEADERS']['X-PAYPAL-AUTHORIZATION'] = $this->getXPaypalAuthorizationHeaderValue($urlForAuthString);
-		}
-
 		$apiData['USER'] = $this->apiUsername;
 		$apiData['PWD'] = $this->apiPassword;
 		$apiData['SIGNATURE'] = $this->apiSignature;
+
+		if ($this->getUseXPaypalAuthorizationHeader()) {
+			
+			if(empty($urlForAuthString)) {
+				$urlForAuthString = $this->getPaypalApiUrl();
+			}
+			
+			$apiData['___HEADERS']['X-PAYPAL-AUTHORIZATION'] = $this->getXPaypalAuthorizationHeaderValue($urlForAuthString);
+			
+			if($accessSubject = $this->getAccessSubject()) {
+				$apiData['___HEADERS']['X-PAYPAL-SECURITY-SUBJECT'] = $accessSubject;
+				$apiData['SUBJECT'] = $accessSubject;
+			}
+		}
 
 		return $apiData;
 	}
@@ -366,7 +398,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 */
 	protected function getSetExpressCheckoutApiData(Order $order)
 	{
-		$url = 'https://api-3t.sandbox.paypal.com/nvp';
+		$url = $this->getPaypalApiUrl();
 
 		$apiData = $this->getBaseApiData($url);
 
