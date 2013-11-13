@@ -1123,7 +1123,8 @@ class PageAction extends PageManagerAction
 			$parent = $page->getParent();
 			if ($parent instanceof Entity\ApplicationPage) {
 				$array['application_id'] = $parent->getApplicationId();
-				$array['application_page_id'] = $parent->getId();
+				$array['application_page_id'] = $parent->getLocalization($localeId)
+						->getId();
 			}
 		}
 		
