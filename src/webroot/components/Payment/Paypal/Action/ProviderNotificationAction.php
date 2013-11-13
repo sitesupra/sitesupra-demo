@@ -82,7 +82,7 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 		\Log::debug('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:', $notificationData);
 
 		if ($paymentProvider->validateIpn($notificationData) == false) {
-			throw new Exception\RuntimeException('Paypal IPN verification failed.');
+			throw new \RuntimeException('Paypal IPN verification failed.');
 		}
 
 		$this->setNotificationData($notificationData);
@@ -106,6 +106,17 @@ class ProviderNotificationAction extends ProviderNotificationActionAbstraction
 						}
 
 						$this->setOrder($order);
+
+						$paymentProviderOptions = $order->getExtraOptionsForPaymentProvider();
+	
+						$paymentProvider = $this->getPaymentProvider();
+						/* @var $paymentProvider Paypal\PaymentProvider */
+						if ($paymentProviderOptions['useXPaypalAuthorizationHeader']) {
+							$paymentProvider->setUseXPaypalAuthorizationHeader(true);
+							$paymentProvider->setAccessToken($paymentProviderOptions['token']);
+							$paymentProvider->setAccessTokenSecret($paymentProviderOptions['tokenSecret']);
+							$paymentProvider->setAccessSubject($paymentProviderOptions['account_email']);
+						}											 
 
 						$this->handleShopOrder($order);
 					} break;

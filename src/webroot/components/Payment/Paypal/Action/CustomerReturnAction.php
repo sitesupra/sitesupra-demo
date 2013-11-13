@@ -2,6 +2,7 @@
 
 namespace Project\Payment\Paypal\Action;
 
+use Supra\Console\Output\ArrayOutputWithData;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Action\CustomerReturnActionAbstraction;
 use Supra\Payment\Transaction\TransactionProvider;
@@ -20,6 +21,10 @@ use Supra\Payment\PaymentEntityProvider;
 use Project\Payment\Paypal;
 use Supra\Payment\Provider\Event\CustomerReturnEventArgs;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
+use Supra\Remote\Client\RemoteCommandService;
+use SupraPortal\Entity\SiteShop\SiteShopOrder;
+use SupraPortal\SiteProvider;
+use Symfony\Component\Console\Input\ArrayInput;
 
 class CustomerReturnAction extends CustomerReturnActionAbstraction
 {
@@ -146,6 +151,15 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		/* @var $paymentProvider Paypal\PaymentProvider */
 		$orderProvider = $this->getOrderProvider();
 
+		$paymentProviderOptions = $order->getExtraOptionsForPaymentProvider();
+
+		if ($paymentProviderOptions['useXPaypalAuthorizationHeader']) {
+			$paymentProvider->setUseXPaypalAuthorizationHeader(true);
+			$paymentProvider->setAccessToken($paymentProviderOptions['token']);
+			$paymentProvider->setAccessTokenSecret($paymentProviderOptions['tokenSecret']);
+			$paymentProvider->setAccessSubject($paymentProviderOptions['account_email']);
+		}
+		
 		// Fetch checkout details from Paypal.
 		$checkoutDetails = $paymentProvider->makeGetExpressCheckoutDetailsCall($this->token);
 		\Log::debug('CHECKOUT DETAILS: ', $checkoutDetails);
@@ -286,12 +300,12 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 
 		if ($checkoutDetails['PAYMENTREQUEST_0_CURRENCYCODE'] != $order->getCurrency()->getIso4217Code()) {
 
-			throw new Exception\RuntimeException('Currency codes do not match for order and checkout details for transaction "' . $transaction->getId() . '".');
+			throw new \RuntimeException('Currency codes do not match for order and checkout details for transaction "' . $transaction->getId() . '".');
 		}
 
 		if ($checkoutDetails['PAYMENTREQUEST_0_AMT'] != $order->getTotal()) {
 
-			throw new Exception\RuntimeException('Money amounts do not match for order and checkout details for transaction "' . $transaction->getId() . '".');
+			throw new \RuntimeException('Money amounts do not match for order and checkout details for transaction "' . $transaction->getId() . '".');
 		}
 	}
 
