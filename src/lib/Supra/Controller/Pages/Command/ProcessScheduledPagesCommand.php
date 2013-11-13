@@ -93,13 +93,20 @@ class ProcessScheduledPagesCommand extends Command
 	private function findScheduled()
 	{
 		$qb = $this->_em->createQueryBuilder();
+		
+		$utcNow = new \DateTime('now');
+		$utcNow->setTimezone(new \DateTimeZone('UTC'));
+			
 		$qb->select('l')
 				->from(PageLocalization::CN(), 'l')
-				->where('l.scheduleTime <= CURRENT_TIMESTAMP()')
+				->where('l.scheduleTime <= :now')
 				->andWhere('l.lock IS NULL')
+				->setParameter('now', $utcNow)
 				;
-		$result = $qb->getQuery()->getResult();
 		
+		$result =  $qb->getQuery()
+				->getResult();
+	
 		return $result;
 	}
 	
