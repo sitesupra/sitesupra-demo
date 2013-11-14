@@ -1072,15 +1072,14 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$invoiceId = null
 	)
 	{
-		$refundType = 'Full';
-
 		$apiData = $this->getBaseApiData();
 
 		$apiData['METHOD'] = 'RefundTransaction';
 		$apiData['TRANSACTIONID'] = $transactionId;
-		$apiData['REFUNDTYPE'] = $refundType;
 
-		if ($refundType != 'Full') {
+		$apiData['REFUNDTYPE'] = $amount == null ? 'Full' : 'Partial';
+
+		if ($amount != null) {
 			$apiData['AMT'] = $amount;
 			$apiData['CURRENCYCODE'] = $currency->getIso4217Code();
 		}
@@ -1099,7 +1098,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	 * @return array
 	 * @throws \RuntimeException
 	 */
-	public function makeRefundTransactionCall(Order $order, $note = '')
+	public function makeRefundTransactionCall(Order $order, $note = '', $amount = null)
 	{
 		if ($order instanceof ShopOrder) {
 
@@ -1107,7 +1106,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 				$apiData = $this->getRefundTransactionApiData(
 					$order->getTransaction()->getParameterValue(self::PHASE_NAME_DO_PAYMENT, 'PAYMENTINFO_0_TRANSACTIONID'),
-					null,
+					$amount,
 					$order->getCurrency(),
 					$note,
 					$order->getId()
