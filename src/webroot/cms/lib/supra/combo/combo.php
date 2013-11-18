@@ -139,6 +139,7 @@ function writeFiles($files, $eTag)
 	if ($cache) {
 		if ($apc) {
 			apc_store('combo-' . $eTag, $out, 1800);
+			return $out;
 		}
 
 		$outDirname = $cacheDir . '/yui/' . substr($eTag, 0, 2);
