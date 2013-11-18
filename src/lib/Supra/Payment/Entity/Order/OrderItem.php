@@ -12,7 +12,8 @@ use Supra\Payment\Entity\Abstraction\PricedItemAbstraction;
  * @DiscriminatorMap({
  * 	"product" = "OrderProductItem",
  *	"shipping" = "ShippingOrderItem",
- *	"tax" = "TaxOrderItem", 
+ *	"tax" = "TaxOrderItem",
+ *  "discount" = "DiscountOrderItem",
  * 	"paymentProvider" = "OrderPaymentProviderItem"
  * })
  */

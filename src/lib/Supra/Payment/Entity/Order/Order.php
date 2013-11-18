@@ -202,7 +202,7 @@ abstract class Order extends Database\Entity
 		
 		// Value added tax
 		if ($this->vatRate > 0) {
-			$tax = ($total * $this->vatRate) / 100;
+			$tax = round((($total * $this->vatRate) / 100), 2);
 			$total = $total + $tax;
 		}
 
@@ -223,12 +223,6 @@ abstract class Order extends Database\Entity
 			}
 		}
 		
-		// Value added tax
-		if ($this->vatRate > 0) {
-			$tax = ($total * $this->vatRate) / 100;
-			$total = $total + $tax;
-		}
-
 		return $total;
 	}
 
