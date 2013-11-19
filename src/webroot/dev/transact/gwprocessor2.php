@@ -11,7 +11,7 @@ session_id('zzzz');
 session_start();
 
 //$iniDirectory = '../../../../src/conf/';
-$iniDirectory = '../../../../../src/conf/';
+$iniDirectory = dirname(__FILE__) . '/../../../conf/';
 
 $iniDirectoryRealpath = realpath($iniDirectory);
 
