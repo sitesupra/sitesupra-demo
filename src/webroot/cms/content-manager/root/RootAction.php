@@ -2,7 +2,6 @@
 
 namespace Supra\Cms\ContentManager\Root;
 
-use Supra\Controller\SimpleController;
 use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Request;
 use Supra\Response;
@@ -58,6 +57,8 @@ class RootAction extends PageManagerAction
 			$response->assign('themeName', $activeTheme->getName());
 		}
 
+		$response->assign('keywordSuggestionEnabled', ObjectRepository::isSolariumConfigured($this));
+		
 		$response->outputTemplate('content-manager/root/index.html.twig');
 	}
 

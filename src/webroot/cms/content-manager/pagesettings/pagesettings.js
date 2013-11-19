@@ -787,7 +787,10 @@ Supra('website.template-list', 'supra.input', 'supra.calendar', 'supra.slideshow
 			}
 
 			//Keywords
-			this.form.getInput('keywords').set('suggestionRequestUri', this.getDataPath('suggestions'));
+			this.form.getInput('keywords')
+					.set('suggestionsEnabled', Supra.data.get('keywordSuggestionEnabled'))
+					.set('suggestionRequestUri', this.getDataPath('suggestions'))
+			;
 
 			//If user doesn't have publish rights, then disable "Schedule publish" button 
 			if (!Supra.Permission.get('page', page_data.id, 'supervise_page', false)) {
