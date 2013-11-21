@@ -46,6 +46,14 @@ class HtmlTag extends HtmlTagStart
 		
 		return $this;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getContent()
+	{
+		return $this->content;
+	}
 
 	/**
 	 * @return string

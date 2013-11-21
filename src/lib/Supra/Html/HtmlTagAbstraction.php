@@ -25,7 +25,15 @@ abstract class HtmlTagAbstraction
 	{
 		$this->tagName = $this->normalizeName($tagName);
 		return $this;
-	}	
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getTagName()
+	{
+		return $this->tagName;
+	}
 	
 	/**
 	 * @param string $name

@@ -72,12 +72,10 @@ class TransactDataForm extends BlockController
 			'bin_phone' => 'BIN phone',
 		),
 
-		'gatewayCollects' => array(
-			'card_bin' => 'Card BIN',
-		)
+		'gatewayCollects' => array()
 	);
 
-	private function getFormInputMetadata()
+	protected function getFormInputMetadata()
 	{
 		$formInputs = self::$allFormInputMetadata['formInputs'];
 		$gatewayDoesNotCollect = self::$allFormInputMetadata['gatewayDoesNotCollect'];
@@ -152,7 +150,7 @@ class TransactDataForm extends BlockController
 		$response->assign('action', $returnUrl);
 	}
 
-	private function buildFormElements($inputValues = array())
+	protected function buildFormElements($inputValues = array())
 	{
 		$formInputMetadata = $this->getFormInputMetadata();
 
@@ -181,10 +179,7 @@ class TransactDataForm extends BlockController
 				}
 			}
 
-			$formElements[] = $input->toHtml();
-
-			$br = new HtmlTag('br');
-			$formElements[] = $br->toHtml();
+			$formElements[] = $input;
 		}
 
 		return $formElements;
