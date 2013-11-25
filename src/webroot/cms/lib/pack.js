@@ -37547,6 +37547,8 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * Open calendar in popup or in slide
 		 */
 		openCalendar: function () {
+			this.silent = true;
+			
 			if (this.get("slideshow")) {
 				this.openCalendarSlide();
 			} else {
@@ -37555,6 +37557,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			this.widgets.calendar.set("date", this.get("value"));
 			this.setCalendarTime(this.get("value"));
+			this.silent = false;
 		},
 		
 		/**
@@ -37668,7 +37671,11 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		openCalendarPopup: function () {
-			//@TODO
+			if (!this.widgets.popup) {
+				this.renderCalendarPopup();
+			}
+			
+			this.widgets.popup.fadeIn();
 		},
 		
 		/**
@@ -37678,7 +37685,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		closeCalendarPopup: function () {
 			if (this.widgets.popup) {
-				this.widgets.popup.fadeOut();
+				this.widgets.popup.hide();
 			}
 		},
 		
@@ -37688,7 +37695,45 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		renderCalendarPopup: function () {
-			//@TODO
+			var popup,
+				calendar;
+			
+			popup = new Supra.Panel({
+				'bodyContent': '<div></div>',
+				'arrowVisible': true,
+				'alignTarget': this.widgets.button.get('contentBox'),
+				'alignPosition': 'T',
+				'width': 220,
+				'zIndex': 10,
+				'autoClose': true
+			});
+			
+			popup.render(this.get('boundingBox'));
+			//popup.set('useMask', true);
+			
+			//Create calendar
+			calendar = this.renderCalendar(popup.get("bodyContent").item(0));
+			
+			calendar.after('dateChange', this.afterCalendarPopupChange, this);
+			
+			if (this.get("time")) {
+				this.widgets.hours.after('valueChange', this.afterCalendarPopupChange, this);
+				this.widgets.minutes.after('valueChange', this.afterCalendarPopupChange, this);
+			}
+			
+			this.widgets.popup = popup;
+		},
+		
+		/**
+		 * After calendar popup change update input valie
+		 */
+		afterCalendarPopupChange: function (e) {
+			if (this.silent || (e.type == "calendar:dateChange" && e.newVal == e.prevVal)) return;
+			
+			var date = this.getCalendarDate();
+			if (!this.compareDates(date, this.get("value"))) {
+				this.set("value", date);
+			}
 		},
 		
 		
@@ -37813,6 +37858,27 @@ YUI.add('supra.datatype-color', function(Y) {
 			return prefix + (this.get("time") ? "_datetime_short" : "_date");
 		},
 		
+		/**
+		 * Compare two date strings
+		 * 
+		 * @param {String} a Date one
+		 * @param {String} b Date two
+		 * @returns {Boolean} True if dates are equal, otherwise false
+		 */
+		compareDates: function (a, b) {
+			//YYYY-MM-DD HH:MM
+			var len_min = Math.min(a.length, b.length),
+				len_max = Math.max(a.length, b.length);
+			
+			if (!len_min && len_max) return false;
+			if (!len_min && !len_max) return true;
+			
+			a = a.substr(0, len_min);
+			b = b.substr(0, len_min);
+			
+			return a == b;
+		},
+		
 		
 		/**
 		 * ---------------------------- ATTRIBUTES -------------------------
@@ -37828,6 +37894,11 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
+			if (typeof value === 'object' && 'date' in value) {
+				// Object {date: ..., timzone: ..., timezone_type: ...}
+				value = value.date;
+			}
+			
 			if (this.widgets.calendar) {
 				this.widgets.calendar.set("date", value);
 				
