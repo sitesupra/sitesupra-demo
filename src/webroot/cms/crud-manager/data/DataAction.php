@@ -110,6 +110,7 @@ class DataAction extends CrudManagerAbstractAction
 			$data = array(
 				'label' => $fieldObject->getLabel(),
 				'type' => $fieldObject->getEditorType(),
+				'description' => $fieldObject->getDescription(),
 				'defaultValue' => $fieldObject->getDefaultValue($localeId),
 			) + (array) $fieldObject->getAdditionalParameters();
 			
@@ -128,6 +129,7 @@ class DataAction extends CrudManagerAbstractAction
 				$data = array(
 					'label' => $filterObject->getLabel(),
 					'type' => $filterObject->getEditorType(),
+					'description' => $filterObject->getDescription(),
 					'defaultValue' => $filterObject->getDefaultValue($localeId),
 				) + (array) $filterObject->getAdditionalParameters();
 
