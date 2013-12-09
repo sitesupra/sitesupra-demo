@@ -168,7 +168,7 @@ abstract class CmsAction extends SimpleController
 			}
 
 			//TODO: Remove later. Should not be shown to user
-			$response->setErrorMessage('Error occured!' . "<br />" . 'Error reference ID: #' . $eIdentifier);
+			$response->setErrorMessage('Error occurred!' . "<br />" . 'Error reference ID: #' . $eIdentifier);
 
 			// Write the issue inside the log
 			$this->log->error('#' . $eIdentifier . ' ' . $e, "\nRequest:\n", $debugRequest);
