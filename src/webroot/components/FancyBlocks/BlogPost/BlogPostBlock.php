@@ -18,7 +18,6 @@ class BlogPostBlock extends BlockController
 	protected $blogApplication;
 	
 	/**
-	 * 
 	 */
 	protected function doExecute()
 	{

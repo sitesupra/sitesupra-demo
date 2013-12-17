@@ -4,7 +4,7 @@ namespace Project\FancyBlocks\BlogTags;
 
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Blog\BlogApplication;
-
+use Supra\Controller\Pages\Entity\ApplicationPage;
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
 
@@ -13,73 +13,101 @@ use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 
 class BlogTagsBlock extends BlockController
 {
-		
 	/**
-	 * @var \Supra\Controller\Pages\Blog\BlogApplication
+	 * @var BlogApplication
 	 */
 	protected $blogApplication;
     
-    
+    /**
+	 */
     public function doExecute()
     {
-        $tags = array();
+		$request = $this->getRequest();
 		$response = $this->getResponse();
-		/* @var $response \Supra\Response\TwigResponse */
-        $request = $this->getRequest();
-        /* @var $request \Supra\Controller\Pages\Request\PageRequestView */        
+        /* @var $request \Supra\Controller\Pages\Request\PageRequest */
+		
         $application = $this->getBlogApplication();
-        
-        if ($request->getQuery()->has('getAllTags')) {
-            //Ajax request to get all tags
-            if ($application !== null) {
-                $tags = $application->getAllTagsArray();
-            }
-            
-            $response->assign('data', array('tags' => $tags))
-                    ->outputTemplate('json.html.twig');
-            
-        } else {
-            //Normal page request
-            $tag = $request->getQueryValue('tag', null);
+		
+		if ( ! $application instanceof BlogApplication) {
+			$response->outputTemplate('application-missing.html.twig');
+			return null;
+		}
+		
+		$tags = array();
+		$activeTag = null;
+		
+		$blogLocalization = $application->getApplicationLocalization();
+		$blogPath = $blogLocalization->getFullPath(\Supra\Uri\Path::FORMAT_BOTH_DELIMITERS);
+		
+		if ($request->isBlockRequest()) {
+			// via ajax are requested only 'all' tags
+			$tags = $application->getAllTagsArray();
+		} else {
 
-            if ($application === null) {
-                $response->outputTemplate('application-missing.html.twig');
-                return;
-            }
-
-            $tags = $application->getPopularTagsArray();
-
-            $response->assign('tags', $tags)
-                    ->assign('currentTag', $tag)
-                    ->assign('blogTagsBlock', $this->getBlock()->getId())
-                    ->outputTemplate('index.html.twig');    
-            }
+			$tags = $application->getPopularTagsArray();
+			$activeTag = $request->getQueryValue('tag', null);
+		}
+		
+		$response->assign('tags', $tags)
+				->assign('activeTag', $activeTag)
+				->assign('blogPath', $blogPath)
+				->outputTemplate($request->isBlockRequest() ? 'json.html.twig' : 'index.html.twig');
     }
     
     
 	/**
+	 * @return BlogApplication
 	 */
     protected function getBlogApplication()
     {
-            
 		if ($this->blogApplication === null) {
-            
-            $blogPage = $this->getPropertyValue('blog_page');
-            
-            if ($blogPage instanceof LinkReferencedElement) {
-                $localization = $blogPage->getPageLocalization();
-                
-                if ($localization instanceof ApplicationLocalization) {
-
-                    $em = ObjectRepository::getEntityManager($this);
-                    $application = PageApplicationCollection::getInstance()
-                        ->createApplication($localization, $em);
-
-                    if ($application instanceof BlogApplication) {
-                        $this->blogApplication = $application;
-                    }
-                }
-            }
+			
+			$appLocalization = null;
+			
+			// if app page defined as property, we will use it
+			if ($this->hasProperty('blog_page')) {
+				$link = $this->getPropertyValue('blog_page');
+				
+				if ($link instanceof LinkReferencedElement) {
+					$localization = $link->getPageLocalization();
+					
+					if ($localization instanceof ApplicationLocalization) {
+						$appLocalization = $localization;
+					}
+				}
+			}
+			
+			// if not found in properties, we'll try to find app from local environment
+			if ($appLocalization === null) {
+				$localization = $this->getRequest()
+						->getPageLocalization();
+				
+				if ($localization instanceof ApplicationLocalization) {
+					$appLocalization = $localization;
+				} else {
+					$parent = $localization->getMaster()
+							->getParent();
+					
+					if ($parent instanceof ApplicationPage) {
+						$appLocalization = $parent->getLocalization($localization->getLocale());
+					}
+				}
+			}
+			
+			if ($appLocalization instanceof ApplicationLocalization) {
+				$em = ObjectRepository::getEntityManager($this);
+				$application = PageApplicationCollection::getInstance()
+                        ->createApplication($appLocalization, $em);
+				
+				if ($application instanceof BlogApplication) {
+					$this->blogApplication = $application;
+				}
+			}
+			
+			// nothing were found, nothing we can do
+			if ($this->blogApplication === null) {
+				$this->blogApplication = false;
+			}
 		}
 		
 		return $this->blogApplication;
