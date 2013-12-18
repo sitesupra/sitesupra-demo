@@ -10,6 +10,7 @@ use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Controller\Pages\Entity\ReferencedElement;
 
 /**
  * Controller for page content requests
@@ -704,29 +705,26 @@ class PagecontentAction extends PageManagerAction
 						$value = null;
 					}
 				}
-				elseif ($editable instanceof Editable\Video) {
+				else if ($editable instanceof Editable\Video) {
 
 					if ($input->hasChild($propertyName)) {
 
-						$elementData = $input->getChild($propertyName)
-								->getArrayCopy();
+						$videoData = $input->getChild($propertyName)->getArrayCopy();
 						
-						$elementData['type'] = Entity\ReferencedElement\VideoReferencedElement::TYPE_ID;
-						
-						$videoData = Entity\ReferencedElement\VideoReferencedElement::parseVideoSourceInput($elementData['source']);
-
-						if ($videoData === false) {
-							throw new CmsException(null, "Video link you provided is invalid or this video service is not supported. Sorry about that.");
+						// Even if source is empty, JS sends the array with width and height
+						// @TODO: need to fix JS and remove this workaround
+						if (isset($videoData['source']) && ! empty($videoData['source'])) {
+														
+							$videoData['type'] = ReferencedElement\VideoReferencedElement::TYPE_ID;
+							$referencedElementsData = array($videoData);
 						}
-									
-						$videoData = $videoData + $elementData;
-						$referencedElementsData[0] = $videoData;
+						
 					} else {
-						// Scalar sent if need to empty the link
+						// Scalar sent if need to empty the video
 						$checkValue = $input->get($propertyName);
 
 						if ( ! empty($checkValue)) {
-							throw new \InvalidArgumentException("Empty value need to be sent to unset the link, $checkValue received");
+							throw new \InvalidArgumentException("Empty value need to be sent to unset the video, $checkValue received");
 						}
 					}
 				} else if ($editable instanceof Editable\InlineMap) {
@@ -734,30 +732,24 @@ class PagecontentAction extends PageManagerAction
 
 						$value = $input->getChild($propertyName)
 								->getArrayCopy();
-						
-//						$editable->setContentFromEdit($mapData);
-//						$value = $editable->getContent();
-						
-//						$map = $input->getChild($propertyName);
-//						
-//						$latitude = (float)$mapInput->get('latitude');
-//						$longitude = (float)$mapInput->get('longitude');
-//						$longitude = (float)$mapInput->get('zoom');
-//						
-//						$value = "{$latitude}|{$longitude}|{$zoom}";
 					}
-				} else if ($editable instanceof Editable\InlineMedia) {
+				} 
+				// Inline media element may contain Image/Video
+				else if ($editable instanceof Editable\InlineMedia) {
 					
 					if ($input->hasChild($propertyName)) {
 						
 						$mediaData = $input->getChild($propertyName)
 								->getArrayCopy();
 						
-						$editable->setContentFromEdit($mediaData);
-						$metaElement = $editable->getContentMetadataForEdit();
-						if ( ! empty($metaElement)) {
-							$referencedElementsData[0] = $metaElement->toArray();
+						if ( ! isset($mediaData['type'])
+								|| ($mediaData['type'] !== ReferencedElement\VideoReferencedElement::TYPE_ID
+								&& $mediaData['type'] !== ReferencedElement\ImageReferencedElement::TYPE_ID)) {
+							
+							throw new \InvalidArgumentException("Unknown media type received");
 						}
+						
+						$referencedElementsData = array($mediaData);						
 					}
 				} else if ($editable instanceof Editable\PropertySet) {
 					
@@ -809,66 +801,62 @@ class PagecontentAction extends PageManagerAction
 				
 				$property->setValue($storableValue);
 
-				$metadataCollection = $property->getMetadata();
+				$metaCollection = $property->getMetadata();
 
-				foreach ($referencedElementsData as $referencedElementName => &$referencedElementData) {
+				foreach ($referencedElementsData as $elementName => &$elementData) {
 
-					if ( ! isset($referencedElementData['href'])) {
-						$referencedElementData['href'] = null;
-					}
-						
-					$referencedElementFound = false;
+					$elementFound = false;
 
-					if ( ! empty($metadataCollection)) {
+					if ( ! empty($metaCollection)) {
 
-						foreach ($metadataCollection as $metadataItem) {
-							/* @var $metadataItem Entity\BlockPropertyMetadata */
+						foreach ($metaCollection as $metaItem) {
+							/* @var $metaItem Entity\BlockPropertyMetadata */
 
-							$metadataItemName = $metadataItem->getName();
+							if ($metaItem->getName() == $elementName) {
 
-							if ($metadataItemName == $referencedElementName) {
+								$element = $metaItem->getReferencedElement();
 
-								$referencedElement = $metadataItem->getReferencedElement();
-								$referencedElement->fillArray($referencedElementData);
+								if ($element::TYPE_ID !== $elementData['type']) {
 
-								$referencedElementFound = true;
+									$this->entityManager->remove($element);
 
+									$element = $this->createReferencedElementFromArray($elementData);
+									$metaItem->setReferencedElement($element);
+
+									$elementFound = true;
+									break;
+								}
+
+								if ($element instanceof ReferencedElement\VideoReferencedElement) {
+									$validator = new \Supra\Controller\Pages\Validator\EmbedVideo;
+									try {
+										$validator->validate($elementData);
+									} catch (ValidationFailure $e) {
+										throw new CmsException(null, "Video link you provided is invalid or this video service is not supported. Sorry about that.");
+									}
+								}
+
+								$element->fillArray($elementData);
+
+								$elementFound = true;
 								break;
 							}
 						}
 					}
 
-					if ( ! $referencedElementFound) {
-
-						$referencedElement = Entity\ReferencedElement\ReferencedElementAbstract::fromArray($referencedElementData);
-						
-						$metadataItem = new Entity\BlockPropertyMetadata($referencedElementName, $property, $referencedElement);
-
-						$property->addMetadata($metadataItem);
-					}
-					
-					if ($referencedElement instanceof Entity\ReferencedElement\VideoReferencedElement) {
-						
-						$videoElementData = $referencedElement->parseVideoSourceInput($referencedElementData['source']);
-						
-						if (empty($videoElementData)) {
-							throw new CmsException(null, "Failed to parse video element data");
-						}
-						
-						$videoElementData = $videoElementData + $referencedElementData;
-						
-						$referencedElement->fillArray($videoElementData);
+					if ( ! $elementFound) {
+						$element = $this->createReferencedElementFromArray($elementData);
+						$property->addMetadata(new Entity\BlockPropertyMetadata($elementName, $property, $element));
 					}
 				}
 
 				// Delete removed metadata
 				if ( ! $editable instanceof Editable\Gallery) {
-					foreach ($metadataCollection as $metadataName => $metadataValue) {
-						/* @var $metadataValue Entity\BlockPropertyMetadata */
-
-						if ( ! array_key_exists($metadataName, $referencedElementsData)) {
-							$metadataCollection->remove($metadataName);
-							$this->entityManager->remove($metadataValue);
+					foreach ($metaCollection as $metaName => $metaItem) {
+						/* @var $metaItem Entity\BlockPropertyMetadata */
+						if ( ! array_key_exists($metaName, $referencedElementsData)) {
+							$metaCollection->remove($metaName);
+							$this->entityManager->remove($metaItem);
 						}
 					}
 				}
@@ -1189,5 +1177,48 @@ class PagecontentAction extends PageManagerAction
 		}
 		
 		return $values;
+	}
+	
+	/**
+	 * @param array $array
+	 */
+	private function createReferencedElementFromArray($array)
+	{
+		$element = null;
+		
+		switch ($array['type']) {
+			case ReferencedElement\ImageReferencedElement::TYPE_ID:
+				$element = new ReferencedElement\ImageReferencedElement;
+				break;
+
+			case ReferencedElement\LinkReferencedElement::TYPE_ID:
+				$element = new ReferencedElement\LinkReferencedElement;
+				break;
+			
+			case ReferencedElement\IconReferencedElement::TYPE_ID:
+				$element = new ReferencedElement\IconReferencedElement;
+				break;
+			
+			case ReferencedElement\VideoReferencedElement::TYPE_ID:
+				
+				$validator = new \Supra\Controller\Pages\Validator\EmbedVideo;
+	
+				try {
+					$validator->validate($array);
+				} catch (ValidationFailure $e) {
+					throw new CmsException(null, "Video link you provided is invalid or this video service is not supported. Sorry about that.");
+				}
+					
+				$element = new ReferencedElement\VideoReferencedElement;
+				
+				break;
+			
+			default:
+				throw new \RuntimeException("Unknown type {$array['type']}");
+		}
+		
+		$element->fillArray($array);
+		
+		return $element;
 	}
 }

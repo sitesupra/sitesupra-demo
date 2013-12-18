@@ -2,6 +2,8 @@
 
 namespace Supra\Controller\Pages\Entity\ReferencedElement;
 
+use Supra\ObjectRepository\ObjectRepository;
+
 /**
  * @Entity
  */
@@ -90,6 +92,11 @@ class VideoReferencedElement extends ReferencedElementAbstract
 	 * @var string
 	 */
 	protected $align;
+	
+	/**
+	 * @var string
+	 */
+	protected $thumbnail;
 
 		
 	/**
@@ -363,95 +370,124 @@ class VideoReferencedElement extends ReferencedElementAbstract
 	}
 	
 	/**
-	 * Tries to parse raw user input coming from VideoEditable (video links from services
-	 * like YouTube and Vimeo, or embed/iframe code) and responses with array of data, or
-	 * false if nothing suitable was inside
-	 *  
-	 * @param string $inputString
+	 * Thumbnail getter
+	 * @return string | null
 	 */
-	public static function parseVideoSourceInput($inputString)
+	public function getThumbnailUrl()
 	{
-		$string = trim($inputString);
+		// @FIXME: functionality from supraportal
+		return null;
 		
-		// check for embed source code
-		if (mb_stripos($string, '<embed') !== false || mb_stripos($string, '<iframe') !== false) {
-						
-			$string = strip_tags($string, '<iframe><object><embed><param>');
+		if ($this->thumbnail === null) {
+			
+			$this->thumbnail = false;
+			
+			if ($this->resource === self::RESOURCE_LINK
+					&& ! empty($this->externalId)) {
+				
+				$cachedVersion = $this->getThumbnailPathCachedVersion($this->externalId);
+				if ($cachedVersion !== false) {
 					
-			libxml_use_internal_errors(true);
-			$dom = new \DOMDocument();
-
-			if ( ! $dom->loadHTML($string)) {
-				return false;
+					$this->thumbnail = $cachedVersion;
+					
+					return $this->thumbnail;
+				}
+				
+				if ($this->externalService === self::SERVICE_YOUTUBE) {
+					$this->thumbnail = $this->getThumbnailForYoutube($this->externalId);
+					
+				} else if ($this->externalService === self::SERVICE_VIMEO) {
+					$this->thumbnail = $this->getThumbnailForVimeo($this->externalId);
+				}
+				
+				$this->storeThumbnailPath($this->externalId, $this->thumbnail);
 			}
-			
-			libxml_clear_errors();
-			libxml_use_internal_errors(false);
-			
-			$node = null;
-			$externalSourceType = null;
-			
-			if (mb_stripos($string, 'iframe') !== false) {
-				$node = $dom->getElementsByTagName('iframe')->item(0);	
-				$externalSourceType = self::SOURCE_IFRAME;
-			} else {
-				$node = $dom->getElementsByTagName('embed')->item(0);
-				$externalSourceType = self::SOURCE_EMBED;
-			}
-			
-			if ( ! $node instanceof \DOMElement) {
-				return false;	
-			}
-			
-//			$width = (int) $node->getAttribute('width');
-//			$height = (int) $node->getAttribute('height');
-			$src = $node->getAttribute('src');
-
-			// only known sources (youtube, vimeo, facebook) are allowed
-			$urlMatch = array();
-			if ( ! preg_match('/(?:(www|player)\.)?(?:youtu\.be\/|(youtube|vimeo|facebook)\.com)(.*)+/', $src, $urlMatch) || ! isset($urlMatch[0])) {
-				return false;
-			}
-			
-			$filteredSrc = $urlMatch[0];
-			
-//			if ( ! (empty($width) || empty($height) || empty($src))) {
-			if ( ! empty($src)) {
-				return array(
-					'resource' => self::RESOURCE_SOURCE,
-					'source' => $string,
-					'source_type' => $externalSourceType,
-//					'width' => $width,
-//					'height' => $height,
-					'src' => $filteredSrc
-				);
-			}
-						
 		}
 		
-		// check for YouTube link
-		$youtubePattern = '%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i';
-		$matches = array();
-		if (preg_match($youtubePattern, $string, $matches) && isset($matches[1])) {
-			return array(
-				'resource' => self::RESOURCE_LINK,
-				'service' => self::SERVICE_YOUTUBE,
-				'id' => $matches[1],
-			);
+		return $this->thumbnail;
+	}
+	
+	/**
+	 * 
+	 * @param string $id
+	 * @return string
+	 */
+	private function getThumbnailForYoutube($id)
+	{
+		if (empty($id)) {
+			return null;
+		}
+				
+		$apiKey = ObjectRepository::getIniConfigurationLoader($this)
+				->getValue('google_youtube', 'api_key', null);
+		
+		if (empty($apiKey)) {
+			return null;
 		}
 		
-		// check for Vimeo link
-		$vimeoPattern = '/(?:https?:\/\/)(?:www\.)?vimeo.com\/(?:channels\/|groups\/[^\/]*\/videos\/|album\/\d+\/video\/|)(\d+)(?:$|\/|\?)/';
-		$matches = array();
-		if (preg_match($vimeoPattern, $string, $matches) && isset($matches[1])) {
-			return array(
-				'resource' => self::RESOURCE_LINK,
-				'service' => self::SERVICE_VIMEO,
-				'id' => $matches[1],
-			);
+		$query = http_build_query(array(
+			'id' => $id,
+			'part' => 'snippet',
+			'key' => $apiKey,
+		));
+		
+		$url = 'https://www.googleapis.com/youtube/v3/videos?' . $query; 
+		
+		$response = file_get_contents($url);
+		if ( ! empty($response)) {
+			$jsonData = json_decode($response, true);
+			if ( ! empty($jsonData) && is_array($jsonData)) {
+				if (isset($jsonData['items']) && ! empty($jsonData['items'])) {
+					
+					$itemData = array_pop($jsonData['items']);
+					return $itemData['snippet']['thumbnails']['default']['url'];
+				}		
+			}
 		}
 		
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param string $videoId
+	 * @return string
+	 */
+	private function getThumbnailForVimeo($id)
+	{
+		if (empty($id)) {
+			return null;
+		}
 		
-		return false;
+		$url = "http://vimeo.com/api/v2/video/{$id}.php";
+		$response = file_get_contents($url);
+		
+		if ( ! empty($response)) {
+			$data = unserialize($response);
+			if (is_array($data) && ! empty($data)) {
+				$videoData = array_pop($data);
+				return $videoData['thumbnail_small'];
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * @param string $videoId
+	 * @return string | bool
+	 */
+	private function getThumbnailPathCachedVersion($videoId)
+	{
+		return ObjectRepository::getCacheAdapter('#global')
+				->fetch(__NAMESPACE__ . $videoId);
+	}
+	
+	/**
+	 */
+	private function storeThumbnailPath($videoId, $path)
+	{
+		ObjectRepository::getCacheAdapter('#global')
+				->save(__NAMESPACE__ . $videoId, $path);
 	}
 }

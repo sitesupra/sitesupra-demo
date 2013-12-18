@@ -1,9 +1,10 @@
-<div class="block blog-list">
+{% set heading_class = 'no-heading' %}
+{% set style = supraBlock.property('style') %}
 
-	{% set heading_class = 'no-heading' %}
-	{% set style = supraBlock.property('style') %}
-	
+<div class="block blog-list blog-list-long blog-list-style-{{ style }}">
+
 	{% block title %}
+		{% set heading_class = 'no-heading' %}
 		{% set title_empty = supraBlock.isEmpty('block_title') %}
 		{% if supra.cmsRequest or not title_empty %}
 		<h2 class="block-title {% if title_empty %}hidden{% endif %}"><div>
@@ -12,8 +13,8 @@
 				{% set heading_class = 'has-heading' %}
 			{% endif %}
 		</div></h2>
-		{% endif %}	
-	{% endblock %}
+		{% endif %}
+	{% endblock title %}
 	
 	{% if posts %}
 	<section class="{{ heading_class }}" {% if supra.cmsRequest %}data-refresh-event="blog"{% endif %}>
@@ -21,7 +22,7 @@
 		{% for post in posts %}
 			
 			{% block article %}
-			<article class="{% if style == 'promoted' %}promoted{% endif %} {% if post.properties.media is defined %}has-media{% endif %} clearfix">
+			<article class="{% if style == 'promoted' %}promoted{% endif %} {% if post.properties.media %}has-media{% endif %} clearfix">
 				
 				{# Image or video #}
 				{% if style == 'promoted' and post.properties.media %}
@@ -31,23 +32,25 @@
 				{# Heading #}
 				<header>
 					{% set date = post.localization.creationTime %}
-					<time datetime="{{ date.format('Y-m-d') }}"><span class="date-no-zero">{{ date.format('j') }}</span><span class="date-zero">{{ date.format('d') }}/</span>{{ date.format('m/Y') }}</time>
+					
+					<time datetime="{{ date.format('Y-m-d') }}">
+						<span class="special"><span>{{ date.format('j') }}</span>{{ date.format('M') }}</span>
+						<span class="localized">{{ date.format(supra.info.dateFormat) }}</span>
+					</time>
 					
 					{# Title #}
 					<h3><a href="{{ post.localization.path }}">{{ post.localization.title }}</a></h3>
 				</header>
 				
 				{# Image or video #}
-				{% if style != 'promoted' and post.properties.media is defined %}
+				{% if style != 'promoted' and post.properties.media %}
 					<figure class="media"><a class="media-link" href="{{ post.localization.path }}">{{ post.properties.media }}</a></figure>
 				{% endif %}
 				
-				{# Description #}
-				{% if post.properties.description is defined %}
-				<p>{{ post.properties.description }}</p>
-				{% endif %}
+				{# Truncated content #}
+				<p>{{ post.properties.content }}</p>
 			</article>
-			{% endblock %}
+			{% endblock article %}
 			
 		{% endfor %}
 		
@@ -56,6 +59,8 @@
 	
 	{# Pagination #}
 	{% if totalPages > 1 %}
+	
+		{% block pagination %}
 	
 		{% set pathPrefix = '?' %}
 		{% if currentTag is not empty %}
@@ -97,6 +102,8 @@
 				<span class="next">{{ supraBlock.property('next_page') }}</span>
 			{% endif %}
 		{% endspaceless %}</nav>
+	
+		{% endblock pagination %}
 	{% endif %}
 	
 </div>

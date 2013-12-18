@@ -5,7 +5,6 @@ namespace Project\FancyBlocks\BlogPost;
 use Supra\Controller\Pages\BlockController;
 use Supra\Controller\Pages\Entity\ApplicationPage;
 use Supra\Controller\Pages\Blog\BlogApplication;
-use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity\Image;
@@ -32,10 +31,10 @@ class BlogPostBlock extends BlockController
 		
 		$context = $response->getContext();
         
-        $description = $this->getPropertyValue('description');
-        if ($description) {
-            $context->setValue('metaDescription', $description);
-        }
+//        $description = $this->getPropertyValue('description');
+//        if ($description) {
+//            $context->setValue('metaDescription', $description);
+//        }
         
         $mediaProperty = $this->getProperty('media');
         $metaCollection = $mediaProperty->getMetadata();

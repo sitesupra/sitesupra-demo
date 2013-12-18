@@ -103,11 +103,6 @@ class BlogTagsBlock extends BlockController
 					$this->blogApplication = $application;
 				}
 			}
-			
-			// nothing were found, nothing we can do
-			if ($this->blogApplication === null) {
-				$this->blogApplication = false;
-			}
 		}
 		
 		return $this->blogApplication;
