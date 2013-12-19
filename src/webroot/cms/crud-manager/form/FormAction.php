@@ -9,7 +9,7 @@ use Supra\Cms\CrudManager;
 
 class FormAction extends CrudManager\CrudManagerAbstractAction
 {
-	
+
 	public function saveAction()
 	{
 		$this->isPostRequest();
@@ -23,7 +23,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 		$record = null;
 		/* @var $record CrudManager\CrudEntityInterface */
 		$recordId = $post->get('id', null);
-			
+
 		$newRecord = false;
 
 		if ( ! empty($recordId)) {
@@ -37,17 +37,17 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 				return null;
 			}
 		}
-		
+
 		$eventArgs = new CrudManager\CrudEntityEventArgs();
 		$eventArgs->entity = $record;
 		$eventArgs->entityManager = $em;
-		
+
 		if ($newRecord) {
 			$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::PRE_INSERT, $repo, $eventArgs);
 		}
-		
+
 		$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::PRE_SAVE, $repo, $eventArgs);
-	
+
 		if ( ! $record instanceof $configuration->entity) {
 			throw new CmsException(null, 'Could not find any record with id #' . $recordId);
 		}
@@ -56,15 +56,15 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 
 		//setting new values
 		$output = $record->setEditValues($post, $newRecord);
-		
+
 		$em->persist($record);
 
 		$em->flush();
-		
+
 		if ($newRecord) {
 			$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::POST_INSERT, $repo, $eventArgs);
 		}
-				
+
 		$recordId = $record->getId();
 		$recordBefore = $post->get('record-before', null);
 
@@ -83,10 +83,10 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 		$this->writeAuditLog("Record %item% saved", $record);
 
 		$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::POST_SAVE, $repo, $eventArgs);
-		
+
 		$response = $this->getResponse();
 		$response->setResponseData($output);
-		
+
 		$this->dropGroupCache();
 	}
 
@@ -113,6 +113,16 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 			throw new CmsException(null, 'Can\'t find record to delete');
 		}
 
+		// Check if no database dependences
+		$eventManager = ObjectRepository::getEventManager($this);
+
+		$eventArgs = new CrudManager\CrudEntityEventArgs();
+		$eventArgs->entity = $record;
+		$eventArgs->entityManager = $em;
+
+		$eventManager->fire(CrudManager\CrudManagerEvents::PRE_DELETE, $eventArgs);
+
+
 		$em->remove($record);
 		$em->flush();
 
@@ -121,7 +131,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 		}
 
 		$this->writeAuditLog("Record %item% deleted", $record);
-		
+
 		$this->dropGroupCache();
 	}
 
@@ -158,7 +168,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 		}
 
 		$this->move($record, $recordBefore);
-		
+
 		$this->dropGroupCache();
 	}
 
@@ -222,7 +232,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 			$this->writeAuditLog("Record %item% moved", $record);
 		}
 	}
-	
+
 	/**
 	 * Drops group cache. Entity name is cache group name for now.
 	 */
@@ -230,14 +240,14 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 	{
 		$configuration = $this->getConfiguration();
 		$group = $configuration->entity;
-		
+
 		$cacheGroupManager = new \Supra\Cache\CacheGroupManager();
 		$cacheGroupManager->resetRevision($group);
 	}
-	
+
 	/**
 	 * Runs repository method if repository is subscribed to corresponding event
-	 * 
+	 *
 	 * @param string $eventName
 	 * @param \Supra\Cms\CrudManager\CrudRepositoryInterface $repository
 	 * @param \Supra\Cms\CrudManager\CrudEntityEventArgs $eventArgs
@@ -246,7 +256,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 	{
 		if ($repository instanceof CrudManager\CrudInteractiveRepositoryInterface) {
 			$subscribedEvents = $repository->getSubscribedEvents();
-		
+
 			if (in_array($eventName, $subscribedEvents)) {
 				$repository->$eventName($eventArgs);
 			}
