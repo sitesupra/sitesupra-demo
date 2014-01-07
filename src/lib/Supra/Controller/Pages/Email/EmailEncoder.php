@@ -26,8 +26,8 @@ class EmailEncoder
 			$alreadySubscribed = $em->getListeners(PageController::EVENT_POST_PREPARE_CONTENT);
 			
 			foreach ($alreadySubscribed as $listener) {
-				if ($listener instanceof EncoderEventListener) {
-					$em->removeListener(PageController::EVENT_POST_PREPARE_CONTENT, $listener);
+				if ($listener[0] instanceof EncoderEventListener) {
+					$em->removeListener(PageController::EVENT_POST_PREPARE_CONTENT, $listener[0]);
 				}
 			}
 			
