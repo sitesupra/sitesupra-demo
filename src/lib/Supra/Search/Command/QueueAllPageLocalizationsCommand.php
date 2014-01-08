@@ -11,7 +11,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Controller\Pages\Entity\Abstraction\AbstractPage;
 use Supra\Controller\Pages\Entity\Template;
-use Supra\Search\Solarium\Configuration;
+#use Supra\Search\Solarium\Configuration;
 
 class QueueAllPageLocalizationsCommand extends Console\Command\Command
 {
@@ -31,10 +31,12 @@ class QueueAllPageLocalizationsCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
+		/*
 		if ( ! ObjectRepository::isSolariumConfigured($this)) {
 			$output->writeln(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return;
-		}
+		}*/
+		
 		//$schemaNames = PageController::$knownSchemaNames;
 		$schemaNames = array(PageController::SCHEMA_PUBLIC);
 

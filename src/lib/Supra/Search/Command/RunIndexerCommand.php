@@ -28,10 +28,10 @@ class RunIndexerCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		if ( ! ObjectRepository::isSolariumConfigured($this)) {
+		/*if ( ! ObjectRepository::isSolariumConfigured($this)) {
 			$output->writeln(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return;
-		}
+		}*/
 		
 		$indexerService = new IndexerService();
 		$schemaNames = array(PageController::SCHEMA_PUBLIC);

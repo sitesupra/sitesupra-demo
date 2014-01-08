@@ -26,10 +26,10 @@ class CmsPageLocalizationIndexerQueueListener implements \Doctrine\Common\EventS
 	 */
 	public function pagePostPublish(Event\PageCmsEventArgs $eventArgs)
 	{
-		if ( ! ObjectRepository::isSolariumConfigured($this)) {
-			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
-			return;
-		}
+//		if ( ! ObjectRepository::isSolariumConfigured($this)) {
+//			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
+//			return;
+//		}
 
 		$localization = $eventArgs->localization;
 
@@ -45,10 +45,10 @@ class CmsPageLocalizationIndexerQueueListener implements \Doctrine\Common\EventS
 	 */
 	public function pagePostRemove(Event\PageCmsEventArgs $eventArgs)
 	{
-		if ( ! ObjectRepository::isSolariumConfigured($this)) {
-			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
-			return;
-		}
+//		if ( ! ObjectRepository::isSolariumConfigured($this)) {
+//			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
+//			return;
+//		}
 
 		$localization = $eventArgs->localization;
 

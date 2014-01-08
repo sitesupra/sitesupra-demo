@@ -7,12 +7,12 @@ use Supra\Request;
 use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Response;
 use Supra\Search\SearchService;
-use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
+//use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\PageController;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Uri\Path;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
-use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
+//use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
 
 /**
  * Simple text block
@@ -68,7 +68,7 @@ class SearchController extends BlockController
 		$response = $this->getResponse();
 		$configuration = $this->getConfiguration();
 		$results = $this->getResults();
-
+		
 		if ($results instanceof Exception\RuntimeException) {
 
 			$response->assign('error', true);
@@ -105,7 +105,7 @@ class SearchController extends BlockController
 		$response = $this->getResponse();
 		/* @var $response Response\TwigResponse */
 
-		$q = $request->getQueryValue('q');
+		$q = trim($request->getQueryValue('q'));
 		$response->assign('q', $q);
 
 		$currentPageNumber = $request->getQueryValue('p', 0);
@@ -130,7 +130,9 @@ class SearchController extends BlockController
 				}
 
 				try {
-					$results = $this->doSearch($q, $configuration->resultsPerPage, abs(intval($currentPageNumber) * intval($configuration->resultsPerPage)));
+					/** @object $searchService SearchService */
+					$searchService = SearchService::getAdapter();
+					$results = $searchService->doSearch($q, $configuration->resultsPerPage, abs(intval($currentPageNumber) * intval($configuration->resultsPerPage)));
 				} catch (\Supra\Search\Exception\RuntimeException $e) {
 					$results = $e;
 				}
@@ -143,34 +145,6 @@ class SearchController extends BlockController
 
 		$response->getContext()
 				->setValue(self::RESPONSE_CONTEXT_KEY_RESULTS, $results);
-
-		return $results;
-	}
-
-	/**
-	 * @param string $text
-	 * @return Result\DefaultSearchResultSet
-	 */
-	private function doSearch($text, $maxRows, $startRow)
-	{
-		$searchService = new SearchService();
-
-		$lm = ObjectRepository::getLocaleManager($this);
-		$locale = $lm->getCurrent();
-
-		$searchRequest = new PageLocalizationSearchRequest();
-		$searchRequest->setResultMaxRows($maxRows);
-		$searchRequest->setResultStartRow($startRow);
-		$searchRequest->setText($text);
-		$searchRequest->setLocale($locale);
-		$searchRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
-
-		$results = $searchService->processRequest($searchRequest);
-
-		$pageLocalizationPostProcesser = new PageLocalizationSearchResultPostProcesser();
-		$results->addPostprocesser($pageLocalizationPostProcesser);
-
-		$results->runPostprocessers();
 
 		return $results;
 	}

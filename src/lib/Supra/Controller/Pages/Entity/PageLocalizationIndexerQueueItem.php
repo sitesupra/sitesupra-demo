@@ -18,7 +18,8 @@ use Supra\Search\Exception\IndexerRuntimeException;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Search\SearchService;
 use Supra\Controller\Pages\Entity\BlockPropertyMetadata;
-use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
+//use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
+use Supra\Search\Solarium\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Entity\GroupLocalization;
 use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Controller\Pages\Entity\PageRevisionData;
@@ -251,38 +252,17 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 	/**
 	 * Does removal of the document..
-	 */
+	 *
 	protected function remove()
 	{
+		/*
 		// moved from CmsPageLocalizationIndexerQueueListener
 		if ( ! ObjectRepository::isSolariumConfigured($this)) {
 			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return;
-		}
-
-		$findRequest = new PageLocalizationFindRequest();
-
-		$findRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
-		$findRequest->setPageLocalizationId($this->pageLocalizationId);
-
-		$searchService = new SearchService();
-
-		$resultSet = $searchService->processRequest($findRequest);
-
-		$items = $resultSet->getItems();
-
-		foreach ($items as $item) {
-
-			if ($item instanceof PageLocalizationSearchResultItem) {
-
-				if ($item->getPageLocalizationId() == $this->pageLocalizationId) {
-
-					$indexerService = new IndexerService();
-					$indexerService->removeFromIndex($item->getUniqueId());
-				}
-			}
-		}
-	}
+		}*
+		IndexerService::getAdapter()->remove($this->pageLocalizationId);
+	}*/
 
 	/**
 	 * @return array of IndexedDocument
@@ -290,8 +270,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	public function writeIndexedDocuments($solariumDocumentWriter)
 	{
 		if ($this->removal) {
-			$this->remove();
-
+			//$this->remove();
+			IndexerService::getAdapter()->remove($this->pageLocalizationId);
 			return array();
 		}
 
@@ -367,6 +347,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 					$solariumDocument = $this->makeIndexedDocument($child);
 					$result[] = $solariumDocument;
+					
+					//\Log::error($solariumDocument->text_general);
+					
 					$solariumDocumentWriter($solariumDocument);
 				} else {
 					\Log::debug('LLL hit cache!!! ', self::makeMockId($child->getId(), $child->getRevisionId()));
@@ -533,6 +516,13 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 					in_array($blockProperty->getType(), $indexedEditableClasses)
 			) {
 				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
+				
+				// @TODO check
+				if ($temp = @unserialize($blockContents))
+				{
+					$blockContents = (isset($temp['html'])) ? $temp['html'] : implode(' ', $temp);
+				}
+				
 				$pageContents[] = $indexedDocument->formatText($blockContents);
 			}
 		}

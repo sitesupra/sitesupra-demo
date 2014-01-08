@@ -9,6 +9,7 @@ use Supra\Locale\LocaleInterface;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\Request\Abstraction\SearchRequestAbstraction;
 use Supra\Search\Result\DefaultSearchResultSet;
+use Supra\Search\Solarium\PageLocalizationSearchResultItem;
 
 class PageLocalizationSearchRequest extends SearchRequestAbstraction
 {

@@ -7,7 +7,6 @@ use Supra\Search\Result\Exception;
 
 abstract class SearchResultItemAbstraction implements SearchResultItemInterface
 {
-
 	/**
 	 * @var string
 	 */
@@ -18,6 +17,27 @@ abstract class SearchResultItemAbstraction implements SearchResultItemInterface
 	 * @var string
 	 */
 	protected $class;
+
+    protected $localeId;
+    protected $pageWebPath;
+    protected $title;
+    protected $text;
+    protected $ancestorIds;
+    protected $highlight;
+    protected $breadcrumbs;
+    protected $pageLocalizationId;
+    protected $keywordsFromText;
+	
+    public function getHighlight()
+    {
+        return $this->highlight;
+    }
+
+    public function setHighlight($highlight)
+    {
+        $this->highlight = $highlight;
+    }
+
 
 	/**
 	 * @return string
@@ -59,4 +79,99 @@ abstract class SearchResultItemAbstraction implements SearchResultItemInterface
 		$this->class = $class;
 	}
 
+    public function getPageLocalizationId()
+    {
+        return $this->pageLocalizationId;
+    }
+
+    public function setPageLocalizationId($pageLocalizationId)
+    {
+        $this->pageLocalizationId = $pageLocalizationId;
+    }
+
+    public function getLocaleId()
+    {
+        return $this->localeId;
+    }
+
+    public function setLocaleId($localeId)
+    {
+        $this->localeId = $localeId;
+    }
+
+    public function getPageWebPath()
+    {
+        return $this->pageWebPath;
+    }
+
+    public function setPageWebPath($pageWebPath)
+    {
+        $this->pageWebPath = $pageWebPath;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    public function getText()
+    {
+        return $this->text;
+    }
+
+    public function setText($text)
+    {
+        $this->text = $text;
+    }
+
+    public function getAncestorIds()
+    {
+        if (empty($this->ancestorIds)) {
+            $this->setAncestorIds(array());
+        }
+
+        return $this->ancestorIds;
+    }
+
+    public function setAncestorIds($ancestorIds)
+    {
+        $this->ancestorIds = $ancestorIds;
+    }
+
+    public function getBreadcrumbs()
+    {
+        return $this->breadcrumbs;
+    }
+
+    public function setBreadcrumbs($breadcrumbs)
+    {
+        $this->breadcrumbs = $breadcrumbs;
+    }
+
+    public function getKeywordsFromText()
+    {
+        return $this->keywordsFromText;
+    }
+
+    public function setKeywordsFromText($keywordsFromText)
+    {
+        $this->keywordsFromText = $keywordsFromText;
+    }
+	
+    protected $indexedDocument;
+
+    public function getIndexedDocument()
+    {
+        return $this->indexedDocument;
+    }
+
+    public function setIndexedDocument($indexedDocument)
+    {
+        $this->indexedDocument = $indexedDocument;
+    }
 }

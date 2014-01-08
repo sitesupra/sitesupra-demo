@@ -9,9 +9,9 @@ use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Search\Result\SearchResultPostprocesserInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\Result\SearchResultSetInterface;
+use Supra\Search\Solarium\PageLocalizationSearchResultItem;
 
-class PageLocalizationSearchResultPostProcesser implements SearchResultPostprocesserInterface
-{
+class PageLocalizationSearchResultPostProcesser implements SearchResultPostprocesserInterface {
 
 	/**
 	 * @var EntityManager
@@ -21,8 +21,7 @@ class PageLocalizationSearchResultPostProcesser implements SearchResultPostproce
 	/**
 	 * @return EntityManager
 	 */
-	public function getEntityManager()
-	{
+	public function getEntityManager() {
 		if (empty($this->em)) {
 			$this->em = ObjectRepository::getEntityManager($this);
 		}
@@ -33,24 +32,21 @@ class PageLocalizationSearchResultPostProcesser implements SearchResultPostproce
 	/**
 	 * @param EntityManager $em 
 	 */
-	public function setEntityManager($em)
-	{
+	public function setEntityManager($em) {
 		$this->em = $em;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getClasses()
-	{
+	public function getClasses() {
 		return array(PageLocalization::CN());
 	}
 
-	public function postprocessResultSet(SearchResultSetInterface $resultSet)
-	{
+	public function postprocessResultSet(SearchResultSetInterface $resultSet) {
 		$em = $this->getEntityManager();
 		$pr = $em->getRepository(PageLocalization::CN());
-		
+
 		$items = $resultSet->getItems();
 		foreach ($items as $item) {
 
