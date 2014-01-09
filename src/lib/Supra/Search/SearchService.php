@@ -2,39 +2,64 @@
 
 namespace Supra\Search;
 
-use Supra\ObjectRepository\ObjectRepository;
-use Request\SearchRequestAbstraction;
-
 class SearchService
 {
 	/**
-	 * @var Singelton
+	 * @var self
 	 */
-	protected static $adapter = array();
+	private static $instance;
 	
 	/**
-	 * @return \Supra\Search\{Adapter}\Adapter
+	 * @var SearcherAbstract
 	 */
-	public static function getAdapter( $adapter = NULL )
+	protected $searcher;
+	
+	/**
+	 * @TODO: move to object repo
+	 * @return \Supra\Search\SearchService
+	 */
+	public static function getInstance()
 	{
-		$adapter = ( $adapter == NULL ) ? SEARCH_SERVICE_ADAPTER : $adapter;
-		$adapterClass = '\\Supra\\Search\\' . $adapter . '\\Adapter';
-		
-		if ( !isset( SearchService::$adapter[$adapter] ) )
-		{
-			SearchService::$adapter[$adapter] = new $adapterClass();
-			//SearchService::$adapter[$adapter]->configure();
+		if (self::$instance === null) {
+			self::$instance = new self();
 		}
 		
-		return SearchService::$adapter[$adapter];
+		return self::$instance;
+	}
+	
+	/**
+	 * @param \Supra\Search\SearcherAbstract $searcher
+	 */
+	public function setSearcher(SearcherAbstract $searcher)
+	{
+		$this->searcher = $searcher;
+	}
+	
+	/**
+	 * @return \Supra\Search\SearcherAbstract
+	 */
+	public function getSearcher()
+	{
+		return $this->searcher;
 	}
 	
 	/**
 	 * @param Request\SearchRequestInterface $request
-	 * @return Supra\Search\Adapter\AdapterResult\SearchResultSetInterface
+	 * @return Result\SearchResultSetInterface
 	 */
 	public function processRequest(Request\SearchRequestInterface $request)
 	{
-		return SearchService::getAdapter()->processRequest($request);
+		return $this->searcher->processRequest($request);
+	}
+	
+	/**
+	 * @param string $text
+	 * @param int $maxRows
+	 * @param int $startRow
+	 * @return Result\DefaultSearchResultSet
+	 */
+	public function doSearch($text, $maxRows, $startRow)
+	{
+		return $this->searcher->doSearch($text, $maxRows, $startRow);
 	}
 }

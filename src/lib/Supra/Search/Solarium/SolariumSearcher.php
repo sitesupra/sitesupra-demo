@@ -17,13 +17,15 @@ use Request\SearchRequestAbstraction;
 use Supra\Log\Writer\WriterAbstraction;
 use \Solarium_Result_Select;
 
-class Adapter extends SearchServiceAdapter {
+class SolariumSearcher extends SearchServiceAdapter 
+{
 
 	const FAILED_TO_GET_CLIENT_MESSAGE = 'Solr search engine is not configured.';
 
 	public $defaultAdapterClass = '\Solarium_Client_Adapter_Http';
 
-	public function configure() {
+	public function configure() 
+	{
 		static $isConfigured = FALSE;
 
 		if ($isConfigured) {
@@ -60,7 +62,9 @@ class Adapter extends SearchServiceAdapter {
 	 * @param Request\SearchRequestInterface $request
 	 * @return Result\SearchResultSetInterface
 	 */
-	public function processRequest(\Supra\Search\Request\SearchRequestInterface $request) {
+	public function processRequest(\Supra\Search\Request\SearchRequestInterface $request)
+	{
+		
 		if (!ObjectRepository::isSolariumConfigured($this)) {
 			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return new DefaultSearchResultSet();
@@ -92,7 +96,8 @@ class Adapter extends SearchServiceAdapter {
 	 * @param string $text
 	 * @return Result\DefaultSearchResultSet
 	 */
-	public function doSearch($text, $maxRows, $startRow) {
+	public function doSearch($text, $maxRows, $startRow)
+	{
 		$lm = ObjectRepository::getLocaleManager($this);
 		$locale = $lm->getCurrent();
 

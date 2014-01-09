@@ -4,11 +4,8 @@ namespace Supra\Search;
 
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
-use Supra\Search\IndexerQueueItemStatus;
-use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
-use Supra\Controller\Pages\PageController;
 
-abstract class IndexerServiceAbstract {
+abstract class IndexerAbstract {
 
 	/**
 	 * System ID to be used for this project.
@@ -19,20 +16,24 @@ abstract class IndexerServiceAbstract {
 	/**
 	 * @return string
 	 */
-	public function getSystemId() {
-		if (is_null($this->systemId)) {
-			$info = ObjectRepository::getSystemInfo($this);
-			$this->systemId = $info->name;
+	public function getSystemId()
+	{
+		if ($this->systemId === null) {
+			$this->systemId = ObjectRepository::getSystemInfo($this)->name;
 		}
 
 		return $this->systemId;
 	}
 
-	abstract public function processItem(\Supra\Search\Entity\Abstraction\IndexerQueueItem $queueItem);
+	abstract public function processItem(IndexerQueueItem $queueItem);
 
 	abstract public function removeFromIndex($uniqueId);
+	
+	abstract public function removeAllFromIndex();
 
 	abstract public function getDocumentCount();
 
 	abstract public function remove($localizationId);
+	
+	
 }

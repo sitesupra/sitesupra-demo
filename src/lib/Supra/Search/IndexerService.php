@@ -2,13 +2,45 @@
 
 namespace Supra\Search;
 
-class IndexerService {
-
+class IndexerService 
+{
+	/**
+	 * @var self
+	 */
+	private static $instance;
+	
+	/**
+	 * @var IndexerAbstract
+	 */
+	protected $indexer;
+	
+	/**
+	 * @TODO: move to object repo
+	 * @return \Supra\Search\IndexerService
+	 */
+	public static function getInstance()
+	{
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
+		
+		return self::$instance;
+	}
+	
+	/**
+	 * @param IndexerAbstract $indexer
+	 */
+	public function setIndexer(IndexerAbstract $indexer)
+	{
+		$this->indexer = $indexer;
+	}
+	
 	/**
 	 * Takes all FRESH items from $queue and adds them to Solr.
 	 * @param IndexerQueue $queue 
 	 */
-	public function processQueue(IndexerQueue $queue) {
+	public function processQueue(IndexerQueue $queue)
+	{
 //		$indexedQueueItems = array();
 
 		$documentCount = 0;
@@ -17,7 +49,7 @@ class IndexerService {
 
 			$queueItem = $queue->getNextItemForIndexing();
 
-			$documentCount = $documentCount + $this->processItem($queueItem);
+			$documentCount = $documentCount + $this->indexer->processItem($queueItem);
 //			$indexedQueueItems[] = $queueItem;
 
 			$queue->store($queueItem);
@@ -31,48 +63,22 @@ class IndexerService {
 
 		return $documentCount;
 	}
-
-	/**
-	 * Call adapter functions through this class
-	 * @param type $method
-	 * @param type $arguments
-	 * @return boolean
-	 */
-	public function __call($method, $arguments = array()) {
-		if (method_exists($this, $method)) {
-			return call_user_func_array(array($this, $method), $arguments);
-		} else {
-			try {
-				return call_user_func_array(array(IndexerService::getAdapter(), $method), $arguments);
-			} catch (Exception\BadSchemaException $e) {
-				\Log::error($e->getMessage());
-				return FALSE;
-			}
-		}
+	
+	public function remove($id)
+	{
+		return $this->indexer->remove($id);
 	}
-
-	/**
-	 * @var Singelton
-	 */
-	protected static $adapter = array();
-
-	/**
-	 * @return \Supra\Search\{Adapter}\IndexerService
-	 */
-	public static function getAdapter($adapter = NULL) {
-		$adapter = ( $adapter == NULL ) ? SEARCH_SERVICE_ADAPTER : $adapter;
-		$adapterClass = '\\Supra\\Search\\' . $adapter . '\\IndexerService';
-
-		if (!isset(IndexerService::$adapter[$adapter])) {
-			try {
-				IndexerService::$adapter[$adapter] = new $adapterClass();
-			} catch (Exception\BadSchemaException $e) {
-				\Log::error($e->getMessage());
-				throw $e;
-			}
-		}
-
-		return IndexerService::$adapter[$adapter];
+	
+	public function removeAllFromIndex()
+	{
+		return $this->indexer->removeAllFromIndex();
 	}
-
+	
+	/**
+	 * @return string
+	 */
+	public function getSystemId()
+	{
+		return $this->indexer->getSystemId();
+	}
 }

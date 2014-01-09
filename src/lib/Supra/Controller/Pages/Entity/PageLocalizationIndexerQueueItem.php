@@ -271,7 +271,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	{
 		if ($this->removal) {
 			//$this->remove();
-			IndexerService::getAdapter()->remove($this->pageLocalizationId);
+			IndexerService::getInstance()->remove($this->pageLocalizationId);
 			return array();
 		}
 
@@ -403,7 +403,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$findRequest->setSchemaName($this->schemaName);
 		$findRequest->setPageLocalizationId($pageLocalizationId);
 
-		$searchService = new SearchService();
+		$searchService = SearchService::getInstance();
 
 		$resultSet = $searchService->processRequest($findRequest);
 
@@ -515,14 +515,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			if ( ! ($blockProperty->getLocalization() instanceof TemplateLocalization) &&
 					in_array($blockProperty->getType(), $indexedEditableClasses)
 			) {
-				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
-				
-				// @TODO check
-				if ($temp = @unserialize($blockContents))
-				{
-					$blockContents = (isset($temp['html'])) ? $temp['html'] : implode(' ', $temp);
-				}
-				
+				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);		
 				$pageContents[] = $indexedDocument->formatText($blockContents);
 			}
 		}
@@ -539,8 +532,17 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 	public function getIndexableContentFromBlockProperty(BlockProperty $blockProperty)
 	{
-		$tokenizer = new Markup\DefaultTokenizer($blockProperty->getValue());
-
+		if ($blockProperty->getEditable() instanceof \Supra\Editable\Html) {
+			$value = @unserialize($blockProperty->getValue());
+			if (is_array($value) && isset($value['html'])) {
+				$value = $value['html'];
+			}
+		} else {
+			$value = $blockProperty->getValue();
+		}
+		
+		$tokenizer = new Markup\DefaultTokenizer($value);
+		
 		$tokenizer->tokenize();
 
 		$result = array();

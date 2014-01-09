@@ -3,30 +3,32 @@
 namespace Supra\Search\Mysql;
 
 use Supra\Search\Result\Abstraction\SearchResultItemAbstraction;
-use Supra\ObjectRepository\ObjectRepository;
 
-class PageLocalizationSearchResultItem extends SearchResultItemAbstraction {
-
-	/**
-	 * @param $row array Mysql result
-	 */
-	function __construct($row = array(), $searchQuery = '') {
-		if (!empty($row)) {
+class PageLocalizationSearchResultItem extends SearchResultItemAbstraction
+{
+	
+	const HIGHLIGHT_LENGHT = 30;
+	
+	
+	public function __construct($row = array(), $searchQuery = '')
+	{
+		if ( ! empty($row)) {
+			
 			// Highlight the text
-			$row['pageContent'] = $this->highlightText($row['pageContent'], $searchQuery);
+			$higlighted = $this->highlightText($row['content'], $searchQuery);
 
 			$this->setUniqueId($row['uniqueId']);
 			$this->setClass($row['entityClass']);
 
-			$this->setLocaleId($row['localeId']);
-			$this->setPageWebPath($row['pageWebPath']);
-			$this->setTitle($row['pageTitle']);
-			$this->setText($row['pageContent']);
-			$this->setHighlight($row['pageContent']);
+			$this->setLocaleId($row['locale']);
+			$this->setPageWebPath($row['path']);
+			$this->setTitle($row['title']);
+			$this->setText($row['content']);
+			$this->setHighlight($higlighted);
 
 			$ancestorIds = NULL;
 			try {
-				$ancestorIds = unserialize($row['ancestorId']);
+				$ancestorIds = unserialize($row['ancestorIds']);
 			} catch (Exception\RuntimeException $e) {
 				\Log::error($e->getMessage());
 			}
@@ -48,28 +50,51 @@ class PageLocalizationSearchResultItem extends SearchResultItemAbstraction {
 	 * @param string $query
 	 * @return string
 	 */
-	public function highlightText($text, $query) {
+	public function highlightText($text, $query)
+	{
 		$searchWords = explode(' ', $query);
 		
-		if (preg_match( "#(" . implode( '|', $searchWords ) . ")#ius", $text)) {
-			$searchWords = array_map('preg_quote', $searchWords);
+		if (preg_match('#(' . implode('|', $searchWords) . ')#ius', $text)) {
+			
+			$textParts = array();
+			
+			foreach ($searchWords as $index => $searchWord) {
+				
+				$wordLen = mb_strlen($searchWord);
+				
+				if ($wordLen < MysqlSearcher::MIN_WORD_LENGTH) {
+					unset($searchWords[$index]);
+					continue;
+				}
+								
+				$searchText = $text;
+				
+				$repeats = 0;
+				
+				while ($pos = mb_stripos($searchText, $searchWord)) {
 
-			$posQuery = intval(mb_stripos($text, $query));
-
-			$lenQuery = mb_strlen($query);
-			$lenText = mb_strlen($text);
-
-			$posFrom = ($posQuery - SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH);
-			if ($posFrom < 0) {
-				$posFrom = 0;
+					$before = $pos > self::HIGHLIGHT_LENGHT ? ($pos - self::HIGHLIGHT_LENGHT) : 0;
+			
+					$after = $wordLen + self::HIGHLIGHT_LENGHT + ($pos - $before);
+					
+					if (false !== ($breakpoint = mb_strpos($searchText, ' ', $before + $after))) {
+						$after = $breakpoint - $before;
+					}
+					
+					$textParts[] = mb_substr($searchText, $before, $after);
+					$searchText = mb_substr($searchText, $before + $after);
+					
+					$repeats++;
+					
+					if ($repeats > 4) {
+						break;
+					}
+				}
 			}
-
-			$posTo = ($posQuery + $lenQuery + SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH);
-
-			// Cut text
-			$text = mb_substr($text, $posFrom, $posTo);
+			
+			$text = implode(' (...) ', $textParts);
 		} else {
-			$text = mb_substr($text, 0, SEARCH_SERVICE_FUULTEXT_HIGHLIGHT_LENGTH);
+			$text = mb_substr($text, 0, self::HIGHLIGHT_LENGHT);
 		}
 		
 		// Make highlight

@@ -25,22 +25,9 @@ class WipeCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		$indexerService = new IndexerService();
-
-		$client = $indexerService->getSolariumClient();
-		if ( ! $client instanceof \Solarium_Client) {
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			$output->writeln($message);
-			\Log::debug($message);
-			return;
-		}
-
-		$update = $client->createUpdate();
-
-		$query = 'systemId:' . $indexerService->getSystemId();
-		$update->addDeleteQuery($query);
-		$update->addCommit();
-		$client->update($update);	
+		$indexerService = IndexerService::getInstance();
+				
+		$indexerService->removeAllFromIndex();
 		
 		$output->writeln('Search: Indexes for systemId "' . $indexerService->getSystemId() . '" wiped.');
 		$output->writeln('');

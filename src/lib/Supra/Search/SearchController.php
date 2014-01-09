@@ -78,8 +78,8 @@ class SearchController extends BlockController
 			$totalResultCount = $results->getTotalResultCount();
 
 			if ($totalResultCount == 0) {
-
-				$response->assign('resultCount', '0');
+				
+				$response->assign('resultCount', 0);
 				$response->outputTemplate($configuration->noResultsTemplateFilename);
 			} else {
 
@@ -131,7 +131,7 @@ class SearchController extends BlockController
 
 				try {
 					/** @object $searchService SearchService */
-					$searchService = SearchService::getAdapter();
+					$searchService = SearchService::getInstance();
 					$results = $searchService->doSearch($q, $configuration->resultsPerPage, abs(intval($currentPageNumber) * intval($configuration->resultsPerPage)));
 				} catch (\Supra\Search\Exception\RuntimeException $e) {
 					$results = $e;
@@ -139,7 +139,7 @@ class SearchController extends BlockController
 			}
 		}
 
-		if (is_null($results)) {
+		if ($results === null) {
 			$results = new Result\DefaultSearchResultSet();
 		}
 

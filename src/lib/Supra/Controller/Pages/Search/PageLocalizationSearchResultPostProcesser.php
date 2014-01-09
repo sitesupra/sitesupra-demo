@@ -43,7 +43,8 @@ class PageLocalizationSearchResultPostProcesser implements SearchResultPostproce
 		return array(PageLocalization::CN());
 	}
 
-	public function postprocessResultSet(SearchResultSetInterface $resultSet) {
+	public function postprocessResultSet(SearchResultSetInterface $resultSet)
+	{
 		$em = $this->getEntityManager();
 		$pr = $em->getRepository(PageLocalization::CN());
 

@@ -11,7 +11,7 @@ use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Controller\Pages\PageController;
 use Supra\Search\SearchService;
 
-class IndexerService extends IndexerServiceAbstract
+class SolariumIndexer extends \Supra\Search\IndexerAbstract
 {
 	/**
 	 * @var \Solarium_Client
@@ -160,5 +160,18 @@ class IndexerService extends IndexerServiceAbstract
 				}
 			}
 		}
+	}
+
+	public function removeAllFromIndex()
+	{
+		$client = $this->getSolariumClient();
+		
+		$update = $client->createUpdate();
+		
+		$query = 'systemId:' . $this->getSystemId();
+		
+		$update->addDeleteQuery($query);
+		$update->addCommit();
+		$client->update($update);
 	}
 }
