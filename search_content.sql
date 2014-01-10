@@ -19,25 +19,28 @@
 -- Table structure for table `search_content`
 --
 
-DROP TABLE IF EXISTS `search_content`;
+DROP TABLE IF EXISTS `search_indexed_content`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `search_content` (
-  `contentId` int(11) NOT NULL AUTO_INCREMENT,
-  `localizationId` varchar(100) DEFAULT NULL,
-  `pageContent` text,
+CREATE TABLE `search_indexed_content` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `pageId` varchar(100) DEFAULT NULL,
-  `createDate` varchar(20) DEFAULT NULL,
-  `updateDate` varchar(20) DEFAULT NULL,
-  `localeId` varchar(45) DEFAULT NULL,
+  `localizationId` varchar(100) DEFAULT NULL,
+  `path` varchar(100) DEFAULT NULL,
+  `title` varchar(100) DEFAULT NULL,
+  `content` text,
+  `created` varchar(20) DEFAULT NULL,
+  `updated` varchar(20) DEFAULT NULL,
+  `locale` varchar(45) DEFAULT NULL,
   `uniqueId` varchar(100) DEFAULT NULL,
-  `pageWebPath` varchar(100) DEFAULT NULL,
   `entityClass` varchar(100) DEFAULT NULL,
-  `pageTitle` varchar(100) DEFAULT NULL,
-  `ancestorId` text,
-  PRIMARY KEY (`contentId`),
-  FULLTEXT KEY `ft1` (`pageContent`,`pageTitle`)
+  `ancestorIds` text,
+  PRIMARY KEY (`id`),
+  FULLTEXT KEY `ft1` (`content`,`title`)
 ) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+
+ALTER TABLE `search_indexed_content` 
+ADD UNIQUE INDEX `uniq` (`uniqueId` ASC);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 

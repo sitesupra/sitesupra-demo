@@ -21,9 +21,11 @@ class MysqlIndexer extends \Supra\Search\IndexerAbstract
 	 */
 	public function processItem(IndexerQueueItem $queueItem)
 	{
+		$self = $this;
+		
 		$writer = function ($document) use ($self) {
 			
-			$uniqueId =  $document->systemId . '-'
+			$uniqueId =  $self->getSystemId() . '-'
 								. $document->class . '-'
 								. $document->getLocalId();
 
@@ -56,7 +58,6 @@ class MysqlIndexer extends \Supra\Search\IndexerAbstract
 		};
 
 		try {
-			$self = $this;
 			$queueItem->writeIndexedDocuments($writer);
 			$queueItem->setStatus(IndexerQueueItemStatus::INDEXED);
 			
