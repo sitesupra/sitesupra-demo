@@ -21,15 +21,17 @@ class MysqlIndexer extends \Supra\Search\IndexerAbstract
 	 */
 	public function processItem(IndexerQueueItem $queueItem)
 	{
-		$self = $this;
+		$tableName = $this->getIndexedContentTableName();
+		$connection = $this->getConnection();
+		$systemId = $this->getSystemId();
 		
-		$writer = function ($document) use ($self) {
+		$writer = function ($document) use ($tableName, $connection, $systemId) {
 			
-			$uniqueId =  $self->getSystemId() . '-'
+			$uniqueId = $systemId . '-'
 								. $document->class . '-'
 								. $document->getLocalId();
 
-			$query = "INSERT INTO {$this->getIndexedContentTableName()} (localizationId, content,
+			$query = "INSERT INTO {$tableName} (localizationId, content,
 						locale, uniqueId, path, title, entityClass, 
 						created, updated, ancestorIds) 
 					VALUES (:localizationId, 
@@ -41,8 +43,7 @@ class MysqlIndexer extends \Supra\Search\IndexerAbstract
 					entityClass = VALUES(entityClass), updated = VALUES(updated),
 					ancestorIds = VALUES(ancestorIds)";
 			
-			$statement = $this->getConnection()
-					->prepare($query);
+			$statement = $connection->prepare($query);
 			
 			$statement->execute(array(
 				':localizationId' => $document->pageLocalizationId,
