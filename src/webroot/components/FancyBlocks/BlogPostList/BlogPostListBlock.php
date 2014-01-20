@@ -127,7 +127,9 @@ class BlogPostListBlock extends BlockController
 			$propertyMap = array();
 			
 			$propertyFinder = new Finder\BlockPropertyFinder($localizationFinder);
-			$propertyFinder->addFilterByComponent($this->getBlogPostBlockClass(), array(self::PROPERTY_CONTENT, self::PROPERTY_MEDIA));
+			$propertyFinder->addFilterByComponent($this->getBlogPostBlockClass(), 
+					array_merge(array(self::PROPERTY_CONTENT, self::PROPERTY_MEDIA), $this->getAdditionalPostProperties())
+			);
 
 			$propertyQb = $propertyFinder->getQueryBuilder();
 			$propertyQb->andWhere('l.id IN (:ids)')
@@ -264,10 +266,10 @@ class BlogPostListBlock extends BlockController
 					$length = $breakpoint;
 				}
 				
-				return rtrim(mb_substr($result, 0, $length)) . '...';
+				return new \Twig_Markup(rtrim(mb_substr($result, 0, $length)) . '...', 'UTF-8');
             }
 
-            return $result;
+            return new \Twig_Markup($result, 'UTF-8');
         }
 		
 		return null;
@@ -282,6 +284,15 @@ class BlogPostListBlock extends BlockController
 	protected function getBlogPostBlockClass()
 	{
 		return BlogPostBlock::CN();
+	}
+	
+	/**
+	 * Extend this function to add additional properties you want to be found by property finder
+	 * @return array
+	 */
+	protected function getAdditionalPostProperties()
+	{
+		return array();
 	}
 }
 

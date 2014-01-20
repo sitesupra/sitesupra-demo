@@ -84,7 +84,7 @@ class InlineMediaMarkup extends \Twig_Markup
 	
 	public function setHeight($height)
 	{
-		$this->height = (int) $height;
+		$this->forcedHeight = (int) $height;
 		return $this;
 	}
 	
@@ -230,7 +230,13 @@ class InlineMediaMarkup extends \Twig_Markup
 				$height = $size->getHeight();
 			}
 			
-			$src = $fs->getWebPath($image, $size);
+			if ($this->forcedWidth && $this->forcedHeight) {
+				$croppedImageVariantSize = $fs->createCroppedImageVariant($size, $this->forcedWidth, $this->forcedHeight);
+				$size = $image->findImageSize($croppedImageVariantSize);
+				$src = $fs->getWebPath($image, $size);
+			} else {
+				$src = $fs->getWebPath($image, $size);
+			}
 			
 			$tag->setAttribute('src', $src);
 
