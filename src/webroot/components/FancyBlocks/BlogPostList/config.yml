@@ -12,7 +12,7 @@
         groups:
           - Supra\FileStorage
           - Supra\Controller\Pages
-        context: [__blogListPage, __blogListTag]
+        context: [__blogListPage, __blogListTag, __blogArchivePeriod]
     properties:
       - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
           name: block_title

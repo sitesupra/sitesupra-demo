@@ -18,7 +18,8 @@ use Supra\Search\Exception\IndexerRuntimeException;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Search\SearchService;
 use Supra\Controller\Pages\Entity\BlockPropertyMetadata;
-use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
+//use Supra\Controller\Pages\Search\PageLocalizationSearchResultItem;
+use Supra\Search\Solarium\PageLocalizationSearchResultItem;
 use Supra\Controller\Pages\Entity\GroupLocalization;
 use Supra\Controller\Pages\Entity\GroupPage;
 use Supra\Controller\Pages\Entity\PageRevisionData;
@@ -251,38 +252,17 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 	/**
 	 * Does removal of the document..
-	 */
+	 *
 	protected function remove()
 	{
+		/*
 		// moved from CmsPageLocalizationIndexerQueueListener
 		if ( ! ObjectRepository::isSolariumConfigured($this)) {
 			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
 			return;
-		}
-
-		$findRequest = new PageLocalizationFindRequest();
-
-		$findRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
-		$findRequest->setPageLocalizationId($this->pageLocalizationId);
-
-		$searchService = new SearchService();
-
-		$resultSet = $searchService->processRequest($findRequest);
-
-		$items = $resultSet->getItems();
-
-		foreach ($items as $item) {
-
-			if ($item instanceof PageLocalizationSearchResultItem) {
-
-				if ($item->getPageLocalizationId() == $this->pageLocalizationId) {
-
-					$indexerService = new IndexerService();
-					$indexerService->removeFromIndex($item->getUniqueId());
-				}
-			}
-		}
-	}
+		}*
+		IndexerService::getAdapter()->remove($this->pageLocalizationId);
+	}*/
 
 	/**
 	 * @return array of IndexedDocument
@@ -290,8 +270,8 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	public function writeIndexedDocuments($solariumDocumentWriter)
 	{
 		if ($this->removal) {
-			$this->remove();
-
+			//$this->remove();
+			IndexerService::getInstance()->remove($this->pageLocalizationId);
 			return array();
 		}
 
@@ -367,6 +347,9 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 					$solariumDocument = $this->makeIndexedDocument($child);
 					$result[] = $solariumDocument;
+					
+					//\Log::error($solariumDocument->text_general);
+					
 					$solariumDocumentWriter($solariumDocument);
 				} else {
 					\Log::debug('LLL hit cache!!! ', self::makeMockId($child->getId(), $child->getRevisionId()));
@@ -420,7 +403,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$findRequest->setSchemaName($this->schemaName);
 		$findRequest->setPageLocalizationId($pageLocalizationId);
 
-		$searchService = new SearchService();
+		$searchService = SearchService::getInstance();
 
 		$resultSet = $searchService->processRequest($findRequest);
 
@@ -532,7 +515,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 			if ( ! ($blockProperty->getLocalization() instanceof TemplateLocalization) &&
 					in_array($blockProperty->getType(), $indexedEditableClasses)
 			) {
-				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);
+				$blockContents = $this->getIndexableContentFromBlockProperty($blockProperty);		
 				$pageContents[] = $indexedDocument->formatText($blockContents);
 			}
 		}
@@ -549,8 +532,17 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 
 	public function getIndexableContentFromBlockProperty(BlockProperty $blockProperty)
 	{
-		$tokenizer = new Markup\DefaultTokenizer($blockProperty->getValue());
-
+		if ($blockProperty->getEditable() instanceof \Supra\Editable\Html) {
+			$value = @unserialize($blockProperty->getValue());
+			if (is_array($value) && isset($value['html'])) {
+				$value = $value['html'];
+			}
+		} else {
+			$value = $blockProperty->getValue();
+		}
+		
+		$tokenizer = new Markup\DefaultTokenizer($value);
+		
 		$tokenizer->tokenize();
 
 		$result = array();

@@ -2,33 +2,34 @@
 
 namespace Project\Payment\Paypal\Action;
 
-use Supra\Console\Output\ArrayOutputWithData;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Action\CustomerReturnActionAbstraction;
-use Supra\Payment\Transaction\TransactionProvider;
-use Supra\Payment\Entity\Transaction\TransactionParameter;
-use Supra\Payment\Entity\Transaction\Transaction;
-use Supra\Payment\Entity\RecurringPayment\RecurringPayment;
 use Supra\Payment\Entity\Abstraction\PaymentEntity;
 use Supra\Payment\Entity\Order\Order;
 use Supra\Payment\Entity\Order\ShopOrder;
 use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Order\OrderStatus;
-use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\Transaction\TransactionStatus;
 use Supra\Payment\Order\RecurringOrderStatus;
-use Supra\Payment\PaymentEntityProvider;
 use Project\Payment\Paypal;
 use Supra\Payment\Provider\Event\CustomerReturnEventArgs;
 use Supra\Payment\RecurringPayment\RecurringPaymentStatus;
 use Supra\Remote\Client\RemoteCommandService;
-use SupraPortal\Entity\SiteShop\SiteShopOrder;
-use SupraPortal\SiteProvider;
-use Symfony\Component\Console\Input\ArrayInput;
 
+/**
+ * Class CustomerReturnAction
+ * @package Project\Payment\Paypal\Action
+ */
 class CustomerReturnAction extends CustomerReturnActionAbstraction
 {
+	/**
+	 *
+	 */
 	const REQUEST_KEY_TOKEN = 'token';
+
+	/**
+	 *
+	 */
 	const REQUEST_KEY_PAYER_ID = 'PayerId';
 
 	/**
@@ -43,6 +44,7 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	protected $token;
 
 	/**
+	 * @throws Paypal\Exception\RuntimeException
 	 * @return Order
 	 */
 	protected function getOrder()
@@ -62,6 +64,9 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		$this->order = $order;
 	}
 
+	/**
+	 * @throws Paypal\Exception\RuntimeException
+	 */
 	public function execute()
 	{
 		$request = $this->getRequest();
@@ -88,7 +93,8 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	}
 
 	/**
-	 * Locates and sets the $this->order coresponding to Paypal token value.
+	 * Locates and sets the $this->order for Paypal token value.
+	 * @throws Paypal\Exception\RuntimeException
 	 * @return Order
 	 */
 	private function fetchOrderByPaypalToken()
@@ -124,6 +130,9 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		return $order;
 	}
 
+	/**
+	 * @throws Paypal\Exception\RuntimeException
+	 */
 	protected function handlePaypalReturn()
 	{
 		$request = $this->getRequest();
@@ -145,6 +154,9 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		}
 	}
 
+	/**
+	 * @param ShopOrder $order
+	 */
 	protected function processShopOrder(ShopOrder $order)
 	{
 		$paymentProvider = $this->getPaymentProvider();
@@ -234,6 +246,9 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		$this->returnToPaymentInitiator($initiatorUrl, $returnQueryData);
 	}
 
+	/**
+	 * @param RecurringOrder $order
+	 */
 	protected function processRecurringOrder(RecurringOrder $order)
 	{
 		$paymentProvider = $this->getPaymentProvider();
@@ -324,7 +339,7 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 	{
 		$request = $this->getRequest();
 
-		$this->token = $request->geParameter(self::REQUEST_KEY_TOKEN);
+		$this->token = $request->getParameter(self::REQUEST_KEY_TOKEN);
 
 		if (empty($this->token)) {
 			throw new Paypal\Exception\RuntimeException('Paypal token not found in request parameters.');
@@ -341,6 +356,9 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		}
 	}
 
+	/**
+	 *
+	 */
 	protected function handlePaypalRecurringOrderCancel()
 	{
 		$orderProvider = $this->getOrderProvider();
@@ -364,6 +382,9 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 		$this->returnToPaymentInitiator($initiatorUrl, $returnQueryData);
 	}
 
+	/**
+	 *
+	 */
 	protected function handlePaypalShopOrderCancel()
 	{
 		$orderProvider = $this->getOrderProvider();

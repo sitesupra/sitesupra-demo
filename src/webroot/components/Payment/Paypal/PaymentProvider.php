@@ -351,8 +351,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 	{
 		return $this->accessSubject;
 	}
-	
-	
+
 
 	/**
 	 * @param string|null $urlForAuthString
@@ -367,14 +366,14 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$apiData['SIGNATURE'] = $this->apiSignature;
 
 		if ($this->getUseXPaypalAuthorizationHeader()) {
-			
-			if(empty($urlForAuthString)) {
+
+			if (empty($urlForAuthString)) {
 				$urlForAuthString = $this->getPaypalApiUrl();
 			}
-			
+
 			$apiData['___HEADERS']['X-PAYPAL-AUTHORIZATION'] = $this->getXPaypalAuthorizationHeaderValue($urlForAuthString);
-			
-			if($accessSubject = $this->getAccessSubject()) {
+
+			if ($accessSubject = $this->getAccessSubject()) {
 				$apiData['___HEADERS']['X-PAYPAL-SECURITY-SUBJECT'] = $accessSubject;
 				$apiData['SUBJECT'] = $accessSubject;
 			}
@@ -419,6 +418,14 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$apiData['RETURNURL'] = $this->returnHost . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_ACTION . '/' . self::CUSTOMER_RETURN_ACTION_RETURN . '/' . $urlSuffix;
 		$apiData['CANCELURL'] = $this->returnHost . $this->getBaseUrl() . '/' . self::CUSTOMER_RETURN_ACTION . '/' . self::CUSTOMER_RETURN_ACTION_CANCEL . '/' . $urlSuffix;
 		$apiData['NOTIFYURL'] = $this->getNotificationUrl() . '/' . $urlSuffix;
+
+		$extraOptionsForPaymentProvider = $order->getExtraOptionsForPaymentProvider();
+		if (isset($extraOptionsForPaymentProvider['solution_type'])) {
+			$apiData['SOLUTIONTYPE'] = $extraOptionsForPaymentProvider['solution_type'];
+		}
+		if (isset($extraOptionsForPaymentProvider['landing_page'])) {
+			$apiData['LANDINGPAGE'] = $extraOptionsForPaymentProvider['landing_page'];
+		}
 
 		$orderItems = $order->getItems();
 
@@ -551,6 +558,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$apiData['scope(0)'] = 'EXPRESS_CHECKOUT';
 		$apiData['scope(1)'] = 'ACCESS_BASIC_PERSONAL_DATA';
 		$apiData['scope(2)'] = 'REFUND';
+		$apiData['scope(3)'] = 'DIRECT_PAYMENT';
 		$apiData['callback'] = $returnUrl;
 
 		return $apiData;

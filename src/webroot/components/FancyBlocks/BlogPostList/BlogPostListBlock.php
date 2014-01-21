@@ -13,12 +13,14 @@ use Supra\Controller\Pages\Filter\EditableInlineMedia;
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Finder;
 use Supra\Controller\Pages\Application\PageApplicationCollection;
+use Supra\Controller\Pages\Markup;
 
 class BlogPostListBlock extends BlockController
 {	
+	const PROPERTY_MEDIA = 'media',
+		   PROPERTY_CONTENT = 'content';
 	
-	const PROPERTY_DESCRIPTION = 'description',
-	       PROPERTY_MEDIA = 'media';
+	const LIMIT_CONTENT_LENGTH = 200;
 	
 	const CONTEXT_PARAMETER_PAGE = '__blogListPage';
 	const CONTEXT_PARAMETER_TAG = '__blogListTag';
@@ -117,7 +119,6 @@ class BlogPostListBlock extends BlockController
 			$qb->orderBy('l.creationTime', 'DESC');
 			
             $query = $qb->getQuery();
-            $sql = $query->getSQL();
             
 			$localizations = $query->getResult();
 			
@@ -126,7 +127,9 @@ class BlogPostListBlock extends BlockController
 			$propertyMap = array();
 			
 			$propertyFinder = new Finder\BlockPropertyFinder($localizationFinder);
-			$propertyFinder->addFilterByComponent(BlogPostBlock::CN(), array(self::PROPERTY_DESCRIPTION, self::PROPERTY_MEDIA));
+			$propertyFinder->addFilterByComponent($this->getBlogPostBlockClass(), 
+					array_merge(array(self::PROPERTY_CONTENT, self::PROPERTY_MEDIA), $this->getAdditionalPostProperties())
+			);
 
 			$propertyQb = $propertyFinder->getQueryBuilder();
 			$propertyQb->andWhere('l.id IN (:ids)')
@@ -181,10 +184,21 @@ class BlogPostListBlock extends BlockController
 		$editable = $property->getEditable();
 		
 		if ($editable instanceof \Supra\Editable\InlineMedia) {
-			$filter = ($this->getRequest() instanceof PageRequestEdit ? new EditableInlineMedia : new InlineMediaFilter);
+			
+			if ($this->getRequest() instanceof PageRequestEdit) {
+				$filter = new EditableInlineMedia;
+			} else {
+				$filter = new InlineMediaFilter;
+			}
+			
 			$filter->property = $property;
 			
 			$editable->addFilter($filter);
+		}
+		
+		if ($editable instanceof \Supra\Editable\Html) {
+			$filteredValue = $editable->getFilteredValue();
+			return $this->getTruncatedHtmlContent($filteredValue, self::LIMIT_CONTENT_LENGTH);
 		}
 		
 		return $editable->getFilteredValue();
@@ -215,4 +229,70 @@ class BlogPostListBlock extends BlockController
 		
 		return $this->blogApplication;
 	}
+	
+	protected function getTruncatedHtmlContent($content, $length)
+	{
+		if (empty($content)) {
+			return null;
+		}
+		
+		if (is_array($content)) {
+			if ( ! isset($content['html'])) {
+				return null;
+			}
+			
+			$content = $content['html'];
+		}
+		
+		$tokenizer = new Markup\DefaultTokenizer($content);
+		$tokenizer->tokenize();
+				
+		$elements = $tokenizer->getElements();
+		
+		$result = null;
+		
+		foreach ($elements as $element) {
+			if ($element instanceof Markup\HtmlElement) {
+				$result .= $element->getContent();
+			}
+		}
+
+		if ( ! empty($result)) {
+
+			$result = strip_tags($result);
+			
+			if (mb_strlen($result) > $length) {
+				if (false !== ($breakpoint = mb_strpos($result, ' ', $length))) {
+					$length = $breakpoint;
+				}
+				
+				return new \Twig_Markup(rtrim(mb_substr($result, 0, $length)) . '...', 'UTF-8');
+            }
+
+            return new \Twig_Markup($result, 'UTF-8');
+        }
+		
+		return null;
+	}
+	
+	/**
+	 * Blog Post block class name getter
+	 * Value used in property finder, extracted in separate method so it could be extended
+	 * 
+	 * @return string
+	 */
+	protected function getBlogPostBlockClass()
+	{
+		return BlogPostBlock::CN();
+	}
+	
+	/**
+	 * Extend this function to add additional properties you want to be found by property finder
+	 * @return array
+	 */
+	protected function getAdditionalPostProperties()
+	{
+		return array();
+	}
 }
+

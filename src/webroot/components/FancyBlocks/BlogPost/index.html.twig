@@ -16,8 +16,10 @@
 	</div>
 	
 	<div class="meta-info">
+		{% block date %}
 		{% set date = supra.localization.getCreationTime() %}
-		<time datetime="{{ date.format('Y-m-d') }}">{{ date.format('F j, Y') }}</time>
+		<time datetime="{{ date.format('Y-m-d') }}">{{ date.format(supra.info.dateFormat) }}</time>
+		{% endblock date %}
 
 		{% set tags = supra.localization.getTagArray() %}
 		{% if tags|length and tags[0] %}

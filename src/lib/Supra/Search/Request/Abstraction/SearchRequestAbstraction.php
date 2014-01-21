@@ -40,6 +40,14 @@ abstract class SearchRequestAbstraction implements SearchRequestInterface
 	{
 		$this->resultStartRow = $resultStartRow;
 	}
+	
+	/**
+	 * @return integer
+	 */
+	public function getResultStartRow()
+	{
+		return $this->resultStartRow;
+	}
 
 	/**
 	 * Sets number of that will be returned from whole result.
@@ -48,6 +56,14 @@ abstract class SearchRequestAbstraction implements SearchRequestInterface
 	public function setResultMaxRows($resultMaxRows)
 	{
 		$this->resultMaxRows = $resultMaxRows;
+	}
+	
+	/**
+	 * @return integer
+	 */
+	public function getResultMaxRows()
+	{
+		return $this->resultMaxRows;
 	}
 
 	/**

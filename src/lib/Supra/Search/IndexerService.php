@@ -2,97 +2,39 @@
 
 namespace Supra\Search;
 
-use Solarium_Client;
-use Solarium_Exception;
-use Solarium_Document_ReadWrite;
-use Supra\Search\Entity\Abstraction\IndexerQueueItem;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Search\Solarium\Configuration;
-
-class IndexerService
+class IndexerService 
 {
-
 	/**
-	 * @var \Solarium_Client;
+	 * @var self
 	 */
-	private $solariumClient;
-
+	private static $instance;
+	
 	/**
-	 * System ID to be used for this project.
-	 * @var string
+	 * @var IndexerAbstract
 	 */
-	private $systemId;
-
+	protected $indexer;
+	
 	/**
-	 * @return string
+	 * @TODO: move to object repo
+	 * @return \Supra\Search\IndexerService
 	 */
-	public function getSystemId()
+	public static function getInstance()
 	{
-		if (is_null($this->systemId)) {
-			$info = ObjectRepository::getSystemInfo($this);
-			$this->systemId = $info->name;
-		}
-
-		return $this->systemId;
-	}
-
-	/**
-	 * Adds $queueItem to Solr.
-	 * @param IndexerQueueItem $queueItem 
-	 */
-	public function processItem(IndexerQueueItem $queueItem)
-	{
-		$solariumClient = $this->getSolariumClient($this);
-		
-		if ( ! $solariumClient instanceof \Solarium_Client) {
-			
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			\Log::debug($message);
-			return 0;
-		}
-
-		$documents = array();
-
-		try {
-			
-			$systemId = $this->getSystemId();
-			
-			$solariumDocumentWriter = function ($document) use ($solariumClient, $systemId) {
-				
-				$updateQuery = $solariumClient->createUpdate();
-
-				$document->systemId = $systemId;
-				$document->uniqueId = $document->systemId . '-'
-						. $document->class . '-'
-						. $document->getLocalId();
-
-				\Log::debug('INDEXING UNIQUE ID: ', $document->uniqueId);
-
-				$document->validate();
-
-				$updateQuery->addDocument($document);
-				
-				$updateQuery->addCommit();
-
-				$result = $solariumClient->update($updateQuery);
-
-				if ($result->getStatus() !== 0) {
-					throw new Exception\RuntimeException('Got bad status in update result: ' . $result->getStatus());
-				}
-			};
-			
-			$queueItem->writeIndexedDocuments($solariumDocumentWriter);
-			
-			$queueItem->setStatus(IndexerQueueItemStatus::INDEXED);
-		} catch (Exception\BadSchemaException $e) {
-			throw $e;
-		} catch (Exception\RuntimeException $e) {
-			$queueItem->setStatus(IndexerQueueItemStatus::FAILED);
+		if (self::$instance === null) {
+			self::$instance = new self();
 		}
 		
-		return count($documents);
+		return self::$instance;
 	}
-
+	
+	/**
+	 * @param IndexerAbstract $indexer
+	 */
+	public function setIndexer(IndexerAbstract $indexer)
+	{
+		$this->indexer = $indexer;
+	}
+	
 	/**
 	 * Takes all FRESH items from $queue and adds them to Solr.
 	 * @param IndexerQueue $queue 
@@ -107,7 +49,7 @@ class IndexerService
 
 			$queueItem = $queue->getNextItemForIndexing();
 
-			$documentCount = $documentCount + $this->processItem($queueItem);
+			$documentCount = $documentCount + $this->indexer->processItem($queueItem);
 //			$indexedQueueItems[] = $queueItem;
 
 			$queue->store($queueItem);
@@ -121,64 +63,22 @@ class IndexerService
 
 		return $documentCount;
 	}
-
-	public function getSolariumClient()
+	
+	public function remove($id)
 	{
-		if (is_null($this->solariumClient)) {
-			if ( ! ObjectRepository::isSolariumConfigured($this)) {
-				\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
-				$this->solariumClient = false;
-			} else {
-				$this->solariumClient = ObjectRepository::getSolariumClient($this);
-			}
-		}
-
-		return $this->solariumClient;
+		return $this->indexer->remove($id);
 	}
-
+	
+	public function removeAllFromIndex()
+	{
+		return $this->indexer->removeAllFromIndex();
+	}
+	
 	/**
-	 * Returns count of documents indexed for this system
-	 * @return integer
+	 * @return string
 	 */
-	public function getDocumentCount()
+	public function getSystemId()
 	{
-		$solariumClient = $this->getSolariumClient($this);
-		
-		if ( ! $solariumClient instanceof \Solarium_Client) {
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			\Log::debug($message);
-			return 0;
-		}
-		
-		$query = $solariumClient->createSelect();
-		$query->setQuery('systemId:' . $this->getSystemId());
-		$query->setRows(0);
-
-		$result = $solariumClient->select($query);
-
-		return $result->getNumFound();
+		return $this->indexer->getSystemId();
 	}
-
-	/**
-	 * @param string $uniqueId 
-	 */
-	public function removeFromIndex($uniqueId)
-	{
-		$solariumClient = $this->getSolariumClient($this);
-		
-		if ( ! $solariumClient instanceof \Solarium_Client) {
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			\Log::debug($message);
-			return;
-		}
-		
-		$query = $solariumClient->createUpdate();
-
-		$query->addDeleteById($uniqueId);
-
-		$query->addCommit();
-
-		$solariumClient->execute($query);
-	}
-
 }

@@ -100,15 +100,18 @@
 						texts[i].nodeValue = rot13(texts[i].nodeValue);
 					} 
 				}
-				
-				if (node.getAttribute('title').match(/^([a-z]+:)?[a-z0-9\.\-_]+@[a-z0-9_\-\.]+$/i)) {
-					node.setAttribute('title', rot13(node.getAttribute('title')));
-				}
 			}
 			
 			// Href
 			if (attr.indexOf('href') !== -1) {
 				node.setAttribute('href', rot13(node.getAttribute('href')));
+			}
+			
+			// Title
+			if (attr.indexOf('title') !== -1 || attr.indexOf('href') !== -1 || attr.indexOf('text') !== -1) {
+				if (node.getAttribute('title').match(/^([a-z]+:)?[a-z0-9\.\-_]+@[a-z0-9_\-\.]+$/i)) {
+					node.setAttribute('title', rot13(node.getAttribute('title')));
+				}
 			}
 			
 		} else if (node && node.length) {

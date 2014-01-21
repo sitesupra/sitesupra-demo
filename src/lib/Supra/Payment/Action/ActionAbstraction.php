@@ -3,6 +3,7 @@
 namespace Supra\Payment\Action;
 
 use Supra\Controller\ControllerAbstraction;
+use Supra\Payment\Abstraction\PaymentEntityProviderAbstraction;
 use Supra\Payment\Provider\PaymentProviderAbstraction;
 use Supra\Payment\Entity\Order\Order;
 use Supra\Payment\Transaction\TransactionProvider;
@@ -13,6 +14,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Order\OrderProvider;
 use Supra\Payment\PaymentEntityProvider;
 use Supra\Payment\PaymentProviderUriRouter;
+use Supra\Request\HttpRequest;
 use Supra\Response\HttpResponse;
 
 abstract class ActionAbstraction extends ControllerAbstraction
@@ -144,7 +146,7 @@ abstract class ActionAbstraction extends ControllerAbstraction
 	}
 
 	/**
-	 * @return PaymentEntity
+	 * @return PaymentEntityProviderAbstraction
 	 */
 	public function getPaymentEntityProvider()
 	{
@@ -175,7 +177,7 @@ abstract class ActionAbstraction extends ControllerAbstraction
 			throw new Exception\BadRequestException('POST request method is required for the action.');
 		}
 
-		$this->requestMethod = Request\HttpRequest::METHOD_POST;
+		$this->requestMethod = HttpRequest::METHOD_POST;
 	}
 
 	public function assertGetRequest()
@@ -184,7 +186,7 @@ abstract class ActionAbstraction extends ControllerAbstraction
 			throw new Exception\BadRequestException('GET request method is required for the action.');
 		}
 
-		$this->requestMethod = Request\HttpRequest::METHOD_GET;
+		$this->requestMethod = HttpRequest::METHOD_GET;
 	}
 
 	/**

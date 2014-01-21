@@ -71,7 +71,13 @@ class CurlHttpAdapter implements RemoteHttpAdapterInterface
 		$requestParams = $request->getRequestParameters();
 		if ( ! empty($requestParams)) {
 			
-			$parameterString = http_build_query($requestParams);
+			if (is_array($requestParams)) {
+				$parameterString = http_build_query($requestParams);
+			} else {
+				$parameterString = $requestParams;
+			}
+			
+			
 			if ($isPost) {
 				curl_setopt($handle, CURLOPT_POSTFIELDS, $parameterString);
 			} else {

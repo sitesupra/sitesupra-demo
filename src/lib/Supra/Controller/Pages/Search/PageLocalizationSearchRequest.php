@@ -9,6 +9,7 @@ use Supra\Locale\LocaleInterface;
 use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\Request\Abstraction\SearchRequestAbstraction;
 use Supra\Search\Result\DefaultSearchResultSet;
+use Supra\Search\Solarium\PageLocalizationSearchResultItem;
 
 class PageLocalizationSearchRequest extends SearchRequestAbstraction
 {
@@ -40,6 +41,15 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	{
 		$this->locale = $locale;
 	}
+	
+	/**
+	 * 
+	 * @return LocaleInterface
+	 */
+	public function getLocale()
+	{
+		return $this->locale;
+	}
 
 	/**
 	 * @param string $schemaName 
@@ -48,13 +58,21 @@ class PageLocalizationSearchRequest extends SearchRequestAbstraction
 	{
 		$this->schemaName = $schemaName;
 	}
-
+	
 	/**
 	 * @param string $text 
 	 */
 	public function setText($text)
 	{
 		$this->text = $text;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getText()
+	{
+		return $this->text;
 	}
 
 	/**

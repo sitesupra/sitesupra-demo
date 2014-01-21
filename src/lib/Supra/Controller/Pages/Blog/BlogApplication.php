@@ -102,8 +102,8 @@ class BlogApplication implements PageApplicationInterface
             case 'byYear':
 				$queryBuilder = clone($queryBuilder);
 
-				$queryBuilder->select('p.creationYear AS year, p.creationMonth AS month, COUNT(p.id) AS childrenCount')
-                        ->addSelect('p.creationTime as HIDDEN ct')
+				$queryBuilder->select('l.creationYear AS year, l.creationMonth AS month, COUNT(l.id) AS childrenCount')
+                        ->addSelect('l.creationTime as HIDDEN ct')
 						->groupBy('year, month')
 						->orderBy('ct', 'DESC');
 
@@ -289,7 +289,7 @@ class BlogApplication implements PageApplicationInterface
             $query = $this->em->createQuery("SELECT t.name AS name, count(t.id) as total FROM {$tagCn} t WHERE t.localization IN (:ids) GROUP BY t.name ORDER BY total DESC")
 					->setParameter('ids', $localizationIds);
 					
-            if($limit) {
+            if ($limit) {
                 $query->setMaxResults($limit);
             }
             

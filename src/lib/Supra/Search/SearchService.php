@@ -2,78 +2,64 @@
 
 namespace Supra\Search;
 
-use Solarium_Client;
-use Solarium_Exception;
-use Solarium_Document_ReadWrite;
-use Supra\Search\Entity\Abstraction\IndexerQueueItem;
-use Supra\ObjectRepository\ObjectRepository;
-use Request\SearchRequestAbstraction;
-use Supra\Log\Writer\WriterAbstraction;
-use \Solarium_Result_Select;
-use Supra\Search\Solarium\Configuration;
-
 class SearchService
 {
 	/**
-	 * @var WriterAbstraction
+	 * @var self
 	 */
-	private $log;
+	private static $instance;
 	
 	/**
-	 * System ID to be used for this project.
-	 * @var string
+	 * @var SearcherAbstract
 	 */
-	private $systemId;
-
-	function __construct()
-	{
-		$this->log = ObjectRepository::getLogger($this);
-	}
+	protected $searcher;
 	
 	/**
-	 * @return string
+	 * @TODO: move to object repo
+	 * @return \Supra\Search\SearchService
 	 */
-	public function getSystemId()
+	public static function getInstance()
 	{
-		if (is_null($this->systemId)) {
-			$info = ObjectRepository::getSystemInfo($this);
-			$this->systemId = $info->name;
+		if (self::$instance === null) {
+			self::$instance = new self();
 		}
 		
-		return $this->systemId;
+		return self::$instance;
 	}
-
+	
+	/**
+	 * @param \Supra\Search\SearcherAbstract $searcher
+	 */
+	public function setSearcher(SearcherAbstract $searcher)
+	{
+		$this->searcher = $searcher;
+	}
+	
+	/**
+	 * @return \Supra\Search\SearcherAbstract
+	 */
+	public function getSearcher()
+	{
+		return $this->searcher;
+	}
+	
 	/**
 	 * @param Request\SearchRequestInterface $request
 	 * @return Result\SearchResultSetInterface
 	 */
 	public function processRequest(Request\SearchRequestInterface $request)
 	{
-		if ( ! ObjectRepository::isSolariumConfigured($this)) {
-			\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
-			return new Result\DefaultSearchResultSet();
-		}
-
-		$solariumClient = ObjectRepository::getSolariumClient($this);
-		$selectQuery = $solariumClient->createSelect();
-
-		$request->addSimpleFilter('systemId', $this->getSystemId());
-
-		$request->applyParametersToSelectQuery($selectQuery);
-
-		$this->log->debug('SOLARIUM QUERY: ', $selectQuery->getQuery());
-		
-		$filters = array();
-		foreach($selectQuery->getFilterQueries() as $filterQuery) {
-			$filters[] = $filterQuery->getQuery();
-		}
-		$this->log->debug('SOLARIUM QUERY FILTER: ', join(' AND ', $filters));
-
-		$selectResults = $solariumClient->select($selectQuery);
-
-		$requestResults = $request->processResults($selectResults);
-		
-		return $requestResults;
+		return $this->searcher->processRequest($request);
 	}
-
+	
+	/**
+	 * @param string $text
+	 * @param int $maxRows
+	 * @param int $startRow
+	 * @return Result\DefaultSearchResultSet
+	 */
+	public function doSearch($text, $maxRows, $startRow)
+	{
+		return $this->searcher->doSearch($text, $maxRows, $startRow);
+	}
 }

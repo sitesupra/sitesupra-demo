@@ -8,23 +8,23 @@
 	</div></h3>
 	{% endif %}
 	
-	<ul class="content clearfix {{ heading_class }}" {% if supra.cmsRequest %}data-refresh-event="menu"{% endif %}>
+	<ul class="blog-archive-content clearfix {{ heading_class }}" data-refresh-event="blog-archive">
 		{% for item in archive %}
             {% if loop.index < 12 %}
-                <li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="?period={{ item.title }}">{{ item.title }}</a></li>
+                <li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="{{ blogPath }}?period={{ item.title }}">{{ item.title }}</a></li>
             {% endif %}
 		{% endfor %}
 	</ul>
 	
-	<div class="selector" data-toggle="selectors" data-default-behaviour="true">
-		<a>{{ supraBlock.property('view_all_title') | default(currentPeriod) | default('&nbsp;') | raw }}</a>
-		<div class="selector-dropdown"><div class="selector-inner">
-			<ul>
-				{% for item in archive %}
-					<li {% if currentPeriod == item.title %}class="active"{% endif %}><a href="?period={{ item.title }}">{{ item.title }}</a></li>
-				{% endfor %}
-			</ul>
-		</div></div>
+	<div tabindex="0" class="select" data-toggle="dropdown" data-prevent-default="false" data-require="plugins/widgets/dropdown">
+		<a class="select-item">
+			{{ supraBlock.property('view_all_title') | default(currentPeriod) | default('&nbsp;') | raw }}
+		</a>
+		<div class="select-popup hidden"><ul class="select-list">
+			{% for item in archive %}
+				<li class="select-list-item {% if currentPeriod == item.title %}select-list-item-active{% endif %}" data="{{ blogPath }}?period={{ item.title }}"><a href="{{ blogPath }}?period={{ item.title }}">{{ item.title }}</a></li>
+			{% endfor %}
+		</ul></div>
 	</div>
 	
 </div>
