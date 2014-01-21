@@ -173,8 +173,9 @@ class ImageResizer extends ImageProcessor
 		$dimensions['sourceTop'] = null;
 		$dimensions['sourceWidth'] = null;
 		$dimensions['sourceHeight'] = null;
-		$dimensions['destWidth'] = round($newDimensions['width']);
-		$dimensions['destHeight'] = round($newDimensions['height']);
+		
+		$dimensions['destWidth'] = max(round($newDimensions['width']), 1);
+		$dimensions['destHeight'] = max(round($newDimensions['height']), 1);
 
 		// get ratios 
 		$wRatio = max($originalWidth / $newDimensions['width'], 1);
