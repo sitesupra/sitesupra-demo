@@ -82,6 +82,10 @@ YUI.add('supra.input-media-inline', function (Y) {
 		'fixedMaxCropWidth': {
 			value: true
 		},
+		// Max crop height is fixed to container height and container can't increase 
+		'fixedMaxCropHeight': {
+			value: false
+		},
 		
 		// Resize image crop to smaller size on zoom if needed
 		'allowZoomResize': {
@@ -203,6 +207,7 @@ YUI.add('supra.input-media-inline', function (Y) {
 				'allowRemoveImage': false,
 				'autoClose': this.get('autoClose'),
 				'fixedMaxCropWidth': this.get('fixedMaxCropWidth'),
+				'fixedMaxCropHeight': this.get('fixedMaxCropHeight'),
 				'allowZoomResize': this.get('allowZoomResize'),
 				'allowCropZooming': this.get('allowCropZooming')
 			});
@@ -488,6 +493,11 @@ YUI.add('supra.input-media-inline', function (Y) {
 					} else {
 						input.set('maxWidth', 0);
 					}
+					if (this.get('fixedMaxCropHeight') && node) {
+						input.set('maxHeight', node.get('offsetHeight'));
+					} else {
+						input.set('maxHeight', 0);
+					}
 				}
 			}
 			return node;
@@ -511,6 +521,11 @@ YUI.add('supra.input-media-inline', function (Y) {
 							this.widgets.input_video.set('maxWidth', this.get('targetNode').get('offsetWidth'));
 						} else {
 							this.widgets.input_video.set('maxWidth', 0);
+						}
+						if (this.get('fixedMaxCropHeight')) {
+							this.widgets.input_video.set('maxHeight', this.get('targetNode').get('offsetHeight'));
+						} else {
+							this.widgets.input_video.set('maxHeight', 0);
 						}
 						
 						state = this.widgets.input_video.startEditing();

@@ -38821,7 +38821,11 @@ YUI.add('supra.datatype-color', function(Y) {
 		// Max crop width is fixed and container can't increase in size
 		"fixedMaxCropWidth": {
 			value: true
-		}
+		},
+		// Max crop height is fixed and container can't increase in size
+		"fixedMaxCropHeight": {
+			value: false
+		},
 	};
 	
 	Input.HTML_PARSER = {};
@@ -38913,6 +38917,7 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 			
 			imageResizer.set("maxCropWidth", this.get('fixedMaxCropWidth') ? Math.min(size.width, this._getContainerWidth()) : 0);
+			imageResizer.set("maxCropHeight", this.get('fixedMaxCropHeight') ? Math.min(size.height, this._getContainerHeight()) : 0);
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("minImageHeight", 32);
@@ -38942,6 +38947,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 */
 		insertImage: function (data) {
 			var container_width = this._getContainerWidth(),
+				container_height = this._getContainerHeight(),
 				width  = data.image.sizes.original.width,
 				height = data.image.sizes.original.height,
 				ratio  = 0;
@@ -38949,11 +38955,19 @@ YUI.add('supra.datatype-color', function(Y) {
 			if (!this.get('fixedMaxCropWidth') && container_width < 100) {
 				container_width = 100;
 			}
+			if (!this.get('fixedMaxCropHeight') && container_height < 100) {
+				container_height = 100;
+			}
 			
 			if (container_width && width > container_width) {
 				ratio = width / height;
 				width = container_width;
 				height = Math.round(width / ratio);
+			}
+			if (container_height && height > container_height) {
+				ratio = width / height;
+				height = container_height;
+				width = Math.round(height * ratio);
 			}
 			
 			this.set("value", {
@@ -39111,6 +39125,10 @@ YUI.add('supra.datatype-color', function(Y) {
 					value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
 				}
 				
+				if (this.get('fixedMaxCropHeight')) {
+					value.crop_height = Math.min(value.crop_height, this._getContainerHeight());
+				}
+				
 				if (!container.hasClass("supra-image")) {
 					var doc = node.getDOMNode().ownerDocument;
 					container = Y.Node(doc.createElement("span"));
@@ -39174,8 +39192,31 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 			
 			return container.get("offsetWidth");
+		},
+				
+		/**
+		 * Returns container node height / max crop height
+		 * 
+		 * @private
+		 */
+		_getContainerHeight: function () {
+			var node = this.get("targetNode"),
+				container = null,
+				height = 0;
+			
+			if (!node) return 0;
+			
+			container = node.ancestor();
+			if (!container) return 0;
+			
+			// Find container height to calculate max possible height
+			while (container.test('.supra-image, .supra-image-inner')) {
+				container = container.ancestor();
+			}
+			
+			return container.get("offsetHeight");
 		}
-		
+
 	});
 	
 	Supra.Input.InlineImage = Input;
@@ -40530,6 +40571,10 @@ YUI.add('supra.datatype-color', function(Y) {
 		'fixedMaxCropWidth': {
 			value: true
 		},
+		// Max crop height is fixed to container height and container can't increase 
+		'fixedMaxCropHeight': {
+			value: false
+		},
 		
 		// Resize image crop to smaller size on zoom if needed
 		'allowZoomResize': {
@@ -40651,6 +40696,7 @@ YUI.add('supra.datatype-color', function(Y) {
 				'allowRemoveImage': false,
 				'autoClose': this.get('autoClose'),
 				'fixedMaxCropWidth': this.get('fixedMaxCropWidth'),
+				'fixedMaxCropHeight': this.get('fixedMaxCropHeight'),
 				'allowZoomResize': this.get('allowZoomResize'),
 				'allowCropZooming': this.get('allowCropZooming')
 			});
@@ -40936,6 +40982,11 @@ YUI.add('supra.datatype-color', function(Y) {
 					} else {
 						input.set('maxWidth', 0);
 					}
+					if (this.get('fixedMaxCropHeight') && node) {
+						input.set('maxHeight', node.get('offsetHeight'));
+					} else {
+						input.set('maxHeight', 0);
+					}
 				}
 			}
 			return node;
@@ -40959,6 +41010,11 @@ YUI.add('supra.datatype-color', function(Y) {
 							this.widgets.input_video.set('maxWidth', this.get('targetNode').get('offsetWidth'));
 						} else {
 							this.widgets.input_video.set('maxWidth', 0);
+						}
+						if (this.get('fixedMaxCropHeight')) {
+							this.widgets.input_video.set('maxHeight', this.get('targetNode').get('offsetHeight'));
+						} else {
+							this.widgets.input_video.set('maxHeight', 0);
 						}
 						
 						state = this.widgets.input_video.startEditing();

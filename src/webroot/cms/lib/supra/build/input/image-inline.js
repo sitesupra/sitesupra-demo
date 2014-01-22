@@ -43,7 +43,11 @@ YUI.add('supra.input-image-inline', function (Y) {
 		// Max crop width is fixed and container can't increase in size
 		"fixedMaxCropWidth": {
 			value: true
-		}
+		},
+		// Max crop height is fixed and container can't increase in size
+		"fixedMaxCropHeight": {
+			value: false
+		},
 	};
 	
 	Input.HTML_PARSER = {};
@@ -135,6 +139,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 			}
 			
 			imageResizer.set("maxCropWidth", this.get('fixedMaxCropWidth') ? Math.min(size.width, this._getContainerWidth()) : 0);
+			imageResizer.set("maxCropHeight", this.get('fixedMaxCropHeight') ? Math.min(size.height, this._getContainerHeight()) : 0);
 			imageResizer.set("maxImageHeight", size.height);
 			imageResizer.set("maxImageWidth", size.width);
 			imageResizer.set("minImageHeight", 32);
@@ -164,6 +169,7 @@ YUI.add('supra.input-image-inline', function (Y) {
 		 */
 		insertImage: function (data) {
 			var container_width = this._getContainerWidth(),
+				container_height = this._getContainerHeight(),
 				width  = data.image.sizes.original.width,
 				height = data.image.sizes.original.height,
 				ratio  = 0;
@@ -171,11 +177,19 @@ YUI.add('supra.input-image-inline', function (Y) {
 			if (!this.get('fixedMaxCropWidth') && container_width < 100) {
 				container_width = 100;
 			}
+			if (!this.get('fixedMaxCropHeight') && container_height < 100) {
+				container_height = 100;
+			}
 			
 			if (container_width && width > container_width) {
 				ratio = width / height;
 				width = container_width;
 				height = Math.round(width / ratio);
+			}
+			if (container_height && height > container_height) {
+				ratio = width / height;
+				height = container_height;
+				width = Math.round(height * ratio);
 			}
 			
 			this.set("value", {
@@ -333,6 +347,10 @@ YUI.add('supra.input-image-inline', function (Y) {
 					value.crop_width = Math.min(value.crop_width, this._getContainerWidth());
 				}
 				
+				if (this.get('fixedMaxCropHeight')) {
+					value.crop_height = Math.min(value.crop_height, this._getContainerHeight());
+				}
+				
 				if (!container.hasClass("supra-image")) {
 					var doc = node.getDOMNode().ownerDocument;
 					container = Y.Node(doc.createElement("span"));
@@ -396,8 +414,31 @@ YUI.add('supra.input-image-inline', function (Y) {
 			}
 			
 			return container.get("offsetWidth");
+		},
+				
+		/**
+		 * Returns container node height / max crop height
+		 * 
+		 * @private
+		 */
+		_getContainerHeight: function () {
+			var node = this.get("targetNode"),
+				container = null,
+				height = 0;
+			
+			if (!node) return 0;
+			
+			container = node.ancestor();
+			if (!container) return 0;
+			
+			// Find container height to calculate max possible height
+			while (container.test('.supra-image, .supra-image-inner')) {
+				container = container.ancestor();
+			}
+			
+			return container.get("offsetHeight");
 		}
-		
+
 	});
 	
 	Supra.Input.InlineImage = Input;
