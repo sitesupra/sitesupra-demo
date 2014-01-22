@@ -184,13 +184,8 @@ class BlogPostListBlock extends BlockController
 		$editable = $property->getEditable();
 		
 		if ($editable instanceof \Supra\Editable\InlineMedia) {
-			
-			if ($this->getRequest() instanceof PageRequestEdit) {
-				$filter = new EditableInlineMedia;
-			} else {
-				$filter = new InlineMediaFilter;
-			}
-			
+
+			$filter = new InlineMediaFilter;
 			$filter->property = $property;
 			
 			$editable->addFilter($filter);
