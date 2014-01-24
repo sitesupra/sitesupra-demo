@@ -128,6 +128,10 @@ class BlogApplication implements PageApplicationInterface
 					$group = new Entity\TemporaryGroupPage();
 					$group->setTitle($yearMonthTitle);
 					$group->setNumberChildren($numberChildren);
+					
+					$groupDate = \DateTime::createFromFormat('U', mktime(0,0,0, $month, 1, $year));
+					
+					$group->setGroupDate($groupDate);
 
 					$id = $this->applicationLocalization->getId()
 							. '_' . $yearMonth;
