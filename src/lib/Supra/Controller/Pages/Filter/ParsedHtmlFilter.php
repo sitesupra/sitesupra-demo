@@ -233,9 +233,12 @@ class ParsedHtmlFilter implements FilterInterface
 			if ( ! empty($title)) {
 				$tag->setAttribute('title', $title);
 			}
-			
+					
 			$alternativeText = trim($imageData->getAlternativeText());
 			$tag->setAttribute('alt', ( ! empty($alternativeText) ? $alternativeText : ''));
+						
+			$tag->setAttribute('rel', 'lightbox');
+			$tag->setAttribute('data-fancybox-href', $fs->getWebPath($image));
 			
 			$html = $tag->toHtml();
 		}
