@@ -20,6 +20,11 @@ class TemporaryGroupPage extends GroupPage
 	private $numberChildren;
 
 	/**
+	 * @var \DateTime
+	 */
+	private $date;
+	
+	/**
 	 * @return array
 	 */
 	public function getChildren()
@@ -53,5 +58,21 @@ class TemporaryGroupPage extends GroupPage
 	public function setId($id)
 	{
 		$this->id = $id;
+	}
+	
+	/**
+	 * @param \DateTime $date
+	 */
+	public function setGroupDate(\DateTime $date)
+	{
+		$this->date = $date;
+	}
+	
+	/**
+	 * @return \DateTime | null
+	 */
+	public function getGroupDate()
+	{
+		return $this->date;
 	}
 }
