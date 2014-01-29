@@ -87,29 +87,31 @@ class BlogPostListBlock extends BlockController
 					->setParameter('tagName', $tag);
 		}
 		
-		$postsCount = $localizationFinder->getTotalCount($qb, 'l.id');
-		$postsPerPage = $this->getPropertyValue('posts_per_page');
+		$selectedPeriod = $context->getValue(self::CONTEXT_PARAMETER_PERIOD, null);
+		if ( ! empty($selectedPeriod)) {
+
+			$selectedMonth = \DateTime::createFromFormat('!F Y', $selectedPeriod);
+			
+			if ($selectedMonth instanceof \DateTime) {
+				$nextMonth = clone $selectedMonth;
+				$nextMonth->modify('+1 month');
+				 
+				$qb->andWhere('l.creationTime >= :start AND l.creationTime <= :end')
+						->setParameter('start', $selectedMonth)
+						->setParameter('end', $nextMonth);
+				
+				//
+				$response->assign('period', $selectedPeriod);
+			}
+		}
 		
+		$postsCount = $localizationFinder->getTotalCount($qb, 'l.id');
 		$pageIndex = $context->getValue(self::CONTEXT_PARAMETER_PAGE, 0);
-        $selectedPeriod = $context->getValue(self::CONTEXT_PARAMETER_PERIOD, null);
+		$postsPerPage = $this->getPropertyValue('posts_per_page');
 		
 		$postData = array();
 		
 		if ($postsCount > 0) {
-            
-            if ($selectedPeriod) {
-                $thisMonth = new \DateTime();
-                $timeStamp = strtotime($selectedPeriod);
-                if ($timeStamp) {
-                    $thisMonth->setTimestamp($timeStamp);
-                    $nextMonth = clone $thisMonth;
-                    $nextMonth->modify('+1 month');
-                    $qb->andWhere('l.creationTime >= :monthStart')
-                            ->andWhere('l.creationTime <= :monthEnd')
-                            ->setParameter('monthStart', $thisMonth)
-                            ->setParameter('monthEnd', $nextMonth);
-                }
-            }
             
 			$offset = $postsPerPage * $pageIndex;
 			
