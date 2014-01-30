@@ -451,7 +451,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		getNodeTagName: function (node) {
 			var tagName = (node instanceof Y.Node ? node.get('tagName') : node.tagName);
-			if (tagName != 'SPAN') return [tagName];
+			if (tagName != 'SPAN') return [tagName.toUpperCase()];
 			
 			//Convert style attribute into B, EM, U, S
 			var style = node.getAttribute('style'),
@@ -460,7 +460,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			
 			for(var i=0,ii=styleToTag.length; i<ii; i++) {
 				if (styleToTag[i][1].test(style)) {
-					tagNames.push(styleToTag[i][0]);
+					tagNames.push(styleToTag[i][0].toUpperCase());
 				}
 			}
 			

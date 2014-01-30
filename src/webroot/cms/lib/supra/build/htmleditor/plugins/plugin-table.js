@@ -687,9 +687,12 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 		 * On node change check if settings form needs to be hidden
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement('img,td,th,table');
+			var element = this.htmleditor.getSelectedElement('img,svg,td,th,table'),
+				button = htmleditor.get("toolbar").getButton(HTMLEDITOR_BUTTON),
+				allowEditing = this.htmleditor.editingAllowed,
+				isSpecial = element ? Y.Node(element).test('img,svg') : false;
 			
-			if (element && !Y.Node(element).test('img')) {
+			if (element && !isSpecial) {
 				var element = new Y.Node(element),
 					table = element.closest('table');
 				
@@ -706,6 +709,12 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 				this.focusTable(null);
 				this.hideSettingsForm();
 				this.hideToolbar();
+			}
+						
+			if (isSpecial) {
+				button.set('disabled', true);
+			} else {
+				button.set('disabled', !allowEditing);
 			}
 		},
 		
@@ -849,7 +858,7 @@ YUI().add('supra.htmleditor-plugin-table', function (Y) {
 			// On select-all key selec only cell content
 			htmleditor.on('keyDown', Y.bind(this._onSelectAllKey, this));
 			
-			//When image looses focus hide settings form
+			//When table looses focus hide settings form
 			htmleditor.on('nodeChange', this.onNodeChange, this);
 		},
 		

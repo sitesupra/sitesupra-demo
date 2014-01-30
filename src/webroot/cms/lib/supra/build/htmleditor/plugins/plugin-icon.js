@@ -2,7 +2,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
+		
+		/* Classname used for wrapper */
+		wrapperClassName: 'supra-icon'
 	};
 	
 	var Manager = Supra.Manager;
@@ -119,8 +122,11 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			if (this.selected_icon) {
 				this.stopEditIcon();
 				
-				var ancestor = this.getIconWrapperNode(this.selected_icon);
-				ancestor.removeClass("supra-icon-selected");
+				var ancestor = this.getIconWrapperNode(this.selected_icon),
+					classname = this.configuration.wrapperClassName;
+				
+				ancestor.removeClass(classname + "-selected");
+
 				
 				this.selected_icon = null;
 				this.selected_icon_id = null;
@@ -186,10 +192,11 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			}
 			
 			var image = current ? this.selected_icon : this.htmleditor.one('#' + id),
-				container = image ? image.ancestor() : null;
+				container = image ? image.ancestor() : null,
+				classname = this.configuration.wrapperClassName;
 			
 			if (container) {
-				if (container.test(".supra-icon")) {
+				if (container.test("." + classname)) {
 					container.remove();
 				} else {
 					image.remove();
@@ -303,12 +310,13 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 * @return Image wrapper node
 		 */
 		getIconWrapperNode: function (icon) {
-			var ancestor = icon.ancestor();
+			var ancestor = icon.ancestor(),
+				classname = this.configuration.wrapperClassName;
 			
 			if (ancestor) {
-				if (!ancestor.test("span.supra-icon")) {
+				if (!ancestor.test("span." + classname)) {
 					ancestor = ancestor.ancestor();
-					if (ancestor && !ancestor.test("span.supra-icon")) {
+					if (ancestor && !ancestor.test("span." + classname)) {
 						ancestor = null;
 					}
 				}
@@ -317,7 +325,7 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			if (!ancestor) {
 				//Wrap image in <span class="supra-icon">
 				ancestor = Y.Node(this.htmleditor.get("doc").createElement("SPAN"));
-				ancestor.addClass("supra-icon");
+				ancestor.addClass(classname);
 				ancestor.setAttribute("contenteditable", false);
 				ancestor.setAttribute("unselectable", "on");
 				
@@ -408,8 +416,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			this.selected_icon = target;
 			this.selected_icon_id = this.selected_icon.getAttribute("id");
 			
-			var ancestor = this.getIconWrapperNode(this.selected_icon);
-				ancestor.addClass("supra-icon-selected");
+			var classname = this.configuration.wrapperClassName,
+				ancestor = this.getIconWrapperNode(this.selected_icon);
+			
+			ancestor.addClass(classname + "-selected");
 			
 			this.silent = true;			
 			this.settings_form.resetValues()
@@ -480,7 +490,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 				
 				//Find content width
 				ancestor = node.ancestor();
-				if (ancestor.test(".supra-icon")) ancestor = ancestor.ancestor();
+				if (ancestor.test("." + this.configuration.wrapperClassName)) {
+					ancestor = ancestor.ancestor();
+				}
+				
 				max_size = Math.max(min_size, ancestor.get("offsetWidth") || 220);
 				ratio = data.width / data.height;
 				
@@ -583,9 +596,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 					
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID(),
-						html = icon.toHTML({'id': uid}, true);
+						html = icon.toHTML({'id': uid}, true),
+						classname = this.configuration.wrapperClassName;
 					
-					htmleditor.replaceSelection('<span class="supra-icon' + (icon.align ? ' align-' + icon.align : '') + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + html + '</span>');
+					htmleditor.replaceSelection('<span class="' + classname + (icon.align ? ' align-' + icon.align : '') + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + html + '</span>');
 					htmleditor.setData(uid, icon);
 					
 					if (!icon.isDataComplete()) {
@@ -666,8 +680,8 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 				"crop_height": size_height
 			});
 			
-			img = Y.Node.create('<span class="supra-icon align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
-			
+			img = Y.Node.create('<span class="' + this.configuration.wrapperClassName + ' align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
+
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
 				target.insert(img, "before");
@@ -687,13 +701,21 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 * @private
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement("svg"),
-				container = this.htmleditor.get('srcNode');
+ 			var element = this.htmleditor.getSelectedElement("svg"),
+				container = this.htmleditor.get('srcNode'),
+				button = htmleditor.get("toolbar").getButton("inserticon");
+				allowEditing = this.htmleditor.editingAllowed;
+ 			
+			if (allowEditing && element && Y.Node(element).closest(container)) {
+ 				if (!this.showIconSettings(Y.Node(element))) {
+ 					this.settingsFormApply();
+ 				}
+ 			}
 			
-			if (element && Y.Node(element).closest(container)) {
-				if (!this.showIconSettings(Y.Node(element))) {
-					this.settingsFormApply();
-				}
+			if (!allowEditing || this.htmleditor.getSelectedElement("svg, img")) {
+				button.set('disabled', true);
+			} else {
+				button.set('disabled', !allowEditing);
 			}
 		},
 		
@@ -703,7 +725,9 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 * @private
 		 */
 		documentClick: function (e) {
-			if (e.target && !e.target.closest("span.supra-icon")) {
+			var classname = this.configuration.wrapperClassName;
+			
+			if (e.target && !e.target.closest("span." + classname)) {
 				this.settingsFormApply();
 			}
 		},
@@ -902,9 +926,9 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 					icon = new Y.DataType.Icon(item);
 				
 				if (icon.isDataComplete()) {
-					var classname = (icon.align ? "align-" + icon.align : "");
+					var classname = self.configuration.wrapperClassName + " " + (icon.align ? "align-" + icon.align : "");
 					var svg = icon.toHTML({'id': id});
-					var html = '<span class="supra-icon ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + svg + '</span>';
+					var html = '<span class="' + classname + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + svg + '</span>';
 					
 					return html;
 				}

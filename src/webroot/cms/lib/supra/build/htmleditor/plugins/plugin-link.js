@@ -39,13 +39,15 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 			if (!this.htmleditor.editingAllowed) return;
 			
 			var htmleditor = this.htmleditor,
-				selection = htmleditor.getSelection();
+				selection  = htmleditor.getSelection(),
+				special    = htmleditor.getSelectedElement('img,svg');
 			
 			//If in current selection is a link then edit it instead of creating new
 			var nodes = htmleditor.findNodesInSelection(selection, 'a');
 			
-			if (nodes && nodes.size())
-			{
+			console.log('INSERT LINK');
+			
+			if (nodes && nodes.size()) {
 				//Edit selected link
 				this.editLink({
 					'currentTarget': nodes.item(0)
@@ -53,17 +55,16 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 				
 				//Prevent default 
 				return false;
-			}
-			else if (selection.collapsed)
-			{
-				//Cancel if no text is selected
+			} else if (selection.collapsed && !special) {
+				//Cancel if no text is selected or image or icon is selected
 				return false;
-			}
-			else if (htmleditor.isSelectionEditable(selection))
-			{
+			} else if (htmleditor.isSelectionEditable(selection)) {
 				//Show link manager
 				this.showLinkManager(null, function (data) {
-					this.insertLinkConfirmed(data, selection);
+					this.insertLinkConfirmed(data, {
+						'node': special,
+						'selection': selection
+					});
 				}, this);
 				
 				//Prevent default
@@ -79,13 +80,20 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		 * 
 		 * @param {Object} event
 		 */
-		insertLinkConfirmed: function (data, selection) {
+		insertLinkConfirmed: function (data, options) {
+			var htmleditor = this.htmleditor,
+				classname,
+				selection = options.selection,
+				selected_node = options.node,
+				node;
+			
 			if (data && data.href) {
-				var htmleditor = this.htmleditor,
-					classname = data.classname || '';
+				classname = data.classname || '';
 				
-				//Restore selection
-				htmleditor.setSelection(selection);
+				if (!selected_node) {
+					//Restore selection
+					htmleditor.setSelection(selection);
+				}
 				
 				//Button class
 				if (data.button) {
@@ -100,16 +108,32 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 					html = '<a id="' + uid + '"' + (classname ? ' class="' + classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '">' + text + '</a>';
 				
 				data.type = this.NAME;
-				htmleditor.setData(uid, data)
-				htmleditor.replaceSelection(html, null);
+				
+				if (selected_node) {
+					// Insert link before node and insert node into link
+					var selector = 'span.' + htmleditor.getPlugin('image').configuration.wrapperClassName + ', ' +
+								   'span.' + htmleditor.getPlugin('icon').configuration.wrapperClassName;
+					
+					selected_node = Y.Node(selected_node);
+					selected_node = selected_node.closest(selector) || selected_node;
+					
+					node = Y.Node.create(html);
+					selected_node.insert(node, 'before');
+					node.append(selected_node);
+				} else {
+					// Selection
+					htmleditor.replaceSelection(html, null);
+				}
+				
+				htmleditor.setData(uid, data);
 			}
 			
 			//Trigger selection change event
-			this.htmleditor._changed();
+			htmleditor._changed();
 			this.visible = false;
-			this.htmleditor.refresh(true);
+			htmleditor.refresh(true);
 			
-			var button = this.htmleditor.get('toolbar').getButton('insertlink');
+			var button = htmleditor.get('toolbar').getButton('insertlink');
 			if (button) button.set('down', false).set('disabled', true);
 		},
 		
@@ -119,8 +143,24 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 		 * @param {Object} event Event
 		 */
 		editLink: function (event) {
-			var target = event.currentTarget;
-			if (!this.htmleditor.editingAllowed || !this.htmleditor.isEditable(target)) return;
+			if (this.visible) {
+				// Link manager already visible
+				return;
+			}
+			
+			var target   = event.target,
+				selector = 'span.' + htmleditor.getPlugin('image').configuration.wrapperClassName + ', ' +
+						   'span.' + htmleditor.getPlugin('icon').configuration.wrapperClassName;
+			
+			if (target && target.closest(selector)) {
+				// Clicked on image or icon
+				return;
+			}
+			
+			target = event.currentTarget;
+			if (!this.htmleditor.editingAllowed || !this.htmleditor.isEditable(target)) {
+				return;
+			}
 			
 			//Get current value
 			var data = this.htmleditor.getData(target);
@@ -270,15 +310,15 @@ YUI().add('supra.htmleditor-plugin-link', function (Y) {
 						down = false;
 					
 					//Check if cursor is inside link
-					var node = this.getSelectedElement();
-					if (node && node.tagName == 'A') {
+					var node = this.getSelectedElement('A');
+					if (node) {
 						if (this.editingAllowed) {
 							allowEditing = true;
 							down = self.visible;
 						}
 					} else if (this.editingAllowed) {
-						//Check if there is text selection
-						if (!this.selection.collapsed) {
+						//Check if there is text selection or image is selected
+						if (!this.selection.collapsed || this.getSelectedElement('img,svg')) {
 							allowEditing = true;
 							down = self.visible;
 						}

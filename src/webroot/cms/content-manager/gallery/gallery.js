@@ -363,13 +363,17 @@ Supra([
 		restoreToolbarButtons: function () {
 			var button = Manager.PageButtons.getActionButtons('EditorToolbar')[0],
 				custom = this._customButton,
-				toolbar = Supra.Manager.EditorToolbar.getToolbar();
+				toolbar = Supra.Manager.EditorToolbar.getToolbar(),
+				button = null;
 			
-			custom.hide();
-			button.show();
+			if (custom) custom.hide();
+			if (button) button.show();
 			
-			toolbar.getButton('settings').show();
-			toolbar.getButton('manage').hide();
+			button = toolbar.getButton('settings');
+			if (button) button.show();
+			
+			button = toolbar.getButton('manage');
+			if (button) button.hide();
 		},
 		
 		/**

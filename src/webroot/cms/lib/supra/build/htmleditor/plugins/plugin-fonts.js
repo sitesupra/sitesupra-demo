@@ -106,61 +106,73 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 */
 		handleNodeChange: function (event) {
 			var allowEditing = this.htmleditor.editingAllowed,
-				element = this.htmleditor.getSelectedElement();
+				element = null;
 			
 			this.silentUpdating = true;
-			
-			if (this.color_settings_form && this.color_settings_form.get("visible")) {
-				
-				var color = "";
-				if (element) {
+
+			if (this.htmleditor.getSelectedElement('img, svg')) {
+				// Image is selected, don't allow any text/font manipulation
+				allowEditing = false;
+			} else {
+				element = this.htmleditor.getSelectedElement();
+
+				if (this.color_settings_form && this.color_settings_form.get("visible")) {
 					
-					//Traverse up the tree
-					var tmpElement = element,
-						srcElement = this.htmleditor.get("srcNode").getDOMNode();
-					
-					while (tmpElement && tmpElement.style) {
+					var color = "";
+					if (element) {
 						
-						if (this.colorType == "fore") {
-							//Text color
-							color = tmpElement.tagName === "FONT" ? tmpElement.getAttribute("color") : "";
-						} else {
-							//Background color
-							color = tmpElement.style.backgroundColor || "";
-						}
+						//Traverse up the tree
+						var tmpElement = element,
+							srcElement = this.htmleditor.get("srcNode").getDOMNode();
 						
-						if (color) {
-							//Color found, stop traverse
-							tmpElement = null;
-						} else {
-							tmpElement = tmpElement.parentNode;
-							if (tmpElement === srcElement) tmpElement = null;
+						while (tmpElement && tmpElement.style) {
+							
+							if (this.colorType == "fore") {
+								//Text color
+								color = tmpElement.tagName === "FONT" ? tmpElement.getAttribute("color") : "";
+							} else {
+								//Background color
+								color = tmpElement.style.backgroundColor || "";
+							}
+							
+							if (color) {
+								//Color found, stop traverse
+								tmpElement = null;
+							} else {
+								tmpElement = tmpElement.parentNode;
+								if (tmpElement === srcElement) tmpElement = null;
+							}
 						}
 					}
+					
+					this.colorInput.set("value", color);
+					
+				} else if (this.font_settings_form && this.font_settings_form.get("visible")) {
+					var face = null;
+					if (element && element.tagName === "FONT") {
+						face = element.getAttribute("face");
+					} else {
+						//Try finding font from the list, which matches selected font
+						face = Y.Node(element).getStyle("fontFamily") || "";
+					}
+					this.fontInput.set("value", face);
 				}
 				
-				this.colorInput.set("value", color);
-				
-			} else if (this.font_settings_form && this.font_settings_form.get("visible")) {
-				var face = null;
-				if (element && element.tagName === "FONT") {
-					face = element.getAttribute("face");
-				} else {
-					//Try finding font from the list, which matches selected font
-					face = Y.Node(element).getStyle("fontFamily") || "";
+				if (element) {
+					var size = parseInt(Y.Node(element).getStyle("fontSize"), 10) || "";
+					if (this.fontSizeInput.hasValue(size)) {
+						this.fontSizeInput.set("value", size);
+					} else {
+						//In case elements font size is not in the list
+						this.fontSizeInput.setText(size);
+					}
 				}
-				this.fontInput.set("value", face);
 			}
 			
-			if (element) {
-				var size = parseInt(Y.Node(element).getStyle("fontSize"), 10) || "";
-				if (this.fontSizeInput.hasValue(size)) {
-					this.fontSizeInput.set("value", size);
-				} else {
-					//In case elements font size is not in the list
-					this.fontSizeInput.setText(size);
-				}
-			}
+			this.fontSizeInput.set("disabled", !allowEditing);
+			this.fontFamilyInput.set("disabled", !allowEditing);
+			this.foreColorInput.set("disabled", !allowEditing);
+			this.backColorInput.set("disabled", !allowEditing);
 			
 			this.fontSizeInput.set("opened", false);
 			this.silentUpdating = false;

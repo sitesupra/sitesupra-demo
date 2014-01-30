@@ -482,7 +482,16 @@ YUI().add('supra.htmleditor-base', function (Y) {
 					node = event.target;
 				} else {
 					node = event.target.closest('svg');
+					
+					if (!node) {
+						node = event.target.closest('.supra-image, .supra-icon');
+						if (node) {
+							// Clicked on resize tool
+							node = node.one('img, svg');
+						}
+					}
 				}
+				
 				if (node) {
 					newSel = this._handleSelectableClick(node);
 				}

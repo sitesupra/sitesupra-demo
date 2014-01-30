@@ -16,27 +16,27 @@ abstract class AbstractFinder
 	 * @var EntityManager
 	 */
 	protected $em;
-	
+
 	/**
 	 * @var boolean
 	 */
 	private $cache = true;
-	
+
 	/**
 	 * @var array
 	 */
 	private $customConditions = array();
-	
+
 	public function __construct(EntityManager $em)
 	{
 		$this->em = $em;
 	}
-	
+
 	public function getEntityManager()
 	{
 		return $this->em;
 	}
-	
+
 	public function addCustomCondition($customCondition)
 	{
 		$this->customConditions[] = $customCondition;
@@ -49,35 +49,35 @@ abstract class AbstractFinder
 	final public function getQueryBuilder()
 	{
 		$qb = $this->doGetQueryBuilder();
-		
+
 		if ( ! $qb instanceof QueryBuilder) {
 			throw new \LogicException("Inner method doGetQueryBuilder didn't return QueryBuilder");
 		}
-		
+
 		// Custom conditions
 		foreach ($this->customConditions as $customCondition) {
 			$qb->andWhere($customCondition);
 		}
-		
+
 		// Wrap only if not wrapped already
 		if ($this->cache && ! $qb instanceof CachedQueryBuilderWrapper) {
 			$qb = new CachedQueryBuilderWrapper($qb, PageController::CACHE_GROUP_NAME);
 		}
-		
+
 		if ( ! $this->cache && $qb instanceof CachedQueryBuilderWrapper) {
 			$qb = $qb->getWrappedQueryBuilder();
 		}
-		
+
 		return $qb;
 	}
-	
+
 	public function disableCache()
 	{
 		$this->cache = false;
 	}
-	
+
 	abstract protected function doGetQueryBuilder();
-	
+
 	public final function getResult()
 	{
 		$query = $this->getQueryBuilder()
@@ -100,7 +100,7 @@ abstract class AbstractFinder
 
 	public function getTotalCount($qb, $groupBy)
 	{
-		$qb = $this->getQueryBuilder();
+		//$qb = $this->getQueryBuilder();
 		$qbTotal = clone($qb);
 		/* @var $qbTotal QueryBuilder */
 

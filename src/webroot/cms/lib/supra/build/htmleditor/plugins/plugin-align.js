@@ -71,7 +71,14 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 */
 		getElement: function () {
 			var htmleditor = this.htmleditor,
-				element = htmleditor.getSelectedElement(),
+				selected = htmleditor.getSelectedElement('img,svg');
+			
+			if (selected) {
+				// Image and icons have their own controls, dont allow changing anything
+				return null;
+			}
+			
+			var element = htmleditor.getSelectedElement(),
 				tagName = "",
 				container = htmleditor.get("srcNode").getDOMNode();
 			

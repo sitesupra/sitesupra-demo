@@ -131,7 +131,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 							<div class="yui3-editor-toolbar-{id}-content"></div>\
 						  </div>';
 	
-	
+	var ANIMATION_DURATION = 0.3;
 	
 	function HTMLEditorToolbar (config) {
 		this.controls = {};
@@ -426,10 +426,12 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				
 				//Create tab
 				var template = Y.substitute(TEMPLATE_GROUP, {'id': id}),
-					cont = groupList[id].node = Y.Node.create(template).appendTo(this.get('contentBox')),
+					cont = groupList[id].node = Y.Node.create(template),
 					first = true,
 					nextFirst = false,
 					last = false;
+					
+				this.get('contentBox').prepend(cont);
 				
 				//Use content
 				cont = cont.one('div');
@@ -542,12 +544,12 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					group.node.transition({
 						'top': position + 'px',
 						'easing': 'ease-out',
-						'duration': 0.5
+						'duration': ANIMATION_DURATION
 					});
 				} else if (group_id == 'main') {
 					//Main slide has special animation
 					group.node.one('div').transition({
-						'duration': 0.5,
+						'duration': ANIMATION_DURATION,
 						'easing': 'ease-out',
 						'marginTop': '0px'
 					});
@@ -581,7 +583,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					group.node.transition({
 						'top': position - 48 + 'px',
 						'easing': 'ease-out',
-						'duration': 0.5
+						'duration': ANIMATION_DURATION
 					}, Y.bind(function () {
 						group.node.addClass('hidden');
 						if (!silent) this.updateContentHeight();
@@ -592,7 +594,7 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 					
 					//Main slide has special animation
 					group.node.one('div').transition({
-						'duration': 0.5,
+						'duration': ANIMATION_DURATION,
 						'easing': 'ease-out',
 						'marginTop': '50px'
 					}, Y.bind(function () {

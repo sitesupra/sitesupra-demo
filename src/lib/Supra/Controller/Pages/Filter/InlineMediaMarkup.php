@@ -231,7 +231,7 @@ class InlineMediaMarkup extends \Twig_Markup
 			}
 			
 			if ($this->forcedWidth && $this->forcedHeight) {
-				$croppedImageVariantSize = $fs->createCroppedImageVariant($size, $this->forcedWidth, $this->forcedHeight);
+				$croppedImageVariantSize = $fs->createCroppedImageVariant($size, $this->forcedWidth, $this->forcedHeight, true);
 				$size = $image->findImageSize($croppedImageVariantSize);
 				$src = $fs->getWebPath($image, $size);
 			} else {

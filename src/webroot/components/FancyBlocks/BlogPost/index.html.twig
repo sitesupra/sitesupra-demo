@@ -1,11 +1,13 @@
 <div class="block blog-post">
 	
-	{% set media = supraBlock.property('media') %}
-	{% if media or supra.cmsRequest %}
-	<figure class="media">
-		{{ media }}
-	</figure>
-	{% endif %}
+	{% block media %}
+		{% set media = supraBlock.property('media') %}
+		{% if media or supra.cmsRequest %}
+		<figure class="media">
+			{{ media }}
+		</figure>
+		{% endif %}
+	{% endblock media %}
 	
 	<div class="page-title">
 		{{ supra.pageTitleHtmlTag('h1') | raw }}
