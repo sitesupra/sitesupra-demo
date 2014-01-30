@@ -225,10 +225,13 @@ class Command extends SymfonyCommand
 		$qb = $em->createQueryBuilder();
 		
 		$qb->update(CronJob::CN(), 'cj')
-				->set('cj.status', CronJob::STATUS_DISABLED);
+				->where('cj.status <> :masterStatus')
+				->set('cj.status', CronJob::STATUS_DISABLED)
+				->setParameter('masterStatus', CronJob::STATUS_MASTER)
+		;
 		
 		if ( ! empty($definedJobIds)) {
-			$qb->where('cj.id NOT IN (:ids)')
+			$qb->andWhere('cj.id NOT IN (:ids)')
 					->setParameter('ids', $definedJobIds);
 		}
 		
