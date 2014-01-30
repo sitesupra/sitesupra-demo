@@ -3,7 +3,6 @@
 namespace Supra\Database;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Supra\Database\Annotation\DetachedDiscriminators;
 use Supra\Database\Annotation\DetachedDiscriminatorValue;
@@ -11,12 +10,20 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 class DetachedDiscriminatorHandler
 {
-
 	/**
 	 * @var SimpleAnnotationReader
 	 */
 	protected $annotationReader;
+
+	/**
+	 * @var bool
+	 */
 	protected $ignoreDetachedDiscriminators = false;
+	
+	/**
+	 * @var array
+	 */
+	protected $discriminatorMaps = array();
 
 	/**
 	 * @return SimpleAnnotationReader
@@ -80,23 +87,14 @@ class DetachedDiscriminatorHandler
 			/* @var $parentMetadata ClassMetadataInfo */
 
 			$parentMetadata->addDiscriminatorMapClass($discriminatorValue, $classMetadata->name);
+			
+			$this->discriminatorMaps[$parentMetadata->name] = $parentMetadata->discriminatorMap;
 
 			$id = $parentClass . '$CLASSMETADATA';
 			$f->getCacheDriver()->save($id, $parentMetadata);
 		}
 
 		
-	}
-
-	/**
-	 * @param ClassMetadataInfo $classMetadata
-	 * @param string $discriminatorValue 
-	 */
-	protected function addToDiscriminatorMap(ClassMetadataInfo $classMetadata, $discriminatorValue)
-	{
-		$discriminatorMap = $classMetadata->discriminatorMap;
-		$discriminatorMap[$discriminatorValue] = $classMetadata->name;
-		$classMetadata->setDiscriminatorMap($discriminatorMap);
 	}
 
 	/**
@@ -119,6 +117,13 @@ class DetachedDiscriminatorHandler
 		$metadataFactory->getAllMetadata();
 
 		$this->ignoreDetachedDiscriminators = false;
+		
+		$classMetadata = $eventArgs->getClassMetadata();
+		
+		if (isset($this->discriminatorMaps[$classMetadata->name])) {	
+			$localDiscriminatorMap = $this->discriminatorMaps[$classMetadata->name];
+			$classMetadata->setDiscriminatorMap($localDiscriminatorMap);
+		}
 	}
 
 }
