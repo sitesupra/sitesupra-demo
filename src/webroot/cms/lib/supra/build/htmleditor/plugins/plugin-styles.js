@@ -249,9 +249,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @param {Object} event
 		 */
 		handleNodeChange: function (event) {
-			var allowEditing = this.htmleditor.editingAllowed;
-			
-			var selectedNode = this.htmleditor.getSelectedElement(),
+			var allowEditing = this.htmleditor.editingAllowed,
+				
+				selectedNode = this.htmleditor.getSelectedElement(),
 				node = selectedNode,
 				srcNode = this.htmleditor.get('srcNode'),
 				selectors = this.selectors,
@@ -262,28 +262,34 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				groups = {'text': true},	/* Text group is always available */
 				includedTags = {};			/* List of tags already included in the list */
 			
-			//Traverse up the tree and find tags which has selectors
-			while(node && !srcNode.compareTo(node)) {
-				//All tagnames for this node, SPAN may have more than 1 tag name
-				//because its style may match B, U, I, S
-				tagNames = this.htmleditor.getNodeTagName(node);
-				
-				for(i=0,ii=tagNames.length; i<ii; i++) {
-					//If such tag is not in the list already and there are
-					//selectors for this tag
-					if (!includedTags[tagNames[i]] && selectors[tagNames[i]]) {
-						
-						if (selectors[tagNames[i]].length) {
-							groups[selectors[tagNames[i]][0].group] = true;
+			if (this.htmleditor.getSelectedElement('svg,img')) {
+				//Image & icon are special elements, we don't want to allow changing style while
+				//one of them is selected
+				allowEditing = false;
+			} else {
+				//Traverse up the tree and find tags which has selectors
+				while(node && !srcNode.compareTo(node)) {
+					//All tagnames for this node, SPAN may have more than 1 tag name
+					//because its style may match B, U, I, S
+					tagNames = this.htmleditor.getNodeTagName(node);
+					
+					for(i=0,ii=tagNames.length; i<ii; i++) {
+						//If such tag is not in the list already and there are
+						//selectors for this tag
+						if (!includedTags[tagNames[i]] && selectors[tagNames[i]]) {
+							
+							if (selectors[tagNames[i]].length) {
+								groups[selectors[tagNames[i]][0].group] = true;
+							}
+							
+							targetNodes.push({'node': node, 'tag': tagNames[i]});
+							includedTags[tagNames[i]] = true;
+							
+							break;
 						}
-						
-						targetNodes.push({'node': node, 'tag': tagNames[i]});
-						includedTags[tagNames[i]] = true;
-						
-						break;
 					}
+					node = node.parentNode;
 				}
-				node = node.parentNode;
 			}
 			
 			/*
@@ -316,6 +322,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			
 			this.dropdownTypes.set('value', value);
 			*/
+			this.htmleditor.get('toolbar').getButton('style').set('disabled', !allowEditing);
 			
 			this.updateStylesList();
 		},

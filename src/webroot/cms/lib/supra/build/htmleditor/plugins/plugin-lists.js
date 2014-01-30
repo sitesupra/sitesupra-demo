@@ -66,6 +66,12 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 				i = null;
 			
 			while (node) {
+				if (node.tagName == 'IMG') {
+					// Image is special element, while image is selected
+					// don't allow editing anything
+					allowEditing = false;
+					break;
+				}
 				if (node.tagName in buttons) {
 					selected = node.tagName;
 					break;

@@ -10780,7 +10780,16 @@ YUI().add('supra.input-string-clear', function (Y) {
 					node = event.target;
 				} else {
 					node = event.target.closest('svg');
+					
+					if (!node) {
+						node = event.target.closest('.supra-image, .supra-icon');
+						if (node) {
+							// Clicked on resize tool
+							node = node.one('img, svg');
+						}
+					}
 				}
+				
 				if (node) {
 					newSel = this._handleSelectableClick(node);
 				}
@@ -11319,7 +11328,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 */
 		getNodeTagName: function (node) {
 			var tagName = (node instanceof Y.Node ? node.get('tagName') : node.tagName);
-			if (tagName != 'SPAN') return [tagName];
+			if (tagName != 'SPAN') return [tagName.toUpperCase()];
 			
 			//Convert style attribute into B, EM, U, S
 			var style = node.getAttribute('style'),
@@ -11328,7 +11337,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			
 			for(var i=0,ii=styleToTag.length; i<ii; i++) {
 				if (styleToTag[i][1].test(style)) {
-					tagNames.push(styleToTag[i][0]);
+					tagNames.push(styleToTag[i][0].toUpperCase());
 				}
 			}
 			
@@ -13217,7 +13226,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 							<div class="yui3-editor-toolbar-{id}-content"></div>\
 						  </div>';
 	
-	
+	var ANIMATION_DURATION = 0.3;
 	
 	function HTMLEditorToolbar (config) {
 		this.controls = {};
@@ -13512,10 +13521,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				
 				//Create tab
 				var template = Y.substitute(TEMPLATE_GROUP, {'id': id}),
-					cont = groupList[id].node = Y.Node.create(template).appendTo(this.get('contentBox')),
+					cont = groupList[id].node = Y.Node.create(template),
 					first = true,
 					nextFirst = false,
 					last = false;
+					
+				this.get('contentBox').prepend(cont);
 				
 				//Use content
 				cont = cont.one('div');
@@ -13628,12 +13639,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					group.node.transition({
 						'top': position + 'px',
 						'easing': 'ease-out',
-						'duration': 0.5
+						'duration': ANIMATION_DURATION
 					});
 				} else if (group_id == 'main') {
 					//Main slide has special animation
 					group.node.one('div').transition({
-						'duration': 0.5,
+						'duration': ANIMATION_DURATION,
 						'easing': 'ease-out',
 						'marginTop': '0px'
 					});
@@ -13667,7 +13678,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					group.node.transition({
 						'top': position - 48 + 'px',
 						'easing': 'ease-out',
-						'duration': 0.5
+						'duration': ANIMATION_DURATION
 					}, Y.bind(function () {
 						group.node.addClass('hidden');
 						if (!silent) this.updateContentHeight();
@@ -13678,7 +13689,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					
 					//Main slide has special animation
 					group.node.one('div').transition({
-						'duration': 0.5,
+						'duration': ANIMATION_DURATION,
 						'easing': 'ease-out',
 						'marginTop': '50px'
 					}, Y.bind(function () {
@@ -15931,7 +15942,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		size: "200x200",
 		
 		/* Allow none, border, lightbox styles */
-		styles: true
+		styles: true,
+		
+		/* Classname used for wrapper */
+		wrapperClassName: 'supra-image'
 	};
 	
 	var defaultProps = {
@@ -16060,8 +16074,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (this.selected_image) {
 				this.stopEditImage();
 				
-				var ancestor = this.getImageWrapperNode(this.selected_image);
-				ancestor.removeClass("supra-image-selected");
+				var ancestor = this.getImageWrapperNode(this.selected_image),
+					classname = this.configuration.wrapperClassName;
+				
+				ancestor.removeClass(classname + "-selected");
 				
 				this.selected_image = null;
 				this.selected_image_id = null;
@@ -16152,9 +16168,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				this.stopEditImage();
 				
 				var image = this.selected_image,
-					container = image.ancestor();
-				
-				if (container.test(".supra-image")) {
+					container = image.ancestor(),
+					classname = this.configuration.wrapperClassName;
+								
+				if (container.test("." + classname)) {
 					container.remove();
 				} else {
 					image.remove();
@@ -16288,12 +16305,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @return Image wrapper node
 		 */
 		getImageWrapperNode: function (image) {
-			var ancestor = image.ancestor();
+			var ancestor = image.ancestor(),
+				classname = this.configuration.wrapperClassName;
 			
 			if (ancestor) {
-				if (!ancestor.test("span.supra-image")) {
+				if (!ancestor.test("span." + classname)) {
 					ancestor = ancestor.ancestor();
-					if (ancestor && !ancestor.test("span.supra-image")) {
+					if (ancestor && !ancestor.test("span." + classname)) {
 						ancestor = null;
 					}
 				}
@@ -16302,7 +16320,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			if (!ancestor) {
 				//Wrap image in <span class="supra-image">
 				ancestor = Y.Node(this.htmleditor.get("doc").createElement("SPAN"));
-				ancestor.addClass("supra-image");
+				ancestor.addClass(classname);
 				ancestor.setAttribute("contenteditable", false);
 				ancestor.setAttribute("unselectable", "on");
 				
@@ -16443,8 +16461,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			this.selected_image = target;
 			this.selected_image_id = this.selected_image.getAttribute("id");
 			
-			var ancestor = this.getImageWrapperNode(this.selected_image);
-				ancestor.addClass("supra-image-selected");
+			var ancestor = this.getImageWrapperNode(this.selected_image),
+				classname = this.configuration.wrapperClassName;
+				
+			ancestor.addClass(classname + "-selected");
 			
 			this.silent = true;			
 			this.settings_form.resetValues()
@@ -16497,7 +16517,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				data  = this.original_data,
 				size = null,
 				resizer = this.resizer,
-				max_crop_width = 0;
+				max_crop_width = 0,
+				classname;
 			
 			if (image) {
 				size = this.getImageDataBySize(data.image, "original");
@@ -16508,8 +16529,13 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				}
 				
 				//Find content width
+				classname = this.configuration.wrapperClassName;
 				ancestor = image.ancestor();
-				if (ancestor.test(".supra-image")) ancestor = ancestor.ancestor();
+				
+				if (ancestor.test("." + classname)) {
+					ancestor = ancestor.ancestor();
+				}
+				
 				max_crop_width = Math.min(size.width, ancestor.get("offsetWidth"));
 				
 				resizer.set("maxCropWidth", max_crop_width);
@@ -16625,7 +16651,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					//Calculate image size so that it fills container
 					var container_width = htmleditor.get("srcNode").get("offsetWidth"),
 						size_width = size_data.width,
-						size_height = size_data.height;
+						size_height = size_data.height,
+						classname = this.configuration.wrapperClassName;
+
 					
 					if (container_width < size_width) {
 						size_height = Math.round(container_width / size_width * size_height);
@@ -16649,7 +16677,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
+					htmleditor.replaceSelection('<span class="' + classname + ' align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
 					htmleditor.setData(uid, data);
 				}
 				
@@ -16669,7 +16697,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			
 			var htmleditor = this.htmleditor,
 				dataObject = Manager.MediaSidebar.dataObject(),
-				image_data = dataObject.cache.one(image_id);
+				image_data = dataObject.cache.one(image_id),
+				classname = this.configuration.wrapperClassName;
 			
 			if (image_data.type != Supra.MediaLibraryList.TYPE_IMAGE) {
 				//Only handling images; folders should be handled by gallery plugin 
@@ -16715,7 +16744,7 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				"crop_height": size_height
 			});
 			
-			img = Y.Node.create('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
+			img = Y.Node.create('<span class="' + classname + ' align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
 			
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
@@ -16769,11 +16798,20 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement("img");
-			if (element) {
+			var element = this.htmleditor.getSelectedElement("img"),
+				allowEditing = this.htmleditor.editingAllowed,
+				button = htmleditor.get("toolbar").getButton("insertimage");
+			
+			if (allowEditing && element) {
 				if (!this.showImageSettings(Y.Node(element))) {
 					this.settingsFormApply();
 				}
+			}
+						
+			if (!allowEditing || this.htmleditor.getSelectedElement("svg, img")) {
+				button.set('disabled', true);
+			} else {
+				button.set('disabled', !allowEditing);
 			}
 		},
 		
@@ -16783,7 +16821,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 		 * @private
 		 */
 		documentClick: function (e) {
-			if (e.target && !e.target.closest("span.supra-image")) {
+			var classname = this.configuration.wrapperClassName;
+			
+			if (e.target && !e.target.closest("span." + classname)) {
 				this.settingsFormApply();
 			}
 		},
@@ -16990,16 +17030,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME;
 			
-			html = html.replace(/(<a[^>]*>)?\s*(<span[^>]*>)?\s*<img [^>]*id="([^"]+)"[^>]*>\s*(<\/span[^>]*>)?\s*(<\/a[^>]*>)?/ig, function (html, link_open, wrap_open, id, wrap_close, link_close) {
+			html = html.replace(/(<span[^>]*>)?\s*<img [^>]*id="([^"]+)"[^>]*>\s*(<\/span[^>]*>)?/ig, function (html, wrap_open, id, wrap_close) {
 				if (!id) return html;
 				var data = htmleditor.getData(id);
 				
 				if (data && data.type == NAME) {
-					if (data.style == "lightbox") {
-						return "{supra." + NAME + " id=\"" + id + "\"}";
-					} else {
-						return (link_open || "") + "{supra." + NAME + " id=\"" + id + "\"}" + (link_close || "");
-					}
+					return "{supra." + NAME + " id=\"" + id + "\"}";
 				} else {
 					return html;
 				}
@@ -17055,13 +17091,8 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 
 					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));
 					var img_style = (item.size_width && item.size_height ? 'width: ' + item.size_width + 'px; height:' + item.size_height + ';' : '');					
-					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
-					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="' + img_style + 'margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
-					
-					if (item.type == 'lightbox') {
-						//For lightbox add link around image
-						return '<a class="lightbox" href="' + self.getImageURLBySize(item.image, "original") + '" rel="lightbox"></a>' + html + '</a>';
-					}
+					var classname = self.configuration.wrapperClassName + " " + (item.align ? "align-" + item.align : "") + " " + item.style;
+					var html = '<span class="' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="' + img_style + 'margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
 					
 					return html;
 				}
@@ -17097,7 +17128,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 	
 	var defaultConfiguration = {
 		/* Modes which plugin supports */
-		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH]
+		modes: [Supra.HTMLEditor.MODE_SIMPLE, Supra.HTMLEditor.MODE_RICH],
+		
+		/* Classname used for wrapper */
+		wrapperClassName: 'supra-icon'
 	};
 	
 	var Manager = Supra.Manager;
@@ -17214,8 +17248,11 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			if (this.selected_icon) {
 				this.stopEditIcon();
 				
-				var ancestor = this.getIconWrapperNode(this.selected_icon);
-				ancestor.removeClass("supra-icon-selected");
+				var ancestor = this.getIconWrapperNode(this.selected_icon),
+					classname = this.configuration.wrapperClassName;
+				
+				ancestor.removeClass(classname + "-selected");
+
 				
 				this.selected_icon = null;
 				this.selected_icon_id = null;
@@ -17281,10 +17318,11 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			}
 			
 			var image = current ? this.selected_icon : this.htmleditor.one('#' + id),
-				container = image ? image.ancestor() : null;
+				container = image ? image.ancestor() : null,
+				classname = this.configuration.wrapperClassName;
 			
 			if (container) {
-				if (container.test(".supra-icon")) {
+				if (container.test("." + classname)) {
 					container.remove();
 				} else {
 					image.remove();
@@ -17398,12 +17436,13 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 * @return Image wrapper node
 		 */
 		getIconWrapperNode: function (icon) {
-			var ancestor = icon.ancestor();
+			var ancestor = icon.ancestor(),
+				classname = this.configuration.wrapperClassName;
 			
 			if (ancestor) {
-				if (!ancestor.test("span.supra-icon")) {
+				if (!ancestor.test("span." + classname)) {
 					ancestor = ancestor.ancestor();
-					if (ancestor && !ancestor.test("span.supra-icon")) {
+					if (ancestor && !ancestor.test("span." + classname)) {
 						ancestor = null;
 					}
 				}
@@ -17412,7 +17451,7 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			if (!ancestor) {
 				//Wrap image in <span class="supra-icon">
 				ancestor = Y.Node(this.htmleditor.get("doc").createElement("SPAN"));
-				ancestor.addClass("supra-icon");
+				ancestor.addClass(classname);
 				ancestor.setAttribute("contenteditable", false);
 				ancestor.setAttribute("unselectable", "on");
 				
@@ -17503,8 +17542,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 			this.selected_icon = target;
 			this.selected_icon_id = this.selected_icon.getAttribute("id");
 			
-			var ancestor = this.getIconWrapperNode(this.selected_icon);
-				ancestor.addClass("supra-icon-selected");
+			var classname = this.configuration.wrapperClassName,
+				ancestor = this.getIconWrapperNode(this.selected_icon);
+			
+			ancestor.addClass(classname + "-selected");
 			
 			this.silent = true;			
 			this.settings_form.resetValues()
@@ -17575,7 +17616,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 				
 				//Find content width
 				ancestor = node.ancestor();
-				if (ancestor.test(".supra-icon")) ancestor = ancestor.ancestor();
+				if (ancestor.test("." + this.configuration.wrapperClassName)) {
+					ancestor = ancestor.ancestor();
+				}
+				
 				max_size = Math.max(min_size, ancestor.get("offsetWidth") || 220);
 				ratio = data.width / data.height;
 				
@@ -17678,9 +17722,10 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 					
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID(),
-						html = icon.toHTML({'id': uid}, true);
+						html = icon.toHTML({'id': uid}, true),
+						classname = this.configuration.wrapperClassName;
 					
-					htmleditor.replaceSelection('<span class="supra-icon' + (icon.align ? ' align-' + icon.align : '') + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + html + '</span>');
+					htmleditor.replaceSelection('<span class="' + classname + (icon.align ? ' align-' + icon.align : '') + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + html + '</span>');
 					htmleditor.setData(uid, icon);
 					
 					if (!icon.isDataComplete()) {
@@ -17761,8 +17806,8 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 				"crop_height": size_height
 			});
 			
-			img = Y.Node.create('<span class="supra-icon align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
-			
+			img = Y.Node.create('<span class="' + this.configuration.wrapperClassName + ' align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
+
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
 				target.insert(img, "before");
@@ -17782,13 +17827,21 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 * @private
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement("svg"),
-				container = this.htmleditor.get('srcNode');
+ 			var element = this.htmleditor.getSelectedElement("svg"),
+				container = this.htmleditor.get('srcNode'),
+				button = htmleditor.get("toolbar").getButton("inserticon");
+				allowEditing = this.htmleditor.editingAllowed;
+ 			
+			if (allowEditing && element && Y.Node(element).closest(container)) {
+ 				if (!this.showIconSettings(Y.Node(element))) {
+ 					this.settingsFormApply();
+ 				}
+ 			}
 			
-			if (element && Y.Node(element).closest(container)) {
-				if (!this.showIconSettings(Y.Node(element))) {
-					this.settingsFormApply();
-				}
+			if (!allowEditing || this.htmleditor.getSelectedElement("svg, img")) {
+				button.set('disabled', true);
+			} else {
+				button.set('disabled', !allowEditing);
 			}
 		},
 		
@@ -17798,7 +17851,9 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 		 * @private
 		 */
 		documentClick: function (e) {
-			if (e.target && !e.target.closest("span.supra-icon")) {
+			var classname = this.configuration.wrapperClassName;
+			
+			if (e.target && !e.target.closest("span." + classname)) {
 				this.settingsFormApply();
 			}
 		},
@@ -17997,9 +18052,9 @@ YUI().add("supra.htmleditor-plugin-icon", function (Y) {
 					icon = new Y.DataType.Icon(item);
 				
 				if (icon.isDataComplete()) {
-					var classname = (icon.align ? "align-" + icon.align : "");
+					var classname = self.configuration.wrapperClassName + " " + (icon.align ? "align-" + icon.align : "");
 					var svg = icon.toHTML({'id': id});
-					var html = '<span class="supra-icon ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + svg + '</span>';
+					var html = '<span class="' + classname + '" unselectable="on" contenteditable="false" style="width: ' + icon.width + 'px; height: ' + icon.height + 'px;">' + svg + '</span>';
 					
 					return html;
 				}
@@ -18222,13 +18277,15 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			if (!this.htmleditor.editingAllowed) return;
 			
 			var htmleditor = this.htmleditor,
-				selection = htmleditor.getSelection();
+				selection  = htmleditor.getSelection(),
+				special    = htmleditor.getSelectedElement('img,svg');
 			
 			//If in current selection is a link then edit it instead of creating new
 			var nodes = htmleditor.findNodesInSelection(selection, 'a');
 			
-			if (nodes && nodes.size())
-			{
+			console.log('INSERT LINK');
+			
+			if (nodes && nodes.size()) {
 				//Edit selected link
 				this.editLink({
 					'currentTarget': nodes.item(0)
@@ -18236,17 +18293,16 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				
 				//Prevent default 
 				return false;
-			}
-			else if (selection.collapsed)
-			{
-				//Cancel if no text is selected
+			} else if (selection.collapsed && !special) {
+				//Cancel if no text is selected or image or icon is selected
 				return false;
-			}
-			else if (htmleditor.isSelectionEditable(selection))
-			{
+			} else if (htmleditor.isSelectionEditable(selection)) {
 				//Show link manager
 				this.showLinkManager(null, function (data) {
-					this.insertLinkConfirmed(data, selection);
+					this.insertLinkConfirmed(data, {
+						'node': special,
+						'selection': selection
+					});
 				}, this);
 				
 				//Prevent default
@@ -18262,13 +18318,20 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * 
 		 * @param {Object} event
 		 */
-		insertLinkConfirmed: function (data, selection) {
+		insertLinkConfirmed: function (data, options) {
+			var htmleditor = this.htmleditor,
+				classname,
+				selection = options.selection,
+				selected_node = options.node,
+				node;
+			
 			if (data && data.href) {
-				var htmleditor = this.htmleditor,
-					classname = data.classname || '';
+				classname = data.classname || '';
 				
-				//Restore selection
-				htmleditor.setSelection(selection);
+				if (!selected_node) {
+					//Restore selection
+					htmleditor.setSelection(selection);
+				}
 				
 				//Button class
 				if (data.button) {
@@ -18283,16 +18346,32 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 					html = '<a id="' + uid + '"' + (classname ? ' class="' + classname + '"' : '') + (data.target ? ' target="' + data.target + '"' : '') + ' title="' + Y.Escape.html(data.title || '') + '">' + text + '</a>';
 				
 				data.type = this.NAME;
-				htmleditor.setData(uid, data)
-				htmleditor.replaceSelection(html, null);
+				
+				if (selected_node) {
+					// Insert link before node and insert node into link
+					var selector = 'span.' + htmleditor.getPlugin('image').configuration.wrapperClassName + ', ' +
+								   'span.' + htmleditor.getPlugin('icon').configuration.wrapperClassName;
+					
+					selected_node = Y.Node(selected_node);
+					selected_node = selected_node.closest(selector) || selected_node;
+					
+					node = Y.Node.create(html);
+					selected_node.insert(node, 'before');
+					node.append(selected_node);
+				} else {
+					// Selection
+					htmleditor.replaceSelection(html, null);
+				}
+				
+				htmleditor.setData(uid, data);
 			}
 			
 			//Trigger selection change event
-			this.htmleditor._changed();
+			htmleditor._changed();
 			this.visible = false;
-			this.htmleditor.refresh(true);
+			htmleditor.refresh(true);
 			
-			var button = this.htmleditor.get('toolbar').getButton('insertlink');
+			var button = htmleditor.get('toolbar').getButton('insertlink');
 			if (button) button.set('down', false).set('disabled', true);
 		},
 		
@@ -18302,8 +18381,24 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * @param {Object} event Event
 		 */
 		editLink: function (event) {
-			var target = event.currentTarget;
-			if (!this.htmleditor.editingAllowed || !this.htmleditor.isEditable(target)) return;
+			if (this.visible) {
+				// Link manager already visible
+				return;
+			}
+			
+			var target   = event.target,
+				selector = 'span.' + htmleditor.getPlugin('image').configuration.wrapperClassName + ', ' +
+						   'span.' + htmleditor.getPlugin('icon').configuration.wrapperClassName;
+			
+			if (target && target.closest(selector)) {
+				// Clicked on image or icon
+				return;
+			}
+			
+			target = event.currentTarget;
+			if (!this.htmleditor.editingAllowed || !this.htmleditor.isEditable(target)) {
+				return;
+			}
 			
 			//Get current value
 			var data = this.htmleditor.getData(target);
@@ -18453,15 +18548,15 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 						down = false;
 					
 					//Check if cursor is inside link
-					var node = this.getSelectedElement();
-					if (node && node.tagName == 'A') {
+					var node = this.getSelectedElement('A');
+					if (node) {
 						if (this.editingAllowed) {
 							allowEditing = true;
 							down = self.visible;
 						}
 					} else if (this.editingAllowed) {
-						//Check if there is text selection
-						if (!this.selection.collapsed) {
+						//Check if there is text selection or image is selected
+						if (!this.selection.collapsed || this.getSelectedElement('img,svg')) {
 							allowEditing = true;
 							down = self.visible;
 						}
@@ -19226,6 +19321,9 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			//When selection changes hide link manager
 			htmleditor.on('selectionChange', this.hideVideoSettings, this);
 			
+			//When video looses focus hide settings form
+			htmleditor.on('nodeChange', this.onNodeChange, this);
+			
 			//Hide link manager when editor is closed
 			htmleditor.on('disable', this.hideVideoSettings, this);
 			
@@ -19238,6 +19336,21 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * Called when editor instance is destroyed
 		 */
 		destroy: function () {},
+		
+		
+		/* --------------------------- TOOLBAR --------------------------- */
+		
+		
+		onNodeChange: function () {
+			var button = htmleditor.get("toolbar").getButton("insertvideo");
+				allowEditing = this.htmleditor.editingAllowed;
+			
+			if (!allowEditing || this.htmleditor.getSelectedElement("svg, img")) {
+				button.set('disabled', true);
+			} else {
+				button.set('disabled', !allowEditing);
+			}
+		},
 		
 		
 		/* --------------------------- PARSER --------------------------- */
@@ -20008,9 +20121,12 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 		 * On node change check if settings form needs to be hidden
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement('img,td,th,table');
+			var element = this.htmleditor.getSelectedElement('img,svg,td,th,table'),
+				button = htmleditor.get("toolbar").getButton(HTMLEDITOR_BUTTON),
+				allowEditing = this.htmleditor.editingAllowed,
+				isSpecial = element ? Y.Node(element).test('img,svg') : false;
 			
-			if (element && !Y.Node(element).test('img')) {
+			if (element && !isSpecial) {
 				var element = new Y.Node(element),
 					table = element.closest('table');
 				
@@ -20027,6 +20143,12 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 				this.focusTable(null);
 				this.hideSettingsForm();
 				this.hideToolbar();
+			}
+						
+			if (isSpecial) {
+				button.set('disabled', true);
+			} else {
+				button.set('disabled', !allowEditing);
 			}
 		},
 		
@@ -20170,7 +20292,7 @@ YUI().add('supra.htmleditor-plugin-gallery', function (Y) {
 			// On select-all key selec only cell content
 			htmleditor.on('keyDown', Y.bind(this._onSelectAllKey, this));
 			
-			//When image looses focus hide settings form
+			//When table looses focus hide settings form
 			htmleditor.on('nodeChange', this.onNodeChange, this);
 		},
 		
@@ -24621,6 +24743,12 @@ YUI().add('supra.htmleditor-plugin-lists', function (Y) {
 				i = null;
 			
 			while (node) {
+				if (node.tagName == 'IMG') {
+					// Image is special element, while image is selected
+					// don't allow editing anything
+					allowEditing = false;
+					break;
+				}
 				if (node.tagName in buttons) {
 					selected = node.tagName;
 					break;
@@ -25165,9 +25293,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 		 * @param {Object} event
 		 */
 		handleNodeChange: function (event) {
-			var allowEditing = this.htmleditor.editingAllowed;
-			
-			var selectedNode = this.htmleditor.getSelectedElement(),
+			var allowEditing = this.htmleditor.editingAllowed,
+				
+				selectedNode = this.htmleditor.getSelectedElement(),
 				node = selectedNode,
 				srcNode = this.htmleditor.get('srcNode'),
 				selectors = this.selectors,
@@ -25178,28 +25306,34 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				groups = {'text': true},	/* Text group is always available */
 				includedTags = {};			/* List of tags already included in the list */
 			
-			//Traverse up the tree and find tags which has selectors
-			while(node && !srcNode.compareTo(node)) {
-				//All tagnames for this node, SPAN may have more than 1 tag name
-				//because its style may match B, U, I, S
-				tagNames = this.htmleditor.getNodeTagName(node);
-				
-				for(i=0,ii=tagNames.length; i<ii; i++) {
-					//If such tag is not in the list already and there are
-					//selectors for this tag
-					if (!includedTags[tagNames[i]] && selectors[tagNames[i]]) {
-						
-						if (selectors[tagNames[i]].length) {
-							groups[selectors[tagNames[i]][0].group] = true;
+			if (this.htmleditor.getSelectedElement('svg,img')) {
+				//Image & icon are special elements, we don't want to allow changing style while
+				//one of them is selected
+				allowEditing = false;
+			} else {
+				//Traverse up the tree and find tags which has selectors
+				while(node && !srcNode.compareTo(node)) {
+					//All tagnames for this node, SPAN may have more than 1 tag name
+					//because its style may match B, U, I, S
+					tagNames = this.htmleditor.getNodeTagName(node);
+					
+					for(i=0,ii=tagNames.length; i<ii; i++) {
+						//If such tag is not in the list already and there are
+						//selectors for this tag
+						if (!includedTags[tagNames[i]] && selectors[tagNames[i]]) {
+							
+							if (selectors[tagNames[i]].length) {
+								groups[selectors[tagNames[i]][0].group] = true;
+							}
+							
+							targetNodes.push({'node': node, 'tag': tagNames[i]});
+							includedTags[tagNames[i]] = true;
+							
+							break;
 						}
-						
-						targetNodes.push({'node': node, 'tag': tagNames[i]});
-						includedTags[tagNames[i]] = true;
-						
-						break;
 					}
+					node = node.parentNode;
 				}
-				node = node.parentNode;
 			}
 			
 			/*
@@ -25232,6 +25366,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			
 			this.dropdownTypes.set('value', value);
 			*/
+			this.htmleditor.get('toolbar').getButton('style').set('disabled', !allowEditing);
 			
 			this.updateStylesList();
 		},
@@ -43678,61 +43813,73 @@ YUI().add("supra.htmleditor-plugin-fonts", function (Y) {
 		 */
 		handleNodeChange: function (event) {
 			var allowEditing = this.htmleditor.editingAllowed,
-				element = this.htmleditor.getSelectedElement();
+				element = null;
 			
 			this.silentUpdating = true;
-			
-			if (this.color_settings_form && this.color_settings_form.get("visible")) {
-				
-				var color = "";
-				if (element) {
+
+			if (this.htmleditor.getSelectedElement('img, svg')) {
+				// Image is selected, don't allow any text/font manipulation
+				allowEditing = false;
+			} else {
+				element = this.htmleditor.getSelectedElement();
+
+				if (this.color_settings_form && this.color_settings_form.get("visible")) {
 					
-					//Traverse up the tree
-					var tmpElement = element,
-						srcElement = this.htmleditor.get("srcNode").getDOMNode();
-					
-					while (tmpElement && tmpElement.style) {
+					var color = "";
+					if (element) {
 						
-						if (this.colorType == "fore") {
-							//Text color
-							color = tmpElement.tagName === "FONT" ? tmpElement.getAttribute("color") : "";
-						} else {
-							//Background color
-							color = tmpElement.style.backgroundColor || "";
-						}
+						//Traverse up the tree
+						var tmpElement = element,
+							srcElement = this.htmleditor.get("srcNode").getDOMNode();
 						
-						if (color) {
-							//Color found, stop traverse
-							tmpElement = null;
-						} else {
-							tmpElement = tmpElement.parentNode;
-							if (tmpElement === srcElement) tmpElement = null;
+						while (tmpElement && tmpElement.style) {
+							
+							if (this.colorType == "fore") {
+								//Text color
+								color = tmpElement.tagName === "FONT" ? tmpElement.getAttribute("color") : "";
+							} else {
+								//Background color
+								color = tmpElement.style.backgroundColor || "";
+							}
+							
+							if (color) {
+								//Color found, stop traverse
+								tmpElement = null;
+							} else {
+								tmpElement = tmpElement.parentNode;
+								if (tmpElement === srcElement) tmpElement = null;
+							}
 						}
 					}
+					
+					this.colorInput.set("value", color);
+					
+				} else if (this.font_settings_form && this.font_settings_form.get("visible")) {
+					var face = null;
+					if (element && element.tagName === "FONT") {
+						face = element.getAttribute("face");
+					} else {
+						//Try finding font from the list, which matches selected font
+						face = Y.Node(element).getStyle("fontFamily") || "";
+					}
+					this.fontInput.set("value", face);
 				}
 				
-				this.colorInput.set("value", color);
-				
-			} else if (this.font_settings_form && this.font_settings_form.get("visible")) {
-				var face = null;
-				if (element && element.tagName === "FONT") {
-					face = element.getAttribute("face");
-				} else {
-					//Try finding font from the list, which matches selected font
-					face = Y.Node(element).getStyle("fontFamily") || "";
+				if (element) {
+					var size = parseInt(Y.Node(element).getStyle("fontSize"), 10) || "";
+					if (this.fontSizeInput.hasValue(size)) {
+						this.fontSizeInput.set("value", size);
+					} else {
+						//In case elements font size is not in the list
+						this.fontSizeInput.setText(size);
+					}
 				}
-				this.fontInput.set("value", face);
 			}
 			
-			if (element) {
-				var size = parseInt(Y.Node(element).getStyle("fontSize"), 10) || "";
-				if (this.fontSizeInput.hasValue(size)) {
-					this.fontSizeInput.set("value", size);
-				} else {
-					//In case elements font size is not in the list
-					this.fontSizeInput.setText(size);
-				}
-			}
+			this.fontSizeInput.set("disabled", !allowEditing);
+			this.fontFamilyInput.set("disabled", !allowEditing);
+			this.foreColorInput.set("disabled", !allowEditing);
+			this.backColorInput.set("disabled", !allowEditing);
 			
 			this.fontSizeInput.set("opened", false);
 			this.silentUpdating = false;
@@ -44398,7 +44545,14 @@ YUI().add("supra.htmleditor-plugin-align", function (Y) {
 		 */
 		getElement: function () {
 			var htmleditor = this.htmleditor,
-				element = htmleditor.getSelectedElement(),
+				selected = htmleditor.getSelectedElement('img,svg');
+			
+			if (selected) {
+				// Image and icons have their own controls, dont allow changing anything
+				return null;
+			}
+			
+			var element = htmleditor.getSelectedElement(),
 				tagName = "",
 				container = htmleditor.get("srcNode").getDOMNode();
 			

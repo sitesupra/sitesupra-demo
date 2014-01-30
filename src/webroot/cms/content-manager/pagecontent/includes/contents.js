@@ -231,7 +231,8 @@ YUI.add('supra.iframe-contents', function (Y) {
 				if (block) {
 					//Need delay to make sure editing state is correctly set
 					//needed only if settings immediately after load
-					Supra.immediate(this, function () {
+					Y.later(16, this, function () {
+						//Can't use supra.immediate, because in that case layout for toolbar is not synced
 						this.set('activeChild', block);
 					});
 				}

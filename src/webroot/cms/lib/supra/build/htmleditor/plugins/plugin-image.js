@@ -8,7 +8,10 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		size: "200x200",
 		
 		/* Allow none, border, lightbox styles */
-		styles: true
+		styles: true,
+		
+		/* Classname used for wrapper */
+		wrapperClassName: 'supra-image'
 	};
 	
 	var defaultProps = {
@@ -137,8 +140,10 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			if (this.selected_image) {
 				this.stopEditImage();
 				
-				var ancestor = this.getImageWrapperNode(this.selected_image);
-				ancestor.removeClass("supra-image-selected");
+				var ancestor = this.getImageWrapperNode(this.selected_image),
+					classname = this.configuration.wrapperClassName;
+				
+				ancestor.removeClass(classname + "-selected");
 				
 				this.selected_image = null;
 				this.selected_image_id = null;
@@ -229,9 +234,10 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				this.stopEditImage();
 				
 				var image = this.selected_image,
-					container = image.ancestor();
-				
-				if (container.test(".supra-image")) {
+					container = image.ancestor(),
+					classname = this.configuration.wrapperClassName;
+								
+				if (container.test("." + classname)) {
 					container.remove();
 				} else {
 					image.remove();
@@ -365,12 +371,13 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 * @return Image wrapper node
 		 */
 		getImageWrapperNode: function (image) {
-			var ancestor = image.ancestor();
+			var ancestor = image.ancestor(),
+				classname = this.configuration.wrapperClassName;
 			
 			if (ancestor) {
-				if (!ancestor.test("span.supra-image")) {
+				if (!ancestor.test("span." + classname)) {
 					ancestor = ancestor.ancestor();
-					if (ancestor && !ancestor.test("span.supra-image")) {
+					if (ancestor && !ancestor.test("span." + classname)) {
 						ancestor = null;
 					}
 				}
@@ -379,7 +386,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			if (!ancestor) {
 				//Wrap image in <span class="supra-image">
 				ancestor = Y.Node(this.htmleditor.get("doc").createElement("SPAN"));
-				ancestor.addClass("supra-image");
+				ancestor.addClass(classname);
 				ancestor.setAttribute("contenteditable", false);
 				ancestor.setAttribute("unselectable", "on");
 				
@@ -520,8 +527,10 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			this.selected_image = target;
 			this.selected_image_id = this.selected_image.getAttribute("id");
 			
-			var ancestor = this.getImageWrapperNode(this.selected_image);
-				ancestor.addClass("supra-image-selected");
+			var ancestor = this.getImageWrapperNode(this.selected_image),
+				classname = this.configuration.wrapperClassName;
+				
+			ancestor.addClass(classname + "-selected");
 			
 			this.silent = true;			
 			this.settings_form.resetValues()
@@ -574,7 +583,8 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				data  = this.original_data,
 				size = null,
 				resizer = this.resizer,
-				max_crop_width = 0;
+				max_crop_width = 0,
+				classname;
 			
 			if (image) {
 				size = this.getImageDataBySize(data.image, "original");
@@ -585,8 +595,13 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				}
 				
 				//Find content width
+				classname = this.configuration.wrapperClassName;
 				ancestor = image.ancestor();
-				if (ancestor.test(".supra-image")) ancestor = ancestor.ancestor();
+				
+				if (ancestor.test("." + classname)) {
+					ancestor = ancestor.ancestor();
+				}
+				
 				max_crop_width = Math.min(size.width, ancestor.get("offsetWidth"));
 				
 				resizer.set("maxCropWidth", max_crop_width);
@@ -702,7 +717,9 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					//Calculate image size so that it fills container
 					var container_width = htmleditor.get("srcNode").get("offsetWidth"),
 						size_width = size_data.width,
-						size_height = size_data.height;
+						size_height = size_data.height,
+						classname = this.configuration.wrapperClassName;
+
 					
 					if (container_width < size_width) {
 						size_height = Math.round(container_width / size_width * size_height);
@@ -726,7 +743,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 					//Generate unique ID for image element, to which data will be attached
 					var uid = htmleditor.generateDataUID();
 					
-					htmleditor.replaceSelection('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
+					htmleditor.replaceSelection('<span class="' + classname + ' align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" /></span>');
 					htmleditor.setData(uid, data);
 				}
 				
@@ -746,7 +763,8 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			
 			var htmleditor = this.htmleditor,
 				dataObject = Manager.MediaSidebar.dataObject(),
-				image_data = dataObject.cache.one(image_id);
+				image_data = dataObject.cache.one(image_id),
+				classname = this.configuration.wrapperClassName;
 			
 			if (image_data.type != Supra.MediaLibraryList.TYPE_IMAGE) {
 				//Only handling images; folders should be handled by gallery plugin 
@@ -792,7 +810,7 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 				"crop_height": size_height
 			});
 			
-			img = Y.Node.create('<span class="supra-image align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
+			img = Y.Node.create('<span class="' + classname + ' align-' + data.align + '" unselectable="on" contenteditable="false" style="width: ' + data.crop_width + 'px; height: ' + data.crop_height + 'px;"><img draggable="false" id="' + uid + '" style="margin-left: -' + data.crop_left + 'px; margin-top: -' + data.crop_top + 'px;" width="' + data.size_width + '" src="' + src + '" title="' + Y.Escape.html(data.title) + '" alt="' + Y.Escape.html(data.description) + '" class="align-' + data.align + '" />');
 			
 			//If droping on inline element then insert image before it, otherwise append to element
 			if (target.test("em,i,strong,b,s,strike,sub,sup,u,a,span,big,small,img")) {
@@ -846,11 +864,20 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 * @private
 		 */
 		onNodeChange: function () {
-			var element = this.htmleditor.getSelectedElement("img");
-			if (element) {
+			var element = this.htmleditor.getSelectedElement("img"),
+				allowEditing = this.htmleditor.editingAllowed,
+				button = htmleditor.get("toolbar").getButton("insertimage");
+			
+			if (allowEditing && element) {
 				if (!this.showImageSettings(Y.Node(element))) {
 					this.settingsFormApply();
 				}
+			}
+						
+			if (!allowEditing || this.htmleditor.getSelectedElement("svg, img")) {
+				button.set('disabled', true);
+			} else {
+				button.set('disabled', !allowEditing);
 			}
 		},
 		
@@ -860,7 +887,9 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 		 * @private
 		 */
 		documentClick: function (e) {
-			if (e.target && !e.target.closest("span.supra-image")) {
+			var classname = this.configuration.wrapperClassName;
+			
+			if (e.target && !e.target.closest("span." + classname)) {
 				this.settingsFormApply();
 			}
 		},
@@ -1067,16 +1096,12 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 			var htmleditor = this.htmleditor,
 				NAME = this.NAME;
 			
-			html = html.replace(/(<a[^>]*>)?\s*(<span[^>]*>)?\s*<img [^>]*id="([^"]+)"[^>]*>\s*(<\/span[^>]*>)?\s*(<\/a[^>]*>)?/ig, function (html, link_open, wrap_open, id, wrap_close, link_close) {
+			html = html.replace(/(<span[^>]*>)?\s*<img [^>]*id="([^"]+)"[^>]*>\s*(<\/span[^>]*>)?/ig, function (html, wrap_open, id, wrap_close) {
 				if (!id) return html;
 				var data = htmleditor.getData(id);
 				
 				if (data && data.type == NAME) {
-					if (data.style == "lightbox") {
-						return "{supra." + NAME + " id=\"" + id + "\"}";
-					} else {
-						return (link_open || "") + "{supra." + NAME + " id=\"" + id + "\"}" + (link_close || "");
-					}
+					return "{supra." + NAME + " id=\"" + id + "\"}";
 				} else {
 					return html;
 				}
@@ -1132,13 +1157,8 @@ YUI().add("supra.htmleditor-plugin-image", function (Y) {
 
 					var style = ( ! item.image.exists ? '' : (item.size_width && item.size_height ? 'width="' + item.size_width + '" height="' + item.size_height + '"' : ''));
 					var img_style = (item.size_width && item.size_height ? 'width: ' + item.size_width + 'px; height:' + item.size_height + ';' : '');					
-					var classname = (item.align ? "align-" + item.align : "") + " " + item.style;
-					var html = '<span class="supra-image ' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="' + img_style + 'margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
-					
-					if (item.type == 'lightbox') {
-						//For lightbox add link around image
-						return '<a class="lightbox" href="' + self.getImageURLBySize(item.image, "original") + '" rel="lightbox"></a>' + html + '</a>';
-					}
+					var classname = self.configuration.wrapperClassName + " " + (item.align ? "align-" + item.align : "") + " " + item.style;
+					var html = '<span class="' + classname + '" unselectable="on" contenteditable="false" style="width: ' + item.crop_width + 'px; height: ' + item.crop_height + 'px;"><img ' + style + ' draggable="false" id="' + id + '" style="' + img_style + 'margin-left: -' + item.crop_left + 'px; margin-top: -' + item.crop_top + 'px;" class="' + classname + '" src="' + ( ! item.image.exists ? item.image.missing_path : src ) + '" title="' + Y.Escape.html(item.title) + '" alt="' + Y.Escape.html(item.description) + '" /></span>';
 					
 					return html;
 				}

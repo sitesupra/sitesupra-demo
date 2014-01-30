@@ -444,6 +444,9 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 			//When selection changes hide link manager
 			htmleditor.on('selectionChange', this.hideVideoSettings, this);
 			
+			//When video looses focus hide settings form
+			htmleditor.on('nodeChange', this.onNodeChange, this);
+			
 			//Hide link manager when editor is closed
 			htmleditor.on('disable', this.hideVideoSettings, this);
 			
@@ -456,6 +459,21 @@ YUI().add('supra.htmleditor-plugin-video', function (Y) {
 		 * Called when editor instance is destroyed
 		 */
 		destroy: function () {},
+		
+		
+		/* --------------------------- TOOLBAR --------------------------- */
+		
+		
+		onNodeChange: function () {
+			var button = htmleditor.get("toolbar").getButton("insertvideo");
+				allowEditing = this.htmleditor.editingAllowed;
+			
+			if (!allowEditing || this.htmleditor.getSelectedElement("svg, img")) {
+				button.set('disabled', true);
+			} else {
+				button.set('disabled', !allowEditing);
+			}
+		},
 		
 		
 		/* --------------------------- PARSER --------------------------- */
