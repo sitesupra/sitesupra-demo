@@ -35,6 +35,13 @@ YUI.add('supra.input-select-list', function (Y) {
 		},
 		
 		/**
+		 * Button container node
+		 */
+		'buttonBox': {
+			value: null
+		},
+		
+		/**
 		 * Show empty value in the list
 		 * @type {Boolean}
 		 */
@@ -209,6 +216,8 @@ YUI.add('supra.input-select-list', function (Y) {
 		
 		renderButton: function (input, definition, first, last, button_width) {
 			var contentBox = this.get('contentBox'),
+				buttonBox = this.get('buttonBox'),
+				
 				button = new Supra.Button({
 					'label': definition.title,
 					'icon': definition.icon,
@@ -245,7 +254,14 @@ YUI.add('supra.input-select-list', function (Y) {
 				has_value_match = true;
 			}
 			
-			button.render(contentBox);
+			if (!buttonBox) {
+				buttonBox = Y.Node.create('<div class="' + this.getClassName('buttons') + '"></div>');
+				contentBox.append(buttonBox);
+				
+				this.set('buttonBox', buttonBox);
+			}
+			
+			button.render(buttonBox);
 			
 			//Set button width
 			if (this.get('style') != 'items') {
@@ -503,10 +519,11 @@ YUI.add('supra.input-select-list', function (Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			// Convert boolean values to string
 			if (typeof value == 'boolean') {
+				// Convert boolean values to string
 				value = value ? "1" : "0";
 			} else if (value && typeof value === 'object' && 'id' in value) {
+				// Extract id from objects
 				value = value.id;
 			}
 			
@@ -523,6 +540,13 @@ YUI.add('supra.input-select-list', function (Y) {
 			var button_value_map = this.button_value_map;
 			
 			if (this.get('multiple') && Y.Lang.isArray(value)) {
+				// Extract id from objects
+				for (var i=0, ii=value.length; i<ii; i++) {
+					if (value[i] && typeof value[i] === 'object' && 'id' in value[i]) {
+						value[i] = value[i].id;
+					}
+				}
+				
 				//Update button states
 				for(var i in this.buttons) {
 					if (i in button_value_map) {
