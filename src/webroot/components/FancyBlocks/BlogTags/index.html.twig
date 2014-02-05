@@ -29,6 +29,8 @@
 				{% endfor %}
 			</div>
 			<div class="tabs-content clearfix" name="tab_all"></div>
+			
+			{% if activeTag %}<a class="clear-tags" href="{{ path }}">{{ supraBlock.property("clear_title") }}</a>{% endif %}
 		</div>
 	</div>
 	

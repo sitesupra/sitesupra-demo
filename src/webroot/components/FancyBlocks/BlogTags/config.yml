@@ -24,6 +24,11 @@
           label: All tags
           default: All
       - Configuration\BlockPropertyConfiguration:
+          name: clear_title
+          editable: Supra\Editable\String
+          label: Clear tags
+          default: Clear tags
+      - Configuration\BlockPropertyConfiguration:
           name: blog_page
           editable: Supra\Editable\Link
           label: Blog page
