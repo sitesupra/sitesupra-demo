@@ -11,7 +11,6 @@ use Supra\Template\Parser\Twig\Loader\FilesystemLoaderByContext;
  */
 class TwigResponse extends HttpResponse
 {
-
 	/**
 	 * @var array
 	 */
@@ -39,18 +38,7 @@ class TwigResponse extends HttpResponse
 	public function __construct($loaderContext = null)
 	{
 		parent::__construct();
-
 		$this->loaderContext = $loaderContext;
-		$this->twigEnvironment = ObjectRepository::getTemplateParser($this);
-
-		if ( ! $this->twigEnvironment instanceof Twig) {
-			throw new Exception\IncompatibleObject("Twig response object must have Twig template parser assigned");
-		}
-	}
-
-	public function __sleep()
-	{
-		return parent::__sleep();
 	}
 
 	/**
@@ -72,6 +60,15 @@ class TwigResponse extends HttpResponse
 	 */
 	public function getTwigEnvironment()
 	{
+		if ($this->twigEnvironment === null) {
+			
+			$this->twigEnvironment = ObjectRepository::getTemplateParser($this);
+
+			if ( ! $this->twigEnvironment instanceof Twig) {
+				throw new Exception\IncompatibleObject("Twig response object must have Twig template parser assigned");
+			}
+		}
+		
 		return $this->twigEnvironment;
 	}
 
@@ -82,20 +79,21 @@ class TwigResponse extends HttpResponse
 	public function outputTemplate($templateName)
 	{
 		$loader = null;
-
-		if ( ! is_null($this->loader)) {
+		$twig = $this->getTwigEnvironment();
+		
+		if ($this->loader !== null) {
 			$loader = $this->loader;
 		} else {
-			
-			if ( ! is_null($this->loaderContext)) {
+			if ($this->loaderContext !== null) {
 				$loader = new FilesystemLoaderByContext($this->loaderContext, $this->twigEnvironment->getLoader());
 			}
 		}
-		$content = $this->twigEnvironment->parseTemplate($templateName, $this->templateVariables, $loader);
+		
+		$content = $twig->parseTemplate($templateName, $this->templateVariables, $loader);
 
 		$this->output($content);
 		
-		$file = $this->twigEnvironment->getTemplateFilename($templateName, $loader);
+		$file = $twig->getTemplateFilename($templateName, $loader);
 		$this->addResourceFile($file);
 
 		return $this;
