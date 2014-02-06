@@ -11,6 +11,7 @@ use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Controller\Pages\Entity\ReferencedElement;
+use Supra\Controller\Pages\BlockControllerCollection;
 
 /**
  * Controller for page content requests
