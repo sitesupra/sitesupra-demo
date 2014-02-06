@@ -8,6 +8,8 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
 use Supra\Loader;
 
+use Supra\Controller\Pages\Configuration\BlockControllerConfigurationProxy;
+
 /**
  * Component configuration loader
  */
@@ -78,7 +80,7 @@ class ComponentConfigurationLoader
 	 * @var Doctrine\Common\Cache\Cache
 	 */
 	private $cacheAdapter;
-
+	
 	/**
 	 * @param ParserInterface $parser
 	 */
@@ -187,7 +189,7 @@ class ComponentConfigurationLoader
 			unset($item[self::KEY_NAME_CLASS]);
 			
 			$object = $this->processObject($className, $item);
-
+			
 			if (is_object($object)) {
 				$return = $object;
 			}
@@ -230,10 +232,22 @@ class ComponentConfigurationLoader
 			} else if (is_string($key) 
 					&& is_array($value)
 					&& array_diff_key($value, array_keys(array_keys($value)))) {
-				// try to setup config object
 				
-				$object = $this->processObject($key, $value);
+				/** @DEV experimental */
+				if (strpos($key, 'BlockControllerConfiguration') !== false) {
+					
+					$configurationProxy = new BlockControllerConfigurationProxy($this, $key, $value);
 
+					\Supra\Controller\Pages\BlockControllerCollection::getInstance()
+							->addBlockConfigurationProxy($configurationProxy);
+					
+					return null;
+				}
+				/** @DEV end */
+
+				// try to setup config object
+				$object = $this->processObject($key, $value);
+				
 				if (is_object($object)) {
 					$return = $object;
 				}
@@ -281,7 +295,7 @@ class ComponentConfigurationLoader
 	 * @param array $properties
 	 * @return object
 	 */
-	protected function processObject($className, $properties)
+	public function processObject($className, $properties)
 	{
 		try {
 			
@@ -301,14 +315,14 @@ class ComponentConfigurationLoader
 					}
 				}
 			}
-
+			
 			/* @var $object \Supra\Configuration\ConfigurationInterface */
 			$object = Loader\Loader::getClassInstance($className, 'Supra\Configuration\ConfigurationInterface');
 
 			if ($object instanceof LoaderRequestingConfigurationInterface) {
 				$object->setLoader($this);
 			}
-
+			
 			foreach ($properties as $propertyName => $propertyValue) {
 				// For now ignoring the setter function matching
 //				$possibleSetterName = 'set' . ucfirst($propertyName);
@@ -404,5 +418,5 @@ class ComponentConfigurationLoader
 
 		return md5(__CLASS__ . $fileName . $modificationTime);
 	}
-
+	
 }

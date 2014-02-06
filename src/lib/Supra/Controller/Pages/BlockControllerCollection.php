@@ -16,7 +16,11 @@ use Supra\Controller\Pages\BrokenBlockController;
  */
 class BlockControllerCollection
 {
-
+	/**
+	 * @var array
+	 */
+	protected $configurationProxies = array();
+	
 	/**
 	 * @var array 
 	 */
@@ -46,6 +50,13 @@ class BlockControllerCollection
 	 */
 	public function getBlocksConfigurationList()
 	{
+		if ( ! empty($this->configurationProxies)) {
+			foreach ($this->configurationProxies as $proxy) {
+				
+				$this->unproxyProxy($proxy);
+			}
+		}
+		
 		return $this->configuration['blocks'];
 	}
 
@@ -98,9 +109,12 @@ class BlockControllerCollection
 	 */
 	public function createBlockController($blockId)
 	{
-		$configuration = ObjectRepository::getComponentConfiguration($blockId);
+//		$configuration = ObjectRepository::getComponentConfiguration($blockId);
 
+		$configuration = $this->getControllerConfiguration($blockId);
+		
 		if ( ! Loader::classExists($configuration->class)) {
+			
 			$configuration = $this->configuration['blocks'][BrokenBlockController::BLOCK_NAME];
 			
 			if (is_null($configuration)) {
@@ -117,4 +131,39 @@ class BlockControllerCollection
 		return $controller;
 	}
 	
+	/**
+	 * @param BlockControllerConfiguration $configuration 
+	 */
+	public function addBlockConfigurationProxy(Configuration\BlockControllerConfigurationProxy $proxy)
+	{
+		$controllerName = $proxy->getControllerName();
+		$this->configurationProxies[$controllerName] = $proxy;
+	}
+	
+	/**
+	 * 
+	 * @param string $controllerId
+	 * @return BlockControllerConfiguration
+	 * @throws Exception\ConfigurationException
+	 */
+	public function getControllerConfiguration($controllerId)
+	{
+		if (isset($this->configurationProxies[$controllerId])) {
+			$this->unproxyProxy($this->configurationProxies[$controllerId]);
+		}
+		
+		return ObjectRepository::getComponentConfiguration($controllerId);
+	}
+	
+	/**
+	 * @param Configuration\BlockControllerConfigurationProxy $proxy
+	 */
+	protected function unproxyProxy(Configuration\BlockControllerConfigurationProxy $proxy)
+	{
+		$controllerName = $proxy->getControllerName();
+		
+		$proxy->load();
+		
+		unset($this->configurationProxies[$controllerName]);
+	}
 }

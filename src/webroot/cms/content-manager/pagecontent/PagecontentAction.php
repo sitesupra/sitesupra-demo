@@ -41,7 +41,9 @@ class PagecontentAction extends PageManagerAction
 		$newBlock->setComponentName($blockType);
 		
 		$class = $newBlock->getComponentClass();
-		$configuration = ObjectRepository::getComponentConfiguration($class);
+		
+		$blockControllerCollection = BlockControllerCollection::getInstance();
+		$configuration = $blockControllerCollection->getControllerConfiguration($class);
 		
 		if ( ! $configuration instanceof BlockControllerConfiguration) {
 			throw new \RuntimeException("Failed to get configuration for specified block type {$blockType}");
