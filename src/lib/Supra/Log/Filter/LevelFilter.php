@@ -42,6 +42,14 @@ class LevelFilter implements FilterInterface
 	}
 	
 	/**
+	 * @return integer
+	 */
+	public function getLevelPriority()
+	{
+		return $this->parameters['levelPriority'];
+	}
+	
+	/**
 	 * Filter method
 	 * @param LogEvent $event
 	 * @return boolean
