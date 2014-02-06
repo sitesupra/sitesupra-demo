@@ -138,6 +138,10 @@
 		.border-radius (3px);
 		border-radius: 3px 3px 3px 3.1px;	/* 3.1px is for IE9 fix */
 	}
+	.yui3-input-select-list .yui3-input-select-list-buttons {
+		display: inline-block;
+		width: 400px;
+	}
 	.yui3-input .yui3-editor-toolbar + iframe {
 		.border-radius (0, 0, 3px, 3px);
 		border-radius: 0 0 3px 3.1px;	/* 3.1px is for IE9 fix */
@@ -625,6 +629,12 @@
 		}
 	}
 	
+	/* Select list */
+	.yui3-input-select-list .yui3-input-select-list-buttons {
+		width: 400px;
+		display: inline-block;
+	}
+	
 	/* Buttons */
 	.su-button-delete,
 	.su-button-edit,
@@ -708,6 +718,12 @@
 	
 	/* Drop down */
 	.yui3-input-select .yui3-input-select-inner {
+		width: auto;
+		display: block;
+	}
+	
+	/* Select list */
+	.yui3-input-select-list .yui3-input-select-list-buttons {
 		width: auto;
 		display: block;
 	}
