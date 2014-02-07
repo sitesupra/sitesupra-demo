@@ -12,6 +12,8 @@ class ImageReferencedElement extends ReferencedElementAbstract
 
 	const TYPE_ID = 'image';
 
+	const STYLE_LIGHTBOX = 'lightbox';
+
 	/**
 	 * Image ID to keep link data without existant real image.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
@@ -75,7 +77,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	protected $cropHeight;
 
 	/**
-	 * 
+	 *
 	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
@@ -315,7 +317,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
-	 * @return string 
+	 * @return string
 	 */
 	public function getTitle()
 	{
@@ -323,7 +325,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
-	 * @param string $title 
+	 * @param string $title
 	 */
 	public function setTitle($title)
 	{
@@ -398,7 +400,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public function isCropped()
 	{
