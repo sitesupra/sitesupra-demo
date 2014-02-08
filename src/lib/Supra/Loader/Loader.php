@@ -18,6 +18,7 @@ class Loader
 	static $hit = 0;
 	static $miss = 0;
 	static $cacheEnabled = false;
+	static $dirty = false;
 	static $cacheFilenameSuffix = 'default';
 
 	/**
@@ -67,6 +68,8 @@ class Loader
 			$loadedClasses = array();
 			include_once($cacheFilename);
 			self::$cachedClasses = $loadedClasses;
+			
+			self::$dirty = false;
 		}
 
 		register_shutdown_function(array(__CLASS__, 'shutdown'));
@@ -212,6 +215,9 @@ class Loader
 			} else {
 
 				self::$miss ++;
+				
+				self::$dirty = true;
+				
 				$classPath = null;
 			}
 
@@ -371,7 +377,9 @@ class Loader
 		//\Log::error('MISS: ', self::$miss);
 		//\Log::error('STORING CACHE: ', count(self::$cachedClasses));
 
-		file_put_contents(self::getLoadedClassesCacheFiename(), '<?php $loadedClasses = ' . var_export(self::$cachedClasses, true) . ';');
+		if (self::$dirty === true) {
+			file_put_contents(self::getLoadedClassesCacheFiename(), '<?php $loadedClasses = ' . var_export(self::$cachedClasses, true) . ';');
+		}	
 	}
 
 }
