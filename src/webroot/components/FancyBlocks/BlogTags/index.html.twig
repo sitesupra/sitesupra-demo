@@ -8,7 +8,7 @@
 	</div></h3>
 	{% endif %}
 	
-	<div class="tags" data-attach="$.fn.blogTags" data-refresh-event="tabs-accordion" data-current-tag="{{ activeTag | escape('html_attr') }}">
+	<div class="tags" data-attach="$.fn.blogTags" data-refresh-event="tabs-accordion" data-current-tag="{{ activeTag | url_encode }}">
 		<ul class="tabs-headings clearfix">
 			<li class="tabs-heading active">
 				<a href="#tab_popular">{{ supraBlock.property("popular_title") }}</a>
