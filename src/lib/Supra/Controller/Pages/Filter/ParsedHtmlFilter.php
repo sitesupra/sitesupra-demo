@@ -462,14 +462,9 @@ class ParsedHtmlFilter implements FilterInterface
 			}
 
 			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
-				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-				<object width=\"{$width}\" height=\"{$height}\">
-					<param name=\"movie\" value=\"//www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\"></param>
-					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-
-					<embed {$wmodeParam} src=\"//www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
-				</object>
-			</div>";
+				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\">
+					<iframe src=\"//www.youtube.com/embed/{$videoId}?{$wmodeParam}&rel=0\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" allowfullscreen></iframe>
+				</div>";
 			}
 			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
 				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">

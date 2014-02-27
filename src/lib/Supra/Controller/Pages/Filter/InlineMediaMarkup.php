@@ -154,17 +154,12 @@ class InlineMediaMarkup extends \Twig_Markup
 			
 			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
 				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\" data-thumbnail=\"{$thumbnail}\">
-				<object width=\"{$width}\" height=\"{$height}\">
-					<param name=\"movie\" value=\"//www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\"></param>
-					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-					
-					<embed {$wmodeParam} src=\"//www.youtube.com/v/{$videoId}?hl=en_US&amp;version=3&amp;rel=0\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
-				</object>
-			</div>";		
+					<iframe src=\"//www.youtube.com/embed/{$videoId}?{$wmodeParam}&rel=0\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" allowfullscreen></iframe>
+				</div>";
 			}
 			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
 				$html = "<div class=\"video $alignCssClass\" data-attach=\"$.fn.resize\" data-thumbnail=\"{$thumbnail}\">
-				<iframe src=\"//player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+					<iframe src=\"//player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
 				</div>";
 			}
 		}
