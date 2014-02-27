@@ -12,6 +12,7 @@ use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Response\ResponseContext;
 use Supra\Html\HtmlTag;
 use Supra\Controller\Layout\Theme\ThemeInterface;
+use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
 
 /**
  * Helper object for twig processor
@@ -40,7 +41,8 @@ class TwigSupraPageGlobal extends TwigSupraGlobal
 	 */
 	public function isCmsRequest()
 	{
-		return ($this->request instanceof PageRequestEdit);
+		return ($this->request instanceof PageRequestEdit
+				|| $this->request instanceof HistoryPageRequestEdit);
 	}
 	
 	/**

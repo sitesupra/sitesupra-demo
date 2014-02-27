@@ -340,6 +340,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			var page_info = Manager.Page.getPageData();
 			var data = {
 				'page_id': page_info.id,
+				'owner_page_id': block.getPageId(),
 				'block_id': block.getId(),
 				'locale': Supra.data.get('locale')
 			};
@@ -379,6 +380,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			var page_info = Manager.Page.getPageData();
 			var data = {
 				'page_id': page_info.id,
+				'owner_page_id': block.getPageId(),
 				
 				'place_holder_id': block.getId(),
 				'order': order,
@@ -420,6 +422,7 @@ YUI.add('supra.iframe-contents', function (Y) {
 			var page_info = Manager.Page.getPageData();
 			var data = {
 				'page_id': page_info.id,
+				'owner_page_id': block.getPageId(),
 				
 				'place_holder_id': block.get('parent').getId(),
 				'order': order,
@@ -519,6 +522,8 @@ YUI.add('supra.iframe-contents', function (Y) {
 			
 			var post_data = {
 				'page_id': page_data.id,
+				'owner_page_id': object.getPageId(),
+				
 				'locale': Supra.data.get('locale'),
 				'properties': save_values
 			};
