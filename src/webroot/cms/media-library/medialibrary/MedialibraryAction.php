@@ -10,6 +10,7 @@ use Supra\Cms\Exception\CmsException;
 use Supra\FileStorage\Entity\Folder;
 use Supra\Cms\MediaLibrary\ApplicationConfiguration;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\FileStorage\Configuration\PropertyConfiguration;
 
 class MedialibraryAction extends MediaLibraryAbstractAction
 {
@@ -297,6 +298,32 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 			} else {
 				$this->fileStorage->renameFile($file, $fileName);
 			}
+		}
+		
+		// Custom Properties
+		$dirty = false;
+		
+		$input = $this->getRequestInput();
+		/* @var $input \Supra\Request\RequestData */
+		$propertyConfigurations = $this->fileStorage->getCustomPropertyConfigurations();
+		foreach ($propertyConfigurations as $configuration) {
+			/* @var $configuration PropertyConfiguration */
+			
+			$propertyName = $configuration->name;
+			
+			if ($input->offsetExists($propertyName)) {
+				$value = $input->offsetGet($propertyName);
+
+				$property = $this->fileStorage->getFileCustomProperty($file, $propertyName);
+				
+				$property->setEditableValue($value, $configuration->getEditable());
+				
+				$dirty = true;
+			}
+		}
+		
+		if ($dirty) {
+			$this->entityManager->flush();
 		}
 
 		$this->writeAuditLog('%item% saved', $file);
@@ -803,7 +830,18 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		}
 
 		$output['timestamp'] = $file->getModificationTime()->getTimestamp();
-        
+		
+		// Custom Properties
+		$propertyConfigurations = $this->fileStorage->getCustomPropertyConfigurations();
+		$propertyData = array();
+		foreach ($propertyConfigurations as $configuration) {
+			/* @var $configuration PropertyConfiguration */
+			$propertyName = $configuration->name;
+			$propertyData[$propertyName] = $this->fileStorage->getFileCustomPropertyValue($file, $propertyName);
+		}
+		
+		$output['metaData'] = $propertyData;
+		
 		return $output;
 	}
 

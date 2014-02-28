@@ -8,14 +8,13 @@ use Supra\FileStorage\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityManager;
 use Supra\Log\Writer\WriterAbstraction;
+use Supra\FileStorage\Configuration\PropertyConfiguration;
 
 /**
  * File storage
- *
  */
 class FileStorage
 {
-
 	const CACHE_GROUP_NAME = 'Supra\FileStorage';
 	const RESERVED_DIR_SIZE = "_size";
 	const RESERVED_DIR_VERSION = "_ver";
@@ -54,6 +53,13 @@ class FileStorage
 	 * @var array
 	 */
 	private $folderUploadFilters = array();
+	
+	
+	/**
+	 * File custom property configurations array
+	 * @var array
+	 */
+	protected $customPropertyConfigurations = array();
 
 	/**
 	 * @return EntityManager
@@ -1693,5 +1699,73 @@ class FileStorage
 		return (int) $this->getDoctrineEntityManager()
 				->createQuery("SELECT SUM(f.fileSize) as total FROM {$entityClassname} f")
 				->getSingleScalarResult();
+	}
+	
+	/**
+	 * @param PropertyConfiguration $configuration
+	 */
+	public function addCustomPropertyConfiguration(PropertyConfiguration $configuration)
+	{
+		$this->customPropertyConfigurations[$configuration->name] = $configuration;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getCustomPropertyConfigurations()
+	{
+		return $this->customPropertyConfigurations;
+	}
+	
+	/**
+	 * @param Entity\Abstraction\File $file
+	 * @param string $propertyName
+	 * @return mixed
+	 */
+	public function getFileCustomPropertyValue(Entity\Abstraction\File $file, $propertyName)
+	{
+		if ( ! isset($this->customPropertyConfigurations[$propertyName])) {
+			throw new \RuntimeConfiguration("Property '{$propertyName}' is not configured");
+		}
+		
+		$property = $file->getCustomProperties()
+				->get($propertyName);
+		/* @var $property Supra\FileStorage\Entity\FileProperty */
+		
+		if ($property instanceof Entity\FileProperty) {
+			// @TODO: pass through editable? Filter?
+			return $property->getValue();
+		}
+		
+		$configuration = $this->customPropertyConfigurations[$propertyName];
+		
+		return $configuration->default;
+	}
+	
+	/**
+	 * @param Entity\Abstraction\File $file
+	 * @param string $propertyName
+	 * @return mixed
+	 */
+	public function getFileCustomProperty(Entity\Abstraction\File $file, $propertyName)
+	{
+		if ( ! isset($this->customPropertyConfigurations[$propertyName])) {
+			throw new \RuntimeConfiguration("Property '{$propertyName}' is not configured");
+		}
+		
+		$property = $file->getCustomProperties()
+				->get($propertyName);
+		/* @var $property Supra\FileStorage\Entity\FileProperty */
+		
+		if ( ! $property instanceof Entity\FileProperty) {
+			
+			$property = new Entity\FileProperty($propertyName, $file);
+			
+			$this->getDoctrineEntityManager()
+					->persist($property);
+		}
+		
+		return $property;
+				
 	}
 }

@@ -38064,7 +38064,7 @@ YUI.add('supra.datatype-color', function(Y) {
 		 * @private
 		 */
 		_setValue: function (value) {
-			if (typeof value === 'object' && 'date' in value) {
+			if (typeof value === 'object' && value && 'date' in value) {
 				// Object {date: ..., timzone: ..., timezone_type: ...}
 				value = value.date;
 			}

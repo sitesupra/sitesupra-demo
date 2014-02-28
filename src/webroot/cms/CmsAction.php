@@ -188,9 +188,7 @@ abstract class CmsAction extends SimpleController
 	 */
 	public function createResponse(Request\RequestInterface $request)
 	{
-		$response = new JsonResponse();
-
-		return $response;
+		return new JsonResponse;
 	}
 
 	/**
@@ -199,6 +197,7 @@ abstract class CmsAction extends SimpleController
 	protected function createTwigResponse()
 	{
 		$response = new TwigResponse(__CLASS__);
+		
 		$managerConfiguration = ObjectRepository::getApplicationConfiguration($this);
 		$response->assign('manager', $managerConfiguration);
 		
@@ -220,6 +219,20 @@ abstract class CmsAction extends SimpleController
 		// Used to get currently signed in user
 		//TODO: think about something better...
 		$response->assign('action', $this);
+		
+		// MediaLibrary configuration
+		$mediaLibraryData = array(
+			'properties' => array()
+		);
+		
+		$fileStorage = ObjectRepository::getFileStorage($this);
+		$propertyConfigurations = $fileStorage->getCustomPropertyConfigurations();	
+		foreach ($propertyConfigurations as $configuration) {
+			/* @var $configuration \Supra\FileStorage\Configuration\PropertyConfiguration */
+			$mediaLibraryData['properties'][] = $configuration->toArray();
+		}
+		
+		$response->assign('mediaLibrary', $mediaLibraryData);
 		
 		$twig = $response->getTwigEnvironment();
 

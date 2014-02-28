@@ -11,6 +11,9 @@ use Supra\FileStorage\Entity\SlashFolder;
 use Supra\Database\Doctrine\Listener\Timestampable;
 use Supra\AuditLog\TitleTrackingItemInterface;
 use Supra\FileStorage\Entity\FilePath;
+use Doctrine\Common\Collections;
+use Supra\FileStorage\Entity\FileProperty;
+
 
 /**
  * File abstraction
@@ -115,10 +118,18 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	protected $originalFileName;
 
 	/**
-	 * @OneToOne(targetEntity="\Supra\FileStorage\Entity\FilePath", cascade={"remove", "persist", "merge"}, fetch="EAGER")
+	 * @OneToOne(targetEntity="Supra\FileStorage\Entity\FilePath", cascade={"remove", "persist", "merge"}, fetch="EAGER")
 	 * @var \Supra\FileStorage\Entity\FilePath
 	 */
 	protected $path;
+	
+	/**
+	 * Custom property collection
+	 * 
+	 * @OneToMany(targetEntity="Supra\FileStorage\Entity\FileProperty", mappedBy="file", cascade={"all"}, indexBy="name")
+	 * @var Collections\Collection
+	 */
+	protected $properties;
 
 	/**
 	 * @return FilePath 
@@ -554,5 +565,25 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	{
 		return $this->getFileName();
 	}
+	
+	/**
+	 * @param FileProperty $fileProperty
+	 */
+	public function addCustomProperty(FileProperty $fileProperty)
+	{
+		$name = $fileProperty->getName();
 
+		if ($this->properties->containsKey($name)) {
+			// non unique exception
+			throw new \RuntimeException("Property with name {$name} already exists in collection");
+		}
+	}
+	
+	/**
+	 * @return Collections\Collection
+	 */
+	public function getCustomProperties()
+	{
+		return $this->properties;
+	}
 }

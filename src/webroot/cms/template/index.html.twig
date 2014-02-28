@@ -103,7 +103,12 @@
 				'helpnotes': {{ action.currentUserArray.closedTips | json_encode | raw }},
 				
 				//CMS Internationalization
-				'lang': {{ interfaceLanguage | default('') | json_encode | raw }}
+				'lang': {{ interfaceLanguage | default('') | json_encode | raw }}, 
+						
+				//MediaLibrary: file custom properties
+				'media-library': {
+					'properties': {{ mediaLibrary.properties | json_encode | raw }}
+				}
 			});
 			
 			//IE not supported at the moment
