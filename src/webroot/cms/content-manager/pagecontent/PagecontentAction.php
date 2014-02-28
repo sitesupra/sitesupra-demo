@@ -155,7 +155,6 @@ class PagecontentAction extends PageManagerAction
 	{
 		$this->isPostRequest();
 		$this->checkLock();
-		$request = $this->getPageRequest();
 		$input = $this->getRequestInput();
 
 		$blockId = $input->get('block_id');
@@ -166,16 +165,33 @@ class PagecontentAction extends PageManagerAction
 		if (empty($block)) {
 			throw new CmsException(null, "Block doesn't exist anymore");
 		}
-
+		
+		$request = $this->getPageRequest();
 		$pageData = $request->getPageLocalization();
-
+		
 		$this->checkActionPermission($pageData, Entity\Abstraction\Entity::PERMISSION_NAME_EDIT_PAGE);
-
+		
 		// Receive block property definition
 		$blockController = $block->createController();
 		/* @var $blockController \Supra\Controller\Pages\BlockController */
-
-		$block->prepareController($blockController, $request);
+		
+		if ($block instanceof Entity\TemplateBlock
+				&& $pageData instanceof PageLocalization) {
+			
+			// user edits the global block, and we need to find source origin -
+			// template localization
+			$ownerPageId = $input->get('owner_page_id');
+			if ($ownerPageId === $pageData->getId()) {
+				throw new \LogicException('Edited global block, but somehow page and template ids are the same');
+			}
+			
+			$originPageData = $this->getPageLocalizationByRequestKey('owner_page_id');
+			$originRequest = $this->getPageRequest($originPageData);
+			
+			$block->prepareController($blockController, $originRequest);
+		} else {
+			$block->prepareController($blockController, $request);
+		}
 
 		if ($block instanceof Entity\TemplateBlock) {
 			if ($input->has('locked')) {
@@ -185,17 +201,17 @@ class PagecontentAction extends PageManagerAction
 		}
 		
 		if ($block instanceof Entity\TemplateBlock
-				&& ! $pageData->isBlockEditable($block)) {
+				&& $pageData instanceof Entity\PageLocalization) {
 				
 			$eventArgs = new \Supra\Controller\Pages\Event\PageEventArgs();
 			
-			$eventArgs->setProperty('referenceId', $pageData->getId());
 			
 			//TODO: This can be sent by JS, actually
 			$blockLocalizationId = $block->getPlaceHolder()
 					->getLocalization()
 					->getId();
 			
+			$eventArgs->setProperty('referenceId', $pageData->getId());
 			$eventArgs->setProperty('globalElementReferenceId', $blockLocalizationId);
 				
 			$this->entityManager->getEventManager()

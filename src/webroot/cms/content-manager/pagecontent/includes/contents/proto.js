@@ -217,11 +217,26 @@ YUI.add('supra.page-content-proto', function (Y) {
 		 * Returns block instance ID (content ID)
 		 * 
 		 * @return ID
-		 * @type {Number}
+		 * @type {String}
 		 */
 		getId: function () {
 			var data = this.get('data');
 			return (data ? data.id : null);
+		},
+		
+		/**
+		 * Return page id to which this block belongs to
+		 * 
+		 * @returns {String} Page ID
+		 */
+		getPageId: function () {
+			var data = this.get('data');
+			if (data.owner_id) {
+				return data.owner_id;
+			} else {
+				var page_data = Page.getPageData();
+				return page_data.id;
+			}
 		},
 		
 		/**

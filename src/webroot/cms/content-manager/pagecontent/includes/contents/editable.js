@@ -538,6 +538,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 			
 			data = {
 				'page_id': page_data.id,
+				'owner_page_id': this.getPageId(),
+				
 				'block_id': this.getId(),
 				'locale': Supra.data.get('locale'),
 				'properties': this.processData(this.properties.getNonInlineSaveValues())
