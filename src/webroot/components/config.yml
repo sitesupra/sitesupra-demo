@@ -28,3 +28,9 @@
     description: Transact data form
     cmsClassname: Editable
     
+
+- Supra\FileStorage\Configuration\PropertyConfiguration:
+    name: expiration_time
+    label: Expiration Time
+    editable: Supra\Editable\Date
+    
