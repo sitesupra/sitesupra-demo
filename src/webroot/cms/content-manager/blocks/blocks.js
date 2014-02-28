@@ -67,56 +67,67 @@ Supra(function (Y) {
 		 */
 		initialize: function () {
 			//Load data
-			var url = this.getDataPath();
+			var configuration = Supra.data.get(['page', 'configuration']),
+				url = this.getDataPath();
 			
-			Supra.io(url, {
-				'on': {
-					'success': function (data) {
-						this.groups = data.groups;
-						this.data_array = data.blocks;
-						this.data = {};
-						
-						var block,
-							label;
-						
-						for(var i=0,ii=data.blocks.length; i<ii; i++) {
-							block = data.blocks[i];
-							
-							if (block.classname == 'List') {
-								label = Supra.Intl.get(['inputs', 'locked_list']);
-							} else {
-								label = Supra.Intl.get(['inputs', 'locked']);
-							}
-							
-							this.data[block.id] = block;
-							
-							//When user will be editing template, then will need possibility to lock blocks;
-							//add 'locked' property to property list;
-							//input will be hidden and disabled if current page is not template (see plugin-properties.js)
-							block.properties = block.properties || [];
-							block.property_groups = block.property_groups || [];
-							
-							block.properties.push({
-								'id': '__locked__',
-								'type': 'Checkbox',
-								'label': label,
-								'group': 'advanced'
-							});
-							block.property_groups.push({
-								'id': 'advanced',
-								'label': Supra.Intl.get(['inputs', 'advanced']),
-								'type': 'sidebar',
-								'icon': '/cms/lib/supra/img/sidebar/icons/button-advanced.png'
-							});
-						}
-						
-						if (Y.Lang.isFunction(this.callback)) {
-							this.callback(this.data);
-							this.callback = null;
-						}
-					}
+			if (configuration) {
+				this.processData(configuration);
+			} else {
+				// @TODO This was used before configuration was set in Supra.data
+				// Remove when it's implemented on server-side
+				Supra.io(url).done(this.processData, this);
+			}
+		},
+		
+		/**
+		 * Process configuration data
+		 * 
+		 * @param {Object} data Configuration data
+		 * @private
+		 */
+		processData: function (data) {
+			this.groups = data.groups;
+			this.data_array = data.blocks;
+			this.data = {};
+			
+			var block,
+				label;
+			
+			for(var i=0,ii=data.blocks.length; i<ii; i++) {
+				block = data.blocks[i];
+				
+				if (block.classname == 'List') {
+					label = Supra.Intl.get(['inputs', 'locked_list']);
+				} else {
+					label = Supra.Intl.get(['inputs', 'locked']);
 				}
-			}, this);
+				
+				this.data[block.id] = block;
+				
+				//When user will be editing template, then will need possibility to lock blocks;
+				//add 'locked' property to property list;
+				//input will be hidden and disabled if current page is not template (see plugin-properties.js)
+				block.properties = block.properties || [];
+				block.property_groups = block.property_groups || [];
+				
+				block.properties.push({
+					'id': '__locked__',
+					'type': 'Checkbox',
+					'label': label,
+					'group': 'advanced'
+				});
+				block.property_groups.push({
+					'id': 'advanced',
+					'label': Supra.Intl.get(['inputs', 'advanced']),
+					'type': 'sidebar',
+					'icon': '/cms/lib/supra/img/sidebar/icons/button-advanced.png'
+				});
+			}
+			
+			if (Y.Lang.isFunction(this.callback)) {
+				this.callback(this.data);
+				this.callback = null;
+			}
 		},
 		
 		/**
