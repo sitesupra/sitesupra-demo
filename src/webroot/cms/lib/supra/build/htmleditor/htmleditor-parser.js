@@ -435,7 +435,12 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				regexStripQuotes = REGEX_STRIP_QUOTES;
 			
 			html.replace(REGEX_TAG_ATTRIBUTES, function (all, key, val) {
-				parts[key] = decodeURIComponent(val.replace(regexStripQuotes, ''));
+				val = val.replace(regexStripQuotes, '');
+				try {
+					parts[key] = decodeURIComponent(val);
+				} catch (e) {
+					parts[key] = val;
+				}
 				return '';
 			});
 			return parts;
