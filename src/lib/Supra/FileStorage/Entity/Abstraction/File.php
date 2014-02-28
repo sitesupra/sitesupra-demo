@@ -132,6 +132,15 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	protected $properties;
 
 	/**
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+		
+		$this->properties = new Collections\ArrayCollection;
+	}
+	
+	/**
 	 * @return FilePath 
 	 */
 	public function getPathEntity()
