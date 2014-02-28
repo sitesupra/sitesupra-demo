@@ -449,6 +449,9 @@ YUI.add("supra.input-keywords", function (Y) {
 			
 			// check if item was a suggestion and unhide it in suggestions list
 			this.showSuggestion(value);
+			
+			//Events
+			this.fire('change', {'value': this.get('value')});
 		},
 
 		/**

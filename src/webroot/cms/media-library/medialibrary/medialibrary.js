@@ -212,7 +212,8 @@ Supra('supra.medialibrary-list-extended', 'supra.medialibrary-upload', function 
 				'insertURI': this.getDataPath('insert'),
 				'imageRotateURI': this.getDataPath('imagerotate'),
 				'imageCropURI': this.getDataPath('imagecrop'),
-				'slideshowClass': Supra.SlideshowMultiView
+				'slideshowClass': Supra.SlideshowMultiView,
+				'metaProperties': Supra.data.get(['media-library', 'properties'], [])
 			})).render();
 			
 			//On folder change show/hide private/public buttons

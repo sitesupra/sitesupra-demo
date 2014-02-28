@@ -393,8 +393,10 @@
 	.inp-title,
 	.inp-description,
 	.inp-filename,
-	.inp-locale {
-		padding: 0 0 10px;
+	.inp-locale,
+	.meta > .yui3-input {
+		margin: 0 0 5px;
+		padding: 0;
 		display: block;
 	}
 	.inp-title input,
@@ -427,7 +429,7 @@
 	}
 	
 	.info {
-		margin: 0 0 5px;
+		margin: 0 0 10px;
 		font-size: 12px;
 		line-height: 14px;
 		
@@ -478,10 +480,32 @@
 }
 
 
-.yui3-medialist .yui3-input {
+.yui3-medialist .inp-filename .yui3-input,
+.yui3-medialist .input-sortby .yui3-input {
 	label {
 		display: none;
 	}
+}
+
+/**
+ * Meta properties
+ */
+.yui3-medialist .meta {
+	margin: 0;
+	
+	> .yui3-input {
+		label {
+			color: #4D4D61;
+			font-weight: normal;
+		}
+	}
+}
+
+/*
+ * Info
+ */
+.yui3-medialist .group {
+	margin: 20px 0 0;
 }
 
 /**

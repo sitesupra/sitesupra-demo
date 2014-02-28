@@ -148,6 +148,9 @@ YUI.add("supra.input-date", function (Y) {
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
+			
+			//Handle value attribute change
+			this.after('valueChange', this._afterValueChange, this);
 		},
 		
 		syncUI: function () {
@@ -590,6 +593,16 @@ YUI.add("supra.input-date", function (Y) {
 			}
 			
 			return maxDate;
+		},
+		
+		/**
+		 * After value change trigger event
+ 		 * @param {Object} evt
+		 */
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+			}
 		}
 	
 	});

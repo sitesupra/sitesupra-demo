@@ -8201,6 +8201,9 @@ YUI().add("supra.io-css", function (Y) {
 		'id': {
 			value: null
 		},
+		'name': {
+			value: null
+		},
 		'error': {
 			value: false,
 			setter: '_setError'
@@ -37673,6 +37676,9 @@ YUI.add('supra.datatype-color', function(Y) {
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
+			
+			//Handle value attribute change
+			this.after('valueChange', this._afterValueChange, this);
 		},
 		
 		syncUI: function () {
@@ -38115,6 +38121,16 @@ YUI.add('supra.datatype-color', function(Y) {
 			}
 			
 			return maxDate;
+		},
+		
+		/**
+		 * After value change trigger event
+ 		 * @param {Object} evt
+		 */
+		_afterValueChange: function (evt) {
+			if (evt.prevVal != evt.newVal) {
+				this.fire('change', {'value': evt.newVal});
+			}
 		}
 	
 	});
@@ -41997,6 +42013,9 @@ YUI.add("supra.input-keywords", function (Y) {
 			
 			// check if item was a suggestion and unhide it in suggestions list
 			this.showSuggestion(value);
+			
+			//Events
+			this.fire('change', {'value': this.get('value')});
 		},
 
 		/**

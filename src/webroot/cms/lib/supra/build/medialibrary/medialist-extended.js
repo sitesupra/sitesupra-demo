@@ -42,6 +42,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				<input type="text" name="filename" value="{{ filename|escape }}" data-value-mask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' data-use-replacement="true" />\
 			</span>\
 			\
+			{% if metaProperties|length %}\
+				<div class="meta yui3-form-vertical"></div>\
+			{% endif %}\
+			\
 			<div class="group">\
 				<div class="info">\
 					{% if extension %}\
@@ -88,6 +92,10 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 			<span class="inp-filename" title="{{ "medialibrary.label_filename"|intl }}">\
 				<input type="text" name="filename" value="{{ filename|escape }}" data-value-mask=\'^[^\\\\._][^\\\\\\\\\\\\/\\\\|:\\\\?\\\\*<>\\\\s\\"]*$\' data-use-replacement="true" />\
 			</span>\
+			\
+			{% if metaProperties|length %}\
+				<div class="meta yui3-form-vertical"></div>\
+			{% endif %}\
 			\
 			<div class="group">\
 				<div class="info">\
@@ -171,6 +179,14 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		'imageCropURI': {
 			value: null
+		},
+		
+		/**
+		 * Meta data properties
+		 * @type {Array}
+		 */
+		'metaProperties': {
+			value: []
 		},
 		
 		/**
@@ -710,6 +726,9 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 								
 				//Save input instances to destroy them when re-rendered
 				this.property_widgets = inp;
+				
+				//Meta properties
+				this.renderMetaDataProperties(event, node);
 			}
 		},
 		
@@ -721,6 +740,65 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 		 */
 		isOpened: function (id) {
 			return this.slideshow.isInHistory('slide_' + id);
+		},
+		
+		
+		/* ------------------------- Meta data ------------------------- */
+		
+		
+		/**
+		 * Returns data for rendering template
+		 * 
+		 * @param {Object} data
+		 * @return Transformed data
+		 * @type {Object}
+		 * @private
+		 */
+		getRenderData: function (data) {
+			var item_data = Extended.superclass.getRenderData.apply(this, arguments);
+			
+			// Add meta data properties
+			item_data.metaProperties = this.get('metaProperties');
+			
+			return item_data;
+		},
+		
+		/**
+		 * Render meta data properties
+		 * 
+		 * @param {Object} event itemRender event
+		 * @param {Object} node Slide node
+		 */
+		renderMetaDataProperties: function (event, node) {
+			var meta_properties = this.get('metaProperties'),
+				i = 0,
+				ii = meta_properties.length,
+				
+				inputs = this.property_widgets,
+				input,
+				
+				container = node.one('.meta'),
+				
+				data = this.get('metaProperties'),
+				name;
+			
+			for (; i<ii; i++) {
+				name = meta_properties[i].name || meta_properties[i].id;
+				
+				input = Supra.Form.factoryField(Supra.mix({
+					// On change for save is used name, not id attribute
+					'name': name,
+					'value': data.metaData ? data.metaData[name] : null
+				}, meta_properties[i]));
+				
+				input.render(container);
+				
+				// Handle value change
+				input.on('change', this.edit.onItemPropertyChange, this.edit, {'data': event.data, 'input': input});
+				
+				// Save into input list, these inputs are destroyed when slide closes
+				inputs[meta_properties[i].id] = input;
+			}
 		}
 		
 	}, {});

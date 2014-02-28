@@ -60,6 +60,9 @@ YUI.add('supra.input-proto', function (Y) {
 		'id': {
 			value: null
 		},
+		'name': {
+			value: null
+		},
 		'error': {
 			value: false,
 			setter: '_setError'

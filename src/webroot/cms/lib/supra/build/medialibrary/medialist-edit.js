@@ -162,7 +162,7 @@ YUI.add('supra.medialibrary-list-edit', function (Y) {
 		 * @private
 		 */
 		onItemPropertyChange: function (event /* Event */, data /* Item data*/) {
-			var name = data.input.getAttribute('name'),
+			var name = data.input.get('name') || data.input.getAttribute('name'),
 				value = data.input.get('value');
 			
 			if (value && value != data.data[name]) {
