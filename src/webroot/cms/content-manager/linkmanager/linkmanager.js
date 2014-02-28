@@ -90,7 +90,8 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 	};
 	
 	//Regular expression to test external link without protocol
-	var TEST_EXTERNAL_LINK = /^[a-z0-9]+[a-z0-9-]*[a-z0-9]+(\.[a-z0-9]+)+(\/|$)/i;
+	var TEST_EXTERNAL_LINK = /^[a-z0-9]+[a-z0-9-]*[a-z0-9]+(\.[a-z0-9]+)+(\/|$)/i,
+		REPLACE_LOCAL_DOMAIN = /https?:\/\/[^\/]+/;
 	
 	//Create Action class
 	new Action(Action.PluginLayoutSidebar, {
@@ -929,6 +930,23 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					if (page_href && TEST_EXTERNAL_LINK.test(page_href)) {
 						page_href = 'http://' + page_href;
 					}
+					
+					//Remove domain from links which point to same host
+					page_href = page_href.replace(REPLACE_LOCAL_DOMAIN, function (all) {
+						var host_link = all.toLowerCase(),
+							host_self = (document.location.protocol + '//' + document.location.hostname).toLowerCase();
+						
+						if (host_link == host_self) {
+							return '';
+						} else {
+							return all;
+						}
+					});
+					
+					//Decode to preserve space
+					try {
+						page_href = decodeURIComponent(page_href);
+					} catch (e) {}
 					
 					//Link to external resource
 					return {
