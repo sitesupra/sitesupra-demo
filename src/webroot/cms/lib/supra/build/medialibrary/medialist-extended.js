@@ -779,7 +779,7 @@ YUI.add('supra.medialibrary-list-extended', function (Y) {
 				
 				container = node.one('.meta'),
 				
-				data = this.get('metaProperties'),
+				data = event.data,
 				name;
 			
 			for (; i<ii; i++) {
