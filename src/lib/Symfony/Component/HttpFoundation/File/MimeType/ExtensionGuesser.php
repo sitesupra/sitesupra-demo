@@ -16,15 +16,12 @@ namespace Symfony\Component\HttpFoundation\File\MimeType;
  *
  * A default guesser is provided.
  * You can register custom guessers by calling the register()
- * method on the singleton instance.
+ * method on the singleton instance:
  *
- * <code>
- * $guesser = ExtensionGuesser::getInstance();
- * $guesser->register(new MyCustomExtensionGuesser());
- * </code>
+ *     $guesser = ExtensionGuesser::getInstance();
+ *     $guesser->register(new MyCustomExtensionGuesser());
  *
  * The last registered guesser is preferred over previously registered ones.
- *
  */
 class ExtensionGuesser implements ExtensionGuesserInterface
 {
@@ -85,18 +82,15 @@ class ExtensionGuesser implements ExtensionGuesserInterface
      * value.
      *
      * @param string $mimeType The mime type
+     *
      * @return string          The guessed extension or NULL, if none could be guessed
      */
     public function guess($mimeType)
     {
         foreach ($this->guessers as $guesser) {
-            $extension = $guesser->guess($mimeType);
-
-            if (null !== $extension) {
-                break;
+            if (null !== $extension = $guesser->guess($mimeType)) {
+                return $extension;
             }
         }
-
-        return $extension;
     }
 }

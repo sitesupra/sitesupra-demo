@@ -24,9 +24,12 @@ namespace Symfony\Component\Console\Input;
  */
 abstract class Input implements InputInterface
 {
+    /**
+     * @var InputDefinition
+     */
     protected $definition;
-    protected $options;
-    protected $arguments;
+    protected $options = array();
+    protected $arguments = array();
     protected $interactive = true;
 
     /**
@@ -183,8 +186,8 @@ abstract class Input implements InputInterface
     /**
      * Sets an option value by name.
      *
-     * @param string $name  The option name
-     * @param string $value The option value
+     * @param string         $name  The option name
+     * @param string|boolean $value The option value
      *
      * @throws \InvalidArgumentException When option given doesn't exist
      */
@@ -207,5 +210,17 @@ abstract class Input implements InputInterface
     public function hasOption($name)
     {
         return $this->definition->hasOption($name);
+    }
+
+    /**
+     * Escapes a token through escapeshellarg if it contains unsafe chars
+     *
+     * @param string $token
+     *
+     * @return string
+     */
+    public function escapeToken($token)
+    {
+        return preg_match('{^[\w-]+$}', $token) ? $token : escapeshellarg($token);
     }
 }

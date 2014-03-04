@@ -12,23 +12,29 @@
 namespace Symfony\Component\Form\Tests\Extension\Core\Type;
 
 use Symfony\Component\Form\Extension\Core\View\ChoiceView;
+use Symfony\Component\Intl\Util\IntlTestHelper;
 
-class CountryTypeTest extends LocalizedTestCase
+class CountryTypeTest extends TypeTestCase
 {
+    protected function setUp()
+    {
+        IntlTestHelper::requireIntl($this);
+
+        parent::setUp();
+    }
+
     public function testCountriesAreSelectable()
     {
-        \Locale::setDefault('de_AT');
-
         $form = $this->factory->create('country');
         $view = $form->createView();
         $choices = $view->vars['choices'];
 
         // Don't check objects for identity
-        $this->assertContains(new ChoiceView('DE', 'Deutschland'), $choices, '', false, false);
-        $this->assertContains(new ChoiceView('GB', 'Vereinigtes Königreich'), $choices, '', false, false);
-        $this->assertContains(new ChoiceView('US', 'Vereinigte Staaten'), $choices, '', false, false);
-        $this->assertContains(new ChoiceView('FR', 'Frankreich'), $choices, '', false, false);
-        $this->assertContains(new ChoiceView('MY', 'Malaysia'), $choices, '', false, false);
+        $this->assertContains(new ChoiceView('DE', 'DE', 'Germany'), $choices, '', false, false);
+        $this->assertContains(new ChoiceView('GB', 'GB', 'United Kingdom'), $choices, '', false, false);
+        $this->assertContains(new ChoiceView('US', 'US', 'United States'), $choices, '', false, false);
+        $this->assertContains(new ChoiceView('FR', 'FR', 'France'), $choices, '', false, false);
+        $this->assertContains(new ChoiceView('MY', 'MY', 'Malaysia'), $choices, '', false, false);
     }
 
     public function testUnknownCountryIsNotIncluded()

@@ -11,43 +11,11 @@
 
 namespace Symfony\Component\Form\Tests\Extension\Core\ChoiceList;
 
-use Symfony\Component\Form\Extension\Core\ChoiceList\ChoiceList;
 use Symfony\Component\Form\Extension\Core\ChoiceList\SimpleChoiceList;
 use Symfony\Component\Form\Extension\Core\View\ChoiceView;
 
-class SimpleChoiceListTest extends \PHPUnit_Framework_TestCase
+class SimpleChoiceListTest extends AbstractChoiceListTest
 {
-    private $list;
-
-    private $numericList;
-
-    protected function setUp()
-    {
-        parent::setUp();
-
-        $choices = array(
-            'Group 1' => array('a' => 'A', 'b' => 'B'),
-            'Group 2' => array('c' => 'C', 'd' => 'D'),
-        );
-        $numericChoices = array(
-            'Group 1' => array(0 => 'A', 1 => 'B'),
-            'Group 2' => array(2 => 'C', 3 => 'D'),
-        );
-
-        $this->list = new SimpleChoiceList($choices, array('b', 'c'));
-
-        // Use COPY_CHOICE strategy to test for the various associated problems
-        $this->numericList = new SimpleChoiceList($numericChoices, array(1, 2));
-    }
-
-    protected function tearDown()
-    {
-        parent::tearDown();
-
-        $this->list = null;
-        $this->numericList = null;
-    }
-
     public function testInitArray()
     {
         $choices = array('a' => 'A', 'b' => 'B', 'c' => 'C');
@@ -55,8 +23,8 @@ class SimpleChoiceListTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(array(0 => 'a', 1 => 'b', 2 => 'c'), $this->list->getChoices());
         $this->assertSame(array(0 => 'a', 1 => 'b', 2 => 'c'), $this->list->getValues());
-        $this->assertEquals(array(1 => new ChoiceView('b', 'B')), $this->list->getPreferredViews());
-        $this->assertEquals(array(0 => new ChoiceView('a', 'A'), 2 => new ChoiceView('c', 'C')), $this->list->getRemainingViews());
+        $this->assertEquals(array(1 => new ChoiceView('b', 'b', 'B')), $this->list->getPreferredViews());
+        $this->assertEquals(array(0 => new ChoiceView('a', 'a', 'A'), 2 => new ChoiceView('c', 'c', 'C')), $this->list->getRemainingViews());
     }
 
     public function testInitNestedArray()
@@ -64,90 +32,13 @@ class SimpleChoiceListTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array(0 => 'a', 1 => 'b', 2 => 'c', 3 => 'd'), $this->list->getChoices());
         $this->assertSame(array(0 => 'a', 1 => 'b', 2 => 'c', 3 => 'd'), $this->list->getValues());
         $this->assertEquals(array(
-            'Group 1' => array(1 => new ChoiceView('b', 'B')),
-            'Group 2' => array(2 => new ChoiceView('c', 'C'))
+            'Group 1' => array(1 => new ChoiceView('b', 'b', 'B')),
+            'Group 2' => array(2 => new ChoiceView('c', 'c', 'C'))
         ), $this->list->getPreferredViews());
         $this->assertEquals(array(
-            'Group 1' => array(0 => new ChoiceView('a', 'A')),
-            'Group 2' => array(3 => new ChoiceView('d', 'D'))
+            'Group 1' => array(0 => new ChoiceView('a', 'a', 'A')),
+            'Group 2' => array(3 => new ChoiceView('d', 'd', 'D'))
         ), $this->list->getRemainingViews());
-    }
-
-    public function testGetIndicesForChoices()
-    {
-        $choices = array('b', 'c');
-        $this->assertSame(array(1, 2), $this->list->getIndicesForChoices($choices));
-    }
-
-    public function testGetIndicesForChoicesIgnoresNonExistingChoices()
-    {
-        $choices = array('b', 'c', 'foobar');
-        $this->assertSame(array(1, 2), $this->list->getIndicesForChoices($choices));
-    }
-
-    public function testGetIndicesForChoicesDealsWithNumericChoices()
-    {
-        // Pass choices as strings although they are integers
-        $choices = array('0', '1');
-        $this->assertSame(array(0, 1), $this->numericList->getIndicesForChoices($choices));
-    }
-
-    public function testGetIndicesForValues()
-    {
-        $values = array('b', 'c');
-        $this->assertSame(array(1, 2), $this->list->getIndicesForValues($values));
-    }
-
-    public function testGetIndicesForValuesIgnoresNonExistingValues()
-    {
-        $values = array('b', 'c', '100');
-        $this->assertSame(array(1, 2), $this->list->getIndicesForValues($values));
-    }
-
-    public function testGetIndicesForValuesDealsWithNumericValues()
-    {
-        // Pass values as strings although they are integers
-        $values = array('0', '1');
-        $this->assertSame(array(0, 1), $this->numericList->getIndicesForValues($values));
-    }
-
-    public function testGetChoicesForValues()
-    {
-        $values = array('b', 'c');
-        $this->assertSame(array('b', 'c'), $this->list->getChoicesForValues($values));
-    }
-
-    public function testGetChoicesForValuesIgnoresNonExistingValues()
-    {
-        $values = array('b', 'c', '100');
-        $this->assertSame(array('b', 'c'), $this->list->getChoicesForValues($values));
-    }
-
-    public function testGetChoicesForValuesDealsWithNumericValues()
-    {
-        // Pass values as strings although they are integers
-        $values = array('0', '1');
-        $this->assertSame(array(0, 1), $this->numericList->getChoicesForValues($values));
-    }
-
-    public function testGetValuesForChoices()
-    {
-        $choices = array('b', 'c');
-        $this->assertSame(array('b', 'c'), $this->list->getValuesForChoices($choices));
-    }
-
-    public function testGetValuesForChoicesIgnoresNonExistingValues()
-    {
-        $choices = array('b', 'c', 'foobar');
-        $this->assertSame(array('b', 'c'), $this->list->getValuesForChoices($choices));
-    }
-
-    public function testGetValuesForChoicesDealsWithNumericValues()
-    {
-        // Pass values as strings although they are integers
-        $values = array('0', '1');
-
-        $this->assertSame(array('0', '1'), $this->numericList->getValuesForChoices($values));
     }
 
     /**
@@ -164,7 +55,6 @@ class SimpleChoiceListTest extends \PHPUnit_Framework_TestCase
             'foo10' => 'Foo 10',
         );
 
-        // use COPY_CHOICE strategy to test the problems
         $this->list = new SimpleChoiceList($choices, array());
 
         $this->assertSame(array($value), $this->list->getValuesForChoices(array($choice)));
@@ -184,5 +74,36 @@ class SimpleChoiceListTest extends \PHPUnit_Framework_TestCase
             array('foo', 'foo'),
             array('foo10', 'foo10'),
         );
+    }
+
+    /**
+     * @return \Symfony\Component\Form\Extension\Core\ChoiceList\ChoiceListInterface
+     */
+    protected function createChoiceList()
+    {
+        return new SimpleChoiceList(array(
+            'Group 1' => array('a' => 'A', 'b' => 'B'),
+            'Group 2' => array('c' => 'C', 'd' => 'D'),
+        ), array('b', 'c'));
+    }
+
+    protected function getChoices()
+    {
+        return array(0 => 'a', 1 => 'b', 2 => 'c', 3 => 'd');
+    }
+
+    protected function getLabels()
+    {
+        return array(0 => 'A', 1 => 'B', 2 => 'C', 3 => 'D');
+    }
+
+    protected function getValues()
+    {
+        return array(0 => 'a', 1 => 'b', 2 => 'c', 3 => 'd');
+    }
+
+    protected function getIndices()
+    {
+        return array(0, 1, 2, 3);
     }
 }

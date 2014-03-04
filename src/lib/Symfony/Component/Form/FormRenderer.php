@@ -11,9 +11,12 @@
 
 namespace Symfony\Component\Form;
 
-use Symfony\Component\Form\Extension\Core\View\ChoiceView;
-use Symfony\Component\Form\Exception\FormException;
+use Symfony\Component\Form\Exception\LogicException;
+use Symfony\Component\Form\Exception\BadMethodCallException;
+use Symfony\Component\Form\Exception\UnexpectedTypeException;
+use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderAdapter;
 use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * Renders a form into HTML using a rendering engine.
@@ -22,15 +25,17 @@ use Symfony\Component\Form\Extension\Csrf\CsrfProvider\CsrfProviderInterface;
  */
 class FormRenderer implements FormRendererInterface
 {
+    const CACHE_KEY_VAR = 'unique_block_prefix';
+
     /**
      * @var FormRendererEngineInterface
      */
     private $engine;
 
     /**
-     * @var CsrfProviderInterface
+     * @var CsrfTokenManagerInterface
      */
-    private $csrfProvider;
+    private $csrfTokenManager;
 
     /**
      * @var array
@@ -45,17 +50,26 @@ class FormRenderer implements FormRendererInterface
     /**
      * @var array
      */
-    private $variableMap = array();
-
-    /**
-     * @var array
-     */
     private $variableStack = array();
 
-    public function __construct(FormRendererEngineInterface $engine, CsrfProviderInterface $csrfProvider = null)
+    /**
+     * Constructor.
+     *
+     * @param FormRendererEngineInterface    $engine
+     * @param CsrfTokenManagerInterface|null $csrfTokenManager
+     *
+     * @throws UnexpectedTypeException
+     */
+    public function __construct(FormRendererEngineInterface $engine, $csrfTokenManager = null)
     {
+        if ($csrfTokenManager instanceof CsrfProviderInterface) {
+            $csrfTokenManager = new CsrfProviderAdapter($csrfTokenManager);
+        } elseif (null !== $csrfTokenManager && !$csrfTokenManager instanceof CsrfTokenManagerInterface) {
+            throw new UnexpectedTypeException($csrfTokenManager, 'CsrfProviderInterface or CsrfTokenManagerInterface or null');
+        }
+
         $this->engine = $engine;
-        $this->csrfProvider = $csrfProvider;
+        $this->csrfTokenManager = $csrfTokenManager;
     }
 
     /**
@@ -77,13 +91,13 @@ class FormRenderer implements FormRendererInterface
     /**
      * {@inheritdoc}
      */
-    public function renderCsrfToken($intention)
+    public function renderCsrfToken($tokenId)
     {
-        if (null === $this->csrfProvider) {
-            throw new \BadMethodCallException('CSRF token can only be generated if a CsrfProviderInterface is injected in the constructor.');
+        if (null === $this->csrfTokenManager) {
+            throw new BadMethodCallException('CSRF tokens can only be generated if a CsrfTokenManagerInterface is injected in FormRenderer::__construct().');
         }
 
-        return $this->csrfProvider->generateCsrfToken($intention);
+        return $this->csrfTokenManager->getToken($tokenId)->getValue();
     }
 
     /**
@@ -91,16 +105,29 @@ class FormRenderer implements FormRendererInterface
      */
     public function renderBlock(FormView $view, $blockName, array $variables = array())
     {
-        if (0 == count($this->variableStack)) {
-            throw new FormException('This method should only be called while rendering a form element.');
-        }
-
-        $scopeVariables = end($this->variableStack);
-
         $resource = $this->engine->getResourceForBlockName($view, $blockName);
 
         if (!$resource) {
-            throw new FormException(sprintf('No block "%s" found while rendering the form.', $blockName));
+            throw new LogicException(sprintf('No block "%s" found while rendering the form.', $blockName));
+        }
+
+        $viewCacheKey = $view->vars[self::CACHE_KEY_VAR];
+
+        // The variables are cached globally for a view (instead of for the
+        // current suffix)
+        if (!isset($this->variableStack[$viewCacheKey])) {
+            $this->variableStack[$viewCacheKey] = array();
+
+            // The default variable scope contains all view variables, merged with
+            // the variables passed explicitly to the helper
+            $scopeVariables = $view->vars;
+
+            $varInit = true;
+        } else {
+            // Reuse the current scope and merge it with the explicitly passed variables
+            $scopeVariables = end($this->variableStack[$viewCacheKey]);
+
+            $varInit = false;
         }
 
         // Merge the passed with the existing attributes
@@ -117,13 +144,17 @@ class FormRenderer implements FormRendererInterface
         // cannot be overwritten
         $variables = array_replace($scopeVariables, $variables);
 
-        $this->variableStack[] = $variables;
+        $this->variableStack[$viewCacheKey][] = $variables;
 
         // Do the rendering
         $html = $this->engine->renderBlock($view, $resource, $blockName, $variables);
 
         // Clear the stack
-        array_pop($this->variableStack);
+        array_pop($this->variableStack[$viewCacheKey]);
+
+        if ($varInit) {
+            unset($this->variableStack[$viewCacheKey]);
+        }
 
         return $html;
     }
@@ -133,14 +164,15 @@ class FormRenderer implements FormRendererInterface
      */
     public function searchAndRenderBlock(FormView $view, $blockNameSuffix, array $variables = array())
     {
-        $renderOnlyOnce = in_array($blockNameSuffix, array('row', 'widget'));
+        $renderOnlyOnce = 'row' === $blockNameSuffix || 'widget' === $blockNameSuffix;
 
         if ($renderOnlyOnce && $view->isRendered()) {
             return '';
         }
 
         // The cache key for storing the variables and types
-        $mapKey = $uniqueBlockName = $view->vars['full_block_name'] . '_' . $blockNameSuffix;
+        $viewCacheKey = $view->vars[self::CACHE_KEY_VAR];
+        $viewAndSuffixCacheKey = $viewCacheKey.$blockNameSuffix;
 
         // In templates, we have to deal with two kinds of block hierarchies:
         //
@@ -169,29 +201,42 @@ class FormRenderer implements FormRendererInterface
         // widget() function again to render the block for the parent type.
         //
         // The second kind is implemented in the following blocks.
-        if (!isset($this->blockNameHierarchyMap[$mapKey])) {
+        if (!isset($this->blockNameHierarchyMap[$viewAndSuffixCacheKey])) {
             // INITIAL CALL
             // Calculate the hierarchy of template blocks and start on
             // the bottom level of the hierarchy (= "_<id>_<section>" block)
             $blockNameHierarchy = array();
-            foreach ($view->vars['types'] as $type) {
-                $blockNameHierarchy[] = $type . '_' . $blockNameSuffix;
+            foreach ($view->vars['block_prefixes'] as $blockNamePrefix) {
+                $blockNameHierarchy[] = $blockNamePrefix.'_'.$blockNameSuffix;
             }
-            $blockNameHierarchy[] = $uniqueBlockName;
             $hierarchyLevel = count($blockNameHierarchy) - 1;
+
+            $hierarchyInit = true;
+        } else {
+            // RECURSIVE CALL
+            // If a block recursively calls searchAndRenderBlock() again, resume rendering
+            // using the parent type in the hierarchy.
+            $blockNameHierarchy = $this->blockNameHierarchyMap[$viewAndSuffixCacheKey];
+            $hierarchyLevel = $this->hierarchyLevelMap[$viewAndSuffixCacheKey] - 1;
+
+            $hierarchyInit = false;
+        }
+
+        // The variables are cached globally for a view (instead of for the
+        // current suffix)
+        if (!isset($this->variableStack[$viewCacheKey])) {
+            $this->variableStack[$viewCacheKey] = array();
 
             // The default variable scope contains all view variables, merged with
             // the variables passed explicitly to the helper
             $scopeVariables = $view->vars;
-        } else {
-            // RECURSIVE CALL
-            // If a block recursively calls renderSection() again, resume rendering
-            // using the parent type in the hierarchy.
-            $blockNameHierarchy = $this->blockNameHierarchyMap[$mapKey];
-            $hierarchyLevel = $this->hierarchyLevelMap[$mapKey] - 1;
 
+            $varInit = true;
+        } else {
             // Reuse the current scope and merge it with the explicitly passed variables
-            $scopeVariables = $this->variableMap[$mapKey];
+            $scopeVariables = end($this->variableStack[$viewCacheKey]);
+
+            $varInit = false;
         }
 
         // Load the resource where this block can be found
@@ -208,7 +253,7 @@ class FormRenderer implements FormRendererInterface
 
         // Escape if no resource exists for this block
         if (!$resource) {
-            throw new FormException(sprintf(
+            throw new LogicException(sprintf(
                 'Unable to render the form as none of the following blocks exist: "%s".',
                 implode('", "', array_reverse($blockNameHierarchy))
             ));
@@ -235,28 +280,29 @@ class FormRenderer implements FormRendererInterface
         // We need to store these values in maps (associative arrays) because within a
         // call to widget() another call to widget() can be made, but for a different view
         // object. These nested calls should not override each other.
-        $this->blockNameHierarchyMap[$mapKey] = $blockNameHierarchy;
-        $this->hierarchyLevelMap[$mapKey] = $hierarchyLevel;
-        $this->variableMap[$mapKey] = $variables;
+        $this->blockNameHierarchyMap[$viewAndSuffixCacheKey] = $blockNameHierarchy;
+        $this->hierarchyLevelMap[$viewAndSuffixCacheKey] = $hierarchyLevel;
 
-        // We also need to store the view and the variables so that we can render custom
-        // blocks with renderBlock() using the same themes and variables as in the outer
-        // block.
-        //
-        // A stack is sufficient for this purpose, because renderBlock() always accesses
-        // the immediate next outer scope, which is always stored at the end of the stack.
-        $this->variableStack[] = $variables;
+        // We also need to store the variables for the view so that we can render other
+        // blocks for the same view using the same variables as in the outer block.
+        $this->variableStack[$viewCacheKey][] = $variables;
 
         // Do the rendering
         $html = $this->engine->renderBlock($view, $resource, $blockName, $variables);
 
         // Clear the stack
-        array_pop($this->variableStack);
+        array_pop($this->variableStack[$viewCacheKey]);
 
-        // Clear the maps
-        unset($this->blockNameHierarchyMap[$mapKey]);
-        unset($this->hierarchyLevelMap[$mapKey]);
-        unset($this->variableMap[$mapKey]);
+        // Clear the caches if they were filled for the first time within
+        // this function call
+        if ($hierarchyInit) {
+            unset($this->blockNameHierarchyMap[$viewAndSuffixCacheKey]);
+            unset($this->hierarchyLevelMap[$viewAndSuffixCacheKey]);
+        }
+
+        if ($varInit) {
+            unset($this->variableStack[$viewCacheKey]);
+        }
 
         if ($renderOnlyOnce) {
             $view->setRendered();
@@ -270,6 +316,6 @@ class FormRenderer implements FormRendererInterface
      */
     public function humanize($text)
     {
-        return ucfirst(trim(strtolower(preg_replace('/[_\s]+/', ' ', $text))));
+        return ucfirst(trim(strtolower(preg_replace(array('/([A-Z])/', '/[_\s]+/'), array('_$1', ' '), $text))));
     }
 }

@@ -2,6 +2,7 @@
 
 /*
  * This file is part of the Symfony package.
+ *
  * (c) Fabien Potencier <fabien@symfony.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -19,6 +20,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
  */
 class Parser
 {
+    const FOLDED_SCALAR_PATTERN = '(?P<separator>\||>)(?P<modifiers>\+|\-|\d+|\+\d+|\-\d+|\d+\+|\d+\-)?(?P<comments> +#.*)?';
+
     private $offset         = 0;
     private $lines          = array();
     private $currentLineNb  = -1;
@@ -111,7 +114,7 @@ class Parser
                         $data[] = $this->parseValue($values['value'], $exceptionOnInvalidType, $objectSupport);
                     }
                 }
-            } elseif (preg_match('#^(?P<key>'.Inline::REGEX_QUOTED_STRING.'|[^ \'"\[\{].*?) *\:(\s+(?P<value>.+?))?\s*$#u', $this->currentLine, $values)) {
+            } elseif (preg_match('#^(?P<key>'.Inline::REGEX_QUOTED_STRING.'|[^ \'"\[\{].*?) *\:(\s+(?P<value>.+?))?\s*$#u', $this->currentLine, $values) && false === strpos($values['key'],' #')) {
                 if ($context && 'sequence' == $context) {
                     throw new ParseException('You cannot define a mapping item when in a sequence');
                 }
@@ -304,27 +307,32 @@ class Parser
 
         $isItUnindentedCollection = $this->isStringUnIndentedCollectionItem($this->currentLine);
 
+        // Comments must not be removed inside a string block (ie. after a line ending with "|")
+        $removeCommentsPattern = '~'.self::FOLDED_SCALAR_PATTERN.'$~';
+        $removeComments = !preg_match($removeCommentsPattern, $this->currentLine);
+
         while ($this->moveToNextLine()) {
+            $indent = $this->getCurrentLineIndentation();
+
+            if ($indent === $newIndent) {
+                $removeComments = !preg_match($removeCommentsPattern, $this->currentLine);
+            }
 
             if ($isItUnindentedCollection && !$this->isStringUnIndentedCollectionItem($this->currentLine)) {
                 $this->moveToPreviousLine();
                 break;
             }
 
-            if ($this->isCurrentLineEmpty()) {
-                if ($this->isCurrentLineBlank()) {
-                    $data[] = substr($this->currentLine, $newIndent);
-                }
-
+            if ($this->isCurrentLineBlank()) {
+                $data[] = substr($this->currentLine, $newIndent);
                 continue;
             }
 
-            $indent = $this->getCurrentLineIndentation();
+            if ($removeComments && $this->isCurrentLineComment()) {
+                continue;
+            }
 
-            if (preg_match('#^(?P<text> *)$#', $this->currentLine, $match)) {
-                // empty line
-                $data[] = $match['text'];
-            } elseif ($indent >= $newIndent) {
+            if ($indent >= $newIndent) {
                 $data[] = substr($this->currentLine, $newIndent);
             } elseif (0 == $indent) {
                 $this->moveToPreviousLine();
@@ -389,7 +397,7 @@ class Parser
             return $this->refs[$value];
         }
 
-        if (preg_match('/^(?P<separator>\||>)(?P<modifiers>\+|\-|\d+|\+\d+|\-\d+|\d+\+|\d+\-)?(?P<comments> +#.*)?$/', $value, $matches)) {
+        if (preg_match('/^'.self::FOLDED_SCALAR_PATTERN.'$/', $value, $matches)) {
             $modifiers = isset($matches['modifiers']) ? $matches['modifiers'] : '';
 
             return $this->parseFoldedScalar($matches['separator'], preg_replace('#\d+#', '', $modifiers), intval(abs($modifiers)));

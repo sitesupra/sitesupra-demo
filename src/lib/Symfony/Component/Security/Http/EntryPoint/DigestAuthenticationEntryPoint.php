@@ -12,11 +12,10 @@
 namespace Symfony\Component\Security\Http\EntryPoint;
 
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Core\Exception\NonceExpiredException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * DigestAuthenticationEntryPoint starts an HTTP Digest authentication.
@@ -38,6 +37,9 @@ class DigestAuthenticationEntryPoint implements AuthenticationEntryPointInterfac
         $this->logger = $logger;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function start(Request $request, AuthenticationException $authException = null)
     {
         $expiryTime = microtime(true) + $this->nonceValiditySeconds * 1000;
@@ -57,16 +59,22 @@ class DigestAuthenticationEntryPoint implements AuthenticationEntryPointInterfac
 
         $response = new Response();
         $response->headers->set('WWW-Authenticate', $authenticateHeader);
-        $response->setStatusCode(401, $authException ? $authException->getMessage() : null);
+        $response->setStatusCode(401);
 
         return $response;
     }
 
+    /**
+     * @return string
+     */
     public function getKey()
     {
         return $this->key;
     }
 
+    /**
+     * @return string
+     */
     public function getRealmName()
     {
         return $this->realmName;

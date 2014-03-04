@@ -26,21 +26,19 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 abstract class AbstractToken implements TokenInterface
 {
     private $user;
-    private $roles;
-    private $authenticated;
-    private $attributes;
+    private $roles = array();
+    private $authenticated = false;
+    private $attributes = array();
 
     /**
      * Constructor.
      *
-     * @param Role[] $roles An array of roles
+     * @param RoleInterface[] $roles An array of roles
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(array $roles = array())
     {
-        $this->authenticated = false;
-        $this->attributes = array();
-
-        $this->roles = array();
         foreach ($roles as $role) {
             if (is_string($role)) {
                 $role = new Role($role);
@@ -72,6 +70,9 @@ abstract class AbstractToken implements TokenInterface
         return (string) $this->user;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getUser()
     {
         return $this->user;
@@ -89,7 +90,7 @@ abstract class AbstractToken implements TokenInterface
     public function setUser($user)
     {
         if (!($user instanceof UserInterface || (is_object($user) && method_exists($user, '__toString')) || is_string($user))) {
-            throw new \InvalidArgumentException('$user must be an instanceof of UserInterface, an object implementing a __toString method, or a primitive string.');
+            throw new \InvalidArgumentException('$user must be an instanceof UserInterface, an object implementing a __toString method, or a primitive string.');
         }
 
         if (null === $this->user) {
@@ -144,7 +145,14 @@ abstract class AbstractToken implements TokenInterface
      */
     public function serialize()
     {
-        return serialize(array($this->user, $this->authenticated, $this->roles, $this->attributes));
+        return serialize(
+            array(
+                is_object($this->user) ? clone $this->user : $this->user,
+                $this->authenticated,
+                $this->roles,
+                $this->attributes
+            )
+        );
     }
 
     /**
@@ -188,7 +196,7 @@ abstract class AbstractToken implements TokenInterface
     }
 
     /**
-     * Returns a attribute value.
+     * Returns an attribute value.
      *
      * @param string $name The attribute name
      *
@@ -206,7 +214,7 @@ abstract class AbstractToken implements TokenInterface
     }
 
     /**
-     * Sets a attribute.
+     * Sets an attribute.
      *
      * @param string $name  The attribute name
      * @param mixed  $value The attribute value

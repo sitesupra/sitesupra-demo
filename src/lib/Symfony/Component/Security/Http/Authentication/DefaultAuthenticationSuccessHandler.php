@@ -58,7 +58,6 @@ class DefaultAuthenticationSuccessHandler implements AuthenticationSuccessHandle
         return $this->httpUtils->createRedirectResponse($request, $this->determineTargetUrl($request));
     }
 
-
     /**
      * Get the provider key.
      *
@@ -102,7 +101,7 @@ class DefaultAuthenticationSuccessHandler implements AuthenticationSuccessHandle
             return $targetUrl;
         }
 
-        if ($this->options['use_referer'] && ($targetUrl = $request->headers->get('Referer')) && $targetUrl !== $request->getUriForPath($this->options['login_path'])) {
+        if ($this->options['use_referer'] && ($targetUrl = $request->headers->get('Referer')) && $targetUrl !== $this->httpUtils->generateUri($request, $this->options['login_path'])) {
             return $targetUrl;
         }
 

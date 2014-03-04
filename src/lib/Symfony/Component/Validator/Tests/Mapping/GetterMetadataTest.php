@@ -25,14 +25,22 @@ class GetterMetadataTest extends \PHPUnit_Framework_TestCase
         new GetterMetadata(self::CLASSNAME, 'foobar');
     }
 
-    public function testGetValueFromPublicGetter()
+    public function testGetPropertyValueFromPublicGetter()
     {
         // private getters don't work yet because ReflectionMethod::setAccessible()
-        // does not exists yet in a stable PHP release
+        // does not exist yet in a stable PHP release
 
         $entity = new Entity('foobar');
         $metadata = new GetterMetadata(self::CLASSNAME, 'internal');
 
-        $this->assertEquals('foobar from getter', $metadata->getValue($entity));
+        $this->assertEquals('foobar from getter', $metadata->getPropertyValue($entity));
+    }
+
+    public function testGetPropertyValueFromOverriddenPublicGetter()
+    {
+        $entity = new Entity();
+        $metadata = new GetterMetadata(self::CLASSNAME, 'data');
+
+        $this->assertEquals('Overridden data', $metadata->getPropertyValue($entity));
     }
 }

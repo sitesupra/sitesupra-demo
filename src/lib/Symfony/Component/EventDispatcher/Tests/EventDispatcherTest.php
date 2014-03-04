@@ -23,6 +23,9 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     const preBar = 'pre.bar';
     const postBar = 'post.bar';
 
+    /**
+     * @var EventDispatcher
+     */
     private $dispatcher;
 
     private $listener;
@@ -237,12 +240,46 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
 
     public function testEventReceivesTheDispatcherInstance()
     {
-        $test = $this;
+        $dispatcher = null;
         $this->dispatcher->addListener('test', function ($event) use (&$dispatcher) {
             $dispatcher = $event->getDispatcher();
         });
         $this->dispatcher->dispatch('test');
         $this->assertSame($this->dispatcher, $dispatcher);
+    }
+
+    public function testEventReceivesTheDispatcherInstanceAsArgument()
+    {
+        $listener = new TestWithDispatcher();
+        $this->dispatcher->addListener('test', array($listener, 'foo'));
+        $this->assertNull($listener->name);
+        $this->assertNull($listener->dispatcher);
+        $this->dispatcher->dispatch('test');
+        $this->assertEquals('test', $listener->name);
+        $this->assertSame($this->dispatcher, $listener->dispatcher);
+    }
+
+    /**
+     * @see https://bugs.php.net/bug.php?id=62976
+     *
+     * This bug affects:
+     *  - The PHP 5.3 branch for versions < 5.3.18
+     *  - The PHP 5.4 branch for versions < 5.4.8
+     *  - The PHP 5.5 branch is not affected
+     */
+    public function testWorkaroundForPhpBug62976()
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('bug.62976', new CallableClass());
+        $dispatcher->removeListener('bug.62976', function () {});
+        $this->assertTrue($dispatcher->hasListeners('bug.62976'));
+    }
+}
+
+class CallableClass
+{
+    public function __invoke()
+    {
     }
 }
 
@@ -263,6 +300,18 @@ class TestEventListener
         $this->postFooInvoked = true;
 
         $e->stopPropagation();
+    }
+}
+
+class TestWithDispatcher
+{
+    public $name;
+    public $dispatcher;
+
+    public function foo(Event $e, $name, $dispatcher)
+    {
+        $this->name = $name;
+        $this->dispatcher = $dispatcher;
     }
 }
 

@@ -57,6 +57,9 @@ abstract class FileLoader extends Loader
      * @param string  $sourceResource The original resource importing the new resource
      *
      * @return mixed
+     *
+     * @throws FileLoaderLoadException
+     * @throws FileLoaderImportCircularReferenceException
      */
     public function import($resource, $type = null, $ignoreErrors = false, $sourceResource = null)
     {
@@ -64,11 +67,23 @@ abstract class FileLoader extends Loader
             $loader = $this->resolve($resource, $type);
 
             if ($loader instanceof FileLoader && null !== $this->currentDir) {
-                $resource = $this->locator->locate($resource, $this->currentDir);
+                // we fallback to the current locator to keep BC
+                // as some some loaders do not call the parent __construct()
+                // @deprecated should be removed in 3.0
+                $locator = $loader->getLocator() ?: $this->locator;
+                $resource = $locator->locate($resource, $this->currentDir, false);
             }
 
-            if (isset(self::$loading[$resource])) {
-                throw new FileLoaderImportCircularReferenceException(array_keys(self::$loading));
+            $resources = is_array($resource) ? $resource : array($resource);
+            for ($i = 0; $i < $resourcesCount = count($resources); $i++ ) {
+                if (isset(self::$loading[$resources[$i]])) {
+                    if ($i == $resourcesCount-1) {
+                        throw new FileLoaderImportCircularReferenceException(array_keys(self::$loading));
+                    }
+                } else {
+                    $resource = $resources[$i];
+                    break;
+                }
             }
             self::$loading[$resource] = true;
 

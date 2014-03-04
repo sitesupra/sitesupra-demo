@@ -13,7 +13,7 @@ namespace Symfony\Component\Security\Http\Firewall;
 
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -36,6 +36,9 @@ class X509AuthenticationListener extends AbstractPreAuthenticatedListener
         $this->credentialKey = $credentialKey;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getPreAuthenticatedData(Request $request)
     {
         if (!$request->server->has($this->userKey)) {

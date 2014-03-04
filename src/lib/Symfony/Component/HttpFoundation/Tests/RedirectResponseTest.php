@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\HttpFoundation\Tests;
 
-use \Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class RedirectResponseTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,6 +23,22 @@ class RedirectResponseTest extends \PHPUnit_Framework_TestCase
             '#<meta http-equiv="refresh" content="\d+;url=foo\.bar" />#',
             preg_replace(array('/\s+/', '/\'/'), array(' ', '"'), $response->getContent())
         ));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRedirectResponseConstructorNullUrl()
+    {
+        $response = new RedirectResponse(null);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRedirectResponseConstructorWrongStatusCode()
+    {
+        $response = new RedirectResponse('foo.bar', 404);
     }
 
     public function testGenerateLocationHeader()
@@ -38,6 +54,23 @@ class RedirectResponseTest extends \PHPUnit_Framework_TestCase
         $response = new RedirectResponse('foo.bar');
 
         $this->assertEquals('foo.bar', $response->getTargetUrl());
+    }
+
+    public function testSetTargetUrl()
+    {
+        $response = new RedirectResponse('foo.bar');
+        $response->setTargetUrl('baz.beep');
+
+        $this->assertEquals('baz.beep', $response->getTargetUrl());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetTargetUrlNull()
+    {
+        $response = new RedirectResponse('foo.bar');
+        $response->setTargetUrl(null);
     }
 
     public function testCreate()

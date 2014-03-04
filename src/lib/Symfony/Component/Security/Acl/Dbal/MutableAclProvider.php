@@ -17,7 +17,6 @@ use Symfony\Component\Security\Acl\Domain\RoleSecurityIdentity;
 use Symfony\Component\Security\Acl\Domain\UserSecurityIdentity;
 use Symfony\Component\Security\Acl\Exception\AclAlreadyExistsException;
 use Symfony\Component\Security\Acl\Exception\ConcurrentModificationException;
-use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Component\Security\Acl\Model\AclCacheInterface;
 use Symfony\Component\Security\Acl\Model\AclInterface;
 use Symfony\Component\Security\Acl\Model\EntryInterface;
@@ -148,6 +147,8 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
      * @param string $propertyName
      * @param mixed  $oldValue
      * @param mixed  $newValue
+     *
+     * @throws \InvalidArgumentException
      */
     public function propertyChanged($sender, $propertyName, $oldValue, $newValue)
     {
@@ -241,7 +242,7 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
                 if (null === $propertyChanges['parentAcl'][1]) {
                     $sets[] = 'parent_object_identity_id = NULL';
                 } else {
-                    $sets[] = 'parent_object_identity_id = '.$this->connection->quote($propertyChanges['parentAcl'][1]->getId());
+                    $sets[] = 'parent_object_identity_id = '.intval($propertyChanges['parentAcl'][1]->getId());
                 }
 
                 $this->regenerateAncestorRelations($acl);
@@ -251,6 +252,22 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
                 }
             }
 
+            // check properties for deleted, and created ACEs, and perform deletions
+            // we need to perfom deletions before updating existing ACEs, in order to
+            // preserve uniqueness of the order field
+            if (isset($propertyChanges['classAces'])) {
+                $this->updateOldAceProperty('classAces', $propertyChanges['classAces']);
+            }
+            if (isset($propertyChanges['classFieldAces'])) {
+                $this->updateOldFieldAceProperty('classFieldAces', $propertyChanges['classFieldAces']);
+            }
+            if (isset($propertyChanges['objectAces'])) {
+                $this->updateOldAceProperty('objectAces', $propertyChanges['objectAces']);
+            }
+            if (isset($propertyChanges['objectFieldAces'])) {
+                $this->updateOldFieldAceProperty('objectFieldAces', $propertyChanges['objectFieldAces']);
+            }
+
             // this includes only updates of existing ACEs, but neither the creation, nor
             // the deletion of ACEs; these are tracked by changes to the ACL's respective
             // properties (classAces, classFieldAces, objectAces, objectFieldAces)
@@ -258,20 +275,20 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
                 $this->updateAces($propertyChanges['aces']);
             }
 
-            // check properties for deleted, and created ACEs
+            // check properties for deleted, and created ACEs, and perform creations
             if (isset($propertyChanges['classAces'])) {
-                $this->updateAceProperty('classAces', $propertyChanges['classAces']);
+                $this->updateNewAceProperty('classAces', $propertyChanges['classAces']);
                 $sharedPropertyChanges['classAces'] = $propertyChanges['classAces'];
             }
             if (isset($propertyChanges['classFieldAces'])) {
-                $this->updateFieldAceProperty('classFieldAces', $propertyChanges['classFieldAces']);
+                $this->updateNewFieldAceProperty('classFieldAces', $propertyChanges['classFieldAces']);
                 $sharedPropertyChanges['classFieldAces'] = $propertyChanges['classFieldAces'];
             }
             if (isset($propertyChanges['objectAces'])) {
-                $this->updateAceProperty('objectAces', $propertyChanges['objectAces']);
+                $this->updateNewAceProperty('objectAces', $propertyChanges['objectAces']);
             }
             if (isset($propertyChanges['objectFieldAces'])) {
-                $this->updateFieldAceProperty('objectFieldAces', $propertyChanges['objectFieldAces']);
+                $this->updateNewFieldAceProperty('objectFieldAces', $propertyChanges['objectFieldAces']);
             }
 
             // if there have been changes to shared properties, we need to synchronize other
@@ -343,9 +360,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteAccessControlEntriesSql($oidPK)
     {
         return sprintf(
-              'DELETE FROM %s WHERE object_identity_id = %s',
+              'DELETE FROM %s WHERE object_identity_id = %d',
             $this->options['entry_table_name'],
-            $this->connection->quote($oidPK)
+            $oidPK
         );
     }
 
@@ -358,9 +375,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteAccessControlEntrySql($acePK)
     {
         return sprintf(
-            'DELETE FROM %s WHERE id = %s',
+            'DELETE FROM %s WHERE id = %d',
             $this->options['entry_table_name'],
-            $this->connection->quote($acePK)
+            $acePK
         );
     }
 
@@ -373,9 +390,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteObjectIdentitySql($pk)
     {
         return sprintf(
-            'DELETE FROM %s WHERE id = %s',
+            'DELETE FROM %s WHERE id = %d',
             $this->options['oid_table_name'],
-            $this->connection->quote($pk)
+            $pk
         );
     }
 
@@ -388,9 +405,9 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
     protected function getDeleteObjectIdentityRelationsSql($pk)
     {
         return sprintf(
-            'DELETE FROM %s WHERE object_identity_id = %s',
+            'DELETE FROM %s WHERE object_identity_id = %d',
             $this->options['oid_ancestors_table_name'],
-            $this->connection->quote($pk)
+            $pk
         );
     }
 
@@ -424,17 +441,17 @@ class MutableAclProvider extends AclProvider implements MutableAclProviderInterf
                 audit_success,
                 audit_failure
             )
-            VALUES (%s, %s, %s, %d, %s, %d, %s, %s, %s, %s)
+            VALUES (%d, %s, %s, %d, %d, %d, %s, %s, %s, %s)
 QUERY;
 
         return sprintf(
             $query,
             $this->options['entry_table_name'],
-            $this->connection->quote($classId),
-            null === $objectIdentityId? 'NULL' : $this->connection->quote($objectIdentityId),
+            $classId,
+            null === $objectIdentityId? 'NULL' : intval($objectIdentityId),
             null === $field? 'NULL' : $this->connection->quote($field),
             $aceOrder,
-            $this->connection->quote($securityIdentityId),
+            $securityIdentityId,
             $mask,
             $this->connection->getDatabasePlatform()->convertBooleans($granting),
             $this->connection->quote($strategy),
@@ -468,10 +485,10 @@ QUERY;
     protected function getInsertObjectIdentityRelationSql($objectIdentityId, $ancestorId)
     {
         return sprintf(
-            'INSERT INTO %s (object_identity_id, ancestor_id) VALUES (%s, %s)',
+            'INSERT INTO %s (object_identity_id, ancestor_id) VALUES (%d, %d)',
             $this->options['oid_ancestors_table_name'],
-            $this->connection->quote($objectIdentityId),
-            $this->connection->quote($ancestorId)
+            $objectIdentityId,
+            $ancestorId
         );
     }
 
@@ -487,13 +504,13 @@ QUERY;
     {
         $query = <<<QUERY
               INSERT INTO %s (class_id, object_identifier, entries_inheriting)
-              VALUES (%s, %s, %s)
+              VALUES (%d, %s, %s)
 QUERY;
 
         return sprintf(
             $query,
             $this->options['oid_table_name'],
-            $this->connection->quote($classId),
+            $classId,
             $this->connection->quote($identifier),
             $this->connection->getDatabasePlatform()->convertBooleans($entriesInheriting)
         );
@@ -538,12 +555,12 @@ QUERY;
     protected function getSelectAccessControlEntryIdSql($classId, $oid, $field, $order)
     {
         return sprintf(
-            'SELECT id FROM %s WHERE class_id = %s AND %s AND %s AND ace_order = %d',
+            'SELECT id FROM %s WHERE class_id = %d AND %s AND %s AND ace_order = %d',
             $this->options['entry_table_name'],
-            $this->connection->quote($classId),
+            $classId,
             null === $oid ?
                 $this->connection->getDatabasePlatform()->getIsNullExpression('object_identity_id')
-                : 'object_identity_id = '.$this->connection->quote($oid),
+                : 'object_identity_id = '.intval($oid),
             null === $field ?
                 $this->connection->getDatabasePlatform()->getIsNullExpression('field_name')
                 : 'field_name = '.$this->connection->quote($field),
@@ -609,10 +626,10 @@ QUERY;
         }
 
         return sprintf(
-            'UPDATE %s SET %s WHERE id = %s',
+            'UPDATE %s SET %s WHERE id = %d',
             $this->options['oid_table_name'],
             implode(', ', $changes),
-            $this->connection->quote($pk)
+            $pk
         );
     }
 
@@ -631,10 +648,10 @@ QUERY;
         }
 
         return sprintf(
-            'UPDATE %s SET %s WHERE id = %s',
+            'UPDATE %s SET %s WHERE id = %d',
             $this->options['entry_table_name'],
             implode(', ', $sets),
-            $this->connection->quote($pk)
+            $pk
         );
     }
 
@@ -739,12 +756,12 @@ QUERY;
     }
 
     /**
-     * This processes changes on an ACE related property (classFieldAces, or objectFieldAces).
+     * This processes new entries changes on an ACE related property (classFieldAces, or objectFieldAces).
      *
      * @param string $name
      * @param array  $changes
      */
-    private function updateFieldAceProperty($name, array $changes)
+    private function updateNewFieldAceProperty($name, array $changes)
     {
         $sids = new \SplObjectStorage();
         $classIds = new \SplObjectStorage();
@@ -775,15 +792,35 @@ QUERY;
 
                     $aceIdProperty = new \ReflectionProperty('Symfony\Component\Security\Acl\Domain\Entry', 'id');
                     $aceIdProperty->setAccessible(true);
-                    $aceIdProperty->setValue($ace, $aceId);
+                    $aceIdProperty->setValue($ace, intval($aceId));
                 } else {
+                    $currentIds[$ace->getId()] = true;
+                }
+            }
+        }
+    }
+
+    /**
+     * This process old entries changes on an ACE related property (classFieldAces, or objectFieldAces).
+     *
+     * @param string $name
+     * @param array $changes
+     */
+    private function updateOldFieldAceProperty($ane, array $changes)
+    {
+        $currentIds = array();
+        foreach ($changes[1] as $field => $new) {
+            for ($i = 0, $c = count($new); $i < $c; $i++) {
+                $ace = $new[$i];
+
+                if (null !== $ace->getId()) {
                     $currentIds[$ace->getId()] = true;
                 }
             }
         }
 
         foreach ($changes[0] as $old) {
-            for ($i=0,$c=count($old); $i<$c; $i++) {
+            for ($i = 0, $c = count($old); $i < $c; $i++) {
                 $ace = $old[$i];
 
                 if (!isset($currentIds[$ace->getId()])) {
@@ -795,12 +832,12 @@ QUERY;
     }
 
     /**
-     * This processes changes on an ACE related property (classAces, or objectAces).
+     * This processes new entries changes on an ACE related property (classAces, or objectAces).
      *
      * @param string $name
      * @param array  $changes
      */
-    private function updateAceProperty($name, array $changes)
+    private function updateNewAceProperty($name, array $changes)
     {
         list($old, $new) = $changes;
 
@@ -832,13 +869,33 @@ QUERY;
 
                 $aceIdProperty = new \ReflectionProperty($ace, 'id');
                 $aceIdProperty->setAccessible(true);
-                $aceIdProperty->setValue($ace, $aceId);
+                $aceIdProperty->setValue($ace, intval($aceId));
             } else {
                 $currentIds[$ace->getId()] = true;
             }
         }
+    }
 
-        for ($i=0,$c=count($old); $i<$c; $i++) {
+    /**
+     * This processes old entries changes on an ACE related property (classAces, or objectAces).
+     *
+     * @param string $name
+     * @param array  $changes
+     */
+    private function updateOldAceProperty($name, array $changes)
+    {
+        list($old, $new) = $changes;
+        $currentIds = array();
+
+        for ($i=0,$c=count($new); $i<$c; $i++) {
+            $ace = $new[$i];
+
+            if (null !== $ace->getId()) {
+                $currentIds[$ace->getId()] = true;
+            }
+        }
+
+        for ($i = 0, $c = count($old); $i < $c; $i++) {
             $ace = $old[$i];
 
             if (!isset($currentIds[$ace->getId()])) {
@@ -856,26 +913,41 @@ QUERY;
     private function updateAces(\SplObjectStorage $aces)
     {
         foreach ($aces as $ace) {
-            $propertyChanges = $aces->offsetGet($ace);
-            $sets = array();
-
-            if (isset($propertyChanges['mask'])) {
-                $sets[] = sprintf('mask = %d', $propertyChanges['mask'][1]);
-            }
-            if (isset($propertyChanges['strategy'])) {
-                $sets[] = sprintf('granting_strategy = %s', $this->connection->quote($propertyChanges['strategy']));
-            }
-            if (isset($propertyChanges['aceOrder'])) {
-                $sets[] = sprintf('ace_order = %d', $propertyChanges['aceOrder'][1]);
-            }
-            if (isset($propertyChanges['auditSuccess'])) {
-                $sets[] = sprintf('audit_success = %s', $this->connection->getDatabasePlatform()->convertBooleans($propertyChanges['auditSuccess'][1]));
-            }
-            if (isset($propertyChanges['auditFailure'])) {
-                $sets[] = sprintf('audit_failure = %s', $this->connection->getDatabasePlatform()->convertBooleans($propertyChanges['auditFailure'][1]));
-            }
-
-            $this->connection->executeQuery($this->getUpdateAccessControlEntrySql($ace->getId(), $sets));
+            $this->updateAce($aces, $ace);
         }
     }
+
+    private function updateAce(\SplObjectStorage $aces, $ace)
+    {
+        $propertyChanges = $aces->offsetGet($ace);
+        $sets = array();
+
+        if (isset($propertyChanges['aceOrder'])
+            && $propertyChanges['aceOrder'][1] > $propertyChanges['aceOrder'][0]
+            && $propertyChanges == $aces->offsetGet($ace)) {
+                $aces->next();
+                if ($aces->valid()) {
+                    $this->updateAce($aces, $aces->current());
+                }
+            }
+
+        if (isset($propertyChanges['mask'])) {
+            $sets[] = sprintf('mask = %d', $propertyChanges['mask'][1]);
+        }
+        if (isset($propertyChanges['strategy'])) {
+            $sets[] = sprintf('granting_strategy = %s', $this->connection->quote($propertyChanges['strategy']));
+        }
+        if (isset($propertyChanges['aceOrder'])) {
+            $sets[] = sprintf('ace_order = %d', $propertyChanges['aceOrder'][1]);
+        }
+        if (isset($propertyChanges['auditSuccess'])) {
+            $sets[] = sprintf('audit_success = %s', $this->connection->getDatabasePlatform()->convertBooleans($propertyChanges['auditSuccess'][1]));
+        }
+        if (isset($propertyChanges['auditFailure'])) {
+            $sets[] = sprintf('audit_failure = %s', $this->connection->getDatabasePlatform()->convertBooleans($propertyChanges['auditFailure'][1]));
+        }
+
+        $this->connection->executeQuery($this->getUpdateAccessControlEntrySql($ace->getId(), $sets));
+    }
+
 }

@@ -4,7 +4,7 @@
 {% spaceless %}
     <tr>
         <td>
-            {{ form_label(form, label|default(null)) }}
+            {{ form_label(form) }}
         </td>
         <td>
             {{ form_errors(form) }}
@@ -13,6 +13,17 @@
     </tr>
 {% endspaceless %}
 {% endblock form_row %}
+
+{% block button_row %}
+{% spaceless %}
+    <tr>
+        <td></td>
+        <td>
+            {{ form_widget(form) }}
+        </td>
+    </tr>
+{% endspaceless %}
+{% endblock button_row %}
 
 {% block hidden_row %}
 {% spaceless %}

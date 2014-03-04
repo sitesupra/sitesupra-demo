@@ -16,6 +16,7 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
+use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -33,12 +34,17 @@ class HttpUtils
     /**
      * Constructor.
      *
-     * @param UrlGeneratorInterface $urlGenerator A UrlGeneratorInterface instance
-     * @param UrlMatcherInterface   $urlMatcher   A UrlMatcherInterface instance
+     * @param UrlGeneratorInterface                       $urlGenerator A UrlGeneratorInterface instance
+     * @param UrlMatcherInterface|RequestMatcherInterface $urlMatcher   The URL or Request matcher
+     *
+     * @throws \InvalidArgumentException
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator = null, UrlMatcherInterface $urlMatcher = null)
+    public function __construct(UrlGeneratorInterface $urlGenerator = null, $urlMatcher = null)
     {
         $this->urlGenerator = $urlGenerator;
+        if ($urlMatcher !== null && !$urlMatcher instanceof UrlMatcherInterface && !$urlMatcher instanceof RequestMatcherInterface) {
+            throw new \InvalidArgumentException('Matcher must either implement UrlMatcherInterface or RequestMatcherInterface.');
+        }
         $this->urlMatcher = $urlMatcher;
     }
 
@@ -49,7 +55,7 @@ class HttpUtils
      * @param string  $path    A path (an absolute path (/foo), an absolute URL (http://...), or a route name (foo))
      * @param integer $status  The status code
      *
-     * @return Response A RedirectResponse instance
+     * @return RedirectResponse A RedirectResponse instance
      */
     public function createRedirectResponse(Request $request, $path, $status = 302)
     {
@@ -67,8 +73,8 @@ class HttpUtils
     public function createRequest(Request $request, $path)
     {
         $newRequest = Request::create($this->generateUri($request, $path), 'get', array(), $request->cookies->all(), array(), $request->server->all());
-        if ($session = $request->getSession()) {
-            $newRequest->setSession($session);
+        if ($request->hasSession()) {
+            $newRequest->setSession($request->getSession());
         }
 
         if ($request->attributes->has(SecurityContextInterface::AUTHENTICATION_ERROR)) {
@@ -96,7 +102,12 @@ class HttpUtils
     {
         if ('/' !== $path[0]) {
             try {
-                $parameters = $this->urlMatcher->match($request->getPathInfo());
+                // matching a request is more powerful than matching a URL path + context, so try that first
+                if ($this->urlMatcher instanceof RequestMatcherInterface) {
+                    $parameters = $this->urlMatcher->matchRequest($request);
+                } else {
+                    $parameters = $this->urlMatcher->match($request->getPathInfo());
+                }
 
                 return $path === $parameters['_route'];
             } catch (MethodNotAllowedException $e) {
@@ -106,16 +117,18 @@ class HttpUtils
             }
         }
 
-        return $path === $request->getPathInfo();
+        return $path === rawurldecode($request->getPathInfo());
     }
 
     /**
      * Generates a URI, based on the given path or absolute URL.
      *
      * @param Request $request A Request instance
-     * @param string $path A path (an absolute path (/foo), an absolute URL (http://...), or a route name (foo))
+     * @param string  $path    A path (an absolute path (/foo), an absolute URL (http://...), or a route name (foo))
      *
      * @return string An absolute URL
+     *
+     * @throws \LogicException
      */
     public function generateUri($request, $path)
     {
@@ -127,15 +140,20 @@ class HttpUtils
             return $request->getUriForPath($path);
         }
 
-        return $this->generateUrl($path, true);
-    }
-
-    private function generateUrl($route, $absolute = false)
-    {
         if (null === $this->urlGenerator) {
             throw new \LogicException('You must provide a UrlGeneratorInterface instance to be able to use routes.');
         }
 
-        return $this->urlGenerator->generate($route, array(), $absolute);
+        $url = $this->urlGenerator->generate($path, $request->attributes->all(), UrlGeneratorInterface::ABSOLUTE_URL);
+
+        // unnecessary query string parameters must be removed from URL
+        // (ie. query parameters that are presents in $attributes)
+        // fortunately, they all are, so we have to remove entire query string
+        $position = strpos($url, '?');
+        if (false !== $position) {
+            $url = substr($url, 0, $position);
+        }
+
+        return $url;
     }
 }

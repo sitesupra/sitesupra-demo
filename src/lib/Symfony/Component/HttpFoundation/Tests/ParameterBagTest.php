@@ -32,6 +32,28 @@ class ParameterBagTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('foo' => 'bar'), $bag->all(), '->all() gets all the input');
     }
 
+    public function testKeys()
+    {
+        $bag = new ParameterBag(array('foo' => 'bar'));
+        $this->assertEquals(array('foo'), $bag->keys());
+    }
+
+    public function testAdd()
+    {
+        $bag = new ParameterBag(array('foo' => 'bar'));
+        $bag->add(array('bar' => 'bas'));
+        $this->assertEquals(array('foo' => 'bar', 'bar' => 'bas'), $bag->all());
+    }
+
+    public function testRemove()
+    {
+        $bag = new ParameterBag(array('foo' => 'bar'));
+        $bag->add(array('bar' => 'bas'));
+        $this->assertEquals(array('foo' => 'bar', 'bar' => 'bas'), $bag->all());
+        $bag->remove('bar');
+        $this->assertEquals(array('foo' => 'bar'), $bag->all());
+    }
+
     /**
      * @covers Symfony\Component\HttpFoundation\ParameterBag::replace
      */
@@ -183,10 +205,10 @@ class ParameterBagTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('example@example.com', $bag->filter('email', '', false, FILTER_VALIDATE_EMAIL), '->filter() gets a value of parameter as email');
 
-        $this->assertEquals('http://example.com/foo', $bag->filter('url', '', false, FILTER_VALIDATE_URL, array('flags' => FILTER_FLAG_PATH_REQUIRED)), '->filter() gets a value of parameter as url with a path');
+        $this->assertEquals('http://example.com/foo', $bag->filter('url', '', false, FILTER_VALIDATE_URL, array('flags' => FILTER_FLAG_PATH_REQUIRED)), '->filter() gets a value of parameter as URL with a path');
 
         // This test is repeated for code-coverage
-        $this->assertEquals('http://example.com/foo', $bag->filter('url', '', false, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED), '->filter() gets a value of parameter as url with a path');
+        $this->assertEquals('http://example.com/foo', $bag->filter('url', '', false, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED), '->filter() gets a value of parameter as URL with a path');
 
         $this->assertFalse($bag->filter('dec', '', false, FILTER_VALIDATE_INT, array(
             'flags'   => FILTER_FLAG_ALLOW_HEX,

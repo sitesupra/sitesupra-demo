@@ -25,13 +25,15 @@ class IcuResFileDumperTest extends \PHPUnit_Framework_TestCase
         $catalogue = new MessageCatalogue('en');
         $catalogue->add(array('foo' => 'bar'));
 
-        $tempDir = sys_get_temp_dir();
+        $tempDir = sys_get_temp_dir() . '/IcuResFileDumperTest';
+        mkdir($tempDir);
         $dumper = new IcuResFileDumper();
-        $dumperString = $dumper->dump($catalogue, array('path' => $tempDir));
+        $dumper->dump($catalogue, array('path' => $tempDir));
 
         $this->assertEquals(file_get_contents(__DIR__.'/../fixtures/resourcebundle/res/en.res'), file_get_contents($tempDir.'/messages/en.res'));
 
         unlink($tempDir.'/messages/en.res');
         rmdir($tempDir.'/messages');
+        rmdir($tempDir);
     }
 }

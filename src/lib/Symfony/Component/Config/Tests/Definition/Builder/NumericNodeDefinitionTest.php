@@ -38,8 +38,8 @@ class NumericNodeDefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value 4 is too small for path "foo". Should be greater than: 5
+     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+     * @expectedExceptionMessage The value 4 is too small for path "foo". Should be greater than or equal to 5
      */
     public function testIntegerMinAssertion()
     {
@@ -48,8 +48,8 @@ class NumericNodeDefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value 4 is too big for path "foo". Should be less than: 3
+     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+     * @expectedExceptionMessage The value 4 is too big for path "foo". Should be less than or equal to 3
      */
     public function testIntegerMaxAssertion()
     {
@@ -65,8 +65,8 @@ class NumericNodeDefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value 400 is too small for path "foo". Should be greater than: 500
+     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+     * @expectedExceptionMessage The value 400 is too small for path "foo". Should be greater than or equal to 500
      */
     public function testFloatMinAssertion()
     {
@@ -75,8 +75,8 @@ class NumericNodeDefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value 4.3 is too big for path "foo". Should be less than: 0.3
+     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+     * @expectedExceptionMessage The value 4.3 is too big for path "foo". Should be less than or equal to 0.3
      */
     public function testFloatMaxAssertion()
     {

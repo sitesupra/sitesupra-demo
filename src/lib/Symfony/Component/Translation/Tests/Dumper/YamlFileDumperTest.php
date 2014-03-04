@@ -16,13 +16,6 @@ use Symfony\Component\Translation\Dumper\YamlFileDumper;
 
 class YamlFileDumperTest extends \PHPUnit_Framework_TestCase
 {
-    protected function setUp()
-    {
-        if (!class_exists('Symfony\Component\Yaml\Yaml')) {
-            $this->markTestSkipped('The "Yaml" component is not available');
-        }
-    }
-
     public function testDump()
     {
         $catalogue = new MessageCatalogue('en');
@@ -30,7 +23,7 @@ class YamlFileDumperTest extends \PHPUnit_Framework_TestCase
 
         $tempDir = sys_get_temp_dir();
         $dumper = new YamlFileDumper();
-        $dumperString = $dumper->dump($catalogue, array('path' => $tempDir));
+        $dumper->dump($catalogue, array('path' => $tempDir));
 
         $this->assertEquals(file_get_contents(__DIR__.'/../fixtures/resources.yml'), file_get_contents($tempDir.'/messages.en.yml'));
 

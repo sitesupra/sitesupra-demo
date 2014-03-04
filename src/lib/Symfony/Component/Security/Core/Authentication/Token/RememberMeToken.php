@@ -29,6 +29,8 @@ class RememberMeToken extends AbstractToken
      * @param UserInterface $user
      * @param string        $providerKey
      * @param string        $key
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct(UserInterface $user, $providerKey, $key)
     {
@@ -49,6 +51,9 @@ class RememberMeToken extends AbstractToken
         parent::setAuthenticated(true);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setAuthenticated($authenticated)
     {
         if ($authenticated) {
@@ -58,16 +63,29 @@ class RememberMeToken extends AbstractToken
         parent::setAuthenticated(false);
     }
 
+    /**
+     * Returns the provider key.
+     *
+     * @return string The provider key
+     */
     public function getProviderKey()
     {
         return $this->providerKey;
     }
 
+    /**
+     * Returns the key.
+     *
+     * @return string The Key
+     */
     public function getKey()
     {
         return $this->key;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCredentials()
     {
         return '';

@@ -16,13 +16,6 @@ use Symfony\Component\Config\Resource\FileResource;
 
 class PoFileLoaderTest extends \PHPUnit_Framework_TestCase
 {
-    protected function setUp()
-    {
-        if (!class_exists('Symfony\Component\Config\Loader\Loader')) {
-            $this->markTestSkipped('The "Config" component is not available');
-        }
-    }
-
     public function testLoad()
     {
         $loader = new PoFileLoader();
@@ -54,6 +47,16 @@ class PoFileLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $catalogue->all('domain1'));
         $this->assertEquals('en', $catalogue->getLocale());
         $this->assertEquals(array(new FileResource($resource)), $catalogue->getResources());
+    }
+
+    /**
+     * @expectedException \Symfony\Component\Translation\Exception\NotFoundResourceException
+     */
+    public function testLoadNonExistingResource()
+    {
+        $loader = new PoFileLoader();
+        $resource = __DIR__.'/../fixtures/non-existing.po';
+        $loader->load($resource, 'en', 'domain1');
     }
 
     public function testLoadEmptyTranslation()

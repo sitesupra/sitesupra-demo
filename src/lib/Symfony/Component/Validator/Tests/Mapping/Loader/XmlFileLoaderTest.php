@@ -12,10 +12,12 @@
 namespace Symfony\Component\Validator\Tests\Mapping\Loader;
 
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Min;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Mapping\Loader\XmlFileLoader;
 use Symfony\Component\Validator\Tests\Fixtures\ConstraintA;
@@ -47,16 +49,20 @@ class XmlFileLoaderTest extends \PHPUnit_Framework_TestCase
         $loader->loadClassMetadata($metadata);
 
         $expected = new ClassMetadata('Symfony\Component\Validator\Tests\Fixtures\Entity');
+        $expected->setGroupSequence(array('Foo', 'Entity'));
         $expected->addConstraint(new ConstraintA());
         $expected->addConstraint(new ConstraintB());
+        $expected->addConstraint(new Callback('validateMe'));
+        $expected->addConstraint(new Callback('validateMeStatic'));
+        $expected->addConstraint(new Callback(array('Symfony\Component\Validator\Tests\Fixtures\CallbackClass', 'callback')));
         $expected->addPropertyConstraint('firstName', new NotNull());
-        $expected->addPropertyConstraint('firstName', new Min(3));
+        $expected->addPropertyConstraint('firstName', new Range(array('min' => 3)));
         $expected->addPropertyConstraint('firstName', new Choice(array('A', 'B')));
-        $expected->addPropertyConstraint('firstName', new All(array(new NotNull(), new Min(3))));
-        $expected->addPropertyConstraint('firstName', new All(array('constraints' => array(new NotNull(), new Min(3)))));
+        $expected->addPropertyConstraint('firstName', new All(array(new NotNull(), new Range(array('min' => 3)))));
+        $expected->addPropertyConstraint('firstName', new All(array('constraints' => array(new NotNull(), new Range(array('min' => 3))))));
         $expected->addPropertyConstraint('firstName', new Collection(array('fields' => array(
-            'foo' => array(new NotNull(), new Min(3)),
-            'bar' => array(new Min(5)),
+            'foo' => array(new NotNull(), new Range(array('min' => 3))),
+            'bar' => array(new Range(array('min' => 5))),
         ))));
         $expected->addPropertyConstraint('firstName', new Choice(array(
             'message' => 'Must be one of %choices%',
@@ -65,6 +71,22 @@ class XmlFileLoaderTest extends \PHPUnit_Framework_TestCase
         $expected->addGetterConstraint('lastName', new NotNull());
 
         $this->assertEquals($expected, $metadata);
+    }
+
+    public function testLoadClassMetadataWithNonStrings()
+    {
+        $loader = new XmlFileLoader(__DIR__.'/constraint-mapping-non-strings.xml');
+        $metadata = new ClassMetadata('Symfony\Component\Validator\Tests\Fixtures\Entity');
+
+        $loader->loadClassMetadata($metadata);
+
+        $expected = new ClassMetadata('Symfony\Component\Validator\Tests\Fixtures\Entity');
+        $expected->addPropertyConstraint('firstName', new Regex(array('pattern' => '/^1/', 'match' => false)));
+
+        $properties = $metadata->getPropertyMetadata('firstName');
+        $constraints = $properties[0]->getConstraints();
+
+        $this->assertFalse($constraints[0]->match);
     }
 
     public function testLoadGroupSequenceProvider()
@@ -78,5 +100,17 @@ class XmlFileLoaderTest extends \PHPUnit_Framework_TestCase
         $expected->setGroupSequenceProvider(true);
 
         $this->assertEquals($expected, $metadata);
+    }
+
+    /**
+     * @expectedException        \Symfony\Component\Validator\Exception\MappingException
+     * @expectedExceptionMessage Document types are not allowed.
+     */
+    public function testDocTypeIsNotAllowed()
+    {
+        $loader = new XmlFileLoader(__DIR__.'/withdoctype.xml');
+        $metadata = new ClassMetadata('Symfony\Component\Validator\Tests\Fixtures\Entity');
+
+        $loader->loadClassMetadata($metadata);
     }
 }

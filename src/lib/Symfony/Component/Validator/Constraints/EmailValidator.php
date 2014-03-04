@@ -41,11 +41,6 @@ class EmailValidator extends ConstraintValidator
         if ($valid) {
             $host = substr($value, strpos($value, '@') + 1);
 
-            if (version_compare(PHP_VERSION, '5.3.3', '<') && strpos($host, '.') === false) {
-                // Likely not a FQDN, bug in PHP FILTER_VALIDATE_EMAIL prior to PHP 5.3.3
-                $valid = false;
-            }
-
             // Check for host DNS resource records
             if ($valid && $constraint->checkMX) {
                 $valid = $this->checkMX($host);
@@ -62,7 +57,7 @@ class EmailValidator extends ConstraintValidator
     /**
      * Check DNS Records for MX type.
      *
-     * @param string $host Hostname
+     * @param string $host Host
      *
      * @return Boolean
      */
@@ -74,7 +69,7 @@ class EmailValidator extends ConstraintValidator
     /**
      * Check if one of MX, A or AAAA DNS RR exists.
      *
-     * @param string $host Hostname
+     * @param string $host Host
      *
      * @return Boolean
      */

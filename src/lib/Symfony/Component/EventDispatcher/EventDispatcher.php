@@ -106,7 +106,7 @@ class EventDispatcher implements EventDispatcherInterface
         }
 
         foreach ($this->listeners[$eventName] as $priority => $listeners) {
-            if (false !== ($key = array_search($listener, $listeners))) {
+            if (false !== ($key = array_search($listener, $listeners, true))) {
                 unset($this->listeners[$eventName][$priority][$key], $this->sorted[$eventName]);
             }
         }
@@ -154,14 +154,14 @@ class EventDispatcher implements EventDispatcherInterface
      * This method can be overridden to add functionality that is executed
      * for each listener.
      *
-     * @param array[callback] $listeners The event listeners.
-     * @param string          $eventName The name of the event to dispatch.
-     * @param Event           $event     The event object to pass to the event handlers/listeners.
+     * @param callable[] $listeners The event listeners.
+     * @param string     $eventName The name of the event to dispatch.
+     * @param Event      $event     The event object to pass to the event handlers/listeners.
      */
     protected function doDispatch($listeners, $eventName, Event $event)
     {
         foreach ($listeners as $listener) {
-            call_user_func($listener, $event);
+            call_user_func($listener, $event, $eventName, $this);
             if ($event->isPropagationStopped()) {
                 break;
             }
