@@ -26,7 +26,7 @@ class FormTypeExtension extends AbstractTypeExtension
 		$dataObject = $options['data'];
 
 		$groups = (array) $formBuilder->getOption('validation_groups');
-		$metadata = $this->metadataFactory->getClassMetadata(get_class($dataObject));
+		$metadata = $this->metadataFactory->getMetadataFor(get_class($dataObject));
 		/* @var $metadata Validator\Mapping\ClassMetadata */
 		$properties = $metadata->properties;
 

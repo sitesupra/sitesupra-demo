@@ -30,7 +30,11 @@ class FormFactoryConfiguration implements ConfigurationInterface
 		$metadataFactory = new Validator\Mapping\ClassMetadataFactory($annotationLoader, $cache);
 		$validatorFactory = new Validator\ConstraintValidatorFactory();
 
-		$validator = new Validator\Validator($metadataFactory, $validatorFactory);
+		$translator = new \Symfony\Component\Translation\IdentityTranslator(
+				new \Symfony\Component\Translation\MessageSelector());
+		
+		
+		$validator = new Validator\Validator($metadataFactory, $validatorFactory, $translator);
 
 		$extensions = array_merge(array(
 			new Form\Extension\Core\CoreExtension(),
@@ -38,8 +42,10 @@ class FormFactoryConfiguration implements ConfigurationInterface
 			new FormSupraExtension($metadataFactory),
 		), (array) $this->extensions);
 
-		$formRegistry = new Form\FormRegistry($extensions);
-		$formFactory = new Form\FormFactory($formRegistry);
+		$resolvedFormTypeFactory = new Form\ResolvedFormTypeFactory;
+		
+		$formRegistry = new Form\FormRegistry($extensions, $resolvedFormTypeFactory);
+		$formFactory = new Form\FormFactory($formRegistry, $resolvedFormTypeFactory);
 
 		ObjectRepository::setFormFactory($this->caller, $formFactory, 'Symfony\Component\Form\FormFactoryInterface');
 	}

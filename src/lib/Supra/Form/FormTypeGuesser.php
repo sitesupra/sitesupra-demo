@@ -52,7 +52,7 @@ class FormTypeGuesser implements FormTypeGuesserInterface
 	 */
 	public function guessRequired($class, $property)
 	{
-		$metadata = $this->factory->getClassMetadata($class);
+		$metadata = $this->factory->getMetadataFor($class);
 		/* @var $metadata \Symfony\Component\Validator\Mapping\ClassMetadata */
 
 		if ( ! isset($metadata->properties[$property])) {
@@ -94,7 +94,7 @@ class FormTypeGuesser implements FormTypeGuesserInterface
 	 */
 	public function guessType($class, $property)
 	{
-		$metadata = $this->factory->getClassMetadata($class);
+		$metadata = $this->factory->getMetadataFor($class);
 		/* @var $metadata \Symfony\Component\Validator\Mapping\ClassMetadata */
 		$fields = $metadata->properties;
 
