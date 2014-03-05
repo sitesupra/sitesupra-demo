@@ -16,7 +16,7 @@ class BindRequestListener implements EventSubscriberInterface
 	public static function getSubscribedEvents()
 	{
 		// Must be called before Symfony preBind event
-		return array(FormEvents::PRE_BIND => array('preBind', 129));
+		return array(FormEvents::PRE_SUBMIT => array('preBind', 129));
 	}
 
 	/**

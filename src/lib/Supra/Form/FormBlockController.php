@@ -52,7 +52,7 @@ abstract class FormBlockController extends BlockController
 
 		if ($input->hasChild($name)) {
 
-			$this->bindedForm->bind($request);
+			$this->bindedForm->bind($input->getChild($name)->getArrayCopy());
 			$view = $this->getFormView();
 			
 			if ($this->bindedForm->isValid()) {

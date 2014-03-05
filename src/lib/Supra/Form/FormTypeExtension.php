@@ -68,7 +68,7 @@ class FormTypeExtension extends AbstractTypeExtension
 			}
 		}
 
-		$formBuilder->addEventSubscriber(new BindRequestListener());
+		//$formBuilder->addEventSubscriber(new BindRequestListener());
 	}
 
 	public function getExtendedType()
