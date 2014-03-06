@@ -20,6 +20,8 @@ class FormField extends Constraint
 	// select box
 	const TYPE_CHOICE = 'choice';
 	
+	const TYPE_REPEATED = 'repeated';
+	
 	/**
 	 * Field type, can be null
 	 * @var string 

@@ -47,6 +47,9 @@ class FormTypeExtension extends AbstractTypeExtension
 				}
 
 				/* @var $field FormField */
+				
+				$fieldType = null;
+				
 				$options = $field->getFieldOptions();
 
 				// Any better solution?
@@ -62,9 +65,15 @@ class FormTypeExtension extends AbstractTypeExtension
 						$choiceList = new $choiceList;
 						$options['choice_list'] = $choiceList;
 					}
-				}
+				} else if ($field->getType() === FormField::TYPE_REPEATED
+						&& isset($options['repeated_type'])) {
+						
+					$fieldType = $field->getType();
+					$options['type'] = $options['repeated_type'];
+					unset($options['repeated_type']);
+				} 
 
-				$formBuilder->add($propertyName, null, $options);
+				$formBuilder->add($propertyName, $fieldType, $options);
 			}
 		}
 
