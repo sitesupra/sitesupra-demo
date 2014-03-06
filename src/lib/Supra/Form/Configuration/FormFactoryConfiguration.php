@@ -36,9 +36,15 @@ class FormFactoryConfiguration implements ConfigurationInterface
 		
 		$validator = new Validator\Validator($metadataFactory, $validatorFactory, $translator);
 
+		$managerRegistry = new \Supra\Database\Doctrine\ManagerRegistry(
+				null, array(null), array('#public'), //array('#public', '#draft', '#audit'),
+				null, '#public', 'Doctrine\ORM\Proxy\Proxy'			
+		);
+		
 		$extensions = array_merge(array(
 			new Form\Extension\Core\CoreExtension(),
 			new Form\Extension\Validator\ValidatorExtension($validator),
+			new \Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension($managerRegistry),
 			new FormSupraExtension($metadataFactory),
 		), (array) $this->extensions);
 
