@@ -5,6 +5,7 @@ namespace Supra\Form;
 use Symfony\Component\Validator;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 
 /**
  * FormTypeExtension
@@ -16,13 +17,17 @@ class FormTypeExtension extends AbstractTypeExtension
 	 */
 	public $metadataFactory;
 
-	function __construct(Validator\Mapping\ClassMetadataFactory $metadataFactory)
+	public function __construct(Validator\Mapping\ClassMetadataFactory $metadataFactory)
 	{
 		$this->metadataFactory = $metadataFactory;
 	}
 
 	public function buildForm(FormBuilderInterface $formBuilder, array $options)
-	{
+	{	
+		if ( ! $formBuilder->getType()->getInnerType() instanceof FormType) {
+			return null;
+		}
+		
 		$dataObject = $options['data'];
 
 		$groups = (array) $formBuilder->getOption('validation_groups');
@@ -76,10 +81,11 @@ class FormTypeExtension extends AbstractTypeExtension
 				$formBuilder->add($propertyName, $fieldType, $options);
 			}
 		}
-
-		//$formBuilder->addEventSubscriber(new BindRequestListener());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function getExtendedType()
 	{
 		return 'form';
