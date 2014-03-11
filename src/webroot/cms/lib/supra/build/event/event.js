@@ -143,7 +143,7 @@ YUI.add('supra.event', function (Y) {
         return;
 
     };
-		
+	
 	Event.startExistInterval = function() {
         if (!Event._exist_interval) {
 			Event._exist_interval = setInterval(Y.bind(Event._poll_exist, Event), Event.POLL_INTERVAL);
@@ -162,6 +162,43 @@ YUI.add('supra.event', function (Y) {
 	        var a = arguments.length > 4 ?  Y.Array(arguments, 4, true) : [];
 	        return Y.Event.onExist.call(Y.Event, id, fn, o, a);
 	    }
+	};
+	
+	
+	/**
+	 * Returns character number from keyboard event
+	 * If key doesn't have character number, then returns key code
+	 * 
+	 * Should be used with 'keypress' event, 'keydown' and 'keyup' events are
+	 * inconsistent across browsers
+	 * 
+	 * @param {Object} e Event facade object
+	 * @returns {Number} Character code
+	 */
+	Event.charCodeFromEvent = function (e) {
+		var event    = e._event,
+			keyCode  = null,
+			match;
+		
+		if (typeof event.keyIdentifier === 'string' && (match = event.keyIdentifier.match(/U\+([A-F0-9]+)/i))) {
+			keyCode = parseInt(match[1], 16); // convert from hex
+		} else if (typeof event.char === 'string') {
+			keyCode = event.char.charCodeAt(0); // get first character code
+			
+			if (keyCode === 10) {
+				// Except new line, we want 13 instead
+				keyCode = 13;
+			}
+		} else if (event.which == null) {
+			keyCode = event.keyCode;
+		} else if (event.which != 0 && event.charCode != 0) {
+			keyCode = event.which;
+		} else {
+			// Special key, return code anyway
+			keyCode = e.charCode || e.keyCode;
+		}
+		
+		return keyCode;
 	};
 
 }, YUI.version, {requires:['event-custom-base']});
