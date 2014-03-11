@@ -160,10 +160,10 @@ YUI.add("supra.input-keywords", function (Y) {
 		/**
 		 * Key code constants
 		 */
-		KEY_RETURN:    13,
-		KEY_ESCAPE:    27,
-		KEY_COMMA:     188,
-		KEY_SEMICOLON: 186,
+		KEY_RETURN:    13,  // key code
+		KEY_ESCAPE:    27,  // key code
+		KEY_COMMA:     44,  // character code
+		KEY_SEMICOLON: 59,  // character code
 		
 		/**
 		 * List of suggestions
@@ -258,7 +258,7 @@ YUI.add("supra.input-keywords", function (Y) {
 			clearAllLink.on('click', this.closeSuggestionsList, this);
 
 			//Handle return and escape keys
-			inputNode.on('keydown', this._onKeyDown, this);
+			inputNode.on('keypress', this._onKeyDown, this);
 			
 			//Remove default behaviour, which is updating value on 'change'
 			inputNode.detach('change');
@@ -408,13 +408,15 @@ YUI.add("supra.input-keywords", function (Y) {
 		 * @private
 		 */
 		_onKeyDown: function (e) {
-			if (e.keyCode == this.KEY_RETURN || e.keyCode == this.KEY_COMMA || e.keyCode == this.KEY_SEMICOLON) {
+			var key = Y.Event.charCodeFromEvent(e);
+			
+			if (key == this.KEY_RETURN || key == this.KEY_COMMA || key == this.KEY_SEMICOLON) {
 				var inputValue = this.get('inputNode').get('value');
 				this.addItem(inputValue);
 				this.hideSuggestion(inputValue);
 				this.get('inputNode').set('value', '');
 				e.preventDefault();
-			} else if (e.keyCode == this.KEY_ESCAPE) {
+			} else if (key == this.KEY_ESCAPE) {
 				this.get('inputNode').set('value', '');
 				e.preventDefault();
 			}
