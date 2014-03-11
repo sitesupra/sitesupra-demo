@@ -53,7 +53,7 @@ class FormTypeExtension extends AbstractTypeExtension
 
 				/* @var $field FormField */
 				
-				$fieldType = null;
+				$fieldType = $field->getType();
 				
 				$options = $field->getFieldOptions();
 
@@ -73,7 +73,6 @@ class FormTypeExtension extends AbstractTypeExtension
 				} else if ($field->getType() === FormField::TYPE_REPEATED
 						&& isset($options['repeated_type'])) {
 						
-					$fieldType = $field->getType();
 					$options['type'] = $options['repeated_type'];
 					unset($options['repeated_type']);
 				} 

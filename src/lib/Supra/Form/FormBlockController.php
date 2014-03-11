@@ -2,11 +2,13 @@
 
 namespace Supra\Form;
 
-use Supra\Controller\Pages\BlockController;
 use Symfony\Component\Form;
 use Symfony\Component\Validator;
-use Supra\Loader\Loader;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationRequestHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Supra\Controller\Pages\BlockController;
+use Supra\Loader\Loader;
 use Supra\ObjectRepository\ObjectRepository;
 
 /**
@@ -52,7 +54,18 @@ abstract class FormBlockController extends BlockController
 
 		if ($input->hasChild($name)) {
 
-			$this->bindedForm->bind($input->getChild($name)->getArrayCopy());
+			/* @var $request \Supra\Request\HttpRequest */
+			$symfonyRequest = new Request(
+				$request->getQuery()->getArrayCopy(),
+				$request->getPost()->getArrayCopy(),
+				array(),
+				$request->getCookies(),
+				$request->getPostFiles()->getArrayCopy(),
+				$request->getServer()
+			);
+			
+			$this->bindedForm->handleRequest($symfonyRequest);
+
 			$view = $this->getFormView();
 			
 			if ($this->bindedForm->isValid()) {
@@ -146,10 +159,11 @@ abstract class FormBlockController extends BlockController
 		$dataObject = $this->initializeData($dataObject);
 		
 		$factory = $this->getFormFactory();
-
+		
 		$id = $this->getFormNamespace();
 		$options = $this->getFormBuilderOptions();
 		$formBuilder = $factory->createNamedBuilder($id, 'form', $dataObject, $options);
+		$formBuilder->setRequestHandler(new HttpFoundationRequestHandler);
 
 		// Custom events
 		if ($this instanceof EventSubscriberInterface) {
