@@ -30,7 +30,10 @@ class FormTypeExtension extends AbstractTypeExtension
 		
 		$dataObject = $options['data'];
 
-		$groups = (array) $formBuilder->getOption('validation_groups');
+		$validationGroups = $formBuilder->getOption('validation_groups');
+		
+		$groups = $this->resolveFormValidationGroups($validationGroups, $formBuilder);
+		
 		$metadata = $this->metadataFactory->getMetadataFor(get_class($dataObject));
 		/* @var $metadata Validator\Mapping\ClassMetadata */
 		$properties = $metadata->properties;
@@ -90,4 +93,22 @@ class FormTypeExtension extends AbstractTypeExtension
 		return 'form';
 	}
 
+	/**
+	 * @FIXME: $emptyForm always is w/o the data at this step
+	 *		closure-type validation groups should be implemented in some another way
+	 * 
+	 * @param mixed $groups
+	 * @return array
+	 */
+	private function resolveFormValidationGroups($groups, $formBuilder)
+	{	
+		if ( ! is_string($groups) && is_callable($groups)) {
+			
+			$emptyForm = $formBuilder->getForm();
+			
+            $groups = call_user_func($groups, $emptyForm);
+        }
+
+        return (array) $groups;
+	}
 }
