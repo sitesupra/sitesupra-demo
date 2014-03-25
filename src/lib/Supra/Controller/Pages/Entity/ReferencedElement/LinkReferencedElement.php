@@ -18,47 +18,47 @@ use Doctrine\ORM\NoResultException;
 class LinkReferencedElement extends ReferencedElementAbstract
 {
 	const TYPE_ID = 'link';
-	
+
 	const RESOURCE_PAGE = 'page',
 			RESOURCE_RELATIVE_PAGE = 'relative',
-			
+
 			RESOURCE_FILE = 'file',
 			RESOURCE_LINK = 'link',
 			RESOURCE_EMAIL = 'email';
-	
+
 	const RELATIVE_LAST = 'last',
 			RELATIVE_FIRST = 'first';
-	
+
 	/**
 	 * @Column(type="string")
 	 * @var string
 	 */
 	protected $resource;
-	
+
 	/**
-	 * @Column(type="string", nullable=true)
+	 * @Column(type="text", nullable=true)
 	 * @var string
 	 */
 	protected $href;
-	
+
 	/**
 	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $target;
-    
+
     /**
      * @Column(type="string", nullable=true)
      * @var string
      */
     protected $classname;
-	
+
 	/**
 	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $title;
-	
+
 	/**
 	 * Page master ID to keep link data without existant real page.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
@@ -66,7 +66,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @var string
 	 */
 	protected $pageId;
-	
+
 	/**
 	 * File ID to keep link data without existant real file.
 	 * SQL naming for CMS usage, should be fixed (FIXME).
@@ -74,13 +74,13 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @var string
 	 */
 	protected $fileId;
-	
+
 	/**
 	 * Internally cached page localization
 	 * @var PageLocalization
 	 */
 	private $pageLocalization;
-	
+
 	/**
 	 * @return string
 	 */
@@ -112,7 +112,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	{
 		$this->href = $href;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -128,7 +128,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	{
 		$this->target = $target;
 	}
-    
+
     /**
      * @return string
      */
@@ -149,11 +149,11 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @return string
 	 */
 	public function getTitle()
-	{	
+	{
 		if (empty($this->title)) {
 			return $this->getElementTitle();
 		}
-		
+
 		return $this->title;
 	}
 
@@ -164,7 +164,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	{
 		$this->title = $title;
 	}
-	
+
 	/**
 	 * Get element title
 	 * @return string
@@ -172,9 +172,9 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	public function getElementTitle()
 	{
 		$title = null;
-		
+
 		switch ($this->resource) {
-			
+
 			case self::RESOURCE_PAGE:
 				$pageData = $this->getPage();
 
@@ -183,7 +183,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 					$title = $pageData->getTitle();
 				}
 				break;
-			
+
 			case self::RESOURCE_FILE:
 				$file = $this->getFile();
 
@@ -191,28 +191,28 @@ class LinkReferencedElement extends ReferencedElementAbstract
 					$localeId = ObjectRepository::getLocaleManager($this)
 							->getCurrent()
 							->getId();
-					
+
 					$title = $file->getTitle($localeId);
 				}
 
 				break;
-				
+
 			case self::RESOURCE_LINK:
 				if ( ! empty($this->title)) {
 					$title = $this->title;
 				} else {
 					$title = $this->getHref();
 				}
-				
+
 				break;
-			
+
 			case self::RESOURCE_EMAIL:
 				if ( ! empty($this->title)) {
 					$title = $this->title;
 				} else {
 					$title = str_replace('mailto:', '', $this->getHref());
 				}
-			
+
 			case self::RESOURCE_RELATIVE_PAGE:
 				$href = $this->getHref();
 				if ($href == self::RELATIVE_FIRST) {
@@ -221,14 +221,14 @@ class LinkReferencedElement extends ReferencedElementAbstract
 					$title = 'Last child';
 				}
 				break;
-				
+
 			default:
 				$this->log()->warn("Unrecognized resource for supra html markup link tag, data: $this");
 		}
-		
+
 		return $title;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -264,7 +264,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 
 	/**
 	 * Method to override the used page localization
-	 * @param PageLocalization $pageLocalization 
+	 * @param PageLocalization $pageLocalization
 	 */
 	public function setPageLocalization(PageLocalization $pageLocalization)
 	{
@@ -289,10 +289,10 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			'classname' => $this->classname,
 			'button' => $this->isButton(),
 		);
-		
+
 		return $array;
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @param array $array
@@ -308,7 +308,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			'href' => null,
 			'classname' => null,
 		);
-		
+
 		$this->resource = $array['resource'];
 		$this->title = $array['title'];
 		$this->target = $array['target'];
@@ -316,22 +316,22 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		$this->fileId = $array['file_id'];
 		$this->href = $array['href'];
 		$this->classname = $array['classname'];
-        
+
 		$this->pageLocalization = null;
 	}
-	
+
 	/**
 	 * Returns link page localization
 	 * Deperecated method, use getPageLocalization() instead
 	 * @deprecated
-	 * 
+	 *
 	 * @return Localization
 	 */
 	public function getPage()
 	{
 		return $this->getPageLocalization();
 	}
-	
+
 	/**
 	 * @return File
 	 */
@@ -340,14 +340,14 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		if (empty($this->fileId)) {
 			return;
 		}
-		
+
 		$fs = ObjectRepository::getFileStorage($this);
 		$em = $fs->getDoctrineEntityManager();
 		$file = $em->find(File::CN(), $this->fileId);
-		
+
 		return $file;
 	}
-	
+
 	/**
 	 * Generates full page URL with locale prefix
 	 * @param Localization $pageLocalization
@@ -358,7 +358,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		if ( ! $pageLocalization instanceof PageLocalization) {
 			return null;
 		}
-		
+
 		$path = $pageLocalization->getPath();
 		$url = null;
 
@@ -368,10 +368,10 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			$localeId = $pageLocalization->getLocale();
 			$url = '/' . $localeId . $url;
 		}
-		
+
 		return $url;
 	}
-	
+
 	/**
 	 * Get URL of the link
 	 * @return string
@@ -379,9 +379,9 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	public function getUrl()
 	{
 		$url = null;
-		
+
 		switch ($this->getResource()) {
-			
+
 			case self::RESOURCE_PAGE:
 				$pageData = $this->getPage();
 
@@ -389,7 +389,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 					$url = $this->getPageFullPath($pageData);
 				}
 				break;
-			
+
 			case self::RESOURCE_FILE:
 				$file = $this->getFile();
 
@@ -399,22 +399,22 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				}
 
 				break;
-				
+
 			case self::RESOURCE_LINK:
 			case self::RESOURCE_EMAIL:
 				$url = $this->getHref();
 				break;
-			
+
 			case self::RESOURCE_RELATIVE_PAGE:
 				$page = $this->getPage();
-				
+
 				if (is_null($page)) {
 					$this->log()->warn("No page ID set or found for relative link #", $this->getId());
 					throw new ResourceNotFoundException("Invalid redirect");
 				}
-				
+
 				$pageChildren = $page->getPublicChildren();
-				
+
 				if ( ! $pageChildren->isEmpty()) {
 					$type = $this->getHref();
 					$relativeChild = null;
@@ -435,10 +435,10 @@ class LinkReferencedElement extends ReferencedElementAbstract
 			default:
 				$this->log()->warn("Unrecognized resource for supra html markup link tag, data: $this");
 		}
-		
+
 		return $url;
 	}
-	
+
 	/**
 	 * Get link page localization
  	 * @return Localization
@@ -448,60 +448,60 @@ class LinkReferencedElement extends ReferencedElementAbstract
 		if (empty($this->pageId)) {
 			return;
 		}
-		
+
 		if ( ! is_null($this->pageLocalization)) {
 			return $this->pageLocalization;
 		}
-		
+
 		$em = ObjectRepository::getEntityManager($this);
-		
+
 		$pageData = null;
 		$localizationEntity = Localization::CN();
 		$localeId = ObjectRepository::getLocaleManager($this)
 				->getCurrent()
 				->getId();
-		
+
 		$criteria = array(
 			'master' => $this->pageId,
 			'locale' => $localeId,
 		);
-		
+
 		// Now master page ID is stored, still the old implementation is working
 		$dql = "SELECT l, m, p FROM $localizationEntity l
 				JOIN l.master m
 				LEFT JOIN l.path p
-				WHERE (l.master = :master AND l.locale= :locale) 
+				WHERE (l.master = :master AND l.locale= :locale)
 				OR l.id = :master";
-		
+
 		try {
 			$pageData = $em->createQuery($dql)
 					->setParameters($criteria)
 					->getSingleResult();
 		} catch (NoResultException $noResult) {
-			
+
 			// Special case for group page selection when no localization exists in database
 			$master = $em->find(GroupPage::CN(), $this->pageId);
-			
+
 			if ($master instanceof GroupPage) {
 				$pageData = $master->getLocalization($localeId);
 			}
 		}
-		
+
 		// Cache the result
 		$this->pageLocalization = $pageData;
-		
+
 		return $pageData;
 	}
-	
+
 	/**
 	 * It's not the best way to detect, should we show link as button,
 	 *  but is the one to do this without having additional property
-	 * 
+	 *
 	 * @return string
 	 */
 	public function isButton()
 	{
-		return $this->classname == 'button' 
+		return $this->classname == 'button'
 				|| strpos($this->classname, ' button') !== false;
 	}
 }
