@@ -19,6 +19,7 @@ use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Log\Log;
 use Supra\Editable;
 use Supra\Controller\Pages\Exception;
+use Supra\Controller\Exception\StopRequestException;
 
 /**
  * Block controller abstraction
@@ -125,11 +126,11 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	protected function doPrepare()
 	{
-		
+
 	}
 
 	/**
-	 * @return \Exception|null 
+	 * @return \Exception|null
 	 */
 	public function hadException()
 	{
@@ -141,7 +142,7 @@ abstract class BlockController extends ControllerAbstraction
 	 */
 	protected function doExecute()
 	{
-		
+
 	}
 
 	/**
@@ -159,6 +160,11 @@ abstract class BlockController extends ControllerAbstraction
 
 			try {
 				$this->doExecute();
+			} catch (StopRequestException $e) {
+
+				ObjectRepository::endControllerContext($this);
+				throw $e;
+				
 			} catch (\Exception $e) {
 
 				$this->log->error($e);
@@ -316,12 +322,12 @@ abstract class BlockController extends ControllerAbstraction
 
 				$defaultValue = array();
 				if ( ! empty($propertyDefinition->properties) && ! $editable instanceof Editable\Gallery) {
-					foreach ($propertyDefinition->properties as $subProperty) {                        
+					foreach ($propertyDefinition->properties as $subProperty) {
 						$defaultValue[$subProperty->name] = $subProperty->editableInstance->getDefaultValue();
 					}
 					$defaultValue = array($defaultValue);
 				} else {
-					
+
 					$defaultValue = $editable->getDefaultValue($localeId);
 				}
 
@@ -365,9 +371,9 @@ abstract class BlockController extends ControllerAbstraction
 		if ($editable instanceof Editable\Html) {
 			// Editable action
 //			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-			if ($this->request instanceof PageRequestEdit) {	
-				
-				
+			if ($this->request instanceof PageRequestEdit) {
+
+
 				$filter = new Filter\EditableHtml();
 				$filter->property = $property;
 				$editable->addFilter($filter);
@@ -378,9 +384,9 @@ abstract class BlockController extends ControllerAbstraction
 				$filter->property = $property;
 				$editable->addFilter($filter);
 			}
-			
+
 			$context = $this->response->getContext();
-			
+
 			// HTML filter specific
 			$filter->setResponseContext($context);
 		}
@@ -391,10 +397,10 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
-		
+
 		else if ($editable instanceof Editable\InlineString) {
 //			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-			if ($this->request instanceof PageRequestEdit) {	
+			if ($this->request instanceof PageRequestEdit) {
 				$filter = new Filter\EditableString();
 				ObjectRepository::setCallerParent($filter, $this);
 				$filter->property = $property;
@@ -408,7 +414,7 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
-		
+
 		else if ($editable instanceof Editable\InlineTextarea) {
 			$filter = new Filter\InlineTextareaFilter();
 			ObjectRepository::setCallerParent($filter, $this);
@@ -423,35 +429,35 @@ abstract class BlockController extends ControllerAbstraction
 			$filter->request = $this->request;
 			$editable->addFilter($filter);
 		}
-		
+
 		else if ($editable instanceof Editable\Video) {
 			$filter = new Filter\VideoFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
-		
+
 //		else if ($editable instanceof Editable\InlineMap) {
 //			$filter = new Filter\InlineMapFilter();
 //			ObjectRepository::setCallerParent($filter, $this);
 //			$filter->property = $property;
 //			$editable->addFilter($filter);
 //		}
-		
+
 		else if ($editable instanceof Editable\Slideshow) {
 			$filter = new Filter\SlideshowFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
-		
+
 		else if ($editable instanceof Editable\MediaGallery) {
 			$filter = new Filter\MediaGalleryFilter();
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);
 		}
-		
+
 		else if ($editable instanceof Editable\InlineMedia) {
 //			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
 			if ($this->request instanceof PageRequestEdit) {
@@ -459,7 +465,7 @@ abstract class BlockController extends ControllerAbstraction
 			} else {
 				$filter = new Filter\InlineMediaFilter();
 			}
-			
+
 			ObjectRepository::setCallerParent($filter, $this);
 			$filter->property = $property;
 			$editable->addFilter($filter);
@@ -484,12 +490,12 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
-	 * Get the content and output it to the response or return if no response 
+	 * Get the content and output it to the response or return if no response
 	 * object set
-	 * 
+	 *
 	 * @TODO could move to block response object
 	 * @TODO NB! This isn't escaped currently! Maybe this method doesn't make sense?
-	 * 
+	 *
 	 * @param string $name
 	 */
 	public function outputProperty($name)
@@ -523,7 +529,7 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
-	 * @param BlockControllerConfiguration $configuration 
+	 * @param BlockControllerConfiguration $configuration
 	 */
 	public function setConfiguration(BlockControllerConfiguration $configuration)
 	{
@@ -539,7 +545,7 @@ abstract class BlockController extends ControllerAbstraction
 	}
 
 	/**
-	 * @return string 
+	 * @return string
 	 */
 	protected function getExceptionResponseTemplateFilename()
 	{
@@ -574,7 +580,7 @@ abstract class BlockController extends ControllerAbstraction
 	/**
 	 * Block controller local counter. Usually might be used to count the number
 	 * of the block instances in the page.
-	 * 
+	 *
 	 * @return integer
 	 */
 	private function increaseBlockOutputCount()
