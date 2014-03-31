@@ -751,6 +751,18 @@ class Form implements \IteratorAggregate, FormInterface
 
         return true;
     }
+	
+	/**
+	 * Wrapper for isValid(), for backward compatibility with Supra7 projects
+	 * 
+	 * TODO: remove the usage of hasErrors()
+	 * 
+	 * @return boolean
+	 */
+	public function hasErrors()
+	{
+		return $this->isValid();
+	}
 
     /**
      * Returns the button that was used to submit the form.
