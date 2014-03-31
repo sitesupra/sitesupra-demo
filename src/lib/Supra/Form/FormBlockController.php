@@ -203,6 +203,7 @@ abstract class FormBlockController extends BlockController
 	{
 		return array(
 			'validation_groups' => $this->getFormValidationGroups(),
+			'method' => $this->getConfiguration()->method,
 		);
 	}
 
