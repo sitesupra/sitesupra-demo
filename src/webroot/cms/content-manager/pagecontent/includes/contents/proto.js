@@ -4,6 +4,7 @@ YUI.add('supra.page-content-proto', function (Y) {
 	
 	//Shortcuts
 	var Manager = Supra.Manager,
+		Page = Manager.Page,
 		PageContent = Manager.PageContent,
 		getClassName = Y.bind(Y.ClassNameManager.getClassName, Y.ClassNameManager);
 	
