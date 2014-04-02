@@ -938,6 +938,13 @@ class PageController extends ControllerAbstraction
 					$exception = $blockController->hadException();
 					
 					if ($exception instanceof StopRequestException) {
+						
+						$response = $blockController->getResponse();
+						
+						$response->cleanOutput();
+						
+						$response->flushToResponse($this->getResponse());
+						
 						throw $exception;
 					}
 					
