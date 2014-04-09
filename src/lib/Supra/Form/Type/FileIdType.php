@@ -35,7 +35,7 @@ class FileIdType extends AbstractType
      */
     public function getParent()
     {
-        return 'field';
+        return 'text';
     }
 
 	public function getName()
