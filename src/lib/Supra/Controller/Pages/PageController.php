@@ -21,6 +21,7 @@ use Supra\Cache\CacheGroupManager;
 use Supra\Controller\Exception\AuthorizationRequiredException;
 use Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\Controller\Pages\Response\PlaceHolderGroup;
+use Supra\Controller\Exception\StopRequestException;
 
 /**
  * Page controller
@@ -934,11 +935,24 @@ class PageController extends ControllerAbstraction
 						$blockController->hadException()
 				) {
 
+					$exception = $blockController->hadException();
+					
+					if ($exception instanceof StopRequestException) {
+						
+						$response = $blockController->getResponse();
+						
+						$response->cleanOutput();
+						
+						$response->flushToResponse($this->getResponse());
+						
+						throw $exception;
+					}
+					
 					// Don't cache failed blocks 
 					unset($this->blockCacheRequests[$blockId]);
 
 					// Add exception to blockEndExecute event.
-					$eventArgs->exception = $blockController->hadException();
+					$eventArgs->exception = $exception;
 				}
 
 				if ( ! is_null($eventAction)) {

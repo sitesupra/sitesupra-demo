@@ -160,11 +160,12 @@ abstract class BlockController extends ControllerAbstraction
 
 			try {
 				$this->doExecute();
-			} catch (StopRequestException $e) {
-
-				ObjectRepository::endControllerContext($this);
-				throw $e;
 				
+			} catch (StopRequestException $e) {
+				
+				$this->hadException = $e;
+				$this->setExceptionResponse($e);
+								
 			} catch (\Exception $e) {
 
 				$this->log->error($e);
