@@ -761,7 +761,7 @@ class Form implements \IteratorAggregate, FormInterface
 	 */
 	public function hasErrors()
 	{
-		return $this->isValid();
+		return ! $this->isValid();
 	}
 
     /**
