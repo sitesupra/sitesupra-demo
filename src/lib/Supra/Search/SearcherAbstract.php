@@ -39,8 +39,6 @@ abstract class SearcherAbstract
 		return $this->systemId;
 	}
 	
-	abstract public function configure();
-	
 	abstract public function processRequest(\Supra\Search\Request\SearchRequestInterface $request);
 		
 	/**
