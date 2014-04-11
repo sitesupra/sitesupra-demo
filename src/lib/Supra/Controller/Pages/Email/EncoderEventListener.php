@@ -2,25 +2,32 @@
 
 namespace Supra\Controller\Pages\Email;
 
-use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
+use Supra\Controller\Pages\Event\BlockEventsArgs;
+use Supra\Controller\Pages\Listener\BlockExecuteListener;
 
 /**
  */
 class EncoderEventListener
-{	
+{
+
 	const DECODER_JAVASCRIPT_FILE_URI = '/cms/lib/public/decipher-email.min.js';
-	
+
 	/**
 	 * @var boolean
 	 */
 	private $flushed = false;
-	
-	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
+
+	/**
+	 * @param BlockEventsArgs $eventArgs
+	 */
+	public function blockEndExecuteEvent(BlockEventsArgs $eventArgs)
 	{
-		if ( ! $this->flushed) {
-			
-			$context = $eventArgs->response->getContext();
-			
+		if ( ! $this->flushed
+				&& $eventArgs->actionType === BlockExecuteListener::ACTION_CONTROLLER_EXECUTE) {
+
+			$context = $eventArgs->blockController->getResponse()
+					->getContext();
+
 			$context->addJsUrlToLayoutSnippet('js', self::DECODER_JAVASCRIPT_FILE_URI);
 			$this->flushed = true;
 		}
