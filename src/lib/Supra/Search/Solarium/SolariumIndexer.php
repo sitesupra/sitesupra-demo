@@ -2,9 +2,7 @@
 
 namespace Supra\Search\Solarium;
 
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Search\Solarium\Configuration;
-use Supra\Search\IndexerServiceAbstract;
+use Solarium_Client;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Search\IndexerQueueItemStatus;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
@@ -14,30 +12,31 @@ use Supra\Search\SearchService;
 class SolariumIndexer extends \Supra\Search\IndexerAbstract
 {
 	/**
-	 * @var \Solarium_Client
+	 * @var Solarium_Client
 	 */
 	protected $solariumClient;
 
+	/**
+	 * @param Solarium_Client $solariumClient
+	 */
+	public function __construct(Solarium_Client $solariumClient)
+	{
+		$this->solariumClient = $solariumClient;
+	}
+	
 	/**
 	 * Adds $queueItem to Solr.
 	 * @param IndexerQueueItem $queueItem 
 	 */
 	public function processItem(\Supra\Search\Entity\Abstraction\IndexerQueueItem $queueItem)
 	{
-		$solariumClient = $this->getSolariumClient();
-		
-		if ( ! $solariumClient instanceof \Solarium_Client) {
-			
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			\Log::debug($message);
-			return 0;
-		}
-
 		$documents = array();
 
 		try {
 			
 			$systemId = $this->getSystemId();
+			
+			$solariumClient = $this->solariumClient;
 			
 			$solariumDocumentWriter = function ($document) use ($solariumClient, $systemId) {
 				
@@ -75,39 +74,17 @@ class SolariumIndexer extends \Supra\Search\IndexerAbstract
 		return count($documents);
 	}
 
-	public function getSolariumClient()
-	{
-		if (is_null($this->solariumClient)) {
-			if ( ! ObjectRepository::isSolariumConfigured($this)) {
-				\Log::debug(Configuration::FAILED_TO_GET_CLIENT_MESSAGE);
-				$this->solariumClient = false;
-			} else {
-				$this->solariumClient = ObjectRepository::getSolariumClient($this);
-			}
-		}
-
-		return $this->solariumClient;
-	}
-
 	/**
 	 * Returns count of documents indexed for this system
 	 * @return integer
 	 */
 	public function getDocumentCount()
 	{
-		$solariumClient = $this->getSolariumClient();
-		
-		if ( ! $solariumClient instanceof \Solarium_Client) {
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			\Log::debug($message);
-			return 0;
-		}
-		
-		$query = $solariumClient->createSelect();
+		$query = $this->solariumClient->createSelect();
 		$query->setQuery('systemId:' . $this->getSystemId());
 		$query->setRows(0);
 
-		$result = $solariumClient->select($query);
+		$result = $this->solariumClient->select($query);
 
 		return $result->getNumFound();
 	}
@@ -117,21 +94,13 @@ class SolariumIndexer extends \Supra\Search\IndexerAbstract
 	 */
 	public function removeFromIndex($uniqueId)
 	{
-		$solariumClient = $this->getSolariumClient();
-		
-		if ( ! $solariumClient instanceof \Solarium_Client) {
-			$message = Configuration::FAILED_TO_GET_CLIENT_MESSAGE;
-			\Log::debug($message);
-			return;
-		}
-		
-		$query = $solariumClient->createUpdate();
+		$query = $this->solariumClient->createUpdate();
 
 		$query->addDeleteById($uniqueId);
 
 		$query->addCommit();
 
-		$solariumClient->execute($query);
+		$this->solariumClient->execute($query);
 	}
 
 	/**
@@ -145,7 +114,7 @@ class SolariumIndexer extends \Supra\Search\IndexerAbstract
 		$findRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 		$findRequest->setPageLocalizationId($pageLocalizationId);
 
-		$searchService = new SearchService();
+		$searchService = SearchService::getInstance();
 
 		$resultSet = $searchService->processRequest($findRequest);
 
@@ -164,14 +133,13 @@ class SolariumIndexer extends \Supra\Search\IndexerAbstract
 
 	public function removeAllFromIndex()
 	{
-		$client = $this->getSolariumClient();
-		
-		$update = $client->createUpdate();
+		$update = $this->solariumClient->createUpdate();
 		
 		$query = 'systemId:' . $this->getSystemId();
 		
 		$update->addDeleteQuery($query);
 		$update->addCommit();
-		$client->update($update);
+		
+		$this->solariumClient->update($update);
 	}
 }

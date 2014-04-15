@@ -41,11 +41,6 @@ class MysqlSearcher extends \Supra\Search\SearcherAbstract
 	 */
 	protected $indexedContentTableName = 'search_indexed_content';
 
-	
-	public function configure()
-	{
-	}
-	
 	/**
 	 * @param string $name
 	 */
