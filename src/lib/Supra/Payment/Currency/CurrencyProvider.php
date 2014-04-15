@@ -9,7 +9,6 @@ use Doctrine\ORM\EntityRepository;
 
 class CurrencyProvider
 {
-
 	/**
 	 * @var EntityManager
 	 */
@@ -23,16 +22,9 @@ class CurrencyProvider
 	/**
 	 * @param EntityManager $em 
 	 */
-	function __construct(EntityManager $em = null)
+	public function __construct(EntityManager $em = null)
 	{
-		if ( ! empty($em)) {
-			$this->em = $em;
-		}
-		else {
-			$this->em = ObjectRepository::getEntityManager($this);
-		}
-
-		$this->currencyRepository = $this->em->getRepository(Currency::CN());
+		$this->em = $em ?: ObjectRepository::getEntityManager($this);
 	}
 
 	/**
@@ -41,45 +33,42 @@ class CurrencyProvider
 	 */
 	public function getCurrencyByIso4217Code($iso4217Code)
 	{
-		$currency = $this->currencyRepository->findOneBy(array('iso4217Code' => $iso4217Code));
-
-		if (empty($currency)) {
-			
-			return $this->createDummyCurrency($iso4217Code);
-			
-			//throw new Exception\RuntimeException('Currency not found for ISO code "' . $isoCode . '"');
+		$currency = $this->findCurrencyByIso4217Code($iso4217Code);
+		
+		if ($currency === null) {
+			throw new \UnexpectedValueException("Currency with code {$iso4217Code} not found");
 		}
-
+		
 		return $currency;
 	}
 	
+	/**
+	 * @param string $iso4217Code
+	 * @return Currency | null
+	 */
+	public function findCurrencyByIso4217Code($iso4217Code)
+	{
+		return $this->getRepository()->findOneBy(array('iso4217Code' => $iso4217Code));
+	}
+		
 	/**
 	 * @return array
 	 */
 	public function getAll()
 	{
-		return $this->currencyRepository->findAll();
+		return $this->getRepository()->findAll();
 	}
-	
 
 	/**
-	 * @param string $iso4217Code 
+	 * @return \Doctrine\ORM\EntityRepository
 	 */
-	private function createDummyCurrency($iso4217Code)
+	public function getRepository()
 	{
-		throw new \RuntimeException("This method is obsolete, use the real currencies!");
+		if ($this->repository === null) {
+			$this->currencyRepository = $this->em->getRepository(Currency::CN());
+		}
 		
-//		$currency = new Currency();
-//		$currency->setIso4217Code($iso4217Code);
-//		$currency->setAbbreviation($iso4217Code . '-ABBREV');
-//		$currency->setSymbol($iso4217Code . '-SYMBOL');
-//		$currency->setEnabled(true);
-//		
-//		$this->em->persist($currency);
-//		$this->em->flush();
-//		
-//		return $currency;
+		return $this->currencyRepository;
 	}
-
 }
 
