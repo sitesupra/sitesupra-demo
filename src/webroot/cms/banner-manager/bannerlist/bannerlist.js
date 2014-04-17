@@ -269,7 +269,7 @@ Supra('website.list-dd', 'supra.list', function (Y) {
 			
 			this.groupId = groupId;
 			
-			if (!silent) {
+			if (silent !== true) {
 				this.fillBannerList(this.groupId);
 			}
 		},
