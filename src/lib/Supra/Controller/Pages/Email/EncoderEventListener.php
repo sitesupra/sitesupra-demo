@@ -8,21 +8,19 @@ use Supra\Controller\Pages\Event\PostPrepareContentEventArgs;
  */
 class EncoderEventListener
 {	
-	const DECODER_JAVASCRIPT_FILE_URI = '/cms/lib/public/decipher-email.min.js';
-	
 	/**
 	 * @var boolean
 	 */
-	private $flushed = false;
+	private $binded = false;
 	
 	public function postPrepareContent(PostPrepareContentEventArgs $eventArgs)
 	{
-		if ( ! $this->flushed) {
+		if ( ! $this->binded) {
 			
-			$context = $eventArgs->response->getContext();
+			EmailEncoder::getInstance()
+					->bindResponseContext($eventArgs->response->getContext());
 			
-			$context->addJsUrlToLayoutSnippet('js', self::DECODER_JAVASCRIPT_FILE_URI);
-			$this->flushed = true;
+			$this->binded = true;
 		}
 	}
 }

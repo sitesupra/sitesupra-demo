@@ -87,7 +87,8 @@ class ResponseContextLocalProxy extends ResponseContext
 	/**
 	 * @param string | array $fontFamilies
 	 */
-	public function registerGoogleFontFamilies($fontFamilies) {
+	public function registerGoogleFontFamilies($fontFamilies)
+	{
 		$this->localContext->registerGoogleFontFamilies($fontFamilies);
 		parent::registerGoogleFontFamilies($fontFamilies);
 	}

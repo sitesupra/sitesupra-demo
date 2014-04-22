@@ -3,17 +3,19 @@
 namespace Supra\Controller\Pages\Email;
 
 use Supra\Controller\Pages\PageController;
+use Supra\Response\ResponseContext;
 
-/**
- */
 class EmailEncoder
 {
+	const DECODER_JAVASCRIPT_FILE_URI = '/cms/lib/public/decipher-email.min.js';
+	
 	/**
-	 * @var self
+	 * @var EmailEncoder
 	 */
 	private static $instance;
 	
 	/**
+	 * @return EmailEncoder
 	 */
 	public static function getInstance()
 	{
@@ -44,5 +46,13 @@ class EmailEncoder
 	public function encode($email)
 	{		
 		return str_rot13($email);
+	}
+	
+	/**
+	 * @param ResponseContext $context
+	 */
+	public function bindResponseContext(ResponseContext $context)
+	{
+		$context->addJsUrlToLayoutSnippet('js', self::DECODER_JAVASCRIPT_FILE_URI);
 	}
 }

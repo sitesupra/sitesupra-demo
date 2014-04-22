@@ -13,7 +13,7 @@ class ResponseContext extends FilteredInput
 	 * @var array
 	 */
 	protected $layoutSnippetResponses = array();
-	
+		
 	/**
 	 * @var array
 	 */
@@ -69,10 +69,14 @@ class ResponseContext extends FilteredInput
 	{
 		$snippet = (string) $snippet;
 		
+		$hash = md5($key . '_' . $snippet);
+		
 		if (empty($this->layoutSnippetResponses[$key])) {
-			$this->layoutSnippetResponses[$key] = $snippet;
-		} else {
-			$this->layoutSnippetResponses[$key] .= $snippet;
+			$this->layoutSnippetResponses[$key] = array();
+		}
+		
+		if ( ! isset($this->layoutSnippetResponses[$key][$hash])) {
+			$this->layoutSnippetResponses[$key][$hash] = $snippet;
 		}
 
 		return $this;
@@ -85,7 +89,7 @@ class ResponseContext extends FilteredInput
 	public function getLayoutSnippetContents($key)
 	{
 		if (isset($this->layoutSnippetResponses[$key])) {
-			return $this->layoutSnippetResponses[$key];
+			return implode('', $this->layoutSnippetResponses[$key]);
 		} else {
 			return '';
 		}
@@ -162,8 +166,10 @@ class ResponseContext extends FilteredInput
 			$mainContext->setValue($key, $value);
 		}
 		
-		foreach ($this->layoutSnippetResponses as $key => $value) {
-			$mainContext->addToLayoutSnippet($key, $value);
+		foreach ($this->layoutSnippetResponses as $key => $responses) {
+			foreach	($responses as $snippet) {
+				$mainContext->addToLayoutSnippet($key, $snippet);
+			}
 		}
 		
 		$mainContext->registerGoogleFontFamilies($this->usedFontFamilies);
