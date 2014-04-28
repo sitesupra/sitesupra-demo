@@ -3,7 +3,7 @@
 namespace Supra\Search\Solarium;
 
 use Solarium_Client;
-use Supra\Search\SearcherAbstract;
+use Supra\Search\AbstractSearcher;
 use Supra\Search\Request\SearchRequestInterface;
 use Supra\Search\Result\SearchResultSetInterface;
 
