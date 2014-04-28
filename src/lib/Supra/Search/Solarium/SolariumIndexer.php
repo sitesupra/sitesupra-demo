@@ -7,7 +7,7 @@ use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Search\IndexerQueueItemStatus;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Controller\Pages\PageController;
-use Supra\Search\SearchService;
+use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\AbstractIndexer;
 
 class SolariumIndexer extends AbstractIndexer
@@ -115,7 +115,7 @@ class SolariumIndexer extends AbstractIndexer
 		$findRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 		$findRequest->setPageLocalizationId($pageLocalizationId);
 
-		$searchService = SearchService::getInstance();
+		$searchService = ObjectRepository::getSearchService($this);
 
 		$resultSet = $searchService->processRequest($findRequest);
 

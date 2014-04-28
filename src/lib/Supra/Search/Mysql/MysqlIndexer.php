@@ -133,7 +133,7 @@ class MysqlIndexer extends AbstractIndexer
 	 */
 	protected function getIndexedContentTableName()
 	{
-		$searcher = \Supra\Search\SearchService::getInstance()
+		$searcher = ObjectRepository::getSearchService($this)
 				->getSearcher();
 		
 		if ( ! $searcher instanceof MysqlSearcher) {

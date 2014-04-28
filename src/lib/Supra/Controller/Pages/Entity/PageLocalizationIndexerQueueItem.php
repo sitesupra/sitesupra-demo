@@ -270,8 +270,11 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 	public function writeIndexedDocuments($solariumDocumentWriter)
 	{
 		if ($this->removal) {
-			//$this->remove();
-			IndexerService::getInstance()->remove($this->pageLocalizationId);
+
+			$indexerService = ObjectRepository::getIndexerService($this);
+			
+			$indexerService->remove($this->pageLocalizationId);
+			
 			return array();
 		}
 
@@ -403,7 +406,7 @@ class PageLocalizationIndexerQueueItem extends IndexerQueueItem
 		$findRequest->setSchemaName($this->schemaName);
 		$findRequest->setPageLocalizationId($pageLocalizationId);
 
-		$searchService = SearchService::getInstance();
+		$searchService = ObjectRepository::getSearchService($this);
 
 		$resultSet = $searchService->processRequest($findRequest);
 

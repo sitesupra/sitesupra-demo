@@ -1,7 +1,11 @@
 <?php
 
-$searchService = \Supra\Search\SearchService::getInstance();
-$searchService->setSearcher(new \Supra\Search\Mysql\MysqlSearcher);
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Search\Mysql\MysqlIndexer;
+use Supra\Search\Mysql\MysqlSearcher;
 
-$indexerService = Supra\Search\IndexerService::getInstance();
-$indexerService->setIndexer(new Supra\Search\Mysql\MysqlIndexer);
+ObjectRepository::setDefaultSearchService(
+		new Search\SearchService(new MysqlSearcher));
+
+ObjectRepository::setDefaultIndexerService(
+		new Search\IndexerService(new MysqlIndexer));

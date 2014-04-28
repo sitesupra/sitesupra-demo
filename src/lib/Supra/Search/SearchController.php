@@ -130,8 +130,7 @@ class SearchController extends BlockController
 				}
 
 				try {
-					/** @object $searchService SearchService */
-					$searchService = SearchService::getInstance();
+					$searchService = ObjectRepository::getSearchService($this);
 					$results = $searchService->doSearch($q, $configuration->resultsPerPage, abs(intval($currentPageNumber) * intval($configuration->resultsPerPage)));
 				} catch (\Supra\Search\Exception\RuntimeException $e) {
 					$results = $e;
