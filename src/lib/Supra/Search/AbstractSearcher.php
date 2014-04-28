@@ -7,7 +7,7 @@ use Supra\Controller\Pages\Search\PageLocalizationSearchResultPostProcesser;
 use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 use Supra\Controller\Pages\PageController;
 
-abstract class SearcherAbstract 
+abstract class AbstractSearcher 
 {
 	/**
 	 * @var \Supra\Log\Writer\WriterAbstraction
@@ -40,7 +40,14 @@ abstract class SearcherAbstract
 	}
 	
 	abstract public function processRequest(\Supra\Search\Request\SearchRequestInterface $request);
-		
+	
+	/**
+	 * Tells weither the keyword suggestion feature supported by adapter
+	 * 
+	 * @return boolean
+	 */
+	abstract public function isKeywordSuggestionSupported();
+	
 	/**
 	 * @param string $text
 	 * @param int $maxRows

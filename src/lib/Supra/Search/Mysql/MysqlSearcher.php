@@ -2,6 +2,7 @@
 
 namespace Supra\Search\Mysql;
 
+use Supra\Search\AbstractSearcher;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\Result\DefaultSearchResultSet;
 use Supra\Search\Mysql\PageLocalizationSearchResultItem;
@@ -9,7 +10,7 @@ use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Search\Request\SearchRequestInterface;
 use Supra\Controller\Pages\Search\PageLocalizationSearchRequest;
 
-class MysqlSearcher extends \Supra\Search\SearcherAbstract
+class MysqlSearcher extends AbstractSearcher
 {
 	/**
 	 * IN NATURAL LANGUAGE MODE
@@ -228,5 +229,13 @@ class MysqlSearcher extends \Supra\Search\SearcherAbstract
 		
 		$stmt->bindValue(':locale', $request->getLocale()->getId(), \PDO::PARAM_STR);
 		$stmt->bindValue(':query', $text, \PDO::PARAM_STR);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isKeywordSuggestionSupported()
+	{
+		return false;
 	}
 }

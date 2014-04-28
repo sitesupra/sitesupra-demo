@@ -6,7 +6,6 @@ use Doctrine\ORM\EntityManager;
 use Supra\FileStorage\FileStorage;
 use Supra\User\UserProviderAbstract;
 use Supra\Log\Writer\WriterAbstraction;
-use Supra\Session\SessionNamespace;
 use Supra\Session\SessionManager;
 use Supra\Log\Log;
 use Supra\Locale\LocaleManager;
@@ -31,6 +30,7 @@ use Supra\Controller\Layout\Theme\DefaultThemeProvider;
 use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Translation\Translator;
+use Supra\Search;
 
 /**
  * Object repository
@@ -44,7 +44,6 @@ class ObjectRepository
 	 * Used when binding the object to controller
 	 * TODO: just an idea, not realized because of multiple methods which should be implemented
 	 */
-	const CONTROLLER_PREFIX = 'CONTROLLER/';
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
 	const INTERFACE_AUDIT_LOGGER = 'Supra\AuditLog\Writer\AuditLogWriterAbstraction';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
@@ -70,6 +69,8 @@ class ObjectRepository
 	const INTERFACE_THEME_PROVIDER = 'Supra\Controller\Layout\Theme\ThemeProviderAbstraction';
 	const INTERFACE_FORM_FACTORY = 'Symfony\Component\Form\FormFactoryInterface';
 	const INTERFACE_TRANSLATOR = 'Symfony\Component\Translation\Translator';
+	const INTERFACE_INDEXER_SERVICE = 'Supra\Search\IndexerService';
+	const INTERFACE_SEARCH_SERVICE = 'Supra\Search\SearchService';
 
 	/**
 	 * Object relation storage
@@ -359,28 +360,28 @@ class ObjectRepository
 		return $object;
 	}
 
-	/**
-	 * Finds all objects matching the caller name trace
-	 * @param mixed $caller
-	 * @param string $interface
-	 * @return array
-	 */
-	private static function findAllObjects($caller, $interface)
-	{
-		$objects = null;
-		$visited = array();
-
-		do {
-			$object = self::findObject($caller, $interface);
-			$caller = self::getParentCaller($caller, $visited);
-
-			if ( ! empty($object) && ! in_array($object, $objects, true)) {
-				$objects[] = $object;
-			}
-		} while ( ! is_null($caller));
-
-		return $objects;
-	}
+//	/**
+//	 * Finds all objects matching the caller name trace
+//	 * @param mixed $caller
+//	 * @param string $interface
+//	 * @return array
+//	 */
+//	private static function findAllObjects($caller, $interface)
+//	{
+//		$objects = null;
+//		$visited = array();
+//
+//		do {
+//			$object = self::findObject($caller, $interface);
+//			$caller = self::getParentCaller($caller, $visited);
+//
+//			if ( ! empty($object) && ! in_array($object, $objects, true)) {
+//				$objects[] = $object;
+//			}
+//		} while ( ! is_null($caller));
+//
+//		return $objects;
+//	}
 
 	/**
 	 * Force caller object hierarchy
@@ -454,10 +455,8 @@ class ObjectRepository
 //		$interface = self::normalizeInterfaceArgument($interface);
 		// 1. Try matching any controller from the execution list
 		foreach (self::$controllerStack as $controllerId) {
-			$controllerCaller = $controllerId;
-			// @see self::CONTROLLER_PREFIX
-//			$controllerCaller = self::CONTROLLER_PREFIX . $controllerId;
-			$object = self::findObject($controllerCaller, $interface);
+
+			$object = self::findObject($controllerId, $interface);
 
 			if ( ! is_null($object)) {
 				return $object;
@@ -909,24 +908,63 @@ class ObjectRepository
 	{
 		return self::getObject($caller, self::INTERFACE_SOLARIUM_CLIENT, true);
 	}
-
+	
 	/**
-	 * Assign Solarium client to namespace.
+	 * Gets searcher service
+	 * 
 	 * @param mixed $caller
-	 * @param Solarium_Client $object 
+	 * @return \Supra\Search\SearchService
 	 */
-	public static function setSolariumClient($caller, Solarium_Client $object)
+	public static function getSearchService($caller)
 	{
-		self::addBinding($caller, $object, self::INTERFACE_SOLARIUM_CLIENT);
+		$service = self::getObject($caller, self::INTERFACE_SEARCH_SERVICE, false);
+		
+		// @TODO: configuration via dependency injection
+		if ($service === null) {
+			
+			$service = new Search\SearchService(new Search\NullSearcher);
+			
+			self::setDefaultSearchService($service);
+		}
+		
+		return $service;
 	}
-
+	
 	/**
-	 * Set default Solarium client.
-	 * @param Solarium_Client $object 
+	 * @param \Supra\Search\SearchService $object
 	 */
-	public static function setDefaultSolariumClient(Solarium_Client $object)
+	public static function setDefaultSearchService(Search\SearchService $object)
 	{
-		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SOLARIUM_CLIENT);
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_SEARCH_SERVICE);
+	}
+	
+	/**
+	 * Gets search indexing service
+	 * 
+	 * @param mixed $caller
+	 * @return \Supra\Search\IndexerService
+	 */
+	public static function getIndexerService($caller)
+	{
+		$service = self::getObject($caller, self::INTERFACE_INDEXER_SERVICE, false);
+		
+		// @TODO: configuration via dependency injection
+		if ($service === null) {
+			
+			$service = new Search\IndexerService(new Search\NullIndexer);
+			
+			self::setDefaultIndexerService($service);
+		}
+		
+		return $service;
+	}
+	
+	/**
+	 * @param \Supra\Search\IndexerService $object
+	 */
+	public static function setDefaultIndexerService(Search\IndexerService $object)
+	{
+		self::addBinding(self::DEFAULT_KEY, $object, self::INTERFACE_INDEXER_SERVICE);
 	}
 
 	/**
