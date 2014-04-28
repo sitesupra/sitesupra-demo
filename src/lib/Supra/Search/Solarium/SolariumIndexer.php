@@ -8,8 +8,9 @@ use Supra\Search\IndexerQueueItemStatus;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Controller\Pages\PageController;
 use Supra\Search\SearchService;
+use Supra\Search\AbstractIndexer;
 
-class SolariumIndexer extends \Supra\Search\IndexerAbstract
+class SolariumIndexer extends AbstractIndexer
 {
 	/**
 	 * @var Solarium_Client
@@ -105,7 +106,7 @@ class SolariumIndexer extends \Supra\Search\IndexerAbstract
 
 	/**
 	 * Remove item from search index
-	 * @param type $pageLocalizationId
+	 * @param string $pageLocalizationId
 	 */
 	public function remove($pageLocalizationId)
 	{

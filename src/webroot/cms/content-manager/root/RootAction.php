@@ -6,6 +6,7 @@ use Supra\Cms\ContentManager\PageManagerAction;
 use Supra\Request;
 use Supra\Response;
 use Supra\ObjectRepository\ObjectRepository;
+use Supra\Search\AbstractSearcher;
 
 /**
  * Root action, returns initial HTML
@@ -13,7 +14,6 @@ use Supra\ObjectRepository\ObjectRepository;
  */
 class RootAction extends PageManagerAction
 {
-
 	/**
 	 * Method returning manager initial HTML
 	 */
@@ -40,13 +40,9 @@ class RootAction extends PageManagerAction
 				->getActiveTheme();
 		
 		$response->assign('config', $appConfig);
-
-//		$fontList = $activeTheme->getConfiguration()
-//				->getFontList();
-//		
-//		$response->assign('fonts', array_values($fontList));
 		
 		if ( ! empty($appConfig->galleryBlockId)) {
+			
 			$blockId = str_replace('\\', '_', $appConfig->galleryBlockId);
 			$response->assign('galleryBlockId', $blockId);
 		}
@@ -56,8 +52,11 @@ class RootAction extends PageManagerAction
 		if ($ini->getValue('system', 'supraportal_site', false)) {
 			$response->assign('themeName', $activeTheme->getName());
 		}
+		
+		$searchService = ObjectRepository::getSearchService($this);
 
-		$response->assign('keywordSuggestionEnabled', ObjectRepository::isSolariumConfigured($this));
+		$response->assign('keywordSuggestionEnabled', $searchService->getSearcher()
+					->isKeywordSuggestionSupported());
 		
 		$response->outputTemplate('content-manager/root/index.html.twig');
 	}
@@ -71,5 +70,4 @@ class RootAction extends PageManagerAction
 	{
 		return $this->createTwigResponse();
 	}
-
 }

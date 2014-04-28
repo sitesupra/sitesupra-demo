@@ -2,13 +2,12 @@
 
 namespace Supra\Search\Mysql;
 
+use Supra\Search\AbstractIndexer;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\PageController;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Search\IndexerQueueItemStatus;
-use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 
-class MysqlIndexer extends \Supra\Search\IndexerAbstract
+class MysqlIndexer extends AbstractIndexer
 {
 	/**
 	 * @var \Doctrine\DBAL\Connection
