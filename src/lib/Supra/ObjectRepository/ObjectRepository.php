@@ -44,7 +44,6 @@ class ObjectRepository
 	 * Used when binding the object to controller
 	 * TODO: just an idea, not realized because of multiple methods which should be implemented
 	 */
-	const CONTROLLER_PREFIX = 'CONTROLLER/';
 	const INTERFACE_LOGGER = 'Supra\Log\Writer\WriterAbstraction';
 	const INTERFACE_AUDIT_LOGGER = 'Supra\AuditLog\Writer\AuditLogWriterAbstraction';
 	const INTERFACE_FILE_STORAGE = 'Supra\FileStorage\FileStorage';
@@ -454,10 +453,8 @@ class ObjectRepository
 //		$interface = self::normalizeInterfaceArgument($interface);
 		// 1. Try matching any controller from the execution list
 		foreach (self::$controllerStack as $controllerId) {
-			$controllerCaller = $controllerId;
-			// @see self::CONTROLLER_PREFIX
-//			$controllerCaller = self::CONTROLLER_PREFIX . $controllerId;
-			$object = self::findObject($controllerCaller, $interface);
+
+			$object = self::findObject($controllerId, $interface);
 
 			if ( ! is_null($object)) {
 				return $object;
