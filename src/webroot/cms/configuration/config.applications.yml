@@ -134,6 +134,7 @@
 
 - _class: Supra\Event\EventConfiguration
   listener: Supra\Authentication\Listener\BruteForceAuthenticationAttackProtector
+  bindingFilter: Supra\Cms
 
 #- Supra\Cms\CrudManager\ApplicationConfiguration:
 #    id: Supra\Cms\LocaleManager\LocaleManager

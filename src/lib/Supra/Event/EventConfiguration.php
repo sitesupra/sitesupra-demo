@@ -19,6 +19,11 @@ class EventConfiguration implements ConfigurationInterface
 	public $listener;
 	
 	/**
+	 * @var string
+	 */
+	public $bindingFilter;
+	
+	/**
 	 * List of subscribed events
 	 * @var array
 	 */
@@ -37,6 +42,6 @@ class EventConfiguration implements ConfigurationInterface
 		
 		//TODO: Can bind to the default event manager for now
 		$eventManager = ObjectRepository::getEventManager('');
-		$eventManager->listen($events, $listener);
+		$eventManager->listen($events, $listener, $this->bindingFilter);
 	}
 }
