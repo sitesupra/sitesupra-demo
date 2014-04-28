@@ -109,8 +109,9 @@
 			
 			// Title
 			if (attr.indexOf('title') !== -1 || attr.indexOf('href') !== -1 || attr.indexOf('text') !== -1) {
-				if (node.getAttribute('title').match(/^([a-z]+:)?[a-z0-9\.\-_]+@[a-z0-9_\-\.]+$/i)) {
-					node.setAttribute('title', rot13(node.getAttribute('title')));
+				var title = node.getAttribute('title');
+				if (title && title.match(/^([a-z]+:)?[a-z0-9\.\-_]+@[a-z0-9_\-\.]+$/i)) {
+					node.setAttribute('title', rot13(title));
 				}
 			}
 			
