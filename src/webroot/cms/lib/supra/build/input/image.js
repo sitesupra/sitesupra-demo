@@ -73,6 +73,21 @@ YUI.add('supra.input-image', function (Y) {
 		 */
 		button_remove: null,
 		
+		/**
+		 * Opened media sidebar
+		 * @type {Boolean}
+		 * @private
+		 */
+		opened_media_sidebar: false,
+		
+		/**
+		 * Value was changed using drag and drop
+		 * while sidebar was opened
+		 * @type {Boolean}
+		 * @private
+		 */
+		drag_drop_value_changed: false,
+		
 		
 		/**
 		 * Open link manager for redirect
@@ -109,10 +124,12 @@ YUI.add('supra.input-image', function (Y) {
 			
 			Manager.executeAction('MediaSidebar', {
 				'item': path,
-				'dndEnabled': false,
+				'dndEnabled': true,
 				'onselect': Y.bind(this.onMediaSidebarImage, this),
 				'onclose': Y.bind(this.onMediaSidebarClose, this)
 			});
+			
+			this.opened_media_sidebar = true;
 		},
 		
 		/**
@@ -137,7 +154,7 @@ YUI.add('supra.input-image', function (Y) {
 		 * @param {Object} data
 		 */
 		onMediaSidebarClose: function () {
-			if (!this.image_was_selected) {
+			if (!this.image_was_selected && !this.drag_drop_value_changed) {
 				this.set('value', '');
 			}
 			
@@ -145,6 +162,9 @@ YUI.add('supra.input-image', function (Y) {
 				var conf = this.restore_action;
 				conf.action.execute.apply(conf.action, conf.args);
 			}
+			
+			this.opened_media_sidebar = false;
+			this.drag_drop_value_changed = false;
 		},
 		
 		renderUI: function () {
@@ -184,6 +204,61 @@ YUI.add('supra.input-image', function (Y) {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			this.set('value', this.get('value'));
+			
+			this.addDropListeners();
+		},
+		
+		destructor: function () {
+			this.removeDropListeners();
+		},
+		
+		
+		/* ------------------------------ Drag and drop from Media Library -------------------------------- */
+		
+		
+		/**
+		 * Add drop listeners
+		 */
+		addDropListeners: function () {
+			if (!this.drop_target) {
+				var node = this.get('boundingBox'),
+					target = new Supra.DragDropTarget({'srcNode': node, 'doc': document});
+				
+				this.drop_target = target;
+				
+				node.on('dataDrop', function (e) {
+					var image_id = e.drag_id;
+					if (!image_id) return;
+					
+					//Only if dropped from gallery
+					if (image_id.match(/^\d[a-z0-9]+$/i) && e.drop) {
+						var dataObject = Manager.MediaSidebar.dataObject(),
+							image_data = dataObject.cache.one(image_id);
+						
+						if (image_data.type != Supra.MediaLibraryList.TYPE_IMAGE) {
+							//Only handling images; folders should be handled by gallery plugin 
+							return false;
+						}
+						
+						this.set('value', image_data);
+						
+						if (this.opened_media_sidebar) {
+							this.drag_drop_value_changed = true;
+							Manager.MediaSidebar.close();
+						}
+					}
+				}, this);
+			}
+		},
+		
+		/**
+		 * Remove drop listeners
+		 */
+		removeDropListeners: function () {
+			if (this.drop_target) {
+				this.drop_target.destroy();
+				this.drop_target = null;
+			}
 		},
 		
 		
@@ -268,4 +343,4 @@ YUI.add('supra.input-image', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});
+}, YUI.version, {requires:['supra.input-proto', 'supra.dd-drop-target']});
