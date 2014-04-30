@@ -77,6 +77,31 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * Additionally, checks if extension has changed
+	 * 
+	 * @throws \RuntimeException
+	 */
+	public function setFileName($fileName)
+	{
+		$hasFilename = ($this->fileName !== null);
+		
+		if ($hasFilename) {
+			$previousExtension = $this->getExtension();
+		}
+		
+		parent::setFileName($fileName);
+		
+		if ($hasFilename) {
+			$newExtension = $this->getExtension();
+
+			if (strcasecmp($previousExtension, $newExtension) !== 0) {
+				throw new \RuntimeException('Extension change is not allowed');
+			}
+		}
+	}
+	
+	/**
 	 * Gets file extension
 	 * @return string
 	 */

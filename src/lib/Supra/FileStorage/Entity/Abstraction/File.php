@@ -424,22 +424,47 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 		return $className;
 	}
 
+	/**
+	 * @param string $fileName
+	 */
 	public function setFileName($fileName)
-	{
-		$result = preg_replace('/\s+/i', ' ', $fileName);
-
+	{		
+		$fileName = trim(preg_replace('/\s+/i', ' ', $fileName));
+	
 		if ( ! is_null($this->fileName)) {
 			$this->originalFileName = $this->fileName;
 		}
 
-		$this->fileName = trim($result);
+		$this->fileName = $fileName;
 	}
 
+	/**
+	 * Returns file title / file name
+	 * 
+	 * @return string
+	 */
 	public function getFileName()
 	{
 		return $this->fileName;
 	}
+	
+	/**
+	 * Returns the file filename in filesystem
+	 * 
+	 * @return string
+	 */
+	public function getRealFileName()
+	{
+		$path = $this->path->getSystemPath();
+		
+		$pathParts = explode('/', $path);
+		
+		return array_pop($pathParts);
+	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->getFileName();

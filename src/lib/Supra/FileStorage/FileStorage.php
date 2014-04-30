@@ -54,12 +54,28 @@ class FileStorage
 	 */
 	private $folderUploadFilters = array();
 	
-	
 	/**
 	 * File custom property configurations array
 	 * @var array
 	 */
 	protected $customPropertyConfigurations = array();
+	
+	/**
+	 * @var Path\FilePathGeneratorInterface 
+	 */
+	protected $filePathGenerator;
+	
+	/**
+	 * Folder access mode
+	 * @var integer chmod
+	 */
+	private $folderAccessMode = \SITESUPRA_FOLDER_PERMISSION_MODE;
+
+	/**
+	 * File access mode
+	 * @var integer chmod
+	 */
+	private $fileAccessMode = \SITESUPRA_FILE_PERMISSION_MODE;
 
 	/**
 	 * @return EntityManager
@@ -78,18 +94,6 @@ class FileStorage
 	}
 
 	/**
-	 * Folder access mode
-	 * @var integer chmod
-	 */
-	private $folderAccessMode = \SITESUPRA_FOLDER_PERMISSION_MODE;
-
-	/**
-	 * File access mode
-	 * @var integer chmod
-	 */
-	private $fileAccessMode = \SITESUPRA_FILE_PERMISSION_MODE;
-
-	/**
 	 * @param string $fileId
 	 * @param string $type
 	 * @return null|\Supra\FileStorage\File
@@ -103,14 +107,9 @@ class FileStorage
 		if (empty($type)) {
 			$type = Entity\Abstraction\File::CN();
 		}
-		$file = $this->getDoctrineEntityManager()
+		
+		return $this->getDoctrineEntityManager()
 				->find($type, $fileId);
-
-		if ($file instanceof Entity\Abstraction\File) {
-			return $file;
-		}
-
-		return null;
 	}
 
 	/**
@@ -237,6 +236,30 @@ class FileStorage
 			$filter->validateFile($file, $sourceFilePath);
 		}
 	}
+	
+	/**
+	 * @param Path\FilePathGeneratorInterface $generator
+	 */
+	public function setFilePathGenerator(Path\FilePathGeneratorInterface $generator)
+	{
+		$this->filePathGenerator = $generator;
+	}
+	
+	/**
+	 * @return Path\FilePathGeneratorInterface
+	 */
+	public function getFilePathGenerator()
+	{
+		if ($this->filePathGenerator === null) {
+			
+			$this->filePathGenerator = new Path\DefaultFilePathGenerator(
+					new Path\Transformer\DefaultPathTransformer, 
+					$this
+			);
+		}
+		
+		return $this->filePathGenerator;
+	}
 
 	/**
 	 * Store file data
@@ -269,31 +292,36 @@ class FileStorage
 	{
 		$entityManager = $this->getDoctrineEntityManager();
 
-		$newFile = clone($file);
-		$entityManager->detach($newFile);
+		$originFile = clone($file);
+		$entityManager->detach($originFile);
 
-		$oldName = $file->getFileName();
-
-		$newFile->setFileName($fileName);
-
-		$oldExtension = $file->getExtension();
-		$newExtension = $newFile->getExtension();
-
-		if (strcasecmp($oldExtension, $newExtension) !== 0) {
-			throw new Exception\UploadFilterException(self::VALIDATION_EXTENSION_RENAME_MESSAGE_KEY, 'You can\'t change file extension');
+		try {
+			
+			$file->setFileName($fileName);
+			
+		} catch (\Exception $e) {
+			
+			throw new Exception\UploadFilterException(self::VALIDATION_EXTENSION_RENAME_MESSAGE_KEY);
 		}
 
-		$this->validateFileUpload($newFile);
+		$this->validateFileUpload($file);
 
-		$this->renameFileInFileSystem($file, $fileName);
-
-		$file->setFileName($fileName);
-//		$entityManager->merge($newFile);
-		$entityManager->flush();
-
-//		// to track title changes in audit
-//		$file->setFileName($oldName);
-//		$file->setFileName($fileName);
+		// rename is wrapped into transaction so if something will fail in rename()
+		// entity changes will be rolled back
+		$entityManager->beginTransaction();
+		
+		try { 
+			// flush will trigger path generator and path transformers
+			$entityManager->flush($file);
+			
+			$this->renameFileInFileSystem($originFile, $file);
+			
+		} catch (\Exception $e) {	
+			$entityManager->rollback();
+			throw $e;
+		}
+		
+		$entityManager->commit();
 	}
 
 	/**
@@ -301,36 +329,36 @@ class FileStorage
 	 * @param Entity\File $file
 	 * @param string $filename new file name
 	 */
-	private function renameFileInFileSystem(Entity\File $file, $filename)
+	public function renameFileInFileSystem(Entity\File $originFile, Entity\File $newFile)
 	{
-		$path = $this->getFilesystemPath($file);
+		$originFilePath = $this->getFilesystemPath($originFile);
+		
+		if ( ! file_exists($originFilePath)) {
+			// silently exit to allow to rename physically non existing files
+			return false;
+		}
 
-		if (file_exists($path)) {
+		$newPath = $this->getFilesystemPath($newFile);
+		
+		if (! rename($originFilePath, $newPath)) {
+			throw new Exception\RuntimeException('File renaming failed');
+		}
 
-			$newPath = dirname($path) . DIRECTORY_SEPARATOR . $filename;
-			$result = rename($path, $newPath);
-
-			if ($result) {
-
-				if ($file instanceof Entity\Image) {
-					$sizes = $file->getImageSizeCollection();
-					if ( ! $sizes->isEmpty()) {
-						foreach ($sizes as $size) {
-							$sizeName = $size->getName();
-							$filePath = $this->getImagePath($file, $sizeName);
-							$newPath = dirname($filePath) . DIRECTORY_SEPARATOR . $filename;
-							rename($filePath, $newPath);
-						}
-					}
-				}
-			} else {
-				throw new Exception\RuntimeException('File renaming failed');
+		if ($originFile instanceof Entity\Image) {
+			
+			$sizes = $originFile->getImageSizeCollection();
+			
+			foreach ($sizes as $size) {
+				
+				$sizeName = $size->getName();
+				
+				$newPath = $this->getImagePath($newFile, $sizeName);
+				
+				$currentPath = $this->getImagePath($originFile, $sizeName);
+			
+				rename($currentPath, $newPath);
 			}
 		}
-		//TODO: Pass message to Media Library?
-//		else {
-//			throw new Exception\RuntimeException('File does not exist in ' . $path);
-//		}
 	}
 
 	/**
@@ -374,7 +402,7 @@ class FileStorage
 	 * @param Entity\Folder $newFolder new folder data
 	 * @param string $path
 	 */
-	private function renameFolderInFileSystem(Entity\Folder $folder, Entity\Folder $newFolder)
+	public function renameFolderInFileSystem(Entity\Folder $folder, Entity\Folder $newFolder)
 	{
 		// rename folder in both file storages
 		$externalPath = $this->getExternalPath();
@@ -883,7 +911,7 @@ class FileStorage
 			}
 		}
 
-		$resizedFilePath = $resizedFileDir . DIRECTORY_SEPARATOR . $file->getFileName();
+		$resizedFilePath = $resizedFileDir . DIRECTORY_SEPARATOR . $file->getRealFileName();
 		$resizer->setOutputFile($resizedFilePath);
 		$resizer->process();
 
@@ -1083,6 +1111,7 @@ class FileStorage
 				$filePath = $this->getImagePath($file, $sizeName);
 
 				if (file_exists($filePath)) {
+					
 					$result = unlink($filePath);
 
 					if ( ! $result) {
@@ -1266,13 +1295,12 @@ class FileStorage
 			}
 		}
 
-		$path .= $file->getPath(DIRECTORY_SEPARATOR, false);
-		$path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-
-		if ($includeFilename) {
-			$path .= $file->getFileName();
+		$path .= $file->getPath(DIRECTORY_SEPARATOR, $includeFilename);
+		
+		if ( ! $includeFilename) {
+			$path = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 		}
-
+	
 		return $path;
 	}
 
@@ -1299,13 +1327,16 @@ class FileStorage
 
 		$path = $this->getFilesystemDir($file);
 		$size = $file->findImageSize($sizeName);
-		if ($size instanceof Entity\ImageSize) {
-			$path .= self::RESERVED_DIR_SIZE . DIRECTORY_SEPARATOR
-					. $size->getFolderName() . DIRECTORY_SEPARATOR
-					. $file->getFileName();
-		} else {
-			$path .= $file->getFileName();
+				
+		if ($size instanceof Entity\ImageSize) {	
+			$path .= self::RESERVED_DIR_SIZE 
+					. DIRECTORY_SEPARATOR
+					. $size->getFolderName() 
+					. DIRECTORY_SEPARATOR;
 		}
+
+		$path .= $file->getRealFileName();
+
 		return $path;
 	}
 
@@ -1334,19 +1365,17 @@ class FileStorage
 			$path = $file->getPathEntity()->getWebPath();
 
 			$pathParts = explode('/', $path);
-			array_pop($pathParts);
+			
+			$fileName = array_pop($pathParts);
 
 			// Get file storage url base in webroot
 			$path = '/' . trim(implode('/', $pathParts), '/\\') . '/';
 			if ($size instanceof Entity\ImageSize) {
 				$path .= self::RESERVED_DIR_SIZE . '/'
-						. $size->getFolderName() . '/';
+						. rawurlencode($size->getFolderName()) . '/';
 			}
 
-			// Encode the filename URL part
-			$path .= rawurlencode($file->getFileName());
-
-			return $path;
+			return $path . $fileName;
 		}
 
 		return null;
