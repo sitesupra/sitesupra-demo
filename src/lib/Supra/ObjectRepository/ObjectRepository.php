@@ -929,7 +929,16 @@ class ObjectRepository
 		
 		return $service;
 	}
-	
+
+	/**
+	 * @param mixed $caller
+	 * @param \Supra\Search\SearchService $object
+	 */
+	public static function setSearchService($caller, Search\SearchService $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_SEARCH_SERVICE);
+	}
+
 	/**
 	 * @param \Supra\Search\SearchService $object
 	 */
@@ -958,7 +967,16 @@ class ObjectRepository
 		
 		return $service;
 	}
-	
+
+	/**
+	 * @param mixed $caller
+	 * @param \Supra\Search\IndexerService $object
+	 */
+	public static function setIndexerService($caller, Search\IndexerService $object)
+	{
+		self::addBinding($caller, $object, self::INTERFACE_INDEXER_SERVICE);
+	}
+
 	/**
 	 * @param \Supra\Search\IndexerService $object
 	 */
