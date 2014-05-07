@@ -87,15 +87,21 @@ class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
 		$hasFilename = ($this->fileName !== null);
 		
 		if ($hasFilename) {
+			$previousName = $this->fileName;
 			$previousExtension = $this->getExtension();
 		}
 		
 		parent::setFileName($fileName);
 		
 		if ($hasFilename) {
+			
 			$newExtension = $this->getExtension();
 
 			if (strcasecmp($previousExtension, $newExtension) !== 0) {
+
+				// restore name back to previous one. Because that's safer.
+				parent::setFileName($previousName);
+
 				throw new \RuntimeException('Extension change is not allowed');
 			}
 		}
