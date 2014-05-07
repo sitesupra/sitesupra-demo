@@ -2,7 +2,6 @@
  
 namespace Supra\Tests\Search;
 
-use Supra\Tests\Search\Entity\DummyIndexerQueueItem;
 use Supra\Tests\Search\DummyItem;
 use Supra\Search\IndexerQueueItemStatus;
  
@@ -12,7 +11,7 @@ class SimpleIndexerQueueTest extends SearchTestAbstraction
 	{
 		$dummyItem1 = new DummyItem(111, 50, '');
 
-		$q1 =	$this->iq->add($dummyItem1, 50);
+		$q1 = $this->iq->add($dummyItem1, 50);
 		
 		$q1->setStatus(IndexerQueueItemStatus::INDEXED);
 		$this->iq->store($q1);

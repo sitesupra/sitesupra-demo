@@ -2,32 +2,35 @@
 
 namespace Supra\Tests\Search;
 
-use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Tests\Search\Entity\DummyIndexerQueueItem;
 use Supra\Tests\Search\DummyItem;
-use Supra\Search\IndexerQueueItemStatus;
 use Supra\Search\IndexerService;
+use Supra\Search\Solarium\SolariumIndexer;
 
 class SimpleIndexerServiceTest extends SearchTestAbstraction
 {
-
 	/**
-	 *
 	 * @var IndexerService
 	 */
 	var $indexerService;
 
 	public function setUp()
 	{
-		$this->indexerService = new IndexerService();
+		$this->indexerService = ObjectRepository::getIndexerService($this);
 
-		$client = $this->indexerService->getSolariumClient();
+		$indexer = $this->indexerService->getIndexer();
+
+		if ( ! $indexer instanceof \Supra\Search\Solarium\SolariumIndexer) {
+			self::markTestSkipped("Indexer is not SolariumIndexer.");
+		}
+
+		$client = $indexer->getSolariumClient();
 
 		try {
 			$client->ping($client->createPing());
 		} catch (\Solarium_Client_HttpException $e) {
-			self::markTestSkipped("Solr server ping failed with exception {$e->__toString()}");
+			
 		}
 		
 		$update = $client->createUpdate();
