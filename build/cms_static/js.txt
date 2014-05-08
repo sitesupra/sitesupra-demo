@@ -113,6 +113,7 @@
 /cms/lib/yui.3.5.0/build/history-hash-ie/history-hash-ie-min.js
 /cms/lib/yui.3.5.0/build/router/router-min.js
 /cms/lib/supra/build/dd-ddm/dd-ddm.js
+/cms/lib/supra/build/dd-ddm/dd-drop-target.js
 /cms/lib/supra/build/event/event.js
 /cms/lib/supra/build/io/io.js
 /cms/lib/supra/build/intl/intl.js

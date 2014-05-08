@@ -5,38 +5,30 @@ namespace Supra\Search;
 class SearchService
 {
 	/**
-	 * @var self
-	 */
-	private static $instance;
-	
-	/**
-	 * @var SearcherAbstract
+	 * @var AbstractSearcher
 	 */
 	protected $searcher;
 	
 	/**
-	 * @TODO: move to object repo
-	 * @return \Supra\Search\SearchService
+	 * @param AbstractSearcher $searcher
 	 */
-	public static function getInstance()
+	public function __construct(AbstractSearcher $searcher = null)
 	{
-		if (self::$instance === null) {
-			self::$instance = new self();
+		if ($searcher !== null) {
+			$this->searcher = $searcher;
 		}
-		
-		return self::$instance;
 	}
 	
 	/**
-	 * @param \Supra\Search\SearcherAbstract $searcher
+	 * @param AbstractSearcher $searcher
 	 */
-	public function setSearcher(SearcherAbstract $searcher)
+	public function setSearcher(AbstractSearcher $searcher)
 	{
 		$this->searcher = $searcher;
 	}
 	
 	/**
-	 * @return \Supra\Search\SearcherAbstract
+	 * @return AbstractSearcher
 	 */
 	public function getSearcher()
 	{

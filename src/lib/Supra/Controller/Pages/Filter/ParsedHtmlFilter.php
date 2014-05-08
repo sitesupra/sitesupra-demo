@@ -127,7 +127,11 @@ class ParsedHtmlFilter implements FilterInterface
 		;
 
 		$encoder = Email\EmailEncoder::getInstance();
-
+		
+		if ($this->responseContext instanceof ResponseContext) {
+			$encoder->bindResponseContext($this->responseContext);
+		}
+		
 		$title = $link->getTitle();
 		$href = $link->getUrl();
 

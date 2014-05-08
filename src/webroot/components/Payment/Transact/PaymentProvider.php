@@ -476,7 +476,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 		if ( ! empty($initializeResult['ERROR'])) {
 
-			throw new Exception\RuntimeException('Could not start next recurring transaction.');
+			throw new Exception\RuntimeException("Could not start next recurring transaction, got error: {$initializeResult['ERROR']}");
 		} else if ( ! empty($initializeResult['RedirectOnsite'])) {
 
 			throw new Exception\RuntimeException('Received redirect URL for recurrent transaction.');

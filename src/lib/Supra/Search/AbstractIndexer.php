@@ -5,8 +5,8 @@ namespace Supra\Search;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 
-abstract class IndexerAbstract {
-
+abstract class AbstractIndexer
+{
 	/**
 	 * System ID to be used for this project.
 	 * @var string

@@ -151,7 +151,7 @@ class ProxyAction extends ProxyActionAbstraction
 
 		// If transaction initalization had errors, throw exception.
 		if ( ! empty($initializationResult['ERROR'])) {
-			$this->throwPaymentStartErrorException($order, 'Error initializing Transact transaction.');
+			$this->throwPaymentStartErrorException($order, "Error initializing Transact transaction, got error: {$initializationResult['ERROR']}");
 		}
 
 		// Check if account has "gateway collects" mode enabled...
@@ -310,7 +310,7 @@ class ProxyAction extends ProxyActionAbstraction
 
 		// If transaction initalization had errors, throw exception.
 		if ( ! empty($initializationResult['ERROR'])) {
-			$this->throwPaymentStartErrorException($order, 'Error initializing Transact transaction.');
+			$this->throwPaymentStartErrorException($order, "Error initializing Transact transaction, got error: {$initializationResult['ERROR']}");
 		}
 
 		// Check if account has "gateway collects" mode enabled...

@@ -5,7 +5,7 @@ namespace Supra\Database\Configuration;
 use Doctrine\Common\EventManager;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\FileStorage\Listener\FilePathGenerator;
+use Supra\FileStorage\Listener\FilePathChangeListener;
 
 /**
  * 
@@ -21,7 +21,7 @@ class StandardEntityManagerConfiguration extends EntityManagerConfiguration
 		// Nested set entities (pages and files) depends on this listener
 		$eventManager->addEventSubscriber(new NestedSetListener());
 		
-		$eventManager->addEventSubscriber(new FilePathGenerator());
+		$eventManager->addEventSubscriber(new FilePathChangeListener);
 	}
 
 }

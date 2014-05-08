@@ -4,7 +4,6 @@ namespace Supra\Tests\Search;
 
 class DummyItem
 {
-
 	public $id;
 	public $revision;
 	public $text;
@@ -20,5 +19,4 @@ class DummyItem
 	{
 		return get_called_class();
 	}
-
 }

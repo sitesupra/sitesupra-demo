@@ -7,9 +7,10 @@ use Supra\Search\Entity\Abstraction\IndexerQueueItem;
 use Supra\Search\IndexerQueueItemStatus;
 use Supra\Controller\Pages\Search\PageLocalizationFindRequest;
 use Supra\Controller\Pages\PageController;
-use Supra\Search\SearchService;
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Search\AbstractIndexer;
 
-class SolariumIndexer extends \Supra\Search\IndexerAbstract
+class SolariumIndexer extends AbstractIndexer
 {
 	/**
 	 * @var Solarium_Client
@@ -22,6 +23,14 @@ class SolariumIndexer extends \Supra\Search\IndexerAbstract
 	public function __construct(Solarium_Client $solariumClient)
 	{
 		$this->solariumClient = $solariumClient;
+	}
+
+	/**
+	 * @return Solarium_Client
+	 */
+	public function getSolariumClient()
+	{
+		return $this->solariumClient;
 	}
 	
 	/**
@@ -105,7 +114,7 @@ class SolariumIndexer extends \Supra\Search\IndexerAbstract
 
 	/**
 	 * Remove item from search index
-	 * @param type $pageLocalizationId
+	 * @param string $pageLocalizationId
 	 */
 	public function remove($pageLocalizationId)
 	{
@@ -114,7 +123,7 @@ class SolariumIndexer extends \Supra\Search\IndexerAbstract
 		$findRequest->setSchemaName(PageController::SCHEMA_PUBLIC);
 		$findRequest->setPageLocalizationId($pageLocalizationId);
 
-		$searchService = SearchService::getInstance();
+		$searchService = ObjectRepository::getSearchService($this);
 
 		$resultSet = $searchService->processRequest($findRequest);
 

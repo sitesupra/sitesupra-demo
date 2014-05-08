@@ -5,32 +5,29 @@ namespace Supra\Search;
 class IndexerService 
 {
 	/**
-	 * @var self
-	 */
-	private static $instance;
-	
-	/**
-	 * @var IndexerAbstract
+	 * @var AbstractIndexer
 	 */
 	protected $indexer;
 	
-	/**
-	 * @TODO: move to object repo
-	 * @return \Supra\Search\IndexerService
-	 */
-	public static function getInstance()
+	public function __construct(AbstractIndexer $indexer)
 	{
-		if (self::$instance === null) {
-			self::$instance = new self();
+		if ($indexer !== null) {
+			$this->indexer = $indexer;
 		}
-		
-		return self::$instance;
+	}
+
+	/**
+	 * @return AbstractIndexer
+	 */
+	public function getIndexer()
+	{
+		return $this->indexer;
 	}
 	
 	/**
-	 * @param IndexerAbstract $indexer
+	 * @param AbstractIndexer $indexer
 	 */
-	public function setIndexer(IndexerAbstract $indexer)
+	public function setIndexer(AbstractIndexer $indexer)
 	{
 		$this->indexer = $indexer;
 	}
@@ -41,8 +38,6 @@ class IndexerService
 	 */
 	public function processQueue(IndexerQueue $queue)
 	{
-//		$indexedQueueItems = array();
-
 		$documentCount = 0;
 
 		while ($queue->getItemCountForStatus(IndexerQueueItemStatus::FRESH) !== 0) {
@@ -50,25 +45,38 @@ class IndexerService
 			$queueItem = $queue->getNextItemForIndexing();
 
 			$documentCount = $documentCount + $this->indexer->processItem($queueItem);
-//			$indexedQueueItems[] = $queueItem;
 
 			$queue->store($queueItem);
 		}
 
-		//foreach($indexedQueueItems as $indexedQueueItem) {
-		//	
-		//	$indexedQueueItem->setStatus(IndexerQueueItemStatus::FRESH);
-		//	$queue->store($indexedQueueItem);
-		//}
-
 		return $documentCount;
 	}
-	
+
+	/**
+	 * @return int
+	 */
+	public function getDocumentCount()
+	{
+		return $this->indexer->getDocumentCount();
+	}
+
+	public function processItem(Entity\Abstraction\IndexerQueueItem $item)
+	{
+		return $this->indexer->processItem($item);
+	}
+
+	/**
+	 * @param string $id
+	 * @return void
+	 */
 	public function remove($id)
 	{
 		return $this->indexer->remove($id);
 	}
 	
+	/**
+	 * @return void
+	 */
 	public function removeAllFromIndex()
 	{
 		return $this->indexer->removeAllFromIndex();

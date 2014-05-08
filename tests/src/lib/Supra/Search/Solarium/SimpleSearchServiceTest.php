@@ -2,17 +2,17 @@
 
 namespace Supra\Tests\Search;
 
-use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Tests\Search\Entity\DummyIndexerQueueItem;
+use Supra\Tests\Search\DummySearchRequest;
 use Supra\Tests\Search\DummyItem;
-use Supra\Search\IndexerQueueItemStatus;
 use Supra\Search\IndexerService;
 use Supra\Search\SearchService;
+use Supra\Search\Solarium\SolariumIndexer;
+use Supra\Search\Solarium\SolariumSearcher;
 
 class SimpleSearchServiceTest extends SearchTestAbstraction
 {
-
 	/**
 	 * @var IndexerService
 	 */
@@ -25,9 +25,21 @@ class SimpleSearchServiceTest extends SearchTestAbstraction
 
 	public function setUp()
 	{
-		$this->indexerService = new IndexerService();
+		$this->indexerService = ObjectRepository::getIndexerService($this);
+		$this->searchService = ObjectRepository::getSearchService($this);
 
-		$client = $this->indexerService->getSolariumClient();
+		$indexer = $this->indexerService->getIndexer();
+		$searcher = $this->searchService->getSearcher();
+
+		if ( ! $indexer instanceof SolariumIndexer) {
+			$this->fail('Expecting SolariumIndexer instance, check search.php configuration');
+		}
+
+		if ( ! $searcher instanceof SolariumSearcher) {
+			$this->fail('Expecting SolariumSearcher instance, check search.php configuration');
+		}
+
+		$client = $indexer->getSolariumClient();
 
 		try {
 			$client->ping($client->createPing());
@@ -49,8 +61,6 @@ class SimpleSearchServiceTest extends SearchTestAbstraction
 			self::markTestSkipped("Solr server update failed with exception {$e->__toString()}");
 		}
 
-		$this->searchService = new SearchService();
-
 		$this->indexerService->processItem($this->makeIndexerQueueItem(123, 1, 'ZZZ zz zz desa 123'));
 		$this->indexerService->processItem($this->makeIndexerQueueItem(123, 2, 'ZZZ zz zz zupa 123'));
 		$this->indexerService->processItem($this->makeIndexerQueueItem(123, 3, 'ZZZ трололо zz desa 888'));
@@ -68,13 +78,11 @@ class SimpleSearchServiceTest extends SearchTestAbstraction
 
 	function testSearchService()
 	{
-		$searchService = new SearchService();
-
 		$r = new DummySearchRequest();
 		$r->setText('zz siers');
 		$r->setHilightingOptions('text', '<b>', '</b>');
 		
-		$results = $searchService->processRequest($r);
+		$results = $this->searchService->processRequest($r);
 
 		//TODO: fix highlighting test, $results is array now not an object
 //		$highlighting = $results->getHighlighting();

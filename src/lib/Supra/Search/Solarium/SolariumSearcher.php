@@ -3,11 +3,11 @@
 namespace Supra\Search\Solarium;
 
 use Solarium_Client;
-use Supra\Search\SearcherAbstract;
+use Supra\Search\AbstractSearcher;
 use Supra\Search\Request\SearchRequestInterface;
 use Supra\Search\Result\SearchResultSetInterface;
 
-class SolariumSearcher extends SearcherAbstract 
+class SolariumSearcher extends AbstractSearcher
 {
 	/**
 	 * @var Solarium_Client 
@@ -43,5 +43,13 @@ class SolariumSearcher extends SearcherAbstract
 		$selectResults = $this->solariumClient->select($selectQuery);
 
 		return $request->processResults($selectResults);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function isKeywordSuggestionSupported()
+	{
+		return true;
 	}
 }

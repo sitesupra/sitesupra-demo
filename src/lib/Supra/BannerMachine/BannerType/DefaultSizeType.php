@@ -29,36 +29,37 @@ class DefaultSizeType extends BannerTypeAbstraction
 		return $this->ratioDelta;
 	}
 
+	/** 
+	 * @param ImageBanner $banner
+	 * @return boolean 
+	 * @throws Exception\ValidationException
+	 */
 	protected function validateImageBanner(ImageBanner $banner)
 	{
 		/** @var $imageFile ImageFile */
-		$imageFile = $banner->getFile();
+		$imageFile = $banner->getFile();		
 
 		$imageWidth = $imageFile->getWidth();
 		$imageHeight = $imageFile->getHeight();
 
 		$imageRatio = $imageWidth / $imageHeight;
-
 		$typeRatio = $this->getWidth() / $this->getHeight();
 		
-		if (
-				($imageRatio > $typeRatio + $this->ratioDelta) ||
-				($imageRatio < $typeRatio - $this->ratioDelta)
-		) {
-			throw new Exception\RuntimeException('Width / height ratio not valid for chosen image.');
+		if (($imageRatio > $typeRatio + $this->ratioDelta)
+				|| ($imageRatio < $typeRatio - $this->ratioDelta)) {
+			
+			throw new Exception\ValidationException(
+					'Image width/height ratio is not valid for chosen banner type.');			
 		}
 		
-		if(
-				($imageWidth > $this->getWidth() * (1 + $this->ratioDelta)) || 
-				($imageWidth < $this->getWidth() * (1 - $this->ratioDelta)) ||
-				($imageHeight > $this->getHeight() * (1 + $this->ratioDelta)) || 
-				($imageHeight < $this->getHeight() * (1 - $this->ratioDelta))
-		) { 
+		if (($imageWidth > $this->getWidth() * (1 + $this->ratioDelta))				
+				|| ($imageWidth < $this->getWidth() * (1 - $this->ratioDelta))
+				|| ($imageHeight > $this->getHeight() * (1 + $this->ratioDelta))
+				|| ($imageHeight < $this->getHeight() * (1 - $this->ratioDelta))) {
+			
 			throw new Exception\ValidationException('Image size is not valid.');
 		}
 						
 		return true;
 	}
-
 }
-

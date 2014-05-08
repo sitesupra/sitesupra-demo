@@ -327,10 +327,14 @@ Supra(function (Y) {
 					'data': {
 						'banner_id': banner_id,
 						'locale': Supra.data.get('locale')
-					},
-					'context': this,
-					'on': {'success': this.setData}
-				});
+					}
+				})
+					.done(this.setData, this)
+					.fail(function () {
+						Manager.getAction('BannerList').load();
+						Manager.executeAction('BannerList');
+						this.set('visible', false);
+					}, this);
 			} else {
 				var data = Supra.mix({}, NEW_BANNER_DATA, {'group_id': group_id}, true);
 				this.setData(data);

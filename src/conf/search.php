@@ -1,7 +1,23 @@
 <?php
 
-$searchService = \Supra\Search\SearchService::getInstance();
-$searchService->setSearcher(new \Supra\Search\Mysql\MysqlSearcher);
+use Supra\ObjectRepository\ObjectRepository;
+use Supra\Search;
+use Supra\Search\Solarium;
 
-$indexerService = Supra\Search\IndexerService::getInstance();
-$indexerService->setIndexer(new Supra\Search\Mysql\MysqlIndexer);
+$ini = ObjectRepository::getIniConfigurationLoader('');
+
+$searchParams = $ini->getSection('solarium');
+
+$solariumClient = new \Solarium_Client(array(
+
+	'adapter' => isset($searchParams['adapter'])
+			? $searchParams['adapter'] : '\Solarium_Client_Adapter_Http',
+
+	'adapteroptions' => $searchParams,
+));
+
+ObjectRepository::setDefaultSearchService(
+		new Search\SearchService(new Solarium\SolariumSearcher($solariumClient)));
+
+ObjectRepository::setDefaultIndexerService(
+		new Search\IndexerService(new Solarium\SolariumIndexer($solariumClient)));

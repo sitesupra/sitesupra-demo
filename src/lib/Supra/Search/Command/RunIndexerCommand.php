@@ -4,11 +4,9 @@ namespace Supra\Search\Command;
 
 use Symfony\Component\Console;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Search\IndexerService;
 use Supra\Controller\Pages\Search\PageLocalizationIndexerQueue;
 use Supra\Controller\Pages\PageController;
 use Supra\Search\IndexerQueueItemStatus;
-use Supra\Search\Solarium\Configuration;
 
 /**
  * AuthorizationFixtureCommand
@@ -28,7 +26,7 @@ class RunIndexerCommand extends Console\Command\Command
 	 */
 	protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
 	{
-		$indexerService = IndexerService::getInstance();
+		$indexerService = ObjectRepository::getIndexerService($this);
 		
 		$schemaNames = array(PageController::SCHEMA_PUBLIC);
 
