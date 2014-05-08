@@ -5,6 +5,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	/* Tag white list, all other tags will be removed. <font> tag is added if "fonts" plugin is enabled */
 	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span', 'svg', 'pre', 'code'];
 	
+	/* Attribute black list */
+	Supra.HTMLEditor.BLACK_LIST_ATTRS = ['contenteditable'];
+	
 	/* List of block elements */
 	Supra.HTMLEditor.ELEMENTS_BLOCK = {'h1': 'h1', 'h2': 'h2', 'h3': 'h3', 'h4': 'h4', 'h5': 'h5', 'h6': 'h6', 'p': 'p', 'blockquote': 'blockquote', 'q': 'q', 'table': 'table', 'tbody': 'tbody', 'tr': 'tr', 'td': 'td', 'thead': 'thead', 'th': 'th', 'ul': 'ul', 'ol': 'ol', 'li': 'li', 'div': 'div', 'dl': 'dl', 'dt': 'dt', 'dd': 'dd', 'col': 'col', 'colgroup': 'colgroup', 'caption': 'caption', 'object': 'object', 'param': 'param', 'embed': 'embed', 'article': 'article', 'aside': 'aside', 'details': 'details', 'figcaption': 'figcaption', 'figure': 'figure', 'footer': 'footer', 'header': 'header', 'hgroup': 'hgroup', 'nav': 'nav', 'section': 'section', 'pre': 'pre', 'code': 'code'};
 	Supra.HTMLEditor.ELEMENTS_BLOCK_ARR = Y.Lang.toArray(Supra.HTMLEditor.ELEMENTS_BLOCK);
@@ -246,6 +249,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				
 				//Remove empty UL and OL tags
 				html = html.replace(REGEX_EMPTY_UL_OL, '');
+				
+				//Remove blacklisted tag attributes
+				var black_list_attrs = Supra.HTMLEditor.BLACK_LIST_ATTRS;
+				html = html.replace(new RegExp("(<[^>]+?)(\\s+(" + black_list_attrs.join('|') + ")=(\"[^\"]*\"|'[^']*'|[^\\s>]+))+", "ig"), '$1');
 				
 				//Remove style attribute, except background-color and fill
 				var regex_style_bg = REGEX_STYLE_BG;
