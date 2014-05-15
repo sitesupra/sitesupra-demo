@@ -252,12 +252,27 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 		ObjectRepository::setDefaultFileStorage($object = new \Supra\FileStorage\FileStorage());
 		self::assertSame($object, ObjectRepository::getFileStorage('xxx'));
 
-		ObjectRepository::setSolariumClient($caller, $object = new \Solarium_Client());
-		ObjectRepository::setSolariumClient('xxx2', $object2 = new \Solarium_Client());
-		self::assertSame($object, ObjectRepository::getSolariumClient($caller));
-		self::assertNotEquals($object, ObjectRepository::getSolariumClient('xxx2'));
-		ObjectRepository::setDefaultSolariumClient($object = new \Solarium_Client());
-		self::assertSame($object, ObjectRepository::getSolariumClient('xxx'));
+//		ObjectRepository::setSolariumClient($caller, $object = new \Solarium_Client());
+//		ObjectRepository::setSolariumClient('xxx2', $object2 = new \Solarium_Client());
+//		self::assertSame($object, ObjectRepository::getSolariumClient($caller));
+//		self::assertNotEquals($object, ObjectRepository::getSolariumClient('xxx2'));
+//		ObjectRepository::setDefaultSolariumClient($object = new \Solarium_Client());
+//		self::assertSame($object, ObjectRepository::getSolariumClient('xxx'));
+
+		//
+		$solrClient = new \Solarium_Client;
+		$object1 = new \Supra\Search\SearchService(
+				new \Supra\Search\Solarium\SolariumSearcher($solrClient)
+		);
+		
+		$object2 = new \Supra\Search\IndexerService(
+				new \Supra\Search\Solarium\SolariumIndexer($solrClient)
+		);
+
+		ObjectRepository::setDefaultSearchService($object1);
+		ObjectRepository::setDefaultIndexerService($object2);
+		self::assertSame($object1, ObjectRepository::getSearchService($caller));
+		self::assertSame($object2, ObjectRepository::getIndexerService($caller));
 
 		ObjectRepository::setLocaleManager($caller, $object = new \Supra\Locale\LocaleManager());
 		ObjectRepository::setLocaleManager('xxx2', $object2 = new \Supra\Locale\LocaleManager());

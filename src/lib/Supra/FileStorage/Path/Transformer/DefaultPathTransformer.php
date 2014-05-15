@@ -3,7 +3,7 @@
 namespace Supra\FileStorage\Path\Transformer;
 
 /**
- * Returns paths without modifying thems
+ * Returns paths without modifying them
  */
 class DefaultPathTransformer implements PathTransformerInterface
 {

@@ -9,7 +9,6 @@ use Supra\Tests\Search\DummyItem;
 
 class DummySearchRequest extends EntitySearchRequestAbstraction
 {
-
 	/**
 	 * @var string
 	 */
@@ -29,6 +28,16 @@ class DummySearchRequest extends EntitySearchRequestAbstraction
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getText()
+	{
+		return $this->text;
+	}
+
+	/**
+	 * @FIXME
+	 *
 	 * @param Solarium_Query_Select $selectQuery 
 	 */
 	public function applyParametersToSelectQuery(Solarium_Query_Select $selectQuery)

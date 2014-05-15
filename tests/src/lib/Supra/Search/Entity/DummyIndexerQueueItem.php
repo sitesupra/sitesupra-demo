@@ -52,6 +52,8 @@ class DummyIndexerQueueItem extends IndexerQueueItem
 		$document->revisionId = $this->actualObject->revision;
 		
 		$document->text_general = $this->actualObject->text;
+
+		$document->localeId = $this->actualObject->localeId;
 		
 		return array($document);
 	}
