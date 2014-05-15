@@ -303,12 +303,8 @@ class FilteredInput extends \ArrayIterator
 		$value = $this->get($index);
 		
 		$validator = Type\AbstractType::getType($type);
-		
-		$valid = $validator->isValid($value, $additionalParameters);
-		
-		if ( ! $valid) {
-			return null;
-		}
+
+		$validator->sanitize($value, $additionalParameters);
 		
 		return $value;
 	}
