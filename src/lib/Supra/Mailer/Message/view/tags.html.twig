@@ -1,5 +1,5 @@
 {% macro p(attributes, styles) %}{% spaceless %}
-	<p {{ attributes }} style="margin: 1em 0;{{ styles }}">
+	<p {{ attributes }} style="margin: 1em 0;{{ styles | raw }}">
 {% endspaceless %}{% endmacro %}
 
 {% macro pEnd() %}{% spaceless %}
@@ -24,8 +24,8 @@
 	</table>
 {% endspaceless %}{% endmacro %}
 
-{% macro col(padding, align, width) %}{% spaceless %}
-	<td valign="top" {% if align %}align="{{ align }}"{% endif %} style="{% if padding %}padding: {{ padding }};{% endif %} {% if align %}text-align: {{ align }};{% endif %} vertical-align: top; {% if width %}width: {{ width }}px;{% endif %}">
+{% macro col(padding, align, width, style) %}{% spaceless %}
+	<td valign="top" {% if align %}align="{{ align }}"{% endif %} style="{% if padding %}padding: {{ padding }};{% endif %} {% if align %}text-align: {{ align }};{% endif %} vertical-align: top; {% if width %}width: {{ width }}px;{% endif %} {% if style %}{{ style }}{% endif %}">
 {% endspaceless %}{% endmacro %}
 			
 {% macro colEnd() %}{% spaceless %}
@@ -40,8 +40,8 @@
 	<img src="{{ basePath }}{{ src }}" class="image_fix" style="display: block; outline:none; text-decoration:none; -ms-interpolation-mode: bicubic; border: none;" {% if width %}width="{{ width }}"{% endif %} {% if height %}height="{{ height }}"{% endif %} alt="{{ alt }}" />
 {% endspaceless %}{% endmacro %}
 
-{% macro a(href, color) %}{% spaceless %}
-	<a target="_blank" href="{{ href }}" style="color: {% if color %}{{ color }}{% endif %};">
+{% macro a(href, color, style) %}{% spaceless %}
+	<a target="_blank" href="{{ href }}" style="{% if color %}color: {{ color }};{% endif %} {% if style %}{{ style }}{% endif %}">
 {% endspaceless %}{% endmacro %}
 
 {% macro aEnd() %}{% spaceless %}
