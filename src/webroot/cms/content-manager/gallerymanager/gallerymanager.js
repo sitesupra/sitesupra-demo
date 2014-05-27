@@ -108,6 +108,14 @@ function (Y) {
 		 */
 		image_properties: null,
 		
+		/**
+		 * Gallery property id
+		 * 
+		 * @type {String}
+		 * @private
+		 */
+		gallery_property_id: null,
+		
 		
 		
 		/**
@@ -399,7 +407,9 @@ function (Y) {
 		 */
 		settingsFormApply: function (dont_hide) {
 			if (this.settings_form && this.settings_form.get('visible')) {
-				var image_data_from_form = this.settings_form.getValuesObject('id'),
+				var property_name = this.gallery_property_id,
+					
+					image_data_from_form = this.settings_form.getValuesObject('id'),
 					image_data = this.selected_image_data,
 					data = this.data;
 				
@@ -413,9 +423,9 @@ function (Y) {
 				
 				Supra.mix(image_data, {'properties': image_data_from_form});
 				
-				for (var i=0,ii=data.images.length; i<ii; i++) {
-					if (data.images[i].id == image_data.id) {
-						data.images[i] = image_data;
+				for (var i=0,ii=data[property_name].length; i<ii; i++) {
+					if (data[property_name][i].id == image_data.id) {
+						data[property_name][i] = image_data;
 						this.updateInlineEditableUI(image_data.id);
 						break;
 					}
@@ -690,7 +700,9 @@ function (Y) {
 		 * @private
 		 */
 		applyChanges: function () {
-			var items = this.itemlist.get('listNode').all(this.itemlist.getChildSelector()),
+			var property_name = this.gallery_property_id,
+				
+				items = this.itemlist.get('listNode').all(this.itemlist.getChildSelector()),
 				order = {},
 				data = this.data;
 			
@@ -703,7 +715,7 @@ function (Y) {
 			}
 			
 			//Sort images array
-			data.images.sort(function (a, b) {
+			data[property_name].sort(function (a, b) {
 				var oa = order[a.id],
 					ob = order[b.id];
 				
@@ -761,7 +773,9 @@ function (Y) {
 		transformData: function (data) {
 			data = Supra.mix({}, data, true);
 			
-			var images = data.images || [],
+			var property_name = this.gallery_property_id,
+				
+				images = data[property_name] || [],
 				i = images.length - 1,
 				id = null,
 				unique = {};
@@ -795,6 +809,7 @@ function (Y) {
 				'callback': null,
 				'context': null,
 				'properties': [],
+				'galleryPropertyId': null,
 				'shared': false,
 				'imageUploadFolder': 0
 			}, options);
@@ -809,9 +824,11 @@ function (Y) {
 			
 			this.callback = options.callback ? (options.context ? Y.bind(options.callback, options.context) : options.callback) : null;
 			
-			this.data = this.transformData(options.data);
+			this.gallery_property_id = options.galleryPropertyId;
 			this.image_properties = options.properties || [];
 			this.image_upload_folder = options.imageUploadFolder || 0;
+			
+			this.data = this.transformData(options.data);
 			
 			this.itemlist.set('visible', false);
 			this.itemlist.reloadIframe();
