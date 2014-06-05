@@ -161,6 +161,14 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		 */
 		opened: false,
 		
+		/**
+		 * Command is beeing executed, don't issue another request
+		 * until previous one has finished
+		 * @type {Boolean}
+		 * @private
+		 */
+		loading: false,
+		
 		
 		
 		/**
@@ -242,9 +250,11 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		 * Rotate image in a direction
 		 */
 		cmdRotate: function (direction) {
-			this.rotation = (this.rotation + 90 * direction);
-			
+			if (this.loading) return;
+			this.loading = true;
 			this.node.addClass('loading');
+			
+			this.rotation = (this.rotation + 90 * direction);
 			
 			//Save image data
 			var image_data = this.get('imageData'),
@@ -262,6 +272,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 						
 						//Reset rotation
 						this.rotation = 0;
+						this.loading = false;
 						
 						if (status) {
 							//Update image data
@@ -291,7 +302,10 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 		 * Crop image
 		 */
 		cmdCrop: function () {
+			if (this.loading) return;
+			this.loading = true;
 			this.node.addClass('loading');
+			
 			this.set('mode', '');
 			
 			//Save image data
@@ -312,6 +326,7 @@ YUI.add('supra.medialibrary-image-editor', function (Y) {
 				'method': 'post',
 				'on': {
 					'complete': function (data, status) {
+						this.loading = false;
 						
 						if (status) {
 							//Update image data
