@@ -1254,6 +1254,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/link.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-tree': {
+		path: 'input/tree.js',
+		requires: ['supra.input-link']
+	},
 	'supra.input-image': {
 		path: 'input/image.js',
 		requires: ['supra.input-proto', 'supra.dd-drop-target']
@@ -1338,6 +1342,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select-visual',
 			'supra.input-slider',
 			'supra.input-link',
+			'supra.input-tree',
 			'supra.input-image',
 			'supra.input-file',
 			'supra.input-map',
@@ -34056,7 +34061,13 @@ YUI.add('supra.input-slider', function (Y) {
 		},
 		'groupsSelectable': {
 			'value': false
+		},
+		
+		// Link manager tree request URI, optional
+		'treeRequestURI': {
+			'value': null
 		}
+
 	};
 	
 	// Input is inline
@@ -34120,6 +34131,7 @@ YUI.add('supra.input-slider', function (Y) {
 			
 			Manager.executeAction('LinkManager', value, {
 				'mode': this.get('mode'),
+				'treeRequestURI':    this.get('treeRequestURI'),
 				'hideToolbar': true,
 				'selectable': {
 					'group_pages': this.get('groupsSelectable')
@@ -34198,7 +34210,69 @@ YUI.add('supra.input-slider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-image', function (Y) {
+}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-tree', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	//Shortcuts
+	var Manager = Supra.Manager,
+		DEFAULT_LABEL_SET = '{#form.set_tree#}';
+	
+	
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+	}
+	
+	Input.NAME = 'input-tree';
+	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
+	Input.ATTRS = {
+		'labelSet': {
+			'value': DEFAULT_LABEL_SET,
+			'validator': Y.Lang.isString
+		},
+		'mode': {
+			'value': 'tree'
+		},
+		'groupsSelectable': {
+			'value': false
+		},
+		
+		'sourceId': {
+			'value': ''
+		}
+	};
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
+	// Input supports notifications
+	Input.SUPPORTS_NOTIFICATIONS = false;
+	
+	Input.HTML_PARSER = {};
+	
+	Y.extend(Input, Supra.Input.Link, {
+		
+		openLinkManager: function () {
+			// Update request URI
+			var requestUri = Supra.Manager.Loader.getDynamicPath() + '/crud-manager/data/sourcedata?sourceId=' + this.get('sourceId');
+			this.set('treeRequestURI', requestUri);
+			
+			// Open link manager
+			return Input.superclass.openLinkManager.apply(this, arguments);
+		}
+		
+	});
+	
+	Supra.Input.Tree = Input;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:['supra.input-link']});YUI.add('supra.input-image', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	

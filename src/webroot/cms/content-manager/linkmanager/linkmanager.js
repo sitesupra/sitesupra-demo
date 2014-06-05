@@ -86,6 +86,14 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			'images': false,
 			'files': false,
 			'email': true
+		},
+		'tree': {
+			'pages': true,
+			'group_pages': false,
+			'external': false,
+			'images': false,
+			'files': false,
+			'email': false
 		}
 	};
 	
@@ -328,7 +336,11 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				
 			//Update title
 				if (slide_id == 'linkToPage') {
-					title += ' ' + Supra.Intl.get(['linkmanager', 'title_page']);
+					if (this.mode === 'tree') {
+						title += ' ' + Supra.Intl.get(['linkmanager', 'title_tree']);
+					} else {
+						title += ' ' + Supra.Intl.get(['linkmanager', 'title_page']);
+					}
 				} else if (slide_id == 'linkToFile') {
 					title += ' ' + Supra.Intl.get(['linkmanager', 'title_file']);
 				} else if (slide_id == 'linkToEmail') {
@@ -442,14 +454,11 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					//Create tree
 						//Use sitemap data
 						this.locale = Supra.data.get('locale');
-						var sitemap_data_path = Supra.Manager.Loader.getActionInfo('SiteMap').path_data +
-												'?locale=' + this.locale +
-												'&existing_only=1';
 						
 						//Create tree
 						this.tree = new Supra.Tree({
 							'srcNode': node.one('.tree'),
-							'requestUri': sitemap_data_path,
+							'requestUri': this.getTreeRequestURI(),
 							'groupNodesSelectable': this.selectable.group_pages,
 							'defaultChildType': Supra.LinkMapTreeNode
 						});
@@ -571,6 +580,24 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 		},
 		
 		/**
+		 * Returns request URI for tree
+		 * 
+		 * @returns {String} Request URI
+		 * @private
+		 */
+		getTreeRequestURI: function () {
+			var uri = this.options.treeRequestURI;
+			
+			if (uri) {
+				return uri + (uri.indexOf('?') !== -1 ? '&' : '?') + 'locale=' + this.locale;
+			} else {
+				return Supra.Manager.Loader.getActionInfo('SiteMap').path_data +
+							'?locale=' + this.locale +
+							'&existing_only=1';
+			}
+		},
+		
+		/**
 		 * Update button label to "Insert" or "Close"
 		 * 
 		 * @private
@@ -638,7 +665,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 		 * 
 		 * @private
 		 */
-		setDisplayMode: function (selectable) {
+		setDisplayMode: function (mode, selectable) {
 			//Update settings
 			Supra.mix(this.selectable, selectable);
 			
@@ -683,6 +710,17 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			} else {
 				this.form.getInput('linktype').show();
 			}
+			
+			// Remove link label
+			var label;
+			
+			if (mode === 'tree') {
+				label = Supra.Intl.get(['linkmanager', 'remove_tree']);
+			} else {
+				label = Supra.Intl.get(['linkmanager', 'remove_link']);
+			}
+			
+			this.button_remove.set('label', label);
 		},
 		
 		/**
@@ -756,11 +794,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				//Reload tree if needed
 				if (reloading_tree) {
 					this.locale = Supra.data.get('locale');
-					var sitemap_data_path = Supra.Manager.Loader.getActionInfo('SiteMap').path_data +
-											'?locale=' + this.locale +
-											'&existing_only=1';
-					
-					this.tree.set('requestUri', sitemap_data_path);
+					this.tree.set('requestUri', this.getTreeRequestURI());
 					this.tree.reload();
 				}
 				
@@ -1043,6 +1077,8 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				'hideLinkControls': hide_link_controls,
 				'selectable': selectable,
 				
+				'treeRequestURI': null,
+
 				'container': null
 			};
 			
@@ -1108,7 +1144,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			this.setCallback(callback, context);
 			
 			//Set display mode
-			this.setDisplayMode(this.selectable);
+			this.setDisplayMode(this.mode, this.selectable);
 			
 			//Set initial data
 			this.setData(data);

@@ -198,6 +198,7 @@
 /cms/lib/supra/build/input/select.js
 /cms/lib/supra/build/input/slider.js
 /cms/lib/supra/build/input/link.js
+/cms/lib/supra/build/input/tree.js
 /cms/lib/supra/build/input/image.js
 /cms/lib/supra/build/input/map.js
 /cms/lib/supra/build/input/map-inline.js
