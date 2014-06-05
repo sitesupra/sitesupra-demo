@@ -454,11 +454,12 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					//Create tree
 						//Use sitemap data
 						this.locale = Supra.data.get('locale');
+						this.requestUri = this.getTreeRequestURI();
 						
 						//Create tree
 						this.tree = new Supra.Tree({
 							'srcNode': node.one('.tree'),
-							'requestUri': this.getTreeRequestURI(),
+							'requestUri': this.requestUri,
 							'groupNodesSelectable': this.selectable.group_pages,
 							'defaultChildType': Supra.LinkMapTreeNode
 						});
@@ -476,6 +477,10 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 				} else {
 					if (!this.tree.getData() && this.selectable.pages) {
 						this.tree.set('loading', true);
+						
+						this.requestUri = this.getTreeRequestURI();
+						this.tree.set('requestUri', this.requestUri);
+						
 						this.tree.reload();
 					}
 				}
@@ -780,6 +785,7 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 			//If locale has changed since last time this action was opened then reload tree data
 			var reloading_tree = false;
 			if (this.locale && this.locale != Supra.data.get('locale')) {
+				this.locale = Supra.data.get('locale');
 				reloading_tree = true;
 			}
 			
@@ -791,10 +797,16 @@ Supra('supra.input', 'supra.slideshow', 'linkmanager.sitemap-linkmanager-node', 
 					reloading_tree = true;
 				}
 				
+				// If URI changed then reload tree too
+				var request_uri = this.getTreeRequestURI();
+				if (this.requestUri != request_uri) {
+					this.tree.set('requestUri', request_uri);
+					this.requestUri = request_uri;
+					reloading_tree = true;
+				}
+				
 				//Reload tree if needed
 				if (reloading_tree) {
-					this.locale = Supra.data.get('locale');
-					this.tree.set('requestUri', this.getTreeRequestURI());
 					this.tree.reload();
 				}
 				
