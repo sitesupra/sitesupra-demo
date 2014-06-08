@@ -341,15 +341,6 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
     }
 
     /**
-     * {@inheritdoc}
-     * @return NestedSet\Node\DoctrineNode
-     */
-    public function getNestedSetRepositoryClassName()
-    {
-        return $this->nestedSetNode;
-    }
-
-    /**
      * Set global
      * @param boolean $global 
      */

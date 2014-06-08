@@ -242,6 +242,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'dd-ddm'
 		]
 	},
+	'supra.dd-drop-target': {
+		path: 'dd-ddm/dd-drop-target.js',
+		requires: [
+			'attribute',
+			'node'
+		]
+	},
 	
 	/**
 	 * Event 'exist' plugin
@@ -770,9 +777,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/link.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-tree': {
+		path: 'input/tree.js',
+		requires: ['supra.input-link']
+	},
 	'supra.input-image': {
 		path: 'input/image.js',
-		requires: ['supra.input-proto']
+		requires: ['supra.input-proto', 'supra.dd-drop-target']
 	},
 	'supra.input-file': {
 		path: 'input/file.js',
@@ -854,6 +865,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select-visual',
 			'supra.input-slider',
 			'supra.input-link',
+			'supra.input-tree',
 			'supra.input-image',
 			'supra.input-file',
 			'supra.input-map',

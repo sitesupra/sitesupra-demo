@@ -194,10 +194,14 @@ YUI.add('website.provider', function (Y) {
 						'title': tmp.label
 					};
 					
-					//Select and SelectList field output should be taken from value list
 					if (tmp.type == 'Select' || tmp.type == 'SelectList') {
+						//Select and SelectList field list output should be taken from value list
 						conf.values = tmp.values;
 						conf.formatter = this._formatSelectColumnValue;
+					} else if (tmp.type == 'Checkbox') {
+						//Checkbox field list output should be yes/no labels
+						conf.labels = tmp.labels;
+						conf.formatter = this._formatCheckboxColumnValue;
 					}
 					
 					fields_list.push(conf);
@@ -425,7 +429,7 @@ YUI.add('website.provider', function (Y) {
 		},
 		
 		/**
-		 * Format data grid column value
+		 * Format data grid column value when Select input is displayed
 		 * 
 		 * @param {String} col_id Column ID
 		 * @param {String} value Column text
@@ -446,6 +450,24 @@ YUI.add('website.provider', function (Y) {
 			} else {
 				return Y.Escape.html(value || '');
 			}
+		},
+		
+		/**
+		 * Format data grid column value when Checkbox input is displayed
+		 * 
+		 * @param {String} col_id Column ID
+		 * @param {String} value Column text
+		 */
+		_formatCheckboxColumnValue: function (col_id, value, data) {
+			var column = this.host.getColumn(col_id),
+				labels = column.labels || ['{#buttons.yes#}', '{#buttons.no#}'],
+				label;
+			
+			label = value ?  labels[0] : labels[1];
+			label = Supra.Intl.replace(label);
+			label = Y.Escape.html(label);
+			
+			return label;
 		},
 		
 		/**

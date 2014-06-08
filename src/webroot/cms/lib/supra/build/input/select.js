@@ -373,6 +373,10 @@ YUI.add("supra.input-select", function (Y) {
 				if (this.scrollable) {
 					this.scrollable.scrollInView(new_item);
 				}
+				
+				return id;
+			} else {
+				return false;
 			}
 		},
 		
@@ -869,6 +873,13 @@ YUI.add("supra.input-select", function (Y) {
 				}
 		 	}
 		 	
+		 	// Nothing matched, try partial
+		 	for (i=0; i<ii; i++) {
+				if (values[i].title.toUpperCase().indexOf(str) !== -1) {
+					return values[i].id;
+				}
+		 	}
+		 	
 		 	return null;
 		},
 		
@@ -880,7 +891,7 @@ YUI.add("supra.input-select", function (Y) {
 			if (this._lookupCooldownTimer) {
 				this._lookupCooldownTimer.cancel();
 			}
-			this._lookupCooldownTimer = Y.later(500, this, this._clearLookupString);
+			this._lookupCooldownTimer = Y.later(1000, this, this._clearLookupString);
 			
 			this._lookupString += character;
 			

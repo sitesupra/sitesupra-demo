@@ -519,7 +519,7 @@ YUI.add('supra.medialibrary-list', function (Y) {
 				}
 				if ('thumbnail' in changes && !folder) {
 					if (!item.broken && item.thumbnail) {
-						node.one('a img').setAttribute('src', item.thumnnail + '?t=' + (+new Date()));
+						node.one('a img').setAttribute('src', item.thumbnail + '?t=' + (+new Date()));
 					}
 				}
 				if ('broken' in changes) {

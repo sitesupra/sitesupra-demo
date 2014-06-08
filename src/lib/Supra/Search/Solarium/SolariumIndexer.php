@@ -24,6 +24,14 @@ class SolariumIndexer extends AbstractIndexer
 	{
 		$this->solariumClient = $solariumClient;
 	}
+
+	/**
+	 * @return Solarium_Client
+	 */
+	public function getSolariumClient()
+	{
+		return $this->solariumClient;
+	}
 	
 	/**
 	 * Adds $queueItem to Solr.

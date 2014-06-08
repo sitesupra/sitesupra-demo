@@ -88,11 +88,12 @@ YUI.add('supra.datagrid-draggable', function (Y) {
 		 */
 		decorateProxy: function (e) {
 			var row = this.get('host').getRowByNode(e.target.get('node'));
-			
 			if (!row) return;
 			
-			var td = row.getTitleColumnNode(),
-				content = td.get('childNodes').item(0).cloneNode(true),
+			var td = row.getTitleColumnNode();
+			if (!td) return;
+			
+			var content = td.get('childNodes').item(0).cloneNode(true),
 				drag_node = e.target.get('dragNode');
 			
 			//Set offset from mouse

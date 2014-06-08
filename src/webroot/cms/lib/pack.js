@@ -719,6 +719,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'dd-ddm'
 		]
 	},
+	'supra.dd-drop-target': {
+		path: 'dd-ddm/dd-drop-target.js',
+		requires: [
+			'attribute',
+			'node'
+		]
+	},
 	
 	/**
 	 * Event 'exist' plugin
@@ -1247,9 +1254,13 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/link.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-tree': {
+		path: 'input/tree.js',
+		requires: ['supra.input-link']
+	},
 	'supra.input-image': {
 		path: 'input/image.js',
-		requires: ['supra.input-proto']
+		requires: ['supra.input-proto', 'supra.dd-drop-target']
 	},
 	'supra.input-file': {
 		path: 'input/file.js',
@@ -1331,6 +1342,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select-visual',
 			'supra.input-slider',
 			'supra.input-link',
+			'supra.input-tree',
 			'supra.input-image',
 			'supra.input-file',
 			'supra.input-map',
@@ -2635,7 +2647,185 @@ YUI.add("router",function(h){var c=h.HistoryHash,b=h.QueryString,f=h.Array,g=h.c
 	// Register self immediatelly
 	Y.DD.DDM.regDoc(Y.config.doc);
 	
-}, YUI.version, {'requires': ['dd-ddm']});/**
+}, YUI.version, {'requires': ['dd-ddm']});YUI.add('supra.dd-drop-target', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	//Shortcuts
+	var Manager = Supra.Manager,
+		Action = Manager.Action;
+	
+	
+	/*
+	 * Handles data drag and drop
+	 * Usually image or file drag from media library into a content
+	 */
+	function DropTarget (config) {
+		var attrs = {
+			//Node to which will be attached listeners for drop
+			'srcNode': {value: null},
+			
+			//srcNode document element
+			'doc': {value: null}
+		};
+				
+		this.addAttrs(attrs, config || {});
+		this.bindDnD();
+	}
+	
+	DropTarget.prototype = {
+		
+		/**
+		 * Item which is beeing dragged
+		 * @type {Object}
+		 */
+		drag_item: null,
+		
+		/**
+		 * Drag end event listener attach point
+		 * @type {Object}
+		 */
+		fn_drag_end: null,
+		
+		/**
+		 * Drag & drop mouse up event listener attach point
+		 * @type {Object}
+		 */
+		fn_mouse_up: null,
+		
+		
+		destroy: function () {
+			// Remove callbacks
+			this.onDragEnd();
+			
+			// Purge source node events
+			var node = this.get('srcNode');
+			node.purge();
+			
+			// Clean up
+			this.set('srcNode', null);
+			this.detachAll();
+		},
+		
+		/**
+		 * Returns item data which is being dragged
+		 * 
+		 * @return Item data
+		 * @type {Object}
+		 */
+		getItem: function () {
+			return this.drag_item;
+		},
+		
+		/**
+		 * Handle drag end (success or failure)
+		 */
+		onDragEnd: function () {
+			this.drag_item = null;
+			if (this.fn_drag_end) this.fn_drag_end.detach();
+			if (this.fn_mouse_up) this.fn_mouse_up.detach();
+			this.fn_drag_end = null;
+			this.fn_mouse_up = null;
+		},
+		
+		/**
+		 * Bind HTML5 Drag & Drop event listeners
+		 * 
+		 * @param {Object} htmleditor HTMLEditor instance
+		 */
+		bindDnD: function () {
+			//Allow HTML5 Drag & Drop
+			var srcNode = this.get('srcNode');
+			
+			//Handle item drag which is in content
+			srcNode.on('dragstart', function (e) {
+				this.drag_item = e.target;
+				
+				//On mouse up or drag end remove temporary listeners and
+				//reference to item
+				this.fn_mouse_up = srcNode.once('mouseup', this.onDragEnd, this);
+				this.fn_drag_end = e.target.once('dragend', this.onDragEnd, this);
+			}, this);
+			srcNode.on('dragend', this.onDragEnd, this);
+			
+			//On dragover change cursor to copy and prevent native drop
+			srcNode.on('dragover', function (e) {
+				//If event propagation was stopped then don't do anything
+				if (e.stopped) return;
+				
+				// Prevent data from actually beeing dropped and change cursor
+				if (e.preventDefault) e.preventDefault();
+			    e._event.dataTransfer.dropEffect = 'copy';
+			    return false;
+			}, this);
+			
+			//Handle drop event (triggered only if native drop was prevented in dragover) 
+			srcNode.on('drop', function (e) {
+				var data = e._event.dataTransfer.getData('text'),
+					item = this.drag_item,
+					target = null;
+				
+				this._fixTarget(e);
+				target = e.target;
+				
+				//Trigger event to allow other plugins to override this behaviour
+				var res = srcNode.fire('dataDrop', {
+					'drag_id': data,
+					'drag': item,
+					'drop': target
+				});
+				
+				//Clean up
+				this.onDragEnd();
+				
+				//If any listener called returned false then stop item from being
+				//dropped using native drop
+				if (res === false) {
+					if (e.preventDefault) e.preventDefault(); // Don't drop anything
+					return false;
+				}
+			}, this);
+		},
+		
+		/**
+		 * IE reports srcNode as target, get correct drop target from mouse position
+		 * 
+		 * @param {Object} e
+		 * @private
+		 */
+		_fixTarget: (Y.UA.ie ? function (e) {
+			//IE reports srcNode as target, fix it
+			var srcNode = this.get('srcNode'),
+				target = null,
+				tmp_target = null,
+				pos = srcNode.getXY(),
+				src_dom_node = Y.Node.getDOMNode(srcNode),
+				scroll_x = this.get('doc').documentElement.scrollLeft,
+				scroll_y = this.get('doc').documentElement.scrollTop;
+			
+			target = this.get('doc').elementFromPoint(e._event.x + pos[0] - scroll_x, e._event.y + pos[1] - scroll_y);
+			tmp_target = target;
+			
+			//Check if srcNode is target or one of the targets ancestors
+			while(tmp_target) {
+				if (tmp_target === src_dom_node) {
+					e.target = new Y.Node(target);
+				}
+				tmp_target = tmp_target.parentNode;
+			}
+		} : function (e) {}),
+		
+	};
+	
+	Y.augment(DropTarget, Y.Attribute);
+	
+	Supra.DragDropTarget = DropTarget;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires: ['attribute', 'node']});/**
  * Adds on('exist', ...) event to YUI Event class
  * 
  * Usage:
@@ -10922,6 +11112,9 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 	/* Tag white list, all other tags will be removed. <font> tag is added if "fonts" plugin is enabled */
 	Supra.HTMLEditor.WHITE_LIST_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'p', 'b', 'em', 'small', 'sub', 'sup', 'a', 'img', 'br', 'strong', 's', 'strike', 'u', 'blockquote', 'q', 'big', 'table', 'tbody', 'tr', 'td', 'thead', 'th', 'ul', 'ol', 'li', 'div', 'dl', 'dt', 'dd', 'col', 'colgroup', 'caption', 'object', 'param', 'embed', 'article', 'aside', 'details', 'figcaption', 'figure', 'footer', 'header', 'hgroup', 'nav', 'section', '_span', 'svg', 'pre', 'code'];
 	
+	/* Attribute black list */
+	Supra.HTMLEditor.BLACK_LIST_ATTRS = ['contenteditable'];
+	
 	/* List of block elements */
 	Supra.HTMLEditor.ELEMENTS_BLOCK = {'h1': 'h1', 'h2': 'h2', 'h3': 'h3', 'h4': 'h4', 'h5': 'h5', 'h6': 'h6', 'p': 'p', 'blockquote': 'blockquote', 'q': 'q', 'table': 'table', 'tbody': 'tbody', 'tr': 'tr', 'td': 'td', 'thead': 'thead', 'th': 'th', 'ul': 'ul', 'ol': 'ol', 'li': 'li', 'div': 'div', 'dl': 'dl', 'dt': 'dt', 'dd': 'dd', 'col': 'col', 'colgroup': 'colgroup', 'caption': 'caption', 'object': 'object', 'param': 'param', 'embed': 'embed', 'article': 'article', 'aside': 'aside', 'details': 'details', 'figcaption': 'figcaption', 'figure': 'figure', 'footer': 'footer', 'header': 'header', 'hgroup': 'hgroup', 'nav': 'nav', 'section': 'section', 'pre': 'pre', 'code': 'code'};
 	Supra.HTMLEditor.ELEMENTS_BLOCK_ARR = Y.Lang.toArray(Supra.HTMLEditor.ELEMENTS_BLOCK);
@@ -11163,6 +11356,10 @@ YUI().add('supra.htmleditor-parser', function (Y) {
 				
 				//Remove empty UL and OL tags
 				html = html.replace(REGEX_EMPTY_UL_OL, '');
+				
+				//Remove blacklisted tag attributes
+				var black_list_attrs = Supra.HTMLEditor.BLACK_LIST_ATTRS;
+				html = html.replace(new RegExp("(<[^>]+?)(\\s+(" + black_list_attrs.join('|') + ")=(\"[^\"]*\"|'[^']*'|[^\\s>]+))+", "ig"), '$1');
 				
 				//Remove style attribute, except background-color and fill
 				var regex_style_bg = REGEX_STYLE_BG;
@@ -32996,6 +33193,10 @@ YUI.add('supra.uploader', function (Y) {
 				if (this.scrollable) {
 					this.scrollable.scrollInView(new_item);
 				}
+				
+				return id;
+			} else {
+				return false;
 			}
 		},
 		
@@ -33492,6 +33693,13 @@ YUI.add('supra.uploader', function (Y) {
 				}
 		 	}
 		 	
+		 	// Nothing matched, try partial
+		 	for (i=0; i<ii; i++) {
+				if (values[i].title.toUpperCase().indexOf(str) !== -1) {
+					return values[i].id;
+				}
+		 	}
+		 	
 		 	return null;
 		},
 		
@@ -33503,7 +33711,7 @@ YUI.add('supra.uploader', function (Y) {
 			if (this._lookupCooldownTimer) {
 				this._lookupCooldownTimer.cancel();
 			}
-			this._lookupCooldownTimer = Y.later(500, this, this._clearLookupString);
+			this._lookupCooldownTimer = Y.later(1000, this, this._clearLookupString);
 			
 			this._lookupString += character;
 			
@@ -33853,7 +34061,13 @@ YUI.add('supra.input-slider', function (Y) {
 		},
 		'groupsSelectable': {
 			'value': false
+		},
+		
+		// Link manager tree request URI, optional
+		'treeRequestURI': {
+			'value': null
 		}
+
 	};
 	
 	// Input is inline
@@ -33917,6 +34131,7 @@ YUI.add('supra.input-slider', function (Y) {
 			
 			Manager.executeAction('LinkManager', value, {
 				'mode': this.get('mode'),
+				'treeRequestURI':    this.get('treeRequestURI'),
 				'hideToolbar': true,
 				'selectable': {
 					'group_pages': this.get('groupsSelectable')
@@ -33995,7 +34210,69 @@ YUI.add('supra.input-slider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-image', function (Y) {
+}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-tree', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	//Shortcuts
+	var Manager = Supra.Manager,
+		DEFAULT_LABEL_SET = '{#form.set_tree#}';
+	
+	
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+	}
+	
+	Input.NAME = 'input-tree';
+	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
+	Input.ATTRS = {
+		'labelSet': {
+			'value': DEFAULT_LABEL_SET,
+			'validator': Y.Lang.isString
+		},
+		'mode': {
+			'value': 'tree'
+		},
+		'groupsSelectable': {
+			'value': false
+		},
+		
+		'sourceId': {
+			'value': ''
+		}
+	};
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
+	// Input supports notifications
+	Input.SUPPORTS_NOTIFICATIONS = false;
+	
+	Input.HTML_PARSER = {};
+	
+	Y.extend(Input, Supra.Input.Link, {
+		
+		openLinkManager: function () {
+			// Update request URI
+			var requestUri = Supra.Manager.Loader.getDynamicPath() + '/crud-manager/data/sourcedata?sourceId=' + this.get('sourceId');
+			this.set('treeRequestURI', requestUri);
+			
+			// Open link manager
+			return Input.superclass.openLinkManager.apply(this, arguments);
+		}
+		
+	});
+	
+	Supra.Input.Tree = Input;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:['supra.input-link']});YUI.add('supra.input-image', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -34070,6 +34347,21 @@ YUI.add('supra.input-slider', function (Y) {
 		 */
 		button_remove: null,
 		
+		/**
+		 * Opened media sidebar
+		 * @type {Boolean}
+		 * @private
+		 */
+		opened_media_sidebar: false,
+		
+		/**
+		 * Value was changed using drag and drop
+		 * while sidebar was opened
+		 * @type {Boolean}
+		 * @private
+		 */
+		drag_drop_value_changed: false,
+		
 		
 		/**
 		 * Open link manager for redirect
@@ -34106,10 +34398,12 @@ YUI.add('supra.input-slider', function (Y) {
 			
 			Manager.executeAction('MediaSidebar', {
 				'item': path,
-				'dndEnabled': false,
+				'dndEnabled': true,
 				'onselect': Y.bind(this.onMediaSidebarImage, this),
 				'onclose': Y.bind(this.onMediaSidebarClose, this)
 			});
+			
+			this.opened_media_sidebar = true;
 		},
 		
 		/**
@@ -34134,7 +34428,7 @@ YUI.add('supra.input-slider', function (Y) {
 		 * @param {Object} data
 		 */
 		onMediaSidebarClose: function () {
-			if (!this.image_was_selected) {
+			if (!this.image_was_selected && !this.drag_drop_value_changed) {
 				this.set('value', '');
 			}
 			
@@ -34142,6 +34436,9 @@ YUI.add('supra.input-slider', function (Y) {
 				var conf = this.restore_action;
 				conf.action.execute.apply(conf.action, conf.args);
 			}
+			
+			this.opened_media_sidebar = false;
+			this.drag_drop_value_changed = false;
 		},
 		
 		renderUI: function () {
@@ -34181,6 +34478,61 @@ YUI.add('supra.input-slider', function (Y) {
 			Input.superclass.renderUI.apply(this, arguments);
 			
 			this.set('value', this.get('value'));
+			
+			this.addDropListeners();
+		},
+		
+		destructor: function () {
+			this.removeDropListeners();
+		},
+		
+		
+		/* ------------------------------ Drag and drop from Media Library -------------------------------- */
+		
+		
+		/**
+		 * Add drop listeners
+		 */
+		addDropListeners: function () {
+			if (!this.drop_target) {
+				var node = this.get('boundingBox'),
+					target = new Supra.DragDropTarget({'srcNode': node, 'doc': document});
+				
+				this.drop_target = target;
+				
+				node.on('dataDrop', function (e) {
+					var image_id = e.drag_id;
+					if (!image_id) return;
+					
+					//Only if dropped from gallery
+					if (image_id.match(/^\d[a-z0-9]+$/i) && e.drop) {
+						var dataObject = Manager.MediaSidebar.dataObject(),
+							image_data = dataObject.cache.one(image_id);
+						
+						if (image_data.type != Supra.MediaLibraryList.TYPE_IMAGE) {
+							//Only handling images; folders should be handled by gallery plugin 
+							return false;
+						}
+						
+						this.set('value', image_data);
+						
+						if (this.opened_media_sidebar) {
+							this.drag_drop_value_changed = true;
+							Manager.MediaSidebar.close();
+						}
+					}
+				}, this);
+			}
+		},
+		
+		/**
+		 * Remove drop listeners
+		 */
+		removeDropListeners: function () {
+			if (this.drop_target) {
+				this.drop_target.destroy();
+				this.drop_target = null;
+			}
 		},
 		
 		
@@ -34265,7 +34617,7 @@ YUI.add('supra.input-slider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-map', function (Y) {
+}, YUI.version, {requires:['supra.input-proto', 'supra.dd-drop-target']});YUI.add('supra.input-map', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	

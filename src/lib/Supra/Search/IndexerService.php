@@ -15,6 +15,14 @@ class IndexerService
 			$this->indexer = $indexer;
 		}
 	}
+
+	/**
+	 * @return AbstractIndexer
+	 */
+	public function getIndexer()
+	{
+		return $this->indexer;
+	}
 	
 	/**
 	 * @param AbstractIndexer $indexer
@@ -43,7 +51,20 @@ class IndexerService
 
 		return $documentCount;
 	}
-	
+
+	/**
+	 * @return int
+	 */
+	public function getDocumentCount()
+	{
+		return $this->indexer->getDocumentCount();
+	}
+
+	public function processItem(Entity\Abstraction\IndexerQueueItem $item)
+	{
+		return $this->indexer->processItem($item);
+	}
+
 	/**
 	 * @param string $id
 	 * @return void

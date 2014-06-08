@@ -3,7 +3,6 @@
 namespace Supra\Tests\Search;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
-use DummyIndexerQueueItem;
 
 class DiscriminatorAppender
 {
