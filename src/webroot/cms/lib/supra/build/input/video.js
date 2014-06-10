@@ -133,8 +133,8 @@ YUI.add('supra.input-video', function (Y) {
 			if (!this.get('allowSizeControls')) {
 				this._onAllowSizeControlsAttrChange({'newVal': false, 'prevVal': true});
 			}
-			if (this.get('allowAlign')) {
-				this._onAllowAlignAttrChange({'newVal': true, 'prevVal': false});
+			if (!this.get('allowAlign')) {
+				this._onAllowAlignAttrChange({'newVal': false, 'prevVal': true});
 			}
 		},
 		
