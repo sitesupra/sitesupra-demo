@@ -148,4 +148,11 @@ class PageFinder extends AbstractFinder
 		return $ancestors;
 	}
 
+	/**
+	 * @return \Supra\Controller\Pages\Finder\LocalizationFinder
+	 */
+	public function createLocalizationFinder()
+	{
+		return new LocalizationFinder($this);
+	}
 }

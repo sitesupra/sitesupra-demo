@@ -318,8 +318,11 @@ class CustomerReturnAction extends CustomerReturnActionAbstraction
 			throw new \RuntimeException('Currency codes do not match for order and checkout details for transaction "' . $transaction->getId() . '".');
 		}
 
-		if ($checkoutDetails['PAYMENTREQUEST_0_AMT'] != $order->getTotal()) {
+		$orderTotal = $order->getTotal();
+		$paymentTotal = (float) $checkoutDetails['PAYMENTREQUEST_0_AMT'];
 
+		if ((abs($orderTotal - $paymentTotal) > 0.001)) {
+			
 			throw new \RuntimeException('Money amounts do not match for order and checkout details for transaction "' . $transaction->getId() . '".');
 		}
 	}

@@ -29,18 +29,24 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 		if ( ! empty($recordId)) {
 			$record = $repo->findOneById($recordId);
 		} else {
-			$newRecord = true;
 
-			if ($repo->isCreatable()) {
-				$record = new $configuration->entity;
-			} else {
-				return null;
+			if ( ! $repo->isCreatable()) {
+				throw new \RuntimeException('New entity creation is disabled.');
 			}
+
+			$record = method_exists($repo, 'create')
+					? $repo->create($post)
+					: new $configuration->entity;
+
+
+			$newRecord = true;
 		}
 
 		$eventArgs = new CrudManager\CrudEntityEventArgs();
+
 		$eventArgs->entity = $record;
 		$eventArgs->entityManager = $em;
+		$eventArgs->input = $post;
 
 		if ($newRecord) {
 			$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::PRE_INSERT, $repo, $eventArgs);
@@ -54,7 +60,7 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 
 		ObjectRepository::setCallerParent($record, $this);
 
-		//setting new values
+		// setting new values
 		$output = $record->setEditValues($post, $newRecord);
 
 		$em->persist($record);
@@ -65,7 +71,6 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 			$this->fireRepositoryEvent(CrudManager\CrudManagerEvents::POST_INSERT, $repo, $eventArgs);
 		}
 
-		$recordId = $record->getId();
 		$recordBefore = $post->get('record-before', null);
 
 		if ($repo->isSortable() && $newRecord) {
@@ -244,23 +249,22 @@ class FormAction extends CrudManager\CrudManagerAbstractAction
 		$cacheGroupManager = new \Supra\Cache\CacheGroupManager();
 		$cacheGroupManager->resetRevision($group);
 	}
-
+	
 	/**
-	 * Runs repository method if repository is subscribed to corresponding event
-	 *
 	 * @param string $eventName
 	 * @param \Supra\Cms\CrudManager\CrudRepositoryInterface $repository
 	 * @param \Supra\Cms\CrudManager\CrudEntityEventArgs $eventArgs
 	 */
-	private function fireRepositoryEvent($eventName, CrudManager\CrudRepositoryInterface $repository, CrudManager\CrudEntityEventArgs $eventArgs)
-	{
-		if ($repository instanceof CrudManager\CrudInteractiveRepositoryInterface) {
-			$subscribedEvents = $repository->getSubscribedEvents();
+	private function fireRepositoryEvent(
+			$eventName,
+			CrudManager\CrudRepositoryInterface $repository,
+			CrudManager\CrudEntityEventArgs $eventArgs
+	) {
 
-			if (in_array($eventName, $subscribedEvents)) {
-				$repository->$eventName($eventArgs);
-			}
+		if ($repository instanceof CrudManager\CrudInteractiveRepositoryInterface
+				&& in_array($eventName, $repository->getSubscribedEvents())
+		) {
+			$repository->$eventName($eventArgs);
 		}
 	}
-
 }

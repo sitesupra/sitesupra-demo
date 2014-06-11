@@ -6,10 +6,13 @@ use Supra\Database;
 
 /**
  * @Entity
+ * @InheritanceType("SINGLE_TABLE")
+ * @DetachedDiscriminators
+ * @DiscriminatorColumn(name="discr", type="string")
+ * @DiscriminatorMap({"base" = "Currency"})
  */
 class Currency extends Database\Entity
 {
-
 	/**
 	 * @Column(type="string", nullable=false)
 	 * @var string
@@ -67,6 +70,4 @@ class Currency extends Database\Entity
 	{
 		$this->enabled = $enabled;
 	}
-
 }
-

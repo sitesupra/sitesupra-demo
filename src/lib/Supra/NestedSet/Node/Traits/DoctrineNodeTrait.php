@@ -41,10 +41,6 @@ trait DoctrineNodeTrait
 
 	public function getNestedSetNode()
 	{
-		if ($this->nestedSetNode === null) {
-			throw new \RuntimeException('Nested Set Node is not initialized.');
-		}
-
 		return $this->nestedSetNode;
 	}
 

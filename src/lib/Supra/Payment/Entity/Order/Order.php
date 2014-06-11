@@ -24,7 +24,6 @@ use Supra\ObjectRepository\ObjectRepository;
  */
 abstract class Order extends Database\Entity
 {
-
 	/**
 	 * @OneToMany(targetEntity="OrderItem", mappedBy="order", cascade={"persist"})
 	 * @var ArrayCollection

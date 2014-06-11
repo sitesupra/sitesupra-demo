@@ -17,6 +17,7 @@ class LocalizationFinder extends AbstractFinder
 	private $pageFinder;
 	private $active = true;
 	private $public = true;
+	private $visibleInMenu = true;
 	private $visibleInSitemap = false;
 	private $redirect = null;
 
@@ -61,12 +62,16 @@ class LocalizationFinder extends AbstractFinder
 				$qb->andWhere('l.active = true AND p.path IS NOT NULL');
 			}
 
-			if ($this->public) {
-				$qb->andWhere('p.limited = false');
-			}
+//			if ($this->public) {
+//				$qb->andWhere('p.limited = false');
+//			}
 
 			if ($this->visibleInSitemap) {
 				$qb->andWhere('l.visibleInSitemap = true');
+			}
+
+			if ($this->visibleInMenu) {
+				$qb->andWhere('l.visibleInMenu = true');
 			}
 
 			if ( ! is_null($this->redirect)) {
@@ -109,7 +114,12 @@ class LocalizationFinder extends AbstractFinder
 
 	public function isVisibleInSitemap($visibleInSitemap)
 	{
-		$this->visibleInSitemap = $visibleInSitemap;
+		$this->visibleInSitemap = (bool) $visibleInSitemap;
+	}
+
+	public function isVisibleInMenu($visibleInMenu)
+	{
+		$this->visibleInMenu = (bool) $visibleInMenu;
 	}
 
 	public function removeDefaultFilters()

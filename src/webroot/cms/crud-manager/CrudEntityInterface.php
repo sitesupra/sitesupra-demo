@@ -6,11 +6,11 @@ use Supra\Validator\FilteredInput;
 
 interface CrudEntityInterface
 {
-
-	/**
-	 * @return array
-	 */
-	public function getListValues();
+//
+//	/**
+//	 * @return array
+//	 */
+//	public function getListValues();
 
 	/**
 	 * @return array

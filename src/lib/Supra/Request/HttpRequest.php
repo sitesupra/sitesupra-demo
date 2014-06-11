@@ -429,13 +429,18 @@ class HttpRequest implements RequestInterface
 	 */
 	public function getProtocol()
 	{
-		$httpsStatus = $this->getServerValue('HTTPS', 'off');
-		
-		if ( ! empty($httpsStatus) && $httpsStatus != 'off') {
-			return 'https';
-		}
-		
-		return 'http';
+		return $this->isSecure() ? 'https' : 'http';
 	}
 
+	/**
+	 * Checks whether the request is secure or not.
+	 * 
+	 * @return bool
+	 */
+	public function isSecure()
+	{
+		$value = $this->getServerValue('HTTPS', 'off');
+		
+		return (strtolower($value) == 'on' || $value == 1);
+	}
 }

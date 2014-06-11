@@ -19,17 +19,17 @@ trait AuthenticationPasswordProtectedEntityTrait
 	/**
 	 * @return string
 	 */
-	public function getPasswordHash()
+	public function getPassword()
 	{
 		return $this->password;
 	}
 
 	/**
-	 * @param string $hash
+	 * @param string $password
 	 */
-	public function setPasswordHash($hash)
+	public function setPassword($password)
 	{
-		$this->password = $hash;
+		$this->password = $password;
 	}
 
 	/**

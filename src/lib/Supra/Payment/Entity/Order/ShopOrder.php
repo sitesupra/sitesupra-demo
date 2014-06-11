@@ -2,19 +2,9 @@
 
 namespace Supra\Payment\Entity\Order;
 
-use Supra\Database;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Entity\Transaction\Transaction;
 use Supra\Payment\Transaction\TransactionStatus;
-use Supra\Payment\Entity\Currency\Currency;
-use Supra\Payment\Entity\Order\OrderItem;
-use Supra\Payment\Entity\Order\OrderPaymentProviderItem;
-use Supra\Payment\Product\ProductAbstraction;
-use Supra\User\Entity\AbstractUser;
-use Doctrine\Common\Collections\ArrayCollection;
-use \DateTime;
-use \Locale;
-use Supra\ObjectRepository\ObjectRepository;
 
 /**
  * @Entity 

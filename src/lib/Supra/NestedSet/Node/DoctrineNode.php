@@ -5,7 +5,6 @@ namespace Supra\NestedSet\Node;
 use Supra\NestedSet\DoctrineRepository;
 use Supra\NestedSet\RepositoryInterface;
 use Supra\NestedSet\Exception;
-use Doctrine\ORM\EntityManager;
 
 /**
  * Doctrine database nested set node object

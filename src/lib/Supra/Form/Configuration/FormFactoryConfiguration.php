@@ -2,13 +2,15 @@
 
 namespace Supra\Form\Configuration;
 
-use Supra\Configuration\ConfigurationInterface;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Validator;
-use Supra\Form\FormClassMetadataCache;
 use Symfony\Component\Form;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
+use Supra\Configuration\ConfigurationInterface;
+use Supra\Form\FormClassMetadataCache;
 use Supra\Form\FormSupraExtension;
 use Supra\ObjectRepository\ObjectRepository;
-use Doctrine\Common\Annotations\AnnotationReader;
+use Supra\Form\Csrf\TokenStorage\SessionTokenStorage;
 
 /**
  * Form factory configuration
@@ -17,9 +19,15 @@ class FormFactoryConfiguration implements ConfigurationInterface
 {
 	public $caller = ObjectRepository::DEFAULT_KEY;
 
-	public $extensions = array(
-		
-	);
+	/**
+	 * @var array
+	 */
+	public $extensions = array();
+
+	/**
+	 * @var bool
+	 */
+	public $enableCsrfExtension = false;
 
 	public function configure()
 	{
@@ -48,11 +56,31 @@ class FormFactoryConfiguration implements ConfigurationInterface
 			new FormSupraExtension($metadataFactory),
 		), (array) $this->extensions);
 
+		if ($this->enableCsrfExtension) {
+
+			$sessionManager = ObjectRepository::getObject(
+					$this,
+					ObjectRepository::INTERFACE_SESSION_NAMESPACE_MANAGER
+			);
+
+			if ($sessionManager === null) {
+				throw new \RuntimeException('Csrf Extension requires SessionManager to be available
+					for Supra\Form namespace.');
+			}
+
+			$sessionNamespace = $sessionManager->getSessionNamespace('_csrf');
+
+			$storage = new SessionTokenStorage($sessionNamespace);
+			$tokenManager = new CsrfTokenManager(null, $storage);
+
+			$extensions[] = new Form\Extension\Csrf\CsrfExtension($tokenManager);
+		}
+
 		$resolvedFormTypeFactory = new Form\ResolvedFormTypeFactory;
 		
 		$formRegistry = new Form\FormRegistry($extensions, $resolvedFormTypeFactory);
 		$formFactory = new Form\FormFactory($formRegistry, $resolvedFormTypeFactory);
 
-		ObjectRepository::setFormFactory($this->caller, $formFactory, 'Symfony\Component\Form\FormFactoryInterface');
+		ObjectRepository::setFormFactory($this->caller, $formFactory);
 	}
 }

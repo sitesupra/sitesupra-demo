@@ -16,6 +16,7 @@ use Supra\Payment\Entity\Order\RecurringOrder;
 use Supra\Payment\Entity\Order\OrderItem;
 use Supra\Payment\Order\OrderStatus;
 use Supra\Payment\Entity\Order\OrderProductItem;
+use Supra\Payment\Entity\Order\DiscountOrderItem;
 use Supra\Locale\LocaleInterface;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Entity\Transaction\Transaction;
@@ -432,6 +433,7 @@ class PaymentProvider extends PaymentProviderAbstraction
 		$counter = 0;
 		$totalItemQuantity = 0;
 		$totalItemAmount = 0;
+		$totalDiscountAmount = 0;
 		$totalAmount = 0;
 
 		foreach ($orderItems as $orderItem) {
@@ -439,22 +441,30 @@ class PaymentProvider extends PaymentProviderAbstraction
 
 			$itemData = array();
 
-			if ($orderItem instanceof OrderProductItem) {
+			if ($orderItem instanceof OrderProductItem
+					|| $orderItem instanceof DiscountOrderItem) {
 				/* @var $orderItem OrderProductItem */
 
 				$counter = intval($counter);
 
+				$quantity = ($orderItem instanceof DiscountOrderItem) ? 1 : $orderItem->getQuantity();
+
 				$itemData = array(
-					'L_PAYMENTREQUEST_0_AMT' . $counter => $orderItem->getPrice() / $orderItem->getQuantity(),
+					'L_PAYMENTREQUEST_0_AMT' . $counter => $orderItem->getPrice() / $quantity,
 					'L_PAYMENTREQUEST_0_DESC' . $counter => $orderItem->getDescription(),
-					'L_PAYMENTREQUEST_0_QTY' . $counter => $orderItem->getQuantity()
+					'L_PAYMENTREQUEST_0_QTY' . $counter => $quantity
 				);
 
 				$totalItemAmount += $orderItem->getPrice();
 
 				$totalAmount += $orderItem->getPrice();
 
-				$totalItemQuantity += $orderItem->getQuantity();
+				$totalItemQuantity += $quantity;
+
+				if ($orderItem instanceof DiscountOrderItem) {
+					$totalDiscountAmount += $orderItem->getPrice();
+				}
+
 			} else if ($orderItem instanceof OrderPaymentProviderItem) {
 
 				$apiData['PAYMENTREQUEST_0_HANDLINGAMT'] = $orderItem->getPrice();
@@ -477,7 +487,11 @@ class PaymentProvider extends PaymentProviderAbstraction
 		}
 
 		$apiData['PAYMENTREQUEST_0_CURRENCYCODE'] = $order->getCurrency()->getIso4217Code();
-		$apiData['PAYMENTREQUEST_0_ITEMAMT'] = $order->getTotalForProductItems();
+
+		// For the PayPal, discount is the same as Item, but with negative amount
+		$itemsTotal = $order->getTotalForProductItems() + $totalDiscountAmount;
+
+		$apiData['PAYMENTREQUEST_0_ITEMAMT'] = $itemsTotal;
 		$apiData['PAYMENTREQUEST_0_AMT'] = $order->getTotal();
 
 		$apiData['PAYMENTREQUEST_0_PAYMENTACTION'] = 'Sale';

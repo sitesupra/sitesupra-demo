@@ -2,9 +2,6 @@
 
 namespace Supra\Cms\CrudManager;
 
-/**
- * Crud controller
- */
 class CrudEntityEventArgs extends \Supra\Event\EventArgs
 {
 	/**
@@ -13,8 +10,12 @@ class CrudEntityEventArgs extends \Supra\Event\EventArgs
 	public $entity;
 	
 	/**
-	 *
 	 * @var \Doctrine\ORM\EntityManager
 	 */
 	public $entityManager;
+
+	/**
+	 * @var \Supra\Validator\FilteredInput
+	 */
+	public $input;
 }

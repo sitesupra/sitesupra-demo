@@ -12,6 +12,8 @@ class Number extends String
 	private $minValue;
 	private $maxValue;
 	private $step = 1;
+	private $allowReals = false;
+	private $showButtons = true;
 	
 	public function getMinValue()
 	{
@@ -43,6 +45,16 @@ class Number extends String
 		$this->step = $step;
 	}
 
+	public function setAllowReals($allowReals)
+	{
+		$this->allowReals = (bool) $allowReals;
+	}
+
+	public function setShowButtons($showButtons)
+	{
+		$this->showButtons = (bool) $showButtons;
+	}
+
 	/**
 	 * @return array
 	 */
@@ -52,6 +64,8 @@ class Number extends String
 			'minValue' => $this->minValue,
 			'maxValue' => $this->maxValue,
 			'step' => $this->step,
+			'allowRealNumbers' => $this->allowReals,
+			'showButtons' => $this->showButtons,
 		);
 	}
 }
