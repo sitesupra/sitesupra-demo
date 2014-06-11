@@ -24,7 +24,13 @@ YUI.add('supra.input-link', function (Y) {
 		},
 		'groupsSelectable': {
 			'value': false
+		},
+		
+		// Link manager tree request URI, optional
+		'treeRequestURI': {
+			'value': null
 		}
+
 	};
 	
 	// Input is inline
@@ -88,6 +94,7 @@ YUI.add('supra.input-link', function (Y) {
 			
 			Manager.executeAction('LinkManager', value, {
 				'mode': this.get('mode'),
+				'treeRequestURI':    this.get('treeRequestURI'),
 				'hideToolbar': true,
 				'selectable': {
 					'group_pages': this.get('groupsSelectable')

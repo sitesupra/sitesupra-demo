@@ -200,6 +200,7 @@ abstract class Order extends Database\Entity
 		}
 		
 		// Value added tax
+		// @TODO: redo as TaxOrderItem
 		if ($this->vatRate > 0) {
 			$tax = round((($total * $this->vatRate) / 100), 2);
 			$total = $total + $tax;

@@ -955,7 +955,7 @@ class PagecontentAction extends PageManagerAction
 			
 			$galleryBlockController->setParentMetadata($metaItem);
 			
-			$propertyInput = $metaItemInput->getChild('properties');
+			$propertyInput = $metaItemInput->getChild('properties', true);
 			$this->handlePropertyValues($galleryBlockController, $propertyInput);
 			
 			$index++;

@@ -349,11 +349,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			//Self doesn't exist if user is not editing block
 			if (!self) return;
 			
-			var shared = self.properties.isPropertyShared('images'),
+			var propertName = this.getGalleryPropertyId(),
+				shared = self.properties.isPropertyShared(propertName),
 				imageProperties = self.getImageProperties();
 				
 			if ( ! imageProperties.length && shared) {
-				var localeId = self.properties._shared_properties.images.locale,
+				var localeId = self.properties._shared_properties[propertName].locale,
 					locale = Supra.data.getLocale(localeId),
 					localeTitle = locale ? locale.title : localeId;
 
@@ -399,12 +400,13 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			//Data
 			var gallery_data = self.properties.getValues();
-			gallery_data.images = gallery_data.images || [];
+			gallery_data[propertName] = gallery_data[propertName] || [];
 			
 			//Show gallery
 			Supra.Manager.executeAction('GalleryManager', {
 				'data': gallery_data,
 				'properties': self.getImageProperties(),
+				'galleryPropertyId': propertName,
 				'context': self,
 				'shared': shared,
 				'callback': function (data, changed) {
@@ -461,8 +463,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * Add image to the gallery
 		 */	
 		addImage: function (image_data) {
-			var values = this.properties.getValues(),
-				images = (values && Y.Lang.isArray(values.images)) ? values.images : [],
+			var propertName = this.getGalleryPropertyId(),
+				values = this.properties.getValues(),
+				images = (values && Y.Lang.isArray(values[propertName])) ? values[propertName] : [],
 				properties = this.getImageProperties(),
 				property = null,
 				image  = {'image': image_data, 'id': image_data.id, 'properties': {}};
@@ -481,9 +484,11 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			images.push(image);
 			
-			this.properties.setValues({
-				'images': images
-			});
+			// Set new image value
+			values = {};
+			values[propertName] = images;
+			
+			this.properties.setValues(value);
 		},
 		
 		/**
@@ -509,6 +514,26 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		},
 		
 		/**
+		 * Returns id for Gallery property
+		 * 
+		 * @returns {String} Property id
+		 */
+		getGalleryPropertyId: function () {
+			var block = this.getBlockInfo(),
+				properties = block.properties,
+				i = 0,
+				ii = properties.length;
+			
+			for (; i<ii; i++) {
+				if (properties[i].type === 'Gallery') {
+					return properties[i].id;
+				}
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Process data and remove all unneeded before it's sent to server
 		 * Called before save
 		 * 
@@ -518,9 +543,10 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @type {Object}
 		 */
 		processData: function (data) {
+			var propertName = this.getGalleryPropertyId();
 			
-			if (this.properties.isPropertyShared('images')) {
-				data.images = [];
+			if (this.properties.isPropertyShared('propertName')) {
+				data[propertName] = [];
 				
 				return data; 
 			}
@@ -531,12 +557,12 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				kk = properties.length;
 			
 			//Default data
-			data.images = data.images || [];
+			data[propertName] = data[propertName] || [];
 			
 			//Extract only image ID and properties, remove all other data
-			for(var i=0,ii=data.images.length; i<ii; i++) {
+			for(var i=0,ii=data[propertName].length; i<ii; i++) {
 				// deep clone
-				image = Supra.mix({'properties': {}}, data.images[i], true);
+				image = Supra.mix({'properties': {}}, data[propertName][i], true);
 				
 				if (image.image && image.image.image) {
 					// There is cropping and size information, leave it intact
@@ -554,7 +580,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				
 				images.push(image);
 				for(var k=0; k<kk; k++) {
-					image.properties[properties[k].id] = data.images[i].properties[properties[k].id] || '';
+					image.properties[properties[k].id] = data[propertName][i].properties[properties[k].id] || '';
 				}
 			}
 			
@@ -562,7 +588,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 				images = 0;
 			}
 			
-			data.images = images;
+			data[propertName] = images;
 			return data;
 		},
 		
@@ -595,7 +621,9 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		 * @private
 		 */
 		updateImageSizes: function (callback) {
-			var node = this.getNode(),
+			var propertName = this.getGalleryPropertyId(),
+				
+				node = this.getNode(),
 				script = node.one('[data-supra-id="gallerymanager-item"]'),
 				selector = script ? script.getAttribute('data-supra-image-selector') : '',
 				nodes = null,
@@ -607,7 +635,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 			
 			if (selector) {
 				values = this.properties.getValues();
-				images = (values && Y.Lang.isArray(values.images)) ? values.images : [];
+				images = (values && Y.Lang.isArray(values[propertName])) ? values[propertName] : [];
 				
 				if (images) {
 					nodes = node.all(selector);

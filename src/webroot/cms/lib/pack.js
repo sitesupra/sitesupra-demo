@@ -1254,6 +1254,10 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'input/link.js',
 		requires: ['supra.input-proto']
 	},
+	'supra.input-tree': {
+		path: 'input/tree.js',
+		requires: ['supra.input-link']
+	},
 	'supra.input-image': {
 		path: 'input/image.js',
 		requires: ['supra.input-proto', 'supra.dd-drop-target']
@@ -1338,6 +1342,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.input-select-visual',
 			'supra.input-slider',
 			'supra.input-link',
+			'supra.input-tree',
 			'supra.input-image',
 			'supra.input-file',
 			'supra.input-map',
@@ -33188,6 +33193,10 @@ YUI.add('supra.uploader', function (Y) {
 				if (this.scrollable) {
 					this.scrollable.scrollInView(new_item);
 				}
+				
+				return id;
+			} else {
+				return false;
 			}
 		},
 		
@@ -33684,6 +33693,13 @@ YUI.add('supra.uploader', function (Y) {
 				}
 		 	}
 		 	
+		 	// Nothing matched, try partial
+		 	for (i=0; i<ii; i++) {
+				if (values[i].title.toUpperCase().indexOf(str) !== -1) {
+					return values[i].id;
+				}
+		 	}
+		 	
 		 	return null;
 		},
 		
@@ -33695,7 +33711,7 @@ YUI.add('supra.uploader', function (Y) {
 			if (this._lookupCooldownTimer) {
 				this._lookupCooldownTimer.cancel();
 			}
-			this._lookupCooldownTimer = Y.later(500, this, this._clearLookupString);
+			this._lookupCooldownTimer = Y.later(1000, this, this._clearLookupString);
 			
 			this._lookupString += character;
 			
@@ -34045,7 +34061,13 @@ YUI.add('supra.input-slider', function (Y) {
 		},
 		'groupsSelectable': {
 			'value': false
+		},
+		
+		// Link manager tree request URI, optional
+		'treeRequestURI': {
+			'value': null
 		}
+
 	};
 	
 	// Input is inline
@@ -34109,6 +34131,7 @@ YUI.add('supra.input-slider', function (Y) {
 			
 			Manager.executeAction('LinkManager', value, {
 				'mode': this.get('mode'),
+				'treeRequestURI':    this.get('treeRequestURI'),
 				'hideToolbar': true,
 				'selectable': {
 					'group_pages': this.get('groupsSelectable')
@@ -34187,7 +34210,69 @@ YUI.add('supra.input-slider', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-image', function (Y) {
+}, YUI.version, {requires:['supra.input-proto']});YUI.add('supra.input-tree', function (Y) {
+	//Invoke strict mode
+	"use strict";
+	
+	//Shortcuts
+	var Manager = Supra.Manager,
+		DEFAULT_LABEL_SET = '{#form.set_tree#}';
+	
+	
+	function Input (config) {
+		Input.superclass.constructor.apply(this, arguments);
+	}
+	
+	Input.NAME = 'input-tree';
+	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
+	Input.ATTRS = {
+		'labelSet': {
+			'value': DEFAULT_LABEL_SET,
+			'validator': Y.Lang.isString
+		},
+		'mode': {
+			'value': 'tree'
+		},
+		'groupsSelectable': {
+			'value': false
+		},
+		
+		'sourceId': {
+			'value': ''
+		}
+	};
+	
+	// Input is inline
+	Input.IS_INLINE = false;
+	
+	// Input is inside form
+	Input.IS_CONTAINED = true;
+	
+	// Input supports notifications
+	Input.SUPPORTS_NOTIFICATIONS = false;
+	
+	Input.HTML_PARSER = {};
+	
+	Y.extend(Input, Supra.Input.Link, {
+		
+		openLinkManager: function () {
+			// Update request URI
+			var requestUri = Supra.Manager.Loader.getDynamicPath() + '/crud-manager/data/sourcedata?sourceId=' + this.get('sourceId');
+			this.set('treeRequestURI', requestUri);
+			
+			// Open link manager
+			return Input.superclass.openLinkManager.apply(this, arguments);
+		}
+		
+	});
+	
+	Supra.Input.Tree = Input;
+	
+	//Since this widget has Supra namespace, it doesn't need to be bound to each YUI instance
+	//Make sure this constructor function is called only once
+	delete(this.fn); this.fn = function () {};
+	
+}, YUI.version, {requires:['supra.input-link']});YUI.add('supra.input-image', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -40475,8 +40560,10 @@ YUI.add('supra.datatype-color', function(Y) {
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
 		'allowAlign': {
-			'value': false,
-			'setter': '_setAllowAlign'
+			'value': false
+		},
+		'allowSizeControls': {
+			'value': true
 		},
 		'minWidth': {
 			value: 160
@@ -40535,10 +40622,6 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			align.render(this.get('contentBox'));
 			
-			if (!this.get('allowAlign')) {
-				align.hide();
-			}
-			
 			// Size box
 			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-sizebox"></div>');
 			sizeBox.append('<p class="label">' + Supra.Intl.get(["inputs", "resize_video"]) + '</p>');
@@ -40572,13 +40655,23 @@ YUI.add('supra.datatype-color', function(Y) {
 			
 			height.render(sizeBox);
 			this.get('contentBox').append(sizeBox);
+			
+			// Set-up attribute values
+			if (!this.get('allowSizeControls')) {
+				this._onAllowSizeControlsAttrChange({'newVal': false, 'prevVal': true});
+			}
+			if (!this.get('allowAlign')) {
+				this._onAllowAlignAttrChange({'newVal': false, 'prevVal': true});
+			}
 		},
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
 			
-			//Handle value attribute change
+			//Handle attribute changes
 			this.on('valueChange', this._afterValueChange, this);
+			this.on('allowSizeControlsChange', this._onAllowSizeControlsAttrChange, this);
+			this.on('allowAlignChange', this._onAllowAlignAttrChange, this);
 			
 			//On inputs change update this widget too
 			this.widgets.source.after('valueChange', this._onWidgetsChange, this, 'source');
@@ -40760,27 +40853,6 @@ YUI.add('supra.datatype-color', function(Y) {
 		},
 		
 		/**
-		 * Align property attribute setter
-		 * 
-		 * @param {Boolean} allow Allow align property setting
-		 * @returns {Boolean} New attribute value
-		 * @private
-		 */
-		_setAllowAlign: function (allow) {
-			allow = !!allow;
-			
-			if (this.widgets && this.widgets.align) {
-				if (allow) {
-					this.widgets.align.show();
-				} else {
-					this.widgets.align.hide();
-				}
-			}
-			
-			return allow;
-		},
-		
-		/**
 		 * When widgets value changes update value for self
 		 * 
 		 * @param {Object} evt Event facade object
@@ -40857,6 +40929,43 @@ YUI.add('supra.datatype-color', function(Y) {
 				width = ~~(height * ratio);
 			
 			this.set('value', Supra.mix(this.get('value'), {'width': width, 'height': height}));
+		},
+		
+		
+		/* ------------------------------ ATTRIBUTE CHANGE HANDLERS -------------------------------- */
+		
+		
+		/**
+		 * Handle allowSizeControls attribute change
+		 * When enabled width and height controls will be visible,
+		 * otherwise they will be hidden
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private 
+		 */
+		_onAllowSizeControlsAttrChange: function (e) {
+			if (e.newVal != e.prevVal) {
+				this.widgets.sizeBox.toggleClass('hidden', !e.newVal);
+			}
+		},
+		
+		/**
+		 * Align property attribute setter
+		 * Show or hide align controls
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private 
+		 */
+		_onAllowAlignAttrChange: function (e) {
+			if (e.newVal != e.prevVal) {
+				if (this.widgets && this.widgets.align) {
+					if (e.newVal) {
+						this.widgets.align.show();
+					} else {
+						this.widgets.align.hide();
+					}
+				}
+			}
 		}
 		
 	});

@@ -225,7 +225,8 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * @returns {Object} Item data or null if item is not found
 		 */
 		getDataById: function (id) {
-			var images = this.get('host').data.images,
+			var propertyName = this.get('host').gallery_property_id,
+				images = this.get('host').data[propertyName],
 				i = 0,
 				ii = images.length;
 			
@@ -265,8 +266,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		updateData: function () {
 			if (this.editingId && !this.get('host').ui_updating) {
 				// Save value
-				var value = null,
-					images = this.get('host').data.images,
+				var propertyName = this.get('host').gallery_property_id,
+					
+					value = null,
+					images = this.get('host').data[propertyName],
 					i = 0,
 					ii = images.length,
 					
@@ -305,8 +308,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * Update image data without validating UI state 
 		 */
 		updateImageDataAuto: function (event, id) {
-			var value = event.target.get('saveValue'),
-				images = this.get('host').data.images,
+			var propertyName = this.get('host').gallery_property_id,
+				
+				value = event.target.get('saveValue'),
+				images = this.get('host').data[propertyName],
 				i = 0,
 				ii = images.length;
 			
@@ -373,8 +378,10 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * Render all items from data
 		 */
 		renderItems: function () {
-			var container = null,
-				items = this.get('host').data.images,
+			var propertyName = this.get('host').gallery_property_id,
+				
+				container = null,
+				items = this.get('host').data[propertyName],
 				i = 0,
 				ii = items.length;
 			
@@ -408,7 +415,9 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 		 * @param {Object} image_data Image data
 		 */
 		addItem: function (image_data) {
-			var images = this.get('host').data.images,
+			var propertyName = this.get('host').gallery_property_id,
+				
+				images = this.get('host').data[propertyName],
 				properties = this.get('host').image_properties,
 				property = null,
 				image_id = Supra.Y.guid(),
@@ -794,11 +803,13 @@ YUI.add('gallerymanager.itemlist', function (Y) {
 					this.get('host').settingsFormCancel();
 				}
 				
-				var item = this.items[id],
+				var propertyName = this.get('host').gallery_property_id,
+					
+					item = this.items[id],
 					properties = item.properties,
 					key = null,
 					
-					images = this.get('host').data.images,
+					images = this.get('host').data[propertyName],
 					i = 0,
 					ii = images.length;
 				

@@ -33,8 +33,10 @@ YUI.add('supra.input-video', function (Y) {
 	Input.CLASS_NAME = Y.ClassNameManager.getClassName(Input.NAME);
 	Input.ATTRS = {
 		'allowAlign': {
-			'value': false,
-			'setter': '_setAllowAlign'
+			'value': false
+		},
+		'allowSizeControls': {
+			'value': true
 		},
 		'minWidth': {
 			value: 160
@@ -93,10 +95,6 @@ YUI.add('supra.input-video', function (Y) {
 			
 			align.render(this.get('contentBox'));
 			
-			if (!this.get('allowAlign')) {
-				align.hide();
-			}
-			
 			// Size box
 			var sizeBox = this.widgets.sizeBox = Y.Node.create('<div class="clearfix su-sizebox"></div>');
 			sizeBox.append('<p class="label">' + Supra.Intl.get(["inputs", "resize_video"]) + '</p>');
@@ -130,13 +128,23 @@ YUI.add('supra.input-video', function (Y) {
 			
 			height.render(sizeBox);
 			this.get('contentBox').append(sizeBox);
+			
+			// Set-up attribute values
+			if (!this.get('allowSizeControls')) {
+				this._onAllowSizeControlsAttrChange({'newVal': false, 'prevVal': true});
+			}
+			if (!this.get('allowAlign')) {
+				this._onAllowAlignAttrChange({'newVal': false, 'prevVal': true});
+			}
 		},
 		
 		bindUI: function () {
 			Input.superclass.bindUI.apply(this, arguments);
 			
-			//Handle value attribute change
+			//Handle attribute changes
 			this.on('valueChange', this._afterValueChange, this);
+			this.on('allowSizeControlsChange', this._onAllowSizeControlsAttrChange, this);
+			this.on('allowAlignChange', this._onAllowAlignAttrChange, this);
 			
 			//On inputs change update this widget too
 			this.widgets.source.after('valueChange', this._onWidgetsChange, this, 'source');
@@ -318,27 +326,6 @@ YUI.add('supra.input-video', function (Y) {
 		},
 		
 		/**
-		 * Align property attribute setter
-		 * 
-		 * @param {Boolean} allow Allow align property setting
-		 * @returns {Boolean} New attribute value
-		 * @private
-		 */
-		_setAllowAlign: function (allow) {
-			allow = !!allow;
-			
-			if (this.widgets && this.widgets.align) {
-				if (allow) {
-					this.widgets.align.show();
-				} else {
-					this.widgets.align.hide();
-				}
-			}
-			
-			return allow;
-		},
-		
-		/**
 		 * When widgets value changes update value for self
 		 * 
 		 * @param {Object} evt Event facade object
@@ -415,6 +402,43 @@ YUI.add('supra.input-video', function (Y) {
 				width = ~~(height * ratio);
 			
 			this.set('value', Supra.mix(this.get('value'), {'width': width, 'height': height}));
+		},
+		
+		
+		/* ------------------------------ ATTRIBUTE CHANGE HANDLERS -------------------------------- */
+		
+		
+		/**
+		 * Handle allowSizeControls attribute change
+		 * When enabled width and height controls will be visible,
+		 * otherwise they will be hidden
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private 
+		 */
+		_onAllowSizeControlsAttrChange: function (e) {
+			if (e.newVal != e.prevVal) {
+				this.widgets.sizeBox.toggleClass('hidden', !e.newVal);
+			}
+		},
+		
+		/**
+		 * Align property attribute setter
+		 * Show or hide align controls
+		 * 
+		 * @param {Object} e Event facade object
+		 * @private 
+		 */
+		_onAllowAlignAttrChange: function (e) {
+			if (e.newVal != e.prevVal) {
+				if (this.widgets && this.widgets.align) {
+					if (e.newVal) {
+						this.widgets.align.show();
+					} else {
+						this.widgets.align.hide();
+					}
+				}
+			}
 		}
 		
 	});
