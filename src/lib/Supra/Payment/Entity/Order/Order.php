@@ -266,6 +266,14 @@ abstract class Order extends Database\Entity
 	}
 
 	/**
+	 * @return \DateTime
+	 */
+	public function getCreationTime()
+	{
+		return $this->creationTime;
+	}
+
+	/**
 	 * @preUpdate
 	 * @prePersist
 	 */
