@@ -32,7 +32,7 @@
 				<object width="{{ video.width }}" height="{{ video.height }}">
 					<param name="movie" value="//{{ video.src }} "></param>
 					<param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param>
-					<embed{% if supra.isCmsRequest %} wmode="opaque"{%endif%} src="{{ video.src }}" type="application/x-shockwave-flash" width="{{ video.width }}" height="{{ video.height }}" allowscriptaccess="always" allowfullscreen="true"></embed>
+					<embed{% if supra.isCmsRequest %} wmode="opaque"{% endif %} src="{{ video.src }}" type="application/x-shockwave-flash" width="{{ video.width }}" height="{{ video.height }}" allowscriptaccess="always" allowfullscreen="true"></embed>
 				</object>
 			{% endif %}
 		</div>
