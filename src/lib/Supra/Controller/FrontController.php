@@ -123,10 +123,11 @@ class FrontController
 			$this->findMatchingRouters($request);
 		} catch (\Exception $exception) {
 
-			// Log the exception raised
-			$exceptionIdentifier = md5((string) $exception);
-			$this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
-
+			// Log anything except ResourceNotFoundException
+			if ( ! $exception instanceof Exception\ResourceNotFoundException) {
+				$exceptionIdentifier = md5((string) $exception);
+				$this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
+			}
 			//TODO: should be configurable somehow
 			$exceptionController = $this->initializeController(ExceptionController::CN());
 			/* @var $exceptionController Supra\Controller\ExceptionController */
