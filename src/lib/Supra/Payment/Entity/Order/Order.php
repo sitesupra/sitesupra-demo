@@ -195,18 +195,44 @@ abstract class Order extends Database\Entity
 
 		foreach ($this->items as $item) {
 			/* @var $item OrderItem */
-
 			$total = $total + $item->getPrice();
 		}
 		
-		// Value added tax
-		// @TODO: redo as TaxOrderItem
-		if ($this->vatRate > 0) {
-			$tax = round((($total * $this->vatRate) / 100), 2);
-			$total = $total + $tax;
+		return $total;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getTotalForTaxItems()
+	{
+		foreach ($this->items as $item) {
+			/* @var $item TaxOrderItem */
+			if ($item instanceof TaxOrderItem) {
+				$total = $total + $item->getPrice();
+			}
 		}
 
 		return $total;
+	}
+
+	/**
+	 * Gets rate calculated using order total and tax total
+	 *
+	 * @return float
+	 */
+	public function getTaxItemTotalRate()
+	{
+		$total = $this->getTotal();
+		$taxTotal = $this->getTotalForTaxItems();
+
+		$untaxedTotal = ($total - $taxTotal);
+
+		if ($untaxedTotal <= 0) {
+			return 0;
+		}
+
+		return ($taxTotal * 100 / $untaxedTotal);
 	}
 
 	/**
@@ -356,29 +382,6 @@ abstract class Order extends Database\Entity
 			$this->setLocale($locale);
 		}
 	}
-
-	/**
-	 * @param integer $vatAmount
-	 * @throws \LogicException
-	 */
-	public function setVatRate($rate) 
-	{
-		$vatRate = (int) $rate;
-		
-		if ($vatRate < 0) {
-			throw new \LogicException("Negative VAT rate value passed");
-		}
-		
-		$this->vatRate = $vatRate;
-	}
-
-	/**
-	 * @return integer
-	 */
-	public function getVatRate()
-	{
-		return $this->vatRate;
-	}
 	
 	/**
 	 * @return array
@@ -390,6 +393,22 @@ abstract class Order extends Database\Entity
 		foreach ($this->items as $item) {
 
 			if ($item instanceof OrderProductItem) {
+				$result[] = $item;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getTaxItems()
+	{
+		$result = array();
+		
+		foreach ($this->items as $item) {
+			if ($item instanceof TaxOrderItem) {
 				$result[] = $item;
 			}
 		}

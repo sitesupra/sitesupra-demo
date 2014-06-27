@@ -19,7 +19,6 @@ use Supra\Payment\Entity\Abstraction\PricedItemAbstraction;
  */
 abstract class OrderItem extends PricedItemAbstraction
 {
-
 	/**
 	 * @ManyToOne(targetEntity="Order", inversedBy="items")
 	 * @JoinColumn(name="orderId", referencedColumnName="id")
@@ -39,6 +38,5 @@ abstract class OrderItem extends PricedItemAbstraction
 	{
 		return true;
 	}
-
 }
 
