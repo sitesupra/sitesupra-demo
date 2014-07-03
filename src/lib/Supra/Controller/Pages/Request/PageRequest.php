@@ -308,7 +308,9 @@ abstract class PageRequest extends HttpRequest
 	 */
 	public function getBlockRequestId()
 	{
-		$blockId = $this->getQueryValue('block_id', null);
+		$data = $this->isPost() ? $this->getPost() : $this->getQuery();
+
+		$blockId = $data->get('block_id', null);
 		
 		return $blockId;
 	}
