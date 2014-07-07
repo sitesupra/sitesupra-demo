@@ -926,9 +926,20 @@ class PageController extends ControllerAbstraction
 				ObjectRepository::beginControllerContext($blockControllerName);
 
 				// NB! Block controller variable might be rewritten in the function
-				$return[$index] = $function($block, $blockController);
+				$e = null;
+
+				try {
+					$return[$index] = $function($block, $blockController);
+				} catch (\Exception $e) {
+					// exception raised while initializing the controller (e.g. while reading configuration)
+					// will throw after closing controller execution context
+				}
 
 				ObjectRepository::endControllerContext($blockControllerName);
+
+				if ($e) {
+					throw $e;
+				}
 
 				if (
 						$blockController instanceof BlockController &&
