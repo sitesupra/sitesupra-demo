@@ -288,9 +288,6 @@ class FormRenderer implements FormRendererInterface
         $this->variableStack[$viewCacheKey][] = $variables;
 
         // Do the rendering
-		if ($blockName === 'choice_widget') {
-			1+1;
-		}
         $html = $this->engine->renderBlock($view, $resource, $blockName, $variables);
 
         // Clear the stack
