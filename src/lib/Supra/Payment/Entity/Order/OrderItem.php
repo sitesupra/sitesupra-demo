@@ -8,6 +8,7 @@ use Supra\Payment\Entity\Abstraction\PricedItemAbstraction;
 /**
  * @Entity
  * @InheritanceType("SINGLE_TABLE")
+ * @DetachedDiscriminators
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({
  * 	"product" = "OrderProductItem",
@@ -25,6 +26,14 @@ abstract class OrderItem extends PricedItemAbstraction
 	 * @var Order
 	 */
 	protected $order;
+
+	/**
+	 * @return Order
+	 */
+	public function getOrder()
+	{
+		return $this->order;
+	}
 
 	/**
 	 * @param Order $order 

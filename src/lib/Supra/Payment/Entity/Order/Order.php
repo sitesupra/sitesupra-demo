@@ -72,12 +72,6 @@ abstract class Order extends Database\Entity
 	 * @var string
 	 */
 	protected $localeId;
-	
-	/**
-	 * @Column(type="integer", nullable=true)
-	 * @var integer
-	 */
-	protected $vatRate;
 
 	/**
 	 * @Column(type="array")
