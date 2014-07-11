@@ -3761,7 +3761,7 @@ YUI.add('supra.event', function (Y) {
 		 * @param {Object} context Optional. Callback execution context
 		 */
 		load: function (app_path /* Application path*/, requestURI /* Request URI */, callback /* Callback */, context /* Context */) {
-			Supra.io(requestURI, {
+			return Supra.io(requestURI, {
 				'context': this,
 				'on': {
 					'complete': function (data, status) {
@@ -3781,7 +3781,6 @@ YUI.add('supra.event', function (Y) {
 					}
 				}
 			});
-			
 		},
 		
 		/**
@@ -3792,13 +3791,19 @@ YUI.add('supra.event', function (Y) {
 		 * @param {Object} context Optional. Callback execution context
 		 */
 		loadAppData: function (app_path /* Application path */, callback /* Callback */, context /* Context */) {
+			var deferred = null,
+				promise  = null;
+			
 			if (this.loaded[app_path]) {
 				//Call callback
 				if (Y.Lang.isFunction(callback)) {
 					callback.call(context || window, this.data);
 				}
-				//Skip
-				return;
+				
+				//Resolve
+				deferred = new Supra.Deferred();
+				deferred.resolveWith(this, [this.data]);
+				return deferred.promise();
 			}
 			
 			//Add callback to the list
@@ -3808,8 +3813,9 @@ YUI.add('supra.event', function (Y) {
 			}
 			
 			//Already loading, skip
-			if (this.loading[app_path]) return;
-			this.loading[app_path] = true;
+			if (this.loading[app_path]) {
+				return this.loading[app_path];
+			}
 			
 			var locale = Supra.data.get('lang', ''),
 				prefix = '',
@@ -3821,18 +3827,25 @@ YUI.add('supra.event', function (Y) {
 			
 			uri += this.FILENAME + prefix + '.json';
 			
-			this.load(app_path, uri, callback ,context);
+			promise = this.load(app_path, uri, callback ,context);
+			this.loading[app_path] = promise;
+			
+			return promise;
 		},
 		
 		/**
 		 * Returns internationalized string
 		 * 
-		 * @param {Array} ns Namespace
+		 * @param {Array|String} ns Namespace
 		 * @param {Object} data Optional. Data to check against
 		 * @return Internationalized string
 		 * @type {String}
 		 */
 		get: function (ns /* Namespace */, data /* Data to check against */) {
+			if (typeof ns === 'string') {
+				ns = ns.split('.');
+			}
+			
 			var obj = data || this.data,
 				i = 0,
 				ii = ns.length;
@@ -3859,7 +3872,7 @@ YUI.add('supra.event', function (Y) {
 		 */
 		replace: function (template /* Template */, escape /* Escape type */) {
 			var self = this,
-				template = template || '';
+				template = String(template || '');
 			
 			if (template.indexOf('#') == -1) {
 				return template;
@@ -3867,7 +3880,12 @@ YUI.add('supra.event', function (Y) {
 			
 			return template.replace(/{#([^#]+)#}/g, function (all, key) {
 				var key = Y.Lang.trim(key),
-					ret = self.get(key.split('.')) || all;
+					ret = self.get(key.split('.'));
+				
+				if (ret === null) {
+					// Didn't found the key, skip
+					ret = all;
+				}
 				
 				if (escape == 'json') { //Escape as JSON string without leading and trailing quotes
 					ret = Y.JSON.stringify(ret).replace(/^"|"$/g, '');
