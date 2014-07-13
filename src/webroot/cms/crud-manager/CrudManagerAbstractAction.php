@@ -4,7 +4,6 @@ namespace Supra\Cms\CrudManager;
 
 use Supra\Cms\CmsAction;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Cms\Exception\CmsException;
 
 abstract class CrudManagerAbstractAction extends CmsAction
 {
@@ -20,5 +19,16 @@ abstract class CrudManagerAbstractAction extends CmsAction
 		}
 		
 		return $configuration;
+	}
+
+	/**
+	 * @return \Doctrine\ORM\EntityRepository
+	 */
+	protected function getRepository()
+	{
+		$config = $this->getConfiguration();
+		$entityManager = ObjectRepository::getEntityManager($this);
+
+		return $entityManager->getRepository($config->entity);
 	}
 }

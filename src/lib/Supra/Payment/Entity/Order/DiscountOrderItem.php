@@ -57,4 +57,13 @@ class DiscountOrderItem extends OrderItem
 		
 		parent::setPrice($reversedAmount);
 	}
+
+	/**
+	 * Wrapper around getPrice() just because of name
+	 * @return float
+	 */
+	public function getDiscount()
+	{
+		return $this->getPrice();
+	}
 }

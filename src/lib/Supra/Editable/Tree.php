@@ -69,4 +69,9 @@ class Tree extends EditableAbstraction
             'sourceId' => $this->sourceId,
 		);
 	}
+
+	public function isInlineEditable()
+	{
+		return false;
+	}
 }

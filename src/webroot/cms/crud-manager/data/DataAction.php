@@ -76,6 +76,30 @@ class DataAction extends CrudManagerAbstractAction
 		$response->setResponseData($output);
 	}
 
+	public function sourcedataAction()
+	{
+		$requestQuery = $this->getRequest()
+				->getQuery();
+		
+		$sourceId = $requestQuery->get('sourceId');
+		
+		// @TODO: validate $sourceId value
+
+		$repository = $this->getRepository();
+
+		$methodName = sprintf('load%sSourceData', ucfirst(mb_strtolower($sourceId)));
+
+		// @TODO: it shouldn't be called on Repository
+		if ( ! method_exists($repository, $methodName)) {
+			throw new \InvalidArgumentException("There is no corresponding method to data for [{$sourceId}].");
+		}
+
+		$responseData = $repository->$methodName($requestQuery);
+
+		$this->getResponse()
+				->setResponseData($responseData);
+	}
+
 	public function configurationAction()
 	{
 		$localeId = $this->getLocale()->getId();
