@@ -19,7 +19,6 @@ use Supra\Controller\Event\FrontControllerShutdownEventArgs;
  */
 class FrontController
 {
-
 	/**
 	 * Singleton instance
 	 * @var FrontController
@@ -42,6 +41,11 @@ class FrontController
 	 * @var boolean
 	 */
 	protected $routersOrdered = true;
+
+	/**
+	 * @var string
+	 */
+	protected $exceptionControllerClass;
 
 	/**
 	 * Binds the log writer
@@ -67,6 +71,14 @@ class FrontController
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * @param string $class
+	 */
+	public function setExceptionControllerClass($class)
+	{
+		$this->exceptionControllerClass = $class;
 	}
 
 	/**
@@ -128,9 +140,14 @@ class FrontController
 				$exceptionIdentifier = md5((string) $exception);
 				$this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
 			}
-			//TODO: should be configurable somehow
-			$exceptionController = $this->initializeController(ExceptionController::CN());
+
+			if ($this->exceptionControllerClass !== null) {
+				$exceptionController = $this->initializeController($this->exceptionControllerClass);
+			} else {
+				$exceptionController = $this->initializeController(ExceptionController::CN());
+			}
 			/* @var $exceptionController Supra\Controller\ExceptionController */
+
 			$exceptionController->setException($exception);
 			$this->runControllerInner($exceptionController, $request);
 			$exceptionController->output();
