@@ -2,7 +2,6 @@
 
 namespace Supra\NestedSet\Listener;
 
-use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\EntityManager;
 use Supra\NestedSet\Node\EntityNodeInterface;
 use Supra\NestedSet\Node\DoctrineNode;
@@ -60,7 +59,7 @@ class NestedSetListener implements EventSubscriber
 	private function createNestedSetNode(LifecycleEventArgs $args)
 	{
 		$entity = $args->getEntity();
-		
+
 		if ($entity instanceof EntityNodeInterface) {
 			// Read entity data from the event arguments
 			$em = $args->getEntityManager();
@@ -73,12 +72,12 @@ class NestedSetListener implements EventSubscriber
 			$doctrineNode = $entity->getNestedSetNode();
 			
 			// .. create new if doesn't
-			if (is_null($doctrineNode)) {
+			if ($doctrineNode === null) {
 				// Initialize the doctrine nested set node
 				$doctrineNode = new DoctrineNode($repository);
 				$entity->setNestedSetNode($doctrineNode);
 			}
-			
+
 			$doctrineNode->belongsTo($entity);
 		}
 	}

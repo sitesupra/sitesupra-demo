@@ -3,17 +3,40 @@
 namespace Supra\Editable;
 
 /**
- * Link
+ * Link Editable
+ *
+ * $managerMode 
+ *
  * @TODO: what could be a default value for link?
- * @TODO: possibility to limit to file/image/internal/external links
  */
 class Link extends EditableAbstraction
 {
 	const EDITOR_TYPE = 'Link';
 	const EDITOR_INLINE_EDITABLE = false;
-	
+
+	const MANAGER_MODE_LINK = 'link';
+	const MANAGER_MODE_PAGE = 'page';
+	const MANAGER_MODE_IMAGE = 'image';
+
+	/**
+	 * @var bool
+	 */
 	private $groupsSelectable = false;
+
+	/**
+	 * Link manager mode
+	 * Accepts the following values:
+	 *	 'link' - allows to choose page, image or file
+	 *	 'page' - allows to choose page
+	 *	 'image' - allows to choose only images
+	 *
+	 * @var string
+	 */
 	private $managerMode = 'link';
+
+	/**
+	 * @var bool
+	 */
 	private $labelSet = false;
 	
 	/**
@@ -35,7 +58,8 @@ class Link extends EditableAbstraction
 	}
 	
 	/**
-	 * Whether to allow select virtual folders
+	 * Sets whether the virtual groups can be selected or not
+	 *
 	 * @param boolean $groupsSelectable
 	 */
 	public function setGroupsSelectable($groupsSelectable)

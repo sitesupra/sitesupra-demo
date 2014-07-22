@@ -104,5 +104,5 @@ class Html extends String
 		}
 
 		return $content;
-	}	
-}
+	}
+	}

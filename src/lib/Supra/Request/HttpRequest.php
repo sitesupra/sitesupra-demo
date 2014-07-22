@@ -443,4 +443,17 @@ class HttpRequest implements RequestInterface
 		
 		return (strtolower($value) == 'on' || $value == 1);
 	}
+
+	/**
+     * Returns true if the request is a XMLHttpRequest.
+     * It works if your JavaScript library set an X-Requested-With HTTP header.
+	 * 
+     * @return bool 
+	 *
+	 * @internal the same as in Symfony's HttpFoundation Request
+     */
+    public function isXmlHttpRequest()
+    {
+        return $this->getServerValue('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest';
+    }
 }

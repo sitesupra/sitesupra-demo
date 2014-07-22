@@ -2,9 +2,8 @@
 
 namespace Supra\Payment\Product;
 
-use Supra\ObjectRepository\ObjectRepository;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
+use Supra\ObjectRepository\ObjectRepository;
 use Supra\Payment\Product\ProductAbstraction;
 
 abstract class ProductProviderAbstraction
