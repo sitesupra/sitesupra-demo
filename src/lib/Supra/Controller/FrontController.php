@@ -144,7 +144,7 @@ class FrontController
 			if ($this->exceptionControllerClass !== null) {
 				$exceptionController = $this->initializeController($this->exceptionControllerClass);
 			} else {
-				$exceptionController = $this->initializeController(ExceptionController::CN());
+				$exceptionController = $this->initializeController(DefaultExceptionController::CN());
 			}
 			/* @var $exceptionController Supra\Controller\ExceptionController */
 
