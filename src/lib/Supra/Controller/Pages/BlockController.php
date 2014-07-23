@@ -114,9 +114,13 @@ abstract class BlockController extends ControllerAbstraction
 
 
 			$this->doPrepare();
-		} catch (\Exception $e) {
 
-			$this->log->error($e);
+		} catch (\Exception $e) {
+			
+			if ( ! $e instanceof StopRequestException) {
+				$this->log->error($e);
+			}
+			
 			$this->hadException = $e;
 		}
 	}
@@ -161,14 +165,12 @@ abstract class BlockController extends ControllerAbstraction
 			try {
 				$this->doExecute();
 				
-			} catch (StopRequestException $e) {
-				
-				$this->hadException = $e;
-				$this->setExceptionResponse($e);
-								
 			} catch (\Exception $e) {
 
-				$this->log->error($e);
+				if ( ! $e instanceof StopRequestException) {
+					$this->log->error($e);
+				}
+				
 				$this->hadException = $e;
 
 				$this->setExceptionResponse($e);
