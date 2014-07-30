@@ -29,6 +29,10 @@ class FormFactoryConfiguration implements ConfigurationInterface
 	 */
 	public $enableCsrfExtension = false;
 
+	/**
+	 * @return \Symfony\Component\Form\FormFactory
+	 * @throws \RuntimeException
+	 */
 	public function configure()
 	{
 		$annotationReader = new AnnotationReader();
@@ -82,5 +86,7 @@ class FormFactoryConfiguration implements ConfigurationInterface
 		$formFactory = new Form\FormFactory($formRegistry, $resolvedFormTypeFactory);
 
 		ObjectRepository::setFormFactory($this->caller, $formFactory);
+
+		return $formFactory;
 	}
 }

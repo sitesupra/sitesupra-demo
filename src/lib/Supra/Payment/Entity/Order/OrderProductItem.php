@@ -13,7 +13,6 @@ use Supra\Payment\Product\ProductProviderAbstraction;
  */
 class OrderProductItem extends OrderItem
 {
-
 	/**
 	 * @Column(type="integer", nullable=false)
 	 * @var integer
