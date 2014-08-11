@@ -8,10 +8,10 @@ use Supra\Loader\Loader;
 use Supra\Configuration\ConfigurationInterface;
 use Supra\Session\SessionManagerEventListener;
 use Supra\Controller\Event\FrontControllerShutdownEventArgs;
+use Supra\Session\Handler\PhpSessionHandler;
 
 class SessionManagerConfiguration implements ConfigurationInterface
 {
-
 	/**
 	 * @var string
 	 */
@@ -39,10 +39,31 @@ class SessionManagerConfiguration implements ConfigurationInterface
 	public $sessionExpirationTime;
 
 	/**
-	 * If set to true, cookie will be sent in HTTPS only
-	 * @var boolean
+	 * @deprecated use $cookieSecureOnly instead
+	 * @var bool
 	 */
 	public $secure = false;
+
+	/**
+	 * Note that this configuration option works only with PhpSessionHandler
+	 *
+	 * @var bool
+	 */
+	public $cookieHttpOnly = false;
+	
+	/**
+	 * Note that this configuration option works only with PhpSessionHandler
+	 *
+	 * @var string | null
+	 */
+	public $cookieDomain;
+
+	/**
+	 * Note that this configuration option works only with PhpSessionHandler
+	 *
+	 * @var bool
+	 */
+	public $cookieSecureOnly = false;
 
 	/**
 	 * Adds PHP namespace (a string) to list of namespaces that will be registered in object repository for this session namespace.
@@ -62,8 +83,11 @@ class SessionManagerConfiguration implements ConfigurationInterface
 			$handler->setSessionName($this->name);
 		}
 
-		if ($handler instanceof \Supra\Session\Handler\PhpSessionHandler) {
-			$handler->setSecureOnlySession($this->secure);
+		// PHP native session specific configuration
+		if ($handler instanceof PhpSessionHandler) {
+			$handler->setCookieSecureOnly(($this->cookieSecureOnly || $this->cookieSecureOnly));
+			$handler->setCookieHttpOnly($this->cookieHttpOnly);
+			$handler->setCookieDomain($this->cookieDomain);
 		}
 
 		$sessionManager = new SessionManager($handler);
