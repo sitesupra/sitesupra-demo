@@ -552,7 +552,11 @@ QUERY;
                     $oidCache[$oidLookupKey] = new ObjectIdentity($objectIdentifier, $classType);
                 }
 
-                $acl = new Acl((integer) $aclId, $oidCache[$oidLookupKey], $permissionGrantingStrategy, $emptyArray, !!$entriesInheriting);
+
+				// Casting into integer added in Symfony 2.4
+				// breaks stuff as Supra uses string identifiers
+//                $acl = new Acl((integer) $aclId, $oidCache[$oidLookupKey], $permissionGrantingStrategy, $emptyArray, !!$entriesInheriting);
+				$acl = new Acl($aclId, $oidCache[$oidLookupKey], $permissionGrantingStrategy, $emptyArray, !!$entriesInheriting);
 
                 // keep a local, and global reference to this ACL
                 $loadedAcls[$classType][$objectIdentifier] = $acl;

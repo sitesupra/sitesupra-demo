@@ -1052,7 +1052,7 @@ function (Y) {
 			
 			if (this.options.standalone) {
 				// Open content manager action
-				var url = Manager.Loader.getStaticPath() + Manager.Loader.getActionBasePath('SiteMap') + '/h/page/' + record_id;
+				var url = Manager.Loader.getDynamicPath() + Manager.Loader.getActionBasePath('SiteMap') + '/h/page/' + record_id;
 				
 				Y.Cookie.set('supra_language', this.locale);
 				document.location = url;
