@@ -28,6 +28,10 @@ class BlogCommentsBlock extends BlockController
 
 			$this->handleCommentPostRequest();
 		}
+		
+		if ($request->getQuery()->has('success')) {
+			$response->assign('success', true);
+		}
 
       	$postComments = array();
 
@@ -113,7 +117,6 @@ class BlogCommentsBlock extends BlockController
 						'email' => $email,
 						'comment' => $comment,
 					));
-
 			return;
 		}
 
@@ -139,11 +142,10 @@ class BlogCommentsBlock extends BlockController
 		$blogApp->storeComment($blogComment);
 
 		// Redirect to self
-		// @TODO: should we show 'comment successfully added' message?
 		$selfPath = $localization->getFullPath(\Supra\Uri\Path::FORMAT_LEFT_DELIMITER);
-
+		
 		$this->getResponse()
-				->redirect($selfPath);
+				->redirect($selfPath . '?success=true#comment-form');
 
 		throw new \Supra\Controller\Exception\StopRequestException;
 	}

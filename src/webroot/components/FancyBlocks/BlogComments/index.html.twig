@@ -1,3 +1,4 @@
+{% if comments|length %}
 <div class="block blog-comments">
 	
 	<h2 class="block-title"><div>
@@ -33,8 +34,8 @@
 	</div>
 	
 </div>
-<div class="block blog-comments-form">
-	
+{% endif %}
+<div class="block blog-comments-form" id="comment-form" name="comment-form">
 	{% set heading_class = 'no-heading' %}
 	{% set title_empty = supraBlock.isEmpty('form_title') %}
 	{% if supra.cmsRequest or not title_empty %}
@@ -46,30 +47,47 @@
 	</div></h2>
 	{% endif %}
 	
-	<form class="form {{ heading_class }}" method="post" action="{{ supra.localization.path }}?postComment" data-refresh-event="form">
+	{% if success and errors|default(null) is empty %}
+		<div class="blog-comments-confirmation">
+			<p>{{ supraBlock.property('message_sent_for_review') }}</p>
+		</div>
+	{% endif %}
+	
+	<form class="form {{ heading_class }}" method="post" action="{{ supra.localization.path }}?postComment#comment-form" data-refresh-event="form">
 				
-		<div class="clearfix">
-			<div class="one_third_perc grid_item alpha">
+		<div class="pure-g pure-g-r">
+			<div class="pure-u pure-u-1-2 row">
 				<label for="name">{{ supraBlock.property('label_name') }}<sup class="required">*</sup></label>
-				<input type="text" class="input-text" value="" placeholder="{{ supraBlock.property('label_name')|e }}" name="name" id="name" required />
+				<input type="text" class="input-text {% if errors.name is defined %}invalid{% endif %}" value="{{ values.name }}" placeholder="{{ supraBlock.property('label_name')|e }}" name="name" id="name" required />
+				{% if errors.name is defined %}
+					<em class="error-message">{{ errors.name }}</em>
+				{% endif %}
 			</div>
-			<div class="one_third_perc grid_item">
+			<div class="pure-u pure-u-1-2 row">
 				<label for="email">{{ supraBlock.property('label_email') }}<sup class="required">*</sup></label>
-				<input type="email" class="input-text" value="" placeholder="{{ supraBlock.property('label_email')|e }}" name="email" id="email" required />
-			</div>
-			<div class="one_third_perc grid_item omega">
-				<label for="url">{{ supraBlock.property('label_website') }}</label>
-				<input type="url" class="input-text" value="" placeholder="{{ supraBlock.property('label_website')|e }}" name="url" id="url" />
+				<input type="email" class="input-text {% if errors.email is defined %}invalid{% endif %}" value="{{ values.email }}" placeholder="{{ supraBlock.property('label_email')|e }}" name="email" id="email" required />
+				{% if errors.email is defined %}
+					<em class="error-message">{{ errors.email }}</em>
+				{% endif %}
 			</div>
 		</div>
 		<div class="row">
+			<label for="url">{{ supraBlock.property('label_website') }}</label>
+			<input type="text" class="input-text {% if errors.url is defined %}invalid{% endif %}" value="{{ values.url }}" placeholder="{{ supraBlock.property('label_website')|e }}" name="url" id="url" />
+			{% if errors.url is defined %}
+				<em class="error-message">{{ errors.url }}</em>
+			{% endif %}
+		</div>
+		<div class="row">
 			<label for="comment">{{ supraBlock.property('label_comment') }}<sup class="required">*</sup></label>
-			<textarea class="input-text" placeholder="{{ supraBlock.property('label_comment')|e }}" name="comment" id="comment" required></textarea>
+			<textarea class="input-text {% if errors.comment is defined %}invalid{% endif %}" placeholder="{{ supraBlock.property('label_comment')|e }}" name="comment" id="comment" required>{{ values.comment }}</textarea>
+			{% if errors.comment is defined %}
+				<em class="error-message">{{ errors.comment }}</em>
+			{% endif %}
 		</div>
 		<div class="row form-footer">
 			<button type="submit" class="button-2">{{ supraBlock.property('label_submit')|e }}</button>
 		</div>
 		
 	</form>
-	
 </div>

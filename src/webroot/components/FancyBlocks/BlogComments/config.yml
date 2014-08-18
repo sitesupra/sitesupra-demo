@@ -48,3 +48,8 @@
           editable: Supra\Editable\String
           label: Submit button label
           default: Post Comment
+      - Supra\Controller\Pages\Configuration\BlockPropertyConfiguration:
+          name: message_sent_for_review
+          editable: Supra\Editable\String
+          label: Thank you
+          default: Thank you for the comment, it's being reviewed by our team.
