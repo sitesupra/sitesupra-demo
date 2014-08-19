@@ -104,6 +104,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 * @private
 		 */
 		savePropertyChanges: function () {
+			var deferred = Supra.Deferred();
+			
 			if (this.properties && this.unresolved_changes) {
 				this.saving = true;
 				
@@ -130,15 +132,22 @@ YUI.add('supra.page-content-editable', function (Y) {
 						this.set('data', data);
 						this._reloadContentSetHTML(response_data);
 						this.saving = false;
+						
+						deferred.resolve();
+					} else {
+						deferred.reject();
 					}
 					
 				}, this);
 				
 				//Disable editing until 
 				this.set('loading', true);
+			} else {
+				deferred.resolve();
 			}
 			
 			this.unresolved_changes = false;
+			return deferred.promise();
 		},
 		
 		/**
@@ -165,6 +174,9 @@ YUI.add('supra.page-content-editable', function (Y) {
 		},
 		
 		onEditingStart: function () {
+			//Update inline input list
+			this.findInlineInputs();
+
 			//If there are InlineHTML contents, show toolbar when editing
 			var preferred_property_group = this.properties.getPreferredGroup();
 			
@@ -514,8 +526,10 @@ YUI.add('supra.page-content-editable', function (Y) {
 		 * Load html from server
 		 */
 		reloadContentHTML: function (callback) {
+			var deferred = new Supra.Deferred();
+			
 			if ( ! this.properties) {
-				return false;
+				return deferred.resolve().promise();
 			}
 			
 			var uri = null,
@@ -560,7 +574,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 				if (Y.Lang.isFunction(callback)) {
 					callback(this, false);
 				}
-				return false;
+				return deferred.resolve().promise();
 			}
 			
 			Supra.io(uri, {
@@ -574,14 +588,20 @@ YUI.add('supra.page-content-editable', function (Y) {
 						if (Y.Lang.isFunction(callback)) {
 							callback(this, true);
 						}
+						
+						deferred.resolve();
 					},
 					'failure': function () {
 						if (Y.Lang.isFunction(callback)) {
 							callback(this, false);
 						}
+						
+						deferred.reject()
 					}
 				}
 			});
+			
+			return deferred.promise();
 		},
 		
 		/**
@@ -665,8 +685,7 @@ YUI.add('supra.page-content-editable', function (Y) {
 
 				//Update inline input list
 				this.findInlineInputs();
-
-				//Restore current active inline property
+				
 				if (active_inline_property) {
 					if (!(active_inline_property in this.inline_inputs)) {
 						for(active_inline_property in this.inline_inputs) {
@@ -676,6 +695,8 @@ YUI.add('supra.page-content-editable', function (Y) {
 					}
 					if (active_inline_property in this.inline_inputs) {
 						this.set('active_inline_property', active_inline_property);
+					} else {
+						this.set('active_inline_property', null);
 					}
 				}
 			}
