@@ -439,6 +439,54 @@ YUI.add('supra.page-content-properties', function (Y) {
 		},
 		
 		/**
+		 * Recheck inline properties
+		 */
+		reinitializeProperties: function () {
+			var properties = this.get('properties'),
+				
+				node,
+				
+				host = this.get('host'),
+				host_node = host.getNode(),
+				
+				had_html_properties = this._has_html_properties;
+			
+			//Initialize properties
+			this._has_inline_properties = false;
+			this._has_html_properties = false;
+			
+			//Find inline properties
+			for(var i=0, ii=properties.length; i<ii; i++) {
+				if (Supra.Input.isInline(properties[i].type)) {
+					//Find inside container (#content_html_111) inline element (#content_html_111_html1)
+					node = host_node.one('#' + host_node.getAttribute('id') + '_' + properties[i].id);
+					
+					if (node) {
+						if (!Supra.Input.isContained(properties[i].type)) {
+							// If it's contained then don't consider as inline
+							this._has_inline_properties = true;
+						}
+						
+						if (properties[i].type === 'InlineHTML') {
+							this._has_html_properties = true;
+						}
+					}
+				}
+			}
+			
+			if (had_html_properties && !this._has_html_properties) {
+				// Make sure HTML editor toolbar will be closed when
+				// form is closed
+				var settings = this.get('action'),
+					queue = settings.open_toolbar_on_hide;
+				
+				if (settings.get('visible') && queue.length) {
+					queue[queue.length - 1] = false;
+				}
+			}
+		},
+		
+		/**
 		 * Create slideshow
 		 */
 		initializeSlideshow: function () {
@@ -731,9 +779,10 @@ YUI.add('supra.page-content-properties', function (Y) {
 				//Some property was recognized, but preview can't be updated without refresh
 				
 				input.set('loading', true);
-				host.reloadContentHTML(function () {
+				host.reloadContentHTML().done(function () {
+					this.reinitializeProperties();
 					input.set('loading', false);
-				});
+				}, this);
 			}
 		},
 		
@@ -742,6 +791,27 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		savePropertyChanges: function () {
 			this._original_values = this.getValues();
+			
+			// Property which affects inline content may have
+			// changed, need to reload block content.
+			if (!this.get('host').saving) {
+				var button = this.get('action').get('controlButton');
+				if (button) button.set('loading', true);
+				
+				this.get('host').reloadContentHTML().done(function () {
+					this.reinitializeProperties();
+					this.savePropertyChangesAfter();
+				}, this);
+			} else {
+				this.savePropertyChangesAfter();
+			}
+			
+		},
+		
+		savePropertyChangesAfter: function () {
+			var button = this.get('action').get('controlButton');
+			if (button) button.set('loading', false);
+				
 			this.get('host').fire('properties:save');
 			
 			this.set('normalChanged', false);
@@ -749,13 +819,6 @@ YUI.add('supra.page-content-properties', function (Y) {
 			
 			//Reset slideshow position
 			this.get('slideshow').set('slide', SLIDESHOW_MAIN_SLIDE);
-			
-			// Property which affects inline content may have
-			// changed, need to reload block content.
-			if (!this.get('host').saving) {
-				this.get('host').reloadContentHTML();
-			} 
-			
 		},
 		
 		/**

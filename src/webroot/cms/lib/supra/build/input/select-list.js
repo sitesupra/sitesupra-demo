@@ -264,7 +264,7 @@ YUI.add('supra.input-select-list', function (Y) {
 			button.render(buttonBox);
 			
 			//Set button width
-			if (this.get('style') != 'items') {
+			if (this.get('style') != 'items' && this.get('style') != 'vertical') {
 				button.get('boundingBox').setStyle('width', button_width + '%');
 			}
 			
@@ -345,7 +345,7 @@ YUI.add('supra.input-select-list', function (Y) {
 			}
 			
 			// Update button width
-			if (this.get('style') != 'items') {
+			if (this.get('style') != 'items' && this.get('style') != 'vertical') {
 				button_width = 100 / visible_count;
 				
 				for (tmp in buttons) {

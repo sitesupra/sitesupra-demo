@@ -240,6 +240,40 @@
 }
 
 /**
+ * Minimal style, only labels - "text"
+ */
+.yui3-input-select-list.yui3-input-select-list-vertical {
+	.su-button {
+		display: block;
+		
+		.su-button-content {
+			background-position: 0 0;
+		}
+		button {
+			background-position: 100% -64px;
+		}
+		
+		&,
+		.su-button-content,
+		button {
+			.border-radius ( 3px, 3px, 3px, 3px );
+		}
+		
+		/* Active state */
+		&.su-button-down {
+			background-position: 0 -128px;
+			
+			.su-button-content {
+				background-position: 0 -192px;
+			}
+			button {
+				background-position: 100% -224px;
+			}
+		}
+	}
+}
+
+/**
  * Minimal style (no labels)
  */
 .yui3-input-select-list.yui3-input-minimal {

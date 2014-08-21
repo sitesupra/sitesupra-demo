@@ -27280,7 +27280,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			button.render(buttonBox);
 			
 			//Set button width
-			if (this.get('style') != 'items') {
+			if (this.get('style') != 'items' && this.get('style') != 'vertical') {
 				button.get('boundingBox').setStyle('width', button_width + '%');
 			}
 			
@@ -27361,7 +27361,7 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 			}
 			
 			// Update button width
-			if (this.get('style') != 'items') {
+			if (this.get('style') != 'items' && this.get('style') != 'vertical') {
 				button_width = 100 / visible_count;
 				
 				for (tmp in buttons) {
@@ -27656,7 +27656,8 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['supra.input-proto', 'supra.button']});YUI.add('supra.input-select-visual', function (Y) {
+}, YUI.version, {requires:['supra.input-proto', 'supra.button']});
+YUI.add('supra.input-select-visual', function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
