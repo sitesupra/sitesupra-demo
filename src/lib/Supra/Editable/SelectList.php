@@ -2,24 +2,30 @@
 
 namespace Supra\Editable;
 
-/**
- * 
- */
 class SelectList extends Select
 {
-	
 	const EDITOR_TYPE = 'SelectList';
-	
+
+	/**
+	 * @TODO:
+	 * I believe, it would be nice to describe all possible values.
+	 * This requires feedback from front-end side.
+	 *
+	 * Known style values
+	 */
+	const STYLE_VERTICAL = 'vertical';
+	//const STYLE_ITEMS = 'items';
+
 	/**
 	 * @var string
 	 */
 	protected $iconStyle = '';
-	
+
 	/**
 	 * @var string
 	 */
 	protected $style = '';
-    
+
     /**
      * @var boolean
      */
@@ -33,26 +39,26 @@ class SelectList extends Select
 		return array(
 			'values' => $this->values,
 			'style' => $this->style,
-			'iconStyle' => $this->iconStyle, 
+			'iconStyle' => $this->iconStyle,
 			'multiple' => $this->multiple,
 		);
 	}
 
 	/**
 	 * Set Select visual box values
-	 * @param array $values 
+	 * @param array $values
 	 */
 	public function setValues($values)
 	{
-		/* 
+		/*
 		array(
 			array(
 				'id' => '#id',
 				'title' => 'Title',
 				'icon' => 'Icon',
 			),
-		);	
-		*/		
+		);
+		*/
 		$this->values = $values;
 	}
 
@@ -89,7 +95,7 @@ class SelectList extends Select
 	{
 		$this->style = $style;
 	}
-	
+
 	/**
 	 * Set multiple options selectable
 	 * @param boolean $multiple
