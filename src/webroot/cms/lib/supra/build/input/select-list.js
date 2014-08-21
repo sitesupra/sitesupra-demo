@@ -226,7 +226,9 @@ YUI.add('supra.input-select-list', function (Y) {
 					'disabled': !!definition.disabled
 				}),
 				value = this._getInternalValue(),
-				has_value_match = false;
+				has_value_match = false,
+				
+				description;
 			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
@@ -259,6 +261,9 @@ YUI.add('supra.input-select-list', function (Y) {
 				contentBox.append(buttonBox);
 				
 				this.set('buttonBox', buttonBox);
+				
+				// Place description node inside button box
+				this._placeDescription();
 			}
 			
 			button.render(buttonBox);
@@ -490,6 +495,27 @@ YUI.add('supra.input-select-list', function (Y) {
 				this.fire('change', {'value': evt.newVal});
 			}
 		},
+		
+		
+		/*
+		 * ---------------------------------------- DESCRIPTION ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Insert description node in correct place
+		 * 
+		 * @private
+		 */
+		_placeDescription: function () {
+			var container = this.get('buttonBox') || this.get('contentBox'),
+				node = this.get('descriptionNode');
+			
+			if (node) {
+				container.prepend(node);
+			}
+		},
+		
 		
 		
 		/*

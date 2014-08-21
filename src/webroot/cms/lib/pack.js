@@ -8577,12 +8577,13 @@ YUI().add("supra.io-css", function (Y) {
 				var description = this.get('description');
 				if (description) {
 					descr = Y.Node.create(this.DESCRIPTION_TEMPLATE);
+					descr.set('text', Supra.Intl.replace(description) || '');
 					this.set('descriptionNode', descr);
 				}
 			}
 			if (descr && inp) {
 				descr.addClass('description');
-				inp.insert(descr, 'after');
+				this._placeDescription();
 			}
 			
 			// Create label element
@@ -8792,6 +8793,8 @@ YUI().add("supra.io-css", function (Y) {
 		 * @private
 		 */
 		_setDescription: function (descr) {
+			if (!this.get('rendered')) return descr;
+			
 			var node = this.get('descriptionNode'),
 				inp = this.get('inputNode');
 			
@@ -8801,8 +8804,8 @@ YUI().add("supra.io-css", function (Y) {
 			}
 			if (!node && descr && this.DESCRIPTION_TEMPLATE) {
 				node = Y.Node.create(this.DESCRIPTION_TEMPLATE);
-				this.get('inputNode').insert(node, 'after');
 				this.set('descriptionNode', node);
+				this._placeDescription();
 			}
 			if (node) {
 				var descr_text = Supra.Intl.replace(descr) || '';
@@ -8812,6 +8815,18 @@ YUI().add("supra.io-css", function (Y) {
 			}
 			
 			return descr;
+		},
+		
+		/**
+		 * Insert description node in correct place
+		 * 
+		 * @private
+		 */
+		_placeDescription: function () {
+			var node = this.get('descriptionNode');
+			if (node) {
+				this.get('inputNode').insert(node, 'after');
+			}
 		},
 		
 		/**
@@ -9087,7 +9102,8 @@ YUI().add("supra.io-css", function (Y) {
 	//Make sure this constructor function is called only once
 	delete(this.fn); this.fn = function () {};
 	
-}, YUI.version, {requires:['widget', 'supra.lipsum']});YUI.add("supra.input-hidden", function (Y) {
+}, YUI.version, {requires:['widget', 'supra.lipsum']});
+YUI.add("supra.input-hidden", function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
@@ -27242,7 +27258,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 					'disabled': !!definition.disabled
 				}),
 				value = this._getInternalValue(),
-				has_value_match = false;
+				has_value_match = false,
+				
+				description;
 			
 			if (contentBox.test('input,select')) {
 				contentBox = this.get('boundingBox');
@@ -27275,6 +27293,9 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				contentBox.append(buttonBox);
 				
 				this.set('buttonBox', buttonBox);
+				
+				// Place description node inside button box
+				this._placeDescription();
 			}
 			
 			button.render(buttonBox);
@@ -27506,6 +27527,27 @@ YUI().add('supra.htmleditor-plugin-styles', function (Y) {
 				this.fire('change', {'value': evt.newVal});
 			}
 		},
+		
+		
+		/*
+		 * ---------------------------------------- DESCRIPTION ----------------------------------------
+		 */
+		
+		
+		/**
+		 * Insert description node in correct place
+		 * 
+		 * @private
+		 */
+		_placeDescription: function () {
+			var container = this.get('buttonBox') || this.get('contentBox'),
+				node = this.get('descriptionNode');
+			
+			if (node) {
+				container.prepend(node);
+			}
+		},
+		
 		
 		
 		/*

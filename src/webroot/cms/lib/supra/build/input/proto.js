@@ -191,12 +191,13 @@ YUI.add('supra.input-proto', function (Y) {
 				var description = this.get('description');
 				if (description) {
 					descr = Y.Node.create(this.DESCRIPTION_TEMPLATE);
+					descr.set('text', Supra.Intl.replace(description) || '');
 					this.set('descriptionNode', descr);
 				}
 			}
 			if (descr && inp) {
 				descr.addClass('description');
-				inp.insert(descr, 'after');
+				this._placeDescription();
 			}
 			
 			// Create label element
@@ -406,6 +407,8 @@ YUI.add('supra.input-proto', function (Y) {
 		 * @private
 		 */
 		_setDescription: function (descr) {
+			if (!this.get('rendered')) return descr;
+			
 			var node = this.get('descriptionNode'),
 				inp = this.get('inputNode');
 			
@@ -415,8 +418,8 @@ YUI.add('supra.input-proto', function (Y) {
 			}
 			if (!node && descr && this.DESCRIPTION_TEMPLATE) {
 				node = Y.Node.create(this.DESCRIPTION_TEMPLATE);
-				this.get('inputNode').insert(node, 'after');
 				this.set('descriptionNode', node);
+				this._placeDescription();
 			}
 			if (node) {
 				var descr_text = Supra.Intl.replace(descr) || '';
@@ -426,6 +429,18 @@ YUI.add('supra.input-proto', function (Y) {
 			}
 			
 			return descr;
+		},
+		
+		/**
+		 * Insert description node in correct place
+		 * 
+		 * @private
+		 */
+		_placeDescription: function () {
+			var node = this.get('descriptionNode');
+			if (node) {
+				this.get('inputNode').insert(node, 'after');
+			}
 		},
 		
 		/**
