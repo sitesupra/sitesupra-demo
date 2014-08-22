@@ -7,7 +7,7 @@ use Supra\FileStorage\ImageProcessor\ImageResizer;
 use Supra\FileStorage\ImageProcessor\ImageCropper;
 use Supra\FileStorage\ImageProcessor\ImageRotator;
 
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+//require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 /**
  * Test class for EmptyController

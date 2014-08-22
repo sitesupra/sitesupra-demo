@@ -7,7 +7,7 @@ use Supra\Controller\EmptyController;
 use Supra\Request;
 use Supra\Response;
 
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+//require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 /**
  * Test class for EmptyController

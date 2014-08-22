@@ -4,3 +4,4 @@
 /.project
 VERSION
 .DS_Store
+src/conf/supra.ini

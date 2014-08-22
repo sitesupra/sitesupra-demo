@@ -9,7 +9,7 @@ use Supra\FileStorage\Entity\ImageSize;
 use Supra\FileStorage\ImageProcessor\ImageResizer;
 use Supra\ObjectRepository\ObjectRepository;
 
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+//require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 /**
  * Test class for File Storage

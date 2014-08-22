@@ -8,7 +8,7 @@ use Supra\User\Entity;
 use Supra\User\Exception;
 use Supra\ObjectRepository\ObjectRepository;
 
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+//require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 /**
  * Test class for EmptyController
