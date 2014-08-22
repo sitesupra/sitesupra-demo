@@ -602,7 +602,7 @@ YUI.add('supra.page-content-gallery', function (Y) {
 		},
 		
 		reloadContentHTML: function (callback) {
-			ContentGallery.superclass.reloadContentHTML.call(this, function (editable, changed) {
+			return ContentGallery.superclass.reloadContentHTML.call(this, function (editable, changed) {
 				if (changed) {
 					// res will be false if content is not reloaded
 					if (editable.updateImageSizes(callback)) {
