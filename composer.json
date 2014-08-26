@@ -1,0 +1,34 @@
+{
+    "name": "sitesupra/sitesupra-standard",
+    "description": "A standard installation of SiteSupra CMS - use it to bootstrap your project!",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "SiteSupra",
+            "email": "info@sitesupra.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "doctrine/common": "2.2.*",
+        "doctrine/dbal": "2.2.*",
+        "doctrine/orm": "2.2.*",
+        "twig/twig": "1.*",
+        "twig/extensions": "1.1.*",
+        "symfony/twig-bridge": "2.1.*",
+        "symfony/form": "2.1.*",
+        "symfony/translation": "2.1.*",
+        "symfony/security": "2.1.*",
+        "swiftmailer/swiftmailer": "5.2",
+        "solarium/solarium": "2.4.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Supra\\": "src\\lib",
+            "Project\\": "local"
+        }
+    },
+    "config": {
+        "autoloader-suffix": "Supra"
+    }
+}

@@ -32,7 +32,10 @@ class PathConverter
 		
 		$path = trim($path, '/' . DIRECTORY_SEPARATOR);
 		$path = $classPath . DIRECTORY_SEPARATOR . $path;
-		
+	
+                $path = substr($path, strlen(realpath(SUPRA_COMPONENT_PATH)));
+                $path = $webroot . $path;
+                
 		// checking for webroot 
 		if (strpos($path, $webroot) !== 0) {
 			throw new Exception\RuntimeException("File '$path' doesn't seem to be located in web path");
@@ -64,9 +67,12 @@ class PathConverter
 			$className = get_class($className);
 		}
 
-		$loader = Loader::getInstance();
-
-		$classPath = $loader->findClassPath($className);
+                $composerLoader = \ComposerAutoloaderInitSupra::getLoader();
+                
+                $classPath = $composerLoader->findFile($className);
+                
+		//$loader = Loader::getInstance();
+		//$classPath = $loader->findClassPath($className);
 
 		if (empty($classPath)) {
 			throw new Exception\RuntimeException('Could not find system path for class ' . $className);

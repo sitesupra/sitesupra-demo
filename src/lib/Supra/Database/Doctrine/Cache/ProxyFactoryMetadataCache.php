@@ -72,7 +72,11 @@ class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
 			// Overkill, but the only way to do this using the given API
 			if ( ! $classMetadata->isMappedSuperclass) {
 				$className = $classMetadata->name;
-				$proxyFilename = $proxyFactory->getProxyFileName($className);
+                                //@TODO: this should be refactored someday to global permission handling / facl or just umask
+                                $proxyFactoryReflection = new \ReflectionClass($proxyFactory);
+                                $getProxyFileNameMethodReflection = $proxyFactoryReflection->getMethod('getProxyFileName');
+                                $getProxyFileNameMethodReflection->setAccessible(true);
+				$proxyFilename = $getProxyFileNameMethodReflection->invoke($className);
 				@chmod($proxyFilename, SITESUPRA_FILE_PERMISSION_MODE);
 			}
 		}

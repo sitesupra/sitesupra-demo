@@ -16,7 +16,6 @@ $writeableIniLoader = new WriteableIniConfigurationLoader('supra.ini');
 ObjectRepository::setIniConfigurationLoader('Supra\Cms\Settings', $writeableIniLoader);
 ObjectRepository::setIniConfigurationLoader('Supra\Statistics\GoogleAnalytics\Authentication\Storage\WriteableIniStorage', $writeableIniLoader);
 
-require_once SUPRA_CONF_PATH . 'loader.php';
 require_once SUPRA_CONF_PATH . 'log.php';
 require_once SUPRA_CONF_PATH . 'system.php';
 require_once SUPRA_CONF_PATH . 'cache.php';
