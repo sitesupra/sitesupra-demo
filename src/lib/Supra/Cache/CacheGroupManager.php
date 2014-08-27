@@ -86,11 +86,11 @@ class CacheGroupManager
 
 		$parameters = array();
 		$parameterTypes = array();
-
-		foreach ($query->getParameters() as $parameter) {
+                
+		foreach ($query->getParameters() as $name => $value) {
 			/* @var $parameter Query\Parameter */
-			$parameters[$parameter->getName()] = $query->processParameterValue($parameter->getValue());
-			$parameterTypes[$parameter->getName()] = $parameter->getType();
+			$parameters[$name] = $value;
+			$parameterTypes[$name] = Query\ParameterTypeInferer::inferType($value);
 		}
 
 		$cacheProfile = $query->getQueryCacheProfile();
