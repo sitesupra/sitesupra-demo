@@ -88,7 +88,6 @@ class CacheGroupManager
 		$parameterTypes = array();
                 
 		foreach ($query->getParameters() as $name => $value) {
-			/* @var $parameter Query\Parameter */
 			$parameters[$name] = $value;
 			$parameterTypes[$name] = Query\ParameterTypeInferer::inferType($value);
 		}
