@@ -20,6 +20,7 @@
         "symfony/translation": "2.1.*",
         "symfony/security": "2.1.*",
         "symfony/yaml": "2.1.*",
+        "symfony/console": "2.1.*",
         "swiftmailer/swiftmailer": "5.2",
         "solarium/solarium": "2.4.*"
     },
