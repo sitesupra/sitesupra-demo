@@ -28,7 +28,8 @@ class FilesystemLoaderByContext extends Twig_Loader_Filesystem
 			throw new \InvalidArgumentException("Caller must be object or string");
 		}
 		
-		$classPath = Loader::getInstance()->findClassPath($context);
+		//$classPath = Loader::getInstance()->findClassPath($context);
+                $classPath = \ComposerAutoloaderInitSupra::getLoader()->findFile($context);
 		
 		if (empty($classPath)) {
 			throw new \InvalidArgumentException("Caller class '$context' path was not found by autoloader");
