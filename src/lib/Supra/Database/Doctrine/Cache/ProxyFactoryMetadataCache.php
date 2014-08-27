@@ -76,7 +76,7 @@ class ProxyFactoryMetadataCache extends CacheNamespaceWrapper
                                 $proxyFactoryReflection = new \ReflectionClass($proxyFactory);
                                 $getProxyFileNameMethodReflection = $proxyFactoryReflection->getMethod('getProxyFileName');
                                 $getProxyFileNameMethodReflection->setAccessible(true);
-				$proxyFilename = $getProxyFileNameMethodReflection->invoke($className);
+				$proxyFilename = $getProxyFileNameMethodReflection->invoke($proxyFactory, $className);
 				@chmod($proxyFilename, SITESUPRA_FILE_PERMISSION_MODE);
 			}
 		}
