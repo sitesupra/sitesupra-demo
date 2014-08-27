@@ -73,6 +73,7 @@ class HttpRequest implements RequestInterface
 		$this->files = new PostFilesData();
 		$this->post = new RequestData();
 		$this->query = new RequestData();
+                $this->path = new Path();
 	}
 
 	/**
@@ -98,10 +99,6 @@ class HttpRequest implements RequestInterface
 
 		$pathInfo = self::guessPathInfo($_SERVER);
 
-		if (is_null($pathInfo)) {
-			throw new Exception\InvalidRequest("Script URL not set in Http request object");
-		}
-
 		$this->requestPath = $pathInfo;
 		Log::info('Request URI: ', $this->requestPath);
 
@@ -123,7 +120,7 @@ class HttpRequest implements RequestInterface
 			}
 		}
 
-		return null;
+		return '';
 	}
 
 	/**
