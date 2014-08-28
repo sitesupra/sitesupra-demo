@@ -54,13 +54,13 @@ abstract class DistributedController extends ControllerAbstraction
 		}
 		
 		$path = $request->getPath();
-		
+                
 		// Finding class NAMESPACE\AbcDef\AbcDefAction
 		$class = $this->getFullClassName($path);
 
 		\Log::debug('Class: ', $class);
-
-		if ( ! Loader::classExists($class)) {
+                
+		if ( !\ComposerAutoloaderInitSupra::getLoader()->findFile($class)) {
 			throw new Exception\ResourceNotFoundException("Action '$path' was not found (class '$class')");
 		}
 		
@@ -116,7 +116,7 @@ abstract class DistributedController extends ControllerAbstraction
 		
 		$baseNamespace = $this->getBaseNamespace();
 		$class = $this->getClassName($baseNamespace, $baseAction);
-		
+	
 		return $class;
 	}
 

@@ -93,8 +93,9 @@ class TwigResponse extends HttpResponse
 
 		$this->output($content);
 		
-		$file = $twig->getTemplateFilename($templateName, $loader);
-		$this->addResourceFile($file);
+                //@TODO: temporary disabled reource logging. Anyway, a profiles should to this
+		//$file = $twig->getTemplateFilename($templateName, $loader);
+		//$this->addResourceFile($file);
 
 		return $this;
 	}

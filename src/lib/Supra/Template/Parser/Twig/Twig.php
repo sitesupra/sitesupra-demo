@@ -49,16 +49,18 @@ class Twig extends Twig_Environment implements TemplateParser
 	 */
 	public function parseTemplate($templateName, array $templateParameters = array(), Twig_LoaderInterface $loader = null)
 	{
-		$closure = function(Twig $self) use ($templateName, $templateParameters) {
-			$template = $self->loadTemplate($templateName);
-			$contents = $template->render($templateParameters);
-			
-			return $contents;
-		};
-		
-		$contents = $this->transactional($closure, $loader);
-		
-		return $contents;
+            $templateName = $this->fixPreComposerEnvironment($templateName, $templateParameters, $loader);
+            
+            $closure = function(Twig $self) use ($templateName, $templateParameters) {
+                    $template = $self->loadTemplate($templateName);
+                    $contents = $template->render($templateParameters);
+
+                    return $contents;
+            };
+
+            $contents = $this->transactional($closure, $loader);
+
+            return $contents;
 	}
 	
 	/**
@@ -69,22 +71,66 @@ class Twig extends Twig_Environment implements TemplateParser
 	 */
 	public function getTemplateFilename($templateName, Twig_LoaderInterface $loader = null)
 	{
-		$closure = function(Twig $self) use ($templateName) {
-			$loader = $self->getLoader();
-			
-			if ( ! $loader instanceof \Twig_Loader_Filesystem) {
-				return;
-			}
-			
-			$filename = $loader->getCacheKey($templateName);
-			
-			return $filename;
-		};
-		
-		$filename = $this->transactional($closure, $loader);
-		
-		return $filename;
+            $templateName = $this->fixPreComposerEnvironment($templateName, array(), $loader);
+            
+            $closure = function(Twig $self) use ($templateName) {
+                    $loader = $self->getLoader();
+
+                    if ( ! $loader instanceof \Twig_Loader_Filesystem) {
+                            return;
+                    }
+
+                    $filename = $loader->getCacheKey($templateName);
+
+                    return $filename;
+            };
+
+            $filename = $this->transactional($closure, $loader);
+
+            return $filename;
 	}
+        
+        protected function fixPreComposerEnvironment($name, $params, Twig_LoaderInterface $loader = null)
+        {
+            //workaround to load template templates from webroot
+            if (is_null($loader)) {
+                $loader = $this->getLoader();
+            }
+                
+            if ($loader instanceof \Twig_LoaderInterface &&
+                    method_exists($loader, 'addPath') &&
+                    method_exists($loader, 'getPaths')
+                    ) {
+                $path = SUPRA_WEBROOT_PATH . 'cms';
+
+                if (!in_array($path, $loader->getPaths())) {
+                    $loader->addPath($path);
+                }
+            }
+            
+            //workaround to load CmsAction tempaltes
+            if (isset($params['action'])) {
+                $action = $params['action'];
+                
+                $class = get_class($action);
+                
+                if (strpos($class, 'Supra\Cms') !== false) {
+                    $name = explode('/', $name);
+                    
+                    $name = array_map(function ($value) {
+                        if (strpos($value, '.html.twig') === false) {
+                            $value = ucfirst($value);
+                        }
+                        
+                        return $value;
+                    }, $name);
+                    
+                    $name = implode('/', $name);
+                }
+            }
+            
+            return $name;
+        }
 
 	/**
 	 * Overriden just to set file permission mode

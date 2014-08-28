@@ -52,7 +52,7 @@ class CmsController extends DistributedController
 			if ($extension != '.json') {
 				throw $notFound;
 			}
-			
+		
 			array_push($actionList, 'dev', $fileName);
 			$path = implode(DIRECTORY_SEPARATOR, $actionList);
 			$path = __DIR__ . DIRECTORY_SEPARATOR . $path;
