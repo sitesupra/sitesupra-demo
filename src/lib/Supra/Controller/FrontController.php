@@ -178,10 +178,14 @@ class FrontController
         {
             $config = new \Supra\Configuration\Loader\IniConfigurationLoader('packages.ini');
             
+            //@todo: validate if very hard
             $packageDefinition = $config->getData();
             
             foreach ($packageDefinition as $packageName => $packageConfiguration) {
                 //here every package should participate in container build process
+                $class = new $packageConfiguration['class']();
+                
+                $class->boot($this->container);
             }
         }
 
