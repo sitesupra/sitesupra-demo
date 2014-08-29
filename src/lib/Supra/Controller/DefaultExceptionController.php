@@ -46,18 +46,33 @@ class DefaultExceptionController extends ControllerAbstraction
 			$response->header("Content-Type", "text/plain");
 
 			if ($this->exception instanceof Exception\ResourceNotFoundException) {
-                $webrootDir = SUPRA_ERROR_PAGE_PATH;
-                
-                $errorFile = $webrootDir.'404.html';
-                if (file_exists($errorFile)) {
-                    $errorPage = file_get_contents($errorFile);
-                } else {
-                    $errorPage = "404 PAGE NOT FOUND\n";
-                }
-                
-                $response->setCode(404);
-                $response->header('Content-Type', 'text/html', true);
-				$response->output($errorPage);
+                                //@TODO: extreme hack, temporary less compilation
+                                $uri = $this->getRequest()->getServer()['REQUEST_URI'];
+                                                                
+                                //can it be a non-compiled less file?
+                                if (@pathinfo($uri, PATHINFO_EXTENSION) == 'css' &&
+                                        is_readable(SUPRA_WEBROOT_PATH . $uri . '.less')) {
+                                    $css = new \Assetic\Asset\AssetCollection(
+                                            array(new \Assetic\Asset\FileAsset(SUPRA_WEBROOT_PATH . $uri . '.less')),
+                                            array(new \Assetic\Filter\LessphpFilter())
+                                            );
+                                    $response->setCode(200);
+                                    $response->header('Content-Type', 'text/css', true);
+                                    $response->output($css->dump());
+                                } else {
+                                    $webrootDir = SUPRA_ERROR_PAGE_PATH;
+
+                                    $errorFile = $webrootDir.'404.html';
+                                    if (file_exists($errorFile)) {
+                                        $errorPage = file_get_contents($errorFile);
+                                    } else {
+                                        $errorPage = "404 PAGE NOT FOUND\n";
+                                    }
+
+                                    $response->setCode(404);
+                                    $response->header('Content-Type', 'text/html', true);
+                                    $response->output($errorPage);
+                                }
 			} else if ($this->exception instanceof MethodNotAllowedException) {
 				$response->setCode(405);
 				$response->output("405 METHOD NOT ALLOWED\n");
