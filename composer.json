@@ -24,7 +24,8 @@
         "swiftmailer/swiftmailer": "5.2",
         "solarium/solarium": "2.4.*",
         "kriswallsmith/assetic": "1.1.*",
-        "leafo/lessphp": "*"
+        "leafo/lessphp": "*",
+        "pimple/pimple": "~3.0"
     },
     "autoload": {
         "psr-0": {

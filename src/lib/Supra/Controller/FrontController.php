@@ -46,6 +46,13 @@ class FrontController
 	 * @var string
 	 */
 	protected $exceptionControllerClass;
+        
+        /**
+         * A DI container as it is
+         * 
+         * @var \Pimple\Container
+         */
+        protected $container;
 
 	/**
 	 * Binds the log writer
@@ -55,6 +62,10 @@ class FrontController
 		if (isset(self::$instance)) {
 			throw new Exception\RuntimeException("Front controller constructor has been run twice");
 		}
+                
+                $this->container = new \Pimple\Container();
+                
+                $this->container['kernel'] = $this;
 
 		$this->log = ObjectRepository::getLogger($this);
 		self::$instance = $this;
@@ -128,6 +139,8 @@ class FrontController
 	public function execute()
 	{
 		$request = $this->getRequestObject();
+                
+                $this->loadPackages();
 
 		try {
 			
@@ -160,6 +173,17 @@ class FrontController
 
 		$eventManager->fire(FrontControllerShutdownEventArgs::frontControllerShutdownEvent, $shutdownEventArgs);
 	}
+        
+        private function loadPackages()
+        {
+            $config = new \Supra\Configuration\Loader\IniConfigurationLoader('packages.ini');
+            
+            $packageDefinition = $config->getData();
+            
+            foreach ($packageDefinition as $packageName => $packageConfiguration) {
+                //here every package should participate in container build process
+            }
+        }
 
 	/**
 	 * Create controller instance

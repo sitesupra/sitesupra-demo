@@ -99,6 +99,13 @@ class ObjectRepository
 	 * @var array
 	 */
 	protected static $lateBindingCheckCache = null;
+        
+        /**
+         * Container implementation
+         * 
+         * @var \Pimple\Container
+         */
+        protected static $container;
 
 	/**
 	 * Marks beginning of the controller context,
