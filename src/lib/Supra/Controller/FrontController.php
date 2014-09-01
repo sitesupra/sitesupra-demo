@@ -63,6 +63,8 @@ class FrontController
 			throw new Exception\RuntimeException("Front controller constructor has been run twice");
 		}
                 
+                \Symfony\Component\Debug\Debug::enable(-1, true);
+                
                 $this->container = new \Pimple\Container();
                 
                 $this->container['kernel'] = $this;
