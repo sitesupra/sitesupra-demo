@@ -63,14 +63,43 @@ class FrontController
 			throw new Exception\RuntimeException("Front controller constructor has been run twice");
 		}
                 
+                //debugging
                 \Symfony\Component\Debug\Debug::enable(-1, true);
                 
+                //getting container instance
                 $this->container = new \Supra\Core\DependencyInjection\Container();
                 
                 $this->container['kernel'] = $this;
+                
+                //loading packages, this is heavily inpired by symfony HttpKernel component
+                $config = new \Supra\Configuration\Loader\IniConfigurationLoader('packages.ini');
+            
+                //@todo: validate if very hard
+                $packageDefinition = $config->getData();
+                
+                $packageInstances = array();
 
+                foreach ($packageDefinition as $packageName => $packageConfiguration) {
+                    //here every package should participate in container build process
+                    $class = new $packageConfiguration['class']();
+                    $packageInstances[$packageName] = $class;
+                    /* @var Supra\Package\SupraPackageInterface $class */
+                    
+                    $class->inject($this->container);
+                }
+                
+                $this->container['packages'] = $packageInstances;
+                
+                //HttpFoundation and initialization stuff should happen here
 		$this->log = ObjectRepository::getLogger($this);
 		self::$instance = $this;
+                
+                //boot packages
+                foreach ($this->container['packages'] as $package)
+                {
+                    $package->setContainer($this->container);
+                    $package->boot();
+                }
 	}
 
 	/**
@@ -141,8 +170,6 @@ class FrontController
 	public function execute()
 	{
 		$request = $this->getRequestObject();
-                
-                $this->loadPackages();
 
 		try {
 			
@@ -175,21 +202,6 @@ class FrontController
 
 		$eventManager->fire(FrontControllerShutdownEventArgs::frontControllerShutdownEvent, $shutdownEventArgs);
 	}
-        
-        private function loadPackages()
-        {
-            $config = new \Supra\Configuration\Loader\IniConfigurationLoader('packages.ini');
-            
-            //@todo: validate if very hard
-            $packageDefinition = $config->getData();
-            
-            foreach ($packageDefinition as $packageName => $packageConfiguration) {
-                //here every package should participate in container build process
-                $class = new $packageConfiguration['class']();
-                
-                $class->boot($this->container);
-            }
-        }
 
 	/**
 	 * Create controller instance
