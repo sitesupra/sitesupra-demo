@@ -16,5 +16,14 @@ class Container extends BaseContainer
         
         return $instance;
     }
+    
+    /**
+     * 
+     * @return \Supra\Core\Routing\Router
+     */
+    public function getRouter()
+    {
+        return $this['router'];
+    }
 
 }

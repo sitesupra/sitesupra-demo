@@ -66,10 +66,12 @@ class FrontController
                 //debugging
                 \Symfony\Component\Debug\Debug::enable(-1, true);
                 
-                //getting container instance
+                //getting container instance, configuring services
                 $this->container = new \Supra\Core\DependencyInjection\Container();
-                
                 $this->container['kernel'] = $this;
+                
+                //routing configuration
+                $this->container['router'] = new \Supra\Core\Routing\Router();
                 
                 //loading packages, this is heavily inpired by symfony HttpKernel component
                 $config = new \Supra\Configuration\Loader\IniConfigurationLoader('packages.ini');
@@ -176,23 +178,27 @@ class FrontController
 			$request->readEnvironment();
 			$this->findMatchingRouters($request);
 		} catch (\Exception $exception) {
+                    die('xx');
+                        if (true) { //@todo: debug/release mode here
+                            throw $exception;
+                        } else {
+                            // Log anything except ResourceNotFoundException
+                            if ( ! $exception instanceof Exception\ResourceNotFoundException) {
+                                    $exceptionIdentifier = md5((string) $exception);
+                                    $this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
+                            }
 
-			// Log anything except ResourceNotFoundException
-			if ( ! $exception instanceof Exception\ResourceNotFoundException) {
-				$exceptionIdentifier = md5((string) $exception);
-				$this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
-			}
+                            if ($this->exceptionControllerClass !== null) {
+                                    $exceptionController = $this->initializeController($this->exceptionControllerClass);
+                            } else {
+                                    $exceptionController = $this->initializeController(DefaultExceptionController::CN());
+                            }
+                            /* @var $exceptionController Supra\Controller\ExceptionController */
 
-			if ($this->exceptionControllerClass !== null) {
-				$exceptionController = $this->initializeController($this->exceptionControllerClass);
-			} else {
-				$exceptionController = $this->initializeController(DefaultExceptionController::CN());
-			}
-			/* @var $exceptionController Supra\Controller\ExceptionController */
-
-			$exceptionController->setException($exception);
-			$this->runControllerInner($exceptionController, $request);
-			$exceptionController->output();
+                            $exceptionController->setException($exception);
+                            $this->runControllerInner($exceptionController, $request);
+                            $exceptionController->output();
+                        }
 		}
 
 		$eventManager = ObjectRepository::getEventManager();

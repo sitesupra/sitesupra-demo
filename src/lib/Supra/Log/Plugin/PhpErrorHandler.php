@@ -7,7 +7,7 @@ use Supra\ObjectRepository\ObjectRepository;
 /**
  * PHP log handler
  */
-class PhpErrorHandler
+class PhpErrorHandler 
 {
 	/**
 	 * Main method - defines error handler functions

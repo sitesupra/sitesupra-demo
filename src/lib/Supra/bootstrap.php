@@ -85,6 +85,9 @@ try {
 		require_once SUPRA_CONF_PATH . 'configuration.php';
 	}
 } catch (\Exception $e) {
+        if (true) { //@todo: debug handling here
+            throw $e;
+        }
 	\Log::fatal("Application configuration load failed: " . (string) $e);
 	outputInternalServerError();
 }

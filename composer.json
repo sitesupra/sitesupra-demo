@@ -22,6 +22,7 @@
         "symfony/yaml": "2.1.*",
         "symfony/console": "2.1.*",
         "symfony/debug": "2.3.*",
+        "symfony/routing": "2.1.*",
         "swiftmailer/swiftmailer": "5.2",
         "solarium/solarium": "2.4.*",
         "kriswallsmith/assetic": "1.1.*",
