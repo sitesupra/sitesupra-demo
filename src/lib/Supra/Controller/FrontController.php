@@ -50,7 +50,7 @@ class FrontController
         /**
          * A DI container as it is
          * 
-         * @var \Pimple\Container
+         * @var \Supra\DependencyInjection\Container
          */
         protected $container;
 
@@ -65,7 +65,7 @@ class FrontController
                 
                 \Symfony\Component\Debug\Debug::enable(-1, true);
                 
-                $this->container = new \Pimple\Container();
+                $this->container = new \Supra\Core\DependencyInjection\Container();
                 
                 $this->container['kernel'] = $this;
 
