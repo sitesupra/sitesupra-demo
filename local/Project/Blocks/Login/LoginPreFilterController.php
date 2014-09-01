@@ -31,10 +31,10 @@ class LoginPreFilterController extends Authentication\AuthenticationController
 	
 	/**
 	 * Override parent method, to turn off redirect for all cases
-	 * @param string $publicUrl
+	 * @param Path $path
 	 * @return boolean
 	 */
-	protected function isPublicUrl($publicUrl)
+	protected function isPublicUrl(Path $path)
 	{
 		return true;
 	}
