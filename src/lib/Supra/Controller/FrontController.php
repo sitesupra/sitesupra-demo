@@ -178,8 +178,7 @@ class FrontController
 			$request->readEnvironment();
 			$this->findMatchingRouters($request);
 		} catch (\Exception $exception) {
-                    die('xx');
-                        if (true) { //@todo: debug/release mode here
+                        if (!$exception instanceof Exception\ResourceNotFoundException && true) { //@todo: debug/release mode here
                             throw $exception;
                         } else {
                             // Log anything except ResourceNotFoundException

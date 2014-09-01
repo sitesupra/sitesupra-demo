@@ -12,7 +12,7 @@ class PackageLocator
                 . DIRECTORY_SEPARATOR . self::$configPath
                 . DIRECTORY_SEPARATOR . $name;
         
-        if (!realpath($path)) {
+        if (!realpath($path) || !is_readable($path)) {
             throw new Exception\PackageLocatorException(
                     sprintf('Config file "%s" for package "%s" (%s) can not be resolved (expected location "%s")',
                             $name, self::formatName($package), self::formatClass($package), $path
