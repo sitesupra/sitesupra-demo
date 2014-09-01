@@ -6,5 +6,6 @@ class Router
 {
     public function loadConfiguration($configFile)
     {
+        
     }
 }
