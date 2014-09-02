@@ -1,12 +1,14 @@
 configuration:
     prefix:                 /
     defaults:
-        - { foo: bar }
+        foo: bar
+        buz: 123
 routes:
     cms_root:
-        prefix: /cms
+        pattern: /cms
         controller: cmsController
         filters:
             - cmsauth
         defaults:
-            - { foo: bar }
+            foo: bar_override
+            

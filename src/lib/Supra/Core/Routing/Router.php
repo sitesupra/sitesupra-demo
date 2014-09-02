@@ -2,9 +2,23 @@
 
 namespace Supra\Core\Routing;
 
+use \Symfony\Component\Routing\RouteCollection;
+
 class Router implements \Supra\Core\DependencyInjection\ContainerAware
 {
     protected $container;
+    
+    /**
+     * Application routes
+     * 
+     * @var RouteCollection
+     */
+    protected $routes;
+    
+    public function __construct()
+    {
+        $this->routes = new RouteCollection();
+    }
     
     public function setContainer(\Supra\Core\DependencyInjection\Container $container)
     {
@@ -22,6 +36,19 @@ class Router implements \Supra\Core\DependencyInjection\ContainerAware
         
         $config = $processor->processConfiguration($definition, array($config));
         
-        print_r($config);die();
+        foreach ($config['routes'] as $name => $routeParams) {
+            $route = new \Symfony\Component\Routing\Route(
+                    $config['configuration']['prefix'] . $routeParams['pattern'],
+                        array_merge(
+                            $config['configuration']['defaults'],
+                            $routeParams['defaults'],
+                            array('controller' => $routeParams['controller'])
+                            )
+                    );
+            
+            $this->routes->add($name, $route);
+        }
+        
+        print_r($this->routes);die();
     }
 }
