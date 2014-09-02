@@ -71,6 +71,7 @@ class FrontController
                 $this->container['kernel'] = $this;
                 
                 //routing configuration
+                $this->container['config.universal_loader'] = new \Supra\Core\Configuration\UniversalConfigLoader();
                 $this->container['router'] = new \Supra\Core\Routing\Router();
                 
                 //loading packages, this is heavily inpired by symfony HttpKernel component
