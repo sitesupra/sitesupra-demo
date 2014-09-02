@@ -18,6 +18,7 @@ class Container extends BaseContainer
     }
     
     /**
+     * Getter for Router instance
      * 
      * @return \Supra\Core\Routing\Router
      */
@@ -26,4 +27,13 @@ class Container extends BaseContainer
         return $this['router'];
     }
 
+    /**
+     * Getter for CLI app
+     * 
+     * @return \Supra\Core\Console\Application
+     */
+    public function getConsole()
+    {
+        return $this['console.application'];
+    }
 }

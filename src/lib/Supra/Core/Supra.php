@@ -22,6 +22,10 @@ abstract class Supra
         $this->packages = $this->registerPackages();
     }
     
+    /**
+     * 
+     * @return \Supra\Core\DependencyInjection\Container
+     */
     public function buildContainer()
     {
         if ($this->container) {
