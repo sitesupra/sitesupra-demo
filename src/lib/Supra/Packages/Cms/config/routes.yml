@@ -1,0 +1,12 @@
+configuration:
+    prefix:                 /
+    defaults:
+        - { foo: bar }
+routes:
+    cms_root:
+        prefix: /cms
+        controller: cmsController
+        filters:
+            - cmsauth
+        defaults:
+            - { foo: bar }

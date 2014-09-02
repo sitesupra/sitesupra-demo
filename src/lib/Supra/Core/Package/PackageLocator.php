@@ -19,6 +19,8 @@ class PackageLocator
                             )
                     );
         }
+        
+        return $path;
     }
     
     public static function locatePackageRoot($package)
