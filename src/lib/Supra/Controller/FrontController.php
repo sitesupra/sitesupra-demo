@@ -66,43 +66,16 @@ class FrontController
                 //debugging
                 \Symfony\Component\Debug\Debug::enable(-1, true);
                 
-                //getting container instance, configuring services
-                $this->container = new \Supra\Core\DependencyInjection\Container();
+                $application = new \SupraApplication();
+                
+                $this->container = $application->buildContainer();
                 $this->container['kernel'] = $this;
-                
-                //routing configuration
-                $this->container['config.universal_loader'] = new \Supra\Core\Configuration\UniversalConfigLoader();
-                $this->container['router'] = new \Supra\Core\Routing\Router();
-                
-                //loading packages, this is heavily inpired by symfony HttpKernel component
-                $config = new \Supra\Configuration\Loader\IniConfigurationLoader('packages.ini');
-            
-                //@todo: validate if very hard
-                $packageDefinition = $config->getData();
-                
-                $packageInstances = array();
-
-                foreach ($packageDefinition as $packageName => $packageConfiguration) {
-                    //here every package should participate in container build process
-                    $class = new $packageConfiguration['class']();
-                    $packageInstances[$packageName] = $class;
-                    /* @var Supra\Package\SupraPackageInterface $class */
-                    
-                    $class->inject($this->container);
-                }
-                
-                $this->container['packages'] = $packageInstances;
                 
                 //HttpFoundation and initialization stuff should happen here
 		$this->log = ObjectRepository::getLogger($this);
 		self::$instance = $this;
                 
-                //boot packages
-                foreach ($this->container['packages'] as $package)
-                {
-                    $package->setContainer($this->container);
-                    $package->boot();
-                }
+                $application->boot();
 	}
 
 	/**

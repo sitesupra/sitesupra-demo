@@ -48,7 +48,5 @@ class Router implements \Supra\Core\DependencyInjection\ContainerAware
             
             $this->routes->add($name, $route);
         }
-        
-        print_r($this->routes);die();
     }
 }

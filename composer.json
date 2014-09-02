@@ -34,7 +34,8 @@
         "psr-0": {
             "Supra\\": "src\\lib",
             "Project\\": "local"
-        }
+        },
+        "classmap": ["supra/"]
     },
     "config": {
         "autoloader-suffix": "Supra"
