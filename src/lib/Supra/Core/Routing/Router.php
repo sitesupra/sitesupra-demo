@@ -54,4 +54,9 @@ class Router implements ContainerAware
 			$this->routes->add($name, $route);
 		}
 	}
+
+	public function getRouteCollection()
+	{
+		return $this->routes;
+	}
 }

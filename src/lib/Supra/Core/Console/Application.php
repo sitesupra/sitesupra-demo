@@ -29,6 +29,10 @@ class Application extends BaseApplication implements ContainerAware
 			throw new \InvalidArgumentException('All commands must extends Supra\Core\Console\Command');
 		}
 
+		if ($command instanceof ContainerAware) {
+			$command->setContainer($this->container);
+		}
+
 		parent::add($command);
 	}
 }
