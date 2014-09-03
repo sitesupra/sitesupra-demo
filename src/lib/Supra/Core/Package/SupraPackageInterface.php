@@ -2,11 +2,11 @@
 
 namespace Supra\Core\Package;
 
-use Supra\Core\DependencyInjection\Container;
+use Supra\Core\DependencyInjection\ContainerInterface;
 
 interface SupraPackageInterface
 {
-    public function boot();
-    public function shutdown();
-    public function inject(Container $container);
+	public function boot();
+	public function shutdown();
+	public function inject(ContainerInterface $container);
 }

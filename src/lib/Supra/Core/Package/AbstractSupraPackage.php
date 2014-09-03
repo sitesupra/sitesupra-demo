@@ -2,36 +2,36 @@
 
 namespace Supra\Core\Package;
 
-use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
 
 abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerAware
 {
-    /**
-     * Dependency injection container
-     * 
-     * @var Container
-     */
-    protected $container;
-    
-    public function boot()
-    {
-        
-    }
-    
-    public function inject(Container $container)
-    {
-        
-    }
-    
-    public function setContainer(Container $container)
-    {
-        $this->container = $container;
-    }
+	/**
+	 * Dependency injection container
+	 *
+	 * @var \Supra\Core\DependencyInjection\ContainerInterface
+	 */
+	protected $container;
 
-    public function shutdown()
-    {
-        
-    }
-    
+	public function boot()
+	{
+
+	}
+
+	public function inject(ContainerInterface $container)
+	{
+
+	}
+
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
+	}
+
+	public function shutdown()
+	{
+
+	}
+
 }

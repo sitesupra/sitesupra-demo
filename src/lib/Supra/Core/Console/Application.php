@@ -4,6 +4,7 @@ namespace Supra\Core\Console;
 
 use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
@@ -15,7 +16,7 @@ class Application extends BaseApplication implements ContainerAware
 
 	protected $container;
 
-	public function setContainer(Container $container)
+	public function setContainer(ContainerInterface $container)
 	{
 		$this->container = $container;
 	}

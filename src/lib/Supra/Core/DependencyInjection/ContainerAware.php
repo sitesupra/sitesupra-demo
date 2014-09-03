@@ -4,5 +4,5 @@ namespace Supra\Core\DependencyInjection;
 
 interface ContainerAware
 {
-    public function setContainer(Container $container);
+    public function setContainer(ContainerInterface $container);
 }
