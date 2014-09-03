@@ -7,3 +7,4 @@ VERSION
 src/conf/supra.ini
 /vendor/
 /composer.lock
+/.idea

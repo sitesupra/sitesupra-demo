@@ -4,10 +4,11 @@ use Supra\Core\Supra;
 
 class SupraApplication extends Supra
 {
-    protected function registerPackages()
-    {
-        return array(
-            new \Supra\Packages\Cms\SupraPackageCms()
-        );
-    }
+	protected function registerPackages()
+	{
+		return array(
+			new \Supra\Package\Framework\SupraPackageFramework(),
+			new \Supra\Package\Cms\SupraPackageCms()
+		);
+	}
 }

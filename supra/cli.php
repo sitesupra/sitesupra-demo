@@ -10,4 +10,4 @@ $container = $app->buildContainer();
 $input = new \Symfony\Component\Console\Input\ArgvInput();
 $output = new \Symfony\Component\Console\Output\ConsoleOutput();
 
-$container['console.application']->run($input, $output);
+$container->getConsole()->run($input, $output);
