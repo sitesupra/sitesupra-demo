@@ -1,13 +1,13 @@
 configuration:
-    prefix:                 /
+    prefix:                 %cms.prefix%
     defaults:
         foo: bar
         buz: 123
 routes:
     cms_root:
-        pattern: /cms
-        controller: cmsController
-        action: index
+        pattern:            /
+        controller:         CmsController
+        action:             index
         filters:
             - cmsauth
         defaults:

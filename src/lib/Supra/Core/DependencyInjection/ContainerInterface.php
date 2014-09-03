@@ -17,4 +17,27 @@ interface ContainerInterface
 	 * @return \Supra\Core\Console\Application
 	 */
 	public function getConsole();
+
+	/**
+	 * Sets parameter
+	 *
+	 * @param $name
+	 * @param $value
+	 */
+	public function setParameter($name, $value);
+
+	/**
+	 * Gets parameter by name
+	 *
+	 * @param $name
+	 * @return mixed
+	 */
+	public function getParameter($name);
+
+	/**
+	 * Gets names of all parameters defined
+	 *
+	 * @return array
+	 */
+	public function getParameters();
 }

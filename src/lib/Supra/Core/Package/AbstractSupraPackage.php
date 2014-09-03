@@ -16,12 +16,14 @@ abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerA
 
 	public function boot()
 	{
-
 	}
 
 	public function inject(ContainerInterface $container)
 	{
+	}
 
+	public function finish(ContainerInterface $container)
+	{
 	}
 
 	public function setContainer(ContainerInterface $container)
@@ -31,7 +33,6 @@ abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerA
 
 	public function shutdown()
 	{
-
 	}
 
 }

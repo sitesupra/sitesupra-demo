@@ -2,6 +2,13 @@
 
 namespace Supra\Core;
 
+use Supra\Core\Configuration\UniversalConfigLoader;
+use Supra\Core\Console\Application;
+use Supra\Core\DependencyInjection\Container;
+use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Routing\Router;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+
 abstract class Supra
 {
 	/**
@@ -24,7 +31,7 @@ abstract class Supra
 
 	/**
 	 *
-	 * @return \Supra\Core\DependencyInjection\Container
+	 * @return Container
 	 */
 	public function buildContainer()
 	{
@@ -33,14 +40,16 @@ abstract class Supra
 		}
 
 		//getting container instance, configuring services
-		$container = new \Supra\Core\DependencyInjection\Container();
+		$container = new Container();
 		$container['application'] = $this;
 
 		//routing configuration
-		$container['config.universal_loader'] = new \Supra\Core\Configuration\UniversalConfigLoader();
-		$container['router'] = new \Supra\Core\Routing\Router();
+		$container['config.universal_loader'] = new UniversalConfigLoader();
+		$container['routing.router'] = new Router();
 
+		$this->buildEvents($container);
 		$this->buildCli($container);
+
 		$this->injectPackages($container);
 
 		return $this->container = $container;
@@ -61,9 +70,14 @@ abstract class Supra
 		return $this->packages;
 	}
 
-	protected function buildCli($container)
+	protected function buildEvents(ContainerInterface $container)
 	{
-		$container['console.application'] = new \Supra\Core\Console\Application();
+		$container['event.dispatcher'] = new EventDispatcher();
+	}
+
+	protected function buildCli(ContainerInterface $container)
+	{
+		$container['console.application'] = new Application();
 	}
 
 	protected function injectPackages($container)

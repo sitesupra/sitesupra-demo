@@ -8,6 +8,9 @@ use Symfony\Component\Yaml\Yaml;
 
 class UniversalConfigLoader implements ContainerAware
 {
+	/**
+	 * @var ContainerInterface
+	 */
 	protected $container;
 
 	public function setContainer(ContainerInterface $container)
@@ -25,15 +28,36 @@ class UniversalConfigLoader implements ContainerAware
 
 		$info = pathinfo($file);
 
+		$data = file_get_contents($file);
+
+		$data = $this->processContainerParameters($data);
+
 		switch (strtolower($info['extension'])) {
 			case 'yml':
-				$data = Yaml::parse(file_get_contents($file));
+				$data = Yaml::parse($data);
 				break;
 			default:
 				throw new Exception\ConfigLoaderException(
 						sprintf('File "%s" is not supported', $file)
 						);
 		}
+
+		return $data;
+	}
+
+	protected function processContainerParameters($data)
+	{
+		preg_match_all('/%[a-z\\._]+%/i', $data, $matches);
+
+		$replacements = array();
+
+		foreach ($matches as $expression) {
+			$parameter = trim($expression[0], '%');
+
+			$replacements[$expression[0]] = $this->container->getParameter($parameter);
+		}
+
+		$data = strtr($data, $replacements);
 
 		return $data;
 	}
