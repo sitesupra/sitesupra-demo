@@ -7,6 +7,7 @@ routes:
     cms_root:
         pattern: /cms
         controller: cmsController
+        action: index
         filters:
             - cmsauth
         defaults:

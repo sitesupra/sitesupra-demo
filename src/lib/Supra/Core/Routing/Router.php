@@ -6,6 +6,9 @@ use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Routing\Configuration\RoutingConfiguration;
 use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -53,6 +56,16 @@ class Router implements ContainerAware
 
 			$this->routes->add($name, $route);
 		}
+	}
+
+	public function match(Request $request)
+	{
+		$context = new RequestContext();
+		$context->fromRequest($request);
+
+		$matcher = new UrlMatcher($this->routes, $context);
+
+		return $matcher->match($request->getPathInfo());
 	}
 
 	public function getRouteCollection()

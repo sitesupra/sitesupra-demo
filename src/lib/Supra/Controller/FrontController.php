@@ -13,6 +13,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Loader\Loader;
 use Closure;
 use Supra\Controller\Event\FrontControllerShutdownEventArgs;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * Front controller
@@ -145,8 +146,22 @@ class FrontController
 	 */
 	public function execute()
 	{
-		$request = $this->getRequestObject();
+		//new way
+		try {
+			$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+			$router = $this->container->getRouter();
+			$configuration = $router->match($request);
 
+			//@todo: do not execute controller that ugly
+			$controller = new $configuration['controller']();
+
+			return;
+		} catch(ResourceNotFoundException $e) {
+			//do nothing for now
+		}
+
+		//old way
+		$request = $this->getRequestObject();
 		try {
 			
 			$request->readEnvironment();
