@@ -64,7 +64,7 @@ class Container extends BaseContainer implements ContainerInterface
 	public function getParameter($name)
 	{
 		if (!isset($this->parameters[$name])) {
-			throw new ParameterNotFoundException(sprintf('Parameter "%s" is not defined in the container'));
+			throw new ParameterNotFoundException(sprintf('Parameter "%s" is not defined in the container', $name));
 		}
 
 		return $this->parameters[$name];
