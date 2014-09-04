@@ -8,6 +8,17 @@ use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Routing\Router;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
+use Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider;
+use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
+use Symfony\Component\Security\Core\Authorization\Voter\RoleVoter;
+use Symfony\Component\Security\Core\Encoder\EncoderFactory;
+use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
+use Symfony\Component\Security\Core\SecurityContext;
+use Symfony\Component\Security\Core\User\ChainUserProvider;
+use Symfony\Component\Security\Core\User\InMemoryUserProvider;
+use Symfony\Component\Security\Core\User\UserChecker;
 
 abstract class Supra
 {
@@ -74,9 +85,40 @@ abstract class Supra
 		return $this->packages;
 	}
 
-	protected function buildSecurity(ContainerInterface $containerInterface)
+	protected function buildSecurity(ContainerInterface $container)
 	{
+		$userProvider = new ChainUserProvider(
+			array(
+				new InMemoryUserProvider()
+			)
+		);
 
+		$userChecker = new UserChecker();
+
+		//@todo: this should be moved to config
+		$encoderFactory = new EncoderFactory(
+			array(
+				'\Symfony\Component\Security\Core\User' => new PlaintextPasswordEncoder()
+			)
+		);
+
+		$providers = array(
+			new AnonymousAuthenticationProvider(uniqid()),
+			new DaoAuthenticationProvider(
+				$userProvider,
+				$userChecker,
+				'cms_authentication',
+				$encoderFactory
+			)
+		);
+
+		$authenticationManager = new AuthenticationProviderManager($providers);
+
+		$roleVoter = new RoleVoter(); //@todo: this should be refactored to acls
+
+		$accessDecisionManager = new AccessDecisionManager(array($roleVoter));
+
+		$container['security.context'] = new SecurityContext($authenticationManager, $accessDecisionManager);
 	}
 
 	protected function buildEvents(ContainerInterface $container)
