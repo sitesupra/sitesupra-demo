@@ -44,6 +44,25 @@ class Container extends BaseContainer implements ContainerInterface
 	}
 
 	/**
+	 * Getter for event dispatcher
+	 *
+	 * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
+	 */
+	public function getEventDispatcher()
+	{
+		return $this['event.dispatcher'];
+	}
+
+	/**
+	 * @return \Symfony\Component\Security\Core\SecurityContext
+	 */
+	public function getSecurityContext()
+	{
+		return $this['security.context'];
+	}
+
+
+	/**
 	 * Sets parameter
 	 *
 	 * @param $name

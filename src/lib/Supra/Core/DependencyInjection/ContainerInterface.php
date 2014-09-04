@@ -19,6 +19,16 @@ interface ContainerInterface
 	public function getConsole();
 
 	/**
+	 * @return \Symfony\Component\EventDispatcher\EventDispatcherInterface
+	 */
+	public function getEventDispatcher();
+
+	/**
+	 * @return \Symfony\Component\Security\Core\SecurityContext
+	 */
+	public function getSecurityContext();
+
+	/**
 	 * Sets parameter
 	 *
 	 * @param $name

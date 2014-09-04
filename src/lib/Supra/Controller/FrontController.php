@@ -2,6 +2,8 @@
 
 namespace Supra\Controller;
 
+use Supra\Core\Event\KernelEvent;
+use Supra\Core\Event\RequestResponseEvent;
 use Supra\Request;
 use Supra\Controller\Exception;
 use Supra\Router;
@@ -149,6 +151,19 @@ class FrontController
 		//new way
 		try {
 			$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+
+			$requestEvent = new RequestResponseEvent();
+			$requestEvent->setRequest($request);
+
+			$this->container->getEventDispatcher()->dispatch(KernelEvent::REQUEST, $requestEvent);
+			//here event can be overridden by any listener, so check if we have event
+
+			if ($requestEvent->hasResponse()) {
+				$response = $requestEvent->getResponse();
+				$response->send();
+				return;
+			}
+
 			$router = $this->container->getRouter();
 			$configuration = $router->match($request);
 

@@ -49,6 +49,7 @@ abstract class Supra
 
 		$this->buildEvents($container);
 		$this->buildCli($container);
+		$this->buildSecurity($container);
 
 		$this->injectPackages($container);
 
@@ -65,9 +66,17 @@ abstract class Supra
 		}
 	}
 
+	/**
+	 * @return \Supra\Core\Package\AbstractSupraPackage[]
+	 */
 	public function getPackages()
 	{
 		return $this->packages;
+	}
+
+	protected function buildSecurity(ContainerInterface $containerInterface)
+	{
+
 	}
 
 	protected function buildEvents(ContainerInterface $container)
