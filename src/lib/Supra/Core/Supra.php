@@ -118,6 +118,7 @@ abstract class Supra
 	 * Compiles configuration processing %foobar% placeholders
 	 *
 	 * @param ContainerInterface $container
+	 * @throws \LogicException
 	 */
 	protected function buildConfiguration(ContainerInterface $container)
 	{
@@ -132,9 +133,54 @@ abstract class Supra
 			$data = $definition['data'];
 
 			$configuration = $package->getConfiguration();
+
+			$configs = array();
+
+			$configs[] = $data;
+
+			if (array_key_exists($key, $configurationOverride)) {
+				$configs[] = $configurationOverride[$key];
+				unset($configurationOverride[$key]);
+			}
+
+			$packageConfiguration = $processor->processConfiguration($configuration, $configs);
+
+			foreach ($packageConfiguration as $confKey => $value) {
+				$config[$key.'.'.$confKey] = $value;
+			}
 		}
 
-		var_dump($config);die();
+		if (count($configurationOverride) != 0) {
+			throw new \LogicException(
+				sprintf('Extra keys are found in Supra\'s config.yml that do not belong to any package: %s.',
+					implode(', ', array_keys($configurationOverride)))
+			);
+		}
+
+		array_walk_recursive($config, function (&$value) use (&$config) {
+			if (!is_string($value)) {
+				return;
+			}
+
+			$count = preg_match_all('/%[a-z\\._]+%/i', $value, $matches);
+
+			if (!$count) {
+				return;
+			}
+
+			$replacements = array();
+
+			foreach ($matches as $expression) {
+				$parameter = trim($expression[0], '%');
+				$replacements[$expression[0]] = $config[$parameter];
+			}
+
+			$value = strtr($value, $replacements);
+		});
+
+		foreach ($config as $key => $value) {
+			$container->setParameter($key, $value);
+		}
 	}
 
 	protected function buildSecurity(ContainerInterface $container)

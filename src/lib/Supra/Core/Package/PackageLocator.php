@@ -4,7 +4,7 @@ namespace Supra\Core\Package;
 
 class PackageLocator
 {  
-    protected static $configPath = 'config';
+    protected static $configPath = 'Resources/config';
     
     public static function locateConfigFile($package, $name)
     {
