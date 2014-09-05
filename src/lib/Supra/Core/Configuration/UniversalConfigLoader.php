@@ -30,8 +30,6 @@ class UniversalConfigLoader implements ContainerAware
 
 		$data = file_get_contents($file);
 
-		$data = $this->processContainerParameters($data);
-
 		switch (strtolower($info['extension'])) {
 			case 'yml':
 				$data = Yaml::parse($data);
@@ -41,23 +39,6 @@ class UniversalConfigLoader implements ContainerAware
 						sprintf('File "%s" is not supported', $file)
 						);
 		}
-
-		return $data;
-	}
-
-	protected function processContainerParameters($data)
-	{
-		preg_match_all('/%[a-z\\._]+%/i', $data, $matches);
-
-		$replacements = array();
-
-		foreach ($matches as $expression) {
-			$parameter = trim($expression[0], '%');
-
-			$replacements[$expression[0]] = $this->container->getParameter($parameter);
-		}
-
-		$data = strtr($data, $replacements);
 
 		return $data;
 	}

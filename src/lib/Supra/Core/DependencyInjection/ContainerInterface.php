@@ -29,6 +29,11 @@ interface ContainerInterface
 	public function getSecurityContext();
 
 	/**
+	 * @return \Supra\Core\Supra
+	 */
+	public function getApplication();
+
+	/**
 	 * Sets parameter
 	 *
 	 * @param $name

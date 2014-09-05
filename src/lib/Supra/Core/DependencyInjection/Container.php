@@ -24,6 +24,14 @@ class Container extends BaseContainer implements ContainerInterface
 	}
 
 	/**
+	 * @return \Supra\Core\Supra
+	 */
+	public function getApplication()
+	{
+		return $this['application'];
+	}
+
+	/**
 	 * Getter for Router instance
 	 *
 	 * @return \Supra\Core\Routing\Router

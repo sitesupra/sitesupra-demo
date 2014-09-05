@@ -6,6 +6,7 @@ use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\RequestResponseEvent;
 use Supra\Core\Event\RequestResponseListenerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class CmsAuthenticationRequestListener implements RequestResponseListenerInterface, ContainerAware
 {
@@ -33,6 +34,12 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 
 		if (strpos($request->getPathInfo(), $cmsPrefix) === 0) {
 			$securityContenxt = $this->container->getSecurityContext();
+
+			if (!$securityContenxt->getToken() ||
+				!$securityContenxt->getToken()->isAuthenticated()
+			) {
+				$event->setResponse(new RedirectResponse('/cms/login'));
+			}
 		}
 	}
 
