@@ -10,8 +10,7 @@ class SupraPackageCms extends AbstractSupraPackage
 {
 	public function inject(ContainerInterface $container)
 	{
-		//@todo: move this to configuration
-		$container->setParameter('cms.prefix', '/cms');
+		$this->loadConfiguration($container);
 
 		//routing
 		$container->getRouter()->loadConfiguration(

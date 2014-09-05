@@ -10,7 +10,7 @@ class Container extends BaseContainer implements ContainerInterface
 	/**
 	 * @var array
 	 */
-	protected $parameters;
+	protected $parameters = array();
 
 	public function offsetGet($id)
 	{

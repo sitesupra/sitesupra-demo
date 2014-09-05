@@ -11,10 +11,12 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 {
 	public function inject(ContainerInterface $container)
 	{
-		$container['cms_autherntication.request_listener'] = new CmsAuthenticationRequestListener();
+		$this->loadConfiguration($container);
+
+		$container[$this->name.'.request_listener'] = new CmsAuthenticationRequestListener();
 
 		$container->getEventDispatcher()
-			->addListener(KernelEvent::REQUEST, array($container['cms_autherntication.request_listener'], 'listen'));
+			->addListener(KernelEvent::REQUEST, array($container[$this->name.'.request_listener'], 'listen'));
 	}
 
 }

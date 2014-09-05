@@ -22,7 +22,7 @@ class UniversalConfigLoader implements ContainerAware
 	{
 		if (!is_file($file) || !is_readable($file)) {
 			throw new Exception\ConfigLoaderException(
-					sprintf('File "%s" is not readable or not exists', $file)
+					sprintf('File "%s" is not readable or does not exist', $file)
 					);
 		}
 

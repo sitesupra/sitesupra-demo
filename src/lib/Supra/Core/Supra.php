@@ -6,7 +6,9 @@ use Supra\Core\Configuration\UniversalConfigLoader;
 use Supra\Core\Console\Application;
 use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Package\SupraPackageInterface;
 use Supra\Core\Routing\Router;
+use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
 use Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider;
@@ -28,12 +30,17 @@ abstract class Supra
 	 */
 	protected $packages;
 
+	/**
+	 * @var \Supra\Core\DependencyInjection\ContainerInterface
+	 */
 	protected $container;
 
-	protected function registerPackages()
-	{
-		return array();
-	}
+	/**
+	 * Accumulated configurations from packages
+	 *
+	 * @var array
+	 */
+	protected $configurationSections = array();
 
 	public function __construct()
 	{
@@ -64,6 +71,10 @@ abstract class Supra
 
 		$this->injectPackages($container);
 
+		$this->buildConfiguration($container);
+
+		$this->finish($container);
+
 		return $this->container = $container;
 	}
 
@@ -83,6 +94,47 @@ abstract class Supra
 	public function getPackages()
 	{
 		return $this->packages;
+	}
+
+	public function addConfigurationSection(SupraPackageInterface $package, $data)
+	{
+		$this->configurationSections[$package->getName()] = array(
+			'package' => $package,
+			'data' => $data
+		);
+	}
+
+	/**
+	 * Returns root of SupraSomething extends Supra file
+	 */
+	public function getSupraRoot()
+	{
+		$reflection = new \ReflectionClass($this);
+
+		return dirname($reflection->getFileName());
+	}
+
+	/**
+	 * Compiles configuration processing %foobar% placeholders
+	 *
+	 * @param ContainerInterface $container
+	 */
+	protected function buildConfiguration(ContainerInterface $container)
+	{
+		$configurationOverride = $container['config.universal_loader']->load($this->getSupraRoot().'/config.yml'); //@todo: resolve config per environment
+
+		$config = array();
+
+		$processor = new Processor();
+
+		foreach ($this->configurationSections as $key => $definition) {
+			$package = $definition['package'];
+			$data = $definition['data'];
+
+			$configuration = $package->getConfiguration();
+		}
+
+		var_dump($config);die();
 	}
 
 	protected function buildSecurity(ContainerInterface $container)
@@ -131,7 +183,35 @@ abstract class Supra
 		$container['console.application'] = new Application();
 	}
 
-	protected function injectPackages($container)
+	/**
+	 * Registers packages, should return an array of package instances
+	 *
+	 * @return array
+	 */
+	protected function registerPackages()
+	{
+		return array();
+	}
+
+	/**
+	 * Allows packages to do some changes after the configuration has been built
+	 *
+	 * @param ContainerInterface $container
+	 */
+	protected function finish(ContainerInterface $container)
+	{
+		foreach ($this->getPackages() as $package) {
+			$package->finish($container);
+		}
+	}
+
+
+	/**
+	 * Injects packages into a container
+	 *
+	 * @param ContainerInterface $container
+	 */
+	protected function injectPackages(ContainerInterface $container)
 	{
 		foreach ($this->getPackages() as $package) {
 			$package->inject($container);

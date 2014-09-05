@@ -48,6 +48,29 @@ abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerA
 		return $name;
 	}
 
+	public function getConfiguration()
+	{
+		$class = explode('\\', get_class($this));
+
+		$className = array_pop($class);
+
+		array_push($class, 'Configuration');
+		array_push($class, $className.'Configuration');
+
+		$class = '\\'.implode('\\', $class);
+
+		return new $class();
+	}
+
+	public function loadConfiguration(ContainerInterface $container, $file = 'config.yml')
+	{
+		$file = PackageLocator::locateConfigFile($this, $file);
+
+		$data = $container['config.universal_loader']->load($file);
+
+		$container->getApplication()->addConfigurationSection($this, $data);
+	}
+
 	public function boot()
 	{
 	}
