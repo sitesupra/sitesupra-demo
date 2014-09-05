@@ -28,6 +28,30 @@ class ContainerDumpCommand extends AbstractCommand
 		}
 
 		$table->render();
+
+		$output->writeln('<info>Container services:</info>');
+
+		$table = new Table($output);
+
+		$table->setHeaders(array('ID', 'Type', 'Value'));
+
+		foreach ($this->container->keys() as $id) {
+			$value = $this->container[$id];
+			$table->addRow(array($id, $this->getType($value), $this->stringify($value)));
+		}
+
+		$table->render();
+	}
+
+	protected function getType($value)
+	{
+		if (is_scalar($value)) {
+			return 'scalar';
+		} elseif (is_object($value)) {
+			return 'object';
+		} else {
+			return 'other';
+		}
 	}
 
 	protected function stringify($value)
