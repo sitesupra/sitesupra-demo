@@ -2,6 +2,7 @@
 
 namespace Supra\Core;
 
+use Supra\Core\Configuration\Exception\ReferenceException;
 use Supra\Core\Configuration\UniversalConfigLoader;
 use Supra\Core\Console\Application;
 use Supra\Core\DependencyInjection\Container;
@@ -172,6 +173,9 @@ abstract class Supra
 
 			foreach ($matches as $expression) {
 				$parameter = trim($expression[0], '%');
+				if (!isset($config[$parameter])) {
+					throw new ReferenceException('Parameter "%s" can not be resolved', $parameter);
+				}
 				$replacements[$expression[0]] = $config[$parameter];
 			}
 

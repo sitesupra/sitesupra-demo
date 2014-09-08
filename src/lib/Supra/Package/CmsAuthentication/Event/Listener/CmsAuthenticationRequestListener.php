@@ -33,12 +33,18 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 		$cmsPrefix = $this->container->getParameter('cms.prefix');
 
 		if (strpos($request->getPathInfo(), $cmsPrefix) === 0) {
-			$securityContenxt = $this->container->getSecurityContext();
+			$securityContext = $this->container->getSecurityContext();
 
-			if (!$securityContenxt->getToken() ||
-				!$securityContenxt->getToken()->isAuthenticated()
+			if ((!$securityContext->getToken() ||
+				!$securityContext->getToken()->isAuthenticated()) &&
+				!in_array(
+					$request->getPathInfo(),
+					$this->container->getParameter('cms_authentication.anonymous_paths')
+				)
 			) {
-				$event->setResponse(new RedirectResponse('/cms/login'));
+				$event->setResponse(new RedirectResponse(
+					$this->container->getRouter()->generate('cms_authentication_login')
+				));
 			}
 		}
 	}

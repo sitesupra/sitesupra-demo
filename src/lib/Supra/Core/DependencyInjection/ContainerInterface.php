@@ -55,4 +55,29 @@ interface ContainerInterface
 	 * @return array
 	 */
 	public function getParameters();
+
+	/**
+	 * checks for parameter existence
+	 *
+	 * @param $name
+	 * @return bool
+	 */
+	public function hasParameter($name);
+
+	/**
+	 * Replaces %param.name% -> param.value in a given array
+	 *
+	 * @param array $data
+	 * @return array|string
+	 */
+	public function replaceParameters($data);
+
+	/**
+	 * Replaces %param.name% -> param.value in a given string
+	 *
+	 * @param string $data
+	 * @return string
+	 * @throws \Supra\Core\Configuration\Exception\ReferenceException
+	 */
+	public function replaceParametersScalar($data);
 }
