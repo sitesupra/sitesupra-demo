@@ -15,6 +15,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Loader\Loader;
 use Closure;
 use Supra\Controller\Event\FrontControllerShutdownEventArgs;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
@@ -143,6 +144,25 @@ class FrontController
 		return $this->routers;
 	}
 
+	protected function parseControllerName($name)
+	{
+		//this should be more bulletproof
+		list($package, $controller, $action) = explode(':', $name);
+
+		$packageName = $this->container->getApplication()->resolvePackage($package);
+
+		$parts = explode('\\', $packageName);
+
+		array_pop($parts);
+
+		$namespace = implode('\\', $parts);
+
+		return array(
+			'controller' => '\\'.$namespace.'\\Controller\\'.$controller,
+			'action' => $action
+		);
+	}
+
 	/**
 	 * Execute the front controller
 	 */
@@ -168,8 +188,20 @@ class FrontController
 			$configuration = $router->match($request);
 
 			//@todo: do not execute controller that ugly
-			$controller = new $configuration['controller']();
+			$controllerDefinition = $this->parseControllerName($configuration['controller']);
 
+			$controllerObject = new $controllerDefinition['controller']();
+
+			$action = $controllerDefinition['action'].'Action';
+
+			//todo: here we should fire 2 events: generic http.response and controller.response before that
+			$response = $controllerObject->$action();
+
+			if (!$response instanceof Response) {
+				throw new \Exception('Response returned by your controller is not an instance of HttpFoundation\Response');
+			}
+
+			$response->send();
 			return;
 		} catch(ResourceNotFoundException $e) {
 			//do nothing for now

@@ -3,7 +3,7 @@ configuration:
 routes:
     cms_authentication_login:
         pattern:            %cms_authentication.login_path%
-        controller:         CmsController
+        controller:         CmsAuthentication:AuthController:login
         action:             index
     cms_authentication_logout:
         pattern:            %cms_authentication.logout_path%

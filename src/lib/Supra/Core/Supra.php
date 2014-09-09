@@ -116,6 +116,35 @@ abstract class Supra
 	}
 
 	/**
+	 * This function uses woodoo magic to resolve package name
+	 *
+	 * @param string $name
+	 * @return string
+	 */
+	public function resolvePackage($name)
+	{
+		$packages = $this->getPackages();
+
+		//most commonly we have Foobar or SupraPackageFoobar, which maps directly to package class
+		//the other options is "foobar", which is mapped to AbstractPackage::getName
+		foreach ($packages as $instance) {
+			$class = get_class($instance);
+			$classParts = explode('\\', $class);
+			$className = $classParts[count($classParts) - 1];
+
+			if ($name == $className || 'SupraPackage'.$name == $className) {
+				return $class;
+			}
+
+			if ($name == $instance->getName()) {
+				return $class;
+			}
+		}
+
+		throw new \Exception(sprintf('Package "%s" can not be resolved', $name));
+	}
+
+	/**
 	 * Compiles configuration processing %foobar% placeholders
 	 *
 	 * @param ContainerInterface $container
