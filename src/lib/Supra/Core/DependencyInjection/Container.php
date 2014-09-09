@@ -5,6 +5,7 @@ namespace Supra\Core\DependencyInjection;
 use Pimple\Container as BaseContainer;
 use Supra\Core\Configuration\Exception\ReferenceException;
 use Supra\Core\DependencyInjection\Exception\ParameterNotFoundException;
+use Supra\Core\Templating\Templating;
 
 class Container extends BaseContainer implements ContainerInterface
 {
@@ -70,6 +71,15 @@ class Container extends BaseContainer implements ContainerInterface
 		return $this['security.context'];
 	}
 
+	/**
+	 * Returns current templating implementation
+	 *
+	 * @return Templating
+	 */
+	public function getTemplating()
+	{
+		return $this['templating'];
+	}
 
 	/**
 	 * Sets parameter

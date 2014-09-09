@@ -2,6 +2,8 @@
 
 namespace Supra\Core\DependencyInjection;
 
+use Supra\Core\Templating\Templating;
+
 interface ContainerInterface
 {
 	/**
@@ -80,4 +82,11 @@ interface ContainerInterface
 	 * @throws \Supra\Core\Configuration\Exception\ReferenceException
 	 */
 	public function replaceParametersScalar($data);
+
+	/**
+	 * Returns current templating implementation
+	 *
+	 * @return Templating
+	 */
+	public function getTemplating();
 }

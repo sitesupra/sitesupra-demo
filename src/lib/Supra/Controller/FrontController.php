@@ -190,7 +190,9 @@ class FrontController
 			//@todo: do not execute controller that ugly
 			$controllerDefinition = $this->parseControllerName($configuration['controller']);
 
+			//probably there should be a better implementation of a package setting
 			$controllerObject = new $controllerDefinition['controller']();
+			$controllerObject->setContainer($this->container);
 
 			$action = $controllerDefinition['action'].'Action';
 

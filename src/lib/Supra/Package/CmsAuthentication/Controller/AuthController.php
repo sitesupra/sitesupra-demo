@@ -8,6 +8,6 @@ class AuthController extends Controller
 {
 	public function loginAction()
 	{
-
+		return $this->renderResponse('auth/login.html.twig', array());
 	}
 }

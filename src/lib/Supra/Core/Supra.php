@@ -7,8 +7,10 @@ use Supra\Core\Configuration\UniversalConfigLoader;
 use Supra\Core\Console\Application;
 use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Package\PackageLocator;
 use Supra\Core\Package\SupraPackageInterface;
 use Supra\Core\Routing\Router;
+use Supra\Core\Templating\Templating;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
@@ -45,6 +47,7 @@ abstract class Supra
 
 	public function __construct()
 	{
+		PackageLocator::setSupra($this);
 		$this->packages = $this->registerPackages();
 	}
 
@@ -69,6 +72,7 @@ abstract class Supra
 		$this->buildEvents($container);
 		$this->buildCli($container);
 		$this->buildSecurity($container);
+		$this->buildTemplating($container);
 
 		$this->injectPackages($container);
 
@@ -260,6 +264,16 @@ abstract class Supra
 	protected function buildCli(ContainerInterface $container)
 	{
 		$container['console.application'] = new Application();
+	}
+
+	/**
+	 * Builds templating, currently only twig
+	 *
+	 * @param ContainerInterface $container
+	 */
+	protected function buildTemplating($container)
+	{
+		$container['templating'] = new Templating();
 	}
 
 	/**
