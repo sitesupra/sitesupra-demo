@@ -1,16 +1,9 @@
 configuration:
-    prefix:                 %cms.prefix%
-    defaults:
-        foo: bar
-        buz: 123
+    prefix: ~
 routes:
     cms_root:
         pattern:            ~
         controller:         CmsController
-        filters:
-            - cmsauth
-        defaults:
-            foo: bar_override
     cms_css_pack:
         pattern:            /_internal/css
         controller:         Cms:Resource:cssPack

@@ -158,7 +158,7 @@ class FrontController
 		$namespace = implode('\\', $parts);
 
 		return array(
-			'controller' => '\\'.$namespace.'\\Controller\\'.$controller,
+			'controller' => '\\'.$namespace.'\\Controller\\'.$controller.'Controller',
 			'action' => $action
 		);
 	}
@@ -202,7 +202,6 @@ class FrontController
 			if (!$response instanceof Response) {
 				throw new \Exception('Response returned by your controller is not an instance of HttpFoundation\Response');
 			}
-
 			$response->send();
 			return;
 		} catch(ResourceNotFoundException $e) {
