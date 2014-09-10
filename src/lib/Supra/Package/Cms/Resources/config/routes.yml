@@ -5,9 +5,9 @@ routes:
         pattern:            ~
         controller:         CmsController
     cms_css_pack:
-        pattern:            /_internal/css
+        pattern:            /_cms_internal/css_pack
         controller:         Cms:Resource:cssPack
     cms_js_pack:
-        pattern:            /_internal/js
+        pattern:            /_cms_internal/js_pack
         controller:         Cms:Resource:jsPack
             
