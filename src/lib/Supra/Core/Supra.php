@@ -111,12 +111,37 @@ abstract class Supra
 
 	/**
 	 * Returns root of SupraSomething extends Supra file
+	 *
+	 * @todo: move to container params
+	 * @return string
 	 */
 	public function getSupraRoot()
 	{
 		$reflection = new \ReflectionClass($this);
 
 		return dirname($reflection->getFileName());
+	}
+
+	/**
+	 * Returns  project root (core folder of supra installation)
+	 *
+	 * @todo: move this to container params
+	 * @return string
+	 */
+	public function getProjectRoot()
+	{
+		return dirname($this->getSupraRoot());
+	}
+
+	/**
+	 * Returns wwwroot. Hardcode currently
+	 *
+	 * @todo: move this to container params
+	 * @return string
+	 */
+	public function getWebRoot()
+	{
+		return realpath($this->getProjectRoot() . '/src/webroot');
 	}
 
 	/**

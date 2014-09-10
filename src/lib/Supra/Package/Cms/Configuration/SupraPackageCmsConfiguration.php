@@ -19,6 +19,8 @@ class SupraPackageCmsConfiguration implements ConfigurationInterface
 		$treeBuilder->root('cms')
 			->children()
 				->scalarNode('prefix')->isRequired()->end()
+				->arrayNode('css_pack')->prototype('scalar')->end()->end()
+				->arrayNode('js_pack')->prototype('scalar')->end()->end()
 			->end();
 
 		return $treeBuilder;

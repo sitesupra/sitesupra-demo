@@ -26,7 +26,6 @@ class RoutingConfiguration implements ConfigurationInterface
 							->children()
 								->scalarNode('pattern')->isRequired()->end()
 								->scalarNode('controller')->isRequired()->end()
-								->scalarNode('action')->isRequired()->end()
 								->arrayNode('filters')
 									->prototype('scalar')
 									->end()

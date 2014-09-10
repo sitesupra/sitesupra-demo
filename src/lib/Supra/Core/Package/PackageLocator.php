@@ -15,6 +15,7 @@ class PackageLocator
 
 	protected static $configPath = 'Resources/config';
 	protected static $viewPath = 'Resources/view';
+	protected static $publicPath = 'Resources/public';
 
 	public static function locateConfigFile($package, $name)
 	{
@@ -94,6 +95,16 @@ class PackageLocator
 		$class = explode('\\', $class);
 
 		return $class[count($class) - 1];
+	}
+
+	public static function locatePublicFolder($package)
+	{
+		if (is_string($package) && !class_exists($package)) {
+			$package = self::$supra->resolvePackage($package);
+		}
+
+		return self::locatePackageRoot($package)
+			. DIRECTORY_SEPARATOR . self::$publicPath;
 	}
 
 }

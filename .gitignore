@@ -5,6 +5,7 @@
 VERSION
 .DS_Store
 src/conf/supra.ini
+src/webroot/public
 /vendor/
 /composer.lock
 /.idea

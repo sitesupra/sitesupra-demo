@@ -2,6 +2,7 @@
 
 namespace Supra\Core\Templating;
 
+use Assetic\Extension\Twig\AsseticExtension;
 use Supra\Core\Templating\Loader\TemplateLoader;
 
 class Templating
@@ -22,5 +23,11 @@ class Templating
 	public function render($template, $parameters)
 	{
 		return $this->twig->render($template, $parameters);
+	}
+
+	public function addExtension($extension)
+	{
+		//@todo: this also should be refactored to some more generic way in case if we have some multiple templating engines active
+		$this->twig->addExtension($extension);
 	}
 }

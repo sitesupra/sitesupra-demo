@@ -7,9 +7,14 @@ routes:
     cms_root:
         pattern:            ~
         controller:         CmsController
-        action:             index
         filters:
             - cmsauth
         defaults:
             foo: bar_override
+    cms_css_pack:
+        pattern:            /_internal/css
+        controller:         Cms:Resource:cssPack
+    cms_js_pack:
+        pattern:            /_internal/js
+        controller:         Cms:Resource:jsPack
             
