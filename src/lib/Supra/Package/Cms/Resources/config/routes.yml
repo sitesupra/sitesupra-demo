@@ -10,4 +10,3 @@ routes:
     cms_js_pack:
         pattern:            /_cms_internal/js_pack
         controller:         Cms:Resource:jsPack
-            

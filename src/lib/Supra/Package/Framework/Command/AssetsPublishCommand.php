@@ -3,7 +3,9 @@
 namespace Supra\Package\Framework\Command;
 
 use Supra\Core\Console\AbstractCommand;
+use Supra\Core\Event\ConsoleEvent;
 use Supra\Core\Package\PackageLocator;
+use Supra\Package\Framework\Event\FrameworkConsoleEvent;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -43,6 +45,14 @@ class AssetsPublishCommand extends AbstractCommand
 				));
 			}
 		}
+
+		$event = new ConsoleEvent($this, $input, $output);
+		$event->setData(array(
+			'webRoot' => $webRoot,
+			'webRootPublic' => $webRoot . '/public/'
+		));
+
+		$this->container->getEventDispatcher()->dispatch(FrameworkConsoleEvent::ASSETS_PUBLISH, $event);
 	}
 
 }

@@ -21,5 +21,4 @@ abstract class AbstractCommand extends BaseCommand implements ContainerAware
 		$this->container = $container;
 	}
 
-
 }

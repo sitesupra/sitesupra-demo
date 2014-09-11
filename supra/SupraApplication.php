@@ -9,7 +9,8 @@ class SupraApplication extends Supra
 		return array(
 			new \Supra\Package\Framework\SupraPackageFramework(),
 			new \Supra\Package\Cms\SupraPackageCms(),
-			new \Supra\Package\CmsAuthentication\SupraPackageCmsAuthentication()
+			new \Supra\Package\CmsAuthentication\SupraPackageCmsAuthentication(),
+			new \Supra\Package\DebugBar\SupraPackageDebugBar()
 		);
 	}
 }

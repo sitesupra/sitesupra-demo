@@ -50,13 +50,13 @@ class FrontController
 	 * @var string
 	 */
 	protected $exceptionControllerClass;
-        
-        /**
-         * A DI container as it is
-         * 
-         * @var \Supra\DependencyInjection\Container
-         */
-        protected $container;
+
+		/**
+		 * A DI container as it is
+		 *
+		 * @var \Supra\DependencyInjection\Container
+		 */
+		protected $container;
 
 	/**
 	 * Binds the log writer
@@ -66,20 +66,20 @@ class FrontController
 		if (isset(self::$instance)) {
 			throw new Exception\RuntimeException("Front controller constructor has been run twice");
 		}
-                
-                //debugging
-                \Symfony\Component\Debug\Debug::enable(-1, true);
-                
-                $application = new \SupraApplication();
-                
-                $this->container = $application->buildContainer();
-                $this->container['kernel'] = $this;
-                
-                //HttpFoundation and initialization stuff should happen here
-		$this->log = ObjectRepository::getLogger($this);
-		self::$instance = $this;
-                
-                $application->boot();
+
+				//debugging
+				\Symfony\Component\Debug\Debug::enable(-1, true);
+
+				$application = new \SupraApplication();
+
+				$this->container = $application->buildContainer();
+				$this->container['kernel'] = $this;
+
+				//HttpFoundation and initialization stuff should happen here
+				$this->log = ObjectRepository::getLogger($this);
+				self::$instance = $this;
+
+				$application->boot();
 	}
 
 	/**
@@ -199,6 +199,12 @@ class FrontController
 			//todo: here we should fire 2 events: generic http.response and controller.response before that
 			$response = $controllerObject->$action();
 
+			$responseEvent = new RequestResponseEvent();
+			$responseEvent->setRequest($request);
+			$responseEvent->setResponse($response);
+
+			$this->container->getEventDispatcher()->dispatch(KernelEvent::RESPONSE, $responseEvent);
+
 			if (!$response instanceof Response) {
 				throw new \Exception('Response returned by your controller is not an instance of HttpFoundation\Response');
 			}
@@ -215,26 +221,26 @@ class FrontController
 			$request->readEnvironment();
 			$this->findMatchingRouters($request);
 		} catch (\Exception $exception) {
-                        if (!$exception instanceof Exception\ResourceNotFoundException && true) { //@todo: debug/release mode here
-                            throw $exception;
-                        } else {
-                            // Log anything except ResourceNotFoundException
-                            if ( ! $exception instanceof Exception\ResourceNotFoundException) {
-                                    $exceptionIdentifier = md5((string) $exception);
-                                    $this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
-                            }
+						if (!$exception instanceof Exception\ResourceNotFoundException && true) { //@todo: debug/release mode here
+							throw $exception;
+						} else {
+							// Log anything except ResourceNotFoundException
+							if ( ! $exception instanceof Exception\ResourceNotFoundException) {
+									$exceptionIdentifier = md5((string) $exception);
+									$this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
+							}
 
-                            if ($this->exceptionControllerClass !== null) {
-                                    $exceptionController = $this->initializeController($this->exceptionControllerClass);
-                            } else {
-                                    $exceptionController = $this->initializeController(DefaultExceptionController::CN());
-                            }
-                            /* @var $exceptionController Supra\Controller\ExceptionController */
+							if ($this->exceptionControllerClass !== null) {
+									$exceptionController = $this->initializeController($this->exceptionControllerClass);
+							} else {
+									$exceptionController = $this->initializeController(DefaultExceptionController::CN());
+							}
+							/* @var $exceptionController Supra\Controller\ExceptionController */
 
-                            $exceptionController->setException($exception);
-                            $this->runControllerInner($exceptionController, $request);
-                            $exceptionController->output();
-                        }
+							$exceptionController->setException($exception);
+							$this->runControllerInner($exceptionController, $request);
+							$exceptionController->output();
+						}
 		}
 
 		$eventManager = ObjectRepository::getEventManager();
