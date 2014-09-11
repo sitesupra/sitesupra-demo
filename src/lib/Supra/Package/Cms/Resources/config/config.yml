@@ -1,7 +1,7 @@
 prefix: /backend
 css_pack:
     - public/cms/yui.3.5.0/build/cssreset/reset.css
-    - public/cms/supra/build/supra/supra.css
+    - public/cms/supra/build/supra/supra.css.less
     - public/cms/yui.3.5.0/build/widget-base/assets/skins/sam/widget-base.css
     - public/cms/yui.3.5.0/build/widget-base/assets/skins/supra/widget-base.css
     - public/cms/yui.3.5.0/build/overlay/assets/skins/sam/overlay.css
@@ -10,18 +10,18 @@ css_pack:
     - public/cms/yui.3.5.0/build/overlay/assets/skins/supra/overlay.css
     - public/cms/yui.3.5.0/build/slider-base/assets/skins/sam/slider-base.css
     - public/cms/yui.3.5.0/build/slider-base/assets/skins/supra/slider-base.css
-    - public/cms/supra/build/panel/assets/skins/supra/panel.css
-    - public/cms/supra/build/button/assets/skins/supra/button.css
-    - public/cms/supra/build/input/assets/skins/supra/input.css
-    - public/cms/supra/build/htmleditor/assets/skins/supra/htmleditor.css
-    - public/cms/supra/build/slider/assets/skins/supra/slider.css
-    - public/cms/supra/build/imageresizer/assets/skins/supra/imageresizer.css
-    - public/cms/supra/build/footer/assets/skins/supra/footer.css
-    - public/cms/supra/build/scrollable/assets/skins/supra/scrollable.css
-    - public/cms/supra/build/calendar/assets/skins/supra/calendar.css
-    - public/cms/supra/build/header/assets/skins/supra/header.css
-    - public/cms/supra/build/languagebar/assets/skins/supra/languagebar.css
-    - public/cms/supra/build/slideshow/assets/skins/supra/slideshow.css
+    - public/cms/supra/build/panel/assets/skins/supra/panel.css.less
+    - public/cms/supra/build/button/assets/skins/supra/button.css.less
+    - public/cms/supra/build/input/assets/skins/supra/input.css.less
+    - public/cms/supra/build/htmleditor/assets/skins/supra/htmleditor.css.less
+    - public/cms/supra/build/slider/assets/skins/supra/slider.css.less
+    - public/cms/supra/build/imageresizer/assets/skins/supra/imageresizer.css.less
+    - public/cms/supra/build/footer/assets/skins/supra/footer.css.less
+    - public/cms/supra/build/scrollable/assets/skins/supra/scrollable.css.less
+    - public/cms/supra/build/calendar/assets/skins/supra/calendar.css.less
+    - public/cms/supra/build/header/assets/skins/supra/header.css.less
+    - public/cms/supra/build/languagebar/assets/skins/supra/languagebar.css.less
+    - public/cms/supra/build/slideshow/assets/skins/supra/slideshow.css.less
 js_pack:
     - public/cms/yui.3.5.0/build/yui/yui-min.js
     - public/cms/yui.3.5.0/build/loader/loader-min.js

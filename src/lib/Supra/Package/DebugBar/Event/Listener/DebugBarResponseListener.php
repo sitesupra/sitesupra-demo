@@ -24,6 +24,13 @@ class DebugBarResponseListener implements ContainerAware, RequestResponseListene
 	 */
 	public function listen(RequestResponseEvent $event)
 	{
+		$response = $event->getResponse();
+
+		if ($response->headers->get('content-type') &&
+			$response->headers->get('content-type') != 'text/html') {
+			return;
+		}
+
 		$debugBar = $this->container['debug_bar.debug_bar'];
 
 		$renderer = $debugBar->getJavascriptRenderer();
@@ -41,7 +48,7 @@ class DebugBarResponseListener implements ContainerAware, RequestResponseListene
 			$body
 		);
 
-		$event->getResponse()->setContent($body);
+		$response->setContent($body);
 	}
 
 }
