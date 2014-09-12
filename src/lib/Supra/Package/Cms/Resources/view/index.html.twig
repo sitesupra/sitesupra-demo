@@ -41,7 +41,9 @@
 	
 	<script type="text/javascript">
 	//<![CDATA[
-	
+		//@todo: this is ugly, remove it
+		var comboBase = '{{ supra_path('framework_combo') }}';
+
 		Supra(function (Y) {
 			{% block jsPathConfiguration %}
 			var APP_PATH = '/{{ manager.url }}',

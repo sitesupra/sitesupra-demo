@@ -47,6 +47,7 @@
 		
 		//Set default configuration
 		if (!config) {
+            console.error('Warning, we should not use not-default configuration for combo loading');
 			config = Supra.YUI_BASE.groups[group] = {
 				//Website specific modules
 				combine: true,
@@ -58,19 +59,19 @@
 				modules: {}
 			};
 		}
-		
+
 		//Add trailing slash
 		path = path.replace(/\/$/, '') + '/';
 		config.root = path;
 		config.base = path;
-		
+
 		//Reset configuration state
 		Supra.yui_base_set = false;
 	};
-	
+
 	/**
 	 * Returns path to modules with group prefix
-	 * 
+	 *
 	 * @param {String} group Module group
 	 * @returns {String} Path to modules
 	 */
@@ -82,17 +83,17 @@
 			return null;
 		}
 	};
-	
+
 	/**
 	 * Add module to automatically included module list
-	 * 
+	 *
 	 * @param {String} module Name of the module, which will be automatically loaded
 	 */
 	Supra.autoLoadModule = function (module) {
 		Supra.useModules.push(module);
 	};
-	
-	
+
+
 })();
 
 
@@ -112,7 +113,7 @@ Supra.useModules = [
 	'cookie',
 	'transition',
 	'router',
-	
+
 	'supra.timer',
 	'supra.dd-ddm',
 	'supra.event',
@@ -131,7 +132,7 @@ Supra.useModules = [
 	'supra.template',
 	'supra.input',
 	'supra.manager',
-	
+
 	'supra.header',
 	'supra.plugin-layout',
 	'supra.languagebar'
@@ -149,21 +150,21 @@ Supra.YUI_BASE.groups.supra.modules = {
 	'supra.debug': {
 		path: 'debug/debug.js'
 	},
-	
+
 	/**
 	 * Y.Base extension
 	 */
 	'supra.base': {
 		path: 'base/base.js'
 	},
-	
+
 	/**
 	 * Timer functions
 	 */
 	'supra.timer': {
 		path: 'timer/timer.js'
 	},
-	
+
 	/**
 	 * Supra.Intl
 	 */
@@ -171,28 +172,28 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'intl/intl.js',
 		requires: ['intl', 'supra.io']
 	},
-	
+
 	/**
 	 * Y.Lang extension
 	 */
 	'supra.lang': {
 		path: 'lang/lang.js'
 	},
-	
+
 	/**
 	 * Supra.Lipsum
 	 */
 	'supra.lipsum': {
 		path: 'lipsum/lipsum.js'
 	},
-	
+
 	/**
 	 * Y.DOM extension
 	 */
 	'supra.dom': {
 		path: 'dom/dom.js'
 	},
-	
+
 	'supra.io': {
 		path: 'io/io.js',
 		requires: ['io', 'json', 'jsonp', 'jsonp-url']
@@ -222,7 +223,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'json'
 		]
 	},
-	
+
 	/**
 	 * File upload helper
 	 */
@@ -232,7 +233,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.io-upload'
 		]
 	},
-	
+
 	/**
 	 * Y.DD.DDM extension to allow shims for multiple documents
 	 */
@@ -249,21 +250,21 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'node'
 		]
 	},
-	
+
 	/**
 	 * Event 'exist' plugin
 	 */
 	'supra.event': {
 		path: 'event/event.js'
 	},
-	
+
 	/**
 	 * Deferred object
 	 */
 	'supra.deferred': {
 		path: 'event/deferred.js'
 	},
-	
+
 	/**
 	 * Layout plugin
 	 */
@@ -271,7 +272,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'layout/layout.js',
 		requires: ['widget', 'plugin']
 	},
-	
+
 	/**
 	 * Button widget
 	 */
@@ -280,12 +281,12 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['node-focusmanager', 'widget', 'widget-child'],
 		skinnable: true
 	},
-	
+
 	'supra.button-plugin-input': {
 		path: 'button/plugin-input.js',
 		requires: ['plugin', 'supra.button']
 	},
-	
+
 	/**
 	 * Button widget
 	 */
@@ -293,7 +294,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'button-group/button-group.js',
 		requires: ['widget', 'widget-child']
 	},
-	
+
 	/**
 	 * Media Library widget
 	 */
@@ -304,7 +305,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		],
 		skinnable: true
 	},
-	
+
 	'supra.medialibrary-data-object': {
 		path: 'medialibrary/dataobject.js',
 		requires: [
@@ -312,7 +313,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'array-extras'
 		]
 	},
-	
+
 	'supra.medialibrary-list': {
 		path: 'medialibrary/medialist.js',
 		requires: [
@@ -321,7 +322,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.medialibrary-data-object'
 		]
 	},
-	
+
 	'supra.medialibrary-list-extended': {
 		path: 'medialibrary/medialist-extended.js',
 		requires: [
@@ -333,7 +334,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.medialibrary-list-folder-dd'
 		]
 	},
-	
+
 	'supra.medialibrary-list-dd': {
 		path: 'medialibrary/medialist-dd.js',
 		requires: [
@@ -341,7 +342,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.medialibrary'
 		]
 	},
-	
+
 	'supra.medialibrary-list-folder-dd': {
 		path: 'medialibrary/medialist-extended-dd.js',
 		requires: [
@@ -350,14 +351,14 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.medialibrary'
 		]
 	},
-	
+
 	'supra.medialibrary-list-edit': {
 		path: 'medialibrary/medialist-edit.js',
 		requires: [
 			'plugin'
 		]
 	},
-	
+
 	'supra.medialibrary-upload': {
 		path: 'medialibrary/upload.js',
 		requires: [
@@ -365,7 +366,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'plugin'
 		]
 	},
-	
+
 	'supra.medialibrary-image-editor': {
 		path: 'medialibrary-image-editor/medialibrary-image-editor.js',
 		requires: [
@@ -374,7 +375,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		],
 		skinnable: true
 	},
-	
+
 	/**
 	 * Editor widget
 	 */
@@ -391,7 +392,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			'supra.htmleditor-plugins',
 			'supra.htmleditor-data',
 			'supra.htmleditor-toolbar',
-			
+
 			'supra.htmleditor-plugin-image',
 			'supra.htmleditor-plugin-icon',
 			'supra.htmleditor-plugin-gallery',
@@ -458,7 +459,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			path: 'htmleditor/toolbar.js',
 			requires: ['supra.panel', 'supra.button']
 		},
-		
+
 		/* Plugins */
 		'supra.htmleditor-plugin-link': {
 			path: 'htmleditor/plugins/plugin-link.js',
@@ -552,7 +553,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 			path: 'htmleditor/plugins/plugin-maxlength.js',
 			requires: ['supra.htmleditor-base']
 		},
-	
+
 	/**
 	 * Iframe + stylesheet parser
 	 */
@@ -565,7 +566,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['widget', 'supra.iframe-stylesheet-parser', 'supra.google-fonts'],
 		skinnable: true
 	},
-	
+
 	/**
 	 * Google fonts
 	 */
@@ -573,16 +574,16 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'google-fonts/google-fonts.js',
 		requires: ['base']
 	},
-	
+
 	/**
-	 * Image resize 
+	 * Image resize
 	 */
 	'supra.imageresizer': {
 		path: 'imageresizer/imageresizer.js',
 		requires: ['supra.panel', 'supra.slider', 'dd-plugin', 'supra.datatype-image', 'supra.datatype-icon'],
 		skinnable: true
 	},
-	
+
 	/**
 	 * Header widget
 	 */
@@ -595,7 +596,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'header/appdock.js',
 		requires: ['supra.tooltip']
 	},
-	
+
 	/**
 	 * DataGrid
 	 */
@@ -625,7 +626,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['widget', 'dd-drag'],
 		skinnable: true
 	},
-	
+
 	/**
 	 * List
 	 */
@@ -640,7 +641,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'list/new-item.js',
 		requires: ['widget', 'dd-drag']
 	},
-	
+
 	/**
 	 * Panel
 	 */
@@ -653,7 +654,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'panel/tooltip.js',
 		requires: ['supra.panel']
 	},
-	
+
 	/**
 	 * Slider widget
 	 */
@@ -662,7 +663,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['slider'],
 		skinnable: true
 	},
-	
+
 	/**
 	 * Slideshow widget
 	 */
@@ -679,7 +680,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'slideshow/slideshow-input-button.js',
 		requires: ['supra.input-proto']
 	},
-	
+
 	/**
 	 * Scrollable widget
 	 */
@@ -688,7 +689,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		requires: ['widget', 'anim'],
 		skinnable: true
 	},
-	
+
 	/**
 	 * Footer
 	 */
@@ -696,7 +697,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'footer/footer.js',
 		skinnable: true
 	},
-	
+
 	/**
 	 * Tree widget
 	 */
@@ -721,7 +722,7 @@ Supra.YUI_BASE.groups.supra.modules = {
 		path: 'tree/plugin-expand-history.js',
 		requires: ['plugin', 'cookie', 'supra.tree']
 	},
-	
+
 	/**
 	 * Input widgets
 	 */

@@ -12,6 +12,7 @@ use Supra\Package\Framework\Command\ContainerDumpCommand;
 use Supra\Package\Framework\Command\ContainerPackagesListCommand;
 use Supra\Package\Framework\Command\RoutingListCommand;
 use Supra\Package\Framework\Command\SupraShellCommand;
+use Supra\Package\Framework\Twig\FrameworkExtension;
 
 class SupraPackageFramework extends AbstractSupraPackage
 {
@@ -28,6 +29,12 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$cmsExtension = new CmsExtension();
 		$cmsExtension->setContainer($container);
 		$container->getTemplating()->addExtension($cmsExtension);
+
+		$container[$this->name.'.twig_extension'] = function () {
+			return new FrameworkExtension();
+		};
+
+		$container->getTemplating()->addExtension($container[$this->name.'.twig_extension']);
 
 		//configure and register assetic
 		//$factory = new AssetFactory($container->getApplication()->getWebRoot());

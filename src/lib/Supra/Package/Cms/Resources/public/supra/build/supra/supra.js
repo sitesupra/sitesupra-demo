@@ -120,11 +120,11 @@ if (typeof Supra === "undefined") {
 			supra: {
 				//Supra modules
 				combine: true,
-				root: "S$",
+				root: 'public/cms/supra/build/',
 				base: "S$",
 				realBase: "/cms/lib/supra/build/",
 				//Use YUI file combo
-				comboBase: "/cms/lib/supra/combo/combo.php?",
+				comboBase: "/",
 				modules: {}	//@see modules.js
 			},
 			website: {
