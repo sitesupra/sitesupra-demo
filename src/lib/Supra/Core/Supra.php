@@ -2,6 +2,8 @@
 
 namespace Supra\Core;
 
+use Supra\Core\Cache\Cache;
+use Supra\Core\Cache\Driver\File;
 use Supra\Core\Configuration\Exception\ReferenceException;
 use Supra\Core\Configuration\UniversalConfigLoader;
 use Supra\Core\Console\Application;
@@ -69,6 +71,7 @@ abstract class Supra
 		$container['config.universal_loader'] = new UniversalConfigLoader();
 		$container['routing.router'] = new Router();
 
+		$this->buildCache($container);
 		$this->buildEvents($container);
 		$this->buildCli($container);
 		$this->buildSecurity($container);
@@ -243,6 +246,18 @@ abstract class Supra
 		foreach ($config as $key => $value) {
 			$container->setParameter($key, $value);
 		}
+	}
+
+	protected function buildCache(ContainerInterface $container)
+	{
+		$container['cache.driver'] = new File($this->getProjectRoot() . DIRECTORY_SEPARATOR . 'cache');
+		$container['cache.cache'] = function(ContainerInterface $container) {
+			$cache = new Cache();
+			$cache->setContainer($container);
+			$cache->setDriver($container['cache.driver']);
+
+			return $cache;
+		};
 	}
 
 	protected function buildSecurity(ContainerInterface $container)

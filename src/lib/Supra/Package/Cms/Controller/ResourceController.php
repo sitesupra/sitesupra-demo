@@ -27,7 +27,11 @@ class ResourceController extends Controller
 			$collection->add($assetObject);
 		}
 
-		return new Response($collection->dump(), 200, array('Content-Type' => 'text/css'));
+		$content = $this->container->getCache()->fetch('cms_assets', 'css_pack', function () use ($collection) {
+			return $collection->dump();
+		}, $collection->getLastModified());
+
+		return new Response($content, 200, array('Content-Type' => 'text/css'));
 	}
 
 	public function jsPackAction()
@@ -38,6 +42,10 @@ class ResourceController extends Controller
 			$collection->add(new FileAsset($asset));
 		}
 
-		return new Response($collection->dump(), 200, array('Content-Type' => 'text/javascript'));
+		$content = $this->container->getCache()->fetch('cms_assets', 'js_pack', function () use ($collection) {
+			return $collection->dump();
+		}, $collection->getLastModified());
+
+		return new Response($content, 200, array('Content-Type' => 'text/javascript'));
 	}
 }

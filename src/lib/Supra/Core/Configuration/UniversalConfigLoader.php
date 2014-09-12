@@ -26,20 +26,23 @@ class UniversalConfigLoader implements ContainerAware
 					);
 		}
 
-		$info = pathinfo($file);
+		return $this->container->getCache()
+			->fetch('config', $file, function () use ($file) {
+				$info = pathinfo($file);
 
-		$data = file_get_contents($file);
+				$data = file_get_contents($file);
 
-		switch (strtolower($info['extension'])) {
-			case 'yml':
-				$data = Yaml::parse($data);
-				break;
-			default:
-				throw new Exception\ConfigLoaderException(
-						sprintf('File "%s" is not supported', $file)
+				switch (strtolower($info['extension'])) {
+					case 'yml':
+						$data = Yaml::parse($data);
+						break;
+					default:
+						throw new Exception\ConfigLoaderException(
+							sprintf('File "%s" is not supported', $file)
 						);
-		}
+				}
 
-		return $data ? $data : array();
+				return $data ? $data : array();
+			});
 	}
 }

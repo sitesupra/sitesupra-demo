@@ -26,6 +26,14 @@ class Container extends BaseContainer implements ContainerInterface
 	}
 
 	/**
+	 * @return \Supra\Core\Cache\Cache
+	 */
+	public function getCache()
+	{
+		return $this['cache.cache'];
+	}
+
+	/**
 	 * @return \Supra\Core\Supra
 	 */
 	public function getApplication()
