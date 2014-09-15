@@ -50,7 +50,7 @@ class DefaultExceptionController extends ControllerAbstraction
                                 $uri = $this->getRequest()->getServer()['REQUEST_URI'];
                                                                 
                                 //can it be a non-compiled less file?
-                                if (@pathinfo($uri, PATHINFO_EXTENSION) == 'css' &&
+                                if (false && @pathinfo($uri, PATHINFO_EXTENSION) == 'css' &&
                                         is_readable(SUPRA_WEBROOT_PATH . $uri . '.less')) {
                                     $css = new \Assetic\Asset\AssetCollection(
                                             array(new \Assetic\Asset\FileAsset(SUPRA_WEBROOT_PATH . $uri . '.less')),

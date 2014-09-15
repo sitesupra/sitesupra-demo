@@ -15,6 +15,7 @@ use Supra\Authorization\AccessPolicy\AuthorizationAccessPolicyAbstraction;
 use Supra\Loader\Loader;
 use Closure;
 use Supra\Controller\Event\FrontControllerShutdownEventArgs;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
@@ -168,9 +169,9 @@ class FrontController
 	 */
 	public function execute()
 	{
+		$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 		//new way
 		try {
-			$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
 			$requestEvent = new RequestResponseEvent();
 			$requestEvent->setRequest($request);
@@ -186,6 +187,9 @@ class FrontController
 
 			$router = $this->container->getRouter();
 			$configuration = $router->match($request);
+
+			//@todo: recall correctly how symfony deals with that
+			$request->attributes = new ParameterBag($configuration);
 
 			//@todo: do not execute controller that ugly
 			$controllerDefinition = $this->parseControllerName($configuration['controller']);
@@ -211,7 +215,14 @@ class FrontController
 			$response->send();
 			return;
 		} catch(ResourceNotFoundException $e) {
-			//do nothing for now
+			$notFoundEvent = new RequestResponseEvent();
+			$notFoundEvent->setRequest($request);
+			$this->container->getEventDispatcher()->dispatch(KernelEvent::ERROR404, $notFoundEvent);
+
+			if($notFoundEvent->hasResponse()) {
+				$notFoundEvent->getResponse()->send();
+				return;
+			}
 		}
 
 		//old way

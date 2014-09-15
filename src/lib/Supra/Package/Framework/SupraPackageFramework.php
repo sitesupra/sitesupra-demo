@@ -5,6 +5,7 @@ namespace Supra\Package\Framework;
 use Assetic\Extension\Twig\AsseticExtension;
 use Assetic\Factory\AssetFactory;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Package\PackageLocator;
 use Supra\Package\Cms\Twig\CmsExtension;
@@ -13,6 +14,7 @@ use Supra\Package\Framework\Command\ContainerDumpCommand;
 use Supra\Package\Framework\Command\ContainerPackagesListCommand;
 use Supra\Package\Framework\Command\RoutingListCommand;
 use Supra\Package\Framework\Command\SupraShellCommand;
+use Supra\Package\Framework\Listener\NotFoundAssetExceptionListener;
 use Supra\Package\Framework\Twig\FrameworkExtension;
 
 class SupraPackageFramework extends AbstractSupraPackage
@@ -40,6 +42,16 @@ class SupraPackageFramework extends AbstractSupraPackage
 		//routing
 		$container->getRouter()->loadConfiguration(
 			PackageLocator::locateConfigFile($this, 'routes.yml')
+		);
+
+		//404 listener for less/css files and on-the-fly compilation
+		$container[$this->name.'.not_found_asset_exception_listener'] = function () {
+			return new NotFoundAssetExceptionListener();
+		};
+
+		$container->getEventDispatcher()->addListener(
+			KernelEvent::ERROR404,
+			array($container[$this->name.'.not_found_asset_exception_listener'], 'listen')
 		);
 
 		//configure and register assetic
