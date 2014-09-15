@@ -1,0 +1,10 @@
+configuration:
+    prefix:             ~
+routes:
+    framework_combo:
+        pattern:        /_framework_internal/combo/{paths}
+        controller:     Framework:Combo:combo
+        requirements:
+            paths:      .+
+        defaults:
+            paths:      ~

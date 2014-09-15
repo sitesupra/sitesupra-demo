@@ -197,7 +197,7 @@ class FrontController
 			$action = $controllerDefinition['action'].'Action';
 
 			//todo: here we should fire 2 events: generic http.response and controller.response before that
-			$response = $controllerObject->$action();
+			$response = $controllerObject->$action($request);
 
 			$responseEvent = new RequestResponseEvent();
 			$responseEvent->setRequest($request);

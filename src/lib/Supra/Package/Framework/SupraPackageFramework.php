@@ -6,6 +6,7 @@ use Assetic\Extension\Twig\AsseticExtension;
 use Assetic\Factory\AssetFactory;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Package\AbstractSupraPackage;
+use Supra\Core\Package\PackageLocator;
 use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
@@ -35,6 +36,11 @@ class SupraPackageFramework extends AbstractSupraPackage
 		};
 
 		$container->getTemplating()->addExtension($container[$this->name.'.twig_extension']);
+
+		//routing
+		$container->getRouter()->loadConfiguration(
+			PackageLocator::locateConfigFile($this, 'routes.yml')
+		);
 
 		//configure and register assetic
 		//$factory = new AssetFactory($container->getApplication()->getWebRoot());

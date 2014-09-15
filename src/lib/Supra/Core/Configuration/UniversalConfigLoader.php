@@ -43,6 +43,6 @@ class UniversalConfigLoader implements ContainerAware
 				}
 
 				return $data ? $data : array();
-			});
+			}, filemtime($file));
 	}
 }

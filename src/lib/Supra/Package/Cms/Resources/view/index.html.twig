@@ -22,6 +22,13 @@
 	<link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon" />
 	<![endif]-->
 
+	<script>
+		//<![CDATA[
+		//@todo: this is ugly, remove it
+		window.comboBase = '{{ supra_path('framework_combo') }}';
+		//]>
+	</script>
+
 	{# Load all base CSS files at once #}
 	<link rel="stylesheet" type="text/css" href="{{ supra_cms_css_pack() }}" />
 	
@@ -41,13 +48,11 @@
 	
 	<script type="text/javascript">
 	//<![CDATA[
-		//@todo: this is ugly, remove it
-		var comboBase = '{{ supra_path('framework_combo') }}';
 
 		Supra(function (Y) {
 			{% block jsPathConfiguration %}
 			var APP_PATH = '/{{ manager.url }}',
-				STATIC_PATH = '/cms',
+				STATIC_PATH = '/public/cms',
 				DYNAMIC_PATH = '/{{ constant('SUPRA_CMS_URL') }}';
 			
 			//Set current manager paths

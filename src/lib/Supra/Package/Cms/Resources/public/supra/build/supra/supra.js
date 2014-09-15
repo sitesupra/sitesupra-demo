@@ -130,10 +130,11 @@ if (typeof Supra === "undefined") {
 			website: {
 				//Website specific modules
 				combine: true,
-				root: "/cms/",
-				base: "/cms/",
+                /* todo: hardcode */
+				root: null,
+				base: "/public/cms/",
 				//Use YUI file combo
-				comboBase: "/cms/lib/supra/combo/combo.php?",
+				comboBase: window.comboBase,
 				filter: "raw",
 				modules: {}
 			}
@@ -145,7 +146,7 @@ if (typeof Supra === "undefined") {
 	
 	/**
 	 * Mix objects or arrays together
-	 * HTMLNode 	
+	 * HTMLNode
 	 * 
 	 * @param {Object} dest Destination object
 	 * @param {Object} src Source object
