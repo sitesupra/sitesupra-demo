@@ -18,7 +18,9 @@ class ResourceController extends Controller
 		$collection = new AssetCollection();
 
 		foreach ($this->container->getParameter('cms.css_pack') as $asset) {
-			$assetObject = new FileAsset($asset);
+			$assetPath = $this->container->getApplication()->getWebRoot().DIRECTORY_SEPARATOR.$asset;
+			$assetObject = new FileAsset($assetPath, array(), $this->container->getApplication()->getWebRoot());
+			$assetObject->setTargetPath('/_cms_internal/');
 
 			if (substr($asset, strrpos($asset, '.')) == '.less') {
 				$assetObject->ensureFilter(new LessphpFilter());
@@ -28,7 +30,7 @@ class ResourceController extends Controller
 		}
 
 		$content = $this->container->getCache()->fetch('cms_assets', 'css_pack', function () use ($collection) {
-			return $collection->dump();
+			return $collection->dump(new CssRewriteFilter());
 		}, $collection->getLastModified());
 
 		return new Response($content, 200, array('Content-Type' => 'text/css'));
