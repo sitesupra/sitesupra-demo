@@ -15,6 +15,11 @@ class AbstractApplication implements ApplicationInterface
 	protected $title;
 
 	/**
+	 * @var string
+	 */
+	protected $url;
+
+	/**
 	 * @return string
 	 */
 	public function getId()
@@ -28,6 +33,14 @@ class AbstractApplication implements ApplicationInterface
 	public function getTitle()
 	{
 		return $this->title;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUrl()
+	{
+		return $this->url;
 	}
 
 }
