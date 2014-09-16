@@ -18,6 +18,7 @@ class Templating
 		$loader = new TemplateLoader();
 
 		$this->twig = new \Twig_Environment($loader);
+		$this->twig->enableStrictVariables();
 	}
 
 	public function render($template, $parameters)
