@@ -3,6 +3,7 @@
 namespace Supra\Core\DependencyInjection;
 
 use Pimple\Container as BaseContainer;
+use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Configuration\Exception\ReferenceException;
 use Supra\Core\DependencyInjection\Exception\ParameterNotFoundException;
 use Supra\Core\Templating\Templating;
@@ -23,6 +24,14 @@ class Container extends BaseContainer implements ContainerInterface
 		}
 
 		return $instance;
+	}
+
+	/**
+	 * @return ApplicationManager
+	 */
+	public function getApplicationManager()
+	{
+		return $this['applications.manager'];
 	}
 
 	/**
@@ -86,7 +95,7 @@ class Container extends BaseContainer implements ContainerInterface
 	 */
 	public function getTemplating()
 	{
-		return $this['templating'];
+		return $this['templating.templating'];
 	}
 
 	/**
@@ -98,33 +107,6 @@ class Container extends BaseContainer implements ContainerInterface
 	public function setParameter($name, $value)
 	{
 		$this->parameters[$name] = $value;
-	}
-
-	/**
-	 * Gets parameter by name
-	 *
-	 * @param $name
-	 * @throws Exception\ParameterNotFoundException
-	 * @return mixed
-	 */
-	public function getParameter($name)
-	{
-		if (!$this->hasParameter($name)) {
-			throw new ParameterNotFoundException(sprintf('Parameter "%s" is not defined in the container', $name));
-		}
-
-		return $this->parameters[$name];
-	}
-
-	/**
-	 * checks for parameter existence
-	 *
-	 * @param $name
-	 * @return bool
-	 */
-	public function hasParameter($name)
-	{
-		return isset($this->parameters[$name]);
 	}
 
 	/**
@@ -187,6 +169,33 @@ class Container extends BaseContainer implements ContainerInterface
 		}
 
 		return strtr($data, $replacements);
+	}
+
+	/**
+	 * checks for parameter existence
+	 *
+	 * @param $name
+	 * @return bool
+	 */
+	public function hasParameter($name)
+	{
+		return isset($this->parameters[$name]);
+	}
+
+	/**
+	 * Gets parameter by name
+	 *
+	 * @param $name
+	 * @throws Exception\ParameterNotFoundException
+	 * @return mixed
+	 */
+	public function getParameter($name)
+	{
+		if (!$this->hasParameter($name)) {
+			throw new ParameterNotFoundException(sprintf('Parameter "%s" is not defined in the container', $name));
+		}
+
+		return $this->parameters[$name];
 	}
 }
 

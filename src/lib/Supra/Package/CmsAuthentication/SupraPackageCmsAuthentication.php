@@ -6,6 +6,7 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Package\PackageLocator;
+use Supra\Package\CmsAuthentication\Application\CmsAuthenticationApplication;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationRequestListener;
 
 class SupraPackageCmsAuthentication extends AbstractSupraPackage
@@ -23,6 +24,9 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 		$container->getRouter()->loadConfiguration(
 			PackageLocator::locateConfigFile($this, 'routes.yml')
 		);
+
+		//applications
+		$container->getApplicationManager()->registerApplication(new CmsAuthenticationApplication());
 	}
 
 }

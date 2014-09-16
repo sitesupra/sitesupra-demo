@@ -2,6 +2,7 @@
 
 namespace Supra\Core\DependencyInjection;
 
+use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Templating\Templating;
 
@@ -40,6 +41,11 @@ interface ContainerInterface
 	 * @return Cache
 	 */
 	public function getCache();
+
+	/**
+	 * @return ApplicationManager
+	 */
+	public function getApplicationManager();
 
 	/**
 	 * Sets parameter

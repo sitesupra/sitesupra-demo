@@ -22,9 +22,16 @@ abstract class Controller implements ContainerAware
 	 */
 	protected $package;
 
+	/**
+	 * @var string
+	 */
+	protected $application;
+
 	public function setContainer(ContainerInterface $container)
 	{
 		$this->container = $container;
+
+		$this->setApplication();
 	}
 
 	public function renderResponse($template, $parameters = array())
@@ -45,6 +52,13 @@ abstract class Controller implements ContainerAware
 
 		return $this->container->getTemplating()
 			->render($template, $parameters);
+	}
+
+	protected function setApplication()
+	{
+		if ($this->application) {
+			$this->container->getApplicationManager()->selectApplication($this->application);
+		}
 	}
 
 	protected function getPackageName()

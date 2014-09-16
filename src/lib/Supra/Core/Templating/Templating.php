@@ -19,11 +19,19 @@ class Templating
 
 		$this->twig = new \Twig_Environment($loader);
 		$this->twig->enableStrictVariables();
+
 	}
 
 	public function render($template, $parameters)
 	{
+		//@todo: this also should be refactored to some more generic way in case if we have some multiple templating engines active
 		return $this->twig->render($template, $parameters);
+	}
+
+	public function addGlobal($name, $value)
+	{
+		//@todo: this also should be refactored to some more generic way in case if we have some multiple templating engines active
+		$this->twig->addGlobal($name, $value);
 	}
 
 	public function addExtension($extension)

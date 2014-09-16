@@ -2,6 +2,7 @@
 
 namespace Supra\Core;
 
+use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
 use Supra\Core\Configuration\Exception\ReferenceException;
@@ -13,6 +14,7 @@ use Supra\Core\Package\PackageLocator;
 use Supra\Core\Package\SupraPackageInterface;
 use Supra\Core\Routing\Router;
 use Supra\Core\Templating\Templating;
+use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
@@ -71,16 +73,21 @@ abstract class Supra
 		$container['config.universal_loader'] = new UniversalConfigLoader();
 		$container['routing.router'] = new Router();
 
+		//internal services
 		$this->buildCache($container);
 		$this->buildEvents($container);
 		$this->buildCli($container);
 		$this->buildSecurity($container);
 		$this->buildTemplating($container);
+		$this->buildApplications($container);
 
+		//package configuration
 		$this->injectPackages($container);
 
+		//configuration processing
 		$this->buildConfiguration($container);
 
+		//last pass to change something
 		$this->finish($container);
 
 		return $this->container = $container;
@@ -151,6 +158,7 @@ abstract class Supra
 	 * This function uses woodoo magic to resolve package name
 	 *
 	 * @param string $name
+	 * @throws \Exception
 	 * @return string
 	 */
 	public function resolvePackage($name)
@@ -174,6 +182,13 @@ abstract class Supra
 		}
 
 		throw new \Exception(sprintf('Package "%s" can not be resolved', $name));
+	}
+
+	public function buildApplications($container)
+	{
+		$container['applications.manager'] = function () {
+			return new ApplicationManager();
+		};
 	}
 
 	/**
@@ -313,7 +328,16 @@ abstract class Supra
 	 */
 	protected function buildTemplating($container)
 	{
-		$container['templating'] = new Templating();
+		$container['templating.global'] = function () {
+			return new SupraGlobal();
+		};
+
+		$container['templating.templating'] = function () use ($container) {
+			$templating = new Templating();
+			$templating->addGlobal('supra', $container['templating.global']);
+
+			return $templating;
+		};
 	}
 
 	/**
