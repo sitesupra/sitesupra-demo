@@ -116,7 +116,7 @@
 					'title': {{ supra.application.title | json_encode | raw }}
 				},
 
-				//Help notes, tips
+				{#//Help notes, tips
 				'helpnotes': {{ action.currentUserArray.closedTips | json_encode | raw }},
 				
 				//CMS Internationalization
@@ -125,7 +125,7 @@
 				//MediaLibrary: file custom properties
 				'media-library': {
 					'properties': {{ mediaLibrary.properties | json_encode | raw }}
-				}
+				}#}
 			});
 			
 			//IE not supported at the moment
