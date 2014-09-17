@@ -14,6 +14,13 @@ class SupraGlobal implements ContainerAware
 	 */
 	protected $container;
 
+	/**
+	 * Array of string to include in template
+	 *
+	 * @var array
+	 */
+	protected $javascripts;
+
 	public function setContainer(ContainerInterface $container)
 	{
 		$this->container = $container;
@@ -48,5 +55,12 @@ class SupraGlobal implements ContainerAware
 	public function getLocaleManager()
 	{
 		return $this->container->getLocaleManager();
+	}
+
+	public function renderJavascripts()
+	{
+		if (count($this->javascripts)) {
+			throw new \Exception('Rendering additional javascripts is not yet implemented');
+		}
 	}
 }

@@ -166,7 +166,7 @@ Supra("supra.input", "cookie", function (Y) {
 		 * @private
 		 */
 		isLoginManager: function () {
-			return (Supra.data.get(["application", "id"]) == "login");
+			return (Supra.data.get(["application", "id"]) == "cms_authentication");
 		},
 		
 		/**
@@ -339,7 +339,7 @@ Supra("supra.input", "cookie", function (Y) {
 			this.loginform.set("disabled", false);
 			
 			//Disable login field if needed
-			if (Supra.data.get(["application", "id"]) != "login") {
+			if (Supra.data.get(["application", "id"]) != "cms_authentication") {
 				//If opened from another manager (session expired) the disable login input
 				var login = Supra.data.get(["user", "login"]),
 					input = this.loginform.getInput("supra_login");
