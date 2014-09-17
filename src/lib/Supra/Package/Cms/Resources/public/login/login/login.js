@@ -177,7 +177,7 @@ Supra("supra.input", "cookie", function (Y) {
 		submit: function (e) {
 			e.halt();
 			
-			var uri = Loader.getDynamicPath() + Loader.getActionBasePath("Login");
+			var uri = Supra.Url.generate('cms_authentication_login');
 			var data = this.loginform.getValues("name", true);
 			
 			if (!this.validate(data)) return;

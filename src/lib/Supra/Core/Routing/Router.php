@@ -101,7 +101,8 @@ class Router implements ContainerAware
 					$route['params']['defaults'],
 					array('controller' => $route['params']['controller'])
 				),
-				$route['params']['requirements']
+				$route['params']['requirements'],
+				$route['params']['options']
 			);
 
 			$routeCollection->add($route['name'], $routeObj);

@@ -8,3 +8,8 @@ routes:
             paths:      .+
         defaults:
             paths:      ~
+    framework_routes:
+        pattern:        /_framework_internal/routes
+        controller:     Framework:Routing:export
+        options:
+            frontend:   true

@@ -35,6 +35,8 @@ class RoutingConfiguration implements ConfigurationInterface
 								->arrayNode('defaults')
 									->prototype('scalar')->end()
 								->end()
+								->arrayNode('options')
+									->prototype('scalar')->end()
 							->end()
 						->end()
 					->end()
