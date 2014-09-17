@@ -76,13 +76,23 @@
 				'timeFormatShort': '%H:%M',
 				
 				//User data
+				{% if (supra.user) %}
 				'user': {
-					'name': {{ action.user.name | json_encode | raw }},
-					'login': {{ action.user.login | json_encode | raw }},
-					'avatar_id': {{ action.user.avatar | json_encode | raw }},
-					'id': {{ action.user.id | json_encode | raw }},
-					'avatar': {{ action.currentUserArray.avatar | json_encode | raw }}
+					'name': {{ supra.user.name | json_encode | raw }},
+					'login': {{ supra.user.login | json_encode | raw }},
+					'avatar_id': {{ supra.user.avatar | json_encode | raw }},
+					'id': {{ supra.user.id | json_encode | raw }},
+					'avatar': {{ supra.user.avatar_uri | json_encode | raw }}
 				},
+				{% else %}
+				'user': {
+					'name': null,
+					'login': null,
+					'avatar_id': null,
+					'id': null,
+					'avatar': null
+				},
+				{% endif %}
 				
 				'site': {
 					'portal': {% if siteTitle is defined and siteTitle %}true{% else %}false{% endif %},
@@ -94,16 +104,16 @@
 				{% block jsSupraDataSet %}{% endblock %}
 				
 				//Languages
-				'locale': {{ currentLocale | json_encode | raw }},
+				'locale': {{ supra.localeManager.currentLocale | json_encode | raw }},
 				
-				'contexts': {{ localesList | json_encode | raw }},
+				'contexts': {{ supra.localeManager.localeArray | json_encode | raw }},
 				
 				//Application
 				'application': {
-					'id': {{ manager.id | json_encode | raw }},
+					'id': {{ supra.application.id | json_encode | raw }},
 					'path': DYNAMIC_PATH + APP_PATH,
-					'icon': {{ manager.icon | json_encode | raw }},
-					'title': {{ manager.title | json_encode | raw }}
+					'icon': {{ supra.application.icon | json_encode | raw }},
+					'title': {{ supra.application.title | json_encode | raw }}
 				},
 
 				//Help notes, tips

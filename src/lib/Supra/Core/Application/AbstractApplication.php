@@ -20,6 +20,11 @@ class AbstractApplication implements ApplicationInterface
 	protected $url;
 
 	/**
+	 * @var string
+	 */
+	protected $icon;
+
+	/**
 	 * @return string
 	 */
 	public function getId()
@@ -41,6 +46,14 @@ class AbstractApplication implements ApplicationInterface
 	public function getUrl()
 	{
 		return $this->url;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getIcon()
+	{
+		return $this->icon;
 	}
 
 }

@@ -8,6 +8,8 @@ error_reporting(E_ALL | E_NOTICE);
 
 $iniLoader = new Supra\Configuration\Loader\IniConfigurationLoader('supra.ini');
 ObjectRepository::setDefaultIniConfigurationLoader($iniLoader);
+require_once SUPRA_CONF_PATH . 'cms.php';
+return;
 
 $writeableIniLoader = new WriteableIniConfigurationLoader('theme.ini');
 ObjectRepository::setIniConfigurationLoader('Supra\Controller\Layout\Theme', $writeableIniLoader);
@@ -20,7 +22,6 @@ require_once SUPRA_CONF_PATH . 'log.php';
 require_once SUPRA_CONF_PATH . 'system.php';
 require_once SUPRA_CONF_PATH . 'cache.php';
 require_once SUPRA_CONF_PATH . 'database.php';
-require_once SUPRA_CONF_PATH . 'locale.php';
 require_once SUPRA_CONF_PATH . 'filestorage.php';
 require_once SUPRA_CONF_PATH . 'user.php';
 require_once SUPRA_CONF_PATH . 'external_users_database.php';
@@ -31,7 +32,6 @@ require_once SUPRA_CONF_PATH . 'authorization.php';
 require_once SUPRA_CONF_PATH . 'event.php';
 require_once SUPRA_CONF_PATH . 'search.php';
 require_once SUPRA_CONF_PATH . 'payment.php';
-require_once SUPRA_CONF_PATH . 'cms.php';
 
 $parser = new Supra\Configuration\Parser\YamlParser();
 $configLoader = new ComponentConfigurationLoader($parser);

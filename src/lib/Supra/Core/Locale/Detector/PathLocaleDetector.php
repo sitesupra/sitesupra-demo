@@ -1,25 +1,25 @@
 <?php
 
-namespace Supra\Locale\Detector;
+namespace Supra\Core\Locale\Detector;
 
-use Supra\Request\RequestInterface;
-use Supra\Response\ResponseInterface;
-use Supra\Request\HttpRequest;
 use Supra\Log\Log;
 use Supra\ObjectRepository\ObjectRepository;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Path locale detector
  */
-class PathLocaleDetector extends DetectorAbstraction
+class PathLocaleDetector extends AbstractDetector
 {
 	/**
 	 * Detects the current locale
-	 * @param RequestInterface $request
-	 * @param ResponseInterface $response
+	 *
+	 * @param \Symfony\Component\HttpFoundation\Request $request
+	 * @param \Symfony\Component\HttpFoundation\Response $response
 	 * @return string
 	 */
-	public function detect(RequestInterface $request, ResponseInterface $response)
+	public function detect(Request $request, Response $response)
 	{
 		/* @var $request HttpRequest */
 		if ( ! ($request instanceof HttpRequest)) {

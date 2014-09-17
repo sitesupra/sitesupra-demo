@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Locale;
+namespace Supra\Core\Locale;
 
 /**
  * Locale object
@@ -54,12 +54,12 @@ class Locale implements LocaleInterface
 
 	/**
 	 * @return string
-	 * @throws Exception\RuntimeException
+	 * @throws \RuntimeException
 	 */
 	public function getId()
 	{
 		if (empty($this->id)) {
-			throw new Exception\RuntimeException('Locale id not set.');
+			throw new \RuntimeException('Locale id not set.');
 		}
 
 		return $this->id;

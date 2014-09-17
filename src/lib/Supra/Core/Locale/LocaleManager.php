@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Locale;
+namespace Supra\Core\Locale;
 
 use Supra\Request\RequestInterface;
 use Supra\Response\ResponseInterface;
@@ -34,6 +34,35 @@ class LocaleManager
 	 * @var boolean
 	 */
 	protected $processInactive = false;
+
+	public function getLocaleArray()
+	{
+		$locales = $this->getLocales();
+
+		$jsLocales = array();
+
+		foreach ($locales as $locale) {
+
+			$country = $locale->getCountry();
+
+			if ( ! isset($jsLocales[$country])) {
+				$jsLocales[$country] = array(
+					'title' => $country,
+					'languages' => array()
+				);
+			}
+
+			$jsLocales[$country]['languages'][] = array(
+				'id' => $locale->getId(),
+				'title' => $locale->getTitle(),
+				'flag' => $locale->getProperty('flag')
+			);
+		}
+
+		$jsLocales = array_values($jsLocales);
+
+		return $jsLocales;
+	}
 
 	/**
 	 * Add locale data
@@ -139,8 +168,18 @@ class LocaleManager
 	}
 
 	/**
+	 * Prettier getter
+	 *
+	 * @return LocaleInterface
+	 */
+	public function getCurrentLocale()
+	{
+		return $this->getCurrent();
+	}
+
+	/**
 	 * Returns array of defined locales
-	 * @return array 
+	 * @return LocaleInterface[]
 	 */
 	public function getLocales()
 	{

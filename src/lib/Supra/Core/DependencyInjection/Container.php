@@ -99,6 +99,14 @@ class Container extends BaseContainer implements ContainerInterface
 	}
 
 	/**
+	 * @return \Supra\Core\Locale\LocaleManager
+	 */
+	public function getLocaleManager()
+	{
+		return $this['locale.manager'];
+	}
+
+	/**
 	 * Sets parameter
 	 *
 	 * @param $name

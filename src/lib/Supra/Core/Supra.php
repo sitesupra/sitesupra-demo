@@ -2,6 +2,8 @@
 
 namespace Supra\Core;
 
+use Supra\Core\Locale\Detector\CookieDetector;
+use Supra\Core\Locale\Detector\PathLocaleDetector;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
@@ -10,6 +12,9 @@ use Supra\Core\Configuration\UniversalConfigLoader;
 use Supra\Core\Console\Application;
 use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Locale\Locale;
+use Supra\Core\Locale\LocaleManager;
+use Supra\Core\Locale\Storage\CookieStorage;
 use Supra\Core\Package\PackageLocator;
 use Supra\Core\Package\SupraPackageInterface;
 use Supra\Core\Routing\Router;
@@ -74,12 +79,14 @@ abstract class Supra
 		$container['routing.router'] = new Router();
 
 		//internal services
+		//this actually must be based upon some config and there should be an option to override everything
 		$this->buildCache($container);
 		$this->buildEvents($container);
 		$this->buildCli($container);
 		$this->buildSecurity($container);
 		$this->buildTemplating($container);
 		$this->buildApplications($container);
+		$this->buildLocales($container);
 
 		//package configuration
 		$this->injectPackages($container);
@@ -117,6 +124,64 @@ abstract class Supra
 			'package' => $package,
 			'data' => $data
 		);
+	}
+
+	public function buildLocales(ContainerInterface $container)
+	{
+		//@todo: this should be refactored to some +- sane locale storage, preferably in the database
+
+		$container['locale.detector.path'] = function () {
+			return new PathLocaleDetector();
+		};
+
+		$container['locale.detector.cookie'] = function () {
+			return new CookieDetector();
+		};
+
+		$container['locale.storage.cookie'] = function () {
+			return new CookieStorage();
+		};
+
+		$container['locale.manager'] = function (ContainerInterface $container) {
+			$localeManager = new LocaleManager();
+
+			/* English | Latvia */
+			$locale = new Locale();
+			$locale->setId('en_LV');
+			$locale->setTitle('English');
+			$locale->setCountry('Latvia');
+			$locale->addProperty('flag', 'gb');
+			$locale->setActive(false);
+			$locale->addProperty('language', 'en'); // as per ISO 639-1
+			$localeManager->add($locale);
+
+			/* Latvian | Latvia */
+			$locale = new Locale();
+			$locale->setId('lv_LV');
+			$locale->setTitle('Latvian');
+			$locale->setCountry('Latvia');
+			$locale->addProperty('flag', 'lv');
+			$locale->addProperty('language', 'lv'); // as per ISO 639-1
+			$localeManager->add($locale);
+
+			/* Russian | Russia */
+			$locale = new Locale();
+			$locale->setId('ru_RU');
+			$locale->setTitle('Russian');
+			$locale->setCountry('Russia');
+			$locale->addProperty('flag', 'ru');
+			$locale->addProperty('language', 'ru'); // as per ISO 639-1
+			$localeManager->add($locale);
+
+			$localeManager->setCurrent('lv_LV');
+
+			$localeManager->addDetector($container['locale.detector.path']);
+			$localeManager->addDetector($container['locale.detector.cookie']);
+
+			$localeManager->addStorage($container['locale.storage.cookie']);
+
+			return $localeManager;
+		};
 	}
 
 	/**

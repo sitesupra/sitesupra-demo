@@ -1,17 +1,15 @@
 <?php
 
-namespace Supra\Locale\Storage;
+namespace Supra\Core\Locale\Storage;
 
-use Supra\Request\RequestInterface;
-use Supra\Response\ResponseInterface;
-use Supra\Response\HttpResponse;
-use Supra\Http\Cookie;
 use Supra\Log\Log;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Stores the current locale in the cookie
  */
-class CookieStorage extends StorageAbstraction
+class CookieStorage extends AbstractStorage
 {
 	/**
 	 * Cookie name for the current locale storage
@@ -25,7 +23,7 @@ class CookieStorage extends StorageAbstraction
 	 * @param ResponseInterface $response
 	 * @param string $localeId
 	 */
-	public function store(RequestInterface $request, ResponseInterface $response, $localeId)
+	public function store(Request $request, Response $response, $localeId)
 	{
 		if ( ! ($response instanceof HttpResponse)) {
 			Log::warn("The response must be instance of Http response to use cookie storage");

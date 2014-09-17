@@ -1,13 +1,13 @@
 <?php
 
-namespace Supra\Locale\Storage;
+namespace Supra\Core\Locale\Storage;
 
-use Supra\Locale\LocaleInterface;
+use Supra\Core\Locale\LocaleInterface;
 
 /**
  * Locale storage abstraction
  */
-abstract class StorageAbstraction implements StorageInterface
+abstract class AbstractStorage implements StorageInterface
 {
 	/**
 	 * The locale data provider

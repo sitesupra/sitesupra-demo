@@ -1,17 +1,17 @@
 <?php
 
-namespace Supra\Locale\Detector;
+namespace Supra\Core\Locale\Detector;
 
-use Supra\Locale\LocaleInterface;
+use Supra\Core\Locale\LocaleInterface;
 
 /**
  * Locale detector abstraction
  */
-abstract class DetectorAbstraction implements DetectorInterface
+abstract class AbstractDetector implements DetectorInterface
 {
 	/**
 	 * The locale data provider
-	 * @var Locale
+	 * @var LocaleInterface
 	 */
 	protected $locale;
 

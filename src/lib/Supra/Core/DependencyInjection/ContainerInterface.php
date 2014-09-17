@@ -33,6 +33,11 @@ interface ContainerInterface
 	public function getSecurityContext();
 
 	/**
+	 * @return \Supra\Core\Locale\LocaleManager
+	 */
+	public function getLocaleManager();
+
+	/**
 	 * @return \Supra\Core\Supra
 	 */
 	public function getApplication();

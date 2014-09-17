@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Locale;
+namespace Supra\Core\Locale;
 
 /**
  * Locale object
