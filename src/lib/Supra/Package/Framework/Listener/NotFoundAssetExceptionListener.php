@@ -35,6 +35,13 @@ class NotFoundAssetExceptionListener implements RequestResponseListenerInterface
 
 		$parts = pathinfo($path);
 
+		$parts = array_merge(array(
+			'dirname' => '',
+			'basename' => '',
+			'extension' => '',
+			'filename'
+		), $parts);
+
 		switch (strtolower($parts['extension'])) {
 			case 'css':
 				//possible it's not yet compiled less file?
