@@ -114,6 +114,7 @@ Supra.useModules = [
 	'transition',
 	'router',
 
+	'supra.url',
 	'supra.timer',
 	'supra.dd-ddm',
 	'supra.event',

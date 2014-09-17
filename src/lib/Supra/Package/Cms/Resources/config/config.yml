@@ -260,3 +260,4 @@ js_pack:
     - public/cms/supra/build/slideshow/slideshow.js
     - public/cms/supra/build/event/deferred.js
     - public/cms/supra/build/supra/supra-packed-css.js
+    - public/cms/supra/build/url/url.js
