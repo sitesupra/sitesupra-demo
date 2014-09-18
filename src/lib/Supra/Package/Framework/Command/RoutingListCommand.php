@@ -21,10 +21,15 @@ class RoutingListCommand extends AbstractCommand
 
 		$table = new Table($output);
 
-		$table->setHeaders(array('Name', 'Pattern', 'Controller'));
+		$table->setHeaders(array('Name', 'Pattern', 'Controller', 'Frontend'));
 
 		foreach ($this->listRoutes($this->container->getRouter()->getRouteCollection()) as $route) {
-			$table->addRow(array($route['name'], $route['pattern'], $route['controller']));
+			$table->addRow(array(
+				$route['name'],
+				$route['pattern'],
+				$route['controller'],
+				$route['frontend'] ? '<info>Yes</info>' : 'No'
+			));
 		}
 
 		$table->render();
@@ -39,7 +44,8 @@ class RoutingListCommand extends AbstractCommand
 				$displayRoutes[] = array(
 					'name' => $name,
 					'pattern' => $route->getPattern(),
-					'controller' => $route->getDefaults()['controller']
+					'controller' => $route->getDefault('controller'),
+					'frontend' => $route->getOption('frontend')
 				);
 			} else {
 				throw new \Exception('Only Route routes are supported now');

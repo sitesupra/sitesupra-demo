@@ -4,8 +4,11 @@ routes:
     cms_authentication_login:
         pattern:            %cms_authentication.login_path%
         controller:         CmsAuthentication:Auth:login
-        options:
-            frontend:   true
     cms_authentication_logout:
         pattern:            %cms_authentication.logout_path%
         controller:         CmsController
+    cms_authentication_login_check:
+        pattern:            %cms_authentication.login_check_path%
+        controller:         CmsController
+        options:
+            frontend:   true

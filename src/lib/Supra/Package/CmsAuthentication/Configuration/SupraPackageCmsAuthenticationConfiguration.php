@@ -20,6 +20,7 @@ class SupraPackageCmsAuthenticationConfiguration implements ConfigurationInterfa
 			->children()
 				->scalarNode('login_path')->isRequired()->end()
 				->scalarNode('logout_path')->isRequired()->end()
+				->scalarNode('login_check_path')->isRequired()->end()
 				->arrayNode('anonymous_paths')
 					->prototype('scalar')->end()
 				->end()

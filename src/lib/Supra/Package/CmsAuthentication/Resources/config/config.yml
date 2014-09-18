@@ -1,5 +1,7 @@
 login_path:           %cms.prefix%/login
 logout_path:          %cms.prefix%/logout
+login_check_path:     %cms.prefix%/login_check
 anonymous_paths:
     - %cms_authentication.login_path%
     - %cms_authentication.logout_path%
+    - %cms_authentication.login_check_path%
