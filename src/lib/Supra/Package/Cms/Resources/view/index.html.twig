@@ -34,7 +34,6 @@
 	
 	{# Load all base (YUI, Loader, Supra) JS files at once #}
 	<script src="{{  supra_cms_js_pack() }}"></script>
-	
 </head>
 <body class="yui3-skin-supra {% block bodyClass %}{% endblock %}">
 	
@@ -127,6 +126,8 @@
 					'properties': {{ mediaLibrary.properties | json_encode | raw }}
 				}#}
 			});
+
+			{{ controller('Framework:Routing:export') }}
 			
 			//IE not supported at the moment
 			if (Supra.Y.UA.ie && Supra.Y.UA.ie < 9) {

@@ -145,7 +145,7 @@ class FrontController
 		return $this->routers;
 	}
 
-	protected function parseControllerName($name)
+	public function parseControllerName($name)
 	{
 		//this should be more bulletproof
 		list($package, $controller, $action) = explode(':', $name);
