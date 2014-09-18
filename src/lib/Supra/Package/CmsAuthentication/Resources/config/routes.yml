@@ -9,6 +9,6 @@ routes:
         controller:         CmsController
     cms_authentication_login_check:
         pattern:            %cms_authentication.login_check_path%
-        controller:         CmsController
+        controller:         CmsAuthentication:Auth:check
         options:
             frontend:   true

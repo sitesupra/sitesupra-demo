@@ -344,16 +344,20 @@ abstract class Supra
 	{
 		$userProvider = new ChainUserProvider(
 			array(
-				new InMemoryUserProvider()
+				new InMemoryUserProvider(array(
+					'admin' => array('password' => 'admin')
+				))
 			)
 		);
+
+		$container->setParameter('security.provider_key', 'cms_authentication');
 
 		$userChecker = new UserChecker();
 
 		//@todo: this should be moved to config
 		$encoderFactory = new EncoderFactory(
 			array(
-				'\Symfony\Component\Security\Core\User' => new PlaintextPasswordEncoder()
+				'Symfony\Component\Security\Core\User\User' => new PlaintextPasswordEncoder()
 			)
 		);
 
@@ -362,18 +366,29 @@ abstract class Supra
 			new DaoAuthenticationProvider(
 				$userProvider,
 				$userChecker,
-				'cms_authentication',
+				$container->getParameter('security.provider_key'),
 				$encoderFactory
 			)
 		);
 
-		$authenticationManager = new AuthenticationProviderManager($providers);
+		$container['security.authentication_manager'] = function () use ($providers) {
+			return new AuthenticationProviderManager($providers);
+		};
 
-		$roleVoter = new RoleVoter(); //@todo: this should be refactored to acls
+		$container['security.voters'] = function () {
+			return array(new RoleVoter()); //@todo: this should be refactored to acls
+		};
 
-		$accessDecisionManager = new AccessDecisionManager(array($roleVoter));
+		$container['security.access_decision_manager'] = function ($container) {
+			return new AccessDecisionManager($container['security.voters']);
+		};
 
-		$container['security.context'] = new SecurityContext($authenticationManager, $accessDecisionManager);
+		$container['security.context'] = function ($container) {
+			return new SecurityContext(
+				$container['security.authentication_manager'],
+				$container['security.access_decision_manager']
+			);
+		};
 	}
 
 	protected function buildEvents(ContainerInterface $container)
