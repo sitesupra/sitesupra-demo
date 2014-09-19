@@ -33,10 +33,22 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 		$cmsPrefix = $this->container->getParameter('cms.prefix');
 
 		if (strpos($request->getPathInfo(), $cmsPrefix) === 0) {
+			//in any way we should try to extract data from session
+			$session = $this->container->getSession();
+
+			$tokenParameter = $this->container->getParameter('cms_authentication.session_storage_key');
+
 			$securityContext = $this->container->getSecurityContext();
 
+			if ($session->has($tokenParameter)) {
+				$securityContext->setToken(
+					$session->get($tokenParameter)
+				);
+			}
+
+			//non-authorized users that are not on anonymous paths are getting redirected to login
 			if ((!$securityContext->getToken() ||
-				!$securityContext->getToken()->isAuthenticated()) &&
+				!$securityContext->getToken()->getUser()) &&
 				!in_array(
 					$request->getPathInfo(),
 					$this->container->getParameter('cms_authentication.anonymous_paths')
@@ -45,6 +57,14 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 				$event->setResponse(new RedirectResponse(
 					$this->container->getRouter()->generate('cms_authentication_login')
 				));
+			}
+
+			//authorized users on login path are redirected to dashboard
+			if ($securityContext->getToken() &&
+				$securityContext->getToken()->getUser() &&
+				strpos($request->getPathInfo(), $this->container->getParameter('cms_authentication.login_path')) === 0
+			) {
+				//$event->setResponse(new RedirectResponse($cmsPrefix));
 			}
 		}
 	}

@@ -169,7 +169,7 @@ class FrontController
 	 */
 	public function execute()
 	{
-		$request = \Symfony\Component\HttpFoundation\Request::createFromGlobals();
+		$request = $this->container->getRequest();
 		//new way
 		try {
 

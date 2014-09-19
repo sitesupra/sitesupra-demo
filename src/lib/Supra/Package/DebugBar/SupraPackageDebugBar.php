@@ -6,6 +6,7 @@ use DebugBar\StandardDebugBar;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
+use Supra\Package\DebugBar\Collector\SessionCollector;
 use Supra\Package\DebugBar\Event\Listener\AssetsPublishEventListener;
 use Supra\Package\DebugBar\Event\Listener\DebugBarResponseListener;
 use Supra\Package\Framework\Event\FrameworkConsoleEvent;
@@ -14,9 +15,17 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 {
 	public function inject(ContainerInterface $container)
 	{
-		$debugBar = new StandardDebugBar();
+		$container[$this->name.'.session_collector'] = function () {
+			return new SessionCollector();
+		};
 
-		$container[$this->name.'.debug_bar'] = $debugBar;
+		$container[$this->name.'.debug_bar'] = function ($container) {
+			$debugBar = new StandardDebugBar();
+
+			$debugBar->addCollector($container[$this->name.'.session_collector']);
+
+			return $debugBar;
+		};
 
 		$container[$this->name.'.response_listener'] = new DebugBarResponseListener();
 		$container[$this->name.'.assets_listener'] = new AssetsPublishEventListener();

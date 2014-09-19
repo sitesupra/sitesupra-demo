@@ -5,9 +5,21 @@ namespace Supra\Core\DependencyInjection;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Templating\Templating;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 interface ContainerInterface
 {
+	/**
+	 * @return Session
+	 */
+	public function getSession();
+
+	/**
+	 * @return Request
+	 */
+	public function getRequest();
+
 	/**
 	 * Getter for Router instance
 	 *

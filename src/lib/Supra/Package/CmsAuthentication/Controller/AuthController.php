@@ -3,6 +3,7 @@
 namespace Supra\Package\CmsAuthentication\Controller;
 
 use Supra\Core\Controller\Controller;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
@@ -26,6 +27,14 @@ class AuthController extends Controller
 	public function loginAction()
 	{
 		return $this->renderResponse('auth/login.html.twig', array());
+	}
+
+	public function logoutAction()
+	{
+		$this->container->getSession()->invalidate();
+		$this->container->getSecurityContext()->setToken(null);
+
+		return new RedirectResponse($this->container->getParameter('cms.prefix'));
 	}
 
 	public function checkAction(Request $request)

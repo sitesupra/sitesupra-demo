@@ -22,6 +22,8 @@ use Supra\Core\Templating\Templating;
 use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
 use Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider;
 use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
@@ -80,6 +82,7 @@ abstract class Supra
 
 		//internal services
 		//this actually must be based upon some config and there should be an option to override everything
+		$this->buildHttpFoundation($container);
 		$this->buildCache($container);
 		$this->buildEvents($container);
 		$this->buildCli($container);
@@ -124,6 +127,22 @@ abstract class Supra
 			'package' => $package,
 			'data' => $data
 		);
+	}
+
+	public function buildHttpFoundation(ContainerInterface $container)
+	{
+		$container['http.request'] = function () {
+			return Request::createFromGlobals();
+		};
+
+		$container['http.session'] = function ($container) {
+			$session = new Session();
+			$session->start();
+
+			$container['http.request']->setSession($session);
+
+			return $session;
+		};
 	}
 
 	public function buildLocales(ContainerInterface $container)
