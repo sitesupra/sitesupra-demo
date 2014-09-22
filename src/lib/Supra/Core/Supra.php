@@ -16,6 +16,7 @@ use Supra\Core\Console\Application;
 use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Doctrine\ManagerRegistry;
+use Supra\Core\Doctrine\Subscriber\TableNamePrefixer;
 use Supra\Core\Locale\Detector\CookieDetector;
 use Supra\Core\Locale\Detector\PathLocaleDetector;
 use Supra\Core\Locale\Locale;
@@ -396,10 +397,11 @@ abstract class Supra
 		$container['doctrine.event_manager'] = function (ContainerInterface $container) {
 			$eventManager = new EventManager();
 			//for later porting
-			/*// Adds prefix for tables
-			$eventManager->addEventSubscriber(new TableNamePrefixer($this->tableNamePrefix, $this->tableNamePrefixNamespace));
+			// Adds prefix for tables
+			//@todo: move to config
+			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
 
-			// Updates creation and modification timestamps for appropriate entities
+			/*// Updates creation and modification timestamps for appropriate entities
 			$eventManager->addEventSubscriber(new TimestampableListener());
 
 			// Maps revision property for appropriate entities

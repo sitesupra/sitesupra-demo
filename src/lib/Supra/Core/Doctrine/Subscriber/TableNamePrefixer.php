@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Database\Doctrine\Listener;
+namespace Supra\Core\Doctrine\Subscriber;
 
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\Common\EventSubscriber;

@@ -5,6 +5,7 @@ namespace Supra\Database\Configuration;
 use Supra\Configuration\ConfigurationInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Configuration;
+use Supra\Core\Doctrine\Subscriber\TableNamePrefixer;
 use Supra\Database\Doctrine;
 use Supra\Cache\CacheNamespaceWrapper;
 use Supra\ObjectRepository\ObjectRepository;
