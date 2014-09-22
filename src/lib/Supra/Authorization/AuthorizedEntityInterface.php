@@ -1,8 +1,8 @@
 <?php
 
 namespace Supra\Authorization;
+use Supra\Package\CmsAuthentication\Entity\AbstractUser;
 
-use Supra\User\Entity\AbstractUser;
 
 /**
  * Interface must be implemented if class instances are to be 

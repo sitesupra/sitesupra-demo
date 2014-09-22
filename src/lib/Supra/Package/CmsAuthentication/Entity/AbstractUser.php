@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\User\Entity;
+namespace Supra\Package\CmsAuthentication\Entity;
 
 use Supra\Database\Entity;
 use Supra\Authorization\AuthorizedEntityInterface;

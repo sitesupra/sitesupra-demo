@@ -2,8 +2,11 @@
 
 namespace Supra\Core;
 
-use Supra\Core\Locale\Detector\CookieDetector;
-use Supra\Core\Locale\Detector\PathLocaleDetector;
+use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDOMySql;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Setup;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
@@ -12,6 +15,9 @@ use Supra\Core\Configuration\UniversalConfigLoader;
 use Supra\Core\Console\Application;
 use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Doctrine\ManagerRegistry;
+use Supra\Core\Locale\Detector\CookieDetector;
+use Supra\Core\Locale\Detector\PathLocaleDetector;
 use Supra\Core\Locale\Locale;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Storage\CookieStorage;
@@ -19,6 +25,7 @@ use Supra\Core\Package\PackageLocator;
 use Supra\Core\Package\SupraPackageInterface;
 use Supra\Core\Routing\Router;
 use Supra\Core\Templating\Templating;
+use Supra\Package\CmsAuthentication\Entity\UserRepository;
 use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -74,6 +81,7 @@ abstract class Supra
 
 		//getting container instance, configuring services
 		$container = new Container();
+		$container->setParameter('debug', true);
 		$container['application'] = $this;
 
 		//routing configuration
@@ -85,6 +93,7 @@ abstract class Supra
 		$this->buildHttpFoundation($container);
 		$this->buildCache($container);
 		$this->buildEvents($container);
+		$this->buildDoctrine($container);
 		$this->buildCli($container);
 		$this->buildSecurity($container);
 		$this->buildTemplating($container);
@@ -128,6 +137,8 @@ abstract class Supra
 			'data' => $data
 		);
 	}
+
+
 
 	public function buildHttpFoundation(ContainerInterface $container)
 	{
@@ -239,7 +250,7 @@ abstract class Supra
 	}
 
 	/**
-	 * This function uses woodoo magic to resolve package name
+	 * This function uses woodoo magic to resolve package class name
 	 *
 	 * @param string $name
 	 * @throws \Exception
@@ -266,6 +277,26 @@ abstract class Supra
 		}
 
 		throw new \Exception(sprintf('Package "%s" can not be resolved', $name));
+	}
+
+	/**
+	 * This function uses woodo magic to extract short package name from className
+	 *
+	 * @param $package
+	 */
+	public function resolveName($package)
+	{
+		if (is_object($package)) {
+			$package = get_class($package);
+		}
+
+		$package = substr($package, strrpos($package, '\\'));
+
+		$package = trim($package, '\\');
+
+		$package = str_replace(array('Supra', 'Package'), '', $package);
+
+		return $package;
 	}
 
 	public function buildApplications($container)
@@ -359,15 +390,119 @@ abstract class Supra
 		};
 	}
 
+	public function buildDoctrine(ContainerInterface $container)
+	{
+		//event manager
+		$container['doctrine.event_manager'] = function (ContainerInterface $container) {
+			$eventManager = new EventManager();
+			//for later porting
+			/*// Adds prefix for tables
+			$eventManager->addEventSubscriber(new TableNamePrefixer($this->tableNamePrefix, $this->tableNamePrefixNamespace));
+
+			// Updates creation and modification timestamps for appropriate entities
+			$eventManager->addEventSubscriber(new TimestampableListener());
+
+			// Maps revision property for appropriate entities
+			$eventManager->addEventSubscriber(new Listener\EntityRevisionFieldMapperListener());
+
+			// Drops file storage cache group when files are being changed
+			$eventManager->addEventSubscriber(new FileGroupCacheDropListener());
+
+			$eventManager->addEventListener(array(Events::loadClassMetadata), new DetachedDiscriminatorHandler());
+
+			foreach ($this->eventSubscribers as $eventSubscriber) {
+				if (is_string($eventSubscriber)) {
+					$eventSubscriber = Loader::getClassInstance($eventSubscriber, 'Doctrine\Common\EventSubscriber');
+				}
+				$eventManager->addEventSubscriber($eventSubscriber);
+			}*/
+
+			return $eventManager;
+		};
+
+		$container['doctrine.orm_configuration'] = function (ContainerInterface $container) {
+			$packages = $this->getPackages();
+
+			$paths = array();
+
+			foreach ($packages as $package) {
+				$entityDir = PackageLocator::locatePackageRoot($package) . DIRECTORY_SEPARATOR . 'Entity';
+
+				if (is_dir($entityDir)) {
+					$paths[] = $entityDir;
+				}
+			}
+
+			$configuration = Setup::createAnnotationMetadataConfiguration($paths,
+				$container->getParameter('debug'),
+				//todo: use general supra path
+				sys_get_temp_dir(),
+				//todo: configure cache with config
+				null
+			);
+
+			foreach ($packages as $package) {
+				$class = get_class($package);
+				$namespace = substr($class, 0, strrpos($class, '\\')) . '\\Entity';
+				$configuration->addEntityNamespace($this->resolveName($package), $namespace);
+			}
+
+			return $configuration;
+		};
+
+		//connections
+		//@todo: move to configuration
+		$container['doctrine.connections.default'] = function (ContainerInterface $container) {
+			$connection = new Connection(
+				array(
+					'host' => 'db',
+					'user' => 'dev',
+					'password' => 'dev',
+					'dbname' => 'supra7'
+				),
+				new PDOMySql\Driver(),
+				$container['doctrine.orm_configuration'],
+				$container['doctrine.event_manager']
+			);
+
+			return $connection;
+		};
+
+		//supra-specific entity managers
+		$container['doctrine.entity_managers.public'] = function (ContainerInterface $container) {
+			return EntityManager::create(
+				$container['doctrine.connections.default'],
+				$container['doctrine.orm_configuration'],
+				$container['doctrine.event_manager']
+			);
+		};
+
+		//@todo: refactor this much
+		$container['doctrine.doctrine'] = function (ContainerInterface $container) {
+			return new ManagerRegistry(
+				'supra.doctrine',
+				array(
+					'default' => $container['doctrine.connections.default']
+				),
+				$container['doctrine.entity_managers'],
+				'default',
+				'cms',
+				'foobar'
+			);
+		};
+	}
+
 	protected function buildSecurity(ContainerInterface $container)
 	{
-		$userProvider = new ChainUserProvider(
-			array(
-				new InMemoryUserProvider(array(
-					'admin' => array('password' => 'admin')
-				))
-			)
-		);
+		$container['security.user_providers'] = function (ContainerInterface $container) {
+			return array(
+				$container['doctrine.entity_managers.public']->getRepository('CmsAuthentication:User')
+			);
+		};
+
+		$container['security.user_provider'] = function (ContainerInterface $container) {
+			return new ChainUserProvider($container['security.user_providers']);
+		};
 
 		$container->setParameter('security.provider_key', 'cms_authentication');
 
@@ -383,7 +518,7 @@ abstract class Supra
 		$providers = array(
 			new AnonymousAuthenticationProvider(uniqid()),
 			new DaoAuthenticationProvider(
-				$userProvider,
+				$container['security.user_provider'],
 				$userChecker,
 				$container->getParameter('security.provider_key'),
 				$encoderFactory

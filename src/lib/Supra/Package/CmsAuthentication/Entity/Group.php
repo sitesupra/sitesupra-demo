@@ -1,10 +1,8 @@
 <?php
 
-namespace Supra\User\Entity;
+namespace Supra\Package\CmsAuthentication\Entity;
 
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\Authorization\AuthorizedEntityInterface;
-use Supra\Authorization\AuthorizationProvider;
 
 /**
  * Group object

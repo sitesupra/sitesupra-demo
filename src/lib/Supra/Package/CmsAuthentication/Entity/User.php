@@ -1,14 +1,13 @@
 <?php
 
-namespace Supra\User\Entity;
+namespace Supra\Package\CmsAuthentication\Entity;
 
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\Locale\LocaleInterface;
 use DateTime;
 
 /**
  * User object
- * @Entity
+ * @Entity(repositoryClass="UserRepository")
  * @Table(name="user")
  */
 class User extends AbstractUser

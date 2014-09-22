@@ -77,11 +77,11 @@
 				//User data
 				{% if (supra.user) %}
 				'user': {
-					'name': {{ supra.user.name | json_encode | raw }},
+			{#'name': {{ supra.user.name | json_encode | raw }},
 					'login': {{ supra.user.login | json_encode | raw }},
 					'avatar_id': {{ supra.user.avatar | json_encode | raw }},
 					'id': {{ supra.user.id | json_encode | raw }},
-					'avatar': {{ supra.user.avatar_uri | json_encode | raw }}
+					'avatar': {{ supra.user.avatar_uri | json_encode | raw }}#}
 				},
 				{% else %}
 				'user': {
