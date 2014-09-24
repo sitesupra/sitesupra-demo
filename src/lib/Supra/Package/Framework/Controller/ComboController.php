@@ -16,7 +16,9 @@ class ComboController extends Controller
 
 		$paths = $request->attributes->get('paths');
 
-		$assets = array($paths);
+		$paths = explode('&', $paths);
+
+		$assets = $paths;
 
 		//@todo: support multiple assets instead of hack above
 		//@todo: compress / filter assets
