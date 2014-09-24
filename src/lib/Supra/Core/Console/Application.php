@@ -23,10 +23,10 @@ class Application extends BaseApplication implements ContainerAware
 
 	public function add(Command $command)
 	{
-		if (!$command instanceof SupraCommand &&
+		if (!$command instanceof SupraCommand && !$command instanceof ContainerAware &&
 			!($command instanceof ListCommand || $command instanceof HelpCommand)
 		) {
-			throw new \InvalidArgumentException('All commands must extends Supra\Core\Console\Command');
+			throw new \InvalidArgumentException('All commands must extend Supra\Core\Console\Command (or implement Supra\Core\DependencyInjection\ContainerAware)');
 		}
 
 		if ($command instanceof ContainerAware) {

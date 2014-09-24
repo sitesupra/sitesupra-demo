@@ -12,6 +12,7 @@ use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
 use Supra\Package\Framework\Command\ContainerPackagesListCommand;
+use Supra\Package\Framework\Command\DoctrineSchemaUpdateCommand;
 use Supra\Package\Framework\Command\RoutingListCommand;
 use Supra\Package\Framework\Command\SupraShellCommand;
 use Supra\Package\Framework\Listener\NotFoundAssetExceptionListener;
@@ -27,6 +28,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getConsole()->add(new RoutingListCommand());
 		$container->getConsole()->add(new SupraShellCommand());
 		$container->getConsole()->add(new AssetsPublishCommand());
+		$container->getConsole()->add(new DoctrineSchemaUpdateCommand());
 
 		//include supra helpers
 		$cmsExtension = new CmsExtension();

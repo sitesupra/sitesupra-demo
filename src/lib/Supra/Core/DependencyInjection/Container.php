@@ -6,6 +6,7 @@ use Pimple\Container as BaseContainer;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Configuration\Exception\ReferenceException;
 use Supra\Core\DependencyInjection\Exception\ParameterNotFoundException;
+use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Templating\Templating;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -26,6 +27,14 @@ class Container extends BaseContainer implements ContainerInterface
 		}
 
 		return $instance;
+	}
+
+	/**
+	 * @return ManagerRegistry
+	 */
+	public function getDoctrine()
+	{
+		return $this['doctrine.doctrine'];
 	}
 
 	/**

@@ -40,7 +40,7 @@ abstract class AbstractUser extends Entity implements AuthorizedEntityInterface,
 	 * @var DateTime
 	 */
 	protected $modificationTime;
-	
+
 	/**
 	 * @return string
 	 */

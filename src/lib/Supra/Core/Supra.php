@@ -5,6 +5,8 @@ namespace Supra\Core;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOMySql;
+use Doctrine\DBAL\Types\ArrayType;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
 use Supra\Core\Application\ApplicationManager;
@@ -17,6 +19,8 @@ use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Doctrine\Subscriber\TableNamePrefixer;
+use Supra\Core\Doctrine\Type\PathType;
+use Supra\Core\Doctrine\Type\SupraIdType;
 use Supra\Core\Locale\Detector\CookieDetector;
 use Supra\Core\Locale\Detector\PathLocaleDetector;
 use Supra\Core\Locale\Locale;
@@ -423,6 +427,7 @@ abstract class Supra
 		};
 
 		$container['doctrine.orm_configuration'] = function (ContainerInterface $container) {
+			//loading package directories
 			$packages = $this->getPackages();
 
 			$paths = array();
@@ -443,11 +448,17 @@ abstract class Supra
 				null
 			);
 
+			//Foo;Bar -> \FooPackage\Entity\Bar aliases
 			foreach ($packages as $package) {
 				$class = get_class($package);
 				$namespace = substr($class, 0, strrpos($class, '\\')) . '\\Entity';
 				$configuration->addEntityNamespace($this->resolveName($package), $namespace);
 			}
+
+			//custom types
+			Type::addType(SupraIdType::NAME, SupraIdType::CN);
+			Type::addType(PathType::NAME, PathType::CN);
+			Type::overrideType(ArrayType::TARRAY, '\Supra\Core\Doctrine\Type\ArrayType');
 
 			return $configuration;
 		};
@@ -457,10 +468,26 @@ abstract class Supra
 		$container['doctrine.connections.default'] = function (ContainerInterface $container) {
 			$connection = new Connection(
 				array(
-					'host' => 'db',
-					'user' => 'dev',
-					'password' => 'dev',
-					'dbname' => 'supra7'
+					'host' => 'localhost',
+					'user' => 'root',
+					'password' => '',
+					'dbname' => 'supra9'
+				),
+				new PDOMySql\Driver(),
+				$container['doctrine.orm_configuration'],
+				$container['doctrine.event_manager']
+			);
+
+			return $connection;
+		};
+
+		$container['doctrine.connections.shared'] = function (ContainerInterface $container) {
+			$connection = new Connection(
+				array(
+					'host' => 'localhost',
+					'user' => 'root',
+					'password' => '',
+					'dbname' => 'supra9_shared_users'
 				),
 				new PDOMySql\Driver(),
 				$container['doctrine.orm_configuration'],
@@ -479,12 +506,28 @@ abstract class Supra
 			);
 		};
 
+		$container['doctrine.entity_managers.shared'] = function (ContainerInterface $container) {
+			return EntityManager::create(
+				$container['doctrine.connections.shared'],
+				$container['doctrine.orm_configuration'],
+				$container['doctrine.event_manager']
+			);
+		};
+
+		$container['doctrine.entity_managers'] = function (ContainerInterface $container) {
+			return array(
+				'public' => 'doctrine.entity_managers.public',
+				'shared' => 'doctrine.entity_managers.shared'
+			);
+		};
+
 		//@todo: refactor this much
 		$container['doctrine.doctrine'] = function (ContainerInterface $container) {
 			return new ManagerRegistry(
 				'supra.doctrine',
 				array(
-					'default' => $container['doctrine.connections.default']
+					'default' => 'doctrine.connections.default',
+					'shared' => 'doctrine.connections.shared'
 				),
 				$container['doctrine.entity_managers'],
 				'default',
@@ -498,7 +541,8 @@ abstract class Supra
 	{
 		$container['security.user_providers'] = function (ContainerInterface $container) {
 			return array(
-				$container['doctrine.entity_managers.public']->getRepository('CmsAuthentication:User')
+				$container['doctrine.entity_managers.public']->getRepository('CmsAuthentication:User'),
+				$container['doctrine.entity_managers.shared']->getRepository('CmsAuthentication:User')
 			);
 		};
 

@@ -39,8 +39,8 @@ class AuthController extends Controller
 
 	public function checkAction(Request $request)
 	{
-		$username = $request->request->get('supra_login');
-		$password = $request->request->get('supra_password');
+		$username = $request->request->get('supra_login', 'admin');
+		$password = $request->request->get('supra_password', 'admin');
 
 		//success results send cookie AND "1" as response body
 		//password redirect results send location

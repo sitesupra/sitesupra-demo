@@ -27,6 +27,11 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 	 */
 	public function loadUserByUsername($username)
 	{
+		//todo: move this to "default domain"
+		if (strpos($username, '@') === false) {
+			$username = $username . '@videinfra.com';
+		}
+
 		$users = $this->findByLogin($username);
 
 		if (count($users) > 1) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Database\Doctrine\Type;
+namespace Supra\Core\Doctrine\Type;
 
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

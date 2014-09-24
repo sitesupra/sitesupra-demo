@@ -3,9 +3,24 @@
 namespace Supra\Core\Doctrine;
 
 use Doctrine\Common\Persistence\AbstractManagerRegistry;
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
 
-class ManagerRegistry extends AbstractManagerRegistry
+class ManagerRegistry extends AbstractManagerRegistry implements ContainerAware
 {
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
+	/**
+	 * @param \Supra\Core\DependencyInjection\ContainerInterface $container
+	 */
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
+	}
+
 	/**
 	 * Fetches/creates the given services
 	 *
@@ -16,7 +31,11 @@ class ManagerRegistry extends AbstractManagerRegistry
 	 */
 	protected function getService($name)
 	{
-		throw new \Exception(__NAMESPACE__.__METHOD__.' is not yet implemented');
+		if (!isset($this->container[$name])) {
+			throw new \Exception(sprintf('There is no service (connection or entity manager) with id "%s"'));
+		}
+
+		return $this->container[$name];
 	}
 
 	/**

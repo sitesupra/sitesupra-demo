@@ -4,13 +4,14 @@ namespace Supra\Package\CmsAuthentication\Entity;
 
 use Supra\Locale\LocaleInterface;
 use DateTime;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * User object
  * @Entity(repositoryClass="UserRepository")
  * @Table(name="user")
  */
-class User extends AbstractUser
+class User extends AbstractUser implements UserInterface
 {
 
 	/**
@@ -107,6 +108,12 @@ class User extends AbstractUser
 	protected $forcePasswordChange = false;
 
 	/**
+	 * @Column(type="array")
+	 * @var array
+	 */
+	protected $roles;
+
+	/**
 	 * Generates random salt for new users
 	 */
 	public function __construct()
@@ -115,6 +122,40 @@ class User extends AbstractUser
 		$this->resetSalt();
 
 		$this->preferencesCollection = new UserPreferencesCollection();
+	}
+
+	/**
+	 * @param array $roles
+	 */
+	public function setRoles($roles)
+	{
+		$this->roles = $roles;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRoles()
+	{
+		return $this->roles;
+	}
+
+	/**
+	 * See UserInterface
+	 */
+	public function eraseCredentials()
+	{
+		$this->roles = array();
+	}
+
+	/**
+	 * Alias for UserInterface
+	 *
+	 * @return string
+	 */
+	public function getUsername()
+	{
+		return $this->getLogin();
 	}
 
 	/**

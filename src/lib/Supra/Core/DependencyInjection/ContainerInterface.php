@@ -4,12 +4,18 @@ namespace Supra\Core\DependencyInjection;
 
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
+use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Templating\Templating;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 interface ContainerInterface
 {
+	/**
+	 * @return ManagerRegistry
+	 */
+	public function getDoctrine();
+
 	/**
 	 * @return Session
 	 */
