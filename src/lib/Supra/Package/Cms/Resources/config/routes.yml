@@ -1,9 +1,9 @@
 configuration:
     prefix: ~
 routes:
-    cms_root:
-        pattern:            ~
-        controller:         CmsController
+    cms_dashboard:
+        pattern:            %cms.prefix%
+        controller:         Cms:Dashboard:index
     cms_css_pack:
         pattern:            /_cms_resources_css_pack
         controller:         Cms:Resource:cssPack
