@@ -30,6 +30,7 @@ use Supra\Core\Package\PackageLocator;
 use Supra\Core\Package\SupraPackageInterface;
 use Supra\Core\Routing\Router;
 use Supra\Core\Templating\Templating;
+use Supra\Package\CmsAuthentication\Encoder\SupraBlowfishEncoder;
 use Supra\Package\CmsAuthentication\Entity\UserRepository;
 use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\Config\Definition\Processor;
@@ -557,7 +558,7 @@ abstract class Supra
 		//@todo: this should be moved to config
 		$encoderFactory = new EncoderFactory(
 			array(
-				'Symfony\Component\Security\Core\User\User' => new PlaintextPasswordEncoder()
+				'Supra\Package\CmsAuthentication\Entity\User' => new SupraBlowfishEncoder()
 			)
 		);
 
