@@ -64,7 +64,7 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 				$securityContext->getToken()->getUser() &&
 				strpos($request->getPathInfo(), $this->container->getParameter('cms_authentication.login_path')) === 0
 			) {
-				//$event->setResponse(new RedirectResponse($cmsPrefix));
+				$event->setResponse(new RedirectResponse($cmsPrefix));
 			}
 		}
 	}
