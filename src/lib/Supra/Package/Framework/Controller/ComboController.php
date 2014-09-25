@@ -18,12 +18,11 @@ class ComboController extends Controller
 
 		$paths = explode('&', $paths);
 
-		$assets = $paths;
-
 		//@todo: support multiple assets instead of hack above
 		//@todo: compress / filter assets
-		foreach ($assets as $asset) {
-			$collection->add(new FileAsset($asset));
+		foreach ($paths as $asset) {
+			$asset = $this->container->getApplication()->getWebRoot().DIRECTORY_SEPARATOR.$asset;
+			$collection->add(new FileAsset($asset, array(), $this->container->getApplication()->getWebRoot()));
 		}
 
 		$content = $this->container->getCache()->fetch('combo', $paths, function () use ($collection) {

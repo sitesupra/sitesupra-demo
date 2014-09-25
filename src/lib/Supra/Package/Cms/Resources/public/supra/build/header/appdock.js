@@ -9,10 +9,10 @@ YUI.add('supra.header.appdock', function(Y) {
 	};
 	
 	//Blank icon image
-	var ICON_BLANK = '/cms/lib/supra/img/px.gif';
+	var ICON_BLANK = '/public/cms/supra/img/px.gif';
 	
 	//Templates
-	var TEMPLATE_CURRENT = '<span class="icon-dashboard"><img src="/cms/lib/supra/img/toolbar/buttons-dashboard.png" /></span><img src="{icon}" alt="" class="icon" /><span class="title">{title}</span>';
+	var TEMPLATE_CURRENT = '<span class="icon-dashboard"><img src="/public/cms/supra/img/toolbar/buttons-dashboard.png" /></span><img src="{icon}" alt="" class="icon" /><span class="title">{title}</span>';
 	var TEMPLATE_ITEM = '<li><a href="{path}"><img src="{icon}" alt="" /><span>{title}</span></a></li>';
 	var TEMPLATE_ITEM_LOGOUT = '<li class="logout"><a href="{path}"><div></div><span>{title}</span></a></li>';
 	

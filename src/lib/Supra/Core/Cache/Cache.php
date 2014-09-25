@@ -46,8 +46,8 @@ class Cache implements ContainerAware
 	 *
 	 * Optional $ttl can be specified, although the driver may nor respect it.
 	 *
-	 * @param $prefix
-	 * @param $key
+	 * @param string $prefix
+	 * @param mixed $key
 	 * @param null $default
 	 * @param int $timestamp
 	 * @param int $ttl

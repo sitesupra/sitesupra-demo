@@ -9,4 +9,6 @@ class CmsDashboardApplication extends AbstractApplication
 	protected $id = 'cms_dashboard';
 
 	protected $title = 'Dashboard';
+
+	protected $url = 'dashboard';
 }

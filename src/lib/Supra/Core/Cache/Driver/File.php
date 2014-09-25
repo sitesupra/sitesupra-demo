@@ -84,6 +84,10 @@ class File implements DriverInterface
 
 	protected function getFilename($prefix, $key)
 	{
+		if (!is_scalar($key)) {
+			$key = serialize($key);
+		}
+
 		$key = md5($key);
 
 		$folder = substr($key, 0, 2);
