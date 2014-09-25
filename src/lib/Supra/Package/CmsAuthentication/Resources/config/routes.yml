@@ -7,6 +7,8 @@ routes:
     cms_authentication_logout:
         pattern:            %cms_authentication.logout_path%
         controller:         CmsAuthentication:Auth:logout
+        options:
+            frontend:   true
     cms_authentication_login_check:
         pattern:            %cms_authentication.login_check_path%
         controller:         CmsAuthentication:Auth:check

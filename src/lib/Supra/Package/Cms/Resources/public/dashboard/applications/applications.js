@@ -245,7 +245,7 @@ Supra([
 //			} else {
 				//node.one("a.close").on("click", this.hide, this);
 				node.one("a.close").on("click", function() {
-					document.location = Supra.Manager.Loader.getDynamicPath() + "/logout/"
+					document.location = Supra.Url.generate('cms_authentication_logout');
 				});
 //			}
 		},
