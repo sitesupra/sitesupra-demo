@@ -83,12 +83,13 @@
 Supra([
 	
 	"dashboard.app-list",
-	"transition",
-	
-	Supra.data.get(["site", "portal"]) ? "dashboard.inbox" : null,
-	Supra.data.get(["site", "portal"]) ? "dashboard.stats" : null
-	
-], function (Y) {
+	"transition"
+	].concat(
+		Supra.data.get(["site", "portal"]) ? ["dashboard.inbox"] : []
+	).concat(
+		Supra.data.get(["site", "portal"]) ? ["dashboard.stats"] : []
+	)
+, function (Y) {
 	//Invoke strict mode
 	"use strict";
 	
