@@ -267,11 +267,11 @@ Supra([
 		 * Load and set application list data 
 		 */
 		loadApplicationData: function () {
-			Supra.io(this.getDataPath("applications"), function (data, status) {
+			Supra.io(Supra.Url.generate('cms_dashboard_applications_list'), function (data, status) {
 				if (status && data) {
 					var applications = [],
 						profile = null; // Profile application info
-					
+
 					Y.Array.each(data.applications, function (app) {
 						if (app.id.indexOf("\\Profile") !== -1 || app.id.indexOf("/Profile") !== -1) {
 							this.updateProfileLink(app);
@@ -279,11 +279,11 @@ Supra([
 							applications.push(app);
 						}
 					}, this);
-					
+
 					this.widgets.apps.set("data", applications);
 					this.widgets.scrollable.syncUI();
-					
-					
+
+
 				}
 			}, this);
 		},

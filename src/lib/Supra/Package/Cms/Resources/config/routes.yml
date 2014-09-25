@@ -4,6 +4,11 @@ routes:
     cms_dashboard:
         pattern:            %cms.prefix%
         controller:         Cms:Dashboard:index
+    cms_dashboard_applications_list:
+        pattern:            %cms.prefix%/applications_list
+        controller:         Cms:Dashboard:applicationsList
+        options:
+            frontend:       true
     cms_css_pack:
         pattern:            /_cms_resources_css_pack
         controller:         Cms:Resource:cssPack

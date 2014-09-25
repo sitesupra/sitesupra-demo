@@ -3,6 +3,7 @@
 namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DashboardController extends Controller
 {
@@ -13,4 +14,8 @@ class DashboardController extends Controller
 		return $this->renderResponse('index.html.twig');
 	}
 
+	public function applicationsListAction()
+	{
+		return new JsonResponse();
+	}
 }
