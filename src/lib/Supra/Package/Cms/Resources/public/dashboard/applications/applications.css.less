@@ -1,12 +1,12 @@
 //Common style definitions
-@import "/cms/lib/supra/less/common.less";
+@import "../../supra/less/common.less";
 
 .dashboard {
 	top: 0 !important;
 	overflow: hidden;
 	
 	z-index: 15;
-	background: url(/cms/lib/supra/img/background-center.jpg) 50% 0 no-repeat, url(/cms/lib/supra/img/background-pattern.jpg) 50% 0 repeat;
+	background: url(/public/cms/supra/img/background-center.jpg) 50% 0 no-repeat, url(/public/cms/supra/img/background-pattern.jpg) 50% 0 repeat;
 	background-attachment: fixed;
 	
 	opacity: 0; 
@@ -27,7 +27,7 @@
 	top: 0;
 	right: 0;
 	height: 47px;
-	background: url(/cms/dashboard/images/header/background.png) 0 0 repeat-x;
+	background: url(/public/cms/dashboard/images/header/background.png) 0 0 repeat-x;
 	
 	.user {
 		display: block;
@@ -100,7 +100,7 @@
 		top: 0;
 		display: block;
 		cursor: pointer;
-		background: url(/cms/dashboard/images/header/icon-close.png) 21px 13px no-repeat;
+		background: url(/public/cms/dashboard/images/header/icon-close.png) 21px 13px no-repeat;
 		height: 47px;
 		width: 63px;
 	}
@@ -126,7 +126,7 @@
 	
 	/* Base Grid */
 	.loopGrid (@index) when (@index > 0) {
-		(~".grid-@{index}") { width: @index * 138px - 10px; }
+		.grid-@{index} { width: @index * 138px - 10px; }
 		.loopGrid (@index - 1);
 	}
 	.loopGrid (7); // 1 to 7

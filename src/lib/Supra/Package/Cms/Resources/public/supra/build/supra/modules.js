@@ -47,14 +47,13 @@
 		
 		//Set default configuration
 		if (!config) {
-            console.error('Warning, we should not use not-default configuration for combo loading');
 			config = Supra.YUI_BASE.groups[group] = {
 				//Website specific modules
 				combine: true,
 				root: "/cms/",
 				base: "/cms/",
 				//Use YUI file combo
-				comboBase: "/cms/lib/supra/combo/combo.php?",
+				comboBase: window.comboBase,
 				filter: "raw",
 				modules: {}
 			};

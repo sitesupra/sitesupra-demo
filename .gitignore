@@ -10,3 +10,4 @@ src/webroot/public
 /composer.lock
 /.idea
 cache/
+.directory
