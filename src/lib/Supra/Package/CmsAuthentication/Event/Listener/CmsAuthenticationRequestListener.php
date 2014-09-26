@@ -6,7 +6,9 @@ use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\RequestResponseEvent;
 use Supra\Core\Event\RequestResponseListenerInterface;
+use Supra\Package\CmsAuthentication\Controller\AuthController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class CmsAuthenticationRequestListener implements RequestResponseListenerInterface, ContainerAware
 {
@@ -54,9 +56,15 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 					$this->container->getParameter('cms_authentication.anonymous_paths')
 				)
 			) {
-				$event->setResponse(new RedirectResponse(
-					$this->container->getRouter()->generate('cms_authentication_login')
-				));
+				if ($request->isXmlHttpRequest()) {
+					$event->setResponse(new Response(AuthController::EMPTY_BODY, AuthController::FAILURE_STATUS));
+				} else {
+					$event->setResponse(new RedirectResponse(
+						$this->container->getRouter()->generate('cms_authentication_login')
+					));
+				}
+
+				$event->stopPropagation();
 			}
 
 			//authorized users on login path are redirected to dashboard
@@ -65,6 +73,7 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 				strpos($request->getPathInfo(), $this->container->getParameter('cms_authentication.login_path')) === 0
 			) {
 				$event->setResponse(new RedirectResponse($cmsPrefix));
+				$event->stopPropagation();
 			}
 		}
 	}

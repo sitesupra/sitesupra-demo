@@ -7,7 +7,7 @@ routes:
         options:
             frontend:       true
     cms_dashboard_applications_list:
-        pattern:            %cms.prefix%/applications_list
+        pattern:            %cms.prefix%/applications-list
         controller:         Cms:Dashboard:applicationsList
         options:
             frontend:       true
@@ -17,3 +17,8 @@ routes:
     cms_js_pack:
         pattern:            /_cms_resources_js_pack
         controller:         Cms:Resource:jsPack
+    cms_check_session:
+        pattern:            %cms.prefix%/check-session
+        controller:         Cms:Cms:sessionCheck
+        options:
+            frontend:       true
