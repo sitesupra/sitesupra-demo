@@ -428,7 +428,7 @@ Supra([
 		 */
 		hide: function () {
 			//Dashboard application is opened, can't close it
-			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") return;
+			if (Supra.data.get(["application", "id"]) === "cms_dashboard") return;
 			
 			if (this.get("visible")) {
 				// Restore original path
