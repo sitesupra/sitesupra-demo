@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SupraJsonResponse extends JsonResponse
 {
-	//we use JsonResponse's data to sotre actual data
+	protected $jsonData = null;
 	protected $jsonStatus = 1;
 	protected $jsonErrorMessage = null;
 	protected $jsonWarningMessage = null;
@@ -15,39 +15,27 @@ class SupraJsonResponse extends JsonResponse
 
 	public function __construct($data = true, $status = 200, $headers = array())
 	{
+		$this->jsonData = $data;
+
 		parent::__construct($data, $status, $headers);
 	}
 
-	public static function create($data = true, $status = 200, $headers = array())
+	public function setData($data = array())
 	{
-		return parent::create($data, $status, $headers);
-	}
+		$this->jsonData = $data;
 
-	public function sendContent()
-	{
-		echo $this->getContent();
-
-		return $this;
-	}
-
-	public function getContent()
-	{
-		return json_encode(array(
-				'status' => $this->jsonStatus,
-				'data' => $this->data,
-				'error_message' => $this->jsonErrorMessage,
-				'warning_message' => $this->jsonWarningMessage,
-				'permissions' => $this->jsonPermissions
-			)
-		);
+		return parent::setData($this->compactJson());
 	}
 
 	/**
 	 * @param $errorMessage
+	 * @return JsonResponse
 	 */
 	public function setErrorMessage($errorMessage)
 	{
 		$this->jsonErrorMessage = $errorMessage;
+
+		return parent::setData($this->compactJson());
 	}
 
 	/**
@@ -60,10 +48,13 @@ class SupraJsonResponse extends JsonResponse
 
 	/**
 	 * @param null $permissions
+	 * @return JsonResponse
 	 */
 	public function setPermissions($permissions)
 	{
 		$this->jsonPermissions = $permissions;
+
+		return parent::setData($this->compactJson());
 	}
 
 	/**
@@ -76,10 +67,13 @@ class SupraJsonResponse extends JsonResponse
 
 	/**
 	 * @param int $status
+	 * @return JsonResponse
 	 */
 	public function setStatus($status)
 	{
 		$this->jsonStatus = $status;
+
+		return parent::setData($this->compactJson());
 	}
 
 	/**
@@ -92,10 +86,13 @@ class SupraJsonResponse extends JsonResponse
 
 	/**
 	 * @param null $warningMessage
+	 * @return JsonResponse
 	 */
 	public function setWarningMessage($warningMessage)
 	{
 		$this->jsonWarningMessage = $warningMessage;
+
+		return parent::setData($this->compactJson());
 	}
 
 	/**
@@ -104,6 +101,17 @@ class SupraJsonResponse extends JsonResponse
 	public function getWarningMessage()
 	{
 		return $this->jsonWarningMessage;
+	}
+
+	protected function compactJson()
+	{
+		return array(
+			'status' => $this->jsonStatus,
+			'data' => $this->jsonData,
+			'error_message' => $this->jsonErrorMessage,
+			'warning_message' => $this->jsonWarningMessage,
+			'permissions' => $this->jsonPermissions
+		);
 	}
 
 }
