@@ -367,7 +367,7 @@ Supra([
 		 * @private
 		 */
 		initializeRouter: function () {
-			this.dashboard_router_path = Manager.Loader.getDynamicPath() + Manager.Loader.getActionBasePath(this.NAME);
+			this.dashboard_router_path = Supra.Url.generate('cms_dashboard');
 			
 			this.router = new Y.Router({
 				'root': '/'

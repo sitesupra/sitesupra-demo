@@ -98,7 +98,7 @@ YUI().add("supra.io", function (Y) {
 				} else {
 					//Invalid response
 					Y.log('Request to "' + url + '" failed', 'debug');
-					
+
 					if (response.responseText) {
 						
 						var response = Supra.io.parseResponse(url, cfg, response.responseText);
@@ -120,7 +120,7 @@ YUI().add("supra.io", function (Y) {
 			} else {
 				// JSONP request
 				Y.log('Request to "' + url + '" failed', 'debug');
-				
+
 				return Supra.io.handleResponse(cfg, {
 					'status': 0,
 					'success': false,
@@ -391,7 +391,7 @@ YUI().add("supra.io", function (Y) {
 	Supra.io.handleErrorMessage = function (cfg, response) {
 		//No error or warning messages when "suppress_errors" parameter is set
 		if (cfg.suppress_errors) return;
-		
+
 		Supra.Manager.executeAction('Confirmation', {
 		    'message': response.error_message,
 		    'useMask': true,

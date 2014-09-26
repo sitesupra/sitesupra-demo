@@ -4,6 +4,8 @@ routes:
     cms_dashboard:
         pattern:            %cms.prefix%
         controller:         Cms:Dashboard:index
+        options:
+            frontend:       true
     cms_dashboard_applications_list:
         pattern:            %cms.prefix%/applications_list
         controller:         Cms:Dashboard:applicationsList
