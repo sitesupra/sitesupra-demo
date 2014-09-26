@@ -237,7 +237,7 @@ Supra([
 				node.one("a.user img").addClass("hidden");
 			}
 			
-			if (Supra.data.get(["application", "id"]) === "Supra\\Cms\\Dashboard") {
+			if (Supra.data.get(["application", "id"]) === "cms_dashboard") {
 				Supra.Y.one("div.yui3-app-content").addClass("hidden");
 			}
 			
