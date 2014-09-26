@@ -6,6 +6,7 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Package\PackageLocator;
 use Supra\Package\Cms\Application\CmsDashboardApplication;
+use Supra\Package\Cms\Application\CmsPagesApplication;
 
 class SupraPackageCms extends AbstractSupraPackage
 {
@@ -19,6 +20,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			);
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
+		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
 	}
 
 }

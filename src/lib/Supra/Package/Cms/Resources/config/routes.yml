@@ -22,3 +22,8 @@ routes:
         controller:         Cms:Cms:sessionCheck
         options:
             frontend:       true
+
+    #pages, ex content-manager
+    cms_pages:
+        pattern:            %cms.prefix%/content-manager
+        controller:         Cms:Pages:index

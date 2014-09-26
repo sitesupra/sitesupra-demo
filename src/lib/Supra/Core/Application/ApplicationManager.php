@@ -43,4 +43,9 @@ class ApplicationManager
 
 		throw new \RuntimeException(sprintf('No reference for application "%s"', $name));
 	}
+
+	public function getApplications()
+	{
+		return $this->applications;
+	}
 }

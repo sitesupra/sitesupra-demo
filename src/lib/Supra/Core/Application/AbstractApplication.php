@@ -4,6 +4,8 @@ namespace Supra\Core\Application;
 
 class AbstractApplication implements ApplicationInterface
 {
+	const APPLICATION_ACCESS_PUBLIC = 'public';
+	const APPLICATION_ACCESS_PRIVATE = 'private';
 	/**
 	 * @var string
 	 */
@@ -23,6 +25,16 @@ class AbstractApplication implements ApplicationInterface
 	 * @var string
 	 */
 	protected $icon;
+
+	/**
+	 * @var string
+	 */
+	protected $route;
+
+	/**
+	 * @var string
+	 */
+	protected $access = self::APPLICATION_ACCESS_PRIVATE;
 
 	/**
 	 * @return string
@@ -54,6 +66,38 @@ class AbstractApplication implements ApplicationInterface
 	public function getIcon()
 	{
 		return $this->icon;
+	}
+
+	/**
+	 * @param string $route
+	 */
+	public function setRoute($route)
+	{
+		$this->route = $route;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getRoute()
+	{
+		return $this->route;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPublic()
+	{
+		return $this->access == $this::APPLICATION_ACCESS_PUBLIC;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPrivate()
+	{
+		return $this->access == $this::APPLICATION_ACCESS_PRIVATE;
 	}
 
 }
