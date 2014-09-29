@@ -2,7 +2,9 @@
 
 namespace Supra\Package\DebugBar;
 
+use DebugBar\Bridge\DoctrineCollector;
 use DebugBar\StandardDebugBar;
+use Doctrine\DBAL\Logging\DebugStack;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
@@ -19,10 +21,21 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 			return new SessionCollector();
 		};
 
+		$container[$this->name.'.doctrine_collector'] = function (ContainerInterface $container) {
+			$debugStack = new DebugStack();
+
+			foreach ($container->getDoctrine()->getConnections() as $con) {
+				$con->getConfiguration()->setSqlLogger($debugStack);
+			}
+
+			return new DoctrineCollector($debugStack);
+		};
+
 		$container[$this->name.'.debug_bar'] = function ($container) {
 			$debugBar = new StandardDebugBar();
 
 			$debugBar->addCollector($container[$this->name.'.session_collector']);
+			$debugBar->addCollector($container[$this->name.'.doctrine_collector']);
 
 			return $debugBar;
 		};
@@ -35,6 +48,12 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 
 		$container->getEventDispatcher()
 			->addListener(FrameworkConsoleEvent::ASSETS_PUBLISH, array($container[$this->name.'.assets_listener'], 'listen'));
+	}
+
+	public function boot()
+	{
+		//instantiate doctrine collector by hand
+		$this->container[$this->name.'.doctrine_collector'];
 	}
 
 }
