@@ -12,6 +12,8 @@ use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
 use Supra\Package\Framework\Command\ContainerPackagesListCommand;
+use Supra\Package\Framework\Command\DoctrineSchemaCreateCommand;
+use Supra\Package\Framework\Command\DoctrineSchemaDropCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaUpdateCommand;
 use Supra\Package\Framework\Command\RoutingListCommand;
 use Supra\Package\Framework\Command\SupraShellCommand;
@@ -29,6 +31,8 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getConsole()->add(new SupraShellCommand());
 		$container->getConsole()->add(new AssetsPublishCommand());
 		$container->getConsole()->add(new DoctrineSchemaUpdateCommand());
+		$container->getConsole()->add(new DoctrineSchemaDropCommand());
+		$container->getConsole()->add(new DoctrineSchemaCreateCommand());
 
 		//include supra helpers
 		$cmsExtension = new CmsExtension();
