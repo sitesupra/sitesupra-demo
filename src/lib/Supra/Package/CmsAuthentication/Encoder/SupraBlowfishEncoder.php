@@ -47,11 +47,11 @@ class SupraBlowfishEncoder implements PasswordEncoderInterface
 		// Not using user provided salt, generating
 		$saltBase = $this->generateSalt();
 		$strength = str_pad((string) $this->strength, 2, '0', STR_PAD_LEFT);
-		$salt = '$' . $this->$algorithm . '$' . $strength . '$' . $saltBase . '$';
+		$salt = '$' . self::$algorithm . '$' . $strength . '$' . $saltBase . '$';
 
 		$hash = crypt((string) $raw, $salt);
 
-		if (strlen($hash) != $this->$expectedLength) {
+		if (strlen($hash) != self::$expectedLength) {
 			throw new \RuntimeException("Generated hash doesn't match expected size");
 		}
 
