@@ -77,7 +77,7 @@ class FrontController
 				$this->container['kernel'] = $this;
 
 				//HttpFoundation and initialization stuff should happen here
-				$this->log = ObjectRepository::getLogger($this);
+	//			$this->log = ObjectRepository::getLogger($this);
 				self::$instance = $this;
 
 				$application->boot();
