@@ -225,34 +225,34 @@ class FrontController
 			}
 		}
 
-		//old way
-		$request = $this->getRequestObject();
-		try {
-			
-			$request->readEnvironment();
-			$this->findMatchingRouters($request);
-		} catch (\Exception $exception) {
-						if (!$exception instanceof Exception\ResourceNotFoundException && true) { //@todo: debug/release mode here
-							throw $exception;
-						} else {
-							// Log anything except ResourceNotFoundException
-							if ( ! $exception instanceof Exception\ResourceNotFoundException) {
-									$exceptionIdentifier = md5((string) $exception);
-									$this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
-							}
-
-							if ($this->exceptionControllerClass !== null) {
-									$exceptionController = $this->initializeController($this->exceptionControllerClass);
-							} else {
-									$exceptionController = $this->initializeController(DefaultExceptionController::CN());
-							}
-							/* @var $exceptionController Supra\Controller\ExceptionController */
-
-							$exceptionController->setException($exception);
-							$this->runControllerInner($exceptionController, $request);
-							$exceptionController->output();
-						}
-		}
+//		//old way
+//		$request = $this->getRequestObject();
+//		try {
+//
+//			$request->readEnvironment();
+//			$this->findMatchingRouters($request);
+//		} catch (\Exception $exception) {
+//						if (!$exception instanceof Exception\ResourceNotFoundException && true) { //@todo: debug/release mode here
+//							throw $exception;
+//						} else {
+//							// Log anything except ResourceNotFoundException
+//							if ( ! $exception instanceof Exception\ResourceNotFoundException) {
+//									$exceptionIdentifier = md5((string) $exception);
+//									$this->log->error('#' . $exceptionIdentifier, ' ', $exception, "\nrequest: ", $request->getRequestMethod() . ' ' . $request->getActionString());
+//							}
+//
+//							if ($this->exceptionControllerClass !== null) {
+//									$exceptionController = $this->initializeController($this->exceptionControllerClass);
+//							} else {
+//									$exceptionController = $this->initializeController(DefaultExceptionController::CN());
+//							}
+//							/* @var $exceptionController Supra\Controller\ExceptionController */
+//
+//							$exceptionController->setException($exception);
+//							$this->runControllerInner($exceptionController, $request);
+//							$exceptionController->output();
+//						}
+//		}
 
 		$eventManager = ObjectRepository::getEventManager();
 
@@ -427,15 +427,15 @@ class FrontController
 		return $exceptionController;
 	}
 
-	/**
-	 * Creates request instance. Only HttpRequest supported now.
-	 * @return Request\RequestInterface
-	 */
-	protected function getRequestObject()
-	{
-		$request = new Request\HttpRequest();
-
-		return $request;
-	}
+//	/**
+//	 * Creates request instance. Only HttpRequest supported now.
+//	 * @return Request\RequestInterface
+//	 */
+//	protected function getRequestObject()
+//	{
+//		$request = new Request\HttpRequest();
+//
+//		return $request;
+//	}
 
 }
