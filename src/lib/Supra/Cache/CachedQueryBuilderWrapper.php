@@ -18,10 +18,11 @@ class CachedQueryBuilderWrapper extends QueryBuilder
 	 */
 	private $groups;
 	
-	public function __construct(QueryBuilder $qb, $groups)
+	public function __construct(QueryBuilder $qb, $groups, $cacheAdapter)
 	{
 		$this->qb = $qb;
 		$this->groups = $groups;
+		$this->cache = $cacheAdapter;
 	}
 	
 	/**
@@ -40,7 +41,7 @@ class CachedQueryBuilderWrapper extends QueryBuilder
 	{
 		$query = $this->qb->getQuery();
 		
-		$cacheGroupManager = new CacheGroupManager();
+		$cacheGroupManager = new CacheGroupManager($this->cache);
 		$cacheGroupManager->configureQueryResultCache($query, $this->groups);
 		
 		return $query;

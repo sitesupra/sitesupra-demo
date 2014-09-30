@@ -7,6 +7,9 @@ use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Package\PackageLocator;
 use Supra\Package\Cms\Application\CmsDashboardApplication;
 use Supra\Package\Cms\Application\CmsPagesApplication;
+use Supra\Package\Cms\Pages\Application\PageApplicationManager;
+use Supra\Package\Cms\Pages\Application\BlogPageApplication;
+use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
 
 class SupraPackageCms extends AbstractSupraPackage
 {
@@ -21,6 +24,17 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
 		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
+
+		// Page Apps Manager
+		$container[$this->name.'.page_application_manager'] = function () {
+
+			$manager = new PageApplicationManager();
+			
+			$manager->registerApplication(new BlogPageApplication());
+			$manager->registerApplication(new GlossaryPageApplication());
+
+			return $manager;
+		};
 	}
 
 }

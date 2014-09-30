@@ -81,14 +81,11 @@
  * Main manager action, initiates all other actions
  */
 Supra([
-	
 	"dashboard.app-list",
 	"transition"
-	].concat(
-		Supra.data.get(["site", "portal"]) ? ["dashboard.inbox"] : []
-	).concat(
-		Supra.data.get(["site", "portal"]) ? ["dashboard.stats"] : []
-	)
+//	"dashboard.stats",
+//	"dashboard.inbox"
+]
 , function (Y) {
 	//Invoke strict mode
 	"use strict";

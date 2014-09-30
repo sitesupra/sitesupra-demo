@@ -2,13 +2,15 @@
 
 namespace Supra\Database;
 
+use Doctrine\ORM\Events;
+use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Supra\Database\Annotation\DetachedDiscriminators;
 use Supra\Database\Annotation\DetachedDiscriminatorValue;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
-class DetachedDiscriminatorHandler
+class DetachedDiscriminatorHandler implements EventSubscriber
 {
 	/**
 	 * @var SimpleAnnotationReader
@@ -24,6 +26,14 @@ class DetachedDiscriminatorHandler
 	 * @var array
 	 */
 	protected $discriminatorMaps = array();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getSubscribedEvents()
+	{
+		return array(Events::loadClassMetadata);
+	}
 
 	/**
 	 * @return SimpleAnnotationReader
@@ -125,5 +135,5 @@ class DetachedDiscriminatorHandler
 			$classMetadata->setDiscriminatorMap($localDiscriminatorMap);
 		}
 	}
-
+	
 }

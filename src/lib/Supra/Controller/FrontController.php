@@ -215,6 +215,9 @@ class FrontController
 			$response->send();
 			return;
 		} catch(ResourceNotFoundException $e) {
+
+			// @TODO: isn't it the right place so set 404 error code into default response obj?
+
 			$notFoundEvent = new RequestResponseEvent();
 			$notFoundEvent->setRequest($request);
 			$this->container->getEventDispatcher()->dispatch(KernelEvent::ERROR404, $notFoundEvent);
@@ -223,6 +226,11 @@ class FrontController
 				$notFoundEvent->getResponse()->send();
 				return;
 			}
+
+			$response = new Response();
+			$response->setStatusCode(404);
+
+			$response->send();
 		}
 
 //		//old way

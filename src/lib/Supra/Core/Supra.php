@@ -49,6 +49,10 @@ use Symfony\Component\Security\Core\User\ChainUserProvider;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
 use Symfony\Component\Security\Core\User\UserChecker;
 
+use Supra\Database\DetachedDiscriminatorHandler;
+use Supra\NestedSet\Listener\NestedSetListener;
+use Supra\Controller\Pages\Listener\TableDraftSuffixAppender;
+
 abstract class Supra
 {
 	/**
@@ -399,7 +403,7 @@ abstract class Supra
 	public function buildDoctrine(ContainerInterface $container)
 	{
 		//event manager
-		$container['doctrine.event_manager'] = function (ContainerInterface $container) {
+		$container['doctrine.event_manager.public'] = function (ContainerInterface $container) {
 			$eventManager = new EventManager();
 			//for later porting
 			// Adds prefix for tables
@@ -423,6 +427,22 @@ abstract class Supra
 				}
 				$eventManager->addEventSubscriber($eventSubscriber);
 			}*/
+
+			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());			
+			$eventManager->addEventSubscriber(new NestedSetListener());
+
+			return $eventManager;
+		};
+
+		$container['doctrine.event_manager.cms'] = function (ContainerInterface $container) {
+			$eventManager = new EventManager();
+
+			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
+
+			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
+			$eventManager->addEventSubscriber(new NestedSetListener());
+
+			$eventManager->addEventSubscriber(new TableDraftSuffixAppender());
 
 			return $eventManager;
 		};
@@ -449,7 +469,7 @@ abstract class Supra
 				null
 			);
 
-			//Foo;Bar -> \FooPackage\Entity\Bar aliases
+			//Foo:Bar -> \FooPackage\Entity\Bar aliases
 			foreach ($packages as $package) {
 				$class = get_class($package);
 				$namespace = substr($class, 0, strrpos($class, '\\')) . '\\Entity';
@@ -471,12 +491,12 @@ abstract class Supra
 				array(
 					'host' => 'localhost',
 					'user' => 'root',
-					'password' => '',
-					'dbname' => 'supra9'
+					'password' => 'root',
+					'dbname' => 'supra7'
 				),
 				new PDOMySql\Driver(),
 				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager']
+				$container['doctrine.event_manager.public']
 			);
 
 			return $connection;
@@ -487,12 +507,28 @@ abstract class Supra
 				array(
 					'host' => 'localhost',
 					'user' => 'root',
-					'password' => '',
-					'dbname' => 'supra9_shared_users'
+					'password' => 'root',
+					'dbname' => 'supra7_shared_users'
 				),
 				new PDOMySql\Driver(),
 				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager']
+				$container['doctrine.event_manager.public']
+			);
+
+			return $connection;
+		};
+
+		$container['doctrine.connections.cms'] = function (ContainerInterface $container) {
+			$connection = new Connection(
+				array(
+					'host' => 'localhost',
+					'user' => 'root',
+					'password' => 'root',
+					'dbname' => 'supra7'
+				),
+				new PDOMySql\Driver(),
+				$container['doctrine.orm_configuration'],
+				$container['doctrine.event_manager.cms']
 			);
 
 			return $connection;
@@ -503,7 +539,15 @@ abstract class Supra
 			return EntityManager::create(
 				$container['doctrine.connections.default'],
 				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager']
+				$container['doctrine.event_manager.public']
+			);
+		};
+
+		$container['doctrine.entity_managers.cms'] = function (ContainerInterface $container) {
+			return EntityManager::create(
+				$container['doctrine.connections.cms'],
+				$container['doctrine.orm_configuration'],
+				$container['doctrine.event_manager.cms']
 			);
 		};
 
@@ -511,14 +555,15 @@ abstract class Supra
 			return EntityManager::create(
 				$container['doctrine.connections.shared'],
 				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager']
+				$container['doctrine.event_manager.public']
 			);
 		};
 
 		$container['doctrine.entity_managers'] = function (ContainerInterface $container) {
 			return array(
 				'public' => 'doctrine.entity_managers.public',
-				'shared' => 'doctrine.entity_managers.shared'
+				'cms' => 'doctrine.entity_managers.cms',
+				'shared' => 'doctrine.entity_managers.shared',
 			);
 		};
 
@@ -532,7 +577,7 @@ abstract class Supra
 				),
 				$container['doctrine.entity_managers'],
 				'default',
-				'cms',
+				'public',
 				'foobar'
 			);
 		};

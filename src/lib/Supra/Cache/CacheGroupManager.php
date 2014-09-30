@@ -26,10 +26,10 @@ class CacheGroupManager
 	/**
 	 * Constructor 
 	 */
-	public function __construct()
+	public function __construct($cacheAdapter)
 	{
 		if ( ! isset(self::$cache)) {
-			self::$cache = ObjectRepository::getCacheAdapter($this);
+			self::$cache = $cacheAdapter;
 		}
 	}
 
@@ -74,6 +74,8 @@ class CacheGroupManager
 	 */
 	public function configureQueryResultCache(Query $query, $groups)
 	{
+		return;
+
 		// Cache only for public schema
 		$em = $query->getEntityManager();
 		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);

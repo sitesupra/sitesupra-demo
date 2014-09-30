@@ -27,3 +27,22 @@ routes:
     cms_pages:
         pattern:            %cms.prefix%/content-manager
         controller:         Cms:Pages:index
+    cms_pages_sitemap:
+        pattern:            %cms.prefix%/content-manager/h/{params}
+        controller:         Cms:Pages:index
+
+    cms_pages_sitemap_pages_list:
+        pattern:						%cms.prefix%/content-manager/sitemap/pages-list
+        controller:					Cms:PagesSitemap:pagesList
+        options:
+            frontend:       true
+    cms_pages_sitemap_templates_list:
+        pattern:						%cms.prefix%/content-manager/sitemap/templates-list
+        controller:					Cms:PagesSitemap:templatesList
+        options:
+            frontend:       true
+    cms_pages_sitemap_applications_list:
+        pattern:						%cms.prefix%/content-manager/sitemap/applications-list
+        controller:					Cms:PagesSitemap:applicationsList
+        options:
+            frontend:       true

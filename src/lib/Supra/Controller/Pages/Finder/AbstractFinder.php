@@ -27,9 +27,10 @@ abstract class AbstractFinder
 	 */
 	private $customConditions = array();
 
-	public function __construct(EntityManager $em)
+	public function __construct(EntityManager $em, $cacheAdapter)
 	{
 		$this->em = $em;
+		$this->cacheAdapter = $cacheAdapter;
 	}
 
 	public function getEntityManager()
@@ -61,7 +62,7 @@ abstract class AbstractFinder
 
 		// Wrap only if not wrapped already
 		if ($this->cache && ! $qb instanceof CachedQueryBuilderWrapper) {
-			$qb = new CachedQueryBuilderWrapper($qb, PageController::CACHE_GROUP_NAME);
+			$qb = new CachedQueryBuilderWrapper($qb, PageController::CACHE_GROUP_NAME, $this->cacheAdapter);
 		}
 
 		if ( ! $this->cache && $qb instanceof CachedQueryBuilderWrapper) {

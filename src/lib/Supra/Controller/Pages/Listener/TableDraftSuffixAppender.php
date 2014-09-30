@@ -23,8 +23,8 @@ class TableDraftSuffixAppender extends VersionedTableMetadataListener implements
 	 * @var array
 	 */
 	protected static $versionedEntities = array(
-		'Supra\Controller\Pages\Entity\PageLocalizationPath',
-		'Supra\Controller\Pages\Entity\LocalizationTag',
+		'Supra\Package\Cms\Entity\PageLocalizationPath',
+		'Supra\Package\Cms\Entity\LocalizationTag',
 	);
 	
 	public static function getVersionedEntities()

@@ -452,6 +452,7 @@ Supra(function (Y) {
 		 */
 		renderButtons: function (button_groups) {
 			var container = this.one('.yui3-editor-toolbar-main'),
+				icon,
 				subcontainer = null,
 				button_config,
 				button,
@@ -462,7 +463,8 @@ Supra(function (Y) {
 				visible,
 				disabled,
 				attr_buttons = this.get('buttons') || {},
-				empty = true;
+				empty = true,
+				staticPath = Supra.Manager.Loader.getStaticPath();
 			
 			for(var group_id in this.groups) {
 				empty = false;
@@ -493,7 +495,7 @@ Supra(function (Y) {
 					this.active_group = group_id;
 					this.history.push(group_id);
 				}
-						
+
 				//Create buttons
 				for(var i=0,ii=button_config.length; i<ii; i++) {
 					if (Y.Lang.isObject(button_config[i])) {
@@ -512,8 +514,10 @@ Supra(function (Y) {
 							continue;
 						}
 						*/
+					   
+					    icon = staticPath + '/' + button_config[i].icon;
 						
-						button = new Supra.Button({"type": type, "label": button_config[i].title, "icon": button_config[i].icon, "visible": visible});
+						button = new Supra.Button({"type": type, "label": button_config[i].title, "icon": icon, "visible": visible});
 						button.ICON_TEMPLATE = '<span class="img"><img src="" alt="" /></span>';
 						button.set('topbarButtonId', id);
 						button.render(subcontainer);

@@ -12,26 +12,26 @@ abstract class VersionedTableMetadataListener
 	 * @var array
 	 */
 	protected static $versionedEntities = array(
-		'Supra\Controller\Pages\Entity\Abstraction\Localization',
-		'Supra\Controller\Pages\Entity\PageLocalization',
-		'Supra\Controller\Pages\Entity\TemplateLocalization',
+		'Supra\Package\Cms\Entity\Abstraction\Localization',
+		'Supra\Package\Cms\Entity\PageLocalization',
+		'Supra\Package\Cms\Entity\TemplateLocalization',
 		
-		'Supra\Controller\Pages\Entity\Abstraction\PlaceHolder',
-		'Supra\Controller\Pages\Entity\PagePlaceHolder',
-		'Supra\Controller\Pages\Entity\TemplatePlaceHolder',
-		'Supra\Controller\Pages\Entity\PlaceHolderGroup',
+		'Supra\Package\Cms\Entity\Abstraction\PlaceHolder',
+		'Supra\Package\Cms\Entity\PagePlaceHolder',
+		'Supra\Package\Cms\Entity\TemplatePlaceHolder',
+		'Supra\Package\Cms\Entity\PlaceHolderGroup',
 		
-		'Supra\Controller\Pages\Entity\Abstraction\Block',
-		'Supra\Controller\Pages\Entity\PageBlock',
-		'Supra\Controller\Pages\Entity\TemplateBlock',
+		'Supra\Package\Cms\Entity\Abstraction\Block',
+		'Supra\Package\Cms\Entity\PageBlock',
+		'Supra\Package\Cms\Entity\TemplateBlock',
 		
-		'Supra\Controller\Pages\Entity\BlockProperty',
-		'Supra\Controller\Pages\Entity\BlockPropertyMetadata',
+		'Supra\Package\Cms\Entity\BlockProperty',
+		'Supra\Package\Cms\Entity\BlockPropertyMetadata',
 		
-		'Supra\Controller\Pages\Entity\ReferencedElement\ReferencedElementAbstract',
-		'Supra\Controller\Pages\Entity\ReferencedElement\LinkReferencedElement',
-		'Supra\Controller\Pages\Entity\ReferencedElement\ImageReferencedElement',
-		'Supra\Controller\Pages\Entity\ReferencedElement\VideoReferencedElement',
-		'Supra\Controller\Pages\Entity\ReferencedElement\IconReferencedElement',
+		'Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract',
+		'Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement',
+		'Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement',
+		'Supra\Package\Cms\Entity\ReferencedElement\VideoReferencedElement',
+		'Supra\Package\Cms\Entity\ReferencedElement\IconReferencedElement',
 	);
 }

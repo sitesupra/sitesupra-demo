@@ -2,7 +2,9 @@
 
 namespace Supra\Controller\Pages\Finder;
 
-use Supra\Controller\Pages\Entity;
+use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
+use Supra\Package\Cms\Entity\Page;
+use Supra\Package\Cms\Repository\PageAbstractRepository;
 use Supra\Controller\Pages\Repository;
 
 /**
@@ -26,7 +28,7 @@ class PageFinder extends AbstractFinder
 	 */
 	protected function getRepository()
 	{
-		return $this->em->getRepository(Entity\Page::CN());
+		return $this->em->getRepository(Page::CN());
 	}
 	
 	/**
@@ -37,7 +39,7 @@ class PageFinder extends AbstractFinder
 		if (is_null($this->nestedSetRepository)) {
 			$repository = $this->getRepository();
 
-			if ( ! $repository instanceof Repository\PageAbstractRepository) {
+			if ( ! $repository instanceof PageAbstractRepository) {
 				throw new \Supra\Controller\Pages\Exception\ConfigurationException("Wrong repository received");
 			}
 
@@ -81,7 +83,7 @@ class PageFinder extends AbstractFinder
 		}
 	}
 
-	public function addFilterByParent(Entity\Abstraction\AbstractPage $page, $minDepth = 1, $maxDepth = null)
+	public function addFilterByParent(AbstractPage $page, $minDepth = 1, $maxDepth = null)
 	{
 		// Make sure it's positive
 		$minDepth = max($minDepth, 0);
@@ -101,7 +103,7 @@ class PageFinder extends AbstractFinder
 				->leftLessThan($rightLimit);
 	}
 	
-	public function addFilterByChild(Entity\Abstraction\AbstractPage $page, $minDepth = 0, $maxDepth = null)
+	public function addFilterByChild(AbstractPage $page, $minDepth = 0, $maxDepth = null)
 	{
 		$level = $page->getLevel();
 		
