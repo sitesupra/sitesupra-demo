@@ -27,6 +27,8 @@ routes:
     cms_pages:
         pattern:            %cms.prefix%/content-manager
         controller:         Cms:Pages:index
+        options:
+            frontend:				true
     cms_pages_sitemap:
         pattern:            %cms.prefix%/content-manager/h/{params}
         controller:         Cms:Pages:index

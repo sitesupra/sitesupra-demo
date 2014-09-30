@@ -2,9 +2,6 @@
 
 namespace Supra\Package\Cms\Entity;
 
-use Supra\Controller\Pages\Set\PageSet;
-use Supra\Controller\Pages\Exception;
-
 /**
  * @Entity
  * @method GroupPage getMaster()

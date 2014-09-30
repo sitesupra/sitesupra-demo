@@ -9,7 +9,7 @@ namespace Supra\Package\Cms\Entity;
  *		@index(name="localization_name_idx", columns={"localization_id", "name"})
  * })
  */
-class LocalizationTag extends Abstraction\Entity
+class LocalizationTag extends Abstraction\Entity implements Abstraction\VersionedEntity
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="tags")

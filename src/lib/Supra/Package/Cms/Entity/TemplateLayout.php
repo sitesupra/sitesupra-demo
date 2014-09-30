@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Entity;
 
-//use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
+//use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Package\Cms\Entity\Theme\ThemeLayout;
 
@@ -10,7 +10,7 @@ use Supra\Package\Cms\Entity\Theme\ThemeLayout;
  * Page controller template-layout class
  * @Entity
  */
-class TemplateLayout extends Abstraction\Entity // implements AuditedEntityInterface
+class TemplateLayout extends Abstraction\Entity // implements AuditedEntity
 {
 	/**
 	 * {@inheritdoc}

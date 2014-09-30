@@ -1467,10 +1467,6 @@ abstract class PageManagerAction extends CmsAction
 			$array = array_merge($nodeData, $array);
 		}
 
-		if ($page instanceof Entity\Template) {
-			$array['type'] = 'template';
-		}
-
 		return $array;
 	}
 

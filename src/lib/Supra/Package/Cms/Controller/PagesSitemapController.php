@@ -142,7 +142,7 @@ class PagesSitemapController extends AbstractPagesController
 		$em = $this->getEntityManager();
 		
 		$input = $this->getRequestInput();
-		$localeId = $this->getLocale()->getId();
+		$localeId = $this->getCurrentLocale()->getId();
 
 		// Parent ID and level
 		$levels = null;
@@ -210,7 +210,7 @@ class PagesSitemapController extends AbstractPagesController
 	private function gatherChildrenData($entity, $parentLocalization, $filter = null, $levels = null, $count = false)
 	{
 		$input = $this->getRequestInput();
-		$localeId = $this->getLocale()->getId();
+		$localeId = $this->getCurrentLocale()->getId();
 		
 		$existingOnly = $input->filter('existing_only', false, false, FILTER_VALIDATE_BOOLEAN);
 

@@ -51,7 +51,7 @@ use Symfony\Component\Security\Core\User\UserChecker;
 
 use Supra\Database\DetachedDiscriminatorHandler;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Controller\Pages\Listener\TableDraftSuffixAppender;
+use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 
 abstract class Supra
 {
@@ -442,7 +442,7 @@ abstract class Supra
 			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
 			$eventManager->addEventSubscriber(new NestedSetListener());
 
-			$eventManager->addEventSubscriber(new TableDraftSuffixAppender());
+			$eventManager->addEventSubscriber(new VersionedEntitySchemaListener());
 
 			return $eventManager;
 		};

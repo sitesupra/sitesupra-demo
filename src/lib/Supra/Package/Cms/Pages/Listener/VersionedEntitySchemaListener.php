@@ -1,17 +1,18 @@
 <?php
 
-namespace Supra\Controller\Pages\Listener;
+namespace Supra\Package\Cms\Pages\Listener;
 
-use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
+use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 
 /**
- * Adds draft suffix for the tables from the schema for draft connection only
+ * Adds draft suffix for the table names of versioned entities.
  */
-class TableDraftSuffixAppender extends VersionedTableMetadataListener implements EventSubscriber
+class VersionedEntitySchemaListener implements EventSubscriber
 {
 	/**
 	 * Draft table name suffix
@@ -19,22 +20,7 @@ class TableDraftSuffixAppender extends VersionedTableMetadataListener implements
 	const TABLE_SUFFIX = '_draft';
 	
 	/**
-	 * Entities to be versioned
-	 * @var array
-	 */
-	protected static $versionedEntities = array(
-		'Supra\Package\Cms\Entity\PageLocalizationPath',
-		'Supra\Package\Cms\Entity\LocalizationTag',
-	);
-	
-	public static function getVersionedEntities()
-	{
-		return array_merge(parent::$versionedEntities, self::$versionedEntities);
-	}
-	
-	/**
 	 * {@inheritdoc}
-	 * @return array
 	 */
 	public function getSubscribedEvents()
 	{
@@ -46,6 +32,7 @@ class TableDraftSuffixAppender extends VersionedTableMetadataListener implements
 	
 	/**
 	 * Removes common tables
+	 * 
 	 * @param GenerateSchemaEventArgs $eventArgs
 	 */
 	public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
@@ -67,14 +54,17 @@ class TableDraftSuffixAppender extends VersionedTableMetadataListener implements
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
 	{
-		$versionedEntities = array_merge(parent::$versionedEntities, self::$versionedEntities);
-		
+		$interfaceName = VersionedEntity::VERSIONED_ENTITY_INTERFACE;
+
 		$classMetadata = $eventArgs->getClassMetadata();
-		$className = $classMetadata->name;
-		$name = &$classMetadata->table['name'];
-		
-		if (in_array($className, $versionedEntities) && strpos($name, static::TABLE_SUFFIX) === false) {
-			$name = $name . static::TABLE_SUFFIX;
+
+		$tableName = &$classMetadata->table['name'];
+
+		if (strpos($tableName, static::TABLE_SUFFIX) === false
+			&& $classMetadata->getReflectionClass()
+					->implementsInterface($interfaceName)) {
+
+			$tableName = $tableName . static::TABLE_SUFFIX;
 		}
 	}
 }

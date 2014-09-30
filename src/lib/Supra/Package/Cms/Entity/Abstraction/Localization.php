@@ -24,7 +24,11 @@ use Supra\Controller\Pages\Entity\PlaceHolderGroup;
  * 		"group"			= "Supra\Package\Cms\Entity\GroupLocalization"
  * })
  */
-abstract class Localization extends Entity implements AuditedEntityInterface, TitleTrackingItemInterface, LocalizationInterface
+abstract class Localization extends Entity implements
+		VersionedEntity,
+		AuditedEntity,
+		TitleTrackingItemInterface,
+		LocalizationInterface
 {
 
 	const CHANGE_FREQUENCY_HOURLY = 'hourly';
@@ -227,9 +231,17 @@ abstract class Localization extends Entity implements AuditedEntityInterface, Ti
 	/**
 	 * @return string
 	 */
-	public function getLocale()
+	public function getLocaleId()
 	{
 		return $this->locale;
+	}
+
+	/**
+	 * @deprecated use getLocaleId() instead
+	 */
+	public function getLocale()
+	{
+		return $this->getLocaleId();
 	}
 
 	/**

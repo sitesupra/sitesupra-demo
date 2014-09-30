@@ -2,15 +2,18 @@
 
 namespace Supra\Package\Cms\Entity;
 
-//use Supra\Controller\Pages\Entity\Abstraction\Entity;
-//use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
-//use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
+use Supra\Package\Cms\Entity\Abstraction\Entity;
+use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
+use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 
 /**
  * BlockPropertyMetadata
  * @Entity
  */
-class BlockPropertyMetadata extends Abstraction\Entity// implements AuditedEntityInterface, OwnedEntityInterface
+class BlockPropertyMetadata extends Abstraction\Entity implements
+	AuditedEntity,
+	VersionedEntity
+	//OwnedEntityInterface
 {
 	/**
 	 * @Column(type="string")
@@ -78,9 +81,6 @@ class BlockPropertyMetadata extends Abstraction\Entity// implements AuditedEntit
 	 */
 	public function getReferencedElement()
 	{
-		if ( ! empty($this->overridenReferencedElement)) {
-			return $this->overridenReferencedElement;
-		}
 		return $this->referencedElement;
 	}
 
@@ -97,11 +97,6 @@ class BlockPropertyMetadata extends Abstraction\Entity// implements AuditedEntit
 		return $this->blockProperty;
 	}
 	
-	public function setOverridenReferencedElement($referencedElement)
-	{
-		$this->overridenReferencedElement = $referencedElement;
-	}
-
 	/**
 	 * Used after cloning
 	 * @param BlockProperty $blockProperty

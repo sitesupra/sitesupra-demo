@@ -9,7 +9,7 @@ use Supra\Uri\Path;
  * @Entity
  * @Table(uniqueConstraints={@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})}))
  */
-class PageLocalizationPath extends Abstraction\Entity
+class PageLocalizationPath extends Abstraction\Entity implements Abstraction\VersionedEntity
 {
 
 	/**

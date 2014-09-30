@@ -50,7 +50,7 @@ use Supra\NestedSet;
  * @method boolean isDescendantOf(AbstractPage $node)
  * @method boolean isEqualTo(AbstractPage $node)
  */
-abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface, AuditedEntityInterface
+abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface, AuditedEntity
 {
 
     /**
@@ -359,12 +359,15 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
     }
 
     /**
-     * Is global
+	 * Is page global or not.
+	 *
      * @return boolean
      */
     public function isGlobal()
     {
-        return $this->global;
+		return $this->getLevel() !== 0
+				? ($this->global === true)
+				: true;
     }
 
     /**

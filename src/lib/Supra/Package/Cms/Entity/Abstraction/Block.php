@@ -23,7 +23,10 @@ use Doctrine\Common\Collections\ArrayCollection;
  *		"page" = "Supra\Package\Cms\Entity\PageBlock"
  * })
  */
-abstract class Block extends Entity implements AuditedEntityInterface, OwnedEntityInterface
+abstract class Block extends Entity implements
+		VersionedEntity,
+		AuditedEntity,
+		OwnedEntityInterface
 {
 	/**
 	 * @Column(type="string", name="component")

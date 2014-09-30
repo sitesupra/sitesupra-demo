@@ -3,11 +3,10 @@
 namespace Supra\Package\Cms\Entity\ReferencedElement;
 
 use Supra\Package\Cms\Entity\Abstraction\Entity;
+use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
+use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
 
 use Supra\Controller\Pages\Exception;
-
-//use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
-//use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 
 /**
  * @Entity
@@ -20,7 +19,9 @@ use Supra\Controller\Pages\Exception;
  *		"icon" = "IconReferencedElement",
  * })
  */
-abstract class ReferencedElementAbstract extends Entity // implements AuditedEntityInterface
+abstract class ReferencedElementAbstract extends Entity implements
+	VersionedEntity,
+	AuditedEntity
 {
 	/**
 	 * Convert object to array

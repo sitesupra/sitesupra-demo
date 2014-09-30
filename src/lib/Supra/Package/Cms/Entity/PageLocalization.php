@@ -2,14 +2,9 @@
 
 namespace Supra\Package\Cms\Entity;
 
-use Supra\Controller\Pages\Exception;
-use DateTime;
 use Supra\Uri\Path;
-use Supra\Search\IndexedDocument;
-use Supra\Controller\Pages\Request\PageRequestView;
 use Supra\Uri\NullPath;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\User\Entity\User;
+use Supra\Package\Cms\Entity\Abstraction\RedirectTarget;
 
 /**
  * PageLocalization class
@@ -22,7 +17,6 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * {@inheritdoc}
 	 */
-
 	const DISCRIMINATOR = self::PAGE_DISCR;
 
 	/**
@@ -57,23 +51,19 @@ class PageLocalization extends Abstraction\Localization
 	protected $active = true;
 
 	/**
-	 * @Column(type="boolean")
-	 * @var boolean
-	 */
-	protected $limitedAccess = false;
-
-	/**
 	 * @Column(type="datetime", nullable=true, name="schedule_time")
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $scheduleTime;
 
 	/**
-	 * Redirect information if any
-	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement", cascade={"all"})
-	 * @var ReferencedElement\LinkReferencedElement
+	 * Redirect target
+	 *
+	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\RedirectTarget", cascade={"all"})
+	 * 
+	 * @var Abstraction\RedirectTarget
 	 */
-	protected $redirect;
+	protected $redirectTarget;
 
 	/**
 	 * Used to reset the creation time on first publish or creation time set
@@ -164,7 +154,6 @@ class PageLocalization extends Abstraction\Localization
 
 		$this->getPathEntity()->setPath($path);
 		$this->getPathEntity()->setActive($active);
-		$this->getPathEntity()->setLimited($limited);
 		$this->getPathEntity()->setVisibleInSitemap($inSitemap);
 	}
 
@@ -316,7 +305,7 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * @return DateTime
+	 * @return \DateTime
 	 */
 	public function getScheduleTime()
 	{
@@ -324,9 +313,9 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * @param DateTime $scheduleTime
+	 * @param \DateTime $scheduleTime
 	 */
-	public function setScheduleTime(DateTime $scheduleTime)
+	public function setScheduleTime(\DateTime $scheduleTime)
 	{
 		$this->scheduleTime = $scheduleTime;
 	}
@@ -340,23 +329,32 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * @return ReferencedElement\LinkReferencedElement
+	 * @return bool
 	 */
-	public function getRedirect()
+	public function hasRedirectTarget()
 	{
-		return $this->redirect;
+		return $this->redirectTarget !== null;
 	}
 
 	/**
-	 * @param ReferencedElement\LinkReferencedElement $redirect
+	 * @return RedirectTarget
 	 */
-	public function setRedirect(ReferencedElement\LinkReferencedElement $redirect = null)
+	public function getRedirectTarget()
 	{
-		$this->redirect = $redirect;
+		return $this->redirectTarget;
 	}
 
 	/**
-	 * @return DateTime
+	 * @param RedirectTarget $target
+	 */
+	public function setRedirectTarget(RedirectTarget $target)
+	{
+		$target->setPageLocalization($this);
+		$this->redirectTarget = $target;
+	}
+
+	/**
+	 * @return \DateTime
 	 */
 	public function getCreationTime()
 	{
@@ -365,12 +363,12 @@ class PageLocalization extends Abstraction\Localization
 
 	/**
 	 * Sets creation time
-	 * @param DateTime $creationTime
+	 * @param \DateTime $creationTime
 	 */
-	public function setCreationTime(DateTime $creationTime = null)
+	public function setCreationTime(\DateTime $creationTime = null)
 	{
 		if (is_null($creationTime)) {
-			$creationTime = new DateTime();
+			$creationTime = new \DateTime();
 		}
 
 		$this->creationTime = $creationTime;
@@ -436,43 +434,10 @@ class PageLocalization extends Abstraction\Localization
 			return false;
 		}
 
-		// Any parent not active
-		$active = $this->getPathEntity()
-				->isActive();
+		$pathEntity = $this->getPathEntity();
 
-		if ( ! $active) {
-			return false;
-		}
-
-		$userProviderInterface = ObjectRepository::INTERFACE_USER_PROVIDER;
-		$userProvider = ObjectRepository::getObject($this, $userProviderInterface, false);
-		$isUserAuthorized = false;
-
-		if ($userProvider instanceof $userProviderInterface) {
-			$currentUser = $userProvider->getSignedInUser(false);
-			$isUserAuthorized = ($currentUser instanceof User);
-		}
-
-		if ($this->limitedAccess && ! $isUserAuthorized) {
-			return false;
-		}
-
-		$isLimited = $this->getPathEntity()
-				->isLimited();
-
-		if ($isLimited && ! $isUserAuthorized) {
-			return false;
-		}
-
-		// Path is null for some other reason
-		$path = $this->getPathEntity()
-				->getPath();
-
-		if (is_null($path)) {
-			return false;
-		}
-
-		return true;
+		return $pathEntity->isActive()
+				&& $pathEntity->getPath() !== null;
 	}
 
 	/**
@@ -509,19 +474,6 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * @param boolean $access
-	 */
-	public function setLimitedAccessPage($access)
-	{
-		$this->limitedAccess = $access;
-	}
-
-	public function isLimitedAccessPage()
-	{
-		return $this->limitedAccess;
-	}
-
-	/**
 	 * @param string $localizationId
 	 * @param string $revisionId
 	 * @return string
@@ -540,22 +492,10 @@ class PageLocalization extends Abstraction\Localization
 	{
 		return self::getPreviewFilenameForTypeAndLocalizationAndRevision('p', $localizationId, $revisionId);
 	}
-	
-//	/**
-//	 * 
-//	 */
-//	public function getPlaceHolderGroups()
-//	{
-//		$templateLocalization = $this->template
-//				->getLocalization($this->locale);
-//		
-//		if ( ! is_null($templateLocalization)) {
-//			return $templateLocalization->getPlaceHolderGroups();
-//		}
-//		
-//		return new \Doctrine\Common\Collections\ArrayCollection();
-//	}
 
+	/**
+	 * @param string $applicationId
+	 */
 	public function setParentPageApplicationId($applicationId)
 	{
 		$this->parentPageApplicationId = $applicationId;

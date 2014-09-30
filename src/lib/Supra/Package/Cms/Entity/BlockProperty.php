@@ -3,6 +3,8 @@
 namespace Supra\Package\Cms\Entity;
 
 use Supra\Package\Cms\Entity\Abstraction\Entity;
+use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
+use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
@@ -10,15 +12,16 @@ use Supra\Controller\Pages\Entity\Abstraction\Block;
 use Supra\Editable\EditableInterface;
 use Doctrine\Common\Collections;
 
-//use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
-//use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
-
 /**
  * Block property class.
+ * 
  * @Entity
  * @HasLifecycleCallbacks
  */
-class BlockProperty extends Entity // implements AuditedEntityInterface, OwnedEntityInterface
+class BlockProperty extends Entity implements
+	VersionedEntity,
+	AuditedEntity
+//	OwnedEntityInterface
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="blockProperties")

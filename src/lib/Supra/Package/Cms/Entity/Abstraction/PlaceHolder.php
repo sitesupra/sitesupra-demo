@@ -15,7 +15,10 @@ use Supra\Controller\Pages\Entity\PlaceHolderGroup;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Package\Cms\Entity\TemplatePlaceHolder", "page" = "Supra\Package\Cms\Entity\PagePlaceHolder"})
  */
-abstract class PlaceHolder extends Entity implements AuditedEntityInterface, OwnedEntityInterface
+abstract class PlaceHolder extends Entity implements
+		VersionedEntity,
+		AuditedEntity,
+		OwnedEntityInterface
 {
 	/**
 	 * FIXME: should be fixed after DDC-482 is done or else there is duplicate

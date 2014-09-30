@@ -799,12 +799,12 @@ class PageAction extends PageManagerAction
 			'__shared__' => false,
 		);
 		
-		if ($blockProperty instanceof Entity\SharedBlockProperty) {
-			$propertyInfo['__shared__'] = true;
-			$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
-					->getLocale();
-		}
-		
+//		if ($blockProperty instanceof Entity\SharedBlockProperty) {
+//			$propertyInfo['__shared__'] = true;
+//			$propertyInfo['locale'] = $blockProperty->getOriginalLocalization()
+//					->getLocale();
+//		}
+//
 		 //TODO: sub-properties are not prepared to be non-/shared
 		if ($blockController instanceof \Supra\Controller\Pages\GalleryBlockController) {
 			$propertyInfo = $propertyContent;
