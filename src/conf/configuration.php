@@ -6,9 +6,10 @@ use Supra\Configuration\Loader\WriteableIniConfigurationLoader;
 
 error_reporting(E_ALL | E_NOTICE);
 
+return;
+require_once SUPRA_CONF_PATH . 'cms.php';
 $iniLoader = new Supra\Configuration\Loader\IniConfigurationLoader('supra.ini');
 ObjectRepository::setDefaultIniConfigurationLoader($iniLoader);
-require_once SUPRA_CONF_PATH . 'cms.php';
 return;
 
 $writeableIniLoader = new WriteableIniConfigurationLoader('theme.ini');
