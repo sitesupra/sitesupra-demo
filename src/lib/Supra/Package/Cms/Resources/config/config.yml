@@ -22,6 +22,7 @@ css_pack:
     - public/cms/supra/build/header/assets/skins/supra/header.css.less
     - public/cms/supra/build/languagebar/assets/skins/supra/languagebar.css.less
     - public/cms/supra/build/slideshow/assets/skins/supra/slideshow.css.less
+    - public/cms/supra/build/datagrid/assets/skins/supra/datagrid.css.less
 js_pack:
     - public/cms/yui.3.5.0/build/yui/yui-min.js
     - public/cms/yui.3.5.0/build/loader/loader-min.js

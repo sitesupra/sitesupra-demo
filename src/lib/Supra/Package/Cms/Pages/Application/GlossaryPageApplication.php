@@ -15,7 +15,7 @@ class GlossaryPageApplication extends PageApplication
 {
 	protected $id = 'glossary';
 	protected $title = 'Glossary';
-	protected $icon = '/public/content-manager/sitemap/images/apps/glossary.png';
+	protected $icon = '/public/cms/content-manager/sitemap/images/apps/glossary.png';
 
 	/**
 	 * {@inheritdoc}

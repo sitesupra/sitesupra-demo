@@ -23,10 +23,10 @@ YUI().add('website.sitemap-new-page', function (Y) {
 		');
 	
 	NewPage.TEMPLATE = '\
-			<div class="deco"><img src="/cms/content-manager/sitemap/images/new-page-icon.png" alt="" /></div>\
+			<div class="deco"><img src="/public/cms/content-manager/sitemap/images/new-page-icon.png" alt="" /></div>\
 			' + NewPage.TEMPLATE_ITEM({"type": "page", "title": Supra.Intl.get(["sitemap", "new_page_title"])}) + '\
 			<div class="children-inner">\
-				' + NewPage.TEMPLATE_ITEM({"type": "group", "icon": "/cms/content-manager/sitemap/images/apps/group.png", "title": Supra.Intl.get(["sitemap", "app_group"])}) + '\
+				' + NewPage.TEMPLATE_ITEM({"type": "group", "icon": "/public/cms/content-manager/sitemap/images/apps/group.png", "title": Supra.Intl.get(["sitemap", "app_group"])}) + '\
 			</div>\
 		';
 	

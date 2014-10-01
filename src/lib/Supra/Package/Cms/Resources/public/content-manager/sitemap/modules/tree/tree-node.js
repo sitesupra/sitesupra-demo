@@ -1119,7 +1119,7 @@ YUI().add('website.sitemap-tree-node', function (Y) {
 			if (!this.get('rendered')) return preview;
 
 			if (!preview) {
-				preview = '/cms/content-manager/sitemap/images/preview/blank.jpg';
+				preview = '/public/cms/supra/img/sitemap/preview/blank.jpg';
 			}
 
 			this.get('itemBox').one('img').setAttribute('src', preview);

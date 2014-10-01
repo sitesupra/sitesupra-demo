@@ -12,7 +12,7 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 		'icon': 'page',
 		'id': null,
 		'layout': '',
-		'preview': '/cms/content-manager/sitemap/images/preview/blank.jpg',
+		'preview': '/public/cms/supra/img/sitemap/preview/blank.jpg',
 		'title': 'New template',
 		'type': 'page',
 		'published': false,
@@ -29,7 +29,7 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 		'id': null,
 		'full_path': null,
 		'path': 'new-page',
-		'preview': '/cms/content-manager/sitemap/images/preview/blank.jpg',
+		'preview': '/public/cms/supra/img/sitemap/preview/blank.jpg',
 		'template': '',
 		'title': 'New page',
 		'type': 'page',
@@ -44,7 +44,7 @@ YUI().add('website.sitemap-tree-util', function (Y) {
 	var TREENODE_PAGE_GROUP_DATA = Supra.mix({}, TREENODE_PAGE_DATA, {
 		'type': 'group',
 		'icon': 'group',
-		'preview': '/cms/content-manager/sitemap/images/preview/group.png'
+		'preview': '/public/cms/supra/img/sitemap/preview/group.png'
 	});
 	
 	var TREENODE_PAGE_APP_DATA = Supra.mix({}, TREENODE_PAGE_DATA, {
