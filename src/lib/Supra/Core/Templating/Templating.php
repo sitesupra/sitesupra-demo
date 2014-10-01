@@ -3,10 +3,26 @@
 namespace Supra\Core\Templating;
 
 use Assetic\Extension\Twig\AsseticExtension;
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Templating\Loader\TemplateLoader;
 
-class Templating
+class Templating implements ContainerAware
 {
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
+	/**
+	 * @param ContainerInterface $container
+	 */
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
+		$this->twig->getLoader()->setContainer($container);
+	}
+
 	/**
 	 * @var \Twig_Environment
 	 */

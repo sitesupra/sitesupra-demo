@@ -31,7 +31,9 @@ class AssetsPublishEventListener implements ConsoleEventListenerInterface, Conta
 
 		$debugBarRoot = dirname($reflection->getFileName());
 
-		$webRootPublic = $event->getData()['webRootPublic'];
+		$eventData = $event->getData();
+
+		$webRootPublic = $eventData['webRootPublic'];
 
 		if (is_link($webRootPublic.'debugbar')) {
 			unlink($webRootPublic.'debugbar');

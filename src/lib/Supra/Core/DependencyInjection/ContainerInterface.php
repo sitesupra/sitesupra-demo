@@ -8,9 +8,15 @@ use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Templating\Templating;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpKernel\Kernel;
 
 interface ContainerInterface
 {
+	/**
+	 * @return Kernel
+	 */
+	public function getKernel();
+
 	/**
 	 * @return ManagerRegistry
 	 */

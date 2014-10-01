@@ -1,10 +1,13 @@
 <?php
 
-// Bootstrap supra
-define('SUPRA_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR);
-require_once SUPRA_PATH . 'lib/Supra/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-// Start the front cotroller
-$frontController = Supra\Controller\FrontController::getInstance();
+$supra = new SupraApplication('dev', true);
 
-$frontController->execute();
+
+//this should be refactored to single call, for the sake of prettiness
+$supra->buildContainer();
+$supra->boot();
+$response = $supra->handleRequest();
+$response->send();
+$supra->shutdown();

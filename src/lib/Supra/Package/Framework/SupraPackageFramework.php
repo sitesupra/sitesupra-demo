@@ -47,7 +47,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 
 		//routing
 		$container->getRouter()->loadConfiguration(
-			PackageLocator::locateConfigFile($this, 'routes.yml')
+			$container->getApplication()->locateConfigFile($this, 'routes.yml')
 		);
 
 		//404 listener for less/css files and on-the-fly compilation

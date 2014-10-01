@@ -5,6 +5,7 @@ namespace Supra\Package\Framework\Twig;
 use Supra\Controller\FrontController;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class FrameworkExtension extends \Twig_Extension implements ContainerAware
 {
@@ -68,17 +69,15 @@ class FrameworkExtension extends \Twig_Extension implements ContainerAware
 	public function renderController($name)
 	{
 		//@todo: parameters support
-		//@todo: less ugly controller resolver, route this through kernel
-		//@todo: whatever, rewrite this completely
-		$front = FrontController::getInstance();
-		$controller = $front->parseControllerName($name);
-		$action = $controller['action'].'Action';
-		$controller = $controller['controller'];
+		$configuration = $this->container->getApplication()->parseControllerName($name);
 
-		$controllerObject = new $controller();
-		$controllerObject->setContainer($this->container);
+		$request = new Request();
+		$request->attributes->add(array(
+			'_controller' => $configuration['controller'],
+			'_action' => $configuration['action']
+		));
 
-		return call_user_func(array($controllerObject, $action))->getContent();
+		return $this->container->getKernel()->handle($request)->getContent();
 	}
 
 	/**

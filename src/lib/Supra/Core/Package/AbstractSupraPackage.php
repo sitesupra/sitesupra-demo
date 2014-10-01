@@ -64,7 +64,7 @@ abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerA
 
 	public function loadConfiguration(ContainerInterface $container, $file = 'config.yml')
 	{
-		$file = PackageLocator::locateConfigFile($this, $file);
+		$file = $container->getApplication()->locateConfigFile($this, $file);
 
 		$data = $container['config.universal_loader']->load($file);
 

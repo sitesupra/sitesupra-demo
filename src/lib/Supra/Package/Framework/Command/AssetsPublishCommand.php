@@ -23,7 +23,7 @@ class AssetsPublishCommand extends AbstractCommand
 		$webRoot = $application->getWebRoot();
 
 		foreach ($application->getPackages() as $package) {
-			$target = PackageLocator::locatePublicFolder($package);
+			$target = $application->locatePublicFolder($package);
 			$link = $webRoot . '/public/' . $package->getName();
 
 			if (is_dir($target)) {

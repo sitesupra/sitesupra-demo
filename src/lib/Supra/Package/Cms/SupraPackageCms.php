@@ -19,7 +19,7 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		//routing
 		$container->getRouter()->loadConfiguration(
-				PackageLocator::locateConfigFile($this, 'routes.yml')
+				$container->getApplication()->locateConfigFile($this, 'routes.yml')
 			);
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());

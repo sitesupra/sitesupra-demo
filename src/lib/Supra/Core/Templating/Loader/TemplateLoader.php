@@ -2,11 +2,24 @@
 
 namespace Supra\Core\Templating\Loader;
 
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Package\PackageLocator;
 use Twig_Error_Loader;
 
-class TemplateLoader implements \Twig_LoaderInterface
+class TemplateLoader implements \Twig_LoaderInterface, ContainerAware
 {
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
+	}
+
+
 	/**
 	 * Gets the source code of a template, given its name.
 	 *
@@ -26,7 +39,7 @@ class TemplateLoader implements \Twig_LoaderInterface
 
 		list($packageName, $templatePath) = explode(':', $name);
 
-		$path = PackageLocator::locateViewFile($packageName, $templatePath);
+		$path = $this->container->getApplication()->locateViewFile($packageName, $templatePath);
 
 		return file_get_contents($path);
 	}

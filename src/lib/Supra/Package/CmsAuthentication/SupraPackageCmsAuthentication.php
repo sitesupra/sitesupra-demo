@@ -31,7 +31,7 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 
 		//routing
 		$container->getRouter()->loadConfiguration(
-			PackageLocator::locateConfigFile($this, 'routes.yml')
+			$container->getApplication()->locateConfigFile($this, 'routes.yml')
 		);
 
 		//applications

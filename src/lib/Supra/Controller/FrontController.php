@@ -64,6 +64,7 @@ class FrontController
 	 */
 	public function __construct()
 	{
+		throw new \Exception('Front controller should be never instantiated anymore, please see the backtrace');
 		if (isset(self::$instance)) {
 			throw new Exception\RuntimeException("Front controller constructor has been run twice");
 		}
@@ -145,24 +146,7 @@ class FrontController
 		return $this->routers;
 	}
 
-	public function parseControllerName($name)
-	{
-		//this should be more bulletproof
-		list($package, $controller, $action) = explode(':', $name);
 
-		$packageName = $this->container->getApplication()->resolvePackage($package);
-
-		$parts = explode('\\', $packageName);
-
-		array_pop($parts);
-
-		$namespace = implode('\\', $parts);
-
-		return array(
-			'controller' => '\\'.$namespace.'\\Controller\\'.$controller.'Controller',
-			'action' => $action
-		);
-	}
 
 	/**
 	 * Execute the front controller
@@ -198,7 +182,7 @@ class FrontController
 			$controllerObject = new $controllerDefinition['controller']();
 			$controllerObject->setContainer($this->container);
 
-			$action = $controllerDefinition['action'].'Action';
+			$action = $controllerDefinition['action'];
 
 			//todo: here we should fire 2 events: generic http.response and controller.response before that
 			$response = $controllerObject->$action($request);
