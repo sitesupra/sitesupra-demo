@@ -24,7 +24,7 @@ class BlogPageApplication extends PageApplication
 
 	protected $id = 'blog';
 	protected $title = 'Blog';
-	protected $icon = '/public/content-manager/sitemap/images/apps/forum.png';
+	protected $icon = '/public/cms/content-manager/sitemap/images/apps/forum.png';
 
 	/**
 	 * @var BlogApplicationUser[]

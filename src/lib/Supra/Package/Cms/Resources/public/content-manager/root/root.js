@@ -123,6 +123,11 @@ function (Y) {
 		NAME: 'Root',
 
 		/**
+		 * @TODO: can we hardcode it like this?
+		 */
+		ROUTE_NAME: 'cms_pages',
+
+		/**
 		 * Dependancies
 		 * @type {Array}
 		 */
@@ -166,7 +171,7 @@ function (Y) {
 		initialize: function () {
 
 			this.router = new Y.Router({
-				'root': Manager.Loader.getDynamicPath() + Manager.Loader.getActionBasePath(this.NAME)
+				'root': Supra.Url.generate(this.ROUTE_NAME)
 			});
 
 			//Overwrite routing save to make sure paths are not written twice

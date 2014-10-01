@@ -99,10 +99,9 @@ if (typeof Supra === "undefined") {
 	Supra.YUI_BASE = {
 		//YUI file combo
 		combine:	true,
-		root: "Y$",
-		base: "Y$",
-		realBase: "/cms/lib/yui." + Y.version + "/build/",
-	    comboBase:	"/cms/lib/supra/combo/combo.php?",
+		root: "/public/cms/yui." + Y.version + "/build/",
+		base: "/public/cms/yui." + Y.version + "/build/",
+	    comboBase:	window.comboBase,
 	    filter:		{
 				        //Remove supra. from module paths
 				        'searchExp': "(supra|website)\\.([^/]*?)(-min)?(\\.js|\\.css)?",
@@ -119,10 +118,10 @@ if (typeof Supra === "undefined") {
 		groups: {
 			supra: {
 				//Supra modules
-				combine: true,
-				root: 'public/cms/supra/build/',
-				base: "S$",
-				realBase: "/cms/lib/supra/build/",
+				/* @FIXME: enable combo */
+				combine: false,
+				root: "public/cms/supra/build/",
+				base: "/public/cms/supra/build/",
 				//Use YUI file combo
 				comboBase: "/",
 				modules: {}	//@see modules.js

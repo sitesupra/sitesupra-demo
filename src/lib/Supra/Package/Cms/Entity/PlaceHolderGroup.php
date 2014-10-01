@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * @Entity
  */
-class PlaceHolderGroup extends Abstraction\Entity implements Abstraction\AuditedEntityInterface
+class PlaceHolderGroup extends Abstraction\Entity implements Abstraction\AuditedEntity
 {
 	/**
 	 * @Column(name="name", type="string")

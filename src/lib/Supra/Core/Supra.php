@@ -374,7 +374,6 @@ abstract class Supra extends ContainerBuilder
 		}
 	}
 
-
 	/**
 	 * Registers packages, should return an array of package instances
 	 *

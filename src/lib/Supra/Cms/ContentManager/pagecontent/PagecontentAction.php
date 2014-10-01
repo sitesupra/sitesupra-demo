@@ -590,8 +590,8 @@ class PagecontentAction extends PageManagerAction
 				$property = $blockController->getProperty($propertyName);
 				$editable = $property->getEditable();
 				
-				if ( ! $property instanceof Entity\SharedBlockProperty
-						|| ! $editable instanceof Editable\PageKeywords) {
+//				if ( ! $property instanceof Entity\SharedBlockProperty
+				if (! $editable instanceof Editable\PageKeywords) {
 					$this->entityManager->persist($property);
 					/* @var $property Entity\BlockProperty */
 				}

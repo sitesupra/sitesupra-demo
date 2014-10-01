@@ -142,7 +142,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 */
 		'bindUI': function () {
 			this.on('load:success', this._renderChildren, this);
-			this.on('load:success', this._loadPermissions, this);
+		/*	this.on('load:success', this._loadPermissions, this);	*/
 			
 			this.after('localeChange', function (evt) {
 				if (!evt.silent) {
@@ -413,7 +413,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 				editable = Supra.Permission.get('page', data.id, 'edit_page', false),
 				publishable = Supra.Permission.get('page', data.id, 'supervise_page', false),
 				
-				preview = '/cms/content-manager/sitemap/images/preview/blank.jpg';
+				preview = '/public/cms/supra/img/sitemap/preview/blank.jpg';
 			
 			if (data.childrenListStyle === 'scrollList') {
 				classname = Action.TreeNodeList;

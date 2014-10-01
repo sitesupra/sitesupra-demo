@@ -2,14 +2,21 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Supra\Core\Controller\Controller;
+use Supra\Package\Cms\Pages\Application\PageApplicationInterface;
+use Supra\Package\Cms\Entity\Abstraction\Entity as AbstractEntity;
 use Supra\Package\Cms\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Entity\PageRevisionData;
 use Supra\Package\Cms\Entity\Page;
+use Supra\Package\Cms\Entity\GroupPage;
 use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\ReferencedElement;
-use Supra\Core\Controller\Controller;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\ApplicationPage;
+
+use Supra\Uri\Path;
 
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\PageController;
@@ -28,11 +35,8 @@ use Supra\FileStorage\Entity\File;
 use Supra\Cms\Exception\ObjectLockedException;
 use Supra\User\Entity\User;
 use Supra\Cms\Exception\CmsException;
-use Supra\Uri\Path;
-use Supra\Controller\Pages\Application\PageApplicationCollection;
 use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
 use Supra\Loader\Loader;
-use Supra\Controller\Pages\Listener\EntityAuditListener;
 use Supra\AuditLog\AuditLogEvent;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Supra\Controller\Pages\Listener\PagePathGenerator;
@@ -83,89 +87,85 @@ abstract class AbstractPagesController extends Controller
 	 */
 	protected function getEntityManager()
 	{
-		if ($this->entityManager === null) {
-			$this->entityManager = $this->container
-					->getDoctrine()
-					->getManager('cms');
-		}
-
-		return $this->entityManager;
+		return $this->entityManager = $this->container
+				->getDoctrine()
+				->getManager('cms');
 	}
 
-	/**
-	 * @param \Exception $e
-	 */
-	protected function finalize(\Exception $e = null)
-	{
-		if ($this->lockTransactionOpened
-				&& $this->entityManager->isOpen()
-				&& $this->entityManager->getConnection()->isTransactionActive()) {
+//	/**
+//	 * @param \Exception $e
+//	 */
+//	protected function finalize(\Exception $e = null)
+//	{
+//		if ($this->lockTransactionOpened
+//				&& $this->entityManager->isOpen()
+//				&& $this->entityManager->getConnection()->isTransactionActive()) {
+//
+//			$this->entityManager->commit();
+//			$this->lockTransactionOpened = false;
+//		}
+//
+//		parent::finalize($e);
+//	}
 
-			$this->entityManager->commit();
-			$this->lockTransactionOpened = false;
-		}
+//	/**
+//	 * TODO: must return configurable controller instance (use repository?)
+//	 * @return string
+//	 */
+//	protected function getPageControllerClass()
+//	{
+//		return 'Supra\Controller\Pages\PageController';
+//	}
 
-		parent::finalize($e);
-	}
+//	/**
+//	 * Get public entity manager
+//	 * @return EntityManager
+//	 */
+//	protected function getPublicEntityManager()
+//	{
+//		return ObjectRepository::getEntityManager($this->getPageControllerClass());
+//	}
 
-	/**
-	 * TODO: must return configurable controller instance (use repository?)
-	 * @return string
-	 */
-	protected function getPageControllerClass()
-	{
-		return 'Supra\Controller\Pages\PageController';
-	}
+//	/**
+//	 * Get page controller instance
+//	 * @return PageController
+//	 */
+//	protected function getPageController()
+//	{
+//		if (is_null($this->pageController)) {
+//			$controllerClass = $this->getPageControllerClass();
+//			$this->pageController = Loader::getClassInstance($controllerClass, self::PAGE_CONTROLLER_CLASS);
+//
+//			// Override to use the draft repository objects
+//			ObjectRepository::setCallerParent($this->pageController, $this);
+//		}
+//
+//		return $this->pageController;
+//	}
 
-	/**
-	 * Get public entity manager
-	 * @return EntityManager
-	 */
-	protected function getPublicEntityManager()
-	{
-		return ObjectRepository::getEntityManager($this->getPageControllerClass());
-	}
-
-	/**
-	 * Get page controller instance
-	 * @return PageController
-	 */
-	protected function getPageController()
-	{
-		if (is_null($this->pageController)) {
-			$controllerClass = $this->getPageControllerClass();
-			$this->pageController = Loader::getClassInstance($controllerClass, self::PAGE_CONTROLLER_CLASS);
-
-			// Override to use the draft repository objects
-			ObjectRepository::setCallerParent($this->pageController, $this);
-		}
-
-		return $this->pageController;
-	}
-
-	/**
-	 * @param Localization $pageLocalization
-	 * @return PageRequestEdit
-	 */
-	protected function getPageRequest(Localization $pageLocalization = null)
-	{
-		$controller = $this->getPageController();
-		$media = $this->getMedia();
-		$user = $this->getUser();
-
-		if (is_null($pageLocalization)) {
-			$pageLocalization = $this->getPageLocalization();
-		}
-
-		$request = PageRequestEdit::factory($pageLocalization, $media);
-		$response = $controller->createResponse($request);
-
-		$controller->prepare($request, $response);
-
-		$request->setUser($user);
-
-		return $request;
-	}
+//	/**
+//	 * @param Localization $pageLocalization
+//	 * @return PageRequestEdit
+//	 */
+//	protected function getPageRequest(Localization $pageLocalization = null)
+//	{
+//		$controller = $this->getPageController();
+//		$media = $this->getMedia();
+//		$user = $this->getUser();
+//
+//		if (is_null($pageLocalization)) {
+//			$pageLocalization = $this->getPageLocalization();
+//		}
+//
+//		$request = PageRequestEdit::factory($pageLocalization, $media);
+//		$response = $controller->createResponse($request);
+//
+//		$controller->prepare($request, $response);
+//
+//		$request->setUser($user);
+//
+//		return $request;
+//	}
 
 	/**
 	 * TODO: hardcoded now
@@ -429,155 +429,72 @@ abstract class AbstractPagesController extends Controller
 
 	/**
 	 * Loads main node data array
-	 * @param Entity\Abstraction\Localization $data
-	 * @param boolean $localizationExists will pass page ID not localization ID if not exists
+	 * 
+	 * @param Localization $localization
 	 * @return array
 	 */
-	protected function loadNodeMainData(Entity\Abstraction\Localization $data, $localizationExists = true)
+	protected function loadNodeMainData(Localization $localization)
 	{
-		$page = $data->getMaster();
-		$locale = $data->getLocale();
-		$id = $data->getId();
+		$localeId = $this->getCurrentLocale()
+				->getId();
+		
+		$isCurrentLocaleLocalization = ($localization->getLocaleId() === $localeId);
 
-		$publicEm = $this->container
-				->getDoctrine()
-				->getManager('public');
+		$page = $localization->getMaster();
 
-		if ( ! $localizationExists) {
-			$id = $page->getId();
-		}
+		$nodeData = array(
+			'id'			=> $isCurrentLocaleLocalization ? $localization->getId() : $page->getId(),
+			'master_id'		=> $page->getId(),
 
-		if ($data instanceof Entity\GroupLocalization) {
+			'type'			=> $page::DISCRIMINATOR,
+			
+			'title'			=> $localization->getTitle(),
 
-			$previewUrl = '/cms/lib/supra/img/sitemap/preview/group.png';
-		} else {
-			$previewPath = $data->getPreviewFilename();
+			'global'		=> $page->isGlobal(),
+			'localized'		=> $isCurrentLocaleLocalization,
 
-			if (file_exists($previewPath)) {
-				$previewUrl = $data->getPreviewUrl();
-			} else {
-				$previewUrl = '/cms/lib/supra/img/sitemap/preview/blank.jpg';
-			}
-		}
+			'editable'		=> $isCurrentLocaleLocalization,
+			'isDraggable'	=> $isCurrentLocaleLocalization,
+			'isDropTarget'	=> true,
 
-		// Main data
-		$array = array(
-			'id' => $id,
-			'master_id' => $page->getId(),
-			'title' => $data->getTitle(),
-			// TODO: hardcoded
-			'icon' => $page instanceof Entity\TemporaryGroupPage ? 'folder' :
-					($data instanceof Entity\GroupLocalization ? 'group' :
-							($page->getLevel() === 0 ? 'home' : 'page')),
-			'preview' => $previewUrl,
-			'global' => ( ! $page->isRoot() ? $page->getGlobal() : true ),
-			'localized' => $localizationExists,
-			'editable' => $localizationExists,
-			'isDraggable' => $localizationExists,
-			'isDropTarget' => true,
+			// @TODO: previews
+			'preview' => null,
+
+			'droppablePlaces' => array(
+				'before'	=> true,
+				'after'		=> true,
+				'inside'	=> $isCurrentLocaleLocalization,
+			),
+
+			// @FIXME: icon
+			'icon' => null,
 		);
 
-		// Allow dropping before/after not created localizations
-		if ( ! $localizationExists) {
-			$array['droppablePlaces'] = array(
-				'before' => true,
-				'after' => true,
-				'inside' => false,
-			);
+		if ($localization instanceof PageLocalization) {
+			$nodeData = array_merge($nodeData, $this->getPageLocalizationData($localization));
 		}
 
-		// Template ID
-		if ($data instanceof Entity\PageLocalization) {
-			$template = $data->getTemplate();
-			$templateId = null;
-
-			if ( ! empty($template)) {
-				$templateId = $template->getId();
-			}
-
-			$array['template'] = $templateId;
-
-			$scheduleTime = $data->getScheduleTime();
-			if ( ! is_null($scheduleTime)) {
-				$array['scheduled'] = true;
-			}
-
-			$localizationCount = $page->getLocalizations()->count();
-			$array['localization_count'] = $localizationCount;
-
-			$array['full_path'] = $data->getPath()
-					->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
-
-			if (is_null($array['full_path'])) {
-				$array['full_path'] = '';
-			}
-
-			$array['date'] = $data->getCreationTime()->format('Y-m-d');
-
-			// @FIXME: code below
-//			$redirect = $this->getPageController()
-//					->getRedirectData($data);
-			$redirect = array();
-
-			$array['redirect'] = ( ! empty($redirect['redirect'])) ? $redirect['redirect'] : false;
-			$array['redirect_page_id'] = ( ! empty($redirect['redirect_page_id'])) ? $redirect['redirect_page_id'] : '';
-		}
-
-		// Node type
-		$type = Entity\Abstraction\Entity::PAGE_DISCR;
-		if ($data instanceof Entity\GroupLocalization) {
-			$type = Entity\Abstraction\Entity::GROUP_DISCR;
-		} elseif ($page instanceof Entity\ApplicationPage) {
-
-			$type = Entity\Abstraction\Entity::APPLICATION_DISCR;
-
-			$appData = array(
-				'application_id' => $application->getId(),
-
-			)
-
-
-			$array['application_id'] = $page->getApplicationId();
-			$conf = PageApplicationCollection::getInstance()->getConfiguration($page->getApplicationId());
-
-			// @FIXME: page app configuration collection is missing
-
-//			$array['new_children_first'] = $conf->newChildrenFirst;
-//			$array['isDraggable'] = $conf->isDraggable;
-//			$array['isDropTarget'] = $conf->isDropTarget;
-
-			// empty news application contain virtual children
-			if ( ! isset($array['children_count'])) {
-				$array['children_count'] = 1;
-			}
-		}
-		$array['type'] = $type;
-
-		// Path data
-		$pathPart = null;
 		$applicationBasePath = new Path('');
 
-		if ($data instanceof Entity\PageLocalization) {
-			$pathPart = $data->getPathPart();
-
-			if ( ! $page->isRoot()) {
-				$parentPage = $page->getParent();
-				$parentLocalization = $parentPage->getLocalization($locale);
-
-				if ( ! is_null($parentLocalization) && $parentPage instanceof Entity\ApplicationPage) {
-
-					$applicationId = $parentPage->getApplicationId();
-					$application = PageApplicationCollection::getInstance()
-							->createApplication($parentLocalization, $this->entityManager);
-
-					if (empty($application)) {
-						throw new CmsException(null, "Application '$applicationId' was not found");
-					}
-
-					$applicationBasePath = $application->generatePath($data);
-				}
-			}
-		}
+//		if ($localization instanceof Entity\PageLocalization) {
+//			if ( ! $page->isRoot()) {
+//				$parentPage = $page->getParent();
+//				$parentLocalization = $parentPage->getLocalization($locale);
+//
+//				if ( ! is_null($parentLocalization) && $parentPage instanceof Entity\ApplicationPage) {
+//
+//					$applicationId = $parentPage->getApplicationId();
+//					$application = PageApplicationCollection::getInstance()
+//							->createApplication($parentLocalization, $this->entityManager);
+//
+//					if (empty($application)) {
+//						throw new CmsException(null, "Application '$applicationId' was not found");
+//					}
+//
+//					$applicationBasePath = $application->generatePath($data);
+//				}
+//			}
+//		}
 
 		$array['unpublished_draft'] = true;
 		$array['published'] = false;
@@ -585,10 +502,10 @@ abstract class AbstractPagesController extends Controller
 		$publicLocalization = null;
 
 		// No public stuff for group/temporary pages
-		if ( ! $data instanceof Entity\GroupLocalization) {
-			$localizationId = $data->getId();
-			// FIXME: causes "N" queries for "N" pages loaded in sitemap. Bad.
-			$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
+		if ( ! $localization instanceof Entity\GroupLocalization) {
+//			$localizationId = $data->getId();
+//			// FIXME: causes "N" queries for "N" pages loaded in sitemap. Bad.
+//			$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
 		}
 
 		$array['active'] = true;
@@ -608,12 +525,10 @@ abstract class AbstractPagesController extends Controller
 			$array['active'] = false;
 		}
 
-		// TODO: maybe should send "null" when path is not allowed? Must fix JS then
-		$array['path'] = $pathPart;
 		// Additional base path received from application
 		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
 
-		return $array;
+		return $nodeData;
 	}
 
 	/**
@@ -1619,7 +1534,7 @@ abstract class AbstractPagesController extends Controller
 	 *
 	 * @return \Supra\Locale\Locale
 	 */
-	protected function getLocale()
+	protected function getCurrentLocale()
 	{
 		return $this->container->getLocaleManager()
 				->getCurrent();
@@ -1631,5 +1546,100 @@ abstract class AbstractPagesController extends Controller
 	protected function getPageApplicationManager()
 	{
 		return $this->container['cms.page_application_manager'];
+	}
+
+	/**
+	 * Gets page application configuration array for UI
+	 *
+	 * @param PageApplicationInterface $application
+	 * @return array
+	 */
+	protected function getPageApplicationData(PageApplicationInterface $application)
+	{
+		return array(
+			'id'		=> $application->getId(),
+			'title'		=> $application->getTitle(),
+			'icon'		=> $application->getIcon(),
+			'isDropTarget' => $application->getAllowChildren(),
+			'childInsertPolicy' => $application->getNewChildInsertPolicy(),
+		);
+	}
+
+	/**
+	 * @param PageLocalization $localization
+	 * @return array
+	 */
+	private function getPageLocalizationData(PageLocalization $localization)
+	{
+		$template = $localization->getTemplate();
+
+		$localizationData = array_merge(array(
+			'template'	=> $template->getId(),
+
+			// is scheduled
+			'scheduled' => ($localization->getScheduleTime() !== null),
+
+			// TODO: maybe should send "null" when path is not allowed? Must fix JS then
+			'path'		=> $localization->getPathPart(),
+			'full_path'	=> (string) $localization->getFullPath(),
+
+			// date created
+			'date'		=> $localization->getCreationTime()
+					->format('Y-m-d'),
+			
+		), $this->getPageLocalizationRedirectData($localization));
+
+		if ($localization instanceof ApplicationLocalization) {
+			$localizationData = array_merge(
+					$localizationData,
+					$this->getApplicationPageLocalizationData($localization)
+			);
+		}
+
+		return $localizationData;
+
+//		$localizationCount = $page->getLocalizations()->count();
+//		$array['localization_count'] = $localizationCount;
+	}
+
+	/**
+	 * @param PageLocalization $localization
+	 * @return array
+	 */
+	private function getPageLocalizationRedirectData(PageLocalization $localization)
+	{
+		if (! $localization->hasRedirectTarget()) {
+			return array();
+		}
+
+		$redirectTarget = $localization->getRedirectTarget();
+
+		$targetPage = null;
+		if ($redirectTarget instanceof Entity\RedirectTargetPage) {
+			$targetPage = $redirectTarget->getTargetPage();
+		}
+
+		return array(
+			'url' => $redirectTarget->getRedirectUrl(),
+			'target_page_id' => $targetPage ? $targetPage->getId() : null,
+		);
+	}
+
+	/**
+	 * @param ApplicationLocalization $localization
+	 * @return array
+	 */
+	private function getApplicationPageLocalizationData(ApplicationLocalization $localization)
+	{
+		$applicationId = $localization->getMaster()
+				->getApplicationId();
+
+		$application = $this->getPageApplicationManager()
+				->getApplication($applicationId);
+
+		$applicationData = $this->getPageApplicationData($application);
+		$applicationData['application_id'] = $applicationData['id'];
+
+		return $applicationData;
 	}
 }
