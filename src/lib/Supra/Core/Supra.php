@@ -4,6 +4,7 @@ namespace Supra\Core;
 
 use Supra\Core\Configuration\Exception\ReferenceException;
 use Supra\Core\Configuration\UniversalConfigLoader;
+use Supra\Core\Controller\ExceptionController;
 use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerBuilder;
 use Supra\Core\DependencyInjection\ContainerInterface;
@@ -213,6 +214,9 @@ abstract class Supra extends ContainerBuilder
 		$container['routing.router'] = new Router();
 		$container['kernel'] = function ($container) {
 			return new HttpKernel();
+		};
+		$container['exception.controller'] = function () {
+			return new ExceptionController();
 		};
 
 		//internal services

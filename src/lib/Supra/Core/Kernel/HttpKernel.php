@@ -78,7 +78,7 @@ class HttpKernel implements ContainerAware
 			return $response;
 		} catch(\Exception $e) {
 			//process 404 exceptions
-			if ($e instanceof ResourceNotFoundException) {
+			if ($e instanceof ResourceNotFoundException && false) {
 				$notFoundEvent = new RequestResponseEvent();
 				$notFoundEvent->setRequest($request);
 				$this->container->getEventDispatcher()->dispatch(KernelEvent::ERROR404, $notFoundEvent);
@@ -91,7 +91,7 @@ class HttpKernel implements ContainerAware
 					//in debug env 404 errors are just thrown
 					throw $e;
 				} else {
-					die('TODO: please implement 404 controller here, thanks');
+					return $this->container['exception.controller']->exception404Action();
 				}
 			}
 
@@ -100,7 +100,7 @@ class HttpKernel implements ContainerAware
 			if ($this->container->getParameter('debug')) {
 				throw $e;
 			} else {
-				die('TODO: please implement 500 controller here, thanks');
+				return $this->container['exception.controller']->exception500Action();
 			}
 		}
 	}
