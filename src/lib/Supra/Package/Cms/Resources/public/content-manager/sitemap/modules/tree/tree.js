@@ -142,7 +142,7 @@ YUI().add('website.sitemap-tree', function (Y) {
 		 */
 		'bindUI': function () {
 			this.on('load:success', this._renderChildren, this);
-			this.on('load:success', this._loadPermissions, this);
+		/*	this.on('load:success', this._loadPermissions, this);	*/
 			
 			this.after('localeChange', function (evt) {
 				if (!evt.silent) {

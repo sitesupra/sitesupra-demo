@@ -48,3 +48,8 @@ routes:
         controller:					Cms:PagesSitemap:applicationsList
         options:
             frontend:       true
+    cms_pages_page_layouts:
+        pattern:						%cms.prefix%/content-manager/page/layouts
+        controller:					Cms:PagesPage:layoutsList
+        options:
+            frontend:       true

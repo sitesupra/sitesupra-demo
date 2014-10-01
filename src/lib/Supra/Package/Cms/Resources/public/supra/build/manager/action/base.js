@@ -305,7 +305,8 @@ YUI.add('supra.manager-action-base', function (Y) {
 			
 			if (filename) {
 				path = this.get('dataFolder') || Manager.Loader.getActionInfo(this.NAME).folder_data;
-				out = path + filename + Manager.Loader.EXTENSION_DATA;
+				//out = path + filename + Manager.Loader.EXTENSION_DATA;
+				out = path + filename;
 			} else {
 				out = this.get('dataPath') || Manager.Loader.getActionInfo(this.NAME).path_data;
 			}

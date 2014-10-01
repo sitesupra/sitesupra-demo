@@ -17,7 +17,6 @@ use Supra\Controller\Layout\Theme\Configuration\Parameter\GroupConfiguration;
 
 class ThemeConfiguration extends ThemeConfigurationAbstraction
 {
-
 	/**
 	 * @var string
 	 */
@@ -389,6 +388,31 @@ class ThemeConfiguration extends ThemeConfigurationAbstraction
 		foreach ($namesToAdd as $nameToAdd) {
 			$theme->addLayout($layoutsAfter[$nameToAdd]);
 		}
+	}
+
+	/**
+	 * @param string $name
+	 * @return ThemeLayoutConfiguration
+	 * @throws \InvalidArgumentException
+	 */
+	public function getLayoutConfiguration($name)
+	{
+		if (! $this->hasLayoutConfiguration($name)) {
+			throw new \InvalidArgumentException(
+					"Missing layout configuration for [{$name}]."
+			);
+		}
+
+		return $this->layouts[$name];
+	}
+
+	/**
+	 * @param string $name
+	 * @return bool
+	 */
+	public function hasLayoutConfiguration($name)
+	{
+		return isset($this->layouts[$name]);
 	}
 
 	/**

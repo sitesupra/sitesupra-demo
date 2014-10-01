@@ -6,7 +6,7 @@
 		<button class="button-back hidden"><p>{# buttons.back #}</p></button>
 		
 		<!-- Icon and title -->
-		<img src="/cms/lib/supra/img/sidebar/icons/history.png" alt="" />
+		<img src="/public/cms/supra/img/sidebar/icons/history.png" alt="" />
 		
 		<!-- Control button -->
 		<button type="button" class="button-control"><p>{# buttons.done #}</p></button>
@@ -43,7 +43,7 @@
 				<div class="icon">{{ group.datetime }}</div>
 				{% for page in group.pages %}
 					<p data-id="{{ page.id|e }}">
-						<span class="img-restore"><img src="/cms/content-manager/sitemap/images/apps/page.png" alt="" /></span>
+						<span class="img-restore"><img src="/public/cms/content-manager/sitemap/images/apps/page.png" alt="" /></span>
 						<span class="title">
 						{{ page.datetime }} {{ page.title|default('')|e }}
 						<em>{# timeline.by #} {{ page.author|e }}</em>

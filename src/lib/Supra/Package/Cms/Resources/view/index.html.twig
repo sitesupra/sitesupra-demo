@@ -56,13 +56,17 @@
 			
 			//Set current manager paths
 			Supra.Manager.Loader.setStaticPath(STATIC_PATH);
-			Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
 			
 			Supra.Manager.Loader.setBasePath(APP_PATH);
 			
 			Supra.setModuleGroupPath('website', STATIC_PATH + APP_PATH + {% block jsModulePath %}''{% endblock %});
 			{% endblock %}
-			
+
+			{{ controller('Framework:Routing:export') }}
+
+			var applicationPath = Supra.Url.generate('{{ supra.application.route }}');
+				Supra.Manager.Loader.setDynamicPath(applicationPath);
+
 			//Configuration / parameters
 			Supra.data.set({
 				//Session (used in Ajax requests)
@@ -110,9 +114,14 @@
 				//Application
 				'application': {
 					'id': {{ supra.application.id | json_encode | raw }},
-					'path': DYNAMIC_PATH + APP_PATH,
 					'icon': {{ supra.application.icon | json_encode | raw }},
-					'title': {{ supra.application.title | json_encode | raw }}
+					'title': {{ supra.application.title | json_encode | raw }},
+					// @TODO:
+					// 1. Remove DYNAMIC_PATH usage at all
+					// 2. Check, if we can remove STATIC_PATH too
+					// @FIXME: line below will fail if route will have frontend =false
+					'path': Supra.Url.generate('{{ supra.application.route }}'),
+					'route': {{ supra.application.route | json_encode | raw }}
 				},
 
 				{#//Help notes, tips
@@ -126,8 +135,6 @@
 					'properties': {{ mediaLibrary.properties | json_encode | raw }}
 				}#}
 			});
-
-			{{ controller('Framework:Routing:export') }}
 			
 			//IE not supported at the moment
 			if (Supra.Y.UA.ie && Supra.Y.UA.ie < 9) {

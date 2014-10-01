@@ -465,9 +465,14 @@ YUI.add('supra.manager-loader', function (Y) {
 			
 			var action_file = this.getActionFileFromName(action_name);
 			if (!action_file) return null;
-			
-			var prefix = dynamic ? this.getDynamicPath() : this.getStaticPath();
-			return prefix + base + '/' + action_file + '/';
+
+			// @FIXME: use route names instead
+			var applicationData = Supra.data.get('application'),
+					applicationPath = Supra.Url.generate(applicationData.route)
+
+			var prefix = dynamic ? applicationPath : (this.getStaticPath() + base);
+
+			return prefix + '/' + action_file + '/';
 		},
 		
 		/**
