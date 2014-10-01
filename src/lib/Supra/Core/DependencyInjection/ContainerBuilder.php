@@ -57,7 +57,7 @@ abstract class ContainerBuilder
  			$package = $this->resolvePackage($package);
 		}
 
- 		return self::locatePackageRoot($package)
+ 		return $this->locatePackageRoot($package)
  			. DIRECTORY_SEPARATOR . $this->publicPath;
  	}
 
