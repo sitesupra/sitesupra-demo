@@ -15,7 +15,7 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class Supra extends ContainerBuilder
+abstract class  Supra extends ContainerBuilder
 {
 	/**
 	 * DI container
@@ -227,7 +227,6 @@ abstract class Supra extends ContainerBuilder
 		$this->buildSecurity($container);
 		$this->buildTemplating($container);
 		$this->buildApplications($container);
-		$this->buildLocales($container);
 
 		//package configuration
 		$this->injectPackages($container);
@@ -235,7 +234,7 @@ abstract class Supra extends ContainerBuilder
 		//configuration processing
 		$this->buildConfiguration($container);
 
-		//last pass to change something
+		//last pass to change something or created services based on finished configuration
 		$this->finish($container);
 
 		return $this->container = $container;
@@ -373,6 +372,24 @@ abstract class Supra extends ContainerBuilder
 
 		foreach ($config as $key => $value) {
 			$container->setParameter($key, $value);
+		}
+
+		//create services defined by 'services:' section
+		foreach ($this->configurationSections as $key => $definition) {
+			if (isset($config[$key.'.services'])) {
+				foreach ($config[$key.'.services'] as $id => $serviceDefinition) {
+					$container[$id] = function ($container) use ($serviceDefinition) {
+						//this is where the magic happens
+						$className = $serviceDefinition['class'];
+
+						$reflection = new \ReflectionClass($className);
+
+						$instance = $reflection->newInstanceArgs();
+
+						return $instance;
+					};
+				}
+			}
 		}
 	}
 

@@ -1,0 +1,38 @@
+services:
+    locale.manager:
+        class: \Supra\Core\Locale\LocaleManager
+    locale.detector.path:
+        class: \Supra\Core\Locale\Detector\PathLocaleDetector
+    locale.detector.cookie:
+        class: \Supra\Core\Locale\Detector\CookieDetector
+    locale.storage.cookie:
+        class: \Supra\Core\Locale\Storage\CookieStorage
+locales:
+    -
+        id: en_LV
+        title: English
+        country: Latvia
+        properties:
+           flag: lv
+           language: en
+        active: false
+    -
+        id: lv_LV
+        title: Latvian
+        country: Latvia
+        properties:
+            flag: lv
+            language: lv
+    -
+        id: ru_RU
+        title: Russian
+        country: Russia
+        properties:
+            flag: ru
+            language: ru
+locale_detectors:
+    - locale.detector.path
+    - locale.detector.cookie
+locale_storage:
+    - locale.storage.cookie
+current_locale: lv_LV

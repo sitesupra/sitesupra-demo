@@ -18,11 +18,6 @@ use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Doctrine\Subscriber\TableNamePrefixer;
 use Supra\Core\Doctrine\Type\PathType;
 use Supra\Core\Doctrine\Type\SupraIdType;
-use Supra\Core\Locale\Detector\CookieDetector;
-use Supra\Core\Locale\Detector\AcceptLanguageHeaderDetector;
-use Supra\Core\Locale\Locale;
-use Supra\Core\Locale\LocaleManager;
-use Supra\Core\Locale\Storage\CookieStorage;
 use Supra\Core\Templating\Templating;
 use Supra\Database\DetachedDiscriminatorHandler;
 use Supra\NestedSet\Listener\NestedSetListener;
@@ -87,71 +82,16 @@ abstract class ContainerBuilder
 		};
 
 		$container['http.session'] = function ($container) {
+			if (PHP_SAPI == 'cli') {
+				throw new \Exception('Sessions are not possible in CLI mode');
+			}
+
 			$session = new Session();
 			$session->start();
 
 			$container['http.request']->setSession($session);
 
 			return $session;
-		};
-	}
-
-	public function buildLocales(ContainerInterface $container)
-	{
-		//@todo: this should be refactored to some +- sane locale storage, preferably in the database
-
-		$container['locale.detector.cookie'] = function () {
-			return new CookieDetector();
-		};
-
-		$container['locale.detector.accept_language'] = function () {
-			return new AcceptLanguageHeaderDetector();
-		};
-
-		// @FIXME: doesn't work right now. Requires Response object
-//		$container['locale.storage.cookie'] = function () {
-//			return new CookieStorage();
-//		};
-
-		$container['locale.manager'] = function (ContainerInterface $container) {
-			$localeManager = new LocaleManager();
-
-			/* English | Latvia */
-			$locale = new Locale();
-			$locale->setId('en_LV');
-			$locale->setTitle('English');
-			$locale->setCountry('Latvia');
-			$locale->addProperty('flag', 'gb');
-			$locale->setActive(false);
-			$locale->addProperty('language', 'en'); // as per ISO 639-1
-			$localeManager->add($locale);
-
-			/* Latvian | Latvia */
-			$locale = new Locale();
-			$locale->setId('lv_LV');
-			$locale->setTitle('Latvian');
-			$locale->setCountry('Latvia');
-			$locale->addProperty('flag', 'lv');
-			$locale->addProperty('language', 'lv'); // as per ISO 639-1
-			$localeManager->add($locale);
-
-			/* Russian | Russia */
-			$locale = new Locale();
-			$locale->setId('ru_RU');
-			$locale->setTitle('Russian');
-			$locale->setCountry('Russia');
-			$locale->addProperty('flag', 'ru');
-			$locale->addProperty('language', 'ru'); // as per ISO 639-1
-			$localeManager->add($locale);
-
-			$localeManager->setCurrent('lv_LV');
-
-			$localeManager->addDetector($container['locale.detector.cookie']);
-			$localeManager->addDetector($container['locale.detector.accept_language']);
-
-//			$localeManager->addStorage($container['locale.storage.cookie']);
-
-			return $localeManager;
 		};
 	}
 
