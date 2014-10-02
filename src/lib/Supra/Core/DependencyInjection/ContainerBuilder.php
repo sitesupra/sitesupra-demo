@@ -9,6 +9,8 @@ use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
+use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
+use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
@@ -17,14 +19,9 @@ use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Doctrine\Subscriber\TableNamePrefixer;
 use Supra\Core\Doctrine\Type\PathType;
 use Supra\Core\Doctrine\Type\SupraIdType;
-use Supra\Core\Locale\Detector\CookieDetector;
-use Supra\Core\Locale\Detector\PathLocaleDetector;
-use Supra\Core\Locale\Locale;
-use Supra\Core\Locale\Storage\CookieStorage;
 use Supra\Core\Templating\Templating;
 use Supra\Database\DetachedDiscriminatorHandler;
 use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 use Supra\Package\CmsAuthentication\Encoder\SupraBlowfishEncoder;
 use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -107,6 +104,7 @@ abstract class ContainerBuilder
 			//for later porting
 			// Adds prefix for tables
 			//@todo: move to config
+			$eventManager->addEventSubscriber(new MysqlSessionInit('utf8'));
 			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
 
 			/*// Updates creation and modification timestamps for appropriate entities
@@ -136,6 +134,7 @@ abstract class ContainerBuilder
 		$container['doctrine.event_manager.cms'] = function (ContainerInterface $container) {
 			$eventManager = new EventManager();
 
+			$eventManager->addEventSubscriber(new MysqlSessionInit('utf8'));
 			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
 
 			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
