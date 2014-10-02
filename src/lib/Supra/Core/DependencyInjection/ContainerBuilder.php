@@ -9,7 +9,6 @@ use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
-use Supra\Controller\Pages\Listener\TableDraftSuffixAppender;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
@@ -21,11 +20,11 @@ use Supra\Core\Doctrine\Type\SupraIdType;
 use Supra\Core\Locale\Detector\CookieDetector;
 use Supra\Core\Locale\Detector\PathLocaleDetector;
 use Supra\Core\Locale\Locale;
-use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Storage\CookieStorage;
 use Supra\Core\Templating\Templating;
 use Supra\Database\DetachedDiscriminatorHandler;
 use Supra\NestedSet\Listener\NestedSetListener;
+use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 use Supra\Package\CmsAuthentication\Encoder\SupraBlowfishEncoder;
 use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -87,70 +86,16 @@ abstract class ContainerBuilder
 		};
 
 		$container['http.session'] = function ($container) {
+			if (PHP_SAPI == 'cli') {
+				throw new \Exception('Sessions are not possible in CLI mode');
+			}
+
 			$session = new Session();
 			$session->start();
 
 			$container['http.request']->setSession($session);
 
 			return $session;
-		};
-	}
-
-	public function buildLocales(ContainerInterface $container)
-	{
-		//@todo: this should be refactored to some +- sane locale storage, preferably in the database
-
-		$container['locale.detector.path'] = function () {
-			return new PathLocaleDetector();
-		};
-
-		$container['locale.detector.cookie'] = function () {
-			return new CookieDetector();
-		};
-
-		$container['locale.storage.cookie'] = function () {
-			return new CookieStorage();
-		};
-
-		$container['locale.manager'] = function (ContainerInterface $container) {
-			$localeManager = new LocaleManager();
-
-			/* English | Latvia */
-			$locale = new Locale();
-			$locale->setId('en_LV');
-			$locale->setTitle('English');
-			$locale->setCountry('Latvia');
-			$locale->addProperty('flag', 'gb');
-			$locale->setActive(false);
-			$locale->addProperty('language', 'en'); // as per ISO 639-1
-			$localeManager->add($locale);
-
-			/* Latvian | Latvia */
-			$locale = new Locale();
-			$locale->setId('lv_LV');
-			$locale->setTitle('Latvian');
-			$locale->setCountry('Latvia');
-			$locale->addProperty('flag', 'lv');
-			$locale->addProperty('language', 'lv'); // as per ISO 639-1
-			$localeManager->add($locale);
-
-			/* Russian | Russia */
-			$locale = new Locale();
-			$locale->setId('ru_RU');
-			$locale->setTitle('Russian');
-			$locale->setCountry('Russia');
-			$locale->addProperty('flag', 'ru');
-			$locale->addProperty('language', 'ru'); // as per ISO 639-1
-			$localeManager->add($locale);
-
-			$localeManager->setCurrent('lv_LV');
-
-			$localeManager->addDetector($container['locale.detector.path']);
-			$localeManager->addDetector($container['locale.detector.cookie']);
-
-			$localeManager->addStorage($container['locale.storage.cookie']);
-
-			return $localeManager;
 		};
 	}
 
@@ -196,7 +141,7 @@ abstract class ContainerBuilder
 			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
 			$eventManager->addEventSubscriber(new NestedSetListener());
 
-			$eventManager->addEventSubscriber(new TableDraftSuffixAppender());
+			$eventManager->addEventSubscriber(new VersionedEntitySchemaListener());
 
 			return $eventManager;
 		};

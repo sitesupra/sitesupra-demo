@@ -3,7 +3,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$app = new SupraApplication();
+$app = new SupraApplication('cli', true);
 
 $container = $app->buildContainer();
 

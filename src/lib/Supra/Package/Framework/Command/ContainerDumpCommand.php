@@ -36,8 +36,14 @@ class ContainerDumpCommand extends AbstractCommand
 		$table->setHeaders(array('ID', 'Type', 'Value'));
 
 		foreach ($this->container->keys() as $id) {
-			$value = $this->container[$id];
-			$table->addRow(array($id, $this->getType($value), $this->stringify($value)));
+			$type = 'undefined'; $stringValue = 'undefined';
+			try {
+				$value = $this->container[$id];
+				$type = $this->getType($value);
+				$stringValue = $this->stringify($value);
+			} catch (\Exception $e) {}
+
+			$table->addRow(array($id, $type, $stringValue));
 		}
 
 		$table->render();
@@ -56,7 +62,9 @@ class ContainerDumpCommand extends AbstractCommand
 
 	protected function stringify($value)
 	{
-		if (is_scalar($value)) {
+		if (is_bool($value)) {
+			return $value ? 'TRUE' : 'FALSE';
+		} elseif (is_scalar($value)) {
 			return (string)$value;
 		} elseif (is_object($value)) {
 			return get_class($value);

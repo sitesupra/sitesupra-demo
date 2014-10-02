@@ -2,12 +2,11 @@
 
 namespace Supra\Package\Framework;
 
-use Assetic\Extension\Twig\AsseticExtension;
-use Assetic\Factory\AssetFactory;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
+use Supra\Core\Locale\Locale;
+use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Package\AbstractSupraPackage;
-use Supra\Core\Package\PackageLocator;
 use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
@@ -24,6 +23,8 @@ class SupraPackageFramework extends AbstractSupraPackage
 {
 	public function inject(ContainerInterface $container)
 	{
+		$this->loadConfiguration($container);
+
 		//register commands
 		$container->getConsole()->add(new ContainerDumpCommand());
 		$container->getConsole()->add(new ContainerPackagesListCommand());
@@ -64,5 +65,34 @@ class SupraPackageFramework extends AbstractSupraPackage
 		//$factory = new AssetFactory($container->getApplication()->getWebRoot());
 		//$container->getTemplating()->addExtension(new AsseticExtension($factory));
 	}
+
+	public function finish(ContainerInterface $container)
+	{
+		$container->extend('locale.manager', function (LocaleManager $localeManager, ContainerInterface $container) {
+			foreach ($container->getParameter('framework.locales') as $locale) {
+				$localeObject = new Locale();
+				$localeObject->setId($locale['id']);
+				$localeObject->setTitle($locale['title']);
+				$localeObject->setActive($locale['active']);
+				$localeObject->setCountry($locale['country']);
+				$localeObject->setProperties($locale['properties']);
+
+				$localeManager->add($localeObject);
+			}
+
+			foreach ($container->getParameter('framework.locale_detectors') as $detector) {
+				$localeManager->addDetector($container[$detector]);
+			}
+
+			foreach ($container->getParameter('framework.locale_storage') as $storage) {
+				$localeManager->addStorage($container[$storage]);
+			}
+
+			$localeManager->setCurrent($container->getParameter('framework.current_locale'));
+
+			return $localeManager;
+		});
+	}
+
 
 }
