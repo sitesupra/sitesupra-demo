@@ -9,7 +9,8 @@ use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
-use Supra\Controller\Pages\Listener\TableDraftSuffixAppender;
+use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
+use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
@@ -162,6 +163,7 @@ abstract class ContainerBuilder
 			//for later porting
 			// Adds prefix for tables
 			//@todo: move to config
+			$eventManager->addEventSubscriber(new MysqlSessionInit('utf8'));
 			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
 
 			/*// Updates creation and modification timestamps for appropriate entities
@@ -191,12 +193,13 @@ abstract class ContainerBuilder
 		$container['doctrine.event_manager.cms'] = function (ContainerInterface $container) {
 			$eventManager = new EventManager();
 
+			$eventManager->addEventSubscriber(new MysqlSessionInit('utf8'));
 			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
 
 			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
 			$eventManager->addEventSubscriber(new NestedSetListener());
 
-			$eventManager->addEventSubscriber(new TableDraftSuffixAppender());
+			$eventManager->addEventSubscriber(new VersionedEntitySchemaListener());
 
 			return $eventManager;
 		};
