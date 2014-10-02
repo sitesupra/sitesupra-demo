@@ -9,7 +9,6 @@ use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
-use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
 use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
@@ -104,7 +103,6 @@ abstract class ContainerBuilder
 			//for later porting
 			// Adds prefix for tables
 			//@todo: move to config
-			$eventManager->addEventSubscriber(new MysqlSessionInit('utf8'));
 			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
 
 			/*// Updates creation and modification timestamps for appropriate entities
@@ -134,7 +132,6 @@ abstract class ContainerBuilder
 		$container['doctrine.event_manager.cms'] = function (ContainerInterface $container) {
 			$eventManager = new EventManager();
 
-			$eventManager->addEventSubscriber(new MysqlSessionInit('utf8'));
 			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
 
 			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
@@ -190,7 +187,8 @@ abstract class ContainerBuilder
 					'host' => 'localhost',
 					'user' => 'root',
 					'password' => '',
-					'dbname' => 'supra9'
+					'dbname' => 'supra9',
+					'charset' => 'utf8',
 				),
 				new PDOMySql\Driver(),
 				$container['doctrine.orm_configuration'],
@@ -206,7 +204,8 @@ abstract class ContainerBuilder
 					'host' => 'localhost',
 					'user' => 'root',
 					'password' => '',
-					'dbname' => 'supra9_shared_users'
+					'dbname' => 'supra9_shared_users',
+					'charset' => 'utf8',
 				),
 				new PDOMySql\Driver(),
 				$container['doctrine.orm_configuration'],
