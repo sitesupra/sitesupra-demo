@@ -50,6 +50,6 @@ class ComponentConfiguration implements ConfigurationInterface
 			$this->class = $this->id;
 		}
 		
-		ObjectRepository::setComponentConfiguration($this->class, $this);
+//		ObjectRepository::setComponentConfiguration($this->class, $this);
 	}
 }

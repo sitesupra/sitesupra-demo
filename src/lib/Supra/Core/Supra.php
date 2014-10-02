@@ -17,8 +17,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class Supra extends ContainerBuilder
 {
-
-
 	/**
 	 * DI container
 	 *

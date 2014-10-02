@@ -5,10 +5,10 @@ namespace Supra\Package\Cms\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
-use Supra\Configuration\Loader\IniConfigurationLoader;
 
 /**
  * Layout class
+ * 
  * @Entity
  */
 class Layout extends Abstraction\Entity

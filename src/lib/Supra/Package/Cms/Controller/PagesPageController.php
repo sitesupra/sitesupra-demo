@@ -10,10 +10,7 @@ class PagesPageController extends AbstractPagesController
 	{
 		$themeProvider = $this->getThemeProvider();
 
-		$theme = $themeProvider->getCurrentTheme();
-		$themeConfig = $theme->getConfiguration();
-
-//		$defaultIcon = '/cms/lib/supra/img/sitemap/preview/layout.png';
+		$theme = $themeProvider->getActiveTheme();
 
 		$responseData = array();
 
@@ -21,14 +18,10 @@ class PagesPageController extends AbstractPagesController
 
 			$layoutName = $layout->getName();
 
-			$layoutIcon = $themeConfig->hasLayoutConfiguration($layoutName)
-					? $themeConfig->getLayoutConfiguration($layoutName)->icon
-					: null;
-
 			$responseData[] = array(
 				'id'	=> $layoutName,
 				'title' => $layout->getTitle(),
-				'icon'	=> $layoutIcon,
+				'icon'	=> $layout->getIcon(),
 			);
 		}
 

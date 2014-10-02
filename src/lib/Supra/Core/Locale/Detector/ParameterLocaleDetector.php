@@ -1,56 +1,41 @@
 <?php
 
-namespace Supra\Locale\Detector;
+namespace Supra\Core\Locale\Detector;
 
-use Supra\Request\RequestInterface;
-use Supra\Response\ResponseInterface;
-use Supra\Request\HttpRequest;
-use Supra\Log\Log;
-use Supra\ObjectRepository\ObjectRepository;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Request parameter locale detector
  */
-class ParameterLocaleDetector extends DetectorAbstraction
+class ParameterLocaleDetector implements DetectorInterface
 {
 	/**
-	 * Parameter name used to pass the locale ID
 	 * @var string
 	 */
-	private $parameterName = 'locale';
-	
+	private $parameterName;
+
+	/**
+	 * @param string|null $parameterName Parameter name used to pass the locale ID
+	 */
+	public function __construct($parameterName = 'locale')
+	{
+		$this->parameterName = $parameterName;
+	}
+
 	/**
 	 * Detects the current locale
-	 * @param RequestInterface $request
-	 * @param ResponseInterface $response
+	 *
+	 * @param Request $request
+	 * @param Response $response
 	 * @return string
 	 */
-	public function detect(RequestInterface $request, ResponseInterface $response)
+	public function detect(Request $request)
 	{
-		/* @var $request HttpRequest */
-		if ( ! ($request instanceof HttpRequest)) {
-			Log::warn('Request must be instance of Http request object to use path locale detection');
-			return;
+		if ($request->isMethod('post')) {
+			return $request->request->get($this->parameterName);
 		}
-		
-		$localeManager = ObjectRepository::getLocaleManager($this);
-	
-		$post = $request->getPost();
-		$query = $request->getQuery();
-		$localeId = null;
-		
-		if ( ! $post->isEmpty($this->parameterName)) {
-			$localeId = $post->get($this->parameterName);
-		} else {
-			$localeId = $query->get($this->parameterName, null);
-		}
-		
-		if ( ! is_null($localeId)) {
-			if ($localeManager->exists($localeId, false)) {
-				return $localeId;
-			}
-		}
-		
-		return null;
+
+		return $request->query->get($this->parameterName);
 	}
 }

@@ -86,13 +86,13 @@ class ComponentConfigurationLoader
 	 */
 	public function __construct(ParserInterface $parser = null)
 	{
-		$this->log = ObjectRepository::getLogger($this);
+//		$this->log = ObjectRepository::getLogger($this);
 
 		if ( ! is_null($parser)) {
 			$this->setParser($parser);
 		}
 
-		$this->cacheAdapter = ObjectRepository::getCacheAdapter($this);
+//		$this->cacheAdapter = ObjectRepository::getCacheAdapter($this);
 	}
 
 	/**

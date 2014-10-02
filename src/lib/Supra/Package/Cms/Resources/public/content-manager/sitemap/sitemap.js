@@ -577,7 +577,7 @@ function (Y) {
 		 */
 		setModePages: function (silent, force) {
 			if (this.tree.get('mode') != 'pages' || force === true) {
-				this.tree.set('requestURI', Supra.Url.generate('cms_pages_sitemap_pages_list'));
+				this.tree.set('requestURI', this.getDataPath('pages-list'));
 				this.tree.set('mode', 'pages', {'silent': true});
 				this.newPage.set('mode', 'pages');
 				
@@ -602,7 +602,7 @@ function (Y) {
 		 */
 		setModeTemplates: function (silent, force) {
 			if (this.tree.get('mode') != 'templates' || force === true) {
-				this.tree.set('requestURI', this.getDataPath('templates'));
+				this.tree.set('requestURI', this.getDataPath('templates-list'));
 				this.tree.set('mode', 'templates', {'silent': true});
 				this.newPage.set('mode', 'templates');
 				

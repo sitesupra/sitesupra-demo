@@ -23,7 +23,7 @@ class CookieStorage extends AbstractStorage
 	 * @param ResponseInterface $response
 	 * @param string $localeId
 	 */
-	public function store(Request $request, Response $response, $localeId)
+	public function store(Request $request, $localeId)
 	{
 		if ( ! ($response instanceof HttpResponse)) {
 			Log::warn("The response must be instance of Http response to use cookie storage");

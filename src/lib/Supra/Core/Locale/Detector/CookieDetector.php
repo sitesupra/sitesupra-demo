@@ -3,12 +3,11 @@
 namespace Supra\Core\Locale\Detector;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Cookie locale detector
  */
-class CookieDetector extends AbstractDetector
+class CookieDetector implements DetectorInterface
 {
 	/**
 	 * Cookie name for the current locale storage
@@ -17,29 +16,21 @@ class CookieDetector extends AbstractDetector
 	protected $cookieName = 'supra_language';
 
 	/**
-	 * Set cookie name
-	 * @param string $cookieName
+	 * @param string|null $cookieName
 	 */
-	public function setCookieName($cookieName)
+	public function __construct($cookieName = 'supra_language')
 	{
 		$this->cookieName = $cookieName;
 	}
 
 	/**
-	 * Detects the current locale
+	 * Searches for the current locale in cookies.
+	 *
 	 * @param \Symfony\Component\HttpFoundation\Request $request
-	 * @param \Symfony\Component\HttpFoundation\Response $response
 	 * @return string
 	 */
-	public function detect(Request $request, Response $response)
+	public function detect(Request $request)
 	{
-		if ( ! ($request instanceof HttpRequest)) {
-			\Log::warn('Request must be instance of Http request object to use cookie locale detection');
-			return;
-		}
-
-		/* @var $request HttpRequest */
-		$locale = $request->getCookie($this->cookieName, null);
-		return $locale;
+		return $request->cookies->get($this->cookieName, null);
 	}
 }

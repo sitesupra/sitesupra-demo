@@ -1536,8 +1536,7 @@ abstract class AbstractPagesController extends Controller
 	 */
 	protected function getCurrentLocale()
 	{
-		return $this->container->getLocaleManager()
-				->getCurrent();
+		return $this->container['locale.manager.cms']->getCurrent();
 	}
 
 	/**
@@ -1546,6 +1545,14 @@ abstract class AbstractPagesController extends Controller
 	protected function getPageApplicationManager()
 	{
 		return $this->container['cms.page_application_manager'];
+	}
+
+	/**
+	 * @return \Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface
+	 */
+	protected function getThemeProvider()
+	{
+		return $this->container['cms.theme_provider'];
 	}
 
 	/**

@@ -53,3 +53,13 @@ routes:
         controller:					Cms:PagesPage:layoutsList
         options:
             frontend:       true
+    cms_pages_page_layouts:
+        pattern:						%cms.prefix%/content-manager/page/layouts
+        controller:					Cms:PagesPage:layoutsList
+        options:
+            frontend:       true
+    cms_pages_pagesettings_templates:
+        pattern:						%cms.prefix%/content-manager/pagesettings/templates
+        controller:					Cms:PagesPagesettings:templatesList
+        options:
+            frontend:       true

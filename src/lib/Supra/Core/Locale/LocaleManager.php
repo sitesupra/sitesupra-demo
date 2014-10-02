@@ -2,20 +2,26 @@
 
 namespace Supra\Core\Locale;
 
-use Supra\Request\RequestInterface;
-use Supra\Response\ResponseInterface;
-use Supra\Locale\Exception;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Supra\Core\Locale\Exception;
 
 /**
- * Localization manager
+ * Locale Manager
  */
 class LocaleManager
 {
 	/**
 	 * Locales defined
+	 * 
 	 * @var array
 	 */
 	protected $locales = array();
+
+	/**
+	 * @var Storage\StorageInterface[]
+	 */
+	protected $storages = array();
 
 	/**
 	 * Detectors defined
@@ -128,7 +134,7 @@ class LocaleManager
 	 */
 	public function addStorage(Storage\StorageInterface $storage)
 	{
-		$this->storage[] = $storage;
+		$this->storages[] = $storage;
 	}
 
 	/**
@@ -207,26 +213,26 @@ class LocaleManager
 
 	/**
 	 * Detects current locale
-	 * @param RequestInterface $request
-	 * @param ResponseInterface $response 
+	 * 
+	 * @param Request $request
+	 * @param Response | null $response
+	 * 
 	 * @throws Exception if locale was not detected
 	 */
-	public function detect(RequestInterface $request, ResponseInterface $response)
+	public function detect(Request $request, Response $response = null)
 	{
 		$localeId = null;
 
 		/* @var $detector Detector\DetectorInterface */
 		foreach ($this->detectors as $detector) {
 			
-			$localeId = $detector->detect($request, $response);
+			$localeId = $detector->detect($request);
 			
 			if ( ! empty($localeId)) {
 				
 				$exists = $this->exists($localeId, false);
 				
 				if ($exists && ($this->processInactive || $this->isActive($localeId))) {
-					
-					\Log::debug("Locale '{$localeId}' detected by " . get_class($detector));
 					$this->setCurrent($localeId);
 					break;
 				}
@@ -234,11 +240,13 @@ class LocaleManager
 		}
 
 		if (empty($localeId)) {
-			throw new Exception\RuntimeException("Could not detect locale for request '{$request->getActionString()}'");
+			throw new Exception\RuntimeException("Could not detect locale for request '{$request->getBaseUrl()}'");
 		}
 
 		/* @var $storage Storage\StorageInterface */
-		foreach ($this->storage as $storage) {
+
+		// @FIXME: there is no response object here.
+		foreach ($this->storages as $storage) {
 			$storage->store($request, $response, $localeId);
 		}
 	}

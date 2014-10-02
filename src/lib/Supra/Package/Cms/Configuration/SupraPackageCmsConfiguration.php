@@ -21,6 +21,7 @@ class SupraPackageCmsConfiguration implements ConfigurationInterface
 				->scalarNode('prefix')->isRequired()->end()
 				->arrayNode('css_pack')->prototype('scalar')->end()->end()
 				->arrayNode('js_pack')->prototype('scalar')->end()->end()
+				->scalarNode('active_theme')->end()
 			->end();
 
 		return $treeBuilder;

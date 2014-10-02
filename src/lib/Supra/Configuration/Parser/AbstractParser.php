@@ -3,7 +3,7 @@
 namespace Supra\Configuration\Parser;
 
 use Supra\Configuration\Exception;
-use Supra\ObjectRepository\ObjectRepository;
+//use Supra\ObjectRepository\ObjectRepository;
 use Supra\Log\Writer\WriterAbstraction;
 
 /**
@@ -27,7 +27,7 @@ abstract class AbstractParser implements ParserInterface
 	 */
 	public function __construct()
 	{
-		$this->log = ObjectRepository::getLogger($this);
+//		$this->log = ObjectRepository::getLogger($this);
 	}
 	
 	/**

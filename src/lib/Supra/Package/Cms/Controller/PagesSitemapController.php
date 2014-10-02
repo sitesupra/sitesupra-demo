@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Entity\Page;
+use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\GroupPage;
 use Supra\Package\Cms\Entity\TemplateLocalization;
@@ -21,9 +22,9 @@ class PagesSitemapController extends AbstractPagesController
 	 */
 	public function pagesListAction()
 	{
-		$responseData = $this->loadSitemapTree(Page::CN());
-
-		return new SupraJsonResponse($responseData);
+		return new SupraJsonResponse(
+				$this->loadSitemapTree(Page::CN())
+		);
 	}
 
 	/**
@@ -31,12 +32,11 @@ class PagesSitemapController extends AbstractPagesController
 	 *
 	 * @return SupraJsonResponse
 	 */
-	public function templatesAction()
+	public function templatesListAction()
 	{
-		$response = $this->loadSitemapTree(Entity\Template::CN());
-
-		$this->getResponse()
-				->setResponseData($response);
+		return new SupraJsonResponse(
+				$this->loadSitemapTree(Template::CN())
+		);
 	}
 
 	/**
@@ -146,7 +146,8 @@ class PagesSitemapController extends AbstractPagesController
 
 		// Parent ID and level
 		$levels = null;
-
+		$parentId = null;
+		
 		if ($input->has('parent_id')) {
 			$parentId = $input->get('parent_id');
 
@@ -159,9 +160,6 @@ class PagesSitemapController extends AbstractPagesController
 		} else {
 			$levels = 2;
 		}
-
-		// Is this used now?
-		$parentId = $input->get('root', $parentId);
 
 		/* @var $parentLocalization Entity\Abstraction\Localization */
 		$parentLocalization = null;

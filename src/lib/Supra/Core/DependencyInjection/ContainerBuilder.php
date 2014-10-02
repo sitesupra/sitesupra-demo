@@ -19,7 +19,7 @@ use Supra\Core\Doctrine\Subscriber\TableNamePrefixer;
 use Supra\Core\Doctrine\Type\PathType;
 use Supra\Core\Doctrine\Type\SupraIdType;
 use Supra\Core\Locale\Detector\CookieDetector;
-use Supra\Core\Locale\Detector\PathLocaleDetector;
+use Supra\Core\Locale\Detector\AcceptLanguageHeaderDetector;
 use Supra\Core\Locale\Locale;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Storage\CookieStorage;
@@ -100,17 +100,18 @@ abstract class ContainerBuilder
 	{
 		//@todo: this should be refactored to some +- sane locale storage, preferably in the database
 
-		$container['locale.detector.path'] = function () {
-			return new PathLocaleDetector();
-		};
-
 		$container['locale.detector.cookie'] = function () {
 			return new CookieDetector();
 		};
 
-		$container['locale.storage.cookie'] = function () {
-			return new CookieStorage();
+		$container['locale.detector.accept_language'] = function () {
+			return new AcceptLanguageHeaderDetector();
 		};
+
+		// @FIXME: doesn't work right now. Requires Response object
+//		$container['locale.storage.cookie'] = function () {
+//			return new CookieStorage();
+//		};
 
 		$container['locale.manager'] = function (ContainerInterface $container) {
 			$localeManager = new LocaleManager();
@@ -145,10 +146,10 @@ abstract class ContainerBuilder
 
 			$localeManager->setCurrent('lv_LV');
 
-			$localeManager->addDetector($container['locale.detector.path']);
 			$localeManager->addDetector($container['locale.detector.cookie']);
+			$localeManager->addDetector($container['locale.detector.accept_language']);
 
-			$localeManager->addStorage($container['locale.storage.cookie']);
+//			$localeManager->addStorage($container['locale.storage.cookie']);
 
 			return $localeManager;
 		};
@@ -245,8 +246,8 @@ abstract class ContainerBuilder
 				array(
 					'host' => 'localhost',
 					'user' => 'root',
-					'password' => '',
-					'dbname' => 'supra9',
+					'password' => 'root',
+					'dbname' => 'supra7',
 					'charset' => 'utf8',
 				),
 				new PDOMySql\Driver(),
@@ -262,8 +263,8 @@ abstract class ContainerBuilder
 				array(
 					'host' => 'localhost',
 					'user' => 'root',
-					'password' => '',
-					'dbname' => 'supra9_shared_users',
+					'password' => 'root',
+					'dbname' => 'supra7_shared_users',
 					'charset' => 'utf8',
 				),
 				new PDOMySql\Driver(),

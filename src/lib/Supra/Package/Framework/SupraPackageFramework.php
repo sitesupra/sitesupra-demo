@@ -8,6 +8,7 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Package\PackageLocator;
+use Supra\Core\Locale\Listener\LocaleDetectorListener;
 use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
@@ -58,6 +59,17 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getEventDispatcher()->addListener(
 			KernelEvent::ERROR404,
 			array($container[$this->name.'.not_found_asset_exception_listener'], 'listen')
+		);
+
+
+		// Locale detection
+		$container[$this->name.'.locale_detector_listener'] = function () {
+			return new LocaleDetectorListener();
+		};
+
+		$container->getEventDispatcher()->addListener(
+			KernelEvent::REQUEST,
+			array($container[$this->name.'.locale_detector_listener'], 'listen')
 		);
 
 		//configure and register assetic
