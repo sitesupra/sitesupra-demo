@@ -50,18 +50,6 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container[$this->name . '.theme_provider'] = function () {
 			return new DefaultThemeProvider();
 		};
-
-		// Extended Locale Manager
-		$container['locale.manager.cms'] = function($container) {
-			
-			$localeManager = clone $container->getLocaleManager();
-
-			$localeManager->processInactiveLocales();
-
-			$localeManager->addDetector(new ParameterLocaleDetector());
-
-			return $localeManager;
-		};
 	}
 
 	public function finish(ContainerInterface $container)
