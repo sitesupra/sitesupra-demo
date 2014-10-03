@@ -32,7 +32,9 @@ routes:
     cms_pages_sitemap:
         pattern:            %cms.prefix%/content-manager/h/{params}
         controller:         Cms:Pages:index
-
+    cms_pages_check_permissions:
+        pattern:            %cms.prefix%/content-manager/check-permissions
+        controller:         Cms:Pages:checkPermissions
     cms_pages_sitemap_pages_list:
         pattern:						%cms.prefix%/content-manager/sitemap/pages-list
         controller:					Cms:PagesSitemap:pagesList

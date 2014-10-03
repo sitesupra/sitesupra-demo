@@ -4,6 +4,7 @@ namespace Supra\Package\Cms;
 
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Package\AbstractSupraPackage;
+use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Detector\ParameterLocaleDetector;
 use Supra\Package\Cms\Application\CmsDashboardApplication;
 use Supra\Package\Cms\Application\CmsPagesApplication;
@@ -11,6 +12,12 @@ use Supra\Package\Cms\Pages\Application\PageApplicationManager;
 use Supra\Package\Cms\Pages\Application\BlogPageApplication;
 use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
 use Supra\Package\Cms\Pages\Layout\Theme\DefaultThemeProvider;
+use Supra\Package\Cms\Pages\Listener\VersionedEntityRevisionSetterListener;
+use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
+use Supra\Package\Cms\Pages\Listener\TimestampableListener;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
+use Doctrine\DBAL\Driver\PDOMySql;
 
 class SupraPackageCms extends AbstractSupraPackage
 {
@@ -25,6 +32,8 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
 		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
+
+		$this->injectDraftEntityManager($container);
 
 		// Page Apps Manager
 		$container[$this->name . '.page_application_manager'] = function () {
@@ -41,21 +50,80 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container[$this->name . '.theme_provider'] = function () {
 			return new DefaultThemeProvider();
 		};
-	}
 
-	public function finish(ContainerInterface $container)
-	{
-		/// @FIXME: completely wrong. Doing this just to make the Pages to work.
-		$container['locale.manager.cms'] = function ($container) {
+		// Extended Locale Manager
+		$container['locale.manager.cms'] = function($container) {
+			
 			$localeManager = clone $container->getLocaleManager();
-	
+
 			$localeManager->processInactiveLocales();
 
 			$localeManager->addDetector(new ParameterLocaleDetector());
 
-			$localeManager->detect($container->getRequest());
+			return $localeManager;
+		};
+	}
+
+	public function finish(ContainerInterface $container)
+	{
+		// Extended Locale Manager
+		$container->extend('locale.manager', function (LocaleManager $localeManager, ContainerInterface $container) {
+
+			$localeManager->processInactiveLocales();
+
+			$localeManager->addDetector(new ParameterLocaleDetector());
 
 			return $localeManager;
+		});
+	}
+
+	/**
+	 * @param ContainerInterface $container
+	 */
+	private function injectDraftEntityManager(ContainerInterface $container)
+	{
+		// separate EventManager
+		$container['doctrine.event_manager.cms'] = function (ContainerInterface $container) {
+			
+			$eventManager = clone $container['doctrine.event_manager.public'];
+			/* @var $eventManager \Doctrine\Common\EventManager */
+
+			$eventManager->addEventSubscriber(new VersionedEntitySchemaListener());
+			$eventManager->addEventSubscriber(new VersionedEntityRevisionSetterListener());
+
+			// @TODO: quite rudimental stuff.
+			// might be easily replaced with @HasLifecycleCallbacks + @prePersist + @preUpdate
+			$eventManager->addEventSubscriber(new TimestampableListener());
+
+			return $eventManager;
+		};
+
+		// separate connection. unfortunately.
+		$container['doctrine.connections.cms'] = function (ContainerInterface $container) {
+
+			// @TODO: clone somehow default connection?
+			$connection = new Connection(
+				array(
+					'host' => 'localhost',
+					'user' => 'root',
+					'password' => 'root',
+					'dbname' => 'supra9'
+				),
+				new PDOMySql\Driver(),
+				$container['doctrine.orm_configuration'],
+				$container['doctrine.event_manager.cms']
+			);
+
+			return $connection;
+		};
+
+		// entity manager
+		$container['doctrine.entity_managers.cms'] = function (ContainerInterface $container) {
+			return EntityManager::create(
+				$container['doctrine.connections.cms'],
+				$container['doctrine.orm_configuration'],
+				$container['doctrine.event_manager.cms']
+			);
 		};
 	}
 }

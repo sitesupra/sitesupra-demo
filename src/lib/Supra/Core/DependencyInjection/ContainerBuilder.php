@@ -105,6 +105,10 @@ abstract class ContainerBuilder
 			//@todo: move to config
 			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
 
+			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
+			
+			$eventManager->addEventSubscriber(new NestedSetListener());
+
 			/*// Updates creation and modification timestamps for appropriate entities
 			$eventManager->addEventSubscriber(new TimestampableListener());
 
@@ -122,22 +126,6 @@ abstract class ContainerBuilder
 				}
 				$eventManager->addEventSubscriber($eventSubscriber);
 			}*/
-
-			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
-			$eventManager->addEventSubscriber(new NestedSetListener());
-
-			return $eventManager;
-		};
-
-		$container['doctrine.event_manager.cms'] = function (ContainerInterface $container) {
-			$eventManager = new EventManager();
-
-			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
-
-			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
-			$eventManager->addEventSubscriber(new NestedSetListener());
-
-			$eventManager->addEventSubscriber(new VersionedEntitySchemaListener());
 
 			return $eventManager;
 		};
@@ -186,7 +174,7 @@ abstract class ContainerBuilder
 				array(
 					'host' => 'localhost',
 					'user' => 'root',
-					'password' => '',
+					'password' => 'root',
 					'dbname' => 'supra9',
 					'charset' => 'utf8',
 				),
@@ -203,29 +191,13 @@ abstract class ContainerBuilder
 				array(
 					'host' => 'localhost',
 					'user' => 'root',
-					'password' => '',
-					'dbname' => 'supra9_shared_users',
+					'password' => 'root',
+					'dbname' => 'supra7_shared_users',
 					'charset' => 'utf8',
 				),
 				new PDOMySql\Driver(),
 				$container['doctrine.orm_configuration'],
 				$container['doctrine.event_manager.public']
-			);
-
-			return $connection;
-		};
-
-		$container['doctrine.connections.cms'] = function (ContainerInterface $container) {
-			$connection = new Connection(
-				array(
-					'host' => 'localhost',
-					'user' => 'root',
-					'password' => 'root',
-					'dbname' => 'supra7'
-				),
-				new PDOMySql\Driver(),
-				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager.cms']
 			);
 
 			return $connection;
@@ -239,15 +211,7 @@ abstract class ContainerBuilder
 				$container['doctrine.event_manager.public']
 			);
 		};
-
-		$container['doctrine.entity_managers.cms'] = function (ContainerInterface $container) {
-			return EntityManager::create(
-				$container['doctrine.connections.cms'],
-				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager.cms']
-			);
-		};
-
+		
 		$container['doctrine.entity_managers.shared'] = function (ContainerInterface $container) {
 			return EntityManager::create(
 				$container['doctrine.connections.shared'],
@@ -259,7 +223,6 @@ abstract class ContainerBuilder
 		$container['doctrine.entity_managers'] = function (ContainerInterface $container) {
 			return array(
 				'public' => 'doctrine.entity_managers.public',
-				'cms' => 'doctrine.entity_managers.cms',
 				'shared' => 'doctrine.entity_managers.shared',
 			);
 		};

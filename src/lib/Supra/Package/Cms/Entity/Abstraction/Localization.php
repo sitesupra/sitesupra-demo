@@ -24,8 +24,7 @@ use Supra\Controller\Pages\Entity\PlaceHolderGroup;
  * 		"group"			= "Supra\Package\Cms\Entity\GroupLocalization"
  * })
  */
-abstract class Localization extends Entity implements
-		VersionedEntity,
+abstract class Localization extends VersionedEntity implements
 		AuditedEntity,
 		TitleTrackingItemInterface,
 		LocalizationInterface
@@ -175,7 +174,7 @@ abstract class Localization extends Entity implements
 	 * @var Collection
 	 */
 	protected $tags;
-	
+
 	/**
 	 * Construct
 	 * @param string $locale

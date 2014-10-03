@@ -2,12 +2,8 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
-use Doctrine\ORM\EntityManager;
-use Supra\Database\Doctrine;
-use Doctrine\Common\Collections\Collection;
+//use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Exception;
-use Doctrine\ORM\EntityRepository;
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\Database;
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\Permission\Permission;
@@ -38,17 +34,6 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	const DISCRIMINATOR = null;
 
 	/**
-	 * @var string
-	 */
-	protected $revision = '';
-	
-	/**
-	 * Used only for audit schema entities
-	 * @var int
-	 */
-	protected $revisionType = '';
-	
-	/**
 	 * @var array
 	 */
 	private $_authorizationAncestorsCache = array();
@@ -58,7 +43,8 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	 */
 	protected function log()
 	{
-		return ObjectRepository::getLogger($this);
+		throw new \Exception("Looks like I'm deprecated. Don't use me.");
+//		return ObjectRepository::getLogger($this);
 	}
 
 	/**
@@ -201,30 +187,13 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	}
 
 	/**
-	 * @param string $revisionId 
-	 */
-	public function setRevisionId($revisionId)
-	{
-		$this->revision = $revisionId;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getRevisionId()
-	{
-		return $this->revision;
-	}
-
-	/**
-	 * 
+	 * Doctrine's safe __clone implementation.
 	 */
 	public function __clone()
 	{
 		if ( ! empty($this->id)) {
 			$this->regenerateId();
-			$this->setRevisionId(self::generateId(__CLASS__));
+//			$this->setRevisionId(self::generateId(__CLASS__));
 		}
 	}
-
 }

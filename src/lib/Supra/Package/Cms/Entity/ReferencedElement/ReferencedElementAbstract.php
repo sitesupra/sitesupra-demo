@@ -19,8 +19,7 @@ use Supra\Controller\Pages\Exception;
  *		"icon" = "IconReferencedElement",
  * })
  */
-abstract class ReferencedElementAbstract extends Entity implements
-	VersionedEntity,
+abstract class ReferencedElementAbstract extends VersionedEntity implements
 	AuditedEntity
 {
 	/**

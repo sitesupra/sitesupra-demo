@@ -2,12 +2,7 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
-interface AuditedEntity
+interface AuditedEntity extends VersionedEntityInterface
 {
 	const AUDITED_ENTITY_INTERFACE = __CLASS__;
-
-	/**
-	 * @return string
-	 */
-	public function getRevisionId();
 }

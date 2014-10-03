@@ -60,11 +60,13 @@ class VersionedEntitySchemaListener implements EventSubscriber
 
 		$tableName = &$classMetadata->table['name'];
 
-		if (strpos($tableName, static::TABLE_SUFFIX) === false
-			&& $classMetadata->getReflectionClass()
-					->implementsInterface($interfaceName)) {
+		if ($classMetadata->getReflectionClass()
+				->implementsInterface($interfaceName)) {
 
-			$tableName = $tableName . static::TABLE_SUFFIX;
+			// append suffix to table name
+			if (strpos($tableName, static::TABLE_SUFFIX) === false) {
+				$tableName = $tableName . static::TABLE_SUFFIX;
+			}
 		}
 	}
 }

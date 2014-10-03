@@ -18,8 +18,7 @@ use Doctrine\Common\Collections;
  * @Entity
  * @HasLifecycleCallbacks
  */
-class BlockProperty extends Entity implements
-	VersionedEntity,
+class BlockProperty extends VersionedEntity implements
 	AuditedEntity
 //	OwnedEntityInterface
 {

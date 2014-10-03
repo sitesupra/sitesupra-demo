@@ -23,8 +23,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  *		"page" = "Supra\Package\Cms\Entity\PageBlock"
  * })
  */
-abstract class Block extends Entity implements
-		VersionedEntity,
+abstract class Block extends VersionedEntity implements
 		AuditedEntity,
 		OwnedEntityInterface
 {
@@ -60,7 +59,7 @@ abstract class Block extends Entity implements
 	 * @var boolean
 	 */
 	protected $locked = false;
-	
+
 	/**
 	 * Create block properties collection
 	 */
@@ -297,5 +296,5 @@ abstract class Block extends Entity implements
 	{
 		return $this->placeHolder;
 	}
-
+	
 }

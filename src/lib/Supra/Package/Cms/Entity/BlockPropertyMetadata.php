@@ -10,9 +10,8 @@ use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
  * BlockPropertyMetadata
  * @Entity
  */
-class BlockPropertyMetadata extends Abstraction\Entity implements
-	AuditedEntity,
-	VersionedEntity
+class BlockPropertyMetadata extends VersionedEntity implements
+	AuditedEntity
 	//OwnedEntityInterface
 {
 	/**

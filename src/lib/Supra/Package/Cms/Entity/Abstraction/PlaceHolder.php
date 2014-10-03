@@ -15,8 +15,7 @@ use Supra\Controller\Pages\Entity\PlaceHolderGroup;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Package\Cms\Entity\TemplatePlaceHolder", "page" = "Supra\Package\Cms\Entity\PagePlaceHolder"})
  */
-abstract class PlaceHolder extends Entity implements
-		VersionedEntity,
+abstract class PlaceHolder extends VersionedEntity implements
 		AuditedEntity,
 		OwnedEntityInterface
 {
@@ -57,7 +56,6 @@ abstract class PlaceHolder extends Entity implements
 	 */
 	protected $localization;
 
-	
 	/**
 	 * Constructor
 	 * @param string $name
@@ -336,4 +334,5 @@ abstract class PlaceHolder extends Entity implements
 	{
 		$this->group = null;
 	}
+	
 }

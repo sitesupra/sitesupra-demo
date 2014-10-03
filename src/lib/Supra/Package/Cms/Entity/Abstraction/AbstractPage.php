@@ -50,7 +50,7 @@ use Supra\NestedSet;
  * @method boolean isDescendantOf(AbstractPage $node)
  * @method boolean isEqualTo(AbstractPage $node)
  */
-abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface, AuditedEntity
+abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface
 {
 
     /**

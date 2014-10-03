@@ -1,16 +1,13 @@
 <?php
 
-namespace Supra\Database\Doctrine\Listener;
+namespace Supra\Package\Cms\Pages\Listener;
 
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\OnFlushEventArgs;
-use DateTime;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\OnFlushEventArgs;
+use Supra\Package\Cms\Entity\Abstraction\TimestampableInterface;
 
-/**
- * Timestampable listener
- */
 class TimestampableListener implements EventSubscriber
 {
 	/**
@@ -21,7 +18,7 @@ class TimestampableListener implements EventSubscriber
 	{
 		return array(Events::onFlush, Events::prePersist);
 	}
-	
+
 	/**
 	 * Sets modification time on updates
 	 * @param OnFlushEventArgs $eventArgs
@@ -30,9 +27,9 @@ class TimestampableListener implements EventSubscriber
 	{
 		$em = $eventArgs->getEntityManager();
 		$uow = $em->getUnitOfWork();
-		
+
 		foreach ($uow->getScheduledEntityUpdates() as $entity) {
-			if ($entity instanceof Timestampable) {
+			if ($entity instanceof TimestampableInterface) {
 				$entity->setModificationTime();
 				$className = get_class($entity);
 				$class = $em->getClassMetadata($className);
@@ -40,7 +37,7 @@ class TimestampableListener implements EventSubscriber
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets both – creation time and modification time
 	 * @param LifecycleEventArgs $eventArgs
@@ -48,8 +45,8 @@ class TimestampableListener implements EventSubscriber
 	public function prePersist(LifecycleEventArgs $eventArgs)
 	{
 		$entity = $eventArgs->getEntity();
-		
-		if ($entity instanceof Timestampable) {
+
+		if ($entity instanceof TimestampableInterface) {
 			$now = new DateTime();
 			$entity->setModificationTime($now);
 			$entity->setCreationTime($now);

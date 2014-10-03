@@ -3,6 +3,7 @@
 namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Controller\Controller;
+use Supra\Core\HttpFoundation\SupraJsonResponse;
 
 class PagesController extends Controller
 {
@@ -13,4 +14,28 @@ class PagesController extends Controller
 		return $this->renderResponse('index.html.twig');
 	}
 
+	/**
+	 * @FIXME: returns fake data, granting edit/publish action permissions
+	 *			for anything passed in.
+	 * 
+	 * @return SupraJsonResponse
+	 */
+	public function checkPermissionsAction()
+	{
+		$request = $this->container->getRequest();
+
+		$permissions = array();
+
+		foreach ($request->request->get('_check-permissions', array()) as $key => $item) {
+			$permissions[$key] = array(
+				'edit_page'	=> true,
+				'supervise_page' => true,
+			);
+		}
+
+		$response = new SupraJsonResponse();
+		$response->setPermissions($permissions);
+
+		return $response;
+	}
 }

@@ -343,13 +343,13 @@ class PagesSitemapController extends AbstractPagesController
 						$pageData['children_count'] = count($pageData['children']);
 					}
 
-					// TODO: might be job for JS
-					if ($pageData['children_count'] > 0 
-							&& ! empty($pageData['icon'])
-							&& $pageData['icon'] === 'page') {
-						
-						$pageData['icon'] = 'folder';
-					}
+//					// TODO: might be job for JS
+//					if ($pageData['children_count'] > 0
+//							&& ! empty($pageData['icon'])
+//							&& $pageData['icon'] === 'page') {
+//
+//						$pageData['icon'] = 'folder';
+//					}
 				}
 
 				$response[] = $pageData;

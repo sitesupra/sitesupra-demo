@@ -3,11 +3,12 @@
 namespace Supra\Package\Cms\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 
 /**
  * @Entity
  */
-class PlaceHolderGroup extends Abstraction\Entity implements Abstraction\AuditedEntity
+class PlaceHolderGroup extends VersionedEntity
 {
 	/**
 	 * @Column(name="name", type="string")

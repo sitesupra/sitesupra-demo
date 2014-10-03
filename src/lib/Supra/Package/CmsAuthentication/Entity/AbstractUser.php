@@ -18,7 +18,7 @@ use DateTime;
  * })
  * @HasLifecycleCallbacks
  */
-abstract class AbstractUser extends Entity implements AuthorizedEntityInterface, Timestampable
+abstract class AbstractUser extends Entity implements AuthorizedEntityInterface//, Timestampable
 {
 	const PERMISSION_MODIFY_USER_NAME = 'modify_user';
 	const PERMISSION_MODIFY_USER_MASK = 256;

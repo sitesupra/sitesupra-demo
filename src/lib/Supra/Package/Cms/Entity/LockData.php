@@ -2,14 +2,14 @@
 
 namespace Supra\Package\Cms\Entity;
 
-use Supra\Database\Doctrine\Listener\Timestampable;
+use Supra\Package\Cms\Entity\Abstraction\TimestampableInterface;
 
 /**
  * Lock data class.
  * @Entity
  * @Table(name="lock_data")
  */
-class LockData extends Abstraction\Entity implements Timestampable
+class LockData extends Abstraction\Entity implements TimestampableInterface
 {
 	/**
 	 * @Column(type="datetime", nullable=true)

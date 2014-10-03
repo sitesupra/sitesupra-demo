@@ -62,7 +62,6 @@ class SupraPackageFramework extends AbstractSupraPackage
 			array($container[$this->name.'.not_found_asset_exception_listener'], 'listen')
 		);
 
-
 		// Locale detection
 		$container[$this->name.'.locale_detector_listener'] = function () {
 			return new LocaleDetectorListener();

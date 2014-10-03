@@ -63,11 +63,6 @@ abstract class AbstractPagesController extends Controller
 	const PAGE_CONTROLLER_CLASS = 'Supra\Controller\Pages\PageController';
 
 	/**
-	 * @var EntityManager
-	 */
-	protected $entityManager;
-
-	/**
 	 * @var Entity\Abstraction\Localization
 	 */
 	protected $pageData;
@@ -87,9 +82,7 @@ abstract class AbstractPagesController extends Controller
 	 */
 	protected function getEntityManager()
 	{
-		return $this->entityManager = $this->container
-				->getDoctrine()
-				->getManager('cms');
+		return $this->container['doctrine.entity_managers.cms'];
 	}
 
 //	/**
@@ -473,60 +466,6 @@ abstract class AbstractPagesController extends Controller
 		if ($localization instanceof PageLocalization) {
 			$nodeData = array_merge($nodeData, $this->getPageLocalizationData($localization));
 		}
-
-		$applicationBasePath = new Path('');
-
-//		if ($localization instanceof Entity\PageLocalization) {
-//			if ( ! $page->isRoot()) {
-//				$parentPage = $page->getParent();
-//				$parentLocalization = $parentPage->getLocalization($locale);
-//
-//				if ( ! is_null($parentLocalization) && $parentPage instanceof Entity\ApplicationPage) {
-//
-//					$applicationId = $parentPage->getApplicationId();
-//					$application = PageApplicationCollection::getInstance()
-//							->createApplication($parentLocalization, $this->entityManager);
-//
-//					if (empty($application)) {
-//						throw new CmsException(null, "Application '$applicationId' was not found");
-//					}
-//
-//					$applicationBasePath = $application->generatePath($data);
-//				}
-//			}
-//		}
-
-		$array['unpublished_draft'] = true;
-		$array['published'] = false;
-
-		$publicLocalization = null;
-
-		// No public stuff for group/temporary pages
-		if ( ! $localization instanceof Entity\GroupLocalization) {
-//			$localizationId = $data->getId();
-//			// FIXME: causes "N" queries for "N" pages loaded in sitemap. Bad.
-//			$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
-		}
-
-		$array['active'] = true;
-		if ($publicLocalization instanceof Localization) {
-			$array['unpublished_draft'] = false;
-
-			$publicRevision = $publicLocalization->getRevisionId();
-			$draftRevision = $data->getRevisionId();
-			if ($draftRevision == $publicRevision) {
-				$array['published'] = true;
-			}
-
-			if ($publicLocalization instanceof Entity\PageLocalization) {
-				$array['active'] = $publicLocalization->isActive();
-			}
-		} else {
-			$array['active'] = false;
-		}
-
-		// Additional base path received from application
-		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
 
 		return $nodeData;
 	}
@@ -1536,7 +1475,7 @@ abstract class AbstractPagesController extends Controller
 	 */
 	protected function getCurrentLocale()
 	{
-		return $this->container['locale.manager.cms']->getCurrent();
+		return $this->container['locale.manager']->getCurrent();
 	}
 
 	/**
@@ -1580,7 +1519,14 @@ abstract class AbstractPagesController extends Controller
 	{
 		$template = $localization->getTemplate();
 
-		$localizationData = array_merge(array(
+		$publishedLocalization = $this->findLocalizationPublishedVersion($localization);
+
+		//
+		$isLatestVersionPublished = ($publishedLocalization
+				&& $publishedLocalization->getRevision() === $localization->getRevision());
+
+		// main data
+		$localizationData = array(
 			'template'	=> $template->getId(),
 
 			// is scheduled
@@ -1593,15 +1539,83 @@ abstract class AbstractPagesController extends Controller
 			// date created
 			'date'		=> $localization->getCreationTime()
 					->format('Y-m-d'),
-			
-		), $this->getPageLocalizationRedirectData($localization));
 
+			// is the latest version published or not
+			'published' => $isLatestVersionPublished
+		);
+
+		// redirect data
+		$localizationData = array_merge(
+				$localizationData,
+				$this->getPageLocalizationRedirectData($localization)
+		);
+
+		// additional data for Application Page Localization
 		if ($localization instanceof ApplicationLocalization) {
 			$localizationData = array_merge(
 					$localizationData,
 					$this->getApplicationPageLocalizationData($localization)
 			);
 		}
+
+
+
+
+		$applicationBasePath = new Path('');
+
+//		if ($localization instanceof Entity\PageLocalization) {
+//			if ( ! $page->isRoot()) {
+//				$parentPage = $page->getParent();
+//				$parentLocalization = $parentPage->getLocalization($locale);
+//
+//				if ( ! is_null($parentLocalization) && $parentPage instanceof Entity\ApplicationPage) {
+//
+//					$applicationId = $parentPage->getApplicationId();
+//					$application = PageApplicationCollection::getInstance()
+//							->createApplication($parentLocalization, $this->entityManager);
+//
+//					if (empty($application)) {
+//						throw new CmsException(null, "Application '$applicationId' was not found");
+//					}
+//
+//					$applicationBasePath = $application->generatePath($data);
+//				}
+//			}
+//		}
+
+		$array['unpublished_draft'] = true;
+		$array['published'] = false;
+
+		$publicLocalization = null;
+
+		// No public stuff for group/temporary pages
+		if ( ! $localization instanceof Entity\GroupLocalization) {
+//			$localizationId = $data->getId();
+//			// FIXME: causes "N" queries for "N" pages loaded in sitemap. Bad.
+//			$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
+		}
+
+		$array['active'] = true;
+		if ($publicLocalization instanceof Localization) {
+			$array['unpublished_draft'] = false;
+
+			$publicRevision = $publicLocalization->getRevisionId();
+			$draftRevision = $data->getRevisionId();
+			if ($draftRevision == $publicRevision) {
+				$array['published'] = true;
+			}
+
+			if ($publicLocalization instanceof Entity\PageLocalization) {
+				$array['active'] = $publicLocalization->isActive();
+			}
+		} else {
+			$array['active'] = false;
+		}
+
+		// Additional base path received from application
+		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
+
+
 
 		return $localizationData;
 
@@ -1648,5 +1662,17 @@ abstract class AbstractPagesController extends Controller
 		$applicationData['application_id'] = $applicationData['id'];
 
 		return $applicationData;
+	}
+
+	/**
+	 * @param Localization $localization
+	 * @return Localization
+	 */
+	private function findLocalizationPublishedVersion(Localization $localization)
+	{
+		$entityManager = $this->container->getDoctrine()
+				->getManager();
+
+		return $entityManager->find(Localization::CN(), $localization->getId());
 	}
 }
