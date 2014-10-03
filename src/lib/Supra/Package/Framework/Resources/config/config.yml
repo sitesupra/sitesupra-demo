@@ -6,32 +6,33 @@ services:
     locale.storage.cookie:
         class: \Supra\Core\Locale\Storage\CookieStorage
 locales:
-    -
-        id: en_LV
-        title: English
-        country: Latvia
-        properties:
-           flag: lv
-           language: en
-        active: false
-    -
-        id: lv_LV
-        title: Latvian
-        country: Latvia
-        properties:
-            flag: lv
-            language: lv
-    -
-        id: ru_RU
-        title: Russian
-        country: Russia
-        properties:
-            flag: ru
-            language: ru
-locale_detectors:
-    - locale.detector.cookie
-## @FIXME: Doesn't work now, requires Response object
-##locale_storage:
-##    - locale.storage.cookie
-locale_storage: []
-current_locale: lv_LV
+    locales:
+        -
+            id: en_LV
+            title: English
+            country: Latvia
+            properties:
+               flag: lv
+               language: en
+            active: false
+        -
+            id: lv_LV
+            title: Latvian
+            country: Latvia
+            properties:
+                flag: lv
+                language: lv
+        -
+            id: ru_RU
+            title: Russian
+            country: Russia
+            properties:
+                flag: ru
+                language: ru
+    detectors:
+        - locale.detector.cookie
+    ## @FIXME: Doesn't work now, requires Response object
+    ##locale_storage:
+    ##    - locale.storage.cookie
+    storage: ~
+    current: lv_LV

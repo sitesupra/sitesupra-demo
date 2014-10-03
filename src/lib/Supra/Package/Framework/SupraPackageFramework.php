@@ -80,7 +80,8 @@ class SupraPackageFramework extends AbstractSupraPackage
 	public function finish(ContainerInterface $container)
 	{
 		$container->extend('locale.manager', function (LocaleManager $localeManager, ContainerInterface $container) {
-			foreach ($container->getParameter('framework.locales') as $locale) {
+			$locales = $container->getParameter('framework.locales');
+			foreach ($locales['locales'] as $locale) {
 				$localeObject = new Locale();
 				$localeObject->setId($locale['id']);
 				$localeObject->setTitle($locale['title']);
@@ -91,15 +92,15 @@ class SupraPackageFramework extends AbstractSupraPackage
 				$localeManager->add($localeObject);
 			}
 
-			foreach ($container->getParameter('framework.locale_detectors') as $detector) {
+			foreach ($locales['detectors'] as $detector) {
 				$localeManager->addDetector($container[$detector]);
 			}
 
-			foreach ($container->getParameter('framework.locale_storage') as $storage) {
+			foreach ($locales['storage'] as $storage) {
 				$localeManager->addStorage($container[$storage]);
 			}
 
-			$localeManager->setCurrent($container->getParameter('framework.current_locale'));
+			$localeManager->setCurrent($locales['current']);
 
 			return $localeManager;
 		});
