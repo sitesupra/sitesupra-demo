@@ -226,8 +226,8 @@ class SupraPackageFramework extends AbstractSupraPackage
 				'supra.doctrine',
 				$connections,
 				$managers,
-				'default',
-				'public',
+				$doctrineConfig['default_connection'],
+				$doctrineConfig['default_entity_manager'],
 				'foobar'
 			);
 		};

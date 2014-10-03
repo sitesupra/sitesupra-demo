@@ -86,6 +86,8 @@ class SupraPackageFrameworkConfiguration extends AbstractPackageConfiguration im
 						->end()
 					->end()
 				->end()
+				->scalarNode('default_entity_manager')->isRequired()->end()
+				->scalarNode('default_connection')->isRequired()->end()
 			->end();
 
 		return $definition;

@@ -1,0 +1,10 @@
+cms:
+    active_theme: sample
+framework:
+    doctrine:
+        credentials:
+            hostname: localhost
+            username: root
+            password: ~
+            charset: utf8
+            database: supra9

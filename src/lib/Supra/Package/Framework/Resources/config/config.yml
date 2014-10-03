@@ -75,3 +75,5 @@ doctrine:
         public:
             connection: default
             event_manager: public
+    default_entity_manager: public
+    default_connection: default
