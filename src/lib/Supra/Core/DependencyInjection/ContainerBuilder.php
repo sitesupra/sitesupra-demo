@@ -186,8 +186,8 @@ abstract class ContainerBuilder
 				array(
 					'host' => 'localhost',
 					'user' => 'root',
-					'password' => 'root',
-					'dbname' => 'supra7',
+					'password' => '',
+					'dbname' => 'supra9',
 					'charset' => 'utf8',
 				),
 				new PDOMySql\Driver(),
@@ -203,8 +203,8 @@ abstract class ContainerBuilder
 				array(
 					'host' => 'localhost',
 					'user' => 'root',
-					'password' => 'root',
-					'dbname' => 'supra7_shared_users',
+					'password' => '',
+					'dbname' => 'supra9_shared_users',
 					'charset' => 'utf8',
 				),
 				new PDOMySql\Driver(),

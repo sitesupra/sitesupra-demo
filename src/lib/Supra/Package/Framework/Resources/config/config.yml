@@ -1,8 +1,6 @@
 services:
     locale.manager:
         class: \Supra\Core\Locale\LocaleManager
-    locale.detector.path:
-        class: \Supra\Core\Locale\Detector\PathLocaleDetector
     locale.detector.cookie:
         class: \Supra\Core\Locale\Detector\CookieDetector
     locale.storage.cookie:
@@ -31,8 +29,9 @@ locales:
             flag: ru
             language: ru
 locale_detectors:
-    - locale.detector.path
     - locale.detector.cookie
-locale_storage:
-    - locale.storage.cookie
+## @FIXME: Doesn't work now, requires Response object
+##locale_storage:
+##    - locale.storage.cookie
+locale_storage: []
 current_locale: lv_LV

@@ -42,7 +42,8 @@ class SupraPackageFrameworkConfiguration extends AbstractPackageConfiguration im
 					->end()
 					->arrayNode('locale_storage')
 						->isRequired()
-						->requiresAtLeastOneElement()
+// @FIXME: locale storage is isn't working.
+//						->requiresAtLeastOneElement()
 						->prototype('scalar')->end()
 					->end()
 					->scalarNode('current_locale')->isRequired()->end()

@@ -6,6 +6,7 @@ use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\RequestResponseListenerInterface;
 use Supra\Core\Event\RequestResponseEvent;
+use Supra\Core\Locale\Exception\LocaleException;
 
 /**
  * Locale detection PreFilter
@@ -19,8 +20,11 @@ class LocaleDetectorListener implements RequestResponseListenerInterface, Contai
 
 	public function listen(RequestResponseEvent $event)
 	{
-		$this->container->getLocaleManager()
-				->detect($this->container->getRequest());
+		try {
+			$this->container->getLocaleManager()
+					->detect($this->container->getRequest());
+		} catch (LocaleException $e) {
+		}
 	}
 
 	/**

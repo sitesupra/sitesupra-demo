@@ -7,6 +7,7 @@ use Supra\Core\Event\KernelEvent;
 use Supra\Core\Locale\Locale;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Package\AbstractSupraPackage;
+use Supra\Core\Locale\Listener\LocaleDetectorListener;
 use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
@@ -104,6 +105,4 @@ class SupraPackageFramework extends AbstractSupraPackage
 			return $localeManager;
 		});
 	}
-
-
 }
