@@ -222,7 +222,6 @@ abstract class  Supra extends ContainerBuilder
 		$this->buildHttpFoundation($container);
 		$this->buildCache($container);
 		$this->buildEvents($container);
-		$this->buildDoctrine($container);
 		$this->buildCli($container);
 		$this->buildSecurity($container);
 		$this->buildTemplating($container);
@@ -361,10 +360,29 @@ abstract class  Supra extends ContainerBuilder
 
 			foreach ($matches as $expression) {
 				$parameter = trim($expression[0], '%');
-				if (!isset($config[$parameter])) {
-					throw new ReferenceException('Parameter "%s" can not be resolved', $parameter);
+				$chunks = explode('.', $parameter);
+
+				$name = $chunks[0].'.'.$chunks[1];
+
+				if (!isset($config[$name])) {
+					throw new ReferenceException(sprintf('Parameter "%s" can not be resolved', $name));
 				}
-				$replacements[$expression[0]] = $config[$parameter];
+
+				$value = $config[$name];
+
+				if (count($chunks) > 2) {
+					$path = array_slice($chunks, 2);
+
+					while ($key = array_shift($path)) {
+						if (!array_key_exists($key, $value)) {
+							throw new ReferenceException(sprintf('Lost at sub-key "%s" for parameter "%s"', $key, $parameter));
+						}
+
+						$value = $value[$key];
+					}
+				}
+
+				$replacements[$expression[0]] = $value;
 			}
 
 			$value = strtr($value, $replacements);
@@ -381,10 +399,11 @@ abstract class  Supra extends ContainerBuilder
 					$container[$id] = function ($container) use ($serviceDefinition) {
 						//this is where the magic happens
 						$className = $serviceDefinition['class'];
+						$parameters = $serviceDefinition['parameters'];
 
 						$reflection = new \ReflectionClass($className);
 
-						$instance = $reflection->newInstanceArgs();
+						$instance = $reflection->newInstanceArgs($parameters);
 
 						return $instance;
 					};

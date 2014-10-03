@@ -320,8 +320,8 @@ abstract class ContainerBuilder
 	{
 		$container['security.user_providers'] = function (ContainerInterface $container) {
 			return array(
-				$container['doctrine.entity_managers.public']->getRepository('CmsAuthentication:User'),
-				$container['doctrine.entity_managers.shared']->getRepository('CmsAuthentication:User')
+				//$container['doctrine.entity_managers.public']->getRepository('CmsAuthentication:User'),
+				//$container['doctrine.entity_managers.shared']->getRepository('CmsAuthentication:User')
 			);
 		};
 

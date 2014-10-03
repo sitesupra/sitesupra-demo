@@ -15,6 +15,7 @@ abstract class AbstractPackageConfiguration
 		$node->prototype('array')
 				->children()
 					->scalarNode('class')->isRequired()->end()
+					->variableNode('parameters')->defaultValue(array())->end()
 				->end()
 			->end();
 

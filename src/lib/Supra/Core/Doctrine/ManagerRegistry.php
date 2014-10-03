@@ -32,7 +32,7 @@ class ManagerRegistry extends AbstractManagerRegistry implements ContainerAware
 	protected function getService($name)
 	{
 		if (!isset($this->container[$name])) {
-			throw new \Exception(sprintf('There is no service (connection or entity manager) with id "%s"'));
+			throw new \Exception(sprintf('There is no service (connection or entity manager) with id "%s"', $name));
 		}
 
 		return $this->container[$name];
