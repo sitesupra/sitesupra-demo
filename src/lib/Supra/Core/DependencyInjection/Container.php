@@ -235,11 +235,30 @@ class Container extends BaseContainer implements ContainerInterface
 	 */
 	public function getParameter($name)
 	{
-		if (!$this->hasParameter($name)) {
-			throw new ParameterNotFoundException(sprintf('Parameter "%s" is not defined in the container', $name));
+		$chunks = explode('.', $name);
+
+		$name = $chunks[0] .
+			(isset($chunks[1]) ? '.' . $chunks[1] : '');
+
+		if (!isset($this->parameters[$name])) {
+			throw new ReferenceException(sprintf('Parameter "%s" is not defined in the container', $name));
 		}
 
-		return $this->parameters[$name];
+		$value = $this->parameters[$name];
+
+		if (count($chunks) > 2) {
+			$path = array_slice($chunks, 2);
+
+			while ($key = array_shift($path)) {
+				if (!array_key_exists($key, $value)) {
+					throw new ReferenceException(sprintf('Lost at sub-key "%s" for parameter "%s"', $key, $name));
+				}
+
+				$value = $value[$key];
+			}
+		}
+
+		return $value;
 	}
 }
 

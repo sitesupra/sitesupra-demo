@@ -38,7 +38,7 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 			//in any way we should try to extract data from session
 			$session = $this->container->getSession();
 
-			$tokenParameter = $this->container->getParameter('cms_authentication.session_storage_key');
+			$tokenParameter = $this->container->getParameter('cms_authentication.session.storage_key');
 
 			$securityContext = $this->container->getSecurityContext();
 

@@ -44,6 +44,20 @@ locales:
     storage: ~
     current: lv_LV
 doctrine:
+#probably this should be migrated too
+#// Updates creation and modification timestamps for appropriate entities
+#$eventManager->addEventSubscriber(new TimestampableListener());
+#// Maps revision property for appropriate entities
+#$eventManager->addEventSubscriber(new Listener\EntityRevisionFieldMapperListener());
+#// Drops file storage cache group when files are being changed
+#$eventManager->addEventSubscriber(new FileGroupCacheDropListener());
+#$eventManager->addEventListener(array(Events::loadClassMetadata), new DetachedDiscriminatorHandler());
+#foreach ($this->eventSubscribers as $eventSubscriber) {
+#    if (is_string($eventSubscriber)) {
+#        $eventSubscriber = Loader::getClassInstance($eventSubscriber, 'Doctrine\Common\EventSubscriber');
+#    }
+#    $eventManager->addEventSubscriber($eventSubscriber);
+#}
     credentials:
         hostname: localhost
         username: root

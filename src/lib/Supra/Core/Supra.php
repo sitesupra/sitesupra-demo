@@ -223,7 +223,6 @@ abstract class  Supra extends ContainerBuilder
 		$this->buildCache($container);
 		$this->buildEvents($container);
 		$this->buildCli($container);
-		$this->buildSecurity($container);
 		$this->buildTemplating($container);
 		$this->buildApplications($container);
 
@@ -260,7 +259,12 @@ abstract class  Supra extends ContainerBuilder
 		$this->configurationSections = array();
 	}
 
-
+	/**
+	 * Adds configuration section for later processing
+	 *
+	 * @param SupraPackageInterface $package
+	 * @param $data
+	 */
 	public function addConfigurationSection(SupraPackageInterface $package, $data)
 	{
 		$this->configurationSections[$package->getName()] = array(
@@ -269,6 +273,37 @@ abstract class  Supra extends ContainerBuilder
 		);
 	}
 
+	/**
+	 * Sets/overrides configuration section if corresponding package is defined
+	 *
+	 * @param $package
+	 * @param $data
+	 * @throws \Exception
+	 * @internal param $name
+	 */
+	public function setConfigurationSection($package, $data)
+	{
+		if (!isset($this->configurationSections[$package])) {
+			throw new \Exception(sprintf('There is no configuration section for package "%s"', $package));
+		}
+
+		$this->configurationSections[$package]['data'] = $data;
+	}
+
+	/**
+	 * Gets configuration section data by package name, if defined
+	 *
+	 * @param $package
+	 * @throws \Exception
+	 */
+	public function getConfigurationSection($package)
+	{
+		if (!isset($this->configurationSections[$package])) {
+			throw new \Exception(sprintf('There is no configuration section for package "%s"', $package));
+		}
+
+		return $this->configurationSections[$package]['data'];
+	}
 
 	/**
 	 * Returns wwwroot. Hardcode currently
