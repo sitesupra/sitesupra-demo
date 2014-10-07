@@ -53,7 +53,7 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 				!$securityContext->getToken()->getUser()) &&
 				!in_array(
 					$request->getPathInfo(),
-					$this->container->getParameter('cms_authentication.anonymous_paths')
+					$this->container->getParameter('cms_authentication.paths.anonymous')
 				)
 			) {
 				if ($request->isXmlHttpRequest()) {
@@ -70,7 +70,7 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 			//authorized users on login path are redirected to dashboard
 			if ($securityContext->getToken() &&
 				$securityContext->getToken()->getUser() &&
-				strpos($request->getPathInfo(), $this->container->getParameter('cms_authentication.login_path')) === 0
+				strpos($request->getPathInfo(), $this->container->getParameter('cms_authentication.paths.login')) === 0
 			) {
 				$event->setResponse(new RedirectResponse($cmsPrefix));
 				$event->stopPropagation();

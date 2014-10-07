@@ -180,6 +180,7 @@ class Container extends BaseContainer implements ContainerInterface
 
 		array_walk_recursive($data, function (&$value) use ($obj) {
 			if (is_string($value)) {
+				var_dump($value);
 				$value = $obj->replaceParametersScalar($value);
 			}
 		});
@@ -206,9 +207,6 @@ class Container extends BaseContainer implements ContainerInterface
 
 		foreach ($matches as $expression) {
 			$parameter = trim($expression[0], '%');
-			if (!$this->hasParameter($parameter)) {
-				throw new ReferenceException('Parameter "%s" can not be resolved', $parameter);
-			}
 			$replacements[$expression[0]] = $this->getParameter($parameter);
 		}
 
@@ -216,7 +214,7 @@ class Container extends BaseContainer implements ContainerInterface
 	}
 
 	/**
-	 * checks for parameter existence
+	 * checks for parameter existence; only top level parameter is checked (no deep checking is performed)
 	 *
 	 * @param $name
 	 * @return bool

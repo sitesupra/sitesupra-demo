@@ -10,8 +10,13 @@ use Supra\Package\CmsAuthentication\Application\CmsAuthenticationApplication;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationRequestListener;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationResponseListener;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
+use Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider;
+use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
+use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use Symfony\Component\Security\Core\SecurityContext;
+use Symfony\Component\Security\Core\User\ChainUserProvider;
+use Symfony\Component\Security\Core\User\UserChecker;
 
 class SupraPackageCmsAuthentication extends AbstractSupraPackage
 {
@@ -52,6 +57,8 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 
 	public function finish(ContainerInterface $container)
 	{
+		$container->setParameter('cms_authentication.provider_key', 'cms_authentication');
+
 		$container['cms_authentication.users.voters'] = function (ContainerInterface $container) {
 			$voters = array();
 
@@ -78,6 +85,28 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 					$providers[] = $container->getDoctrine()->getManager($providerDefinition['em'])
 						->getRepository($providerDefinition['entity']);
 				}
+
+				$chainProvider = new ChainUserProvider($providers);
+
+				$encoders = array();
+
+				foreach ($container->getParameter('cms_authentication.users.password_encoders') as $user => $encoderClass) {
+					$encoders[$user] = new $encoderClass();
+				}
+
+				$encoderFactory = new EncoderFactory($encoders);
+
+				$realProviders = array(
+					new AnonymousAuthenticationProvider(uniqid()),
+					new DaoAuthenticationProvider(
+						$chainProvider,
+						new UserChecker(),
+						$container->getParameter('cms_authentication.provider_key'),
+						$encoderFactory
+					)
+				);
+
+				return new AuthenticationProviderManager($realProviders);
 			}
 
 			return new AuthenticationProviderManager($providers);
@@ -90,47 +119,5 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 			);
 		};
 	}
-
-
-	/*$container['security.user_providers'] = function (ContainerInterface $container) {
-			return array(
-				$container['doctrine.entity_managers.public']->getRepository('CmsAuthentication:User'),
-				$container['doctrine.entity_managers.shared']->getRepository('CmsAuthentication:User')
-			);
-		};
-
-		$container['security.user_provider'] = function (ContainerInterface $container) {
-			return new ChainUserProvider($container['security.user_providers']);
-		};
-
-		$container->setParameter('security.provider_key', 'cms_authentication');
-
-		$userChecker = new UserChecker();
-
-		//@todo: this should be moved to config
-		$encoderFactory = new EncoderFactory(
-			array(
-				'Supra\Package\CmsAuthentication\Entity\User' => new SupraBlowfishEncoder()
-			)
-		);
-
-		$providers = array(
-			new AnonymousAuthenticationProvider(uniqid()),
-			new DaoAuthenticationProvider(
-				$container['security.user_provider'],
-				$userChecker,
-				$container->getParameter('security.provider_key'),
-				$encoderFactory
-			)
-		);
-
-
-
-		$container['security.voters'] = function () {
-			return array(new RoleVoter()); //@todo: this should be refactored to acls
-		};
-
-
-		*/
 
 }

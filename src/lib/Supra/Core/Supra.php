@@ -403,21 +403,21 @@ abstract class  Supra extends ContainerBuilder
 					throw new ReferenceException(sprintf('Parameter "%s" can not be resolved', $name));
 				}
 
-				$value = $config[$name];
+				$val = $config[$name];
 
 				if (count($chunks) > 2) {
 					$path = array_slice($chunks, 2);
 
 					while ($key = array_shift($path)) {
-						if (!array_key_exists($key, $value)) {
+						if (!array_key_exists($key, $val)) {
 							throw new ReferenceException(sprintf('Lost at sub-key "%s" for parameter "%s"', $key, $parameter));
 						}
 
-						$value = $value[$key];
+						$val = $val[$key];
 					}
 				}
 
-				$replacements[$expression[0]] = $value;
+				$replacements[$expression[0]] = $val;
 			}
 
 			$value = strtr($value, $replacements);
