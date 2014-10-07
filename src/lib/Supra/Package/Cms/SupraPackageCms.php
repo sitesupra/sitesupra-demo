@@ -50,6 +50,10 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container[$this->name . '.theme_provider'] = function () {
 			return new DefaultThemeProvider();
 		};
+
+		$frameworkConfiguration = $container->getApplication()->getConfigurationSection('framework');
+
+		$frameworkConfiguration['doctrine']['event_managers']['public']['subscribers'][] = 'supra.cms.doctrine.event_subscriber.timestampable';
 	}
 
 	public function finish(ContainerInterface $container)

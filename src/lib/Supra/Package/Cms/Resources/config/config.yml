@@ -1,5 +1,5 @@
 services:
-    supra.doctrine.event_subscriber.timestampable:
+    supra.cms.doctrine.event_subscriber.timestampable:
         class: \Supra\Package\Cms\Doctrine\Subscriber\TimestampableListener
 prefix: /backend
 cms_resources:

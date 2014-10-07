@@ -44,10 +44,6 @@ locales:
     storage: ~
     current: lv_LV
 doctrine:
-#probably this should be migrated too
-#// Updates creation and modification timestamps for appropriate entities
-#$eventManager->addEventSubscriber(new TimestampableListener());
-#}
     credentials:
         hostname: localhost
         username: root
@@ -60,7 +56,6 @@ doctrine:
                 - supra.doctrine.event_subscriber.table_name_prefixer
                 - supra.doctrine.event_subscriber.detached_discriminator_handler
                 - supra.doctrine.event_subscriber.nested_set_listener
-                - supra.doctrine.event_subscriber.timestampable
     configuration:
         types:
             - [supraId20,  \Supra\Core\Doctrine\Type\SupraIdType]
