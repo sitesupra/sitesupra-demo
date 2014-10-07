@@ -8,7 +8,6 @@ use Doctrine\DBAL\Driver\PDOMySql;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
-use Pimple\Container;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Event\KernelEvent;

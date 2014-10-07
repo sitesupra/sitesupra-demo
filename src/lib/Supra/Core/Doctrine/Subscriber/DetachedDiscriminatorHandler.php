@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Database;
+namespace Supra\Core\Doctrine\Subscriber;
 
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventSubscriber;

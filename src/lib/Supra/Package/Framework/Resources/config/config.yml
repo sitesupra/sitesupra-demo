@@ -9,9 +9,9 @@ services:
         class: \Supra\Core\Doctrine\Subscriber\TableNamePrefixer
         parameters: ['su_', '']
     supra.doctrine.event_subscriber.detached_discriminator_handler:
-        class: \Supra\Database\DetachedDiscriminatorHandler
+        class: \Supra\Core\Doctrine\Subscriber\DetachedDiscriminatorHandler
     supra.doctrine.event_subscriber.nested_set_listener:
-        class: \Supra\NestedSet\Listener\NestedSetListener
+        class: \Supra\Core\Doctrine\Subscriber\NestedSetListener
 locales:
     locales:
         -
@@ -47,16 +47,6 @@ doctrine:
 #probably this should be migrated too
 #// Updates creation and modification timestamps for appropriate entities
 #$eventManager->addEventSubscriber(new TimestampableListener());
-#// Maps revision property for appropriate entities
-#$eventManager->addEventSubscriber(new Listener\EntityRevisionFieldMapperListener());
-#// Drops file storage cache group when files are being changed
-#$eventManager->addEventSubscriber(new FileGroupCacheDropListener());
-#$eventManager->addEventListener(array(Events::loadClassMetadata), new DetachedDiscriminatorHandler());
-#foreach ($this->eventSubscribers as $eventSubscriber) {
-#    if (is_string($eventSubscriber)) {
-#        $eventSubscriber = Loader::getClassInstance($eventSubscriber, 'Doctrine\Common\EventSubscriber');
-#    }
-#    $eventManager->addEventSubscriber($eventSubscriber);
 #}
     credentials:
         hostname: localhost
@@ -70,6 +60,7 @@ doctrine:
                 - supra.doctrine.event_subscriber.table_name_prefixer
                 - supra.doctrine.event_subscriber.detached_discriminator_handler
                 - supra.doctrine.event_subscriber.nested_set_listener
+                - supra.doctrine.event_subscriber.timestampable
     configuration:
         types:
             - [supraId20,  \Supra\Core\Doctrine\Type\SupraIdType]

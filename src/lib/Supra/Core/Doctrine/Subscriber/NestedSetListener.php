@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\NestedSet\Listener;
+namespace Supra\Core\Doctrine\Subscriber;
 
 use Doctrine\ORM\EntityManager;
 use Supra\NestedSet\Node\EntityNodeInterface;
