@@ -9,12 +9,20 @@ use Supra\Core\Package\PackageLocator;
 use Supra\Package\CmsAuthentication\Application\CmsAuthenticationApplication;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationRequestListener;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationResponseListener;
+use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
+use Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider;
+use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
+use Symfony\Component\Security\Core\Encoder\EncoderFactory;
+use Symfony\Component\Security\Core\SecurityContext;
+use Symfony\Component\Security\Core\User\ChainUserProvider;
+use Symfony\Component\Security\Core\User\UserChecker;
 
 class SupraPackageCmsAuthentication extends AbstractSupraPackage
 {
 	public function inject(ContainerInterface $container)
 	{
-		$this->loadConfiguration($container);
+		$configuration = $this->loadConfiguration($container);
 
 		$container[$this->name.'.request_listener'] = function () {
 			return new CmsAuthenticationRequestListener();
@@ -36,6 +44,82 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 
 		//applications
 		$container->getApplicationManager()->registerApplication(new CmsAuthenticationApplication());
+
+		//we need to inject shared users em to doctrine if provided
+		if ($configuration['users']['shared_connection']) {
+			$doctrineConfig = $container->getApplication()->getConfigurationSection('framework');
+
+			$doctrineConfig['doctrine']['entity_managers']['shared'] = array('connection' => 'shared', 'event_manager' => 'public');
+
+			$doctrineConfig['doctrine']['connections']['shared'] = $configuration['users']['shared_connection'];
+
+			$container->getApplication()->setConfigurationSection('framework', $doctrineConfig);
+		}
+	}
+
+	public function finish(ContainerInterface $container)
+	{
+		$container->setParameter('cms_authentication.provider_key', 'cms_authentication');
+
+		$container['cms_authentication.users.voters'] = function (ContainerInterface $container) {
+			$voters = array();
+
+			foreach ($container->getParameter('cms_authentication.users.voters') as $id) {
+				$voters[] = $container[$id];
+			}
+
+			return $voters;
+		};
+
+		$container['cms_authentication.users.access_decision_manager'] = function (ContainerInterface $container) {
+			return new AccessDecisionManager($container['cms_authentication.users.voters']);
+		};
+
+		$container['cms_authentication.users.authentication_manager'] = function (ContainerInterface $container) {
+			$providers = array();
+
+			foreach ($container->getParameter('cms_authentication.users.user_providers') as $type => $providersDefinition) {
+				if ($type != 'doctrine') {
+					throw new \Exception('Only "doctrine" user providers are allowed now');
+				}
+
+				foreach ($providersDefinition as $name => $providerDefinition) {
+					$providers[] = $container->getDoctrine()->getManager($providerDefinition['em'])
+						->getRepository($providerDefinition['entity']);
+				}
+
+				$chainProvider = new ChainUserProvider($providers);
+
+				$encoders = array();
+
+				foreach ($container->getParameter('cms_authentication.users.password_encoders') as $user => $encoderClass) {
+					$encoders[$user] = new $encoderClass();
+				}
+
+				$encoderFactory = new EncoderFactory($encoders);
+
+				$realProviders = array(
+					new AnonymousAuthenticationProvider(uniqid()),
+					new DaoAuthenticationProvider(
+						$chainProvider,
+						new UserChecker(),
+						$container->getParameter('cms_authentication.provider_key'),
+						$encoderFactory
+					)
+				);
+
+				return new AuthenticationProviderManager($realProviders);
+			}
+
+			return new AuthenticationProviderManager($providers);
+		};
+
+		$container['security.context'] = function (ContainerInterface $container) {
+			return new SecurityContext(
+				$container['cms_authentication.users.authentication_manager'],
+				$container['cms_authentication.users.access_decision_manager']
+			);
+		};
 	}
 
 }

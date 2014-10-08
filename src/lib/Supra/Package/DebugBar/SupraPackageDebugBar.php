@@ -8,6 +8,7 @@ use Doctrine\DBAL\Logging\DebugStack;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
+use Supra\Package\DebugBar\Collector\EventCollector;
 use Supra\Package\DebugBar\Collector\SessionCollector;
 use Supra\Package\DebugBar\Event\Listener\AssetsPublishEventListener;
 use Supra\Package\DebugBar\Event\Listener\DebugBarResponseListener;
@@ -19,6 +20,10 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 	{
 		$container[$this->name.'.session_collector'] = function () {
 			return new SessionCollector();
+		};
+
+		$container[$this->name.'.event_collector'] = function () {
+			return new EventCollector();
 		};
 
 		$container[$this->name.'.doctrine_collector'] = function (ContainerInterface $container) {
@@ -36,6 +41,7 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 
 			$debugBar->addCollector($container[$this->name.'.session_collector']);
 			$debugBar->addCollector($container[$this->name.'.doctrine_collector']);
+			$debugBar->addCollector($container[$this->name.'.event_collector']);
 
 			return $debugBar;
 		};

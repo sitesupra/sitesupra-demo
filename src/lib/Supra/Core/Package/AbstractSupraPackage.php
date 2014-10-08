@@ -68,7 +68,7 @@ abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerA
 
 		$data = $container['config.universal_loader']->load($file);
 
-		$container->getApplication()->addConfigurationSection($this, $data);
+		return $container->getApplication()->addConfigurationSection($this, $data);
 	}
 
 	public function boot()

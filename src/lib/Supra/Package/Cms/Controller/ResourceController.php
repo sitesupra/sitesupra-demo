@@ -17,7 +17,7 @@ class ResourceController extends Controller
 	{
 		$collection = new AssetCollection();
 
-		foreach ($this->container->getParameter('cms.css_pack') as $asset) {
+		foreach ($this->container->getParameter('cms.cms_resources.css_pack') as $asset) {
 			$assetPath = $this->container->getApplication()->getWebRoot().DIRECTORY_SEPARATOR.$asset;
 			$assetObject = new FileAsset($assetPath, array(), $this->container->getApplication()->getWebRoot());
 			$assetObject->setTargetPath('/_cms_internal/');
@@ -40,7 +40,7 @@ class ResourceController extends Controller
 	{
 		$collection = new AssetCollection();
 
-		foreach ($this->container->getParameter('cms.js_pack') as $asset) {
+		foreach ($this->container->getParameter('cms.cms_resources.js_pack') as $asset) {
 			$collection->add(new FileAsset($asset));
 		}
 

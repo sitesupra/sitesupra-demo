@@ -56,12 +56,12 @@ class AuthController extends Controller
 		//}
 		//so we can merge them in one response
 
-		$authenticationManager = $this->container['security.authentication_manager'];
+		$authenticationManager = $this->container['cms_authentication.users.authentication_manager'];
 		/* @var $authenticationManager AuthenticationProviderManager */
 
 		try {
 			$result = $authenticationManager->authenticate(
-				new UsernamePasswordToken($username, $password, $this->container->getParameter('security.provider_key'))
+				new UsernamePasswordToken($username, $password, $this->container->getParameter('cms_authentication.provider_key'))
 			);
 		} catch (BadCredentialsException $e) {
 			//if password is not valid Symfony throws plain BadCredentialException, so we can put "Invalid password" here

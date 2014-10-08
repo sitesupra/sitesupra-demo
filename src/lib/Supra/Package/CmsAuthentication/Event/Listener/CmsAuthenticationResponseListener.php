@@ -34,7 +34,7 @@ class CmsAuthenticationResponseListener implements RequestResponseListenerInterf
 			$context->getToken()->getUser()
 		) {
 			$this->container->getSession()->set(
-				$this->container->getParameter('cms_authentication.session_storage_key'),
+				$this->container->getParameter('cms_authentication.session.storage_key'),
 				$context->getToken()
 			);
 		}

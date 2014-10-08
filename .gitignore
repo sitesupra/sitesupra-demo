@@ -11,3 +11,4 @@ src/webroot/public
 /.idea
 cache/
 .directory
+supra/config.yml

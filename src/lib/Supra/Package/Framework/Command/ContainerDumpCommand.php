@@ -33,17 +33,10 @@ class ContainerDumpCommand extends AbstractCommand
 
 		$table = new Table($output);
 
-		$table->setHeaders(array('ID', 'Type', 'Value'));
+		$table->setHeaders(array('ID'));
 
 		foreach ($this->container->keys() as $id) {
-			$type = 'undefined'; $stringValue = 'undefined';
-			try {
-				$value = $this->container[$id];
-				$type = $this->getType($value);
-				$stringValue = $this->stringify($value);
-			} catch (\Exception $e) {}
-
-			$table->addRow(array($id, $type, $stringValue));
+			$table->addRow(array($id));
 		}
 
 		$table->render();

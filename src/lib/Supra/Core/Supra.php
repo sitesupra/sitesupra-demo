@@ -38,6 +38,11 @@ abstract class  Supra extends ContainerBuilder
 	 */
 	protected $debug;
 
+	/**
+	 * @var array
+	 */
+	protected $overrides;
+
 	protected $configPath = 'Resources/config';
 	protected $viewPath = 'Resources/view';
 	protected $publicPath = 'Resources/public';
@@ -202,7 +207,7 @@ abstract class  Supra extends ContainerBuilder
 		}
 
 		//getting container instance, configuring services
-		$container = new Container();
+		$this->container = $container = new Container();
 		$container->setParameter('environment', $this->environment);
 		$container->setParameter('debug', $this->debug);
 		$container['application'] = $this;
@@ -222,9 +227,7 @@ abstract class  Supra extends ContainerBuilder
 		$this->buildHttpFoundation($container);
 		$this->buildCache($container);
 		$this->buildEvents($container);
-		$this->buildDoctrine($container);
 		$this->buildCli($container);
-		$this->buildSecurity($container);
 		$this->buildTemplating($container);
 		$this->buildApplications($container);
 
@@ -237,7 +240,7 @@ abstract class  Supra extends ContainerBuilder
 		//last pass to change something or created services based on finished configuration
 		$this->finish($container);
 
-		return $this->container = $container;
+		return $container;
 	}
 
 	public function boot()
@@ -261,15 +264,79 @@ abstract class  Supra extends ContainerBuilder
 		$this->configurationSections = array();
 	}
 
+	/**
+	 * Basically, parses main supra config
+	 *
+	 * @return array
+	 */
+	public function getConfigurationOverrides()
+	{
+		if ($this->overrides) {
+			return $this->overrides;
+		}
 
+		return $this->overrides = $this->container['config.universal_loader']->load($this->getSupraRoot().'/config.yml'); //@todo: resolve config per environment
+
+	}
+
+	/**
+	 * Adds configuration section for later processing
+	 *
+	 * @param SupraPackageInterface $package
+	 * @param $data
+	 */
 	public function addConfigurationSection(SupraPackageInterface $package, $data)
 	{
+		$overrides = $this->getConfigurationOverrides();
+
+		if (isset($overrides[$package->getName()])) {
+			$processor = new Processor();
+
+			$data = $processor->processConfiguration($package->getConfiguration(), array(
+				$data,
+				$overrides[$package->getName()]
+			));
+		}
+
 		$this->configurationSections[$package->getName()] = array(
 			'package' => $package,
 			'data' => $data
 		);
+
+		return $data;
 	}
 
+	/**
+	 * Sets/overrides configuration section if corresponding package is defined
+	 *
+	 * @param $package
+	 * @param $data
+	 * @throws \Exception
+	 * @internal param $name
+	 */
+	public function setConfigurationSection($package, $data)
+	{
+		if (!isset($this->configurationSections[$package])) {
+			throw new \Exception(sprintf('There is no configuration section for package "%s"', $package));
+		}
+
+		$this->configurationSections[$package]['data'] = $data;
+	}
+
+	/**
+	 * Gets configuration section data by package name, if defined
+	 *
+	 * @param $package
+	 * @throws \Exception
+	 */
+	public function getConfigurationSection($package)
+	{
+		if (!isset($this->configurationSections[$package])) {
+			throw new \Exception(sprintf('There is no configuration section for package "%s"', $package));
+		}
+
+		return $this->configurationSections[$package]['data'];
+	}
 
 	/**
 	 * Returns wwwroot. Hardcode currently
@@ -311,11 +378,11 @@ abstract class  Supra extends ContainerBuilder
 	 */
 	protected function buildConfiguration(ContainerInterface $container)
 	{
-		$configurationOverride = $container['config.universal_loader']->load($this->getSupraRoot().'/config.yml'); //@todo: resolve config per environment
-
 		$config = array();
 
 		$processor = new Processor();
+
+		$configurationOverride = $this->getConfigurationOverrides();
 
 		foreach ($this->configurationSections as $key => $definition) {
 			$package = $definition['package'];
@@ -361,10 +428,29 @@ abstract class  Supra extends ContainerBuilder
 
 			foreach ($matches as $expression) {
 				$parameter = trim($expression[0], '%');
-				if (!isset($config[$parameter])) {
-					throw new ReferenceException('Parameter "%s" can not be resolved', $parameter);
+				$chunks = explode('.', $parameter);
+
+				$name = $chunks[0].'.'.$chunks[1];
+
+				if (!isset($config[$name])) {
+					throw new ReferenceException(sprintf('Parameter "%s" can not be resolved', $name));
 				}
-				$replacements[$expression[0]] = $config[$parameter];
+
+				$val = $config[$name];
+
+				if (count($chunks) > 2) {
+					$path = array_slice($chunks, 2);
+
+					while ($key = array_shift($path)) {
+						if (!array_key_exists($key, $val)) {
+							throw new ReferenceException(sprintf('Lost at sub-key "%s" for parameter "%s"', $key, $parameter));
+						}
+
+						$val = $val[$key];
+					}
+				}
+
+				$replacements[$expression[0]] = $val;
 			}
 
 			$value = strtr($value, $replacements);
@@ -381,10 +467,11 @@ abstract class  Supra extends ContainerBuilder
 					$container[$id] = function ($container) use ($serviceDefinition) {
 						//this is where the magic happens
 						$className = $serviceDefinition['class'];
+						$parameters = $serviceDefinition['parameters'];
 
 						$reflection = new \ReflectionClass($className);
 
-						$instance = $reflection->newInstanceArgs();
+						$instance = $reflection->newInstanceArgs($parameters);
 
 						return $instance;
 					};

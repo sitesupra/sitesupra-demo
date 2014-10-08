@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Package\Cms\Pages\Listener;
+namespace Supra\Package\Cms\Doctrine\Subscriber;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;

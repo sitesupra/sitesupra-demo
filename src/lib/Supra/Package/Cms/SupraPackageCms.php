@@ -17,13 +17,13 @@ use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
 use Supra\Package\Cms\Pages\Layout\Theme\DefaultThemeProvider;
 use Supra\Package\Cms\Pages\Listener\VersionedEntityRevisionSetterListener;
 use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
-use Supra\Package\Cms\Pages\Listener\TimestampableListener;
 use Supra\Package\Cms\Controller\PageController;
 use Supra\Package\Cms\Pages\Request\PageRequestView;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
 use Supra\Package\Cms\Pages\Block\BlockCollection;
 use Supra\Package\Cms\Pages\Layout\Processor\TwigProcessor;
 use Supra\Package\Cms\Pages\Block\BlockGroupConfiguration;
+use Supra\Package\Cms\Doctrine\Subscriber\TimestampableListener;
 
 class SupraPackageCms extends AbstractSupraPackage
 {
@@ -51,6 +51,10 @@ class SupraPackageCms extends AbstractSupraPackage
 
 			return $manager;
 		};
+
+		$frameworkConfiguration = $container->getApplication()->getConfigurationSection('framework');
+
+		$frameworkConfiguration['doctrine']['event_managers']['public']['subscribers'][] = 'supra.cms.doctrine.event_subscriber.timestampable';
 
 		// Theme Provider
 		$container[$this->name . '.pages.theme.provider'] = function () {
@@ -112,9 +116,9 @@ class SupraPackageCms extends AbstractSupraPackage
 	private function injectDraftEntityManager(ContainerInterface $container)
 	{
 		// separate EventManager
-		$container['doctrine.event_manager.cms'] = function (ContainerInterface $container) {
+		$container['doctrine.event_managers.cms'] = function (ContainerInterface $container) {
 			
-			$eventManager = clone $container['doctrine.event_manager.public'];
+			$eventManager = clone $container['doctrine.event_managers.public'];
 			/* @var $eventManager \Doctrine\Common\EventManager */
 
 			$eventManager->addEventSubscriber(new VersionedEntitySchemaListener());
@@ -139,8 +143,8 @@ class SupraPackageCms extends AbstractSupraPackage
 					'dbname' => 'supra9'
 				),
 				new PDOMySql\Driver(),
-				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager.cms']
+				$container['doctrine.configuration'],
+				$container['doctrine.event_managers.cms']
 			);
 
 			return $connection;
@@ -150,8 +154,8 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container['doctrine.entity_managers.cms'] = function (ContainerInterface $container) {
 			return EntityManager::create(
 				$container['doctrine.connections.cms'],
-				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager.cms']
+				$container['doctrine.configuration'],
+				$container['doctrine.event_managers.cms']
 			);
 		};
 	}

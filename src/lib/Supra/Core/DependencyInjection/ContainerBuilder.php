@@ -2,38 +2,17 @@
 
 namespace Supra\Core\DependencyInjection;
 
-use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOMySql;
-use Doctrine\DBAL\Types\ArrayType;
-use Doctrine\DBAL\Types\Type;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
 use Supra\Core\Console\Application;
-use Supra\Core\Doctrine\ManagerRegistry;
-use Supra\Core\Doctrine\Subscriber\TableNamePrefixer;
-use Supra\Core\Doctrine\Type\PathType;
-use Supra\Core\Doctrine\Type\SupraIdType;
+use Supra\Core\Event\TraceableEventDispatcher;
 use Supra\Core\Templating\Templating;
-use Supra\Database\DetachedDiscriminatorHandler;
-use Supra\NestedSet\Listener\NestedSetListener;
-use Supra\Package\CmsAuthentication\Encoder\SupraBlowfishEncoder;
 use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
-use Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider;
-use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
-use Symfony\Component\Security\Core\Authorization\Voter\RoleVoter;
-use Symfony\Component\Security\Core\Encoder\EncoderFactory;
-use Symfony\Component\Security\Core\SecurityContext;
-use Symfony\Component\Security\Core\User\ChainUserProvider;
-use Symfony\Component\Security\Core\User\UserChecker;
 
 abstract class ContainerBuilder
 {
@@ -91,154 +70,6 @@ abstract class ContainerBuilder
 			$container['http.request']->setSession($session);
 
 			return $session;
-		};
-	}
-
-	public function buildDoctrine(ContainerInterface $container)
-	{
-		//event manager
-		$container['doctrine.event_manager.public'] = function (ContainerInterface $container) {
-			$eventManager = new EventManager();
-			//for later porting
-			// Adds prefix for tables
-			//@todo: move to config
-			$eventManager->addEventSubscriber(new TableNamePrefixer('su_', ''));
-
-			$eventManager->addEventSubscriber(new DetachedDiscriminatorHandler());
-			
-			$eventManager->addEventSubscriber(new NestedSetListener());
-
-			/*// Updates creation and modification timestamps for appropriate entities
-			$eventManager->addEventSubscriber(new TimestampableListener());
-
-			// Maps revision property for appropriate entities
-			$eventManager->addEventSubscriber(new Listener\EntityRevisionFieldMapperListener());
-
-			// Drops file storage cache group when files are being changed
-			$eventManager->addEventSubscriber(new FileGroupCacheDropListener());
-
-			$eventManager->addEventListener(array(Events::loadClassMetadata), new DetachedDiscriminatorHandler());
-
-			foreach ($this->eventSubscribers as $eventSubscriber) {
-				if (is_string($eventSubscriber)) {
-					$eventSubscriber = Loader::getClassInstance($eventSubscriber, 'Doctrine\Common\EventSubscriber');
-				}
-				$eventManager->addEventSubscriber($eventSubscriber);
-			}*/
-
-			return $eventManager;
-		};
-
-		$container['doctrine.orm_configuration'] = function (ContainerInterface $container) {
-			//loading package directories
-			$packages = $this->getPackages();
-
-			$paths = array();
-
-			foreach ($packages as $package) {
-				$entityDir = $this->locatePackageRoot($package) . DIRECTORY_SEPARATOR . 'Entity';
-
-				if (is_dir($entityDir)) {
-					$paths[] = $entityDir;
-				}
-			}
-
-			$configuration = Setup::createAnnotationMetadataConfiguration($paths,
-				$container->getParameter('debug'),
-				//todo: use general supra path
-				sys_get_temp_dir(),
-				//todo: configure cache with config
-				null
-			);
-
-			//Foo:Bar -> \FooPackage\Entity\Bar aliases
-			foreach ($packages as $package) {
-				$class = get_class($package);
-				$namespace = substr($class, 0, strrpos($class, '\\')) . '\\Entity';
-				$configuration->addEntityNamespace($this->resolveName($package), $namespace);
-			}
-
-			//custom types
-			Type::addType(SupraIdType::NAME, SupraIdType::CN);
-			Type::addType(PathType::NAME, PathType::CN);
-			Type::overrideType(ArrayType::TARRAY, '\Supra\Core\Doctrine\Type\ArrayType');
-
-			return $configuration;
-		};
-
-		//connections
-		//@todo: move to configuration
-		$container['doctrine.connections.default'] = function (ContainerInterface $container) {
-			$connection = new Connection(
-				array(
-					'host' => 'localhost',
-					'user' => 'root',
-					'password' => 'root',
-					'dbname' => 'supra9',
-					'charset' => 'utf8',
-				),
-				new PDOMySql\Driver(),
-				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager.public']
-			);
-
-			return $connection;
-		};
-
-		$container['doctrine.connections.shared'] = function (ContainerInterface $container) {
-			$connection = new Connection(
-				array(
-					'host' => 'localhost',
-					'user' => 'root',
-					'password' => 'root',
-					'dbname' => 'supra7_shared_users',
-					'charset' => 'utf8',
-				),
-				new PDOMySql\Driver(),
-				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager.public']
-			);
-
-			return $connection;
-		};
-
-		//supra-specific entity managers
-		$container['doctrine.entity_managers.public'] = function (ContainerInterface $container) {
-			return EntityManager::create(
-				$container['doctrine.connections.default'],
-				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager.public']
-			);
-		};
-		
-		$container['doctrine.entity_managers.shared'] = function (ContainerInterface $container) {
-			return EntityManager::create(
-				$container['doctrine.connections.shared'],
-				$container['doctrine.orm_configuration'],
-				$container['doctrine.event_manager.public']
-			);
-		};
-
-		$container['doctrine.entity_managers'] = function (ContainerInterface $container) {
-			return array(
-				'public' => 'doctrine.entity_managers.public',
-				'shared' => 'doctrine.entity_managers.shared',
-			);
-		};
-
-		//@todo: refactor this much
-		$container['doctrine.doctrine'] = function (ContainerInterface $container) {
-			return new ManagerRegistry(
-				'supra.doctrine',
-				array(
-					'default' => 'doctrine.connections.default',
-					'shared' => 'doctrine.connections.shared'
-				),
-				$container['doctrine.entity_managers'],
-				'default',
-				'public',
-				'foobar'
-			);
 		};
 	}
 
@@ -315,63 +146,13 @@ abstract class ContainerBuilder
 		};
 	}
 
-	protected function buildSecurity(ContainerInterface $container)
-	{
-		$container['security.user_providers'] = function (ContainerInterface $container) {
-			return array(
-				$container['doctrine.entity_managers.public']->getRepository('CmsAuthentication:User'),
-				$container['doctrine.entity_managers.shared']->getRepository('CmsAuthentication:User')
-			);
-		};
-
-		$container['security.user_provider'] = function (ContainerInterface $container) {
-			return new ChainUserProvider($container['security.user_providers']);
-		};
-
-		$container->setParameter('security.provider_key', 'cms_authentication');
-
-		$userChecker = new UserChecker();
-
-		//@todo: this should be moved to config
-		$encoderFactory = new EncoderFactory(
-			array(
-				'Supra\Package\CmsAuthentication\Entity\User' => new SupraBlowfishEncoder()
-			)
-		);
-
-		$providers = array(
-			new AnonymousAuthenticationProvider(uniqid()),
-			new DaoAuthenticationProvider(
-				$container['security.user_provider'],
-				$userChecker,
-				$container->getParameter('security.provider_key'),
-				$encoderFactory
-			)
-		);
-
-		$container['security.authentication_manager'] = function () use ($providers) {
-			return new AuthenticationProviderManager($providers);
-		};
-
-		$container['security.voters'] = function () {
-			return array(new RoleVoter()); //@todo: this should be refactored to acls
-		};
-
-		$container['security.access_decision_manager'] = function ($container) {
-			return new AccessDecisionManager($container['security.voters']);
-		};
-
-		$container['security.context'] = function ($container) {
-			return new SecurityContext(
-				$container['security.authentication_manager'],
-				$container['security.access_decision_manager']
-			);
-		};
-	}
-
 	protected function buildEvents(ContainerInterface $container)
 	{
-		$container['event.dispatcher'] = new EventDispatcher();
+		if ($container->getParameter('debug')) {
+			$container['event.dispatcher'] = new TraceableEventDispatcher();
+		} else {
+			$container['event.dispatcher'] = new EventDispatcher();
+		}
 	}
 
 	protected function buildCli(ContainerInterface $container)

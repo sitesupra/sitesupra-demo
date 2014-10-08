@@ -2,11 +2,10 @@
 
 namespace Supra\Package\Cms\Configuration;
 
-use Supra\Core\Configuration\AbstractPackageConfiguration;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-class SupraPackageCmsConfiguration extends AbstractPackageConfiguration implements ConfigurationInterface
+class SupraPackageCmsConfiguration implements ConfigurationInterface
 {
 	/**
 	 * Generates the configuration tree builder.
@@ -20,14 +19,8 @@ class SupraPackageCmsConfiguration extends AbstractPackageConfiguration implemen
 		$treeBuilder->root('cms')
 			->children()
 				->scalarNode('prefix')->isRequired()->end()
-				->scalarNode('active_theme')->end()
-				->arrayNode('cms_resources')
-					->children()
-						->arrayNode('css_pack')->prototype('scalar')->end()->end()
-						->arrayNode('js_pack')->prototype('scalar')->end()->end()
-					->end()
-				->end()
-				->append($this->getServicesDefinition())
+				->arrayNode('css_pack')->prototype('scalar')->end()->end()
+				->arrayNode('js_pack')->prototype('scalar')->end()->end()
 			->end();
 
 		return $treeBuilder;
