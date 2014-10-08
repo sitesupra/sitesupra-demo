@@ -22,12 +22,8 @@ use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Configuration\BlockPropertyConfiguration;
 use Supra\Controller\Pages\Event;
 
-/**
- * 
- */
 class PageAction extends PageManagerAction
 {
-
 	/**
 	 * Overriden so PHP <= 5.3.2 doesn't treat pageAction() as a constructor
 	 */
@@ -516,7 +512,9 @@ class PageAction extends PageManagerAction
 			$this->getResponse()->setResponseData(true);
 			return;
 		}
+		
 		$this->unlockPage();
+
 	}
 
 	public function versionPreviewAction()

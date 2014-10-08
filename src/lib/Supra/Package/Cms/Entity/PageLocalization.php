@@ -143,6 +143,14 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
+	 * @return TemplateLocalization
+	 */
+	public function getTemplateLocalization()
+	{
+		return $this->template->getLocalization($this->locale);
+	}
+
+	/**
 	 * Set page path
 	 * Should be called from the PagePathGenerator only!
 	 * @param Path $path

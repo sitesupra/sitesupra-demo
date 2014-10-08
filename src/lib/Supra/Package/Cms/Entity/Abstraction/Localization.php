@@ -3,7 +3,7 @@
 namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Supra\Controller\Pages\Entity\LockData;
+use Supra\Package\Cms\Entity\LockData;
 use Supra\Controller\Pages\Entity\ApplicationLocalization;
 use Supra\Controller\Pages\Entity\TemplateLocalization;
 use Supra\Controller\Pages\Entity\PageLocalization;
@@ -506,6 +506,14 @@ abstract class Localization extends VersionedEntity implements
 	public function getLock()
 	{
 		return $this->lock;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLocked()
+	{
+		return $this->lock !== null;
 	}
 
 	/**

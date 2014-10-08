@@ -4,16 +4,31 @@ namespace Sample;
 
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\DependencyInjection\ContainerInterface;
-use Supra\Package\Cms\Pages\Layout\Theme\ThemeProviderInterface;
+use Sample\Theme\SampleTheme;
 
 class SamplePackage extends AbstractSupraPackage
 {
-	public function finish(ContainerInterface $container)
+	public function inject(ContainerInterface $container)
 	{
-		// @TODO: ::getThemeProvider()?
-		$themeProvider = $container['cms.theme_provider'];
-		/** @var $themeProvider ThemeProviderInterface */
+		//routing
+		$container->getRouter()->loadConfiguration(
+				$container->getApplication()->locateConfigFile($this, 'routes.yml')
+			);
 
-		$themeProvider->registerTheme(new Theme\SampleTheme());
+		// theme
+		$themeProvider = $container['cms.pages.theme.provider'];
+		/* @var $themeProvider \Supra\Package\Cms\Pages\Layout\Theme\ThemeProviderInterface */
+
+		$themeProvider->registerTheme(
+				new SampleTheme(array(
+					new Theme\Layout\SimpleLayout(),
+					new Theme\Layout\TwoColumnLayout()
+				)
+			));
+
+		// blocks
+		$blockCollection = $container['cms.pages.blocks.collection'];
+		/* @var $blockCollection \Supra\Package\Cms\Pages\Block\BlockCollection */
+		$blockCollection->addConfiguration(new Blocks\TextBlockConfiguration());
 	}
 }

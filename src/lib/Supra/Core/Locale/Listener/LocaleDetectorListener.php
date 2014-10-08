@@ -20,10 +20,23 @@ class LocaleDetectorListener implements RequestResponseListenerInterface, Contai
 
 	public function listen(RequestResponseEvent $event)
 	{
+		$request = $this->container->getRequest();
+		$localeManager = $this->container->getLocaleManager();
+
 		try {
-			$this->container->getLocaleManager()
-					->detect($this->container->getRequest());
+			$localeManager->detect($request);
+
+			$request->setLocale(
+					$localeManager->getCurrentLocale()
+					->getId()
+			);
+
 		} catch (LocaleException $e) {
+			
+			$request->setDefaultLocale(
+					$localeManager->getCurrentLocale()
+					->getId()
+			);
 		}
 	}
 

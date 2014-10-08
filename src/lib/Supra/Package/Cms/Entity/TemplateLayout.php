@@ -2,9 +2,8 @@
 
 namespace Supra\Package\Cms\Entity;
 
-//use Supra\Controller\Pages\Entity\Abstraction\AuditedEntity;
 use Supra\ObjectRepository\ObjectRepository;
-use Supra\Package\Cms\Entity\Theme\ThemeLayout;
+use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
 
 /**
  * Page controller template-layout class
@@ -12,15 +11,8 @@ use Supra\Package\Cms\Entity\Theme\ThemeLayout;
  */
 class TemplateLayout extends Abstraction\Entity // implements AuditedEntity
 {
-	/**
-	 * {@inheritdoc}
-	 */
-
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 
-	/**
-	 * 
-	 */
 	const MEDIA_SCREEN = 'screen';
 	const MEDIA_PRINT = 'print';
 
@@ -35,18 +27,6 @@ class TemplateLayout extends Abstraction\Entity // implements AuditedEntity
 	 * @var string
 	 */
 	protected $layoutName;
-
-	/**
-	 * @ManyToOne(targetEntity="Layout", cascade={"persist"}, fetch="EAGER")
-	 * @JoinColumn(name="layout_id", referencedColumnName="id", nullable=true)
-	 * @var Layout
-	 */
-	protected $layoutOld;
-
-	/**
-	 * @var ThemeLayout
-	 */
-	//protected $layout;
 
 	/**
 	 * @ManyToOne(targetEntity="Template", inversedBy="templateLayouts")
@@ -100,12 +80,11 @@ class TemplateLayout extends Abstraction\Entity // implements AuditedEntity
 	}
 
 	/**
-	 * @param ThemeLayout $layout 
+	 * @param ThemeLayoutInterface $layout
 	 */
-	public function setLayout(ThemeLayout $layout)
+	public function setLayout(ThemeLayoutInterface $layout)
 	{
 		$this->layoutName = $layout->getName();
-		//$this->layout = $layout;
 	}
 
 	/**
@@ -113,6 +92,7 @@ class TemplateLayout extends Abstraction\Entity // implements AuditedEntity
 	 */
 	public function getLayout()
 	{
+		throw new \Exception('Don\'t use me bro.');
 		//if (empty($this->layout)) {
 
 		$template = $this->getTemplate();
@@ -143,10 +123,4 @@ class TemplateLayout extends Abstraction\Entity // implements AuditedEntity
 	{
 		return $this->template;
 	}
-
-	public function getOldLayout()
-	{
-		return $this->layoutOld;
-	}
-
 }

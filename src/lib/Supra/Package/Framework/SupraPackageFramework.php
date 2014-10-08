@@ -68,6 +68,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		};
 
 		$container->getEventDispatcher()->addListener(
+			// @FIXME: subscribe to controller pre-execute event instead.
 			KernelEvent::REQUEST,
 			array($container[$this->name.'.locale_detector_listener'], 'listen')
 		);

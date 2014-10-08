@@ -2,7 +2,9 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
-//use Supra\ObjectRepository\ObjectRepository;
+use Supra\Package\Cms\Entity\TemplateBlock;
+use Supra\Package\Cms\Entity\PageLocalization;
+
 use Supra\Controller\Pages\Exception;
 use Supra\Database;
 use Supra\Authorization\AuthorizedEntityInterface;
@@ -12,7 +14,7 @@ use Supra\Authorization\Exception as AuthorizationException;
 use Supra\Package\CmsAuthentication\Entity\AbstractUser;
 
 /**
- * Base entity class for Pages controller
+ * Base entity class for Pages component.
  * @MappedSuperclass
  */
 abstract class Entity extends Database\Entity implements AuthorizedEntityInterface
@@ -99,7 +101,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		$discrA = $this::DISCRIMINATOR;
 		$discrB = $object::DISCRIMINATOR;
 
-		$this->log()->debug("Checking discr matching for $this and $object: $discrA and $discrB");
+//		$this->log()->debug("Checking discr matching for $this and $object: $discrA and $discrB");
 
 		if ($discrA == $discrB) {
 			return;
@@ -116,7 +118,7 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 		 * Allow template elements being bound to the page elements in case of
 		 * block property set to page localization and template block
 		 */
-		if ($this instanceof \Supra\Controller\Pages\Entity\PageLocalization && $object instanceof \Supra\Controller\Pages\Entity\TemplateBlock) {
+		if ($this instanceof PageLocalization && $object instanceof TemplateBlock) {
 			return;
 		}
 

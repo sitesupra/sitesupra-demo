@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use Supra\Core\Controller\Controller;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 
@@ -20,10 +21,8 @@ class PagesController extends Controller
 	 * 
 	 * @return SupraJsonResponse
 	 */
-	public function checkPermissionsAction()
+	public function checkPermissionsAction(Request $request)
 	{
-		$request = $this->container->getRequest();
-
 		$permissions = array();
 
 		foreach ($request->request->get('_check-permissions', array()) as $key => $item) {

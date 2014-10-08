@@ -2,10 +2,12 @@
 
 namespace Supra\Package\Cms\Pages\Layout\Processor;
 
+use Supra\Package\Cms\Pages\Request\PageRequest;
+use Supra\Package\Cms\Pages\Response\PageResponse;
+
 use Supra\Response\ResponseInterface;
-use Supra\Package\Cms\Pages\Layout\Exception;
+use Supra\Controller\Layout\Exception;
 use Supra\Request\RequestInterface;
-use Supra\Controller\Pages\Response\PlaceHolderGroup\PlaceHolderGroupResponse;
 
 /**
  * Simple layout processor
@@ -16,11 +18,6 @@ class HtmlProcessor implements ProcessorInterface
 	 * Place holder function name
 	 */
 	const PLACE_HOLDER = 'placeHolder';
-	
-	/**
-	 * Place holder container function name
-	 */
-	const PLACE_HOLDER_GROUP = 'placeHolderGroup';
 
 	/**
 	 * Maximum layout file size
@@ -33,7 +30,6 @@ class HtmlProcessor implements ProcessorInterface
 	 */
 	static protected $macroFunctions = array(
 		self::PLACE_HOLDER,
-		self::PLACE_HOLDER_GROUP,
 	);
 
 	/**Pa
@@ -41,7 +37,7 @@ class HtmlProcessor implements ProcessorInterface
 	 * @var string
 	 */
 	protected $layoutDir;
-	
+
 	/**
 	 * @var string
 	 */
@@ -63,17 +59,17 @@ class HtmlProcessor implements ProcessorInterface
 	protected $response;
 
 	/**
-	 * @param RequestInterface $request
+	 * @param PageRequest $request
 	 */
-	public function setRequest(RequestInterface $request)
+	public function setRequest(PageRequest $request)
 	{
 		$this->request = $request;
 	}
 
 	/**
-	 * @param ResponseInterface $response 
+	 * @param PageResponse $response
 	 */
-	public function setResponse(ResponseInterface $response)
+	public function setResponse(PageResponse $response)
 	{
 		$this->response = $response;
 	}
@@ -84,16 +80,15 @@ class HtmlProcessor implements ProcessorInterface
 	 * @param array $placeResponses
 	 * @param string $layoutSrc
 	 */
-	public function process(ResponseInterface $response, array $placeResponses, $layoutSrc)
+	public function process(PageResponse $response, array $placeResponses, $layoutSrc)
 	{
-
 		// Output CDATA
 		$cdataCallback = function($cdata) use ($response) {
 					$response->output($cdata);
 		};
 
 		$self = $this;
-		
+
 		// Flush place holder responses into master response
 		$macroCallback = function($func, array $args, $self) use (&$response, &$placeResponses, $self) {
 					if ($func == HtmlProcessor::PLACE_HOLDER) {
@@ -107,35 +102,6 @@ class HtmlProcessor implements ProcessorInterface
 							/* @var $placeResponse ResponseInterface */
 							$placeResponse = $placeResponses[$place];
 							$placeResponse->flushToResponse($response);
-						}
-					}
-
-					if ($func == HtmlProcessor::PLACE_HOLDER_GROUP) {
-						
-						$name = null;
-						if (($pos = mb_strpos($args[0], '|')) !== false) {
-							$name = mb_substr($args[0], 0, $pos);
-						} else {
-							$name = $args[0];
-						}	
-						
-						foreach($placeResponses as $placeResponse) {
-							if ($placeResponse instanceof PlaceHolderGroupResponse) {
-								if ($placeResponse->getGroupName() == $name) {
-									$currentGroupResponses = $placeResponse->getPlaceHolderResponses();
-									$groupResponse = $placeResponse;
-									break;
-								}
-							}
-						}
-						
-						if ( ! empty($currentGroupResponses)) {
-							$layout = $groupResponse->getGroupLayout();
-							if ( ! is_null($layout)) {
-								$self->process($groupResponse, $currentGroupResponses, $layout->getFileName());
-								$groupResponse->flushToResponse($response);
-							}
-	
 						}
 					}
 				};
@@ -170,28 +136,6 @@ class HtmlProcessor implements ProcessorInterface
 		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
 
 		return $places;
-	}
-	
-	public function getPlaceGroups($layoutSrc)
-	{
-		$groups = array();
-		
-		// Ignore CDATA
-		$cdataCallback = function($cdata) {};
-
-		// Collect place holders
-		$macroCallback = function($func, array $args) use (&$groups, $layoutSrc) {
-					if ($func == HtmlProcessor::PLACE_HOLDER_GROUP) {
-						if ( ! array_key_exists(0, $args) || $args[0] == '') {
-							throw new Exception\RuntimeException("No placeholder group name defined in the placeHolderGroup macro in file {$layoutSrc}");
-						}
-						$groups[] = $args[0];
-					}
-				};
-
-		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
-		
-		return $groups;
 	}
 
 	/**

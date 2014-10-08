@@ -9,7 +9,6 @@ use Doctrine\DBAL\Types\ArrayType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
-use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;

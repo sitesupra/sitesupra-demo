@@ -3,35 +3,39 @@ services:
         class: \Supra\Core\Locale\LocaleManager
     locale.detector.cookie:
         class: \Supra\Core\Locale\Detector\CookieDetector
+    locale.detector.path:
+        class: \Supra\Core\Locale\Detector\PathDetector
     locale.storage.cookie:
         class: \Supra\Core\Locale\Storage\CookieStorage
 locales:
     -
-        id: en_LV
+        id: en
         title: English
         country: Latvia
         properties:
            flag: lv
            language: en
-        active: false
+        active: true
     -
-        id: lv_LV
+        id: lv
         title: Latvian
         country: Latvia
         properties:
             flag: lv
             language: lv
+        active: false
     -
-        id: ru_RU
+        id: ru
         title: Russian
         country: Russia
         properties:
             flag: ru
             language: ru
 locale_detectors:
+    - locale.detector.path
     - locale.detector.cookie
 ## @FIXME: Doesn't work now, requires Response object
 ##locale_storage:
 ##    - locale.storage.cookie
 locale_storage: []
-current_locale: lv_LV
+current_locale: en

@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Controller;
 
-use Supra\Core\Controller\Controller;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Supra\Package\Cms\Pages\Application\PageApplicationInterface;
 use Supra\Package\Cms\Entity\Abstraction\Entity as AbstractEntity;
 use Supra\Package\Cms\Entity;
@@ -14,7 +14,10 @@ use Supra\Package\Cms\Entity\GroupPage;
 use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\ReferencedElement;
 use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\LockData;
 use Supra\Package\Cms\Entity\ApplicationPage;
+use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
+use Supra\Core\HttpFoundation\SupraJsonResponse;
 
 use Supra\Uri\Path;
 
@@ -32,7 +35,6 @@ use Doctrine\ORM\Query;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\File;
-use Supra\Cms\Exception\ObjectLockedException;
 use Supra\User\Entity\User;
 use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
@@ -53,7 +55,7 @@ use Supra\Controller\Pages\Event;
 /**
  * Controller containing common methods
  */
-abstract class AbstractPagesController extends Controller
+abstract class AbstractPagesController extends AbstractCmsController
 {
 	protected $application = 'content-manager';
 
@@ -68,11 +70,6 @@ abstract class AbstractPagesController extends Controller
 	protected $pageData;
 
 	/**
-	 * @var PageController
-	 */
-	private $pageController;
-
-	/**
 	 * @var boolean
 	 */
 	private $lockTransactionOpened = false;
@@ -83,6 +80,17 @@ abstract class AbstractPagesController extends Controller
 	protected function getEntityManager()
 	{
 		return $this->container['doctrine.entity_managers.cms'];
+	}
+
+	/**
+	 * @throws BadRequestException if request method is not POST
+	 */
+	protected function isPostRequest()
+	{
+		if (! $this->container->getRequest()
+				->isMethod('post')) {
+			throw new MethodNotAllowedException(array('post'));
+		}
 	}
 
 //	/**
@@ -209,23 +217,22 @@ abstract class AbstractPagesController extends Controller
 		$pageEventArgs = new \Supra\Controller\Pages\Event\PageEventArgs();
 		$pageEventArgs->setProperty('referenceId', $localizationId);
 
-		$this->entityManager->getEventManager()
-				->dispatchEvent(\Supra\Controller\Pages\Event\AuditEvents::pagePreEditEvent, $pageEventArgs);
+// @FIXME: audit events
+//		$this->entityManager->getEventManager()
+//				->dispatchEvent(\Supra\Controller\Pages\Event\AuditEvents::pagePreEditEvent, $pageEventArgs);
 
-		// Handle issue when page requested with wrong locale
-		$pageLocaleId = $this->pageData->getLocale();
-		$expectedLocaleId = $this->getLocale()->getId();
-
-		/*
+		/**
 		 * Set the system current locale if differs from 'locale' parameter received.
 		 * This is done for BACK button to work after navigating to page with different language.
 		 * NB! this change won't be saved in the currrent locale browser cookie storage.
 		 */
-		if ($expectedLocaleId != $pageLocaleId) {
-			ObjectRepository::getLocaleManager($this)
-					->setCurrent($pageLocaleId);
-		}
+		$expectedLocaleId = $this->pageData->getLocaleId();
 
+		if ($this->getCurrentLocale()->getId() !== $expectedLocaleId) {
+			$this->container->getLocaleManager()
+					->setCurrent($expectedLocaleId);
+		}
+		
 		return $this->pageData;
 	}
 
@@ -249,27 +256,26 @@ abstract class AbstractPagesController extends Controller
 	}
 
 	/**
-	 * Try selecting page localization by request parameter
+	 * Try selecting page localization by request parameter.
+	 * 
 	 * @param string $key
-	 * @return Entity\Abstraction\Localization
+	 * @return Localization
 	 */
 	private function searchLocalizationByRequestKey($key)
 	{
-		$pageId = $this->getRequestParameter($key);
+		$localizationId = $this->getRequestInput()->get($key);
 
 		// Fix for news application filter folders
-		if (strpos($pageId, '_') !== false) {
-			$pageId = strstr($pageId, '_', true);
+		if (strpos($localizationId, '_') !== false) {
+			$localizationId = strstr($localizationId, '_', true);
 		}
 
-		if (empty($pageId)) {
+		if (empty($localizationId)) {
 			return null;
 		}
 
-		$localization = $this->entityManager->find(
-				Entity\Abstraction\Localization::CN(), $pageId);
-
-		return $localization;
+		return $this->getEntityManager()
+				->find(Localization::CN(), $localizationId);
 	}
 
 	/**
@@ -768,41 +774,55 @@ abstract class AbstractPagesController extends Controller
 	 * will throw an exception if no, and update lock modified time if yes
 	 * @throws ObjectLockedException if page is locked by another user
 	 */
-	protected function checkLock($createLockOnMiss = true)
+	protected function checkLock($createOnMiss = true)
 	{
 		$this->isPostRequest();
 
-		$userId = $this->getUser()->getId();
-		$pageData = $this->getPageLocalization();
+		$user = $this->getCurrentUser();
 
-		$pageLock = $pageData->getLock();
+		if (! $user) {
+			return null;
+		}
 
-		if ($pageLock instanceof Entity\LockData) {
-			if (($pageLock->getUserId() != $userId)) {
+		$localization = $this->getPageLocalization();
+
+		if ($localization->isLocked()) {
+
+			$lock = $localization->getLock();
+			
+			if ($lock->getUserName() !== $user->getUsername()) {
 				throw new ObjectLockedException('page.error.page_locked', 'Page is locked by another user');
 			} else {
+
+				$entityManager = $this->getEntityManager();
+
 				if ( ! $this->lockTransactionOpened) {
-					$this->entityManager->beginTransaction();
+					$entityManager->beginTransaction();
+
 					$this->lockTransactionOpened = true;
 				}
-				$this->entityManager->lock($pageLock, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
+				
+				$entityManager->lock($lock, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
 
-				$pageLock->setModificationTime(new \DateTime('now'));
-				$this->entityManager->flush();
+				$lock->setModificationTime(new \DateTime('now'));
+				
+				$entityManager->flush($lock);
 			}
-		} elseif ($createLockOnMiss) {
+		} elseif ($createOnMiss) {
+
+			$entityManager = $this->getEntityManager();
 
 			if ( ! $this->lockTransactionOpened) {
-				$this->entityManager->beginTransaction();
+				$entityManager->beginTransaction();
 				$this->lockTransactionOpened = true;
 			}
 
 			// Creates lock if doesn't exist
-			$pageLock = $this->createLock($pageData, $userId);
-			$this->entityManager->lock($pageLock, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
+			$entityManager->lock(
+					$this->createLock(),
+					\Doctrine\DBAL\LockMode::PESSIMISTIC_READ
+			);
 		}
-
-		return $pageLock;
 	}
 
 	/**
@@ -812,22 +832,25 @@ abstract class AbstractPagesController extends Controller
 	{
 		$this->isPostRequest();
 
-		$pageData = $this->getPageLocalization();
+		$localization = $this->getPageLocalization();
 
-		$pageLock = $pageData->getLock();
+		if ($localization->isLocked()) {
 
-		if ($pageLock instanceof Entity\LockData) {
-			$this->entityManager->remove($pageLock);
-			$pageData->setLock(null);
+			$lock = $localization->getLock();
 
-			$this->entityManager->flush();
+			$entityManager = $this->getEntityManager();
 
-			$previousRevision = $pageLock->getPageRevision();
-			$currentRevision = $pageData->getRevisionId();
+			$localization->setLock(null);
+			$entityManager->remove($lock);
 
-			if ($previousRevision != $currentRevision) {
-				$this->writeAuditLog("Draft for %item% saved", $pageData);
-			}
+			$entityManager->flush();
+
+//			$previousRevision = $pageLock->getPageRevision();
+//			$currentRevision = $pageData->getRevisionId();
+//
+//			if ($previousRevision != $currentRevision) {
+//				$this->writeAuditLog("Draft for %item% saved", $pageData);
+//			}
 		}
 
 		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostUnlock);
@@ -842,66 +865,51 @@ abstract class AbstractPagesController extends Controller
 	{
 		$this->isPostRequest();
 
-		$userId = $this->getUser()->getId();
-		$pageData = $this->getPageLocalization();
+		$currentUser = $this->getCurrentUser();
 
-		$allowForced = true; // TODO: hardcoded, should be based on current User rights/auth
-		$force = (bool) $this->getRequestParameter('force');
+		if (! $currentUser) {
+			return null;
+		}
+
+		$localization = $this->getPageLocalization();
+
+		$force = $this->getRequestInput()
+				->filter('force', false, false, FILTER_VALIDATE_BOOLEAN);
 
 		try {
-			$pageLock = $this->checkLock(false);
+			if ($this->checkLock(false) === null) {
+				$this->createLock();
+			}
 		} catch (ObjectLockedException $e) {
-			if ( ! $force || ! $allowForced) {
-
-				$pageLock = $pageData->getLock();
-				$lockedBy = $pageLock->getUserId();
-
-				$userProvider = ObjectRepository::getUserProvider($this);
-				$lockOwner = $userProvider->findUserById($lockedBy);
-
-				// If not found will show use ID
-				$userName = '#' . $lockedBy;
-
-				if ($lockOwner instanceof User) {
-					$userName = $lockOwner->getName();
-				}
-
-				$response = array(
-					'username' => $userName,
-					'datetime' => $pageLock->getCreationTime()->format('c'),
-					'allow_unlock' => $allowForced,
-				);
-
-				$this->getResponse()
-						->setResponseData($response);
-				return;
+			if ( ! $force) {
+				return new SupraJsonResponse($this->getLocalizationLockData($localization));
 			}
 		}
 
-		if (empty($pageLock)) {
-			$this->createLock($pageData, $userId);
-		}
-
-		$this->getResponse()->setResponseData(true);
+		return new SupraJsonResponse();
 	}
 
 	/**
-	 * Creates the lock inside the database
-	 * @param Entity\Abstraction\Localization $pageData
-	 * @param string $userId
+	 * Creates localization editing lock object.
 	 */
-	protected function createLock(Entity\Abstraction\Localization $pageData, $userId)
+	protected function createLock()
 	{
-		$pageLock = new Entity\LockData();
-		$this->entityManager->persist($pageLock);
+		$user = $this->getCurrentUser();
 
-		$pageLock->setUserId($userId);
-		$revisionId = $pageData->getRevisionId();
-		$pageLock->setPageRevision($revisionId);
-		$pageData->setLock($pageLock);
-		$this->entityManager->flush();
+		if (! $user) {
+			throw new \LogicException('There is no user to attach the lock.');
+		}
+		
+		$localization = $this->getPageLocalization();
 
-		return $pageLock;
+		$lock = new LockData($user, $localization);
+
+		$entityManager = $this->getEntityManager();
+
+		$entityManager->persist($lock);
+		$entityManager->flush();
+
+		return $lock;
 	}
 
 	/**
@@ -1374,87 +1382,90 @@ abstract class AbstractPagesController extends Controller
 		$nestedSetRepo->unlock();
 	}
 
-	/**
-	 */
-	protected function getGoogleCssFontList()
-	{
-		throw new \Exception("Don't use me bro.");
-
-		$ini = ObjectRepository::getIniConfigurationLoader($this);
-		$apiKey = $ini->getValue('google_fonts', 'api_key', null);
-
-		if ($apiKey === null) {
-			\Log::info("Google Fonts service API key is not configured, skipping");
-			return array();
-		}
-
-		$cache = ObjectRepository::getCacheAdapter($this);
-
-		$fontList = $cache->fetch(__CLASS__);
-
-		if ($fontList === false) {
-
-			// @TODO: move service object to ObjectRepository
-			$service = new RemoteHttpRequestService();
-
-			$request = new RemoteHttpRequest(self::GOOGLEAPIS_FONTS_URI, RemoteHttpRequest::TYPE_GET,
-					array(
-						'key' => $apiKey,
-						'sort' => 'popularity',
-					));
-
-			\Log::info("Requesting Google Fonts API");
-
-			$response = $service->makeRequest($request);
-
-			$responseCode = $response->getCode();
-
-			if ($responseCode !== \Supra\Response\HttpResponse::STATUS_OK) {
-				throw new \RuntimeException("Request to Google Fonts API failed, error code {$responseCode}");
-			}
-
-			$list = json_decode($response->getBody(), true);
-
-			if ($list === false) {
-				throw new \RuntimeException("Failed to decode Google Fonts API response");
-			}
-
-			if (empty($list) || ! isset($list['items'])) {
-				throw new \RuntimeException("Received Google Fonts API response is invalid");
-			}
-
-			// collecting only font families, other data isn't required
-			$fontList = array();
-
-			foreach ($list['items'] as $fontData) {
-				if ( ! isset($fontData['family']) || empty($fontData['family'])) {
-					\Log::warn("Missing font family property in array", $fontData);
-				}
-
-				$fontList[] = $fontData['family'];
-			}
-
-			$cacheTime = $ini->getValue('google_fonts', 'cache_time', 86400);
-			$cache->save(__CLASS__, $fontList, $cacheTime);
-
-		}
-
-		return $fontList;
-	}
+//	/**
+//	 */
+//	protected function getGoogleCssFontList()
+//	{
+//		throw new \Exception("Don't use me bro.");
+//
+//		$ini = ObjectRepository::getIniConfigurationLoader($this);
+//		$apiKey = $ini->getValue('google_fonts', 'api_key', null);
+//
+//		if ($apiKey === null) {
+//			\Log::info("Google Fonts service API key is not configured, skipping");
+//			return array();
+//		}
+//
+//		$cache = ObjectRepository::getCacheAdapter($this);
+//
+//		$fontList = $cache->fetch(__CLASS__);
+//
+//		if ($fontList === false) {
+//
+//			// @TODO: move service object to ObjectRepository
+//			$service = new RemoteHttpRequestService();
+//
+//			$request = new RemoteHttpRequest(self::GOOGLEAPIS_FONTS_URI, RemoteHttpRequest::TYPE_GET,
+//					array(
+//						'key' => $apiKey,
+//						'sort' => 'popularity',
+//					));
+//
+//			\Log::info("Requesting Google Fonts API");
+//
+//			$response = $service->makeRequest($request);
+//
+//			$responseCode = $response->getCode();
+//
+//			if ($responseCode !== \Supra\Response\HttpResponse::STATUS_OK) {
+//				throw new \RuntimeException("Request to Google Fonts API failed, error code {$responseCode}");
+//			}
+//
+//			$list = json_decode($response->getBody(), true);
+//
+//			if ($list === false) {
+//				throw new \RuntimeException("Failed to decode Google Fonts API response");
+//			}
+//
+//			if (empty($list) || ! isset($list['items'])) {
+//				throw new \RuntimeException("Received Google Fonts API response is invalid");
+//			}
+//
+//			// collecting only font families, other data isn't required
+//			$fontList = array();
+//
+//			foreach ($list['items'] as $fontData) {
+//				if ( ! isset($fontData['family']) || empty($fontData['family'])) {
+//					\Log::warn("Missing font family property in array", $fontData);
+//				}
+//
+//				$fontList[] = $fontData['family'];
+//			}
+//
+//			$cacheTime = $ini->getValue('google_fonts', 'cache_time', 86400);
+//			$cache->save(__CLASS__, $fontList, $cacheTime);
+//
+//		}
+//
+//		return $fontList;
+//	}
 
 	/**
 	 * @param string $eventName
 	 */
 	protected function triggerPageCmsEvent($eventName)
 	{
-		$eventManager = ObjectRepository::getEventManager($this);
+		$eventDispatcher = $this->container->getEventDispatcher();
+
+// @FIXME
+		return null;
 
 		$eventArgs = new Event\PageCmsEventArgs();
 
 		$eventArgs->localization = $this->getPageLocalization();
-		$eventArgs->user = $this->getUser();
+		$eventArgs->user = $this->getCurrentUser();
 
-		$eventManager->fire($eventName, $eventArgs);
+		$eventDispatcher->dispatch($eventName, $eventArgs);
 	}
 
 	/**
@@ -1468,22 +1479,13 @@ abstract class AbstractPagesController extends Controller
 				? $request->request
 				: $request->query;
 	}
-
-	/**
-	 *
-	 * @return \Supra\Locale\Locale
-	 */
-	protected function getCurrentLocale()
-	{
-		return $this->container['locale.manager']->getCurrent();
-	}
-
+	
 	/**
 	 * @return \Supra\Package\Cms\Pages\Application\PageApplicationManager
 	 */
 	protected function getPageApplicationManager()
 	{
-		return $this->container['cms.page_application_manager'];
+		return $this->container['cms.pages.page_application_manager'];
 	}
 
 	/**
@@ -1491,7 +1493,53 @@ abstract class AbstractPagesController extends Controller
 	 */
 	protected function getThemeProvider()
 	{
-		return $this->container['cms.theme_provider'];
+		return $this->container['cms.pages.theme.provider'];
+	}
+
+	/**
+	 * @return \Supra\Package\Cms\Controller\PageController
+	 */
+	protected function getPageController()
+	{
+		return $this->container['cms.pages.controller'];
+	}
+
+	/**
+	 * @return \Supra\Package\Cms\Request\PageRequest
+	 */
+	protected function getPageRequest()
+	{
+		return $this->container['cms.pages.request.edit'];
+	}
+
+	/**
+	 * @return \Supra\Package\Cms\Pages\Block\BlockCollection
+	 */
+	protected function getBlockCollection()
+	{
+		return $this->container['cms.pages.blocks.collection'];
+	}
+
+	/**
+	 * @param Localization $localization
+	 * @return array | null
+	 */
+	protected function getLocalizationLockData(Localization $localization)
+	{
+		if (! $localization->isLocked()) {
+			return null;
+		}
+		
+		$lock = $localization->getLock();
+
+		return array(
+			// @FIXME: should not return both, userlogin and username
+			'userlogin' => $lock->getUserName(),
+			'username'	=> $lock->getUserName(),
+			'datetime'	=> $lock->getCreationTime()->format('c'),
+			// @TODO: hardcoded
+			'allow_unlock' => true,
+		);
 	}
 
 	/**
@@ -1521,7 +1569,6 @@ abstract class AbstractPagesController extends Controller
 
 		$publishedLocalization = $this->findLocalizationPublishedVersion($localization);
 
-		//
 		$isLatestVersionPublished = ($publishedLocalization
 				&& $publishedLocalization->getRevision() === $localization->getRevision());
 
@@ -1557,9 +1604,6 @@ abstract class AbstractPagesController extends Controller
 					$this->getApplicationPageLocalizationData($localization)
 			);
 		}
-
-
-
 
 		$applicationBasePath = new Path('');
 

@@ -14,7 +14,7 @@ YUI.add("supra.languagebar", function (Y) {
 	 * Templates
 	 */
 	var TEMPLATE_CONTENT = '<div class="yui3-languagebar-content">' +
-								'<span class="label"></span> <a class="selected"><span class="title"></span><img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" /></a>' +
+								'<span class="label"></span> <a class="selected"><span class="title"></span><img src="/public/cms/supra/img/flags/16x11/blank.png" alt="" /></a>' +
 							'</div>';
 	
 	/* Language list template */
@@ -28,9 +28,9 @@ YUI.add("supra.languagebar", function (Y) {
 			'				<li>' +
 			'					<a data-locale="{{ lang.id|escape }}">' +
 			'						{% if lang.flag %}' +
-			'							<img src="/cms/lib/supra/img/flags/16x11/{{ lang.flag }}.png" alt="" />' +
+			'							<img src="/public/cms/supra/img/flags/16x11/{{ lang.flag }}.png" alt="" />' +
 			'						{% else %}' +
-			'							<img src="/cms/lib/supra/img/flags/16x11/blank.png" alt="" />' +
+			'							<img src="/public/cms/supra/img/flags/16x11/blank.png" alt="" />' +
 			'						{% endif %}' +
 			'						<span>{{ lang.title|escape }}</span>' +
 			'					</a>' +
@@ -269,7 +269,7 @@ YUI.add("supra.languagebar", function (Y) {
 				if (node) node.set('text', lang.title);
 				
 				node = this.get('srcNode').one('img');
-				if (node) node.set('src', '/cms/lib/supra/img/flags/16x11/' + lang.flag + '.png');
+				if (node) node.set('src', '/public/cms/supra/img/flags/16x11/' + lang.flag + '.png');
 				
 				return locale;
 			}

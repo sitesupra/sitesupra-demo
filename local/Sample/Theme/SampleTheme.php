@@ -2,20 +2,9 @@
 
 namespace Sample\Theme;
 
-use Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface;
+use Supra\Package\Cms\Pages\Layout\Theme\Theme;
 
-class SampleTheme implements ThemeInterface
+class SampleTheme extends Theme
 {
-	public function getName()
-	{
-		return 'sample';
-	}
-
-	public function getLayouts()
-	{
-		return array(
-			'simple' => new Layout\SimpleLayout(),
-			'two_column' => new Layout\TwoColumnLayout(),
-		);
-	}
+	protected $name = 'sample';
 }

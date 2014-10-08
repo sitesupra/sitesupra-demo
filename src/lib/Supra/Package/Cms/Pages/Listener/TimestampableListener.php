@@ -47,7 +47,7 @@ class TimestampableListener implements EventSubscriber
 		$entity = $eventArgs->getEntity();
 
 		if ($entity instanceof TimestampableInterface) {
-			$now = new DateTime();
+			$now = new \DateTime();
 			$entity->setModificationTime($now);
 			$entity->setCreationTime($now);
 		}

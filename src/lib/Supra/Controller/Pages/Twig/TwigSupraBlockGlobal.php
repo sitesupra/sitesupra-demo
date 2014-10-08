@@ -2,18 +2,16 @@
 
 namespace Supra\Controller\Pages\Twig;
 
-use Supra\Controller\Pages\BlockController;
+use Supra\Package\Cms\Pages\BlockController;
+use Supra\Package\Cms\Entity\Abstraction\Block;
+
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\ImageSize;
 use Supra\Html\HtmlTag;
 
-/**
- * Supra page controller twig helper
- */
 class TwigSupraBlockGlobal
 {
-
 	/**
 	 * @var BlockController
 	 */
@@ -191,7 +189,7 @@ class TwigSupraBlockGlobal
 	}
 	
 	/**
-	 * @return \Supra\Controller\Pages\Entity\Abstraction\Block
+	 * @return Block
 	 */
 	public function getBlock()
 	{

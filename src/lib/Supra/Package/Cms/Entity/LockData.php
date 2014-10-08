@@ -2,15 +2,23 @@
 
 namespace Supra\Package\Cms\Entity;
 
-use Supra\Package\Cms\Entity\Abstraction\TimestampableInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Supra\Package\Cms\Entity\Abstraction\Localization;
 
 /**
- * Lock data class.
+ * Editing lock.
+ * 
  * @Entity
  * @Table(name="lock_data")
  */
-class LockData extends Abstraction\Entity implements TimestampableInterface
+class LockData extends Abstraction\Entity implements Abstraction\TimestampableInterface
 {
+	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $userName;
+
 	/**
 	 * @Column(type="datetime", nullable=true)
 	 * @var \DateTime
@@ -24,19 +32,28 @@ class LockData extends Abstraction\Entity implements TimestampableInterface
 	protected $modificationTime;
 	
 	/**
-	 * @Column(type="supraId20")
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
-	protected $userId;
+	protected $localizationRevision;
 
 	/**
-	 * @Column(type="string",nullable=true)
-	 * @var string
+	 * @param UserInterface $user
+	 * @param Localization $localization
 	 */
-	protected $pageRevision = '';
-	
+	public function __construct(UserInterface $user, Localization $localization)
+	{
+		parent::__construct();
+		
+		$this->userName = $user->getUsername();
+		$this->localizationRevision = $localization->getRevision();
+
+		$localization->setLock($this);
+	}
+
 	/**
-	 * Returns creation time
+	 * Returns creation time.
+	 *
 	 * @return \DateTime
 	 */
 	public function getCreationTime()
@@ -45,7 +62,8 @@ class LockData extends Abstraction\Entity implements TimestampableInterface
 	}
 	
 	/**
-	 * Sets creation time
+	 * Sets creation time.
+	 * 
 	 * @param \DateTime $time
 	 */
 	public function setCreationTime(\DateTime $time = null)
@@ -57,7 +75,8 @@ class LockData extends Abstraction\Entity implements TimestampableInterface
 	}
 
 	/**
-	 * Returns last modification time
+	 * Returns last modification time.
+	 * 
 	 * @return \DateTime
 	 */
 	public function getModificationTime()
@@ -66,51 +85,32 @@ class LockData extends Abstraction\Entity implements TimestampableInterface
 	}
 
 	/**
-	 * Sets modification time
+	 * Sets modification time.
+	 * 
 	 * @param \DateTime $time
 	 */
 	public function setModificationTime(\DateTime $time = null)
 	{
-		if (is_null($time)) {
-			$time = new \DateTime();
-		}
-		$this->modificationTime = $time;
+		$this->modificationTime = $time ? $time : new \DateTime();
 	}
-	
+
 	/**
-	 * Returns ID of user created the lock
+	 * Returns username of user who created lock.
+	 * 
 	 * @return string
 	 */
-	public function getUserId()
+	public function getUserName()
 	{
-		return $this->userId;
-	}
-	
-	/**
-	 * Sets ID of user who's locking page
-	 * @param string $userId
-	 */
-	public function setUserId($userId)
-	{
-		$this->userId = $userId;
+		return $this->userName;
 	}
 
 	/**
-	 * Set page data revision
-	 * @param string $revisionId
-	 */
-	public function setPageRevision($revisionId)
-	{
-		$this->pageRevision = $revisionId;
-	}
-
-	/**
-	 * Get page data revision
+	 * Returns localization revision on the lock creation moment.
+	 *
 	 * @return string
 	 */
-	public function getPageRevision()
+	public function getLocalizationRevision()
 	{
-		return $this->pageRevision;
+		return $this->localizationRevision;
 	}
-
 }

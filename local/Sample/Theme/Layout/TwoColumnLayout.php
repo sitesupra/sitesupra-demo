@@ -2,7 +2,9 @@
 
 namespace Sample\Theme\Layout;
 
-class TwoColumnLayout
+use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
+
+class TwoColumnLayout implements ThemeLayoutInterface
 {
 	public function getName()
 	{
@@ -17,5 +19,10 @@ class TwoColumnLayout
 	public function getIcon()
 	{
 		return null;
+	}
+
+	public function getFileName()
+	{
+		return 'Sample:layouts/two_columns.html.twig';
 	}
 }

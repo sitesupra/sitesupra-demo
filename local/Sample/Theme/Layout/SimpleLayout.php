@@ -2,7 +2,9 @@
 
 namespace Sample\Theme\Layout;
 
-class SimpleLayout
+use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
+
+class SimpleLayout implements ThemeLayoutInterface
 {
 	public function getName()
 	{
@@ -17,5 +19,20 @@ class SimpleLayout
 	public function getIcon()
 	{
 		return null;
+	}
+
+	public function getFileName()
+	{
+		return 'SamplePackage:layouts/simple.html.twig';
+	}
+
+	/**
+	 * @FIXME: must obtain names from layout file.
+	 */
+	public function getPlaceHolderNames()
+	{
+		return array(
+			'header', 'content', 'footer'
+		);
 	}
 }

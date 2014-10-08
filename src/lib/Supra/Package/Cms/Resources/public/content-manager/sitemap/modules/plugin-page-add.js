@@ -876,14 +876,14 @@ YUI().add('website.sitemap-plugin-page-add', function (Y) {
 					layouts[0] = {
 						'id': '',
 						'title': Supra.Intl.get(['settings', 'select_layout']),
-						'icon': '/cms/lib/supra/img/sitemap/preview/layout.png'
+						'icon': '/public/cms/supra/img/sitemap/preview/layout.png'
 					};
 					input.set('showEmptyValue', false);
 				} else {
 					layouts[0] = {
 						'id': '',
 						'title': Supra.Intl.get(['settings', 'use_parent_layout']),
-						'icon': '/cms/lib/supra/img/sitemap/preview/layout.png'
+						'icon': '/public/cms/supra/img/sitemap/preview/layout.png'
 					};
 					input.set('showEmptyValue', true);
 				}

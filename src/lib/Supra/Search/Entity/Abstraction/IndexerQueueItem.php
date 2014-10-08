@@ -2,8 +2,8 @@
 
 namespace Supra\Search\Entity\Abstraction;
 
+use Supra\Package\Cms\Entity\Abstraction\TimestampableInterface;
 use DateTime;
-use Supra\Database\Doctrine\Listener\Timestampable;
 use Supra\Search\IndexerQueueItemStatus;
 use Supra\Search\IndexedDocument;
 
@@ -13,7 +13,7 @@ use Supra\Search\IndexedDocument;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DetachedDiscriminators
   */
-abstract class IndexerQueueItem extends Entity implements Timestampable
+abstract class IndexerQueueItem extends Entity implements TimestampableInterface
 {
 	const DEFAULT_PRIORITY = 50;
 
