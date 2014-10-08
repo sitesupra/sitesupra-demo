@@ -7,6 +7,7 @@ use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
 use Supra\Core\Console\Application;
+use Supra\Core\Event\TraceableEventDispatcher;
 use Supra\Core\Templating\Templating;
 use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -147,7 +148,11 @@ abstract class ContainerBuilder
 
 	protected function buildEvents(ContainerInterface $container)
 	{
-		$container['event.dispatcher'] = new EventDispatcher();
+		if ($container->getParameter('debug')) {
+			$container['event.dispatcher'] = new TraceableEventDispatcher();
+		} else {
+			$container['event.dispatcher'] = new EventDispatcher();
+		}
 	}
 
 	protected function buildCli(ContainerInterface $container)
