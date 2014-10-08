@@ -224,31 +224,31 @@ class BlockControllerConfiguration extends ComponentConfiguration
 	{
 		return trim(str_replace('\\', '_', $className));
 	}
-	
-	public function createBlockController()
-	{
-		$controllerClass = $this->class;
-		$controller = null;
 
-		try {
-			/* @var $controller BlockController */
-			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
-			$controller->setConfiguration($this);
-		} catch (\Exception $e) {
-			$controllerClass = 'Supra\Controller\Pages\NotInitializedBlockController';
-			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
-			/* @var $controller BlockController */
-			$controller->exception = $e;
-			$controller->setConfiguration($this);
-		}
-		
-		foreach ($this->plugins as $plugin) {
-			/* @var $plugin BlockControllerPlugin */
-			$plugin->bind($controller);
-		}
-		
-		return $controller;
-	}
+//	public function createBlockController()
+//	{
+//		$controllerClass = $this->class;
+//		$controller = null;
+//
+//		try {
+//			/* @var $controller BlockController */
+//			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
+//			$controller->setConfiguration($this);
+//		} catch (\Exception $e) {
+//			$controllerClass = 'Supra\Controller\Pages\NotInitializedBlockController';
+//			$controller = Loader::getClassInstance($controllerClass, 'Supra\Controller\Pages\BlockController');
+//			/* @var $controller BlockController */
+//			$controller->exception = $e;
+//			$controller->setConfiguration($this);
+//		}
+//
+//		foreach ($this->plugins as $plugin) {
+//			/* @var $plugin BlockControllerPlugin */
+//			$plugin->bind($controller);
+//		}
+//
+//		return $controller;
+//	}
 	
 	protected function getFileWebPath($file)
 	{

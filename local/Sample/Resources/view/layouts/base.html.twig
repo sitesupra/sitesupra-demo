@@ -3,23 +3,26 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="Generator" content="SiteSupra" />
-	<link rel="stylesheet" href="/public/sample/main.css"  type="text/css" />
-</head>
+	{# @TODO: assetic to be used here.
+		Need to deal with how to automatically obtain the URL of package.
+	 #}
+	<link rel="stylesheet" href="/public/sample/assets/css/common.css"  type="text/css" />
+s</head>
 <body>
 	<div id="header" title="Header">
 		<div class="inner">
-			<!--placeHolder(header)-->
+			{{ placeHolder('header') }}
 		</div>
 	</div>
 
 	<div id="content" title="Main">
 		{% block content %}
-			<!--placeHolder(main)-->
+			{{ placeHolder('content') }}
 		{% endblock %}
 	</div>
 
 	<div id="footer" title="Footer">
-		<!--placeHolder(footer)-->
+		{{ placeHolder('footer') }}
 	</div>
 </body>
 </html>

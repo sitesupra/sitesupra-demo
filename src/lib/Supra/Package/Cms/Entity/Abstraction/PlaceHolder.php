@@ -111,6 +111,14 @@ abstract class PlaceHolder extends VersionedEntity implements
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isLocked()
+	{
+		return $this->getLocked() === true;
+	}
+
+	/**
 	 * Get blocks
 	 * @return Collection
 	 */

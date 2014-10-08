@@ -1201,7 +1201,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 		 */
 		getPreferredGroup: function () {
 			if (this.get('host').get('new')) {
-				return this.get('host').getBlockInfo().preferredPropertyGroup;
+				return this.get('host').getBlockInfo().preferred_property_group;
 			} else {
 				return null;
 			}
@@ -1325,7 +1325,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					"id": button_id,
 					"type": "button",
 					"buttonType": "button",
-					"icon": definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
+					"icon": definition.icon || '/public/cms/supra/img/toolbar/icon-blank.png',
 					"title": definition.label,
 					"command": command
 				});
@@ -1342,7 +1342,7 @@ YUI.add('supra.page-content-properties', function (Y) {
 					'id': button_id,
 					'type': 'button',
 					'title': definition.label,
-					'icon': definition.icon || '/cms/lib/supra/img/toolbar/icon-blank.png',
+					'icon': definition.icon || '/public/cms/supra/img/toolbar/icon-blank.png',
 					'action': this,
 					'actionFunction': 'toolbarButtonClickOpenGroup',
 					'propertyGroup': definition.id // For use in toolbarButtonClickOpenGroup

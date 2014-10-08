@@ -2,10 +2,10 @@
 
 namespace Supra\Package\Cms\Entity;
 
+use Supra\Package\Cms\Entity\Abstraction\TimestampableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
-use Supra\Database\Doctrine\Listener\Timestampable;
 use DateTime;
 
 /**
@@ -15,7 +15,7 @@ use DateTime;
  * 		@index(name="id_type_reference", columns={"id", "type", "reference"})
  * })
  */
-class PageRevisionData extends Abstraction\Entity implements Timestampable
+class PageRevisionData extends Abstraction\Entity implements TimestampableInterface
 {
 	// Publish
 	const TYPE_HISTORY = 1;

@@ -2,15 +2,10 @@
 
 namespace Supra\Controller\Pages\Response\PlaceHolder;
 
-use Supra\Response\HttpResponse;
-use Supra\Controller\Pages\Entity\BlockProperty;
-use Supra\Editable\EditableAbstraction;
-use Supra\Controller\Pages\Entity\Abstraction\PlaceHolder;
+use Symfony\Component\HttpFoundation\Response;
+use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
 
-/**
- * Response for place holder
- */
-abstract class PlaceHolderResponse extends HttpResponse
+abstract class PlaceHolderResponse extends Response
 {
 	/**
 	 * @var PlaceHolder

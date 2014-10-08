@@ -2,25 +2,26 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
-use Supra\Response\ResponseContext;
 use Doctrine\Common\Collections\Collection;
-use Supra\Controller\Pages\Exception;
-use Supra\Controller\Pages\BlockController;
-use Supra\Controller\Pages\Request\PageRequest;
-use Supra\Controller\Pages\Entity\PageBlock;
-use Supra\Controller\Pages\Entity\TemplateBlock;
-use Supra\Loader;
-use Supra\Controller\Pages\BlockControllerCollection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Package\Cms\Pages\Request\PageRequest;
+use Supra\Package\Cms\Pages\BlockController;
+use Supra\Package\Cms\Entity\PageBlock;
+use Supra\Package\Cms\Entity\TemplateBlock;
+use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
+use Supra\Package\Cms\Pages\Response\ResponseContext;
+
+use Supra\Controller\Pages\Exception;
 
 /**
- * Block database entity abstraction
+ * Block entity abstraction
+ * 
  * @Entity
  * @InheritanceType("SINGLE_TABLE")
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({
- *		"template" = "Supra\Package\Cms\Entity\TemplateBlock",
- *		"page" = "Supra\Package\Cms\Entity\PageBlock"
+ *		"template"	= "Supra\Package\Cms\Entity\TemplateBlock",
+ *		"page"		= "Supra\Package\Cms\Entity\PageBlock"
  * })
  */
 abstract class Block extends VersionedEntity implements
@@ -29,12 +30,14 @@ abstract class Block extends VersionedEntity implements
 {
 	/**
 	 * @Column(type="string", name="component")
+	 * 
 	 * @var string
 	 */
 	protected $componentClass;
 
 	/**
 	 * @Column(type="integer")
+	 *
 	 * @var int
 	 */
 	protected $position;
@@ -42,20 +45,29 @@ abstract class Block extends VersionedEntity implements
 	/**
 	 * @ManyToOne(targetEntity="PlaceHolder", inversedBy="blocks")
 	 * @JoinColumn(name="place_holder_id", referencedColumnName="id")
+	 * 
 	 * @var PlaceHolder
 	 */
 	protected $placeHolder;
 
 	/**
-	 * Left here just because cascade in remove
-	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\BlockProperty", mappedBy="block", cascade={"persist", "remove"}) 
+	 * Left here just because cascade in remove.
+	 *
+	 * @OneToMany(
+	 *		targetEntity="Supra\Package\Cms\Entity\BlockProperty",
+	 *		mappedBy="block",
+	 *		cascade={"persist", "remove"}
+	 * )
+	 * 
 	 * @var Collection 
 	 */
 	protected $blockProperties;
 
 	/**
-	 * This property is always false for page block
+	 * This property is always false for page block.
+	 * 
 	 * @Column(type="boolean", nullable=true)
+	 * 
 	 * @var boolean
 	 */
 	protected $locked = false;
@@ -66,16 +78,26 @@ abstract class Block extends VersionedEntity implements
 	public function __construct()
 	{
 		parent::__construct();
+		
 		$this->blockProperties = new ArrayCollection();
 	}
 
 	/**
-	 * Get locked value, always false for page blocks
+	 * Get locked value, always false for page blocks.
+	 * 
 	 * @return boolean
 	 */
 	public function getLocked()
 	{
 		return false;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLocked()
+	{
+		return $this->getLocked() === true;
 	}
 
 	/**
@@ -114,25 +136,23 @@ abstract class Block extends VersionedEntity implements
 	}
 
 	/**
-	 * Get component class name safe for HTML node ID generation
+	 * Get component class name safe for HTML node ID generation.
+	 * 
 	 * @return string
 	 */
 	public function getComponentName()
 	{
-		$componentName = $this->componentClass;
-		$componentName = str_replace('\\', '_', $componentName);
-
-		return $componentName;
+		return str_replace('\\', '_', $this->componentClass);
 	}
 
 	/**
-	 * Set normalized component name, converted to classname
+	 * Set normalized component name, converted to classname.
+	 * 
 	 * @param string $componentName
 	 */
 	public function setComponentName($componentName)
 	{
-		$componentClass = str_replace('_', '\\', $componentName);
-		$this->componentClass = $componentClass;
+		$this->componentClass = str_replace('_', '\\', $componentName);
 	}
 
 	/**
@@ -160,11 +180,6 @@ abstract class Block extends VersionedEntity implements
 	{
 		return $this->blockProperties;
 	}
-
-	public function clearPropertyCollection()
-	{
-		$this->blockProperties = new ArrayCollection();
-	}
 	
 	/**
 	 * Whether the block is inside one of place holder Ids provided
@@ -179,28 +194,28 @@ abstract class Block extends VersionedEntity implements
 
 		return $in;
 	}
+//
+//	/**
+//	 * Factory of the block controller
+//	 * @return BlockController
+//	 */
+//	public function createController()
+//	{
+//// @FIXME: create controller
+////		if ( ! Loader\Loader::classExists($componentClass)) {
+////			$this->log()->warn("Block component $componentClass was not found for block $this");
+////		}
+////
+////		$blockControllerCollection = BlockControllerCollection::getInstance();
+////		$blockController = $blockControllerCollection->createBlockController($componentClass);
+////		$blockController->setBlock($this);
+////
+////		return $blockController;
+//	}
 
 	/**
-	 * Factory of the block controller
-	 * @return BlockController
-	 */
-	public function createController()
-	{
-		$blockController = null;
-		$componentClass = $this->getComponentClass();
-
-		if ( ! Loader\Loader::classExists($componentClass)) {
-			$this->log()->warn("Block component $componentClass was not found for block $this");
-		}
-
-		$blockControllerCollection = BlockControllerCollection::getInstance();
-		$blockController = $blockControllerCollection->createBlockController($componentClass);
-		$blockController->setBlock($this);
-
-		return $blockController;
-	}
-
-	/**
+	 * @FIXME: move to PageController?
+	 *
 	 * Prepares controller
 	 * @param BlockController $controller
 	 * @param PageRequest $request

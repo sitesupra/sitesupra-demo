@@ -239,8 +239,6 @@ function (Y) {
 
 			var requestUri = Supra.Url.generate('cms_pages_sitemap_pages_list');
 
-			console.log(requestUri);
-
 			//Tree
 			this.tree = new this.Tree({
 				'srcNode': this.one('#tree'),

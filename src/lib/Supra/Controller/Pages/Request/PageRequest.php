@@ -671,7 +671,7 @@ abstract class PageRequest extends HttpRequest
 					->where($or);
 			$query = $qb->getQuery();
 
-			\Log::debug("Running query to find block properties");
+			$this->debug("Running query to find block properties");
 
 			$this->prepareQueryResultCache($query);
 			$result = $query->getResult();

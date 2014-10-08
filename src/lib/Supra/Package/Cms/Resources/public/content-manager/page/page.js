@@ -187,7 +187,7 @@ Supra(function (Y) {
 			}
 			
 			//Load page data
-			Supra.io(this.getDataPath(), {
+			Supra.io(this.getDataPath('page'), {
 				'data': {
 					'page_id': page_id || '',
 					'locale': Supra.data.get('locale')

@@ -10,11 +10,11 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"animate": false, // never animate slide in/slide out
 				"height": 48,
 				"controls": [
-					{"id": "source", "type": "button", "buttonType": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-source.png", "command": "source", "visible": false},
+					{"id": "source", "type": "button", "buttonType": "button", "icon": "/public/cms/supra/img/htmleditor/icon-source.png", "command": "source", "visible": false},
 					{"type": "separator"},
-					//{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
+					//{"id": "fullscreen", "type": "button", "buttonType": "toggle", "icon": "/public/cms/supra/img/htmleditor/icon-fullscreen.png", "command": "fullscreen"},
 					//{"type": "separator"},
-					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/cms/lib/supra/img/htmleditor/icon-settings.png", "command": "settings"}
+					{"id": "settings", "type": "button", "buttonType": "toggle", "icon": "/public/cms/supra/img/htmleditor/icon-settings.png", "command": "settings"}
 				]
 			},
 			{
@@ -23,9 +23,9 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"animate": true,
 				"height": 42,
 				"controls": [
-						{"id": "style", "type": "button", "command": "style", "icon": "/cms/lib/supra/img/htmleditor/icon-style.png", "visible": false},
+						{"id": "style", "type": "button", "command": "style", "icon": "/public/cms/supra/img/htmleditor/icon-style.png", "visible": false},
 					{"type": "separator"},
-						{"id": "fonts", "type": "button", "command": "fonts", "icon": "/cms/lib/supra/img/htmleditor/icon-fonts.png", "visible": false},
+						{"id": "fonts", "type": "button", "command": "fonts", "icon": "/public/cms/supra/img/htmleditor/icon-fonts.png", "visible": false},
 					{"type": "separator"},
 						{"id": "fontsize", "type": "dropdown", "command": "fontsize", "visible": false, "values": [
 							{"id": 6, "title": "6"},
@@ -47,30 +47,30 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 							{"id": 72, "title": "72"}
 						]},
 					{"type": "separator"},
-						{"id": "forecolor", "type": "button", "command": "forecolor", "icon": "/cms/lib/supra/img/htmleditor/icon-forecolor.png", "visible": false},
-						{"id": "backcolor", "type": "button", "command": "backcolor", "icon": "/cms/lib/supra/img/htmleditor/icon-backcolor.png", "visible": false},
+						{"id": "forecolor", "type": "button", "command": "forecolor", "icon": "/public/cms/supra/img/htmleditor/icon-forecolor.png", "visible": false},
+						{"id": "backcolor", "type": "button", "command": "backcolor", "icon": "/public/cms/supra/img/htmleditor/icon-backcolor.png", "visible": false},
 					{"type": "separator"},
-						{"id": "bold", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-bold.png", "command": "bold"},
-						{"id": "italic", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-italic.png", "command": "italic"},
-						{"id": "underline", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-underline.png", "command": "underline"},
-						{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/cms/lib/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
+						{"id": "bold", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-bold.png", "command": "bold"},
+						{"id": "italic", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-italic.png", "command": "italic"},
+						{"id": "underline", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-underline.png", "command": "underline"},
+						{"id": "strikethrough", "type": "button", "title": "Strike-through", "icon": "/public/cms/supra/img/htmleditor/icon-strikethrough.png", "command": "strikethrough"},
 					{"type": "separator"},
 						{"id": "align", "type": "dropdown", "command": "align", "style": "icons-text", "visible": false, "values": [
-							{"id": "left", "title": "Left", "icon": "/cms/lib/supra/img/htmleditor/align-left.png"},
-							{"id": "center", "title": "Center", "icon": "/cms/lib/supra/img/htmleditor/align-center.png"},
-							{"id": "right", "title": "Right", "icon": "/cms/lib/supra/img/htmleditor/align-right.png"},
-							{"id": "justify", "title": "Justify", "icon": "/cms/lib/supra/img/htmleditor/align-justify.png"}
+							{"id": "left", "title": "Left", "icon": "/public/cms/supra/img/htmleditor/align-left.png"},
+							{"id": "center", "title": "Center", "icon": "/public/cms/supra/img/htmleditor/align-center.png"},
+							{"id": "right", "title": "Right", "icon": "/public/cms/supra/img/htmleditor/align-right.png"},
+							{"id": "justify", "title": "Justify", "icon": "/public/cms/supra/img/htmleditor/align-justify.png"}
 						]},
 					{"type": "separator"},
-						{"id": "ul", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ul.png", "command": "ul", "visible": false},
-						{"id": "ol", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-ol.png", "command": "ol", "visible": false},
+						{"id": "ul", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-ul.png", "command": "ul", "visible": false},
+						{"id": "ol", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-ol.png", "command": "ol", "visible": false},
 					{"type": "separator"},
-						{"id": "indent",  "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
-						{"id": "outdent", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
+						{"id": "indent",  "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-indent-in.png",  "command": "indent",  "visible": false},
+						{"id": "outdent", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-indent-out.png", "command": "outdent", "visible": false},
 					{"type": "separator"},
-						{"id": "insertlink", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink", "visible": false},
+						{"id": "insertlink", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-insertlink.png", "command": "insertlink", "visible": false},
 					{"type": "separator"},
-						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-insert.png", "command": "insert", "visible": false}
+						{"id": "insert", "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-insert.png", "command": "insert", "visible": false}
 				]
 			},
 			{
@@ -80,13 +80,13 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"animate": true,
 				"height": 42,
 				"controls": [
-						{"id": "insertimage", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-image.png", "command": "insertimage", "visible": false},
+						{"id": "insertimage", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-image.png", "command": "insertimage", "visible": false},
 					{"type": "separator"},
-						{"id": "inserticon", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-icon.png", "command": "inserticon", "visible": false},
+						{"id": "inserticon", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-icon.png", "command": "inserticon", "visible": false},
 					{"type": "separator"},
-						{"id": "insertvideo", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-video.png", "command": "insertvideo", "visible": false},
+						{"id": "insertvideo", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-video.png", "command": "insertvideo", "visible": false},
 					{"type": "separator"},
-						{"id": "inserttable", "type": "button", "icon": "/cms/lib/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
+						{"id": "inserttable", "type": "button", "icon": "/public/cms/supra/img/htmleditor/icon-table.png", "command": "inserttable"}
 				]
 			},
 			{
@@ -96,15 +96,15 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"animate": true,
 				"height": 42,
 				"controls": [
-						{"id": "row-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-before.png",  "command": "row-before"},
-						{"id": "row-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-delete.png",  "command": "row-delete"},
-						{"id": "row-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-after.png",  "command": "row-after"},
+						{"id": "row-before",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-row-before.png",  "command": "row-before"},
+						{"id": "row-delete",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-row-delete.png",  "command": "row-delete"},
+						{"id": "row-after",   "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-row-after.png",  "command": "row-after"},
 					{"type": "separator"},
-						{"id": "merge",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-cell-merge.png",  "command": "merge-cells"},
+						{"id": "merge",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-cell-merge.png",  "command": "merge-cells"},
 					{"type": "separator"},
-						{"id": "column-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-before.png",  "command": "column-before"},
-						{"id": "column-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-delete.png",  "command": "column-delete"},
-						{"id": "column-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-after.png",  "command": "column-after"},
+						{"id": "column-before",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-column-before.png",  "command": "column-before"},
+						{"id": "column-delete",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-column-delete.png",  "command": "column-delete"},
+						{"id": "column-after",   "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-column-after.png",  "command": "column-after"},
 					{"type": "separator"},
 						{"id": "table-settings",   "type": "button", "buttonType": "push", "command": "table-settings", "style": "small"}
 				]
@@ -116,12 +116,12 @@ YUI().add('supra.htmleditor-toolbar', function (Y) {
 				"animate": true,
 				"height": 42,
 				"controls": [
-					{"id": "itemlist-row-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-before.png",  "command": "itemlist-before"},
-					{"id": "itemlist-row-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-delete.png",  "command": "itemlist-delete"},
-					{"id": "itemlist-row-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-row-after.png",  "command": "itemlist-after"},
-					{"id": "itemlist-column-before",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-before.png",  "command": "itemlist-before", "visible": false},
-					{"id": "itemlist-column-delete",  "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-delete.png",  "command": "itemlist-delete", "visible": false},
-					{"id": "itemlist-column-after",   "type": "button", "buttonType": "push", "icon": "/cms/lib/supra/img/htmleditor/icon-table-column-after.png",  "command": "itemlist-after", "visible": false}
+					{"id": "itemlist-row-before",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-row-before.png",  "command": "itemlist-before"},
+					{"id": "itemlist-row-delete",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-row-delete.png",  "command": "itemlist-delete"},
+					{"id": "itemlist-row-after",   "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-row-after.png",  "command": "itemlist-after"},
+					{"id": "itemlist-column-before",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-column-before.png",  "command": "itemlist-before", "visible": false},
+					{"id": "itemlist-column-delete",  "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-column-delete.png",  "command": "itemlist-delete", "visible": false},
+					{"id": "itemlist-column-after",   "type": "button", "buttonType": "push", "icon": "/public/cms/supra/img/htmleditor/icon-table-column-after.png",  "command": "itemlist-after", "visible": false}
 				]
 			}
 		]

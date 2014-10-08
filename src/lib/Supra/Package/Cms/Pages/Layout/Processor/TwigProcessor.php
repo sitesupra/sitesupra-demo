@@ -2,97 +2,79 @@
 
 namespace Supra\Package\Cms\Pages\Layout\Processor;
 
-use Supra\Template\Parser\Twig\Twig;
-use Twig_Loader_Filesystem;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Request\PageRequest;
-use Supra\Controller\Pages\Twig\TwigSupraPageGlobal;
-use Supra\Response\HttpResponse;
-use Supra\Response\ResponseContext;
-use Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface;
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Templating\Loader\TemplateLoader;
+use Supra\Package\Cms\Pages\Response\PageResponse;
 
 /**
  * Twig layout processor
  */
-class TwigProcessor extends HtmlProcessor
+class TwigProcessor implements ProcessorInterface, ContainerAware
 {
-
-	protected $loader;
-	
 	/**
-	 *
-	 * @var ThemeInterface
-	 * 
+	 * @inheritDoc
 	 */
-	protected $theme;
-
-	/**
-	 * @param ThemeInterface $theme 
-	 */
-	public function setTheme(ThemeInterface $theme)
+	public function process(PageResponse $response, array $placeResponses, $layoutSrc)
 	{
-		$this->theme = $theme;
-	}
+		$twig = $this->createTwigEnvironment();
 
-	/**
-	 * @return ThemeInterface
-	 */
-	public function getTheme()
-	{
-		return $this->theme;
-	}
-
-	/**
-	 * @param string $layoutSrc
-	 * @return string
-	 */
-	protected function getContent($layoutSrc)
-	{
-		$theme = $this->getTheme();
-
-		if ( ! empty($theme)) {
-			$this->setLayoutDir($theme->getRootDir());
-		}
-
-		$twig = ObjectRepository::getTemplateParser($this);
-		/* @var $twig Twig */
-
-		if ( ! $twig instanceof Twig) {
-			throw new \RuntimeException("Twig layout processor expects twig template parser");
-		}
-
-		$helper = new TwigSupraPageGlobal();
-		ObjectRepository::setCallerParent($helper, $this);
-		$helper->setRequest($this->request);
-
-		if ( ! empty($theme)) {
-			$helper->setTheme($theme);
-		}
-		
-		if ($this->response instanceof HttpResponse) {
-			$helper->setResponseContext($this->response->getContext());
-		} else {
-			$helper->setResponseContext(new ResponseContext());
-		}
-
-		$twig->addGlobal('supra', $helper);
-
-		if ($this->loader === null) {
-			
-			$paths = array();
-			
-			$currentLoader = $twig->getLoader();
-			if ($currentLoader instanceof Twig_Loader_Filesystem) {
-				$paths = $currentLoader->getPaths();
+		$twig->addFunction(new \Twig_SimpleFunction('placeHolder', function($name) use ($placeResponses) {
+			if (isset($placeResponses[$name])) {
+				echo $placeResponses[$name];
 			}
-			
-			$paths[] = $this->layoutDir;
-			
-			$this->loader = new Twig_Loader_Filesystem($paths);	
-		}
-		
-		$contents = $twig->parseTemplate($layoutSrc, array(), $this->loader);
+		}));
 
-		return $contents;
+		$template = $twig->loadTemplate($layoutSrc);
+
+		$response->setContent(
+				$template->render(array())
+		);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getPlaces($layoutSrc)
+	{
+		$twig = $this->createTwigEnvironment();
+
+		$names = array();
+
+		$twig->addFunction(new \Twig_SimpleFunction('placeHolder', function($name) use (&$names) {
+			$names[] = $name;
+		}));
+
+		$template = $twig->loadTemplate($layoutSrc);
+
+		$template->render(array());
+
+		return $names;
+	}
+
+	/**
+	 * TemplateLoader needs the container.
+	 *
+	 * @param ContainerInterface $container
+	 */
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
+	}
+
+	/**
+	 * @TODO: should obtain pre-configured Twig instance from somewhere else.
+	 *
+	 * @return \Twig_Environment
+	 */
+	protected function createTwigEnvironment()
+	{
+		$loader = new TemplateLoader();
+
+		$loader->setContainer($this->container);
+
+		$twig = new \Twig_Environment($loader);
+
+		return $twig;
 	}
 }

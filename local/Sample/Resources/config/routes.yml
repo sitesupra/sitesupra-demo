@@ -1,0 +1,16 @@
+configuration:
+    prefix: ~
+routes:
+    cms_pages_page_front_localized:
+        pattern:            /{_locale}/{path}
+        controller:         Cms:Page:index
+        requirements:
+          path: ".*"
+          ## @TODO: somehow to integrate with LocaleManager
+          _locale: en|lv|ru
+    ## @TODO: any chance to merge with routing above?
+    cms_pages_page_front:
+        pattern:            /{path}
+        controller:         Cms:Page:index
+        requirements:
+          path: ".*"

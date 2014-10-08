@@ -3,6 +3,8 @@ services:
         class: \Supra\Core\Locale\LocaleManager
     locale.detector.cookie:
         class: \Supra\Core\Locale\Detector\CookieDetector
+    locale.detector.path:
+        class: \Supra\Core\Locale\Detector\PathDetector
     locale.storage.cookie:
         class: \Supra\Core\Locale\Storage\CookieStorage
     supra.doctrine.event_subscriber.table_name_prefixer:
@@ -15,22 +17,23 @@ services:
 locales:
     locales:
         -
-            id: en_LV
+            id: en
             title: English
             country: Latvia
             properties:
                flag: lv
                language: en
-            active: false
+            active: true
         -
-            id: lv_LV
+            id: lv
             title: Latvian
             country: Latvia
             properties:
                 flag: lv
                 language: lv
+            active: false
         -
-            id: ru_RU
+            id: ru
             title: Russian
             country: Russia
             properties:
@@ -42,7 +45,7 @@ locales:
     ##locale_storage:
     ##    - locale.storage.cookie
     storage: ~
-    current: lv_LV
+    current: en
 doctrine:
     credentials:
         hostname: localhost

@@ -31,6 +31,8 @@ routes:
             frontend:				true
     cms_pages_sitemap:
         pattern:            %cms.prefix%/content-manager/h/{params}
+        requirements:
+          params: ".+"
         controller:         Cms:Pages:index
     cms_pages_check_permissions:
         pattern:            %cms.prefix%/content-manager/check-permissions
@@ -65,3 +67,17 @@ routes:
         controller:					Cms:PagesPagesettings:templatesList
         options:
             frontend:       true
+    cms_pages_page_page:
+        pattern:						%cms.prefix%/content-manager/page/page
+        controller:					Cms:PagesPage:page
+        options:
+            frontend:       true
+    cms_pages_page_lock:
+        pattern:						%cms.prefix%/content-manager/page/lock
+        controller:					Cms:PagesPage:lock
+    cms_pages_page_unlock:
+        pattern:						%cms.prefix%/content-manager/page/unlock
+        controller:					Cms:PagesPage:unlock
+    cms_pages_block_list:
+        pattern:						%cms.prefix%/content-manager/blocks/blocks-list
+        controller:					Cms:PagesBlock:blocksList

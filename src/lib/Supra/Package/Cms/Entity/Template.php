@@ -5,7 +5,7 @@ namespace Supra\Package\Cms\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\Controller\Pages\Exception;
-use Supra\Package\Cms\Entity\Theme\ThemeLayout;
+use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
 
 /**
  * Page controller template class
@@ -69,10 +69,10 @@ class Template extends Abstraction\AbstractPage
 	/**
 	 * Add layout for specific media
 	 * @param string $media
-	 * @param ThemeLayout $layout
+	 * @param ThemeLayoutInterface $layout
 	 * @return TemplateLayout
 	 */
-	public function addLayout($media, ThemeLayout $layout)
+	public function addLayout($media, ThemeLayoutInterface $layout)
 	{
 		$templateLayout = new TemplateLayout($media);
 		$templateLayout->setLayout($layout);
@@ -111,6 +111,31 @@ class Template extends Abstraction\AbstractPage
 
 		throw new Exception\RuntimeException("No layout found for template #{$this->getId()} media '{$media}'");
 	}
+
+	/**
+	 * Get layout name for specified media type.
+	 *
+	 * @param string $media
+	 * @return string
+	 */
+	public function getLayoutName($media = TemplateLayout::MEDIA_SCREEN)
+	{
+		$templateLayouts = $this->getTemplateLayouts();
+
+		if ($templateLayouts->offsetExists($media)) {
+			$templateLayout = $templateLayouts->offsetGet($media);
+			/* @var $templateLayout TemplateLayout */
+
+			return $templateLayout->getLayoutName();
+		}
+
+		throw new Exception\RuntimeException(sprintf(
+				'Template [%s] has no layout for media [%s]',
+				$this->getId(),
+				$media
+		));
+	}
+
 	
 	/**
 	 * {@inheritdoc}

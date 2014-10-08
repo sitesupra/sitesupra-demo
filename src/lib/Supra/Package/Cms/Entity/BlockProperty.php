@@ -2,15 +2,15 @@
 
 namespace Supra\Package\Cms\Entity;
 
+use Doctrine\Common\Collections;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
+use Supra\Package\Cms\Editable\EditableInterface;
+use Supra\Package\Cms\Entity\Abstraction\Block;
+use Supra\Package\Cms\Entity\Abstraction\Localization;
 
 use Supra\Controller\Pages\Exception;
-use Supra\Controller\Pages\Entity\Abstraction\Localization;
-use Supra\Controller\Pages\Entity\Abstraction\Block;
-use Supra\Editable\EditableInterface;
-use Doctrine\Common\Collections;
 
 /**
  * Block property class.
@@ -61,9 +61,7 @@ class BlockProperty extends VersionedEntity implements
 	 * @var Collections\Collection
 	 */
 	protected $metadata;
-	
-	protected $overridenMetadata = null;
-	
+		
 //	/**
 //	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\BlockPropertyMetadata", inversedBy="metadataProperties", cascade={"persist", "merge"})
 //	 * @var BlockPropertyMetadata
@@ -98,8 +96,9 @@ class BlockProperty extends VersionedEntity implements
 	public function __construct($name)
 	{
 		parent::__construct();
+		
 		$this->name = $name;
-		$this->resetMetadata();
+		$this->metadata = new Collections\ArrayCollection();
 	}
 	
 	/**
@@ -141,20 +140,7 @@ class BlockProperty extends VersionedEntity implements
 	 */
 	public function getMetadata()
 	{
-		if ($this->overridenMetadata instanceof Collections\ArrayCollection) {
-			return $this->overridenMetadata;
-		}	
-		
 		return $this->metadata;
-	}
-	
-	/**
-	 * Resets metadata collection to empty collection
-	 */
-	public function resetMetadata()
-	{
-		$this->metadata = new Collections\ArrayCollection();
-		$this->overridenMetadata = null;
 	}
 	
 	public function resetBlock()
@@ -177,28 +163,6 @@ class BlockProperty extends VersionedEntity implements
 	}
 	
 	/**
-	 * Create overriden metadata collection 
-	 */
-	public function initializeOverridenMetadata()
-	{
-		$this->overridenMetadata = new Collections\ArrayCollection();
-	}
-	
-	/**
-	 * Adds overriden metadata element
-	 * @param BlockPropertyMetadata $metadata 
-	 */
-	public function addOverridenMetadata(BlockPropertyMetadata $metadata) 
-	{
-		if (empty($this->overridenMetadata)) {
-			$this->overridenMetadata = new Collections\ArrayCollection();
-		}
-		
-		$name = $metadata->getName();
-		$this->overridenMetadata->offsetSet($name, $metadata);
-	}
-	
-	/**
 	 * @return Block
 	 */
 	public function getBlock()
@@ -218,12 +182,12 @@ class BlockProperty extends VersionedEntity implements
 	}
 	
 	/**
-	 * Get content type
+	 * @deprecated use getEditableClass instead.
 	 * @return string
 	 */
 	public function getType()
 	{
-		return $this->type;
+		return $this->getEditableClass();
 	}
 
 	/**
@@ -286,6 +250,14 @@ class BlockProperty extends VersionedEntity implements
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getEditableClass()
+	{
+		return $this->type;
+	}
+
+	/**
 	 * Checks if associations scopes are matching
 	 * @param Entity $object
 	 */
@@ -327,40 +299,40 @@ class BlockProperty extends VersionedEntity implements
 		return $this->localization;
 	}
 	
-	/**
-	 * Set metadata entity, that owns this BlockProperty
-	 * 
-	 * @param BlockPropertyMetadata $metadata
-	 */
-	public function setMasterMetadata($metadata)
-	{
-		$this->masterMetadata = $metadata;
-		$this->masterMetadataId = $metadata->getId();
-	}
-	
-	/**
-	 * Get block property master(owner) metadata entity
-	 *
-	 * @return BlockPropertyMetadata
-	 */
-	public function getMasterMetadata()
-	{
-		return $this->masterMetadata;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getMasterMetadataId()
-	{
-		return $this->masterMetadataId;
-	}
-	
-	public function resetMasterMetadata()
-	{
-		$this->masterMetadata =
-				$this->masterMetadataId = null;
-	}
+//	/**
+//	 * Set metadata entity, that owns this BlockProperty
+//	 *
+//	 * @param BlockPropertyMetadata $metadata
+//	 */
+//	public function setMasterMetadata($metadata)
+//	{
+//		$this->masterMetadata = $metadata;
+//		$this->masterMetadataId = $metadata->getId();
+//	}
+//
+//	/**
+//	 * Get block property master(owner) metadata entity
+//	 *
+//	 * @return BlockPropertyMetadata
+//	 */
+//	public function getMasterMetadata()
+//	{
+//		return $this->masterMetadata;
+//	}
+//
+//	/**
+//	 * @return string
+//	 */
+//	public function getMasterMetadataId()
+//	{
+//		return $this->masterMetadataId;
+//	}
+//
+//	public function resetMasterMetadata()
+//	{
+//		$this->masterMetadata =
+//				$this->masterMetadataId = null;
+//	}
 
 	public function __clone()
 	{

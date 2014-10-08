@@ -273,7 +273,7 @@ YUI.add("supra.input-date", function (Y) {
 				});
 			
 			//If slideshow is in sidebar we want an icon and title changed
-			slide.setAttribute("data-icon", "/cms/lib/supra/img/sidebar/icons/settings-schedule.png");
+			slide.setAttribute("data-icon", "/public/cms/supra/img/sidebar/icons/settings-schedule.png");
 			slide.setAttribute("data-title", this.get("label"));
 			
 			//Create calendar

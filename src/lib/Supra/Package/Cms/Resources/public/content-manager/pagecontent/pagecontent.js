@@ -18,7 +18,7 @@ Supra('dd-drag', function (Y) {
 		'{pagecontent}includes/iframe.js',
 		'{pagecontent}includes/contents.js',
 		'{pagecontent}includes/plugin-ordering.js',
-		'S$lipsum/lipsum.js'
+		'/public/cms/supra/build/lipsum/lipsum.js'
 	];
 
 	//Shortcut

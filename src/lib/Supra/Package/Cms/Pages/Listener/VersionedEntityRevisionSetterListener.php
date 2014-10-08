@@ -11,7 +11,7 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 use Supra\Controller\Pages\Entity\Abstraction\Localization;
 use Supra\Controller\Pages\Entity\Abstraction\OwnedEntityInterface;
 use Doctrine\ORM\PersistentCollection;
-use Supra\Controller\Pages\Event\AuditEvents;
+//use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Entity\PageRevisionData;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Event\PageEventArgs;

@@ -26,7 +26,7 @@ use Supra\Controller\Exception\StopRequestException;
  * @method PageRequest getRequest()
  * @method \Supra\Response\TwigResponse getResponse()
  */
-abstract class BlockController extends ControllerAbstraction
+abstract class BlockController // extends ControllerAbstraction
 {
 
 	/**
@@ -79,7 +79,9 @@ abstract class BlockController extends ControllerAbstraction
 	 * @param RequestInterface $request
 	 * @param ResponseInterface $response
 	 */
-	final public function prepare(Request\RequestInterface $request, Response\ResponseInterface $response)
+	final public function prepare(
+			\Symfony\Component\HttpFoundation\Request $request,
+			\Symfony\Component\HttpFoundation\Response $response)
 	{
 		try {
 
@@ -201,8 +203,10 @@ abstract class BlockController extends ControllerAbstraction
 	 * @param Request\RequestInterface $request
 	 * @return Response\TwigResponse
 	 */
-	public function createResponse(Request\RequestInterface $request)
+	public function createResponse(\Symfony\Component\HttpFoundation\Request $request)
 	{
+		return new \Symfony\Component\HttpFoundation\Response;
+
 		$response = new Response\TwigResponse($this);
 
 		return $response;

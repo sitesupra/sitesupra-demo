@@ -13,7 +13,7 @@ class PlaceHolderResponseEdit extends PlaceHolderResponse
 	 * Flush the response to another response object
 	 * @param ResponseInterface $response
 	 */
-	public function flushToResponse(ResponseInterface $response)
+	public function flushToResponse(\Symfony\Component\HttpFoundation\Response $response)
 	{
 		$placeHolder = $this->getPlaceHolder();
 		

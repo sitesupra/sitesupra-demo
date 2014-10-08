@@ -1,14 +1,14 @@
-{% extends 'base.html.twig' %}
+{% extends 'SamplePackage:layouts/base.html.twig' %}
 
 {% block content %}
 	<div class="pure-g">
 
 		<div class="pure-u-1-2">
-			<!--placeHolder(leftColumn)-->
+			{{ placeHolder('leftColumn') }}
 		</div>
 
 		<div class="pure-u-1-2">
-			<!--placeHolder(rightColumn)-->
+			{{ placeHolder('rightColumn') }}
 		</div>
 		
 	</div>

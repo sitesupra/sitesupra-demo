@@ -118,12 +118,11 @@ if (typeof Supra === "undefined") {
 		groups: {
 			supra: {
 				//Supra modules
-				/* @FIXME: enable combo */
-				combine: false,
-				root: "public/cms/supra/build/",
+				combine: true,
+				root: "/public/cms/supra/build/",
 				base: "/public/cms/supra/build/",
 				//Use YUI file combo
-				comboBase: "/",
+				comboBase: window.comboBase,
 				modules: {}	//@see modules.js
 			},
 			website: {
