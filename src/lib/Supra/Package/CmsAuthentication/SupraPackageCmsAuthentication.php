@@ -45,14 +45,16 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 		//applications
 		$container->getApplicationManager()->registerApplication(new CmsAuthenticationApplication());
 
-		//we need to inject shared users em to doctrine
-		$doctrineConfig = $container->getApplication()->getConfigurationSection('framework');
+		//we need to inject shared users em to doctrine if provided
+		if ($configuration['users']['shared_connection']) {
+			$doctrineConfig = $container->getApplication()->getConfigurationSection('framework');
 
-		$doctrineConfig['doctrine']['entity_managers']['shared'] = array('connection' => 'shared', 'event_manager' => 'public');
+			$doctrineConfig['doctrine']['entity_managers']['shared'] = array('connection' => 'shared', 'event_manager' => 'public');
 
-		$doctrineConfig['doctrine']['connections']['shared'] = $configuration['users']['shared_connection'];
+			$doctrineConfig['doctrine']['connections']['shared'] = $configuration['users']['shared_connection'];
 
-		$container->getApplication()->setConfigurationSection('framework', $doctrineConfig);
+			$container->getApplication()->setConfigurationSection('framework', $doctrineConfig);
+		}
 	}
 
 	public function finish(ContainerInterface $container)

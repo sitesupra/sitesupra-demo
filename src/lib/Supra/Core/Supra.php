@@ -38,6 +38,11 @@ abstract class  Supra extends ContainerBuilder
 	 */
 	protected $debug;
 
+	/**
+	 * @var array
+	 */
+	protected $overrides;
+
 	protected $configPath = 'Resources/config';
 	protected $viewPath = 'Resources/view';
 	protected $publicPath = 'Resources/public';
@@ -202,7 +207,7 @@ abstract class  Supra extends ContainerBuilder
 		}
 
 		//getting container instance, configuring services
-		$container = new Container();
+		$this->container = $container = new Container();
 		$container->setParameter('environment', $this->environment);
 		$container->setParameter('debug', $this->debug);
 		$container['application'] = $this;
@@ -235,7 +240,7 @@ abstract class  Supra extends ContainerBuilder
 		//last pass to change something or created services based on finished configuration
 		$this->finish($container);
 
-		return $this->container = $container;
+		return $container;
 	}
 
 	public function boot()
@@ -260,6 +265,21 @@ abstract class  Supra extends ContainerBuilder
 	}
 
 	/**
+	 * Basically, parses main supra config
+	 *
+	 * @return array
+	 */
+	public function getConfigurationOverrides()
+	{
+		if ($this->overrides) {
+			return $this->overrides;
+		}
+
+		return $this->overrides = $this->container['config.universal_loader']->load($this->getSupraRoot().'/config.yml'); //@todo: resolve config per environment
+
+	}
+
+	/**
 	 * Adds configuration section for later processing
 	 *
 	 * @param SupraPackageInterface $package
@@ -267,10 +287,23 @@ abstract class  Supra extends ContainerBuilder
 	 */
 	public function addConfigurationSection(SupraPackageInterface $package, $data)
 	{
+		$overrides = $this->getConfigurationOverrides();
+
+		if (isset($overrides[$package->getName()])) {
+			$processor = new Processor();
+
+			$data = $processor->processConfiguration($package->getConfiguration(), array(
+				$data,
+				$overrides[$package->getName()]
+			));
+		}
+
 		$this->configurationSections[$package->getName()] = array(
 			'package' => $package,
 			'data' => $data
 		);
+
+		return $data;
 	}
 
 	/**
@@ -345,11 +378,11 @@ abstract class  Supra extends ContainerBuilder
 	 */
 	protected function buildConfiguration(ContainerInterface $container)
 	{
-		$configurationOverride = $container['config.universal_loader']->load($this->getSupraRoot().'/config.yml'); //@todo: resolve config per environment
-
 		$config = array();
 
 		$processor = new Processor();
+
+		$configurationOverride = $this->getConfigurationOverrides();
 
 		foreach ($this->configurationSections as $key => $definition) {
 			$package = $definition['package'];
