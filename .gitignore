@@ -5,10 +5,12 @@
 VERSION
 .DS_Store
 src/conf/supra.ini
-src/webroot/public
+web/public
+web/.htaccess
 /vendor/
 /composer.lock
 /.idea
 cache/
 .directory
 supra/config.yml
+storage/

@@ -35,7 +35,9 @@
     "autoload": {
         "psr-0": {
             "Supra\\": "src\\lib",
-            "Sample\\": "local"
+            "Sample\\": "local",
+            "Supra\\Core": "lib",
+            "Supra\\Package": "lib"
         },
         "classmap": ["supra/"]
     },

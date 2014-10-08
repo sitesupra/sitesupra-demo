@@ -5,15 +5,6 @@ framework:
         credentials:
             hostname: localhost
             username: root
-            password: root
+            password:
             charset: utf8
             database: supra9
-cms_authentication:
-    users:
-        shared_connection: null
-        user_providers:
-            doctrine:
-                supra.authentication.user_provider.public:
-                    em: public
-                    entity: CmsAuthentication:User
-        provider_chain: [ doctrine.entity_managers.public ]

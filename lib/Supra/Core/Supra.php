@@ -346,7 +346,7 @@ abstract class  Supra extends ContainerBuilder
 	 */
 	public function getWebRoot()
 	{
-		return realpath($this->getProjectRoot() . '/src/webroot');
+		return realpath($this->getProjectRoot() . '/web');
 	}
 
 
