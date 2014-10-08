@@ -8,7 +8,7 @@ use Supra\Core\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Assetic\Filter\LessFilter;
+use Assetic\Filter\LessphpFilter;
 use Assetic\Filter\CssRewriteFilter;
 
 class ComboController extends Controller
