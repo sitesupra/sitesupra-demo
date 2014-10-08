@@ -13,8 +13,8 @@ class File implements DriverInterface
 
 	public function __construct($prefix)
 	{
-		if (!is_dir($prefix)) {
-			throw new \Exception(sprintf('Directory "%s" does not exist', $prefix));
+		if (!is_dir($prefix) && !mkdir($prefix, 0777, true)) {
+			throw new \Exception(sprintf('Directory "%s" does not exist and can not be created', $prefix));
 		}
 
 		if (!is_writable($prefix)) {

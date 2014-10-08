@@ -208,6 +208,23 @@ abstract class  Supra extends ContainerBuilder
 
 		//getting container instance, configuring services
 		$this->container = $container = new Container();
+
+		//dirs
+		$reflection = new \ReflectionClass($this);
+
+		$this->container->setParameter('directories.supra_root', dirname($reflection->getFileName()));
+		$this->container->setParameter('directories.project_root', dirname($this->container->getParameter('directories.supra_root')));
+		$this->container->setParameter('directories.storage',
+			$this->container->getParameter('directories.project_root') .
+				DIRECTORY_SEPARATOR .
+				'storage'
+		);
+		$this->container->setParameter('directories.cache',
+			$this->container->getParameter('directories.storage') .
+			DIRECTORY_SEPARATOR .
+			'cache'
+		);
+
 		$container->setParameter('environment', $this->environment);
 		$container->setParameter('debug', $this->debug);
 		$container['application'] = $this;

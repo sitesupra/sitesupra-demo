@@ -81,9 +81,7 @@ abstract class ContainerBuilder
 	 */
 	public function getSupraRoot()
 	{
-		$reflection = new \ReflectionClass($this);
-
-		return dirname($reflection->getFileName());
+		return $this->container->getParameter('directories.supra_root');
 	}
 
 	/**
@@ -136,7 +134,7 @@ abstract class ContainerBuilder
 
 	protected function buildCache(ContainerInterface $container)
 	{
-		$container['cache.driver'] = new File($this->getProjectRoot() . DIRECTORY_SEPARATOR . 'cache');
+		$container['cache.driver'] = new File($container->getParameter('directories.cache'));
 		$container['cache.cache'] = function (ContainerInterface $container) {
 			$cache = new Cache();
 			$cache->setContainer($container);
