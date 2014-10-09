@@ -17,6 +17,7 @@ use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\Listener\LocaleDetectorListener;
 use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
+use Supra\Package\Framework\Command\CacheListCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
 use Supra\Package\Framework\Command\ContainerPackagesListCommand;
 use Supra\Package\Framework\Command\DoctrineCacheClearMetadataCommand;
@@ -50,6 +51,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getConsole()->add(new DoctrineCacheClearMetadataCommand());
 		$container->getConsole()->add(new DoctrineCacheClearQueryCommand());
 		$container->getConsole()->add(new DoctrineCacheClearResultCommand());
+		$container->getConsole()->add(new CacheListCommand());
 
 		//include supra helpers
 		$cmsExtension = new CmsExtension();
