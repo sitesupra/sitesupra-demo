@@ -224,6 +224,11 @@ abstract class  Supra extends ContainerBuilder
 			DIRECTORY_SEPARATOR .
 			'cache'
 		);
+		$this->container->setParameter('directories.web',
+			$this->container->getParameter('directories.project_root') .
+			DIRECTORY_SEPARATOR .
+			'web'
+		);
 
 		$container->setParameter('environment', $this->environment);
 		$container->setParameter('debug', $this->debug);
@@ -363,7 +368,7 @@ abstract class  Supra extends ContainerBuilder
 	 */
 	public function getWebRoot()
 	{
-		return realpath($this->getProjectRoot() . '/web');
+		return $this->container->getParameter('directories.web');
 	}
 
 

@@ -76,7 +76,6 @@ abstract class ContainerBuilder
 	/**
 	 * Returns root of SupraSomething extends Supra file
 	 *
-	 * @todo: move to container params
 	 * @return string
 	 */
 	public function getSupraRoot()
@@ -87,12 +86,11 @@ abstract class ContainerBuilder
 	/**
 	 * Returns  project root (core folder of supra installation)
 	 *
-	 * @todo: move this to container params
 	 * @return string
 	 */
 	public function getProjectRoot()
 	{
-		return dirname($this->getSupraRoot());
+		return $this->container->getParameter('directories.project_root');
 	}
 
 	/**
