@@ -19,6 +19,9 @@ use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
 use Supra\Package\Framework\Command\ContainerPackagesListCommand;
+use Supra\Package\Framework\Command\DoctrineCacheClearMetadataCommand;
+use Supra\Package\Framework\Command\DoctrineCacheClearQueryCommand;
+use Supra\Package\Framework\Command\DoctrineCacheClearResultCommand;
 use Supra\Package\Framework\Command\DoctrineGenerateProxiesCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaCreateCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaDropCommand;
@@ -44,6 +47,9 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getConsole()->add(new DoctrineSchemaDropCommand());
 		$container->getConsole()->add(new DoctrineSchemaCreateCommand());
 		$container->getConsole()->add(new DoctrineGenerateProxiesCommand());
+		$container->getConsole()->add(new DoctrineCacheClearMetadataCommand());
+		$container->getConsole()->add(new DoctrineCacheClearQueryCommand());
+		$container->getConsole()->add(new DoctrineCacheClearResultCommand());
 
 		//include supra helpers
 		$cmsExtension = new CmsExtension();
