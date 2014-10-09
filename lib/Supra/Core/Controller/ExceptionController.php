@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ExceptionController extends Controller
 {
-	public function exception404Action()
+	public function exception404Action(\Exception $e)
 	{
 		return new Response(
 			$this->exceptionAction(404, 'Not found'),
@@ -14,7 +14,7 @@ class ExceptionController extends Controller
 		);
 	}
 
-	public function exception500Action()
+	public function exception500Action(\Exception $e)
 	{
 		return new Response(
 			$this->exceptionAction(500, 'Internal server error'),

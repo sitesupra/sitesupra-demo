@@ -4,14 +4,9 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Package\Cms\Entity\LockData;
-use Supra\Controller\Pages\Entity\ApplicationLocalization;
-use Supra\Controller\Pages\Entity\TemplateLocalization;
-use Supra\Controller\Pages\Entity\PageLocalization;
-use Supra\Controller\Pages\Entity\GroupLocalization;
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\AuditLog\TitleTrackingItemInterface;
 use Supra\Controller\Pages\Exception\RuntimeException;
-use Supra\Controller\Pages\Entity\PlaceHolderGroup;
+use Supra\Package\Cms\Entity\PlaceHolderGroup;
 
 /**
  * @Entity
@@ -851,9 +846,9 @@ abstract class Localization extends VersionedEntity implements
 	{
 		return $this->placeHolderGroups;
 	}
-	
+
 	/**
-	 * @param \Supra\Controller\Pages\Entity\PlaceHolderGroup $group
+	 * @param PlaceHolderGroup $group
 	 */
 	public function addPlaceHolderGroup(PlaceHolderGroup $group)
 	{

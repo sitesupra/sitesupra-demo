@@ -3,6 +3,7 @@
 namespace Supra\Package\Cms\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 
 /**
@@ -90,7 +91,7 @@ class PlaceHolderGroup extends VersionedEntity
 	/**
 	 * @param Localization $localization
 	 */
-	public function setLocalization(\Supra\Controller\Pages\Entity\Abstraction\Localization $localization)
+	public function setLocalization(Localization $localization)
 	{
 //		$this->matchDiscriminator($localization);
 //		if ($this->writeOnce($this->localization, $localization)) {
@@ -118,7 +119,7 @@ class PlaceHolderGroup extends VersionedEntity
 		$this->placeholders->set($placeHolder->getName(), $placeHolder);
 	}
 	
-	public function setGroupLayout(\Supra\Controller\Pages\Entity\Theme\ThemePlaceholderGroupLayout $layout)
+	public function setGroupLayout($layout)
 	{
 		$this->groupLayout = $layout->getName();
 	}

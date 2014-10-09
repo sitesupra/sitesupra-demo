@@ -91,7 +91,7 @@ class HttpKernel implements ContainerAware
 					//in debug env 404 errors are just thrown
 					throw $e;
 				} else {
-					return $this->container['exception.controller']->exception404Action();
+					return $this->container['exception.controller']->exception404Action($e);
 				}
 			}
 
@@ -100,7 +100,7 @@ class HttpKernel implements ContainerAware
 			if ($this->container->getParameter('debug')) {
 				throw $e;
 			} else {
-				return $this->container['exception.controller']->exception500Action();
+				return $this->container['exception.controller']->exception500Action($e);
 			}
 		}
 	}

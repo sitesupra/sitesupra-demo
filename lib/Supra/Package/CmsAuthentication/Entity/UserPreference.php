@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\User\Entity;
+namespace Supra\Package\CmsAuthentication\Entity;
 
 use Supra\Database\Entity;
 use Supra\User\Exception;
@@ -25,7 +25,7 @@ class UserPreference extends Entity
 	protected $value;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\User\Entity\UserPreferencesCollection", inversedBy="preferences")
+	 * @ManyToOne(targetEntity="Supra\Package\CmsAuthentication\Entity\UserPreferencesCollection", inversedBy="preferences")
 	 * @var UserPreferencesCollection
 	 */
 	protected $collection;

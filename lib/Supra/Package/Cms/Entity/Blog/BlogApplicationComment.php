@@ -3,8 +3,8 @@
 namespace Supra\Package\Cms\Entity\Blog;
 
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Controller\Pages\Blog\BlogApplication;
-use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Pages\Application\BlogPageApplication;
 
 /**
  * @Entity
@@ -64,7 +64,7 @@ class BlogApplicationComment extends Entity
 	protected $comment;
 	
 	
-	public function __construct(BlogApplication $application) 
+	public function __construct(BlogPageApplication $application)
 	{
 		parent::__construct();
 		
@@ -138,7 +138,7 @@ class BlogApplicationComment extends Entity
 		return $this->comment;
 	}
 	
-	public function setBlogApplication(BlogApplication $application) 
+	public function setBlogApplication(BlogPageApplication $application)
 	{
 		$this->applicationLocalizationId = $application->getApplicationLocalization()
 				->getId();

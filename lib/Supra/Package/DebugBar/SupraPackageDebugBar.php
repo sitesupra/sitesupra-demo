@@ -18,6 +18,10 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 {
 	public function inject(ContainerInterface $container)
 	{
+		if (!$container->getParameter('debug')) {
+			return;
+		}
+
 		$container[$this->name.'.session_collector'] = function () {
 			return new SessionCollector();
 		};
@@ -58,6 +62,10 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 
 	public function boot()
 	{
+		if (!$this->container->getParameter('debug')) {
+			return;
+		}
+
 		//instantiate doctrine collector by hand
 		$this->container[$this->name.'.doctrine_collector'];
 	}

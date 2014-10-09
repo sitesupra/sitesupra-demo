@@ -2,8 +2,6 @@
 
 namespace Supra\Package\Cms\Entity;
 
-use Supra\Controller\Pages\Entity\ApplicationLocalization;
-
 /**
  * Application localization parameter
  * @Entity
@@ -75,9 +73,9 @@ class ApplicationLocalizationParameter extends Abstraction\Entity
 	{
 		$this->value = $value;
 	}
-	
+
 	/**
-	 * @param \Supra\Controller\Pages\Entity\ApplicationLocalization $page
+	 * @param ApplicationLocalization $localization
 	 */
 	public function setApplicationLocalization(ApplicationLocalization $localization)
 	{

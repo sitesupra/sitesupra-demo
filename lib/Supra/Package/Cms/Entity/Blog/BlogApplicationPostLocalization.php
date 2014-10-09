@@ -3,8 +3,8 @@
 namespace Supra\Package\Cms\Entity\Blog;
 
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Controller\Pages\Blog\BlogApplication;
-use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Pages\Application\BlogPageApplication;
 
 /**
  * @Entity
@@ -34,21 +34,21 @@ class BlogApplicationPostLocalization extends Entity
 	 * @var string 
 	 */
 	protected $authorSupraUserId;
-	
+
 
 	/**
-	 * @param \Supra\Controller\Pages\Blog\BlogApplication $application
+	 * @param BlogPageApplication $application
 	 */
-	public function __construct(BlogApplication $application) 
+	public function __construct(BlogPageApplication $application)
 	{
 		parent::__construct();
 		
 		$this->applicationLocalizationId = $application->getApplicationLocalization()
 				->getId();
 	}
-	
+
 	/**
-	 * @param \Supra\Controller\Pages\Entity\PageLocalization $localization
+	 * @param PageLocalization $localization
 	 */
 	public function setPageLocalization(PageLocalization $localization)
 	{
@@ -64,7 +64,7 @@ class BlogApplicationPostLocalization extends Entity
 	}
 	
 	/**
-	 * @param \Supra\Controller\Pages\Entity\Blog\BlogApplicationUser $user
+	 * @param \Supra\Package\Cms\Entity\Blog\BlogApplicationUser $user
 	 */
 	public function setAuthor(BlogApplicationUser $user)
 	{

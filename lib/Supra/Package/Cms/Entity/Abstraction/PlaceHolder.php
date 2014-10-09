@@ -4,9 +4,9 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Controller\Pages\Exception;
-use Supra\Controller\Pages\Entity\PagePlaceHolder;
-use Supra\Controller\Pages\Entity\TemplatePlaceHolder;
-use Supra\Controller\Pages\Entity\PlaceHolderGroup;
+use Supra\Package\Cms\Entity\PagePlaceHolder;
+use Supra\Package\Cms\Entity\PlaceHolderGroup;
+use Supra\Package\Cms\Entity\TemplatePlaceHolder;
 
 /**
  * Page and template place holder data abstraction
@@ -38,7 +38,6 @@ abstract class PlaceHolder extends VersionedEntity implements
 	
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\PlaceHolderGroup", inversedBy="placeholders", cascade={"persist"})
-	 * @var \Supra\Controller\Pages\Entity\PlaceHolderGroup
 	 */
 	protected $group;
 	
@@ -317,19 +316,19 @@ abstract class PlaceHolder extends VersionedEntity implements
 	{
 		return $this->localization;
 	}
-	
+
 	/**
-	 * @return \Supra\Controller\Pages\Entity\PlaceHolderGroup
+	 * @return mixed
 	 */
 	public function getGroup()
 	{
 		return $this->group;
 	}
-	
+
 	/**
-	 * @param \Supra\Controller\Pages\Entity\PlaceHolderGroup $group
+	 * @param PlaceHolderGroup $group
 	 */
-	public function setGroup(\Supra\Controller\Pages\Entity\PlaceHolderGroup $group)
+	public function setGroup(PlaceHolderGroup $group)
 	{
 		$this->group = $group;
 		$group->addPlaceholder($this);

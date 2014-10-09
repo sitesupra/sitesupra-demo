@@ -2,8 +2,7 @@
 
 namespace Supra\Package\CmsAuthentication\Entity;
 
-use Supra\Locale\LocaleInterface;
-use DateTime;
+use Supra\Core\Locale\LocaleInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -76,7 +75,7 @@ class User extends AbstractUser implements UserInterface
 
 	/**
 	 * User settings collection
-	 * @OneToOne(targetEntity="Supra\User\Entity\UserPreferencesCollection", cascade={"all"})
+	 * @OneToOne(targetEntity="Supra\Package\CmsAuthentication\Entity\UserPreferencesCollection", cascade={"all"})
 	 * @JoinColumn(name="preferences_collection_id", referencedColumnName="id", nullable=true)
 	 * @var UserPreferencesCollection
 	 */
@@ -176,7 +175,7 @@ class User extends AbstractUser implements UserInterface
 		$this->password = $password;
 		
 		// password expiration related
-		$this->lastPasswordChangeTime = new DateTime('now');
+		$this->lastPasswordChangeTime = new \DateTime('now');
 		$this->forcePasswordChange = false;
 	}
 	
@@ -253,10 +252,10 @@ class User extends AbstractUser implements UserInterface
 	 * Sets user last logged in time 
 	 * @param \DateTime $time
 	 */
-	public function setLastLoginTime(DateTime $time = null)
+	public function setLastLoginTime(\DateTime $time = null)
 	{
 		if (is_null($time)) {
-			$time = new DateTime();
+			$time = new \DateTime();
 		}
 		$this->lastLoginTime = $time;
 	}

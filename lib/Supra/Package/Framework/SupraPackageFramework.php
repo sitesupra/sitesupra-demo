@@ -19,6 +19,7 @@ use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\ContainerDumpCommand;
 use Supra\Package\Framework\Command\ContainerPackagesListCommand;
+use Supra\Package\Framework\Command\DoctrineGenerateProxiesCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaCreateCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaDropCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaUpdateCommand;
@@ -42,6 +43,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getConsole()->add(new DoctrineSchemaUpdateCommand());
 		$container->getConsole()->add(new DoctrineSchemaDropCommand());
 		$container->getConsole()->add(new DoctrineSchemaCreateCommand());
+		$container->getConsole()->add(new DoctrineGenerateProxiesCommand());
 
 		//include supra helpers
 		$cmsExtension = new CmsExtension();
@@ -148,10 +150,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 
 			$configuration = Setup::createAnnotationMetadataConfiguration($paths,
 				$container->getParameter('debug'),
-				//todo: use general supra path
-				sys_get_temp_dir(),
-				//todo: configure cache with config
-				null
+				$container->getParameter('directories.cache') . DIRECTORY_SEPARATOR . 'doctrine'
 			);
 
 			//Foo:Bar -> \FooPackage\Entity\Bar aliases

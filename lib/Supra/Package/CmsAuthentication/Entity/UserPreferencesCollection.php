@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\User\Entity;
+namespace Supra\Package\CmsAuthentication\Entity;
 
 use Supra\Database\Entity;
 use Doctrine\Common\Collections;
@@ -14,7 +14,7 @@ class UserPreferencesCollection extends Entity
 
 	/**
 	 * User settings collection
-	 * @OneToMany(targetEntity="Supra\User\Entity\UserPreference", mappedBy="collection", cascade={"all"}, indexBy="name")
+	 * @OneToMany(targetEntity="Supra\Package\CmsAuthentication\Entity\UserPreference", mappedBy="collection", cascade={"all"}, indexBy="name")
 	 * @var Collections\Collection
 	 */
 	protected $preferences;

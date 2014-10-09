@@ -15,18 +15,19 @@ class Templating implements ContainerAware
 	protected $container;
 
 	/**
+	 * @var \Twig_Environment
+	 */
+	protected $twig;
+
+	/**
 	 * @param ContainerInterface $container
 	 */
 	public function setContainer(ContainerInterface $container)
 	{
 		$this->container = $container;
 		$this->twig->getLoader()->setContainer($container);
+		$this->twig->setCache($container->getParameter('directories.cache') . DIRECTORY_SEPARATOR . 'twig');
 	}
-
-	/**
-	 * @var \Twig_Environment
-	 */
-	protected $twig;
 
 	public function __construct()
 	{
