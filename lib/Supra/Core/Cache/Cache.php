@@ -56,8 +56,7 @@ class Cache implements ContainerAware
 	 */
 	public function fetch($prefix, $key, $default = null, $timestamp = 0, $ttl = 0, $respectDebug = false)
 	{
-		if ($respectDebug && false) {
-			//@todo: bind to kernel debug here
+		if ($respectDebug && $this->container->getParameter('debug')) {
 			return $this->store($prefix, $key, $default, $timestamp, $ttl);
 		}
 
