@@ -229,6 +229,11 @@ abstract class  Supra extends ContainerBuilder
 			DIRECTORY_SEPARATOR .
 			'web'
 		);
+		$this->container->setParameter('directories.public',
+			$this->container->getParameter('directories.web') .
+			DIRECTORY_SEPARATOR .
+			'public'
+		);
 
 		$container->setParameter('environment', $this->environment);
 		$container->setParameter('debug', $this->debug);

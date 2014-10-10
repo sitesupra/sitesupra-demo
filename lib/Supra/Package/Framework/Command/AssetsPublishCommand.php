@@ -24,7 +24,11 @@ class AssetsPublishCommand extends AbstractCommand
 
 		foreach ($application->getPackages() as $package) {
 			$target = $application->locatePublicFolder($package);
-			$link = $webRoot . '/public/' . $package->getName();
+			$link = $this->container->getParameter('directories.public') . DIRECTORY_SEPARATOR . $package->getName();
+
+			if (!is_dir($this->container->getParameter('directories.public'))) {
+				mkdir($this->container->getParameter('directories.public'), 0777, true);
+			}
 
 			if (is_dir($target)) {
 				$output->writeln(sprintf(
