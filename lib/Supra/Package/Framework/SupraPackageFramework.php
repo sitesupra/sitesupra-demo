@@ -5,6 +5,7 @@ namespace Supra\Package\Framework;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOMySql;
+use Doctrine\DBAL\Logging\LoggerChain;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
@@ -92,6 +93,16 @@ class SupraPackageFramework extends AbstractSupraPackage
 			array($container[$this->name.'.locale_detector_listener'], 'listen')
 		);
 
+		$container['doctrine.logger'] = function (ContainerInterface $container) {
+			$logger = new LoggerChain();
+
+			$configuration = $container['doctrine.configuration'];
+
+			$configuration->setSqlLogger($logger);
+
+			return $logger;
+		};
+
 		//configure and register assetic
 		//$factory = new AssetFactory($container->getApplication()->getWebRoot());
 		//$container->getTemplating()->addExtension(new AsseticExtension($factory));
@@ -145,6 +156,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$application = $container->getApplication();
 
 		$container['doctrine.configuration'] = function (ContainerInterface $container) use ($ormConfigurationDefinition, $application) {
+
 			//loading package directories
 			$packages = $application->getPackages();
 

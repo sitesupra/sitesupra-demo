@@ -2,6 +2,7 @@
 
 namespace Supra\Core\DependencyInjection;
 
+use Monolog\Logger;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Doctrine\ManagerRegistry;
@@ -12,6 +13,11 @@ use Symfony\Component\HttpKernel\Kernel;
 
 interface ContainerInterface
 {
+	/**
+	 * @return Logger
+	 */
+	public function getLogger();
+
 	/**
 	 * @return Kernel
 	 */

@@ -2,12 +2,15 @@
 
 namespace Supra\Core;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Supra\Core\Configuration\Exception\ReferenceException;
 use Supra\Core\Configuration\UniversalConfigLoader;
 use Supra\Core\Controller\ExceptionController;
 use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerBuilder;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Doctrine\Logger\DebugLogger;
 use Supra\Core\Kernel\HttpKernel;
 use Supra\Core\Package\SupraPackageInterface;
 use Supra\Core\Routing\Router;
@@ -209,31 +212,7 @@ abstract class  Supra extends ContainerBuilder
 		//getting container instance, configuring services
 		$this->container = $container = new Container();
 
-		//dirs
-		$reflection = new \ReflectionClass($this);
-
-		$this->container->setParameter('directories.supra_root', dirname($reflection->getFileName()));
-		$this->container->setParameter('directories.project_root', dirname($this->container->getParameter('directories.supra_root')));
-		$this->container->setParameter('directories.storage',
-			$this->container->getParameter('directories.project_root') .
-				DIRECTORY_SEPARATOR .
-				'storage'
-		);
-		$this->container->setParameter('directories.cache',
-			$this->container->getParameter('directories.storage') .
-			DIRECTORY_SEPARATOR .
-			'cache'
-		);
-		$this->container->setParameter('directories.web',
-			$this->container->getParameter('directories.project_root') .
-			DIRECTORY_SEPARATOR .
-			'web'
-		);
-		$this->container->setParameter('directories.public',
-			$this->container->getParameter('directories.web') .
-			DIRECTORY_SEPARATOR .
-			'public'
-		);
+		$this->buildDirectories();
 
 		$container->setParameter('environment', $this->environment);
 		$container->setParameter('debug', $this->debug);
@@ -242,7 +221,7 @@ abstract class  Supra extends ContainerBuilder
 		//routing configuration
 		$container['config.universal_loader'] = new UniversalConfigLoader();
 		$container['routing.router'] = new Router();
-		$container['kernel'] = function ($container) {
+		$container['kernel.kernel'] = function ($container) {
 			return new HttpKernel();
 		};
 		$container['exception.controller'] = function () {
@@ -253,6 +232,7 @@ abstract class  Supra extends ContainerBuilder
 		//this actually must be based upon some config and there should be an option to override everything
 		$this->buildHttpFoundation($container);
 		$this->buildCache($container);
+		$this->buildLogger($container);
 		$this->buildEvents($container);
 		$this->buildCli($container);
 		$this->buildTemplating($container);
@@ -395,6 +375,69 @@ abstract class  Supra extends ContainerBuilder
 		$package = str_replace(array('Supra', 'Package'), '', $package);
 
 		return $package;
+	}
+
+	/**
+	 * Sets up package directories contents
+	 */
+	protected function buildDirectories()
+	{
+		$reflection = new \ReflectionClass($this);
+
+		$this->container->setParameter('directories.supra_root', dirname($reflection->getFileName()));
+		$this->container->setParameter('directories.project_root', dirname($this->container->getParameter('directories.supra_root')));
+		$this->container->setParameter('directories.storage',
+			$this->container->getParameter('directories.project_root') .
+			DIRECTORY_SEPARATOR .
+			'storage'
+		);
+		$this->container->setParameter('directories.cache',
+			$this->container->getParameter('directories.storage') .
+			DIRECTORY_SEPARATOR .
+			'cache'
+		);
+		$this->container->setParameter('directories.web',
+			$this->container->getParameter('directories.project_root') .
+			DIRECTORY_SEPARATOR .
+			'web'
+		);
+		$this->container->setParameter('directories.public',
+			$this->container->getParameter('directories.web') .
+			DIRECTORY_SEPARATOR .
+			'public'
+		);
+	}
+
+	/**
+	 * @todo: move to framwrok config, as always
+	 * @param ContainerInterface $container
+	 */
+	protected function buildLogger(ContainerInterface $container)
+	{
+		$container['logger.logger'] = function (ContainerInterface $container) {
+			$logger = new Logger('supra');
+
+			if ($container->getParameter('debug')) {
+				$sqlLogger = new DebugLogger();
+				$sqlLogger->setContainer($container);
+
+				//$container['doctrine.logger']->addLogger($sqlLogger);
+
+				$logger->pushHandler(new StreamHandler(
+					$container->getParameter('directories.storage').DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.
+						$container->getParameter('environment').'.log',
+					Logger::DEBUG
+				));
+			} else {
+				$logger->pushHandler(new StreamHandler(
+					$container->getParameter('directories.storage').DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.
+					$container->getParameter('environment').'.log',
+					Logger::ERROR
+				));
+			}
+
+			return $logger;
+		};
 	}
 
 	/**

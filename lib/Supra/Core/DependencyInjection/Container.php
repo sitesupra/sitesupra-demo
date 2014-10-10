@@ -2,6 +2,7 @@
 
 namespace Supra\Core\DependencyInjection;
 
+use Monolog\Logger;
 use Pimple\Container as BaseContainer;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Configuration\Exception\ReferenceException;
@@ -31,11 +32,19 @@ class Container extends BaseContainer implements ContainerInterface
 	}
 
 	/**
+	 * @return Logger
+	 */
+	public function getLogger()
+	{
+		return $this['logger.logger'];
+	}
+
+	/**
 	 * @return Kernel
 	 */
 	public function getKernel()
 	{
-		return $this['kernel'];
+		return $this['kernel.kernel'];
 	}
 
 	/**

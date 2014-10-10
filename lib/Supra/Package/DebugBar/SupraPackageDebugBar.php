@@ -33,9 +33,7 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 		$container[$this->name.'.doctrine_collector'] = function (ContainerInterface $container) {
 			$debugStack = new DebugStack();
 
-			foreach ($container->getDoctrine()->getConnections() as $con) {
-				$con->getConfiguration()->setSqlLogger($debugStack);
-			}
+			$container['doctrine.logger']->addLogger($debugStack);
 
 			return new DoctrineCollector($debugStack);
 		};
