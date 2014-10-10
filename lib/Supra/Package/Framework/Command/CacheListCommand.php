@@ -21,15 +21,29 @@ class CacheListCommand extends AbstractCommand
 
 		$table = new Table($output);
 
-		$table->setHeaders(array('Directory', 'Size'));
+		$table->setHeaders(array('Directory', 'Size', 'Files'));
 
 		foreach (glob($cacheDir.'/*') as $dir) {
+			list($size, $count) = $this->dirMetrics($dir);
 			$table->addRow(array(
 				basename($dir),
-				0
+				sprintf('%.2fM', $size / 1024 / 1024),
+				$count
 			));
 		}
 
 		$table->render();
+	}
+
+	protected function dirMetrics($dir)
+	{
+		$size = $count = 0;
+
+		foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)) as $file) {
+			$count ++;
+			$size += $file->getSize();
+		}
+
+		return array($size, $count);
 	}
 }
