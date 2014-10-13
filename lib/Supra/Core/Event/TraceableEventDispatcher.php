@@ -30,6 +30,14 @@ class TraceableEventDispatcher extends EventDispatcher implements ContainerAware
 	{
 		$this->logEvent($eventName, $event);
 
+		$eventId = 'event_'.$eventName . (is_object($event) ? spl_object_hash($event) : 'null');
+
+		//log this into debugbar if provided
+		if (isset($this->container['debug_bar.debug_bar'])) {
+			$this->container['debug_bar.debug_bar']['time']
+				->startMeasure($eventId, 'Event: '.$eventName);
+		}
+
 		$listeners = array();
 
 		foreach ($this->getListeners($eventName) as $callable) {
@@ -49,11 +57,22 @@ class TraceableEventDispatcher extends EventDispatcher implements ContainerAware
 			'event' => $event
 		);
 
-		return parent::dispatch($eventName, $event);
+		$result = parent::dispatch($eventName, $event);
+
+		if (isset($this->container['debug_bar.debug_bar'])) {
+			if ($this->container['debug_bar.debug_bar']['time']->hasStartedMeasure($eventId)) {
+				//yes, this can happen because of stopPropagation() call
+				$this->container['debug_bar.debug_bar']['time']
+					->stopMeasure($eventId);
+			}
+		}
+
+		return $result;
 	}
 
 	protected function logEvent($name, $event)
 	{
+		//log this into monolog
 		$context = array();
 
 		if ($event instanceof RequestResponseEvent) {

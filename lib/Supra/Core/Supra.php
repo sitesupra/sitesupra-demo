@@ -11,15 +11,23 @@ use Supra\Core\DependencyInjection\Container;
 use Supra\Core\DependencyInjection\ContainerBuilder;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Doctrine\Logger\DebugLogger;
+use Supra\Core\Event\DataAgnosticEvent;
 use Supra\Core\Kernel\HttpKernel;
 use Supra\Core\Package\SupraPackageInterface;
 use Supra\Core\Routing\Router;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Debug\Debug;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class  Supra extends ContainerBuilder
 {
+	const EVENT_CONTAINER_BUILD_COMPLETE = 'supra_container_done';
+	const EVENT_BOOT_START = 'supra.boot_start';
+	const EVENT_BOOT_END = 'supra.boot_end';
+	const EVENT_SHUTDOWN_START = 'supra.shutdown';
+	const EVENT_SHUTDOWN_END = 'supra_shutdown';
+
 	/**
 	 * DI container
 	 *
@@ -247,23 +255,35 @@ abstract class  Supra extends ContainerBuilder
 		//last pass to change something or created services based on finished configuration
 		$this->finish($container);
 
+		$buildEvent = new DataAgnosticEvent();
+		$buildEvent->setData($container);
+		$this->container->getEventDispatcher()->dispatch(Supra::EVENT_CONTAINER_BUILD_COMPLETE, $buildEvent);
+
 		return $container;
 	}
 
 	public function boot()
 	{
+		$this->container->getEventDispatcher()->dispatch(Supra::EVENT_BOOT_START);
+
 		//boot packages
 		foreach ($this->getPackages() as $package) {
 			$package->setContainer($this->container);
 			$package->boot();
 		}
+
+		$this->container->getEventDispatcher()->dispatch(Supra::EVENT_BOOT_END);
 	}
 
 	public function shutdown()
 	{
+		$this->container->getEventDispatcher()->dispatch(Supra::EVENT_SHUTDOWN_START);
+
 		foreach ($this->getPackages() as $package) {
 			$package->shutdown();
 		}
+
+		$this->container->getEventDispatcher()->dispatch(Supra::EVENT_SHUTDOWN_END);
 
 		$this->container = null;
 		$this->environment = null;
@@ -346,7 +366,7 @@ abstract class  Supra extends ContainerBuilder
 	}
 
 	/**
-	 * Returns wwwroot. Hardcode currently
+	 * Returns wwwroot.
 	 *
 	 * @todo: move this to container params
 	 * @return string

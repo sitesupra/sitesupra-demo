@@ -4,6 +4,7 @@ namespace Supra\Core\Kernel;
 
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Event\ControllerEvent;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Event\RequestResponseEvent;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -61,8 +62,19 @@ class HttpKernel implements ContainerAware
 
 				$action = $controllerDefinition['action'];
 
-				//todo: here we should fire 2 events: generic http.response and controller.response before that
+				$controllerEvent = new ControllerEvent();
+				$controllerEvent->setController($controllerObject);
+				$controllerEvent->setAction($action);
+
+				$this->container->getEventDispatcher()->dispatch(KernelEvent::CONTROLLER_START, $controllerEvent);
+
 				$response = $controllerObject->$action($request);
+
+				$controllerEvent->setResponse($response);
+
+				$this->container->getEventDispatcher()->dispatch(KernelEvent::CONTROLLER_END, $controllerEvent);
+
+				$response = $controllerEvent->getResponse();
 			}
 
 			$responseEvent = new RequestResponseEvent();

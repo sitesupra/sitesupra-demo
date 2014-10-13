@@ -10,6 +10,7 @@ use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Package\DebugBar\Collector\EventCollector;
 use Supra\Package\DebugBar\Collector\SessionCollector;
+use Supra\Package\DebugBar\Collector\TimelineCollector;
 use Supra\Package\DebugBar\Event\Listener\AssetsPublishEventListener;
 use Supra\Package\DebugBar\Event\Listener\DebugBarResponseListener;
 use Supra\Package\Framework\Event\FrameworkConsoleEvent;
@@ -24,6 +25,10 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 
 		$container[$this->name.'.session_collector'] = function () {
 			return new SessionCollector();
+		};
+
+		$container[$this->name.'.timeline_collector'] = function () {
+			return new TimelineCollector();
 		};
 
 		$container[$this->name.'.event_collector'] = function () {
@@ -58,6 +63,10 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 
 		$container->getEventDispatcher()
 			->addListener(FrameworkConsoleEvent::ASSETS_PUBLISH, array($container[$this->name.'.assets_listener'], 'listen'));
+
+		//timeline collector binds to many events at once
+		$container->getEventDispatcher()
+			->addSubscriber($container[$this->name.'.timeline_collector']);
 	}
 
 	public function boot()
