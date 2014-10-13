@@ -18,7 +18,7 @@ class DebugLogger implements  SQLLogger, ContainerAware
 	 */
 	public function setContainer(ContainerInterface $container)
 	{
-		// TODO: Implement setContainer() method.
+		$this->container = $container;
 	}
 
 	/**

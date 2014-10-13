@@ -414,14 +414,16 @@ abstract class  Supra extends ContainerBuilder
 	 */
 	protected function buildLogger(ContainerInterface $container)
 	{
+		$container['logger.doctrine'] = function (ContainerInterface $container) {
+			return new DebugLogger();
+		};
+
 		$container['logger.logger'] = function (ContainerInterface $container) {
 			$logger = new Logger('supra');
 
 			if ($container->getParameter('debug')) {
 				$sqlLogger = new DebugLogger();
 				$sqlLogger->setContainer($container);
-
-				//$container['doctrine.logger']->addLogger($sqlLogger);
 
 				$logger->pushHandler(new StreamHandler(
 					$container->getParameter('directories.storage').DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR.

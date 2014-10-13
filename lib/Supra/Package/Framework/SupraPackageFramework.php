@@ -93,15 +93,14 @@ class SupraPackageFramework extends AbstractSupraPackage
 			array($container[$this->name.'.locale_detector_listener'], 'listen')
 		);
 
-		$container['doctrine.logger'] = function (ContainerInterface $container) {
-			$logger = new LoggerChain();
+		//prepare logger to use with other bundles
+		if ($container->getParameter('debug')) {
+			$container['doctrine.logger'] = function (ContainerInterface $container) {
+				$logger = new LoggerChain();
 
-			$configuration = $container['doctrine.configuration'];
-
-			$configuration->setSqlLogger($logger);
-
-			return $logger;
-		};
+				return $logger;
+			};
+		}
 
 		//configure and register assetic
 		//$factory = new AssetFactory($container->getApplication()->getWebRoot());
@@ -156,7 +155,6 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$application = $container->getApplication();
 
 		$container['doctrine.configuration'] = function (ContainerInterface $container) use ($ormConfigurationDefinition, $application) {
-
 			//loading package directories
 			$packages = $application->getPackages();
 
@@ -174,6 +172,14 @@ class SupraPackageFramework extends AbstractSupraPackage
 				$container->getParameter('debug'),
 				$container->getParameter('directories.cache') . DIRECTORY_SEPARATOR . 'doctrine'
 			);
+
+			if ($container->getParameter('debug')) {
+				$logger = $container['logger.doctrine'];
+
+				$container['doctrine.logger']->addLogger($logger);
+
+				$configuration->setSQLLogger($container['doctrine.logger']);
+			}
 
 			//Foo:Bar -> \FooPackage\Entity\Bar aliases
 			foreach ($packages as $package) {

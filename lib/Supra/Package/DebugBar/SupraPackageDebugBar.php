@@ -38,6 +38,8 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 			return new DoctrineCollector($debugStack);
 		};
 
+		$container[$this->name.'.doctrine_collector'];
+
 		$container[$this->name.'.debug_bar'] = function ($container) {
 			$debugBar = new StandardDebugBar();
 
