@@ -34,6 +34,13 @@ class EventCollector extends DataCollector implements Renderable, ContainerAware
 		$dataFormatter = $this->getDataFormatter();
 
 		return array_map (function ($value) use ($dataFormatter) {
+			$value = array(
+				'name' => $value['name'],
+				'timestamp' => $value['timestamp'],
+				'listeners' => $value['listeners'],
+				'event' => $value['event'] ? get_class($value['event']) : 'unknown'
+			);
+
 			return $dataFormatter->formatVar($value);
 		}, $events);
 	}

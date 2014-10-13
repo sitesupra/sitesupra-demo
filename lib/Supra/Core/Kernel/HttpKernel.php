@@ -84,6 +84,8 @@ class HttpKernel implements ContainerAware
 				$this->container->getEventDispatcher()->dispatch(KernelEvent::ERROR404, $notFoundEvent);
 
 				if($notFoundEvent->hasResponse()) {
+					$this->container->getEventDispatcher()->dispatch(KernelEvent::RESPONSE, $notFoundEvent);
+
 					return $notFoundEvent->getResponse();
 				}
 

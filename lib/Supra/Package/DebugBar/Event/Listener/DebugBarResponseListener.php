@@ -24,31 +24,40 @@ class DebugBarResponseListener implements ContainerAware, RequestResponseListene
 	 */
 	public function listen(RequestResponseEvent $event)
 	{
+		$request = $event->getRequest();
 		$response = $event->getResponse();
 
-		if ($response->headers->get('content-type') &&
-			$response->headers->get('content-type') != 'text/html') {
-			return;
+		if ($request->isXmlHttpRequest()) {
+			//handle with ajax
+			$debugBar = $this->container['debug_bar.debug_bar'];
+
+			$response->headers->add($debugBar->getDataAsHeaders());
+		} else {
+			//replace http response
+			if ($response->headers->get('content-type') &&
+				$response->headers->get('content-type') != 'text/html') {
+				return;
+			}
+
+			$debugBar = $this->container['debug_bar.debug_bar'];
+
+			$renderer = $debugBar->getJavascriptRenderer();
+			/* @var $renderer \DebugBar\JavascriptRenderer */
+			$renderer->setBaseUrl('/public/debugbar');
+
+			$body = $event->getResponse()->getContent();
+
+			$body = str_ireplace(
+				array('</head>', '</body>'),
+				array(
+					$renderer->renderHead() . PHP_EOL . '</head>',
+					$renderer->render() . PHP_EOL . '</body>',
+				),
+				$body
+			);
+
+			$response->setContent($body);
 		}
-
-		$debugBar = $this->container['debug_bar.debug_bar'];
-
-		$renderer = $debugBar->getJavascriptRenderer();
-		/* @var $renderer \DebugBar\JavascriptRenderer */
-		$renderer->setBaseUrl('/public/debugbar');
-
-		$body = $event->getResponse()->getContent();
-
-		$body = str_ireplace(
-			array('</head>', '</body>'),
-			array(
-				$renderer->renderHead() . PHP_EOL . '</head>',
-				$renderer->render() . PHP_EOL . '</body>',
-			),
-			$body
-		);
-
-		$response->setContent($body);
 	}
 
 }
