@@ -9,6 +9,7 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Package\DebugBar\Collector\EventCollector;
+use Supra\Package\DebugBar\Collector\MonologCollector;
 use Supra\Package\DebugBar\Collector\SessionCollector;
 use Supra\Package\DebugBar\Collector\TimelineCollector;
 use Supra\Package\DebugBar\Event\Listener\AssetsPublishEventListener;
@@ -35,6 +36,10 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 			return new EventCollector();
 		};
 
+		$container[$this->name.'.monolog_collector'] = function (ContainerInterface $container) {
+			return new MonologCollector($container->getLogger());
+		};
+
 		$container[$this->name.'.doctrine_collector'] = function (ContainerInterface $container) {
 			$debugStack = new DebugStack();
 
@@ -51,6 +56,7 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 			$debugBar->addCollector($container[$this->name.'.session_collector']);
 			$debugBar->addCollector($container[$this->name.'.doctrine_collector']);
 			$debugBar->addCollector($container[$this->name.'.event_collector']);
+			$debugBar->addCollector($container[$this->name.'.monolog_collector']);
 
 			return $debugBar;
 		};
@@ -77,6 +83,7 @@ class SupraPackageDebugBar extends AbstractSupraPackage
 
 		//instantiate doctrine collector by hand
 		$this->container[$this->name.'.doctrine_collector'];
+		$this->container[$this->name.'.monolog_collector'];
 	}
 
 }
