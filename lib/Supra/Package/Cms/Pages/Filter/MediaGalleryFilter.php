@@ -45,7 +45,6 @@ class MediaGalleryFilter implements FilterInterface
 //		$itemsData = unserialize($value);
 	
 //		if ($itemsData === false) {
-//			\Log::warn('Failed to unserialize MediaGallery property value');
 //			return null;
 //		}
 		
@@ -151,8 +150,6 @@ class MediaGalleryFilter implements FilterInterface
 		$image = $fsEm->find(\Supra\FileStorage\Entity\Image::CN(), $imageId);
 
 		if ( ! $image instanceof \Supra\FileStorage\Entity\Image) {
-			\Log::warn("Image by ID $imageId was not found inside the file storage specified." .
-					" Maybe another file storage must be configured for the image size creator listener?");
 
 			return;
 		}
