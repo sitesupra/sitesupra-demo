@@ -34,6 +34,7 @@ class SupraPackageCmsAuthenticationConfiguration extends AbstractPackageConfigur
 		$definition = new ArrayNodeDefinition('users');
 
 		$definition->children()
+				->scalarNode('default_domain')->isRequired()->end()
 				->arrayNode('shared_connection')
 					->performNoDeepMerging()
 					->children()

@@ -3,6 +3,7 @@
 namespace Supra\Package\CmsAuthentication\Entity;
 
 use Supra\Core\Locale\LocaleInterface;
+use Supra\Package\Cms\Entity\Abstraction\TimestampableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**

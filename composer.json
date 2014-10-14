@@ -31,7 +31,8 @@
         "pimple/pimple": "~3.0",
         "d11wtq/boris": "1.0.*",
         "maximebf/debugbar": "1.*",
-        "monolog/monolog": "1.*"
+        "monolog/monolog": "1.*",
+        "nelmio/alice": "1.*"
     },
     "autoload": {
         "psr-0": {

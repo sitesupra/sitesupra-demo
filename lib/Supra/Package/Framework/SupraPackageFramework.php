@@ -30,6 +30,7 @@ use Supra\Package\Framework\Command\DoctrineSchemaCreateCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaDropCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaUpdateCommand;
 use Supra\Package\Framework\Command\RoutingListCommand;
+use Supra\Package\Framework\Command\SupraBootstrapCommand;
 use Supra\Package\Framework\Command\SupraShellCommand;
 use Supra\Package\Framework\Listener\NotFoundAssetExceptionListener;
 use Supra\Package\Framework\Twig\FrameworkExtension;
@@ -55,6 +56,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getConsole()->add(new DoctrineCacheClearResultCommand());
 		$container->getConsole()->add(new CacheListCommand());
 		$container->getConsole()->add(new CacheClearCommand());
+		$container->getConsole()->add(new SupraBootstrapCommand());
 
 		//include supra helpers
 		$cmsExtension = new CmsExtension();

@@ -5,7 +5,6 @@ namespace Supra\Package\CmsAuthentication;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
-use Supra\Core\Package\PackageLocator;
 use Supra\Package\CmsAuthentication\Application\CmsAuthenticationApplication;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationRequestListener;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationResponseListener;
@@ -75,6 +74,16 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 			return new AccessDecisionManager($container['cms_authentication.users.voters']);
 		};
 
+		$container['cms_authentication.encoder_factory'] = function (ContainerInterface $container) {
+			$encoders = array();
+
+			foreach ($container->getParameter('cms_authentication.users.password_encoders') as $user => $encoderClass) {
+				$encoders[$user] = new $encoderClass();
+			}
+
+			return new EncoderFactory($encoders);
+		};
+
 		$container['cms_authentication.users.authentication_manager'] = function (ContainerInterface $container) {
 			$providers = array();
 
@@ -84,19 +93,14 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 				}
 
 				foreach ($providersDefinition as $name => $providerDefinition) {
-					$providers[] = $container->getDoctrine()->getManager($providerDefinition['em'])
+					$provider = $container->getDoctrine()->getManager($providerDefinition['em'])
 						->getRepository($providerDefinition['entity']);
+					$provider->setDefaultDomain($container->getParameter('cms_authentication.users.default_domain'));
+
+					$providers[] = $provider;
 				}
 
 				$chainProvider = new ChainUserProvider($providers);
-
-				$encoders = array();
-
-				foreach ($container->getParameter('cms_authentication.users.password_encoders') as $user => $encoderClass) {
-					$encoders[$user] = new $encoderClass();
-				}
-
-				$encoderFactory = new EncoderFactory($encoders);
 
 				$realProviders = array(
 					new AnonymousAuthenticationProvider(uniqid()),
@@ -104,7 +108,7 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 						$chainProvider,
 						new UserChecker(),
 						$container->getParameter('cms_authentication.provider_key'),
-						$encoderFactory
+						$container['cms_authentication.encoder_factory']
 					)
 				);
 
