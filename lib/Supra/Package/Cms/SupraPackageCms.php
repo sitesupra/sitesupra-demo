@@ -38,8 +38,6 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
 		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
 
-		$this->injectDraftEntityManager($container);
-
 		// Page Apps Manager
 		$container[$this->name . '.pages.page_application_manager'] = function () {
 
@@ -54,6 +52,28 @@ class SupraPackageCms extends AbstractSupraPackage
 		$frameworkConfiguration = $container->getApplication()->getConfigurationSection('framework');
 
 		$frameworkConfiguration['doctrine']['event_managers']['public']['subscribers'][] = 'supra.cms.doctrine.event_subscriber.timestampable';
+
+		$frameworkConfiguration['doctrine']['event_managers']['cms'] = array_merge_recursive(
+			$frameworkConfiguration['doctrine']['event_managers']['public'],
+			array(
+				'subscribers' => array(
+					'supra.cms.doctrine.event_subscriber.versioned_entity_schema',
+					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter'
+				)
+			)
+		);
+
+		$frameworkConfiguration['doctrine']['connections']['cms'] = array_merge(
+			$frameworkConfiguration['doctrine']['connections']['default'],
+			array(
+				'event_manager' => 'cms'
+			)
+		);
+
+		$frameworkConfiguration['doctrine']['entity_managers']['cms'] = array(
+			'connection' => 'cms',
+			'event_manager' => 'cms'
+		);
 
 		// Theme Provider
 		$container[$this->name . '.pages.theme.provider'] = function () {
@@ -91,56 +111,5 @@ class SupraPackageCms extends AbstractSupraPackage
 
 			return $localeManager;
 		});
-	}
-
-	/**
-	 * @param ContainerInterface $container
-	 */
-	private function injectDraftEntityManager(ContainerInterface $container)
-	{
-		// separate EventManager
-		$container['doctrine.event_managers.cms'] = function (ContainerInterface $container) {
-			
-			$eventManager = clone $container['doctrine.event_managers.public'];
-			/* @var $eventManager \Doctrine\Common\EventManager */
-
-			$eventManager->addEventSubscriber(new VersionedEntitySchemaListener());
-//			$eventManager->addEventSubscriber(new VersionedEntityRevisionSetterListener());
-
-			$eventManager->addEventSubscriber(new TimestampableListener());
-
-			return $eventManager;
-		};
-
-		// separate connection. unfortunately.
-		$container['doctrine.connections.cms'] = function (ContainerInterface $container) {
-
-			// @TODO: clone somehow default connection?
-			$connection = new Connection(
-				array(
-					'host' => 'localhost',
-					'user' => 'root',
-					'password' => 'root',
-					'dbname' => 'supra9'
-				),
-				new PDOMySql\Driver(),
-				$container['doctrine.configuration'],
-				$container['doctrine.event_managers.cms']
-			);
-
-			$connection->getConfiguration()
-					->setSQLLogger(new \Doctrine\DBAL\Logging\DebugStack());
-
-			return $connection;
-		};
-
-		// entity manager
-		$container['doctrine.entity_managers.cms'] = function (ContainerInterface $container) {
-			return EntityManager::create(
-				$container['doctrine.connections.cms'],
-				$container['doctrine.configuration'],
-				$container['doctrine.event_managers.cms']
-			);
-		};
 	}
 }

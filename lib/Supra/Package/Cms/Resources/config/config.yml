@@ -1,6 +1,10 @@
 services:
     supra.cms.doctrine.event_subscriber.timestampable:
         class: \Supra\Package\Cms\Doctrine\Subscriber\TimestampableListener
+    supra.cms.doctrine.event_subscriber.versioned_entity_schema:
+        class: \Supra\Package\Cms\Doctrine\Subscriber\VersionedEntitySchemaListener
+    supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter:
+        class: \Supra\Package\Cms\Doctrine\Subscriber\VersionedEntityRevisionSetterListener
 prefix: /backend
 cms_resources:
     css_pack:
