@@ -65,6 +65,8 @@ doctrine:
             - [path,  \Supra\Core\Doctrine\Type\PathType]
         type_overrides:
             - [array, \Supra\Core\Doctrine\Type\ArrayType]
+        hydrators:
+            - [ColumnHydrator, \Supra\Core\Doctrine\Hydrator\ColumnHydrator]
     connections:
         default:
             host: %framework.doctrine.credentials.hostname%

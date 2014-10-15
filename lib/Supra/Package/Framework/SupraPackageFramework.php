@@ -16,6 +16,7 @@ use Supra\Core\Locale\Locale;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\Listener\LocaleDetectorListener;
+use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\CacheClearCommand;
@@ -230,12 +231,24 @@ class SupraPackageFramework extends AbstractSupraPackage
 		}
 
 		foreach ($doctrineConfig['entity_managers'] as $name => $entityManagerDefinition) {
-			$container['doctrine.entity_managers.'.$name] = function (ContainerInterface $container) use ($entityManagerDefinition) {
-				return EntityManager::create(
+			$container['doctrine.entity_managers.'.$name] = function (ContainerInterface $container) use ($entityManagerDefinition, $doctrineConfig) {
+				$em = EntityManager::create(
 					$container['doctrine.connections.'.$entityManagerDefinition['connection']],
 					$container['doctrine.configuration'],
 					$container['doctrine.event_managers.'.$entityManagerDefinition['event_manager']]
 				);
+
+				foreach ($doctrineConfig['configuration']['hydrators'] as $hydratorDefinition) {
+					list($name, $class) = $hydratorDefinition;
+
+					$reflection = new \ReflectionClass($class);
+
+					$hydrator = $reflection->newInstanceArgs(array($em));
+
+					$container['doctrine.configuration']->addCustomHydrationMode($name, $hydrator);
+				}
+
+				return $em;
 			};
 		}
 
