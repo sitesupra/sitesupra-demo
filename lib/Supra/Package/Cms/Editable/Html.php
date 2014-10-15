@@ -8,7 +8,6 @@ namespace Supra\Package\Cms\Editable;
 class Html extends String
 {
 	const EDITOR_TYPE = 'InlineHTML';
-	const EDITOR_INLINE_EDITABLE = true;
 	
 	/**
 	 * @var array
@@ -87,22 +86,4 @@ class Html extends String
 			'data' => $metaArray,
 		);
 	}
-	
-	/**
-	 * @return array
-	 */
-	public function getFilteredValue()
-	{
-		$content = array(
-			'html' => $this->content,
-			'fonts' => $this->fonts,
-		);
-
-		// Filter the content
-		foreach ($this->filters as $filter) {
-			$content = $filter->filter($content);
-		}
-
-		return $content;
-	}
-	}
+}

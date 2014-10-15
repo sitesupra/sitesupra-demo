@@ -29,14 +29,14 @@ class PageRequestView extends PageRequest
 	 * Overriden with page detection from URL
 	 * @return Entity\Abstraction\Localization
 	 */
-	public function getPageLocalization()
+	public function getLocalization()
 	{
-		$data = parent::getPageLocalization();
+		$data = parent::getLocalization();
 		
 		if (empty($data)) {
 			$data = $this->detectRequestPageLocalization();
 			
-			$this->setPageLocalization($data);
+			$this->setLocalization($data);
 		}
 	
 		return $data;
@@ -92,5 +92,16 @@ class PageRequestView extends PageRequest
 		}
 
 		return $pageLocalization;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getEntityManager()
+	{
+		return $this->container['doctrine.entity_managers.cms'];
+		return $this->container
+				->getDoctrine()
+				->getManager();
 	}
 }

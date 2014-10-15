@@ -13,7 +13,6 @@ class TemplateLocalization extends Abstraction\Localization
 	/**
 	 * {@inheritdoc}
 	 */
-
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 	
 	public function __construct($locale)

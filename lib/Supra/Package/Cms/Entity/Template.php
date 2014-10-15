@@ -93,24 +93,26 @@ class Template extends Abstraction\AbstractPage
 		return $has;
 	}
 
-	/**
-	 * Get layout object by
-	 * @param string $media
-	 * @return ThemeLayout
-	 */
-	public function getLayout($media = TemplateLayout::MEDIA_SCREEN)
-	{
-		$templateLayouts = $this->getTemplateLayouts();
-
-		if ($templateLayouts->offsetExists($media)) {
-			$templateLayout = $templateLayouts->offsetGet($media);
-			/* @var $templateLayout TemplateLayout */
-
-			return $templateLayout->getLayout();
-		}
-
-		throw new Exception\RuntimeException("No layout found for template #{$this->getId()} media '{$media}'");
-	}
+//	/**
+//	 * Get layout object by
+//	 * @param string $media
+//	 * @return ThemeLayout
+//	 */
+//	public function getLayout($media = TemplateLayout::MEDIA_SCREEN)
+//	{
+//		throw new \Exception("Don't use me.");
+//
+//		$templateLayouts = $this->getTemplateLayouts();
+//
+//		if ($templateLayouts->offsetExists($media)) {
+//			$templateLayout = $templateLayouts->offsetGet($media);
+//			/* @var $templateLayout TemplateLayout */
+//
+//			return $templateLayout->getLayout();
+//		}
+//
+//		throw new Exception\RuntimeException("No layout found for template #{$this->getId()} media '{$media}'");
+//	}
 
 	/**
 	 * Get layout name for specified media type.

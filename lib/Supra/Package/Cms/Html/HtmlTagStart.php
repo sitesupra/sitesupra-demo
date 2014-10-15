@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Html;
+namespace Supra\Package\Cms\Html;
 
 class HtmlTagStart extends HtmlTagAbstraction
 {

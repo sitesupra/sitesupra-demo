@@ -1,20 +1,9 @@
 <?php
 
-namespace Supra\Controller\Pages\Markup;
+namespace Supra\Package\Cms\Pages\Markup;
 
-class SupraMarkupIcon extends Abstraction\SupraMarkupItem
+class SupraMarkupLinkStart extends Abstraction\SupraMarkupBlockStart
 {
-	const SIGNATURE = 'supra.icon';
-
-	/**
-	 * @var string
-	 */
-	protected $id;
-
-	function __construct()
-	{
-		$this->signature = self::SIGNATURE;
-	}
 
 	public function parseSource()
 	{

@@ -1,8 +1,8 @@
 <?php
 
-namespace Supra\Controller\Pages\Markup\Abstraction;
+namespace Supra\Package\Cms\Pages\Markup\Abstraction;
 
-use Supra\Controller\Pages\Markup\Exception;
+use Supra\Package\Cms\Pages\Markup\Exception;
 
 abstract class SupraMarkupElement extends ElementAbstraction
 {

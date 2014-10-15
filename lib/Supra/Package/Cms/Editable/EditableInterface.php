@@ -2,98 +2,81 @@
 
 namespace Supra\Package\Cms\Editable;
 
+use Supra\Package\Cms\Editable\Filter\FilterInterface;
+
 /**
  * Interface for editable content class
  */
 interface EditableInterface
 {
 	/**
-	 * Loads content data
-	 * @return mixed
+	 * @return string
 	 */
-	public function getContent();
-	
-	/**
-	 * @param string $label
-	 */
-	public function setLabel($label);
-	
+	public function getEditorType();
+
 	/**
 	 * @return string
 	 */
 	public function getLabel();
-	
+
 	/**
-	 * @param string $groupLabel
+	 * @param string $label
 	 */
-	public function setGroupId($groupId);
-	
+	public function setLabel($label);
+
 	/**
 	 * @return string
 	 */
-	public function getGroupId();
-	
+	public function getDescription();
+
+	/**
+	 * @param string $description
+	 */
+	public function setDescription($description);
+
+	/**
+	 * @return array
+	 */
+	public function getAdditionalParameters();
+
 	/**
 	 * @param string $localeId
 	 * @return mixed
 	 */
 	public function getDefaultValue($localeId = null);
-	
+
 	/**
 	 * @param mixed $value
 	 */
 	public function setDefaultValue($value);
-	
-	
+
 	/**
-	 * Get JavaScript editor type
 	 * @return string
 	 */
-	public function getEditorType();
-	
+	public function getGroupId();
+
 	/**
-	 * Whether editable can be edited inline
-	 * @return boolean
+	 * @param string $groupLabel
 	 */
-	public function isInlineEditable();
-	
+	public function setGroupId($groupId);
+
+//	/**
+//	 * @return mixed
+//	 */
+//	public function getContent();
+//
+//	/**
+//	 * @param mixed $content
+//	 */
+//	public function setContent($content);
+
 	/**
-	 * Sets content data
-	 * @param mixed $content
-	 */
-	public function setContent($content);
-	
-	public function getContentForEdit();
-	
-	public function setContentFromEdit($content);
-	
-	public function getContentMetadata();
-	
-	public function setContentMetadata($contentMetadata);
-	
-	public function getContentMetadataForEdit();
-	
-	public function setContentMetadataFromEdit($contentMetadata);
-	
-	/**
-	 * Get filtered value for the editable content by action
 	 * @return mixed
 	 */
 	public function getFilteredValue();
-	
+
 	/**
-	 * @return array
+	 * @param FilterInterface $filter
 	 */
-	public function getAdditionalParameters();
-	
-	/**
-	 * Get editable description/hint
-	 * @return string
-	 */
-	public function getDescription();
-	
-	/**
-	 * @param string $description
-	 */
-	public function setDescription($description);
+	public function addFilter(FilterInterface $filter);
 }

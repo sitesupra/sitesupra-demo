@@ -36,7 +36,12 @@ class DoctrineSchemaUpdateCommand extends UpdateCommand implements ContainerAwar
 	{
 		$registry = $this->container->getDoctrine();
 
-		$em = $registry->getManager($input->getOption('em'));
+		if ($input->getOption('em') === 'cms') {
+			$em = $this->container['doctrine.entity_managers.cms'];
+		} else {
+			$em = $registry->getManager($input->getOption('em'));
+		}
+
 		$con = $registry->getConnection($input->getOption('con'));
 
 		$helperSet = $this->getApplication()->getHelperSet();

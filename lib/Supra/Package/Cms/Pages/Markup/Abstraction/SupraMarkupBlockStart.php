@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Pages\Markup\Abstraction;
+namespace Supra\Package\Cms\Pages\Markup\Abstraction;
 
 abstract class SupraMarkupBlockStart extends SupraMarkupElement
 {

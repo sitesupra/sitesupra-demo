@@ -31,9 +31,6 @@ class EditableString implements FilterInterface
 		$html .= htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
 		$html .= '</div>';
 
-		$markup = new \Twig_Markup($html, 'UTF-8');
-		
-		return $markup;
+		new \Twig_Markup($markup, 'UTF-8');
 	}
-
 }

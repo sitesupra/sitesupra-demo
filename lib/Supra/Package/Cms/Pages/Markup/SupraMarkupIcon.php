@@ -1,10 +1,10 @@
 <?php
 
-namespace Supra\Controller\Pages\Markup;
+namespace Supra\Package\Cms\Pages\Markup;
 
-class SupraMarkupVideo extends Abstraction\SupraMarkupItem
+class SupraMarkupIcon extends Abstraction\SupraMarkupItem
 {
-	const SIGNATURE = 'supra.video';
+	const SIGNATURE = 'supra.icon';
 
 	/**
 	 * @var string

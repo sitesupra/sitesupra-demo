@@ -96,3 +96,9 @@ routes:
     cms_pages_content_save:
         pattern:						%cms.prefix%/content-manager/pagecontent/save
         controller:					Cms:PagesContent:save
+    ## Content publish action
+    cms_pages_content_publish:
+        pattern:						%cms.prefix%/content-manager/{type}/publish
+        controller:					Cms:PagesContent:publish
+        requirements:
+          type: template|page

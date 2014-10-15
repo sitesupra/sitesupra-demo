@@ -2,12 +2,13 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Supra\Core\Controller\Controller;
 use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
 use Supra\Package\Cms\Entity\Abstraction\Block;
-use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
 use Supra\Package\Cms\Pages\Listener\BlockExecuteListener;
 use Supra\Package\Cms\Pages\BlockController;
@@ -19,17 +20,12 @@ use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
 use Supra\Package\Cms\Pages\Response\ResponseContext;
 use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
+use Supra\Package\Cms\Pages\Request\PageRequestView;
 
-use Supra\Controller\Layout;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Uri\Path;
-//use Supra\Response\ResponseContext;
 use Supra\Response\ResponseContextLocalProxy;
 use Supra\Controller\Pages\Event\BlockEvents;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Cache\CacheGroupManager;
-use Supra\Controller\Exception\AuthorizationRequiredException;
-use Supra\Controller\Pages\Response\PlaceHolderGroup;
 use Supra\Controller\Exception\StopRequestException;
 
 class PageController extends Controller
@@ -42,7 +38,7 @@ class PageController extends Controller
 	/**
 	 * @var PageResponse
 	 */
-	protected $response;
+	protected $pageResponse;
 
 	/**
 	 * @var PageRequest
@@ -56,11 +52,6 @@ class PageController extends Controller
 	 */
 	private $blockControllers = array();
 
-//	/**
-//	 * @var array
-//	 */
-//	private $placeHolderGroupResponses = array();
-
 	/**
 	 * @var array
 	 */
@@ -73,30 +64,38 @@ class PageController extends Controller
 	private $blockCacheRequests = array();
 
 	/**
-	 * @FIXME: obtain the request automatically.
+	 * Index action.
+	 * Creates PageRequestView object, then runs main execute action.
 	 *
-	 * @param PageRequest $request
+	 * @param Request $request
 	 */
-	public function setPageRequest(PageRequest $request)
+	public function indexAction(Request $request)
 	{
-		$this->pageRequest = $request;
+		return $this->execute(
+				$this->createPageRequest($request)
+		);
 	}
 
-	public function indexAction()
+	/**
+	 * Main execute action.
+	 *
+	 * @param PageRequest $pageRequest
+	 * @return \Symfony\Component\HttpFoundation\Response
+	 * @throws ResourceNotFoundException when requested page not found / not active
+	 * @throws LayoutNotFound when template layout not found
+	 * @throws \UnexpectedValueException
+	 */
+	public function execute(PageRequest $pageRequest)
 	{
-		return $this->execute();
-	}
-
-	public function execute()
-	{
-		$pageRequest = $this->getPageRequest();
+		$this->pageRequest = $pageRequest;
+		$this->pageResponse = $this->createPageResponse();
 
 		try {
-			$localization = $pageRequest->getPageLocalization();
+			$localization = $pageRequest->getLocalization();
 
-			if (! $localization instanceof PageLocalization) {
+			if (! $localization instanceof Localization) {
 				throw new \UnexpectedValueException(sprintf(
-						'Expecting PageLocalization object only [%s] received.',
+						'Expecting Localization object only [%s] received.',
 						get_class($localization)
 				));
 			}
@@ -169,10 +168,11 @@ class PageController extends Controller
 			
 		} else {
 			$this->iterateBlocks(
-					function(Block $block, BlockController $blockController) use ($blockId, $response) {
+
+					function(Block $block, BlockController $blockController) use ($blockId) {
 
 						if ($block->getId() === $blockId || $block->getComponentClass() === $blockId) {
-							$response->addResponsePart($blockController->execute());
+							$blockController->execute();
 						}
 					},
 					BlockExecuteListener::ACTION_RESPONSE_COLLECT
@@ -204,7 +204,7 @@ class PageController extends Controller
 		$request = $this->getPageRequest();
 
 		/* @var $request PageRequest */
-		$localization = $request->getPageLocalization();
+		$localization = $request->getLocalization();
 
 		$blockContentCache = &$this->blockContentCache;
 		$blockCacheRequests = &$this->blockCacheRequests;
@@ -277,8 +277,6 @@ class PageController extends Controller
 	 */
 	protected function prepareBlockControllers()
 	{
-		$request = $this->getPageRequest();
-
 		$responseContext = $this->getPageResponse()
 				->getContext();
 
@@ -294,8 +292,10 @@ class PageController extends Controller
 		$blockContentCache = $this->blockContentCache;
 		$blockCacheRequests = $this->blockCacheRequests;
 
+		$pageRequest = $this->getPageRequest();
+
 		// function which adds controllers for the block
-		$prepare = function(Block $block, BlockController $blockController) use ($request, $responseContext, &$blockContentCache, &$blockCacheRequests) {
+		$prepare = function(Block $block, BlockController $blockController) use ($pageRequest, $responseContext, &$blockContentCache, &$blockCacheRequests) {
 
 					$blockId = $block->getId();
 
@@ -311,12 +311,15 @@ class PageController extends Controller
 						return;
 					} else {
 
-						// Creates local context proxy if the response will be cached
-						if (isset($blockCacheRequests[$blockId])) {
-							$responseContext = new ResponseContextLocalProxy($responseContext);
-						}
+						$blockController->prepare($pageRequest);
 
-						$block->prepareController($blockController, $request, $responseContext);
+// @FIXME: local response context for cache;
+//						// Creates local context proxy if the response will be cached
+//						if (isset($blockCacheRequests[$blockId])) {
+//							$responseContext = new ResponseContextLocalProxy($responseContext);
+//						}
+//
+//						$block->prepareController($blockController, $request, $responseContext);
 					}
 				};
 
@@ -332,7 +335,7 @@ class PageController extends Controller
 		$request = $this->getPageRequest();
 
 		/* @var $request PageRequest */
-		$localization = $request->getPageLocalization();
+		$localization = $request->getLocalization();
 		$blockContentCache = &$this->blockContentCache;
 		$blockCacheRequests = &$this->blockCacheRequests;
 
@@ -367,7 +370,7 @@ class PageController extends Controller
 	 * @return boolean
 	 * @private
 	 */
-	public function searchResponseCache($blockId, Entity\Abstraction\Localization $localization, Entity\Abstraction\Block $block, ResponseContext $context = null)
+	protected function searchResponseCache($blockId, Entity\Abstraction\Localization $localization, Entity\Abstraction\Block $block, ResponseContext $context = null)
 	{
 		if ( ! array_key_exists($blockId, $this->blockCacheRequests)) {
 			return false;
@@ -459,7 +462,7 @@ class PageController extends Controller
 	 * @param PlaceHolder $placeHolder
 	 * @return PlaceHolderResponse
 	 */
-	public function createPlaceResponse(PlaceHolder $placeHolder)
+	protected function createPlaceResponse(PlaceHolder $placeHolder)
 	{
 		return $this->getPageRequest() instanceof PageRequestEdit
 				? new PlaceHolderResponseEdit($placeHolder)
@@ -518,7 +521,7 @@ class PageController extends Controller
 
 		$placeHolders = $request->getPlaceHolderSet();
 
-		$localization = $request->getPageLocalization();
+		$localization = $request->getLocalization();
 
 		$finalPlaceHolders = $placeHolders->getFinalPlaceHolders();
 
@@ -594,13 +597,13 @@ class PageController extends Controller
 		return $placeResponses;
 	}
 
-	/**
-	 * @FIXME
-	 */
-	public function returnPlaceResponses()
-	{
-		return $this->getPlaceResponses();
-	}
+//	/**
+//	 * @FIXME
+//	 */
+//	public function returnPlaceResponses()
+//	{
+//		return $this->getPlaceResponses();
+//	}
 
 	/**
 	 * Iteration funciton for specific array of blocks
@@ -737,7 +740,7 @@ class PageController extends Controller
 		
 		$request->attributes->set('path', $pathString);
 
-		$request->getPageLocalization();
+		$request->getLocalization();
 	}
 
 	private function checkForRedirectLoop(PageLocalization $localization)
@@ -886,11 +889,35 @@ class PageController extends Controller
 	}
 
 	/**
-	 * @return BlockCollection
+	 * @return PageResponse
 	 */
-	protected function getBlockCollection()
+	protected function createPageResponse()
 	{
-		return $this->container['cms.pages.blocks.collection'];
+		$response = new PageResponse();
+
+		$response->setContext(new ResponseContext());
+
+		return $response;
+	}
+
+	/**
+	 * @return PageResponse
+	 */
+	protected function getPageResponse()
+	{
+		return $this->pageResponse;
+	}
+
+	/**
+	 * @return PageRequestView
+	 */
+	protected function createPageRequest(Request $request)
+	{
+		$pageRequest = new PageRequestView($request);
+		
+		$pageRequest->setContainer($this->container);
+
+		return $pageRequest;
 	}
 
 	/**
@@ -898,9 +925,23 @@ class PageController extends Controller
 	 */
 	protected function getPageRequest()
 	{
-		// @TODO: looks lame
-		return $this->pageRequest ? $this->pageRequest
-				: $this->container['cms.pages.request.view'];
+		return $this->pageRequest;
+	}
+
+	/**
+	 * @param PageRequest $pageRequest
+	 */
+	protected function setPageRequest(PageRequest $pageRequest)
+	{
+		$this->pageRequest = $pageRequest;
+	}
+
+	/**
+	 * @return BlockCollection
+	 */
+	protected function getBlockCollection()
+	{
+		return $this->container['cms.pages.blocks.collection'];
 	}
 
 	/**
@@ -912,24 +953,11 @@ class PageController extends Controller
 	}
 
 	/**
-	 * @return PageResponse
+	 * @FIXME: remove from here.
+	 * @param BlockController $blockController
 	 */
-	public function getPageResponse()
+	public function prepareBlockController(BlockController $blockController, PageRequest $pageRequest)
 	{
-		if ($this->response === null) {
-			$this->response = $this->createPageResponse();
-
-			$this->response->setContext(new ResponseContext());
-		}
-
-		return $this->response;
-	}
-
-	/**
-	 * @return PageResponse
-	 */
-	protected function createPageResponse()
-	{
-		return new PageResponse();
+		$blockController->prepare($pageRequest);
 	}
 }

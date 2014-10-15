@@ -1,9 +1,20 @@
 <?php
 
-namespace Supra\Controller\Pages\Markup;
+namespace Supra\Package\Cms\Pages\Markup;
 
-class SupraMarkupLinkStart extends Abstraction\SupraMarkupBlockStart
+class SupraMarkupVideo extends Abstraction\SupraMarkupItem
 {
+	const SIGNATURE = 'supra.video';
+
+	/**
+	 * @var string
+	 */
+	protected $id;
+
+	function __construct()
+	{
+		$this->signature = self::SIGNATURE;
+	}
 
 	public function parseSource()
 	{

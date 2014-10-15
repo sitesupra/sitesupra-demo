@@ -18,13 +18,17 @@ use Supra\Package\Cms\Entity\LockData;
 use Supra\Package\Cms\Entity\ApplicationPage;
 use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface;
+use Supra\Package\Cms\Pages\Request\PageRequestEdit;
+use Supra\Package\Cms\Editable\Html;
+use Supra\Package\Cms\Editable\EditableInterface;
+use Supra\Package\Cms\Entity\BlockProperty;
+use Supra\Package\Cms\Editable\Transformer\HtmlEditorValueTransformer;
 
 use Supra\Uri\Path;
 
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\PageController;
-use Supra\Controller\Pages\Request\PageRequest;
-use Supra\Controller\Pages\Request\PageRequestEdit;
 use Doctrine\ORM\EntityManager;
 use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Repository\PageRepository;
@@ -195,7 +199,9 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @return Entity\Abstraction\Localization
+	 * @TODO: rename to getLocalization();
+	 *
+	 * @return Localization
 	 * @throws ResourceNotFoundException
 	 */
 	protected function getPageLocalization()
@@ -393,19 +399,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Sets initial page ID to show in the CMS
-	 * @param string $pageId
-	 */
-	protected function setInitialPageId($pageId)
-	{
-		$cookie = new Cookie(self::INITIAL_PAGE_ID_COOKIE, $pageId);
-		$cookie->setExpire('+1 month');
-		$_COOKIE[self::INITIAL_PAGE_ID_COOKIE] = $pageId;
-
-		$this->getResponse()->setCookie($cookie);
-	}
-
-	/**
 	 *
 	 * @param Entity\Abstraction\Localization $pageData
 	 */
@@ -493,69 +486,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 		$publicEm->transactional($copyContent);
 
 		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostPublish);
-	}
-
-	/**
-	 * Converts referenced element to JS array
-	 * @param ReferencedElement\ReferencedElementAbstract $element
-	 * @return array
-	 */
-	protected function convertReferencedElementToArray(ReferencedElement\ReferencedElementAbstract $element)
-	{
-		$fileData = array();
-
-		$storage = ObjectRepository::getFileStorage($this);
-
-		if ($element instanceof ReferencedElement\LinkReferencedElement) {
-
-			if ($element->getResource() == ReferencedElement\LinkReferencedElement::RESOURCE_FILE) {
-
-				$fileId = $element->getFileId();
-
-				if ( ! empty($fileId)) {
-
-					$file = $storage->find($fileId, File::CN());
-
-					if ( ! is_null($file)) {
-						$fileInfo = $storage->getFileInfo($file);
-						$fileData['file_path'] = $fileInfo['path'];
-					}
-				}
-			}
-		}
-
-		else if ($element instanceof ReferencedElement\ImageReferencedElement) {
-
-			$imageId = $element->getImageId();
-
-			if ( ! empty($imageId)) {
-				$image = $storage->find($imageId, Image::CN());
-
-				if ( !is_null($image)) {
-					$info = $storage->getFileInfo($image);
-					$fileData['image'] = $info;
-				}
-			}
-		}
-
-		else if ($element instanceof ReferencedElement\IconReferencedElement) {
-
-			$iconId = $element->getIconId();
-
-			$themeConfiguration = \Supra\ObjectRepository\ObjectRepository::getThemeProvider($this)
-					->getCurrentTheme()
-					->getConfiguration();
-
-			$iconConfiguration = $themeConfiguration->getIconConfiguration();
-			if ($iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
-				$fileData['svg'] = $iconConfiguration->getIconSvgContent($iconId);
-			}
-
-		}
-
-		$data = $fileData + $element->toArray();
-
-		return $data;
 	}
 
 	/**
@@ -796,13 +726,13 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 				$entityManager = $this->getEntityManager();
 
-				if ( ! $this->lockTransactionOpened) {
-					$entityManager->beginTransaction();
-
-					$this->lockTransactionOpened = true;
-				}
+//				if ( ! $this->lockTransactionOpened) {
+//					$entityManager->beginTransaction();
+//
+//					$this->lockTransactionOpened = true;
+//				}
 				
-				$entityManager->lock($lock, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
+//				$entityManager->lock($lock, \Doctrine\DBAL\LockMode::PESSIMISTIC_READ);
 
 				$lock->setModificationTime(new \DateTime('now'));
 				
@@ -812,16 +742,16 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 			$entityManager = $this->getEntityManager();
 
-			if ( ! $this->lockTransactionOpened) {
-				$entityManager->beginTransaction();
-				$this->lockTransactionOpened = true;
-			}
+//			if ( ! $this->lockTransactionOpened) {
+//				$entityManager->beginTransaction();
+//				$this->lockTransactionOpened = true;
+//			}
 
 			// Creates lock if doesn't exist
-			$entityManager->lock(
-					$this->createLock(),
-					\Doctrine\DBAL\LockMode::PESSIMISTIC_READ
-			);
+//			$entityManager->lock(
+//					$this->createLock(),
+//					\Doctrine\DBAL\LockMode::PESSIMISTIC_READ
+//			);
 		}
 	}
 
@@ -1481,7 +1411,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 	
 	/**
-	 * @return \Supra\Package\Cms\Pages\Application\PageApplicationManager
+	 * @return Supra\Package\Cms\Pages\Application\PageApplicationManager
 	 */
 	protected function getPageApplicationManager()
 	{
@@ -1489,7 +1419,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @return \Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface
+	 * @return Supra\Package\Cms\Pages\Layout\Theme\ThemeProviderInterface
 	 */
 	protected function getThemeProvider()
 	{
@@ -1497,27 +1427,29 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @return \Supra\Package\Cms\Controller\PageController
+	 * @return Supra\Package\Cms\Controller\PageController
 	 */
 	protected function getPageController()
 	{
 		return $this->container['cms.pages.controller'];
 	}
 
-	/**
-	 * @return \Supra\Package\Cms\Request\PageRequest
-	 */
-	protected function getPageRequest()
-	{
-		return $this->container['cms.pages.request.edit'];
-	}
 
 	/**
-	 * @return \Supra\Package\Cms\Pages\Block\BlockCollection
+	 * @return Supra\Package\Cms\Pages\Block\BlockCollection
 	 */
 	protected function getBlockCollection()
 	{
 		return $this->container['cms.pages.blocks.collection'];
+	}
+
+	/**
+	 * @return ThemeInterface
+	 */
+	protected function getActiveTheme()
+	{
+		return $this->getThemeProvider()
+				->getActiveTheme();
 	}
 
 	/**
@@ -1718,5 +1650,39 @@ abstract class AbstractPagesController extends AbstractCmsController
 				->getManager();
 
 		return $entityManager->find(Localization::CN(), $localization->getId());
+	}
+
+	/**
+	 * @FIXME: do it someway better.
+	 */
+	protected function configureEditableValueTransformers(EditableInterface $editable, BlockProperty $property)
+	{
+		if ($editable instanceof Html) {
+
+			$transformer = new HtmlEditorValueTransformer();
+			$transformer->setBlockProperty($property);
+
+			$editable->addEditorValueTransformer($transformer);
+		}
+	}
+
+	/**
+	 * @param null|Localization $localization
+	 * @return PageRequestEdit
+	 */
+	protected function createPageRequest(Localization $localization = null)
+	{
+		$request = new PageRequestEdit(
+				$this->container->getRequest(),
+				$this->getMedia()
+		);
+
+		$request->setContainer($this->container);
+
+		$request->setLocalization(
+				$localization ? $localization : $this->getPageLocalization()
+		);
+
+		return $request;
 	}
 }

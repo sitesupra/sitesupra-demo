@@ -75,8 +75,20 @@ abstract class AbstractCmsController extends Controller
 
 			list($packageName, $pathPart) = explode(':', $path);
 
-			return $this->container->getApplication()
-					->locateViewFile($packageName, ltrim($pathPart, '/'));
+			$application = $this->container->getApplication();
+			$resolvedName = $application->resolveName($packageName);
+
+			// @FIXME: contains hardcode. implement as Supra method.
+			foreach ($application->getPackages() as $package) {
+				if ($package->getName() === $resolvedName) {
+					return '/public/'
+							. $package->getName()
+							. '/'
+							. ltrim($pathPart, '/');
+				}
+			}
+
+			throw new \InvalidArgumentException("Failed to resolve package [{$packageName}].");
 		}
 
 		return $path;

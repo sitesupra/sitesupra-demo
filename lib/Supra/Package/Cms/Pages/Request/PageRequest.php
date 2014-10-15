@@ -88,7 +88,7 @@ abstract class PageRequest extends Request implements ContainerAware
 	private $skipBlockPropertyLoading = array();
 
 	/**
-	 * @TODO: do we need this at all?
+	 * @TODO: remove dependency from Request object?
 	 *
 	 * @param Request $request source request
 	 * @param string $media
@@ -132,7 +132,7 @@ abstract class PageRequest extends Request implements ContainerAware
 	/**
 	 * @return Localization
 	 */
-	public function getPageLocalization()
+	public function getLocalization()
 	{
 		return $this->localization;
 	}
@@ -140,7 +140,7 @@ abstract class PageRequest extends Request implements ContainerAware
 	/**
 	 * @param Localization $localization
 	 */
-	public function setPageLocalization(Localization $localization)
+	public function setLocalization(Localization $localization)
 	{
 		$this->clear();
 		$this->localization = $localization;
@@ -194,12 +194,12 @@ abstract class PageRequest extends Request implements ContainerAware
 	 */
 	public function getPage()
 	{
-		$page = $this->getPageLocalization()
+		$page = $this->getLocalization()
 				->getMaster();
 
 		if ($page === null) {
 			throw new RuntimeException(
-				"Missing page object for localization [{$this->getPageLocalization()->getId()}]."
+				"Missing page object for localization [{$this->getLocalization()->getId()}]."
 			);
 		}
 
@@ -215,7 +215,7 @@ abstract class PageRequest extends Request implements ContainerAware
 			return $this->pageSet;
 		}
 		
-		$localization = $this->getPageLocalization();
+		$localization = $this->getLocalization();
 		
 		if ($localization instanceof TemplateLocalization) {
 			$this->pageSet = $this->getTemplateTemplateHierarchy(
@@ -297,7 +297,7 @@ abstract class PageRequest extends Request implements ContainerAware
 		if ( ! $parameters->has('block_id')
 				&& $this->isMethod('post')) {
 			
-			$parameters = $this->getPost();
+			$parameters = $this->request;
 		}
 
 		return $parameters->get('block_id');
@@ -375,7 +375,7 @@ abstract class PageRequest extends Request implements ContainerAware
 			return $this->placeHolderSet;
 		}
 
-		$localization = $this->getPageLocalization();
+		$localization = $this->getLocalization();
 		$localeId = $localization->getLocale();
 		$this->placeHolderSet = new Set\PlaceHolderSet($localization);
 		
@@ -637,7 +637,7 @@ abstract class PageRequest extends Request implements ContainerAware
 				$data = $block->getPlaceHolder()
 						->getMaster();
 			} else {
-				$data = $this->getPageLocalization();
+				$data = $this->getLocalization();
 			}
 			
 			$dataId = $data->getId();
@@ -825,7 +825,7 @@ abstract class PageRequest extends Request implements ContainerAware
 		$placeHolderSet = $this->getPlaceHolderSet();
 
 		$entityManager = $this->getDoctrineEntityManager();
-		$localization = $this->getPageLocalization();
+		$localization = $this->getLocalization();
 
 		$finalPlaceHolders = $placeHolderSet->getFinalPlaceHolders();
 		$parentPlaceHolders = $placeHolderSet->getParentPlaceHolders();
@@ -921,7 +921,7 @@ abstract class PageRequest extends Request implements ContainerAware
 //	{
 //		$em = $this->getDoctrineEntityManager();
 //		
-//		$localization = $this->getPageLocalization();
+//		$localization = $this->getLocalization();
 //		
 //		$currentGroups = $localization->getPlaceHolderGroups();
 //		$currentGroupKeys = $currentGroups->getKeys();
@@ -1007,7 +1007,7 @@ abstract class PageRequest extends Request implements ContainerAware
 			return;
 		}
 
-		$localization = $this->getPageLocalization();
+		$localization = $this->getLocalization();
 
 		foreach ($blocks as $block) {
 			/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
@@ -1075,16 +1075,6 @@ abstract class PageRequest extends Request implements ContainerAware
 		$this->container = $container;
 	}
 
-	/**
-	 * @return \Doctrine\ORM\EntityManager
-	 */
-	protected function getEntityManager()
-	{
-		return $this->container
-				->getDoctrine()
-				->getManager();
-	}
-
 	protected function debug($message)
 	{
 		$this->container['debug_bar.debug_bar']['messages']->info($message);
@@ -1100,4 +1090,9 @@ abstract class PageRequest extends Request implements ContainerAware
 	{
 		return $this->container['cms.pages.layout_processor'];
 	}
+
+	/**
+	 * @return \Doctrine\ORM\EntityManager
+	 */
+	abstract protected function getEntityManager();
 }

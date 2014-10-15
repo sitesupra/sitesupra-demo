@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Pages;
 
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Core\Controller\Controller;
+use Supra\Core\Templating\Templating;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\BlockProperty;
@@ -20,7 +21,6 @@ use Supra\Package\Cms\Pages\Filter;
 
 use Supra\Controller\Pages\Twig\TwigSupraBlockGlobal;
 
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Controller\Pages\Exception;
 use Supra\Controller\Exception\StopRequestException;
@@ -92,12 +92,15 @@ abstract class BlockController extends Controller
 	 * This method is final, use doPrepare for defining actions in prepare step.
 	 * 
 	 * @param PageRequest $request
-	 * @param BlockResponse $response
 	 */
-	final public function prepare(PageRequest $request, BlockResponse $response)
+	final public function prepare(PageRequest $request)
 	{
+		$this->properties = $request->getBlockPropertySet()
+				->getBlockPropertySet($this->block);
+
 		$this->request = $request;
-		$this->response = $response;
+		
+		$this->response = $this->createResponse($request);
 		
 		$page = $request->getPage();
 		$this->setPage($page);
@@ -123,7 +126,7 @@ abstract class BlockController extends Controller
 //						$pageTitle = null;
 //
 //						if ($request instanceof PageRequest) {
-//							$pageTitle = $request->getPageLocalization()
+//							$pageTitle = $request->getLocalization()
 //									->getTitle();
 //						}
 //
@@ -311,7 +314,7 @@ abstract class BlockController extends Controller
 			$request = $this->getRequest();
 
 			$property->setLocalization(
-					$request->getPageLocalization()
+					$request->getLocalization()
 			);
 
 			$defaultValue = $configuration->getDefaultValue($request->getLocale());
@@ -381,7 +384,7 @@ abstract class BlockController extends Controller
 //				// Must set some DATA object. Where to get this? And why data is set to property not block?
 //				//FIXME: should do somehow easier than that
 //				if ($request instanceof PageRequest) {
-//					$property->setLocalization($request->getPageLocalization());
+//					$property->setLocalization($request->getLocalization());
 //				}
 //			}
 //			//		else {
@@ -391,9 +394,6 @@ abstract class BlockController extends Controller
 //		}
 //
 //		$editable = $property->getEditable();
-
-		// @TODO: do this some way better.
-		$this->configureContentFilters($property, $editable);
 
 		return $property;
 	}
@@ -427,11 +427,6 @@ abstract class BlockController extends Controller
 				$filter->property = $property;
 				$editable->addFilter($filter);
 			}
-
-			$context = $this->response->getContext();
-
-			// HTML filter specific
-			$filter->setResponseContext($context);
 		}
 
 		else if ($editable instanceof Editable\Link) {
@@ -526,25 +521,25 @@ abstract class BlockController extends Controller
 	public function getPropertyValue($name)
 	{
 		$property = $this->getProperty($name);
-		$editable = $property->getEditable();
-		$value = $editable->getFilteredValue();
 
-		return $value;
-	}
+		$propertyConfiguration = $this->getConfiguration()
+				->getProperty($name);
 
-	/**
-	 * Get the content and output it to the response or return if no response
-	 * object set
-	 *
-	 * @TODO could move to block response object
-	 * @TODO NB! This isn't escaped currently! Maybe this method doesn't make sense?
-	 *
-	 * @param string $name
-	 */
-	public function outputProperty($name)
-	{
-		$value = $this->getPropertyValue($name);
-		$this->response->output($value);
+		$editable = clone $propertyConfiguration->getEditable();
+
+		// @TODO: do this some way better.
+		$this->configureContentFilters($property, $editable);
+
+		$editable->setRawValue($property->getValue());
+
+		return $editable->getFilteredValue();
+
+//		$editableClass = $property->getEditableClass();
+//
+//		$editable = $property->getEditable();
+//		$value = $editable->getFilteredValue();
+//
+//		return $value;
 	}
 
 //	/**
@@ -646,20 +641,20 @@ abstract class BlockController extends Controller
 //	}
 
 	/**
-	 * @TODO: maybe we should create response in PageController?
-	 * 
+	 * @param Request $request
 	 * @return BlockResponse
 	 */
-	public function createResponse(PageRequest $request)
+	protected function createResponse(Request $request)
 	{
-		$templating = $this->container->getTemplating();
+		// @TODO: do it in another way.
+		$templating = new Templating();
+
+		$templating->setContainer($this->container);
 
 		$templating->addGlobal('supraBlock', new TwigSupraBlockGlobal($this));
 
-		if ($request instanceof PageRequestEdit) {
-			return new BlockResponseEdit($this->block, $templating);
-		} else {
-			return new BlockResponseView($this->block, $templating);
-		}
+		return $request instanceof PageRequestEdit
+				? new BlockResponseEdit($this->block, $templating)
+				: new BlockResponseView($this->block, $templating);
 	}
 }

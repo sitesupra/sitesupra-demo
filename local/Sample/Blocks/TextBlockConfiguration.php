@@ -11,7 +11,9 @@ class TextBlockConfiguration extends BlockConfiguration
 	protected function configureBlock(BlockMapper $mapper)
 	{
 		$mapper->title('Text Block')
-				->description('Text Block with wysiwyg editor.');
+				->description('Text Block with wysiwyg editor.')
+				->icon('sample:blocks/text.png')
+				;
 	}
 
 	protected function configureProperties(PropertyMapper $mapper)
