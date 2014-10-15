@@ -18,12 +18,11 @@ use Supra\Package\Cms\Pages\Layout\Theme\DefaultThemeProvider;
 use Supra\Package\Cms\Pages\Listener\VersionedEntityRevisionSetterListener;
 use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 use Supra\Package\Cms\Controller\PageController;
-use Supra\Package\Cms\Pages\Request\PageRequestView;
-use Supra\Package\Cms\Pages\Request\PageRequestEdit;
 use Supra\Package\Cms\Pages\Block\BlockCollection;
 use Supra\Package\Cms\Pages\Layout\Processor\TwigProcessor;
 use Supra\Package\Cms\Pages\Block\BlockGroupConfiguration;
 use Supra\Package\Cms\Doctrine\Subscriber\TimestampableListener;
+use DebugBar\Bridge\DoctrineCollector;
 
 class SupraPackageCms extends AbstractSupraPackage
 {
@@ -59,22 +58,6 @@ class SupraPackageCms extends AbstractSupraPackage
 		// Theme Provider
 		$container[$this->name . '.pages.theme.provider'] = function () {
 			return new DefaultThemeProvider();
-		};
-
-		// PageController specific request object
-		$container[$this->name . '.pages.request.view'] = function ($container) {
-
-			// @TODO: remove dependency from Request object.
-			$request = $container->getRequest();
-			return new PageRequestView($request);
-		};
-
-		// PageController specific request object
-		$container[$this->name . '.pages.request.edit'] = function ($container) {
-
-			// @TODO: remove dependency from Request object.
-			$request = $container->getRequest();
-			return new PageRequestEdit($request);
 		};
 
 		// PageController for backend purposes
@@ -122,10 +105,8 @@ class SupraPackageCms extends AbstractSupraPackage
 			/* @var $eventManager \Doctrine\Common\EventManager */
 
 			$eventManager->addEventSubscriber(new VersionedEntitySchemaListener());
-			$eventManager->addEventSubscriber(new VersionedEntityRevisionSetterListener());
+//			$eventManager->addEventSubscriber(new VersionedEntityRevisionSetterListener());
 
-			// @TODO: quite rudimental stuff.
-			// might be easily replaced with @HasLifecycleCallbacks + @prePersist + @preUpdate
 			$eventManager->addEventSubscriber(new TimestampableListener());
 
 			return $eventManager;
@@ -146,6 +127,9 @@ class SupraPackageCms extends AbstractSupraPackage
 				$container['doctrine.configuration'],
 				$container['doctrine.event_managers.cms']
 			);
+
+			$connection->getConfiguration()
+					->setSQLLogger(new \Doctrine\DBAL\Logging\DebugStack());
 
 			return $connection;
 		};
