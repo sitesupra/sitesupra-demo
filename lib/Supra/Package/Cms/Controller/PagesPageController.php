@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Symfony\Component\HttpFoundation\Response;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
@@ -9,7 +10,6 @@ use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Entity\TemplateLocalization;
 use Supra\Package\Cms\Entity\PageLocalization;
-use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
 
 class PagesPageController extends AbstractPagesController
 {
@@ -27,35 +27,6 @@ class PagesPageController extends AbstractPagesController
 	}
 
 	/**
-	 * Called on page editing start.
-	 *
-	 * @return SupraJsonResponse
-	 */
-	public function lockAction()
-	{
-		return $this->lockPage();
-	}
-
-	/**
-	 * Called on page editing end.
-	 * 
-	 * @return SupraJsonResponse
-	 */
-	public function unlockAction()
-	{
-		try {
-			$this->checkLock();
-
-			$this->unlockPage();
-			
-		} catch (ObjectLockedException $e) {
-			// @TODO: check why it were made to ignore errors if locked.
-		}
-
-		return new SupraJsonResponse();
-	}
-
-	/**
 	 * Returns page localization properties, inner html and placeholder contents.
 	 *
 	 * @return SupraJsonResponse
@@ -64,26 +35,16 @@ class PagesPageController extends AbstractPagesController
 	{
 		$localization = $this->getPageLocalization();
 
-		$pageRequest = $this->getPageRequest();
-
-		$pageRequest->setPageLocalization($localization);
+		$pageRequest = $this->createPageRequest();
 
 		$pageController = $this->getPageController();
-		$pageController->setPageRequest($pageRequest);
-
-//		$page = $pageRequest->getPage();
-
-//		$response = $controller->createResponse($request);
-//		$controller->prepare($request, $response);
-//
-//		$this->setInitialPageId($localization->getId());
 
 		$templateException = $response
 				= $internalHtml
 				= null;
+		
 		try {
-			$response = $pageController->execute();
-			/* @var $response \Supra\Package\Cms\Pages\Response\PageResponse */
+			$response = $pageController->execute($pageRequest);
 		} catch (\Twig_Error_Loader $e) {
 			$templateException = $e;
 		} catch (LayoutNotFound $e) {
@@ -97,7 +58,7 @@ class PagesPageController extends AbstractPagesController
 		if ($templateException) {
 			$internalHtml = '<h1>Page template or layout not found.</h1>
 				<p>Please make sure the template is assigned and the template is published in this locale and it has layout assigned.</p>';
-		} elseif ($response) {
+		} elseif ($response instanceof Response) {
 			$internalHtml = $response->getContent();
 		}
 
@@ -158,7 +119,7 @@ class PagesPageController extends AbstractPagesController
 			'edit_page' => true,
 			'supervise_page' => true
 		)));
-		
+
 		return $jsonResponse;
 	}
 
@@ -240,12 +201,17 @@ class PagesPageController extends AbstractPagesController
 			
 			if ($page->hasLayout($this->getMedia())) {
 
-				$layout = $page->getLayout($this->getMedia());
+				$layoutName = $page->getLayoutName($this->getMedia());
 
-				$layoutData = array(
-					'id'	=> $layout->getName(),
-					'title' => $layout->getTitle(),
-				);
+				$layout = $this->getActiveTheme()
+						->getLayout($layoutName);
+
+				if ($layout !== null) {
+					$layoutData = array(
+						'id'	=> $layout->getName(),
+						'title' => $layout->getTitle(),
+					);
+				}
 			}
 			
 			$localizationData = array_replace($localizationData, array(
@@ -284,28 +250,35 @@ class PagesPageController extends AbstractPagesController
 	 */
 	private function getBlockPropertyData(Block $block)
 	{
-		$blockCollection = $this->getBlockCollection();
+		$blockController = $this->getBlockCollection()
+				->createController($block);
 
-		$controller = $blockCollection->createController($block);
-
-		// @TODO: avoid somehow all this
-		$pageRequest = $this->getPageRequest();
 		$pageController = $this->getPageController();
+		
+		$pageRequest = $this->createPageRequest();
 
-		$responseContext = $pageController->getPageResponse()->getContext();
+		$pageController->prepareBlockController($blockController, $pageRequest);
 
-		$block->prepareController($controller, $pageRequest, $responseContext);
-
-		$configuration = $controller->getConfiguration();
+		$configuration = $blockController->getConfiguration();
 
 		$propertyData = array();
 
 		foreach ($configuration->getProperties() as $propertyConfiguration) {
 
+			// @TODO: do it someway better.
+
 			$name = $propertyConfiguration->getName();
 
+			$editable = $propertyConfiguration->getEditable();
+
+			$property = $blockController->getProperty($name);
+
+			$this->configureEditableValueTransformers($editable, $property);
+
+			$editable->setRawValue($property->getValue());
+
 			$propertyData[$name] = array(
-				'value' => $controller->getPropertyValue($name)
+				'value' => 	$editable->getEditorValue(),
 			);
 		}
 

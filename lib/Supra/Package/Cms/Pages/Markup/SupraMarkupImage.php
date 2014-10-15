@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Pages\Markup;
+namespace Supra\Package\Cms\Pages\Markup;
 
 class SupraMarkupImage extends Abstraction\SupraMarkupItem
 {

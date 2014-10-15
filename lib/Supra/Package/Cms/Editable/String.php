@@ -5,11 +5,9 @@ namespace Supra\Package\Cms\Editable;
 /**
  * String editable content
  */
-class String extends EditableAbstraction
+class String extends Editable
 {
-
 	const EDITOR_TYPE = 'String';
-	const EDITOR_INLINE_EDITABLE = false;
 	
 	private $maxLength;
 
@@ -26,8 +24,6 @@ class String extends EditableAbstraction
 	 */
 	public function __construct($label = null, $groupId = null, $options = array())
 	{
-		parent::__construct($label, $groupId, $options);
-
 		if (isset($options['disabled'])) {
 			$this->disabled = (boolean) $options['disabled'];
 		}

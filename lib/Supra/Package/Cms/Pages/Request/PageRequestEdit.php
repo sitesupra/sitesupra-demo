@@ -55,6 +55,8 @@ class PageRequestEdit extends PageRequest
 	 */
 	public static function factory(Entity\Abstraction\Localization $localization, $media = Entity\TemplateLayout::MEDIA_SCREEN)
 	{
+		throw new \Exception('Fixme');
+
 		$locale = $localization->getLocale();
 		$instance = null;
 		
@@ -68,7 +70,7 @@ class PageRequestEdit extends PageRequest
 		
 		return $instance;
 	}
-	
+
 	/**
 	 *
 	 */
@@ -85,7 +87,7 @@ class PageRequestEdit extends PageRequest
 		
 		$this->createMissingPlaceHolders();
 		
-		$draftData = $this->getPageLocalization();
+		$draftData = $this->getLocalization();
 		
 		if ($draftData instanceof Entity\PageLocalization) {
 			// Set creation time if empty
@@ -488,7 +490,7 @@ class PageRequestEdit extends PageRequest
 	 */
 	protected function copyBlocksFromTemplate()
 	{
-		$localization = $this->getPageLocalization();
+		$localization = $this->getLocalization();
 		
 		if ( ! $localization instanceof Entity\PageLocalization) {
 			return;
@@ -792,7 +794,7 @@ class PageRequestEdit extends PageRequest
 		
 		try {
 			
-			$page = $this->getPageLocalization()
+			$page = $this->getLocalization()
 					->getMaster();
 			
 			$page = $publicEm->find(AbstractPage::CN(), $page->getId());
@@ -852,7 +854,7 @@ class PageRequestEdit extends PageRequest
 		$draftEm = $this->getDoctrineEntityManager();
 		$eventManager = $draftEm->getEventManager();
 		
-		$localization = $this->getPageLocalization();
+		$localization = $this->getLocalization();
 		$masterId = $localization->getMaster()
 				->getId();
 		
@@ -905,7 +907,7 @@ class PageRequestEdit extends PageRequest
 	private function getPlaceHolders($em)
 	{
 		$placeHolderEntity = Entity\Abstraction\PlaceHolder::CN();
-		$localizationId = $this->getPageLocalization()
+		$localizationId = $this->getLocalization()
 				->getId();
 
 		$dql = "SELECT ph FROM $placeHolderEntity ph
@@ -926,7 +928,7 @@ class PageRequestEdit extends PageRequest
 	private function getPlaceHolderGroups($em)
 	{
 		$placeHolderGroupEntity = Entity\PlaceHolderGroup::CN();
-		$localizationId = $this->getPageLocalization()
+		$localizationId = $this->getLocalization()
 				->getId();
 
 		$dql = "SELECT phg FROM $placeHolderGroupEntity phg
@@ -1239,5 +1241,12 @@ class PageRequestEdit extends PageRequest
 			}
 		}
 	}
-	
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getEntityManager()
+	{
+		return $this->container['doctrine.entity_managers.cms'];
+	}
 }

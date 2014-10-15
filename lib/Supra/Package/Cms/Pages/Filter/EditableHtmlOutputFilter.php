@@ -25,7 +25,7 @@ class EditableHtml extends ParsedHtmlFilter implements FilterInterface
 	public function filter($content)
 	{
 		$wrap = '<div id="content_%s_%s" class="yui3-content-inline yui3-input-html-inline-content">%s</div>';
-		
+
 		return new \Twig_Markup(
 				sprintf(
 					$wrap,
@@ -60,9 +60,9 @@ class EditableHtml extends ParsedHtmlFilter implements FilterInterface
 		$fileStorage = $this->container->getFileStorage();
 
 		$image = $fileStorage->findImage($imageElement->getImageId());
-		
+
 		if ($image !== null) {
-			
+
 			$exists = $fileStorage->fileExists($image);
 			$tag->setAttribute('data-exists', $exists);
 

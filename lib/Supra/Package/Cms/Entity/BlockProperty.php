@@ -68,26 +68,26 @@ class BlockProperty extends VersionedEntity implements
 //	 */
 //	protected $masterMetadata;
 	
-	/**
-	 * Master metadata object
-	 * 
-	 * @var BlockPropertyMetadata
-	 */
-	protected $masterMetadata;
-	
-	/**
-	 * Master metadata Id
-	 * 
-	 * @Column(type="supraId20", nullable=true)
-	 * @var string
-	 */
-	protected $masterMetadataId;
-	
-	/**
-	 * @Column(type="object")
-	 * @var EditableInterface
-	 */
-	protected $editable;
+//	/**
+//	 * Master metadata object
+//	 *
+//	 * @var BlockPropertyMetadata
+//	 */
+//	protected $masterMetadata;
+//
+//	/**
+//	 * Master metadata Id
+//	 *
+//	 * @Column(type="supraId20", nullable=true)
+//	 * @var string
+//	 */
+//	protected $masterMetadataId;
+//
+//	/**
+//	 * @Column(type="object")
+//	 * @var EditableInterface
+//	 */
+//	protected $editable;
 
 	/**
 	 * Constructor
@@ -222,30 +222,26 @@ class BlockProperty extends VersionedEntity implements
 	 */
 	public function setValue($value)
 	{
-		$this->editable->setContent($value);
-		$this->editable->setContentMetadata($this->metadata);
-		
-//		$this->value = $this->editable->getContent();
-		$this->value = $this->editable->getStorableContent();
+		$this->value = $value;
 	}
 	
-	/**
-	 * @return EditableInterface
-	 */
-	public function getEditable()
-	{
-		return $this->editable;
-	}
+//	/**
+//	 * @return EditableInterface
+//	 */
+//	public function getEditable()
+//	{
+//		return $this->editable;
+//	}
 
 	/**
 	 * @param EditableInterface $editable
 	 */
 	public function setEditable(EditableInterface $editable)
 	{
-		$editable->setContent($this->value);
-		$this->value = $editable->getStorableContent();
-		
-		$this->editable = $editable;
+//		$editable->setContent($this->value);
+//		$this->value = $editable->getStorableContent();
+//		$this->editable = $editable;
+
 		$this->type = get_class($editable);
 	}
 

@@ -5,6 +5,7 @@ namespace Supra\Package\Cms\Entity;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
+use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
 
 /**
  * BlockPropertyMetadata
@@ -27,25 +28,35 @@ class BlockPropertyMetadata extends VersionedEntity implements
 	protected $blockProperty;
 	
 	/**
-	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract", cascade={"all"})
-	 * @var ReferencedElement\ReferencedElementAbstract
+	 * @OneToOne(
+	 *		targetEntity="Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract",
+	 *		cascade={"all"}
+	 * )
+	 *
+	 * @JoinColumn(name="referencedElement_id", referencedColumnName="id", nullable=true)
+	 *
+	 * @var ReferencedElementAbstract
 	 */
 	protected $referencedElement;
 	
 	/**
-	 * @var ReferencedElement\ReferencedElementAbstract
+	 * @Column(type="text", nullable=true)
+	 * @var string
 	 */
-	protected $overridenReferencedElement;
-	
+	protected $value;
+
 	/**
-	 * Binds
 	 * @param string $name
 	 * @param BlockProperty $blockProperty
-	 * @param ReferencedElement\ReferencedElementAbstract $referencedElement
+	 * @param null|ReferencedElementAbstract $referencedElement
 	 */
-	public function __construct($name, BlockProperty $blockProperty, ReferencedElement\ReferencedElementAbstract $referencedElement)
-	{
+	public function __construct(
+			$name,
+			BlockProperty $blockProperty,
+			ReferencedElementAbstract $referencedElement = null
+	) {
 		parent::__construct();
+		
 		$this->name = $name;
 		$this->blockProperty = $blockProperty;
 		$this->referencedElement = $referencedElement;
@@ -74,9 +85,17 @@ class BlockPropertyMetadata extends VersionedEntity implements
 	{
 		return $this->blockProperty;
 	}
+
+	/**
+	 * @param BlockProperty $blockProperty
+	 */
+	public function setBlockProperty(BlockProperty $blockProperty)
+	{
+		$this->blockProperty = $blockProperty;
+	}
 	
 	/**
-	 * @return ReferencedElement\ReferencedElementAbstract
+	 * @return ReferencedElementAbstract
 	 */
 	public function getReferencedElement()
 	{
@@ -84,35 +103,48 @@ class BlockPropertyMetadata extends VersionedEntity implements
 	}
 
 	/**
-	 * @param ReferencedElement\ReferencedElementAbstract $referencedElement 
+	 * @param ReferencedElementAbstract $referencedElement 
 	 */
 	public function setReferencedElement($referencedElement)
 	{
 		$this->referencedElement = $referencedElement;
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public function getValue()
+	{
+		return $this->value;
+	}
+
+	/**
+	 * @param string $value
+	 */
+	public function setValue($value)
+	{
+		$this->value = $value;
+	}
+
+	/**
+	 * @inehritDoc
+	 */
 	public function getOwner()
 	{
 		return $this->blockProperty;
 	}
-	
-	/**
-	 * Used after cloning
-	 * @param BlockProperty $blockProperty
-	 */
-	public function setBlockProperty(BlockProperty $blockProperty)
-	{
-		$this->blockProperty = $blockProperty;
-	}
 
+	/**
+	 * Clones referenced element too.
+	 */
 	public function __clone()
 	{
 		parent::__clone();
 
-		if ( ! empty($this->id)) {
-			if ( ! empty($this->referencedElement)) {
-				$this->referencedElement = clone($this->referencedElement);
-			}
+		if ( ! empty($this->id)
+				&& $this->referencedElement !== null) {
+
+			$this->referencedElement = clone $this->referencedElement;
 		}
 	}
 

@@ -466,18 +466,21 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * Helper for the publish method
+	 * @internal Helper for the publishing process.
+	 *			 Initializes proxy associations because Proxies aren't merged by Doctrine.
 	 */
 	public function initializeProxyAssociations()
 	{
 		if ($this->template) {
 			$this->template->getId();
 		}
+		
 		if ($this->path) {
 			$this->path->getId();
 		}
-		if ($this->redirect) {
-			$this->redirect->getId();
+		
+		if ($this->redirectTarget) {
+			$this->redirectTarget->getId();
 		}
 	}
 

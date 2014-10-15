@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Controller\Pages\Markup\Exception;
+namespace Supra\Package\Cms\Pages\Markup\Exception;
 
 class RuntimeException extends \RuntimeException implements TokenizerException
 {
