@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Framework\Command;
 
+use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Doctrine\ORM\Tools\Console\Command\SchemaTool\UpdateCommand;
 use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Supra\Core\DependencyInjection\ContainerAware;
@@ -36,17 +37,14 @@ class DoctrineSchemaUpdateCommand extends UpdateCommand implements ContainerAwar
 	{
 		$registry = $this->container->getDoctrine();
 
-		if ($input->getOption('em') === 'cms') {
-			$em = $this->container['doctrine.entity_managers.cms'];
-		} else {
-			$em = $registry->getManager($input->getOption('em'));
-		}
+		$em = $registry->getManager($input->getOption('em'));
 
 		$con = $registry->getConnection($input->getOption('con'));
 
 		$helperSet = $this->getApplication()->getHelperSet();
 
 		$helperSet->set(new EntityManagerHelper($em), 'em');
+		$helperSet->set(new ConnectionHelper($con), 'con');
 
 		parent::execute($input, $output);
 	}

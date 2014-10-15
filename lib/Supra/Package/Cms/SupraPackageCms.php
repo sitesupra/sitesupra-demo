@@ -49,6 +49,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			return $manager;
 		};
 
+		//setting up doctrine
 		$frameworkConfiguration = $container->getApplication()->getConfigurationSection('framework');
 
 		$frameworkConfiguration['doctrine']['event_managers']['public']['subscribers'][] = 'supra.cms.doctrine.event_subscriber.timestampable';
@@ -74,6 +75,8 @@ class SupraPackageCms extends AbstractSupraPackage
 			'connection' => 'cms',
 			'event_manager' => 'cms'
 		);
+
+		$container->getApplication()->setConfigurationSection('framework', $frameworkConfiguration);
 
 		// Theme Provider
 		$container[$this->name . '.pages.theme.provider'] = function () {

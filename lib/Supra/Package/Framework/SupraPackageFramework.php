@@ -25,6 +25,7 @@ use Supra\Package\Framework\Command\ContainerPackagesListCommand;
 use Supra\Package\Framework\Command\DoctrineCacheClearMetadataCommand;
 use Supra\Package\Framework\Command\DoctrineCacheClearQueryCommand;
 use Supra\Package\Framework\Command\DoctrineCacheClearResultCommand;
+use Supra\Package\Framework\Command\DoctrineConvertEncodingsCommand;
 use Supra\Package\Framework\Command\DoctrineGenerateProxiesCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaCreateCommand;
 use Supra\Package\Framework\Command\DoctrineSchemaDropCommand;
@@ -57,6 +58,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getConsole()->add(new CacheListCommand());
 		$container->getConsole()->add(new CacheClearCommand());
 		$container->getConsole()->add(new SupraBootstrapCommand());
+		$container->getConsole()->add(new DoctrineConvertEncodingsCommand());
 
 		//include supra helpers
 		$cmsExtension = new CmsExtension();

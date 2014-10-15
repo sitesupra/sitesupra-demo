@@ -99,9 +99,6 @@ class PageRequestView extends PageRequest
 	 */
 	protected function getEntityManager()
 	{
-		return $this->container['doctrine.entity_managers.cms'];
-		return $this->container
-				->getDoctrine()
-				->getManager();
+		return $this->container->getDoctrine()->getManager('cms');
 	}
 }
