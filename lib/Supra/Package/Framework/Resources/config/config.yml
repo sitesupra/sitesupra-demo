@@ -62,7 +62,7 @@ doctrine:
     configuration:
         types:
             - [supraId20,  \Supra\Core\Doctrine\Type\SupraIdType]
-            - [path,  \Supra\Core\Doctrine\Type\PathType]
+            - [path, \Supra\Core\Doctrine\Type\PathType]
         type_overrides:
             - [array, \Supra\Core\Doctrine\Type\ArrayType]
         hydrators:
