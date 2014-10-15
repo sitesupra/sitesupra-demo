@@ -26,7 +26,6 @@ class CookieStorage extends AbstractStorage
 	public function store(Request $request, $localeId)
 	{
 		if ( ! ($response instanceof HttpResponse)) {
-			Log::warn("The response must be instance of Http response to use cookie storage");
 			
 			return;
 			//throw new Exception("The response must be instance of Http response to use cookie storage");
@@ -35,7 +34,6 @@ class CookieStorage extends AbstractStorage
 		$cookie = $this->createCookie($localeId);
 
 		if (empty($cookie)) {
-			Log::warn("Cookie not received from createCookie method in cookie locale storage");
 		}
 
 		/* @var $response HttpResponse */

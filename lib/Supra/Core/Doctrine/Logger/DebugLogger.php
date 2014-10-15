@@ -31,7 +31,7 @@ class DebugLogger implements  SQLLogger, ContainerAware
 	 */
 	public function startQuery($sql, array $params = null, array $types = null)
 	{
-		$this->container->getLogger()->addDebug(sprintf('DOCTRINE: %s', $sql, $params));
+		$this->container->getLogger()->addDebug(sprintf('DOCTRINE: %s', $sql), $params);
 	}
 
 	/**

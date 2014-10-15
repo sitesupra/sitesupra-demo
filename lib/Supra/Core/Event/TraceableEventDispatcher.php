@@ -79,6 +79,6 @@ class TraceableEventDispatcher extends EventDispatcher implements ContainerAware
 			$context['url'] = $event->getRequest()->getPathInfo();
 		}
 
-		$this->container->getLogger()->addDebug(sprintf('Processing %s event', $name), $context);
+		$this->container->getLogger()->addDebug(sprintf('Processing event "%s"', $name), $context);
 	}
 }

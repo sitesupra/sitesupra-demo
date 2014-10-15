@@ -78,8 +78,6 @@ class DetachedDiscriminatorHandler implements EventSubscriber
 	 */
 	protected function handleDetachedDisciminatorValue(LoadClassMetadataEventArgs $eventArgs, $annotation)
 	{
-		//\Log::debug('QQQQ: ', $eventArgs->getClassMetadata()->name);
-
 		$classMetadata = $eventArgs->getClassMetadata();
 		/* @var $classMetadata ClassMetadataInfo */
 
@@ -112,8 +110,6 @@ class DetachedDiscriminatorHandler implements EventSubscriber
 	 */
 	protected function handleDetachedDiscriminators(LoadClassMetadataEventArgs $eventArgs)
 	{
-		//\Log::debug('WWWW: ', $eventArgs->getClassMetadata()->name);
-
 		if ($this->ignoreDetachedDiscriminators) {
 			return;
 		}

@@ -18,7 +18,6 @@ class SlideshowFilter implements \Supra\Editable\Filter\FilterInterface
 	public function filter($content)
 	{
 		if (empty($this->property)) {
-			\Log::warn("No property set");
 			return null;
 		}
 		

@@ -11,6 +11,21 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class UserRepository extends EntityRepository implements UserProviderInterface
 {
 	/**
+	 * Default suffix domain
+	 *
+	 * @var string
+	 */
+	protected $defaultDomain;
+
+	/**
+	 * @param string $defaultDomain
+	 */
+	public function setDefaultDomain($defaultDomain)
+	{
+		$this->defaultDomain = $defaultDomain;
+	}
+
+	/**
 	 * Loads the user for the given username.
 	 *
 	 * This method must throw UsernameNotFoundException if the user is not
@@ -27,9 +42,8 @@ class UserRepository extends EntityRepository implements UserProviderInterface
 	 */
 	public function loadUserByUsername($username)
 	{
-		//todo: move this to "default domain"
 		if (strpos($username, '@') === false) {
-			$username = $username . '@videinfra.com';
+			$username = $username . '@' . $this->defaultDomain;
 		}
 
 		$users = $this->findByLogin($username);

@@ -15,6 +15,7 @@ session:
     storage_key:  _cms_secure
 
 users:
+    default_domain: sitesupra.org
     shared_connection:
         host: localhost
         user: root
