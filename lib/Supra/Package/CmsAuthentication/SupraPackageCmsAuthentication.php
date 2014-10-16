@@ -48,7 +48,11 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 		if ($configuration['users']['shared_connection']) {
 			$doctrineConfig = $container->getApplication()->getConfigurationSection('framework');
 
-			$doctrineConfig['doctrine']['entity_managers']['shared'] = array('connection' => 'shared', 'event_manager' => 'public');
+			$doctrineConfig['doctrine']['entity_managers']['shared'] = array(
+				'connection' => 'shared',
+				'event_manager' => 'public',
+				'configuration' => 'default'
+			);
 
 			$doctrineConfig['doctrine']['connections']['shared'] = $configuration['users']['shared_connection'];
 

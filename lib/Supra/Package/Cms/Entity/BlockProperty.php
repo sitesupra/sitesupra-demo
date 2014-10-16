@@ -3,6 +3,7 @@
 namespace Supra\Package\Cms\Entity;
 
 use Doctrine\Common\Collections;
+use Doctrine\ORM\PersistentCollection;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
@@ -16,7 +17,7 @@ use Supra\Controller\Pages\Exception;
  * Block property class.
  * 
  * @Entity
- * @HasLifecycleCallbacks
+ * //HasLifecycleCallbacks
  */
 class BlockProperty extends VersionedEntity implements
 	AuditedEntity
@@ -57,6 +58,7 @@ class BlockProperty extends VersionedEntity implements
 	
 	/**
 	 * Value additional data about links, images
+	 * 
 	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, indexBy="name")
 	 * @var Collections\Collection
 	 */
@@ -101,13 +103,13 @@ class BlockProperty extends VersionedEntity implements
 		$this->metadata = new Collections\ArrayCollection();
 	}
 	
-	/**
-	 * @PostLoad
-	 */
-	public function initializeEditable()
-	{
-		$this->setValue($this->value);
-	}
+//	/**
+//	 * @PostLoad
+//	 */
+//	public function initializeEditable()
+//	{
+//		$this->setValue($this->value);
+//	}
 
 	/**
 	 * @return Localization
@@ -330,8 +332,21 @@ class BlockProperty extends VersionedEntity implements
 //				$this->masterMetadataId = null;
 //	}
 
-	public function __clone()
+//	public function __clone()
+//	{
+//		parent::__clone();
+//	}
+
+	/**
+	 * Helper for the publishing process.
+	 * Initializes proxy associations because not initialized proxies aren't merged by Doctrine.
+	 *
+	 * @return void
+	 */
+	public function initializeProxyAssociations()
 	{
-		parent::__clone();
+		if ($this->metadata instanceof PersistentCollection) {
+			$this->metadata->initialize();
+		}
 	}
 }

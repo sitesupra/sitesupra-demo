@@ -59,14 +59,15 @@ doctrine:
                 - supra.doctrine.event_subscriber.table_name_prefixer
                 - supra.doctrine.event_subscriber.detached_discriminator_handler
                 - supra.doctrine.event_subscriber.nested_set_listener
-    configuration:
-        types:
-            - [supraId20,  \Supra\Core\Doctrine\Type\SupraIdType]
-            - [path, \Supra\Core\Doctrine\Type\PathType]
-        type_overrides:
-            - [array, \Supra\Core\Doctrine\Type\ArrayType]
-        hydrators:
-            - [ColumnHydrator, \Supra\Core\Doctrine\Hydrator\ColumnHydrator]
+    configurations:
+        default:
+            types:
+                - [supraId20,  \Supra\Core\Doctrine\Type\SupraIdType]
+                - [path, \Supra\Core\Doctrine\Type\PathType]
+            type_overrides:
+                - [array, \Supra\Core\Doctrine\Type\ArrayType]
+            hydrators:
+                - [ColumnHydrator, \Supra\Core\Doctrine\Hydrator\ColumnHydrator]
     connections:
         default:
             host: %framework.doctrine.credentials.hostname%

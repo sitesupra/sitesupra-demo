@@ -15,14 +15,10 @@ use Supra\Package\Cms\Pages\Application\PageApplicationManager;
 use Supra\Package\Cms\Pages\Application\BlogPageApplication;
 use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
 use Supra\Package\Cms\Pages\Layout\Theme\DefaultThemeProvider;
-use Supra\Package\Cms\Pages\Listener\VersionedEntityRevisionSetterListener;
-use Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener;
 use Supra\Package\Cms\Controller\PageController;
 use Supra\Package\Cms\Pages\Block\BlockCollection;
 use Supra\Package\Cms\Pages\Layout\Processor\TwigProcessor;
 use Supra\Package\Cms\Pages\Block\BlockGroupConfiguration;
-use Supra\Package\Cms\Doctrine\Subscriber\TimestampableListener;
-use DebugBar\Bridge\DoctrineCollector;
 
 class SupraPackageCms extends AbstractSupraPackage
 {
@@ -59,7 +55,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			array(
 				'subscribers' => array(
 					'supra.cms.doctrine.event_subscriber.versioned_entity_schema',
-					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter'
+//					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter'
 				)
 			)
 		);
@@ -67,13 +63,23 @@ class SupraPackageCms extends AbstractSupraPackage
 		$frameworkConfiguration['doctrine']['connections']['cms'] = array_merge(
 			$frameworkConfiguration['doctrine']['connections']['default'],
 			array(
-				'event_manager' => 'cms'
+				'event_manager' => 'cms',
+				'configuration' => 'cms'
+			)
+		);
+
+		$frameworkConfiguration['doctrine']['configurations']['cms'] = array_merge(
+			$frameworkConfiguration['doctrine']['configurations']['default'],
+			array(
+				'types' => array(),
+				'type_overrides' => array()
 			)
 		);
 
 		$frameworkConfiguration['doctrine']['entity_managers']['cms'] = array(
-			'connection' => 'cms',
-			'event_manager' => 'cms'
+			'connection'	=> 'cms',
+			'event_manager'	=> 'cms',
+			'configuration'	=> 'cms'
 		);
 
 		$container->getApplication()->setConfigurationSection('framework', $frameworkConfiguration);

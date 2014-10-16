@@ -889,4 +889,17 @@ abstract class Localization extends VersionedEntity implements
 		
 		$this->tags->set($name, $tag);
 	}
+
+	/**
+	 * Helper for the publishing process.
+	 * Initializes proxy associations because not initialized proxies aren't merged by Doctrine.
+	 *
+	 * @return void
+	 */
+	public function initializeProxyAssociations()
+	{
+		if ($this->tags instanceof \Doctrine\ORM\PersistentCollection) {
+			$this->tags->initialize();
+		}
+	}
 }

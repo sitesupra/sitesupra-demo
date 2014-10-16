@@ -24,6 +24,7 @@ use Supra\Package\Cms\Editable\Html;
 use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Editable\Transformer\HtmlEditorValueTransformer;
+use Supra\Package\Cms\Exception\CmsException;
 
 use Supra\Uri\Path;
 
@@ -40,7 +41,6 @@ use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\FileStorage\Entity\Image;
 use Supra\FileStorage\Entity\File;
 use Supra\User\Entity\User;
-use Supra\Cms\Exception\CmsException;
 use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
 use Supra\Loader\Loader;
 use Supra\AuditLog\AuditLogEvent;

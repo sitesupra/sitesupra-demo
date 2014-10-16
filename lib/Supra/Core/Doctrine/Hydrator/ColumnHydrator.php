@@ -3,7 +3,6 @@
 namespace Supra\Core\Doctrine\Hydrator;
 
 use Doctrine\ORM\Internal\Hydration\AbstractHydrator;
-use PDO;
 
 /**
  * Hydrator used for one column array fetching

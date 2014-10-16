@@ -156,56 +156,58 @@ class SupraPackageFramework extends AbstractSupraPackage
 			};
 		}
 
-		$ormConfigurationDefinition = $doctrineConfig['configuration'];
 		$application = $container->getApplication();
 
-		$container['doctrine.configuration'] = function (ContainerInterface $container) use ($ormConfigurationDefinition, $application) {
-			//loading package directories
-			$packages = $application->getPackages();
+		foreach ($doctrineConfig['configurations'] as $name => $configurationDefinition) {
 
-			$paths = array();
+			$container['doctrine.configurations.'.$name] = function (ContainerInterface $container) use ($configurationDefinition, $application) {
+				//loading package directories
+				$packages = $application->getPackages();
 
-			foreach ($packages as $package) {
-				$entityDir = $application->locatePackageRoot($package) . DIRECTORY_SEPARATOR . 'Entity';
+				$paths = array();
 
-				if (is_dir($entityDir)) {
-					$paths[] = $entityDir;
+				foreach ($packages as $package) {
+					$entityDir = $application->locatePackageRoot($package) . DIRECTORY_SEPARATOR . 'Entity';
+
+					if (is_dir($entityDir)) {
+						$paths[] = $entityDir;
+					}
 				}
-			}
 
-			$configuration = Setup::createAnnotationMetadataConfiguration($paths,
-				$container->getParameter('debug'),
-				$container->getParameter('directories.cache') . DIRECTORY_SEPARATOR . 'doctrine'
-			);
+				$configuration = Setup::createAnnotationMetadataConfiguration($paths,
+					$container->getParameter('debug'),
+					$container->getParameter('directories.cache') . DIRECTORY_SEPARATOR . 'doctrine'
+				);
 
-			if ($container->getParameter('debug')) {
-				$logger = $container['logger.doctrine'];
+				if ($container->getParameter('debug')) {
+					$logger = $container['logger.doctrine'];
 
-				$container['doctrine.logger']->addLogger($logger);
+					$container['doctrine.logger']->addLogger($logger);
 
-				$configuration->setSQLLogger($container['doctrine.logger']);
-			}
+					$configuration->setSQLLogger($container['doctrine.logger']);
+				}
 
-			//Foo:Bar -> \FooPackage\Entity\Bar aliases
-			foreach ($packages as $package) {
-				$class = get_class($package);
-				$namespace = substr($class, 0, strrpos($class, '\\')) . '\\Entity';
-				$configuration->addEntityNamespace($application->resolveName($package), $namespace);
-			}
+				//Foo:Bar -> \FooPackage\Entity\Bar aliases
+				foreach ($packages as $package) {
+					$class = get_class($package);
+					$namespace = substr($class, 0, strrpos($class, '\\')) . '\\Entity';
+					$configuration->addEntityNamespace($application->resolveName($package), $namespace);
+				}
 
-			//custom types
-			foreach ($ormConfigurationDefinition['types'] as $definition) {
-				list($name, $class) = $definition;
-				Type::addType($name, $class);
-			}
+				//custom types
+				foreach ($configurationDefinition['types'] as $definition) {
+					list($name, $class) = $definition;
+					Type::addType($name, $class);
+				}
 
-			foreach ($ormConfigurationDefinition['type_overrides'] as $definition) {
-				list($name, $class) = $definition;
-				Type::overrideType($name, $class);
-			}
+				foreach ($configurationDefinition['type_overrides'] as $definition) {
+					list($name, $class) = $definition;
+					Type::overrideType($name, $class);
+				}
 
-			return $configuration;
-		};
+				return $configuration;
+			};
+		}
 
 		foreach ($doctrineConfig['connections'] as $name => $connectionDefinition) {
 			$container['doctrine.connections.'.$name] = function (ContainerInterface $container) use ($connectionDefinition) {
@@ -222,7 +224,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 						'charset' => $connectionDefinition['charset']
 					),
 					new PDOMySql\Driver(),
-					$container['doctrine.configuration'],
+					$container['doctrine.configurations.'.$connectionDefinition['configuration']],
 					$container['doctrine.event_managers.'.$connectionDefinition['event_manager']]
 				);
 
@@ -231,21 +233,29 @@ class SupraPackageFramework extends AbstractSupraPackage
 		}
 
 		foreach ($doctrineConfig['entity_managers'] as $name => $entityManagerDefinition) {
-			$container['doctrine.entity_managers.'.$name] = function (ContainerInterface $container) use ($entityManagerDefinition, $doctrineConfig) {
+			$container['doctrine.entity_managers.'.$name] = function (ContainerInterface $container) use ($name, $entityManagerDefinition, $doctrineConfig) {
+
+				$ormConfigurationName = $entityManagerDefinition['configuration'];
+				$ormConfiguration = $container['doctrine.configurations.' . $ormConfigurationName];
+
 				$em = EntityManager::create(
 					$container['doctrine.connections.'.$entityManagerDefinition['connection']],
-					$container['doctrine.configuration'],
+					$ormConfiguration,
 					$container['doctrine.event_managers.'.$entityManagerDefinition['event_manager']]
 				);
 
-				foreach ($doctrineConfig['configuration']['hydrators'] as $hydratorDefinition) {
+				// @DEV, remove
+				$em->name = $name;
+
+				foreach ($doctrineConfig['configurations'][$ormConfigurationName]['hydrators'] as $hydratorDefinition) {
+
 					list($name, $class) = $hydratorDefinition;
 
 					$reflection = new \ReflectionClass($class);
 
 					$hydrator = $reflection->newInstanceArgs(array($em));
 
-					$container['doctrine.configuration']->addCustomHydrationMode($name, $hydrator);
+					$ormConfiguration->addCustomHydrationMode($name, $hydrator);
 				}
 
 				return $em;

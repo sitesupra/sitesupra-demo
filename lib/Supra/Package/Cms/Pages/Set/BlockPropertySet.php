@@ -44,9 +44,7 @@ class BlockPropertySet extends AbstractSet
 			$blockIdList[$blockId] = $blockId;
 		}
 		
-		$blockIdList = array_values($blockIdList);
-		
-		return $blockIdList;
+		return array_values($blockIdList);
 	}
 	
 	/**

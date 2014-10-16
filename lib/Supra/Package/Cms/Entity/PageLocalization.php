@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Entity;
 
+use Doctrine\ORM\Proxy\Proxy;
 use Supra\Uri\Path;
 use Supra\Uri\NullPath;
 use Supra\Package\Cms\Entity\Abstraction\RedirectTarget;
@@ -466,21 +467,19 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * @internal Helper for the publishing process.
-	 *			 Initializes proxy associations because Proxies aren't merged by Doctrine.
+	 * @inheritDoc
 	 */
 	public function initializeProxyAssociations()
 	{
-		if ($this->template) {
-			$this->template->getId();
-		}
-		
-		if ($this->path) {
-			$this->path->getId();
-		}
-		
-		if ($this->redirectTarget) {
-			$this->redirectTarget->getId();
+		parent::initializeProxyAssociations();
+
+		foreach (array($this->template, $this->path, $this->redirectTarget) as $proxy) {
+
+			if ($proxy instanceof Proxy
+					&& ! $proxy->__isInitialized()) {
+
+				$proxy->__load();
+			}
 		}
 	}
 
