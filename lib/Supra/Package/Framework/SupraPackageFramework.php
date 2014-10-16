@@ -36,6 +36,7 @@ use Supra\Package\Framework\Command\SupraBootstrapCommand;
 use Supra\Package\Framework\Command\SupraShellCommand;
 use Supra\Package\Framework\Listener\NotFoundAssetExceptionListener;
 use Supra\Package\Framework\Twig\FrameworkExtension;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class SupraPackageFramework extends AbstractSupraPackage
 {
@@ -274,6 +275,25 @@ class SupraPackageFramework extends AbstractSupraPackage
 				$doctrineConfig['default_entity_manager'],
 				'foobar'
 			);
+		};
+
+		//sessions and HttpFoundation
+		$sessionConfig = $container->getParameter('framework.session');
+
+		$container['http.session'] = function (ContainerInterface $container) use ($sessionConfig) {
+			if (PHP_SAPI == 'cli') {
+				throw new \Exception('Sessions are not possible in CLI mode');
+			}
+
+			$storage = $container[$sessionConfig['storage']];
+
+			$session = new Session($storage);
+
+			$session->start();
+
+			$container['http.request']->setSession($session);
+
+			return $session;
 		};
 	}
 }

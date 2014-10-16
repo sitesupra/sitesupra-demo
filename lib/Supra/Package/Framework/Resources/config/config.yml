@@ -14,6 +14,11 @@ services:
         class: \Supra\Core\Doctrine\Subscriber\DetachedDiscriminatorHandler
     supra.doctrine.event_subscriber.nested_set_listener:
         class: \Supra\Core\Doctrine\Subscriber\NestedSetListener
+    supra.framework.session_storage_native:
+        class: \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage
+        parameters: [[], @supra.framework.session_handler_doctrine]
+    supra.framework.session_handler_doctrine:
+        class: \Supra\Package\Framework\Session\DoctrineSessionHandler
 locales:
     locales:
         -
@@ -82,3 +87,5 @@ doctrine:
             event_manager: public
     default_entity_manager: public
     default_connection: default
+session:
+    storage: supra.framework.session_storage_native
