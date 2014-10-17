@@ -70,10 +70,7 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		$frameworkConfiguration['doctrine']['configurations']['cms'] = array_merge(
 			$frameworkConfiguration['doctrine']['configurations']['default'],
-			array(
-				'types' => array(),
-				'type_overrides' => array()
-			)
+			array()
 		);
 
 		$frameworkConfiguration['doctrine']['entity_managers']['cms'] = array(

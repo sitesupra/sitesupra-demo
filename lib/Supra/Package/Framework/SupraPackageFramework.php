@@ -145,6 +145,17 @@ class SupraPackageFramework extends AbstractSupraPackage
 		//finishing doctrine
 		$doctrineConfig = $container->getParameter('framework.doctrine');
 
+		//let's believe that types are needed always
+		foreach ($doctrineConfig['types'] as $definition) {
+			list($name, $class) = $definition;
+			Type::addType($name, $class);
+		}
+
+		foreach ($doctrineConfig['type_overrides'] as $definition) {
+			list($name, $class) = $definition;
+			Type::overrideType($name, $class);
+		}
+
 		foreach ($doctrineConfig['event_managers'] as $name => $managerDefinition) {
 			$container['doctrine.event_managers.'.$name] = function (ContainerInterface $container) use ($managerDefinition) {
 				$manager = new EventManager();
@@ -193,17 +204,6 @@ class SupraPackageFramework extends AbstractSupraPackage
 					$class = get_class($package);
 					$namespace = substr($class, 0, strrpos($class, '\\')) . '\\Entity';
 					$configuration->addEntityNamespace($application->resolveName($package), $namespace);
-				}
-
-				//custom types
-				foreach ($configurationDefinition['types'] as $definition) {
-					list($name, $class) = $definition;
-					Type::addType($name, $class);
-				}
-
-				foreach ($configurationDefinition['type_overrides'] as $definition) {
-					list($name, $class) = $definition;
-					Type::overrideType($name, $class);
 				}
 
 				return $configuration;
