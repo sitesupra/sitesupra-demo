@@ -3,13 +3,14 @@
 namespace Supra\Package\CmsAuthentication\Entity;
 
 use Supra\Authorization\AuthorizedEntityInterface;
+use Supra\Package\Cms\Entity\Abstraction\TimestampableInterface;
 
 /**
  * Group object
  * @Entity
  * @Table(name="group") 
  */
-class Group extends AbstractUser implements AuthorizedEntityInterface
+class Group extends AbstractUser implements AuthorizedEntityInterface, TimestampableInterface
 {
 
 	/**

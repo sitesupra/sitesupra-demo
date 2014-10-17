@@ -39,6 +39,21 @@ class UsersUpdateCommand extends AbstractCommand
 			$user->setPassword($encoded);
 		}
 
+		if (!is_null($input->getOption('active'))) {
+			$user->setActive((bool)$input->getOption('active'));
+		}
+
+		//currently one group by design
+		if ($input->getOption('groups')) {
+			$group = $em->getRepository('CmsAuthentication:Group')->findOneByName($input->getOption('groups'));
+
+			if ($group) {
+				$user->setGroup($group);
+			} else {
+				throw new \Exception(sprintf('Group "%s" does not exist', $input->getOption('groups')));
+			}
+		}
+
 		$this->container->getDoctrine()->getManager()->flush();
 
 		$output->writeln('User updated!');

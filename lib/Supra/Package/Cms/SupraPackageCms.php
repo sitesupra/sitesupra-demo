@@ -48,8 +48,6 @@ class SupraPackageCms extends AbstractSupraPackage
 		//setting up doctrine
 		$frameworkConfiguration = $container->getApplication()->getConfigurationSection('framework');
 
-		$frameworkConfiguration['doctrine']['event_managers']['public']['subscribers'][] = 'supra.cms.doctrine.event_subscriber.timestampable';
-
 		$frameworkConfiguration['doctrine']['event_managers']['cms'] = array_merge_recursive(
 			$frameworkConfiguration['doctrine']['event_managers']['public'],
 			array(

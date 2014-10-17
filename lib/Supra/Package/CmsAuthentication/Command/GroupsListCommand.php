@@ -9,11 +9,11 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UsersGroupsCommand extends AbstractCommand
+class GroupsListCommand extends AbstractCommand
 {
 	protected function configure()
 	{
-		$this->setName('users:groups')
+		$this->setName('groups:list')
 			->setDescription('Lists groups, provide --em to use different EntityManager')
 			->addOption('em', null, InputArgument::OPTIONAL, 'Entity manager name');
 	}
@@ -26,14 +26,15 @@ class UsersGroupsCommand extends AbstractCommand
 
 		$table = new Table($output);
 
-		$table->setHeaders(array('ID', 'Name'));
+		$table->setHeaders(array('ID', 'Name', 'Super'));
 
-		$table->addRows(array_map(function ($user) {
-			/* @var $user Group */
+		$table->addRows(array_map(function ($group) {
+			/* @var $group Group */
 
 			return array(
-				$user->getId(),
-				$user->getName()
+				$group->getId(),
+				$group->getName(),
+				$group->isSuper() ? '<info>Yes</info>' : 'No'
 			);
 		}, $users));
 
