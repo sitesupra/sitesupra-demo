@@ -6,7 +6,9 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Package\CmsAuthentication\Application\CmsAuthenticationApplication;
+use Supra\Package\CmsAuthentication\Command\UsersGroupsCommand;
 use Supra\Package\CmsAuthentication\Command\UsersListCommand;
+use Supra\Package\CmsAuthentication\Command\UsersUpdateCommand;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationRequestListener;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationResponseListener;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
@@ -26,6 +28,8 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 
 		//register commands
 		$container->getConsole()->add(new UsersListCommand());
+		$container->getConsole()->add(new UsersGroupsCommand());
+		$container->getConsole()->add(new UsersUpdateCommand());
 
 		$container[$this->name.'.request_listener'] = function () {
 			return new CmsAuthenticationRequestListener();

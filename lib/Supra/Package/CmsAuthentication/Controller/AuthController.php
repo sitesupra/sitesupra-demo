@@ -51,7 +51,7 @@ class AuthController extends Controller
 		/* @var $authenticationManager AuthenticationProviderManager */
 
 		$event = new DataAgnosticEvent();
-		$event->setData(array('username' => $username, 'password' => $password));
+		$event->setData(array('username' => $username, 'password' => $password, 'result' => null));
 
 		try {
 			$this->container->getEventDispatcher()->dispatch(self::PRE_AUTHENTICATE_EVENT, $event);
