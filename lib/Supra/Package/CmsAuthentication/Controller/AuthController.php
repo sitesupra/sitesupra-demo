@@ -3,6 +3,7 @@
 namespace Supra\Package\CmsAuthentication\Controller;
 
 use Supra\Core\Controller\Controller;
+use Supra\Core\Event\DataAgnosticEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,10 @@ class AuthController extends Controller
 	const HEADER_401_REDIRECT = 'X-Authentication-Pre-Filter-Redirect';
 	const FAILURE_STATUS = 401;
 	const EMPTY_BODY = '1';
+	const PRE_AUTHENTICATE_EVENT = 'cms_authentication.pre_authenticate';
+	const POST_AUTHENTICATE_EVENT = 'cms_authentication.post_authenticate';
+	const AUTHENTICATION_EXCEPTION_EVENT = 'cms_authentication.exception';
+	const AUTHENTICATION_RESULT_EVENT = 'cms_authentication.result';
 
 	/**
 	 * @var string
@@ -42,28 +47,33 @@ class AuthController extends Controller
 		$username = $request->request->get('supra_login', 'admin');
 		$password = $request->request->get('supra_password', 'admin');
 
-		//success results send cookie AND "1" as response body
-		//password redirect results send location
-		//failures send 401 status and const HEADER_401_MESSAGE = 'X-Authentication-Pre-Filter-Message',
-		//HEADER_401_REDIRECT = 'X-Authentication-Pre-Filter-Redirect'; something
-		//currently messages for both exceptions are the same;
-		//if ($exc instanceof Exception\WrongPasswordException) {
-		//$message = 'Incorrect login name or password';
-		//}
-		//
-		//if ($exc instanceof Exception\UserNotFoundException) {
-		//$message = 'Incorrect login name or password';
-		//}
-		//so we can merge them in one response
-
 		$authenticationManager = $this->container['cms_authentication.users.authentication_manager'];
 		/* @var $authenticationManager AuthenticationProviderManager */
 
+		$event = new DataAgnosticEvent();
+		$event->setData(array('username' => $username, 'password' => $password));
+
 		try {
+			$this->container->getEventDispatcher()->dispatch(self::PRE_AUTHENTICATE_EVENT, $event);
+
 			$result = $authenticationManager->authenticate(
-				new UsernamePasswordToken($username, $password, $this->container->getParameter('cms_authentication.provider_key'))
+				new UsernamePasswordToken($event->getData()['username'], $event->getData()['password'], $this->container->getParameter('cms_authentication.provider_key'))
 			);
+
+			$event->setData(array_merge($event->getData(), array('result' => $result)));
+
+			$this->container->getEventDispatcher()->dispatch(self::POST_AUTHENTICATE_EVENT, $event);
+
+			$result = $event->getData()['result'];
 		} catch (BadCredentialsException $e) {
+			$event->setData(array_merge($event->getData(), array('exception' => $e)));
+
+			$this->container->getEventDispatcher()->dispatch(self::AUTHENTICATION_EXCEPTION_EVENT, $event);
+
+			if ($event->getData()['result'] instanceof Response) {
+				return $event->getData()['result'];
+			}
+
 			//if password is not valid Symfony throws plain BadCredentialException, so we can put "Invalid password" here
 			$message = 'Incorrect login name or password';
 
@@ -75,25 +85,35 @@ class AuthController extends Controller
 			}
 
 			return new Response(
-				$this::EMPTY_BODY,
-				$this::FAILURE_STATUS,
-				array($this::HEADER_401_MESSAGE => $message)
+				self::EMPTY_BODY,
+				self::FAILURE_STATUS,
+				array(self::HEADER_401_MESSAGE => $message)
 			);
+		}
+
+		$event->setData($event->getData(), array('result' => $result));
+
+		$this->container->getEventDispatcher()->dispatch(self::AUTHENTICATION_RESULT_EVENT, $event);
+
+		$result = $event->getData()['result'];
+
+		if ($event->getData()['result'] instanceof Response) {
+			return $event->getData()['result'];
 		}
 
 		if ($result instanceof TokenInterface) {
 			$this->container->getSecurityContext()->setToken($result);
 
 			return new Response(
-				$this::EMPTY_BODY
+				self::EMPTY_BODY
 			);
 		}
 
 		//catch-all
 		return new Response(
-			$this::EMPTY_BODY,
-			$this::FAILURE_STATUS,
-			array($this::HEADER_401_MESSAGE => 'Unknown authentication error')
+			AuthController::EMPTY_BODY,
+			AuthController::FAILURE_STATUS,
+			array(AuthController::HEADER_401_MESSAGE => 'Unknown authentication error')
 		);
 	}
 }
