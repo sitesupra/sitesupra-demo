@@ -6,7 +6,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Entity\TemplateLocalization;
 use Supra\Package\Cms\Entity\PageLocalization;
@@ -224,65 +223,6 @@ class PagesPageController extends AbstractPagesController
 				$this->loadNodeMainData($localization),
 				$localizationData
 		);
-	}
-
-	/**
-	 * @param Block $block
-	 * @return array
-	 */
-	private function getBlockData(Block $block)
-	{
-		return array(
-			'id'			=> $block->getId(),
-			'type'			=> $block->getComponentName(),
-			'closed'		=> false,//@fixme
-			'locked'		=> $block->isLocked(),
-			'properties'	=> $this->getBlockPropertyData($block),
-			// @TODO: check if this still is used somewhere, remove if not.
-			'owner_id'	=> $block->getPlaceHolder()
-								->getLocalization()->getId()
-		);
-	}
-
-	/**
-	 * @param Block $block
-	 * @return array
-	 */
-	private function getBlockPropertyData(Block $block)
-	{
-		$blockController = $this->getBlockCollection()
-				->createController($block);
-
-		$pageController = $this->getPageController();
-		
-		$pageRequest = $this->createPageRequest();
-
-		$pageController->prepareBlockController($blockController, $pageRequest);
-
-		$configuration = $blockController->getConfiguration();
-
-		$propertyData = array();
-
-		foreach ($configuration->getProperties() as $propertyConfiguration) {
-
-			// @TODO: do it someway better.
-
-			$name = $propertyConfiguration->getName();
-
-			$editable = $propertyConfiguration->getEditable();
-
-			$property = $blockController->getProperty($name);
-
-			$this->configureEditableValueTransformers($editable, $property);
-
-			$editable->setRawValue($property->getValue());
-
-			$propertyData[$name] = array(
-				'value' => 	$editable->getEditorValue(),
-			);
-		}
-
-		return $propertyData;
 	}
 
 	/**

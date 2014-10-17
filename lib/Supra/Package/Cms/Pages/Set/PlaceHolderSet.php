@@ -9,6 +9,7 @@ use Supra\Controller\Pages\Exception;
 
 /**
  * Set of place holders
+ * @method PlaceHolder offsetGet()
  */
 class PlaceHolderSet extends AbstractSet
 {
@@ -96,7 +97,7 @@ class PlaceHolderSet extends AbstractSet
 	/**
 	 * Loads the last place holder in the set by the name provided
 	 * @param string $name
-	 * @return Entity\Abstraction\PlaceHolder
+	 * @return PlaceHolder
 	 */
 	public function getLastByName($name)
 	{

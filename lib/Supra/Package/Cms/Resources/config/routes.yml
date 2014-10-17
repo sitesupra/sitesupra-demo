@@ -93,6 +93,7 @@ routes:
         options:
           frontend:					true
     ## Content save action
+    ## @TODO: rename cms_pages_content_block_save?
     cms_pages_content_save:
         pattern:						%cms.prefix%/content-manager/pagecontent/save
         controller:					Cms:PagesContent:save
@@ -102,3 +103,15 @@ routes:
         controller:					Cms:PagesContent:publish
         requirements:
           type: template|page
+    cms_pages_content_block_insert:
+        pattern:						%cms.prefix%/content-manager/pagecontent/insertblock
+        controller:					Cms:PagesContent:insertBlock
+    cms_pages_content_block_delete:
+        pattern:						%cms.prefix%/content-manager/pagecontent/deleteblock
+        controller:					Cms:PagesContent:deleteBlock
+    cms_pages_content_blocks_reorder:
+        pattern:						%cms.prefix%/content-manager/pagecontent/orderblocks
+        controller:					Cms:PagesContent:reorderBlocks
+    cms_pages_content_blocks_move:
+        pattern:						%cms.prefix%/content-manager/pagecontent/moveblocks
+        controller:					Cms:PagesContent:moveBlocks

@@ -2,11 +2,12 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Package\Cms\Entity\LockData;
 use Supra\AuditLog\TitleTrackingItemInterface;
 use Supra\Controller\Pages\Exception\RuntimeException;
-use Supra\Package\Cms\Entity\PlaceHolderGroup;
+//use Supra\Package\Cms\Entity\PlaceHolderGroup;
 
 /**
  * @Entity
@@ -158,12 +159,12 @@ abstract class Localization extends VersionedEntity implements
 	 */
 	protected $creationMonth;
 	
-	/**
-	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\PlaceHolderGroup", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
-	 * @var Collection
-	 */
-	protected $placeHolderGroups;
-	
+//	/**
+//	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\PlaceHolderGroup", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
+//	 * @var Collection
+//	 */
+//	protected $placeHolderGroups;
+//
 	/**
 	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\LocalizationTag", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name", fetch="EXTRA_LAZY")
 	 * @var Collection
@@ -179,7 +180,7 @@ abstract class Localization extends VersionedEntity implements
 		parent::__construct();
 		$this->setLocale($locale);
 		$this->placeHolders = new ArrayCollection();
-		$this->placeHolderGroups = new ArrayCollection();
+//		$this->placeHolderGroups = new ArrayCollection();
 		
 		$this->tags = new ArrayCollection();
 	}
@@ -838,23 +839,23 @@ abstract class Localization extends VersionedEntity implements
 		return static::getPreviewFilenameForLocalizationAndRevision($this->getId(), $this->getRevisionId());
 	}
 	
-	
-	/**
-	 * @return \Doctrine\Common\Collections\ArrayCollection
-	 */
-	public function getPlaceHolderGroups()
-	{
-		return $this->placeHolderGroups;
-	}
+//
+//	/**
+//	 * @return \Doctrine\Common\Collections\ArrayCollection
+//	 */
+//	public function getPlaceHolderGroups()
+//	{
+//		return $this->placeHolderGroups;
+//	}
 
-	/**
-	 * @param PlaceHolderGroup $group
-	 */
-	public function addPlaceHolderGroup(PlaceHolderGroup $group)
-	{
-		$group->setLocalization($this);
-		$this->placeHolderGroups->set($group->getName(), $group);
-	}
+//	/**
+//	 * @param PlaceHolderGroup $group
+//	 */
+//	public function addPlaceHolderGroup(PlaceHolderGroup $group)
+//	{
+//		$group->setLocalization($this);
+//		$this->placeHolderGroups->set($group->getName(), $group);
+//	}
 	
 	/**
 	 * @return Collection

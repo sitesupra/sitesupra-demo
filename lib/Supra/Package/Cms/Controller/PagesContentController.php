@@ -401,6 +401,251 @@ class PagesContentController extends AbstractPagesController
 	}
 
 	/**
+	 * Handles new block insertion request.
+	 */
+	public function insertBlockAction()
+	{
+		$this->isPostRequest();
+		$this->checkLock();
+
+		$pageRequest = $this->createPageRequest();
+
+		$blockComponentName = $this->getRequestParameter('type');
+
+		// Generate block according the page localization type provided
+		$block = Block::factory($this->getPageLocalization());
+		$block->setComponentName($blockComponentName);
+
+		$class = $block->getComponentClass();
+
+		$blockConfiguration = $this->getBlockCollection()
+				->getConfiguration($class);
+
+		// logic/code issue
+		if (! $blockConfiguration->isInsertable()) {
+			throw new CmsException(null, 'This block cannot be added.');
+		}
+
+		// deny adding if block is defined as unique
+		// and page block set already contains it.
+		if ($blockConfiguration->isUnique()) {
+
+			foreach ($pageRequest->getBlockSet() as $existingBlock) {
+
+				if ($existingBlock->getComponentClass() === $class) {
+					throw new CmsException(
+							null,
+							sprinf(
+									'Only one instance of "%s" block can be added on the page.',
+									$blockConfiguration->getTitle()
+							)
+					);
+				}
+			}
+		}
+
+		$placeHolderName = $this->getRequestParameter('placeholder_id');
+
+		$placeHolder = $pageRequest->getPlaceHolderSet()
+				->getFinalPlaceHolders()
+				->offsetGet($placeHolderName);
+
+		if ($placeHolder === null) {
+			throw new \InvalidArgumentException(sprintf(
+					'Missing placeholder [%s] in place holder set.',
+					$placeHolderName
+			));
+		}
+
+		$insertBeforeTargetId = $this->getRequestInput()->get('reference_id');
+
+		if (! empty($insertBeforeTargetId)) {
+
+			$insertBeforeTarget = null;
+			
+			foreach ($placeHolder->getBlocks() as $existingBlock) {
+				if ($existingBlock->getId() === $insertBeforeTargetId) {
+					$insertBeforeTarget = $existingBlock;
+					break;
+				}
+			}
+
+			if ($insertBeforeTarget === null) {
+				throw new \InvalidArgumentException(sprintf(
+						'Blocks collection item [%s] not found.',
+						$insertBeforeTargetId
+				));
+			}
+
+			$placeHolder->addBlockBefore($insertBeforeTarget, $block);
+
+		} else {
+			$placeHolder->addBlockLast($block);
+		}
+
+		$entityManager = $this->getEntityManager();
+
+		$entityManager->persist($block);
+
+		$entityManager->flush();
+
+//		$this->savePostTrigger();
+
+		return new SupraJsonResponse($this->getBlockData($block, true));
+	}
+
+	/**
+	 * Handles block deletion request.
+	 */
+	public function deleteBlockAction()
+	{
+		$this->isPostRequest();
+		$this->checkLock();
+
+		$blockId = $this->getRequestParameter('block_id');
+
+		$entityManager = $this->getEntityManager();
+
+		$block = $entityManager->find(Block::CN(), $blockId);
+
+		if ($block === null) {
+			throw new CmsException(null, sprintf('Block with ID [%s] not found.', $blockId));
+		}
+
+		$entityManager->remove($block);
+
+		$entityManager->flush();
+		
+//		$this->savePostTrigger();
+
+		return new SupraJsonResponse();
+	}
+
+	/**
+	 * Handles block move(between multiple placeholders) request.
+	 */
+	public function moveBlocksAction()
+	{
+		$this->isPostRequest();
+		$this->checkLock();
+
+		$pageRequest = $this->createPageRequest();
+
+		$blockId = $this->getRequestInput()->get('block_id');
+
+		$block = $this->getEntityManager()
+				->find(Block::CN(), $blockId);
+
+		if ($block === null) {
+			throw new CmsException(null, sprintf('Block with ID [%s] not found.', $blockId));
+		}
+
+		$targetPlaceHolderName = $this->getRequestParameter('place_holder_id');
+
+		$targetPlaceHolder = $pageRequest->getPlaceHolderSet()
+				->getFinalPlaceHolders()
+				->offsetGet($targetPlaceHolderName);
+
+		if ($targetPlaceHolder === null) {
+			throw new \InvalidArgumentException(sprintf(
+					'Placeholder [%s] not found in placeholders set.',
+					$targetPlaceHolderName
+			));
+		}
+
+		$currentPlaceHolder = $block->getPlaceHolder();
+
+		if ($currentPlaceHolder === $targetPlaceHolder) {
+			// JS error or data spoofing
+			throw new \LogicException('Current and new placeholders are the same.');
+		}
+
+		$currentPlaceHolder->removeBlock($block);
+
+		$targetPlaceHolder->addBlockLast($block);
+
+		// @TODO: not quite sure that block will exists in collection already.
+		//		should be rewrited.
+		$blockSet = $pageRequest->getBlockSet()
+				->getPlaceHolderBlockSet($targetPlaceHolder);
+
+		$blockPositionMap = array_values($this->getRequestParameter('order', array()));
+
+		if ($blockSet->count() !== count($blockPositionMap)) {
+			// JS error or data spoofing
+			throw new \UnexpectedValueException('Ordered elements and actual blocks count does not match.');
+		}
+
+		foreach ($blockPositionMap as $position => $id) {
+
+			$block = $blockSet->findById($id);
+
+			if ($block === null) {
+				throw new \UnexpectedValueException(sprintf('Block [%s] not found.'));
+			}
+
+			$block->setPosition($position);
+		}
+
+		$this->getEntityManager()
+				->flush();
+
+		return new SupraJsonResponse();
+	}
+
+	/**
+	 * Handles block reordering(block movement withing a single placeholder) request.
+	 */
+	public function reorderBlocksAction()
+	{
+		$this->isPostRequest();
+		$this->checkLock();
+
+		$placeHolderName = $this->getRequestParameter('place_holder_id');
+
+		$pageRequest = $this->createPageRequest();
+
+		$placeHolder = $pageRequest->getPlaceHolderSet()
+				->getFinalPlaceHolders()
+				->offsetGet($placeHolderName);
+
+		if ($placeHolder === null) {
+			throw new \InvalidArgumentException(sprintf(
+					'Placeholder [%s] not found in placeholders set.',
+					$placeHolderName
+			));
+		}
+
+		$blockSet = $pageRequest->getBlockSet()
+				->getPlaceHolderBlockSet($placeHolder);
+
+		$blockPositionMap = array_values($this->getRequestParameter('order', array()));
+
+		if ($blockSet->count() !== count($blockPositionMap)) {
+			// JS error or data spoofing
+			throw new \UnexpectedValueException('Ordered elements and actual blocks count does not match.');
+		}
+
+		foreach ($blockPositionMap as $position => $id) {
+			
+			$block = $blockSet->findById($id);
+			
+			if ($block === null) {
+				throw new \UnexpectedValueException(sprintf('Block [%s] not found.'));
+			}
+
+			$block->setPosition($position);
+		}
+
+		$this->getEntityManager()
+				->flush();
+
+//		$this->savePostTrigger();
+
+		return new SupraJsonResponse();
+	}
+
+	/**
 	 * @param \Doctrine\ORM\EntityManager $entityManager
 	 * @param Localization $localization
 	 */

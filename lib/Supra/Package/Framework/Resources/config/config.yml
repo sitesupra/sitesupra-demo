@@ -26,24 +26,9 @@ locales:
             title: English
             country: Latvia
             properties:
-               flag: lv
+               flag: en
                language: en
             active: true
-        -
-            id: lv
-            title: Latvian
-            country: Latvia
-            properties:
-                flag: lv
-                language: lv
-            active: false
-        -
-            id: ru
-            title: Russian
-            country: Russia
-            properties:
-                flag: ru
-                language: ru
     detectors:
         - locale.detector.cookie
     ## @FIXME: Doesn't work now, requires Response object

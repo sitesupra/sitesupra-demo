@@ -2,12 +2,14 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Supra\Package\Cms\Pages\Application\PageApplicationInterface;
 use Supra\Package\Cms\Entity\Abstraction\Entity as AbstractEntity;
 use Supra\Package\Cms\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
+use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\PageRevisionData;
 use Supra\Package\Cms\Entity\Page;
 use Supra\Package\Cms\Entity\GroupPage;
@@ -25,6 +27,7 @@ use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Editable\Transformer\HtmlEditorValueTransformer;
 use Supra\Package\Cms\Exception\CmsException;
+use Supra\Package\Cms\Pages\BlockController;
 
 use Supra\Uri\Path;
 
@@ -52,8 +55,8 @@ use Supra\Controller\Pages\Listener\EntityRevisionSetterListener;
 use Supra\Controller\Pages\Exception\DuplicatePagePathException;
 use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
 use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
-use Supra\RemoteHttp\Request\RemoteHttpRequest;
-use Supra\RemoteHttp\RemoteHttpRequestService;
+//use Supra\RemoteHttp\Request\RemoteHttpRequest;
+//use Supra\RemoteHttp\RemoteHttpRequestService;
 use Supra\Controller\Pages\Event;
 
 /**
@@ -83,7 +86,9 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 */
 	protected function getEntityManager()
 	{
-		return $this->container['doctrine.entity_managers.cms'];
+		return $this->container
+				->getDoctrine()
+				->getManager('cms');
 	}
 
 	/**
@@ -1436,7 +1441,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 
 	/**
-	 * @return Supra\Package\Cms\Pages\Block\BlockCollection
+	 * @return \Supra\Package\Cms\Pages\Block\BlockCollection
 	 */
 	protected function getBlockCollection()
 	{
@@ -1673,7 +1678,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	protected function createPageRequest(Localization $localization = null)
 	{
 		$request = new PageRequestEdit(
-				$this->container->getRequest(),
+				Request::create(''),
 				$this->getMedia()
 		);
 
@@ -1684,5 +1689,76 @@ abstract class AbstractPagesController extends AbstractCmsController
 		);
 
 		return $request;
+	}
+
+	/**
+	 * @TODO: Move to page content controller abstraction.
+	 *
+	 * @param Block $block
+	 * @param bool $withResponse
+	 * @return array
+	 */
+	protected function getBlockData(Block $block, $withResponse = false)
+	{
+		$blockController = $this->getBlockCollection()
+				->createController($block);
+
+		$pageController = $this->getPageController();
+
+		$pageRequest = $this->createPageRequest();
+
+		$pageController->prepareBlockController($blockController, $pageRequest);
+
+		$blockData = array(
+			'id'			=> $block->getId(),
+			'type'			=> $block->getComponentName(),
+			'closed'		=> false,//@fixme
+			'locked'		=> $block->isLocked(),
+			'properties'	=> $this->collectBlockPropertyData($blockController),
+			// @TODO: check if this still is used somewhere, remove if not.
+			'owner_id'		=> $block->getPlaceHolder()
+									->getLocalization()->getId()
+		);
+
+		if ($withResponse) {
+			$blockController->execute();
+			$blockData['html'] = (string) $blockController->getResponse();
+		}
+
+		return $blockData;
+	}
+
+	/**
+	 * @TODO: Move to page content controller abstraction.
+	 *
+	 * @param BlockController $blockController
+	 * @return array
+	 */
+	private function collectBlockPropertyData(BlockController $blockController)
+	{
+		$propertyData = array();
+
+		$configuration = $blockController->getConfiguration();
+
+		foreach ($configuration->getProperties() as $propertyConfiguration) {
+
+			// @TODO: do it someway better.
+
+			$name = $propertyConfiguration->getName();
+
+			$editable = $propertyConfiguration->getEditable();
+
+			$property = $blockController->getProperty($name);
+
+			$this->configureEditableValueTransformers($editable, $property);
+
+			$editable->setRawValue($property->getValue());
+
+			$propertyData[$name] = array(
+				'value' => 	$editable->getEditorValue(),
+			);
+		}
+
+		return $propertyData;
 	}
 }

@@ -48,8 +48,6 @@ abstract class PageRequest extends Request implements ContainerAware
 	 */
 	private $media = TemplateLayout::MEDIA_SCREEN;
 
-
-
 	/**
 	 * @var User
 	 */
@@ -447,8 +445,6 @@ abstract class PageRequest extends Request implements ContainerAware
 //			$this->createMissingPlaceHolders();
 //		}
 
-		$this->debug('Count of place holders found: ' . count($this->placeHolderSet));
-
 		return $this->placeHolderSet;
 	}
 	
@@ -537,8 +533,6 @@ abstract class PageRequest extends Request implements ContainerAware
 			$blocks = array_merge($blocks, $additionalBlocks);
 		}
 		
-		$this->debug("Block count found: " . count($blocks));
-
 		// Skip temporary blocks for VIEW mode
 		foreach ($blocks as $blockKey => $block) {
 			if ($block instanceof TemplateBlock) {
@@ -667,8 +661,6 @@ abstract class PageRequest extends Request implements ContainerAware
 					->from(BlockProperty::CN(), 'bp')
 					->where($or);
 			$query = $qb->getQuery();
-
-			$this->debug("Running query to find block properties");
 
 			$this->prepareQueryResultCache($query);
 			$result = $query->getResult();
@@ -1073,11 +1065,6 @@ abstract class PageRequest extends Request implements ContainerAware
 	public function setContainer(ContainerInterface $container)
 	{
 		$this->container = $container;
-	}
-
-	protected function debug($message)
-	{
-		$this->container['debug_bar.debug_bar']['messages']->info($message);
 	}
 
 	/**

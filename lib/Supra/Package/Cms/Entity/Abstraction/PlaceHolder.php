@@ -37,11 +37,6 @@ abstract class PlaceHolder extends VersionedEntity implements
 	protected $name;
 	
 	/**
-	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\PlaceHolderGroup", inversedBy="placeholders", cascade={"persist"})
-	 */
-	protected $group;
-	
-	/**
 	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\Abstraction\Block", mappedBy="placeHolder", cascade={"persist", "remove"})
 	 * @OrderBy({"position" = "ASC"})
 	 * @var Collection
@@ -140,6 +135,75 @@ abstract class PlaceHolder extends VersionedEntity implements
 			$this->unlock('block');
 		}
 	}
+
+	/**
+	 * @param Block $beforeThis
+	 * @param Block $block
+	 * @throws \LogicException
+	 */
+	public function addBlockBefore(Block $beforeThis, Block $block)
+	{
+		if (! $this->equals($beforeThis->getPlaceHolder())) {
+			throw new \LogicException(sprintf(
+					'Block [%s] you are trying to insert before belongs to another place holder.',
+					$beforeThis->getId()
+			));
+		}
+		
+		$beforeThisPosition = $beforeThis->getPosition();
+		
+		foreach ($this->blocks as $existingBlock) {
+			/* @var $existingBlock Block */
+			if ($existingBlock->getPosition() >= $beforeThisPosition) {
+				$existingBlock->setPosition($existingBlock->getPosition() + 1);
+			}
+		}
+
+		$block->setPosition($beforeThisPosition);
+
+		$this->addBlock($block);
+	}
+
+	/**
+	 * @param Block $block
+	 */
+	public function addBlockLast(Block $block)
+	{
+		$maxPosition = null;
+
+		foreach ($this->blocks as $existingBlock) {
+			/* @var $block Block */
+			$maxPosition = max($existingBlock->getPosition(), $maxPosition);
+		}
+
+		$block->setPosition($maxPosition + 1);
+
+		$this->addBlock($block);
+	}
+
+	/**
+	 * Removes block from collection and recalculates other blocks position indexes.
+	 *
+	 * @param Block $block
+	 * @throws \InvalidArgumentException
+	 */
+	public function removeBlock(Block $block)
+	{
+		if (! $this->equals($block->getPlaceHolder())
+				|| ! $this->blocks->contains($block)) {
+			throw new \InvalidArgumentException('Block does not belongs to this placeholder.');
+		}
+
+		$position = $block->getPosition();
+	
+		$this->blocks->removeElement($block);
+
+		foreach ($this->blocks as $existingBlock) {
+			if ($existingBlock->getPosition() > $position) {
+				$existingBlock->setPosition($existingBlock->getPosition() - 1);
+			}
+		}
+	}
 	
 	/**
 	 * Set master localization
@@ -168,22 +232,6 @@ abstract class PlaceHolder extends VersionedEntity implements
 	public function getLocalization()
 	{
 		return $this->localization;
-	}
-	
-	/**
-	 * @return int
-	 */
-	public function getMaxBlockPosition()
-	{
-		$blocks = $this->getBlocks();
-		$sort = null;
-		
-		/* @var $block Block */
-		foreach ($blocks as $block) {
-			$sort = max($sort, $block->getPosition());
-		}
-		
-		return $sort;
 	}
 	
 	/**
