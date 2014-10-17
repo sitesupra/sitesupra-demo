@@ -23,9 +23,21 @@ class SupraPackageFrameworkConfiguration extends AbstractPackageConfiguration im
 					->append($this->getLocalesDefinition())
 					->append($this->getDoctrineDefinition())
 					->append($this->getServicesDefinition())
+					->append($this->getSessionDefinition())
 				->end();
 
 		return $treeBuilder;
+	}
+
+	public function getSessionDefinition()
+	{
+		$definition = new ArrayNodeDefinition('session');
+
+		$definition->children()
+				->scalarNode('storage')->isRequired()->end()
+			->end();
+
+		return $definition;
 	}
 
 	public function getDoctrineDefinition()

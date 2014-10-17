@@ -563,6 +563,12 @@ abstract class  Supra extends ContainerBuilder
 
 						$reflection = new \ReflectionClass($className);
 
+						foreach ($parameters as $key => $parameter) {
+							if (is_string($parameter) && isset($parameter[0]) && $parameter[0] == '@') {
+								$parameters[$key] = $container[ltrim($parameter, '@')];
+							}
+						}
+
 						$instance = $reflection->newInstanceArgs($parameters);
 
 						return $instance;

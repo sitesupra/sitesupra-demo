@@ -58,19 +58,6 @@ abstract class ContainerBuilder
 		$container['http.request'] = function () {
 			return Request::createFromGlobals();
 		};
-
-		$container['http.session'] = function ($container) {
-			if (PHP_SAPI == 'cli') {
-				throw new \Exception('Sessions are not possible in CLI mode');
-			}
-
-			$session = new Session();
-			$session->start();
-
-			$container['http.request']->setSession($session);
-
-			return $session;
-		};
 	}
 
 	/**
