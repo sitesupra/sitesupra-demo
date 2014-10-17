@@ -14,6 +14,8 @@ services:
         class: \Supra\Core\Doctrine\Subscriber\DetachedDiscriminatorHandler
     supra.doctrine.event_subscriber.nested_set_listener:
         class: \Supra\Core\Doctrine\Subscriber\NestedSetListener
+    supra.doctrine.event_subscriber.timestampable:
+        class: \Supra\Package\Framework\Doctrine\Subscriber\TimestampableListener
     supra.framework.session_storage_native:
         class: \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage
         parameters: [[], @supra.framework.session_handler_doctrine]
@@ -49,6 +51,7 @@ doctrine:
                 - supra.doctrine.event_subscriber.table_name_prefixer
                 - supra.doctrine.event_subscriber.detached_discriminator_handler
                 - supra.doctrine.event_subscriber.nested_set_listener
+                - supra.doctrine.event_subscriber.timestampable
     configurations:
         default:
             hydrators:
