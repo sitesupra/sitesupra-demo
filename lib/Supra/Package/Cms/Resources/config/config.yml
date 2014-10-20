@@ -3,6 +3,8 @@ services:
         class: \Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener
     supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter:
         class: \Supra\Package\Cms\Pages\Listener\VersionedEntityRevisionSetterListener
+    supra.cms.doctrine.event_subscriber.page_path_generator:
+        class: \Supra\Package\Cms\Pages\Listener\PagePathGeneratorListener
 prefix: /backend
 cms_resources:
     css_pack:

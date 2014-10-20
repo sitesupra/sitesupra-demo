@@ -8,17 +8,17 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\Common\EventSubscriber;
+use Supra\Core\NestedSet\Event\NestedSetEventArgs;
+use Supra\Core\NestedSet\Event\NestedSetEvents;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
-use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\Page;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\PageLocalizationPath;
 use Supra\Package\Cms\Uri\Path;
 use Supra\Package\Cms\Pages\Exception;
 use Supra\Package\Cms\Pages\Exception\DuplicatePagePathException;
 use Supra\Package\Cms\Pages\Application\PageApplicationManager;
-
-use Supra\Core\NestedSet\Event\NestedSetEventArgs;
-use Supra\Core\NestedSet\Event\NestedSetEvents;
 
 /**
  * Creates the page path and checks it's uniqueness

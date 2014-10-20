@@ -159,7 +159,7 @@ class PageLocalization extends Abstraction\Localization
 	 */
 	public function setPath(Path $path = null, $active = true, $limited = false, $inSitemap = true)
 	{
-		\Log::debug('QQQ: ', $this->getId(), ' - ', $this->getPathEntity()->isVisibleInSitemap(), ' --> ', $inSitemap);
+//		\Log::debug('QQQ: ', $this->getId(), ' - ', $this->getPathEntity()->isVisibleInSitemap(), ' --> ', $inSitemap);
 
 		$this->getPathEntity()->setPath($path);
 		$this->getPathEntity()->setActive($active);
