@@ -12,9 +12,6 @@ class CmsPagesApplication extends AbstractApplication
 
 	protected $title = 'Pages';
 
-	// acts as a prefix
-	// fullnames are /public/cms/supra/img/apps/pages_90x90.png
-	// /public/cms/supra/img/apps/pages_32x32.png
 	protected $icon = '/public/cms/supra/img/apps/pages';
 
 	protected $route = 'cms_pages';

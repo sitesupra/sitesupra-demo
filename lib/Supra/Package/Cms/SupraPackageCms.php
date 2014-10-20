@@ -10,6 +10,7 @@ use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Detector\ParameterDetector;
 use Supra\Package\Cms\Application\CmsDashboardApplication;
+use Supra\Package\Cms\Application\CmsInternalUserManagerApplication;
 use Supra\Package\Cms\Application\CmsPagesApplication;
 use Supra\Package\Cms\Pages\Application\PageApplicationManager;
 use Supra\Package\Cms\Pages\Application\BlogPageApplication;
@@ -33,6 +34,7 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
 		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
+		$container->getApplicationManager()->registerApplication(new CmsInternalUserManagerApplication());
 
 		// Page Apps Manager
 		$container[$this->name . '.pages.page_application_manager'] = function () {

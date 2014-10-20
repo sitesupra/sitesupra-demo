@@ -31,60 +31,7 @@ class UserlistAction extends InternalUserManagerAbstractAction
 	
 	public function userlistAction()
 	{
-		$result = array();
 
-		$appConfig = ObjectRepository::getApplicationConfiguration($this);
-		
-		if ($appConfig instanceof ApplicationConfiguration) {
-			if ($appConfig->allowGroupEditing) {
-				//$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
-				//$groups = $groupRepository->findAll();
-				$groups = $this->userProvider
-						->findAllGroups();
-
-				/* @var $group Entity\Group */
-				foreach($groups as $group) {
-
-					$result[] = array(
-						'id' => $group->getId(),
-						'avatar' => null,
-						'name' =>  '[' . $group->getName() . ']',
-						'group' => $this->groupToDummyId($group)
-					);
-				}
-			}
-		}
-		
-		//$users = $this->userRepository->findAll();
-		$users = $this->userProvider
-				->findAllUsers();
-		
-		$protocol = $this->getRequest()
-				->getProtocol();
-		
-		/* @var $user Entity\User */
-		foreach ($users as $user) {
-			
-			if (is_null($user->getGroup())) {
-				
-				$this->log->debug('User has no group: ', $user->getId());
-				
-				continue;
-			}
-			
-			$result[] = array(
-				'id' => $user->getId(),
-				//'avatar' => $this->getAvatarExternalPath($user, '48x48'),
-				'avatar' => $user->getGravatarUrl(48, $protocol),
-				'name' => $user->getName(),
-				'group' => $this->groupToDummyId($user->getGroup())
-			);
-			
-		}
-
-		//$result['canInsert'] = true;
-		
-		$this->getResponse()->setResponseData($result);
 	}
 	
 	/**
@@ -131,5 +78,23 @@ class UserlistAction extends InternalUserManagerAbstractAction
 		
 		$this->writeAuditLog("User '" . $user->getName()
 				. "' moved to group '" . $newGroupName ."'");
+	}
+
+	/**
+	 * @param string $dummyId
+	 * @return string
+	 */
+	protected function dummyGroupIdToGroupName($dummyId)
+	{
+		return $this->reverseDummyGroupMap[$dummyId];
+	}
+
+	/**
+	 * @param Entity\Group $group
+	 * @return string
+	 */
+	protected function groupToDummyId(Entity\Group $group)
+	{
+		return $this->dummyGroupMap[$group->getName()];
 	}
 }
