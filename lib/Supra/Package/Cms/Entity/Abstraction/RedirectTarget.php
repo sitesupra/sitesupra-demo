@@ -22,6 +22,9 @@ abstract class RedirectTarget extends VersionedEntity
 	 */
 	protected $pageLocalization;
 
+	/**
+	 * @return string
+	 */
 	abstract public function getRedirectUrl();
 
 	/**
@@ -39,4 +42,13 @@ abstract class RedirectTarget extends VersionedEntity
 	{
 		return $this->pageLocalization;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getVersionedParent()
+	{
+		return $this->pageLocalization;
+	}
+
 }

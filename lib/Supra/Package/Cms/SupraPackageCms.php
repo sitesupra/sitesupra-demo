@@ -54,7 +54,7 @@ class SupraPackageCms extends AbstractSupraPackage
 				'subscribers' => array(
 					'supra.cms.doctrine.event_subscriber.page_path_generator',
 					'supra.cms.doctrine.event_subscriber.versioned_entity_schema',
-//					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter'.
+					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter',
 				)
 			)
 		);

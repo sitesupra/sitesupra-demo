@@ -57,4 +57,12 @@ class LocalizationTag extends VersionedEntity
 	{
 		return $this->name;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getVersionedParent()
+	{
+		return $this->localization;
+	}
 }

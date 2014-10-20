@@ -16,13 +16,27 @@ abstract class VersionedEntity extends Entity implements VersionedEntityInterfac
 	 */
 	protected $revision;
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getRevision()
 	{
 		return $this->revision;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function setRevision($revision)
 	{
 		$this->revision = $revision;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getVersionedParent()
+	{
+		return null;
 	}
 }

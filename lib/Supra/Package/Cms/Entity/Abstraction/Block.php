@@ -25,8 +25,7 @@ use Supra\Controller\Pages\Exception;
  * })
  */
 abstract class Block extends VersionedEntity implements
-		AuditedEntity,
-		OwnedEntityInterface
+		AuditedEntity
 {
 	/**
 	 * @Column(type="string", name="component")
@@ -295,7 +294,7 @@ abstract class Block extends VersionedEntity implements
 	/**
 	 * @inheritDoc
 	 */
-	public function getOwner()
+	public function getVersionedParent()
 	{
 		return $this->placeHolder;
 	}
