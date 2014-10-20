@@ -6,7 +6,7 @@ use Doctrine\ORM\QueryBuilder;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\TemporaryGroupPage;
 use Supra\Package\Cms\Entity\GroupPage;
-use Supra\Uri\Path;
+use Supra\Package\Cms\Uri\Path;
 
 /**
  * Glossary application

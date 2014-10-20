@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Entity;
 
-use Supra\Uri\Path;
+use Supra\Package\Cms\Uri\Path;
 
 /**
  * @Entity

@@ -3,12 +3,12 @@
 namespace Supra\Package\Cms\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Supra\NestedSet\DoctrineRepository;
-use Supra\NestedSet\RepositoryInterface;
+use Supra\Core\NestedSet\DoctrineRepository;
+use Supra\Core\NestedSet\RepositoryInterface;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\EntityManager;
-use Supra\NestedSet\SearchCondition\DoctrineSearchCondition;
-use Supra\NestedSet\SelectOrder\DoctrineSelectOrder;
+use Supra\Core\NestedSet\SearchCondition\DoctrineSearchCondition;
+use Supra\Core\NestedSet\SelectOrder\DoctrineSelectOrder;
 
 /**
  * Abstract page repository

@@ -16,7 +16,6 @@ use Supra\Core\Locale\Locale;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\Listener\LocaleDetectorListener;
-use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Package\Cms\Twig\CmsExtension;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\CacheClearCommand;

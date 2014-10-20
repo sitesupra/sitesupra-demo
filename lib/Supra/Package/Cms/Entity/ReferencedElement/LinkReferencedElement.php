@@ -2,12 +2,13 @@
 
 namespace Supra\Package\Cms\Entity\ReferencedElement;
 
-use Supra\FileStorage\Entity\File;
-use Supra\Package\Cms\Entity\PageLocalization;
-use Supra\Uri\Path;
-use Supra\Controller\Exception\ResourceNotFoundException;
-use Supra\Uri\NullPath;
 use Doctrine\ORM\NoResultException;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Uri\Path;
+use Supra\Package\Cms\Uri\NullPath;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+
+use Supra\FileStorage\Entity\File;
 
 /**
  * @Entity
@@ -402,32 +403,32 @@ class LinkReferencedElement extends ReferencedElementAbstract
 				$url = $this->getHref();
 				break;
 
-			case self::RESOURCE_RELATIVE_PAGE:
-				$page = $this->getPage();
-
-				if (is_null($page)) {
-					$this->log()->warn("No page ID set or found for relative link #", $this->getId());
-					throw new ResourceNotFoundException("Invalid redirect");
-				}
-
-				$pageChildren = $page->getPublicChildren();
-
-				if ( ! $pageChildren->isEmpty()) {
-					$type = $this->getHref();
-					$relativeChild = null;
-
-					if ($type == self::RELATIVE_FIRST) {
-						$relativeChild = $pageChildren->first();
-					} else {
-						$relativeChild = $pageChildren->last();
-					}
-
-					$url = $this->getPageFullPath($relativeChild);
-				} else {
-					//throw new ResourceNotFoundException('Valid relative redirect child was not found');
-					return null;
-				}
-				break;
+//			case self::RESOURCE_RELATIVE_PAGE:
+//				$page = $this->getPage();
+//
+//				if (is_null($page)) {
+//					$this->log()->warn("No page ID set or found for relative link #", $this->getId());
+//					throw new ResourceNotFoundException("Invalid redirect");
+//				}
+//
+//				$pageChildren = $page->getPublicChildren();
+//
+//				if ( ! $pageChildren->isEmpty()) {
+//					$type = $this->getHref();
+//					$relativeChild = null;
+//
+//					if ($type == self::RELATIVE_FIRST) {
+//						$relativeChild = $pageChildren->first();
+//					} else {
+//						$relativeChild = $pageChildren->last();
+//					}
+//
+//					$url = $this->getPageFullPath($relativeChild);
+//				} else {
+//					//throw new ResourceNotFoundException('Valid relative redirect child was not found');
+//					return null;
+//				}
+//				break;
 
 			default:
 				$this->log()->warn("Unrecognized resource for supra html markup link tag, data: $this");

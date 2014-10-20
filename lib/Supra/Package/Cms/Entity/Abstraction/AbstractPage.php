@@ -5,7 +5,7 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Supra\Package\Cms\Entity\BlockProperty;
-use Supra\NestedSet;
+use Supra\Core\NestedSet;
 
 /**
  * Page abstraction

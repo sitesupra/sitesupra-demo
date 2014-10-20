@@ -12,12 +12,12 @@ use Supra\Package\Cms\Repository\PageAbstractRepository;
 class PageFinder extends AbstractFinder
 {
 	/**
-	 * @var \Supra\NestedSet\DoctrineRepository
+	 * @var \Supra\Core\NestedSet\DoctrineRepository
 	 */
 	private $nestedSetRepository;
 
 	/**
-	 * @var \Supra\NestedSet\SearchCondition\DoctrineSearchCondition
+	 * @var \Supra\Core\NestedSet\SearchCondition\DoctrineSearchCondition
 	 */
 	private $searchCondition;
 
@@ -30,7 +30,7 @@ class PageFinder extends AbstractFinder
 	}
 	
 	/**
-	 * @return \Supra\NestedSet\DoctrineRepository
+	 * @return \Supra\Core\NestedSet\DoctrineRepository
 	 */
 	public function getNestedSetRepository()
 	{
@@ -51,7 +51,7 @@ class PageFinder extends AbstractFinder
 	}
 
 	/**
-	 * @return \Supra\NestedSet\SearchCondition\DoctrineSearchCondition
+	 * @return \Supra\Core\NestedSet\SearchCondition\DoctrineSearchCondition
 	 */
 	public function getSearchCondition()
 	{

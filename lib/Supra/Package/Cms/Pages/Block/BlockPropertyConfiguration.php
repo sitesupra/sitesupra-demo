@@ -241,12 +241,14 @@ class BlockPropertyConfiguration
 	 */
 	protected function getFileWebPath($file, $context = null)
 	{
-		if (strpos($file, '/') !== 0) {
-			return PathConverter::getWebPath($file, $context);
-		} else {
-			$file = SUPRA_WEBROOT_PATH . $file;
-			return PathConverter::getWebPath($file);
-		}
+		throw new \Exception('Fix me!'); // https://www.youtube.com/watch?v=-AK1pkvCqec
+
+//		if (strpos($file, '/') !== 0) {
+//			return PathConverter::getWebPath($file, $context);
+//		} else {
+//			$file = SUPRA_WEBROOT_PATH . $file;
+//			return PathConverter::getWebPath($file);
+//		}
 	}
 
 	protected function getFileFullPath($file, $context = null)

@@ -3,8 +3,8 @@
 namespace Supra\Package\Cms\Entity;
 
 use Doctrine\ORM\Proxy\Proxy;
-use Supra\Uri\Path;
-use Supra\Uri\NullPath;
+use Supra\Package\Cms\Uri\Path;
+use Supra\Package\Cms\Uri\NullPath;
 use Supra\Package\Cms\Entity\Abstraction\RedirectTarget;
 
 /**

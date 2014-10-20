@@ -2,6 +2,8 @@
 
 namespace Supra\Package\Cms\Pages\Finder\Organizer;
 
+use Supra\Package\Cms\Uri\Path;
+
 class PageLocalizationLevelOrganizer extends AbstractResultOrganizer
 {
 	public function organize($results)
@@ -53,7 +55,7 @@ class PageLocalizationLevelOrganizer extends AbstractResultOrganizer
 			$isActive = $path->isActive() && $localization->isActive();
 
 			if ($isActive) {
-				$map[$localization->getFullPath(\Supra\Uri\Path::FORMAT_NO_DELIMITERS)] = $localization;
+				$map[$localization->getFullPath(Path::FORMAT_NO_DELIMITERS)] = $localization;
 			}
 		}
 

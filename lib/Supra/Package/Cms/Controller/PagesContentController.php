@@ -5,6 +5,7 @@ namespace Supra\Package\Cms\Controller;
 use Doctrine\ORM\EntityManager;
 use Supra\Core\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
@@ -17,7 +18,6 @@ use Supra\Package\Cms\Entity\TemplateBlock;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\BlockPropertyMetadata;
 use Supra\Package\Cms\Exception\CmsException;
-
 
 class PagesContentController extends AbstractPagesController
 {
@@ -218,31 +218,29 @@ class PagesContentController extends AbstractPagesController
 			// not needed anymore.
 			unset ($publicBlocks, $publicBlockIds);
 
-			//		4. merge all the Draft version blocks.
-			foreach ($draftBlocks as $block) {
-				$publicEm->merge($block);
-			}
-
-			// 1.5 Placeholders
+			// PlaceHolders and Blocks
 			$placeHolderIds = array();
 			$placeHolderNames = array();
 
-			//		- doing merge + collecting the IDs and names to cleanup not used placeholders
+			//		1. Merge block placeholder, collect name and ID, to cleanup not used ones from Public schema.
+			//		2. Merge block
 			foreach ($draftBlocks as $block) {
-				$placeHolder = $block->getPlaceHolder();
 
-				$publicEm->merge($placeHolder);
+				$placeHolder = $block->getPlaceHolder();
 
 				$id = $placeHolder->getId();
 				$name = $placeHolder->getName();
 
-				if (! array_key_exists($id, $placeHolderIds)) {
+				if (! in_array($id, $placeHolderIds)) {
+					$publicEm->merge($placeHolder);
 					$placeHolderIds[] = $id;
 				}
 
-				if (! array_key_exists($name, $placeHolderNames)) {
+				if (! in_array($name, $placeHolderNames)) {
 					$placeHolderNames[] = $name;
 				}
+				
+				$publicEm->merge($block);
 			}
 
 			// not needed anymore.
@@ -641,6 +639,31 @@ class PagesContentController extends AbstractPagesController
 				->flush();
 
 //		$this->savePostTrigger();
+
+		return new SupraJsonResponse();
+	}
+
+	/**
+	 * @return SupraJsonResponse
+	 */
+	public function lockAction()
+	{
+		return $this->lockPage();
+	}
+
+	/**
+	 * @return SupraJsonResponse
+	 */
+	public function unlockAction()
+	{
+		try {
+			$this->checkLock();
+
+			$this->unlockPage();
+
+		} catch (ObjectLockedException $e) {
+			// @TODO: check why it were made to ignore errors if locked.
+		}
 
 		return new SupraJsonResponse();
 	}

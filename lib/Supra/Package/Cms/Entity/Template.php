@@ -22,7 +22,13 @@ class Template extends Abstraction\AbstractPage
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 
 	/**
-	 * @OneToMany(targetEntity="TemplateLayout", mappedBy="template", cascade={"persist", "remove"}, indexBy="media")
+	 * @OneToMany(
+	 *		targetEntity="TemplateLayout",
+	 *		mappedBy="template",
+	 *		cascade={"persist", "remove"},
+	 *		indexBy="media"
+	 * )
+	 * 
 	 * @var Collection
 	 */
 	protected $templateLayouts;
@@ -67,7 +73,8 @@ class Template extends Abstraction\AbstractPage
 	}
 
 	/**
-	 * Add layout for specific media
+	 * Add layout for specific media.
+	 * 
 	 * @param string $media
 	 * @param ThemeLayoutInterface $layout
 	 * @return TemplateLayout

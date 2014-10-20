@@ -71,31 +71,33 @@ routes:
     cms_pages_page_get:
         pattern:						%cms.prefix%/content-manager/page/page
         controller:					Cms:PagesPage:page
-    ## Page create request
     cms_pages_page_create:
         pattern:						%cms.prefix%/content-manager/page/create
         controller:					Cms:PagesPage:create
+    cms_pages_template_create:
+        pattern:						%cms.prefix%/content-manager/template/create
+        controller:					Cms:PagesTemplate:create
     ## Blocks list
     cms_pages_block_list:
         pattern:						%cms.prefix%/content-manager/blocks/blocks-list
         controller:					Cms:PagesBlock:blocksList
     ## Edit Lock/Unlock
-    cms_pages_editing_lock:
-        pattern:						%cms.prefix%/content-manager/{type}/lock
-        controller:					Cms:PagesLock:lock
-        requirements:
-          type: template|page
-    cms_pages_editing_unlock:
-        pattern:						%cms.prefix%/content-manager/{type}/unlock
-        controller:					Cms:PagesLock:lock
-        requirements:
-          type: template|page
-    ## HTML editor fonts list
+      ## HTML editor fonts list
     cms_pages_fonts_google_list:
         pattern:						%cms.prefix%/content-manager/fonts/google-fonts-list
         controller:					Cms:PagesFonts:googleFontsList
         options:
           frontend:					true
+    cms_pages_content_lock:
+        pattern:						%cms.prefix%/content-manager/{type}/lock
+        controller:					Cms:PagesContent:lock
+        requirements:
+          type: template|page
+    cms_pages_content_unlock:
+        pattern:						%cms.prefix%/content-manager/{type}/unlock
+        controller:					Cms:PagesContent:lock
+        requirements:
+          type: template|page
     ## Content save action
     ## @TODO: rename cms_pages_content_block_save?
     cms_pages_content_save:

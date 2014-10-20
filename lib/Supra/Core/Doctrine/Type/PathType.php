@@ -4,7 +4,7 @@ namespace Supra\Core\Doctrine\Type;
 
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Supra\Uri\Path;
+use Supra\Package\Cms\Uri\Path;
 
 /**
  * Doctrine field type storing path

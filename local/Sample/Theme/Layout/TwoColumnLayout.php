@@ -13,7 +13,7 @@ class TwoColumnLayout implements ThemeLayoutInterface
 
 	public function getTitle()
 	{
-		return 'Title';
+		return 'Two Columns';
 	}
 
 	public function getIcon()
@@ -23,6 +23,6 @@ class TwoColumnLayout implements ThemeLayoutInterface
 
 	public function getFileName()
 	{
-		return 'Sample:layouts/two_columns.html.twig';
+		return 'SamplePackage:layouts/two_columns.html.twig';
 	}
 }

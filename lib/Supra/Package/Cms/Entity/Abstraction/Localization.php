@@ -356,7 +356,7 @@ abstract class Localization extends VersionedEntity implements
 		$nsn = $master->getNestedSetNode();
 
 		$nsr = $nsn->getRepository();
-		/* @var $nsr \Supra\NestedSet\DoctrineRepository */
+		/* @var $nsr \Supra\Core\NestedSet\DoctrineRepository */
 
 		$sc = $nsr->createSearchCondition();
 		$sc->leftGreaterThan($master->getLeftValue());
@@ -407,7 +407,7 @@ abstract class Localization extends VersionedEntity implements
 		$nsn = $master->getNestedSetNode();
 
 		$nsr = $nsn->getRepository();
-		/* @var $nsr \Supra\NestedSet\DoctrineRepository */
+		/* @var $nsr \Supra\Core\NestedSet\DoctrineRepository */
 
 		$sc = $nsr->createSearchCondition();
 		$sc->leftGreaterThan($master->getLeftValue());

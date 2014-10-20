@@ -120,8 +120,6 @@ class PagesPageController extends AbstractPagesController
 	{
 		$this->isPostRequest();
 
-		$this->lockNestedSet();
-
 		$type = $this->getRequestParameter('type');
 
 		$page = null;
@@ -224,15 +222,17 @@ class PagesPageController extends AbstractPagesController
 
 		$entityManager->transactional(function (EntityManager $entityManager) use ($page, $localization, $parentLocalization) {
 
+			$this->lockNestedSet($page);
+
 			$entityManager->persist($page);
 			$entityManager->persist($localization);
 
 			if ($parentLocalization) {
 				$page->moveAsLastChildOf($parentLocalization->getMaster());
 			}
-		});
 
-		$this->unlockNestedSet();
+			$this->unlockNestedSet($page);
+		});
 
 		return new SupraJsonResponse($this->loadNodeMainData($localization));
 	}

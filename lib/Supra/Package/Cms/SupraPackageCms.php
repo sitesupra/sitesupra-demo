@@ -53,7 +53,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			array(
 				'subscribers' => array(
 					'supra.cms.doctrine.event_subscriber.versioned_entity_schema',
-//					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter'
+//					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter'.
 				)
 			)
 		);

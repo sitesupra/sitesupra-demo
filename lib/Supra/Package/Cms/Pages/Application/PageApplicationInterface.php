@@ -2,11 +2,11 @@
 
 namespace Supra\Package\Cms\Pages\Application;
 
-use Supra\Package\Cms\Entity\PageLocalization;
-use Supra\Package\Cms\Entity\ApplicationLocalization;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
-use Supra\Uri\Path;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\ApplicationLocalization;
+use Supra\Package\Cms\Uri\Path;
 
 /**
  * Interface for page applications

@@ -28,8 +28,9 @@ use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Editable\Transformer\HtmlEditorValueTransformer;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Pages\BlockController;
+use Supra\Package\Cms\Uri\Path;
 
-use Supra\Uri\Path;
+use Supra\Core\NestedSet\Node\EntityNodeInterface;
 
 use Supra\Controller\Exception\ResourceNotFoundException;
 use Supra\Controller\Pages\PageController;
@@ -38,7 +39,7 @@ use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\Repository\PageRepository;
 use Supra\Http\Cookie;
 use Supra\Cms\CmsAction;
-use Supra\NestedSet\Node\DoctrineNode;
+use Supra\Core\NestedSet\Node\DoctrineNode;
 use Doctrine\ORM\Query;
 use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\FileStorage\Entity\Image;
@@ -1266,23 +1267,23 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Locks the nested set (both for now)
+	 * Locks the nested set for entity.
 	 */
-	protected function lockNestedSet()
+	protected function lockNestedSet(EntityNodeInterface $entityNode)
 	{
 		$this->getEntityManager()
-				->getRepository(AbstractPage::CN())
+				->getRepository($entityNode->getNestedSetRepositoryClassName())
 				->getNestedSetRepository()
 				->lock();
 	}
 
 	/**
-	 * Unlocks the nested set
+	 * Unlocks the nested set.
 	 */
-	protected function unlockNestedSet()
+	protected function unlockNestedSet(EntityNodeInterface $entityNode)
 	{
 		$this->getEntityManager()
-				->getRepository(AbstractPage::CN())
+				->getRepository($entityNode->getNestedSetRepositoryClassName())
 				->getNestedSetRepository()
 				->unlock();
 	}
