@@ -127,3 +127,8 @@ routes:
         controller:                     Cms:InternalUserManager:index
         options:
             frontend:                   true
+    backoffice_user_list:
+        pattern:                        %cms.prefix%/internal-user-manager/user-list
+        controller:                     Cms:InternalUserManager:userList
+        options:
+           frontend:                   true

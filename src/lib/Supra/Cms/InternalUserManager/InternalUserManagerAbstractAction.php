@@ -24,47 +24,8 @@ class InternalUserManagerAbstractAction extends CmsAction
 	 */
 	protected $userProvider;
 
-	/**
-	 * @var array
-	 */
-	protected $dummyGroupMap;
 
-	/**
-	 * @var array
-	 */
-	protected $reverseDummyGroupMap;
 
-	/**
-	 * Bind objects
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-
-		$this->userProvider = ObjectRepository::getUserProvider($this);
-
-		//TODO: implement normal group loader and IDs
-		$this->dummyGroupMap = array('admins' => 1, 'contribs' => 3, 'supers' => 2);
-		$this->reverseDummyGroupMap = array_flip($this->dummyGroupMap);
-	}
-
-	/**
-	 * @param string $dummyId
-	 * @return string
-	 */
-	protected function dummyGroupIdToGroupName($dummyId)
-	{
-		return $this->reverseDummyGroupMap[$dummyId];
-	}
-
-	/**
-	 * @param Entity\Group $group
-	 * @return string
-	 */
-	protected function groupToDummyId(Entity\Group $group)
-	{
-		return $this->dummyGroupMap[$group->getName()];
-	}
 
 	/**
 	 * @param string $key
