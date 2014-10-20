@@ -235,7 +235,8 @@ abstract class PlaceHolder extends VersionedEntity implements
 	}
 	
 	/**
-	 * Creates new instance based on the discriminator of source entity
+	 * Creates new instance based on the discriminator of source entity.
+	 * 
 	 * @param Localization $localization
 	 * @param string $name
 	 * @param PlaceHolder $source
@@ -243,116 +244,24 @@ abstract class PlaceHolder extends VersionedEntity implements
 	 */
 	public static function factory(Localization $localization, $name, PlaceHolder $source = null)
 	{
-		$discriminator = $localization::DISCRIMINATOR;
 		$placeHolder = null;
 		
-		switch ($discriminator) {
+		switch ($localization::DISCRIMINATOR) {
 			case self::TEMPLATE_DISCR:
 				$placeHolder = new TemplatePlaceHolder($name);
 				break;
-			
 			case self::PAGE_DISCR:
 			case self::APPLICATION_DISCR:
 				$placeHolder = new PagePlaceHolder($name);
 				break;
-			
 			default:
-				throw new Exception\LogicException("Not recognized discriminator value for entity {$localization}");
+				throw new \LogicException("Not recognized discriminator value for entity [{$localization}]");
 		}
 		
-		if ( ! is_null($source)) {
-		
-			$blocks = $source->getBlocks();
-
-			/* @var $block Block */
-			foreach ($blocks as $block) {
-
-				// Don't clone locked blocks
-				if ($block->getLocked()) {
-					continue;
-				}
-
-				// Create new block
-				$newBlock = Block::factoryClone($localization, $block);
-				$placeHolder->addBlock($newBlock);
-
-				// Should persist by cascade
-//				// Persist only for draft connection with ID generation
-//				if ($this instanceof PageRequestEdit) {
-//					$em->persist($block);
-//				}
-
-				// Not used anymore
-//				$templateBlockId = $block->getId();
-//				$templateData = $source->getMaster();
-//				$locale = $this->getLocale();
-//
-//				// Find the properties to copy from the template
-//				$blockPropertyEntity = \Supra\Controller\Pages\Entity\BlockProperty::CN();
-//				
-//				$dql = "SELECT p FROM $blockPropertyEntity AS p
-//								WHERE p.block = ?0 AND p.localization = ?1";
-//
-//				$query = $em->createQuery($dql);
-//				$query->setParameters(array(
-//					$templateBlockId,
-//					$templateData->getId()
-//				));
-//
-//				$blockProperties = $query->getResult();
-//
-//				$localization = $this->getPageLocalization();
-				$em = \Supra\ObjectRepository\ObjectRepository::getEntityManager('#cms');				
-				
-				// Block properties are loaded from the block and filtered manually now
-				$blockProperties = $block->getBlockProperties();
-								
-				$metadataMap = array();
-				$clonedProperties = array();
-				
-				/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
-				foreach ($blockProperties as $blockProperty) {
-					// We are interested only in the properties belonging to the current localization
-//					if ($blockProperty->getLocalization()->equals($localization)) {
-						$metadataCollection = $blockProperty->getMetadata();
-						
-						$blockProperty = clone($blockProperty);
-
-						/* @var $blockProperty \Supra\Controller\Pages\Entity\BlockProperty */
-						
-						$blockProperty->resetLocalization();
-						$blockProperty->resetBlock();
-						
-						$blockProperty->setLocalization($localization);
-						$blockProperty->setBlock($newBlock);
-						
-						$clonedProperties[] = $blockProperty;
-
-						foreach ($metadataCollection as $metadata) {
-							/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
-
-							$newMetadata = clone($metadata);
-							$newMetadata->setBlockProperty($blockProperty);
-							$em->persist($newMetadata);
-							
-							$metadataMap[$metadata->getId()] = $newMetadata;
-						}
-//					}
-
-					// Should persist by cascade
-//					// Persist only for draft connection with ID generation
-//					if ($this instanceof PageRequestEdit) {
-						$em->persist($blockProperty);
-//					}
-				}
-				
-				foreach ($clonedProperties as $property) {
-					if ($property->getMasterMetadataId() !== null) {
-						$metaId = $property->getMasterMetadataId();
-						if (isset($metadataMap[$metaId])) {
-							$property->setMasterMetadata($metadataMap[$metaId]);
-						}
-					}
+		if ($source !== null) {
+			foreach ($source->getBlocks() as $block) {
+				if (! $block->getLocked()) {
+					$placeHolder->addBlock(Block::factory($localization, $block));
 				}
 			}
 		}

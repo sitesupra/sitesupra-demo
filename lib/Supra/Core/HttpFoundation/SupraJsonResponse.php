@@ -3,7 +3,6 @@
 namespace Supra\Core\HttpFoundation;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class SupraJsonResponse extends JsonResponse
 {

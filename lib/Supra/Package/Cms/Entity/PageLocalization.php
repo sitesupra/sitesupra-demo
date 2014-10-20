@@ -121,7 +121,7 @@ class PageLocalization extends Abstraction\Localization
 	 * @param Template $template
 	 */
 	public function setTemplate(Template $template)
-	{
+	{	
 		$this->template = $template;
 	}
 

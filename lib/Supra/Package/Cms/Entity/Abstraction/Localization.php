@@ -5,9 +5,14 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Package\Cms\Entity\LockData;
-use Supra\AuditLog\TitleTrackingItemInterface;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\GroupLocalization;
+use Supra\Package\Cms\Entity\TemplateLocalization;
+use Supra\Package\Cms\Entity\ApplicationLocalization;
+
+// @FIXME: refactor. remove usages.
 use Supra\Controller\Pages\Exception\RuntimeException;
-//use Supra\Package\Cms\Entity\PlaceHolderGroup;
+use Supra\AuditLog\TitleTrackingItemInterface;
 
 /**
  * @Entity
@@ -159,12 +164,6 @@ abstract class Localization extends VersionedEntity implements
 	 */
 	protected $creationMonth;
 	
-//	/**
-//	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\PlaceHolderGroup", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
-//	 * @var Collection
-//	 */
-//	protected $placeHolderGroups;
-//
 	/**
 	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\LocalizationTag", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name", fetch="EXTRA_LAZY")
 	 * @var Collection
@@ -272,16 +271,6 @@ abstract class Localization extends VersionedEntity implements
 		$this->master = $master;
 		$master->setLocalization($this);
 //		}
-	}
-
-	public function overrideMaster(AbstractPage $master)
-	{
-		if (is_null($this->master)
-				|| $this->master->getId() !== $master->getId()) {
-			throw new RuntimeException("You can override master only with the same id");
-		}
-
-		$this->master = $master;
 	}
 
 	/**

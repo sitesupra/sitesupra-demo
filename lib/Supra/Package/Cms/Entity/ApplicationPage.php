@@ -18,21 +18,21 @@ class ApplicationPage extends Page
 	 * @var string
 	 */
 	protected $applicationId;
-	
+
+	/**
+	 * @param string $applicationId
+	 */
+	public function __construct($applicationId)
+	{
+		parent::__construct();
+		$this->applicationId = $applicationId;
+	}
+
 	/**
 	 * @return string
 	 */
 	public function getApplicationId()
 	{
 		return $this->applicationId;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function setApplicationId($applicationId)
-	{
-		$this->applicationId = $applicationId;
-	}
-	
+	}	
 }

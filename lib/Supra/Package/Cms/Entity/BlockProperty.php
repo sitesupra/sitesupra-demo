@@ -2,8 +2,8 @@
 
 namespace Supra\Package\Cms\Entity;
 
-use Doctrine\Common\Collections;
-use Doctrine\ORM\PersistentCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
@@ -60,7 +60,7 @@ class BlockProperty extends VersionedEntity implements
 	 * Value additional data about links, images
 	 * 
 	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, indexBy="name")
-	 * @var Collections\Collection
+	 * @var Collection
 	 */
 	protected $metadata;
 		
@@ -100,7 +100,7 @@ class BlockProperty extends VersionedEntity implements
 		parent::__construct();
 		
 		$this->name = $name;
-		$this->metadata = new Collections\ArrayCollection();
+		$this->metadata = new ArrayCollection();
 	}
 	
 //	/**
@@ -138,7 +138,7 @@ class BlockProperty extends VersionedEntity implements
 	}
 
 	/**
-	 * @return Collections\Collection
+	 * @return Collection
 	 */
 	public function getMetadata()
 	{
@@ -272,11 +272,6 @@ class BlockProperty extends VersionedEntity implements
 		}
 	}
 	
-	public function overrideMetadataCollection(Collections\ArrayCollection $collection)
-	{
-		$this->metadata = $collection;
-	}
-	
 	/**
 	 * Return owner of current block property.
 	 * Could be Localization, Block or BlockPropertyMetadata entity.
@@ -332,10 +327,23 @@ class BlockProperty extends VersionedEntity implements
 //				$this->masterMetadataId = null;
 //	}
 
-//	public function __clone()
-//	{
-//		parent::__clone();
-//	}
+	public function __clone()
+	{
+		parent::__clone();
+		
+		if (! empty($this->id)) {
+			$this->block = null;
+			$this->localization = null;
+
+			$clonedMetadata = array();
+
+			foreach ($this->metadata as $metaItem) {
+				$clonedMetadata[] = clone $metaItem;
+			}
+
+			$this->metadata = new ArrayCollection($clonedMetadata);
+		}
+	}
 
 	/**
 	 * Helper for the publishing process.

@@ -2,13 +2,19 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Response;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
+use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Entity\TemplateLocalization;
 use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\Page;
+use Supra\Package\Cms\Entity\Template;
+use Supra\Package\Cms\Entity\ApplicationPage;
+use Supra\Package\Cms\Entity\GroupPage;
 
 class PagesPageController extends AbstractPagesController
 {
@@ -68,21 +74,6 @@ class PagesPageController extends AbstractPagesController
 		
 		$blocks = $pageRequest->getBlockSet();
 
-//		// Collecting locked blocks
-//		$lockedBlocks = array();
-//		foreach ($blockSet as $block) {
-//
-//			if ($block->getLocked()) {
-//				$holderName = $block->getPlaceHolder()->getName();
-//
-//				if ( ! isset($lockedBlocks[$holderName])) {
-//					$lockedBlocks[$holderName] = array();
-//				}
-//
-//				$lockedBlocks[$holderName][] = $block;
-//			}
-//		}
-
 		$placeHoldersData = &$localizationData['contents'];
 
 		foreach ($placeHolders as $placeHolder) {
@@ -120,6 +111,130 @@ class PagesPageController extends AbstractPagesController
 		)));
 
 		return $jsonResponse;
+	}
+
+	/**
+	 * Handles Page creation request.
+	 */
+	public function createAction()
+	{
+		$this->isPostRequest();
+
+		$this->lockNestedSet();
+
+		$type = $this->getRequestParameter('type');
+
+		$page = null;
+
+		switch ($type) {
+			case Entity::GROUP_DISCR:
+				$page = new GroupPage();
+				break;
+			case Entity::APPLICATION_DISCR:
+				$page = new ApplicationPage(
+						$this->getRequestParameter('application_id')
+				);
+				break;
+			case Entity::PAGE_DISCR:
+				$page = new Page();
+				break;
+			default:
+				throw new \InvalidArgumentException(sprintf('Unknown page type [%s]', $type));
+		}
+
+		$localeId = $this->getCurrentLocale()->getId();
+
+		$localization = Localization::factory($page, $localeId);
+		/* @var $localization PageLocalization */
+
+		if (! $localization instanceof PageLocalization) {
+			throw new \UnexpectedValueException(sprintf(
+					'Expecting created localization to be instance of PageLocalization, [%s] received.',
+					get_class($localization)
+			));
+		}
+
+		$templateId = $this->getRequestParameter('template');
+		
+		$template = $this->getEntityManager()
+				->find(Template::CN(), $templateId);
+		/* @var $template Template */
+
+		if ($template === null) {
+			throw new CmsException(null, 'Template not specified or found.');
+		}
+
+		$templateLocalization = $template->getLocalization($localeId);
+
+		if ($templateLocalization === null) {
+			throw new \InvalidArgumentException(
+					"Specified template has no localization for [{$localeId}] locale."
+			);
+		}
+
+		$localization->setTemplate($template);
+
+		// copy values from template
+		$localization->setIncludedInSearch($templateLocalization->isIncludedInSearch());
+		$localization->setVisibleInMenu($templateLocalization->isVisibleInMenu());
+		$localization->setVisibleInSitemap($templateLocalization->isVisibleInSitemap());
+
+		$title = trim($this->getRequestParameter('title', ''));
+
+		if (empty($title)) {
+			throw new CmsException(null, 'Page title cannot be empty.');
+		}
+		
+		$localization->setTitle($title);
+
+		$parentLocalization = $pathPart
+				= null;
+
+		$parentLocalizationId = $this->getRequestParameter('parent_id');
+		
+		if (! empty($parentLocalizationId)) {
+
+			$parentLocalization = $this->getEntityManager()
+					->find(PageLocalization::CN(), $parentLocalizationId);
+
+			if ($parentLocalization === null) {
+				throw new CmsException(null, sprintf(
+						'Specified parent page [%s] not found.',
+						$parentLocalizationId
+				));
+			}
+
+			$pathPart = trim($this->getRequestParameter('path'));
+
+			// path part cannot be empty for non-root pages.
+			if (empty($pathPart)) {
+				throw new CmsException(null, 'Page path can not be empty.');
+			}
+		}
+
+		if ($parentLocalization && $pathPart) {
+			$localization->setPathPart($pathPart);
+		} else {
+			$rootPath = $localization->getPathEntity();
+			$rootPath->setPath('');
+			$localization->setPathPart('');
+		}
+
+		$entityManager = $this->getEntityManager();
+
+		$entityManager->transactional(function (EntityManager $entityManager) use ($page, $localization, $parentLocalization) {
+
+			$entityManager->persist($page);
+			$entityManager->persist($localization);
+
+			if ($parentLocalization) {
+				$page->moveAsLastChildOf($parentLocalization->getMaster());
+			}
+		});
+
+		$this->unlockNestedSet();
+
+		return new SupraJsonResponse($this->loadNodeMainData($localization));
 	}
 
 	/**

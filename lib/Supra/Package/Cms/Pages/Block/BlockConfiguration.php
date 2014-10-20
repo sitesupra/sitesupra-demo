@@ -14,6 +14,7 @@ abstract class BlockConfiguration
 	protected $tooltip;
 	protected $groupName;
 	protected $insertable = true;
+	protected $unique = false;
 	protected $cmsClassName = 'Editable';
 
 	// cache configuration object
@@ -104,6 +105,22 @@ abstract class BlockConfiguration
 	public function setInsertable($insertable)
 	{
 		$this->insertable = $insertable;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isUnique()
+	{
+		return $this->unique === true;
+	}
+
+	/**
+	 * @param bool $unique
+	 */
+	public function setUnique($unique)
+	{
+		$this->unique = $unique;
 	}
 
 	/**

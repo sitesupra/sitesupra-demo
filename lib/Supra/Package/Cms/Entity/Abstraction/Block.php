@@ -188,11 +188,11 @@ abstract class Block extends VersionedEntity implements
 	 */
 	public function inPlaceHolder(array $placeHolderIds)
 	{
-		$placeHolder = $this->getPlaceHolder();
-		$placeHolderId = $placeHolder->getId();
-		$in = in_array($placeHolderId, $placeHolderIds, true);
-
-		return $in;
+		return in_array(
+				$this->getPlaceHolder()->getId(),
+				$placeHolderIds,
+				true
+		);
 	}
 //
 //	/**
@@ -252,61 +252,49 @@ abstract class Block extends VersionedEntity implements
 //	}
 
 	/**
-	 * Creates new instance based on the discriminator of the base entity
-	 * @param Entity $base
+	 * Creates new instance based on the discriminator of the base entity.
+	 *
+	 * @param Localization $base
 	 * @return Block
 	 */
-	public static function factory(Entity $base)
+	public static function factory(Localization $base, Block $source = null)
 	{
-		$discriminator = $base::DISCRIMINATOR;
 		$block = null;
 
-		switch ($discriminator) {
+		switch ($base::DISCRIMINATOR) {
 			case self::TEMPLATE_DISCR:
 				$block = new TemplateBlock();
 				break;
-
 			case self::PAGE_DISCR:
 			case self::APPLICATION_DISCR:
 				$block = new PageBlock();
 				break;
-
-
 			default:
-				throw new Exception\LogicException("Not recognized discriminator value for entity {$base}");
+				throw new \LogicException("Not recognized discriminator value for entity [{$base}].");
+		}
+
+		if ($source !== null) {
+			$block->setComponentClass($source->getComponentClass());
+			$block->setPosition($source->getPosition());
+
+			foreach ($source->getBlockProperties() as $blockProperty) {
+				
+				$newBlockProperty = clone $blockProperty;
+				
+				$newBlockProperty->setLocalization($base);
+				$newBlockProperty->setBlock($block);
+
+				$block->getBlockProperties()
+						->add($newBlockProperty);
+			}
 		}
 
 		return $block;
 	}
 
 	/**
-	 * Creates new instance based on the discriminator of base entity and 
-	 * the properties of source entity
-	 * @param Entity $base 
-	 * @param Block $source
-	 * @return Block
+	 * @inheritDoc
 	 */
-	public static function factoryClone(Entity $base, Block $source)
-	{
-		$block = self::factory($base);
-
-		$block->setComponentClass($source->getComponentClass());
-		$block->setPosition($source->getPosition());
-
-		return $block;
-	}
-
-	/**
-	 * Doctrine safe clone method with cloning of children
-	 */
-	public function __clone()
-	{
-		if ( ! empty($this->id)) {
-			$this->regenerateId();
-			$this->blockProperties = new ArrayCollection();
-		}
-	}
-
 	public function getOwner()
 	{
 		return $this->placeHolder;

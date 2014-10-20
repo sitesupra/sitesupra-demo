@@ -404,27 +404,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 *
-	 * @param Entity\Abstraction\Localization $pageData
-	 */
-	protected function outputPage(Entity\Abstraction\Localization $pageData)
-	{
-		$data = $this->loadNodeMainData($pageData);
-
-		// Add missing parent page data ID
-		$parentData = $pageData->getParent();
-		$parentDataId = null;
-
-		if ( ! is_null($parentData)) {
-			$parentDataId = $parentData->getId();
-		}
-
-		$data['parent_id'] = $parentDataId;
-
-		$this->getResponse()->setResponseData($data);
-	}
-
-	/**
 	 * Loads main node data array
 	 * 
 	 * @param Localization $localization
@@ -474,24 +453,24 @@ abstract class AbstractPagesController extends AbstractCmsController
 		return $nodeData;
 	}
 
-	/**
-	 * Will publish page currently inside pageData property or found by page_id
-	 * and locale query parameters
-	 */
-	protected function publish()
-	{
-		$publicEm = $this->getPublicEntityManager();
-
-		$pageRequest = $this->getPageRequest();
-
-		$copyContent = function() use ($pageRequest) {
-					$pageRequest->publish();
-				};
-
-		$publicEm->transactional($copyContent);
-
-		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostPublish);
-	}
+//	/**
+//	 * Will publish page currently inside pageData property or found by page_id
+//	 * and locale query parameters
+//	 */
+//	protected function publish()
+//	{
+//		$publicEm = $this->getPublicEntityManager();
+//
+//		$pageRequest = $this->getPageRequest();
+//
+//		$copyContent = function() use ($pageRequest) {
+//					$pageRequest->publish();
+//				};
+//
+//		$publicEm->transactional($copyContent);
+//
+//		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostPublish);
+//	}
 
 	/**
 	 * Page delete action
@@ -779,16 +758,9 @@ abstract class AbstractPagesController extends AbstractCmsController
 			$entityManager->remove($lock);
 
 			$entityManager->flush();
-
-//			$previousRevision = $pageLock->getPageRevision();
-//			$currentRevision = $pageData->getRevisionId();
-//
-//			if ($previousRevision != $currentRevision) {
-//				$this->writeAuditLog("Draft for %item% saved", $pageData);
-//			}
 		}
 
-		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostUnlock);
+//		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostUnlock);
 	}
 
 	/**
@@ -1296,25 +1268,23 @@ abstract class AbstractPagesController extends AbstractCmsController
 	/**
 	 * Locks the nested set (both for now)
 	 */
-	protected function lock()
+	protected function lockNestedSet()
 	{
-		$repo = $this->entityManager->getRepository(AbstractPage::CN());
-		/* @var $repo \Supra\Controller\Pages\Repository\PageAbstractRepository */
-		$nestedSetRepo = $repo->getNestedSetRepository();
-		/* @var $nestedSetRepo \Supra\NestedSet\DoctrineRepository */
-		$nestedSetRepo->lock();
+		$this->getEntityManager()
+				->getRepository(AbstractPage::CN())
+				->getNestedSetRepository()
+				->lock();
 	}
 
 	/**
 	 * Unlocks the nested set
 	 */
-	protected function unlock()
+	protected function unlockNestedSet()
 	{
-		$repo = $this->entityManager->getRepository(AbstractPage::CN());
-		/* @var $repo \Supra\Controller\Pages\Repository\PageAbstractRepository */
-		$nestedSetRepo = $repo->getNestedSetRepository();
-		/* @var $nestedSetRepo \Supra\NestedSet\DoctrineRepository */
-		$nestedSetRepo->unlock();
+		$this->getEntityManager()
+				->getRepository(AbstractPage::CN())
+				->getNestedSetRepository()
+				->unlock();
 	}
 
 //	/**

@@ -67,11 +67,15 @@ routes:
         controller:					Cms:PagesPagesettings:templatesList
         options:
             frontend:       true
-    cms_pages_page_page:
+    ## Page contents get request
+    cms_pages_page_get:
         pattern:						%cms.prefix%/content-manager/page/page
         controller:					Cms:PagesPage:page
-        options:
-            frontend:       true
+    ## Page create request
+    cms_pages_page_create:
+        pattern:						%cms.prefix%/content-manager/page/create
+        controller:					Cms:PagesPage:create
+    ## Blocks list
     cms_pages_block_list:
         pattern:						%cms.prefix%/content-manager/blocks/blocks-list
         controller:					Cms:PagesBlock:blocksList

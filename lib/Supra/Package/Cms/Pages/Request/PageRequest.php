@@ -38,12 +38,6 @@ abstract class PageRequest extends Request implements ContainerAware
 	private $localization;
 
 	/**
-	 * Whether to allow flusing internally
-	 * @var boolean
-	 */
-	protected $allowFlushing = false;
-
-	/**
 	 * @var string
 	 */
 	private $media = TemplateLayout::MEDIA_SCREEN;
@@ -439,12 +433,6 @@ abstract class PageRequest extends Request implements ContainerAware
 			}
 		}
 
-		// @FIXME
-//		// Create missing place holders automatically
-//		if ( ! $this instanceof HistoryPageRequestEdit) {
-//			$this->createMissingPlaceHolders();
-//		}
-
 		return $this->placeHolderSet;
 	}
 	
@@ -801,263 +789,85 @@ abstract class PageRequest extends Request implements ContainerAware
 		}
 	}
 
-	/**
-	 * 
-	 */
-	public function createMissingPlaceHolders($forceUseTemplateBlocks = false)
-	{
-		$layoutPlaceHolders = $this->getLayoutPlaceHolders();
-
-		if ($layoutPlaceHolders->isEmpty()) {
-			return;
-		}
-
-//		$this->createMissingPlaceHolderGroups();
-		
-		$placeHolderSet = $this->getPlaceHolderSet();
-
-		$entityManager = $this->getDoctrineEntityManager();
-		$localization = $this->getLocalization();
-
-		$finalPlaceHolders = $placeHolderSet->getFinalPlaceHolders();
-		$parentPlaceHolders = $placeHolderSet->getParentPlaceHolders();
-		
-		$localizationGroups = $localization->getPlaceHolderGroups();
-
-		foreach ($layoutPlaceHolders as $layoutPlaceHolder) {
-			
-			$placeHolder = null;
-			$parentPlaceHolder = null;
-			
-			$name = $layoutPlaceHolder->getName();
-			
-			if ( ! $finalPlaceHolders->offsetExists($name)) {
-
-				// Check if page doesn't have it already set locally
-				//$placeHolder = null;
-				$knownPlaceHolders = $localization->getPlaceHolders();
-
-				if ($knownPlaceHolders->offsetExists($name)) {
-					$placeHolder = $knownPlaceHolders->offsetGet($name);
-				}
-				
-				if (empty($placeHolder)) {
-					// Copy unlocked blocks from the parent template
-					$parentPlaceHolder = $parentPlaceHolders->getLastByName($name);
-					
-					// TODO: should move to recursive clone
-					$placeHolder = Entity\Abstraction\PlaceHolder::factory($localization, $name, $parentPlaceHolder);
-					$placeHolder->setMaster($localization);
-				}
-			
-				// Persist only for draft connection with ID generation
-				if ($this instanceof PageRequestEdit) {
-					$entityManager->persist($placeHolder);
-				}
-
-				$placeHolderSet->append($placeHolder);
-			}
-			
-			if ($placeHolder === null) {
-				$placeHolder = $finalPlaceHolders->offsetGet($name);
-				
-				if ( ! $placeHolder->getLocalization()->equals($localization)) {
-					continue;
-				}
-			} 			
-			
-			if ($placeHolder->getGroup() === null) {
-				
-				$sourceGroup = null;
-				if ($parentPlaceHolder === null) {
-					$sourceGroup = $layoutPlaceHolder->getGroup();
-				} else {
-					$sourceGroup = $parentPlaceHolder->getGroup();
-				}
-				
-				if ($sourceGroup !== null) {
-						
-					$sourceGroupName = $sourceGroup->getName();	
-					
-					if ($localizationGroups->offsetExists($sourceGroupName)) {
-						$localizationGroup = $localizationGroups->get($sourceGroupName);
-					} else {
-						$localizationGroup = Entity\PlaceHolderGroup::factory($sourceGroup);
-						$localization->addPlaceHolderGroup($localizationGroup);
-								
-						if ($this instanceof PageRequestEdit) {
-							$entityManager->persist($localizationGroup);
-						}
-					}
-					
-					$localizationGroup->addPlaceholder($placeHolder);
-					$placeHolder->setGroup($localizationGroup);
-				}	
-			}	
-		}
-		
-		if ($this instanceof PageRequestEdit && $forceUseTemplateBlocks) {
-			$this->copyBlocksFromTemplate();
-		}
-
-		// Flush only for draft connection with ID generation
-		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
-			$entityManager->flush();
-		}
-	}
-	
-//	/**
-//	 * 
-//	 */
-//	protected function createMissingPlaceHolderGroups()
+//	protected function createMissingBlockProperties()
 //	{
-//		$em = $this->getDoctrineEntityManager();
-//		
+//		$entityManager = $this->getDoctrineEntityManager();
+//		$blocks = $this->getBlockSet();
+//
+//		$pageSet = $this->getPageSet();
+//		$length = $pageSet->count();
+//
+//		if ($length <= 1) {
+//			return;
+//		}
+//
+//		$template = $pageSet->offsetGet($length - 2);
+//
+//		/* @var $template Entity\Template */
+//
+//		if (empty($template)) {
+//			return;
+//		}
+//
 //		$localization = $this->getLocalization();
-//		
-//		$currentGroups = $localization->getPlaceHolderGroups();
-//		$currentGroupKeys = $currentGroups->getKeys();
-//		
-//		if ($localization instanceof Entity\TemplateLocalization) {
 //
-//			$layout = $this->getLayout();
-//			$layoutGroups = $layout->getPlaceHolderGroups();
-//			
-//			foreach ($layoutGroups as $layoutGroup) {
-//				/* @var $layoutGroup Entity\Theme\ThemeLayoutPlaceholderGroup */
-//				$groupName = $layoutGroup->getName();
+//		foreach ($blocks as $block) {
+//			/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
 //
-//				if ( ! in_array($groupName, $currentGroupKeys)) {
-//					
-//					$templateGroup = Entity\PlaceHolderGroup::factory($layoutGroup);
-//					$localization->addPlaceHolderGroup($templateGroup);
-//				
-//					if ($this instanceof PageRequestEdit) {
-//						$em->persist($templateGroup);
-//					}
+//			if ($block->getLocked()) {
+//				continue;
+//			}
+//
+//			$placeHolder = $block->getPlaceHolder();
+//			/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
+//
+//			if ( ! $placeHolder->getLocked()) {
+//				continue;
+//			}
+//
+//			$templateId = $template->getId();
+//			$blockId = $block->getId();
+//			$localeId = $this->getLocale();
+//
+//			//TODO: Move after loop
+//			$blockPropertiesToCopy = $entityManager->createQueryBuilder()
+//					->select('bp')
+//					->from(BlockProperty::CN(), 'bp')
+//					->join('bp.localization', 'l')
+//					->andWhere('l.locale = :locale')
+//					->andWhere('l.master = :template')
+//					->andWhere('bp.block = :block')
+//					->setParameter('template', $templateId)
+//					->setParameter('block', $blockId)
+//					->setParameter('locale', $localeId)
+//					->getQuery()
+//					->getResult();
+//
+//			foreach ($blockPropertiesToCopy as $blockProperty) {
+//				/* @var $blockProperty BlockProperty */
+//
+//				$metadataCollection = $blockProperty->getMetadata();
+//
+//				$blockProperty = clone($blockProperty);
+//				$blockProperty->resetLocalization();
+//				$blockProperty->setLocalization($localization);
+//
+//				$entityManager->persist($blockProperty);
+//
+//				foreach ($metadataCollection as $metadata) {
+//					/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
+//					$metadata = clone($metadata);
+//					$metadata->setBlockProperty($blockProperty);
+//					$entityManager->persist($metadata);
 //				}
 //			}
 //		}
-//		else if ($localization instanceof Entity\PageLocalization) {
 //
-//			$templateLocalization = $localization->getTemplate()
-//					->getLocalization($localization->getLocale());
-//			
-//			$groupsInTemplate = $templateLocalization->getPlaceHolderGroups();
-//			
-//			$layout = $this->getLayout();
-//			$layoutGroups = $layout->getPlaceHolderGroups();			
-//			
-//			foreach ($layoutGroups as $layoutGroup) {
-//				$groupName = $layoutGroup->getName();
-//				
-//				if ( ! in_array($groupName, $currentGroupKeys)) {
-//					
-//					$sourceGroup = $layoutGroup;
-//					if ($groupsInTemplate->offsetExists($groupName)) {
-//						$sourceGroup = $groupsInTemplate->get($groupName);
-//						
-//						//
-//						if ($sourceGroup->getLocked()) {
-//							continue;
-//						}
-//					}
-//					
-//					$newGroup = Entity\PlaceHolderGroup::factory($sourceGroup);
-//					
-//					$localization->addPlaceHolderGroup($newGroup);
-//					
-//					if ($this instanceof PageRequestEdit) {
-//						$em->persist($newGroup);
-//					}
-//					
-//				}
-//			}
+//		// Flush only for draft connection with ID generation
+//		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
+//			$entityManager->flush();
 //		}
 //	}
-
-	/**
-	 * 
-	 */
-	public function createMissingBlockProperties()
-	{
-		$entityManager = $this->getDoctrineEntityManager();
-		$blocks = $this->getBlockSet();
-
-		$pageSet = $this->getPageSet();
-		$length = $pageSet->count();
-
-		if ($length <= 1) {
-			return;
-		}
-
-		$template = $pageSet->offsetGet($length - 2);
-
-		/* @var $template Entity\Template */
-		
-		if (empty($template)) {
-			return;
-		}
-
-		$localization = $this->getLocalization();
-
-		foreach ($blocks as $block) {
-			/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
-
-			if ($block->getLocked()) {
-				continue;
-			}
-			
-			$placeHolder = $block->getPlaceHolder();
-			/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
-
-			if ( ! $placeHolder->getLocked()) {
-				continue;
-			}
-
-			$templateId = $template->getId();
-			$blockId = $block->getId();
-			$localeId = $this->getLocale();
-
-			//TODO: Move after loop
-			$blockPropertiesToCopy = $entityManager->createQueryBuilder()
-					->select('bp')
-					->from(BlockProperty::CN(), 'bp')
-					->join('bp.localization', 'l')
-					->andWhere('l.locale = :locale')
-					->andWhere('l.master = :template')
-					->andWhere('bp.block = :block')
-					->setParameter('template', $templateId)
-					->setParameter('block', $blockId)
-					->setParameter('locale', $localeId)
-					->getQuery()
-					->getResult();
-
-			foreach ($blockPropertiesToCopy as $blockProperty) {
-				/* @var $blockProperty BlockProperty */
-
-				$metadataCollection = $blockProperty->getMetadata();
-
-				$blockProperty = clone($blockProperty);
-				$blockProperty->resetLocalization();
-				$blockProperty->setLocalization($localization);
-
-				$entityManager->persist($blockProperty);
-
-				foreach ($metadataCollection as $metadata) {
-					/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
-					$metadata = clone($metadata);
-					$metadata->setBlockProperty($blockProperty);
-					$entityManager->persist($metadata);
-				}
-			}
-		}
-
-		// Flush only for draft connection with ID generation
-		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
-			$entityManager->flush();
-		}
-	}
 
 	/**
 	 * @param ContainerInterface $container
