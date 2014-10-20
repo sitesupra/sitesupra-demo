@@ -19,9 +19,7 @@ use Supra\Controller\Pages\Exception;
  * @Entity
  * //HasLifecycleCallbacks
  */
-class BlockProperty extends VersionedEntity implements
-	AuditedEntity
-//	OwnedEntityInterface
+class BlockProperty extends VersionedEntity implements AuditedEntity
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="blockProperties")
@@ -273,16 +271,10 @@ class BlockProperty extends VersionedEntity implements
 	}
 	
 	/**
-	 * Return owner of current block property.
-	 * Could be Localization, Block or BlockPropertyMetadata entity.
-	 * @return Entity
+	 * @inheritDoc
 	 */
-	public function getOwner()
+	public function getVersionedParent()
 	{
-		if ( ! is_null($this->masterMetadata)) {
-			return $this->masterMetadata;
-		}
-		
 		// If the owner block belongs to the owner localization, return block,
 		// localization otherwise.
 		if ($this->localization->equals($this->block->getPlaceHolder()->getMaster())) {
@@ -291,47 +283,13 @@ class BlockProperty extends VersionedEntity implements
 		
 		return $this->localization;
 	}
-	
-//	/**
-//	 * Set metadata entity, that owns this BlockProperty
-//	 *
-//	 * @param BlockPropertyMetadata $metadata
-//	 */
-//	public function setMasterMetadata($metadata)
-//	{
-//		$this->masterMetadata = $metadata;
-//		$this->masterMetadataId = $metadata->getId();
-//	}
-//
-//	/**
-//	 * Get block property master(owner) metadata entity
-//	 *
-//	 * @return BlockPropertyMetadata
-//	 */
-//	public function getMasterMetadata()
-//	{
-//		return $this->masterMetadata;
-//	}
-//
-//	/**
-//	 * @return string
-//	 */
-//	public function getMasterMetadataId()
-//	{
-//		return $this->masterMetadataId;
-//	}
-//
-//	public function resetMasterMetadata()
-//	{
-//		$this->masterMetadata =
-//				$this->masterMetadataId = null;
-//	}
 
 	public function __clone()
 	{
 		parent::__clone();
 		
 		if (! empty($this->id)) {
+			
 			$this->block = null;
 			$this->localization = null;
 

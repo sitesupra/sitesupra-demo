@@ -3,9 +3,7 @@
 namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Supra\Controller\Pages\Exception;
 use Supra\Package\Cms\Entity\PagePlaceHolder;
-use Supra\Package\Cms\Entity\PlaceHolderGroup;
 use Supra\Package\Cms\Entity\TemplatePlaceHolder;
 
 /**
@@ -16,8 +14,7 @@ use Supra\Package\Cms\Entity\TemplatePlaceHolder;
  * @DiscriminatorMap({"template" = "Supra\Package\Cms\Entity\TemplatePlaceHolder", "page" = "Supra\Package\Cms\Entity\PagePlaceHolder"})
  */
 abstract class PlaceHolder extends VersionedEntity implements
-		AuditedEntity,
-		OwnedEntityInterface
+		AuditedEntity
 {
 	/**
 	 * FIXME: should be fixed after DDC-482 is done or else there is duplicate
@@ -268,35 +265,13 @@ abstract class PlaceHolder extends VersionedEntity implements
 
 		return $placeHolder;
 	}
-	
-	public function getOwner() 
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getVersionedParent()
 	{
 		return $this->localization;
 	}
 
-	/**
-	 * @return mixed
-	 */
-	public function getGroup()
-	{
-		return $this->group;
-	}
-
-	/**
-	 * @param PlaceHolderGroup $group
-	 */
-	public function setGroup(PlaceHolderGroup $group)
-	{
-		$this->group = $group;
-		$group->addPlaceholder($this);
-	}
-	
-	/**
-	 * 
-	 */
-	public function resetGroup()
-	{
-		$this->group = null;
-	}
-	
 }

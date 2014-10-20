@@ -22,4 +22,11 @@ interface VersionedEntityInterface
 	 * @param string $revision
 	 */
 	public function setRevision($revision);
+
+	/**
+	 * Used to bubble up revision ID for parent content elements.
+	 *
+	 * @return null|VersionedEntityInterface
+	 */
+	public function getVersionedParent();
 }

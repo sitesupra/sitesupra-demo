@@ -1495,8 +1495,10 @@ abstract class AbstractPagesController extends AbstractCmsController
 			'date'		=> $localization->getCreationTime()
 					->format('Y-m-d'),
 
+			'active' => $publishedLocalization ? $publishedLocalization->isActive() : $localization->isActive(),
+
 			// is the latest version published or not
-			'published' => $isLatestVersionPublished
+			'published' => $isLatestVersionPublished,
 		);
 
 		// redirect data
@@ -1535,11 +1537,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 //			}
 //		}
 
-		$array['unpublished_draft'] = true;
-		$array['published'] = false;
-
-		$publicLocalization = null;
-
 		// No public stuff for group/temporary pages
 		if ( ! $localization instanceof Entity\GroupLocalization) {
 //			$localizationId = $data->getId();
@@ -1547,27 +1544,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 //			$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
 		}
 
-		$array['active'] = true;
-		if ($publicLocalization instanceof Localization) {
-			$array['unpublished_draft'] = false;
-
-			$publicRevision = $publicLocalization->getRevisionId();
-			$draftRevision = $data->getRevisionId();
-			if ($draftRevision == $publicRevision) {
-				$array['published'] = true;
-			}
-
-			if ($publicLocalization instanceof Entity\PageLocalization) {
-				$array['active'] = $publicLocalization->isActive();
-			}
-		} else {
-			$array['active'] = false;
-		}
-
 		// Additional base path received from application
 		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
-
-
 
 		return $localizationData;
 

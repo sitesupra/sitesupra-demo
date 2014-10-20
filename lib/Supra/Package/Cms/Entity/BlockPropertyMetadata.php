@@ -11,9 +11,7 @@ use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
  * BlockPropertyMetadata
  * @Entity
  */
-class BlockPropertyMetadata extends VersionedEntity implements
-	AuditedEntity
-	//OwnedEntityInterface
+class BlockPropertyMetadata extends VersionedEntity implements AuditedEntity
 {
 	/**
 	 * @Column(type="string")
@@ -129,7 +127,7 @@ class BlockPropertyMetadata extends VersionedEntity implements
 	/**
 	 * @inehritDoc
 	 */
-	public function getOwner()
+	public function getVersionedParent()
 	{
 		return $this->blockProperty;
 	}
