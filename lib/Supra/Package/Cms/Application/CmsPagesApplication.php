@@ -12,7 +12,7 @@ class CmsPagesApplication extends AbstractApplication
 
 	protected $title = 'Pages';
 
-	protected $icon = '/public/cms/supra/img/apps/pages_90x90.png';
+	protected $icon = '/public/cms/supra/img/apps/pages';
 
 	protected $route = 'cms_pages';
 

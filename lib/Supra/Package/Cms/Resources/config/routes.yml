@@ -121,3 +121,9 @@ routes:
     cms_pages_content_blocks_move:
         pattern:						%cms.prefix%/content-manager/pagecontent/moveblocks
         controller:					Cms:PagesContent:moveBlocks
+
+    backoffice_users:
+        pattern:                        %cms.prefix%/internal-user-manager
+        controller:                     Cms:InternalUserManager:index
+        options:
+            frontend:                   true
