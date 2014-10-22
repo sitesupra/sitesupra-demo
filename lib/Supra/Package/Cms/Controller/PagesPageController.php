@@ -3,9 +3,8 @@
 namespace Supra\Package\Cms\Controller;
 
 use Doctrine\ORM\EntityManager;
-use Symfony\Component\HttpFoundation\Response;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
-use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
+use Supra\Package\Cms\Pages\Exception\DuplicatePagePathException;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
@@ -14,7 +13,9 @@ use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\Page;
 use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\ApplicationPage;
-use Supra\Package\Cms\Entity\GroupPage;
+use Supra\Package\Cms\Entity\RedirectTargetChild;
+use Supra\Package\Cms\Entity\RedirectTargetPage;
+use Supra\Package\Cms\Entity\RedirectTargetUrl;
 
 class PagesPageController extends AbstractPagesController
 {
@@ -28,89 +29,7 @@ class PagesPageController extends AbstractPagesController
 	 */
 	public function layoutsListAction()
 	{
-		return new SupraJsonResponse($this->getCurrentThemeLayoutsData());
-	}
-
-	/**
-	 * Returns page localization properties, inner html and placeholder contents.
-	 *
-	 * @return SupraJsonResponse
-	 */
-	public function pageAction()
-	{
-		$localization = $this->getPageLocalization();
-
-		$pageRequest = $this->createPageRequest();
-
-		$pageController = $this->getPageController();
-
-		$templateException = $response
-				= $internalHtml
-				= null;
-		
-		try {
-			$response = $pageController->execute($pageRequest);
-		} catch (\Twig_Error_Loader $e) {
-			$templateException = $e;
-		} catch (LayoutNotFound $e) {
-			$templateException = $e;
-		} catch (\Exception $e) {
-			throw $e;
-		}
-
-		$localizationData = $this->getLocalizationData($localization);
-
-		if ($templateException) {
-			$internalHtml = '<h1>Page template or layout not found.</h1>
-				<p>Please make sure the template is assigned and the template is published in this locale and it has layout assigned.</p>';
-		} elseif ($response instanceof Response) {
-			$internalHtml = $response->getContent();
-		}
-
-		$localizationData['internal_html'] = $internalHtml;
-
-		$placeHolders = $pageRequest->getPlaceHolderSet()
-				->getFinalPlaceHolders();
-		
-		$blocks = $pageRequest->getBlockSet();
-
-		$placeHoldersData = &$localizationData['contents'];
-
-		foreach ($placeHolders as $placeHolder) {
-
-			$blocksData = array();
-
-			foreach ($blocks->getPlaceHolderBlockSet($placeHolder) as $block) {
-				/* @var $block Block */
-				$blocksData[] = $this->getBlockData($block);
-			}
-
-			$placeHolderData = array(
-				'id'		=> $placeHolder->getName(),
-				'title'		=> $placeHolder->getTitle(),
-				'locked'	=> $placeHolder->isLocked(),
-				'closed'	=> ! $localization->isPlaceHolderEditable($placeHolder),
-				'contents'	=> $blocksData,
-				// @TODO: if this one is hardcoded, why not to hardcode in UI?
-				'type'		=> 'list',
-				// @TODO: list of blocks that are allowed to be insterted
-//				'allow' => array(
-//						0 => 'Project_Text_TextController',
-//				),
-			);
-
-			$placeHoldersData[] = $placeHolderData;
-		}
-
-		$jsonResponse = new SupraJsonResponse($localizationData);
-
-		// @FIXME: dummy. when needed, move to prefilter.
-		$jsonResponse->setPermissions(array(array(
-			'edit_page' => true,
-			'supervise_page' => true
-		)));
-
-		return $jsonResponse;
+		return new SupraJsonResponse($this->getActiveThemeLayoutsData());
 	}
 
 	/**
@@ -235,130 +154,193 @@ class PagesPageController extends AbstractPagesController
 	}
 
 	/**
-	 * @param Localization $localization
-	 * @return array
+	 * @return SupraJsonResponse
 	 */
-	private function getLocalizationData(Localization $localization)
+	public function saveSettingsAction()
 	{
-		$page = $localization->getMaster();
+		$this->isPostRequest();
+		$this->checkLock();
 
-		$allLocalizationData = array();
-		foreach ($page->getLocalizations() as $locale => $pageLocalization) {
-			$allLocalizationData[$locale] = $pageLocalization->getId();
+		$localization = $this->getPageLocalization();
+
+		if (! $localization instanceof PageLocalization) {
+			throw new \UnexpectedValueException(sprintf(
+					'Expecting PageLocalization instance, [%s] received.',
+					get_class($localization)
+			));
 		}
 
-		$ancestorIds = Entity::collectIds($localization->getAncestors());
+		$this->saveLocalizationCommonSettingsAction();
 
-		// abstract localization data
-		$localizationData = array(
-			'root'				=> $page->isRoot(),
-			'tree_path'			=> $ancestorIds,
-			'locale'			=> $localization->getLocaleId(),
+		$input = $this->getRequestInput();
 
-			// All available localizations
-			'localizations'		=> $allLocalizationData,
+		//@TODO: validation
+		$localization->setPathPart($input->get('path', ''));
 
-			// Editing Lock info
-			'lock'				=> $this->getLocalizationLockData($localization),
+		$templateId = $input->get('template');
 
-			// Common properties
-			'is_visible_in_menu'	=> $localization->isVisibleInMenu(),
-			'is_visible_in_sitemap' => $localization->isVisibleInSitemap(),
-			'include_in_search'		=> $localization->isIncludedInSearch(),
+		$template = $this->getEntityManager()
+				->find(Template::CN(), $templateId);
+
+		if ($template === null) {
+			throw new CmsException(null, sprintf('Specified template [%s] not found.'));
+		}
+
+		if (! $template->equals($localization->getTemplate())) {
+			$localization->setTemplate($template);
+			//@FIXME: copy template blocks should happen' here.
+			// Or somewhere inside PageRequestEdit::getBlockSet()
+//			$request = $this->getPageRequest();
+//			$request->createMissingPlaceHolders(true);
+		}
+
+		$localization->setActive($input->filter('active', null, false, FILTER_VALIDATE_BOOLEAN));
+
+		$localization->setMetaDescription($input->get('description'));
+
+		$localization->setMetaKeywords($input->get('keywords'));
+
+		$global = $input->filter('global', false, false, FILTER_VALIDATE_BOOLEAN);
+
+		// @TODO: possible 'global' property renaming is needed, it's confusing.
+		if ($global === false && $localization->getMaster()->isRoot()) {
+			throw new \LogicException('It is not allowed to disable translation of root page.');
+		}
+
+		$localization->getMaster()
+				->setGlobal($global);
+
+		// @TODO: would be nice if date/time would be sent as single value.
+		$publicationScheduleDate = $input->get('scheduled_date');
+		$scheduleDateTime = null;
+
+		if (! empty($publicationScheduleDate)) {
 			
-			// Common SEO properties
-			'page_change_frequency' => $localization->getChangeFrequency(),
-			'page_priority'			=> $localization->getPagePriority(),
+			$publicationScheduleTime = $input->get('scheduled_time', '00:00:00');
 
-// @TODO: check, if is used
-//			'allow_edit'			=> @TODO, //$this->isAllowedToEditLocalization($localization),
+			$scheduleDateTime = \DateTime::createFromFormat(
+					'Y-m-d/H:i:s',
+					"$publicationScheduleDate/$publicationScheduleTime"
+			);
 
-			// Content defaults
-			'internal_html' => null,
-			'contents' => array(),
-
-// @TODO: check, must be returned by parent method
-//			'path_prefix'		=> ($localization->hasParent() ? $localization->getParent()->getPath() : null),
-		);
-
-		if ($localization instanceof PageLocalization) {
-
-			$creationTime = $localization->getCreationTime();
-			$publicationSchedule = $localization->getScheduleTime();
-
-			$localizationData = array_replace($localizationData, array(
-				// Page properties
-				'keywords'			=> $localization->getMetaKeywords(),
-				'description'		=> $localization->getMetaDescription(),
-				// @TODO: return in one piece
-				'created_date'		=> $creationTime->format('Y-m-d'),
-				'created_time'		=> $creationTime->format('H:i:s'),
-				// @TODO: return in one piece
-				'scheduled_date'	=> $publicationSchedule ? $publicationSchedule->format('Y-m-d') : null,
-				'scheduled_time'	=> $publicationSchedule ? $publicationSchedule->format('H:i:s') : null,
-
-				'active'			=> $localization->isActive(),
-
-				// Used template info
-				'template'			=> array(
-					'id'	=> $localization->getTemplate()->getId(),
-					'title' => $localization->getTemplateLocalization()->getTitle(),
-				),
-			));
-			
-		} elseif ($localization instanceof TemplateLocalization) {
-
-			$layoutData = null;
-			
-			if ($page->hasLayout($this->getMedia())) {
-
-				$layoutName = $page->getLayoutName($this->getMedia());
-
-				$layout = $this->getActiveTheme()
-						->getLayout($layoutName);
-
-				if ($layout !== null) {
-					$layoutData = array(
-						'id'	=> $layout->getName(),
-						'title' => $layout->getTitle(),
-					);
-				}
+			if ($scheduleDateTime === false) {
+				throw new \RuntimeException(sprintf(
+						'Failed to create page publication schedule datetime object from date [%s] and time [%s] values.',
+						$publicationScheduleDate,
+						$publicationScheduleTime
+				));
 			}
-			
-			$localizationData = array_replace($localizationData, array(
-				'layouts' => $this->getCurrentThemeLayoutsData(),
-				'layout' => $layoutData,
-			));
 		}
 
-		return array_replace(
-				$this->loadNodeMainData($localization),
-				$localizationData
-		);
+		// @TODO: would be nice if date/time would be sent as single value.
+		$creationDate = $input->get('created_date');
+		$creationTime = $input->get('created_time', '00:00:00');
+
+		$creationDateTime = \DateTime::createFromFormat('Y-m-d/H:i:s', "$creationDate/$creationTime");
+
+		if ($creationDateTime === false) {
+			throw new \RuntimeException(sprintf(
+						'Failed to create page creation datetime object from date [%s] and time [%s] values.',
+						$creationDate,
+						$creationTime
+				));
+		}
+
+		$localization->setCreationTime($creationDateTime);
+
+		// @TODO: JS might not inform about redirect data if it was not changed.
+		if ($localization->hasRedirectTarget()) {
+			$this->getEntityManager()
+					->remove($localization->getRedirectTarget());
+		}
+
+		$redirectTargetData = $input->get('redirect', array());
+
+		if (! empty($redirectTargetData)) {
+			$redirectTarget = $this->createRedirectTargetFromData($redirectTargetData);
+
+			$this->getEntityManager()
+					->persist($redirectTarget);
+
+			$localization->setRedirectTarget($redirectTarget);
+		}
+
+		try {
+			$this->getEntityManager()->flush();
+		} catch (DuplicatePagePathException $e) {
+			throw new CmsException(null, $e->getMessage());
+		}
+
+		return new SupraJsonResponse();
 	}
 
 	/**
-	 * @return array
+	 * @param array $data
+	 * @return \Supra\Package\Cms\Entity\Abstraction\RedirectTarget
 	 */
-	private function getCurrentThemeLayoutsData()
+	private function createRedirectTargetFromData(array $data)
 	{
-		$themeProvider = $this->getThemeProvider();
+		$type = isset($data['type']) ? $data['type'] : null;
 
-		$theme = $themeProvider->getActiveTheme();
+		switch ($type) {
+			case 'page':
+				$redirectTarget = new RedirectTargetPage();
 
-		$layoutsData = array();
+				if (empty($data['page_id'])) {
+					throw new \InvalidArgumentException('Missing target page id.');
+				}
 
-		foreach ($theme->getLayouts() as $layout) {
+				$page = $this->getEntityManager()
+						->find(Page::CN(), $data['page_id']);
 
-			$layoutName = $layout->getName();
+				if ($page === null) {
+					throw new \UnexpectedValueException(sprintf(
+							'Target page [%s] not found.',
+							$data['page_id']
+					));
+				}
 
-			$layoutsData[] = array(
-				'id'	=> $layoutName,
-				'title' => $layout->getTitle(),
-				'icon'	=> $layout->getIcon(),
-			);
+				break;
+
+			case 'child':
+				$redirectTarget = new RedirectTargetChild();
+
+				if (empty($data['child_position'])) {
+					throw new \InvalidArgumentException('Missing target child position.');
+				}
+
+				$redirectTarget->setPage(
+						$this->getPageLocalization()->getPage()
+				);
+
+				$redirectTarget->setChildPosition($data['child_position']);
+
+				break;
+
+			case 'url':
+				$redirectTarget = new RedirectTargetUrl();
+
+				if (empty($data['url'])) {
+					throw new \InvalidArgumentException('Missing target URL.');
+				}
+
+				if (! filter_var($data['url'], FILTER_VALIDATE_URL)) {
+					throw new CmsException(null, sprintf(
+							'Provided URL [%s] is not correct.',
+							$data['url']
+					));
+				}
+
+				$redirectTarget->setUrl($data['url']);
+
+				break;
+			default:
+				throw new \UnexpectedValueException(sprintf(
+						'Unknown redirect target type [%s].',
+						$type
+				));
 		}
 
-		return $layoutsData;
+		return $redirectTarget;
 	}
 }

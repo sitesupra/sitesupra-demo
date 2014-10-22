@@ -324,18 +324,18 @@ class PageLocalization extends Abstraction\Localization
 	/**
 	 * @param \DateTime $scheduleTime
 	 */
-	public function setScheduleTime(\DateTime $scheduleTime)
+	public function setScheduleTime(\DateTime $scheduleTime = null)
 	{
 		$this->scheduleTime = $scheduleTime;
 	}
 
-	/**
-	 * Unsets the schedule
-	 */
-	public function unsetScheduleTime()
-	{
-		$this->scheduleTime = null;
-	}
+//	/**
+//	 * Unsets the schedule
+//	 */
+//	public function unsetScheduleTime()
+//	{
+//		$this->scheduleTime = null;
+//	}
 
 	/**
 	 * @return bool
