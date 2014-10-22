@@ -42,6 +42,11 @@ routes:
         controller:					Cms:PagesSitemap:pagesList
         options:
             frontend:       true
+    cms_pages_sitemap_move:
+        pattern:						%cms.prefix%/content-manager/sitemap/move
+        controller:					Cms:PagesSitemap:move
+        options:
+            frontend:       true
     cms_pages_sitemap_templates_list:
         pattern:						%cms.prefix%/content-manager/sitemap/templates-list
         controller:					Cms:PagesSitemap:templatesList

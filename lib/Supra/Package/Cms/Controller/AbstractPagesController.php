@@ -249,9 +249,10 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Try selecting abstract page by request parameter
+	 * Try selecting abstract page by request parameter.
+	 * 
 	 * @param string $key
-	 * @return Entity\Abstraction\AbstractPage
+	 * @return null|AbstractPage
 	 */
 	private function searchPageByRequestKey($key)
 	{
@@ -261,10 +262,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 			return null;
 		}
 
-		$page = $this->entityManager->find(
-				Entity\Abstraction\AbstractPage::CN(), $pageId);
-
-		return $page;
+		return $this->getEntityManager()
+				->find(AbstractPage::CN(), $pageId);
 	}
 
 	/**
