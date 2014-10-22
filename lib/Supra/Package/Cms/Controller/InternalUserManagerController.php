@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Controller\Controller;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\CmsAuthentication\Entity\AbstractUser;
 use Supra\Package\CmsAuthentication\Entity\Group;
 use Supra\Package\CmsAuthentication\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +34,140 @@ class InternalUserManagerController extends Controller
 		return $this->renderResponse('index.html.twig');
 	}
 
-	public function userListAction(Request $request)
+	/**
+	 * Password reset action
+	 */
+	public function resetAction(Request $request)
+	{
+		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
+		if (!$request->request->has('user_id')) {
+			$response = new SupraJsonResponse();
+
+			$response->setErrorMessage('User id is not set');
+
+			return $request;
+		}
+
+		$userId = $request->request->get('user_id');
+
+		$user = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneById($userId);
+
+		if (empty($user)) {
+			$response = new SupraJsonResponse();
+			$response->setErrorMessage('Can\'t find user with such id');
+			return $response;
+		}
+
+		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
+
+		//todo: send email
+
+		return new SupraJsonResponse(null);
+	}
+
+	/**
+	 * Delete user action
+	 */
+	public function deleteAction(Request $request)
+	{
+		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
+		if (!$request->request->get('user_id')) {
+			$response = new SupraJsonResponse();
+			$response->setErrorMessage('User id is not set');
+			return $response;
+		}
+
+		$userId = $request->request->get('user_id');
+
+		$currentUser = $this->getUser();
+		$currentUserId = $currentUser->getId();
+
+		if ($currentUserId == $userId) {
+			$response = new SupraJsonResponse();
+			$response->setErrorMessage('You can\'t delete current user account');
+			return $response;
+		}
+
+		$user = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneById($userId);
+
+		if (empty($user)) {
+			$response = new SupraJsonResponse();
+			$response->setErrorMessage('Can\'t find user with such id');
+			return $response;
+		}
+
+		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
+
+		$this->container->getDoctrine()->getManager()->remove($user);
+		$this->container->getDoctrine()->getManager()->flush();
+
+		return new SupraJsonResponse(null);
+	}
+
+
+	/**
+	 * User save
+	 */
+	public function saveAction(Request $request)
+	{
+		$user = $this->getUserOrGroup($request->request->get('user_id'));
+
+		if ($user->getId() != $this->getUser()->getId()) {
+			$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
+		}
+
+		//TODO: temporary solution for groups, don't save anything
+		if ( ! $user instanceof User) {
+			$response = $this->userToArray($user);
+
+			return new SupraJsonResponse($response);
+		}
+
+		if ($request->request->has('name')) {
+			$name = $request->request->get('name');
+			$user->setName($name);
+		}
+
+		if ($request->request->has('email')) {
+			$email = $request->request->filter('email', null, false, FILTER_VALIDATE_EMAIL);
+			$user->setEmail($email);
+		}
+
+		$this->container->getDoctrine()->getManager()->flush();
+
+		//todo: send e-mail
+
+		return new SupraJsonResponse($this->userToArray($user));
+	}
+
+	public function loadAction(Request $request)
+	{
+		if (!$request->query->get('user_id')) {
+			$response = new SupraJsonResponse();
+			$response->setErrorMessage('User id is not set');
+
+			return $response;
+		}
+
+		/* @var $user AbstractUser */
+		$user = $this->getUserOrGroup($request->query->get('user_id'));
+
+		if ($user->getId() != $this->getUser()->getId()) {
+			$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
+		}
+
+		$response = $this->userToArray($user);
+		$response['permissions'] = $this->permissionsToArray($user);
+
+		//this has always been a hardcode
+		$response['canUpdate'] = true;
+		$response['canDelete'] = true;
+		$response['canCreate'] = true;
+
+		return new SupraJsonResponse($response);
+	}
+
+	public function listAction(Request $request)
 	{
 		$result = array();
 
@@ -42,7 +176,6 @@ class InternalUserManagerController extends Controller
 				$groupRepository = $this->container->getDoctrine()->getManager()->getRepository(Group::CN());
 				$groups = $groupRepository->findAll();
 
-				/* @var $group Group */
 				foreach($groups as $group) {
 
 					$result[] = array(
@@ -55,14 +188,14 @@ class InternalUserManagerController extends Controller
 			//}
 		//}
 
-		$users = $this->container->getDoctrine()->getManager()->getRepository(User::CN());
+		$users = $this->container->getDoctrine()->getManager()->getRepository(User::CN())->findAll();
 
 		/* @var $user User */
 		foreach ($users as $user) {
 
 			if (is_null($user->getGroup())) {
 
-				$this->container->getLogger()->debug('User has no group: ', $user->getId());
+				$this->container->getLogger()->debug('User has no group: '.$user->getId());
 
 				continue;
 			}
@@ -76,6 +209,104 @@ class InternalUserManagerController extends Controller
 		}
 
 		return new SupraJsonResponse($result);
+	}
+
+	/**
+	 * Insert action
+	 */
+	public function insertAction(Request $request)
+	{
+		$email = $request->request->filter('email', null, false, FILTER_VALIDATE_EMAIL);
+
+		$existingUser = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneByEmail($email);
+
+		if ( ! empty($existingUser)) {
+			throw new \Exception(null, 'User with this email is already registered!');
+		}
+
+		$name = $request->request->get('name');
+		$dummyGroupId = $request->request->get('group');
+
+		$groupName = $this->dummyGroupIdToGroupName($dummyGroupId);
+		$group = $this->container->getDoctrine()->getRepository('CmsAuthentication:Group')->findOneByName($groupName);
+
+		$this->checkActionPermission($group, Group::PERMISSION_MODIFY_USER_NAME);
+
+		$user = new User();
+
+		$user->setLogin($email);
+		$user->setName($name);
+		$user->setEmail($email);
+		$user->setGroup($group);
+
+		//todo: send e-mail
+
+		$this->container->getDoctrine()->getManager()->persist($user);
+		$this->container->getDoctrine()->getManager()->flush();
+
+		return new SupraJsonResponse(array('user_id' => $user->getId()));
+	}
+
+	protected function permissionsToArray($user)
+	{
+		/*$config = CmsApplicationConfiguration::getInstance();
+		$appConfigs = $config->getArray();
+
+		$permissions = array();
+
+		foreach ($appConfigs as $appConfig) {*/
+			/* @var $appConfig ApplicationConfiguration  */
+		/*if ( ! is_null($appConfig->authorizationAccessPolicy)) {
+			$permissions[$appConfig->id] = $appConfig->authorizationAccessPolicy->getAccessPolicy($user);
+		}
+	}
+
+return $permissions;*/
+		return array();
+	}
+
+	protected function userToArray(User $user)
+	{
+		$response = array(
+			'user_id' => $user->getId(),
+			'name' => $user->getName(),
+		);
+
+		if ($user instanceof User) {
+			$response['email'] = $user->getEmail();
+			$response['group'] = $this->groupToDummyId($user->getGroup());
+		} else {
+			$response['email'] = 'N/A';
+			$response['group'] = $this->groupToDummyId($user);
+			$response['group_id'] = $this->groupToDummyId($user);
+		}
+
+		if (empty($response['avatar'])) {
+			$response['avatar'] = '/public/cms/supra/img/avatar-default-48x48.png';
+		}
+
+		return $response;
+	}
+
+	/**
+	 * @param $id
+	 * @return AbstractUser
+	 */
+	protected function getUserOrGroup($id)
+	{
+		$user = $this->container->getDoctrine()->getManager()->getRepository('CmsAuthentication:User')->findOneBy(array('id' => $id));
+
+		if ($user) {
+			return $user;
+		}
+
+		$group = $this->container->getDoctrine()->getManager()->getRepository('CmsAuthentication:Group')->findOneBy(array('id' => $id));
+
+		if ($group) {
+			return $group;
+		}
+
+		throw new \Exception(sprintf('No user or group with id "%s" has been found', $id));
 	}
 
 	/**

@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @Entity(repositoryClass="UserRepository")
  * @Table(name="user")
  */
-class User extends AbstractUser implements UserInterface
+class User extends AbstractUser implements UserInterface, TimestampableInterface
 {
 
 	/**

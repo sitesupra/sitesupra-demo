@@ -61,6 +61,23 @@ abstract class Controller implements ContainerAware
 		}
 	}
 
+	protected function getUser()
+	{
+		$context = $this->container->getSecurityContext();
+
+		if ($context) {
+			$token = $context->getToken();
+
+			if ($token) {
+				$user = $token->getUser();
+
+				return $user;
+			}
+		}
+
+		return false;
+	}
+
 	protected function getPackageName()
 	{
 		$class = get_class($this);
@@ -70,5 +87,10 @@ abstract class Controller implements ContainerAware
 		$class = array_slice($class, -3); //we expect that namespace ends with PackageName/Controller
 
 		return $class[0];
+	}
+
+	protected function checkActionPermission($foo, $bar)
+	{
+		//stub
 	}
 }

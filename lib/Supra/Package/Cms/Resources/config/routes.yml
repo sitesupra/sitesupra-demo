@@ -129,6 +129,31 @@ routes:
             frontend:                   true
     backoffice_user_list:
         pattern:                        %cms.prefix%/internal-user-manager/user-list
-        controller:                     Cms:InternalUserManager:userList
+        controller:                     Cms:InternalUserManager:list
         options:
-           frontend:                   true
+            frontend:                   true
+    backoffice_user_insert:
+        pattern:                        %cms.prefix%/internal-user-manager/user-insert
+        controller:                     Cms:InternalUserManager:insert
+        options:
+            frontend:                   true
+    backoffice_user_save:
+        pattern:                        %cms.prefix%/internal-user-manager/user-save
+        controller:                     Cms:InternalUserManager:save
+        options:
+            frontend:                   true
+    backoffice_user_load:
+        pattern:                        %cms.prefix%/internal-user-manager/user-load
+        controller:                     Cms:InternalUserManager:load
+        options:
+            frontend:                   true
+    backoffice_user_reset:
+        pattern:                        %cms.prefix%/internal-user-manager/user-reset
+        controller:                     Cms:InternalUserManager:reset
+        options:
+            frontend:                   true
+    backoffice_user_delete:
+        pattern:                        %cms.prefix%/internal-user-manager/user-delete
+        controller:                     Cms:InternalUserManager:delete
+        options:
+            frontend:                   true
