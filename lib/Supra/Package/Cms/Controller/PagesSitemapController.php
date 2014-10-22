@@ -9,9 +9,10 @@ use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\GroupPage;
 use Supra\Package\Cms\Entity\TemplateLocalization;
 use Supra\Package\Cms\Entity\TemporaryGroupPage;
-use Supra\Package\Cms\Entity;
 use Supra\Package\Cms\Pages\Finder\PageFinder;
 use Supra\Package\Cms\Pages\Finder\TemplateFinder;
+use Supra\Package\Cms\Pages\Exception\DuplicatePagePathException;
+use Supra\Package\Cms\Exception\CmsException;
 
 class PagesSitemapController extends AbstractPagesController
 {
@@ -61,77 +62,72 @@ class PagesSitemapController extends AbstractPagesController
 		return new SupraJsonResponse($responseData);
 	}
 
+	/**
+	 * Handles Page move request.
+	 */
 	public function moveAction()
 	{
-		$this->lock();
-
 		$this->isPostRequest();
+		
+		$localization = $this->getPageLocalization();
+
+		$page = $localization->getMaster();
+		
 		$input = $this->getRequestInput();
 
-		$page = null;
-
-		$localization = $this->getPageLocalizationByRequestKey('page_id');
-		if (is_null($localization)) {
-
-			$page = $this->getPage();
-
-			if (is_null($page)) {
-				$pageId = $this->getRequestParameter('page_id');
-				throw new CmsException('sitemap.error.page_not_found', "Page data for page {$pageId} not found");
-			}
-		}
-
-		if (is_null($page)) {
-			$page = $localization->getMaster();
-		}
-
-		$parent = $this->getPageByRequestKey('parent_id');
-		$reference = $this->getPageByRequestKey('reference_id');
+		$this->lockNestedSet($page);
 
 		try {
-			if (is_null($reference)) {
-				if (is_null($parent)) {
-					throw new CmsException('sitemap.error.parent_page_not_found');
+			if ($input->has('reference_id')) {
+				$sibling = $this->getPageByRequestKey('reference_id');
+
+				if ($sibling === null) {
+					throw new CmsException(null, sprintf('Sibling page [%s] not found.', $input->get('reference_id')));
 				}
+
+				if ($input->get('reference_type', 'before') === 'after') {
+					$page->moveAsNextSiblingOf($sibling);
+				} else {
+					$page->moveAsPrevSiblingOf($sibling);
+				}
+				
+			} elseif ($input->has('parent_id')) {
+
+				$parent = $this->getPageByRequestKey('parent_id');
+
+				if ($parent === null) {
+					throw new CmsException(null, sprintf('Parent page [%s] not found.', $input->get('parent_id')));
+				}
+
 				$parent->addChild($page);
 			} else {
-
-				$referenceType = $input->get('reference_type', 'before');
-
-				if ($referenceType == 'after') {
-					$page->moveAsNextSiblingOf($reference);
-				} else {
-					$page->moveAsPrevSiblingOf($reference);
-				}
+				throw new \RuntimeException('Move destination is unknown.');
 			}
-		} catch (DuplicatePagePathException $uniqueException) {
+
+		} catch (DuplicatePagePathException $e) {
 			throw new CmsException('sitemap.error.duplicate_path');
 		}
 
-		$this->unlock();
+		$this->unlockNestedSet($page);
 
-//		// Move page in public as well by event (change path)
-//		$publicEm = ObjectRepository::getEntityManager(PageController::SCHEMA_PUBLIC);
-//		$publicPage = $publicEm->find(Entity\Page::CN(), $page->getId());
-//		$eventArgs = new LifecycleEventArgs($publicPage, $publicEm);
-//		$publicEm->getEventManager()->dispatchEvent(PagePathGenerator::postPageMove, $eventArgs);
-//		$publicEm->flush();
+// @FIXME: it is not correct to fire publish event while only move happened.
+// need to check why this was here and do it right.
 		// If all went well, fire the post-publish events for published page localizations.
-		$eventManager = ObjectRepository::getEventManager($this);
+//		$eventManager = ObjectRepository::getEventManager($this);
+//
+//		foreach ($page->getLocalizations() as $localization) {
+//
+//			$eventArgs = new Event\PageCmsEventArgs();
+//
+//			$eventArgs->user = $this->getUser();
+//			$eventArgs->localization = $localization;
+//
+//			$eventManager->fire(Event\PageCmsEvents::pagePostPublish, $eventArgs);
+//		}
 
-		foreach ($page->getLocalizations() as $localization) {
-
-			$eventArgs = new Event\PageCmsEventArgs();
-
-			$eventArgs->user = $this->getUser();
-			$eventArgs->localization = $localization;
-
-			$eventManager->fire(Event\PageCmsEvents::pagePostPublish, $eventArgs);
-		}
-
-		$this->writeAuditLog('%item% moved', $page);
+		return new SupraJsonResponse();
 	}
-
+	
 	/**
 	 * Get list of pages converted to array
 	 * @param string $entity
@@ -161,7 +157,6 @@ class PagesSitemapController extends AbstractPagesController
 			$levels = 2;
 		}
 
-		/* @var $parentLocalization Entity\Abstraction\Localization */
 		$parentLocalization = null;
 		$filter = null;
 
@@ -199,7 +194,7 @@ class PagesSitemapController extends AbstractPagesController
 	/**
 	 * Returns children page array data
 	 * @param string $entity
-	 * @param Entity\Abstraction\Localization $parentLocalization
+	 * @param Localization $parentLocalization
 	 * @param string $filter
 	 * @param integer $levels
 	 * @param boolean $count
@@ -233,7 +228,7 @@ class PagesSitemapController extends AbstractPagesController
 			$queryBuilder->leftJoin('e.localizations', 'l_', 'WITH', 'l_.locale = :locale')
 					->setParameter('locale', $localeId)
 					->leftJoin('e.localizations', 'l')
-					->andWhere('l_.id IS NOT NULL OR e INSTANCE OF ' . Entity\GroupPage::CN());
+					->andWhere('l_.id IS NOT NULL OR e INSTANCE OF ' . GroupPage::CN());
 		} else {
 			$queryBuilder->leftJoin('e.localizations', 'l_', 'WITH', 'l_.locale = :locale')
 					->setParameter('locale', $localeId)
@@ -306,7 +301,6 @@ class PagesSitemapController extends AbstractPagesController
 			}
 
 			foreach ($pages as $page) {
-				/* @var $page Entity\Abstraction\AbstractPage */
 
 				$pageData = $this->convertPageToArray($page, $localeId);
 

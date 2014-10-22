@@ -249,9 +249,10 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Try selecting abstract page by request parameter
+	 * Try selecting abstract page by request parameter.
+	 * 
 	 * @param string $key
-	 * @return Entity\Abstraction\AbstractPage
+	 * @return null|AbstractPage
 	 */
 	private function searchPageByRequestKey($key)
 	{
@@ -261,10 +262,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 			return null;
 		}
 
-		$page = $this->entityManager->find(
-				Entity\Abstraction\AbstractPage::CN(), $pageId);
-
-		return $page;
+		return $this->getEntityManager()
+				->find(AbstractPage::CN(), $pageId);
 	}
 
 	/**
@@ -1675,6 +1674,66 @@ abstract class AbstractPagesController extends AbstractCmsController
 		}
 
 		return $blockData;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getActiveThemeLayoutsData()
+	{
+		$themeProvider = $this->getThemeProvider();
+
+		$theme = $themeProvider->getActiveTheme();
+
+		$layoutsData = array();
+
+		foreach ($theme->getLayouts() as $layout) {
+
+			$layoutName = $layout->getName();
+
+			$layoutsData[] = array(
+				'id'	=> $layoutName,
+				'title' => $layout->getTitle(),
+				'icon'	=> $layout->getIcon(),
+			);
+		}
+
+		return $layoutsData;
+	}
+
+	/**
+	 * PagesTemplateController::saveSettingsAction()
+	 * and PagesPageController::saveSettingsAction() methods common code.
+	 */
+	protected function saveLocalizationCommonSettingsAction()
+	{
+		$localization = $this->getPageLocalization();
+		$input = $this->getRequestInput();
+
+		//@TODO: create some simple objects for save post data with future validation implementation?
+
+		$title = trim($input->get('title'));
+		if (empty($title)) {
+			throw new CmsException(null, 'Title cannot be empty.');
+		}
+
+		$localization->setTitle($title);
+
+		$localization->setVisibleInMenu(
+				$input->filter('is_visible_in_menu', null, false, FILTER_VALIDATE_BOOLEAN)
+		);
+
+		$localization->setVisibleInSitemap(
+				$input->filter('is_visible_in_sitemap', null, false, FILTER_VALIDATE_BOOLEAN)
+		);
+
+		$localization->setIncludedInSearch(
+				$input->filter('include_in_search', null, false, FILTER_VALIDATE_BOOLEAN)
+		);
+
+		$localization->setChangeFrequency($input->get('page_change_frequency'));
+
+		$localization->setPagePriority($input->get('page_priority'));
 	}
 
 	/**

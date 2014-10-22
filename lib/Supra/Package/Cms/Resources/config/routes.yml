@@ -42,6 +42,11 @@ routes:
         controller:					Cms:PagesSitemap:pagesList
         options:
             frontend:       true
+    cms_pages_sitemap_move:
+        pattern:						%cms.prefix%/content-manager/sitemap/move
+        controller:					Cms:PagesSitemap:move
+        options:
+            frontend:       true
     cms_pages_sitemap_templates_list:
         pattern:						%cms.prefix%/content-manager/sitemap/templates-list
         controller:					Cms:PagesSitemap:templatesList
@@ -62,21 +67,36 @@ routes:
         controller:					Cms:PagesPage:layoutsList
         options:
             frontend:       true
-    cms_pages_pagesettings_templates:
-        pattern:						%cms.prefix%/content-manager/pagesettings/templates
-        controller:					Cms:PagesPagesettings:templatesList
-        options:
-            frontend:       true
-    ## Page contents get request
-    cms_pages_page_get:
-        pattern:						%cms.prefix%/content-manager/page/page
-        controller:					Cms:PagesPage:page
     cms_pages_page_create:
         pattern:						%cms.prefix%/content-manager/page/create
         controller:					Cms:PagesPage:create
+        options:
+            frontend:       true
+    cms_pages_page_settings_save:
+        pattern:						%cms.prefix%/content-manager/page/settings-save
+        controller:					Cms:PagesPage:saveSettings
+        options:
+            frontend:       true
     cms_pages_template_create:
         pattern:						%cms.prefix%/content-manager/template/create
         controller:					Cms:PagesTemplate:create
+        options:
+            frontend:       true
+    cms_pages_template_settings_save:
+        pattern:						%cms.prefix%/content-manager/template/settings-save
+        controller:					Cms:PagesTemplate:saveSettings
+        options:
+            frontend:       true
+    cms_pages_template_list:
+        pattern:						%cms.prefix%/content-manager/pagesettings/templates
+        controller:					Cms:PagesTemplate:templatesList
+        options:
+            frontend:       true
+    cms_pages_group_create:
+        pattern:						%cms.prefix%/content-manager/group/create
+        controller:					Cms:PagesGroup:create
+        options:
+            frontend:       true
     ## Blocks list
     cms_pages_block_list:
         pattern:						%cms.prefix%/content-manager/blocks/blocks-list
@@ -88,6 +108,12 @@ routes:
         controller:					Cms:PagesFonts:googleFontsList
         options:
           frontend:					true
+     ## Page contents get request
+    cms_pages_content_get:
+        pattern:						%cms.prefix%/content-manager/pagecontent/get
+        controller:					Cms:PagesContent:get
+        options:
+          frontend:					true
     cms_pages_content_lock:
         pattern:						%cms.prefix%/content-manager/{type}/lock
         controller:					Cms:PagesContent:lock
@@ -95,7 +121,7 @@ routes:
           type: template|page
     cms_pages_content_unlock:
         pattern:						%cms.prefix%/content-manager/{type}/unlock
-        controller:					Cms:PagesContent:lock
+        controller:					Cms:PagesContent:unlock
         requirements:
           type: template|page
     ## Content save action

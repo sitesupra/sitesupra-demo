@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Exception;
 
-use Supra\Controller\Pages\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\PageLocalization;
 
 /**
  * Thrown on invalid page path

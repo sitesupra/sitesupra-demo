@@ -50,5 +50,5 @@ abstract class RedirectTarget extends VersionedEntity
 	{
 		return $this->pageLocalization;
 	}
-
+	
 }

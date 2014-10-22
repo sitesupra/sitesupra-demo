@@ -42,6 +42,12 @@ class RedirectTargetChild extends RedirectTargetPage
 	 */
 	public function setChildPosition($childPosition)
 	{
+		if (! ($childPosition === self::CHILD_POSITION_FIRST
+				&& $childPosition === self::CHILD_POSITION_LAST)) {
+			
+			throw new \InvalidArgumentException(sprintf('Unknown value [%s]', $childPosition));
+		}
+
 		$this->childPosition = $childPosition;
 	}
 

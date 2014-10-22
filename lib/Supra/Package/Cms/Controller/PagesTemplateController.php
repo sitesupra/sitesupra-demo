@@ -91,4 +91,106 @@ class PagesTemplateController extends AbstractPagesController
 
 		return new SupraJsonResponse($this->loadNodeMainData($localization));		
 	}
+
+	/**
+	 * Handles template list request.
+	 *
+	 * @return SupraJsonResponse
+	 */
+	public function templatesListAction()
+	{
+		$localeId = $this->getCurrentLocale()
+				->getId();
+
+		$templateLocalizations = $this->getEntityManager()
+				->getRepository(TemplateLocalization::CN())
+				->findBy(array('locale' => $localeId), array('title' => 'asc'));
+
+		/* @var $templateLocalizations TemplateLocalization[] */
+
+		$responseData = array();
+
+		foreach ($templateLocalizations as $templateLocalization) {
+			$responseData[] = array(
+				'id'		=> $templateLocalization->getMaster()->getId(),
+				'title'		=> $templateLocalization->getTitle(),
+			);
+		}
+
+		return new SupraJsonResponse($responseData);
+	}
+
+	/**
+	 * @return SupraJsonResponse
+	 */
+	public function saveSettingsAction()
+	{
+		$this->isPostRequest();
+		$this->checkLock();
+
+		$localization = $this->getPageLocalization();
+
+		if (! $localization instanceof TemplateLocalization) {
+			throw new \UnexpectedValueException(sprintf(
+					'Expecting TemplateLocalization instance, [%s] received.',
+					get_class($localization)
+			));
+		}
+
+		$this->saveLocalizationCommonSettingsAction();
+
+		$template = $localization->getMaster();
+
+		$media = $this->getMedia();
+
+		$layoutName = $this->getRequestParameter('layout');
+
+		// use parent layout
+		if (empty($layoutName)) {
+
+			if ($template->isRoot()) {
+				throw new CmsException(null, "Can not use parent layout because current page is root page");
+			}
+
+			$parentTemplate = $template->getParent();
+			/* @var $parentTemplate Template */
+
+			$parentTemplateLayout = $parentTemplate->getTemplateLayouts()
+					->get($media);
+
+			if ($parentTemplateLayout === null) {
+				throw new CmsException(null, "Parent template has no layout for [{$media}] media.");
+			}
+			/* @var $parentTemplateLayout TemplateLayout */
+
+			$layoutName = $parentTemplateLayout->getLayoutName();
+		}
+
+		$theme = $this->getActiveTheme();
+
+		if (! $theme->hasLayout($layoutName)) {
+			throw new CmsException(null, sprintf('Active theme has no [%s] layout.', $layoutName));
+		}
+
+		// Remove current layout if any
+		$currentTemplateLayout = $template->getTemplateLayouts()
+				->get($media);
+
+		if ($currentTemplateLayout !== null) {
+			$this->getEntityManager()
+					->remove($currentTemplateLayout);
+		}
+
+		$templateLayout = $template->addLayout($media, $theme->getLayout($layoutName));
+
+		$this->getEntityManager()
+				->persist($templateLayout);
+
+
+		$this->getEntityManager()
+				->flush();
+
+		return new SupraJsonResponse();
+	}
+
 }
