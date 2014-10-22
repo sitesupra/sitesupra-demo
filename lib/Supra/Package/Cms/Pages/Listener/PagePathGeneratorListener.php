@@ -253,6 +253,8 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 					$e = null;
 					$pathPart = $pageData->getPathPart();
 
+					$pathValid = false;
+
 					do {
 						try {
 							$this->checkForDuplicates($pageData, $newPath);

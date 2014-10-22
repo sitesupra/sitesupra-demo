@@ -74,9 +74,18 @@ routes:
     cms_pages_page_create:
         pattern:						%cms.prefix%/content-manager/page/create
         controller:					Cms:PagesPage:create
+        options:
+            frontend:       true
     cms_pages_template_create:
         pattern:						%cms.prefix%/content-manager/template/create
         controller:					Cms:PagesTemplate:create
+        options:
+            frontend:       true
+    cms_pages_group_create:
+        pattern:						%cms.prefix%/content-manager/group/create
+        controller:					Cms:PagesGroup:create
+        options:
+            frontend:       true
     ## Blocks list
     cms_pages_block_list:
         pattern:						%cms.prefix%/content-manager/blocks/blocks-list

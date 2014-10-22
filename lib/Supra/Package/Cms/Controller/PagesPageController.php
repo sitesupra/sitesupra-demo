@@ -125,9 +125,6 @@ class PagesPageController extends AbstractPagesController
 		$page = null;
 
 		switch ($type) {
-			case Entity::GROUP_DISCR:
-				$page = new GroupPage();
-				break;
 			case Entity::APPLICATION_DISCR:
 				$page = new ApplicationPage(
 						$this->getRequestParameter('application_id')
@@ -193,7 +190,7 @@ class PagesPageController extends AbstractPagesController
 		if (! empty($parentLocalizationId)) {
 
 			$parentLocalization = $this->getEntityManager()
-					->find(PageLocalization::CN(), $parentLocalizationId);
+					->find(Localization::CN(), $parentLocalizationId);
 
 			if ($parentLocalization === null) {
 				throw new CmsException(null, sprintf(
