@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\Driver\PDOMySql;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Detector\ParameterDetector;
 use Supra\Package\Cms\Application\CmsDashboardApplication;
 use Supra\Package\Cms\Application\CmsInternalUserManagerApplication;
 use Supra\Package\Cms\Application\CmsPagesApplication;
+use Supra\Package\Cms\Listener\CmsExceptionListener;
 use Supra\Package\Cms\Pages\Application\PageApplicationManager;
 use Supra\Package\Cms\Pages\Application\BlogPageApplication;
 use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
@@ -105,6 +107,16 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container[$this->name . '.pages.layout_processor'] = function () {
 			return new TwigProcessor();
 		};
+
+		//event listeners
+		$container[$this->getName().'.cms_exception_listener'] = function () {
+			return new CmsExceptionListener();
+		};
+
+		$container->getEventDispatcher()->addListener(
+				KernelEvent::EXCEPTION,
+				array($container[$this->getName().'.cms_exception_listener'], 'listen')
+			);
 	}
 
 	public function finish(ContainerInterface $container)

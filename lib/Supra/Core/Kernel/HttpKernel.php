@@ -92,6 +92,7 @@ class HttpKernel implements ContainerAware
 			//generic exception handler
 			$exceptionEvent = new RequestResponseEvent();
 			$exceptionEvent->setRequest($request);
+			$exceptionEvent->setData($e);
 
 			$this->container->getEventDispatcher()->dispatch(KernelEvent::EXCEPTION, $exceptionEvent);
 

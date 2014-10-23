@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Controller\Controller;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\CmsAuthentication\Entity\AbstractUser;
 use Supra\Package\CmsAuthentication\Entity\Group;
 use Supra\Package\CmsAuthentication\Entity\User;
@@ -41,11 +42,7 @@ class InternalUserManagerController extends Controller
 	{
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
 		if (!$request->request->has('user_id')) {
-			$response = new SupraJsonResponse();
-
-			$response->setErrorMessage('User id is not set');
-
-			return $request;
+			throw new CmsException(null, 'User id is not set');
 		}
 
 		$userId = $request->request->get('user_id');
@@ -53,9 +50,7 @@ class InternalUserManagerController extends Controller
 		$user = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneById($userId);
 
 		if (empty($user)) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('Can\'t find user with such id');
-			return $response;
+			throw new CmsException(null, 'Can\'t find user with such id');
 		}
 
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
@@ -72,9 +67,7 @@ class InternalUserManagerController extends Controller
 	{
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
 		if (!$request->request->get('user_id')) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('User id is not set');
-			return $response;
+			throw new CmsException(null, 'User id is not set');
 		}
 
 		$userId = $request->request->get('user_id');
@@ -83,17 +76,13 @@ class InternalUserManagerController extends Controller
 		$currentUserId = $currentUser->getId();
 
 		if ($currentUserId == $userId) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('You can\'t delete current user account');
-			return $response;
+			throw new CmsException(null, 'You can\'t delete current user account');
 		}
 
 		$user = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneById($userId);
 
 		if (empty($user)) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('Can\'t find user with such id');
-			return $response;
+			throw new CmsException(null, 'Can\'t find user with such id');
 		}
 
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
@@ -143,10 +132,7 @@ class InternalUserManagerController extends Controller
 	public function loadAction(Request $request)
 	{
 		if (!$request->query->get('user_id')) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('User id is not set');
-
-			return $response;
+			throw new CmsException(null, 'User id is not set');
 		}
 
 		/* @var $user AbstractUser */
@@ -221,7 +207,7 @@ class InternalUserManagerController extends Controller
 		$existingUser = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneByEmail($email);
 
 		if ( ! empty($existingUser)) {
-			throw new \Exception(null, 'User with this email is already registered!');
+			throw new CmsException(null, 'User with this email is already registered!');
 		}
 
 		$name = $request->request->get('name');
@@ -306,7 +292,7 @@ return $permissions;*/
 			return $group;
 		}
 
-		throw new \Exception(sprintf('No user or group with id "%s" has been found', $id));
+		throw new CmsException(null, sprintf('No user or group with id "%s" has been found', $id));
 	}
 
 	/**

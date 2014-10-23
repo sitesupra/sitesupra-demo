@@ -19,6 +19,27 @@ class RequestResponseEvent extends Event
 	protected $response;
 
 	/**
+	 * @var mixed
+	 */
+	protected $data;
+
+	/**
+	 * @return mixed
+	 */
+	public function getData()
+	{
+		return $this->data;
+	}
+
+	/**
+	 * @param mixed $data
+	 */
+	public function setData($data)
+	{
+		$this->data = $data;
+	}
+
+	/**
 	 * @param \Symfony\Component\HttpFoundation\Request $request
 	 */
 	public function setRequest(Request $request)
