@@ -159,18 +159,18 @@ class InternalUserManagerController extends Controller
 
 //		if ($appConfig instanceof ApplicationConfiguration) {
 //			if ($appConfig->allowGroupEditing) {
-				$groupRepository = $this->container->getDoctrine()->getManager()->getRepository(Group::CN());
-				$groups = $groupRepository->findAll();
-
-				foreach($groups as $group) {
-
-					$result[] = array(
-						'id' => $group->getId(),
-						'avatar' => null,
-						'name' =>  '[' . $group->getName() . ']',
-						'group' => $this->groupToDummyId($group)
-					);
-				}
+//				$groupRepository = $this->container->getDoctrine()->getManager()->getRepository(Group::CN());
+//				$groups = $groupRepository->findAll();
+//
+//				foreach($groups as $group) {
+//
+//					$result[] = array(
+//						'id' => $group->getId(),
+//						'avatar' => null,
+//						'name' =>  '[' . $group->getName() . ']',
+//						'group' => $this->groupToDummyId($group)
+//					);
+//				}
 			//}
 		//}
 
@@ -251,7 +251,7 @@ return $permissions;*/
 		return array();
 	}
 
-	protected function userToArray(User $user)
+	protected function userToArray(AbstractUser $user)
 	{
 		$response = array(
 			'user_id' => $user->getId(),
