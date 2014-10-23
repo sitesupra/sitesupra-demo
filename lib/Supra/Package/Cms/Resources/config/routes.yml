@@ -72,6 +72,11 @@ routes:
         controller:					Cms:PagesPage:create
         options:
             frontend:       true
+    cms_pages_page_save:
+        pattern:						%cms.prefix%/content-manager/page/save
+        controller:					Cms:PagesPage:save
+        options:
+            frontend:       true
     cms_pages_page_settings_save:
         pattern:						%cms.prefix%/content-manager/page/settings-save
         controller:					Cms:PagesPage:saveSettings
@@ -80,6 +85,11 @@ routes:
     cms_pages_template_create:
         pattern:						%cms.prefix%/content-manager/template/create
         controller:					Cms:PagesTemplate:create
+        options:
+            frontend:       true
+    cms_pages_template_save:
+        pattern:						%cms.prefix%/content-manager/template/save
+        controller:					Cms:PagesTemplate:save
         options:
             frontend:       true
     cms_pages_template_settings_save:
@@ -95,6 +105,11 @@ routes:
     cms_pages_group_create:
         pattern:						%cms.prefix%/content-manager/group/create
         controller:					Cms:PagesGroup:create
+        options:
+            frontend:       true
+    cms_pages_group_save:
+        pattern:						%cms.prefix%/content-manager/group/save
+        controller:					Cms:PagesGroup:save
         options:
             frontend:       true
     ## Blocks list

@@ -275,6 +275,38 @@ class PagesPageController extends AbstractPagesController
 	}
 
 	/**
+	 * Settings save action handler.
+	 * Initiated on page title/path editing via Sitemap.
+	 *
+	 * @return SupraJsonResponse
+	 */
+	public function saveAction()
+	{
+		$this->isPostRequest();
+
+		$this->checkLock();
+
+		$this->saveLocalizationCommonAction();
+
+		if ($this->getRequestInput()->has('path')) {
+
+			$pathPart = trim($this->getRequestParameter('path'));
+
+			 $this->getPageLocalization()
+					 ->setPathPart($pathPart);
+		}
+
+		try {
+			$this->getEntityManager()
+					->flush($this->getPageLocalization());
+		} catch (DuplicatePagePathException $e) {
+			throw new CmsException('sitemap.error.duplicate_path', $e->getMessage());
+		}
+
+		return new SupraJsonResponse();
+	}
+
+	/**
 	 * @param array $data
 	 * @return \Supra\Package\Cms\Entity\Abstraction\RedirectTarget
 	 */

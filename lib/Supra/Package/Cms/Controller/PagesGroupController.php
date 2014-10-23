@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Entity\GroupPage;
+use Supra\Package\Cms\Entity\GroupLocalization;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 
 class PagesGroupController extends AbstractPagesController
@@ -69,4 +70,32 @@ class PagesGroupController extends AbstractPagesController
 		return new SupraJsonResponse($this->loadNodeMainData($localization));
 	}
 
+	/**
+	 * Settings save action handler.
+	 * Initiated when group title is changed via Sitemap.
+	 *
+	 * @return SupraJsonResponse
+	 */
+	public function saveAction()
+	{
+		$this->isPostRequest();
+
+		$this->checkLock();
+
+		$localization = $this->getPageLocalization();
+		
+		if (! $localization instanceof GroupLocalization) {
+			throw new \UnexpectedValueException(sprintf(
+					'Expecting instanceof GroupLocalization, [%s] received.',
+					get_class($localization)
+			));
+		}
+
+		$this->saveLocalizationCommonAction();
+
+		$this->getEntityManager()
+					->flush($localization->getMaster());
+
+		return new SupraJsonResponse();
+	}
 }
