@@ -193,4 +193,23 @@ class PagesTemplateController extends AbstractPagesController
 		return new SupraJsonResponse();
 	}
 
+	/**
+	 * Settings save action handler.
+	 * Initiated when template title is changed via Sitemap.
+	 *
+	 * @return SupraJsonResponse
+	 */
+	public function saveAction()
+	{
+		$this->isPostRequest();
+
+		$this->checkLock();
+
+		$this->saveLocalizationCommonAction();
+
+		$this->getEntityManager()
+					->flush($this->getPageLocalization());
+
+		return new SupraJsonResponse();
+	}
 }

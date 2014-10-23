@@ -1737,6 +1737,27 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
+	 * PagesTemplateController::saveAction(),
+	 * PagesGroupController::saveAction()
+	 * and PagesPageController::saveAction() methods common code.
+	 */
+	protected function saveLocalizationCommonAction()
+	{
+		$localization = $this->getPageLocalization();
+
+		if ($this->getRequestInput()->has('title')) {
+			
+			$title = trim($this->getRequestParameter('title'));
+
+			if (empty($title)) {
+				throw new CmsException(null, 'Title cannot be empty.');
+			}
+
+			$localization->setTitle($title);
+		}
+	}
+
+	/**
 	 * @TODO: Move to page content controller abstraction.
 	 *
 	 * @param BlockController $blockController

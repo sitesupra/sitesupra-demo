@@ -125,7 +125,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 				$localeObject->setCountry($locale['country']);
 				$localeObject->setProperties($locale['properties']);
 
-				$localeManager->add($localeObject);
+				$localeManager->addLocale($localeObject);
 			}
 
 			foreach ($locales['detectors'] as $detector) {
