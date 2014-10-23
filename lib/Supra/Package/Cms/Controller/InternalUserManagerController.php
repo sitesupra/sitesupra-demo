@@ -35,6 +35,46 @@ class InternalUserManagerController extends Controller
 		return $this->renderResponse('index.html.twig');
 	}
 
+	public function updateAction(Request $request)
+	{
+		$userId = $request->request->get('user_id');
+		$newGroupDummyId = $request->request->get('group');
+		$newGroupName = $this->dummyGroupIdToGroupName($newGroupDummyId);
+
+		$user = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')
+			->findOneById($userId);
+
+		/* @var $user User */
+
+		if (empty($user)) {
+			throw new CmsException(null, 'Requested user was not found');
+		}
+
+		if ($user->isSuper() && $user->getId() == $this->getUser()->getId()) {
+			throw new CmsException(null, 'You cannot change group for yourself');
+		}
+
+		/* @var $groupRepository EntityRepository */
+		//$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
+		//$newGroup = $groupRepository->findOneBy(array('name' => $newGroupName));
+
+		$newGroup = $this->container->getDoctrine()->getRepository('CmsAuthentication:Group')
+			->findOneByName($newGroupName);
+
+		/* @var $newGroup Group */
+
+		// On user group change all user individual permissions are unset
+		//TODO: ask confirmation from the action caller for this
+		if($user->getGroup()->getId() != $newGroup->getId()) {
+			//todo: unser permissions here whe the is acl
+			$user->setGroup($newGroup);
+		}
+
+		//todo: send mail
+
+		return new SupraJsonResponse(null);
+	}
+
 	/**
 	 * Password reset action
 	 */

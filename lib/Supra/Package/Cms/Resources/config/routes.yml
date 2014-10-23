@@ -198,3 +198,8 @@ routes:
         controller:                     Cms:InternalUserManager:delete
         options:
             frontend:                   true
+    backoffice_user_update:
+        pattern:                        %cms.prefix%/internal-user-manager/user-update
+        controller:                     Cms:InternalUserManager:update
+        options:
+            frontend:                   true
