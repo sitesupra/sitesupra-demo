@@ -254,7 +254,7 @@ class LocaleManager
 			
 			if ( ! empty($localeId)) {
 				
-				if ($this->hasLocale($id) && ($this->processInactive || $this->isActive($localeId))) {
+				if ($this->hasLocale($localeId) && ($this->processInactive || $this->isActive($localeId))) {
 					$this->setCurrent($localeId);
 					break;
 				}
