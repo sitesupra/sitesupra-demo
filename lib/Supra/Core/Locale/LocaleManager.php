@@ -41,86 +41,109 @@ class LocaleManager
 	 */
 	protected $processInactive = false;
 
-	public function getLocaleArray()
-	{
-		$locales = $this->getLocales();
-
-		$jsLocales = array();
-
-		foreach ($locales as $locale) {
-
-			$country = $locale->getCountry();
-
-			if ( ! isset($jsLocales[$country])) {
-				$jsLocales[$country] = array(
-					'title' => $country,
-					'languages' => array()
-				);
-			}
-
-			$jsLocales[$country]['languages'][] = array(
-				'id' => $locale->getId(),
-				'title' => $locale->getTitle(),
-				'flag' => $locale->getProperty('flag')
-			);
-		}
-
-		$jsLocales = array_values($jsLocales);
-
-		return $jsLocales;
-	}
-
 	/**
-	 * Add locale data
+	 * Wrapper for addLocale().
+	 *
 	 * @param LocaleInterface $locale
-	 * @throws Exception if Locale's ID is empty
 	 */
 	public function add(LocaleInterface $locale)
 	{
+		$this->addLocale($locale);
+	}
+
+	/**
+	 * @param LocaleInterface $locale
+	 * @throws \InvalidArgumentException
+	 */
+	public function addLocale(LocaleInterface $locale)
+	{
 		$id = $locale->getId();
-		
+
 		if (empty($id)) {
-			throw new Exception\RuntimeException('Locale ID is not defined.');
+			throw new \InvalidArgumentException('Empty locale ID is not allowed.');
 		}
-		
+
+		if ($this->hasLocale($id)) {
+			throw new \InvalidArgumentException(sprintf('Locale [%s] is already defined.', $id));
+		}
+
 		$this->locales[$id] = $locale;
 	}
 
 	/**
-	 * Check if such locale exists
-	 * @param string $localeIdentifier
-	 * @return boolean
+	 * Wrapper for getLocale().
+	 *
+	 * @param string $id
+	 * @return bool
 	 */
-	public function exists($localeIdentifier, $throws = true)
+	public function has($id)
 	{
-		$locales = $this->getLocales();
-		
-		if (array_key_exists($localeIdentifier, $locales)) {
-			return true;
-		}
-
-		if ($throws) {
-			throw new Exception\RuntimeException("Locale '$localeIdentifier' is not defined.");
-		}
-
-		return false;
+		return $this->hasLocale($id);
 	}
 
 	/**
-	 * Check if such locale exists and return its data
-	 * @param string $localeIdentifier
+	 * @param string $id
+	 * @return bool
+	 */
+	public function hasLocale($id)
+	{
+		return isset($this->locales[$id]);
+	}
+
+//	/**
+//	 * @deprecated
+//	 *
+//	 * Check if specified locale is defined.
+//	 * Will throw an exception if is not, and $throw is true.
+//	 *
+//	 * @param string $localeIdentifier
+//	 * @param bool $throw
+//	 * @return bool
+//	 */
+//	public function exists($localeId, $throw = true)
+//	{
+//		if (! $this->has($localeId)) {
+//			if ($throw) {
+//				throw new RuntimeException(sprintf(
+//						'Locale [%s] is not defined.',
+//						$localeId
+//				));
+//			}
+//		}
+//
+//		return true;
+//	}
+
+	/**
+	 * Wrapper for getLocale().
+	 * 
+	 * @param string $id
 	 * @return Locale
-	 * @throws Exception if such locale is not defined
 	 */
-	public function getLocale($localeIdentifier)
+	public function get($id)
 	{
-		$this->exists($localeIdentifier, true);
-
-		return $this->locales[$localeIdentifier];
+		return $this->getLocale($id);
 	}
 
 	/**
-	 * Adds locale detector
+	 * @param string $id
+	 * @return Locale
+	 * @throws RuntimeException
+	 */
+	public function getLocale($id)
+	{
+		if (! $this->hasLocale($id)) {
+			throw new RuntimeException(sprintf(
+					'Locale [%s] is not defined.'
+			));
+		}
+
+		return $this->locales[$id];
+	}
+
+	/**
+	 * Adds locale detector.
+	 * 
 	 * @param Detector\DetectorInterface $detector
 	 */
 	public function addDetector(Detector\DetectorInterface $detector)
@@ -129,7 +152,8 @@ class LocaleManager
 	}
 
 	/**
-	 * Adds locale storage
+	 * Adds locale storage.
+	 * 
 	 * @param Storage\StorageInterface $storage
 	 */
 	public function addStorage(Storage\StorageInterface $storage)
@@ -138,7 +162,8 @@ class LocaleManager
 	}
 
 	/**
-	 * Set current locale by locale object or ID
+	 * Set current locale by locale object or ID.
+	 * 
 	 * @param mixed $locale
 	 * @throws Exception if such locale is not defined
 	 */
@@ -152,8 +177,7 @@ class LocaleManager
 			$localeIdentifier = $locale;
 		}
 
-		$this->exists($localeIdentifier, true);
-		$this->current = $this->locales[$localeIdentifier];
+		$this->current = $this->getLocale($localeIdentifier);
 	}
 
 	/**
@@ -230,9 +254,7 @@ class LocaleManager
 			
 			if ( ! empty($localeId)) {
 				
-				$exists = $this->exists($localeId, false);
-				
-				if ($exists && ($this->processInactive || $this->isActive($localeId))) {
+				if ($this->hasLocale($id) && ($this->processInactive || $this->isActive($localeId))) {
 					$this->setCurrent($localeId);
 					break;
 				}
@@ -268,11 +290,42 @@ class LocaleManager
 	}
 
 	/**
-	 * 
+	 * Setups the internal state for detect() method
+	 * @TODO: kinda bad solution, must refactor.
 	 */
 	public function processInactiveLocales()
 	{
 		$this->processInactive = true;
 	}
 
+	/**
+	 * @TODO: shouldn't be located here.
+	 * 
+	 * @internal
+	 * @return array
+	 */
+	public function getLocaleArray()
+	{
+		$localeArray = array();
+
+		foreach ($this->getLocales() as $locale) {
+
+			$country = $locale->getCountry();
+
+			if (! isset($localeArray[$country])) {
+				$localeArray[$country] = array(
+					'title' => $country,
+					'languages' => array()
+				);
+			}
+
+			$localeArray[$country]['languages'][] = array(
+				'id' => $locale->getId(),
+				'title' => $locale->getTitle(),
+				'flag' => $locale->getProperty('flag')
+			);
+		}
+
+		return array_values($localeArray);
+	}
 }
