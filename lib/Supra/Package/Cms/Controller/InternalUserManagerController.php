@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Controller\Controller;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\CmsAuthentication\Entity\AbstractUser;
 use Supra\Package\CmsAuthentication\Entity\Group;
 use Supra\Package\CmsAuthentication\Entity\User;
@@ -34,6 +35,46 @@ class InternalUserManagerController extends Controller
 		return $this->renderResponse('index.html.twig');
 	}
 
+	public function updateAction(Request $request)
+	{
+		$userId = $request->request->get('user_id');
+		$newGroupDummyId = $request->request->get('group');
+		$newGroupName = $this->dummyGroupIdToGroupName($newGroupDummyId);
+
+		$user = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')
+			->findOneById($userId);
+
+		/* @var $user User */
+
+		if (empty($user)) {
+			throw new CmsException(null, 'Requested user was not found');
+		}
+
+		if ($user->isSuper() && $user->getId() == $this->getUser()->getId()) {
+			throw new CmsException(null, 'You cannot change group for yourself');
+		}
+
+		/* @var $groupRepository EntityRepository */
+		//$groupRepository = $this->entityManager->getRepository(Entity\Group::CN());
+		//$newGroup = $groupRepository->findOneBy(array('name' => $newGroupName));
+
+		$newGroup = $this->container->getDoctrine()->getRepository('CmsAuthentication:Group')
+			->findOneByName($newGroupName);
+
+		/* @var $newGroup Group */
+
+		// On user group change all user individual permissions are unset
+		//TODO: ask confirmation from the action caller for this
+		if($user->getGroup()->getId() != $newGroup->getId()) {
+			//todo: unser permissions here whe the is acl
+			$user->setGroup($newGroup);
+		}
+
+		//todo: send mail
+
+		return new SupraJsonResponse(null);
+	}
+
 	/**
 	 * Password reset action
 	 */
@@ -41,11 +82,7 @@ class InternalUserManagerController extends Controller
 	{
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
 		if (!$request->request->has('user_id')) {
-			$response = new SupraJsonResponse();
-
-			$response->setErrorMessage('User id is not set');
-
-			return $request;
+			throw new CmsException(null, 'User id is not set');
 		}
 
 		$userId = $request->request->get('user_id');
@@ -53,9 +90,7 @@ class InternalUserManagerController extends Controller
 		$user = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneById($userId);
 
 		if (empty($user)) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('Can\'t find user with such id');
-			return $response;
+			throw new CmsException(null, 'Can\'t find user with such id');
 		}
 
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
@@ -72,9 +107,7 @@ class InternalUserManagerController extends Controller
 	{
 		// TODO: Add validation class to have ability check like " if (empty($validation['errors'])){} "
 		if (!$request->request->get('user_id')) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('User id is not set');
-			return $response;
+			throw new CmsException(null, 'User id is not set');
 		}
 
 		$userId = $request->request->get('user_id');
@@ -83,17 +116,13 @@ class InternalUserManagerController extends Controller
 		$currentUserId = $currentUser->getId();
 
 		if ($currentUserId == $userId) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('You can\'t delete current user account');
-			return $response;
+			throw new CmsException(null, 'You can\'t delete current user account');
 		}
 
 		$user = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneById($userId);
 
 		if (empty($user)) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('Can\'t find user with such id');
-			return $response;
+			throw new CmsException(null, 'Can\'t find user with such id');
 		}
 
 		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
@@ -143,10 +172,7 @@ class InternalUserManagerController extends Controller
 	public function loadAction(Request $request)
 	{
 		if (!$request->query->get('user_id')) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('User id is not set');
-
-			return $response;
+			throw new CmsException(null, 'User id is not set');
 		}
 
 		/* @var $user AbstractUser */
@@ -173,18 +199,18 @@ class InternalUserManagerController extends Controller
 
 //		if ($appConfig instanceof ApplicationConfiguration) {
 //			if ($appConfig->allowGroupEditing) {
-				$groupRepository = $this->container->getDoctrine()->getManager()->getRepository(Group::CN());
-				$groups = $groupRepository->findAll();
-
-				foreach($groups as $group) {
-
-					$result[] = array(
-						'id' => $group->getId(),
-						'avatar' => null,
-						'name' =>  '[' . $group->getName() . ']',
-						'group' => $this->groupToDummyId($group)
-					);
-				}
+//				$groupRepository = $this->container->getDoctrine()->getManager()->getRepository(Group::CN());
+//				$groups = $groupRepository->findAll();
+//
+//				foreach($groups as $group) {
+//
+//					$result[] = array(
+//						'id' => $group->getId(),
+//						'avatar' => null,
+//						'name' =>  '[' . $group->getName() . ']',
+//						'group' => $this->groupToDummyId($group)
+//					);
+//				}
 			//}
 		//}
 
@@ -221,7 +247,7 @@ class InternalUserManagerController extends Controller
 		$existingUser = $this->container->getDoctrine()->getRepository('CmsAuthentication:User')->findOneByEmail($email);
 
 		if ( ! empty($existingUser)) {
-			throw new \Exception(null, 'User with this email is already registered!');
+			throw new CmsException(null, 'User with this email is already registered!');
 		}
 
 		$name = $request->request->get('name');
@@ -265,7 +291,7 @@ return $permissions;*/
 		return array();
 	}
 
-	protected function userToArray(User $user)
+	protected function userToArray(AbstractUser $user)
 	{
 		$response = array(
 			'user_id' => $user->getId(),
@@ -306,7 +332,7 @@ return $permissions;*/
 			return $group;
 		}
 
-		throw new \Exception(sprintf('No user or group with id "%s" has been found', $id));
+		throw new CmsException(null, sprintf('No user or group with id "%s" has been found', $id));
 	}
 
 	/**

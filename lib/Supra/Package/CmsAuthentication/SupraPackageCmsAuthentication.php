@@ -10,7 +10,9 @@ use Supra\Package\CmsAuthentication\Command\GroupsAddCommand;
 use Supra\Package\CmsAuthentication\Command\GroupsListCommand;
 use Supra\Package\CmsAuthentication\Command\GroupsRemoveCommand;
 use Supra\Package\CmsAuthentication\Command\GroupsUpdateCommand;
+use Supra\Package\CmsAuthentication\Command\UsersAddCommand;
 use Supra\Package\CmsAuthentication\Command\UsersListCommand;
+use Supra\Package\CmsAuthentication\Command\UsersRemoveCommand;
 use Supra\Package\CmsAuthentication\Command\UsersUpdateCommand;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationRequestListener;
 use Supra\Package\CmsAuthentication\Event\Listener\CmsAuthenticationResponseListener;
@@ -31,10 +33,12 @@ class SupraPackageCmsAuthentication extends AbstractSupraPackage
 
 		//register commands
 		$container->getConsole()->add(new UsersListCommand());
+		$container->getConsole()->add(new UsersUpdateCommand());
+		$container->getConsole()->add(new UsersAddCommand());
+		$container->getConsole()->add(new UsersRemoveCommand());
 		$container->getConsole()->add(new GroupsListCommand());
 		$container->getConsole()->add(new GroupsAddCommand());
 		$container->getConsole()->add(new GroupsRemoveCommand());
-		$container->getConsole()->add(new UsersUpdateCommand());
 		$container->getConsole()->add(new GroupsUpdateCommand());
 
 		$container[$this->name.'.request_listener'] = function () {
