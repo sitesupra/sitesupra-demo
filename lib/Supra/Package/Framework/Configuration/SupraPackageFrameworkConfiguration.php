@@ -46,6 +46,7 @@ class SupraPackageFrameworkConfiguration extends AbstractPackageConfiguration im
 					->end()
 				->end()
 				->scalarNode('default')->isRequired()->end()
+				->scalarNode('default_from')->isRequired()->end()
 			->end();
 
 		return $definition;

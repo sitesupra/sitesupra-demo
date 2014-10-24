@@ -88,3 +88,4 @@ swiftmailer:
                 username: ~
                 password: ~
     default: default
+    default_from: info@sitesupra.org
