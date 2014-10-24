@@ -24,9 +24,31 @@ class SupraPackageFrameworkConfiguration extends AbstractPackageConfiguration im
 					->append($this->getDoctrineDefinition())
 					->append($this->getServicesDefinition())
 					->append($this->getSessionDefinition())
+					->append($this->getMailerDefinition())
 				->end();
 
 		return $treeBuilder;
+	}
+
+	public function getMailerDefinition()
+	{
+		$definition = new ArrayNodeDefinition('swiftmailer');
+
+		$definition->children()
+				->arrayNode('mailers')
+					->prototype('array')
+						->children()
+							->scalarNode('transport')->isRequired()->end()
+							->arrayNode('params')
+								->prototype('scalar')->end()
+							->end()
+						->end()
+					->end()
+				->end()
+				->scalarNode('default')->isRequired()->end()
+			->end();
+
+		return $definition;
 	}
 
 	public function getSessionDefinition()

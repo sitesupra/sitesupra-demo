@@ -32,6 +32,13 @@ class InternalUserManagerController extends Controller
 
 	public function indexAction(Request $request)
 	{
+		$message = \Swift_Message::newInstance('test', 'test');
+
+		$message->setTo('andrew.tchircoff@gmail.com');
+		$message->setFrom('info@localhost.com');
+
+		$this->container->getMailer()->send($message);
+
 		return $this->renderResponse('index.html.twig');
 	}
 

@@ -7,12 +7,18 @@ use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
 use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Templating\Templating;
+use Swift_Mailer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Kernel;
 
 interface ContainerInterface
 {
+	/**
+	 * @return Swift_Mailer
+	 */
+	public function getMailer();
+
 	/**
 	 * @return Logger
 	 */

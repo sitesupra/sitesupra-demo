@@ -20,6 +20,11 @@ class Container extends BaseContainer implements ContainerInterface
 	 */
 	protected $parameters = array();
 
+	public function getMailer()
+	{
+		return $this['mailer.mailer'];
+	}
+
 	public function offsetGet($id)
 	{
 		$instance = parent::offsetGet($id);
