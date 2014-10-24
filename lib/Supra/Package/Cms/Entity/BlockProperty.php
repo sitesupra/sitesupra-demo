@@ -284,24 +284,24 @@ class BlockProperty extends VersionedEntity implements AuditedEntity
 		return $this->localization;
 	}
 
-	public function __clone()
-	{
-		parent::__clone();
-		
-		if (! empty($this->id)) {
-			
-			$this->block = null;
-			$this->localization = null;
-
-			$clonedMetadata = array();
-
-			foreach ($this->metadata as $metaItem) {
-				$clonedMetadata[] = clone $metaItem;
-			}
-
-			$this->metadata = new ArrayCollection($clonedMetadata);
-		}
-	}
+//	public function __clone()
+//	{
+//		parent::__clone();
+//
+//		if (! empty($this->id)) {
+//
+////			$this->block = null;
+////			$this->localization = null;
+////
+////			$clonedMetadata = array();
+////
+////			foreach ($this->metadata as $metaItem) {
+////				$clonedMetadata[] = clone $metaItem;
+////			}
+////
+////			$this->metadata = new ArrayCollection($clonedMetadata);
+//		}
+//	}
 
 	/**
 	 * Helper for the publishing process.

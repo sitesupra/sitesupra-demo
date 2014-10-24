@@ -36,12 +36,12 @@ class PageLocalizationPath extends VersionedEntity
 	 */
 	protected $active = true;
 
-	/**
-	 * Marks, if page is with limited access (requires an authorization)
-	 * @Column(type="boolean", nullable=false)
-	 * @var boolean
-	 */
-	protected $limited = false;
+//	/**
+//	 * Marks, if page is with limited access (requires an authorization)
+//	 * @Column(type="boolean", nullable=false)
+//	 * @var boolean
+//	 */
+//	protected $limited = false;
 
 	/**
 	 * Marks, if page is visible in sitemap
@@ -114,21 +114,21 @@ class PageLocalizationPath extends VersionedEntity
 		$this->active = $active;
 	}
 
-	/**
-	 * @return boolean
-	 */
-	public function isLimited()
-	{
-		return $this->limited;
-	}
-
-	/**
-	 * @param boolean $limited
-	 */
-	public function setLimited($limited)
-	{
-		$this->limited = $limited;
-	}
+//	/**
+//	 * @return boolean
+//	 */
+//	public function isLimited()
+//	{
+//		return $this->limited;
+//	}
+//
+//	/**
+//	 * @param boolean $limited
+//	 */
+//	public function setLimited($limited)
+//	{
+//		$this->limited = $limited;
+//	}
 
 	/**
 	 * @return boolean

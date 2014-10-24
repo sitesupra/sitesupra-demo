@@ -7,9 +7,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * Page/Template revision data class.
  *
- * @Entity(readOnly=true)
- * @Table(indexes={
- * 		@index(name="id_type_reference", columns={"id", "type", "reference"})
+ * @//Entity(readOnly=true)
+ * @//Table(indexes={
+ * 		@//index(name="id_type_reference", columns={"id","reference"})
  * })
  */
 class Revision extends Abstraction\Entity

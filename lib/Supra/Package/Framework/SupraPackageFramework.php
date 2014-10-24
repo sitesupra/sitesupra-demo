@@ -117,9 +117,9 @@ class SupraPackageFramework extends AbstractSupraPackage
 		//finishing locales
 		$container->extend('locale.manager', function (LocaleManager $localeManager, ContainerInterface $container) {
 			$locales = $container->getParameter('framework.locales');
-			foreach ($locales['locales'] as $locale) {
+			foreach ($locales['locales'] as $id => $locale) {
 				$localeObject = new Locale();
-				$localeObject->setId($locale['id']);
+				$localeObject->setId($id);
 				$localeObject->setTitle($locale['title']);
 				$localeObject->setActive($locale['active']);
 				$localeObject->setCountry($locale['country']);

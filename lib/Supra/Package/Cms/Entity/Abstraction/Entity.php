@@ -195,7 +195,6 @@ abstract class Entity extends Database\Entity implements AuthorizedEntityInterfa
 	{
 		if ( ! empty($this->id)) {
 			$this->regenerateId();
-//			$this->setRevisionId(self::generateId(__CLASS__));
 		}
 	}
 }

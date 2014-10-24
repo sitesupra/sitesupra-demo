@@ -179,7 +179,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 //	}
 
 	/**
-	 * TODO: hardcoded now
+	 * @TODO: hardcoded now
 	 * @return string
 	 */
 	protected function getMedia()
@@ -188,17 +188,16 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 *
-	 * @return Entity\Abstraction\AbstractPage
+	 * @return AbstractPage
 	 */
 	protected function getPage()
 	{
-		$page = null;
+		$page = $this->pageData !== null
+				? $this->pageData->getMaster()
+				: $this->getPageByRequestKey('page_id');
 
-		if (isset($this->pageData)) {
-			$page = $this->pageData->getMaster();
-		} else {
-			$page = $this->getPageByRequestKey('page_id');
+		if (! $page instanceof AbstractPage) {
+			throw new CmsException('sitemap.error.page_not_found');
 		}
 
 		return $page;
@@ -1222,7 +1221,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 					if (strcmp($_localization->getId(), $localization->getId()) < 0) {
 						$localeId = $_localization->getLocale();
 
-						if ($localeManager->exists($localeId, false)) {
+						if ($localeManager->hasLocale($localeId)) {
 							$localization = $_localization;
 						}
 					}
@@ -1232,7 +1231,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 				foreach ($localizations as $_localization) {
 					$localeId = $_localization->getLocale();
 
-					if ($localeManager->exists($localeId, false)) {
+					if ($localeManager->hasLocale($localeId)) {
 
 						$data = array('title' => $_localization->getTitle());
 
@@ -1394,7 +1393,15 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @return Supra\Package\Cms\Pages\Layout\Theme\ThemeProviderInterface
+	 * @return \Supra\Package\Cms\Pages\PageManager
+	 */
+	protected function getPageManager()
+	{
+		return $this->container['cms.pages.page_manager'];
+	}
+
+	/**
+	 * @return \Supra\Package\Cms\Pages\Layout\Theme\ThemeProviderInterface
 	 */
 	protected function getThemeProvider()
 	{
@@ -1402,13 +1409,12 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @return Supra\Package\Cms\Controller\PageController
+	 * @return \Supra\Package\Cms\Controller\PageController
 	 */
 	protected function getPageController()
 	{
 		return $this->container['cms.pages.controller'];
 	}
-
 
 	/**
 	 * @return \Supra\Package\Cms\Pages\Block\BlockCollection

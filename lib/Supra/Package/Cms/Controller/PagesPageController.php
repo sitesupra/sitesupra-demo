@@ -8,7 +8,6 @@ use Supra\Package\Cms\Pages\Exception\DuplicatePagePathException;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
-use Supra\Package\Cms\Entity\TemplateLocalization;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\Page;
 use Supra\Package\Cms\Entity\Template;
@@ -304,6 +303,128 @@ class PagesPageController extends AbstractPagesController
 		}
 
 		return new SupraJsonResponse();
+	}
+
+	/**
+	 * @throws \InvalidArgumentException
+	 * @throws \LogicExcepiton
+	 * @throws \UnexpectedValueException
+	 * @throws CmsException
+	 */
+	public function copyLocalizationAction()
+	{
+		$page = $this->getPage();
+
+		$sourceLocaleId = $this->getRequestParameter('source_locale');
+		$targetLocaleId = $this->getRequestParameter('locale');
+
+		if (! $this->getLocaleManager()->has($sourceLocaleId)) {
+			throw new \InvalidArgumentException(sprintf(
+					'Source locale [%s] not found.',
+					$sourceLocaleId
+			));
+		}
+
+		if (! $this->getLocaleManager()->has($targetLocaleId)) {
+			throw new \InvalidArgumentException(sprintf(
+					'Target locale [%s] not found.',
+					$targetLocaleId
+			));
+		}
+
+		if ($sourceLocaleId === $targetLocaleId) {
+			throw new \LogicExcepiton('Source and target locales are identical.');
+		}
+
+		$localization = $page->getLocalization($sourceLocaleId);
+
+		if ($localization === null) {
+			throw new \UnexpectedValueException(sprintf(
+					'Page [%s] is missing for [%s] locale localization.',
+					$page->getId(),
+					$sourceLocaleId
+			));
+		}
+
+		// @TODO: WAT?
+//		// dissalow to create more than one instance of root page
+//		if ($master instanceof Page && $master->isRoot()) {
+//
+//			$pathEntityName = Entity\PageLocalizationPath::CN();
+//
+//			$dql = "SELECT p FROM $pathEntityName p
+//				WHERE p.path = :path
+//				AND p.locale = :locale";
+//
+//			$query = $this->entityManager
+//					->createQuery($dql)
+//					->setParameters(array('path' => '', 'locale' => $targetLocale));
+//
+//			$path = $query->getOneOrNullResult();
+//			if ($path instanceof Entity\PageLocalizationPath) {
+//				throw new CmsException(null, 'It is not allowed to create multiple root pages');
+//			}
+//		}
+
+		if ($localization->getTemplate()
+				->getLocalization($targetLocaleId) === null) {
+
+			throw new CmsException(null, sprintf(
+					'There is no [%s] localization for [%s] template this page uses. Please create it first.',
+					$this->getLocaleManager()
+							->getLocale($targetLocaleId)
+							->getTitle(),
+					$localization->getTemplate()
+							->getLocalization($sourceLocaleId)
+							->getTitle()
+			));
+		}
+
+		$input = $this->getRequestInput();
+		
+		$targetLocale = $this->getLocaleManager()->getLocale($targetLocaleId);
+
+		$pageManager = $this->getPageManager();
+
+		$copiedLocalization = $this->getEntityManager()
+				->transactional(function (EntityManager $entityManager) use (
+						$pageManager,
+						$page,
+						$localization,
+						$targetLocale,
+						$input
+				) {
+
+			$copiedLocalization = $pageManager->copyLocalization(
+					$entityManager,
+					$localization,
+					$targetLocale
+			);
+
+			$title = trim($input->get('title'));
+
+			if (! empty($title)) {
+				$copiedLocalization->setTitle($title);
+			}
+
+			$pathPart = trim($input->get('path'));
+
+			if (! empty($pathPart) && ! $page->isRoot()) {
+				$copiedLocalization->setPathPart($pathPart);
+			}
+
+			try {
+				$entityManager->flush();
+			} catch (DuplicatePagePathException $e) {
+				throw new CmsException(null, $e->getMessage());
+			}
+
+			return $copiedLocalization;
+		});
+
+		return new SupraJsonResponse(array(
+				'id' => $copiedLocalization->getId()
+		));
 	}
 
 	/**

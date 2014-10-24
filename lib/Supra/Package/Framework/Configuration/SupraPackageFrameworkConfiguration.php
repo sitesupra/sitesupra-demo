@@ -142,9 +142,10 @@ class SupraPackageFrameworkConfiguration extends AbstractPackageConfiguration im
 
 		$definition->children()
 			->arrayNode('locales')
+				->useAttributeAsKey('id')
 				->prototype('array')
 					->children()
-						->scalarNode('id')->isRequired()->end()
+						//->scalarNode('id')->isRequired()->end()
 						->scalarNode('title')->isRequired()->end()
 						->scalarNode('country')->isRequired()->end()
 						->arrayNode('properties')
