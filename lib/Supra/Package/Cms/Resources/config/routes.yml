@@ -213,3 +213,9 @@ routes:
         controller:                     Cms:InternalUserManager:update
         options:
             frontend:                   true
+
+    media_library:
+        pattern:                        %cms.prefix%/media-library
+        controller:                     Cms:MediaLibrary:index
+        options:
+            frontend:                   true
