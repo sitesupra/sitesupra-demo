@@ -82,16 +82,6 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		$container->getApplication()->setConfigurationSection('framework', $frameworkConfiguration);
 
-		// Theme Provider
-		$container[$this->name . '.pages.theme.provider'] = function () {
-			return new DefaultThemeProvider();
-		};
-
-		// PageController for backend purposes
-		$container[$this->name . '.pages.controller'] = function () {
-			return new PageController();
-		};
-
 		// Block collection
 		$container[$this->name . '.pages.blocks.collection'] = function () {
 
@@ -99,11 +89,6 @@ class SupraPackageCms extends AbstractSupraPackage
 						new BlockGroupConfiguration('features', 'Features', true),
 						new BlockGroupConfiguration('system', 'System'),
 			));
-		};
-
-		// Layout processor
-		$container[$this->name . '.pages.layout_processor'] = function () {
-			return new TwigProcessor();
 		};
 	}
 

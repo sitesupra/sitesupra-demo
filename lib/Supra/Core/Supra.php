@@ -490,7 +490,7 @@ abstract class  Supra extends ContainerBuilder
 				$configs[] = $configurationOverride[$key];
 				unset($configurationOverride[$key]);
 			}
-
+			
 			$packageConfiguration = $processor->processConfiguration($configuration, $configs);
 
 			foreach ($packageConfiguration as $confKey => $value) {

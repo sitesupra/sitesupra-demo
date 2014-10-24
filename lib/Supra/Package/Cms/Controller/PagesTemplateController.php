@@ -212,4 +212,81 @@ class PagesTemplateController extends AbstractPagesController
 
 		return new SupraJsonResponse();
 	}
+
+		/**
+	 * @throws \InvalidArgumentException
+	 * @throws \LogicExcepiton
+	 * @throws \UnexpectedValueException
+	 * @throws CmsException
+	 */
+	public function copyLocalizationAction()
+	{
+		$page = $this->getPage();
+
+		$sourceLocaleId = $this->getRequestParameter('source_locale');
+		$targetLocaleId = $this->getRequestParameter('locale');
+
+		if (! $this->getLocaleManager()->has($sourceLocaleId)) {
+			throw new \InvalidArgumentException(sprintf(
+					'Source locale [%s] not found.',
+					$sourceLocaleId
+			));
+		}
+
+		if (! $this->getLocaleManager()->has($targetLocaleId)) {
+			throw new \InvalidArgumentException(sprintf(
+					'Target locale [%s] not found.',
+					$targetLocaleId
+			));
+		}
+
+		if ($sourceLocaleId === $targetLocaleId) {
+			throw new \LogicExcepiton('Source and target locales are identical.');
+		}
+
+		$localization = $page->getLocalization($sourceLocaleId);
+
+		if ($localization === null) {
+			throw new \UnexpectedValueException(sprintf(
+					'Page [%s] is missing for [%s] locale localization.',
+					$page->getId(),
+					$sourceLocaleId
+			));
+		}
+
+		$input = $this->getRequestInput();
+
+		$targetLocale = $this->getLocaleManager()->getLocale($targetLocaleId);
+
+		$pageManager = $this->getPageManager();
+
+		$copiedLocalization = $this->getEntityManager()
+				->transactional(function (EntityManager $entityManager) use (
+						$pageManager,
+						$localization,
+						$targetLocale,
+						$input
+				) {
+
+			$copiedLocalization = $pageManager->copyLocalization(
+					$entityManager,
+					$localization,
+					$targetLocale
+			);
+
+			$title = trim($input->get('title'));
+
+			if (! empty($title)) {
+				$copiedLocalization->setTitle($title);
+			}
+
+			$entityManager->flush();
+
+			return $copiedLocalization;
+		});
+
+		return new SupraJsonResponse(array(
+				'id' => $copiedLocalization->getId()
+		));
+	}
 }

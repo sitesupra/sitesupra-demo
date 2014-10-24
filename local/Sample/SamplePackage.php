@@ -13,9 +13,11 @@ class SamplePackage extends AbstractSupraPackage
 		//routing
 		$container->getRouter()->loadConfiguration(
 				$container->getApplication()->locateConfigFile($this, 'routes.yml')
-			);
+		);
+	}
 
-		// theme
+	public function finish(ContainerInterface $container)
+	{
 		$themeProvider = $container['cms.pages.theme.provider'];
 		/* @var $themeProvider \Supra\Package\Cms\Pages\Layout\Theme\ThemeProviderInterface */
 

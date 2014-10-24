@@ -24,6 +24,9 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  * 		"application"	= "Supra\Package\Cms\Entity\ApplicationLocalization",
  * 		"group"			= "Supra\Package\Cms\Entity\GroupLocalization"
  * })
+ * @Table(uniqueConstraints={
+ *		@UniqueConstraint(name="locale_master_idx", columns={"locale", "master_id"})
+ * })
  */
 abstract class Localization extends VersionedEntity implements
 		AuditedEntity,
@@ -87,7 +90,8 @@ abstract class Localization extends VersionedEntity implements
 	protected $placeHolders;
 
 	/**
-	 *  Flag for hiding page from sitemap
+	 * Flag for hiding page from sitemap.
+	 * 
 	 * @Column(type="boolean", nullable=false)
 	 * @var boolean
 	 */
@@ -174,13 +178,14 @@ abstract class Localization extends VersionedEntity implements
 	 * Construct
 	 * @param string $locale
 	 */
-	public function __construct($locale)
+	public function __construct($localeId)
 	{
 		parent::__construct();
-		$this->setLocale($locale);
+
+		$this->setLocaleId($localeId);
+
+		$this->blockProperties = new ArrayCollection();
 		$this->placeHolders = new ArrayCollection();
-//		$this->placeHolderGroups = new ArrayCollection();
-		
 		$this->tags = new ArrayCollection();
 	}
 
@@ -215,11 +220,20 @@ abstract class Localization extends VersionedEntity implements
 	}
 
 	/**
+	 * @param string $localeId
+	 */
+	public function setLocaleId($localeId)
+	{
+		$this->locale = $localeId;
+	}
+
+	/**
+	 * @deprecated use setLocaleId() instead
 	 * @param string $locale
 	 */
 	public function setLocale($locale)
 	{
-		$this->locale = $locale;
+		$this->setLocaleId($locale);
 	}
 
 	/**
@@ -733,8 +747,9 @@ abstract class Localization extends VersionedEntity implements
 	 */
 	public function __clone()
 	{
+		parent::__clone();
+
 		if ( ! empty($this->id)) {
-			parent::__clone();
 			$this->lock = null;
 		}
 	}
