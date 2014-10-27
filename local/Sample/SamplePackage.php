@@ -32,5 +32,6 @@ class SamplePackage extends AbstractSupraPackage
 		$blockCollection = $container['cms.pages.blocks.collection'];
 		/* @var $blockCollection \Supra\Package\Cms\Pages\Block\BlockCollection */
 		$blockCollection->addConfiguration(new Blocks\TextBlockConfiguration());
+		$blockCollection->addConfiguration(new Blocks\DemoBlockConfiguration());
 	}
 }

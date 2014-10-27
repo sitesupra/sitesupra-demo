@@ -5,7 +5,7 @@ namespace Supra\Package\Cms\Editable;
 /**
  * String editable content
  */
-class InlineTextarea extends EditableAbstraction
+class InlineTextarea extends Editable
 {
 	const EDITOR_TYPE = 'InlineText';
 	const EDITOR_INLINE_EDITABLE = true;

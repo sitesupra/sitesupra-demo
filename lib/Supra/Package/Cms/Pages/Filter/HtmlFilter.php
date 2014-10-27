@@ -1,7 +1,7 @@
 <?php
 namespace Supra\Package\Cms\Pages\Filter;
 
-use Supra\Package\Cms\Editable\Filter\FilterInterface;
+use Supra\Package\Cms\Pages\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\ReferencedElement\VideoReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
@@ -16,12 +16,12 @@ use Supra\FileStorage\Entity\Image;
 /**
  * Parses supra markup tags inside the HTML content.
  */
-class ParsedHtmlFilter implements FilterInterface
+class HtmlFilter implements FilterInterface
 {
 	/**
 	 * @var BlockProperty
 	 */
-	public $property;
+	protected $blockProperty;
 
 	/**
 	 * @param string $content
@@ -31,7 +31,7 @@ class ParsedHtmlFilter implements FilterInterface
 	{
 		$elements = array();
 		
-		foreach ($this->property->getMetadata() as $key => $item) {
+		foreach ($this->blockProperty->getMetadata() as $key => $item) {
 			$elements[$key] = $item->getReferencedElement();
 		}
 
@@ -297,6 +297,8 @@ class ParsedHtmlFilter implements FilterInterface
 	}
 
 	/**
+	 * @FIXME
+	 *
 	 * Parse supra.video
 	 * @param VideoReferencedElement $videoElement
 	 * 
@@ -361,5 +363,13 @@ class ParsedHtmlFilter implements FilterInterface
 		}
 
 		return $html;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setBlockProperty(BlockProperty $blockProperty)
+	{
+		$this->blockProperty = $blockProperty;
 	}
 }

@@ -7,5 +7,8 @@ use Supra\Package\Cms\Entity\BlockProperty;
 
 interface FilterInterface extends BaseFilterInterface
 {
+	/**
+	 * @param \Supra\Package\Cms\Entity\BlockProperty $blockProperty
+	 */
 	public function setBlockProperty(BlockProperty $blockProperty);
 }

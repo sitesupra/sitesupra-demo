@@ -23,7 +23,7 @@ use Supra\Controller\Pages\Twig\TwigSupraBlockGlobal;
 
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Controller\Pages\Exception;
-use Supra\Controller\Exception\StopRequestException;
+//use Supra\Controller\Exception\StopRequestException;
 
 /**
  * Block controller abstraction
@@ -55,6 +55,11 @@ abstract class BlockController extends Controller
 	 * @var array
 	 */
 	protected $configuredBlockProperties = array();
+
+	/**
+	 * @var Request
+	 */
+	protected $request;
 
 	/**
 	 * @var ResponsePart
@@ -411,103 +416,94 @@ abstract class BlockController extends Controller
 			return;
 		}
 
-		// Html content additional filters
+		// Html content filters
 		if ($editable instanceof Editable\Html) {
-			// Editable action
-//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-			if ($this->request instanceof PageRequestEdit) {
+			$filter = $this->request instanceof PageRequestEdit
+					? new Filter\EditableHtmlFilter()
+					: new Filter\HtmlFilter();
 
-				$filter = new Filter\EditableHtml();
-				$filter->property = $property;
-				$editable->addFilter($filter);
-				// View
-			} else {
-				$filter = new Filter\ParsedHtmlFilter();
-//				ObjectRepository::setCallerParent($filter, $this);
-				$filter->property = $property;
+			$filter->setBlockProperty($property);
+
+			$editable->addFilter($filter);
+
+		// Editable Inline String
+		} else if ($editable instanceof Editable\InlineString) {
+			if ($this->request instanceof PageRequestEdit) {
+				$filter = new Filter\EditableInlineStringFilter();
+				$filter->setBlockProperty($property);
 				$editable->addFilter($filter);
 			}
 		}
 
-		else if ($editable instanceof Editable\Link) {
-			$filter = new Filter\LinkFilter();
-//			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
+		else if ($editable instanceof Editable\Textarea
+				|| $editable instanceof Editable\InlineTextarea) {
 
-		else if ($editable instanceof Editable\InlineString) {
-//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-			if ($this->request instanceof PageRequestEdit) {
-				$filter = new Filter\EditableString();
-//				ObjectRepository::setCallerParent($filter, $this);
-				$filter->property = $property;
+			$editable->addFilter(new Filter\TextareaFilter());
+
+			if ($this->request instanceof PageRequestEdit
+					&& $editable instanceof Editable\InlineTextarea) {
+				
+				$filter = new Filter\EditableInlineTextareaFilter();
+				$filter->setBlockProperty($property);
 				$editable->addFilter($filter);
 			}
 		}
 
-		else if ($editable instanceof Editable\Textarea) {
-			$filter = new Filter\EditableTextarea();
-//			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
-
-		else if ($editable instanceof Editable\InlineTextarea) {
-			$filter = new Filter\InlineTextareaFilter();
-//			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
-
-		else if ($editable instanceof Editable\Gallery) {
-			$filter = new Filter\GalleryFilter();
-//			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$filter->request = $this->request;
-			$editable->addFilter($filter);
-		}
-
-		else if ($editable instanceof Editable\Video) {
-			$filter = new Filter\VideoFilter();
-//			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
-
-//		else if ($editable instanceof Editable\InlineMap) {
-//			$filter = new Filter\InlineMapFilter();
-//			ObjectRepository::setCallerParent($filter, $this);
+//		else if ($editable instanceof Editable\Link) {
+//			$filter = new Filter\LinkFilter();
+////			ObjectRepository::setCallerParent($filter, $this);
 //			$filter->property = $property;
 //			$editable->addFilter($filter);
 //		}
-
-		else if ($editable instanceof Editable\Slideshow) {
-			$filter = new Filter\SlideshowFilter();
-//			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
-
-		else if ($editable instanceof Editable\MediaGallery) {
-			$filter = new Filter\MediaGalleryFilter();
-//			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
-
-		else if ($editable instanceof Editable\InlineMedia) {
-//			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-			if ($this->request instanceof PageRequestEdit) {
-				$filter = new Filter\EditableInlineMedia();
-			} else {
-				$filter = new Filter\InlineMediaFilter();
-			}
-
-//			ObjectRepository::setCallerParent($filter, $this);
-			$filter->property = $property;
-			$editable->addFilter($filter);
-		}
+//
+//		else if ($editable instanceof Editable\Gallery) {
+//			$filter = new Filter\GalleryFilter();
+////			ObjectRepository::setCallerParent($filter, $this);
+//			$filter->property = $property;
+//			$filter->request = $this->request;
+//			$editable->addFilter($filter);
+//		}
+//
+//		else if ($editable instanceof Editable\Video) {
+//			$filter = new Filter\VideoFilter();
+////			ObjectRepository::setCallerParent($filter, $this);
+//			$filter->property = $property;
+//			$editable->addFilter($filter);
+//		}
+//
+////		else if ($editable instanceof Editable\InlineMap) {
+////			$filter = new Filter\InlineMapFilter();
+////			ObjectRepository::setCallerParent($filter, $this);
+////			$filter->property = $property;
+////			$editable->addFilter($filter);
+////		}
+//
+//		else if ($editable instanceof Editable\Slideshow) {
+//			$filter = new Filter\SlideshowFilter();
+////			ObjectRepository::setCallerParent($filter, $this);
+//			$filter->property = $property;
+//			$editable->addFilter($filter);
+//		}
+//
+//		else if ($editable instanceof Editable\MediaGallery) {
+//			$filter = new Filter\MediaGalleryFilter();
+////			ObjectRepository::setCallerParent($filter, $this);
+//			$filter->property = $property;
+//			$editable->addFilter($filter);
+//		}
+//
+//		else if ($editable instanceof Editable\InlineMedia) {
+////			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
+//			if ($this->request instanceof PageRequestEdit) {
+//				$filter = new Filter\EditableInlineMedia();
+//			} else {
+//				$filter = new Filter\InlineMediaFilter();
+//			}
+//
+////			ObjectRepository::setCallerParent($filter, $this);
+//			$filter->property = $property;
+//			$editable->addFilter($filter);
+//		}
 
 		$this->configuredBlockProperties[$propertyId] = true;
 	}

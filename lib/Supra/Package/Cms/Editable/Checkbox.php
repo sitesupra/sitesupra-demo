@@ -8,7 +8,7 @@ use Supra\Validator\Type\AbstractType;
 /**
  * Checkbox with configurable Yes/No titles
  */
-class Checkbox extends EditableAbstraction
+class Checkbox extends Editable
 {
 	private $yesLabel = '{#buttons.yes#}';
 	private $noLabel = '{#buttons.no#}';

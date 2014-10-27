@@ -1,0 +1,27 @@
+<div>
+	<h3>String</h3>
+	{{ supraBlock.property('string') }}
+</div>
+
+<div>
+	<h3>Inline String</h3>
+	{{ supraBlock.property('inlineString') }}
+</div>
+
+<div>
+	<h3>Text</h3>
+	{{ supraBlock.property('text') }}
+</div>
+
+<div>
+	<h3>Inline Text</h3>
+	{{ supraBlock.property('inlineText') }}
+</div>
+
+<div>
+	<h3>Checkbox</h3>
+	{% set checked = supraBlock.property('checkbox') %}
+	Value is set to {% if checked %}Yes{% else %}No{% endif %}
+</div>
+
+{# @TODO: the rest #}
