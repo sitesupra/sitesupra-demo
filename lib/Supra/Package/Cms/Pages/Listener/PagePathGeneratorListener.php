@@ -91,7 +91,7 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 		// New localization creation, could contain children already, need to recurse into children
 		foreach ($this->unitOfWork->getScheduledEntityInsertions() as $entity) {
 			if ($entity instanceof PageLocalization) {
-				$this->pageLocalizationChange($entity);
+				$this->pageLocalizationChange($entity, true);
 			}
 		}
 
@@ -135,26 +135,26 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 		}
 	}
 
-	/**
-	 * Finds Localizations without generated path, but with defined pathPart
-	 * (happens when page is cloned, also is usable on page create action), and 
-	 * generates unique path.
-	 * 
-	 * @param LifecycleEventArgs $eventArgs 
-	 */
-	public function postPageClone(LifecycleEventArgs $eventArgs)
-	{
-		$entity = $eventArgs->getEntity();
-		$this->em = $eventArgs->getEntityManager();
-		$this->unitOfWork = $this->em->getUnitOfWork();
-
-		if ($entity instanceof PageLocalization) {
-			$this->generatePath($entity, true);
-		} else if ($entity instanceof Page) {
-			// Run for all children, every locale
-			$this->pageChange($entity, true);
-		}
-	}
+//	/**
+//	 * Finds Localizations without generated path, but with defined pathPart
+//	 * (happens when page is cloned, also is usable on page create action), and
+//	 * generates unique path.
+//	 *
+//	 * @param LifecycleEventArgs $eventArgs
+//	 */
+//	public function postPageClone(LifecycleEventArgs $eventArgs)
+//	{
+//		$entity = $eventArgs->getEntity();
+//		$this->em = $eventArgs->getEntityManager();
+//		$this->unitOfWork = $this->em->getUnitOfWork();
+//
+//		if ($entity instanceof PageLocalization) {
+//			$this->generatePath($entity, true);
+//		} else if ($entity instanceof Page) {
+//			// Run for all children, every locale
+//			$this->pageChange($entity, true);
+//		}
+//	}
 
 	/**
 	 * Called when page structure is changed
@@ -205,6 +205,7 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 				AND m.right <= :right
 				AND l.locale = :locale
 				ORDER BY m.left";
+
 		$pageLocalizations = $this->em->createQuery($dql)
 				->setParameters(array(
 					'left' => $master->getLeftValue(),
@@ -213,8 +214,8 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 				))
 				->getResult();
 
-		foreach ($pageLocalizations as $pageLocalization) {
-			$this->generatePath($pageLocalization);
+		foreach (array($localization) as $pageLocalization) {
+			$this->generatePath($pageLocalization, $force);
 		}
 	}
 
@@ -236,7 +237,7 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 
 		if ( ! $page->isRoot()) {
 
-			if ( ! Path::compare($oldPath, $newPath)) {
+			if ( ! Path::compare($oldPath, $newPath) || $force) {
 
 				$suffix = null;
 
@@ -309,11 +310,8 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 			$pageData->setPath($newPath, $active, $limited, $inSitemap);
 		}
 
-		if (
-				$oldPathEntity->isLimited() !== $limited
-				|| $oldPathEntity->isActive() !== $active
-				|| $oldPathEntity->isVisibleInSitemap() != $inSitemap
-		) {
+		if ($oldPathEntity->isActive() !== $active
+				|| $oldPathEntity->isVisibleInSitemap() != $inSitemap) {
 
 			$pageData->setPath($newPath, $active, $limited, $inSitemap);
 			$changes = true;

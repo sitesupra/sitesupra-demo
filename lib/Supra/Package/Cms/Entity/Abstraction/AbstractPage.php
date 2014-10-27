@@ -52,7 +52,6 @@ use Supra\Core\NestedSet;
  */
 abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeInterface
 {
-
     /**
      * Filled by NestedSetListener
      * @var NestedSet\Node\DoctrineNode
@@ -394,10 +393,13 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
      */
     public function __clone()
     {
+		parent::__clone();
+
         if ( ! empty($this->id)) {
-            $this->nestedSetNode = null;
-			$this->localizations = new ArrayCollection();
-            parent::__clone();
+			$this->nestedSetNode = $this->left
+					= $this->right
+					= $this->level
+					= null;
         }
     }
 }

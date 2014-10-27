@@ -743,18 +743,6 @@ abstract class Localization extends VersionedEntity implements
 	}
 
 	/**
-	 * Clear page lock on clone action
-	 */
-	public function __clone()
-	{
-		parent::__clone();
-
-		if ( ! empty($this->id)) {
-			$this->lock = null;
-		}
-	}
-
-	/**
 	 * Used to improve audit log readability
 	 */
 	public function getOriginalTitle()

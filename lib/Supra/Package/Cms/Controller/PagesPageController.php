@@ -428,6 +428,52 @@ class PagesPageController extends AbstractPagesController
 	}
 
 	/**
+	 * @return SupraJsonResponse
+	 */
+	public function copyAction()
+	{
+		$this->isPostRequest();
+
+		$page = $this->getPage();
+
+		if (! $page instanceof Page) {
+			throw new \UnexpectedValueException(sprintf(
+					'Expecting Page instance, [%s] received',
+					get_class($page)
+			));
+		}
+
+		if ($page->isRoot()) {
+			// copied page becomes a sibling,
+			// but multiple roots for Pages are not allowed.
+			throw new \LogicException('Root page copying is prohibited.');
+		}
+
+		$entityManager = $this->getEntityManager();
+
+		$pageManager = $this->getPageManager();
+
+		$this->lockNestedSet($page);
+
+		$copiedPage = $entityManager->transactional(function (EntityManager $entityManager) use ($pageManager, $page) {
+
+			$copiedPage = $pageManager->copyPage($entityManager, $page);
+
+			$copiedPage->moveAsNextSiblingOf($page);
+
+			$entityManager->flush();
+
+			return $copiedPage;
+		});
+
+		$this->unlockNestedSet($page);
+
+		return new SupraJsonResponse(
+				$this->convertPageToArray($copiedPage, $this->getCurrentLocale()->getId())
+		);
+	}
+
+	/**
 	 * @param array $data
 	 * @return \Supra\Package\Cms\Entity\Abstraction\RedirectTarget
 	 */

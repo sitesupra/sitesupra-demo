@@ -422,6 +422,8 @@ class PageLocalization extends Abstraction\Localization
 
 		if (! empty($this->id)) {
 			$this->resetCreationTime();
+
+			$this->path = new PageLocalizationPath($this);
 		}
 	}
 

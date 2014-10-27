@@ -57,6 +57,7 @@ class PageLocalizationPath extends VersionedEntity
 	public function __construct(PageLocalization $localization)
 	{
 		$this->id = $localization->getId();
+		$this->locale = $localization->getLocaleId();
 	}
 
 	/**
@@ -145,5 +146,5 @@ class PageLocalizationPath extends VersionedEntity
 	{
 		$this->visibleInSitemap = $visibleInSitemap;
 	}
-
+	
 }

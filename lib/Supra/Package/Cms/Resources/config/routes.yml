@@ -72,6 +72,11 @@ routes:
         controller:					Cms:PagesPage:create
         options:
             frontend:       true
+    cms_pages_page_copy:
+        pattern:						%cms.prefix%/content-manager/page/copy
+        controller:					Cms:PagesPage:copy
+        options:
+            frontend:       true
     cms_pages_page_localization_copy:
         pattern:						%cms.prefix%/content-manager/page/copy-localization
         controller:					Cms:PagesPage:copyLocalization
@@ -90,6 +95,11 @@ routes:
     cms_pages_template_create:
         pattern:						%cms.prefix%/content-manager/template/create
         controller:					Cms:PagesTemplate:create
+        options:
+            frontend:       true
+    cms_pages_template_copy:
+        pattern:						%cms.prefix%/content-manager/template/copy
+        controller:					Cms:PagesTemplate:copy
         options:
             frontend:       true
     cms_pages_template_localization_copy:
