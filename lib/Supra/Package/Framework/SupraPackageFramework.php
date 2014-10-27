@@ -304,5 +304,29 @@ class SupraPackageFramework extends AbstractSupraPackage
 
 			return $session;
 		};
+
+		//mailers
+
+		$mailerConfig = $container->getParameter('framework.swiftmailer');
+
+		$container->setParameter('mailer.mailers', array_map(function ($value) { return 'mailer.mailers.'.$value; }, array_keys($mailerConfig['mailers'])));
+
+		foreach ($mailerConfig['mailers'] as $id => $configurationDefinition) {
+			$container['mailer.mailers.'.$id] = function (ContainerInterface $container) use ($configurationDefinition) {
+				if ($configurationDefinition['transport'] != 'smtp') {
+					throw new \Exception('Sorry, only SMTP transports are supported now');
+				}
+
+				$transport = \Swift_SmtpTransport::newInstance($configurationDefinition['params']['host'], $configurationDefinition['params']['port']);
+				$transport->setUsername($configurationDefinition['params']['username']);
+				$transport->setPassword($configurationDefinition['params']['password']);
+
+				return \Swift_Mailer::newInstance($transport);
+			};
+		}
+
+		$container['mailer.mailer'] = function (ContainerInterface $container) use ($mailerConfig) {
+			return $container['mailer.mailers.'.$mailerConfig['default']];
+		};
 	}
 }

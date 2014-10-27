@@ -64,13 +64,10 @@ class InternalUserManagerController extends Controller
 		/* @var $newGroup Group */
 
 		// On user group change all user individual permissions are unset
-		//TODO: ask confirmation from the action caller for this
 		if($user->getGroup()->getId() != $newGroup->getId()) {
 			//todo: unser permissions here whe the is acl
 			$user->setGroup($newGroup);
 		}
-
-		//todo: send mail
 
 		return new SupraJsonResponse(null);
 	}
@@ -93,9 +90,22 @@ class InternalUserManagerController extends Controller
 			throw new CmsException(null, 'Can\'t find user with such id');
 		}
 
-		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
+		$password = substr(md5(rand() . time()), 0, 8);
 
-		//todo: send email
+		$user->setPassword($this->encodePassword($user, $password));
+		$this->container->getDoctrine()->getManager()->flush();
+
+		$message = \Swift_Message::newInstance(
+			'SiteSupra password reset',
+			sprintf('Hi %s, your new password is: %s', $user->getLogin(), $password)
+		);
+
+		$message->setTo($user->getEmail());
+		$message->setFrom($this->container->getParameter('framework.swiftmailer.default_from'));
+
+		$this->container->getMailer()->send($message);
+
+		$this->checkActionPermission($user->getGroup(), Group::PERMISSION_MODIFY_USER_NAME);
 
 		return new SupraJsonResponse(null);
 	}
@@ -163,8 +173,6 @@ class InternalUserManagerController extends Controller
 		}
 
 		$this->container->getDoctrine()->getManager()->flush();
-
-		//todo: send e-mail
 
 		return new SupraJsonResponse($this->userToArray($user));
 	}
@@ -265,7 +273,20 @@ class InternalUserManagerController extends Controller
 		$user->setEmail($email);
 		$user->setGroup($group);
 
-		//todo: send e-mail
+		$password = substr(md5(rand() . time()), 0, 8);
+
+		$user->setPassword($this->encodePassword($user, $password));
+		$this->container->getDoctrine()->getManager()->flush();
+
+		$message = \Swift_Message::newInstance(
+			'SiteSupra new user',
+			sprintf('Hi %s, you are registered to SiteSupra at %s, your password is: %s', $user->getLogin(), $request->getSchemeAndHttpHost(), $password)
+		);
+
+		$message->setTo($user->getEmail());
+		$message->setFrom($this->container->getParameter('framework.swiftmailer.default_from'));
+
+		$this->container->getMailer()->send($message);
 
 		$this->container->getDoctrine()->getManager()->persist($user);
 		$this->container->getDoctrine()->getManager()->flush();
@@ -351,5 +372,13 @@ return $permissions;*/
 	protected function groupToDummyId(Group $group)
 	{
 		return $this->dummyGroupMap[$group->getName()];
+	}
+
+	protected function encodePassword(User $user, $password)
+	{
+		$encoder = $this->container['cms_authentication.encoder_factory']
+			->getEncoder($user);
+
+		return $encoder->encodePassword($password, $user->getSalt());
 	}
 }

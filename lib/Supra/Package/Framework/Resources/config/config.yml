@@ -78,3 +78,14 @@ doctrine:
     default_connection: default
 session:
     storage: supra.framework.session_storage_native
+swiftmailer:
+    mailers:
+        default:
+            transport: smtp
+            params:
+                host: 127.0.0.1
+                port: 25
+                username: ~
+                password: ~
+    default: default
+    default_from: info@sitesupra.org
