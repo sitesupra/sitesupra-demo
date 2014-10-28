@@ -23,6 +23,7 @@ class DemoBlockConfiguration extends BlockConfiguration
 				->add('text', 'text', 'Text')
 				->add('inlineText', 'inline_text')
 				->add('checkbox', 'checkbox', 'Checkbox')
+				->add('link', 'link', 'Link')
 				;
 	}
 }

@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
@@ -57,40 +58,19 @@ class BlockProperty extends VersionedEntity implements AuditedEntity
 	/**
 	 * Value additional data about links, images
 	 * 
-	 * @OneToMany(targetEntity="BlockPropertyMetadata", mappedBy="blockProperty", cascade={"all"}, indexBy="name")
+	 * @OneToMany(
+	 *		targetEntity="BlockPropertyMetadata",
+	 *		mappedBy="blockProperty",
+	 *		cascade={"all"},
+	 *		indexBy="name",
+	 *		orphanRemoval=true
+	 * )
+	 * 
 	 * @var Collection
 	 */
 	protected $metadata;
-		
-//	/**
-//	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\BlockPropertyMetadata", inversedBy="metadataProperties", cascade={"persist", "merge"})
-//	 * @var BlockPropertyMetadata
-//	 */
-//	protected $masterMetadata;
-	
-//	/**
-//	 * Master metadata object
-//	 *
-//	 * @var BlockPropertyMetadata
-//	 */
-//	protected $masterMetadata;
-//
-//	/**
-//	 * Master metadata Id
-//	 *
-//	 * @Column(type="supraId20", nullable=true)
-//	 * @var string
-//	 */
-//	protected $masterMetadataId;
-//
-//	/**
-//	 * @Column(type="object")
-//	 * @var EditableInterface
-//	 */
-//	protected $editable;
 
 	/**
-	 * Constructor
 	 * @param string $name
 	 */
 	public function __construct($name)

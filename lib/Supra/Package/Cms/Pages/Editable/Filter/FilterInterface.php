@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Package\Cms\Pages\Filter;
+namespace Supra\Package\Cms\Pages\Editable\Filter;
 
 use Supra\Package\Cms\Editable\Filter\FilterInterface as BaseFilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;

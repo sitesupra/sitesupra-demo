@@ -1,10 +1,9 @@
 <?php
 
-/**
- * @FIXME: this depends on Pages specific stuff, move under Pages NS!
- */
-namespace Supra\Package\Cms\Editable\Transformer;
+namespace Supra\Package\Cms\Pages\Editable\Transformer;
 
+use Supra\Package\Cms\Editable\Transformer\ValueTransformerInterface;
+use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\BlockPropertyMetadata;
 
@@ -33,9 +32,23 @@ class HtmlEditorValueTransformer implements ValueTransformerInterface
 				->setValue(serialize($fonts));
 
 		// additional metadata
+		$metadata = $this->property->getMetadata();
+
+		// @TODO: not performance-wise.
+		foreach ($metadata as $metaItem) {
+			$metadata->removeElement($metaItem);
+		}
+
 		if (! empty($value['data'])) {
-			foreach ($value['data'] as $itemData) {
-				// convert to referenced element.
+			foreach ($value['data'] as $name => $itemData) {
+
+				$referencedElement = ReferencedElementAbstract::fromArray($itemData);
+
+				$metaItem = new BlockPropertyMetadata($name, $this->property);
+
+				$metaItem->setReferencedElement($referencedElement);
+
+				$metadata->set($name, $metaItem);
 			}
 		}
 
@@ -56,7 +69,14 @@ class HtmlEditorValueTransformer implements ValueTransformerInterface
 
 		$referencedElementData = array();
 
-		// @fixme: convert to array
+		foreach ($this->property->getMetadata() as $name => $metadata) {
+			/* @var $metadata BlockPropertyMetadata */
+			$referencedElement = $metadata->getReferencedElement();
+
+			if ($referencedElement !== null) {
+				$referencedElementData[$name] = $referencedElement->toArray();
+			}
+		}
 
 		return array(
 			'fonts' => $fontsArray,

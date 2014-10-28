@@ -4,11 +4,6 @@ namespace Supra\Package\Cms\Entity\ReferencedElement;
 
 use Doctrine\ORM\NoResultException;
 use Supra\Package\Cms\Entity\PageLocalization;
-use Supra\Package\Cms\Uri\Path;
-use Supra\Package\Cms\Uri\NullPath;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-
-use Supra\FileStorage\Entity\File;
 
 /**
  * @Entity
@@ -18,14 +13,9 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	const TYPE_ID = 'link';
 
 	const RESOURCE_PAGE = 'page',
-			RESOURCE_RELATIVE_PAGE = 'relative',
-
 			RESOURCE_FILE = 'file',
-			RESOURCE_LINK = 'link',
-			RESOURCE_EMAIL = 'email';
-
-	const RELATIVE_LAST = 'last',
-			RELATIVE_FIRST = 'first';
+			RESOURCE_LINK = 'link';
+//			RESOURCE_EMAIL = 'email';
 
 	/**
 	 * @Column(type="string")
@@ -72,12 +62,6 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * @var string
 	 */
 	protected $fileId;
-
-	/**
-	 * Internally cached page localization
-	 * @var PageLocalization
-	 */
-	private $pageLocalization;
 
 	/**
 	 * @return string
@@ -148,10 +132,6 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getTitle()
 	{
-		if (empty($this->title)) {
-			return $this->getElementTitle();
-		}
-
 		return $this->title;
 	}
 
@@ -169,6 +149,8 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getElementTitle()
 	{
+		throw new \Exception('Dont use me bro.');
+
 		$title = null;
 
 		switch ($this->resource) {
@@ -327,6 +309,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getPage()
 	{
+		throw new \Exception('Dont use me bro.');
 		return $this->getPageLocalization();
 	}
 
@@ -335,6 +318,8 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getFile()
 	{
+		throw new \Exception('Dont use me bro.');
+
 		if (empty($this->fileId)) {
 			return;
 		}
@@ -353,6 +338,8 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	private function getPageFullPath(Localization $pageLocalization)
 	{
+		throw new \Exception('Dont use me bro.');
+		
 		if ( ! $pageLocalization instanceof PageLocalization) {
 			return null;
 		}
@@ -376,6 +363,8 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getUrl()
 	{
+		throw new \Exception('Dont use me bro.');
+
 		$url = null;
 
 		switch ($this->getResource()) {
@@ -443,6 +432,8 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 */
 	public function getPageLocalization()
 	{
+		throw new \Exception('Dont use me bro.');
+
 		if (empty($this->pageId)) {
 			return;
 		}

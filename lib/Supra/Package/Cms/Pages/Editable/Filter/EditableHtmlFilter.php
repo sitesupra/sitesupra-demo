@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Package\Cms\Pages\Filter;
+namespace Supra\Package\Cms\Pages\Editable\Filter;
 
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Html\HtmlTagAbstraction;

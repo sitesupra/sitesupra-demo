@@ -65,9 +65,6 @@ abstract class Editable implements EditableInterface
 		$class = get_class($transformer);
 
 		if (isset($this->transformers[$class])) {
-
-			//@FIXME
-			return null;
 			throw new \InvalidArgumentException(
 					"Value transformer [{$class}] is already in collection."
 			);
@@ -111,9 +108,6 @@ abstract class Editable implements EditableInterface
 		$class = get_class($filter);
 
 		if (isset($this->filters[$class])) {
-			
-			//@FIXME
-			return null;
 			throw new \InvalidArgumentException(
 					"Filter [{$class}] is already in collection."
 			);

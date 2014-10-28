@@ -9,7 +9,7 @@ namespace Supra\Package\Cms\Editable;
  *
  * @TODO: what could be a default value for link?
  */
-class Link extends EditableAbstraction
+class Link extends Editable
 {
 	const EDITOR_TYPE = 'Link';
 	const EDITOR_INLINE_EDITABLE = false;

@@ -17,7 +17,7 @@ use Supra\Package\Cms\Pages\Response\BlockResponseView;
 use Supra\Package\Cms\Pages\Response\BlockResponseEdit;
 use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Editable;
-use Supra\Package\Cms\Pages\Filter;
+use Supra\Package\Cms\Pages\Editable\Filter;
 
 use Supra\Controller\Pages\Twig\TwigSupraBlockGlobal;
 
@@ -416,11 +416,21 @@ abstract class BlockController extends Controller
 			return;
 		}
 
+		// @TODO: or get EM from request object?
+		$entityManager = $this->request instanceof PageRequestEdit
+				? $this->container->getDoctrine()->getManager('cms')
+				: $this->container->getDoctrine()->getManager();
+
+		$currentLocale = $this->container
+				->getLocaleManager()
+				->getCurrentLocale();
+
 		// Html content filters
 		if ($editable instanceof Editable\Html) {
+
 			$filter = $this->request instanceof PageRequestEdit
-					? new Filter\EditableHtmlFilter()
-					: new Filter\HtmlFilter();
+					? new Filter\EditableHtmlFilter($entityManager, $currentLocale)
+					: new Filter\HtmlFilter($entityManager, $currentLocale);
 
 			$filter->setBlockProperty($property);
 
@@ -433,9 +443,8 @@ abstract class BlockController extends Controller
 				$filter->setBlockProperty($property);
 				$editable->addFilter($filter);
 			}
-		}
-
-		else if ($editable instanceof Editable\Textarea
+		// Textarea and Inline Textarea
+		} else if ($editable instanceof Editable\Textarea
 				|| $editable instanceof Editable\InlineTextarea) {
 
 			$editable->addFilter(new Filter\TextareaFilter());
@@ -448,13 +457,14 @@ abstract class BlockController extends Controller
 				$editable->addFilter($filter);
 			}
 		}
+		else if ($editable instanceof Editable\Link) {
+			$filter = new Filter\LinkFilter($entityManager, $currentLocale);
+			$filter->setBlockProperty($property);
+			$editable->addFilter($filter);
+		}
 
-//		else if ($editable instanceof Editable\Link) {
-//			$filter = new Filter\LinkFilter();
-////			ObjectRepository::setCallerParent($filter, $this);
-//			$filter->property = $property;
-//			$editable->addFilter($filter);
-//		}
+
+//		
 //
 //		else if ($editable instanceof Editable\Gallery) {
 //			$filter = new Filter\GalleryFilter();

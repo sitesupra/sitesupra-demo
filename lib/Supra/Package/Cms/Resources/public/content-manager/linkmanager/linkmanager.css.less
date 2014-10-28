@@ -1,0 +1,254 @@
+@import "../../supra/less/common.less";
+
+
+.yui3-linkmanager {
+	.yui3-form,
+	.yui3-form-content,
+	.yui3-form-default {
+		width: 100%;
+		height: 100%;
+		margin: 0;
+	}
+	
+	.yui3-input-select-list .su-button p {
+		display: inline-block;
+	}
+	
+	.yui3-input label {
+		display: block;
+		width: auto;
+		padding: 0 0 5px 0;
+	}
+}
+
+/**
+ * Main slide
+ */
+#linkToRoot {
+	.title {
+		padding: 20px 19px 10px;
+		font-weight: bold;
+	}
+	.select {
+		text-align: left;
+		padding: 0 19px;
+	}
+	
+	.su-button-link-type {
+		margin-bottom: 10px;
+		
+		.su-button-content {
+			background: url('images/button-background.png') 0 0 no-repeat, url('images/button-background.png') 100% -100px no-repeat;
+			padding: 0 20px 0 5px;
+			height: 50px;
+		}
+		button {
+			background: url('images/button-background.png') 0 -50px repeat-x;
+			padding: 8px 3px 7px;
+			text-align: left;
+		}
+		p {
+			line-height: 35px;
+			height: 35px;
+		}
+		img {
+			margin-right: 7px;
+		}
+		img, p {
+			vertical-align: middle;
+		}
+		
+		&.su-button-mouse-hover {
+			.su-button-content {
+				background-position: 0 -150px, 100% -250px;
+			}
+			button {
+				background-position: 0 -200px;
+			}
+		}
+		&.su-button-mouse-down,
+		&.su-button-down {
+			.su-button-content {
+				background-position: 0 -300px, 100% -400px;
+			}
+			button {
+				background-position: 0 -350px;
+			}
+		}
+	}
+	
+	/*
+	.select a {
+		.border-radius (3px);
+		border: 1px solid #A5A8B9;
+		border-left-color: #80859B;
+		border-right-color: #80859B;
+		
+		display: inline-block;
+		vertical-align: middle;
+		text-align: center;
+		margin: 0 5px 30px;
+		width: 97px;
+		height: 93px;
+		
+		> span {
+			//Box additional border
+			.border-radius (3px);
+			border: 1px solid #555A6D;
+			border-left-color: #80859B;
+			border-right-color: #80859B;
+			
+			display: inline-block;
+			position: relative;
+			top: -1px;
+			margin: -1px;
+			width: 97px;
+			height: 93px;
+		}
+		
+		> span > span {
+			//Move out of box
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: -20px;
+			
+			color: #4D4D61;
+			font-size: 11px;
+			.text-shadow ();
+		}
+		
+		&:hover > span > span {
+			text-decoration: underline;
+		}
+	}*/
+}
+
+/**
+ * Link to page
+ */
+#linkToPage > .su-slideshow {
+	position: absolute;
+	top: 52px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: auto;
+	height: auto;
+}
+.yui3-linkmanager #linkToPage > .su-slideshow {
+	top: 62px;
+}
+.has-link-controls #linkToPage > .su-slideshow {
+	bottom: 157px; /* Link controls at the bottom */
+}
+
+#linkToPage.no-switch > .su-slideshow {
+	top: 0;
+}
+#linkToPage .yui3-input-select-list {
+	margin: 22px 18px 10px 20px;
+	padding: 0;
+}
+
+#linkManagerType label {
+	display: none;
+}
+
+#linkManagerExternal .yui3-input {
+	margin: 10px 0 10px 20px;
+	padding: 0;
+}
+
+.yui3-linkmanager {
+	.yui3-input-string input {
+		width: 100%;
+	}
+	
+	.yui3-tree-content {
+		padding: 0 0 10px 20px;
+	}
+	
+	.link-controls {
+		display: none;
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		
+		.yui3-input {
+			margin: 10px 18px 10px 20px;
+		}
+		.yui3-input-string {
+			margin-top: 24px;
+			margin-bottom: 21px;
+		}
+		.yui3-input-checkbox label {
+			width: 160px !important;
+		}
+		.link-controls-buttons {
+			text-align: center;
+			margin: 0 0 7px;
+			padding: 7px 10px 0;
+			
+			border-top: 1px solid #B3B3C3;
+			.box-shadow (0, -1px, 0, #808094);
+		}
+	}
+	
+	.has-link-controls .link-controls {
+		display: block;
+	}
+}
+
+/**
+ * Scrollbars
+ */
+#linkToPage > .su-slideshow {
+	.su-scrollable .su-scrollable-scrollbar-background {
+		top: 0;
+		bottom: 0;
+	}
+}
+
+/**
+ * Selector
+ */
+#linkToPage #linkManagerType .su-button {
+	margin-top: 0;
+}
+
+/**
+ * Media library
+ */
+.yui3-linkmanager {
+	.yui3-medialist {
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		height: auto;
+		width: 100%;
+		
+		.input-sortby label {
+			padding: 7px 10px 0 5px;
+		}
+		.drag-icon {
+			display: none;
+		}
+	}
+	.has-link-controls .yui3-medialist {
+		bottom: 194px; /* File controls at the bottom */
+	}
+}
+
+/**
+ * Email
+ */
+#linkToEmail {
+	padding: 20px;
+	
+	.link-controls {
+		padding-bottom: 10px;
+	}
+}

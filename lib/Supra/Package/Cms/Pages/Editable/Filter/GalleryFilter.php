@@ -1,7 +1,7 @@
 <?php
 
 // @FIXME: implement me
-//namespace Supra\Package\Cms\Pages\Filter;
+//namespace Supra\Package\Cms\Pages\Editable\Filter;
 //
 //use Supra\Editable\Filter\FilterInterface;
 //use Supra\Controller\Pages\Entity\BlockProperty;

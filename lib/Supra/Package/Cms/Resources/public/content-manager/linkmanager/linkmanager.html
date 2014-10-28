@@ -1,0 +1,148 @@
+<div class="yui3-linkmanager sidebar">
+	
+	<!-- Header -->
+	<div class="sidebar-header">
+		<!-- Back -->
+		<button class="button-back hidden"><p>{#buttons.back#}</p></button>
+		
+		<!-- Icon and title -->
+		<img src="/public/cms/supra/img/sidebar/icons/link.png" alt="" />
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{#buttons.close#}</p></button>
+		
+		<!-- Title -->
+		<h2>{#linkmanager.title#}</h2>
+	</div>
+	
+	<!-- Content -->
+	<div class="sidebar-content has-header"><form data-style="vertical">
+		
+		<!-- Slider -->
+		<div class="slideshow">
+			<div id="linkToRoot" data-scrollable="false">
+				
+				<div class="title">
+					{#linkmanager.select#}
+				</div>
+				
+				<div class="select">
+					<!--
+					<a data-slideshow="linkToFile" class="file"><span><img src="/cms/content-manager/linkmanager/images/file.png" alt="" /><span>{#linkmanager.link_to_file#}</span></span></a>
+					<a data-slideshow="linkToPage" class="page"><span><img src="/cms/content-manager/linkmanager/images/page.png" alt="" /><span>{#linkmanager.link_to_page#}</span></span></a>
+					<a data-slideshow="linkToEmail" class="email"><span><img src="/cms/content-manager/linkmanager/images/email.png" alt="" /><span>{#linkmanager.link_to_email#}</span></span></a>
+					-->
+				</div>
+				
+			</div>
+			
+			<!-- Link to page -->
+			<div id="linkToPage" class="hidden" data-scrollable="false">
+				
+				<!-- Internal / External selector -->
+				<select id="linkManagerType" name="linktype" data-type="SelectList">
+					<option value="internal" selected="selected">{#linkmanager.link_internal#}</option>
+					<option value="external">{#linkmanager.link_external#}</option>
+				</select>
+				
+				<div class="slideshow">
+					<!-- Tree -->
+					<div id="linkManagerInternal">
+						
+						<div class="tree"></div>
+						
+					</div>
+					
+					<!-- Properties -->
+					<div id="linkManagerExternal" class="hidden">
+							
+						<label for="linkManagerExternalHref">{#linkmanager.link_address#}</label>
+						<input type="text" name="href" id="linkManagerExternalHref" />
+						
+					</div>
+				</div>
+				
+				<div class="link-controls">
+					
+					<label for="linkManagerButton">{#linkmanager.button#}</label>
+					<select id="linkManagerButton" name="button" data-type="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
+					<label for="linkManagerTarget">{#linkmanager.new_window#}</label>
+					<select id="linkManagerTarget" name="target" data-type="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
+					<label for="linkManagerTitle">{#linkmanager.link_title#}</label>
+					<input type="text" id="linkManagerTitle" name="title" value="" />
+					
+				</div>
+				
+			</div>
+			
+			<!-- Link to file -->
+			<div id="linkToFile" class="hidden" data-scrollable="false">
+				
+				<div id="linkToFileMediaList"></div>
+				
+				<div class="link-controls">
+					
+					<label for="linkManagerFileButton">{#linkmanager.button#}</label>
+					<select id="linkManagerFileButton" name="file_button" data-type="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
+					<label for="linkManagerFileTarget">{#linkmanager.new_window#}</label>
+					<select id="linkManagerFileTarget" name="file_target" data-type="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
+					<label for="linkManagerFileTitle">{#linkmanager.link_title#}</label>
+					<input type="text" id="linkManagerFileTitle" name="file_title" value="" />
+					
+					<div class="link-controls-buttons">
+						<button>{#linkmanager.open_library_app#}</button>
+					</div>
+					
+				</div>
+				
+			</div>
+			
+			<!-- Link to email -->
+			<div id="linkToEmail" class="hidden" data-scrollable="false">
+				
+				<!-- Properties -->
+				<div id="linkToEmailForm">
+						
+					<label for="linkManagerEmailTitle">{#linkmanager.link_email#}</label>
+					<input type="text" name="email_title" id="linkManagerEmailTitle" />
+					
+				</div>
+				
+				<div class="link-controls">
+					
+					<label for="linkManagerEmailButton">{#linkmanager.button#}</label>
+					<select id="linkManagerEmailButton" name="email_button" data-type="Checkbox">
+						<option value="1">{#buttons.on#}</option>
+						<option value="0" selected="selected">{#buttons.off#}</option>
+					</select>
+					
+				</div>
+				
+			</div>
+			
+		</div>
+		
+	</form></div>
+	
+	<!-- Footer -->
+	<div class="sidebar-footer hidden">
+		<button type="button" data-style="small">{#linkmanager.remove_link#}</button>
+	</div>
+	
+</div>

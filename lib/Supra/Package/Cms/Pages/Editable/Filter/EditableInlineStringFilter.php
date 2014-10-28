@@ -1,29 +1,25 @@
 <?php
 
-namespace Supra\Package\Cms\Pages\Filter;
+namespace Supra\Package\Cms\Pages\Editable\Filter;
 
 use Supra\Package\Cms\Entity\BlockProperty;
 
-/**
- * Wraps the content with additional, CMS specific, div.
- */
-class EditableInlineTextareaFilter implements FilterInterface
+class EditableInlineStringFilter implements FilterInterface
 {
 	/**
-	 * @var BlockProperty 
+	 * @param string $content
+	 * @return \Twig_Markup
 	 */
-	protected $blockProperty;
-
 	public function filter($content)
 	{
-		$wrap = '<div id="content_%s_%s" class="yui3-content-inline yui3-input-textarea-inline">%s</div>';
+		$wrap = '<div id="content_%s_%s" class="yui3-content-inline yui3-input-string-inline">%s</div>';
 
 		return new \Twig_Markup(
 				sprintf(
 					$wrap,
 					$this->blockProperty->getBlock()->getId(),
 					$this->blockProperty->getName(),
-					$content
+					htmlspecialchars($content, ENT_QUOTES, 'UTF-8')
 				),
 				'UTF-8'
 		);
