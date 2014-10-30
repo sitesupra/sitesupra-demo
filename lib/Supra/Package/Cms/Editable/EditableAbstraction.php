@@ -353,19 +353,4 @@ abstract class EditableAbstraction implements EditableInterface
 
 		return $data;
 	}
-
-	/**
-	 * @param string $name
-	 * @return EditableAbstraction
-	 * @throws \InvalidArgumentException
-	 */
-	public static function get($name)
-	{
-		switch ($name) {
-			case 'html':
-				return new Html;
-			default:
-				throw new \InvalidArgumentException("Unrecognized editable [{$name}].");
-		}
-	}
 }

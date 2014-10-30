@@ -2,11 +2,8 @@
 
 namespace Supra\Package\Cms\Pages\Markup;
 
-use Supra\Loader\Loader;
-
 abstract class TokenizerAbstraction
 {
-
 	/**
 	 * @var string
 	 */
@@ -18,7 +15,7 @@ abstract class TokenizerAbstraction
 	protected $truncateInvalidBlocks;
 
 	/**
-	 * @var array of Abstraction/ElementAbstraction
+	 * @var Abstraction/ElementAbstraction[]
 	 */
 	protected $elements = array();
 
@@ -27,7 +24,10 @@ abstract class TokenizerAbstraction
 	 */
 	protected $markupElements = array();
 
-	function __construct($source)
+	/**
+	 * @param string $source
+	 */
+	public function __construct($source)
 	{
 		$this->truncateInvalidBlocks = true;
 		$this->source = $source;
@@ -116,13 +116,17 @@ abstract class TokenizerAbstraction
 
 			if ( ! empty($signature)) {
 
-			 // create element from signature, ...
+				// create element from signature, ...
 				$elementClassName = $this->markupElements[$signature];
-				
-				$element = Loader::getClassInstance(
-						$elementClassName, 
-						Abstraction\SupraMarkupElement::CN()
-				);
+
+				$element = new $elementClassName();
+
+				if (! $element instanceof Abstraction\SupraMarkupElement) {
+					throw new Exception\RuntimeException(sprintf(
+							'Expecting element to be instance of SupraMarkupElement, [%s] received.',
+							get_class($element)
+					));
+				}
 
 				/* @var $element Abstraction\ElementAbstraction */
 
@@ -180,7 +184,7 @@ abstract class TokenizerAbstraction
 	 * @param type $elements
 	 * @return array 
 	 */
-	function linkBlocks()
+	protected function linkBlocks()
 	{
 		$ends = array();
 
@@ -228,4 +232,3 @@ abstract class TokenizerAbstraction
 	}
 
 }
-

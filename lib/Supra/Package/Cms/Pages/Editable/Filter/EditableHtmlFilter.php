@@ -1,21 +1,15 @@
 <?php
 
-namespace Supra\Package\Cms\Pages\Filter;
+namespace Supra\Package\Cms\Pages\Editable\Filter;
 
-use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Html\HtmlTagAbstraction;
 
 /**
  * Filters the value to enable Html editing for CMS
  */
-class EditableHtml extends ParsedHtmlFilter implements FilterInterface
+class EditableHtmlFilter extends HtmlFilter
 {
-	/**
-	 * @var BlockProperty
-	 */
-	protected $blockProperty;
-
 	/**
 	 * Filters the editable content's data, adds Html Div node for CMS.
 	 *
@@ -29,8 +23,8 @@ class EditableHtml extends ParsedHtmlFilter implements FilterInterface
 		return new \Twig_Markup(
 				sprintf(
 					$wrap,
-					$this->property->getBlock()->getId(),
-					$this->property->getName(),
+					$this->blockProperty->getBlock()->getId(),
+					$this->blockProperty->getName(),
 					parent::filter($content)
 				),
 				'UTF-8'
@@ -74,10 +68,5 @@ class EditableHtml extends ParsedHtmlFilter implements FilterInterface
 		}
 
 		return $tag;
-	}
-
-	public function setBlockProperty(BlockProperty $blockProperty)
-	{
-		$this->blockProperty = $blockProperty;
 	}
 }

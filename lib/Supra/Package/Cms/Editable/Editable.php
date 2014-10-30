@@ -8,6 +8,25 @@ use Supra\Package\Cms\Editable\Filter\FilterInterface;
 abstract class Editable implements EditableInterface
 {
 	/**
+	 * Known editables class map.
+	 *
+	 * @var array
+	 */
+	private static $editableMap = array(
+		'string'		=> '\Supra\Package\Cms\Editable\String',
+		'inline_string'	=> '\Supra\Package\Cms\Editable\InlineString',
+		'text'			=> '\Supra\Package\Cms\Editable\Textarea',
+		'inline_text'	=> '\Supra\Package\Cms\Editable\InlineTextarea',
+		'html'			=> '\Supra\Package\Cms\Editable\Html',
+		'checkbox'		=> '\Supra\Package\Cms\Editable\Checkbox',
+		'number'		=> '\Supra\Package\Cms\Editable\Number',
+		'link'			=> '\Supra\Package\Cms\Editable\Link',
+		'image'			=> '\Supra\Package\Cms\Editable\Image',
+		'map'			=> '\Supra\Package\Cms\Editable\InlineMap',
+		'gallery'		=> '\Supra\Package\Cms\Editable\Gallery',
+	);
+
+	/**
 	 * @var FilterInterface[] 
 	 */
 	protected $filters = array();
@@ -46,9 +65,6 @@ abstract class Editable implements EditableInterface
 		$class = get_class($transformer);
 
 		if (isset($this->transformers[$class])) {
-
-			//@FIXME
-			return null;
 			throw new \InvalidArgumentException(
 					"Value transformer [{$class}] is already in collection."
 			);
@@ -92,9 +108,6 @@ abstract class Editable implements EditableInterface
 		$class = get_class($filter);
 
 		if (isset($this->filters[$class])) {
-			
-			//@FIXME
-			return null;
 			throw new \InvalidArgumentException(
 					"Filter [{$class}] is already in collection."
 			);
@@ -205,5 +218,38 @@ abstract class Editable implements EditableInterface
 	{
 		$this->groupId = $groupId;
 	}
-	
+
+	/**
+	 * @param string $name
+	 * @return EditableAbstraction
+	 * @throws \InvalidArgumentException
+	 */
+	public static function getEditable($name)
+	{
+		if (! isset(self::$editableMap[$name])) {
+			throw new \InvalidArgumentException(sprintf(
+					'Unknown editable [%s]',
+					$name
+			));
+		}
+
+		return new self::$editableMap[$name]();
+	}
+
+	/**
+	 * @param string $name
+	 * @param string $editableClass
+	 * @throws \InvalidArgumentException
+	 */
+	public static function addEditable($name, $editableClass)
+	{
+		if (isset(self::$editableMap[$name])) {
+			throw new \InvalidArgumentException(sprintf(
+					'Editable with name [%s] already exists.',
+					$name
+			));
+		}
+
+		self::$editableMap[$name] = $editableClass;
+	}
 }

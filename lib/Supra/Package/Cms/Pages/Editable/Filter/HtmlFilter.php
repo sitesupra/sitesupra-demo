@@ -1,7 +1,9 @@
 <?php
-namespace Supra\Package\Cms\Pages\Filter;
+namespace Supra\Package\Cms\Pages\Editable\Filter;
 
-use Supra\Package\Cms\Editable\Filter\FilterInterface;
+use Doctrine\ORM\EntityManager;
+use Supra\Core\Locale\LocaleInterface;
+use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementUtils;
 use Supra\Package\Cms\Entity\ReferencedElement\VideoReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
@@ -11,17 +13,38 @@ use Supra\Package\Cms\Html\HtmlTagEnd;
 use Supra\Package\Cms\Html\HtmlTag;
 use Supra\Package\Cms\Pages\Markup;
 use Supra\Package\Cms\Entity\BlockProperty;
-use Supra\FileStorage\Entity\Image;
 
 /**
  * Parses supra markup tags inside the HTML content.
  */
-class ParsedHtmlFilter implements FilterInterface
+class HtmlFilter implements FilterInterface
 {
 	/**
 	 * @var BlockProperty
 	 */
-	public $property;
+	protected $blockProperty;
+
+	/**
+	 * @var EntityManager
+	 */
+	protected $entityManager;
+
+	/**
+	 * @var LocaleInterface
+	 */
+	protected $currentLocale;
+
+	/**
+	 * @param EntityManager $entityManager
+	 * @param LocaleInterface $currentLocale
+	 */
+	public function __construct(
+			EntityManager $entityManager,
+			LocaleInterface $currentLocale
+	) {
+		$this->entityManager = $entityManager;
+		$this->currentLocale = $currentLocale;
+	}
 
 	/**
 	 * @param string $content
@@ -31,7 +54,7 @@ class ParsedHtmlFilter implements FilterInterface
 	{
 		$elements = array();
 		
-		foreach ($this->property->getMetadata() as $key => $item) {
+		foreach ($this->blockProperty->getMetadata() as $key => $item) {
 			$elements[$key] = $item->getReferencedElement();
 		}
 
@@ -107,9 +130,22 @@ class ParsedHtmlFilter implements FilterInterface
 	{
 		$tag = new HtmlTagStart('a');
 
+		$title = ReferencedElementUtils::getLinkReferencedElementTitle(
+				$link,
+				$this->entityManager,
+				$this->currentLocale
+		);
+
+		// @TODO: what if we failed to obtain the URL?
+		$url = ReferencedElementUtils::getLinkReferencedElementUrl(
+				$link,
+				$this->entityManager,
+				$this->currentLocale
+		);
+
 		$tag->setAttribute('target', $link->getTarget())
-				->setAttribute('title', $link->getTitle())
-				->setAttribute('href', $link->getUrl())
+				->setAttribute('title', $title)
+				->setAttribute('href', $url)
 				->setAttribute('class', $link->getClassName())
 		;
 
@@ -129,7 +165,7 @@ class ParsedHtmlFilter implements FilterInterface
 	 */
 	protected function parseSupraLinkEnd()
 	{
-		new HtmlTagEnd('a');
+		return new HtmlTagEnd('a');
 	}
 
 	/**
@@ -297,6 +333,8 @@ class ParsedHtmlFilter implements FilterInterface
 	}
 
 	/**
+	 * @FIXME
+	 *
 	 * Parse supra.video
 	 * @param VideoReferencedElement $videoElement
 	 * 
@@ -361,5 +399,13 @@ class ParsedHtmlFilter implements FilterInterface
 		}
 
 		return $html;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setBlockProperty(BlockProperty $blockProperty)
+	{
+		$this->blockProperty = $blockProperty;
 	}
 }

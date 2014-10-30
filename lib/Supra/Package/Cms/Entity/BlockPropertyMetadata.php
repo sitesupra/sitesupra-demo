@@ -132,18 +132,18 @@ class BlockPropertyMetadata extends VersionedEntity implements AuditedEntity
 		return $this->blockProperty;
 	}
 
-	/**
-	 * Clones referenced element too.
-	 */
-	public function __clone()
-	{
-		parent::__clone();
-
-		if ( ! empty($this->id)
-				&& $this->referencedElement !== null) {
-
-			$this->referencedElement = clone $this->referencedElement;
-		}
-	}
+//	/**
+//	 * Clones referenced element too.
+//	 */
+//	public function __clone()
+//	{
+//		parent::__clone();
+//
+//		if ( ! empty($this->id)
+//				&& $this->referencedElement !== null) {
+//
+//			$this->referencedElement = clone $this->referencedElement;
+//		}
+//	}
 
 }

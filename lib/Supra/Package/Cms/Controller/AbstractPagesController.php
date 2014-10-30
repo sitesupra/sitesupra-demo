@@ -22,13 +22,14 @@ use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
-use Supra\Package\Cms\Editable\Html;
+use Supra\Package\Cms\Editable;
 use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
-use Supra\Package\Cms\Editable\Transformer\HtmlEditorValueTransformer;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Pages\BlockController;
 use Supra\Package\Cms\Uri\Path;
+use Supra\Package\Cms\Pages\Editable\Transformer\HtmlEditorValueTransformer;
+use Supra\Package\Cms\Pages\Editable\Transformer\LinkEditorValueTransformer;
 
 use Supra\Core\NestedSet\Node\EntityNodeInterface;
 
@@ -1616,9 +1617,15 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 */
 	protected function configureEditableValueTransformers(EditableInterface $editable, BlockProperty $property)
 	{
-		if ($editable instanceof Html) {
+		if ($editable instanceof Editable\Html) {
 
 			$transformer = new HtmlEditorValueTransformer();
+			$transformer->setBlockProperty($property);
+
+			$editable->addEditorValueTransformer($transformer);
+		} elseif ($editable instanceof Editable\Link) {
+
+			$transformer = new LinkEditorValueTransformer();
 			$transformer->setBlockProperty($property);
 
 			$editable->addEditorValueTransformer($transformer);
@@ -1781,7 +1788,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 			$name = $propertyConfiguration->getName();
 
-			$editable = $propertyConfiguration->getEditable();
+			$editable = clone $propertyConfiguration->getEditable();
 
 			$property = $blockController->getProperty($name);
 

@@ -205,6 +205,8 @@ class PagesSitemapController extends AbstractPagesController
 		$input = $this->getRequestInput();
 		$localeId = $this->getCurrentLocale()->getId();
 		
+		// @TODO: existing_only flag is used for LinkManager, when it requests for available pages for linking.
+		// should split that onto two separate methods.
 		$existingOnly = $input->filter('existing_only', false, false, FILTER_VALIDATE_BOOLEAN);
 
 		$customTitleQuery = $input->get('query', false);

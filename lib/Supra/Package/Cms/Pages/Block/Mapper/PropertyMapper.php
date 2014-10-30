@@ -3,13 +3,13 @@
 namespace Supra\Package\Cms\Pages\Block\Mapper;
 
 use Supra\Package\Cms\Pages\Block\BlockPropertyConfiguration;
-use Supra\Package\Cms\Editable\EditableAbstraction;
+use Supra\Package\Cms\Editable\Editable;
 
 class PropertyMapper extends Mapper
 {
-	public function add($name, $editable, $label = null, $defaultValue = null, array $options = array())
+	public function add($name, $editableName, $label = null, $defaultValue = null, array $options = array())
 	{
-		$editableInstance = EditableAbstraction::get($editable);
+		$editableInstance = Editable::getEditable($editableName);
 
 		$editableInstance->setLabel($label);
 		$editableInstance->setDefaultValue($defaultValue);
