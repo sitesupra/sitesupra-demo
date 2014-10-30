@@ -25,23 +25,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 
 
-	/**
-	 * @param Entity\Abstraction\File $node
-	 * @return array
-	 */
-	private function getEntityData($node)
-	{
-		$item = array();
 
-		$item['id'] = $node->getId();
-		$item['filename'] = $node->getFileName();
-		$item['type'] = $this->getEntityType($node);
-		$item['children_count'] = $node->getNumberChildren();
-		$item['private'] = ! $node->isPublic();
-		$item['timestamp'] = $node->getModificationTime()->getTimestamp();
-
-		return $item;
-	}
 
 	/**
 	 * Used for view file or image information
@@ -61,84 +45,12 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 		$this->getResponse()->setResponseData($return);
 	}
 
-	/**
-	 * @param string $dirName
-	 * @param Folder $parentFolder
-	 * @return \Supra\FileStorage\Entity\Folder
-	 */
-	private function createFolder($dirName, $parentFolder = null)
-	{
-		$folder = new Entity\Folder();
-		$this->entityManager->persist($folder);
 
-		$dirName = trim($dirName);
-
-		if (empty($dirName)) {
-			throw new CmsException(null, "Folder name shouldn't be empty");
-		}
-
-		$folder->setFileName($dirName);
-
-		// Adding child folder if parent exists
-		if ( ! empty($parentFolder)) {
-			// get parent folder private/public status
-			$publicStatus = $parentFolder->isPublic();
-			$folder->setPublic($publicStatus);
-
-			// Flush before nested set UPDATE
-			$this->entityManager->flush();
-
-			$parentFolder->addChild($folder);
-		}
-
-		// trying to create folder
-		$this->fileStorage->createFolder($folder);
-
-		$this->entityManager->flush();
-
-		return $folder;
-	}
 
 	/**
 	 * Used for new folder creation
 	 */
-	public function insertAction()
-	{
-		$repository = $this->entityManager->getRepository(Entity\Abstraction\File::CN());
-		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
-		$repository->getNestedSetRepository()->lock();
-		$this->entityManager->beginTransaction();
 
-		try {
-			$this->isPostRequest();
-
-			if ( ! $this->hasRequestParameter('filename')) {
-				$this->getResponse()
-						->setErrorMessage('Folder title was not sent');
-
-				return;
-			}
-
-			$dirName = $this->getRequestParameter('filename');
-			$parentFolder = null;
-
-			// Adding child folder if parent exists
-			if ( ! $this->emptyRequestParameter('parent')) {
-				$parentFolder = $this->getFolder('parent');
-			}
-
-			$dir = $this->createFolder($dirName, $parentFolder);
-
-			$this->entityManager->commit();
-		} catch (\Exception $e) {
-			$this->entityManager->rollback();
-			throw $e;
-		}
-
-		$insertedId = $dir->getId();
-		$this->writeAuditLog('%item% created', $dir);
-		$this->getResponse()->setResponseData($insertedId);
-	}
 
 	/**
 	 * Used for folder or file renaming
@@ -804,5 +716,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 		return $path . '?' . $queryOutput . '&';
 	}
+
+
 
 }

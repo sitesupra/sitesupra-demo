@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\FileStorage\Listener;
+namespace Supra\Package\Cms\FileStorage\Listener;
 
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;

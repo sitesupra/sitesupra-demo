@@ -5,6 +5,8 @@ services:
         class: \Supra\Package\Cms\Pages\Listener\VersionedEntityRevisionSetterListener
     supra.cms.doctrine.event_subscriber.page_path_generator:
         class: \Supra\Package\Cms\Pages\Listener\PagePathGeneratorListener
+    supra.cms.file_storage.event_subscriber.file_path_change_listener:
+        class: \Supra\Package\Cms\FileStorage\Listener\FilePathChangeListener
     cms.pages.theme.provider:
         class: \Supra\Package\Cms\Pages\Layout\Theme\DefaultThemeProvider
     cms.pages.page_manager:

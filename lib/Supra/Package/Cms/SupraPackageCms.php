@@ -10,6 +10,7 @@ use Supra\Package\Cms\Application\CmsDashboardApplication;
 use Supra\Package\Cms\Application\CmsInternalUserManagerApplication;
 use Supra\Package\Cms\Application\CmsMediaLibraryApplication;
 use Supra\Package\Cms\Application\CmsPagesApplication;
+use Supra\Package\Cms\FileStorage\FileStorage;
 use Supra\Package\Cms\Pages\Application\PageApplicationManager;
 use Supra\Package\Cms\Pages\Application\BlogPageApplication;
 use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
@@ -52,7 +53,16 @@ class SupraPackageCms extends AbstractSupraPackage
 				'subscribers' => array(
 					'supra.cms.doctrine.event_subscriber.page_path_generator',
 					'supra.cms.doctrine.event_subscriber.versioned_entity_schema',
-					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter',
+					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter'
+				)
+			)
+		);
+
+		$frameworkConfiguration['doctrine']['event_managers']['public'] = array_merge_recursive(
+			$frameworkConfiguration['doctrine']['event_managers']['public'],
+			array(
+				'subscribers' => array(
+					'supra.cms.file_storage.event_subscriber.file_path_change_listener'
 				)
 			)
 		);
@@ -85,6 +95,11 @@ class SupraPackageCms extends AbstractSupraPackage
 						new BlockGroupConfiguration('features', 'Features', true),
 						new BlockGroupConfiguration('system', 'System'),
 			));
+		};
+
+		//the mighty file storage
+		$container['cms.file_storage'] = function () {
+			return new FileStorage();
 		};
 	}
 

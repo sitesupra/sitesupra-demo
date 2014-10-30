@@ -2,16 +2,17 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
+use Supra\Core\NestedSet\Exception\BadMethodCall;
 use Supra\Core\NestedSet\Node\DoctrineNode;
 use Supra\Core\NestedSet\Node\EntityNodeInterface;
 use Supra\NestedSet;
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\Permission\Permission;
+use Supra\Package\Cms\Entity\FilePath;
 use Supra\Package\CmsAuthentication\Entity\AbstractUser;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\FileStorage\Entity\SlashFolder;
 use Supra\AuditLog\TitleTrackingItemInterface;
-use Supra\FileStorage\Entity\FilePath;
 use Doctrine\Common\Collections;
 use Supra\Package\Cms\Entity\FileProperty;
 
@@ -147,7 +148,7 @@ abstract class File extends Entity implements EntityNodeInterface, AuthorizedEnt
 	public function getPathEntity()
 	{
 		if (is_null($this->path)) {
-			$this->path = new \Supra\FileStorage\Entity\FilePath();
+			$this->path = new FilePath();
 			$this->path->setId($this->getId());
 		}
 
@@ -363,11 +364,11 @@ abstract class File extends Entity implements EntityNodeInterface, AuthorizedEnt
 	{
 		$node = $this->nestedSetNode;
 		if (is_null($this->nestedSetNode)) {
-			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized. Try persisting object first.");
+			throw new BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object is not initialized. Try persisting object first.");
 		}
 
 		if ( ! method_exists($node, $method)) {
-			throw new NestedSet\Exception\BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
+			throw new BadMethodCall("Method $method does not exist for class " . __CLASS__ . " and it's node object.");
 		}
 		$callable = array($node, $method);
 		$result = call_user_func_array($callable, $arguments);

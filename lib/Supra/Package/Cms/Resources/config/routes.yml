@@ -234,3 +234,8 @@ routes:
         controller:                     Cms:MediaLibrary:list
         options:
             frontend:                   true
+    media_library_insert:
+        pattern:                        %cms.prefix%/media-library-insert
+        controller:                     Cms:MediaLibrary:insert
+        options:
+            frontend:                   true

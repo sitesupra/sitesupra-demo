@@ -4,9 +4,12 @@ namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Controller\Controller;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
-use Supra\Package\Cms\Entity\Abstraction\File;
+use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;
+use Supra\Package\Cms\Entity\File;
 use Supra\Package\Cms\Entity\Folder;
 use Supra\Package\Cms\Entity\Image;
+use Supra\Package\Cms\Exception\CmsException;
+use Supra\Package\Cms\FileStorage\FileStorage;
 use Symfony\Component\HttpFoundation\Request;
 
 class MediaLibraryController extends Controller
@@ -20,6 +23,42 @@ class MediaLibraryController extends Controller
 	public function indexAction()
 	{
 		return $this->renderResponse('index.html.twig');
+	}
+
+	/**
+	 * Creates new folders, despite it's name
+	 */
+	public function insertAction(Request $request)
+	{
+		$manager = $this->container->getDoctrine()->getManager();
+		$repository = $manager->getRepository(FileAbstraction::CN());
+		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
+		$repository->getNestedSetRepository()->lock();
+		$manager->beginTransaction();
+
+		try {
+			if (!$request->request->has('filename')) {
+				throw new CmsException(null, 'Folder title was not sent');
+			}
+
+			$dirName = $request->request->get('filename');
+			$parentFolder = null;
+
+			// Adding child folder if parent exists
+			if (!$request->request->has('parent')) {
+				$parentFolder = $this->getFolder('parent');
+			}
+
+			$dir = $this->createFolder($dirName, $parentFolder);
+
+			$manager->commit();
+		} catch (\Exception $e) {
+			$manager->rollback();
+			throw new CmsException(null, $e->getMessage(), $e);
+		}
+
+		$insertedId = $dir->getId();
+		return new SupraJsonResponse($insertedId);
 	}
 
 	public function listAction(Request $request)
@@ -55,9 +94,9 @@ class MediaLibraryController extends Controller
 				}
 			}
 
-			$item = $this->getEntityData($rootNode);
+			$item = $this->entityToArray($rootNode);
 
-			if ($rootNode instanceof Entity\File) {
+			if ($rootNode instanceof File) {
 
 				$extension = mb_strtolower($rootNode->getExtension());
 
@@ -73,7 +112,7 @@ class MediaLibraryController extends Controller
 			}
 
 			// Get thumbnail
-			if ($rootNode instanceof Entity\Image) {
+			if ($rootNode instanceof Image) {
 				// create preview
 				// TODO: hardcoded 30x30
 				try {
@@ -100,10 +139,77 @@ class MediaLibraryController extends Controller
 	}
 
 	/**
+	 * @param File $node
+	 * @return array
+	 */
+	protected function entityToArray($node)
+	{
+		$item = array();
+
+		$item['id'] = $node->getId();
+		$item['filename'] = $node->getFileName();
+		$item['type'] = $this->getEntityType($node);
+		$item['children_count'] = $node->getNumberChildren();
+		$item['private'] = ! $node->isPublic();
+		$item['timestamp'] = $node->getModificationTime()->getTimestamp();
+
+		return $item;
+	}
+
+	/**
+	 * @param string $dirName
+	 * @param Folder $parentFolder
+	 * @return \Supra\Package\Cms\Entity\Folder
+	 */
+	private function createFolder($dirName, $parentFolder = null)
+	{
+		$folder = new Folder();
+		$manager = $this->container->getDoctrine()->getManager();
+		$manager->persist($folder);
+
+		$dirName = trim($dirName);
+
+		if (empty($dirName)) {
+			throw new CmsException(null, "Folder name shouldn't be empty");
+		}
+
+		$folder->setFileName($dirName);
+
+		// Adding child folder if parent exists
+		if (!empty($parentFolder)) {
+			// get parent folder private/public status
+			$publicStatus = $parentFolder->isPublic();
+			$folder->setPublic($publicStatus);
+
+			// Flush before nested set UPDATE
+			$manager->flush();
+
+			$parentFolder->addChild($folder);
+		}
+
+		// trying to create folder
+		$this->getFileStorage()->createFolder($folder);
+
+		$manager->flush();
+
+		return $folder;
+	}
+
+	/**
+	 * FileStorage getter
+	 *
+	 * @return FileStorage
+	 */
+	protected function getFileStorage()
+	{
+		return $this->container['cms.file_storage'];
+	}
+
+	/**
 	 * Get internal file entity type constant
 	 * @return int
 	 */
-	private function getEntityType(File $entity)
+	protected function getEntityType(FileAbstraction $entity)
 	{
 		$type = null;
 
@@ -116,5 +222,67 @@ class MediaLibraryController extends Controller
 		}
 
 		return $type;
+	}
+
+	/**
+	 * @return File
+	 */
+	protected function getRequestedEntity($key, $className)
+	{
+		$request = $this->container->getRequest();
+
+		$value = $request->get($key);
+
+		if (!$value) {
+			throw new CmsException('medialibrary.validation_error.file_id_not_provided');
+		}
+
+		$file = $this->container->getDoctrine()->getManager()->find($className, $value);
+
+		if (is_null($file)) {
+			throw new CmsException('medialibrary.validation_error.file_not_exists');
+		}
+
+		return $file;
+	}
+
+	/**
+	 * @return File
+	 */
+	protected function getEntity($key = 'id')
+	{
+		$file = $this->getRequestedEntity($key, 'Supra\Package\Cms\Entity\Abstraction\File');
+
+		return $file;
+	}
+
+	/**
+	 * @return File
+	 */
+	protected function getFile($key = 'id')
+	{
+		$file = $this->getRequestedEntity($key, 'Supra\Package\Cms\Entity\File');
+
+		return $file;
+	}
+
+	/**
+	 * @return Folder
+	 */
+	protected function getFolder($key = 'id')
+	{
+		$file = $this->getRequestedEntity($key, 'Supra\Package\Cms\Entity\Folder');
+
+		return $file;
+	}
+
+	/**
+	 * @return Image
+	 */
+	protected function getImage($key = 'id')
+	{
+		$file = $this->getRequestedEntity($key, 'Supra\Package\Cms\Entity\Image');
+
+		return $file;
 	}
 }

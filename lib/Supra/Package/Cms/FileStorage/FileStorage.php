@@ -1,19 +1,18 @@
 <?php
 
-namespace Supra\FileStorage;
+namespace Supra\Package\Cms\FileStorage;
 
-use Supra\FileStorage\Validation;
-use Supra\FileStorage\Entity;
-use Supra\FileStorage\Exception;
-use Supra\ObjectRepository\ObjectRepository;
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\EntityManager;
-use Supra\Log\Writer\WriterAbstraction;
-use Supra\FileStorage\Configuration\PropertyConfiguration;
+use Supra\Package\Cms\Entity\File;
+use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;;
+use Supra\Package\Cms\Entity\Folder;
 
 /**
  * File storage
  */
-class FileStorage
+class FileStorage implements ContainerAware
 {
 	const CACHE_GROUP_NAME = 'Supra\FileStorage';
 	const RESERVED_DIR_SIZE = "_size";
@@ -22,7 +21,12 @@ class FileStorage
 	const VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY = 'medialibrary.validation_error.image_to_file';
 	const MISSING_IMAGE_PATH = '/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/broken-image.png';
 	const FILE_INFO_EXTERNAL = 1;
-	const FILE_INFO_INTERNAL = 2;    
+	const FILE_INFO_INTERNAL = 2;
+
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
 
 	/**
 	 * File Storage internal path
@@ -69,13 +73,18 @@ class FileStorage
 	 * Folder access mode
 	 * @var integer chmod
 	 */
-	private $folderAccessMode = \SITESUPRA_FOLDER_PERMISSION_MODE;
+	private $folderAccessMode = 0755;
 
 	/**
 	 * File access mode
 	 * @var integer chmod
 	 */
-	private $fileAccessMode = \SITESUPRA_FILE_PERMISSION_MODE;
+	private $fileAccessMode = 0644;
+
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
+	}
 
 	/**
 	 * @return EntityManager
@@ -113,20 +122,12 @@ class FileStorage
 	}
 
 	/**
-	 * Sets external (public) file url base.
-	 * @param string $urlBase 
-	 */
-	public function setExternalUrlBase($urlBase)
-	{
-		$this->externalUrlBase = $urlBase;
-	}
-
-	/**
 	 * Gets external (public) file url base.
 	 * @param string $urlBase 
 	 */
 	public function getExternalUrlBase()
 	{
+		throw new \Exception('Dunno what is external url base');
 		return $this->externalUrlBase;
 	}
 
@@ -137,26 +138,7 @@ class FileStorage
 	 */
 	public function getInternalPath()
 	{
-		return $this->internalPath;
-	}
-
-	/**
-	 * Set file storage internal directory
-	 *
-	 * @param string $internalPath
-	 */
-	public function setInternalPath($internalPath)
-	{
-		$internalPath = rtrim($internalPath, '\/') . DIRECTORY_SEPARATOR;
-		$this->internalPath = SUPRA_PATH . $internalPath;
-	}
-
-	/**
-	 * @param string $internalPath 
-	 */
-	public function setInternalPathAbsolute($internalPath)
-	{
-		$this->internalPath = rtrim($internalPath, '\/') . DIRECTORY_SEPARATOR;
+		return $this->container->getParameter('directories.storage') . DIRECTORY_SEPARATOR . 'files';
 	}
 
 	/**
@@ -166,26 +148,7 @@ class FileStorage
 	 */
 	public function getExternalPath()
 	{
-		return $this->externalPath;
-	}
-
-	/**
-	 * @param string $externalPath 
-	 */
-	public function setExternalPathAbsolute($externalPath)
-	{
-		$this->externalPath = rtrim($externalPath, '\/') . DIRECTORY_SEPARATOR;
-	}
-
-	/**
-	 * Set file storage external directory
-	 *
-	 * @param string $externalPath
-	 */
-	public function setExternalPath($externalPath)
-	{
-		$externalPath = rtrim($externalPath, '\/') . DIRECTORY_SEPARATOR;
-		$this->externalPath = SUPRA_WEBROOT_PATH . $externalPath;
+		return $this->container->getParameter('directories.web') . DIRECTORY_SEPARATOR . 'files';
 	}
 
 	/**
@@ -435,9 +398,9 @@ class FileStorage
 	/**
 	 * Creates new folder in all file storages
 	 * @param string $destination
-	 * @param Entity\Folder $folder 
+	 * @param Folder $folder
 	 */
-	public function createFolder(Entity\Folder $folder)
+	public function createFolder(Folder $folder)
 	{
 		// validating folder before creation
 		foreach ($this->folderUploadFilters as $filter) {
@@ -449,11 +412,11 @@ class FileStorage
 
 	/**
 	 * Creates the filesystem folder in both storages -- internal and external
-	 * @param Entity\Abstraction\File $folder
+	 * @param FileAbstraction $folder
 	 */
-	private function createBothFoldersInFileSystem(Entity\Abstraction\File $folder = null)
+	private function createBothFoldersInFileSystem(FileAbstraction $folder = null)
 	{
-		if ($folder instanceof Entity\File) {
+		if ($folder instanceof File) {
 			$folder = $folder->getParent();
 		}
 
@@ -464,10 +427,10 @@ class FileStorage
 	/**
 	 * Actual folder creation function which is triggered by $this->createFolder();
 	 * @param string $basePath
-	 * @param Entity\Folder $folder
+	 * @param Folder $folder
 	 * @return true or throws Exception\RuntimeException
 	 */
-	private function createFolderInFileSystem($basePath, Entity\Folder $folder = null)
+	private function createFolderInFileSystem($basePath, Folder $folder = null)
 	{
 		$destination = '';
 		if ( ! is_null($folder)) {
@@ -479,14 +442,14 @@ class FileStorage
 		if ( ! is_dir($fullPath)) {
 
 			if (file_exists($fullPath)) {
-				throw new Exception\RuntimeException('Could not create folder in '
+				throw new \RuntimeException('Could not create folder in '
 						. $fullPath . ', file exists with the same name');
 			}
 
 			if (mkdir($fullPath, $this->folderAccessMode, true)) {
 				return true;
 			} else {
-				throw new Exception\RuntimeException('Could not create folder in ' . $fullPath);
+				throw new \RuntimeException('Could not create folder in ' . $fullPath);
 			}
 		}
 	}
