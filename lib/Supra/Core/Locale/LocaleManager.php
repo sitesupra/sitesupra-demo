@@ -133,8 +133,8 @@ class LocaleManager
 	public function getLocale($id)
 	{
 		if (! $this->hasLocale($id)) {
-			throw new RuntimeException(sprintf(
-					'Locale [%s] is not defined.'
+			throw new \RuntimeException(sprintf(
+					'Locale [%s] is not defined.', $id
 			));
 		}
 

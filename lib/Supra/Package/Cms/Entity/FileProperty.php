@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\FileStorage\Entity;
+namespace Supra\Package\Cms\Entity;
 
 use Supra\Editable\EditableAbstraction;
 
@@ -22,7 +22,7 @@ class FileProperty extends Abstraction\Entity
 	protected $value;
 
 	/**
-	 * @ManyToOne(targetEntity="Supra\FileStorage\Entity\Abstraction\File", inversedBy="properties")
+	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\File", inversedBy="properties")
 	 * @var Abstraction\File
 	 */
 	protected $file;

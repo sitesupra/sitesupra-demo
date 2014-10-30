@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\FileStorage\Entity;
+namespace Supra\Package\Cms\Entity;
 
 /**
  * @Entity

@@ -1,14 +1,12 @@
 <?php
 
-namespace Supra\FileStorage\Repository;
+namespace Supra\Package\Cms\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Supra\NestedSet\DoctrineRepository;
-use Supra\NestedSet\RepositoryInterface;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\EntityManager;
-use BadMethodCallException;
-use Supra\FileStorage\Entity\File;
+use Supra\Core\NestedSet\DoctrineRepository;
+use Supra\Core\NestedSet\RepositoryInterface;
 use Supra\FileStorage\Exception;
 
 /**
@@ -29,7 +27,7 @@ class FileNestedSetRepository extends EntityRepository implements RepositoryInte
 	{
 		$className = $class->getName();
 		
-		if ($className != 'Supra\FileStorage\Entity\Abstraction\File') {
+		if ($className != 'Supra\Package\Cms\Entity\Abstraction\File') {
 			throw new Exception\LogicException("File repository should be called for file abstraction entity only, requested for '{$className}'");
 		}
 		

@@ -1,8 +1,9 @@
 <?php
 
-namespace Supra\FileStorage\Entity;
+namespace Supra\Package\Cms\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Core\NestedSet\Node\NodeLeafInterface;
 use Supra\NestedSet;
 
 /**
@@ -10,7 +11,7 @@ use Supra\NestedSet;
  * @Entity
  * @Table(name="file")
  */
-class File extends Abstraction\File implements NestedSet\Node\NodeLeafInterface
+class File extends Abstraction\File implements NodeLeafInterface
 {
 	/**
 	 * {@inheritdoc}

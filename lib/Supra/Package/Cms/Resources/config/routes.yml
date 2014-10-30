@@ -229,3 +229,8 @@ routes:
         controller:                     Cms:MediaLibrary:index
         options:
             frontend:                   true
+    media_library_list:
+        pattern:                        %cms.prefix%/media-library-list
+        controller:                     Cms:MediaLibrary:list
+        options:
+            frontend:                   true

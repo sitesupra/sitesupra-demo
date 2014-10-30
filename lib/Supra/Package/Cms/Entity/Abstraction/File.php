@@ -1,26 +1,27 @@
 <?php
 
-namespace Supra\FileStorage\Entity\Abstraction;
+namespace Supra\Package\Cms\Entity\Abstraction;
 
+use Supra\Core\NestedSet\Node\DoctrineNode;
+use Supra\Core\NestedSet\Node\EntityNodeInterface;
 use Supra\NestedSet;
 use Supra\Authorization\AuthorizedEntityInterface;
 use Supra\Authorization\Permission\Permission;
-use Supra\User\Entity\AbstractUser;
+use Supra\Package\CmsAuthentication\Entity\AbstractUser;
 use Supra\Authorization\AuthorizationProvider;
 use Supra\FileStorage\Entity\SlashFolder;
-use Supra\Database\Doctrine\Listener\Timestampable;
 use Supra\AuditLog\TitleTrackingItemInterface;
 use Supra\FileStorage\Entity\FilePath;
 use Doctrine\Common\Collections;
-use Supra\FileStorage\Entity\FileProperty;
+use Supra\Package\Cms\Entity\FileProperty;
 
 
 /**
  * File abstraction
- * @Entity(repositoryClass="Supra\FileStorage\Repository\FileNestedSetRepository")
+ * @Entity(repositoryClass="Supra\Package\Cms\Repository\FileNestedSetRepository")
  * @InheritanceType("JOINED")
  * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({"file" = "Supra\FileStorage\Entity\File", "folder" = "Supra\FileStorage\Entity\Folder", "image" = "Supra\FileStorage\Entity\Image"})
+ * @DiscriminatorMap({"file" = "Supra\Package\Cms\Entity\File", "folder" = "Supra\Package\Cms\Entity\Folder", "image" = "Supra\Package\Cms\Entity\Image"})
  * @Table(name="file_abstraction", indexes={
  * 		@index(name="file_abstraction_lft_idx", columns={"lft"}),
  * 		@index(name="file_abstraction_rgt_idx", columns={"rgt"}),
@@ -53,7 +54,7 @@ use Supra\FileStorage\Entity\FileProperty;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface, AuthorizedEntityInterface, Timestampable, TitleTrackingItemInterface
+abstract class File extends Entity implements EntityNodeInterface, AuthorizedEntityInterface, TitleTrackingItemInterface, TimestampableInterface
 {
 	const PERMISSION_UPLOAD_NAME = 'file_upload';
 	const PERMISSION_UPLOAD_MASK = 256;
@@ -118,7 +119,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	protected $originalFileName;
 
 	/**
-	 * @OneToOne(targetEntity="Supra\FileStorage\Entity\FilePath", cascade={"remove", "persist", "merge"}, fetch="EAGER")
+	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\FilePath", cascade={"remove", "persist", "merge"}, fetch="EAGER")
 	 * @var \Supra\FileStorage\Entity\FilePath
 	 */
 	protected $path;
@@ -126,7 +127,7 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 	/**
 	 * Custom property collection
 	 * 
-	 * @OneToMany(targetEntity="Supra\FileStorage\Entity\FileProperty", mappedBy="file", cascade={"all"}, indexBy="name")
+	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\FileProperty", mappedBy="file", cascade={"all"}, indexBy="name")
 	 * @var Collections\Collection
 	 */
 	protected $properties;
@@ -492,9 +493,8 @@ abstract class File extends Entity implements NestedSet\Node\EntityNodeInterface
 
 	/**
 	 * {@inheritdoc}
-	 * @param NestedSet\Node\DoctrineNode $nestedSetNode
 	 */
-	public function setNestedSetNode(NestedSet\Node\DoctrineNode $nestedSetNode)
+	public function setNestedSetNode(DoctrineNode $nestedSetNode)
 	{
 		$this->nestedSetNode = $nestedSetNode;
 	}
