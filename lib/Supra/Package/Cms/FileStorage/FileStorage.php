@@ -123,12 +123,10 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Gets external (public) file url base.
-	 * @param string $urlBase 
 	 */
 	public function getExternalUrlBase()
 	{
-		throw new \Exception('Dunno what is external url base');
-		return $this->externalUrlBase;
+		return '/files/';
 	}
 
 	/**
@@ -138,7 +136,7 @@ class FileStorage implements ContainerAware
 	 */
 	public function getInternalPath()
 	{
-		return $this->container->getParameter('directories.storage') . DIRECTORY_SEPARATOR . 'files';
+		return $this->container->getParameter('directories.storage') . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR;
 	}
 
 	/**
@@ -148,7 +146,7 @@ class FileStorage implements ContainerAware
 	 */
 	public function getExternalPath()
 	{
-		return $this->container->getParameter('directories.web') . DIRECTORY_SEPARATOR . 'files';
+		return $this->container->getParameter('directories.web') . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR;
 	}
 
 	/**

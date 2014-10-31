@@ -187,10 +187,10 @@ class MediaLibraryController extends Controller
 			$parentFolder->addChild($folder);
 		}
 
+		$manager->flush();
+
 		// trying to create folder
 		$this->getFileStorage()->createFolder($folder);
-
-		$manager->flush();
 
 		return $folder;
 	}

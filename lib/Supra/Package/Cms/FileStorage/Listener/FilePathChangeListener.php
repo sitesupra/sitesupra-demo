@@ -7,39 +7,23 @@ use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
-use Supra\NestedSet\Event\NestedSetEventArgs;
-use Supra\NestedSet\Event\NestedSetEvents;
-use Supra\FileStorage\Entity;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\FileStorage\FileStorage;
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\NestedSet\Event\NestedSetEventArgs;
+use Supra\Core\NestedSet\Event\NestedSetEvents;
+use Supra\Package\Cms\FileStorage\FileStorage;
+use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;
 
-class FilePathChangeListener implements EventSubscriber
+class FilePathChangeListener implements EventSubscriber, ContainerAware
 {
 	/**
-	 * @var EntityManager
+	 * @var ContainerInterface
 	 */
-	private $em;
+	protected $container;
 
-	/**
-	 * @var UnitOfWork
-	 */
-	private $unitOfWork;
-	
-	/**
-	 * @var FileStorage
-	 */
-	private $fileStorage;
-
-	/**
-	 * This class is used by path regeneration command as well
-	 * @param EntityManager $em
-	 */
-	public function __construct(EntityManager $em = null)
+	public function setContainer(ContainerInterface $container)
 	{
-		if ( ! is_null($em)) {
-			$this->em = $em;
-			$this->unitOfWork = $em->getUnitOfWork();
-		}
+		$this->container = $container;
 	}
 
 	/**
@@ -59,68 +43,18 @@ class FilePathChangeListener implements EventSubscriber
 	 */
 	public function onFlush(OnFlushEventArgs $eventArgs)
 	{
-		$this->em = $eventArgs->getEntityManager();
-		$this->unitOfWork = $this->em->getUnitOfWork();
+		$unitOfWork = $eventArgs->getEntityManager()->getUnitOfWork();
 
-		$inserts = $this->unitOfWork->getScheduledEntityInsertions();
-		$updates = $this->unitOfWork->getScheduledEntityUpdates();
+		$inserts = $unitOfWork->getScheduledEntityInsertions();
+		$updates = $unitOfWork->getScheduledEntityUpdates();
 		$entities = $inserts + $updates;
 		
 		foreach ($entities as $entity) {
-			if ( ! $entity instanceof Entity\Abstraction\File) {
+			if ( ! $entity instanceof FileAbstraction) {
 				continue;
 			}
 
-			$this->regeneratePathForEntity($entity);
-		}
-	}
-
-	protected function regeneratePathForEntity($entity)
-	{
-		$descendants = $entity->getDescendants();
-
-		if ( ! empty($descendants)) {
-			foreach ($descendants as $descendant) {
-				$this->generateEntityFilePath($descendant);
-			}
-		}
-
-		$this->generateEntityFilePath($entity);
-	}
-	
-	private function generateEntityFilePath($fileEntity)
-	{
-		if ($this->fileStorage === null) {
-			$this->fileStorage = ObjectRepository::getFileStorage($this);
-		}
-		
-		$pathGenerator = $this->fileStorage->getFilePathGenerator();
-		
-		$pathGenerator->generateFilePath($fileEntity);
-		
-		$filePath = $fileEntity->getPathEntity();
-		
-		$fileMetadata = $this->em->getClassMetadata($fileEntity->CN());
-		$filePathMetadata = $this->em->getClassMetadata($filePath->CN());
-
-		if ($this->unitOfWork->getEntityState($fileEntity, UnitOfWork::STATE_NEW) === UnitOfWork::STATE_NEW) {
-			$this->em->persist($fileEntity);
-		}
-
-		if ($this->unitOfWork->getEntityState($filePath, UnitOfWork::STATE_NEW) === UnitOfWork::STATE_NEW) {
-			$this->em->persist($filePath);
-		}
-
-		if ($this->unitOfWork->getEntityChangeSet($filePath)) {
-			$this->unitOfWork->recomputeSingleEntityChangeSet($filePathMetadata, $filePath);
-		} else {
-			$this->unitOfWork->computeChangeSet($filePathMetadata, $filePath);
-		}
-
-		if ($this->unitOfWork->getEntityChangeSet($fileEntity)) {
-			$this->unitOfWork->recomputeSingleEntityChangeSet($fileMetadata, $fileEntity);
-		} else {
-			$this->unitOfWork->computeChangeSet($fileMetadata, $fileEntity);
+			$this->regeneratePathForEntity($entity, $eventArgs);
 		}
 	}
 
@@ -130,12 +64,75 @@ class FilePathChangeListener implements EventSubscriber
 	 */
 	public function nestedSetPostMove(NestedSetEventArgs $eventArgs)
 	{
-		$this->em = $eventArgs->getEntityManager();
-		$this->unitOfWork = $this->em->getUnitOfWork();
 		$entity = $eventArgs->getEntity();
 
-		if ($entity instanceof Entity\Abstraction\File) {
-			$this->regeneratePathForEntity($entity);
+		if ($entity instanceof FileAbstraction) {
+			$this->regeneratePathForEntity($entity, $eventArgs);
+		}
+	}
+
+	protected function regeneratePathForEntity($entity, $eventArgs)
+	{
+		$descendants = $entity->getDescendants();
+
+		if ( ! empty($descendants)) {
+			foreach ($descendants as $descendant) {
+				$this->generateEntityFilePath($descendant, $eventArgs);
+			}
+		}
+
+		$this->generateEntityFilePath($entity, $eventArgs);
+	}
+
+	/**
+	 * @return \Doctrine\Common\Persistence\ObjectManager
+	 */
+	protected function getEntityManager()
+	{
+		return $this->container->getDoctrine()->getManager();
+	}
+
+	/**
+	 * @return UnitOfWork
+	 */
+	protected function getUnitOfWork()
+	{
+		return $this->getEntityManager()->getUnitOfWork();
+	}
+
+	private function generateEntityFilePath($fileEntity, $eventArgs)
+	{
+		$fileStorage = $this->container['cms.file_storage'];
+		$em = $eventArgs->getEntityManager();
+		$unitOfWork = $em->getUnitOfWork();
+		
+		$pathGenerator = $fileStorage->getFilePathGenerator();
+		
+		$pathGenerator->generateFilePath($fileEntity);
+		
+		$filePath = $fileEntity->getPathEntity();
+
+		$fileMetadata = $em->getClassMetadata($fileEntity->CN());
+		$filePathMetadata = $em->getClassMetadata($filePath->CN());
+
+		if ($unitOfWork->getEntityState($fileEntity, UnitOfWork::STATE_NEW) === UnitOfWork::STATE_NEW) {
+			$em->persist($fileEntity);
+		}
+
+		if ($unitOfWork->getEntityState($filePath, UnitOfWork::STATE_NEW) === UnitOfWork::STATE_NEW) {
+			$em->persist($filePath);
+		}
+
+		if ($unitOfWork->getEntityChangeSet($filePath)) {
+			$unitOfWork->recomputeSingleEntityChangeSet($filePathMetadata, $filePath);
+		} else {
+			$unitOfWork->computeChangeSet($filePathMetadata, $filePath);
+		}
+
+		if ($unitOfWork->getEntityChangeSet($fileEntity)) {
+			$unitOfWork->recomputeSingleEntityChangeSet($fileMetadata, $fileEntity);
+		} else {
+			$unitOfWork->computeChangeSet($fileMetadata, $fileEntity);
 		}
 	}
 }

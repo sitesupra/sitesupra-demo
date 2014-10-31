@@ -3,14 +3,21 @@
 namespace Supra\Package\Cms;
 
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Event\KernelEvent;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Detector\ParameterDetector;
+use Supra\Package\Cms\FileStorage\Validation\ExtensionUploadFilter;
 use Supra\Package\Cms\Application\CmsDashboardApplication;
 use Supra\Package\Cms\Application\CmsInternalUserManagerApplication;
 use Supra\Package\Cms\Application\CmsMediaLibraryApplication;
 use Supra\Package\Cms\Application\CmsPagesApplication;
 use Supra\Package\Cms\FileStorage\FileStorage;
+use Supra\Package\Cms\FileStorage\ImageProcessor\Adapter\ImageMagickAdapter;
+use Supra\Package\Cms\FileStorage\Validation\ExistingFileNameUploadFilter;
+use Supra\Package\Cms\FileStorage\Validation\FileNameUploadFilter;
+use Supra\Package\Cms\FileStorage\Validation\ImageSizeUploadFilter;
+use Supra\Package\Cms\Listener\CmsExceptionListener;
 use Supra\Package\Cms\Pages\Application\PageApplicationManager;
 use Supra\Package\Cms\Pages\Application\BlogPageApplication;
 use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
@@ -97,9 +104,45 @@ class SupraPackageCms extends AbstractSupraPackage
 			));
 		};
 
+		//event listeners
+		$container[$this->getName().'.cms_exception_listener'] = function () {
+			return new CmsExceptionListener();
+		};
+
+		$container->getEventDispatcher()->addListener(
+				KernelEvent::EXCEPTION,
+				array($container[$this->getName().'.cms_exception_listener'], 'listen')
+		);
+
 		//the mighty file storage
 		$container['cms.file_storage'] = function () {
-			return new FileStorage();
+			$storage = new FileStorage();
+
+			$extensionFilter = new ExtensionUploadFilter();
+			$extensionFilter->setMode(ExtensionUploadFilter::MODE_BLACKLIST);
+			$extensionFilter->addItems(
+				array('php', 'phtml', 'php3', 'php4', 'js', 'shtml',
+					'pl' ,'py', 'cgi', 'sh', 'asp', 'exe', 'bat', 'jar', 'phar'
+				));
+
+			$fileNameFilter = new FileNameUploadFilter();
+
+			$existingFileNameFilter = new ExistingFileNameUploadFilter();
+			$imageSizeFilter =  new ImageSizeUploadFilter();
+
+			$storage->addFileUploadFilter($extensionFilter);
+			$storage->addFileUploadFilter($fileNameFilter);
+			$storage->addFileUploadFilter($existingFileNameFilter);
+
+			$storage->addFileUploadFilter($imageSizeFilter);
+
+			$storage->addFolderUploadFilter($fileNameFilter);
+			$storage->addFolderUploadFilter($existingFileNameFilter);
+
+			$imageProcessorAdapter = new ImageMagickAdapter();
+			$storage->setImageProcessorAdapter($imageProcessorAdapter);
+
+			return $storage;
 		};
 	}
 
