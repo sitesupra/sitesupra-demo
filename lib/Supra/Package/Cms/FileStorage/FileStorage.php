@@ -91,7 +91,7 @@ class FileStorage implements ContainerAware
 	 */
 	public function getDoctrineEntityManager()
 	{
-		return ObjectRepository::getEntityManager($this);
+		return $this->container->getDoctrine()->getManager();
 	}
 
 	/**
@@ -1432,29 +1432,28 @@ class FileStorage implements ContainerAware
 		}
 	}
 
-	protected function fireFileEvent($type, $args)
+	protected function fireFileEvent($type, $event)
 	{
-		$eventManager = ObjectRepository::getEventManager($this);
-		$eventManager->fire($type, $args);
+		$this->container->getEventDispatcher()->dispatch($type, $event);
 	}
 
 	/**
 	 * Remove file or folder from database and system
-	 * @param Entity\Abstraction\File $entity 
+	 * @param FileAbstraction $entity
 	 */
-	public function remove(Entity\Abstraction\File $entity)
+	public function remove(FileAbstraction $entity)
 	{
-		$eventArgs = new FileEventArgs($this);
+		$eventArgs = new FileEvent();
 		$eventArgs->setFile($entity);
-		$this->fireFileEvent(FileEventArgs::FILE_EVENT_PRE_DELETE, $eventArgs);
+		$this->fireFileEvent(FileEvent::FILE_EVENT_PRE_DELETE, $eventArgs);
 
-		if ($entity instanceof Entity\Folder) {
+		if ($entity instanceof Folder) {
 			$hasChildren = $entity->hasChildren();
 			if ($hasChildren) {
 				throw new Exception\NotEmptyException('You can remove only empty folders');
 			}
 			$this->removeFolder($entity);
-		} elseif ($entity instanceof Entity\File) {
+		} elseif ($entity instanceof File) {
 			$this->removeFile($entity);
 		} else {
 			throw new Exception\LogicException('Not recognized file type passed: ' . get_class($entity));
@@ -1463,9 +1462,9 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Remove folder from database and file system
-	 * @param Entity\Folder $folder 
+	 * @param Folder $folder
 	 */
-	private function removeFolder(Entity\Folder $folder)
+	private function removeFolder(Folder $folder)
 	{
 		$this->removeFolderInFileSystem($folder);
 
@@ -1476,9 +1475,9 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Remove folder in file system
-	 * @param Entity\Folder $folder
+	 * @param Folder $folder
 	 */
-	private function removeFolderInFileSystem(Entity\Folder $folder)
+	private function removeFolderInFileSystem(Folder $folder)
 	{
 		$folderPath = $folder->getPath(DIRECTORY_SEPARATOR, true);
 

@@ -150,59 +150,6 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 	}
 
 	/**
-	 * Deletes file or folder
-	 */
-	public function deleteAction()
-	{
-		$repository = $this->entityManager->getRepository(Entity\Abstraction\File::CN());
-		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
-		$repository->getNestedSetRepository()->lock();
-
-		$this->isPostRequest();
-		$file = $this->getEntity();
-
-		$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);
-
-		if (is_null($file)) {
-			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
-		}
-
-		// try to delete
-		try {
-			if ($file->hasChildren()) {
-
-				$this->getConfirmation('Are You sure?');
-
-				$this->removeFilesRecursively($file);
-			} else {
-
-				$this->removeSingleFile($file);
-			}
-		} catch (Exception\NotEmptyException $e) {
-			// Should not happen
-			throw new CmsException(null, "Cannot delete not empty folders");
-		}
-
-		$this->writeAuditLog('%item% deleted', $file);
-	}
-
-	/**
-	 * @param Entity\File $file
-	 */
-	protected function removeSingleFile(Entity\Abstraction\File $file)
-	{
-		if ($file instanceof Entity\Image) {
-			$em = $this->fileStorage->getDoctrineEntityManager();
-			$imageSizeCn = Entity\ImageSize::CN();
-			$em->createQuery("DELETE FROM $imageSizeCn s WHERE s.master = :master")
-					->setParameter('master', $file->getId())
-					->execute();
-		}
-
-		$this->fileStorage->remove($file);
-	}
-
-	/**
 	 * @param Entity\File $file
 	 */
 	protected function removeFilesRecursively(Entity\Folder $file)

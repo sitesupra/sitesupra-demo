@@ -1,11 +1,11 @@
 <?php
 
-namespace Supra\FileStorage;
+namespace Supra\Package\Cms\FileStorage;
 
-use Supra\FileStorage\Entity\Abstraction\File;
-use Supra\Event\EventArgs;
+use Supra\Package\Cms\Entity\Abstraction\File;
+use Symfony\Component\EventDispatcher\Event;
 
-class FileEventArgs extends EventArgs
+class FileEvent extends Event
 {
 	const FILE_EVENT_FILE_SELECTED = 'fileSelected';
 	const FILE_EVENT_PRE_DELETE = 'preFileDelete';

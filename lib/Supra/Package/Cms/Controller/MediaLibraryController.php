@@ -8,8 +8,11 @@ use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;
 use Supra\Package\Cms\Entity\File;
 use Supra\Package\Cms\Entity\Folder;
 use Supra\Package\Cms\Entity\Image;
+use Supra\Package\Cms\Entity\ImageSize;
 use Supra\Package\Cms\Exception\CmsException;
+use Supra\Package\Cms\FileStorage\Exception\UploadFilterException;
 use Supra\Package\Cms\FileStorage\FileStorage;
+use Supra\Package\Cms\Repository\FileNestedSetRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 class MediaLibraryController extends Controller
@@ -32,7 +35,7 @@ class MediaLibraryController extends Controller
 	{
 		$manager = $this->container->getDoctrine()->getManager();
 		$repository = $manager->getRepository(FileAbstraction::CN());
-		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
+		/* @var $repository FileNestedSetRepository */
 		$repository->getNestedSetRepository()->lock();
 		$manager->beginTransaction();
 
@@ -54,13 +57,51 @@ class MediaLibraryController extends Controller
 			$manager->commit();
 		} catch (\Exception $e) {
 			$manager->rollback();
-			throw new CmsException(null, $e->getMessage(), $e);
+			$key = $e instanceof UploadFilterException ? $e->getMessageKey() : null;
+			throw new CmsException($key, $e->getMessage(), $e);
 		}
 
 		$insertedId = $dir->getId();
 		return new SupraJsonResponse($insertedId);
 	}
 
+	/**
+	 * Deletes file or folder
+	 */
+	public function deleteAction()
+	{
+		$repository = $this->container->getDoctrine()->getManager()->getRepository(FileAbstraction::CN());
+		/* @var $repository FileNestedSetRepository */
+		$repository->getNestedSetRepository()->lock();
+
+		$file = $this->getEntity();
+
+		$this->checkActionPermission($file, FileAbstraction::PERMISSION_DELETE_NAME);
+
+		if (is_null($file)) {
+			throw new CmsException(null, 'File doesn\'t exist anymore');
+		}
+
+		// try to delete
+		try {
+			if ($file->hasChildren()) {
+				$this->getConfirmation('Are You sure?');
+
+				$this->removeFilesRecursively($file);
+			} else {
+				$this->removeSingleFile($file);
+			}
+		} catch (NotEmptyException $e) {
+			// Should not happen
+			throw new CmsException(null, "Cannot delete not empty folders");
+		}
+
+		return new SupraJsonResponse(null);
+	}
+
+	/**
+	 * Lists filesystem objects
+	 */
 	public function listAction(Request $request)
 	{
 		$rootNodes = array();
@@ -136,6 +177,22 @@ class MediaLibraryController extends Controller
 			'totalRecords' => count($output),
 			'records' => $output,
 		));
+	}
+
+	/**
+	 * @param FileAbstraction $file
+	 */
+	protected function removeSingleFile(FileAbstraction $file)
+	{
+		if ($file instanceof Image) {
+			$em = $this->getFileStorage()->getDoctrineEntityManager();
+			$imageSizeCn = ImageSize::CN();
+			$em->createQuery("DELETE FROM $imageSizeCn s WHERE s.master = :master")
+				->setParameter('master', $file->getId())
+				->execute();
+		}
+
+		$this->getFileStorage()->remove($file);
 	}
 
 	/**
