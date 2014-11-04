@@ -321,22 +321,7 @@ abstract class CmsAction extends SimpleController
 		return $empty;
 	}
 
-	/**
-	 * @return Request\RequestData
-	 */
-	protected function getRequestInput()
-	{
-		$value = null;
-		$request = $this->getRequest();
-
-		if ($this->requestMethod == Request\HttpRequest::METHOD_POST) {
-			$value = $request->getPost();
-		} else {
-			$value = $request->getQuery();
-		}
-
-		return $value;
-	}
+	
 
 	/**
 	 * Get POST/GET request parameter depending on the action setting

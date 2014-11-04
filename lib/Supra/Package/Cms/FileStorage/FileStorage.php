@@ -8,6 +8,8 @@ use Doctrine\ORM\EntityManager;
 use Supra\Package\Cms\Entity\File;
 use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;;
 use Supra\Package\Cms\Entity\Folder;
+use Supra\Package\Cms\Entity\Image;
+use Supra\Package\Cms\Entity\ImageSize;
 
 /**
  * File storage
@@ -187,9 +189,9 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Validates against filters
-	 * @param Entity\File $file
+	 * @param File $file
 	 */
-	public function validateFileUpload(Entity\File $file, $sourceFilePath = null)
+	public function validateFileUpload(File $file, $sourceFilePath = null)
 	{
 		// file validation
 		foreach ($this->fileUploadFilters as $filter) {
@@ -225,10 +227,10 @@ class FileStorage implements ContainerAware
 	/**
 	 * Store file data
 	 *
-	 * @param Entity\File $file
+	 * @param File $file
 	 * @param string $source
 	 */
-	public function storeFileData(Entity\File $file, $sourceFilePath)
+	public function storeFileData(File $file, $sourceFilePath)
 	{
 		$this->validateFileUpload($file, $sourceFilePath);
 
@@ -802,7 +804,7 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Create resized version for the image
-	 * @param Entity\Image $file
+	 * @param Image $file
 	 * @param integer $targetWidth
 	 * @param integer $targetHeight
 	 * @param boolean $cropped 
@@ -810,10 +812,10 @@ class FileStorage implements ContainerAware
 	 * @param boolean $force
 	 * @return string
 	 */
-	public function createResizedImage(Entity\Image $file, $targetWidth, $targetHeight, $cropped = false, $quality = 95, $force = false)
+	public function createResizedImage(Image $file, $targetWidth, $targetHeight, $cropped = false, $quality = 95, $force = false)
 	{
 		// validate params
-		if ( ! $file instanceof Entity\Image) {
+		if ( ! $file instanceof Image) {
 			throw new Exception\RuntimeException('Image entity expected');
 		}
 		if (($targetWidth <= 0) || ($targetHeight <= 0)) {
@@ -823,7 +825,7 @@ class FileStorage implements ContainerAware
 		$sizeName = $this->getImageSizeName($targetWidth, $targetHeight, $cropped);
 
 		if ( ! $this->fileExists($file)) {
-			$this->log()->warn("Image '{$file->getFileName()}' is missing in the filesystem, tried to resize to {$sizeName}");
+			$this->container->getLogger()->warn("Image '{$file->getFileName()}' is missing in the filesystem, tried to resize to {$sizeName}");
 
 			return $sizeName;
 		}
@@ -1237,14 +1239,14 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Get full file path or its directory (with trailing slash)
-	 * @param Entity\Abstraction\File $file
+	 * @param File $file
 	 * @param boolean $includeFilename
 	 * @param integer $forcePath Forces external or internal path. Use FILE_INFO_EXTERNAL and FILE_INFO_INTERNAL constants
 	 * @return string
 	 */
-	public function getFilesystemPath(Entity\Abstraction\File $file, $includeFilename = true, $forcePath = null)
+	public function getFilesystemPath(FileAbstraction $file, $includeFilename = true, $forcePath = null)
 	{
-		if ( ! $file instanceof Entity\Abstraction\File) {
+		if ( ! $file instanceof FileAbstraction) {
 			throw new Exception\RuntimeException('File or folder entity expected');
 		}
 
@@ -1267,10 +1269,10 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Get file directory (with trailing slash)
-	 * @param Entity\File $file
+	 * @param File $file
 	 * @return string
 	 */
-	public function getFilesystemDir(Entity\File $file)
+	public function getFilesystemDir(File $file)
 	{
 		return $this->getFilesystemPath($file, false);
 	}
@@ -1303,18 +1305,18 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Get web (external) path for file
-	 * @param Entity\File $file
-	 * @param Entity\ImageSize $size | string $size
+	 * @param File $file
+	 * @param ImageSize $size | string $size
 	 * @return string 
 	 */
-	public function getWebPath(Entity\File $file, $size = null)
+	public function getWebPath(File $file, $size = null)
 	{
-		if ( ! $file instanceof Entity\File) {
+		if ( ! $file instanceof File) {
 			throw new Exception\RuntimeException('File or folder entity expected');
 		}
 
-		if ($file instanceof Entity\Image && isset($size)) {
-			if ( ! $size instanceof Entity\ImageSize) {
+		if ($file instanceof Image && isset($size)) {
+			if ( ! $size instanceof ImageSize) {
 				$size = $file->findImageSize($size);
 			}
 		} else {
@@ -1331,7 +1333,7 @@ class FileStorage implements ContainerAware
 
 			// Get file storage url base in webroot
 			$path = '/' . trim(implode('/', $pathParts), '/\\') . '/';
-			if ($size instanceof Entity\ImageSize) {
+			if ($size instanceof ImageSize) {
 				$path .= self::RESERVED_DIR_SIZE . '/'
 						. rawurlencode($size->getFolderName()) . '/';
 			}
@@ -1504,19 +1506,19 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Loads item info array
-	 * @param Entity\Abstraction\File $file
+	 * @param FileAbstraction $file
 	 * @param string $locale
 	 * @return array
 	 */
-	public function getFileInfo(Entity\Abstraction\File $file, $locale = null)
+	public function getFileInfo(FileAbstraction $file, $locale = null)
 	{
 		$info = $file->getInfo($locale);
 
-		if ($file instanceof Entity\File) {
+		if ($file instanceof File) {
 			$filePath = $this->getWebPath($file);
 			$info['file_web_path'] = $filePath;
 
-			if ($file instanceof Entity\Image) {
+			if ($file instanceof Image) {
 
 				//CMS need to know, if image still exists in file storage
 				$fileExists = $this->fileExists($file);
@@ -1575,10 +1577,10 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Checks if the file exists
-	 * @param Entity\File $file
+	 * @param File $file
 	 * @return boolean
 	 */
-	public function fileExists(Entity\Abstraction\File $file)
+	public function fileExists(FileAbstraction $file)
 	{
 		$path = $this->getFilesystemPath($file);
 		$fileExists = file_exists($path);

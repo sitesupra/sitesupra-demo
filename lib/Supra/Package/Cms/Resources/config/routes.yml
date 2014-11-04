@@ -244,3 +244,8 @@ routes:
         controller:                     Cms:MediaLibrary:delete
         options:
             frontend:                   true
+    media_library_upload:
+        pattern:                        %cms.prefix%/media-library-upload
+        controller:                     Cms:MediaLibrary:upload
+        options:
+            frontend:                   true

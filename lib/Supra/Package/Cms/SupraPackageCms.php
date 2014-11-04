@@ -115,6 +115,7 @@ class SupraPackageCms extends AbstractSupraPackage
 		);
 
 		//the mighty file storage
+		//todo: move to config.yml
 		$container['cms.file_storage'] = function () {
 			$storage = new FileStorage();
 
@@ -144,6 +145,14 @@ class SupraPackageCms extends AbstractSupraPackage
 
 			return $storage;
 		};
+
+		//media library constants
+		//todo: move to config.yml
+		$container->setParameter($this->getName().'.media_library_known_file_extensions',
+			array('pdf', 'xls', 'xlsx', 'doc', 'docx', 'swf'));
+
+		$container->setParameter($this->getName().'.media_library_check_file_existence', 'full');
+
 	}
 
 	public function finish(ContainerInterface $container)

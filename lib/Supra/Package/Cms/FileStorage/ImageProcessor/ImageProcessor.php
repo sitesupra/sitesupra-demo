@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\FileStorage\ImageProcessor;
 
-use Supra\Pacakge\Cms\FileStorage\ImageProcessor\Adapter\ImageProcessorAdapterInterface;
+use Supra\Package\Cms\FileStorage\ImageProcessor\Adapter\ImageProcessorAdapterInterface;
 use Supra\Package\Cms\FileStorage\Exception\ImageProcessorException;
 use Supra\Package\Cms\FileStorage\ImageInfo;
 
