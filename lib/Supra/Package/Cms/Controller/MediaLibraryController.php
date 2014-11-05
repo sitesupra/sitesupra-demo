@@ -16,8 +16,11 @@ use Supra\Package\Cms\FileStorage\Exception\InsufficientSystemResources;
 use Supra\Package\Cms\FileStorage\Exception\UploadFilterException;
 use Supra\Package\Cms\FileStorage\FileStorage;
 use Supra\Package\Cms\Repository\FileNestedSetRepository;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class MediaLibraryController extends Controller
 {
@@ -36,6 +39,51 @@ class MediaLibraryController extends Controller
 	public function indexAction()
 	{
 		return $this->renderResponse('index.html.twig');
+	}
+
+	public function downloadAction(Request $request)
+	{
+		$requestedFileName = $request->attributes->get('path');
+
+		$headers = array();
+		$disposition = ResponseHeaderBag::DISPOSITION_INLINE;
+
+		$file = $this->getFile();
+
+		$mimeType = $file->getMimeType();
+		$fileName = $file->getFileName();
+
+		//TODO: is case sensitive comparison OK?
+		if ($fileName !== $requestedFileName) {
+			throw new ResourceNotFoundException("Requested file name does not match file name on the server");
+		}
+
+		if((! $file->isPublic()) && $request->get('inline')) {
+			$size = $request->get('size');
+			$sizeDir = FileStorage::RESERVED_DIR_SIZE;
+
+			$fileDir = dirname($this->getFileStorage()->getFilesystemPath($file));
+
+			$path = $fileDir . DIRECTORY_SEPARATOR .
+				$sizeDir . DIRECTORY_SEPARATOR .
+				$size . DIRECTORY_SEPARATOR .
+				$file->getFileName();
+		} else {
+			$path = $this->getFileStorage()->getFilesystemPath($file);
+		}
+
+		if ( ! empty($mimeType)) {
+			$headers['Content-Type'] = $mimeType;
+		}
+
+		if(! $request->get('inline')) {
+			$disposition = ResponseHeaderBag::DISPOSITION_ATTACHMENT;
+		}
+
+		$response = new BinaryFileResponse($path, 200, $headers, false, $disposition);
+		$response->prepare($request);
+
+		return $response;
 	}
 
 	/**

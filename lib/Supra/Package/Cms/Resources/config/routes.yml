@@ -254,3 +254,12 @@ routes:
         controller:                     Cms:MediaLibrary:view
         options:
             frontend:                   true
+    media_library_download:
+        pattern:                        %cms.prefix%/media-library-download/{path}
+        controller:                     Cms:MediaLibrary:download
+        options:
+            frontend:                   true
+        requirements:
+            path:                       .*
+        defaults:
+            path:                       ~

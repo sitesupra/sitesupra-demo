@@ -6,6 +6,7 @@ use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\RequestResponseEvent;
 use Supra\Core\Event\RequestResponseListenerInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class DebugBarResponseListener implements ContainerAware, RequestResponseListenerInterface
 {
@@ -26,6 +27,10 @@ class DebugBarResponseListener implements ContainerAware, RequestResponseListene
 	{
 		$request = $event->getRequest();
 		$response = $event->getResponse();
+
+		if ($response instanceof BinaryFileResponse) {
+			return;
+		}
 
 		if ($request->isXmlHttpRequest()) {
 			//handle with ajax
