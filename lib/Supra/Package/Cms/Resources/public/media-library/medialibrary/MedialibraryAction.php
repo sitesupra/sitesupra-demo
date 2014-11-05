@@ -187,23 +187,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 
 
-	/**
-	 * Image rotate
-	 */
-	public function imagerotateAction()
-	{
-		$this->isPostRequest();
-		$file = $this->getImage();
 
-		if (isset($_POST['rotate']) && is_numeric($_POST['rotate'])) {
-			$rotationCount = - intval($_POST['rotate'] / 90);
-			$this->fileStorage->rotateImage($file, $rotationCount);
-		}
-
-		$fileData = $this->imageAndFileOutput($file);
-		$this->writeAuditLog('%item% rotated', $file);
-		$this->getResponse()->setResponseData($fileData);
-	}
 
 	/**
 	 * Image crop

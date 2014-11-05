@@ -1090,13 +1090,13 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Rotate image
-	 * @param Entity\Image $file
+	 * @param Image $file
 	 * @param integer $rotationCount
 	 * @param integer $quality
 	 */
-	public function rotateImage(Entity\Image $file, $rotationCount, $quality = 95)
+	public function rotateImage(Image $file, $rotationCount, $quality = 95)
 	{
-		if ( ! $file instanceof Entity\Image) {
+		if ( ! $file instanceof Image) {
 			throw new Exception\RuntimeException('Image entity expected');
 		}
 

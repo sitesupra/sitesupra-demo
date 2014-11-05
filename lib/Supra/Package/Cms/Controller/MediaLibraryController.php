@@ -41,6 +41,24 @@ class MediaLibraryController extends Controller
 		return $this->renderResponse('index.html.twig');
 	}
 
+	/**
+	 * Image rotate
+	 */
+	public function rotateAction(Request $request)
+	{
+		$file = $this->getImage();
+		$rotate = $request->get('rotate');
+
+		if (isset($rotate) && is_numeric($rotate)) {
+			$rotationCount = - intval($_POST['rotate'] / 90);
+			$this->getFileStorage()->rotateImage($file, $rotationCount);
+		}
+
+		$fileData = $this->imageAndFileOutput($file);
+
+		return new SupraJsonResponse($fileData);
+	}
+
 	public function downloadAction(Request $request)
 	{
 		$requestedFileName = $request->attributes->get('path');
