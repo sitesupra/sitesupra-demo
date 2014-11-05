@@ -1495,9 +1495,9 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Remove file from database and file system
-	 * @param Entity\File $file 
+	 * @param File $file
 	 */
-	private function removeFile(Entity\File $file)
+	private function removeFile(File $file)
 	{
 		$this->removeFileInFileSystem($file);
 
