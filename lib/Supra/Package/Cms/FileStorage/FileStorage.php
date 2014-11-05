@@ -10,6 +10,7 @@ use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;;
 use Supra\Package\Cms\Entity\Folder;
 use Supra\Package\Cms\Entity\Image;
 use Supra\Package\Cms\Entity\ImageSize;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * File storage
@@ -1059,11 +1060,11 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Recreate all existing resized versions of the image
-	 * @param Entity\Image $file 
+	 * @param Image $file
 	 */
-	protected function recreateImageSizes(Entity\Image $file)
+	protected function recreateImageSizes(Image $file)
 	{
-		if ( ! $file instanceof Entity\Image) {
+		if ( ! $file instanceof Image) {
 			throw new Exception\RuntimeException('Image entity expected');
 		}
 
@@ -1279,19 +1280,20 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Get full file path for image size
-	 * @param Entity\Image $file
-	 * @param string $sizeName 
+	 * @param Image $file
+	 * @param string $sizeName
+	 * @return string
 	 */
-	public function getImagePath(Entity\Image $file, $sizeName = null)
+	public function getImagePath(Image $file, $sizeName = null)
 	{
-		if ( ! $file instanceof Entity\Image) {
+		if ( ! $file instanceof Image) {
 			throw new Exception\RuntimeException('Image entity expected');
 		}
 
 		$path = $this->getFilesystemDir($file);
 		$size = $file->findImageSize($sizeName);
 				
-		if ($size instanceof Entity\ImageSize) {	
+		if ($size instanceof ImageSize) {
 			$path .= self::RESERVED_DIR_SIZE 
 					. DIRECTORY_SEPARATOR
 					. $size->getFolderName() 
@@ -1358,11 +1360,11 @@ class FileStorage implements ContainerAware
 	}
 
 	//FIXME: pass required parameters as arguments not an array (tmp_name and name)
-	public function replaceFile(Entity\File $fileEntity, $file)
+	public function replaceFile(File $fileEntity, UploadedFile $file)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
-		$oldFileIsImage = $fileEntity instanceof Entity\Image;
-		$newFileIsImage = $this->isMimeTypeImage($file['type']);
+		$oldFileIsImage = $fileEntity instanceof Image;
+		$newFileIsImage = $this->isMimeTypeImage($file->getMimeType());
 
 		if ($oldFileIsImage !== $newFileIsImage) {
 			throw new Exception\UploadFilterException(self::VALIDATION_IMAGE_TO_FILE_REPLACE_MESSAGE_KEY, 'New file should be image too');
@@ -1374,18 +1376,18 @@ class FileStorage implements ContainerAware
 		// setting new data
 		// The name is not changed by Bug #6756
 //		$fileEntity->setFileName($file['name']);
-		$fileEntity->setSize($file['size']);
-		$fileEntity->setMimeType($file['type']);
+		$fileEntity->setSize($file->getSize());
+		$fileEntity->setMimeType($file->getMimeType());
 
 		// This must be call before removing the old file
-		$this->validateFileUpload($fileEntity, $file['tmp_name']);
+		$this->validateFileUpload($fileEntity, $file->getPathname());
 
 		$this->removeFileInFileSystem($originalFile);
 
-		$this->storeFileData($fileEntity, $file['tmp_name']);
+		$this->storeFileData($fileEntity, $file->getPathname());
 
 		// additional jobs for images
-		if ($fileEntity instanceof Entity\Image) {
+		if ($fileEntity instanceof Image) {
 			
 			$imageProcessor  = $this->getImageResizer();
 			// store original size
@@ -1403,9 +1405,9 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Remove file in file system
-	 * @param Entity\File $file 
+	 * @param File $file
 	 */
-	private function removeFileInFileSystem(Entity\File $file)
+	private function removeFileInFileSystem(File $file)
 	{
 		$filePath = $this->getFilesystemPath($file);
 
@@ -1418,7 +1420,7 @@ class FileStorage implements ContainerAware
 		}
 
 		// remove sizes if object is image
-		if ($file instanceof Entity\Image) {
+		if ($file instanceof Image) {
 			$sizes = $file->getImageSizeCollection();
 			foreach ($sizes as $size) {
 				$sizePath = $this->getImagePath($file, $size->getName());

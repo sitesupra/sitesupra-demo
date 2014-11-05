@@ -141,6 +141,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			$storage->addFolderUploadFilter($existingFileNameFilter);
 
 			$imageProcessorAdapter = new ImageMagickAdapter();
+			$imageProcessorAdapter->setFileStorage($storage);
 			$storage->setImageProcessorAdapter($imageProcessorAdapter);
 
 			return $storage;

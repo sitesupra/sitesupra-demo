@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\FileStorage\ImageProcessor;
 
+use Supra\Package\Cms\Entity\Image;
 use Supra\Package\Cms\FileStorage\ImageProcessor\Adapter\ImageProcessorAdapterInterface;
 use Supra\Package\Cms\FileStorage\Exception\ImageProcessorException;
 use Supra\Package\Cms\FileStorage\ImageInfo;
@@ -46,7 +47,7 @@ abstract class ImageProcessor
 	public function __construct(ImageProcessorAdapterInterface $adapter)
 	{
 		if ( ! $adapter instanceof ImageProcessorAdapterInterface) {
-			throw new \RuntimeException("ImageProcessor needs for propper ProcessorAdapter to be set");
+			throw new \RuntimeException("ImageProcessor needs for proper ProcessorAdapter to be set");
 		}
 		
 		$this->adapter = $adapter;
@@ -60,6 +61,10 @@ abstract class ImageProcessor
 	 */
 	public function getImageInfo($filename)
 	{
+		if ($filename instanceof Image) {
+			$filename = $this->adapter->getFileStorage()->getImagePath($filename);
+		}
+
 		$info = new ImageInfo($filename);
 
 		if ($info->hasError()) {

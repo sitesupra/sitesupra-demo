@@ -8,12 +8,6 @@ use Supra\Package\Cms\Entity\Image;
  */
 class ImageInfo
 {
-
-	/**
-	 * @var Image
-	 */
-	protected $image;
-
 	/**
 	 * Full system file path
 	 * @var string
@@ -88,16 +82,10 @@ class ImageInfo
 
 	/**
 	 * Builds info from image entity or full path
-	 * @param Image|string $image
+	 * @param string $image
 	 */
 	public function __construct($image)
 	{
-		if ($image instanceof Image) {
-			$this->image = $image;
-			throw new \Exception('Please give me a filestorage');
-			$image = $fileStorage->getImagePath($image);
-		}
-
 		$this->process($image);
 	}
 
@@ -152,15 +140,6 @@ class ImageInfo
 			'directory' => $this->directory,
 			'extension' => $this->extension,
 		);
-	}
-
-	/**
-	 * Returns Image entity instance if info was built from entity
-	 * @return Image
-	 */
-	public function getImage()
-	{
-		return $this->image;
 	}
 
 	/**

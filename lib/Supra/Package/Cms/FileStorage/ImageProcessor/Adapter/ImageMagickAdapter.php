@@ -1,6 +1,7 @@
 <?php
 
 namespace Supra\Package\Cms\FileStorage\ImageProcessor\Adapter;
+use Supra\Package\Cms\FileStorage\FileStorage;
 
 /**
  * Wrapper for php imagick library
@@ -12,6 +13,25 @@ class ImageMagickAdapter extends ImageProcessorAdapterAbstract
 			IMAGETYPE_JPEG = 'jpeg',
 			IMAGETYPE_GIF = 'gif',
 			IMAGETYPE_BMP = 'bmp';
+
+	/**
+	 * @var FileStorage
+	 */
+	protected $fileStorage;
+
+	public function setFileStorage(FileStorage $fileStorage)
+	{
+		$this->fileStorage = $fileStorage;
+	}
+
+	/**
+	 * @return FileStorage
+	 */
+	public function getFileStorage()
+	{
+		return $this->fileStorage;
+	}
+
 
 	/**
 	 * @inheritdoc
