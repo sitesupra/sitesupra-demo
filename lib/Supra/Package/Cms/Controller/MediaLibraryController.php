@@ -375,9 +375,9 @@ class MediaLibraryController extends Controller
 		}
 
 		foreach ($rootNodes as $rootNode) {
-			/* @var $rootNode Entity\Abstraction\File */
+			/* @var $rootNode FileAbstraction */
 
-			if ($request->query->has('type')) {
+			if ($request->query->get('type')) {
 
 				$itemType = $this->getEntityType($rootNode);
 				$requestedType = $request->query->get('type');
@@ -412,10 +412,10 @@ class MediaLibraryController extends Controller
 				// create preview
 				// TODO: hardcoded 30x30
 				try {
-					if ($this->fileStorage->fileExists($rootNode)) {
-						$sizeName = $this->fileStorage->createResizedImage($rootNode, 30, 30, true);
+					if ($this->getFileStorage()->fileExists($rootNode)) {
+						$sizeName = $this->getFileStorage()->createResizedImage($rootNode, 30, 30, true);
 						if ($rootNode->isPublic()) {
-							$item['thumbnail'] = $this->fileStorage->getWebPath($rootNode, $sizeName);
+							$item['thumbnail'] = $this->getFileStorage()->getWebPath($rootNode, $sizeName);
 						} else {
 							$item['thumbnail'] = $this->getPrivateImageWebPath($rootNode, $sizeName);
 						}
@@ -577,7 +577,7 @@ class MediaLibraryController extends Controller
 
 			$imageSize = $image->findImageSize($sizeName);
 
-			if ($imageSize instanceof Entity\ImageSize) {
+			if ($imageSize instanceof ImageSize) {
 				$query['size'] = $imageSize->getFolderName();
 			}
 		}
