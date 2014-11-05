@@ -27,23 +27,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 
 
-	/**
-	 * Used for view file or image information
-	 */
-	public function viewAction()
-	{
-		$node = $this->getFile();
 
-		$nodeOutput = $this->imageAndFileOutput($node);
-		$output = array($nodeOutput);
-
-		$return = array(
-			'totalRecords' => count($output),
-			'records' => $output,
-		);
-
-		$this->getResponse()->setResponseData($return);
-	}
 
 
 

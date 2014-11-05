@@ -39,6 +39,24 @@ class MediaLibraryController extends Controller
 	}
 
 	/**
+	 * Used for view file or image information
+	 */
+	public function viewAction()
+	{
+		$node = $this->getFile();
+
+		$nodeOutput = $this->imageAndFileOutput($node);
+		$output = array($nodeOutput);
+
+		$return = array(
+			'totalRecords' => count($output),
+			'records' => $output,
+		);
+
+		return new SupraJsonResponse($return);
+	}
+
+	/**
 	 * File upload action
 	 */
 	public function uploadAction(Request $request)

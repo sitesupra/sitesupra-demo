@@ -249,3 +249,8 @@ routes:
         controller:                     Cms:MediaLibrary:upload
         options:
             frontend:                   true
+    media_library_view:
+        pattern:                        %cms.prefix%/media-library-view
+        controller:                     Cms:MediaLibrary:view
+        options:
+            frontend:                   true
