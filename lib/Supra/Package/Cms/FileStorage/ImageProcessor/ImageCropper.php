@@ -1,8 +1,9 @@
 <?php
 
-namespace Supra\Pacakge\Cms\FileStorage\ImageProcessor;
+namespace Supra\Package\Cms\FileStorage\ImageProcessor;
 
 use Supra\Package\Cms\FileStorage\Exception\ImageProcessorException;
+use Supra\Package\Cms\FileStorage\FileStorage;
 
 /**
  * Image cropper
@@ -165,7 +166,7 @@ class ImageCropper extends ImageProcessor
 
 		$this->adapter->doCrop($this->sourceFilename, $this->targetFilename, $this->width, $this->height, $this->left, $this->top);
 	
-		chmod($this->targetFilename, SITESUPRA_FILE_PERMISSION_MODE);
+		chmod($this->targetFilename, FileStorage::FILE_PERMISSION_MODE);
 	}
 
 	/**

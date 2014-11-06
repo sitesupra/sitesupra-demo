@@ -189,29 +189,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 
 
-	/**
-	 * Image crop
-	 */
-	public function imagecropAction()
-	{
-		$this->isPostRequest();
-		$file = $this->getImage('id');
 
-		if (isset($_POST['crop']) && is_array($_POST['crop'])) {
-			$crop = $_POST['crop'];
-			if (isset($crop['left'], $crop['top'], $crop['width'], $crop['height'])) {
-				$left = intval($crop['left']);
-				$top = intval($crop['top']);
-				$width = intval($crop['width']);
-				$height = intval($crop['height']);
-				$this->fileStorage->cropImage($file, $left, $top, $width, $height);
-			}
-		}
-
-		$fileData = $this->imageAndFileOutput($file);
-		$this->writeAuditLog('%item% cropped', $file);
-		$this->getResponse()->setResponseData($fileData);
-	}
 
 
 

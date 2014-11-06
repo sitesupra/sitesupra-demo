@@ -42,6 +42,31 @@ class MediaLibraryController extends Controller
 	}
 
 	/**
+	 * Image crop
+	 */
+	public function cropAction(Request $request)
+	{
+		$file = $this->getImage('id');
+
+		$post = $request->request;
+
+		if ($post->has('crop') && is_array($post->get('crop'))) {
+			$crop = $post->get('crop');
+			if (isset($crop['left'], $crop['top'], $crop['width'], $crop['height'])) {
+				$left = intval($crop['left']);
+				$top = intval($crop['top']);
+				$width = intval($crop['width']);
+				$height = intval($crop['height']);
+				$this->getFileStorage()->cropImage($file, $left, $top, $width, $height);
+			}
+		}
+
+		$fileData = $this->imageAndFileOutput($file);
+
+		return new SupraJsonResponse($fileData);
+	}
+
+	/**
 	 * Image rotate
 	 */
 	public function rotateAction(Request $request)

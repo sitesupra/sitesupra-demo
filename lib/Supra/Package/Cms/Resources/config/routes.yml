@@ -259,6 +259,11 @@ routes:
         controller:                     Cms:MediaLibrary:rotate
         options:
             frontend:                   true
+    media_library_crop:
+        pattern:                        %cms.prefix%/media-library-crop
+        controller:                     Cms:MediaLibrary:crop
+        options:
+            frontend:                   true
     media_library_download:
         pattern:                        %cms.prefix%/media-library-download/{path}
         controller:                     Cms:MediaLibrary:download

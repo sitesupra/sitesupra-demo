@@ -25,6 +25,8 @@ class FileStorage implements ContainerAware
 	const MISSING_IMAGE_PATH = '/cms/lib/supra/build/medialibrary/assets/skins/supra/images/icons/broken-image.png';
 	const FILE_INFO_EXTERNAL = 1;
 	const FILE_INFO_INTERNAL = 2;
+	const FILE_PERMISSION_MODE = 0644;
+	const FOLDER_PERMISSION_MODE = 0755;
 
 	/**
 	 * @var ContainerInterface
@@ -1153,16 +1155,16 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Crop image
-	 * @param Entity\Image $file
+	 * @param Image $file
 	 * @param integer $left
 	 * @param integer $right
 	 * @param integer $width
 	 * @param integer $height
 	 * @param integer $quality 
 	 */
-	public function cropImage(Entity\Image $file, $left, $top, $width, $height, $quality = 95)
+	public function cropImage(Image $file, $left, $top, $width, $height, $quality = 95)
 	{
-		if ( ! $file instanceof Entity\Image) {
+		if ( ! $file instanceof Image) {
 			throw new Exception\RuntimeException('Image entity expected');
 		}
 
@@ -1227,7 +1229,7 @@ class FileStorage implements ContainerAware
 	{
 		$info = new ImageInfo($filename);
 		if ($info->hasError()) {
-			\Log::error($info->getError());
+			$this->container->getLogger()->error($info->getError());
 			return false;
 		}
 

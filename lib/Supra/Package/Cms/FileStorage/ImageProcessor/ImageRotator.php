@@ -3,6 +3,7 @@
 namespace Supra\Package\Cms\FileStorage\ImageProcessor;
 
 use Supra\Package\Cms\FileStorage\Exception\ImageProcessorException;
+use Supra\Package\Cms\FileStorage\FileStorage;
 
 /**
  * Image rotator
@@ -58,7 +59,7 @@ class ImageRotator extends ImageProcessor
 			copy($this->sourceFilename, $this->targetFilename);
 		}
 
-		chmod($this->targetFilename, 0655);
+		chmod($this->targetFilename, FileStorage::FILE_PERMISSION_MODE);
 	}
 
 	/**
