@@ -250,11 +250,11 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Rename file in all file storages
-	 * @param Entity\File $file
+	 * @param File $file
 	 * @param string $fileName new file name
 	 * @throws Exception\UploadFilterException on not valid change
 	 */
-	public function renameFile(Entity\File $file, $fileName)
+	public function renameFile(File $file, $fileName)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
 
@@ -292,10 +292,10 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Actual file rename which is triggered by $this->renameFile();
-	 * @param Entity\File $file
+	 * @param File $file
 	 * @param string $filename new file name
 	 */
-	public function renameFileInFileSystem(Entity\File $originFile, Entity\File $newFile)
+	public function renameFileInFileSystem(File $originFile, File $newFile)
 	{
 		$originFilePath = $this->getFilesystemPath($originFile);
 		
@@ -310,7 +310,7 @@ class FileStorage implements ContainerAware
 			throw new Exception\RuntimeException('File renaming failed');
 		}
 
-		if ($originFile instanceof Entity\Image) {
+		if ($originFile instanceof Image) {
 			
 			$sizes = $originFile->getImageSizeCollection();
 			
@@ -330,10 +330,10 @@ class FileStorage implements ContainerAware
 	/**
 	 * Rename folder in all file storages.
 	 * Doesn't involve moving the folder in another folder.
-	 * @param Entity\Folder $folder
+	 * @param Folder $folder
 	 * @param string $newTitle new folder name
 	 */
-	public function renameFolder(Entity\Folder $folder, $newTitle)
+	public function renameFolder(Folder $folder, $newTitle)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->beginTransaction();
@@ -364,11 +364,11 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Actual folder rename which is triggered by $this->renameFolder();
-	 * @param Entity\Folder $folder
-	 * @param Entity\Folder $newFolder new folder data
+	 * @param Folder $folder
+	 * @param Folder $newFolder new folder data
 	 * @param string $path
 	 */
-	public function renameFolderInFileSystem(Entity\Folder $folder, Entity\Folder $newFolder)
+	public function renameFolderInFileSystem(Folder $folder, Folder $newFolder)
 	{
 		// rename folder in both file storages
 		$externalPath = $this->getExternalPath();
@@ -392,7 +392,7 @@ class FileStorage implements ContainerAware
 					throw new Exception\RuntimeException("Failed to rename folder from '$oldFullPath' to '$newFullPath'");
 				}
 			} else {
-				$this->log()->warn("Folder '$oldFullPath' missing in filesystem on rename");
+				$this->container->getLogger()->warn("Folder '$oldFullPath' missing in filesystem on rename");
 				$this->createFolderInFileSystem($basePath, $newFolder);
 			}
 		}

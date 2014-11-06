@@ -37,9 +37,102 @@ class MediaLibraryController extends AbstractCmsController
 
 	const DUPLICATE_NAME_PATTERN = '%s (%d).%s';
 
+	const MAX_FILE_BASENAME_LENGTH = 100;
+
 	public function indexAction()
 	{
 		return $this->renderResponse('index.html.twig');
+	}
+
+	/**
+	 * Used for folder or file renaming
+	 */
+	public function saveAction(Request $request)
+	{
+		$file = $this->getEntity();
+
+		// set private
+		if ($request->request->has('private')) {
+			$private = $request->request->get('private');
+
+			if ($private == 0) {
+				$this->getFileStorage()->setPublic($file);
+			}
+
+			if ($private == 1) {
+				$this->getFileStorage()->setPrivate($file);
+			}
+
+			$this->container->getDoctrine()->getManager()->flush();
+
+			return new SupraJsonResponse();
+		}
+
+		// renaming
+		if ($request->request->has('filename')) {
+
+			$fileName = $request->request->get('filename');
+
+			if (trim($fileName) == '') {
+				throw new CmsException(null, 'Empty filename not allowed');
+			}
+
+			$originalFileInfo = pathinfo($file->getFileName());
+
+			$newFileInfo = pathinfo($fileName);
+
+			if (mb_strlen($newFileInfo['basename'], 'utf-8') > self::MAX_FILE_BASENAME_LENGTH) {
+
+				if ($file instanceof Folder) {
+					throw new CmsException(null, 'Folder name is too long! Maximum length is ' . self::MAX_FILE_BASENAME_LENGTH . ' characters!');
+				} else {
+					throw new CmsException(null, 'File name is too long! Maximum length is ' . self::MAX_FILE_BASENAME_LENGTH . ' characters!');
+				}
+			}
+
+			try {
+				if ($file instanceof Folder) {
+					$this->getFileStorage()->renameFolder($file, $fileName);
+				} else {
+					$this->getFileStorage()->renameFile($file, $fileName);
+				}
+			} catch (\Exception $e) {
+				$key = $e instanceof UploadFilterException ? $e->getMessageKey() : null;
+				throw new CmsException($key, $e->getMessage(), $e);
+			}
+		}
+
+		// Custom Properties
+		$dirty = false;
+
+		$propertyConfigurations = $this->getFileStorage()->getCustomPropertyConfigurations();
+		foreach ($propertyConfigurations as $configuration) {
+			$propertyName = $configuration->name;
+
+			if ($request->request->has($propertyName)) {
+				$value = $request->request->get($propertyName);
+
+				$property = $this->getFileStorage()->getFileCustomProperty($file, $propertyName);
+
+				$property->setEditableValue($value, $configuration->getEditable());
+
+				$dirty = true;
+			}
+		}
+
+		if ($dirty) {
+			$this->container->getDoctrine()->getManager()->flush();
+		}
+
+		$response = array();
+
+		// when changing image private attribute, previews and thumbs will change their paths
+		// so we will output new image info
+		if ($file instanceof File) {
+			$response = $this->imageAndFileOutput($file);
+		}
+
+		return new SupraJsonResponse($response);
 	}
 
 	/**

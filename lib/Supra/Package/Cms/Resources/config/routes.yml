@@ -264,6 +264,11 @@ routes:
         controller:                     Cms:MediaLibrary:crop
         options:
             frontend:                   true
+    media_library_save:
+        pattern:                        %cms.prefix%/media-library-save
+        controller:                     Cms:MediaLibrary:save
+        options:
+            frontend:                   true
     media_library_download:
         pattern:                        %cms.prefix%/media-library-download/{path}
         controller:                     Cms:MediaLibrary:download
