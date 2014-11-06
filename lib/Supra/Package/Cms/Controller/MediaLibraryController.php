@@ -809,8 +809,8 @@ class MediaLibraryController extends AbstractCmsController
 
 	protected function getPrivateImageWebPath(Image $image, $sizeName = null)
 	{
-		return 'THIS IS A STUB';
-		$path = '/' . SUPRA_CMS_URL . '/media-library/download/' . rawurlencode($image->getFileName());
+		$path = $this->container->getRouter()->generate('media_library_download', array('path' => $image->getFileName()));
+
 		$query = array(
 			'inline' => 'inline',
 			'id' => $image->getId(),

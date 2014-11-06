@@ -20,7 +20,6 @@ class ExtensionUploadFilter extends BlackWhiteListCheck implements FileValidatio
 		
 		if( ! $result) {
 			$message = 'File extension "'.$file->getExtension().'" is not allowed';
-			\Log::info($message);
 			
 			throw new Exception\UploadFilterException(self::EXCEPTION_MESSAGE_KEY, $message);
 		}
