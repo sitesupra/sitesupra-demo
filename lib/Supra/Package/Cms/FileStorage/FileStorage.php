@@ -471,15 +471,15 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Moves file or folder to public storage
-	 * @param Entity\Abstraction\File $file
+	 * @param FileAbstraction $file
 	 * @param boolean $public true by default. If public == false moves file to private storage
 	 */
-	public function setPublic(Entity\Abstraction\File $file, $public = true)
+	public function setPublic(FileAbstraction $file, $public = true)
 	{
 
-		if ($file instanceof Entity\File) {
+		if ($file instanceof File) {
 			$this->setPublicForFile($file, $public);
-		} else if ($file instanceof Entity\Folder) {
+		} else if ($file instanceof Folder) {
 			$this->setPublicForFolder($file, $public);
 		} else {
 			throw new Exception\RuntimeException('Wrong entity passed');
@@ -488,24 +488,24 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Moves file or folder to private storage
-	 * @param Entity\Abstraction\File $file
+	 * @param FileAbstraction $file
 	 */
-	public function setPrivate(Entity\Abstraction\File $file)
+	public function setPrivate(FileAbstraction $file)
 	{
 		$this->setPublic($file, false);
 	}
 
 	/**
 	 * Moves file to public storage if $public is true. Otherwise moves to private.
-	 * @param Entity\File $file
+	 * @param File $file
 	 * @param boolean $public
 	 */
-	private function setPublicForFile(Entity\File $file, $public)
+	private function setPublicForFile(File $file, $public)
 	{
 		if ($public == $file->isPublic()) {
 			$msg = $file->getId() . ' ' . $file->getFileName() . ' is already ';
 			$msg .= ($file->isPublic() ? 'public' : 'private');
-			$this->log()->info($msg);
+			$this->container->getLogger()->info($msg);
 			return;
 		}
 
@@ -513,7 +513,7 @@ class FileStorage implements ContainerAware
 
 		// prepare list of files to be moved
 		$fileList[] = $file->getPath(DIRECTORY_SEPARATOR, true);
-		if ($file instanceof Entity\Image) {
+		if ($file instanceof Image) {
 			$sizes = $file->getImageSizeCollection();
 			if ( ! $sizes->isEmpty()) {
 				$fileDir = $file->getPath(DIRECTORY_SEPARATOR, false)
@@ -557,18 +557,18 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Moves folder to public storage if $public is true. Otherwise moves to private.
-	 * @param Entity\Folder $folder
+	 * @param Folder $folder
 	 * @param boolean $public
 	 */
-	private function setPublicForFolder(Entity\Folder $folder, $public)
+	private function setPublicForFolder(Folder $folder, $public)
 	{
 		$descendants = $folder->getDescendants();
 		foreach ($descendants as $node) {
-			if ($node instanceof Entity\File) {
+			if ($node instanceof File) {
 				$this->setPublicForFile($node, $public);
 			}
 
-			if ($node instanceof Entity\Folder) {
+			if ($node instanceof Folder) {
 				$node->setPublic($public);
 			}
 		}
@@ -578,9 +578,9 @@ class FileStorage implements ContainerAware
 	/**
 	 * Actual file move to external storage
 	 * @param string $filePath
-	 * @param Entity\Folder $folder
+	 * @param Folder $folder
 	 */
-	private function moveFileToExternalStorage($filePath, Entity\Folder $folder = null)
+	private function moveFileToExternalStorage($filePath,Folder $folder = null)
 	{
 		$oldPath = $this->getInternalPath() . $filePath;
 		$newPath = $this->getExternalPath() . $filePath;
@@ -590,16 +590,16 @@ class FileStorage implements ContainerAware
 		if ( ! rename($oldPath, $newPath)) {
 //			throw new Exception\RuntimeException('Failed to move file to the public storage');
 			$filename = basename($newPath);
-			$this->log()->warn('Failed to move file (' . $filename . ') to the public storage');
+			$this->container->getLogger()->warn('Failed to move file (' . $filename . ') to the public storage');
 		}
 	}
 
 	/**
 	 * Actual file move to internal storage
 	 * @param string $filePath
-	 * @param Entity\Folder $folder
+	 * @param Folder $folder
 	 */
-	private function moveFileToInternalStorage($filePath, Entity\Folder $folder = null)
+	private function moveFileToInternalStorage($filePath, Folder $folder = null)
 	{
 		$oldPath = $this->getExternalPath() . $filePath;
 		$newPath = $this->getInternalPath() . $filePath;
@@ -609,7 +609,7 @@ class FileStorage implements ContainerAware
 		if ( ! rename($oldPath, $newPath)) {
 			// throw new Exception\RuntimeException('Failed to move file to the private storage');
 			$filename = basename($newPath);
-			$this->log()->warn('Failed to move file (' . $filename . ') to the private storage');
+			$this->container->getLogger()->warn('Failed to move file (' . $filename . ') to the private storage');
 		}
 	}
 
