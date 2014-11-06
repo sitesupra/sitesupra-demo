@@ -616,12 +616,12 @@ class FileStorage implements ContainerAware
 	/**
 	 * Move file or folder
 	 * 
-	 * @param Entity\Abstraction\File $entity
-	 * @param Entity\Abstraction\File $target or null
+	 * @param FileAbstraction $entity
+	 * @param FileAbstraction$target or null
 	 * 
 	 * @throws Exception\RuntimeException
 	 */
-	public function move(Entity\Abstraction\File $entity, $target = null)
+	public function move(FileAbstraction $entity, $target = null)
 	{
 		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->beginTransaction();
@@ -631,7 +631,7 @@ class FileStorage implements ContainerAware
 			$entityManager->persist($entity);
 
 			$otherStorageOldPath = null;
-			if ($entity instanceof Entity\Folder) {
+			if ($entity instanceof Folder) {
 				if ($entity->isPublic()) {
 					$otherStorageOldPath = $this->getFilesystemPath($entity, true, self::FILE_INFO_INTERNAL);
 				} else {
@@ -641,13 +641,13 @@ class FileStorage implements ContainerAware
 
 			$oldPath = $this->getFilesystemPath($entity);
 
-			if ($target instanceof Entity\Folder) {
+			if ($target instanceof Folder) {
 				$entity->moveAsLastChildOf($target);
 			} else {
-				$rootLevelFolder = $entityManager->getRepository(Entity\Abstraction\File::CN())
+				$rootLevelFolder = $entityManager->getRepository(FileAbstraction::CN())
 						->findOneBy(array('level' => 0));
 
-				if ( ! $rootLevelFolder instanceof Entity\Abstraction\File) {
+				if ( ! $rootLevelFolder instanceof FileAbstraction) {
 					throw new Exception\RuntimeException('Failed to find root level file');
 				}
 
@@ -658,7 +658,7 @@ class FileStorage implements ContainerAware
 
 
 			$otherStorageNewPath = null;
-			if ($entity instanceof Entity\Folder) {
+			if ($entity instanceof Folder) {
 				if ($entity->isPublic()) {
 					$otherStorageNewPath = $this->getFilesystemPath($entity, true, self::FILE_INFO_INTERNAL);
 				} else {
@@ -669,7 +669,7 @@ class FileStorage implements ContainerAware
 			$newPath = $this->getFilesystemPath($entity);
 
 			if ( ! rename($oldPath, $newPath)) {
-				if ($entity instanceof Entity\Folder) {
+				if ($entity instanceof Folder) {
 					$this->log()->error("Failed to move '{$oldPath}' to '{$newPath}' in filesystem");
 					$this->createFolderInFileSystem($newPath);
 				} else {
@@ -678,7 +678,7 @@ class FileStorage implements ContainerAware
 			}
 
 			// move file/folder from opposite storage in  file system
-			if ($entity instanceof Entity\Folder) {
+			if ($entity instanceof Folder) {
 				if ( ! rename($otherStorageOldPath, $otherStorageNewPath)) {
 					$this->log()->error("Failed to move folder from '{$otherStorageOldPath}' to '{$otherStorageNewPath}' in filesystem");
 					$this->createFolderInFileSystem($otherStorageNewPath);

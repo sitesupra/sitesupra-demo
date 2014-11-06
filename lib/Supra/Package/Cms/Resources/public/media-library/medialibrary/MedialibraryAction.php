@@ -26,37 +26,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 
 
 
-	public function moveAction()
-	{
-		$repository = $this->entityManager->getRepository(Entity\Abstraction\File::CN());
-		/* @var $repository \Supra\FileStorage\Repository\FileNestedSetRepository */
-		$repository->getNestedSetRepository()->lock();
 
-		$this->isPostRequest();
-		$file = $this->getEntity();
-
-//		$this->checkActionPermission($file, Entity\Abstraction\File::PERMISSION_DELETE_NAME);		
-		$parentId = $this->getRequestParameter('parent_id');
-
-		$target = null;
-		if ( ! empty($parentId)) {
-			$target = $this->entityManager->getRepository(Entity\Abstraction\File::CN())
-					->findOneById($parentId);
-		}
-
-		if (is_null($file)) {
-			$this->getResponse()->setErrorMessage('File doesn\'t exist anymore');
-		}
-
-		// try to move
-		try {
-			$this->fileStorage->move($file, $target);
-		} catch (Exception\RuntimeException $e) {
-			throw new CmsException(null, $e->getMessage());
-		}
-
-		$this->writeAuditLog('%item% moved', $file);
-	}
 
 
 

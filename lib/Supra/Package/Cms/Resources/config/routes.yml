@@ -269,6 +269,11 @@ routes:
         controller:                     Cms:MediaLibrary:save
         options:
             frontend:                   true
+    media_library_move:
+        pattern:                        %cms.prefix%/media-library-move
+        controller:                     Cms:MediaLibrary:move
+        options:
+            frontend:                   true
     media_library_download:
         pattern:                        %cms.prefix%/media-library-download/{path}
         controller:                     Cms:MediaLibrary:download

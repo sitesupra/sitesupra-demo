@@ -45,6 +45,42 @@ class MediaLibraryController extends AbstractCmsController
 	}
 
 	/**
+	 * Moving, currently only for folders
+	 */
+	public function moveAction(Request $request)
+	{
+		$repository = $this->container->getDoctrine()->getManager()->getRepository(FileAbstraction::CN());
+		/* @var $repository FileNestedSetRepository */
+		$repository->getNestedSetRepository()->lock();
+
+		$file = $this->getEntity();
+
+		$parentId = $request->get('parent_id');
+
+		$target = null;
+		if ( ! empty($parentId)) {
+			$target = $this->container->getDoctrine()->getManager()->getRepository(FileAbstraction::CN())
+				->findOneById($parentId);
+		}
+
+		if (is_null($file)) {
+			$response = new SupraJsonResponse();
+			$response->setErrorMessage('File doesn\'t exist anymore');
+
+			return $response;
+		}
+
+		// try to move
+		try {
+			$this->getFileStorage()->move($file, $target);
+		} catch (\Supra\Package\Cms\FileStorage\Exception\RuntimeException $e) {
+			throw new CmsException(null, $e->getMessage());
+		}
+
+		return new SupraJsonResponse();
+	}
+
+	/**
 	 * Used for folder or file renaming
 	 */
 	public function saveAction(Request $request)
