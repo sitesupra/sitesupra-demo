@@ -2,7 +2,6 @@
 
 namespace Supra\Package\Cms\Controller;
 
-use Supra\Core\Controller\Controller;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;
 use Supra\Package\Cms\Entity\File;
@@ -13,16 +12,18 @@ use Supra\Package\Cms\Entity\SlashFolder;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\FileStorage\Exception\DuplicateFileNameException;
 use Supra\Package\Cms\FileStorage\Exception\InsufficientSystemResources;
+use Supra\Package\Cms\FileStorage\Exception\NotEmptyException;
 use Supra\Package\Cms\FileStorage\Exception\UploadFilterException;
 use Supra\Package\Cms\FileStorage\FileStorage;
 use Supra\Package\Cms\Repository\FileNestedSetRepository;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
-class MediaLibraryController extends Controller
+class MediaLibraryController extends AbstractCmsController
 {
 	protected $application = 'media-library';
 
@@ -404,7 +405,7 @@ class MediaLibraryController extends Controller
 		$manager->beginTransaction();
 
 		try {
-			if (!$request->request->has('filename')) {
+			if (!$request->request->get('filename')) {
 				throw new CmsException(null, 'Folder title was not sent');
 			}
 
@@ -412,7 +413,7 @@ class MediaLibraryController extends Controller
 			$parentFolder = null;
 
 			// Adding child folder if parent exists
-			if ($request->request->has('parent')) {
+			if ($request->request->get('parent')) {
 				$parentFolder = $this->getFolder('parent');
 			}
 
@@ -449,7 +450,11 @@ class MediaLibraryController extends Controller
 		// try to delete
 		try {
 			if ($file->hasChildren()) {
-				$this->getConfirmation('Are You sure?');
+				$confirmation = $this->getConfirmation('Are You sure?');
+
+				if ($confirmation instanceof Response) {
+					return $confirmation;
+				}
 
 				$this->removeFilesRecursively($file);
 			} else {
@@ -710,6 +715,24 @@ class MediaLibraryController extends Controller
 		}
 
 		$this->getFileStorage()->remove($file);
+	}
+
+	/**
+	 * @param File $file
+	 */
+	protected function removeFilesRecursively(Folder $file)
+	{
+		if ($file->hasChildren()) {
+			foreach ($file->getChildren() as $childFile) {
+				if ($childFile instanceof Folder) {
+					$this->removeFilesRecursively($childFile);
+				} else {
+					$this->removeSingleFile($childFile);
+				}
+			}
+		}
+
+		$this->removeSingleFile($file);
 	}
 
 	/**

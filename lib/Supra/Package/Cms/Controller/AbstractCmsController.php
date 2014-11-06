@@ -3,10 +3,17 @@
 namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Controller\Controller;
+use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\Cms\Exception\CmsException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class AbstractCmsController extends Controller
 {
+	/**
+	 * Request array context used for JS to provide confirmation answers
+	 */
+	const CONFIRMATION_ANSWER_CONTEXT = '_confirmation';
+
 	/**
 	 * @return Symfony\Component\Security\Core\User\UserProviderInterface
 	 */
@@ -92,5 +99,47 @@ abstract class AbstractCmsController extends Controller
 		}
 
 		return $path;
+	}
+
+	/**
+	 * Sends confirmation message to JavaScript or returns answer if already received
+	 * @param string $question
+	 * @param string $id
+	 * @param boolean $answer by default next request is made only when "Yes"
+	 * 		is pressed. Setting to null will make callback for both answers.
+	 */
+	protected function getConfirmation($question, $id = '0', $answer = true)
+	{
+		$request = $this->container->getRequest();
+
+		$confirmationPool = $request->get(self::CONFIRMATION_ANSWER_CONTEXT, array());
+
+		if (isset($confirmationPool[$id])) {
+			$userAnswer = filter_var($confirmationPool[$id], FILTER_VALIDATE_BOOLEAN);
+
+			// Any answer is OK
+			if (is_null($answer)) {
+				return $userAnswer;
+			}
+
+			// Match
+			if ($userAnswer === $answer) {
+				return $userAnswer;
+
+				// Wrong answer, in fact JS didn't need to do this request anymore
+			} else {
+				throw new CmsException(null, "Wrong answer");
+			}
+		}
+
+		$response = new SupraJsonResponse();
+
+		$response->addPart('confirmation', array(
+			'id' => $id,
+			'question' => $question,
+			'answer' => $answer
+		));
+
+		return $response;
 	}
 }

@@ -11,12 +11,20 @@ class SupraJsonResponse extends JsonResponse
 	protected $jsonErrorMessage = null;
 	protected $jsonWarningMessage = null;
 	protected $jsonPermissions = null;
+	protected $jsonParts = array();
 
 	public function __construct($data = true, $status = 200, $headers = array())
 	{
 		$this->jsonData = $data;
 
 		parent::__construct($data, $status, $headers);
+	}
+
+	public function addPart($name, $value)
+	{
+		$this->jsonParts[$name] = $value;
+
+		return parent::setData($this->compactJson());
 	}
 
 	public function setData($data = array())
@@ -104,13 +112,13 @@ class SupraJsonResponse extends JsonResponse
 
 	protected function compactJson()
 	{
-		return array(
+		return array_merge(array(
 			'status' => $this->jsonStatus,
 			'data' => $this->jsonData,
 			'error_message' => $this->jsonErrorMessage,
 			'warning_message' => $this->jsonWarningMessage,
 			'permissions' => $this->jsonPermissions
-		);
+		), $this->jsonParts);
 	}
 
 }

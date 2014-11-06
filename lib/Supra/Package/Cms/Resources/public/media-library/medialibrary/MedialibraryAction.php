@@ -133,25 +133,7 @@ class MedialibraryAction extends MediaLibraryAbstractAction
 				->setResponseData($response);
 	}
 
-	/**
-	 * @param Entity\File $file
-	 */
-	protected function removeFilesRecursively(Entity\Folder $file)
-	{
-		if ($file->hasChildren()) {
 
-			foreach ($file->getChildren() as $childFile) {
-
-				if ($childFile instanceof Entity\Folder) {
-					$this->removeFilesRecursively($childFile);
-				} else {
-					$this->removeSingleFile($childFile);
-				}
-			}
-		}
-
-		$this->removeSingleFile($file);
-	}
 
 	public function moveAction()
 	{
