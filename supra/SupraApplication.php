@@ -4,6 +4,7 @@ use Supra\Core\Supra;
 
 class SupraApplication extends Supra
 {
+
 	protected function registerPackages()
 	{
 		return array(

@@ -10,11 +10,25 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
 use Symfony\Component\Console\Command\ListCommand;
 use Supra\Core\Console\AbstractCommand as SupraCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 class Application extends BaseApplication implements ContainerAware
 {
 
 	protected $container;
+
+	protected function getDefaultInputDefinition()
+	{
+		$definition = parent::getDefaultInputDefinition();
+
+		$definition->addOptions(array(
+			new InputOption('--env', '-e', InputOption::VALUE_NONE, 'Environment to use.'),
+			new InputOption('--debug', null, InputOption::VALUE_NONE, 'Debug, set to zero to disable.'),
+		));
+
+		return $definition;
+	}
+
 
 	public function setContainer(ContainerInterface $container)
 	{
