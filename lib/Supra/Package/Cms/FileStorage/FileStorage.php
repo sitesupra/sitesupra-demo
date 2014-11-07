@@ -1490,6 +1490,17 @@ class FileStorage implements ContainerAware
 		$folderExternalPath = $this->getExternalPath() . $folderPath;
 		$folderInternalPath = $this->getInternalPath() . $folderPath;
 
+		//remove empty _size folders (or whatever the prefix is); we expect these folders to be empty
+		foreach (array($folderExternalPath, $folderInternalPath) as $path) {
+			$sizeBase = $path . DIRECTORY_SEPARATOR . self::RESERVED_DIR_SIZE;
+			if (is_dir($sizeBase)) {
+				foreach (glob($sizeBase . DIRECTORY_SEPARATOR . '*') as $subSize) {
+					@rmdir($subSize);
+				}
+				@rmdir($sizeBase);
+			}
+		}
+
 		// we are ignoring that one of the folders might not exist
 		$resultInternal = @rmdir($folderInternalPath);
 		$resultExternal = @rmdir($folderExternalPath);
@@ -1502,6 +1513,14 @@ class FileStorage implements ContainerAware
 	private function removeFile(File $file)
 	{
 		$this->removeFileInFileSystem($file);
+
+		if ($file instanceof Image) {
+			$em = $this->getDoctrineEntityManager();
+			$imageSizeCn = ImageSize::CN();
+			$em->createQuery("DELETE FROM $imageSizeCn s WHERE s.master = :master")
+				->setParameter('master', $file->getId())
+				->execute();
+		}
 
 		$entityManager = $this->getDoctrineEntityManager();
 		$entityManager->remove($file);

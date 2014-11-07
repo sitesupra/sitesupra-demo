@@ -835,14 +835,6 @@ class MediaLibraryController extends AbstractCmsController
 	 */
 	protected function removeSingleFile(FileAbstraction $file)
 	{
-		if ($file instanceof Image) {
-			$em = $this->getFileStorage()->getDoctrineEntityManager();
-			$imageSizeCn = ImageSize::CN();
-			$em->createQuery("DELETE FROM $imageSizeCn s WHERE s.master = :master")
-				->setParameter('master', $file->getId())
-				->execute();
-		}
-
 		$this->getFileStorage()->remove($file);
 	}
 
