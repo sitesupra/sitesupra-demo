@@ -7,6 +7,7 @@ use Supra\Core\Console\AbstractCommand;
 use Supra\Core\Fixtures\Processor\UserProcessor;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SupraBootstrapCommand extends AbstractCommand
@@ -15,7 +16,8 @@ class SupraBootstrapCommand extends AbstractCommand
 	{
 		$this->setName('supra:bootstrap')
 			->setDescription('Bootstraps initial supra database from fixture file provided')
-			->addArgument('file', InputArgument::OPTIONAL, 'Fixture file name relative to storage/data', 'fixtures.yml');
+			->addArgument('file', InputArgument::OPTIONAL, 'Fixture file name relative to storage/data', 'fixtures.yml')
+			->addOption('em', null, InputOption::VALUE_OPTIONAL, 'Entity manager to use', 'cms');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
@@ -28,7 +30,7 @@ class SupraBootstrapCommand extends AbstractCommand
 			throw new \Exception(sprintf('Fixture file <info>%s</info> does not exist (checked path <info>%s</info>)', $file, $dataDir));
 		}
 
-		$em = $this->container->getDoctrine()->getManager('public');
+		$em = $this->container->getDoctrine()->getManager($input->getOption('em'));
 		$userProcessor = new UserProcessor();
 		$userProcessor->setContainer($this->container);
 

@@ -175,7 +175,7 @@ class DoctrineRepository extends RepositoryAbstraction
 	protected function getMax()
 	{
 		if ( ! $this->locked) {
-			\Log::info('Should lock before changes');
+			//\Log::info('Should lock before changes');
 		}
 
 		$dql = "SELECT MAX(e.right) FROM {$this->className} e";
@@ -200,7 +200,7 @@ class DoctrineRepository extends RepositoryAbstraction
 	public function truncate($offset, $size)
 	{
 		if ( ! $this->locked) {
-			\Log::info('Should lock before changes');
+			//\Log::info('Should lock before changes');
 		}
 
 		$size = (int)$size;
@@ -240,7 +240,7 @@ class DoctrineRepository extends RepositoryAbstraction
 	public function move(Node\NodeInterface $node, $pos, $levelDiff, $undoMove = false)
 	{
 		if ( ! $this->locked) {
-			\Log::info('Should lock before changes');
+			//\Log::info('Should lock before changes');
 		}
 
 		$tableName = $this->tableName;
@@ -346,7 +346,7 @@ class DoctrineRepository extends RepositoryAbstraction
 	public function delete(Node\NodeInterface $node)
 	{
 		if ( ! $this->locked) {
-			\Log::info('Should lock before changes');
+			//\Log::info('Should lock before changes');
 		}
 
 		if ( ! $node instanceof Node\DoctrineNode) {

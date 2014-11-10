@@ -1,0 +1,56 @@
+Supra\Package\CmsAuthentication\Entity\Group:
+    admins:
+        name: admins
+        isSuper: true
+    supers:
+        name: supers
+        isSuper: false
+    contribs:
+        name: contribs
+        isSuper: false
+Supra\Package\CmsAuthentication\Entity\User:
+    admin:
+        name: admin@sitesupra.org
+        login: admin@sitesupra.org
+        password: admin
+        email: admin@sitesupra.org
+        active: true
+        group: @admins
+        roles: [ROLE_USER]
+Supra\Package\Cms\Entity\Template:
+    demo_template_simple: []
+    demo_template_two_columns: []
+Supra\Package\Cms\Entity\TemplateLayout:
+    simple_template_layout:
+        __construct: [screen]
+        template: @demo_template_simple
+        layoutName: simple
+    two_columns_template_layout:
+        __construct: [screen]
+        template: @demo_template_two_columns
+        layoutName: two_columns
+Supra\Package\Cms\Entity\TemplateLocalization:
+    demo_template_simple_l11n_en:
+        __construct: [en]
+        template: @demo_template_simple
+        title: Simple
+    demo_template_simple_l11n_ru:
+        __construct: [ru]
+        template: @demo_template_simple
+        title: Simple
+    demo_template_simple_l11n_lv:
+        __construct: [lv]
+        template: @demo_template_simple
+        title: Simple
+    demo_template_two_columns_l11n_en:
+        __construct: [en]
+        template: @demo_template_two_columns
+        title: Two columns
+    demo_template_two_columns_l11n_ru:
+        __construct: [ru]
+        template: @demo_template_two_columns
+        title: Two columns
+    demo_template_two_columns_l11n_lv:
+        __construct: [lv]
+        template: @demo_template_two_columns
+        title: Two columns

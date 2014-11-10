@@ -13,5 +13,7 @@ web/.htaccess
 cache/
 .directory
 supra/config.yml
-storage/
+storage/files
+storage/cache
+storage/log
 web/files
