@@ -11,10 +11,15 @@ abstract class VersionedEntity extends Entity implements VersionedEntityInterfac
 	 * Keeps the entity revision.
 	 *
 	 * @Column(type="supraId20", nullable=true)
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $revision;
+
+	/**
+	 * @var int
+	 */
+	protected $revisionType;
 
 	/**
 	 * @inheritDoc

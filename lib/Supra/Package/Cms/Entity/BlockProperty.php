@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
+use Supra\Package\Cms\Entity\Abstraction\AuditedEntityInterface;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Entity\Abstraction\Block;
@@ -20,7 +20,7 @@ use Supra\Controller\Pages\Exception;
  * @Entity
  * //HasLifecycleCallbacks
  */
-class BlockProperty extends VersionedEntity implements AuditedEntity
+class BlockProperty extends VersionedEntity implements AuditedEntityInterface
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="blockProperties")

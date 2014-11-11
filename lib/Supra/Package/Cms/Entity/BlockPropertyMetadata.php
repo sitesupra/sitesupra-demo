@@ -3,7 +3,7 @@
 namespace Supra\Package\Cms\Entity;
 
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
+use Supra\Package\Cms\Entity\Abstraction\AuditedEntityInterface;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
 
@@ -11,7 +11,8 @@ use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
  * BlockPropertyMetadata
  * @Entity
  */
-class BlockPropertyMetadata extends VersionedEntity implements AuditedEntity
+
+class BlockPropertyMetadata extends VersionedEntity implements AuditedEntityInterface
 {
 	/**
 	 * @Column(type="string")

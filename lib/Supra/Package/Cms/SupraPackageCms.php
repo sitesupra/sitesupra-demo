@@ -44,7 +44,7 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container[$this->name . '.pages.page_application_manager'] = function () {
 
 			$manager = new PageApplicationManager();
-			
+
 			$manager->registerApplication(new BlogPageApplication());
 			$manager->registerApplication(new GlossaryPageApplication());
 
@@ -61,6 +61,17 @@ class SupraPackageCms extends AbstractSupraPackage
 					'supra.cms.doctrine.event_subscriber.page_path_generator',
 					'supra.cms.doctrine.event_subscriber.versioned_entity_schema',
 					'supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter'
+				)
+			)
+		);
+
+		$frameworkConfiguration['doctrine']['event_managers']['audit'] = array_merge_recursive(
+			$frameworkConfiguration['doctrine']['event_managers']['public'],
+			array(
+				'subscribers' => array(
+					'supra.cms.doctrine.event_subscriber.audit_schema',
+					'supra.cms.doctrine.event_subscriber.audit',
+					'supra.cms.doctrine.event_subscriber.audit_manager',
 				)
 			)
 		);
@@ -82,7 +93,20 @@ class SupraPackageCms extends AbstractSupraPackage
 			)
 		);
 
+		$frameworkConfiguration['doctrine']['connections']['audit'] = array_merge(
+			$frameworkConfiguration['doctrine']['connections']['default'],
+			array(
+				'event_manager' => 'audit',
+				'configuration' => 'audit'
+			)
+		);
+
 		$frameworkConfiguration['doctrine']['configurations']['cms'] = array_merge(
+			$frameworkConfiguration['doctrine']['configurations']['default'],
+			array()
+		);
+
+		$frameworkConfiguration['doctrine']['configurations']['audit'] = array_merge(
 			$frameworkConfiguration['doctrine']['configurations']['default'],
 			array()
 		);
@@ -91,6 +115,12 @@ class SupraPackageCms extends AbstractSupraPackage
 			'connection'	=> 'cms',
 			'event_manager'	=> 'cms',
 			'configuration'	=> 'cms'
+		);
+
+		$frameworkConfiguration['doctrine']['entity_managers']['audit'] = array(
+			'connection'	=> 'audit',
+			'event_manager'	=> 'audit',
+			'configuration'	=> 'audit'
 		);
 
 		$container->getApplication()->setConfigurationSection('framework', $frameworkConfiguration);

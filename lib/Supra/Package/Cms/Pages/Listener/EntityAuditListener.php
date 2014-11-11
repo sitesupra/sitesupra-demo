@@ -1,30 +1,16 @@
 <?php
 
-namespace Supra\Controller\Pages\Listener;
+namespace Supra\Package\Cms\Pages\Listener;
 
-use ReflectionClass;
 use Doctrine\ORM\Events;
-use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
-use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Common\EventSubscriber;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Supra\ObjectRepository\ObjectRepository;
 use Supra\Controller\Pages\PageController;
 use Doctrine\Common\EventArgs;
-use Supra\Controller\Pages\Entity\Abstraction\Localization;
-use Supra\Controller\Pages\Entity\Page;
-use Supra\Controller\Pages\Entity;
-use Supra\Controller\Pages\Entity\PageRevisionData;
-use Supra\Controller\Pages\Event\PagePublishEventArgs;
 use Doctrine\ORM\PersistentCollection;
 use Supra\Controller\Pages\Event\AuditEvents;
-use Supra\Controller\Pages\Listener\AuditCreateSchemaListener;
-use Supra\Controller\Pages\Entity\Abstraction\Block;
-use Supra\Controller\Pages\Entity\BlockProperty;
-use Supra\Controller\Pages\Entity\PageLocalization;
 use Supra\Controller\Pages\Event\PageEventArgs;
 use Supra\Controller\Pages\Exception\LogicException;
 use Supra\Controller\Pages\Exception\RuntimeException;

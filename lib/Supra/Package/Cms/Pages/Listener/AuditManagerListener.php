@@ -1,32 +1,23 @@
 <?php
 
-namespace Supra\Controller\Pages\Listener;
+namespace Supra\Package\Cms\Pages\Listener;
 
 use Doctrine\ORM\Events;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Supra\Controller\Pages\Exception\LogicException;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Supra\Controller\Pages\Entity\PageLocalization;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Entity\Template;
-use Supra\Controller\Pages\Entity\BlockProperty;
-use Supra\Controller\Pages\Entity\Abstraction\Block;
-use Supra\Controller\Pages\Entity;
 use ReflectionClass;
 use ReflectionProperty;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
+use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Supra\Controller\Pages\PageController;
-use Doctrine\ORM\PersistentCollection;
-use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
 use Supra\Controller\Pages\Event\AuditEvents;
 use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
 use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
 use Doctrine\ORM\EntityManager;
-use Supra\Controller\Pages\Entity\PageRevisionData;
 
 /**
  * Makes sure no manual changes are performed
@@ -62,15 +53,10 @@ class AuditManagerListener implements EventSubscriber
 
 	/**
 	 * Used to filter out block properties belonging to other pages
-	 * @var Entity\Abstraction\Localization
+	 * @var Localization
 	 */
 	private $currentLocalization;
 
-	public function __construct()
-	{
-		$this->log = ObjectRepository::getLogger($this);
-	}
-	
 	/**
 	 * @return array
 	 */
@@ -98,6 +84,7 @@ class AuditManagerListener implements EventSubscriber
 
 	private function debug()
 	{
+		return;
 		$args = func_get_args();
 		$args[0] = str_repeat("    ", $this->depth) . $args[0];
 

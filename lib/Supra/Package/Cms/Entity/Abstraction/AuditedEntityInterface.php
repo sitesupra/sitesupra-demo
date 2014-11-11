@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
-interface AuditedEntity extends VersionedEntityInterface
+interface AuditedEntityInterface
 {
 	const AUDITED_ENTITY_INTERFACE = __CLASS__;
 }

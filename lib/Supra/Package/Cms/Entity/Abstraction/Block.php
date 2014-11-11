@@ -25,7 +25,7 @@ use Supra\Controller\Pages\Exception;
  * })
  */
 abstract class Block extends VersionedEntity implements
-		AuditedEntity
+		AuditedEntityInterface
 {
 	/**
 	 * @Column(type="string", name="component")

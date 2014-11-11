@@ -54,10 +54,6 @@ class VersionedEntitySchemaListener implements EventSubscriber
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
 	{
-		if ($eventArgs->getEntityManager()->name !== 'cms') {
-			1+1;
-		}
-
 		$interfaceName = VersionedEntity::VERSIONED_ENTITY_INTERFACE;
 
 		$classMetadata = $eventArgs->getClassMetadata();

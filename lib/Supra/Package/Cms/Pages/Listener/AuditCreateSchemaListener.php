@@ -1,15 +1,16 @@
 <?php
 
-namespace Supra\Controller\Pages\Listener;
+namespace Supra\Package\Cms\Pages\Listener;
 
+use Doctrine\DBAL\Schema\Column;
 use ReflectionClass;
 use Doctrine\ORM\Tools\ToolEvents;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Common\EventSubscriber;
-use Supra\Controller\Pages\Entity\Abstraction\AuditedEntityInterface;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
+use Supra\Package\Cms\Entity\Abstraction\AuditedEntityInterface;
 
 class AuditCreateSchemaListener implements EventSubscriber
 {
@@ -53,8 +54,8 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$entityTable = $eventArgs->getClassTable();
 		$tableName = $entityTable->getName();
 
-		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
-			
+		if ($class->implementsInterface(AuditedEntityInterface::AUDITED_ENTITY_INTERFACE)) {
+
 			// Recreate the table inside the schema
 			$schema->dropTable($tableName);
 			$revisionTable = $schema->createTable($tableName);
@@ -106,12 +107,12 @@ class AuditCreateSchemaListener implements EventSubscriber
 		$className = $classMetadata->name;
 		$name = &$classMetadata->table['name'];
 		$class = new ReflectionClass($className);
-				
+
 		// composite id is required for audited entities, otherwise LEFT JOIN 
 		// queries on joined inheritance tables will cause huge result set
-		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
+		if ($class->implementsInterface(AuditedEntityInterface::AUDITED_ENTITY_INTERFACE)) {
 			$classMetadata->setIdentifier(array('id', 'revision'));
-			
+
 			if (empty($classMetadata->parentClasses)) {
 				// Add the revision_type column
 				$classMetadata->mapField(
@@ -124,18 +125,21 @@ class AuditCreateSchemaListener implements EventSubscriber
 				);
 			}
 		}
-		
-		$versionedDraftEntities = TableDraftSuffixAppender::getVersionedEntities();
-		
-		// if entity is audited, then it should be loaded from "*_audit" tables
-		if ($class->implementsInterface(AuditedEntityInterface::CN)) {
+
+		if ($class->implementsInterface(AuditedEntityInterface::AUDITED_ENTITY_INTERFACE)) {
 			if (strpos($name, self::AUDIT_SUFFIX) === false) {
 				$name = $name . self::AUDIT_SUFFIX;
 			}
-		} 
-		// all other versioned entities should be loaded from "*_draft" tables
-		else if (in_array($className, $versionedDraftEntities) && strpos($name, TableDraftSuffixAppender::TABLE_SUFFIX) === false) {
-			$name = $name . TableDraftSuffixAppender::TABLE_SUFFIX;
 		}
+
+		//$versionedDraftEntities = TableDraftSuffixAppender::getVersionedEntities();
+		
+		// if entity is audited, then it should be loaded from "*_audit" tables
+		//if ($class->implementsInterface(AuditedEntity::AUDITED_ENTITY_INTERFACE)) {
+		//}
+		// all other versioned entities should be loaded from "*_draft" tables
+		//else if (in_array($className, $versionedDraftEntities) && strpos($name, TableDraftSuffixAppender::TABLE_SUFFIX) === false) {
+		//	$name = $name . TableDraftSuffixAppender::TABLE_SUFFIX;
+		//}
 	}
 }

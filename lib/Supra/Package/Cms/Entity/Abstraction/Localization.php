@@ -29,7 +29,7 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  * })
  */
 abstract class Localization extends VersionedEntity implements
-		AuditedEntity,
+		AuditedEntityInterface,
 		TitleTrackingItemInterface,
 		LocalizationInterface
 {

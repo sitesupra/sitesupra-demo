@@ -2,9 +2,9 @@
 
 namespace Supra\Package\Cms\Entity\ReferencedElement;
 
+use Supra\Package\Cms\Entity\Abstraction\AuditedEntityInterface;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
-use Supra\Package\Cms\Entity\Abstraction\AuditedEntity;
 
 use Supra\Controller\Pages\Exception;
 
@@ -20,7 +20,7 @@ use Supra\Controller\Pages\Exception;
  * })
  */
 abstract class ReferencedElementAbstract extends VersionedEntity implements
-	AuditedEntity
+	AuditedEntityInterface
 {
 	/**
 	 * Convert object to array
