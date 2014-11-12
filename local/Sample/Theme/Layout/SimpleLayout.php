@@ -25,14 +25,4 @@ class SimpleLayout implements ThemeLayoutInterface
 	{
 		return 'SamplePackage:layouts/simple.html.twig';
 	}
-
-	/**
-	 * @FIXME: must obtain names from layout file.
-	 */
-	public function getPlaceHolderNames()
-	{
-		return array(
-			'header', 'content', 'footer'
-		);
-	}
 }
