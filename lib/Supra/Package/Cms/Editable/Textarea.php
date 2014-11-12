@@ -8,5 +8,4 @@ namespace Supra\Package\Cms\Editable;
 class Textarea extends String
 {
 	const EDITOR_TYPE = 'Text';
-	const EDITOR_INLINE_EDITABLE = false;
 }

@@ -24,6 +24,8 @@ class DemoBlockConfiguration extends BlockConfiguration
 				->add('inlineText', 'inline_text')
 				->add('checkbox', 'checkbox', 'Checkbox')
 				->add('link', 'link', 'Link')
+				->add('image', 'image', 'Image')
+				->add('datetime', 'datetime', 'Date & Time')
 				;
 	}
 }

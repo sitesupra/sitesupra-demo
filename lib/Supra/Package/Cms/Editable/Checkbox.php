@@ -14,7 +14,6 @@ class Checkbox extends Editable
 	private $noLabel = '{#buttons.no#}';
 	
 	const EDITOR_TYPE = 'Checkbox';
-	const EDITOR_INLINE_EDITABLE = false;
 	
 	/**
 	 * Return editor type
@@ -23,15 +22,6 @@ class Checkbox extends Editable
 	public function getEditorType()
 	{
 		return self::EDITOR_TYPE;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 * @return boolean
-	 */
-	public function isInlineEditable()
-	{
-		return self::EDITOR_INLINE_EDITABLE;
 	}
 	
 	public function setYesLabel($yesLabel)

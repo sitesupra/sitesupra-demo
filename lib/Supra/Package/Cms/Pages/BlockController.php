@@ -165,6 +165,8 @@ abstract class BlockController extends Controller
 //					$this->log->error($e);
 //				}
 
+				$this->container->getLogger()->error($e);
+
 				$this->hadException = $e;
 
 //				$this->setExceptionResponse($e);
@@ -410,11 +412,11 @@ abstract class BlockController extends Controller
 	 */
 	protected function configureContentFilters(BlockProperty $property, EditableInterface $editable)
 	{
-		$propertyId = $property->getId();
-
-		if (array_key_exists($propertyId, $this->configuredBlockProperties)) {
-			return;
-		}
+//		$propertyId = $property->getId();
+//
+//		if (array_key_exists($propertyId, $this->configuredBlockProperties)) {
+//			return;
+//		}
 
 		// @TODO: or get EM from request object?
 		$entityManager = $this->request instanceof PageRequestEdit
@@ -437,14 +439,14 @@ abstract class BlockController extends Controller
 			$editable->addFilter($filter);
 
 		// Editable Inline String
-		} else if ($editable instanceof Editable\InlineString) {
+		} elseif ($editable instanceof Editable\InlineString) {
 			if ($this->request instanceof PageRequestEdit) {
 				$filter = new Filter\EditableInlineStringFilter();
 				$filter->setBlockProperty($property);
 				$editable->addFilter($filter);
 			}
 		// Textarea and Inline Textarea
-		} else if ($editable instanceof Editable\Textarea
+		} elseif ($editable instanceof Editable\Textarea
 				|| $editable instanceof Editable\InlineTextarea) {
 
 			$editable->addFilter(new Filter\TextareaFilter());
@@ -457,15 +459,16 @@ abstract class BlockController extends Controller
 				$editable->addFilter($filter);
 			}
 		}
-		else if ($editable instanceof Editable\Link) {
+		elseif ($editable instanceof Editable\Link) {
 			$filter = new Filter\LinkFilter($entityManager, $currentLocale);
 			$filter->setBlockProperty($property);
 			$editable->addFilter($filter);
 		}
-
-
-//		
-//
+		elseif ($editable instanceof Editable\DateTime) {
+			$filter = new Editable\Filter\DateTimeFilter();
+			$editable->addFilter($filter);
+		}
+		
 //		else if ($editable instanceof Editable\Gallery) {
 //			$filter = new Filter\GalleryFilter();
 ////			ObjectRepository::setCallerParent($filter, $this);
@@ -514,8 +517,8 @@ abstract class BlockController extends Controller
 //			$filter->property = $property;
 //			$editable->addFilter($filter);
 //		}
-
-		$this->configuredBlockProperties[$propertyId] = true;
+//
+//		$this->configuredBlockProperties[$propertyId] = true;
 	}
 
 	/**

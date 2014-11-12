@@ -24,6 +24,7 @@ abstract class Editable implements EditableInterface
 		'image'			=> '\Supra\Package\Cms\Editable\Image',
 		'map'			=> '\Supra\Package\Cms\Editable\InlineMap',
 		'gallery'		=> '\Supra\Package\Cms\Editable\Gallery',
+		'datetime'		=> '\Supra\Package\Cms\Editable\DateTime',
 	);
 
 	/**

@@ -5,11 +5,9 @@ namespace Supra\Package\Cms\Editable;
 /**
  * Select editable content
  */
-class Select extends EditableAbstraction
+class Select extends Editable
 {
-
 	const EDITOR_TYPE = 'Select';
-	const EDITOR_INLINE_EDITABLE = false;
 
 	/**
 	 * @var array
@@ -44,15 +42,6 @@ class Select extends EditableAbstraction
 	public function getEditorType()
 	{
 		return static::EDITOR_TYPE;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @return boolean
-	 */
-	public function isInlineEditable()
-	{
-		return static::EDITOR_INLINE_EDITABLE;
 	}
 
 	public function getAdditionalParameters()

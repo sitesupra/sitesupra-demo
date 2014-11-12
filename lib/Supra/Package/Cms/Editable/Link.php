@@ -4,15 +4,11 @@ namespace Supra\Package\Cms\Editable;
 
 /**
  * Link Editable
- *
- * $managerMode 
- *
  * @TODO: what could be a default value for link?
  */
 class Link extends Editable
 {
 	const EDITOR_TYPE = 'Link';
-	const EDITOR_INLINE_EDITABLE = false;
 
 	const MANAGER_MODE_LINK = 'link';
 	const MANAGER_MODE_PAGE = 'page';
@@ -49,15 +45,8 @@ class Link extends Editable
 	}
 	
 	/**
-	 * {@inheritdoc}
-	 * @return boolean
-	 */
-	public function isInlineEditable()
-	{
-		return self::EDITOR_INLINE_EDITABLE;
-	}
-	
-	/**
+	 * @TODO: rename
+	 *
 	 * Sets whether the virtual groups can be selected or not
 	 *
 	 * @param boolean $groupsSelectable

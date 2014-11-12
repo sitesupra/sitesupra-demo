@@ -29,4 +29,12 @@
 	{{ supraBlock.property('link') | raw }}
 </div>
 
+<div>
+	<h3>Date & Time</h3>
+	{% if supraBlock.property('datetime') %}
+		{{ supraBlock.property('datetime').format('d-m-Y H:i') }}
+	{% endif %}
+</div>
+
+
 {# @TODO: the rest #}

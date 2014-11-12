@@ -2,16 +2,12 @@
 
 namespace Supra\Package\Cms\Editable;
 
-use \DateTime;
-
 /**
  * Date editable content
  */
-class Date extends EditableAbstraction
+class DateTime extends Editable
 {
-
 	const EDITOR_TYPE = 'Date';
-	const EDITOR_INLINE_EDITABLE = false;
 
 	/**
 	 * If editable is read only.
@@ -20,12 +16,12 @@ class Date extends EditableAbstraction
 	protected $disabled = false;
 
 	/**
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $minDate;
 
 	/**
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $maxDate;
 
@@ -55,26 +51,6 @@ class Date extends EditableAbstraction
 	}
 
 	/**
-	 * Which fields to serialize
-	 * @return array
-	 */
-	public function __sleep()
-	{
-		$fields = parent::__sleep() + array('disabled');
-
-		return $fields;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @return boolean
-	 */
-	public function isInlineEditable()
-	{
-		return static::EDITOR_INLINE_EDITABLE;
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getAdditionalParameters()
@@ -87,7 +63,7 @@ class Date extends EditableAbstraction
 	}
 
 	/**
-	 * @return DateTime
+	 * @return \DateTime
 	 */
 	public function getMinDate()
 	{
@@ -95,15 +71,15 @@ class Date extends EditableAbstraction
 	}
 
 	/**
-	 * @param DateTime $minDate
+	 * @param \DateTime $minDate
 	 */
-	public function setMinDate(DateTime $minDate)
+	public function setMinDate(\DateTime $minDate)
 	{
 		$this->minDate = $minDate;
 	}
 
 	/**
-	 * @return DateTime
+	 * @return \DateTime
 	 */
 	public function getMaxDate()
 	{
@@ -111,9 +87,9 @@ class Date extends EditableAbstraction
 	}
 
 	/**
-	 * @param DateTime $minDate
+	 * @param \DateTime $minDate
 	 */
-	public function setMaxDate(DateTime $maxDate)
+	public function setMaxDate(\DateTime $maxDate)
 	{
 		$this->maxDate = $maxDate;
 	}

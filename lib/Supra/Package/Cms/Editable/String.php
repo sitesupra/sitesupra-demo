@@ -9,7 +9,7 @@ class String extends Editable
 {
 	const EDITOR_TYPE = 'String';
 	
-	private $maxLength;
+	protected $maxLength;
 
 	/**
 	 * If editable is read only.
