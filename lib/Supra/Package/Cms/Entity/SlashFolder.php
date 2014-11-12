@@ -9,7 +9,7 @@ namespace Supra\Package\Cms\Entity;
 final class SlashFolder extends Folder
 {
 	const DUMMY_ROOT_ID = 'slash';
-	const DUMMY_ROOT_NAME = '-=SLASH=-';
+	const DUMMY_ROOT_NAME = '/';
 	
 	function __construct() 
 	{
