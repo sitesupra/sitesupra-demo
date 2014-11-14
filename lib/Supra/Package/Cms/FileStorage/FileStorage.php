@@ -108,6 +108,9 @@ class FileStorage implements ContainerAware
 	}
 
 	/**
+	 * Searches for any File Storage entity by entity ID.
+	 * Result can be File, Image or Folder.
+	 *
 	 * @param string $fileId
 	 * @param string $type
 	 * @return null|\Supra\FileStorage\File
@@ -124,6 +127,39 @@ class FileStorage implements ContainerAware
 		
 		return $this->getDoctrineEntityManager()
 				->find($type, $fileId);
+	}
+
+	/**
+	 * Searches for a File entity by ID.
+	 *
+	 * @param string $fileId
+	 * @return null|File
+	 */
+	public function findFile($fileId)
+	{
+		return $this->find($fileId, File::CN());
+	}
+
+	/**
+	 * Searches for an Image entity by ID.
+	 *
+	 * @param string $imageId
+	 * @return null|Image
+	 */
+	public function findImage($imageId)
+	{
+		return $this->find($imageId, Image::CN());
+	}
+
+	/**
+	 * Searches for a Folder entity by ID.
+	 *
+	 * @param string $folderId
+	 * @return null|Folder
+	 */
+	public function findFolder($folderId)
+	{
+		return $this->find($folderId, Folder::CN());
 	}
 
 	/**
@@ -708,7 +744,7 @@ class FileStorage implements ContainerAware
 	 * @param integer $force
 	 * @throws Exception\RuntimeException
 	 */
-	public function createImageVariant(Entity\Image $file, $width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight, $quality = 95, $force = false)
+	public function createImageVariant(Image $file, $width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight, $quality = 95, $force = false)
 	{
 		
 		if ( ! ($cropLeft || $cropTop || $cropWidth || $cropHeight) || 

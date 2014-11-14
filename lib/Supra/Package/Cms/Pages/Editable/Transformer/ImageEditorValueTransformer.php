@@ -3,12 +3,12 @@
 namespace Supra\Package\Cms\Pages\Editable\Transformer;
 
 use Supra\Package\Cms\Editable\Transformer\ValueTransformerInterface;
-use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
+use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\BlockPropertyMetadata;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
-class LinkEditorValueTransformer implements ValueTransformerInterface, BlockPropertyAware
+class ImageEditorValueTransformer implements ValueTransformerInterface, BlockPropertyAware
 {
 	/**
 	 * @var BlockProperty
@@ -27,17 +27,19 @@ class LinkEditorValueTransformer implements ValueTransformerInterface, BlockProp
 	{
 		$metadata = $this->property->getMetadata();
 
-		if (! $metadata->offsetExists('link')) {
-			$metadata->set('link', new BlockPropertyMetadata('link', $this->property));
+		if (! $metadata->offsetExists('image')) {
+			$metadata->set('image', new BlockPropertyMetadata('image', $this->property));
 		}
 
-		$metaItem = $metadata->get('link');
+		$metaItem = $metadata->get('image');
 		/* @var $metaItem BlockPropertyMetadata */
 
-		$element = new LinkReferencedElement();
+		$element = new ImageReferencedElement();
 
 		// @TODO: some data validation must happen here.
-		$element->fillArray($value);
+		$element->fillArray(array(
+			'image' => $value,
+		));
 
 		$metaItem->setReferencedElement($element);
 
@@ -53,13 +55,13 @@ class LinkEditorValueTransformer implements ValueTransformerInterface, BlockProp
 		if ($value !== null) {
 			// @TODO: not sure if this one is needed. just double checking.
 			throw new \LogicException(
-					'Expecting link containing block property value to be null.'
+					'Expecting image containing block property value to be null.'
 			);
 		}
 
-		if ($this->property->getMetadata()->offsetExists('link')) {
+		if ($this->property->getMetadata()->offsetExists('image')) {
 			
-			$metaItem = $this->property->getMetadata()->get('link');
+			$metaItem = $this->property->getMetadata()->get('image');
 
 			$element = $metaItem->getReferencedElement();
 

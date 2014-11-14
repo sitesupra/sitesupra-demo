@@ -2,42 +2,30 @@
 
 namespace Supra\Package\Cms\Pages\Editable\Filter;
 
-use Doctrine\ORM\EntityManager;
-use Supra\Core\Locale\LocaleInterface;
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementUtils;
 use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\Package\Cms\Html\HtmlTag;
+use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
-class LinkFilter implements FilterInterface
+class LinkFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 {
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
 	/**
 	 * @var BlockProperty
 	 */
-	public $blockProperty;
+	protected $blockProperty;
 
 	/**
-	 * @var EntityManager
+	 * {@inheritDoc}
 	 */
-	protected $entityManager;
-
-	/**
-	 * @var LocaleInterface
-	 */
-	protected $currentLocale;
-
-	/**
-	 * @param EntityManager $entityManager
-	 * @param LocaleInterface $currentLocale
-	 */
-	public function __construct(
-			EntityManager $entityManager,
-			LocaleInterface $currentLocale
-	) {
-		$this->entityManager = $entityManager;
-		$this->currentLocale = $currentLocale;
-	}
-
 	public function filter($content)
 	{
 		if ($this->blockProperty->getMetadata()->offsetExists('link')) {
@@ -59,15 +47,15 @@ class LinkFilter implements FilterInterface
 
 				$title = ReferencedElementUtils::getLinkReferencedElementTitle(
 						$element,
-						$this->entityManager,
-						$this->currentLocale
+						$this->container->getDoctrine()->getManager(),
+						$this->container->getLocaleManager()->getCurrentLocale()
 				);
 
 				// @TODO: what if we failed to obtain the URL?
 				$url = ReferencedElementUtils::getLinkReferencedElementUrl(
 						$element,
-						$this->entityManager,
-						$this->currentLocale
+						$this->container->getDoctrine()->getManager(),
+						$this->container->getLocaleManager()->getCurrentLocale()
 				);
 
 				$tag = new HtmlTag('a', $title ? $title : $url);
@@ -97,5 +85,13 @@ class LinkFilter implements FilterInterface
 	public function setBlockProperty(BlockProperty $blockProperty)
 	{
 		$this->blockProperty = $blockProperty;
+	}
+
+	/**
+	 * @param ContainerInterface $container
+	 */
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
 	}
 }

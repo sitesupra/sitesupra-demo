@@ -1,13 +1,11 @@
 <?php
 
-namespace Supra\Package\Cms\Pages\Editable\Filter;
-
-use Supra\Package\Cms\Editable\Filter\FilterInterface as BaseFilterInterface;
+namespace Supra\Package\Cms\Editable\Filter;
 
 /**
  * Does escaping, nl2br to the content
  */
-class TextareaFilter implements BaseFilterInterface
+class TextareaFilter implements FilterInterface
 {
 	public function filter($content)
 	{

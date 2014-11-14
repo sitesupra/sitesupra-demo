@@ -3,9 +3,16 @@
 namespace Supra\Package\Cms\Pages\Editable\Filter;
 
 use Supra\Package\Cms\Entity\BlockProperty;
+use Supra\Package\Cms\Editable\Filter\FilterInterface;
+use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
-class EditableInlineStringFilter implements FilterInterface
+class EditableInlineStringFilter implements FilterInterface, BlockPropertyAware
 {
+	/**
+	 * @var BlockProperty
+	 */
+	protected $blockProperty;
+
 	/**
 	 * @param string $content
 	 * @return \Twig_Markup

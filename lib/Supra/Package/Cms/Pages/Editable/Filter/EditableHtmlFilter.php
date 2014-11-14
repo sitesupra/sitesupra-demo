@@ -50,8 +50,8 @@ class EditableHtmlFilter extends HtmlFilter
 			));
 		}
 
-		// @FIXME: get the container!
-		$fileStorage = $this->container->getFileStorage();
+		$fileStorage = $this->container['cms.file_storage'];
+		/* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
 
 		$image = $fileStorage->findImage($imageElement->getImageId());
 		

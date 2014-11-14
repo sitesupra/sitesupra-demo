@@ -3,14 +3,16 @@ services:
         class: \Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener
     supra.cms.doctrine.event_subscriber.versioned_entity_revision_setter:
         class: \Supra\Package\Cms\Pages\Listener\VersionedEntityRevisionSetterListener
-    supra.cms.doctrine.event_subscriber.page_path_generator:
-        class: \Supra\Package\Cms\Pages\Listener\PagePathGeneratorListener
     supra.cms.doctrine.event_subscriber.audit_schema:
         class: \Supra\Package\Cms\Pages\Listener\AuditCreateSchemaListener
     supra.cms.doctrine.event_subscriber.audit_manager:
         class: \Supra\Package\Cms\Pages\Listener\AuditManagerListener
     supra.cms.doctrine.event_subscriber.audit:
         class: \Supra\Package\Cms\Pages\Listener\EntityAuditListener
+    supra.cms.pages.event_subscriber.page_path_generator:
+        class: \Supra\Package\Cms\Pages\Listener\PagePathGeneratorListener
+    supra.cms.pages.event_subscriber.image_size_creator_listener:
+        class: \Supra\Package\Cms\Pages\Listener\ImageSizeCreatorListener
     supra.cms.file_storage.event_subscriber.file_path_change_listener:
         class: \Supra\Package\Cms\FileStorage\Listener\FilePathChangeListener
     cms.pages.theme.provider:

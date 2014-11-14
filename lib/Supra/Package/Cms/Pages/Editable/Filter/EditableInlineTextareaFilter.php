@@ -3,11 +3,13 @@
 namespace Supra\Package\Cms\Pages\Editable\Filter;
 
 use Supra\Package\Cms\Entity\BlockProperty;
+use Supra\Package\Cms\Editable\Filter\FilterInterface;
+use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 /**
  * Wraps the content with additional, CMS specific, div.
  */
-class EditableInlineTextareaFilter implements FilterInterface
+class EditableInlineTextareaFilter implements FilterInterface, BlockPropertyAware
 {
 	/**
 	 * @var BlockProperty 

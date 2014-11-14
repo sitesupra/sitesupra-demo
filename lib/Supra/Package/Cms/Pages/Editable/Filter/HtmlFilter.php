@@ -1,8 +1,10 @@
 <?php
 namespace Supra\Package\Cms\Pages\Editable\Filter;
 
-use Doctrine\ORM\EntityManager;
-use Supra\Core\Locale\LocaleInterface;
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Package\Cms\Editable\Filter\FilterInterface;
+use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementUtils;
 use Supra\Package\Cms\Entity\ReferencedElement\VideoReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
@@ -12,12 +14,12 @@ use Supra\Package\Cms\Html\HtmlTagStart;
 use Supra\Package\Cms\Html\HtmlTagEnd;
 use Supra\Package\Cms\Html\HtmlTag;
 use Supra\Package\Cms\Pages\Markup;
-use Supra\Package\Cms\Entity\BlockProperty;
+use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 /**
  * Parses supra markup tags inside the HTML content.
  */
-class HtmlFilter implements FilterInterface
+class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 {
 	/**
 	 * @var BlockProperty
@@ -25,26 +27,9 @@ class HtmlFilter implements FilterInterface
 	protected $blockProperty;
 
 	/**
-	 * @var EntityManager
+	 * @var ContainerInterface
 	 */
-	protected $entityManager;
-
-	/**
-	 * @var LocaleInterface
-	 */
-	protected $currentLocale;
-
-	/**
-	 * @param EntityManager $entityManager
-	 * @param LocaleInterface $currentLocale
-	 */
-	public function __construct(
-			EntityManager $entityManager,
-			LocaleInterface $currentLocale
-	) {
-		$this->entityManager = $entityManager;
-		$this->currentLocale = $currentLocale;
-	}
+	protected $container;
 
 	/**
 	 * @param string $content
@@ -132,15 +117,15 @@ class HtmlFilter implements FilterInterface
 
 		$title = ReferencedElementUtils::getLinkReferencedElementTitle(
 				$link,
-				$this->entityManager,
-				$this->currentLocale
+				$this->container->getDoctrine()->getManager(),
+				$this->container->getLocaleManager()->getCurrentLocale()
 		);
 
 		// @TODO: what if we failed to obtain the URL?
 		$url = ReferencedElementUtils::getLinkReferencedElementUrl(
 				$link,
-				$this->entityManager,
-				$this->currentLocale
+				$this->container->getDoctrine()->getManager(),
+				$this->container->getLocaleManager()->getCurrentLocale()
 		);
 
 		$tag->setAttribute('target', $link->getTarget())
@@ -177,85 +162,85 @@ class HtmlFilter implements FilterInterface
 	protected function parseSupraImage(ImageReferencedElement $imageData)
 	{
 		$imageId = $imageData->getImageId();
-		$fs = ObjectRepository::getFileStorage($this);
-		$em = $fs->getDoctrineEntityManager();
-		$image = $em->find(Image::CN(), $imageId);
 
-		if (!$image instanceof Image) {
-			$this->log->warn("Image #{$imageId} has not been found");
+		$fileStorage = $this->container['cms.file_storage'];
+		/* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
+
+		$image = $fileStorage->findImage($imageId);
+
+		if ($image === null) {
+			return null;
+		}
+
+		$sizeName = $imageData->getSizeName();
+
+		$size = $image->findImageSize($sizeName);
+
+		if ($size === null) {
+			$this->container->getLogger()->warn("Image [{$imageId}] size [{$sizeName}] not found.");
+			return null;
+		}
+
+		$tag = new HtmlTag('img');
+		$width = $height = null;
+
+		if ($size->isCropped()) {
+			$width = $size->getCropWidth();
+			$height = $size->getCropHeight();
 		}
 		else {
-			$sizeName = $imageData->getSizeName();
-			$size = $image->findImageSize($sizeName);
-
-			if (!$size) {
-				$this->log->warn("Image #{$imageId} size $sizeName has not been found");
-				return;
-			}
-
-			$tag = new HtmlTag('img');
-			$width = $height = null;
-
-			if ($size->isCropped()) {
-				$width = $size->getCropWidth();
-				$height = $size->getCropHeight();
-			}
-			else {
-				$width = $size->getWidth();
-				$height = $size->getHeight();
-			}
-
-			$src = $fs->getWebPath($image, $size);
-			
-			$tag->setAttribute('src', $src);
-
-			$align = $imageData->getAlign();
-			if (!empty($align)) {
-				$tag->addClass('align-' . $align);
-
-				if ($align === 'middle') {
-					$tag->setAttribute('style', "width: {$width}px;");
-				}
-			}
-
-			$tag->addClass($imageData->getStyle());
-
-			if (!empty($width)) {
-				$tag->setAttribute('width', $width);
-			}
-
-			if (!empty($height)) {
-				$tag->setAttribute('height', $height);
-			}
-
-			$title = trim($imageData->getTitle());
-			if (!empty($title)) {
-				$tag->setAttribute('title', $title);
-			}
-
-			$alternativeText = trim($imageData->getAlternativeText());
-			$tag->setAttribute('alt', (!empty($alternativeText) ? $alternativeText : ''));
-
-			/*
-			 * Temporary hardcode version
-			 *
-			 * @TODO:
-			 * 1. use depending on 'htmlEditorPlugins' parameter in cms\configuration\config.pages.yml
-			 * 1a. create parameter - 'style'?			 *
-			 * 2. add attributes depending on ImageReferencedElement style type
-			 * 2a. create style types (constants - lightbox,...)
-			 */
-			$style = $imageData->getStyle();
-
-			if ($style == Entity\ReferencedElement\ImageReferencedElement::STYLE_LIGHTBOX) {
-				$tag->setAttribute('rel', 'lightbox');
-				$tag->setAttribute('data-fancybox-href', $fs->getWebPath($image));
-			}
-
-			return $tag;
+			$width = $size->getWidth();
+			$height = $size->getHeight();
 		}
 
-		return null;
+		$src = $fileStorage->getWebPath($image, $size);
+
+		$tag->setAttribute('src', $src);
+
+		$align = $imageData->getAlign();
+		if (!empty($align)) {
+			$tag->addClass('align-' . $align);
+
+			if ($align === 'middle') {
+				$tag->setAttribute('style', "width: {$width}px;");
+			}
+		}
+
+		$tag->addClass($imageData->getStyle());
+
+		if (!empty($width)) {
+			$tag->setAttribute('width', $width);
+		}
+
+		if (!empty($height)) {
+			$tag->setAttribute('height', $height);
+		}
+
+		$title = trim($imageData->getTitle());
+		if (!empty($title)) {
+			$tag->setAttribute('title', $title);
+		}
+
+		$alternativeText = trim($imageData->getAlternativeText());
+		$tag->setAttribute('alt', (!empty($alternativeText) ? $alternativeText : ''));
+
+		/*
+		 * Temporary hardcode version
+		 *
+		 * @TODO:
+		 * 1. use depending on 'htmlEditorPlugins' parameter in cms\configuration\config.pages.yml
+		 * 1a. create parameter - 'style'?			 *
+		 * 2. add attributes depending on ImageReferencedElement style type
+		 * 2a. create style types (constants - lightbox,...)
+		 */
+		$style = $imageData->getStyle();
+
+		if ($style == ImageReferencedElement::STYLE_LIGHTBOX) {
+			$tag->setAttribute('rel', 'lightbox');
+			$tag->setAttribute('data-fancybox-href', $fileStorage->getWebPath($image));
+		}
+
+		return $tag;
 	}
 
 	/**
@@ -408,4 +393,13 @@ class HtmlFilter implements FilterInterface
 	{
 		$this->blockProperty = $blockProperty;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
+	}
+	
 }

@@ -2,13 +2,22 @@
 
 namespace Supra\Package\Cms\Pages\Editable\Transformer;
 
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\Editable\Transformer\ValueTransformerInterface;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
+use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\BlockPropertyMetadata;
+use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
-class HtmlEditorValueTransformer implements ValueTransformerInterface
+class HtmlEditorValueTransformer implements ValueTransformerInterface, ContainerAware, BlockPropertyAware
 {
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
 	/**
 	 * @var BlockProperty
 	 */
@@ -74,7 +83,7 @@ class HtmlEditorValueTransformer implements ValueTransformerInterface
 			$referencedElement = $metadata->getReferencedElement();
 
 			if ($referencedElement !== null) {
-				$referencedElementData[$name] = $referencedElement->toArray();
+				$referencedElementData[$name] = $this->convertReferencedElementToArray($referencedElement);
 			}
 		}
 
@@ -97,6 +106,39 @@ class HtmlEditorValueTransformer implements ValueTransformerInterface
 		}
 
 		return new BlockPropertyMetadata('fonts', $this->property);
+	}
+
+	/**
+	 * @param ReferencedElementAbstract $element
+	 * @return array
+	 */
+	private function convertReferencedElementToArray(ReferencedElementAbstract $element)
+	{
+		$elementData = $element->toArray();
+
+		if ($element instanceof ImageReferencedElement) {
+
+			$fileStorage = $this->container['cms.file_storage'];
+			/* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
+			$image = $fileStorage->findImage($element->getImageId());
+
+			if ($image === null) {
+				// @TODO: not sure we should return anything.
+				return array();
+			}
+
+			$elementData['image'] = $fileStorage->getFileInfo($image);
+		}
+
+		return $elementData;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
 	}
 }
 

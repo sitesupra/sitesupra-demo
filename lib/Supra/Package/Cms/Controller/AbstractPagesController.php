@@ -4,6 +4,8 @@ namespace Supra\Package\Cms\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\NestedSet\Node\EntityNodeInterface;
 use Supra\Package\Cms\Pages\Application\PageApplicationInterface;
 use Supra\Package\Cms\Entity\Abstraction\Entity as AbstractEntity;
 use Supra\Package\Cms\Entity;
@@ -30,36 +32,8 @@ use Supra\Package\Cms\Pages\BlockController;
 use Supra\Package\Cms\Uri\Path;
 use Supra\Package\Cms\Pages\Editable\Transformer\HtmlEditorValueTransformer;
 use Supra\Package\Cms\Pages\Editable\Transformer\LinkEditorValueTransformer;
-
-use Supra\Core\NestedSet\Node\EntityNodeInterface;
-
-use Supra\Controller\Exception\ResourceNotFoundException;
-use Supra\Controller\Pages\PageController;
-use Doctrine\ORM\EntityManager;
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Controller\Pages\Repository\PageRepository;
-use Supra\Http\Cookie;
-use Supra\Cms\CmsAction;
-use Supra\Core\NestedSet\Node\DoctrineNode;
-use Doctrine\ORM\Query;
-use Supra\Database\Doctrine\Hydrator\ColumnHydrator;
-use Supra\FileStorage\Entity\Image;
-use Supra\FileStorage\Entity\File;
-use Supra\User\Entity\User;
-use Supra\Controller\Pages\Request\HistoryPageRequestEdit;
-use Supra\Loader\Loader;
-use Supra\AuditLog\AuditLogEvent;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Supra\Controller\Pages\Listener\PagePathGenerator;
-use Supra\Controller\Pages\Event\PageEventArgs;
-use Supra\Controller\Pages\Event\AuditEvents;
-use Supra\Controller\Pages\Listener\EntityRevisionSetterListener;
-use Supra\Controller\Pages\Exception\DuplicatePagePathException;
-use Supra\Controller\Pages\Event\SetAuditRevisionEventArgs;
-use Supra\Controller\Pages\Exception\MissingResourceOnRestore;
-//use Supra\RemoteHttp\Request\RemoteHttpRequest;
-//use Supra\RemoteHttp\RemoteHttpRequestService;
-use Supra\Controller\Pages\Event;
+use Supra\Package\Cms\Pages\Editable\Transformer\ImageEditorValueTransformer;
+use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 /**
  * Controller containing common methods
@@ -71,17 +45,16 @@ abstract class AbstractPagesController extends AbstractCmsController
 	const GOOGLEAPIS_FONTS_URI = 'https://www.googleapis.com/webfonts/v1/webfonts';
 
 	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
-	const PAGE_CONTROLLER_CLASS = 'Supra\Controller\Pages\PageController';
 
 	/**
 	 * @var Entity\Abstraction\Localization
 	 */
 	protected $pageData;
 
-	/**
-	 * @var boolean
-	 */
-	private $lockTransactionOpened = false;
+//	/**
+//	 * @var boolean
+//	 */
+//	private $lockTransactionOpened = false;
 
 	/**
 	 * @return \Doctrine\ORM\EntityManager
@@ -104,6 +77,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 		}
 	}
 
+// @FIXME implement as post-request listener.
 //	/**
 //	 * @param \Exception $e
 //	 */
@@ -118,65 +92,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 //		}
 //
 //		parent::finalize($e);
-//	}
-
-//	/**
-//	 * TODO: must return configurable controller instance (use repository?)
-//	 * @return string
-//	 */
-//	protected function getPageControllerClass()
-//	{
-//		return 'Supra\Controller\Pages\PageController';
-//	}
-
-//	/**
-//	 * Get public entity manager
-//	 * @return EntityManager
-//	 */
-//	protected function getPublicEntityManager()
-//	{
-//		return ObjectRepository::getEntityManager($this->getPageControllerClass());
-//	}
-
-//	/**
-//	 * Get page controller instance
-//	 * @return PageController
-//	 */
-//	protected function getPageController()
-//	{
-//		if (is_null($this->pageController)) {
-//			$controllerClass = $this->getPageControllerClass();
-//			$this->pageController = Loader::getClassInstance($controllerClass, self::PAGE_CONTROLLER_CLASS);
-//
-//			// Override to use the draft repository objects
-//			ObjectRepository::setCallerParent($this->pageController, $this);
-//		}
-//
-//		return $this->pageController;
-//	}
-
-//	/**
-//	 * @param Localization $pageLocalization
-//	 * @return PageRequestEdit
-//	 */
-//	protected function getPageRequest(Localization $pageLocalization = null)
-//	{
-//		$controller = $this->getPageController();
-//		$media = $this->getMedia();
-//		$user = $this->getUser();
-//
-//		if (is_null($pageLocalization)) {
-//			$pageLocalization = $this->getPageLocalization();
-//		}
-//
-//		$request = PageRequestEdit::factory($pageLocalization, $media);
-//		$response = $controller->createResponse($request);
-//
-//		$controller->prepare($request, $response);
-//
-//		$request->setUser($user);
-//
-//		return $request;
 //	}
 
 	/**
@@ -1617,16 +1532,23 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 */
 	protected function configureEditableValueTransformers(EditableInterface $editable, BlockProperty $property)
 	{
+		$transformers = array();
+
 		if ($editable instanceof Editable\Html) {
-
-			$transformer = new HtmlEditorValueTransformer();
-			$transformer->setBlockProperty($property);
-
-			$editable->addEditorValueTransformer($transformer);
+			$transformers[] = new HtmlEditorValueTransformer();
 		} elseif ($editable instanceof Editable\Link) {
+			$transformers[] = new LinkEditorValueTransformer();
+		} else if ($editable instanceof Editable\Image) {
+			$transformers[] = new ImageEditorValueTransformer();
+		}
 
-			$transformer = new LinkEditorValueTransformer();
-			$transformer->setBlockProperty($property);
+		foreach ($transformers as $transformer) {
+			if ($transformer instanceof ContainerAware) {
+				$transformer->setContainer($this->container);
+			}
+			if ($transformer instanceof BlockPropertyAware) {
+				$transformer->setBlockProperty($property);
+			}
 
 			$editable->addEditorValueTransformer($transformer);
 		}

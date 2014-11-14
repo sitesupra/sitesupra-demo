@@ -5,6 +5,7 @@ namespace Supra\Package\Cms\Pages;
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Core\Controller\Controller;
 use Supra\Core\Templating\Templating;
+use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\BlockProperty;
@@ -18,12 +19,12 @@ use Supra\Package\Cms\Pages\Response\BlockResponseEdit;
 use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Editable;
 use Supra\Package\Cms\Pages\Editable\Filter;
+use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 use Supra\Controller\Pages\Twig\TwigSupraBlockGlobal;
 
 use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
 use Supra\Controller\Pages\Exception;
-//use Supra\Controller\Exception\StopRequestException;
 
 /**
  * Block controller abstraction
@@ -418,55 +419,44 @@ abstract class BlockController extends Controller
 //			return;
 //		}
 
+		$filters = array();
+
 		// @TODO: or get EM from request object?
 		$entityManager = $this->request instanceof PageRequestEdit
 				? $this->container->getDoctrine()->getManager('cms')
 				: $this->container->getDoctrine()->getManager();
 
-		$currentLocale = $this->container
-				->getLocaleManager()
-				->getCurrentLocale();
-
 		// Html content filters
 		if ($editable instanceof Editable\Html) {
-
-			$filter = $this->request instanceof PageRequestEdit
-					? new Filter\EditableHtmlFilter($entityManager, $currentLocale)
-					: new Filter\HtmlFilter($entityManager, $currentLocale);
-
-			$filter->setBlockProperty($property);
-
-			$editable->addFilter($filter);
+			$filters[] = $this->request instanceof PageRequestEdit
+					? new Filter\EditableHtmlFilter()
+					: new Filter\HtmlFilter();
 
 		// Editable Inline String
 		} elseif ($editable instanceof Editable\InlineString) {
 			if ($this->request instanceof PageRequestEdit) {
-				$filter = new Filter\EditableInlineStringFilter();
-				$filter->setBlockProperty($property);
-				$editable->addFilter($filter);
+				$filters[] = new Filter\EditableInlineStringFilter();
 			}
 		// Textarea and Inline Textarea
 		} elseif ($editable instanceof Editable\Textarea
 				|| $editable instanceof Editable\InlineTextarea) {
 
-			$editable->addFilter(new Filter\TextareaFilter());
+			$filters[] = new Editable\Filter\TextareaFilter();
 
 			if ($this->request instanceof PageRequestEdit
 					&& $editable instanceof Editable\InlineTextarea) {
 				
-				$filter = new Filter\EditableInlineTextareaFilter();
-				$filter->setBlockProperty($property);
-				$editable->addFilter($filter);
+				$filters[] = new Filter\EditableInlineTextareaFilter();
 			}
 		}
 		elseif ($editable instanceof Editable\Link) {
-			$filter = new Filter\LinkFilter($entityManager, $currentLocale);
-			$filter->setBlockProperty($property);
-			$editable->addFilter($filter);
+			$filters[] = new Filter\LinkFilter($entityManager);
 		}
 		elseif ($editable instanceof Editable\DateTime) {
-			$filter = new Editable\Filter\DateTimeFilter();
-			$editable->addFilter($filter);
+			$filters[] = new Editable\Filter\DateTimeFilter();
+		}
+		elseif ($editable instanceof Editable\Image) {
+			$filters[] = new Filter\ImageFilter();
 		}
 		
 //		else if ($editable instanceof Editable\Gallery) {
@@ -519,6 +509,19 @@ abstract class BlockController extends Controller
 //		}
 //
 //		$this->configuredBlockProperties[$propertyId] = true;
+
+		foreach ($filters as $filter) {
+
+			if ($filter instanceof ContainerAware) {
+				$filter->setContainer($this->container);
+			}
+
+			if ($filter instanceof BlockPropertyAware) {
+				$filter->setBlockProperty($property);
+			}
+
+			$editable->addFilter($filter);
+		}
 	}
 
 	/**
