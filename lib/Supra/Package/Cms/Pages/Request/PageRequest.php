@@ -869,6 +869,15 @@ abstract class PageRequest extends Request implements ContainerAware
 //		}
 //	}
 
+	public function getLocale()
+	{
+		if ($this->attributes->has('_locale')) {
+			return $this->attributes->get('_locale');
+		}
+
+		return parent::getLocale();
+	}
+
 	/**
 	 * @param ContainerInterface $container
 	 */
