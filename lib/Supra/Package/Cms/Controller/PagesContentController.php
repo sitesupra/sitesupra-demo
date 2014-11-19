@@ -579,7 +579,16 @@ class PagesContentController extends AbstractPagesController
 
 //		$this->savePostTrigger();
 
-		return new SupraJsonResponse($this->getBlockData($block, true));
+		$blockData = $this->getBlockData($block, true);
+
+		// this one is needed because UI expects plain name => value array,
+		// @TODO: UI should accept the same values as it receives with page contents.
+		$blockData['properties'] = array_map(
+				function(&$propertyData) {$propertyData = $propertyData['value'];},
+				$blockData['properties']
+		);
+
+		return new SupraJsonResponse($blockData);
 	}
 
 	/**
