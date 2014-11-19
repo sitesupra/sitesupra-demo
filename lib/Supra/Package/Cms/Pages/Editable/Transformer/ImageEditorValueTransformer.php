@@ -2,14 +2,21 @@
 
 namespace Supra\Package\Cms\Pages\Editable\Transformer;
 
+use Supra\Core\DependencyInjection\ContainerAware;
+use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\Editable\Transformer\ValueTransformerInterface;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\BlockPropertyMetadata;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
-class ImageEditorValueTransformer implements ValueTransformerInterface, BlockPropertyAware
+class ImageEditorValueTransformer implements ValueTransformerInterface, BlockPropertyAware, ContainerAware
 {
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
 	/**
 	 * @var BlockProperty
 	 */
@@ -25,6 +32,13 @@ class ImageEditorValueTransformer implements ValueTransformerInterface, BlockPro
 
 	public function reverseTransform($value)
 	{
+		if (empty($value)) {
+			$this->property->getMetadata()
+					->remove('image');
+
+			return null;
+		}
+
 		$metadata = $this->property->getMetadata();
 
 		if (! $metadata->offsetExists('image')) {
@@ -65,10 +79,30 @@ class ImageEditorValueTransformer implements ValueTransformerInterface, BlockPro
 
 			$element = $metaItem->getReferencedElement();
 
-			return $element !== null ? $element->toArray() : null;
+			if ($element instanceof ImageReferencedElement) {
+
+				$fileStorage = $this->container['cms.file_storage'];
+				/* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
+				$image = $fileStorage->findImage($element->getImageId());
+
+				if ($image !== null) {
+					return array_merge(
+							array('image' => $fileStorage->getFileInfo($image)),
+							$element->toArray()
+					);
+				}
+			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param ContainerInterface $container
+	 */
+	public function setContainer(ContainerInterface $container)
+	{
+		$this->container = $container;
 	}
 	
 }

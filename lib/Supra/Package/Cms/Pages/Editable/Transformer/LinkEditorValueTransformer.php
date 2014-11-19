@@ -25,6 +25,13 @@ class LinkEditorValueTransformer implements ValueTransformerInterface, BlockProp
 
 	public function reverseTransform($value)
 	{
+		if (empty($value)) {
+			$this->property->getMetadata()
+					->remove('link');
+
+			return null;
+		}
+
 		$metadata = $this->property->getMetadata();
 
 		if (! $metadata->offsetExists('link')) {
