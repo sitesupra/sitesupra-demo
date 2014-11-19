@@ -36,7 +36,7 @@ class BlockMapper extends Mapper
 
 	public function hidden($hidden = true)
 	{
-		$this->configuration->setInsertable($hidden);
+		$this->configuration->setInsertable(($hidden === false));
 		return $this;
 	}
 
