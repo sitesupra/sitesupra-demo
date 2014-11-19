@@ -33,7 +33,9 @@
         "maximebf/debugbar": "1.*",
         "monolog/monolog": "1.*",
         "nelmio/alice": "1.*",
-	"myclabs/deep-copy": "*"
+        "myclabs/deep-copy": "*",
+        "simplethings/entity-audit-bundle": "dev-master",
+        "gedmo/doctrine-extensions": "dev-master"
     },
     "autoload": {
         "psr-0": {

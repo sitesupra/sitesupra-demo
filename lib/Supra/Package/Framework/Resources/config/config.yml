@@ -16,6 +16,10 @@ services:
         class: \Supra\Core\NestedSet\Listener\NestedSetListener
     supra.doctrine.event_subscriber.timestampable:
         class: \Supra\Package\Framework\Doctrine\Subscriber\TimestampableListener
+    supra.doctrine.event_subscriber.nested_set_listener:
+        class: \Supra\Core\NestedSet\Listener\NestedSetListener
+    supra.doctrine.event_subscriber.timestampable:
+        class: \Supra\Package\Framework\Doctrine\Subscriber\TimestampableListener
     supra.framework.session_storage_native:
         class: \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage
         parameters: [[], "@supra.framework.session_handler_doctrine"]
@@ -76,6 +80,11 @@ doctrine:
             event_manager: public
     default_entity_manager: public
     default_connection: default
+doctrine_audit:
+    entities: []
+    ignore_columns:
+        - created_at
+        - updated_at
 session:
     storage: supra.framework.session_storage_native
 swiftmailer:

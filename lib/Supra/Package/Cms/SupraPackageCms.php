@@ -32,8 +32,8 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		//routing
 		$container->getRouter()->loadConfiguration(
-				$container->getApplication()->locateConfigFile($this, 'routes.yml')
-			);
+			$container->getApplication()->locateConfigFile($this, 'routes.yml')
+		);
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
 		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
@@ -54,7 +54,16 @@ class SupraPackageCms extends AbstractSupraPackage
 		//setting up doctrine
 		$frameworkConfiguration = $container->getApplication()->getConfigurationSection('framework');
 
-		$frameworkConfiguration['doctrine']['event_managers']['cms'] = array_merge_recursive(
+		//add audited entities
+		$frameworkConfiguration['doctrine_audit']['entities'] = array_merge(
+			$frameworkConfiguration['doctrine_audit']['entities'],
+			array(
+				'Supra\Package\Cms\Entity\Page',
+				'Supra\Package\CmsAuthentication\Entity\User'
+			)
+		);
+
+		/*$frameworkConfiguration['doctrine']['event_managers']['cms'] = array_merge_recursive(
 			$frameworkConfiguration['doctrine']['event_managers']['public'],
 			array(
 				'subscribers' => array(
@@ -121,7 +130,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			'connection'	=> 'audit',
 			'event_manager'	=> 'audit',
 			'configuration'	=> 'audit'
-		);
+		);*/
 
 		$container->getApplication()->setConfigurationSection('framework', $frameworkConfiguration);
 
@@ -129,8 +138,8 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container[$this->name . '.pages.blocks.collection'] = function () {
 
 			return new BlockCollection(array(
-						new BlockGroupConfiguration('features', 'Features', true),
-						new BlockGroupConfiguration('system', 'System'),
+				new BlockGroupConfiguration('features', 'Features', true),
+				new BlockGroupConfiguration('system', 'System'),
 			));
 		};
 
@@ -140,8 +149,8 @@ class SupraPackageCms extends AbstractSupraPackage
 		};
 
 		$container->getEventDispatcher()->addListener(
-				KernelEvent::EXCEPTION,
-				array($container[$this->getName().'.cms_exception_listener'], 'listen')
+			KernelEvent::EXCEPTION,
+			array($container[$this->getName().'.cms_exception_listener'], 'listen')
 		);
 
 		//the mighty file storage

@@ -9,6 +9,8 @@ use Doctrine\DBAL\Logging\LoggerChain;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
+use SimpleThings\EntityAudit\AuditConfiguration;
+use SimpleThings\EntityAudit\AuditManager;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Event\KernelEvent;
@@ -93,7 +95,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		};
 
 		$container->getEventDispatcher()->addListener(
-			// @FIXME: subscribe to controller pre-execute event instead.
+		// @FIXME: subscribe to controller pre-execute event instead.
 			KernelEvent::REQUEST,
 			array($container[$this->name.'.locale_detector_listener'], 'listen')
 		);
@@ -141,6 +143,24 @@ class SupraPackageFramework extends AbstractSupraPackage
 			return $localeManager;
 		});
 
+		//entity audit
+		$container['entity_audit.configuration'] = function (ContainerInterface $container) {
+			$config = $container->getParameter('framework.doctrine_audit');
+
+			$configuration = new AuditConfiguration();
+			$configuration->setAuditedEntityClasses($config['entities']);
+			$configuration->setGlobalIgnoreColumns($config['ignore_columns']);
+			$configuration->setRevisionTableName('su_' . $configuration->getRevisionTableName());
+
+			return $configuration;
+		};
+
+		$container['entity_audit.manager'] = function (ContainerInterface $container) {
+			$config = $container['entity_audit.configuration'];
+
+			return new AuditManager($config);
+		};
+
 		//finishing doctrine
 		$doctrineConfig = $container->getParameter('framework.doctrine');
 
@@ -162,6 +182,8 @@ class SupraPackageFramework extends AbstractSupraPackage
 				foreach ($managerDefinition['subscribers'] as $id) {
 					$manager->addEventSubscriber($container[$id]);
 				}
+
+				$container['entity_audit.manager']->registerEvents($manager);
 
 				return $manager;
 			};
@@ -306,7 +328,6 @@ class SupraPackageFramework extends AbstractSupraPackage
 		};
 
 		//mailers
-
 		$mailerConfig = $container->getParameter('framework.swiftmailer');
 
 		$container->setParameter('mailer.mailers', array_map(function ($value) { return 'mailer.mailers.'.$value; }, array_keys($mailerConfig['mailers'])));
