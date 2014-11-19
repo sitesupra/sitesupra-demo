@@ -1418,8 +1418,11 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 			'active' => $publishedLocalization ? $publishedLocalization->isActive() : $localization->isActive(),
 
-			// is the latest version published or not
-			'published' => $isLatestVersionPublished,
+			// has published page version published or not
+			'published' => $publishedLocalization && $publishedLocalization->isActive(),
+			
+			// is the latest version published
+			'published_latest' => $isLatestVersionPublished,
 		);
 
 		// redirect data
@@ -1459,14 +1462,14 @@ abstract class AbstractPagesController extends AbstractCmsController
 //		}
 
 		// No public stuff for group/temporary pages
-		if ( ! $localization instanceof Entity\GroupLocalization) {
+//		if ( ! $localization instanceof Entity\GroupLocalization) {
 //			$localizationId = $data->getId();
 //			// FIXME: causes "N" queries for "N" pages loaded in sitemap. Bad.
 //			$publicLocalization = $publicEm->find(Localization::CN(), $localizationId);
-		}
+//		}
 
 		// Additional base path received from application
-		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
+//		$array['basePath'] = $applicationBasePath->getFullPath(Path::FORMAT_RIGHT_DELIMITER);
 
 		return $localizationData;
 
