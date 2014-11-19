@@ -61,7 +61,7 @@ class BlockProperty extends VersionedEntity implements AuditedEntityInterface
 	 * @OneToMany(
 	 *		targetEntity="BlockPropertyMetadata",
 	 *		mappedBy="blockProperty",
-	 *		cascade={"all"},
+	 *		cascade={"persist", "remove"},
 	 *		indexBy="name",
 	 *		orphanRemoval=true
 	 * )

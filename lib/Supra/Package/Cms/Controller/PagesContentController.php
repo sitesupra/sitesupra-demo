@@ -459,21 +459,12 @@ class PagesContentController extends AbstractPagesController
 				// Initialize the property metadata so it is merged as well
 				$property->initializeProxyAssociations();
 
-				// For some reason, Public entity manager treats BlockPropertyMetadata,
-				// or metadata's ReferencedElement as Managed + Dirty.
-				// This code below should resolve that issue by detaching the entitities.
-				$publicEm->detach($property);
+				$publicProperty = $publicEm->merge($property);
 
 				foreach ($property->getMetadata() as $metadata) {
-
-					$publicEm->detach($metadata);
-
-					if ($metadata->getReferencedElement() !== null) {
-						$publicEm->detach($metadata->getReferencedElement());
-					}
+					$metadata->setBlockProperty($publicProperty);
+					$publicEm->merge($metadata);
 				}
-
-				$publicEm->merge($property);
 			}
 
 			// not needed anymore.

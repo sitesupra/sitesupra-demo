@@ -29,7 +29,7 @@ class BlockPropertyMetadata extends VersionedEntity implements AuditedEntityInte
 	/**
 	 * @OneToOne(
 	 *		targetEntity="Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract",
-	 *		cascade={"all"}
+	 *		cascade={"persist", "remove"}
 	 * )
 	 *
 	 * @JoinColumn(name="referencedElement_id", referencedColumnName="id", nullable=true)
