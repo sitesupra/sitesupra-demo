@@ -6,6 +6,7 @@ use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Pages\Block\BlockConfiguration;
+use Supra\Package\Cms\Pages\Block\UnknownBlockController;
 
 class BlockCollection implements ContainerAware
 {
@@ -37,6 +38,8 @@ class BlockCollection implements ContainerAware
 		foreach ($blocks as $block) {
 			$this->addConfiguration($block);
 		}
+
+		$this->addConfiguration(new UnknownBlockConfiguration());
 	}
 
 	/**
@@ -64,14 +67,21 @@ class BlockCollection implements ContainerAware
 	public function getConfiguration($className)
 	{
 		if (! isset($this->blocks[$className])) {
-			throw new \RuntimeException(
-					"Missing configuration for block [{$className}]"
-			);
+			return $this->blocks[UnknownBlockController::className];
 		}
 
 		$this->blocks[$className]->initialize();
 
 		return $this->blocks[$className];
+	}
+
+	/**
+	 * @param string $className
+	 * @return bool
+	 */
+	public function hasConfiguration($className)
+	{
+		return isset($this->blocks[$className]);
 	}
 
 	/**
@@ -92,11 +102,13 @@ class BlockCollection implements ContainerAware
 	 */
 	public function createController(Block $block)
 	{
-		$controllerClass = $block->getComponentClass();
+		$componentClass = $block->getComponentClass();
 
-		$configuration = $this->getConfiguration($controllerClass);
+		$configuration = $this->getConfiguration($componentClass);
 
-		$controller = new $controllerClass($block, $configuration);
+		$reflection = new \ReflectionClass($configuration->getControllerClass());
+
+		$controller = $reflection->newInstance($block, $configuration);
 
 		$controller->setContainer($this->container);
 

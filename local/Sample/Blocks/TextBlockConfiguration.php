@@ -18,7 +18,6 @@ class TextBlockConfiguration extends BlockConfiguration
 
 	protected function configureProperties(PropertyMapper $mapper)
 	{
-		$mapper->add('content', 'html')
-				->add('string', 'string', 'String Input');
+		$mapper->add('content', 'html');
 	}
 }

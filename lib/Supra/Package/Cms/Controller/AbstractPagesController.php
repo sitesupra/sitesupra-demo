@@ -1594,7 +1594,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 		$blockData = array(
 			'id'			=> $block->getId(),
-			'type'			=> $block->getComponentName(),
+			'type'			=> $block->getComponentNameFromClassName(get_class($blockController)),
 			'closed'		=> false,//@fixme
 			'locked'		=> $block->isLocked(),
 			'properties'	=> $this->collectBlockPropertyData($blockController),

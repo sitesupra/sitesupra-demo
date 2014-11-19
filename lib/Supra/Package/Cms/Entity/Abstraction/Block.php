@@ -141,7 +141,16 @@ abstract class Block extends VersionedEntity implements
 	 */
 	public function getComponentName()
 	{
-		return str_replace('\\', '_', $this->componentClass);
+		return $this->getComponentNameFromClassName($this->componentClass);
+	}
+
+	/**
+	 * @param string $className
+	 * @return string
+	 */
+	public function getComponentNameFromClassName($className)
+	{
+		return str_replace('\\', '_', $className);
 	}
 
 	/**
