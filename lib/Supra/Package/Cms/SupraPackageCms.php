@@ -59,6 +59,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			$frameworkConfiguration['doctrine_audit']['entities'],
 			array(
 				'Supra\Package\Cms\Entity\Page',
+                'Supra\Package\CmsAuthentication\Entity\AbstractUser',
 				'Supra\Package\CmsAuthentication\Entity\User'
 			)
 		);
