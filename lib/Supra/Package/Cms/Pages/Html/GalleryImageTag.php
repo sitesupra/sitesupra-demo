@@ -2,6 +2,9 @@
 
 namespace Supra\Package\Cms\Pages\Html;
 
+/**
+ * @FIXME: not implemented.
+ */
 class GalleryImageTag extends ImageTag
 {
 	/**

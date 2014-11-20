@@ -87,8 +87,8 @@ class ImageEditorValueTransformer implements ValueTransformerInterface, BlockPro
 
 				if ($image !== null) {
 					return array_merge(
-							array('image' => $fileStorage->getFileInfo($image)),
-							$element->toArray()
+							$element->toArray(),
+							array('image' => $fileStorage->getFileInfo($image))
 					);
 				}
 			}

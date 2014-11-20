@@ -33,5 +33,6 @@ class SamplePackage extends AbstractSupraPackage
 		/* @var $blockCollection \Supra\Package\Cms\Pages\Block\BlockCollection */
 		$blockCollection->addConfiguration(new Blocks\TextBlockConfiguration());
 		$blockCollection->addConfiguration(new Blocks\DemoBlockConfiguration());
+		$blockCollection->addConfiguration(new Blocks\GalleryBlockConfiguration());
 	}
 }

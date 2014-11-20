@@ -2,6 +2,9 @@
 
 namespace Supra\Package\Cms\Pages\Response;
 
+/**
+ * Page controller response part.
+ */
 abstract class ResponsePart
 {
 	/**
@@ -30,6 +33,11 @@ abstract class ResponsePart
 	public function output($output)
 	{
 		$this->output[] = (string) $output;
+	}
+
+	public function cleanOutput()
+	{
+		$this->output = array();
 	}
 
 	/**

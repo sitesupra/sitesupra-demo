@@ -17,5 +17,4 @@ class Image extends Editable
 	{
 		return static::EDITOR_TYPE;
 	}
-
 }

@@ -20,11 +20,8 @@ use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Editable;
 use Supra\Package\Cms\Pages\Editable\Filter;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
-
-use Supra\Controller\Pages\Twig\TwigSupraBlockGlobal;
-
-use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
-use Supra\Controller\Pages\Exception;
+use Supra\Package\Cms\Pages\Twig\TwigSupraBlockGlobal;
+use Supra\Package\Cms\Pages\Twig\TwigSupraPageGlobal;
 
 /**
  * Block controller abstraction
@@ -68,9 +65,11 @@ abstract class BlockController extends Controller
 	protected $response;
 
 	/**
+	 * Exception ocurred on prepare/execute.
+	 * 
 	 * @var \Exception
 	 */
-	private $hadException = null;
+	private $exception;
 
 	/**
 	 * @param Block $block
@@ -89,7 +88,7 @@ abstract class BlockController extends Controller
 	 */
 	public function hadException()
 	{
-		return $this->hadException !== null;
+		return $this->exception !== null;
 	}
 
 	/**
@@ -114,7 +113,7 @@ abstract class BlockController extends Controller
 		try {
 			$this->doPrepare();
 		} catch (\Exception $e) {
-			$this->hadException = $e;
+			$this->exception = $e;
 		}
 
 // @FIXME: allow PageController to handle this.
@@ -149,48 +148,25 @@ abstract class BlockController extends Controller
 	 */
 	final public function execute()
 	{
-		if (empty($this->hadException)) {
-
-// @TODO: implement similar functionality?
-//			$className = get_class($this);
-//			$file = Loader::getInstance()->findClassPath($className);
-//			$this->getResponse()->addResourceFile($file);
-
-			try {
-				
-				$this->doExecute();
-
-			} catch (\Exception $e) {
-
-//				if ( ! $e instanceof StopRequestException) {
-//					$this->log->error($e);
-//				}
-
-				$this->container->getLogger()->error($e);
-
-				$this->hadException = $e;
-
-//				$this->setExceptionResponse($e);
-			}
-		} else {
-//			$this->setExceptionResponse($this->hadException);
+		if ($this->hadException()) {
+			$this->setExceptionResponse($this->exception);
+			return null;
 		}
-	}
 
-	/**
-	 * Method used by block controllers to implement things to do in this step
-	 */
-	protected function doPrepare()
-	{
-		
-	}
+		// @TODO: implement similar functionality?
+//		$className = get_class($this);
+//		$file = Loader::getInstance()->findClassPath($className);
+//		$this->getResponse()->addResourceFile($file);
 
-	/**
-	 * Method used by block controllers to implement actual controlling
-	 */
-	protected function doExecute()
-	{
-		
+		try {
+			$this->doExecute();
+		} catch (\Exception $e) {
+
+			$this->container->getLogger()->error($e);
+			$this->exception = $e;
+
+			$this->setExceptionResponse($e);
+		}
 	}
 
 	/**
@@ -223,37 +199,6 @@ abstract class BlockController extends Controller
 	public function getResponse()
 	{
 		return $this->response;
-	}
-
-	/**
-	 * Assigns supra helper to the twig as global helper
-	 */
-	public function prepareTwigEnvironment()
-	{
-// @FIXME: implement if needed.
-//		$request = $this->getRequest();
-//
-//		$response = $this->getResponse();
-//
-//		if ($response instanceof Response\TwigResponse) {
-//
-//			$twig = $response->getTwigEnvironment();
-//
-//			$helper = new Twig\TwigSupraPageGlobal();
-//			$helper->setRequest($this->request);
-//
-//			$theme = $request->getLayout()->getTheme();
-//
-//			$helper->setTheme($theme);
-//			$helper->setResponseContext($response->getContext());
-//
-//			ObjectRepository::setCallerParent($helper, $this);
-//			$twig->addGlobal('supra', $helper);
-//
-//			$blockHelper = new Twig\TwigSupraBlockGlobal($this);
-//			ObjectRepository::setCallerParent($blockHelper, $this);
-//			$twig->addGlobal('supraBlock', $blockHelper);
-//		}
 	}
 
 	/**
@@ -458,6 +403,9 @@ abstract class BlockController extends Controller
 		elseif ($editable instanceof Editable\Image) {
 			$filters[] = new Filter\ImageFilter();
 		}
+		elseif ($editable instanceof Editable\Gallery) {
+			$filters[] = new Filter\GalleryFilter();
+		}
 		
 //		else if ($editable instanceof Editable\Gallery) {
 //			$filter = new Filter\GalleryFilter();
@@ -583,45 +531,40 @@ abstract class BlockController extends Controller
 //	}
 
 	/**
-	 * @return BlockControllerConfiguration
+	 * @return BlockConfiguration
 	 */
 	public function getConfiguration()
 	{
 		return $this->configuration;
 	}
 
-//	/**
-//	 * @return string
-//	 */
-//	protected function getExceptionResponseTemplateFilename()
-//	{
-//		return 'template/block-exception.html.twig';
-//	}
-//
-//	/**
-//	 * Block controller exception handler
-//	 * @param \Exception $exception
-//	 */
-//	public function setExceptionResponse(\Exception $exception)
-//	{
-//		$request = $this->getRequest();
-//
-//		if ($request instanceof PageRequestView) {
-//			return;
-//		}
-//
-//		$response = $this->getResponse();
-//
-//		if ($response instanceof TwigResponse) {
-//			$blockClass = $this->getBlock()->getComponentName();
-//			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
-//
-//			$response->cleanOutput();
-//			$response->setLoaderContext(__CLASS__);
-//			$response->assign('blockName', $configuration->title);
-//			$response->outputTemplate($this->getExceptionResponseTemplateFilename());
-//		}
-//	}
+	/**
+	 * @return string
+	 */
+	protected function getExceptionResponseTemplateFilename()
+	{
+		return 'Cms:block/exception.html.twig';
+	}
+	
+	/**
+	 * @param \Exception $exception
+	 */
+	protected function setExceptionResponse(\Exception $exception)
+	{
+		if (! $this->getRequest() instanceof PageRequestEdit) {
+			return;
+		}
+
+		$response = $this->getResponse();
+
+		if ($response instanceof BlockResponse) {
+			
+			$response->cleanOutput();
+
+			$response->assign('blockName', $this->getConfiguration()->getTitle())
+					->outputTemplate($this->getExceptionResponseTemplateFilename());
+		}
+	}
 
 //	/**
 //	 * Block controller local counter. Usually might be used to count the number
@@ -663,10 +606,34 @@ abstract class BlockController extends Controller
 
 		$templating->setContainer($this->container);
 
+		$pageTwigGlobal = new TwigSupraPageGlobal();
+		$pageTwigGlobal->setContainer($this->container);
+		$pageTwigGlobal->setRequest($request);
+
+		// @FIXME: need real response context here!
+		$pageTwigGlobal->setResponseContext(new Response\ResponseContext());
+
+		$templating->addGlobal('supra', $pageTwigGlobal);
 		$templating->addGlobal('supraBlock', new TwigSupraBlockGlobal($this));
 
 		return $request instanceof PageRequestEdit
 				? new BlockResponseEdit($this->block, $templating)
 				: new BlockResponseView($this->block, $templating);
+	}
+
+	/**
+	 * Method used by block controllers to implement things to do in this step
+	 */
+	protected function doPrepare()
+	{
+
+	}
+
+	/**
+	 * Method used by block controllers to implement actual controlling
+	 */
+	protected function doExecute()
+	{
+
 	}
 }

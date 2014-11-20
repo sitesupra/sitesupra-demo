@@ -53,5 +53,6 @@ abstract class BlockResponse extends ResponsePart
 	public function outputTemplate($template)
 	{
 		$this->output($this->templating->render($template, $this->parameters));
+		return $this;
 	}
 }

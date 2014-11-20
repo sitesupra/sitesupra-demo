@@ -197,11 +197,20 @@ class BlockProperty extends VersionedEntity implements AuditedEntityInterface
 	}
 
 	/**
-	 * TODO: should we validate the value? should we serialize arrays passed?
+	 * @TODO: should we validate the value?
+	 * @TODO: should we serialize arrays passed?
+	 * 
 	 * @param string $value
 	 */
 	public function setValue($value)
 	{
+		if ($value !== null && ! is_string($value)) {
+			throw new \UnexpectedValueException(sprintf(
+					'Block property accepts only NULL and string values, [%s] passed in.',
+					gettype($value)
+			));
+		}
+		
 		$this->value = $value;
 	}
 	

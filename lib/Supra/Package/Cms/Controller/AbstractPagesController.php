@@ -7,7 +7,6 @@ use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\NestedSet\Node\EntityNodeInterface;
 use Supra\Package\Cms\Pages\Application\PageApplicationInterface;
-use Supra\Package\Cms\Entity\Abstraction\Entity as AbstractEntity;
 use Supra\Package\Cms\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
@@ -16,10 +15,9 @@ use Supra\Package\Cms\Entity\PageRevisionData;
 use Supra\Package\Cms\Entity\Page;
 use Supra\Package\Cms\Entity\GroupPage;
 use Supra\Package\Cms\Entity\Template;
-use Supra\Package\Cms\Entity\ReferencedElement;
-use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\LockData;
-use Supra\Package\Cms\Entity\ApplicationPage;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\ApplicationLocalization;
 use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface;
@@ -33,6 +31,7 @@ use Supra\Package\Cms\Uri\Path;
 use Supra\Package\Cms\Pages\Editable\Transformer\HtmlEditorValueTransformer;
 use Supra\Package\Cms\Pages\Editable\Transformer\LinkEditorValueTransformer;
 use Supra\Package\Cms\Pages\Editable\Transformer\ImageEditorValueTransformer;
+use Supra\Package\Cms\Pages\Editable\Transformer\GalleryEditorValueTransformer;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 /**
@@ -47,7 +46,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
 
 	/**
-	 * @var Entity\Abstraction\Localization
+	 * @var Localization
 	 */
 	protected $pageData;
 
@@ -1109,7 +1108,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 		$localization = null;
 
 		// Must have group localization with ID equal with master because group localizations are not published currently
-		if ($page instanceof Entity\GroupPage) {
+		if ($page instanceof GroupPage) {
 			$localization = $page->createLocalization($locale);
 		} else {
 			$localization = $page->getLocalization($locale);
@@ -1531,7 +1530,9 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @FIXME: do it someway better.
+	 * @FIXME: do this someway better.
+	 *		Value transformers (and filters too) must be described or somewhere in configuration,
+	 *		or autodiscovered, or defined somewhere inside each editable.
 	 */
 	protected function configureEditableValueTransformers(EditableInterface $editable, BlockProperty $property)
 	{
@@ -1543,6 +1544,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 			$transformers[] = new LinkEditorValueTransformer();
 		} else if ($editable instanceof Editable\Image) {
 			$transformers[] = new ImageEditorValueTransformer();
+		} else if ($editable instanceof Editable\Gallery) {
+			$transformers[] = new GalleryEditorValueTransformer();
 		}
 
 		foreach ($transformers as $transformer) {

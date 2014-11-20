@@ -34,11 +34,34 @@ class BlockMapper extends Mapper
 		return $this;
 	}
 
-	public function hidden($hidden = true)
+	public function insertable($insertable = true)
 	{
-		$this->configuration->setInsertable(($hidden === false));
+		$this->configuration->setInsertable($insertable);
 		return $this;
 	}
 
-	// @TODO: the rest
+	/**
+	 * Alias for insertable()
+	 * 
+	 * @param bool $hidden
+	 */
+	public function hidden($hidden = true)
+	{
+		return $this->insertable(! $hidden);
+	}
+
+	/**
+	 * @TODO: refactor this.
+	 *
+	 * @internal
+	 * @deprecated
+	 *
+	 * @param string $cmsClassName
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\BlockMapper
+	 */
+	public function cmsClassName($cmsClassName)
+	{
+		$this->configuration->setCmsClassName($cmsClassName);
+		return $this;
+	}
 }
