@@ -17,7 +17,7 @@ use Supra\Controller\Pages\Exception;
  *		"icon" = "IconReferencedElement",
  * })
  */
-abstract class ReferencedElementAbstract
+abstract class ReferencedElementAbstract extends Entity
 {
 	/**
 	 * Convert object to array

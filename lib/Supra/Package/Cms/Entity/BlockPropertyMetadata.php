@@ -10,7 +10,7 @@ use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
  * @Entity
  */
 
-class BlockPropertyMetadata
+class BlockPropertyMetadata extends Entity
 {
 	/**
 	 * @Column(type="string")
@@ -52,6 +52,7 @@ class BlockPropertyMetadata
 			BlockProperty $blockProperty,
 			ReferencedElementAbstract $referencedElement = null
 	) {
+		parent::__construct();
 		$this->name = $name;
 		$this->blockProperty = $blockProperty;
 		$this->referencedElement = $referencedElement;
