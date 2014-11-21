@@ -58,7 +58,10 @@ class SupraPackageCms extends AbstractSupraPackage
 		$frameworkConfiguration['doctrine_audit']['entities'] = array_merge(
 			$frameworkConfiguration['doctrine_audit']['entities'],
 			array(
+				'Supra\Package\Cms\Entity\Abstraction\Localization',
+				'Supra\Package\Cms\Entity\Abstraction\AbstractPage',
 				'Supra\Package\Cms\Entity\Page',
+				'Supra\Package\Cms\Entity\PageLocalization',
 				'Supra\Package\CmsAuthentication\Entity\AbstractUser',
 				'Supra\Package\CmsAuthentication\Entity\User'
 			)
