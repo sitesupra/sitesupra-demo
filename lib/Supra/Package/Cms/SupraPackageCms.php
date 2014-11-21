@@ -59,8 +59,17 @@ class SupraPackageCms extends AbstractSupraPackage
 			$frameworkConfiguration['doctrine_audit']['entities'],
 			array(
 				'Supra\Package\Cms\Entity\Page',
-                'Supra\Package\CmsAuthentication\Entity\AbstractUser',
+				'Supra\Package\CmsAuthentication\Entity\AbstractUser',
 				'Supra\Package\CmsAuthentication\Entity\User'
+			)
+		);
+
+		$frameworkConfiguration['doctrine']['event_managers']['public'] = array_merge_recursive(
+			$frameworkConfiguration['doctrine']['event_managers']['public'],
+			array(
+				'subscribers' => array(
+					'supra.cms.file_storage.event_subscriber.file_path_change_listener'
+				)
 			)
 		);
 
@@ -86,14 +95,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			)
 		);
 
-		$frameworkConfiguration['doctrine']['event_managers']['public'] = array_merge_recursive(
-			$frameworkConfiguration['doctrine']['event_managers']['public'],
-			array(
-				'subscribers' => array(
-					'supra.cms.file_storage.event_subscriber.file_path_change_listener'
-				)
-			)
-		);
+
 
 		$frameworkConfiguration['doctrine']['connections']['cms'] = array_merge(
 			$frameworkConfiguration['doctrine']['connections']['default'],
