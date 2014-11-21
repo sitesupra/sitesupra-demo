@@ -416,10 +416,7 @@ abstract class BlockController extends Controller
 			return;
 		}
 
-		// @TODO: or get EM from request object?
-		$entityManager = $this->request instanceof PageRequestEdit
-				? $this->container->getDoctrine()->getManager('cms')
-				: $this->container->getDoctrine()->getManager();
+		$entityManager = $this->container->getDoctrine()->getManager();
 
 		$currentLocale = $this->container
 				->getLocaleManager()
