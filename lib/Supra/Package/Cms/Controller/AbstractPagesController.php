@@ -90,7 +90,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	{
 		return $this->container
 				->getDoctrine()
-				->getManager('cms');
+				->getManager();
 	}
 
 	/**

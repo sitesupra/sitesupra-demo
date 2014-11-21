@@ -17,7 +17,7 @@ class SupraBootstrapCommand extends AbstractCommand
 		$this->setName('supra:bootstrap')
 			->setDescription('Bootstraps initial supra database from fixture file provided')
 			->addArgument('file', InputArgument::OPTIONAL, 'Fixture file name relative to storage/data', 'fixtures.yml')
-			->addOption('em', null, InputOption::VALUE_OPTIONAL, 'Entity manager to use', 'cms');
+			->addOption('em', null, InputOption::VALUE_OPTIONAL, 'Entity manager to use', 'public');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
