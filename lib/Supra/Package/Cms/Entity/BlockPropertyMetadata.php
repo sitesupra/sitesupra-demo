@@ -3,8 +3,6 @@
 namespace Supra\Package\Cms\Entity;
 
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Package\Cms\Entity\Abstraction\AuditedEntityInterface;
-use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
 
 /**
@@ -12,7 +10,7 @@ use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
  * @Entity
  */
 
-class BlockPropertyMetadata extends VersionedEntity implements AuditedEntityInterface
+class BlockPropertyMetadata
 {
 	/**
 	 * @Column(type="string")
@@ -54,8 +52,6 @@ class BlockPropertyMetadata extends VersionedEntity implements AuditedEntityInte
 			BlockProperty $blockProperty,
 			ReferencedElementAbstract $referencedElement = null
 	) {
-		parent::__construct();
-		
 		$this->name = $name;
 		$this->blockProperty = $blockProperty;
 		$this->referencedElement = $referencedElement;

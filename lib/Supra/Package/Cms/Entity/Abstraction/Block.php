@@ -4,12 +4,8 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Supra\Package\Cms\Pages\Request\PageRequest;
-use Supra\Package\Cms\Pages\BlockController;
 use Supra\Package\Cms\Entity\PageBlock;
 use Supra\Package\Cms\Entity\TemplateBlock;
-use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
-use Supra\Package\Cms\Pages\Response\ResponseContext;
 
 use Supra\Controller\Pages\Exception;
 
@@ -24,8 +20,7 @@ use Supra\Controller\Pages\Exception;
  *		"page"		= "Supra\Package\Cms\Entity\PageBlock"
  * })
  */
-abstract class Block extends VersionedEntity implements
-		AuditedEntityInterface
+abstract class Block extends Entity
 {
 	/**
 	 * @Column(type="string", name="component")
@@ -77,7 +72,6 @@ abstract class Block extends VersionedEntity implements
 	public function __construct()
 	{
 		parent::__construct();
-		
 		$this->blockProperties = new ArrayCollection();
 	}
 

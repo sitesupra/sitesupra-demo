@@ -3,7 +3,6 @@
 namespace Supra\Package\Cms\Entity;
 
 use Supra\Package\Cms\Uri\Path;
-use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 
 /**
  * Stores page full path
@@ -13,7 +12,7 @@ use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
  *		@UniqueConstraint(name="locale_path_idx", columns={"locale", "path"})
  * })
  */
-class PageLocalizationPath extends VersionedEntity
+class PageLocalizationPath extends Abstraction\Entity
 {
 
 	/**

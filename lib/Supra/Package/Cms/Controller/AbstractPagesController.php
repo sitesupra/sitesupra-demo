@@ -1483,8 +1483,9 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 		$publishedLocalization = $this->findLocalizationPublishedVersion($localization);
 
-		$isLatestVersionPublished = ($publishedLocalization
-				&& $publishedLocalization->getRevision() === $localization->getRevision());
+		//todo: reimplement with audit
+		$isLatestVersionPublished = false;//= ($publishedLocalization
+				//&& $publishedLocalization->getRevision() === $localization->getRevision());
 
 		// main data
 		$localizationData = array(

@@ -6,8 +6,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Package\Cms\Entity\Abstraction\AuditedEntityInterface;
-use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
@@ -20,7 +18,7 @@ use Supra\Controller\Pages\Exception;
  * @Entity
  * //HasLifecycleCallbacks
  */
-class BlockProperty extends VersionedEntity implements AuditedEntityInterface
+class BlockProperty extends Abstraction\Entity
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="blockProperties")
@@ -75,8 +73,6 @@ class BlockProperty extends VersionedEntity implements AuditedEntityInterface
 	 */
 	public function __construct($name)
 	{
-		parent::__construct();
-		
 		$this->name = $name;
 		$this->metadata = new ArrayCollection();
 	}

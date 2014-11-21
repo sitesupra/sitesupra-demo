@@ -28,10 +28,10 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  *		@UniqueConstraint(name="locale_master_idx", columns={"locale", "master_id"})
  * })
  */
-abstract class Localization extends VersionedEntity implements
-		AuditedEntityInterface,
+abstract class Localization extends Entity implements
 		TitleTrackingItemInterface,
 		LocalizationInterface
+
 {
 
 	const CHANGE_FREQUENCY_HOURLY = 'hourly';
@@ -181,7 +181,6 @@ abstract class Localization extends VersionedEntity implements
 	public function __construct($localeId)
 	{
 		parent::__construct();
-
 		$this->setLocaleId($localeId);
 
 		$this->blockProperties = new ArrayCollection();
