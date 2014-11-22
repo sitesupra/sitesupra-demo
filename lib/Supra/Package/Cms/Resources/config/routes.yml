@@ -293,3 +293,8 @@ routes:
             path:                       .*
         defaults:
             path:                       ~
+    recycle_pages_load:
+        pattern:                        %cms.prefix%/recycle/pages/load
+        controller:                     Cms:Recycle:loadPages
+        options:
+            frontend:                   true

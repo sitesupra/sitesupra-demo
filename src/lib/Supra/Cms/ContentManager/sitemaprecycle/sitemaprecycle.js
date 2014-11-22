@@ -566,7 +566,7 @@ Supra('anim', 'transition', function (Y) {
 		'load': function (mode, locale) {
 			//Loading style
 			this.get('contentNode').addClass('loading');
-			
+
 			Supra.io(this.getLoadRequestURI(mode), {
 				'data': {
 					'locale': this.getLocale(locale),
