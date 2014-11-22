@@ -38,4 +38,9 @@ class SupraIdType extends Type
 		
 		return $sql;
 	}
+	
+	public function requiresSQLCommentHint(AbstractPlatform $platform)
+	{
+		return true;
+	}
 }
