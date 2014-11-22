@@ -60,8 +60,9 @@ class SupraPackageCms extends AbstractSupraPackage
 			array(
 				'Supra\Package\Cms\Entity\Abstraction\Localization',
 				'Supra\Package\Cms\Entity\Abstraction\AbstractPage',
-				'Supra\Package\Cms\Entity\Template',
 				'Supra\Package\Cms\Entity\Page',
+				'Supra\Package\Cms\Entity\GroupPage',
+				'Supra\Package\Cms\Entity\Template',
 				'Supra\Package\Cms\Entity\PageLocalization',
 				'Supra\Package\Cms\Entity\TemplateLocalization',
 				'Supra\Package\CmsAuthentication\Entity\AbstractUser',

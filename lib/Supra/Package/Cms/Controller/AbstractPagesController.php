@@ -489,7 +489,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 			$dql = "SELECT COUNT(p.id) FROM $localizationEntity p
 	                WHERE p.template = ?0";
 
-			$count = $this->entityManager->createQuery($dql)
+			$count = $this->getEntityManager()->createQuery($dql)
 					->setParameters(array($pageId))
 					->getSingleScalarResult();
 
@@ -497,8 +497,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 				throw new CmsException(null, "Cannot remove template as there are {$count} pages using it.");
 			}
 
-			$publicEm = ObjectRepository::getEntityManager('#public');
-			$count = $publicEm->createQuery($dql)
+			$count = $this->getEntityManager()->createQuery($dql)
 					->setParameter(0, $pageId)
 					->getSingleScalarResult();
 
@@ -507,27 +506,91 @@ abstract class AbstractPagesController extends AbstractCmsController
 			}
 		}
 
-		// EVENTS:
-		// 1. Sets the revision setter listener and audit listener into specific state
-		$this->entityManager->getEventManager()
-				->dispatchEvent(EntityRevisionSetterListener::pagePreDeleteEvent);
+		// 1. remove any published version first
+		$this->unPublish();
 
-		// 2. Supra's event manager listeners
-		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePreRemove);
+		// 2. fire pageDeleteEvent which will cause EntityAuditListener to
+		// catch all entity deletions and store them under single revision
+		$em = $this->getEntityManager();
 
-		// page remove action
-		$pageRequest = $this->getPageRequest();
-		$pageRequest->delete();
+		$localization = $this->getPageLocalization();
+		$masterId = $localization->getMaster()
+			->getId();
 
-		// 3. Resets audit/revision listeners back to normal state
-		$this->entityManager->getEventManager()
-				->dispatchEvent(EntityRevisionSetterListener::pagePostDeleteEvent);
+		// 3. remove master from draft.
+		// all related entites will be removed by cascade removal
+		$removePage = function() use ($em, $masterId) {
 
-		// 4. Again, the Supra's event manager listeners
-		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostRemove);
+			$master = $em->find(AbstractPage::CN(), $masterId);
+
+			if ( ! is_null($master)) {
+				$em->remove($master);
+			}
+		};
+
+		$em->transactional($removePage);
 
 		// Respond with success
-		$this->getResponse()->setResponseData(true);
+		return new SupraJsonResponse();
+	}
+
+	/**
+	 * Deletes all page published localizations from public schema
+	 */
+	public function unPublish()
+	{
+		//todo: STUB
+		return;
+		$publicEm = ObjectRepository::getEntityManager('#public');
+		$publicEm->getConnection()->beginTransaction();
+
+		try {
+
+			$page = $this->getPageLocalization()
+				->getMaster();
+
+			$page = $publicEm->find(AbstractPage::CN(), $page->getId());
+
+			$localizationSet = $page->getLocalizations();
+
+			foreach($localizationSet as $localization) {
+
+				$localization = $publicEm->find(Entity\Abstraction\Localization::CN(), $localization->getId());
+
+				$blocks = $this->getBlocksInPage($publicEm, $localization);
+				foreach($blocks as $block) {
+					$publicEm->remove($block);
+				}
+
+				$properties = $this->getPageBlockProperties($publicEm, $localization);
+				foreach ($properties as $property) {
+					$publicEm->remove($property);
+				}
+
+				$publicEm->remove($localization);
+			}
+
+			// Remove published placeholders
+			/*$placeHolders = $page->getPlaceHolders();*/
+			$placeHolders = $this->getPlaceHolders($publicEm);
+			foreach($placeHolders as $placeHolder) {
+				$publicEm->remove($placeHolder);
+			}
+
+			$placeHolderGroups = $this->getPlaceHolderGroups($publicEm);
+			foreach($placeHolderGroups as $placeHolderGroup) {
+				$publicEm->remove($placeHolderGroup);
+			}
+
+			$publicEm->flush();
+
+		} catch (\Exception $e) {
+
+			$publicEm->getConnection()->rollBack();
+			throw $e;
+		}
+
+		$publicEm->getConnection()->commit();
 	}
 
 	/**

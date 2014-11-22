@@ -32,6 +32,27 @@ class PagesPageController extends AbstractPagesController
 	}
 
 	/**
+	 * Called when page delete is requested
+	 */
+	public function deleteAction()
+	{
+		$this->checkLock();
+
+		$this->isPostRequest();
+
+		$page = $this->getPageLocalization()
+			->getMaster();
+
+		$this->checkActionPermission($page, Entity::PERMISSION_NAME_SUPERVISE_PAGE);
+
+		if ($page->hasChildren()) {
+			throw new CmsException(null, "Cannot remove page with children");
+		}
+
+		return $this->delete();
+	}
+
+	/**
 	 * Handles Page creation request.
 	 */
 	public function createAction()
