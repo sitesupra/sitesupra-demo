@@ -60,6 +60,8 @@
 			
 			"drag_n_drop": "Drag-and-drop",
 			
+			"confirm_delete_file": "Are you sure you want to delete selected file?",
+			
 			"validation_error": {
 				"file_id_not_provided": "File ID has not been provided",
 				"file_not_exists": "Requested file does not exist",
