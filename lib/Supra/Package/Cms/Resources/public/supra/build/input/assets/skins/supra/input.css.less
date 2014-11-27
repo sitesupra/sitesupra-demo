@@ -107,8 +107,7 @@
 		.yui3-input-keywords .description,
 		.yui3-input-set .description,
 		.yui3-input-text .description,
-		.yui3-input-video .description,
-		.su-input-combobox .description {
+		.yui3-input-video .description {
 			/* String, text, etc. are 100% wide */
 			width: auto;
 			padding-right: 0;
@@ -129,8 +128,7 @@
 	.yui3-input input,
 	.yui3-input textarea,
 	.yui3-input iframe,
-	.yui3-input select,
-	.su-input-combobox .input-list {
+	.yui3-input select {
 		font-size: 11px;
 		height: 24px;
 		margin: 0;
@@ -156,11 +154,9 @@
 	.yui3-input input,
 	.yui3-input textarea,
 	.yui3-input iframe,
-	.su-input-combobox .input-list,
 	.ui-dark .ui-light .yui3-input input,
 	.ui-dark .ui-light .yui3-input textarea,
-	.ui-dark .ui-light .yui3-input iframe,
-	.ui-dark .ui-light .su-input-combobox .input-list {
+	.ui-dark .ui-light .yui3-input iframe {
 		color: #58586C;
 		border: 0;
 		background: url(input-bg.png) 0 0 repeat;
@@ -170,8 +166,7 @@
 		/* Dark color theme */
 		.ui-dark .yui3-input input,
 		.ui-dark .yui3-input textarea,
-		.ui-dark .yui3-input iframe,
-		.ui-dark .su-input-combobox .input-list {
+		.ui-dark .yui3-input iframe {
 			color: #6A6A7E;
 			background: #090613;
 			.box-shadow (0 2px 5px rgba(0,0,0,.75) inset, 0 1px 0 rgba(52, 51, 66, 0.75));
@@ -180,8 +175,7 @@
 		/* Dark center color theme */
 		.ui-center-dark .yui3-input input,
 		.ui-center-dark .yui3-input textarea,
-		.ui-center-dark .yui3-input iframe,
-		.ui-center-dark .su-input-combobox .input-list {
+		.ui-center-dark .yui3-input iframe {
 			color: #8f8f9a;
 			line-height: 24px;
 			background: url(/public/cms/supra/img/background-pattern-darker.jpg) 0 0 repeat;
@@ -564,14 +558,8 @@
 /* Image list */
 @import "less/image-list";
 
-/* Combobox */
-@import "less/combobox";
-
 /* Keywords */
 @import "less/keywords";
-
-/* Auto complete */
-@import "less/autocomplete";
 
 /* Map */
 .yui3-input-map label {
@@ -605,8 +593,7 @@
 	.yui3-input-number input,
 	.yui3-input-text textarea,
 	.yui3-input-html textarea,
-	.yui3-input-html iframe,
-	.su-input-combobox .input-list {
+	.yui3-input-html iframe {
 		width: 400px;
 	}
 	.yui3-input-image .su-button,
@@ -723,7 +710,6 @@
 	.yui3-input-color label,
 	.yui3-input-block-background label,
 	.yui3-input-image-inline label,
-	.su-input-combobox label,
 	p.label {
 		display: block;
 	}
@@ -732,8 +718,7 @@
 	.yui3-input-select select,
 	.yui3-input-text textarea,
 	.yui3-input-html textarea,
-	.yui3-input-html iframe,
-	.su-input-combobox .input-list {
+	.yui3-input-html iframe {
 		width: 100%;
 	}
 	.yui3-input-path input {
@@ -784,8 +769,7 @@
 .yui3-input-string.yui3-input-error input,
 .yui3-input-number.yui3-input-error input,
 .yui3-input-path.yui3-input-error input,
-.yui3-input-text.yui3-input-error textarea,
-.su-input-combobox.yui3-input-error .input-list {
+.yui3-input-text.yui3-input-error textarea {
 	border-color: #c00;
 }
 
@@ -798,8 +782,7 @@
 	.yui3-input-string.yui3-input-error,
 	.yui3-input-number.yui3-input-error,
 	.yui3-input-path.yui3-input-error,
-	.yui3-input-text.yui3-input-error,
-	.su-input-combobox.yui3-input-error {
+	.yui3-input-text.yui3-input-error {
 		label {
 			color: #f00;
 			text-shadow: 0 -1px 0 #000;

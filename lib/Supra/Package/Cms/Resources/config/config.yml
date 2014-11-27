@@ -182,6 +182,7 @@ cms_resources:
         - public/cms/supra/build/permission/permission.js
         - public/cms/supra/build/io/session.js
         - public/cms/supra/build/io/css.js
+        - public/cms/supra/build/io/js.js
         - public/cms/supra/build/template/template-compiler.js
         - public/cms/supra/build/template/template.js
         - public/cms/supra/build/input/proto.js
@@ -288,3 +289,4 @@ cms_resources:
         - public/cms/supra/build/event/deferred.js
         - public/cms/supra/build/supra/supra-packed-css.js
         - public/cms/supra/build/url/url.js
+        - public/cms/supra/build/ua/normalize.js
