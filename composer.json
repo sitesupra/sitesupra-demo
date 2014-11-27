@@ -27,7 +27,7 @@
         "swiftmailer/swiftmailer": "5.2",
         "solarium/solarium": "2.4.*",
         "kriswallsmith/assetic": "1.1.*",
-        "leafo/lessphp": "*",
+        "leafo/lessphp": "0.4.*",
         "pimple/pimple": "~3.0",
         "d11wtq/boris": "1.0.*",
         "maximebf/debugbar": "1.*",
