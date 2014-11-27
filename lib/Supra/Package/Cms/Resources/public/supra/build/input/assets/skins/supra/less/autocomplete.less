@@ -1,0 +1,61 @@
+.su-input-autocomplete {
+	position: absolute;
+	z-index: 1;
+	left: 0;
+	top: 100%;
+	width: 100%;
+	height: 110px;
+	margin: 0 0 0 -1px;
+	border-radius: 3px;
+	color: #c4c6d4;
+	background: #323243 url("input-select-light.png") 0 -207px repeat-x;
+	border: 1px solid #17161d;
+	border-top: 0;
+	padding: 2px 0;
+	.box-shadow (0 2px 4px rgba(0,0,0,0.3), 0 2px 0 rgba(0,0,0,0.3) inset);
+	
+	.su-datalist {
+		ul {
+			padding: 2px 0;
+		}
+		li {
+			.box-sizing (border-box);
+			padding: 0 10px;
+			overflow: hidden;
+			width: 100%;
+			height: 21px;
+			line-height: 21px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			color: #c4c6d4;
+			
+			&[data-id] {
+				cursor: pointer;
+			}
+			&[data-id]:hover,
+			&[data-id].selected {
+				color: #fff;
+				background: #53556a;
+			}
+		}
+	}
+	
+	.ui-light & .su-scrollable > .su-scrollable-scrollbar,
+	.ui-dark & .su-scrollable > .su-scrollable-scrollbar {
+		.su-scrollable-scrollbar-background {
+			.box-shadow (0, 1px, 0, rgba(255, 255, 255, 0.2));
+			top: 5px;
+			bottom: 5px;
+			right: 7px;
+			background: #030110;
+		}
+		.su-scrollable-draggable {
+			background: #636578;
+			min-height: 0;
+		}
+		.su-scrollable-draggable {
+			// Disable animation for scrollbar
+			.transition (none);
+		}
+	}
+}

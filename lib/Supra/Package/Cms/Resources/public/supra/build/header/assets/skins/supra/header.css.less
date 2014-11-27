@@ -4,7 +4,7 @@
 .cms-header {
 	min-height: 48px; /* App dock height */
 }
-.cms-header .yui3-app {
+.cms-header .su-app {
 	float: left;
 }
 
@@ -12,7 +12,7 @@
 /**
   * = Current app icon 
   */
-.yui3-app-current {
+.su-app-current {
 	position: relative;
 	z-index: 101;
 	left: 0;
@@ -55,8 +55,8 @@
 /**
  * = Disabled app
  */
-.yui3-app-disabled {
-	.yui3-app-current {
+.su-app-disabled {
+	.su-app-current {
 		cursor: default;
 		
 		span.icon-dashboard {
@@ -68,7 +68,7 @@
 /**
   * = App dock 
   */
-.yui3-app-dock {
+.su-app-dock {
 	position: absolute;
 	z-index: 100;
 	left: 0;
@@ -130,14 +130,14 @@
 }
 
 /* FadeIn / FadeOut animation */
-.yui3-app-dock {
+.su-app-dock {
 	opacity: 0;
 	
 	-moz-transition: opacity 0.35s;
 	-webkit-transition: opacity 0.35s;
 	transition: opacity 0.35s;
 }
-.yui3-app-dock-visible .yui3-app-dock {
+.su-app-dock-visible .su-app-dock {
 	opacity: 1;
 	
 	-moz-transition: opacity 0.15s;
@@ -145,7 +145,7 @@
 	transition: opacity 0.15s;
 }
 
-.yui3-app-dock ul {
+.su-app-dock ul {
 	-moz-transform: scale(1.75) translate(0, 0);
 	-webkit-transform: scale(1.75) translate(0, 0);
 	transform: scale(1.75) translate(0, 0);
@@ -154,7 +154,7 @@
 	-webkit-transition: all 0.35s;
 	transition: all 0.5s;
 }
-.yui3-app-dock-visible .yui3-app-dock ul {
+.su-app-dock-visible .su-app-dock ul {
 	-moz-transform: scale(1) translate(0, 0);
 	-webkit-transform: scale(1) translate(0, 0);
 	transform: scale(1) translate(0, 0);
@@ -164,7 +164,7 @@
 	transition: all 0.35s;
 }
 
-.yui3-app-dock-stats {
+.su-app-dock-stats {
 	position: absolute;
 	z-index: 101;
 	top: 0;
