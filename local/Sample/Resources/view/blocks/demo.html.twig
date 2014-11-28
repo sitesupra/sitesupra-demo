@@ -40,7 +40,8 @@
 
 <div>
 	<h3>Image</h3>
-	{{ property('image', 'image') }}
+	{% set someImage = property('image', 'image') %}
+	{% if someImage %}{{ someImage.setHeight(200) | raw }}{% endif %}
 </div>
 
 {# @TODO: the rest #}
