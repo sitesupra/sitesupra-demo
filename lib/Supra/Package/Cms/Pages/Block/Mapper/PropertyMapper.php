@@ -7,6 +7,16 @@ use Supra\Package\Cms\Editable\Editable;
 
 class PropertyMapper extends Mapper
 {
+	/**
+	 * Shortcut for BlockConfiguration::addProperty()
+	 *
+	 * @param string $name
+	 * @param string $editableName
+	 * @param string $label
+	 * @param string $defaultValue
+	 * @param array $options
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
+	 */
 	public function add($name, $editableName, $label = null, $defaultValue = null, array $options = array())
 	{
 		$editableInstance = Editable::getEditable($editableName);
@@ -25,9 +35,17 @@ class PropertyMapper extends Mapper
 
 		return $this;
 	}
-//
-//	public function addGroup($label, array $properties)
-//	{
-//	}
-}
 
+	/**
+	 * Shortcut for BlockConfiguration::setAutoDiscoverProperties()
+	 *
+	 * @param bool $autoDiscover
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
+	 */
+	public function autoDiscover($autoDiscover = true)
+	{
+		$this->configuration->setAutoDiscoverProperties($autoDiscover);
+		
+		return $this;
+	}
+}

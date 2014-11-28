@@ -9,6 +9,7 @@ class GalleryBlock extends BlockController
 	public function doExecute()
 	{
 		$this->getResponse()
-				->outputTemplate('SamplePackage:blocks/gallery.html.twig');
+				->render();
+//				->outputTemplate('SamplePackage:blocks/gallery.html.twig');
 	}
 }

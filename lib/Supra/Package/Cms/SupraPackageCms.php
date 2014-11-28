@@ -23,6 +23,7 @@ use Supra\Package\Cms\Pages\Application\BlogPageApplication;
 use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
 use Supra\Package\Cms\Pages\Block\BlockCollection;
 use Supra\Package\Cms\Pages\Block\BlockGroupConfiguration;
+use Supra\Package\Cms\Pages\Twig\PageExtension;
 
 class SupraPackageCms extends AbstractSupraPackage
 {
@@ -134,6 +135,9 @@ class SupraPackageCms extends AbstractSupraPackage
 						new BlockGroupConfiguration('system', 'System'),
 			));
 		};
+
+		// Twig Extension
+		$container->getTemplating()->addExtension(new PageExtension());
 
 		//event listeners
 		$container[$this->getName().'.cms_exception_listener'] = function () {

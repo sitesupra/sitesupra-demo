@@ -3,29 +3,22 @@
 namespace Sample\Blocks;
 
 use Supra\Package\Cms\Pages\Block\BlockConfiguration;
-use Supra\Package\Cms\Pages\Block\Mapper\BlockMapper;
+use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 
 class DemoBlockConfiguration extends BlockConfiguration
 {
-	protected function configureBlock(BlockMapper $mapper)
+	protected function configureAttributes(AttributeMapper $mapper)
 	{
 		$mapper->title('Demo Block')
 				->description('Collection of different properties.')
 				->icon('sample:blocks/demo.png')
+				->template('sample:blocks/demo.html.twig')
 				;
 	}
 
 	protected function configureProperties(PropertyMapper $mapper)
 	{
-		$mapper->add('string', 'string', 'String')
-				->add('inlineString', 'inline_string')
-				->add('text', 'text', 'Text')
-				->add('inlineText', 'inline_text')
-				->add('checkbox', 'checkbox', 'Checkbox')
-				->add('link', 'link', 'Link')
-				->add('image', 'image', 'Image')
-				->add('datetime', 'datetime', 'Date & Time')
-				;
+		$mapper->autoDiscover();
 	}
 }

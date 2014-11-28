@@ -7,7 +7,7 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
-use Supra\Package\Cms\Html\HtmlTag;
+use Supra\Package\Cms\Pages\Html\ImageTag;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 class ImageFilter implements FilterInterface, BlockPropertyAware, ContainerAware
@@ -42,12 +42,7 @@ class ImageFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 				$image = $fileStorage->findImage($imageId);
 
 				if ($image) {
-
-					$tag = new HtmlTag('img');
-
-					$tag->setAttribute('src', $fileStorage->getWebPath($image));
-
-					return $tag;
+					return new ImageTag($image, $fileStorage);
 				}
 			}
 		}

@@ -4,7 +4,6 @@ namespace Supra\Package\Cms\Pages;
 
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Core\Controller\Controller;
-use Supra\Core\Templating\Templating;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
@@ -20,8 +19,7 @@ use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Editable;
 use Supra\Package\Cms\Pages\Editable\Filter;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
-use Supra\Package\Cms\Pages\Twig\TwigSupraBlockGlobal;
-use Supra\Package\Cms\Pages\Twig\TwigSupraPageGlobal;
+use Supra\Package\Cms\Pages\Block\BlockExecutionContext;
 
 /**
  * Block controller abstraction
@@ -104,8 +102,7 @@ abstract class BlockController extends Controller
 				->getBlockPropertySet($this->block);
 
 		$this->request = $request;
-		
-		$this->response = $this->createResponse($request);
+		$this->response = $this->createBlockResponse($request);
 		
 		$page = $request->getPage();
 		$this->setPage($page);
@@ -159,7 +156,12 @@ abstract class BlockController extends Controller
 //		$this->getResponse()->addResourceFile($file);
 
 		try {
+			$this->container->getTemplating()
+					->getExtension('supraPage')
+					->setBlockExecutionContext(new BlockExecutionContext($this, $this->request));
+
 			$this->doExecute();
+			
 		} catch (\Exception $e) {
 
 			$this->container->getLogger()->error($e);
@@ -216,14 +218,7 @@ abstract class BlockController extends Controller
 	 */
 	public function hasProperty($name)
 	{
-		// Find editable by name
-		$propertyDefinition = $this->configuration->getProperty($name);
-
-		if ( ! isset($propertyDefinition)) {
-			return false;
-		}
-
-		return true;
+		return $this->configuration->getProperty($name) !== null;
 	}
 
 	/**
@@ -232,7 +227,7 @@ abstract class BlockController extends Controller
 	 */
 	public function getProperty($name)
 	{
-		if (! $this->configuration->hasProperty($name)) {
+		if (! $this->hasProperty($name)) {
 			throw new Exception\RuntimeException(sprintf(
 					'Property [%s] is not defined for block [%s]',
 					$name,
@@ -502,6 +497,15 @@ abstract class BlockController extends Controller
 //		return $value;
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function isPropertyValueEmpty()
+	{
+		return empty($this->getProperty()
+				->getValue());
+	}
+
 //	/**
 //	 * Set the block which called the controller.
 //	 *
@@ -561,8 +565,10 @@ abstract class BlockController extends Controller
 			
 			$response->cleanOutput();
 
+			// @TODO: use something like BlockExceptionResponse instead to avoid templateName override.
 			$response->assign('blockName', $this->getConfiguration()->getTitle())
-					->outputTemplate($this->getExceptionResponseTemplateFilename());
+					->setTemplateName($this->getExceptionResponseTemplateFilename())
+					->render();
 		}
 	}
 
@@ -596,32 +602,6 @@ abstract class BlockController extends Controller
 //	}
 
 	/**
-	 * @param Request $request
-	 * @return BlockResponse
-	 */
-	protected function createResponse(Request $request)
-	{
-		// @TODO: do it in another way.
-		$templating = new Templating();
-
-		$templating->setContainer($this->container);
-
-		$pageTwigGlobal = new TwigSupraPageGlobal();
-		$pageTwigGlobal->setContainer($this->container);
-		$pageTwigGlobal->setRequest($request);
-
-		// @FIXME: need real response context here!
-		$pageTwigGlobal->setResponseContext(new Response\ResponseContext());
-
-		$templating->addGlobal('supra', $pageTwigGlobal);
-		$templating->addGlobal('supraBlock', new TwigSupraBlockGlobal($this));
-
-		return $request instanceof PageRequestEdit
-				? new BlockResponseEdit($this->block, $templating)
-				: new BlockResponseView($this->block, $templating);
-	}
-
-	/**
 	 * Method used by block controllers to implement things to do in this step
 	 */
 	protected function doPrepare()
@@ -636,4 +616,44 @@ abstract class BlockController extends Controller
 	{
 
 	}
+
+	/**
+	 * @throws \LogicException
+	 */
+	final public function renderResponse($template, $parameters = array())
+	{
+		throw new \LogicException('Use BlockController::getResponse()->render() instead.');
+	}
+
+	/**
+	 * @throws \LogicException
+	 */
+	final public function render($template, $parameters)
+	{
+		throw new \LogicException('Use BlockController::getResponse()->render() instead.');
+	}
+
+	/**
+	 * @param Request $request
+	 * @return BlockResponse
+	 */
+	protected function createBlockResponse(Request $request)
+	{
+		$templating = $this->container->getTemplating();
+
+//		$pageTwigGlobal = new TwigSupraPageGlobal();
+//		$pageTwigGlobal->setContainer($this->container);
+//		$pageTwigGlobal->setRequest($request);
+//		// @FIXME: need real response context here!
+//		$pageTwigGlobal->setResponseContext(new Response\ResponseContext());
+//
+//		$templating->addGlobal('supra', $pageTwigGlobal);
+//
+		$templateName = $this->configuration->getTemplateName();
+
+		return $request instanceof PageRequestEdit
+				? new BlockResponseEdit($this->block, $templateName, $templating)
+				: new BlockResponseView($this->block, $templateName, $templating);
+	}
+	
 }

@@ -9,6 +9,7 @@ class DemoBlock extends BlockController
 	public function doExecute()
 	{
 		$this->getResponse()
-				->outputTemplate('SamplePackage:blocks/demo.html.twig');
+				->render();
+//				->outputTemplate('SamplePackage:blocks/demo.html.twig');
 	}
 }

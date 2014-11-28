@@ -15,21 +15,6 @@ use Supra\Package\Cms\Html\HtmlTag;
  */
 class TwigSupraPageGlobal extends TwigSupraGlobal
 {
-//	/**
-//	 * @var array
-//	 */
-//	protected $currentThemeParameterValues;
-//
-//	/**
-//	 * @var ThemeInterface
-//	 */
-//	protected $theme;
-//
-//	/**
-//	 *
-//	 */
-//	protected $themeProvider;
-
 	/**
 	 * @var ResponseContext
 	 */

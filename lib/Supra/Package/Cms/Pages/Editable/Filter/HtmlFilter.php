@@ -6,10 +6,10 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementUtils;
-use Supra\Package\Cms\Entity\ReferencedElement\VideoReferencedElement;
+//use Supra\Package\Cms\Entity\ReferencedElement\VideoReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
-use Supra\Package\Cms\Entity\ReferencedElement\IconReferencedElement;
+//use Supra\Package\Cms\Entity\ReferencedElement\IconReferencedElement;
 use Supra\Package\Cms\Html\HtmlTagStart;
 use Supra\Package\Cms\Html\HtmlTagEnd;
 use Supra\Package\Cms\Html\HtmlTag;
@@ -76,19 +76,19 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 					$result[] = (string) $this->parseSupraImage($image);
 				}
 
-			} elseif ($element instanceof Markup\SupraMarkupIcon) {
-
-				if (isset($metadataElements[$element->getId()])) {
-					$icon = $metadataElements[$element->getId()];
-					$result[] = (string) $this->parseSupraIcon($icon);
-				}
-
-			} elseif ($element instanceof Markup\SupraMarkupVideo) {
-
-				if (isset($metadataElements[$element->getId()])) {
-					$video = $metadataElements[$element->getId()];
-					$result[] = (string) $this->parseSupraVideo($video);
-				}
+//			} elseif ($element instanceof Markup\SupraMarkupIcon) {
+//
+//				if (isset($metadataElements[$element->getId()])) {
+//					$icon = $metadataElements[$element->getId()];
+//					$result[] = (string) $this->parseSupraIcon($icon);
+//				}
+//
+//			} elseif ($element instanceof Markup\SupraMarkupVideo) {
+//
+//				if (isset($metadataElements[$element->getId()])) {
+//					$video = $metadataElements[$element->getId()];
+//					$result[] = (string) $this->parseSupraVideo($video);
+//				}
 
 			} elseif ($element instanceof Markup\SupraMarkupLinkStart) {
 				
@@ -243,148 +243,148 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 		return $tag;
 	}
 
-	/**
-	 * Parse supra.icon
-	 * @param IconReferencedElement
-	 * @return null|HtmlTag
-	 */
-	protected function parseSupraIcon(IconReferencedElement $iconElement)
-	{
-		throw new \Exception('Not supported.');
-
-		$iconId = $iconElement->getIconId();
-
-		// @FIXME: handle with FileStorage instead of Theme
-		//		or with something else?
-		$themeConfiguration = ObjectRepository::getThemeProvider($this)
-				->getCurrentTheme()
-				->getConfiguration();
-
-		$iconConfiguration = $themeConfiguration->getIconConfiguration();
-
-		if (!$iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
-			$this->log->warn("No icons configuration object found");
-			return null;
-		}
-
-		$svgContent = $iconConfiguration->getIconSvgContent($iconId);
-
-		if (! empty($svgContent)) {
-
-			$tag = new HtmlTag('svg');
-			$style = '';
-
-			$tag->setContent($svgContent);
-
-			$tag->setAttribute('version', '1.1');
-			$tag->setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-			$tag->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-			$tag->setAttribute('x', '0px');
-			$tag->setAttribute('y', '0px');
-			$tag->setAttribute('viewBox', '0 0 512 512', true);
-			$tag->setAttribute('enable-background', 'new 0 0 512 512');
-			$tag->setAttribute('xml:space', 'preserve');
-
-			$color = $iconElement->getColor();
-			if (!empty($color)) {
-				$style = "fill: {$color};";
-			}
-
-			$align = $iconElement->getAlign();
-			if (!empty($align)) {
-				$tag->addClass('align-' . $align);
-			}
-
-			$width = $iconElement->getWidth();
-			if (!empty($width)) {
-				$tag->setAttribute('width', $width);
-				$style .= "width: {$width}px;";
-			}
-
-			$height = $iconElement->getHeight();
-			if (!empty($height)) {
-				$tag->setAttribute('height', $height);
-				$style .= "height: {$height}px;";
-			}
-
-			if (!empty($style)) {
-				$tag->setAttribute('style', $style);
-			}
-
-			return $tag;
-		}
-
-		return null;
-	}
-
-	/**
-	 * @FIXME
-	 *
-	 * Parse supra.video
-	 * @param VideoReferencedElement $videoElement
-	 * 
-	 * @return string
-	 */
-	protected function parseSupraVideo(VideoReferencedElement $videoElement)
-	{
-		$html = null;
-
-		$resource = $videoElement->getResource();
-
-		$width = $videoElement->getWidth();
-		$height = $videoElement->getHeight();
-
-		$align = $videoElement->getAlign();
-		$alignClass = (!empty($align) ? "align-$align" : '');
-
-		if ($resource == VideoReferencedElement::RESOURCE_LINK) {
-
-			$service = $videoElement->getExternalService();
-			$videoId = $videoElement->getExternalId();
-
-			$wmodeParam = null;
-			if ($this->requestType == self::REQUEST_TYPE_EDIT) {
-				$wmodeParam = 'wmode="opaque"';
-			}
-
-			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
-				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-					<iframe src=\"//www.youtube.com/embed/{$videoId}?{$wmodeParam}&rel=0\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" allowfullscreen></iframe>
-				</div>";
-			}
-			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
-				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-				<iframe src=\"//player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-				</div>";
-			}
-		}
-		else if ($resource == VideoReferencedElement::RESOURCE_SOURCE) {
-
-			$src = $videoElement->getExternalPath();
-
-			if ($videoElement->getExternalSourceType() == VideoReferencedElement::SOURCE_IFRAME) {
-				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-					<iframe src=\"//{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-					</div>";
-			}
-			else if ($videoElement->getExternalSourceType() == VideoReferencedElement::SOURCE_EMBED) {
-
-				$wmodeParam = null;
-				if ($this->requestType == self::REQUEST_TYPE_EDIT) {
-					$wmodeParam = 'wmode="opaque"';
-				}
-
-				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-					<object width=\"{$width}\" height=\"{$height}\">
-					<param name=\"movie\" value=\"//{$src}\"></param>
-					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-					<embed {$wmodeParam} src=\"//{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
-				</object></div>";
-			}
-		}
-
-		return $html;
-	}
+//	/**
+//	 * Parse supra.icon
+//	 * @param IconReferencedElement
+//	 * @return null|HtmlTag
+//	 */
+//	protected function parseSupraIcon(IconReferencedElement $iconElement)
+//	{
+//		throw new \Exception('Not supported.');
+//
+//		$iconId = $iconElement->getIconId();
+//
+//		// @FIXME: handle with FileStorage instead of Theme
+//		//		or with something else?
+//		$themeConfiguration = ObjectRepository::getThemeProvider($this)
+//				->getCurrentTheme()
+//				->getConfiguration();
+//
+//		$iconConfiguration = $themeConfiguration->getIconConfiguration();
+//
+//		if (!$iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
+//			$this->log->warn("No icons configuration object found");
+//			return null;
+//		}
+//
+//		$svgContent = $iconConfiguration->getIconSvgContent($iconId);
+//
+//		if (! empty($svgContent)) {
+//
+//			$tag = new HtmlTag('svg');
+//			$style = '';
+//
+//			$tag->setContent($svgContent);
+//
+//			$tag->setAttribute('version', '1.1');
+//			$tag->setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+//			$tag->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+//			$tag->setAttribute('x', '0px');
+//			$tag->setAttribute('y', '0px');
+//			$tag->setAttribute('viewBox', '0 0 512 512', true);
+//			$tag->setAttribute('enable-background', 'new 0 0 512 512');
+//			$tag->setAttribute('xml:space', 'preserve');
+//
+//			$color = $iconElement->getColor();
+//			if (!empty($color)) {
+//				$style = "fill: {$color};";
+//			}
+//
+//			$align = $iconElement->getAlign();
+//			if (!empty($align)) {
+//				$tag->addClass('align-' . $align);
+//			}
+//
+//			$width = $iconElement->getWidth();
+//			if (!empty($width)) {
+//				$tag->setAttribute('width', $width);
+//				$style .= "width: {$width}px;";
+//			}
+//
+//			$height = $iconElement->getHeight();
+//			if (!empty($height)) {
+//				$tag->setAttribute('height', $height);
+//				$style .= "height: {$height}px;";
+//			}
+//
+//			if (!empty($style)) {
+//				$tag->setAttribute('style', $style);
+//			}
+//
+//			return $tag;
+//		}
+//
+//		return null;
+//	}
+//
+//	/**
+//	 * @FIXME
+//	 *
+//	 * Parse supra.video
+//	 * @param VideoReferencedElement $videoElement
+//	 *
+//	 * @return string
+//	 */
+//	protected function parseSupraVideo(VideoReferencedElement $videoElement)
+//	{
+//		$html = null;
+//
+//		$resource = $videoElement->getResource();
+//
+//		$width = $videoElement->getWidth();
+//		$height = $videoElement->getHeight();
+//
+//		$align = $videoElement->getAlign();
+//		$alignClass = (!empty($align) ? "align-$align" : '');
+//
+//		if ($resource == VideoReferencedElement::RESOURCE_LINK) {
+//
+//			$service = $videoElement->getExternalService();
+//			$videoId = $videoElement->getExternalId();
+//
+//			$wmodeParam = null;
+//			if ($this->requestType == self::REQUEST_TYPE_EDIT) {
+//				$wmodeParam = 'wmode="opaque"';
+//			}
+//
+//			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
+//				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
+//					<iframe src=\"//www.youtube.com/embed/{$videoId}?{$wmodeParam}&rel=0\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" allowfullscreen></iframe>
+//				</div>";
+//			}
+//			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
+//				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
+//				<iframe src=\"//player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+//				</div>";
+//			}
+//		}
+//		else if ($resource == VideoReferencedElement::RESOURCE_SOURCE) {
+//
+//			$src = $videoElement->getExternalPath();
+//
+//			if ($videoElement->getExternalSourceType() == VideoReferencedElement::SOURCE_IFRAME) {
+//				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
+//					<iframe src=\"//{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
+//					</div>";
+//			}
+//			else if ($videoElement->getExternalSourceType() == VideoReferencedElement::SOURCE_EMBED) {
+//
+//				$wmodeParam = null;
+//				if ($this->requestType == self::REQUEST_TYPE_EDIT) {
+//					$wmodeParam = 'wmode="opaque"';
+//				}
+//
+//				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
+//					<object width=\"{$width}\" height=\"{$height}\">
+//					<param name=\"movie\" value=\"//{$src}\"></param>
+//					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
+//					<embed {$wmodeParam} src=\"//{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
+//				</object></div>";
+//			}
+//		}
+//
+//		return $html;
+//	}
 
 	/**
 	 * {@inheritDoc}

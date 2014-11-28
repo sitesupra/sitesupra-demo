@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Block\Mapper;
 
-class BlockMapper extends Mapper
+class AttributeMapper extends Mapper
 {
 	public function title($title)
 	{
@@ -48,6 +48,16 @@ class BlockMapper extends Mapper
 	public function hidden($hidden = true)
 	{
 		return $this->insertable(! $hidden);
+	}
+
+	/**
+	 * @param string $templateName
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\BlockMapper
+	 */
+	public function template($templateName)
+	{
+		$this->configuration->setTemplateName($templateName);
+		return $this;
 	}
 
 	/**

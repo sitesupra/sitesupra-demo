@@ -9,6 +9,7 @@ class TextBlock extends BlockController
 	public function doExecute()
 	{
 		$this->getResponse()
-				->outputTemplate('SamplePackage:blocks/text.html.twig');
+				->render();
+//				->outputTemplate('SamplePackage:blocks/text.html.twig');
 	}
 }

@@ -7,7 +7,6 @@ project
 .directory
 
 VERSION
-LICENSE
 README
 
 vendor/

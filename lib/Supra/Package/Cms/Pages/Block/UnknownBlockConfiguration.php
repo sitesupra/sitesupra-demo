@@ -4,7 +4,7 @@ namespace Supra\Package\Cms\Pages\Block;
 
 class UnknownBlockConfiguration extends BlockConfiguration
 {
-	protected function configureBlock(Mapper\BlockMapper $mapper)
+	protected function configureAttributes(Mapper\AttributeMapper $mapper)
 	{
 		$mapper->title('Unknown block')
 				->hidden();
