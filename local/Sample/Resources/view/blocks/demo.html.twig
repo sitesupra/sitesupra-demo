@@ -1,46 +1,46 @@
 <div>
 	<h3>String</h3>
-	{{ supraBlock.property('string') }}
+	{{ property('string', 'string', 'String') }}
 </div>
 
 <div>
 	<h3>Inline String</h3>
-	{{ supraBlock.property('inlineString') }}
+	{{ property('inlineString', 'inline_string') }}
 </div>
 
 <div>
 	<h3>Text</h3>
-	{{ supraBlock.property('text') }}
+	{{ property('text', 'text') }}
 </div>
 
 <div>
 	<h3>Inline Text</h3>
-	{{ supraBlock.property('inlineText') }}
+	{{ property('inlineText', 'inline_text') }}
 </div>
 
 <div>
 	<h3>Checkbox</h3>
-	{% set checked = supraBlock.property('checkbox') %}
+	{% set checked = property('checkbox', 'checkbox') %}
 	Value is set to {% if checked %}Yes{% else %}No{% endif %}
 </div>
 
 <div>
 	<h3>Link</h3>
-	{{ supraBlock.property('link') | raw }}
+	{{ property('link', 'link') }}
 </div>
 
 <div>
 	<h3>Date & Time</h3>
-	{% if supraBlock.property('datetime') %}
-		{{ supraBlock.property('datetime').format('d-m-Y H:i') }}
+	{% set dateTime = property('datetime', 'datetime') %}
+	{% if dateTime %}
+		{{ dateTime.format('d-m-Y H:i') }}
 	{% endif %}
 </div>
 
 
 <div>
 	<h3>Image</h3>
-	{{ supraBlock.property('image') | raw }}
+	{{ property('image', 'image') }}
 </div>
-
 
 {# @TODO: the rest #}

@@ -13,6 +13,11 @@ abstract class BlockResponse extends ResponsePart
 	protected $block;
 
 	/**
+	 * @var string
+	 */
+	protected $templateName;
+
+	/**
 	 * @var Templating
 	 */
 	protected $templating;
@@ -24,11 +29,13 @@ abstract class BlockResponse extends ResponsePart
 
 	/**
 	 * @param Block $block
+	 * @param string $templateName
 	 * @param Templating $templating
 	 */
-	public function __construct(Block $block, Templating $templating)
+	public function __construct(Block $block, $templateName, Templating $templating)
 	{
 		$this->block = $block;
+		$this->templateName = $templateName;
 		$this->templating = $templating;
 	}
 
@@ -48,11 +55,24 @@ abstract class BlockResponse extends ResponsePart
 	}
 
 	/**
-	 * @param string $template
+	 * @param string $templateName
 	 */
-	public function outputTemplate($template)
+	public function setTemplateName($templateName)
 	{
-		$this->output($this->templating->render($template, $this->parameters));
+		$this->templateName = $templateName;
 		return $this;
+	}
+
+	/**
+	 * Renders template and outputs it into response.
+	 */
+	public function render()
+	{
+		$this->output(
+				$this->templating->render(
+						$this->templateName,
+						$this->parameters
+				)
+		);
 	}
 }

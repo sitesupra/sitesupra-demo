@@ -8,7 +8,7 @@ use Supra\Core\Cache\Cache;
 use Supra\Core\Cache\Driver\File;
 use Supra\Core\Console\Application;
 use Supra\Core\Event\TraceableEventDispatcher;
-use Supra\Core\Templating\Templating;
+use Supra\Core\Templating\TwigTemplating;
 use Supra\Package\Framework\Twig\SupraGlobal;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -155,7 +155,7 @@ abstract class ContainerBuilder
 		};
 
 		$container['templating.templating'] = function () use ($container) {
-			$templating = new Templating();
+			$templating = new TwigTemplating();
 			$templating->addGlobal('supra', $container['templating.global']);
 
 			return $templating;
