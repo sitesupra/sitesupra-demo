@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Pages\Twig;
 
 use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 use \Twig_Node_Expression_Constant as ConstantExpression;
+use \Twig_Node_Expression_Array as ArrayExpression;
 
 /**
  * Visits BlockPropertyNodes in template and collects property definitions.
@@ -58,11 +59,29 @@ class BlockPropertyNodeVisitor implements \Twig_NodeVisitorInterface
 				}
 
 				if (isset($arguments[3])) {
-					if (! $arguments[3] instanceof ConstantExpression) {
-						throw new \RuntimeException('Default value definition should be constant expression only.');
+					if (! $arguments[3] instanceof ConstantExpression
+							&& ! $arguments[3] instanceof ArrayExpression) {
+
+						throw new \RuntimeException('Default value definition should be constant expression or constant expression array.');
 					}
 
-					$defaultValue = $arguments[3]->getAttribute('value');
+					if ($arguments[3] instanceof ArrayExpression) {
+
+						$defaultValue = array();
+
+						foreach ($arguments[3]->getKeyValuePairs() as $pair) {
+
+							if (! $pair['key'] instanceof ConstantExpression
+									|| ! $pair['value'] instanceof ConstantExpression) {
+								throw new \RuntimeException('Default value array definition should consist from constant expressions only.');
+							}
+
+							$defaultValue[$pair['key']->getAttribute('value')] = $pair['value']->getAttribute('value');
+						}
+
+					} else {
+						$defaultValue = $arguments[3]->getAttribute('value');
+					}
 				}
 
 				$this->propertyMapper->add($name, $editable, $label, $defaultValue);

@@ -28,6 +28,7 @@ class PropertyMapper extends Mapper
 				new BlockPropertyConfiguration(
 						$name,
 						$editableInstance,
+						$label,
 						$defaultValue,
 						$options
 				)

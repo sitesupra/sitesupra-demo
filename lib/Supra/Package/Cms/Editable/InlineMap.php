@@ -2,13 +2,9 @@
 
 namespace Supra\Package\Cms\Editable;
 
-/**
- * String editable content
- */
-class InlineMap extends EditableAbstraction
+class InlineMap extends Editable
 {
     const EDITOR_TYPE = 'InlineMap';
-    const EDITOR_INLINE_EDITABLE = true;
 	
 	/**
 	 * @var float
@@ -29,26 +25,15 @@ class InlineMap extends EditableAbstraction
 	 * @var integer
 	 */
 	protected $height = null;
- 
-	
-    /**
-     * Return editor type
-     * @return string
-     */
+
+	/**
+	 * {@inheritDoc}
+	 */
     public function getEditorType()
     {
         return static::EDITOR_TYPE;
     }
-    
-    /**
-     * {@inheritdoc}
-     * @return booleanPa
-     */
-    public function isInlineEditable()
-    {
-        return static::EDITOR_INLINE_EDITABLE;
-    }
-	
+
 	/**
 	 * @param mixed $content
 	 * @return mixed

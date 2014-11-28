@@ -3,9 +3,9 @@
 namespace Supra\Package\Cms\Pages\Block;
 
 use Supra\Package\Cms\Editable\EditableInterface;
-use Supra\Editable;
-use Supra\Uri\PathConverter;
-use Supra\Editable\SelectVisual;
+//use Supra\Editable;
+//use Supra\Uri\PathConverter;
+//use Supra\Editable\SelectVisual;
 
 class BlockPropertyConfiguration
 {
@@ -155,139 +155,139 @@ class BlockPropertyConfiguration
 //		}
 //	}
 
-	/**
-	 *
-	 * @param \Supra\Editable\EditableInterface $editable
-	 * @param type $name
-	 * @return \Supra\Controller\Pages\Configuration\BlockPropertyConfiguration
-	 */
-	public function fillFromEditable(EditableInterface $editable, $name)
-	{
-		$this->name = $name;
-		$this->editableInstance = $editable;
-		$this->editable = get_class($editable);
-		$this->label = $editable->getLabel();
-		$this->default = $editable->getDefaultValue();
-		$this->group = $editable->getGroupId();
+//	/**
+//	 *
+//	 * @param \Supra\Editable\EditableInterface $editable
+//	 * @param type $name
+//	 * @return \Supra\Controller\Pages\Configuration\BlockPropertyConfiguration
+//	 */
+//	public function fillFromEditable(EditableInterface $editable, $name)
+//	{
+//		$this->name = $name;
+//		$this->editableInstance = $editable;
+//		$this->editable = get_class($editable);
+//		$this->label = $editable->getLabel();
+//		$this->default = $editable->getDefaultValue();
+//		$this->group = $editable->getGroupId();
+//
+//		return $this;
+//	}
 
-		return $this;
-	}
-
-	public function configurePathsUsingContext($context)
-	{
-		$editable = $this->editableInstance;
-
-		if ($editable instanceof Editable\SelectVisual) {
-			$this->processSelectVisual($this, $context);
-		}
-
-		else if ($editable instanceof Editable\Slideshow) {
-
-			foreach ($this->properties as $subProperty) {
-
-				$subEditable = $subProperty->editableInstance;
-
-				if ($subEditable instanceof \Supra\Editable\SelectVisual) {
-					$this->processSelectVisual($subProperty, $context);
-				}
-			}
-		}
-
-		else if ($editable instanceof Editable\MediaGallery) {
-
-			if (isset($this->additionalParameters['layouts'])
-					&& ! empty($this->additionalParameters['layouts'])) {
-
-
-				$layoutConfigurations = $this->additionalParameters['layouts'];
-				foreach ($layoutConfigurations as $layoutConfiguration) {
-					$layoutConfiguration->file = $this->getFileFullPath($layoutConfiguration->file, $context);
-				}
-			}
-		}
-	}
-
-	/**
-	 * SelectVisual Editable's icon paths must be rewrited
-	 * with proper webroot + current-component-folder paths
-	 */
-	private function processSelectVisual($configuration, $context)
-	{
-		foreach ($configuration->values as &$value) {
-			if ( ! empty($value[SelectVisual::PROPERTY_ICON])) {
-				$value[SelectVisual::PROPERTY_ICON] = $this->getFileWebPath($value[SelectVisual::PROPERTY_ICON], $context);
-			}
-
-			// SelectVisual values can be nested,
-			// but for now, only two levels are supported
-			if (isset($value[SelectVisual::PROPERTY_TYPE])
-					&& $value[SelectVisual::PROPERTY_TYPE] == SelectVisual::TYPE_GROUP) {
-				if ( ! empty($value['values'])) {
-					foreach ($value['values'] as &$subValue) {
-						$subValue[SelectVisual::PROPERTY_ICON] = $this->getFileWebPath($subValue[SelectVisual::PROPERTY_ICON], $context);
-					}
-				}
-			}
-		}
-
-		$configuration->editableInstance->setValues($configuration->values);
-	}
-
-	/**
-	 *
-	 * @param string $file
-	 * @param string $context
-	 * @return string
-	 */
-	protected function getFileWebPath($file, $context = null)
-	{
-		throw new \Exception('Fix me!'); // https://www.youtube.com/watch?v=-AK1pkvCqec
-
-//		if (strpos($file, '/') !== 0) {
-//			return PathConverter::getWebPath($file, $context);
-//		} else {
-//			$file = SUPRA_WEBROOT_PATH . $file;
-//			return PathConverter::getWebPath($file);
+//	public function configurePathsUsingContext($context)
+//	{
+//		$editable = $this->editableInstance;
+//
+//		if ($editable instanceof Editable\SelectVisual) {
+//			$this->processSelectVisual($this, $context);
 //		}
-	}
-
-	protected function getFileFullPath($file, $context = null)
-	{
-		if (strpos($file, '/') !== 0) {
-			return SUPRA_WEBROOT_PATH . PathConverter::getWebPath($file, $context);
-		} else {
-			return $file;
-		}
-	}
-
-	/**
-	 *
-	 */
-	protected function processPropertyGroupConfigurations()
-	{
-		$propertyGroups = array();
-
-		foreach ($this->propertyGroups as $group) {
-
-			if ($group instanceof BlockPropertyGroupConfiguration) {
-
-				if (isset($propertyGroups[$group->id])) {
-					\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
-					continue;
-				}
-
-				if ( ! empty($group->icon)) {
-					$group->icon = $this->getFileWebPath($group->icon);
-				}
-
-				$propertyGroups[$group->id] = $group;
-
-			} else {
-				\Log::warn('Group should be instance of BlockPropertyGroupConfiguration ', $group);
-			}
-		}
-
-		$this->propertyGroups = array_values($propertyGroups);
-	}
+//
+//		else if ($editable instanceof Editable\Slideshow) {
+//
+//			foreach ($this->properties as $subProperty) {
+//
+//				$subEditable = $subProperty->editableInstance;
+//
+//				if ($subEditable instanceof \Supra\Editable\SelectVisual) {
+//					$this->processSelectVisual($subProperty, $context);
+//				}
+//			}
+//		}
+//
+//		else if ($editable instanceof Editable\MediaGallery) {
+//
+//			if (isset($this->additionalParameters['layouts'])
+//					&& ! empty($this->additionalParameters['layouts'])) {
+//
+//
+//				$layoutConfigurations = $this->additionalParameters['layouts'];
+//				foreach ($layoutConfigurations as $layoutConfiguration) {
+//					$layoutConfiguration->file = $this->getFileFullPath($layoutConfiguration->file, $context);
+//				}
+//			}
+//		}
+//	}
+//
+//	/**
+//	 * SelectVisual Editable's icon paths must be rewrited
+//	 * with proper webroot + current-component-folder paths
+//	 */
+//	private function processSelectVisual($configuration, $context)
+//	{
+//		foreach ($configuration->values as &$value) {
+//			if ( ! empty($value[SelectVisual::PROPERTY_ICON])) {
+//				$value[SelectVisual::PROPERTY_ICON] = $this->getFileWebPath($value[SelectVisual::PROPERTY_ICON], $context);
+//			}
+//
+//			// SelectVisual values can be nested,
+//			// but for now, only two levels are supported
+//			if (isset($value[SelectVisual::PROPERTY_TYPE])
+//					&& $value[SelectVisual::PROPERTY_TYPE] == SelectVisual::TYPE_GROUP) {
+//				if ( ! empty($value['values'])) {
+//					foreach ($value['values'] as &$subValue) {
+//						$subValue[SelectVisual::PROPERTY_ICON] = $this->getFileWebPath($subValue[SelectVisual::PROPERTY_ICON], $context);
+//					}
+//				}
+//			}
+//		}
+//
+//		$configuration->editableInstance->setValues($configuration->values);
+//	}
+//
+//	/**
+//	 *
+//	 * @param string $file
+//	 * @param string $context
+//	 * @return string
+//	 */
+//	protected function getFileWebPath($file, $context = null)
+//	{
+//		throw new \Exception('Fix me!'); // https://www.youtube.com/watch?v=-AK1pkvCqec
+//
+////		if (strpos($file, '/') !== 0) {
+////			return PathConverter::getWebPath($file, $context);
+////		} else {
+////			$file = SUPRA_WEBROOT_PATH . $file;
+////			return PathConverter::getWebPath($file);
+////		}
+//	}
+//
+//	protected function getFileFullPath($file, $context = null)
+//	{
+//		if (strpos($file, '/') !== 0) {
+//			return SUPRA_WEBROOT_PATH . PathConverter::getWebPath($file, $context);
+//		} else {
+//			return $file;
+//		}
+//	}
+//
+//	/**
+//	 *
+//	 */
+//	protected function processPropertyGroupConfigurations()
+//	{
+//		$propertyGroups = array();
+//
+//		foreach ($this->propertyGroups as $group) {
+//
+//			if ($group instanceof BlockPropertyGroupConfiguration) {
+//
+//				if (isset($propertyGroups[$group->id])) {
+//					\Log::warn('Property group with id "' . $group->id . '" already exist in property group list. Skipping group. Configuration: ', $group);
+//					continue;
+//				}
+//
+//				if ( ! empty($group->icon)) {
+//					$group->icon = $this->getFileWebPath($group->icon);
+//				}
+//
+//				$propertyGroups[$group->id] = $group;
+//
+//			} else {
+//				\Log::warn('Group should be instance of BlockPropertyGroupConfiguration ', $group);
+//			}
+//		}
+//
+//		$this->propertyGroups = array_values($propertyGroups);
+//	}
 
 }
