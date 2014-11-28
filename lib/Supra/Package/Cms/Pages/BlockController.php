@@ -4,7 +4,6 @@ namespace Supra\Package\Cms\Pages;
 
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Core\Controller\Controller;
-use Supra\Core\Templating\Templating;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
@@ -641,14 +640,7 @@ abstract class BlockController extends Controller
 	protected function createBlockResponse(Request $request)
 	{
 		$templating = $this->container->getTemplating();
-		/* @var $templating \Twig_Environment */
 
-//		// @TODO: do it in another way.
-//		$templating = new Templating();
-//
-//		$templating->setContainer($this->container);
-//		$templating->addExtension(new Twig\PageBlockExtension($this));
-//
 //		$pageTwigGlobal = new TwigSupraPageGlobal();
 //		$pageTwigGlobal->setContainer($this->container);
 //		$pageTwigGlobal->setRequest($request);
@@ -663,33 +655,5 @@ abstract class BlockController extends Controller
 				? new BlockResponseEdit($this->block, $templateName, $templating)
 				: new BlockResponseView($this->block, $templateName, $templating);
 	}
-
-//	protected function discoverTemplateDefinedProperties()
-//	{
-//		if ($this->configuration->isPropertyAutoDiscoverEnabled()) {
-//			// @TODO: won't work with properties with names resolved on only on render time.
-//			//			requires frontend changes.
-//			// @TODO: refactor, when changes on JS side will be made.
-//
-//			$templating = $this->container->getTemplating();
-//
-//			if (! $templating instanceof TwigTemplating) {
-//				// designed to work only with Twig.
-//				throw new \RuntimeException('Twig templating engine is required.');
-//			}
-//
-//			$twig = $templating->getTwig();
-//
-//			$tokenStream = $twig->tokenize(
-//					$twig->getLoader()->getSource($this->configuration->getTemplateName())
-//			);
-//
-//			$traverser = new \Twig_NodeTraverser($twig);
-//			$nodeVisitor = new BlockPropertyConfigurationVisitor(new PropertyMapper($this->configuration));
-//
-//			$traverser->addVisitor($nodeVisitor);
-//
-//			$traverser->traverse($twig->parse($tokenStream));
-//		}
-//	}
+	
 }
