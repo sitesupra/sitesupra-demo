@@ -22,7 +22,7 @@ abstract class Editable implements EditableInterface
 		'number'		=> '\Supra\Package\Cms\Editable\Number',
 		'link'			=> '\Supra\Package\Cms\Editable\Link',
 		'image'			=> '\Supra\Package\Cms\Editable\Image',
-		'map'			=> '\Supra\Package\Cms\Editable\InlineMap',
+		'inline_map'	=> '\Supra\Package\Cms\Editable\InlineMap',
 		'gallery'		=> '\Supra\Package\Cms\Editable\Gallery',
 		'datetime'		=> '\Supra\Package\Cms\Editable\DateTime',
 	);

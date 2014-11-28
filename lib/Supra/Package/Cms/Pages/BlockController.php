@@ -502,8 +502,10 @@ abstract class BlockController extends Controller
 	 */
 	public function isPropertyValueEmpty()
 	{
-		return empty($this->getProperty()
-				->getValue());
+		$value = $this->getProperty()
+				->getValue();
+
+		return empty($value);
 	}
 
 //	/**
