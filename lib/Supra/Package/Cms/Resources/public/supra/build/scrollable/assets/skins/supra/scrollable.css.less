@@ -63,6 +63,15 @@
 			cursor: default;
 		}
 	}
+	&.su-scrollable-disabled {
+		// Revert changes
+		& > .su-scrollable-invisible {
+			display: none;
+		}
+		& > .su-scrollable-content {
+			padding-right: 0 !important;
+		}
+	}
 }
 
 .ui-dark .su-scrollable {
@@ -116,6 +125,16 @@
 		.su-scrollable-scrollbar-background {
 			.box-shadow (0, 1px, 0, rgba(255, 255, 255, 0.05));
 			background: #1E1D27;
+		}
+	}
+}
+
+.ipad {
+	.su-scrollable,
+	.ui-light .su-scrollable {
+		& > .su-scrollable-content {
+			overflow-y: auto;
+			-webkit-overflow-scrolling: touch;
 		}
 	}
 }

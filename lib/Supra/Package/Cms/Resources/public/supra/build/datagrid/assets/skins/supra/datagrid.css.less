@@ -88,6 +88,7 @@
 	
 	th {
 		font-weight: bold;
+		word-wrap: break-word;
 		padding: 5px 0;
 		
 		span {
@@ -98,6 +99,7 @@
 	td {
 		padding: 5px 8px 5px 0;
 		vertical-align: middle;
+		word-wrap: break-word;
 		
 		img {
 			margin-top: 3px;
@@ -186,6 +188,7 @@
 		line-height: 22px;
 		text-align: left;
 		text-shadow: 0 1px 0 #AEADBD;
+		word-wrap: break-word;
 		
 		padding: 1px 0 0;
 		
@@ -200,6 +203,7 @@
 		color: #fff;
 		font-size: 12px;
 		line-height: 16px;
+		word-wrap: break-word;
 		
 		border-right: 1px solid #2F2D3A;
 		border-left: 1px solid #47495C;
@@ -219,7 +223,8 @@
 			cursor: pointer;
 		}
 		
-		tbody tr:hover {
+		tbody tr:hover,
+		tbody tr.yui3-dd-dragging {
 			.linear-gradient (#F2F3F7, 0%, #BBBCC8, 100%);
 			
 			td {
@@ -246,9 +251,9 @@
 	}
 }
 
-// Dark theme for grid
+// Light theme for grid
 .ui-light .su-datagrid-grid {
-	background: url("/cms/lib/supra/build/input/assets/skins/supra/input-bg.png") 0 0 repeat;
+	background: url("/public/cms/supra/build/input/assets/skins/supra/input-bg.png") 0 0 repeat;
 	box-shadow: 0 1px 1px rgba(4,1,17,0.6) inset, 0 1px 0 rgba(255,255,255,0.15);
 	border-radius: 3px;
 	
@@ -304,7 +309,7 @@
 		display: table-header-group;
 		
 		th {
-			background: url(/cms/lib/supra/img/background-pattern-darker.jpg) 0 0 repeat;
+			background: url(/public/cms/supra/img/background-pattern-darker.jpg) 0 0 repeat;
 			color: #fff;
 			font-size: 12px;
 			font-weight: bold;
@@ -332,7 +337,7 @@
 		td {
 			.box-shadow(0, -1px, 0, #262730 inset);
 			border-top: 1px solid #47495C;
-			background: url(/cms/lib/supra/img/background-pattern-dark.jpg) 0 0 repeat;
+			background: url(/public/cms/supra/img/background-pattern-dark.jpg) 0 0 repeat;
 			padding: 8px 14px 6px;
 			
 			color: #fff;
