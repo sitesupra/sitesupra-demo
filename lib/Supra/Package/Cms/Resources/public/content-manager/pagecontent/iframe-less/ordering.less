@@ -1,0 +1,50 @@
+.yui3-dd-shim {
+	width: auto !important;
+	height: auto !important;
+	position: fixed !important;
+	right: 0;
+	bottom: 0;
+}
+.yui3-editable .yui3-content-proxy span {
+	display: none !important;
+}
+
+.yui3-editable .yui3-content-draging {
+	/* Item which is being dragged (this is not proxy) */
+	opacity: 0.25;
+	filter: alpha(opacity=25);
+}
+
+
+/**
+ * Drop position marker
+ */
+.yui3-content-marker {
+	display: block;
+	position: absolute;
+	z-index: 9999;
+	border: 1px solid #af00f8 !important;
+	margin: -2px 0 0 -1px !important;
+	
+	.border-radius (5px);
+}
+
+.yui3-content-marker-title {
+	position: relative;
+	width: 0;
+	height: 0;
+	
+	div {
+		position: absolute;
+		width: 300px;
+		
+		// Text styles
+		text-align: center !important;
+		font: 12px/18px Arial, Helvetica, sans-serif !important;
+		font-weight: normal !important;
+		font-style: normal !important;
+		color: #fff !important;
+		text-shadow: 0 1px 1px #000;
+		white-space: nowrap !important;
+	}
+}

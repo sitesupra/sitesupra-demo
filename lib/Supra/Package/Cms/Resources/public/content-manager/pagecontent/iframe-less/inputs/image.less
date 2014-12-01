@@ -1,0 +1,124 @@
+/**
+ * = Image resize
+ */
+.supra-image,
+.supra-icon {
+	&,
+	.supra-image-inner {
+		position: relative !important;
+		display: inline-block !important;
+		overflow: hidden !important;
+		visibility: visible !important;
+		vertical-align: baseline !important;
+		position: relative !important;
+		/* Not !important to allow overwrite */
+		background: none;
+		border: 0;        
+		width: auto;
+		height: auto;
+		/* We set minimal size to prevent element not being clickable */
+		min-width: 12px;
+		min-height: 12px;
+	}
+	
+	.supra-image-inner {
+		vertical-align: bottom !important; /* Fixes gap between image and container */
+		float: none !important;
+		background: none !important;
+		border: 0 !important;
+		outline: 2px solid #00a8f9 !important;
+		.border-radius (0 !important);
+		.box-shadow (none !important);
+	}
+	img {
+		max-width: none !important;
+		max-height: none !important;
+		position: relative !important;
+		display: inline-block !important;
+		left: 0;
+		top: 0;
+		
+		/* Remove all styles, they should be applied to .supra-image in editor.css */
+		margin: 0;
+		float: none !important;
+		border: 0 !important;
+		outline: none !important;
+		.border-radius (0 !important);
+		.box-shadow (none !important);
+	}
+	
+	&.supra-image-selected,
+	&.supra-icon-selected {
+		/* Any style when image is selected? */
+	}
+	&.supra-image-editing,
+	&.supra-icon-editing {
+		overflow: visible !important;
+	}
+}
+
+.supra-image.supra-image-editing .tooltip,
+.supra-icon.supra-icon-editing .tooltip,
+.supra-background-editing .tooltip {
+	left: 50%;
+	width: 60px;
+	margin-left: -40px;
+}
+
+.supra-image.supra-image-editing .supra-image-resize,
+.supra-icon.supra-icon-editing .supra-image-resize,
+.supra-background-editing .supra-image-resize {
+	display: block;
+	position: absolute;
+	z-index: 1;
+	left: -6px;
+	top: -6px;
+	right: -6px;
+	bottom: -7px;
+	cursor: move !important;
+	background: url(/public/cms/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-icon.supra-icon-editing .supra-image-resize {
+	cursor: default !important;
+}
+.supra-image.supra-image-editing .supra-image-resize-nw,
+.supra-icon.supra-icon-editing .supra-image-resize-nw {
+	cursor: nw-resize !important;
+	background: url(/public/cms/supra/img/htmleditor/resize-handle-nw-active.gif) 0 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-ne,
+.supra-icon.supra-icon-editing .supra-image-resize-ne {
+	cursor: ne-resize !important;
+	background: url(/public/cms/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-ne-active.gif) 100% 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-sw,
+.supra-icon.supra-icon-editing .supra-image-resize-sw {
+	cursor: sw-resize !important;
+	background: url(/public/cms/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-sw-active.gif) 0 100% no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-se.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-se,
+.supra-icon.supra-icon-editing .supra-image-resize-se {
+	cursor: se-resize !important;
+	background: url(/public/cms/supra/img/htmleditor/resize-handle-nw.gif) 0 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-ne.gif) 100% 0 no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-sw.gif) 0 100% no-repeat,
+				url(/public/cms/supra/img/htmleditor/resize-handle-se-active.gif) 100% 100% no-repeat;
+}
+.supra-image.supra-image-editing .supra-image-resize-move,
+.supra-icon.supra-icon-editing .supra-image-resize-move,
+.supra-background-editing .supra-image-resize-move {
+	background: rgba(0,0,0,0);
+	z-index: 102;
+}

@@ -1,0 +1,62 @@
+/*
+ * Visible only while editing block
+ */
+.yui3-content .supra-button {
+	display: none !important;
+}
+.yui3-content.editing .supra-button {
+	display: inline-block !important;
+	
+	&.supra-hidden,
+	&.yui3-hidden {
+		display: none !important;
+	}
+}
+
+/*
+ * Styles
+ */
+.supra-button,
+.supra-button-small {
+	color: #fff !important;
+	cursor: pointer !important;
+	font: 14px/35px "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial !important;
+	font-style: normal !important;
+	font-weight: bold !important;
+	text-align: center !important;
+	text-decoration: none !important;
+	text-shadow: 0px 1px 0px rgba(0, 19, 52, 0.4) !important;
+	text-transform: none !important;
+	white-space: nowrap !important;
+	
+	display: inline-block !important;
+	height: 35px !important;
+	min-width: 67px !important;
+	padding: 0 5px !important;
+	
+	border: 1px solid #1b1b2a !important;
+	border-top-color: #131222 !important;
+	border-bottom-color: #202133 !important;
+	border-radius: 4px !important;
+	box-shadow: 0 1px 0 #48b5f4 inset, 0 1px 0 rgba(0,0,0,0.15) !important;
+	.linear-gradient(#3a9bf0, 0%, #1672c5, 100%);
+	
+	&:hover {
+		box-shadow: 0 1px 0 #90cefd inset !important;
+		.linear-gradient(#6bb3fc, 0%, #4c8ed8, 100%);
+	}
+}
+
+.supra-button-small {
+	border-radius: 3px !important;
+	height: 23px !important;
+	font-size: 12px !important;
+	line-height: 23px !important;
+}
+
+.supra-button + .supra-button,
+.supra-button-small + .supra-button,
+.supra-button + .supra-button-small,
+.supra-button-small + .supra-button-small {
+	margin-left: 5px;
+}

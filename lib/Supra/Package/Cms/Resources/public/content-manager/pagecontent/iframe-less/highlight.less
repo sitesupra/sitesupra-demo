@@ -1,0 +1,154 @@
+.su-highlight-blocks,
+.su-highlight-placeholders,
+.su-highlight-insert,
+.su-highlight-order {}
+
+.su-highlight-blocks {
+	.yui3-content {
+		min-height: 60px;
+	}
+	.yui3-content-list {
+		min-height: 0;
+	}
+}
+.su-highlight-placeholders {
+	.yui3-content-list {
+		min-height: 60px;
+	}
+}
+
+.su-highlight-insert,
+.su-highlight-order {
+	.yui3-content-proxy {
+		/* Proxy node */
+		opacity: 1;
+	}
+	.yui3-dd-dragging {
+		/* Overlay node */
+		display: none;
+	}
+}
+
+/**
+ * Content highlight (used for lists)
+ */
+.yui3-content.su-content-highlight {
+	border: 2px solid #999 !important;
+	position: relative !important;
+	//margin: -2px !important;
+	margin: 0 -4px -4px 0 !important;
+	min-height: 60px;
+	
+	.border-radius (5px);
+	opacity: 0.75;
+	
+	.su-overlay {
+		cursor: default;
+		border-radius: 3px;
+	}
+	.yui3-content {
+		position: relative;
+		left: -2px;
+		top: -2px;
+	}
+	
+	.yui3-content-proxy {
+		/* Proxy node */
+		opacity: 1;
+	}
+	.yui3-dd-dragging {
+		/* Overlay node */
+		display: none;
+	}
+}
+
+/**
+ * Visual cue for new block insert
+ */
+.su-visual-cue {
+	display: block;
+	position: relative;
+	cursor: pointer;
+	z-index: 10000;
+	border: 2px solid #606060;
+	min-height: 60px;
+	margin: 0 -2px;
+	.border-radius (5px);
+	.box-shadow (none);
+	.transition-property (opacity);
+	.transition-duration (0.35s);
+	
+	&:first-child {
+		margin-top: -2px;
+		padding-top: 2px;
+	}
+	&:last-child {
+		margin-bottom: -2px;
+		padding-bottom: 2px;
+	}
+	&:only-child {
+		margin: -2px;
+		padding: 0;
+	}
+	
+	.su-visual-cue-name {
+		position: absolute;
+		margin: -15px 0 0 0;
+		padding: 0 8px;
+		background: #797979;
+		top: 50%;
+		left: 20px;
+		.border-radius (4px);
+		
+		// Text styles
+		text-align: left !important;
+		font: 18px/30px Arial, Helvetica, sans-serif !important;
+		font-weight: bold !important;
+		font-style: normal !important;
+		color: #000 !important;
+		text-shadow: none;
+		white-space: nowrap !important;
+	}
+}
+
+/* Overlay proxy element */
+.yui3-editable .yui3-content-proxy {
+	opacity: 1;
+	padding: 0;
+	background: none;
+	display: block !important;
+	z-index: 110;
+	
+	/* Remove animation, looks better without it */
+	.transition-property (none);
+}
+
+/**
+ * Element highlight overlay
+ */
+.su-element-overlay {
+	position: absolute;
+	z-index: 10001; // above .editing
+	overflow: hidden;
+	
+	border: 2px solid #009DF8;
+	.border-radius (5px);
+}
+
+/**
+ *
+ */
+.yui3-highlight .yui3-highlight-list {
+	outline: 2px solid #009DF8;
+	
+	-moz-outline-radius: 5px;
+	-webkit-outline-radius: 5px;
+	outline-radius: 5px;
+	
+	overflow: hidden;
+	
+	/*background: url(/public/cms/supra/img/htmleditor/editable-background.gif) 50% 50% no-repeat;*/
+	
+	/* Expand to for easier drag and drop of new blocks */
+	min-height: 90px;
+}

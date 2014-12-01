@@ -1,11 +1,11 @@
 @import "../../../../../less/common.less";
 
 
-.yui3-editor-toolbar {
-	.yui3-tabs-contents .su-button p {
+.su-editor-toolbar {
+	.su-tabs-contents .su-button p {
 		display: none;
 	}
-	.yui3-tabs-contents .su-button-disabled img {
+	.su-tabs-contents .su-button-disabled img {
 		opacity: 0.5;
 		filter: alpha(opacity=50);
 	}
@@ -17,23 +17,30 @@
 		margin-right: 5px;
 		vertical-align: middle;
 	}
-	.yui3-toolbar-label {
+	.su-toolbar-label {
 		display: inline-block;
 		padding: 0 5px;
 		color: #777;
 		.text-shadow (0, 1px, 0, rgba(255, 255, 255, 0.4));
 		vertical-align: middle;
 	}
-	.yui3-toolbar-separator {
+	.su-toolbar-separator {
 		display: inline-block;
 		width: 0;
 	}
 }
 
-.yui3-editor-toolbar-text,
-.yui3-editor-toolbar-table,
-.yui3-editor-toolbar-itemlist,
-.yui3-editor-toolbar-insert {
+.su-editor-toolbar-table,
+.su-editor-toolbar-itemlist,
+.su-editor-toolbar-insert {
+	// Layout boundaries
+	overflow: hidden;
+}
+
+.su-editor-toolbar-text,
+.su-editor-toolbar-table,
+.su-editor-toolbar-itemlist,
+.su-editor-toolbar-insert {
 	.box-shadow (0, 1px, 0, rgba(0,0,0,0.15));
 	.border-radius (0, 0, 3px, 3px);
 	
@@ -41,15 +48,16 @@
 	padding: 8px 10px 0;
 	height: 42px - 8px; // - padding top
 	width: 655px;
-	position: absolute;
-	z-index: 1;
 	margin: 48px 0 0 -337px;
 	top: 0;
 	left: 50%;
+	position: absolute;
+	// z-index should be below main toolbar (7), but above content due to dropdowns 
+	//z-index: 1;
 	
-	&.yui3-editor-toolbar-table,
-	&.yui3-editor-toolbar-itemlist,
-	&.yui3-editor-toolbar-insert {
+	&.su-editor-toolbar-table,
+	&.su-editor-toolbar-itemlist,
+	&.su-editor-toolbar-insert {
 		z-index: 0;
 	}
 	
@@ -66,6 +74,10 @@
 		}
 		label {
 			display: none;
+		}
+		.icon-crop {
+			// To prevent content jumping when images changes
+			min-width: 12px;
 		}
 	}
 	.yui3-input-select-hidden {
@@ -196,10 +208,10 @@
 
 // Firefox fix
 .gecko {
-	.yui3-editor-toolbar-text,
-	.yui3-editor-toolbar-table,
-	.yui3-editor-toolbar-itemlist,
-	.yui3-editor-toolbar-insert {
+	.su-editor-toolbar-text,
+	.su-editor-toolbar-table,
+	.su-editor-toolbar-itemlist,
+	.su-editor-toolbar-insert {
 		/**
 		 * Toolbar buttons
 		 */
@@ -210,13 +222,13 @@
 }
 
 // Inline toolbar
-.yui3-input-html .yui3-editor-toolbar {
+.yui3-input-html .su-editor-toolbar {
 	position: relative;
 	
-	.yui3-editor-toolbar-text,
-	.yui3-editor-toolbar-table,
-	.yui3-editor-toolbar-itemlist,
-	.yui3-editor-toolbar-insert {
+	.su-editor-toolbar-text,
+	.su-editor-toolbar-table,
+	.su-editor-toolbar-itemlist,
+	.su-editor-toolbar-insert {
 		width: 100%;
 		height: 42px;
 		left: 0;
@@ -252,6 +264,7 @@
 			&.H2 { font-size: 18px; font-weight: bold; line-height: 18px; }
 			&.H3 { font-size: 16px; font-weight: bold; line-height: 16px; }
 			&.H4 { font-size: 14px; font-weight: bold; line-height: 14px; }
+			&.H5 { font-size: 12px; font-weight: bold; line-height: 12px; }
 			&.B  { font-weight: bold; }
 			&.EM { font-style: italic; }
 			&.S  { text-decoration: line-through; }
@@ -268,10 +281,10 @@
 
 /* Cross-browser inconsistencies fix */
 .gecko, .ie {
-	.yui3-editor-toolbar-text .yui3-button img,
-	.yui3-editor-toolbar-table .yui3-button img,
-	.yui3-editor-toolbar-itemlist .yui3-button img,
-	.yui3-editor-toolbar-insert .yui3-button img {
+	.su-editor-toolbar-text .su-button img,
+	.su-editor-toolbar-table .su-button img,
+	.su-editor-toolbar-itemlist .su-button img,
+	.su-editor-toolbar-insert .su-button img {
 		position: relative;
 		margin: 0 0 0 -1px;
 		display: inline-block;

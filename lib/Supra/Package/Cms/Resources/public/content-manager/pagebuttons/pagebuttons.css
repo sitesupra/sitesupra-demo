@@ -26,14 +26,14 @@
 /**
  * Toolbar button animation
  */
-.yui3-editor-toolbar-group {
+.su-editor-toolbar-group {
     position: absolute;
     right: 0;
 	left: 0;
     top: -50px;
     white-space: nowrap;
 }
-.yui3-editor-toolbar-group:first-child {
+.su-editor-toolbar-group:first-child {
 	top: 0;
 }
 

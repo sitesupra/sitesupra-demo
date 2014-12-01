@@ -1,0 +1,120 @@
+.yui3-content {
+	.clear-fix ();
+	min-height: 45px;
+}
+.yui3-content-inline {
+	clear: both;
+}
+
+/**
+ * Reset styles
+ */
+.yui3-content,
+.yui3-content-marker,
+.yui3-box-reset,
+.yui3-dd-proxy,
+.yui3-inline-reset {
+	padding: 0 !important;
+	margin: 0 !important;
+	border: 0 !important;
+	background: none !important;
+}
+.yui3-box-reset,
+.yui3-inline-reset {
+	float: none !important;
+	position: static !important;
+	left: auto !important;
+	right: auto !important;
+	top: auto !important;
+	bottom: auto !important;
+}
+
+.yui3-inline-reset {
+	display: inline !important;
+	clear: none !important;
+	color: inherit !important;
+	cursor: inherit !important;
+	direction: inherit !important;
+	font-family: inherit !important;
+	font-size: inherit !important;
+	font-style: inherit !important;
+	font-weight: inherit !important;
+	letter-spacing: inherit !important;
+	line-height: inherit !important;
+	list-style: none !important;
+	text-align: inherit !important;
+	text-indent: inherit !important;
+	text-decoration: inherit !important;
+	text-transform: inherit !important;
+	text-shadow: inherit !important;
+	outline: none !important;
+	overflow: visible !important;
+	vertical-align: inherit !important;
+	visibility: visible !important;
+	white-space: inherit !important;
+}
+
+
+/**
+ * List content
+ */
+.yui3-content-list {
+	overflow: visible;
+	min-height: 0;
+
+	&.editing {
+		overflow: hidden;
+		min-height: 60px;
+		outline: 0;
+		
+		.yui3-content-list {
+			/* If list is being edited, then set sub-list height, so that these can be highlighted */
+			min-height: 60px;
+		}
+		.yui3-content-inline {
+			/* If list is being edited, then don't highlight inline contents */
+			outline: none;
+			min-height: 0;
+			overflow: visible;
+		}
+	}
+}
+
+
+/**
+ * Editing styles
+ */
+.editing {
+	position: relative;
+	z-index: 10000;
+	
+	&,
+	.yui3-content-inline {
+		outline: 2px dashed #00A5F8;
+		min-height: 1.5em;
+		
+		.clear-fix ();
+	}
+	
+	.yui3-input-string-inline.yui3-content-inline,
+	.yui3-input-text-inline.yui3-content-inline {
+		min-height: 1em;
+	}
+}
+
+*[contenteditable] {
+	// Because of content editable there is outline in WebKit
+	outline: none;
+}
+*::-moz-focus-inner {
+	border: 0;
+	outline: none;
+}
+
+/**
+ * Hidden
+ */
+.yui3-hidden,
+.supra-hidden {
+	display: none !important;
+}

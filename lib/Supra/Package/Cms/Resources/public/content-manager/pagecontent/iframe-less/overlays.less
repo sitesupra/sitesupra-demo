@@ -1,0 +1,217 @@
+.su-overlay {
+	display: none;
+	position: absolute;
+	cursor: pointer;
+	z-index: 9999;
+	border: 2px solid #009DF8;
+	.box-sizing (border-box);
+	.border-radius (5px);
+	.box-shadow (none);
+	.transition-property (opacity);
+	.transition-duration (0.35s);
+	.user-select (none);
+	
+	&.su-overlay-list {
+		border-style: dashed;
+		border-color: #555;
+	}
+	
+	// Icon
+	.su-overlay-icon {
+		display: none;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		
+		width: 59px;
+		height: 59px;
+		margin: -30px 0 0 -30px;
+		
+		.border-radius (59px);
+		.box-shadow (0, 1px, 0, rgba(0, 0, 0, .43));
+		.transition-property (opacity);
+		.transition-duration (0.35s);
+		
+		background: url(/public/cms/supra/img/htmleditor/editable-background.gif) 0 0 no-repeat;
+	}
+	
+	&.su-overlay-icon-visible {
+		.su-overlay-icon {
+			display: block;
+		}
+	}
+	
+	&.su-overlay-icon-visible-hover {
+		.su-overlay-icon {
+			display: block;
+			opacity: 0;
+		}
+		&:hover .su-overlay-icon {
+			opacity: 1;
+		}
+	}
+	
+	&.su-overlay-external {
+		// Global block, but editable on this page
+		.su-overlay-icon {
+			background-image: url(/public/cms/supra/img/htmleditor/editable-external-background.gif);
+		}
+	}
+	&.su-overlay-list,
+	&.su-overlay-closed,
+	&.su-overlay-external {
+		.su-overlay-icon {
+			background-image: url(/public/cms/supra/img/htmleditor/editable-closed-background.gif);
+		}
+	}
+	
+	&.su-overlay-icon-visible-loading {
+		cursor: default;
+		background: none;
+		
+		.su-overlay-icon {
+			display: block;
+			cursor: default;
+			overflow: hidden;
+			height: 24px;
+			width: 24px;
+			padding: 0;
+			margin: -12px 0 0 -12px !important;
+			background: url(/public/cms/supra/img/ajax-loader-24-24.png) 0 0 no-repeat;
+			
+			.border-radius (0);
+			.box-shadow (none);
+		}
+	}
+	
+	// Title
+	.su-overlay-name {
+		display: none;
+		position: absolute;
+		margin: -20px 0 0 0;
+		padding: 5px 10px;
+		background: #009DF8;
+		left: 20px;
+		top: 50%;
+		.border-radius (4px);
+		
+		// Text styles
+		text-align: left !important;
+		font: 18px/30px Arial, Helvetica, sans-serif !important;
+		font-weight: normal !important;
+		font-style: normal !important;
+		color: #fff !important;
+		text-shadow: none;
+		text-transform: none;
+		white-space: nowrap !important;
+		
+		small {
+			display: none;
+			font-size: 13px;
+		}
+	}
+	&.su-overlay-name-visible {
+		.su-overlay-name {
+			display: block;
+		}	
+	}
+	&.su-overlay-list .su-overlay-name {
+		background: #555;
+	}
+	
+	// When icon is not visible don't show "Drag to sort, click to edit"
+	&.su-overlay-editable.su-overlay-icon-visible,
+	&.su-overlay-editable.su-overlay-icon-visible-hover {
+		.su-overlay-name {
+			line-height: 24px !important;
+			padding: 10px 70px 10px 10px;
+			left: 50%;
+			margin: -35px 0 0 -118px; // assume width is ~236px
+			
+			small {
+				display: inline;
+			}
+			.su-overlay-icon {
+				left: auto;
+				right: 5px;
+			}
+		}
+	}
+	&.su-overlay-editable.su-overlay-closed .su-overlay-name {
+		margin-left: -75px; // text is smaller, assume width is ~150px
+	}
+	
+	&.su-overlay-editable.su-overlay-icon-visible-hover {
+		// Icon is visible only on hover
+		/*
+		.su-overlay-name {
+			padding-right: 10px;
+		}
+		&:hover .su-overlay-name {
+			padding-right: 70px;
+		}
+		*/
+	}
+	
+	&.su-overlay-editable.su-overlay-name-visible .su-overlay-name + .su-overlay-icon {
+		// Don't show icon if name is visible, because there is another icon is inside
+		// this element 
+		display: none;
+	}
+	
+	// Block which redirects to template
+	&.su-overlay-external {
+		border-color: #a983fc;
+		
+		.su-overlay-name {
+			background-color: #a983fc;
+			padding: 6px 8px;
+			text-align: center !important;
+			line-height: 24px !important;
+			margin: -31px 0 0 -81px;
+			left: 50%;
+		}
+		
+	}
+	
+	// Global block, but editable on this page
+	&.su-overlay-editable.su-overlay-external {
+		.su-overlay-name {
+			margin-left: -112px;
+		}
+	}
+	
+}
+
+// Placeholder overlays cursor
+.yui3-content-list .su-overlay.su-overlay-list {
+	&, span {
+		cursor: default;
+	}
+}
+
+// Overlay visible
+.su-overlay-visible {
+	display: block;
+}
+
+// Overlay visible on hover
+.su-overlay-visible-hover {
+	display: block;
+	opacity: 0;
+	
+	&:hover {
+		opacity: 1;
+	}
+}
+
+.su-overlay-draggable {
+	
+}
+
+// Overlay visible, but transparent
+.su-overlay-transparent,
+.su-overlay-transparent.su-overlay-list {
+	display: block;
+	border-color: transparent;
+}

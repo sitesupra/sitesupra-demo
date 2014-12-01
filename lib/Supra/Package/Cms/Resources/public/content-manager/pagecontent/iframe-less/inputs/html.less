@@ -1,0 +1,77 @@
+/**
+ * Standalone HTML editor content
+ */
+.standalone {
+	height: 100%;
+	min-width: 0 !important;
+	width: auto !important;
+	overflow: auto !important;
+	
+	body {
+		min-width: 0 !important;
+		width: auto !important;
+		height: 100%;
+		min-height: 100%;
+	}
+	.editing {
+		outline: none;    /* Don't need outline, because everything is editable */
+		min-height: 100%; /* Fill all height */
+		padding: 0 10px !important;   /* to make sure content is not at the border*/
+	}
+}
+.standalone-disabled,
+.standalone-disabled * {
+	cursor: pointer;
+}
+
+/**
+ * Inline HTML editor content
+ */
+.editing.yui3-content-inline-editable {
+	outline: none;
+	overflow: visible;
+}
+
+/* Images */
+.editing .yui3-input-html-inline img {
+	cursor: pointer !important;
+	
+	&.yui3-image-selected,
+	&.yui3-gallery-selected {
+		/* Image focused */
+		.box-shadow (0, 0, 4px, #39f);
+	}
+}
+
+
+/* Table */
+.editing table.yui3-table-selected {
+	td, th {
+		/*outline: 1px dotted #ccc;*/
+	}
+	.yui3-cell-selected {
+		.box-shadow (0, 0, 4px, #39f);
+	}
+}
+ 
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	.editing table.yui3-table-selected .yui3-cell-selected {
+		outline: 2px dotted #39f;
+		.box-shadow (none);
+	}
+}
+
+/* Fix for cursor position in lists in IE */
+.standalone .editing li > div,
+.editing .yui3-input-html-inline li > div {
+	display: inline;
+	vertical-align: top;
+}
+
+/* Cursors */
+.su-uneditable, .su-uneditable * {
+	cursor: default !important;
+}
+.su-editable, .su-editable * {
+	cursor: text !important;
+}
