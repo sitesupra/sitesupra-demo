@@ -17,7 +17,10 @@ class CmsExceptionListener implements RequestResponseListenerInterface
 		$exception = $event->getData();
 
 		if ($exception instanceof CmsException) {
-			$response = new SupraJsonResponse();
+			$response = new SupraJsonResponse(null);
+
+			$response->setStatus(0);
+
 			$response->setErrorMessage($exception->getMessageKey() ? '{#'.$exception->getMessageKey().'#}' : $exception->getMessage());
 
 			$event->setResponse($response);
