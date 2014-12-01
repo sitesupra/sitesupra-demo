@@ -1,11 +1,3 @@
-.yui3-content {
-	.clear-fix ();
-	min-height: 45px;
-}
-.yui3-content-inline {
-	clear: both;
-}
-
 /**
  * Reset styles
  */
@@ -52,54 +44,6 @@
 	vertical-align: inherit !important;
 	visibility: visible !important;
 	white-space: inherit !important;
-}
-
-
-/**
- * List content
- */
-.yui3-content-list {
-	overflow: visible;
-	min-height: 0;
-
-	&.editing {
-		overflow: hidden;
-		min-height: 60px;
-		outline: 0;
-		
-		.yui3-content-list {
-			/* If list is being edited, then set sub-list height, so that these can be highlighted */
-			min-height: 60px;
-		}
-		.yui3-content-inline {
-			/* If list is being edited, then don't highlight inline contents */
-			outline: none;
-			min-height: 0;
-			overflow: visible;
-		}
-	}
-}
-
-
-/**
- * Editing styles
- */
-.editing {
-	position: relative;
-	z-index: 10000;
-	
-	&,
-	.yui3-content-inline {
-		outline: 2px dashed #00A5F8;
-		min-height: 1.5em;
-		
-		.clear-fix ();
-	}
-	
-	.yui3-input-string-inline.yui3-content-inline,
-	.yui3-input-text-inline.yui3-content-inline {
-		min-height: 1em;
-	}
 }
 
 *[contenteditable] {
