@@ -20,14 +20,11 @@ class EditableInlineTextareaFilter implements FilterInterface, BlockPropertyAwar
 	{
 		$wrap = '<div id="content_%s_%s" class="yui3-content-inline yui3-input-textarea-inline">%s</div>';
 
-		return new \Twig_Markup(
-				sprintf(
+		return sprintf(
 					$wrap,
 					$this->blockProperty->getBlock()->getId(),
 					$this->blockProperty->getName(),
 					$content
-				),
-				'UTF-8'
 		);
 	}
 
