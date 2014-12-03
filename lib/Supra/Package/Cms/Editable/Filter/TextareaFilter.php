@@ -7,8 +7,8 @@ namespace Supra\Package\Cms\Editable\Filter;
  */
 class TextareaFilter implements FilterInterface
 {
-	public function filter($content)
+	public function filter($content, array $options = array())
 	{
-		return new \Twig_Markup(nl2br(htmlspecialchars($content, ENT_QUOTES, 'UTF-8')), 'UTF-8');
+		return nl2br(htmlspecialchars($content, ENT_QUOTES, 'UTF-8'));
 	}
 }

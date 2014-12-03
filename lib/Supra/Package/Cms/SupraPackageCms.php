@@ -144,6 +144,15 @@ class SupraPackageCms extends AbstractSupraPackage
 			return new CmsExceptionListener();
 		};
 
+		$container[$this->getName().'.pages.not_found_exception_listener'] = function () {
+			return new Pages\Listener\NotFoundExceptionListener();
+		};
+
+		$container->getEventDispatcher()->addListener(
+			KernelEvent::ERROR404,
+			array($container[$this->getName().'.pages.not_found_exception_listener'], 'listen')
+		);
+
 		$container->getEventDispatcher()->addListener(
 				KernelEvent::EXCEPTION,
 				array($container[$this->getName().'.cms_exception_listener'], 'listen')

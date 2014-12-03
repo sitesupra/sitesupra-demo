@@ -4,7 +4,7 @@ namespace Supra\Package\Cms\Editable\Filter;
 
 class DateTimeFilter implements FilterInterface
 {
-	public function filter($content)
+	public function filter($content, array $options = array())
 	{
 		if (! empty($content)) {
 			$dateTime = \DateTime::createFromFormat('Y-m-d H:i', $content);

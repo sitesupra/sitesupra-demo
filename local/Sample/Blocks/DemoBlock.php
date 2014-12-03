@@ -2,14 +2,26 @@
 
 namespace Sample\Blocks;
 
-use Supra\Package\Cms\Pages\BlockController;
+use Supra\Package\Cms\Pages\Block\BlockConfiguration;
+use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
+use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 
-class DemoBlock extends BlockController
+class DemoBlock extends BlockConfiguration
 {
-	public function doExecute()
+	protected function configureAttributes(AttributeMapper $mapper)
 	{
-		$this->getResponse()
-				->render();
-//				->outputTemplate('SamplePackage:blocks/demo.html.twig');
+		$mapper->title('Demo Block')
+				->description('Collection of different properties.')
+				->icon('sample:blocks/demo.png')
+				->template('sample:blocks/demo.html.twig')
+				;
+	}
+
+	protected function configureProperties(PropertyMapper $mapper)
+	{
+		$mapper->autoDiscover()
+				->add('foo_1', 'string', array('label' => 'Foo 1'))
+				->add('foo_5', 'string', array('label' => 'Foo 5'))
+				;
 	}
 }

@@ -19,20 +19,20 @@ interface EditableInterface
 	 */
 	public function getLabel();
 
-	/**
-	 * @param string $label
-	 */
-	public function setLabel($label);
+//	/**
+//	 * @param string $label
+//	 */
+//	public function setLabel($label);
 
 	/**
 	 * @return string
 	 */
 	public function getDescription();
 
-	/**
-	 * @param string $description
-	 */
-	public function setDescription($description);
+//	/**
+//	 * @param string $description
+//	 */
+//	public function setDescription($description);
 
 	/**
 	 * @return array
@@ -45,20 +45,20 @@ interface EditableInterface
 	 */
 	public function getDefaultValue($localeId = null);
 
-	/**
-	 * @param mixed $value
-	 */
-	public function setDefaultValue($value);
-
-	/**
-	 * @return string
-	 */
-	public function getGroupId();
-
-	/**
-	 * @param string $groupLabel
-	 */
-	public function setGroupId($groupId);
+//	/**
+//	 * @param mixed $value
+//	 */
+//	public function setDefaultValue($value);
+//
+//	/**
+//	 * @return string
+//	 */
+//	public function getGroupId();
+//
+//	/**
+//	 * @param string $groupLabel
+//	 */
+//	public function setGroupId($groupId);
 
 //	/**
 //	 * @return mixed
@@ -71,12 +71,14 @@ interface EditableInterface
 //	public function setContent($content);
 
 	/**
+	 * @param mixed $value
+	 * @param array $options
 	 * @return mixed
 	 */
-	public function getFilteredValue();
+	public function toViewValue($value, array $options = array());
 
 	/**
 	 * @param FilterInterface $filter
 	 */
-	public function addFilter(FilterInterface $filter);
+	public function addViewFilter(FilterInterface $filter);
 }

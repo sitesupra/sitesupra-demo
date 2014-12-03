@@ -39,7 +39,7 @@ class PagesBlockController extends AbstractPagesController
 			}
 
 			$blockData[] = array(
-				'id'			=> $configuration->getControllerClassId(),
+				'id'			=> $configuration->getName(),
 				'title'			=> $configuration->getTitle(),
 				'description'	=> $configuration->getDescription(),
 				'icon'			=> $configuration->getIcon(),
@@ -69,23 +69,21 @@ class PagesBlockController extends AbstractPagesController
 	{
 		$propertyData = array();
 
-		$localeId = $this->getCurrentLocale()
-				->getId();
-
 		foreach ($blockConfiguration->getProperties() as $configuration) {
 
 			$editable = $configuration->getEditable();
 
 			$propertyData[] = array(
 				'id'	=> $configuration->getName(),
-				'value'	=> $configuration->getDefaultValue($localeId),
-
 				// Editable information
+				'value'			=> $editable->getDefaultValue(),
 				'type'			=> $editable->getEditorType(),
 				'label'			=> $editable->getLabel(),
 				'description'	=> $editable->getDescription(),
-				// @TODO: check if this feature from portal. remove if it is.
-				'group'			=> $editable->getGroupId(),
+
+// @FIXME: block property configuration option
+//				// @TODO: check if this feature from portal. remove if it is.
+//				'group'			=> $editable->getGroupId(),
 				
 			) + $editable->getAdditionalParameters();
 		}

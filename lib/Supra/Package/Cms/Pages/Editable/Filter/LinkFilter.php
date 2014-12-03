@@ -26,7 +26,7 @@ class LinkFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 	/**
 	 * {@inheritDoc}
 	 */
-	public function filter($content)
+	public function filter($content, array $options = array())
 	{
 		if ($this->blockProperty->getMetadata()->offsetExists('link')) {
 

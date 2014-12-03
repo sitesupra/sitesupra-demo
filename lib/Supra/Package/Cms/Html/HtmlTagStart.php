@@ -24,6 +24,15 @@ class HtmlTagStart extends HtmlTagAbstraction
 		
 		return $this;
 	}
+
+	/**
+	 * @param array $attributes
+	 */
+	public function setAttributes(array $attributes)
+	{
+		$this->attributes = $attributes;
+		return $this;
+	}
 	
 	/**
 	 * @param string $name

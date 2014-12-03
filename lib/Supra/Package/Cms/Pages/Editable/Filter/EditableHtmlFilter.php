@@ -16,18 +16,15 @@ class EditableHtmlFilter extends HtmlFilter
 	 * @params string $content
 	 * @return \Twig_Markup
 	 */
-	public function filter($content)
+	public function filter($content, array $options = array())
 	{
 		$wrap = '<div id="content_%s_%s" class="yui3-content-inline yui3-input-html-inline-content">%s</div>';
 		
-		return new \Twig_Markup(
-				sprintf(
+		return sprintf(
 					$wrap,
 					$this->blockProperty->getBlock()->getId(),
 					$this->blockProperty->getName(),
 					parent::filter($content)
-				),
-				'UTF-8'
 		);
 	}
 

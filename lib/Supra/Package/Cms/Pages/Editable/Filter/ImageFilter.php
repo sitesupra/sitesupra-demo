@@ -17,7 +17,7 @@ class ImageFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 	 */
 	protected $container;
 
-	public function filter($content)
+	public function filter($content, array $options = array())
 	{
 		if ($this->blockProperty->getMetadata()->offsetExists('image')) {
 

@@ -16,7 +16,7 @@ class EditableInlineTextareaFilter implements FilterInterface, BlockPropertyAwar
 	 */
 	protected $blockProperty;
 
-	public function filter($content)
+	public function filter($content, array $options = array())
 	{
 		$wrap = '<div id="content_%s_%s" class="yui3-content-inline yui3-input-textarea-inline">%s</div>';
 

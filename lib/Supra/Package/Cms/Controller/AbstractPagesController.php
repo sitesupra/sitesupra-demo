@@ -28,10 +28,7 @@ use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Pages\BlockController;
 use Supra\Package\Cms\Uri\Path;
-use Supra\Package\Cms\Pages\Editable\Transformer\HtmlEditorValueTransformer;
-use Supra\Package\Cms\Pages\Editable\Transformer\LinkEditorValueTransformer;
-use Supra\Package\Cms\Pages\Editable\Transformer\ImageEditorValueTransformer;
-use Supra\Package\Cms\Pages\Editable\Transformer\GalleryEditorValueTransformer;
+use Supra\Package\Cms\Pages\Editable\Transformer;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 /**
@@ -1539,13 +1536,15 @@ abstract class AbstractPagesController extends AbstractCmsController
 		$transformers = array();
 
 		if ($editable instanceof Editable\Html) {
-			$transformers[] = new HtmlEditorValueTransformer();
+			$transformers[] = new Transformer\HtmlEditorValueTransformer();
 		} elseif ($editable instanceof Editable\Link) {
-			$transformers[] = new LinkEditorValueTransformer();
+			$transformers[] = new Transformer\LinkEditorValueTransformer();
 		} else if ($editable instanceof Editable\Image) {
-			$transformers[] = new ImageEditorValueTransformer();
+			$transformers[] = new Transformer\ImageEditorValueTransformer();
 		} else if ($editable instanceof Editable\Gallery) {
-			$transformers[] = new GalleryEditorValueTransformer();
+			$transformers[] = new Transformer\GalleryEditorValueTransformer();
+		} else if ($editable instanceof Editable\InlineMap) {
+			$transformers[] = new Transformer\ArrayValueTransformer();
 		}
 
 		foreach ($transformers as $transformer) {
@@ -1600,8 +1599,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 		$blockData = array(
 			'id'			=> $block->getId(),
-			'type'			=> $block->getComponentNameFromClassName(get_class($blockController)),
-			'closed'		=> false,//@fixme
+			'type'			=> $blockController->getConfiguration()->getName(),
+			'closed'		=> false, //@fixme
 			'locked'		=> $block->isLocked(),
 			'properties'	=> $this->collectBlockPropertyData($blockController),
 			// @TODO: check if this still is used somewhere, remove if not.
@@ -1722,10 +1721,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 			$this->configureEditableValueTransformers($editable, $property);
 
-			$editable->setRawValue($property->getValue());
-
 			$propertyData[$name] = array(
-				'value' => 	$editable->getEditorValue(),
+				'value' => $editable->toEditorValue($property->getValue()),
 			);
 		}
 

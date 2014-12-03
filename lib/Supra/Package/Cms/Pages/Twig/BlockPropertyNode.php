@@ -8,26 +8,19 @@ class BlockPropertyNode extends \Twig_Node_Expression_Function
 	{
 		$arguments = $this->getNode('arguments');
 
-        if ($arguments->count() > 0) {
+        if (($count = $arguments->count()) > 0) {
 
-//			if (count($arguments) > 1) {
-//				$compiler->raw('$this->env->getExtension(\'supraPage\')->addBlockPropertyConfiguration(');
-//
-//				$i = 0;
-//				foreach ($arguments->getIterator() as $argument) {
-//					if ($i ++) {
-//						$compiler->raw(', ');
-//					}
-//
-//					$compiler->subcompile($argument);
-//				}
-//
-//				$compiler->raw(");\n echo ");
-//			}
+			$arguments = iterator_to_array($arguments->getIterator());
 
-			$compiler->raw('$this->env->getExtension(\'supraPage\')->getBlockController()->getPropertyValue(');
-            $compiler->subcompile($arguments->getIterator()->current());
-			$compiler->raw(');');
+			$compiler->raw('$this->env->getExtension(\'supraPage\')->getPropertyValue(');
+			$compiler->subcompile($arguments[0]);
+
+			if ($count === 3) {
+				$compiler->raw(',');
+				$compiler->subcompile($arguments[2]);
+			}
+
+			$compiler->raw(')');
 		}
 	}
 }

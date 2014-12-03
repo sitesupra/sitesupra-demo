@@ -90,7 +90,7 @@ class PageController extends Controller
 		$this->pageRequest = $pageRequest;
 		$this->pageResponse = $this->createPageResponse();
 
-		try {
+//		try {
 			$localization = $pageRequest->getLocalization();
 
 			if (! $localization instanceof Localization) {
@@ -117,14 +117,14 @@ class PageController extends Controller
 				}
 			}
 			
-		} catch (ResourceNotFoundException $e) {
-			try {
-				$this->getLocalizationByPath('404');
-			} catch (ResourceNotFoundException $e404) {
-				// re-throw original exception if 404 page does not exists.
-				throw $e;
-			}
-		}
+//		} catch (ResourceNotFoundException $e) {
+//			try {
+//				$this->getLocalizationByPath('404');
+//			} catch (ResourceNotFoundException $e404) {
+//				// re-throw original exception if 404 page does not exists.
+//				throw $e;
+//			}
+//		}
 
 		// Continue processing
 		$layout = $pageRequest->getLayout();

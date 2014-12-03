@@ -12,27 +12,16 @@ class PropertyMapper extends Mapper
 	 *
 	 * @param string $name
 	 * @param string $editableName
-	 * @param string $label
-	 * @param string $defaultValue
-	 * @param array $options
+	 * @param array $editableOptions
 	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
 	 */
-	public function add($name, $editableName, $label = null, $defaultValue = null, array $options = array())
+	public function add($name, $editableName, array $editableOptions = array())
 	{
-		$editableInstance = Editable::getEditable($editableName);
+		$editable = Editable::getEditable($editableName);
 
-		$editableInstance->setLabel($label);
-		$editableInstance->setDefaultValue($defaultValue);
+		$editable->setOptions($editableOptions);
 
-		$this->configuration->addProperty(
-				new BlockPropertyConfiguration(
-						$name,
-						$editableInstance,
-						$label,
-						$defaultValue,
-						$options
-				)
-			);
+		$this->configuration->addProperty(new BlockPropertyConfiguration($name, $editable));
 
 		return $this;
 	}

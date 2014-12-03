@@ -47,6 +47,14 @@ abstract class BlockConfiguration
 	/**
 	 * @return string
 	 */
+	public function getName()
+	{
+		return trim(str_replace('\\', '_', get_called_class()));
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getTitle()
 	{
 		$this->validate();
@@ -295,16 +303,6 @@ abstract class BlockConfiguration
 	}
 
 	/**
-	 * Returns controller class name safe to use on frontend as block ID.
-	 * 
-	 * @return string
-	 */
-	public function getControllerClassId()
-	{
-		return trim(str_replace('\\', '_', $this->getControllerClass()));
-	}
-
-	/**
 	 * Concrete classes should override this to configure block attributes.
 	 *
 	 * @param AttributeMapper $mapper
@@ -338,7 +336,6 @@ abstract class BlockConfiguration
 	 * Tries to guess Block controller class name if $className is empty.
 	 *
 	 * @return string
-	 * @throws \LogicException in case if guess failed.
 	 */
 	private function guessControllerClass()
 	{
@@ -351,10 +348,7 @@ abstract class BlockConfiguration
 			return $className;
 		}
 
-		throw new \RuntimeException(sprintf(
-				'Failed to guess controller class for [%s] block',
-				$this->getTitle()
-		));
+		return __NAMESPACE__ . '\\DefaultBlockController';
 	}
 
 	/**
@@ -386,7 +380,7 @@ abstract class BlockConfiguration
 	public function initialize(\Twig_Environment $twig)
 	{
 		if ($this->initialized === true) {
-			throw new \LogicException('Configuration was initialized already.');
+			throw new \LogicException('Is initialized already.');
 		}
 
 		$this->initialized = true;

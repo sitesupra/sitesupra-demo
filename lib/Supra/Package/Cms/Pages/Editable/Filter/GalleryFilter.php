@@ -21,7 +21,7 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 	 * @param mixed $content irrelevant here
 	 * @return HtmlTag[]
 	 */
-	public function filter($content)
+	public function filter($content, array $options = array())
 	{
 		$tags = array();
 

@@ -265,7 +265,8 @@ abstract class BlockController extends Controller
 					$request->getLocalization()
 			);
 
-			$defaultValue = $configuration->getDefaultValue($request->getLocale());
+			$defaultValue = null;
+//			$defaultValue = $configuration->getDefaultValue($request->getLocale());
 
 			$property->setValue($defaultValue);
 		}
@@ -353,18 +354,13 @@ abstract class BlockController extends Controller
 	 */
 	protected function configureContentFilters(BlockProperty $property, EditableInterface $editable)
 	{
-//		$propertyId = $property->getId();
-//
-//		if (array_key_exists($propertyId, $this->configuredBlockProperties)) {
-//			return;
-//		}
+		$propertyId = $property->getId();
+
+		if (array_key_exists($propertyId, $this->configuredBlockProperties)) {
+			return;
+		}
 
 		$filters = array();
-
-		// @TODO: or get EM from request object?
-		$entityManager = $this->request instanceof PageRequestEdit
-				? $this->container->getDoctrine()->getManager('cms')
-				: $this->container->getDoctrine()->getManager();
 
 		// Html content filters
 		if ($editable instanceof Editable\Html) {
@@ -390,7 +386,7 @@ abstract class BlockController extends Controller
 			}
 		}
 		elseif ($editable instanceof Editable\Link) {
-			$filters[] = new Filter\LinkFilter($entityManager);
+			$filters[] = new Filter\LinkFilter();
 		}
 		elseif ($editable instanceof Editable\DateTime) {
 			$filters[] = new Editable\Filter\DateTimeFilter();
@@ -400,6 +396,13 @@ abstract class BlockController extends Controller
 		}
 		elseif ($editable instanceof Editable\Gallery) {
 			$filters[] = new Filter\GalleryFilter();
+		}
+		elseif ($editable instanceof Editable\InlineMap) {
+			$filters[] = new Filter\InlineMapFilter();
+
+			if ($this->request instanceof PageRequestEdit) {
+				$filters[] = new Filter\EditableInlineMapFilter();
+			}
 		}
 		
 //		else if ($editable instanceof Editable\Gallery) {
@@ -463,46 +466,40 @@ abstract class BlockController extends Controller
 				$filter->setBlockProperty($property);
 			}
 
-			$editable->addFilter($filter);
+			$editable->addViewFilter($filter);
 		}
+
+		$this->configuredBlockProperties[$propertyId] = true;
 	}
 
 	/**
 	 * Get property value, uses default if not found, throws exception if
 	 * property not declared
 	 * @param string $name
+	 * @param array $options
 	 * @return mixed
 	 */
-	public function getPropertyValue($name)
+	public function getPropertyValue($name, array $options = array())
 	{
 		$property = $this->getProperty($name);
 
-		$propertyConfiguration = $this->getConfiguration()
+		$config = $this->getConfiguration()
 				->getProperty($name);
 
-		$editable = clone $propertyConfiguration->getEditable();
+		$editable = $config->getEditable()->getInstance();
 
-		// @TODO: do this some way better.
 		$this->configureContentFilters($property, $editable);
 
-		$editable->setRawValue($property->getValue());
-
-		return $editable->getFilteredValue();
-
-//		$editableClass = $property->getEditableClass();
-//
-//		$editable = $property->getEditable();
-//		$value = $editable->getFilteredValue();
-//
-//		return $value;
+		return $editable->toViewValue($property->getValue(), $options);
 	}
 
 	/**
+	 * @param string $name
 	 * @return bool
 	 */
-	public function isPropertyValueEmpty()
+	public function isPropertyValueEmpty($name)
 	{
-		$value = $this->getProperty()
+		$value = $this->getProperty($name)
 				->getValue();
 
 		return empty($value);

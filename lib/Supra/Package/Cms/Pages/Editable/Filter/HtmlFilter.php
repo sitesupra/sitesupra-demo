@@ -35,7 +35,7 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 	 * @param string $content
 	 * @return \Twig_Markup
 	 */
-	public function filter($content)
+	public function filter($content, array $options = array())
 	{
 		$elements = array();
 		
@@ -43,10 +43,7 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 			$elements[$key] = $item->getReferencedElement();
 		}
 
-		return new \Twig_Markup(
-				$this->parseSupraMarkup($content, $elements),
-				'UTF-8'
-		);
+		return $this->parseSupraMarkup($content, $elements);
 	}
 
 	/**

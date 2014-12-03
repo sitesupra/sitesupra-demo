@@ -30,12 +30,17 @@ abstract class Editable implements EditableInterface
 	/**
 	 * @var FilterInterface[] 
 	 */
-	protected $filters = array();
+	protected $viewFilters = array();
 
 	/**
 	 * @var ValueTransformerInterface[]
 	 */
 	protected $transformers = array();
+
+	/**
+	 * @var array
+	 */
+	protected $options = array();
 
 	/**
 	 * @var string
@@ -75,12 +80,11 @@ abstract class Editable implements EditableInterface
 	}
 
 	/**
+	 * @param mixed $value
 	 * @return mixed
 	 */
-	public function getEditorValue()
+	public function toEditorValue($value)
 	{
-		$value = $this->getRawValue();
-
 		foreach ($this->transformers as $transformer) {
 			$value = $transformer->transform($value);
 		}
@@ -89,43 +93,15 @@ abstract class Editable implements EditableInterface
 	}
 
 	/**
+	 * @TODO: bad naming
+	 *
 	 * @param mixed $value
+	 * @return mixed
 	 */
-	public function setEditorValue($value)
+	public function fromEditorValue($value)
 	{
 		foreach ($this->transformers as $transformer) {
 			$value = $transformer->reverseTransform($value);
-		}
-
-		$this->setRawValue($value);
-	}
-
-	/**
-	 * @param FilterInterface $filter
-	 * @throws \InvalidArgumentException if filter already exists in filters collection.
-	 */
-	public function addFilter(FilterInterface $filter)
-	{
-		$class = get_class($filter);
-
-		if (isset($this->filters[$class])) {
-			throw new \InvalidArgumentException(
-					"Filter [{$class}] is already in collection."
-			);
-		}
-
-		$this->filters[$class] = $filter;
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getFilteredValue()
-	{
-		$value = $this->getRawValue();
-
-		foreach ($this->filters as $filter) {
-			$value = $filter->filter($value);
 		}
 
 		return $value;
@@ -133,58 +109,57 @@ abstract class Editable implements EditableInterface
 
 	/**
 	 * @param mixed $value
-	 */
-	public function setRawValue($value)
-	{
-		$this->value = $value;
-	}
-
-	/**
+	 * @param array $options
 	 * @return mixed
 	 */
-	public function getRawValue()
+	public function toViewValue($value, array $options = array())
 	{
-		return $this->value;
+		foreach ($this->viewFilters as $filter) {
+			$value = $filter->filter($value, $options);
+		}
+
+		return $value;
 	}
 
 	/**
-	 * @return string
+	 * @param FilterInterface $filter
+	 * @throws \InvalidArgumentException if filter already exists in filters collection.
+	 */
+	public function addViewFilter(FilterInterface $filter)
+	{
+		$class = get_class($filter);
+
+		if (isset($this->viewFilters[$class])) {
+			throw new \InvalidArgumentException(
+					"Filter [{$class}] is already in collection."
+			);
+		}
+
+		$this->viewFilters[$class] = $filter;
+	}
+
+	/**
+	 * @return null|string
 	 */
 	public function getLabel()
 	{
-		return $this->label;
+		if (! empty($this->options['label'])) {
+			return $this->options['label'];
+		}
+
+		return null;
 	}
 
 	/**
-	 * @param string $label
-	 */
-	public function setLabel($label)
-	{
-		$this->label = $label;
-	}
-
-	/**
-	 * @return string
+	 * @return null|string
 	 */
 	public function getDescription()
 	{
-		return $this->description;
-	}
+		if (! empty($this->options['description'])) {
+			return $this->options['description'];
+		}
 
-	/**
-	 * @param string $description
-	 */
-	public function setDescription($description)
-	{
-		$this->description = $description;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getAdditionalParameters()
-	{
-		return array();
+		return null;
 	}
 
 	/**
@@ -193,31 +168,77 @@ abstract class Editable implements EditableInterface
 	 */
 	public function getDefaultValue($localeId = null)
 	{
+		if (! empty($this->options['default'])) {
+			return $this->options['default'];
+		}
+
 		return null;
 	}
 
+//	/**
+//	 * @param string $label
+//	 */
+//	public function setLabel($label)
+//	{
+//		$this->op = $label;
+//	}
+//
+//
+//
+//	/**
+//	 * @param string $description
+//	 */
+//	public function setDescription($description)
+//	{
+//		$this->description = $description;
+//	}
+
 	/**
-	 * @param mixed $value
+	 * @return array
 	 */
-	public function setDefaultValue($value)
+	public function getAdditionalParameters()
 	{
-		$this->defaultValue = $value;
+		return array();
+	}
+	
+//	/**
+//	 * @param mixed $value
+//	 */
+//	public function setDefaultValue($value)
+//	{
+//		$this->defaultValue = $value;
+//	}
+
+//	/**
+//	 * @return string
+//	 */
+//	public function getGroupId()
+//	{
+//		return $this->groupId;
+//	}
+//
+//	/**
+//	 * @param string $groupLabel
+//	 */
+//	public function setGroupId($groupId)
+//	{
+//		$this->groupId = $groupId;
+//	}
+
+	/**
+	 * @return Editable
+	 */
+	public function getInstance()
+	{
+		return new static();
 	}
 
 	/**
-	 * @return string
+	 * @param array $options
 	 */
-	public function getGroupId()
+	public function setOptions(array $options)
 	{
-		return $this->groupId;
-	}
-
-	/**
-	 * @param string $groupLabel
-	 */
-	public function setGroupId($groupId)
-	{
-		$this->groupId = $groupId;
+		$this->options = $options;
 	}
 
 	/**

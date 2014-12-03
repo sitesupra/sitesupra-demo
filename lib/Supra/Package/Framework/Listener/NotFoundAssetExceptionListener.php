@@ -56,6 +56,9 @@ class NotFoundAssetExceptionListener implements RequestResponseListenerInterface
 					}, $asset->getLastModified());
 
 					$event->setResponse(new Response($content, 200, array('Content-Type' => 'text/css')));
+
+					$event->stopPropagation();
+
 					return;
 				}
 				break;

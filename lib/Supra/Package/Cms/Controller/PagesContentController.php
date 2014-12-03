@@ -162,9 +162,7 @@ class PagesContentController extends AbstractPagesController
 
 				$self->configureEditableValueTransformers($editable, $property);
 
-				$editable->setEditorValue($value);
-
-				$property->setValue($editable->getRawValue());
+				$property->setValue($editable->fromEditorValue($value));
 
 				$entityManager->persist($property);
 			}

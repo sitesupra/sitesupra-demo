@@ -8,9 +8,9 @@ namespace Supra\Package\Cms\Editable\Filter;
 interface FilterInterface
 {
 	/**
-	 * Filters the editable content's data
-	 * @params string $content
-	 * @return string
+	 * @param mixed $content Content to filter
+	 * @param array $options Additional options (optional)
+	 * @return mixed
 	 */
-	public function filter($content);
+	public function filter($content, array $options = array());
 }

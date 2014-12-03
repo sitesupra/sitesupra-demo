@@ -2,14 +2,23 @@
 
 namespace Sample\Blocks;
 
-use Supra\Package\Cms\Pages\BlockController;
+use Supra\Package\Cms\Pages\Block\BlockConfiguration;
+use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
+use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 
-class TextBlock extends BlockController
+class TextBlock extends BlockConfiguration
 {
-	public function doExecute()
+	protected function configureAttributes(AttributeMapper $mapper)
 	{
-		$this->getResponse()
-				->render();
-//				->outputTemplate('SamplePackage:blocks/text.html.twig');
+		$mapper->title('Text Block')
+				->description('Text Block with wysiwyg editor.')
+				->icon('sample:blocks/text.png')
+				->template('sample:blocks/text.html.twig')
+				;
+	}
+
+	protected function configureProperties(PropertyMapper $mapper)
+	{
+		$mapper->add('content', 'html');
 	}
 }

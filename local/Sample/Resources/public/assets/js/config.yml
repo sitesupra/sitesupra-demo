@@ -1,0 +1,56 @@
+- _use: Supra\Controller\Pages\Plugin\HtmlInjection
+
+- _class: HtmlInjection
+  id: assets.js.app.app
+  html:
+    js: |
+#       <script src="/resources/js/app/app.js"></script>
+#  depends:
+#    - assets.js.jquery
+
+- _class: HtmlInjection
+  id: assets.js.app.refresh
+  html:
+    js: |
+#       <script src="/resources/js/refresh/refresh.js"></script>
+#  depends:
+#    - assets.js.jquery
+
+- _class: HtmlInjection
+  id: assets.js.app.parse
+  html:
+    js: |
+#    Already added in plugin index.js
+#      <script>
+#       $(function () {
+#         $.app.parse($('body'));
+#       });
+#      </script>
+  depends:
+    - assets.js.app.app
+
+- _class: HtmlInjection
+  id: assets.js.app.ajaxcontent
+  html:
+    js: |
+#      <script src="/resources/js/app/ajaxcontent.js"></script>
+  depends:
+    - assets.js.app.app
+    - assets.js.app.parse
+    - assets.js.app.refresh
+
+- _class: HtmlInjection
+  id: assets.js.app.ajaxform
+  html:
+    js: |
+#      <script src="/resources/js/app/ajaxform.js"></script>
+  depends:
+    - assets.js.app.ajaxcontent
+
+- _class: HtmlInjection
+  id: assets.js.app.ajaxform.files
+  html:
+    js: |
+#      <script src="/resources/js/app/ajaxform-upload.js"></script>
+  depends:
+    - assets.js.app.ajaxform

@@ -7,7 +7,6 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Templating\TwigTemplating;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Pages\Block\BlockConfiguration;
-use Supra\Package\Cms\Pages\Block\UnknownBlockController;
 use Supra\Package\Cms\Pages\BlockController;
 
 class BlockCollection implements ContainerAware
@@ -64,7 +63,8 @@ class BlockCollection implements ContainerAware
 	 */
 	public function addConfiguration(BlockConfiguration $configuration)
 	{
-		$className = $configuration->getControllerClass();
+//		$className = $configuration->getControllerClass();
+		$className = get_class($configuration);
 
 		if (isset($this->blockConfigurations[$className])) {
 			throw new \RuntimeException(
@@ -84,7 +84,7 @@ class BlockCollection implements ContainerAware
 	{
 		$configuration = isset($this->blockConfigurations[$className])
 				? $this->blockConfigurations[$className]
-				: $this->blockConfigurations[UnknownBlockController::className]
+				: $this->blockConfigurations[__NAMESPACE__ . '\\UnknownBlockConfiguration']
 				;
 
 		if (! $configuration->isInitialized()) {
