@@ -155,6 +155,12 @@ abstract class Localization extends Entity implements
 	protected $creationTime;
 
 	/**
+	 * Last publish time.
+	 * @var \DateTime
+	 */
+	protected $publishTime;
+
+	/**
 	 * Automatically set, required because of DQL Group By limitations reported as improvement suggestion in DDC-1236
 	 * @Column(type="smallint", nullable=true)
 	 * @var int
@@ -173,6 +179,12 @@ abstract class Localization extends Entity implements
 	 * @var Collection
 	 */
 	protected $tags;
+
+	/**
+	 * @Column(type="integer", nullable=true)
+	 * @var int
+	 */
+	protected $publishedRevision;
 
 	/**
 	 * Construct
@@ -893,5 +905,34 @@ abstract class Localization extends Entity implements
 		if ($this->tags instanceof \Doctrine\ORM\PersistentCollection) {
 			$this->tags->initialize();
 		}
+	}
+
+	public function updatePublishTime()
+	{
+		$this->publishTime = new \DateTime('now');
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPublished()
+	{
+		return $this->publishedRevision !== null;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getPublishedRevision()
+	{
+		return $this->publishedRevision;
+	}
+
+	/**
+	 * @param int $revision
+	 */
+	public function setPublishedRevision($revision)
+	{
+		$this->publishedRevision = $revision;
 	}
 }

@@ -52,6 +52,8 @@ abstract class PlaceHolder extends Entity
 	 */
 	public function __construct($name)
 	{
+		parent::__construct();
+
 		$this->setName($name);
 		$this->blocks = new ArrayCollection();
 	}

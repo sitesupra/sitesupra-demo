@@ -27,22 +27,16 @@
         "swiftmailer/swiftmailer": "5.2",
         "solarium/solarium": "2.4.*",
         "kriswallsmith/assetic": "1.1.*",
-        "leafo/lessphp": "*",
+        "leafo/lessphp": "0.4.*",
         "pimple/pimple": "~3.0",
         "d11wtq/boris": "1.0.*",
         "maximebf/debugbar": "1.*",
         "monolog/monolog": "1.*",
         "nelmio/alice": "1.*",
         "myclabs/deep-copy": "*",
-        "simplethings/entity-audit-bundle": "dev-inheritance_mapping",
+        "simplethings/entity-audit-bundle": "dev-master",
         "gedmo/doctrine-extensions": "v2.3.9"
     },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/SiteSupra/EntityAudit.git"
-        }
-    ],
     "autoload": {
         "psr-0": {
             "Supra\\": "src\\lib",

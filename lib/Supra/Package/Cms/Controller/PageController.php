@@ -22,7 +22,6 @@ use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
 use Supra\Package\Cms\Pages\Request\PageRequestView;
 
-use Supra\Response\ResponseContextLocalProxy;
 use Supra\Controller\Pages\Event\BlockEvents;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Cache\CacheGroupManager;

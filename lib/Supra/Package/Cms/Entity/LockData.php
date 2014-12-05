@@ -46,7 +46,7 @@ class LockData extends Abstraction\Entity implements Abstraction\TimestampableIn
 		parent::__construct();
 		
 		$this->userName = $user->getUsername();
-		$this->localizationRevision = $localization->getRevision();
+//		$this->localizationRevision = $localization->getRevision();
 
 		$localization->setLock($this);
 	}

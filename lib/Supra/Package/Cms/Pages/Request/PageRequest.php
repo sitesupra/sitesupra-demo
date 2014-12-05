@@ -789,86 +789,6 @@ abstract class PageRequest extends Request implements ContainerAware
 		}
 	}
 
-//	protected function createMissingBlockProperties()
-//	{
-//		$entityManager = $this->getDoctrineEntityManager();
-//		$blocks = $this->getBlockSet();
-//
-//		$pageSet = $this->getPageSet();
-//		$length = $pageSet->count();
-//
-//		if ($length <= 1) {
-//			return;
-//		}
-//
-//		$template = $pageSet->offsetGet($length - 2);
-//
-//		/* @var $template Entity\Template */
-//
-//		if (empty($template)) {
-//			return;
-//		}
-//
-//		$localization = $this->getLocalization();
-//
-//		foreach ($blocks as $block) {
-//			/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
-//
-//			if ($block->getLocked()) {
-//				continue;
-//			}
-//
-//			$placeHolder = $block->getPlaceHolder();
-//			/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
-//
-//			if ( ! $placeHolder->getLocked()) {
-//				continue;
-//			}
-//
-//			$templateId = $template->getId();
-//			$blockId = $block->getId();
-//			$localeId = $this->getLocale();
-//
-//			//TODO: Move after loop
-//			$blockPropertiesToCopy = $entityManager->createQueryBuilder()
-//					->select('bp')
-//					->from(BlockProperty::CN(), 'bp')
-//					->join('bp.localization', 'l')
-//					->andWhere('l.locale = :locale')
-//					->andWhere('l.master = :template')
-//					->andWhere('bp.block = :block')
-//					->setParameter('template', $templateId)
-//					->setParameter('block', $blockId)
-//					->setParameter('locale', $localeId)
-//					->getQuery()
-//					->getResult();
-//
-//			foreach ($blockPropertiesToCopy as $blockProperty) {
-//				/* @var $blockProperty BlockProperty */
-//
-//				$metadataCollection = $blockProperty->getMetadata();
-//
-//				$blockProperty = clone($blockProperty);
-//				$blockProperty->resetLocalization();
-//				$blockProperty->setLocalization($localization);
-//
-//				$entityManager->persist($blockProperty);
-//
-//				foreach ($metadataCollection as $metadata) {
-//					/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
-//					$metadata = clone($metadata);
-//					$metadata->setBlockProperty($blockProperty);
-//					$entityManager->persist($metadata);
-//				}
-//			}
-//		}
-//
-//		// Flush only for draft connection with ID generation
-//		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
-//			$entityManager->flush();
-//		}
-//	}
-
 	/**
 	 * @param ContainerInterface $container
 	 */
@@ -891,5 +811,8 @@ abstract class PageRequest extends Request implements ContainerAware
 	/**
 	 * @return \Doctrine\ORM\EntityManager
 	 */
-	abstract protected function getEntityManager();
+	protected function getEntityManager()
+	{
+		return $this->container->getDoctrine()->getManager();
+	}
 }

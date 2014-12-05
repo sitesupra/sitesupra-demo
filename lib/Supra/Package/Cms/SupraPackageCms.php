@@ -65,8 +65,16 @@ class SupraPackageCms extends AbstractSupraPackage
 				'Supra\Package\Cms\Entity\Template',
 				'Supra\Package\Cms\Entity\PageLocalization',
 				'Supra\Package\Cms\Entity\TemplateLocalization',
-				'Supra\Package\CmsAuthentication\Entity\AbstractUser',
-				'Supra\Package\CmsAuthentication\Entity\User'
+				'Supra\Package\Cms\Entity\Abstraction\Block',
+				'Supra\Package\Cms\Entity\Abstraction\PlaceHolder',
+				'Supra\Package\Cms\Entity\PagePlaceHolder',
+				'Supra\Package\Cms\Entity\TemplatePlaceHolder',
+				'Supra\Package\Cms\Entity\PageBlock',
+				'Supra\Package\Cms\Entity\TemplateBlock',
+				'Supra\Package\Cms\Entity\BlockProperty',
+				'Supra\Package\Cms\Entity\BlockPropertyMetadata',
+//				'Supra\Package\CmsAuthentication\Entity\AbstractUser',
+//				'Supra\Package\CmsAuthentication\Entity\User'
 			)
 		);
 

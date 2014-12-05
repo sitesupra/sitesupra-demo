@@ -23,14 +23,6 @@ class PageRequestEdit extends PageRequest
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	protected function getEntityManager()
-	{
-		return $this->container->getDoctrine()->getManager();
-	}
-
-	/**
 	 * @return void
 	 * @throws \LogicException
 	 */
