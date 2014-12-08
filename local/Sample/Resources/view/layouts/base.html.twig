@@ -1,30 +1,40 @@
 <!DOCTYPE html>
-<html dir="ltr" lang="en">
+<!--[if IE 9 ]><html dir="ltr" class="ie" lang="en"><![endif]--><!--[if (gt IE 9)|!(IE)]><!--><html dir="ltr" lang="en"><!--<![endif]-->
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="Generator" content="SiteSupra" />
+	<meta name="Generator" content="SiteSupra&reg; http://www.sitesupra.com" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	
+	<title>Sample</title>
+	
 	{# @TODO: assetic to be used here.
 		Need to deal with how to automatically obtain the URL of package.
 	 #}
-	<link rel="stylesheet" href="/resources/css/supra.css"  type="text/css" />
-	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+	
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link rel="stylesheet" href="/public/sample/assets/css/main.css" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Exo+2:300,300italic,regular,italic,700,700italic&subset=latin,cyrillic-ext,latin-ext,cyrillic" />
 </head>
 <body>
-	<div id="header" title="Header">
-		<div class="inner">
+	<header class="header">
+		<div class="wrapper">
 			{{ placeHolder('header') }}
+		</div>
+	</header>
+
+	<section class="content">
+		<div class="wrapper">
+			{% block content %}
+				{{ placeHolder('content') }}
+			{% endblock %}
 		</div>
 	</div>
 
-	<div id="content" title="Main">
-		{% block content %}
-			{{ placeHolder('content') }}
-		{% endblock %}
-	</div>
-
-	<div id="footer" title="Footer">
-		{{ placeHolder('footer') }}
-	</div>
+	<footer class="footer">
+		<div class="wrapper">
+			{{ placeHolder('footer') }}
+		</div>
+	</footer>
 
 	<script src="/public/sample/assets/js/lib/require-jquery.js" data-main="/public/sample/assets/js/index"></script>
 </body>

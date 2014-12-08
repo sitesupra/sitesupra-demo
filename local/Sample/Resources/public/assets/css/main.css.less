@@ -1,0 +1,48 @@
+/*
+ * This file includes all your components and modules. It shouldn’t contain any
+ * CSS rules.
+ * Based on ’SMACSS’ (Scalable and Modular Architecture for CSS). Read more at
+ * [http://smacss.com/]
+ *
+ * - Base:
+ *   - mixins
+ *   - reset
+ *   - fonts, colors,…
+ *
+ * - Component:
+ *   - main idea is that component is a reusable page element
+ *   - all your buttons, form inputs,…
+ *
+ * - Module:
+ *   - page layout, *uses components*, *defines the final component layout*,
+ *     *not always* reusable
+ *   - footer, header,…
+ *
+ * - Library
+ *   - External libraries
+ */
+ 
+@import "configuration.less";
+
+@import "lib/pure-base-grids.less";
+@import "lib/pure-grids-responsive.less";
+
+@import "base/mixins/css2.less";
+@import "base/mixins/css3.less";
+@import "base/mixins/form.less";
+
+@import "base/layout.less";
+
+//
+// Components
+//
+@import "components/text.less";
+@import "components/form.less";
+@import "components/buttons.less";
+
+//
+// Modules
+//
+@import "modules/header.less";
+@import "modules/content.less";
+@import "modules/footer.less";

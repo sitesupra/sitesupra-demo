@@ -1,5 +1,0 @@
-- _class: Supra\Configuration\IncludeLoaderConfiguration
-  files:
-    - ${__DIR__}/configuration/config.routers.yml
-    - ${__DIR__}/configuration/config.pages.yml
-    - ${__DIR__}/configuration/config.applications.yml

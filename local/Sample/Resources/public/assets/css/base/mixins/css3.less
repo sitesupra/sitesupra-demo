@@ -1,0 +1,340 @@
+//
+// ------------------ CSS3 ------------------
+//
+
+//
+// Box sizing
+//
+.box-sizing (@type: border-box) {
+	box-sizing: @type;         // IE8+, Chrome, Safari
+	-moz-box-sizing: @type;    // Firefox
+	-webkit-box-sizing: @type; // Old webkit, needed for wkhtmltoimage
+}
+
+//
+// Border radius
+//
+.border-radius (@args) {
+	// All browsers support non-prefixed version
+	border-radius: @args;
+	background-clip: padding-box;
+}
+
+//
+// Box shadow
+//
+.box-shadow (@args) {
+	// All browsers support non-prefixed version
+	box-shadow: @args;
+}
+
+//
+// Flex box
+//
+.flex-row () {
+	// Old spec
+	display: -webkit-box; // Safari
+	display: -moz-box;    // Firefox
+	display: box;         // Compatibility
+	width: 100%;
+	
+	// New spec
+	display: -webkit-flex; // Webkit
+	display: -ms-flexbox;  // IE10
+	display: flex;         // Future
+	
+	// IE8, IE9 fallback
+	.ie & {
+		display: table;
+		border-collapse: collapse;
+	}
+}
+.flex-col (@size) {
+	// Old spec
+	-webkit-box-flex: @size;
+	-moz-box-flex: @size;
+	
+	// New spec
+	-webkit-flex: @size;
+	-moz-flex: @size;
+	-ms-flex: @size;
+	flex: @size;
+	
+	// IE8, IE9 fallback
+	.ie & {
+		display: table-cell;
+	}
+}
+
+
+//
+// ------------------ Gradients ------------------
+//
+.gradient (@start: #EEE, @stop: #FFF) {
+	background: -webkit-gradient(linear, left bottom, left top, color-stop(0, @start), color-stop(1, @stop));
+	background: -ms-linear-gradient(bottom, @start, @stop);
+	background: -moz-linear-gradient(center bottom, @start 0%, @stop 100%);
+	background: -o-linear-gradient(@stop, @start);
+	
+	filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
+}
+
+.gradient-image-ie (@start: #EEE, @stop: #FFF) {
+	filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",@stop,@start));
+}
+.gradient-image-modern (@start: #EEE, @stop: #FFF) {
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, @start), color-stop(1, @stop));
+	background-image: -ms-linear-gradient(bottom, @start, @stop);
+	background-image: -moz-linear-gradient(center bottom, @start 0%, @stop 100%);
+	background-image: -o-linear-gradient(@stop, @start);
+}
+.gradient-image (@start: #EEE, @stop: #FFF) {
+	.gradient-image-modern (@start, @stop);
+	.gradient-image-ie (@start, @stop);
+}
+
+
+//
+// ------------------ Animations ------------------
+//
+
+//
+// Force hardware acceleration for element
+// Use with caution!
+//
+.hwAcceleration () {
+	-webkit-transform: translate3d(0, 0, 0);
+	-webkit-backface-visibility: hidden;
+	-webkit-perspective: 1000;
+}
+
+
+//
+// .transition (~'left 1s ease-in-out');
+// .transition-property (transform);
+// .transition-duration(250ms);
+// .transition-timing-function(cubic-bezier(0,0,1,1));
+// .transition-delay(2s);
+//
+.transition (@transition) {
+	-webkit-transition: @transition; // Safari
+	transition: @transition;         // Chrome, FF, IE10+
+}
+
+.transition-property (@property) when (@property = 'transform') {
+	-webkit-transition-property: -webkit-transform; // Safari
+	transition-property: transform;                 // Chrome, FF, IE10+
+}
+.transition-property (@property) {
+	-webkit-transition-property: @arguments; // Safari
+	transition-property: @arguments;         // Chrome, FF, IE10+
+}
+
+.transition-duration (@duration) {
+	-webkit-transition-duration: @duration; // Safari
+	transition-duration: @duration;         // Chrome, FF, IE10+
+}
+
+.transition-function (@function) {
+	-webkit-transition-timing-function: @function; // Safari
+	transition-timing-function: @function;         // Chrome, FF, IE10+
+}
+
+.transition-delay (@delay) {
+	-webkit-transition-delay: @delay; 		// Safari
+	transition-delay: @delay;         		// Chrome, FF, IE10+
+}
+
+
+//
+// ------------------ Transformations ------------------
+//
+
+.transform (@args) {
+	-webkit-transform: @arguments; // Chrome, Opera 
+	-ms-transform: @arguments;     // IE 9
+	transform: @arguments;         // FF, IE 10+
+}
+
+//
+// .rotate (20deg);
+// .rotateX (20deg);
+// .rotateY (20deg);
+// .rotateZ (20deg);
+//
+.rotate (@args) {
+	.transform (~'rotate(@{args})');
+}
+.rotateX (@args) {
+	.transform (~'rotateX(@{args})');
+}
+.rotateY (@args) {
+	.transform (~'rotateY(@{args})');
+}
+.rotateZ (@args) {
+	.transform (~'rotateZ(@{args})');
+}
+
+//
+// .rotate3d (10px, 10px, 0px, 20deg);
+// .rotate3d (~'10px, 10px, 0px, 20deg');
+//
+.rotate3d (@x, @y, @z, @angle) {
+	.transform (~'rotate3d(@{x}, @{y}, @{z}, @{angle})');
+}
+.rotate3d (@args) when (isstring(@args)) {
+	.transform (~'rotate3d(@{args})');
+}
+
+//
+// .translate (20px, 10px);
+// .translate (~'20px, 10px');
+// .translateX (20px);
+// .translateY (20px);
+// .translateZ (20px);
+//
+.translate (@x, @y) {
+	.transform (~'translate(@{x}, @{y})');
+}
+.translate (@args) when (isstring(@args)) {
+	.transform (~'translate(@{args})');
+}
+.translateX (@args) {
+	.transform (~'translateX(@{args})');
+}
+.translateY (@args) {
+	.transform (~'translateY(@{args})');
+}
+.translateZ (@args) {
+	.transform (~'translateZ(@{args})');
+}
+
+//
+// .translate3d (20px, 10px);
+// .translate3d (20px, 10px, 15px);
+// .translate3d (~'20px, 10px, 15px');
+//
+.translate3d (@x, @y, @z: 0px) {
+	.transform (~'translate3d(@{x}, @{y}, @{z})');
+}
+.translate3d (@args) when (isstring(@args)) {
+	.transform (~'translate3d(@{args})');
+}
+
+//
+// .skew (20deg, 15deg);
+// .skew (~'20deg, 15deg');
+// .skewX (20deg);
+// .skewY (15deg);
+//
+.skew (@x, @y) {
+	.transform (~'skew(@{x}, @{y})');
+}
+.skew (@args) when (isstring(@args)) {
+	.transform (~'skew(@{args})');
+}
+.skewX (@args) {
+	.transform (~'skewX(@{args})');
+}
+.skewY (@args) {
+	.transform (~'skewY(@{args})');
+}
+
+
+//
+// .scale (1.2, 1.2);
+// .scale (~'1.2, 1.2');
+//
+.scale (@x, @y) {
+	.transform (~'scale(@{x}, @{y})');
+}
+.scale (@args) when (isstring(@args)) {
+	.transform (~'scale(@{args})');
+}
+
+//
+// .scaleX (1.2);
+// .scaleY (1.2);
+// .scaleZ (1.2);
+//
+.scaleX (@args) {
+	.transform (~'scaleX(@{args})');
+}
+.scaleY (@args) {
+	.transform (~'scaleX(@{args})');
+}
+.scaleZ (@args) {
+	.transform (~'scaleX(@{args})');
+}
+
+//
+// .scale3d (1.2, 1.2);
+// .scale3d (1.2, 1.2, 1.2);
+// .scale3d (~'1.2, 1.2, 1.2');
+//
+.scale3d (@x, @y, @z: 1) {
+	.transform (~'scale3d(@{x}, @{y}, @{z})');
+}
+.scale3d (@args) when (isstring(@args)) {
+	.transform (~'scale3d(@{args})');
+}
+
+//
+// .transform-origin (10px, 20px);
+// .transform-origin (10px 20px);
+// .transform-origin (~'10px 20px');
+//
+.transform-origin (@x, @y) {
+	-webkit-transform-origin: @x @y; // Chrome, Opera 
+	-ms-transform-origin: @x @y;     // IE 9
+	transform-origin: @x @y;         // FF, IE 10+
+}
+.transform-origin (@args) {
+	-webkit-transform-origin: @arguments; // Chrome, Opera 
+	-ms-transform-origin: @arguments;     // IE 9
+	transform-origin: @arguments;         // FF, IE 10+
+}
+
+
+//
+// .transform-style (preserve-3d);
+//
+.transform-style (@args) {
+	-webkit-transform-style: @arguments; // Chrome, Opera 
+	transform-style: @arguments;         // FF, maybe future IE
+}
+
+
+//
+// .perspective (500px)
+//
+.perspective (@args) {
+	-webkit-perspective: @arguments; // Chrome, Opera 
+	perspective: @arguments;         // FF, IE 10+
+}
+
+//
+// .perspective-origin (10px, 20px);
+// .perspective-origin (10px 20px);
+// .perspective-origin (~'10px 20px');
+//
+.perspective-origin (@x, @y) {
+	-webkit-perspective-origin: @x @y; // Chrome, Opera
+	perspective-origin: @x @y;         // FF, IE 10+
+}
+.perspective-origin (@args) {
+	-webkit-perspective-origin: @arguments; // Chrome, Opera
+	perspective-origin: @arguments;         // FF, IE 10+
+}
+
+
+//
+// ------------------ Other ------------------
+//
+
+.disable-tap-highlight () {
+	-webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+	-webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+	-webkit-tap-highlight-color: rgba(0,0,0,0); /* prevent tap highlight color / shadow */
+	-webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+}

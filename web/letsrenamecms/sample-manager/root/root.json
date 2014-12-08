@@ -1,6 +1,0 @@
-{
-	"results": [
-		{"id": 1, "title": "Row one title", "text": "Sed <b>id</b> risus arcu. Fusce eu nulla est."},
-		{"id": 2, "title": "Second row title a little longer", "text": "Ut volutpat tortor eu neque egestas laoreet. Maecenas congue orci sit amet sem lobortis laoreet."}
-	]
-}

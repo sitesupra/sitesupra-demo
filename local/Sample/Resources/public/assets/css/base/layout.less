@@ -1,0 +1,129 @@
+/*
+ * Page layout, backgrounds, etc.
+ * Here goes everything what is common, but doesn't fit in any other file
+ * and website layout stuff	
+ */
+
+body {
+	
+}
+* {
+	.box-sizing (border-box);
+}
+
+
+//
+// ---------------- Clear floats ---------------- 
+//
+.clear {
+	clear: both !important;
+	display: block !important;
+	overflow: hidden !important;
+	visibility: hidden !important;
+	width: 100% !important;
+	height: 0 !important;
+	float: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+.clearfix {
+	.clearfix ();
+}
+
+
+//
+// ---------------- Invisible elements ---------------- 
+//
+.hidden {
+	display: none !important;
+}
+.invisible {
+	position: absolute;
+	left: -9000px;
+}
+
+
+//
+// ---------------- Grid layout ----------------
+//
+
+@screen-xl-min: 80em;
+@screen-lg-max: @screen-xl-min - 0.01em;
+@screen-lg-min: 64em;
+@screen-md-max: @screen-lg-min - 0.01em;
+@screen-md-min: 48em;
+@screen-sm-max: @screen-md-min - 0.01em;
+@screen-sm-min: 35.5em;
+@screen-xs-max: @screen-sm-min - 0.01em;
+
+
+@media screen and (max-width: @screen-xs-max) {
+	// xs
+	.hidden-xs {
+		display: none !important;
+	}
+}
+@media screen and (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+	// sm
+	.hidden-sm {
+		display: none !important;
+	}
+}
+@media screen and (min-width: @screen-md-min) and (max-width: @screen-md-max) {
+	// md
+	.hidden-md {
+		display: none !important;
+	}
+}
+@media screen and (min-width: @screen-lg-min) and (max-width: @screen-lg-max) {
+	// lg
+	.hidden-lg {
+		display: none !important;
+	}
+}
+@media screen and (min-width: @screen-xl-min) {
+	// xl
+	.hidden-xl {
+		display: none !important;
+	}
+}
+
+
+// Add spacing between units
+.pure-g {
+	margin-left: -10px;
+	margin-right: -10px;
+	letter-spacing: -0.31em; //@textFontSize / 16px * -0.31;
+}
+.pure-u {
+	min-height: 1px;
+	padding: 0 10px;
+}
+
+
+//
+// ---------------- General page layout ----------------
+//
+.wrapper {
+	.clearfix ();
+	
+	max-width: 1125px;
+	margin: 0 auto;
+	padding: 0 20px;
+}
+
+
+//
+// ---------------- Components / modules layout ----------------
+//
+.block {
+	margin-bottom: 50px;
+}
+
+
+//
+// ---------------- Form layout ----------------
+//
+.form-group {
+	margin-bottom: 25px;
+}

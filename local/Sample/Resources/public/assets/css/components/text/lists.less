@@ -1,0 +1,57 @@
+/*
+ * Ordered and un-ordered list styles
+ */
+ul,
+ol,
+li {
+	padding: 0;
+	margin-left: 0;
+	margin-right: 0;
+	list-style: none;
+}
+
+.text {
+	ul,
+	ol {
+		padding: 0 @margin-list-symbol 0 0;
+		
+		li {
+			left: @margin-list-symbol;
+			position: relative;
+			padding: 0;
+			
+			&:before {
+				display: inline-block;
+				position: relative;
+				float: left;
+				text-align: right;
+			}
+		}
+	}
+	
+	ul {
+		li:before {
+			content: @char-list-symbol;
+			font-size: 10px;
+			font-family: Arial, Helvetica- sans-serif;
+			vertical-align: bottom;
+			
+			width: 13px;
+			margin: 0 19px 0 -32px;
+		}
+	}
+	
+	ol {
+		counter-reset: item;
+		
+		li:before {
+			color: @color-secondary;
+			vertical-align: baseline; // text aligned to the bottom of content text
+			content: counter(item) ".";
+			counter-increment: item;
+			
+			width: 24px;
+			margin: 0 7px 0 -36px;
+		}
+	}
+}

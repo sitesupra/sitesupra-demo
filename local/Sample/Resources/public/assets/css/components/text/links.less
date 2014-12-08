@@ -1,0 +1,40 @@
+/*
+ * Links
+ */
+
+a {
+	color: @color-link;
+	text-decoration: none;
+	.transition (~'color @{animation-duration-quick}, background-color @{animation-duration-quick}, border-color @{animation-duration-quick}');
+}
+a:visited {
+	color: @color-link;
+}
+a:hover,
+a:active {
+	color: @color-link-active;
+	text-decoration: underline;
+}
+
+/*
+ * Cursors
+ */
+a,
+button {
+	// Links without href (for JS) should have correct cursor
+	cursor: pointer;
+}
+
+a.disabled,
+button.disabled,
+button[disabled] {
+	// 1. Prevent text beeing selected when clicked
+	// 2. Pointer events disable all interactions with element
+	// 3. This is non-standard property and supported only by FF, prevent focusing, intended for links
+	.user-select (none); // 1.
+	cursor: default;
+	pointer-events: none; // 2.
+	-moz-user-focus: ignore; // 3.
+	-webkit-touch-callout: none;
+	-ms-touch-action: none;
+}

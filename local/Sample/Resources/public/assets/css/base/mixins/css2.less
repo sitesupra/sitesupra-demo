@@ -1,0 +1,35 @@
+/*
+ * CSS2 styles
+ */
+
+//
+// Make content selectable/unselectable by user
+//
+.user-select (@select) {
+	-webkit-user-select: @select;  // Chrome, Safari
+	-moz-user-select: @select;     // FF
+	-ms-user-select: @select;      // IE10+
+	user-select: @select;          // Future
+}
+
+//
+// Clear floats
+//
+.clearfix () {
+	zoom: 1;
+	
+	&:before,
+	&:after {
+		content: '.';
+		display: block;
+		overflow: hidden;
+		visibility: hidden;
+		font-size: 0;
+		line-height: 0;
+		width: 0;
+		height: 0;
+	}
+	&:after {
+		clear: both;
+	}
+}

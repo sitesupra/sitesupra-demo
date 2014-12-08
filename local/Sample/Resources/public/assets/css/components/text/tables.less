@@ -1,0 +1,39 @@
+/*
+ * Table styles
+ * 
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <th>Heading 1</th>
+ *             <th>Heading 2</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>Content A</td>
+ *             <td>Content B</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ */
+.text table {
+	width: 100%;
+	
+	td,
+	th {
+		border-top: 1px solid @color-border;
+		border-bottom: 0;
+		padding: 8px 0 10px;
+	}
+	th {
+		padding-bottom: 13px;
+	}
+	tr:first-child td,
+	tr:first-child th {
+		border-top-width: 0;
+	}
+	thead + tbody tr:first-child td,
+	thead + tbody tr:first-child th {
+		border-top-width: 1px;
+	}
+}

@@ -1,0 +1,97 @@
+/*
+ * Styles for content align
+ *   - align-left   : to the left side
+ *   - align-middle : in the middle of the container
+ *   - align-right  : to the right side
+ */
+
+
+/*
+ * General align
+ */
+.align-left {
+	float: left;
+}
+.align-right {
+	float: right;
+}
+
+table td,
+table th {
+	text-align: left;
+}
+
+table td,
+table th,
+table td.align-left,
+table th.align-left,
+table td[align="left"],
+table th[align="left"] {
+	float: none;
+	text-align: left;
+}
+table td.align-middle,
+table th.align-middle,
+table td[align="center"],
+table th[align="center"] {
+	text-align: center;
+}
+table td.align-right,
+table th.align-right,
+table td[align="right"],
+table th[align="right"] {
+	float: none;
+	text-align: right;
+}
+table td[align="justify"],
+table th[align="justify"] {
+	text-align: justify;
+}
+
+
+/*
+ * Text align styles
+ */
+.text {
+	// To prevent images and video from going outside block region
+	.clearfix ();
+	
+	// Align
+	.align-left {
+		margin: 0 25px 10px 0;
+	}
+	.align-right {
+		margin: 0 0 10px 25px;
+	}
+	
+	// 1. IE11 without block will not correctly position image
+	.align-left {
+		clear: left;
+		display: block !important; // 1.
+	}
+	.align-right {
+		clear: right;
+		display: block !important; // 1.
+	}
+	.align-middle {
+		clear: both;
+		margin-left: auto;
+		margin-right: auto;
+		display: block !important; // 1.
+	}
+	
+	// While editing video and image blocks there is a wrapper element,
+	// which has .align-... classname already. We need to reset inner
+	// element margin to prevent double margins
+	.supra-image img,
+	.supra-video iframe,
+	.supra-video object {
+		&,
+		&.align-left,
+		&.align-right,
+		&.align-middle {
+			margin: 0;
+			float: none;
+		}
+	}
+}

@@ -19,6 +19,8 @@
         define(['jquery'], function ($) {
             return factory($);
         });
+    } else if (typeof module !== 'undefined' && 'exports' in module) {
+        module.exports = factory(jQuery);
     } else {
         // AMD is not supported, assume all required scripts are
         // already loaded

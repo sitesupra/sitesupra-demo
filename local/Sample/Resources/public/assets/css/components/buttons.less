@@ -1,0 +1,47 @@
+//
+// ---------------- Default button ----------------
+//
+/*
+ * <a class="button">Click me</a>
+ * <a class="button disabled">Click me</a>
+ * 
+ * <button class="button">Click me</button>
+ * <button class="button" disabled="disabled">Click me</button>
+ */
+.button {
+	display: inline-block;
+	padding: 9px 16px 8px;
+	overflow: hidden;
+	.transition (~'color @{animation-duration-quick}, background-color @{animation-duration-quick}, border-color @{animation-duration-quick}');
+	
+	// Text
+	font-size: @font-size-button;
+	line-height: @line-height-button;
+	text-align: center;
+	text-transform: uppercase;
+	vertical-align: top;
+	outline: none;
+	.user-select (none);
+	
+	/*
+	 * Button states
+	 */
+	&,
+	&:visited {
+		color: @color-button;
+		background: @background-button;
+	}
+	&:hover,
+	&:active,
+	&:focus {
+		color: @color-button-active;
+		background: @background-button-active;
+		text-decoration: none;
+	}
+	
+	&.disabled,
+	&[disabled] {
+		color: @color-button;
+		background: @background-button;
+	}
+}

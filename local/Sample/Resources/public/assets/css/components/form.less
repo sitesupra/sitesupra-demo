@@ -1,0 +1,37 @@
+/*
+ * Form style reset, there shouldn't be any specific classnames,
+ * see components/form/... for that.
+ */
+input,
+textarea,
+select {
+	line-height: normal;
+	
+	// Position and size
+	vertical-align: middle;
+	width: 100%;
+	outline: none;
+	
+	// Animations make it look nicer
+	.transition (~'border-color @{animation-duration}, color @{animation-duration}, background-color @{animation-duration}, box-shadow @{animation-duration}');
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	width: auto;
+}
+
+textarea {
+	// Horizontal resize will break layout, allow only vertical
+	resize: vertical;
+}
+
+fieldset {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+label {
+	color: @color-base;
+}

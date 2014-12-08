@@ -7,7 +7,7 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['jquery', 'refresh/refresh', 'plugins/helpers/responsive'], function ($) {
+        define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
             return factory($);
         });
     } else {
