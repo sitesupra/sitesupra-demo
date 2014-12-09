@@ -13,6 +13,7 @@ class InlineMapFilter implements FilterInterface
 			'latitude'	=> 56.946744,
 			'longitude' => 24.098560,
 			'zoom'		=> 12,
+			'height'	=> 200,
 		);
 
 		if (! empty($content)) {
@@ -24,6 +25,7 @@ class InlineMapFilter implements FilterInterface
 					'latitude'	=> $content['latitude'],
 					'longitude' => $content['longitude'],
 					'zoom'		=> $content['zoom'],
+					'height'	=> $content['height'],
 				));
 			}
 		}
@@ -41,8 +43,8 @@ class InlineMapFilter implements FilterInterface
 			'data-zoom'				=> $mapData['zoom'],
 		));
 
-		if (! empty($options['height'])) {
-			$tag->setAttribute('style', 'height: ' . (int) $options['height'] . 'px');
+		if (! empty($mapData['height'])) {
+			$tag->setAttribute('style', 'height: ' . (int) $mapData['height'] . 'px');
 		}
 
 		// @TODO: if height is supported natviely, marker text input also could be part of map editable.

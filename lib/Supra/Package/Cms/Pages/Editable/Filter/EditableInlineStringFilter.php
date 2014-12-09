@@ -15,7 +15,7 @@ class EditableInlineStringFilter implements FilterInterface, BlockPropertyAware
 
 	/**
 	 * @param string $content
-	 * @return \Twig_Markup
+	 * @return string
 	 */
 	public function filter($content, array $options = array())
 	{

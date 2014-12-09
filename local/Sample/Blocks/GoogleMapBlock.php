@@ -11,7 +11,7 @@ class GoogleMapBlock extends BlockConfiguration
 	protected function configureAttributes(AttributeMapper $mapper)
 	{
 		$mapper->title('Google Map')
-				->icon('sample:icons/google-map.png')
+				->icon('sample:blocks/google-map.png')
 				->template('sample:blocks/google-map.html.twig');
 	}
 

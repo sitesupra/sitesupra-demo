@@ -14,7 +14,7 @@ class EditableHtmlFilter extends HtmlFilter
 	 * Filters the editable content's data, adds Html Div node for CMS.
 	 *
 	 * @params string $content
-	 * @return \Twig_Markup
+	 * @return string
 	 */
 	public function filter($content, array $options = array())
 	{
