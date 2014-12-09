@@ -33,7 +33,7 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 
 	/**
 	 * @param string $content
-	 * @return \Twig_Markup
+	 * @return string
 	 */
 	public function filter($content, array $options = array())
 	{
