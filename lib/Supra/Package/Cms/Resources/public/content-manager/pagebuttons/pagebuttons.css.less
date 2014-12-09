@@ -1,0 +1,50 @@
+/**
+ * Buttons
+ */
+.su-page-buttons {
+	position: absolute;
+	z-index: 3;
+	right: 0;
+	top: 0;
+	height: 50px;
+	width: 250px;
+	overflow: hidden;
+	
+	.su-page-buttons-group {
+		white-space: nowrap;
+		position: absolute;
+		right: 11px;
+		padding-top: 6px;
+		top: -50px; /* Node is animated inside view */
+	}
+	
+	.su-button {
+		margin-right: 11px;
+	}
+}
+
+/**
+ * Toolbar button animation
+ */
+.su-editor-toolbar-group {
+	position: absolute;
+	right: 0;
+	left: 0;
+	top: -50px;
+	white-space: nowrap;
+	
+	&:first-child {
+		top: 0;
+	}
+}
+
+/**
+ * Message
+ */
+.su-page-butons-message {
+	display: inline-block;
+	margin: 0 10px 0 0;
+	color: #fff;
+	line-height: 32px;
+	vertical-align: middle;
+}

@@ -5,9 +5,9 @@
 .layout-transition () {
 	-o-transition: 0.35s left, 0.35s right, 0.35s -o-transform;
 	-moz-transition: 0.35s left, 0.35s right, 0.35s -moz-transform;
-  -webkit-transition: 0.35s left, 0.35s right, 0.35s -webkit-transform;
-  -ms-transition: 0.35s left, 0.35s right, 0.35s -ms-transform;
-  transition: 0.35s left, 0.35s right, 0.35s transform;
+	-webkit-transition: 0.35s left, 0.35s right, 0.35s -webkit-transform;
+	-ms-transition: 0.35s left, 0.35s right, 0.35s -ms-transform;
+	transition: 0.35s left, 0.35s right, 0.35s transform;
 }
 .layout-fullscreen () {
 	position: absolute;
@@ -17,6 +17,21 @@
 	bottom: @layout-padding;
 	
 	.layout-transition ();
+}
+
+.layout-boundaries (@width, @height) {
+	// http://wilsonpage.co.uk/introducing-layout-boundaries/
+	width: @width;
+	height: @height;
+	display: block;
+	overflow: hidden;
+}
+.layout-boundaries-transition () {
+	-o-transition: 0.35s left, 0.35s width, 0.35s -o-transform;
+	-moz-transition: 0.35s left, 0.35s width, 0.35s -moz-transform;
+	-webkit-transition: 0.35s left, 0.35s width, 0.35s -webkit-transform;
+	-ms-transition: 0.35s left, 0.35s width, 0.35s -ms-transform;
+	transition: 0.35s left, 0.35s width, 0.35s transform;
 }
 
 .clear-fix () {

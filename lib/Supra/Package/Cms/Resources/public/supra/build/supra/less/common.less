@@ -39,6 +39,10 @@ body.loading .cms-header {
 
 .loading-icon {
 	.loading-icon-mixin(30px);
+	
+	&.loading-icon-small {
+		.loading-icon-size-mixin (10px, 2px);
+	}
 }
 .ui-light-background .loading-icon {
 	.loading-icon-minxin-light();
@@ -60,7 +64,6 @@ body.loading .cms-header {
 .ui-center-darker-background {
 	background: url(/public/cms/supra/img/background-pattern-darker.jpg) 0 0 repeat;
 }
-
 
 /**
  * Grid

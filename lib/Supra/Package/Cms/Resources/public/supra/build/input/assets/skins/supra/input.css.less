@@ -1,14 +1,14 @@
 @import "../../../../../less/common.less";
 
 
-.yui3-form {
+.su-form {
 	h2, h3, h4, h5 {
 		padding: 10px 5px 5px;
 		color: #323144;
 		.text-shadow ();
 	}
 	
-	.yui3-form-fill {
+	.su-form-fill {
 		position: absolute;
 		left: 0;
 		top: 0;
@@ -18,7 +18,7 @@
 		//No margin, will add padding
 		margin: 0;
 		
-		.yui3-form-content {
+		.su-form-content {
 			width: 100%;
 			height: 100%;
 		}
@@ -38,9 +38,9 @@
 	}
 	
 	.yui3-input label,
-	.yui3-form p.label,
+	.su-form p.label,
 	.ui-dark .ui-light .yui3-input label,
-	.ui-dark .ui-light .yui3-form p.label {
+	.ui-dark .ui-light .su-form p.label {
 		padding: 7px 10px 0 5px;
 		display: inline-block;
 		width: 120px;
@@ -51,7 +51,7 @@
 		.text-shadow ();
 		vertical-align: top;
 	}
-	.yui3-form p.label {
+	.su-form p.label {
 		width: auto;
 		
 		&.large {
@@ -61,14 +61,14 @@
 	
 		/* Dark color theme */
 		.ui-dark .yui3-input label,
-		.ui-dark .yui3-form p.label {
+		.ui-dark .su-form p.label {
 			color: #E7E7E7;
 			.text-shadow (0, 1px, 0, rgba(0, 0, 0, 0.75));
 		}
 		
 		/* Dark center color theme */
 		.ui-center-dark .yui3-input label,
-		.ui-center-dark .yui3-form p.label {
+		.ui-center-dark .su-form p.label {
 			color: #FFF;
 			text-shadow: none;
 			font-weight: normal;
@@ -76,16 +76,16 @@
 		}
 	
 	.yui3-input .description,
-	.yui3-form .description,
+	.su-form .description,
 	.ui-dark .ui-light .yui3-input .description,
-	.ui-dark .ui-light .yui3-form .description {
+	.ui-dark .ui-light .su-form .description {
 		padding: 4px 5px 0 5px;
 		
 		color: #262137;
 		font-size: 11px;
 		line-height: 13px;
 	}
-	.yui3-form .block-description {
+	.su-form .block-description {
 		padding: 10px 0 12px 2px;
 	}
 	.yui3-input .description {
@@ -115,12 +115,12 @@
 		}
 	
 		.ui-dark .yui3-input .description,
-		.ui-dark .yui3-form .description {
+		.ui-dark .su-form .description {
 			color: #8C8CA1;
 		}
 		
 		.ui-center-dark .yui3-input .description,
-		.ui-center-dark .yui3-form .description {
+		.ui-center-dark .su-form .description {
 			color: #8C8CA1;
 		}
 
@@ -393,8 +393,8 @@
 		right: 25px;
 	}
 	
-	.yui3-form-vertical .yui3-input-number .button-add,
-	.yui3-form-vertical .yui3-input-number .button-sub {
+	.su-form-vertical .yui3-input-number .button-add,
+	.su-form-vertical .yui3-input-number .button-sub {
 		top: 25px;
 	}
 
@@ -569,8 +569,8 @@
 /**
  * Default form style
  */
-.yui3-form-default,
-.yui3-form-vertical {
+.su-form-default,
+.su-form-vertical {
 	margin: 0 10px;
 
 	.yui3-input {
@@ -655,7 +655,7 @@
 /**
  * Labels on the left side of inputs
  */
-.yui3-form-default {
+.su-form-default {
 	/* File and image */
 	.yui3-input-image .su-button + .su-button,
 	.yui3-input-file .su-button + .su-button {
@@ -679,7 +679,7 @@
 /**
  * Labels above inputs, full width
  */
-.yui3-form-vertical {
+.su-form-vertical {
 	h2, h3, h4, h5 {
 		padding-right: 0;
 		padding-left: 2px;
@@ -757,7 +757,7 @@
 /**
  * Error message
  */
-.yui3-form .error-message {
+.su-form .error-message {
 	background: #FFC8C8;
 	border: 1px solid #c00;
 	.border-radius (3px);

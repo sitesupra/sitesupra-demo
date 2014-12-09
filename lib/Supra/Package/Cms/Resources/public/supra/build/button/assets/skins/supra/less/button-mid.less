@@ -4,8 +4,12 @@
 .su-button-mid-blue {
 	.button (url(button-medium-light.png), 35px, 0px);
 }
+.su-button-mid-red {
+	.button (url(button-medium-light.png), 35px, 840px);
+}
 .su-button-mid,
-.su-button-mid-blue {
+.su-button-mid-blue,
+.su-button-mid-red {
 	.box-shadow (0, 1px, 0, rgba(0, 0, 0, 0.15) );
 	
 	&, div {
@@ -20,6 +24,6 @@
 		min-width: 67px;
 	}
 	&.su-button-disabled p {
-		color: #ECEDF5;
+		opacity: 0.35;
 	}
 }
