@@ -32,10 +32,17 @@ class SamplePackage extends AbstractSupraPackage
 		$blockCollection = $container['cms.pages.blocks.collection'];
 		/* @var $blockCollection \Supra\Package\Cms\Pages\Block\BlockCollection */
 		$blockCollection->add(array(
-			new Blocks\TextBlock(),
-			new Blocks\DemoBlock(),
-			new Blocks\GalleryBlock(),
-			new Blocks\GoogleMapBlock(),
+			new Blocks\Text(),
+			new Blocks\Gallery(),
+			new Blocks\GoogleMap(),
+			new Blocks\ContactForm(),
+			new Blocks\Menu(),
+			new Blocks\SocialLinks(),
+
+//			new Tabs(),
+//			new Accordion(),
+//			new ImageSlider() ???
+//			new Testimonials() ???
 		));
 	}
 }

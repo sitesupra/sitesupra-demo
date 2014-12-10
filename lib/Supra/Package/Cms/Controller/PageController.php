@@ -22,6 +22,9 @@ use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
 use Supra\Package\Cms\Pages\Request\PageRequestView;
 
+use Supra\Core\Templating\TwigTemplating;
+use Supra\Package\Cms\Pages\PageExecutionContext;
+
 use Supra\Response\ResponseContextLocalProxy;
 use Supra\Controller\Pages\Event\BlockEvents;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
@@ -125,6 +128,13 @@ class PageController extends Controller
 //				throw $e;
 //			}
 //		}
+
+		$templating = $this->container->getTemplating();
+		
+		if ($templating instanceof TwigTemplating) {
+			$templating->getExtension('supraPage')
+					->setPageExecutionContext(new PageExecutionContext($localization, $this->pageRequest));
+		}
 
 		// Continue processing
 		$layout = $pageRequest->getLayout();

@@ -2,20 +2,22 @@
 
 namespace Supra\Package\Cms\Pages\Twig;
 
-use Supra\Package\Cms\Pages\BlockController;
 use Supra\Package\Cms\Pages\Block\BlockExecutionContext;
+use Supra\Package\Cms\Pages\PageExecutionContext;
+use Supra\Package\Cms\Pages\Request\PageRequestEdit;
+use Supra\Package\Cms\Html\HtmlTag;
 
-/**
- * {{ property('name') }}				to get block property value
- * {{ property('name', 'editable') }}	to get and define block property
- * {{ isEmptyProperty('name') }}		to test property value for emptiness
- */
 class PageExtension extends \Twig_Extension
 {
 	/**
 	 * @var BlockExecutionContext
 	 */
 	private $blockExecutionContext;
+
+	/**
+	 * @var PageExecutionContext;
+	 */
+	private $pageExecutionContext;
 
 	/**
 	 * {@inheritDoc}
@@ -39,32 +41,62 @@ class PageExtension extends \Twig_Extension
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getGlobals()
+	public function getFilters()
 	{
 		return array(
-			'supraBlock' => $this,
+			new \Twig_SimpleFilter('decorate', array($this, 'decorateHtmlTag'), array('is_safe' => array('html'))),
 		);
 	}
 
-	public function getPropertyValue($name, array $options = array())
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getGlobals()
 	{
-		if ($this->blockExecutionContext === null) {
-			throw new \LogicException('Not in block controller execution context.');
-		}
-
-		return $this->blockExecutionContext->controller->getPropertyValue($name, $options);
-	}
-
-	public function isPropertyValueEmpty($name)
-	{
-		if ($this->blockExecutionContext === null) {
-			throw new \LogicException('Not in block controller execution context.');
-		}
-
-		return $this->blockExecutionContext->controller->isPropertyValueEmpty($name);
+		return array(
+			'supraBlock' => $this,	// @TODO: remove?
+			'supraPage'	=> $this,	// @TODO: remove?
+			'supra'		=> $this,	// @TODO: leave?
+		);
 	}
 
 	/**
+	 * @param string $name
+	 * @param array $options
+	 * @return mixed
+	 */
+	public function getPropertyValue($name, array $options = array())
+	{
+		return $this->getBlockExecutionContext()
+				->controller->getPropertyValue($name, $options);
+	}
+
+	/**
+	 * @param string $name
+	 * @return bool
+	 */
+	public function isPropertyValueEmpty($name)
+	{
+		return $this->getBlockExecutionContext()
+				->controller->isPropertyValueEmpty($name);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCmsRequest()
+	{
+		if ($this->blockExecutionContext) {
+			return $this->blockExecutionContext
+					->request instanceof PageRequestEdit;
+		}
+		
+		return $this->getPageExecutionContext()
+				->request instanceof PageRequestEdit;
+	}
+
+	/**
+	 * @internal
 	 * @param BlockExecutionContext $context
 	 */
 	public function setBlockExecutionContext(BlockExecutionContext $context)
@@ -72,11 +104,53 @@ class PageExtension extends \Twig_Extension
 		$this->blockExecutionContext = $context;
 	}
 
-//	/**
-//	 * @param PageExecutionContext $context
-//	 */
-//	public function setPageExecutionContext(PageExecutionContext $context)
-//	{
-//		$this->pageExecutionContext = $context;
-//	}
+	/**
+	 * @internal
+	 * @param PageExecutionContext $context
+	 */
+	public function setPageExecutionContext(PageExecutionContext $context)
+	{
+		$this->pageExecutionContext = $context;
+	}
+
+	/**
+	 * @param HtmlTag $tag
+	 * @param array $attributes
+	 */
+	public function decorateHtmlTag($tag, array $attributes)
+	{
+		if (! $tag instanceof HtmlTag) {
+			return null;
+		}
+
+		foreach ($attributes as $name => $value) {
+			$tag->setAttribute($name, $value);
+		}
+
+		return $tag;
+	}
+
+	/**
+	 * @return PageExecutionContext
+	 * @throws \LogicException
+	 */
+	private function getPageExecutionContext()
+	{
+		if ($this->pageExecutionContext === null) {
+			throw new \LogicException('Not in page controller execution context.');
+		}
+		return $this->pageExecutionContext;
+	}
+
+	/**
+	 * @return BlockExecutionContext
+	 * @throws \LogicException
+	 */
+	private function getBlockExecutionContext()
+	{
+		if ($this->blockExecutionContext === null) {
+			throw new \LogicException('Not in block controller execution context.');
+		}
+		return $this->blockExecutionContext;
+	}
 }

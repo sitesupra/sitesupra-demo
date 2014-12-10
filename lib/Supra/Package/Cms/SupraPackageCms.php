@@ -197,7 +197,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			array('pdf', 'xls', 'xlsx', 'doc', 'docx', 'swf'));
 
 		$container->setParameter($this->getName().'.media_library_check_file_existence', 'full');
-
+		
 	}
 
 	public function finish(ContainerInterface $container)

@@ -90,6 +90,14 @@ class ImageTag extends HtmlTag
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getSrc()
+	{
+		return $this->getPath();
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public function toHtml()

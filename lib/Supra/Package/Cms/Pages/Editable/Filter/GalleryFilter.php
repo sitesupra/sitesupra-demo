@@ -9,6 +9,7 @@ use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 use Supra\Package\Cms\Pages\Html\ImageTag;
+use Supra\Package\Cms\Pages\Gallery\GalleryImage;
 
 class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 {
@@ -43,7 +44,7 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 
 			if ($image) {
 
-				$tag = new ImageTag($image, $fileStorage);
+				$tag = new GalleryImage($image, $fileStorage);
 
 				$tags[] = $tag;
 			}
