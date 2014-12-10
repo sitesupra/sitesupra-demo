@@ -1,9 +1,0 @@
-<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="{{ width }}" height="{{ height }}">
-	{% if clickTag %}
-		<param name="movie" value="{{ swfUrl }}?clickTAG={{ clickTag }}" />	
-	{% else %}
-		<param name="movie" value="{{ swfUrl }}" />
-	{% endif %}
-	<param name="wmode" value="transparent" />
-	<embed src="{{ swfUrl }}?clickTAG={{ clickTag }}" wmode="transparent" width="{{ width }}" height="{{ height }}" type="application/x-shockwave-flash" pluginspage="http://get.adobe.com/flashplayer/" />
-</object>
