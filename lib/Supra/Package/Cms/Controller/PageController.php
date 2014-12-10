@@ -2,8 +2,11 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Doctrine\ORM\Query;
+use Supra\Package\Cms\SQL\AuditWalker;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Supra\Core\Controller\Controller;
 use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
@@ -70,6 +73,24 @@ class PageController extends Controller
 	 */
 	public function indexAction(Request $request)
 	{
+		$qb = $this->container->getDoctrine()->getManager()
+			->createQueryBuilder();
+
+		$qb->select('p')
+			->from('Cms:Page', 'p')
+			->join('p.localizations', 'l')
+			->where('p.right < 1000')
+			->andWhere('l.id < 1000000')
+			->getQuery()
+			->setHint(Query::HINT_CUSTOM_OUTPUT_WALKER, 'Supra\Package\Cms\SQL\AuditWalker')
+			->setHint(Query::HINT_CUSTOM_TREE_WALKERS, array('Supra\Package\Cms\AST\AuditWalker'))
+			->setHint(AuditWalker::QUERY_HINT_AUDIT_MANAGER, $this->container['entity_audit.manager'])
+			->setHint(AuditWalker::QUERY_HINT_REVISION, 30)
+			->getResult();
+
+
+
+		//return new Response('<html><head></head><body></body></html>');
 		return $this->execute(
 				$this->createPageRequest($request)
 		);

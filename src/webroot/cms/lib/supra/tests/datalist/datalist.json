@@ -1,0 +1,23 @@
+<?php
+	$from = (isset($_GET['offset']) ? $_GET['offset'] : 0);
+	$count = (isset($_GET['resultsPerRequest']) ? $_GET['resultsPerRequest'] : 20);
+	$total = 200;
+	$query = (isset($_GET['query']) ? $_GET['query'] : '');
+	
+	$to = min($total, $from + $count);
+	$data = array();
+	
+	for ($i=$from; $i<$to; $i++) {
+		$data[] = array(
+			'id' => $i + 1,
+			'title' => 'Item ' . ($query ? $query . ' ' : '') . ($i + 1)
+		);
+	}
+?>
+{
+	"status": 1,
+	"data": {
+		"total": <?php echo $total; ?>,
+		"results": <?php echo json_encode($data); ?>
+	}
+}

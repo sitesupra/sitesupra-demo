@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ComboBox</title>
+	
+	<script src="/cms/lib/pack.js"></script>
+	<link rel="stylesheet" type="text/css" href="/cms/lib/pack.css" />
+	<style>
+		.debug {color: #fff;}
+	</style>
+</head>
+<body class="yui3-skin-supra">
+	
+	<div class="root">
+		<a><span class="target"></span></a>
+	</div>
+	
+	<div class="debug"></div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+	
+		Supra('supra.manager', function (Y) {
+			
+			// Listeners
+			Y.one('.root').on('contentresize', function (e) {
+				console.log(e);
+				Y.one('.debug').getDOMNode().innerHTML += 'Captured on YUI body<br />';
+			});
+			
+			// Fire
+			Y.one('.target').fire('contentresize');
+			
+		});
+		
+	//]]>
+	</script>
+	
+</body>
+</html>

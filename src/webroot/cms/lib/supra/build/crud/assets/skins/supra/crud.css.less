@@ -1,0 +1,131 @@
+@import "/cms/lib/supra/less/common.less";
+
+.su-crud {
+	height: 100%;
+	width: 100%;
+	
+	&.su-crud-hidden {
+		display: none;
+	}
+	
+	.align-right {
+		float: right;
+	}
+	
+	.view-controls {
+		height: 58px;
+		padding: 12px 20px 5px 19px;
+		background: url(/cms/lib/supra/img/sidebar/left-header-bg.gif) 0 0 repeat;
+		border-bottom: 1px solid #b3b3c3;
+		overflow: hidden;
+		.clear-fix();
+		.box-sizing(border-box);
+		
+		.quick-filters {
+			margin: 0 auto;
+			max-width: 400px;
+			height: 40px;
+			
+			.yui3-input {
+				margin: 0;
+			}
+		}
+		.quick-filters-search {
+			position: absolute;
+			right: 0;
+			top: 0;
+			padding: 12px 20px 0 0;
+			overflow: hidden;
+			
+			.yui3-input-string,
+			.advanced-filters-toggle {
+				float: left;
+			}
+			.advanced-filters-toggle {
+				display: block;
+				line-height: 28px;
+				margin-left: 20px;
+				color: #fff;
+			}
+		}
+		.advanced-filters {
+			padding: 0 20px 5px;
+			max-width: 800px;
+			margin: 0 auto;
+		}
+		
+		> .su-button,
+		.align-right .su-button {
+			// Vertically align
+			margin-top: 4px;
+		}
+	}
+	.view-content {
+		position: absolute;
+		left: 0;
+		top: 58px;
+		bottom: 0;
+		width: 100%;
+		
+		.su-datagrid-grid {
+			margin-left: 175px;
+			background: none;
+			.box-shadow (none);
+			.border-radius (none);
+			
+			.su-datagrid-content {
+				// Remove unnecessary left padding created by scroll,
+				// because DataTable is not at the left side of the view anymore
+				padding-left: 0;
+			}
+			
+			table {
+				margin-top: 0;
+				width: 100%;
+			}
+		}
+		/*
+		tr.yui3-dd-dragging {
+			background: #3b96ec;
+			td {
+				.box-shadow (0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 -1px 0 rgba(0, 0, 0, 0.5) inset);
+			}
+		}
+		*/
+	}
+	
+	/*
+	 * Form
+	 */
+	.view-form {
+		.yui3-form {
+			width: 600px;
+			margin: 0 auto;
+			padding-top: 20px;
+		}
+	}
+	
+	/*
+	 * Recycle bin
+	 */
+	.block-inset {
+		.border-radius (8px);	
+		.box-shadow (0, 2px, 3px, rgba(0, 0, 0, 0.75) inset);
+		background: rgba(35, 33, 42, 0.5);
+	}
+	
+	/*
+	 * Loading state
+	 */
+	.loading-icon {
+		display: none;
+	}
+	&.loading {
+		.su-slideshow {
+			visibility: hidden;
+		}
+		.loading-icon {
+			display: block;
+		}
+	}
+}

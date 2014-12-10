@@ -298,3 +298,8 @@ routes:
         controller:                     Cms:Recycle:loadPages
         options:
             frontend:                   true
+    pagehistory_load:
+        pattern:                        %cms.prefix%/content-manager/pagehistory/load
+        controller:                     Cms:PageHistory:load
+        options:
+            frontend:                   true

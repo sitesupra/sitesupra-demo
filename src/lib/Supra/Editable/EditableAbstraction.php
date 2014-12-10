@@ -208,6 +208,7 @@ abstract class EditableAbstraction implements EditableInterface
 	{
 		$this->group = $groupId;
 	}
+	
 	/**
 	 * @param string $localeId
 	 * @return mixed 

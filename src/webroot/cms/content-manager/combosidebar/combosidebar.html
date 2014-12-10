@@ -1,0 +1,43 @@
+<div class="su-combosidebar sidebar">
+	
+	<!-- Header -->
+	<div class="sidebar-header">
+		<!-- Icon and title -->
+		<img src="/cms/lib/supra/img/sidebar/icons/combo.png" alt="" />
+		
+		<!-- Control button -->
+		<button type="button" class="button-control"><p>{# buttons.done #}</p></button>
+		
+		<!-- Title -->
+		<h2></h2>
+	</div>
+	
+	<!-- Content -->
+	<div class="sidebar-content has-search has-footer has-header loading">
+		
+		<div class="search-box">
+			<input type="string" class="search" />
+		</div>
+		<div class="list-box">
+			
+		</div>
+		
+		<div class="loading-icon"></div>
+	</div>
+	
+	<!-- Footer -->
+	<div class="sidebar-footer">
+		<button>{# combosidebar.open_app #}</button>
+		<p class="description">{# combosidebar.description #}</p>
+	</div>
+	
+	{% template comboSidebarWrapper %}
+		<ul></ul>
+	{% endtemplate %}
+	{% template comboSidebarItem %}
+		<li><button>{{ title }}</button></li>
+	{% endtemplate %}
+	{% template comboSidebarItemEmpty %}
+		<li class="list-empty-message"><p>No results found</p></li>
+	{% endtemplate %}
+</div>

@@ -48,6 +48,11 @@ class FileStorageConfiguration implements ConfigurationInterface
 	public $folderUploadFilters = array();
 
 	/**
+	 * @var array
+	 */
+	public $fileProperties = array();
+
+	/**
 	 * @var mixed
 	 */
 	public $caller;
@@ -96,6 +101,11 @@ class FileStorageConfiguration implements ConfigurationInterface
 			}
 			
 			$storage->addFolderUploadFilter($filter);
+		}
+
+		foreach ($this->fileProperties as $propertyConfig) {
+			/* @var $propertyConfig FilePropertyConfiguration */
+			$storage->addFilePropertyConfiguration($propertyConfig);
 		}
 
 		if ($this->caller !== null) {

@@ -19,6 +19,7 @@ use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\Listener\LocaleDetectorListener;
 use Supra\Package\Cms\Twig\CmsExtension;
+use Supra\Package\CmsAuthentication\Controller\AuthController;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\CacheClearCommand;
 use Supra\Package\Framework\Command\CacheListCommand;
@@ -38,6 +39,7 @@ use Supra\Package\Framework\Command\SupraShellCommand;
 use Supra\Package\Framework\Listener\NotFoundAssetExceptionListener;
 use Supra\Package\Framework\Twig\FrameworkExtension;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Http\SecurityEvents;
 
 class SupraPackageFramework extends AbstractSupraPackage
 {
@@ -151,6 +153,20 @@ class SupraPackageFramework extends AbstractSupraPackage
 			$configuration->setAuditedEntityClasses($config['entities']);
 			$configuration->setGlobalIgnoreColumns($config['ignore_columns']);
 			$configuration->setRevisionTableName('su_' . $configuration->getRevisionTableName());
+
+			$container->getEventDispatcher()->addListener(AuthController::TOKEN_CHANGE_EVENT, function () use ($container, $configuration) {
+				$context = $container->getSecurityContext();
+
+				if ($context->getToken() &&
+					$context->getToken()->getUser()
+				) {
+					$configuration->setCurrentUsername($context->getToken()->getUser()->getUsername());
+				}
+			});
+
+			if (!$configuration->getCurrentUsername()) {
+				$configuration->setCurrentUsername('anonymous');
+			}
 
 			return $configuration;
 		};

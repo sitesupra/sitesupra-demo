@@ -1,0 +1,19 @@
+{
+	"data": {
+		
+		"crud": {
+			"new_item": "New",
+			"delete_confirmation": "Are you sure you want to delete selected item?",
+			
+			"filters": {
+				"advanced": "Advanced filters"
+			},
+			
+			"edit": {
+				"confirmation": "Would you like to save changes?"
+			}
+		}
+		
+	},
+	"status": 1
+}

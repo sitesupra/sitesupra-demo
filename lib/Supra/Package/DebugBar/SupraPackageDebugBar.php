@@ -5,6 +5,7 @@ namespace Supra\Package\DebugBar;
 use DebugBar\Bridge\DoctrineCollector;
 use DebugBar\Bridge\SwiftMailer\SwiftLogCollector;
 use DebugBar\Bridge\SwiftMailer\SwiftMailCollector;
+use DebugBar\DataCollector\PDO\PDOCollector;
 use DebugBar\StandardDebugBar;
 use Doctrine\DBAL\Logging\DebugStack;
 use Supra\Core\DependencyInjection\ContainerInterface;

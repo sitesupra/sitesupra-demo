@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Data List</title>
+	
+	<script src="/cms/lib/pack.js"></script>
+	<link rel="stylesheet" type="text/css" href="/cms/lib/pack.css" />
+	
+	<link rel="stylesheet" type="text/css" href="datalist.css" />
+</head>
+<body class="yui3-skin-supra">
+
+	<div class="cms-content" id="cmsContent">
+		
+		<div class="yui3-form-vertical">
+			<div class="layout-a ui-light ui-light-background"></div>
+			<div class="layout-b ui-light ui-light-background"></div>
+		</div>
+		
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+	
+		Supra('supra.manager', function (Y) {
+			
+			var APP_PATH = null,
+				STATIC_PATH = '/cms',
+				DYNAMIC_PATH = '/cms';
+			
+			//Set current manager paths
+			Supra.Manager.Loader.setStaticPath(STATIC_PATH);
+			Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
+			
+			var layout = Supra.Manager.getAction('LayoutContainers');
+			
+			layout.on('execute', function () {
+				
+				Supra('supra.datalist', function () {
+					
+					// --------------- Static data ---------------
+					var data = Array(200),
+						i = 0,
+						ii = data.length;
+					
+					for (; i<ii; i++) data[i] = {"id": i+1, "title": "Item " + (i+1)};
+					
+					var query_a = new Supra.Input.String();
+					
+					var list_a = new Supra.DataList({
+						itemTemplate: 'itemTemplate',
+						itemEmptyTemplate: 'itemTemplateEmpty',
+						scrollable: true,
+						data: data
+					});
+					
+					query_a.render(Y.one('.layout-a'));
+					list_a.render(Y.one('.layout-a'));
+					
+					// Filter
+					query_a.on('input', Supra.throttle(function (e) {
+						var query = e.value;
+						var filtered_data = Y.Array.map(data, function (item, index) {
+							if (item.title.indexOf(query) !== -1) return item;
+						});
+						
+						list_a.set('data', filtered_data);
+					}, 300, query_b, true));
+					
+					
+					
+					// --------------- Data from source ---------------
+					var list_b = new Supra.DataList({
+						itemTemplate: 'itemTemplate',
+						itemEmptyTemplate: 'itemTemplateEmpty',
+						scrollable: true,
+						dataSource: 'datalist.json'
+					});
+					
+					var query_b = new Supra.Input.String();
+					
+					query_b.render(Y.one('.layout-b'));
+					list_b.render(Y.one('.layout-b'));
+					
+					// Filter
+					query_b.on('input', Supra.throttle(function (e) {
+						list_b.set('dataSource', 'datalist.json?query=' + e.value);
+					}, 300, query_b, true));
+					
+					window.list_a = list_a;
+					window.list_b = list_b;
+				})
+				
+			});
+			
+			layout.execute();
+			
+		});
+		
+	//]]>
+	</script>
+	
+	<script type="text/template" id="itemTemplate">
+		<li data-id="{{ id }}">{{ title }}</li>
+	</script>
+	<script type="text/template" id="itemTemplateEmpty">
+		<li>No results found</li>
+	</script>
+	
+</body>
+</html>

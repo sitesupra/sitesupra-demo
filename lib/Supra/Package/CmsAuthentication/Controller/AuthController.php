@@ -23,6 +23,7 @@ class AuthController extends Controller
 	const POST_AUTHENTICATE_EVENT = 'cms_authentication.post_authenticate';
 	const AUTHENTICATION_EXCEPTION_EVENT = 'cms_authentication.exception';
 	const AUTHENTICATION_RESULT_EVENT = 'cms_authentication.result';
+	const TOKEN_CHANGE_EVENT = 'cms_authentication.token_change';
 
 	/**
 	 * @var string
@@ -103,6 +104,9 @@ class AuthController extends Controller
 
 		if ($result instanceof TokenInterface) {
 			$this->container->getSecurityContext()->setToken($result);
+
+			$event = new DataAgnosticEvent();
+			$this->container->getEventDispatcher()->dispatch(self::TOKEN_CHANGE_EVENT, $event);
 
 			return new Response(
 				self::EMPTY_BODY
