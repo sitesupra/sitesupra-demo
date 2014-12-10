@@ -10,9 +10,9 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "doctrine/common": "2.3.*",
-        "doctrine/dbal": "2.3.*",
-        "doctrine/orm": "2.3.*",
+        "doctrine/common": "2.4.*",
+        "doctrine/dbal": "2.4.*",
+        "doctrine/orm": "2.4.*",
         "twig/twig": "1.*",
         "twig/extensions": "1.1.*",
         "symfony/twig-bridge": "2.2.*",
