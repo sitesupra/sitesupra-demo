@@ -20,6 +20,7 @@
 	right: 0;
 	width: 17%;
 	border-left: 1px solid #000;
+	min-width: 251px;
 }
 .left-container {
 	left: 0;
@@ -51,6 +52,11 @@
   transition: none !important;
 }
 
+.no-pointer-events {
+	// Disable pointer events
+	pointer-events: none !important;
+}
+
 /**
  * Sidebar block
  */
@@ -63,6 +69,9 @@
 		position: relative;
 		z-index: 12;
 	}
+}
+.dark-ui .sidebar-header {
+	border: 0;
 }
 
 /**
@@ -77,10 +86,10 @@
 	
 	padding: 8px 10px;
 	margin: 0;
-	position: relative;
 }
-.right-container .yui3-form-default h2 {
+.right-container .su-form-default h2 {
 	margin: 0 -10px;
+	position: relative;
 }
 
 /**
@@ -103,6 +112,7 @@
 		margin-right: 10px;
 	}
 	.button-control {
+		position: relative;
 		float: right;
 		margin-left: -55px;
 	}
@@ -234,7 +244,7 @@ a.button-section {
 a.button-section + a.button-section {
 	margin-top: 15px;
 }
-.yui3-input + a.button-section.hidden + a.button-section {
+.su-input + a.button-section.hidden + a.button-section {
 	margin-top: 25px;
 }
 
@@ -271,16 +281,17 @@ div.button-section {
 	}
 }
 
-.yui3-form .su-button.button-section,
-.yui3-form .su-button.su-button-fill {
+.su-form .su-button.button-section,
+.su-form .su-button.su-button-fill {
 	// Same effect as input margins
 	margin-bottom: 10px;
 }
-.yui3-form-default .su-button.button-section,
-.yui3-form-default .su-button.su-button-fill {
+.su-form-default .su-button.button-section,
+.su-form-default .su-button.su-button-fill {
 	&, div {
 		display: inline-block;
-		width: 400px;
+		max-width: 400px;
+		width: 100%;
 		.box-sizing (border-box);
 	}
 }
@@ -306,8 +317,8 @@ div.button-section {
 		/*
 		 * Inputs
 		 */
-		.yui3-form-content > .yui3-input:first-child,
-		.su-slide-content > .yui3-input:first-child {
+		.su-form-content > .su-input:first-child,
+		.su-slide-content > .su-input:first-child {
 			margin-top: 0;
 		}
 	}
@@ -317,17 +328,17 @@ div.button-section {
 	width: 100%;
 	height: 100%;
 	
-	&.yui3-form,
-	&.yui3-form .yui3-form-content {
+	&.su-form,
+	&.su-form .su-form-content {
 		margin: 0;
 	}
-	&.yui3-form .yui3-form-content {
+	&.su-form .su-form-content {
 		width: 100%;
 		height: 100%;
 		padding: 0;
 		overflow: hidden;
 	}
-	&.yui3-form .su-slide-content {
+	&.su-form .su-slide-content {
 		padding: 0 18px;
 	}
 }
@@ -341,13 +352,13 @@ div.button-section {
 	 * Inner style
 	 * Inside form is slideshow
 	 */
-	.yui3-form {
-		&, .yui3-form-content {
+	.su-form {
+		&, .su-form-content {
 			width: 100%;
 			height: 100%;
 			margin: 0;
 		}
-		.yui3-form-content {
+		.su-form-content {
 			padding: 0;
 			overflow: hidden;
 		}
@@ -361,13 +372,13 @@ div.button-section {
 	 * Scrollable content
 	 */
 	.sidebar-content.scrollable {
-		.yui3-form,
-		.yui3-form .yui3-form-content {
+		.su-form,
+		.su-form .su-form-content {
 			height: auto;
 			width: auto;
 			overflow: visible;
 		}
-		.yui3-form .yui3-form-content {
+		.su-form .su-form-content {
 			padding: 0 0 0 18px;
 		}
 	}
@@ -382,7 +393,7 @@ div.button-section {
 	/*
 	 * Buttons
 	 */
-	.sidebar-content .yui3-form-content,
+	.sidebar-content .su-form-content,
 	.sidebar-content .su-slide-content {
 		&,
 		& > div {

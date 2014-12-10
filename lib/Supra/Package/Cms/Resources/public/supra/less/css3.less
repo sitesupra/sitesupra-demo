@@ -167,22 +167,56 @@
 /*
  * Loading icon
  */
-.loading-icon-mixin (@size: 30px) {
+.loading-icon-mixin (@size: 30px, @borderSize: 5px) {
 	position: absolute;
 	left: 50%;
 	top: 50%;
 	margin: -@size/2 0 0 -@size/2;
 	
-	border: 5px solid #C1C0CA;
-	border-top: 5px solid transparent;
-	border-left: 5px solid transparent;
-	.border-radius (@size*2-10px);
+	border: @borderSize solid #C1C0CA;
+	border-top: @borderSize solid transparent;
+	border-left: @borderSize solid transparent;
+	.border-radius (@size*2-@borderSize*2);
 	width: @size;
 	height: @size;
 	
 	.animation (spin .75s infinite linear);
 }
+.loading-icon-size-mixin (@size: 30px, @borderSize: 5px) {
+	margin: -@size/2 0 0 -@size/2;
+	
+	border-width: @borderSize;
+	border-top-width: @borderSize;
+	border-left-width: @borderSize;
+	.border-radius (@size*2-@borderSize*2);
+	width: @size;
+	height: @size;
+}
 .loading-icon-mixin-light () {
 	border-right-color: rgba(255, 255, 255, 0.3);
 	border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+
+//
+// ------------------ Form ------------------
+//
+
+		
+//
+// .placeholder-color (#000)
+//
+.placeholder-color (@color) {
+	&::-webkit-input-placeholder { color: @color; }
+	&:-moz-placeholder { color: @color; }
+	&::-moz-placeholder { color: @color; }
+	&:-ms-input-placeholder { color: @color; }
+	&:input-placeholder { color: @color; }
+}
+
+//
+// .placeholder-hidden ()
+//
+.placeholder-hidden () {
+	.placeholder-color (transparent);
 }

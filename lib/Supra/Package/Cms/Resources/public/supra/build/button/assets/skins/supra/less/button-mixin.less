@@ -1,29 +1,20 @@
 /* Button background image mixin */
 .button-background ( @image ) {
-	&,
-	div,
-	button {
-		background-image: @image;
-	}
+	background-image: @image, @image, @image;
 }
 
 /* Button mixin */
 .button ( @image, @height, @offset: 0) {
 	.button-background (@image);
-	background-position: 100% @offset*-1-@height*2;
+	background-position: 0 @offset*-1, 100% @offset*-1-@height*2, 0 @offset*-1-@height;
 	
 	&,
 	div {
 		.border-radius (3px);
 	}
-	
-	div {
-		background-position: 0 @offset*-1;
-	}
 	button {
 		height: @height;
 		overflow: hidden;
-		background-position: 0 @offset*-1-@height;
 	}
 	p {
 		height: @height;
@@ -33,36 +24,15 @@
 	
 	&.su-button-focused,
 	&.su-button-mouse-hover {
-		background-position: 100% @offset*-1-@height*5;
-		
-		div {
-			background-position: 0 @offset*-1-@height*3;
-		}
-		button {
-			background-position: 0 @offset*-1-@height*4;
-		}
+		background-position: 0 @offset*-1-@height*3, 100% @offset*-1-@height*5, 0 @offset*-1-@height*4;
 	}
 	
 	&.su-button-down,
 	&.su-button-mouse-down {
-		background-position: 100% @offset*-1-@height*8;
-		
-		div {
-			background-position: 0 @offset*-1-@height*6;
-		}
-		button {
-			background-position: 0 @offset*-1-@height*7;
-		}
+		background-position: 0 @offset*-1-@height*6, 100% @offset*-1-@height*8, 0 @offset*-1-@height*7;
 	}
 	
 	&.su-button-disabled {
-		background-position: 100% @offset*-1-@height*11;
-		
-		div {
-			background-position: 0 @offset*-1-@height*9;
-		}
-		button {
-			background-position: 0 @offset*-1-@height*10;
-		}
+		background-position: 0 @offset*-1-@height*9, 100% @offset*-1-@height*11, 0 @offset*-1-@height*10;
 	}
 }

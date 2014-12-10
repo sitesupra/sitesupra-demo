@@ -73,6 +73,9 @@ cms_resources:
         - public/cms/yui.3.5.0/build/dom-core/dom-core-min.js
         - public/cms/yui.3.5.0/build/dom-base/dom-base-min.js
         - public/cms/supra/build/dom/dom.js
+        - public/cms/supra/build/dom/dom-screen.js
+        - public/cms/supra/build/dom/dom-style.js
+        - public/cms/supra/build/dom/dom-style-reset.js
         - public/cms/yui.3.5.0/build/selector-native/selector-native-min.js
         - public/cms/yui.3.5.0/build/selector/selector-min.js
         - public/cms/yui.3.5.0/build/node-core/node-core-min.js
