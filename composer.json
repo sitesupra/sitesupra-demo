@@ -34,9 +34,15 @@
         "monolog/monolog": "1.*",
         "nelmio/alice": "1.*",
         "myclabs/deep-copy": "*",
-        "simplethings/entity-audit-bundle": "dev-master",
+        "simplethings/entity-audit-bundle": "dev-lazy_loading",
         "gedmo/doctrine-extensions": "v2.3.9"
     },
+    "repositories": [
+        {
+            "type": "git",
+            "url":  "https://github.com/SiteSupra/EntityAudit.git"
+        }
+    ],
     "autoload": {
         "psr-0": {
             "Supra\\": "src\\lib",
