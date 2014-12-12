@@ -60,11 +60,14 @@ class LinkFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 
 				$tag = new HtmlTag('a', $title ? $title : $url);
 
-				$tag->setAttribute('target', $element->getTarget())
-						->setAttribute('title', $title)
+				$tag->setAttribute('title', $title)
 						->setAttribute('href', $url)
 						->setAttribute('class', $element->getClassName())
 				;
+
+				if (($target = $element->getTarget()) !== null) {
+					$tag->setAttribute('target', $target);
+				}
 
 				switch ($element->getResource()) {
 					case LinkReferencedElement::RESOURCE_FILE:
