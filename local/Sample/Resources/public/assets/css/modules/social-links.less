@@ -1,0 +1,71 @@
+.social-links {
+	text-align: center;
+	overflow: hidden;
+	
+	a {
+		display: inline-block;
+		position: relative;
+		width: 40px;
+		height: 40px;
+		border-radius: 2px;
+		margin-left: 32px;
+		background: url(../img/social-links/icons.png) 0 0 no-repeat;
+		text-indent: -9000px;
+		.transition (background-color 0.1s);
+		
+		&:hover {
+			background-color: #ebebeb;
+		}
+		&:before {
+			content: "";
+			display: block;
+			position: absolute;
+			height: 46px;
+			top: -3px;
+			left: -16px;
+			border-left: 1px solid #ebebeb;
+			pointer-events: none;
+		}
+	}
+	a:first-child {
+		margin-left: 0;
+		
+		&:before {
+			display: none;
+		}
+	}
+	
+	.facebook {
+		background-position: 100% 0;
+	}
+	.twitter {
+		background-position: 100% -40px;
+	}
+	.youtube {
+		background-position: 100% -80px;
+	}
+	.rss {
+		background-position: 100% -120px;
+	}
+	.flickr {
+		background-position: 100% -160px;
+	}
+}
+
+.footer .social-links {
+	a {
+		&:hover {
+			background-color: #f35023;
+		}
+		&:before {
+			border-color: #f35023;
+		}
+	}
+	.facebook,
+	.twitter,
+	.youtube,
+	.rss,
+	.flickr {
+		background-position-x: 0%;
+	}
+}

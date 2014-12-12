@@ -5,17 +5,7 @@
  */
 "use strict";
 
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery', 'app/refresh'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all dependencies are already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery', 'app/refresh'], function ($) {
 	
 	/*
      * On property change update texts
@@ -39,4 +29,4 @@
 		}
 	});
 	
-}));
+});
