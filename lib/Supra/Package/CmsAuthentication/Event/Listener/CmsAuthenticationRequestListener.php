@@ -48,8 +48,7 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 					$session->get($tokenParameter)
 				);
 
-				$event = new DataAgnosticEvent();
-				$this->container->getEventDispatcher()->dispatch(AuthController::TOKEN_CHANGE_EVENT, $event);
+				$this->container->getEventDispatcher()->dispatch(AuthController::TOKEN_CHANGE_EVENT, new DataAgnosticEvent());
 			}
 
 			//non-authorized users that are not on anonymous paths are getting redirected to login
