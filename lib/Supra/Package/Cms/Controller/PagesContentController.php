@@ -853,7 +853,7 @@ class PagesContentController extends AbstractPagesController
 
 				'active'			=> $localization->isActive(),
 
-				// Used template info
+				// template info
 				'template'			=> array(
 					'id'	=> $localization->getTemplate()->getId(),
 					'title' => $localization->getTemplateLocalization()->getTitle(),
