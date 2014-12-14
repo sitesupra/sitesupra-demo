@@ -184,21 +184,39 @@ class PagesContentController extends AbstractPagesController
 
 	public function publishAction()
 	{
-		$auditManager = $this->container['entity_audit.manager'];
-		/* @var $auditManager \SimpleThings\EntityAudit\AuditManager */
-		$auditReader = $auditManager->createAuditReader($this->getEntityManager());
-		/* @var $auditReader \SimpleThings\EntityAudit\AuditReader */
+		$auditReader = $this->getAuditReader();
 
 		$localization = $this->getPageLocalization();
 
+		if ($localization instanceof PageLocalization) {
+			// check the template localization first.
+			// if it was never published before, publish it too.
+			$templateLocalization = $localization->getTemplateLocalization();
+
+			if (! $templateLocalization->isPublished()) {
+				$templateLocalization->updatePublishTime();
+
+				$this->getEntityManager()
+					->flush($templateLocalization);
+
+				$templateLocalization->setPublishedRevision(
+						$auditReader->getCurrentRevision(
+							$templateLocalization::CN(),
+							$templateLocalization->getId()
+				));
+			}
+		}
+
 		$localization->updatePublishTime();
 
-		$revisions = $auditReader->findRevisionHistory(1);
+		$this->getEntityManager()
+				->flush($localization);
 
-		$localization->setPublishedRevision($revisions[0]->getRev());
+		$currentRevision = $auditReader->getCurrentRevision($localization::CN(), $localization->getId());
 
-		$this->getEntityManager()->flush($localization);
-
+		$this->getEntityManager()->createQuery(sprintf(
+				'UPDATE %s l SET l.publishedRevision = ?0 WHERE l.id = ?1', $localization::CN()
+				))->execute(array($currentRevision, $localization->getId()));
 
 //		$pageRequest = $this->createPageRequest();
 //
@@ -809,7 +827,7 @@ class PagesContentController extends AbstractPagesController
 			'localizations'		=> $allLocalizationData,
 
 			// Editing Lock info
-			'lock'				=> $this->getLocalizationLockData($localization),
+			'lock'				=> $this->getLocalizationEditLockData($localization),
 
 			// Common properties
 			'is_visible_in_menu'	=> $localization->isVisibleInMenu(),

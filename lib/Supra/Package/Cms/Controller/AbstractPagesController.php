@@ -16,7 +16,7 @@ use Supra\Package\Cms\Entity\GroupPage;
 use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\ReferencedElement;
 use Supra\Package\Cms\Entity\PageLocalization;
-use Supra\Package\Cms\Entity\LockData;
+use Supra\Package\Cms\Entity\EditLock;
 use Supra\Package\Cms\Entity\ApplicationPage;
 use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
@@ -84,6 +84,11 @@ abstract class AbstractPagesController extends AbstractCmsController
 	private $lockTransactionOpened = false;
 
 	/**
+	 * @var \SimpleThings\EntityAudit\AuditReader
+	 */
+	private $auditReader;
+
+	/**
 	 * @return \Doctrine\ORM\EntityManager
 	 */
 	protected function getEntityManager()
@@ -91,6 +96,21 @@ abstract class AbstractPagesController extends AbstractCmsController
 		return $this->container
 				->getDoctrine()
 				->getManager();
+	}
+
+	/**
+	 * @return \SimpleThings\EntityAudit\AuditReader
+	 */
+	protected function getAuditReader()
+	{
+		if ($this->auditReader === null) {
+			$auditManager = $this->container['entity_audit.manager'];
+			/* @var $auditManager \SimpleThings\EntityAudit\AuditManager */
+			$this->auditReader = $auditManager->createAuditReader($this->getEntityManager());
+			/* @var $auditReader \SimpleThings\EntityAudit\AuditReader */
+		}
+		
+		return $this->auditReader;
 	}
 
 	/**
@@ -827,7 +847,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Sets page lock, if no lock is found, or if "force"-locking is used;
+	 * Sets page lock, if no lock is found, or if force is used;
 	 * will output current lock data if page locked by another user and
 	 * force action is not allowed or not provided
 	 */
@@ -851,8 +871,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 				$this->createLock();
 			}
 		} catch (ObjectLockedException $e) {
-			if ( ! $force) {
-				return new SupraJsonResponse($this->getLocalizationLockData($localization));
+			if (! $force) {
+				return new SupraJsonResponse($this->getLocalizationEditLockData($localization));
 			}
 		}
 
@@ -860,7 +880,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Creates localization editing lock object.
+	 * Creates localization edit lock object.
 	 */
 	protected function createLock()
 	{
@@ -872,7 +892,10 @@ abstract class AbstractPagesController extends AbstractCmsController
 		
 		$localization = $this->getPageLocalization();
 
-		$lock = new LockData($user, $localization);
+		$currentRevision = $this->getAuditReader()
+				->getCurrentRevision($localization::CN(), $localization->getId());
+
+		$lock = new EditLock($user, $localization, $currentRevision);
 
 		$entityManager = $this->getEntityManager();
 
@@ -1501,7 +1524,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 * @param Localization $localization
 	 * @return array | null
 	 */
-	protected function getLocalizationLockData(Localization $localization)
+	protected function getLocalizationEditLockData(Localization $localization)
 	{
 		if (! $localization->isLocked()) {
 			return null;
@@ -1544,11 +1567,14 @@ abstract class AbstractPagesController extends AbstractCmsController
 	{
 		$template = $localization->getTemplate();
 
+		$currentRevision = $this->getAuditReader()
+				->getCurrentRevision($localization::CN(), $localization->getId());
+		
 		$publishedLocalization = $this->findLocalizationPublishedVersion($localization);
 
-		//todo: reimplement with audit
-		$isLatestVersionPublished = false;//= ($publishedLocalization
-				//&& $publishedLocalization->getRevision() === $localization->getRevision());
+		// @TODO: add to int cast inside AuditReader.
+		$isLatestVersionPublished = $localization->isPublished()
+				&& $localization->getPublishedRevision() === (int) $currentRevision;
 
 		// main data
 		$localizationData = array(
@@ -1670,10 +1696,15 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 */
 	private function findLocalizationPublishedVersion(Localization $localization)
 	{
-		$entityManager = $this->container->getDoctrine()
-				->getManager();
+		if (! $localization->isPublished()) {
+			return null;
+		}
 
-		return $entityManager->find(Localization::CN(), $localization->getId());
+		return $this->getAuditReader()->find(
+				$localization::CN(),
+				$localization->getId(),
+				$localization->getPublishedRevision()
+		);
 	}
 
 	/**

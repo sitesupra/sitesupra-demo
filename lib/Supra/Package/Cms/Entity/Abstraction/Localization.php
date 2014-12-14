@@ -4,7 +4,7 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Supra\Package\Cms\Entity\LockData;
+use Supra\Package\Cms\Entity\EditLock;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\GroupLocalization;
 use Supra\Package\Cms\Entity\TemplateLocalization;
@@ -31,7 +31,6 @@ use Supra\AuditLog\TitleTrackingItemInterface;
 abstract class Localization extends Entity implements
 		TitleTrackingItemInterface,
 		LocalizationInterface
-
 {
 
 	const CHANGE_FREQUENCY_HOURLY = 'hourly';
@@ -68,9 +67,10 @@ abstract class Localization extends Entity implements
 	protected $master;
 
 	/**
-	 * Object's lock
-	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\LockData", cascade={"persist", "remove"})
-	 * @var LockData
+	 * Edit lock.
+	 * 
+	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\EditLock", cascade={"persist", "remove"})
+	 * @var EditLock
 	 */
 	protected $lock;
 
@@ -156,6 +156,7 @@ abstract class Localization extends Entity implements
 
 	/**
 	 * Last publish time.
+	 * @Column(type="datetime", nullable=true)
 	 * @var \DateTime
 	 */
 	protected $publishTime;
@@ -510,8 +511,9 @@ abstract class Localization extends Entity implements
 	}
 
 	/**
-	 * Returns page lock object
-	 * @return LockData
+	 * Returns page editing lock.
+	 *
+	 * @return EditLock
 	 */
 	public function getLock()
 	{
@@ -527,10 +529,11 @@ abstract class Localization extends Entity implements
 	}
 
 	/**
-	 * Sets page lock object
-	 * @param LockData $lock 
+	 * Lock for editing.
+	 * 
+	 * @param EditLock $lock
 	 */
-	public function setLock($lock)
+	public function setLock(EditLock $lock = null)
 	{
 		$this->lock = $lock;
 	}
@@ -921,7 +924,7 @@ abstract class Localization extends Entity implements
 	}
 
 	/**
-	 * @return bool
+	 * @return int
 	 */
 	public function getPublishedRevision()
 	{
