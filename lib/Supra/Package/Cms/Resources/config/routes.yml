@@ -182,6 +182,9 @@ routes:
     cms_pages_content_blocks_move:
         pattern:						%cms.prefix%/content-manager/pagecontent/moveblocks
         controller:					Cms:PagesContent:moveBlocks
+    cms_pages_content_placeholder_save:
+        pattern:						%cms.prefix%/content-manager/pagecontent/save-placeholder
+        controller:					Cms:PagesContent:savePlaceHolder
 
     backoffice_users:
         pattern:                        %cms.prefix%/internal-user-manager

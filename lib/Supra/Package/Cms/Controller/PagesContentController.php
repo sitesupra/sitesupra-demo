@@ -766,6 +766,49 @@ class PagesContentController extends AbstractPagesController
 	}
 
 	/**
+	 * @return SupraJsonResponse
+	 */
+	public function savePlaceHolderAction()
+	{
+		$this->isPostRequest();
+		$this->checkLock();
+		
+		$input = $this->getRequestInput();
+
+		$localization = $this->getPageLocalization();
+
+		if (! $localization instanceof TemplateLocalization) {
+			throw new \RuntimeException('Only template placeholders are editable.');
+		}
+
+		$name = $input->get('place_holder_id');
+
+		$placeHolder = $localization->getPlaceHolders()
+				->get($name);
+		/* @var $placeHolder TemplatePlaceHolder */
+
+		if ($placeHolder === null) {
+			throw new CmsException(sprintf('Placeholder [%s] were not found.', $name));
+		}
+
+		if (! $placeHolder instanceof TemplatePlaceHolder) {
+			throw new \LogicException(sprintf(
+					'Expecting instanceof TemplatePlaceHolder, [%s] received.',
+					get_class($placeHolder)
+			));
+		}
+
+		$placeHolder->setLocked(
+				$input->filter('locked', false, false, FILTER_VALIDATE_BOOLEAN)
+		);
+
+		$this->getEntityManager()
+				->flush($placeHolder);
+
+		return new SupraJsonResponse();
+	}
+
+	/**
 	 * @param \Doctrine\ORM\EntityManager $entityManager
 	 * @param Localization $localization
 	 */
