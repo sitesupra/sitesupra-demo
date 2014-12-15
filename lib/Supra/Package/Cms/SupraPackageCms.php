@@ -4,6 +4,7 @@ namespace Supra\Package\Cms;
 
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Event\KernelEvent;
+use Supra\Core\Templating\TwigTemplating;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Detector\ParameterDetector;
@@ -24,6 +25,7 @@ use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
 use Supra\Package\Cms\Pages\Block\BlockCollection;
 use Supra\Package\Cms\Pages\Block\BlockGroupConfiguration;
 use Supra\Package\Cms\Pages\Twig\PageExtension;
+use Supra\Package\Cms\Pages\Layout\Processor\TwigProcessor;
 
 class SupraPackageCms extends AbstractSupraPackage
 {
@@ -157,6 +159,15 @@ class SupraPackageCms extends AbstractSupraPackage
 				KernelEvent::EXCEPTION,
 				array($container[$this->getName().'.cms_exception_listener'], 'listen')
 		);
+
+		$container[$this->getName() . '.pages.layout_processor'] = function ($container) {
+			$templating = $container->getTemplating();
+			if (! $templating instanceof TwigTemplating) {
+				throw new \RuntimeException('Twig layout processor requires twig templating engine.');
+			}
+
+			return new TwigProcessor($templating->getTwig());
+		};
 
 		//the mighty file storage
 		//todo: move to config.yml

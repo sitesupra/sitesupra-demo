@@ -35,6 +35,7 @@ class PageExtension extends \Twig_Extension
 		return array(
 			new \Twig_SimpleFunction('property', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertyNode', 'is_safe' => array('html'))),
 			new \Twig_SimpleFunction('isPropertyEmpty', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertyValueTestNode', 'is_safe' => array('html'))),
+			new \Twig_SimpleFunction('placeHolder', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\PlaceHolderNode', 'is_safe' => array('html'))),
 		);
 	}
 
@@ -56,7 +57,7 @@ class PageExtension extends \Twig_Extension
 		return array(
 			'supraBlock' => $this,	// @TODO: remove?
 			'supraPage'	=> $this,	// @TODO: remove?
-			'supra'		=> $this,	// @TODO: leave?
+			'supra'		=> $this,	// @TODO: leave? // @FIXME: conflicts with CMS extension
 		);
 	}
 
@@ -128,6 +129,14 @@ class PageExtension extends \Twig_Extension
 		}
 
 		return $tag;
+	}
+
+	/**
+	 * @return Localization
+	 */
+	public function getPage()
+	{
+		return $this->getPageExecutionContext()->localization;
 	}
 
 	/**

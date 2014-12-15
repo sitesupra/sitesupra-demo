@@ -132,8 +132,11 @@ class PageController extends Controller
 		$templating = $this->container->getTemplating();
 		
 		if ($templating instanceof TwigTemplating) {
+
+			$context = new PageExecutionContext($localization, $this, $this->pageRequest, $this->pageResponse);
+
 			$templating->getExtension('supraPage')
-					->setPageExecutionContext(new PageExecutionContext($localization, $this->pageRequest));
+					->setPageExecutionContext($context);
 		}
 
 		// Continue processing

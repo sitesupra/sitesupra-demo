@@ -2,33 +2,38 @@
 
 namespace Supra\Package\Cms\Pages\Layout\Processor;
 
-use Supra\Core\DependencyInjection\ContainerAware;
-use Supra\Core\DependencyInjection\ContainerInterface;
-use Supra\Core\Templating\Loader\TemplateLoader;
 use Supra\Package\Cms\Pages\Response\PageResponse;
+use Supra\Package\Cms\Pages\Twig\PlaceHolderNodeCollector;
 
 /**
  * Twig layout processor
  */
-class TwigProcessor implements ProcessorInterface, ContainerAware
+class TwigProcessor implements ProcessorInterface
 {
+	/**
+	 * @var \Twig_Environment
+	 */
+	protected $twig;
+
+	/**
+	 * @param \Twig_Environment $twig
+	 */
+	public function __construct(\Twig_Environment $twig)
+	{
+		$this->twig = $twig;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
 	public function process(PageResponse $response, array $placeResponses, $layoutSrc)
 	{
-		$twig = $this->createTwigEnvironment();
-
-		$twig->addFunction(new \Twig_SimpleFunction('placeHolder', function($name) use ($placeResponses) {
-			if (isset($placeResponses[$name])) {
-				echo $placeResponses[$name];
-			}
-		}));
-
-		$template = $twig->loadTemplate($layoutSrc);
+		if (! $this->twig->hasExtension('supraPage')) {
+			throw new \UnexpectedValueException('Missing for Supra Page extension.');
+		}
 
 		$response->setContent(
-				$template->render(array())
+				$this->twig->render($layoutSrc, array('responses' => $placeResponses))
 		);
 	}
 
@@ -37,44 +42,15 @@ class TwigProcessor implements ProcessorInterface, ContainerAware
 	 */
 	public function getPlaces($layoutSrc)
 	{
-		$twig = $this->createTwigEnvironment();
+		$tokenStream = $this->twig->tokenize(
+				$this->twig->getLoader()->getSource($layoutSrc)
+		);
 
-		$names = array();
+		$collector = new PlaceHolderNodeCollector();
+		$traverser = new \Twig_NodeTraverser($this->twig, array($collector));
 
-		$twig->addFunction(new \Twig_SimpleFunction('placeHolder', function($name) use (&$names) {
-			$names[] = $name;
-		}));
+		$traverser->traverse($this->twig->parse($tokenStream));
 
-		$template = $twig->loadTemplate($layoutSrc);
-
-		$template->render(array());
-
-		return $names;
-	}
-
-	/**
-	 * TemplateLoader needs the container.
-	 *
-	 * @param ContainerInterface $container
-	 */
-	public function setContainer(ContainerInterface $container)
-	{
-		$this->container = $container;
-	}
-
-	/**
-	 * @TODO: should obtain pre-configured Twig instance from somewhere else.
-	 *
-	 * @return \Twig_Environment
-	 */
-	protected function createTwigEnvironment()
-	{
-		$loader = new TemplateLoader();
-
-		$loader->setContainer($this->container);
-
-		$twig = new \Twig_Environment($loader);
-
-		return $twig;
+		return $collector->getCollectedNames();
 	}
 }

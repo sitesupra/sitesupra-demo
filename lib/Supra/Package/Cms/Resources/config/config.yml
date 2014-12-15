@@ -19,8 +19,6 @@ services:
         class: \Supra\Package\Cms\Pages\Layout\Theme\DefaultThemeProvider
     cms.pages.page_manager:
         class: \Supra\Package\Cms\Pages\PageManager
-    cms.pages.layout_processor:
-        class: \Supra\Package\Cms\Pages\Layout\Processor\TwigProcessor
     cms.pages.controller:
         class: \Supra\Package\Cms\Controller\PageController
 prefix: /backend
