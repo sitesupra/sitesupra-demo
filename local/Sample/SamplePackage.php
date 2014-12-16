@@ -3,9 +3,17 @@
 namespace Sample;
 
 use Supra\Package\Cms\AbstractSupraCmsPackage;
+use Supra\Core\DependencyInjection\ContainerInterface;
 
 class SamplePackage extends AbstractSupraCmsPackage
 {
+	public function inject(ContainerInterface $container)
+	{
+		$container->getRouter()->loadConfiguration(
+				$container->getApplication()->locateConfigFile($this, 'routes.yml')
+		);
+	}
+
 	public function getBlocks()
 	{
 		return array(
