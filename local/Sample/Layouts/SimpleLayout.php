@@ -1,6 +1,6 @@
 <?php
 
-namespace Sample\Theme\Layout;
+namespace Sample\Layouts;
 
 use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
 

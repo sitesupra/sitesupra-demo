@@ -1,0 +1,10 @@
+{% set item = set({'title', 'inline_string'}, {'content', 'html'}) %}
+
+<div class="accordion">
+	{% for item in collection(set) %}
+		<div class="item">
+			<h3>{{ item.title }}</h3>
+			<p>{{ item.content }}<p>
+		</div>
+	{% endfor %}
+</div>

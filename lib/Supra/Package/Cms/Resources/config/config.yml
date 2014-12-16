@@ -1,3 +1,5 @@
+active_theme: default
+
 services:
     supra.cms.doctrine.event_subscriber.versioned_entity_schema:
         class: \Supra\Package\Cms\Pages\Listener\VersionedEntitySchemaListener

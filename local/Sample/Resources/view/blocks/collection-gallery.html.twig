@@ -1,0 +1,18 @@
+<div class="gallery images">
+	{% for image in property('images') %}
+		{{ image }}
+	{% endfor %}
+</div>
+
+{# Instructions how to render item in CMS Gallery manager edit mode #}
+{% if supraPage.cmsRequest %}{% raw %}
+<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
+	<li class="one_third">
+		<span class="outer">
+			<span class="img">
+				<img src="about:blank" alt="" />
+			</span>
+		</span>
+	</li>
+</script>
+{% endraw %}{% endif %}
