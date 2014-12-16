@@ -1,7 +1,7 @@
 {
     "name": "sitesupra/sitesupra-standard",
     "description": "A standard installation of SiteSupra CMS - use it to bootstrap your project!",
-    "license": "MIT",
+    "license": "GPL-2.0",
     "authors": [
         {
             "name": "SiteSupra",
