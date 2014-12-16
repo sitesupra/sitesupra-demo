@@ -303,13 +303,23 @@ abstract class BlockConfiguration
 	}
 
 	/**
+	 * Sets controller class name for block.
+	 *
+	 * @param string $controllerClass
+	 */
+	public function setControllerClass($controllerClass)
+	{
+		$this->controllerClass = $controllerClass;
+	}
+
+	/**
 	 * Concrete classes should override this to configure block attributes.
 	 *
 	 * @param AttributeMapper $mapper
 	 */
 	protected function configureAttributes(AttributeMapper $mapper)
 	{
-		// empty
+		
 	}
 
 	/**
@@ -319,7 +329,7 @@ abstract class BlockConfiguration
 	 */
 	protected function configureProperties(PropertyMapper $mapper)
 	{
-		// empty
+		
 	}
 
 	/**
@@ -329,7 +339,7 @@ abstract class BlockConfiguration
 	 */
 	protected function configureCache(CacheMapper $mapper)
 	{
-		// empty
+		
 	}
 
 	/**

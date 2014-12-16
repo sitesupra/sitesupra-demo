@@ -61,6 +61,16 @@ class AttributeMapper extends Mapper
 	}
 
 	/**
+	 * @param string $controllerClass
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper
+	 */
+	public function controller($controllerClass)
+	{
+		$this->configuration->setControllerClass($controllerClass);
+		return $this;
+	}
+
+	/**
 	 * @TODO: refactor this.
 	 *
 	 * @internal
